@@ -8,6 +8,10 @@ import {
 	type AIAdapter,
 	type StorageAdapter
 } from './kernel/adapters.js';
+import {
+	realtimeAdapter as realtimeAdapterInstance,
+	type RealtimeAdapter
+} from './kernel/realtimeAdapter.js';
 
 class ConversationOrchestrator {
 	private kernel = createConversationKernel();
@@ -17,8 +21,21 @@ class ConversationOrchestrator {
 	constructor(
 		private audioAdapter: AudioAdapter = adapters.audio,
 		private aiAdapter: AIAdapter = adapters.ai,
-		private storageAdapter: StorageAdapter = adapters.storage
-	) {}
+		private storageAdapter: StorageAdapter = adapters.storage,
+		private realtimeAdapter: RealtimeAdapter = realtimeAdapterInstance
+	) {
+		// Set up realtime event handlers
+		this.realtimeAdapter.onMessage((message) => {
+			if (message.type === 'response.audio.delta' && message.data instanceof ArrayBuffer) {
+				// Handle streaming audio response
+				this.kernel.dispatch({ type: 'REALTIME_AUDIO_RECEIVED', audioData: message.data });
+			}
+		});
+
+		this.realtimeAdapter.onError((error) => {
+			this.kernel.error(`Realtime error: ${error.message}`);
+		});
+	}
 
 	// Get current state
 	getState(): ConversationState {
@@ -26,9 +43,13 @@ class ConversationOrchestrator {
 	}
 
 	// Start a new conversation
-	async startConversation(): Promise<ConversationState> {
+	async startConversation(
+		mode?: 'traditional' | 'realtime',
+		language?: string,
+		voice?: string
+	): Promise<ConversationState> {
 		try {
-			const state = this.kernel.start();
+			const state = this.kernel.start(mode, language, voice);
 			await this.storageAdapter.save('currentSession', state.sessionId);
 			return state;
 		} catch (error) {
@@ -178,6 +199,58 @@ class ConversationOrchestrator {
 				break;
 			}
 
+			case 'CONNECT_REALTIME': {
+				try {
+					const currentState = this.kernel.getState();
+					const validVoices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'] as const;
+					const openAIVoice = validVoices.includes(effect.voice as (typeof validVoices)[number])
+						? (effect.voice as 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer')
+						: 'alloy';
+					await this.realtimeAdapter.connect({
+						sessionId: effect.sessionId,
+						language: effect.language || currentState.language,
+						voice: openAIVoice,
+						instructions:
+							'You are a helpful language tutor. Keep responses conversational and encouraging.'
+					});
+
+					// Update kernel state to reflect connection
+					this.kernel.dispatch({ type: 'REALTIME_CONNECTED' });
+				} catch (error) {
+					this.kernel.error(`Realtime connection failed: ${error}`);
+				}
+				break;
+			}
+
+			case 'START_AUDIO_STREAM': {
+				try {
+					await this.realtimeAdapter.startAudioStream();
+					this.kernel.dispatch({ type: 'START_REALTIME_STREAM' });
+				} catch (error) {
+					this.kernel.error(`Failed to start audio stream: ${error}`);
+				}
+				break;
+			}
+
+			case 'STOP_AUDIO_STREAM': {
+				try {
+					await this.realtimeAdapter.stopAudioStream();
+					this.kernel.dispatch({ type: 'STOP_REALTIME_STREAM' });
+				} catch (error) {
+					console.warn('Failed to stop audio stream:', error);
+				}
+				break;
+			}
+
+			case 'PLAY_REALTIME_AUDIO': {
+				try {
+					await this.audioAdapter.play(effect.audioData);
+				} catch (error) {
+					console.warn('Failed to play realtime audio:', error);
+				}
+				break;
+			}
+
 			case 'SAVE_EXCHANGE': {
 				try {
 					const currentState = this.kernel.getState();
@@ -279,9 +352,10 @@ export function createConversationStore() {
 		},
 
 		// Actions
-		async startConversation() {
-			const newState = await conversationOrchestrator.startConversation();
+		async startConversation(mode?: 'traditional' | 'realtime', language?: string, voice?: string) {
+			const newState = await conversationOrchestrator.startConversation(mode, language, voice);
 			state = newState;
+			return newState;
 		},
 
 		async startRecording() {
@@ -315,4 +389,3 @@ export function createConversationStore() {
 		cleanup
 	};
 }
-

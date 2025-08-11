@@ -49,4 +49,3 @@ export const GET: RequestHandler = async ({ cookies }) => {
 		throw error(500, 'Failed to initiate Google authentication');
 	}
 };
-

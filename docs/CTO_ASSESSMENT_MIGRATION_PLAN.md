@@ -115,11 +115,11 @@ kaiwa-v2/
 ```typescript
 // Each feature is completely self-contained
 export interface FeatureModule {
- services: Record<string, Service>;
- components: Record<string, Component>;
- events: EventDefinitions;
- init: () => Promise<void>;
- cleanup: () => void;
+	services: Record<string, Service>;
+	components: Record<string, Component>;
+	events: EventDefinitions;
+	init: () => Promise<void>;
+	cleanup: () => void;
 }
 ```
 
@@ -136,7 +136,7 @@ conversationFeature.events.on('recording.started', handleRecording);
 ```typescript
 // Pure functions, immutable state, Result types
 const processAudio = (audioData: ArrayBuffer): Result<Transcription, Error> => {
- // Pure, testable, predictable
+	// Pure, testable, predictable
 };
 ```
 

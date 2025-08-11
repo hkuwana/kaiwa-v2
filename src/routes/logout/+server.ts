@@ -30,4 +30,3 @@ export const GET: RequestHandler = async ({ locals, cookies }) => {
 
 	throw redirect(302, '/');
 };
-

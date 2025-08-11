@@ -1,4 +1,5 @@
 # 🎯 Kaiwa Functional Programming Guide
+
 ## Understanding the Core Architecture for New Developers
 
 > **Purpose**: Onboard developers to Kaiwa's functional programming approach and explain why we chose this architecture for our 7-day MVP sprint.
@@ -16,13 +17,14 @@
 **Kaiwa's Core Challenge**: Build a real-time conversation app that feels magical but doesn't break under complexity.
 
 **Traditional OOP Approach** (What we moved away from):
+
 ```typescript
 ❌ BAD: The old way
 class ConversationManager {
   private audioService: AudioService;
   private aiService: AIService;
   private state: any = {};
-  
+
   async startRecording() {
     this.state.recording = true;
     this.audioService.start();
@@ -33,6 +35,7 @@ class ConversationManager {
 ```
 
 **Functional Approach** (What we're building):
+
 ```typescript
 ✅ GOOD: The new way
 // Pure functions - predictable, testable, composable
@@ -45,7 +48,7 @@ const conversationCore = {
 ### Why This Matters for Kaiwa
 
 1. **Real-time Audio**: Audio recording/playback has many edge cases - functional programming makes them predictable
-2. **AI Integration**: API calls can fail - functional error handling makes this safe  
+2. **AI Integration**: API calls can fail - functional error handling makes this safe
 3. **7-Day Sprint**: We need to move fast without breaking things
 4. **Future Growth**: Clean architecture means we can add features without rewriting
 
@@ -58,19 +61,19 @@ const conversationCore = {
 ```typescript
 // ❌ IMPURE: Hard to test, unpredictable
 function formatDuration(ms: number): string {
-  console.log('Formatting:', ms);  // Side effect!
-  return Math.floor(ms / 1000) + 's';
+	console.log('Formatting:', ms); // Side effect!
+	return Math.floor(ms / 1000) + 's';
 }
 
 // ✅ PURE: Same input always gives same output
 function formatDuration(ms: number): string {
-  if (ms < 0) return '0s';  // Handle edge cases
-  const seconds = Math.floor(ms / 1000);
-  return seconds + 's';
+	if (ms < 0) return '0s'; // Handle edge cases
+	const seconds = Math.floor(ms / 1000);
+	return seconds + 's';
 }
 
 // Easy to test:
-expect(formatDuration(5000)).toBe('5s');  // Always works!
+expect(formatDuration(5000)).toBe('5s'); // Always works!
 ```
 
 **Why this helps Kaiwa**: Audio timestamps, conversation durations, user progress - all need to be calculated reliably.
@@ -79,27 +82,25 @@ expect(formatDuration(5000)).toBe('5s');  // Always works!
 
 ```typescript
 // Instead of try/catch everywhere, we use Result types
-type Result<T, E = Error> = 
-  | { success: true; data: T }
-  | { success: false; error: E };
+type Result<T, E = Error> = { success: true; data: T } | { success: false; error: E };
 
 // Example: Safe audio recording
 async function startRecording(): Promise<Result<MediaRecorder, string>> {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const recorder = new MediaRecorder(stream);
-    return { success: true, data: recorder };
-  } catch (error) {
-    return { success: false, error: 'Microphone access denied' };
-  }
+	try {
+		const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+		const recorder = new MediaRecorder(stream);
+		return { success: true, data: recorder };
+	} catch (error) {
+		return { success: false, error: 'Microphone access denied' };
+	}
 }
 
 // Usage - no more unexpected crashes!
 const recordingResult = await startRecording();
 if (recordingResult.success) {
-  // Use recordingResult.data safely
+	// Use recordingResult.data safely
 } else {
-  // Handle recordingResult.error gracefully
+	// Handle recordingResult.error gracefully
 }
 ```
 
@@ -110,23 +111,23 @@ if (recordingResult.success) {
 ```typescript
 // A function that takes functions as arguments
 function withRetry<T>(fn: () => Promise<T>, maxAttempts: number = 3): () => Promise<T> {
-  return async () => {
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      try {
-        return await fn();
-      } catch (error) {
-        if (attempt === maxAttempts) throw error;
-        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-      }
-    }
-    throw new Error('Max attempts reached');
-  };
+	return async () => {
+		for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+			try {
+				return await fn();
+			} catch (error) {
+				if (attempt === maxAttempts) throw error;
+				await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+			}
+		}
+		throw new Error('Max attempts reached');
+	};
 }
 
 // Usage: Make any API call retry automatically
 const transcribeWithRetry = withRetry(
-  () => fetch('/api/transcribe', { method: 'POST', body: audioData }),
-  3
+	() => fetch('/api/transcribe', { method: 'POST', body: audioData }),
+	3
 );
 ```
 
@@ -179,7 +180,7 @@ const conversationCore = {
         return state;
     }
   },
-  
+
   // 2. Side effects as data (not executed here)
   effects: (state: State, action: Action): Effect[] => {
     switch (action.type) {
@@ -196,18 +197,18 @@ const conversationCore = {
 // 3. One orchestrator coordinates everything
 class Orchestrator {
   constructor(private adapters: Adapters) {}
-  
+
   async dispatch(action: Action) {
     // Update state with pure function
     this.state = conversationCore.transition(this.state, action);
-    
+
     // Execute side effects
     const effects = conversationCore.effects(this.state, action);
     for (const effect of effects) {
       await this.executeEffect(effect);
     }
   }
-  
+
   private async executeEffect(effect: Effect) {
     switch (effect.type) {
       case 'START_AUDIO_CAPTURE':
@@ -224,12 +225,12 @@ class Orchestrator {
 
 ### Why Orchestrator is Better
 
-| Traditional Classes | Orchestrator Pattern |
-|-------------------|-------------------|
-| ❌ Hard to test (mock everything) | ✅ Easy to test (pure functions) |
-| ❌ Tight coupling between services | ✅ Loose coupling via events |
-| ❌ State scattered everywhere | ✅ Single source of truth |
-| ❌ Hard to add features | ✅ Just add new actions/effects |
+| Traditional Classes                | Orchestrator Pattern             |
+| ---------------------------------- | -------------------------------- |
+| ❌ Hard to test (mock everything)  | ✅ Easy to test (pure functions) |
+| ❌ Tight coupling between services | ✅ Loose coupling via events     |
+| ❌ State scattered everywhere      | ✅ Single source of truth        |
+| ❌ Hard to add features            | ✅ Just add new actions/effects  |
 
 ---
 
@@ -240,24 +241,24 @@ class Orchestrator {
 ```typescript
 // Start with just the conversation loop
 const conversationKernel = {
-  // State: What the app knows
-  state: {
-    status: 'idle',  // 'idle' | 'recording' | 'processing' | 'speaking'
-    messages: [],
-    sessionId: null
-  },
-  
-  // Actions: What can happen
-  dispatch: async (action) => {
-    switch (action.type) {
-      case 'START_CONVERSATION':
-        return this.startConversation();
-      case 'USER_SPEAKS':
-        return this.processUserSpeech(action.audio);
-      case 'AI_RESPONDS':
-        return this.playAIResponse(action.response);
-    }
-  }
+	// State: What the app knows
+	state: {
+		status: 'idle', // 'idle' | 'recording' | 'processing' | 'speaking'
+		messages: [],
+		sessionId: null
+	},
+
+	// Actions: What can happen
+	dispatch: async (action) => {
+		switch (action.type) {
+			case 'START_CONVERSATION':
+				return this.startConversation();
+			case 'USER_SPEAKS':
+				return this.processUserSpeech(action.audio);
+			case 'AI_RESPONDS':
+				return this.playAIResponse(action.response);
+		}
+	}
 };
 ```
 
@@ -266,19 +267,19 @@ const conversationKernel = {
 ```svelte
 <!-- The UI just reflects state and dispatches actions -->
 <script lang="ts">
-  import { kernel } from './kernel';
-  
-  let state = $state(kernel.getState());
-  
-  async function handleRecord() {
-    // UI dispatches action, kernel handles complexity
-    await kernel.dispatch({ type: 'START_RECORDING' });
-    state = kernel.getState();  // UI updates automatically
-  }
+	import { kernel } from './kernel';
+
+	let state = $state(kernel.getState());
+
+	async function handleRecord() {
+		// UI dispatches action, kernel handles complexity
+		await kernel.dispatch({ type: 'START_RECORDING' });
+		state = kernel.getState(); // UI updates automatically
+	}
 </script>
 
 <button onclick={handleRecord}>
-  {state.status === 'recording' ? '⏹️ Stop' : '🎤 Start'}
+	{state.status === 'recording' ? '⏹️ Stop' : '🎤 Start'}
 </button>
 ```
 
@@ -287,15 +288,15 @@ const conversationKernel = {
 ```typescript
 // Add features by extending the kernel
 const enhancedKernel = {
-  ...baseKernel,
-  
-  // New actions
-  dispatch: async (action) => {
-    if (action.type === 'SAVE_CONVERSATION') {
-      return this.saveConversation(action.data);
-    }
-    return baseKernel.dispatch(action);  // Delegate to base
-  }
+	...baseKernel,
+
+	// New actions
+	dispatch: async (action) => {
+		if (action.type === 'SAVE_CONVERSATION') {
+			return this.saveConversation(action.data);
+		}
+		return baseKernel.dispatch(action); // Delegate to base
+	}
 };
 ```
 
@@ -308,57 +309,57 @@ const enhancedKernel = {
 ```typescript
 // 1. Define your state shape
 type ConversationState = {
-  status: 'idle' | 'recording' | 'processing';
-  messages: Message[];
-  currentAudio?: ArrayBuffer;
+	status: 'idle' | 'recording' | 'processing';
+	messages: Message[];
+	currentAudio?: ArrayBuffer;
 };
 
 // 2. Define your actions
-type ConversationAction = 
-  | { type: 'START_RECORDING' }
-  | { type: 'STOP_RECORDING'; audio: ArrayBuffer }
-  | { type: 'RECEIVE_RESPONSE'; text: string };
+type ConversationAction =
+	| { type: 'START_RECORDING' }
+	| { type: 'STOP_RECORDING'; audio: ArrayBuffer }
+	| { type: 'RECEIVE_RESPONSE'; text: string };
 
 // 3. Pure transition function
 function conversationReducer(
-  state: ConversationState, 
-  action: ConversationAction
+	state: ConversationState,
+	action: ConversationAction
 ): ConversationState {
-  switch (action.type) {
-    case 'START_RECORDING':
-      return { ...state, status: 'recording' };
-      
-    case 'STOP_RECORDING':
-      return { 
-        ...state, 
-        status: 'processing', 
-        currentAudio: action.audio 
-      };
-      
-    case 'RECEIVE_RESPONSE':
-      return {
-        ...state,
-        status: 'idle',
-        messages: [...state.messages, { role: 'assistant', content: action.text }]
-      };
-      
-    default:
-      return state;
-  }
+	switch (action.type) {
+		case 'START_RECORDING':
+			return { ...state, status: 'recording' };
+
+		case 'STOP_RECORDING':
+			return {
+				...state,
+				status: 'processing',
+				currentAudio: action.audio
+			};
+
+		case 'RECEIVE_RESPONSE':
+			return {
+				...state,
+				status: 'idle',
+				messages: [...state.messages, { role: 'assistant', content: action.text }]
+			};
+
+		default:
+			return state;
+	}
 }
 
 // 4. Use in Svelte component
 let state = $state({ status: 'idle', messages: [] });
 
 async function dispatch(action: ConversationAction) {
-  // Update state
-  state = conversationReducer(state, action);
-  
-  // Handle side effects
-  if (action.type === 'STOP_RECORDING') {
-    const response = await processAudio(action.audio);
-    dispatch({ type: 'RECEIVE_RESPONSE', text: response });
-  }
+	// Update state
+	state = conversationReducer(state, action);
+
+	// Handle side effects
+	if (action.type === 'STOP_RECORDING') {
+		const response = await processAudio(action.audio);
+		dispatch({ type: 'RECEIVE_RESPONSE', text: response });
+	}
 }
 ```
 
@@ -367,29 +368,25 @@ async function dispatch(action: ConversationAction) {
 ```typescript
 // Pattern 1: Safe async operations
 async function safeAsyncCall<T>(operation: () => Promise<T>): Promise<Result<T, Error>> {
-  try {
-    const data = await operation();
-    return { success: true, data };
-  } catch (error) {
-    return { success: false, error: error as Error };
-  }
+	try {
+		const data = await operation();
+		return { success: true, data };
+	} catch (error) {
+		return { success: false, error: error as Error };
+	}
 }
 
 // Pattern 2: Function composition
-const processUserInput = pipe(
-  validateInput,
-  normalizeText,
-  generateResponse
-);
+const processUserInput = pipe(validateInput, normalizeText, generateResponse);
 
 // Pattern 3: Event handlers with error boundaries
 const safeHandler = (handler: (data: any) => void) => (data: any) => {
-  try {
-    handler(data);
-  } catch (error) {
-    console.error('Handler error:', error);
-    // Graceful degradation
-  }
+	try {
+		handler(data);
+	} catch (error) {
+		console.error('Handler error:', error);
+		// Graceful degradation
+	}
 };
 ```
 
@@ -453,6 +450,7 @@ function processMessage(msg) {
 ## 🎉 You're Ready!
 
 If you understand:
+
 - ✅ Pure functions take input and return output (no side effects)
 - ✅ State is just data that describes what's happening right now
 - ✅ Actions are just data that describes what the user wants to do
@@ -464,4 +462,4 @@ Remember: **The goal isn't perfect functional programming - it's shipping a magi
 
 ---
 
-*Happy coding! 🚀*
+_Happy coding! 🚀_

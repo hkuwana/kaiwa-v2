@@ -1,0 +1,103 @@
+import { json } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
+import { dev } from '$app/environment';
+
+// Simple in-memory rate limiting
+const sessionRequests = new Map<string, { timestamp: number; count: number }>();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const MAX_REQUESTS = dev ? 100 : 3; // Max 3 requests per minute in production
+
+export const POST: RequestHandler = async ({ request }) => {
+	try {
+		// Get client IP for rate limiting
+		const clientId = request.headers.get('x-forwarded-for') || 'default';
+
+		// Rate limiting
+		const now = Date.now();
+		const clientRequests = sessionRequests.get(clientId);
+
+		if (clientRequests) {
+			if (now - clientRequests.timestamp < RATE_LIMIT_WINDOW) {
+				if (clientRequests.count >= MAX_REQUESTS) {
+					return json(
+						{
+							error: 'Too many session requests. Please wait before trying again.'
+						},
+						{ status: 429 }
+					);
+				}
+				clientRequests.count++;
+			} else {
+				sessionRequests.set(clientId, { timestamp: now, count: 1 });
+			}
+		} else {
+			sessionRequests.set(clientId, { timestamp: now, count: 1 });
+		}
+
+		const {
+			sessionId,
+			model = 'gpt-4o-realtime-preview-2024-10-01',
+			voice = 'alloy',
+			language = 'en',
+			instructions,
+			temperature = 0.8
+		} = await request.json();
+
+		if (!sessionId) {
+			return json({ error: 'sessionId is required' }, { status: 400 });
+		}
+
+		const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+		if (!OPENAI_API_KEY) {
+			return json({ error: 'OpenAI API key not configured' }, { status: 500 });
+		}
+
+		const requestPayload = {
+			model,
+			voice
+		};
+
+		console.log(
+			`Creating realtime session for sessionId: ${sessionId}`,
+			JSON.stringify(requestPayload, null, 2)
+		);
+
+		// Create ephemeral token for realtime API
+		const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${OPENAI_API_KEY}`,
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(requestPayload)
+		});
+
+		if (!response.ok) {
+			const errorText = await response.text();
+			console.error('OpenAI Realtime API error:', errorText);
+
+			// Provide fallback for development
+			if (dev) {
+				return json({
+					client_secret: {
+						value: 'dev-fallback-token',
+						expires_at: Date.now() + 60000
+					},
+					session_id: sessionId
+				});
+			}
+
+			return json({ error: 'Failed to create realtime session' }, { status: response.status });
+		}
+
+		const sessionData = await response.json();
+
+		console.log('Realtime session created successfully:', sessionData);
+
+		return json(sessionData);
+	} catch (error) {
+		console.error('Realtime session creation error:', error);
+		return json({ error: 'Internal server error' }, { status: 500 });
+	}
+};

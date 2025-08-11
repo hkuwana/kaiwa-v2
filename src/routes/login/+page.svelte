@@ -28,7 +28,7 @@
 				<!-- Google Sign In Button -->
 				<a
 					href="/login/google"
-					class="flex w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+					class="flex w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
 				>
 					<svg class="mr-3 h-5 w-5" viewBox="0 0 24 24">
 						<path
@@ -72,7 +72,7 @@
 
 			<a
 				href="/"
-				class="flex w-full items-center justify-center rounded-lg border border-gray-300 px-4 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+				class="flex w-full items-center justify-center rounded-lg border border-gray-300 px-4 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
 			>
 				Continue as Guest
 			</a>
@@ -83,4 +83,3 @@
 		</div>
 	</div>
 </div>
-

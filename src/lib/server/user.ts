@@ -74,4 +74,3 @@ export async function updateUserLastUsage(userId: string): Promise<void> {
 		// Non-critical error, don't throw
 	}
 }
-

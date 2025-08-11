@@ -18,6 +18,7 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	if (!sessionToken) {
 		event.locals.user = null;
 		event.locals.session = null;
+		event.locals.userContext = null;
 		return resolve(event);
 	}
 
@@ -25,6 +26,11 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 
 	if (session) {
 		auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
+
+		// Populate enhanced user context for orchestrator and kernel
+		if (user) {
+			event.locals.userContext = await auth.getUserContext(user.id);
+		}
 	} else {
 		auth.deleteSessionTokenCookie(event);
 	}

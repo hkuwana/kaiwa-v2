@@ -122,4 +122,3 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		throw error(500, 'Authentication failed');
 	}
 };
-
