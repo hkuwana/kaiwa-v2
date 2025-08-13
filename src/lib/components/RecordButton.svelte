@@ -22,18 +22,18 @@
 	// Dynamic styling based on state
 	const buttonClass = $derived(() => {
 		const base =
-			'relative w-32 h-32 rounded-full text-white font-semibold text-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-opacity-50 shadow-lg transform';
+			'btn btn-circle w-32 h-32 text-3xl font-semibold transition-all duration-300 shadow-lg transform';
 
 		if (hasError) {
-			return `${base} bg-red-600 border-2 border-red-400 hover:bg-red-700 focus:ring-red-300`;
+			return `${base} btn-error`;
 		} else if (isRecording) {
-			return `${base} bg-red-500 hover:bg-red-600 focus:ring-red-300 scale-110 shadow-xl`;
+			return `${base} btn-error scale-110 shadow-xl`;
 		} else if (isProcessing) {
-			return `${base} bg-yellow-500 cursor-not-allowed opacity-75 animate-pulse`;
+			return `${base} btn-warning opacity-75 animate-pulse`;
 		} else if (isSpeaking) {
-			return `${base} bg-green-500 cursor-not-allowed opacity-75 animate-pulse`;
+			return `${base} btn-success opacity-75 animate-pulse`;
 		} else {
-			return `${base} bg-blue-500 hover:bg-blue-600 focus:ring-blue-300 hover:scale-105 active:scale-95`;
+			return `${base} btn-primary hover:scale-105 active:scale-95`;
 		}
 	});
 
@@ -69,14 +69,14 @@
 		<AudioVisualizer {isRecording} {audioLevel} />
 
 		<!-- Button content -->
-		<span class="relative z-10 text-3xl">
+		<span class="relative z-10">
 			{buttonText()}
 		</span>
 
 		<!-- Pulse animation for recording state -->
 		{#if isRecording}
 			<div
-				class="absolute inset-0 animate-ping rounded-full bg-red-400 opacity-25"
+				class="absolute inset-0 animate-ping rounded-full bg-error opacity-25"
 				aria-hidden="true"
 			></div>
 		{/if}
@@ -86,14 +86,14 @@
 	<div class="absolute -bottom-8 left-1/2 -translate-x-1/2 transform text-center">
 		<p
 			class="text-sm font-medium whitespace-nowrap {hasError
-				? 'text-red-600'
+				? 'text-error'
 				: isRecording
-					? 'text-red-600'
+					? 'text-error'
 					: isProcessing
-						? 'text-yellow-600'
+						? 'text-warning'
 						: isSpeaking
-							? 'text-green-600'
-							: 'text-gray-600'}"
+							? 'text-success'
+							: 'text-base-content opacity-70'}"
 		>
 			{#if hasError}
 				Error - Try Again

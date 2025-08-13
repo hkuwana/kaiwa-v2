@@ -83,9 +83,9 @@ export class TierService {
 			tier: userTier,
 			limits,
 			usage: {
-				conversationsUsed: usage.conversationsUsed,
-				minutesUsed: usage.minutesUsed,
-				realtimeSessionsUsed: usage.realtimeSessionsUsed
+				conversationsUsed: usage.conversationsUsed || 0,
+				minutesUsed: usage.minutesUsed || 0,
+				realtimeSessionsUsed: usage.realtimeSessionsUsed || 0
 			},
 			canStartConversation,
 			canUseRealtime,
@@ -104,12 +104,12 @@ export class TierService {
 
 		// Increment counters
 		const updates: Partial<UserUsage> = {
-			conversationsUsed: usage.conversationsUsed + 1,
+			conversationsUsed: (usage.conversationsUsed || 0) + 1,
 			updatedAt: new Date()
 		};
 
 		if (isRealtime) {
-			updates.realtimeSessionsUsed = usage.realtimeSessionsUsed + 1;
+			updates.realtimeSessionsUsed = (usage.realtimeSessionsUsed || 0) + 1;
 		}
 
 		await db.update(userUsage).set(updates).where(eq(userUsage.id, usage.id));
@@ -128,7 +128,7 @@ export class TierService {
 		await db
 			.update(userUsage)
 			.set({
-				minutesUsed: usage.minutesUsed + Math.ceil(durationMinutes),
+				minutesUsed: (usage.minutesUsed || 0) + Math.ceil(durationMinutes),
 				updatedAt: new Date()
 			})
 			.where(eq(userUsage.id, usage.id));
@@ -175,9 +175,9 @@ export class TierService {
 				monthlyConversations: tier.monthlyConversations,
 				monthlyMinutes: tier.monthlyMinutes,
 				monthlyRealtimeSessions: tier.monthlyRealtimeSessions,
-				hasRealtimeAccess: tier.hasRealtimeAccess,
-				hasAdvancedVoices: tier.hasAdvancedVoices,
-				hasAnalytics: tier.hasAnalytics
+				hasRealtimeAccess: tier.hasRealtimeAccess || false,
+				hasAdvancedVoices: tier.hasAdvancedVoices || false,
+				hasAnalytics: tier.hasAnalytics || false
 			};
 		}
 
@@ -269,13 +269,13 @@ export class TierService {
 
 	private canStartConversation(limits: TierLimits, usage: UserUsage): boolean {
 		if (limits.monthlyConversations === null) return true; // Unlimited
-		return usage.conversationsUsed < limits.monthlyConversations;
+		return (usage.conversationsUsed || 0) < limits.monthlyConversations;
 	}
 
 	private canUseRealtime(limits: TierLimits, usage: UserUsage): boolean {
 		if (!limits.hasRealtimeAccess) return false;
 		if (limits.monthlyRealtimeSessions === null) return true; // Unlimited
-		return usage.realtimeSessionsUsed < limits.monthlyRealtimeSessions;
+		return (usage.realtimeSessionsUsed || 0) < limits.monthlyRealtimeSessions;
 	}
 
 	/**

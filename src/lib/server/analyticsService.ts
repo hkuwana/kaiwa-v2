@@ -197,7 +197,8 @@ export class AnalyticsService {
 
 		const lastActivity =
 			events.length > 0
-				? events.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0].createdAt
+				? events.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0))[0]
+						.createdAt
 				: null;
 
 		// Count event types

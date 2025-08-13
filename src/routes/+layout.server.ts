@@ -13,13 +13,37 @@ export const load = async ({ url, request, locals }) => {
 		flushAt: 1,
 		flushInterval: 0
 	});
+	const userId = locals.user?.id;
+	const referrer = request.headers.get('referer');
+	const userAgent = request.headers.get('user-agent');
 
+	return {
+		posthogInitialized: await posthogHasInitialized(
+			posthog,
+			url,
+			userAgent,
+			referrer,
+			userId,
+			request.method
+		)
+	};
+};
+
+async function posthogHasInitialized(
+	posthog: PostHog,
+	url: URL,
+	userAgent: string | null,
+	referrer: string | null,
+	userId: string | undefined,
+	method: string
+): Promise<boolean> {
+	if (!userId) {
+		userId = 'anonymous';
+	}
+	if (!referrer) {
+		referrer = null;
+	}
 	try {
-		// Track SSR page view
-		const userId = locals.user?.id;
-		const referrer = request.headers.get('referer');
-		const userAgent = request.headers.get('user-agent');
-
 		posthog.capture({
 			distinctId: userId || 'anonymous',
 			event: '$pageview',
@@ -32,7 +56,7 @@ export const load = async ({ url, request, locals }) => {
 				},
 				referrer,
 				user_agent: userAgent,
-				method: request.method,
+				method: method,
 				url: url.href,
 				server_side: true,
 				timestamp: new Date().toISOString()
@@ -42,24 +66,12 @@ export const load = async ({ url, request, locals }) => {
 				environment: env.NODE_ENV || 'production'
 			}
 		});
-
-		// Track user identification if logged in
-		if (userId) {
-			posthog.identify({
-				distinctId: userId,
-				properties: {
-					server_side: true,
-					last_seen: new Date().toISOString()
-				}
-			});
-		}
-
-		return {
-			posthogInitialized: true,
-			userId
-		};
+		return true;
+	} catch (error) {
+		console.error('Error capturing page view', error);
+		return false;
 	} finally {
-		// Always shutdown PostHog to flush events
 		await posthog.shutdown();
+		console.log('PostHog shutdown');
 	}
-};
+}

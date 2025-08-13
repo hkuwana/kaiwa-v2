@@ -26,36 +26,57 @@
 {#if messages.length > 0}
 	<div
 		bind:this={scrollContainer}
-		class="max-h-96 w-full max-w-2xl space-y-3 overflow-y-auto rounded-lg bg-white p-4 shadow-md {isCompact
+		class="chat-start chat max-h-96 w-full max-w-2xl space-y-3 overflow-y-auto {isCompact
 			? 'text-sm'
 			: ''}"
 	>
 		{#each messages as message, i (message.timestamp + message.role)}
-			<div class="flex {message.role === 'user' ? 'justify-end' : 'justify-start'}">
-				<div
-					class="max-w-xs rounded-lg px-4 py-3 transition-all hover:shadow-sm lg:max-w-md {message.role ===
-					'user'
-						? 'bg-blue-500 text-white'
-						: 'border border-gray-200 bg-gray-100 text-gray-800'}"
-				>
-					<div class="mb-1 flex items-center justify-between">
-						<p class="text-xs font-medium opacity-75">
-							{message.role === 'user' ? 'You' : 'AI Tutor'}
-						</p>
-						{#if !isCompact}
-							<span class="text-xs opacity-50">
-								{formatTimestamp(message.timestamp)}
-							</span>
-						{/if}
+			{#if message.role === 'user'}
+				<div class="chat-end chat">
+					<div class="chat-bubble chat-bubble-primary">
+						<div class="mb-1 flex items-center justify-between">
+							<p class="text-xs font-medium opacity-75">You</p>
+							{#if !isCompact}
+								<span class="text-xs opacity-50">
+									{formatTimestamp(message.timestamp)}
+								</span>
+							{/if}
+						</div>
+						<p class="leading-relaxed">{message.content}</p>
 					</div>
-					<p class="leading-relaxed">{message.content}</p>
 				</div>
-			</div>
+			{:else}
+				<div class="chat-start chat">
+					<div class="avatar chat-image">
+						<div
+							class="flex w-8 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-content"
+						>
+							AI
+						</div>
+					</div>
+					<div class="chat-bubble chat-bubble-secondary">
+						<div class="mb-1 flex items-center justify-between">
+							<p class="text-xs font-medium opacity-75">AI Tutor</p>
+							{#if !isCompact}
+								<span class="text-xs opacity-50">
+									{formatTimestamp(message.timestamp)}
+								</span>
+							{/if}
+						</div>
+						<p class="leading-relaxed">{message.content}</p>
+					</div>
+				</div>
+			{/if}
 		{/each}
 	</div>
 {:else}
-	<div class="py-8 text-center text-gray-500">
-		<p class="text-lg">👋 Ready to start your first conversation?</p>
-		<p class="mt-2 text-sm">Click the microphone button below to begin speaking</p>
+	<div class="py-8 text-center">
+		<div class="hero-content text-center">
+			<div class="max-w-md">
+				<div class="mb-4 text-6xl">👋</div>
+				<h3 class="mb-2 text-lg font-semibold">Ready to start your first conversation?</h3>
+				<p class="text-sm opacity-70">Click the microphone button below to begin speaking</p>
+			</div>
+		</div>
 	</div>
 {/if}

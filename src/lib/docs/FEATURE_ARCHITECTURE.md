@@ -662,7 +662,7 @@ const enhancements = {
 
 ### Day 4 Success Criteria
 
-- [ ] UI loads in < 2 seconds
+- [ ] UI loads in &lt; 2 seconds
 - [ ] Works on mobile Safari/Chrome
 - [ ] First user completes conversation
 - [ ] Zero console errors
@@ -679,7 +679,7 @@ const enhancements = {
 - [ ] 10 real users
 - [ ] 50 total conversations
 - [ ] 30% return rate
-- [ ] <5% error rate
+- [ ]  5% error rate
 
 ## 💰 Resource Allocation
 
@@ -695,7 +695,7 @@ const enhancements = {
 - **Infrastructure**: $50 (Vercel Pro)
 - **AI APIs**: $100 (OpenAI/Anthropic)
 - **Domain**: $15 (if needed)
-- **Total**: <$200
+- **Total**: ~$200
 
 ### Team Focus
 
@@ -783,7 +783,7 @@ The user cares about:
 - [ ] Conversation loop works
 - [ ] No crashes in 10 min use
 - [ ] Works on mobile
-- [ ] <3 second load time
+- [ ] Less than 3 second load time
 
 ### User Experience Minimums
 

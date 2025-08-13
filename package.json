@@ -20,6 +20,7 @@
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio",
+		"db:run-custom-migration": "tsx scripts/run-migration.ts",
 		"smoke:test": "playwright test --grep @smoke",
 		"ci": "pnpm run lint && pnpm run check && pnpm run test:unit && pnpm run test:e2e && pnpm run build",
 		"deploy": "fly console --dockerfile Dockerfile.builder -C \"/srv/deploy.sh\" --env=FLY_API_TOKEN=$(fly auth token)",

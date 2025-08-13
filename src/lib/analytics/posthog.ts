@@ -3,10 +3,10 @@
 
 import { browser } from '$app/environment';
 import { page } from '$app/state';
+import { PUBLIC_POSTHOG_KEY } from '$env/static/public';
 import posthog from 'posthog-js';
 
 // PostHog configuration
-const POSTHOG_KEY = 'phc_your_key_here'; // Replace with your actual key
 const POSTHOG_HOST = 'https://us.i.posthog.com'; // or your self-hosted instance
 
 /**
@@ -17,7 +17,7 @@ export function initializePostHog(): void {
 
 	// Dynamic import to avoid SSR issues
 	import('posthog-js').then(({ default: posthog }) => {
-		posthog.init(POSTHOG_KEY, {
+		posthog.init(PUBLIC_POSTHOG_KEY, {
 			api_host: POSTHOG_HOST,
 			person_profiles: 'identified_only', // Only create profiles for logged-in users
 			capture_pageview: false, // We'll handle this manually
@@ -253,7 +253,7 @@ export function getFeatureFlag(flag: string): boolean | string | undefined {
 export function isFeatureEnabled(flag: string): boolean {
 	if (!posthog) return false;
 
-	return posthog.isFeatureEnabled(flag);
+	return posthog.isFeatureEnabled(flag) || false;
 }
 
 // Export the PostHog instance for advanced usage

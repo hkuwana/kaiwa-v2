@@ -12,48 +12,80 @@ const mvpLanguages: Omit<Language, 'id'>[] = [
 		code: 'en',
 		name: 'English',
 		nativeName: 'English',
+		isRTL: false,
+		hasRomanization: true,
+		writingSystem: 'latin',
+		supportedScripts: ['latin'],
 		isSupported: true
 	},
 	{
 		code: 'es',
 		name: 'Spanish',
 		nativeName: 'Español',
+		isRTL: false,
+		hasRomanization: true,
+		writingSystem: 'latin',
+		supportedScripts: ['latin'],
 		isSupported: true
 	},
 	{
 		code: 'ja',
 		name: 'Japanese',
 		nativeName: '日本語',
+		isRTL: false,
+		hasRomanization: true,
+		writingSystem: 'chinese',
+		supportedScripts: ['hiragana', 'katakana', 'kanji'],
 		isSupported: true
 	},
 	{
 		code: 'fr',
 		name: 'French',
 		nativeName: 'Français',
+		isRTL: false,
+		hasRomanization: true,
+		writingSystem: 'latin',
+		supportedScripts: ['latin'],
 		isSupported: true
 	},
 	{
 		code: 'de',
 		name: 'German',
 		nativeName: 'Deutsch',
+		isRTL: false,
+		hasRomanization: true,
+		writingSystem: 'latin',
+		supportedScripts: ['latin'],
 		isSupported: true
 	},
 	{
 		code: 'zh',
 		name: 'Chinese',
 		nativeName: '中文',
+		isRTL: false,
+		hasRomanization: true,
+		writingSystem: 'chinese',
+		supportedScripts: ['simplified', 'traditional'],
 		isSupported: true
 	},
 	{
 		code: 'ko',
 		name: 'Korean',
 		nativeName: '한국어',
+		isRTL: false,
+		hasRomanization: true,
+		writingSystem: 'chinese',
+		supportedScripts: ['hangul', 'hanja'],
 		isSupported: true
 	},
 	{
 		code: 'pt',
 		name: 'Portuguese',
 		nativeName: 'Português',
+		isRTL: false,
+		hasRomanization: true,
+		writingSystem: 'latin',
+		supportedScripts: ['latin'],
 		isSupported: true
 	}
 ];

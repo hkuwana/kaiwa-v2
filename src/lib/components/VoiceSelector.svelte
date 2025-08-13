@@ -152,10 +152,10 @@
 	}
 </script>
 
-<div class="relative">
+<div class="dropdown">
 	<!-- Voice selector button -->
 	<button
-		class="flex items-center space-x-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+		class="btn btn-outline"
 		onclick={() => (isOpen = !isOpen)}
 		aria-haspopup="listbox"
 		aria-expanded={isOpen}
@@ -163,7 +163,7 @@
 		<span class="text-lg">{getGenderIcon(currentVoice().gender)}</span>
 		<span>{currentVoice().name}</span>
 		<svg
-			class="h-4 w-4 text-gray-400 transition-transform {isOpen ? 'rotate-180' : ''}"
+			class="h-4 w-4 transition-transform {isOpen ? 'rotate-180' : ''}"
 			fill="none"
 			viewBox="0 0 24 24"
 			stroke="currentColor"
@@ -173,36 +173,24 @@
 	</button>
 
 	<!-- Voice dropdown -->
-	{#if isOpen}
-		<div
-			class="absolute top-full left-0 z-50 mt-2 w-80 rounded-lg border border-gray-200 bg-white py-2 shadow-lg"
-			role="listbox"
-			onkeydown={handleKeydown}
-		>
-			{#each voices as voice}
+	<ul tabindex="0" class="dropdown-content menu z-[1] w-80 rounded-box bg-base-100 p-2 shadow">
+		{#each voices as voice}
+			<li>
 				<div
-					class="flex items-center justify-between px-4 py-3 transition-colors hover:bg-blue-50 {voice.id ===
-					selectedVoice
-						? 'bg-blue-100'
+					class="flex w-full items-center justify-between {voice.id === selectedVoice
+						? 'active'
 						: ''}"
+					onclick={() => voice.enabled && selectVoice(voice.id)}
+					role="option"
+					aria-selected={voice.id === selectedVoice}
 				>
-					<button
-						class="flex flex-1 items-start space-x-3 text-left focus:outline-none"
-						onclick={() => voice.enabled && selectVoice(voice.id)}
-						disabled={!voice.enabled}
-						role="option"
-						aria-selected={voice.id === selectedVoice}
-					>
+					<div class="flex flex-1 items-start space-x-3 text-left">
 						<span class="text-lg">{getGenderIcon(voice.gender)}</span>
 						<div class="min-w-0 flex-1">
 							<div class="flex items-center space-x-2">
-								<span
-									class="font-medium text-gray-900 {voice.id === selectedVoice
-										? 'text-blue-900'
-										: ''}">{voice.name}</span
-								>
+								<span class="font-medium">{voice.name}</span>
 								{#if voice.id === selectedVoice}
-									<svg class="h-4 w-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+									<svg class="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
 										<path
 											fill-rule="evenodd"
 											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -211,14 +199,14 @@
 									</svg>
 								{/if}
 							</div>
-							<p class="text-xs text-gray-500">{voice.description}</p>
-							<p class="text-xs text-gray-400">{voice.accent} • {voice.gender}</p>
+							<p class="text-xs opacity-70">{voice.description}</p>
+							<p class="text-xs opacity-50">{voice.accent} • {voice.gender}</p>
 						</div>
-					</button>
+					</div>
 
 					<!-- Preview button -->
 					<button
-						class="ml-2 rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+						class="btn ml-2 btn-circle btn-ghost btn-sm"
 						onclick={() => (isPlaying === voice.id ? stopPreview() : previewVoice(voice))}
 						title={isPlaying === voice.id ? 'Stop preview' : 'Preview voice'}
 					>
@@ -241,20 +229,7 @@
 						{/if}
 					</button>
 				</div>
-			{/each}
-		</div>
-	{/if}
+			</li>
+		{/each}
+	</ul>
 </div>
-
-<!-- Click outside to close -->
-{#if isOpen}
-	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div
-		class="fixed inset-0 z-40"
-		onclick={() => {
-			isOpen = false;
-			stopPreview();
-		}}
-	></div>
-{/if}

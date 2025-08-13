@@ -1,4 +1,4 @@
-// See https://svelte.dev/docs/kit/types#app.d.ts
+// See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
 declare global {
 	namespace App {
@@ -7,10 +7,44 @@ declare global {
 			session: import('$lib/server/auth').SessionValidationResult['session'];
 			userContext?: import('$lib/server/auth').UserContext; // Enhanced context for orchestrator
 		}
-	} // interface Error {}
-	// interface Locals {}
-} // interface PageData {}
-// interface PageState {}
+		// interface Error {}
+		// interface PageData {}
+		// interface PageState {}
+		// interface Platform {}
+	}
+}
 
-// interface Platform {}
+// Declare markdown modules for mdsvex
+declare module '*.md' {
+	import type { SvelteComponent } from 'svelte';
+
+	export default class Comp extends SvelteComponent<{
+		title?: string;
+		description?: string;
+		author?: string;
+		date?: string;
+		tags?: string[];
+		layout?: string;
+		metadata?: Record<string, unknown>;
+	}> {}
+
+	export const metadata: Record<string, unknown>;
+}
+
+declare module '*.svx' {
+	import type { SvelteComponent } from 'svelte';
+
+	export default class Comp extends SvelteComponent<{
+		title?: string;
+		description?: string;
+		author?: string;
+		date?: string;
+		tags?: string[];
+		layout?: string;
+		metadata?: Record<string, unknown>;
+	}> {}
+
+	export const metadata: Record<string, unknown>;
+}
+
 export {};

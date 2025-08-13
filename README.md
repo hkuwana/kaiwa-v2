@@ -135,9 +135,9 @@ import { ConversationOrchestrator } from '$lib/orchestrator.js';
 import { myCustomAudioAdapter } from './adapters.js';
 
 const orchestrator = new ConversationOrchestrator(
-	myCustomAudioAdapter, // Custom audio handling
-	adapters.ai, // Default AI adapter
-	adapters.storage // Default storage
+ myCustomAudioAdapter, // Custom audio handling
+ adapters.ai, // Default AI adapter
+ adapters.storage // Default storage
 );
 ```
 

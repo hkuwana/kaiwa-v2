@@ -1,254 +1,311 @@
-// 🎯 Kaiwa Conversation Kernel
-// The heart of the application - pure functional core
+// 🧠 Conversation Kernel - Pure Functional Core
+// No state, no side effects, only pure transformations
 
-export type ConversationState = {
-	status:
-		| 'idle'
-		| 'recording'
-		| 'processing'
-		| 'speaking'
-		| 'realtime-connected'
-		| 'realtime-streaming';
-	sessionId: string;
+import type {
+	Scenario as LearningScenario,
+	ScenarioOutcome,
+	Message
+} from '$lib/server/db/schema.js';
+import { assessScenario } from './assessment.js';
+
+// 🎯 Pure Types - No state, only data structures
+export interface ConversationContext {
 	messages: Message[];
-	startTime: number;
-	mode: 'traditional' | 'realtime';
+	scenario?: LearningScenario;
+	scenarioSession?: ScenarioSession;
 	language?: string;
 	voice?: string;
-	error?: string;
-};
+}
 
-export type Message = {
-	role: 'user' | 'assistant';
-	content: string;
-	timestamp: number;
-};
+export interface ScenarioSession {
+	currentStep: number;
+	completedSteps: string[];
+	usedVocabulary: string[];
+	grammarPatterns: string[];
+	hintsUsed: number;
+	translationsUsed: number;
+	exampleResponsesViewed: number;
+	goalProgress: number;
+	vocabularyProgress: number;
+	grammarProgress: number;
+}
 
-export type Action =
-	| {
-			type: 'START_CONVERSATION';
-			mode?: 'traditional' | 'realtime';
-			language?: string;
-			voice?: string;
-	  }
-	| { type: 'START_RECORDING' }
-	| { type: 'STOP_RECORDING'; audio: ArrayBuffer }
-	| { type: 'RECEIVE_RESPONSE'; transcript: string; response: string }
-	| { type: 'CONNECT_REALTIME' }
-	| { type: 'REALTIME_CONNECTED' }
-	| { type: 'START_REALTIME_STREAM' }
-	| { type: 'STOP_REALTIME_STREAM' }
-	| { type: 'REALTIME_AUDIO_RECEIVED'; audioData: ArrayBuffer }
-	| { type: 'END_CONVERSATION' }
-	| { type: 'ERROR'; message: string };
+export interface ConversationAction {
+	type:
+		| 'START_CONVERSATION'
+		| 'RECEIVE_RESPONSE'
+		| 'USE_HINT'
+		| 'USE_TRANSLATION'
+		| 'VIEW_EXAMPLE_RESPONSE';
+	payload?: {
+		scenario?: LearningScenario;
+		transcript?: string;
+	};
+}
 
-export type Effect =
-	| { type: 'TRANSCRIBE'; audio: ArrayBuffer }
-	| { type: 'GENERATE_RESPONSE'; transcript: string; history: Message[] }
-	| { type: 'SPEAK'; text: string }
-	| { type: 'CONNECT_REALTIME'; sessionId: string; language?: string; voice?: string }
-	| { type: 'START_AUDIO_STREAM' }
-	| { type: 'STOP_AUDIO_STREAM' }
-	| { type: 'PLAY_REALTIME_AUDIO'; audioData: ArrayBuffer }
-	| { type: 'SAVE_EXCHANGE'; messages: Message[] };
+export interface ConversationEffect {
+	type: 'TRANSCRIBE' | 'GENERATE_RESPONSE' | 'SPEAK' | 'ASSESS_SCENARIO';
+	payload: {
+		audio?: ArrayBuffer;
+		text?: string;
+		scenario?: LearningScenario;
+		userTranscripts?: string[];
+		goalCompleted?: boolean;
+	};
+}
 
-// 🧠 Pure functional core - no side effects
+// 🧠 Pure Functional Core - No side effects, no state mutation
 export const conversationCore = {
-	initial: (mode: 'traditional' | 'realtime' = 'traditional'): ConversationState => ({
-		status: 'idle',
-		sessionId: '',
-		messages: [],
-		startTime: 0,
-		mode
-	}),
-
-	transition: (state: ConversationState, action: Action): ConversationState => {
+	// 🎯 Pure state transitions
+	transition: (context: ConversationContext, action: ConversationAction): ConversationContext => {
 		switch (action.type) {
-			case 'START_CONVERSATION':
+			case 'START_CONVERSATION': {
 				return {
-					...state,
-					status: action.mode === 'realtime' ? 'idle' : 'idle',
-					sessionId: crypto.randomUUID(),
-					startTime: Date.now(),
-					messages: [],
-					mode: action.mode || 'traditional',
-					language: action.language,
-					voice: action.voice,
-					error: undefined
+					...context,
+					scenario: action.payload?.scenario,
+					scenarioSession: action.payload?.scenario
+						? {
+								currentStep: 0,
+								completedSteps: [],
+								usedVocabulary: [],
+								grammarPatterns: [],
+								hintsUsed: 0,
+								translationsUsed: 0,
+								exampleResponsesViewed: 0,
+								goalProgress: 0,
+								vocabularyProgress: 0,
+								grammarProgress: 0
+							}
+						: undefined
 				};
+			}
 
-			case 'START_RECORDING':
-				return { ...state, status: 'recording', error: undefined };
+			case 'RECEIVE_RESPONSE': {
+				if (!context.scenarioSession) return context;
 
-			case 'STOP_RECORDING':
-				return { ...state, status: 'processing' };
-
-			case 'RECEIVE_RESPONSE':
-				return {
-					...state,
-					status: 'speaking',
-					messages: [
-						...state.messages,
-						{ role: 'user', content: action.transcript, timestamp: Date.now() },
-						{ role: 'assistant', content: action.response, timestamp: Date.now() }
+				const transcript = action.payload?.transcript || '';
+				const updatedSession = {
+					...context.scenarioSession,
+					usedVocabulary: [
+						...context.scenarioSession.usedVocabulary,
+						...extractVocabulary(transcript, context.scenario?.targetVocabulary || [])
 					],
-					error: undefined
+					goalProgress: calculateGoalProgress(transcript, context.scenario),
+					vocabularyProgress: calculateVocabularyProgress(transcript, context.scenario),
+					grammarProgress: calculateGrammarProgress(transcript, context.scenario)
 				};
 
-			case 'CONNECT_REALTIME':
-				return { ...state, status: 'processing', error: undefined };
-
-			case 'REALTIME_CONNECTED':
-				return { ...state, status: 'realtime-connected', error: undefined };
-
-			case 'START_REALTIME_STREAM':
-				return { ...state, status: 'realtime-streaming', error: undefined };
-
-			case 'STOP_REALTIME_STREAM':
-				return { ...state, status: 'realtime-connected', error: undefined };
-
-			case 'REALTIME_AUDIO_RECEIVED':
-				return { ...state, status: 'speaking', error: undefined };
-
-			case 'END_CONVERSATION':
-				return conversationCore.initial();
-
-			case 'ERROR':
 				return {
-					...state,
-					status: 'idle',
-					error: action.message
+					...context,
+					scenarioSession: updatedSession
+				};
+			}
+
+			case 'USE_HINT':
+				return {
+					...context,
+					scenarioSession: context.scenarioSession
+						? {
+								...context.scenarioSession,
+								hintsUsed: context.scenarioSession.hintsUsed + 1
+							}
+						: undefined
+				};
+
+			case 'USE_TRANSLATION':
+				return {
+					...context,
+					scenarioSession: context.scenarioSession
+						? {
+								...context.scenarioSession,
+								translationsUsed: context.scenarioSession.translationsUsed + 1
+							}
+						: undefined
+				};
+
+			case 'VIEW_EXAMPLE_RESPONSE':
+				return {
+					...context,
+					scenarioSession: context.scenarioSession
+						? {
+								...context.scenarioSession,
+								exampleResponsesViewed: context.scenarioSession.exampleResponsesViewed + 1
+							}
+						: undefined
 				};
 
 			default:
-				return state;
+				return context;
 		}
 	},
 
-	// Side effects as data - pure functions return what should happen
-	effects: (state: ConversationState, action: Action): Effect[] => {
+	// 🎯 Pure effect generation
+	effects: (context: ConversationContext, action: ConversationAction): ConversationEffect[] => {
+		const effects: ConversationEffect[] = [];
+
 		switch (action.type) {
-			case 'START_CONVERSATION':
-				if (action.mode === 'realtime') {
-					return [
-						{
-							type: 'CONNECT_REALTIME',
-							sessionId: state.sessionId,
-							language: action.language,
-							voice: action.voice
-						}
-					];
+			case 'RECEIVE_RESPONSE': {
+				if (context.scenario && context.scenarioSession) {
+					const goalCompleted = checkGoalCompletion(
+						action.payload?.transcript || '',
+						context.scenario
+					);
+					if (goalCompleted || context.messages.length >= 10) {
+						effects.push({
+							type: 'ASSESS_SCENARIO',
+							payload: {
+								scenario: context.scenario,
+								userTranscripts: [
+									...context.messages.map((m) => m.content),
+									action.payload?.transcript || ''
+								],
+								goalCompleted
+							}
+						});
+					}
 				}
-				return [];
-
-			case 'STOP_RECORDING':
-				if (state.mode === 'traditional') {
-					return [{ type: 'TRANSCRIBE', audio: action.audio }];
-				}
-				return [];
-
-			case 'RECEIVE_RESPONSE':
-				return [
-					{ type: 'SPEAK', text: action.response },
-					{ type: 'SAVE_EXCHANGE', messages: state.messages }
-				];
-
-			case 'REALTIME_CONNECTED':
-				return [{ type: 'START_AUDIO_STREAM' }];
-
-			case 'REALTIME_AUDIO_RECEIVED':
-				return [{ type: 'PLAY_REALTIME_AUDIO', audioData: action.audioData }];
-
-			case 'END_CONVERSATION':
-				if (state.mode === 'realtime') {
-					return [{ type: 'STOP_AUDIO_STREAM' }];
-				}
-				return [];
-
-			default:
-				return [];
+				break;
+			}
 		}
+
+		return effects;
 	},
 
-	// Derived state helpers
+	// 🎯 Pure derived values
 	derived: {
-		isRecording: (state: ConversationState) => state.status === 'recording',
-		canRecord: (state: ConversationState) =>
-			state.status === 'idle' || state.status === 'realtime-connected',
-		isProcessing: (state: ConversationState) => state.status === 'processing',
-		isSpeaking: (state: ConversationState) => state.status === 'speaking',
-		isRealtimeConnected: (state: ConversationState) => state.status === 'realtime-connected',
-		isRealtimeStreaming: (state: ConversationState) => state.status === 'realtime-streaming',
-		messageCount: (state: ConversationState) => Math.floor(state.messages.length / 2),
-		hasError: (state: ConversationState) => !!state.error
+		hasActiveScenario: (context: ConversationContext): boolean => !!context.scenario,
+		scenarioProgress: (context: ConversationContext): number =>
+			context.scenarioSession?.goalProgress || 0,
+		vocabularyProgress: (context: ConversationContext): number =>
+			context.scenarioSession?.vocabularyProgress || 0,
+		grammarProgress: (context: ConversationContext): number =>
+			context.scenarioSession?.grammarProgress || 0,
+		messageCount: (context: ConversationContext): number => Math.floor(context.messages.length / 2)
 	}
 };
 
-// 🎯 Simple kernel interface for components
-export function createConversationKernel() {
-	let state = conversationCore.initial();
+// 🎯 Pure helper functions
+function extractVocabulary(text: string, targetVocabulary: string[]): string[] {
+	return targetVocabulary.filter((word) => text.toLowerCase().includes(word.toLowerCase()));
+}
 
+function calculateGoalProgress(transcript: string, scenario?: LearningScenario): number {
+	if (!scenario?.successCriteria) return 0;
+
+	const completedSteps = scenario.successCriteria.goalSteps.filter((step: string) =>
+		transcript.toLowerCase().includes(step.toLowerCase())
+	);
+
+	return completedSteps.length / scenario.successCriteria.goalSteps.length;
+}
+
+function calculateVocabularyProgress(transcript: string, scenario?: LearningScenario): number {
+	if (!scenario?.targetVocabulary) return 0;
+
+	const usedWords = extractVocabulary(transcript, scenario.targetVocabulary);
+	return usedWords.length / scenario.targetVocabulary.length;
+}
+
+function calculateGrammarProgress(transcript: string, scenario?: LearningScenario): number {
+	if (!scenario?.targetGrammar) return 0;
+
+	// Simplified grammar progress calculation
+	// This could be enhanced with more sophisticated NLP
+	return 0.5; // Placeholder
+}
+
+function checkGoalCompletion(transcript: string, scenario: LearningScenario): boolean {
+	if (!scenario.successCriteria) return false;
+
+	const goalKeywords = scenario.goal.toLowerCase().split(' ');
+	return goalKeywords.some((keyword: string) => transcript.toLowerCase().includes(keyword));
+}
+
+// 🎯 Pure kernel factory - returns stateless functions
+export function createConversationKernel(): {
+	start: (context: ConversationContext, scenario?: LearningScenario) => ConversationContext;
+	receiveResponse: (context: ConversationContext, transcript: string) => ConversationContext;
+	useHint: (context: ConversationContext) => ConversationContext;
+	useTranslation: (context: ConversationContext) => ConversationContext;
+	viewExampleResponse: (context: ConversationContext) => ConversationContext;
+	getScenarioOutcome: (context: ConversationContext) => ScenarioOutcome | null;
+	getEffects: (context: ConversationContext, action: ConversationAction) => ConversationEffect[];
+	getDerived: (context: ConversationContext) => {
+		hasActiveScenario: boolean;
+		scenarioProgress: number;
+		vocabularyProgress: number;
+		grammarProgress: number;
+		messageCount: number;
+	};
+} {
 	return {
-		getState: () => state,
-
-		dispatch: (action: Action) => {
-			state = conversationCore.transition(state, action);
-			return {
-				state,
-				effects: conversationCore.effects(state, action)
-			};
-		},
-
-		// Convenience methods
-		start: (mode?: 'traditional' | 'realtime', language?: string, voice?: string) => {
-			const result = conversationCore.transition(state, {
+		// 🎯 Pure conversation operations
+		start: (context: ConversationContext, scenario?: LearningScenario): ConversationContext => {
+			return conversationCore.transition(context, {
 				type: 'START_CONVERSATION',
-				mode,
-				language,
-				voice
+				payload: { scenario }
 			});
-			state = result;
-			return result;
 		},
 
-		startRecording: () => {
-			const result = conversationCore.transition(state, { type: 'START_RECORDING' });
-			state = result;
-			return result;
-		},
-
-		stopRecording: (audio: ArrayBuffer) => {
-			const newState = conversationCore.transition(state, { type: 'STOP_RECORDING', audio });
-			const effects = conversationCore.effects(state, { type: 'STOP_RECORDING', audio });
-			state = newState;
-			return { state: newState, effects };
-		},
-
-		receiveResponse: (transcript: string, response: string) => {
-			const newState = conversationCore.transition(state, {
+		receiveResponse: (context: ConversationContext, transcript: string): ConversationContext => {
+			return conversationCore.transition(context, {
 				type: 'RECEIVE_RESPONSE',
-				transcript,
-				response
+				payload: { transcript }
 			});
-			const effects = conversationCore.effects(state, {
-				type: 'RECEIVE_RESPONSE',
-				transcript,
-				response
-			});
-			state = newState;
-			return { state: newState, effects };
 		},
 
-		error: (message: string) => {
-			const result = conversationCore.transition(state, { type: 'ERROR', message });
-			state = result;
-			return result;
+		useHint: (context: ConversationContext): ConversationContext => {
+			return conversationCore.transition(context, { type: 'USE_HINT' });
 		},
 
-		end: () => {
-			const result = conversationCore.transition(state, { type: 'END_CONVERSATION' });
-			state = result;
-			return result;
-		}
+		useTranslation: (context: ConversationContext): ConversationContext => {
+			return conversationCore.transition(context, { type: 'USE_TRANSLATION' });
+		},
+
+		viewExampleResponse: (context: ConversationContext): ConversationContext => {
+			return conversationCore.transition(context, { type: 'VIEW_EXAMPLE_RESPONSE' });
+		},
+
+		// 🎯 Pure assessment
+		getScenarioOutcome: (context: ConversationContext): ScenarioOutcome | null => {
+			if (!context.scenario || !context.scenarioSession) return null;
+
+			const userTranscripts = context.messages
+				.filter((m) => m.role === 'user')
+				.map((m) => m.content);
+
+			const goalCompleted = checkGoalCompletion(
+				userTranscripts[userTranscripts.length - 1] || '',
+				context.scenario
+			);
+
+			return assessScenario(
+				context.scenario,
+				userTranscripts,
+				goalCompleted,
+				0, // duration - would be calculated by orchestrator
+				context.messages.length
+			);
+		},
+
+		// 🎯 Pure effect generation
+		getEffects: (
+			context: ConversationContext,
+			action: ConversationAction
+		): ConversationEffect[] => {
+			return conversationCore.effects(context, action);
+		},
+
+		// 🎯 Pure derived values
+		getDerived: (context: ConversationContext) => ({
+			hasActiveScenario: conversationCore.derived.hasActiveScenario(context),
+			scenarioProgress: conversationCore.derived.scenarioProgress(context),
+			vocabularyProgress: conversationCore.derived.vocabularyProgress(context),
+			grammarProgress: conversationCore.derived.grammarProgress(context),
+			messageCount: conversationCore.derived.messageCount(context)
+		})
 	};
 }
+
+// 🎯 Export the pure kernel
+export const conversationKernel = createConversationKernel();

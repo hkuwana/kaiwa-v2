@@ -1,0 +1,62 @@
+{
+  "name": "Kaiwa - AI Language Learning",
+  "short_name": "Kaiwa",
+  "description": "Practice speaking languages naturally with AI. Immerse yourself in real conversations and learn through dialogue.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3B82F6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshot-narrow.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start English Practice",
+      "short_name": "English",
+      "description": "Start practicing English conversation",
+      "url": "/conversation?lang=en&mode=traditional&voice=alloy",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Start Spanish Practice",
+      "short_name": "Spanish",
+      "description": "Start practicing Spanish conversation",
+      "url": "/conversation?lang=es&mode=traditional&voice=alloy",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}
+

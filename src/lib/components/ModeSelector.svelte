@@ -41,14 +41,11 @@
 	}
 </script>
 
-<div class="flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+<div class="join">
 	{#each modes as mode}
 		<button
-			class="relative flex flex-1 items-center justify-center space-x-2 rounded-md px-4 py-2 text-sm font-medium transition-all focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none {selectedMode ===
-			mode.id
-				? 'bg-white text-blue-700 shadow-sm'
-				: 'text-gray-600 hover:text-gray-900'} {!mode.enabled
-				? 'cursor-not-allowed opacity-50'
+			class="btn join-item {selectedMode === mode.id ? 'btn-active' : ''} relative {!mode.enabled
+				? 'btn-disabled'
 				: ''}"
 			onclick={() => selectMode(mode.id)}
 			disabled={!mode.enabled}
@@ -58,9 +55,7 @@
 			<span>{mode.name}</span>
 
 			{#if mode.badge}
-				<span
-					class="absolute -top-1 -right-1 rounded-full bg-green-500 px-1.5 py-0.5 text-xs font-bold text-white"
-				>
+				<span class="absolute -top-1 -right-1 badge badge-sm badge-success">
 					{mode.badge}
 				</span>
 			{/if}
@@ -72,7 +67,7 @@
 <div class="mt-2 text-center">
 	{#each modes as mode}
 		{#if selectedMode === mode.id}
-			<p class="text-xs text-gray-500 transition-opacity">
+			<p class="text-xs opacity-70 transition-opacity">
 				{mode.description}
 			</p>
 		{/if}
