@@ -36,23 +36,23 @@ flowchart LR
 ```svelte
 <!-- This is your ENTIRE app on Day 1 -->
 <script lang="ts">
-	let isRecording = $state(false);
+ let isRecording = $state(false);
 
-	async function toggleConversation() {
-		if (!isRecording) {
-			// Start recording
-			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-			// ... minimal logic
-			isRecording = true;
-		} else {
-			// Stop and process
-			isRecording = false;
-		}
-	}
+ async function toggleConversation() {
+  if (!isRecording) {
+   // Start recording
+   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+   // ... minimal logic
+   isRecording = true;
+  } else {
+   // Stop and process
+   isRecording = false;
+  }
+ }
 </script>
 
 <button onclick={toggleConversation}>
-	{isRecording ? '⏹️ Stop' : '🎤 Start Speaking'}
+ {isRecording ? '⏹️ Stop' : '🎤 Start Speaking'}
 </button>
 ```
 
@@ -71,7 +71,7 @@ flowchart LR
 - 🔊 Response plays back clearly
 - 📱 Beautiful UI with one button
 
-#### 🏆 Success Metric
+#### 🏆 Success Metric (Day 1-2)
 
 **Can have a real, meaningful conversation**
 
@@ -167,15 +167,15 @@ const audio = new AudioContext(); // For audio processing
 ```typescript
 // Start with localStorage, add backend later
 const storage = {
-	save: (data) => {
-		try {
-			// Try backend
-			await api.save(data);
-		} catch {
-			// Fallback to local
-			localStorage.setItem('conversation', JSON.stringify(data));
-		}
-	}
+ save: (data) => {
+  try {
+   // Try backend
+   await api.save(data);
+  } catch {
+   // Fallback to local
+   localStorage.setItem('conversation', JSON.stringify(data));
+  }
+ }
 };
 ```
 
@@ -232,13 +232,13 @@ const storage = {
 
 Instead of:
 
-```
+```text
 Landing → Sign Up → Onboarding → Settings → Try Feature → Maybe Convert
 ```
 
 We're doing:
 
-```
+```text
 Landing → Try Feature (2 seconds) → Love it → Maybe Sign Up
 ```
 
@@ -263,7 +263,3 @@ Just: **How many people had a real conversation?**
 ---
 
 _Remember: Perfect is the enemy of shipped. Ship the conversation loop, then iterate._
-
-```
-
-```

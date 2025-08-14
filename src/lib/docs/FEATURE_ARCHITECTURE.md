@@ -20,77 +20,77 @@
 // src/kernel/index.ts
 
 type ConversationState = {
-	status: 'idle' | 'recording' | 'processing' | 'speaking';
-	sessionId: string;
-	messages: Message[];
-	startTime: number;
+ status: 'idle' | 'recording' | 'processing' | 'speaking';
+ sessionId: string;
+ messages: Message[];
+ startTime: number;
 };
 
 type Action =
-	| { type: 'START_CONVERSATION' }
-	| { type: 'START_RECORDING' }
-	| { type: 'STOP_RECORDING'; audio: ArrayBuffer }
-	| { type: 'RECEIVE_RESPONSE'; transcript: string; response: string }
-	| { type: 'END_CONVERSATION' };
+ | { type: 'START_CONVERSATION' }
+ | { type: 'START_RECORDING' }
+ | { type: 'STOP_RECORDING'; audio: ArrayBuffer }
+ | { type: 'RECEIVE_RESPONSE'; transcript: string; response: string }
+ | { type: 'END_CONVERSATION' };
 
 // Pure functional core
 export const conversationCore = {
-	initial: (): ConversationState => ({
-		status: 'idle',
-		sessionId: '',
-		messages: [],
-		startTime: 0
-	}),
+ initial: (): ConversationState => ({
+  status: 'idle',
+  sessionId: '',
+  messages: [],
+  startTime: 0
+ }),
 
-	transition: (state: ConversationState, action: Action): ConversationState => {
-		switch (action.type) {
-			case 'START_CONVERSATION':
-				return {
-					...state,
-					status: 'idle',
-					sessionId: crypto.randomUUID(),
-					startTime: Date.now(),
-					messages: []
-				};
+ transition: (state: ConversationState, action: Action): ConversationState => {
+  switch (action.type) {
+   case 'START_CONVERSATION':
+    return {
+     ...state,
+     status: 'idle',
+     sessionId: crypto.randomUUID(),
+     startTime: Date.now(),
+     messages: []
+    };
 
-			case 'START_RECORDING':
-				return { ...state, status: 'recording' };
+   case 'START_RECORDING':
+    return { ...state, status: 'recording' };
 
-			case 'STOP_RECORDING':
-				return { ...state, status: 'processing' };
+   case 'STOP_RECORDING':
+    return { ...state, status: 'processing' };
 
-			case 'RECEIVE_RESPONSE':
-				return {
-					...state,
-					status: 'speaking',
-					messages: [
-						...state.messages,
-						{ role: 'user', content: action.transcript },
-						{ role: 'assistant', content: action.response }
-					]
-				};
+   case 'RECEIVE_RESPONSE':
+    return {
+     ...state,
+     status: 'speaking',
+     messages: [
+      ...state.messages,
+      { role: 'user', content: action.transcript },
+      { role: 'assistant', content: action.response }
+     ]
+    };
 
-			case 'END_CONVERSATION':
-				return conversationCore.initial();
+   case 'END_CONVERSATION':
+    return conversationCore.initial();
 
-			default:
-				return state;
-		}
-	},
+   default:
+    return state;
+  }
+ },
 
-	// Side effects as data
-	effects: (state: ConversationState, action: Action): Effect[] => {
-		switch (action.type) {
-			case 'STOP_RECORDING':
-				return [{ type: 'TRANSCRIBE', audio: action.audio }, { type: 'GENERATE_RESPONSE' }];
+ // Side effects as data
+ effects: (state: ConversationState, action: Action): Effect[] => {
+  switch (action.type) {
+   case 'STOP_RECORDING':
+    return [{ type: 'TRANSCRIBE', audio: action.audio }, { type: 'GENERATE_RESPONSE' }];
 
-			case 'RECEIVE_RESPONSE':
-				return [{ type: 'SPEAK', text: action.response }, { type: 'SAVE_EXCHANGE' }];
+   case 'RECEIVE_RESPONSE':
+    return [{ type: 'SPEAK', text: action.response }, { type: 'SAVE_EXCHANGE' }];
 
-			default:
-				return [];
-		}
-	}
+   default:
+    return [];
+  }
+ }
 };
 ```
 
@@ -101,61 +101,61 @@ export const conversationCore = {
 
 // Simple adapter interfaces - implement with whatever you have
 export const adapters = {
-	audio: {
-		startRecording: async (): Promise<MediaRecorder> => {
-			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-			return new MediaRecorder(stream);
-		},
+ audio: {
+  startRecording: async (): Promise<MediaRecorder> => {
+   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+   return new MediaRecorder(stream);
+  },
 
-		stopRecording: (recorder: MediaRecorder): Promise<ArrayBuffer> => {
-			return new Promise((resolve) => {
-				recorder.ondataavailable = async (e) => {
-					resolve(await e.data.arrayBuffer());
-				};
-				recorder.stop();
-			});
-		},
+  stopRecording: (recorder: MediaRecorder): Promise<ArrayBuffer> => {
+   return new Promise((resolve) => {
+    recorder.ondataavailable = async (e) => {
+     resolve(await e.data.arrayBuffer());
+    };
+    recorder.stop();
+   });
+  },
 
-		play: async (audioData: ArrayBuffer): Promise<void> => {
-			const audioContext = new AudioContext();
-			const buffer = await audioContext.decodeAudioData(audioData);
-			const source = audioContext.createBufferSource();
-			source.buffer = buffer;
-			source.connect(audioContext.destination);
-			source.start();
-		}
-	},
+  play: async (audioData: ArrayBuffer): Promise<void> => {
+   const audioContext = new AudioContext();
+   const buffer = await audioContext.decodeAudioData(audioData);
+   const source = audioContext.createBufferSource();
+   source.buffer = buffer;
+   source.connect(audioContext.destination);
+   source.start();
+  }
+ },
 
-	ai: {
-		transcribe: async (audio: ArrayBuffer): Promise<string> => {
-			// Use Whisper API or Web Speech API
-			const formData = new FormData();
-			formData.append('audio', new Blob([audio]));
-			const res = await fetch('/api/transcribe', {
-				method: 'POST',
-				body: formData
-			});
-			return res.text();
-		},
+ ai: {
+  transcribe: async (audio: ArrayBuffer): Promise<string> => {
+   // Use Whisper API or Web Speech API
+   const formData = new FormData();
+   formData.append('audio', new Blob([audio]));
+   const res = await fetch('/api/transcribe', {
+    method: 'POST',
+    body: formData
+   });
+   return res.text();
+  },
 
-		complete: async (prompt: string, history: Message[] = []): Promise<string> => {
-			const res = await fetch('/api/chat', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ prompt, history })
-			});
-			return res.text();
-		},
+  complete: async (prompt: string, history: Message[] = []): Promise<string> => {
+   const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, history })
+   });
+   return res.text();
+  },
 
-		textToSpeech: async (text: string): Promise<ArrayBuffer> => {
-			const res = await fetch('/api/tts', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ text })
-			});
-			return res.arrayBuffer();
-		}
-	}
+  textToSpeech: async (text: string): Promise<ArrayBuffer> => {
+   const res = await fetch('/api/tts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text })
+   });
+   return res.arrayBuffer();
+  }
+ }
 };
 ```
 
@@ -167,115 +167,115 @@ export const adapters = {
 <!-- src/routes/+page.svelte -->
 <!-- The ENTIRE app UI in one component initially -->
 <script lang="ts">
-	import { conversationCore, adapters } from '$lib/kernel';
+ import { conversationCore, adapters } from '$lib/kernel';
 
-	// Single state object
-	let state = $state(conversationCore.initial());
-	let recorder = $state<MediaRecorder | null>(null);
+ // Single state object
+ let state = $state(conversationCore.initial());
+ let recorder = $state<MediaRecorder | null>(null);
 
-	// Orchestrator pattern
-	async function dispatch(action: Action) {
-		// 1. Update state
-		state = conversationCore.transition(state, action);
+ // Orchestrator pattern
+ async function dispatch(action: Action) {
+  // 1. Update state
+  state = conversationCore.transition(state, action);
 
-		// 2. Execute effects
-		const effects = conversationCore.effects(state, action);
-		for (const effect of effects) {
-			await executeEffect(effect);
-		}
-	}
+  // 2. Execute effects
+  const effects = conversationCore.effects(state, action);
+  for (const effect of effects) {
+   await executeEffect(effect);
+  }
+ }
 
-	async function executeEffect(effect: Effect) {
-		switch (effect.type) {
-			case 'TRANSCRIBE':
-				const transcript = await adapters.ai.transcribe(effect.audio);
-				const response = await adapters.ai.complete(transcript, state.messages);
-				await dispatch({
-					type: 'RECEIVE_RESPONSE',
-					transcript,
-					response
-				});
-				break;
+ async function executeEffect(effect: Effect) {
+  switch (effect.type) {
+   case 'TRANSCRIBE':
+    const transcript = await adapters.ai.transcribe(effect.audio);
+    const response = await adapters.ai.complete(transcript, state.messages);
+    await dispatch({
+     type: 'RECEIVE_RESPONSE',
+     transcript,
+     response
+    });
+    break;
 
-			case 'SPEAK':
-				const audio = await adapters.ai.textToSpeech(effect.text);
-				await adapters.audio.play(audio);
-				state = { ...state, status: 'idle' };
-				break;
-		}
-	}
+   case 'SPEAK':
+    const audio = await adapters.ai.textToSpeech(effect.text);
+    await adapters.audio.play(audio);
+    state = { ...state, status: 'idle' };
+    break;
+  }
+ }
 
-	async function toggleRecording() {
-		if (state.status === 'idle') {
-			if (!state.sessionId) {
-				await dispatch({ type: 'START_CONVERSATION' });
-			}
-			recorder = await adapters.audio.startRecording();
-			await dispatch({ type: 'START_RECORDING' });
-		} else if (state.status === 'recording' && recorder) {
-			const audio = await adapters.audio.stopRecording(recorder);
-			await dispatch({ type: 'STOP_RECORDING', audio });
-			recorder = null;
-		}
-	}
+ async function toggleRecording() {
+  if (state.status === 'idle') {
+   if (!state.sessionId) {
+    await dispatch({ type: 'START_CONVERSATION' });
+   }
+   recorder = await adapters.audio.startRecording();
+   await dispatch({ type: 'START_RECORDING' });
+  } else if (state.status === 'recording' && recorder) {
+   const audio = await adapters.audio.stopRecording(recorder);
+   await dispatch({ type: 'STOP_RECORDING', audio });
+   recorder = null;
+  }
+ }
 
-	// Derived state
-	const buttonText = $derived(
-		state.status === 'recording'
-			? 'Stop'
-			: state.status === 'processing'
-				? 'Processing...'
-				: state.status === 'speaking'
-					? 'Speaking...'
-					: 'Start'
-	);
+ // Derived state
+ const buttonText = $derived(
+  state.status === 'recording'
+   ? 'Stop'
+   : state.status === 'processing'
+    ? 'Processing...'
+    : state.status === 'speaking'
+     ? 'Speaking...'
+     : 'Start'
+ );
 
-	const isDisabled = $derived(state.status === 'processing' || state.status === 'speaking');
+ const isDisabled = $derived(state.status === 'processing' || state.status === 'speaking');
 </script>
 
 <div class="flex min-h-screen flex-col items-center justify-center p-8">
-	<!-- Minimal UI - just what's needed -->
-	<div class="w-full max-w-2xl space-y-8">
-		<h1 class="text-center text-3xl font-bold">Practice Speaking</h1>
+ <!-- Minimal UI - just what's needed -->
+ <div class="w-full max-w-2xl space-y-8">
+  <h1 class="text-center text-3xl font-bold">Practice Speaking</h1>
 
-		<!-- Conversation display -->
-		{#if state.messages.length > 0}
-			<div class="max-h-96 space-y-4 overflow-y-auto">
-				{#each state.messages as message}
-					<div class="rounded-lg p-4 {message.role === 'user' ? 'bg-blue-100' : 'bg-gray-100'}">
-						<p class="font-medium">{message.role === 'user' ? 'You' : 'Teacher'}</p>
-						<p>{message.content}</p>
-					</div>
-				{/each}
-			</div>
-		{/if}
+  <!-- Conversation display -->
+  {#if state.messages.length > 0}
+   <div class="max-h-96 space-y-4 overflow-y-auto">
+    {#each state.messages as message}
+     <div class="rounded-lg p-4 {message.role === 'user' ? 'bg-blue-100' : 'bg-gray-100'}">
+      <p class="font-medium">{message.role === 'user' ? 'You' : 'Teacher'}</p>
+      <p>{message.content}</p>
+     </div>
+    {/each}
+   </div>
+  {/if}
 
-		<!-- Single action button -->
-		<button
-			class="w-full rounded-full py-6 text-xl font-semibold transition-all
+  <!-- Single action button -->
+  <button
+   class="w-full rounded-full py-6 text-xl font-semibold transition-all
              {state.status === 'recording' ? 'animate-pulse bg-red-500' : 'bg-blue-500'}
              {isDisabled ? 'cursor-not-allowed opacity-50' : 'hover:scale-105'}"
-			onclick={toggleRecording}
-			disabled={isDisabled}
-		>
-			{buttonText}
-		</button>
+   onclick={toggleRecording}
+   disabled={isDisabled}
+  >
+   {buttonText}
+  </button>
 
-		<!-- Status indicator -->
-		<div class="text-center text-sm text-gray-600">
-			{#if state.status === 'recording'}
-				<span class="animate-pulse">🔴 Recording...</span>
-			{:else if state.status === 'processing'}
-				<span>🤖 Thinking...</span>
-			{:else if state.status === 'speaking'}
-				<span>🔊 Speaking...</span>
-			{:else if state.messages.length > 0}
-				<span>✨ {state.messages.length / 2} exchanges</span>
-			{:else}
-				<span>Press Start to begin</span>
-			{/if}
-		</div>
-	</div>
+  <!-- Status indicator -->
+  <div class="text-center text-sm text-gray-600">
+   {#if state.status === 'recording'}
+    <span class="animate-pulse">🔴 Recording...</span>
+   {:else if state.status === 'processing'}
+    <span>🤖 Thinking...</span>
+   {:else if state.status === 'speaking'}
+    <span>🔊 Speaking...</span>
+   {:else if state.messages.length > 0}
+    <span>✨ {state.messages.length / 2} exchanges</span>
+   {:else}
+    <span>Press Start to begin</span>
+   {/if}
+  </div>
+ </div>
 </div>
 ```
 
@@ -288,57 +288,57 @@ export const adapters = {
 // Auth that doesn't break the core experience
 
 export const authEnhancement = {
-	// Try to enhance, but don't block
-	async enhance(kernel: ConversationKernel) {
-		try {
-			const user = await this.tryAutoLogin();
-			if (user) {
-				// Enhance the kernel with user context
-				return {
-					...kernel,
-					speak: async (audio: ArrayBuffer) => {
-						const result = await kernel.speak(audio);
-						// Add user context to AI prompts
-						return result;
-					}
-				};
-			}
-		} catch {
-			// Silently continue without auth
-		}
-		return kernel;
-	},
+ // Try to enhance, but don't block
+ async enhance(kernel: ConversationKernel) {
+  try {
+   const user = await this.tryAutoLogin();
+   if (user) {
+    // Enhance the kernel with user context
+    return {
+     ...kernel,
+     speak: async (audio: ArrayBuffer) => {
+      const result = await kernel.speak(audio);
+      // Add user context to AI prompts
+      return result;
+     }
+    };
+   }
+  } catch {
+   // Silently continue without auth
+  }
+  return kernel;
+ },
 
-	async tryAutoLogin() {
-		// Attempt Google sign-in
-		return null; // For now
-	}
+ async tryAutoLogin() {
+  // Attempt Google sign-in
+  return null; // For now
+ }
 };
 
 // src/enhance/persist.ts
 // Persistence that fails gracefully
 
 export const persistEnhancement = {
-	async enhance(kernel: ConversationKernel) {
-		const originalEnd = kernel.end;
+ async enhance(kernel: ConversationKernel) {
+  const originalEnd = kernel.end;
 
-		return {
-			...kernel,
-			end: async () => {
-				const result = originalEnd();
-				// Try to save, but don't block
-				this.trySave(result).catch(() => {
-					// Save to localStorage as fallback
-					localStorage.setItem('lastConversation', JSON.stringify(result));
-				});
-				return result;
-			}
-		};
-	},
+  return {
+   ...kernel,
+   end: async () => {
+    const result = originalEnd();
+    // Try to save, but don't block
+    this.trySave(result).catch(() => {
+     // Save to localStorage as fallback
+     localStorage.setItem('lastConversation', JSON.stringify(result));
+    });
+    return result;
+   }
+  };
+ },
 
-	async trySave(conversation: any) {
-		// Attempt to save to backend
-	}
+ async trySave(conversation: any) {
+  // Attempt to save to backend
+ }
 };
 ```
 
@@ -419,7 +419,7 @@ export const persistEnhancement = {
 
 _Remember: The goal is a working conversation loop by Day 2. Everything else is enhancement._
 
-````
+```text
 
 
 ## **CTO_ASSESSMENT_MIGRATION_PLAN.md** (Updated)
@@ -564,26 +564,26 @@ const kernel = {
 ```typescript
 // Pure functions for all business logic
 const core = {
-	// State transitions
-	transition: (state, action) => newState,
+ // State transitions
+ transition: (state, action) => newState,
 
-	// Side effects as data
-	effects: (state, action) => [...effects]
+ // Side effects as data
+ effects: (state, action) => [...effects]
 };
 
 // Adapters for external services
 const adapters = {
-	audio: { record, play },
-	ai: { transcribe, complete, tts }
+ audio: { record, play },
+ ai: { transcribe, complete, tts }
 };
 
 // Orchestrator to coordinate
 const orchestrator = {
-	dispatch: async (action) => {
-		state = core.transition(state, action);
-		const effects = core.effects(state, action);
-		await Promise.all(effects.map(executeEffect));
-	}
+ dispatch: async (action) => {
+  state = core.transition(state, action);
+  const effects = core.effects(state, action);
+  await Promise.all(effects.map(executeEffect));
+ }
 };
 ```
 
@@ -592,22 +592,22 @@ const orchestrator = {
 ```typescript
 // One source of truth
 type AppState = {
-	conversation: {
-		status: 'idle' | 'recording' | 'processing' | 'speaking';
-		messages: Message[];
-		sessionId: string;
-	};
-	user: {
-		id?: string;
-		isAnonymous: boolean;
-	};
+ conversation: {
+  status: 'idle' | 'recording' | 'processing' | 'speaking';
+  messages: Message[];
+  sessionId: string;
+ };
+ user: {
+  id?: string;
+  isAnonymous: boolean;
+ };
 };
 
 // All derived state computed from this tree
 const derived = {
-	isRecording: $derived(state.conversation.status === 'recording'),
-	canSpeak: $derived(state.conversation.status === 'idle'),
-	messageCount: $derived(state.conversation.messages.length)
+ isRecording: $derived(state.conversation.status === 'recording'),
+ canSpeak: $derived(state.conversation.status === 'idle'),
+ messageCount: $derived(state.conversation.messages.length)
 };
 ```
 
@@ -616,18 +616,18 @@ const derived = {
 ```typescript
 // Core works without these
 const enhancements = {
-	auth: {
-		enhance: (kernel) => optionalAuth(kernel),
-		fallback: () => continueAnonymously()
-	},
-	persist: {
-		enhance: (kernel) => cloudSave(kernel),
-		fallback: () => localStorage
-	},
-	analytics: {
-		enhance: (kernel) => trackEvents(kernel),
-		fallback: () => null // No tracking
-	}
+ auth: {
+  enhance: (kernel) => optionalAuth(kernel),
+  fallback: () => continueAnonymously()
+ },
+ persist: {
+  enhance: (kernel) => cloudSave(kernel),
+  fallback: () => localStorage
+ },
+ analytics: {
+  enhance: (kernel) => trackEvents(kernel),
+  fallback: () => null // No tracking
+ }
 };
 ```
 
@@ -818,7 +818,3 @@ Everything else is a distraction.
 ---
 
 _Day 1 starts now. Ship the kernel by Day 2. Everything else will follow._
-
-```
-
-```

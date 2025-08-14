@@ -3,13 +3,13 @@
 
 import type {
 	LearningScenario,
-	ScenarioOutcome,
 	VocabularyAssessment,
 	GrammarAssessment,
 	GoalAssessment,
 	AssessmentConfig
-} from './learning.js';
-import { defaultAssessmentConfig } from './learning.js';
+} from './learning';
+import type { NewScenarioOutcome } from '$lib/server/db/types';
+import { defaultAssessmentConfig } from './learning';
 
 // 🎯 Core Assessment Engine
 export class ScenarioAssessmentEngine {
@@ -26,7 +26,7 @@ export class ScenarioAssessmentEngine {
 		goalCompleted: boolean,
 		durationSeconds: number,
 		exchangeCount: number
-	): ScenarioOutcome {
+	): Omit<NewScenarioOutcome, 'userId' | 'conversationId' | 'scenarioId'> {
 		// Analyze vocabulary usage
 		const vocabularyAssessment = this.assessVocabulary(scenario, userTranscripts);
 		const vocabularyScore = this.calculateVocabularyScore(vocabularyAssessment);
@@ -39,42 +39,12 @@ export class ScenarioAssessmentEngine {
 		const goalAssessment = this.assessGoalCompletion(scenario, userTranscripts, goalCompleted);
 		const goalScore = this.calculateGoalScore(goalAssessment);
 
-		// Calculate overall scores
-		const overallScore = this.calculateOverallScore({
-			vocabulary: vocabularyScore,
-			grammar: grammarScore,
-			goalCompletion: goalScore,
-			pronunciation: 0.8 // Placeholder - would come from speech recognition
-		});
-
-		// Generate AI feedback
-		const aiFeedback = this.generateAIFeedback(
-			scenario,
-			vocabularyAssessment,
-			grammarAssessment,
-			goalAssessment,
-			overallScore
-		);
-
-		// Generate improvement suggestions
-		const suggestions = this.generateSuggestions(
-			scenario,
-			vocabularyAssessment,
-			grammarAssessment,
-			goalAssessment
-		);
-
 		return {
 			wasGoalAchieved: goalCompleted,
 			goalCompletionScore: goalScore.toString(),
 			grammarUsageScore: grammarScore.toString(),
 			vocabularyUsageScore: vocabularyScore.toString(),
 			pronunciationScore: '0.80', // Placeholder
-			usedTargetVocabulary: vocabularyAssessment.filter((v) => v.wasUsed).map((v) => v.word),
-			missedTargetVocabulary: vocabularyAssessment.filter((v) => !v.wasUsed).map((v) => v.word),
-			grammarErrors: grammarAssessment.filter((g) => g.accuracy < 0.7).flatMap((g) => g.errors),
-			aiFeedback,
-			suggestions,
 			durationSeconds,
 			exchangeCount
 		};
@@ -378,7 +348,7 @@ export function assessScenario(
 	goalCompleted: boolean,
 	durationSeconds: number,
 	exchangeCount: number
-): ScenarioOutcome {
+): Omit<NewScenarioOutcome, 'userId' | 'conversationId' | 'scenarioId'> {
 	return assessmentEngine.assessScenario(
 		scenario,
 		userTranscripts,

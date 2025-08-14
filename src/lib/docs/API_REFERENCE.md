@@ -100,17 +100,17 @@ servers:
 
 ```typescript
 export interface AuthenticationPort {
-	loginWithGoogle(googleToken: string): Promise<AuthResult>;
-	refreshSession(refreshToken: string): Promise<AuthResult>;
-	logout(sessionId: string): Promise<void>;
-	validateSession(sessionId: string): Promise<User | null>;
+ loginWithGoogle(googleToken: string): Promise<AuthResult>;
+ refreshSession(refreshToken: string): Promise<AuthResult>;
+ logout(sessionId: string): Promise<void>;
+ validateSession(sessionId: string): Promise<User | null>;
 }
 
 export interface AuthResult {
-	user: User;
-	session: Session;
-	accessToken: string;
-	refreshToken: string;
+ user: User;
+ session: Session;
+ accessToken: string;
+ refreshToken: string;
 }
 ```
 
@@ -119,25 +119,25 @@ export interface AuthResult {
 ```typescript
 // POST /auth/google/login
 export interface GoogleLoginRequest {
-	googleToken: string;
-	redirectUri?: string;
+ googleToken: string;
+ redirectUri?: string;
 }
 
 export interface GoogleLoginResponse {
-	success: boolean;
-	data: AuthResult;
-	message?: string;
+ success: boolean;
+ data: AuthResult;
+ message?: string;
 }
 
 // POST /auth/session/refresh
 export interface RefreshSessionRequest {
-	refreshToken: string;
+ refreshToken: string;
 }
 
 export interface RefreshSessionResponse {
-	success: boolean;
-	data: AuthResult;
-	message?: string;
+ success: boolean;
+ data: AuthResult;
+ message?: string;
 }
 ```
 
@@ -147,19 +147,19 @@ export interface RefreshSessionResponse {
 
 ```typescript
 export interface UserManagementPort {
-	createUser(userData: CreateUserData): Promise<User>;
-	updateUser(userId: string, updates: Partial<User>): Promise<User>;
-	getUserById(userId: string): Promise<User | null>;
-	getUserByEmail(email: string): Promise<User | null>;
-	deleteUser(userId: string): Promise<void>;
+ createUser(userData: CreateUserData): Promise<User>;
+ updateUser(userId: string, updates: Partial<User>): Promise<User>;
+ getUserById(userId: string): Promise<User | null>;
+ getUserByEmail(email: string): Promise<User | null>;
+ deleteUser(userId: string): Promise<void>;
 }
 
 export interface CreateUserData {
-	email: string;
-	googleId?: string;
-	displayName?: string;
-	nativeLanguage: string;
-	preferredUILanguage: string;
+ email: string;
+ googleId?: string;
+ displayName?: string;
+ nativeLanguage: string;
+ preferredUILanguage: string;
 }
 ```
 
@@ -168,22 +168,22 @@ export interface CreateUserData {
 ```typescript
 // GET /users/{userId}
 export interface GetUserResponse {
-	success: boolean;
-	data: User;
+ success: boolean;
+ data: User;
 }
 
 // PUT /users/{userId}
 export interface UpdateUserRequest {
-	displayName?: string;
-	nativeLanguage?: string;
-	preferredUILanguage?: string;
-	avatarUrl?: string;
+ displayName?: string;
+ nativeLanguage?: string;
+ preferredUILanguage?: string;
+ avatarUrl?: string;
 }
 
 export interface UpdateUserResponse {
-	success: boolean;
-	data: User;
-	message?: string;
+ success: boolean;
+ data: User;
+ message?: string;
 }
 ```
 
@@ -193,15 +193,15 @@ export interface UpdateUserResponse {
 
 ```typescript
 export interface ConversationPort {
-	startConversation(
-		userId: string,
-		targetLanguage: string,
-		mode: ConversationMode
-	): Promise<Conversation>;
-	sendMessage(conversationId: string, content: string, role: MessageRole): Promise<Message>;
-	endConversation(conversationId: string): Promise<Conversation>;
-	getConversationHistory(userId: string, limit?: number): Promise<Conversation[]>;
-	getConversationById(conversationId: string): Promise<Conversation | null>;
+ startConversation(
+  userId: string,
+  targetLanguage: string,
+  mode: ConversationMode
+ ): Promise<Conversation>;
+ sendMessage(conversationId: string, content: string, role: MessageRole): Promise<Message>;
+ endConversation(conversationId: string): Promise<Conversation>;
+ getConversationHistory(userId: string, limit?: number): Promise<Conversation[]>;
+ getConversationById(conversationId: string): Promise<Conversation | null>;
 }
 
 export type ConversationMode = 'traditional' | 'realtime';
@@ -213,42 +213,42 @@ export type MessageRole = 'user' | 'assistant' | 'system';
 ```typescript
 // POST /conversations
 export interface StartConversationRequest {
-	targetLanguage: string;
-	mode: ConversationMode;
-	scenarioId?: string;
+ targetLanguage: string;
+ mode: ConversationMode;
+ scenarioId?: string;
 }
 
 export interface StartConversationResponse {
-	success: boolean;
-	data: Conversation;
+ success: boolean;
+ data: Conversation;
 }
 
 // POST /conversations/{conversationId}/messages
 export interface SendMessageRequest {
-	content: string;
-	role: MessageRole;
-	audioId?: string;
+ content: string;
+ role: MessageRole;
+ audioId?: string;
 }
 
 export interface SendMessageResponse {
-	success: boolean;
-	data: Message;
+ success: boolean;
+ data: Message;
 }
 
 // GET /conversations
 export interface GetConversationsQuery {
-	limit?: number;
-	offset?: number;
-	status?: 'active' | 'completed';
+ limit?: number;
+ offset?: number;
+ status?: 'active' | 'completed';
 }
 
 export interface GetConversationsResponse {
-	success: boolean;
-	data: {
-		conversations: Conversation[];
-		total: number;
-		hasMore: boolean;
-	};
+ success: boolean;
+ data: {
+  conversations: Conversation[];
+  total: number;
+  hasMore: boolean;
+ };
 }
 ```
 
@@ -258,36 +258,36 @@ export interface GetConversationsResponse {
 
 ```typescript
 export interface AudioPort {
-	startRecording(sessionId: string, userId?: string): Promise<RecordingSession>;
-	stopRecording(sessionId: string): Promise<AudioData>;
-	transcribeAudio(audioData: AudioData): Promise<Transcription>;
-	playAudio(audioId: string): Promise<AudioStream>;
-	getAudioById(audioId: string): Promise<AudioData | null>;
+ startRecording(sessionId: string, userId?: string): Promise<RecordingSession>;
+ stopRecording(sessionId: string): Promise<AudioData>;
+ transcribeAudio(audioData: AudioData): Promise<Transcription>;
+ playAudio(audioId: string): Promise<AudioStream>;
+ getAudioById(audioId: string): Promise<AudioData | null>;
 }
 
 export interface AudioData {
-	id: string;
-	sessionId: string;
-	userId?: string;
-	audioUrl: string;
-	duration: number;
-	size: number;
-	format: string;
-	createdAt: Date;
+ id: string;
+ sessionId: string;
+ userId?: string;
+ audioUrl: string;
+ duration: number;
+ size: number;
+ format: string;
+ createdAt: Date;
 }
 
 export interface Transcription {
-	text: string;
-	confidence: number;
-	language: string;
-	segments: TranscriptionSegment[];
+ text: string;
+ confidence: number;
+ language: string;
+ segments: TranscriptionSegment[];
 }
 
 export interface TranscriptionSegment {
-	start: number;
-	end: number;
-	text: string;
-	confidence: number;
+ start: number;
+ end: number;
+ text: string;
+ confidence: number;
 }
 ```
 
@@ -296,34 +296,34 @@ export interface TranscriptionSegment {
 ```typescript
 // POST /audio/recording/start
 export interface StartRecordingRequest {
-	sessionId: string;
-	userId?: string;
+ sessionId: string;
+ userId?: string;
 }
 
 export interface StartRecordingResponse {
-	success: boolean;
-	data: RecordingSession;
+ success: boolean;
+ data: RecordingSession;
 }
 
 // POST /audio/recording/stop
 export interface StopRecordingRequest {
-	sessionId: string;
+ sessionId: string;
 }
 
 export interface StopRecordingResponse {
-	success: boolean;
-	data: AudioData;
+ success: boolean;
+ data: AudioData;
 }
 
 // POST /audio/transcribe
 export interface TranscribeRequest {
-	audioId: string;
-	language?: string;
+ audioId: string;
+ language?: string;
 }
 
 export interface TranscribeResponse {
-	success: boolean;
-	data: Transcription;
+ success: boolean;
+ data: Transcription;
 }
 ```
 
@@ -333,26 +333,26 @@ export interface TranscribeResponse {
 
 ```typescript
 export interface VocabularyPort {
-	trackWordEncounter(
-		userId: string,
-		word: string,
-		language: string,
-		context: string
-	): Promise<void>;
-	updateWordMastery(userId: string, word: string, masteryLevel: MasteryLevel): Promise<void>;
-	getVocabularyProgress(userId: string, language: string): Promise<VocabularyProgress[]>;
-	getRecommendedWords(userId: string, language: string, count: number): Promise<string[]>;
+ trackWordEncounter(
+  userId: string,
+  word: string,
+  language: string,
+  context: string
+ ): Promise<void>;
+ updateWordMastery(userId: string, word: string, masteryLevel: MasteryLevel): Promise<void>;
+ getVocabularyProgress(userId: string, language: string): Promise<VocabularyProgress[]>;
+ getRecommendedWords(userId: string, language: string, count: number): Promise<string[]>;
 }
 
 export type MasteryLevel = 'new' | 'learning' | 'practicing' | 'mastered';
 
 export interface VocabularyProgress {
-	word: string;
-	encounterCount: number;
-	successfulUsageCount: number;
-	masteryLevel: MasteryLevel;
-	lastReviewed: Date;
-	nextReview: Date;
+ word: string;
+ encounterCount: number;
+ successfulUsageCount: number;
+ masteryLevel: MasteryLevel;
+ lastReviewed: Date;
+ nextReview: Date;
 }
 ```
 
@@ -361,27 +361,27 @@ export interface VocabularyProgress {
 ```typescript
 // POST /vocabulary/encounter
 export interface TrackWordEncounterRequest {
-	word: string;
-	language: string;
-	context: string;
+ word: string;
+ language: string;
+ context: string;
 }
 
 // PUT /vocabulary/mastery
 export interface UpdateMasteryRequest {
-	word: string;
-	language: string;
-	masteryLevel: MasteryLevel;
+ word: string;
+ language: string;
+ masteryLevel: MasteryLevel;
 }
 
 // GET /vocabulary/progress
 export interface GetVocabularyProgressQuery {
-	language: string;
-	masteryLevel?: MasteryLevel;
+ language: string;
+ masteryLevel?: MasteryLevel;
 }
 
 export interface GetVocabularyProgressResponse {
-	success: boolean;
-	data: VocabularyProgress[];
+ success: boolean;
+ data: VocabularyProgress[];
 }
 ```
 
@@ -391,32 +391,32 @@ export interface GetVocabularyProgressResponse {
 
 ```typescript
 export interface SubscriptionPort {
-	createSubscription(
-		userId: string,
-		tierId: string,
-		paymentMethod: PaymentMethod
-	): Promise<Subscription>;
-	cancelSubscription(subscriptionId: string, reason?: string): Promise<Subscription>;
-	updateSubscription(subscriptionId: string, updates: Partial<Subscription>): Promise<Subscription>;
-	getSubscriptionById(subscriptionId: string): Promise<Subscription | null>;
-	getUserSubscription(userId: string): Promise<Subscription | null>;
+ createSubscription(
+  userId: string,
+  tierId: string,
+  paymentMethod: PaymentMethod
+ ): Promise<Subscription>;
+ cancelSubscription(subscriptionId: string, reason?: string): Promise<Subscription>;
+ updateSubscription(subscriptionId: string, updates: Partial<Subscription>): Promise<Subscription>;
+ getSubscriptionById(subscriptionId: string): Promise<Subscription | null>;
+ getUserSubscription(userId: string): Promise<Subscription | null>;
 }
 
 export interface PaymentMethod {
-	type: 'stripe' | 'paypal';
-	token: string;
+ type: 'stripe' | 'paypal';
+ token: string;
 }
 
 export interface Subscription {
-	id: string;
-	userId: string;
-	tierId: string;
-	status: SubscriptionStatus;
-	currentPeriodStart: Date;
-	currentPeriodEnd: Date;
-	cancelAtPeriodEnd: boolean;
-	stripeSubscriptionId?: string;
-	stripeCustomerId?: string;
+ id: string;
+ userId: string;
+ tierId: string;
+ status: SubscriptionStatus;
+ currentPeriodStart: Date;
+ currentPeriodEnd: Date;
+ cancelAtPeriodEnd: boolean;
+ stripeSubscriptionId?: string;
+ stripeCustomerId?: string;
 }
 ```
 
@@ -425,24 +425,24 @@ export interface Subscription {
 ```typescript
 // POST /subscriptions
 export interface CreateSubscriptionRequest {
-	tierId: string;
-	paymentMethod: PaymentMethod;
+ tierId: string;
+ paymentMethod: PaymentMethod;
 }
 
 export interface CreateSubscriptionResponse {
-	success: boolean;
-	data: Subscription;
+ success: boolean;
+ data: Subscription;
 }
 
 // DELETE /subscriptions/{subscriptionId}
 export interface CancelSubscriptionRequest {
-	reason?: string;
+ reason?: string;
 }
 
 export interface CancelSubscriptionResponse {
-	success: boolean;
-	data: Subscription;
-	message: string;
+ success: boolean;
+ data: Subscription;
+ message: string;
 }
 ```
 
@@ -454,11 +454,11 @@ export interface CancelSubscriptionResponse {
 
 ```typescript
 export interface SuccessResponse<T> {
-	success: true;
-	data: T;
-	message?: string;
-	timestamp: string;
-	requestId: string;
+ success: true;
+ data: T;
+ message?: string;
+ timestamp: string;
+ requestId: string;
 }
 ```
 
@@ -466,14 +466,14 @@ export interface SuccessResponse<T> {
 
 ```typescript
 export interface ErrorResponse {
-	success: false;
-	error: {
-		code: string;
-		message: string;
-		details?: Record<string, any>;
-	};
-	timestamp: string;
-	requestId: string;
+ success: false;
+ error: {
+  code: string;
+  message: string;
+  details?: Record<string, any>;
+ };
+ timestamp: string;
+ requestId: string;
 }
 ```
 
@@ -481,20 +481,20 @@ export interface ErrorResponse {
 
 ```typescript
 export interface PaginatedResponse<T> {
-	success: true;
-	data: {
-		items: T[];
-		pagination: {
-			page: number;
-			limit: number;
-			total: number;
-			totalPages: number;
-			hasNext: boolean;
-			hasPrev: boolean;
-		};
-	};
-	timestamp: string;
-	requestId: string;
+ success: true;
+ data: {
+  items: T[];
+  pagination: {
+   page: number;
+   limit: number;
+   total: number;
+   totalPages: number;
+   hasNext: boolean;
+   hasPrev: boolean;
+  };
+ };
+ timestamp: string;
+ requestId: string;
 }
 ```
 
@@ -518,25 +518,25 @@ export interface PaginatedResponse<T> {
 
 ```typescript
 export enum ErrorCode {
-	// Authentication
-	INVALID_CREDENTIALS = 'AUTH_001',
-	TOKEN_EXPIRED = 'AUTH_002',
-	INSUFFICIENT_PERMISSIONS = 'AUTH_003',
+ // Authentication
+ INVALID_CREDENTIALS = 'AUTH_001',
+ TOKEN_EXPIRED = 'AUTH_002',
+ INSUFFICIENT_PERMISSIONS = 'AUTH_003',
 
-	// Validation
-	VALIDATION_ERROR = 'VAL_001',
-	REQUIRED_FIELD_MISSING = 'VAL_002',
-	INVALID_FORMAT = 'VAL_003',
+ // Validation
+ VALIDATION_ERROR = 'VAL_001',
+ REQUIRED_FIELD_MISSING = 'VAL_002',
+ INVALID_FORMAT = 'VAL_003',
 
-	// Business Logic
-	CONVERSATION_LIMIT_EXCEEDED = 'BIZ_001',
-	SUBSCRIPTION_REQUIRED = 'BIZ_002',
-	FEATURE_NOT_AVAILABLE = 'BIZ_003',
+ // Business Logic
+ CONVERSATION_LIMIT_EXCEEDED = 'BIZ_001',
+ SUBSCRIPTION_REQUIRED = 'BIZ_002',
+ FEATURE_NOT_AVAILABLE = 'BIZ_003',
 
-	// System
-	INTERNAL_ERROR = 'SYS_001',
-	SERVICE_UNAVAILABLE = 'SYS_002',
-	RATE_LIMIT_EXCEEDED = 'SYS_003'
+ // System
+ INTERNAL_ERROR = 'SYS_001',
+ SERVICE_UNAVAILABLE = 'SYS_002',
+ RATE_LIMIT_EXCEEDED = 'SYS_003'
 }
 ```
 
@@ -546,17 +546,17 @@ export enum ErrorCode {
 
 ```json
 {
-	"success": false,
-	"error": {
-		"code": "VAL_001",
-		"message": "Validation failed",
-		"details": {
-			"targetLanguage": "Target language is required",
-			"mode": "Mode must be 'traditional' or 'realtime'"
-		}
-	},
-	"timestamp": "2025-01-15T10:30:00Z",
-	"requestId": "req_123456789"
+ "success": false,
+ "error": {
+  "code": "VAL_001",
+  "message": "Validation failed",
+  "details": {
+   "targetLanguage": "Target language is required",
+   "mode": "Mode must be 'traditional' or 'realtime'"
+  }
+ },
+ "timestamp": "2025-01-15T10:30:00Z",
+ "requestId": "req_123456789"
 }
 ```
 
@@ -564,16 +564,16 @@ export enum ErrorCode {
 
 ```json
 {
-	"success": false,
-	"error": {
-		"code": "AUTH_002",
-		"message": "Access token has expired",
-		"details": {
-			"expiredAt": "2025-01-15T10:00:00Z"
-		}
-	},
-	"timestamp": "2025-01-15T10:30:00Z",
-	"requestId": "req_123456789"
+ "success": false,
+ "error": {
+  "code": "AUTH_002",
+  "message": "Access token has expired",
+  "details": {
+   "expiredAt": "2025-01-15T10:00:00Z"
+  }
+ },
+ "timestamp": "2025-01-15T10:30:00Z",
+ "requestId": "req_123456789"
 }
 ```
 
@@ -581,18 +581,18 @@ export enum ErrorCode {
 
 ```json
 {
-	"success": false,
-	"error": {
-		"code": "SYS_003",
-		"message": "Rate limit exceeded",
-		"details": {
-			"limit": 100,
-			"resetAt": "2025-01-15T11:00:00Z",
-			"retryAfter": 1800
-		}
-	},
-	"timestamp": "2025-01-15T10:30:00Z",
-	"requestId": "req_123456789"
+ "success": false,
+ "error": {
+  "code": "SYS_003",
+  "message": "Rate limit exceeded",
+  "details": {
+   "limit": 100,
+   "resetAt": "2025-01-15T11:00:00Z",
+   "retryAfter": 1800
+  }
+ },
+ "timestamp": "2025-01-15T10:30:00Z",
+ "requestId": "req_123456789"
 }
 ```
 

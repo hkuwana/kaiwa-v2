@@ -127,23 +127,23 @@ src/features/audio/    # This couples UI with technical concerns
 ```typescript
 // ✅ GOOD: Pure functional core
 const core = {
-	// All business logic as pure functions
-	nextState: (state: State, action: Action) => State,
-	calculateScore: (expected: string, actual: string) => number
+ // All business logic as pure functions
+ nextState: (state: State, action: Action) => State,
+ calculateScore: (expected: string, actual: string) => number
 };
 
 // Imperative shell (adapters only)
 const shell = {
-	audio: { record: () => Promise<ArrayBuffer> },
-	ai: { complete: (prompt: string) => Promise<string> }
+ audio: { record: () => Promise<ArrayBuffer> },
+ ai: { complete: (prompt: string) => Promise<string> }
 };
 
 // ❌ BAD: Mixed concerns
 class AudioService {
-	state = { recording: false }; // Mutable state
-	async record() {
-		/* side effects mixed with logic */
-	}
+ state = { recording: false }; // Mutable state
+ async record() {
+  /* side effects mixed with logic */
+ }
 }
 ```
 
@@ -154,8 +154,8 @@ class AudioService {
 ```typescript
 // ✅ GOOD: Single state tree
 type AppState = {
-	conversation: ConversationState;
-	user: UserState;
+ conversation: ConversationState;
+ user: UserState;
 };
 
 // Derive computed values
@@ -174,18 +174,18 @@ const conversationStore = writable({ messages: [] });
 ```typescript
 // ✅ GOOD: Orchestrator pattern
 const orchestrator = {
-	state: appState,
-	dispatch: (action: Action) => {
-		const newState = core.transition(state, action);
-		const effects = core.effects(state, action);
-		effects.forEach(shell.execute);
-		state = newState;
-	}
+ state: appState,
+ dispatch: (action: Action) => {
+  const newState = core.transition(state, action);
+  const effects = core.effects(state, action);
+  effects.forEach(shell.execute);
+  state = newState;
+ }
 };
 
 // ❌ BAD: Complex event chains
 eventBus.on('audio.recorded', () =>
-	eventBus.emit('transcription.start', ...));
+ eventBus.emit('transcription.start', ...));
 ```
 
 ## 🎯 The Kernel: Core Conversation Loop
@@ -197,18 +197,18 @@ The conversation kernel is the **single most important piece** of our applicatio
 ```typescript
 // THE ENTIRE APP KERNEL - Start here!
 type ConversationState = {
-	status: 'idle' | 'recording' | 'processing' | 'speaking';
-	sessionId: string;
-	messages: Message[];
-	startTime: number;
+ status: 'idle' | 'recording' | 'processing' | 'speaking';
+ sessionId: string;
+ messages: Message[];
+ startTime: number;
 };
 
 type Action =
-	| { type: 'START_CONVERSATION' }
-	| { type: 'START_RECORDING' }
-	| { type: 'STOP_RECORDING'; audio: ArrayBuffer }
-	| { type: 'RECEIVE_RESPONSE'; transcript: string; response: string }
-	| { type: 'END_CONVERSATION' };
+ | { type: 'START_CONVERSATION' }
+ | { type: 'START_RECORDING' }
+ | { type: 'STOP_RECORDING'; audio: ArrayBuffer }
+ | { type: 'RECEIVE_RESPONSE'; transcript: string; response: string }
+ | { type: 'END_CONVERSATION' };
 ```
 
 ### 🎭 State Transitions
@@ -223,14 +223,14 @@ type Action =
 ```typescript
 // Side effects are data, not imperative calls
 const effects = (state: ConversationState, action: Action): Effect[] => {
-	switch (action.type) {
-		case 'STOP_RECORDING':
-			return [{ type: 'TRANSCRIBE', audio: action.audio }, { type: 'GENERATE_RESPONSE' }];
-		case 'RECEIVE_RESPONSE':
-			return [{ type: 'SPEAK', text: action.response }, { type: 'SAVE_EXCHANGE' }];
-		default:
-			return [];
-	}
+ switch (action.type) {
+  case 'STOP_RECORDING':
+   return [{ type: 'TRANSCRIBE', audio: action.audio }, { type: 'GENERATE_RESPONSE' }];
+  case 'RECEIVE_RESPONSE':
+   return [{ type: 'SPEAK', text: action.response }, { type: 'SAVE_EXCHANGE' }];
+  default:
+   return [];
+ }
 };
 ```
 

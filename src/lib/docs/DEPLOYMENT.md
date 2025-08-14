@@ -524,35 +524,35 @@ git push origin feature/new-feature
 ```typescript
 // src/lib/config/environment.ts
 export const environment = {
-	nodeEnv: process.env.NODE_ENV || 'development',
-	port: parseInt(process.env.PORT || '3000'),
-	host: process.env.HOST || '0.0.0.0',
+ nodeEnv: process.env.NODE_ENV || 'development',
+ port: parseInt(process.env.PORT || '3000'),
+ host: process.env.HOST || '0.0.0.0',
 
-	database: {
-		url: process.env.DATABASE_URL!,
-		directUrl: process.env.DIRECT_URL!
-	},
+ database: {
+  url: process.env.DATABASE_URL!,
+  directUrl: process.env.DIRECT_URL!
+ },
 
-	auth: {
-		googleClientId: process.env.GOOGLE_CLIENT_ID!,
-		googleClientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-		jwtSecret: process.env.JWT_SECRET!
-	},
+ auth: {
+  googleClientId: process.env.GOOGLE_CLIENT_ID!,
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+  jwtSecret: process.env.JWT_SECRET!
+ },
 
-	external: {
-		openai: {
-			apiKey: process.env.OPENAI_API_KEY!
-		},
-		stripe: {
-			secretKey: process.env.STRIPE_SECRET_KEY!,
-			webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!
-		}
-	},
+ external: {
+  openai: {
+   apiKey: process.env.OPENAI_API_KEY!
+  },
+  stripe: {
+   secretKey: process.env.STRIPE_SECRET_KEY!,
+   webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!
+  }
+ },
 
-	monitoring: {
-		sentryDsn: process.env.SENTRY_DSN,
-		logLevel: process.env.LOG_LEVEL || 'info'
-	}
+ monitoring: {
+  sentryDsn: process.env.SENTRY_DSN,
+  logLevel: process.env.LOG_LEVEL || 'info'
+ }
 };
 ```
 
@@ -563,30 +563,30 @@ export const environment = {
 import { z } from 'zod';
 
 const environmentSchema = z.object({
-	NODE_ENV: z.enum(['development', 'staging', 'production']),
-	PORT: z.string().transform(Number),
-	DATABASE_URL: z.string().url(),
-	DIRECT_URL: z.string().url(),
-	GOOGLE_CLIENT_ID: z.string().min(1),
-	GOOGLE_CLIENT_SECRET: z.string().min(1),
-	JWT_SECRET: z.string().min(32),
-	OPENAI_API_KEY: z.string().min(1),
-	STRIPE_SECRET_KEY: z.string().min(1),
-	STRIPE_WEBHOOK_SECRET: z.string().min(1),
-	POSTHOG_API_KEY: z.string().min(1),
-	S3_ACCESS_KEY: z.string().min(1),
-	S3_SECRET_KEY: z.string().min(1),
-	SENTRY_DSN: z.string().url().optional(),
-	LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).optional()
+ NODE_ENV: z.enum(['development', 'staging', 'production']),
+ PORT: z.string().transform(Number),
+ DATABASE_URL: z.string().url(),
+ DIRECT_URL: z.string().url(),
+ GOOGLE_CLIENT_ID: z.string().min(1),
+ GOOGLE_CLIENT_SECRET: z.string().min(1),
+ JWT_SECRET: z.string().min(32),
+ OPENAI_API_KEY: z.string().min(1),
+ STRIPE_SECRET_KEY: z.string().min(1),
+ STRIPE_WEBHOOK_SECRET: z.string().min(1),
+ POSTHOG_API_KEY: z.string().min(1),
+ S3_ACCESS_KEY: z.string().min(1),
+ S3_SECRET_KEY: z.string().min(1),
+ SENTRY_DSN: z.string().url().optional(),
+ LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).optional()
 });
 
 export function validateEnvironment() {
-	try {
-		return environmentSchema.parse(process.env);
-	} catch (error) {
-		console.error('Environment validation failed:', error);
-		process.exit(1);
-	}
+ try {
+  return environmentSchema.parse(process.env);
+ } catch (error) {
+  console.error('Environment validation failed:', error);
+  process.exit(1);
+ }
 }
 ```
 
@@ -597,36 +597,36 @@ export function validateEnvironment() {
 ```typescript
 // src/lib/config/feature-flags.ts
 export interface FeatureFlags {
-	newConversationUI: boolean;
-	advancedAnalytics: boolean;
-	realtimeAudio: boolean;
-	vocabularyTracking: boolean;
+ newConversationUI: boolean;
+ advancedAnalytics: boolean;
+ realtimeAudio: boolean;
+ vocabularyTracking: boolean;
 }
 
 export const featureFlags: Record<string, FeatureFlags> = {
-	development: {
-		newConversationUI: true,
-		advancedAnalytics: true,
-		realtimeAudio: true,
-		vocabularyTracking: true
-	},
-	staging: {
-		newConversationUI: true,
-		advancedAnalytics: true,
-		realtimeAudio: false,
-		vocabularyTracking: true
-	},
-	production: {
-		newConversationUI: false,
-		advancedAnalytics: false,
-		realtimeAudio: false,
-		vocabularyTracking: false
-	}
+ development: {
+  newConversationUI: true,
+  advancedAnalytics: true,
+  realtimeAudio: true,
+  vocabularyTracking: true
+ },
+ staging: {
+  newConversationUI: true,
+  advancedAnalytics: true,
+  realtimeAudio: false,
+  vocabularyTracking: true
+ },
+ production: {
+  newConversationUI: false,
+  advancedAnalytics: false,
+  realtimeAudio: false,
+  vocabularyTracking: false
+ }
 };
 
 export function getFeatureFlags(): FeatureFlags {
-	const env = process.env.NODE_ENV || 'development';
-	return featureFlags[env] || featureFlags.development;
+ const env = process.env.NODE_ENV || 'development';
+ return featureFlags[env] || featureFlags.development;
 }
 ```
 
@@ -644,42 +644,42 @@ import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 
 export async function GET() {
-	try {
-		// Check database connection
-		await db.execute(sql`SELECT 1`);
+ try {
+  // Check database connection
+  await db.execute(sql`SELECT 1`);
 
-		// Check external services
-		const openaiHealth = await checkOpenAIHealth();
-		const stripeHealth = await checkStripeHealth();
+  // Check external services
+  const openaiHealth = await checkOpenAIHealth();
+  const stripeHealth = await checkStripeHealth();
 
-		const health = {
-			status: 'healthy',
-			timestamp: new Date().toISOString(),
-			services: {
-				database: 'healthy',
-				openai: openaiHealth ? 'healthy' : 'unhealthy',
-				stripe: stripeHealth ? 'healthy' : 'unhealthy'
-			},
-			version: process.env.npm_package_version || 'unknown',
-			environment: process.env.NODE_ENV || 'development'
-		};
+  const health = {
+   status: 'healthy',
+   timestamp: new Date().toISOString(),
+   services: {
+    database: 'healthy',
+    openai: openaiHealth ? 'healthy' : 'unhealthy',
+    stripe: stripeHealth ? 'healthy' : 'unhealthy'
+   },
+   version: process.env.npm_package_version || 'unknown',
+   environment: process.env.NODE_ENV || 'development'
+  };
 
-		const isHealthy =
-			health.services.database === 'healthy' &&
-			health.services.openai === 'healthy' &&
-			health.services.stripe === 'healthy';
+  const isHealthy =
+   health.services.database === 'healthy' &&
+   health.services.openai === 'healthy' &&
+   health.services.stripe === 'healthy';
 
-		return json(health, { status: isHealthy ? 200 : 503 });
-	} catch (error) {
-		return json(
-			{
-				status: 'unhealthy',
-				timestamp: new Date().toISOString(),
-				error: error.message
-			},
-			{ status: 503 }
-		);
-	}
+  return json(health, { status: isHealthy ? 200 : 503 });
+ } catch (error) {
+  return json(
+   {
+    status: 'unhealthy',
+    timestamp: new Date().toISOString(),
+    error: error.message
+   },
+   { status: 503 }
+  );
+ }
 }
 ```
 
@@ -693,27 +693,27 @@ import { register, Counter, Histogram, Gauge } from 'prom-client';
 
 // Request metrics
 export const httpRequestsTotal = new Counter({
-	name: 'http_requests_total',
-	help: 'Total number of HTTP requests',
-	labelNames: ['method', 'route', 'status']
+ name: 'http_requests_total',
+ help: 'Total number of HTTP requests',
+ labelNames: ['method', 'route', 'status']
 });
 
 export const httpRequestDuration = new Histogram({
-	name: 'http_request_duration_seconds',
-	help: 'HTTP request duration in seconds',
-	labelNames: ['method', 'route']
+ name: 'http_request_duration_seconds',
+ help: 'HTTP request duration in seconds',
+ labelNames: ['method', 'route']
 });
 
 // Business metrics
 export const conversationsStarted = new Counter({
-	name: 'conversations_started_total',
-	help: 'Total number of conversations started',
-	labelNames: ['language', 'mode']
+ name: 'conversations_started_total',
+ help: 'Total number of conversations started',
+ labelNames: ['language', 'mode']
 });
 
 export const activeUsers = new Gauge({
-	name: 'active_users',
-	help: 'Number of currently active users'
+ name: 'active_users',
+ help: 'Number of currently active users'
 });
 
 // Register metrics
@@ -730,27 +730,27 @@ register.registerMetric(activeUsers);
 import pino from 'pino';
 
 export const logger = pino({
-	level: process.env.LOG_LEVEL || 'info',
-	formatters: {
-		level: (label) => ({ level: label })
-	},
-	timestamp: pino.stdTimeFunctions.isoTime,
-	base: {
-		env: process.env.NODE_ENV,
-		version: process.env.npm_package_version
-	}
+ level: process.env.LOG_LEVEL || 'info',
+ formatters: {
+  level: (label) => ({ level: label })
+ },
+ timestamp: pino.stdTimeFunctions.isoTime,
+ base: {
+  env: process.env.NODE_ENV,
+  version: process.env.npm_package_version
+ }
 });
 
 export function logRequest(req: Request, res: Response, duration: number) {
-	logger.info({
-		type: 'request',
-		method: req.method,
-		url: req.url,
-		status: res.status,
-		duration,
-		userAgent: req.headers.get('user-agent'),
-		ip: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip')
-	});
+ logger.info({
+  type: 'request',
+  method: req.method,
+  url: req.url,
+  status: res.status,
+  duration,
+  userAgent: req.headers.get('user-agent'),
+  ip: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip')
+ });
 }
 ```
 
@@ -822,15 +822,15 @@ flyctl status --app kaiwa-v2
 import { sequence } from '@sveltejs/kit/hooks';
 
 async function securityHeaders({ event, resolve }) {
-	const response = await resolve(event);
+ const response = await resolve(event);
 
-	response.headers.set('X-Content-Type-Options', 'nosniff');
-	response.headers.set('X-Frame-Options', 'DENY');
-	response.headers.set('X-XSS-Protection', '1; mode=block');
-	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-	response.headers.set('Content-Security-Policy', "default-src 'self'");
+ response.headers.set('X-Content-Type-Options', 'nosniff');
+ response.headers.set('X-Frame-Options', 'DENY');
+ response.headers.set('X-XSS-Protection', '1; mode=block');
+ response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+ response.headers.set('Content-Security-Policy', "default-src 'self'");
 
-	return response;
+ return response;
 }
 
 export const handle = sequence(securityHeaders);

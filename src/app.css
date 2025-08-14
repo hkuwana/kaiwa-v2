@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin '@iconify/tailwind4';
 
 @layer base {
 	/* Base styles */
@@ -198,7 +199,7 @@ pre[class*='language-'] {
 	@apply relative;
 }
 
-pre[class*='language-']::before {
+pre[class*='language ']::before {
 	content: attr(class);
 	@apply absolute top-2 right-4 rounded bg-base-200/10 px-2 py-1 text-xs text-base-content/50;
 }
