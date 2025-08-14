@@ -4,6 +4,144 @@
 
 ---
 
+## 🧠 Functional Programming Foundation
+
+### Why Functional Programming for Kaiwa?
+
+**Kaiwa's Core Challenge**: Build a real-time conversation app that feels magical but doesn't break under complexity.
+
+**Traditional OOP Approach** (What we moved away from):
+
+```typescript
+❌ BAD: The old way
+class ConversationManager {
+	private audioService: AudioService;
+	private aiService: AIService;
+	private state: any = {};
+
+	async startRecording() {
+		this.state.recording = true;
+		this.audioService.start();
+		// State mutations everywhere!
+		// Hard to test, hard to debug
+	}
+}
+```
+
+**Functional Approach** (What we're building):
+
+```typescript
+✅ GOOD: The new way
+// Pure functions - predictable, testable, composable
+const conversationCore = {
+	transition: (state, action) => newState,  // Pure function
+	effects: (state, action) => [...effects]  // Side effects as data
+};
+```
+
+### Why This Matters for Kaiwa
+
+1. **Real-time Audio**: Audio recording/playback has many edge cases - functional programming makes them predictable
+2. **AI Integration**: API calls can fail - functional error handling makes this safe
+3. **7-Day Sprint**: We need to move fast without breaking things
+4. **Future Growth**: Clean architecture means we can add features without rewriting
+
+### Core Functional Concepts
+
+#### 1. **Pure Functions** - The Foundation
+
+```typescript
+// ❌ IMPURE: Hard to test, unpredictable
+function formatDuration(ms: number): string {
+	console.log('Formatting:', ms); // Side effect!
+	return Math.floor(ms / 1000) + 's';
+}
+
+// ✅ PURE: Same input always gives same output
+function formatDuration(ms: number): string {
+	if (ms < 0) return '0s'; // Handle edge cases
+	const seconds = Math.floor(ms / 1000);
+	return seconds + 's';
+}
+
+// Easy to test:
+expect(formatDuration(5000)).toBe('5s'); // Always works!
+```
+
+**Why this helps Kaiwa**: Audio timestamps, conversation durations, user progress - all need to be calculated reliably.
+
+#### 2. **Result Types** - Safe Error Handling
+
+```typescript
+// Instead of try/catch everywhere, we use Result types
+type Result<T, E = Error> = { success: true; data: T } | { success: false; error: E };
+
+// Example: Safe audio recording
+async function startRecording(): Promise<Result<MediaRecorder, string>> {
+	try {
+		const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+		const recorder = new MediaRecorder(stream);
+		return { success: true, data: recorder };
+	} catch (error) {
+		return { success: false, error: 'Microphone access denied' };
+	}
+}
+
+// Usage - no more unexpected crashes!
+const recordingResult = await startRecording();
+if (recordingResult.success) {
+	// Safe to use recorder
+	const recorder = recordingResult.data;
+} else {
+	// Handle error gracefully
+	showError(recordingResult.error);
+}
+```
+
+#### 3. **Orchestrator Pattern** - Centralized Control
+
+```typescript
+// Instead of services calling each other, we use an orchestrator
+class ConversationOrchestrator {
+	private state: ConversationState;
+	private adapters: Adapters;
+
+	async dispatch(action: Action) {
+		// Update state with pure function
+		this.state = conversationCore.transition(this.state, action);
+
+		// Execute side effects
+		const effects = conversationCore.effects(this.state, action);
+		for (const effect of effects) {
+			await this.executeEffect(effect);
+		}
+	}
+
+	private async executeEffect(effect: Effect) {
+		switch (effect.type) {
+			case 'START_AUDIO_CAPTURE':
+				this.adapters.audio.startRecording();
+				break;
+			case 'TRANSCRIBE_AUDIO':
+				const result = await this.adapters.ai.transcribe(this.state.audioData);
+				await this.dispatch({ type: 'TRANSCRIPTION_COMPLETE', result });
+				break;
+		}
+	}
+}
+```
+
+### Why Orchestrator is Better
+
+| Traditional Classes                | Orchestrator Pattern             |
+| ---------------------------------- | -------------------------------- |
+| ❌ Hard to test (mock everything)  | ✅ Easy to test (pure functions) |
+| ❌ Tight coupling between services | ✅ Loose coupling via events     |
+| ❌ State scattered everywhere      | ✅ Single source of truth        |
+| ❌ Hard to add features            | ✅ Just add new actions/effects  |
+
+---
+
 ## 🎯 Feature Development Workflow
 
 ### 1. Feature Planning Phase
@@ -99,376 +237,184 @@ export const FEATURE_ACTION_COMPLETED_EVENT: EventSchema<{
 export class FeatureActionUseCase {
 	constructor(
 		private eventBus: EventBus,
-		private outputPort: FeatureOutputPort
+		private repository: FeatureRepository
 	) {}
 
-	async execute(input: FeatureActionInput): Promise<FeatureActionResult> {
+	async execute(featureId: string, action: string): Promise<Result<void, Error>> {
 		try {
-			const result = await this.outputPort.performAction(input);
+			// Execute business logic
+			const result = await this.repository.performAction(featureId, action);
 
 			// Emit success event
 			this.eventBus.emit('feature.action.completed', {
-				featureId: input.featureId,
+				featureId,
 				result,
 				timestamp: new Date()
 			});
 
-			return result;
+			return { success: true, data: undefined };
 		} catch (error) {
 			// Emit error event
 			this.eventBus.emit('feature.error.occurred', {
-				featureId: input.featureId,
+				featureId,
 				error: error.message,
-				context: { input, timestamp: new Date() }
+				context: { action }
 			});
-			throw error;
+
+			return { success: false, error: error as Error };
 		}
 	}
 }
 ```
 
-### Event Consumption
-
-```typescript
-// In another feature or service
-export class FeatureEventListener {
-	constructor(private eventBus: EventBus) {
-		this.setupEventListeners();
-	}
-
-	private setupEventListeners(): void {
-		this.eventBus.on('feature.action.completed', this.handleFeatureCompleted.bind(this));
-		this.eventBus.on('feature.error.occurred', this.handleFeatureError.bind(this));
-	}
-
-	private handleFeatureCompleted(event: FeatureActionCompletedEvent): void {
-		// React to feature completion
-		console.log(`Feature ${event.featureId} completed successfully`);
-	}
-
-	private handleFeatureError(event: FeatureErrorEvent): void {
-		// Handle feature errors
-		console.error(`Feature ${event.featureId} failed: ${event.error}`);
-	}
-}
-```
-
 ---
 
-## 🔌 Port Implementation Guide
+## 🧪 Testing Strategy
 
-### Input Port (Interface)
-
-```typescript
-// ports/input/feature-input-port.ts
-export interface FeatureInputPort {
-	performAction(input: FeatureActionInput): Promise<FeatureActionResult>;
-	getFeatureStatus(featureId: string): Promise<FeatureStatus>;
-}
-```
-
-### Input Adapter (Implementation)
+### 1. **Unit Tests** - Domain Logic
 
 ```typescript
-// adapters/input/sveltekit-feature-adapter.ts
-export class SvelteKitFeatureAdapter implements FeatureInputPort {
-	constructor(
-		private useCase: FeatureActionUseCase,
-		private statusUseCase: FeatureStatusUseCase
-	) {}
+// Test pure business logic in isolation
+describe('ConversationCore', () => {
+	it('should transition from idle to recording', () => {
+		const initialState = { status: 'idle', messages: [] };
+		const action = { type: 'START_RECORDING' };
 
-	async performAction(input: FeatureActionInput): Promise<FeatureActionResult> {
-		return await this.useCase.execute(input);
-	}
+		const newState = conversationCore.transition(initialState, action);
 
-	async getFeatureStatus(featureId: string): Promise<FeatureStatus> {
-		return await this.statusUseCase.execute(featureId);
-	}
-}
-```
-
-### Output Port (Interface)
-
-```typescript
-// ports/output/feature-output-port.ts
-export interface FeatureOutputPort {
-	performAction(input: FeatureActionInput): Promise<FeatureActionResult>;
-	saveFeatureData(data: FeatureData): Promise<void>;
-	findFeatureData(id: string): Promise<FeatureData | null>;
-}
-```
-
-### Output Adapter (Implementation)
-
-```typescript
-// adapters/output/postgres-feature-adapter.ts
-export class PostgresFeatureAdapter implements FeatureOutputPort {
-	constructor(private db: Database) {}
-
-	async performAction(input: FeatureActionInput): Promise<FeatureActionResult> {
-		// Database-specific implementation
-		const result = await this.db.query('SELECT perform_feature_action($1, $2)', [
-			input.actionType,
-			input.parameters
-		]);
-		return this.mapToResult(result);
-	}
-
-	async saveFeatureData(data: FeatureData): Promise<void> {
-		await this.db.query('INSERT INTO features (id, data, created_at) VALUES ($1, $2, $3)', [
-			data.id,
-			JSON.stringify(data),
-			new Date()
-		]);
-	}
-
-	async findFeatureData(id: string): Promise<FeatureData | null> {
-		const result = await this.db.query('SELECT * FROM features WHERE id = $1', [id]);
-		return result.rows[0] ? this.mapToFeatureData(result.rows[0]) : null;
-	}
-}
-```
-
----
-
-## 🧪 Testing Strategy Implementation
-
-### Unit Tests (Foundation)
-
-```typescript
-// tests/unit/feature-action-use-case.test.ts
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { FeatureActionUseCase } from '../../domain/use-cases/feature-action';
-import { MockEventBus } from '../fixtures/mock-event-bus';
-import { MockFeatureOutputPort } from '../fixtures/mock-feature-output-port';
-
-describe('FeatureActionUseCase', () => {
-	let useCase: FeatureActionUseCase;
-	let mockEventBus: MockEventBus;
-	let mockOutputPort: MockFeatureOutputPort;
-
-	beforeEach(() => {
-		mockEventBus = new MockEventBus();
-		mockOutputPort = new MockFeatureOutputPort();
-		useCase = new FeatureActionUseCase(mockEventBus, mockOutputPort);
-	});
-
-	it('should execute feature action successfully', async () => {
-		// Arrange
-		const input = { featureId: 'test-123', actionType: 'test' };
-		const expectedResult = { success: true, data: 'test-data' };
-		mockOutputPort.performAction.mockResolvedValue(expectedResult);
-
-		// Act
-		const result = await useCase.execute(input);
-
-		// Assert
-		expect(result).toEqual(expectedResult);
-		expect(mockEventBus.emit).toHaveBeenCalledWith('feature.action.completed', {
-			featureId: input.featureId,
-			result: expectedResult,
-			timestamp: expect.any(Date)
-		});
-	});
-
-	it('should emit error event when action fails', async () => {
-		// Arrange
-		const input = { featureId: 'test-123', actionType: 'test' };
-		const error = new Error('Action failed');
-		mockOutputPort.performAction.mockRejectedValue(error);
-
-		// Act & Assert
-		await expect(useCase.execute(input)).rejects.toThrow('Action failed');
-		expect(mockEventBus.emit).toHaveBeenCalledWith('feature.error.occurred', {
-			featureId: input.featureId,
-			error: 'Action failed',
-			context: { input, timestamp: expect.any(Date) }
-		});
+		expect(newState.status).toBe('recording');
+		expect(newState.messages).toEqual([]);
 	});
 });
 ```
 
-### Integration Tests (Middle)
+### 2. **Integration Tests** - Port Implementations
 
 ```typescript
-// tests/integration/feature-integration.test.ts
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { createTestDatabase } from '../fixtures/test-database';
-import { FeatureActionUseCase } from '../../domain/use-cases/feature-action';
-import { PostgresFeatureAdapter } from '../../adapters/output/postgres-feature-adapter';
-import { InMemoryEventBus } from '../../infrastructure/event-bus';
+// Test adapters with real dependencies
+describe('AudioAdapter', () => {
+	it('should record audio successfully', async () => {
+		const adapter = new AudioAdapter();
+		const mockStream = createMockAudioStream();
 
-describe('Feature Integration Tests', () => {
-	let testDb: any;
-	let useCase: FeatureActionUseCase;
-	let outputPort: PostgresFeatureAdapter;
-	let eventBus: InMemoryEventBus;
+		const result = await adapter.startRecording(mockStream);
 
-	beforeAll(async () => {
-		testDb = await createTestDatabase();
-		outputPort = new PostgresFeatureAdapter(testDb);
-		eventBus = new InMemoryEventBus();
-		useCase = new FeatureActionUseCase(eventBus, outputPort);
-	});
-
-	afterAll(async () => {
-		await testDb.end();
-	});
-
-	it('should perform complete feature workflow', async () => {
-		// Arrange
-		const input = { featureId: 'integration-test', actionType: 'test' };
-		let capturedEvent: any = null;
-		eventBus.on('feature.action.completed', (event) => {
-			capturedEvent = event;
-		});
-
-		// Act
-		const result = await useCase.execute(input);
-
-		// Assert
-		expect(result).toBeDefined();
-		expect(capturedEvent).toBeDefined();
-		expect(capturedEvent.featureId).toBe(input.featureId);
+		expect(result.success).toBe(true);
+		expect(result.data).toBeInstanceOf(MediaRecorder);
 	});
 });
 ```
 
-### E2E Tests (Top)
+### 3. **Feature Tests** - End-to-End Workflows
 
 ```typescript
-// tests/e2e/feature-workflow.test.ts
-import { test, expect } from '@playwright/test';
+// Test complete feature workflows
+describe('Conversation Feature', () => {
+	it('should complete full conversation cycle', async () => {
+		const orchestrator = new ConversationOrchestrator();
 
-test.describe('Feature Complete Workflow', () => {
-	test('should complete full feature journey', async ({ page }) => {
-		// Navigate to feature
-		await page.goto('/features/test-feature');
+		// Start conversation
+		await orchestrator.dispatch({ type: 'START_CONVERSATION' });
+		expect(orchestrator.getState().status).toBe('idle');
 
-		// Start feature action
-		await page.click('[data-testid="start-feature"]');
+		// Start recording
+		await orchestrator.dispatch({ type: 'START_RECORDING' });
+		expect(orchestrator.getState().status).toBe('recording');
 
-		// Wait for completion
-		await page.waitForSelector('[data-testid="feature-completed"]');
-
-		// Verify success state
-		const successMessage = await page.textContent('[data-testid="success-message"]');
-		expect(successMessage).toContain('Feature completed successfully');
+		// Stop recording
+		const mockAudio = new ArrayBuffer(1024);
+		await orchestrator.dispatch({ type: 'STOP_RECORDING', audio: mockAudio });
+		expect(orchestrator.getState().status).toBe('processing');
 	});
 });
 ```
 
 ---
 
-## 🔧 Development Best Practices
+## 🚀 Performance Considerations
 
-### 1. Feature Isolation
-
-```typescript
-// ❌ NEVER: Import from other features
-import { authService } from '../../auth/services';
-
-// ✅ ALWAYS: Use events for cross-feature communication
-this.eventBus.emit('auth.user.login', { userId, email });
-```
-
-### 2. Error Handling
+### 1. **Event Batching**
 
 ```typescript
-// Always emit error events for debugging
-try {
-	const result = await this.performAction(input);
-	this.eventBus.emit('feature.success', { result });
-	return result;
-} catch (error) {
-	this.eventBus.emit('feature.error', {
-		error: error.message,
-		context: { input, stack: error.stack }
-	});
-	throw error;
+// Batch multiple events to reduce overhead
+class EventBatcher {
+	private events: Event[] = [];
+	private batchTimeout: NodeJS.Timeout | null = null;
+
+	emit(event: Event) {
+		this.events.push(event);
+
+		if (!this.batchTimeout) {
+			this.batchTimeout = setTimeout(() => {
+				this.flush();
+			}, 100); // Batch events within 100ms
+		}
+	}
+
+	private flush() {
+		this.eventBus.emitBatch(this.events);
+		this.events = [];
+		this.batchTimeout = null;
+	}
 }
 ```
 
-### 3. Type Safety
+### 2. **Lazy Loading**
 
 ```typescript
-// Use strict typing for all interfaces
-export interface FeatureActionInput {
-	readonly featureId: string;
-	readonly actionType: 'create' | 'update' | 'delete';
-	readonly parameters: Record<string, unknown>;
-}
+// Load feature modules only when needed
+export class FeatureLoader {
+	private loadedFeatures = new Map<string, Feature>();
 
-// Use branded types for IDs
-export type FeatureId = string & { readonly __brand: 'FeatureId' };
-```
+	async loadFeature(featureId: string): Promise<Feature> {
+		if (this.loadedFeatures.has(featureId)) {
+			return this.loadedFeatures.get(featureId)!;
+		}
 
-### 4. Performance Considerations
-
-```typescript
-// Use async/await consistently
-export class FeatureService {
-	async processFeature(input: FeatureInput): Promise<FeatureResult> {
-		// Process in parallel when possible
-		const [data, config] = await Promise.all([
-			this.loadFeatureData(input.id),
-			this.loadFeatureConfig(input.type)
-		]);
-
-		return this.processData(data, config);
+		const feature = await import(`./features/${featureId}`);
+		this.loadedFeatures.set(featureId, feature);
+		return feature;
 	}
 }
 ```
 
 ---
 
-## 📊 Feature Metrics & Monitoring
+## 🔒 Security & Validation
 
-### Success Metrics
-
-- **Feature Usage**: How often is the feature used?
-- **Success Rate**: What percentage of actions succeed?
-- **Performance**: Response times and error rates
-- **User Engagement**: Time spent and completion rates
-
-### Event Tracking
+### 1. **Input Validation**
 
 ```typescript
-// Track feature usage for analytics
-this.eventBus.emit('analytics.feature.used', {
-	featureId: 'conversation.start',
-	userId: user.id,
-	timestamp: new Date(),
-	context: { language: targetLanguage, tier: user.tier }
-});
+// Validate all inputs at boundaries
+export const validateFeatureAction = (input: unknown): FeatureAction => {
+	const schema = z.object({
+		featureId: z.string().min(1),
+		action: z.string().min(1),
+		parameters: z.record(z.unknown()).optional()
+	});
+
+	return schema.parse(input);
+};
+```
+
+### 2. **Event Security**
+
+```typescript
+// Sanitize events before processing
+export class SecureEventBus extends EventBus {
+	emit<T extends keyof EventMap>(event: T, payload: EventMap[T]) {
+		// Sanitize payload
+		const sanitizedPayload = this.sanitizePayload(payload);
+
+		// Validate event schema
+		this.validateEvent(event, sanitizedPayload);
+
+		// Emit sanitized event
+		super.emit(event, sanitizedPayload);
+	}
+}
 ```
 
 ---
 
-## 🚀 Feature Deployment Checklist
-
-### Pre-Deployment
-
-- [ ] All tests passing (unit, integration, E2E)
-- [ ] Performance benchmarks met
-- [ ] Error handling tested
-- [ ] Event contracts documented
-- [ ] Feature flags implemented
-
-### Deployment
-
-- [ ] Feature flag enabled
-- [ ] Gradual rollout (10%, 50%, 100%)
-- [ ] Monitoring alerts configured
-- [ ] Rollback plan ready
-
-### Post-Deployment
-
-- [ ] Monitor error rates
-- [ ] Track performance metrics
-- [ ] Gather user feedback
-- [ ] Plan iteration improvements
-
----
-
-_Follow this guide to build maintainable, testable features that integrate seamlessly with Kaiwa v2's hexagonal architecture._
+_This guide provides the foundation for building robust, maintainable features in Kaiwa. Remember: start simple, test thoroughly, and iterate based on real usage patterns._
