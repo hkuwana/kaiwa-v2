@@ -1,5 +1,5 @@
 import { pgTable, text, boolean, timestamp } from 'drizzle-orm/pg-core';
-import { languages } from './languages.js';
+import { languages } from './languages';
 
 // Speakers - for voice selection and language practice
 export const speakers = pgTable('speakers', {

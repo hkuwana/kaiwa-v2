@@ -1,6 +1,6 @@
 import { pgTable, uuid, text, integer, timestamp, json } from 'drizzle-orm/pg-core';
-import { users } from './users.js';
-import { scenarios } from './scenarios.js';
+import { users } from './users';
+import { scenarios } from './scenarios';
 
 // 🔄 SCENARIO ATTEMPTS - Track multiple attempts at the same scenario
 export const scenarioAttempts = pgTable('scenario_attempts', {

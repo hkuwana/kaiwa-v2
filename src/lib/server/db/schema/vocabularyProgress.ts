@@ -1,6 +1,6 @@
 import { pgTable, uuid, text, integer, timestamp } from 'drizzle-orm/pg-core';
-import { users } from './users.js';
-import { languages } from './languages.js';
+import { users } from './users';
+import { languages } from './languages';
 
 // 📚 VOCABULARY TRACKING - Track word mastery over time
 export const vocabularyProgress = pgTable('vocabulary_progress', {

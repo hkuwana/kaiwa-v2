@@ -2,8 +2,8 @@
 <!-- Smart freemium pricing that converts users -->
 
 <script lang="ts">
-	import { trackConversion } from '$lib/analytics/posthog.js';
-	import type { UsageStatus } from '$lib/server/tierService.js';
+	import { trackConversion } from '$lib/analytics/posthog';
+	import type { UsageStatus } from '$lib/server/tierService';
 
 	// Props
 	export let isOpen = false;

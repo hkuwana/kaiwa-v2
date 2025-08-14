@@ -1,12 +1,8 @@
 // 🔄 Conversation Feature Events
 // Defines all events that the conversation feature can emit and listen to
 
-import type { EventBus } from '$lib/shared/events/eventBus.js';
-import type {
-	ConversationEvents,
-	AudioEvents,
-	AnalyticsEvents
-} from '$lib/shared/events/schemas.js';
+import type { EventBus } from '$lib/shared/events/eventBus';
+import type { ConversationEvents, AudioEvents, AnalyticsEvents } from '$lib/shared/events/schemas';
 
 // 🎯 Conversation Event Emitters
 export const conversationEvents = {

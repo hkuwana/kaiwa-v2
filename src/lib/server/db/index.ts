@@ -2,10 +2,10 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { env } from '$env/dynamic/private';
-import * as schema from './schema/index.js';
+import * as schema from './schema/index';
 
 // Import all schemas
-export * from './schema/index.js';
+export * from './schema/index';
 
 // Database connection
 const connectionString = env.DATABASE_URL;

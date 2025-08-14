@@ -1,5 +1,5 @@
 import { pgTable, uuid, timestamp, integer } from 'drizzle-orm/pg-core';
-import { users } from './users.js';
+import { users } from './users';
 
 // Usage tracking for tier limits
 export const userUsage = pgTable('user_usage', {

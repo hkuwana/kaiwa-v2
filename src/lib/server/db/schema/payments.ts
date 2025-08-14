@@ -1,6 +1,6 @@
 import { pgTable, uuid, text, timestamp, decimal } from 'drizzle-orm/pg-core';
-import { users } from './users.js';
-import { subscriptions } from './subscriptions.js';
+import { users } from './users';
+import { subscriptions } from './subscriptions';
 
 // Payment history for analytics
 export const payments = pgTable('payments', {

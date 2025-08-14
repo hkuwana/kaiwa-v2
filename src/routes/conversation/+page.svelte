@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { createConversationStore } from '$lib/orchestrator.svelte.js';
+	import { createConversationStore } from '$lib/orchestrator.svelte';
 	import ConversationHistory from '$lib/components/ConversationHistory.svelte';
 	import RecordButton from '$lib/components/RecordButton.svelte';
-	import { trackConversion, trackFeature } from '$lib/analytics/posthog.js';
-	import { getLanguageByCode } from '$lib/data/languages.js';
+	import { trackConversion, trackFeature } from '$lib/analytics/posthog';
+	import { getLanguageByCode } from '$lib/data/languages';
 
 	// 🎯 Page data from server
 	const { data } = $props<{

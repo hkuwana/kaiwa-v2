@@ -1,12 +1,8 @@
 // 🎭 Conversation Feature - Main Export
 // Exports all conversation feature components
 
-export {
-	createConversationKernel,
-	conversationKernel,
-	createInitialState
-} from './kernel/index.js';
-export type { ConversationState, ConversationAction, ConversationEffect } from './kernel/index.js';
+export { createConversationKernel, conversationKernel, createInitialState } from './kernel/index';
+export type { ConversationState, ConversationAction, ConversationEffect } from './kernel/index';
 export { ConversationOrchestrator } from './orchestrator.svelte';
 export { conversationEvents, createEventPayloads } from './events';
 export { createConversationStore } from './store.svelte';

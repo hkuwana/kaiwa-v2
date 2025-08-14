@@ -1,11 +1,11 @@
 // 🏆 Tier Management Service
 // Handles user tiers, usage tracking, and limit enforcement
 
-import { db } from './db/index.js';
-import { users, tiers, userUsage, subscriptions } from './db/schema.js';
+import { db } from './db/index';
+import { users, tiers, userUsage, subscriptions } from './db/schema';
 import { eq, and, gte, lte, desc } from 'drizzle-orm';
-import type { UserUsage, Subscription } from './db/schema.js';
-import { analytics } from './analyticsService.js';
+import type { UserUsage, Subscription } from './db/schema';
+import { analytics } from './analyticsService';
 
 export interface TierLimits {
 	monthlyConversations: number | null; // null = unlimited

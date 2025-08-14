@@ -2,12 +2,12 @@
 // Handles subscriptions, payments, and tier management
 
 import Stripe from 'stripe';
-import { db } from './db/index.js';
-import { users, subscriptions, payments } from './db/schema.js';
+import { db } from './db/index';
+import { users, subscriptions, payments } from './db/schema';
 import { eq, and } from 'drizzle-orm';
-import type { User } from './db/schema.js';
-import type { Subscription as DbSubscription } from './db/schema.js';
-import { tierService } from './tierService.js';
+import type { User } from './db/schema';
+import type { Subscription as DbSubscription } from './db/schema';
+import { tierService } from './tierService';
 import { env } from '$env/dynamic/private';
 
 // Environment variables

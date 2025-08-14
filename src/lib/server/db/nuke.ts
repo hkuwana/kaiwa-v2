@@ -2,7 +2,7 @@
 // Enhanced with safety checks and environment awareness
 
 import { sql } from 'drizzle-orm';
-import { db } from './index.js';
+import { db } from './index';
 import * as dotenv from 'dotenv';
 
 // Load environment variables

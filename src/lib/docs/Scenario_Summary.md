@@ -93,7 +93,7 @@ pnpm drizzle-kit push
 
 ### **Enhanced Files**
 
-- `src/lib/server/db/schema.ts` - Added scenario tables
+- `src/lib/server/db/schema/index.ts` - Added scenario tables
 - `src/lib/kernel/index.ts` - Integrated scenario support
 
 ## 🎯 How to Use

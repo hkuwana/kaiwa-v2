@@ -1,6 +1,6 @@
 import { pgTable, text, uuid, timestamp, integer, decimal } from 'drizzle-orm/pg-core';
-import { users } from './users.js';
-import { languages } from './languages.js';
+import { users } from './users';
+import { languages } from './languages';
 
 // Conversations - core feature
 export const conversations = pgTable('conversations', {

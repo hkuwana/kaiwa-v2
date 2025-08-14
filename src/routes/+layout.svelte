@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.css';
-	import { faviconSvg, appleTouchIcon } from '$lib/assets';
+	import { favicon, appleTouchIcon } from '$lib/assets';
 	import { page } from '$app/state';
 	import type { LayoutProps } from './$types';
 
@@ -13,7 +13,7 @@
 
 <svelte:head>
 	<!-- Favicon -->
-	<link rel="icon" href={faviconSvg} />
+	<link rel="icon" href={favicon} />
 	<link rel="apple-touch-icon" href={appleTouchIcon} />
 
 	<!-- PWA Manifest -->

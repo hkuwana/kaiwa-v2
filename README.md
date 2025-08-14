@@ -114,7 +114,7 @@ SESSION_SECRET=your-secret-here
 ### Basic Conversation
 
 ```typescript
-import { createConversationStore } from '$lib/orchestrator.js';
+import { createConversationStore } from '$lib/orchestrator';
 
 const conversation = createConversationStore();
 
@@ -131,8 +131,8 @@ console.log(conversation.state.messages);
 ### Custom Adapters
 
 ```typescript
-import { ConversationOrchestrator } from '$lib/orchestrator.js';
-import { myCustomAudioAdapter } from './adapters.js';
+import { ConversationOrchestrator } from '$lib/orchestrator';
+import { myCustomAudioAdapter } from './adapters';
 
 const orchestrator = new ConversationOrchestrator(
  myCustomAudioAdapter, // Custom audio handling

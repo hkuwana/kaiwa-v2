@@ -1,10 +1,10 @@
 // 📈 Server-Side Analytics Service
 // Tracks events to database and PostHog for comprehensive analytics
 
-import { db } from './db/index.js';
-import { analyticsEvents, users } from './db/schema.js';
+import { db } from './db/index';
+import { analyticsEvents, users } from './db/schema';
 import { eq } from 'drizzle-orm';
-import type { AnalyticsEvent } from './db/schema.js';
+import type { AnalyticsEvent } from './db/schema';
 
 // PostHog server-side tracking
 const POSTHOG_API_KEY = process.env.POSTHOG_API_KEY;

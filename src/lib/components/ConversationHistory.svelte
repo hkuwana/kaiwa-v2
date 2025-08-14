@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Message } from '$lib/kernel/index.js';
-	import { formatTimestamp } from '$lib/utils/index.js';
+	import type { Message } from '$lib/kernel/index';
+	import { formatTimestamp } from '$lib/utils/index';
 
 	interface Props {
 		messages?: Message[];

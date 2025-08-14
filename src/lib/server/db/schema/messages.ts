@@ -1,5 +1,5 @@
 import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
-import { conversations } from './conversations.js';
+import { conversations } from './conversations';
 
 // Messages - conversation content
 export const messages = pgTable('messages', {

@@ -1,7 +1,7 @@
 // 🔄 Database Migration Utilities
 // Handles schema migrations across different phases
 
-import { db } from './index.js';
+import { db } from './index';
 import { sql } from 'drizzle-orm';
 
 /**

@@ -5,10 +5,10 @@ import {
 	createConversationKernel,
 	type ConversationState,
 	createInitialState
-} from './kernel/index.js';
-import { adapters, type AudioAdapter, type AIAdapter, type StorageAdapter } from './adapters.js';
-import { conversationEvents, createEventPayloads } from './events.js';
-import type { EventBus } from '$lib/shared/events/eventBus.js';
+} from './kernel/index';
+import { adapters, type AudioAdapter, type AIAdapter, type StorageAdapter } from './adapters';
+import { conversationEvents, createEventPayloads } from './events';
+import type { EventBus } from '$lib/shared/events/eventBus';
 
 export class ConversationOrchestrator {
 	private kernel = createConversationKernel();

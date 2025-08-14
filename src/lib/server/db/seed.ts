@@ -1,9 +1,9 @@
 // 🌱 Kaiwa MVP Database Seeding
 // Phase 1: Essential data for core functionality + monetization
 
-import { db } from './index.js';
-import { users, languages, tiers, subscriptions, payments, analyticsEvents } from './schema.js';
-import type { User, Language, Tier } from './schema.js';
+import { db } from './index';
+import { users, languages, tiers, subscriptions, payments, analyticsEvents } from './schema';
+import type { User, Language, Tier } from './schema';
 import { sql } from 'drizzle-orm';
 
 // Essential language data for MVP

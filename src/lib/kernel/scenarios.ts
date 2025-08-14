@@ -1,7 +1,7 @@
 // 🎯 Sample Learning Scenarios
 // Pre-built scenarios for common, overlooked situations
 
-import type { LearningScenario } from './learning.js';
+import type { LearningScenario } from './learning';
 
 // 🍜 Japanese Scenarios (Kaiwa = 会話 = Conversation)
 export const japaneseScenarios: LearningScenario[] = [

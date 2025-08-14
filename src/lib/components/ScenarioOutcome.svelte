@@ -2,7 +2,7 @@
 <!-- Displays learning results and feedback after completing a scenario -->
 
 <script lang="ts">
-	import type { LearningScenario, ScenarioOutcome } from '$lib/kernel/learning.js';
+	import type { LearningScenario, ScenarioOutcome } from '$lib/kernel/learning';
 
 	// Props
 	export let scenario: LearningScenario;

@@ -1,7 +1,7 @@
 // 🎯 Learning Scenario Types
 // Core interfaces for task-oriented language learning
 
-import type { Scenario, ScenarioOutcome } from '$lib/server/db/schema.js';
+import type { Scenario, ScenarioOutcome } from '$lib/server/db/schema';
 
 // 🎯 Re-export schema types for convenience
 export type LearningScenario = Scenario;

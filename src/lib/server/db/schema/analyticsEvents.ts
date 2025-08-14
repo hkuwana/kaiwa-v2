@@ -1,5 +1,5 @@
 import { pgTable, uuid, text, json, timestamp } from 'drizzle-orm/pg-core';
-import { users } from './users.js';
+import { users } from './users';
 
 // Analytics events for conversion tracking
 export const analyticsEvents = pgTable('analytics_events', {

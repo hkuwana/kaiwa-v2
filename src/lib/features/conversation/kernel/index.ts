@@ -1,7 +1,7 @@
 // 🧠 Conversation Kernel - Pure Functional Core
 // No state, no side effects, only pure transformations
 
-import type { Message } from '$lib/server/db/schema.js';
+import type { Message } from '$lib/server/db/schema';
 
 // 🎯 Pure Types - No state, only data structures
 export interface ConversationState {

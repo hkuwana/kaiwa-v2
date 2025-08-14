@@ -8,9 +8,9 @@ import {
 	integer,
 	timestamp
 } from 'drizzle-orm/pg-core';
-import { users } from './users.js';
-import { conversations } from './conversations.js';
-import { scenarios } from './scenarios.js';
+import { users } from './users';
+import { conversations } from './conversations';
+import { scenarios } from './scenarios';
 
 // 📊 SCENARIO OUTCOMES - Track learning progress and success
 export const scenarioOutcomes = pgTable('scenario_outcomes', {

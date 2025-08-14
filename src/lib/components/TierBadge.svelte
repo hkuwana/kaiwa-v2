@@ -2,7 +2,7 @@
 	// 🏆 Tier Badge Component
 	// Shows user's current tier and usage status
 
-	import type { UsageStatus } from '$lib/server/tierService.js';
+	import type { UsageStatus } from '$lib/server/tierService';
 
 	const { tierStatus, showDetails = false } = $props<{
 		tierStatus?: UsageStatus | null;

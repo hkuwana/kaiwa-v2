@@ -1,7 +1,7 @@
 // 🎭 Conversation Store (Svelte 5 Runes)
 // Reactive store using the app orchestrator for state management
 
-import { appOrchestrator } from '$lib/app/orchestrator.js';
+import { appOrchestrator } from '$lib/app/orchestrator';
 
 // 🎯 Reactive store using Svelte 5 runes
 export function createConversationStore() {

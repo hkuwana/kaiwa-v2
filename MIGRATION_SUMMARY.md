@@ -51,7 +51,7 @@
 - Creates `speakers` table with foreign key relationships
 - Inserts all language and speaker data
 
-### **Updated Schema**: `src/lib/server/db/schema.ts`
+### **Updated Schema**: `src/lib/server/db/schema/index.ts`
 
 - Enhanced `languages` table structure
 - New `speakers` table with proper relationships

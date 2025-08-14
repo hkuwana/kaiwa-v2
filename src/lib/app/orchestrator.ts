@@ -1,9 +1,9 @@
 // 🎭 Main App Orchestrator
 // Coordinates between different features using the event system
 
-import { EventBusFactory, type EventBus } from '$lib/shared/events/eventBus.js';
+import { EventBusFactory, type EventBus } from '$lib/shared/events/eventBus';
 import { ConversationOrchestrator } from '$lib/features/conversation/orchestrator.svelte';
-import type { ConversationState } from '$lib/features/conversation/kernel/index.js';
+import type { ConversationState } from '$lib/features/conversation/kernel/index';
 
 export class AppOrchestrator {
 	private eventBus: EventBus;

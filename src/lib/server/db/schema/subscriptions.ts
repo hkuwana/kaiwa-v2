@@ -1,6 +1,6 @@
 import { pgTable, uuid, text, timestamp, boolean } from 'drizzle-orm/pg-core';
-import { users } from './users.js';
-import { tiers } from './tiers.js';
+import { users } from './users';
+import { tiers } from './tiers';
 
 // Stripe subscriptions
 export const subscriptions = pgTable('subscriptions', {

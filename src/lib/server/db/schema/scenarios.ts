@@ -1,5 +1,5 @@
 import { pgTable, text, boolean, timestamp, json } from 'drizzle-orm/pg-core';
-import { languages } from './languages.js';
+import { languages } from './languages';
 
 // 🎯 LEARNING SCENARIOS - Core feature for task-oriented learning
 export const scenarios = pgTable('scenarios', {
