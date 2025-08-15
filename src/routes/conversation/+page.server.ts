@@ -1,60 +1,67 @@
-// 🗣️ Conversation Page Server Logic
-// Handles conversation-specific data and settings
+import type { PageServerLoad } from './$types';
+import { redirect } from '@sveltejs/kit';
 
-export const load = async ({ locals, url }) => {
-	const language = url.searchParams.get('lang') || 'en';
-	const mode = (url.searchParams.get('mode') as 'traditional' | 'realtime') || 'traditional';
+export const load: PageServerLoad = async ({ url, locals }) => {
+	// Get query parameters
+	const language = url.searchParams.get('language') || 'en';
 	const voice = url.searchParams.get('voice') || 'alloy';
+	const scenario = url.searchParams.get('scenario') || null;
+	const speaker = url.searchParams.get('speaker') || null;
+	const sessionId = url.searchParams.get('sessionId') || null;
 
-	// Get language details for SEO
-	const languageNames = {
-		en: 'English',
-		es: 'Spanish',
-		fr: 'French',
-		de: 'German',
-		it: 'Italian',
-		pt: 'Portuguese',
-		ja: 'Japanese',
-		ko: 'Korean',
-		zh: 'Chinese',
-		ar: 'Arabic',
-		hi: 'Hindi',
-		ru: 'Russian',
-		vi: 'Vietnamese',
-		nl: 'Dutch',
-		fil: 'Filipino',
-		id: 'Indonesian',
-		tr: 'Turkish'
+	// If no sessionId, generate one and redirect
+	if (!sessionId) {
+		const newSessionId = crypto.randomUUID();
+		const newUrl = new URL(url);
+		newUrl.searchParams.set('sessionId', newSessionId);
+		throw redirect(302, newUrl.toString());
+	}
+
+	// Get user info if authenticated
+	const user = locals.user;
+	// Default to intermediate level (B1) if no user level is available
+	const userLevel = 350; // B1 level
+	const formattedMemory = user ? generateFormattedMemory(user) : '';
+
+	// Prepare conversation configuration
+	const conversationConfig = {
+		language,
+		voice,
+		userLevel,
+		scenario: scenario ? JSON.parse(decodeURIComponent(scenario)) : null,
+		speaker: speaker ? JSON.parse(decodeURIComponent(speaker)) : null,
+		formattedMemory,
+		sessionId
 	};
-
-	const currentLanguage = languageNames[language as keyof typeof languageNames] || 'English';
-	const modeText = mode === 'realtime' ? 'Real-time' : 'Traditional';
 
 	return {
-		user: locals.user,
-		language,
-		mode,
-		voice,
-		seo: {
-			title: `Practice ${currentLanguage} with AI - ${modeText} Mode | Kaiwa`,
-			description: `Practice speaking ${currentLanguage} naturally with our AI tutor. ${mode === 'realtime' ? 'Experience live conversation streaming' : 'Record your speech and get AI responses'}. Start your language learning journey today.`,
-			keywords: `${currentLanguage.toLowerCase()}, language practice, AI conversation, speaking practice, ${mode} mode, language learning, conversation tutor`,
-			ogType: 'website',
-			canonical: `https://kaiwa.app/conversation?lang=${language}&mode=${mode}&voice=${voice}`,
-			structuredData: {
-				'@context': 'https://schema.org',
-				'@type': 'WebPage',
-				name: `${currentLanguage} Conversation Practice`,
-				description: `Practice speaking ${currentLanguage} with AI tutor`,
-				url: `https://kaiwa.app/conversation?lang=${language}&mode=${mode}&voice=${voice}`,
-				mainEntity: {
-					'@type': 'LearningResource',
-					name: `${currentLanguage} Language Practice`,
-					description: `AI-powered conversation practice for ${currentLanguage}`,
-					learningResourceType: 'Conversation Practice',
-					educationalLevel: 'Beginner to Advanced'
-				}
-			}
-		}
+		conversationConfig,
+		user: user || null,
+		isGuest: !user
 	};
 };
+
+// Helper function to generate formatted memory from user data
+function generateFormattedMemory(user: any): string {
+	const memories = [];
+
+	// Use available user properties
+	if (user.nativeLanguageId) {
+		memories.push(`NATIVE LANGUAGE: ${user.nativeLanguageId}`);
+	}
+
+	if (user.preferredUILanguageId) {
+		memories.push(`PREFERRED UI LANGUAGE: ${user.preferredUILanguageId}`);
+	}
+
+	if (user.tier && user.tier !== 'free') {
+		memories.push(`SUBSCRIPTION: ${user.tier} tier`);
+	}
+
+	// Add some default context for new users
+	if (memories.length === 0) {
+		return 'PERSONAL CONTEXT: This is a new learner. Focus on building rapport and understanding their interests.';
+	}
+
+	return `PERSONAL CONTEXT:\n${memories.join('\n')}`;
+}

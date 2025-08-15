@@ -1,255 +1,251 @@
 <script lang="ts">
-	import { createConversationStore } from '$lib/orchestrator.svelte';
-	import ConversationHistory from '$lib/components/ConversationHistory.svelte';
-	import RecordButton from '$lib/components/RecordButton.svelte';
-	import { trackConversion, trackFeature } from '$lib/analytics/posthog';
-	import { getLanguageByCode } from '$lib/data/languages';
+	import { onMount, onDestroy } from 'svelte';
+	import { UnifiedConversationOrchestrator } from '$lib/features/conversation/unified-conversation-orchestrator';
+	import type { ConversationState } from '$lib/features/conversation/unified-conversation-orchestrator';
+	import type { PageData } from './$types';
 
-	// 🎯 Page data from server
-	const { data } = $props<{
-		data: {
-			user: any;
-			language: string;
-			mode: 'traditional' | 'realtime';
-			voice: string;
-			seo: any;
-		};
-	}>();
+	// Props
+	export let data: PageData;
 
-	// 🎯 Single conversation store - the heart of the app
-	const conversation = createConversationStore();
+	// State
+	let orchestrator: UnifiedConversationOrchestrator;
+	let conversationState: ConversationState;
+	let isInitialized = false;
 
-	// 🎨 UI state
-	let showDebug = $state(false);
-
-	// 🎯 Get language details for display
-	const languageDetails = $derived(() => getLanguageByCode(data.language));
-
-	// 🎯 Initialize conversation with URL parameters
-	$effect(() => {
-		if (data.language && data.voice) {
-			conversation.startConversation(data.language, data.voice);
-		}
-	});
-
-	// 🎯 Main interaction - toggle recording
-	async function toggleRecording() {
+	// Initialize orchestrator
+	onMount(async () => {
 		try {
-			if (conversation.state.sessionId === '') {
-							// Start new conversation with selected settings
-			await conversation.startConversation(data.language, data.voice);
-			}
-			await conversation.toggleRecording();
+			orchestrator = new UnifiedConversationOrchestrator();
+			
+			// Start conversation with configuration
+			await orchestrator.startConversation({
+				language: data.conversationConfig.language,
+				voice: data.conversationConfig.voice,
+				userLevel: data.conversationConfig.userLevel,
+				scenario: data.conversationConfig.scenario,
+				speaker: data.conversationConfig.speaker,
+				formattedMemory: data.conversationConfig.formattedMemory
+			});
+
+			// Set up state monitoring
+			setupStateMonitoring();
+			isInitialized = true;
+
 		} catch (error) {
-			console.error('Recording toggle failed:', error);
+			console.error('Failed to initialize conversation:', error);
+		}
+	});
+
+	// Cleanup
+	onDestroy(() => {
+		if (orchestrator) {
+			orchestrator.dispose();
+		}
+	});
+
+	// State monitoring
+	function setupStateMonitoring() {
+		const interval = setInterval(() => {
+			if (orchestrator) {
+				conversationState = orchestrator.getState();
+			}
+		}, 100);
+
+		// Cleanup interval
+		onDestroy(() => clearInterval(interval));
+	}
+
+	// Conversation controls
+	async function startRecording() {
+		if (!orchestrator) return;
+		
+		try {
+			await orchestrator.startRecording();
+		} catch (error) {
+			console.error('Failed to start recording:', error);
 		}
 	}
 
-	// 🎯 Start fresh conversation
-	async function startFresh() {
-		await conversation.endConversation();
-		await conversation.startConversation(data.language, data.voice);
+	async function stopRecording() {
+		if (!orchestrator) return;
+		
+		try {
+			await orchestrator.stopRecording();
+		} catch (error) {
+			console.error('Failed to stop recording:', error);
+		}
 	}
 
-	// 🎨 Status text
-	const statusText = $derived(() => {
-		if (conversation.hasError) return conversation.state.error;
-		if (conversation.state.status === 'speaking') return 'AI is speaking...';
-		if (conversation.isRecording) return 'Recording... Speak now!';
-		if (conversation.isProcessing) return 'Processing your speech...';
-		if (conversation.isSpeaking) return 'AI is speaking...';
-		if (conversation.messageCount > 0) return `${conversation.messageCount} exchanges`;
-		return 'Click to start speaking';
-	});
+	async function endConversation() {
+		if (!orchestrator) return;
+		
+		try {
+			await orchestrator.stopConversation();
+		} catch (error) {
+			console.error('Failed to end conversation:', error);
+		}
+	}
 
-	// 🧹 Cleanup on page unload
-	if (typeof window !== 'undefined') {
-		window.addEventListener('beforeunload', () => {
-			conversation.cleanup();
-		});
+	// Format timestamp
+	function formatTimestamp(timestamp: number): string {
+		return new Date(timestamp).toLocaleTimeString();
+	}
+
+	// Get status color
+	function getStatusColor(status: string): string {
+		switch (status) {
+			case 'connected': return 'text-green-500';
+			case 'recording': return 'text-red-500';
+			case 'processing': return 'text-yellow-500';
+			case 'speaking': return 'text-blue-500';
+			case 'error': return 'text-red-600';
+			default: return 'text-gray-500';
+		}
 	}
 </script>
 
 <svelte:head>
-	<!-- Page-specific SEO -->
-	<title>{data.seo.title}</title>
-	<meta name="description" content={data.seo.description} />
-	<meta name="keywords" content={data.seo.keywords} />
-
-	<!-- Open Graph -->
-	<meta property="og:title" content={data.seo.title} />
-	<meta property="og:description" content={data.seo.description} />
-	<meta property="og:url" content={data.seo.canonical} />
-
-	<!-- Twitter -->
-	<meta name="twitter:title" content={data.seo.title} />
-	<meta name="twitter:description" content={data.seo.description} />
-
-	<!-- Canonical -->
-	<link rel="canonical" href={data.seo.canonical} />
-
-	<!-- Structured Data -->
-	<script type="application/ld+json">
-		{JSON.stringify(data.seo.structuredData)}
-	</script>
+	<title>Conversation - Kaiwa</title>
+	<meta name="description" content="Practice conversation with AI tutor" />
 </svelte:head>
 
-<div class="min-h-screen bg-base-100">
-	<!-- Header -->
-	<header class="navbar bg-base-200/50 backdrop-blur-sm">
-		<div class="navbar-start">
-			<!-- Back to Home -->
-			<a href="/" class="btn btn-ghost btn-sm">
-				<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M15 19l-7-7 7-7"
-					/>
-				</svg>
-				<span class="hidden sm:inline">Back</span>
-			</a>
+<div class="conversation-page min-h-screen bg-gray-50">
+	<div class="max-w-4xl mx-auto p-6">
+		<!-- Header -->
+		<div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+			<div class="flex justify-between items-center">
+				<div>
+					<h1 class="text-2xl font-bold text-gray-900">
+						{data.conversationConfig.language.toUpperCase()} Conversation
+					</h1>
+					<p class="text-gray-600">
+						Session: {data.conversationConfig.sessionId}
+					</p>
+				</div>
+				
+				<div class="text-right">
+					<p class="text-sm text-gray-500">
+						{data.isGuest ? 'Guest User' : data.user?.displayName || 'User'}
+					</p>
+					<p class="text-sm text-gray-500">
+						Level: {data.conversationConfig.userLevel}
+					</p>
+				</div>
+			</div>
 		</div>
 
-		<div class="navbar-center">
-			<div class="text-center">
-				<h1 class="text-2xl font-bold text-primary">Kaiwa</h1>
-				{#if languageDetails()}
-					<p class="text-sm opacity-70">
-						Practice {languageDetails()?.name} ({languageDetails()?.nativeName})
-					</p>
-					{#if languageDetails()?.writingSystem !== 'latin'}
-						<div class="mt-1 badge badge-outline badge-xs">
-							{languageDetails()?.writingSystem} script
-						</div>
+		<!-- Conversation Status -->
+		{#if conversationState}
+			<div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+				<div class="flex items-center justify-between">
+					<div class="flex items-center space-x-3">
+						<div class="w-3 h-3 rounded-full {getStatusColor(conversationState.status)}"></div>
+						<span class="font-medium capitalize">{conversationState.status}</span>
+					</div>
+					
+					{#if conversationState.startTime}
+						<p class="text-sm text-gray-500">
+							Duration: {Math.floor((Date.now() - conversationState.startTime) / 1000)}s
+						</p>
 					{/if}
-				{:else}
-					<p class="text-sm opacity-70">Practice speaking with AI</p>
+				</div>
+
+				{#if conversationState.error}
+					<div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-md">
+						<p class="text-red-700 text-sm">{conversationState.error}</p>
+					</div>
 				{/if}
 			</div>
-		</div>
+		{/if}
 
-		<div class="navbar-end">
-			{#if data.user}
-				<div class="dropdown dropdown-end">
-					<div tabindex="0" role="button" class="btn avatar btn-circle btn-ghost">
-						<div class="w-8 rounded-full">
-							{#if data.user.avatarUrl}
-								<img src={data.user.avatarUrl} alt="Profile" />
-							{:else}
-								<div
-									class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-content"
-								>
-									{data.user.displayName?.[0] || 'U'}
-								</div>
-							{/if}
-						</div>
-					</div>
-					<ul
-						tabindex="0"
-						class="dropdown-content menu z-[1] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
+		<!-- Conversation Controls -->
+		<div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+			<div class="flex justify-center space-x-4">
+				{#if conversationState?.status === 'connected'}
+					<button
+						onclick={startRecording}
+						class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
 					>
-						<li class="menu-title">
-							<span class="text-sm opacity-70">{data.user.displayName || 'User'}</span>
-						</li>
-						<div class="divider my-1"></div>
-						<li>
-							<form action="/logout" method="post">
-								<button type="submit" class="w-full text-left">Sign out</button>
-							</form>
-						</li>
-					</ul>
-				</div>
-			{:else}
-				<a href="/login" class="btn btn-sm btn-primary">Sign in</a>
-			{/if}
-		</div>
-	</header>
-
-	<!-- Main conversation area -->
-	<main class="container mx-auto px-4 py-8">
-		<!-- Conversation history -->
-						<div class="mb-8">
-					<ConversationHistory messages={conversation.state.messages.map(msg => ({
-						role: msg.role,
-						content: msg.content,
-						timestamp: msg.timestamp.getTime()
-					}))} />
-				</div>
-
-		<!-- Main record button -->
-		<div class="mb-8 flex flex-col items-center space-y-8">
-			<RecordButton
-				isRecording={conversation.isRecording}
-				isProcessing={conversation.isProcessing}
-				isSpeaking={conversation.isSpeaking}
-				hasError={conversation.hasError}
-				onclick={toggleRecording}
-			/>
-
-			<!-- Status text -->
-			<div class="text-center">
-				{#if conversation.hasError}
-					<div class="alert max-w-md alert-error">
-						<svg class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-							></path>
-						</svg>
-						<span>{statusText()}</span>
+						🎤 Start Recording
+					</button>
+				{:else if conversationState?.status === 'recording'}
+					<button
+						onclick={stopRecording}
+						class="px-6 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
+					>
+						⏹️ Stop Recording
+					</button>
+				{:else if conversationState?.status === 'processing'}
+					<div class="px-6 py-3 bg-yellow-100 text-yellow-800 rounded-lg font-medium">
+						⏳ Processing...
 					</div>
-				{:else}
-					<p class="max-w-md text-lg font-medium">
-						{statusText()}
-					</p>
+				{:else if conversationState?.status === 'speaking'}
+					<div class="px-6 py-3 bg-blue-100 text-blue-800 rounded-lg font-medium">
+						🔊 Speaking...
+					</div>
+				{/if}
+
+				{#if conversationState?.status !== 'idle'}
+					<button
+						onclick={endConversation}
+						class="px-6 py-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors"
+					>
+						🔚 End Conversation
+					</button>
 				{/if}
 			</div>
 		</div>
 
-		<!-- Action buttons -->
-		<div class="flex justify-center space-x-4">
-			{#if conversation.state.messages.length > 0}
-				<button class="btn btn-outline btn-secondary" onclick={startFresh}>
-					<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-						/>
-					</svg>
-					New Conversation
-				</button>
-			{/if}
+		<!-- Messages -->
+		{#if conversationState?.messages && conversationState.messages.length > 0}
+			<div class="bg-white rounded-lg shadow-sm p-6">
+				<h2 class="text-lg font-semibold mb-4">Conversation</h2>
+				
+				<div class="space-y-4 max-h-96 overflow-y-auto">
+					{#each conversationState.messages as message}
+						<div class="flex {message.role === 'user' ? 'justify-end' : 'justify-start'}">
+							<div class="max-w-xs lg:max-w-md">
+								<div class="p-3 rounded-lg {message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'}">
+									<p class="text-sm">{message.content}</p>
+									<p class="text-xs mt-2 opacity-70">
+										{formatTimestamp(message.timestamp)}
+									</p>
+								</div>
+								
+								{#if message.audioUrl}
+									<div class="mt-2">
+										<audio controls class="w-full">
+											<source src={message.audioUrl} type="audio/mp3" />
+											Your browser does not support the audio element.
+										</audio>
+									</div>
+								{/if}
+							</div>
+						</div>
+					{/each}
+				</div>
+			</div>
+		{:else}
+			<div class="bg-white rounded-lg shadow-sm p-6 text-center">
+				<p class="text-gray-500">No messages yet. Start recording to begin the conversation!</p>
+			</div>
+		{/if}
 
-			<button class="btn btn-ghost btn-sm" onclick={() => (showDebug = !showDebug)}>
-				{showDebug ? '🙈 Hide Debug' : '🔍 Debug'}
-			</button>
-		</div>
-	</main>
-
-	<!-- Debug panel -->
-	{#if showDebug}
-		<div class="container mx-auto mb-8 px-4">
-			<div class="card bg-base-200">
-				<div class="card-body">
-					<h3 class="card-title text-sm">🐛 Debug Info</h3>
-					<div class="mockup-code max-h-48 overflow-y-auto">
-						<pre data-prefix="$"><code>{JSON.stringify(conversation.state, null, 2)}</code></pre>
+		<!-- Audio State Display -->
+		{#if conversationState?.audioState}
+			<div class="bg-white rounded-lg shadow-sm p-4 mt-6">
+				<h3 class="text-sm font-medium text-gray-700 mb-2">Audio Status</h3>
+				<div class="grid grid-cols-2 gap-4 text-sm">
+					<div>
+						<p><strong>Status:</strong> {conversationState.audioState.status}</p>
+						<p><strong>Volume:</strong> {(conversationState.audioState.volume * 100).toFixed(0)}%</p>
+					</div>
+					<div>
+						<p><strong>Can Record:</strong> {conversationState.audioState.status === 'idle' ? 'Yes' : 'No'}</p>
+						<p><strong>Can Play:</strong> {conversationState.audioState.status === 'idle' ? 'Yes' : 'No'}</p>
 					</div>
 				</div>
 			</div>
-		</div>
-	{/if}
-
-	<!-- Footer -->
-	<footer class="footer-center footer bg-base-200 p-6 text-base-content">
-		<div>
-			<p>Speak naturally • AI will respond • Keep practicing</p>
-		</div>
-	</footer>
+		{/if}
+	</div>
 </div>

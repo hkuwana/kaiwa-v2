@@ -1,18 +1,11 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { EventBusFactory } from '$lib/shared/events/eventBus';
-	import { audioService } from '$lib/features/audio';
+	import { audioService, createAudioService } from '$lib/features/audio';
 	import { realtimeService } from '$lib/features/realtime';
 	import { ModernRealtimeConversationOrchestrator } from '$lib/features/conversation/realtime-conversation-orchestrator';
-	import type {
-		AudioCaptureSession,
-		AudioDevice
-	} from '$lib/features/audio/ports';
-	import type {
-		RealtimeSession,
-		RealtimeStream,
-		RealtimeEvent
-	} from '$lib/features/realtime';
+	import type { AudioState } from '$lib/features/audio/types';
+	import type { RealtimeSession, RealtimeStream, RealtimeEvent } from '$lib/features/realtime';
 	import type { RealtimeConversationState } from '$lib/features/conversation/realtime-conversation-orchestrator';
 	import AudioVisualizer from '../AudioVisualizer.svelte';
 
@@ -21,13 +14,12 @@
 	let eventBus = $state<ReturnType<typeof EventBusFactory.create> | null>(null);
 	let orchestrator = $state<ModernRealtimeConversationOrchestrator | null>(null);
 
-	// Audio testing state
-	let audioSession = $state<AudioCaptureSession | null>(null);
-	let audioChunks = $state<ArrayBuffer[]>([]);
-	let audioLevel = $state(0);
-	let isAudioRecording = $state(false);
+	// Audio testing state (using new architecture)
+	let audioState = $state<AudioState | null>(null);
+	let audioDevices = $state<MediaDeviceInfo[]>([]);
 	let selectedDevice = $state<string>('');
-	let audioDevices = $state<AudioDevice[]>([]);
+	let testText = $state('Hello, this is a test message for text-to-speech!');
+	let testAudioUrl = $state('');
 
 	// Real-time testing state
 	let realtimeSession = $state<RealtimeSession | null>(null);
@@ -42,6 +34,19 @@
 	let conversationMessages = $state<Array<{ role: 'user' | 'assistant'; content: string; timestamp: number }>>([]);
 	let conversationInterval: ReturnType<typeof setInterval> | undefined;
 
+	// Test results
+	let testResults = $state<{
+		audio: { passed: number; failed: number; tests: Array<{ name: string; passed: boolean; error?: string }> };
+		conversation: { passed: number; failed: number; tests: Array<{ name: string; passed: boolean; error?: string }> };
+		ai: { passed: number; failed: number; tests: Array<{ name: string; passed: boolean; error?: string }> };
+		integration: { passed: number; failed: number; tests: Array<{ name: string; passed: boolean; error?: string }> };
+	}>({
+		audio: { passed: 0, failed: 0, tests: [] },
+		conversation: { passed: 0, failed: 0, tests: [] },
+		ai: { passed: 0, failed: 0, tests: [] },
+		integration: { passed: 0, failed: 0, tests: [] }
+	});
+
 	// Initialize
 	onMount(async () => {
 		eventBus = EventBusFactory.create('memory');
@@ -55,6 +60,9 @@
 		
 		// Set up conversation event handlers
 		setupConversationHandlers();
+
+		// Set up audio state monitoring
+		setupAudioStateMonitoring();
 	});
 
 	// Cleanup
@@ -67,78 +75,145 @@
 		}
 	});
 
-	// Audio testing functions
+	// Audio testing functions (using new architecture)
 	async function loadAudioDevices() {
 		try {
 			audioDevices = await audioService.getAudioDevices();
 			if (audioDevices.length > 0) {
-				selectedDevice = audioDevices[0].id;
+				selectedDevice = audioDevices[0].deviceId;
 			}
 		} catch (error) {
 			console.error('Failed to load audio devices:', error);
 		}
 	}
 
-	async function testAudioCapture() {
-		try {
-			if (isAudioRecording) {
-				await stopAudioCapture();
-			} else {
-				await startAudioCapture();
-			}
-		} catch (error) {
-			console.error('Audio capture test failed:', error);
-		}
+	function setupAudioStateMonitoring() {
+		// Monitor audio state changes
+		setInterval(() => {
+			audioState = audioService.getState();
+		}, 100);
 	}
 
-	async function startAudioCapture() {
+	async function testAudioRecording() {
+		const testName = 'Audio Recording';
 		try {
-			audioSession = await audioService.startRecording(selectedDevice);
-			isAudioRecording = true;
-			audioChunks = [];
-
-			// Set up audio data handling through the service layer
-			audioService.onAudioData(async (chunk: ArrayBuffer) => {
-				audioChunks.push(chunk);
-				
-				// Process chunk for visualization
-				const processed = await audioService.processAudioChunk(chunk);
-				audioLevel = processed.level;
-			});
-
-			console.log('🎤 Audio capture started with AudioWorklet:', audioSession.id);
+			await audioService.startRecording(selectedDevice);
+			await new Promise(resolve => setTimeout(resolve, 2000)); // Record for 2 seconds
+			await audioService.stopRecording();
+			
+			addTestResult('audio', testName, true);
+			console.log('✅ Audio recording test passed');
 		} catch (error) {
-			console.error('❌ Failed to start audio capture:', error);
-		}
-	}
-
-	async function stopAudioCapture() {
-		try {
-			if (audioSession) {
-				await audioService.stopRecording(audioSession);
-				audioSession = null;
-			}
-			isAudioRecording = false;
-			audioLevel = 0;
-
-			console.log('🔇 Audio capture stopped. Total chunks:', audioChunks.length);
-		} catch (error) {
-			console.error('❌ Failed to stop audio capture:', error);
+			addTestResult('audio', testName, false, error instanceof Error ? error.message : 'Unknown error');
+			console.error('❌ Audio recording test failed:', error);
 		}
 	}
 
 	async function testAudioPlayback() {
-		if (audioChunks.length === 0) {
-			alert('No audio chunks to play. Record something first!');
-			return;
-		}
-
+		const testName = 'Audio Playback';
 		try {
-			const mergedAudio = await audioService.mergeAudioChunks(audioChunks);
-			await audioService.playAudio(mergedAudio);
-			console.log('Playing merged audio chunks');
+			// Create a simple test audio (sine wave)
+			const audioContext = new AudioContext();
+			const oscillator = audioContext.createOscillator();
+			const destination = audioContext.createMediaStreamDestination();
+			
+			oscillator.connect(destination);
+			oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4 note
+			oscillator.start();
+			oscillator.stop(audioContext.currentTime + 1);
+			
+			// Convert to ArrayBuffer
+			const stream = destination.stream;
+			const mediaRecorder = new MediaRecorder(stream);
+			const chunks: Blob[] = [];
+			
+			mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+			mediaRecorder.onstop = async () => {
+				const blob = new Blob(chunks, { type: 'audio/wav' });
+				const arrayBuffer = await blob.arrayBuffer();
+				
+				await audioService.playAudio(arrayBuffer);
+				addTestResult('audio', testName, true);
+				console.log('✅ Audio playback test passed');
+			};
+			
+			mediaRecorder.start();
+			setTimeout(() => mediaRecorder.stop(), 1000);
 		} catch (error) {
-			console.error('Audio playback test failed:', error);
+			addTestResult('audio', testName, false, error instanceof Error ? error.message : 'Unknown error');
+			console.error('❌ Audio playback test failed:', error);
+		}
+	}
+
+	async function testTextToSpeech() {
+		const testName = 'Text-to-Speech';
+		try {
+			const audioData = await audioService.textToSpeech(testText);
+			await audioService.playAudio(audioData);
+			
+			addTestResult('ai', testName, true);
+			console.log('✅ Text-to-speech test passed');
+		} catch (error) {
+			addTestResult('ai', testName, false, error instanceof Error ? error.message : 'Unknown error');
+			console.error('❌ Text-to-speech test failed:', error);
+		}
+	}
+
+	async function testTranscription() {
+		const testName = 'Audio Transcription';
+		try {
+			// Create a simple test audio
+			const audioContext = new AudioContext();
+			const oscillator = audioContext.createOscillator();
+			const destination = audioContext.createMediaStreamDestination();
+			
+			oscillator.connect(destination);
+			oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+			oscillator.start();
+			oscillator.stop(audioContext.currentTime + 2);
+			
+			const stream = destination.stream;
+			const mediaRecorder = new MediaRecorder(stream);
+			const chunks: Blob[] = [];
+			
+			mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+			mediaRecorder.onstop = async () => {
+				const blob = new Blob(chunks, { type: 'audio/webm' });
+				const arrayBuffer = await blob.arrayBuffer();
+				
+				const transcript = await audioService.transcribe(arrayBuffer);
+				console.log('Transcript:', transcript);
+				
+				addTestResult('ai', testName, true);
+				console.log('✅ Audio transcription test passed');
+			};
+			
+			mediaRecorder.start();
+			setTimeout(() => mediaRecorder.stop(), 2000);
+		} catch (error) {
+			addTestResult('ai', testName, false, error instanceof Error ? error.message : 'Unknown error');
+			console.error('❌ Audio transcription test failed:', error);
+		}
+	}
+
+	async function testVolumeControl() {
+		const testName = 'Volume Control';
+		try {
+			const originalVolume = audioService.volume;
+			
+			await audioService.setVolume(0.5);
+			expect(audioService.volume).toBe(0.5);
+			
+			await audioService.setVolume(0.8);
+			expect(audioService.volume).toBe(0.8);
+			
+			await audioService.setVolume(originalVolume);
+			
+			addTestResult('audio', testName, true);
+			console.log('✅ Volume control test passed');
+		} catch (error) {
+			addTestResult('audio', testName, false, error instanceof Error ? error.message : 'Unknown error');
+			console.error('❌ Volume control test failed:', error);
 		}
 	}
 
@@ -193,6 +268,7 @@
 	}
 
 	async function testRealtimeSession() {
+		const testName = 'Realtime Session Creation';
 		try {
 			lastError = null;
 			errorDetails = null;
@@ -213,67 +289,14 @@
 				});
 				isRealtimeConnected = true;
 				console.log('✅ Realtime session created');
-				console.log('🔍 Session details:', {
-					id: realtimeSession.id,
-					clientSecret: realtimeSession.clientSecret ? `${realtimeSession.clientSecret.substring(0, 20)}...` : 'undefined',
-					expiresAt: realtimeSession.expiresAt,
-					status: realtimeSession.status
-				});
+				
+				addTestResult('ai', testName, true);
 			}
 		} catch (error) {
 			console.error('❌ Realtime session test failed:', error);
 			lastError = error instanceof Error ? error.message : String(error);
 			errorDetails = error;
-		}
-	}
-
-	async function testRealtimeStreaming() {
-		if (!realtimeSession) {
-			alert('Create a realtime session first!');
-			return;
-		}
-
-		try {
-			lastError = null;
-			errorDetails = null;
-			
-			if (realtimeStream) {
-				console.log('⏹️ Stopping realtime streaming...');
-				await realtimeService.stopStreaming(realtimeStream);
-				realtimeStream = null;
-				console.log('✅ Realtime streaming stopped');
-			} else {
-				console.log('🌊 Starting realtime streaming...');
-				console.log('🔍 Session ID check:', realtimeSession?.id);
-				console.log('🔍 Session client secret check:', realtimeSession?.clientSecret ? 'present' : 'missing');
-				
-				realtimeStream = await realtimeService.startStreaming(realtimeSession);
-				console.log('✅ Realtime streaming started');
-			}
-		} catch (error) {
-			console.error('❌ Realtime streaming test failed:', error);
-			lastError = error instanceof Error ? error.message : String(error);
-			errorDetails = error;
-		}
-	}
-
-	async function testAudioChunkSending() {
-		if (!realtimeStream || !audioChunks.length) {
-			alert('Start realtime streaming and record audio first!');
-			return;
-		}
-
-		try {
-			lastError = null;
-			errorDetails = null;
-			
-			const lastChunk = audioChunks[audioChunks.length - 1];
-			await realtimeService.sendAudioChunk(realtimeStream, lastChunk);
-			console.log('Audio chunk sent to realtime API');
-		} catch (error) {
-			console.error('Audio chunk sending test failed:', error);
-			lastError = error instanceof Error ? error.message : String(error);
-			errorDetails = error;
+			addTestResult('ai', testName, false, error instanceof Error ? error.message : 'Unknown error');
 		}
 	}
 
@@ -281,7 +304,6 @@
 	function setupConversationHandlers() {
 		if (!orchestrator) return;
 
-		// Monitor conversation state changes
 		conversationInterval = setInterval(() => {
 			if (orchestrator) {
 				conversationState = orchestrator.getState();
@@ -291,6 +313,7 @@
 	}
 
 	async function testConversationStart() {
+		const testName = 'Conversation Start';
 		if (!orchestrator) return;
 
 		try {
@@ -299,47 +322,51 @@
 			
 			await orchestrator.startConversation('en', 'alloy');
 			console.log('Conversation started');
+			
+			addTestResult('conversation', testName, true);
 		} catch (error) {
 			console.error('Conversation start test failed:', error);
 			lastError = error instanceof Error ? error.message : String(error);
-			errorDetails = error;
+			addTestResult('conversation', testName, false, error instanceof Error ? error.message : 'Unknown error');
 		}
 	}
 
-	async function testConversationStreaming() {
-		if (!orchestrator) return;
+	// Test orchestration
+	async function runAllTests() {
+		console.log('🧪 Starting comprehensive test suite...');
+		
+		// Reset test results
+		testResults = {
+			audio: { passed: 0, failed: 0, tests: [] },
+			conversation: { passed: 0, failed: 0, tests: [] },
+			ai: { passed: 0, failed: 0, tests: [] },
+			integration: { passed: 0, failed: 0, tests: [] }
+		};
 
-		try {
-			lastError = null;
-			errorDetails = null;
-			
-			if (conversationState?.status === 'streaming') {
-				await orchestrator.stopStreaming();
-				console.log('Conversation streaming stopped');
-			} else {
-				await orchestrator.startStreaming();
-				console.log('Conversation streaming started');
-			}
-		} catch (error) {
-			console.error('Conversation streaming test failed:', error);
-			lastError = error instanceof Error ? error.message : String(error);
-			errorDetails = error;
-		}
+		// Test audio features
+		await testAudioRecording();
+		await testAudioPlayback();
+		await testVolumeControl();
+
+		// Test AI features
+		await testTextToSpeech();
+		await testTranscription();
+		await testRealtimeSession();
+
+		// Test conversation features
+		await testConversationStart();
+
+		console.log('🧪 Test suite completed!', testResults);
 	}
 
-	async function testConversationEnd() {
-		if (!orchestrator) return;
-
-		try {
-			lastError = null;
-			errorDetails = null;
-			
-			await orchestrator.endConversation();
-			console.log('Conversation ended');
-		} catch (error) {
-			console.error('Conversation end test failed:', error);
-			lastError = error instanceof Error ? error.message : String(error);
-			errorDetails = error;
+	function addTestResult(category: keyof typeof testResults, testName: string, passed: boolean, error?: string) {
+		const result = { name: testName, passed, error };
+		testResults[category].tests.push(result);
+		
+		if (passed) {
+			testResults[category].passed++;
+		} else {
+			testResults[category].failed++;
 		}
 	}
 
@@ -364,6 +391,16 @@
 			default: return 'text-gray-400';
 		}
 	}
+
+	function expect(actual: any) {
+		return {
+			toBe: (expected: any) => {
+				if (actual !== expected) {
+					throw new Error(`Expected ${actual} to be ${expected}`);
+				}
+			}
+		};
+	}
 </script>
 
 <div class="dev-panel bg-gray-900 text-white p-6 min-h-screen">
@@ -371,28 +408,68 @@
 		<!-- Header -->
 		<div class="mb-8">
 			<h1 class="text-3xl font-bold mb-2">🧪 Dev Testing Panel</h1>
-			<p class="text-gray-800">Test individual features before integration</p>
+			<p class="text-gray-300">Test each feature layer in isolation before integration</p>
+			
+			<!-- Test Suite Runner -->
+			<div class="mt-4">
+				<button
+					onclick={runAllTests}
+					class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-colors"
+				>
+					🚀 Run All Tests
+				</button>
+			</div>
+		</div>
+
+		<!-- Test Results Summary -->
+		<div class="mb-6 grid grid-cols-4 gap-4">
+			<div class="bg-base-300 p-4 rounded-lg text-center">
+				<h3 class="text-lg font-medium">🎤 Audio</h3>
+				<p class="text-2xl font-bold text-green-400">{testResults.audio.passed}</p>
+				<p class="text-sm text-red-400">{testResults.audio.failed} failed</p>
+			</div>
+			<div class="bg-base-300 p-4 rounded-lg text-center">
+				<h3 class="text-lg font-medium">💬 Conversation</h3>
+				<p class="text-2xl font-bold text-green-400">{testResults.conversation.passed}</p>
+				<p class="text-sm text-red-400">{testResults.conversation.failed} failed</p>
+			</div>
+			<div class="bg-base-300 p-4 rounded-lg text-center">
+				<h3 class="text-lg font-medium">🤖 AI</h3>
+				<p class="text-2xl font-bold text-green-400">{testResults.ai.passed}</p>
+				<p class="text-sm text-red-400">{testResults.ai.failed} failed</p>
+			</div>
+			<div class="bg-base-300 p-4 rounded-lg text-center">
+				<h3 class="text-lg font-medium">🔗 Integration</h3>
+				<p class="text-2xl font-bold text-green-400">{testResults.integration.passed}</p>
+				<p class="text-sm text-red-400">{testResults.integration.failed} failed</p>
+			</div>
 		</div>
 
 		<!-- Tab Navigation -->
 		<div class="flex space-x-1 mb-6 bg-base-300 p-1 rounded-lg">
 			<button
-				class="px-4 py-2 rounded-md transition-colors {activeTab === 'audio' ? 'bg-blue-600 text-white' : 'text-gray-800 hover:text-white'}"
+				class="px-4 py-2 rounded-md transition-colors {activeTab === 'audio' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:text-white'}"
 				onclick={() => activeTab = 'audio'}
 			>
 				🎤 Audio
 			</button>
 			<button
-				class="px-4 py-2 rounded-md transition-colors {activeTab === 'realtime' ? 'bg-blue-600 text-white' : 'text-gray-800 hover:text-white'}"
+				class="px-4 py-2 rounded-md transition-colors {activeTab === 'realtime' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:text-white'}"
 				onclick={() => activeTab = 'realtime'}
 			>
 				🚀 Real-time
 			</button>
 			<button
-				class="px-4 py-2 rounded-md transition-colors {activeTab === 'conversation' ? 'bg-blue-600 text-white' : 'text-gray-800 hover:text-white'}"
+				class="px-4 py-2 rounded-md transition-colors {activeTab === 'conversation' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:text-white'}"
 				onclick={() => activeTab = 'conversation'}
 			>
 				💬 Conversation
+			</button>
+			<button
+				class="px-4 py-2 rounded-md transition-colors {activeTab === 'tests' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:text-white'}"
+				onclick={() => activeTab = 'tests'}
+			>
+				🧪 Test Results
 			</button>
 		</div>
 
@@ -409,7 +486,7 @@
 						class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white"
 					>
 						{#each audioDevices as device}
-							<option value={device.id}>{device.name}</option>
+							<option value={device.deviceId}>{device.label || `Device ${device.deviceId}`}</option>
 						{/each}
 					</select>
 					<button
@@ -423,46 +500,76 @@
 				<!-- Audio Controls -->
 				<div class="bg-base-300 p-4 rounded-lg">
 					<h3 class="text-lg font-medium mb-3">Audio Controls</h3>
-					<div class="flex space-x-4">
+					<div class="grid grid-cols-2 gap-4">
 						<button
-							onclick={testAudioCapture}
-							class="px-6 py-3 rounded-lg font-medium transition-colors {isAudioRecording ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}"
+							onclick={testAudioRecording}
+							class="px-6 py-3 rounded-lg font-medium transition-colors bg-blue-600 hover:bg-blue-700"
 						>
-							{isAudioRecording ? '⏹️ Stop Recording' : '🎤 Start Recording'}
+							🎤 Test Recording
 						</button>
 						<button
 							onclick={testAudioPlayback}
-							disabled={audioChunks.length === 0}
-							class="px-6 py-3 rounded-lg font-medium transition-colors {audioChunks.length > 0 ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 cursor-not-allowed'}"
+							class="px-6 py-3 rounded-lg font-medium transition-colors bg-green-600 hover:bg-green-700"
 						>
-							🔊 Play Recorded Audio
+							🔊 Test Playback
+						</button>
+						<button
+							onclick={testVolumeControl}
+							class="px-6 py-3 rounded-lg font-medium transition-colors bg-purple-600 hover:bg-purple-700"
+						>
+							🔊 Test Volume Control
 						</button>
 					</div>
 				</div>
 
-				<!-- Audio Visualization -->
-				{#if isAudioRecording}
+				<!-- Audio State Display -->
+				{#if audioState}
 					<div class="bg-base-300 p-4 rounded-lg">
-						<h3 class="text-lg font-medium mb-3">Audio Visualization</h3>
-						<div class="flex justify-center">
-							<div class="w-32 h-32">
-								<AudioVisualizer isRecording={isAudioRecording} audioLevel={audioLevel * 100} />
+						<h3 class="text-lg font-medium mb-3">Audio State</h3>
+						<div class="grid grid-cols-2 gap-4 text-sm">
+							<div>
+								<p><strong>Status:</strong> <span class="font-mono">{audioState.status}</span></p>
+								<p><strong>Volume:</strong> {(audioState.volume * 100).toFixed(0)}%</p>
+								<p><strong>Can Record:</strong> {audioState.status === 'idle' ? 'Yes' : 'No'}</p>
+								<p><strong>Can Play:</strong> {audioState.status === 'idle' ? 'Yes' : 'No'}</p>
+							</div>
+							<div>
+								<p><strong>Current Audio:</strong> {audioState.currentAudio || 'None'}</p>
+								<p><strong>Recording Session:</strong> {audioState.recordingSession ? 'Active' : 'None'}</p>
+								{#if audioState.error}
+									<p><strong>Error:</strong> <span class="text-red-400">{audioState.error}</span></p>
+								{/if}
 							</div>
 						</div>
-						<p class="text-center mt-2">Level: {(audioLevel * 100).toFixed(1)}%</p>
 					</div>
 				{/if}
 
-				<!-- Audio Stats -->
+				<!-- AI Audio Testing -->
 				<div class="bg-base-300 p-4 rounded-lg">
-					<h3 class="text-lg font-medium mb-3">Audio Statistics</h3>
-					<div class="grid grid-cols-2 gap-4 text-sm">
+					<h3 class="text-lg font-medium mb-3">AI Audio Testing</h3>
+					<div class="space-y-4">
 						<div>
-							<p><strong>Chunks Recorded:</strong> {audioChunks.length}</p>
-							<p><strong>Total Size:</strong> {(audioChunks.reduce((total, chunk) => total + chunk.byteLength, 0) / 1024).toFixed(2)} KB</p>
+							<label for="test-text" class="block text-sm font-medium mb-2">Test Text for TTS:</label>
+							<input
+								id="test-text"
+								bind:value={testText}
+								class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white"
+								placeholder="Enter text to convert to speech"
+							/>
 						</div>
-						<div>
-							<p><strong>Session Active:</strong> {audioSession ? 'Yes' : 'No'}</p>
+						<div class="flex space-x-4">
+							<button
+								onclick={testTextToSpeech}
+								class="px-6 py-3 rounded-lg font-medium transition-colors bg-green-600 hover:bg-green-700"
+							>
+								🗣️ Test Text-to-Speech
+							</button>
+							<button
+								onclick={testTranscription}
+								class="px-6 py-3 rounded-lg font-medium transition-colors bg-blue-600 hover:bg-blue-700"
+							>
+								📝 Test Transcription
+							</button>
 						</div>
 					</div>
 				</div>
@@ -484,13 +591,6 @@
 						>
 							{realtimeSession ? '❌ Close Session' : '🔗 Create Session'}
 						</button>
-						<button
-							onclick={testRealtimeStreaming}
-							disabled={!realtimeSession}
-							class="px-6 py-3 rounded-lg font-medium transition-colors {realtimeSession ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 cursor-not-allowed'}"
-						>
-							{realtimeStream ? '⏹️ Stop Streaming' : '🌊 Start Streaming'}
-						</button>
 					</div>
 					{#if realtimeSession}
 						<div class="mt-3 p-3 bg-gray-700 rounded text-sm">
@@ -499,21 +599,6 @@
 							<p><strong>Expires:</strong> {new Date(realtimeSession.expiresAt).toLocaleString()}</p>
 						</div>
 					{/if}
-				</div>
-
-				<!-- Audio Chunk Testing -->
-				<div class="bg-base-300 p-4 rounded-lg">
-					<h3 class="text-lg font-medium mb-3">Audio Chunk Testing</h3>
-					<button
-						onclick={testAudioChunkSending}
-						disabled={!realtimeStream || audioChunks.length === 0}
-						class="px-6 py-3 rounded-lg font-medium transition-colors {realtimeStream && audioChunks.length > 0 ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gray-600 cursor-not-allowed'}"
-					>
-						📤 Send Audio Chunk to Realtime API
-					</button>
-					<p class="text-sm text-gray-800 mt-2">
-						Requires: Active realtime stream + recorded audio chunks
-					</p>
 				</div>
 
 				<!-- Connection Status -->
@@ -612,20 +697,6 @@
 						>
 							🚀 Start Conversation
 						</button>
-						<button
-							onclick={testConversationStreaming}
-							disabled={conversationState?.status !== 'connected' && conversationState?.status !== 'streaming'}
-							class="px-6 py-3 rounded-lg font-medium transition-colors {conversationState?.status === 'connected' || conversationState?.status === 'streaming' ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 cursor-not-allowed'}"
-						>
-							{conversationState?.status === 'streaming' ? '⏹️ Stop Streaming' : '🎤 Start Streaming'}
-						</button>
-						<button
-							onclick={testConversationEnd}
-							disabled={!conversationState || conversationState.status === 'idle'}
-							class="px-6 py-3 rounded-lg font-medium transition-colors {conversationState && conversationState.status !== 'idle' ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-600 cursor-not-allowed'}"
-						>
-							🔚 End Conversation
-						</button>
 					</div>
 				</div>
 
@@ -679,7 +750,7 @@
 										<span class="font-medium {message.role === 'user' ? 'text-blue-400' : 'text-green-400'}">
 											{message.role === 'user' ? '👤 You' : '🤖 AI'}
 										</span>
-										<span class="text-xs text-gray-800">
+										<span class="text-xs text-gray-400">
 											{formatTimestamp(message.timestamp)}
 										</span>
 									</div>
@@ -689,6 +760,85 @@
 						</div>
 					</div>
 				{/if}
+			</div>
+		{/if}
+
+		<!-- Test Results Tab -->
+		{#if activeTab === 'tests'}
+			<div class="space-y-6">
+				<h2 class="text-2xl font-semibold">🧪 Test Results</h2>
+				
+				<!-- Audio Tests -->
+				<div class="bg-base-300 p-4 rounded-lg">
+					<h3 class="text-lg font-medium mb-3">🎤 Audio Tests ({testResults.audio.passed + testResults.audio.failed})</h3>
+					<div class="space-y-2">
+						{#each testResults.audio.tests as test}
+							<div class="flex justify-between items-center p-2 {test.passed ? 'bg-green-900' : 'bg-red-900'} rounded">
+								<span>{test.name}</span>
+								<span class="{test.passed ? 'text-green-400' : 'text-red-400'}">
+									{test.passed ? '✅ PASS' : '❌ FAIL'}
+								</span>
+							</div>
+							{#if !test.passed && test.error}
+								<div class="ml-4 text-sm text-red-400">{test.error}</div>
+							{/if}
+						{/each}
+					</div>
+				</div>
+
+				<!-- AI Tests -->
+				<div class="bg-base-300 p-4 rounded-lg">
+					<h3 class="text-lg font-medium mb-3">🤖 AI Tests ({testResults.ai.passed + testResults.ai.failed})</h3>
+					<div class="space-y-2">
+						{#each testResults.ai.tests as test}
+							<div class="flex justify-between items-center p-2 {test.passed ? 'bg-green-900' : 'bg-red-900'} rounded">
+								<span>{test.name}</span>
+								<span class="{test.passed ? 'text-green-400' : 'text-red-400'}">
+									{test.passed ? '✅ PASS' : '❌ FAIL'}
+								</span>
+							</div>
+							{#if !test.passed && test.error}
+								<div class="ml-4 text-sm text-red-400">{test.error}</div>
+							{/if}
+						{/each}
+					</div>
+				</div>
+
+				<!-- Conversation Tests -->
+				<div class="bg-base-300 p-4 rounded-lg">
+					<h3 class="text-lg font-medium mb-3">💬 Conversation Tests ({testResults.conversation.passed + testResults.conversation.failed})</h3>
+					<div class="space-y-2">
+						{#each testResults.conversation.tests as test}
+							<div class="flex justify-between items-center p-2 {test.passed ? 'bg-green-900' : 'bg-red-900'} rounded">
+								<span>{test.name}</span>
+								<span class="{test.passed ? 'text-green-400' : 'text-red-400'}">
+									{test.passed ? '✅ PASS' : '❌ FAIL'}
+								</span>
+							</div>
+							{#if !test.passed && test.error}
+								<div class="ml-4 text-sm text-red-400">{test.error}</div>
+							{/if}
+						{/each}
+					</div>
+				</div>
+
+				<!-- Integration Tests -->
+				<div class="bg-base-300 p-4 rounded-lg">
+					<h3 class="text-lg font-medium mb-3">🔗 Integration Tests ({testResults.integration.passed + testResults.integration.failed})</h3>
+					<div class="space-y-2">
+						{#each testResults.integration.tests as test}
+							<div class="flex justify-between items-center p-2 {test.passed ? 'bg-green-900' : 'bg-red-900'} rounded">
+								<span>{test.name}</span>
+								<span class="{test.passed ? 'text-green-400' : 'text-red-400'}">
+									{test.passed ? '✅ PASS' : '❌ FAIL'}
+								</span>
+							</div>
+							{#if !test.passed && test.error}
+								<div class="ml-4 text-sm text-red-400">{test.error}</div>
+							{/if}
+						{/each}
+					</div>
+				</div>
 			</div>
 		{/if}
 	</div>

@@ -1,66 +1,155 @@
 // 🎤 Audio Feature Public API
 // Clean interface for other features to use audio capabilities
 
-export * from './ports';
-export * from './adapters';
+export * from './types';
+export * from './core';
+export * from './orchestrator.svelte';
 
-import { audioAdapters } from './adapters';
-import type { AudioCaptureSession, AudioStream } from './ports';
+// Export adapters
+export { BrowserAudioAdapter } from './adapters/browser.adapter';
+export { HowlerAudioAdapter } from './adapters/howler.adapter';
+export { OpenAIAudioAdapter } from './adapters/openai.adapter';
 
-// 🎯 Main audio service
+import type { AudioInputPort, AudioOutputPort, AudioProcessingPort, AudioState } from './types';
+import { AudioOrchestrator } from './orchestrator.svelte';
+import { BrowserAudioAdapter } from './adapters/browser.adapter';
+import { HowlerAudioAdapter } from './adapters/howler.adapter';
+import { OpenAIAudioAdapter } from './adapters/openai.adapter';
+
+// �� Main audio service using the new architecture
 export class AudioService {
+	private orchestrator: AudioOrchestrator;
+
 	constructor(
-		private capture = audioAdapters.capture,
-		private playback = audioAdapters.playback,
-		private streaming = audioAdapters.streaming,
-		private processing = audioAdapters.processing
-	) {}
+		inputAdapter?: AudioInputPort,
+		outputAdapter?: AudioOutputPort,
+		processingAdapter?: AudioProcessingPort
+	) {
+		// Use provided adapters or create defaults
+		const input = inputAdapter || new BrowserAudioAdapter();
+		const output = outputAdapter || new HowlerAudioAdapter();
+		const processing = processingAdapter || new OpenAIAudioAdapter(); // Will use relative URLs by default
 
-	// High-level audio operations
-	async startRecording(deviceId?: string) {
-		return this.capture.startCapture(deviceId);
+		this.orchestrator = new AudioOrchestrator(input, output, processing);
 	}
 
-	async stopRecording(session: AudioCaptureSession) {
-		return this.capture.stopCapture(session);
+	// Delegate all public methods to the orchestrator
+	async startRecording(deviceId?: string): Promise<void> {
+		return this.orchestrator.startRecording(deviceId);
 	}
 
-	async playAudio(audioData: ArrayBuffer) {
-		return this.playback.play(audioData);
+	async stopRecording(): Promise<void> {
+		return this.orchestrator.stopRecording();
 	}
 
-	async startStreaming(session: AudioCaptureSession) {
-		return this.streaming.startStreaming(session);
+	async playAudio(audioData: ArrayBuffer): Promise<void> {
+		// Convert ArrayBuffer to blob URL for playback
+		const blob = new Blob([audioData], { type: 'audio/wav' });
+		const url = URL.createObjectURL(blob);
+
+		try {
+			await this.orchestrator.playFromUrl(url);
+		} finally {
+			URL.revokeObjectURL(url);
+		}
 	}
 
-	async stopStreaming(stream: AudioStream) {
-		return this.streaming.stopStreaming(stream);
+	async playFromUrl(url: string): Promise<void> {
+		return this.orchestrator.playFromUrl(url);
 	}
 
-	async processAudioChunk(chunk: ArrayBuffer) {
-		return this.processing.processChunk(chunk);
+	async stopPlayback(): Promise<void> {
+		return this.orchestrator.stopPlayback();
 	}
 
-	async mergeAudioChunks(chunks: ArrayBuffer[]) {
-		return this.processing.mergeChunks(chunks);
+	// 🎯 AI Processing
+	async transcribe(audio: ArrayBuffer): Promise<string> {
+		return this.orchestrator.transcribe(audio);
 	}
 
-	// Device management
-	async getAudioDevices() {
-		return this.capture.getDevices();
+	async textToSpeech(text: string): Promise<ArrayBuffer> {
+		return this.orchestrator.textToSpeech(text);
 	}
 
-	// Volume control
-	setVolume(volume: number) {
-		this.playback.setVolume(volume);
+	// 🎯 Device management
+	async getAudioDevices(): Promise<MediaDeviceInfo[]> {
+		return this.orchestrator.getAudioDevices();
 	}
 
-	// Event handling
-	onAudioData(callback: (chunk: ArrayBuffer) => void) {
-		// AudioWorklet sends data through the capture adapter, not streaming
-		this.capture.onAudioData(callback);
+	// 🎯 Volume control
+	async setVolume(volume: number): Promise<void> {
+		return this.orchestrator.setVolume(volume);
+	}
+
+	// 🎯 State access
+	getState(): AudioState {
+		return this.orchestrator.getState();
+	}
+
+	// 🎯 Derived state access
+	get isRecording(): boolean {
+		return this.orchestrator.isRecording;
+	}
+
+	get isPlaying(): boolean {
+		return this.orchestrator.isPlaying;
+	}
+
+	get isProcessing(): boolean {
+		return this.orchestrator.isProcessing;
+	}
+
+	get hasError(): boolean {
+		return this.orchestrator.hasError;
+	}
+
+	get canRecord(): boolean {
+		return this.orchestrator.canRecord;
+	}
+
+	get canPlay(): boolean {
+		return this.orchestrator.canPlay;
+	}
+
+	get volume(): number {
+		return this.orchestrator.volume;
+	}
+
+	get error(): string | null {
+		return this.orchestrator.error;
+	}
+
+	// 🎯 Error handling
+	async clearError(): Promise<void> {
+		return this.orchestrator.clearError();
+	}
+
+	// 🎯 Cleanup
+	dispose(): void {
+		this.orchestrator.dispose();
+	}
+
+	// 🎯 Direct orchestrator access for advanced use cases
+	getOrchestrator(): AudioOrchestrator {
+		return this.orchestrator;
 	}
 }
 
 // 🎯 Default audio service instance
 export const audioService = new AudioService();
+
+// 🎯 Factory function for custom configurations
+export function createAudioService(
+	inputAdapter?: AudioInputPort,
+	outputAdapter?: AudioOutputPort,
+	processingAdapter?: AudioProcessingPort,
+	baseUrl?: string
+): AudioService {
+	// If baseUrl is provided, create a new OpenAI adapter with it
+	let processing = processingAdapter;
+	if (baseUrl && !processingAdapter) {
+		processing = new OpenAIAudioAdapter(baseUrl);
+	}
+
+	return new AudioService(inputAdapter, outputAdapter, processing);
+}
