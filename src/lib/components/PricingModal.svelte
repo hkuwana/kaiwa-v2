@@ -124,7 +124,14 @@
 	}
 
 	// Track modal view
-	$: if (isOpen) {
+	#effect(() => {
+		if (isOpen) {
+			trackConversion.viewPricing(source);
+		}
+	});
+
+	// Get usage percentage for visual indicator
+	if (isOpen) {
 		trackConversion.viewPricing(source);
 	}
 

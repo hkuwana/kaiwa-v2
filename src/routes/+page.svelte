@@ -52,6 +52,13 @@
 			<p class="text-lg text-base-content/70">
 				Practice languages through natural conversations
 			</p>
+			
+			<!-- Navigation -->
+			<div class="mt-4 flex justify-center space-x-4">
+				<a href="/" class="btn btn-sm btn-primary">Traditional</a>
+				<a href="/realtime" class="btn btn-sm btn-outline">Real-time</a>
+				<a href="/dev" class="btn btn-sm btn-ghost">🧪 Dev</a>
+			</div>
 		</div>
 
 		<!-- Status Display -->

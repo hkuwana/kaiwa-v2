@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { dev } from '$app/environment';
+import { OPENAI_API_KEY } from '$env/static/private';
 
 // Simple in-memory rate limiting
 const sessionRequests = new Map<string, { timestamp: number; count: number }>();
@@ -8,6 +9,8 @@ const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const MAX_REQUESTS = dev ? 100 : 3; // Max 3 requests per minute in production
 
 export const POST: RequestHandler = async ({ request }) => {
+	console.log('🔄 Realtime session creation request received');
+
 	try {
 		// Get client IP for rate limiting
 		const clientId = request.headers.get('x-forwarded-for') || 'default';
@@ -37,17 +40,12 @@ export const POST: RequestHandler = async ({ request }) => {
 		const {
 			sessionId,
 			model = 'gpt-4o-realtime-preview-2024-10-01',
-			voice = 'alloy',
-			language = 'en',
-			instructions,
-			temperature = 0.8
+			voice = 'alloy'
 		} = await request.json();
 
 		if (!sessionId) {
 			return json({ error: 'sessionId is required' }, { status: 400 });
 		}
-
-		const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 		if (!OPENAI_API_KEY) {
 			return json({ error: 'OpenAI API key not configured' }, { status: 500 });
@@ -75,10 +73,17 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		if (!response.ok) {
 			const errorText = await response.text();
-			console.error('OpenAI Realtime API error:', errorText);
+			console.error('OpenAI Realtime API error:', {
+				status: response.status,
+				statusText: response.statusText,
+				response: errorText,
+				requestPayload,
+				sessionId
+			});
 
 			// Provide fallback for development
 			if (dev) {
+				console.log('Using development fallback token');
 				return json({
 					client_secret: {
 						value: 'dev-fallback-token',
@@ -88,7 +93,17 @@ export const POST: RequestHandler = async ({ request }) => {
 				});
 			}
 
-			return json({ error: 'Failed to create realtime session' }, { status: response.status });
+			return json(
+				{
+					error: 'Failed to create realtime session',
+					details: {
+						status: response.status,
+						statusText: response.statusText,
+						response: errorText
+					}
+				},
+				{ status: response.status }
+			);
 		}
 
 		const sessionData = await response.json();

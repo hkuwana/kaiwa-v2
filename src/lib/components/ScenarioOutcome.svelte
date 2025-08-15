@@ -12,13 +12,14 @@
 	export let onBackToScenarios: () => void;
 
 	// Derived state
-	$: overallScore =
-		outcome.vocabularyUsageScore * 0.4 +
-		outcome.grammarUsageScore * 0.3 +
-		outcome.goalCompletionScore * 0.2 +
-		outcome.pronunciationScore * 0.1;
-	$: performanceLevel = getPerformanceLevel(overallScore);
-	$: showCelebration = overallScore >= 0.8;
+	let overallScore = $derived(
+		(outcome.vocabularyUsageScore * 0.4 +
+			outcome.grammarUsageScore * 0.3 +
+			outcome.goalCompletionScore * 0.2 +
+			outcome.pronunciationScore * 0.1)
+	);
+	let performanceLevel = $derived(getPerformanceLevel(overallScore));
+	let showCelebration = $derived(overallScore >= 0.8);
 
 	// Functions
 	function getPerformanceLevel(score: number): string {

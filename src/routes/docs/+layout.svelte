@@ -2,10 +2,10 @@
 	import { page } from '$app/state';
 
 	// Get the current page data
-	const { data } = $props();
+	const { data,children } = $props();
 
 	// Dynamic navigation will be handled by the main docs page
-	let currentDoc = '';
+	let currentDoc = $state('');
 
 	$effect(() => {
 		if (page.url.pathname.startsWith('/docs/')) {
@@ -41,6 +41,6 @@
 	</nav>
 
 	<main class="flex-1">
-		<slot />
+		{@render children()}
 	</main>
 </div>

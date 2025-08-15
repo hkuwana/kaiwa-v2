@@ -20,6 +20,27 @@ export interface StorageAdapter {
 	clear(key: string): Promise<void>;
 }
 
+// 🎤 Real-time Audio Streaming Interface
+export interface RealtimeSession {
+	sessionId: string;
+	clientSecret: string;
+	expiresAt: number;
+}
+
+export interface RealtimeAudioAdapter {
+	startRealtimeSession(
+		sessionId: string,
+		language?: string,
+		voice?: string
+	): Promise<RealtimeSession>;
+	stopRealtimeSession(): Promise<void>;
+	streamAudio(audioChunk: ArrayBuffer): Promise<void>;
+	onTranscript(callback: (transcript: string) => void): void;
+	onResponse(callback: (response: string) => void): void;
+	onAudioResponse(callback: (audioChunk: ArrayBuffer) => void): void;
+	onError(callback: (error: string) => void): void;
+}
+
 // 🎤 Browser Audio Implementation
 export const browserAudio: AudioAdapter = {
 	async startRecording(): Promise<MediaRecorder> {
@@ -105,6 +126,164 @@ export const browserAudio: AudioAdapter = {
 		return devices.filter((device) => device.kind === 'audioinput');
 	}
 };
+
+// 🎤 Real-time Audio Streaming Implementation
+export class OpenAIRealtimeAudioAdapter implements RealtimeAudioAdapter {
+	private session: RealtimeSession | null = null;
+	private eventSource: EventSource | null = null;
+	private transcriptCallback: ((transcript: string) => void) | null = null;
+	private responseCallback: ((response: string) => void) | null = null;
+	private audioResponseCallback: ((audioChunk: ArrayBuffer) => void) | null = null;
+	private errorCallback: ((error: string) => void) | null = null;
+
+	async startRealtimeSession(
+		sessionId: string,
+		language: string = 'en',
+		voice: string = 'alloy'
+	): Promise<RealtimeSession> {
+		try {
+			// Create realtime session via our API
+			const response = await fetch('/api/realtime-session', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					sessionId,
+					language,
+					voice,
+					model: 'gpt-4o-realtime-preview-2024-10-01'
+				})
+			});
+
+			if (!response.ok) {
+				throw new Error(`Failed to create realtime session: ${response.statusText}`);
+			}
+
+			const sessionData = await response.json();
+			this.session = {
+				sessionId: sessionData.session_id,
+				clientSecret: sessionData.client_secret.value,
+				expiresAt: new Date(sessionData.client_secret.expires_at).getTime()
+			};
+
+			// Set up Server-Sent Events for real-time communication
+			this.setupEventSource();
+
+			return this.session;
+		} catch (error) {
+			throw new Error(`Failed to start realtime session: ${error}`);
+		}
+	}
+
+	async stopRealtimeSession(): Promise<void> {
+		if (this.eventSource) {
+			this.eventSource.close();
+			this.eventSource = null;
+		}
+		this.session = null;
+	}
+
+	async streamAudio(audioChunk: ArrayBuffer): Promise<void> {
+		if (!this.session) {
+			throw new Error('No active realtime session');
+		}
+
+		try {
+			// Stream audio chunk to OpenAI's realtime API
+			const response = await fetch('https://api.openai.com/v1/realtime/sessions/audio', {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${this.session.clientSecret}`,
+					'Content-Type': 'application/octet-stream'
+				},
+				body: audioChunk
+			});
+
+			if (!response.ok) {
+				throw new Error(`Failed to stream audio: ${response.statusText}`);
+			}
+		} catch (error) {
+			if (this.errorCallback) {
+				this.errorCallback(`Audio streaming failed: ${error}`);
+			}
+		}
+	}
+
+	onTranscript(callback: (transcript: string) => void): void {
+		this.transcriptCallback = callback;
+	}
+
+	onResponse(callback: (response: string) => void): void {
+		this.responseCallback = callback;
+	}
+
+	onAudioResponse(callback: (audioChunk: ArrayBuffer) => void): void {
+		this.audioResponseCallback = callback;
+	}
+
+	onError(callback: (error: string) => void): void {
+		this.errorCallback = callback;
+	}
+
+	private setupEventSource(): void {
+		if (!this.session) return;
+
+		// Create EventSource for real-time updates
+		this.eventSource = new EventSource(`/api/realtime-session/${this.session.sessionId}/events`);
+
+		this.eventSource.onmessage = (event) => {
+			try {
+				const data = JSON.parse(event.data);
+
+				switch (data.type) {
+					case 'transcript':
+						if (this.transcriptCallback) {
+							this.transcriptCallback(data.text);
+						}
+						break;
+
+					case 'response':
+						if (this.responseCallback) {
+							this.responseCallback(data.text);
+						}
+						break;
+
+					case 'audio_response':
+						if (this.audioResponseCallback) {
+							// Convert base64 audio to ArrayBuffer
+							const audioData = this.base64ToArrayBuffer(data.audio);
+							this.audioResponseCallback(audioData);
+						}
+						break;
+
+					case 'error':
+						if (this.errorCallback) {
+							this.errorCallback(data.message);
+						}
+						break;
+				}
+			} catch (error) {
+				if (this.errorCallback) {
+					this.errorCallback(`Event parsing failed: ${error}`);
+				}
+			}
+		};
+
+		this.eventSource.onerror = (error) => {
+			if (this.errorCallback) {
+				this.errorCallback(`EventSource error: ${error}`);
+			}
+		};
+	}
+
+	private base64ToArrayBuffer(base64: string): ArrayBuffer {
+		const binaryString = atob(base64);
+		const bytes = new Uint8Array(binaryString.length);
+		for (let i = 0; i < binaryString.length; i++) {
+			bytes[i] = binaryString.charCodeAt(i);
+		}
+		return bytes.buffer;
+	}
+}
 
 // 🤖 OpenAI Implementation (with fallbacks)
 export const openAI: AIAdapter = {
@@ -260,5 +439,6 @@ async function browserTextToSpeech(text: string): Promise<ArrayBuffer> {
 export const adapters = {
 	audio: browserAudio,
 	ai: openAI,
-	storage: hybridStorage
+	storage: hybridStorage,
+	realtimeAudio: new OpenAIRealtimeAudioAdapter()
 };

@@ -16,11 +16,12 @@
 	let selectedScenario: LearningScenario | null = null;
 
 	// Derived data
-	$: availableScenarios = getBeginnerScenariosForLanguage(selectedLanguage);
-	$: filteredScenarios =
+	let availableScenarios = $derived(getBeginnerScenariosForLanguage(selectedLanguage));
+	let filteredScenarios = $derived(
 		selectedCategory === 'all'
 			? availableScenarios
-			: availableScenarios.filter((s) => s.category === selectedCategory);
+			: availableScenarios.filter((s) => s.category === selectedCategory)
+	);
 
 	// Functions
 	function selectScenario(scenario: LearningScenario) {

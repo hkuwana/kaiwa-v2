@@ -13,14 +13,14 @@
 	export let onViewExample: () => void;
 
 	// Derived state
-	$: scenarioSession = state.scenarioSession;
-	$: goalProgress = scenarioSession?.goalProgress || 0;
-	$: vocabularyProgress = scenarioSession?.vocabularyProgress || 0;
-	$: grammarProgress = scenarioSession?.grammarProgress || 0;
-	$: usedVocabulary = scenarioSession?.usedVocabulary || [];
-	$: hintsUsed = scenarioSession?.hintsUsed || 0;
-	$: translationsUsed = scenarioSession?.translationsUsed || 0;
-	$: exampleResponsesViewed = scenarioSession?.exampleResponsesViewed || 0;
+	let scenarioSession = $derived(state.scenarioSession);
+	let goalProgress = $derived(scenarioSession?.goalProgress || 0);
+	let vocabularyProgress = $derived(scenarioSession?.vocabularyProgress || 0);
+	let grammarProgress = $derived(scenarioSession?.grammarProgress || 0);
+	let usedVocabulary = $derived(scenarioSession?.usedVocabulary || []);
+	let hintsUsed = $derived(scenarioSession?.hintsUsed || 0);
+	let translationsUsed = $derived(scenarioSession?.translationsUsed || 0);
+	let exampleResponsesViewed = $derived(scenarioSession?.exampleResponsesViewed || 0);
 
 	// Functions
 	function getProgressColor(progress: number): string {

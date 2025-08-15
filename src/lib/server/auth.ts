@@ -2,8 +2,13 @@ import type { RequestEvent } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
-import { db } from '$lib/server/db';
-import * as table from '$lib/server/db/schema/index';
+import { db } from './db';
+import { session as sessionTable } from './db/schema';
+import type { Session } from './db/types';
+import { users } from './db/schema';
+import { userUsage } from './db/schema';
+import { languages } from './db/schema';
+import { tiers } from './db/schema';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
@@ -19,14 +24,14 @@ export function generateSessionToken() {
 export async function createSession(token: string, userId: string) {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 
-	const session: table.Session = {
+	const sessionData: Session = {
 		id: sessionId,
 		userId,
 		expiresAt: new Date(Date.now() + DAY_IN_MS * 30)
 	};
 
-	await db.insert(table.session).values(session);
-	return session;
+	await db.insert(sessionTable).values(sessionData);
+	return sessionData;
 }
 
 export async function validateSessionToken(token: string) {
@@ -36,24 +41,24 @@ export async function validateSessionToken(token: string) {
 		.select({
 			// Enhanced user data for orchestrator and kernel
 			user: {
-				id: table.users.id,
-				displayName: table.users.displayName,
-				username: table.users.username,
-				email: table.users.email,
-				avatarUrl: table.users.avatarUrl,
-				nativeLanguageId: table.users.nativeLanguageId,
-				preferredUILanguageId: table.users.preferredUILanguageId,
-				tier: table.users.tier,
-				subscriptionStatus: table.users.subscriptionStatus,
-				subscriptionExpiresAt: table.users.subscriptionExpiresAt,
-				createdAt: table.users.createdAt,
-				lastUsage: table.users.lastUsage
+				id: users.id,
+				displayName: users.displayName,
+				username: users.username,
+				email: users.email,
+				avatarUrl: users.avatarUrl,
+				nativeLanguageId: users.nativeLanguageId,
+				preferredUILanguageId: users.preferredUILanguageId,
+				tier: users.tier,
+				subscriptionStatus: users.subscriptionStatus,
+				subscriptionExpiresAt: users.subscriptionExpiresAt,
+				createdAt: users.createdAt,
+				lastUsage: users.lastUsage
 			},
-			session: table.session
+			session: sessionTable
 		})
-		.from(table.session)
-		.innerJoin(table.users, eq(table.session.userId, table.users.id))
-		.where(eq(table.session.id, sessionId));
+		.from(sessionTable)
+		.innerJoin(users, eq(sessionTable.userId, users.id))
+		.where(eq(sessionTable.id, sessionId));
 
 	if (!result) {
 		return { session: null, user: null };
@@ -63,7 +68,7 @@ export async function validateSessionToken(token: string) {
 	const sessionExpired = Date.now() >= session.expiresAt.getTime();
 
 	if (sessionExpired) {
-		await db.delete(table.session).where(eq(table.session.id, session.id));
+		await db.delete(sessionTable).where(eq(sessionTable.id, session.id));
 		return { session: null, user: null };
 	}
 
@@ -72,9 +77,9 @@ export async function validateSessionToken(token: string) {
 	if (renewSession) {
 		session.expiresAt = new Date(Date.now() + DAY_IN_MS * 30);
 		await db
-			.update(table.session)
+			.update(sessionTable)
 			.set({ expiresAt: session.expiresAt })
-			.where(eq(table.session.id, session.id));
+			.where(eq(sessionTable.id, session.id));
 	}
 
 	return { session, user };
@@ -86,12 +91,12 @@ export async function getUserContext(userId: string) {
 		// Get user with tier information
 		const [userResult] = await db
 			.select({
-				user: table.users,
-				tier: table.tiers
+				user: users,
+				tier: tiers
 			})
-			.from(table.users)
-			.leftJoin(table.tiers, eq(table.users.tier, table.tiers.id))
-			.where(eq(table.users.id, userId))
+			.from(users)
+			.leftJoin(tiers, eq(users.tier, tiers.id))
+			.where(eq(users.id, userId))
 			.limit(1);
 
 		if (!userResult) return null;
@@ -103,21 +108,21 @@ export async function getUserContext(userId: string) {
 
 		const [usageResult] = await db
 			.select()
-			.from(table.userUsage)
-			.where(eq(table.userUsage.userId, userId) && eq(table.userUsage.periodStart, monthStart))
+			.from(userUsage)
+			.where(eq(userUsage.userId, userId) && eq(userUsage.periodStart, monthStart))
 			.limit(1);
 
 		// Get user's language preferences
 		const [nativeLang] = await db
 			.select()
-			.from(table.languages)
-			.where(eq(table.languages.id, userResult.user.nativeLanguageId))
+			.from(languages)
+			.where(eq(languages.id, userResult.user.nativeLanguageId))
 			.limit(1);
 
 		const [preferredLang] = await db
 			.select()
-			.from(table.languages)
-			.where(eq(table.languages.id, userResult.user.preferredUILanguageId))
+			.from(languages)
+			.where(eq(languages.id, userResult.user.preferredUILanguageId))
 			.limit(1);
 
 		return {
@@ -154,7 +159,7 @@ export type SessionValidationResult = Awaited<ReturnType<typeof validateSessionT
 export type UserContext = Awaited<ReturnType<typeof getUserContext>>;
 
 export async function invalidateSession(sessionId: string) {
-	await db.delete(table.session).where(eq(table.session.id, sessionId));
+	await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
 }
 
 export function setSessionTokenCookie(event: RequestEvent, token: string, expiresAt: Date) {
