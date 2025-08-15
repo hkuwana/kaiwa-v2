@@ -77,7 +77,7 @@
 		<div class="mb-8">
 			<button
 				class={getButtonClass()}
-				on:click={handleRecordingToggle}
+				onclick={handleRecordingToggle}
 				disabled={!conversation.canRecord && !conversation.isRecording}
 			>
 				{getButtonText()}

@@ -1,10 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	export let isRecording = false;
-	export let audioLevel = 0; // 0-100
+	interface Props {
+		isRecording?: boolean;
+		audioLevel?: number; // 0-100
+	}
 
-	let canvas: HTMLCanvasElement;
+	let { isRecording = false, audioLevel = 0 }: Props = $props();
+
+	let canvas: HTMLCanvasElement = $state();
 	let ctx: CanvasRenderingContext2D | null = null;
 	let animationId: number;
 
