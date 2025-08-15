@@ -4,12 +4,17 @@
 	import type { ConversationState } from '$lib/features/conversation/unified-conversation-orchestrator';
 	import type { PageData } from './$types';
 
-	// Props
-	export let data: PageData;
+	
+	interface Props {
+		// Props
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 
 	// State
 	let orchestrator: UnifiedConversationOrchestrator;
-	let conversationState: ConversationState;
+	let conversationState: ConversationState = $state();
 	let isInitialized = false;
 
 	// Initialize orchestrator
