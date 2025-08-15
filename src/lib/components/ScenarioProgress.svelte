@@ -5,12 +5,13 @@
 	import type { LearningScenario, ScenarioOutcome } from '$lib/kernel/learning';
 	import type { ConversationState } from '$lib/kernel/index';
 
-	// Props
-	export let scenario: LearningScenario;
-	export let state: ConversationState;
-	export let onUseHint: (word: string) => void;
-	export let onUseTranslation: (word: string) => void;
-	export let onViewExample: () => void;
+	let { scenario, state, onUseHint, onUseTranslation, onViewExample } = $props<{
+		scenario: LearningScenario;
+		state: ConversationState;
+		onUseHint: (word: string) => void;
+		onUseTranslation: (word: string) => void;
+		onViewExample: () => void;
+	}>();
 
 	// Derived state
 	let scenarioSession = $derived(state.scenarioSession);
@@ -38,7 +39,7 @@
 	}
 
 	function getUnusedVocabulary(): string[] {
-		return scenario.targetVocabulary.filter((word) => !usedVocabulary.includes(word));
+		return (scenario.targetVocabulary || []).filter((word: string) => !usedVocabulary.includes(word));
 	}
 </script>
 

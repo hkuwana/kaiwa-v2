@@ -40,7 +40,7 @@
 	// Conversation testing state
 	let conversationState = $state<RealtimeConversationState | null>(null);
 	let conversationMessages = $state<Array<{ role: 'user' | 'assistant'; content: string; timestamp: number }>>([]);
-	let conversationInterval: number | undefined;
+	let conversationInterval: ReturnType<typeof setInterval> | undefined;
 
 	// Initialize
 	onMount(async () => {

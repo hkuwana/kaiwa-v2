@@ -3,7 +3,7 @@
 
 import { db } from './index';
 import { users, languages, tiers, subscriptions, payments, analyticsEvents } from './schema';
-import type { User, Language, Tier } from './schema';
+import type { User, Language, Tier } from './types';
 import { sql } from 'drizzle-orm';
 
 // Essential language data for MVP

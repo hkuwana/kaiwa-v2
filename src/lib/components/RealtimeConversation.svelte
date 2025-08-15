@@ -5,16 +5,11 @@
 	import AudioVisualizer from './AudioVisualizer.svelte';
 	import ConversationHistory from './ConversationHistory.svelte';
 
-	interface Props {
-		language?: string;
-		voice?: string;
-	}
-
-	let { language = 'en', voice = 'alloy' }: Props = $props();
+	let { language = 'en', voice = 'alloy' } = $props();
 
 	// State
-	let orchestrator: ModernRealtimeConversationOrchestrator | null = null;
-	let audioLevel = 0;
+	let orchestrator = $state<ModernRealtimeConversationOrchestrator | null>(null) as ModernRealtimeConversationOrchestrator | null;
+	let audioLevel = $state(0) as number;
 
 	// Initialize orchestrator
 	onMount(() => {
@@ -70,13 +65,13 @@
 	}
 
 	// Get current state using reactive statements
-	let state = $derived(orchestrator?.getState() || { status: 'idle', messages: [] });
-	let canStartConversation = $derived(state.status === 'idle');
-	let canStartStreaming = $derived(state.status === 'connected');
-	let isStreaming = $derived(state.status === 'streaming');
-	let isConnecting = $derived(state.status === 'connecting');
-	let hasError = $derived(state.status === 'error');
-	let errorMessage = $derived(state.error || '');
+	let state = $derived(orchestrator?.getState() || { status: 'idle', messages: [], error: undefined }) as any;
+	let canStartConversation = $derived(state.status === 'idle') as boolean;
+	let canStartStreaming = $derived(state.status === 'connected') as boolean;
+	let isStreaming = $derived(state.status === 'streaming') as boolean;
+	let isConnecting = $derived(state.status === 'connected') as boolean;
+	let hasError = $derived(state.status === 'error') as boolean;
+	let errorMessage = $derived(state.error || '') as string;
 
 	// Simulate audio level for visualization
 	$effect(() => {
@@ -86,7 +81,7 @@
 			}, 100);
 			
 			// Cleanup interval when component unmounts
-			onDestroy(() => clearInterval(interval));
+			return () => clearInterval(interval);
 		} else {
 			audioLevel = 0;
 		}

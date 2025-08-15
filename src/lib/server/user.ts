@@ -3,7 +3,8 @@
 
 import { eq } from 'drizzle-orm';
 import { db } from '$lib/server/db';
-import { users, type User } from '$lib/server/db/schema';
+import { users } from '$lib/server/db/schema';
+import type { User } from '$lib/server/db/types';
 import { nanoid } from 'nanoid';
 
 export interface CreateUserData {

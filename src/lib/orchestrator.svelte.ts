@@ -6,13 +6,13 @@ import {
 	type ConversationState,
 	type ConversationEffect,
 	createInitialState
-} from './kernel/index';
+} from './features/conversation/kernel/index';
 import {
 	adapters,
 	type AudioAdapter,
 	type AIAdapter,
 	type StorageAdapter
-} from './kernel/adapters';
+} from './features/conversation/adapters';
 
 class ConversationOrchestrator {
 	private kernel = createConversationKernel();

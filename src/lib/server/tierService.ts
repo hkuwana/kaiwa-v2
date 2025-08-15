@@ -4,7 +4,7 @@
 import { db } from './db/index';
 import { users, tiers, userUsage, subscriptions } from './db/schema';
 import { eq, and, gte, lte, desc } from 'drizzle-orm';
-import type { UserUsage, Subscription } from './db/schema';
+import type { UserUsage, Subscription } from './db/types';
 import { analytics } from './analyticsService';
 
 export interface TierLimits {

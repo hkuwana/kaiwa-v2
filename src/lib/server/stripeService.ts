@@ -5,8 +5,8 @@ import Stripe from 'stripe';
 import { db } from './db/index';
 import { users, subscriptions, payments } from './db/schema';
 import { eq, and } from 'drizzle-orm';
-import type { User } from './db/schema';
-import type { Subscription as DbSubscription } from './db/schema';
+import type { User } from './db/types';
+import type { Subscription as DbSubscription } from './db/types';
 import { tierService } from './tierService';
 import { env } from '$env/dynamic/private';
 

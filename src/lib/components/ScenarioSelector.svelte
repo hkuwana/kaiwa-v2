@@ -6,14 +6,15 @@
 	import type { LearningScenario } from '$lib/kernel/learning';
 	import { languages } from '$lib/data/languages';
 
-	// Props
-	export let selectedLanguage: string = 'ja';
-	export let onScenarioSelect: (scenario: LearningScenario) => void;
+	let { selectedLanguage = 'ja', onScenarioSelect } = $props<{
+		selectedLanguage: string;
+		onScenarioSelect: (scenario: LearningScenario) => void;
+	}>();
 
 	// State
-	let selectedCategory: string = 'all';
-	let showScaffolding: boolean = true;
-	let selectedScenario: LearningScenario | null = null;
+	let selectedCategory = $state('all');
+	let showScaffolding = $state(true);
+	let selectedScenario = $state<LearningScenario | null>(null);
 
 	// Derived data
 	let availableScenarios = $derived(getBeginnerScenariosForLanguage(selectedLanguage));
@@ -153,12 +154,12 @@
 								</p>
 							</div>
 
-							<!-- Target Vocabulary Preview -->
-							{#if showScaffolding && scenario.vocabularyPreview.length > 0}
+													<!-- Target Vocabulary Preview -->
+						{#if showScaffolding && (scenario.vocabularyPreview?.length || 0) > 0}
 								<div class="vocabulary-preview mb-4">
 									<h4 class="mb-2 text-sm font-medium text-gray-700">Key Words:</h4>
 									<div class="flex flex-wrap gap-2">
-										{#each scenario.vocabularyPreview as word}
+										{#each (scenario.vocabularyPreview || []) as word}
 											<span
 												class="rounded bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800"
 											>
@@ -181,7 +182,7 @@
 									{/if}
 									<div class="flex items-center text-sm text-gray-600">
 										<span class="mr-2 text-blue-500">📚</span>
-										{scenario.targetVocabulary.length} vocabulary words
+										{scenario.targetVocabulary?.length || 0} vocabulary words
 									</div>
 								</div>
 							</div>
@@ -254,7 +255,7 @@
 							<div class="translation-hints">
 								<h4 class="mb-3 font-medium text-gray-700">Translation Hints</h4>
 								<div class="grid grid-cols-2 gap-3 md:grid-cols-3">
-									{#each Object.entries(selectedScenario.translationHints) as [word, translation]}
+									{#each Object.entries(selectedScenario.translationHints || {}) as [word, translation]}
 										<div class="rounded-lg border border-yellow-200 bg-yellow-50 p-3">
 											<div class="text-sm font-medium text-gray-800">{word}</div>
 											<div class="text-xs text-gray-600">{translation}</div>
@@ -267,7 +268,7 @@
 							<div class="example-responses">
 								<h4 class="mb-3 font-medium text-gray-700">Example Responses</h4>
 								<div class="space-y-2">
-									{#each selectedScenario.exampleResponses as example}
+									{#each (selectedScenario.exampleResponses || []) as example}
 										<div class="rounded-lg border border-green-200 bg-green-50 p-3">
 											<p class="text-sm text-gray-800">{example}</p>
 										</div>

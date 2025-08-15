@@ -6,14 +6,16 @@
 	import type { UsageStatus } from '$lib/server/tierService';
 
 	// Props
-	export let isOpen = false;
-	export let currentTier: string = 'free';
-	export let usageStatus: UsageStatus | null = null;
-	export let source: 'limit_modal' | 'navbar' | 'settings' | 'onboarding' = 'navbar';
+	let { isOpen, currentTier = 'free', usageStatus = null, source = 'navbar' } = $props<{
+		isOpen: boolean;
+		currentTier: string;
+		usageStatus: UsageStatus | null;
+		source: 'limit_modal' | 'navbar' | 'settings' | 'onboarding';
+	}>();
 
 	// State
-	let isLoading = false;
-	let selectedBilling: 'monthly' | 'yearly' = 'monthly';
+	let isLoading = $state(false);
+	let selectedBilling = $state<'monthly' | 'yearly'>('monthly');
 
 	// Pricing data
 	const plans = [
@@ -124,7 +126,7 @@
 	}
 
 	// Track modal view
-	#effect(() => {
+	$effect(() => {
 		if (isOpen) {
 			trackConversion.viewPricing(source);
 		}

@@ -177,29 +177,3 @@ export class EventValidationService {
 		return this.schemas.get(eventName);
 	}
 }
-
-// 📝 Example Event Schemas
-export const CONVERSATION_STARTED_SCHEMA: EventSchema<ConversationEvents['conversation.started']> =
-	{
-		name: 'conversation.started',
-		version: '1.0.0',
-		description: 'A new conversation has been started',
-		payload: {
-			conversationId: 'string',
-			userId: 'string?',
-			targetLanguage: 'string',
-			mode: 'traditional | realtime',
-			timestamp: 'Date'
-		},
-		validate: (payload): payload is ConversationEvents['conversation.started'] => {
-			return (
-				typeof payload === 'object' &&
-				payload !== null &&
-				typeof payload.conversationId === 'string' &&
-				(typeof payload.userId === 'string' || payload.userId === undefined) &&
-				typeof payload.targetLanguage === 'string' &&
-				['traditional', 'realtime'].includes(payload.mode) &&
-				payload.timestamp instanceof Date
-			);
-		}
-	};

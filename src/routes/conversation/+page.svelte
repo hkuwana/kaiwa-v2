@@ -27,8 +27,8 @@
 
 	// 🎯 Initialize conversation with URL parameters
 	$effect(() => {
-		if (data.language && data.mode && data.voice) {
-			conversation.startConversation(data.mode, data.language, data.voice);
+		if (data.language && data.voice) {
+			conversation.startConversation(data.language, data.voice);
 		}
 	});
 
@@ -36,8 +36,8 @@
 	async function toggleRecording() {
 		try {
 			if (conversation.state.sessionId === '') {
-				// Start new conversation with selected settings
-				await conversation.startConversation(data.mode, data.language, data.voice);
+							// Start new conversation with selected settings
+			await conversation.startConversation(data.language, data.voice);
 			}
 			await conversation.toggleRecording();
 		} catch (error) {
@@ -48,22 +48,18 @@
 	// 🎯 Start fresh conversation
 	async function startFresh() {
 		await conversation.endConversation();
-		await conversation.startConversation(data.mode, data.language, data.voice);
+		await conversation.startConversation(data.language, data.voice);
 	}
 
 	// 🎨 Status text
 	const statusText = $derived(() => {
 		if (conversation.hasError) return conversation.state.error;
-		if (conversation.state.status === 'realtime-connected') return 'Connected - Ready to stream';
-		if (conversation.state.status === 'realtime-streaming')
-			return 'Live conversation - Speak naturally';
+		if (conversation.state.status === 'speaking') return 'AI is speaking...';
 		if (conversation.isRecording) return 'Recording... Speak now!';
 		if (conversation.isProcessing) return 'Processing your speech...';
 		if (conversation.isSpeaking) return 'AI is speaking...';
 		if (conversation.messageCount > 0) return `${conversation.messageCount} exchanges`;
-		return conversation.state.mode === 'realtime'
-			? 'Click to connect for real-time chat'
-			: 'Click to start speaking';
+		return 'Click to start speaking';
 	});
 
 	// 🧹 Cleanup on page unload
@@ -174,9 +170,13 @@
 	<!-- Main conversation area -->
 	<main class="container mx-auto px-4 py-8">
 		<!-- Conversation history -->
-		<div class="mb-8">
-			<ConversationHistory messages={conversation.state.messages} />
-		</div>
+						<div class="mb-8">
+					<ConversationHistory messages={conversation.state.messages.map(msg => ({
+						role: msg.role,
+						content: msg.content,
+						timestamp: msg.timestamp.getTime()
+					}))} />
+				</div>
 
 		<!-- Main record button -->
 		<div class="mb-8 flex flex-col items-center space-y-8">

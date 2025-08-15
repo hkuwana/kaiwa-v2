@@ -1,13 +1,18 @@
 // 🧠 Conversation Kernel - Pure Functional Core
 // No state, no side effects, only pure transformations
 
-import type { Message } from '$lib/server/db/schema';
+import type { Message } from '$lib/server/db/types';
+
+// Create a filtered Message type that only includes conversation messages (no system messages)
+type ConversationMessage = Omit<Message, 'role'> & {
+	role: 'user' | 'assistant';
+};
 
 // 🎯 Pure Types - No state, only data structures
 export interface ConversationState {
 	status: 'idle' | 'recording' | 'processing' | 'speaking';
 	sessionId: string;
-	messages: Message[];
+	messages: ConversationMessage[];
 	startTime: number;
 	language?: string;
 	voice?: string;
@@ -85,7 +90,7 @@ export const conversationCore = {
 				const transcript = action.payload?.transcript || '';
 				const response = action.payload?.response || '';
 
-				const newMessages: Message[] = [
+				const newMessages: ConversationMessage[] = [
 					...state.messages,
 					{
 						id: crypto.randomUUID(),
