@@ -1,5 +1,5 @@
 <script lang="ts">
-	import DevPanel from '$lib/components/Dev/DevPanel.svelte';
+	import DevPanel from '$lib/components/DevPanel.svelte';
 </script>
 
 <svelte:head>

@@ -2,37 +2,19 @@
 	// 🌍 Language Selector Component
 	// Clean UI component for selecting conversation language
 
-	interface Language {
-		code: string;
-		name: string;
-		flag: string;
-		enabled: boolean;
-	}
+	import { languages as allLanguages } from '$lib/data/languages';
 
 	const { selectedLanguage = 'en', onLanguageChange } = $props<{
 		selectedLanguage?: string;
 		onLanguageChange: (language: string) => void;
 	}>();
 
-	// Available languages for conversation practice
-	const languages: Language[] = [
-		{ code: 'en', name: 'English', flag: '🇺🇸', enabled: true },
-		{ code: 'es', name: 'Spanish', flag: '🇪🇸', enabled: true },
-		{ code: 'fr', name: 'French', flag: '🇫🇷', enabled: true },
-		{ code: 'de', name: 'German', flag: '🇩🇪', enabled: true },
-		{ code: 'it', name: 'Italian', flag: '🇮🇹', enabled: true },
-		{ code: 'pt', name: 'Portuguese', flag: '🇧🇷', enabled: true },
-		{ code: 'ja', name: 'Japanese', flag: '🇯🇵', enabled: true },
-		{ code: 'ko', name: 'Korean', flag: '🇰🇷', enabled: true },
-		{ code: 'zh', name: 'Chinese', flag: '🇨🇳', enabled: true },
-		{ code: 'ar', name: 'Arabic', flag: '🇸🇦', enabled: true },
-		{ code: 'hi', name: 'Hindi', flag: '🇮🇳', enabled: true },
-		{ code: 'ru', name: 'Russian', flag: '🇷🇺', enabled: true }
-	];
+	// Available languages for conversation practice (supported only)
+	const languages = $derived(allLanguages.filter((l) => l.isSupported));
 
 	// Get current language info
 	const currentLanguage = $derived(
-		() => languages.find((lang) => lang.code === selectedLanguage) || languages[0]
+		() => languages().find((lang) => lang.code === selectedLanguage) || languages()[0]
 	);
 
 	let isOpen = $state(false);
@@ -71,14 +53,13 @@
 
 	<!-- Language dropdown -->
 	<ul tabindex="0" class="dropdown-content menu z-[1] w-56 rounded-box bg-base-100 p-2 shadow">
-		{#each languages as language}
+		{#each languages() as language}
 			<li>
 				<button
 					class="flex w-full items-center space-x-3 {language.code === selectedLanguage
 						? 'active'
-						: ''} {!language.enabled ? 'disabled' : ''}"
-					onclick={() => language.enabled && selectLanguage(language.code)}
-					disabled={!language.enabled}
+						: ''}"
+					onclick={() => selectLanguage(language.code)}
 					role="option"
 					aria-selected={language.code === selectedLanguage}
 				>

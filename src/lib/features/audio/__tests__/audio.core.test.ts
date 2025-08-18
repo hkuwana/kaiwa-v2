@@ -233,13 +233,17 @@ describe('Audio Core', () => {
 		it('should calculate recording duration correctly', () => {
 			const recordingState = audioCore.transition(initialState, { type: 'START_RECORDING' });
 
-			// Wait a bit to simulate time passing
-			setTimeout(() => {
-				const processingState = audioCore.transition(recordingState, { type: 'STOP_RECORDING' });
-				const duration = audioCore.derived.recordingDuration(processingState);
+			// Simulate time passing by manually setting timestamps
+			const processingState = audioCore.transition(recordingState, { type: 'STOP_RECORDING' });
 
-				expect(duration).toBeGreaterThan(0);
-			}, 100);
+			// Manually set endTime to simulate duration
+			if (processingState.recordingSession) {
+				processingState.recordingSession.endTime =
+					processingState.recordingSession.startTime + 1000; // 1 second
+			}
+
+			const duration = audioCore.derived.recordingDuration(processingState);
+			expect(duration).toBe(1000);
 		});
 
 		it('should return 0 duration for no recording session', () => {

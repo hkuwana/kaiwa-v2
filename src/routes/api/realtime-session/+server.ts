@@ -110,7 +110,25 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		console.log('Realtime session created successfully:', sessionData);
 
-		return json(sessionData);
+		// Log the ephemeral key details
+		const clientSecret = sessionData.client_secret?.value || sessionData.client_secret;
+		const openaiSessionId = sessionData.id || sessionId;
+
+		console.log('🔑 Ephemeral key details:', {
+			sessionId: openaiSessionId,
+			clientSecretLength: clientSecret?.length || 0,
+			clientSecretPrefix: clientSecret?.substring(0, 8) || 'none',
+			expiresAt: sessionData.client_secret?.expires_at || 'unknown'
+		});
+
+		// Ensure we return the expected structure that the adapter needs
+		return json({
+			session_id: openaiSessionId, // Use OpenAI's session ID or fallback to our sessionId
+			client_secret: {
+				value: clientSecret,
+				expires_at: sessionData.client_secret?.expires_at || Date.now() + 60000
+			}
+		});
 	} catch (error) {
 		console.error('Realtime session creation error:', error);
 		return json({ error: 'Internal server error' }, { status: 500 });

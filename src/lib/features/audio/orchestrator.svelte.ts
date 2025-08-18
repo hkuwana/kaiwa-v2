@@ -85,7 +85,6 @@ export class AudioOrchestrator {
 		}
 
 		try {
-			const audioData = await this.inputAdapter.stopRecording(this.currentRecorder);
 			this.currentRecorder = undefined;
 
 			// Mark recording as complete
@@ -95,7 +94,7 @@ export class AudioOrchestrator {
 			this.emitEvent('audio.recording_stopped', {
 				sessionId: session?.id || 'unknown',
 				duration: audioCore.derived.recordingDuration(this.state),
-				timestamp: new Date()
+				timestamp: new SvelteDate()
 			});
 		} catch (error) {
 			throw new Error(
@@ -107,6 +106,7 @@ export class AudioOrchestrator {
 	// 🎯 Playback operations
 	private async playAudio(audioId: string, volume: number): Promise<void> {
 		try {
+			console.log('🎵 Playing audio:', audioId, 'with volume:', volume);
 			await this.outputAdapter.playFromUrl(audioId);
 
 			// Emit event
@@ -138,7 +138,7 @@ export class AudioOrchestrator {
 			// Emit event
 			this.emitEvent('audio.volume_changed', {
 				volume,
-				timestamp: new Date()
+				timestamp: new SvelteDate()
 			});
 		} catch (error) {
 			throw new Error(

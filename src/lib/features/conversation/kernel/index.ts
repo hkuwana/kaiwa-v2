@@ -1,24 +1,44 @@
 // 🧠 Conversation Kernel - Pure Functional Core
 // No state, no side effects, only pure transformations
 
-import type { Message } from '$lib/server/db/types';
+import type { AudioState } from '$lib/features/audio';
+import type { Message, Scenario, Speaker } from '$lib/server/db/types';
 
-// Create a filtered Message type that only includes conversation messages (no system messages)
-type ConversationMessage = Omit<Message, 'role'> & {
-	role: 'user' | 'assistant';
-};
-
-// 🎯 Pure Types - No state, only data structures
-export interface ConversationState {
-	status: 'idle' | 'recording' | 'processing' | 'speaking';
-	sessionId: string;
-	messages: ConversationMessage[];
-	startTime: number;
-	language?: string;
-	voice?: string;
-	error?: string;
+// 🎯 Single Conversation Status Enum
+export enum RealtimeConversationStatus {
+	IDLE = 'idle',
+	CONNECTING = 'connecting',
+	CONNECTED = 'connected',
+	STREAMING = 'streaming',
+	ERROR = 'error'
 }
 
+// 🎯 Single Conversation State Interface (following schema format)
+export interface ConversationState {
+	// Core state
+	status: RealtimeConversationStatus;
+	sessionId: string;
+	startTime: number;
+
+	// Configuration
+	language: string;
+	voice: string;
+	userLevel: number;
+
+	// Content
+	messages: Message[];
+	scenario?: Scenario;
+	speaker?: Speaker;
+	audioState?: AudioState;
+
+	// Error handling
+	error?: string;
+
+	// Metadata (following schema pattern)
+	timestamp: Date;
+}
+
+// 🎯 Actions that can be performed on the state
 export interface ConversationAction {
 	type:
 		| 'START_CONVERSATION'
@@ -39,12 +59,19 @@ export interface ConversationAction {
 	};
 }
 
+// 🎯 Effects that should happen as a result of state changes
 export interface ConversationEffect {
 	type: 'TRANSCRIBE' | 'GENERATE_RESPONSE' | 'SPEAK' | 'SAVE_EXCHANGE';
 	payload: {
 		audio?: ArrayBuffer;
 		text?: string;
-		messages?: Message[];
+		messages?: Array<{
+			id: string;
+			role: 'user' | 'assistant';
+			content: string;
+			timestamp: Date;
+			audioUrl?: string;
+		}>;
 	};
 }
 
@@ -56,81 +83,88 @@ export const conversationCore = {
 			case 'START_CONVERSATION': {
 				return {
 					...state,
-					status: 'idle',
+					status: RealtimeConversationStatus.IDLE,
 					sessionId: crypto.randomUUID(),
 					startTime: Date.now(),
 					messages: [],
 					language: action.payload?.language || state.language,
 					voice: action.payload?.voice || state.voice,
-					error: undefined
+					userLevel: state.userLevel,
+					error: undefined,
+					timestamp: new Date()
 				};
 			}
 
 			case 'START_RECORDING': {
-				if (state.status !== 'idle') return state;
+				if (state.status !== RealtimeConversationStatus.IDLE) return state;
 				return {
 					...state,
-					status: 'recording',
-					error: undefined
+					status: RealtimeConversationStatus.STREAMING,
+					error: undefined,
+					timestamp: new Date()
 				};
 			}
 
 			case 'STOP_RECORDING': {
-				if (state.status !== 'recording') return state;
+				if (state.status !== RealtimeConversationStatus.STREAMING) return state;
 				return {
 					...state,
-					status: 'processing',
-					error: undefined
+					status: RealtimeConversationStatus.CONNECTED,
+					error: undefined,
+					timestamp: new Date()
 				};
 			}
 
 			case 'RECEIVE_RESPONSE': {
-				if (state.status !== 'processing') return state;
+				if (state.status !== RealtimeConversationStatus.CONNECTED) return state;
 
 				const transcript = action.payload?.transcript || '';
 				const response = action.payload?.response || '';
 
-				const newMessages: ConversationMessage[] = [
+				const newMessages: Message[] = [
 					...state.messages,
 					{
 						id: crypto.randomUUID(),
 						conversationId: state.sessionId,
-						role: 'user',
+						role: 'user' as const,
 						content: transcript,
 						timestamp: new Date(),
-						audioId: null
+						audioUrl: null
 					},
 					{
 						id: crypto.randomUUID(),
 						conversationId: state.sessionId,
-						role: 'assistant',
+						role: 'assistant' as const,
 						content: response,
 						timestamp: new Date(),
-						audioId: null
+						audioUrl: null
 					}
 				];
 
 				return {
 					...state,
-					status: 'speaking',
+					status: RealtimeConversationStatus.CONNECTED,
 					messages: newMessages,
-					error: undefined
+					error: undefined,
+					timestamp: new Date()
 				};
 			}
 
 			case 'START_SPEAKING': {
-				if (state.status !== 'speaking') return state;
+				if (state.status !== RealtimeConversationStatus.CONNECTED) return state;
 				return {
 					...state,
-					status: 'speaking'
+					status: RealtimeConversationStatus.CONNECTED,
+					timestamp: new Date()
 				};
 			}
 
 			case 'STOP_SPEAKING': {
-				if (state.status !== 'speaking') return state;
+				if (state.status !== RealtimeConversationStatus.CONNECTED) return state;
 				return {
 					...state,
-					status: 'idle'
+					status: RealtimeConversationStatus.IDLE,
+					timestamp: new Date()
 				};
 			}
 
@@ -138,14 +172,17 @@ export const conversationCore = {
 				return {
 					...state,
 					error: action.payload?.error || 'An error occurred',
-					status: 'idle'
+					status: RealtimeConversationStatus.ERROR,
+					timestamp: new Date()
 				};
 			}
 
 			case 'CLEAR_ERROR': {
 				return {
 					...state,
-					error: undefined
+					error: undefined,
+					status: RealtimeConversationStatus.IDLE,
+					timestamp: new Date()
 				};
 			}
 
@@ -155,160 +192,164 @@ export const conversationCore = {
 	},
 
 	// 🎯 Pure effect generation
-	effects: (state: ConversationState, action: ConversationAction): ConversationEffect[] => {
+	getEffects: (state: ConversationState, action: ConversationAction): ConversationEffect[] => {
 		const effects: ConversationEffect[] = [];
 
 		switch (action.type) {
-			case 'STOP_RECORDING': {
-				if (action.payload?.audio) {
-					effects.push({
-						type: 'TRANSCRIBE',
-						payload: { audio: action.payload.audio }
-					});
-				}
+			case 'START_RECORDING':
+				effects.push({
+					type: 'TRANSCRIBE',
+					payload: {}
+				});
 				break;
-			}
 
-			case 'RECEIVE_RESPONSE': {
-				if (action.payload?.response) {
-					effects.push({
-						type: 'SPEAK',
-						payload: { text: action.payload.response }
-					});
-				}
-
-				if (state.messages.length > 0) {
-					effects.push({
-						type: 'SAVE_EXCHANGE',
-						payload: { messages: state.messages }
-					});
-				}
+			case 'STOP_RECORDING':
+				effects.push({
+					type: 'GENERATE_RESPONSE',
+					payload: {}
+				});
 				break;
-			}
+
+			case 'RECEIVE_RESPONSE':
+				effects.push({
+					type: 'SPEAK',
+					payload: {}
+				});
+				break;
 		}
 
 		return effects;
-	},
-
-	// 🎯 Pure derived values
-	derived: {
-		isIdle: (state: ConversationState): boolean => state.status === 'idle',
-		isRecording: (state: ConversationState): boolean => state.status === 'recording',
-		isProcessing: (state: ConversationState): boolean => state.status === 'processing',
-		isSpeaking: (state: ConversationState): boolean => state.status === 'speaking',
-		canRecord: (state: ConversationState): boolean => state.status === 'idle',
-		hasError: (state: ConversationState): boolean => !!state.error,
-		messageCount: (state: ConversationState): number => Math.floor(state.messages.length / 2),
-		duration: (state: ConversationState): number => Date.now() - state.startTime
 	}
 };
 
-// 🎯 Pure kernel factory - returns stateless functions
-export function createConversationKernel(): {
-	start: (state: ConversationState, language?: string, voice?: string) => ConversationState;
-	startRecording: (state: ConversationState) => ConversationState;
-	stopRecording: (state: ConversationState, audio: ArrayBuffer) => ConversationState;
-	receiveResponse: (
-		state: ConversationState,
-		transcript: string,
-		response: string
-	) => ConversationState;
-	startSpeaking: (state: ConversationState) => ConversationState;
-	stopSpeaking: (state: ConversationState) => ConversationState;
-	setError: (state: ConversationState, error: string) => ConversationState;
-	clearError: (state: ConversationState) => ConversationState;
-	getEffects: (state: ConversationState, action: ConversationAction) => ConversationEffect[];
-	getDerived: (state: ConversationState) => {
-		isIdle: boolean;
-		isRecording: boolean;
-		isProcessing: boolean;
-		isSpeaking: boolean;
-		canRecord: boolean;
-		hasError: boolean;
-		messageCount: number;
-		duration: number;
-	};
-} {
-	return {
-		// 🎯 Pure conversation operations
-		start: (state: ConversationState, language?: string, voice?: string): ConversationState => {
-			return conversationCore.transition(state, {
-				type: 'START_CONVERSATION',
-				payload: { language, voice }
-			});
-		},
-
-		startRecording: (state: ConversationState): ConversationState => {
-			return conversationCore.transition(state, { type: 'START_RECORDING' });
-		},
-
-		stopRecording: (state: ConversationState, audio: ArrayBuffer): ConversationState => {
-			return conversationCore.transition(state, {
-				type: 'STOP_RECORDING',
-				payload: { audio }
-			});
-		},
-
-		receiveResponse: (
-			state: ConversationState,
-			transcript: string,
-			response: string
-		): ConversationState => {
-			return conversationCore.transition(state, {
-				type: 'RECEIVE_RESPONSE',
-				payload: { transcript, response }
-			});
-		},
-
-		startSpeaking: (state: ConversationState): ConversationState => {
-			return conversationCore.transition(state, { type: 'START_SPEAKING' });
-		},
-
-		stopSpeaking: (state: ConversationState): ConversationState => {
-			return conversationCore.transition(state, { type: 'STOP_SPEAKING' });
-		},
-
-		setError: (state: ConversationState, error: string): ConversationState => {
-			return conversationCore.transition(state, {
-				type: 'SET_ERROR',
-				payload: { error }
-			});
-		},
-
-		clearError: (state: ConversationState): ConversationState => {
-			return conversationCore.transition(state, { type: 'CLEAR_ERROR' });
-		},
-
-		// 🎯 Pure effect generation
-		getEffects: (state: ConversationState, action: ConversationAction): ConversationEffect[] => {
-			return conversationCore.effects(state, action);
-		},
-
-		// 🎯 Pure derived values
-		getDerived: (state: ConversationState) => ({
-			isIdle: conversationCore.derived.isIdle(state),
-			isRecording: conversationCore.derived.isRecording(state),
-			isProcessing: conversationCore.derived.isProcessing(state),
-			isSpeaking: conversationCore.derived.isSpeaking(state),
-			canRecord: conversationCore.derived.canRecord(state),
-			hasError: conversationCore.derived.hasError(state),
-			messageCount: conversationCore.derived.messageCount(state),
-			duration: conversationCore.derived.duration(state)
-		})
-	};
-}
-
-// 🎯 Export the pure kernel
-export const conversationKernel = createConversationKernel();
-
-// 🎯 Initial state factory
+// 🎯 Factory function to create initial state
 export function createInitialState(): ConversationState {
 	return {
-		status: 'idle',
+		status: RealtimeConversationStatus.IDLE,
 		sessionId: '',
-		messages: [],
-		startTime: Date.now(),
+		startTime: 0,
 		language: 'en',
-		voice: 'alloy'
+		voice: 'alloy',
+		userLevel: 220,
+		messages: [],
+		error: undefined,
+		timestamp: new Date()
 	};
 }
+
+// 🎯 Export the kernel instance
+export const conversationKernel = conversationCore;
+
+// 🧹 SANITIZATION LAYER: Convert OpenAI realtime output to clean schema
+export const realtimeSanitizer = {
+	// 🎯 Sanitize OpenAI realtime transcript to your Message format
+	sanitizeTranscript: (openaiTranscript: any, conversationId: string): Message => {
+		return {
+			id: crypto.randomUUID(),
+			conversationId,
+			role: 'user',
+			content: openaiTranscript.text || openaiTranscript.content || '',
+			timestamp: new Date(),
+			audioUrl: openaiTranscript.audioUrl || null
+		};
+	},
+
+	// 🎯 Sanitize OpenAI realtime response to your Message format
+	sanitizeResponse: (openaiResponse: any, conversationId: string): Message => {
+		return {
+			id: crypto.randomUUID(),
+			conversationId,
+			role: 'assistant',
+			content: openaiResponse.text || openaiResponse.content || '',
+			timestamp: new Date(),
+			audioUrl: openaiResponse.audioUrl || null
+		};
+	},
+
+	// 🎯 Sanitize OpenAI realtime audio chunk to your format
+	sanitizeAudioChunk: (openaiAudioChunk: any): ArrayBuffer => {
+		// OpenAI might send audio in different formats
+		if (openaiAudioChunk instanceof ArrayBuffer) {
+			return openaiAudioChunk;
+		}
+
+		if (openaiAudioChunk.data) {
+			return openaiAudioChunk.data;
+		}
+
+		if (openaiAudioChunk.buffer) {
+			return openaiAudioChunk.buffer;
+		}
+
+		// Fallback: try to convert whatever we got
+		try {
+			return new ArrayBuffer(0); // Empty buffer as fallback
+		} catch {
+			throw new Error('Unable to sanitize OpenAI audio chunk');
+		}
+	},
+
+	// 🎯 Sanitize OpenAI realtime session data to your format
+	sanitizeSessionData: (
+		openaiSession: any
+	): {
+		sessionId: string;
+		clientSecret: string;
+		expiresAt: number;
+		model: string;
+		voice: string;
+		language: string;
+	} => {
+		return {
+			sessionId: openaiSession.id || openaiSession.sessionId || crypto.randomUUID(),
+			clientSecret: openaiSession.clientSecret || openaiSession.secret || '',
+			expiresAt: openaiSession.expiresAt || openaiSession.expires || Date.now() + 3600000,
+			model: openaiSession.model || 'gpt-4o-realtime-preview-2024-10-01',
+			voice: openaiSession.voice || 'alloy',
+			language: openaiSession.language || 'en'
+		};
+	},
+
+	// 🎯 Sanitize OpenAI realtime error to your error format
+	sanitizeError: (openaiError: any): string => {
+		if (typeof openaiError === 'string') {
+			return openaiError;
+		}
+
+		if (openaiError?.message) {
+			return openaiError.message;
+		}
+
+		if (openaiError?.error) {
+			return openaiError.error;
+		}
+
+		if (openaiError?.reason) {
+			return openaiError.reason;
+		}
+
+		// Fallback error message
+		return 'OpenAI realtime error occurred';
+	},
+
+	// 🎯 Validate that OpenAI realtime data is in expected format
+	validateRealtimeData: (
+		data: any,
+		type: 'transcript' | 'response' | 'audio' | 'session' | 'error'
+	): boolean => {
+		switch (type) {
+			case 'transcript':
+				return !!(data && (data.text || data.content));
+			case 'response':
+				return !!(data && (data.text || data.content));
+			case 'audio':
+				return !!(data && (data instanceof ArrayBuffer || data.data || data.buffer));
+			case 'session':
+				return !!(data && (data.id || data.sessionId));
+			case 'error':
+				return !!(data && (typeof data === 'string' || data.message || data.error || data.reason));
+			default:
+				return false;
+		}
+	}
+};

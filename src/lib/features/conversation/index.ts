@@ -1,9 +1,14 @@
 // 🎭 Conversation Feature - Main Export
 // Exports all conversation feature components
 
-export { createConversationKernel, conversationKernel, createInitialState } from './kernel/index';
-export type { ConversationState, ConversationAction, ConversationEffect } from './kernel/index';
-export { ConversationOrchestrator } from './orchestrator.svelte';
+export { conversationKernel, createInitialState, realtimeSanitizer } from './kernel/index';
+export type {
+	ConversationState,
+	ConversationAction,
+	ConversationEffect,
+	RealtimeConversationStatus
+} from './kernel/index';
+export { ConversationOrchestrator } from './conversation-orchestrator.svelte';
 export { conversationEvents, createEventPayloads } from './events';
 export { createConversationStore } from './store.svelte';
 export { adapters } from './adapters';

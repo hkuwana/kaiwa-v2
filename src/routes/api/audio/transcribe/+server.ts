@@ -4,7 +4,10 @@ import { OPENAI_API_KEY } from '$env/static/private';
 
 export const POST: RequestHandler = async ({ request }) => {
 	try {
-		// Get audio data from request
+		if (!OPENAI_API_KEY) {
+			return json({ error: 'OpenAI API key not configured' }, { status: 500 });
+		}
+
 		const formData = await request.formData();
 		const audioFile = formData.get('audio') as File;
 
@@ -12,16 +15,11 @@ export const POST: RequestHandler = async ({ request }) => {
 			return json({ error: 'No audio file provided' }, { status: 400 });
 		}
 
-		// Convert audio file to ArrayBuffer
-		const audioBuffer = await audioFile.arrayBuffer();
-
-		// Create FormData for OpenAI API
+		// Convert File to FormData for OpenAI
 		const openAIFormData = new FormData();
-		openAIFormData.append('file', new Blob([audioBuffer], { type: audioFile.type }), 'audio.webm');
+		openAIFormData.append('file', audioFile);
 		openAIFormData.append('model', 'whisper-1');
-		openAIFormData.append('response_format', 'text');
 
-		// Call OpenAI API
 		const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
 			method: 'POST',
 			headers: {
@@ -31,31 +29,15 @@ export const POST: RequestHandler = async ({ request }) => {
 		});
 
 		if (!response.ok) {
-			const errorData = await response.json();
-			console.error('OpenAI API error:', errorData);
-			return json(
-				{
-					error: 'Transcription failed',
-					details: errorData.error?.message || 'Unknown error'
-				},
-				{ status: response.status }
-			);
+			const errorText = await response.text();
+			console.error('OpenAI transcription error:', errorText);
+			return json({ error: 'Transcription failed' }, { status: response.status });
 		}
 
-		const transcript = await response.text();
-
-		return json({
-			transcript,
-			success: true
-		});
+		const result = await response.json();
+		return json({ transcript: result.text });
 	} catch (error) {
 		console.error('Transcription error:', error);
-		return json(
-			{
-				error: 'Internal server error',
-				details: error instanceof Error ? error.message : 'Unknown error'
-			},
-			{ status: 500 }
-		);
+		return json({ error: 'Internal server error' }, { status: 500 });
 	}
 };

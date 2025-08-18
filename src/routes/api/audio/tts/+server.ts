@@ -4,14 +4,16 @@ import { OPENAI_API_KEY } from '$env/static/private';
 
 export const POST: RequestHandler = async ({ request }) => {
 	try {
-		// Get text from request
+		if (!OPENAI_API_KEY) {
+			return json({ error: 'OpenAI API key not configured' }, { status: 500 });
+		}
+
 		const { text, voice = 'alloy' } = await request.json();
 
 		if (!text) {
-			return json({ error: 'No text provided' }, { status: 400 });
+			return json({ error: 'Text is required' }, { status: 400 });
 		}
 
-		// Call OpenAI TTS API
 		const response = await fetch('https://api.openai.com/v1/audio/speech', {
 			method: 'POST',
 			headers: {
@@ -21,42 +23,24 @@ export const POST: RequestHandler = async ({ request }) => {
 			body: JSON.stringify({
 				model: 'tts-1',
 				input: text,
-				voice: voice,
+				voice,
 				response_format: 'mp3'
 			})
 		});
 
 		if (!response.ok) {
-			const errorData = await response.json();
-			console.error('OpenAI TTS API error:', errorData);
-			return json(
-				{
-					error: 'Text-to-speech failed',
-					details: errorData.error?.message || 'Unknown error'
-				},
-				{ status: response.status }
-			);
+			const errorText = await response.text();
+			console.error('OpenAI TTS error:', errorText);
+			return json({ error: 'Text-to-speech failed' }, { status: response.status });
 		}
 
-		// Get audio data as ArrayBuffer
+		// Convert the audio response to base64
 		const audioBuffer = await response.arrayBuffer();
+		const base64 = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
 
-		// Convert to base64 for transmission
-		const base64Audio = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
-
-		return json({
-			audio: base64Audio,
-			format: 'mp3',
-			success: true
-		});
+		return json({ audio: base64 });
 	} catch (error) {
 		console.error('TTS error:', error);
-		return json(
-			{
-				error: 'Internal server error',
-				details: error instanceof Error ? error.message : 'Unknown error'
-			},
-			{ status: 500 }
-		);
+		return json({ error: 'Internal server error' }, { status: 500 });
 	}
 };

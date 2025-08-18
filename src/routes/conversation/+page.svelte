@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import { UnifiedConversationOrchestrator } from '$lib/features/conversation/unified-conversation-orchestrator';
-	import type { ConversationState } from '$lib/features/conversation/unified-conversation-orchestrator';
+	import { ModernRealtimeConversationOrchestrator } from '$lib/features/conversation/realtime-conversation-orchestrator.svelte';
+	import type { RealtimeConversationState } from '$lib/features/conversation/realtime-conversation-orchestrator.svelte';
 	import type { PageData } from './$types';
 
 	
@@ -13,14 +13,14 @@
 	let { data }: Props = $props();
 
 	// State
-	let orchestrator: UnifiedConversationOrchestrator;
+	let orchestrator: ConversationOrchestrator;
 	let conversationState: ConversationState = $state();
 	let isInitialized = false;
 
 	// Initialize orchestrator
 	onMount(async () => {
 		try {
-			orchestrator = new UnifiedConversationOrchestrator();
+			orchestrator = new ConversationOrchestrator(EventBusFactory.create('conversation'));
 			
 			// Start conversation with configuration
 			await orchestrator.startConversation({

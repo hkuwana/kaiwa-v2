@@ -2,6 +2,7 @@
 // Reactive store using the app orchestrator for state management
 
 import { appOrchestrator } from '$lib/app/orchestrator';
+import { RealtimeConversationStatus } from './kernel';
 
 // 🎯 Reactive store using Svelte 5 runes
 export function createConversationStore() {
@@ -38,16 +39,16 @@ export function createConversationStore() {
 
 		// Derived state
 		get isRecording() {
-			return state.status === 'recording';
+			return state.status === RealtimeConversationStatus.STREAMING;
 		},
 		get isProcessing() {
-			return state.status === 'processing';
+			return state.status === RealtimeConversationStatus.CONNECTING;
 		},
 		get isSpeaking() {
-			return state.status === 'speaking';
+			return state.status === RealtimeConversationStatus.STREAMING;
 		},
 		get canRecord() {
-			return state.status === 'idle';
+			return state.status === RealtimeConversationStatus.IDLE;
 		},
 		get hasError() {
 			return !!state.error;
@@ -64,13 +65,13 @@ export function createConversationStore() {
 		},
 
 		async startRecording() {
-			const newState = await appOrchestrator.startRecording();
-			state = newState;
+			await appOrchestrator.startStreaming();
+			state = appOrchestrator.getConversationState();
 		},
 
 		async stopRecording() {
-			const newState = await appOrchestrator.stopRecording();
-			state = newState;
+			await appOrchestrator.stopStreaming();
+			state = appOrchestrator.getConversationState();
 			// State will be updated automatically by polling
 		},
 

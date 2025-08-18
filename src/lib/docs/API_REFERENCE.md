@@ -682,6 +682,71 @@ Content-Type: application/json
 
 ---
 
+## 🎤 Real-time Audio API
+
+### Realtime Session Management
+
+#### Create Realtime Session
+
+```http
+POST /api/realtime-session
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "sessionId": "unique-session-identifier",
+  "model": "gpt-4o-realtime-preview-2024-10-01",
+  "voice": "alloy",
+  "language": "en",
+  "instructions": "Optional conversation instructions",
+  "temperature": 0.7
+}
+```
+
+**Response:**
+```json
+{
+  "session_id": "openai-session-id",
+  "client_secret": {
+    "value": "ephemeral-client-secret",
+    "expires_at": "2024-01-20T10:30:00.000Z"
+  }
+}
+```
+
+**Error Responses:**
+```json
+{
+  "error": "sessionId is required"
+}
+```
+
+```json
+{
+  "error": "OpenAI API key not configured"
+}
+```
+
+```json
+{
+  "error": "Too many session requests. Please wait before trying again."
+}
+```
+
+**Rate Limiting:**
+- Development: 100 requests per minute
+- Production: 3 requests per minute
+
+**Notes:**
+- The `session_id` field is required and must be unique
+- The `client_secret.value` is an ephemeral token for OpenAI's realtime API
+- Sessions expire after the `expires_at` timestamp
+- In development mode, fallback tokens are provided if OpenAI API fails
+
+---
+
 ## 🧪 Testing & Development
 
 ### Postman Collection

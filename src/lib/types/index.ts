@@ -19,4 +19,9 @@ export interface Speaker {
 	region: string;
 	language: string;
 	voiceId: string; // OpenAI voice ID
+	openAIId?: string; // OpenAI voice ID for TTS
+	languageId?: string; // Language code (e.g., 'en', 'ja')
+	bcp47Code?: string; // BCP-47 language tag
+	speakerEmoji?: string; // Flag emoji for the language
+	voiceProviderId?: string; // Provider-specific voice ID
 }

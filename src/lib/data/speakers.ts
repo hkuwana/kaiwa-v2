@@ -1,20 +1,9 @@
 // 🗣️ Speaker Data
 // All speakers from kaiwa-old with voice provider information
 
-export interface Speaker {
-	id: string;
-	languageId: string;
-	region: string;
-	dialectName: string;
-	bcp47Code: string;
-	speakerEmoji: string;
-	gender: 'male' | 'female';
-	voiceName: string;
-	voiceProviderId: string;
-	isActive: boolean;
-}
+import type { Speaker } from '$lib/types';
 
-export const speakers: Speaker[] = [
+export const speakersData: Speaker[] = [
 	// --- Japanese Speakers ---
 	{
 		id: 'ja-jp-male',
@@ -26,7 +15,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Hiro',
 		voiceProviderId: 'openai-hiro',
-		isActive: true
+		openAIId: 'alloy',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'ja-jp-female',
@@ -38,9 +29,10 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Yuki',
 		voiceProviderId: 'openai-yuki',
-		isActive: true
+		openAIId: 'echo',
+		language: '',
+		voiceId: ''
 	},
-
 	// --- English Speakers ---
 	{
 		id: 'en-us-male',
@@ -52,7 +44,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Matthew',
 		voiceProviderId: 'openai-matthew',
-		isActive: true
+		openAIId: 'alloy',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'en-us-female',
@@ -64,7 +58,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Emily',
 		voiceProviderId: 'openai-emily',
-		isActive: true
+		openAIId: 'echo',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'en-gb-male',
@@ -76,7 +72,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'James',
 		voiceProviderId: 'openai-james',
-		isActive: true
+		openAIId: 'onyx',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'en-gb-female',
@@ -88,7 +86,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Charlotte',
 		voiceProviderId: 'openai-charlotte',
-		isActive: true
+		openAIId: 'fable',
+		language: '',
+		voiceId: ''
 	},
 
 	// --- Spanish Speakers ---
@@ -102,7 +102,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Javier',
 		voiceProviderId: 'openai-javier',
-		isActive: true
+		openAIId: 'alloy',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'es-es-female',
@@ -114,7 +116,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Sofia',
 		voiceProviderId: 'openai-sofia',
-		isActive: true
+		openAIId: 'echo',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'es-mx-male',
@@ -126,7 +130,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Mateo',
 		voiceProviderId: 'aws-mateo',
-		isActive: true
+		openAIId: 'onyx',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'es-mx-female',
@@ -138,7 +144,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Valentina',
 		voiceProviderId: 'aws-valentina',
-		isActive: true
+		openAIId: 'fable',
+		language: '',
+		voiceId: ''
 	},
 
 	// --- Chinese (Mandarin) Speakers ---
@@ -152,7 +160,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Wei',
 		voiceProviderId: 'azure-wei',
-		isActive: true
+		openAIId: 'alloy',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'zh-cn-female',
@@ -164,7 +174,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Xiaoxiao',
 		voiceProviderId: 'azure-xiaoxiao',
-		isActive: true
+		openAIId: 'echo',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'zh-tw-male',
@@ -176,7 +188,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Chen',
 		voiceProviderId: 'google-chen',
-		isActive: true
+		openAIId: 'onyx',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'zh-tw-female',
@@ -188,7 +202,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Hsiao-Mei',
 		voiceProviderId: 'google-hsiao-mei',
-		isActive: true
+		openAIId: 'fable',
+		language: '',
+		voiceId: ''
 	},
 
 	// --- French Speakers ---
@@ -202,7 +218,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Louis',
 		voiceProviderId: 'openai-louis',
-		isActive: true
+		openAIId: 'alloy',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'fr-fr-female',
@@ -214,7 +232,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Chloé',
 		voiceProviderId: 'openai-chloe',
-		isActive: true
+		openAIId: 'echo',
+		language: '',
+		voiceId: ''
 	},
 
 	// --- Korean Speakers ---
@@ -228,7 +248,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Min-jun',
 		voiceProviderId: 'openai-minjun',
-		isActive: true
+		openAIId: 'alloy',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'ko-kr-female',
@@ -240,7 +262,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Seo-yeon',
 		voiceProviderId: 'openai-seoyeon',
-		isActive: true
+		openAIId: 'echo',
+		language: '',
+		voiceId: ''
 	},
 
 	// --- German Speakers ---
@@ -254,7 +278,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Lukas',
 		voiceProviderId: 'openai-lukas',
-		isActive: true
+		openAIId: 'onyx',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'de-de-female',
@@ -266,7 +292,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Hanna',
 		voiceProviderId: 'openai-hanna',
-		isActive: true
+		openAIId: 'fable',
+		language: '',
+		voiceId: ''
 	},
 
 	// --- Portuguese Speakers ---
@@ -280,7 +308,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Lucas',
 		voiceProviderId: 'openai-lucas',
-		isActive: true
+		openAIId: 'alloy',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'pt-br-female',
@@ -292,7 +322,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Isabella',
 		voiceProviderId: 'openai-isabella',
-		isActive: true
+		openAIId: 'echo',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'pt-pt-male',
@@ -304,7 +336,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Tiago',
 		voiceProviderId: 'azure-tiago',
-		isActive: true
+		openAIId: 'onyx',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'pt-pt-female',
@@ -316,7 +350,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Beatriz',
 		voiceProviderId: 'azure-beatriz',
-		isActive: true
+		openAIId: 'fable',
+		language: '',
+		voiceId: ''
 	},
 
 	// --- Italian Speakers ---
@@ -330,7 +366,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Leonardo',
 		voiceProviderId: 'openai-leonardo',
-		isActive: true
+		openAIId: 'alloy',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'it-it-female',
@@ -342,7 +380,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Giulia',
 		voiceProviderId: 'openai-giulia',
-		isActive: true
+		openAIId: 'echo',
+		language: '',
+		voiceId: ''
 	},
 
 	// --- Vietnamese Speakers ---
@@ -356,7 +396,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Anh',
 		voiceProviderId: 'openai-anh',
-		isActive: true
+		openAIId: 'alloy',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'vi-vn-female',
@@ -368,7 +410,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Linh',
 		voiceProviderId: 'openai-linh',
-		isActive: true
+		openAIId: 'echo',
+		language: '',
+		voiceId: ''
 	},
 
 	// --- Dutch Speakers ---
@@ -382,7 +426,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Daan',
 		voiceProviderId: 'openai-daan',
-		isActive: true
+		openAIId: 'onyx',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'nl-nl-female',
@@ -394,7 +440,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Sophie',
 		voiceProviderId: 'openai-sophie',
-		isActive: true
+		openAIId: 'fable',
+		language: '',
+		voiceId: ''
 	},
 
 	// --- Filipino Speakers ---
@@ -408,7 +456,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Juan',
 		voiceProviderId: 'openai-juan',
-		isActive: true
+		openAIId: 'alloy',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'fil-ph-female',
@@ -420,7 +470,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Maria',
 		voiceProviderId: 'openai-maria',
-		isActive: true
+		openAIId: 'echo',
+		language: '',
+		voiceId: ''
 	},
 
 	// --- Hindi Speakers ---
@@ -434,7 +486,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Aarav',
 		voiceProviderId: 'openai-aarav',
-		isActive: true
+		openAIId: 'alloy',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'hi-in-female',
@@ -446,7 +500,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Saanvi',
 		voiceProviderId: 'openai-saanvi',
-		isActive: true
+		openAIId: 'echo',
+		language: '',
+		voiceId: ''
 	},
 
 	// --- Arabic Speakers ---
@@ -460,7 +516,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Omar',
 		voiceProviderId: 'openai-omar',
-		isActive: true
+		openAIId: 'onyx',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'ar-sa-female',
@@ -472,7 +530,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Fatima',
 		voiceProviderId: 'openai-fatima',
-		isActive: true
+		openAIId: 'fable',
+		language: '',
+		voiceId: ''
 	},
 
 	// --- Russian Speakers ---
@@ -486,7 +546,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Dmitri',
 		voiceProviderId: 'openai-dmitri',
-		isActive: true
+		openAIId: 'alloy',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'ru-ru-female',
@@ -498,7 +560,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Svetlana',
 		voiceProviderId: 'openai-svetlana',
-		isActive: true
+		openAIId: 'echo',
+		language: '',
+		voiceId: ''
 	},
 
 	// --- Indonesian Speakers ---
@@ -512,7 +576,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Budi',
 		voiceProviderId: 'openai-budi',
-		isActive: true
+		openAIId: 'alloy',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'id-id-female',
@@ -524,7 +590,9 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Citra',
 		voiceProviderId: 'openai-citra',
-		isActive: true
+		openAIId: 'echo',
+		language: '',
+		voiceId: ''
 	},
 
 	// --- Turkish Speakers ---
@@ -538,7 +606,9 @@ export const speakers: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Mehmet',
 		voiceProviderId: 'openai-mehmet',
-		isActive: true
+		openAIId: 'onyx',
+		language: '',
+		voiceId: ''
 	},
 	{
 		id: 'tr-tr-female',
@@ -550,18 +620,20 @@ export const speakers: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Zeynep',
 		voiceProviderId: 'openai-zeynep',
-		isActive: true
+		openAIId: 'fable',
+		language: '',
+		voiceId: ''
 	}
 ];
 
 // Helper function to get speakers by language
 export function getSpeakersByLanguage(languageId: string): Speaker[] {
-	return speakers.filter((speaker) => speaker.languageId === languageId && speaker.isActive);
+	return speakersData.filter((speaker) => speaker.languageId === languageId);
 }
 
 // Helper function to get speaker by id
 export function getSpeakerById(id: string): Speaker | undefined {
-	return speakers.find((speaker) => speaker.id === id);
+	return speakersData.find((speaker) => speaker.id === id);
 }
 
 // Helper function to get default speaker for a language
@@ -569,4 +641,3 @@ export function getDefaultSpeakerForLanguage(languageId: string): Speaker | unde
 	const languageSpeakers = getSpeakersByLanguage(languageId);
 	return languageSpeakers[0]; // Return first available speaker
 }
-

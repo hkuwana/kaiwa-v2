@@ -34,8 +34,8 @@ export class RealtimeService {
 	}
 
 	// Streaming operations
-	async startStreaming(session: RealtimeSession) {
-		return this.streamingAdapter.startStreaming(session);
+	async startStreaming(session: RealtimeSession, audioStream?: MediaStream) {
+		return this.streamingAdapter.startStreaming(session, audioStream);
 	}
 
 	async stopStreaming(stream: RealtimeStream) {

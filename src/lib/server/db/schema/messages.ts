@@ -12,5 +12,5 @@ export const messages = pgTable('messages', {
 	timestamp: timestamp('timestamp').notNull().defaultNow(),
 
 	// Optional audio reference for future features
-	audioId: text('audio_id')
+	audioUrl: text('audio_url')
 });

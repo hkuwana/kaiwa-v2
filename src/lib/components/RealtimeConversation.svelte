@@ -1,21 +1,96 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { EventBusFactory } from '$lib/shared/events/eventBus';
-	import { ModernRealtimeConversationOrchestrator } from '$lib/features/conversation/realtime-conversation-orchestrator';
+	import { ConversationOrchestrator } from '$lib/features/conversation/conversation-orchestrator.svelte';
+	import { RealtimeConversationStatus } from '$lib/features/conversation/kernel';
 	import AudioVisualizer from './AudioVisualizer.svelte';
 	import ConversationHistory from './ConversationHistory.svelte';
+	import { dev } from '$app/environment';
 
-	let { language = 'en', voice = 'alloy' } = $props();
+	let {   autoStart = false } = $props();
 
-	// State
-	let orchestrator = $state<ModernRealtimeConversationOrchestrator | null>(null) as ModernRealtimeConversationOrchestrator | null;
-	let audioLevel = $state(0) as number;
+		 
+	// This follows the "Invisible Tutor" philosophy - seamless experience
+ 
 
-	// Initialize orchestrator
-	onMount(() => {
-		const eventBus = EventBusFactory.create('memory');
-		orchestrator = new ModernRealtimeConversationOrchestrator(eventBus);
+	// State variables
+		let orchestrator = $state<ConversationOrchestrator | null>(null);
+	let audioLevel = $state(0);
+
+	// Initialize with sessionStorage preferences on mount
+	onMount(async () => {
+		// Check for stored preferences
+		const storedLanguage = sessionStorage.getItem('kaiwa_language');
+		const storedVoice = sessionStorage.getItem('kaiwa_voice');
+		
+		if (storedLanguage) {
+			language = storedLanguage;
+		}
+		if (storedVoice) {
+			voice = storedVoice;
+		}
+		
+		console.log('🎭 Component mounted, initializing orchestrator...');
+		try {
+			const eventBus = EventBusFactory.create('memory');
+			console.log('📡 Event bus created');
+			
+			orchestrator = new ConversationOrchestrator(eventBus);
+			console.log('✅ Orchestrator created successfully');
+			console.log('🎭 Orchestrator instance:', orchestrator);
+			
+			// Auto-start conversation if requested (aligns with "Invisible Tutor" philosophy)
+			if (autoStart) {
+				console.log('🚀 Auto-starting conversation...');
+				try {
+					// Small delay to ensure everything is initialized
+					await new Promise(resolve => setTimeout(resolve, 100));
+					await orchestrator.startConversation(language, voice);
+					console.log('✅ Auto-started conversation successfully');
+				} catch (error) {
+					console.error('❌ Failed to auto-start conversation:', error);
+				}
+			}
+		} catch (error) {
+			console.error('❌ Failed to create orchestrator:', error);
+		}
+
+		// Set up audio level simulation
+		audioInterval = setInterval(() => {
+			if (isStreaming) {
+				audioLevel = Math.random() * 0.8 + 0.2;
+			} else {
+				audioLevel = 0;
+			}
+		}, 100);
+		
+		// Cleanup interval
+		return () => {
+			if (audioInterval) {
+				clearInterval(audioInterval);
+			}
+		};
 	});
+
+
+		// Use Svelte 5 runes with orchestrator functions (functional approach)
+		let canStartConversation = $derived(orchestrator?.status === RealtimeConversationStatus.IDLE);
+	let isStreaming = $derived(orchestrator?.status === RealtimeConversationStatus.STREAMING);
+	let isConnecting = $derived(orchestrator?.status === RealtimeConversationStatus.CONNECTING);
+	let hasError = $derived(orchestrator?.status === RealtimeConversationStatus.ERROR);
+	let errorMessage = $derived(orchestrator?.error || '');
+	
+	// Reactive state from orchestrator
+	let status = $derived(orchestrator?.status || RealtimeConversationStatus.IDLE);
+	let sessionId = $derived(orchestrator?.sessionId || '');
+	let messages = $derived(orchestrator?.messages || []);
+	let startTime = $derived(orchestrator?.startTime || 0);
+	let language = $derived(orchestrator?.language || 'en');
+	let voice = $derived(orchestrator?.voice || 'alloy');
+
+	// Simulate audio level for visualization
+
+
 
 	// Cleanup on destroy
 	onDestroy(() => {
@@ -24,36 +99,39 @@
 		}
 	});
 
-	// Start conversation
-	async function startConversation() {
-		if (!orchestrator) return;
 
-		try {
-			await orchestrator.startConversation(language, voice);
-			console.log('Real-time conversation started');
-		} catch (error) {
-			console.error('Failed to start conversation:', error);
-		}
-	}
 
-	// Toggle streaming
-	async function toggleStreaming() {
-		if (!orchestrator) return;
-
-		const state = orchestrator.getState();
+	// Toggle conversation/streaming
+	async function toggleConversation() {
+		console.log('🎙️ Toggle Conversation button clicked');
+		console.log('🎭 Orchestrator exists:', !!orchestrator);
 		
-		if (state.status === 'connected') {
+		if (!orchestrator) {
+			console.error('❌ No orchestrator available');
+			return;
+		}
+
+		const currentState = orchestrator.getState();
+		console.log('📊 Current state:', currentState);
+		
+		if (currentState.status === RealtimeConversationStatus.IDLE) {
+			console.log('🚀 Starting conversation and streaming...');
 			try {
-				await orchestrator.startStreaming();
+				await orchestrator.startConversation(language, voice);
+				console.log('✅ Conversation and streaming started successfully');
 			} catch (error) {
-				console.error('Failed to start streaming:', error);
+				console.error('❌ Failed to start conversation:', error);
 			}
-		} else if (state.status === 'streaming') {
+		} else if (currentState.status === RealtimeConversationStatus.STREAMING) {
+			console.log('⏹️ Stopping streaming...');
 			try {
 				await orchestrator.stopStreaming();
+				console.log('✅ Streaming stopped successfully');
 			} catch (error) {
-				console.error('Failed to stop streaming:', error);
+				console.error('❌ Failed to stop streaming:', error);
 			}
+		} else {
+			console.log('⚠️ Cannot toggle conversation - current status:', currentState.status);
 		}
 	}
 
@@ -64,28 +142,45 @@
 		}
 	}
 
-	// Get current state using reactive statements
-	let state = $derived(orchestrator?.getState() || { status: 'idle', messages: [], error: undefined }) as any;
-	let canStartConversation = $derived(state.status === 'idle') as boolean;
-	let canStartStreaming = $derived(state.status === 'connected') as boolean;
-	let isStreaming = $derived(state.status === 'streaming') as boolean;
-	let isConnecting = $derived(state.status === 'connected') as boolean;
-	let hasError = $derived(state.status === 'error') as boolean;
-	let errorMessage = $derived(state.error || '') as string;
 
-	// Simulate audio level for visualization
+	let audioInterval: ReturnType<typeof setInterval> | undefined;
+	
+	// Log orchestrator state changes for debugging
 	$effect(() => {
-		if (isStreaming) {
-			const interval = setInterval(() => {
-				audioLevel = Math.random() * 0.8 + 0.2;
-			}, 100);
-			
-			// Cleanup interval when component unmounts
-			return () => clearInterval(interval);
-		} else {
-			audioLevel = 0;
+		if (orchestrator) {
+			console.log('🔄 Orchestrator state changed:', {
+				status: orchestrator.status,
+				sessionId: orchestrator.sessionId,
+				messages: orchestrator.messages.length
+			});
 		}
 	});
+
+	// Test functions for dev panel
+	function testVoiceActivity() {
+		console.log('🧪 Testing Voice Activity Detection...');
+		if (orchestrator) {
+			const currentState = orchestrator.getState();
+			console.log('Current VAD state:', currentState.status);
+		}
+	}
+
+	function testTranscription() {
+		console.log('🧪 Testing Transcription...');
+		if (orchestrator) {
+			const currentState = orchestrator.getState();
+			console.log('Current messages:', currentState.messages);
+		}
+	}
+
+	function testAIResponse() {
+		console.log('🧪 Testing AI Response...');
+		if (orchestrator) {
+			const currentState = orchestrator.getState();
+			console.log('Current AI state:', currentState.status);
+		}
+	}
+	
 </script>
 
 <div class="flex min-h-screen flex-col items-center justify-center p-8 bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -103,22 +198,22 @@
 		<!-- Status Display -->
 		<div class="flex justify-center">
 			<div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium {
-				state.status === 'idle' ? 'bg-gray-100 text-gray-800' :
-				state.status === 'connecting' ? 'bg-yellow-100 text-yellow-800' :
-				state.status === 'connected' ? 'bg-green-100 text-green-800' :
-				state.status === 'streaming' ? 'bg-blue-100 text-blue-800' :
+				status === RealtimeConversationStatus.IDLE ? 'bg-gray-100 text-gray-800' :
+				status === RealtimeConversationStatus.CONNECTING ? 'bg-yellow-100 text-yellow-800' :
+				status === RealtimeConversationStatus.CONNECTED ? 'bg-green-100 text-green-800' :
+				status === RealtimeConversationStatus.STREAMING ? 'bg-blue-100 text-blue-800' :
 				'bg-red-100 text-red-800'
 			}">
-				{#if state.status === 'idle'}
+				{#if status === RealtimeConversationStatus.IDLE}
 					<span class="w-2 h-2 bg-gray-400 rounded-full mr-2"></span>
 					Ready to start
-				{:else if state.status === 'connecting'}
+				{:else if status === RealtimeConversationStatus.CONNECTING}
 					<span class="w-2 h-2 bg-yellow-400 rounded-full mr-2 animate-pulse"></span>
 					Connecting...
-				{:else if state.status === 'connected'}
+				{:else if status === RealtimeConversationStatus.CONNECTED}
 					<span class="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
 					Connected
-				{:else if state.status === 'streaming'}
+				{:else if status === RealtimeConversationStatus.STREAMING}
 					<span class="w-2 h-2 bg-blue-400 rounded-full mr-2 animate-pulse"></span>
 					Streaming...
 				{:else}
@@ -138,19 +233,49 @@
 						</svg>
 					</div>
 					<div class="ml-3">
-						<h3 class="text-sm font-medium text-red-800">Error</h3>
-						<div class="mt-2 text-sm text-red-700">{errorMessage}</div>
+						<h3 class="text-sm font-medium text-red-800">Connection Error</h3>
+						<div class="mt-2 text-sm text-red-700">
+							{errorMessage}
+							{#if errorMessage.includes('WebRTC')}
+								<br />
+								<button 
+									class="mt-2 text-xs bg-red-100 hover:bg-red-200 px-2 py-1 rounded"
+									onclick={() => window.location.reload()}
+								>
+									🔄 Retry Connection
+								</button>
+							{/if}
+						</div>
 					</div>
 				</div>
 			</div>
 		{/if}
 
+		{#if dev}
+		<!-- Debug Info -->
+		<div class="text-center text-sm text-gray-500 mb-4">
+			Debug: Status={status} | canStart={canStartConversation} | isStreaming={isStreaming} | isConnecting={isConnecting}
+			{#if orchestrator}
+				<br />
+				Connection Health: {orchestrator.isConnectionHealthy() ? '✅ Healthy' : '❌ Unhealthy'}
+			{/if}
+		</div>
+		{/if}
+
 		<!-- Main Controls -->
 		<div class="flex justify-center space-x-4">
-			<!-- Start Conversation Button -->
-			{#if canStartConversation}
+			<!-- Auto-starting indicator -->
+			{#if autoStart && isConnecting}
+				<div class="text-center">
+					<div class="loading loading-spinner loading-lg text-primary"></div>
+					<p class="text-lg font-medium text-primary mt-2">🎭 Setting up your conversation...</p>
+				</div>
+			{/if}
+			
+			<!-- Unified Conversation Button -->
+			{#if canStartConversation && !(autoStart && isConnecting)}
 				<button
-					onclick={startConversation}
+					onclick={toggleConversation}
 					disabled={isConnecting}
 					class="btn btn-primary btn-lg px-8 py-4 text-lg font-semibold {
 						isConnecting ? 'loading' : ''
@@ -158,28 +283,20 @@
 				>
 					{#if isConnecting}
 						<span class="loading loading-spinner loading-md"></span>
-						Connecting...
+						Starting...
 					{:else}
-						🚀 Start Conversation
+						🚀 Start Conversation & Streaming
 					{/if}
 				</button>
 			{/if}
 
 			<!-- Streaming Controls -->
-			{#if canStartStreaming || isStreaming}
+			{#if isStreaming}
 				<button
-					onclick={toggleStreaming}
-					class="btn btn-lg px-8 py-4 text-lg font-semibold {
-						isStreaming 
-							? 'btn-error hover:btn-error' 
-							: 'btn-success hover:btn-success'
-					}"
+					onclick={toggleConversation}
+					class="btn btn-error btn-lg px-8 py-4 text-lg font-semibold"
 				>
-					{#if isStreaming}
-						⏹️ Stop Streaming
-					{:else}
-						🎤 Start Streaming
-					{/if}
+					⏹️ Stop Streaming
 				</button>
 
 				<button
@@ -201,24 +318,181 @@
 		{/if}
 
 		<!-- Conversation History -->
-		{#if state.messages.length > 0}
+		{#if messages.length > 0}
 			<div class="bg-white rounded-lg shadow-lg p-6">
 				<h2 class="text-xl font-semibold text-gray-900 mb-4">Conversation History</h2>
-				<ConversationHistory messages={state.messages} />
+				<ConversationHistory messages={messages} />
 			</div>
 		{/if}
 
 		<!-- Instructions -->
-		{#if state.status === 'idle'}
+		{#if status === RealtimeConversationStatus.IDLE}
 			<div class="bg-white rounded-lg shadow-lg p-6 text-center">
-				<h3 class="text-lg font-semibold text-gray-900 mb-2">How it works</h3>
+				<h3 class="text-lg font-semibold text-gray-900 mb-2">
+					{#if autoStart}
+						🚀 Auto-starting conversation...
+					{:else}
+						How it works
+					{/if}
+				</h3>
 				<div class="text-gray-600 space-y-2">
-					<p>1. Click "Start Conversation" to connect to AI</p>
-					<p>2. Click "Start Streaming" to begin speaking</p>
-					<p>3. Speak naturally - AI will respond in real-time</p>
-					<p>4. Click "Stop Streaming" when you're done</p>
+					{#if autoStart}
+						<p>🎭 Setting up your conversation automatically...</p>
+						<p>🎤 You'll be connected to AI in just a moment</p>
+						<p>💬 Start speaking when you see the audio visualizer</p>
+					{:else}
+						<p>1. Click "Start Conversation & Streaming" to connect to AI and begin speaking</p>
+						<p>2. Allow microphone access when prompted</p>
+						<p>3. Speak naturally - AI will respond in real-time</p>
+						<p>4. Click "Stop Streaming" when you're done</p>
+					{/if}
+				</div>
+				
+				{#if dev}
+				<div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+					<h4 class="text-sm font-medium text-yellow-800 mb-2">🧪 MVP Development Mode</h4>
+					<p class="text-xs text-yellow-700">
+						This is a development build. If WebRTC fails, the app will show clear errors instead of silent failures.
+						<br />
+						<strong>Expected behavior:</strong> Either it works perfectly, or it fails fast with clear error messages.
+					</p>
+				</div>
+				{/if}
+			</div>
+		{/if}
+
+		<!-- Dev Testing Panel -->
+		{#if dev}
+		<div class="mt-8 bg-gray-50 border border-gray-200 rounded-lg p-6">
+			<h3 class="text-lg font-semibold text-gray-900 mb-4">🧪 Dev Testing Panel</h3>
+			
+			<!-- Voice Activity Detection Test -->
+			<div class="mb-6">
+				<h4 class="text-md font-medium text-gray-800 mb-2">🎤 Voice Activity Detection</h4>
+				<div class="grid grid-cols-2 gap-4 text-sm">
+					<div class="bg-white p-3 rounded border">
+						<span class="font-medium">VAD Status:</span>
+						<span class="ml-2 {isStreaming ? 'text-green-600' : 'text-gray-600'}">
+							{isStreaming ? '🔴 Active' : '⚪ Inactive'}
+						</span>
+					</div>
+					<div class="bg-white p-3 rounded border">
+						<span class="font-medium">Audio Level:</span>
+						<span class="ml-2 text-blue-600">{Math.round(audioLevel * 100)}%</span>
+					</div>
 				</div>
 			</div>
+
+			<!-- Real-time Transcription Test -->
+			<div class="mb-6">
+				<h4 class="text-md font-medium text-gray-800 mb-2">📝 Real-time Transcription</h4>
+				<div class="bg-white p-3 rounded border text-sm">
+					<span class="font-medium">Live Transcript:</span>
+					<span class="ml-2 text-gray-700">
+						{#if messages.length > 0}
+							{messages[messages.length - 1]?.role === 'user' ? messages[messages.length - 1]?.content : 'Waiting for speech...'}
+						{:else}
+							No speech detected yet
+						{/if}
+					</span>
+				</div>
+			</div>
+
+			<!-- AI Response Test -->
+			<div class="mb-6">
+				<h4 class="text-md font-medium text-gray-800 mb-2">🤖 AI Response Generation</h4>
+				<div class="bg-white p-3 rounded border text-sm">
+					<span class="font-medium">Last AI Response:</span>
+					<span class="ml-2 text-gray-700">
+						{#if messages.length > 0}
+							{messages[messages.length - 1]?.role === 'assistant' ? messages[messages.length - 1]?.content : 'Waiting for AI...'}
+						{:else}
+							No AI response yet
+						{/if}
+					</span>
+				</div>
+			</div>
+
+			<!-- Connection Health Test -->
+			<div class="mb-6">
+				<h4 class="text-md font-medium text-gray-800 mb-2">🔌 Connection Health</h4>
+				<div class="grid grid-cols-2 gap-4 text-sm">
+					<div class="bg-white p-3 rounded border">
+						<span class="font-medium">WebRTC Status:</span>
+						<span class="ml-2 {orchestrator?.isConnectionHealthy() ? 'text-green-600' : 'text-red-600'}">
+							{orchestrator?.isConnectionHealthy() ? '✅ Healthy' : '❌ Unhealthy'}
+						</span>
+					</div>
+					<div class="bg-white p-3 rounded border">
+						<span class="font-medium">Session ID:</span>
+						<span class="ml-2 text-gray-600 font-mono text-xs">
+							{sessionId ? sessionId.substring(0, 8) + '...' : 'None'}
+						</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Audio Processing Test -->
+			<div class="mb-6">
+				<h4 class="text-md font-medium text-gray-800 mb-2">🎵 Audio Processing</h4>
+				<div class="grid grid-cols-2 gap-4 text-sm">
+					<div class="bg-white p-3 rounded border">
+						<span class="font-medium">Chunks Sent:</span>
+						<span class="ml-2 text-blue-600">
+							{#if orchestrator && status === 'streaming'}
+								{Math.floor((Date.now() - startTime) / 100)} chunks
+							{:else}
+								0 chunks
+							{/if}
+						</span>
+					</div>
+					<div class="bg-white p-3 rounded border">
+						<span class="font-medium">Processing Time:</span>
+						<span class="ml-2 text-blue-600">
+							{#if startTime > 0}
+								{Math.round((Date.now() - startTime) / 1000)}s
+							{:else}
+								0s
+							{/if}
+						</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Manual Test Controls -->
+			<div class="mb-6">
+				<h4 class="text-md font-medium text-gray-800 mb-2">🎮 Manual Test Controls</h4>
+				<div class="flex gap-2">
+					<button 
+						class="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+						onclick={() => testVoiceActivity()}
+					>
+						🎤 Test VAD
+					</button>
+					<button 
+						class="px-3 py-2 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+						onclick={() => testTranscription()}
+					>
+						📝 Test Transcription
+					</button>
+					<button 
+						class="px-3 py-2 bg-purple-500 text-white rounded text-sm hover:bg-purple-600"
+						onclick={() => testAIResponse()}
+					>
+						🤖 Test AI Response
+					</button>
+				</div>
+			</div>
+
+			<!-- Raw State Display -->
+			<div class="mb-6">
+				<h4 class="text-md font-medium text-gray-800 mb-2">📊 Raw State Data</h4>
+				<details class="bg-white p-3 rounded border text-xs">
+					<summary class="cursor-pointer font-medium text-gray-700">Click to expand</summary>
+					<pre class="mt-2 text-gray-600 overflow-auto max-h-32">{JSON.stringify({ status, sessionId, messages, startTime, language, voice }, null, 2)}</pre>
+				</details>
+			</div>
+		</div>
 		{/if}
 
 		<!-- Dev Link -->

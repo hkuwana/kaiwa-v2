@@ -2,8 +2,8 @@
 // Coordinates between different features using the event system
 
 import { EventBusFactory, type EventBus } from '$lib/shared/events/eventBus';
-import { ConversationOrchestrator } from '$lib/features/conversation/orchestrator.svelte';
-import type { ConversationState } from '$lib/features/conversation/kernel/index';
+import { ConversationOrchestrator } from '$lib/features/conversation/conversation-orchestrator.svelte';
+import type { RealtimeConversationState } from '$lib/features/conversation/conversation-orchestrator.svelte';
 
 export class AppOrchestrator {
 	private eventBus: EventBus;
@@ -47,43 +47,44 @@ export class AppOrchestrator {
 	}
 
 	// 🎯 Conversation feature methods
-	async startConversation(language?: string, voice?: string): Promise<ConversationState> {
-		return await this.conversationOrchestrator.startConversation(language, voice);
+	async startConversation(language?: string, voice?: string): Promise<void> {
+		await this.conversationOrchestrator.startConversation(language, voice);
 	}
 
-	async startRecording(): Promise<ConversationState> {
-		return await this.conversationOrchestrator.startRecording();
+	async startStreaming(): Promise<void> {
+		await this.conversationOrchestrator.startStreaming();
 	}
 
-	async stopRecording(): Promise<ConversationState> {
-		return await this.conversationOrchestrator.stopRecording();
+	async stopStreaming(): Promise<void> {
+		await this.conversationOrchestrator.stopStreaming();
 	}
 
-	async endConversation(): Promise<ConversationState> {
-		return await this.conversationOrchestrator.endConversation();
+	async endConversation(): Promise<void> {
+		await this.conversationOrchestrator.endConversation();
 	}
 
-	getConversationState(): ConversationState {
+	getConversationState(): RealtimeConversationState {
 		return this.conversationOrchestrator.getState();
 	}
 
 	// 🎯 Cleanup resources
 	cleanup(): void {
-		this.conversationOrchestrator.cleanup();
 		this.eventBus.clear();
 	}
 
 	// 🎯 Debug methods
 	getEventHistory() {
 		if ('getEventHistory' in this.eventBus) {
-			return (this.eventBus as any).getEventHistory();
+			return (this.eventBus as { getEventHistory(): unknown[] }).getEventHistory();
 		}
 		return [];
 	}
 
 	getHandlerCount(eventName: string) {
 		if ('getHandlerCount' in this.eventBus) {
-			return (this.eventBus as any).getHandlerCount(eventName);
+			return (this.eventBus as { getHandlerCount(eventName: string): number }).getHandlerCount(
+				eventName
+			);
 		}
 		return 0;
 	}

@@ -3,11 +3,13 @@
 	import { EventBusFactory } from '$lib/shared/events/eventBus';
 	import { audioService, createAudioService } from '$lib/features/audio';
 	import { realtimeService } from '$lib/features/realtime';
-	import { ModernRealtimeConversationOrchestrator } from '$lib/features/conversation/realtime-conversation-orchestrator';
+	import { ConversationOrchestrator } from '$lib/features/conversation/conversation-orchestrator.svelte';
+	import { errorMonitor } from '$lib/shared/events/errorMonitor';
 	import type { AudioState } from '$lib/features/audio/types';
 	import type { RealtimeSession, RealtimeStream, RealtimeEvent } from '$lib/features/realtime';
-	import type { RealtimeConversationState } from '$lib/features/conversation/realtime-conversation-orchestrator';
-	import AudioVisualizer from '../AudioVisualizer.svelte';
+	import type { RealtimeConversationState } from '$lib/features/conversation/realtime-conversation-orchestrator.svelte';
+	import type { ErrorEntry } from '$lib/shared/events/errorMonitor';
+	import AudioVisualizer from './AudioVisualizer.svelte';
 
 	// State
 	let activeTab = $state('audio');
@@ -28,6 +30,11 @@
 	let realtimeEvents = $state<RealtimeEvent[]>([]);
 	let lastError = $state<string | null>(null);
 	let errorDetails = $state<any>(null);
+
+	// Error monitoring system
+	let errorLog = $state<ErrorEntry[]>([]);
+	let showErrorDetails = $state(false);
+	let errorFilter = $state<'all' | 'unresolved' | 'critical'>('unresolved');
 
 	// Conversation testing state
 	let conversationState = $state<RealtimeConversationState | null>(null);
@@ -63,6 +70,10 @@
 
 		// Set up audio state monitoring
 		setupAudioStateMonitoring();
+
+		// Set up error monitoring and initialize the global monitor
+		setupErrorMonitoring();
+		errorMonitor.initialize();
 	});
 
 	// Cleanup
@@ -92,6 +103,48 @@
 		setInterval(() => {
 			audioState = audioService.getState();
 		}, 100);
+	}
+
+	// Error monitoring system
+	function setupErrorMonitoring() {
+		// Subscribe to global error monitor
+		const unsubscribe = errorMonitor.onError((error) => {
+			errorLog = [error, ...errorLog];
+		});
+
+		// Cleanup on destroy
+		onDestroy(() => {
+			unsubscribe();
+		});
+	}
+
+	// Error utility functions using global service
+	function resolveError(errorId: string) {
+		errorMonitor.resolveError(errorId);
+		// Update local state
+		errorLog = errorLog.map(error => 
+			error.id === errorId ? { ...error, resolved: true } : error
+		);
+	}
+
+	function clearResolvedErrors() {
+		errorMonitor.clearResolvedErrors();
+		// Update local state
+		errorLog = errorLog.filter(error => !error.resolved);
+	}
+
+	function getFilteredErrors() {
+		return errorMonitor.getErrors(errorFilter);
+	}
+
+	function getSeverityColor(severity: string) {
+		switch (severity) {
+			case 'critical': return 'badge-error';
+			case 'high': return 'badge-warning';
+			case 'medium': return 'badge-warning';
+			case 'low': return 'badge-info';
+			default: return 'badge-neutral';
+		}
 	}
 
 	async function testAudioRecording() {
@@ -403,18 +456,33 @@
 	}
 </script>
 
-<div class="dev-panel bg-gray-900 text-white p-6 min-h-screen">
-	<div class="max-w-7xl mx-auto">
+<div class="min-h-screen bg-base-100 text-base-content">
+	<div class="max-w-7xl mx-auto p-6">
 		<!-- Header -->
 		<div class="mb-8">
-			<h1 class="text-3xl font-bold mb-2">🧪 Dev Testing Panel</h1>
-			<p class="text-gray-300">Test each feature layer in isolation before integration</p>
+			<div class="flex items-center justify-between mb-2">
+				<h1 class="text-3xl font-bold text-primary">🧪 Dev Testing Panel</h1>
+				
+				<!-- Error Status Badge -->
+				{#if errorMonitor.getErrorCount('unresolved') > 0}
+					<div class="flex items-center space-x-2">
+						<span class="text-sm text-base-content/70">Active Issues:</span>
+						<button
+							onclick={() => activeTab = 'errors'}
+							class="btn btn-error btn-sm"
+						>
+							🚨 {errorMonitor.getErrorCount('unresolved')} Unresolved
+						</button>
+					</div>
+				{/if}
+			</div>
+			<p class="text-base-content/70">Test each feature layer in isolation before integration</p>
 			
 			<!-- Test Suite Runner -->
 			<div class="mt-4">
 				<button
 					onclick={runAllTests}
-					class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-colors"
+					class="btn btn-success btn-lg"
 				>
 					🚀 Run All Tests
 				</button>
@@ -423,53 +491,72 @@
 
 		<!-- Test Results Summary -->
 		<div class="mb-6 grid grid-cols-4 gap-4">
-			<div class="bg-base-300 p-4 rounded-lg text-center">
-				<h3 class="text-lg font-medium">🎤 Audio</h3>
-				<p class="text-2xl font-bold text-green-400">{testResults.audio.passed}</p>
-				<p class="text-sm text-red-400">{testResults.audio.failed} failed</p>
+			<div class="card bg-base-200 shadow-sm">
+				<div class="card-body p-4 text-center">
+					<h3 class="text-lg font-medium text-base-content">🎤 Audio</h3>
+					<p class="text-2xl font-bold text-success">{testResults.audio.passed}</p>
+					<p class="text-sm text-error">{testResults.audio.failed} failed</p>
+				</div>
 			</div>
-			<div class="bg-base-300 p-4 rounded-lg text-center">
-				<h3 class="text-lg font-medium">💬 Conversation</h3>
-				<p class="text-2xl font-bold text-green-400">{testResults.conversation.passed}</p>
-				<p class="text-sm text-red-400">{testResults.conversation.failed} failed</p>
+			<div class="card bg-base-200 shadow-sm">
+				<div class="card-body p-4 text-center">
+					<h3 class="text-lg font-medium text-base-content">💬 Conversation</h3>
+					<p class="text-2xl font-bold text-success">{testResults.conversation.passed}</p>
+					<p class="text-sm text-error">{testResults.conversation.failed} failed</p>
+				</div>
 			</div>
-			<div class="bg-base-300 p-4 rounded-lg text-center">
-				<h3 class="text-lg font-medium">🤖 AI</h3>
-				<p class="text-2xl font-bold text-green-400">{testResults.ai.passed}</p>
-				<p class="text-sm text-red-400">{testResults.ai.failed} failed</p>
+			<div class="card bg-base-200 shadow-sm">
+				<div class="card-body p-4 text-center">
+					<h3 class="text-lg font-medium text-base-content">🤖 AI</h3>
+					<p class="text-2xl font-bold text-success">{testResults.ai.passed}</p>
+					<p class="text-sm text-error">{testResults.ai.failed} failed</p>
+				</div>
 			</div>
-			<div class="bg-base-300 p-4 rounded-lg text-center">
-				<h3 class="text-lg font-medium">🔗 Integration</h3>
-				<p class="text-2xl font-bold text-green-400">{testResults.integration.passed}</p>
-				<p class="text-sm text-red-400">{testResults.integration.failed} failed</p>
+			<div class="card bg-base-200 shadow-sm">
+				<div class="card-body p-4 text-center">
+					<h3 class="text-lg font-medium text-base-content">🔗 Integration</h3>
+					<p class="text-2xl font-bold text-success">{testResults.integration.passed}</p>
+					<p class="text-sm text-error">{testResults.integration.failed} failed</p>
+				</div>
 			</div>
 		</div>
 
 		<!-- Tab Navigation -->
-		<div class="flex space-x-1 mb-6 bg-base-300 p-1 rounded-lg">
+		<div class="tabs tabs-boxed bg-base-200 mb-6">
 			<button
-				class="px-4 py-2 rounded-md transition-colors {activeTab === 'audio' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:text-white'}"
+				class="tab {activeTab === 'audio' ? 'tab-active' : ''}"
 				onclick={() => activeTab = 'audio'}
 			>
 				🎤 Audio
 			</button>
 			<button
-				class="px-4 py-2 rounded-md transition-colors {activeTab === 'realtime' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:text-white'}"
+				class="tab {activeTab === 'realtime' ? 'tab-active' : ''}"
 				onclick={() => activeTab = 'realtime'}
 			>
 				🚀 Real-time
 			</button>
 			<button
-				class="px-4 py-2 rounded-md transition-colors {activeTab === 'conversation' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:text-white'}"
+				class="tab {activeTab === 'conversation' ? 'tab-active' : ''}"
 				onclick={() => activeTab = 'conversation'}
 			>
 				💬 Conversation
 			</button>
 			<button
-				class="px-4 py-2 rounded-md transition-colors {activeTab === 'tests' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:text-white'}"
+				class="tab {activeTab === 'tests' ? 'tab-active' : ''}"
 				onclick={() => activeTab = 'tests'}
 			>
 				🧪 Test Results
+			</button>
+			<button
+				class="tab {activeTab === 'errors' ? 'tab-active' : ''}"
+				onclick={() => activeTab = 'errors'}
+			>
+				🚨 Error Monitor
+				{#if getFilteredErrors().length > 0}
+					<span class="badge badge-error badge-sm ml-2">
+						{getFilteredErrors().length}
+					</span>
+				{/if}
 			</button>
 		</div>
 
@@ -837,6 +924,165 @@
 								<div class="ml-4 text-sm text-red-400">{test.error}</div>
 							{/if}
 						{/each}
+					</div>
+				</div>
+			</div>
+		{/if}
+
+		<!-- Error Monitoring Tab -->
+		{#if activeTab === 'errors'}
+			<div class="space-y-6">
+				<h2 class="text-2xl font-semibold text-base-content">🚨 Error Monitoring</h2>
+				
+				<!-- Error Filter -->
+				<div class="card bg-base-200 shadow-sm">
+					<div class="card-body">
+						<h3 class="text-lg font-medium mb-3">Filter Errors</h3>
+						<div class="flex space-x-2">
+							<button
+								onclick={() => errorFilter = 'all'}
+								class="btn btn-sm {errorFilter === 'all' ? 'btn-primary' : 'btn-ghost'}"
+							>
+								All
+							</button>
+							<button
+								onclick={() => errorFilter = 'unresolved'}
+								class="btn btn-sm {errorFilter === 'unresolved' ? 'btn-primary' : 'btn-ghost'}"
+							>
+								Unresolved
+							</button>
+							<button
+								onclick={() => errorFilter = 'critical'}
+								class="btn btn-sm {errorFilter === 'critical' ? 'btn-error' : 'btn-ghost'}"
+							>
+								Critical
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Error Summary -->
+				<div class="card bg-base-200 shadow-sm">
+					<div class="card-body">
+						<h3 class="text-lg font-medium mb-3">Error Summary</h3>
+						{#if true}
+							{@const summary = errorMonitor.getErrorSummary()}
+							<div class="stats stats-horizontal shadow">
+								<div class="stat">
+									<div class="stat-title">Total</div>
+									<div class="stat-value text-primary">{summary.total}</div>
+								</div>
+								<div class="stat">
+									<div class="stat-title">Unresolved</div>
+									<div class="stat-value text-warning">{summary.unresolved}</div>
+								</div>
+								<div class="stat">
+									<div class="stat-title">Critical</div>
+									<div class="stat-value text-error">{summary.critical}</div>
+								</div>
+								<div class="stat">
+									<div class="stat-title">Resolved</div>
+									<div class="stat-value text-success">{summary.total - summary.unresolved}</div>
+								</div>
+							</div>
+							
+							<!-- Feature breakdown -->
+							<div class="mt-4">
+								<h4 class="text-sm font-medium mb-2 text-base-content/70">By Feature</h4>
+								<div class="flex flex-wrap gap-2">
+									{#each Object.entries(summary.byFeature) as [feature, count]}
+										<span class="badge badge-outline badge-sm">
+											{feature}: {count}
+										</span>
+									{/each}
+								</div>
+							</div>
+
+							<!-- Actions -->
+							<div class="flex space-x-2 mt-4">
+								<button
+									onclick={clearResolvedErrors}
+									class="btn btn-sm btn-ghost"
+								>
+									Clear Resolved
+								</button>
+								<button
+									onclick={() => errorLog = []}
+									class="btn btn-sm btn-error"
+								>
+									Clear All
+								</button>
+							</div>
+						{/if}
+					</div>
+				</div>
+
+				<!-- Error List -->
+				<div class="card bg-base-200 shadow-sm">
+					<div class="card-body">
+						<h3 class="text-lg font-medium mb-3">Error Log ({getFilteredErrors().length})</h3>
+						<div class="space-y-2 max-h-96 overflow-y-auto">
+							{#each getFilteredErrors() as error}
+								<div class="card bg-base-100 border-l-4 border-l-{error.severity === 'critical' ? 'error' : error.severity === 'high' ? 'warning' : error.severity === 'medium' ? 'warning' : 'info'} shadow-sm">
+									<div class="card-body p-4">
+										<div class="flex justify-between items-start mb-2">
+											<div class="flex items-center space-x-2">
+												<span class="badge badge-sm {error.severity === 'critical' ? 'badge-error' : error.severity === 'high' ? 'badge-warning' : error.severity === 'medium' ? 'badge-warning' : 'badge-info'}">
+													{error.severity.toUpperCase()}
+												</span>
+												<span class="badge badge-outline badge-sm">
+													{error.feature}
+												</span>
+											</div>
+											<div class="flex items-center space-x-2">
+												<span class="text-xs text-base-content/60">
+													{formatTimestamp(error.timestamp)}
+												</span>
+												<button
+													onclick={() => resolveError(error.id)}
+													class="btn btn-success btn-xs"
+													title="Mark as resolved"
+												>
+													✓
+												</button>
+											</div>
+										</div>
+										
+										<h4 class="font-medium text-base-content mb-1">{error.userMessage}</h4>
+										<p class="text-sm text-base-content/70 mb-2">{error.technicalDetails.message}</p>
+										
+										<!-- Context info -->
+										{#if error.context}
+											<div class="text-xs text-base-content/60 mb-2 bg-base-200 p-2 rounded">
+												<span class="font-medium">URL:</span> {error.context.url}<br>
+												<span class="font-medium">User:</span> {error.context.userId || 'Anonymous'}
+											</div>
+										{/if}
+										
+										<!-- Technical details -->
+										<details class="text-xs text-base-content/60">
+											<summary class="cursor-pointer hover:text-base-content font-medium">
+												🔧 Technical Details
+											</summary>
+											<div class="mt-2 space-y-1">
+												<pre class="p-2 bg-base-300 rounded text-xs overflow-x-auto">{JSON.stringify(error.technicalDetails, null, 2)}</pre>
+												
+												{#if error.context}
+													<div class="mt-2 p-2 bg-base-300 rounded">
+														<strong>Context:</strong><br>
+														<strong>User Agent:</strong> {error.context.userAgent}<br>
+														<strong>Timestamp:</strong> {new Date(error.timestamp).toISOString()}
+													</div>
+												{/if}
+											</div>
+										</details>
+									</div>
+								</div>
+							{/each}
+							{#if getFilteredErrors().length === 0}
+								<p class="text-base-content/60 text-center py-4">✨ No errors to display. Everything is working smoothly!</p>
+							{/if}
+						</div>
 					</div>
 				</div>
 			</div>
