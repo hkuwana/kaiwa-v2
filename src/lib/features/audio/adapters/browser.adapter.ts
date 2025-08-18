@@ -6,6 +6,7 @@ import type { AudioInputPort } from '../types';
 export class BrowserAudioAdapter implements AudioInputPort {
 	private currentStream?: MediaStream;
 	private currentRecorder?: MediaRecorder;
+	private onChunkCallback?: (chunk: ArrayBuffer) => void;
 
 	async startRecording(deviceId?: string): Promise<MediaRecorder> {
 		try {
@@ -32,6 +33,57 @@ export class BrowserAudioAdapter implements AudioInputPort {
 			console.error('Failed to start recording:', error);
 			throw new Error(
 				`Failed to start recording: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
+		}
+	}
+
+	// 🎯 Realtime streaming support
+	async startRealtimeRecording(
+		deviceId?: string,
+		onChunk?: (chunk: ArrayBuffer) => void
+	): Promise<MediaRecorder> {
+		try {
+			// Stop any existing recording
+			if (this.currentRecorder) {
+				await this.stopRecording(this.currentRecorder);
+			}
+
+			// Get audio stream with optional device selection
+			const constraints: MediaStreamConstraints = {
+				audio: deviceId ? { deviceId: { exact: deviceId } } : true
+			};
+
+			this.currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+
+			// Create MediaRecorder with optimal settings for realtime streaming
+			this.currentRecorder = new MediaRecorder(this.currentStream, {
+				mimeType: this.getBestMimeType(),
+				audioBitsPerSecond: 16000 // Good quality for speech recognition
+			});
+
+			// Set up realtime chunk handling
+			if (onChunk) {
+				this.onChunkCallback = onChunk;
+				this.currentRecorder.ondataavailable = async (event) => {
+					if (event.data.size > 0 && this.onChunkCallback) {
+						try {
+							const arrayBuffer = await event.data.arrayBuffer();
+							this.onChunkCallback(arrayBuffer);
+						} catch (error) {
+							console.error('Failed to process audio chunk:', error);
+						}
+					}
+				};
+
+				// Start recording with small chunks for realtime
+				this.currentRecorder.start(100); // 100ms chunks
+			}
+
+			return this.currentRecorder;
+		} catch (error) {
+			console.error('Failed to start realtime recording:', error);
+			throw new Error(
+				`Failed to start realtime recording: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
 		}
 	}
@@ -89,6 +141,11 @@ export class BrowserAudioAdapter implements AudioInputPort {
 			console.error('Failed to get audio devices:', error);
 			return [];
 		}
+	}
+
+	// 🎯 Get current stream for realtime integration
+	getCurrentStream(): MediaStream | undefined {
+		return this.currentStream;
 	}
 
 	// Get the best available MIME type for recording

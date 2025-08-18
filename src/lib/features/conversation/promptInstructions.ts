@@ -1,9 +1,9 @@
 // 🎯 Conversation Prompt Instructions
 // Functional, modular system for generating AI tutor instructions
 
+import { languages } from '$lib/data/languages';
 import { getCEFRLabel } from '$lib/features/gamification';
-import type { Scenarios, Speaker } from '$lib/types';
-import { languageStore } from '$lib/stores/languageStore.svelte';
+import type { Scenarios, Speaker } from '$lib/types'; 
 
 // 🏗️ Core Types
 export interface TutorConfig {
@@ -148,9 +148,14 @@ const DEFAULT_LANGUAGES = [
 	}
 ];
 
+
+function getLanguageByCode(code: string) {
+	return languages.find((lang) => lang.code === code);
+}
+
 function getLanguageInfo(language: string) {
 	return (
-		languageStore.getLanguageByCode(language) ||
+		getLanguageByCode(language) ||
 		DEFAULT_LANGUAGES.find((lang) => lang.code === language)
 	);
 }

@@ -26,7 +26,7 @@ export class RealtimeService {
 	}
 
 	async closeSession(session: RealtimeSession) {
-		return this.session.closeSession(session);
+		return this.session.closeSession();
 	}
 
 	async validateSession(session: RealtimeSession) {

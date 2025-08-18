@@ -3,7 +3,7 @@
 
 export interface RealtimeSessionPort {
 	createSession(config: RealtimeSessionConfig): Promise<RealtimeSession>;
-	closeSession(session: RealtimeSession): Promise<void>;
+	closeSession(): Promise<void>;
 	validateSession(session: RealtimeSession): Promise<boolean>;
 }
 

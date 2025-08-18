@@ -96,59 +96,37 @@ export class OpenAIRealtimeSessionAdapter implements RealtimeSessionPort {
 		};
 	}
 
-	async closeSession(session: RealtimeSession): Promise<void> {
-		try {
-			// Close the session on OpenAI's side
-			const response = await fetch(`https://api.openai.com/v1/realtime/sessions/${session.id}`, {
-				method: 'DELETE',
-				headers: {
-					Authorization: `Bearer ${session.clientSecret}`
-				}
-			});
-
-			if (!response.ok) {
-				const errorText = await response.text();
-				console.error('Session close failed:', {
-					status: response.status,
-					statusText: response.statusText,
-					response: errorText
-				});
-			}
-		} catch (error) {
-			console.error('Session close error:', error);
-		}
+	// OpenAI doesn't have session management endpoints - sessions are ephemeral
+	async closeSession(): Promise<void> {
+		console.log('🔄 OpenAI sessions are ephemeral - no cleanup needed');
+		// Note: OpenAI sessions auto-expire after 1 minute
+		// No need to call any endpoints
 	}
 
+	// OpenAI doesn't have session validation endpoints
 	async validateSession(session: RealtimeSession): Promise<boolean> {
-		try {
-			// Check if session is still valid
-			const now = Date.now();
-			if (now >= session.expiresAt) {
-				return false;
-			}
-
-			// Test connection to OpenAI
-			const response = await fetch(`https://api.openai.com/v1/realtime/sessions/${session.id}`, {
-				method: 'GET',
-				headers: {
-					Authorization: `Bearer ${session.clientSecret}`
-				}
-			});
-
-			if (!response.ok) {
-				const errorText = await response.text();
-				console.error('Session validation failed:', {
-					status: response.status,
-					statusText: response.statusText,
-					response: errorText
-				});
-			}
-
-			return response.ok;
-		} catch (error) {
-			console.error('Session validation error:', error);
+		// Check if session is expired locally
+		const now = Date.now();
+		if (now >= session.expiresAt) {
+			console.log('⏰ Session expired locally');
 			return false;
 		}
+
+		// For fallback sessions, always return true
+		if (session.id.startsWith('fallback-')) {
+			return true;
+		}
+
+		// For real OpenAI sessions, we can't validate via API
+		// Just check if it's within the 1-minute window
+		const timeSinceCreation = now - session.createdAt;
+		const isValid = timeSinceCreation < 60 * 1000; // 1 minute
+
+		if (!isValid) {
+			console.log('⏰ OpenAI session expired (1 minute limit)');
+		}
+
+		return isValid;
 	}
 }
 
@@ -258,7 +236,7 @@ export class OpenAIRealtimeStreamingAdapter implements RealtimeStreamingPort {
 				console.warn('⚠️ No audio stream provided - conversation will be text-only');
 			}
 
-			// Create and send offer to OpenAI
+			// Create and send offer to OpenAI using the correct endpoint
 			const offer = await peerConnection.createOffer({
 				offerToReceiveAudio: true,
 				offerToReceiveVideo: false
@@ -277,37 +255,64 @@ export class OpenAIRealtimeStreamingAdapter implements RealtimeStreamingPort {
 			}
 
 			// OpenAI Realtime API uses the ephemeral key for authentication
-			// We need to establish a connection TO OpenAI, not peer-to-peer
-			console.log('🔑 Using ephemeral key for OpenAI authentication:', {
-				keyPrefix: session.clientSecret.substring(0, 8),
-				sessionId: session.id
-			});
+			// Connect to the correct endpoint: /v1/realtime?model=MODEL_ID
+			const baseUrl = 'https://api.openai.com/v1/realtime';
+			const model = session.config.model || 'gpt-4o-realtime-preview-2024-10-01';
+			const url = `${baseUrl}?model=${model}`;
 
-			// For OpenAI Realtime API, we need to:
-			// 1. Use the ephemeral key to authenticate
-			// 2. Establish a WebRTC connection TO OpenAI's servers
-			// 3. Send audio chunks via that authenticated connection
+			console.log('🔑 Connecting to OpenAI Realtime API:', url);
 
-			// Since the exact WebRTC setup for OpenAI isn't documented,
-			// let's create a working fallback that simulates the experience
-			console.log('🎭 Creating OpenAI-compatible streaming setup...');
+			try {
+				// Send SDP offer to OpenAI
+				const sdpResponse = await fetch(url, {
+					method: 'POST',
+					body: offer.sdp,
+					headers: {
+						Authorization: `Bearer ${session.clientSecret}`,
+						'Content-Type': 'application/sdp'
+					}
+				});
 
-			// Store the authenticated session for audio transmission
-			this.authenticatedSessions.set(stream.id, {
-				sessionId: session.id,
-				clientSecret: session.clientSecret,
-				expiresAt: session.expiresAt
-			});
+				if (!sdpResponse.ok) {
+					const errorText = await sdpResponse.text();
+					console.error('❌ OpenAI SDP exchange failed:', {
+						status: sdpResponse.status,
+						statusText: sdpResponse.statusText,
+						response: errorText
+					});
+					throw new Error(`OpenAI SDP exchange failed: ${sdpResponse.status}`);
+				}
 
-			// Store the stream and connections
-			this.activeStreams.set(stream.id, stream);
-			this.peerConnections.set(stream.id, peerConnection);
+				// Get the answer SDP from OpenAI
+				const answerSdp = await sdpResponse.text();
+				const answer: RTCSessionDescriptionInit = {
+					type: 'answer' as RTCSdpType,
+					sdp: answerSdp
+				};
 
-			console.log('🎉 WebRTC streaming setup complete!');
-			console.log('📊 Active streams:', this.activeStreams.size);
-			console.log('🔗 Peer connections:', this.peerConnections.size);
+				// Set the remote description (OpenAI's answer)
+				await peerConnection.setRemoteDescription(answer);
+				console.log('✅ OpenAI SDP answer set as remote description');
 
-			return stream;
+				// Store the authenticated session for audio transmission
+				this.authenticatedSessions.set(stream.id, {
+					sessionId: session.id,
+					clientSecret: session.clientSecret,
+					expiresAt: session.expiresAt
+				});
+
+				console.log('🎉 WebRTC streaming setup complete!');
+				console.log('📊 Active streams:', this.activeStreams.size);
+				console.log('🔗 Peer connections:', this.peerConnections.size);
+
+				return stream;
+			} catch (error) {
+				console.error('❌ OpenAI WebRTC connection failed:', error);
+
+				// Graceful degradation: fall back to local stream
+				console.log('🔄 Falling back to local audio experience due to OpenAI connection failure');
+				return this.createFallbackStream(session);
+			}
 		} catch (error) {
 			console.error('❌ Error in startStreaming:', error);
 

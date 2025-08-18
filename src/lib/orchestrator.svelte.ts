@@ -1,103 +1,87 @@
-// 🎭 Conversation Orchestrator (Svelte 5 Runes)
-// Coordinates between the kernel and adapters - the imperative shell
+// 🎭 Unified Top-Level Orchestrator (Svelte 5 Runes)
+// Coordinates Conversation + Audio + Realtime features through events
 
-import {
-	createConversationKernel,
-	type ConversationState,
-	type ConversationEffect,
-	createInitialState
-} from './features/conversation/kernel/index';
-import {
-	adapters,
-	type AudioAdapter,
-	type AIAdapter,
-	type StorageAdapter
-} from './features/conversation/adapters';
+import { EventBusFactory, type EventBus } from './shared/events/eventBus';
+import { ConversationOrchestrator } from './features/conversation/conversation-orchestrator.svelte';
+import { audioService } from './features/audio';
+import { realtimeService } from './features/realtime';
 
-class ConversationOrchestrator {
-	private kernel = createConversationKernel();
-	private currentState: ConversationState;
-	private currentRecorder: MediaRecorder | null = null;
-	private isExecutingEffects = false;
+export class UnifiedOrchestrator {
+	// 🎯 Svelte 5 runes for reactive state management
+	private eventBus = $state<EventBus>(EventBusFactory.create('memory'));
 
-	constructor(
-		private audioAdapter: AudioAdapter = adapters.audio,
-		private aiAdapter: AIAdapter = adapters.ai,
-		private storageAdapter: StorageAdapter = adapters.storage
-	) {
-		this.currentState = createInitialState();
+	// 🎯 Feature services (pure, isolated)
+	private conversationFeature = $state<ConversationOrchestrator>(
+		new ConversationOrchestrator(this.eventBus)
+	);
+	private audioFeature = $state(audioService);
+	private realtimeFeature = $state(realtimeService);
+
+	// 🎯 Unified state (derived from features)
+	private unifiedState = $state({
+		status: 'idle' as 'idle' | 'connecting' | 'active' | 'error',
+		conversationId: '',
+		language: 'en',
+		voice: 'alloy',
+		error: null as string | null,
+		isRecording: false,
+		isStreaming: false,
+		messageCount: 0
+	});
+
+	constructor() {
+		this.setupFeatureCoordination();
 	}
 
-	// Get current state
-	getState(): ConversationState {
-		return this.currentState;
-	}
+	// 🎯 Setup cross-feature event handling
+	private setupFeatureCoordination(): void {
+		// 🎤 Audio chunk → Realtime streaming
+		this.audioFeature.on('audio.chunk', (chunk: ArrayBuffer) => {
+			console.log('🎵 Unified: Audio chunk received, sending to realtime');
+			if (this.unifiedState.isStreaming) {
+				this.realtimeFeature.sendAudioChunk(chunk).catch((error) => {
+					console.error('❌ Unified: Failed to send audio chunk:', error);
+					this.unifiedState.error = `Failed to send audio: ${error}`;
+				});
+			}
+		});
 
-	// Start a new conversation
-	async startConversation(language?: string, voice?: string): Promise<ConversationState> {
-		try {
-			this.currentState = this.kernel.start(this.currentState, language, voice);
-			await this.storageAdapter.save('currentSession', this.currentState.sessionId);
-			return this.currentState;
-		} catch (error) {
-			this.currentState = this.kernel.setError(
-				this.currentState,
-				`Failed to start conversation: ${error}`
-			);
-			return this.currentState;
-		}
-	}
+		// 📝 Realtime transcript → Conversation
+		this.realtimeFeature.on('transcript.received', (transcript: string) => {
+			console.log('📝 Unified: Transcript received, adding to conversation');
+			this.conversationFeature.addMessage(transcript, 'user');
+			this.unifiedState.messageCount++;
+		});
 
-	// Start recording user input
-	async startRecording(): Promise<ConversationState> {
-		try {
-			// Start the kernel recording state
-			this.currentState = this.kernel.startRecording(this.currentState);
+		// 🤖 Realtime response → Conversation + Audio playback
+		this.realtimeFeature.on('response.received', (response: any) => {
+			console.log('🤖 Unified: AI response received, processing');
+			this.conversationFeature.addMessage(response.text, 'assistant');
+			this.unifiedState.messageCount++;
 
-			// Start actual audio recording
-			this.currentRecorder = await this.audioAdapter.startRecording();
+			// Play audio response if available
+			if (response.audio) {
+				this.audioFeature.playAudio(response.audio).catch((error) => {
+					console.error('❌ Unified: Failed to play audio response:', error);
+				});
+			}
+		});
 
-			return this.currentState;
-		} catch (error) {
-			this.currentState = this.kernel.setError(
-				this.currentState,
-				`Failed to start recording: ${error}`
-			);
-			return this.currentState;
-		}
-	}
+		// 🔌 Connection status updates
+		this.realtimeFeature.on('connection.status', (status: string) => {
+			console.log('🔌 Unified: Realtime connection status:', status);
+			if (status === 'connected') {
+				this.unifiedState.isStreaming = true;
+			} else if (status === 'disconnected') {
+				this.unifiedState.isStreaming = false;
+			}
+		});
 
-	// Stop recording and process
-	async stopRecording(): Promise<ConversationState> {
-		if (!this.currentRecorder) {
-			this.currentState = this.kernel.setError(this.currentState, 'No active recording to stop');
-			return this.currentState;
-		}
-
-		try {
-			// Stop recording and get audio data
-			const audioData = await this.audioAdapter.stopRecording(this.currentRecorder);
-			this.currentRecorder = null;
-
-			// Update kernel state and get effects
-			this.currentState = this.kernel.stopRecording(this.currentState, audioData);
-			const effects = this.kernel.getEffects(this.currentState, {
-				type: 'STOP_RECORDING',
-				payload: { audio: audioData }
-			});
-
-			// Execute effects asynchronously
-			this.executeEffects(effects);
-
-			return this.currentState;
-		} catch (error) {
-			this.currentRecorder = null;
-			this.currentState = this.kernel.setError(
-				this.currentState,
-				`Failed to stop recording: ${error}`
-			);
-			return this.currentState;
-		}
+		// 🎤 Recording status updates
+		this.audioFeature.on('recording.status', (status: string) => {
+			console.log('🎤 Unified: Audio recording status:', status);
+			this.unifiedState.isRecording = status === 'recording';
+		});
 	}
 
 	// End the current conversation

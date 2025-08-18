@@ -35,11 +35,11 @@ export class ConversationOrchestrator {
 	// Svelte 5 runes for reactive state (using kernel pattern)
 	private state = $state<ConversationState>(createInitialState());
 
-	private audioStream = $state<MediaStream | null>(null);
-	private mediaRecorder = $state<MediaRecorder | null>(null);
+	// 🎯 SINGLE SOURCE: Use Audio Feature's stream instead of duplicating
 	private realtimeSession = $state<RealtimeSession | null>(null);
 	private realtimeStream = $state<RealtimeStream | null>(null);
 	private connectionReady = $state<boolean>(false);
+	private localMicStream: MediaStream | null = null;
 	private authenticatedSessions = $state(
 		new Map<string, { sessionId: string; clientSecret: string; expiresAt: number }>()
 	);
@@ -74,16 +74,21 @@ export class ConversationOrchestrator {
 		return this.connectionReady;
 	}
 	get hasAudioStream() {
-		return !!this.audioStream;
+		return audioService.isRecording;
 	}
 	get hasMediaRecorder() {
-		return !!this.mediaRecorder;
+		return audioService.isRecording;
 	}
 	get hasRealtimeSession() {
 		return !!this.realtimeSession;
 	}
 	get hasRealtimeStream() {
 		return !!this.realtimeStream;
+	}
+
+	// Expose local microphone stream for UI (visualizer, etc.)
+	get micStream(): MediaStream | null {
+		return this.localMicStream;
 	}
 
 	// 🆕 MERGED: Additional getters from unified orchestrator
@@ -295,115 +300,28 @@ export class ConversationOrchestrator {
 		}
 
 		try {
-			// Use your existing Audio Feature instead of duplicating MediaRecorder logic
-			console.log('🎤 Starting audio recording via Audio Feature...');
+			// 🎯 Simple WebRTC path: getUserMedia → add track via realtime service
+			console.log('🎤 Acquiring microphone stream via getUserMedia...');
+			this.localMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+			console.log('✅ Microphone stream acquired');
 
-			// Start recording using your audio service
-			await audioService.startRecording();
-			console.log('✅ Audio recording started via Audio Feature');
-
-			// Get the audio state to verify it's working
-			const audioState = audioService.getState();
-			console.log('🎤 Audio Feature state:', audioState);
-			console.log('🎤 Is recording:', audioService.isRecording);
-
-			// Get the audio stream from the audio service for WebRTC
-			// We need to access the underlying MediaStream from your audio orchestrator
-			const audioOrchestrator = audioService.getOrchestrator();
-			console.log('🎤 Audio orchestrator:', audioOrchestrator);
-
-			// Get the MediaStream from the audio service's browser adapter
-			// This is the key: we need the SAME MediaStream for both recording and WebRTC
-			console.log('🎤 Getting MediaStream from audio service...');
-
-			// Since the audio service doesn't expose the MediaStream directly,
-			// we'll create our own MediaStream and share it between both services
-			console.log('🎤 Creating shared audio stream for both recording and WebRTC...');
-			this.audioStream = await navigator.mediaDevices.getUserMedia({
-				audio: {
-					echoCancellation: true,
-					noiseSuppression: true,
-					autoGainControl: true,
-					sampleRate: 16000
-				}
-			});
-
-			console.log('✅ Shared audio stream created');
-			console.log('🎵 Audio tracks available:', this.audioStream.getAudioTracks().length);
-
-			// Now we need to tell the audio service to use THIS stream instead of creating its own
-			// For now, we'll stop the audio service recording and restart it with our stream
-			await audioService.stopRecording();
-
-			// TODO: Modify audio service to accept an existing MediaStream
-			// For now, we'll work with our own stream and handle recording manually
-			console.log('🎤 Setting up manual recording with shared stream...');
-
-			// Create a MediaRecorder using our shared stream
-			this.mediaRecorder = new MediaRecorder(this.audioStream, {
-				mimeType: 'audio/webm;codecs=opus',
-				audioBitsPerSecond: 16000
-			});
-
-			// Set up audio data handling for realtime streaming
-			this.mediaRecorder.ondataavailable = async (event) => {
-				console.log('🎵 Audio data available:', event.data.size, 'bytes');
-
-				// Only process audio chunks if we have all the required conditions
-				if (
-					event.data.size > 0 &&
-					this.realtimeStream &&
-					this.connectionReady &&
-					this.realtimeStream.isActive
-				) {
-					try {
-						// Convert blob to ArrayBuffer and send to realtime service
-						const arrayBuffer = await event.data.arrayBuffer();
-						console.log('🎵 Sending audio chunk:', arrayBuffer.byteLength, 'bytes');
-						await realtimeService.sendAudioChunk(this.realtimeStream, arrayBuffer);
-					} catch (error) {
-						console.error('❌ Failed to send audio chunk:', error);
-
-						// If we get a connection error, mark connection as not ready
-						if (
-							error instanceof Error &&
-							error.message.includes('WebRTC connection is not established')
-						) {
-							console.log('🔄 WebRTC connection lost, marking as not ready');
-							this.connectionReady = false;
-						}
-					}
-				} else {
-					// Log why we're skipping this chunk
-					if (event.data.size === 0) {
-						console.log('⏳ Skipping empty audio chunk');
-					} else if (!this.realtimeStream) {
-						console.log('⏳ Skipping chunk - no realtime stream');
-					} else if (!this.connectionReady) {
-						console.log('⏳ Skipping chunk - connection not ready');
-					} else if (!this.realtimeStream.isActive) {
-						console.log('⏳ Skipping chunk - stream not active');
-					}
-				}
-			};
-
-			console.log('🎤 Starting real-time streaming with shared audio...');
+			console.log('🎤 Starting real-time streaming with mic stream...');
 			console.log('🔍 Realtime session details:', {
 				sessionId: this.realtimeSession?.id,
 				model: this.realtimeSession?.config?.model,
 				voice: this.realtimeSession?.config?.voice,
 				status: this.realtimeSession?.status
 			});
-			console.log('🔍 Audio stream details:', {
-				trackCount: this.audioStream?.getTracks().length,
-				audioTrack: this.audioStream?.getAudioTracks()[0]?.enabled,
-				streamActive: this.audioStream?.active
+			console.log('🔍 Mic stream details:', {
+				trackCount: this.localMicStream.getTracks().length,
+				audioTrack: this.localMicStream.getAudioTracks()[0]?.enabled,
+				streamActive: this.localMicStream.active
 			});
 
-			// Start real-time streaming with the shared audio stream
+			// Start real-time streaming with the mic stream
 			this.realtimeStream = await realtimeService.startStreaming(
 				this.realtimeSession,
-				this.audioStream
+				this.localMicStream
 			);
 
 			console.log('🎤 Audio stream connected to WebRTC session');
@@ -413,7 +331,7 @@ export class ConversationOrchestrator {
 				streamId: this.realtimeStream?.id || 'unknown'
 			});
 
-			// Verify the connection is actually ready before starting MediaRecorder
+			// Verify stream exists
 			if (!this.realtimeStream) {
 				throw new Error('Failed to create realtime stream');
 			}
@@ -422,36 +340,7 @@ export class ConversationOrchestrator {
 			console.log('⏳ Waiting for WebRTC connection to be fully established...');
 			await this.waitForWebRTCConnection();
 
-			// Additional validation: Test if we can actually send data
-			console.log('🧪 Testing WebRTC data channel with test chunk...');
-			const testChunk = new ArrayBuffer(16); // 16 bytes test chunk
-			try {
-				if (!this.realtimeStream) {
-					throw new Error('Realtime stream not available for testing');
-				}
-				await realtimeService.sendAudioChunk(this.realtimeStream, testChunk);
-				console.log('✅ WebRTC data channel test successful');
-			} catch (error) {
-				console.error('❌ WebRTC data channel test failed:', error);
-
-				// Check if this is an API endpoint issue (404, etc.)
-				if (
-					error instanceof Error &&
-					(error.message.includes('404') ||
-						error.message.includes('Not Found') ||
-						error.message.includes('WebRTC connection is not established'))
-				) {
-					console.log('🔄 Detected API endpoint issue, switching to fallback mode...');
-
-					// Create a working fallback stream that simulates real-time conversation
-					this.realtimeStream = this.createFallbackStream();
-
-					console.log('✅ Fallback stream created successfully');
-					console.log('🎭 Note: This is a simulated real-time experience for MVP');
-				} else {
-					throw new Error(`WebRTC connection test failed: ${error}`);
-				}
-			}
+			// Skip chunk-based test; WebRTC uses live tracks
 
 			// Store the authenticated session for audio transmission
 			if (this.realtimeSession) {
@@ -464,14 +353,7 @@ export class ConversationOrchestrator {
 
 			// Mark connection as ready
 			this.connectionReady = true;
-			console.log('✅ Connection marked as ready for audio chunks');
-
-			// Start recording AFTER WebRTC is established and connection is stable
-			console.log('🎤 Starting MediaRecorder with shared stream...');
-			this.mediaRecorder.start(100); // Send chunks every 100ms
-			console.log('✅ MediaRecorder started with shared stream');
-
-			console.log('✅ Audio data handling set up with shared stream');
+			console.log('✅ Connection marked as ready for live audio track');
 
 			this.state = { ...this.state, status: RealtimeConversationStatus.STREAMING };
 			console.log('📊 State updated to streaming:', this.state);
@@ -514,24 +396,11 @@ export class ConversationOrchestrator {
 			this.connectionReady = false;
 			console.log('🔄 Connection ready flag reset');
 
-			// Stop audio recording via audio service
-			if (audioService.isRecording) {
-				await audioService.stopRecording();
-				console.log('✅ Audio recording stopped via Audio Feature');
-			}
-
-			// Stop audio stream
-			if (this.audioStream) {
-				this.audioStream.getTracks().forEach((track) => track.stop());
-				this.audioStream = null;
-				console.log('✅ Audio stream stopped');
-			}
-
-			// Stop the media recorder
-			if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
-				this.mediaRecorder.stop();
-				this.mediaRecorder = null;
-				console.log('✅ MediaRecorder stopped');
+			// Stop local mic stream
+			if (this.localMicStream) {
+				this.localMicStream.getTracks().forEach((track) => track.stop());
+				this.localMicStream = null;
+				console.log('✅ Local microphone stream stopped');
 			}
 
 			this.state = { ...this.state, status: RealtimeConversationStatus.CONNECTED };

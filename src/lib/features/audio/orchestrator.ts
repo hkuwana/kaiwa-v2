@@ -7,7 +7,10 @@ import type { AudioInputPort, AudioOutputPort, AudioProcessingPort } from './typ
 import { BrowserAudioAdapter } from './adapters/browser.adapter';
 import { HowlerAudioAdapter } from './adapters/howler.adapter';
 import { OpenAIAudioAdapter } from './adapters/openai.adapter';
-import { SvelteDate } from 'svelte/reactivity';
+import type { EventBus } from '$lib/shared/events/eventBus';
+import { EventBusFactory } from '$lib/shared/events/eventBus';
+import { audioEvents } from './events';
+// Keep this orchestrator pure TypeScript (no Svelte runes/imports)
 
 export class AudioOrchestrator {
 	private state: AudioState;
@@ -15,16 +18,19 @@ export class AudioOrchestrator {
 	private outputAdapter: AudioOutputPort;
 	private processingAdapter: AudioProcessingPort;
 	private currentRecorder?: MediaRecorder;
+	private bus: EventBus;
 
 	constructor(
 		inputAdapter: AudioInputPort = new BrowserAudioAdapter(),
 		outputAdapter: AudioOutputPort = new HowlerAudioAdapter(),
-		processingAdapter: AudioProcessingPort = new OpenAIAudioAdapter()
+		processingAdapter: AudioProcessingPort = new OpenAIAudioAdapter(),
+		bus?: EventBus
 	) {
 		this.state = audioCore.initial();
 		this.inputAdapter = inputAdapter;
 		this.outputAdapter = outputAdapter;
 		this.processingAdapter = processingAdapter;
+		this.bus = bus ?? EventBusFactory.create('memory');
 	}
 
 	// 🎯 Main dispatch method - follows your orchestrator pattern
@@ -40,6 +46,11 @@ export class AudioOrchestrator {
 			// Handle errors by updating state
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			this.state = audioCore.transition(this.state, { type: 'AUDIO_ERROR', error: errorMessage });
+
+			// Emit typed error event through the shared bus and local handlers
+			const payload = { message: errorMessage, timestamp: Date.now() };
+			this.bus.emit(audioEvents.error, payload);
+			this.emitEvent(audioEvents.error, payload);
 		}
 	}
 
@@ -79,6 +90,35 @@ export class AudioOrchestrator {
 		}
 	}
 
+	// 🎯 Realtime recording operations
+	async startRealtimeRecording(deviceId?: string): Promise<void> {
+		try {
+			// Set up chunk callback to emit events
+			const onChunk = (chunk: ArrayBuffer) => {
+				// Emit via shared bus (typed event)
+				this.bus.emit(audioEvents.chunk, chunk);
+				// Back-compat: emit to local handlers
+				this.emitEvent(audioEvents.chunk, chunk);
+			};
+
+			// Use the browser adapter's realtime recording
+			const browserAdapter = this.inputAdapter ;
+			if (browserAdapter.startRealtimeRecording) {
+				this.currentRecorder = await browserAdapter.startRealtimeRecording(deviceId, onChunk);
+			} else {
+				// Fallback to regular recording
+				this.currentRecorder = await this.inputAdapter.startRecording(deviceId);
+			}
+
+			// Update state
+			this.state = audioCore.transition(this.state, { type: 'START_RECORDING', deviceId });
+		} catch (error) {
+			throw new Error(
+				`Failed to start realtime recording: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
+		}
+	}
+
 	private async processRecording(session: any): Promise<void> {
 		if (!this.currentRecorder) {
 			throw new Error('No active recording to process');
@@ -91,11 +131,14 @@ export class AudioOrchestrator {
 			await this.dispatch({ type: 'RECORDING_COMPLETE' });
 
 			// Emit event for other features
-			this.emitEvent('audio.recording_stopped', {
+			const payload = {
 				sessionId: session?.id || 'unknown',
 				duration: audioCore.derived.recordingDuration(this.state),
-				timestamp: new SvelteDate()
-			});
+				timestamp: Date.now()
+			};
+			this.bus.emit(audioEvents.recordingStopped, payload);
+			// Back-compat: emit to local handlers
+			this.emitEvent(audioEvents.recordingStopped, payload);
 		} catch (error) {
 			throw new Error(
 				`Failed to process recording: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -110,10 +153,10 @@ export class AudioOrchestrator {
 			await this.outputAdapter.playFromUrl(audioId);
 
 			// Emit event
-			this.emitEvent('audio.playback_started', {
-				audioId,
-				timestamp: new SvelteDate()
-			});
+			const payload = { audioId, timestamp: Date.now() };
+			this.bus.emit(audioEvents.playbackStarted, payload);
+			// Back-compat: emit to local handlers
+			this.emitEvent(audioEvents.playbackStarted, payload);
 		} catch (error) {
 			throw new Error(
 				`Failed to play audio: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -136,10 +179,10 @@ export class AudioOrchestrator {
 			this.outputAdapter.setVolume(volume);
 
 			// Emit event
-			this.emitEvent('audio.volume_changed', {
-				volume,
-				timestamp: new SvelteDate()
-			});
+			const payload = { volume, timestamp: Date.now() };
+			this.bus.emit(audioEvents.volumeChanged, payload);
+			// Back-compat: emit to local handlers
+			this.emitEvent(audioEvents.volumeChanged, payload);
 		} catch (error) {
 			throw new Error(
 				`Failed to update volume: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -209,6 +252,33 @@ export class AudioOrchestrator {
 		return this.state;
 	}
 
+	// 🎯 Realtime streaming support
+	getCurrentStream(): MediaStream | null {
+		return this.currentRecorder?.stream || null;
+	}
+
+	// 🎯 Event system for realtime integration
+	private eventHandlers = new Map<string, Array<(data: unknown) => void>>();
+
+	on(eventName: string, handler: (data: unknown) => void): void {
+		const handlers = this.eventHandlers.get(eventName) || [];
+		handlers.push(handler);
+		this.eventHandlers.set(eventName, handlers);
+	}
+
+	off(eventName: string, handler: (data: unknown) => void): void {
+		const handlers = this.eventHandlers.get(eventName) || [];
+		const index = handlers.indexOf(handler);
+		if (index > -1) {
+			handlers.splice(index, 1);
+		}
+	}
+
+	private emitEvent(eventName: string, data: unknown): void {
+		const handlers = this.eventHandlers.get(eventName) || [];
+		handlers.forEach((handler) => handler(data));
+	}
+
 	// 🎯 Derived state access
 	get isRecording(): boolean {
 		return audioCore.derived.isRecording(this.state);
@@ -243,14 +313,7 @@ export class AudioOrchestrator {
 	}
 
 	// 🎯 Event system integration (simplified for now)
-	private emitEvent<T extends keyof import('./types').AudioEvents>(
-		eventName: T,
-		payload: import('./types').AudioEventPayload<T>
-	): void {
-		// This would integrate with your event bus
-		// For now, just dispatch to window for debugging
-		window.dispatchEvent(new CustomEvent(eventName, { detail: payload }));
-	}
+	// Removed ad-hoc window event emission; use shared EventBus instead.
 
 	// 🎯 Cleanup
 	dispose(): void {

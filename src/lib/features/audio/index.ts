@@ -3,7 +3,8 @@
 
 export * from './types';
 export * from './core';
-export * from './orchestrator.svelte';
+export * from './orchestrator';
+export * from './events';
 
 // Export adapters
 export { BrowserAudioAdapter } from './adapters/browser.adapter';
@@ -11,12 +12,12 @@ export { HowlerAudioAdapter } from './adapters/howler.adapter';
 export { OpenAIAudioAdapter } from './adapters/openai.adapter';
 
 import type { AudioInputPort, AudioOutputPort, AudioProcessingPort, AudioState } from './types';
-import { AudioOrchestrator } from './orchestrator.svelte';
+import { AudioOrchestrator } from './orchestrator';
 import { BrowserAudioAdapter } from './adapters/browser.adapter';
 import { HowlerAudioAdapter } from './adapters/howler.adapter';
 import { OpenAIAudioAdapter } from './adapters/openai.adapter';
 
-// �� Main audio service using the new architecture
+// Main audio service using the new architecture
 export class AudioService {
 	private orchestrator: AudioOrchestrator;
 
@@ -36,6 +37,10 @@ export class AudioService {
 	// Delegate all public methods to the orchestrator
 	async startRecording(deviceId?: string): Promise<void> {
 		return this.orchestrator.startRecording(deviceId);
+	}
+
+	async startRealtimeRecording(deviceId?: string): Promise<void> {
+		return this.orchestrator.startRealtimeRecording(deviceId);
 	}
 
 	async stopRecording(): Promise<void> {
@@ -99,6 +104,20 @@ export class AudioService {
 		return this.orchestrator.isProcessing;
 	}
 
+	// 🎯 Realtime streaming support
+	getOrchestrator(): AudioOrchestrator {
+		return this.orchestrator;
+	}
+
+	// 🎯 Event system for realtime integration
+	on(eventName: string, handler: (data: unknown) => void): void {
+		this.orchestrator.on(eventName, handler);
+	}
+
+	off(eventName: string, handler: (data: unknown) => void): void {
+		this.orchestrator.off(eventName, handler);
+	}
+
 	get hasError(): boolean {
 		return this.orchestrator.hasError;
 	}
@@ -127,11 +146,6 @@ export class AudioService {
 	// 🎯 Cleanup
 	dispose(): void {
 		this.orchestrator.dispose();
-	}
-
-	// 🎯 Direct orchestrator access for advanced use cases
-	getOrchestrator(): AudioOrchestrator {
-		return this.orchestrator;
 	}
 }
 

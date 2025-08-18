@@ -16,6 +16,10 @@
 	// State variables
 		let orchestrator = $state<ConversationOrchestrator | null>(null);
 	let audioLevel = $state(0);
+	let audioContext: AudioContext | null = $state(null);
+	let analyser: AnalyserNode | null = $state(null);
+	let microphone: MediaStreamAudioSourceNode | null = $state(null);
+	let animationFrame: number | null = $state(null);
 
 	// Initialize with sessionStorage preferences on mount
 	onMount(async () => {
@@ -55,25 +59,97 @@
 			console.error('❌ Failed to create orchestrator:', error);
 		}
 
-		// Set up audio level simulation
-		audioInterval = setInterval(() => {
-			if (isStreaming) {
-				audioLevel = Math.random() * 0.8 + 0.2;
-			} else {
-				audioLevel = 0;
-			}
-		}, 100);
-		
-		// Cleanup interval
+		// Cleanup
 		return () => {
-			if (audioInterval) {
-				clearInterval(audioInterval);
-			}
+			cleanupAudioLevelDetection();
 		};
 	});
 
+	// 🎤 Real-time audio level detection functions
+	async function setupAudioLevelDetection(source?: MediaStream) {
+		try {
+			// Create audio context
+			audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+			analyser = audioContext.createAnalyser();
+			analyser.fftSize = 256;
+			analyser.smoothingTimeConstant = 0.8;
+			
+			// Use provided stream or orchestrator's micStream; fallback to getUserMedia only if needed
+			const stream = source || orchestrator?.micStream || (await navigator.mediaDevices.getUserMedia({ audio: true }));
+			microphone = audioContext.createMediaStreamSource(stream);
+			microphone.connect(analyser);
+			
+			// Start analyzing audio levels
+			updateAudioLevel();
+			
+			console.log('✅ Audio level detection set up successfully');
+		} catch (error) {
+			console.error('❌ Failed to set up audio level detection:', error);
+			// Fallback to simulated levels
+			audioLevel = 0;
+		}
+	}
 
-		// Use Svelte 5 runes with orchestrator functions (functional approach)
+	// React to orchestrator mic stream availability and streaming state
+	$effect(() => {
+		if (orchestrator && isStreaming && orchestrator.micStream) {
+			if (!audioContext) {
+				setupAudioLevelDetection(orchestrator.micStream);
+			}
+		} else {
+			// If streaming stopped or no mic stream, ensure cleanup
+			if (audioContext) {
+				cleanupAudioLevelDetection();
+			}
+		}
+	});
+
+	function updateAudioLevel() {
+		if (!analyser) return;
+		
+		const dataArray = new Uint8Array(analyser.frequencyBinCount);
+		analyser.getByteFrequencyData(dataArray);
+		
+		// Calculate RMS (Root Mean Square) for better audio level representation
+		let sum = 0;
+		for (let i = 0; i < dataArray.length; i++) {
+			sum += dataArray[i] * dataArray[i];
+		}
+		const rms = Math.sqrt(sum / dataArray.length);
+		
+		// Convert to 0-1 range and apply some smoothing
+		audioLevel = Math.min(1, rms / 128);
+		
+		// Continue updating
+		animationFrame = requestAnimationFrame(updateAudioLevel);
+	}
+
+	function cleanupAudioLevelDetection() {
+		if (animationFrame) {
+			cancelAnimationFrame(animationFrame);
+			animationFrame = null;
+		}
+		
+		if (microphone) {
+			microphone.disconnect();
+			microphone = null;
+		}
+		
+		if (analyser) {
+			analyser.disconnect();
+			analyser = null;
+		}
+		
+		if (audioContext) {
+			audioContext.close();
+			audioContext = null;
+		}
+		
+		audioLevel = 0;
+		console.log('🧹 Audio level detection cleaned up');
+	}
+
+	// Use Svelte 5 runes with orchestrator functions (functional approach)
 		let canStartConversation = $derived(orchestrator?.status === RealtimeConversationStatus.IDLE);
 	let isStreaming = $derived(orchestrator?.status === RealtimeConversationStatus.STREAMING);
 	let isConnecting = $derived(orchestrator?.status === RealtimeConversationStatus.CONNECTING);
@@ -126,6 +202,8 @@
 			console.log('⏹️ Stopping streaming...');
 			try {
 				await orchestrator.stopStreaming();
+				// Stop audio level detection when streaming stops
+				cleanupAudioLevelDetection();
 				console.log('✅ Streaming stopped successfully');
 			} catch (error) {
 				console.error('❌ Failed to stop streaming:', error);
@@ -173,11 +251,64 @@
 		}
 	}
 
+	function testAudioLevelDetection() {
+		console.log('🧪 Testing Audio Level Detection...');
+		console.log('Current audio level:', audioLevel);
+		console.log('Audio context state:', audioContext?.state);
+		console.log('Analyser connected:', !!analyser);
+		console.log('Microphone connected:', !!microphone);
+		
+		// Test with a simulated audio level
+		if (!audioContext) {
+			console.log('Setting up test audio context...');
+			setupAudioLevelDetection().then(() => {
+				console.log('✅ Test audio context set up');
+			}).catch(error => {
+				console.error('❌ Failed to set up test audio context:', error);
+			});
+		}
+	}
+
 	function testAIResponse() {
 		console.log('🧪 Testing AI Response...');
 		if (orchestrator) {
 			const currentState = orchestrator.getState();
 			console.log('Current AI state:', currentState.status);
+		}
+	}
+
+	// Test mic audio by playing back the stream (hear yourself)
+	function testMicAudio() {
+		if (orchestrator?.micStream) {
+			// Create audio element to play back the mic stream
+			const audioEl = new Audio();
+			audioEl.srcObject = orchestrator.micStream;
+			audioEl.play().catch(error => {
+				console.error('❌ Failed to play mic audio:', error);
+			});
+			console.log('🎤 Playing back mic stream - you should hear yourself talking');
+		} else {
+			console.log('❌ No mic stream available - start a conversation first');
+		}
+	}
+
+	// Test mic stream details
+	function testMicStreamDetails() {
+		if (orchestrator?.micStream) {
+			const stream = orchestrator.micStream;
+			console.log('🎤 Mic Stream Details:', {
+				active: stream.active,
+				trackCount: stream.getTracks().length,
+				audioTracks: stream.getAudioTracks().map(track => ({
+					id: track.id,
+					enabled: track.enabled,
+					muted: track.muted,
+					readyState: track.readyState,
+					kind: track.kind
+				}))
+			});
+		} else {
+			console.log('❌ No mic stream available - start a conversation first');
 		}
 	}
 	
@@ -379,7 +510,33 @@
 					<div class="bg-white p-3 rounded border">
 						<span class="font-medium">Audio Level:</span>
 						<span class="ml-2 text-blue-600">{Math.round(audioLevel * 100)}%</span>
+						<!-- Visual audio level bar -->
+						<div class="mt-2 w-full bg-gray-200 rounded-full h-2">
+							<div 
+								class="bg-blue-600 h-2 rounded-full transition-all duration-100 ease-out"
+								style="width: {Math.round(audioLevel * 100)}%"
+							></div>
+						</div>
+						<!-- Raw audio data -->
+						<div class="mt-1 text-xs text-gray-500">
+							Raw: {audioLevel.toFixed(3)} | RMS: {Math.round(audioLevel * 128)}
+						</div>
+						<!-- Audio context status -->
+						<div class="mt-1 text-xs text-gray-500">
+							Context: {audioContext?.state || 'None'} | 
+							Analyser: {analyser ? '✅' : '❌'} | 
+							Mic: {microphone ? '✅' : '❌'}
+						</div>
 					</div>
+				</div>
+				<!-- Test button -->
+				<div class="mt-3">
+					<button
+						onclick={testAudioLevelDetection}
+						class="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
+					>
+						🧪 Test Audio Detection
+					</button>
 				</div>
 			</div>
 
@@ -462,7 +619,7 @@
 			<!-- Manual Test Controls -->
 			<div class="mb-6">
 				<h4 class="text-md font-medium text-gray-800 mb-2">🎮 Manual Test Controls</h4>
-				<div class="flex gap-2">
+				<div class="flex gap-2 flex-wrap">
 					<button 
 						class="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
 						onclick={() => testVoiceActivity()}
@@ -480,6 +637,24 @@
 						onclick={() => testAIResponse()}
 					>
 						🤖 Test AI Response
+					</button>
+					<button 
+						class="px-3 py-2 bg-orange-500 text-white rounded text-sm hover:bg-orange-600"
+						onclick={() => testAudioLevelDetection()}
+					>
+						🎵 Test Audio Level
+					</button>
+					<button 
+						class="px-3 py-2 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+						onclick={() => testMicAudio()}
+					>
+						🎤 Test Mic Audio (Hear Yourself)
+					</button>
+					<button 
+						class="px-3 py-2 bg-pink-500 text-white rounded text-sm hover:bg-pink-600"
+						onclick={() => testMicStreamDetails()}
+					>
+						📊 Test Mic Stream Details
 					</button>
 				</div>
 			</div>
