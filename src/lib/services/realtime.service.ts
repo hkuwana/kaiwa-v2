@@ -1,11 +1,9 @@
 // 📡 RealtimeService - Manages WebRTC connections and real-time communication
 // Plain TypeScript class with no Svelte dependencies
 
-export interface Message {
-	role: 'user' | 'assistant';
-	content: string;
-	timestamp: number;
-}
+import { browser } from '$app/environment';
+import type { Message } from '$lib/server/db/types';
+import { DummyRealtimeService } from './dummy.service';
 
 export interface RealtimeSession {
 	id: string;
@@ -28,8 +26,17 @@ export class RealtimeService {
 	private onMessageCallback: (message: Message) => void = () => {};
 	private onConnectionStateChangeCallback: (state: RTCPeerConnectionState) => void = () => {};
 
-	async connect(
-		sessionUrl: string,
+	constructor() {
+		// If we're on the server, throw an error to prevent instantiation
+		if (!browser) {
+			console.log('🔇 RealtimeService: constructor() called on server');
+			return;
+		}
+	}
+
+	async connectWithSession(
+		sessionData: any,
+		stream: MediaStream,
 		onMessage: (message: Message) => void,
 		onConnectionStateChange: (state: RTCPeerConnectionState) => void
 	): Promise<void> {
@@ -37,49 +44,20 @@ export class RealtimeService {
 		this.onConnectionStateChangeCallback = onConnectionStateChange;
 
 		try {
-			// Step 1: Get ephemeral token
-			const tokenData = await this.fetchEphemeralToken();
-			this.ephemeralKey = tokenData.client_secret.value;
-			this.sessionExpiry = tokenData.client_secret.expires_at;
+			// Notify that we're starting to connect
+			this.onConnectionStateChangeCallback('connecting');
 
-			// Set up auto-reconnect before expiry (50 seconds)
-			this.scheduleReconnect();
+			// Step 1: Use the session data directly - no need to fetch anything
+			this.ephemeralKey = sessionData.client_secret.value;
+			this.sessionExpiry = sessionData.client_secret.expires_at;
 
-			// Step 2: Create peer connection
-			this.pc = new RTCPeerConnection({
-				iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-			});
+			// Set up auto-reconnect before expiry (only if we have a valid expiry time)
+			if (this.sessionExpiry > Date.now()) {
+				this.scheduleReconnect();
+			}
 
-			// Step 3: Set up audio output
-			this.audioElement = document.createElement('audio');
-			this.audioElement.autoplay = true;
-			this.audioElement.style.display = 'none';
-			document.body.appendChild(this.audioElement);
-
-			this.pc.ontrack = (event) => {
-				console.log('📡 Received remote audio track');
-				if (this.audioElement) {
-					this.audioElement.srcObject = event.streams[0];
-				}
-			};
-
-			this.pc.onconnectionstatechange = () => {
-				const state = this.pc!.connectionState;
-				console.log('🔌 Connection state changed:', state);
-				this.onConnectionStateChangeCallback(state);
-			};
-
-			// Step 4: Create data channel
-			this.dataChannel = this.pc.createDataChannel('oai-events', {
-				ordered: true
-			});
-
-			this.setupDataChannel();
-
-			// Step 5: Create offer and connect
-			await this.negotiateConnection();
-
-			console.log('✅ WebRTC connection established');
+			// Continue with connection setup
+			await this.setupConnection(stream);
 		} catch (error) {
 			console.error('❌ Connection failed:', error);
 			this.cleanup();
@@ -87,29 +65,69 @@ export class RealtimeService {
 		}
 	}
 
-	private async fetchEphemeralToken(): Promise<any> {
-		const response = await fetch('/api/realtime-session', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				sessionId: crypto.randomUUID(),
-				model: 'gpt-4o-realtime-preview-2024-10-01',
-				voice: 'alloy'
-			})
+	private async setupConnection(stream: MediaStream): Promise<void> {
+		// Step 2: Create peer connection
+		this.pc = new RTCPeerConnection({
+			iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
 		});
 
-		if (!response.ok) {
-			throw new Error(`Failed to get token: ${response.statusText}`);
-		}
+		// Step 3: Add the provided audio stream to the peer connection
+		stream.getTracks().forEach((track) => {
+			this.pc?.addTrack(track, stream);
+		});
 
-		return response.json();
+		// Step 4: Set up audio output
+		this.audioElement = document.createElement('audio');
+		this.audioElement.autoplay = true;
+		this.audioElement.style.display = 'none';
+		document.body.appendChild(this.audioElement);
+
+		this.pc.ontrack = (event) => {
+			console.log('📡 Received remote audio track');
+			if (this.audioElement) {
+				this.audioElement.srcObject = event.streams[0];
+			}
+		};
+
+		this.pc.onconnectionstatechange = () => {
+			const state = this.pc?.connectionState;
+			console.log('🔌 WebRTC connection state changed:', state);
+			if (state) {
+				this.onConnectionStateChangeCallback(state);
+			}
+		};
+
+		this.pc.oniceconnectionstatechange = () => {
+			const iceState = this.pc?.iceConnectionState;
+			console.log('🧊 ICE connection state changed:', iceState);
+		};
+
+		this.pc.onicegatheringstatechange = () => {
+			const gatheringState = this.pc?.iceGatheringState;
+			console.log('🧊 ICE gathering state changed:', gatheringState);
+		};
+
+		// Step 4: Create data channel
+		this.dataChannel = this.pc.createDataChannel('oai-events', {
+			ordered: true
+		});
+
+		this.setupDataChannel();
+
+		// Step 5: Create offer and connect
+		await this.negotiateConnection();
+
+		console.log('✅ WebRTC connection established');
 	}
 
 	private setupDataChannel(): void {
 		if (!this.dataChannel) return;
 
 		this.dataChannel.onopen = () => {
-			console.log('📡 Data channel opened');
+			console.log('📡 Data channel opened - connection fully established!');
+			// Notify that we're fully connected
+			this.onConnectionStateChangeCallback('connected');
+
 			// Send initial configuration
 			this.sendEvent({
 				type: 'session.update',
@@ -135,36 +153,56 @@ export class RealtimeService {
 
 		this.dataChannel.onerror = (error) => {
 			console.error('❌ Data channel error:', error);
+			this.onConnectionStateChangeCallback('failed');
+		};
+
+		this.dataChannel.onclose = () => {
+			console.log('📡 Data channel closed');
+			this.onConnectionStateChangeCallback('closed');
 		};
 	}
 
 	private async negotiateConnection(): Promise<void> {
 		if (!this.pc || !this.ephemeralKey) return;
 
-		const offer = await this.pc.createOffer();
-		await this.pc.setLocalDescription(offer);
+		try {
+			console.log('📡 Creating WebRTC offer...');
+			const offer = await this.pc.createOffer();
+			await this.pc.setLocalDescription(offer);
+			console.log('📡 Local description set, offer created');
 
-		const baseUrl = 'https://api.openai.com/v1/realtime';
-		const model = 'gpt-4o-realtime-preview-2024-10-01';
+			// Connect directly to OpenAI's realtime endpoint as per their docs
+			const baseUrl = 'https://api.openai.com/v1/realtime';
+			const model = 'gpt-4o-realtime-preview-2024-10-01';
 
-		const response = await fetch(`${baseUrl}?model=${model}`, {
-			method: 'POST',
-			body: offer.sdp,
-			headers: {
-				Authorization: `Bearer ${this.ephemeralKey}`,
-				'Content-Type': 'application/sdp'
+			console.log('📡 Sending SDP offer to OpenAI...');
+			const response = await fetch(`${baseUrl}?model=${model}`, {
+				method: 'POST',
+				body: offer.sdp,
+				headers: {
+					Authorization: `Bearer ${this.ephemeralKey}`,
+					'Content-Type': 'application/sdp'
+				}
+			});
+
+			if (!response.ok) {
+				const errorText = await response.text();
+				console.error('❌ SDP exchange failed:', response.status, errorText);
+				throw new Error(`SDP exchange failed: ${response.status} - ${errorText}`);
 			}
-		});
 
-		if (!response.ok) {
-			throw new Error(`SDP exchange failed: ${response.statusText}`);
+			const answerSdp = await response.text();
+			console.log('📡 Received SDP answer from OpenAI');
+
+			await this.pc.setRemoteDescription({
+				type: 'answer',
+				sdp: answerSdp
+			});
+			console.log('📡 Remote description set, connection negotiation complete');
+		} catch (error) {
+			console.error('❌ Connection negotiation failed:', error);
+			throw error;
 		}
-
-		const answerSdp = await response.text();
-		await this.pc.setRemoteDescription({
-			type: 'answer',
-			sdp: answerSdp
-		});
 	}
 
 	sendEvent(event: any): void {
@@ -197,8 +235,18 @@ export class RealtimeService {
 			clearTimeout(this.reconnectTimer);
 		}
 
+		// Only schedule reconnect if we have a valid expiry time
+		if (this.sessionExpiry <= Date.now()) {
+			console.log('⚠️ Session already expired, not scheduling reconnect');
+			return;
+		}
+
 		const timeUntilExpiry = this.sessionExpiry - Date.now();
-		const reconnectIn = Math.max(0, timeUntilExpiry - 10000);
+		const reconnectIn = Math.max(0, timeUntilExpiry - 10000); // 10 seconds before expiry
+
+		console.log(
+			`🔄 Scheduling reconnect in ${Math.round(reconnectIn / 1000)}s (expires in ${Math.round(timeUntilExpiry / 1000)}s)`
+		);
 
 		this.reconnectTimer = setTimeout(() => {
 			console.log('🔄 Token expiring, reconnecting...');
@@ -242,3 +290,6 @@ export class RealtimeService {
 		}
 	}
 }
+
+// Export an instance that automatically chooses the right service
+export const realtimeService = browser ? new RealtimeService() : new DummyRealtimeService();

@@ -33,3 +33,24 @@ export interface ConversationEffect {
 	type: string;
 	payload?: any;
 }
+
+// 🎯 Learning Scenario Types
+export interface LearningScenario {
+	id: string;
+	title: string;
+	description: string;
+	language: string;
+	difficulty: 'beginner' | 'intermediate' | 'advanced';
+	targetVocabulary?: string[];
+	culturalContext?: string;
+}
+
+export interface ScenarioOutcome {
+	scenarioId: string;
+	vocabularyUsageScore?: number;
+	grammarUsageScore?: number;
+	goalCompletionScore?: number;
+	pronunciationScore?: number;
+	duration: number;
+	completedAt: Date;
+}

@@ -1,11 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
-	import { EventBusFactory } from '$lib/shared/events/eventBus';
-	import { audioEvents } from '$lib/features/audio/events';
-	import { realtimeEvents } from '$lib/features/realtime/events';
-	import { RealtimeConversationStatus } from '$lib/features/conversation/kernel';
-	// import type { ConversationState } from '$lib/stores/conversation.svelte';
+	import { RealtimeConversationStatus } from '$lib/types/conversation';
 	import AudioVisualizer from './AudioVisualizer.svelte';
 	import ConversationHistory from './ConversationHistory.svelte';
 
@@ -20,7 +16,8 @@
 
 	// 🎭 Use the new conversation store
 	let store = conversationStore;
-	let eventBus = $state(EventBusFactory.create('memory'));
+	// Mock event bus for now
+	let eventBus = $state({ emit: () => {}, on: () => () => {} });
 
 	// 🎯 State from store (reactive) - use $state for reactive variables
 	// let conversationState = $state<ConversationState>();

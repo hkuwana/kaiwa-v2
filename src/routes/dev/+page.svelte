@@ -4,7 +4,7 @@
 
 <svelte:head>
 	<title>Dev Testing Panel - Kaiwa</title>
-	<meta name="description" content="Test audio, real-time, and conversation features" />
+	<meta name="description" content="Test PR #2 and #3: Isolated Services and Store Orchestration" />
 </svelte:head>
 
 <DevPanel />

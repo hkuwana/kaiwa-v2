@@ -1,31 +1,61 @@
 <!-- Test WebRTC Connection Only -->
 <script lang="ts">
-	import { webrtcConnection } from '$lib/features/realtime/webrtc-connection';
+	import { realtimeService } from '$lib/services/realtime.service';
+	import { audioService } from '$lib/services/audio.service';
+
+	// Use the exported instances that automatically handle browser/server
+	// No need to manually instantiate or check browser environment
 
 	let connected = $state(false);
 	let connectionState = $state('disconnected');
 	let error = $state<string | null>(null);
 	let testMessage = $state('');
 	let receivedEvents = $state<any[]>([]);
+	let stream = $state<MediaStream | null>(null);
 
 	async function connect() {
 		try {
 			error = null;
-			await webrtcConnection.connect('alloy');
-			connected = true;
-			connectionState = webrtcConnection.getConnectionState();
-
-			// Set up message handler to capture events
-			webrtcConnection.onMessage((event) => {
-				receivedEvents = [
-					...receivedEvents,
-					{
-						...event,
-						timestamp: new Date().toLocaleTimeString()
+			console.log('🚀 Starting WebRTC connection test...');
+			
+			// First get an audio stream
+			console.log('🎵 Getting audio stream...');
+			stream = await audioService.getStream();
+			console.log('✅ Audio stream obtained:', stream.getTracks().length, 'tracks');
+			
+			// Connect to realtime service
+			console.log('📡 Connecting to RealtimeService...');
+			await realtimeService.connect(
+				'test-session-url',
+				stream,
+				(event) => {
+					// onMessage callback
+					console.log('📨 Message received in test page:', event);
+					receivedEvents = [
+						...receivedEvents,
+						{
+							...event,
+							timestamp: new Date().toLocaleTimeString()
+						}
+					];
+				},
+				(state) => {
+					// onConnectionStateChange callback
+					console.log('🔌 Connection state changed in test page:', state);
+					connectionState = state;
+					if (state === 'connected') {
+						connected = true;
+						console.log('✅ WebRTC connection fully established!');
+					} else if (state === 'failed' || state === 'closed') {
+						connected = false;
+						console.log('❌ WebRTC connection failed or closed');
 					}
-				];
-			});
+				}
+			);
+			
+			console.log('✅ RealtimeService.connect() completed');
 		} catch (e) {
+			console.error('❌ Connection failed:', e);
 			error = e instanceof Error ? e.message : 'Unknown error';
 			connected = false;
 			connectionState = 'error';
@@ -33,10 +63,12 @@
 	}
 
 	function disconnect() {
-		webrtcConnection.cleanup();
+		realtimeService.disconnect();
+		audioService.cleanup();
 		connected = false;
 		connectionState = 'disconnected';
 		receivedEvents = [];
+		stream = null;
 	}
 
 	function sendTest() {
@@ -51,7 +83,7 @@
 			}
 		};
 
-		webrtcConnection.sendEvent(event);
+		realtimeService.sendEvent(event);
 
 		// Add to received events for visibility
 		receivedEvents = [
@@ -71,302 +103,198 @@
 	}
 </script>
 
-<div class="container">
-	<h1>📡 WebRTC Connection Test</h1>
-	<p>Test WebRTC connection independently from business logic</p>
+<div class="container mx-auto p-6 max-w-4xl">
+	<h1 class="text-3xl font-bold mb-6">📡 WebRTC Connection Test</h1>
+	<p class="text-lg mb-8">Test WebRTC connection independently from business logic</p>
 
-	<div class="connection-section">
-		<h2>🔌 Connection Status</h2>
-		<div class="status-grid">
-			<div class="status-item">
-				<span class="label">Connected:</span>
-				<span class="value {connected ? 'success' : 'error'}">
-					{connected ? '✅ Yes' : '❌ No'}
-				</span>
+	<div class="connection-section mb-8">
+		<h2 class="text-xl font-semibold mb-4">🔌 Connection Status</h2>
+		<div class="status-grid grid grid-cols-2 gap-4 mb-6">
+			<div class="status-item card bg-base-100 shadow-md">
+				<div class="card-body">
+					<span class="label font-semibold">Connected:</span>
+					<span class="value {connected ? 'text-success' : 'text-error'}">
+						{connected ? '✅ Yes' : '❌ No'}
+					</span>
+				</div>
 			</div>
-			<div class="status-item">
-				<span class="label">State:</span>
-				<span class="value">{connectionState}</span>
+			<div class="status-item card bg-base-100 shadow-md">
+				<div class="card-body">
+					<span class="label font-semibold">State:</span>
+					<span class="value {connectionState === 'connected' ? 'text-success' : connectionState === 'connecting' ? 'text-warning' : connectionState === 'failed' ? 'text-error' : 'text-base-content'}">
+						{connectionState}
+					</span>
+				</div>
+			</div>
+		</div>
+		
+		<!-- Additional Status Info -->
+		<div class="status-details mb-4">
+			<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+				<div class="stat">
+					<div class="stat-title text-xs">Audio Tracks</div>
+					<div class="stat-value text-sm">{stream ? stream.getTracks().length : 0}</div>
+				</div>
+				<div class="stat">
+					<div class="stat-title text-xs">Events</div>
+					<div class="stat-value text-sm">{receivedEvents.length}</div>
+				</div>
+				<div class="stat">
+					<div class="stat-title text-xs">Error</div>
+					<div class="stat-value text-sm {error ? 'text-error' : 'text-success'}">
+						{error || 'None'}
+					</div>
+				</div>
+				<div class="stat">
+					<div class="stat-title text-xs">Stream ID</div>
+					<div class="stat-value text-xs font-mono">
+						{stream ? stream.id.slice(0, 8) + '...' : 'None'}
+					</div>
+				</div>
 			</div>
 		</div>
 
 		<div class="connection-actions">
 			{#if !connected}
-				<button on:click={connect} class="connect-btn">🔌 Connect</button>
+				<button onclick={connect} class="btn btn-primary">🔌 Connect</button>
 			{:else}
-				<button on:click={disconnect} class="disconnect-btn">🔌 Disconnect</button>
+				<button onclick={disconnect} class="btn btn-error">🔌 Disconnect</button>
 			{/if}
 		</div>
-
-		{#if error}
-			<div class="error-message">
-				❌ Error: {error}
+		
+		<!-- Connection Progress -->
+		{#if connectionState === 'connecting'}
+			<div class="mt-4">
+				<div class="alert alert-info">
+					<svg class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+					</svg>
+					<div>
+						<h4 class="font-bold">Connection in Progress</h4>
+						<p class="text-sm">WebRTC connection is being established. Check the console for detailed progress.</p>
+					</div>
+				</div>
 			</div>
 		{/if}
 	</div>
 
-	{#if connected}
-		<div class="test-section">
-			<h2>🧪 Test Communication</h2>
-
-			<div class="message-input">
-				<input
-					type="text"
-					bind:value={testMessage}
-					placeholder="Enter test message..."
-					class="message-field"
-				/>
-				<button on:click={sendTest} class="send-btn">📤 Send Test</button>
-			</div>
-
-			<div class="events-section">
-				<div class="events-header">
-					<h3>📨 Events Log</h3>
-					<button on:click={clearEvents} class="clear-btn">🗑️ Clear</button>
-				</div>
-
-				<div class="events-list">
-					{#each receivedEvents as event, index}
-						<div class="event-item {event.sent ? 'sent' : 'received'}">
-							<div class="event-header">
-								<span class="event-type">{event.type}</span>
-								<span class="event-time">{event.timestamp}</span>
-								{#if event.sent}
-									<span class="event-direction">📤 Sent</span>
-								{:else}
-									<span class="event-direction">📥 Received</span>
-								{/if}
-							</div>
-							<pre class="event-data">{JSON.stringify(event, null, 2)}</pre>
-						</div>
-					{/each}
-
-					{#if receivedEvents.length === 0}
-						<p class="no-events">No events yet. Send a test message to see events here.</p>
-					{/if}
+	{#if error}
+		<div class="error-section mb-8">
+			<h2 class="text-xl font-semibold mb-4 text-error">❌ Error</h2>
+			<div class="alert alert-error">
+				<svg class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"
+					></path>
+				</svg>
+				<div>
+					<p class="text-sm">{error}</p>
 				</div>
 			</div>
 		</div>
 	{/if}
 
-	<div class="info-section">
-		<h2>ℹ️ Connection Info</h2>
-		<p>This test page isolates WebRTC functionality from:</p>
-		<ul>
-			<li>❌ Business logic</li>
-			<li>❌ Conversation state</li>
-			<li>❌ UI complexity</li>
-		</ul>
-		<p>✅ Only tests connection, data channel, and basic communication</p>
+	{#if connected}
+		<div class="message-section mb-8">
+			<h2 class="text-xl font-semibold mb-4">📤 Send Test Message</h2>
+			<div class="flex gap-4">
+				<input
+					type="text"
+					bind:value={testMessage}
+					placeholder="Type your message here..."
+					class="input input-bordered flex-1"
+				/>
+				<button onclick={sendTest} class="btn btn-primary">📤 Send Test</button>
+			</div>
+		</div>
+	{/if}
+
+	<div class="events-section">
+		<div class="events-header flex justify-between items-center mb-4">
+			<h3 class="text-xl font-semibold">📨 Events Log</h3>
+			<button onclick={clearEvents} class="btn btn-outline">🗑️ Clear</button>
+		</div>
+
+		<div class="events-list max-h-96 overflow-y-auto">
+			{#each receivedEvents as event, index}
+				<div class="event-item bg-base-200 p-3 rounded mb-2">
+					<div class="event-header flex justify-between items-center mb-2">
+						<span class="event-type font-mono text-sm bg-primary text-primary-content px-2 py-1 rounded">
+							{event.type || 'message'}
+						</span>
+						<span class="event-time text-sm opacity-70">{event.timestamp}</span>
+					</div>
+					<div class="event-data">
+						<pre class="text-xs overflow-x-auto">{JSON.stringify(event, null, 2)}</pre>
+					</div>
+				</div>
+			{/each}
+			
+			{#if receivedEvents.length === 0}
+				<div class="text-center py-8 text-base-content/50">
+					<p>No events yet. Connect to see WebRTC events here.</p>
+				</div>
+			{/if}
+		</div>
+	</div>
+	
+	<!-- Debug Info -->
+	<div class="debug-section mt-8">
+		<div class="card bg-base-200 shadow-md">
+			<div class="card-body">
+				<h3 class="card-title text-lg mb-4">🐛 Debug Information</h3>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+					<div>
+						<p><strong>Connection State:</strong> <span class="font-mono">{connectionState}</span></p>
+						<p><strong>Connected:</strong> <span class="font-mono">{connected}</span></p>
+						<p><strong>Has Stream:</strong> <span class="font-mono">{stream ? 'Yes' : 'No'}</span></p>
+						<p><strong>Error:</strong> <span class="font-mono">{error || 'None'}</span></p>
+					</div>
+					<div>
+						<p><strong>Audio Tracks:</strong> <span class="font-mono">{stream ? stream.getTracks().length : 0}</span></p>
+						<p><strong>Stream ID:</strong> <span class="font-mono">{stream ? stream.id : 'None'}</span></p>
+						<p><strong>Events Count:</strong> <span class="font-mono">{receivedEvents.length}</span></p>
+						<p><strong>Test Message:</strong> <span class="font-mono">{testMessage || 'None'}</span></p>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
 
 <style>
-	.container {
-		max-width: 1000px;
-		margin: 0 auto;
-		padding: 2rem;
-		font-family:
-			system-ui,
-			-apple-system,
-			sans-serif;
-	}
-
-	h1 {
-		color: #2563eb;
-		margin-bottom: 0.5rem;
-	}
-
-	.connection-section,
-	.test-section,
-	.info-section {
-		margin: 2rem 0;
-		padding: 1.5rem;
-		border: 1px solid #e5e7eb;
-		border-radius: 8px;
-		background: #f9fafb;
-	}
-
-	.status-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 1rem;
-		margin: 1rem 0;
-	}
-
 	.status-item {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 0.75rem;
-		background: white;
-		border-radius: 6px;
-		border: 1px solid #d1d5db;
+		transition: all 0.2s ease;
 	}
 
-	.label {
-		font-weight: 500;
-	}
-
-	.value.success {
-		color: #059669;
-	}
-
-	.value.error {
-		color: #dc2626;
-	}
-
-	.connection-actions {
-		margin: 1rem 0;
-	}
-
-	button {
-		background: #2563eb;
-		color: white;
-		border: none;
-		padding: 0.5rem 1rem;
-		border-radius: 6px;
-		cursor: pointer;
-		font-size: 0.875rem;
-		margin-right: 0.5rem;
-	}
-
-	button:hover {
-		background: #1d4ed8;
-	}
-
-	.connect-btn {
-		background: #059669;
-	}
-
-	.connect-btn:hover {
-		background: #047857;
-	}
-
-	.disconnect-btn {
-		background: #dc2626;
-	}
-
-	.disconnect-btn:hover {
-		background: #b91c1c;
-	}
-
-	.error-message {
-		background: #fef2f2;
-		color: #dc2626;
-		padding: 0.75rem;
-		border-radius: 6px;
-		border: 1px solid #fecaca;
-		margin-top: 1rem;
-	}
-
-	.message-input {
-		display: flex;
-		gap: 0.5rem;
-		margin: 1rem 0;
-	}
-
-	.message-field {
-		flex: 1;
-		padding: 0.5rem;
-		border: 1px solid #d1d5db;
-		border-radius: 6px;
-		font-size: 0.875rem;
-	}
-
-	.send-btn {
-		background: #7c3aed;
-	}
-
-	.send-btn:hover {
-		background: #6d28d9;
-	}
-
-	.events-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 1rem;
-	}
-
-	.clear-btn {
-		background: #6b7280;
-		font-size: 0.75rem;
-		padding: 0.25rem 0.5rem;
-	}
-
-	.clear-btn:hover {
-		background: #4b5563;
+	.status-item:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 	}
 
 	.events-list {
-		max-height: 400px;
-		overflow-y: auto;
+		border: 1px solid #e5e7eb;
+		border-radius: 0.5rem;
+		padding: 1rem;
 	}
 
 	.event-item {
-		margin: 0.5rem 0;
-		padding: 0.75rem;
-		border-radius: 6px;
-		border: 1px solid #d1d5db;
-	}
-
-	.event-item.sent {
-		background: #f0f9ff;
-		border-color: #0ea5e9;
-	}
-
-	.event-item.received {
-		background: #f0fdf4;
-		border-color: #22c55e;
-	}
-
-	.event-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 0.5rem;
-		font-size: 0.875rem;
+		border-left: 4px solid #3b82f6;
 	}
 
 	.event-type {
-		font-weight: 600;
-		color: #374151;
-	}
-
-	.event-time {
-		color: #6b7280;
 		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
 	}
 
-	.event-direction {
-		font-size: 0.75rem;
-		font-weight: 500;
-	}
-
-	.event-data {
-		background: #1f2937;
-		color: #f9fafb;
+	.event-data pre {
+		background: #f3f4f6;
 		padding: 0.5rem;
-		border-radius: 4px;
-		font-size: 0.75rem;
-		overflow-x: auto;
-		margin: 0;
-	}
-
-	.no-events {
-		text-align: center;
-		color: #6b7280;
-		font-style: italic;
-		padding: 2rem;
-	}
-
-	ul {
-		margin: 1rem 0;
-		padding-left: 1.5rem;
-	}
-
-	li {
-		margin: 0.25rem 0;
+		border-radius: 0.25rem;
+		border: 1px solid #e5e7eb;
 	}
 </style>

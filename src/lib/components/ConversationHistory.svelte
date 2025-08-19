@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Message } from '$lib/kernel/index';
+	import type { Message } from '$lib/types/conversation';
 	import { formatTimestamp } from '$lib/utils/index';
 
 	interface Props {

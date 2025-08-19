@@ -25,3 +25,6 @@ export interface Speaker {
 	speakerEmoji?: string; // Flag emoji for the language
 	voiceProviderId?: string; // Provider-specific voice ID
 }
+
+// 🎭 Conversation Types
+export * from './conversation';

@@ -2,9 +2,9 @@
 <!-- Displays available learning scenarios with scaffolding features -->
 
 <script lang="ts">
-	import { getBeginnerScenariosForLanguage, scenarioCategories } from '$lib/kernel/scenarios';
-	import type { LearningScenario } from '$lib/kernel/learning';
+	import type { LearningScenario } from '$lib/types/conversation';
 	import { languages } from '$lib/data/languages';
+	import { getBeginnerScenariosForLanguage, scenarioCategories } from '$lib/data/scenarios';
 
 	let { selectedLanguage = 'ja', onScenarioSelect } = $props<{
 		selectedLanguage: string;

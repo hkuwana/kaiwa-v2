@@ -1,6 +1,9 @@
 // 🎵 AudioService - Handles audio device management and audio processing
 // Plain TypeScript class with no Svelte dependencies
 
+import { browser } from '$app/environment';
+import { DummyAudioService } from './dummy.service';
+
 export interface AudioLevel {
 	level: number;
 	timestamp: number;
@@ -17,10 +20,12 @@ export class AudioService {
 	private onStreamErrorCallback: (error: string) => void = () => {};
 
 	async initialize(): Promise<void> {
-		// Listen for device changes
-		navigator.mediaDevices.addEventListener('devicechange', () => {
-			this.detectDeviceChange();
-		});
+		if (browser) {
+			// Listen for device changes
+			navigator.mediaDevices.addEventListener('devicechange', () => {
+				this.detectDeviceChange();
+			});
+		}
 	}
 
 	async getStream(deviceId?: string): Promise<MediaStream> {
@@ -151,3 +156,7 @@ export class AudioService {
 		return this.getCurrentLevel();
 	}
 }
+
+
+// Export an instance that automatically chooses the right service
+export const audioService = browser ? new AudioService() : new DummyAudioService();

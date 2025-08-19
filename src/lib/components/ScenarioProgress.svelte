@@ -2,8 +2,11 @@
 <!-- Shows learning progress and provides scaffolding during scenario practice -->
 
 <script lang="ts">
-	import type { LearningScenario, ScenarioOutcome } from '$lib/kernel/learning';
-	import type { ConversationState } from '$lib/kernel/index';
+	import type {
+		LearningScenario,
+		ScenarioOutcome,
+		ConversationState
+	} from '$lib/types/conversation';
 
 	let { scenario, state, onUseHint, onUseTranslation, onViewExample } = $props<{
 		scenario: LearningScenario;

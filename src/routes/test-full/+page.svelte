@@ -1,20 +1,15 @@
 <!-- Test Full Integration -->
 <script lang="ts">
-	import { createConversationStore } from '$lib/stores/conversation.svelte';
+	import { languages } from '$lib/data/languages';
 
-	const store = createConversationStore();
+	import { getContext } from 'svelte';
+	import type { ConversationStore } from '$lib/stores/conversation.store.svelte';
+
+	const store = getContext<ConversationStore>('conversation');
 
 	let messageInput = $state('');
 	let selectedLanguage = $state('en');
 	let selectedVoice = $state('alloy');
-
-	const languages = [
-		{ code: 'en', name: 'English' },
-		{ code: 'es', name: 'Spanish' },
-		{ code: 'fr', name: 'French' },
-		{ code: 'de', name: 'German' },
-		{ code: 'ja', name: 'Japanese' }
-	];
 
 	const voices = [
 		{ id: 'alloy', name: 'Alloy' },
@@ -26,11 +21,11 @@
 	];
 
 	function handleStart() {
-		store.start(selectedLanguage, selectedVoice);
+		store.startConversation();
 	}
 
 	function handleStop() {
-		store.stop();
+		store.endConversation();
 	}
 
 	function handleSendMessage() {
@@ -61,7 +56,7 @@
 				<select
 					id="language"
 					bind:value={selectedLanguage}
-					disabled={store.isConnecting || store.isConnected}
+					disabled={store.status === 'connecting' || store.status === 'connected'}
 				>
 					{#each languages as lang}
 						<option value={lang.code}>{lang.name}</option>
@@ -74,7 +69,7 @@
 				<select
 					id="voice"
 					bind:value={selectedVoice}
-					disabled={store.isConnecting || store.isConnected}
+					disabled={store.status === 'connecting' || store.status === 'connected'}
 				>
 					{#each voices as voice}
 						<option value={voice.id}>{voice.name}</option>
@@ -86,11 +81,11 @@
 				<label for="device">Audio Device:</label>
 				<select
 					id="device"
-					bind:value={store.selectedDevice}
-					disabled={store.isConnecting || store.isConnected}
+					bind:value={store.selectedDeviceId}
+					disabled={store.status === 'connecting' || store.status === 'connected'}
 				>
 					<option value="default">Default Device</option>
-					{#each store.devices as device}
+					{#each store.availableDevices as device}
 						<option value={device.deviceId}>
 							{device.label || `Device ${device.deviceId.slice(0, 8)}...`}
 						</option>
@@ -105,18 +100,18 @@
 
 		<div class="control-buttons">
 			{#if !store.isConnected && !store.isConnecting}
-				<button on:click={handleStart} class="start-btn"> 🚀 Start Conversation </button>
+				<button onclick={handleStart} class="start-btn"> 🚀 Start Conversation </button>
 			{:else if store.isConnecting}
 				<button disabled class="connecting-btn"> 🔄 Connecting... </button>
 			{:else}
-				<button on:click={handleStop} class="stop-btn"> ⏹️ Stop Conversation </button>
+				<button onclick={handleStop} class="stop-btn"> ⏹️ Stop Conversation </button>
 			{/if}
 		</div>
 
 		{#if store.error}
 			<div class="error-message">
 				❌ Error: {store.error}
-				<button on:click={() => store.clearError()} class="clear-error-btn"> ✕ </button>
+				<button onclick={() => store.clearError()} class="clear-error-btn"> ✕ </button>
 			</div>
 		{/if}
 	</div>
@@ -129,11 +124,11 @@
 				<textarea
 					bind:value={messageInput}
 					placeholder="Type your message here..."
-					on:keypress={handleKeyPress}
+					onkeypress={handleKeyPress}
 					class="message-field"
 					rows="3"
 				></textarea>
-				<button on:click={handleSendMessage} class="send-btn"> 📤 Send </button>
+				<button onclick={handleSendMessage} class="send-btn"> 📤 Send </button>
 			</div>
 
 			<div class="messages-container">

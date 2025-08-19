@@ -2,7 +2,7 @@
 <!-- Displays learning results and feedback after completing a scenario -->
 
 <script lang="ts">
-	import type { LearningScenario, ScenarioOutcome } from '$lib/kernel/learning';
+	import type { LearningScenario, ScenarioOutcome } from '$lib/types/conversation';
 
 	let { scenario, outcome, onRetry, onNextScenario, onBackToScenarios } = $props<{
 		scenario: LearningScenario;

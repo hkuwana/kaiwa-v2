@@ -1,219 +1,216 @@
-// 🎯 Conversation Store - The "state holder" using Svelte 5 runes
-// Single source of truth for conversation UI state
+// src/lib/stores/conversation.store.svelte.ts
 
-import { RealtimeService } from '$lib/services/realtime.service';
-import { AudioService, type AudioLevel } from '$lib/services/audio.service';
-import { ConversationService } from '$lib/services/conversation.service';
-import type { Message } from '$lib/server/db/types';
+import { RealtimeService, realtimeService } from '$lib/services/realtime.service';
+import { AudioService, audioService, type AudioLevel } from '$lib/services/audio.service';
+import type { Message } from '$lib/types/conversation';
+import { DummyAudioService, type DummyRealtimeService } from '$lib/services/dummy.service';
 
-function createConversationStore() {
-	// Instantiate services
-	const realtimeService = new RealtimeService();
-	const audioService = new AudioService();
-	const conversationService = new ConversationService();
+export class ConversationStore {
+	// Services - use the exported instances that handle browser/server automatically
+	private realtimeService: RealtimeService | DummyRealtimeService;
+	private audioService: AudioService | DummyAudioService;
 
-	// Reactive state using Svelte 5 runes
-	let status = $state<'idle' | 'connecting' | 'connected' | 'streaming' | 'error'>('idle');
-	let messages = $state<Message[]>([]);
-	let userId = $state<string | null>(null);
-	let sessionId = $state<string>('');
-	let startTime = $state<number>(0);
-	let language = $state<string>('en');
-	let voice = $state<string>('alloy');
-	let error = $state<string | null>(null);
-	let audioLevel = $state<number>(0);
-	let availableDevices = $state<MediaDeviceInfo[]>([]);
-	let selectedDeviceId = $state<string>('default');
+	// Reactive state as class properties
+	status = $state<'idle' | 'connecting' | 'connected' | 'streaming' | 'error'>('idle');
+	messages = $state<Message[]>([]);
+	userId = $state<string | null>(null);
+	sessionId = $state<string>('');
+	startTime = $state<number>(0);
+	language = 'en'; // This can be a regular property
+	voice = 'alloy';
+	error = $state<string | null>(null);
+	audioLevel = $state<number>(0);
+	availableDevices = $state<MediaDeviceInfo[]>([]);
+	selectedDeviceId = $state<string>('default');
 
-	// Initialize audio service
-	$effect(() => {
-		audioService.initialize();
-		audioService.getAvailableDevices().then((devices) => {
-			availableDevices = devices;
-		});
-	});
+	constructor() {
+		// Use the exported instances that automatically handle browser/server
+		this.realtimeService = realtimeService;
+		this.audioService = audioService;
 
-	// Set up audio service callbacks
-	$effect(() => {
-		audioService.onLevelUpdate((level: AudioLevel) => {
-			audioLevel = level.level;
+		// The rest of your constructor can now safely call methods on this.audioService
+		this.audioService.initialize();
+		this.audioService.getAvailableDevices().then((devices) => {
+			this.availableDevices = devices;
 		});
 
-		audioService.onStreamReady((stream: MediaStream) => {
+		// This is also safe, as the dummy version has an empty onLevelUpdate method.
+		this.audioService.onLevelUpdate((level: AudioLevel) => {
+			this.audioLevel = level.level;
+		});
+		this.audioService.onStreamReady((stream: MediaStream) => {
 			console.log('Audio stream ready:', stream);
 		});
-
-		audioService.onStreamError((errorMsg: string) => {
-			error = errorMsg;
-			status = 'error';
+		this.audioService.onStreamError((errorMsg: string) => {
+			this.error = errorMsg;
+			this.status = 'error';
 		});
-	});
+	}
 
-	// Start a new conversation
-	const startConversation = async (
-		currentUserId: string | null,
-		selectedLanguage: string = 'en',
-		selectedVoice: string = 'alloy'
-	) => {
-		if (status !== 'idle') return;
+	// Actions become class methods
+	startConversation = async () => {
+		if (this.status !== 'idle') return;
 
-		status = 'connecting';
-		userId = currentUserId;
-		language = selectedLanguage;
-		voice = selectedVoice;
-		startTime = Date.now();
-		error = null;
+		this.status = 'connecting';
+		this.error = null;
 
 		try {
 			// 1. Get audio stream
-			const audioStream = await audioService.getStream(selectedDeviceId);
+			console.log('🎵 Getting audio stream...');
+			const audioStream = await this.audioService.getStream(this.selectedDeviceId);
+			console.log('✅ Audio stream obtained');
 
-			// 2. Get a session ID from our backend
-			const response = await fetch('/api/realtime-session', { method: 'POST' });
-			const { url } = await response.json();
-			sessionId = url;
+			// 2. Get a session from our backend
+			console.log('🔗 Fetching realtime session...');
+			const response = await fetch('/api/realtime-session', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					sessionId: crypto.randomUUID(),
+					model: 'gpt-4o-realtime-preview-2024-10-01',
+					voice: 'alloy'
+				})
+			});
 
-			// 3. Connect the realtime service
-			await realtimeService.connect(
-				url,
+			if (!response.ok) {
+				const errorText = await response.text();
+				throw new Error(`Failed to get session: ${response.status} - ${errorText}`);
+			}
+
+			const sessionData = await response.json();
+			this.sessionId = sessionData.session_id;
+			console.log('✅ Session obtained:', this.sessionId);
+
+			// 3. Connect the realtime service with the stream and session data
+			console.log('📡 Connecting realtime service...');
+
+			// Pass the session data directly instead of trying to fetch it again
+			await this.realtimeService.connectWithSession(
+				sessionData,
+				audioStream,
 				(newMessage: Message) => {
 					// onMessage callback
-					messages = [...messages, newMessage];
+					console.log('📨 New message received:', newMessage);
+					this.messages = [...this.messages, newMessage];
 				},
 				(connectionState: RTCPeerConnectionState) => {
 					// onConnectionStateChange callback
+					console.log('🔌 Connection state changed:', connectionState);
 					if (connectionState === 'connected') {
-						status = 'connected';
-						// Add audio track to WebRTC connection
-						if (audioStream) {
-							const audioTrack = audioStream.getTracks()[0];
-							// Note: In a real implementation, you'd add this track to the RTCPeerConnection
-							// For MVP, we'll simulate the connection
-						}
-					}
-					if (connectionState === 'failed' || connectionState === 'closed') {
-						status = 'idle';
-						error = 'Connection lost';
+						this.status = 'connected';
+						this.startTime = Date.now();
+						console.log('✅ Realtime service connected successfully');
+					} else if (connectionState === 'failed' || connectionState === 'closed') {
+						this.status = 'idle';
+						this.error = 'Connection lost';
+						console.log('❌ Connection failed or closed');
+					} else if (connectionState === 'connecting') {
+						this.status = 'connecting';
+						console.log('🔄 Still connecting...');
 					}
 				}
 			);
 		} catch (e) {
-			console.error('Failed to start conversation', e);
-			error = e instanceof Error ? e.message : 'Unknown error';
-			status = 'error';
+			console.error('❌ Failed to start conversation:', e);
+			this.error = e instanceof Error ? e.message : 'Unknown error';
+			this.status = 'error';
+			throw e; // Re-throw to let the caller handle it
 		}
 	};
 
 	// Start streaming (after connection is established)
-	const startStreaming = async () => {
-		if (status !== 'connected') return;
+	startStreaming = async () => {
+		if (this.status !== 'connected') return;
 
-		status = 'streaming';
+		this.status = 'streaming';
 		console.log('Started streaming audio');
 	};
 
 	// Stop streaming
-	const stopStreaming = async () => {
-		if (status !== 'streaming') return;
+	stopStreaming = async () => {
+		if (this.status !== 'streaming') return;
 
-		status = 'connected';
+		this.status = 'connected';
 		console.log('Stopped streaming audio');
 	};
 
 	// End the conversation
-	const endConversation = () => {
-		realtimeService.disconnect();
-		audioService.cleanup();
+	endConversation = () => {
+		this.realtimeService.disconnect();
+		this.audioService.cleanup();
 
 		// Reset state
-		status = 'idle';
-		messages = [];
-		userId = null;
-		sessionId = '';
-		startTime = 0;
-		error = null;
-		audioLevel = 0;
+		this.status = 'idle';
+		this.messages = [];
+		this.userId = null;
+		this.sessionId = '';
+		this.startTime = 0;
+		this.error = null;
+		this.audioLevel = 0;
+	};
+
+	// Send a message
+	sendMessage = (content: string) => {
+		const message: Message = {
+			id: crypto.randomUUID(),
+			conversationId: this.sessionId || '',
+			role: 'user',
+			content,
+			timestamp: new Date(),
+			audioUrl: null
+		};
+		this.messages = [...this.messages, message];
+
+		// Send via realtime service
+		this.realtimeService.sendEvent({
+			type: 'conversation.item.create',
+			item: {
+				type: 'message',
+				role: 'user',
+				content: [{ type: 'input_text', text: content }]
+			}
+		});
 	};
 
 	// Select audio device
-	const selectDevice = async (deviceId: string) => {
-		selectedDeviceId = deviceId;
-		if (status === 'streaming') {
+	selectDevice = async (deviceId: string) => {
+		this.selectedDeviceId = deviceId;
+		if (this.status === 'streaming') {
 			// Re-acquire stream with new device
 			try {
-				await audioService.getStream(deviceId);
+				await this.audioService.getStream(deviceId);
 			} catch (e) {
 				console.error('Failed to switch audio device:', e);
 			}
 		}
 	};
 
-	// Send a message
-	const sendMessage = (content: string) => {
-		const message: Message = {
-			role: 'user',
-			content,
-			timestamp: Date.now()
-		};
-		messages = [...messages, message];
-
-		// Send via realtime service
-		realtimeService.send({ type: 'message', content });
-	};
-
 	// Clear error
-	const clearError = () => {
-		error = null;
-		if (status === 'error') {
-			status = 'idle';
+	clearError = () => {
+		this.error = null;
+		if (this.status === 'error') {
+			this.status = 'idle';
 		}
 	};
 
-	return {
-		// State
-		get status() {
-			return status;
-		},
-		get messages() {
-			return messages;
-		},
-		get userId() {
-			return userId;
-		},
-		get sessionId() {
-			return sessionId;
-		},
-		get startTime() {
-			return startTime;
-		},
-		get language() {
-			return language;
-		},
-		get voice() {
-			return voice;
-		},
-		get error() {
-			return error;
-		},
-		get audioLevel() {
-			return audioLevel;
-		},
-		get availableDevices() {
-			return availableDevices;
-		},
-		get selectedDeviceId() {
-			return selectedDeviceId;
-		},
+	// Reset the store
+	reset = () => {
+		this.status = 'idle';
+		this.messages = [];
+		this.userId = null;
+		this.sessionId = '';
+		this.startTime = 0;
+		this.error = null;
+		this.audioLevel = 0;
+		this.availableDevices = [];
+		this.selectedDeviceId = 'default';
 
-		// Actions
-		startConversation,
-		startStreaming,
-		stopStreaming,
-		endConversation,
-		selectDevice,
-		sendMessage,
-		clearError
+		this.realtimeService.disconnect();
+		this.audioService.cleanup();
+
+		console.log('🔄 Conversation store reset');
 	};
 }
 
-export const conversationStore = createConversationStore();
+// Export a default instance for backward compatibility
+export const conversationStore = new ConversationStore();

@@ -1,86 +1,68 @@
-<!-- Test Audio Devices Only -->
+<!-- Test Audio Devices -->
 <script lang="ts">
-	import { audioDeviceManager } from '$lib/features/audio/device-manager';
-	import { eventBus } from '$lib/shared/events/typed-event-bus';
+	import { audioService } from '$lib/services/audio.service';
+
+	// Use the exported instance that automatically handles browser/server
+	// No need to manually instantiate or check browser environment
 
 	let devices = $state<MediaDeviceInfo[]>([]);
+	let selectedDevice = $state<string>('default');
 	let stream = $state<MediaStream | null>(null);
-	let audioLevel = $state(0);
-	let isTesting = $state(false);
-	let events = $state<Array<{ type: string; data: any; timestamp: string }>>([]);
-	let eventCount = $state(0);
+	let isRecording = $state(false);
+	let error = $state<string | null>(null);
 
-	// Initialize audio device manager
+	// Initialize audio service
 	$effect(() => {
-		audioDeviceManager.initialize();
+		audioService.initialize();
 	});
 
-	// Listen to audio events
+	// Set up audio service callbacks
 	$effect(() => {
-		const unsubscribers = [
-			eventBus.on('audio.device.changed', (data) => {
-				events = [
-					...events,
-					{
-						type: 'audio.device.changed',
-						data,
-						timestamp: new Date().toLocaleTimeString()
-					}
-				];
-				eventCount++;
-			}),
+		audioService.onLevelUpdate((level) => {
+			audioLevel = level.level;
+			events = [
+				...events,
+				{
+					type: 'audio.level.update',
+					data: { level: level.level.toFixed(3) },
+					timestamp: new Date().toLocaleTimeString()
+				}
+			];
+			eventCount++;
+		});
 
-			eventBus.on('audio.level.update', (data) => {
-				audioLevel = data.level;
-				events = [
-					...events,
-					{
-						type: 'audio.level.update',
-						data: { level: data.level.toFixed(3) },
-						timestamp: new Date().toLocaleTimeString()
-					}
-				];
-				eventCount++;
-			}),
+		audioService.onStreamReady((stream) => {
+			events = [
+				...events,
+				{
+					type: 'audio.stream.ready',
+					data: { streamId: stream.id },
+					timestamp: new Date().toLocaleTimeString()
+				}
+			];
+			eventCount++;
+		});
 
-			eventBus.on('audio.stream.ready', (data) => {
-				events = [
-					...events,
-					{
-						type: 'audio.stream.ready',
-						data: { streamId: data.stream.id },
-						timestamp: new Date().toLocaleTimeString()
-					}
-				];
-				eventCount++;
-			}),
-
-			eventBus.on('audio.stream.error', (data) => {
-				events = [
-					...events,
-					{
-						type: 'audio.stream.error',
-						data,
-						timestamp: new Date().toLocaleTimeString()
-					}
-				];
-				eventCount++;
-			})
-		];
-
-		// Cleanup
-		return () => {
-			unsubscribers.forEach((unsub) => unsub());
-		};
+		audioService.onStreamError((errorMsg) => {
+			events = [
+				...events,
+				{
+					type: 'audio.stream.error',
+					data: { error: errorMsg },
+					timestamp: new Date().toLocaleTimeString()
+				}
+			];
+			eventCount++;
+		});
 	});
 
 	async function loadDevices() {
-		devices = await audioDeviceManager.getAvailableDevices();
+		devices = await audioService.getAvailableDevices();
 	}
 
 	async function testDevice(deviceId: string) {
 		try {
-			stream = await audioDeviceManager.getStream(deviceId);
+			stream = await audioService.getStream(deviceId);
 			isTesting = true;
 		} catch (error) {
 			console.error('Failed to test device:', error);
@@ -90,7 +72,7 @@
 
 	function stopTest() {
 		if (stream) {
-			audioDeviceManager.cleanup();
+			audioService.cleanup();
 			stream = null;
 			isTesting = false;
 			audioLevel = 0;
@@ -108,226 +90,123 @@
 	});
 </script>
 
-<div class="container">
-	<h1>🎵 Audio Device Test</h1>
-	<p>Test audio devices independently from recording/streaming with real-time events</p>
+<div class="container mx-auto p-6 max-w-4xl">
+	<h1 class="text-3xl font-bold mb-6">🎵 Audio Device Testing</h1>
 
-	<div class="devices-section">
-		<h2>Available Devices</h2>
-		<button on:click={loadDevices}>🔄 Refresh Devices</button>
+	<!-- Device Selection -->
+	<div class="devices-section mb-8">
+		<h2 class="text-xl font-semibold mb-4">Available Devices</h2>
+		<button onclick={loadDevices} class="btn btn-outline mb-4">
+			🔄 Refresh Devices
+		</button>
 
-		<div class="device-list">
+		<div class="device-list grid gap-4">
 			{#each devices as device}
-				<div class="device-item">
-					<span class="device-name"
-						>{device.label || `Device ${device.deviceId.slice(0, 8)}...`}</span
-					>
-					<button on:click={() => testDevice(device.deviceId)} disabled={isTesting}>
-						{isTesting && stream ? 'Testing...' : 'Test Device'}
-					</button>
+				<div class="device-card card bg-base-100 shadow-md">
+					<div class="card-body">
+						<h3 class="card-title text-lg">
+							<span class="device-label">
+								{device.label || `Device ${device.deviceId.slice(0, 8)}...`}
+							</span>
+						</h3>
+						<button 
+							onclick={() => testDevice(device.deviceId)} 
+							disabled={isTesting}
+							class="btn btn-primary"
+						>
+							{isTesting && stream ? 'Testing...' : 'Test Device'}
+						</button>
+					</div>
 				</div>
 			{/each}
 		</div>
 	</div>
 
-	{#if isTesting && stream}
-		<div class="test-section">
-			<h2>🎤 Device Test Active</h2>
-			<p>Testing device: {audioDeviceManager.getCurrentDeviceId()}</p>
-
-			<div class="audio-visualizer">
-				<div class="level-bar">
-					<div class="level-fill" style="width: {audioLevel * 100}%"></div>
+	<!-- Audio Level Display -->
+	{#if stream}
+		<div class="audio-section mb-8">
+			<h2 class="text-xl font-semibold mb-4">🎤 Audio Level</h2>
+			<div class="audio-level-display">
+				<div class="level-bar bg-base-300 rounded-full h-8 overflow-hidden">
+					<div 
+						class="level-fill bg-primary transition-all duration-100 h-full"
+						style="width: {audioLevel * 100}%"
+					></div>
 				</div>
-				<span>Audio Level: {Math.round(audioLevel * 100)}%</span>
+				<div class="level-text text-center mt-2">
+					Level: {(audioLevel * 100).toFixed(1)}%
+				</div>
 			</div>
 
-			<button on:click={stopTest} class="stop-btn">⏹️ Stop Test</button>
+			<div class="mt-4">
+				<button onclick={stopTest} class="btn btn-error">⏹️ Stop Test</button>
+			</div>
 		</div>
 	{/if}
 
+	<!-- Events Log -->
 	<div class="events-section">
-		<h2>📡 Real-time Events ({eventCount})</h2>
-		<button on:click={clearEvents} class="clear-btn">🗑️ Clear Events</button>
+		<h2 class="text-xl font-semibold mb-4">📡 Real-time Events ({eventCount})</h2>
+		<button onclick={clearEvents} class="btn btn-outline mb-4">🗑️ Clear Events</button>
 
-		<div class="events-list">
-			{#each events.slice(-10) as event}
-				<div class="event-item">
-					<div class="event-header">
-						<span class="event-type">{event.type}</span>
-						<span class="event-time">{event.timestamp}</span>
+		<div class="events-list max-h-96 overflow-y-auto">
+			{#each events as event, index}
+				<div class="event-item bg-base-200 p-3 rounded mb-2">
+					<div class="event-header flex justify-between items-center mb-2">
+						<span class="event-type font-mono text-sm bg-primary text-primary-content px-2 py-1 rounded">
+							{event.type}
+						</span>
+						<span class="event-time text-sm opacity-70">{event.timestamp}</span>
 					</div>
-					<pre class="event-data">{JSON.stringify(event.data, null, 2)}</pre>
+					<div class="event-data">
+						<pre class="text-xs overflow-x-auto">{JSON.stringify(event.data, null, 2)}</pre>
+					</div>
 				</div>
 			{/each}
-
-			{#if events.length === 0}
-				<p class="no-events">No events yet. Test a device to see events here.</p>
-			{/if}
 		</div>
-	</div>
-
-	<div class="info-section">
-		<h2>ℹ️ Device Manager Info</h2>
-		<p>Has Active Stream: {audioDeviceManager.hasActiveStream()}</p>
-		<p>Current Device: {audioDeviceManager.getCurrentDeviceId()}</p>
-		<p>Current Audio Level: {audioDeviceManager.getCurrentAudioLevel().toFixed(3)}</p>
-		<p>Registered Events: {eventBus.getRegisteredEvents().join(', ')}</p>
 	</div>
 </div>
 
 <style>
-	.container {
-		max-width: 1000px;
-		margin: 0 auto;
-		padding: 2rem;
-		font-family:
-			system-ui,
-			-apple-system,
-			sans-serif;
+	.device-card {
+		transition: all 0.2s ease;
 	}
 
-	h1 {
-		color: #2563eb;
-		margin-bottom: 0.5rem;
-	}
-
-	.devices-section,
-	.test-section,
-	.events-section,
-	.info-section {
-		margin: 2rem 0;
-		padding: 1.5rem;
-		border: 1px solid #e5e7eb;
-		border-radius: 8px;
-		background: #f9fafb;
-	}
-
-	.device-list {
-		margin-top: 1rem;
-	}
-
-	.device-item {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 0.75rem;
-		margin: 0.5rem 0;
-		background: white;
-		border-radius: 6px;
-		border: 1px solid #d1d5db;
-	}
-
-	button {
-		background: #2563eb;
-		color: white;
-		border: none;
-		padding: 0.5rem 1rem;
-		border-radius: 6px;
-		cursor: pointer;
-		font-size: 0.875rem;
-		margin-right: 0.5rem;
-	}
-
-	button:hover:not(:disabled) {
-		background: #1d4ed8;
-	}
-
-	button:disabled {
-		background: #9ca3af;
-		cursor: not-allowed;
-	}
-
-	.stop-btn {
-		background: #dc2626;
-	}
-
-	.stop-btn:hover {
-		background: #b91c1c;
-	}
-
-	.clear-btn {
-		background: #6b7280;
-		font-size: 0.75rem;
-		padding: 0.25rem 0.5rem;
-	}
-
-	.clear-btn:hover {
-		background: #4b5563;
-	}
-
-	.audio-visualizer {
-		margin: 1rem 0;
-		text-align: center;
+	.device-card:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 	}
 
 	.level-bar {
-		width: 100%;
-		height: 20px;
-		background: #e5e7eb;
-		border-radius: 10px;
-		overflow: hidden;
-		margin-bottom: 0.5rem;
+		position: relative;
+		background: linear-gradient(90deg, #e5e7eb 0%, #d1d5db 100%);
 	}
 
 	.level-fill {
-		height: 100%;
-		background: linear-gradient(90deg, #10b981, #3b82f6);
+		background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
 		transition: width 0.1s ease;
 	}
 
-	.events-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 1rem;
-	}
-
 	.events-list {
-		max-height: 400px;
-		overflow-y: auto;
+		border: 1px solid #e5e7eb;
+		border-radius: 0.5rem;
+		padding: 1rem;
 	}
 
 	.event-item {
-		margin: 0.5rem 0;
-		padding: 0.75rem;
-		border-radius: 6px;
-		border: 1px solid #d1d5db;
-		background: white;
-	}
-
-	.event-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 0.5rem;
-		font-size: 0.875rem;
+		border-left: 4px solid #3b82f6;
 	}
 
 	.event-type {
-		font-weight: 600;
-		color: #374151;
-	}
-
-	.event-time {
-		color: #6b7280;
 		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
 	}
 
-	.event-data {
-		background: #1f2937;
-		color: #f9fafb;
+	.event-data pre {
+		background: #f3f4f6;
 		padding: 0.5rem;
-		border-radius: 4px;
-		font-size: 0.75rem;
-		overflow-x: auto;
-		margin: 0;
-	}
-
-	.no-events {
-		text-align: center;
-		color: #6b7280;
-		font-style: italic;
-		padding: 2rem;
+		border-radius: 0.25rem;
+		border: 1px solid #e5e7eb;
 	}
 </style>
