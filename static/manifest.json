@@ -10,14 +10,7 @@
   "scope": "/",
   "lang": "en",
   "categories": ["education", "productivity"],
-  "icons": [
-    {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ],
+
   "screenshots": [
     {
       "src": "/screenshot-wide.png",
@@ -37,25 +30,16 @@
       "name": "Start English Practice",
       "short_name": "English",
       "description": "Start practicing English conversation",
-      "url": "/conversation?lang=en&mode=traditional&voice=alloy",
-      "icons": [
-        {
-          "src": "/favicon.svg",
-          "sizes": "96x96"
-        }
-      ]
+      "url": "/conversation?lang=en&mode=traditional&voice=alloy"
+   
+   
     },
     {
       "name": "Start Spanish Practice",
       "short_name": "Spanish",
       "description": "Start practicing Spanish conversation",
-      "url": "/conversation?lang=es&mode=traditional&voice=alloy",
-      "icons": [
-        {
-          "src": "/favicon.svg",
-          "sizes": "96x96"
-        }
-      ]
+      "url": "/conversation?lang=es&mode=traditional&voice=alloy"
+     
     }
   ]
 }
