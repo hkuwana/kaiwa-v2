@@ -96,7 +96,7 @@ export const load = async ({ locals }) => {
 
 	<!-- Structured Data -->
 	<script type="application/ld+json">
-    {JSON.stringify(data.seo.structuredData)}
+		{JSON.stringify(data.seo.structuredData)}
 	</script>
 </svelte:head>
 ```
