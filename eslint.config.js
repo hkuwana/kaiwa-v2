@@ -47,7 +47,7 @@ export default ts.config(
 			'no-script-url': 'error', // No javascript: URLs
 			'no-var': 'error', // Use const/let instead of var
 			'prefer-const': 'error', // Prefer const over let
-			'no-unused-vars': 'off', // Turned off in favor of TypeScript version
+			'no-unused-vars': 'off' // Turned off in favor of TypeScript version
 		}
 	},
 	{
@@ -61,24 +61,39 @@ export default ts.config(
 			}
 		}
 	},
-	// 🎯 STRICT RULES FOR KERNEL/CORE FILES
+
+	// 🎯 ARCHITECTURE RULE: PREVENT SERVICES FROM IMPORTING EACH OTHER
 	{
-		files: ['**/kernel/**/*.ts', '**/core/**/*.ts'],
+		files: ['src/lib/services/**/*.ts'],
 		rules: {
-			'@typescript-eslint/no-explicit-any': 'error', // No any types in core
-			'@typescript-eslint/explicit-function-return-type': 'error', // All functions must have return types
-			'@typescript-eslint/no-unused-vars': 'error', // No unused variables
-			'@typescript-eslint/no-unused-expressions': 'error', // No unused expressions
-			'@typescript-eslint/no-non-null-assertion': 'error',
-			'no-console': 'error', // No console in core files
-			'no-debugger': 'error', // No debugger statements
-			'no-alert': 'error', // No alert statements
-			'no-eval': 'error', // No eval usage
-			'no-implied-eval': 'error', // No implied eval
-			'no-new-func': 'error', // No new Function()
-			'no-script-url': 'error', // No javascript: URLs
-			'no-var': 'error', // Use const/let instead of var
-			'prefer-const': 'error', // Prefer const over let
+			'no-restricted-imports': [
+				'error',
+				{
+					patterns: [
+						{
+							group: ['$lib/services/**'],
+							message: 'Services should not import other services. Use a store to orchestrate them.'
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		files: ['src/lib/server/services/**/*.ts'],
+		rules: {
+			'no-restricted-imports': [
+				'error',
+				{
+					patterns: [
+						{
+							group: ['$lib/server/services/**', '$lib/services/**'],
+							message:
+								'Server services should not import other services. Orchestrate calls in your +server.ts files or API handlers.'
+						}
+					]
+				}
+			]
 		}
 	}
 );

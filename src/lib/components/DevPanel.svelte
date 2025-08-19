@@ -1,20 +1,20 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { EventBusFactory } from '$lib/shared/events/eventBus';
-	import { audioService, createAudioService } from '$lib/features/audio';
+	import { AudioService } from '$lib/services/audio.service';
 	import { realtimeService } from '$lib/features/realtime';
-	import { ConversationOrchestrator } from '$lib/features/conversation/conversation-orchestrator.svelte';
+	// import { ConversationOrchestrator } from '$lib/features/conversation/conversation-orchestrator.svelte';
 	import { errorMonitor } from '$lib/shared/events/errorMonitor';
 	import type { AudioState } from '$lib/features/audio/types';
 	import type { RealtimeSession, RealtimeStream, RealtimeEvent } from '$lib/features/realtime';
-	import type { RealtimeConversationState } from '$lib/features/conversation/realtime-conversation-orchestrator.svelte';
+	// import type { RealtimeConversationState } from '$lib/features/conversation/realtime-conversation-orchestrator.svelte';
 	import type { ErrorEntry } from '$lib/shared/events/errorMonitor';
 	import AudioVisualizer from './AudioVisualizer.svelte';
 
 	// State
 	let activeTab = $state('audio');
 	let eventBus = $state<ReturnType<typeof EventBusFactory.create> | null>(null);
-	let orchestrator = $state<ModernRealtimeConversationOrchestrator | null>(null);
+	// let orchestrator = $state<ModernRealtimeConversationOrchestrator | null>(null);
 
 	// Audio testing state (using new architecture)
 	let audioState = $state<AudioState | null>(null);
@@ -57,7 +57,7 @@
 	// Initialize
 	onMount(async () => {
 		eventBus = EventBusFactory.create('memory');
-		orchestrator = new ModernRealtimeConversationOrchestrator(eventBus);
+		// orchestrator = new ModernRealtimeConversationOrchestrator(eventBus);
 		
 		// Load audio devices
 		await loadAudioDevices();
@@ -78,18 +78,22 @@
 
 	// Cleanup
 	onDestroy(() => {
-		if (orchestrator) {
-			orchestrator.cleanup();
-		}
+		// if (orchestrator) {
+		// 	orchestrator.cleanup();
+		// }
 		if (conversationInterval) {
 			clearInterval(conversationInterval);
 		}
 	});
 
 	// Audio testing functions (using new architecture)
+	let audioServiceInstance: AudioService;
+
 	async function loadAudioDevices() {
 		try {
-			audioDevices = await audioService.getAudioDevices();
+			audioServiceInstance = new AudioService();
+			await audioServiceInstance.initialize();
+			audioDevices = await audioServiceInstance.getAvailableDevices();
 			if (audioDevices.length > 0) {
 				selectedDevice = audioDevices[0].deviceId;
 			}

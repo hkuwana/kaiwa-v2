@@ -1,62 +1,149 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
+	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import { EventBusFactory } from '$lib/shared/events/eventBus';
-	import { ConversationOrchestrator } from '$lib/features/conversation/conversation-orchestrator.svelte';
+	import { audioEvents } from '$lib/features/audio/events';
+	import { realtimeEvents } from '$lib/features/realtime/events';
 	import { RealtimeConversationStatus } from '$lib/features/conversation/kernel';
+	// import type { ConversationState } from '$lib/stores/conversation.svelte';
 	import AudioVisualizer from './AudioVisualizer.svelte';
 	import ConversationHistory from './ConversationHistory.svelte';
-	import { dev } from '$app/environment';
 
-	let {   autoStart = false } = $props();
+	interface Props {
+		language?: string;
+		voice?: string;
+		autoStart?: boolean;
+		dev?: boolean;
+	}
 
-		 
-	// This follows the "Invisible Tutor" philosophy - seamless experience
- 
+	let { language = 'en', voice = 'alloy', autoStart = true, dev = false }: Props = $props();
 
-	// State variables
-		let orchestrator = $state<ConversationOrchestrator | null>(null);
-	let audioLevel = $state(0);
+	// 🎭 Use the new conversation store
+	let store = conversationStore;
+	let eventBus = $state(EventBusFactory.create('memory'));
+
+	// 🎯 State from store (reactive) - use $state for reactive variables
+	// let conversationState = $state<ConversationState>();
+	let isRecording = $state(false);
+	let isConnected = $state(false);
+	let isConnecting = $state(false);
+	let hasError = $state(false);
+	let messageCount = $state(0);
+	let canStartConversation = $state(false);
+	let canStopStreaming = $state(false);
+
+	// 🎯 Additional state properties for template - use $state for reactive variables
+	let status = $state(RealtimeConversationStatus.IDLE);
+	let sessionId = $state('');
+	let messages = $state<any[]>([]);
+	let startTime = $state(0);
+	let errorMessage = $state('');
+	let isStreaming = $state(false);
+
+	// 🎵 Audio visualization state
 	let audioContext: AudioContext | null = $state(null);
 	let analyser: AnalyserNode | null = $state(null);
 	let microphone: MediaStreamAudioSourceNode | null = $state(null);
+	let audioLevel = $state(0);
 	let animationFrame: number | null = $state(null);
 
-	// Initialize with sessionStorage preferences on mount
+	// 🧪 Test functions for dev panel
+	async function testVAD() {
+		console.log('🧪 Testing VAD...');
+		if (store) {
+			console.log('Current VAD state:', store.isRecording);
+		}
+	}
+
+	async function testTranscription() {
+		console.log('🧪 Testing Transcription...');
+		if (store) {
+			console.log('Current message count:', store.messageCount);
+		}
+	}
+
+	async function testAIResponse() {
+		console.log('🧪 Testing AI Response...');
+		if (store) {
+			console.log('Current AI state:', store.isConnected);
+		}
+	}
+
+	// Test realtime events via bus (PR2 verification)
+	function testRealtimeEvents() {
+		if (store) {
+			console.log('🧪 Testing Realtime Events (PR2)...');
+			
+			// Manually emit test events to verify bus is working
+			store.eventBus.emit('realtime.connection.status', {
+				status: 'connected',
+				sessionId: 'test-session',
+				timestamp: Date.now(),
+				details: 'Test connection event'
+			});
+			
+			store.eventBus.emit('realtime.transcript.received', {
+				transcript: 'Test transcript from user',
+				sessionId: 'test-session',
+				confidence: 0.95,
+				language: 'en',
+				timestamp: Date.now()
+			});
+			
+			store.eventBus.emit('realtime.response.received', {
+				response: 'Test response from AI',
+				sessionId: 'test-session',
+				timestamp: Date.now()
+			});
+			
+			console.log('✅ Test events emitted - check console for PR2 TEST logs');
+		} else {
+			console.log('❌ No store available');
+		}
+	}
+
+	// 🎭 Initialize store and wire up state
 	onMount(async () => {
-		// Check for stored preferences
-		const storedLanguage = sessionStorage.getItem('kaiwa_language');
-		const storedVoice = sessionStorage.getItem('kaiwa_voice');
-		
-		if (storedLanguage) {
-			language = storedLanguage;
-		}
-		if (storedVoice) {
-			voice = storedVoice;
-		}
-		
-		console.log('🎭 Component mounted, initializing orchestrator...');
+		console.log('🎭 Component mounted, initializing ConversationStore...');
 		try {
-			const eventBus = EventBusFactory.create('memory');
-			console.log('📡 Event bus created');
+			// Create store with shared event bus
+			store = new ConversationStore();
+			console.log('✅ ConversationStore created successfully');
 			
-			orchestrator = new ConversationOrchestrator(eventBus);
-			console.log('✅ Orchestrator created successfully');
-			console.log('🎭 Orchestrator instance:', orchestrator);
-			
-			// Auto-start conversation if requested (aligns with "Invisible Tutor" philosophy)
+			// Wire up reactive state from store
+			$effect(() => {
+				if (store) {
+					conversationState = store.state;
+					isRecording = store.isRecording;
+					isConnected = store.isConnected;
+					isConnecting = store.isConnecting;
+					hasError = store.hasError;
+					messageCount = store.messageCount;
+					canStartConversation = store.canStartConversation;
+					canStopStreaming = store.canStopStreaming;
+					
+					// Wire up additional state properties
+					status = store.state.status;
+					sessionId = store.state.sessionId;
+					messages = store.state.messages;
+					startTime = store.state.startTime;
+					errorMessage = store.state.error || '';
+					isStreaming = store.state.status === RealtimeConversationStatus.STREAMING;
+				}
+			});
+
+			// Auto-start conversation if requested
 			if (autoStart) {
 				console.log('🚀 Auto-starting conversation...');
 				try {
-					// Small delay to ensure everything is initialized
-					await new Promise(resolve => setTimeout(resolve, 100));
-					await orchestrator.startConversation(language, voice);
+					await store.startConversation(language, voice);
 					console.log('✅ Auto-started conversation successfully');
 				} catch (error) {
 					console.error('❌ Failed to auto-start conversation:', error);
 				}
 			}
 		} catch (error) {
-			console.error('❌ Failed to create orchestrator:', error);
+			console.error('❌ Failed to create ConversationStore:', error);
 		}
 
 		// Cleanup
@@ -69,13 +156,13 @@
 	async function setupAudioLevelDetection(source?: MediaStream) {
 		try {
 			// Create audio context
-			audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+			audioContext = new (window.AudioContext || (window).webkitAudioContext)();
 			analyser = audioContext.createAnalyser();
 			analyser.fftSize = 256;
 			analyser.smoothingTimeConstant = 0.8;
 			
 			// Use provided stream or orchestrator's micStream; fallback to getUserMedia only if needed
-			const stream = source || orchestrator?.micStream || (await navigator.mediaDevices.getUserMedia({ audio: true }));
+			const stream = source || store?.micStream || (await navigator.mediaDevices.getUserMedia({ audio: true }));
 			microphone = audioContext.createMediaStreamSource(stream);
 			microphone.connect(analyser);
 			
@@ -92,9 +179,9 @@
 
 	// React to orchestrator mic stream availability and streaming state
 	$effect(() => {
-		if (orchestrator && isStreaming && orchestrator.micStream) {
+		if (store && isRecording && store.micStream) {
 			if (!audioContext) {
-				setupAudioLevelDetection(orchestrator.micStream);
+				setupAudioLevelDetection(store.micStream);
 			}
 		} else {
 			// If streaming stopped or no mic stream, ensure cleanup
@@ -149,29 +236,10 @@
 		console.log('🧹 Audio level detection cleaned up');
 	}
 
-	// Use Svelte 5 runes with orchestrator functions (functional approach)
-		let canStartConversation = $derived(orchestrator?.status === RealtimeConversationStatus.IDLE);
-	let isStreaming = $derived(orchestrator?.status === RealtimeConversationStatus.STREAMING);
-	let isConnecting = $derived(orchestrator?.status === RealtimeConversationStatus.CONNECTING);
-	let hasError = $derived(orchestrator?.status === RealtimeConversationStatus.ERROR);
-	let errorMessage = $derived(orchestrator?.error || '');
-	
-	// Reactive state from orchestrator
-	let status = $derived(orchestrator?.status || RealtimeConversationStatus.IDLE);
-	let sessionId = $derived(orchestrator?.sessionId || '');
-	let messages = $derived(orchestrator?.messages || []);
-	let startTime = $derived(orchestrator?.startTime || 0);
-	let language = $derived(orchestrator?.language || 'en');
-	let voice = $derived(orchestrator?.voice || 'alloy');
-
-	// Simulate audio level for visualization
-
-
-
 	// Cleanup on destroy
 	onDestroy(() => {
-		if (orchestrator) {
-			orchestrator.cleanup();
+		if (store) {
+			store.cleanup();
 		}
 	});
 
@@ -180,20 +248,20 @@
 	// Toggle conversation/streaming
 	async function toggleConversation() {
 		console.log('🎙️ Toggle Conversation button clicked');
-		console.log('🎭 Orchestrator exists:', !!orchestrator);
+		console.log('🎭 Orchestrator exists:', !!store);
 		
-		if (!orchestrator) {
-			console.error('❌ No orchestrator available');
+		if (!store) {
+			console.error('❌ No store available');
 			return;
 		}
 
-		const currentState = orchestrator.getState();
+		const currentState = store.getState();
 		console.log('📊 Current state:', currentState);
 		
 		if (currentState.status === RealtimeConversationStatus.IDLE) {
 			console.log('🚀 Starting conversation and streaming...');
 			try {
-				await orchestrator.startConversation(language, voice);
+				await store.startConversation(language, voice);
 				console.log('✅ Conversation and streaming started successfully');
 			} catch (error) {
 				console.error('❌ Failed to start conversation:', error);
@@ -201,7 +269,7 @@
 		} else if (currentState.status === RealtimeConversationStatus.STREAMING) {
 			console.log('⏹️ Stopping streaming...');
 			try {
-				await orchestrator.stopStreaming();
+				await store.stopStreaming();
 				// Stop audio level detection when streaming stops
 				cleanupAudioLevelDetection();
 				console.log('✅ Streaming stopped successfully');
@@ -215,8 +283,8 @@
 
 	// End conversation
 	async function endConversation() {
-		if (orchestrator) {
-			await orchestrator.endConversation();
+		if (store) {
+			await store.endConversation();
 		}
 	}
 
@@ -224,37 +292,28 @@
 	let audioInterval: ReturnType<typeof setInterval> | undefined;
 	
 	// Log orchestrator state changes for debugging
-	$effect(() => {
-		if (orchestrator) {
-			console.log('🔄 Orchestrator state changed:', {
-				status: orchestrator.status,
-				sessionId: orchestrator.sessionId,
-				messages: orchestrator.messages.length
-			});
-		}
-	});
-
+ 
 	// Test realtime events via bus (PR2 verification)
 	$effect(() => {
-		if (orchestrator) {
+		if (store) {
 			// Subscribe to realtime events to verify PR2 is working
-			const offConnection = orchestrator.bus.on('realtime.connection.status', (payload: any) => {
+			const offConnection = store.eventBus.on('realtime.connection.status', (payload: any) => {
 				console.log('🔌 PR2 TEST - Connection status event received:', payload);
 			});
 			
-			const offTranscript = orchestrator.bus.on('realtime.transcript.received', (payload: any) => {
+			const offTranscript = store.eventBus.on('realtime.transcript.received', (payload: any) => {
 				console.log('📝 PR2 TEST - Transcript event received:', payload);
 			});
 			
-			const offResponse = orchestrator.bus.on('realtime.response.received', (payload: any) => {
+			const offResponse = store.eventBus.on('realtime.response.received', (payload: any) => {
 				console.log('🤖 PR2 TEST - Response event received:', payload);
 			});
 			
-			const offAudioResponse = orchestrator.bus.on('realtime.audio.response', (payload: any) => {
+			const offAudioResponse = store.eventBus.on('realtime.audio.response', (payload: any) => {
 				console.log('🔊 PR2 TEST - Audio response event received:', payload);
 			});
 			
-			const offError = orchestrator.bus.on('realtime.error', (payload: any) => {
+			const offError = store.eventBus.on('realtime.error', (payload: any) => {
 				console.log('❌ PR2 TEST - Error event received:', payload);
 			});
 
@@ -271,19 +330,13 @@
 	// Test functions for dev panel
 	function testVoiceActivity() {
 		console.log('🧪 Testing Voice Activity Detection...');
-		if (orchestrator) {
-			const currentState = orchestrator.getState();
+		if (store) {
+			const currentState = store.getState();
 			console.log('Current VAD state:', currentState.status);
 		}
 	}
 
-	function testTranscription() {
-		console.log('🧪 Testing Transcription...');
-		if (orchestrator) {
-			const currentState = orchestrator.getState();
-			console.log('Current messages:', currentState.messages);
-		}
-	}
+
 
 	function testAudioLevelDetection() {
 		console.log('🧪 Testing Audio Level Detection...');
@@ -303,53 +356,14 @@
 		}
 	}
 
-	function testAIResponse() {
-		console.log('🧪 Testing AI Response...');
-		if (orchestrator) {
-			const currentState = orchestrator.getState();
-			console.log('Current AI state:', currentState.status);
-		}
-	}
 
-	// Test realtime events via bus (PR2 verification)
-	function testRealtimeEvents() {
-		if (orchestrator) {
-			console.log('🧪 Testing Realtime Events (PR2)...');
-			
-			// Manually emit test events to verify bus is working
-			orchestrator.bus.emit('realtime.connection.status', {
-				status: 'connected',
-				sessionId: 'test-session',
-				timestamp: Date.now(),
-				details: 'Test connection event'
-			});
-			
-			orchestrator.bus.emit('realtime.transcript.received', {
-				transcript: 'Test transcript from user',
-				sessionId: 'test-session',
-				confidence: 0.95,
-				language: 'en',
-				timestamp: Date.now()
-			});
-			
-			orchestrator.bus.emit('realtime.response.received', {
-				response: 'Test response from AI',
-				sessionId: 'test-session',
-				timestamp: Date.now()
-			});
-			
-			console.log('✅ Test events emitted - check console for PR2 TEST logs');
-		} else {
-			console.log('❌ No orchestrator available');
-		}
-	}
 
 	// Test mic audio by playing back the stream (hear yourself)
 	function testMicAudio() {
-		if (orchestrator?.micStream) {
+		if (store?.micStream) {
 			// Create audio element to play back the mic stream
 			const audioEl = new Audio();
-			audioEl.srcObject = orchestrator.micStream;
+			audioEl.srcObject = store.micStream;
 			audioEl.play().catch(error => {
 				console.error('❌ Failed to play mic audio:', error);
 			});
@@ -361,8 +375,8 @@
 
 	// Test mic stream details
 	function testMicStreamDetails() {
-		if (orchestrator?.micStream) {
-			const stream = orchestrator.micStream;
+		if (store?.micStream) {
+			const stream = store.micStream;
 			console.log('🎤 Mic Stream Details:', {
 				active: stream.active,
 				trackCount: stream.getTracks().length,
@@ -453,9 +467,9 @@
 		<!-- Debug Info -->
 		<div class="text-center text-sm text-gray-500 mb-4">
 			Debug: Status={status} | canStart={canStartConversation} | isStreaming={isStreaming} | isConnecting={isConnecting}
-			{#if orchestrator && orchestrator.isConnectionHealthy()}
+			{#if store && store.isConnectionHealthy()}
 				<br />
-				Connection Health: {orchestrator.isConnectionHealthy() ? '✅ Healthy' : '❌ Unhealthy'}
+				Connection Health: {store.isConnectionHealthy() ? '✅ Healthy' : '❌ Unhealthy'}
 			{/if}
 		</div>
 		{/if}
@@ -643,8 +657,8 @@
 				<div class="grid grid-cols-2 gap-4 text-sm">
 					<div class="bg-white p-3 rounded border">
 						<span class="font-medium">WebRTC Status:</span>
-						<span class="ml-2 {orchestrator?.isConnectionHealthy() ? 'text-green-600' : 'text-red-600'}">
-							{orchestrator?.isConnectionHealthy() ? '✅ Healthy' : '❌ Unhealthy'}
+						<span class="ml-2 {store?.isConnectionHealthy() ? 'text-green-600' : 'text-red-600'}">
+							{store?.isConnectionHealthy() ? '✅ Healthy' : '❌ Unhealthy'}
 						</span>
 					</div>
 					<div class="bg-white p-3 rounded border">
@@ -663,7 +677,7 @@
 					<div class="bg-white p-3 rounded border">
 						<span class="font-medium">Chunks Sent:</span>
 						<span class="ml-2 text-blue-600">
-							{#if orchestrator && status === 'streaming'}
+							{#if store && status === 'streaming'}
 								{Math.floor((Date.now() - startTime) / 100)} chunks
 							{:else}
 								0 chunks
