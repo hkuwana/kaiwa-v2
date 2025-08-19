@@ -1,37 +1,41 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
 
 	// Get user ID from page data (from your +layout.server.ts)
-	const userId = $page.data.user?.id ?? null;
+	const userId = page.data.user?.id ?? null;
 
-	// Destructure the store
-	const {
-		status,
-		messages,
-		error,
-		audioLevel,
-		availableDevices,
-		selectedDeviceId,
-		startConversation,
-		startStreaming,
-		stopStreaming,
-		endConversation,
-		selectDevice,
-		clearError
-	} = conversationStore;
+	// Use $derived to get reactive values from the store
+	const status = $derived(conversationStore.status);
+	const messages = $derived(conversationStore.messages);
+	const error = $derived(conversationStore.error);
+	const audioLevel = $derived(conversationStore.audioLevel);
+	const availableDevices = $derived(conversationStore.availableDevices);
+	const selectedDeviceId = $derived(conversationStore.selectedDeviceId);
 
 	function handleStart() {
-		startConversation(userId, 'en', 'alloy');
+		conversationStore.startConversation();
 	}
 
 	function handleStartStreaming() {
-		startStreaming();
+		conversationStore.startStreaming();
 	}
 
 	function handleStopStreaming() {
-		stopStreaming();
+		conversationStore.stopStreaming();
+	}
+
+	function handleEndConversation() {
+		conversationStore.endConversation();
+	}
+
+	function handleSelectDevice(deviceId: string) {
+		conversationStore.selectDevice(deviceId);
+	}
+
+	function handleClearError() {
+		conversationStore.clearError();
 	}
 </script>
 
@@ -48,11 +52,11 @@
 	<main>
 		{#if status === 'idle' || status === 'error'}
 			<div class="start-section">
-				<button on:click={handleStart} class="start-btn"> Start Conversation </button>
+				<button onclick={handleStart} class="start-btn"> Start Conversation </button>
 				{#if error}
 					<div class="error-message">
 						<p>Something went wrong: {error}</p>
-						<button on:click={clearError}>Try Again</button>
+						<button onclick={handleClearError}>Try Again</button>
 					</div>
 				{/if}
 			</div>
@@ -64,15 +68,15 @@
 		{:else if status === 'connected'}
 			<div class="connected">
 				<p>Connected! Ready to start streaming.</p>
-				<button on:click={handleStartStreaming} class="stream-btn"> Start Streaming </button>
-				<button on:click={endConversation} class="end-btn"> End Conversation </button>
+				<button onclick={handleStartStreaming} class="stream-btn"> Start Streaming </button>
+				<button onclick={handleEndConversation} class="end-btn"> End Conversation </button>
 			</div>
 		{:else if status === 'streaming'}
 			<div class="streaming">
 				<p>Streaming audio...</p>
-				<AudioVisualizer level={audioLevel} />
-				<button on:click={handleStopStreaming} class="stop-btn"> Stop Streaming </button>
-				<button on:click={endConversation} class="end-btn"> End Conversation </button>
+				<AudioVisualizer audioLevel={audioLevel * 100} />
+				<button onclick={handleStopStreaming} class="stop-btn"> Stop Streaming </button>
+				<button onclick={handleEndConversation} class="end-btn"> End Conversation </button>
 			</div>
 		{/if}
 
@@ -92,7 +96,10 @@
 		{#if availableDevices.length > 0}
 			<div class="device-selector">
 				<h3>Audio Device</h3>
-				<select value={selectedDeviceId} on:change={(e) => selectDevice(e.target.value)}>
+				<select
+					value={selectedDeviceId}
+					onchange={(e) => handleSelectDevice((e.target as HTMLSelectElement).value)}
+				>
 					{#each availableDevices as device}
 						<option value={device.deviceId}>
 							{device.label || `Device ${device.deviceId.slice(0, 8)}`}
