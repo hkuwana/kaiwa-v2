@@ -42,39 +42,32 @@ src/lib/server/repositories/
 ```typescript
 // src/lib/server/repositories/user.repository.ts
 export const userRepository = {
-  // CREATE
-  async createUser(newUser: NewUser): Promise<User> {
-    const [createdUser] = await db.insert(users).values(newUser).returning();
-    return createdUser;
-  },
+	// CREATE
+	async createUser(newUser: NewUser): Promise<User> {
+		const [createdUser] = await db.insert(users).values(newUser).returning();
+		return createdUser;
+	},
 
-  // READ
-  async findUserById(id: string): Promise<User | undefined> {
-    return db.query.users.findFirst({ where: eq(users.id, id) });
-  },
+	// READ
+	async findUserById(id: string): Promise<User | undefined> {
+		return db.query.users.findFirst({ where: eq(users.id, id) });
+	},
 
-  async findUserByEmail(email: string): Promise<User | undefined> {
-    return db.query.users.findFirst({ where: eq(users.email, email) });
-  },
+	async findUserByEmail(email: string): Promise<User | undefined> {
+		return db.query.users.findFirst({ where: eq(users.email, email) });
+	},
 
-  // UPDATE
-  async updateUser(id: string, data: Partial<NewUser>): Promise<User | undefined> {
-    const [updatedUser] = await db
-      .update(users)
-      .set(data)
-      .where(eq(users.id, id))
-      .returning();
-    return updatedUser;
-  },
+	// UPDATE
+	async updateUser(id: string, data: Partial<NewUser>): Promise<User | undefined> {
+		const [updatedUser] = await db.update(users).set(data).where(eq(users.id, id)).returning();
+		return updatedUser;
+	},
 
-  // DELETE
-  async deleteUser(id: string): Promise<{ success: boolean }> {
-    const result = await db
-      .delete(users)
-      .where(eq(users.id, id))
-      .returning({ id: users.id });
-    return { success: result.length > 0 };
-  }
+	// DELETE
+	async deleteUser(id: string): Promise<{ success: boolean }> {
+		const result = await db.delete(users).where(eq(users.id, id)).returning({ id: users.id });
+		return { success: result.length > 0 };
+	}
 };
 ```
 
@@ -83,41 +76,41 @@ export const userRepository = {
 ```typescript
 // src/lib/server/repositories/conversation.repository.ts
 export const conversationRepository = {
-  // CREATE
-  async createConversation(newConversation: NewConversation): Promise<Conversation> {
-    const [createdConversation] = await db
-      .insert(conversations)
-      .values({
-        ...newConversation,
-        id: crypto.randomUUID(),
-        startedAt: new Date()
-      })
-      .returning();
-    return createdConversation;
-  },
+	// CREATE
+	async createConversation(newConversation: NewConversation): Promise<Conversation> {
+		const [createdConversation] = await db
+			.insert(conversations)
+			.values({
+				...newConversation,
+				id: crypto.randomUUID(),
+				startedAt: new Date()
+			})
+			.returning();
+		return createdConversation;
+	},
 
-  // READ with pagination
-  async findConversationsByUserId(
-    userId: string,
-    limit: number = 50,
-    offset: number = 0
-  ): Promise<Conversation[]> {
-    return db.query.conversations.findMany({
-      where: eq(conversations.userId, userId),
-      orderBy: [desc(conversations.startedAt)],
-      limit,
-      offset
-    });
-  },
+	// READ with pagination
+	async findConversationsByUserId(
+		userId: string,
+		limit: number = 50,
+		offset: number = 0
+	): Promise<Conversation[]> {
+		return db.query.conversations.findMany({
+			where: eq(conversations.userId, userId),
+			orderBy: [desc(conversations.startedAt)],
+			limit,
+			offset
+		});
+	},
 
-  // Complex queries
-  async getConversationStats(userId: string): Promise<{
-    totalConversations: number;
-    totalMessages: number;
-    totalDuration: number;
-  }> {
-    // Implementation with aggregations
-  }
+	// Complex queries
+	async getConversationStats(userId: string): Promise<{
+		totalConversations: number;
+		totalMessages: number;
+		totalDuration: number;
+	}> {
+		// Implementation with aggregations
+	}
 };
 ```
 
@@ -132,19 +125,19 @@ export const conversationRepository = {
 import { conversationRepository, userRepository } from '$lib/server/repositories';
 
 export class ConversationService {
-  async startConversation(userId: string, languageId: string): Promise<Conversation> {
-    // Use repository for data access
-    const user = await userRepository.findUserById(userId);
-    if (!user) throw new Error('User not found');
+	async startConversation(userId: string, languageId: string): Promise<Conversation> {
+		// Use repository for data access
+		const user = await userRepository.findUserById(userId);
+		if (!user) throw new Error('User not found');
 
-    const conversation = await conversationRepository.createConversation({
-      userId,
-      targetLanguageId: languageId,
-      mode: 'traditional'
-    });
+		const conversation = await conversationRepository.createConversation({
+			userId,
+			targetLanguageId: languageId,
+			mode: 'traditional'
+		});
 
-    return conversation;
-  }
+		return conversation;
+	}
 }
 ```
 
@@ -156,14 +149,14 @@ import { db } from '$lib/server/db';
 import { conversations } from '$lib/server/db/schema';
 
 export class ConversationService {
-  async startConversation(userId: string, languageId: string): Promise<Conversation> {
-    // ❌ Direct database access - breaks abstraction
-    const [conversation] = await db
-      .insert(conversations)
-      .values({ userId, targetLanguageId: languageId })
-      .returning();
-    return conversation;
-  }
+	async startConversation(userId: string, languageId: string): Promise<Conversation> {
+		// ❌ Direct database access - breaks abstraction
+		const [conversation] = await db
+			.insert(conversations)
+			.values({ userId, targetLanguageId: languageId })
+			.returning();
+		return conversation;
+	}
 }
 ```
 
@@ -176,17 +169,17 @@ export class ConversationService {
 ```typescript
 // src/lib/server/repositories/__mocks__/user.repository.mock.ts
 export const mockUserRepository = {
-  createUser: vi.fn(),
-  findUserById: vi.fn(),
-  findUserByEmail: vi.fn(),
-  updateUser: vi.fn(),
-  deleteUser: vi.fn()
+	createUser: vi.fn(),
+	findUserById: vi.fn(),
+	findUserByEmail: vi.fn(),
+	updateUser: vi.fn(),
+	deleteUser: vi.fn()
 };
 
 // In tests
 beforeEach(() => {
-  vi.clearAllMocks();
-  mockUserRepository.findUserById.mockResolvedValue(mockUser);
+	vi.clearAllMocks();
+	mockUserRepository.findUserById.mockResolvedValue(mockUser);
 });
 ```
 
@@ -195,16 +188,16 @@ beforeEach(() => {
 ```typescript
 // Test the service, not the database
 describe('ConversationService', () => {
-  it('should start conversation for valid user', async () => {
-    const mockUser = { id: 'user-1', tier: 'pro' };
-    mockUserRepository.findUserById.mockResolvedValue(mockUser);
-    
-    const service = new ConversationService(mockUserRepository);
-    const result = await service.startConversation('user-1', 'en');
-    
-    expect(result.userId).toBe('user-1');
-    expect(mockUserRepository.findUserById).toHaveBeenCalledWith('user-1');
-  });
+	it('should start conversation for valid user', async () => {
+		const mockUser = { id: 'user-1', tier: 'pro' };
+		mockUserRepository.findUserById.mockResolvedValue(mockUser);
+
+		const service = new ConversationService(mockUserRepository);
+		const result = await service.startConversation('user-1', 'en');
+
+		expect(result.userId).toBe('user-1');
+		expect(mockUserRepository.findUserById).toHaveBeenCalledWith('user-1');
+	});
 });
 ```
 
@@ -263,7 +256,7 @@ async findWithPagination<T>(
   const offset = (page - 1) * limit;
   const data = await query.limit(limit).offset(offset);
   const total = await query.count();
-  
+
   return {
     data,
     pagination: {
@@ -308,7 +301,7 @@ async createUser(newUser: NewUser): Promise<User> {
   if (newUser.tier === 'premium' && !newUser.subscriptionId) {
     throw new Error('Premium users must have subscription');
   }
-  
+
   const [user] = await db.insert(users).values(newUser).returning();
   return user;
 }
@@ -369,20 +362,20 @@ async createUser(userData: NewUser): Promise<User> {
 
 ```typescript
 export class CachedUserRepository {
-  constructor(
-    private userRepository: UserRepository,
-    private cache: Cache
-  ) {}
+	constructor(
+		private userRepository: UserRepository,
+		private cache: Cache
+	) {}
 
-  async findUserById(id: string): Promise<User | undefined> {
-    const cached = await this.cache.get(`user:${id}`);
-    if (cached) return cached as User;
-    
-    const user = await this.userRepository.findUserById(id);
-    if (user) await this.cache.set(`user:${id}`, user, 300); // 5 min TTL
-    
-    return user;
-  }
+	async findUserById(id: string): Promise<User | undefined> {
+		const cached = await this.cache.get(`user:${id}`);
+		if (cached) return cached as User;
+
+		const user = await this.userRepository.findUserById(id);
+		if (user) await this.cache.set(`user:${id}`, user, 300); // 5 min TTL
+
+		return user;
+	}
 }
 ```
 
@@ -390,16 +383,16 @@ export class CachedUserRepository {
 
 ```typescript
 export class AuditedUserRepository {
-  constructor(
-    private userRepository: UserRepository,
-    private auditLogger: AuditLogger
-  ) {}
+	constructor(
+		private userRepository: UserRepository,
+		private auditLogger: AuditLogger
+	) {}
 
-  async createUser(newUser: NewUser): Promise<User> {
-    const user = await this.userRepository.createUser(newUser);
-    await this.auditLogger.log('user.created', { userId: user.id, data: newUser });
-    return user;
-  }
+	async createUser(newUser: NewUser): Promise<User> {
+		const user = await this.userRepository.createUser(newUser);
+		await this.auditLogger.log('user.created', { userId: user.id, data: newUser });
+		return user;
+	}
 }
 ```
 
@@ -407,15 +400,15 @@ export class AuditedUserRepository {
 
 ```typescript
 export class ValidatedUserRepository {
-  constructor(
-    private userRepository: UserRepository,
-    private validator: Validator
-  ) {}
+	constructor(
+		private userRepository: UserRepository,
+		private validator: Validator
+	) {}
 
-  async createUser(newUser: NewUser): Promise<User> {
-    const validated = await this.validator.validate(newUser, UserSchema);
-    return this.userRepository.createUser(validated);
-  }
+	async createUser(newUser: NewUser): Promise<User> {
+		const validated = await this.validator.validate(newUser, UserSchema);
+		return this.userRepository.createUser(validated);
+	}
 }
 ```
 

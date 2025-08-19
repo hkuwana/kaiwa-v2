@@ -31,7 +31,7 @@ const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
 ### Repository Benefits
 
 - **Consistent data access** across all features
-- **Type-safe operations** with proper interfaces  
+- **Type-safe operations** with proper interfaces
 - **Centralized business logic** for data operations
 - **Easy testing** with mock repositories
 - **Database agnostic** - can swap implementations
@@ -88,15 +88,15 @@ const conversationCore = {
 ```typescript
 // ❌ IMPURE: Hard to test, unpredictable
 function formatDuration(ms: number): string {
- console.log('Formatting:', ms); // Side effect!
- return Math.floor(ms / 1000) + 's';
+	console.log('Formatting:', ms); // Side effect!
+	return Math.floor(ms / 1000) + 's';
 }
 
 // ✅ PURE: Same input always gives same output
 function formatDuration(ms: number): string {
- if (ms < 0) return '0s'; // Handle edge cases
- const seconds = Math.floor(ms / 1000);
- return seconds + 's';
+	if (ms < 0) return '0s'; // Handle edge cases
+	const seconds = Math.floor(ms / 1000);
+	return seconds + 's';
 }
 
 // Easy to test:
@@ -113,23 +113,23 @@ type Result<T, E = Error> = { success: true; data: T } | { success: false; error
 
 // Example: Safe audio recording
 async function startRecording(): Promise<Result<MediaRecorder, string>> {
- try {
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  const recorder = new MediaRecorder(stream);
-  return { success: true, data: recorder };
- } catch (error) {
-  return { success: false, error: 'Microphone access denied' };
- }
+	try {
+		const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+		const recorder = new MediaRecorder(stream);
+		return { success: true, data: recorder };
+	} catch (error) {
+		return { success: false, error: 'Microphone access denied' };
+	}
 }
 
 // Usage - no more unexpected crashes!
 const recordingResult = await startRecording();
 if (recordingResult.success) {
- // Safe to use recorder
- const recorder = recordingResult.data;
+	// Safe to use recorder
+	const recorder = recordingResult.data;
 } else {
- // Handle error gracefully
- showError(recordingResult.error);
+	// Handle error gracefully
+	showError(recordingResult.error);
 }
 ```
 
@@ -138,31 +138,31 @@ if (recordingResult.success) {
 ```typescript
 // Instead of services calling each other, we use an orchestrator
 class ConversationOrchestrator {
- private state: ConversationState;
- private adapters: Adapters;
+	private state: ConversationState;
+	private adapters: Adapters;
 
- async dispatch(action: Action) {
-  // Update state with pure function
-  this.state = conversationCore.transition(this.state, action);
+	async dispatch(action: Action) {
+		// Update state with pure function
+		this.state = conversationCore.transition(this.state, action);
 
-  // Execute side effects
-  const effects = conversationCore.effects(this.state, action);
-  for (const effect of effects) {
-   await this.executeEffect(effect);
-  }
- }
+		// Execute side effects
+		const effects = conversationCore.effects(this.state, action);
+		for (const effect of effects) {
+			await this.executeEffect(effect);
+		}
+	}
 
- private async executeEffect(effect: Effect) {
-  switch (effect.type) {
-   case 'START_AUDIO_CAPTURE':
-    this.adapters.audio.startRecording();
-    break;
-   case 'TRANSCRIBE_AUDIO':
-    const result = await this.adapters.ai.transcribe(this.state.audioData);
-    await this.dispatch({ type: 'TRANSCRIPTION_COMPLETE', result });
-    break;
-  }
- }
+	private async executeEffect(effect: Effect) {
+		switch (effect.type) {
+			case 'START_AUDIO_CAPTURE':
+				this.adapters.audio.startRecording();
+				break;
+			case 'TRANSCRIBE_AUDIO':
+				const result = await this.adapters.ai.transcribe(this.state.audioData);
+				await this.dispatch({ type: 'TRANSCRIPTION_COMPLETE', result });
+				break;
+		}
+	}
 }
 ```
 
@@ -236,32 +236,32 @@ src/features/{feature-name}/
 ```typescript
 // events.ts
 export interface FeatureEvents {
- 'feature.action.completed': {
-  featureId: string;
-  result: any;
-  timestamp: Date;
- };
- 'feature.error.occurred': {
-  featureId: string;
-  error: string;
-  context: Record<string, any>;
- };
+	'feature.action.completed': {
+		featureId: string;
+		result: any;
+		timestamp: Date;
+	};
+	'feature.error.occurred': {
+		featureId: string;
+		error: string;
+		context: Record<string, any>;
+	};
 }
 
 // Event schemas for validation
 export const FEATURE_ACTION_COMPLETED_EVENT: EventSchema<{
- featureId: string;
- result: any;
- timestamp: Date;
+	featureId: string;
+	result: any;
+	timestamp: Date;
 }> = {
- name: 'feature.action.completed',
- version: '1.0.0',
- description: 'Feature action successfully completed',
- payload: {
-  featureId: 'string',
-  result: 'any',
-  timestamp: 'Date'
- }
+	name: 'feature.action.completed',
+	version: '1.0.0',
+	description: 'Feature action successfully completed',
+	payload: {
+		featureId: 'string',
+		result: 'any',
+		timestamp: 'Date'
+	}
 };
 ```
 
@@ -270,35 +270,35 @@ export const FEATURE_ACTION_COMPLETED_EVENT: EventSchema<{
 ```typescript
 // use-cases/feature-action.ts
 export class FeatureActionUseCase {
- constructor(
-  private eventBus: EventBus,
-  private repository: FeatureRepository
- ) {}
+	constructor(
+		private eventBus: EventBus,
+		private repository: FeatureRepository
+	) {}
 
- async execute(featureId: string, action: string): Promise<Result<void, Error>> {
-  try {
-   // Execute business logic
-   const result = await this.repository.performAction(featureId, action);
+	async execute(featureId: string, action: string): Promise<Result<void, Error>> {
+		try {
+			// Execute business logic
+			const result = await this.repository.performAction(featureId, action);
 
-   // Emit success event
-   this.eventBus.emit('feature.action.completed', {
-    featureId,
-    result,
-    timestamp: new Date()
-   });
+			// Emit success event
+			this.eventBus.emit('feature.action.completed', {
+				featureId,
+				result,
+				timestamp: new Date()
+			});
 
-   return { success: true, data: undefined };
-  } catch (error) {
-   // Emit error event
-   this.eventBus.emit('feature.error.occurred', {
-    featureId,
-    error: error.message,
-    context: { action }
-   });
+			return { success: true, data: undefined };
+		} catch (error) {
+			// Emit error event
+			this.eventBus.emit('feature.error.occurred', {
+				featureId,
+				error: error.message,
+				context: { action }
+			});
 
-   return { success: false, error: error as Error };
-  }
- }
+			return { success: false, error: error as Error };
+		}
+	}
 }
 ```
 
@@ -311,15 +311,15 @@ export class FeatureActionUseCase {
 ```typescript
 // Test pure business logic in isolation
 describe('ConversationCore', () => {
- it('should transition from idle to recording', () => {
-  const initialState = { status: 'idle', messages: [] };
-  const action = { type: 'START_RECORDING' };
+	it('should transition from idle to recording', () => {
+		const initialState = { status: 'idle', messages: [] };
+		const action = { type: 'START_RECORDING' };
 
-  const newState = conversationCore.transition(initialState, action);
+		const newState = conversationCore.transition(initialState, action);
 
-  expect(newState.status).toBe('recording');
-  expect(newState.messages).toEqual([]);
- });
+		expect(newState.status).toBe('recording');
+		expect(newState.messages).toEqual([]);
+	});
 });
 ```
 
@@ -328,15 +328,15 @@ describe('ConversationCore', () => {
 ```typescript
 // Test adapters with real dependencies
 describe('AudioAdapter', () => {
- it('should record audio successfully', async () => {
-  const adapter = new AudioAdapter();
-  const mockStream = createMockAudioStream();
+	it('should record audio successfully', async () => {
+		const adapter = new AudioAdapter();
+		const mockStream = createMockAudioStream();
 
-  const result = await adapter.startRecording(mockStream);
+		const result = await adapter.startRecording(mockStream);
 
-  expect(result.success).toBe(true);
-  expect(result.data).toBeInstanceOf(MediaRecorder);
- });
+		expect(result.success).toBe(true);
+		expect(result.data).toBeInstanceOf(MediaRecorder);
+	});
 });
 ```
 
@@ -345,22 +345,22 @@ describe('AudioAdapter', () => {
 ```typescript
 // Test complete feature workflows
 describe('Conversation Feature', () => {
- it('should complete full conversation cycle', async () => {
-  const orchestrator = new ConversationOrchestrator();
+	it('should complete full conversation cycle', async () => {
+		const orchestrator = new ConversationOrchestrator();
 
-  // Start conversation
-  await orchestrator.dispatch({ type: 'START_CONVERSATION' });
-  expect(orchestrator.getState().status).toBe('idle');
+		// Start conversation
+		await orchestrator.dispatch({ type: 'START_CONVERSATION' });
+		expect(orchestrator.getState().status).toBe('idle');
 
-  // Start recording
-  await orchestrator.dispatch({ type: 'START_RECORDING' });
-  expect(orchestrator.getState().status).toBe('recording');
+		// Start recording
+		await orchestrator.dispatch({ type: 'START_RECORDING' });
+		expect(orchestrator.getState().status).toBe('recording');
 
-  // Stop recording
-  const mockAudio = new ArrayBuffer(1024);
-  await orchestrator.dispatch({ type: 'STOP_RECORDING', audio: mockAudio });
-  expect(orchestrator.getState().status).toBe('processing');
- });
+		// Stop recording
+		const mockAudio = new ArrayBuffer(1024);
+		await orchestrator.dispatch({ type: 'STOP_RECORDING', audio: mockAudio });
+		expect(orchestrator.getState().status).toBe('processing');
+	});
 });
 ```
 
@@ -373,24 +373,24 @@ describe('Conversation Feature', () => {
 ```typescript
 // Batch multiple events to reduce overhead
 class EventBatcher {
- private events: Event[] = [];
- private batchTimeout: NodeJS.Timeout | null = null;
+	private events: Event[] = [];
+	private batchTimeout: NodeJS.Timeout | null = null;
 
- emit(event: Event) {
-  this.events.push(event);
+	emit(event: Event) {
+		this.events.push(event);
 
-  if (!this.batchTimeout) {
-   this.batchTimeout = setTimeout(() => {
-    this.flush();
-   }, 100); // Batch events within 100ms
-  }
- }
+		if (!this.batchTimeout) {
+			this.batchTimeout = setTimeout(() => {
+				this.flush();
+			}, 100); // Batch events within 100ms
+		}
+	}
 
- private flush() {
-  this.eventBus.emitBatch(this.events);
-  this.events = [];
-  this.batchTimeout = null;
- }
+	private flush() {
+		this.eventBus.emitBatch(this.events);
+		this.events = [];
+		this.batchTimeout = null;
+	}
 }
 ```
 
@@ -399,17 +399,17 @@ class EventBatcher {
 ```typescript
 // Load feature modules only when needed
 export class FeatureLoader {
- private loadedFeatures = new Map<string, Feature>();
+	private loadedFeatures = new Map<string, Feature>();
 
- async loadFeature(featureId: string): Promise<Feature> {
-  if (this.loadedFeatures.has(featureId)) {
-   return this.loadedFeatures.get(featureId)!;
-  }
+	async loadFeature(featureId: string): Promise<Feature> {
+		if (this.loadedFeatures.has(featureId)) {
+			return this.loadedFeatures.get(featureId)!;
+		}
 
-  const feature = await import(`./features/${featureId}`);
-  this.loadedFeatures.set(featureId, feature);
-  return feature;
- }
+		const feature = await import(`./features/${featureId}`);
+		this.loadedFeatures.set(featureId, feature);
+		return feature;
+	}
 }
 ```
 
@@ -422,13 +422,13 @@ export class FeatureLoader {
 ```typescript
 // Validate all inputs at boundaries
 export const validateFeatureAction = (input: unknown): FeatureAction => {
- const schema = z.object({
-  featureId: z.string().min(1),
-  action: z.string().min(1),
-  parameters: z.record(z.unknown()).optional()
- });
+	const schema = z.object({
+		featureId: z.string().min(1),
+		action: z.string().min(1),
+		parameters: z.record(z.unknown()).optional()
+	});
 
- return schema.parse(input);
+	return schema.parse(input);
 };
 ```
 
@@ -437,16 +437,16 @@ export const validateFeatureAction = (input: unknown): FeatureAction => {
 ```typescript
 // Sanitize events before processing
 export class SecureEventBus extends EventBus {
- emit<T extends keyof EventMap>(event: T, payload: EventMap[T]) {
-  // Sanitize payload
-  const sanitizedPayload = this.sanitizePayload(payload);
+	emit<T extends keyof EventMap>(event: T, payload: EventMap[T]) {
+		// Sanitize payload
+		const sanitizedPayload = this.sanitizePayload(payload);
 
-  // Validate event schema
-  this.validateEvent(event, sanitizedPayload);
+		// Validate event schema
+		this.validateEvent(event, sanitizedPayload);
 
-  // Emit sanitized event
-  super.emit(event, sanitizedPayload);
- }
+		// Emit sanitized event
+		super.emit(event, sanitizedPayload);
+	}
 }
 ```
 

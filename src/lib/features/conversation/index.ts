@@ -7,7 +7,7 @@ export type {
 	ConversationAction,
 	ConversationEffect,
 	RealtimeConversationStatus
-} from './kernel/index'; 
+} from './kernel/index';
 export { conversationEvents, createEventPayloads } from './events';
 export { createConversationStore } from './store.svelte';
 export { adapters } from './adapters';

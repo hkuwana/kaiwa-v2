@@ -49,20 +49,20 @@
 ```typescript
 // +layout.server.ts - Base SEO configuration
 const BASE_SEO = {
- title: 'Kaiwa - AI Language Learning Through Conversation',
- description: 'Practice speaking languages naturally with AI...',
- keywords: 'language learning, AI tutor, conversation practice...'
- // ... more base config
+	title: 'Kaiwa - AI Language Learning Through Conversation',
+	description: 'Practice speaking languages naturally with AI...',
+	keywords: 'language learning, AI tutor, conversation practice...'
+	// ... more base config
 };
 
 export const load = async ({ url, request, locals }) => {
- return {
-  seo: {
-   ...BASE_SEO,
-   canonical: `${BASE_SEO.canonical}${url.pathname}`,
-   url: url.href
-  }
- };
+	return {
+		seo: {
+			...BASE_SEO,
+			canonical: `${BASE_SEO.canonical}${url.pathname}`,
+			url: url.href
+		}
+	};
 };
 ```
 
@@ -71,17 +71,17 @@ export const load = async ({ url, request, locals }) => {
 ```typescript
 // +page.server.ts - Page-specific metadata
 export const load = async ({ locals }) => {
- return {
-  seo: {
-   title: 'Kaiwa - Learn Languages Through AI Conversation',
-   description: 'Choose from 18+ languages...',
-   structuredData: {
-    '@type': 'WebPage',
-    name: 'Language Learning Home'
-    // ... structured data
-   }
-  }
- };
+	return {
+		seo: {
+			title: 'Kaiwa - Learn Languages Through AI Conversation',
+			description: 'Choose from 18+ languages...',
+			structuredData: {
+				'@type': 'WebPage',
+				name: 'Language Learning Home'
+				// ... structured data
+			}
+		}
+	};
 };
 ```
 
@@ -90,14 +90,14 @@ export const load = async ({ locals }) => {
 ```svelte
 <!-- +page.svelte - SEO metadata rendering -->
 <svelte:head>
- <title>{data.seo.title}</title>
- <meta name="description" content={data.seo.description} />
- <link rel="canonical" href={data.seo.canonical} />
+	<title>{data.seo.title}</title>
+	<meta name="description" content={data.seo.description} />
+	<link rel="canonical" href={data.seo.canonical} />
 
- <!-- Structured Data -->
- <script type="application/ld+json">
+	<!-- Structured Data -->
+	<script type="application/ld+json">
     {JSON.stringify(data.seo.structuredData)}
- </script>
+	</script>
 </svelte:head>
 ```
 
@@ -109,13 +109,13 @@ export const load = async ({ locals }) => {
 
 ```json
 {
- "name": "Kaiwa - AI Language Learning",
- "short_name": "Kaiwa",
- "description": "Practice speaking languages naturally with AI...",
- "start_url": "/",
- "display": "standalone",
- "theme_color": "#3B82F6",
- "categories": ["education", "productivity"]
+	"name": "Kaiwa - AI Language Learning",
+	"short_name": "Kaiwa",
+	"description": "Practice speaking languages naturally with AI...",
+	"start_url": "/",
+	"display": "standalone",
+	"theme_color": "#3B82F6",
+	"categories": ["education", "productivity"]
 }
 ```
 

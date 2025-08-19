@@ -1,6 +1,6 @@
 <script lang="ts">
 	import RealtimeConversation from '$lib/components/RealtimeConversation.svelte';
-	
+
 	let { data } = $props();
 </script>
 
@@ -9,8 +9,8 @@
 	<meta name="description" content="Practice languages in real-time with AI" />
 </svelte:head>
 
-<RealtimeConversation 
-	language={data.defaultLanguage} 
+<RealtimeConversation
+	language={data.defaultLanguage}
 	voice={data.defaultVoice}
 	autoStart={data.autoStartConversation}
 />

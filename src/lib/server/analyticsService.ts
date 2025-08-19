@@ -3,7 +3,7 @@
 
 import { db } from './db/index';
 import { analyticsEvents } from './db/schema';
-	import { eq } from 'drizzle-orm'; 
+import { eq } from 'drizzle-orm';
 
 // PostHog server-side tracking
 const POSTHOG_API_KEY = process.env.POSTHOG_API_KEY;

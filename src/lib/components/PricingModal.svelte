@@ -6,7 +6,12 @@
 	import type { UsageStatus } from '$lib/server/tierService';
 
 	// Props
-	let { isOpen, currentTier = 'free', usageStatus = null, source = 'navbar' } = $props<{
+	let {
+		isOpen,
+		currentTier = 'free',
+		usageStatus = null,
+		source = 'navbar'
+	} = $props<{
 		isOpen: boolean;
 		currentTier: string;
 		usageStatus: UsageStatus | null;

@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	
+
 	// Get user data from page data
 	const user = $page.data.user;
-	
+
 	function startConversation() {
 		goto('/conversation');
 	}
@@ -19,7 +19,7 @@
 	<header class="hero">
 		<h1>🎯 Kaiwa</h1>
 		<p class="subtitle">Master languages through real-time AI conversations</p>
-		
+
 		{#if user}
 			<p class="welcome">Welcome back, {user.displayName || 'User'}!</p>
 		{:else}
@@ -51,9 +51,7 @@
 		</div>
 
 		<div class="cta-section">
-			<button on:click={startConversation} class="cta-button">
-				🎯 Start Learning Now
-			</button>
+			<button on:click={startConversation} class="cta-button"> 🎯 Start Learning Now </button>
 			<p class="cta-subtitle">Experience the new simplified architecture</p>
 		</div>
 
@@ -86,7 +84,10 @@
 		min-height: 100vh;
 		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 		color: white;
-		font-family: system-ui, -apple-system, sans-serif;
+		font-family:
+			system-ui,
+			-apple-system,
+			sans-serif;
 	}
 
 	.hero {
@@ -98,7 +99,7 @@
 		font-size: 4rem;
 		font-weight: bold;
 		margin-bottom: 1rem;
-		text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+		text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 	}
 
 	.subtitle {
@@ -107,10 +108,11 @@
 		opacity: 0.9;
 	}
 
-	.welcome, .guest-info {
+	.welcome,
+	.guest-info {
 		font-size: 1.2rem;
 		padding: 1rem 2rem;
-		background: rgba(255,255,255,0.1);
+		background: rgba(255, 255, 255, 0.1);
 		border-radius: 8px;
 		display: inline-block;
 	}
@@ -129,11 +131,11 @@
 	}
 
 	.feature-card {
-		background: rgba(255,255,255,0.1);
+		background: rgba(255, 255, 255, 0.1);
 		padding: 2rem;
 		border-radius: 12px;
 		backdrop-filter: blur(10px);
-		border: 1px solid rgba(255,255,255,0.2);
+		border: 1px solid rgba(255, 255, 255, 0.2);
 	}
 
 	.feature-card h3 {
@@ -150,7 +152,7 @@
 
 	.feature-card li {
 		padding: 0.5rem 0;
-		border-bottom: 1px solid rgba(255,255,255,0.1);
+		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 	}
 
 	.cta-section {
@@ -168,13 +170,13 @@
 		border-radius: 8px;
 		cursor: pointer;
 		transition: all 0.3s ease;
-		box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 	}
 
 	.cta-button:hover {
 		background: #f59e0b;
 		transform: translateY(-2px);
-		box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+		box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 	}
 
 	.cta-subtitle {
@@ -184,11 +186,11 @@
 	}
 
 	.architecture-info {
-		background: rgba(255,255,255,0.1);
+		background: rgba(255, 255, 255, 0.1);
 		padding: 2rem;
 		border-radius: 12px;
 		backdrop-filter: blur(10px);
-		border: 1px solid rgba(255,255,255,0.2);
+		border: 1px solid rgba(255, 255, 255, 0.2);
 	}
 
 	.architecture-info h3 {
@@ -207,9 +209,9 @@
 	.benefit {
 		text-align: center;
 		padding: 1.5rem;
-		background: rgba(255,255,255,0.05);
+		background: rgba(255, 255, 255, 0.05);
 		border-radius: 8px;
-		border: 1px solid rgba(255,255,255,0.1);
+		border: 1px solid rgba(255, 255, 255, 0.1);
 	}
 
 	.benefit h4 {
@@ -228,11 +230,11 @@
 		.hero h1 {
 			font-size: 3rem;
 		}
-		
+
 		.features {
 			grid-template-columns: 1fr;
 		}
-		
+
 		.benefits {
 			grid-template-columns: 1fr;
 		}

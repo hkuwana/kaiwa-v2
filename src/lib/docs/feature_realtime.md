@@ -48,10 +48,10 @@ import { realtimeService } from '$lib/features/realtime';
 
 // Create a session
 const session = await realtimeService.createSession({
-  sessionId: 'unique-id',
-  model: 'gpt-4o-realtime-preview-2024-10-01',
-  voice: 'alloy',
-  language: 'en'
+	sessionId: 'unique-id',
+	model: 'gpt-4o-realtime-preview-2024-10-01',
+	voice: 'alloy',
+	language: 'en'
 });
 
 // Start streaming
@@ -87,23 +87,25 @@ await orchestrator.endConversation();
 Creates a new realtime session with OpenAI.
 
 **Request:**
+
 ```json
 {
-  "sessionId": "unique-session-identifier",
-  "model": "gpt-4o-realtime-preview-2024-10-01",
-  "voice": "alloy",
-  "language": "en"
+	"sessionId": "unique-session-identifier",
+	"model": "gpt-4o-realtime-preview-2024-10-01",
+	"voice": "alloy",
+	"language": "en"
 }
 ```
 
 **Response:**
+
 ```json
 {
-  "session_id": "openai-session-id",
-  "client_secret": {
-    "value": "ephemeral-token",
-    "expires_at": "2024-01-20T10:30:00.000Z"
-  }
+	"session_id": "openai-session-id",
+	"client_secret": {
+		"value": "ephemeral-token",
+		"expires_at": "2024-01-20T10:30:00.000Z"
+	}
 }
 ```
 
@@ -126,6 +128,7 @@ await audioService.startRecording();
 ### WebRTC Integration
 
 The feature automatically:
+
 1. Creates RTCPeerConnection
 2. Adds audio tracks to the connection
 3. Sends offer to OpenAI
@@ -141,19 +144,21 @@ The feature automatically:
 
 **Cause**: The API response doesn't contain the expected `session_id` field.
 
-**Solution**: 
+**Solution**:
+
 - Check that the `/api/realtime-session` endpoint is working
 - Verify OpenAI API key is configured
 - Check browser console for detailed error logs
 
 **Debug Steps**:
+
 ```typescript
 // Add logging to see the raw response
 console.log('Raw session data:', sessionData);
 
 // Check if session_id exists
 if (!sessionData.session_id) {
-  console.error('Missing session_id:', sessionData);
+	console.error('Missing session_id:', sessionData);
 }
 ```
 
@@ -162,6 +167,7 @@ if (!sessionData.session_id) {
 **Cause**: WebRTC connection failed or OpenAI API error.
 
 **Solution**:
+
 - Check network connectivity
 - Verify OpenAI API quota/limits
 - Ensure audio permissions are granted
@@ -171,6 +177,7 @@ if (!sessionData.session_id) {
 **Cause**: MediaRecorder not properly initialized or permissions denied.
 
 **Solution**:
+
 - Check browser console for MediaRecorder errors
 - Verify microphone permissions
 - Test with a simple audio recording first
@@ -178,6 +185,7 @@ if (!sessionData.session_id) {
 ### Debug Mode
 
 Enable detailed logging by setting the environment variable:
+
 ```bash
 DEBUG_REALTIME=true
 ```
@@ -212,6 +220,7 @@ DEBUG_REALTIME=true
 ### Monitoring
 
 Track key metrics:
+
 - Audio chunk processing time
 - WebRTC connection stability
 - OpenAI API response times
@@ -226,15 +235,15 @@ Track key metrics:
 ```typescript
 // Listen for conversation events
 realtimeService.onTranscript((transcript) => {
-  console.log('AI said:', transcript);
+	console.log('AI said:', transcript);
 });
 
 realtimeService.onResponse((response) => {
-  console.log('AI response:', response);
+	console.log('AI response:', response);
 });
 
 realtimeService.onError((error) => {
-  console.error('Error:', error);
+	console.error('Error:', error);
 });
 ```
 
@@ -242,10 +251,10 @@ realtimeService.onError((error) => {
 
 ```typescript
 interface ConversationEvent {
-  type: 'started' | 'stopped' | 'error';
-  sessionId: string;
-  timestamp: number;
-  payload: any;
+	type: 'started' | 'stopped' | 'error';
+	sessionId: string;
+	timestamp: number;
+	payload: any;
 }
 ```
 

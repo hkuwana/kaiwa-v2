@@ -39,7 +39,9 @@
 	}
 
 	function getUnusedVocabulary(): string[] {
-		return (scenario.targetVocabulary || []).filter((word: string) => !usedVocabulary.includes(word));
+		return (scenario.targetVocabulary || []).filter(
+			(word: string) => !usedVocabulary.includes(word)
+		);
 	}
 </script>
 

@@ -19,11 +19,11 @@
 		<!-- Header with metadata -->
 		<header class="mb-12 border-b-2 border-base-300 pb-8">
 			{#if data.title}
-				<h1 class="mb-4 text-4xl font-bold text-base-content leading-tight">{data.title}</h1>
+				<h1 class="mb-4 text-4xl leading-tight font-bold text-base-content">{data.title}</h1>
 			{/if}
 
 			{#if data.description}
-				<p class="mb-6 text-xl text-base-content/70 leading-relaxed">{data.description}</p>
+				<p class="mb-6 text-xl leading-relaxed text-base-content/70">{data.description}</p>
 			{/if}
 
 			{#if data.metadata?.author || data.metadata?.date}
@@ -38,7 +38,7 @@
 			{/if}
 
 			{#if data.metadata?.tags && data.metadata.tags.length > 0}
-				<div class="flex gap-2 flex-wrap">
+				<div class="flex flex-wrap gap-2">
 					{#each data.metadata.tags as tag}
 						<span class="badge badge-outline badge-sm">{tag}</span>
 					{/each}
@@ -54,9 +54,7 @@
 		<!-- Footer -->
 		<footer class="border-t border-base-300 pt-8">
 			<div class="flex justify-start">
-				<a href="/docs" class="btn btn-link btn-sm gap-2">
-					← Back to Docs
-				</a>
+				<a href="/docs" class="btn gap-2 btn-link btn-sm"> ← Back to Docs </a>
 			</div>
 		</footer>
 	</div>
@@ -64,7 +62,12 @@
 	<div class="container mx-auto max-w-4xl px-4 py-8">
 		<div class="alert alert-info">
 			<svg class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+				/>
 			</svg>
 			<span>Loading document...</span>
 		</div>

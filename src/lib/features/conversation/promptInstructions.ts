@@ -3,7 +3,7 @@
 
 import { languages } from '$lib/data/languages';
 import { getCEFRLabel } from '$lib/features/gamification';
-import type { Scenarios, Speaker } from '$lib/types'; 
+import type { Scenarios, Speaker } from '$lib/types';
 
 // 🏗️ Core Types
 export interface TutorConfig {
@@ -148,16 +148,12 @@ const DEFAULT_LANGUAGES = [
 	}
 ];
 
-
 function getLanguageByCode(code: string) {
 	return languages.find((lang) => lang.code === code);
 }
 
 function getLanguageInfo(language: string) {
-	return (
-		getLanguageByCode(language) ||
-		DEFAULT_LANGUAGES.find((lang) => lang.code === language)
-	);
+	return getLanguageByCode(language) || DEFAULT_LANGUAGES.find((lang) => lang.code === language);
 }
 
 // 🎭 Scenario Details Generator

@@ -7,14 +7,14 @@
 	const userId = $page.data.user?.id ?? null;
 
 	// Destructure the store
-	const { 
-		status, 
-		messages, 
-		error, 
+	const {
+		status,
+		messages,
+		error,
 		audioLevel,
 		availableDevices,
 		selectedDeviceId,
-		startConversation, 
+		startConversation,
 		startStreaming,
 		stopStreaming,
 		endConversation,
@@ -48,9 +48,7 @@
 	<main>
 		{#if status === 'idle' || status === 'error'}
 			<div class="start-section">
-				<button on:click={handleStart} class="start-btn">
-					Start Conversation
-				</button>
+				<button on:click={handleStart} class="start-btn"> Start Conversation </button>
 				{#if error}
 					<div class="error-message">
 						<p>Something went wrong: {error}</p>
@@ -66,23 +64,15 @@
 		{:else if status === 'connected'}
 			<div class="connected">
 				<p>Connected! Ready to start streaming.</p>
-				<button on:click={handleStartStreaming} class="stream-btn">
-					Start Streaming
-				</button>
-				<button on:click={endConversation} class="end-btn">
-					End Conversation
-				</button>
+				<button on:click={handleStartStreaming} class="stream-btn"> Start Streaming </button>
+				<button on:click={endConversation} class="end-btn"> End Conversation </button>
 			</div>
 		{:else if status === 'streaming'}
 			<div class="streaming">
 				<p>Streaming audio...</p>
 				<AudioVisualizer level={audioLevel} />
-				<button on:click={handleStopStreaming} class="stop-btn">
-					Stop Streaming
-				</button>
-				<button on:click={endConversation} class="end-btn">
-					End Conversation
-				</button>
+				<button on:click={handleStopStreaming} class="stop-btn"> Stop Streaming </button>
+				<button on:click={endConversation} class="end-btn"> End Conversation </button>
 			</div>
 		{/if}
 
@@ -102,10 +92,7 @@
 		{#if availableDevices.length > 0}
 			<div class="device-selector">
 				<h3>Audio Device</h3>
-				<select 
-					value={selectedDeviceId}
-					on:change={(e) => selectDevice(e.target.value)}
-				>
+				<select value={selectedDeviceId} on:change={(e) => selectDevice(e.target.value)}>
 					{#each availableDevices as device}
 						<option value={device.deviceId}>
 							{device.label || `Device ${device.deviceId.slice(0, 8)}`}
@@ -122,7 +109,10 @@
 		max-width: 800px;
 		margin: 0 auto;
 		padding: 2rem;
-		font-family: system-ui, -apple-system, sans-serif;
+		font-family:
+			system-ui,
+			-apple-system,
+			sans-serif;
 	}
 
 	header {
@@ -130,7 +120,10 @@
 		margin-bottom: 2rem;
 	}
 
-	.start-section, .connecting, .connected, .streaming {
+	.start-section,
+	.connecting,
+	.connected,
+	.streaming {
 		text-align: center;
 		margin: 2rem 0;
 		padding: 2rem;
@@ -138,7 +131,10 @@
 		border-radius: 8px;
 	}
 
-	.start-btn, .stream-btn, .stop-btn, .end-btn {
+	.start-btn,
+	.stream-btn,
+	.stop-btn,
+	.end-btn {
 		padding: 0.75rem 1.5rem;
 		margin: 0.5rem;
 		border: none;
@@ -204,8 +200,12 @@
 	}
 
 	@keyframes spin {
-		0% { transform: rotate(0deg); }
-		100% { transform: rotate(360deg); }
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
 	}
 
 	.messages {

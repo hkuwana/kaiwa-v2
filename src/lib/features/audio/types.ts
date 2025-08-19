@@ -71,7 +71,7 @@ export interface AudioEvents {
 
 // 🎯 Event Payload Types
 export type AudioEventPayload<T extends keyof AudioEvents> = AudioEvents[T];
- 
+
 // 🎯 Port Interfaces (following your hexagonal architecture)
 export interface AudioInputPort {
 	startRealtimeRecording: (

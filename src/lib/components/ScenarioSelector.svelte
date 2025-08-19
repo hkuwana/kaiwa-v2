@@ -154,12 +154,12 @@
 								</p>
 							</div>
 
-													<!-- Target Vocabulary Preview -->
-						{#if showScaffolding && (scenario.vocabularyPreview?.length || 0) > 0}
+							<!-- Target Vocabulary Preview -->
+							{#if showScaffolding && (scenario.vocabularyPreview?.length || 0) > 0}
 								<div class="vocabulary-preview mb-4">
 									<h4 class="mb-2 text-sm font-medium text-gray-700">Key Words:</h4>
 									<div class="flex flex-wrap gap-2">
-										{#each (scenario.vocabularyPreview || []) as word}
+										{#each scenario.vocabularyPreview || [] as word}
 											<span
 												class="rounded bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800"
 											>
@@ -268,7 +268,7 @@
 							<div class="example-responses">
 								<h4 class="mb-3 font-medium text-gray-700">Example Responses</h4>
 								<div class="space-y-2">
-									{#each (selectedScenario.exampleResponses || []) as example}
+									{#each selectedScenario.exampleResponses || [] as example}
 										<div class="rounded-lg border border-green-200 bg-green-50 p-3">
 											<p class="text-sm text-gray-800">{example}</p>
 										</div>

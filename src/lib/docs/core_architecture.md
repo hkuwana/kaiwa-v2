@@ -66,14 +66,14 @@ All database operations go through **repository classes** that implement CRUD pr
 export const userRepository = {
   // CREATE
   async createUser(newUser: NewUser): Promise<User>,
-  
+
   // READ
   async findUserById(id: string): Promise<User | undefined>,
   async findUserByEmail(email: string): Promise<User | undefined>,
-  
+
   // UPDATE
   async updateUser(id: string, data: Partial<NewUser>): Promise<User | undefined>,
-  
+
   // DELETE
   async deleteUser(id: string): Promise<{ success: boolean }>
 };
@@ -178,21 +178,21 @@ Pure business objects that represent core concepts:
 
 ```typescript
 export class User {
- constructor(
-  public readonly id: string,
-  public readonly email: string,
-  public readonly tier: UserTier,
-  public readonly nativeLanguage: Language,
-  public readonly targetLanguage: Language
- ) {}
+	constructor(
+		public readonly id: string,
+		public readonly email: string,
+		public readonly tier: UserTier,
+		public readonly nativeLanguage: Language,
+		public readonly targetLanguage: Language
+	) {}
 
- canStartConversation(): boolean {
-  return this.tier.hasConversationAccess();
- }
+	canStartConversation(): boolean {
+		return this.tier.hasConversationAccess();
+	}
 
- hasRealtimeAccess(): boolean {
-  return this.tier.hasRealtimeAccess();
- }
+	hasRealtimeAccess(): boolean {
+		return this.tier.hasRealtimeAccess();
+	}
 }
 ```
 
@@ -358,10 +358,10 @@ export class OpenAIAudioAdapter implements AudioProcessingPort {
 
 ```typescript
 export class ConversationService {
- constructor(
-  private audioPort: AudioProcessingPort,
-  private eventBus: EventBus
- ) {}
+	constructor(
+		private audioPort: AudioProcessingPort,
+		private eventBus: EventBus
+	) {}
 }
 ```
 

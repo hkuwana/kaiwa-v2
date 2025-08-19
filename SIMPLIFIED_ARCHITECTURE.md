@@ -15,7 +15,7 @@ Your functions have been simplified by implementing a clean, modular architectur
 ### After (Simple)
 
 - **AudioDeviceManager**: 85 lines - only device management
-- **WebRTCConnection**: 180 lines - only connection handling  
+- **WebRTCConnection**: 180 lines - only connection handling
 - **ConversationManager**: 120 lines - only business logic
 - **Clean separation** with single responsibilities
 
@@ -25,12 +25,12 @@ Your functions have been simplified by implementing a clean, modular architectur
 
 ```typescript
 export class AudioDeviceManager {
-  // Only handles:
-  // ✅ Device enumeration
-  // ✅ Stream acquisition  
-  // ✅ Audio level monitoring
-  // ❌ NO recording logic
-  // ❌ NO streaming complexity
+	// Only handles:
+	// ✅ Device enumeration
+	// ✅ Stream acquisition
+	// ✅ Audio level monitoring
+	// ❌ NO recording logic
+	// ❌ NO streaming complexity
 }
 ```
 
@@ -44,12 +44,12 @@ export class AudioDeviceManager {
 
 ```typescript
 export class WebRTCConnection {
-  // Only handles:
-  // ✅ Connection establishment
-  // ✅ Data channel communication
-  // ✅ Auto-reconnection
-  // ❌ NO business logic
-  // ❌ NO conversation state
+	// Only handles:
+	// ✅ Connection establishment
+	// ✅ Data channel communication
+	// ✅ Auto-reconnection
+	// ❌ NO business logic
+	// ❌ NO conversation state
 }
 ```
 
@@ -63,12 +63,12 @@ export class WebRTCConnection {
 
 ```typescript
 export class ConversationManager {
-  // Only handles:
-  // ✅ Conversation state
-  // ✅ Message coordination
-  // ✅ Feature coordination
-  // ❌ NO connection details
-  // ❌ NO device management
+	// Only handles:
+	// ✅ Conversation state
+	// ✅ Message coordination
+	// ✅ Feature coordination
+	// ❌ NO connection details
+	// ❌ NO device management
 }
 ```
 
@@ -82,12 +82,12 @@ export class ConversationManager {
 
 ```typescript
 export function createConversationStore() {
-  // Only handles:
-  // ✅ Reactive UI binding
-  // ✅ State synchronization
-  // ✅ User interactions
-  // ❌ NO business logic
-  // ❌ NO connection details
+	// Only handles:
+	// ✅ Reactive UI binding
+	// ✅ State synchronization
+	// ✅ User interactions
+	// ❌ NO business logic
+	// ❌ NO connection details
 }
 ```
 
@@ -170,12 +170,12 @@ pnpm dev
 
 ## 📊 Complexity Reduction
 
-| Component | Before | After | Reduction |
-|-----------|--------|-------|-----------|
-| Audio Management | 326 lines | 85 lines | **74%** |
-| Connection Logic | Mixed | 180 lines | **Clear separation** |
-| Business Logic | Mixed | 120 lines | **Clear separation** |
-| UI Binding | Mixed | 80 lines | **Clear separation** |
+| Component        | Before    | After     | Reduction            |
+| ---------------- | --------- | --------- | -------------------- |
+| Audio Management | 326 lines | 85 lines  | **74%**              |
+| Connection Logic | Mixed     | 180 lines | **Clear separation** |
+| Business Logic   | Mixed     | 120 lines | **Clear separation** |
+| UI Binding       | Mixed     | 80 lines  | **Clear separation** |
 
 ## 🚀 Migration Benefits
 
@@ -185,7 +185,7 @@ pnpm dev
 - ✅ Verify audio stream acquisition
 - ✅ Check audio level monitoring
 
-### **Day 2**: WebRTC Connection  
+### **Day 2**: WebRTC Connection
 
 - ✅ Test connection establishment
 - ✅ Verify data channel communication
@@ -224,7 +224,7 @@ pnpm dev
 - Verify device permissions
 - Check browser console for errors
 
-### Connection Issues  
+### Connection Issues
 
 - Check `/test-webrtc` first
 - Verify API endpoints
@@ -247,7 +247,7 @@ pnpm dev
 This simplified architecture makes your code:
 
 - ✅ **Easier to understand**
-- ✅ **Easier to test**  
+- ✅ **Easier to test**
 - ✅ **Easier to maintain**
 - ✅ **Easier to extend**
 - ✅ **Easier to debug**

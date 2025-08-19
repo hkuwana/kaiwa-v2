@@ -14,10 +14,10 @@
 
 	// Derived state
 	let overallScore = $derived(
-		((outcome.vocabularyUsageScore ?? 0) * 0.4 +
+		(outcome.vocabularyUsageScore ?? 0) * 0.4 +
 			(outcome.grammarUsageScore ?? 0) * 0.3 +
 			(outcome.goalCompletionScore ?? 0) * 0.2 +
-			(outcome.pronunciationScore ?? 0) * 0.1)
+			(outcome.pronunciationScore ?? 0) * 0.1
 	);
 	let performanceLevel = $derived(getPerformanceLevel(overallScore));
 	let showCelebration = $derived(overallScore >= 0.8);
@@ -109,9 +109,9 @@
 					<div class="mb-2 text-lg font-medium text-green-700">
 						{outcome.wasGoalAchieved ? 'Goal Achieved!' : 'Goal In Progress'}
 					</div>
-															<div class="text-sm text-green-600">
-											{Math.round((outcome.goalCompletionScore ?? 0) * 100)}% Complete
-										</div>
+					<div class="text-sm text-green-600">
+						{Math.round((outcome.goalCompletionScore ?? 0) * 100)}% Complete
+					</div>
 				</div>
 			</div>
 		</div>

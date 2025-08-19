@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 
 	// Get the current page data
-	const { data,children } = $props();
+	const { data, children } = $props();
 
 	// Dynamic navigation will be handled by the main docs page
 	let currentDoc = $state('');
@@ -23,14 +23,12 @@
 <div class="min-h-screen bg-base-100">
 	<nav class="navbar bg-base-200 shadow-sm">
 		<div class="navbar-start">
-			<a href="/docs" class="btn btn-ghost text-xl font-bold text-primary">
-				📚 Kaiwa Docs
-			</a>
+			<a href="/docs" class="btn text-xl font-bold text-primary btn-ghost"> 📚 Kaiwa Docs </a>
 		</div>
 
 		{#if currentDoc}
 			<div class="navbar-center">
-				<div class="text-sm breadcrumbs">
+				<div class="breadcrumbs text-sm">
 					<ul>
 						<li><a href="/docs" class="link link-primary">Home</a></li>
 						<li class="text-base-content/70">{currentDoc.replace(/_/g, ' ').replace(/-/g, ' ')}</li>

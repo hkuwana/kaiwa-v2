@@ -61,27 +61,27 @@ import { realtimeService } from '$lib/features/realtime';
 import { EventBusFactory } from '$lib/shared/events/eventBus';
 
 export function createConversationStore() {
- const bus = EventBusFactory.create('memory');
- let state = $state(conversationCore.initial());
+	const bus = EventBusFactory.create('memory');
+	let state = $state(conversationCore.initial());
 
- const isRecording = $derived(state.status === 'recording');
- const isConnected = $derived(state.status === 'connected' || state.status === 'streaming');
- const messageCount = $derived(state.messages.length);
+	const isRecording = $derived(state.status === 'recording');
+	const isConnected = $derived(state.status === 'connected' || state.status === 'streaming');
+	const messageCount = $derived(state.messages.length);
 
- $effect(() => {
-  const offTranscript = bus.on('transcript.received', (t: string) => {
-   state = conversationCore.transition(state, { type: 'RECEIVE_TRANSCRIPT', transcript: t });
-  });
-  return () => {
-   offTranscript?.();
-  };
- });
+	$effect(() => {
+		const offTranscript = bus.on('transcript.received', (t: string) => {
+			state = conversationCore.transition(state, { type: 'RECEIVE_TRANSCRIPT', transcript: t });
+		});
+		return () => {
+			offTranscript?.();
+		};
+	});
 
- async function startConversation(language = 'en', voice = 'alloy') {
-  // Call realtimeService to open session; emit events; mutate state via kernel
- }
+	async function startConversation(language = 'en', voice = 'alloy') {
+		// Call realtimeService to open session; emit events; mutate state via kernel
+	}
 
- return { state, isRecording, isConnected, messageCount, startConversation };
+	return { state, isRecording, isConnected, messageCount, startConversation };
 }
 ```
 

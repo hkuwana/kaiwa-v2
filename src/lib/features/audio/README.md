@@ -66,14 +66,14 @@ export class HowlerAudioAdapter implements AudioOutputPort {
 
 ```typescript
 export class AudioOrchestrator {
-  async dispatch(action: AudioAction): Promise<void> {
-    // 1. Update state (pure function)
-    this.state = audioCore.transition(this.state, action);
-    
-    // 2. Execute side effects (imperative shell)
-    const effects = audioCore.effects(this.state, action);
-    await Promise.all(effects.map(effect => this.executeEffect(effect)));
-  }
+	async dispatch(action: AudioAction): Promise<void> {
+		// 1. Update state (pure function)
+		this.state = audioCore.transition(this.state, action);
+
+		// 2. Execute side effects (imperative shell)
+		const effects = audioCore.effects(this.state, action);
+		await Promise.all(effects.map((effect) => this.executeEffect(effect)));
+	}
 }
 ```
 
@@ -91,7 +91,7 @@ await audioService.startRecording();
 await audioService.stopRecording();
 
 // Play text as speech
-const audioData = await audioService.textToSpeech("Hello world!");
+const audioData = await audioService.textToSpeech('Hello world!');
 await audioService.playAudio(audioData);
 
 // Play from URL
@@ -106,9 +106,9 @@ import { CustomInputAdapter } from './custom-adapter';
 
 // Create service with custom input adapter
 const customAudioService = createAudioService(
-  new CustomInputAdapter(),  // Custom recording
-  undefined,                 // Default Howler playback
-  undefined                  // Default OpenAI processing
+	new CustomInputAdapter(), // Custom recording
+	undefined, // Default Howler playback
+	undefined // Default OpenAI processing
 );
 ```
 
@@ -120,13 +120,13 @@ const state = audioService.getState();
 
 // Check derived state
 if (audioService.canRecord) {
-  await audioService.startRecording();
+	await audioService.startRecording();
 }
 
 // Handle errors
 if (audioService.hasError) {
-  console.error(audioService.error);
-  await audioService.clearError();
+	console.error(audioService.error);
+	await audioService.clearError();
 }
 ```
 
@@ -156,12 +156,12 @@ The audio feature emits events for integration with your event bus:
 
 ```typescript
 // Event types
-'audio.recording_started'    // Recording began
-'audio.recording_stopped'    // Recording completed
-'audio.playback_started'     // Audio playback began
-'audio.playback_completed'   // Audio playback finished
-'audio.playback_error'       // Playback error occurred
-'audio.volume_changed'       // Volume was adjusted
+'audio.recording_started'; // Recording began
+'audio.recording_stopped'; // Recording completed
+'audio.playback_started'; // Audio playback began
+'audio.playback_completed'; // Audio playback finished
+'audio.playback_error'; // Playback error occurred
+'audio.volume_changed'; // Volume was adjusted
 ```
 
 ## 🧪 Testing
@@ -172,13 +172,13 @@ The audio feature emits events for integration with your event bus:
 import { audioCore } from './core';
 
 describe('Audio Core', () => {
-  it('should transition from idle to recording', () => {
-    const initialState = audioCore.initial();
-    const action = { type: 'START_RECORDING' as const };
-    const newState = audioCore.transition(initialState, action);
-    
-    expect(newState.status).toBe('recording');
-  });
+	it('should transition from idle to recording', () => {
+		const initialState = audioCore.initial();
+		const action = { type: 'START_RECORDING' as const };
+		const newState = audioCore.transition(initialState, action);
+
+		expect(newState.status).toBe('recording');
+	});
 });
 ```
 
@@ -189,13 +189,13 @@ import { createAudioService } from './index';
 import { MockInputAdapter } from './__mocks__/mock-adapter';
 
 describe('Audio Service', () => {
-  it('should start recording with mock adapter', async () => {
-    const mockAdapter = new MockInputAdapter();
-    const service = createAudioService(mockAdapter);
-    
-    await service.startRecording();
-    expect(service.isRecording).toBe(true);
-  });
+	it('should start recording with mock adapter', async () => {
+		const mockAdapter = new MockInputAdapter();
+		const service = createAudioService(mockAdapter);
+
+		await service.startRecording();
+		expect(service.isRecording).toBe(true);
+	});
 });
 ```
 
@@ -229,13 +229,13 @@ The architecture handles errors gracefully:
 
 ```typescript
 try {
-  await audioService.startRecording();
+	await audioService.startRecording();
 } catch (error) {
-  // Error is automatically captured in state
-  if (audioService.hasError) {
-    console.error(audioService.error);
-    await audioService.clearError();
-  }
+	// Error is automatically captured in state
+	if (audioService.hasError) {
+		console.error(audioService.error);
+		await audioService.clearError();
+	}
 }
 ```
 

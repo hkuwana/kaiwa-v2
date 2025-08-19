@@ -24,8 +24,8 @@ const config = {
 		adapter: adapter(),
 		// Configure for PostHog session replay with SSR
 		paths: {
-			relative: false,
-		},
+			relative: false
+		}
 	},
 	extensions: ['.svelte', '.md', '.svx']
 };
