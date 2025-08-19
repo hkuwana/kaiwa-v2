@@ -2,13 +2,14 @@
 // Orchestrates audio and real-time features for seamless conversations
 
 import { audioService, type AudioState } from '../audio';
-import { realtimeService } from '../realtime';
+import { realtimeService, RealtimeService } from '../realtime';
 import { conversationEvents, createEventPayloads } from './events';
 import { createInitialState, RealtimeConversationStatus, type ConversationState } from './kernel';
 import type { EventBus } from '$lib/shared/events/eventBus';
 import type { RealtimeSession, RealtimeStream } from '../realtime';
 import type { Scenario } from '$lib/server/db/types';
 import type { Speaker } from '$lib/types';
+import { SvelteMap } from 'svelte/reactivity';
 
 export interface RealtimeConversationState {
 	status: RealtimeConversationStatus;
@@ -41,7 +42,7 @@ export class ConversationOrchestrator {
 	private connectionReady = $state<boolean>(false);
 	private localMicStream: MediaStream | null = null;
 	private authenticatedSessions = $state(
-		new Map<string, { sessionId: string; clientSecret: string; expiresAt: number }>()
+		new SvelteMap<string, { sessionId: string; clientSecret: string; expiresAt: number }>()
 	);
 
 	constructor(private eventBus: EventBus) {
@@ -177,8 +178,6 @@ export class ConversationOrchestrator {
 			startTime: this.startTime,
 			language: this.language,
 			voice: this.voice,
-			audioStream: !!this.audioStream,
-			mediaRecorder: !!this.mediaRecorder,
 			realtimeSession: !!this.realtimeSession,
 			realtimeStream: !!this.realtimeStream,
 			connectionReady: this.connectionReady,
@@ -662,18 +661,11 @@ export class ConversationOrchestrator {
 			console.log('✅ Audio recording stopped during cleanup');
 		}
 
-		// Clean up audio stream
-		if (this.audioStream) {
-			this.audioStream.getTracks().forEach((track) => track.stop());
-			console.log('✅ Audio stream stopped during cleanup');
-		}
-
-		// Stop media recorder
-		if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
-			this.mediaRecorder.stop();
-			console.log('✅ MediaRecorder stopped during cleanup');
-		}
-
 		console.log('✅ Cleanup completed');
+	}
+
+	// Getter for the event bus (for external coordination)
+	get bus() {
+		return this.eventBus;
 	}
 }

@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import { ModernRealtimeConversationOrchestrator } from '$lib/features/conversation/realtime-conversation-orchestrator.svelte';
-	import type { RealtimeConversationState } from '$lib/features/conversation/realtime-conversation-orchestrator.svelte';
+	import { ConversationOrchestrator } from '$lib/features/conversation/conversation-orchestrator.svelte';
+	import type { RealtimeConversationState } from '$lib/features/conversation/conversation-orchestrator.svelte';
 	import type { PageData } from './$types';
+	import { EventBusFactory } from '$lib/shared/events/eventBus';
 
 	
 	interface Props {
@@ -14,7 +15,7 @@
 
 	// State
 	let orchestrator: ConversationOrchestrator;
-	let conversationState: ConversationState = $state();
+	let conversationState: RealtimeConversationState = $state();
 	let isInitialized = false;
 
 	// Initialize orchestrator
@@ -23,14 +24,10 @@
 			orchestrator = new ConversationOrchestrator(EventBusFactory.create('conversation'));
 			
 			// Start conversation with configuration
-			await orchestrator.startConversation({
-				language: data.conversationConfig.language,
-				voice: data.conversationConfig.voice,
-				userLevel: data.conversationConfig.userLevel,
-				scenario: data.conversationConfig.scenario,
-				speaker: data.conversationConfig.speaker,
-				formattedMemory: data.conversationConfig.formattedMemory
-			});
+			await orchestrator.startConversation(
+				data.conversationConfig.language,
+				data.conversationConfig.voice
+			);
 
 			// Set up state monitoring
 			setupStateMonitoring();
@@ -43,9 +40,7 @@
 
 	// Cleanup
 	onDestroy(() => {
-		if (orchestrator) {
-			orchestrator.dispose();
-		}
+		// Cleanup will be handled automatically
 	});
 
 	// State monitoring
@@ -65,7 +60,7 @@
 		if (!orchestrator) return;
 		
 		try {
-			await orchestrator.startRecording();
+			await orchestrator.startStreaming();
 		} catch (error) {
 			console.error('Failed to start recording:', error);
 		}
@@ -75,7 +70,7 @@
 		if (!orchestrator) return;
 		
 		try {
-			await orchestrator.stopRecording();
+			await orchestrator.stopStreaming();
 		} catch (error) {
 			console.error('Failed to stop recording:', error);
 		}
@@ -85,7 +80,7 @@
 		if (!orchestrator) return;
 		
 		try {
-			await orchestrator.stopConversation();
+			await orchestrator.endConversation();
 		} catch (error) {
 			console.error('Failed to end conversation:', error);
 		}

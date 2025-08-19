@@ -3,9 +3,12 @@
 
 export * from './ports';
 export * from './adapters';
+export * from './events';
 
 import { realtimeAdapters, OpenAIRealtimeStreamingAdapter } from './adapters';
 import type { RealtimeSession, RealtimeStream, RealtimeSessionConfig } from './ports';
+import type { EventBus } from '$lib/shared/events/eventBus';
+import { EventBusFactory } from '$lib/shared/events/eventBus';
 
 // 🎯 Main real-time service
 export class RealtimeService {
@@ -14,10 +17,13 @@ export class RealtimeService {
 	constructor(
 		private session = realtimeAdapters.session,
 		streaming = realtimeAdapters.streaming,
-		private events = realtimeAdapters.events
+		private events = realtimeAdapters.events,
+		private bus?: EventBus
 	) {
-		// Create a new streaming adapter instance with event handlers
-		this.streamingAdapter = new OpenAIRealtimeStreamingAdapter(events);
+		// Create a new streaming adapter instance with event bus
+		this.streamingAdapter = new OpenAIRealtimeStreamingAdapter(
+			bus || EventBusFactory.create('memory')
+		);
 	}
 
 	// Session management

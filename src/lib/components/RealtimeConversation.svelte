@@ -234,6 +234,40 @@
 		}
 	});
 
+	// Test realtime events via bus (PR2 verification)
+	$effect(() => {
+		if (orchestrator) {
+			// Subscribe to realtime events to verify PR2 is working
+			const offConnection = orchestrator.bus.on('realtime.connection.status', (payload: any) => {
+				console.log('🔌 PR2 TEST - Connection status event received:', payload);
+			});
+			
+			const offTranscript = orchestrator.bus.on('realtime.transcript.received', (payload: any) => {
+				console.log('📝 PR2 TEST - Transcript event received:', payload);
+			});
+			
+			const offResponse = orchestrator.bus.on('realtime.response.received', (payload: any) => {
+				console.log('🤖 PR2 TEST - Response event received:', payload);
+			});
+			
+			const offAudioResponse = orchestrator.bus.on('realtime.audio.response', (payload: any) => {
+				console.log('🔊 PR2 TEST - Audio response event received:', payload);
+			});
+			
+			const offError = orchestrator.bus.on('realtime.error', (payload: any) => {
+				console.log('❌ PR2 TEST - Error event received:', payload);
+			});
+
+			return () => {
+				offConnection?.();
+				offTranscript?.();
+				offResponse?.();
+				offAudioResponse?.();
+				offError?.();
+			};
+		}
+	});
+
 	// Test functions for dev panel
 	function testVoiceActivity() {
 		console.log('🧪 Testing Voice Activity Detection...');
@@ -274,6 +308,39 @@
 		if (orchestrator) {
 			const currentState = orchestrator.getState();
 			console.log('Current AI state:', currentState.status);
+		}
+	}
+
+	// Test realtime events via bus (PR2 verification)
+	function testRealtimeEvents() {
+		if (orchestrator) {
+			console.log('🧪 Testing Realtime Events (PR2)...');
+			
+			// Manually emit test events to verify bus is working
+			orchestrator.bus.emit('realtime.connection.status', {
+				status: 'connected',
+				sessionId: 'test-session',
+				timestamp: Date.now(),
+				details: 'Test connection event'
+			});
+			
+			orchestrator.bus.emit('realtime.transcript.received', {
+				transcript: 'Test transcript from user',
+				sessionId: 'test-session',
+				confidence: 0.95,
+				language: 'en',
+				timestamp: Date.now()
+			});
+			
+			orchestrator.bus.emit('realtime.response.received', {
+				response: 'Test response from AI',
+				sessionId: 'test-session',
+				timestamp: Date.now()
+			});
+			
+			console.log('✅ Test events emitted - check console for PR2 TEST logs');
+		} else {
+			console.log('❌ No orchestrator available');
 		}
 	}
 
@@ -386,7 +453,7 @@
 		<!-- Debug Info -->
 		<div class="text-center text-sm text-gray-500 mb-4">
 			Debug: Status={status} | canStart={canStartConversation} | isStreaming={isStreaming} | isConnecting={isConnecting}
-			{#if orchestrator}
+			{#if orchestrator && orchestrator.isConnectionHealthy()}
 				<br />
 				Connection Health: {orchestrator.isConnectionHealthy() ? '✅ Healthy' : '❌ Unhealthy'}
 			{/if}
@@ -655,6 +722,12 @@
 						onclick={() => testMicStreamDetails()}
 					>
 						📊 Test Mic Stream Details
+					</button>
+					<button 
+						class="px-3 py-2 bg-teal-500 text-white rounded text-sm hover:bg-teal-600"
+						onclick={() => testRealtimeEvents()}
+					>
+						🔌 Test Realtime Events (PR2)
 					</button>
 				</div>
 			</div>

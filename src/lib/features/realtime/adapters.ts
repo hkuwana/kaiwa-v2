@@ -9,6 +9,8 @@ import type {
 	RealtimeSessionConfig,
 	RealtimeStream
 } from './ports';
+import type { EventBus } from '$lib/shared/events/eventBus';
+import { realtimeEvents } from './events';
 
 // 🔌 OpenAI Real-time Session Adapter
 export class OpenAIRealtimeSessionAdapter implements RealtimeSessionPort {
@@ -139,10 +141,10 @@ export class OpenAIRealtimeStreamingAdapter implements RealtimeStreamingPort {
 		string,
 		{ sessionId: string; clientSecret: string; expiresAt: number }
 	>();
-	private eventHandlers: RealtimeEventHandlerPort | null = null;
+	private bus: EventBus;
 
-	constructor(eventHandlers?: RealtimeEventHandlerPort) {
-		this.eventHandlers = eventHandlers || null;
+	constructor(bus: EventBus) {
+		this.bus = bus;
 	}
 
 	async startStreaming(
@@ -305,6 +307,14 @@ export class OpenAIRealtimeStreamingAdapter implements RealtimeStreamingPort {
 				console.log('📊 Active streams:', this.activeStreams.size);
 				console.log('🔗 Peer connections:', this.peerConnections.size);
 
+				// Emit connection status event
+				this.bus.emit(realtimeEvents.connectionStatus, {
+					status: 'connected',
+					sessionId: session.id,
+					timestamp: Date.now(),
+					details: 'WebRTC connection established'
+				});
+
 				return stream;
 			} catch (error) {
 				console.error('❌ OpenAI WebRTC connection failed:', error);
@@ -353,8 +363,22 @@ export class OpenAIRealtimeStreamingAdapter implements RealtimeStreamingPort {
 
 			stream.isActive = false;
 			this.activeStreams.delete(stream.id);
+
+			// Emit connection status event
+			this.bus.emit(realtimeEvents.connectionStatus, {
+				status: 'disconnected',
+				sessionId: stream.session.id,
+				timestamp: Date.now(),
+				details: 'Streaming stopped'
+			});
 		} catch (error) {
 			console.error('Error stopping streaming:', error);
+			// Emit error event
+			this.bus.emit(realtimeEvents.error, {
+				message: `Error stopping streaming: ${error}`,
+				timestamp: Date.now(),
+				sessionId: stream.session.id
+			});
 		}
 	}
 
@@ -372,6 +396,13 @@ export class OpenAIRealtimeStreamingAdapter implements RealtimeStreamingPort {
 					keyPrefix: authenticatedSession.clientSecret.substring(0, 8)
 				});
 
+				// Emit audio chunk event
+				this.bus.emit(realtimeEvents.audioResponse, {
+					audioChunk: chunk,
+					sessionId: authenticatedSession.sessionId,
+					timestamp: Date.now()
+				});
+
 				// TODO: Implement actual OpenAI WebRTC audio transmission
 				// For now, we're simulating the experience
 				// In production, this would send the audio chunk to OpenAI's realtime service
@@ -384,6 +415,12 @@ export class OpenAIRealtimeStreamingAdapter implements RealtimeStreamingPort {
 			stream.audioChunksSent++;
 			stream.lastActivity = Date.now();
 		} catch (error) {
+			// Emit error event
+			this.bus.emit(realtimeEvents.error, {
+				message: `Failed to send audio chunk: ${error}`,
+				timestamp: Date.now(),
+				sessionId: stream.session.id
+			});
 			throw new Error(`Failed to send audio chunk: ${error}`);
 		}
 	}
