@@ -18,12 +18,7 @@ export interface ConversationState {
 	error?: string;
 }
 
-export interface Message {
-	role: 'user' | 'assistant';
-	content: string;
-	timestamp: number;
-}
-
+ 
 export interface ConversationAction {
 	type: string;
 	payload?: any;

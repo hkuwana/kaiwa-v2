@@ -6,13 +6,14 @@
 	import type { Language as DataLanguage } from '$lib/data/languages';
 
 	// Voice options (simplified from VoiceSelector)
+	//  'coral', 'echo', 'sage', 'shimmer', and 'verse'
 	const voices = [
 		{ id: 'alloy', name: 'Alloy', description: 'Balanced and neutral', gender: 'neutral' },
-		{ id: 'echo', name: 'Echo', description: 'Warm and friendly', gender: 'male' },
-		{ id: 'fable', name: 'Fable', description: 'Expressive and engaging', gender: 'female' },
-		{ id: 'onyx', name: 'Onyx', description: 'Deep and authoritative', gender: 'male' },
-		{ id: 'nova', name: 'Nova', description: 'Clear and professional', gender: 'female' },
-		{ id: 'shimmer', name: 'Shimmer', description: 'Gentle and soothing', gender: 'female' }
+		{ id: 'ash', name: 'Ash', description: 'Warm and friendly', gender: 'male' },
+		{ id: 'ballad', name: 'Ballad', description: 'Expressive and engaging', gender: 'female' },
+		{ id: 'core', name: 'Core', description: 'Clear and professional', gender: 'neutral' },
+		{ id: 'sage', name: 'Sage', description: 'Clear and professional', gender: 'neutral' },
+		{ id: 'verse', name: 'Verse', description: 'Expressive and engaging', gender: 'female' }
 	];
 
 	// Component state
@@ -92,12 +93,12 @@
 			case 'female':
 				return '👩';
 			default:
-				return '🤖';
+				return '👨';
 		}
 	}
 </script>
 
-<div class="relative flex flex-col items-center gap-6">
+<div class="relative flex flex-col items-center gap-6 text-base-content">
 	<!-- Language Selector - Minimal and elegant -->
 	<div class="relative">
 		<button
@@ -173,8 +174,8 @@
 					{#if viewingSpeakersFor}
 						<!-- Speaker List -->
 						<div class="mb-3 px-4">
-							<h3 class="mb-2 text-sm font-semibold text-base-content/70">
-								🎤 Choose AI Voice for {viewingSpeakersFor.name}
+							<h3 class="mb-2 text-sm font-semibold">
+								Choose Speaker for {viewingSpeakersFor.name}
 							</h3>
 						</div>
 						{#each voices as voice (voice.id)}
@@ -269,7 +270,7 @@
 	<button
 		onclick={handleStartClick}
 		disabled={!selectedLanguage}
-		class="group btn relative transform overflow-hidden px-12 py-4 text-xl font-semibold shadow-xl transition-all duration-300 btn-lg btn-primary hover:scale-105 hover:shadow-2xl active:scale-95 disabled:transform-none disabled:cursor-not-allowed disabled:opacity-50"
+		class="group btn btn-lg btn-primary"
 		aria-label={selectedLanguage ? `Start speaking ${selectedLanguage.name}` : 'Loading...'}
 	>
 		<span class="relative z-10">

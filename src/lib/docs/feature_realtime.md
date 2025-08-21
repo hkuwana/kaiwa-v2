@@ -49,7 +49,7 @@ import { realtimeService } from '$lib/features/realtime';
 // Create a session
 const session = await realtimeService.createSession({
 	sessionId: 'unique-id',
-	model: 'gpt-4o-realtime-preview-2024-10-01',
+	model: 'gpt-4o-mini-realtime-preview-2024-12-17',
 	voice: 'alloy',
 	language: 'en'
 });
@@ -91,7 +91,7 @@ Creates a new realtime session with OpenAI.
 ```json
 {
 	"sessionId": "unique-session-identifier",
-	"model": "gpt-4o-realtime-preview-2024-10-01",
+	"model": "gpt-4o-mini-realtime-preview-2024-12-17",
 	"voice": "alloy",
 	"language": "en"
 }

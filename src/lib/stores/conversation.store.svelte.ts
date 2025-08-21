@@ -1,8 +1,10 @@
 // src/lib/stores/conversation.store.svelte.ts
+import { SvelteDate } from 'svelte/reactivity';
 
 import { RealtimeService, realtimeService } from '$lib/services/realtime.service';
 import { AudioService, audioService, type AudioLevel } from '$lib/services/audio.service';
-import type { Message } from '$lib/types/conversation';
+import type { Message } from '$lib/server/db/types';
+import type { Speaker } from '$lib/types';
 import { DummyAudioService, type DummyRealtimeService } from '$lib/services/dummy.service';
 
 export class ConversationStore {
@@ -48,12 +50,25 @@ export class ConversationStore {
 	}
 
 	// Actions become class methods
-	startConversation = async (language?: string, speaker?: string) => {
+	startConversation = async (language?: string, speaker?: Speaker | string) => {
 		if (this.status !== 'idle') return;
 
 		// Update language and speaker if provided
 		if (language) this.language = language;
-		if (speaker) this.voice = speaker;
+
+		// Extract the openAIId from the speaker object if provided
+		if (speaker && typeof speaker === 'object' && 'openAIId' in speaker) {
+			this.voice = speaker.openAIId || 'alloy';
+			console.log('🎭 Using voice:', this.voice, 'for speaker:', speaker.voiceName);
+		} else if (speaker && typeof speaker === 'string') {
+			// Fallback for backward compatibility
+			this.voice = speaker;
+			console.log('🎭 Using voice (fallback):', this.voice);
+		} else {
+			// Default voice if no speaker provided
+			this.voice = 'alloy';
+			console.log('🎭 Using default voice:', this.voice);
+		}
 
 		this.status = 'connecting';
 		this.error = null;
@@ -71,14 +86,32 @@ export class ConversationStore {
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					sessionId: crypto.randomUUID(),
-					model: 'gpt-4o-realtime-preview-2024-10-01',
+					model: 'gpt-4o-mini-realtime-preview-2024-12-17',
 					voice: this.voice
 				})
 			});
 
 			if (!response.ok) {
-				const errorText = await response.text();
-				throw new Error(`Failed to get session: ${response.status} - ${errorText}`);
+				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+				console.error('❌ Realtime session creation failed:', errorData);
+
+				// Extract the actual error message from OpenAI if available
+				let errorMessage = `Failed to get session: ${response.status}`;
+				if (errorData.details?.response) {
+					try {
+						const openAIError = JSON.parse(errorData.details.response);
+						if (openAIError.error?.message) {
+							errorMessage = `OpenAI Error: ${openAIError.error.message}`;
+						}
+					} catch {
+						// If we can't parse the error, use the raw response
+						errorMessage = `OpenAI Error: ${errorData.details.response}`;
+					}
+				} else if (errorData.error) {
+					errorMessage = errorData.error;
+				}
+
+				throw new Error(errorMessage);
 			}
 
 			const sessionData = await response.json();
@@ -98,7 +131,10 @@ export class ConversationStore {
 					const message: Message = {
 						role: newMessage.role === 'assistant' ? 'assistant' : 'user',
 						content: newMessage.content,
-						timestamp: Date.now()
+						timestamp: new SvelteDate(),
+						id: '',
+						conversationId: '',
+						audioUrl: null
 					};
 					this.messages = [...this.messages, message];
 				},
@@ -163,7 +199,10 @@ export class ConversationStore {
 		const message: Message = {
 			role: 'user',
 			content,
-			timestamp: Date.now()
+			timestamp: new SvelteDate(),
+			id: '',
+			conversationId: '',
+			audioUrl: null
 		};
 		this.messages = [...this.messages, message];
 

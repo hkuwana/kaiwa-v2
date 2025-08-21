@@ -5,6 +5,7 @@
 	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
 	import LoadingScreen from '$lib/components/LoadingScreen.svelte';
 	import MessageBubble from '$lib/components/MessageBubble.svelte';
+	import { invalidateAll } from '$app/navigation';
 
 	// Get user ID from page data (from your +layout.server.ts)
 	const userId = page.data.user?.id ?? null;
@@ -43,51 +44,76 @@
 
 	function handleClearError() {
 		conversationStore.clearError();
+		invalidateAll();
 	}
 </script>
 
-<div class="conversation-container">
-	<header>
-		<h1>Language Conversation</h1>
+<div class="mx-auto max-w-4xl p-8 font-sans">
+	<header class="mb-8 text-center">
+		<h1 class="mb-2 text-4xl font-bold text-primary">{selectedLanguage?.name} Conversation</h1>
 		{#if userId}
-			<p>Welcome back, user!</p>
+			<p class="text-lg text-base-content/70">Welcome back, user!</p>
 		{:else}
-			<p>Guest mode - your conversation won't be saved</p>
+			<p class="text-lg text-base-content/70">Guest mode - your conversation won't be saved</p>
 		{/if}
 	</header>
 
 	<main>
 		{#if status === 'idle' || status === 'error'}
-			<div class="start-section">
-				<button onclick={handleStart} class="start-btn"> Start Conversation </button>
+			<div class="card my-8 border border-base-300 bg-base-100 p-8 text-center shadow-lg">
+				<button onclick={handleStart} class="btn btn-lg btn-primary">Start Conversation</button>
 				{#if error}
-					<div class="error-message">
-						<p>Something went wrong: {error}</p>
-						<button onclick={handleClearError}>Try Again</button>
+					<div class="mt-4 alert alert-error">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							class="h-6 w-6 shrink-0 stroke-current"
+							fill="none"
+							viewBox="0 0 24 24"
+							><path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+							/></svg
+						>
+						<span>Something went wrong: {error}</span>
+						<button onclick={handleClearError} class="btn btn-outline btn-sm">Try Again</button>
 					</div>
 				{/if}
 			</div>
 		{:else if status === 'connecting'}
 			<LoadingScreen />
 		{:else if status === 'connected'}
-			<div class="connected">
-				<p>Connected! Ready to start streaming.</p>
-				<button onclick={handleStartStreaming} class="stream-btn"> Start Streaming </button>
-				<button onclick={handleEndConversation} class="end-btn"> End Conversation </button>
+			<div class="card my-8 border border-base-300 bg-base-100 p-8 text-center shadow-lg">
+				<p class="mb-4 text-xl text-success">Connected! Ready to start streaming.</p>
+				<div class="space-x-4">
+					<button onclick={handleStartStreaming} class="btn btn-lg btn-success"
+						>Start Streaming</button
+					>
+					<button onclick={handleEndConversation} class="btn btn-lg btn-error"
+						>End Conversation</button
+					>
+				</div>
 			</div>
 		{:else if status === 'streaming'}
-			<div class="streaming">
-				<p>Streaming audio...</p>
+			<div class="card my-8 border border-base-300 bg-base-100 p-8 text-center shadow-lg">
+				<p class="mb-4 text-xl text-info">Streaming audio...</p>
 				<AudioVisualizer audioLevel={audioLevel * 100} />
-				<button onclick={handleStopStreaming} class="stop-btn"> Stop Streaming </button>
-				<button onclick={handleEndConversation} class="end-btn"> End Conversation </button>
+				<div class="mt-4 space-x-4">
+					<button onclick={handleStopStreaming} class="btn btn-lg btn-warning"
+						>Stop Streaming</button
+					>
+					<button onclick={handleEndConversation} class="btn btn-lg btn-error"
+						>End Conversation</button
+					>
+				</div>
 			</div>
 		{/if}
 
 		{#if messages.length > 0}
-			<div class="messages">
-				<h3>Conversation</h3>
-				<div class="messages-container">
+			<div class="card my-8 border border-base-300 bg-base-100 p-6 shadow-lg">
+				<h3 class="mb-4 text-2xl font-semibold text-primary">Conversation</h3>
+				<div class="space-y-3">
 					{#each messages as message}
 						<MessageBubble {message} />
 					{/each}
@@ -96,11 +122,12 @@
 		{/if}
 
 		{#if availableDevices.length > 0}
-			<div class="device-selector">
-				<h3>Audio Device</h3>
+			<div class="card my-8 border border-base-300 bg-base-100 p-6 shadow-lg">
+				<h3 class="mb-4 text-xl font-semibold text-primary">Audio Device</h3>
 				<select
 					value={selectedDeviceId}
 					onchange={(e) => handleSelectDevice((e.target as HTMLSelectElement).value)}
+					class="select-bordered select w-full"
 				>
 					{#each availableDevices as device}
 						<option value={device.deviceId}>
@@ -112,116 +139,3 @@
 		{/if}
 	</main>
 </div>
-
-<style>
-	.conversation-container {
-		max-width: 800px;
-		margin: 0 auto;
-		padding: 2rem;
-		font-family:
-			system-ui,
-			-apple-system,
-			sans-serif;
-	}
-
-	header {
-		text-align: center;
-		margin-bottom: 2rem;
-	}
-
-	.start-section,
-	.connected,
-	.streaming {
-		text-align: center;
-		margin: 2rem 0;
-		padding: 2rem;
-		border: 2px solid #e2e8f0;
-		border-radius: 8px;
-	}
-
-	.start-btn,
-	.stream-btn,
-	.stop-btn,
-	.end-btn {
-		padding: 0.75rem 1.5rem;
-		margin: 0.5rem;
-		border: none;
-		border-radius: 6px;
-		font-size: 1rem;
-		cursor: pointer;
-		transition: all 0.2s;
-	}
-
-	.start-btn {
-		background: #3b82f6;
-		color: white;
-	}
-
-	.start-btn:hover {
-		background: #2563eb;
-	}
-
-	.stream-btn {
-		background: #10b981;
-		color: white;
-	}
-
-	.stream-btn:hover {
-		background: #059669;
-	}
-
-	.stop-btn {
-		background: #f59e0b;
-		color: white;
-	}
-
-	.stop-btn:hover {
-		background: #d97706;
-	}
-
-	.end-btn {
-		background: #ef4444;
-		color: white;
-	}
-
-	.end-btn:hover {
-		background: #dc2626;
-	}
-
-	.error-message {
-		margin-top: 1rem;
-		padding: 1rem;
-		background: #fef2f2;
-		border: 1px solid #fecaca;
-		border-radius: 6px;
-		color: #dc2626;
-	}
-
-	.messages {
-		margin: 2rem 0;
-		padding: 1rem;
-		border: 1px solid #e2e8f0;
-		border-radius: 8px;
-	}
-
-	.messages-container {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-	}
-
-	.device-selector {
-		margin: 2rem 0;
-		padding: 1rem;
-		border: 1px solid #e2e8f0;
-		border-radius: 8px;
-	}
-
-	.device-selector select {
-		width: 100%;
-		padding: 0.5rem;
-		border: 1px solid #d1d5db;
-		border-radius: 4px;
-		font-size: 1rem;
-	}
-</style>

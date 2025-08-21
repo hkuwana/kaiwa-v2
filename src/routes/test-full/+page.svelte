@@ -14,14 +14,18 @@
 	const voices = [
 		{ id: 'alloy', name: 'Alloy' },
 		{ id: 'echo', name: 'Echo' },
-		{ id: 'fable', name: 'Fable' },
-		{ id: 'onyx', name: 'Onyx' },
-		{ id: 'nova', name: 'Nova' },
-		{ id: 'shimmer', name: 'Shimmer' }
+		{ id: 'shimmer', name: 'Shimmer' },
+		{ id: 'coral', name: 'Coral' },
+		{ id: 'sage', name: 'Sage' },
+		{ id: 'ash', name: 'Ash' },
+		{ id: 'ballad', name: 'Ballad' },
+		{ id: 'verse', name: 'Verse' }
 	];
 
+	// Note: 'fable', 'onyx', 'nova' are only available in OpenAI TTS API, not Realtime API
+
 	function handleStart() {
-		store.startConversation();
+		store.startConversation(selectedLanguage, selectedVoice);
 	}
 
 	function handleStop() {
@@ -95,13 +99,31 @@
 		</div>
 	</div>
 
+	<div class="voice-section">
+		<h2>🎭 Voice Selection</h2>
+		<p class="voice-note">
+			<strong>Note:</strong> Only these voices are supported by OpenAI Realtime API. Other voices like
+			'fable', 'onyx', 'nova' are only available in TTS API.
+		</p>
+		<div class="voice-selector">
+			<label for="voice-select">Select Voice:</label>
+			<select id="voice-select" bind:value={selectedVoice}>
+				{#each voices as voice}
+					<option value={voice.id}>
+						{voice.name} ({voice.id})
+					</option>
+				{/each}
+			</select>
+		</div>
+	</div>
+
 	<div class="control-section">
 		<h2>🎮 Controls</h2>
 
 		<div class="control-buttons">
-			{#if !store.isConnected && !store.isConnecting}
+			{#if store.status === 'idle' || store.status === 'error'}
 				<button onclick={handleStart} class="start-btn"> 🚀 Start Conversation </button>
-			{:else if store.isConnecting}
+			{:else if store.status === 'connecting'}
 				<button disabled class="connecting-btn"> 🔄 Connecting... </button>
 			{:else}
 				<button onclick={handleStop} class="stop-btn"> ⏹️ Stop Conversation </button>
@@ -116,7 +138,7 @@
 		{/if}
 	</div>
 
-	{#if store.isConnected}
+	{#if store.status === 'connected' || store.status === 'streaming'}
 		<div class="conversation-section">
 			<h2>💬 Conversation</h2>
 
@@ -164,31 +186,39 @@
 
 		<div class="status-grid">
 			<div class="status-item">
-				<span class="label">Connection:</span>
+				<span class="label">Status:</span>
 				<span
-					class="value {store.isConnected ? 'success' : store.isConnecting ? 'warning' : 'error'}"
+					class="value {store.status === 'connected'
+						? 'success'
+						: store.status === 'connecting'
+							? 'warning'
+							: 'error'}"
 				>
-					{store.isConnected
+					{store.status === 'connected'
 						? '✅ Connected'
-						: store.isConnecting
+						: store.status === 'connecting'
 							? '🔄 Connecting'
-							: '❌ Disconnected'}
+							: store.status === 'streaming'
+								? '🎤 Streaming'
+								: store.status === 'error'
+									? '❌ Error'
+									: '⏸️ Idle'}
 				</span>
 			</div>
 
 			<div class="status-item">
 				<span class="label">Language:</span>
-				<span class="value">{store.currentLanguage}</span>
+				<span class="value">{store.language}</span>
 			</div>
 
 			<div class="status-item">
 				<span class="label">Voice:</span>
-				<span class="value">{store.currentVoice}</span>
+				<span class="value">{store.voice}</span>
 			</div>
 
 			<div class="status-item">
 				<span class="label">Device:</span>
-				<span class="value">{store.selectedDevice}</span>
+				<span class="value">{store.selectedDeviceId}</span>
 			</div>
 
 			<div class="status-item">
@@ -461,5 +491,43 @@
 
 	li {
 		margin: 0.25rem 0;
+	}
+
+	.voice-section {
+		background: white;
+		border-radius: 8px;
+		padding: 1.5rem;
+		margin: 1.5rem 0;
+		border: 1px solid #d1d5db;
+	}
+
+	.voice-note {
+		background: #fef3c7;
+		border: 1px solid #f59e0b;
+		border-radius: 6px;
+		padding: 0.75rem;
+		margin: 1rem 0;
+		color: #92400e;
+		font-size: 0.875rem;
+	}
+
+	.voice-selector {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		margin-top: 1rem;
+	}
+
+	.voice-selector label {
+		font-weight: 500;
+		color: #374151;
+	}
+
+	.voice-selector select {
+		padding: 0.5rem;
+		border: 1px solid #d1d5db;
+		border-radius: 4px;
+		font-size: 0.875rem;
+		background: white;
 	}
 </style>

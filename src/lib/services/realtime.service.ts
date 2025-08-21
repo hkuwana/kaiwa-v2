@@ -35,7 +35,13 @@ export class RealtimeService {
 	}
 
 	async connectWithSession(
-		sessionData: any,
+		sessionData: {
+			client_secret: {
+				value: string;
+				expires_at: number;
+			};
+			session_id: string;
+		},
 		stream: MediaStream,
 		onMessage: (message: Message) => void,
 		onConnectionStateChange: (state: RTCPeerConnectionState) => void
@@ -173,7 +179,7 @@ export class RealtimeService {
 
 			// Connect directly to OpenAI's realtime endpoint as per their docs
 			const baseUrl = 'https://api.openai.com/v1/realtime';
-			const model = 'gpt-4o-realtime-preview-2024-10-01';
+			const model = 'gpt-4o-mini-realtime-preview-2024-12-17';
 
 			console.log('📡 Sending SDP offer to OpenAI...');
 			const response = await fetch(`${baseUrl}?model=${model}`, {
@@ -205,7 +211,7 @@ export class RealtimeService {
 		}
 	}
 
-	sendEvent(event: any): void {
+	sendEvent(event: Record<string, unknown>): void {
 		if (this.dataChannel?.readyState === 'open') {
 			this.dataChannel.send(JSON.stringify(event));
 		}
@@ -217,17 +223,108 @@ export class RealtimeService {
 		}
 	}
 
-	private handleServerEvent(event: any): void {
-		// Handle different types of server events
-		if (event.type === 'message') {
-			const message: Message = {
-				role: event.message.role || 'assistant',
-				content: event.message.content || '',
-				timestamp: Date.now()
-			};
-			this.onMessageCallback(message);
-		}
+	private handleServerEvent(event: {
+		type: string;
+		message?: { role: string; content: string };
+		transcript?: string;
+		item?: {
+			role: string;
+			content: string | Array<{ type: string; text?: string; input_text?: string }>;
+		};
+		part?: { type: string; text?: string };
+	}): void {
 		console.log('📨 Server event:', event.type, event);
+
+		// Handle different types of server events
+		switch (event.type) {
+			case 'message': {
+				// Simple message format
+				const message: Message = {
+					role: event.message?.role === 'assistant' ? 'assistant' : 'user',
+					content: event.message?.content || '',
+					timestamp: new Date(),
+					id: '',
+					conversationId: '',
+					audioUrl: null
+				};
+				this.onMessageCallback(message);
+				break;
+			}
+
+			case 'response.audio_transcript.done': {
+				// Final transcript from assistant
+				if (event.transcript) {
+					const transcriptMessage: Message = {
+						role: 'assistant',
+						content: event.transcript,
+						timestamp: new Date(),
+						id: '',
+						conversationId: '',
+						audioUrl: null
+					};
+					this.onMessageCallback(transcriptMessage);
+				}
+				break;
+			}
+
+			case 'conversation.item.created': {
+				// New conversation item (could be user input or assistant response)
+				if (event.item && event.item.content) {
+					const role = event.item.role === 'user' ? 'user' : 'assistant';
+					let content = '';
+
+					// Extract text content from the item
+					if (Array.isArray(event.item.content)) {
+						content = event.item.content
+							.filter((part) => part.type === 'text' || part.type === 'input_text')
+							.map((part) => part.text || part.input_text)
+							.join(' ');
+					} else if (typeof event.item.content === 'string') {
+						content = event.item.content;
+					}
+
+					if (content) {
+						const itemMessage: Message = {
+							role,
+							content,
+							timestamp: new Date(),
+							id: '',
+							conversationId: '',
+							audioUrl: null
+						};
+						this.onMessageCallback(itemMessage);
+					}
+				}
+				break;
+			}
+
+			case 'response.content_part.done': {
+				// Content part completed (could be text or audio)
+				if (event.part && event.part.type === 'text' && event.part.text) {
+					const contentMessage: Message = {
+						role: 'assistant',
+						content: event.part.text,
+						timestamp: new Date(),
+						id: '',
+						conversationId: '',
+						audioUrl: null
+					};
+					this.onMessageCallback(contentMessage);
+				}
+				break;
+			}
+
+			default:
+				// Log unhandled event types for debugging
+				if (
+					event.type &&
+					!event.type.startsWith('rate_limits.') &&
+					!event.type.startsWith('output_audio_buffer.')
+				) {
+					console.log('⚠️ Unhandled event type:', event.type);
+				}
+				break;
+		}
 	}
 
 	private scheduleReconnect(): void {

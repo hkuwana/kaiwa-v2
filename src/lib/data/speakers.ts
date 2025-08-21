@@ -1,5 +1,11 @@
 // 🗣️ Speaker Data
 // All speakers from kaiwa-old with voice provider information
+//
+// Valid OpenAI Realtime API voices:
+// - alloy, ash, ballad, coral, echo, sage, shimmer, verse
+//
+// Note: 'fable', 'onyx', 'nova' are NOT supported by OpenAI Realtime API
+// They are only available in OpenAI TTS API
 
 import type { Speaker } from '$lib/types';
 
@@ -86,7 +92,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Charlotte',
 		voiceProviderId: 'openai-charlotte',
-		openAIId: 'fable',
+		openAIId: 'shimmer',
 		language: '',
 		voiceId: ''
 	},
@@ -144,7 +150,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Valentina',
 		voiceProviderId: 'aws-valentina',
-		openAIId: 'fable',
+		openAIId: 'shimmer',
 		language: '',
 		voiceId: ''
 	},
@@ -202,7 +208,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Hsiao-Mei',
 		voiceProviderId: 'google-hsiao-mei',
-		openAIId: 'fable',
+		openAIId: 'shimmer',
 		language: '',
 		voiceId: ''
 	},
@@ -292,7 +298,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Hanna',
 		voiceProviderId: 'openai-hanna',
-		openAIId: 'fable',
+		openAIId: 'shimmer',
 		language: '',
 		voiceId: ''
 	},
@@ -350,7 +356,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Beatriz',
 		voiceProviderId: 'azure-beatriz',
-		openAIId: 'fable',
+		openAIId: 'shimmer',
 		language: '',
 		voiceId: ''
 	},
@@ -440,7 +446,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Sophie',
 		voiceProviderId: 'openai-sophie',
-		openAIId: 'fable',
+		openAIId: 'shimmer',
 		language: '',
 		voiceId: ''
 	},
@@ -530,7 +536,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Fatima',
 		voiceProviderId: 'openai-fatima',
-		openAIId: 'fable',
+		openAIId: 'shimmer',
 		language: '',
 		voiceId: ''
 	},
@@ -620,7 +626,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Zeynep',
 		voiceProviderId: 'openai-zeynep',
-		openAIId: 'fable',
+		openAIId: 'shimmer',
 		language: '',
 		voiceId: ''
 	}

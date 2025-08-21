@@ -9,11 +9,11 @@ export class SettingsStore {
 	selectedLanguage = $state<Language | null>(null);
 
 	// User's selected AI speaker/voice
-	selectedSpeaker = $state('alloy');
+	selectedSpeaker = $state('ash');
 
 	constructor() {
 		// Initialize with default language (English)
-		const defaultLanguage = allLanguages.find((lang) => lang.code === 'en');
+		const defaultLanguage = allLanguages.find((lang) => lang.code === 'ja');
 		if (defaultLanguage) {
 			this.selectedLanguage = defaultLanguage;
 		}

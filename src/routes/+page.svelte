@@ -12,15 +12,17 @@
 </svelte:head>
 
 <div class="home-container">
-	<header class="hero">
-		<h1>🎯 Kaiwa</h1>
-		<p class="subtitle">Master languages through real-time AI conversations</p>
+	<header class="hero min-h-screen bg-base-200">
+		<div class="max-w-md">
+			<h1 class="text-5xl font-bold">Kaiwa</h1>
 
-		{#if user}
-			<p class="welcome">Welcome back, {user.displayName || 'User'}!</p>
-		{:else}
-			<p class="guest-info">Guest mode available - try it out!</p>
-		{/if}
+			{#if user}
+				<p class="welcome">Welcome back, {user.displayName || 'User'}!</p>
+			{:else}
+				<p class="subtitle">Master languages through real-time AI conversations</p>
+			{/if}
+			<LanguageStartButton />
+		</div>
 	</header>
 
 	<main class="main-content">

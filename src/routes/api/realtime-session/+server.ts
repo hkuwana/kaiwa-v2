@@ -3,6 +3,9 @@ import type { RequestHandler } from './$types';
 import { dev } from '$app/environment';
 import { OPENAI_API_KEY } from '$env/static/private';
 
+// Valid OpenAI Realtime API voices
+const VALID_OPENAI_VOICES = ['alloy', 'ash', 'ballad', 'coral', 'echo', 'sage', 'shimmer', 'verse'];
+
 // Simple in-memory rate limiting
 const sessionRequests = new Map<string, { timestamp: number; count: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
@@ -39,12 +42,26 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		const {
 			sessionId,
-			model = 'gpt-4o-realtime-preview-2024-10-01',
+			model = 'gpt-4o-mini-realtime-preview-2024-12-17',
 			voice = 'alloy'
 		} = await request.json();
 
 		if (!sessionId) {
 			return json({ error: 'sessionId is required' }, { status: 400 });
+		}
+
+		// Validate voice parameter
+		if (!VALID_OPENAI_VOICES.includes(voice)) {
+			return json(
+				{
+					error: `Invalid voice: '${voice}'. Supported voices are: ${VALID_OPENAI_VOICES.join(', ')}`,
+					details: {
+						providedVoice: voice,
+						validVoices: VALID_OPENAI_VOICES
+					}
+				},
+				{ status: 400 }
+			);
 		}
 
 		if (!OPENAI_API_KEY) {
@@ -93,13 +110,23 @@ export const POST: RequestHandler = async ({ request }) => {
 				});
 			}
 
+			// Try to parse the error response for better error messages
+			let errorDetails;
+			try {
+				errorDetails = JSON.parse(errorText);
+			} catch {
+				errorDetails = { error: { message: errorText } };
+			}
+
 			return json(
 				{
 					error: 'Failed to create realtime session',
 					details: {
 						status: response.status,
 						statusText: response.statusText,
-						response: errorText
+						response: errorText,
+						openAIError: errorDetails.error?.message || 'Unknown OpenAI error',
+						requestPayload
 					}
 				},
 				{ status: response.status }

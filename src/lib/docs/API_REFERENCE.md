@@ -698,7 +698,7 @@ Content-Type: application/json
 ```json
 {
 	"sessionId": "unique-session-identifier",
-	"model": "gpt-4o-realtime-preview-2024-10-01",
+	"model": "gpt-4o-mini-realtime-preview-2024-12-17",
 	"voice": "alloy",
 	"language": "en",
 	"instructions": "Optional conversation instructions",
