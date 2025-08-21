@@ -48,8 +48,12 @@ export class ConversationStore {
 	}
 
 	// Actions become class methods
-	startConversation = async () => {
+	startConversation = async (language?: string, speaker?: string) => {
 		if (this.status !== 'idle') return;
+
+		// Update language and speaker if provided
+		if (language) this.language = language;
+		if (speaker) this.voice = speaker;
 
 		this.status = 'connecting';
 		this.error = null;
@@ -68,7 +72,7 @@ export class ConversationStore {
 				body: JSON.stringify({
 					sessionId: crypto.randomUUID(),
 					model: 'gpt-4o-realtime-preview-2024-10-01',
-					voice: 'alloy'
+					voice: this.voice
 				})
 			});
 
@@ -88,10 +92,15 @@ export class ConversationStore {
 			await this.realtimeService.connectWithSession(
 				sessionData,
 				audioStream,
-				(newMessage: Message) => {
-					// onMessage callback
+				(newMessage: { role: string; content: string }) => {
+					// onMessage callback - convert to our Message type
 					console.log('📨 New message received:', newMessage);
-					this.messages = [...this.messages, newMessage];
+					const message: Message = {
+						role: newMessage.role === 'assistant' ? 'assistant' : 'user',
+						content: newMessage.content,
+						timestamp: Date.now()
+					};
+					this.messages = [...this.messages, message];
 				},
 				(connectionState: RTCPeerConnectionState) => {
 					// onConnectionStateChange callback
@@ -152,12 +161,9 @@ export class ConversationStore {
 	// Send a message
 	sendMessage = (content: string) => {
 		const message: Message = {
-			id: crypto.randomUUID(),
-			conversationId: this.sessionId || '',
 			role: 'user',
 			content,
-			timestamp: new Date(),
-			audioUrl: null
+			timestamp: Date.now()
 		};
 		this.messages = [...this.messages, message];
 

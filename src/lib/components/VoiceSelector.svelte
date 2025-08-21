@@ -69,9 +69,7 @@
 	];
 
 	// Get current voice info
-	const currentVoice = $derived(
-		() => voices.find((voice) => voice.id === selectedVoice) || voices[0]
-	);
+	const currentVoice = $derived(voices.find((voice) => voice.id === selectedVoice) || voices[0]);
 
 	let isOpen = $state(false);
 	let isPlaying = $state<string | null>(null);
@@ -160,8 +158,8 @@
 		aria-haspopup="listbox"
 		aria-expanded={isOpen}
 	>
-		<span class="text-lg">{getGenderIcon(currentVoice().gender)}</span>
-		<span>{currentVoice().name}</span>
+		<span class="text-lg">{getGenderIcon(currentVoice.gender)}</span>
+		<span>{currentVoice.name}</span>
 		<svg
 			class="h-4 w-4 transition-transform {isOpen ? 'rotate-180' : ''}"
 			fill="none"

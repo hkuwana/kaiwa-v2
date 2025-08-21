@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
+	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
+	import LoadingScreen from '$lib/components/LoadingScreen.svelte';
+	import MessageBubble from '$lib/components/MessageBubble.svelte';
 
 	// Get user ID from page data (from your +layout.server.ts)
 	const userId = page.data.user?.id ?? null;
@@ -14,8 +17,12 @@
 	const availableDevices = $derived(conversationStore.availableDevices);
 	const selectedDeviceId = $derived(conversationStore.selectedDeviceId);
 
+	// Get settings from settings store
+	const selectedLanguage = $derived(settingsStore.selectedLanguage);
+	const selectedSpeaker = $derived(settingsStore.selectedSpeaker);
+
 	function handleStart() {
-		conversationStore.startConversation();
+		conversationStore.startConversation(selectedLanguage?.code, selectedSpeaker);
 	}
 
 	function handleStartStreaming() {
@@ -61,10 +68,7 @@
 				{/if}
 			</div>
 		{:else if status === 'connecting'}
-			<div class="connecting">
-				<p>Connecting...</p>
-				<div class="spinner"></div>
-			</div>
+			<LoadingScreen />
 		{:else if status === 'connected'}
 			<div class="connected">
 				<p>Connected! Ready to start streaming.</p>
@@ -83,13 +87,11 @@
 		{#if messages.length > 0}
 			<div class="messages">
 				<h3>Conversation</h3>
-				{#each messages as message}
-					<div class="message {message.role}">
-						<strong>{message.role === 'user' ? 'You' : 'AI'}:</strong>
-						<p>{message.content}</p>
-						<small>{new Date(message.timestamp).toLocaleTimeString()}</small>
-					</div>
-				{/each}
+				<div class="messages-container">
+					{#each messages as message}
+						<MessageBubble {message} />
+					{/each}
+				</div>
 			</div>
 		{/if}
 
@@ -128,7 +130,6 @@
 	}
 
 	.start-section,
-	.connecting,
 	.connected,
 	.streaming {
 		text-align: center;
@@ -196,25 +197,6 @@
 		color: #dc2626;
 	}
 
-	.spinner {
-		width: 40px;
-		height: 40px;
-		border: 4px solid #e2e8f0;
-		border-top: 4px solid #3b82f6;
-		border-radius: 50%;
-		animation: spin 1s linear infinite;
-		margin: 1rem auto;
-	}
-
-	@keyframes spin {
-		0% {
-			transform: rotate(0deg);
-		}
-		100% {
-			transform: rotate(360deg);
-		}
-	}
-
 	.messages {
 		margin: 2rem 0;
 		padding: 1rem;
@@ -222,29 +204,10 @@
 		border-radius: 8px;
 	}
 
-	.message {
-		margin: 1rem 0;
-		padding: 1rem;
-		border-radius: 6px;
-	}
-
-	.message.user {
-		background: #eff6ff;
-		border-left: 4px solid #3b82f6;
-	}
-
-	.message.assistant {
-		background: #f0fdf4;
-		border-left: 4px solid #10b981;
-	}
-
-	.message p {
-		margin: 0.5rem 0;
-	}
-
-	.message small {
-		color: #6b7280;
-		font-size: 0.875rem;
+	.messages-container {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
 	}
 
 	.device-selector {

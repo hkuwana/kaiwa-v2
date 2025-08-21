@@ -1,92 +1,60 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	/**
+	 * AudioVisualizer.svelte
+	 * A Svelte 5 component that visualizes audio levels as a pulsing circle.
+	 * It uses Tailwind CSS and daisyUI for styling.
+	 */
 
 	interface Props {
-		isRecording?: boolean;
-		audioLevel?: number; // 0-100
+		audioLevel?: number;
 	}
 
-	let { isRecording = false, audioLevel = 0 }: Props = $props();
+	// --- PROPS ---
+	/**
+	 * The audio level, expected to be a number between 0 (silence) and 1 (max volume).
+	 * @type {number}
+	 */
+	let { audioLevel = 0 } = $props();
 
-	let canvas: HTMLCanvasElement = $state();
-	let ctx: CanvasRenderingContext2D | null = null;
-	let animationId: number;
+	// --- REACTIVE VALUES (SVELTE 5 RUNES) ---
+	/**
+	 * We use the `$derived` rune to compute values that depend on other reactive values (like props).
+	 * This is more efficient than using `$:`, as Svelte 5 can track dependencies with more precision.
+	 * The scale will range from 1 (no sound) to 1.5 (max sound).
+	 */
+	let scale = $derived(1 + audioLevel * 0.5);
 
-	onMount(() => {
-		ctx = canvas.getContext('2d');
-		if (ctx) {
-			animate();
-		}
-
-		return () => {
-			if (animationId) {
-				cancelAnimationFrame(animationId);
-			}
-		};
-	});
-
-	function animate() {
-		if (!ctx) return;
-
-		const width = canvas.width;
-		const height = canvas.height;
-
-		// Clear canvas
-		ctx.clearRect(0, 0, width, height);
-
-		if (isRecording) {
-			// Draw audio level visualization
-			const centerX = width / 2;
-			const centerY = height / 2;
-			const baseRadius = 30;
-			const maxRadius = 60;
-			const radius = baseRadius + (audioLevel / 100) * (maxRadius - baseRadius);
-
-			// Outer ring (pulsing)
-			const pulseRadius = radius + Math.sin(Date.now() / 200) * 10;
-			ctx.beginPath();
-			ctx.arc(centerX, centerY, pulseRadius, 0, 2 * Math.PI);
-			ctx.strokeStyle = `rgba(239, 68, 68, ${0.3 + (audioLevel / 100) * 0.4})`;
-			ctx.lineWidth = 3;
-			ctx.stroke();
-
-			// Inner circle (solid)
-			ctx.beginPath();
-			ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-			ctx.fillStyle = `rgba(239, 68, 68, ${0.6 + (audioLevel / 100) * 0.4})`;
-			ctx.fill();
-
-			// Center dot
-			ctx.beginPath();
-			ctx.arc(centerX, centerY, 8, 0, 2 * Math.PI);
-			ctx.fillStyle = '#fff';
-			ctx.fill();
-		} else {
-			// Draw idle state
-			const centerX = width / 2;
-			const centerY = height / 2;
-
-			ctx.beginPath();
-			ctx.arc(centerX, centerY, 35, 0, 2 * Math.PI);
-			ctx.strokeStyle = 'rgba(59, 130, 246, 0.5)';
-			ctx.lineWidth = 2;
-			ctx.stroke();
-
-			// Microphone icon (simplified)
-			ctx.fillStyle = 'rgba(59, 130, 246, 0.7)';
-			ctx.fillRect(centerX - 4, centerY - 15, 8, 20);
-			ctx.fillRect(centerX - 8, centerY + 8, 16, 3);
-			ctx.fillRect(centerX - 1, centerY + 11, 2, 8);
-		}
-
-		animationId = requestAnimationFrame(animate);
-	}
+	/**
+	 * The opacity of the outer glow will range from 0.2 (no sound) to 0.7 (max sound).
+	 * This ensures the glow is subtly visible even at rest.
+	 */
+	let opacity = $derived(0.2 + audioLevel * 0.5);
 </script>
 
-<canvas
-	bind:this={canvas}
-	width="120"
-	height="120"
-	class="pointer-events-none absolute inset-0"
-	aria-hidden="true"
-></canvas>
+<!-- 
+	The structure consists of two concentric circles inside a container.
+	- The container centers the circles.
+	- The inner circle is a static, solid shape.
+	- The outer circle is the "glow" that scales and fades based on the audio level.
+  -->
+<div class="relative flex h-24 w-24 items-center justify-center">
+	<!-- Outer Circle (The Pulse/Glow) -->
+	<!-- 
+	  - `bg-accent`: Uses the daisyUI accent color. You can change this to `bg-primary`, `bg-secondary`, etc.
+	  - `transition-transform`, `duration-150`, `ease-out`: These Tailwind classes create the smooth animation.
+		When the `scale` or `opacity` value changes, the browser will smoothly transition the transform and opacity properties.
+	  - The `style` attribute applies the reactive scale and opacity calculated with `$derived`.
+	-->
+	<div
+		class="absolute h-full w-full rounded-full bg-accent transition-transform duration-150 ease-out"
+		style:transform="scale({scale})"
+		style:opacity
+	></div>
+
+	<!-- Inner Circle (The Core) -->
+	<!-- 
+	  - This circle remains static and provides a solid center for the visualizer.
+	  - `bg-accent/80`: Uses the accent color with 80% opacity for a slightly softer look.
+	-->
+	<div class="relative h-12 w-12 rounded-full bg-accent/80"></div>
+</div>

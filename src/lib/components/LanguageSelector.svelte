@@ -14,7 +14,7 @@
 
 	// Get current language info
 	const currentLanguage = $derived(
-		() => languages().find((lang) => lang.code === selectedLanguage) || languages()[0]
+		languages.find((lang) => lang.code === selectedLanguage) || languages[0]
 	);
 
 	let isOpen = $state(false);
@@ -39,8 +39,8 @@
 		aria-haspopup="listbox"
 		aria-expanded={isOpen}
 	>
-		<span class="text-lg">{currentLanguage().flag}</span>
-		<span>{currentLanguage().name}</span>
+		<span class="text-lg">{currentLanguage.flag}</span>
+		<span>{currentLanguage.name}</span>
 		<svg
 			class="h-4 w-4 transition-transform {isOpen ? 'rotate-180' : ''}"
 			fill="none"
@@ -53,7 +53,7 @@
 
 	<!-- Language dropdown -->
 	<ul tabindex="0" class="dropdown-content menu z-[1] w-56 rounded-box bg-base-100 p-2 shadow">
-		{#each languages() as language}
+		{#each languages as language}
 			<li>
 				<button
 					class="flex w-full items-center space-x-3 {language.code === selectedLanguage

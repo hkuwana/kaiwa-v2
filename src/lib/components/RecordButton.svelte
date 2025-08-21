@@ -66,7 +66,7 @@
 		type="button"
 	>
 		<!-- Background visualizer -->
-		<AudioVisualizer {isRecording} {audioLevel} />
+		<AudioVisualizer  {audioLevel} />
 
 		<!-- Button content -->
 		<span class="relative z-10">

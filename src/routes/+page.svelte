@@ -1,13 +1,9 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
+	import LanguageStartButton from '$lib/components/LanguageStartButton.svelte';
 
 	// Get user data from page data
-	const user = $page.data.user;
-
-	function startConversation() {
-		goto('/conversation');
-	}
+	const user = page.data.user;
 </script>
 
 <svelte:head>
@@ -51,7 +47,7 @@
 		</div>
 
 		<div class="cta-section">
-			<button on:click={startConversation} class="cta-button"> 🎯 Start Learning Now </button>
+			<LanguageStartButton />
 			<p class="cta-subtitle">Experience the new simplified architecture</p>
 		</div>
 
@@ -158,25 +154,10 @@
 	.cta-section {
 		text-align: center;
 		margin: 3rem 0;
-	}
-
-	.cta-button {
-		background: #fbbf24;
-		color: #1f2937;
-		padding: 1rem 2rem;
-		font-size: 1.2rem;
-		font-weight: bold;
-		border: none;
-		border-radius: 8px;
-		cursor: pointer;
-		transition: all 0.3s ease;
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-	}
-
-	.cta-button:hover {
-		background: #f59e0b;
-		transform: translateY(-2px);
-		box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1.5rem;
 	}
 
 	.cta-subtitle {
