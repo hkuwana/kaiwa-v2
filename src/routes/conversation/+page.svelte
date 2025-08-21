@@ -22,6 +22,9 @@
 	const selectedLanguage = $derived(settingsStore.selectedLanguage);
 	const selectedSpeaker = $derived(settingsStore.selectedSpeaker);
 
+	// Manual message input
+	let messageInput = '';
+
 	function handleStart() {
 		conversationStore.startConversation(selectedLanguage?.code, selectedSpeaker);
 	}
@@ -45,6 +48,20 @@
 	function handleClearError() {
 		conversationStore.clearError();
 		invalidateAll();
+	}
+
+	function handleSendMessage() {
+		if (messageInput.trim() && status === 'connected' || status === 'streaming') {
+			conversationStore.sendMessage(messageInput.trim());
+			messageInput = '';
+		}
+	}
+
+	function handleKeyPress(event: KeyboardEvent) {
+		if (event.key === 'Enter' && !event.shiftKey) {
+			event.preventDefault();
+			handleSendMessage();
+		}
 	}
 </script>
 
@@ -105,7 +122,7 @@
 					>
 					<button onclick={handleEndConversation} class="btn btn-lg btn-error"
 						>End Conversation</button
-					>
+					</div>
 				</div>
 			</div>
 		{/if}
@@ -117,6 +134,22 @@
 					{#each messages as message}
 						<MessageBubble {message} />
 					{/each}
+				</div>
+			</div>
+		{/if}
+
+		{#if status === 'connected' || status === 'streaming'}
+			<div class="card my-8 border border-base-300 bg-base-100 p-6 shadow-lg">
+				<h3 class="mb-4 text-xl font-semibold text-primary">Send Message</h3>
+				<div class="flex space-x-2">
+					<input
+						type="text"
+						bind:value={messageInput}
+						on:keypress={handleKeyPress}
+						placeholder="Type your message..."
+						class="input input-bordered flex-1"
+					/>
+					<button onclick={handleSendMessage} class="btn btn-primary">Send</button>
 				</div>
 			</div>
 		{/if}

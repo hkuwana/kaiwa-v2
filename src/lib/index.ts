@@ -11,9 +11,7 @@ export {
 } from '$lib/userContextStore';
 
 // Core conversation functionality
-
-// 🎭 Feature exports
-export { createConversationStore } from './features/conversation/store.svelte';
+export { conversationStore } from '$lib/stores/conversation.store.svelte';
 
 // 🗄️ Database repositories
 export * from '$lib/server/repositories/index';
