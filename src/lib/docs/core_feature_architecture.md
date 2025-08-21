@@ -1,820 +1,504 @@
-# 🏗️ Kaiwa MVP Architecture (7-Day Sprint)
+# 🏗️ Kaiwa MVP Architecture (Current Implementation)
 
-> **Purpose**: Ship a magical conversation experience in 7 days using functional patterns.
+> **Purpose**: Clean 3-layer architecture (Services → Stores → UI) for maintainable, scalable language learning platform.
 
-[![Sprint Duration](https://img.shields.io/badge/Sprint-7%20Days-blue?style=for-the-badge)]()
-[![Architecture](https://img.shields.io/badge/Architecture-Functional-green?style=for-the-badge)]()
-[![Focus](https://img.shields.io/badge/Focus-Conversation%20Kernel-purple?style=for-the-badge)]()
-[![Deployment](https://img.shields.io/badge/Deployment-Production%20Ready-red?style=for-the-badge)]()
+[![Architecture](https://img.shields.io/badge/Architecture-3%20Layer-green?style=for-the-badge)]()
+[![Focus](https://img.shields.io/badge/Focus-Services%20%2B%20Stores%20%2B%20UI-purple?style=for-the-badge)]()
+[![Status](https://img.shields.io/badge/Status-Production%20Ready-red?style=for-the-badge)]()
 
 ---
 
-## 🎯 The Kernel Architecture (Days 1-2)
+## 🎯 Current Architecture Overview
 
-> **💫 The Heart of Kaiwa**: Everything starts with the conversation loop.
+Kaiwa MVP uses a **Clean 3-Layer Architecture** that separates concerns clearly and enables independent development and testing of each layer.
 
-### 💬 Core Conversation Loop
+### 🏛️ Architecture Layers
 
-```typescript
-// THE ENTIRE APP KERNEL - Start here!
-// src/kernel/index.ts
-
-type ConversationState = {
-	status: 'idle' | 'recording' | 'processing' | 'speaking';
-	sessionId: string;
-	messages: Message[];
-	startTime: number;
-};
-
-type Action =
-	| { type: 'START_CONVERSATION' }
-	| { type: 'START_RECORDING' }
-	| { type: 'STOP_RECORDING'; audio: ArrayBuffer }
-	| { type: 'RECEIVE_RESPONSE'; transcript: string; response: string }
-	| { type: 'END_CONVERSATION' };
-
-// Pure functional core
-export const conversationCore = {
-	initial: (): ConversationState => ({
-		status: 'idle',
-		sessionId: '',
-		messages: [],
-		startTime: 0
-	}),
-
-	transition: (state: ConversationState, action: Action): ConversationState => {
-		switch (action.type) {
-			case 'START_CONVERSATION':
-				return {
-					...state,
-					status: 'idle',
-					sessionId: crypto.randomUUID(),
-					startTime: Date.now(),
-					messages: []
-				};
-
-			case 'START_RECORDING':
-				return { ...state, status: 'recording' };
-
-			case 'STOP_RECORDING':
-				return { ...state, status: 'processing' };
-
-			case 'RECEIVE_RESPONSE':
-				return {
-					...state,
-					status: 'speaking',
-					messages: [
-						...state.messages,
-						{ role: 'user', content: action.transcript },
-						{ role: 'assistant', content: action.response }
-					]
-				};
-
-			case 'END_CONVERSATION':
-				return conversationCore.initial();
-
-			default:
-				return state;
-		}
-	},
-
-	// Side effects as data
-	effects: (state: ConversationState, action: Action): Effect[] => {
-		switch (action.type) {
-			case 'STOP_RECORDING':
-				return [{ type: 'TRANSCRIBE', audio: action.audio }, { type: 'GENERATE_RESPONSE' }];
-
-			case 'RECEIVE_RESPONSE':
-				return [{ type: 'SPEAK', text: action.response }, { type: 'SAVE_EXCHANGE' }];
-
-			default:
-				return [];
-		}
-	}
-};
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                        UI Layer                            │
+│              (Svelte Components + Pages)                   │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
+│  │ Conversation│  │   Settings  │  │   Other Pages       │ │
+│  │    Page     │  │    Page     │  │   & Components      │ │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                     Store Layer                            │
+│              (State Management + Orchestration)            │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
+│  │Conversation │  │   Settings  │  │   Future Stores     │ │
+│  │   Store     │  │    Store    │  │   (Auth, Analytics) │ │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Service Layer                           │
+│              (Pure Business Logic + External APIs)         │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
+│  │    Audio    │  │  Realtime   │  │   Analytics         │ │
+│  │   Service   │  │   Service   │  │    Service          │ │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### Adapters (Infrastructure)
+---
+
+## 🎭 The Service Layer (Foundation)
+
+### Core Principle
+
+**Services are pure, independent, and focused on a single responsibility.** They have zero knowledge of other services, Svelte, or UI components.
+
+### AudioService
+
+Handles all audio-related functionality:
 
 ```typescript
-// src/kernel/adapters.ts
+// src/lib/services/audio.service.ts
+export class AudioService {
+  // Get audio stream from user's microphone
+  async getStream(deviceId?: string): Promise<MediaStream> {
+    const constraints: MediaStreamConstraints = {
+      audio: deviceId ? { deviceId: { exact: deviceId } } : {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      }
+    };
+    
+    return await navigator.mediaDevices.getUserMedia(constraints);
+  }
 
-// Simple adapter interfaces - implement with whatever you have
-export const adapters = {
-	audio: {
-		startRecording: async (): Promise<MediaRecorder> => {
-			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-			return new MediaRecorder(stream);
-		},
+  // Get available audio devices
+  async getAvailableDevices(): Promise<MediaDeviceInfo[]> {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    return devices.filter(device => device.kind === 'audioinput');
+  }
 
-		stopRecording: (recorder: MediaRecorder): Promise<ArrayBuffer> => {
-			return new Promise((resolve) => {
-				recorder.ondataavailable = async (e) => {
-					resolve(await e.data.arrayBuffer());
-				};
-				recorder.stop();
-			});
-		},
+  // Monitor audio levels
+  onLevelUpdate(callback: (level: AudioLevel) => void): void {
+    // Implementation for audio level monitoring
+  }
 
-		play: async (audioData: ArrayBuffer): Promise<void> => {
-			const audioContext = new AudioContext();
-			const buffer = await audioContext.decodeAudioData(audioData);
-			const source = audioContext.createBufferSource();
-			source.buffer = buffer;
-			source.connect(audioContext.destination);
-			source.start();
-		}
-	},
-
-	ai: {
-		transcribe: async (audio: ArrayBuffer): Promise<string> => {
-			// Use Whisper API or Web Speech API
-			const formData = new FormData();
-			formData.append('audio', new Blob([audio]));
-			const res = await fetch('/api/transcribe', {
-				method: 'POST',
-				body: formData
-			});
-			return res.text();
-		},
-
-		complete: async (prompt: string, history: Message[] = []): Promise<string> => {
-			const res = await fetch('/api/chat', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ prompt, history })
-			});
-			return res.text();
-		},
-
-		textToSpeech: async (text: string): Promise<ArrayBuffer> => {
-			const res = await fetch('/api/tts', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ text })
-			});
-			return res.arrayBuffer();
-		}
-	}
-};
+  // Clean up resources
+  cleanup(): void {
+    // Stop tracks, close contexts, etc.
+  }
+}
 ```
 
-## 🎨 The UI Layer (Days 3-4)
+### RealtimeService
 
-### Single Component Focus
+Manages WebRTC connections and OpenAI API integration:
+
+```typescript
+// src/lib/services/realtime.service.ts
+export class RealtimeService {
+  // Connect to OpenAI's realtime API
+  async connectWithSession(
+    sessionData: RealtimeSession,
+    stream: MediaStream,
+    onMessage: (message: Message) => void,
+    onConnectionStateChange: (state: RTCPeerConnectionState) => void
+  ): Promise<void> {
+    // 1. Set up WebRTC peer connection
+    // 2. Add audio tracks from stream
+    // 3. Create data channel for events
+    // 4. Connect to OpenAI API
+    // 5. Handle real-time communication
+  }
+
+  // Send events to OpenAI
+  sendEvent(event: Record<string, unknown>): void {
+    if (this.dataChannel?.readyState === 'open') {
+      this.dataChannel.send(JSON.stringify(event));
+    }
+  }
+
+  // Check connection status
+  isConnected(): boolean {
+    return this.pc?.connectionState === 'connected' && 
+           this.dataChannel?.readyState === 'open';
+  }
+
+  // Clean up connection
+  disconnect(): void {
+    // Close WebRTC connection, data channel, etc.
+  }
+}
+```
+
+### AnalyticsService
+
+Tracks user events and metrics:
+
+```typescript
+// src/lib/services/analytics.service.ts
+export class AnalyticsService {
+  // Initialize analytics
+  async init(): Promise<void> {
+    // Set up PostHog or other analytics provider
+  }
+
+  // Track user events
+  track(eventName: string, properties?: Record<string, unknown>): void {
+    // Send event to analytics provider
+  }
+
+  // Identify user
+  identify(userId: string, properties?: Record<string, unknown>): void {
+    // Set user properties in analytics
+  }
+}
+```
+
+---
+
+## 🎪 The Store Layer (Orchestration)
+
+### Core Principle
+
+**Stores coordinate between services to implement features.** They manage application state and handle side effects using Svelte 5 runes.
+
+### ConversationStore
+
+Orchestrates the conversation experience:
+
+```typescript
+// src/lib/stores/conversation.store.svelte.ts
+export class ConversationStore {
+  // Inject services (not other stores)
+  constructor(
+    private realtimeService: RealtimeService,
+    private audioService: AudioService
+  ) {
+    // Initialize audio service
+    this.audioService.initialize();
+    this.audioService.getAvailableDevices().then(devices => {
+      this.availableDevices = devices;
+    });
+  }
+
+  // Reactive state using Svelte 5 runes
+  status = $state<'idle' | 'connecting' | 'connected' | 'streaming' | 'error'>('idle');
+  messages = $state<Message[]>([]);
+  error = $state<string | null>(null);
+  audioLevel = $state<number>(0);
+
+  // Main action: Start a conversation
+  startConversation = async (language?: string, speaker?: Speaker) => {
+    if (this.status !== 'idle') return;
+
+    this.status = 'connecting';
+    this.error = null;
+
+    try {
+      // 1. Get audio stream from audio service
+      const audioStream = await this.audioService.getStream(this.selectedDeviceId);
+
+      // 2. Get session from backend
+      const response = await fetch('/api/realtime-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: crypto.randomUUID(),
+          model: 'gpt-4o-mini-realtime-preview-2024-12-17',
+          voice: this.voice
+        })
+      });
+
+      const sessionData = await response.json();
+
+      // 3. Connect realtime service
+      await this.realtimeService.connectWithSession(
+        sessionData,
+        audioStream,
+        this.handleMessage,
+        this.handleConnectionStateChange
+      );
+    } catch (e) {
+      this.error = e instanceof Error ? e.message : 'Unknown error';
+      this.status = 'error';
+    }
+  };
+
+  // Handle incoming messages
+  private handleMessage = (newMessage: { role: string; content: string }) => {
+    const message: Message = {
+      role: newMessage.role === 'assistant' ? 'assistant' : 'user',
+      content: newMessage.content,
+      timestamp: new Date(),
+      id: '',
+      conversationId: '',
+      audioUrl: null
+    };
+    this.messages = [...this.messages, message];
+  };
+
+  // Handle connection state changes
+  private handleConnectionStateChange = (connectionState: RTCPeerConnectionState) => {
+    if (connectionState === 'connected') {
+      this.status = 'connected';
+      this.startTime = Date.now();
+    } else if (connectionState === 'failed' || connectionState === 'closed') {
+      this.status = 'idle';
+      this.error = 'Connection lost';
+    }
+  };
+
+  // End conversation
+  endConversation = () => {
+    this.realtimeService.disconnect();
+    this.audioService.cleanup();
+    
+    // Reset state
+    this.status = 'idle';
+    this.messages = [];
+    this.error = null;
+  };
+}
+```
+
+### SettingsStore
+
+Manages user preferences:
+
+```typescript
+// src/lib/stores/settings.store.svelte.ts
+export class SettingsStore {
+  // User's selected language
+  selectedLanguage = $state<Language | null>(null);
+  
+  // User's selected AI voice
+  selectedSpeaker = $state('alloy');
+
+  constructor() {
+    // Initialize with default language
+    const defaultLanguage = allLanguages.find(lang => lang.code === 'ja');
+    if (defaultLanguage) {
+      this.selectedLanguage = defaultLanguage;
+    }
+  }
+
+  // Update selected language
+  setLanguage = (languageCode: string) => {
+    const language = allLanguages.find(lang => lang.code === languageCode);
+    if (language) {
+      this.selectedLanguage = language;
+    }
+  };
+
+  // Update selected speaker
+  setSpeaker = (speakerId: string) => {
+    this.selectedSpeaker = speakerId;
+  };
+}
+```
+
+---
+
+## 🎨 The UI Layer (Presentation)
+
+### Core Principle
+
+**UI components are thin and declarative.** They use `$derived` for reactive values and call store actions instead of services directly.
+
+### Conversation Page
+
+Main conversation interface:
 
 ```svelte
-<!-- src/routes/+page.svelte -->
-<!-- The ENTIRE app UI in one component initially -->
+<!-- src/routes/conversation/+page.svelte -->
 <script lang="ts">
-	import { conversationCore, adapters } from '$lib/kernel';
+  import { conversationStore } from '$lib/stores/conversation.store.svelte';
+  import { settingsStore } from '$lib/stores/settings.store.svelte';
+  
+  // Get reactive values from stores
+  const status = $derived(conversationStore.status);
+  const messages = $derived(conversationStore.messages);
+  const error = $derived(conversationStore.error);
+  const audioLevel = $derived(conversationStore.audioLevel);
+  
+  // Get settings
+  const selectedLanguage = $derived(settingsStore.selectedLanguage);
+  const selectedSpeaker = $derived(settingsStore.selectedSpeaker);
 
-	// Single state object
-	let state = $state(conversationCore.initial());
-	let recorder = $state<MediaRecorder | null>(null);
+  // Simple event handlers
+  function handleStart() {
+    conversationStore.startConversation(selectedLanguage?.code, selectedSpeaker);
+  }
 
-	// Orchestrator pattern
-	async function dispatch(action: Action) {
-		// 1. Update state
-		state = conversationCore.transition(state, action);
-
-		// 2. Execute effects
-		const effects = conversationCore.effects(state, action);
-		for (const effect of effects) {
-			await executeEffect(effect);
-		}
-	}
-
-	async function executeEffect(effect: Effect) {
-		switch (effect.type) {
-			case 'TRANSCRIBE':
-				const transcript = await adapters.ai.transcribe(effect.audio);
-				const response = await adapters.ai.complete(transcript, state.messages);
-				await dispatch({
-					type: 'RECEIVE_RESPONSE',
-					transcript,
-					response
-				});
-				break;
-
-			case 'SPEAK':
-				const audio = await adapters.ai.textToSpeech(effect.text);
-				await adapters.audio.play(audio);
-				state = { ...state, status: 'idle' };
-				break;
-		}
-	}
-
-	async function toggleRecording() {
-		if (state.status === 'idle') {
-			if (!state.sessionId) {
-				await dispatch({ type: 'START_CONVERSATION' });
-			}
-			recorder = await adapters.audio.startRecording();
-			await dispatch({ type: 'START_RECORDING' });
-		} else if (state.status === 'recording' && recorder) {
-			const audio = await adapters.audio.stopRecording(recorder);
-			await dispatch({ type: 'STOP_RECORDING', audio });
-			recorder = null;
-		}
-	}
-
-	// Derived state
-	const buttonText = $derived(
-		state.status === 'recording'
-			? 'Stop'
-			: state.status === 'processing'
-				? 'Processing...'
-				: state.status === 'speaking'
-					? 'Speaking...'
-					: 'Start'
-	);
-
-	const isDisabled = $derived(state.status === 'processing' || state.status === 'speaking');
+  function handleEnd() {
+    conversationStore.endConversation();
+  }
 </script>
 
-<div class="flex min-h-screen flex-col items-center justify-center p-8">
-	<!-- Minimal UI - just what's needed -->
-	<div class="w-full max-w-2xl space-y-8">
-		<h1 class="text-center text-3xl font-bold">Practice Speaking</h1>
+<div class="mx-auto max-w-4xl p-8 font-sans">
+  <header class="mb-8 text-center">
+    <h1 class="mb-2 text-4xl font-bold text-primary">
+      {selectedLanguage?.name} Conversation
+    </h1>
+  </header>
 
-		<!-- Conversation display -->
-		{#if state.messages.length > 0}
-			<div class="max-h-96 space-y-4 overflow-y-auto">
-				{#each state.messages as message}
-					<div class="rounded-lg p-4 {message.role === 'user' ? 'bg-blue-100' : 'bg-gray-100'}">
-						<p class="font-medium">{message.role === 'user' ? 'You' : 'Teacher'}</p>
-						<p>{message.content}</p>
-					</div>
-				{/each}
-			</div>
-		{/if}
+  <main>
+    <!-- Status-based UI rendering -->
+    {#if status === 'idle' || status === 'error'}
+      <div class="card my-8 border border-base-300 bg-base-100 p-8 text-center shadow-lg">
+        <button on:click={handleStart} class="btn btn-lg btn-primary">
+          Start Conversation
+        </button>
+        {#if error}
+          <div class="mt-4 alert alert-error">
+            <span>Something went wrong: {error}</span>
+          </div>
+        {/if}
+      </div>
+    {:else if status === 'connecting'}
+      <LoadingScreen />
+    {:else if status === 'connected'}
+      <div class="card my-8 border border-base-300 bg-base-100 p-8 text-center shadow-lg">
+        <p class="mb-4 text-xl text-success">Connected! Ready to start streaming.</p>
+        <button on:click={handleEnd} class="btn btn-lg btn-error">
+          End Conversation
+        </button>
+      </div>
+    {/if}
 
-		<!-- Single action button -->
-		<button
-			class="w-full rounded-full py-6 text-xl font-semibold transition-all
-             {state.status === 'recording' ? 'animate-pulse bg-red-500' : 'bg-blue-500'}
-             {isDisabled ? 'cursor-not-allowed opacity-50' : 'hover:scale-105'}"
-			onclick={toggleRecording}
-			disabled={isDisabled}
-		>
-			{buttonText}
-		</button>
-
-		<!-- Status indicator -->
-		<div class="text-center text-sm text-gray-600">
-			{#if state.status === 'recording'}
-				<span class="animate-pulse">🔴 Recording...</span>
-			{:else if state.status === 'processing'}
-				<span>🤖 Thinking...</span>
-			{:else if state.status === 'speaking'}
-				<span>🔊 Speaking...</span>
-			{:else if state.messages.length > 0}
-				<span>✨ {state.messages.length / 2} exchanges</span>
-			{:else}
-				<span>Press Start to begin</span>
-			{/if}
-		</div>
-	</div>
+    <!-- Messages display -->
+    {#if messages.length > 0}
+      <div class="card my-8 border border-base-300 bg-base-100 p-6 shadow-lg">
+        <h3 class="mb-4 text-2xl font-semibold text-primary">Conversation</h3>
+        <div class="space-y-3">
+          {#each messages as message}
+            <MessageBubble {message} />
+          {/each}
+        </div>
+      </div>
+    {/if}
+  </main>
 </div>
 ```
 
-## 🔄 Enhancement Layers (Days 5-6)
+---
 
-### Progressive Enhancement Pattern
+## 🔄 Data Flow
 
-```typescript
-// src/enhance/auth.ts
-// Auth that doesn't break the core experience
+### 1. User Interaction Flow
 
-export const authEnhancement = {
-	// Try to enhance, but don't block
-	async enhance(kernel: ConversationKernel) {
-		try {
-			const user = await this.tryAutoLogin();
-			if (user) {
-				// Enhance the kernel with user context
-				return {
-					...kernel,
-					speak: async (audio: ArrayBuffer) => {
-						const result = await kernel.speak(audio);
-						// Add user context to AI prompts
-						return result;
-					}
-				};
-			}
-		} catch {
-			// Silently continue without auth
-		}
-		return kernel;
-	},
-
-	async tryAutoLogin() {
-		// Attempt Google sign-in
-		return null; // For now
-	}
-};
-
-// src/enhance/persist.ts
-// Persistence that fails gracefully
-
-export const persistEnhancement = {
-	async enhance(kernel: ConversationKernel) {
-		const originalEnd = kernel.end;
-
-		return {
-			...kernel,
-			end: async () => {
-				const result = originalEnd();
-				// Try to save, but don't block
-				this.trySave(result).catch(() => {
-					// Save to localStorage as fallback
-					localStorage.setItem('lastConversation', JSON.stringify(result));
-				});
-				return result;
-			}
-		};
-	},
-
-	async trySave(conversation: any) {
-		// Attempt to save to backend
-	}
-};
+```text
+User clicks "Start" → UI calls store action → Store orchestrates services → State updates → UI re-renders
 ```
 
-## 📋 Daily Checklist
+### 2. Service Communication Flow
 
-### Day 1: Morning
+```text
+Service A → Store → Service B (NEVER Service A → Service B directly)
+```
 
-- [ ] Set up SvelteKit project (30 min)
-- [ ] Create kernel/conversation.ts (2 hours)
-- [ ] Create kernel/adapters.ts (1 hour)
+### 3. State Update Flow
 
-### Day 1: Afternoon
-
-- [ ] Wire up audio recording (2 hours)
-- [ ] Test with console.log outputs (1 hour)
-- [ ] Basic error handling (1 hour)
-
-### Day 2: Morning
-
-- [ ] Connect to AI API (2 hours)
-- [ ] Implement transcription (1 hour)
-- [ ] Implement TTS (1 hour)
-
-### Day 2: Afternoon
-
-- [ ] Full conversation loop working (2 hours)
-- [ ] Debug and test (2 hours)
-
-### Day 3: Morning
-
-- [ ] Create beautiful UI component (3 hours)
-- [ ] Add animations and transitions (1 hour)
-
-### Day 3: Afternoon
-
-- [ ] Mobile responsive design (2 hours)
-- [ ] Polish interactions (2 hours)
-
-### Day 4: Morning
-
-- [ ] Add conversation history display (2 hours)
-- [ ] Add status indicators (1 hour)
-- [ ] Add error messages (1 hour)
-
-### Day 4: Afternoon
-
-- [ ] User testing and feedback (2 hours)
-- [ ] Iterate on UX (2 hours)
-
-### Day 5: Morning
-
-- [ ] Add Google auth (optional) (3 hours)
-- [ ] Test auth flow (1 hour)
-
-### Day 5: Afternoon
-
-- [ ] Add persistence layer (2 hours)
-- [ ] Add progress tracking (2 hours)
-
-### Day 6: Morning
-
-- [ ] Deploy to Vercel/Netlify (2 hours)
-- [ ] Set up monitoring (1 hour)
-- [ ] DNS configuration (1 hour)
-
-### Day 6: Afternoon
-
-- [ ] User testing on production (2 hours)
-- [ ] Bug fixes (2 hours)
-
-### Day 7
-
-- [ ] Marketing landing page (4 hours)
-- [ ] Launch announcement (2 hours)
-- [ ] Monitor and iterate (2 hours)
+```text
+Service event → Store callback → State update → UI re-render
+```
 
 ---
 
-_Remember: The goal is a working conversation loop by Day 2. Everything else is enhancement._
+## 🧪 Testing Strategy
 
-````text
-
-
-## **CTO_ASSESSMENT_MIGRATION_PLAN.md** (Updated)
-
-```markdown
-# 🎯 CTO Assessment: 7-Day MVP Sprint Plan
-
-> **Executive Summary**: Build a fresh MVP in 7 days focusing solely on the conversation experience. No technical debt, pure functional architecture, ship fast.
-
-## 📊 Revised Strategy: Fresh Start with Kernel First
-
-### The Problem with Migration
-- Current codebase: 300+ runtime errors
-- Time to fix: 2-3 weeks minimum
-- Risk: Still carrying technical debt
-
-### The Kernel Solution
-- Build core conversation loop: 2 days
-- Add beautiful UI: 2 days
-- Add enhancements: 2 days
-- Deploy and iterate: 1 day
-- **Total: 7 days to production**
-
-## 🚀 The 7-Day Sprint Plan
-
-### Day 1-2: The Kernel Sprint
-
-**Goal**: Working conversation loop
+### Service Testing
 
 ```typescript
-// The entire core in ~200 lines
-const kernel = {
-  start: () => ({ sessionId: uuid() }),
-  speak: async (audio) => {
-    const transcript = await transcribe(audio);
-    const response = await generateResponse(transcript);
-    const audioResponse = await textToSpeech(response);
-    return { transcript, response, audioResponse };
-  },
-  end: () => ({ duration, exchanges })
-};
-````
+// Test services in isolation
+describe('AudioService', () => {
+  it('should get audio stream', async () => {
+    const service = new AudioService();
+    const stream = await service.getStream();
+    expect(stream).toBeInstanceOf(MediaStream);
+  });
+});
+```
 
-**Morning Day 1:**
-
-- [ ] New SvelteKit project setup (30 min)
-- [ ] Create kernel/conversation.ts (2 hours)
-- [ ] Create kernel/adapters.ts (1 hour)
-
-**Afternoon Day 1:**
-
-- [ ] Audio recording implementation (2 hours)
-- [ ] Basic testing with console logs (1 hour)
-- [ ] Error handling (1 hour)
-
-**Morning Day 2:**
-
-- [ ] AI API integration (2 hours)
-- [ ] Transcription service (1 hour)
-- [ ] TTS service (1 hour)
-
-**Afternoon Day 2:**
-
-- [ ] Full loop testing (2 hours)
-- [ ] Debug and refine (2 hours)
-
-**Deliverable**: User can have a conversation
-
-### Day 3-4: The Experience Sprint
-
-**Goal**: Beautiful, magical UI
-
-**Morning Day 3:**
-
-- [ ] Single-page UI component (3 hours)
-- [ ] Animations and transitions (1 hour)
-
-**Afternoon Day 3:**
-
-- [ ] Mobile responsive design (2 hours)
-- [ ] Interaction polish (2 hours)
-
-**Morning Day 4:**
-
-- [ ] Conversation history display (2 hours)
-- [ ] Status indicators (1 hour)
-- [ ] Error states (1 hour)
-
-**Afternoon Day 4:**
-
-- [ ] User testing (2 hours)
-- [ ] UX iteration (2 hours)
-
-**Deliverable**: Users say "wow" on first use
-
-### Day 5-6: The Enhancement Sprint
-
-**Goal**: Auth and persistence (but app works without them)
-
-**Morning Day 5:**
-
-- [ ] Google OAuth setup (3 hours)
-- [ ] Auth flow testing (1 hour)
-
-**Afternoon Day 5:**
-
-- [ ] Persistence layer (2 hours)
-- [ ] Progress tracking (2 hours)
-
-**Morning Day 6:**
-
-- [ ] Deploy to Vercel (2 hours)
-- [ ] Monitoring setup (1 hour)
-- [ ] DNS configuration (1 hour)
-
-**Afternoon Day 6:**
-
-- [ ] Production testing (2 hours)
-- [ ] Bug fixes (2 hours)
-
-**Deliverable**: Deployed app with optional auth
-
-### Day 7: The Launch Sprint
-
-**Goal**: Get real users
-
-**Morning:**
-
-- [ ] Landing page (4 hours)
-
-**Afternoon:**
-
-- [ ] Launch to beta users (2 hours)
-- [ ] Monitor and iterate (2 hours)
-
-**Deliverable**: 10 real users trying the app
-
-## 🏗️ Architecture Decisions
-
-### 1. Functional Core Pattern
+### Store Testing
 
 ```typescript
-// Pure functions for all business logic
-const core = {
-	// State transitions
-	transition: (state, action) => newState,
-
-	// Side effects as data
-	effects: (state, action) => [...effects]
-};
-
-// Adapters for external services
-const adapters = {
-	audio: { record, play },
-	ai: { transcribe, complete, tts }
-};
-
-// Orchestrator to coordinate
-const orchestrator = {
-	dispatch: async (action) => {
-		state = core.transition(state, action);
-		const effects = core.effects(state, action);
-		await Promise.all(effects.map(executeEffect));
-	}
-};
+// Test store orchestration
+describe('ConversationStore', () => {
+  it('should start conversation', async () => {
+    const mockAudioService = createMockAudioService();
+    const mockRealtimeService = createMockRealtimeService();
+    
+    const store = new ConversationStore(mockRealtimeService, mockAudioService);
+    
+    await store.startConversation();
+    
+    expect(store.status).toBe('connected');
+    expect(mockAudioService.getStream).toHaveBeenCalled();
+    expect(mockRealtimeService.connectWithSession).toHaveBeenCalled();
+  });
+});
 ```
 
-### 2. Single State Tree
+### UI Testing
 
 ```typescript
-// One source of truth
-type AppState = {
-	conversation: {
-		status: 'idle' | 'recording' | 'processing' | 'speaking';
-		messages: Message[];
-		sessionId: string;
-	};
-	user: {
-		id?: string;
-		isAnonymous: boolean;
-	};
-};
-
-// All derived state computed from this tree
-const derived = {
-	isRecording: $derived(state.conversation.status === 'recording'),
-	canSpeak: $derived(state.conversation.status === 'idle'),
-	messageCount: $derived(state.conversation.messages.length)
-};
+// Test UI interactions
+test('should start conversation when button clicked', async ({ page }) => {
+  await page.goto('/conversation');
+  await page.click('button:has-text("Start Conversation")');
+  
+  await expect(page.locator('text=Connected!')).toBeVisible();
+});
 ```
-
-### 3. Progressive Enhancement Strategy
-
-```typescript
-// Core works without these
-const enhancements = {
-	auth: {
-		enhance: (kernel) => optionalAuth(kernel),
-		fallback: () => continueAnonymously()
-	},
-	persist: {
-		enhance: (kernel) => cloudSave(kernel),
-		fallback: () => localStorage
-	},
-	analytics: {
-		enhance: (kernel) => trackEvents(kernel),
-		fallback: () => null // No tracking
-	}
-};
-```
-
-## 📊 Risk Mitigation
-
-### Technical Risks & Mitigations
-
-| Risk          | Mitigation               | Fallback            |
-| ------------- | ------------------------ | ------------------- |
-| AI API fails  | Use backup service       | Browser Speech API  |
-| Auth breaks   | Optional enhancement     | Anonymous usage     |
-| Database down | localStorage first       | Sync when available |
-| Audio issues  | Multiple implementations | Text input backup   |
-
-### Development Risks & Mitigations
-
-| Risk               | Mitigation                 | Fallback         |
-| ------------------ | -------------------------- | ---------------- |
-| Feature creep      | Daily "what to cut" review | Core only        |
-| Over-engineering   | 200 line file limit        | Inline first     |
-| Analysis paralysis | 2-hour decision limit      | Ship and iterate |
-| Perfectionism      | "Good enough" checklist    | User feedback    |
-
-## 🎯 Success Metrics by Day
-
-### Day 2 Success Criteria
-
-- [ ] Audio recording works
-- [ ] AI responds appropriately
-- [ ] Response plays back
-- [ ] No crashes in 5 minute session
-
-### Day 4 Success Criteria
-
-- [ ] UI loads in &lt; 2 seconds
-- [ ] Works on mobile Safari/Chrome
-- [ ] First user completes conversation
-- [ ] Zero console errors
-
-### Day 6 Success Criteria
-
-- [ ] Deployed to production URL
-- [ ] Google auth works (optional)
-- [ ] Conversations persist
-- [ ] 10 test conversations completed
-
-### Day 7 Success Criteria
-
-- [ ] 10 real users
-- [ ] 50 total conversations
-- [ ] 30% return rate
-- [ ] 5% error rate
-
-## 💰 Resource Allocation
-
-### Time Budget (168 hours total)
-
-- **Kernel (48h)**: Core conversation loop
-- **Experience (48h)**: UI/UX polish
-- **Enhancement (48h)**: Auth & persistence
-- **Launch (24h)**: Deploy & marketing
-
-### Cost Budget (Week 1)
-
-- **Infrastructure**: $50 (Vercel Pro)
-- **AI APIs**: $100 (OpenAI/Anthropic)
-- **Domain**: $15 (if needed)
-- **Total**: ~$200
-
-### Team Focus
-
-- **You**: Full-stack development
-- **No additional resources needed for MVP**
-- **Post-MVP**: Consider contractor for UI polish
-
-## 🚀 Post-MVP Roadmap (Week 2+)
-
-Only consider after successful Week 1:
-
-### Week 2: Core Enhancements
-
-- Multiple language support
-- Advanced conversation modes
-- Better error recovery
-- Performance optimization
-
-### Week 3: Growth Features
-
-- Referral system
-- Basic analytics
-- Email capture
-- Social sharing
-
-### Week 4: Monetization
-
-- Payment integration
-- Premium features
-- Usage limits
-- Subscription tiers
-
-## 📝 Daily Standup Template
-
-```markdown
-Day X Standup:
-
-- ✅ Completed: [What works]
-- 🚧 In Progress: [Current focus]
-- ❌ Blocked: [What's stopping progress]
-- 🎯 Today's Goal: [One specific outcome]
-- ✂️ Will Cut: [What to remove if behind]
-```
-
-## 🔄 Decision Framework
-
-For every decision, ask:
-
-1. **Does this help users have conversations?**
-   - Yes → Do it
-   - No → Cut it
-   - Maybe → Cut it
-
-2. **Can we ship without this?**
-   - Yes → Cut it
-   - No → Simplify it
-
-3. **Will this take >2 hours?**
-   - Yes → Find a simpler way
-   - No → Do it now
-
-## 🎯 The One Key Insight
-
-**Stop thinking like an engineer. Think like a user.**
-
-The user doesn't care about:
-
-- Your architecture
-- Your event system
-- Your functional patterns
-- Your test coverage
-
-The user cares about:
-
-- Can I have a conversation?
-- Does it feel magical?
-- Can I do it again?
-
-**Build for that. Everything else is vanity.**
-
-## ✅ Pre-Launch Checklist
-
-### Technical Minimums
-
-- [ ] Conversation loop works
-- [ ] No crashes in 10 min use
-- [ ] Works on mobile
-- [ ] Less than 3 second load time
-
-### User Experience Minimums
-
-- [ ] One-click to start
-- [ ] Clear when recording
-- [ ] Obvious how to stop
-- [ ] Can see conversation history
-
-### Launch Minimums
-
-- [ ] Deployed URL works
-- [ ] Analytics installed
-- [ ] Error tracking setup
-- [ ] 5 friends tested it
-
-## 🏁 Final Recommendation
-
-**START NOW. START SIMPLE.**
-
-1. Create new repo: `kaiwa-mvp`
-2. One file: `conversation.ts`
-3. One function: `speak(audio) => response`
-4. One UI: Big button that records
-5. Ship in 7 days
-
-The current codebase is a learning experience, not a foundation. Take the lessons, leave the code. Your users are waiting for magic, not perfect architecture.
-
-**Your only job for 7 days: Make the computer talk back when someone speaks to it.**
-
-Everything else is a distraction.
 
 ---
 
-_Day 1 starts now. Ship the kernel by Day 2. Everything else will follow._
+## 🚀 Current Status & Next Steps
+
+### ✅ Completed
+
+- **Service Layer**: Audio, Realtime, and Analytics services implemented
+- **Store Layer**: Conversation and Settings stores working
+- **UI Layer**: Main conversation interface complete
+- **Architecture**: Clean 3-layer pattern established
+- **Testing**: Comprehensive test coverage for services and stores
+
+### 🔄 In Progress
+
+- **Authentication**: User login/logout functionality
+- **Persistence**: Conversation history and user data
+- **Analytics**: User behavior tracking and insights
+
+### 📋 Next Steps
+
+1. **Authentication Service & Store**
+   - Google OAuth integration
+   - User session management
+   - Protected routes
+
+2. **Persistence Service & Store**
+   - Database integration
+   - Conversation history
+   - User progress tracking
+
+3. **Enhanced Features**
+   - Multiple language support
+   - Advanced conversation modes
+   - Progress analytics
+
+---
+
+## 💡 Key Insights
+
+1. **Services should be pure and focused**
+2. **Stores should handle complexity and orchestration**
+3. **UI should be declarative and simple**
+4. **Test each layer independently**
+5. **Keep the core working before adding features**
+
+---
+
+_This architecture provides a solid foundation for building a scalable, maintainable language learning platform while keeping the core conversation experience working reliably._

@@ -1,284 +1,238 @@
 # 🏗️ Kaiwa v2 Architecture
 
-> **Core Principle**: Hexagonal Architecture with Feature Isolation for maintainable, scalable language learning platform.
+> **Core Principle**: Clean 3-Layer Architecture (Services → Stores → UI) for maintainable, scalable language learning platform.
 
 ---
 
 ## 🎯 Architecture Overview
 
-Kaiwa v2 adopts **Hexagonal Architecture** (Ports and Adapters) to create clear separation between core business logic and external concerns. This pattern ensures our application core remains independent of databases, APIs, and UI frameworks.
+Kaiwa v2 adopts a **Clean 3-Layer Architecture** that creates clear separation between business logic, state management, and user interface. This pattern ensures our application remains maintainable, testable, and scalable.
 
 ### 🏛️ Architecture Layers
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
-│                    External World                          │
+│                        UI Layer                            │
+│              (Svelte Components + Pages)                   │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
-│  │   Web UI    │  │   Mobile    │  │   Third-party APIs  │ │
-│  │ (SvelteKit) │  │   (Future)  │  │   (OpenAI, Stripe)  │ │
+│  │ Conversation│  │   Settings  │  │   Other Pages       │ │
+│  │    Page     │  │    Page     │  │   & Components      │ │
 │  └─────────────┘  └─────────────┘  └─────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    Adapters Layer                          │
+│                     Store Layer                            │
+│              (State Management + Orchestration)            │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
-│  │ API Routes  │  │ Repositories│  │   External Services │ │
-│  │ (Controllers)│  │ (Database)  │  │   (HTTP Clients)   │ │
+│  │Conversation │  │   Settings  │  │   Future Stores     │ │
+│  │   Store     │  │    Store    │  │   (Auth, Analytics) │ │
 │  └─────────────┘  └─────────────┘  └─────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    Ports Layer                             │
+│                    Service Layer                           │
+│              (Pure Business Logic + External APIs)         │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
-│  │ Input Ports │  │ Output Ports│  │   Event Ports       │ │
-│  │ (Interfaces)│  │ (Interfaces)│  │   (Contracts)       │ │
-│  └─────────────┘  └─────────────┘  └─────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    Application Core                        │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
-│  │ Use Cases   │  │ Domain      │  │   Event System      │ │
-│  │ (Features)  │  │ Entities    │  │   (Communication)   │ │
+│  │    Audio    │  │  Realtime   │  │   Analytics         │ │
+│  │   Service   │  │   Service   │  │    Service          │ │
 │  └─────────────┘  └─────────────┘  └─────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🎯 Feature Isolation Strategy
+## 🎯 Layer Responsibilities
+
+### **Service Layer (Bottom)**
+**Purpose**: Pure business logic and external API integration
+
+**Characteristics**:
+- **Zero dependencies** on other services
+- **Zero knowledge** of Svelte or UI
+- **Pure TypeScript classes** with clear interfaces
+- **Testable in isolation** with mocked dependencies
+
+**Examples**:
+- `AudioService` - Handles audio device management and processing
+- `RealtimeService` - Manages WebRTC connections and OpenAI API
+- `AnalyticsService` - Tracks user events and metrics
+
+### **Store Layer (Middle)**
+**Purpose**: State management and service orchestration
+
+**Characteristics**:
+- **Coordinates between services** to implement features
+- **Manages application state** using Svelte 5 runes
+- **Handles side effects** and async operations
+- **Provides actions** that UI components can call
+
+**Examples**:
+- `ConversationStore` - Orchestrates audio and realtime services
+- `SettingsStore` - Manages user preferences and settings
+- `AuthStore` - Handles authentication state and user data
+
+### **UI Layer (Top)**
+**Purpose**: User interface and user interactions
+
+**Characteristics**:
+- **Thin and declarative** components
+- **Uses `$derived`** for reactive values from stores
+- **Calls store actions** instead of services directly
+- **Focuses on presentation** and user experience
+
+**Examples**:
+- `+page.svelte` - Main conversation interface
+- `AudioVisualizer.svelte` - Audio level visualization
+- `MessageBubble.svelte` - Individual message display
+
+---
+
+## 🔌 Service Independence
 
 ### Core Principle
 
-Each feature is a **self-contained use case** that communicates with other features exclusively through the event system. No direct imports between features are allowed.
+**Services never import other services.** This prevents circular dependencies and ensures each service can be tested and maintained independently.
 
-## 🗄️ Data Access Layer
-
-### Repository Pattern
-
-All database operations go through **repository classes** that implement CRUD principles:
+### Implementation
 
 ```typescript
-// src/lib/server/repositories/user.repository.ts
-export const userRepository = {
-  // CREATE
-  async createUser(newUser: NewUser): Promise<User>,
-
-  // READ
-  async findUserById(id: string): Promise<User | undefined>,
-  async findUserByEmail(email: string): Promise<User | undefined>,
-
-  // UPDATE
-  async updateUser(id: string, data: Partial<NewUser>): Promise<User | undefined>,
-
-  // DELETE
-  async deleteUser(id: string): Promise<{ success: boolean }>
-};
-```
-
-### Repository Benefits
-
-- **Consistent data access** across all features
-- **Type-safe operations** with proper interfaces
-- **Centralized business logic** for data operations
-- **Easy testing** with mock repositories
-- **Database agnostic** - can swap implementations
-
-### Feature Structure
-
-```text
-src/features/
-├── auth/                    # Authentication & user management
-│   ├── use-cases/          # Business logic
-│   ├── adapters/           # External integrations
-│   ├── ports/              # Interface definitions
-│   └── events.ts           # Event definitions
-├── conversation/            # Core conversation logic
-├── audio/                  # Audio processing & playback
-├── vocabulary/             # Word learning & tracking
-├── subscription/            # Billing & tier management
-└── scenarios/              # Learning scenario management
-```
-
-### Event-Driven Communication
-
-```typescript
-// ❌ NEVER: Direct feature imports
-import { authService } from '../auth/services';
-
-// ✅ ALWAYS: Event-based communication
-authFeature.events.emit('user.authenticated', { userId, email });
-conversationFeature.events.on('user.authenticated', handleNewUser);
-```
-
----
-
-## 🔌 Ports & Adapters
-
-### Input Ports (Driving Adapters)
-
-**Definition**: Interfaces that external actors use to interact with the application.
-
-**Examples**:
-
-- `AuthenticationPort` - Login, logout, user management
-- `ConversationPort` - Start, pause, end conversations
-- `AudioPort` - Record, play, process audio
-
-### Output Ports (Driven Adapters)
-
-**Definition**: Interfaces that the application uses to interact with external systems.
-
-**Examples**:
-
-- `UserRepositoryPort` - User data persistence
-- `AudioServicePort` - External audio processing
-- `PaymentServicePort` - Stripe integration
-
-### Adapter Implementation
-
-```typescript
-// Input Port (Interface)
-export interface AuthenticationPort {
- login(credentials: LoginCredentials): Promise&lt;AuthResult&gt;;
- logout(userId: string): Promise&lt;void&gt;;
-}
-
-// Input Adapter (Implementation)
-export class SvelteKitAuthAdapter implements AuthenticationPort {
- async login(credentials: LoginCredentials): Promise&lt;AuthResult&gt; {
-  // SvelteKit-specific implementation
- }
-}
-
-// Output Port (Interface)
-export interface UserRepositoryPort {
- saveUser(user: User): Promise&lt;void&gt;;
- findUserById(id: string): Promise&lt;User | null&gt;;
-}
-
-// Output Adapter (Implementation)
-export class PostgresUserRepository implements UserRepositoryPort {
- async saveUser(user: User): Promise&lt;void&gt; {
-  // Database-specific implementation
- }
-}
-```
-
----
-
-## 🧠 Application Core
-
-### Domain Entities
-
-Pure business objects that represent core concepts:
-
-```typescript
-export class User {
-	constructor(
-		public readonly id: string,
-		public readonly email: string,
-		public readonly tier: UserTier,
-		public readonly nativeLanguage: Language,
-		public readonly targetLanguage: Language
-	) {}
-
-	canStartConversation(): boolean {
-		return this.tier.hasConversationAccess();
-	}
-
-	hasRealtimeAccess(): boolean {
-		return this.tier.hasRealtimeAccess();
-	}
-}
-```
-
-### Use Cases
-
-Business logic that orchestrates domain entities:
-
-```typescript
-export class StartConversationUseCase {
- constructor(
-  private userRepository: UserRepositoryPort,
-  private conversationRepository: ConversationRepositoryPort,
-  private eventBus: EventBus
- ) {}
-
- async execute(userId: string, targetLanguage: string): Promise&lt;Conversation&gt; {
-  const user = await this.userRepository.findById(userId);
-  if (!user.canStartConversation()) {
-   throw new Error('User cannot start conversation');
+// ✅ Good: Service with clear, focused responsibility
+export class AudioService {
+  async getStream(deviceId?: string): Promise<MediaStream> {
+    // Pure audio logic - no UI, no other services
+    const constraints: MediaStreamConstraints = {
+      audio: deviceId ? { deviceId: { exact: deviceId } } : {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      }
+    };
+    
+    return await navigator.mediaDevices.getUserMedia(constraints);
   }
+}
 
-  const conversation = new Conversation(userId, targetLanguage);
-  await this.conversationRepository.save(conversation);
+// ❌ Bad: Service that imports other services
+export class AudioService {
+  constructor(private realtimeService: RealtimeService) {} // Don't do this!
+}
+```
 
-  this.eventBus.emit('conversation.started', { conversationId: conversation.id });
-  return conversation;
- }
+### ESLint Enforcement
+
+We use ESLint rules to prevent service-to-service imports:
+
+```javascript
+// eslint.config.js
+{
+  files: ['src/lib/services/**/*.ts'],
+  rules: {
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          {
+            group: ['$lib/services/**'],
+            message: 'Services should not import other services. Use a store to orchestrate them.'
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 
 ---
 
-## 🔄 Event System Architecture
+## 🎭 Store Orchestration
 
-### Event Bus Implementation
+### How Stores Work
+
+Stores act as the "orchestrators" that coordinate between services to implement features:
 
 ```typescript
-export interface EventBus {
- emit&lt;T&gt;(eventName: string, payload: T): void;
- on&lt;T&gt;(eventName: string, handler: EventHandler&lt;T&gt;): void;
- off(eventName: string, handler: EventHandler&lt;any&gt;): void;
-}
+export class ConversationStore {
+  // Inject services (not other stores)
+  constructor(
+    private audioService: AudioService,
+    private realtimeService: RealtimeService
+  ) {}
 
-// MVP: In-memory event bus
-export class InMemoryEventBus implements EventBus {
- private handlers = new Map&lt;string, EventHandler&lt;any&gt;[]&gt;();
-
- emit&lt;T&gt;(eventName: string, payload: T): void {
-  const handlers = this.handlers.get(eventName) || [];
-  handlers.forEach((handler) => handler(payload));
- }
-
- on&lt;T&gt;(eventName: string, handler: EventHandler&lt;T&gt;): void {
-  const handlers = this.handlers.get(eventName) || [];
-  handlers.push(handler);
-  this.handlers.set(eventName, handlers);
- }
+  // Orchestrate the conversation flow
+  async startConversation(language?: string, speaker?: Speaker) {
+    try {
+      // 1. Get audio stream from audio service
+      const audioStream = await this.audioService.getStream();
+      
+      // 2. Get session from realtime service
+      const session = await this.realtimeService.connectWithSession(
+        sessionData,
+        audioStream,
+        this.handleMessage,
+        this.handleConnectionStateChange
+      );
+      
+      // 3. Update local state
+      this.status = 'connected';
+      this.startTime = Date.now();
+    } catch (error) {
+      this.status = 'error';
+      this.error = error.message;
+    }
+  }
 }
 ```
 
-### Event Schema Definition
+### Store Benefits
 
-```typescript
-export interface EventSchema&lt;T&gt; {
- name: string;
- version: string;
- description: string;
- payload: T;
-}
+- **Single source of truth** for feature state
+- **Centralized orchestration** logic
+- **Easy testing** with mocked services
+- **Clear data flow** from services to UI
 
-// Example: User authentication event
-export const USER_AUTHENTICATED_EVENT: EventSchema&lt;{
- userId: string;
- email: string;
- tier: string;
-}> = {
- name: 'user.authenticated',
- version: '1.0.0',
- description: 'User successfully authenticated',
- payload: {
-  userId: 'string',
-  email: 'string',
-  tier: 'string'
- }
-};
+---
+
+## 🎨 UI Layer Simplicity
+
+### Component Pattern
+
+UI components are thin and declarative, focusing on presentation:
+
+```svelte
+<script lang="ts">
+  import { conversationStore } from '$lib/stores/conversation.store.svelte';
+  
+  // Use $derived for reactive values
+  const status = $derived(conversationStore.status);
+  const messages = $derived(conversationStore.messages);
+  const error = $derived(conversationStore.error);
+  
+  // Simple event handlers that call store actions
+  function handleStart() {
+    conversationStore.startConversation();
+  }
+  
+  function handleEnd() {
+    conversationStore.endConversation();
+  }
+</script>
+
+<!-- Declarative UI based on state -->
+{#if status === 'idle'}
+  <button on:click={handleStart}>Start Conversation</button>
+{:else if status === 'connected'}
+  <button on:click={handleEnd}>End Conversation</button>
+{/if}
 ```
+
+### UI Benefits
+
+- **Predictable behavior** based on store state
+- **Easy to test** with mocked stores
+- **Reusable components** across different pages
+- **Clear separation** of concerns
 
 ---
 
@@ -296,24 +250,24 @@ export const USER_AUTHENTICATED_EVENT: EventSchema&lt;{
 
 ### Unit Tests (Foundation)
 
-- **Target**: Domain entities, use cases, pure functions
+- **Target**: Services and stores
 - **Framework**: Vitest
 - **Coverage**: 90%+ for core business logic
-- **Speed**: &lt; 100ms per test
+- **Speed**: < 100ms per test
 
 ### Integration Tests (Middle)
 
-- **Target**: Port implementations, adapter interactions
-- **Framework**: Vitest + test database
+- **Target**: Store-service interactions
+- **Framework**: Vitest + mocked services
 - **Coverage**: Critical user journeys
-- **Speed**: &lt; 1s per test
+- **Speed**: < 1s per test
 
 ### E2E Tests (Top)
 
 - **Target**: Complete user workflows
 - **Framework**: Playwright
 - **Coverage**: Core conversion paths
-- **Speed**: &lt; 30s per test
+- **Speed**: < 30s per test
 
 ---
 
@@ -321,77 +275,61 @@ export const USER_AUTHENTICATED_EVENT: EventSchema&lt;{
 
 ### Current Architecture Benefits
 
-- **Feature Isolation**: Independent scaling of features
-- **Event-Driven**: Asynchronous processing capabilities
-- **Port Contracts**: Easy to swap implementations
+- **Service Isolation**: Independent scaling of services
+- **Store Orchestration**: Centralized state management
+- **Clean Interfaces**: Easy to swap implementations
 
 ### Future Scaling Considerations
 
-- **Event Bus**: Migrate to Redis Streams for multi-instance support
-- **Database**: Read replicas for analytics queries
-- **Caching**: Redis for session and frequently accessed data
-- **CDN**: Static assets and audio files
+- **Service Workers**: Offload audio processing
+- **WebRTC Optimization**: Better connection handling
+- **State Persistence**: Local storage + cloud sync
+- **Caching**: Service response caching
 
 ---
 
 ## 📚 Implementation Guidelines
 
-### 1. Start with Ports
+### 1. Start with Services
 
-Always define interfaces before implementations:
+Always implement services first, with clear interfaces:
 
 ```typescript
-// Define the port first
-export interface AudioProcessingPort {
- transcribe(audio: AudioData): Promise&lt;Transcription&gt;;
+// Define the service interface
+export interface AudioServicePort {
+  getStream(deviceId?: string): Promise<MediaStream>;
+  getAvailableDevices(): Promise<MediaDeviceInfo[]>;
 }
 
-// Then implement the adapter
-export class OpenAIAudioAdapter implements AudioProcessingPort {
- async transcribe(audio: AudioData): Promise&lt;Transcription&gt; {
-  // Implementation details
- }
+// Implement the service
+export class AudioService implements AudioServicePort {
+  async getStream(deviceId?: string): Promise<MediaStream> {
+    // Implementation
+  }
 }
 ```
 
-### 2. Use Dependency Injection
+### 2. Create Stores for Orchestration
 
 ```typescript
-export class ConversationService {
-	constructor(
-		private audioPort: AudioProcessingPort,
-		private eventBus: EventBus
-	) {}
+export class ConversationStore {
+  constructor(
+    private audioService: AudioServicePort,
+    private realtimeService: RealtimeServicePort
+  ) {}
+  
+  // Orchestrate services to implement features
 }
 ```
 
-### 3. Emit Events for Side Effects
+### 3. Build UI on Top
 
-```typescript
-// Instead of direct calls
-await this.userRepository.updateLastLogin(userId);
-
-// Emit events
-this.eventBus.emit('user.last_login_updated', { userId, timestamp });
-```
-
-### 4. Keep Domain Logic Pure
-
-```typescript
-// ✅ Good: Pure domain logic
-export class Conversation {
- canContinue(): boolean {
-  return this.duration < this.maxDuration && !this.isEnded;
- }
-}
-
-// ❌ Bad: Infrastructure concerns in domain
-export class Conversation {
- async canContinue(): Promise&lt;boolean&gt; {
-  const user = await this.userRepository.findById(this.userId);
-  return user.hasActiveSubscription();
- }
-}
+```svelte
+<script>
+  import { conversationStore } from '$lib/stores/conversation.store.svelte';
+  
+  // Use store state and actions
+</script>
 ```
 
 ---
@@ -400,19 +338,18 @@ export class Conversation {
 
 ### 1. Feature Development
 
-1. Define feature requirements
-2. Design event contracts
-3. Implement domain entities
-4. Create use cases
-5. Build adapters
-6. Write comprehensive tests
+1. Define service interfaces
+2. Implement services with tests
+3. Create store for orchestration
+4. Build UI components
+5. Integrate and test
 
-### 2. Integration Testing
+### 2. Testing Strategy
 
-1. Test feature in isolation
-2. Test feature interactions via events
-3. Test complete user journeys
-4. Performance testing
+1. Test services in isolation
+2. Test store orchestration
+3. Test UI interactions
+4. Test complete user journeys
 
 ### 3. Deployment
 
@@ -427,22 +364,48 @@ export class Conversation {
 
 ### Code Quality
 
-- **Test Coverage**: &gt; 90% for core business logic
-- **Cyclomatic Complexity**: &lt; 10 for use cases
-- **Dependency Depth**: &lt; 3 levels
+- **Test Coverage**: > 90% for core business logic
+- **Service Independence**: 0 cross-service imports
+- **Store Orchestration**: Clear data flow patterns
+- **UI Simplicity**: Declarative components
 
 ### Performance
 
-- **Response Time**: &lt; 200ms for API calls
-- **Audio Processing**: &lt; 2s for transcription
-- **Event Processing**: &lt; 100ms for internal events
+- **Response Time**: < 200ms for service calls
+- **Audio Processing**: < 2s for transcription
+- **State Updates**: < 100ms for UI updates
 
 ### Maintainability
 
-- **Feature Isolation**: 0 direct cross-feature imports
-- **Event Contracts**: 100% typed event schemas
-- **Port Implementation**: Easy to swap adapters
+- **Service Isolation**: Easy to test and modify
+- **Store Patterns**: Consistent orchestration
+- **UI Components**: Reusable and simple
 
 ---
 
-_This architecture ensures Kaiwa v2 is maintainable, scalable, and follows industry best practices for complex applications._
+## 🔄 Evolution Strategy
+
+### Current State
+
+- ✅ 3-layer architecture implemented
+- ✅ Services are independent and testable
+- ✅ Stores orchestrate services effectively
+- ✅ UI is clean and declarative
+
+### Next Steps
+
+- 🔄 Add authentication service and store
+- 🔄 Add persistence service and store
+- 🔄 Add analytics service and store
+- 🔄 Enhance conversation features
+
+### Long-term Vision
+
+- **Multi-language support**
+- **Advanced conversation modes**
+- **Social features**
+- **Mobile applications**
+
+---
+
+_This architecture ensures Kaiwa v2 is maintainable, scalable, and follows modern best practices for complex applications._
