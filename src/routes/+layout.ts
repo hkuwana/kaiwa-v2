@@ -1,6 +1,6 @@
 import posthog from 'posthog-js';
 import { browser } from '$app/environment';
-import { PUBLIC_POSTHOG_KEY } from '$env/static/public';
+import { env } from '$env/dynamic/public';
 
 const BASE_SEO = {
 	title: 'Kaiwa - AI Language Learning Through Conversation',
@@ -16,8 +16,8 @@ const BASE_SEO = {
 };
 
 export const load = async ({ url }) => {
-	if (browser) {
-		posthog.init(PUBLIC_POSTHOG_KEY, {
+	if (browser && env.PUBLIC_POSTHOG_KEY) {
+		posthog.init(env.PUBLIC_POSTHOG_KEY, {
 			api_host: 'https://us.i.posthog.com',
 			defaults: '2025-05-24',
 			// Enable session recording for conversion analysis

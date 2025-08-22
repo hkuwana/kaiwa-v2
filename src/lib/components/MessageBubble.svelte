@@ -1,6 +1,9 @@
 <!-- src/lib/components/MessageBubble.svelte -->
 <script lang="ts">
 	import type { Message } from '$lib/server/db/types';
+	import { settingsStore } from '$lib/stores/settings.store.svelte';
+	import kitsune from '$lib/assets/kitsune.webp';
+	import face from '$lib/assets/Face.webp';
 
 	const { message } = $props<{
 		message: Message;
@@ -20,13 +23,10 @@
 
 {#if isUser}
 	<!-- User message - chat-end (right side) -->
-	<div class="chat chat-end">
-		<div class="chat-image avatar">
+	<div class="chat-end chat">
+		<div class="avatar chat-image">
 			<div class="w-10 rounded-full">
-				<img
-					alt="User avatar"
-					src="https://img.daisyui.com/images/profile/demo/anakeen@192.webp"
-				/>
+				<img alt="User avatar" src={kitsune} />
 			</div>
 		</div>
 		<div class="chat-header">
@@ -38,17 +38,14 @@
 	</div>
 {:else}
 	<!-- AI message - chat-start (left side) -->
-	<div class="chat chat-start">
-		<div class="chat-image avatar">
+	<div class="chat-start chat">
+		<div class="avatar chat-image">
 			<div class="w-10 rounded-full">
-				<img
-					alt="AI avatar"
-					src="https://img.daisyui.com/images/profile/demo/kenobee@192.webp"
-				/>
+				<img alt="AI avatar" src={face} />
 			</div>
 		</div>
 		<div class="chat-header">
-			AI Assistant
+			{settingsStore.selectedSpeaker}
 			<time class="text-xs opacity-50">{formattedTime}</time>
 		</div>
 		<div class="chat-bubble">{message.content}</div>

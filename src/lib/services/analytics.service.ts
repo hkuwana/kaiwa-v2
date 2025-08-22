@@ -3,7 +3,7 @@
 
 import { browser } from '$app/environment';
 import { page } from '$app/state';
-import { PUBLIC_POSTHOG_KEY } from '$env/static/public';
+import { env } from '$env/dynamic/public';
 import type { PostHog } from 'posthog-js';
 
 // PostHog configuration
@@ -25,7 +25,7 @@ class AnalyticsService {
 		const posthogModule = await import('posthog-js');
 		this.posthog = posthogModule.default;
 
-		this.posthog.init(PUBLIC_POSTHOG_KEY, {
+		this.posthog.init(env.PUBLIC_POSTHOG_KEY, {
 			api_host: POSTHOG_HOST,
 			person_profiles: 'identified_only',
 			capture_pageview: false, // We handle this manually with trackPageView
@@ -99,10 +99,7 @@ class AnalyticsService {
 		});
 	}
 
-	trackTierLimitReached(
-		limitType: 'conversations' | 'minutes' | 'realtime',
-		currentTier: string
-	) {
+	trackTierLimitReached(limitType: 'conversations' | 'minutes' | 'realtime', currentTier: string) {
 		this.track('tier_limit_reached', {
 			limit_type: limitType,
 			current_tier: currentTier,
@@ -122,11 +119,7 @@ class AnalyticsService {
 		});
 	}
 
-	trackSubscriptionCreated(
-		tier: 'pro' | 'premium',
-		billing: 'monthly' | 'yearly',
-		amount: number
-	) {
+	trackSubscriptionCreated(tier: 'pro' | 'premium', billing: 'monthly' | 'yearly', amount: number) {
 		this.track('subscription_created', {
 			tier,
 			billing_cycle: billing,

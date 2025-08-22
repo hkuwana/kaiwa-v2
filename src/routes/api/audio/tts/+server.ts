@@ -1,9 +1,10 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { OPENAI_API_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
 export const POST: RequestHandler = async ({ request }) => {
 	try {
+		const OPENAI_API_KEY = env.OPENAI_API_KEY;
 		if (!OPENAI_API_KEY) {
 			return json({ error: 'OpenAI API key not configured' }, { status: 500 });
 		}

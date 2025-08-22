@@ -4,6 +4,7 @@
 	import { audioService } from '$lib/services/audio.service';
 	import type { RealtimeService } from '$lib/services';
 	import type { ConversationStore } from '$lib/stores/conversation.store.svelte';
+	import { env } from '$env/dynamic/public';
 
 	// Use the exported instances that automatically handle browser/server
 	// No need to manually instantiate or check browser environment
@@ -64,7 +65,7 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					sessionId: 'test-realtime-' + Date.now(),
-					model: 'gpt-4o-realtime-preview-2024-10-01',
+					model: env.PUBLIC_OPEN_AI_MODEL || 'gpt-4o-realtime-preview-2024-10-01',
 					voice: 'alloy'
 				})
 			});
@@ -90,7 +91,7 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					sessionId: 'test-realtime-' + Date.now(),
-					model: 'gpt-4o-realtime-preview-2024-10-01',
+					model: env.PUBLIC_OPEN_AI_MODEL || 'gpt-4o-realtime-preview-2024-10-01',
 					voice: 'alloy'
 				})
 			});

@@ -13,7 +13,25 @@ export interface RealtimeSession {
 		model: string;
 		voice: string;
 		language: string;
+		instructions?: string;
+		turnDetection?: {
+			type: 'server_vad';
+			threshold: number;
+			prefix_padding_ms: number;
+			silence_duration_ms: number;
+		};
+		inputAudioTranscription?: {
+			model: string;
+			language: string;
+		};
 	};
+}
+
+export interface TranscriptionEvent {
+	type: 'user_transcript' | 'assistant_transcript';
+	text: string;
+	isFinal: boolean;
+	timestamp: Date;
 }
 
 export class RealtimeService {
@@ -25,6 +43,8 @@ export class RealtimeService {
 	private reconnectTimer: NodeJS.Timeout | null = null;
 	private onMessageCallback: (message: Message) => void = () => {};
 	private onConnectionStateChangeCallback: (state: RTCPeerConnectionState) => void = () => {};
+	private onTranscriptionCallback: (event: TranscriptionEvent) => void = () => {};
+	private sessionConfig: RealtimeSession['config'] | null = null;
 
 	constructor() {
 		// If we're on the server, throw an error to prevent instantiation
@@ -44,10 +64,14 @@ export class RealtimeService {
 		},
 		stream: MediaStream,
 		onMessage: (message: Message) => void,
-		onConnectionStateChange: (state: RTCPeerConnectionState) => void
+		onConnectionStateChange: (state: RTCPeerConnectionState) => void,
+		onTranscription?: (event: TranscriptionEvent) => void,
+		sessionConfig?: RealtimeSession['config']
 	): Promise<void> {
 		this.onMessageCallback = onMessage;
 		this.onConnectionStateChangeCallback = onConnectionStateChange;
+		this.onTranscriptionCallback = onTranscription || (() => {});
+		this.sessionConfig = sessionConfig || null;
 
 		try {
 			// Notify that we're starting to connect
@@ -72,9 +96,14 @@ export class RealtimeService {
 	}
 
 	private async setupConnection(stream: MediaStream): Promise<void> {
-		// Step 2: Create peer connection
+		// Step 2: Create peer connection with proper configuration for OpenAI Realtime API
 		this.pc = new RTCPeerConnection({
-			iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+			iceServers: [
+				{ urls: 'stun:stun.l.google.com:19302' },
+				{ urls: 'stun:stun1.l.google.com:19302' }
+			],
+			// Enable audio processing for real-time communication
+			iceCandidatePoolSize: 10
 		});
 
 		// Step 3: Add the provided audio stream to the peer connection
@@ -88,6 +117,7 @@ export class RealtimeService {
 		this.audioElement.style.display = 'none';
 		document.body.appendChild(this.audioElement);
 
+		// Set up event handlers
 		this.pc.ontrack = (event) => {
 			console.log('📡 Received remote audio track');
 			if (this.audioElement) {
@@ -113,14 +143,14 @@ export class RealtimeService {
 			console.log('🧊 ICE gathering state changed:', gatheringState);
 		};
 
-		// Step 4: Create data channel
+		// Step 5: Create data channel
 		this.dataChannel = this.pc.createDataChannel('oai-events', {
 			ordered: true
 		});
 
 		this.setupDataChannel();
 
-		// Step 5: Create offer and connect
+		// Step 6: Create offer and connect
 		await this.negotiateConnection();
 
 		console.log('✅ WebRTC connection established');
@@ -134,22 +164,31 @@ export class RealtimeService {
 			// Notify that we're fully connected
 			this.onConnectionStateChangeCallback('connected');
 
-			// Send initial configuration
-			this.sendEvent({
+			const initialConfig = {
 				type: 'session.update',
 				session: {
 					modalities: ['text', 'audio'],
-					instructions: 'You are a helpful language tutor.',
+					instructions: this.sessionConfig?.instructions || 'You are a helpful language tutor.',
 					input_audio_format: 'pcm16',
 					output_audio_format: 'pcm16',
-					turn_detection: {
+					input_audio_transcription: {
+						model: 'whisper-1', // Enable input transcription
+						language:
+							this.sessionConfig?.inputAudioTranscription?.language ||
+							this.sessionConfig?.language ||
+							'en'
+					},
+					turn_detection: this.sessionConfig?.turnDetection || {
 						type: 'server_vad',
 						threshold: 0.5,
 						prefix_padding_ms: 300,
 						silence_duration_ms: 500
 					}
 				}
-			});
+			};
+			console.log('📡 Sending initial configuration:', initialConfig);
+			// Send initial configuration
+			this.sendEvent(initialConfig);
 		};
 
 		this.dataChannel.onmessage = (event) => {
@@ -224,6 +263,8 @@ export class RealtimeService {
 	}
 
 	private handleServerEvent(event: {
+		error(arg0: string, error: string): unknown;
+		delta?: string;
 		type: string;
 		message?: { role: string; content: string };
 		transcript?: string;
@@ -237,8 +278,74 @@ export class RealtimeService {
 
 		// Handle different types of server events
 		switch (event.type) {
+			// New: Handle user speech transcription events
+			case 'input_audio_buffer.speech_started':
+				console.log('🎤 User started speaking');
+				break;
+
+			case 'input_audio_buffer.speech_stopped':
+				console.log('🎤 User stopped speaking');
+				break;
+
+			case 'conversation.item.input_audio_transcription.completed':
+				// Final user transcription
+				if (event.transcript) {
+					console.log('📝 User transcript:', event.transcript);
+					this.onTranscriptionCallback({
+						type: 'user_transcript',
+						text: event.transcript,
+						isFinal: true,
+						timestamp: new Date()
+					});
+
+					// Also create a message for the chat history
+					const userMessage: Message = {
+						role: 'user',
+						content: event.transcript,
+						timestamp: new Date(),
+						id: '',
+						conversationId: '',
+						audioUrl: null
+					};
+					this.onMessageCallback(userMessage);
+				}
+				break;
+
+			case 'conversation.item.input_audio_transcription.failed':
+				console.error('❌ User transcription failed:', event.error);
+				break;
+
+			// Enhanced: Handle assistant speech transcription
+			case 'response.audio_transcript.delta':
+				// Streaming assistant transcription
+				console.log('📝 Audio transcript delta received:', event);
+				if (event.delta) {
+					console.log('📝 Processing delta:', event.delta);
+					this.onTranscriptionCallback({
+						type: 'assistant_transcript',
+						text: event.delta,
+						isFinal: false,
+						timestamp: new Date()
+					});
+				}
+				break;
+
+			case 'response.audio_transcript.done':
+				// Final assistant transcription
+				if (event.transcript) {
+					console.log('📝 Assistant transcript:', event.transcript);
+					this.onTranscriptionCallback({
+						type: 'assistant_transcript',
+						text: event.transcript,
+						isFinal: true,
+						timestamp: new Date()
+					});
+					// Note: Message is added via the transcription callback, not here
+				}
+				break;
+
+			// ... existing cases ...
 			case 'message': {
-				// Simple message format
 				const message: Message = {
 					role: event.message?.role === 'assistant' ? 'assistant' : 'user',
 					content: event.message?.content || '',
@@ -251,33 +358,21 @@ export class RealtimeService {
 				break;
 			}
 
-			case 'response.audio_transcript.done': {
-				// Final transcript from assistant
-				if (event.transcript) {
-					const transcriptMessage: Message = {
-						role: 'assistant',
-						content: event.transcript,
-						timestamp: new Date(),
-						id: '',
-						conversationId: '',
-						audioUrl: null
-					};
-					this.onMessageCallback(transcriptMessage);
-				}
-				break;
-			}
-
 			case 'conversation.item.created': {
-				// New conversation item (could be user input or assistant response)
 				if (event.item && event.item.content) {
 					const role = event.item.role === 'user' ? 'user' : 'assistant';
 					let content = '';
 
-					// Extract text content from the item
 					if (Array.isArray(event.item.content)) {
 						content = event.item.content
-							.filter((part) => part.type === 'text' || part.type === 'input_text')
-							.map((part) => part.text || part.input_text)
+							.filter(
+								(part: { type: string; text?: string; input_text?: string }) =>
+									part.type === 'text' || part.type === 'input_text'
+							)
+							.map(
+								(part: { type: string; text?: string; input_text?: string }) =>
+									part.text || part.input_text
+							)
 							.join(' ');
 					} else if (typeof event.item.content === 'string') {
 						content = event.item.content;
@@ -299,7 +394,6 @@ export class RealtimeService {
 			}
 
 			case 'response.content_part.done': {
-				// Content part completed (could be text or audio)
 				if (event.part && event.part.type === 'text' && event.part.text) {
 					const contentMessage: Message = {
 						role: 'assistant',
@@ -314,8 +408,57 @@ export class RealtimeService {
 				break;
 			}
 
+			case 'response.content_part.delta': {
+				// Handle streaming content parts (including audio content)
+				if (event.part) {
+					console.log('📝 Content part delta:', event.part);
+
+					// Handle different content part types
+					if (event.part.type === 'text' && event.part.text) {
+						// Text content - could be streaming text response
+						console.log('📝 Text content delta:', event.part.text);
+					} else if (event.part.type === 'audio') {
+						// Audio content - this is what we need for audio parts
+						console.log('🎵 Audio content delta:', event.part);
+					}
+				}
+				break;
+			}
+
+			case 'response.audio.done': {
+				// Handle audio completion event
+				console.log('🎵 Audio response completed:', event);
+				// You can add additional audio completion logic here if needed
+				break;
+			}
+
+			case 'response.output_item.done': {
+				// Handle output item completion
+				console.log('📤 Output item completed:', event);
+				// You can add additional output completion logic here if needed
+				break;
+			}
+
+			case 'response.done': {
+				// Handle overall response completion
+				console.log('✅ Response completed:', event);
+				// You can add additional response completion logic here if needed
+				break;
+			}
+
+			case 'output_audio_buffer.ready': {
+				// Handle audio buffer ready event
+				console.log('🎵 Audio buffer ready:', event);
+				break;
+			}
+
+			case 'output_audio_buffer.done': {
+				// Handle audio buffer completion
+				console.log('🎵 Audio buffer done:', event);
+				break;
+			}
+
 			default:
-				// Log unhandled event types for debugging
 				if (
 					event.type &&
 					!event.type.startsWith('rate_limits.') &&

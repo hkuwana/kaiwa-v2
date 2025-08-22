@@ -1,7 +1,7 @@
 // 💬 ConversationService - Handles conversation business logic
 // Plain TypeScript class with no Svelte dependencies
 
-import type { Message } from './realtime.service';
+import type { Message } from '$lib/server/db/types';
 
 export interface ConversationState {
 	status: 'idle' | 'connecting' | 'connected' | 'streaming' | 'error';

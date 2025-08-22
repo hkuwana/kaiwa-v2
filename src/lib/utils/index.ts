@@ -110,3 +110,7 @@ export function removeFromStorage(key: string): void {
 		console.warn('Failed to remove from localStorage:', error);
 	}
 }
+
+export function capitalizeFirstLetter(string: string): string {
+	return string.charAt(0).toUpperCase() + string.slice(1);
+}

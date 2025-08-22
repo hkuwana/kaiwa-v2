@@ -1,7 +1,8 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { dev } from '$app/environment';
-import { OPENAI_API_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
+import { env as publicEnv } from '$env/dynamic/public';
 
 // Valid OpenAI Realtime API voices
 const VALID_OPENAI_VOICES = ['alloy', 'ash', 'ballad', 'coral', 'echo', 'sage', 'shimmer', 'verse'];
@@ -42,7 +43,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		const {
 			sessionId,
-			model = 'gpt-4o-mini-realtime-preview-2024-12-17',
+			model = publicEnv.PUBLIC_OPEN_AI_MODEL || 'gpt-4o-realtime-preview-2024-10-01',
 			voice = 'alloy'
 		} = await request.json();
 
@@ -64,6 +65,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			);
 		}
 
+		const OPENAI_API_KEY = env.OPENAI_API_KEY;
 		if (!OPENAI_API_KEY) {
 			return json({ error: 'OpenAI API key not configured' }, { status: 500 });
 		}

@@ -135,7 +135,7 @@ describe('ConversationStore', () => {
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					sessionId: 'mock-session-id',
-					model: 'gpt-4o-mini-realtime-preview-2024-12-17',
+					model: PUBLIC_OPEN_AI_MODEL,
 					voice: 'alloy'
 				})
 			});

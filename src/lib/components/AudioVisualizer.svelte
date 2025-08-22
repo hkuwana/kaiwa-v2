@@ -20,15 +20,25 @@
 	/**
 	 * We use the `$derived` rune to compute values that depend on other reactive values (like props).
 	 * This is more efficient than using `$:`, as Svelte 5 can track dependencies with more precision.
-	 * The scale will range from 1 (no sound) to 1.5 (max sound).
+	 * The scale will range from 1 (no sound) to 2 (max sound) for more dramatic effect.
 	 */
-	let scale = $derived(1 + audioLevel * 0.5);
+	let scale = $derived(1 + audioLevel);
 
 	/**
-	 * The opacity of the outer glow will range from 0.2 (no sound) to 0.7 (max sound).
-	 * This ensures the glow is subtly visible even at rest.
+	 * The opacity of the outer glow will range from 0.1 (no sound) to 0.9 (max sound).
+	 * This ensures the glow is more visible and responsive.
 	 */
-	let opacity = $derived(0.2 + audioLevel * 0.5);
+	let opacity = $derived(0.1 + audioLevel * 0.8);
+
+	/**
+	 * The blur radius for the glow effect, making it more dynamic.
+	 */
+	let blurRadius = $derived(2 + audioLevel * 8);
+
+	/**
+	 * The color intensity based on audio level.
+	 */
+	let colorIntensity = $derived(audioLevel > 0.5 ? 'bg-accent-focus' : 'bg-accent');
 </script>
 
 <!-- 
@@ -40,21 +50,28 @@
 <div class="relative flex h-24 w-24 items-center justify-center">
 	<!-- Outer Circle (The Pulse/Glow) -->
 	<!-- 
-	  - `bg-accent`: Uses the daisyUI accent color. You can change this to `bg-primary`, `bg-secondary`, etc.
-	  - `transition-transform`, `duration-150`, `ease-out`: These Tailwind classes create the smooth animation.
-		When the `scale` or `opacity` value changes, the browser will smoothly transition the transform and opacity properties.
-	  - The `style` attribute applies the reactive scale and opacity calculated with `$derived`.
+	  - Dynamic color class based on audio level
+	  - `transition-all duration-75`: Faster, smoother animation for all properties
+	  - The `style` attribute applies the reactive scale, opacity, and blur calculated with `$derived`.
 	-->
 	<div
-		class="absolute h-full w-full rounded-full bg-accent transition-transform duration-150 ease-out"
+		class="absolute h-full w-full rounded-full transition-all duration-75 ease-out {colorIntensity}"
 		style:transform="scale({scale})"
 		style:opacity
+		style:filter="blur({blurRadius}px)"
 	></div>
 
 	<!-- Inner Circle (The Core) -->
 	<!-- 
 	  - This circle remains static and provides a solid center for the visualizer.
-	  - `bg-accent/80`: Uses the accent color with 80% opacity for a slightly softer look.
+	  - Dynamic color based on audio level for more visual feedback.
 	-->
-	<div class="relative h-12 w-12 rounded-full bg-accent/80"></div>
+	<div class="relative h-12 w-12 rounded-full {colorIntensity}/80"></div>
+
+	<!-- Audio Level Indicator Text (for debugging) -->
+	{#if audioLevel > 0}
+		<div class="absolute -bottom-8 text-xs text-base-content/60">
+			{Math.round(audioLevel * 100)}%
+		</div>
+	{/if}
 </div>

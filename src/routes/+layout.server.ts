@@ -1,9 +1,9 @@
 import { PostHog } from 'posthog-node';
 import { env } from '$env/dynamic/private';
-import { PUBLIC_POSTHOG_KEY } from '$env/static/public';
+import { env as publicEnv } from '$env/dynamic/public';
 
 // PostHog configuration for server-side
-const POSTHOG_KEY = PUBLIC_POSTHOG_KEY || 'phc_your_key_here';
+const POSTHOG_KEY = publicEnv.PUBLIC_POSTHOG_KEY || 'phc_your_key_here';
 const POSTHOG_HOST = 'https://us.i.posthog.com';
 
 export const load = async ({ url, request, locals }) => {

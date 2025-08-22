@@ -29,8 +29,10 @@ export const userCapabilities = derived(userContextStore, ($context) => ({
 		: false,
 	canUseAdvancedVoices: $context ? $context.limits.hasAdvancedVoices : false,
 	hasAnalytics: $context ? $context.limits.hasAnalytics : false,
-	isProUser: $context ? $context.user.tier === 'pro' || $context.user.tier === 'premium' : false,
-	isPremiumUser: $context ? $context.user.tier === 'premium' : false
+	isProUser: $context
+		? $context.user.defaultTier === 'pro' || $context.user.defaultTier === 'premium'
+		: false,
+	isPremiumUser: $context ? $context.user.defaultTier === 'premium' : false
 }));
 
 // Usage limits and remaining
@@ -65,9 +67,9 @@ export const userPreferences = derived(userContextStore, ($context) => ({
 
 	// Conversation style based on tier
 	conversationStyle:
-		$context?.user.tier === 'premium'
+		$context?.user.defaultTier === 'premium'
 			? 'advanced'
-			: $context?.user.tier === 'pro'
+			: $context?.user.defaultTier === 'pro'
 				? 'intermediate'
 				: 'basic'
 }));
@@ -80,7 +82,7 @@ export const contextHelpers = {
 
 		const nativeLang = userContext.languages.native?.name || 'English';
 		const preferredLang = userContext.languages.preferred?.name || 'English';
-		const tier = userContext.user.tier;
+		const tier = userContext.user.defaultTier;
 
 		return `${basePrompt}
 
@@ -130,7 +132,7 @@ Please adapt your responses to be appropriate for this user's level and language
 		if (!userContext) return 'beginner';
 
 		const usage = userContext.usage;
-		const tier = userContext.user.tier;
+		const tier = userContext.user.defaultTier;
 
 		if (tier === 'premium') return 'advanced';
 		if (tier === 'pro') return 'intermediate';
