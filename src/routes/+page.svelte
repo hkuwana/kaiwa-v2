@@ -11,215 +11,107 @@
 	<meta name="description" content="Practice conversation with AI tutor" />
 </svelte:head>
 
-<div class="home-container">
-	<header class="hero min-h-screen bg-base-200">
-		<div class="max-w-md">
-			<h1 class="text-5xl font-bold">Kaiwa</h1>
+<div class="min-h-screen bg-gradient-to-br from-primary to-secondary text-primary-content">
+	<header class="hero min-h-screen">
+		<div class="hero-content text-center">
+			<div class="max-w-md">
+				<h1 class="mb-8 text-5xl font-bold">Kaiwa</h1>
 
-			{#if user}
-				<p class="welcome">Welcome back, {user.displayName || 'User'}!</p>
-			{:else}
-				<p class="subtitle">Master languages through real-time AI conversations</p>
-			{/if}
-			<LanguageStartButton />
+				{#if user}
+					<div class="mb-6 badge badge-lg badge-accent">
+						Welcome back, {user.displayName || 'User'}!
+					</div>
+				{:else}
+					<p class="mb-6 text-xl opacity-90">Learn languages through AI-assisted conversations</p>
+				{/if}
+				<LanguageStartButton />
+			</div>
 		</div>
 	</header>
 
-	<main class="main-content">
-		<div class="features">
-			<div class="feature-card">
-				<h3>🚀 3-Day MVP Architecture</h3>
-				<p>Clean, simple, and maintainable codebase with three clear layers:</p>
-				<ul>
-					<li><strong>Services:</strong> Business logic (WebRTC, Audio, Conversation)</li>
-					<li><strong>Stores:</strong> State management with Svelte 5 runes</li>
-					<li><strong>Components:</strong> UI that displays data and calls actions</li>
-				</ul>
+	<main class="container mx-auto px-4 py-8">
+		<div class="mb-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+			<div class="card border border-base-300/20 bg-base-100/10 shadow-xl backdrop-blur-sm">
+				<div class="card-body">
+					<h3 class="mb-4 card-title text-2xl text-warning">🚀 3-Day MVP Architecture</h3>
+					<p class="mb-4">Clean, simple, and maintainable codebase with three clear layers:</p>
+					<ul class="space-y-2">
+						<li class="flex items-center gap-2">
+							<span class="badge badge-sm badge-primary">Services</span>
+							<span>Business logic (WebRTC, Audio, Conversation)</span>
+						</li>
+						<li class="flex items-center gap-2">
+							<span class="badge badge-sm badge-secondary">Stores</span>
+							<span>State management with Svelte 5 runes</span>
+						</li>
+						<li class="flex items-center gap-2">
+							<span class="badge badge-sm badge-accent">Components</span>
+							<span>UI that displays data and calls actions</span>
+						</li>
+					</ul>
+				</div>
 			</div>
 
-			<div class="feature-card">
-				<h3>🎤 Real-time Audio</h3>
-				<p>Practice speaking with instant AI responses using WebRTC technology.</p>
+			<div class="card border border-base-300/20 bg-base-100/10 shadow-xl backdrop-blur-sm">
+				<div class="card-body">
+					<h3 class="mb-4 card-title text-2xl text-warning">🎤 Real-time Audio</h3>
+					<p>Practice speaking with instant AI responses using WebRTC technology.</p>
+				</div>
 			</div>
 
-			<div class="feature-card">
-				<h3>🌍 Multiple Languages</h3>
-				<p>Learn English, Japanese, Spanish, German, and more with native-like pronunciation.</p>
+			<div class="card border border-base-300/20 bg-base-100/10 shadow-xl backdrop-blur-sm">
+				<div class="card-body">
+					<h3 class="mb-4 card-title text-2xl text-warning">🌍 Multiple Languages</h3>
+					<p>Learn English, Japanese, Spanish, German, and more with native-like pronunciation.</p>
+				</div>
 			</div>
 		</div>
 
-		<div class="cta-section">
+		<div class="my-12 text-center">
 			<LanguageStartButton />
-			<p class="cta-subtitle">Experience the new simplified architecture</p>
+			<p class="mt-4 text-lg opacity-80">Experience the new simplified architecture</p>
 		</div>
 
-		<div class="architecture-info">
-			<h3>🏗️ Architecture Benefits</h3>
-			<div class="benefits">
-				<div class="benefit">
-					<h4>🧠 Simple Mental Model</h4>
-					<p>Three clear layers: Services → Stores → Components</p>
+		<div class="card border border-base-300/20 bg-base-100/10 p-8 shadow-xl backdrop-blur-sm">
+			<h3 class="mb-8 text-center text-3xl font-bold text-warning">🏗️ Architecture Benefits</h3>
+			<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+				<div class="text-center">
+					<div class="placeholder avatar mb-4">
+						<div class="w-16 rounded-full bg-warning/20 text-warning">
+							<span class="text-2xl">🧠</span>
+						</div>
+					</div>
+					<h4 class="mb-2 text-lg font-semibold text-warning">Simple Mental Model</h4>
+					<p class="text-sm opacity-90">Three clear layers: Services → Stores → Components</p>
 				</div>
-				<div class="benefit">
-					<h4>🔧 Easy to Change</h4>
-					<p>Modify one layer without breaking others</p>
+				<div class="text-center">
+					<div class="placeholder avatar mb-4">
+						<div class="w-16 rounded-full bg-warning/20 text-warning">
+							<span class="text-2xl">🔧</span>
+						</div>
+					</div>
+					<h4 class="mb-2 text-lg font-semibold text-warning">Easy to Change</h4>
+					<p class="text-sm opacity-90">Modify one layer without breaking others</p>
 				</div>
-				<div class="benefit">
-					<h4>🐛 Easy to Debug</h4>
-					<p>Clear data flow and separation of concerns</p>
+				<div class="text-center">
+					<div class="placeholder avatar mb-4">
+						<div class="w-16 rounded-full bg-warning/20 text-warning">
+							<span class="text-2xl">🐛</span>
+						</div>
+					</div>
+					<h4 class="mb-2 text-lg font-semibold text-warning">Easy to Debug</h4>
+					<p class="text-sm opacity-90">Clear data flow and separation of concerns</p>
 				</div>
-				<div class="benefit">
-					<h4>⚡ Fast Development</h4>
-					<p>No complex event buses or orchestrators</p>
+				<div class="text-center">
+					<div class="placeholder avatar mb-4">
+						<div class="w-16 rounded-full bg-warning/20 text-warning">
+							<span class="text-2xl">⚡</span>
+						</div>
+					</div>
+					<h4 class="mb-2 text-lg font-semibold text-warning">Fast Development</h4>
+					<p class="text-sm opacity-90">No complex event buses or orchestrators</p>
 				</div>
 			</div>
 		</div>
 	</main>
 </div>
-
-<style>
-	.home-container {
-		min-height: 100vh;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-		color: white;
-		font-family:
-			system-ui,
-			-apple-system,
-			sans-serif;
-	}
-
-	.hero {
-		text-align: center;
-		padding: 4rem 2rem 2rem;
-	}
-
-	.hero h1 {
-		font-size: 4rem;
-		font-weight: bold;
-		margin-bottom: 1rem;
-		text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-	}
-
-	.subtitle {
-		font-size: 1.5rem;
-		margin-bottom: 2rem;
-		opacity: 0.9;
-	}
-
-	.welcome,
-	.guest-info {
-		font-size: 1.2rem;
-		padding: 1rem 2rem;
-		background: rgba(255, 255, 255, 0.1);
-		border-radius: 8px;
-		display: inline-block;
-	}
-
-	.main-content {
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 2rem;
-	}
-
-	.features {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-		gap: 2rem;
-		margin-bottom: 3rem;
-	}
-
-	.feature-card {
-		background: rgba(255, 255, 255, 0.1);
-		padding: 2rem;
-		border-radius: 12px;
-		backdrop-filter: blur(10px);
-		border: 1px solid rgba(255, 255, 255, 0.2);
-	}
-
-	.feature-card h3 {
-		font-size: 1.5rem;
-		margin-bottom: 1rem;
-		color: #fbbf24;
-	}
-
-	.feature-card ul {
-		list-style: none;
-		padding: 0;
-		margin-top: 1rem;
-	}
-
-	.feature-card li {
-		padding: 0.5rem 0;
-		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-	}
-
-	.cta-section {
-		text-align: center;
-		margin: 3rem 0;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 1.5rem;
-	}
-
-	.cta-subtitle {
-		margin-top: 1rem;
-		opacity: 0.8;
-		font-size: 1rem;
-	}
-
-	.architecture-info {
-		background: rgba(255, 255, 255, 0.1);
-		padding: 2rem;
-		border-radius: 12px;
-		backdrop-filter: blur(10px);
-		border: 1px solid rgba(255, 255, 255, 0.2);
-	}
-
-	.architecture-info h3 {
-		text-align: center;
-		font-size: 2rem;
-		margin-bottom: 2rem;
-		color: #fbbf24;
-	}
-
-	.benefits {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-		gap: 1.5rem;
-	}
-
-	.benefit {
-		text-align: center;
-		padding: 1.5rem;
-		background: rgba(255, 255, 255, 0.05);
-		border-radius: 8px;
-		border: 1px solid rgba(255, 255, 255, 0.1);
-	}
-
-	.benefit h4 {
-		color: #fbbf24;
-		margin-bottom: 0.5rem;
-		font-size: 1.1rem;
-	}
-
-	.benefit p {
-		font-size: 0.9rem;
-		opacity: 0.9;
-		line-height: 1.4;
-	}
-
-	@media (max-width: 768px) {
-		.hero h1 {
-			font-size: 3rem;
-		}
-
-		.features {
-			grid-template-columns: 1fr;
-		}
-
-		.benefits {
-			grid-template-columns: 1fr;
-		}
-	}
-</style>
