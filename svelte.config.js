@@ -1,5 +1,5 @@
 import { mdsvex } from 'mdsvex';
-import adapter from '@sveltejs/adapter-auto';
+import adapter from "@sveltejs/adapter-node";
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
@@ -7,7 +7,7 @@ import remarkGfm from 'remark-gfm';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-	// Consult https://sv/kit/integrations
+	// Consult https://kit.svelte.dev/docs/integrations
 	// for more information about preprocessors
 	preprocess: [
 		vitePreprocess(),
