@@ -154,7 +154,7 @@ export class ConversationStore {
 - Test in isolation
 - Mock external dependencies
 - Focus on business logic
-- Fast execution (< 100ms per test)
+- Fast execution (&lt; 100ms per test)
 
 ### **Store Testing**
 - Test service orchestration

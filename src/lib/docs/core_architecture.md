@@ -253,21 +253,21 @@ UI components are thin and declarative, focusing on presentation:
 - **Target**: Services and stores
 - **Framework**: Vitest
 - **Coverage**: 90%+ for core business logic
-- **Speed**: < 100ms per test
+- **Speed**: &lt; 100ms per test
 
 ### Integration Tests (Middle)
 
 - **Target**: Store-service interactions
 - **Framework**: Vitest + mocked services
 - **Coverage**: Critical user journeys
-- **Speed**: < 1s per test
+- **Speed**: &lt; 1s per test
 
 ### E2E Tests (Top)
 
 - **Target**: Complete user workflows
 - **Framework**: Playwright
 - **Coverage**: Core conversion paths
-- **Speed**: < 30s per test
+- **Speed**: &lt; 30s per test
 
 ---
 
@@ -371,9 +371,9 @@ export class ConversationStore {
 
 ### Performance
 
-- **Response Time**: < 200ms for service calls
-- **Audio Processing**: < 2s for transcription
-- **State Updates**: < 100ms for UI updates
+- **Response Time**: &lt; 200ms for service calls
+- **Audio Processing**: &lt; 2s for transcription
+- **State Updates**: &lt; 100ms for UI updates
 
 ### Maintainability
 

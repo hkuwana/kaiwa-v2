@@ -393,27 +393,27 @@ export function createMockConversationStore() {
 ### **Service Layer**
 - **Target**: 95%+ coverage
 - **Focus**: Business logic, error handling, edge cases
-- **Speed**: < 100ms per test
+- **Speed**: &lt; 100ms per test
 
 ### **Store Layer**
 - **Target**: 90%+ coverage
 - **Focus**: State transitions, service orchestration, side effects
-- **Speed**: < 200ms per test
+- **Speed**: &lt; 200ms per test
 
 ### **UI Layer**
 - **Target**: 80%+ coverage
 - **Focus**: User interactions, reactive updates, error states
-- **Speed**: < 500ms per test
+- **Speed**: &lt; 500ms per test
 
 ### **Integration Tests**
 - **Target**: Critical user journeys
 - **Focus**: Service-store interactions, complete workflows
-- **Speed**: < 2s per test
+- **Speed**: &lt; 2s per test
 
 ### **E2E Tests**
 - **Target**: Core user flows
 - **Focus**: End-to-end user experience
-- **Speed**: < 30s per test
+- **Speed**: &lt; 30s per test
 
 ---
 
