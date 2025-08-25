@@ -71,8 +71,9 @@
 	}
 
 	function handleStartClick() {
+		const sessionId = crypto.randomUUID();
 		if (selectedLanguage) {
-			goto('/conversation');
+			goto(`/conversation?sessionId=${sessionId}`);
 		}
 	}
 

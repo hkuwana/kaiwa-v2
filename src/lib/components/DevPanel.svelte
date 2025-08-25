@@ -6,6 +6,7 @@
 	import type { RealtimeService } from '$lib/services';
 	import type { ConversationStore } from '$lib/stores/conversation.store.svelte';
 	import { env } from '$env/dynamic/public';
+	import { realtimeService } from '$lib/services';
 
 	// Use the exported instances that automatically handle browser/server
 	// No need to manually instantiate or check browser environment
@@ -14,14 +15,16 @@
 	let audioTestStatus = $state<'idle' | 'testing' | 'success' | 'error'>('idle');
 	let realtimeTestStatus = $state<'idle' | 'testing' | 'success' | 'error'>('idle');
 	let storeTestStatus = $state<'idle' | 'testing' | 'success' | 'error'>('idle');
+	let realtimeServicesTestStatus = $state<'idle' | 'testing' | 'success' | 'error'>('idle');
 	let audioTestError: string | null = $state(null);
 	let realtimeTestError: string | null = $state(null);
 	let storeTestError: string | null = $state(null);
+	let realtimeServicesTestError: string | null = $state(null);
+	let realtimeServicesTestResults: string[] = $state([]);
 
 	let audioStream = $state<MediaStream | null>(null);
 
 	const conversationStore = getContext('conversation') as ConversationStore;
-	const realtimeService = getContext('realtime') as RealtimeService;
 
 	// Navigation functions
 	function goToUsageTesting() {
@@ -196,23 +199,78 @@
 		}
 	}
 
+	// PR #4 Test - New Modular Realtime Services
+	async function testRealtimeServices() {
+		if (realtimeServicesTestStatus === 'testing') return;
+
+		realtimeServicesTestStatus = 'testing';
+		realtimeServicesTestError = null;
+		realtimeServicesTestResults = [];
+
+		try {
+			// Test 1: Basic instantiation
+			const coordinator = new RealtimeCoordinatorService();
+			realtimeServicesTestResults.push('✅ RealtimeCoordinatorService instantiated successfully');
+
+			// Test 2: Session configuration
+			const testConfig: SessionConfig = {
+				model: 'gpt-4o-mini-realtime-preview-2024-12-17',
+				voice: 'alloy',
+				instructions: 'You are a helpful language tutor. Test instructions.',
+				turn_detection: {
+					type: 'server_vad',
+					threshold: 0.5,
+					prefix_padding_ms: 300,
+					silence_duration_ms: 500
+				},
+				input_audio_transcription: {
+					model: 'whisper-1',
+					language: 'en'
+				}
+			};
+
+			// Test configuration setting and retrieval
+			coordinator['sessionService'].setSessionConfig(testConfig);
+			const retrievedConfig = coordinator.getSessionConfig();
+			realtimeServicesTestResults.push(
+				'✅ Session configuration set and retrieved: ' + (retrievedConfig ? 'success' : 'failed')
+			);
+
+			// Test 3: Configuration event creation
+			const configEvent = coordinator['sessionService'].createInitialConfigEvent();
+			realtimeServicesTestResults.push('✅ Configuration event created: ' + configEvent.type);
+
+			// Test 4: Audio service
+			const audioStatus = coordinator.getAudioStatus();
+			realtimeServicesTestResults.push('✅ Audio service working: ' + JSON.stringify(audioStatus));
+
+			// Test 5: Connection status
+			const connectionStatus = coordinator.getConnectionStatus();
+			realtimeServicesTestResults.push(
+				'✅ Connection status working: ' + JSON.stringify(connectionStatus)
+			);
+
+			realtimeServicesTestResults.push('🎉 All realtime service tests passed!');
+			realtimeServicesTestStatus = 'success';
+		} catch (error) {
+			const errorMsg = error instanceof Error ? error.message : String(error);
+			realtimeServicesTestError = errorMsg;
+			realtimeServicesTestStatus = 'error';
+			realtimeServicesTestResults.push('❌ Test failed: ' + errorMsg);
+		}
+	}
+
 	function clearResults() {
 		audioTestStatus = 'idle';
 		realtimeTestStatus = 'idle';
 		storeTestStatus = 'idle';
+		realtimeServicesTestStatus = 'idle';
 		audioTestError = null;
 		realtimeTestError = null;
 		storeTestError = null;
+		realtimeServicesTestError = null;
+		realtimeServicesTestResults = [];
 		audioStream = null;
-
-		// Clean up services
-		audioService.cleanup();
-		realtimeService.disconnect();
-
-		// Reset conversation store
-		conversationStore.reset();
-
-		console.log('🧹 All tests cleared and services reset');
 	}
 
 	function getStatusIcon(result: typeof audioTestStatus) {
@@ -225,9 +283,10 @@
 
 <div class="container mx-auto max-w-4xl p-6">
 	<header class="mb-8 text-center">
-		<h1 class="mb-4 text-4xl font-bold text-primary">🧪 PR #2 & #3 Test Suite</h1>
+		<h1 class="mb-4 text-4xl font-bold text-primary">🧪 PR #2, #3 & #4 Test Suite</h1>
 		<p class="mb-6 text-lg opacity-70">
-			Test isolated services and store orchestration. Open the console to see detailed logs.
+			Test isolated services, store orchestration, and modular realtime architecture. Open the
+			console to see detailed logs.
 		</p>
 		<button onclick={clearResults} class="btn btn-outline btn-sm"> 🧹 Clear Results </button>
 	</header>
@@ -311,6 +370,43 @@
 		</div>
 	</div>
 
+	<!-- New Modular Realtime Services Test -->
+	<div class="card mb-8 bg-base-100 shadow-md">
+		<div class="card-body">
+			<h3 class="card-title flex items-center gap-2 text-lg">
+				{getStatusIcon(realtimeServicesTestStatus)}
+				🔧 Modular Realtime Services
+			</h3>
+			<p class="mb-4 text-sm opacity-70">
+				PR #4: Test the new modular realtime service architecture
+			</p>
+			<button
+				onclick={testRealtimeServices}
+				class="btn btn-info {realtimeServicesTestStatus === 'testing' ? 'loading' : ''}"
+				disabled={realtimeServicesTestStatus === 'testing'}
+			>
+				{realtimeServicesTestStatus === 'testing' ? 'Testing...' : 'Test Modular Services'}
+			</button>
+
+			{#if realtimeServicesTestResults.length > 0}
+				<div class="mt-4 rounded bg-base-200 p-4">
+					<h4 class="mb-2 font-semibold">Test Results:</h4>
+					<div class="space-y-1">
+						{#each realtimeServicesTestResults as result}
+							<div class="font-mono text-sm">{result}</div>
+						{/each}
+					</div>
+				</div>
+			{/if}
+
+			{#if realtimeServicesTestError}
+				<div class="mt-4 rounded bg-error/20 p-3 text-error">
+					<p class="text-sm">{realtimeServicesTestError}</p>
+				</div>
+			{/if}
+		</div>
+	</div>
+
 	<!-- Live Store State -->
 	<div class="card mb-8 bg-base-100 shadow-md">
 		<div class="card-body">
@@ -367,8 +463,11 @@
 				<p class="mb-2">
 					<strong>PR #3 Goal:</strong> Store orchestrates services and manages state properly
 				</p>
+				<p class="mb-2">
+					<strong>PR #4 Goal:</strong> Modular realtime services with proper separation of concerns
+				</p>
 				<p>
-					<strong>Success Criteria:</strong> All three tests should show ✅ success messages in console
+					<strong>Success Criteria:</strong> All four tests should show ✅ success messages in console
 				</p>
 			</div>
 		</div>

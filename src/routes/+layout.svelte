@@ -2,32 +2,28 @@
 	import '../app.css';
 	import { favicon, appleTouchIcon } from '$lib/assets';
 	import { page } from '$app/state';
-	import { RealtimeService } from '$lib/services/realtime.service';
+	import { realtimeService } from '$lib/services';
 	import { ConversationStore } from '$lib/stores/conversation.store.svelte';
 	import { setContext, onMount, onDestroy } from 'svelte';
 
-	const realtimeService = new RealtimeService();
 	const conversationStore = new ConversationStore();
 
 	let { children, data } = $props();
 
 	// Use Svelte's context to make this single instance available to all child components.
 	setContext('conversation', conversationStore);
-	setContext('realtime', realtimeService);
 
 	onMount(() => {
 		console.log('🔄 ConversationStore mounted');
 		return () => {
 			console.log('🔄 ConversationStore unmounting, cleaning up...');
 			conversationStore.reset();
-			realtimeService.disconnect();
 		};
 	});
 
 	onDestroy(() => {
 		console.log('🔄 ConversationStore destroyed');
 		conversationStore.reset();
-		realtimeService.disconnect();
 	});
 
 	// Get current page data for dynamic SEO

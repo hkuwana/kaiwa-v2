@@ -1,6 +1,8 @@
 // 🏗️ Core Types
 // Centralized type definitions for the application
 
+import type { Voice } from './openai.realtime.types';
+
 export interface Scenarios {
 	id: string;
 	title: string;
@@ -19,7 +21,7 @@ export interface Speaker {
 	region: string;
 	language: string;
 	voiceId: string; // OpenAI voice ID
-	openAIId?: string; // OpenAI voice ID for TTS
+	openAIId?: Voice; // OpenAI voice ID for TTS
 	languageId?: string; // Language code (e.g., 'en', 'ja')
 	bcp47Code?: string; // BCP-47 language tag
 	speakerEmoji?: string; // Flag emoji for the language
