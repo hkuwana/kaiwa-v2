@@ -45,6 +45,10 @@ export class RealtimeService {
 	private onConnectionStateChangeCallback: (state: RTCPeerConnectionState) => void = () => {};
 	private onTranscriptionCallback: (event: TranscriptionEvent) => void = () => {};
 	private sessionConfig: RealtimeSession['config'] | null = null;
+	private isStreamingPaused: boolean = false;
+	private localStream: MediaStream | null = null;
+
+	// Timer service integration removed - now handled by conversation store
 
 	constructor() {
 		// If we're on the server, throw an error to prevent instantiation
@@ -72,6 +76,7 @@ export class RealtimeService {
 		this.onConnectionStateChangeCallback = onConnectionStateChange;
 		this.onTranscriptionCallback = onTranscription || (() => {});
 		this.sessionConfig = sessionConfig || null;
+		this.localStream = stream;
 
 		try {
 			// Notify that we're starting to connect
@@ -164,6 +169,9 @@ export class RealtimeService {
 			// Notify that we're fully connected
 			this.onConnectionStateChangeCallback('connected');
 
+			// Timer management now handled by conversation store
+			console.log('⏰ Connection established - timer should be started by conversation store');
+
 			const initialConfig = {
 				type: 'session.update',
 				session: {
@@ -171,6 +179,8 @@ export class RealtimeService {
 					instructions: this.sessionConfig?.instructions || 'You are a helpful language tutor.',
 					input_audio_format: 'pcm16',
 					output_audio_format: 'pcm16',
+					voice: this.sessionConfig?.voice || 'alloy',
+					language: this.sessionConfig?.language || 'en',
 					input_audio_transcription: {
 						model: 'whisper-1', // Enable input transcription
 						language:
@@ -187,23 +197,38 @@ export class RealtimeService {
 				}
 			};
 			console.log('📡 Sending initial configuration:', initialConfig);
+			console.log('🌍 Language configuration:', {
+				language: this.sessionConfig?.language,
+				transcriptionLanguage: this.sessionConfig?.inputAudioTranscription?.language,
+				instructions: this.sessionConfig?.instructions?.substring(0, 200) + '...'
+			});
 			// Send initial configuration
 			this.sendEvent(initialConfig);
 		};
 
 		this.dataChannel.onmessage = (event) => {
 			const data = JSON.parse(event.data);
+
+			// Timer reset now handled by conversation store
+			console.log('📨 Message received - timer should be reset by conversation store');
+
 			this.handleServerEvent(data);
 		};
 
 		this.dataChannel.onerror = (error) => {
 			console.error('❌ Data channel error:', error);
 			this.onConnectionStateChangeCallback('failed');
+
+			// Timer stop now handled by conversation store
+			console.log('❌ Data channel error - timer should be stopped by conversation store');
 		};
 
 		this.dataChannel.onclose = () => {
 			console.log('📡 Data channel closed');
 			this.onConnectionStateChangeCallback('closed');
+
+			// Timer stop now handled by conversation store
+			console.log('📡 Data channel closed - timer should be stopped by conversation store');
 		};
 	}
 
@@ -218,9 +243,9 @@ export class RealtimeService {
 
 			// Connect directly to OpenAI's realtime endpoint as per their docs
 			const baseUrl = 'https://api.openai.com/v1/realtime';
-			const model = 'gpt-4o-mini-realtime-preview-2024-12-17';
+			const model = this.sessionConfig?.model || 'gpt-4o-mini-realtime-preview-2024-12-17';
 
-			console.log('📡 Sending SDP offer to OpenAI...');
+			console.log('📡 Sending SDP offer to OpenAI with model:', model);
 			const response = await fetch(`${baseUrl}?model=${model}`, {
 				method: 'POST',
 				body: offer.sdp,
@@ -252,7 +277,18 @@ export class RealtimeService {
 
 	sendEvent(event: Record<string, unknown>): void {
 		if (this.dataChannel?.readyState === 'open') {
-			this.dataChannel.send(JSON.stringify(event));
+			try {
+				const eventString = JSON.stringify(event);
+				console.log('📤 Sending event:', event);
+				this.dataChannel.send(eventString);
+
+				// Timer reset now handled by conversation store
+				console.log('📤 Event sent - timer should be reset by conversation store');
+			} catch (error) {
+				console.error('❌ Failed to send event:', error);
+			}
+		} else {
+			console.warn('⚠️ Cannot send event: data channel not open');
 		}
 	}
 
@@ -499,6 +535,8 @@ export class RealtimeService {
 		this.cleanup();
 	}
 
+	// Timer management removed - now handled by conversation store
+
 	isConnected(): boolean {
 		return this.pc?.connectionState === 'connected' && this.dataChannel?.readyState === 'open';
 	}
@@ -507,27 +545,190 @@ export class RealtimeService {
 		return this.pc?.connectionState || 'disconnected';
 	}
 
-	disconnect(): void {
-		this.cleanup();
+	// New method: Check if streaming is paused
+	getStreamingPausedState(): boolean {
+		return this.isStreamingPaused;
 	}
 
+	// New method: Get detailed connection status
+	getConnectionStatus(): {
+		peerConnectionState: string;
+		dataChannelState: string;
+		isStreamingPaused: boolean;
+		hasLocalStream: boolean;
+	} {
+		return {
+			peerConnectionState: this.pc?.connectionState || 'disconnected',
+			dataChannelState: this.dataChannel?.readyState || 'closed',
+			isStreamingPaused: this.isStreamingPaused,
+			hasLocalStream: !!this.localStream
+		};
+	}
+
+	// New method: Pause streaming without disconnecting
+	pauseStreaming(): void {
+		if (!this.isConnected() || this.isStreamingPaused) return;
+
+		console.log('⏸️ Pausing streaming...');
+
+		try {
+			// Stop local audio tracks to stop sending audio input
+			if (this.localStream) {
+				this.localStream.getAudioTracks().forEach((track) => {
+					track.enabled = false;
+				});
+			}
+
+			// Send clear event to stop audio processing
+			if (this.dataChannel?.readyState === 'open') {
+				this.sendEvent({
+					type: 'input_audio_buffer.clear'
+				});
+			}
+
+			this.isStreamingPaused = true;
+			console.log('✅ Streaming paused');
+		} catch (error) {
+			console.error('❌ Failed to pause streaming:', error);
+		}
+	}
+
+	// New method: Resume streaming
+	resumeStreaming(): void {
+		if (!this.isConnected() || !this.isStreamingPaused) return;
+
+		console.log('▶️ Resuming streaming...');
+
+		try {
+			// Re-enable local audio tracks
+			if (this.localStream) {
+				this.localStream.getAudioTracks().forEach((track) => {
+					track.enabled = true;
+				});
+			}
+
+			this.isStreamingPaused = false;
+			console.log('✅ Streaming resumed');
+		} catch (error) {
+			console.error('❌ Failed to resume streaming:', error);
+		}
+	}
+
+	// Enhanced disconnect method following OpenAI's best practices
+	disconnect(): void {
+		console.log('🔌 Disconnecting WebRTC connection...');
+
+		// Send disconnect event to server if possible
+		if (this.dataChannel?.readyState === 'open') {
+			try {
+				this.sendEvent({
+					type: 'session.end',
+					reason: 'user_disconnect'
+				});
+			} catch (error) {
+				console.warn('⚠️ Could not send disconnect event:', error);
+			}
+		}
+
+		// Clean up all resources
+		this.cleanup();
+
+		console.log('✅ WebRTC connection fully disconnected');
+	}
+
+	// Force disconnect - more aggressive cleanup for component destruction
+	forceDisconnect(): void {
+		console.log('🧹 Force disconnecting realtime service...');
+
+		try {
+			// Close data channel immediately without sending events
+			if (this.dataChannel) {
+				this.dataChannel.close();
+				this.dataChannel = null;
+			}
+
+			// Close peer connection immediately
+			if (this.pc) {
+				this.pc.close();
+				this.pc = null;
+			}
+
+			// Remove audio element
+			if (this.audioElement) {
+				this.audioElement.remove();
+				this.audioElement = null;
+			}
+
+			// Clear timers
+			if (this.reconnectTimer) {
+				clearTimeout(this.reconnectTimer);
+				this.reconnectTimer = null;
+			}
+
+			// Timer stop now handled by conversation store
+			console.log('🧹 Force disconnect - timer should be stopped by conversation store');
+
+			// Reset all state
+			this.ephemeralKey = null;
+			this.sessionExpiry = 0;
+			this.sessionConfig = null;
+			this.localStream = null;
+			this.isStreamingPaused = false;
+
+			console.log('✅ Force disconnect complete');
+		} catch (error) {
+			console.warn('⚠️ Error during force disconnect:', error);
+		}
+	}
+
+	// Enhanced cleanup method following OpenAI's best practices
 	private cleanup(): void {
+		console.log('🧹 Cleaning up WebRTC resources...');
+
+		// Clear reconnect timer
 		if (this.reconnectTimer) {
 			clearTimeout(this.reconnectTimer);
 			this.reconnectTimer = null;
 		}
+
+		// Timer stop now handled by conversation store
+		console.log('🧹 Force disconnect - timer should be stopped by conversation store');
+
+		// Close data channel properly
 		if (this.dataChannel) {
-			this.dataChannel.close();
+			if (this.dataChannel.readyState === 'open') {
+				this.dataChannel.close();
+			}
 			this.dataChannel = null;
 		}
+
+		// Close peer connection properly following OpenAI's recommendations
 		if (this.pc) {
+			// Stop all transceivers to release media resources
+			this.pc.getTransceivers().forEach((transceiver) => {
+				if (transceiver.stop) {
+					transceiver.stop();
+				}
+			});
+
+			// Close the connection
 			this.pc.close();
 			this.pc = null;
 		}
+
+		// Remove audio element
 		if (this.audioElement) {
 			this.audioElement.remove();
 			this.audioElement = null;
 		}
+
+		// Reset state
+		this.ephemeralKey = null;
+		this.sessionExpiry = 0;
+		this.isStreamingPaused = false;
+		this.localStream = null;
+
+		console.log('✅ WebRTC cleanup complete');
 	}
 }
 

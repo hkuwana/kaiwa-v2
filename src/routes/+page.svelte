@@ -12,6 +12,53 @@
 </svelte:head>
 
 <div class="min-h-screen bg-gradient-to-br from-primary to-secondary text-primary-content">
+	<!-- Navigation Bar -->
+	<nav class="navbar border-b border-base-300/20 bg-base-100/10 backdrop-blur-sm">
+		<div class="navbar-start">
+			<div class="dropdown">
+				<div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+					<span class="iconify h-5 w-5" data-icon="mdi:menu"></span>
+				</div>
+				<ul
+					tabindex="0"
+					class="dropdown-content menu z-[1] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
+				>
+					<li><a href="/pricing">Pricing</a></li>
+					<li><a href="/docs">Documentation</a></li>
+					<li><a href="/privacy">Privacy</a></li>
+				</ul>
+			</div>
+			<a href="/" class="btn text-xl btn-ghost">Kaiwa</a>
+		</div>
+		<div class="navbar-center hidden lg:flex">
+			<ul class="menu menu-horizontal px-1">
+				<li><a href="/pricing">Pricing</a></li>
+				<li><a href="/docs">Documentation</a></li>
+				<li><a href="/privacy">Privacy</a></li>
+			</ul>
+		</div>
+		<div class="navbar-end">
+			{#if user}
+				<div class="dropdown dropdown-end">
+					<div tabindex="0" role="button" class="btn avatar btn-circle btn-ghost">
+						<div class="w-10 rounded-full">
+							<img alt="User avatar" src={user.avatarUrl || '/default-avatar.png'} />
+						</div>
+					</div>
+					<ul
+						tabindex="0"
+						class="dropdown-content menu z-[1] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
+					>
+						<li><a href="/conversation">Start Practice</a></li>
+						<li><a href="/logout">Logout</a></li>
+					</ul>
+				</div>
+			{:else}
+				<a href="/login" class="btn btn-primary">Get Started</a>
+			{/if}
+		</div>
+	</nav>
+
 	<header class="hero min-h-screen">
 		<div class="hero-content text-center">
 			<div class="max-w-md">

@@ -18,6 +18,7 @@
 	onMount(() => {
 		console.log('🔄 ConversationStore mounted');
 		return () => {
+			console.log('🔄 ConversationStore unmounting, cleaning up...');
 			conversationStore.reset();
 			realtimeService.disconnect();
 		};

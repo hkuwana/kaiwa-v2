@@ -6,11 +6,18 @@ import { AudioService, audioService, type AudioLevel } from '$lib/services/audio
 import type { Message, Language } from '$lib/server/db/types';
 import type { Speaker } from '$lib/types';
 import { DummyAudioService, type DummyRealtimeService } from '$lib/services/dummy.service';
+import {
+	createConversationTimerStore,
+	type ConversationTimerStore
+} from './conversation-timer.store.svelte';
 
 export class ConversationStore {
 	// Services - use the exported instances that handle browser/server automatically
 	private realtimeService: RealtimeService | DummyRealtimeService;
 	private audioService: AudioService | DummyAudioService;
+
+	// Timer store for conversation management
+	private timerStore: ConversationTimerStore;
 
 	// Reactive state as class properties
 	status = $state<'idle' | 'connecting' | 'connected' | 'streaming' | 'error'>('idle');
@@ -35,6 +42,9 @@ export class ConversationStore {
 		this.realtimeService = realtimeService;
 		this.audioService = audioService;
 
+		// Initialize timer store
+		this.timerStore = createConversationTimerStore('free'); // Default to free tier
+
 		// The rest of your constructor can now safely call methods on this.audioService
 		this.audioService.initialize();
 		this.audioService.getAvailableDevices().then((devices) => {
@@ -56,10 +66,29 @@ export class ConversationStore {
 		speaker?: Speaker | string,
 		transcriptionOnly: boolean = false
 	) => {
+		console.log('🚀 startConversation called with:', {
+			language: language ? { name: language.name, code: language.code } : 'undefined',
+			speaker: speaker
+				? typeof speaker === 'string'
+					? speaker
+					: { voiceName: (speaker as Speaker).voiceName }
+				: 'undefined',
+			transcriptionOnly
+		});
+
 		if (this.status !== 'idle') return;
 
 		// Update language and speaker if provided
-		if (language) this.language = language;
+		if (language) {
+			this.language = language;
+			console.log('🌍 Language set in conversation store:', {
+				name: this.language.name,
+				code: this.language.code,
+				nativeName: this.language.nativeName
+			});
+		} else {
+			console.warn('⚠️ No language provided to startConversation');
+		}
 
 		// Extract the openAIId from the speaker object if provided
 		if (speaker && typeof speaker === 'object' && 'openAIId' in speaker) {
@@ -143,27 +172,57 @@ export class ConversationStore {
 
 			// 3. Connect to realtime service
 			// Build session configuration based on speaker and language
+			console.log('🔍 Current language state:', {
+				language: this.language,
+				name: this.language?.name,
+				code: this.language?.code
+			});
+
 			const languageName = this.language?.name || 'English';
 			const languageCode = this.language?.code || 'en';
 
 			// Language-specific instructions
 			const getLanguageSpecificInstructions = (langName: string, langCode: string) => {
-				const baseInstructions = `You are a helpful language tutor for ${langName}. Help the user practice and improve their language skills through natural conversation. Be patient, encouraging, and provide gentle corrections when needed.`;
+				const baseInstructions = `You are a helpful language tutor for ${langName}. Help the user practice and improve their language skills through natural conversation. Be patient, encouraging, and provide gentle corrections when needed. IMPORTANT: You must respond in ${langName} only. Do not respond in any other language unless specifically asked to translate or explain something.`;
 
 				// Add language-specific guidance
 				switch (langCode) {
 					case 'ja':
-						return `${baseInstructions} Since this is Japanese, pay special attention to pronunciation, honorifics (敬語), and cultural context. Use appropriate politeness levels and explain cultural nuances when relevant.`;
+						return `${baseInstructions} Since this is Japanese, pay special attention to pronunciation, honorifics (敬語), and cultural context. Use appropriate politeness levels and explain cultural nuances when relevant. Always respond in Japanese.`;
 					case 'ko':
-						return `${baseInstructions} Since this is Korean, focus on pronunciation, honorifics (존댓말), and sentence structure. Help with formal vs informal speech patterns.`;
+						return `${baseInstructions} Since this is Korean, focus on pronunciation, honorifics (존댓말), and sentence structure. Help with formal vs informal speech patterns. Always respond in Korean.`;
 					case 'zh':
-						return `${baseInstructions} Since this is Chinese, emphasize tones, character recognition, and cultural context. Help with simplified vs traditional characters if relevant.`;
+						return `${baseInstructions} Since this is Chinese, emphasize tones, character recognition, and cultural context. Help with simplified vs traditional characters if relevant. Always respond in Chinese.`;
 					case 'ar':
-						return `${baseInstructions} Since this is Arabic, focus on pronunciation, script reading, and cultural context. Pay attention to formal vs informal speech.`;
+						return `${baseInstructions} Since this is Arabic, focus on pronunciation, script reading, and cultural context. Pay attention to formal vs informal speech. Always respond in Arabic.`;
 					case 'he':
-						return `${baseInstructions} Since this is Hebrew, emphasize pronunciation, script reading, and cultural context. Help with formal vs informal speech patterns.`;
+						return `${baseInstructions} Since this is Hebrew, emphasize pronunciation, script reading, and cultural context. Help with formal vs informal speech patterns. Always respond in Hebrew.`;
+					case 'fr':
+						return `${baseInstructions} Since this is French, focus on pronunciation, grammar, and cultural context. Help with formal vs informal speech (tu vs vous). Always respond in French.`;
+					case 'es':
+						return `${baseInstructions} Since this is Spanish, focus on pronunciation, grammar, and cultural context. Help with formal vs informal speech (tú vs usted). Always respond in Spanish.`;
+					case 'de':
+						return `${baseInstructions} Since this is German, focus on pronunciation, grammar, and cultural context. Help with formal vs informal speech (du vs Sie). Always respond in German.`;
+					case 'it':
+						return `${baseInstructions} Since this is Italian, focus on pronunciation, grammar, and cultural context. Help with formal vs informal speech (tu vs Lei). Always respond in Italian.`;
+					case 'pt':
+						return `${baseInstructions} Since this is Portuguese, focus on pronunciation, grammar, and cultural context. Help with formal vs informal speech (tu vs você). Always respond in Portuguese.`;
+					case 'ru':
+						return `${baseInstructions} Since this is Russian, focus on pronunciation, grammar, and cultural context. Help with formal vs informal speech (ты vs вы). Always respond in Russian.`;
+					case 'hi':
+						return `${baseInstructions} Since this is Hindi, focus on pronunciation, grammar, and cultural context. Help with formal vs informal speech (तू vs आप). Always respond in Hindi.`;
+					case 'vi':
+						return `${baseInstructions} Since this is Vietnamese, focus on pronunciation, tones, and cultural context. Help with formal vs informal speech. Always respond in Vietnamese.`;
+					case 'nl':
+						return `${baseInstructions} Since this is Dutch, focus on pronunciation, grammar, and cultural context. Help with formal vs informal speech (jij vs u). Always respond in Dutch.`;
+					case 'tr':
+						return `${baseInstructions} Since this is Turkish, focus on pronunciation, grammar, and cultural context. Help with formal vs informal speech (sen vs siz). Always respond in Turkish.`;
+					case 'id':
+						return `${baseInstructions} Since this is Indonesian, focus on pronunciation, grammar, and cultural context. Help with formal vs informal speech. Always respond in Indonesian.`;
+					case 'fil':
+						return `${baseInstructions} Since this is Filipino, focus on pronunciation, grammar, and cultural context. Help with formal vs informal speech. Always respond in Filipino.`;
 					default:
-						return baseInstructions;
+						return `${baseInstructions} Always respond in ${langName}.`;
 				}
 			};
 
@@ -216,6 +275,9 @@ export class ConversationStore {
 			console.log(`🌍 Language: ${languageName} (${languageCode})`);
 			console.log(`🎤 Turn detection: ${JSON.stringify(sessionConfig.turnDetection)}`);
 			console.log(`📝 Instructions: ${sessionConfig.instructions.substring(0, 100)}...`);
+			console.log(`🎭 Voice: ${this.voice}`);
+			console.log(`🔤 Transcription language: ${languageCode}`);
+			console.log('🔍 Full session config object:', JSON.stringify(sessionConfig, null, 2));
 
 			await this.realtimeService.connectWithSession(
 				sessionData,
@@ -320,23 +382,23 @@ export class ConversationStore {
 		}
 	};
 
-	// Start streaming (after connection is established)
+	// Start streaming
 	startStreaming = async () => {
 		if (this.status !== 'connected') return;
 
-		this.status = 'streaming';
-		console.log('Started streaming audio');
+		console.log('🎤 Starting streaming...');
 
-		// Ensure audio monitoring is active
-		if (this.audioService.hasActiveStream()) {
-			// Re-establish audio monitoring if needed
-			const currentStream = this.audioService.getCurrentStream();
-			if (currentStream) {
-				// Force a small audio level update to ensure monitoring is working
-				const currentLevel = this.audioService.getCurrentAudioLevel();
-				this.audioLevel = currentLevel;
-				console.log('Audio monitoring active, current level:', currentLevel);
-			}
+		try {
+			// Resume streaming in the realtime service
+			this.realtimeService.resumeStreaming();
+
+			// Update status
+			this.status = 'streaming';
+			console.log('✅ Streaming started');
+		} catch (error) {
+			console.error('❌ Failed to start streaming:', error);
+			this.error = 'Failed to start streaming';
+			this.status = 'error';
 		}
 	};
 
@@ -344,13 +406,34 @@ export class ConversationStore {
 	stopStreaming = async () => {
 		if (this.status !== 'streaming') return;
 
-		this.status = 'connected';
-		console.log('Stopped streaming audio');
+		console.log('⏸️ Stopping streaming...');
+
+		try {
+			// Pause streaming in the realtime service (keeps connection alive)
+			this.realtimeService.pauseStreaming();
+
+			// Update status
+			this.status = 'connected';
+			console.log('✅ Streaming stopped (connection maintained)');
+		} catch (error) {
+			console.error('❌ Failed to stop streaming:', error);
+			this.error = 'Failed to stop streaming';
+		}
 	};
 
-	// End the conversation
+	// End the conversation and disconnect completely
 	endConversation = () => {
+		console.log('🔌 Ending conversation and disconnecting...');
+
+		// First stop streaming if active
+		if (this.status === 'streaming') {
+			this.stopStreaming();
+		}
+
+		// Disconnect the WebRTC connection completely
 		this.realtimeService.disconnect();
+
+		// Clean up audio service
 		this.audioService.cleanup();
 
 		// Reset state
@@ -364,6 +447,28 @@ export class ConversationStore {
 		this.transcriptionMode = false;
 		this.currentTranscript = '';
 		this.isTranscribing = false;
+
+		console.log('✅ Conversation ended and fully disconnected');
+	};
+
+	// Add a new method for complete disconnection
+	disconnectCompletely = () => {
+		console.log('🔌 Disconnecting completely...');
+
+		// Stop streaming first if active
+		if (this.status === 'streaming') {
+			this.stopStreaming();
+		}
+
+		// Then disconnect the WebRTC connection
+		this.realtimeService.disconnect();
+
+		// Clean up audio
+		this.audioService.cleanup();
+
+		// Reset to idle
+		this.status = 'idle';
+		console.log('✅ Completely disconnected');
 	};
 
 	// Send a message
@@ -427,8 +532,47 @@ export class ConversationStore {
 			selectedDeviceId: this.selectedDeviceId,
 			transcriptionMode: this.transcriptionMode,
 			currentTranscript: this.currentTranscript,
-			isTranscribing: this.isTranscribing
+			isTranscribing: this.isTranscribing,
+			connectionStatus: this.realtimeService.getConnectionStatus()
 		};
+	};
+
+	// Get detailed connection status
+	getConnectionStatus = () => {
+		return this.realtimeService.getConnectionStatus();
+	};
+
+	// Timer management methods
+	configureTimerForUserTier = (tier: 'free' | 'plus' | 'premium') => {
+		this.timerStore.configureForUserTier(tier);
+		console.log(`⏰ Conversation timer configured for ${tier} tier`);
+	};
+
+	startConversationTimer = () => {
+		this.timerStore.start();
+		console.log('⏰ Conversation timer started');
+	};
+
+	stopConversationTimer = () => {
+		this.timerStore.stop();
+		console.log('⏰ Conversation timer stopped');
+	};
+
+	getTimerState = () => {
+		return this.timerStore.state;
+	};
+
+	getTimeRemaining = () => {
+		return this.timerStore.getTimeRemaining();
+	};
+
+	extendConversation = () => {
+		return this.timerStore.extendDefault();
+	};
+
+	// Check if streaming is currently paused
+	isStreamingPaused = () => {
+		return this.realtimeService.getStreamingPausedState();
 	};
 
 	// Update session configuration dynamically
@@ -483,8 +627,55 @@ export class ConversationStore {
 
 		this.realtimeService.disconnect();
 		this.audioService.cleanup();
+		this.timerStore.reset();
 
 		console.log('🔄 Conversation store reset');
+	};
+
+	// Force cleanup - more aggressive than reset, ensures all connections are closed
+	forceCleanup = () => {
+		console.log('🧹 Force cleaning up conversation store...');
+
+		// First try normal cleanup
+		try {
+			this.realtimeService.disconnect();
+			this.audioService.cleanup();
+		} catch (error) {
+			console.warn('⚠️ Error during normal cleanup:', error);
+		}
+
+		// Force close any remaining connections
+		try {
+			// Force disconnect realtime service
+			if (this.realtimeService) {
+				this.realtimeService.forceDisconnect();
+			}
+		} catch (error) {
+			console.warn('⚠️ Error during realtime force cleanup:', error);
+		}
+
+		// Clean up timer store
+		try {
+			this.timerStore.cleanup();
+		} catch (error) {
+			console.warn('⚠️ Error during timer cleanup:', error);
+		}
+
+		// Reset all state
+		this.status = 'idle';
+		this.messages = [];
+		this.userId = null;
+		this.sessionId = '';
+		this.startTime = 0;
+		this.error = null;
+		this.audioLevel = 0;
+		this.availableDevices = [];
+		this.selectedDeviceId = 'default';
+		this.transcriptionMode = false;
+		this.currentTranscript = '';
+		this.isTranscribing = false;
+
+		console.log('✅ Force cleanup complete');
 	};
 }
 

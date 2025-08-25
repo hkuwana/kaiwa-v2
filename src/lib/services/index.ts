@@ -4,3 +4,4 @@
 export { RealtimeService } from './realtime.service';
 export { AudioService } from './audio.service';
 export { ConversationService } from './conversation.service';
+export { TimerService, createTimerService } from './timer.service';

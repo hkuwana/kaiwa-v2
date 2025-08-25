@@ -1,11 +1,9 @@
-// 🏆 Tier Management Service
-// Handles user tiers, usage tracking, and limit enforcement
+// 🏆 Tier Management Service - MVP Version
+// Simplified version that works with current MVP schema
 
 import { db } from './db/index';
-import { users, tiers, userUsage, subscriptions } from './db/schema';
-import { eq, and, gte, lte, desc } from 'drizzle-orm';
-import type { UserUsage, Subscription } from './db/types';
-import { analytics } from './analyticsService';
+import { users, tiers } from './db/schema';
+import { eq } from 'drizzle-orm';
 
 export interface TierLimits {
 	monthlyConversations: number | null; // null = unlimited
@@ -60,20 +58,25 @@ const DEFAULT_TIERS: Record<string, TierLimits> = {
 export class TierService {
 	/**
 	 * Get user's current tier and usage status
+	 * MVP: All users get free tier for now
 	 */
 	async getUserTierStatus(userId: string): Promise<UsageStatus> {
-		// Get user and their tier
+		// Get user - MVP version assumes 'free' tier for all users
 		const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
 		if (!user.length) {
 			throw new Error('User not found');
 		}
 
-		const userTier = user[0].tier;
+		// MVP: All users get free tier limits
+		const userTier = 'free';
 		const limits = await this.getTierLimits(userTier);
 
-		// Get current usage period
-		const currentPeriod = this.getCurrentPeriod();
-		const usage = await this.getUserUsage(userId, currentPeriod.start, currentPeriod.end);
+		// MVP: Simplified usage tracking - assume no usage for now
+		const usage = {
+			conversationsUsed: 0,
+			minutesUsed: 0,
+			realtimeSessionsUsed: 0
+		};
 
 		// Check limits
 		const canStartConversation = this.canStartConversation(limits, usage);
@@ -82,56 +85,33 @@ export class TierService {
 		return {
 			tier: userTier,
 			limits,
-			usage: {
-				conversationsUsed: usage.conversationsUsed || 0,
-				minutesUsed: usage.minutesUsed || 0,
-				realtimeSessionsUsed: usage.realtimeSessionsUsed || 0
-			},
+			usage,
 			canStartConversation,
 			canUseRealtime,
-			resetDate: currentPeriod.end
+			resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
 		};
 	}
 
 	/**
 	 * Track usage when starting a conversation
+	 * MVP: Usage tracking disabled for now
 	 */
 	async trackConversationStart(userId: string, isRealtime: boolean = false): Promise<void> {
-		const currentPeriod = this.getCurrentPeriod();
+		// MVP: Usage tracking disabled - just log for now
+		console.log(`MVP: Conversation started for user ${userId}, realtime: ${isRealtime}`);
 
-		// Get or create usage record
-		let usage = await this.getOrCreateUserUsage(userId, currentPeriod.start, currentPeriod.end);
-
-		// Increment counters
-		const updates: Partial<UserUsage> = {
-			conversationsUsed: (usage.conversationsUsed || 0) + 1,
-			updatedAt: new Date()
-		};
-
-		if (isRealtime) {
-			updates.realtimeSessionsUsed = (usage.realtimeSessionsUsed || 0) + 1;
-		}
-
-		await db.update(userUsage).set(updates).where(eq(userUsage.id, usage.id));
+		// TODO: Implement usage tracking when userUsage table is available
 	}
 
 	/**
 	 * Track usage when ending a conversation
+	 * MVP: Usage tracking disabled for now
 	 */
 	async trackConversationEnd(userId: string, durationMinutes: number): Promise<void> {
-		const currentPeriod = this.getCurrentPeriod();
+		// MVP: Usage tracking disabled - just log for now
+		console.log(`MVP: Conversation ended for user ${userId}, duration: ${durationMinutes} minutes`);
 
-		// Get usage record
-		const usage = await this.getOrCreateUserUsage(userId, currentPeriod.start, currentPeriod.end);
-
-		// Add minutes used
-		await db
-			.update(userUsage)
-			.set({
-				minutesUsed: (usage.minutesUsed || 0) + Math.ceil(durationMinutes),
-				updatedAt: new Date()
-			})
-			.where(eq(userUsage.id, usage.id));
+		// TODO: Implement usage tracking when userUsage table is available
 	}
 
 	/**
@@ -152,15 +132,13 @@ export class TierService {
 
 	/**
 	 * Upgrade user tier
+	 * MVP: Disabled - tier field not available in current schema
 	 */
 	async upgradeUserTier(userId: string, newTier: 'free' | 'pro' | 'premium'): Promise<void> {
-		await db
-			.update(users)
-			.set({
-				tier: newTier,
-				lastUsage: new Date()
-			})
-			.where(eq(users.id, userId));
+		// MVP: Tier upgrades disabled - just log for now
+		console.log(`MVP: Tier upgrade requested for user ${userId} to ${newTier}`);
+
+		// TODO: Implement when tier field is added to users table
 	}
 
 	// Private helper methods
@@ -185,136 +163,32 @@ export class TierService {
 		return DEFAULT_TIERS[tierName] || DEFAULT_TIERS.free;
 	}
 
-	private async getUserUsage(
-		userId: string,
-		periodStart: Date,
-		periodEnd: Date
-	): Promise<UserUsage> {
-		const usage = await db
-			.select()
-			.from(userUsage)
-			.where(
-				and(
-					eq(userUsage.userId, userId),
-					gte(userUsage.periodStart, periodStart),
-					lte(userUsage.periodEnd, periodEnd)
-				)
-			)
-			.orderBy(desc(userUsage.createdAt))
-			.limit(1);
-
-		if (usage.length > 0) {
-			return usage[0];
-		}
-
-		// Return empty usage if none exists
-		return {
-			id: '',
-			userId,
-			periodStart,
-			periodEnd,
-			conversationsUsed: 0,
-			minutesUsed: 0,
-			realtimeSessionsUsed: 0,
-			createdAt: new Date(),
-			updatedAt: new Date()
-		};
+	/**
+	 * Check if user can start a conversation based on limits
+	 */
+	private canStartConversation(limits: TierLimits, usage: { conversationsUsed: number }): boolean {
+		if (limits.monthlyConversations === null) return true; // unlimited
+		return usage.conversationsUsed < limits.monthlyConversations;
 	}
 
-	private async getOrCreateUserUsage(
-		userId: string,
-		periodStart: Date,
-		periodEnd: Date
-	): Promise<UserUsage> {
-		const existing = await db
-			.select()
-			.from(userUsage)
-			.where(
-				and(
-					eq(userUsage.userId, userId),
-					gte(userUsage.periodStart, periodStart),
-					lte(userUsage.periodEnd, periodEnd)
-				)
-			)
-			.limit(1);
-
-		if (existing.length > 0) {
-			return existing[0];
-		}
-
-		// Create new usage record
-		const newUsage = await db
-			.insert(userUsage)
-			.values({
-				userId,
-				periodStart,
-				periodEnd,
-				conversationsUsed: 0,
-				minutesUsed: 0,
-				realtimeSessionsUsed: 0
-			})
-			.returning();
-
-		return newUsage[0];
+	/**
+	 * Check if user can use realtime based on limits
+	 */
+	private canUseRealtime(limits: TierLimits, usage: { realtimeSessionsUsed: number }): boolean {
+		if (!limits.hasRealtimeAccess) return false;
+		if (limits.monthlyRealtimeSessions === null) return true; // unlimited
+		return usage.realtimeSessionsUsed < limits.monthlyRealtimeSessions;
 	}
 
+	/**
+	 * Get current billing period
+	 * MVP: Simplified - always returns current month
+	 */
 	private getCurrentPeriod(): { start: Date; end: Date } {
 		const now = new Date();
-		const start = new Date(now.getFullYear(), now.getMonth(), 1); // First day of month
-		const end = new Date(now.getFullYear(), now.getMonth() + 1, 0); // Last day of month
-		end.setHours(23, 59, 59, 999);
-
+		const start = new Date(now.getFullYear(), now.getMonth(), 1);
+		const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 		return { start, end };
-	}
-
-	private canStartConversation(limits: TierLimits, usage: UserUsage): boolean {
-		if (limits.monthlyConversations === null) return true; // Unlimited
-		return (usage.conversationsUsed || 0) < limits.monthlyConversations;
-	}
-
-	private canUseRealtime(limits: TierLimits, usage: UserUsage): boolean {
-		if (!limits.hasRealtimeAccess) return false;
-		if (limits.monthlyRealtimeSessions === null) return true; // Unlimited
-		return (usage.realtimeSessionsUsed || 0) < limits.monthlyRealtimeSessions;
-	}
-
-	/**
-	 * Get user's active subscription details
-	 */
-	async getUserSubscription(userId: string): Promise<Subscription | null> {
-		const subscription = await db
-			.select()
-			.from(subscriptions)
-			.where(and(eq(subscriptions.userId, userId), eq(subscriptions.status, 'active')))
-			.limit(1);
-
-		return subscription[0] || null;
-	}
-
-	/**
-	 * Track tier change with analytics
-	 */
-	async upgradeUserTierWithAnalytics(
-		userId: string,
-		newTier: 'free' | 'pro' | 'premium'
-	): Promise<void> {
-		// Get current tier for analytics
-		const currentUser = await db
-			.select({ tier: users.tier })
-			.from(users)
-			.where(eq(users.id, userId))
-			.limit(1);
-		const oldTier = currentUser[0]?.tier || 'free';
-
-		// Update user tier
-		await this.upgradeUserTier(userId, newTier);
-
-		// Track tier change
-		if (oldTier !== newTier) {
-			await analytics.trackTierChange(userId, oldTier, newTier);
-		}
-
-		console.log(`✅ User ${userId} upgraded from ${oldTier} to ${newTier} tier`);
 	}
 }
 

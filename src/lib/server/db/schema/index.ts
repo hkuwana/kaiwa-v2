@@ -20,6 +20,10 @@ export { tiers } from './tiers';
 export { subscriptions } from './subscriptions';
 export { payments } from './payments';
 
+// Usage tracking and analytics
+export { userUsage } from './userUsage';
+export { conversationSessions } from './conversationSessions';
+
 // Note: Advanced schemas moved to /v2 for future implementation:
 // - userLearningStats, vocabularyProgress, scenarioAttempts, etc.
 // - These will be added back as the app grows beyond MVP

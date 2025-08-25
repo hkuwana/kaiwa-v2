@@ -1,16 +1,16 @@
 // 📈 Server-Side Analytics Service
 // Tracks events to database and PostHog for comprehensive analytics
 
-import { db } from './db/index';
-import { analyticsEvents } from './db/schema';
-import { eq } from 'drizzle-orm';
+// import { db } from './db/index'; // Not used in MVP version
+// import { analyticsEvents } from './db/schema'; // Not available in MVP schema
+// import { eq } from 'drizzle-orm'; // Not used in MVP version
 
 // PostHog server-side tracking
 const POSTHOG_API_KEY = process.env.POSTHOG_API_KEY;
 const POSTHOG_HOST = process.env.POSTHOG_HOST || 'https://us.i.posthog.com';
 
 interface EventProperties {
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 interface EventContext {
@@ -30,8 +30,8 @@ export class AnalyticsService {
 		properties?: EventProperties,
 		context?: EventContext
 	): Promise<void> {
-		// Store in database
-		await this.trackToDatabase(eventName, userId, properties, context);
+		// Database tracking disabled in MVP - table not available
+		// await this.trackToDatabase(eventName, userId, properties, context);
 
 		// Send to PostHog if configured
 		if (POSTHOG_API_KEY) {
@@ -91,7 +91,7 @@ export class AnalyticsService {
 			feature: string;
 			duration?: number;
 			count?: number;
-			metadata?: Record<string, any>;
+			metadata?: Record<string, unknown>;
 		},
 		context?: EventContext
 	): Promise<void> {
@@ -110,7 +110,9 @@ export class AnalyticsService {
 
 	/**
 	 * Store event in database
+	 * DISABLED in MVP - analyticsEvents table not available
 	 */
+	/*
 	private async trackToDatabase(
 		eventName: string,
 		userId?: string,
@@ -131,6 +133,7 @@ export class AnalyticsService {
 			console.error('Failed to track event to database:', error);
 		}
 	}
+	*/
 
 	/**
 	 * Send event to PostHog
@@ -174,7 +177,9 @@ export class AnalyticsService {
 
 	/**
 	 * Get analytics summary for a user
+	 * DISABLED in MVP - analyticsEvents table not available
 	 */
+	/*
 	async getUserAnalytics(userId: string): Promise<{
 		totalEvents: number;
 		conversionEvents: number;
@@ -218,6 +223,7 @@ export class AnalyticsService {
 			topEvents
 		};
 	}
+	*/
 
 	/**
 	 * Helper: Check if tier change is an upgrade

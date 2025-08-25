@@ -30,7 +30,7 @@ export const userRepository = {
 	},
 
 	async findUsersByTier(tier: 'free' | 'pro' | 'premium'): Promise<User[]> {
-		return db.query.users.findMany({ where: eq(users.tier, tier) });
+		return db.query.users.findMany({ where: eq(users.defaultTier, tier) });
 	},
 
 	// UPDATE
@@ -40,20 +40,24 @@ export const userRepository = {
 	},
 
 	async updateUserTier(id: string, tier: 'free' | 'pro' | 'premium'): Promise<User | undefined> {
-		const [updatedUser] = await db.update(users).set({ tier }).where(eq(users.id, id)).returning();
+		const [updatedUser] = await db
+			.update(users)
+			.set({ defaultTier: tier })
+			.where(eq(users.id, id))
+			.returning();
 		return updatedUser;
 	},
 
-	async updateUserSubscriptionStatus(
+	async updateUserStripeCustomerId(
 		id: string,
-		subscriptionStatus: 'active' | 'canceled' | 'past_due' | 'trialing',
-		subscriptionId?: string
+		stripeCustomerId: string
 	): Promise<User | undefined> {
 		const [updatedUser] = await db
 			.update(users)
-			.set({ subscriptionStatus, subscriptionId })
+			.set({ stripeCustomerId })
 			.where(eq(users.id, id))
 			.returning();
+
 		return updatedUser;
 	},
 
@@ -63,6 +67,7 @@ export const userRepository = {
 			.set({ lastUsage: new Date() })
 			.where(eq(users.id, id))
 			.returning();
+
 		return updatedUser;
 	},
 

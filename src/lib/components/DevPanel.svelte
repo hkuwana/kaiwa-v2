@@ -1,5 +1,6 @@
 <!-- 🧪 Clean DevPanel for PR #2 & #3 Testing -->
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { onMount, onDestroy, setContext, getContext } from 'svelte';
 	import { audioService } from '$lib/services/audio.service';
 	import type { RealtimeService } from '$lib/services';
@@ -21,6 +22,11 @@
 
 	const conversationStore = getContext('conversation') as ConversationStore;
 	const realtimeService = getContext('realtime') as RealtimeService;
+
+	// Navigation functions
+	function goToUsageTesting() {
+		goto('/dev/usage-test');
+	}
 
 	// PR #2 Tests - Individual Services
 	async function testAudioService() {
@@ -225,6 +231,16 @@
 		</p>
 		<button onclick={clearResults} class="btn btn-outline btn-sm"> 🧹 Clear Results </button>
 	</header>
+
+	<!-- Navigation -->
+	<div class="card mb-6 bg-base-100 shadow-md">
+		<div class="card-body">
+			<h3 class="card-title text-lg">🧭 Navigation</h3>
+			<div class="flex gap-2">
+				<button onclick={goToUsageTesting} class="btn btn-primary"> 📊 Usage Testing </button>
+			</div>
+		</div>
+	</div>
 
 	<!-- Test Results Summary -->
 	<div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">

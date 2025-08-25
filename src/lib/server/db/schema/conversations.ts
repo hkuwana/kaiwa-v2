@@ -24,7 +24,7 @@ export const conversations = pgTable(
 
 		// Usage tracking
 		messageCount: integer('message_count').default(0),
-		audioMinutes: decimal('audio_minutes', { precision: 8, scale: 2 }).default('0'),
+		audioSeconds: decimal('audio_seconds', { precision: 8, scale: 2 }).default('0'), // Changed from audio_minutes
 
 		// Basic comfort/engagement tracking
 		comfortRating: integer('comfort_rating'), // 1-5 scale from user feedback

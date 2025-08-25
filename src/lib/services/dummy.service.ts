@@ -132,8 +132,44 @@ export class DummyRealtimeService {
 	}
 
 	disconnect(): void {
-		// Do nothing on the server
 		console.log('🔇 DummyRealtimeService: disconnect() called on server');
-		return;
+	}
+
+	forceDisconnect(): void {
+		console.log('🧹 DummyRealtimeService: forceDisconnect() called on server');
+	}
+
+	// Add missing methods to match the interface
+	pauseStreaming(): void {
+		console.log('🔇 DummyRealtimeService: pauseStreaming() called on server');
+	}
+
+	resumeStreaming(): void {
+		console.log('🔇 DummyRealtimeService: resumeStreaming() called on server');
+	}
+
+	isStreamingPaused(): boolean {
+		console.log('🔇 DummyRealtimeService: isStreamingPaused() called on server');
+		return false;
+	}
+
+	getStreamingPausedState(): boolean {
+		console.log('🔇 DummyRealtimeService: getStreamingPausedState() called on server');
+		return false;
+	}
+
+	getConnectionStatus(): {
+		peerConnectionState: string;
+		dataChannelState: string;
+		isStreamingPaused: boolean;
+		hasLocalStream: boolean;
+	} {
+		console.log('🔇 DummyRealtimeService: getConnectionStatus() called on server');
+		return {
+			peerConnectionState: 'disconnected',
+			dataChannelState: 'closed',
+			isStreamingPaused: false,
+			hasLocalStream: false
+		};
 	}
 }

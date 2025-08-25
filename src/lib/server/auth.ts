@@ -6,9 +6,9 @@ import { db } from './db';
 import { session as sessionTable } from './db/schema';
 import type { Session } from './db/types';
 import { users } from './db/schema';
-import { userUsage } from './db/schema';
-import { languages } from './db/schema';
-import { tiers } from './db/schema';
+// import { userUsage } from './db/schema'; // Not available in MVP schema
+// import { languages } from './db/schema'; // Not used in MVP version
+// import { tiers } from './db/schema'; // Not used in MVP version
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
@@ -48,9 +48,9 @@ export async function validateSessionToken(token: string) {
 				avatarUrl: users.avatarUrl,
 				nativeLanguageId: users.nativeLanguageId,
 				preferredUILanguageId: users.preferredUILanguageId,
-				tier: users.tier,
-				subscriptionStatus: users.subscriptionStatus,
-				subscriptionExpiresAt: users.subscriptionExpiresAt,
+				// tier: users.tier, // Not available in MVP schema
+				// subscriptionStatus: users.subscriptionStatus, // Not available in MVP schema
+				// subscriptionExpiresAt: users.subscriptionExpiresAt, // Not available in MVP schema
 				createdAt: users.createdAt,
 				lastUsage: users.lastUsage
 			},
@@ -86,6 +86,8 @@ export async function validateSessionToken(token: string) {
 }
 
 // Enhanced function to get full user context including tier limits and usage
+// DISABLED in MVP - tier and userUsage fields not available in current schema
+/*
 export async function getUserContext(userId: string) {
 	try {
 		// Get user with tier information
@@ -104,7 +106,6 @@ export async function getUserContext(userId: string) {
 		// Get current usage for this month
 		const now = new Date();
 		const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-		// const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
 		const [usageResult] = await db
 			.select()
@@ -154,10 +155,10 @@ export async function getUserContext(userId: string) {
 		return null;
 	}
 }
+*/
 
 export type SessionValidationResult = Awaited<ReturnType<typeof validateSessionToken>>;
-export type UserContext = Awaited<ReturnType<typeof getUserContext>>;
-
+// export type UserContext = Awaited<ReturnType<typeof getUserContext>>; // getUserContext disabled in MVP
 export async function invalidateSession(sessionId: string) {
 	await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
 }
