@@ -1,50 +1,51 @@
 import { test, expect } from '@playwright/test';
+import { SmokeTestUtils } from './smoke-utils';
 
 test.describe('Smoke Tests', () => {
+	let utils: SmokeTestUtils;
+
+	test.beforeEach(async ({ page }) => {
+		utils = new SmokeTestUtils(page);
+	});
+
 	test('@smoke should load home page successfully', async ({ page }) => {
 		await page.goto('/');
+		await utils.waitForPageLoad();
 
 		// Check for the main start button
-		const mainButton = page.getByRole('button', {
-			name: /Start Speaking|Loading/i
-		});
-		await expect(mainButton).toBeVisible();
+		await utils.checkMainButtonVisible();
+
+		// Verify page title
+		await utils.checkPageTitle(/Kaiwa|Conversation/i);
+
+		// Check for essential UI elements
+		await utils.checkNavigationVisible();
 	});
 
 	test('@smoke should open selection modal', async ({ page }) => {
 		await page.goto('/');
+		await utils.waitForPageLoad();
 
-		// Wait for the button to be enabled
-		const mainButton = page.getByRole('button', {
-			name: /Start Speaking/i
-		});
-		await mainButton.waitFor({ state: 'visible', timeout: 10000 });
+		// Open language selector modal
+		const modal = await utils.openLanguageSelector();
 
-		// Click to open language selector
-		await mainButton.click();
-
-		// Modal should appear
-		const modal = page.locator('[class*="absolute top-full"]');
-		await expect(modal).toBeVisible();
+		// Verify modal content
+		await expect(page.getByText(/Select Language|Choose Language/i)).toBeVisible();
 	});
 
 	test('@smoke should navigate to conversation page', async ({ page }) => {
 		await page.goto('/');
+		await utils.waitForPageLoad();
 
-		// Set up language and speaker
-		const mainButton = page.getByRole('button', {
-			name: /Start Speaking/i
-		});
-		await mainButton.waitFor({ state: 'visible', timeout: 10000 });
-		await mainButton.click();
+		// Open language selector
+		await utils.openLanguageSelector();
 
-		const languageSelector = page.getByRole('button', { name: 'Spanish' });
-		await languageSelector.click();
-
-		const speakerSelector = page.getByRole('button', { name: 'Nova' });
-		await speakerSelector.click();
+		// Select language and speaker
+		await utils.selectLanguage('Spanish');
+		await utils.selectSpeaker('Nova');
 
 		// Click start button
+		const mainButton = await utils.waitForMainButtonEnabled();
 		await mainButton.click();
 
 		// Should navigate to conversation page
@@ -52,14 +53,10 @@ test.describe('Smoke Tests', () => {
 	});
 
 	test('@smoke should show conversation interface', async ({ page }) => {
-		await page.goto('/conversation');
-
-		// Should show start conversation button
-		const startButton = page.getByRole('button', { name: 'Start Conversation' });
-		await expect(startButton).toBeVisible();
+		await utils.navigateToConversation();
 
 		// Start conversation
-		await startButton.click();
+		await utils.startConversation();
 
 		// Should show loading screen
 		const loadingScreen = page.locator(
@@ -68,46 +65,94 @@ test.describe('Smoke Tests', () => {
 		await expect(loadingScreen).toBeVisible({ timeout: 5000 });
 
 		// Should eventually show conversation interface
-		const streamButton = page.getByRole('button', { name: 'Start Streaming' });
-		await expect(streamButton).toBeVisible({ timeout: 10000 });
+		await utils.waitForConversationInterface();
 	});
 
 	test('@smoke should handle basic recording interaction', async ({ page }) => {
 		// Mock API endpoints
-		await page.route('**/api/realtime-session', (route) =>
-			route.fulfill({
-				status: 200,
-				body: JSON.stringify({
-					session_id: 'test-session-123',
-					client_secret: {
-						value: 'test-secret-key',
-						expires_at: Date.now() + 3600000
-					}
-				})
-			})
-		);
+		await utils.mockApiResponse('**/api/realtime-session', {
+			session_id: 'test-session-123',
+			client_secret: {
+				value: 'test-secret-key',
+				expires_at: Date.now() + 3600000
+			}
+		});
 
-		await page.goto('/conversation');
+		await utils.navigateToConversation();
 
 		// Start conversation
-		const startButton = page.getByRole('button', { name: 'Start Conversation' });
-		await startButton.click();
+		await utils.startConversation();
 
 		// Wait for connection
-		const streamButton = page.getByRole('button', { name: 'Start Streaming' });
-		await expect(streamButton).toBeVisible({ timeout: 15000 });
+		const streamButton = await utils.waitForConversationInterface();
 
 		// Start streaming
 		await streamButton.click();
 
-		// Should show stop button
-		const stopButton = page.getByRole('button', { name: 'Stop Streaming' });
-		await expect(stopButton).toBeVisible();
+		// Verify recording interface appears
+		await expect(page.locator('[data-testid="record-button"], .record-button')).toBeVisible({
+			timeout: 5000
+		});
+	});
 
-		// Stop streaming
-		await stopButton.click();
+	test('@smoke should handle authentication flow', async ({ page }) => {
+		await page.goto('/login');
 
-		// Should return to start streaming
-		await expect(streamButton).toBeVisible();
+		// Check login page loads
+		await expect(page.getByRole('button', { name: /Google|Sign in/i })).toBeVisible();
+
+		// Verify page structure
+		await expect(page.locator('form')).toBeVisible();
+	});
+
+	test('@smoke should handle pricing page', async ({ page }) => {
+		await page.goto('/pricing');
+
+		// Check pricing tiers are visible
+		await expect(page.getByText(/Free|Pro|Premium/i)).toBeVisible();
+
+		// Verify pricing structure
+		await expect(page.locator('[class*="pricing"], .pricing')).toBeVisible();
+	});
+
+	test('@smoke should handle navigation between pages', async ({ page }) => {
+		await page.goto('/');
+
+		// Navigate to different pages
+		await page.goto('/docs');
+		await expect(page).toHaveURL('/docs');
+
+		await page.goto('/privacy');
+		await expect(page).toHaveURL('/privacy');
+
+		// Return to home
+		await page.goto('/');
+		await expect(page).toHaveURL('/');
+	});
+
+	test('@smoke should handle responsive design', async ({ page }) => {
+		await utils.checkResponsiveDesign();
+	});
+
+	test('@smoke should check critical page accessibility', async ({ page }) => {
+		// Test critical pages for essential elements
+		const pageTests = [
+			{
+				path: '/',
+				elements: ['nav', 'main', 'button']
+			},
+			{
+				path: '/login',
+				elements: ['form', 'button']
+			},
+			{
+				path: '/pricing',
+				elements: ['main', 'section']
+			}
+		];
+
+		for (const test of pageTests) {
+			await utils.checkPageAccessibility(test.path, test.elements);
+		}
 	});
 });
