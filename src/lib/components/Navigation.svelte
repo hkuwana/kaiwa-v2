@@ -1,0 +1,63 @@
+<script lang="ts">
+	import { page } from '$app/state';
+
+	// Get user data from page data
+	const user = page.data.user;
+</script>
+
+<nav class="navbar bg-base-100 shadow-sm">
+	<div class="navbar-start">
+		<div class="dropdown">
+			<div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-5 w-5"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M4 6h16M4 12h8m-8 6h16"
+					/>
+				</svg>
+			</div>
+			<ul
+				tabindex="0"
+				class="dropdown-content menu z-[1] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
+			>
+				<li><a href="/pricing" class="text-base-content">Pricing</a></li>
+				<li><a href="/privacy" class="text-base-content">Privacy</a></li>
+			</ul>
+		</div>
+		<a href="/" class="btn text-xl text-base-content btn-ghost">Kaiwa</a>
+	</div>
+	<div class="navbar-center hidden lg:flex">
+		<ul class="menu menu-horizontal px-1">
+			<li><a href="/pricing" class="text-base-content">Pricing</a></li>
+			<li><a href="/privacy" class="text-base-content">Privacy</a></li>
+		</ul>
+	</div>
+	<div class="navbar-end">
+		{#if user}
+			<div class="dropdown dropdown-end">
+				<div tabindex="0" role="button" class="btn avatar btn-circle btn-ghost">
+					<div class="w-10 rounded-full">
+						<img alt="User avatar" src={user.avatarUrl || '/default-avatar.png'} />
+					</div>
+				</div>
+				<ul
+					tabindex="0"
+					class="dropdown-content menu z-[1] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
+				>
+					<li><a href="/conversation" class="text-base-content">Start Practice</a></li>
+					<li><a href="/logout" class="text-base-content">Logout</a></li>
+				</ul>
+			</div>
+		{:else}
+			<a href="/login" class="btn btn-outline btn-primary">Get Started</a>
+		{/if}
+	</div>
+</nav>

@@ -34,6 +34,14 @@ export interface TranscriptionEvent {
 	timestamp: Date;
 }
 
+// New interface for realtime connection updates
+export interface RealtimeConnectionUpdate {
+	type: 'connection_status' | 'audio_state' | 'vad_state' | 'user_activity' | 'custom_event';
+	status: string;
+	data?: unknown;
+	timestamp: Date;
+}
+
 export class RealtimeService {
 	private pc: RTCPeerConnection | null = null;
 	private dataChannel: RTCDataChannel | null = null;
@@ -44,9 +52,16 @@ export class RealtimeService {
 	private onMessageCallback: (message: Message) => void = () => {};
 	private onConnectionStateChangeCallback: (state: RTCPeerConnectionState) => void = () => {};
 	private onTranscriptionCallback: (event: TranscriptionEvent) => void = () => {};
+	private onConnectionUpdateCallback: (update: RealtimeConnectionUpdate) => void = () => {};
 	private sessionConfig: RealtimeSession['config'] | null = null;
 	private isStreamingPaused: boolean = false;
 	private localStream: MediaStream | null = null;
+
+	// Enhanced VAD state tracking
+	private isUserSpeaking: boolean = false;
+	private isAISpeaking: boolean = false;
+	private lastVADEvent: Date = new Date();
+	private vadTimeout: NodeJS.Timeout | null = null;
 
 	// Timer service integration removed - now handled by conversation store
 
@@ -70,17 +85,20 @@ export class RealtimeService {
 		onMessage: (message: Message) => void,
 		onConnectionStateChange: (state: RTCPeerConnectionState) => void,
 		onTranscription?: (event: TranscriptionEvent) => void,
+		onConnectionUpdate?: (update: RealtimeConnectionUpdate) => void,
 		sessionConfig?: RealtimeSession['config']
 	): Promise<void> {
 		this.onMessageCallback = onMessage;
 		this.onConnectionStateChangeCallback = onConnectionStateChange;
 		this.onTranscriptionCallback = onTranscription || (() => {});
+		this.onConnectionUpdateCallback = onConnectionUpdate || (() => {});
 		this.sessionConfig = sessionConfig || null;
 		this.localStream = stream;
 
 		try {
 			// Notify that we're starting to connect
 			this.onConnectionStateChangeCallback('connecting');
+			this.sendConnectionUpdate('connection_status', 'connecting');
 
 			// Step 1: Use the session data directly - no need to fetch anything
 			this.ephemeralKey = sessionData.client_secret.value;
@@ -168,6 +186,7 @@ export class RealtimeService {
 			console.log('📡 Data channel opened - connection fully established!');
 			// Notify that we're fully connected
 			this.onConnectionStateChangeCallback('connected');
+			this.sendConnectionUpdate('connection_status', 'connected');
 
 			// Timer management now handled by conversation store
 			console.log('⏰ Connection established - timer should be started by conversation store');
@@ -218,6 +237,7 @@ export class RealtimeService {
 		this.dataChannel.onerror = (error) => {
 			console.error('❌ Data channel error:', error);
 			this.onConnectionStateChangeCallback('failed');
+			this.sendConnectionUpdate('connection_status', 'failed');
 
 			// Timer stop now handled by conversation store
 			console.log('❌ Data channel error - timer should be stopped by conversation store');
@@ -226,6 +246,7 @@ export class RealtimeService {
 		this.dataChannel.onclose = () => {
 			console.log('📡 Data channel closed');
 			this.onConnectionStateChangeCallback('closed');
+			this.sendConnectionUpdate('connection_status', 'closed');
 
 			// Timer stop now handled by conversation store
 			console.log('📡 Data channel closed - timer should be stopped by conversation store');
@@ -314,13 +335,49 @@ export class RealtimeService {
 
 		// Handle different types of server events
 		switch (event.type) {
-			// New: Handle user speech transcription events
+			// Enhanced VAD handling for smoother conversations
 			case 'input_audio_buffer.speech_started':
 				console.log('🎤 User started speaking');
+				this.isUserSpeaking = true;
+				this.lastVADEvent = new Date();
+				this.sendConnectionUpdate('vad_state', 'user_speaking');
+
+				// Automatically pause local audio input when user starts speaking
+				// This ensures the computer can listen clearly without echo
+				this.pauseLocalAudioInput();
 				break;
 
 			case 'input_audio_buffer.speech_stopped':
 				console.log('🎤 User stopped speaking');
+				this.isUserSpeaking = false;
+				this.lastVADEvent = new Date();
+				this.sendConnectionUpdate('vad_state', 'user_silent');
+
+				// Resume local audio input after a short delay to allow for processing
+				this.scheduleAudioInputResume();
+				break;
+
+			case 'response.audio.delta':
+				// AI is starting to speak
+				if (!this.isAISpeaking) {
+					console.log('🤖 AI started speaking');
+					this.isAISpeaking = true;
+					this.sendConnectionUpdate('audio_state', 'ai_speaking');
+
+					// Pause local audio input when AI starts speaking
+					// This prevents the user from talking over the AI
+					this.pauseLocalAudioInput();
+				}
+				break;
+
+			case 'response.audio.done':
+				// AI finished speaking
+				console.log('🤖 AI finished speaking');
+				this.isAISpeaking = false;
+				this.sendConnectionUpdate('audio_state', 'ai_silent');
+
+				// Resume local audio input after AI finishes
+				this.resumeLocalAudioInput();
 				break;
 
 			case 'conversation.item.input_audio_transcription.completed':
@@ -344,11 +401,17 @@ export class RealtimeService {
 						audioUrl: null
 					};
 					this.onMessageCallback(userMessage);
+
+					// Send user activity update
+					this.sendConnectionUpdate('user_activity', 'message_received', {
+						transcript: event.transcript
+					});
 				}
 				break;
 
 			case 'conversation.item.input_audio_transcription.failed':
 				console.error('❌ User transcription failed:', event.error);
+				this.sendConnectionUpdate('vad_state', 'transcription_failed', { error: event.error });
 				break;
 
 			// Enhanced: Handle assistant speech transcription
@@ -461,13 +524,6 @@ export class RealtimeService {
 				break;
 			}
 
-			case 'response.audio.done': {
-				// Handle audio completion event
-				console.log('🎵 Audio response completed:', event);
-				// You can add additional audio completion logic here if needed
-				break;
-			}
-
 			case 'response.output_item.done': {
 				// Handle output item completion
 				console.log('📤 Output item completed:', event);
@@ -506,66 +562,108 @@ export class RealtimeService {
 		}
 	}
 
-	private scheduleReconnect(): void {
-		if (this.reconnectTimer) {
-			clearTimeout(this.reconnectTimer);
+	// New method: Send connection updates to realtime connections
+	private sendConnectionUpdate(type: string, status: string, data?: unknown): void {
+		const update: RealtimeConnectionUpdate = {
+			type: type as RealtimeConnectionUpdate['type'],
+			status,
+			data,
+			timestamp: new Date()
+		};
+
+		console.log('📡 Sending connection update:', update);
+		this.onConnectionUpdateCallback(update);
+	}
+
+	// New method: Pause local audio input (mutes microphone)
+	private pauseLocalAudioInput(): void {
+		if (!this.localStream) return;
+
+		try {
+			this.localStream.getAudioTracks().forEach((track) => {
+				if (track.enabled) {
+					track.enabled = false;
+					console.log('🎤 Local audio input paused');
+				}
+			});
+		} catch (error) {
+			console.error('❌ Failed to pause local audio input:', error);
+		}
+	}
+
+	// New method: Resume local audio input (unmutes microphone)
+	private resumeLocalAudioInput(): void {
+		if (!this.localStream) return;
+
+		try {
+			this.localStream.getAudioTracks().forEach((track) => {
+				if (!track.enabled) {
+					track.enabled = true;
+					console.log('🎤 Local audio input resumed');
+				}
+			});
+		} catch (error) {
+			console.error('❌ Failed to resume local audio input:', error);
+		}
+	}
+
+	// New method: Schedule audio input resume with delay
+	private scheduleAudioInputResume(): void {
+		// Clear any existing timeout
+		if (this.vadTimeout) {
+			clearTimeout(this.vadTimeout);
 		}
 
-		// Only schedule reconnect if we have a valid expiry time
-		if (this.sessionExpiry <= Date.now()) {
-			console.log('⚠️ Session already expired, not scheduling reconnect');
-			return;
-		}
-
-		const timeUntilExpiry = this.sessionExpiry - Date.now();
-		const reconnectIn = Math.max(0, timeUntilExpiry - 10000); // 10 seconds before expiry
-
-		console.log(
-			`🔄 Scheduling reconnect in ${Math.round(reconnectIn / 1000)}s (expires in ${Math.round(timeUntilExpiry / 1000)}s)`
-		);
-
-		this.reconnectTimer = setTimeout(() => {
-			console.log('🔄 Token expiring, reconnecting...');
-			this.reconnect();
-		}, reconnectIn);
+		// Resume audio input after a short delay to allow for processing
+		// This prevents rapid on/off switching during speech detection
+		this.vadTimeout = setTimeout(() => {
+			if (!this.isUserSpeaking && !this.isAISpeaking) {
+				this.resumeLocalAudioInput();
+			}
+		}, 500); // 500ms delay
 	}
 
-	private async reconnect(): Promise<void> {
-		// For MVP, just cleanup and let the UI handle reconnection
-		this.cleanup();
+	// Enhanced method: Get detailed VAD and audio state
+	getVADState(): {
+		isUserSpeaking: boolean;
+		isAISpeaking: boolean;
+		lastVADEvent: Date;
+		isStreamingPaused: boolean;
+	} {
+		return {
+			isUserSpeaking: this.isUserSpeaking,
+			isAISpeaking: this.isAISpeaking,
+			lastVADEvent: this.lastVADEvent,
+			isStreamingPaused: this.isStreamingPaused
+		};
 	}
 
-	// Timer management removed - now handled by conversation store
-
-	isConnected(): boolean {
-		return this.pc?.connectionState === 'connected' && this.dataChannel?.readyState === 'open';
-	}
-
-	getConnectionState(): string {
-		return this.pc?.connectionState || 'disconnected';
-	}
-
-	// New method: Check if streaming is paused
-	getStreamingPausedState(): boolean {
-		return this.isStreamingPaused;
-	}
-
-	// New method: Get detailed connection status
+	// Enhanced method: Get comprehensive connection status
 	getConnectionStatus(): {
 		peerConnectionState: string;
 		dataChannelState: string;
 		isStreamingPaused: boolean;
 		hasLocalStream: boolean;
+		vadState: {
+			isUserSpeaking: boolean;
+			isAISpeaking: boolean;
+			lastVADEvent: Date;
+		};
 	} {
 		return {
 			peerConnectionState: this.pc?.connectionState || 'disconnected',
 			dataChannelState: this.dataChannel?.readyState || 'closed',
 			isStreamingPaused: this.isStreamingPaused,
-			hasLocalStream: !!this.localStream
+			hasLocalStream: !!this.localStream,
+			vadState: {
+				isUserSpeaking: this.isUserSpeaking,
+				isAISpeaking: this.isAISpeaking,
+				lastVADEvent: this.lastVADEvent
+			}
 		};
 	}
 
-	// New method: Pause streaming without disconnecting
+	// Enhanced method: Pause streaming without disconnecting
 	pauseStreaming(): void {
 		if (!this.isConnected() || this.isStreamingPaused) return;
 
@@ -587,13 +685,14 @@ export class RealtimeService {
 			}
 
 			this.isStreamingPaused = true;
+			this.sendConnectionUpdate('audio_state', 'streaming_paused');
 			console.log('✅ Streaming paused');
 		} catch (error) {
 			console.error('❌ Failed to pause streaming:', error);
 		}
 	}
 
-	// New method: Resume streaming
+	// Enhanced method: Resume streaming
 	resumeStreaming(): void {
 		if (!this.isConnected() || !this.isStreamingPaused) return;
 
@@ -608,10 +707,21 @@ export class RealtimeService {
 			}
 
 			this.isStreamingPaused = false;
+			this.sendConnectionUpdate('audio_state', 'streaming_resumed');
 			console.log('✅ Streaming resumed');
 		} catch (error) {
 			console.error('❌ Failed to resume streaming:', error);
 		}
+	}
+
+	// New method: Send custom events to realtime connections
+	sendCustomEvent(eventType: string, data?: unknown): void {
+		this.sendConnectionUpdate('custom_event', eventType, data);
+	}
+
+	// New method: Send user activity updates
+	sendUserActivity(activity: string, data?: unknown): void {
+		this.sendConnectionUpdate('user_activity', activity, data);
 	}
 
 	// Enhanced disconnect method following OpenAI's best practices
@@ -665,6 +775,12 @@ export class RealtimeService {
 				this.reconnectTimer = null;
 			}
 
+			// Clear VAD timeout
+			if (this.vadTimeout) {
+				clearTimeout(this.vadTimeout);
+				this.vadTimeout = null;
+			}
+
 			// Timer stop now handled by conversation store
 			console.log('🧹 Force disconnect - timer should be stopped by conversation store');
 
@@ -674,6 +790,9 @@ export class RealtimeService {
 			this.sessionConfig = null;
 			this.localStream = null;
 			this.isStreamingPaused = false;
+			this.isUserSpeaking = false;
+			this.isAISpeaking = false;
+			this.lastVADEvent = new Date();
 
 			console.log('✅ Force disconnect complete');
 		} catch (error) {
@@ -689,6 +808,12 @@ export class RealtimeService {
 		if (this.reconnectTimer) {
 			clearTimeout(this.reconnectTimer);
 			this.reconnectTimer = null;
+		}
+
+		// Clear VAD timeout
+		if (this.vadTimeout) {
+			clearTimeout(this.vadTimeout);
+			this.vadTimeout = null;
 		}
 
 		// Timer stop now handled by conversation store
@@ -727,8 +852,56 @@ export class RealtimeService {
 		this.sessionExpiry = 0;
 		this.isStreamingPaused = false;
 		this.localStream = null;
+		this.isUserSpeaking = false;
+		this.isAISpeaking = false;
+		this.lastVADEvent = new Date();
 
 		console.log('✅ WebRTC cleanup complete');
+	}
+
+	// Add missing methods that were referenced but not defined
+	private scheduleReconnect(): void {
+		if (this.reconnectTimer) {
+			clearTimeout(this.reconnectTimer);
+		}
+
+		// Only schedule reconnect if we have a valid expiry time
+		if (this.sessionExpiry <= Date.now()) {
+			console.log('⚠️ Session already expired, not scheduling reconnect');
+			return;
+		}
+
+		const timeUntilExpiry = this.sessionExpiry - Date.now();
+		const reconnectIn = Math.max(0, timeUntilExpiry - 10000); // 10 seconds before expiry
+
+		console.log(
+			`🔄 Scheduling reconnect in ${Math.round(reconnectIn / 1000)}s (expires in ${Math.round(timeUntilExpiry / 1000)}s)`
+		);
+
+		this.reconnectTimer = setTimeout(() => {
+			console.log('🔄 Token expiring, reconnecting...');
+			this.reconnect();
+		}, reconnectIn);
+	}
+
+	private async reconnect(): Promise<void> {
+		// For MVP, just cleanup and let the UI handle reconnection
+		this.cleanup();
+	}
+
+	// Timer management removed - now handled by conversation store
+
+	isConnected(): boolean {
+		return this.pc?.connectionState === 'connected' && this.dataChannel?.readyState === 'open';
+	}
+
+	getConnectionState(): string {
+		return this.pc?.connectionState || 'disconnected';
+	}
+
+	// New method: Check if streaming is paused
+	getStreamingPausedState(): boolean {
+		return this.isStreamingPaused;
 	}
 }
 

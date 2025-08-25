@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { posthogManager } from '$lib/client/posthog';
-	import { userManager } from '$lib/stores/userManager.svelte';
+	import { userManager } from '$lib/stores/user.store.svelte';
 	import { SubscriptionTier } from '$lib/enums.js';
 	import { defaultTierConfigs, type UserTier } from '$lib/data/tiers';
 
