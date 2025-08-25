@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import type { RealtimeConnectionUpdate } from '$lib/services/realtime.service';
 	import { realtimeService } from '$lib/services/realtime.service';
 
 	// Props
@@ -14,7 +13,7 @@
 		lastVADEvent: new Date()
 	};
 	let audioState = 'idle';
-	let connectionUpdates: RealtimeConnectionUpdate[] = [];
+
 	let isConnected = false;
 
 	// Update connection status
@@ -28,48 +27,9 @@
 		isConnected = realtimeService.isConnected();
 	}
 
-	// Handle connection updates from the realtime service
-	function handleConnectionUpdate(update: RealtimeConnectionUpdate) {
-		console.log('📡 Connection update received:', update);
-
-		// Add to updates list (keep last 10)
-		connectionUpdates = [update, ...connectionUpdates.slice(0, 9)];
-
-		// Update local state based on update type
-		switch (update.type) {
-			case 'connection_status':
-				connectionStatus = update.status;
-				break;
-			case 'vad_state':
-				if (update.status === 'user_speaking') {
-					vadState.isUserSpeaking = true;
-				} else if (update.status === 'user_silent') {
-					vadState.isUserSpeaking = false;
-				}
-				vadState.lastVADEvent = update.timestamp;
-				break;
-			case 'audio_state':
-				audioState = update.status;
-				if (update.status === 'ai_speaking') {
-					vadState.isAISpeaking = true;
-				} else if (update.status === 'ai_silent') {
-					vadState.isAISpeaking = false;
-				}
-				break;
-		}
-
-		// Update connection status
-		updateConnectionStatus();
-	}
-
 	// Start monitoring connection
 	function startMonitoring() {
 		if (sessionId) {
-			// Set up connection update callback if available
-			if ('onConnectionUpdateCallback' in realtimeService) {
-				(realtimeService as any).onConnectionUpdateCallback = handleConnectionUpdate;
-			}
-
 			// Initial status update
 			updateConnectionStatus();
 
@@ -90,16 +50,8 @@
 	});
 
 	onDestroy(() => {
-		// Clean up callback if available
-		if ('onConnectionUpdateCallback' in realtimeService) {
-			(realtimeService as any).onConnectionUpdateCallback = () => {};
-		}
+		// Cleanup handled by the service
 	});
-
-	// Format timestamp
-	function formatTime(date: Date): string {
-		return date.toLocaleTimeString();
-	}
 
 	// Get status color
 	function getStatusColor(status: string): string {
@@ -167,7 +119,7 @@
 		</div>
 
 		<div class="mt-2 text-center text-xs text-gray-500">
-			Last VAD event: {formatTime(vadState.lastVADEvent)}
+			Last VAD event: {vadState.lastVADEvent.toLocaleTimeString()}
 		</div>
 	</div>
 
@@ -180,35 +132,12 @@
 		</div>
 	</div>
 
-	<!-- Connection Updates -->
-	<div class="mb-4">
-		<h4 class="mb-2 font-medium text-gray-700">📡 Recent Updates</h4>
-		<div class="max-h-32 space-y-1 overflow-y-auto">
-			{#each connectionUpdates as update}
-				<div class="rounded border-l-2 border-blue-400 bg-gray-50 p-2 text-xs">
-					<div class="flex items-start justify-between">
-						<span class="font-medium text-gray-700">{update.type}</span>
-						<span class="text-gray-500">{formatTime(update.timestamp)}</span>
-					</div>
-					<div class="text-gray-600">{update.status}</div>
-					{#if update.data}
-						<div class="mt-1 text-xs text-gray-500">
-							{JSON.stringify(update.data)}
-						</div>
-					{/if}
-				</div>
-			{:else}
-				<div class="text-gray-500 text-center py-2">No updates yet</div>
-			{/each}
-		</div>
-	</div>
-
 	<!-- Actions -->
 	<div class="flex gap-2">
 		<button
 			class="rounded bg-blue-600 px-3 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
 			disabled={!isConnected}
-			on:click={() => realtimeService.pauseStreaming()}
+			onclick={() => realtimeService.pauseStreaming()}
 		>
 			⏸️ Pause
 		</button>
@@ -216,7 +145,7 @@
 		<button
 			class="rounded bg-green-600 px-3 py-2 text-white hover:bg-green-700 disabled:opacity-50"
 			disabled={!isConnected}
-			on:click={() => realtimeService.resumeStreaming()}
+			onclick={() => realtimeService.resumeStreaming()}
 		>
 			▶️ Resume
 		</button>
@@ -224,7 +153,7 @@
 		<button
 			class="rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700 disabled:opacity-50"
 			disabled={!isConnected}
-			on:click={() => realtimeService.disconnect()}
+			onclick={() => realtimeService.disconnect()}
 		>
 			🔌 Disconnect
 		</button>
