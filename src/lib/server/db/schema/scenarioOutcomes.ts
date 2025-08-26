@@ -15,7 +15,9 @@ import { scenarios } from './scenarios';
 // 📊 SCENARIO OUTCOMES - Track learning progress and success
 export const scenarioOutcomes = pgTable('scenario_outcomes', {
 	id: uuid('id').primaryKey().defaultRandom(),
-	userId: uuid('user_id').references(() => users.id), // nullable for anonymous users
+	userId: uuid('user_id')
+		.notNull()
+		.references(() => users.id), // Required for user tracking
 	conversationId: text('conversation_id')
 		.notNull()
 		.references(() => conversations.id),
@@ -46,5 +48,5 @@ export const scenarioOutcomes = pgTable('scenario_outcomes', {
 	exchangeCount: integer('exchange_count').notNull(),
 
 	// Metadata
-	createdAt: timestamp('created_at').defaultNow()
+	createdAt: timestamp('created_at').defaultNow().notNull()
 });

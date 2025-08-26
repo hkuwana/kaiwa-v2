@@ -19,7 +19,7 @@ export const conversationSessions = pgTable(
 		language: text('language').notNull(),
 		startTime: timestamp('start_time').notNull(),
 		endTime: timestamp('end_time'),
-		durationMinutes: integer('duration_minutes'),
+		durationMinutes: integer('duration_minutes').notNull(),
 
 		// Usage tracking
 		minutesConsumed: integer('minutes_consumed').notNull(),

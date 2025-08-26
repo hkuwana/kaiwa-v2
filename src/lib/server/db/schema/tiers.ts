@@ -6,12 +6,12 @@ export const tiers = pgTable(
 	{
 		id: text('id').primaryKey(), // 'free', 'plus', 'premium'
 		name: text('name').notNull(),
-		description: text('description'),
+		description: text('description').notNull(),
 
 		// Monthly limits
-		monthlyConversations: integer('monthly_conversations'),
-		monthlySeconds: integer('monthly_seconds'), // Changed from monthly_minutes
-		monthlyRealtimeSessions: integer('monthly_realtime_sessions'),
+		monthlyConversations: integer('monthly_conversations').notNull(),
+		monthlySeconds: integer('monthly_seconds').notNull(), // Changed from monthly_minutes
+		monthlyRealtimeSessions: integer('monthly_realtime_sessions').notNull(),
 
 		// Session limits
 		maxSessionLengthSeconds: integer('max_session_length_seconds'), // Changed from max_session_length_minutes
@@ -40,9 +40,9 @@ export const tiers = pgTable(
 		maxExtensions: integer('max_extensions').default(0),
 		extensionDurationMs: integer('extension_duration_ms').default(0),
 
-		isActive: boolean('is_active').default(true),
-		createdAt: timestamp('created_at').defaultNow(),
-		updatedAt: timestamp('updated_at').defaultNow()
+		isActive: boolean('is_active').default(true).notNull(),
+		createdAt: timestamp('created_at').defaultNow().notNull(),
+		updatedAt: timestamp('updated_at').defaultNow().notNull()
 	},
 	(table) => [
 		// Performance index for active tiers

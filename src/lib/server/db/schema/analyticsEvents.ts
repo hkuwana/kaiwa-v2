@@ -17,5 +17,5 @@ export const analyticsEvents = pgTable('analytics_events', {
 	referrer: text('referrer'),
 
 	// Timestamp
-	createdAt: timestamp('created_at').defaultNow()
+	createdAt: timestamp('created_at').defaultNow().notNull()
 });

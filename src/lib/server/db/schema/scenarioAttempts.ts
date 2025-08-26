@@ -5,14 +5,16 @@ import { scenarios } from './scenarios';
 // 🔄 SCENARIO ATTEMPTS - Track multiple attempts at the same scenario
 export const scenarioAttempts = pgTable('scenario_attempts', {
 	id: uuid('id').primaryKey().defaultRandom(),
-	userId: uuid('user_id').references(() => users.id),
+	userId: uuid('user_id')
+		.notNull()
+		.references(() => users.id),
 	scenarioId: text('scenario_id')
 		.notNull()
 		.references(() => scenarios.id),
 
 	// Attempt tracking
 	attemptNumber: integer('attempt_number').notNull(), // 1st, 2nd, 3rd attempt
-	startedAt: timestamp('started_at').defaultNow(),
+	startedAt: timestamp('started_at').defaultNow().notNull(),
 	completedAt: timestamp('completed_at'),
 
 	// Progress tracking
@@ -21,9 +23,9 @@ export const scenarioAttempts = pgTable('scenario_attempts', {
 
 	// Learning analytics
 	timeSpentSeconds: integer('time_spent_seconds'),
-	hintsUsed: integer('hints_used').default(0),
-	translationsUsed: integer('translations_used').default(0),
+	hintsUsed: integer('hints_used').default(0).notNull(),
+	translationsUsed: integer('translations_used').default(0).notNull(),
 
 	// Metadata
-	createdAt: timestamp('created_at').defaultNow()
+	createdAt: timestamp('created_at').defaultNow().notNull()
 });

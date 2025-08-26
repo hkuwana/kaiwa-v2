@@ -1,232 +1,442 @@
-// 📝 InstructionsService - Manages AI instructions for different languages and contexts
-// Plain TypeScript class with no Svelte dependencies
+// 📝 Updated Instructions Service - Works with numerical skill levels and database preferences
+// Pure functional service - no classes, no state, just functions
 
-export interface LanguageInstructions {
-	language: string;
+import type { UserPreferences } from '$lib/server/db/types';
+import type { TurnDetection } from '$lib/types/openai.realtime.types';
+import { languages } from '$lib/data/languages';
+
+export interface LanguageInfo {
 	code: string;
-	instructions: string;
-	examples: string[];
-	culturalNotes: string[];
+	name: string;
 }
 
 export interface ConversationContext {
 	type: 'casual' | 'formal' | 'business' | 'academic';
-	level: 'beginner' | 'intermediate' | 'advanced';
 	instructions: string;
 }
 
-export class InstructionsService {
-	private languageInstructions: Map<string, LanguageInstructions> = new Map();
-	private conversationContexts: Map<string, ConversationContext> = new Map();
+// === DATA STORAGE ===
 
-	constructor() {
-		this.initializeLanguageInstructions();
-		this.initializeConversationContexts();
-	}
-
-	private initializeLanguageInstructions(): void {
-		// Japanese
-		this.languageInstructions.set('ja', {
-			language: 'Japanese',
-			code: 'ja',
-			instructions: `You are a helpful Japanese language tutor. Help the user practice and improve their Japanese skills through natural conversation. Be patient, encouraging, and provide gentle corrections when needed. Pay special attention to pronunciation, honorifics (敬語), and cultural context. Use appropriate politeness levels and explain cultural nuances when relevant.`,
-			examples: [
-				'こんにちは (Konnichiwa) - Hello',
-				'ありがとうございます (Arigatou gozaimasu) - Thank you very much',
-				'お疲れ様です (Otsukaresama desu) - Good work/Thank you for your effort'
-			],
-			culturalNotes: [
-				'Japanese has different politeness levels (敬語) used based on social context',
-				'Bowing is an important cultural gesture',
-				'Direct eye contact can be considered rude in some situations'
-			]
-		});
-
-		// Korean
-		this.languageInstructions.set('ko', {
-			language: 'Korean',
-			code: 'ko',
-			instructions: `You are a helpful Korean language tutor. Help the user practice and improve their Korean skills through natural conversation. Be patient, encouraging, and provide gentle corrections when needed. Focus on pronunciation, honorifics (존댓말), and sentence structure. Help with formal vs informal speech patterns.`,
-			examples: [
-				'안녕하세요 (Annyeonghaseyo) - Hello',
-				'감사합니다 (Kamsahamnida) - Thank you',
-				'수고하셨습니다 (Sugohasyeosseumnida) - Good work/Thank you for your effort'
-			],
-			culturalNotes: [
-				'Korean has formal (존댓말) and informal (반말) speech levels',
-				'Age and social status determine which speech level to use',
-				'Bowing is a common greeting gesture'
-			]
-		});
-
-		// Chinese
-		this.languageInstructions.set('zh', {
-			language: 'Chinese',
-			code: 'zh',
-			instructions: `You are a helpful Chinese language tutor. Help the user practice and improve their Chinese skills through natural conversation. Be patient, encouraging, and provide gentle corrections when needed. Emphasize tones, character recognition, and cultural context. Help with simplified vs traditional characters if relevant.`,
-			examples: ['你好 (Nǐ hǎo) - Hello', '谢谢 (Xièxie) - Thank you', '再见 (Zàijiàn) - Goodbye'],
-			culturalNotes: [
-				'Chinese is a tonal language with 4 main tones',
-				'There are simplified and traditional character systems',
-				'Family names come before given names'
-			]
-		});
-
-		// Arabic
-		this.languageInstructions.set('ar', {
-			language: 'Arabic',
-			code: 'ar',
-			instructions: `You are a helpful Arabic language tutor. Help the user practice and improve their Arabic skills through natural conversation. Be patient, encouraging, and provide gentle corrections when needed. Focus on pronunciation, script reading, and cultural context. Pay attention to formal vs informal speech.`,
-			examples: [
-				'مرحبا (Marhaba) - Hello',
-				'شكرا (Shukran) - Thank you',
-				"مع السلامة (Ma'a as-salaama) - Goodbye"
-			],
-			culturalNotes: [
-				'Arabic is written right-to-left',
-				'There are many regional dialects',
-				'Formal Arabic (Modern Standard Arabic) is used in media and formal situations'
-			]
-		});
-
-		// Hebrew
-		this.languageInstructions.set('he', {
-			language: 'Hebrew',
-			code: 'he',
-			instructions: `You are a helpful Hebrew language tutor. Help the user practice and improve their Hebrew skills through natural conversation. Be patient, encouraging, and provide gentle corrections when needed. Emphasize pronunciation, script reading, and cultural context. Help with formal vs informal speech patterns.`,
-			examples: [
-				'שלום (Shalom) - Hello/Peace',
-				'תודה (Toda) - Thank you',
-				"להתראות (Lehitra'ot) - Goodbye"
-			],
-			culturalNotes: [
-				'Hebrew is written right-to-left',
-				'Modern Hebrew was revived in the 19th century',
-				'Biblical Hebrew is still used in religious contexts'
-			]
-		});
-
-		// English (default)
-		this.languageInstructions.set('en', {
-			language: 'English',
-			code: 'en',
-			instructions: `You are a helpful English language tutor. Help the user practice and improve their English skills through natural conversation. Be patient, encouraging, and provide gentle corrections when needed. Focus on pronunciation, grammar, and natural expression.`,
-			examples: [
-				'Hello - Greeting',
-				'Thank you - Expressing gratitude',
-				'How are you? - Asking about well-being'
-			],
-			culturalNotes: [
-				'English has many regional variations and accents',
-				'Informal speech is common in casual settings',
-				'Direct communication is generally appreciated'
-			]
-		});
-	}
-
-	private initializeConversationContexts(): void {
-		// Casual conversation
-		this.conversationContexts.set('casual', {
+const conversationContexts: Map<string, ConversationContext> = new Map([
+	[
+		'casual',
+		{
 			type: 'casual',
-			level: 'beginner',
 			instructions:
-				'Keep the conversation light and friendly. Use simple vocabulary and encourage natural expression. Focus on everyday topics like hobbies, food, and daily activities.'
-		});
-
-		// Formal conversation
-		this.conversationContexts.set('formal', {
+				'Keep the conversation light and friendly. Use everyday vocabulary and encourage natural expression. Focus on topics like hobbies, food, daily activities, and personal interests.'
+		}
+	],
+	[
+		'formal',
+		{
 			type: 'formal',
-			level: 'intermediate',
 			instructions:
-				'Maintain a polite and respectful tone. Use appropriate honorifics and formal expressions. Focus on topics like work, education, and cultural exchange.'
-		});
-
-		// Business conversation
-		this.conversationContexts.set('business', {
+				'Maintain a polite and respectful tone. Use appropriate honorifics and formal expressions. Focus on topics like work, education, cultural exchange, and respectful social interactions.'
+		}
+	],
+	[
+		'business',
+		{
 			type: 'business',
-			level: 'advanced',
 			instructions:
-				'Use professional language and business vocabulary. Focus on topics like work, industry trends, and professional development. Maintain a formal but approachable tone.'
-		});
-
-		// Academic conversation
-		this.conversationContexts.set('academic', {
+				'Use professional language and business vocabulary. Focus on topics like work, industry trends, professional development, meetings, and workplace communication.'
+		}
+	],
+	[
+		'academic',
+		{
 			type: 'academic',
-			level: 'advanced',
 			instructions:
-				'Use academic vocabulary and complex sentence structures. Focus on intellectual topics, research, and scholarly discussion. Encourage critical thinking and analysis.'
-		});
-	}
-
-	// Get instructions for a specific language
-	getLanguageInstructions(languageCode: string): LanguageInstructions | undefined {
-		return this.languageInstructions.get(languageCode.toLowerCase());
-	}
-
-	// Get conversation context
-	getConversationContext(contextType: string): ConversationContext | undefined {
-		return this.conversationContexts.get(contextType);
-	}
-
-	// Generate custom instructions for a language and context
-	generateCustomInstructions(
-		languageCode: string,
-		contextType: string = 'casual',
-		level: 'beginner' | 'intermediate' | 'advanced' = 'beginner'
-	): string {
-		const language = this.getLanguageInstructions(languageCode);
-		const context = this.getConversationContext(contextType);
-
-		if (!language) {
-			return `You are a helpful language tutor. Help the user practice and improve their language skills through natural conversation. Be patient, encouraging, and provide gentle corrections when needed.`;
+				'Use academic vocabulary and complex sentence structures. Focus on intellectual topics, research, scholarly discussion, and analytical thinking.'
 		}
+	]
+]);
 
-		let baseInstructions = language.instructions;
+// === HELPER FUNCTIONS ===
 
-		// Adjust for context
-		if (context) {
-			baseInstructions += ` This conversation should be ${context.type} in nature. ${context.instructions}`;
-		}
+/**
+ * Check if a language is supported
+ */
+export function isLanguageSupported(languageCode: string): boolean {
+	const supportedLanguages = languages.map((language) => language.code);
+	return supportedLanguages.includes(languageCode.toLowerCase());
+}
 
-		// Adjust for level
-		switch (level) {
-			case 'beginner':
-				baseInstructions +=
-					' Use simple vocabulary and short sentences. Provide lots of encouragement and gentle corrections.';
-				break;
-			case 'intermediate':
-				baseInstructions +=
-					' Use moderate vocabulary and encourage more complex expression. Provide helpful corrections and explanations.';
-				break;
-			case 'advanced':
-				baseInstructions +=
-					' Use advanced vocabulary and complex sentence structures. Challenge the user with sophisticated topics and nuanced corrections.';
-				break;
-		}
-
-		return baseInstructions;
+/**
+ * Validate language information
+ */
+export function validateLanguage(languageInfo: LanguageInfo): void {
+	if (!languageInfo.code || !languageInfo.name) {
+		throw new Error('Language code and name are required');
 	}
-
-	// Get all available languages
-	getAvailableLanguages(): LanguageInstructions[] {
-		return Array.from(this.languageInstructions.values());
-	}
-
-	// Get all available contexts
-	getAvailableContexts(): ConversationContext[] {
-		return Array.from(this.conversationContexts.values());
-	}
-
-	// Add custom language instructions
-	addLanguageInstructions(instructions: LanguageInstructions): void {
-		this.languageInstructions.set(instructions.code.toLowerCase(), instructions);
-	}
-
-	// Add custom conversation context
-	addConversationContext(context: ConversationContext): void {
-		this.conversationContexts.set(context.type, context);
+	if (!isLanguageSupported(languageInfo.code)) {
+		throw new Error(
+			`Language code '${languageInfo.code}' is not supported. Supported codes: ${Array.from(supportedLanguages).join(', ')}`
+		);
 	}
 }
 
-// Export a singleton instance
-export const instructionsService = new InstructionsService();
+/**
+ * Get detailed skill level description for more nuanced instructions
+ */
+export function getDetailedSkillLevel(skillLevel: number): string {
+	const levels = {
+		1: 'absolute beginner (just starting)',
+		2: 'false beginner (some exposure)',
+		3: 'elementary (basic phrases)',
+		4: 'pre-intermediate (simple conversations)',
+		5: 'intermediate (comfortable conversations)',
+		6: 'upper-intermediate (complex topics)',
+		7: 'advanced (fluent discussions)',
+		8: 'proficient (near-native)',
+		9: 'expert (specialized vocabulary)',
+		10: 'native-like (complete fluency)'
+	};
+	return levels[skillLevel as keyof typeof levels] || 'beginner';
+}
+
+/**
+ * Convert numerical skill level to descriptive level for instructions
+ */
+export function getSkillLevelDescription(
+	skillLevel: number
+): 'beginner' | 'intermediate' | 'advanced' {
+	if (skillLevel <= 30) return 'beginner';
+	if (skillLevel <= 70) return 'intermediate';
+	return 'advanced';
+}
+
+/**
+ * Generate adaptive language instruction based on skill level
+ */
+function getAdaptiveLanguageInstruction(speakingLevel: number): string {
+	const baseInstruction =
+		"IMPORTANT: Adapt your language complexity to match the user's responses. ";
+
+	if (speakingLevel <= 30) {
+		return (
+			baseInstruction +
+			'Start with very simple vocabulary and basic sentence structures. If they respond well, gradually introduce slightly more complex phrases, but stay within elementary level. If they struggle, simplify further.'
+		);
+	} else if (speakingLevel <= 50) {
+		return (
+			baseInstruction +
+			'Start at their current intermediate level, then gradually introduce vocabulary and structures that are just one level above their comfort zone. Challenge them gently without overwhelming.'
+		);
+	} else if (speakingLevel <= 70) {
+		return (
+			baseInstruction +
+			'Match their advanced level and introduce sophisticated vocabulary and complex structures when they demonstrate readiness. Push them towards more nuanced expression.'
+		);
+	} else {
+		return (
+			baseInstruction +
+			'Match their near-native/expert level and introduce subtle linguistic nuances, idiomatic expressions, and cultural references that will elevate their language to the next level.'
+		);
+	}
+}
+
+/**
+ * Get audio pacing instruction based on skill level - ALWAYS start slow
+ */
+function getAudioPacingInstruction(speakingLevel: number): string {
+	if (speakingLevel <= 30) {
+		return 'SPEAK VERY SLOWLY AND CLEARLY. Pause between sentences and repeat important phrases. This is crucial for comprehension.';
+	} else if (speakingLevel <= 50) {
+		return 'SPEAK SLOWLY with clear pronunciation. Pause occasionally for comprehension. Even intermediate learners need slower speech initially.';
+	} else if (speakingLevel <= 70) {
+		return 'SPEAK AT A MEASURED, DELIBERATE PACE. Slower than normal conversation. Use clear pronunciation and natural pauses.';
+	} else {
+		return 'SPEAK SLOWER THAN NATIVE SPEED but naturally. Even advanced learners benefit from slightly slower, clearer speech.';
+	}
+}
+
+/**
+ * Get context type from learning goal
+ */
+function getContextTypeFromLearningGoal(
+	learningGoal: string | null
+): 'casual' | 'business' | 'academic' | 'casual' {
+	if (learningGoal === 'Career') return 'business';
+	if (learningGoal === 'Academic') return 'academic';
+	if (learningGoal === 'Travel') return 'casual';
+	return 'casual';
+}
+
+// === MAIN INSTRUCTION FUNCTIONS ===
+
+/**
+ * Generate audio check prompt for new users
+ */
+export function generateAudioCheckPrompt(languageInfo: LanguageInfo): string {
+	validateLanguage(languageInfo);
+
+	return `You are a ${languageInfo.name} language tutor. SPEAK VERY SLOWLY AND CLEARLY. Start by introducing yourself in ${languageInfo.name} and ask if the user can hear you clearly. Take your time between words and sentences. Wait for their confirmation about audio quality before proceeding. If they have audio issues, help them troubleshoot in simple ${languageInfo.name} or switch to English briefly if needed.`;
+}
+
+/**
+ * Generate comprehensive onboarding prompt
+ */
+export function generateOnboardingPrompt(languageInfo: LanguageInfo): string {
+	validateLanguage(languageInfo);
+
+	return `Conduct friendly onboarding in ${languageInfo.name}. SPEAK VERY SLOWLY throughout the entire onboarding process. After confirming audio works, ask these questions one at a time:
+
+1. "What is your current level in ${languageInfo.name}?" (Help them choose 1-10, where 1 is absolute beginner, 5 is conversational, 10 is native-like)
+2. "What are your main goals for learning ${languageInfo.name}?" (travel, business, academic, casual conversation, etc.)
+3. "What type of conversations would you like to practice?" (casual daily life, formal situations, business, academic)
+4. "How much time do you have for today's session?"
+
+Keep questions simple and encouraging. REMEMBER TO SPEAK SLOWLY - this is crucial for new learners. If they struggle to answer in ${languageInfo.name}, it's okay to use some English to help them. Adapt your speaking pace and language complexity based on their responses, but always err on the side of speaking slower than you think you need to. Once you understand their needs, suggest a lesson plan for today.`;
+}
+
+/**
+ * Generate personalized welcome back prompt
+ */
+export function generateWelcomeBackPrompt(
+	languageInfo: LanguageInfo,
+	prefs: Partial<UserPreferences> = {}
+): string {
+	validateLanguage(languageInfo);
+
+	let prompt = `Welcome this returning user back in ${languageInfo.name}. Give them a warm, natural greeting.`;
+
+	if (prefs.speakingLevel) {
+		const levelDesc = getDetailedSkillLevel(prefs.speakingLevel);
+		prompt += ` Remember they are at speaking level ${prefs.speakingLevel} (${levelDesc}).`;
+	}
+
+	if (prefs.learningGoal) {
+		prompt += ` They prefer ${prefs.learningGoal} conversations.`;
+	}
+
+	if (prefs.specificGoals) {
+		// Handle both string and parsed JSON array
+		const goals =
+			typeof prefs.specificGoals === 'string'
+				? JSON.parse(prefs.specificGoals)
+				: prefs.specificGoals;
+		prompt += ` Their learning goals include: ${Array.isArray(goals) ? goals.join(', ') : goals}.`;
+	}
+
+	prompt += ` Ask how they've been and what they'd like to practice today. Offer to continue from where you left off or try something new. Keep it conversational and encouraging.`;
+
+	return prompt;
+}
+
+/**
+ * Main function to generate initial greeting based on user state
+ */
+export function generateInitialGreeting(
+	languageInfo: LanguageInfo,
+	prefs: Partial<UserPreferences> = {},
+	isFirstTime: boolean = false
+): string {
+	validateLanguage(languageInfo);
+
+	if (isFirstTime) {
+		return generateAudioCheckPrompt(languageInfo);
+	} else {
+		return generateWelcomeBackPrompt(languageInfo, prefs);
+	}
+}
+
+/**
+ * Generate lesson continuation prompt with numerical skill level support
+ */
+export function generateLessonPrompt(
+	languageInfo: LanguageInfo,
+	prefs: Partial<UserPreferences> = {},
+	sessionGoal?: string
+): string {
+	validateLanguage(languageInfo);
+
+	let prompt = `Continue the ${languageInfo.name} lesson. Speak only in ${languageInfo.name}.`;
+
+	// Add skill level specific guidance - use speaking level as primary indicator
+	if (prefs.speakingLevel) {
+		const levelDesc = getDetailedSkillLevel(prefs.speakingLevel);
+		prompt += ` The user is at speaking level ${prefs.speakingLevel} (${levelDesc}).`;
+
+		// Audio pacing based on skill level
+		prompt += ` ${getAudioPacingInstruction(prefs.speakingLevel)}`;
+	}
+
+	// Add context-specific guidance
+	if (prefs.learningGoal) {
+		const contextType = getContextTypeFromLearningGoal(prefs.learningGoal);
+		const context = conversationContexts.get(contextType);
+		if (context) {
+			prompt += ` ${context.instructions}`;
+		}
+	}
+
+	// Add session-specific goal
+	if (sessionGoal) {
+		prompt += ` Today's focus: ${sessionGoal}.`;
+	}
+
+	prompt += ' Be patient, encouraging, and make the conversation engaging and natural.';
+
+	return prompt;
+}
+
+/**
+ * Generate skill assessment prompt
+ */
+export function generateSkillAssessmentPrompt(languageInfo: LanguageInfo): string {
+	validateLanguage(languageInfo);
+
+	return `Conduct a brief, friendly skill assessment in ${languageInfo.name} to determine their level (1-10 scale).
+
+Start with very basic topics (level 1-2):
+- Simple greetings and introductions
+- Basic personal information
+
+Gradually increase complexity based on their responses:
+- Daily routines and hobbies (level 3-4)
+- Opinions and preferences (level 5-6)
+- Complex topics and abstract concepts (level 7-8)
+- Nuanced discussions and cultural topics (level 9-10)
+
+Pay attention to:
+- Vocabulary range and accuracy
+- Grammar complexity and correctness
+- Pronunciation and fluency
+- Conversation flow and confidence
+- Cultural understanding
+
+After 5-10 minutes, provide encouraging feedback and suggest their approximate level on the 1-10 scale. Keep it conversational and stress-free.`;
+}
+
+/**
+ * Generate session wrap-up prompt
+ */
+export function generateSessionWrapUpPrompt(
+	languageInfo: LanguageInfo,
+	prefs: Partial<UserPreferences> = {}
+): string {
+	validateLanguage(languageInfo);
+
+	let prompt = `Wrap up the ${languageInfo.name} session positively. In ${languageInfo.name}:
+
+1. Acknowledge their effort and participation
+2. Highlight 2-3 specific things they did well
+3. Gently mention 1-2 areas for improvement (if any)`;
+
+	// Adjust feedback style based on skill level
+	if (prefs.speakingLevel && prefs.speakingLevel <= 30) {
+		prompt += `
+4. Suggest simple, specific things to practice before next time
+5. Ask if they have any questions (offer to answer in English if needed)
+6. End with very encouraging words about their progress`;
+	} else {
+		prompt += `
+4. Suggest challenging but achievable goals for next time
+5. Ask if they have any questions about today's topics
+6. End with motivating words about their language journey`;
+	}
+
+	prompt += `
+
+Keep it brief but meaningful. Make them feel accomplished and excited to continue learning.`;
+
+	return prompt;
+}
+
+/**
+ * Generate comprehensive custom instructions
+ */
+export function generateCustomInstructions(
+	languageInfo: LanguageInfo,
+	prefs: Partial<UserPreferences> = {}
+): string {
+	validateLanguage(languageInfo);
+
+	let instructions = `You are a helpful ${languageInfo.name} language tutor. Help the user practice and improve their ${languageInfo.name} skills through natural conversation. Be patient, encouraging, and provide appropriate corrections.`;
+
+	// Language and audio guidance - EMPHASIZE SLOW SPEECH
+	instructions += ` Speak only in ${languageInfo.name}. CRUCIAL: Since this is audio-based learning, ALWAYS SPEAK SLOWLY AND CLEARLY. This is more important than you might think - slower speech dramatically improves comprehension and learning outcomes.`;
+
+	// Skill level adaptations - use speaking level as primary indicator
+	if (prefs.speakingLevel) {
+		const levelDesc = getDetailedSkillLevel(prefs.speakingLevel);
+		instructions += ` The user is at speaking level ${prefs.speakingLevel} (${levelDesc}).`;
+		instructions += ` ${getAudioPacingInstruction(prefs.speakingLevel)}`;
+		instructions += ` ${getAdaptiveLanguageInstruction(prefs.speakingLevel)}`;
+	} else {
+		instructions +=
+			' Since skill level is unknown, START BY SPEAKING VERY SLOWLY and adapt based on their responses.';
+	}
+
+	// Context-specific behavior
+	if (prefs.learningGoal) {
+		const contextType = getContextTypeFromLearningGoal(prefs.learningGoal);
+		const context = conversationContexts.get(contextType);
+		if (context) {
+			instructions += ` This conversation should be ${context.type} in nature. ${context.instructions}`;
+		}
+	}
+
+	// Learning goals integration
+	if (prefs.specificGoals) {
+		const goals = Array.isArray(prefs.specificGoals) ? prefs.specificGoals : [prefs.specificGoals];
+		instructions += ` Keep in mind their learning goals: ${goals.join(', ')}.`;
+	}
+
+	return instructions;
+}
+
+// === UTILITY FUNCTIONS ===
+
+export function getConversationContext(contextType: string): ConversationContext | undefined {
+	return conversationContexts.get(contextType);
+}
+
+export function getAvailableContexts(): ConversationContext[] {
+	return Array.from(conversationContexts.values());
+}
+
+export function isContextSupported(contextType: string): boolean {
+	return conversationContexts.has(contextType);
+}
+
+/**
+ * Generates an adaptive turn detection configuration based on user skill and confidence.
+ * @param profile The user's learning profile.
+ * @returns An optimal TurnDetectionConfig object.
+ */
+export function getAdaptiveTurnDetection(profile: UserPreferences): TurnDetection {
+	const { speakingLevel, confidenceLevel } = profile;
+
+	// --- Beginner Tier ---
+	if (speakingLevel <= 35) {
+		return {
+			type: 'server_vad',
+			// More hesitant users get more time
+			silence_duration_ms: confidenceLevel < 50 ? 1200 : 800,
+			// Lower threshold for quieter speakers
+			threshold: 0.4,
+			interrupt_response: false // Avoid interrupting beginners
+		};
+	}
+
+	// --- Intermediate Tier ---
+	if (speakingLevel <= 70) {
+		return {
+			type: 'semantic_vad',
+			// Lower confidence means less eagerness
+			eagerness: confidenceLevel < 50 ? 'low' : 'medium',
+			interrupt_response: true
+		};
+	}
+
+	// --- Advanced Tier ---
+	// (speakingLevel > 70)
+	return {
+		type: 'semantic_vad',
+		// High confidence users get a faster response
+		eagerness: confidenceLevel > 65 ? 'high' : 'medium',
+		interrupt_response: true
+	};
+}

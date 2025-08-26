@@ -1,41 +1,82 @@
-import { pgTable, uuid, text, integer, timestamp, index } from 'drizzle-orm/pg-core';
-import { users } from './users';
-import { languages } from './languages';
+import { pgTable, uuid, text, integer, timestamp, index, pgEnum, jsonb } from 'drizzle-orm/pg-core';
+import { users } from './users'; // Assuming you have a users table
+import { languages } from './languages'; // Assuming you have a languages table
 
-// User preferences and settings - MVP focused and extensible
+export const learningMotivationEnum = pgEnum('learning_motivation_enum', [
+	'Connection',
+	'Career',
+	'Travel',
+	'Academic',
+	'Culture',
+	'Growth'
+]);
+
+export const challengePreferenceEnum = pgEnum('challenge_preference_enum', [
+	'comfortable',
+	'moderate',
+	'challenging'
+]);
+
+export const correctionStyleEnum = pgEnum('correction_style_enum', [
+	'immediate',
+	'gentle',
+	'end_of_session'
+]);
+
 export const userPreferences = pgTable(
 	'user_preferences',
 	{
-		id: uuid('id').primaryKey().defaultRandom(),
+		id: uuid('id').primaryKey().defaultRandom().notNull(),
 		userId: uuid('user_id')
 			.notNull()
-			.references(() => users.id),
+			.references(() => users.id, { onDelete: 'cascade' })
+			.notNull(), // Added onDelete cascade
 
 		// Essential learning preferences
-		targetLanguageId: text('target_language_id').references(() => languages.id),
-		learningGoal: text('learning_goal')
-			.$type<'casual' | 'conversational' | 'fluent'>()
-			.default('conversational'),
-		preferredVoice: text('preferred_voice').default('alloy'),
-		dailyGoalMinutes: integer('daily_goal_minutes').default(30),
+		targetLanguageId: text('target_language_id').references(() => languages.id).notNull(),
+		learningGoal: learningMotivationEnum('learning_goal').default('Connection').notNull(), // Using ENUM
+		preferredVoice: text('preferred_voice').default('alloy').notNull(), // Could also be an enum
+		dailyGoalMinutes: integer('daily_goal_minutes').default(30).notNull(),
 
-		// Basic progress tracking (simplified from userLearningStats)
-		totalStudyTimeMinutes: integer('total_study_time_minutes').default(0),
-		totalConversations: integer('total_conversations').default(0),
-		currentStreakDays: integer('current_streak_days').default(0),
-		lastStudied: timestamp('last_studied').defaultNow(),
+		// Skill breakdown by competency (the source of truth for user skill)
+		speakingLevel: integer('speaking_level').default(5).notNull(), // 1-100
+		listeningLevel: integer('listening_level').default(5).notNull(), // 1-100
+		readingLevel: integer('reading_level').default(5).notNull(), // 1-100
+		writingLevel: integer('writing_level').default(5).notNull(), // 1-100
+		// `overallSkillLevel` can be calculated in the app to prevent sync issues
 
-		// UI preferences
-		theme: text('theme').$type<'light' | 'dark' | 'auto'>().default('auto'),
+		// Confidence tracking
+		confidenceLevel: integer('confidence_level').default(50).notNull(), // 1-100
+
+		// Basic progress tracking
+		totalStudyTimeMinutes: integer('total_study_time_minutes').default(0).notNull(),
+		totalConversations: integer('total_conversations').default(0).notNull(),
+		currentStreakDays: integer('current_streak_days').default(0).notNull(),
+		lastStudied: timestamp('last_studied').defaultNow().notNull(),
+
+		// Specific learning goals (using jsonb for better querying and performance)
+		specificGoals: jsonb('specific_goals').$type<string[]>(), // e.g., ["ordering food", "job interview"]
+
+		// Progress tracking (using jsonb)
+		recentSessionScores: jsonb('recent_session_scores').$type<number[]>(), // Last 10 scores
+		lastAssessmentDate: timestamp('last_assessment_date'),
+		skillLevelHistory: jsonb('skill_level_history').$type<{ date: string; level: number }[]>(),
+
+		// Adaptive learning preferences (using ENUMs)
+		challengePreference: challengePreferenceEnum('challenge_preference')
+			.default('moderate')
+			.notNull(),
+		correctionStyle: correctionStyleEnum('correction_style').default('gentle').notNull(),
 
 		// Metadata
-		createdAt: timestamp('created_at').defaultNow(),
-		updatedAt: timestamp('updated_at').defaultNow()
+		createdAt: timestamp('created_at').defaultNow().notNull(),
+		updatedAt: timestamp('updated_at')
+			.defaultNow()
+			.$onUpdate(() => new Date()) // Automatically update on change
+			.notNull()
 	},
 	(table) => [
-		// Performance indexes
 		index('user_preferences_user_id_idx').on(table.userId),
-		index('user_preferences_target_language_idx').on(table.targetLanguageId),
-		index('user_preferences_updated_at_idx').on(table.updatedAt)
+		index('user_preferences_target_language_idx').on(table.targetLanguageId)
 	]
 );

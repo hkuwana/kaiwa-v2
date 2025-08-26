@@ -13,7 +13,8 @@ import {
 	payments,
 	conversations,
 	messages,
-	scenarios
+	scenarios,
+	userPreferences
 } from './schema';
 
 // Tier type definitions
@@ -31,6 +32,7 @@ export type Payment = InferInsertModel<typeof payments>;
 export type Conversation = InferSelectModel<typeof conversations>;
 export type Message = InferSelectModel<typeof messages>;
 export type Scenario = InferSelectModel<typeof scenarios>;
+export type UserPreferences = InferSelectModel<typeof userPreferences>;
 
 // Insert types for creating new records
 export type NewUser = InferInsertModel<typeof users>;
@@ -45,3 +47,4 @@ export type NewPayment = InferInsertModel<typeof payments>;
 export type NewConversation = InferInsertModel<typeof conversations>;
 export type NewMessage = InferInsertModel<typeof messages>;
 export type NewScenario = InferInsertModel<typeof scenarios>;
+export type NewUserPreferences = InferInsertModel<typeof userPreferences>;

@@ -10,7 +10,6 @@
 	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
 	import LoadingScreen from '$lib/components/LoadingScreen.svelte';
 	import MessageBubble from '$lib/components/MessageBubble.svelte';
-	import type { PageData } from './$types';
 
 	const { data } = $props();
 
@@ -221,43 +220,29 @@
 			handleSendMessage();
 		}
 	}
-
-	// Connection status indicator
-	const connectionStatusClass = $derived(
-		{
-			idle: 'badge-ghost',
-			connecting: 'badge-warning',
-			connected: 'badge-success',
-			streaming: 'badge-info',
-			error: 'badge-error'
-		}[status] || 'badge-ghost'
-	);
 </script>
 
 <div class="mx-auto max-w-7xl p-8 font-sans">
 	<div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
 		<!-- Main Conversation Area -->
 		<div class="lg:col-span-2">
-			<header class="mb-8 text-center">
-				<div class="mb-4 flex items-center justify-center gap-4">
-					<h1 class="text-4xl font-bold text-primary">
-						{selectedLanguage?.name || 'Language'} Conversation
-					</h1>
-					<div class="badge {connectionStatusClass} badge-lg">
-						{status}
+			{#if status !== 'connected'}
+				<header class="mb-8 text-center">
+					<div class="mb-4 flex items-center justify-center gap-4">
+						<h1 class="text-4xl font-bold text-primary">
+							{selectedLanguage?.name || 'Language'} Conversation
+						</h1>
 					</div>
-				</div>
 
-				<div class="flex items-center justify-center gap-2 text-sm text-base-content/60">
-					<span>Session: {sessionId.slice(0, 8)}...</span>
-					{#if userId}
-						<span class="badge badge-outline">Logged In</span>
-					{:else}
-						<span class="badge badge-ghost">Guest Mode</span>
-					{/if}
-				</div>
-			</header>
-
+					<div class="flex items-center justify-center gap-2 text-sm text-base-content/60">
+						{#if userId}
+							<span class="badge badge-outline">Logged In</span>
+						{:else}
+							<span class="badge badge-ghost">Guest Mode</span>
+						{/if}
+					</div>
+				</header>
+			{/if}
 			<main class="space-y-6">
 				<!-- Auto-connection status -->
 				{#if isAutoConnecting}
@@ -326,23 +311,8 @@
 					</div>
 				{/if}
 
-				<!-- Connected state -->
-				{#if status === 'connected'}
-					<div class="card border border-success/20 bg-success/10 shadow-lg">
-						<div class="card-body text-center">
-							<h3 class="card-title justify-center text-success">Connected!</h3>
-							<p class="text-base-content/70">Ready to start your voice conversation</p>
-							<div class="card-actions justify-center">
-								<button onclick={handleEndConversation} class="btn btn-outline btn-error">
-									End Conversation
-								</button>
-							</div>
-						</div>
-					</div>
-				{/if}
-
 				<!-- Streaming state -->
-				{#if status === 'streaming'}
+				{#if status === 'connected'}
 					<div class="card border border-info/20 bg-info/10 shadow-lg">
 						<div class="card-body text-center">
 							<h3 class="card-title justify-center text-info">Voice Chat Active</h3>
@@ -363,11 +333,14 @@
 					</div>
 				{/if}
 
-				<!-- Live Transcription -->
-				{#if status === 'streaming' && conversationStore.currentTranscript}
+				<!-- Live Transcription (User Only) -->
+				{#if conversationStore.currentTranscript}
+					<div class="mb-4 flex justify-center">
+						<AudioVisualizer {audioLevel} />
+					</div>
 					<div class="card border-l-4 border-l-info bg-base-100 shadow-lg">
 						<div class="card-body">
-							<h3 class="card-title text-lg text-info">Live Transcription</h3>
+							<h3 class="card-title text-lg text-info">Your Speech</h3>
 							<div class="rounded-lg bg-base-200 p-4">
 								<p class="text-lg">{conversationStore.currentTranscript}</p>
 								{#if conversationStore.isTranscribing}
@@ -396,7 +369,7 @@
 				{/if}
 
 				<!-- Text Message Input -->
-				{#if status === 'connected' || status === 'streaming'}
+				{#if status === 'connected' || (status === 'streaming' && dev)}
 					<div class="card bg-base-100 shadow-lg">
 						<div class="card-body">
 							<h3 class="card-title text-primary">Send Text Message</h3>

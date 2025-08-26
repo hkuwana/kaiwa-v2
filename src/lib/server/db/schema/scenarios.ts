@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, json, index } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, json, index, boolean } from 'drizzle-orm/pg-core';
 
 // Scenarios - MVP focused on onboarding and comfort-building
 export const scenarios = pgTable(
@@ -6,19 +6,21 @@ export const scenarios = pgTable(
 	{
 		id: text('id').primaryKey(),
 		title: text('title').notNull(),
-		description: text('description'),
+		description: text('description').notNull(),
 		category: text('category')
 			.$type<'onboarding' | 'comfort' | 'basic' | 'intermediate'>()
-			.default('comfort'),
+			.default('comfort')
+			.notNull(),
 
 		// Language and difficulty
 		difficulty: text('difficulty')
 			.$type<'beginner' | 'intermediate' | 'advanced'>()
-			.default('beginner'),
+			.default('beginner')
+			.notNull(),
 
 		// Scenario content (simplified)
-		instructions: text('instructions'), // What the user should do
-		context: text('context'), // Background story/situation
+		instructions: text('instructions').notNull(), // What the user should do
+		context: text('context').notNull(), // Background story/situation
 		expectedOutcome: text('expected_outcome'), // What success looks like
 
 		// Learning framework data
@@ -30,9 +32,9 @@ export const scenarios = pgTable(
 		}>(),
 
 		// Metadata
-		isActive: text('is_active').default('true'),
-		createdAt: timestamp('created_at').defaultNow(),
-		updatedAt: timestamp('updated_at').defaultNow()
+		isActive: boolean('is_active').default(true).notNull(),
+		createdAt: timestamp('created_at').defaultNow().notNull(),
+		updatedAt: timestamp('updated_at').defaultNow().notNull()
 	},
 	(table) => [
 		// Performance indexes

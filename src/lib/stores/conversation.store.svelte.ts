@@ -5,9 +5,13 @@ import { SvelteDate } from 'svelte/reactivity';
 import { browser } from '$app/environment';
 import { realtimeService } from '$lib/services';
 import { audioService, type AudioLevel } from '$lib/services/audio.service';
+import {
+	generateCustomInstructions,
+	generateInitialGreeting
+} from '$lib/services/instructions.service';
 import type { Message, Language } from '$lib/server/db/types';
 import type { Speaker } from '$lib/types';
-import type { ServerEvent, Voice } from '$lib/types/openai.realtime.types';
+import type { ServerEvent, SessionConfig, Voice } from '$lib/types/openai.realtime.types';
 import {
 	createConversationTimerStore,
 	type ConversationTimerStore
@@ -25,7 +29,8 @@ export class ConversationStore {
 	audioLevel = $state.raw<number>(0);
 	availableDevices = $state<MediaDeviceInfo[]>([]);
 	selectedDeviceId = $state<string>('default');
-
+	speechDetected = $state<boolean>(false);
+	userSpeechStartTime = $state<number | null>(null);
 	// Transcription state
 	transcriptionMode = $state<boolean>(false);
 	currentTranscript = $state<string>('');
@@ -69,19 +74,30 @@ export class ConversationStore {
 			this.error = errorMsg;
 			this.status = 'error';
 		});
-
-		// Load available audio devices
-		audioService.getAvailableDevices().then((devices) => {
-			this.availableDevices = devices;
-		});
 	}
 
 	// === PUBLIC ACTIONS ===
 
+	/**
+	 * Start a conversation
+	 * @param language - The language to use
+	 * @param speaker - The speaker to use
+	 * @param options - The options for the conversation
+	 * @param options.isFirstTime - Whether this is the first time the user is talking
+	 * @param options.contextType - The context type for the conversation
+	 * @param options.level - The level of the conversation
+	 * @param options.transcriptionMode - Whether to  use transcription
+	 * @returns void
+	 */
 	startConversation = async (
 		language?: Language,
 		speaker?: Speaker | string,
-		transcriptionOnly: boolean = false
+		options: {
+			isFirstTime?: boolean;
+			contextType?: 'casual' | 'formal' | 'business' | 'academic';
+			level?: 'beginner' | 'intermediate' | 'advanced';
+			transcriptionMode?: boolean;
+		} = {}
 	) => {
 		if (!browser) {
 			console.warn('Cannot start conversation on server');
@@ -95,7 +111,8 @@ export class ConversationStore {
 
 		// Set up conversation parameters
 		this.language = language || null;
-		this.transcriptionMode = transcriptionOnly;
+		this.language = language || null;
+		this.transcriptionMode = options.transcriptionMode || false;
 		this.status = 'connecting';
 		this.error = null;
 		this.clearTranscriptionState();
@@ -128,7 +145,7 @@ export class ConversationStore {
 			);
 
 			// 5. Set up event handlers
-			this.setupRealtimeEventHandlers();
+			this.setupRealtimeEventHandlers(options);
 
 			console.log('Connection established, waiting for session creation...');
 		} catch (error) {
@@ -279,8 +296,7 @@ export class ConversationStore {
 			language: this.language,
 			voice: this.voice,
 			sessionId: this.sessionId,
-			availableDevices: this.availableDevices.length,
-			selectedDeviceId: this.selectedDeviceId,
+
 			transcriptionMode: this.transcriptionMode,
 			isTranscribing: this.isTranscribing,
 			connectionStatus: this.getConnectionStatus(),
@@ -341,26 +357,40 @@ export class ConversationStore {
 		return response.json();
 	}
 
-	private setupRealtimeEventHandlers(): void {
+	private setupRealtimeEventHandlers(options: {
+		isFirstTime?: boolean;
+		contextType?: 'casual' | 'formal' | 'business' | 'academic';
+		level?: 'beginner' | 'intermediate' | 'advanced';
+	}): void {
 		if (!this.realtimeConnection) return;
 
 		const { dataChannel, peerConnection } = this.realtimeConnection;
-
-		// Data channel event handlers
-		dataChannel.onopen = () => {
-			console.log('Data channel opened, waiting for session creation...');
-		};
 
 		dataChannel.onmessage = (event) => {
 			try {
 				const serverEvent: ServerEvent = JSON.parse(event.data);
 
-				// Handle session creation specifically
+				// Handle speech detection events
+				if (serverEvent.type === 'input_audio_buffer.speech_started') {
+					console.log('🎤 User speech detected');
+					this.handleUserSpeechStarted();
+				} else if (serverEvent.type === 'input_audio_buffer.speech_stopped') {
+					console.log('🎤 User speech ended');
+					this.handleUserSpeechStopped();
+				}
+
+				// Handle session creation
 				if (serverEvent.type === 'session.created') {
 					console.log('Session created, sending configuration...');
-					this.sendInitialConfiguration();
+					this.sendInitialConfiguration(options);
 					this.status = 'connected';
 					this.timerStore.start();
+					// Auto-start streaming and send initial greeting
+					setTimeout(() => {
+						this.status = 'streaming';
+						this.sendInitialGreeting(options.isFirstTime || false);
+					}, 500);
+					return;
 				}
 
 				// Process the event
@@ -396,6 +426,126 @@ export class ConversationStore {
 			}
 		};
 	}
+	private handleUserSpeechStarted(): void {
+		this.speechDetected = true;
+		this.userSpeechStartTime = Date.now();
+
+		// Create a placeholder message immediately
+		this.createUserTranscriptionPlaceholder();
+	}
+
+	// Handle when user stops speaking
+	private handleUserSpeechStopped(): void {
+		this.speechDetected = false;
+
+		// Update placeholder to show transcribing state
+		this.updateUserPlaceholderToTranscribing();
+	}
+
+	// Create placeholder message when speech is detected
+	private createUserTranscriptionPlaceholder(): void {
+		const placeholderMessage: Message = {
+			role: 'user',
+			content: '', // Empty content initially
+			timestamp: new SvelteDate(),
+			id: `user_placeholder_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+			conversationId: this.sessionId,
+			audioUrl: null
+		};
+
+		this.messages = [...this.messages, placeholderMessage];
+		console.log('Created user speech placeholder');
+	}
+
+	// Update placeholder to show transcribing state
+	private updateUserPlaceholderToTranscribing(): void {
+		const placeholderIndex = this.messages.findIndex(
+			(msg) => msg.role === 'user' && msg.id.startsWith('user_placeholder_')
+		);
+
+		if (placeholderIndex !== -1) {
+			const updatedMessages = [...this.messages];
+			updatedMessages[placeholderIndex] = {
+				...updatedMessages[placeholderIndex],
+				id: `user_transcribing_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
+			};
+			this.messages = updatedMessages;
+			console.log('Updated placeholder to transcribing state');
+		}
+	}
+
+	private updateUserPlaceholderWithPartial(partialText: string): void {
+		const placeholderIndex = this.messages.findIndex(
+			(msg) =>
+				msg.role === 'user' &&
+				(msg.id.startsWith('user_placeholder_') ||
+					msg.id.startsWith('user_transcribing_') ||
+					msg.id.startsWith('user_partial_'))
+		);
+
+		if (placeholderIndex !== -1) {
+			const updatedMessages = [...this.messages];
+			updatedMessages[placeholderIndex] = {
+				...updatedMessages[placeholderIndex],
+				content: partialText,
+				id: `user_partial_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
+			};
+			this.messages = updatedMessages;
+		}
+	}
+
+	// Enhanced addMessageToState to handle ordering
+	private addMessageToState(data: realtimeService.MessageEventData): void {
+		// For assistant messages, check if there's a pending user placeholder
+		if (data.role === 'assistant') {
+			const hasPendingUserPlaceholder = this.messages.some(
+				(msg) =>
+					msg.role === 'user' &&
+					(msg.id.startsWith('user_placeholder_') ||
+						msg.id.startsWith('user_transcribing_') ||
+						msg.id.startsWith('user_partial_'))
+			);
+
+			if (hasPendingUserPlaceholder) {
+				// Don't add assistant message yet if user transcription is pending
+				console.log('Delaying assistant message due to pending user transcription');
+				setTimeout(() => this.addMessageToState(data), 1000); // Retry in 1 second
+				return;
+			}
+
+			// Check for existing streaming message
+			const hasStreamingMessage = this.messages.some(
+				(msg) => msg.role === 'assistant' && msg.id.startsWith('streaming_')
+			);
+
+			if (hasStreamingMessage) {
+				console.log('Skipping duplicate assistant message, streaming in progress');
+				return;
+			}
+		}
+
+		// Prevent duplicate messages
+		const messageExists = this.messages.some(
+			(msg) =>
+				msg.role === data.role &&
+				msg.content === data.content &&
+				Math.abs(msg.timestamp.getTime() - data.timestamp.getTime()) < 2000
+		);
+
+		if (!messageExists) {
+			const message: Message = {
+				role: data.role,
+				content: data.content,
+				timestamp: new SvelteDate(),
+				id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+				conversationId: this.sessionId,
+				audioUrl: null
+			};
+
+			this.messages = [...this.messages, message];
+			console.log(`Added ${data.role} message:`, data.content.substring(0, 50));
+		}
+	}
 
 	private handleProcessedEvent(processed: realtimeService.ProcessedEventResult): void {
 		switch (processed.type) {
@@ -417,84 +567,203 @@ export class ConversationStore {
 		}
 	}
 
-	private addMessageToState(data: realtimeService.MessageEventData): void {
-		// Prevent duplicate messages
-		const messageExists = this.messages.some(
+	private handleTranscriptionUpdate(data: realtimeService.TranscriptionEventData): void {
+		console.log('Handling transcription update:', data.type, data.isFinal, data.text);
+
+		if (data.type === 'user_transcript') {
+			if (data.isFinal) {
+				// Replace placeholder/transcribing message with final transcript
+				this.replaceUserPlaceholderWithFinal(data.text, data.timestamp);
+				this.currentTranscript = '';
+				this.isTranscribing = false;
+				console.log('Final user transcript:', data.text);
+			} else {
+				// Update live transcription display
+				this.currentTranscript = data.text;
+				this.isTranscribing = true;
+				console.log('Streaming user transcript:', data.text);
+
+				// Optionally update placeholder with partial transcript
+				this.updateUserPlaceholderWithPartial(data.text);
+			}
+		} else if (data.type === 'assistant_transcript') {
+			if (data.isFinal) {
+				console.log('Final assistant transcript:', data.text);
+				this.finalizeStreamingMessage(data.text);
+			} else {
+				console.log('Streaming assistant transcript:', data.text);
+				this.updateStreamingMessage(data.text);
+			}
+		}
+	}
+
+	private replaceUserPlaceholderWithFinal(finalText: string, timestamp: Date): void {
+		// Find the most recent placeholder or transcribing message
+		const placeholderIndex = this.messages.findIndex(
 			(msg) =>
-				msg.role === data.role &&
-				msg.content === data.content &&
-				Math.abs(msg.timestamp.getTime() - data.timestamp.getTime()) < 1000
+				msg.role === 'user' &&
+				(msg.id.startsWith('user_placeholder_') ||
+					msg.id.startsWith('user_transcribing_') ||
+					msg.id.startsWith('user_partial_'))
 		);
 
-		if (!messageExists) {
-			const message: Message = {
-				role: data.role,
-				content: data.content,
+		if (placeholderIndex !== -1) {
+			// Replace with final message
+			const updatedMessages = [...this.messages];
+			updatedMessages[placeholderIndex] = {
+				...updatedMessages[placeholderIndex],
+				content: finalText,
+				id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+				timestamp: new SvelteDate()
+			};
+			this.messages = updatedMessages;
+			console.log('Replaced placeholder with final transcript:', finalText.substring(0, 50));
+		} else {
+			// No placeholder found, add message normally
+			this.addMessageToState({
+				role: 'user',
+				content: finalText,
+				timestamp: timestamp
+			});
+		}
+	}
+
+	private updateStreamingMessage(deltaText: string): void {
+		// Find existing streaming message
+		const streamingMessageIndex = this.messages.findIndex(
+			(msg) => msg.role === 'assistant' && msg.id.startsWith('streaming_')
+		);
+
+		if (streamingMessageIndex === -1) {
+			// Create new streaming message
+			const streamingMessage: Message = {
+				role: 'assistant',
+				content: deltaText,
 				timestamp: new SvelteDate(),
-				id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+				id: `streaming_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
 				conversationId: this.sessionId,
 				audioUrl: null
 			};
-
-			this.messages = [...this.messages, message];
-			console.log(`Added ${data.role} message:`, data.content.substring(0, 50));
-		}
-	}
-
-	private handleTranscriptionUpdate(data: realtimeService.TranscriptionEventData): void {
-		if (data.isFinal) {
-			// Final transcript - clear current and stop transcribing indicator
-			this.currentTranscript = '';
-			this.isTranscribing = false;
-			console.log(`Final ${data.type}:`, data.text);
-
-			// For assistant transcripts, the message will be added via conversation.item.created
-			// For user transcripts, add to messages if not already present
-			if (data.type === 'user_transcript') {
-				this.addMessageToState({
-					role: 'user',
-					content: data.text,
-					timestamp: data.timestamp
-				});
-			}
+			this.messages = [...this.messages, streamingMessage];
+			console.log('Created streaming message with:', deltaText);
 		} else {
-			// Streaming transcript - update current transcript
-			this.currentTranscript = data.text;
-			this.isTranscribing = true;
-			console.log(`Streaming ${data.type}:`, data.text);
+			// Accumulate text in existing streaming message
+			const updatedMessages = [...this.messages];
+			updatedMessages[streamingMessageIndex] = {
+				...updatedMessages[streamingMessageIndex],
+				content: updatedMessages[streamingMessageIndex].content + deltaText
+			};
+			this.messages = updatedMessages;
 		}
 	}
 
-	private sendInitialConfiguration(): void {
+	private finalizeStreamingMessage(finalText: string): void {
+		const streamingMessageIndex = this.messages.findIndex(
+			(msg) => msg.role === 'assistant' && msg.id.startsWith('streaming_')
+		);
+
+		if (streamingMessageIndex !== -1) {
+			// Replace streaming message with final message
+			const updatedMessages = [...this.messages];
+			updatedMessages[streamingMessageIndex] = {
+				...updatedMessages[streamingMessageIndex],
+				content: finalText,
+				id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+				timestamp: new SvelteDate()
+			};
+			this.messages = updatedMessages;
+			console.log('Finalized streaming message:', finalText.substring(0, 50));
+		} else {
+			// No streaming message found, create final message directly
+			this.addMessageToState({
+				role: 'assistant',
+				content: finalText,
+				timestamp: new SvelteDate()
+			});
+			console.log('Created final message directly:', finalText.substring(0, 50));
+		}
+
+		// Clear any streaming state
+		this.currentTranscript = '';
+		this.isTranscribing = false;
+	}
+
+	private sendInitialConfiguration(
+		options: {
+			isFirstTime?: boolean;
+			contextType?: 'casual' | 'formal' | 'business' | 'academic';
+			level?: 'beginner' | 'intermediate' | 'advanced';
+		} = {}
+	): void {
 		if (!this.realtimeConnection || !this.language) return;
 
 		const languageName = this.language.name;
 		const languageCode = this.language.code;
 
-		const sessionConfig = {
+		const sessionConfig: SessionConfig = {
 			model: 'gpt-4o-mini-realtime-preview-2024-12-17',
 			voice: this.voice,
-			instructions: `You are a helpful language tutor for ${languageName}. Help the user practice and improve their language skills through natural conversation. Be patient, encouraging, and provide gentle corrections when needed. IMPORTANT: You must respond in ${languageName} only. Do not respond in any other language unless specifically asked to translate or explain something.`,
-			turnDetection: {
-				type: 'server_vad' as const,
-				threshold: 0.45,
-				prefix_padding_ms: 300,
-				silence_duration_ms: 600
-			},
-			inputAudioTranscription: {
+			instructions: generateCustomInstructions(
+				{
+					code: languageCode,
+					name: languageName
+				},
+				options.contextType || 'casual',
+				options.level || 'beginner'
+			),
+
+			// Critical: Enable input audio transcription
+			input_audio_transcription: {
 				model: 'whisper-1' as const,
 				language: languageCode
-			}
+			},
+
+			// Optimized VAD settings for better user speech detection
+			turn_detection: {
+				type: 'server_vad' as const,
+				threshold: 0.3, // Lower threshold = more sensitive
+				prefix_padding_ms: 500, // Capture more audio before speech
+				silence_duration_ms: 800 // Wait longer before considering speech done
+			},
+
+			// Audio format settings
+			input_audio_format: 'pcm16' as const,
+			output_audio_format: 'pcm16' as const
 		};
 
 		console.log('Sending session configuration:', {
 			language: languageName,
 			voice: this.voice,
-			model: sessionConfig.model
+			model: sessionConfig.model,
+			transcription: sessionConfig.input_audio_transcription,
+			turnDetection: sessionConfig.turn_detection
 		});
 
 		const configEvent = realtimeService.createSessionUpdate(sessionConfig);
 		realtimeService.sendEvent(this.realtimeConnection, configEvent);
+	}
+
+	private sendInitialGreeting(isFirstTime: boolean): void {
+		if (!this.realtimeConnection || !this.language) return;
+
+		// Generate greeting prompt using the instructions service
+		const greetingPrompt = generateInitialGreeting(
+			{
+				code: this.language.code,
+				name: this.language.name
+			},
+			isFirstTime
+		);
+
+		// Send the greeting prompt to trigger AI response
+		const greetingEvent = realtimeService.createTextMessage(greetingPrompt);
+		realtimeService.sendEvent(this.realtimeConnection, greetingEvent);
+
+		// Request the AI to respond
+		const responseEvent = realtimeService.createResponse(['text', 'audio']);
+		realtimeService.sendEvent(this.realtimeConnection, responseEvent);
+
+		console.log(`Sent ${isFirstTime ? 'first-time' : 'returning'} greeting prompt`);
 	}
 
 	private clearTranscriptionState(): void {

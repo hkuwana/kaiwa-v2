@@ -1,3 +1,6 @@
+// src/lib/services/timer.service.ts
+// Pure functional timer service - no classes, no state, just functions
+
 export interface TimerConfig {
 	timeoutMs: number;
 	warningThresholdMs: number;
@@ -15,10 +18,245 @@ export interface TimerState {
 	extensionsUsed: number;
 }
 
+export interface TimerInput {
+	config: TimerConfig;
+	startTime: number;
+	pauseTime: number;
+	totalPausedTime: number;
+	extensionsUsed: number;
+}
 
-export class TimerService {
-	// Timer state
-	private _state: TimerState = {
+export interface TimerResult {
+	state: TimerState;
+	shouldNotifyWarning: boolean;
+	shouldNotifyExpired: boolean;
+	shouldNotifyTick: boolean;
+	shouldNotifyStateChange: boolean;
+}
+
+export interface TimerValidationResult {
+	isValid: boolean;
+	error?: string;
+}
+
+// === TIMER CONFIGURATION FUNCTIONS ===
+
+/**
+ * Create a default timer configuration
+ * @returns Default timer configuration
+ */
+export function createDefaultTimerConfig(): TimerConfig {
+	return {
+		timeoutMs: 2 * 60 * 1000, // 2 minutes default
+		warningThresholdMs: 30 * 1000, // 30 seconds warning
+		extendable: false,
+		maxExtensions: 0,
+		extensionDurationMs: 0
+	};
+}
+
+/**
+ * Create a timer configuration with custom settings
+ * @param config - Partial configuration to override defaults
+ * @returns Complete timer configuration
+ */
+export function createTimerConfig(config: Partial<TimerConfig>): TimerConfig {
+	const defaultConfig = createDefaultTimerConfig();
+	return { ...defaultConfig, ...config };
+}
+
+/**
+ * Validate timer configuration
+ * @param config - Timer configuration to validate
+ * @returns Validation result
+ */
+export function validateTimerConfig(config: TimerConfig): TimerValidationResult {
+	if (config.timeoutMs <= 0) {
+		return { isValid: false, error: 'Timeout must be greater than 0' };
+	}
+	if (config.warningThresholdMs >= config.timeoutMs) {
+		return { isValid: false, error: 'Warning threshold must be less than timeout' };
+	}
+	if (config.warningThresholdMs < 0) {
+		return { isValid: false, error: 'Warning threshold cannot be negative' };
+	}
+	if (config.extendable && config.maxExtensions <= 0) {
+		return { isValid: false, error: 'Max extensions must be greater than 0 when extendable' };
+	}
+	if (config.extendable && config.extensionDurationMs <= 0) {
+		return { isValid: false, error: 'Extension duration must be greater than 0 when extendable' };
+	}
+	return { isValid: true };
+}
+
+// === TIMER STATE FUNCTIONS ===
+
+/**
+ * Create initial timer state
+ * @param config - Timer configuration
+ * @returns Initial timer state
+ */
+export function createInitialTimerState(config: TimerConfig): TimerState {
+	return {
+		isActive: false,
+		timeRemaining: config.timeoutMs,
+		timeElapsed: 0,
+		status: 'idle',
+		canExtend: config.extendable,
+		extensionsUsed: 0
+	};
+}
+
+/**
+ * Calculate timer state based on current time and configuration
+ * @param input - Timer input parameters
+ * @param currentTime - Current timestamp
+ * @returns Timer result with state and notification flags
+ */
+export function calculateTimerState(input: TimerInput, currentTime: number): TimerResult {
+	const { config, startTime, pauseTime, totalPausedTime, extensionsUsed } = input;
+
+	if (startTime === 0) {
+		return {
+			state: createInitialTimerState(config),
+			shouldNotifyWarning: false,
+			shouldNotifyExpired: false,
+			shouldNotifyTick: false,
+			shouldNotifyStateChange: false
+		};
+	}
+
+	const elapsed = currentTime - startTime - totalPausedTime;
+	const remaining = Math.max(0, config.timeoutMs - elapsed);
+
+	let status: TimerState['status'] = 'running';
+	let shouldNotifyWarning = false;
+	let shouldNotifyExpired = false;
+
+	// Check for warning threshold
+	if (remaining <= config.warningThresholdMs && remaining > 0) {
+		status = 'warning';
+		shouldNotifyWarning = true;
+	}
+
+	// Check for expiration
+	if (remaining <= 0) {
+		status = 'expired';
+		shouldNotifyExpired = true;
+	}
+
+	const state: TimerState = {
+		isActive: true,
+		timeRemaining: remaining,
+		timeElapsed: elapsed,
+		status,
+		canExtend: config.extendable && extensionsUsed < config.maxExtensions,
+		extensionsUsed
+	};
+
+	return {
+		state,
+		shouldNotifyWarning,
+		shouldNotifyExpired,
+		shouldNotifyTick: status === 'running',
+		shouldNotifyStateChange: true
+	};
+}
+
+/**
+ * Start timer and return initial state
+ * @param config - Timer configuration
+ * @param startTime - Start timestamp
+ * @returns Timer result
+ */
+export function startTimer(config: TimerConfig, startTime: number): TimerResult {
+	const input: TimerInput = {
+		config,
+		startTime,
+		pauseTime: 0,
+		totalPausedTime: 0,
+		extensionsUsed: 0
+	};
+
+	return calculateTimerState(input, startTime);
+}
+
+/**
+ * Pause timer and return paused state
+ * @param currentState - Current timer state
+ * @param pauseTime - Pause timestamp
+ * @returns Timer result
+ */
+export function pauseTimer(currentState: TimerState, _pauseTime: number): TimerResult {
+	if (!currentState.isActive || currentState.status === 'paused') {
+		return {
+			state: currentState,
+			shouldNotifyWarning: false,
+			shouldNotifyExpired: false,
+			shouldNotifyTick: false,
+			shouldNotifyStateChange: false
+		};
+	}
+
+	const pausedState: TimerState = {
+		...currentState,
+		status: 'paused'
+	};
+
+	return {
+		state: pausedState,
+		shouldNotifyWarning: false,
+		shouldNotifyExpired: false,
+		shouldNotifyTick: false,
+		shouldNotifyStateChange: true
+	};
+}
+
+/**
+ * Resume timer and return resumed state
+ * @param currentState - Current timer state
+ * @param resumeTime - Resume timestamp
+ * @param pauseTime - Previous pause timestamp
+ * @param totalPausedTime - Total paused time so far
+ * @returns Timer result
+ */
+export function resumeTimer(
+	currentState: TimerState,
+	_resumeTime: number,
+	_pauseTime: number,
+	_totalPausedTime: number
+): TimerResult {
+	if (!currentState.isActive || currentState.status !== 'paused') {
+		return {
+			state: currentState,
+			shouldNotifyWarning: false,
+			shouldNotifyExpired: false,
+			shouldNotifyTick: false,
+			shouldNotifyStateChange: false
+		};
+	}
+
+	const resumedState: TimerState = {
+		...currentState,
+		status: 'running'
+	};
+
+	return {
+		state: resumedState,
+		shouldNotifyWarning: false,
+		shouldNotifyExpired: false,
+		shouldNotifyTick: true,
+		shouldNotifyStateChange: true
+	};
+}
+
+/**
+ * Stop timer and return stopped state
+ * @param config - Timer configuration
+ * @returns Timer result
+ */
+export function stopTimer(_config: TimerConfig): TimerResult {
+	const stoppedState: TimerState = {
 		isActive: false,
 		timeRemaining: 0,
 		timeElapsed: 0,
@@ -27,288 +265,192 @@ export class TimerService {
 		extensionsUsed: 0
 	};
 
-	// Timer configuration
-	private _config: TimerConfig = {
-		timeoutMs: 2 * 60 * 1000, // 2 minutes default
-		warningThresholdMs: 30 * 1000, // 30 seconds warning
-		extendable: false,
-		maxExtensions: 0,
-		extensionDurationMs: 0
+	return {
+		state: stoppedState,
+		shouldNotifyWarning: false,
+		shouldNotifyExpired: false,
+		shouldNotifyTick: false,
+		shouldNotifyStateChange: true
 	};
-
-	// Internal timer management
-	private _timer: NodeJS.Timeout | null = null;
-	private _startTime: number = 0;
-	private _pauseTime: number = 0;
-	private _totalPausedTime: number = 0;
-
-	// Event callbacks
-	private _onWarning: (() => void) | null = null;
-	private _onExpired: (() => void) | null = null;
-	private _onTick: ((timeRemaining: number) => void) | null = null;
-	private _onStateChange: ((state: TimerState) => void) | null = null;
-
-	constructor(config?: Partial<TimerConfig>) {
-		if (config) {
-			this._config = { ...this._config, ...config };
-		}
-	}
-
-	// Public getters for current state
-	get state(): TimerState {
-		return { ...this._state }; // Return copy to prevent external mutation
-	}
-
-	get config(): TimerConfig {
-		return { ...this._config }; // Return copy to prevent external mutation
-	}
-
-	// Configure timer with new settings
-	configure(config: TimerConfig): void {
-		this._config = { ...config };
-		console.log(
-			`⏰ Timer configured: ${this._config.timeoutMs / 1000}s timeout, extendable: ${this._config.extendable}`
-		);
-	}
-
-	// Start the timer
-	start(): void {
-		if (this._state.isActive) {
-			console.warn('⚠️ Timer already running');
-			return;
-		}
-
-		this._startTime = Date.now();
-		this._totalPausedTime = 0;
-		this._state = {
-			...this._state,
-			isActive: true,
-			timeRemaining: this._config.timeoutMs,
-			timeElapsed: 0,
-			status: 'running',
-			canExtend: this._config.extendable,
-			extensionsUsed: 0
-		};
-
-		this._startTicking();
-		this._notifyStateChange();
-		console.log(`⏰ Timer started: ${this._config.timeoutMs / 1000}s remaining`);
-	}
-
-	// Stop the timer
-	stop(): void {
-		this._state = {
-			...this._state,
-			isActive: false,
-			status: 'idle',
-			timeRemaining: 0,
-			timeElapsed: 0
-		};
-		this._stopTicking();
-		this._notifyStateChange();
-		console.log('⏹️ Timer stopped');
-	}
-
-	// Pause the timer
-	pause(): void {
-		if (!this._state.isActive || this._state.status === 'paused') {
-			return;
-		}
-
-		this._pauseTime = Date.now();
-		this._state.status = 'paused';
-		this._stopTicking();
-		this._notifyStateChange();
-		console.log('⏸️ Timer paused');
-	}
-
-	// Resume the timer
-	resume(): void {
-		if (!this._state.isActive || this._state.status !== 'paused') {
-			return;
-		}
-
-		const pauseDuration = Date.now() - this._pauseTime;
-		this._totalPausedTime += pauseDuration;
-		this._state.status = 'running';
-		this._startTicking();
-		this._notifyStateChange();
-		console.log('▶️ Timer resumed');
-	}
-
-	// Reset the timer
-	reset(): void {
-		this.stop();
-		this._state.timeRemaining = this._config.timeoutMs;
-		this._startTime = 0;
-		this._pauseTime = 0;
-		this._totalPausedTime = 0;
-		this._state.extensionsUsed = 0;
-		console.log('🔄 Timer reset');
-	}
-
-	// Extend the timer
-	extend(additionalMs?: number): boolean {
-		if (!this._config.extendable) {
-			console.warn('⚠️ Timer extension not allowed');
-			return false;
-		}
-
-		if (!this._state.isActive) {
-			console.warn('⚠️ Cannot extend inactive timer');
-			return false;
-		}
-
-		if (this._state.extensionsUsed >= this._config.maxExtensions) {
-			console.warn('⚠️ Maximum extensions reached');
-			return false;
-		}
-
-		const extensionAmount = additionalMs || this._config.extensionDurationMs;
-		this._state.timeRemaining += extensionAmount;
-		this._state.extensionsUsed++;
-
-		this._notifyStateChange();
-		console.log(
-			`⏰ Timer extended by ${extensionAmount / 1000}s (${this._state.extensionsUsed}/${this._config.maxExtensions} used)`
-		);
-		return true;
-	}
-
-	// Set event callbacks
-	onWarning(callback: () => void): void {
-		this._onWarning = callback;
-	}
-
-	onExpired(callback: () => void): void {
-		this._onExpired = callback;
-	}
-
-	onTick(callback: (timeRemaining: number) => void): void {
-		this._onTick = callback;
-	}
-
-	onStateChange(callback: (state: TimerState) => void): void {
-		this._onStateChange = callback;
-	}
-
-	// Get formatted time strings
-	getFormattedTimeRemaining(): string {
-		const minutes = Math.floor(this._state.timeRemaining / 60000);
-		const seconds = Math.floor((this._state.timeRemaining % 60000) / 1000);
-		return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-	}
-
-	getFormattedTimeElapsed(): string {
-		const minutes = Math.floor(this._state.timeElapsed / 60000);
-		const seconds = Math.floor((this._state.timeElapsed % 60000) / 1000);
-		return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-	}
-
-	// Check timer states
-	isInWarningState(): boolean {
-		return (
-			this._state.timeRemaining <= this._config.warningThresholdMs && this._state.timeRemaining > 0
-		);
-	}
-
-	isExpired(): boolean {
-		return this._state.timeRemaining <= 0;
-	}
-
-	canExtend(): boolean {
-		return this._config.extendable && this._state.extensionsUsed < this._config.maxExtensions;
-	}
-
-	// Get debug information
-	getDebugInfo(): {
-		state: TimerState;
-		config: TimerConfig;
-		internal: {
-			startTime: number;
-			pauseTime: number;
-			totalPausedTime: number;
-			timerActive: boolean;
-		};
-	} {
-		return {
-			state: this._state,
-			config: this._config,
-			internal: {
-				startTime: this._startTime,
-				pauseTime: this._pauseTime,
-				totalPausedTime: this._totalPausedTime,
-				timerActive: !!this._timer
-			}
-		};
-	}
-
-	// Private methods
-	private _startTicking(): void {
-		if (this._timer) return;
-
-		this._timer = setInterval(() => {
-			if (this._state.status !== 'running') return;
-
-			const now = Date.now();
-			const elapsed = now - this._startTime - this._totalPausedTime;
-			const remaining = Math.max(0, this._config.timeoutMs - elapsed);
-
-			this._state.timeRemaining = remaining;
-			this._state.timeElapsed = elapsed;
-
-			// Call tick callback
-			if (this._onTick) {
-				this._onTick(remaining);
-			}
-
-			// Check for warning threshold
-			if (this.isInWarningState() && this._state.status === 'running') {
-				this._state.status = 'warning';
-				this._notifyStateChange();
-				if (this._onWarning) {
-					this._onWarning();
-				}
-				console.log('⚠️ Timer warning threshold reached');
-			}
-
-			// Check for expiration
-			if (this.isExpired()) {
-				this._state.status = 'expired';
-				this.stop();
-				if (this._onExpired) {
-					this._onExpired();
-				}
-				console.log('⏰ Timer expired');
-			}
-		}, 100); // Update every 100ms for smooth countdown
-	}
-
-	private _stopTicking(): void {
-		if (this._timer) {
-			clearInterval(this._timer);
-			this._timer = null;
-		}
-	}
-
-	private _notifyStateChange(): void {
-		if (this._onStateChange) {
-			this._onStateChange({ ...this._state });
-		}
-	}
-
-	// Cleanup method
-	cleanup(): void {
-		this.stop();
-		this._onWarning = null;
-		this._onExpired = null;
-		this._onTick = null;
-		this._onStateChange = null;
-		console.log('🧹 Timer service cleaned up');
-	}
 }
 
-// Export a factory function for easy creation
-export function createTimerService(config?: Partial<TimerConfig>): TimerService {
-	return new TimerService(config);
+/**
+ * Reset timer and return reset state
+ * @param config - Timer configuration
+ * @returns Timer result
+ */
+export function resetTimer(config: TimerConfig): TimerResult {
+	const initialState = createInitialTimerState(config);
+	return {
+		state: initialState,
+		shouldNotifyWarning: false,
+		shouldNotifyExpired: false,
+		shouldNotifyTick: false,
+		shouldNotifyStateChange: true
+	};
+}
+
+/**
+ * Extend timer and return extended state
+ * @param currentState - Current timer state
+ * @param config - Timer configuration
+ * @param additionalMs - Additional milliseconds to add
+ * @returns Timer result
+ */
+export function extendTimer(
+	currentState: TimerState,
+	config: TimerConfig,
+	additionalMs?: number
+): TimerResult {
+	if (!config.extendable) {
+		return {
+			state: currentState,
+			shouldNotifyWarning: false,
+			shouldNotifyExpired: false,
+			shouldNotifyTick: false,
+			shouldNotifyStateChange: false
+		};
+	}
+
+	if (!currentState.isActive) {
+		return {
+			state: currentState,
+			shouldNotifyWarning: false,
+			shouldNotifyExpired: false,
+			shouldNotifyTick: false,
+			shouldNotifyStateChange: false
+		};
+	}
+
+	if (currentState.extensionsUsed >= config.maxExtensions) {
+		return {
+			state: currentState,
+			shouldNotifyWarning: false,
+			shouldNotifyExpired: false,
+			shouldNotifyTick: false,
+			shouldNotifyStateChange: false
+		};
+	}
+
+	const extensionAmount = additionalMs || config.extensionDurationMs;
+	const extendedState: TimerState = {
+		...currentState,
+		timeRemaining: currentState.timeRemaining + extensionAmount,
+		extensionsUsed: currentState.extensionsUsed + 1,
+		canExtend: config.extendable && currentState.extensionsUsed + 1 < config.maxExtensions
+	};
+
+	return {
+		state: extendedState,
+		shouldNotifyWarning: false,
+		shouldNotifyExpired: false,
+		shouldNotifyTick: false,
+		shouldNotifyStateChange: true
+	};
+}
+
+// === UTILITY FUNCTIONS ===
+
+/**
+ * Format time remaining as MM:SS string
+ * @param timeRemainingMs - Time remaining in milliseconds
+ * @returns Formatted time string
+ */
+export function formatTimeRemaining(timeRemainingMs: number): string {
+	const minutes = Math.floor(timeRemainingMs / 60000);
+	const seconds = Math.floor((timeRemainingMs % 60000) / 1000);
+	return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+/**
+ * Format time elapsed as MM:SS string
+ * @param timeElapsedMs - Time elapsed in milliseconds
+ * @returns Formatted time string
+ */
+export function formatTimeElapsed(timeElapsedMs: number): string {
+	const minutes = Math.floor(timeElapsedMs / 60000);
+	const seconds = Math.floor((timeElapsedMs % 60000) / 1000);
+	return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+/**
+ * Check if timer is in warning state
+ * @param timeRemainingMs - Time remaining in milliseconds
+ * @param warningThresholdMs - Warning threshold in milliseconds
+ * @returns True if in warning state
+ */
+export function isInWarningState(timeRemainingMs: number, warningThresholdMs: number): boolean {
+	return timeRemainingMs <= warningThresholdMs && timeRemainingMs > 0;
+}
+
+/**
+ * Check if timer is expired
+ * @param timeRemainingMs - Time remaining in milliseconds
+ * @returns True if expired
+ */
+export function isExpired(timeRemainingMs: number): boolean {
+	return timeRemainingMs <= 0;
+}
+
+/**
+ * Check if timer can be extended
+ * @param config - Timer configuration
+ * @param extensionsUsed - Number of extensions already used
+ * @returns True if can be extended
+ */
+export function canExtend(config: TimerConfig, extensionsUsed: number): boolean {
+	return config.extendable && extensionsUsed < config.maxExtensions;
+}
+
+/**
+ * Calculate total paused time
+ * @param pauseTime - When timer was paused
+ * @param resumeTime - When timer was resumed
+ * @param previousTotalPaused - Previous total paused time
+ * @returns Total paused time in milliseconds
+ */
+export function calculateTotalPausedTime(
+	pauseTime: number,
+	resumeTime: number,
+	previousTotalPaused: number
+): number {
+	if (pauseTime === 0 || resumeTime === 0) {
+		return previousTotalPaused;
+	}
+
+	const pauseDuration = resumeTime - pauseTime;
+	return previousTotalPaused + pauseDuration;
+}
+
+/**
+ * Get debug information for timer
+ * @param input - Timer input parameters
+ * @param currentState - Current timer state
+ * @param currentTime - Current timestamp
+ * @returns Debug information object
+ */
+export function getTimerDebugInfo(
+	input: TimerInput,
+	currentState: TimerState,
+	currentTime: number
+): {
+	state: TimerState;
+	config: TimerConfig;
+	internal: {
+		startTime: number;
+		pauseTime: number;
+		totalPausedTime: number;
+		currentTime: number;
+	};
+} {
+	return {
+		state: currentState,
+		config: input.config,
+		internal: {
+			startTime: input.startTime,
+			pauseTime: input.pauseTime,
+			totalPausedTime: input.totalPausedTime,
+			currentTime
+		}
+	};
 }

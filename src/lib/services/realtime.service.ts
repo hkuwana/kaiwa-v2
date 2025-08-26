@@ -1,7 +1,8 @@
-// src/lib/services/realtime.service.ts
+// src/lib/services.ts
 // Pure functional realtime service - no classes, no state, just functions
 
 import { browser } from '$app/environment';
+import { env } from '$env/dynamic/public';
 import type {
 	ServerEvent,
 	ClientEvent,
@@ -45,10 +46,17 @@ export type ProcessedEventResult =
 
 // === CONNECTION FUNCTIONS ===
 
+/**
+ * Create a connection to the OpenAI Realtime API
+ * @param sessionData - The session data
+ * @param audioStream - The audio stream
+ * @param model - The model to use
+ * @returns The connection
+ */
 export async function createConnection(
 	sessionData: { client_secret: { value: string; expires_at: number } },
 	audioStream: MediaStream,
-	model: string = 'gpt-4o-mini-realtime-preview-2024-12-17'
+	model: string = env.PUBLIC_OPEN_AI_MODEL || 'gpt-4o-mini-realtime-preview-2024-12-17'
 ): Promise<RealtimeConnection | null> {
 	if (!browser) {
 		console.warn('createConnection can only be called in the browser');
@@ -123,6 +131,11 @@ export function sendEvent(connection: RealtimeConnection, event: ClientEvent): v
 	}
 }
 
+/**
+ * Create a text message event
+ * @param text - The text of the message
+ * @returns The text message event
+ */
 export function createTextMessage(text: string): ClientEvent {
 	return {
 		type: 'conversation.item.create',
@@ -142,6 +155,11 @@ export function createResponse(modalities: ('text' | 'audio')[] = ['text', 'audi
 	};
 }
 
+/**
+ * Create a session update event
+ * @param config - The session config
+ * @returns The session update event
+ */
 export function createSessionUpdate(config: SessionConfig): ClientEvent {
 	return {
 		type: 'session.update',

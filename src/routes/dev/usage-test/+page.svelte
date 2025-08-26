@@ -1,7 +1,18 @@
 <!-- Dev Usage Testing Page -->
 <script lang="ts">
 	import { usageStore } from '$lib/stores/usage.store.svelte';
-	import { TimerService } from '$lib/services/timer.service';
+	import {
+		createDefaultTimerConfig,
+		createTimerConfig,
+		startTimer,
+		stopTimer,
+		pauseTimer,
+		resumeTimer,
+		extendTimer,
+		calculateTimerState,
+		formatTimeRemaining,
+		formatTimeElapsed
+	} from '$lib/services/timer.service';
 	import { onMount, onDestroy } from 'svelte';
 	// Using Iconify icons via Tailwind classes
 	import { defaultTierConfigs, type UserTier } from '$lib/data/tiers';
@@ -13,8 +24,23 @@
 	let selectedTier: UserTier = 'free';
 	let tierConfig = defaultTierConfigs.free;
 
-	// Timer service
-	let timerService: TimerService | null = null;
+	// Timer state management
+	let timerConfig = createDefaultTimerConfig();
+	let timerState = {
+		startTime: 0,
+		pauseTime: 0,
+		totalPausedTime: 0,
+		extensionsUsed: 0
+	};
+	let currentTimerState = {
+		isActive: false,
+		timeRemaining: 0,
+		timeElapsed: 0,
+		status: 'idle' as 'idle' | 'running' | 'paused' | 'warning' | 'expired',
+		canExtend: false,
+		extensionsUsed: 0
+	};
+	let timerInterval: NodeJS.Timeout | null = null;
 
 	// Mock usage data for testing
 	let mockUsageData = {
@@ -48,8 +74,8 @@
 		// Set mock usage data
 		usageStore.usage = mockUsageData;
 
-		// Create timer service
-		timerService = new TimerService({
+		// Configure timer
+		timerConfig = createTimerConfig({
 			timeoutMs: tierConfig.conversationTimeoutMs || 60000,
 			warningThresholdMs: tierConfig.warningThresholdMs || 10000,
 			extendable: tierConfig.canExtend,
@@ -57,30 +83,22 @@
 			extensionDurationMs: tierConfig.extensionDurationMs
 		});
 
-		// Set up timer callbacks
-		timerService.onWarning(() => {
-			console.log('⚠️ Timer warning triggered');
-			usageStore.updateTimer({ warningTriggered: true });
-		});
-
-		timerService.onExpired(() => {
-			console.log('⏰ Timer expired - ending conversation');
-			usageStore.updateTimer({ isRunning: false });
-			// Simulate realtime session ending
-			simulateRealtimeEnd();
-		});
-
-		timerService.onTick((timeRemaining: number) => {
-			const elapsed = (tierConfig.conversationTimeoutMs || 60000) - timeRemaining;
-			usageStore.updateTimer({
-				remainingMs: timeRemaining,
-				elapsedMs: elapsed
-			});
-		});
+		// Initialize timer state
+		currentTimerState = {
+			isActive: false,
+			timeRemaining: timerConfig.timeoutMs,
+			timeElapsed: 0,
+			status: 'idle',
+			canExtend: timerConfig.extendable,
+			extensionsUsed: 0
+		};
 	});
 
 	onDestroy(() => {
-		timerService?.stop();
+		if (timerInterval) {
+			clearInterval(timerInterval);
+			timerInterval = null;
+		}
 	});
 
 	// Handle tier change
@@ -94,19 +112,25 @@
 		// Update mock usage data based on tier
 		updateMockUsageForTier(tier);
 
-		// Reconfigure timer service
-		if (timerService) {
-			timerService.configure({
-				timeoutMs: tierConfig.conversationTimeoutMs || 60000,
-				warningThresholdMs: tierConfig.warningThresholdMs || 10000,
-				extendable: tierConfig.canExtend,
-				maxExtensions: tierConfig.maxExtensions,
-				extensionDurationMs: tierConfig.extensionDurationMs
-			});
-		}
+		// Reconfigure timer
+		timerConfig = createTimerConfig({
+			timeoutMs: tierConfig.conversationTimeoutMs || 60000,
+			warningThresholdMs: tierConfig.warningThresholdMs || 10000,
+			extendable: tierConfig.canExtend,
+			maxExtensions: tierConfig.maxExtensions,
+			extensionDurationMs: tierConfig.extensionDurationMs
+		});
 
 		// Reset timer
 		usageStore.resetTimer();
+		currentTimerState = {
+			isActive: false,
+			timeRemaining: timerConfig.timeoutMs,
+			timeElapsed: 0,
+			status: 'idle',
+			canExtend: timerConfig.extendable,
+			extensionsUsed: 0
+		};
 	}
 
 	// Update mock usage data based on tier
@@ -123,13 +147,52 @@
 
 	// Start timer
 	async function handleStart() {
-		if (!timerService) return;
-
 		// Generate mock session ID
 		const sessionId = `dev-session-${Date.now()}`;
 
-		// Start timer
-		timerService.start();
+		// Start timer using functional service
+		const startTime = Date.now();
+		timerState.startTime = startTime;
+		timerState.pauseTime = 0;
+		timerState.totalPausedTime = 0;
+		timerState.extensionsUsed = 0;
+
+		const result = startTimer(timerConfig, startTime);
+		currentTimerState = result.state;
+
+		// Start timer interval
+		timerInterval = setInterval(() => {
+			const now = Date.now();
+			const timerInput = {
+				config: timerConfig,
+				...timerState
+			};
+			const timerResult = calculateTimerState(timerInput, now);
+			currentTimerState = timerResult.state;
+
+			// Handle notifications
+			if (timerResult.shouldNotifyWarning) {
+				console.log('⚠️ Timer warning triggered');
+				usageStore.updateTimer({ warningTriggered: true });
+			}
+
+			if (timerResult.shouldNotifyExpired) {
+				console.log('⏰ Timer expired - ending conversation');
+				usageStore.updateTimer({ isRunning: false });
+				simulateRealtimeEnd();
+				if (timerInterval) {
+					clearInterval(timerInterval);
+					timerInterval = null;
+				}
+			}
+
+			if (timerResult.shouldNotifyTick) {
+				usageStore.updateTimer({
+					remainingMs: timerResult.state.timeRemaining,
+					elapsedMs: timerResult.state.timeElapsed
+				});
+			}
+		}, 100);
 
 		// Update store
 		usageStore.updateTimer({
@@ -146,9 +209,15 @@
 
 	// Stop timer
 	async function handleStop() {
-		if (!timerService) return;
+		// Stop timer interval
+		if (timerInterval) {
+			clearInterval(timerInterval);
+			timerInterval = null;
+		}
 
-		timerService.stop();
+		// Stop timer using functional service
+		const result = stopTimer(timerConfig);
+		currentTimerState = result.state;
 
 		// Calculate seconds used
 		const secondsUsed = Math.ceil((usageStore.timer.elapsedMs || 0) / 1000);
@@ -163,26 +232,45 @@
 
 	// Pause/Resume timer
 	function handlePauseResume() {
-		if (!timerService) return;
-
 		if (usageStore.timer.isPaused) {
-			timerService.resume();
+			// Resume timer
+			const resumeTime = Date.now();
+			const totalPausedTime = timerState.totalPausedTime + (resumeTime - timerState.pauseTime);
+			timerState.totalPausedTime = totalPausedTime;
+
+			const result = resumeTimer(
+				currentTimerState,
+				resumeTime,
+				timerState.pauseTime,
+				totalPausedTime
+			);
+			currentTimerState = result.state;
+
 			usageStore.updateTimer({ isPaused: false, pausedAt: null });
 		} else {
-			timerService.pause();
+			// Pause timer
+			const pauseTime = Date.now();
+			timerState.pauseTime = pauseTime;
+
+			const result = pauseTimer(currentTimerState, pauseTime);
+			currentTimerState = result.state;
+
 			usageStore.updateTimer({ isPaused: true, pausedAt: new Date() });
 		}
 	}
 
 	// Extend timer
 	function handleExtend() {
-		if (!timerService || !usageStore.canExtend) return;
+		if (!usageStore.canExtend) return;
 
-		const success = timerService.extend(tierConfig.extensionDurationMs);
-		if (success) {
+		const result = extendTimer(currentTimerState, timerConfig, tierConfig.extensionDurationMs);
+		if (result.state !== currentTimerState) {
+			currentTimerState = result.state;
+			timerState.extensionsUsed = result.state.extensionsUsed;
+
 			usageStore.updateTimer({
-				extensionsUsed: (usageStore.timer.extensionsUsed || 0) + 1,
-				remainingMs: (usageStore.timer.remainingMs || 0) + (tierConfig.extensionDurationMs || 0)
+				extensionsUsed: result.state.extensionsUsed,
+				remainingMs: result.state.timeRemaining
 			});
 			console.log('⏰ Timer extended');
 		}
@@ -202,29 +290,58 @@
 		usageStore.usage = mockUsageData;
 		usageStore.resetTimer();
 
-		if (timerService) {
-			timerService.stop();
-			timerService.configure({
-				timeoutMs: tierConfig.conversationTimeoutMs || 60000,
-				warningThresholdMs: tierConfig.warningThresholdMs || 10000,
-				extendable: tierConfig.canExtend,
-				maxExtensions: tierConfig.maxExtensions,
-				extensionDurationMs: tierConfig.extensionDurationMs
-			});
+		// Stop any existing timer
+		if (timerInterval) {
+			clearInterval(timerInterval);
+			timerInterval = null;
 		}
+
+		// Configure timer with new tier settings
+		timerConfig = createTimerConfig({
+			timeoutMs: tierConfig.conversationTimeoutMs || 60000,
+			warningThresholdMs: tierConfig.warningThresholdMs || 10000,
+			extendable: tierConfig.canExtend,
+			maxExtensions: tierConfig.maxExtensions,
+			extensionDurationMs: tierConfig.extensionDurationMs
+		});
+
+		// Reset timer state
+		currentTimerState = {
+			isActive: false,
+			timeRemaining: timerConfig.timeoutMs,
+			timeElapsed: 0,
+			status: 'idle',
+			canExtend: timerConfig.extendable,
+			extensionsUsed: 0
+		};
 	}
 
 	// Custom timer configuration
 	function applyCustomTimerConfig() {
-		if (!timerService) return;
+		// Stop any existing timer
+		if (timerInterval) {
+			clearInterval(timerInterval);
+			timerInterval = null;
+		}
 
-		timerService.configure({
+		// Configure timer with custom settings
+		timerConfig = createTimerConfig({
 			timeoutMs: customTimeoutMs,
 			warningThresholdMs: customWarningMs,
 			extendable: tierConfig.canExtend,
 			maxExtensions: tierConfig.maxExtensions,
 			extensionDurationMs: tierConfig.extensionDurationMs
 		});
+
+		// Reset timer state
+		currentTimerState = {
+			isActive: false,
+			timeRemaining: timerConfig.timeoutMs,
+			timeElapsed: 0,
+			status: 'idle',
+			canExtend: timerConfig.extendable,
+			extensionsUsed: 0
+		};
 
 		usageStore.updateTimer({
 			remainingMs: customTimeoutMs,

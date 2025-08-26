@@ -24,11 +24,13 @@ export interface InputAudioNoiseReduction {
 }
 
 export interface TurnDetection {
-	type: VADType;
-	threshold: number;
-	prefix_padding_ms: number;
-	silence_duration_ms: number;
+	type?: VADType;
+	threshold?: number;
+	prefix_padding_ms?: number;
+	silence_duration_ms?: number;
 	create_response?: boolean;
+	eagerness?: string;
+	interrupt_response?: boolean;
 }
 
 // === Tools Configuration ===

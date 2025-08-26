@@ -8,17 +8,21 @@ export const conversations = pgTable(
 	'conversations',
 	{
 		id: text('id').primaryKey(),
-		userId: uuid('user_id').references(() => users.id),
-		targetLanguageId: text('target_language_id').references(() => languages.id),
+		userId: uuid('user_id')
+			.notNull()
+			.references(() => users.id),
+		targetLanguageId: text('target_language_id')
+			.notNull()
+			.references(() => languages.id),
 		title: text('title'),
-		mode: text('mode').$type<'traditional' | 'realtime'>().default('traditional'),
+		mode: text('mode').$type<'traditional' | 'realtime'>().default('traditional').notNull(),
 		voice: text('voice'),
 
 		// Basic scenario support for onboarding
 		scenarioId: text('scenario_id').references(() => scenarios.id),
 		isOnboarding: text('is_onboarding').default('false'), // First comfort session
 
-		startedAt: timestamp('started_at').defaultNow(),
+		startedAt: timestamp('started_at').defaultNow().notNull(),
 		endedAt: timestamp('ended_at'),
 		durationSeconds: integer('duration_seconds'),
 
