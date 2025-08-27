@@ -1,7 +1,11 @@
 <script lang="ts">
-	export let language: any;
-	export let voice: any;
-	export let autoStart: boolean = false;
+	interface Props {
+		language: any;
+		voice: any;
+		autoStart?: boolean;
+	}
+
+	let { language, voice, autoStart = false }: Props = $props();
 </script>
 
 <div class="p-8 text-center">

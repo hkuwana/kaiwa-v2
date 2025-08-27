@@ -21,8 +21,8 @@
 	const mockUserId = 'dev-test-user-123';
 
 	// Tier selection
-	let selectedTier: UserTier = 'free';
-	let tierConfig = defaultTierConfigs.free;
+	let selectedTier: UserTier = $state('free');
+	let tierConfig = $state(defaultTierConfigs.free);
 
 	// Timer state management
 	let timerConfig = createDefaultTimerConfig();
@@ -63,9 +63,9 @@
 	};
 
 	// Test controls
-	let showAdvancedControls = false;
-	let customTimeoutMs = 60000; // 1 minute default
-	let customWarningMs = 10000; // 10 seconds default
+	let showAdvancedControls = $state(false);
+	let customTimeoutMs = $state(60000); // 1 minute default
+	let customWarningMs = $state(10000); // 10 seconds default
 
 	onMount(async () => {
 		// Initialize usage store with mock data

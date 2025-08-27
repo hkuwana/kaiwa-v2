@@ -2,7 +2,11 @@
 	import RealtimeConversation from '$lib/components/RealtimeConversation.svelte';
 	import type { PageData } from './$types';
 	
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 </script>
 
 <svelte:head>

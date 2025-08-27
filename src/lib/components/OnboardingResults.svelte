@@ -1,11 +1,20 @@
-<!-- src/lib/components/OnboardingResults.svelte -->
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
+	import type { UserPreferences } from '$lib/server/db/types';
 
-	const { results, isVisible } = $props();
-
-	const dispatch = createEventDispatcher();
+	// Use $props to define the component's public API.
+	// We've replaced the event dispatcher with `onsave` and `ondismiss` callback functions.
+	let {
+		results,
+		isVisible,
+		onsave = () => {},
+		ondismiss = () => {}
+	}: {
+		results: UserPreferences;
+		isVisible: boolean;
+		onsave?: () => void;
+		ondismiss?: () => void;
+	} = $props();
 
 	function getSkillColor(level: number): string {
 		if (level <= 20) return 'text-error bg-error/10';
@@ -27,28 +36,22 @@
 		return `${Math.min(100, Math.max(0, level))}%`;
 	}
 
-	function handleDismiss() {
-		dispatch('dismiss');
-	}
-
+	// This function now calls both the `onsave` and `ondismiss` props.
 	function handleSaveProfile() {
-		dispatch('save');
-		handleDismiss();
+		onsave();
+		ondismiss();
 	}
 </script>
 
 {#if isVisible && results}
-	<!-- Modal Backdrop -->
 	<div
 		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
 		transition:fade={{ duration: 200 }}
 	>
-		<!-- Modal Content -->
 		<div
 			class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-base-100 shadow-2xl"
 			transition:fly={{ y: 20, duration: 300 }}
 		>
-			<!-- Header -->
 			<div class="flex items-center justify-between border-b border-base-200 p-6">
 				<div class="flex items-center gap-3">
 					<div
@@ -63,7 +66,7 @@
 						<p class="text-sm text-base-content/60">Based on our conversation</p>
 					</div>
 				</div>
-				<button class="btn btn-circle btn-ghost btn-sm" on:click={handleDismiss}>
+				<button class="btn btn-circle btn-ghost btn-sm" onclick={ondismiss}>
 					<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path
 							stroke-linecap="round"
@@ -76,7 +79,6 @@
 			</div>
 
 			<div class="space-y-6 p-6">
-				<!-- Skill Levels Section -->
 				<div class="space-y-4">
 					<div class="flex items-center gap-2">
 						<svg class="h-5 w-5 text-warning" fill="currentColor" viewBox="0 0 20 20">
@@ -86,57 +88,53 @@
 					</div>
 
 					<div class="grid gap-4">
-						<!-- Speaking Level -->
 						<div class="space-y-2">
 							<div class="flex items-center justify-between">
 								<span class="text-sm font-medium">Speaking</span>
-								<div class="badge {getSkillColor(results.skillLevels.speaking)} badge-sm">
-									{getSkillLabel(results.skillLevels.speaking)}
+								<div class="badge {getSkillColor(results.speakingLevel)} badge-sm">
+									{getSkillLabel(results.speakingLevel)}
 								</div>
 							</div>
 							<div class="h-2 w-full rounded-full bg-base-200">
 								<div
 									class="h-2 rounded-full bg-primary transition-all duration-1000 ease-out"
-									style="width: {getProgressWidth(results.skillLevels.speaking)}"
+									style="width: {getProgressWidth(results.speakingLevel)}"
 								></div>
 							</div>
 						</div>
 
-						<!-- Listening Level -->
 						<div class="space-y-2">
 							<div class="flex items-center justify-between">
 								<span class="text-sm font-medium">Listening</span>
-								<div class="badge {getSkillColor(results.skillLevels.listening)} badge-sm">
-									{getSkillLabel(results.skillLevels.listening)}
+								<div class="badge {getSkillColor(results.listeningLevel)} badge-sm">
+									{getSkillLabel(results.listeningLevel)}
 								</div>
 							</div>
 							<div class="h-2 w-full rounded-full bg-base-200">
 								<div
 									class="h-2 rounded-full bg-success transition-all duration-1000 ease-out"
-									style="width: {getProgressWidth(results.skillLevels.listening)}"
+									style="width: {getProgressWidth(results.listeningLevel)}"
 								></div>
 							</div>
 						</div>
 
-						<!-- Confidence Level -->
 						<div class="space-y-2">
 							<div class="flex items-center justify-between">
 								<span class="text-sm font-medium">Confidence</span>
-								<div class="badge {getSkillColor(results.skillLevels.confidence)} badge-sm">
-									{results.skillLevels.confidence}%
+								<div class="badge {getSkillColor(results.confidenceLevel)} badge-sm">
+									{results.confidenceLevel}%
 								</div>
 							</div>
 							<div class="h-2 w-full rounded-full bg-base-200">
 								<div
 									class="h-2 rounded-full bg-secondary transition-all duration-1000 ease-out"
-									style="width: {getProgressWidth(results.skillLevels.confidence)}"
+									style="width: {getProgressWidth(results.confidenceLevel)}"
 								></div>
 							</div>
 						</div>
 					</div>
 				</div>
 
-				<!-- Learning Goals Section -->
 				<div class="space-y-4">
 					<div class="flex items-center gap-2">
 						<svg class="h-5 w-5 text-error" fill="currentColor" viewBox="0 0 20 20">
@@ -151,15 +149,15 @@
 						<div class="card border border-primary/20 bg-primary/10">
 							<div class="card-body p-4">
 								<div class="text-sm font-medium text-primary">Main Focus</div>
-								<div class="mt-1 font-medium text-primary">{results.goals.main}</div>
+								<div class="mt-1 font-medium text-primary">{results.learningGoal}</div>
 							</div>
 						</div>
 
-						{#if results.goals.specific.length > 0}
+						{#if results.specificGoals}
 							<div class="space-y-2">
 								<div class="text-sm font-medium">Specific Goals</div>
 								<div class="flex flex-wrap gap-2">
-									{#each results.goals.specific as goal}
+									{#each results.specificGoals as goal}
 										<span class="badge badge-outline badge-sm">{goal}</span>
 									{/each}
 								</div>
@@ -168,7 +166,6 @@
 					</div>
 				</div>
 
-				<!-- Learning Preferences Section -->
 				<div class="space-y-4">
 					<div class="flex items-center gap-2">
 						<svg class="h-5 w-5 text-base-content/60" fill="currentColor" viewBox="0 0 20 20">
@@ -182,16 +179,16 @@
 					<div class="grid gap-4 md:grid-cols-3">
 						<div class="card border border-base-200">
 							<div class="card-body p-4">
-								<div class="text-sm font-medium text-base-content/70">Challenge Level</div>
-								<div class="mt-1 font-medium capitalize">{results.preferences.challenge}</div>
+								<div class="text-sm font-medium text-base-content/70">Challenge</div>
+								<div class="mt-1 font-medium capitalize">{results.challengePreference}</div>
 							</div>
 						</div>
 
 						<div class="card border border-base-200">
 							<div class="card-body p-4">
-								<div class="text-sm font-medium text-base-content/70">Corrections</div>
+								<div class="text-sm font-medium text-base-content/70">Correction Style</div>
 								<div class="mt-1 font-medium capitalize">
-									{results.preferences.corrections.replace('_', ' ')}
+									{results.correctionStyle}
 								</div>
 							</div>
 						</div>
@@ -199,35 +196,19 @@
 						<div class="card border border-base-200">
 							<div class="card-body p-4">
 								<div class="text-sm font-medium text-base-content/70">Daily Goal</div>
-								<div class="mt-1 font-medium">{results.preferences.dailyMinutes} minutes</div>
+								<div class="mt-1 font-medium">{results.dailyGoalMinutes} minutes</div>
 							</div>
 						</div>
 					</div>
 				</div>
 
-				<!-- Assessment Notes -->
-				<div class="space-y-3">
-					<h3 class="text-lg font-semibold">AI Tutor Assessment</h3>
-					<div class="bg-base-50 card">
-						<div class="card-body p-4">
-							<p class="text-sm leading-relaxed text-base-content/80">
-								{results.assessment}
-							</p>
-						</div>
-					</div>
-				</div>
-
-				<!-- Action Buttons -->
 				<div class="flex flex-col gap-3 border-t border-base-200 pt-4 sm:flex-row">
-					<button on:click={handleDismiss} class="btn flex-1 btn-primary">
-						Continue Learning
-					</button>
-					<button on:click={handleSaveProfile} class="btn flex-1 btn-outline">
+					<button onclick={ondismiss} class="btn flex-1 btn-primary"> Continue Learning </button>
+					<button onclick={handleSaveProfile} class="btn flex-1 btn-outline">
 						Save to Account
 					</button>
 				</div>
 
-				<!-- Info note -->
 				<div class="alert alert-info">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
