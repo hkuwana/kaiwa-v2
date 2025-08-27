@@ -4,79 +4,63 @@
 	import { browser, dev } from '$app/environment';
 	import { onMount, onDestroy } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { fade, fly } from 'svelte/transition';
 
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
-	import { settingsStore, usePersistentSettings } from '$lib/stores/settings.store.svelte';
-	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
+	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import LoadingScreen from '$lib/components/LoadingScreen.svelte';
+	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
 	import MessageBubble from '$lib/components/MessageBubble.svelte';
+	import OnboardingResults from '$lib/components/OnboardingResults.svelte';
 
 	const { data } = $props();
-
-	// Get user ID from page data
-	const userId = data.user?.id ?? null;
 
 	// Reactive values from stores
 	let status = $derived(conversationStore.status);
 	let messages = $derived(conversationStore.messages);
 	let audioLevel = $derived(conversationStore.reactiveAudioLevel);
 	let error = $derived(conversationStore.error);
-	let availableDevices = $derived(conversationStore.availableDevices);
-	let selectedDeviceId = $derived(conversationStore.selectedDeviceId);
-
-	// Settings from settings store
 	let selectedLanguage = $derived(settingsStore.selectedLanguage);
-	let selectedSpeaker = $derived(settingsStore.selectedSpeaker);
+	let isAnalyzing = $derived(conversationStore.isAnalyzing);
+	let hasAnalysisResults = $derived(conversationStore.hasAnalysisResults);
+	let isGuestUser = $derived(conversationStore.isGuestUser);
 
-	// Get persistent settings utilities
-	const persistentSettings = usePersistentSettings();
-
-	// Auto-connection state
+	// Connection state
 	let autoConnectAttempted = $state(false);
-	let autoConnectError = $state<string>('');
-	let isAutoConnecting = $state(false);
-
-	// Manual message input
 	let messageInput = $state('');
-
-	// Dev mode toggle
-	let showDevTools = $state(dev);
 
 	// Extract session parameters from URL
 	const sessionId = $derived(page.url.searchParams.get('sessionId') || crypto.randomUUID());
-	const urlLanguage = $derived(page.url.searchParams.get('language'));
-	const urlSpeaker = $derived(page.url.searchParams.get('speaker'));
 
-	// Setup persistence on mount
-	$effect(() => {
-		if (browser) {
-			settingsStore.ensurePersistence();
-		}
-	});
+	// Determine view modes
+	const showLoadingScreen = $derived(
+		status === 'connecting' || (status === 'webrtc-connected' && messages.length === 0)
+	);
 
-	// Auto-connection effect - runs when page loads or settings change
+	const showActiveConversation = $derived(
+		(status === 'webrtc-connected' || status === 'streaming') && messages.length > 0
+	);
+
+	const showAnalyzing = $derived(isAnalyzing);
+	const showAnalysisResults = $derived(hasAnalysisResults);
+
+	// Auto-connection effect
 	$effect(() => {
-		// Only auto-connect if:
-		// 1. We're in browser
-		// 2. Haven't attempted auto-connect yet
-		// 3. We're in idle state (not already connecting/connected)
-		// 4. We have session ID
-		// 5. We have either URL params or stored settings
-		if (
-			browser &&
-			!autoConnectAttempted &&
-			status === 'idle' &&
-			sessionId &&
-			(urlLanguage || selectedLanguage)
-		) {
+		if (browser && !autoConnectAttempted && status === 'idle' && selectedLanguage) {
 			attemptAutoConnection();
 		}
 	});
 
 	onMount(() => {
-		console.log('Conversation page mounted with session:', sessionId);
+		console.log('Conversation page mounted');
 
-		// Update URL if session ID wasn't provided
+		// Redirect to home if no language selected
+		if (!selectedLanguage) {
+			goto('/');
+			return;
+		}
+
+		// Update URL with session ID if needed
 		if (!page.url.searchParams.get('sessionId')) {
 			const newUrl = new URL(page.url);
 			newUrl.searchParams.set('sessionId', sessionId);
@@ -85,107 +69,44 @@
 	});
 
 	onDestroy(() => {
-		console.log('Conversation page component destroying, cleaning up...');
-
-		// End any active conversation
-		if (status === 'connected' || status === 'streaming') {
+		console.log('Cleaning up conversation...');
+		if (status === 'webrtc-connected' || status === 'streaming') {
 			conversationStore.endConversation();
 		}
-
-		// Force cleanup of realtime connection
 		conversationStore.forceCleanup();
 	});
 
-	// Browser cleanup handlers
+	// Browser cleanup
 	if (browser) {
 		const handleBeforeUnload = () => {
-			if (status === 'connected' || status === 'streaming') {
-				conversationStore.endConversation();
-			}
-			conversationStore.forceCleanup();
-		};
-
-		const handleVisibilityChange = () => {
-			if (document.hidden && (status === 'connected' || status === 'streaming')) {
-				console.log('Page hidden, ending conversation');
+			if (status === 'webrtc-connected' || status === 'streaming') {
 				conversationStore.endConversation();
 			}
 		};
 
 		window.addEventListener('beforeunload', handleBeforeUnload);
-		document.addEventListener('visibilitychange', handleVisibilityChange);
-
 		onDestroy(() => {
 			window.removeEventListener('beforeunload', handleBeforeUnload);
-			document.removeEventListener('visibilitychange', handleVisibilityChange);
 		});
 	}
 
 	async function attemptAutoConnection() {
-		if (autoConnectAttempted || isAutoConnecting) return;
+		if (autoConnectAttempted || !selectedLanguage) return;
 
 		autoConnectAttempted = true;
-		isAutoConnecting = true;
-		autoConnectError = '';
+		console.log('Starting auto-connection with:', selectedLanguage.name);
 
 		try {
-			// Determine language to use (URL param takes precedence)
-			let targetLanguage = selectedLanguage;
-			if (urlLanguage) {
-				// You might want to validate/find the language from your data
-				// For now, assuming selectedLanguage is set correctly
-				console.log('Using URL language parameter:', urlLanguage);
-			}
-
-			// Determine speaker to use (URL param takes precedence)
-			let targetSpeaker = selectedSpeaker;
-			if (urlSpeaker) {
-				targetSpeaker = urlSpeaker;
-				console.log('Using URL speaker parameter:', urlSpeaker);
-			}
-
-			if (!targetLanguage) {
-				throw new Error('No language selected for conversation');
-			}
-
-			console.log('Starting auto-connection with:', {
-				language: targetLanguage.name,
-				speaker: targetSpeaker,
-				sessionId
-			});
-
-			await conversationStore.startConversation(targetLanguage, targetSpeaker);
-
+			await conversationStore.startConversation(selectedLanguage, settingsStore.selectedSpeaker);
 			console.log('Auto-connection successful');
 		} catch (err) {
 			console.error('Auto-connection failed:', err);
-			autoConnectError = err instanceof Error ? err.message : 'Connection failed';
-		} finally {
-			isAutoConnecting = false;
-		}
-	}
-
-	async function handleManualStart() {
-		if (!selectedLanguage) {
-			autoConnectError = 'Please select a language first';
-			return;
-		}
-
-		autoConnectError = '';
-
-		try {
-			await conversationStore.startConversation(selectedLanguage, selectedSpeaker);
-		} catch (err) {
-			autoConnectError = err instanceof Error ? err.message : 'Connection failed';
 		}
 	}
 
 	function handleRetryConnection() {
 		autoConnectAttempted = false;
-		autoConnectError = '';
 		conversationStore.clearError();
-
-		// Will trigger auto-connection effect
 		if (selectedLanguage) {
 			attemptAutoConnection();
 		}
@@ -193,22 +114,22 @@
 
 	function handleEndConversation() {
 		conversationStore.endConversation();
+	}
 
-		// Navigate back to language selection or home
+	function handleContinueAfterResults() {
+		conversationStore.completeAnalyzedSession();
 		goto('/');
 	}
 
-	function handleSelectDevice(deviceId: string) {
-		conversationStore.selectDevice(deviceId);
-	}
-
-	function handleClearError() {
-		conversationStore.clearError();
-		autoConnectError = '';
+	function handleSaveAndContinue() {
+		// This would typically trigger a signup/login flow
+		// For now, just dismiss results
+		conversationStore.dismissAnalysisResults();
+		goto('/');
 	}
 
 	function handleSendMessage() {
-		if (messageInput.trim() && (status === 'connected' || status === 'streaming')) {
+		if (messageInput.trim() && (status === 'webrtc-connected' || status === 'streaming')) {
 			conversationStore.sendMessage(messageInput.trim());
 			messageInput = '';
 		}
@@ -220,298 +141,235 @@
 			handleSendMessage();
 		}
 	}
+
+	// Get appropriate header info
+	function getHeaderInfo() {
+		if (isGuestUser && messages.length < 4) {
+			return {
+				title: `Welcome to ${selectedLanguage?.name || 'Language'} Learning!`,
+				subtitle: "Let's get to know you and create your perfect learning plan",
+				badge: 'Personalizing'
+			};
+		} else {
+			return {
+				title: `${selectedLanguage?.name || 'Language'} Conversation`,
+				subtitle: null,
+				badge: 'Active'
+			};
+		}
+	}
+
+	const headerInfo = getHeaderInfo();
 </script>
 
-<div class="mx-auto max-w-7xl p-8 font-sans">
-	<div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
-		<!-- Main Conversation Area -->
-		<div class="lg:col-span-2">
-			{#if status !== 'connected'}
-				<header class="mb-8 text-center">
-					<div class="mb-4 flex items-center justify-center gap-4">
-						<h1 class="text-4xl font-bold text-primary">
-							{selectedLanguage?.name || 'Language'} Conversation
-						</h1>
+<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">
+	{#if showLoadingScreen}
+		<!-- Loading/Connection Screen -->
+		<div class="container mx-auto px-4" in:fade={{ duration: 300 }}>
+			<LoadingScreen
+				status={error ? 'error' : status}
+				{audioLevel}
+				{error}
+				onRetry={handleRetryConnection}
+			/>
+		</div>
+	{:else if showAnalyzing}
+		<!-- Analysis Screen -->
+		<div class="container mx-auto max-w-2xl px-4 py-12" in:fade={{ duration: 300 }}>
+			<div class="card bg-base-100 shadow-xl">
+				<div class="card-body text-center">
+					<div
+						class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10"
+					>
+						<div class="loading loading-lg loading-spinner text-primary"></div>
 					</div>
-
-					<div class="flex items-center justify-center gap-2 text-sm text-base-content/60">
-						{#if userId}
-							<span class="badge badge-outline">Logged In</span>
-						{:else}
-							<span class="badge badge-ghost">Guest Mode</span>
-						{/if}
-					</div>
-				</header>
-			{/if}
-			<main class="space-y-6">
-				<!-- Auto-connection status -->
-				{#if isAutoConnecting}
-					<div class="card bg-base-100 shadow-lg">
-						<div class="card-body text-center">
-							<h3 class="card-title justify-center text-info">Auto-Connecting...</h3>
-							<p class="text-base-content/70">
-								Setting up your conversation with {selectedLanguage?.name || 'selected language'}
-							</p>
-							<LoadingScreen />
+					<h2 class="card-title justify-center text-2xl">Creating Your Learning Profile</h2>
+					<p class="mb-6 text-base-content/70">
+						We're analyzing our conversation to understand your learning style, goals, and current
+						level. This helps us create the perfect personalized experience for you.
+					</p>
+					<div class="space-y-2 text-sm">
+						<div class="flex items-center justify-center gap-2">
+							<div class="loading loading-sm loading-dots"></div>
+							<span>Assessing your language skills...</span>
+						</div>
+						<div class="flex items-center justify-center gap-2 text-base-content/50">
+							<span>Understanding your goals...</span>
+						</div>
+						<div class="flex items-center justify-center gap-2 text-base-content/50">
+							<span>Personalizing your experience...</span>
 						</div>
 					</div>
-				{:else if status === 'connecting'}
-					<LoadingScreen />
+				</div>
+			</div>
+		</div>
+	{:else if showAnalysisResults}
+		<!-- Analysis Results Modal -->
+		<OnboardingResults
+			results={conversationStore.getAnalysisResults()}
+			isVisible={true}
+			language={selectedLanguage?.name}
+			onDismiss={handleContinueAfterResults}
+			onSave={handleSaveAndContinue}
+		/>
+	{:else if showActiveConversation}
+		<!-- Active Conversation View -->
+		<div class="container mx-auto max-w-4xl px-4 py-6" in:fly={{ y: 20, duration: 400 }}>
+			<!-- Header -->
+			<header class="mb-6 text-center">
+				<div class="mb-4 flex items-center justify-center gap-4">
+					<h1 class="text-2xl font-bold text-primary">
+						{headerInfo.title}
+					</h1>
+					<div class="badge badge-success">{headerInfo.badge}</div>
+				</div>
+				{#if headerInfo.subtitle}
+					<p class="text-base-content/70">{headerInfo.subtitle}</p>
 				{/if}
+			</header>
 
-				<!-- Error display -->
-				{#if error || autoConnectError}
-					<div class="alert alert-error">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="h-6 w-6 shrink-0 stroke-current"
-							fill="none"
-							viewBox="0 0 24 24"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-							/>
-						</svg>
-						<div>
-							<h3 class="font-bold">Connection Error</h3>
-							<div class="text-xs">{error || autoConnectError}</div>
-						</div>
-						<div class="flex gap-2">
-							<button onclick={handleRetryConnection} class="btn btn-outline btn-sm">
-								Retry
-							</button>
-							<button onclick={handleClearError} class="btn btn-ghost btn-sm"> Dismiss </button>
-						</div>
-					</div>
-				{/if}
-
-				<!-- Manual start button (only show if auto-connect failed or not attempted) -->
-				{#if status === 'idle' && (autoConnectError || !selectedLanguage)}
-					<div class="card bg-base-100 shadow-lg">
-						<div class="card-body text-center">
-							{#if !selectedLanguage}
-								<h3 class="card-title justify-center text-warning">Language Required</h3>
-								<p class="mb-4 text-base-content/70">
-									Please select a language before starting your conversation
-								</p>
-								<button onclick={() => goto('/')} class="btn btn-primary"> Select Language </button>
-							{:else}
-								<h3 class="card-title justify-center">Ready to Start</h3>
-								<p class="mb-4 text-base-content/70">
-									Start your conversation with {selectedLanguage.name}
-								</p>
-								<button onclick={handleManualStart} class="btn btn-lg btn-primary">
-									Start Conversation
-								</button>
-							{/if}
-						</div>
-					</div>
-				{/if}
-
-				<!-- Streaming state -->
-				{#if status === 'connected'}
-					<div class="card border border-info/20 bg-info/10 shadow-lg">
-						<div class="card-body text-center">
-							<h3 class="card-title justify-center text-info">Voice Chat Active</h3>
-							<p class="mb-4 text-base-content/70">
-								Speak naturally - the AI will respond when you finish talking
-							</p>
-
-							<div class="mb-4 flex justify-center">
+			<!-- Live Audio Indicator -->
+			{#if status === 'webrtc-connected' || status === 'streaming'}
+				<div class="mb-6 flex justify-center" in:fade={{ duration: 300, delay: 200 }}>
+					<div class="card border border-success/20 bg-success/5 shadow-lg">
+						<div class="card-body p-4 text-center">
+							<div class="mb-2 flex justify-center">
 								<AudioVisualizer {audioLevel} />
 							</div>
-
-							<div class="card-actions justify-center">
-								<button onclick={handleEndConversation} class="btn btn-outline btn-error">
-									End Conversation
-								</button>
-							</div>
+							<p class="text-sm text-success">
+								{isGuestUser && messages.length < 4
+									? 'Getting to know you - Speak naturally'
+									: 'Voice chat active - Speak naturally'}
+							</p>
 						</div>
 					</div>
-				{/if}
+				</div>
+			{/if}
 
-				<!-- Live Transcription (User Only) -->
-				{#if conversationStore.currentTranscript}
-					<div class="mb-4 flex justify-center">
-						<AudioVisualizer {audioLevel} />
-					</div>
-					<div class="card border-l-4 border-l-info bg-base-100 shadow-lg">
+			<!-- Live Transcription -->
+			{#if conversationStore.currentTranscript}
+				<div class="mb-6" in:fly={{ y: -10, duration: 200 }}>
+					<div class="card border-l-4 border-l-info bg-info/5">
 						<div class="card-body">
-							<h3 class="card-title text-lg text-info">Your Speech</h3>
-							<div class="rounded-lg bg-base-200 p-4">
+							<h3 class="card-title text-lg text-info">You're saying:</h3>
+							<div class="rounded-lg bg-base-100 p-4">
 								<p class="text-lg">{conversationStore.currentTranscript}</p>
 								{#if conversationStore.isTranscribing}
-									<div class="mt-2 flex items-center gap-2 text-sm text-base-content/60">
-										<div class="h-2 w-2 animate-pulse rounded-full bg-info"></div>
-										<span>Transcribing...</span>
+									<div class="mt-2 flex items-center gap-2 text-sm opacity-70">
+										<div class="loading loading-sm loading-dots"></div>
+										<span>Listening...</span>
 									</div>
 								{/if}
 							</div>
 						</div>
 					</div>
-				{/if}
+				</div>
+			{/if}
 
-				<!-- Messages -->
-				{#if messages.length > 0}
-					<div class="card bg-base-100 shadow-lg">
-						<div class="card-body">
-							<h3 class="mb-4 card-title text-xl text-primary">Conversation History</h3>
-							<div class="max-h-96 space-y-3 overflow-y-auto">
-								{#each messages as message (message.id)}
+			<!-- Guest User Helper Text -->
+			{#if isGuestUser && messages.length < 3}
+				<div class="mb-6" in:fade={{ duration: 300 }}>
+					<div class="alert alert-info">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							class="h-6 w-6 shrink-0 stroke-current"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+							></path>
+						</svg>
+						<div>
+							<h3 class="font-bold">Welcome to your first lesson!</h3>
+							<div class="mt-1 text-xs">
+								Our AI tutor will chat with you to understand your goals and assess your level. This
+								helps us create the perfect learning experience for you!
+							</div>
+						</div>
+					</div>
+				</div>
+			{/if}
+
+			<!-- Conversation Messages -->
+			<div class="mb-6">
+				<div class="card bg-base-100 shadow-lg">
+					<div class="card-body">
+						<h3 class="mb-4 card-title text-xl">
+							{isGuestUser && messages.length < 4 ? 'Getting to Know You' : 'Conversation'}
+						</h3>
+						<div class="max-h-96 space-y-3 overflow-y-auto">
+							{#each messages as message, index (message.id)}
+								<div in:fly={{ y: 20, duration: 300, delay: index * 50 }}>
 									<MessageBubble {message} />
-								{/each}
-							</div>
+								</div>
+							{/each}
 						</div>
 					</div>
-				{/if}
+				</div>
+			</div>
 
-				<!-- Text Message Input -->
-				{#if status === 'connected' || (status === 'streaming' && dev)}
-					<div class="card bg-base-100 shadow-lg">
-						<div class="card-body">
-							<h3 class="card-title text-primary">Send Text Message</h3>
-							<div class="flex gap-2">
-								<input
-									type="text"
-									bind:value={messageInput}
-									onkeypress={handleKeyPress}
-									placeholder="Type your message..."
-									class="input-bordered input flex-1"
-									disabled={status !== 'connected' && status !== 'streaming'}
-								/>
-								<button
-									onclick={handleSendMessage}
-									class="btn btn-primary"
-									disabled={!messageInput.trim() ||
-										(status !== 'connected' && status !== 'streaming')}
-								>
-									Send
-								</button>
-							</div>
-						</div>
-					</div>
-				{/if}
-
-				<!-- Audio Device Selection -->
-				{#if availableDevices.length > 0}
-					<div class="card bg-base-100 shadow-lg">
-						<div class="card-body">
-							<h3 class="card-title text-primary">Audio Device</h3>
-							<select
-								value={selectedDeviceId}
-								onchange={(e) => handleSelectDevice((e.target as HTMLSelectElement).value)}
-								class="select-bordered select w-full"
+			<!-- Text Input -->
+			<div class="mb-6">
+				<div class="card bg-base-100 shadow-lg">
+					<div class="card-body">
+						<div class="flex gap-2">
+							<input
+								type="text"
+								bind:value={messageInput}
+								onkeypress={handleKeyPress}
+								placeholder="Type your response..."
+								class="input-bordered input flex-1"
+								disabled={status === 'analyzing'}
+							/>
+							<button
+								onclick={handleSendMessage}
+								class="btn btn-primary"
+								disabled={!messageInput.trim() || status === 'analyzing'}
 							>
-								{#each availableDevices as device (device.deviceId)}
-									<option value={device.deviceId}>
-										{device.label || `Device ${device.deviceId.slice(0, 8)}`}
-									</option>
-								{/each}
-							</select>
+								Send
+							</button>
 						</div>
+						{#if isGuestUser && messages.length < 4}
+							<div class="mt-2 text-xs text-base-content/60">
+								Pro tip: You can speak out loud or type your responses - whatever feels more
+								comfortable!
+							</div>
+						{/if}
 					</div>
-				{/if}
-			</main>
+				</div>
+			</div>
+
+			<!-- End Conversation -->
+			<div class="flex justify-center">
+				<button
+					onclick={handleEndConversation}
+					class="btn btn-outline btn-error"
+					disabled={status === 'analyzing'}
+				>
+					{isGuestUser ? 'Finish & Get My Results' : 'End Conversation'}
+				</button>
+			</div>
 		</div>
 
-		<!-- Dev Tools Sidebar -->
+		<!-- Dev Tools -->
 		{#if dev}
-			<div class="lg:col-span-1">
-				<div class="sticky top-8">
-					<div class="card border border-warning/30 bg-warning/5">
-						<div class="card-body">
-							<div class="mb-4 flex items-center justify-between">
-								<h3 class="card-title text-warning">Dev Tools</h3>
-								<button
-									onclick={() => (showDevTools = !showDevTools)}
-									class="btn btn-sm btn-warning"
-								>
-									{showDevTools ? 'Hide' : 'Show'}
-								</button>
-							</div>
-
-							{#if showDevTools}
-								<div class="space-y-4">
-									<!-- Status Debug -->
-									<div class="rounded-lg bg-base-200 p-3">
-										<h4 class="mb-2 font-semibold">Status Debug</h4>
-										<div class="space-y-1 text-sm">
-											<div class="flex justify-between">
-												<span>Status:</span>
-												<span class="font-mono">{status}</span>
-											</div>
-											<div class="flex justify-between">
-												<span>Audio Level:</span>
-												<span class="font-mono">{audioLevel.toFixed(4)}</span>
-											</div>
-											<div class="flex justify-between">
-												<span>Messages:</span>
-												<span class="font-mono">{messages.length}</span>
-											</div>
-											<div class="flex justify-between">
-												<span>Session ID:</span>
-												<span class="font-mono text-xs">{sessionId.slice(0, 12)}...</span>
-											</div>
-											<div class="flex justify-between">
-												<span>Auto-Connect:</span>
-												<span class="font-mono">{autoConnectAttempted ? 'Yes' : 'No'}</span>
-											</div>
-										</div>
-									</div>
-
-									<!-- Settings Debug -->
-									<div class="rounded-lg bg-base-200 p-3">
-										<h4 class="mb-2 font-semibold">Settings</h4>
-										<div class="space-y-1 text-sm">
-											<div class="flex justify-between">
-												<span>Language:</span>
-												<span class="font-mono">{selectedLanguage?.code || 'None'}</span>
-											</div>
-											<div class="flex justify-between">
-												<span>Speaker:</span>
-												<span class="font-mono">{selectedSpeaker || 'None'}</span>
-											</div>
-											<div class="flex justify-between">
-												<span>URL Lang:</span>
-												<span class="font-mono">{urlLanguage || 'None'}</span>
-											</div>
-											<div class="flex justify-between">
-												<span>URL Speaker:</span>
-												<span class="font-mono">{urlSpeaker || 'None'}</span>
-											</div>
-										</div>
-									</div>
-
-									<!-- Actions -->
-									<div class="space-y-2">
-										<button
-											onclick={() => persistentSettings.debug()}
-											class="btn w-full btn-outline btn-xs"
-										>
-											Debug Storage
-										</button>
-										<button
-											onclick={() => conversationStore.forceCleanup()}
-											class="btn w-full btn-outline btn-xs btn-warning"
-										>
-											Force Cleanup
-										</button>
-										<button
-											onclick={handleRetryConnection}
-											class="btn w-full btn-outline btn-xs btn-info"
-										>
-											Retry Auto-Connect
-										</button>
-									</div>
-								</div>
-							{/if}
+			<div class="fixed right-4 bottom-4">
+				<div class="card border border-warning/30 bg-warning/10">
+					<div class="card-body p-3">
+						<div class="space-y-1 text-xs">
+							<div>Status: <span class="font-mono">{status}</span></div>
+							<div>Messages: <span class="font-mono">{messages.length}</span></div>
+							<div>Audio: <span class="font-mono">{audioLevel.toFixed(2)}</span></div>
+							<div>Guest: <span class="font-mono">{isGuestUser}</span></div>
+							<div>Analysis: <span class="font-mono">{hasAnalysisResults}</span></div>
 						</div>
 					</div>
 				</div>
 			</div>
 		{/if}
-	</div>
+	{/if}
 </div>

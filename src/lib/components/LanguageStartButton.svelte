@@ -70,10 +70,18 @@
 		closeMenu();
 	}
 
-	function handleStartClick() {
+	function handleStartClick(event: MouseEvent) {
 		const sessionId = crypto.randomUUID();
 		if (selectedLanguage) {
-			goto(`/conversation?sessionId=${sessionId}`);
+			// Add immediate visual feedback
+			const button = event?.currentTarget as HTMLButtonElement;
+			if (button) {
+				button.classList.add('loading');
+				button.disabled = true;
+			}
+
+			// Navigate with smooth transition
+			goto(`/conversation?sessionId=${sessionId}&autoStart=true`);
 		}
 	}
 
@@ -104,7 +112,7 @@
 	<div class="relative">
 		<button
 			onclick={toggleLanguageMenu}
-			class="group btn flex items-center gap-3 border-2 px-6 py-3 text-base-content transition-all duration-200 btn-outline btn-lg hover:border-primary hover:bg-primary hover:text-primary-content"
+			class="group btn flex items-center gap-3 border-2 px-6 py-3 text-base-content btn-ghost transition-all duration-200 btn-outline btn-lg hover:border-primary hover:bg-primary hover:text-primary-content"
 			aria-label="Select language"
 		>
 			{#if selectedLanguage}
@@ -182,7 +190,7 @@
 						{#each voices as voice (voice.id)}
 							<button
 								onclick={() => handleSpeakerSelect(voice.id)}
-								class="group flex w-full items-center justify-between rounded-xl px-4 py-3 text-left transition-colors duration-150 hover:bg-base-200/50"
+								class="group btn btn-ghost my-1 flex w-full items-center justify-between rounded-xl px-4 py-3 text-left transition-colors duration-150 hover:bg-base-200/50"
 								class:bg-primary={selectedSpeaker === voice.id}
 								class:text-primary-content={selectedSpeaker === voice.id}
 								class:hover:bg-primary={selectedSpeaker === voice.id}
@@ -231,7 +239,7 @@
 							{#each orderedLanguages as language (language.id)}
 								<button
 									onclick={() => handleLanguageSelect(language)}
-									class="group flex w-full items-center justify-between rounded-xl px-4 py-3 text-left transition-colors duration-150 hover:bg-base-200/50"
+									class="group btn my-1 flex w-full items-center justify-between rounded-xl px-4 py-3 text-left btn-ghost transition-colors duration-150 hover:bg-base-200/50"
 									class:bg-primary={selectedLanguage?.code === language.code}
 									class:text-primary-content={selectedLanguage?.code === language.code}
 									class:hover:bg-primary={selectedLanguage?.code === language.code}
