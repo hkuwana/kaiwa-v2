@@ -4,6 +4,7 @@ import {
 	createGuestUserPreferences,
 	getLanguageSpecificPreferences
 } from '$lib/data/userPreferences';
+import { SvelteDate } from 'svelte/reactivity';
 
 // 🌟 User Preferences Store
 // Manages user preferences state with local storage persistence
@@ -11,11 +12,11 @@ import {
 const STORAGE_KEY = 'kaiwa_user_preferences';
 const GUEST_ID = 'guest';
 
-// 🌟 Store state
-export const userPreferencesStore = {
+// 🌟 Store class
+export class UserPreferencesStore {
 	// Reactive state
-	preferences: $state<UserPreferences | null>(null),
-	isInitialized: $state<boolean>(false),
+	preferences = $state<UserPreferences | null>(null);
+	isInitialized = $state<boolean>(false);
 
 	// 🌟 Initialize the store
 	async initialize(): Promise<void> {
@@ -26,7 +27,7 @@ export const userPreferencesStore = {
 		}
 
 		this.isInitialized = true;
-	},
+	}
 
 	// 🌟 Get current preferences (combines dummy + actual + overrides)
 	getPreferences(): UserPreferences {
@@ -35,7 +36,7 @@ export const userPreferencesStore = {
 			this.preferences = createGuestUserPreferences();
 		}
 		return this.preferences;
-	},
+	}
 
 	// 🌟 Update preferences (merges with existing)
 	async updatePreferences(updates: Partial<UserPreferences>): Promise<void> {
@@ -44,13 +45,13 @@ export const userPreferencesStore = {
 		this.preferences = {
 			...current,
 			...updates,
-			updatedAt: new Date()
+			updatedAt: new SvelteDate()
 		};
 
 		if (browser) {
 			await this.saveToStorage();
 		}
-	},
+	}
 
 	// 🌟 Set language-specific preferences
 	async setLanguagePreferences(languageCode: string): Promise<void> {
@@ -62,7 +63,7 @@ export const userPreferencesStore = {
 			specificGoals: languageDefaults.specificGoals,
 			challengePreference: languageDefaults.challengePreference
 		});
-	},
+	}
 
 	// 🌟 Reset to default preferences
 	async resetToDefaults(): Promise<void> {
@@ -71,17 +72,17 @@ export const userPreferencesStore = {
 		if (browser) {
 			await this.saveToStorage();
 		}
-	},
+	}
 
 	// 🌟 Get specific preference value
 	getPreference<K extends keyof UserPreferences>(key: K): UserPreferences[K] {
 		return this.getPreferences()[key];
-	},
+	}
 
 	// 🌟 Check if user is guest
 	isGuest(): boolean {
 		return this.getPreferences().userId === GUEST_ID;
-	},
+	}
 
 	// 🌟 Get skill level (calculated from individual skills)
 	getOverallSkillLevel(): number {
@@ -94,7 +95,7 @@ export const userPreferencesStore = {
 		];
 
 		return Math.round(skills.reduce((sum, skill) => sum + skill, 0) / skills.length);
-	},
+	}
 
 	// 🌟 Get challenge level based on preferences
 	getChallengeLevel(): 'beginner' | 'intermediate' | 'advanced' {
@@ -110,7 +111,7 @@ export const userPreferencesStore = {
 			default: // moderate
 				return overallLevel < 25 ? 'beginner' : overallLevel < 65 ? 'intermediate' : 'advanced';
 		}
-	},
+	}
 
 	// 🌟 Get context type based on learning goal
 	getContextType(): 'casual' | 'formal' | 'business' | 'academic' {
@@ -128,14 +129,14 @@ export const userPreferencesStore = {
 			default:
 				return 'casual';
 		}
-	},
+	}
 
 	// 🌟 Get transcription mode preference
 	getTranscriptionMode(): boolean {
 		// Default to true for beginners, false for advanced users
 		const level = this.getOverallSkillLevel();
 		return level < 40; // Enable transcription for beginners
-	},
+	}
 
 	// 🌟 Merge with actual user preferences from server
 	async mergeWithServerPreferences(serverPrefs: Partial<UserPreferences> | null): Promise<void> {
@@ -147,7 +148,7 @@ export const userPreferencesStore = {
 			this.preferences = {
 				...createGuestUserPreferences(),
 				...serverPrefs,
-				updatedAt: new Date()
+				updatedAt: new SvelteDate()
 			};
 		} else {
 			// Merge with existing preferences
@@ -157,7 +158,7 @@ export const userPreferencesStore = {
 		if (browser) {
 			await this.saveToStorage();
 		}
-	},
+	}
 
 	// 🌟 Clear all stored preferences
 	async clearStorage(): Promise<void> {
@@ -166,7 +167,7 @@ export const userPreferencesStore = {
 		}
 		this.preferences = null;
 		this.isInitialized = false;
-	},
+	}
 
 	// 🌟 Private: Load from local storage
 	async loadFromStorage(): Promise<void> {
@@ -188,7 +189,7 @@ export const userPreferencesStore = {
 
 		// Fallback to dummy preferences
 		this.preferences = createGuestUserPreferences();
-	},
+	}
 
 	// 🌟 Private: Save to local storage
 	async saveToStorage(): Promise<void> {
@@ -199,7 +200,7 @@ export const userPreferencesStore = {
 		} catch (error) {
 			console.warn('Failed to save preferences to storage:', error);
 		}
-	},
+	}
 
 	// 🌟 Private: Validate preferences object
 	isValidPreferences(obj: UserPreferences): obj is UserPreferences {
@@ -213,7 +214,10 @@ export const userPreferencesStore = {
 			typeof obj.preferredVoice === 'string'
 		);
 	}
-};
+}
+
+// 🌟 Create singleton instance
+export const userPreferencesStore = new UserPreferencesStore();
 
 // 🌟 Export convenience functions that delegate to the store
 export const {
