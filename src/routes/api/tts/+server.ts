@@ -1,8 +1,9 @@
+import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
 	try {
-		const { text, voice = 'alloy' } = await request.json();
+		const { text, voice = DEFAULT_VOICE } = await request.json();
 
 		if (!text) {
 			return new Response('Text is required', { status: 400 });

@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { env } from '$env/dynamic/private';
+import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 
 export const POST: RequestHandler = async ({ request }) => {
 	try {
@@ -9,7 +10,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			return json({ error: 'OpenAI API key not configured' }, { status: 500 });
 		}
 
-		const { text, voice = 'alloy' } = await request.json();
+		const { text, voice = DEFAULT_VOICE } = await request.json();
 
 		if (!text) {
 			return json({ error: 'Text is required' }, { status: 400 });

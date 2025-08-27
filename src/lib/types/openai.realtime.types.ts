@@ -4,6 +4,30 @@
 // === Core Types ===
 export type AudioFormat = 'pcm16' | 'g711_ulaw' | 'g711_alaw';
 export type Voice = 'alloy' | 'ash' | 'ballad' | 'coral' | 'echo' | 'sage' | 'shimmer' | 'verse';
+
+// 🌟 Default voice (first in the union type)
+export const DEFAULT_VOICE: Voice = 'alloy';
+export const VALID_OPENAI_VOICES = [
+	'alloy',
+	'ash',
+	'ballad',
+	'coral',
+	'echo',
+	'sage',
+	'shimmer',
+	'verse'
+];
+
+// 🌟 Helper function to get default voice
+export function getDefaultVoice(): Voice {
+	return DEFAULT_VOICE;
+}
+
+// 🌟 Type-safe voice validation
+export function isValidVoice(voice: string): voice is Voice {
+	return VALID_OPENAI_VOICES.includes(voice as Voice);
+}
+
 export type Modality = 'text' | 'audio';
 export type ToolChoice = 'auto' | 'none' | 'required';
 export type VADType = 'server_vad' | 'semantic_vad';

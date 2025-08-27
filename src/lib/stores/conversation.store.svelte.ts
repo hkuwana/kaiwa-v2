@@ -12,10 +12,12 @@ import {
 import type { Message, Language } from '$lib/server/db/types';
 import type { Speaker } from '$lib/types';
 import type { ServerEvent, SessionConfig, Voice } from '$lib/types/openai.realtime.types';
+import { DEFAULT_VOICE, isValidVoice } from '$lib/types/openai.realtime.types';
 import {
 	createConversationTimerStore,
 	type ConversationTimerStore
 } from './conversation-timer.store.svelte';
+import { userPreferencesStore } from './userPreferences.store.svelte';
 
 export class ConversationStore {
 	// Reactive state
@@ -24,7 +26,7 @@ export class ConversationStore {
 	userId = $state<string | null>(null);
 	sessionId = $state<string>('');
 	language = $state<Language | null>(null);
-	voice: Voice = 'alloy';
+	voice: Voice = DEFAULT_VOICE;
 	error = $state<string | null>(null);
 	audioLevel = $state.raw<number>(0);
 	availableDevices = $state<MediaDeviceInfo[]>([]);
@@ -53,6 +55,20 @@ export class ConversationStore {
 		// Browser initialization
 		this.timerStore = createConversationTimerStore('free');
 		this.initializeServices();
+		this.initializeUserPreferences();
+	}
+
+	private async initializeUserPreferences(): Promise<void> {
+		await userPreferencesStore.initialize();
+
+		// Set initial transcription mode based on user preferences
+		this.transcriptionMode = userPreferencesStore.getTranscriptionMode();
+
+		// Set voice from preferences
+		const preferredVoice = userPreferencesStore.getPreference('preferredVoice');
+		if (preferredVoice && isValidVoice(preferredVoice)) {
+			this.voice = preferredVoice;
+		}
 	}
 
 	private initializeServices(): void {
@@ -82,23 +98,9 @@ export class ConversationStore {
 	 * Start a conversation
 	 * @param language - The language to use
 	 * @param speaker - The speaker to use
-	 * @param options - The options for the conversation
-	 * @param options.isFirstTime - Whether this is the first time the user is talking
-	 * @param options.contextType - The context type for the conversation
-	 * @param options.level - The level of the conversation
-	 * @param options.transcriptionMode - Whether to  use transcription
 	 * @returns void
 	 */
-	startConversation = async (
-		language?: Language,
-		speaker?: Speaker | string,
-		options: {
-			isFirstTime?: boolean;
-			contextType?: 'casual' | 'formal' | 'business' | 'academic';
-			level?: 'beginner' | 'intermediate' | 'advanced';
-			transcriptionMode?: boolean;
-		} = {}
-	) => {
+	startConversation = async (language?: Language, speaker?: Speaker | string) => {
 		if (!browser) {
 			console.warn('Cannot start conversation on server');
 			return;
@@ -109,19 +111,26 @@ export class ConversationStore {
 			return;
 		}
 
-		// Set up conversation parameters
+		// Set up conversation parameters from user preferences
 		this.language = language || null;
-		this.language = language || null;
-		this.transcriptionMode = options.transcriptionMode || false;
+		this.transcriptionMode = userPreferencesStore.getTranscriptionMode();
 		this.status = 'connecting';
 		this.error = null;
 		this.clearTranscriptionState();
 
-		// Extract voice from speaker
+		// Extract voice from speaker or use user preference
 		if (speaker && typeof speaker === 'object' && 'openAIId' in speaker) {
-			this.voice = speaker.openAIId || 'alloy';
+			const speakerVoice =
+				speaker.openAIId || userPreferencesStore.getPreference('preferredVoice') || DEFAULT_VOICE;
+			this.voice = isValidVoice(speakerVoice) ? speakerVoice : DEFAULT_VOICE;
 		} else {
-			this.voice = 'alloy';
+			const preferredVoice = userPreferencesStore.getPreference('preferredVoice') || DEFAULT_VOICE;
+			this.voice = isValidVoice(preferredVoice) ? preferredVoice : DEFAULT_VOICE;
+		}
+
+		// Update user preferences if language changed
+		if (language && language.code !== userPreferencesStore.getPreference('targetLanguageId')) {
+			await userPreferencesStore.setLanguagePreferences(language.code);
 		}
 
 		try {
@@ -145,7 +154,7 @@ export class ConversationStore {
 			);
 
 			// 5. Set up event handlers
-			this.setupRealtimeEventHandlers(options);
+			this.setupRealtimeEventHandlers();
 
 			console.log('Connection established, waiting for session creation...');
 		} catch (error) {
@@ -357,11 +366,7 @@ export class ConversationStore {
 		return response.json();
 	}
 
-	private setupRealtimeEventHandlers(options: {
-		isFirstTime?: boolean;
-		contextType?: 'casual' | 'formal' | 'business' | 'academic';
-		level?: 'beginner' | 'intermediate' | 'advanced';
-	}): void {
+	private setupRealtimeEventHandlers(): void {
 		if (!this.realtimeConnection) return;
 
 		const { dataChannel, peerConnection } = this.realtimeConnection;
@@ -382,13 +387,13 @@ export class ConversationStore {
 				// Handle session creation
 				if (serverEvent.type === 'session.created') {
 					console.log('Session created, sending configuration...');
-					this.sendInitialConfiguration(options);
+					this.sendInitialConfiguration();
 					this.status = 'connected';
 					this.timerStore.start();
 					// Auto-start streaming and send initial greeting
 					setTimeout(() => {
 						this.status = 'streaming';
-						this.sendInitialGreeting(options.isFirstTime || false);
+						this.sendInitialGreeting(false); // isFirstTime is no longer passed
 					}, 500);
 					return;
 				}
@@ -688,29 +693,19 @@ export class ConversationStore {
 		this.isTranscribing = false;
 	}
 
-	private sendInitialConfiguration(
-		options: {
-			isFirstTime?: boolean;
-			contextType?: 'casual' | 'formal' | 'business' | 'academic';
-			level?: 'beginner' | 'intermediate' | 'advanced';
-		} = {}
-	): void {
+	private sendInitialConfiguration(): void {
 		if (!this.realtimeConnection || !this.language) return;
 
 		const languageName = this.language.name;
 		const languageCode = this.language.code;
 
+		// Get user preferences for instructions
+		const userPrefs = userPreferencesStore.getPreferences();
+
 		const sessionConfig: SessionConfig = {
 			model: 'gpt-4o-mini-realtime-preview-2024-12-17',
 			voice: this.voice,
-			instructions: generateCustomInstructions(
-				{
-					code: languageCode,
-					name: languageName
-				},
-				options.contextType || 'casual',
-				options.level || 'beginner'
-			),
+			instructions: generateCustomInstructions(this.language, userPrefs),
 
 			// Critical: Enable input audio transcription
 			input_audio_transcription: {
@@ -747,13 +742,8 @@ export class ConversationStore {
 		if (!this.realtimeConnection || !this.language) return;
 
 		// Generate greeting prompt using the instructions service
-		const greetingPrompt = generateInitialGreeting(
-			{
-				code: this.language.code,
-				name: this.language.name
-			},
-			isFirstTime
-		);
+		const userPrefs = userPreferencesStore.getPreferences();
+		const greetingPrompt = generateInitialGreeting(this.language, userPrefs, isFirstTime);
 
 		// Send the greeting prompt to trigger AI response
 		const greetingEvent = realtimeService.createTextMessage(greetingPrompt);

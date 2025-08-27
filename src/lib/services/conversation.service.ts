@@ -2,6 +2,7 @@
 // Pure functional conversation service - no classes, no state, just functions
 
 import type { Message } from '$lib/server/db/types';
+import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 
 export interface ConversationState {
 	status: 'idle' | 'connecting' | 'connected' | 'streaming' | 'error';
@@ -42,7 +43,7 @@ export interface ConversationValidationResult {
  */
 export function createInitialConversationState(
 	language: string = 'en',
-	voice: string = 'alloy'
+	voice: string = DEFAULT_VOICE
 ): ConversationState {
 	return {
 		status: 'idle',

@@ -3,9 +3,9 @@ import type { RequestHandler } from './$types';
 import { dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
+import { DEFAULT_VOICE, VALID_OPENAI_VOICES } from '$lib/types/openai.realtime.types';
 
 // Valid OpenAI Realtime API voices
-const VALID_OPENAI_VOICES = ['alloy', 'ash', 'ballad', 'coral', 'echo', 'sage', 'shimmer', 'verse'];
 
 // Simple in-memory rate limiting
 const sessionRequests = new Map<string, { timestamp: number; count: number }>();
@@ -44,7 +44,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		const {
 			sessionId,
 			model = publicEnv.PUBLIC_OPEN_AI_MODEL || 'gpt-4o-realtime-preview-2024-10-01',
-			voice = 'alloy'
+			voice = DEFAULT_VOICE
 		} = await request.json();
 
 		if (!sessionId) {

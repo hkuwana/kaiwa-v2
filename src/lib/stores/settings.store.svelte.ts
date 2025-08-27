@@ -4,6 +4,7 @@
 import type { Language } from '$lib/server/db/types';
 import { languages as allLanguages } from '$lib/data/languages';
 import { browser } from '$app/environment';
+import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -248,7 +249,7 @@ export class SettingsStore {
 	reset = () => {
 		const defaultLanguage = allLanguages.find((lang) => lang.code === 'en');
 		this.selectedLanguage = defaultLanguage || null;
-		this.selectedSpeaker = 'alloy';
+		this.selectedSpeaker = DEFAULT_VOICE;
 
 		// Clear persistent storage
 		if (browser) {

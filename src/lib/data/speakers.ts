@@ -4,7 +4,7 @@
 // Valid OpenAI Realtime API voices:
 // - alloy, ash, ballad, coral, echo, sage, shimmer, verse
 //
-// Note: 'fable', 'onyx', 'nova' are NOT supported by OpenAI Realtime API
+// Note: 'fable', 'ash', 'nova' are NOT supported by OpenAI Realtime API
 // They are only available in OpenAI TTS API
 
 import type { Speaker } from '$lib/types';
@@ -78,7 +78,7 @@ export const speakersData: Speaker[] = [
 		gender: 'male',
 		voiceName: 'James',
 		voiceProviderId: 'openai-james',
-		openAIId: 'onyx',
+		openAIId: 'ash',
 		language: '',
 		voiceId: ''
 	},
@@ -136,7 +136,7 @@ export const speakersData: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Mateo',
 		voiceProviderId: 'aws-mateo',
-		openAIId: 'onyx',
+		openAIId: 'ash',
 		language: '',
 		voiceId: ''
 	},
@@ -194,7 +194,7 @@ export const speakersData: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Chen',
 		voiceProviderId: 'google-chen',
-		openAIId: 'onyx',
+		openAIId: 'ash',
 		language: '',
 		voiceId: ''
 	},
@@ -284,7 +284,7 @@ export const speakersData: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Lukas',
 		voiceProviderId: 'openai-lukas',
-		openAIId: 'onyx',
+		openAIId: 'ash',
 		language: '',
 		voiceId: ''
 	},
@@ -342,7 +342,7 @@ export const speakersData: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Tiago',
 		voiceProviderId: 'azure-tiago',
-		openAIId: 'onyx',
+		openAIId: 'ash',
 		language: '',
 		voiceId: ''
 	},
@@ -432,7 +432,7 @@ export const speakersData: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Daan',
 		voiceProviderId: 'openai-daan',
-		openAIId: 'onyx',
+		openAIId: 'ash',
 		language: '',
 		voiceId: ''
 	},
@@ -522,7 +522,7 @@ export const speakersData: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Omar',
 		voiceProviderId: 'openai-omar',
-		openAIId: 'onyx',
+		openAIId: 'ash',
 		language: '',
 		voiceId: ''
 	},
@@ -612,7 +612,7 @@ export const speakersData: Speaker[] = [
 		gender: 'male',
 		voiceName: 'Mehmet',
 		voiceProviderId: 'openai-mehmet',
-		openAIId: 'onyx',
+		openAIId: 'ash',
 		language: '',
 		voiceId: ''
 	},

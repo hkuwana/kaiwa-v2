@@ -6,3 +6,4 @@ export * as instructionsService from './instructions.service';
 export * as audioService from './audio.service';
 export * as conversationService from './conversation.service';
 export * as timerService from './timer.service';
+export * as userPreferencesService from './userPreferences.service';

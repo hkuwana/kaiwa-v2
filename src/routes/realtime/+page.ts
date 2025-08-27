@@ -1,6 +1,6 @@
-import type { PageLoad } from './$types';
+import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 
-export const load: PageLoad = async () => {
+export const load = async () => {
 	// Automatically start conversation when user lands on realtime page
 	// This aligns with the "Invisible Tutor" philosophy - no setup steps needed
 
@@ -9,6 +9,6 @@ export const load: PageLoad = async () => {
 	return {
 		autoStartConversation: true,
 		defaultLanguage: 'en',
-		defaultVoice: 'alloy'
+		defaultVoice: DEFAULT_VOICE
 	};
 };

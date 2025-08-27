@@ -3,16 +3,17 @@
 
 import { browser } from '$app/environment';
 import { env } from '$env/dynamic/public';
-import type {
-	ServerEvent,
-	ClientEvent,
-	ConversationItemInputAudioTranscriptionCompletedEvent,
-	ResponseAudioTranscriptDeltaEvent,
-	ResponseAudioTranscriptDoneEvent,
-	ConversationItemCreatedEvent,
-	ResponseContentPartDoneEvent,
-	TextContent,
-	SessionConfig
+import {
+	type ServerEvent,
+	type ClientEvent,
+	type ConversationItemInputAudioTranscriptionCompletedEvent,
+	type ResponseAudioTranscriptDeltaEvent,
+	type ResponseAudioTranscriptDoneEvent,
+	type ConversationItemCreatedEvent,
+	type ResponseContentPartDoneEvent,
+	type TextContent,
+	type SessionConfig,
+	DEFAULT_VOICE
 } from '$lib/types/openai.realtime.types';
 
 // Simple connection state interface
@@ -168,7 +169,7 @@ export function createSessionUpdate(config: SessionConfig): ClientEvent {
 			instructions: config.instructions || 'You are a helpful assistant.',
 			input_audio_format: 'pcm16',
 			output_audio_format: 'pcm16',
-			voice: config.voice || 'alloy',
+			voice: config.voice || DEFAULT_VOICE,
 			input_audio_transcription: config.input_audio_transcription
 				? {
 						model: 'whisper-1',

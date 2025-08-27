@@ -4,6 +4,7 @@
 import type { UserPreferences } from '$lib/server/db/types';
 import type { TurnDetection } from '$lib/types/openai.realtime.types';
 import { languages } from '$lib/data/languages';
+import type { Language } from '$lib/server/db/types';
 
 export interface LanguageInfo {
 	code: string;
@@ -65,13 +66,13 @@ export function isLanguageSupported(languageCode: string): boolean {
 /**
  * Validate language information
  */
-export function validateLanguage(languageInfo: LanguageInfo): void {
-	if (!languageInfo.code || !languageInfo.name) {
+export function validateLanguage(language: Language): void {
+	if (!language.code || !language.name) {
 		throw new Error('Language code and name are required');
 	}
-	if (!isLanguageSupported(languageInfo.code)) {
+	if (!isLanguageSupported(language.code)) {
 		throw new Error(
-			`Language code '${languageInfo.code}' is not supported. Supported codes: ${Array.from(supportedLanguages).join(', ')}`
+			`Language code '${language.code}' is not supported. Supported codes: ${Array.from(languages.map((language) => language.code)).join(', ')}`
 		);
 	}
 }
@@ -168,38 +169,38 @@ function getContextTypeFromLearningGoal(
 /**
  * Generate audio check prompt for new users
  */
-export function generateAudioCheckPrompt(languageInfo: LanguageInfo): string {
-	validateLanguage(languageInfo);
+export function generateAudioCheckPrompt(language: Language): string {
+	validateLanguage(language);
 
-	return `You are a ${languageInfo.name} language tutor. SPEAK VERY SLOWLY AND CLEARLY. Start by introducing yourself in ${languageInfo.name} and ask if the user can hear you clearly. Take your time between words and sentences. Wait for their confirmation about audio quality before proceeding. If they have audio issues, help them troubleshoot in simple ${languageInfo.name} or switch to English briefly if needed.`;
+	return `You are a ${language.name} language tutor. SPEAK VERY SLOWLY AND CLEARLY. Start by introducing yourself in ${language.name} and ask if the user can hear you clearly. Take your time between words and sentences. Wait for their confirmation about audio quality before proceeding. If they have audio issues, help them troubleshoot in simple ${language.name} or switch to English briefly if needed.`;
 }
 
 /**
  * Generate comprehensive onboarding prompt
  */
-export function generateOnboardingPrompt(languageInfo: LanguageInfo): string {
-	validateLanguage(languageInfo);
+export function generateOnboardingPrompt(language: Language): string {
+	validateLanguage(language);
 
-	return `Conduct friendly onboarding in ${languageInfo.name}. SPEAK VERY SLOWLY throughout the entire onboarding process. After confirming audio works, ask these questions one at a time:
+	return `Conduct friendly onboarding in ${language.name}. SPEAK VERY SLOWLY throughout the entire onboarding process. After confirming audio works, ask these questions one at a time:
 
-1. "What is your current level in ${languageInfo.name}?" (Help them choose 1-10, where 1 is absolute beginner, 5 is conversational, 10 is native-like)
-2. "What are your main goals for learning ${languageInfo.name}?" (travel, business, academic, casual conversation, etc.)
+1. "What is your current level in ${language.name}?" (Help them choose 1-10, where 1 is absolute beginner, 5 is conversational, 10 is native-like)
+2. "What are your main goals for learning ${language.name}?" (travel, business, academic, casual conversation, etc.)
 3. "What type of conversations would you like to practice?" (casual daily life, formal situations, business, academic)
 4. "How much time do you have for today's session?"
 
-Keep questions simple and encouraging. REMEMBER TO SPEAK SLOWLY - this is crucial for new learners. If they struggle to answer in ${languageInfo.name}, it's okay to use some English to help them. Adapt your speaking pace and language complexity based on their responses, but always err on the side of speaking slower than you think you need to. Once you understand their needs, suggest a lesson plan for today.`;
+Keep questions simple and encouraging. REMEMBER TO SPEAK SLOWLY - this is crucial for new learners. If they struggle to answer in ${language.name}, it's okay to use some English to help them. Adapt your speaking pace and language complexity based on their responses, but always err on the side of speaking slower than you think you need to. Once you understand their needs, suggest a lesson plan for today.`;
 }
 
 /**
  * Generate personalized welcome back prompt
  */
 export function generateWelcomeBackPrompt(
-	languageInfo: LanguageInfo,
+	language: Language,
 	prefs: Partial<UserPreferences> = {}
 ): string {
-	validateLanguage(languageInfo);
+	validateLanguage(language);
 
-	let prompt = `Welcome this returning user back in ${languageInfo.name}. Give them a warm, natural greeting.`;
+	let prompt = `Welcome this returning user back in ${language.name}. Give them a warm, natural greeting.`;
 
 	if (prefs.speakingLevel) {
 		const levelDesc = getDetailedSkillLevel(prefs.speakingLevel);
@@ -228,16 +229,16 @@ export function generateWelcomeBackPrompt(
  * Main function to generate initial greeting based on user state
  */
 export function generateInitialGreeting(
-	languageInfo: LanguageInfo,
+	language: Language,
 	prefs: Partial<UserPreferences> = {},
 	isFirstTime: boolean = false
 ): string {
-	validateLanguage(languageInfo);
+	validateLanguage(language);
 
 	if (isFirstTime) {
-		return generateAudioCheckPrompt(languageInfo);
+		return generateAudioCheckPrompt(language);
 	} else {
-		return generateWelcomeBackPrompt(languageInfo, prefs);
+		return generateWelcomeBackPrompt(language, prefs);
 	}
 }
 
@@ -245,13 +246,13 @@ export function generateInitialGreeting(
  * Generate lesson continuation prompt with numerical skill level support
  */
 export function generateLessonPrompt(
-	languageInfo: LanguageInfo,
+	language: Language,
 	prefs: Partial<UserPreferences> = {},
 	sessionGoal?: string
 ): string {
-	validateLanguage(languageInfo);
+	validateLanguage(language);
 
-	let prompt = `Continue the ${languageInfo.name} lesson. Speak only in ${languageInfo.name}.`;
+	let prompt = `Continue the ${language.name} lesson. Speak only in ${language.name}.`;
 
 	// Add skill level specific guidance - use speaking level as primary indicator
 	if (prefs.speakingLevel) {
@@ -284,10 +285,10 @@ export function generateLessonPrompt(
 /**
  * Generate skill assessment prompt
  */
-export function generateSkillAssessmentPrompt(languageInfo: LanguageInfo): string {
-	validateLanguage(languageInfo);
+export function generateSkillAssessmentPrompt(language: Language): string {
+	validateLanguage(language);
 
-	return `Conduct a brief, friendly skill assessment in ${languageInfo.name} to determine their level (1-10 scale).
+	return `Conduct a brief, friendly skill assessment in ${language.name} to determine their level (1-10 scale).
 
 Start with very basic topics (level 1-2):
 - Simple greetings and introductions
@@ -313,12 +314,12 @@ After 5-10 minutes, provide encouraging feedback and suggest their approximate l
  * Generate session wrap-up prompt
  */
 export function generateSessionWrapUpPrompt(
-	languageInfo: LanguageInfo,
+	language: Language,
 	prefs: Partial<UserPreferences> = {}
 ): string {
-	validateLanguage(languageInfo);
+	validateLanguage(language);
 
-	let prompt = `Wrap up the ${languageInfo.name} session positively. In ${languageInfo.name}:
+	let prompt = `Wrap up the ${language.name} session positively. In ${language.name}:
 
 1. Acknowledge their effort and participation
 2. Highlight 2-3 specific things they did well
@@ -348,15 +349,15 @@ Keep it brief but meaningful. Make them feel accomplished and excited to continu
  * Generate comprehensive custom instructions
  */
 export function generateCustomInstructions(
-	languageInfo: LanguageInfo,
+	language: Language,
 	prefs: Partial<UserPreferences> = {}
 ): string {
-	validateLanguage(languageInfo);
+	validateLanguage(language);
 
-	let instructions = `You are a helpful ${languageInfo.name} language tutor. Help the user practice and improve their ${languageInfo.name} skills through natural conversation. Be patient, encouraging, and provide appropriate corrections.`;
+	let instructions = `You are a helpful ${language.name} language tutor. Help the user practice and improve their ${language.name} skills through natural conversation. Be patient, encouraging, and provide appropriate corrections.`;
 
 	// Language and audio guidance - EMPHASIZE SLOW SPEECH
-	instructions += ` Speak only in ${languageInfo.name}. CRUCIAL: Since this is audio-based learning, ALWAYS SPEAK SLOWLY AND CLEARLY. This is more important than you might think - slower speech dramatically improves comprehension and learning outcomes.`;
+	instructions += ` Speak only in ${language.name}. CRUCIAL: Since this is audio-based learning, ALWAYS SPEAK SLOWLY AND CLEARLY. This is more important than you might think - slower speech dramatically improves comprehension and learning outcomes.`;
 
 	// Skill level adaptations - use speaking level as primary indicator
 	if (prefs.speakingLevel) {
