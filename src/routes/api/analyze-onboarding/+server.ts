@@ -1,0 +1,206 @@
+// src/routes/api/analyze-onboarding/+server.ts
+
+import { json } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
+import {
+	analyzeOnboardingConversation,
+	parseAndValidateJSON
+} from '$lib/server/services/openai.service';
+import {
+	updateAnonymousSessionPreferences,
+	getOrCreateAnonymousSession
+} from '$lib/server/services/session.service';
+import type { UserPreferences } from '$lib/server/db/types';
+
+export interface AnalyzeOnboardingRequest {
+	conversationMessages: string[];
+	targetLanguage: string;
+	sessionId?: string;
+}
+
+export interface AnalyzeOnboardingResponse {
+	success: boolean;
+	data?: Partial<UserPreferences> & { sessionId: string };
+	error?: string;
+	sessionId: string;
+}
+
+export const POST: RequestHandler = async ({ request, cookies }) => {
+	try {
+		const body: AnalyzeOnboardingRequest = await request.json();
+		const { conversationMessages, targetLanguage } = body;
+
+		// Validation
+		if (
+			!conversationMessages ||
+			!Array.isArray(conversationMessages) ||
+			conversationMessages.length === 0
+		) {
+			return json(
+				{
+					success: false,
+					error: 'Conversation messages are required',
+					sessionId: ''
+				},
+				{ status: 400 }
+			);
+		}
+
+		if (!targetLanguage) {
+			return json(
+				{
+					success: false,
+					error: 'Target language is required',
+					sessionId: ''
+				},
+				{ status: 400 }
+			);
+		}
+
+		// Get or create anonymous session
+		const sessionData = getOrCreateAnonymousSession(cookies, {
+			targetLanguageId: targetLanguage
+		});
+
+		console.log(`Analyzing onboarding for session: ${sessionData.sessionId}`);
+
+		// Call OpenAI to analyze the conversation
+		const analysisResponse = await analyzeOnboardingConversation(
+			conversationMessages,
+			targetLanguage
+		);
+
+		// Parse the JSON response
+		const analysisResult = parseAndValidateJSON<Partial<UserPreferences>>(analysisResponse.content);
+
+		if (!analysisResult) {
+			console.error('Failed to parse analysis result:', analysisResponse.content);
+			return json(
+				{
+					success: false,
+					error: 'Failed to analyze conversation data',
+					sessionId: sessionData.sessionId
+				},
+				{ status: 500 }
+			);
+		}
+
+		// Validate and sanitize the analysis result
+		const sanitizedResult = sanitizeAnalysisResult(analysisResult);
+
+		// Update session with analyzed data
+		const updatedSession = updateAnonymousSessionPreferences(cookies, {
+			targetLanguageId: targetLanguage,
+			learningGoal: sanitizedResult.learningGoal,
+			speakingLevel: sanitizedResult.speakingLevel,
+			listeningLevel: sanitizedResult.listeningLevel,
+			confidenceLevel: sanitizedResult.confidenceLevel,
+			specificGoals: sanitizedResult.specificGoals,
+			challengePreference: sanitizedResult.challengePreference,
+			correctionStyle: sanitizedResult.correctionStyle,
+			dailyGoalMinutes: sanitizedResult.dailyGoalMinutes,
+			// Derive reading/writing levels from speaking level
+			readingLevel: Math.max(1, (sanitizedResult.speakingLevel || 25) - 5),
+			writingLevel: Math.max(1, (sanitizedResult.speakingLevel || 25) - 10)
+		});
+
+		if (!updatedSession) {
+			return json(
+				{
+					success: false,
+					error: 'Failed to update session data',
+					sessionId: sessionData.sessionId
+				},
+				{ status: 500 }
+			);
+		}
+
+		console.log(`Onboarding analysis completed for session: ${updatedSession.sessionId}`);
+
+		// Return the analysis result with session ID
+		return json({
+			success: true,
+			data: {
+				...sanitizedResult,
+				sessionId: updatedSession.sessionId
+			},
+			sessionId: updatedSession.sessionId
+		});
+	} catch (error) {
+		console.error('Error analyzing onboarding:', error);
+
+		return json(
+			{
+				success: false,
+				error: error instanceof Error ? error.message : 'Internal server error',
+				sessionId: ''
+			},
+			{ status: 500 }
+		);
+	}
+};
+
+/**
+ * Sanitize and validate the analysis result from OpenAI
+ */
+function sanitizeAnalysisResult(result: Partial<UserPreferences>): Partial<UserPreferences> {
+	const validMotivations: Array<
+		'Connection' | 'Career' | 'Travel' | 'Academic' | 'Culture' | 'Growth'
+	> = ['Connection', 'Career', 'Travel', 'Academic', 'Culture', 'Growth'];
+
+	const validChallengePrefs: Array<'comfortable' | 'moderate' | 'challenging'> = [
+		'comfortable',
+		'moderate',
+		'challenging'
+	];
+
+	const validCorrectionStyles: Array<'immediate' | 'gentle' | 'end_of_session'> = [
+		'immediate',
+		'gentle',
+		'end_of_session'
+	];
+
+	const validDailyGoals = [15, 30, 45, 60];
+
+	return {
+		learningGoal: validMotivations.includes(
+			result.learningGoal as 'Connection' | 'Career' | 'Travel' | 'Academic' | 'Culture' | 'Growth'
+		)
+			? result.learningGoal
+			: 'Connection',
+		speakingLevel: clampNumber(result.speakingLevel, 1, 100, 25),
+		listeningLevel: clampNumber(result.listeningLevel, 1, 100, 30),
+		confidenceLevel: clampNumber(result.confidenceLevel, 1, 100, 50),
+		specificGoals: Array.isArray(result.specificGoals)
+			? result.specificGoals.filter((goal) => typeof goal === 'string' && goal.length > 0)
+			: [],
+		challengePreference: validChallengePrefs.includes(
+			result.challengePreference as 'comfortable' | 'moderate' | 'challenging'
+		)
+			? result.challengePreference
+			: 'moderate',
+		correctionStyle: validCorrectionStyles.includes(
+			result.correctionStyle as 'immediate' | 'gentle' | 'end_of_session'
+		)
+			? result.correctionStyle
+			: 'gentle',
+		dailyGoalMinutes: validDailyGoals.includes(result.dailyGoalMinutes as number)
+			? result.dailyGoalMinutes
+			: 30
+	};
+}
+
+/**
+ * Clamp a number between min and max, with a default fallback
+ */
+function clampNumber(
+	value: number | undefined,
+	min: number,
+	max: number,
+	defaultValue: number
+): number {
+	if (typeof value !== 'number' || isNaN(value)) {
+		return defaultValue;
+	}
+	return Math.max(min, Math.min(max, Math.round(value)));
+}
