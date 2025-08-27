@@ -20,7 +20,7 @@ export const conversations = pgTable(
 
 		// Basic scenario support for onboarding
 		scenarioId: text('scenario_id').references(() => scenarios.id),
-		isOnboarding: text('is_onboarding').default('false'), // First comfort session
+		isOnboarding: text('is_onboarding').default('true').notNull(), // First comfort session
 
 		startedAt: timestamp('started_at').defaultNow().notNull(),
 		endedAt: timestamp('ended_at'),
@@ -28,7 +28,7 @@ export const conversations = pgTable(
 
 		// Usage tracking
 		messageCount: integer('message_count').default(0),
-		audioSeconds: decimal('audio_seconds', { precision: 8, scale: 2 }).default('0'), // Changed from audio_minutes
+		audioSeconds: decimal('audio_seconds', { precision: 8, scale: 2 }).default('0').notNull(), // Changed from audio_minutes
 
 		// Basic comfort/engagement tracking
 		comfortRating: integer('comfort_rating'), // 1-5 scale from user feedback

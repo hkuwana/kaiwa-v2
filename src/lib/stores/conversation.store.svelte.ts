@@ -4,7 +4,7 @@
 import { SvelteDate } from 'svelte/reactivity';
 import { browser } from '$app/environment';
 import { realtimeService } from '$lib/services';
-import { audioService, type AudioLevel } from '$lib/services/audio.service';
+import { audioStore } from '$lib/stores/audio.store.svelte';
 import {
 	generateCustomInstructions,
 	generateInitialGreeting
@@ -19,9 +19,13 @@ import {
 } from './conversation-timer.store.svelte';
 import { userPreferencesStore } from './userPreferences.store.svelte';
 
+export const conversationStatus = $state<
+	'idle' | 'connecting' | 'connected' | 'streaming' | 'error'
+>('idle');
+
 export class ConversationStore {
 	// Reactive state
-	status = $state<'idle' | 'connecting' | 'connected' | 'streaming' | 'error'>('idle');
+	status = $state<typeof conversationStatus>('idle');
 	messages = $state<Message[]>([]);
 	userId = $state<string | null>(null);
 	sessionId = $state<string>('');
@@ -73,23 +77,7 @@ export class ConversationStore {
 
 	private initializeServices(): void {
 		// Initialize audio service
-		audioService.initialize();
-
-		// Set up audio level monitoring
-		audioService.onLevelUpdate((level: AudioLevel) => {
-			this.audioLevel = level.level;
-		});
-
-		// Set up audio stream callbacks
-		audioService.onStreamReady((stream: MediaStream) => {
-			this.audioStream = stream;
-			console.log('Audio stream ready');
-		});
-
-		audioService.onStreamError((errorMsg: string) => {
-			this.error = errorMsg;
-			this.status = 'error';
-		});
+		audioStore.initialize();
 	}
 
 	// === PUBLIC ACTIONS ===
@@ -134,20 +122,28 @@ export class ConversationStore {
 		}
 
 		try {
-			// 1. Test audio constraints
-			const constraintTest = await audioService.testConstraints();
-			if (!constraintTest.success) {
+			// 1. Test audio constraints using the audio store
+			const constraintTest = await audioStore.getCore()?.testConstraints();
+			if (!constraintTest?.success) {
 				console.warn('Audio constraint test failed, proceeding with defaults');
 			}
 
-			// 2. Get audio stream
-			this.audioStream = await audioService.getStream(this.selectedDeviceId);
+			// 2. Start audio recording using the audio store
+			await audioStore.startRecording(audioStore.selectedDeviceId);
+
+			// Get the stream from the audio store
+			this.audioStream = audioStore.getCurrentStream();
+			if (this.audioStream === null) {
+				console.warn('No audio stream available');
+				return;
+			}
 
 			// 3. Get session from backend
 			const sessionData = await this.fetchSessionFromBackend();
 			this.sessionId = sessionData.session_id;
 
 			// 4. Create realtime connection
+
 			this.realtimeConnection = await realtimeService.createConnection(
 				sessionData,
 				this.audioStream
@@ -219,16 +215,18 @@ export class ConversationStore {
 
 		if (this.status === 'streaming' || this.status === 'connected') {
 			try {
-				// Get new stream with selected device
-				const newStream = await audioService.getStream(deviceId);
+				if (this.status === 'streaming' || this.status === 'connected') {
+					// Switch device while recording
+					await audioStore.switchToDevice(deviceId);
 
-				// Stop old stream
-				if (this.audioStream) {
-					realtimeService.stopAudioStream(this.audioStream);
+					// Update our stream reference
+					this.audioStream = audioStore.getCurrentStream();
+
+					console.log('Audio device switched successfully');
+				} else {
+					// Just update the selected device for later use
+					audioStore.selectedDeviceId = deviceId;
 				}
-
-				this.audioStream = newStream;
-				console.log('Audio device switched successfully');
 			} catch (error) {
 				console.error('Failed to switch audio device:', error);
 				this.error = 'Failed to switch audio device';
@@ -777,8 +775,8 @@ export class ConversationStore {
 		}
 
 		// Clean up audio service
-		if (browser) {
-			audioService.cleanup();
+		if (audioStore.isRecording) {
+			audioStore.stopRecording();
 		}
 	}
 
@@ -831,8 +829,8 @@ export class ConversationStore {
 
 	// Test audio functionality
 	testAudioLevel = () => {
-		if (browser && audioService.hasActiveStream()) {
-			audioService.triggerLevelUpdate();
+		if (audioStore.hasActiveStream()) {
+			audioStore.triggerLevelUpdate();
 			console.log('Audio level test triggered');
 		} else {
 			console.log('No active audio stream to test');
