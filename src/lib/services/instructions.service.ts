@@ -226,23 +226,6 @@ export function generateWelcomeBackPrompt(
 }
 
 /**
- * Main function to generate initial greeting based on user state
- */
-export function generateInitialGreeting(
-	language: Language,
-	prefs: Partial<UserPreferences> = {},
-	isFirstTime: boolean = false
-): string {
-	validateLanguage(language);
-
-	if (isFirstTime) {
-		return generateAudioCheckPrompt(language);
-	} else {
-		return generateWelcomeBackPrompt(language, prefs);
-	}
-}
-
-/**
  * Generate lesson continuation prompt with numerical skill level support
  */
 export function generateLessonPrompt(
@@ -440,4 +423,104 @@ export function getAdaptiveTurnDetection(profile: UserPreferences): TurnDetectio
 		eagerness: confidenceLevel > 65 ? 'high' : 'medium',
 		interrupt_response: true
 	};
+}
+
+/**
+ * Generate streamlined onboarding prompt that works as part of real-time conversation
+ */
+export function generateStreamlinedOnboardingPrompt(language: Language): string {
+	validateLanguage(language);
+
+	return `You are a friendly ${language.name} language tutor starting a conversation with a new student. 
+
+CONVERSATION FLOW:
+1. First, greet them warmly in English and ask if they can hear you clearly
+2. Once audio is confirmed, introduce yourself in simple ${language.name} 
+3. Ask what they'd like to practice today (in simple ${language.name})
+4. For now, guide them toward beginner conversation practice regardless of their response
+
+IMPORTANT GUIDELINES:
+- SPEAK VERY SLOWLY AND CLEARLY throughout
+- Start in English for audio check, then switch to ${language.name}
+- Use very simple vocabulary and short sentences
+- Be encouraging and patient
+- If they seem confused, it's okay to mix in some English to help
+- Keep questions simple and one at a time
+- Don't overwhelm with too many options
+
+EXAMPLE FLOW:
+"Hello! I'm your ${language.name} tutor. Can you hear me clearly? Please say 'yes' if the audio is working well."
+[Wait for confirmation]
+"Perfect! Now let's switch to ${language.name}. [Simple greeting in ${language.name}]. What would you like to practice today?"
+[Listen to response]
+"Great choice! Let's start with some basic conversation practice..."
+
+Keep it conversational and natural - you're having a real conversation, not conducting a formal interview.`;
+}
+
+// Updated sections for instructions.service.ts
+
+/**
+ * Generate initial greeting that includes basic onboarding
+ */
+export function generateInitialGreetingWithOnboarding(
+	language: Language,
+	prefs: Partial<UserPreferences> = {},
+	isFirstTime: boolean = false
+): string {
+	validateLanguage(language);
+
+	if (isFirstTime) {
+		// For first-time users, do streamlined onboarding
+		return generateStreamlinedOnboardingPrompt(language);
+	} else {
+		// For returning users, still check audio but move quickly to practice
+		return `Welcome back! I'm your ${language.name} tutor. Can you hear me clearly? 
+		
+Once you confirm the audio is working, I'll greet you in ${language.name} and we can continue practicing. 
+
+${prefs.speakingLevel ? `I remember you're at level ${prefs.speakingLevel}.` : 'We can pick up where we left off or try something new.'}
+
+Please say 'yes' if you can hear me well, then we'll switch to ${language.name}.`;
+	}
+}
+
+/**
+ * Generate follow-up prompt after audio confirmation
+ */
+export function generatePostAudioConfirmationPrompt(language: Language): string {
+	validateLanguage(language);
+
+	return `Great! The audio is working well. Now I'll switch to ${language.name}. 
+
+[Switch to speaking ${language.name} only from this point forward]
+
+Give a warm, simple greeting in ${language.name}. Ask them one simple question about what they'd like to practice today. Keep it very basic - use vocabulary a beginner would understand. 
+
+After they respond (regardless of what they say), guide them into basic conversation practice starting with simple topics like:
+- Introductions and greetings
+- Talking about their day
+- Simple likes and dislikes
+- Basic questions and answers
+
+REMEMBER: 
+- Speak slowly and clearly in ${language.name}
+- Use simple vocabulary 
+- Be encouraging
+- If they struggle, slow down even more
+- It's okay to repeat things`;
+}
+
+/**
+ * Updated main instruction function that handles the streamlined flow
+ */
+export function generateInitialGreeting(
+	language: Language,
+	prefs: Partial<UserPreferences> = {},
+	isFirstTime: boolean = false
+): string {
+	validateLanguage(language);
+
+	// Always start with audio check and streamlined onboarding
+	return generateInitialGreetingWithOnboarding(language, prefs, isFirstTime);
 }
