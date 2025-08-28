@@ -1,9 +1,7 @@
-import type { User } from '$lib/server/db/types';
+import type { User, UserTier } from '$lib/server/db/types';
 import { SvelteDate } from 'svelte/reactivity';
 
 // Infer the User type from the database schema
-
-export type UserTier = 'free' | 'pro' | 'premium';
 
 export interface UserManagerState {
 	user: User | null;
@@ -48,10 +46,6 @@ export class UserManagerStore {
 		return this._state.effectiveTier === 'free';
 	}
 
-	get isPro() {
-		return this._state.effectiveTier === 'pro';
-	}
-
 	get isPremium() {
 		return this._state.effectiveTier === 'premium';
 	}
@@ -80,20 +74,16 @@ export class UserManagerStore {
 	setUser(user: User): void {
 		this._state.user = user;
 		this._state.isLoggedIn = true;
-		this._state.effectiveTier = user.defaultTier;
-		console.log(`👤 User logged in: ${user.displayName || user.username} (${user.defaultTier})`);
+		// Note: effectiveTier is now managed separately through subscription data
+		// Default to 'free' until subscription data is loaded
+		this._state.effectiveTier = 'free';
+		console.log(`👤 User logged in: ${user.displayName || user.username}`);
 	}
 
 	// Update user data (partial update)
 	updateUser(updates: Partial<User>): void {
 		if (this._state.user) {
 			this._state.user = { ...this._state.user, ...updates };
-
-			// Update effective tier if defaultTier was changed
-			if (updates.defaultTier) {
-				this._state.effectiveTier = updates.defaultTier;
-			}
-
 			console.log('👤 User data updated:', updates);
 		}
 	}
@@ -125,7 +115,7 @@ export class UserManagerStore {
 		return {
 			state: this._state,
 			isFree: this.isFree,
-			isPro: this.isPro,
+
 			isPremium: this.isPremium,
 			displayName: this.displayName
 		};
@@ -135,7 +125,7 @@ export class UserManagerStore {
 	hasAccessToTier(requiredTier: UserTier): boolean {
 		const tierOrder: Record<UserTier, number> = {
 			free: 0,
-			pro: 1,
+			plus: 1,
 			premium: 2
 		};
 
@@ -147,8 +137,8 @@ export class UserManagerStore {
 		switch (this._state.effectiveTier) {
 			case 'free':
 				return 'Free';
-			case 'pro':
-				return 'Pro';
+			case 'plus':
+				return 'Plus';
 			case 'premium':
 				return 'Premium';
 			default:

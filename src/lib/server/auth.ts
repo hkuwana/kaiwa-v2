@@ -7,9 +7,6 @@ import { session as sessionTable } from './db/schema';
 import type { Session } from './db/types';
 import { users } from './db/schema';
 import { sessionRepository, type SessionRepository } from './repositories/session.repository';
-// import { userUsage } from './db/schema'; // Not available in MVP schema
-// import { languages } from './db/schema'; // Not used in MVP version
-// import { tiers } from './db/schema'; // Not used in MVP version
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 

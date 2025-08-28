@@ -5,6 +5,7 @@ declare global {
 		interface Locals {
 			user: import('$lib/server/auth').SessionValidationResult['user'];
 			session: import('$lib/server/auth').SessionValidationResult['session'];
+			guestId: string | null;
 			userContext?: import('$lib/server/auth').UserContext; // Enhanced context for orchestrator
 		}
 		// interface Error {}
