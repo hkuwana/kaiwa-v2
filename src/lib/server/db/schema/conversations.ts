@@ -8,9 +8,8 @@ export const conversations = pgTable(
 	'conversations',
 	{
 		id: text('id').primaryKey(),
-		userId: uuid('user_id')
-			.notNull()
-			.references(() => users.id),
+		userId: uuid('user_id').references(() => users.id),
+		guestId: text('guest_id'),
 		targetLanguageId: text('target_language_id')
 			.notNull()
 			.references(() => languages.id),
@@ -43,6 +42,7 @@ export const conversations = pgTable(
 		index('conversations_is_onboarding_idx').on(table.isOnboarding),
 		index('conversations_started_at_idx').on(table.startedAt),
 		index('conversations_ended_at_idx').on(table.endedAt),
+		index('conversations_guest_id_idx').on(table.guestId),
 		// Composite index for user + language queries
 		index('conversations_user_language_idx').on(table.userId, table.targetLanguageId),
 		// Index for time-based queries

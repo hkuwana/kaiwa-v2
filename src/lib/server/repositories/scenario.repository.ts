@@ -31,7 +31,7 @@ export const scenarioRepository = {
 		offset: number = 0
 	): Promise<Scenario[]> {
 		return db.query.scenarios.findMany({
-			where: and(eq(scenarios.category, category), eq(scenarios.isActive, 'true')),
+			where: and(eq(scenarios.category, category), eq(scenarios.isActive, true)),
 			orderBy: [asc(scenarios.difficulty), asc(scenarios.title)],
 			limit,
 			offset
@@ -44,7 +44,7 @@ export const scenarioRepository = {
 		offset: number = 0
 	): Promise<Scenario[]> {
 		return db.query.scenarios.findMany({
-			where: and(eq(scenarios.difficulty, difficulty), eq(scenarios.isActive, 'true')),
+			where: and(eq(scenarios.difficulty, difficulty), eq(scenarios.isActive, true)),
 			orderBy: [asc(scenarios.title)],
 			limit,
 			offset
@@ -53,7 +53,7 @@ export const scenarioRepository = {
 
 	async findActiveScenarios(limit: number = 100, offset: number = 0): Promise<Scenario[]> {
 		return db.query.scenarios.findMany({
-			where: eq(scenarios.isActive, 'true'),
+			where: eq(scenarios.isActive, true),
 			orderBy: [asc(scenarios.category), asc(scenarios.difficulty)],
 			limit,
 			offset
@@ -75,7 +75,7 @@ export const scenarioRepository = {
 		const currentScenario = await this.findScenarioById(id);
 		if (!currentScenario) return undefined;
 
-		const newActiveState = currentScenario.isActive === 'true' ? 'false' : 'true';
+		const newActiveState = !currentScenario.isActive;
 		const [updatedScenario] = await db
 			.update(scenarios)
 			.set({ isActive: newActiveState, updatedAt: new Date() })

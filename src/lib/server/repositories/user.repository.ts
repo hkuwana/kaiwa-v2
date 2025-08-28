@@ -29,22 +29,9 @@ export const userRepository = {
 		return db.query.users.findFirst({ where: eq(users.username, username) });
 	},
 
-	async findUsersByTier(tier: 'free' | 'pro' | 'premium'): Promise<User[]> {
-		return db.query.users.findMany({ where: eq(users.defaultTier, tier) });
-	},
-
 	// UPDATE
 	async updateUser(id: string, data: Partial<NewUser>): Promise<User | undefined> {
 		const [updatedUser] = await db.update(users).set(data).where(eq(users.id, id)).returning();
-		return updatedUser;
-	},
-
-	async updateUserTier(id: string, tier: 'free' | 'pro' | 'premium'): Promise<User | undefined> {
-		const [updatedUser] = await db
-			.update(users)
-			.set({ defaultTier: tier })
-			.where(eq(users.id, id))
-			.returning();
 		return updatedUser;
 	},
 

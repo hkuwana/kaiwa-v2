@@ -1,13 +1,10 @@
 import { pgTable, text, integer, timestamp, index, boolean } from 'drizzle-orm/pg-core';
-import { users } from './users';
-
-// DEPRECATED: This schema has been moved to v2/conversationSessions.ts
-// The v2 version removes tierId for cleaner MVP implementation
-// Use the v2 version for new development
+import { users } from '../users';
 
 // Track individual conversation sessions for detailed analytics
+// V2: Simplified without tierId - tier can be derived from user's active subscription
 export const conversationSessions = pgTable(
-	'conversation_sessions',
+	'conversation_sessions_v2',
 	{
 		// Use camelCase for TypeScript properties, snake_case for DB columns
 		id: text('id').primaryKey(),
@@ -33,8 +30,8 @@ export const conversationSessions = pgTable(
 		createdAt: timestamp('created_at').defaultNow()
 	},
 	(table) => [
-		index('conversation_sessions_user_idx').on(table.userId),
-		index('conversation_sessions_start_time_idx').on(table.startTime),
-		index('conversation_sessions_language_idx').on(table.language)
+		index('conversation_sessions_v2_user_idx').on(table.userId),
+		index('conversation_sessions_v2_start_time_idx').on(table.startTime),
+		index('conversation_sessions_v2_language_idx').on(table.language)
 	]
 );

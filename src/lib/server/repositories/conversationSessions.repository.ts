@@ -1,6 +1,6 @@
 import { eq, and, gte, lte, desc, sql, count, avg, sum } from 'drizzle-orm';
 import { db } from '$lib/server/db/index';
-import { conversationSessions, tiers } from '$lib/server/db/schema';
+import { conversationSessions } from '$lib/server/db/schema';
 import type { NewConversationSession, ConversationSession } from '$lib/server/db/types';
 
 export class ConversationSessionsRepository {
@@ -198,80 +198,6 @@ export class ConversationSessionsRepository {
 			averageSessionLength: Number(row.averageSessionLength || 0),
 			lastPracticeDate: row.lastPracticeDate
 		}));
-	}
-
-	/**
-	 * Get tier usage analytics
-	 */
-	async getTierUsageAnalytics(period?: string): Promise<
-		{
-			tierId: string;
-			tierName: string;
-			activeUsers: number;
-			totalSessions: number;
-			totalMinutes: number;
-			averageSessionLength: number;
-			extensionUsage: number;
-		}[]
-	> {
-		const targetPeriod = period || this.getCurrentPeriod();
-
-		// Get sessions for the period
-		const sessions = await db
-			.select({
-				tierId: conversationSessions.tierId,
-				sessions: count(),
-				minutes: sum(conversationSessions.minutesConsumed),
-				avgLength: avg(conversationSessions.durationMinutes),
-				extensions: sum(conversationSessions.extensionsUsed)
-			})
-			.from(conversationSessions)
-			.where(
-				and(
-					gte(conversationSessions.startTime, this.getPeriodStartDate(targetPeriod)),
-					lte(conversationSessions.startTime, this.getPeriodEndDate(targetPeriod))
-				)
-			)
-			.groupBy(conversationSessions.tierId);
-
-		// Get tier names
-		const tierNames = await db
-			.select({
-				id: tiers.id,
-				name: tiers.name
-			})
-			.from(tiers);
-
-		// Get active users per tier
-		const activeUsers = await db
-			.select({
-				tierId: conversationSessions.tierId,
-				activeUsers: sql<number>`count(distinct ${conversationSessions.userId})`
-			})
-			.from(conversationSessions)
-			.where(
-				and(
-					gte(conversationSessions.startTime, this.getPeriodStartDate(targetPeriod)),
-					lte(conversationSessions.startTime, this.getPeriodEndDate(targetPeriod))
-				)
-			)
-			.groupBy(conversationSessions.tierId);
-
-		// Combine the data
-		return sessions.map((session) => {
-			const tierName = tierNames.find((t) => t.id === session.tierId)?.name || 'Unknown';
-			const userCount = activeUsers.find((u) => u.tierId === session.tierId)?.activeUsers || 0;
-
-			return {
-				tierId: session.tierId,
-				tierName,
-				activeUsers: Number(userCount),
-				totalSessions: Number(session.sessions),
-				totalMinutes: Number(session.minutes),
-				averageSessionLength: Number(session.avgLength),
-				extensionUsage: Number(session.extensions)
-			};
-		});
 	}
 
 	/**

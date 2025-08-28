@@ -6,6 +6,7 @@ import { db } from './db';
 import { session as sessionTable } from './db/schema';
 import type { Session } from './db/types';
 import { users } from './db/schema';
+import { sessionRepository, type SessionRepository } from './repositories/session.repository';
 // import { userUsage } from './db/schema'; // Not available in MVP schema
 // import { languages } from './db/schema'; // Not used in MVP version
 // import { tiers } from './db/schema'; // Not used in MVP version
@@ -21,7 +22,11 @@ export function generateSessionToken() {
 	return token;
 }
 
-export async function createSession(token: string, userId: string) {
+export async function createSession(
+	token: string,
+	userId: string,
+	repository: SessionRepository = sessionRepository
+) {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 
 	const sessionData: Session = {
@@ -30,13 +35,15 @@ export async function createSession(token: string, userId: string) {
 		expiresAt: new Date(Date.now() + DAY_IN_MS * 30)
 	};
 
-	await db.insert(sessionTable).values(sessionData);
-	return sessionData;
+	const session = await repository.create(sessionData);
+	return { session, token };
 }
 
 export async function validateSessionToken(token: string) {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 
+	// We still need a direct DB call here because this is a complex join,
+	// not a simple session lookup. A repository for this specific query might be overkill.
 	const [result] = await db
 		.select({
 			// Enhanced user data for orchestrator and kernel
@@ -68,7 +75,7 @@ export async function validateSessionToken(token: string) {
 	const sessionExpired = Date.now() >= session.expiresAt.getTime();
 
 	if (sessionExpired) {
-		await db.delete(sessionTable).where(eq(sessionTable.id, session.id));
+		await sessionRepository.delete(session.id);
 		return { session: null, user: null };
 	}
 
@@ -76,10 +83,7 @@ export async function validateSessionToken(token: string) {
 
 	if (renewSession) {
 		session.expiresAt = new Date(Date.now() + DAY_IN_MS * 30);
-		await db
-			.update(sessionTable)
-			.set({ expiresAt: session.expiresAt })
-			.where(eq(sessionTable.id, session.id));
+		await sessionRepository.updateExpiration(session.id, session.expiresAt);
 	}
 
 	return { session, user };
@@ -159,14 +163,29 @@ export async function getUserContext(userId: string) {
 
 export type SessionValidationResult = Awaited<ReturnType<typeof validateSessionToken>>;
 // export type UserContext = Awaited<ReturnType<typeof getUserContext>>; // getUserContext disabled in MVP
+
 export async function invalidateSession(sessionId: string) {
-	await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
+	await sessionRepository.delete(sessionId);
 }
 
 export function setSessionTokenCookie(event: RequestEvent, token: string, expiresAt: Date) {
-	event.cookies.set(sessionCookieName, token, { expires: expiresAt, path: '/' });
+	const isProduction = process.env.NODE_ENV === 'production';
+	event.cookies.set(sessionCookieName, token, {
+		path: '/',
+		expires: expiresAt,
+		httpOnly: true,
+		sameSite: 'lax',
+		secure: isProduction
+	});
 }
 
 export function deleteSessionTokenCookie(event: RequestEvent) {
-	event.cookies.delete(sessionCookieName, { path: '/' });
+	const isProduction = process.env.NODE_ENV === 'production';
+	event.cookies.set(sessionCookieName, '', {
+		path: '/',
+		expires: new Date(0),
+		httpOnly: true,
+		sameSite: 'lax',
+		secure: isProduction
+	});
 }

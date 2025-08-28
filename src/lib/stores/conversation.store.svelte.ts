@@ -1,5 +1,9 @@
 // src/lib/stores/conversation.store.svelte.ts
 // Simplified conversation store using functional realtime service
+// ! Need to make sure that onboarding update in the beginning of the conversation is handled
+// ! Need to make sure that the conversation is properly handled
+// ! Need to make sure that the user preferences are properly handled
+// ! Need to ensure that when the conversation is ended, the onboarding for userPreferences runs
 
 import { SvelteDate } from 'svelte/reactivity';
 import { browser } from '$app/environment';
@@ -841,6 +845,7 @@ export class ConversationStore {
 	get reactiveAudioLevel() {
 		return this.audioLevel;
 	}
+	
 }
 
 // Export singleton instance

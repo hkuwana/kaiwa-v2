@@ -16,9 +16,6 @@ export const users = pgTable(
 		nativeLanguageId: text('native_language_id').notNull().default('en'),
 		preferredUILanguageId: text('preferred_ui_language_id').notNull().default('ja'),
 
-		// User tier (default tier, can be overridden by active subscription)
-		defaultTier: text('default_tier').$type<'free' | 'pro' | 'premium'>().notNull().default('free'),
-
 		// Tracking
 		createdAt: timestamp('created_at').defaultNow(),
 		lastUsage: timestamp('last_usage'),
@@ -29,7 +26,6 @@ export const users = pgTable(
 	(table) => [
 		// Performance indexes for common queries
 		index('users_email_idx').on(table.email),
-		index('users_default_tier_idx').on(table.defaultTier),
 		index('users_created_at_idx').on(table.createdAt),
 		index('users_last_usage_idx').on(table.lastUsage)
 	]

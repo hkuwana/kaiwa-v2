@@ -1,6 +1,6 @@
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { db } from '$lib/server/db/index';
-import { userUsage, tiers } from '$lib/server/db/schema';
+import { userUsage } from '$lib/server/db/schema';
 import type { NewUserUsage, UserUsage } from '$lib/server/db/types';
 
 export class UserUsageRepository {
@@ -50,7 +50,6 @@ export class UserUsageRepository {
 	 */
 	async upsertCurrentMonthUsage(
 		userId: string,
-		tierId: string,
 		updates: Partial<NewUserUsage>
 	): Promise<UserUsage> {
 		const currentPeriod = this.getCurrentPeriod();
@@ -76,7 +75,6 @@ export class UserUsageRepository {
 				.insert(userUsage)
 				.values({
 					userId,
-					tierId,
 					period: currentPeriod,
 					...updates
 				})
@@ -93,118 +91,147 @@ export class UserUsageRepository {
 		userId: string,
 		updates: {
 			conversationsUsed?: number;
-			minutesUsed?: number;
+			secondsUsed?: number;
 			realtimeSessionsUsed?: number;
 		}
 	): Promise<UserUsage | null> {
 		const current = await this.getCurrentMonthUsage(userId);
-		if (!current) return null;
 
-		const newValues = {
-			conversationsUsed: (current.conversationsUsed || 0) + (updates.conversationsUsed || 0),
-			minutesUsed: (current.minutesUsed || 0) + (updates.minutesUsed || 0),
-			realtimeSessionsUsed:
-				(current.realtimeSessionsUsed || 0) + (updates.realtimeSessionsUsed || 0)
-		};
+		if (!current) {
+			// Create new record if none exists
+			return await this.upsertCurrentMonthUsage(userId, updates);
+		}
 
-		return await this.upsertCurrentMonthUsage(userId, current.tierId, newValues);
+		// Update existing record
+		const [updated] = await db
+			.update(userUsage)
+			.set({
+				conversationsUsed: (current.conversationsUsed || 0) + (updates.conversationsUsed || 0),
+				secondsUsed: (current.secondsUsed || 0) + (updates.secondsUsed || 0),
+				realtimeSessionsUsed:
+					(current.realtimeSessionsUsed || 0) + (updates.realtimeSessionsUsed || 0),
+				updatedAt: new Date()
+			})
+			.where(and(eq(userUsage.userId, userId), eq(userUsage.period, current.period)))
+			.returning();
+
+		return updated || null;
 	}
 
 	/**
-	 * Process monthly rollover (move unused minutes to next month)
+	 * Update banking information
 	 */
-	async processMonthlyRollover(userId: string): Promise<void> {
-		const nextPeriod = this.getNextPeriod();
+	async updateBanking(
+		userId: string,
+		bankedSeconds: number,
+		bankedSecondsUsed: number = 0
+	): Promise<UserUsage | null> {
+		const current = await this.getCurrentMonthUsage(userId);
 
-		// Get current month usage
-		const currentUsage = await this.getCurrentMonthUsage(userId);
-		if (!currentUsage) return;
-
-		// Get tier info for banking limits
-		const tier = await db.select().from(tiers).where(eq(tiers.id, currentUsage.tierId)).limit(1);
-
-		if (!tier[0]?.sessionBankingEnabled) return;
-
-		// Calculate unused minutes
-		const monthlyMinutes = currentUsage.monthlyMinutes || 0;
-		const usedMinutes = currentUsage.minutesUsed || 0;
-		const unusedMinutes = Math.max(0, monthlyMinutes - usedMinutes);
-
-		// Cap at max banked minutes
-		const maxBanked = tier[0].maxBankedMinutes || 0;
-		const bankedMinutes = Math.min(unusedMinutes, maxBanked);
-
-		if (bankedMinutes > 0) {
-			// Create next month's record with banked minutes
-			await this.upsertCurrentMonthUsage(userId, currentUsage.tierId, {
-				period: nextPeriod,
-				bankedMinutes,
-				monthlyMinutes: currentUsage.monthlyMinutes,
-				maxBankedMinutes: currentUsage.maxBankedMinutes
+		if (!current) {
+			// Create new record if none exists
+			return await this.upsertCurrentMonthUsage(userId, {
+				bankedSeconds,
+				bankedSecondsUsed
 			});
 		}
+
+		// Update existing record
+		const [updated] = await db
+			.update(userUsage)
+			.set({
+				bankedSeconds,
+				bankedSecondsUsed,
+				updatedAt: new Date()
+			})
+			.where(and(eq(userUsage.userId, userId), eq(userUsage.period, current.period)))
+			.returning();
+
+		return updated || null;
 	}
 
 	/**
-	 * Check if user can start a conversation
+	 * Get usage summary for a user
 	 */
-	async canStartConversation(
-		userId: string,
-		estimatedMinutes: number
-	): Promise<{ canStart: boolean; remainingMinutes: number; reason?: string }> {
-		const usage = await this.getCurrentMonthUsage(userId);
-		if (!usage) {
-			return { canStart: false, remainingMinutes: 0, reason: 'No usage record found' };
-		}
-
-		const monthlyMinutes = usage.monthlyMinutes || 0;
-		const usedMinutes = usage.minutesUsed || 0;
-		const bankedMinutes = usage.bankedMinutes || 0;
-		const usedBankedMinutes = usage.bankedMinutesUsed || 0;
-
-		const availableMinutes = monthlyMinutes - usedMinutes + (bankedMinutes - usedBankedMinutes);
-		const canStart = availableMinutes >= estimatedMinutes;
-
-		return {
-			canStart,
-			remainingMinutes: availableMinutes,
-			reason: canStart
-				? undefined
-				: `Insufficient minutes. Need ${estimatedMinutes}, have ${availableMinutes}`
+	async getUserUsageSummary(userId: string): Promise<{
+		currentMonth: UserUsage | null;
+		lastMonth: UserUsage | null;
+		totalUsage: {
+			conversations: number;
+			seconds: number;
+			realtimeSessions: number;
 		};
-	}
-
-	/**
-	 * Get usage statistics for admin dashboard
-	 */
-	async getUsageStats(period?: string): Promise<{
-		totalUsers: number;
-		totalMinutes: number;
-		totalConversations: number;
-		averageMinutesPerUser: number;
 	}> {
-		const targetPeriod = period || this.getCurrentPeriod();
+		const lastPeriod = this.getLastPeriod();
 
-		const result = await db
+		const [currentMonth, lastMonth] = await Promise.all([
+			this.getCurrentMonthUsage(userId),
+			this.getUsageForPeriod(userId, lastPeriod)
+		]);
+
+		// Get total usage across all periods
+		const totalUsage = await db
 			.select({
-				totalUsers: sql<number>`count(distinct ${userUsage.userId})`,
-				totalMinutes: sql<number>`coalesce(sum(${userUsage.minutesUsed}), 0)`,
-				totalConversations: sql<number>`coalesce(sum(${userUsage.conversationsUsed}), 0)`
+				conversations: sql<number>`sum(${userUsage.conversationsUsed})`,
+				seconds: sql<number>`sum(${userUsage.secondsUsed})`,
+				realtimeSessions: sql<number>`sum(${userUsage.realtimeSessionsUsed})`
 			})
 			.from(userUsage)
-			.where(eq(userUsage.period, targetPeriod));
-
-		const stats = result[0];
-		const totalUsers = stats.totalUsers || 0;
-		const totalMinutes = stats.totalMinutes || 0;
-		const totalConversations = stats.totalConversations || 0;
+			.where(eq(userUsage.userId, userId));
 
 		return {
-			totalUsers,
-			totalMinutes,
-			totalConversations,
-			averageMinutesPerUser: totalUsers > 0 ? Math.round(totalMinutes / totalUsers) : 0
+			currentMonth,
+			lastMonth,
+			totalUsage: {
+				conversations: Number(totalUsage[0]?.conversations) || 0,
+				seconds: Number(totalUsage[0]?.seconds) || 0,
+				realtimeSessions: Number(totalUsage[0]?.realtimeSessions) || 0
+			}
 		};
+	}
+
+	/**
+	 * Reset monthly usage (for new month)
+	 */
+	async resetMonthlyUsage(userId: string): Promise<UserUsage | null> {
+		const currentPeriod = this.getCurrentPeriod();
+
+		// Check if record already exists for current month
+		const existing = await this.getCurrentMonthUsage(userId);
+		if (existing) {
+			return existing; // Already reset
+		}
+
+		// Get last month's usage for banking
+		const lastPeriod = this.getLastPeriod();
+		const lastMonthUsage = await this.getUsageForPeriod(userId, lastPeriod);
+
+		// Create new month record with banking
+		const [created] = await db
+			.insert(userUsage)
+			.values({
+				userId,
+				period: currentPeriod,
+				conversationsUsed: 0,
+				secondsUsed: 0,
+				realtimeSessionsUsed: 0,
+				bankedSeconds: lastMonthUsage?.bankedSeconds || 0,
+				bankedSecondsUsed: 0
+			})
+			.returning();
+
+		return created || null;
+	}
+
+	/**
+	 * Get all users with usage in a period
+	 */
+	async getUsersWithUsageInPeriod(period: string): Promise<UserUsage[]> {
+		return await db
+			.select()
+			.from(userUsage)
+			.where(eq(userUsage.period, period))
+			.orderBy(desc(userUsage.secondsUsed));
 	}
 
 	// Helper methods for period management
@@ -213,9 +240,9 @@ export class UserUsageRepository {
 		return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 	}
 
-	private getNextPeriod(): string {
+	private getLastPeriod(): string {
 		const now = new Date();
-		now.setMonth(now.getMonth() + 1);
+		now.setMonth(now.getMonth() - 1);
 		return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 	}
 
