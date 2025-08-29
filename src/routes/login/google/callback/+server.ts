@@ -1,7 +1,7 @@
 // 🔐 Google OAuth Callback Handler
 // Processes the callback from Google and creates/authenticates user
 
-import { generateSessionToken, createSession, setSessionTokenCookie } from '$lib/server/auth';
+import { createSession, setSessionTokenCookie } from '$lib/server/auth';
 import { google, isGoogleOAuthEnabled } from '$lib/server/oauth';
 import { getUserByGoogleId, createUserFromGoogle } from '$lib/server/user';
 import { decodeIdToken } from 'arctic';
@@ -129,11 +129,10 @@ export const GET: RequestHandler = async (event) => {
 		}
 
 		// Create session
-		const sessionToken = generateSessionToken();
-		const { session } = await createSession(sessionToken, user.id);
+		const { session, token } = await createSession(user.id);
 
 		// Set session cookie
-		setSessionTokenCookie(event, sessionToken, session.expiresAt);
+		setSessionTokenCookie(event, token, session.expiresAt);
 
 		// Redirect to home page
 		return new Response(null, {

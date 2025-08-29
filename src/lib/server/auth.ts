@@ -20,10 +20,10 @@ export function generateSessionToken() {
 }
 
 export async function createSession(
-	token: string,
 	userId: string,
 	repository: SessionRepository = sessionRepository
 ) {
+	const token = generateSessionToken();
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 
 	const sessionData: Session = {
@@ -85,78 +85,6 @@ export async function validateSessionToken(token: string) {
 
 	return { session, user };
 }
-
-// Enhanced function to get full user context including tier limits and usage
-// DISABLED in MVP - tier and userUsage fields not available in current schema
-/*
-export async function getUserContext(userId: string) {
-	try {
-		// Get user with tier information
-		const [userResult] = await db
-			.select({
-				user: users,
-				tier: tiers
-			})
-			.from(users)
-			.leftJoin(tiers, eq(users.tier, tiers.id))
-			.where(eq(users.id, userId))
-			.limit(1);
-
-		if (!userResult) return null;
-
-		// Get current usage for this month
-		const now = new Date();
-		const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
-		const [usageResult] = await db
-			.select()
-			.from(userUsage)
-			.where(eq(userUsage.userId, userId) && eq(userUsage.periodStart, monthStart))
-			.limit(1);
-
-		// Get user's language preferences
-		const [nativeLang] = await db
-			.select()
-			.from(languages)
-			.where(eq(languages.id, userResult.user.nativeLanguageId))
-			.limit(1);
-
-		const [preferredLang] = await db
-			.select()
-			.from(languages)
-			.where(eq(languages.id, userResult.user.preferredUILanguageId))
-			.limit(1);
-
-		return {
-			user: userResult.user,
-			tier: userResult.tier,
-			usage: usageResult || {
-				conversationsUsed: 0,
-				minutesUsed: 0,
-				realtimeSessionsUsed: 0
-			},
-			languages: {
-				native: nativeLang,
-				preferred: preferredLang
-			},
-			limits: {
-				conversationsRemaining:
-					(userResult.tier?.monthlyConversations || 10) - (usageResult?.conversationsUsed || 0),
-				minutesRemaining: (userResult.tier?.monthlyMinutes || 60) - (usageResult?.minutesUsed || 0),
-				realtimeSessionsRemaining:
-					(userResult.tier?.monthlyRealtimeSessions || 0) -
-					(usageResult?.realtimeSessionsUsed || 0),
-				hasRealtimeAccess: userResult.tier?.hasRealtimeAccess || false,
-				hasAdvancedVoices: userResult.tier?.hasAdvancedVoices || false,
-				hasAnalytics: userResult.tier?.hasAnalytics || false
-			}
-		};
-	} catch (error) {
-		console.error('Error getting user context:', error);
-		return null;
-	}
-}
-*/
 
 export type SessionValidationResult = Awaited<ReturnType<typeof validateSessionToken>>;
 // export type UserContext = Awaited<ReturnType<typeof getUserContext>>; // getUserContext disabled in MVP

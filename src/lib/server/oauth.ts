@@ -11,7 +11,7 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '';
 // Redirect URI - adjust based on environment
 const redirectURI = dev
 	? 'http://localhost:5173/login/google/callback'
-	: 'https://yourdomain.com/login/google/callback'; // Update with your production domain
+	: 'https://trykaiwa.com/login/google/callback'; // Update with your production domain
 
 if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
 	console.warn('Google OAuth credentials not configured. Authentication will be disabled.');

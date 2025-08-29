@@ -3,10 +3,8 @@ import { createSession, setSessionTokenCookie } from '$lib/server/auth';
 import { OAuth2RequestError, decodeIdToken } from 'arctic';
 import { eq } from 'drizzle-orm';
 import { db } from '$lib/server/db';
-import * as table from '$lib/server/db/schema/schema';
+import * as table from '$lib/server/db/schema';
 import { randomUUID } from 'crypto';
-import { serverLogger } from '$lib/server/serverLogger';
-
 import type { RequestEvent } from './$types';
 
 interface IdTokenClaims {
@@ -17,14 +15,14 @@ interface IdTokenClaims {
 }
 
 export async function GET(event: RequestEvent): Promise<Response> {
-	serverLogger.info('Google OAuth callback received');
+	console.log('Google OAuth callback received');
 	const storedState = event.cookies.get('google_oauth_state') ?? null;
 	const codeVerifier = event.cookies.get('google_code_verifier') ?? null;
 	const code = event.url.searchParams.get('code');
 	const state = event.url.searchParams.get('state');
 
 	if (!code || !state || !storedState || !codeVerifier || state !== storedState) {
-		serverLogger.error('OAuth callback validation failed', {
+		console.log('OAuth callback validation failed', {
 			code,
 			state,
 			storedState,
@@ -37,30 +35,30 @@ export async function GET(event: RequestEvent): Promise<Response> {
 
 	try {
 		const tokens = await google.validateAuthorizationCode(code, codeVerifier);
-		serverLogger.info('Successfully validated authorization code', { tokens });
+		console.log('Successfully validated authorization code', { tokens });
 		const claims = decodeIdToken(tokens.idToken()) as IdTokenClaims;
-		serverLogger.info('Decoded ID token claims', { claims });
+		console.log('Decoded ID token claims', { claims });
 		const googleId = claims.sub;
 		const email = claims.email;
 
 		if (!email) {
-			serverLogger.error('Email not provided by Google', { claims });
+			console.log('Email not provided by Google', { claims });
 			return new Response('Email not provided by provider.', {
 				status: 400
 			});
 		}
 
-		serverLogger.info('Looking for existing user with googleId', { googleId });
+		console.log('Looking for existing user with googleId', { googleId });
 		const [existingUser] = await db
 			.select()
 			.from(table.users)
 			.where(eq(table.users.googleId, googleId));
 
 		if (existingUser) {
-			serverLogger.info('Existing user found', { userId: existingUser.id });
+			console.log('Existing user found', { userId: existingUser.id });
 			const { session, token } = await createSession(existingUser.id);
 			setSessionTokenCookie(event, token, session.expiresAt);
-			serverLogger.info('Session created for existing user', {
+			console.log('Session created for existing user', {
 				sessionId: session.id
 			});
 			return new Response(null, {
@@ -71,7 +69,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			});
 		}
 
-		serverLogger.info('No existing user found, creating new user');
+		console.log('No existing user found, creating new user');
 		const userId = randomUUID();
 		await db.insert(table.users).values({
 			id: userId,
@@ -80,11 +78,11 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			displayName: claims.name,
 			avatarUrl: claims.picture
 		});
-		serverLogger.info('New user created', { userId });
+		console.log('New user created', { userId });
 
 		const { session, token } = await createSession(userId);
 		setSessionTokenCookie(event, token, session.expiresAt);
-		serverLogger.info('Session created for new user', {
+		console.log('Session created for new user', {
 			sessionId: session.id
 		});
 
@@ -95,7 +93,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			}
 		});
 	} catch (e) {
-		serverLogger.error('Error in Google OAuth callback', e);
+		console.log('Error in Google OAuth callback', e);
 		if (e instanceof OAuth2RequestError) {
 			return new Response(null, {
 				status: 400
