@@ -1,4 +1,4 @@
-import { google } from "$lib/features/auth/oauth";
+import { google } from "$lib/services/auth-oauth.service";
 import { generateCodeVerifier, generateState } from "arctic";
 
 export function GET(event): Response {

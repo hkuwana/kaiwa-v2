@@ -17,7 +17,7 @@
 @plugin "daisyui" {
 	themes:
 		retro --default,
-		night --prefersdark;
+		forest --prefersdark;
 }
 
 /* Enhanced markdown styling */

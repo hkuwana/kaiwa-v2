@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { sha256 } from "@oslojs/crypto/sha2";
 import { encodeHexLowerCase } from "@oslojs/encoding";
 import { db } from "$lib/server/db";
-import * as table from "$lib/server/db/schema/schema";
+import * as table from "$lib/server/db/schema";
 import { createSession, setSessionTokenCookie } from "$lib/server/auth";
 
 export async function load(event) {
