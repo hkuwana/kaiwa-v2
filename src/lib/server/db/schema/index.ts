@@ -3,17 +3,24 @@
 
 // Core user management
 export { users } from './users';
-export { userPreferences } from './userPreferences';
 
 // Session and authentication
 export { session } from './session';
 
-// Content and learning (MVP focused)
+// Content and learning (MVP focused) - order matters for dependencies
 export { languages } from './languages';
 export { speakers } from './speakers';
 export { scenarios } from './scenarios'; // Simplified for onboarding/comfort
 export { conversations } from './conversations';
 export { messages } from './messages';
+
+// User preferences (depends on users and languages)
+export {
+	learningMotivationEnum,
+	challengePreferenceEnum,
+	correctionStyleEnum,
+	userPreferences
+} from './userPreferences';
 
 // Subscription and billing (simplified)
 export { tiers } from './tiers';

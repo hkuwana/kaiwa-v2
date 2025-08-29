@@ -234,7 +234,17 @@ export class ConversationStore {
       timestamp: new Date(),
       id: '',
       conversationId: '',
-      audioUrl: null
+      audioUrl: null,
+      // Language learning fields
+      translatedContent: null,
+      sourceLanguage: null,
+      targetLanguage: null,
+      grammarAnalysis: null,
+      vocabularyAnalysis: null,
+      pronunciationScore: null,
+      audioDuration: null,
+      difficultyLevel: null,
+      learningTags: null
     };
     this.messages = [...this.messages, message];
   };

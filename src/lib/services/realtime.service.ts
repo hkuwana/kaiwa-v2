@@ -126,6 +126,33 @@ export function closeConnection(connection: RealtimeConnection): void {
 
 export function sendEvent(connection: RealtimeConnection, event: ClientEvent): void {
 	if (connection.dataChannel.readyState === 'open') {
+		// Log what we're sending to OpenAI for transcript updates
+		if (event.type === 'conversation.item.create' && event.item.type === 'message') {
+			console.log('📤 Sending to OpenAI - User message:', {
+				type: event.type,
+				itemType: event.item.type,
+				role: event.item.role,
+				content: event.item.content,
+				timestamp: new Date().toISOString()
+			});
+		} else if (event.type === 'session.update') {
+			console.log('📤 Sending to OpenAI - Session config:', {
+				type: event.type,
+				modalities: event.session.modalities,
+				instructions: event.session.instructions?.substring(0, 100) + '...',
+				voice: event.session.voice,
+				transcription: event.session.input_audio_transcription,
+				turnDetection: event.session.turn_detection,
+				timestamp: new Date().toISOString()
+			});
+		} else {
+			console.log('📤 Sending to OpenAI - Event:', {
+				type: event.type,
+				event: event,
+				timestamp: new Date().toISOString()
+			});
+		}
+
 		connection.dataChannel.send(JSON.stringify(event));
 	} else {
 		console.warn('Cannot send event: data channel not open');

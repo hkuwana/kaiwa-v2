@@ -10,8 +10,8 @@ import { browser } from '$app/environment';
 import { realtimeService } from '$lib/services';
 import { audioStore } from '$lib/stores/audio.store.svelte';
 import {
-	generateCustomInstructions,
-	generateInitialGreeting
+	generateOnboardingInstructions,
+	generateSessionInstructions
 } from '$lib/services/instructions.service';
 import * as messageService from '$lib/services/message.service';
 import * as sessionManagerService from '$lib/services/session-manager.service';
@@ -54,7 +54,7 @@ export class ConversationStore {
 	// Analysis state
 	isAnalyzing = $derived(this.status === 'analyzing');
 	hasAnalysisResults = $derived(this.status === 'analyzed');
-	isGuestUser = $derived(this.userId === null);
+	isGuestUser = $derived(userPreferencesStore.isGuest());
 
 	// Private connection state
 	private realtimeConnection: realtimeService.RealtimeConnection | null = null;
@@ -366,8 +366,8 @@ export class ConversationStore {
 					this.handleUserSpeechStopped();
 				},
 				onSessionCreated: () => {
-					console.log('Session created, sending configuration...');
-					this.sendInitialConfiguration();
+					console.log('Session created, sending initial setup...');
+					this.sendInitialSetup(); // Combined function
 					this.status = 'connected';
 
 					// Create preferences provider for checking onboarding
@@ -387,10 +387,9 @@ export class ConversationStore {
 						this.timerStore.start();
 					}
 
-					// Auto-start streaming and send initial greeting
+					// Set status to streaming after a brief delay
 					setTimeout(() => {
 						this.status = 'streaming';
-						this.sendInitialGreeting(false); // isFirstTime is no longer passed
 					}, 500);
 				},
 				onOtherEvent: (serverEvent) => {
@@ -553,47 +552,55 @@ export class ConversationStore {
 		this.isTranscribing = newState.isTranscribing;
 	}
 
-	private sendInitialConfiguration(): void {
+	private sendInitialSetup(): void {
 		if (!this.realtimeConnection || !this.language) return;
 
 		// Get user preferences for instructions
 		const userPrefs = userPreferencesStore.getPreferences();
-		const instructions = generateCustomInstructions(this.language, userPrefs);
+
+		// Determine if this is a first-time user and get appropriate instructions
+		const isFirstTime = onboardingManagerService.shouldTriggerOnboarding({
+			isGuest: () => userPreferencesStore.isGuest(),
+			getPreference: <K extends keyof UserPreferences>(key: K) =>
+				userPreferencesStore.getPreference(key),
+			updatePreferences: (updates: Partial<UserPreferences>) =>
+				userPreferencesStore.updatePreferences(updates)
+		});
+
+		// Generate session instructions with appropriate greeting prompt
+		const sessionInstructions = generateSessionInstructions(this.language, userPrefs);
+		const greetingPrompt = generateOnboardingInstructions(
+			this.isGuestUser,
+			'en', // source language
+			this.language
+		);
+
+		// Combine session instructions with greeting prompt
+		const combinedInstructions = `${sessionInstructions}\n\nInitial greeting: ${greetingPrompt}`;
 
 		const sessionConfig = sessionManagerService.createSessionConfig(
 			this.language,
 			this.voice,
-			instructions
+			combinedInstructions
 		);
 
-		console.log('Sending session configuration:', {
+		console.log('Sending session configuration with greeting:', {
 			language: this.language.name,
 			voice: this.voice,
 			model: sessionConfig.model,
 			transcription: sessionConfig.input_audio_transcription,
-			turnDetection: sessionConfig.turn_detection
+			turnDetection: sessionConfig.turn_detection,
+			isFirstTime,
+			isGuest: this.isGuestUser
 		});
 
+		// Send the combined configuration
 		const configEvent = realtimeService.createSessionUpdate(sessionConfig);
 		realtimeService.sendEvent(this.realtimeConnection, configEvent);
-	}
 
-	private sendInitialGreeting(isFirstTime: boolean): void {
-		if (!this.realtimeConnection || !this.language) return;
-
-		// Generate greeting prompt using the instructions service
-		const userPrefs = userPreferencesStore.getPreferences();
-		const greetingPrompt = generateInitialGreeting(this.language, userPrefs, isFirstTime);
-
-		// Send the greeting prompt to trigger AI response
-		const greetingEvent = realtimeService.createTextMessage(greetingPrompt);
-		realtimeService.sendEvent(this.realtimeConnection, greetingEvent);
-
-		// Request the AI to respond
+		// Request the AI to start with the greeting
 		const responseEvent = realtimeService.createResponse(['text', 'audio']);
 		realtimeService.sendEvent(this.realtimeConnection, responseEvent);
-
-		console.log(`Sent ${isFirstTime ? 'first-time' : 'returning'} greeting prompt`);
 	}
 
 	private clearTranscriptionState(): void {

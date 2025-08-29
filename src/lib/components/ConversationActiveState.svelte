@@ -43,38 +43,9 @@
 			handleSendMessage();
 		}
 	}
-
-	const headerInfo = $derived(() => {
-		if (isGuestUser && messages.length < 4) {
-			return {
-				title: `Welcome to ${selectedLanguage?.name || 'Language'} Learning!`,
-				subtitle: "Let's get to know you and create your perfect learning plan",
-				badge: 'Personalizing'
-			};
-		} else {
-			return {
-				title: `${selectedLanguage?.name || 'Language'} Conversation`,
-				subtitle: null,
-				badge: 'Active'
-			};
-		}
-	});
 </script>
 
 <div class="container mx-auto max-w-4xl px-4 py-6" in:fly={{ y: 20, duration: 400 }}>
-	<!-- Header -->
-	<header class="mb-6 text-center">
-		<div class="mb-4 flex items-center justify-center gap-4">
-			<h1 class="text-2xl font-bold text-primary">
-				{headerInfo().title}
-			</h1>
-			<div class="badge badge-success">{headerInfo().badge}</div>
-		</div>
-		{#if headerInfo().subtitle}
-			<p class="text-base-content/70">{headerInfo().subtitle}</p>
-		{/if}
-	</header>
-
 	<!-- Live Audio Indicator -->
 	<div class="mb-6 flex justify-center" in:fade={{ duration: 300, delay: 200 }}>
 		<div class="card border border-success/20 bg-success/5 shadow-lg">

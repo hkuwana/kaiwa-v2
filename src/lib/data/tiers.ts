@@ -120,7 +120,7 @@ export const defaultTierConfigs: Record<UserTier, TierConfig> = {
 
 		// Pricing
 		monthlyPriceUsd: '15.00',
-		annualPriceUsd: '135.00', // 25% discount
+		annualPriceUsd: '144.00', // 20% discount
 		stripeProductId: null, // process.env.STRIPE_PLUS_PRODUCT_ID || null,
 		stripePriceIdMonthly: null, // process.env.STRIPE_PLUS_MONTHLY_PRICE_ID || null,
 		stripePriceIdAnnual: null, // process.env.STRIPE_PLUS_ANNUAL_PRICE_ID || null,
@@ -133,7 +133,7 @@ export const defaultTierConfigs: Record<UserTier, TierConfig> = {
 		extensionDurationMs: 5 * 60 * 1000, // 5 minutes per extension
 
 		// Additional calculated fields
-		overagePricePerMinute: 0.05,
+		overagePricePerMinute: 0.08,
 		feedbackSessionsPerMonth: 'unlimited',
 		customizedPhrasesFrequency: 'daily',
 		conversationMemoryLevel: 'human-like',
@@ -165,7 +165,7 @@ export const defaultTierConfigs: Record<UserTier, TierConfig> = {
 
 		// Pricing
 		monthlyPriceUsd: '25.00',
-		annualPriceUsd: '225.00', // 25% discount
+		annualPriceUsd: '240.00', // 20% discount
 		stripeProductId: null, // process.env.STRIPE_PREMIUM_PRODUCT_ID || null,
 		stripePriceIdMonthly: null, // process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID || null,
 		stripePriceIdAnnual: null, // process.env.STRIPE_PREMIUM_ANNUAL_PRICE_ID || null,
@@ -178,7 +178,7 @@ export const defaultTierConfigs: Record<UserTier, TierConfig> = {
 		extensionDurationMs: 5 * 60 * 1000, // 5 minutes per extension
 
 		// Additional calculated fields
-		overagePricePerMinute: 0.02,
+		overagePricePerMinute: 0.05,
 		feedbackSessionsPerMonth: 'unlimited',
 		customizedPhrasesFrequency: 'daily',
 		conversationMemoryLevel: 'elephant-like',

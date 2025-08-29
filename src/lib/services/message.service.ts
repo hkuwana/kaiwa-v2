@@ -10,7 +10,17 @@ export function createUserPlaceholder(sessionId: string): Message {
 		timestamp: new SvelteDate(),
 		id: `user_placeholder_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
 		conversationId: sessionId,
-		audioUrl: null
+		audioUrl: null,
+		// Language learning fields
+		translatedContent: null,
+		sourceLanguage: null,
+		targetLanguage: null,
+		grammarAnalysis: null,
+		vocabularyAnalysis: null,
+		pronunciationScore: null,
+		audioDuration: null,
+		difficultyLevel: null,
+		learningTags: null
 	};
 }
 
@@ -84,7 +94,17 @@ export function createFinalUserMessage(content: string, sessionId: string): Mess
 		timestamp: new SvelteDate(),
 		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
 		conversationId: sessionId,
-		audioUrl: null
+		audioUrl: null,
+		// Language learning fields
+		translatedContent: null,
+		sourceLanguage: null,
+		targetLanguage: null,
+		grammarAnalysis: null,
+		vocabularyAnalysis: null,
+		pronunciationScore: null,
+		audioDuration: null,
+		difficultyLevel: null,
+		learningTags: null
 	};
 }
 
@@ -95,7 +115,17 @@ export function createStreamingMessage(content: string, sessionId: string): Mess
 		timestamp: new SvelteDate(),
 		id: `streaming_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
 		conversationId: sessionId,
-		audioUrl: null
+		audioUrl: null,
+		// Language learning fields
+		translatedContent: null,
+		sourceLanguage: null,
+		targetLanguage: null,
+		grammarAnalysis: null,
+		vocabularyAnalysis: null,
+		pronunciationScore: null,
+		audioDuration: null,
+		difficultyLevel: null,
+		learningTags: null
 	};
 }
 
@@ -146,7 +176,17 @@ export function createFinalAssistantMessage(content: string, sessionId: string):
 		timestamp: new SvelteDate(),
 		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
 		conversationId: sessionId,
-		audioUrl: null
+		audioUrl: null,
+		// Language learning fields
+		translatedContent: null,
+		sourceLanguage: null,
+		targetLanguage: null,
+		grammarAnalysis: null,
+		vocabularyAnalysis: null,
+		pronunciationScore: null,
+		audioDuration: null,
+		difficultyLevel: null,
+		learningTags: null
 	};
 }
 
@@ -174,7 +214,17 @@ export function createMessageFromEventData(
 		timestamp: new SvelteDate(),
 		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
 		conversationId: sessionId,
-		audioUrl: null
+		audioUrl: null,
+		// Language learning fields
+		translatedContent: null,
+		sourceLanguage: null,
+		targetLanguage: null,
+		grammarAnalysis: null,
+		vocabularyAnalysis: null,
+		pronunciationScore: null,
+		audioDuration: null,
+		difficultyLevel: null,
+		learningTags: null
 	};
 }
 

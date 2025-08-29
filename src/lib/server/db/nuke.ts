@@ -2,14 +2,31 @@
 // Enhanced with safety checks and environment awareness
 
 import { sql } from 'drizzle-orm';
-import { db } from './index';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 import * as dotenv from 'dotenv';
+import * as schema from './schema/index';
 
 // Load environment variables
 dotenv.config();
 
 const isDev = process.env.NODE_ENV === 'development';
 const isTest = process.env.NODE_ENV === 'test';
+
+// Create database connection directly for this script
+function createDbConnection() {
+	const connectionString = process.env.DATABASE_URL;
+	if (!connectionString) {
+		throw new Error('DATABASE_URL environment variable is required');
+	}
+
+	const client = postgres(connectionString, {
+		max: 1,
+		ssl: process.env.NODE_ENV === 'production' ? 'require' : false
+	});
+
+	return drizzle(client, { schema });
+}
 
 /**
  * Safety check to prevent accidental production resets
@@ -33,6 +50,8 @@ export async function dropAllTables(): Promise<void> {
 	confirmEnvironment();
 
 	console.log('🔥 Dropping all database objects...');
+
+	const db = createDbConnection();
 
 	try {
 		// Drop everything in the correct order to handle dependencies
@@ -99,42 +118,42 @@ export async function resetDatabase(): Promise<void> {
 /**
  * Soft reset - only clear data, keep schema
  */
-export async function clearData(): Promise<void> {
+export async function clearDataOnly(): Promise<void> {
 	confirmEnvironment();
 
 	console.log('🧹 Clearing all data (keeping schema)...');
 
+	const db = createDbConnection();
+
 	try {
 		// Get all table names
-		const result = await db.execute(sql`
+		const tables = await db.execute(sql`
 			SELECT tablename 
 			FROM pg_tables 
 			WHERE schemaname = 'public' 
-			ORDER BY tablename;
+			AND tablename NOT LIKE 'drizzle_%'
 		`);
 
-		const tables = result.map((row) => (row as any).tablename);
-
-		// Disable foreign key checks temporarily
-		await db.execute(sql`SET session_replication_role = replica;`);
-
-		// Truncate all tables
-		for (const table of tables) {
-			await db.execute(sql.raw(`TRUNCATE TABLE ${table} RESTART IDENTITY CASCADE;`));
-			console.log(`  Cleared: ${table}`);
+		if (tables.length === 0) {
+			console.log('ℹ️  No tables found to clear');
+			return;
 		}
 
-		// Re-enable foreign key checks
-		await db.execute(sql`SET session_replication_role = DEFAULT;`);
+		// Clear data from each table
+		for (const table of tables) {
+			const tableName = (table as { tablename: string }).tablename;
+			if (tableName && !tableName.startsWith('drizzle_')) {
+				try {
+					await db.execute(sql`TRUNCATE TABLE ${sql.identifier(tableName)} CASCADE`);
+					console.log(`🧹 Cleared table: ${tableName}`);
+				} catch (error) {
+					console.warn(`⚠️  Could not clear table ${tableName}:`, error);
+				}
+			}
+		}
 
-		console.log('✅ All data cleared successfully');
-		console.log('Schema preserved - you can now re-seed with: pnpm db:seed:dev');
+		console.log('✅ Data cleared successfully');
 	} catch (error) {
-		// Make sure to re-enable foreign key checks even if something fails
-		try {
-			await db.execute(sql`SET session_replication_role = DEFAULT;`);
-		} catch {}
-
 		console.error('❌ Error clearing data:', error);
 		throw error;
 	}
@@ -152,7 +171,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 				break;
 			case 'clear':
 			case 'truncate':
-				await clearData();
+				await clearDataOnly();
 				break;
 			default:
 				console.log('Available commands:');

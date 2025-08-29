@@ -223,8 +223,40 @@ describe('Conversation Page', () => {
     await page.evaluate(() => {
       // This would normally come from the store
       window.mockMessages = [
-        { role: 'user', content: 'Hello', timestamp: new Date() },
-        { role: 'assistant', content: 'Hi there!', timestamp: new Date() }
+        { 
+          role: 'user', 
+          content: 'Hello', 
+          timestamp: new Date(),
+          id: 'mock1',
+          conversationId: 'mock1',
+          audioUrl: null,
+          translatedContent: null,
+          sourceLanguage: null,
+          targetLanguage: null,
+          grammarAnalysis: null,
+          vocabularyAnalysis: null,
+          pronunciationScore: null,
+          audioDuration: null,
+          difficultyLevel: null,
+          learningTags: null
+        },
+        { 
+          role: 'assistant', 
+          content: 'Hi there!', 
+          timestamp: new Date(),
+          id: 'mock2',
+          conversationId: 'mock1',
+          audioUrl: null,
+          translatedContent: null,
+          sourceLanguage: null,
+          targetLanguage: null,
+          grammarAnalysis: null,
+          vocabularyAnalysis: null,
+          pronunciationScore: null,
+          audioDuration: null,
+          difficultyLevel: null,
+          learningTags: null
+        }
       ];
     });
     
@@ -477,8 +509,40 @@ it('should handle permission denied error gracefully', async () => {
 ```typescript
 // Create reusable test data
 export const testMessages = [
-  { role: 'user', content: 'Hello', timestamp: new Date(), id: '1', conversationId: '1', audioUrl: null },
-  { role: 'assistant', content: 'Hi there!', timestamp: new Date(), id: '2', conversationId: '1', audioUrl: null }
+  { 
+    role: 'user', 
+    content: 'Hello', 
+    timestamp: new Date(), 
+    id: '1', 
+    conversationId: '1', 
+    audioUrl: null,
+    translatedContent: null,
+    sourceLanguage: null,
+    targetLanguage: null,
+    grammarAnalysis: null,
+    vocabularyAnalysis: null,
+    pronunciationScore: null,
+    audioDuration: null,
+    difficultyLevel: null,
+    learningTags: null
+  },
+  { 
+    role: 'assistant', 
+    content: 'Hi there!', 
+    timestamp: new Date(), 
+    id: '2', 
+    conversationId: '1', 
+    audioUrl: null,
+    translatedContent: null,
+    sourceLanguage: null,
+    targetLanguage: null,
+    grammarAnalysis: null,
+    vocabularyAnalysis: null,
+    pronunciationScore: null,
+    audioDuration: null,
+    difficultyLevel: null,
+    learningTags: null
+  }
 ];
 
 export const testSessionData = {

@@ -29,7 +29,17 @@ export const POST: RequestHandler = async ({ request }) => {
 			conversationId,
 			role,
 			content,
-			audioUrl: audioUrl || null
+			audioUrl: audioUrl || null,
+			// Language learning fields with defaults
+			translatedContent: null,
+			sourceLanguage: null,
+			targetLanguage: null,
+			grammarAnalysis: null,
+			vocabularyAnalysis: null,
+			pronunciationScore: null,
+			audioDuration: null,
+			difficultyLevel: null,
+			learningTags: null
 		});
 
 		// Increment message count in conversation

@@ -15,6 +15,13 @@
       "when": 1756219797608,
       "tag": "0001_salty_celestials",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1756492343839,
+      "tag": "0002_reflective_gunslinger",
+      "breakpoints": true
     }
   ]
 }

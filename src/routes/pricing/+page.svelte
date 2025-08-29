@@ -49,8 +49,7 @@
 		return Math.round(((monthly - annualMonthlyEquivalent) / monthly) * 100);
 	}
 
-	// Get tier configs
-	const tiers = Object.values(defaultTierConfigs);
+	// Get tier configs 
 	const freeTier = defaultTierConfigs.free;
 	const plusTier = defaultTierConfigs.plus;
 	const premiumTier = defaultTierConfigs.premium;

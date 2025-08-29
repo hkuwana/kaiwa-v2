@@ -38,9 +38,9 @@
 		"db:migrate:dev": "dotenv -e .env.development -- drizzle-kit migrate",
 		"db:seed:dev": "dotenv -e .env.development  -- tsx ./src/lib/server/db/seed.ts",
 		"db:seed:prod": "dotenv -e .env.production  -- tsx ./src/lib/server/db/seed.ts",
-		"db:nuke:dev": "tsx ./src/lib/server/db/nuke.ts",
+		"db:nuke:dev": "dotenv -e .env.development -- tsx ./src/lib/server/db/nuke.ts",
 		"db:nuke:prod": "dotenv -e .env.production  -- tsx ./src/lib/server/db/nuke.ts",
-		"db:clear:dev": "NODE_ENV=development tsx ./src/lib/server/db/nuke.ts clear",
+		"db:clear:dev": "dotenv -e .env.development tsx ./src/lib/server/db/nuke.ts clear",
 		"db:health": "tsx scripts/db-health.ts"
 	},
 	"devDependencies": {

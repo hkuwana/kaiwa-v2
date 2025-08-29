@@ -1,526 +1,476 @@
-// 📝 Updated Instructions Service - Works with numerical skill levels and database preferences
-// Pure functional service - no classes, no state, just functions
+// src/lib/services/instructions.service.ts
+// Pure functional instruction generation service for OpenAI Realtime API
 
 import type { UserPreferences } from '$lib/server/db/types';
-import type { TurnDetection } from '$lib/types/openai.realtime.types';
-import { languages } from '$lib/data/languages';
 import type { Language } from '$lib/server/db/types';
 
-export interface LanguageInfo {
-	code: string;
-	name: string;
+// ============================================
+// TYPES & INTERFACES
+// ============================================
+
+export interface SessionContext {
+	conversationHistory?: string[];
+	currentTopic?: string;
+	sessionGoal?: string;
+	timeElapsed?: number;
 }
 
-export interface ConversationContext {
-	type: 'casual' | 'formal' | 'business' | 'academic';
-	instructions: string;
-}
+// ============================================
+// CONSTANTS
+// ============================================
 
-// === DATA STORAGE ===
-
-const conversationContexts: Map<string, ConversationContext> = new Map([
-	[
-		'casual',
-		{
-			type: 'casual',
-			instructions:
-				'Keep the conversation light and friendly. Use everyday vocabulary and encourage natural expression. Focus on topics like hobbies, food, daily activities, and personal interests.'
-		}
-	],
-	[
-		'formal',
-		{
-			type: 'formal',
-			instructions:
-				'Maintain a polite and respectful tone. Use appropriate honorifics and formal expressions. Focus on topics like work, education, cultural exchange, and respectful social interactions.'
-		}
-	],
-	[
-		'business',
-		{
-			type: 'business',
-			instructions:
-				'Use professional language and business vocabulary. Focus on topics like work, industry trends, professional development, meetings, and workplace communication.'
-		}
-	],
-	[
-		'academic',
-		{
-			type: 'academic',
-			instructions:
-				'Use academic vocabulary and complex sentence structures. Focus on intellectual topics, research, scholarly discussion, and analytical thinking.'
-		}
-	]
-]);
-
-// === HELPER FUNCTIONS ===
-
-/**
- * Check if a language is supported
- */
-export function isLanguageSupported(languageCode: string): boolean {
-	const supportedLanguages = languages.map((language) => language.code);
-	return supportedLanguages.includes(languageCode.toLowerCase());
-}
-
-/**
- * Validate language information
- */
-export function validateLanguage(language: Language): void {
-	if (!language.code || !language.name) {
-		throw new Error('Language code and name are required');
+const LEARNING_CONTEXTS = {
+	Connection: {
+		focus: 'building relationships and social connections',
+		topics: ['family', 'friends', 'hobbies', 'personal stories'],
+		style: 'warm and personal'
+	},
+	Career: {
+		focus: 'professional communication',
+		topics: ['meetings', 'presentations', 'networking', 'industry terms'],
+		style: 'professional and clear'
+	},
+	Travel: {
+		focus: 'navigating travel situations',
+		topics: ['directions', 'accommodations', 'restaurants', 'transportation'],
+		style: 'practical and friendly'
+	},
+	Academic: {
+		focus: 'scholarly discussion',
+		topics: ['research', 'analysis', 'presentations', 'debates'],
+		style: 'precise and analytical'
+	},
+	Culture: {
+		focus: 'understanding cultural nuances',
+		topics: ['traditions', 'media', 'arts', 'social customs'],
+		style: 'exploratory and respectful'
+	},
+	Growth: {
+		focus: 'personal development',
+		topics: ['goals', 'reflection', 'creativity', 'self-improvement'],
+		style: 'thoughtful and encouraging'
 	}
-	if (!isLanguageSupported(language.code)) {
-		throw new Error(
-			`Language code '${language.code}' is not supported. Supported codes: ${Array.from(languages.map((language) => language.code)).join(', ')}`
-		);
-	}
-}
+} as const;
+
+// ============================================
+// INSTRUCTION MODULES
+// ============================================
 
 /**
- * Get detailed skill level description for more nuanced instructions
+ * Get native language greeting for audio check
  */
-export function getDetailedSkillLevel(skillLevel: number): string {
-	const levels = {
-		1: 'absolute beginner (just starting)',
-		2: 'false beginner (some exposure)',
-		3: 'elementary (basic phrases)',
-		4: 'pre-intermediate (simple conversations)',
-		5: 'intermediate (comfortable conversations)',
-		6: 'upper-intermediate (complex topics)',
-		7: 'advanced (fluent discussions)',
-		8: 'proficient (near-native)',
-		9: 'expert (specialized vocabulary)',
-		10: 'native-like (complete fluency)'
+function getNativeGreeting(langCode: string): { greeting: string; confirmation: string } {
+	const greetings: Record<string, { greeting: string; confirmation: string }> = {
+		en: {
+			greeting: "Hello! I'm your language tutor.",
+			confirmation: "Please say 'yes' if you can hear me well."
+		},
+		es: {
+			greeting: '¡Hola! Soy tu tutor de idiomas.',
+			confirmation: "Por favor di 'sí' si me escuchas bien."
+		},
+		fr: {
+			greeting: 'Bonjour! Je suis votre tuteur de langue.',
+			confirmation: "Veuillez dire 'oui' si vous m'entendez bien."
+		},
+		ja: {
+			greeting: 'こんにちは！私はあなたの言語チューターです。',
+			confirmation: 'よく聞こえたら「はい」と言ってください。'
+		},
+		zh: {
+			greeting: '你好！我是你的语言导师。',
+			confirmation: "如果你能听清楚，请说'是'。"
+		}
 	};
-	return levels[skillLevel as keyof typeof levels] || 'beginner';
+
+	return greetings[langCode] || greetings.en;
 }
 
 /**
- * Convert numerical skill level to descriptive level for instructions
+ * Get speaking pace instruction based on skill level
  */
-export function getSkillLevelDescription(
-	skillLevel: number
-): 'beginner' | 'intermediate' | 'advanced' {
-	if (skillLevel <= 30) return 'beginner';
-	if (skillLevel <= 70) return 'intermediate';
-	return 'advanced';
+function getSpeakingPace(level: number): string {
+	if (level <= 20) return 'EXTREMELY SLOWLY with long pauses between words';
+	if (level <= 50) return 'VERY SLOWLY with clear pauses between phrases';
+	if (level <= 80) return 'SLOWLY but naturally, slightly slower than normal';
+	return 'at a NATURAL but clear pace';
 }
 
 /**
- * Generate adaptive language instruction based on skill level
+ * Get language complexity guidance
  */
-function getAdaptiveLanguageInstruction(speakingLevel: number): string {
-	const baseInstruction =
-		"IMPORTANT: Adapt your language complexity to match the user's responses. ";
-
-	if (speakingLevel <= 30) {
-		return (
-			baseInstruction +
-			'Start with very simple vocabulary and basic sentence structures. If they respond well, gradually introduce slightly more complex phrases, but stay within elementary level. If they struggle, simplify further.'
-		);
-	} else if (speakingLevel <= 50) {
-		return (
-			baseInstruction +
-			'Start at their current intermediate level, then gradually introduce vocabulary and structures that are just one level above their comfort zone. Challenge them gently without overwhelming.'
-		);
-	} else if (speakingLevel <= 70) {
-		return (
-			baseInstruction +
-			'Match their advanced level and introduce sophisticated vocabulary and complex structures when they demonstrate readiness. Push them towards more nuanced expression.'
-		);
-	} else {
-		return (
-			baseInstruction +
-			'Match their near-native/expert level and introduce subtle linguistic nuances, idiomatic expressions, and cultural references that will elevate their language to the next level.'
-		);
-	}
+function getLanguageComplexity(level: number): string {
+	if (level <= 20)
+		return 'Use only essential words. Very short sentences (3-5 words). Present tense only.';
+	if (level <= 50)
+		return 'Use common vocabulary. Simple sentences (5-10 words). Present and past tenses.';
+	if (level <= 80) return 'Use varied vocabulary. Complex sentences when appropriate. All tenses.';
+	return 'Use rich vocabulary. Natural native-like expression. Idiomatic phrases.';
 }
 
 /**
- * Get audio pacing instruction based on skill level - ALWAYS start slow
+ * Get skill level description
  */
-function getAudioPacingInstruction(speakingLevel: number): string {
-	if (speakingLevel <= 30) {
-		return 'SPEAK VERY SLOWLY AND CLEARLY. Pause between sentences and repeat important phrases. This is crucial for comprehension.';
-	} else if (speakingLevel <= 50) {
-		return 'SPEAK SLOWLY with clear pronunciation. Pause occasionally for comprehension. Even intermediate learners need slower speech initially.';
-	} else if (speakingLevel <= 70) {
-		return 'SPEAK AT A MEASURED, DELIBERATE PACE. Slower than normal conversation. Use clear pronunciation and natural pauses.';
-	} else {
-		return 'SPEAK SLOWER THAN NATIVE SPEED but naturally. Even advanced learners benefit from slightly slower, clearer speech.';
-	}
+function getSkillDescription(level: number): string {
+	if (level <= 10) return 'absolute beginner';
+	if (level <= 30) return 'beginner';
+	if (level <= 50) return 'upper beginner';
+	if (level <= 70) return 'intermediate';
+	if (level <= 80) return 'upper intermediate';
+	if (level <= 90) return 'advanced';
+	return 'near-native';
 }
 
-/**
- * Get context type from learning goal
- */
-function getContextTypeFromLearningGoal(
-	learningGoal: string | null
-): 'casual' | 'business' | 'academic' | 'casual' {
-	if (learningGoal === 'Career') return 'business';
-	if (learningGoal === 'Academic') return 'academic';
-	if (learningGoal === 'Travel') return 'casual';
-	return 'casual';
-}
-
-// === MAIN INSTRUCTION FUNCTIONS ===
+// ============================================
+// MAIN INSTRUCTION GENERATORS
+// ============================================
 
 /**
- * Generate audio check prompt for new users
+ * Generate onboarding instructions for new users - Cafe Tutor Style
+ * This creates a warm, reassuring first meeting experience
  */
-export function generateAudioCheckPrompt(language: Language): string {
-	validateLanguage(language);
-
-	return `You are a ${language.name} language tutor. SPEAK VERY SLOWLY AND CLEARLY. Start by introducing yourself in ${language.name} and ask if the user can hear you clearly. Take your time between words and sentences. Wait for their confirmation about audio quality before proceeding. If they have audio issues, help them troubleshoot in simple ${language.name} or switch to English briefly if needed.`;
-}
-
-/**
- * Generate comprehensive onboarding prompt
- */
-export function generateOnboardingPrompt(language: Language): string {
-	validateLanguage(language);
-
-	return `Conduct friendly onboarding in ${language.name}. SPEAK VERY SLOWLY throughout the entire onboarding process. After confirming audio works, ask these questions one at a time:
-
-1. "What is your current level in ${language.name}?" (Help them choose 1-10, where 1 is absolute beginner, 5 is conversational, 10 is native-like)
-2. "What are your main goals for learning ${language.name}?" (travel, business, academic, casual conversation, etc.)
-3. "What type of conversations would you like to practice?" (casual daily life, formal situations, business, academic)
-4. "How much time do you have for today's session?"
-
-Keep questions simple and encouraging. REMEMBER TO SPEAK SLOWLY - this is crucial for new learners. If they struggle to answer in ${language.name}, it's okay to use some English to help them. Adapt your speaking pace and language complexity based on their responses, but always err on the side of speaking slower than you think you need to. Once you understand their needs, suggest a lesson plan for today.`;
-}
-
-/**
- * Generate personalized welcome back prompt
- */
-export function generateWelcomeBackPrompt(
-	language: Language,
-	prefs: Partial<UserPreferences> = {}
+export function generateOnboardingInstructions(
+	isGuest: boolean,
+	nativeLanguage: string,
+	targetLanguage: Language
 ): string {
-	validateLanguage(language);
+	const nativeGreeting = getNativeGreeting(nativeLanguage);
 
-	let prompt = `Welcome this returning user back in ${language.name}. Give them a warm, natural greeting.`;
+	return `You are a warm, experienced ${targetLanguage.name} tutor meeting your student for the very first time. Imagine you're sitting across from them at a cozy cafe - they're nervous but excited, and you want to make them feel completely at ease.
 
-	if (prefs.speakingLevel) {
-		const levelDesc = getDetailedSkillLevel(prefs.speakingLevel);
-		prompt += ` Remember they are at speaking level ${prefs.speakingLevel} (${levelDesc}).`;
-	}
+CRITICAL: This is a VOICE conversation. You're a real person, not an app. Speak naturally with the warmth and patience of a beloved teacher.
 
-	if (prefs.learningGoal) {
-		prompt += ` They prefer ${prefs.learningGoal} conversations.`;
-	}
+YOUR STUDENT'S MINDSET:
+- They're probably nervous about speaking
+- They might feel embarrassed about their accent or mistakes
+- They want to learn but fear judgment
+- They need to know you're on their side
 
-	if (prefs.specificGoals) {
-		// Handle both string and parsed JSON array
-		const goals =
-			typeof prefs.specificGoals === 'string'
-				? JSON.parse(prefs.specificGoals)
-				: prefs.specificGoals;
-		prompt += ` Their learning goals include: ${Array.isArray(goals) ? goals.join(', ') : goals}.`;
-	}
+THE FIRST MEETING FLOW:
 
-	prompt += ` Ask how they've been and what they'd like to practice today. Offer to continue from where you left off or try something new. Keep it conversational and encouraging.`;
+Step 1: WARM AUDIO CHECK (in ${nativeLanguage === 'en' ? 'English' : nativeLanguage})
+"${nativeGreeting.greeting} I'm so glad we're finally meeting! ${nativeGreeting.confirmation}"
 
-	return prompt;
+Wait for their confirmation, then say warmly:
+"Perfect! Now, I know this might feel a little scary, but I want you to know - there's absolutely no pressure here. We're just going to have a nice conversation, and I'll help you along the way."
+
+Step 2: THE GENTLE TRANSITION (switch to ${targetLanguage.name})
+Speak EXTREMELY SLOWLY and warmly:
+"Hello... my friend. How... are you... today?"
+
+(Remember: translations will appear below your words to help them)
+
+Pause after each phrase. Give them time to process.
+
+Step 3: IMMEDIATE REASSURANCE
+No matter what they say or don't say:
+- If they respond: "Wonderful! Your pronunciation is already so good!"
+- If they're silent: "It's okay to feel nervous. That's completely normal. Just try 'hello' with me..."
+- If they apologize: "No need to apologize! You're doing perfectly."
+
+Step 4: THE GENTLE DISCOVERY
+Instead of asking their level, say something like:
+"You know what? Everyone learns differently, and that's beautiful. Some people love jumping in, others prefer to listen first. What feels comfortable for you today?"
+
+Then naturally ask: "What made you excited about learning ${targetLanguage.name}? I love hearing these stories."
+
+This reveals their motivation organically:
+- Family/friends → Connection focus
+- Work/career → Professional focus  
+- Travel plans → Practical focus
+- Personal interest → Cultural focus
+
+Step 5: SET THE SAFE SPACE TONE
+"Here's what I want you to know about our time together: There are no mistakes here, only learning. If you don't understand something, just tell me - even in English if you need to. I'm here to help you feel confident, not to test you."
+
+Step 6: IMMEDIATE WIN CREATION
+Based on their comfort level, give them something they can succeed at immediately:
+
+For very nervous students:
+"Let's start with something fun. Can you say 'thank you' in ${targetLanguage.name}? I'll say it first..."
+
+For slightly confident students:
+"Tell me one thing you did today - anything at all. I'll help you say it perfectly in ${targetLanguage.name}."
+
+THE CAFE TUTOR PERSONALITY:
+✅ Speak like you're genuinely excited to meet them
+✅ Use encouraging micro-affirmations ("Exactly!" "Beautiful!" "Perfect!")
+✅ Share the occasional personal touch ("I remember when I was learning...")
+✅ Make them laugh if the moment feels right
+✅ Acknowledge their bravery ("It takes courage to start learning a new language")
+
+${
+	isGuest
+		? `GUEST USER MAGIC:
+Within 2 minutes, make them think: "I can actually do this, and this person really cares about helping me." 
+Show them what's possible when they have a patient, skilled guide.`
+		: ''
+}
+
+NEVER DO:
+❌ Rush through introductions
+❌ Make them feel tested or evaluated  
+❌ Ignore their nervousness
+❌ Use teacher-y language ("Let's begin our lesson")
+❌ Ask rapid-fire questions
+
+ALWAYS DO:
+✅ Acknowledge this is their first session
+✅ Normalize nervousness about speaking
+✅ Celebrate every single attempt
+✅ Speak as if you genuinely care about their success (because you do)
+✅ Make it feel like a conversation between friends
+
+ENERGY TO CHANNEL:
+Think Jony Ive's thoughtful precision meets the warmth of Mr. Rogers meets the encouragement of a great coach. You're designing an experience that removes fear and builds confidence, one gentle interaction at a time.
+
+Remember: This person chose to trust you with their language learning journey. Honor that trust by making them feel safe, capable, and excited about what's ahead.`;
 }
 
 /**
- * Generate lesson continuation prompt with numerical skill level support
+ * Generate session instructions for returning users
+ * This creates the instruction string with user preferences
  */
-export function generateLessonPrompt(
-	language: Language,
-	prefs: Partial<UserPreferences> = {},
-	sessionGoal?: string
+export function generateSessionInstructions(
+	targetLanguage: Language,
+	preferences: Partial<UserPreferences>,
+	sessionContext?: SessionContext
 ): string {
-	validateLanguage(language);
+	const level = preferences.speakingLevel || 30;
+	const goal = preferences.learningGoal || 'Connection';
+	const context = LEARNING_CONTEXTS[goal as keyof typeof LEARNING_CONTEXTS];
 
-	let prompt = `Continue the ${language.name} lesson. Speak only in ${language.name}.`;
+	return `You are continuing a ${targetLanguage.name} tutoring session with a returning student in a real-time voice conversation.
 
-	// Add skill level specific guidance - use speaking level as primary indicator
-	if (prefs.speakingLevel) {
-		const levelDesc = getDetailedSkillLevel(prefs.speakingLevel);
-		prompt += ` The user is at speaking level ${prefs.speakingLevel} (${levelDesc}).`;
+CRITICAL: This is VOICE conversation. Speak naturally with appropriate pauses and verbal acknowledgments in ${targetLanguage.name}.
 
-		// Audio pacing based on skill level
-		prompt += ` ${getAudioPacingInstruction(prefs.speakingLevel)}`;
-	}
+STUDENT PROFILE:
+- Level: ${level}/100 (${getSkillDescription(level)})
+- Goal: ${goal} - ${context.focus}
+- Topics of interest: ${context.topics.join(', ')}
 
-	// Add context-specific guidance
-	if (prefs.learningGoal) {
-		const contextType = getContextTypeFromLearningGoal(prefs.learningGoal);
-		const context = conversationContexts.get(contextType);
-		if (context) {
-			prompt += ` ${context.instructions}`;
-		}
-	}
+SPEAKING REQUIREMENTS:
+- Pace: Speak ${getSpeakingPace(level)}
+- Complexity: ${getLanguageComplexity(level)}
+- Style: ${context.style}
 
-	// Add session-specific goal
-	if (sessionGoal) {
-		prompt += ` Today's focus: ${sessionGoal}.`;
-	}
-
-	prompt += ' Be patient, encouraging, and make the conversation engaging and natural.';
-
-	return prompt;
-}
-
-/**
- * Generate skill assessment prompt
- */
-export function generateSkillAssessmentPrompt(language: Language): string {
-	validateLanguage(language);
-
-	return `Conduct a brief, friendly skill assessment in ${language.name} to determine their level (1-10 scale).
-
-Start with very basic topics (level 1-2):
-- Simple greetings and introductions
-- Basic personal information
-
-Gradually increase complexity based on their responses:
-- Daily routines and hobbies (level 3-4)
-- Opinions and preferences (level 5-6)
-- Complex topics and abstract concepts (level 7-8)
-- Nuanced discussions and cultural topics (level 9-10)
-
-Pay attention to:
-- Vocabulary range and accuracy
-- Grammar complexity and correctness
-- Pronunciation and fluency
-- Conversation flow and confidence
-- Cultural understanding
-
-After 5-10 minutes, provide encouraging feedback and suggest their approximate level on the 1-10 scale. Keep it conversational and stress-free.`;
-}
-
-/**
- * Generate session wrap-up prompt
- */
-export function generateSessionWrapUpPrompt(
-	language: Language,
-	prefs: Partial<UserPreferences> = {}
-): string {
-	validateLanguage(language);
-
-	let prompt = `Wrap up the ${language.name} session positively. In ${language.name}:
-
-1. Acknowledge their effort and participation
-2. Highlight 2-3 specific things they did well
-3. Gently mention 1-2 areas for improvement (if any)`;
-
-	// Adjust feedback style based on skill level
-	if (prefs.speakingLevel && prefs.speakingLevel <= 30) {
-		prompt += `
-4. Suggest simple, specific things to practice before next time
-5. Ask if they have any questions (offer to answer in English if needed)
-6. End with very encouraging words about their progress`;
-	} else {
-		prompt += `
-4. Suggest challenging but achievable goals for next time
-5. Ask if they have any questions about today's topics
-6. End with motivating words about their language journey`;
-	}
-
-	prompt += `
-
-Keep it brief but meaningful. Make them feel accomplished and excited to continue learning.`;
-
-	return prompt;
-}
-
-/**
- * Generate comprehensive custom instructions
- */
-export function generateCustomInstructions(
-	language: Language,
-	prefs: Partial<UserPreferences> = {}
-): string {
-	validateLanguage(language);
-
-	let instructions = `You are a helpful ${language.name} language tutor. Help the user practice and improve their ${language.name} skills through natural conversation. Be patient, encouraging, and provide appropriate corrections.`;
-
-	// Language and audio guidance - EMPHASIZE SLOW SPEECH
-	instructions += ` Speak only in ${language.name}. CRUCIAL: Since this is audio-based learning, ALWAYS SPEAK SLOWLY AND CLEARLY. This is more important than you might think - slower speech dramatically improves comprehension and learning outcomes.`;
-
-	// Skill level adaptations - use speaking level as primary indicator
-	if (prefs.speakingLevel) {
-		const levelDesc = getDetailedSkillLevel(prefs.speakingLevel);
-		instructions += ` The user is at speaking level ${prefs.speakingLevel} (${levelDesc}).`;
-		instructions += ` ${getAudioPacingInstruction(prefs.speakingLevel)}`;
-		instructions += ` ${getAdaptiveLanguageInstruction(prefs.speakingLevel)}`;
-	} else {
-		instructions +=
-			' Since skill level is unknown, START BY SPEAKING VERY SLOWLY and adapt based on their responses.';
-	}
-
-	// Context-specific behavior
-	if (prefs.learningGoal) {
-		const contextType = getContextTypeFromLearningGoal(prefs.learningGoal);
-		const context = conversationContexts.get(contextType);
-		if (context) {
-			instructions += ` This conversation should be ${context.type} in nature. ${context.instructions}`;
-		}
-	}
-
-	// Learning goals integration
-	if (prefs.specificGoals) {
-		const goals = Array.isArray(prefs.specificGoals) ? prefs.specificGoals : [prefs.specificGoals];
-		instructions += ` Keep in mind their learning goals: ${goals.join(', ')}.`;
-	}
-
-	return instructions;
-}
-
-// === UTILITY FUNCTIONS ===
-
-export function getConversationContext(contextType: string): ConversationContext | undefined {
-	return conversationContexts.get(contextType);
-}
-
-export function getAvailableContexts(): ConversationContext[] {
-	return Array.from(conversationContexts.values());
-}
-
-export function isContextSupported(contextType: string): boolean {
-	return conversationContexts.has(contextType);
-}
-
-/**
- * Generates an adaptive turn detection configuration based on user skill and confidence.
- * @param profile The user's learning profile.
- * @returns An optimal TurnDetectionConfig object.
- */
-export function getAdaptiveTurnDetection(profile: UserPreferences): TurnDetection {
-	const { speakingLevel, confidenceLevel } = profile;
-
-	// --- Beginner Tier ---
-	if (speakingLevel <= 35) {
-		return {
-			type: 'server_vad',
-			// More hesitant users get more time
-			silence_duration_ms: confidenceLevel < 50 ? 1200 : 800,
-			// Lower threshold for quieter speakers
-			threshold: 0.4,
-			interrupt_response: false // Avoid interrupting beginners
-		};
-	}
-
-	// --- Intermediate Tier ---
-	if (speakingLevel <= 70) {
-		return {
-			type: 'semantic_vad',
-			// Lower confidence means less eagerness
-			eagerness: confidenceLevel < 50 ? 'low' : 'medium',
-			interrupt_response: true
-		};
-	}
-
-	// --- Advanced Tier ---
-	// (speakingLevel > 70)
-	return {
-		type: 'semantic_vad',
-		// High confidence users get a faster response
-		eagerness: confidenceLevel > 65 ? 'high' : 'medium',
-		interrupt_response: true
-	};
-}
-
-/**
- * Generate streamlined onboarding prompt that works as part of real-time conversation
- */
-export function generateStreamlinedOnboardingPrompt(language: Language): string {
-	validateLanguage(language);
-
-	return `You are a friendly ${language.name} language tutor starting a conversation with a new student. 
+${sessionContext?.currentTopic ? `CURRENT TOPIC: ${sessionContext.currentTopic}` : ''}
+${sessionContext?.sessionGoal ? `SESSION FOCUS: ${sessionContext.sessionGoal}` : ''}
 
 CONVERSATION FLOW:
-1. First, greet them warmly in English and ask if they can hear you clearly
-2. Once audio is confirmed, introduce yourself in simple ${language.name} 
-3. Ask what they'd like to practice today (in simple ${language.name})
-4. For now, guide them toward beginner conversation practice regardless of their response
+1. Greet warmly in ${targetLanguage.name}
+2. ${sessionContext?.conversationHistory?.length ? 'Continue the current topic naturally' : 'Ask what they want to practice'}
+3. Guide conversation toward their learning goals
+4. Provide gentle corrections appropriate to their level
+5. Keep them engaged and motivated
 
-IMPORTANT GUIDELINES:
-- SPEAK VERY SLOWLY AND CLEARLY throughout
-- Start in English for audio check, then switch to ${language.name}
-- Use very simple vocabulary and short sentences
-- Be encouraging and patient
-- If they seem confused, it's okay to mix in some English to help
-- Keep questions simple and one at a time
-- Don't overwhelm with too many options
-
-EXAMPLE FLOW:
-"Hello! I'm your ${language.name} tutor. Can you hear me clearly? Please say 'yes' if the audio is working well."
-[Wait for confirmation]
-"Perfect! Now let's switch to ${language.name}. [Simple greeting in ${language.name}]. What would you like to practice today?"
-[Listen to response]
-"Great choice! Let's start with some basic conversation practice..."
-
-Keep it conversational and natural - you're having a real conversation, not conducting a formal interview.`;
+Remember: Sound natural and human. This is a conversation, not a lesson.`;
 }
 
-// Updated sections for instructions.service.ts
-
 /**
- * Generate initial greeting that includes basic onboarding
+ * Generate natural wind-down instructions (30 seconds before end)
  */
-export function generateInitialGreetingWithOnboarding(
-	language: Language,
-	prefs: Partial<UserPreferences> = {},
-	isFirstTime: boolean = false
+export function generateNaturalWindDown(
+	targetLanguage: Language,
+	speakingLevel: number = 30
 ): string {
-	validateLanguage(language);
+	const pace = getSpeakingPace(speakingLevel);
 
-	if (isFirstTime) {
-		// For first-time users, do streamlined onboarding
-		return generateStreamlinedOnboardingPrompt(language);
+	let approach: string;
+	if (speakingLevel <= 30) {
+		approach = 'Say very simply: "Time almost finished. Any questions?"';
+	} else if (speakingLevel <= 60) {
+		approach =
+			'Say naturally: "We have a little time left. Anything you want to ask or practice again?"';
+	} else if (speakingLevel <= 80) {
+		approach =
+			'Say conversationally: "We\'re coming to the end. Any questions about what we practiced?"';
 	} else {
-		// For returning users, still check audio but move quickly to practice
-		return `Welcome back! I'm your ${language.name} tutor. Can you hear me clearly? 
-		
-Once you confirm the audio is working, I'll greet you in ${language.name} and we can continue practicing. 
-
-${prefs.speakingLevel ? `I remember you're at level ${prefs.speakingLevel}.` : 'We can pick up where we left off or try something new.'}
-
-Please say 'yes' if you can hear me well, then we'll switch to ${language.name}.`;
+		approach =
+			'Wind down naturally: "We\'re approaching the end. Any thoughts or questions before we finish?"';
 	}
+
+	return `NATURAL WIND-DOWN in ${targetLanguage.name}:
+Signal the session is ending soon, but keep it conversational.
+
+Speaking ${pace}
+
+${approach}
+
+Give them space to express final thoughts. Don't rush this moment.
+Make it feel like a natural pause, not an abrupt stop.`;
 }
 
 /**
- * Generate follow-up prompt after audio confirmation
+ * Generate session wrap-up instructions
  */
-export function generatePostAudioConfirmationPrompt(language: Language): string {
-	validateLanguage(language);
-
-	return `Great! The audio is working well. Now I'll switch to ${language.name}. 
-
-[Switch to speaking ${language.name} only from this point forward]
-
-Give a warm, simple greeting in ${language.name}. Ask them one simple question about what they'd like to practice today. Keep it very basic - use vocabulary a beginner would understand. 
-
-After they respond (regardless of what they say), guide them into basic conversation practice starting with simple topics like:
-- Introductions and greetings
-- Talking about their day
-- Simple likes and dislikes
-- Basic questions and answers
-
-REMEMBER: 
-- Speak slowly and clearly in ${language.name}
-- Use simple vocabulary 
-- Be encouraging
-- If they struggle, slow down even more
-- It's okay to repeat things`;
-}
-
-/**
- * Updated main instruction function that handles the streamlined flow
- */
-export function generateInitialGreeting(
-	language: Language,
-	prefs: Partial<UserPreferences> = {},
-	isFirstTime: boolean = false
+export function generateSessionWrapUp(
+	targetLanguage: Language,
+	speakingLevel: number = 30
 ): string {
-	validateLanguage(language);
+	return `WRAP UP in ${targetLanguage.name}:
 
-	// Always start with audio check and streamlined onboarding
-	return generateInitialGreetingWithOnboarding(language, prefs, isFirstTime);
+Speaking ${getSpeakingPace(speakingLevel)}
+
+1. Acknowledge their effort
+2. Mention 2-3 specific things they did well
+3. ${speakingLevel <= 50 ? 'Suggest one simple practice' : 'Suggest a challenge for next time'}
+4. End with warm encouragement
+
+Keep it brief but meaningful. Make them want to return!`;
+}
+
+/**
+ * Generate quick welcome for returning users
+ */
+export function generateQuickWelcomeBack(
+	targetLanguage: Language,
+	preferences: Partial<UserPreferences>
+): string {
+	const level = preferences.speakingLevel || 30;
+
+	return `Welcome back! Continue in ${targetLanguage.name} with this returning student.
+
+Level: ${level}/100
+Pace: ${getSpeakingPace(level)}
+Focus: ${preferences.learningGoal || 'General practice'}
+
+Give a warm greeting in ${targetLanguage.name} and ask what they'd like to practice.`;
+}
+
+// ============================================
+// CONFIGURATION HELPERS (for use with services.ts)
+// ============================================
+
+/**
+ * Get adaptive turn detection settings based on skill level
+ * This returns just the configuration object, not instructions
+ */
+export function getAdaptiveTurnDetection(speakingLevel: number = 30, confidenceLevel: number = 50) {
+	if (speakingLevel <= 50) {
+		return {
+			type: 'server_vad' as const,
+			threshold: 0.4,
+			silence_duration_ms: confidenceLevel < 50 ? 1500 : 1000,
+			prefix_padding_ms: 300
+		};
+	}
+
+	if (speakingLevel <= 80) {
+		return {
+			type: 'server_vad' as const,
+			threshold: 0.5,
+			silence_duration_ms: confidenceLevel < 50 ? 800 : 600,
+			prefix_padding_ms: 200
+		};
+	}
+
+	return {
+		type: 'server_vad' as const,
+		threshold: 0.6,
+		silence_duration_ms: 500,
+		prefix_padding_ms: 100
+	};
+}
+
+/**
+ * Get input audio transcription config
+ * This helps Whisper with language recognition
+ */
+export function getTranscriptionConfig(targetLanguageCode: string) {
+	return {
+		model: 'whisper-1' as const,
+		language: targetLanguageCode
+	};
+}
+
+/**
+ * Generate instant start instructions - for users who want to jump right in
+ */
+export function generateInstantStartInstructions(
+	targetLanguage: Language,
+	preferences?: Partial<UserPreferences>
+): string {
+	const level = preferences?.speakingLevel || 30;
+
+	return `Start a ${targetLanguage.name} conversation IMMEDIATELY. No introductions, no "welcome to the app."
+
+Begin with a simple, engaging greeting in ${targetLanguage.name}:
+"Hello! Let's chat in ${targetLanguage.name}! How's your day going?"
+
+Speak ${getSpeakingPace(level)}
+
+Based on their response:
+- Confusion → Switch to "What's your name?" (absolute beginner approach)
+- Simple response → Continue at that level
+- Fluent response → Escalate complexity naturally
+
+After 30 seconds of conversation, casually ask:
+"By the way, what made you interested in ${targetLanguage.name}?"
+
+This gives you their motivation without feeling like an interview.
+
+Remember: They clicked "Start" to practice, not to be assessed. Give them practice immediately.`;
+}
+
+/**
+ * Generate magic moment awareness - what creates breakthrough moments
+ */
+export function generateMagicMomentInstructions(targetLanguage: Language): string {
+	return `WATCH FOR MAGIC MOMENTS in ${targetLanguage.name}:
+
+When you notice excitement or engagement:
+- They laugh at wordplay → Use more humor
+- They recognize a word → Point out similar words
+- They successfully express a feeling → Explore emotions vocabulary
+- They make a cultural connection → Discuss cultural topics
+- They self-correct → Acknowledge their progress
+
+When these moments happen:
+1. Celebrate subtly but genuinely
+2. Build on what sparked joy
+3. Remember it for future sessions
+
+These moments create motivation more than any curriculum.`;
+}
+
+/**
+ * Generate the two-minute hook for guest users
+ */
+export function generateTwoMinuteHook(targetLanguage: Language): string {
+	return `THE TWO-MINUTE HOOK for ${targetLanguage.name}:
+
+Your goal: Make them think "I can actually do this!" within 2 minutes.
+
+Timeline:
+0-30 seconds: Quick win - they understand your greeting
+30-60 seconds: They successfully say something
+60-90 seconds: Share something fun/interesting about ${targetLanguage.name}
+90-120 seconds: Have a mini-conversation about their interests
+
+End with: "You're doing great! Want to keep practicing?"
+
+Make them feel successful, not evaluated.`;
+}
+
+/**
+ * Generate anti-patterns to avoid
+ */
+export function getAntiPatterns(): string {
+	return `CRITICAL - NEVER DO THESE:
+
+❌ "What's your level?" → Discover through conversation
+❌ "Repeat after me" → Model correct usage in responses
+❌ "That's wrong" → Say "Another way to say that..."
+❌ Long grammar explanations → Learn through usage
+❌ "Let's review what we learned" → Too school-like
+❌ Structured exercises → Keep it conversational
+❌ "How long do you want to practice?" → Let it flow naturally
+
+✅ ALWAYS DO:
+- Start conversations naturally
+- Celebrate attempts, not just perfection
+- Follow their interests
+- Make corrections gently through modeling
+- Keep energy positive and encouraging`;
 }
