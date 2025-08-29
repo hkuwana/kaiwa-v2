@@ -80,20 +80,23 @@ export default ts.config(
 		}
 	},
 	{
-		files: ['src/lib/server/services/**/*.ts'],
+		files: ['src/lib/services/**/*.ts'],
 		rules: {
 			'no-restricted-imports': [
 				'error',
 				{
 					patterns: [
 						{
-							group: ['$lib/server/services/**', '$lib/services/**'],
-							message:
-								'Server services should not import other services. Orchestrate calls in your +server.ts files or API handlers.'
+							group: ['$lib/services/**'],
+							message: 'Services should not import other services. Use a store to orchestrate them.'
+						},
+						{
+							group: ['$lib/stores/**', '**/*.store.svelte.ts', '**/*.store.ts'],
+							message: 'Services should not import stores. Pass store data as parameters instead.'
 						}
 					]
 				}
 			]
 		}
-	}
+	},
 );

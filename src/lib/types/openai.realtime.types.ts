@@ -24,7 +24,10 @@ export function getDefaultVoice(): Voice {
 }
 
 // 🌟 Type-safe voice validation
-export function isValidVoice(voice: string): voice is Voice {
+export function isValidVoice(voice?: string): voice is Voice {
+	if (!voice) {
+		return false;
+	}
 	return VALID_OPENAI_VOICES.includes(voice as Voice);
 }
 
