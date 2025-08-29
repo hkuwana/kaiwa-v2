@@ -123,7 +123,7 @@
 </script>
 
 <div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">
-	{#if status === 'connecting' || (status === 'connected' && messages.length === 0)}
+	{#if status === 'connecting'}
 		<!-- Use new ConnectingState component -->
 		<ConnectingState {audioLevel} {error} onRetry={handleRetryConnection} />
 	{:else if status === 'error'}
@@ -175,6 +175,14 @@
 			onSendMessage={(content) => conversationStore.sendMessage(content)}
 			onEndConversation={handleEndConversation}
 		/>
+		{#if dev}
+			<div class="card bg-base-100 shadow-xl">
+				<div class="card-body">
+					<h2 class="card-title">Timer State</h2>
+					<pre>{JSON.stringify(conversationStore.timerState, null, 2)}</pre>
+				</div>
+			</div>
+		{/if}
 	{:else if hasAnalysisResults}
 		<!-- Analysis Results Modal -->
 		<OnboardingResults
@@ -193,6 +201,6 @@
 	{isGuestUser}
 	{hasAnalysisResults}
 	{isAnalyzing}
-	timeInSeconds={Math.ceil(conversationStore.getTimerState().timer.timeRemaining / 1000)}
+	timeInSeconds={Math.ceil(conversationStore.timerState.timer.timeRemaining / 1000)}
 	position="bottom-right"
 />

@@ -222,6 +222,18 @@ export class ConversationTimerStore {
 		const elapsed = now - this.startTime - this.totalPausedTime;
 		const remaining = Math.max(0, this.timeoutMs - elapsed);
 
+		// Debug logging every 5 seconds
+		if (elapsed % 5000 < 100) {
+			console.log('⏰ Timer update:', {
+				elapsed,
+				remaining,
+				startTime: this.startTime,
+				timeoutMs: this.timeoutMs,
+				isActive: this._state.timer.isActive,
+				status: this._state.timer.status
+			});
+		}
+
 		// Update times
 		this._state.timer.timeElapsed = elapsed;
 		this._state.timer.timeRemaining = remaining;

@@ -1,6 +1,8 @@
 // 🎭 Conversation Types
 // Basic types for conversation functionality
 
+import type { Message } from "$lib/server/db/types";
+
 export enum RealtimeConversationStatus {
 	IDLE = 'idle',
 	CONNECTING = 'connecting',

@@ -2,7 +2,6 @@
 	import { fade, fly } from 'svelte/transition';
 	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
 	import MessageBubble from '$lib/components/MessageBubble.svelte';
-	import ConversationTimer from '$lib/components/ConversationTimer.svelte';
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import type { Message, Language } from '$lib/server/db/types';
 
@@ -33,7 +32,7 @@
 	let messageInput = $state('');
 
 	// Get timer state from conversation store
-	let timerState = $derived(conversationStore.getTimerState());
+	let timerState = $derived(conversationStore.timerState);
 
 	// Debug timer state
 	$effect(() => {
@@ -72,19 +71,6 @@
 		</div>
 	</div>
 
-	<!-- Conversation Timer -->
-	<div class="mb-6 flex justify-center" in:fade={{ duration: 300, delay: 300 }}>
-		{#if timerState && timerState.timer}
-			<!-- Always show timer when we have timer state, regardless of status -->
-			<ConversationTimer {timerState} onExpired={() => onEndConversation()} />
-		{:else}
-			<!-- Debug info -->
-			<div class="text-sm text-gray-500">
-				Timer not ready yet. TimerState: {JSON.stringify(timerState, null, 2)}
-			</div>
-		{/if}
-	</div>
-
 	<!-- Live Transcription -->
 	{#if currentTranscript}
 		<div class="mb-6" in:fly={{ y: -10, duration: 200 }}>
@@ -99,34 +85,6 @@
 								<span>Listening...</span>
 							</div>
 						{/if}
-					</div>
-				</div>
-			</div>
-		</div>
-	{/if}
-
-	<!-- Guest User Helper Text -->
-	{#if isGuestUser && messages.length < 3}
-		<div class="mb-6" in:fade={{ duration: 300 }}>
-			<div class="alert alert-info">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					class="h-6 w-6 shrink-0 stroke-current"
-				>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-					></path>
-				</svg>
-				<div>
-					<h3 class="font-bold">Welcome to your first lesson!</h3>
-					<div class="mt-1 text-xs">
-						Our AI tutor will chat with you to understand your goals and assess your level. This
-						helps us create the perfect learning experience for you!
 					</div>
 				</div>
 			</div>

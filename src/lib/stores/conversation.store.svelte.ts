@@ -27,14 +27,11 @@ import {
 	type ConversationTimerStore
 } from './conversation-timer.store.svelte';
 import { userPreferencesStore } from './userPreferences.store.svelte';
-
-export const conversationStatus = $state<
-	'idle' | 'connecting' | 'connected' | 'streaming' | 'analyzing' | 'analyzed' | 'error'
->('idle');
+import type { ConversationStatus } from '$lib/services/conversation.service';
 
 export class ConversationStore {
 	// Reactive state
-	status = $state<typeof conversationStatus>('idle');
+	status = $state<ConversationStatus>('idle');
 	messages = $state<Message[]>([]);
 	userId = $state<string | null>(null);
 	sessionId = $state<string>('');
@@ -184,13 +181,6 @@ export class ConversationStore {
 
 			// 5. Set up event handlers
 			this.setupRealtimeEventHandlers();
-
-			//6. Start timer
-			this.timer.start(() => {
-				console.log('Conversation timer expired!');
-				// Handle timer expiration (e.g., end conversation, show modal, etc.)
-				this.handleTimerExpiration();
-			});
 
 			console.log('Connection established, waiting for session creation...');
 		} catch (error) {
@@ -365,6 +355,27 @@ export class ConversationStore {
 					console.log('Session created, sending initial setup...');
 					this.sendInitialSetup(); // Combined function
 					this.status = 'connected';
+
+					// Create preferences provider for checking onboarding
+					const preferencesProvider = {
+						isGuest: () => userPreferencesStore.isGuest(),
+						getPreference: <K extends keyof import('$lib/server/db/types').UserPreferences>(
+							key: K
+						) => userPreferencesStore.getPreference(key),
+						updatePreferences: (updates: Partial<import('$lib/server/db/types').UserPreferences>) =>
+							userPreferencesStore.updatePreferences(updates)
+					};
+
+					// Start timer with onboarding callback if needed
+					if (onboardingManagerService.shouldTriggerOnboarding(preferencesProvider)) {
+						this.timer.start(() => {
+							console.log('Conversation timer expired!');
+							// Handle timer expiration (e.g., end conversation, show modal, etc.)
+							this.handleTimerExpiration();
+						});
+					} else {
+						this.timer.start();
+					}
 
 					// Set status to streaming after a brief delay
 					setTimeout(() => {
@@ -881,11 +892,20 @@ export class ConversationStore {
 		}
 	}
 
+	get timerState(): ConversationTimerStore['state'] {
+		return this.timer.state;
+	}
+
 	// Modify your existing endConversation method to handle graceful shutdown
 	endConversation = () => {
 		if (!browser) return;
 
-		console.log('Ending conversation...');
+		console.log('Ending conversation...', {
+			isGracefullyEnding: this.isGracefullyEnding,
+			analysisTriggered: this.analysisTriggered,
+			status: this.status,
+			stack: new Error().stack
+		});
 
 		// If we're not already gracefully ending, set the flag
 		if (!this.isGracefullyEnding) {

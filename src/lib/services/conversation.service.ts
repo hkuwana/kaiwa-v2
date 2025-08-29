@@ -4,8 +4,10 @@
 import type { Message } from '$lib/server/db/types';
 import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 
+export type ConversationStatus = 'idle' | 'connecting' | 'connected' | 'streaming' | 'analyzing' | 'analyzed' | 'error';
+		
 export interface ConversationState {
-	status: 'idle' | 'connecting' | 'connected' | 'streaming' | 'error';
+	status: ConversationStatus;
 	sessionId: string;
 	messages: Message[];
 	startTime: number;
