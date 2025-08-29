@@ -17,6 +17,7 @@ import * as messageService from '$lib/services/message.service';
 import * as sessionManagerService from '$lib/services/session-manager.service';
 import * as eventHandlerService from '$lib/services/event-handler.service';
 import * as transcriptionStateService from '$lib/services/transcription-state.service';
+import * as onboardingManagerService from '$lib/services/onboarding-manager.service';
 import type { Message, Language, UserPreferences } from '$lib/server/db/types';
 import type { Speaker } from '$lib/types';
 import type { Voice } from '$lib/types/openai.realtime.types';
@@ -364,12 +365,18 @@ export class ConversationStore {
 					this.sendInitialConfiguration();
 					this.status = 'connected';
 
-					// Start timer with onboarding callback if user is guest or has no previous conversations
-					const shouldTriggerOnboarding =
-						userPreferencesStore.isGuest() ||
-						userPreferencesStore.getPreference('totalConversations') === 0;
+					// Create preferences provider for checking onboarding
+					const preferencesProvider = {
+						isGuest: () => userPreferencesStore.isGuest(),
+						getPreference: <K extends keyof import('$lib/server/db/types').UserPreferences>(
+							key: K
+						) => userPreferencesStore.getPreference(key),
+						updatePreferences: (updates: Partial<import('$lib/server/db/types').UserPreferences>) =>
+							userPreferencesStore.updatePreferences(updates)
+					};
 
-					if (shouldTriggerOnboarding) {
+					// Start timer with onboarding callback if needed
+					if (onboardingManagerService.shouldTriggerOnboarding(preferencesProvider)) {
 						this.timerStore.start(this.triggerOnboardingAnalysis);
 					} else {
 						this.timerStore.start();
@@ -670,50 +677,29 @@ export class ConversationStore {
 	}
 
 	private triggerOnboardingAnalysis = async (): Promise<void> => {
-		if (!this.language || this.messages.length === 0) {
-			console.warn('Cannot trigger onboarding analysis: missing language or messages');
+		if (!this.language) {
+			console.warn('Cannot trigger onboarding analysis: missing language');
 			return;
 		}
 
-		try {
-			console.log('🎯 Triggering onboarding analysis...');
+		// Create preferences provider interface
+		const preferencesProvider = {
+			isGuest: () => userPreferencesStore.isGuest(),
+			getPreference: <K extends keyof import('$lib/server/db/types').UserPreferences>(key: K) =>
+				userPreferencesStore.getPreference(key),
+			updatePreferences: (updates: Partial<import('$lib/server/db/types').UserPreferences>) =>
+				userPreferencesStore.updatePreferences(updates)
+		};
 
-			const conversationMessages = this.messages
-				.filter((msg) => msg.role === 'user' && msg.content.trim())
-				.map((msg) => msg.content);
+		const result = await onboardingManagerService.executeOnboardingAnalysis(
+			this.language,
+			this.messages,
+			this.sessionId,
+			preferencesProvider
+		);
 
-			if (conversationMessages.length === 0) {
-				console.warn('No user messages found for onboarding analysis');
-				return;
-			}
-
-			const response = await fetch('/api/analyze-onboarding', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					conversationMessages,
-					targetLanguage: this.language.code,
-					sessionId: this.sessionId
-				})
-			});
-
-			if (!response.ok) {
-				throw new Error(`Onboarding analysis failed: ${response.statusText}`);
-			}
-
-			const result = await response.json();
-
-			if (result.success) {
-				console.log('✅ Onboarding analysis completed successfully');
-				await userPreferencesStore.updatePreferences({
-					...result.data,
-					totalConversations: (userPreferencesStore.getPreference('totalConversations') || 0) + 1
-				});
-			} else {
-				console.error('❌ Onboarding analysis failed:', result.error);
-			}
-		} catch (error) {
-			console.error('Failed to trigger onboarding analysis:', error);
+		if (!result.success) {
+			console.error('Onboarding analysis failed:', result.error);
 		}
 	};
 }
