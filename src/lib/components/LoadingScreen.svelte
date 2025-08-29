@@ -5,7 +5,7 @@
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { capitalizeFirstLetter } from '$lib/utils';
 	import AudioVisualizer from './AudioVisualizer.svelte';
-	import type { conversationStatus } from '$lib/stores/conversation.store.svelte';
+	import type { ConversationStatus } from '$lib/services/conversation.service';
 
 	const {
 		status = 'connecting',
@@ -13,7 +13,7 @@
 		error = null,
 		onRetry = () => {}
 	} = $props<{
-		status?: typeof conversationStatus;
+		status?: ConversationStatus;
 		audioLevel?: number;
 		error?: string | null;
 		onRetry?: () => void;
@@ -109,7 +109,7 @@
 	const statusConfig = $derived(getStatusConfig());
 </script>
 
-<div class="flex min-h-[70vh] items-center justify-center p-4">
+<div class="flex min-h-screen items-center justify-center p-4">
 	<div
 		class="card w-full max-w-lg border shadow-2xl {statusConfig.bgColor} {statusConfig.borderColor}"
 	>

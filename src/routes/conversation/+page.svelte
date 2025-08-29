@@ -18,13 +18,14 @@
 	// Keep existing components for analysis temporarily
 	import { fade } from 'svelte/transition';
 	import OnboardingResults from '$lib/components/OnboardingResults.svelte';
+	import { audioStore } from '$lib/stores/audio.store.svelte';
 
 	const { data } = $props();
 
 	// Reactive values from stores
 	let status = $derived(conversationStore.status);
 	let messages = $derived(conversationStore.messages);
-	let audioLevel = $derived(conversationStore.reactiveAudioLevel);
+	let audioLevel = $derived(audioStore.getCurrentLevel());
 	let error = $derived(conversationStore.error);
 	let selectedLanguage = $derived(settingsStore.selectedLanguage);
 	let hasAnalysisResults = $derived(userPreferencesStore.hasCurrentAnalysisResults);
@@ -122,19 +123,19 @@
 	}
 </script>
 
-<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">
-	{#if status === 'connecting'}
-		<!-- Use new ConnectingState component -->
-		<ConnectingState {audioLevel} {error} onRetry={handleRetryConnection} />
-	{:else if status === 'error'}
-		<!-- Use new ErrorState component -->
-		<ErrorState
-			error={error || 'Unknown error'}
-			onRetry={handleRetryConnection}
-			onGoHome={() => goto('/')}
-		/>
-	{:else if isAnalyzing}
-		<!-- Analysis Screen -->
+{#if status === 'connecting'}
+	<!-- Use new ConnectingState component -->
+	<ConnectingState {audioLevel} {error} onRetry={handleRetryConnection} />
+{:else if status === 'error'}
+	<!-- Use new ErrorState component -->
+	<ErrorState
+		error={error || 'Unknown error'}
+		onRetry={handleRetryConnection}
+		onGoHome={() => goto('/')}
+	/>
+{:else if isAnalyzing}
+	<!-- Analysis Screen -->
+	<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">
 		<div class="container mx-auto max-w-2xl px-4 py-12" in:fade={{ duration: 300 }}>
 			<div class="card bg-base-100 shadow-xl">
 				<div class="card-body text-center">
@@ -163,36 +164,36 @@
 				</div>
 			</div>
 		</div>
-	{:else if (status === 'connected' || status === 'streaming') && messages.length > 0}
-		<ActiveConversationState
-			{status}
-			{messages}
-			{audioLevel}
-			{selectedLanguage}
-			{isGuestUser}
-			currentTranscript={conversationStore.currentTranscript}
-			isTranscribing={conversationStore.isTranscribing}
-			onSendMessage={(content) => conversationStore.sendMessage(content)}
-			onEndConversation={handleEndConversation}
-		/>
-		{#if dev}
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body">
-					<h2 class="card-title">Timer State</h2>
-					<pre>{JSON.stringify(conversationStore.timerState, null, 2)}</pre>
-				</div>
+	</div>
+{:else if (status === 'connected' || status === 'streaming') && messages.length > 0}
+	<ActiveConversationState
+		{status}
+		{messages}
+		{audioLevel}
+		{selectedLanguage}
+		{isGuestUser}
+		currentTranscript={conversationStore.currentTranscript}
+		isTranscribing={conversationStore.isTranscribing}
+		onSendMessage={(content) => conversationStore.sendMessage(content)}
+		onEndConversation={handleEndConversation}
+	/>
+	{#if dev}
+		<div class="card bg-base-100 shadow-xl">
+			<div class="card-body">
+				<h2 class="card-title">Timer State</h2>
+				<pre>{JSON.stringify(conversationStore.timerState, null, 2)}</pre>
 			</div>
-		{/if}
-	{:else if hasAnalysisResults}
-		<!-- Analysis Results Modal -->
-		<OnboardingResults
-			results={userPreferencesStore.getPreferences()}
-			isVisible={true}
-			onDismiss={handleContinueAfterResults}
-			onSave={handleSaveAndContinue}
-		/>
+		</div>
 	{/if}
-</div>
+{:else if hasAnalysisResults}
+	<!-- Analysis Results Modal -->
+	<OnboardingResults
+		results={userPreferencesStore.getPreferences()}
+		isVisible={true}
+		onDismiss={handleContinueAfterResults}
+		onSave={handleSaveAndContinue}
+	/>
+{/if}
 <!-- Dev Panel -->
 <DevPanel
 	{status}

@@ -2,7 +2,6 @@
 	import '../app.css';
 	import { favicon, appleTouchIcon } from '$lib/assets';
 	import { page } from '$app/state';
-	import { realtimeService } from '$lib/services';
 	import { ConversationStore } from '$lib/stores/conversation.store.svelte';
 	import { setContext, onMount, onDestroy } from 'svelte';
 
