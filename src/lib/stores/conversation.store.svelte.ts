@@ -38,7 +38,7 @@ export class ConversationStore {
 	language = $state<Language | null>(null);
 	voice: Voice = DEFAULT_VOICE;
 	error = $state<string | null>(null);
-	audioLevel = $state.raw<number>(0);
+
 	availableDevices = $state<MediaDeviceInfo[]>([]);
 	selectedDeviceId = $state<string>('default');
 	speechDetected = $state<boolean>(false);
@@ -160,10 +160,17 @@ export class ConversationStore {
 			}
 
 			// 2. Start audio recording using the audio store
+			console.log('🎵 ConversationStore: Starting audio recording...');
 			await audioStore.startRecording(audioStore.selectedDeviceId);
 
 			// Get the stream from the audio store
 			this.audioStream = audioStore.getCurrentStream();
+			console.log(
+				'🎵 ConversationStore: After starting recording - stream exists:',
+				!!this.audioStream,
+				'audioStore.isRecording:',
+				audioStore.isRecording
+			);
 			if (this.audioStream === null) {
 				console.warn('No audio stream available');
 				return;
@@ -314,7 +321,7 @@ export class ConversationStore {
 	getDebugInfo = () => {
 		return {
 			status: this.status,
-			audioLevel: this.audioLevel,
+
 			messageCount: this.messages.length,
 			language: this.language,
 			voice: this.voice,
@@ -352,9 +359,10 @@ export class ConversationStore {
 					this.handleUserSpeechStopped();
 				},
 				onSessionCreated: () => {
-					console.log('Session created, sending initial setup...');
+					console.log('🎵 ConversationStore: Session created, sending initial setup...');
 					this.sendInitialSetup(); // Combined function
 					this.status = 'connected';
+					console.log('🎵 ConversationStore: Status changed to "connected"');
 
 					// Create preferences provider for checking onboarding
 					const preferencesProvider = {
@@ -380,6 +388,7 @@ export class ConversationStore {
 					// Set status to streaming after a brief delay
 					setTimeout(() => {
 						this.status = 'streaming';
+						console.log('🎵 ConversationStore: Status changed to "streaming"');
 					}, 500);
 				},
 				onOtherEvent: (serverEvent) => {
@@ -494,7 +503,6 @@ export class ConversationStore {
 
 		if (processResult.shouldUpdateStreaming) {
 			this.updateStreamingMessage(data.text);
-			console.log('Streaming assistant transcript:', data.text);
 		}
 	}
 
@@ -509,7 +517,6 @@ export class ConversationStore {
 
 	private updateStreamingMessage(deltaText: string): void {
 		this.messages = messageService.updateStreamingMessage(this.messages, deltaText);
-		console.log('Updated streaming message with:', deltaText);
 	}
 
 	private finalizeStreamingMessage(finalText: string): void {
@@ -580,26 +587,36 @@ export class ConversationStore {
 	}
 
 	private cleanup(): void {
-		console.log('Cleaning up conversation resources...');
+		console.log('🧹 ConversationStore: Cleaning up conversation resources...');
+		console.log(
+			'🧹 ConversationStore: Before cleanup - audioStore.isRecording:',
+			audioStore.isRecording,
+			'audioStream exists:',
+			!!this.audioStream
+		);
 
 		// Close realtime connection
 		if (this.realtimeConnection) {
+			console.log('🧹 ConversationStore: Closing realtime connection');
 			realtimeService.closeConnection(this.realtimeConnection);
 			this.realtimeConnection = null;
 		}
 
 		// Stop audio stream
 		if (this.audioStream) {
+			console.log('🧹 ConversationStore: Stopping audio stream');
 			realtimeService.stopAudioStream(this.audioStream);
 			this.audioStream = null;
 		}
 
 		this.timer.cleanup();
 
-		// Clean up audio service
-		if (audioStore.isRecording) {
-			audioStore.stopRecording();
-		}
+		// Note: Don't stop audio recording here - it should continue for UI audio level display
+		// The audio store will handle its own cleanup when needed
+		console.log(
+			'🧹 ConversationStore: After cleanup - audioStore.isRecording:',
+			audioStore.isRecording
+		);
 	}
 
 	// === UTILITY METHODS ===
@@ -650,21 +667,6 @@ export class ConversationStore {
 		this.resetState();
 		console.log('Force cleanup complete');
 	};
-
-	// Test audio functionality
-	testAudioLevel = () => {
-		if (audioStore.hasActiveStream()) {
-			audioStore.triggerLevelUpdate();
-			console.log('Audio level test triggered');
-		} else {
-			console.log('No active audio stream to test');
-		}
-	};
-
-	// Get reactive audio level for components
-	get reactiveAudioLevel() {
-		return this.audioLevel;
-	}
 
 	private handleTimerExpiration(): void {
 		console.log('Timer expired - initiating graceful shutdown');
@@ -946,7 +948,6 @@ export class ConversationStore {
 		this.userId = null;
 		this.sessionId = '';
 		this.error = null;
-		this.audioLevel = 0;
 		this.isGracefullyEnding = false;
 		this.analysisTriggered = false;
 		this.waitingForAudioCompletion = false;

@@ -2,7 +2,6 @@
 	import { fade, fly } from 'svelte/transition';
 	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
 	import MessageBubble from '$lib/components/MessageBubble.svelte';
-	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import type { Message, Language } from '$lib/server/db/types';
 
 	interface Props {
@@ -30,14 +29,6 @@
 	}: Props = $props();
 
 	let messageInput = $state('');
-
-	// Get timer state from conversation store
-	let timerState = $derived(conversationStore.timerState);
-
-	// Debug timer state
-	$effect(() => {
-		console.log('🔍 Timer state changed:', timerState);
-	});
 
 	function handleSendMessage() {
 		if (messageInput.trim() && (status === 'connected' || status === 'streaming')) {
@@ -117,12 +108,6 @@
 							Send
 						</button>
 					</div>
-					{#if isGuestUser && messages.length < 4}
-						<div class="mt-2 text-xs text-base-content/60">
-							Pro tip: You can speak out loud or type your responses - whatever feels more
-							comfortable!
-						</div>
-					{/if}
 				</div>
 			</div>
 		</div>

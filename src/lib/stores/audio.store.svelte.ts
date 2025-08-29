@@ -20,38 +20,15 @@ export class AudioStore {
 	hasDevices = $derived(this.availableDevices.length > 0);
 	canRecord = $derived(this.hasDevices && !this.audioError && this.isInitialized);
 	isLevelActive = $derived(this.currentLevel.level > 0.01);
-	
+
 	// Device selector helpers
 	selectedDevice = $derived(
-		this.availableDevices.find(d => d.deviceId === this.selectedDeviceId)
+		this.availableDevices.find((d) => d.deviceId === this.selectedDeviceId)
 	);
 	hasMultipleDevices = $derived(this.availableDevices.length > 1);
 
 	constructor() {
-		// Initialize callbacks when the store is created
-		if (browser) {
-			this.setupCallbacks();
-		}
-	}
-
-	// =====================================
-	// PRIVATE METHODS
-	// =====================================
-	private setupCallbacks() {
-		// Setup service callbacks to update state
-		audioService.onLevelUpdate((level: AudioLevel) => {
-			this.currentLevel = { ...level };
-		});
-		
-		audioService.onStreamError((error: string) => {
-			this.audioError = error;
-			this.isRecording = false;
-		});
-		
-		audioService.onStreamReady(() => {
-			this.isRecording = true;
-			this.audioError = null;
-		});
+		// No need to set up callbacks in constructor - they'll be set up when recording starts
 	}
 
 	// =====================================
@@ -63,13 +40,13 @@ export class AudioStore {
 		try {
 			console.log('🎵 AudioStore: Initializing...');
 			await audioService.initialize();
-			
+
 			// Get available devices
 			const devices = await audioService.getAvailableDevices();
 			this.availableDevices = [...devices];
 			this.isInitialized = true;
 			this.audioError = null;
-			
+
 			console.log('✅ AudioStore: Initialized with', devices.length, 'devices');
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Audio initialization failed';
@@ -80,17 +57,40 @@ export class AudioStore {
 
 	async startRecording(deviceId?: string) {
 		if (!browser) return;
-		
+
 		try {
 			console.log('🎵 AudioStore: Starting recording with device:', deviceId || 'default');
 			this.audioError = null;
-			
+
 			await audioService.getStream(deviceId);
-			
+
+			// Set up callbacks after getting the stream
+			audioService.onLevelUpdate((level: AudioLevel) => {
+				this.currentLevel = { ...level };
+				console.log(
+					'🔊 AudioStore: Level update:',
+					level.level.toFixed(4),
+					'timestamp:',
+					level.timestamp
+				);
+			});
+
+			audioService.onStreamReady(() => {
+				this.isRecording = true;
+				this.audioError = null;
+				console.log('✅ AudioStore: Stream ready, isRecording =', this.isRecording);
+			});
+
+			audioService.onStreamError((error: string) => {
+				this.audioError = error;
+				this.isRecording = false;
+				console.log('❌ AudioStore: Stream error, isRecording =', this.isRecording);
+			});
+
 			if (deviceId) {
 				this.selectedDeviceId = deviceId;
 			}
-			
+
 			console.log('✅ AudioStore: Recording started');
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Failed to start recording';
@@ -100,15 +100,16 @@ export class AudioStore {
 	}
 
 	stopRecording() {
-		console.log('🔇 AudioStore: Stopping recording');
+		console.log('🔇 AudioStore: Stopping recording, isRecording was:', this.isRecording);
 		audioService.cleanup();
 		this.isRecording = false;
 		this.currentLevel = { level: 0, timestamp: Date.now() };
+		console.log('🔇 AudioStore: Recording stopped, isRecording now:', this.isRecording);
 	}
 
 	async refreshDevices() {
 		if (!browser) return;
-		
+
 		try {
 			console.log('🔄 AudioStore: Refreshing devices');
 			const devices = await audioService.getAvailableDevices();
@@ -127,14 +128,15 @@ export class AudioStore {
 	// UTILITY METHODS
 	// =====================================
 	getCurrentLevel(): number {
-		return audioService.getCurrentAudioLevel();
+		return this.currentLevel.level;
 	}
 
 	hasActiveStream(): boolean {
-		return audioService.hasActiveStream();
+		return this.isRecording;
 	}
 
 	triggerLevelUpdate() {
+		// Trigger a real audio level update from the service
 		audioService.triggerLevelUpdate();
 	}
 
@@ -148,8 +150,6 @@ export class AudioStore {
 		return audioService.getCurrentStream();
 	}
 
-	 
-
 	// Test audio constraints
 	async testConstraints() {
 		return audioService.testConstraints();
@@ -157,19 +157,19 @@ export class AudioStore {
 
 	// Get device by ID
 	getDevice(deviceId: string): MediaDeviceInfo | undefined {
-		return this.availableDevices.find(d => d.deviceId === deviceId);
+		return this.availableDevices.find((d) => d.deviceId === deviceId);
 	}
 
 	// Switch to a specific device
 	async switchToDevice(deviceId: string) {
 		const wasRecording = this.isRecording;
-		
+
 		if (wasRecording) {
 			this.stopRecording();
 		}
-		
+
 		this.selectedDeviceId = deviceId;
-		
+
 		if (wasRecording) {
 			await this.startRecording(deviceId);
 		}

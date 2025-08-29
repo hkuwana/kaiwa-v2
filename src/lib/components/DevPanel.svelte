@@ -10,7 +10,6 @@
 		hasAnalysisResults: boolean;
 		isAnalyzing: boolean;
 		timeInSeconds: number;
-		className?: string;
 		position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
 	}
 
@@ -22,9 +21,8 @@
 		hasAnalysisResults,
 		isAnalyzing,
 		timeInSeconds,
-		className = '',
 		position = 'bottom-right'
-	} = $props();
+	}: Props = $props();
 
 	// Only show in dev mode
 	let shouldShow = $derived(dev);
@@ -41,9 +39,7 @@
 </script>
 
 {#if shouldShow}
-	<div
-		class="pointer-events-none fixed z-50 {positionClasses} {className} max-w-full sm:max-w-none"
-	>
+	<div class="pointer-events-none fixed z-50 {positionClasses} max-w-full sm:max-w-none">
 		<div
 			class="pointer-events-auto card border border-warning/30 bg-warning/10 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl"
 		>

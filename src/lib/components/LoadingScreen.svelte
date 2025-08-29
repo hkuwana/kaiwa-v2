@@ -1,9 +1,8 @@
 <!-- src/lib/components/LoadingScreen.svelte -->
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { fly, fade, scale } from 'svelte/transition';
+	import { fade, fly, scale } from 'svelte/transition';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
-	import { capitalizeFirstLetter } from '$lib/utils';
 	import AudioVisualizer from './AudioVisualizer.svelte';
 	import type { ConversationStatus } from '$lib/services/conversation.service';
 
@@ -121,7 +120,7 @@
 				</h2>
 				{#if selectedSpeaker}
 					<div class="badge badge-outline badge-lg">
-						with {capitalizeFirstLetter(selectedSpeaker)}
+						with {selectedSpeaker}
 					</div>
 				{/if}
 			</div>
