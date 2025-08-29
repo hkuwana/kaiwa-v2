@@ -18,7 +18,7 @@ import * as sessionManagerService from '$lib/services/session-manager.service';
 import * as eventHandlerService from '$lib/services/event-handler.service';
 import * as transcriptionStateService from '$lib/services/transcription-state.service';
 import * as onboardingManagerService from '$lib/services/onboarding-manager.service';
-import type { Message, Language, UserPreferences } from '$lib/server/db/types';
+import type { Message, Language, UserPreferences, UserTier } from '$lib/server/db/types';
 import type { Speaker } from '$lib/types';
 import type { Voice } from '$lib/types/openai.realtime.types';
 import { DEFAULT_VOICE, isValidVoice } from '$lib/types/openai.realtime.types';
@@ -56,23 +56,29 @@ export class ConversationStore {
 	hasAnalysisResults = $derived(this.status === 'analyzed');
 	isGuestUser = $derived(userPreferencesStore.isGuest());
 
+	// Timer state
+	private isGracefullyEnding = $state<boolean>(false);
+	private analysisTriggered = $state<boolean>(false);
+	private waitingForAudioCompletion = $state<boolean>(false);
+	private waitingForAIResponse = $state<boolean>(false);
+
 	// Private connection state
 	private realtimeConnection: realtimeService.RealtimeConnection | null = null;
 	private audioStream: MediaStream | null = null;
-	private timerStore: ConversationTimerStore;
+	private timer: ConversationTimerStore = $state(createConversationTimerStore('free'));
 	private currentOptions: Partial<UserPreferences> | null = null;
 
-	constructor() {
+	constructor(userTier: UserTier = 'free') {
 		// Only initialize services in browser
 		if (!browser) {
 			console.log('ConversationStore: SSR mode, skipping service initialization');
 			// Create a dummy timer store for SSR
-			this.timerStore = createConversationTimerStore('free');
+
 			return;
 		}
 
 		// Browser initialization
-		this.timerStore = createConversationTimerStore('free');
+		this.timer = createConversationTimerStore(userTier);
 		this.initializeServices();
 		this.initializeUserPreferences();
 	}
@@ -171,7 +177,6 @@ export class ConversationStore {
 			this.sessionId = sessionData.session_id;
 
 			// 4. Create realtime connection
-
 			this.realtimeConnection = await realtimeService.createConnection(
 				sessionData,
 				this.audioStream
@@ -179,6 +184,13 @@ export class ConversationStore {
 
 			// 5. Set up event handlers
 			this.setupRealtimeEventHandlers();
+
+			//6. Start timer
+			this.timer.start(() => {
+				console.log('Conversation timer expired!');
+				// Handle timer expiration (e.g., end conversation, show modal, etc.)
+				this.handleTimerExpiration();
+			});
 
 			console.log('Connection established, waiting for session creation...');
 		} catch (error) {
@@ -221,22 +233,20 @@ export class ConversationStore {
 		}
 	};
 
-	endConversation = () => {
-		if (!browser) return;
+	pauseTimer(): void {
+		// Pause when user switches tabs, etc.
+		this.timer.pause();
+	}
 
-		console.log('Ending conversation...');
+	resumeTimer(): void {
+		// Resume when user returns
+		this.timer.resume();
+	}
 
-		// Stop timer
-		this.timerStore.stop();
-
-		// Clean up connections
-		this.cleanup();
-
-		// Reset state
-		this.resetState();
-
-		console.log('Conversation ended');
-	};
+	resetTimer(): void {
+		// Reset timer completely
+		this.timer.reset();
+	}
 
 	selectDevice = async (deviceId: string) => {
 		this.selectedDeviceId = deviceId;
@@ -325,22 +335,8 @@ export class ConversationStore {
 			connectionStatus: this.getConnectionStatus(),
 			hasConnection: !!this.realtimeConnection,
 			hasAudioStream: !!this.audioStream,
-			timerState: this.timerStore.state
+			timerState: this.timer.state
 		};
-	};
-
-	// === TIMER METHODS ===
-
-	configureTimerForUserTier = (tier: 'free' | 'plus' | 'premium') => {
-		this.timerStore.configureForUserTier(tier);
-	};
-
-	getTimeRemaining = () => {
-		return this.timerStore.getTimeRemaining();
-	};
-
-	extendConversation = () => {
-		return this.timerStore.extendDefault();
 	};
 
 	// === PRIVATE METHODS ===
@@ -370,23 +366,6 @@ export class ConversationStore {
 					this.sendInitialSetup(); // Combined function
 					this.status = 'connected';
 
-					// Create preferences provider for checking onboarding
-					const preferencesProvider = {
-						isGuest: () => userPreferencesStore.isGuest(),
-						getPreference: <K extends keyof import('$lib/server/db/types').UserPreferences>(
-							key: K
-						) => userPreferencesStore.getPreference(key),
-						updatePreferences: (updates: Partial<import('$lib/server/db/types').UserPreferences>) =>
-							userPreferencesStore.updatePreferences(updates)
-					};
-
-					// Start timer with onboarding callback if needed
-					if (onboardingManagerService.shouldTriggerOnboarding(preferencesProvider)) {
-						this.timerStore.start(this.triggerOnboardingAnalysis);
-					} else {
-						this.timerStore.start();
-					}
-
 					// Set status to streaming after a brief delay
 					setTimeout(() => {
 						this.status = 'streaming';
@@ -411,7 +390,7 @@ export class ConversationStore {
 			},
 			onClose: () => {
 				this.status = 'idle';
-				this.timerStore.stop();
+				this.timer.stop();
 			}
 		});
 
@@ -423,7 +402,7 @@ export class ConversationStore {
 			onError: (error) => {
 				this.status = 'error';
 				this.error = error;
-				this.timerStore.stop();
+				this.timer.stop();
 			}
 		});
 	}
@@ -467,26 +446,6 @@ export class ConversationStore {
 			const message = messageService.createMessageFromEventData(data, this.sessionId);
 			this.messages = [...this.messages, message];
 			console.log(`Added ${data.role} message:`, data.content.substring(0, 50));
-		}
-	}
-
-	private handleProcessedEvent(processed: realtimeService.ProcessedEventResult): void {
-		switch (processed.type) {
-			case 'message':
-				this.addMessageToState(processed.data);
-				break;
-
-			case 'transcription':
-				this.handleTranscriptionUpdate(processed.data);
-				break;
-
-			case 'connection_state':
-				console.log('Connection state update:', processed.data.state);
-				break;
-
-			case 'ignore':
-				// Do nothing for ignored events
-				break;
 		}
 	}
 
@@ -624,20 +583,12 @@ export class ConversationStore {
 			this.audioStream = null;
 		}
 
+		this.timer.cleanup();
+
 		// Clean up audio service
 		if (audioStore.isRecording) {
 			audioStore.stopRecording();
 		}
-	}
-
-	private resetState(): void {
-		this.status = 'idle';
-		this.messages = [];
-		this.userId = null;
-		this.sessionId = '';
-		this.error = null;
-		this.audioLevel = 0;
-		this.clearTranscriptionState();
 	}
 
 	// === UTILITY METHODS ===
@@ -668,7 +619,7 @@ export class ConversationStore {
 			this.cleanup();
 		}
 		this.resetState();
-		this.timerStore.reset();
+		this.timer.reset();
 		this.currentOptions = null;
 		console.log('Conversation store reset');
 	};
@@ -681,7 +632,7 @@ export class ConversationStore {
 			console.warn('Error during cleanup:', error);
 		}
 		try {
-			this.timerStore.cleanup();
+			this.timer.cleanup();
 		} catch (error) {
 			console.warn('Error during timer cleanup:', error);
 		}
@@ -704,11 +655,200 @@ export class ConversationStore {
 		return this.audioLevel;
 	}
 
-	private triggerOnboardingAnalysis = async (): Promise<void> => {
+	private handleTimerExpiration(): void {
+		console.log('Timer expired - initiating graceful shutdown');
+
+		// Set graceful ending state
+		this.isGracefullyEnding = true;
+
+		// Check if we need to wait for audio/AI completion
+		const needsGracefulWait = this.shouldWaitBeforeEnding();
+
+		if (needsGracefulWait) {
+			console.log('Waiting for audio/AI completion before ending conversation');
+			this.initiateGracefulShutdown();
+		} else {
+			// Can end immediately
+			this.proceedWithAnalysisAndEnd();
+		}
+	}
+
+	private shouldWaitBeforeEnding(): boolean {
+		// Check if user is currently speaking
+		const userIsSpeaking = this.speechDetected || this.isTranscribing;
+
+		// Check if AI is currently responding (has streaming message)
+		const aiIsResponding = messageService.hasStreamingMessage(this.messages);
+
+		// Check if audio is actively playing
+		const audioIsPlaying =
+			(this.realtimeConnection?.audioElement && !this.realtimeConnection.audioElement.paused) ??
+			false;
+
+		console.log('Graceful shutdown check:', {
+			userIsSpeaking,
+			aiIsResponding,
+			audioIsPlaying,
+			speechDetected: this.speechDetected,
+			isTranscribing: this.isTranscribing
+		});
+
+		return userIsSpeaking || aiIsResponding || audioIsPlaying;
+	}
+
+	private initiateGracefulShutdown(): void {
+		// Set waiting flags based on what we're waiting for
+		this.waitingForAudioCompletion =
+			(this.realtimeConnection?.audioElement && !this.realtimeConnection.audioElement.paused) ||
+			false;
+		this.waitingForAIResponse = messageService.hasStreamingMessage(this.messages);
+
+		// Set up listeners for completion events
+		this.setupGracefulShutdownListeners();
+
+		// Set a maximum wait time (e.g., 10 seconds)
+		setTimeout(() => {
+			if (this.isGracefullyEnding) {
+				console.log('Graceful shutdown timeout - proceeding with analysis');
+				this.proceedWithAnalysisAndEnd();
+			}
+		}, 10000); // 10 second timeout
+	}
+
+	private setupGracefulShutdownListeners(): void {
+		// Listen for audio completion
+		if (this.realtimeConnection?.audioElement) {
+			const audioElement = this.realtimeConnection.audioElement;
+
+			const onAudioEnd = () => {
+				console.log('Audio playback completed');
+				this.waitingForAudioCompletion = false;
+				audioElement.removeEventListener('ended', onAudioEnd);
+				audioElement.removeEventListener('pause', onAudioEnd);
+				this.checkIfReadyToEnd();
+			};
+
+			audioElement.addEventListener('ended', onAudioEnd);
+			audioElement.addEventListener('pause', onAudioEnd);
+		}
+
+		// The AI response completion will be handled in your existing message handling
+		// We'll check for completion in the existing handleProcessedEvent method
+	}
+
+	// Modify your existing handleProcessedEvent to check for graceful shutdown
+	private handleProcessedEvent(processed: realtimeService.ProcessedEventResult): void {
+		switch (processed.type) {
+			case 'message':
+				this.addMessageToState(processed.data);
+
+				// If we're gracefully ending and this completes the AI response
+				if (this.isGracefullyEnding && processed.data.role === 'assistant') {
+					this.waitingForAIResponse = false;
+					this.checkIfReadyToEnd();
+				}
+				break;
+
+			case 'transcription':
+				this.handleTranscriptionUpdate(processed.data);
+
+				// If we're gracefully ending and user transcription is complete
+				if (
+					this.isGracefullyEnding &&
+					processed.data.type === 'user_transcript' &&
+					processed.data.isFinal
+				) {
+					this.checkIfReadyToEnd();
+				}
+				break;
+
+			case 'connection_state':
+				console.log('Connection state update:', processed.data.state);
+				break;
+
+			case 'ignore':
+				// Do nothing for ignored events
+				break;
+		}
+	}
+
+	private checkIfReadyToEnd(): void {
+		if (!this.isGracefullyEnding) return;
+
+		const stillWaiting =
+			this.waitingForAudioCompletion ||
+			this.waitingForAIResponse ||
+			this.speechDetected ||
+			this.isTranscribing ||
+			messageService.hasStreamingMessage(this.messages);
+
+		console.log('Checking if ready to end:', {
+			stillWaiting,
+			waitingForAudioCompletion: this.waitingForAudioCompletion,
+			waitingForAIResponse: this.waitingForAIResponse,
+			speechDetected: this.speechDetected,
+			isTranscribing: this.isTranscribing,
+			hasStreamingMessage: messageService.hasStreamingMessage(this.messages)
+		});
+
+		if (!stillWaiting) {
+			console.log('All conditions met - proceeding with analysis and end');
+			this.proceedWithAnalysisAndEnd();
+		}
+	}
+
+	private async proceedWithAnalysisAndEnd(): Promise<void> {
+		if (this.analysisTriggered) {
+			console.log('Analysis already triggered, skipping');
+			return;
+		}
+
+		this.analysisTriggered = true;
+
+		try {
+			console.log('Starting conversation analysis...');
+
+			// Trigger analysis if we have messages and language
+			if (this.messages.length > 0 && this.language) {
+				this.status = 'analyzing';
+				await this.triggerOnboardingAnalysis();
+				this.status = 'analyzed';
+
+				console.log('Analysis completed successfully');
+			} else {
+				console.log('Skipping analysis - no messages or language');
+				// End conversation normally without analysis
+				this.endConversation();
+			}
+		} catch (error) {
+			console.error('Error during analysis:', error);
+			// Even if analysis fails, we should still end the conversation
+			this.endConversation();
+		}
+	}
+
+	// Modify your existing triggerOnboardingAnalysis method to be more robust
+	private async triggerOnboardingAnalysis(): Promise<void> {
 		if (!this.language) {
 			console.warn('Cannot trigger onboarding analysis: missing language');
 			return;
 		}
+
+		// Filter out placeholder/incomplete messages for analysis
+		const completeMessages = this.messages.filter(
+			(message) =>
+				message.content &&
+				message.content.trim().length > 0 &&
+				!message.content.includes('[Speaking...]') &&
+				!message.content.includes('[Transcribing...]')
+		);
+
+		if (completeMessages.length === 0) {
+			console.log('No complete messages for analysis');
+			return;
+		}
+
+		console.log(`Analyzing ${completeMessages.length} complete messages`);
 
 		// Start analysis state
 		userPreferencesStore.constructAnalysis();
@@ -716,15 +856,15 @@ export class ConversationStore {
 		// Create preferences provider interface
 		const preferencesProvider = {
 			isGuest: () => userPreferencesStore.isGuest(),
-			getPreference: <K extends keyof import('$lib/server/db/types').UserPreferences>(key: K) =>
+			getPreference: <K extends keyof UserPreferences>(key: K) =>
 				userPreferencesStore.getPreference(key),
-			updatePreferences: (updates: Partial<import('$lib/server/db/types').UserPreferences>) =>
+			updatePreferences: (updates: Partial<UserPreferences>) =>
 				userPreferencesStore.updatePreferences(updates)
 		};
 
 		const result = await onboardingManagerService.executeOnboardingAnalysis(
 			this.language,
-			this.messages,
+			completeMessages, // Use filtered messages
 			this.sessionId,
 			preferencesProvider
 		);
@@ -733,11 +873,66 @@ export class ConversationStore {
 			// Get the analysis results from the updated preferences
 			const currentPrefs = userPreferencesStore.getPreferences();
 			userPreferencesStore.setAnalysisResults(currentPrefs);
+			console.log('Analysis results saved to user preferences');
 		} else {
 			console.error('Onboarding analysis failed:', result.error);
 			userPreferencesStore.clearAnalysisResults();
+			throw new Error(`Analysis failed: ${result.error}`);
 		}
+	}
+
+	// Modify your existing endConversation method to handle graceful shutdown
+	endConversation = () => {
+		if (!browser) return;
+
+		console.log('Ending conversation...');
+
+		// If we're not already gracefully ending, set the flag
+		if (!this.isGracefullyEnding) {
+			this.isGracefullyEnding = true;
+		}
+
+		// Stop timer
+		this.timer.stop();
+
+		// Clean up connections
+		this.cleanup();
+
+		// Reset state
+		this.resetState();
+
+		console.log('Conversation ended');
 	};
+
+	// Add getter for graceful ending state for UI
+	get gracefullyEnding(): boolean {
+		return this.isGracefullyEnding;
+	}
+
+	// Add method to force end if needed
+	forceEndConversation = () => {
+		console.log('Force ending conversation...');
+		this.isGracefullyEnding = false;
+		this.analysisTriggered = false;
+		this.waitingForAudioCompletion = false;
+		this.waitingForAIResponse = false;
+		this.endConversation();
+	};
+
+	// Modify resetState to include new flags
+	private resetState(): void {
+		this.status = 'idle';
+		this.messages = [];
+		this.userId = null;
+		this.sessionId = '';
+		this.error = null;
+		this.audioLevel = 0;
+		this.isGracefullyEnding = false;
+		this.analysisTriggered = false;
+		this.waitingForAudioCompletion = false;
+		this.waitingForAIResponse = false;
+		this.clearTranscriptionState();
+	}
 }
 
 // Export singleton instance

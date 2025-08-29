@@ -1,58 +1,44 @@
-import {
-	createDefaultTimerConfig,
-	createTimerConfig,
-	startTimer,
-	stopTimer,
-	pauseTimer,
-	resumeTimer,
-	extendTimer,
-	resetTimer,
-	calculateTimerState,
-	formatTimeRemaining,
-	formatTimeElapsed,
-	isInWarningState,
-	isExpired,
-	type TimerState,
-	type TimerConfig
-} from '$lib/services/timer.service';
 import { getTimerSettings } from '$lib/data/tiers';
 import type { UserTier } from '$lib/server/db/types';
 
+export interface TimerState {
+	isActive: boolean;
+	timeRemaining: number;
+	timeElapsed: number;
+	status: 'idle' | 'running' | 'paused' | 'warning' | 'expired';
+	canExtend: boolean;
+	extensionsUsed: number;
+}
+
 export interface ConversationTimerState {
-	// Timer state
 	timer: TimerState;
-
-	// User tier information
 	userTier: UserTier;
-	tierConfig: ReturnType<typeof getTimerSettings>;
-
-	// UI state
 	showWarning: boolean;
 	showExtensionPrompt: boolean;
 	canExtend: boolean;
-
-	// Extension state
 	extensionsUsed: number;
 	maxExtensions: number;
 }
 
 export class ConversationTimerStore {
-	// Timer configuration and state
-	private timerConfig: TimerConfig;
-	private timerInput = {
-		startTime: 0,
-		pauseTime: 0,
-		totalPausedTime: 0,
-		extensionsUsed: 0
-	};
+	// Configuration
+	private timeoutMs: number = $state(0);
+	private warningThresholdMs: number = $state(0);
+	private extensionDurationMs: number = $state(0);
+	private maxExtensions: number = $state(0);
+	private extendable: boolean = $state(false);
 
-	// Timer interval for updates
-	private timerInterval: NodeJS.Timeout | null = null;
+	// Timing state
+	private startTime: number = $state(0);
+	private totalPausedTime: number = $state(0);
+	private pauseStartTime: number = $state(0);
+	private extensionsUsed: number = $state(0);
 
-	// Callback for timer expiration
-	private expirationCallback: (() => void) | undefined;
+	// Update interval
+	private updateInterval: NodeJS.Timeout | null = $state(null);
+	private onExpired?: () => void = $state(undefined);
 
-	// Store state
+	// Reactive state
 	private _state = $state<ConversationTimerState>({
 		timer: {
 			isActive: false,
@@ -63,7 +49,6 @@ export class ConversationTimerStore {
 			extensionsUsed: 0
 		},
 		userTier: 'free',
-		tierConfig: getTimerSettings('free'),
 		showWarning: false,
 		showExtensionPrompt: false,
 		canExtend: false,
@@ -72,10 +57,6 @@ export class ConversationTimerStore {
 	});
 
 	constructor(userTier: UserTier = 'free') {
-		// Initialize timer configuration
-		this.timerConfig = createDefaultTimerConfig();
-
-		// Configure for user tier
 		this.configureForUserTier(userTier);
 	}
 
@@ -84,260 +65,219 @@ export class ConversationTimerStore {
 		return this._state;
 	}
 
-	get timer() {
-		return this._state.timer;
+	get isRunning() {
+		return this._state.timer.status === 'running';
 	}
 
-	get userTier() {
-		return this._state.userTier;
+	get isPaused() {
+		return this._state.timer.status === 'paused';
 	}
 
-	get canExtend() {
-		return this._state.canExtend;
+	get isExpired() {
+		return this._state.timer.status === 'expired';
 	}
 
-	get showWarning() {
-		return this._state.showWarning;
+	get timeRemaining() {
+		return this._state.timer.timeRemaining;
 	}
 
-	get showExtensionPrompt() {
-		return this._state.showExtensionPrompt;
+	get timeElapsed() {
+		return this._state.timer.timeElapsed;
 	}
 
-	// Configure timer for specific user tier
+	// Configure for user tier
 	configureForUserTier(tier: UserTier): void {
-		this._state.userTier = tier;
-		const timerSettings = getTimerSettings(tier);
+		const settings = getTimerSettings(tier);
 
-		if (timerSettings) {
-			// Configure timer with tier settings
-			this.timerConfig = createTimerConfig(timerSettings);
-
-			// Update store state
-			this._state.canExtend = timerSettings.extendable;
-			this._state.maxExtensions = timerSettings.maxExtensions;
-			this._state.extensionsUsed = 0;
-
-			// Reset timer input
-			this.timerInput.extensionsUsed = 0;
-
-			console.log(`⏰ Conversation timer configured for ${tier} tier`);
-		} else {
-			console.warn(`⚠️ No timer settings found for tier: ${tier}`);
+		if (!settings) {
+			console.warn(`No timer settings found for tier: ${tier}`);
+			return;
 		}
+
+		this._state.userTier = tier;
+		this.timeoutMs = settings.timeoutMs || 2 * 60 * 1000; // 2 min default
+		this.warningThresholdMs = settings.warningThresholdMs || 30 * 1000; // 30s default
+		this.extensionDurationMs = settings.extensionDurationMs || 60 * 1000; // 1 min default
+		this.maxExtensions = settings.maxExtensions || 0;
+		this.extendable = settings.extendable || false;
+
+		// Update state
+		this._state.canExtend = this.extendable;
+		this._state.maxExtensions = this.maxExtensions;
+		this._state.timer.timeRemaining = this.timeoutMs;
+		this._state.timer.canExtend = this.extendable;
+
+		console.log(`⏰ Timer configured for ${tier}:`, {
+			timeout: this.timeoutMs,
+			warning: this.warningThresholdMs,
+			extendable: this.extendable,
+			maxExtensions: this.maxExtensions
+		});
 	}
 
-	// Start conversation timer
-	start(callback?: () => void): void {
-		// Stop any existing interval
-		this._stopTimerInterval();
+	// Start the timer
+	start(onExpired?: () => void): void {
+		console.log('⏰ Starting conversation timer');
 
-		// Store callback for timer expiration
-		this.expirationCallback = callback;
+		this.onExpired = onExpired;
+		this.startTime = Date.now();
+		this.totalPausedTime = 0;
+		this.pauseStartTime = 0;
+		this.extensionsUsed = 0;
 
-		// Start timer using functional service
-		const startTime = Date.now();
-		this.timerInput.startTime = startTime;
-		this.timerInput.pauseTime = 0;
-		this.timerInput.totalPausedTime = 0;
-		this.timerInput.extensionsUsed = 0;
+		// Update state
+		this._state.timer.isActive = true;
+		this._state.timer.status = 'running';
+		this._state.timer.extensionsUsed = 0;
+		this._state.extensionsUsed = 0;
+		this._hidePrompts();
 
-		const result = startTimer(this.timerConfig, startTime);
-		this._state.timer = result.state;
-
-		// Start timer interval for updates
-		this._startTimerInterval();
-
-		console.log('⏰ Conversation timer started');
+		// Start update loop
+		this._startUpdateLoop();
 	}
 
-	// Stop conversation timer
+	// Stop the timer
 	stop(): void {
-		// Stop timer interval
-		this._stopTimerInterval();
+		console.log('⏰ Stopping conversation timer');
 
-		// Stop timer using functional service
-		const result = stopTimer(this.timerConfig);
-		this._state.timer = result.state;
-
-		// Clear expiration callback
-		this.expirationCallback = undefined;
-
-		this._hideAllPrompts();
-		console.log('⏰ Conversation timer stopped');
+		this._stopUpdateLoop();
+		this._resetState();
+		this.onExpired = undefined;
 	}
 
-	// Pause timer (e.g., when user switches tabs)
+	// Pause the timer
 	pause(): void {
 		if (this._state.timer.status !== 'running') return;
 
-		const pauseTime = Date.now();
-		this.timerInput.pauseTime = pauseTime;
-
-		const result = pauseTimer(this._state.timer, pauseTime);
-		this._state.timer = result.state;
+		console.log('⏰ Pausing timer');
+		this.pauseStartTime = Date.now();
+		this._state.timer.status = 'paused';
 	}
 
-	// Resume timer
+	// Resume the timer
 	resume(): void {
 		if (this._state.timer.status !== 'paused') return;
 
-		const resumeTime = Date.now();
-		const totalPausedTime =
-			this.timerInput.totalPausedTime + (resumeTime - this.timerInput.pauseTime);
-		this.timerInput.totalPausedTime = totalPausedTime;
-
-		const result = resumeTimer(
-			this._state.timer,
-			resumeTime,
-			this.timerInput.pauseTime,
-			totalPausedTime
-		);
-		this._state.timer = result.state;
+		console.log('⏰ Resuming timer');
+		if (this.pauseStartTime > 0) {
+			this.totalPausedTime += Date.now() - this.pauseStartTime;
+			this.pauseStartTime = 0;
+		}
+		this._state.timer.status = 'running';
 	}
 
-	// Reset timer
+	// Reset the timer
 	reset(): void {
-		// Stop timer interval
-		this._stopTimerInterval();
+		console.log('⏰ Resetting timer');
 
-		// Reset timer using functional service
-		const result = resetTimer(this.timerConfig);
-		this._state.timer = result.state;
-
-		// Reset timer input
-		this.timerInput.startTime = 0;
-		this.timerInput.pauseTime = 0;
-		this.timerInput.totalPausedTime = 0;
-		this.timerInput.extensionsUsed = 0;
-
-		// Clear expiration callback
-		this.expirationCallback = undefined;
-
-		this._hideAllPrompts();
-		this._state.extensionsUsed = 0;
+		this._stopUpdateLoop();
+		this._resetInternalState();
+		this._resetState();
+		this.onExpired = undefined;
 	}
 
-	// Extend conversation
-	extend(additionalMs?: number): boolean {
-		const result = extendTimer(this._state.timer, this.timerConfig, additionalMs);
-
-		if (result.state !== this._state.timer) {
-			this._state.timer = result.state;
-			this.timerInput.extensionsUsed = result.state.extensionsUsed;
-			this._hideAllPrompts();
-			return true;
-		}
-
-		return false;
+	// Format time remaining as MM:SS
+	formatTimeRemaining(): string {
+		const minutes = Math.floor(this._state.timer.timeRemaining / 60000);
+		const seconds = Math.floor((this._state.timer.timeRemaining % 60000) / 1000);
+		return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 	}
 
-	// Extend with default tier extension duration
-	extendDefault(): boolean {
-		const timerSettings = getTimerSettings(this._state.userTier);
-		if (timerSettings) {
-			return this.extend(timerSettings.extensionDurationMs);
-		}
-		return false;
-	}
-
-	// Get formatted time strings
-	getTimeRemaining(): string {
-		return formatTimeRemaining(this._state.timer.timeRemaining);
-	}
-
-	getTimeElapsed(): string {
-		return formatTimeElapsed(this._state.timer.timeElapsed);
-	}
-
-	// Check timer states
-	isInWarningState(): boolean {
-		return isInWarningState(this._state.timer.timeRemaining, this.timerConfig.warningThresholdMs);
-	}
-
-	isExpired(): boolean {
-		return isExpired(this._state.timer.timeRemaining);
-	}
-
-	// Get debug information
-	getDebugInfo() {
-		return {
-			storeState: this._state,
-			timerConfig: this.timerConfig,
-			timerInput: this.timerInput,
-			hasInterval: !!this.timerInterval
-		};
+	// Format time elapsed as MM:SS
+	formatTimeElapsed(): string {
+		const minutes = Math.floor(this._state.timer.timeElapsed / 60000);
+		const seconds = Math.floor((this._state.timer.timeElapsed % 60000) / 1000);
+		return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 	}
 
 	// Cleanup
 	cleanup(): void {
-		this._stopTimerInterval();
-		this.expirationCallback = undefined;
-		console.log('🧹 Conversation timer store cleaned up');
+		console.log('🧹 Cleaning up conversation timer');
+		this._stopUpdateLoop();
+		this.onExpired = undefined;
 	}
 
 	// Private methods
-	private _startTimerInterval(): void {
-		if (this.timerInterval) return;
+	private _startUpdateLoop(): void {
+		if (this.updateInterval) return;
 
-		this.timerInterval = setInterval(() => {
-			const now = Date.now();
-			const timerInput = {
-				config: this.timerConfig,
-				...this.timerInput
-			};
-
-			const result = calculateTimerState(timerInput, now);
-			this._state.timer = result.state;
-
-			// Handle notifications
-			if (result.shouldNotifyWarning) {
-				console.log('⚠️ Timer warning triggered');
-				this._state.showWarning = true;
-			}
-
-			if (result.shouldNotifyExpired) {
-				console.log('⏰ Timer expired - ending conversation');
-				this._state.showExtensionPrompt = true;
-
-				// Execute expiration callback if provided
-				if (this.expirationCallback) {
-					try {
-						this.expirationCallback();
-					} catch (error) {
-						console.error('Error executing timer expiration callback:', error);
-					}
-				}
-
-				// Stop the interval when expired
-				this._stopTimerInterval();
-			}
-
-			// Update extension state
-			this._state.extensionsUsed = result.state.extensionsUsed;
-			this._state.canExtend =
-				result.state.canExtend && result.state.extensionsUsed < this._state.maxExtensions;
-
-			// Update warning and extension prompt states
-			this._state.showWarning = result.state.status === 'warning';
-			this._state.showExtensionPrompt = result.state.status === 'expired';
-		}, 100); // Update every 100ms for smooth countdown
+		this.updateInterval = setInterval(() => {
+			this._updateTimerState();
+		}, 100); // Update every 100ms for smooth UI
 	}
 
-	private _stopTimerInterval(): void {
-		if (this.timerInterval) {
-			clearInterval(this.timerInterval);
-			this.timerInterval = null;
+	private _stopUpdateLoop(): void {
+		if (this.updateInterval) {
+			clearInterval(this.updateInterval);
+			this.updateInterval = null;
 		}
 	}
 
-	private _hideAllPrompts(): void {
+	private _updateTimerState(): void {
+		if (!this._state.timer.isActive || this._state.timer.status === 'paused') {
+			return;
+		}
+
+		const now = Date.now();
+		const elapsed = now - this.startTime - this.totalPausedTime;
+		const remaining = Math.max(0, this.timeoutMs - elapsed);
+
+		// Update times
+		this._state.timer.timeElapsed = elapsed;
+		this._state.timer.timeRemaining = remaining;
+
+		// Check status
+		if (remaining <= 0) {
+			// Expired
+			this._state.timer.status = 'expired';
+			this._state.showExtensionPrompt = true;
+			this._stopUpdateLoop();
+
+			console.log('⏰ Timer expired!');
+			if (this.onExpired) {
+				try {
+					this.onExpired();
+				} catch (error) {
+					console.error('Error in timer expiration callback:', error);
+				}
+			}
+		} else if (remaining <= this.warningThresholdMs) {
+			// Warning state
+			if (this._state.timer.status !== 'warning') {
+				this._state.timer.status = 'warning';
+				this._state.showWarning = true;
+				console.log('⚠️ Timer warning state');
+			}
+		}
+	}
+
+	private _resetState(): void {
+		this._state.timer = {
+			isActive: false,
+			timeRemaining: this.timeoutMs,
+			timeElapsed: 0,
+			status: 'idle',
+			canExtend: this.extendable,
+			extensionsUsed: 0
+		};
+		this._state.extensionsUsed = 0;
+		this._hidePrompts();
+	}
+
+	private _resetInternalState(): void {
+		this.startTime = 0;
+		this.totalPausedTime = 0;
+		this.pauseStartTime = 0;
+		this.extensionsUsed = 0;
+	}
+
+	private _hidePrompts(): void {
 		this._state.showWarning = false;
 		this._state.showExtensionPrompt = false;
 	}
 }
 
-// Export a factory function
+// Factory function
 export function createConversationTimerStore(userTier: UserTier = 'free'): ConversationTimerStore {
 	return new ConversationTimerStore(userTier);
 }

@@ -13,6 +13,7 @@
 	import ConnectingState from '$lib/components/ConversationConnectingState.svelte';
 	import ErrorState from '$lib/components/ConversationErrorState.svelte';
 	import ActiveConversationState from '$lib/components/ConversationActiveState.svelte';
+	import DevPanel from '$lib/components/DevPanel.svelte';
 
 	// Keep existing components for analysis temporarily
 	import { fade } from 'svelte/transition';
@@ -184,20 +185,14 @@
 		/>
 	{/if}
 </div>
-<!-- Dev Tools -->
-{#if dev}
-	<div class="fixed right-4 bottom-4">
-		<div class="card border border-warning/30 bg-warning/10">
-			<div class="card-body p-3">
-				<div class="space-y-1 text-xs">
-					<div>Status: <span class="font-mono">{status}</span></div>
-					<div>Messages: <span class="font-mono">{messages.length}</span></div>
-					<div>Audio: <span class="font-mono">{audioLevel.toFixed(2)}</span></div>
-					<div>Guest: <span class="font-mono">{isGuestUser}</span></div>
-					<div>Analysis: <span class="font-mono">{hasAnalysisResults}</span></div>
-					<div>Analyzing: <span class="font-mono">{isAnalyzing}</span></div>
-				</div>
-			</div>
-		</div>
-	</div>
-{/if}
+<!-- Dev Panel -->
+<DevPanel
+	{status}
+	messagesCount={messages.length}
+	{audioLevel}
+	{isGuestUser}
+	{hasAnalysisResults}
+	{isAnalyzing}
+	timeInSeconds={Math.ceil(conversationStore.getTimerState().timer.timeRemaining / 1000)}
+	position="bottom-right"
+/>
