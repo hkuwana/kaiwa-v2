@@ -1,0 +1,393 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import { trackPageView } from '$lib/analytics/posthog';
+
+	onMount(() => {
+		trackPageView('/terms');
+	});
+</script>
+
+<svelte:head>
+	<title>Terms of Service - Kaiwa | Legal Agreement & User Rights</title>
+	<meta
+		name="description"
+		content="Terms and conditions for using Kaiwa language learning platform. Understand your rights, responsibilities, and our service policies."
+	/>
+	<meta
+		name="keywords"
+		content="terms of service, user agreement, language learning, legal terms, subscription terms, user rights"
+	/>
+	<meta name="author" content="Kaiwa" />
+	<meta name="robots" content="index, follow" />
+
+	<!-- Open Graph / Facebook -->
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://kaiwa.app/terms" />
+	<meta property="og:title" content="Terms of Service - Kaiwa | Legal Agreement & User Rights" />
+	<meta
+		property="og:description"
+		content="Terms and conditions for using Kaiwa language learning platform. Understand your rights, responsibilities, and our service policies."
+	/>
+	<meta property="og:site_name" content="Kaiwa" />
+
+	<!-- Twitter -->
+	<meta property="twitter:card" content="summary_large_image" />
+	<meta property="twitter:url" content="https://kaiwa.app/terms" />
+	<meta
+		property="twitter:title"
+		content="Terms of Service - Kaiwa | Legal Agreement & User Rights"
+	/>
+	<meta
+		property="twitter:description"
+		content="Terms and conditions for using Kaiwa language learning platform. Understand your rights, responsibilities, and our service policies."
+	/>
+
+	<!-- Canonical URL -->
+	<link rel="canonical" href="https://kaiwa.app/terms" />
+
+	<!-- Structured Data -->
+	<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "WebPage",
+			"name": "Terms of Service - Kaiwa",
+			"description": "Terms and conditions for using Kaiwa language learning platform",
+			"url": "https://kaiwa.app/terms",
+			"publisher": {
+				"@type": "Organization",
+				"name": "Kaiwa",
+				"url": "https://kaiwa.app"
+			},
+			"dateModified": "2025-08-29"
+		}
+	</script>
+</svelte:head>
+
+<div class="terms-container">
+	<header class="terms-header">
+		<h1>Terms of Service</h1>
+		<p class="last-updated">Last updated: {new Date().toLocaleDateString()}</p>
+	</header>
+
+	<div class="terms-content">
+		<section class="terms-section">
+			<h2>1. Acceptance of Terms</h2>
+			<p>
+				By accessing and using Kaiwa ("the Service"), you accept and agree to be bound by the terms
+				and provision of this agreement. If you do not agree to abide by the above, please do not
+				use this service.
+			</p>
+		</section>
+
+		<section class="terms-section">
+			<h2>2. Description of Service</h2>
+			<p>
+				Kaiwa is an AI-powered language learning platform that provides conversational practice,
+				personalized lessons, and progress tracking. The Service includes:
+			</p>
+			<ul>
+				<li>AI-powered language conversations and tutoring</li>
+				<li>Real-time voice and text interactions</li>
+				<li>Personalized learning paths and progress tracking</li>
+				<li>Grammar, vocabulary, and pronunciation feedback</li>
+				<li>Learning scenario simulations and practice exercises</li>
+			</ul>
+		</section>
+
+		<section class="terms-section">
+			<h2>3. User Accounts and Registration</h2>
+
+			<h3>3.1 Account Creation</h3>
+			<p>
+				To access certain features of the Service, you must create an account. You agree to provide
+				accurate, current, and complete information during registration and to update such
+				information to keep it accurate, current, and complete.
+			</p>
+
+			<h3>3.2 Account Security</h3>
+			<p>
+				You are responsible for safeguarding the password and for all activities that occur under
+				your account. You agree to notify us immediately of any unauthorized use of your account.
+			</p>
+
+			<h3>3.3 Age Requirements</h3>
+			<p>
+				You must be at least 13 years old to use the Service. If you are under 18, you may only use
+				the Service with the involvement of a parent or guardian.
+			</p>
+		</section>
+
+		<section class="terms-section">
+			<h2>4. Acceptable Use Policy</h2>
+
+			<h3>4.1 Permitted Uses</h3>
+			<p>You may use the Service for:</p>
+			<ul>
+				<li>Personal language learning and practice</li>
+				<li>Educational purposes in accordance with our guidelines</li>
+				<li>Legitimate language acquisition and skill development</li>
+			</ul>
+
+			<h3>4.2 Prohibited Uses</h3>
+			<p>You may not use the Service to:</p>
+			<ul>
+				<li>Generate inappropriate, harmful, or offensive content</li>
+				<li>Attempt to manipulate or abuse the AI system</li>
+				<li>Violate any applicable laws or regulations</li>
+				<li>Infringe on intellectual property rights</li>
+				<li>Harass, abuse, or harm other users</li>
+				<li>Attempt to gain unauthorized access to our systems</li>
+			</ul>
+		</section>
+
+		<section class="terms-section">
+			<h2>5. Subscription Plans and Billing</h2>
+
+			<h3>5.1 Free Tier</h3>
+			<p>
+				We offer a free tier with limited features and usage quotas. Free tier users are subject to
+				conversation limits and feature restrictions.
+			</p>
+
+			<h3>5.2 Premium Subscriptions</h3>
+			<p>
+				Premium subscriptions provide additional features, higher usage limits, and priority
+				support. Subscription fees are billed in advance on a monthly or annual basis.
+			</p>
+
+			<h3>5.3 Billing and Payment</h3>
+			<ul>
+				<li>All fees are non-refundable except as required by law</li>
+				<li>Prices may change with 30 days notice</li>
+				<li>Failed payments may result in service suspension</li>
+				<li>Subscription renewals are automatic unless cancelled</li>
+			</ul>
+
+			<h3>5.4 Cancellation</h3>
+			<p>
+				You may cancel your subscription at any time. Cancellation takes effect at the end of the
+				current billing period. No refunds are provided for partial periods.
+			</p>
+		</section>
+
+		<section class="terms-section">
+			<h2>6. Content and Intellectual Property</h2>
+
+			<h3>6.1 User-Generated Content</h3>
+			<p>
+				You retain ownership of content you create during conversations. However, you grant us a
+				license to use this content to provide and improve the Service.
+			</p>
+
+			<h3>6.2 AI-Generated Content</h3>
+			<p>
+				AI-generated responses and feedback are provided for educational purposes. We do not claim
+				ownership of AI-generated content, but you may not claim it as your own work.
+			</p>
+
+			<h3>6.3 Service Content</h3>
+			<p>
+				The Service, including its original content, features, and functionality, is owned by Kaiwa
+				and is protected by international copyright, trademark, and other intellectual property
+				laws.
+			</p>
+		</section>
+
+		<section class="terms-section">
+			<h2>7. Privacy and Data Protection</h2>
+			<p>
+				Your privacy is important to us. Our collection and use of personal information is governed
+				by our Privacy Policy, which is incorporated into these Terms by reference.
+			</p>
+			<p>
+				By using the Service, you consent to the collection and use of information as outlined in
+				our Privacy Policy, including the use of analytics tools like PostHog to improve user
+				experience.
+			</p>
+		</section>
+
+		<section class="terms-section">
+			<h2>8. Service Availability and Modifications</h2>
+
+			<h3>8.1 Service Availability</h3>
+			<p>
+				We strive to maintain high service availability but do not guarantee uninterrupted access.
+				The Service may be temporarily unavailable due to maintenance, updates, or technical issues.
+			</p>
+
+			<h3>8.2 Service Modifications</h3>
+			<p>
+				We reserve the right to modify, suspend, or discontinue the Service at any time. We will
+				provide reasonable notice for significant changes that affect core functionality.
+			</p>
+		</section>
+
+		<section class="terms-section">
+			<h2>9. Disclaimers and Limitations</h2>
+
+			<h3>9.1 Educational Disclaimer</h3>
+			<p>
+				While we strive to provide accurate language learning content, the Service is for
+				educational purposes only. We do not guarantee fluency or proficiency in any language.
+			</p>
+
+			<h3>9.2 AI System Limitations</h3>
+			<p>
+				AI systems may occasionally provide incorrect information or responses. Users should verify
+				important information through other sources and use critical thinking when learning.
+			</p>
+
+			<h3>9.3 Limitation of Liability</h3>
+			<p>
+				To the maximum extent permitted by law, Kaiwa shall not be liable for any indirect,
+				incidental, special, consequential, or punitive damages resulting from your use of the
+				Service.
+			</p>
+		</section>
+
+		<section class="terms-section">
+			<h2>10. Termination</h2>
+
+			<h3>10.1 Termination by User</h3>
+			<p>
+				You may terminate your account at any time by contacting our support team. Upon termination,
+				your access to the Service will cease immediately.
+			</p>
+
+			<h3>10.2 Termination by Kaiwa</h3>
+			<p>
+				We may terminate or suspend your account immediately, without prior notice, for conduct that
+				we believe violates these Terms or is harmful to other users or the Service.
+			</p>
+
+			<h3>10.3 Effect of Termination</h3>
+			<p>
+				Upon termination, your right to use the Service ceases immediately. We may delete your
+				account and data in accordance with our data retention policies.
+			</p>
+		</section>
+
+		<section class="terms-section">
+			<h2>11. Governing Law and Disputes</h2>
+
+			<h3>11.1 Governing Law</h3>
+			<p>
+				These Terms shall be governed by and construed in accordance with the laws of the
+				jurisdiction where Kaiwa operates, without regard to conflict of law principles.
+			</p>
+
+			<h3>11.2 Dispute Resolution</h3>
+			<p>
+				Any disputes arising from these Terms or your use of the Service shall be resolved through
+				binding arbitration in accordance with the rules of the relevant arbitration association.
+			</p>
+		</section>
+
+		<section class="terms-section">
+			<h2>12. Changes to Terms</h2>
+			<p>
+				We reserve the right to modify these Terms at any time. We will notify users of material
+				changes via email or through the Service. Continued use of the Service after changes
+				constitutes acceptance of the new Terms.
+			</p>
+		</section>
+
+		<section class="terms-section">
+			<h2>13. Contact Information</h2>
+			<p>If you have any questions about these Terms of Service, please contact us:</p>
+			<ul>
+				<li><strong>Legal</strong>: legal@kaiwa.app</li>
+				<li><strong>Support</strong>: support@kaiwa.app</li>
+				<li><strong>General</strong>: hello@kaiwa.app</li>
+			</ul>
+		</section>
+	</div>
+</div>
+
+<style>
+	.terms-container {
+		max-width: 800px;
+		margin: 0 auto;
+		padding: 2rem 1rem;
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+		line-height: 1.6;
+		color: #333;
+	}
+
+	.terms-header {
+		text-align: center;
+		margin-bottom: 3rem;
+		border-bottom: 2px solid #e5e7eb;
+		padding-bottom: 2rem;
+	}
+
+	.terms-header h1 {
+		font-size: 2.5rem;
+		font-weight: 700;
+		color: #1f2937;
+		margin-bottom: 0.5rem;
+	}
+
+	.last-updated {
+		color: #6b7280;
+		font-size: 0.9rem;
+	}
+
+	.terms-section {
+		margin-bottom: 3rem;
+	}
+
+	.terms-section h2 {
+		font-size: 1.8rem;
+		font-weight: 600;
+		color: #1f2937;
+		margin-bottom: 1rem;
+		border-left: 4px solid #10b981;
+		padding-left: 1rem;
+	}
+
+	.terms-section h3 {
+		font-size: 1.3rem;
+		font-weight: 600;
+		color: #374151;
+		margin: 1.5rem 0 0.75rem 0;
+	}
+
+	.terms-section p {
+		margin-bottom: 1rem;
+		color: #4b5563;
+	}
+
+	.terms-section ul {
+		margin: 1rem 0;
+		padding-left: 1.5rem;
+	}
+
+	.terms-section li {
+		margin-bottom: 0.5rem;
+		color: #4b5563;
+	}
+
+	.terms-section strong {
+		color: #1f2937;
+		font-weight: 600;
+	}
+
+	@media (max-width: 768px) {
+		.terms-container {
+			padding: 1rem;
+		}
+
+		.terms-header h1 {
+			font-size: 2rem;
+		}
+
+		.terms-section h2 {
+			font-size: 1.5rem;
+		}
+
+		.terms-section h3 {
+			font-size: 1.2rem;
+		}
+	}
+</style>
