@@ -4,7 +4,7 @@ import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 // 🌟 Dummy User Preferences for Guests
 // This provides sensible defaults for users who haven't logged in yet
 
-export const dummyUserPreferences: Omit<
+export const defaultUserPreference: Omit<
 	UserPreferences,
 	'id' | 'userId' | 'createdAt' | 'updatedAt'
 > = {
@@ -46,14 +46,14 @@ export const dummyUserPreferences: Omit<
 // Creates a complete preferences object for guests with generated ID and timestamps
 
 export function createGuestUserPreferences(
-	overrides: Partial<typeof dummyUserPreferences> = {}
+	overrides: Partial<typeof defaultUserPreference> = {}
 ): UserPreferences {
 	const now = new Date();
 
 	return {
 		id: crypto.randomUUID(),
 		userId: 'guest', // Special identifier for guests
-		...dummyUserPreferences,
+		...defaultUserPreference,
 		...overrides,
 		createdAt: now,
 		updatedAt: now
@@ -63,7 +63,7 @@ export function createGuestUserPreferences(
 // 🌟 Default Preferences by Language
 // Language-specific default preferences
 
-export const languageSpecificDefaults: Record<string, Partial<typeof dummyUserPreferences>> = {
+export const languageSpecificDefaults: Record<string, Partial<typeof defaultUserPreference>> = {
 	ja: {
 		targetLanguageId: 'ja',
 		learningGoal: 'Culture',
@@ -93,11 +93,11 @@ export const languageSpecificDefaults: Record<string, Partial<typeof dummyUserPr
 // 🌟 Get Language-Specific Preferences
 // Combines dummy preferences with language-specific overrides
 
-export function getLanguageSpecificPreferences(languageCode: string): typeof dummyUserPreferences {
+export function getLanguageSpecificPreferences(languageCode: string): typeof defaultUserPreference {
 	const languageDefaults = languageSpecificDefaults[languageCode] || {};
 
 	return {
-		...dummyUserPreferences,
+		...defaultUserPreference,
 		...languageDefaults
 	};
 }

@@ -2,6 +2,7 @@ import { browser } from '$app/environment';
 import type { UserPreferences } from '$lib/server/db/types';
 import {
 	createGuestUserPreferences,
+	defaultUserPreference,
 	getLanguageSpecificPreferences
 } from '$lib/data/userPreferences';
 import { SvelteDate } from 'svelte/reactivity';
@@ -17,6 +18,11 @@ export class UserPreferencesStore {
 	// Reactive state
 	preferences = $state<UserPreferences | null>(null);
 	isInitialized = $state<boolean>(false);
+
+	// Analysis results state
+	analysisResults = $state<Partial<UserPreferences>>(defaultUserPreference);
+	isAnalyzing = $state<boolean>(false);
+	hasAnalysisResults = $state<boolean>(false);
 
 	// 🌟 Initialize the store
 	async initialize(): Promise<void> {
@@ -214,6 +220,44 @@ export class UserPreferencesStore {
 			typeof obj.preferredVoice === 'string'
 		);
 	}
+
+	// 🌟 Analysis Results Management
+
+	// Set analysis results from onboarding
+	setAnalysisResults(results: Partial<UserPreferences>): void {
+		this.analysisResults = results;
+		this.hasAnalysisResults = true;
+		this.isAnalyzing = false;
+	}
+
+	// Get current analysis results
+	getAnalysisResults(): Partial<UserPreferences> | null {
+		return this.analysisResults;
+	}
+
+	// Construct analysis process
+	constructAnalysis(): void {
+		this.isAnalyzing = true;
+		this.hasAnalysisResults = false;
+		this.analysisResults = defaultUserPreference;
+	}
+
+	// Clear analysis results
+	clearAnalysisResults(): void {
+		this.analysisResults = defaultUserPreference;
+		this.hasAnalysisResults = false;
+		this.isAnalyzing = false;
+	}
+
+	// Check if analysis is in progress
+	get isCurrentlyAnalyzing(): boolean {
+		return this.isAnalyzing;
+	}
+
+	// Check if we have analysis results
+	get hasCurrentAnalysisResults(): boolean {
+		return this.hasAnalysisResults;
+	}
 }
 
 // 🌟 Create singleton instance
@@ -233,5 +277,9 @@ export const {
 	getContextType,
 	getTranscriptionMode,
 	mergeWithServerPreferences,
-	clearStorage
+	clearStorage,
+	setAnalysisResults,
+	getAnalysisResults,
+	constructAnalysis,
+	clearAnalysisResults
 } = userPreferencesStore;

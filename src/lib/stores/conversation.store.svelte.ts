@@ -51,6 +51,11 @@ export class ConversationStore {
 	currentTranscript = $state<string>('');
 	isTranscribing = $state<boolean>(false);
 
+	// Analysis state
+	isAnalyzing = $derived(this.status === 'analyzing');
+	hasAnalysisResults = $derived(this.status === 'analyzed');
+	isGuestUser = $derived(this.userId === null);
+
 	// Private connection state
 	private realtimeConnection: realtimeService.RealtimeConnection | null = null;
 	private audioStream: MediaStream | null = null;
@@ -635,6 +640,22 @@ export class ConversationStore {
 		if (this.status === 'error') this.status = 'idle';
 	};
 
+	completeAnalyzedSession = () => {
+		this.status = 'idle';
+		this.messages = [];
+		this.currentTranscript = '';
+		this.isTranscribing = false;
+		userPreferencesStore.clearAnalysisResults();
+	};
+
+	dismissAnalysisResults = () => {
+		this.status = 'idle';
+		this.messages = [];
+		this.currentTranscript = '';
+		this.isTranscribing = false;
+		userPreferencesStore.clearAnalysisResults();
+	};
+
 	reset = () => {
 		if (browser) {
 			this.cleanup();
@@ -682,6 +703,9 @@ export class ConversationStore {
 			return;
 		}
 
+		// Start analysis state
+		userPreferencesStore.constructAnalysis();
+
 		// Create preferences provider interface
 		const preferencesProvider = {
 			isGuest: () => userPreferencesStore.isGuest(),
@@ -698,8 +722,13 @@ export class ConversationStore {
 			preferencesProvider
 		);
 
-		if (!result.success) {
+		if (result.success) {
+			// Get the analysis results from the updated preferences
+			const currentPrefs = userPreferencesStore.getPreferences();
+			userPreferencesStore.setAnalysisResults(currentPrefs);
+		} else {
 			console.error('Onboarding analysis failed:', result.error);
+			userPreferencesStore.clearAnalysisResults();
 		}
 	};
 }
