@@ -2,6 +2,8 @@
 	import { fade, fly } from 'svelte/transition';
 	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
 	import MessageBubble from '$lib/components/MessageBubble.svelte';
+	import ConversationTimer from '$lib/components/ConversationTimer.svelte';
+	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import type { Message, Language } from '$lib/server/db/types';
 
 	interface Props {
@@ -29,6 +31,14 @@
 	}: Props = $props();
 
 	let messageInput = $state('');
+
+	// Get timer state from conversation store
+	let timerState = $derived(conversationStore.getTimerState());
+
+	// Debug timer state
+	$effect(() => {
+		console.log('🔍 Timer state changed:', timerState);
+	});
 
 	function handleSendMessage() {
 		if (messageInput.trim() && (status === 'connected' || status === 'streaming')) {
@@ -60,6 +70,19 @@
 				</p>
 			</div>
 		</div>
+	</div>
+
+	<!-- Conversation Timer -->
+	<div class="mb-6 flex justify-center" in:fade={{ duration: 300, delay: 300 }}>
+		{#if timerState && timerState.timer}
+			<!-- Always show timer when we have timer state, regardless of status -->
+			<ConversationTimer {timerState} onExpired={() => onEndConversation()} />
+		{:else}
+			<!-- Debug info -->
+			<div class="text-sm text-gray-500">
+				Timer not ready yet. TimerState: {JSON.stringify(timerState, null, 2)}
+			</div>
+		{/if}
 	</div>
 
 	<!-- Live Transcription -->
