@@ -17,7 +17,8 @@ interface GoogleClaims {
 	email_verified?: boolean;
 }
 
-export const GET: RequestHandler = async ({ url, cookies }) => {
+export const GET: RequestHandler = async (event) => {
+	const { url, cookies } = event;
 	// Check if Google OAuth is enabled
 	if (!isGoogleOAuthEnabled) {
 		throw error(501, 'Google OAuth is not configured');
@@ -98,12 +99,41 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 			console.log('Existing user logged in:', user.id);
 		}
 
+		// Handle guest-id cookie data handoff
+		const guestId = cookies.get('guest-id');
+		if (guestId) {
+			try {
+				console.log(`Processing guest-id data handoff for user ${user.id}`);
+
+				// Import the conversation repository
+				const { conversationRepository } = await import(
+					'$lib/server/repositories/conversation.repository'
+				);
+
+				// Transfer guest conversations to user account
+				const updatedCount = await conversationRepository.transferGuestConversations(
+					guestId,
+					user.id
+				);
+
+				console.log(`Transferred ${updatedCount} conversations for guest-id: ${guestId}`);
+
+				// Delete the guest-id cookie after successful update
+				cookies.delete('guest-id', { path: '/' });
+				console.log('Deleted guest-id cookie after data handoff');
+			} catch (error) {
+				console.error('Failed to process guest-id data handoff:', error);
+				// Don't fail the login process if data handoff fails
+				// The user can still log in, but their guest data won't be transferred
+			}
+		}
+
 		// Create session
 		const sessionToken = generateSessionToken();
-		const session = await createSession(sessionToken, user.id);
+		const { session } = await createSession(sessionToken, user.id);
 
 		// Set session cookie
-		setSessionTokenCookie({ cookies } as any, sessionToken, session.expiresAt);
+		setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
 		// Redirect to home page
 		return new Response(null, {

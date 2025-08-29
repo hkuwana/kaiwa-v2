@@ -13,7 +13,7 @@ import {
 	generateCustomInstructions,
 	generateInitialGreeting
 } from '$lib/services/instructions.service';
-import type { Message, Language } from '$lib/server/db/types';
+import type { Message, Language, UserPreferences } from '$lib/server/db/types';
 import type { Speaker } from '$lib/types';
 import type { ServerEvent, SessionConfig, Voice } from '$lib/types/openai.realtime.types';
 import { DEFAULT_VOICE, isValidVoice } from '$lib/types/openai.realtime.types';
@@ -24,7 +24,7 @@ import {
 import { userPreferencesStore } from './userPreferences.store.svelte';
 
 export const conversationStatus = $state<
-	'idle' | 'connecting' | 'connected' | 'streaming' | 'error'
+	'idle' | 'connecting' | 'connected' | 'streaming' | 'analyzing' | 'analyzed' | 'error'
 >('idle');
 
 export class ConversationStore {
@@ -50,6 +50,7 @@ export class ConversationStore {
 	private realtimeConnection: realtimeService.RealtimeConnection | null = null;
 	private audioStream: MediaStream | null = null;
 	private timerStore: ConversationTimerStore;
+	private currentOptions: Partial<UserPreferences> | null = null;
 
 	constructor() {
 		// Only initialize services in browser
@@ -90,9 +91,14 @@ export class ConversationStore {
 	 * Start a conversation
 	 * @param language - The language to use
 	 * @param speaker - The speaker to use
+	 * @param options - Optional user preferences to override defaults
 	 * @returns void
 	 */
-	startConversation = async (language?: Language, speaker?: Speaker | string) => {
+	startConversation = async (
+		language?: Language,
+		speaker?: Speaker | string,
+		options?: Partial<UserPreferences>
+	) => {
 		if (!browser) {
 			console.warn('Cannot start conversation on server');
 			return;
@@ -101,6 +107,14 @@ export class ConversationStore {
 		if (this.status !== 'idle') {
 			console.warn('Conversation already in progress');
 			return;
+		}
+
+		// Store options for later use and merge with existing preferences if provided
+		this.currentOptions = options || null;
+
+		// Update user preferences with provided options
+		if (options) {
+			await userPreferencesStore.updatePreferences(options);
 		}
 
 		// Set up conversation parameters from user preferences
@@ -391,7 +405,18 @@ export class ConversationStore {
 					console.log('Session created, sending configuration...');
 					this.sendInitialConfiguration();
 					this.status = 'connected';
-					this.timerStore.start();
+
+					// Start timer with onboarding callback if user is guest or has no previous conversations
+					const shouldTriggerOnboarding =
+						userPreferencesStore.isGuest() ||
+						userPreferencesStore.getPreference('totalConversations') === 0;
+
+					if (shouldTriggerOnboarding) {
+						this.timerStore.start(this.triggerOnboardingAnalysis);
+					} else {
+						this.timerStore.start();
+					}
+
 					// Auto-start streaming and send initial greeting
 					setTimeout(() => {
 						this.status = 'streaming';
@@ -809,6 +834,7 @@ export class ConversationStore {
 		}
 		this.resetState();
 		this.timerStore.reset();
+		this.currentOptions = null;
 		console.log('Conversation store reset');
 	};
 
@@ -845,7 +871,64 @@ export class ConversationStore {
 	get reactiveAudioLevel() {
 		return this.audioLevel;
 	}
-	
+
+	/**
+	 * Trigger onboarding analysis when the conversation timer expires
+	 * This method is called as a callback from the timer store
+	 */
+	private triggerOnboardingAnalysis = async (): Promise<void> => {
+		if (!this.language || this.messages.length === 0) {
+			console.warn('Cannot trigger onboarding analysis: missing language or messages');
+			return;
+		}
+
+		try {
+			console.log('🎯 Triggering onboarding analysis...');
+
+			// Prepare conversation messages for analysis
+			const conversationMessages = this.messages
+				.filter((msg) => msg.role === 'user' && msg.content.trim())
+				.map((msg) => msg.content);
+
+			if (conversationMessages.length === 0) {
+				console.warn('No user messages found for onboarding analysis');
+				return;
+			}
+
+			// Call the onboarding analysis API
+			const response = await fetch('/api/analyze-onboarding', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					conversationMessages,
+					targetLanguage: this.language.code,
+					sessionId: this.sessionId
+				})
+			});
+
+			if (!response.ok) {
+				throw new Error(`Onboarding analysis failed: ${response.statusText}`);
+			}
+
+			const result = await response.json();
+
+			if (result.success) {
+				console.log('✅ Onboarding analysis completed successfully');
+
+				// Update user preferences with analyzed data and increment conversation count
+				await userPreferencesStore.updatePreferences({
+					...result.data,
+					totalConversations: (userPreferencesStore.getPreference('totalConversations') || 0) + 1
+				});
+			} else {
+				console.error('❌ Onboarding analysis failed:', result.error);
+			}
+		} catch (error) {
+			console.error('Failed to trigger onboarding analysis:', error);
+		}
+	};
 }
 
 // Export singleton instance

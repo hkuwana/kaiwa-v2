@@ -114,6 +114,23 @@ export const conversationRepository = {
 		return updatedConversation;
 	},
 
+	/**
+	 * Transfer guest conversations to a user account
+	 * Sets userId and nullifies guestId for all conversations with the given guestId
+	 */
+	async transferGuestConversations(guestId: string, userId: string): Promise<number> {
+		const result = await db
+			.update(conversations)
+			.set({
+				userId: userId,
+				guestId: null
+			})
+			.where(eq(conversations.guestId, guestId))
+			.returning({ id: conversations.id });
+
+		return result.length;
+	},
+
 	// DELETE
 	async deleteConversation(id: string): Promise<{ success: boolean }> {
 		// First delete all messages for this conversation

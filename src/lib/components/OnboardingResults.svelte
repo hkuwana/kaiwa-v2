@@ -3,17 +3,17 @@
 	import type { UserPreferences } from '$lib/server/db/types';
 
 	// Use $props to define the component's public API.
-	// We've replaced the event dispatcher with `onsave` and `ondismiss` callback functions.
+	// We've replaced the event dispatcher with `onSave` and `onDismiss` callback functions.
 	let {
 		results,
 		isVisible,
-		onsave = () => {},
-		ondismiss = () => {}
+		onSave = () => {},
+		onDismiss = () => {}
 	}: {
 		results: UserPreferences;
 		isVisible: boolean;
-		onsave?: () => void;
-		ondismiss?: () => void;
+		onSave?: () => void;
+		onDismiss?: () => void;
 	} = $props();
 
 	function getSkillColor(level: number): string {
@@ -36,10 +36,10 @@
 		return `${Math.min(100, Math.max(0, level))}%`;
 	}
 
-	// This function now calls both the `onsave` and `ondismiss` props.
+	// This function now calls both the `onSave` and `onDismiss` props.
 	function handleSaveProfile() {
-		onsave();
-		ondismiss();
+		onSave();
+		onDismiss();
 	}
 </script>
 
@@ -66,7 +66,7 @@
 						<p class="text-sm text-base-content/60">Based on our conversation</p>
 					</div>
 				</div>
-				<button class="btn btn-circle btn-ghost btn-sm" onclick={ondismiss}>
+				<button class="btn btn-circle btn-ghost btn-sm" onclick={onDismiss}>
 					<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path
 							stroke-linecap="round"
@@ -203,7 +203,7 @@
 				</div>
 
 				<div class="flex flex-col gap-3 border-t border-base-200 pt-4 sm:flex-row">
-					<button onclick={ondismiss} class="btn flex-1 btn-primary"> Continue Learning </button>
+					<button onclick={onDismiss} class="btn flex-1 btn-primary"> Continue Learning </button>
 					<button onclick={handleSaveProfile} class="btn flex-1 btn-outline">
 						Save to Account
 					</button>

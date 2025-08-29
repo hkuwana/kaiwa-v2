@@ -49,6 +49,9 @@ export class ConversationTimerStore {
 	// Timer interval for updates
 	private timerInterval: NodeJS.Timeout | null = null;
 
+	// Callback for timer expiration
+	private expirationCallback: (() => void) | undefined;
+
 	// Store state
 	private _state = $state<ConversationTimerState>({
 		timer: {
@@ -125,9 +128,12 @@ export class ConversationTimerStore {
 	}
 
 	// Start conversation timer
-	start(): void {
+	start(callback?: () => void): void {
 		// Stop any existing interval
 		this._stopTimerInterval();
+
+		// Store callback for timer expiration
+		this.expirationCallback = callback;
 
 		// Start timer using functional service
 		const startTime = Date.now();
@@ -153,6 +159,9 @@ export class ConversationTimerStore {
 		// Stop timer using functional service
 		const result = stopTimer(this.timerConfig);
 		this._state.timer = result.state;
+
+		// Clear expiration callback
+		this.expirationCallback = undefined;
 
 		this._hideAllPrompts();
 		console.log('⏰ Conversation timer stopped');
@@ -201,6 +210,9 @@ export class ConversationTimerStore {
 		this.timerInput.pauseTime = 0;
 		this.timerInput.totalPausedTime = 0;
 		this.timerInput.extensionsUsed = 0;
+
+		// Clear expiration callback
+		this.expirationCallback = undefined;
 
 		this._hideAllPrompts();
 		this._state.extensionsUsed = 0;
@@ -260,6 +272,7 @@ export class ConversationTimerStore {
 	// Cleanup
 	cleanup(): void {
 		this._stopTimerInterval();
+		this.expirationCallback = undefined;
 		console.log('🧹 Conversation timer store cleaned up');
 	}
 
@@ -286,6 +299,16 @@ export class ConversationTimerStore {
 			if (result.shouldNotifyExpired) {
 				console.log('⏰ Timer expired - ending conversation');
 				this._state.showExtensionPrompt = true;
+
+				// Execute expiration callback if provided
+				if (this.expirationCallback) {
+					try {
+						this.expirationCallback();
+					} catch (error) {
+						console.error('Error executing timer expiration callback:', error);
+					}
+				}
+
 				// Stop the interval when expired
 				this._stopTimerInterval();
 			}

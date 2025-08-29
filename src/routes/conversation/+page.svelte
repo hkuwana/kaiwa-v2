@@ -34,14 +34,14 @@
 
 	// Determine view modes
 	const showLoadingScreen = $derived(
-		status === 'connecting' || (status === 'webrtc-connected' && messages.length === 0)
+		status === 'connecting' || (status === 'connected' && messages.length === 0)
 	);
 
 	const showActiveConversation = $derived(
-		(status === 'webrtc-connected' || status === 'streaming') && messages.length > 0
+		(status === 'connected' || status === 'streaming') && messages.length > 0
 	);
 
-	const showAnalyzing = $derived(isAnalyzing);
+ 
 	const showAnalysisResults = $derived(hasAnalysisResults);
 
 	// Auto-connection effect
@@ -70,7 +70,7 @@
 
 	onDestroy(() => {
 		console.log('Cleaning up conversation...');
-		if (status === 'webrtc-connected' || status === 'streaming') {
+		if (status === 'connected' || status === 'streaming') {
 			conversationStore.endConversation();
 		}
 		conversationStore.forceCleanup();
@@ -79,7 +79,7 @@
 	// Browser cleanup
 	if (browser) {
 		const handleBeforeUnload = () => {
-			if (status === 'webrtc-connected' || status === 'streaming') {
+			if (status === 'connected' || status === 'streaming') {
 				conversationStore.endConversation();
 			}
 		};
@@ -129,7 +129,7 @@
 	}
 
 	function handleSendMessage() {
-		if (messageInput.trim() && (status === 'webrtc-connected' || status === 'streaming')) {
+		if (messageInput.trim() && (status === 'connected' || status === 'streaming')) {
 			conversationStore.sendMessage(messageInput.trim());
 			messageInput = '';
 		}
@@ -173,7 +173,7 @@
 				onRetry={handleRetryConnection}
 			/>
 		</div>
-	{:else if showAnalyzing}
+	{:else if isAnalyzing}
 		<!-- Analysis Screen -->
 		<div class="container mx-auto max-w-2xl px-4 py-12" in:fade={{ duration: 300 }}>
 			<div class="card bg-base-100 shadow-xl">
@@ -208,7 +208,6 @@
 		<OnboardingResults
 			results={conversationStore.getAnalysisResults()}
 			isVisible={true}
-			language={selectedLanguage?.name}
 			onDismiss={handleContinueAfterResults}
 			onSave={handleSaveAndContinue}
 		/>
@@ -229,7 +228,7 @@
 			</header>
 
 			<!-- Live Audio Indicator -->
-			{#if status === 'webrtc-connected' || status === 'streaming'}
+			{#if status === 'connected' || status === 'streaming'}
 				<div class="mb-6 flex justify-center" in:fade={{ duration: 300, delay: 200 }}>
 					<div class="card border border-success/20 bg-success/5 shadow-lg">
 						<div class="card-body p-4 text-center">

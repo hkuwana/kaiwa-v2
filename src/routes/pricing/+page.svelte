@@ -17,7 +17,7 @@
 	const COMING_SOON = 'COMING SOON';
 
 	// Assumes tiers are 'free', 'plus', 'premium'
-	let currentTier = $derived($userManager.effectiveTier);
+	let currentTier = $derived(userManager.effectiveTier);
 
 	// Helper function to format seconds to human readable format
 	function formatTime(seconds: number | null): string {
@@ -195,7 +195,7 @@
 	});
 
 	async function handleGetStarted() {
-		if (!$userManager.userLoggedIn) {
+		if (!userManager.isLoggedIn) {
 			await goto('/auth');
 		} else {
 			await goto('/');
