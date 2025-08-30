@@ -10,8 +10,8 @@ import { browser } from '$app/environment';
 import { realtimeService } from '$lib/services';
 import { audioStore } from '$lib/stores/audio.store.svelte';
 import {
-	generateOnboardingInstructions,
-	generateSessionInstructions
+	generateCompleteOnboardingInstructions,
+	generateCompleteSessionInstructions
 } from '$lib/services/instructions.service';
 import * as messageService from '$lib/services/message.service';
 import * as sessionManagerService from '$lib/services/session-manager.service';
@@ -544,16 +544,20 @@ export class ConversationStore {
 				userPreferencesStore.updatePreferences(updates)
 		});
 
-		// Generate session instructions with appropriate greeting prompt
-		const sessionInstructions = generateSessionInstructions(this.language, userPrefs);
-		const greetingPrompt = generateOnboardingInstructions(
-			this.isGuestUser,
-			'en', // source language
-			this.language
-		);
+		// Generate complete instructions based on user type
+		let combinedInstructions: string;
 
-		// Combine session instructions with greeting prompt
-		const combinedInstructions = `${sessionInstructions}\n\nInitial greeting: ${greetingPrompt}`;
+		if (isFirstTime) {
+			// For first-time users, use complete onboarding instructions
+			combinedInstructions = generateCompleteOnboardingInstructions(
+				this.isGuestUser,
+				'en', // source language
+				this.language
+			);
+		} else {
+			// For returning users, use complete session instructions
+			combinedInstructions = generateCompleteSessionInstructions(this.language, userPrefs);
+		}
 
 		const sessionConfig = sessionManagerService.createSessionConfig(
 			this.language,
@@ -561,21 +565,22 @@ export class ConversationStore {
 			combinedInstructions
 		);
 
-		console.log('Sending session configuration with greeting:', {
+		console.log('Sending session configuration with complete instructions:', {
 			language: this.language.name,
 			voice: this.voice,
 			model: sessionConfig.model,
 			transcription: sessionConfig.input_audio_transcription,
 			turnDetection: sessionConfig.turn_detection,
 			isFirstTime,
-			isGuest: this.isGuestUser
+			isGuest: this.isGuestUser,
+			instructionType: isFirstTime ? 'complete-onboarding' : 'complete-session'
 		});
 
 		// Send the combined configuration
 		const configEvent = realtimeService.createSessionUpdate(sessionConfig);
 		realtimeService.sendEvent(this.realtimeConnection, configEvent);
 
-		// Request the AI to start with the greeting
+		// Request the AI to start with the appropriate instructions
 		const responseEvent = realtimeService.createResponse(['text', 'audio']);
 		realtimeService.sendEvent(this.realtimeConnection, responseEvent);
 	}

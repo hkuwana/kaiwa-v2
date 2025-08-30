@@ -180,8 +180,81 @@
 	{#if dev}
 		<div class="card bg-base-100 shadow-xl">
 			<div class="card-body">
-				<h2 class="card-title">Timer State</h2>
-				<pre>{JSON.stringify(conversationStore.timerState, null, 2)}</pre>
+				<h2 class="card-title">Dev Controls</h2>
+				<div class="space-y-3">
+					<div>
+						<h3 class="mb-2 text-sm font-medium">Timer State</h3>
+						<pre class="rounded bg-base-200 p-2 text-xs">{JSON.stringify(
+								conversationStore.timerState,
+								null,
+								2
+							)}</pre>
+					</div>
+					<div>
+						<h3 class="mb-2 text-sm font-medium">Assessment Testing</h3>
+						<div class="flex gap-2">
+							<button
+								class="btn btn-outline btn-sm"
+								onclick={() => {
+									userPreferencesStore.constructAnalysis();
+									// Simulate the analysis process
+									setTimeout(() => {
+										userPreferencesStore.setAnalysisResults({
+											id: 'dev-test',
+											userId: 'dev-user',
+											targetLanguageId: selectedLanguage?.id || 'ja',
+											learningGoal: 'Career',
+											speakingLevel: 35,
+											listeningLevel: 45,
+											readingLevel: 30,
+											writingLevel: 25,
+											confidenceLevel: 60,
+											specificGoals: ['Business meetings', 'Technical discussions'],
+											challengePreference: 'moderate',
+											correctionStyle: 'gentle',
+											dailyGoalMinutes: 30,
+											preferredVoice: 'alloy',
+											createdAt: new Date(),
+											updatedAt: new Date()
+										});
+									}, 3000);
+								}}
+							>
+								Start Assessment
+							</button>
+							<button
+								class="btn btn-outline btn-sm"
+								onclick={() => userPreferencesStore.clearAnalysisResults()}
+							>
+								Clear Results
+							</button>
+							<button
+								class="btn btn-outline btn-sm"
+								onclick={() =>
+									userPreferencesStore.setAnalysisResults({
+										id: 'dev-test',
+										userId: 'dev-user',
+										targetLanguageId: selectedLanguage?.id || 'ja',
+										learningGoal: 'Career',
+										speakingLevel: 35,
+										listeningLevel: 45,
+										readingLevel: 30,
+										writingLevel: 25,
+										confidenceLevel: 60,
+										specificGoals: ['Business meetings', 'Technical discussions'],
+										challengePreference: 'moderate',
+										correctionStyle: 'gentle',
+										dailyGoalMinutes: 30,
+										preferredVoice: 'alloy',
+										createdAt: new Date(),
+										updatedAt: new Date()
+									})}
+							>
+								Set Mock Results
+							</button>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	{/if}
@@ -190,6 +263,7 @@
 	<OnboardingResults
 		results={userPreferencesStore.getPreferences()}
 		isVisible={true}
+		{isGuestUser}
 		onDismiss={handleContinueAfterResults}
 		onSave={handleSaveAndContinue}
 	/>

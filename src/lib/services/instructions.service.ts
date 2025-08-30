@@ -130,7 +130,6 @@ function getSkillDescription(level: number): string {
  * This creates a warm, reassuring first meeting experience
  */
 export function generateOnboardingInstructions(
- 
 	isGuest: boolean,
 	nativeLanguage: string,
 	targetLanguage: Language
@@ -196,10 +195,13 @@ SPEAKING DYNAMICS:
 ✅ If they're keeping up, gradually increase to natural pace
 ✅ Always prioritize understanding over speed
 
-${isGuest ? 
-`GUEST USER MAGIC:
+${
+	isGuest
+		? `GUEST USER MAGIC:
 Within 2 minutes, make them think: "I can actually do this, and this person really cares about helping me." 
-Show them what's possible when they have a patient, skilled guide.` : ''}
+Show them what's possible when they have a patient, skilled guide.`
+		: ''
+}
 
 NEVER DO:
 ❌ Rush through introductions
@@ -315,99 +317,6 @@ Keep it brief but meaningful. Make them want to return!`;
 }
 
 /**
- * Generate quick welcome for returning users
- */
-export function generateQuickWelcomeBack(
-	targetLanguage: Language,
-	preferences: Partial<UserPreferences>
-): string {
-	const level = preferences.speakingLevel || 30;
-
-	return `Welcome back! Continue in ${targetLanguage.name} with this returning student.
-
-Level: ${level}/100
-Pace: ${getSpeakingPace(level)}
-Focus: ${preferences.learningGoal || 'General practice'}
-
-Give a warm greeting in ${targetLanguage.name} and ask what they'd like to practice.`;
-}
-
-// ============================================
-// CONFIGURATION HELPERS (for use with services.ts)
-// ============================================
-
-/**
- * Get adaptive turn detection settings based on skill level
- * This returns just the configuration object, not instructions
- */
-export function getAdaptiveTurnDetection(speakingLevel: number = 30, confidenceLevel: number = 50) {
-	if (speakingLevel <= 50) {
-		return {
-			type: 'server_vad' as const,
-			threshold: 0.4,
-			silence_duration_ms: confidenceLevel < 50 ? 1500 : 1000,
-			prefix_padding_ms: 300
-		};
-	}
-
-	if (speakingLevel <= 80) {
-		return {
-			type: 'server_vad' as const,
-			threshold: 0.5,
-			silence_duration_ms: confidenceLevel < 50 ? 800 : 600,
-			prefix_padding_ms: 200
-		};
-	}
-
-	return {
-		type: 'server_vad' as const,
-		threshold: 0.6,
-		silence_duration_ms: 500,
-		prefix_padding_ms: 100
-	};
-}
-
-/**
- * Get input audio transcription config
- * This helps Whisper with language recognition
- */
-export function getTranscriptionConfig(targetLanguageCode: string) {
-	return {
-		model: 'whisper-1' as const,
-		language: targetLanguageCode
-	};
-}
-
-/**
- * Generate instant start instructions - for users who want to jump right in
- */
-export function generateInstantStartInstructions(
-	targetLanguage: Language,
-	preferences?: Partial<UserPreferences>
-): string {
-	const level = preferences?.speakingLevel || 30;
-
-	return `Start a ${targetLanguage.name} conversation IMMEDIATELY. No introductions, no "welcome to the app."
-
-Begin with a simple, engaging greeting in ${targetLanguage.name}:
-"Hello! Let's chat in ${targetLanguage.name}! How's your day going?"
-
-Speak ${getSpeakingPace(level)}
-
-Based on their response:
-- Confusion → Switch to "What's your name?" (absolute beginner approach)
-- Simple response → Continue at that level
-- Fluent response → Escalate complexity naturally
-
-After 30 seconds of conversation, casually ask:
-"By the way, what made you interested in ${targetLanguage.name}?"
-
-This gives you their motivation without feeling like an interview.
-
-Remember: They clicked "Start" to practice, not to be assessed. Give them practice immediately.`;
-}
-
-/**
  * Generate magic moment awareness - what creates breakthrough moments
  */
 export function generateMagicMomentInstructions(targetLanguage: Language): string {
@@ -467,4 +376,112 @@ export function getAntiPatterns(): string {
 - Follow their interests
 - Make corrections gently through modeling
 - Keep energy positive and encouraging`;
+}
+
+/**
+ * Generate audio handling instructions for unclear input
+ */
+export function generateAudioHandlingInstructions(targetLanguage: Language): string {
+	return `## AUDIO HANDLING
+
+### Clear Audio Rules
+- ONLY respond to clear audio or text
+- If audio is unclear/partial/noisy/silent, ask for clarification
+- Always respond in the same language the user is speaking in (if intelligible)
+
+### When Audio is Unclear
+- Background noise detected
+- Partial or incomplete input
+- Silent or no audio
+- Unintelligible speech
+
+### Clarification Phrases in ${targetLanguage.name}
+Choose from these variations:
+- "Sorry, I didn't catch that—could you say it again?"
+- "There's some background noise. Please repeat the last part."
+- "I only heard part of that. What did you say after ___?"
+- "Could you repeat that more clearly?"
+- "I didn't understand completely. Can you say it again?"
+
+### Response Pattern
+1. Acknowledge the issue briefly
+2. Ask for clarification using one of the phrases above
+3. Wait for clear response
+4. Continue conversation naturally
+
+### Important Notes
+- Do not proceed with unclear audio
+- Keep the same language as the user
+- Be patient and encouraging
+- Don't make the user feel bad about audio issues`;
+}
+
+/**
+ * Master function to generate complete instructions with all components
+ * This combines base instructions with audio handling and anti-patterns
+ */
+export function generateCompleteInstructions(
+	type: 'onboarding' | 'session',
+	targetLanguage: Language,
+	preferences?: Partial<UserPreferences>,
+	sessionContext?: SessionContext,
+	isGuest?: boolean,
+	nativeLanguage?: string
+): string {
+	// Generate base instructions
+	let baseInstructions: string;
+
+	if (type === 'onboarding') {
+		if (!isGuest || !nativeLanguage) {
+			throw new Error('onboarding type requires isGuest and nativeLanguage parameters');
+		}
+		baseInstructions = generateOnboardingInstructions(isGuest, nativeLanguage, targetLanguage);
+	} else {
+		if (!preferences) {
+			throw new Error('session type requires preferences parameter');
+		}
+		baseInstructions = generateSessionInstructions(targetLanguage, preferences, sessionContext);
+	}
+
+	// Generate additional components
+	const audioInstructions = generateAudioHandlingInstructions(targetLanguage);
+	const antiPatterns = getAntiPatterns();
+
+	// Combine all instructions with clear separation
+	return `${baseInstructions}
+
+${audioInstructions}
+
+${antiPatterns}`;
+}
+
+/**
+ * Generate complete onboarding instructions with all components
+ * Convenience wrapper for onboarding scenarios
+ */
+export function generateCompleteOnboardingInstructions(
+	isGuest: boolean,
+	nativeLanguage: string,
+	targetLanguage: Language
+): string {
+	return generateCompleteInstructions(
+		'onboarding',
+		targetLanguage,
+		undefined,
+		undefined,
+		isGuest,
+		nativeLanguage
+	);
+}
+
+/**
+ * Generate complete session instructions with all components
+ * Convenience wrapper for session scenarios
+ */
+export function generateCompleteSessionInstructions(
+	targetLanguage: Language,
+	preferences: Partial<UserPreferences>,
+	sessionContext?: SessionContext
+): string {
+	return generateCompleteInstructions('session', targetLanguage, preferences, sessionContext);
 }

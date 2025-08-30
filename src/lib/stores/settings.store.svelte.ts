@@ -73,7 +73,7 @@ export class SettingsStore {
 	selectedLanguage = $state<Language | null>(null);
 
 	// User's selected AI speaker/voice
-	selectedSpeaker = $state('ash');
+	selectedSpeaker = $state('ballad');
 
 	// Flag to track if persistence is set up
 	private persistenceInitialized = false;

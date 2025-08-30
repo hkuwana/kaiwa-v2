@@ -2,7 +2,7 @@ import { pgTable, uuid, text, integer, timestamp, index, pgEnum, jsonb } from 'd
 import { users } from './users'; // Assuming you have a users table
 import { languages } from './languages'; // Assuming you have a languages table
 
-export const learningMotivationEnum = pgEnum('learning_motivation_enum', [
+const learningMotivationEnum = pgEnum('learning_motivation_enum', [
 	'Connection',
 	'Career',
 	'Travel',
@@ -11,17 +11,21 @@ export const learningMotivationEnum = pgEnum('learning_motivation_enum', [
 	'Growth'
 ]);
 
-export const challengePreferenceEnum = pgEnum('challenge_preference_enum', [
+const challengePreferenceEnum = pgEnum('challenge_preference_enum', [
 	'comfortable',
 	'moderate',
 	'challenging'
 ]);
 
-export const correctionStyleEnum = pgEnum('correction_style_enum', [
+const correctionStyleEnum = pgEnum('correction_style_enum', [
 	'immediate',
 	'gentle',
 	'end_of_session'
 ]);
+
+export type LearningMotivationEnum = typeof learningMotivationEnum;
+export type ChallengePreferenceEnum = typeof challengePreferenceEnum;
+export type CorrectionStyleEnum = typeof correctionStyleEnum;
 
 export const userPreferences = pgTable(
 	'user_preferences',
@@ -33,7 +37,9 @@ export const userPreferences = pgTable(
 			.notNull(), // Added onDelete cascade
 
 		// Essential learning preferences
-		targetLanguageId: text('target_language_id').references(() => languages.id).notNull(),
+		targetLanguageId: text('target_language_id')
+			.references(() => languages.id)
+			.notNull(),
 		learningGoal: learningMotivationEnum('learning_goal').default('Connection').notNull(), // Using ENUM
 		preferredVoice: text('preferred_voice').default('alloy').notNull(), // Could also be an enum
 		dailyGoalMinutes: integer('daily_goal_minutes').default(30).notNull(),

@@ -6,16 +6,16 @@ export type AudioFormat = 'pcm16' | 'g711_ulaw' | 'g711_alaw';
 export type Voice = 'alloy' | 'ash' | 'ballad' | 'coral' | 'echo' | 'sage' | 'shimmer' | 'verse';
 
 // 🌟 Default voice (first in the union type)
-export const DEFAULT_VOICE: Voice = 'alloy';
+export const DEFAULT_VOICE: Voice = 'verse';
 export const VALID_OPENAI_VOICES = [
+	'verse',
 	'alloy',
 	'ash',
 	'ballad',
 	'coral',
 	'echo',
 	'sage',
-	'shimmer',
-	'verse'
+	'shimmer'
 ];
 
 // 🌟 Helper function to get default voice

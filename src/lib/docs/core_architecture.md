@@ -334,6 +334,63 @@ export class ConversationStore {
 
 ---
 
+## 🔧 Implementation Guidelines
+
+### **Service Layer Rules**
+
+```typescript
+// ✅ Good: Pure service with clear interface
+export class AudioService {
+  async getStream(): Promise<MediaStream> {
+    // Pure business logic
+  }
+}
+
+// ❌ Bad: Service that knows about UI
+export class AudioService {
+  async getStream(): Promise<MediaStream> {
+    // Don't do this
+    this.updateUI();
+    this.showNotification();
+  }
+}
+```
+
+### **Store Layer Rules**
+
+```typescript
+// ✅ Good: Store orchestrates services
+export class ConversationStore {
+  async startConversation() {
+    // 1. Get audio stream from audio service
+    const stream = await this.audioService.getStream();
+    
+    // 2. Get session from realtime service
+    const session = await this.realtimeService.connect(stream);
+    
+    // 3. Update state
+    this.status = 'connected';
+  }
+}
+```
+
+### **UI Layer Rules**
+
+```typescript
+// ✅ Good: UI uses store, not services
+<script>
+  import { conversationStore } from '$lib/stores/conversation.store.svelte';
+  
+  const status = $derived(conversationStore.status);
+  
+  function handleStart() {
+    conversationStore.startConversation();
+  }
+</script>
+```
+
+---
+
 ## 🔧 Development Workflow
 
 ### 1. Feature Development

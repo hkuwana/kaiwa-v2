@@ -4,13 +4,33 @@
 	import { browser } from '$app/environment';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+	import { userManager } from '$lib/stores/user.store.svelte';
 
 	let { data } = $props();
 
-	let isLogin = $state(false);
+	// Get query parameters from server dat
+	const from = $derived(data.from);
+
+	let isLogin = $state(userManager.isLoggedIn ? true : false);
 	let email = $state('');
 	let password = $state('');
 	let error = $state('');
+	let pendingAssessment: any = $state(null);
+
+	onMount(() => {
+		// Check if we have pending assessment data
+		if (typeof window !== 'undefined') {
+			const stored = localStorage.getItem('pendingAssessment');
+			if (stored) {
+				try {
+					pendingAssessment = JSON.parse(stored);
+				} catch (e) {
+					console.warn('Failed to parse pending assessment:', e);
+				}
+			}
+		}
+	});
 
 	const toggleMode = () => {
 		isLogin = !isLogin;
@@ -21,6 +41,13 @@
 			});
 		}
 	};
+
+	function clearPendingAssessment() {
+		if (typeof window !== 'undefined') {
+			localStorage.removeItem('pendingAssessment');
+			pendingAssessment = null;
+		}
+	}
 </script>
 
 <div class="flex min-h-screen items-center justify-center bg-base-200 px-4 py-12 sm:px-6 lg:px-8">
@@ -36,21 +63,30 @@
 					{isLogin ? 'Sign up' : 'Sign in'}
 				</button>
 			</p>
-			{#if !isLogin}
-				<div class="my-4 rounded-lg bg-success p-4 text-success-content">
-					<div>
-						<span class="text-md font-semibold md:text-lg">
-							Talk for 2 minutes free — every day, forever.
-						</span>
-					</div>
-					<ul class="mt-2 list-disc pl-5 text-left text-sm">
-						<li>Save your conversation history</li>
-						<li>Track your progress daily</li>
-						<li>Build a lasting learning streak</li>
-					</ul>
-				</div>
-			{/if}
 		</div>
+
+		<!-- Assessment Data Alert -->
+		{#if pendingAssessment && from === 'assessment'}
+			<div class="alert alert-info">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-6 w-6 shrink-0 stroke-current"
+					fill="none"
+					viewBox="0 0 24 24"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+					/>
+				</svg>
+				<div>
+					<h4 class="text-sm font-bold">Assessment Data Ready</h4>
+					<div class="text-xs">Your learning profile will be saved when you create an account</div>
+				</div>
+			</div>
+		{/if}
 
 		<!-- Error Alert -->
 		{#if error}
@@ -159,6 +195,32 @@
 				Continue with Google
 			</button>
 		</form>
+
+		<!-- Pending Assessment Data -->
+		{#if pendingAssessment}
+			<div class="mt-6 rounded-lg bg-base-200 p-4">
+				<h4 class="mb-2 text-sm font-semibold">Pending Assessment Data</h4>
+				<div class="space-y-1 text-xs">
+					<div>
+						<strong>Language:</strong>
+						{pendingAssessment?.targetLanguageId || 'Unknown'}
+					</div>
+					<div><strong>Goal:</strong> {pendingAssessment?.learningGoal || 'Unknown'}</div>
+					<div>
+						<strong>Speaking Level:</strong>
+						{pendingAssessment?.speakingLevel || 0}/100
+					</div>
+					<div>
+						<strong>Daily Goal:</strong>
+						{pendingAssessment?.dailyGoalMinutes || 0} minutes
+					</div>
+				</div>
+				<button class="btn mt-2 btn-outline btn-sm" onclick={clearPendingAssessment}>
+					Clear Data
+				</button>
+			</div>
+		{/if}
+
 		<div class="mt-2 mb-4 text-center text-xs text-base-content/70">
 			By continuing, you agree to our
 			<a href="/terms" class="text-primary hover:underline">Terms of Service</a>
