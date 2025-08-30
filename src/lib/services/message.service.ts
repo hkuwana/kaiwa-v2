@@ -11,16 +11,39 @@ export function createUserPlaceholder(sessionId: string): Message {
 		id: `user_placeholder_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
 		conversationId: sessionId,
 		audioUrl: null,
-		// Language learning fields
+
+		// Translation and language fields
 		translatedContent: null,
 		sourceLanguage: null,
 		targetLanguage: null,
+		userNativeLanguage: null,
+
+		// Multi-language script support
+		romanization: null,
+		pinyin: null,
+		hiragana: null,
+		katakana: null,
+		kanji: null,
+		hangul: null,
+		otherScripts: null,
+
+		// Translation metadata
+		translationConfidence: null,
+		translationProvider: null,
+		translationNotes: null,
+		isTranslated: false,
+
+		// Analysis and feedback
 		grammarAnalysis: null,
 		vocabularyAnalysis: null,
 		pronunciationScore: null,
 		audioDuration: null,
 		difficultyLevel: null,
-		learningTags: null
+		learningTags: null,
+
+		// Context fields
+		conversationContext: null,
+		messageIntent: null
 	};
 }
 
@@ -95,16 +118,39 @@ export function createFinalUserMessage(content: string, sessionId: string): Mess
 		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
 		conversationId: sessionId,
 		audioUrl: null,
-		// Language learning fields
+
+		// Translation and language fields
 		translatedContent: null,
 		sourceLanguage: null,
 		targetLanguage: null,
+		userNativeLanguage: null,
+
+		// Multi-language script support
+		romanization: null,
+		pinyin: null,
+		hiragana: null,
+		katakana: null,
+		kanji: null,
+		hangul: null,
+		otherScripts: null,
+
+		// Translation metadata
+		translationConfidence: null,
+		translationProvider: null,
+		translationNotes: null,
+		isTranslated: false,
+
+		// Analysis and feedback
 		grammarAnalysis: null,
 		vocabularyAnalysis: null,
 		pronunciationScore: null,
 		audioDuration: null,
 		difficultyLevel: null,
-		learningTags: null
+		learningTags: null,
+
+		// Context fields
+		conversationContext: null,
+		messageIntent: null
 	};
 }
 
@@ -116,16 +162,39 @@ export function createStreamingMessage(content: string, sessionId: string): Mess
 		id: `streaming_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
 		conversationId: sessionId,
 		audioUrl: null,
-		// Language learning fields
+
+		// Translation and language fields
 		translatedContent: null,
 		sourceLanguage: null,
 		targetLanguage: null,
+		userNativeLanguage: null,
+
+		// Multi-language script support
+		romanization: null,
+		pinyin: null,
+		hiragana: null,
+		katakana: null,
+		kanji: null,
+		hangul: null,
+		otherScripts: null,
+
+		// Translation metadata
+		translationConfidence: null,
+		translationProvider: null,
+		translationNotes: null,
+		isTranslated: false,
+
+		// Analysis and feedback
 		grammarAnalysis: null,
 		vocabularyAnalysis: null,
 		pronunciationScore: null,
 		audioDuration: null,
 		difficultyLevel: null,
-		learningTags: null
+		learningTags: null,
+
+		// Context fields
+		conversationContext: null,
+		messageIntent: null
 	};
 }
 
@@ -177,16 +246,39 @@ export function createFinalAssistantMessage(content: string, sessionId: string):
 		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
 		conversationId: sessionId,
 		audioUrl: null,
-		// Language learning fields
+
+		// Translation and language fields
 		translatedContent: null,
 		sourceLanguage: null,
 		targetLanguage: null,
+		userNativeLanguage: null,
+
+		// Multi-language script support
+		romanization: null,
+		pinyin: null,
+		hiragana: null,
+		katakana: null,
+		kanji: null,
+		hangul: null,
+		otherScripts: null,
+
+		// Translation metadata
+		translationConfidence: null,
+		translationProvider: null,
+		translationNotes: null,
+		isTranslated: false,
+
+		// Analysis and feedback
 		grammarAnalysis: null,
 		vocabularyAnalysis: null,
 		pronunciationScore: null,
 		audioDuration: null,
 		difficultyLevel: null,
-		learningTags: null
+		learningTags: null,
+
+		// Context fields
+		conversationContext: null,
+		messageIntent: null
 	};
 }
 
@@ -215,16 +307,39 @@ export function createMessageFromEventData(
 		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
 		conversationId: sessionId,
 		audioUrl: null,
-		// Language learning fields
+
+		// Translation and language fields
 		translatedContent: null,
 		sourceLanguage: null,
 		targetLanguage: null,
+		userNativeLanguage: null,
+
+		// Multi-language script support
+		romanization: null,
+		pinyin: null,
+		hiragana: null,
+		katakana: null,
+		kanji: null,
+		hangul: null,
+		otherScripts: null,
+
+		// Translation metadata
+		translationConfidence: null,
+		translationProvider: null,
+		translationNotes: null,
+		isTranslated: false,
+
+		// Analysis and feedback
 		grammarAnalysis: null,
 		vocabularyAnalysis: null,
 		pronunciationScore: null,
 		audioDuration: null,
 		difficultyLevel: null,
-		learningTags: null
+		learningTags: null,
+
+		// Context fields
+		conversationContext: null,
+		messageIntent: null
 	};
 }
 

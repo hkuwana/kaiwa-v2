@@ -1,7 +1,7 @@
-import { pgTable, text, timestamp, index, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, index, jsonb, boolean } from 'drizzle-orm/pg-core';
 import { conversations } from './conversations';
 
-// Messages - conversation content
+// Messages - conversation content with comprehensive language support
 export const messages = pgTable(
 	'messages',
 	{
@@ -13,10 +13,26 @@ export const messages = pgTable(
 		content: text('content').notNull(),
 		timestamp: timestamp('timestamp').notNull().defaultNow(),
 
-		// Language learning features
+		// Comprehensive translation support
 		translatedContent: text('translated_content'),
-		sourceLanguage: text('source_language'),
-		targetLanguage: text('target_language'),
+		sourceLanguage: text('source_language'), // Language of the original content
+		targetLanguage: text('target_language'), // Language the content was translated to
+		userNativeLanguage: text('user_native_language'), // User's native language for context
+
+		// Multi-language script support (romanization, pinyin, hiragana, etc.)
+		romanization: text('romanization'), // Latin script representation
+		pinyin: text('pinyin'), // Chinese pinyin
+		hiragana: text('hiragana'), // Japanese hiragana
+		katakana: text('katakana'), // Japanese katakana
+		kanji: text('kanji'), // Japanese/Chinese characters
+		hangul: text('hangul'), // Korean hangul
+		otherScripts: jsonb('other_scripts'), // For other writing systems
+
+		// Translation metadata
+		translationConfidence: text('translation_confidence').$type<'low' | 'medium' | 'high'>(),
+		translationProvider: text('translation_provider'), // e.g., 'openai', 'google', 'manual'
+		translationNotes: text('translation_notes'), // Any special notes about the translation
+		isTranslated: boolean('is_translated').default(false), // Flag to indicate if translation exists
 
 		// Analysis and feedback
 		grammarAnalysis: jsonb('grammar_analysis'),
@@ -29,7 +45,13 @@ export const messages = pgTable(
 
 		// Metadata for language learning
 		difficultyLevel: text('difficulty_level'),
-		learningTags: jsonb('learning_tags')
+		learningTags: jsonb('learning_tags'),
+
+		// Context for better translation understanding
+		conversationContext: text('conversation_context'), // Brief context of the conversation
+		messageIntent: text('message_intent').$type<
+			'question' | 'statement' | 'greeting' | 'farewell' | 'other'
+		>()
 	},
 	(table) => [
 		// Performance indexes for message queries
@@ -41,8 +63,32 @@ export const messages = pgTable(
 		// Index for role-based queries within conversations
 		index('messages_conversation_role_idx').on(table.conversationId, table.role),
 
-		// New indexes for language learning features
+		// Enhanced indexes for translation and language features
 		index('messages_language_idx').on(table.sourceLanguage, table.targetLanguage),
-		index('messages_difficulty_idx').on(table.difficultyLevel)
+		index('messages_user_native_language_idx').on(table.userNativeLanguage),
+		index('messages_translation_idx').on(table.isTranslated, table.translationConfidence),
+		index('messages_difficulty_idx').on(table.difficultyLevel),
+		index('messages_intent_idx').on(table.messageIntent),
+
+		// Indexes for multi-language script support
+		index('messages_romanization_idx').on(table.romanization),
+		index('messages_pinyin_idx').on(table.pinyin),
+		index('messages_hiragana_idx').on(table.hiragana),
+		index('messages_kanji_idx').on(table.kanji),
+
+		// Composite index for language learning queries
+		index('messages_language_learning_idx').on(
+			table.sourceLanguage,
+			table.targetLanguage,
+			table.userNativeLanguage
+		),
+
+		// Composite index for script-based queries
+		index('messages_script_support_idx').on(
+			table.sourceLanguage,
+			table.romanization,
+			table.pinyin,
+			table.hiragana
+		)
 	]
 );
