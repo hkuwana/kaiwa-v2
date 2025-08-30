@@ -5,6 +5,7 @@
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import AudioVisualizer from './AudioVisualizer.svelte';
 	import type { ConversationStatus } from '$lib/services/conversation.service';
+	import AnimatedHeadphones from './AnimatedHeadphones.svelte';
 
 	const {
 		status = 'connecting',
@@ -123,6 +124,24 @@
 						with {selectedSpeaker}
 					</div>
 				{/if}
+			</div>
+
+			<!-- Premium Headphone Guide -->
+			<div class="mb-6 flex justify-center">
+				<AnimatedHeadphones
+					animation="wiggle"
+					size="md"
+					showTooltip={true}
+					tooltipText="Use earphones for best experience"
+					className="md:hidden"
+				/>
+				<AnimatedHeadphones
+					animation="wiggle"
+					size="xl"
+					showTooltip={true}
+					tooltipText="Use earphones for best experience"
+					className="hidden md:block"
+				/>
 			</div>
 
 			<!-- Audio Visualizer with Pulsing Animation -->
