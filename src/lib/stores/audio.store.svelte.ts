@@ -67,12 +67,6 @@ export class AudioStore {
 			// Set up callbacks after getting the stream
 			audioService.onLevelUpdate((level: AudioLevel) => {
 				this.currentLevel = { ...level };
-				console.log(
-					'🔊 AudioStore: Level update:',
-					level.level.toFixed(4),
-					'timestamp:',
-					level.timestamp
-				);
 			});
 
 			audioService.onStreamReady(() => {
