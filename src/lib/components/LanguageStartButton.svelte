@@ -284,7 +284,7 @@
 	>
 		<span class="relative z-10">
 			{#if selectedLanguage}
-				🎯 Start Speaking {selectedLanguage.name}
+				Start Speaking {selectedLanguage.name}
 			{:else}
 				Loading...
 			{/if}

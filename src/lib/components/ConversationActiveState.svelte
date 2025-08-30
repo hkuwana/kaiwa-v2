@@ -114,16 +114,11 @@
 
 		<!-- Live Audio Indicator -->
 		<div class="mb-4 flex-shrink-0" in:fade={{ duration: 300, delay: 200 }}>
-			<div class="card border border-success/20 bg-success/5 shadow-lg">
+			<div class=" border-success/20">
 				<div class="card-body p-4 text-center">
 					<div class="mb-2 flex justify-center">
 						<AudioVisualizer {audioLevel} />
 					</div>
-					<p class="text-sm text-success">
-						{isGuestUser && messages.length < 4
-							? 'Getting to know you - Speak naturally'
-							: 'Voice chat active - Speak naturally'}
-					</p>
 				</div>
 			</div>
 		</div>

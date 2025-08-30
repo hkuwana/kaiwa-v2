@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import ThemeSwitcher from './ThemeSwitcher.svelte';
 
 	// Get user data from page data
 	const user = page.data.user;
 </script>
 
-<nav class="navbar bg-base-100 shadow-sm">
+<nav class="navbar bg-neutral text-neutral-content shadow-sm">
 	<div class="navbar-start">
 		<div class="dropdown">
 			<div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
@@ -28,19 +29,21 @@
 				tabindex="0"
 				class="dropdown-content menu z-[1] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
 			>
-				<li><a href="/pricing" class="text-base-content">Pricing</a></li>
-				<li><a href="/privacy" class="text-base-content">Privacy</a></li>
+				<li><a href="/pricing" class="text-neutral-content">Pricing</a></li>
+				<li><a href="/privacy" class="text-neutral-content">Privacy</a></li>
 			</ul>
 		</div>
 		<a href="/" class="btn text-xl text-base-content btn-ghost">Kaiwa</a>
 	</div>
 	<div class="navbar-center hidden lg:flex">
 		<ul class="menu menu-horizontal px-1">
-			<li><a href="/pricing" class="text-base-content">Pricing</a></li>
-			<li><a href="/privacy" class="text-base-content">Privacy</a></li>
+			<li><a href="/pricing" class="text-neutral-content">Pricing</a></li>
+			<li><a href="/privacy" class="text-neutral-content">Privacy</a></li>
 		</ul>
 	</div>
+
 	<div class="navbar-end">
+		<ThemeSwitcher />
 		{#if user}
 			<div class="dropdown dropdown-end">
 				<div tabindex="0" role="button" class="btn avatar btn-circle btn-ghost">
@@ -52,8 +55,8 @@
 					tabindex="0"
 					class="dropdown-content menu z-[1] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
 				>
-					<li><a href="/conversation" class="text-base-content">Start Practice</a></li>
-					<li><a href="/logout" class="text-base-content">Logout</a></li>
+					<li><a href="/conversation" class="text-neutral-content">Start Practice</a></li>
+					<li><a href="/logout" class="text-neutral-content">Logout</a></li>
 				</ul>
 			</div>
 		{:else}
