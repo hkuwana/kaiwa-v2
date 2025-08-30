@@ -98,7 +98,7 @@ test.describe('Smoke Tests', () => {
 	test('@smoke should handle authentication flow', async ({ page }) => {
 		await page.goto('/login');
 
-		// Check login page loads
+		// Check auth page loads
 		await expect(page.getByRole('button', { name: /Google|Sign in/i })).toBeVisible();
 
 		// Verify page structure

@@ -23,23 +23,50 @@ export const POST: RequestHandler = async ({ request }) => {
 			return json(createErrorResponse('Conversation not found'), { status: 404 });
 		}
 
-		// Create new message
+		// Create new message with comprehensive language support
 		const message = await messagesRepository.createMessage({
 			id: generateSessionId(),
 			conversationId,
 			role,
 			content,
 			audioUrl: audioUrl || null,
-			// Language learning fields with defaults
+
+			// Translation and language fields
 			translatedContent: null,
 			sourceLanguage: null,
 			targetLanguage: null,
+			userNativeLanguage: null,
+
+			// Multi-language script support
+			romanization: null,
+			pinyin: null,
+			hiragana: null,
+			katakana: null,
+			kanji: null,
+			hangul: null,
+			otherScripts: null,
+
+			// Translation metadata
+			translationConfidence: null,
+			translationProvider: null,
+			translationNotes: null,
+			isTranslated: false,
+
+			// Analysis and feedback
 			grammarAnalysis: null,
 			vocabularyAnalysis: null,
 			pronunciationScore: null,
+
+			// Audio features
 			audioDuration: null,
+
+			// Metadata for language learning
 			difficultyLevel: null,
-			learningTags: null
+			learningTags: null,
+
+			// Context fields
+			conversationContext: null,
+			messageIntent: null
 		});
 
 		// Increment message count in conversation

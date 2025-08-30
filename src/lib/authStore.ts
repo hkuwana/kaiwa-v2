@@ -75,7 +75,7 @@ export const authActions = {
 			authStore.update((state) => ({ ...state, isLoading: true, error: null }));
 
 			// Redirect to Google OAuth
-			window.location.href = '/login/google';
+			window.location.href = '/auth/google';
 		} catch (error) {
 			authStore.update((state) => ({
 				...state,

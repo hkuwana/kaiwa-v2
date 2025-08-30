@@ -60,7 +60,7 @@
 				</ul>
 			</div>
 		{:else}
-			<a href="/login" class="btn btn-outline btn-primary">Get Started</a>
+			<a href="/auth" class="btn btn-outline btn-primary">Get Started</a>
 		{/if}
 	</div>
 </nav>

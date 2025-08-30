@@ -144,7 +144,7 @@ Sitemap: https://kaiwa.app/sitemap.xml
 # Disallow private areas
 Disallow: /admin/
 Disallow: /api/
-Disallow: /login
+Disallow: /auth
 Disallow: /logout
 
 # Block AI training bots
@@ -255,7 +255,7 @@ Disallow: /
 
 ### **Home Page**
 
-```
+```text
 https://kaiwa.app/
 - Title: "Kaiwa - Learn Languages Through AI Conversation"
 - Focus: Language selection and app overview
@@ -263,7 +263,7 @@ https://kaiwa.app/
 
 ### **Conversation Pages**
 
-```
+```text
 https://kaiwa.app/conversation?lang=en&mode=traditional&voice=alloy
 - Title: "Practice English with AI - Traditional Mode | Kaiwa"
 - Focus: Language-specific practice
@@ -271,8 +271,8 @@ https://kaiwa.app/conversation?lang=en&mode=traditional&voice=alloy
 
 ### **Login Page**
 
-```
-https://kaiwa.app/login
+```text
+https://kaiwa.app/auth
 - Title: "Sign In - Kaiwa Language Learning"
 - Robots: noindex, nofollow (privacy)
 ```

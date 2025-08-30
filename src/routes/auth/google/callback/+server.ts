@@ -1,4 +1,4 @@
-import { google } from '$lib/services/auth-oauth.service';
+import { google, isGoogleOAuthEnabled } from '$lib/services/auth-oauth.service';
 import { createSession, setSessionTokenCookie } from '$lib/server/auth';
 import { OAuth2RequestError, decodeIdToken } from 'arctic';
 import { eq } from 'drizzle-orm';
@@ -15,6 +15,12 @@ interface IdTokenClaims {
 }
 
 export async function GET(event: RequestEvent): Promise<Response> {
+	// Check if Google OAuth is enabled
+	if (!isGoogleOAuthEnabled || !google) {
+		console.log('Google OAuth is not configured');
+		return new Response('Google OAuth is not configured', { status: 500 });
+	}
+
 	console.log('Google OAuth callback received');
 	const storedState = event.cookies.get('google_oauth_state') ?? null;
 	const codeVerifier = event.cookies.get('google_code_verifier') ?? null;
