@@ -13,6 +13,8 @@
 	import ConnectingState from '$lib/components/ConversationConnectingState.svelte';
 	import ErrorState from '$lib/components/ConversationErrorState.svelte';
 	import ActiveConversationState from '$lib/components/ConversationActiveState.svelte';
+	import LoadingAnalysis from '$lib/components/LoadingAnalysis.svelte';
+	import ConversationReviewableState from '$lib/components/ConversationReviewableState.svelte';
 	import DevPanel from '$lib/components/DevPanel.svelte';
 
 	// Keep existing components for analysis temporarily
@@ -64,18 +66,13 @@
 
 	onDestroy(() => {
 		console.log('Cleaning up conversation...');
-		if (status === 'connected' || status === 'streaming') {
-			conversationStore.endConversation();
-		}
-		conversationStore.forceCleanup();
+		conversationStore.destroyConversation();
 	});
 
 	// Browser cleanup
 	if (browser) {
 		const handleBeforeUnload = () => {
-			if (status === 'connected' || status === 'streaming') {
-				conversationStore.endConversation();
-			}
+			conversationStore.destroyConversation();
 		};
 
 		window.addEventListener('beforeunload', handleBeforeUnload);
@@ -133,38 +130,30 @@
 		onRetry={handleRetryConnection}
 		onGoHome={() => goto('/')}
 	/>
-{:else if isAnalyzing}
-	<!-- Analysis Screen -->
-	<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">
-		<div class="container mx-auto max-w-2xl px-4 py-12" in:fade={{ duration: 300 }}>
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body text-center">
-					<div
-						class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10"
-					>
-						<div class="loading loading-lg loading-spinner text-primary"></div>
-					</div>
-					<h2 class="card-title justify-center text-2xl">Creating Your Learning Profile</h2>
-					<p class="mb-6 text-base-content/70">
-						We're analyzing our conversation to understand your learning style, goals, and current
-						level. This helps us create the perfect personalized experience for you.
-					</p>
-					<div class="space-y-2 text-sm">
-						<div class="flex items-center justify-center gap-2">
-							<div class="loading loading-sm loading-dots"></div>
-							<span>Assessing your language skills...</span>
-						</div>
-						<div class="flex items-center justify-center gap-2 text-base-content/50">
-							<span>Understanding your goals...</span>
-						</div>
-						<div class="flex items-center justify-center gap-2 text-base-content/50">
-							<span>Personalizing your experience...</span>
-						</div>
-					</div>
-				</div>
+{:else if status === 'analyzing'}
+	<!-- Loading Analysis Component -->
+	<LoadingAnalysis
+		messages={conversationStore.analysisMessages}
+		language={selectedLanguage?.id || 'en'}
+	/>
+{:else if status === 'analyzed'}
+	<!-- Analyzed Conversation State -->
+	{#if selectedLanguage}
+		<ConversationReviewableState
+			{messages}
+			language={selectedLanguage}
+			onStartNewConversation={() => conversationStore.startNewConversationFromReview()}
+			onAnalyzeConversation={() => conversationStore.endConversation()}
+			onGoHome={() => goto('/')}
+		/>
+	{:else}
+		<div class="flex min-h-screen items-center justify-center">
+			<div class="text-center">
+				<p class="text-lg text-base-content/70">No language selected</p>
+				<button class="btn mt-4 btn-primary" onclick={() => goto('/')}>Go Home</button>
 			</div>
 		</div>
-	</div>
+	{/if}
 {:else if (status === 'connected' || status === 'streaming') && messages.length > 0}
 	<ActiveConversationState
 		{status}

@@ -1,5 +1,5 @@
 {
-  "id": "14fc8609-5134-4c0e-b37a-3d77096987b4",
+  "id": "e36b7499-c8c9-4e66-9e17-7f9f5843bac0",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -16,13 +16,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "tier_id": {
-          "name": "tier_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -48,7 +42,7 @@
           "name": "duration_minutes",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "minutes_consumed": {
           "name": "minutes_consumed",
@@ -151,19 +145,6 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
-        },
-        "conversation_sessions_tier_id_tiers_id_fk": {
-          "name": "conversation_sessions_tier_id_tiers_id_fk",
-          "tableFrom": "conversation_sessions",
-          "tableTo": "tiers",
-          "columnsFrom": [
-            "tier_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -188,11 +169,17 @@
           "primaryKey": false,
           "notNull": false
         },
+        "guest_id": {
+          "name": "guest_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "target_language_id": {
           "name": "target_language_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "title": {
           "name": "title",
@@ -204,7 +191,7 @@
           "name": "mode",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "'traditional'"
         },
         "voice": {
@@ -223,14 +210,14 @@
           "name": "is_onboarding",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
-          "default": "'false'"
+          "notNull": true,
+          "default": "'true'"
         },
         "started_at": {
           "name": "started_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "now()"
         },
         "ended_at": {
@@ -256,7 +243,7 @@
           "name": "audio_seconds",
           "type": "numeric(8, 2)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "'0'"
         },
         "comfort_rating": {
@@ -368,6 +355,21 @@
           "columns": [
             {
               "expression": "ended_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "conversations_guest_id_idx": {
+          "name": "conversations_guest_id_idx",
+          "columns": [
+            {
+              "expression": "guest_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -627,8 +629,147 @@
           "notNull": true,
           "default": "now()"
         },
+        "translated_content": {
+          "name": "translated_content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_language": {
+          "name": "source_language",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "target_language": {
+          "name": "target_language",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_native_language": {
+          "name": "user_native_language",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "romanization": {
+          "name": "romanization",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pinyin": {
+          "name": "pinyin",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hiragana": {
+          "name": "hiragana",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "katakana": {
+          "name": "katakana",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kanji": {
+          "name": "kanji",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hangul": {
+          "name": "hangul",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "other_scripts": {
+          "name": "other_scripts",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "translation_confidence": {
+          "name": "translation_confidence",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "translation_provider": {
+          "name": "translation_provider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "translation_notes": {
+          "name": "translation_notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_translated": {
+          "name": "is_translated",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "grammar_analysis": {
+          "name": "grammar_analysis",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vocabulary_analysis": {
+          "name": "vocabulary_analysis",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pronunciation_score": {
+          "name": "pronunciation_score",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "audio_url": {
           "name": "audio_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "audio_duration": {
+          "name": "audio_duration",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "difficulty_level": {
+          "name": "difficulty_level",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "learning_tags": {
+          "name": "learning_tags",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "conversation_context": {
+          "name": "conversation_context",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "message_intent": {
+          "name": "message_intent",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -712,6 +853,213 @@
             },
             {
               "expression": "role",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "messages_language_idx": {
+          "name": "messages_language_idx",
+          "columns": [
+            {
+              "expression": "source_language",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "target_language",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "messages_user_native_language_idx": {
+          "name": "messages_user_native_language_idx",
+          "columns": [
+            {
+              "expression": "user_native_language",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "messages_translation_idx": {
+          "name": "messages_translation_idx",
+          "columns": [
+            {
+              "expression": "is_translated",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "translation_confidence",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "messages_difficulty_idx": {
+          "name": "messages_difficulty_idx",
+          "columns": [
+            {
+              "expression": "difficulty_level",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "messages_intent_idx": {
+          "name": "messages_intent_idx",
+          "columns": [
+            {
+              "expression": "message_intent",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "messages_romanization_idx": {
+          "name": "messages_romanization_idx",
+          "columns": [
+            {
+              "expression": "romanization",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "messages_pinyin_idx": {
+          "name": "messages_pinyin_idx",
+          "columns": [
+            {
+              "expression": "pinyin",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "messages_hiragana_idx": {
+          "name": "messages_hiragana_idx",
+          "columns": [
+            {
+              "expression": "hiragana",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "messages_kanji_idx": {
+          "name": "messages_kanji_idx",
+          "columns": [
+            {
+              "expression": "kanji",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "messages_language_learning_idx": {
+          "name": "messages_language_learning_idx",
+          "columns": [
+            {
+              "expression": "source_language",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "target_language",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "user_native_language",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "messages_script_support_idx": {
+          "name": "messages_script_support_idx",
+          "columns": [
+            {
+              "expression": "source_language",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "romanization",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "pinyin",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "hiragana",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -973,33 +1321,33 @@
           "name": "description",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "category": {
           "name": "category",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "'comfort'"
         },
         "difficulty": {
           "name": "difficulty",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "'beginner'"
         },
         "instructions": {
           "name": "instructions",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "context": {
           "name": "context",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "expected_outcome": {
           "name": "expected_outcome",
@@ -1021,23 +1369,23 @@
         },
         "is_active": {
           "name": "is_active",
-          "type": "text",
+          "type": "boolean",
           "primaryKey": false,
-          "notNull": false,
-          "default": "'true'"
+          "notNull": true,
+          "default": true
         },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "now()"
         }
       },
@@ -1624,25 +1972,25 @@
           "name": "description",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "monthly_conversations": {
           "name": "monthly_conversations",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "monthly_seconds": {
           "name": "monthly_seconds",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "monthly_realtime_sessions": {
           "name": "monthly_realtime_sessions",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "max_session_length_seconds": {
           "name": "max_session_length_seconds",
@@ -1772,21 +2120,21 @@
           "name": "is_active",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": true
         },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "now()"
         }
       },
@@ -1850,108 +2198,102 @@
           "name": "target_language_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "learning_goal": {
           "name": "learning_goal",
-          "type": "text",
+          "type": "learning_motivation_enum",
+          "typeSchema": "public",
           "primaryKey": false,
-          "notNull": false,
-          "default": "'conversational'"
+          "notNull": true,
+          "default": "'Connection'"
         },
         "preferred_voice": {
           "name": "preferred_voice",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "'alloy'"
         },
         "daily_goal_minutes": {
           "name": "daily_goal_minutes",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": 30
-        },
-        "skill_level": {
-          "name": "skill_level",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 5
         },
         "speaking_level": {
           "name": "speaking_level",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": 5
         },
         "listening_level": {
           "name": "listening_level",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": 5
         },
         "reading_level": {
           "name": "reading_level",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": 5
         },
         "writing_level": {
           "name": "writing_level",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": 5
         },
         "confidence_level": {
           "name": "confidence_level",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": 50
         },
         "total_study_time_minutes": {
           "name": "total_study_time_minutes",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": 0
         },
         "total_conversations": {
           "name": "total_conversations",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": 0
         },
         "current_streak_days": {
           "name": "current_streak_days",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": 0
         },
         "last_studied": {
           "name": "last_studied",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "now()"
         },
         "specific_goals": {
           "name": "specific_goals",
-          "type": "text",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
         "recent_session_scores": {
           "name": "recent_session_scores",
-          "type": "text",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
@@ -1963,36 +2305,38 @@
         },
         "skill_level_history": {
           "name": "skill_level_history",
-          "type": "text",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
         "challenge_preference": {
           "name": "challenge_preference",
-          "type": "text",
+          "type": "challenge_preference_enum",
+          "typeSchema": "public",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "'moderate'"
         },
         "correction_style": {
           "name": "correction_style",
-          "type": "text",
+          "type": "correction_style_enum",
+          "typeSchema": "public",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "'gentle'"
         },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "now()"
         }
       },
@@ -2026,21 +2370,6 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
-        },
-        "user_preferences_updated_at_idx": {
-          "name": "user_preferences_updated_at_idx",
-          "columns": [
-            {
-              "expression": "updated_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
         }
       },
       "foreignKeys": {
@@ -2054,7 +2383,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "user_preferences_target_language_id_languages_id_fk": {
@@ -2083,13 +2412,7 @@
       "columns": {
         "user_id": {
           "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "tier_id": {
-          "name": "tier_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -2133,30 +2456,6 @@
           "primaryKey": false,
           "notNull": false,
           "default": 0
-        },
-        "monthly_conversations": {
-          "name": "monthly_conversations",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "monthly_seconds": {
-          "name": "monthly_seconds",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "monthly_realtime_sessions": {
-          "name": "monthly_realtime_sessions",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "max_banked_seconds": {
-          "name": "max_banked_seconds",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -2239,19 +2538,6 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
-        },
-        "user_usage_tier_id_tiers_id_fk": {
-          "name": "user_usage_tier_id_tiers_id_fk",
-          "tableFrom": "user_usage",
-          "tableTo": "tiers",
-          "columnsFrom": [
-            "tier_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -2329,13 +2615,6 @@
           "notNull": true,
           "default": "'ja'"
         },
-        "default_tier": {
-          "name": "default_tier",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'free'"
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -2362,21 +2641,6 @@
           "columns": [
             {
               "expression": "email",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "users_default_tier_idx": {
-          "name": "users_default_tier_idx",
-          "columns": [
-            {
-              "expression": "default_tier",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -2448,7 +2712,38 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.challenge_preference_enum": {
+      "name": "challenge_preference_enum",
+      "schema": "public",
+      "values": [
+        "comfortable",
+        "moderate",
+        "challenging"
+      ]
+    },
+    "public.correction_style_enum": {
+      "name": "correction_style_enum",
+      "schema": "public",
+      "values": [
+        "immediate",
+        "gentle",
+        "end_of_session"
+      ]
+    },
+    "public.learning_motivation_enum": {
+      "name": "learning_motivation_enum",
+      "schema": "public",
+      "values": [
+        "Connection",
+        "Career",
+        "Travel",
+        "Academic",
+        "Culture",
+        "Growth"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},

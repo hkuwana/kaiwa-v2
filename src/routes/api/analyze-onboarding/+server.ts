@@ -23,6 +23,15 @@ export interface AnalyzeOnboardingResponse {
 	data?: Partial<UserPreferences> & { sessionId: string };
 	error?: string;
 	sessionId: string;
+	// Enhanced transparency fields
+	analysisMetadata?: {
+		rawAIResponse: string;
+		sanitizedResult: Partial<UserPreferences>;
+		conversationSummary: string;
+		assessmentNotes?: string;
+		processingSteps: string[];
+		timestamp: string;
+	};
 }
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
@@ -88,6 +97,23 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		// Validate and sanitize the analysis result
 		const sanitizedResult = sanitizeAnalysisResult(analysisResult);
 
+		// Create analysis metadata for transparency
+		const analysisMetadata = {
+			rawAIResponse: analysisResponse.content,
+			sanitizedResult,
+			conversationSummary: `Analyzed ${conversationMessages.length} messages in ${targetLanguage}`,
+			assessmentNotes:
+				(analysisResult as { assessmentNotes?: string }).assessmentNotes ||
+				'No specific notes provided',
+			processingSteps: [
+				'AI analyzed conversation content',
+				'Extracted learning preferences and skill levels',
+				'Validated and sanitized results',
+				'Applied business logic constraints'
+			],
+			timestamp: new Date().toISOString()
+		};
+
 		// Update session with analyzed data
 		const updatedSession = updateAnonymousSessionPreferences(cookies, {
 			targetLanguageId: targetLanguage,
@@ -117,14 +143,15 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 
 		console.log(`Onboarding analysis completed for session: ${updatedSession.sessionId}`);
 
-		// Return the analysis result with session ID
+		// Return the analysis result with session ID and metadata
 		return json({
 			success: true,
 			data: {
 				...sanitizedResult,
 				sessionId: updatedSession.sessionId
 			},
-			sessionId: updatedSession.sessionId
+			sessionId: updatedSession.sessionId,
+			analysisMetadata
 		});
 	} catch (error) {
 		console.error('Error analyzing onboarding:', error);
@@ -160,7 +187,7 @@ function sanitizeAnalysisResult(result: Partial<UserPreferences>): Partial<UserP
 		'end_of_session'
 	];
 
-	const validDailyGoals = [15, 30, 45, 60];
+	const validDailyGoals = [1, 2, 5, 10];
 
 	return {
 		learningGoal: validMotivations.includes(

@@ -33,6 +33,7 @@ export class ConversationStore {
 	// Reactive state
 	status = $state<ConversationStatus>('idle');
 	messages = $state<Message[]>([]);
+	messagesForAnalysis = $state<Message[]>([]);
 	userId = $state<string | null>(null);
 	sessionId = $state<string>('');
 	language = $state<Language | null>(null);
@@ -624,6 +625,41 @@ export class ConversationStore {
 		);
 	}
 
+	// New method: Clean up only audio and realtime while preserving conversation data
+	private cleanupAudioAndRealtime(): void {
+		console.log('🧹 ConversationStore: Cleaning up audio and realtime only...');
+		console.log(
+			'🧹 ConversationStore: Before cleanup - audioStore.isRecording:',
+			audioStore.isRecording,
+			'audioStream exists:',
+			!!this.audioStream
+		);
+
+		// Close realtime connection
+		if (this.realtimeConnection) {
+			console.log('🧹 ConversationStore: Closing realtime connection');
+			realtimeService.closeConnection(this.realtimeConnection);
+			this.realtimeConnection = null;
+		}
+
+		// Stop audio stream
+		if (this.audioStream) {
+			console.log('🧹 ConversationStore: Stopping audio stream');
+			realtimeService.stopAudioStream(this.audioStream);
+			this.audioStream = null;
+		}
+
+		// Pause timer but don't destroy it
+		this.timer.pause();
+
+		// Note: Don't stop audio recording here - it should continue for UI audio level display
+		// The audio store will handle its own cleanup when needed
+		console.log(
+			'🧹 ConversationStore: After cleanup - audioStore.isRecording:',
+			audioStore.isRecording
+		);
+	}
+
 	// === UTILITY METHODS ===
 
 	clearError = () => {
@@ -846,14 +882,17 @@ export class ConversationStore {
 	}
 
 	// Modify your existing triggerOnboardingAnalysis method to be more robust
-	private async triggerOnboardingAnalysis(): Promise<void> {
+	public async triggerOnboardingAnalysis(messagesToAnalyze?: Message[]): Promise<void> {
 		if (!this.language) {
 			console.warn('Cannot trigger onboarding analysis: missing language');
 			return;
 		}
 
+		// Use provided messages or fall back to current messages
+		const messages = messagesToAnalyze || this.messages;
+
 		// Filter out placeholder/incomplete messages for analysis
-		const completeMessages = this.messages.filter(
+		const completeMessages = messages.filter(
 			(message) =>
 				message.content &&
 				message.content.trim().length > 0 &&
@@ -890,7 +929,9 @@ export class ConversationStore {
 		if (result.success) {
 			// Get the analysis results from the updated preferences
 			const currentPrefs = userPreferencesStore.getPreferences();
-			userPreferencesStore.setAnalysisResults(currentPrefs);
+			// Pass metadata if available
+			const metadata = (result as { analysisMetadata?: unknown }).analysisMetadata;
+			userPreferencesStore.setAnalysisResults(currentPrefs, metadata);
 			console.log('Analysis results saved to user preferences');
 		} else {
 			console.error('Onboarding analysis failed:', result.error);
@@ -901,6 +942,10 @@ export class ConversationStore {
 
 	get timerState(): ConversationTimerStore['state'] {
 		return this.timer.state;
+	}
+
+	get analysisMessages(): Message[] {
+		return this.messagesForAnalysis;
 	}
 
 	// Modify your existing endConversation method to handle graceful shutdown
@@ -922,11 +967,42 @@ export class ConversationStore {
 		// Stop timer
 		this.timer.stop();
 
-		// Clean up connections
+		// Clean up connections but preserve messages for analysis
 		this.cleanup();
 
-		// Reset state
-		this.resetState();
+		// Trigger analysis if we have messages and haven't already analyzed
+		if (this.messages.length > 0 && this.language && !this.analysisTriggered) {
+			console.log('Manually ending conversation - triggering analysis');
+			console.log('Messages count:', this.messages.length);
+			console.log('Language:', this.language);
+			console.log('Analysis triggered:', this.analysisTriggered);
+
+			// Store messages for analysis display before clearing them
+			this.messagesForAnalysis = [...this.messages];
+
+			this.status = 'analyzing';
+			this.analysisTriggered = true;
+
+			// Store messages for analysis before they might get cleared
+			const messagesForAnalysis = [...this.messages];
+
+			this.triggerOnboardingAnalysis(messagesForAnalysis)
+				.then(() => {
+					this.status = 'analyzed';
+					console.log('Analysis completed after manual end');
+				})
+				.catch((error) => {
+					console.error('Error during analysis after manual end:', error);
+					this.status = 'idle';
+				});
+		} else {
+			console.log('No analysis needed - resetting state');
+			console.log('Messages count:', this.messages.length);
+			console.log('Language:', this.language);
+			console.log('Analysis triggered:', this.analysisTriggered);
+			// Reset state if no analysis needed
+			this.resetState();
+		}
 
 		console.log('Conversation ended');
 	};
@@ -946,10 +1022,44 @@ export class ConversationStore {
 		this.endConversation();
 	};
 
+	// Add method to start new conversation from reviewable state
+	startNewConversationFromReview = () => {
+		if (!browser) return;
+
+		console.log('Starting new conversation from review state...');
+
+		// Clear messages and reset state
+		this.resetState();
+
+		// Start fresh conversation
+		if (this.language) {
+			this.startConversation(this.language);
+		}
+	};
+
+	// Add method to completely destroy conversation (for page changes, etc.)
+	destroyConversation = () => {
+		if (!browser) return;
+
+		console.log('Destroying conversation completely...');
+
+		// Stop timer completely
+		this.timer.stop();
+
+		// Clean up all resources
+		this.cleanup();
+
+		// Reset all state
+		this.resetState();
+
+		console.log('Conversation completely destroyed');
+	};
+
 	// Modify resetState to include new flags
 	private resetState(): void {
 		this.status = 'idle';
 		this.messages = [];
+		this.messagesForAnalysis = [];
 		this.userId = null;
 		this.sessionId = '';
 		this.error = null;

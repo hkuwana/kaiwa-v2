@@ -1,4 +1,4 @@
-import { pgTable, text, integer, timestamp, index, primaryKey } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, timestamp, index, primaryKey, uuid } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
 // Track monthly usage for each user
@@ -6,7 +6,7 @@ import { users } from './users';
 export const userUsage = pgTable(
 	'user_usage',
 	{
-		userId: text('user_id')
+		userId: uuid('user_id')
 			.notNull()
 			.references(() => users.id, { onDelete: 'cascade' }),
 

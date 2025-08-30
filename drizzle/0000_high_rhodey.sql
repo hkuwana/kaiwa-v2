@@ -1,11 +1,13 @@
+CREATE TYPE "public"."challenge_preference_enum" AS ENUM('comfortable', 'moderate', 'challenging');--> statement-breakpoint
+CREATE TYPE "public"."correction_style_enum" AS ENUM('immediate', 'gentle', 'end_of_session');--> statement-breakpoint
+CREATE TYPE "public"."learning_motivation_enum" AS ENUM('Connection', 'Career', 'Travel', 'Academic', 'Culture', 'Growth');--> statement-breakpoint
 CREATE TABLE "conversation_sessions" (
 	"id" text PRIMARY KEY NOT NULL,
-	"user_id" text NOT NULL,
-	"tier_id" text NOT NULL,
+	"user_id" uuid NOT NULL,
 	"language" text NOT NULL,
 	"start_time" timestamp NOT NULL,
 	"end_time" timestamp,
-	"duration_minutes" integer,
+	"duration_minutes" integer NOT NULL,
 	"minutes_consumed" integer NOT NULL,
 	"was_extended" boolean DEFAULT false,
 	"extensions_used" integer DEFAULT 0,
@@ -17,17 +19,18 @@ CREATE TABLE "conversation_sessions" (
 CREATE TABLE "conversations" (
 	"id" text PRIMARY KEY NOT NULL,
 	"user_id" uuid,
-	"target_language_id" text,
+	"guest_id" text,
+	"target_language_id" text NOT NULL,
 	"title" text,
-	"mode" text DEFAULT 'traditional',
+	"mode" text DEFAULT 'traditional' NOT NULL,
 	"voice" text,
 	"scenario_id" text,
-	"is_onboarding" text DEFAULT 'false',
-	"started_at" timestamp DEFAULT now(),
+	"is_onboarding" text DEFAULT 'true' NOT NULL,
+	"started_at" timestamp DEFAULT now() NOT NULL,
 	"ended_at" timestamp,
 	"duration_seconds" integer,
 	"message_count" integer DEFAULT 0,
-	"audio_seconds" numeric(8, 2) DEFAULT '0',
+	"audio_seconds" numeric(8, 2) DEFAULT '0' NOT NULL,
 	"comfort_rating" integer,
 	"engagement_level" text
 );
@@ -51,7 +54,30 @@ CREATE TABLE "messages" (
 	"role" text NOT NULL,
 	"content" text NOT NULL,
 	"timestamp" timestamp DEFAULT now() NOT NULL,
-	"audio_url" text
+	"translated_content" text,
+	"source_language" text,
+	"target_language" text,
+	"user_native_language" text,
+	"romanization" text,
+	"pinyin" text,
+	"hiragana" text,
+	"katakana" text,
+	"kanji" text,
+	"hangul" text,
+	"other_scripts" jsonb,
+	"translation_confidence" text,
+	"translation_provider" text,
+	"translation_notes" text,
+	"is_translated" boolean DEFAULT false,
+	"grammar_analysis" jsonb,
+	"vocabulary_analysis" jsonb,
+	"pronunciation_score" text,
+	"audio_url" text,
+	"audio_duration" text,
+	"difficulty_level" text,
+	"learning_tags" jsonb,
+	"conversation_context" text,
+	"message_intent" text
 );
 --> statement-breakpoint
 CREATE TABLE "payments" (
@@ -71,17 +97,17 @@ CREATE TABLE "payments" (
 CREATE TABLE "scenarios" (
 	"id" text PRIMARY KEY NOT NULL,
 	"title" text NOT NULL,
-	"description" text,
-	"category" text DEFAULT 'comfort',
-	"difficulty" text DEFAULT 'beginner',
-	"instructions" text,
-	"context" text,
+	"description" text NOT NULL,
+	"category" text DEFAULT 'comfort' NOT NULL,
+	"difficulty" text DEFAULT 'beginner' NOT NULL,
+	"instructions" text NOT NULL,
+	"context" text NOT NULL,
 	"expected_outcome" text,
 	"learning_objectives" json,
 	"comfort_indicators" json,
-	"is_active" text DEFAULT 'true',
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"is_active" boolean DEFAULT true NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "session" (
@@ -126,10 +152,10 @@ CREATE TABLE "subscriptions" (
 CREATE TABLE "tiers" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
-	"description" text,
-	"monthly_conversations" integer,
-	"monthly_seconds" integer,
-	"monthly_realtime_sessions" integer,
+	"description" text NOT NULL,
+	"monthly_conversations" integer NOT NULL,
+	"monthly_seconds" integer NOT NULL,
+	"monthly_realtime_sessions" integer NOT NULL,
 	"max_session_length_seconds" integer,
 	"session_banking_enabled" boolean DEFAULT false,
 	"max_banked_seconds" integer,
@@ -149,51 +175,45 @@ CREATE TABLE "tiers" (
 	"can_extend" boolean DEFAULT false,
 	"max_extensions" integer DEFAULT 0,
 	"extension_duration_ms" integer DEFAULT 0,
-	"is_active" boolean DEFAULT true,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"is_active" boolean DEFAULT true NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "user_preferences" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
-	"target_language_id" text,
-	"learning_goal" text DEFAULT 'conversational',
-	"preferred_voice" text DEFAULT 'alloy',
-	"daily_goal_minutes" integer DEFAULT 30,
-	"skill_level" integer DEFAULT 5,
-	"speaking_level" integer DEFAULT 5,
-	"listening_level" integer DEFAULT 5,
-	"reading_level" integer DEFAULT 5,
-	"writing_level" integer DEFAULT 5,
-	"confidence_level" integer DEFAULT 50,
-	"total_study_time_minutes" integer DEFAULT 0,
-	"total_conversations" integer DEFAULT 0,
-	"current_streak_days" integer DEFAULT 0,
-	"last_studied" timestamp DEFAULT now(),
-	"specific_goals" text,
-	"recent_session_scores" text,
+	"target_language_id" text NOT NULL,
+	"learning_goal" "learning_motivation_enum" DEFAULT 'Connection' NOT NULL,
+	"preferred_voice" text DEFAULT 'alloy' NOT NULL,
+	"daily_goal_minutes" integer DEFAULT 30 NOT NULL,
+	"speaking_level" integer DEFAULT 5 NOT NULL,
+	"listening_level" integer DEFAULT 5 NOT NULL,
+	"reading_level" integer DEFAULT 5 NOT NULL,
+	"writing_level" integer DEFAULT 5 NOT NULL,
+	"confidence_level" integer DEFAULT 50 NOT NULL,
+	"total_study_time_minutes" integer DEFAULT 0 NOT NULL,
+	"total_conversations" integer DEFAULT 0 NOT NULL,
+	"current_streak_days" integer DEFAULT 0 NOT NULL,
+	"last_studied" timestamp DEFAULT now() NOT NULL,
+	"specific_goals" jsonb,
+	"recent_session_scores" jsonb,
 	"last_assessment_date" timestamp,
-	"skill_level_history" text,
-	"challenge_preference" text DEFAULT 'moderate',
-	"correction_style" text DEFAULT 'gentle',
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"skill_level_history" jsonb,
+	"challenge_preference" "challenge_preference_enum" DEFAULT 'moderate' NOT NULL,
+	"correction_style" "correction_style_enum" DEFAULT 'gentle' NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "user_usage" (
-	"user_id" text NOT NULL,
-	"tier_id" text NOT NULL,
+	"user_id" uuid NOT NULL,
 	"period" text NOT NULL,
 	"conversations_used" integer DEFAULT 0,
 	"seconds_used" integer DEFAULT 0,
 	"realtime_sessions_used" integer DEFAULT 0,
 	"banked_seconds" integer DEFAULT 0,
 	"banked_seconds_used" integer DEFAULT 0,
-	"monthly_conversations" integer,
-	"monthly_seconds" integer,
-	"monthly_realtime_sessions" integer,
-	"max_banked_seconds" integer,
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now(),
 	CONSTRAINT "user_usage_user_id_period_pk" PRIMARY KEY("user_id","period")
@@ -209,7 +229,6 @@ CREATE TABLE "users" (
 	"stripe_customer_id" text,
 	"native_language_id" text DEFAULT 'en' NOT NULL,
 	"preferred_ui_language_id" text DEFAULT 'ja' NOT NULL,
-	"default_tier" text DEFAULT 'free' NOT NULL,
 	"created_at" timestamp DEFAULT now(),
 	"last_usage" timestamp,
 	"hashed_password" text,
@@ -219,7 +238,6 @@ CREATE TABLE "users" (
 );
 --> statement-breakpoint
 ALTER TABLE "conversation_sessions" ADD CONSTRAINT "conversation_sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "conversation_sessions" ADD CONSTRAINT "conversation_sessions_tier_id_tiers_id_fk" FOREIGN KEY ("tier_id") REFERENCES "public"."tiers"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "conversations" ADD CONSTRAINT "conversations_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "conversations" ADD CONSTRAINT "conversations_target_language_id_languages_id_fk" FOREIGN KEY ("target_language_id") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "conversations" ADD CONSTRAINT "conversations_scenario_id_scenarios_id_fk" FOREIGN KEY ("scenario_id") REFERENCES "public"."scenarios"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -230,10 +248,9 @@ ALTER TABLE "session" ADD CONSTRAINT "session_user_id_users_id_fk" FOREIGN KEY (
 ALTER TABLE "speakers" ADD CONSTRAINT "speakers_language_id_languages_id_fk" FOREIGN KEY ("language_id") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_tier_id_tiers_id_fk" FOREIGN KEY ("tier_id") REFERENCES "public"."tiers"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_preferences" ADD CONSTRAINT "user_preferences_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_preferences" ADD CONSTRAINT "user_preferences_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_preferences" ADD CONSTRAINT "user_preferences_target_language_id_languages_id_fk" FOREIGN KEY ("target_language_id") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_usage" ADD CONSTRAINT "user_usage_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_usage" ADD CONSTRAINT "user_usage_tier_id_tiers_id_fk" FOREIGN KEY ("tier_id") REFERENCES "public"."tiers"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "conversation_sessions_user_idx" ON "conversation_sessions" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "conversation_sessions_start_time_idx" ON "conversation_sessions" USING btree ("start_time");--> statement-breakpoint
 CREATE INDEX "conversation_sessions_language_idx" ON "conversation_sessions" USING btree ("language");--> statement-breakpoint
@@ -244,6 +261,7 @@ CREATE INDEX "conversations_scenario_id_idx" ON "conversations" USING btree ("sc
 CREATE INDEX "conversations_is_onboarding_idx" ON "conversations" USING btree ("is_onboarding");--> statement-breakpoint
 CREATE INDEX "conversations_started_at_idx" ON "conversations" USING btree ("started_at");--> statement-breakpoint
 CREATE INDEX "conversations_ended_at_idx" ON "conversations" USING btree ("ended_at");--> statement-breakpoint
+CREATE INDEX "conversations_guest_id_idx" ON "conversations" USING btree ("guest_id");--> statement-breakpoint
 CREATE INDEX "conversations_user_language_idx" ON "conversations" USING btree ("user_id","target_language_id");--> statement-breakpoint
 CREATE INDEX "conversations_started_ended_idx" ON "conversations" USING btree ("started_at","ended_at");--> statement-breakpoint
 CREATE INDEX "languages_code_idx" ON "languages" USING btree ("code");--> statement-breakpoint
@@ -254,6 +272,17 @@ CREATE INDEX "messages_role_idx" ON "messages" USING btree ("role");--> statemen
 CREATE INDEX "messages_timestamp_idx" ON "messages" USING btree ("timestamp");--> statement-breakpoint
 CREATE INDEX "messages_conversation_timestamp_idx" ON "messages" USING btree ("conversation_id","timestamp");--> statement-breakpoint
 CREATE INDEX "messages_conversation_role_idx" ON "messages" USING btree ("conversation_id","role");--> statement-breakpoint
+CREATE INDEX "messages_language_idx" ON "messages" USING btree ("source_language","target_language");--> statement-breakpoint
+CREATE INDEX "messages_user_native_language_idx" ON "messages" USING btree ("user_native_language");--> statement-breakpoint
+CREATE INDEX "messages_translation_idx" ON "messages" USING btree ("is_translated","translation_confidence");--> statement-breakpoint
+CREATE INDEX "messages_difficulty_idx" ON "messages" USING btree ("difficulty_level");--> statement-breakpoint
+CREATE INDEX "messages_intent_idx" ON "messages" USING btree ("message_intent");--> statement-breakpoint
+CREATE INDEX "messages_romanization_idx" ON "messages" USING btree ("romanization");--> statement-breakpoint
+CREATE INDEX "messages_pinyin_idx" ON "messages" USING btree ("pinyin");--> statement-breakpoint
+CREATE INDEX "messages_hiragana_idx" ON "messages" USING btree ("hiragana");--> statement-breakpoint
+CREATE INDEX "messages_kanji_idx" ON "messages" USING btree ("kanji");--> statement-breakpoint
+CREATE INDEX "messages_language_learning_idx" ON "messages" USING btree ("source_language","target_language","user_native_language");--> statement-breakpoint
+CREATE INDEX "messages_script_support_idx" ON "messages" USING btree ("source_language","romanization","pinyin","hiragana");--> statement-breakpoint
 CREATE INDEX "payments_user_id_idx" ON "payments" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "payments_subscription_id_idx" ON "payments" USING btree ("subscription_id");--> statement-breakpoint
 CREATE INDEX "payments_status_idx" ON "payments" USING btree ("status");--> statement-breakpoint
@@ -281,11 +310,9 @@ CREATE INDEX "tiers_is_active_idx" ON "tiers" USING btree ("is_active");--> stat
 CREATE INDEX "tiers_stripe_product_idx" ON "tiers" USING btree ("stripe_product_id");--> statement-breakpoint
 CREATE INDEX "user_preferences_user_id_idx" ON "user_preferences" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "user_preferences_target_language_idx" ON "user_preferences" USING btree ("target_language_id");--> statement-breakpoint
-CREATE INDEX "user_preferences_updated_at_idx" ON "user_preferences" USING btree ("updated_at");--> statement-breakpoint
 CREATE INDEX "user_usage_user_idx" ON "user_usage" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "user_usage_period_idx" ON "user_usage" USING btree ("period");--> statement-breakpoint
 CREATE INDEX "user_usage_user_period_idx" ON "user_usage" USING btree ("user_id","period");--> statement-breakpoint
 CREATE INDEX "users_email_idx" ON "users" USING btree ("email");--> statement-breakpoint
-CREATE INDEX "users_default_tier_idx" ON "users" USING btree ("default_tier");--> statement-breakpoint
 CREATE INDEX "users_created_at_idx" ON "users" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "users_last_usage_idx" ON "users" USING btree ("last_usage");

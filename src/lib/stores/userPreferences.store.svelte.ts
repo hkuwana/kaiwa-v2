@@ -223,9 +223,23 @@ export class UserPreferencesStore {
 
 	// 🌟 Analysis Results Management
 
+	// Enhanced analysis results with metadata
+	private analysisMetadata = $state<{
+		rawAIResponse: string;
+		sanitizedResult: Partial<UserPreferences>;
+		conversationSummary: string;
+		assessmentNotes?: string;
+		processingSteps: string[];
+		timestamp: string;
+	} | null>(null);
+
 	// Set analysis results from onboarding
-	setAnalysisResults(results: Partial<UserPreferences>): void {
+	setAnalysisResults(
+		results: Partial<UserPreferences>,
+		metadata?: typeof this.analysisMetadata
+	): void {
 		this.analysisResults = results;
+		this.analysisMetadata = metadata || null;
 		this.hasAnalysisResults = true;
 		this.isAnalyzing = false;
 	}
@@ -258,6 +272,11 @@ export class UserPreferencesStore {
 	get hasCurrentAnalysisResults(): boolean {
 		return this.hasAnalysisResults;
 	}
+
+	// Get analysis metadata for transparency
+	get getAnalysisMetadata() {
+		return this.analysisMetadata;
+	}
 }
 
 // 🌟 Create singleton instance
@@ -281,5 +300,6 @@ export const {
 	setAnalysisResults,
 	getAnalysisResults,
 	constructAnalysis,
-	clearAnalysisResults
+	clearAnalysisResults,
+	getAnalysisMetadata
 } = userPreferencesStore;

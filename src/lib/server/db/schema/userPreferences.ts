@@ -2,7 +2,7 @@ import { pgTable, uuid, text, integer, timestamp, index, pgEnum, jsonb } from 'd
 import { users } from './users'; // Assuming you have a users table
 import { languages } from './languages'; // Assuming you have a languages table
 
-const learningMotivationEnum = pgEnum('learning_motivation_enum', [
+export const learningMotivationEnum = pgEnum('learning_motivation_enum', [
 	'Connection',
 	'Career',
 	'Travel',
@@ -11,21 +11,17 @@ const learningMotivationEnum = pgEnum('learning_motivation_enum', [
 	'Growth'
 ]);
 
-const challengePreferenceEnum = pgEnum('challenge_preference_enum', [
+export const challengePreferenceEnum = pgEnum('challenge_preference_enum', [
 	'comfortable',
 	'moderate',
 	'challenging'
 ]);
 
-const correctionStyleEnum = pgEnum('correction_style_enum', [
+export const correctionStyleEnum = pgEnum('correction_style_enum', [
 	'immediate',
 	'gentle',
 	'end_of_session'
 ]);
-
-export type LearningMotivationEnum = typeof learningMotivationEnum;
-export type ChallengePreferenceEnum = typeof challengePreferenceEnum;
-export type CorrectionStyleEnum = typeof correctionStyleEnum;
 
 export const userPreferences = pgTable(
 	'user_preferences',

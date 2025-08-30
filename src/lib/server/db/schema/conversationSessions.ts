@@ -1,4 +1,4 @@
-import { pgTable, text, integer, timestamp, index, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, timestamp, index, boolean, uuid } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
 // DEPRECATED: This schema has been moved to v2/conversationSessions.ts
@@ -11,7 +11,7 @@ export const conversationSessions = pgTable(
 	{
 		// Use camelCase for TypeScript properties, snake_case for DB columns
 		id: text('id').primaryKey(),
-		userId: text('user_id')
+		userId: uuid('user_id')
 			.notNull()
 			.references(() => users.id, { onDelete: 'cascade' }),
 
