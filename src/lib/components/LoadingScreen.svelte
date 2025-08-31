@@ -176,7 +176,7 @@
 			<!-- Dynamic Status Content -->
 			{#if showContent}
 				<div
-					class="space-y-4"
+					class="space-y-4 pt-4"
 					in:fly={{ y: 20, duration: 300 }}
 					out:fly={{ y: -20, duration: 150 }}
 				>
@@ -186,10 +186,6 @@
 							<div class="text-4xl" in:scale={{ duration: 300 }}>
 								{currentStep.icon}
 							</div>
-						{:else if status === 'error' && isCountryRestrictionError()}
-							<div class="text-4xl text-error" in:scale={{ duration: 300 }}>🌍</div>
-						{:else if status === 'error'}
-							<div class="text-4xl text-error" in:scale={{ duration: 300 }}>⚠️</div>
 						{/if}
 
 						<h3 class="text-xl font-semibold {statusConfig.color}">
@@ -283,21 +279,27 @@
 								<p>• Contact us for enterprise solutions</p>
 								<p>• Check back later for availability updates</p>
 							</div>
-							<button onclick={() => (window.location.href = '/')} class="btn btn-sm btn-primary">
+							<button
+								onclick={() => (window.location.href = '/')}
+								class="btn btn-ghost btn-sm sm:btn-md"
+							>
 								Back to Home
 							</button>
 						</div>
 					{:else}
 						<!-- Regular Error Actions -->
-						<div class="space-y-3">
+						<div class="space-y-3 sm:space-y-0">
 							<button
 								onclick={onRetry}
-								class="btn btn-outline btn-error"
+								class="btn btn-outline btn-sm btn-error sm:btn-md"
 								in:scale={{ duration: 300, delay: 200 }}
 							>
 								Try Again
 							</button>
-							<button onclick={() => (window.location.href = '/')} class="btn btn-ghost btn-sm">
+							<button
+								onclick={() => (window.location.href = '/')}
+								class="btn btn-ghost btn-sm sm:btn-md"
+							>
 								Back to Home
 							</button>
 						</div>
