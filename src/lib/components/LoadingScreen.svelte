@@ -3,10 +3,9 @@
 	import { onMount } from 'svelte';
 	import { fade, fly, scale } from 'svelte/transition';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
-	import AudioVisualizer from './AudioVisualizer.svelte';
 	import type { ConversationStatus } from '$lib/services/conversation.service';
 	import AnimatedHeadphones from './AnimatedHeadphones.svelte';
-	import { capitalize } from '$lib/utils';
+	import { getSpeakerById } from '$lib/data/speakers';
 
 	const {
 		status = 'connecting',
@@ -22,6 +21,7 @@
 
 	// Get current settings
 	const selectedSpeaker = $derived(settingsStore.selectedSpeaker);
+	const currentSpeaker = $derived(selectedSpeaker ? getSpeakerById(selectedSpeaker) : null);
 
 	// Preparation steps that cycle through during connection
 	const preparationSteps = [
@@ -146,9 +146,9 @@
 				<h2 class="mb-2 text-2xl font-bold text-base-content">
 					Practicing {settingsStore.selectedLanguage?.name || 'Language'}
 				</h2>
-				{#if selectedSpeaker}
+				{#if currentSpeaker}
 					<div class="badge badge-outline badge-lg">
-						with {capitalize(selectedSpeaker)}
+						with {currentSpeaker.voiceName}
 					</div>
 				{/if}
 			</div>

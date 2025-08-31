@@ -8,6 +8,7 @@
 		getMessageScripts
 	} from '$lib/services/translation.service';
 	import { translationStore } from '$lib/stores/translation.store.svelte';
+	import { getSpeakerById } from '$lib/data/speakers';
 	import kitsune from '$lib/assets/kitsune.webp';
 	import face from '$lib/assets/Face.webp';
 
@@ -30,7 +31,14 @@
 	const chatClass = $derived(isUser ? 'chat-end' : 'chat-start');
 	const avatarSrc = $derived(isUser ? kitsune : face);
 	const avatarAlt = $derived(isUser ? 'User avatar' : 'AI avatar');
-	const speakerName = $derived(isUser ? 'You' : settingsStore.selectedSpeaker);
+	const speakerName = $derived(
+		isUser
+			? 'You'
+			: (() => {
+					const speaker = getSpeakerById(settingsStore.selectedSpeaker);
+					return speaker?.voiceName || 'AI';
+				})()
+	);
 	const bubbleClass = $derived(isUser ? 'chat-bubble chat-bubble-primary' : 'chat-bubble');
 	const borderClass = $derived(isUser ? 'border-primary/20' : 'border-base-content/20');
 	const footerText = $derived(isUser ? 'Sent' : 'Delivered');

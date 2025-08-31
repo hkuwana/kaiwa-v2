@@ -39,6 +39,20 @@ export const speakersData: Speaker[] = [
 		language: '',
 		voiceId: ''
 	},
+	{
+		id: 'ja-jp-osaka',
+		languageId: 'ja',
+		region: 'Osaka',
+		dialectName: 'Osaka Japanese',
+		bcp47Code: 'ja-JP',
+		speakerEmoji: '🏯',
+		gender: 'neutral',
+		voiceName: 'Minami',
+		voiceProviderId: 'openai-osaka',
+		openAIId: 'sage',
+		language: '',
+		voiceId: ''
+	},
 	// --- English Speakers ---
 	{
 		id: 'en-us-male',
@@ -511,35 +525,6 @@ export const speakersData: Speaker[] = [
 		voiceId: ''
 	},
 
-	// --- Arabic Speakers ---
-	{
-		id: 'ar-sa-male',
-		languageId: 'ar',
-		region: 'Saudi Arabia',
-		dialectName: 'Arabic',
-		bcp47Code: 'ar-SA',
-		speakerEmoji: '🇸🇦',
-		gender: 'male',
-		voiceName: 'Omar',
-		voiceProviderId: 'openai-omar',
-		openAIId: 'ash',
-		language: '',
-		voiceId: ''
-	},
-	{
-		id: 'ar-sa-female',
-		languageId: 'ar',
-		region: 'Saudi Arabia',
-		dialectName: 'Arabic',
-		bcp47Code: 'ar-SA',
-		speakerEmoji: '🇸🇦',
-		gender: 'female',
-		voiceName: 'Fatima',
-		voiceProviderId: 'openai-fatima',
-		openAIId: 'shimmer',
-		language: '',
-		voiceId: ''
-	},
 
 	// --- Russian Speakers ---
 	{

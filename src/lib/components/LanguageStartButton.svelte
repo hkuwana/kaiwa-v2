@@ -2,19 +2,10 @@
 <script lang="ts">
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { languages as allLanguages } from '$lib/data/languages';
+	import { speakersData, getSpeakersByLanguage } from '$lib/data/speakers';
 	import { goto } from '$app/navigation';
 	import type { Language as DataLanguage } from '$lib/data/languages';
-
-	// Voice options (simplified from VoiceSelector)
-	//  'coral', 'echo', 'sage', 'shimmer', and 'verse'
-	const voices = [
-		{ id: 'alloy', name: 'Alloy', description: 'Balanced and neutral', gender: 'neutral' },
-		{ id: 'ash', name: 'Ash', description: 'Warm and friendly', gender: 'male' },
-		{ id: 'ballad', name: 'Ballad', description: 'Expressive and engaging', gender: 'female' },
-		{ id: 'core', name: 'Core', description: 'Clear and professional', gender: 'neutral' },
-		{ id: 'sage', name: 'Sage', description: 'Clear and professional', gender: 'neutral' },
-		{ id: 'verse', name: 'Verse', description: 'Expressive and engaging', gender: 'female' }
-	];
+	import type { Speaker } from '$lib/types';
 
 	// Component state
 	let isLanguageMenuOpen = $state(false);
@@ -25,8 +16,27 @@
 	const selectedLanguage = $derived(settingsStore.selectedLanguage);
 	const selectedSpeaker = $derived(settingsStore.selectedSpeaker);
 
+	// Get available speakers for selected language
+	const availableSpeakers = $derived(
+		selectedLanguage ? getSpeakersByLanguage(selectedLanguage.code) : []
+	);
+
+	// Get speakers for the language being viewed (for speaker selection)
+	const viewingSpeakers = $derived(
+		viewingSpeakersFor ? getSpeakersByLanguage(viewingSpeakersFor.code) : []
+	);
+
 	// Get current speaker info
-	const currentSpeaker = $derived(voices.find((v) => v.id === selectedSpeaker));
+	const currentSpeaker = $derived(
+		selectedSpeaker ? availableSpeakers.find((s) => s.id === selectedSpeaker) : null
+	);
+
+	// Auto-select first speaker if language is selected but no speaker is set
+	$effect(() => {
+		if (selectedLanguage && !selectedSpeaker && availableSpeakers.length > 0) {
+			settingsStore.setSpeaker(availableSpeakers[0].id);
+		}
+	});
 
 	// Filter languages based on search
 	const filteredLanguages = $derived(
@@ -56,17 +66,22 @@
 	// Functions
 	function handleLanguageSelect(lang: DataLanguage) {
 		settingsStore.setLanguageObject(lang);
-		// Show speaker selection if there are multiple voices
-		if (voices.length > 1) {
+		// Show speaker selection if there are multiple speakers
+		const speakersForLang = getSpeakersByLanguage(lang.code);
+		if (speakersForLang.length > 1) {
 			viewingSpeakersFor = lang;
 			searchTerm = '';
 		} else {
+			// Set the first available speaker if only one exists
+			if (speakersForLang.length === 1) {
+				settingsStore.setSpeaker(speakersForLang[0].id);
+			}
 			closeMenu();
 		}
 	}
 
-	function handleSpeakerSelect(voiceId: string) {
-		settingsStore.setSpeaker(voiceId);
+	function handleSpeakerSelect(speakerId: string) {
+		settingsStore.setSpeaker(speakerId);
 		closeMenu();
 	}
 
@@ -95,14 +110,16 @@
 		viewingSpeakersFor = null;
 	}
 
-	function getGenderIcon(gender: string) {
+	function getGenderIcon(gender: 'male' | 'female' | 'neutral') {
 		switch (gender) {
 			case 'male':
 				return '👨';
 			case 'female':
 				return '👩';
+			case 'neutral':
+				return '👤';
 			default:
-				return '👨';
+				return '👤';
 		}
 	}
 </script>
@@ -123,7 +140,7 @@
 					</span>
 					{#if currentSpeaker}
 						<span class="text-sm opacity-70">
-							with {currentSpeaker.name}
+							with {currentSpeaker.voiceName}
 						</span>
 					{/if}
 				</div>
@@ -187,22 +204,22 @@
 								Choose Speaker for {viewingSpeakersFor.name}
 							</h3>
 						</div>
-						{#each voices as voice (voice.id)}
+						{#each viewingSpeakers as speaker (speaker.id)}
 							<button
-								onclick={() => handleSpeakerSelect(voice.id)}
-								class="group btn btn-ghost my-1 flex w-full items-center justify-between rounded-xl px-4 py-3 text-left transition-colors duration-150 hover:bg-base-200/50"
-								class:bg-primary={selectedSpeaker === voice.id}
-								class:text-primary-content={selectedSpeaker === voice.id}
-								class:hover:bg-primary={selectedSpeaker === voice.id}
+								onclick={() => handleSpeakerSelect(speaker.id)}
+								class="group btn my-1 flex w-full items-center justify-between rounded-xl px-4 py-3 text-left btn-ghost transition-colors duration-150 hover:bg-base-200/50"
+								class:bg-primary={selectedSpeaker === speaker.id}
+								class:text-primary-content={selectedSpeaker === speaker.id}
+								class:hover:bg-primary={selectedSpeaker === speaker.id}
 							>
 								<div class="flex items-center gap-3">
-									<span class="text-xl">{getGenderIcon(voice.gender)}</span>
+									<span class="text-xl">{getGenderIcon(speaker.gender)}</span>
 									<div class="flex flex-col">
-										<span class="font-medium">{voice.name}</span>
-										<span class="text-sm opacity-70">{voice.description}</span>
+										<span class="font-medium">{speaker.voiceName}</span>
+										<span class="text-sm opacity-70">{speaker.dialectName} • {speaker.region}</span>
 									</div>
 								</div>
-								{#if selectedSpeaker === voice.id}
+								{#if selectedSpeaker === speaker.id}
 									<svg
 										class="h-5 w-5 flex-shrink-0"
 										fill="none"
