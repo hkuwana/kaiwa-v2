@@ -65,7 +65,7 @@ export async function dropAllTables(): Promise<void> {
 					EXECUTE 'DROP VIEW IF EXISTS ' || quote_ident(r.viewname) || ' CASCADE';
 				END LOOP;
 				
-				-- Drop all tables
+				-- Drop all tables first (this will cascade to constraints)
 				FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
 					EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';
 				END LOOP;
@@ -85,8 +85,23 @@ export async function dropAllTables(): Promise<void> {
 					EXECUTE 'DROP FUNCTION IF EXISTS ' || quote_ident(r.proname) || '(' || r.args || ') CASCADE';
 				END LOOP;
 				
-				-- Drop all types
-				FOR r IN (SELECT typname FROM pg_type WHERE typnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public')) LOOP
+				-- Drop all types last (after tables that might reference them)
+				FOR r IN (
+					SELECT typname 
+					FROM pg_type 
+					WHERE typnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public')
+					AND typtype = 'e'  -- Only enum types
+				) LOOP
+					EXECUTE 'DROP TYPE IF EXISTS ' || quote_ident(r.typname) || ' CASCADE';
+				END LOOP;
+				
+				-- Drop remaining types
+				FOR r IN (
+					SELECT typname 
+					FROM pg_type 
+					WHERE typnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public')
+					AND typtype != 'e'  -- Non-enum types
+				) LOOP
 					EXECUTE 'DROP TYPE IF EXISTS ' || quote_ident(r.typname) || ' CASCADE';
 				END LOOP;
 			END $$;

@@ -3,7 +3,7 @@
 
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { stripeService, STRIPE_PRICES } from '$lib/server/stripeService';
+import { stripeService } from '$lib/server/services/stripe.service';
 import { analytics } from '$lib/server/analyticsService';
 
 export const POST: RequestHandler = async ({ request, url, locals }) => {
@@ -16,21 +16,27 @@ export const POST: RequestHandler = async ({ request, url, locals }) => {
 
 		const { priceId, successPath = '/dashboard', cancelPath = '/pricing' } = await request.json();
 
-		// Validate price ID
-		const validPrices = Object.values(STRIPE_PRICES);
-		if (!validPrices.includes(priceId)) {
-			return json({ error: 'Invalid price ID' }, { status: 400 });
+		// Validate price ID using the service
+		if (!stripeService.isValidPriceId(priceId)) {
+			return json(
+				{
+					error: 'Invalid price ID',
+					validPrices: Object.values(stripeService.STRIPE_PRICES || {})
+				},
+				{ status: 400 }
+			);
 		}
 
 		// Determine tier and billing from price ID
 		const getTierFromPrice = (priceId: string) => {
-			if (priceId.includes('pro')) return 'pro';
 			if (priceId.includes('premium')) return 'premium';
+			if (priceId.includes('plus')) return 'plus';
+			if (priceId.includes('plus')) return 'plus';
 			return 'unknown';
 		};
 
 		const getBillingFromPrice = (priceId: string) => {
-			if (priceId.includes('yearly')) return 'yearly';
+			if (priceId.includes('annual') || priceId.includes('yearly')) return 'annual';
 			return 'monthly';
 		};
 

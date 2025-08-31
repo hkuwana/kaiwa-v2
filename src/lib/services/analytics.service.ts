@@ -111,7 +111,7 @@ class AnalyticsService {
 		this.track('pricing_viewed', { source });
 	}
 
-	trackCheckoutStarted(tier: 'pro' | 'premium', billing: 'monthly' | 'yearly') {
+	trackCheckoutStarted(tier: 'plus' | 'premium', billing: 'monthly' | 'yearly') {
 		this.track('checkout_started', {
 			target_tier: tier,
 			billing_cycle: billing,
@@ -119,7 +119,11 @@ class AnalyticsService {
 		});
 	}
 
-	trackSubscriptionCreated(tier: 'pro' | 'premium', billing: 'monthly' | 'yearly', amount: number) {
+	trackSubscriptionCreated(
+		tier: 'plus' | 'premium',
+		billing: 'monthly' | 'yearly',
+		amount: number
+	) {
 		this.track('subscription_created', {
 			tier,
 			billing_cycle: billing,

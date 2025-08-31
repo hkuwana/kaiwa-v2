@@ -1,23 +1,10 @@
 import { writable, derived, type Writable } from 'svelte/store';
-import type { UserContext } from '$lib/server/auth';
+import type { User } from '$lib/server/db/types';
 
 // Auth state store
 export interface AuthState {
 	isAuthenticated: boolean;
-	user: {
-		id: string;
-		displayName: string;
-		username: string;
-		email: string;
-		avatarUrl?: string;
-		nativeLanguageId: string;
-		preferredUILanguageId: string;
-		tier: 'free' | 'pro' | 'premium';
-		subscriptionStatus?: string;
-		subscriptionExpiresAt?: Date;
-		createdAt: Date;
-		lastUsage?: Date;
-	} | null;
+	user: User | null;
 	userContext: UserContext | null;
 	isLoading: boolean;
 	error: string | null;

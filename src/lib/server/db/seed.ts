@@ -105,7 +105,7 @@ const mvpTiers: Omit<Tier, 'id'>[] = [
 		isActive: true
 	},
 	{
-		name: 'Pro',
+		name: 'plus',
 		description: 'For serious language learners',
 		monthlyConversations: 100,
 		monthlyMinutes: 300,

@@ -3,6 +3,7 @@
 	import { favicon, appleTouchIcon } from '$lib/assets';
 	import { page } from '$app/state';
 	import { ConversationStore } from '$lib/stores/conversation.store.svelte';
+	import { userManager } from '$lib/stores/user.store.svelte';
 	import { setContext, onMount, onDestroy } from 'svelte';
 
 	const conversationStore = new ConversationStore();
@@ -26,8 +27,13 @@
 	});
 
 	// Get current page data for dynamic SEO
-	const currentPage = $derived(page);
 	const seo = $derived(data.seo);
+
+	// Sync user data with userManager store - directly reactive
+	const user = $derived(page.data.user);
+	const subscription = $derived(page.data.subscription);
+
+	 
 </script>
 
 <svelte:head>

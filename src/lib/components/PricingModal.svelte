@@ -41,8 +41,8 @@
 			popular: false
 		},
 		{
-			id: 'pro',
-			name: 'Pro',
+			id: 'plus',
+			name: 'plus',
 			price: { monthly: 9.99, yearly: 99.99 },
 			description: 'For serious language learners',
 			features: [
@@ -54,7 +54,7 @@
 				'Progress analytics',
 				'Priority support'
 			],
-			cta: 'Upgrade to Pro',
+			cta: 'Upgrade to plus',
 			popular: true
 		},
 		{
@@ -93,7 +93,7 @@
 
 		try {
 			// Track conversion intent
-			trackConversion.checkoutStarted(planId as 'pro' | 'premium', selectedBilling);
+			trackConversion.checkoutStarted(planId as 'plus' | 'premium', selectedBilling);
 
 			// Determine price ID based on plan and billing
 			const priceId = `price_${planId}_${selectedBilling}`;

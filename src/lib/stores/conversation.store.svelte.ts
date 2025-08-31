@@ -929,9 +929,7 @@ export class ConversationStore {
 		if (result.success) {
 			// Get the analysis results from the updated preferences
 			const currentPrefs = userPreferencesStore.getPreferences();
-			// Pass metadata if available
-			const metadata = (result as { analysisMetadata?: unknown }).analysisMetadata;
-			userPreferencesStore.setAnalysisResults(currentPrefs, metadata);
+			userPreferencesStore.setAnalysisResults(currentPrefs);
 			console.log('Analysis results saved to user preferences');
 		} else {
 			console.error('Onboarding analysis failed:', result.error);

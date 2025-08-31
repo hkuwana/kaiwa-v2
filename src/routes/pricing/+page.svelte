@@ -6,6 +6,16 @@
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { SubscriptionTier } from '$lib/enums.js';
 	import { defaultTierConfigs, type UserTier } from '$lib/data/tiers';
+	import {
+		formatPrice,
+		calculateAnnualDiscount,
+		getDisplayPrice,
+		getMonthlyEquivalentPrice,
+		calculateAnnualSavings,
+		formatSavings,
+		BILLING_CYCLES
+	} from '$lib/client/stripe.service';
+	import { convertTierToStripeFormat, getPriceIdsForTier } from '$lib/client/stripe.utils';
 
 	// Get page data from server using runes
 	let { data } = $props();
@@ -18,6 +28,37 @@
 
 	// Assumes tiers are 'free', 'plus', 'premium'
 	let currentTier = $derived(userManager.effectiveTier);
+
+	// Convert tier configs to Stripe format
+	const stripeTiers = $derived({
+		free: convertTierToStripeFormat(defaultTierConfigs.free, getPriceIdsForTier('free')),
+		plus: convertTierToStripeFormat(defaultTierConfigs.plus, getPriceIdsForTier('plus')),
+		premium: convertTierToStripeFormat(defaultTierConfigs.premium, getPriceIdsForTier('premium'))
+	});
+
+	// Get tier configs
+	const freeTier = defaultTierConfigs.free;
+	const plusTier = defaultTierConfigs.plus;
+	const premiumTier = defaultTierConfigs.premium;
+
+	// Calculate annual discounts using Stripe service
+	const plusDiscount = $derived(
+		plusTier.monthlyPriceUsd && plusTier.annualPriceUsd
+			? calculateAnnualDiscount(
+					parseFloat(plusTier.monthlyPriceUsd),
+					parseFloat(plusTier.annualPriceUsd)
+				)
+			: 0
+	);
+
+	const premiumDiscount = $derived(
+		premiumTier.monthlyPriceUsd && premiumTier.annualPriceUsd
+			? calculateAnnualDiscount(
+					parseFloat(premiumTier.monthlyPriceUsd),
+					parseFloat(premiumTier.annualPriceUsd)
+				)
+			: 0
+	);
 
 	// Helper function to format seconds to human readable format
 	function formatTime(seconds: number | null): string {
@@ -35,9 +76,9 @@
 	}
 
 	// Helper function to format price
-	function formatPrice(price: string | null): string {
+	function formatPriceDisplay(price: string | null): string {
 		if (!price || price === '0') return '$0';
-		return `$${parseFloat(price).toFixed(2)}`;
+		return formatPrice(parseFloat(price));
 	}
 
 	// Helper function to calculate annual discount
@@ -48,18 +89,6 @@
 		const annualMonthlyEquivalent = annual / 12;
 		return Math.round(((monthly - annualMonthlyEquivalent) / monthly) * 100);
 	}
-
-	// Get tier configs 
-	const freeTier = defaultTierConfigs.free;
-	const plusTier = defaultTierConfigs.plus;
-	const premiumTier = defaultTierConfigs.premium;
-
-	// Calculate annual discounts
-	const plusDiscount = getAnnualDiscount(plusTier.monthlyPriceUsd, plusTier.annualPriceUsd);
-	const premiumDiscount = getAnnualDiscount(
-		premiumTier.monthlyPriceUsd,
-		premiumTier.annualPriceUsd
-	);
 
 	// Feature comparison based on tier data
 	const allFeatures = [
@@ -194,6 +223,7 @@
 	});
 
 	async function handleGetStarted() {
+		console.log('handleGetStarted', userManager.isLoggedIn);
 		if (!userManager.isLoggedIn) {
 			await goto('/auth');
 		} else {
@@ -212,11 +242,11 @@
 		});
 	}
 
-	function getDisplayPrice(tier: typeof plusTier | typeof premiumTier): string {
+	function getDisplayPriceForTier(tier: typeof plusTier | typeof premiumTier): string {
 		if (selectedPlan === 'monthly') {
-			return formatPrice(tier.monthlyPriceUsd);
+			return formatPriceDisplay(tier.monthlyPriceUsd);
 		} else {
-			return formatPrice(tier.annualPriceUsd);
+			return formatPriceDisplay(tier.annualPriceUsd);
 		}
 	}
 
@@ -267,7 +297,7 @@
 		<div class="flex flex-col items-center rounded-2xl border bg-base-100 p-8 text-center">
 			<h2 class="mb-4 text-2xl font-semibold">{freeTier.name}</h2>
 			<p class="text-4xl font-bold">
-				{formatPrice(freeTier.monthlyPriceUsd)}
+				2 minutes
 				<span class="text-xl font-normal text-base-content/60">/forever</span>
 			</p>
 			<p class="mt-4 min-h-[4rem] text-base-content/70">
@@ -292,7 +322,7 @@
 
 			{#if selectedPlan === 'monthly'}
 				<p class="mt-4 text-4xl font-bold">
-					{formatPrice(plusTier.monthlyPriceUsd)}
+					{formatPriceDisplay(plusTier.monthlyPriceUsd)}
 					<span class="text-xl font-normal text-base-content/60">/month</span>
 				</p>
 			{:else}

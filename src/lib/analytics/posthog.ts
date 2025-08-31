@@ -94,7 +94,7 @@ export const trackConversion = {
 	},
 
 	// User starts checkout
-	checkoutStarted: (tier: 'pro' | 'premium', billing: 'monthly' | 'yearly') => {
+	checkoutStarted: (tier: 'plus' | 'premium', billing: 'monthly' | 'yearly') => {
 		track('checkout_started', {
 			target_tier: tier,
 			billing_cycle: billing,
@@ -103,7 +103,11 @@ export const trackConversion = {
 	},
 
 	// User completes payment
-	subscriptionCreated: (tier: 'pro' | 'premium', billing: 'monthly' | 'yearly', amount: number) => {
+	subscriptionCreated: (
+		tier: 'plus' | 'premium',
+		billing: 'monthly' | 'yearly',
+		amount: number
+	) => {
 		track('subscription_created', {
 			tier,
 			billing_cycle: billing,

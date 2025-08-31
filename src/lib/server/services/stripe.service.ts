@@ -2,20 +2,34 @@
 // Handles subscriptions, payments, and tier management
 
 import Stripe from 'stripe';
-import { db } from './db/index';
-import { users, subscriptions, payments } from './db/schema';
-import { eq, and } from 'drizzle-orm';
-import type { User } from './db/types';
-import type { Subscription as DbSubscription } from './db/types';
-import { tierService } from './tierService';
+import { db } from '../db/index';
+import { users } from '../db/schema';
+import { eq } from 'drizzle-orm';
+import type { User } from '../db/types';
+import type { Subscription as DbSubscription } from '../db/types';
+import { tierService } from '../tierService';
 import { env } from '$env/dynamic/private';
+import { paymentRepository } from '../repositories/payment.repository';
+import { subscriptionRepository } from '../repositories/subscription.repository';
+import { userRepository } from '../repositories';
 
 // Environment variables
 const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;
 const STRIPE_WEBHOOK_SECRET = env.STRIPE_WEBHOOK_SECRET;
 
-// Stripe price IDs for different tiers
+// Stripe price IDs for different tiers and billing cycles
 export const STRIPE_PRICES = {
+	// Plus tier
+	plus_monthly: 'price_1QkXgaJdpLyF8Hr4VNiD2JZp', // $15.00/month
+	plus_annual: 'price_1R14ScJdpLyF8Hr4VNiD2JZp', // $144.00/year
+
+	// Premium tier (placeholder - add actual price IDs when you create them)
+	premium_monthly: 'price_premium_monthly_dev',
+	premium_annual: 'price_premium_annual_dev'
+} as const;
+
+// Legacy price IDs for backward compatibility
+export const STRIPE_PRICES_LEGACY = {
 	pro: env.STRIPE_PRO_PRICE_ID || 'price_pro_monthly',
 	premium: env.STRIPE_PREMIUM_PRICE_ID || 'price_premium_monthly'
 } as const;
@@ -38,8 +52,7 @@ export class StripeService {
 			email: user.email,
 			name: user.displayName || user.username || undefined,
 			metadata: {
-				userId: user.id,
-				tier: user.tier
+				userId: user.id
 			}
 		});
 
@@ -47,7 +60,7 @@ export class StripeService {
 		await db
 			.update(users)
 			.set({
-				subscriptionId: customer.id // Store customer ID in subscriptionId for now
+				stripe_customer_id: customer.id
 			})
 			.where(eq(users.id, user.id));
 
@@ -63,16 +76,22 @@ export class StripeService {
 		successUrl: string,
 		cancelUrl: string
 	): Promise<{ sessionId: string; url: string }> {
-		const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
-		if (!user[0]) {
+		const user = await userRepository.findUserById(userId);
+		if (!user) {
 			throw new Error('User not found');
 		}
 
-		let customerId = user[0].subscriptionId; // We're storing customer ID here temporarily
+		let customerId = user.stripeCustomerId;
 
 		// Create customer if doesn't exist
 		if (!customerId) {
-			customerId = await this.createCustomer(user[0]);
+			customerId = await this.createCustomer(user);
+		}
+
+		// Validate price ID
+		const validPrices = Object.values(STRIPE_PRICES);
+		if (!validPrices.includes(priceId)) {
+			throw new Error(`Invalid price ID: ${priceId}. Valid prices: ${validPrices.join(', ')}`);
 		}
 
 		const session = await stripe.checkout.sessions.create({
@@ -154,10 +173,10 @@ export class StripeService {
 
 		// Check price ID pattern
 		if (price.id.includes('premium')) return 'premium';
-		if (price.id.includes('pro')) return 'pro';
+		if (price.id.includes('plus')) return 'plus';
 
 		// Default fallback
-		return 'pro';
+		return 'plus';
 	}
 
 	/**
@@ -173,8 +192,8 @@ export class StripeService {
 		try {
 			const subscriptionData = await this.extractSubscriptionData(stripeSubscription);
 
-			// Create subscription record with enhanced data
-			await db.insert(subscriptions).values({
+			// Create subscription record using repository
+			await subscriptionRepository.createSubscription({
 				userId: userId,
 				stripeSubscriptionId: stripeSubscription.id,
 				stripeCustomerId:
@@ -190,7 +209,7 @@ export class StripeService {
 			});
 
 			// Update user tier
-			await tierService.upgradeUserTier(userId, subscriptionData.tierId as 'pro' | 'premium');
+			await tierService.upgradeUserTier(userId, subscriptionData.tierId as 'plus' | 'premium');
 
 			console.log(`✅ Subscription created for user ${userId}, tier: ${subscriptionData.tierId}`);
 		} catch (error) {
@@ -203,13 +222,11 @@ export class StripeService {
 	 * Handle subscription updates
 	 */
 	async handleSubscriptionUpdated(stripeSubscription: Stripe.Subscription): Promise<void> {
-		const existingSubscription = await db
-			.select()
-			.from(subscriptions)
-			.where(eq(subscriptions.stripeSubscriptionId, stripeSubscription.id))
-			.limit(1);
+		const existingSubscription = await subscriptionRepository.findSubscriptionByStripeId(
+			stripeSubscription.id
+		);
 
-		if (!existingSubscription[0]) {
+		if (!existingSubscription) {
 			console.error('Subscription not found:', stripeSubscription.id);
 			return;
 		}
@@ -217,31 +234,27 @@ export class StripeService {
 		try {
 			const subscriptionData = await this.extractSubscriptionData(stripeSubscription);
 
-			// Update subscription with enhanced data
-			await db
-				.update(subscriptions)
-				.set({
-					status: stripeSubscription.status,
-					currentPeriodStart: new Date(stripeSubscription.created * 1000),
-					currentPeriodEnd: new Date(stripeSubscription.cancel_at ?? 0 * 1000),
-					cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
-					stripePriceId: subscriptionData.priceId,
-					tierId: subscriptionData.tierId,
-					updatedAt: new Date()
-				})
-				.where(eq(subscriptions.id, existingSubscription[0].id));
+			// Update subscription using repository
+			await subscriptionRepository.updateSubscription(existingSubscription.id, {
+				status: stripeSubscription.status,
+				currentPeriodStart: new Date(stripeSubscription.created * 1000),
+				currentPeriodEnd: new Date(stripeSubscription.cancel_at ?? 0 * 1000),
+				cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
+				stripePriceId: subscriptionData.priceId,
+				tierId: subscriptionData.tierId
+			});
 
 			// Update user tier if changed
 			if (subscriptionData.tierId) {
 				await tierService.upgradeUserTier(
-					existingSubscription[0].userId,
-					subscriptionData.tierId as 'pro' | 'premium'
+					existingSubscription.userId,
+					subscriptionData.tierId as 'plus' | 'premium'
 				);
 			}
 
 			// Handle different subscription statuses
 			await this.handleSubscriptionStatusChange(
-				existingSubscription[0].userId,
+				existingSubscription.userId,
 				stripeSubscription.status,
 				subscriptionData.tierId
 			);
@@ -277,13 +290,13 @@ export class StripeService {
 			case 'trialing':
 				// Apply tier benefits during trial
 				if (tierId) {
-					await tierService.upgradeUserTier(userId, tierId as 'pro' | 'premium');
+					await tierService.upgradeUserTier(userId, tierId as 'plus' | 'premium');
 				}
 				break;
 			case 'active':
 				// Ensure user has correct tier
 				if (tierId) {
-					await tierService.upgradeUserTier(userId, tierId as 'pro' | 'premium');
+					await tierService.upgradeUserTier(userId, tierId as 'plus' | 'premium');
 				}
 				break;
 		}
@@ -298,17 +311,12 @@ export class StripeService {
 
 		// Find subscription if available
 		if (subscriptionId) {
-			const subscription = await db
-				.select()
-				.from(subscriptions)
-				.where(eq(subscriptions.stripeSubscriptionId, subscriptionId))
-				.limit(1);
-
-			dbSubscriptionId = subscription[0]?.id || null;
+			const subscription = await subscriptionRepository.findSubscriptionByStripeId(subscriptionId);
+			dbSubscriptionId = subscription?.id || null;
 		}
 
-		// Record payment
-		await db.insert(payments).values({
+		// Record payment using repository
+		await paymentRepository.createPayment({
 			userId: paymentIntent.metadata?.userId || '', // This should be set in metadata
 			subscriptionId: dbSubscriptionId,
 			stripePaymentIntentId: paymentIntent.id,
@@ -323,14 +331,8 @@ export class StripeService {
 	/**
 	 * Get user's active subscription
 	 */
-	async getUserSubscription(userId: string): Promise<DbSubscription | null> {
-		const subscription = await db
-			.select()
-			.from(subscriptions)
-			.where(and(eq(subscriptions.userId, userId), eq(subscriptions.status, 'active')))
-			.limit(1);
-
-		return subscription[0] || null;
+	async getUserSubscription(userId: string): Promise<DbSubscription | undefined> {
+		return await subscriptionRepository.findActiveSubscriptionByUserId(userId);
 	}
 
 	/**
@@ -340,24 +342,16 @@ export class StripeService {
 		userId: string,
 		status: string
 	): Promise<DbSubscription | null> {
-		const subscription = await db
-			.select()
-			.from(subscriptions)
-			.where(and(eq(subscriptions.userId, userId), eq(subscriptions.status, status)))
-			.limit(1);
-
-		return subscription[0] || null;
+		return await subscriptionRepository
+			.findSubscriptionsByStatus(status)
+			.then((subs) => subs[0] || null);
 	}
 
 	/**
 	 * Get all user subscriptions
 	 */
 	async getAllUserSubscriptions(userId: string): Promise<DbSubscription[]> {
-		return await db
-			.select()
-			.from(subscriptions)
-			.where(eq(subscriptions.userId, userId))
-			.orderBy(subscriptions.createdAt);
+		return await subscriptionRepository.findSubscriptionsByUserId(userId);
 	}
 
 	/**
@@ -374,14 +368,8 @@ export class StripeService {
 			cancel_at_period_end: true
 		});
 
-		// Update local record
-		await db
-			.update(subscriptions)
-			.set({
-				cancelAtPeriodEnd: true,
-				updatedAt: new Date()
-			})
-			.where(eq(subscriptions.id, subscription.id));
+		// Update local record using repository
+		await subscriptionRepository.cancelSubscription(subscription.id, true);
 
 		console.log(`✅ Subscription cancelled for user ${userId}`);
 	}
@@ -400,18 +388,14 @@ export class StripeService {
 			cancel_at_period_end: false
 		});
 
-		// Update local record
-		await db
-			.update(subscriptions)
-			.set({
-				cancelAtPeriodEnd: false,
-				status: 'active',
-				updatedAt: new Date()
-			})
-			.where(eq(subscriptions.id, subscription.id));
+		// Update local record using repository
+		await subscriptionRepository.updateSubscription(subscription.id, {
+			cancelAtPeriodEnd: false,
+			status: 'active'
+		});
 
 		// Restore user tier
-		await tierService.upgradeUserTier(userId, subscription.tierId as 'pro' | 'premium');
+		await tierService.upgradeUserTier(userId, subscription.tierId as 'plus' | 'premium');
 
 		console.log(`✅ Subscription reactivated for user ${userId}`);
 	}
@@ -489,6 +473,28 @@ export class StripeService {
 		}
 
 		return stripe.webhooks.constructEvent(body, signature, STRIPE_WEBHOOK_SECRET);
+	}
+
+	/**
+	 * Get available price IDs for a specific tier and billing cycle
+	 */
+	getPriceId(tier: 'plus' | 'premium', billingCycle: 'monthly' | 'annual'): string {
+		const key = `${tier}_${billingCycle}` as keyof typeof STRIPE_PRICES;
+		return STRIPE_PRICES[key];
+	}
+
+	/**
+	 * Validate if a price ID is valid
+	 */
+	isValidPriceId(priceId: string): boolean {
+		return Object.values(STRIPE_PRICES).includes(priceId);
+	}
+
+	/**
+	 * Get available price IDs
+	 */
+	get STRIPE_PRICES() {
+		return STRIPE_PRICES;
 	}
 }
 

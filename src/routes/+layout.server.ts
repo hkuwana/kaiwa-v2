@@ -1,6 +1,7 @@
 import { PostHog } from 'posthog-node';
 import { env } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
+import { subscriptionRepository } from '$lib/server/repositories';
 
 // PostHog configuration for server-side
 const POSTHOG_KEY = publicEnv.PUBLIC_POSTHOG_KEY || 'phc_your_key_here';
@@ -17,6 +18,19 @@ export const load = async ({ url, request, locals }) => {
 	const referrer = request.headers.get('referer');
 	const userAgent = request.headers.get('user-agent');
 
+	// Get user data from locals (set by hooks.server.ts)
+	const user = locals.user || null;
+
+	// If user exists, also load their active subscription to determine effective tier
+	let subscription = null;
+	if (user) {
+		try {
+			subscription = await subscriptionRepository.findActiveSubscriptionByUserId(user.id);
+		} catch (error) {
+			console.error('Error fetching user subscription in layout:', error);
+		}
+	}
+
 	return {
 		posthogInitialized: await posthogHasInitialized(
 			posthog,
@@ -25,7 +39,9 @@ export const load = async ({ url, request, locals }) => {
 			referrer,
 			userId,
 			request.method
-		)
+		),
+		user,
+		subscription
 	};
 };
 

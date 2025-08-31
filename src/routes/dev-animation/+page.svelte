@@ -38,16 +38,13 @@
 			if (isPlaying) {
 				const currentIndex = animations.findIndex((a) => a.id === currentAnimation);
 				const nextIndex = (currentIndex + 1) % animations.length;
-				currentAnimation = animations[nextIndex].id;
+				currentAnimation = animations[nextIndex].id as typeof currentAnimation;
 			}
 		}, 3000);
 
 		return () => clearInterval(interval);
 	});
 
-	let currentAnimationClass = $derived(
-		animations.find((a) => a.id === currentAnimation)?.class || 'animate-pulse'
-	);
 </script>
 
 <svelte:head>

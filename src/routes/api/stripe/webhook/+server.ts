@@ -3,7 +3,7 @@
 
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { stripeService } from '$lib/server/stripeService';
+import { stripeService } from '$lib/server/services/stripe.service';
 import { analytics } from '$lib/server/analyticsService';
 
 export const POST: RequestHandler = async ({ request }) => {

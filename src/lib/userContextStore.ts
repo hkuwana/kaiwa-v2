@@ -30,7 +30,7 @@ export const userCapabilities = derived(userContextStore, ($context) => ({
 	canUseAdvancedVoices: $context ? $context.limits.hasAdvancedVoices : false,
 	hasAnalytics: $context ? $context.limits.hasAnalytics : false,
 	isProUser: $context
-		? $context.user.defaultTier === 'pro' || $context.user.defaultTier === 'premium'
+		? $context.user.defaultTier === 'plus' || $context.user.defaultTier === 'premium'
 		: false,
 	isPremiumUser: $context ? $context.user.defaultTier === 'premium' : false
 }));
@@ -69,7 +69,7 @@ export const userPreferences = derived(userContextStore, ($context) => ({
 	conversationStyle:
 		$context?.user.defaultTier === 'premium'
 			? 'advanced'
-			: $context?.user.defaultTier === 'pro'
+			: $context?.user.defaultTier === 'plus'
 				? 'intermediate'
 				: 'basic'
 }));
@@ -89,7 +89,7 @@ export const contextHelpers = {
 User Context:
 - Native Language: ${nativeLang}
 - Learning Language: ${preferredLang}
-- Experience Level: ${tier === 'premium' ? 'Advanced' : tier === 'pro' ? 'Intermediate' : 'Beginner'}
+- Experience Level: ${tier === 'premium' ? 'Advanced' : tier === 'plus' ? 'Intermediate' : 'Beginner'}
 - Tier: ${tier}
 
 Please adapt your responses to be appropriate for this user's level and language preferences.`;
@@ -135,7 +135,7 @@ Please adapt your responses to be appropriate for this user's level and language
 		const tier = userContext.user.defaultTier;
 
 		if (tier === 'premium') return 'advanced';
-		if (tier === 'pro') return 'intermediate';
+		if (tier === 'plus') return 'intermediate';
 
 		// For free users, determine level based on usage
 		if ((usage.conversationsUsed || 0) > 50) return 'intermediate';

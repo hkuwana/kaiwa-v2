@@ -94,6 +94,41 @@ export class UserManagerStore {
 		console.log(`👤 Effective tier updated to: ${tier}`);
 	}
 
+	// Sync entire store state from page data (user + subscription)
+	syncFromPageData(user: User | null, subscription: { effectiveTier?: string } | null): void {
+		if (user) {
+			this._state.user = user;
+			this._state.isLoggedIn = true;
+
+			// Set effective tier based on subscription data
+			if (subscription?.effectiveTier) {
+				// Ensure the tier is valid before setting it
+				const tier = subscription.effectiveTier as UserTier;
+				if (['free', 'plus', 'premium'].includes(tier)) {
+					this._state.effectiveTier = tier;
+					console.log(
+						`👤 Store synced: User ${user.displayName || user.username} with tier ${tier}`
+					);
+				} else {
+					this._state.effectiveTier = 'free';
+					console.log(
+						`👤 Store synced: User ${user.displayName || user.username} with invalid tier "${subscription.effectiveTier}", defaulting to free`
+					);
+				}
+			} else {
+				this._state.effectiveTier = 'free';
+				console.log(
+					`👤 Store synced: User ${user.displayName || user.username} with free tier (no subscription)`
+				);
+			}
+		} else {
+			this._state.user = null;
+			this._state.isLoggedIn = false;
+			this._state.effectiveTier = 'free';
+			console.log('👤 Store synced: User logged out');
+		}
+	}
+
 	// Logout user
 	logout(): void {
 		this._state.user = null;

@@ -189,7 +189,7 @@ beforeEach(() => {
 // Test the service, not the database
 describe('ConversationService', () => {
 	it('should start conversation for valid user', async () => {
-		const mockUser = { id: 'user-1', tier: 'pro' };
+		const mockUser = { id: 'user-1', tier: 'plus' };
 		mockUserRepository.findUserById.mockResolvedValue(mockUser);
 
 		const service = new ConversationService(mockUserRepository);

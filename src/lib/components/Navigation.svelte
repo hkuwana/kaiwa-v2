@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { page } from '$app/state';
+ 
 	import ThemeSwitcher from './ThemeSwitcher.svelte';
 
+	const { user } = $props();
 	// Get user data from page data
-	const user = page.data.user;
+	 
 </script>
 
 <nav class="navbar bg-neutral text-neutral-content shadow-sm">

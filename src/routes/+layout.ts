@@ -1,6 +1,8 @@
 import posthog from 'posthog-js';
 import { browser } from '$app/environment';
 import { env } from '$env/dynamic/public';
+import { userManager } from '$lib/stores/user.store.svelte';
+import type { LayoutLoad } from './$types';
 
 const BASE_SEO = {
 	title: 'Kaiwa - AI Language Learning Through Conversation',
@@ -15,7 +17,7 @@ const BASE_SEO = {
 	canonical: 'https://kaiwa.app'
 };
 
-export const load = async ({ url }) => {
+export const load: LayoutLoad = async ({ data, url }) => {
 	if (browser && env.PUBLIC_POSTHOG_KEY) {
 		posthog.init(env.PUBLIC_POSTHOG_KEY, {
 			api_host: 'https://us.i.posthog.com',
@@ -37,6 +39,29 @@ export const load = async ({ url }) => {
 			capture_pageleave: true
 		});
 	}
+
+	// Sync user data with userManager store
+	const { user, subscription } = data;
+
+	if (user) {
+		// Sync the userManager with user and subscription data
+		// The user data from server may not have all optional fields, so we cast it
+		// Also handle the subscription type properly
+		const subscriptionData = subscription
+			? { effectiveTier: subscription.effectiveTier || undefined }
+			: null;
+		// Cast user to User type since server data may not have all optional fields
+		userManager.syncFromPageData(user as import('$lib/server/db/types').User, subscriptionData);
+		console.log('👤 Layout: UserManager synced with user data', {
+			userId: user.id,
+			tier: subscription?.effectiveTier || 'free'
+		});
+	} else {
+		// Reset userManager to guest state
+		userManager.reset();
+		console.log('👤 Layout: UserManager reset to guest state');
+	}
+
 	return {
 		seo: {
 			...BASE_SEO,

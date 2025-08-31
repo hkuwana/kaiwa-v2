@@ -14,10 +14,10 @@
 </svelte:head>
 
 <div class="min-h-screen bg-gradient-to-br from-primary to-secondary text-primary-content">
-	<Navigation />
+	<Navigation {user} />
 
-	<header class="hero min-h-screen">
-		<div class="hero-content text-center">
+	<header class="flex min-h-screen items-start justify-center pt-20">
+		<div class="text-center">
 			<div class="max-w-md">
 				<h1 class="mb-8 text-5xl font-bold">Kaiwa</h1>
 

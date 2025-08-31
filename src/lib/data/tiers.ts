@@ -121,9 +121,9 @@ export const defaultTierConfigs: Record<UserTier, TierConfig> = {
 		// Pricing
 		monthlyPriceUsd: '15.00',
 		annualPriceUsd: '144.00', // 20% discount
-		stripeProductId: null, // process.env.STRIPE_PLUS_PRODUCT_ID || null,
-		stripePriceIdMonthly: null, // process.env.STRIPE_PLUS_MONTHLY_PRICE_ID || null,
-		stripePriceIdAnnual: null, // process.env.STRIPE_PLUS_ANNUAL_PRICE_ID || null,
+		stripeProductId: null, // Will be populated from environment
+		stripePriceIdMonthly: null, // Will be populated from environment
+		stripePriceIdAnnual: null, // Will be populated from environment
 
 		// Timer settings
 		conversationTimeoutMs: 10 * 60 * 1000, // 10 minutes
@@ -166,9 +166,9 @@ export const defaultTierConfigs: Record<UserTier, TierConfig> = {
 		// Pricing
 		monthlyPriceUsd: '25.00',
 		annualPriceUsd: '240.00', // 20% discount
-		stripeProductId: null, // process.env.STRIPE_PREMIUM_PRODUCT_ID || null,
-		stripePriceIdMonthly: null, // process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID || null,
-		stripePriceIdAnnual: null, // process.env.STRIPE_PREMIUM_ANNUAL_PRICE_ID || null,
+		stripeProductId: null, // Will be populated from environment
+		stripePriceIdMonthly: null, // Will be populated from environment
+		stripePriceIdAnnual: null, // Will be populated from environment
 
 		// Timer settings
 		conversationTimeoutMs: 10 * 60 * 1000, // 10 minutes

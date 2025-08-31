@@ -134,7 +134,7 @@ export class TierService {
 	 * Upgrade user tier
 	 * MVP: Disabled - tier field not available in current schema
 	 */
-	async upgradeUserTier(userId: string, newTier: 'free' | 'pro' | 'premium'): Promise<void> {
+	async upgradeUserTier(userId: string, newTier: 'free' | 'plus' | 'premium'): Promise<void> {
 		// MVP: Tier upgrades disabled - just log for now
 		console.log(`MVP: Tier upgrade requested for user ${userId} to ${newTier}`);
 

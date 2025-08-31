@@ -3,8 +3,8 @@
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import Navigation from '$lib/components/Navigation.svelte';
 
-    let { children, data } = $props();
-    
+	let { children, data } = $props();
+
 	// Get conversation status to determine if we should hide navigation
 	let status = $derived(conversationStore.status);
 	let messages = $derived(conversationStore.messages);
@@ -16,7 +16,7 @@
 </script>
 
 {#if !shouldHideNavigation}
-	<Navigation />
+	<Navigation user={page.data.user} />
 {/if}
 
 {@render children?.()}

@@ -15,6 +15,7 @@ export const subscriptions = pgTable(
 		stripeSubscriptionId: text('stripe_subscription_id').notNull().unique(),
 		stripeCustomerId: text('stripe_customer_id').notNull(),
 		stripePriceId: text('stripe_price_id').notNull(),
+		stripeMeteredSubscriptionItemId: text('stripe_metered_subscription_item_id').unique(),
 
 		// Subscription details
 		status: text('status').notNull(), // active, canceled, past_due, trialing, etc.

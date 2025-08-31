@@ -127,7 +127,7 @@ export const trackServerConversion = {
 	// Subscription events (server-side)
 	subscriptionCreated: (
 		userId: string,
-		tier: 'pro' | 'premium',
+		tier: 'plus' | 'premium',
 		billing: 'monthly' | 'yearly',
 		amount: number
 	) => {
