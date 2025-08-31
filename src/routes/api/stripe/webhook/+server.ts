@@ -10,6 +10,8 @@ export const POST: RequestHandler = async ({ request }) => {
 	const body = await request.text();
 	const signature = request.headers.get('stripe-signature');
 
+	// Stripe instance removed - using simplified logging
+
 	if (!signature) {
 		return json({ error: 'Missing stripe-signature header' }, { status: 400 });
 	}
@@ -110,6 +112,40 @@ export const POST: RequestHandler = async ({ request }) => {
 
 			case 'checkout.session.completed': {
 				const session = event.data.object;
+
+				// 🎯 COMPREHENSIVE LOGGING - See everything Stripe sends back!
+				console.log('🎣 ===== CHECKOUT SESSION COMPLETED =====');
+				console.log('📋 Session ID:', session.id);
+				console.log('💰 Amount Total:', session.amount_total, 'cents');
+				console.log('💳 Payment Status:', session.payment_status);
+				console.log('👤 Customer ID:', session.customer);
+				console.log('📅 Created:', new Date(session.created * 1000).toISOString());
+				console.log('🔗 Success URL:', session.success_url);
+				console.log('❌ Cancel URL:', session.cancel_url);
+				console.log('📝 Mode:', session.mode);
+				console.log('🎯 Subscription ID:', session.subscription);
+				console.log('💳 Payment Intent ID:', session.payment_intent);
+				console.log('🏷️ Currency:', session.currency);
+				console.log('📊 Line Items:', JSON.stringify(session.line_items, null, 2));
+
+				// 🔍 Metadata (your custom data)
+				console.log('🏷️ Metadata:', session.metadata);
+				console.log('👤 User ID from metadata:', session.metadata?.userId);
+
+				// 🔍 Customer Details (simplified to avoid type issues)
+				if (session.customer) {
+					console.log('👤 Customer ID:', session.customer);
+				}
+
+				// 🔍 Subscription Details (simplified to avoid type issues)
+				if (session.subscription) {
+					console.log('📅 Subscription ID:', session.subscription);
+				}
+
+				console.log('🎣 ===== END CHECKOUT SESSION LOG =====');
+
+				// Handle the checkout success to update user tier
+				await stripeService.handleCheckoutSuccess(session);
 
 				// Track checkout completion
 				const userId = session.metadata?.userId;

@@ -32,8 +32,6 @@
 	// Sync user data with userManager store - directly reactive
 	const user = $derived(page.data.user);
 	const subscription = $derived(page.data.subscription);
-
-	 
 </script>
 
 <svelte:head>

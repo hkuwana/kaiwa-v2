@@ -84,6 +84,7 @@
 	"dependencies": {
 		"@google-cloud/translate": "^9.2.0",
 		"@inlang/paraglide-js": "^2.0.0",
+		"@maxmind/geoip2-node": "^6.1.0",
 		"@napi-rs/pinyin": "^1.7.6",
 		"@node-rs/argon2": "^2.0.2",
 		"@oslojs/crypto": "^1.0.1",

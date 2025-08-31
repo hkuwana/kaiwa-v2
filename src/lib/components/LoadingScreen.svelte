@@ -6,6 +6,7 @@
 	import AudioVisualizer from './AudioVisualizer.svelte';
 	import type { ConversationStatus } from '$lib/services/conversation.service';
 	import AnimatedHeadphones from './AnimatedHeadphones.svelte';
+	import { capitalize } from '$lib/utils';
 
 	const {
 		status = 'connecting',
@@ -86,9 +87,19 @@
 					borderColor: 'border-success/20'
 				};
 			case 'error':
+				if (isCountryRestrictionError()) {
+					return {
+						title: 'Service Not Available',
+						message: 'Not available in your location',
+						tip: 'OpenAI services are restricted in your country/region',
+						color: 'text-error',
+						bgColor: 'bg-error/10',
+						borderColor: 'border-error/20'
+					};
+				}
 				return {
 					title: 'Connection Error',
-					message: error || 'Failed to connect to your language tutor',
+					message: 'Failed to connect',
 					tip: 'Check your internet connection and try again',
 					color: 'text-error',
 					bgColor: 'bg-error/10',
@@ -107,6 +118,22 @@
 	};
 
 	const statusConfig = $derived(getStatusConfig());
+
+	// Check if this is a country restriction error
+	function isCountryRestrictionError() {
+		if (!error) return false;
+
+		// Handle both string and object errors
+		const errorMessage =
+			typeof error === 'string' ? error : error.message || error.error || JSON.stringify(error);
+
+		return (
+			errorMessage.includes('Country, region, or territory not supported') ||
+			errorMessage.includes('403') ||
+			(errorMessage.toLowerCase().includes('country') &&
+				errorMessage.toLowerCase().includes('not supported'))
+		);
+	}
 </script>
 
 <div class="flex min-h-screen items-center justify-center p-4">
@@ -121,7 +148,7 @@
 				</h2>
 				{#if selectedSpeaker}
 					<div class="badge badge-outline badge-lg">
-						with {selectedSpeaker}
+						with {capitalize(selectedSpeaker)}
 					</div>
 				{/if}
 			</div>
@@ -145,33 +172,6 @@
 			</div>
 
 			<!-- Audio Visualizer with Pulsing Animation -->
-			<div class="mb-6 flex justify-center">
-				<div class="relative">
-					<!-- Pulsing background effect -->
-					<div
-						class="absolute inset-0 scale-110 animate-ping rounded-full opacity-20"
-						class:bg-info={status === 'connecting'}
-						class:bg-success={status === 'connected'}
-						class:bg-error={status === 'error'}
-					></div>
-
-					<!-- Audio visualizer -->
-					<div class="relative z-10 p-4">
-						{#if status === 'connected'}
-							<AudioVisualizer {audioLevel} />
-						{:else}
-							<!-- Custom loading animation for connecting state -->
-							<div class="flex h-16 w-16 items-center justify-center">
-								<div
-									class="loading loading-lg loading-ring {status === 'error'
-										? 'text-error'
-										: 'text-primary'}"
-								></div>
-							</div>
-						{/if}
-					</div>
-				</div>
-			</div>
 
 			<!-- Dynamic Status Content -->
 			{#if showContent}
@@ -181,19 +181,31 @@
 					out:fly={{ y: -20, duration: 150 }}
 				>
 					<!-- Status Icon and Title -->
-					<div class="space-y-2">
+					<div class="space-y-3 text-center">
 						{#if status === 'connecting'}
 							<div class="text-4xl" in:scale={{ duration: 300 }}>
 								{currentStep.icon}
 							</div>
+						{:else if status === 'error' && isCountryRestrictionError()}
+							<div class="text-4xl text-error" in:scale={{ duration: 300 }}>🌍</div>
+						{:else if status === 'error'}
+							<div class="text-4xl text-error" in:scale={{ duration: 300 }}>⚠️</div>
 						{/if}
 
 						<h3 class="text-xl font-semibold {statusConfig.color}">
 							{statusConfig.title}
 						</h3>
-						<p class="text-base-content/70">
-							{statusConfig.message}
-						</p>
+
+						<!-- Status Message as Badge -->
+						{#if status === 'error'}
+							<div class="badge badge-lg text-sm badge-error">
+								{statusConfig.message}
+							</div>
+						{:else}
+							<p class="text-base-content/70">
+								{statusConfig.message}
+							</p>
+						{/if}
 					</div>
 
 					<!-- Loading Progress (for connecting state) -->
@@ -216,37 +228,80 @@
 			<!-- Tips Section -->
 			<div class="mt-6">
 				<div class="rounded-lg bg-base-100/50 p-4 backdrop-blur-sm">
-					<div class="flex items-start gap-3">
-						<div class="text-xl">💡</div>
-						<div class="flex-1 text-left">
-							<h4 class="font-medium text-base-content/90">Pro Tip</h4>
-							{#if showContent}
-								<p
-									class="mt-1 text-sm text-base-content/70"
-									in:fade={{ duration: 300, delay: 150 }}
-									out:fade={{ duration: 150 }}
-								>
-									{statusConfig.tip}
-								</p>
+					<div class="text-center">
+						<div class="mb-3">
+							{#if status === 'error' && isCountryRestrictionError()}
+								<span class="text-2xl">⚠️</span>
+							{:else}
+								<span class="text-2xl">💡</span>
 							{/if}
 						</div>
+						<h4 class="mb-2 font-medium text-base-content/90">
+							{#if status === 'error' && isCountryRestrictionError()}
+								Why is this happening?
+							{:else}
+								Pro Tip
+							{/if}
+						</h4>
+						{#if showContent}
+							<p
+								class="text-sm text-base-content/70"
+								in:fade={{ duration: 300, delay: 150 }}
+								out:fade={{ duration: 150 }}
+							>
+								{statusConfig.tip}
+							</p>
+						{/if}
 					</div>
 				</div>
 			</div>
 
 			<!-- Error Actions -->
 			{#if status === 'error'}
-				<div class="mt-6 space-y-3">
-					<button
-						onclick={onRetry}
-						class="btn btn-outline btn-error"
-						in:scale={{ duration: 300, delay: 200 }}
-					>
-						Try Again
-					</button>
-					<button onclick={() => (window.location.href = '/')} class="btn btn-ghost btn-sm">
-						Back to Home
-					</button>
+				<div class="mt-6 space-y-3 text-center">
+					{#if isCountryRestrictionError()}
+						<!-- Country Restriction Error Actions -->
+						<div class="space-y-3">
+							<div class="alert alert-warning">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="h-6 w-6 shrink-0 stroke-current"
+									fill="none"
+									viewBox="0 0 24 24"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+									/>
+								</svg>
+								<span class="font-medium">Location Restriction</span>
+							</div>
+							<div class="space-y-2 text-sm text-gray-600">
+								<p>• Use a VPN to access from a supported location</p>
+								<p>• Contact us for enterprise solutions</p>
+								<p>• Check back later for availability updates</p>
+							</div>
+							<button onclick={() => (window.location.href = '/')} class="btn btn-sm btn-primary">
+								Back to Home
+							</button>
+						</div>
+					{:else}
+						<!-- Regular Error Actions -->
+						<div class="space-y-3">
+							<button
+								onclick={onRetry}
+								class="btn btn-outline btn-error"
+								in:scale={{ duration: 300, delay: 200 }}
+							>
+								Try Again
+							</button>
+							<button onclick={() => (window.location.href = '/')} class="btn btn-ghost btn-sm">
+								Back to Home
+							</button>
+						</div>
+					{/if}
 				</div>
 			{/if}
 

@@ -5,6 +5,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { stripeService } from '$lib/server/services/stripe.service';
 import { analytics } from '$lib/server/analyticsService';
+import { getTierFromPriceId, getBillingFromPriceId } from '$lib/data/stripe';
 
 export const POST: RequestHandler = async ({ request, url, locals }) => {
 	try {
@@ -14,34 +15,56 @@ export const POST: RequestHandler = async ({ request, url, locals }) => {
 			return json({ error: 'Authentication required' }, { status: 401 });
 		}
 
-		const { priceId, successPath = '/dashboard', cancelPath = '/pricing' } = await request.json();
+		const requestBody = await request.json();
+		const { priceId, successPath = '/dashboard', cancelPath = '/pricing' } = requestBody;
+
+		// 🔍 DEBUG: Log all the incoming data
+		console.log('🔍 CHECKOUT DEBUG - Incoming request data:');
+		console.log('  - userId:', userId);
+		console.log('  - priceId:', priceId);
+		console.log('  - successPath:', successPath);
+		console.log('  - cancelPath:', cancelPath);
+		console.log('  - Full request body:', requestBody);
+
+		// 🔍 DEBUG: Log price validation details
+		console.log('🔍 CHECKOUT DEBUG - Price validation:');
+		console.log('  - Received priceId:', priceId);
+		console.log('  - Available STRIPE_PRICES:', stripeService.STRIPE_PRICES);
+		console.log('  - isValidPriceId result:', stripeService.isValidPriceId(priceId));
+		console.log('  - Valid prices array:', Object.values(stripeService.STRIPE_PRICES || {}));
 
 		// Validate price ID using the service
 		if (!stripeService.isValidPriceId(priceId)) {
+			console.log('❌ CHECKOUT DEBUG - Price validation FAILED');
+			console.log('  - Invalid priceId:', priceId);
+			console.log('  - Expected valid prices:', Object.values(stripeService.STRIPE_PRICES || {}));
+
 			return json(
 				{
 					error: 'Invalid price ID',
-					validPrices: Object.values(stripeService.STRIPE_PRICES || {})
+					validPrices: Object.values(stripeService.STRIPE_PRICES || {}),
+					receivedPriceId: priceId
 				},
 				{ status: 400 }
 			);
 		}
 
-		// Determine tier and billing from price ID
-		const getTierFromPrice = (priceId: string) => {
-			if (priceId.includes('premium')) return 'premium';
-			if (priceId.includes('plus')) return 'plus';
-			if (priceId.includes('plus')) return 'plus';
-			return 'unknown';
-		};
+		console.log('✅ CHECKOUT DEBUG - Price validation PASSED');
 
-		const getBillingFromPrice = (priceId: string) => {
-			if (priceId.includes('annual') || priceId.includes('yearly')) return 'annual';
-			return 'monthly';
-		};
+		// Determine tier and billing from price ID using centralized functions
+		const tier = getTierFromPriceId(priceId);
+		const billing = getBillingFromPriceId(priceId);
 
-		const tier = getTierFromPrice(priceId);
-		const billing = getBillingFromPrice(priceId);
+		// 🔍 DEBUG: Log tier and billing detection
+		console.log('🔍 CHECKOUT DEBUG - Tier and billing detection:');
+		console.log('  - Detected tier:', tier);
+		console.log('  - Detected billing:', billing);
+		console.log('  - PriceId analysis:', {
+			containsPremium: priceId.includes('premium'),
+			containsPlus: priceId.includes('plus'),
+			containsAnnual: priceId.includes('annual'),
+			containsYearly: priceId.includes('yearly')
+		});
 
 		// Track checkout initiation
 		await analytics.trackConversion(
@@ -58,8 +81,24 @@ export const POST: RequestHandler = async ({ request, url, locals }) => {
 
 		// Create checkout session
 		const baseUrl = url.origin;
-		const successUrl = `${baseUrl}${successPath}?success=true&tier=${tier}`;
-		const cancelUrl = `${baseUrl}${cancelPath}?cancelled=true`;
+		// Check if successPath already has query parameters
+		const successUrl = successPath.includes('?')
+			? `${baseUrl}${successPath}&tier=${tier}`
+			: `${baseUrl}${successPath}?success=true&tier=${tier}`;
+		const cancelUrl = cancelPath.includes('?')
+			? `${baseUrl}${cancelPath}`
+			: `${baseUrl}${cancelPath}?cancelled=true`;
+
+		// 🔍 DEBUG: Log checkout session creation
+		console.log('🔍 CHECKOUT DEBUG - Creating checkout session:');
+		console.log('  - baseUrl:', baseUrl);
+		console.log('  - successUrl:', successUrl);
+		console.log('  - cancelUrl:', cancelUrl);
+		console.log('  - Calling stripeService.createCheckoutSession with:');
+		console.log('    - userId:', userId);
+		console.log('    - priceId:', priceId);
+		console.log('    - successUrl:', successUrl);
+		console.log('    - cancelUrl:', cancelUrl);
 
 		const { sessionId, url: checkoutUrl } = await stripeService.createCheckoutSession(
 			userId,
@@ -68,12 +107,20 @@ export const POST: RequestHandler = async ({ request, url, locals }) => {
 			cancelUrl
 		);
 
+		console.log('✅ CHECKOUT DEBUG - Checkout session created successfully:');
+		console.log('  - sessionId:', sessionId);
+		console.log('  - checkoutUrl:', checkoutUrl);
+
 		return json({
 			sessionId,
 			url: checkoutUrl
 		});
 	} catch (error) {
-		console.error('Checkout creation error:', error);
+		console.error('❌ CHECKOUT DEBUG - Error occurred:');
+		console.error('  - Error type:', error?.constructor?.name || 'Unknown');
+		console.error('  - Error message:', error instanceof Error ? error.message : 'Unknown error');
+		console.error('  - Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+		console.error('  - Full error object:', error);
 
 		// Track checkout failure
 		if (locals.user?.id) {
@@ -82,6 +129,12 @@ export const POST: RequestHandler = async ({ request, url, locals }) => {
 			});
 		}
 
-		return json({ error: 'Failed to create checkout session' }, { status: 500 });
+		return json(
+			{
+				error: 'Failed to create checkout session',
+				details: error instanceof Error ? error.message : 'Unknown error'
+			},
+			{ status: 500 }
+		);
 	}
 };

@@ -3,32 +3,33 @@
 	import { onMount } from 'svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { posthogManager } from '$lib/client/posthog';
+	import { getMonthlyPriceId, getAnnualPriceId, getPriceId } from '$lib/data/stripe';
 
 	// Test data
 	let testResults = $state<any[]>([]);
 	let isLoading = $state(false);
 	let currentTest = $state<string>('');
 
-	// Test configurations
+	// Test configurations - using centralized Stripe configuration
 	const testConfigs = [
 		{
 			name: 'Plus Monthly',
-			priceId: 'price_plus_monthly_dev',
+			priceId: getMonthlyPriceId(), // $15.00/month
 			description: 'Test Plus tier monthly subscription'
 		},
 		{
 			name: 'Plus Annual',
-			priceId: 'price_plus_annual_dev',
+			priceId: getAnnualPriceId(), // $144.00/year
 			description: 'Test Plus tier annual subscription'
 		},
 		{
 			name: 'Premium Monthly',
-			priceId: 'price_premium_monthly_dev',
+			priceId: getPriceId('premium', 'monthly'), // Placeholder - add actual price ID when created
 			description: 'Test Premium tier monthly subscription'
 		},
 		{
 			name: 'Premium Annual',
-			priceId: 'price_premium_annual_dev',
+			priceId: getPriceId('premium', 'annual'), // Placeholder - add actual price ID when created
 			description: 'Test Premium tier annual subscription'
 		}
 	];
