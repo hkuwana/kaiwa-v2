@@ -15,6 +15,13 @@
       "when": 1756600835032,
       "tag": "0001_colorful_blob",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1756741891607,
+      "tag": "0002_sudden_micromacro",
+      "breakpoints": true
     }
   ]
 }
