@@ -15,7 +15,7 @@
 		formatSavings,
 		BILLING_CYCLES
 	} from '$lib/client/stripe.service';
-	import { convertTierToStripeFormat, getPriceIdsForTier } from '$lib/client/stripe.utils';
+	import { convertTierToBasicFormat, getPriceIdsForTier } from '$lib/client/stripe.utils';
 
 	// Get page data from server using runes
 	let { data } = $props();
@@ -29,12 +29,7 @@
 	// Assumes tiers are 'free', 'plus', 'premium'
 	let currentTier = $derived(userManager.effectiveTier);
 
-	// Convert tier configs to Stripe format
-	const stripeTiers = $derived({
-		free: convertTierToStripeFormat(defaultTierConfigs.free, getPriceIdsForTier('free')),
-		plus: convertTierToStripeFormat(defaultTierConfigs.plus, getPriceIdsForTier('plus')),
-		premium: convertTierToStripeFormat(defaultTierConfigs.premium, getPriceIdsForTier('premium'))
-	});
+	// Convert tier configs to basic pricing format
 
 	// Get tier configs
 	const freeTier = defaultTierConfigs.free;
@@ -47,15 +42,6 @@
 			? calculateAnnualDiscount(
 					parseFloat(plusTier.monthlyPriceUsd),
 					parseFloat(plusTier.annualPriceUsd)
-				)
-			: 0
-	);
-
-	const premiumDiscount = $derived(
-		premiumTier.monthlyPriceUsd && premiumTier.annualPriceUsd
-			? calculateAnnualDiscount(
-					parseFloat(premiumTier.monthlyPriceUsd),
-					parseFloat(premiumTier.annualPriceUsd)
 				)
 			: 0
 	);
@@ -82,21 +68,14 @@
 	}
 
 	// Helper function to calculate annual discount
-	function getAnnualDiscount(monthlyPrice: string | null, annualPrice: string | null): number {
-		if (!monthlyPrice || !annualPrice || monthlyPrice === '0') return 0;
-		const monthly = parseFloat(monthlyPrice);
-		const annual = parseFloat(annualPrice);
-		const annualMonthlyEquivalent = annual / 12;
-		return Math.round(((monthly - annualMonthlyEquivalent) / monthly) * 100);
-	}
 
 	// Feature comparison based on tier data
 	const allFeatures = [
 		{
 			feature: 'Monthly Practice Time',
-			basic: `${formatTime(freeTier.monthlySeconds)} + $${freeTier.overagePricePerMinute}/extra minute`,
-			plus: `${formatTime(plusTier.monthlySeconds)} + $${plusTier.overagePricePerMinute}/extra minute`,
-			premium: `${formatTime(premiumTier.monthlySeconds)} + $${premiumTier.overagePricePerMinute}/extra minute`,
+			basic: `${formatTime(freeTier.monthlySeconds)} + $${freeTier.overagePricePerMinuteInCents / 100}/extra minute`,
+			plus: `${formatTime(plusTier.monthlySeconds)} + $${plusTier.overagePricePerMinuteInCents / 100}/extra minute`,
+			premium: `${formatTime(premiumTier.monthlySeconds)} + $${premiumTier.overagePricePerMinuteInCents / 100}/extra minute`,
 			tooltip: 'Total conversation time available each month.'
 		},
 		{
@@ -139,35 +118,18 @@
 		},
 		{
 			feature: 'Conversation Memory',
-			basic:
-				freeTier.conversationMemoryLevel === 'basic'
-					? 'Basic'
-					: freeTier.conversationMemoryLevel === 'human-like'
-						? 'Human-like'
-						: 'Elephant-like',
-			plus:
-				plusTier.conversationMemoryLevel === 'basic'
-					? 'Basic'
-					: plusTier.conversationMemoryLevel === 'human-like'
-						? 'Human-like'
-						: 'Elephant-like',
-			premium:
-				premiumTier.conversationMemoryLevel === 'basic'
-					? 'Basic'
-					: premiumTier.conversationMemoryLevel === 'human-like'
-						? 'Human-like'
-						: 'Elephant-like',
+			basic: freeTier.conversationMemoryLevel,
+			plus: plusTier.conversationMemoryLevel,
+			premium: premiumTier.conversationMemoryLevel,
 			tooltip: 'Our AI remembers past conversations to personalize your learning.'
 		},
 		{
 			feature: 'Anki Export',
-			basic:
-				freeTier.ankiExportLimit === 'unlimited' ? '✔' : `First ${freeTier.ankiExportLimit} words`,
-			plus:
-				plusTier.ankiExportLimit === 'unlimited' ? '✔' : `First ${plusTier.ankiExportLimit} words`,
+			basic: `First ${freeTier.ankiExportLimit} words`,
+			plus: `First ${plusTier.ankiExportLimit} words`,
 			premium:
-				premiumTier.ankiExportLimit === 'unlimited'
-					? '✔'
+				premiumTier.ankiExportLimit === -1
+					? 'Unlimited'
 					: `First ${premiumTier.ankiExportLimit} words`,
 			status: COMING_SOON,
 			tooltip: 'Easily export vocabulary to Anki for spaced repetition practice.'
@@ -240,14 +202,6 @@
 		posthogManager.trackEvent('pricing_toggle_clicked', {
 			billing_cycle: cycle
 		});
-	}
-
-	function getDisplayPriceForTier(tier: typeof plusTier | typeof premiumTier): string {
-		if (selectedPlan === 'monthly') {
-			return formatPriceDisplay(tier.monthlyPriceUsd);
-		} else {
-			return formatPriceDisplay(tier.annualPriceUsd);
-		}
 	}
 
 	function getAnnualPricePerMonth(tier: typeof plusTier | typeof premiumTier): string {
@@ -350,7 +304,7 @@
 
 			{#if selectedPlan === 'monthly'}
 				<p class="mt-4 text-4xl font-bold">
-					{formatPrice(premiumTier.monthlyPriceUsd)}
+					{formatPriceDisplay(premiumTier.monthlyPriceUsd)}
 					<span class="text-xl font-normal text-base-content/60">/month</span>
 				</p>
 			{:else}
@@ -389,9 +343,9 @@
 							<td class="text-left font-medium text-base-content/90">
 								{feature.feature}
 							</td>
-							<td class="font-light">{feature.basic}</td>
-							<td class="font-semibold text-accent">{feature.plus}</td>
-							<td class="font-medium">{feature.premium}</td>
+							<td class="font-light capitalize">{feature.basic}</td>
+							<td class="font-semibold text-accent capitalize">{feature.plus}</td>
+							<td class="font-medium capitalize">{feature.premium}</td>
 						</tr>
 					{/each}
 				</tbody>

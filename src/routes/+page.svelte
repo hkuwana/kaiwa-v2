@@ -2,10 +2,12 @@
 	import { dev } from '$app/environment';
 	import { page } from '$app/state';
 	import LanguageStartButton from '$lib/components/LanguageStartButton.svelte';
+	import ScenarioStartButton from '$lib/components/ScenarioStartButton.svelte';
 	import Navigation from '$lib/components/Navigation.svelte';
+	import { userManager } from '$lib/stores/user.store.svelte';
 
 	// Get user data from page data
-	const user = page.data.user;
+	const user = userManager.user;
 </script>
 
 <svelte:head>
@@ -19,16 +21,20 @@
 	<header class="flex min-h-screen items-start justify-center pt-20">
 		<div class="text-center">
 			<div class="max-w-md">
-				<h1 class="mb-8 text-5xl font-bold">Kaiwa</h1>
+				<h1 class="  text-5xl font-bold">Kaiwa</h1>
+				<h4 class="  text-2xl font-medium opacity-90">
+					No lessons. No evaluations. Just conversations.
+				</h4>
 
-				{#if user}
-					<div class="mb-6 badge badge-lg badge-accent">
-						Welcome back, {user.displayName || 'User'}!
+				{#if user || dev}
+					<div class="mb-6 text-xl opacity-90">
+						Welcome back, {user ? user.displayName : 'Dev'}!
 					</div>
+					<ScenarioStartButton />
 				{:else}
 					<p class="mb-6 text-xl opacity-90">Learn languages through AI-assisted conversations</p>
+					<LanguageStartButton />
 				{/if}
-				<LanguageStartButton />
 			</div>
 		</div>
 	</header>
@@ -74,8 +80,13 @@
 			</div>
 
 			<div class="my-12 text-center">
-				<LanguageStartButton />
-				<p class="mt-4 text-lg opacity-80">Experience the new simplified architecture</p>
+				{#if user}
+					<ScenarioStartButton />
+					<p class="mt-4 text-lg opacity-80">Experience scenarios and onboarding</p>
+				{:else}
+					<LanguageStartButton />
+					<p class="mt-4 text-lg opacity-80">Experience the new simplified architecture</p>
+				{/if}
 			</div>
 
 			<div class="card border border-base-300/20 bg-base-100/10 p-8 shadow-xl backdrop-blur-sm">

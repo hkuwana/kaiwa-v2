@@ -9,7 +9,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	// Check if user is logged in
-	if (!locals.user) {
+	if (!dev && !locals.user) {
 		throw redirect(302, '/auth');
 	}
 

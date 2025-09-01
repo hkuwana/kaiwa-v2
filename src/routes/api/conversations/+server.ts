@@ -4,6 +4,7 @@ import { conversationRepository } from '$lib/server/repositories/conversation.re
 import { conversationSessionsRepository } from '$lib/server/repositories/conversationSessions.repository';
 import { generateSessionId } from '$lib/utils';
 import { createSuccessResponse, createErrorResponse } from '$lib/types/api';
+import { getOnboardingScenario } from '$lib/data/scenarios';
 
 export const POST: RequestHandler = async ({ request }) => {
 	try {
@@ -16,13 +17,19 @@ export const POST: RequestHandler = async ({ request }) => {
 			mode = 'traditional',
 			voice,
 			scenarioId,
-			isOnboarding = true,
 			deviceType = 'desktop'
 		} = body;
 
 		// Validate required fields
 		if (!targetLanguageId) {
 			return json(createErrorResponse('targetLanguageId is required'), { status: 400 });
+		}
+
+		// If no scenario is specified, use the onboarding scenario
+		let finalScenarioId = scenarioId;
+		if (!finalScenarioId) {
+			const onboardingScenario = getOnboardingScenario();
+			finalScenarioId = onboardingScenario?.id || null;
 		}
 
 		// Create new conversation
@@ -34,8 +41,8 @@ export const POST: RequestHandler = async ({ request }) => {
 			title: title || `Conversation in ${targetLanguageId}`,
 			mode,
 			voice: voice || null,
-			scenarioId: scenarioId || null,
-			isOnboarding: isOnboarding ? 'true' : 'false'
+			scenarioId: finalScenarioId,
+			isOnboarding: finalScenarioId === 'onboarding-welcome' ? 'true' : 'false'
 		});
 
 		// Create conversation session for tracking

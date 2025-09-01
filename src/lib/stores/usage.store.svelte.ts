@@ -1,7 +1,6 @@
 // usage.store.svelte.ts
 // Combined store for MVP - handles both usage tracking and timer functionality
-import type { UserTier, TierConfig } from '$lib/data/tiers';
-
+import type { Tier } from '$lib/server/db/types';
 export interface TimerState {
 	isRunning: boolean;
 	isPaused: boolean;
@@ -43,8 +42,7 @@ export interface UsageData {
 class UsageStore {
 	// User info
 	userId = $state<string | null>(null);
-	tier = $state<UserTier | null>(null);
-	tierConfig = $state<TierConfig | null>(null);
+	tier = $state<Tier | null>(null);
 
 	// Usage data
 	usage = $state<UsageData | null>(null);
@@ -70,20 +68,20 @@ class UsageStore {
 
 	// --- Derived values for usage ---
 	canStartNewSession = $derived(() => {
-		if (!this.usage || !this.tierConfig) return false;
+		if (!this.usage || !this.tier) return false;
 
 		// Check conversation limits
 		if (
-			this.tierConfig.monthlyConversations &&
-			this.usage.conversationsUsed >= this.tierConfig.monthlyConversations
+			this.tier.monthlyConversations &&
+			this.usage.conversationsUsed >= this.tier.monthlyConversations
 		) {
 			return false;
 		}
 
 		// Check realtime session limits
 		if (
-			this.tierConfig.monthlyRealtimeSessions &&
-			this.usage.realtimeSessionsUsed >= this.tierConfig.monthlyRealtimeSessions
+			this.tier.monthlyRealtimeSessions &&
+			this.usage.realtimeSessionsUsed >= this.tier.monthlyRealtimeSessions
 		) {
 			return false;
 		}
@@ -98,10 +96,9 @@ class UsageStore {
 	});
 
 	overageRate = $derived(() => {
-		if (!this.tierConfig) return 0;
-		// You'll need to add this to your tier config or calculate based on tier
-		const rates = { free: 0.1, plus: 0.05, premium: 0.02 };
-		return rates[this.tier as keyof typeof rates] || 0.1;
+		if (!this.tier) return 0;
+		// Use the overage rate from the tier data
+		return (this.tier.overagePricePerMinuteInCents || 10) / 100;
 	});
 
 	// --- Derived values for timer ---
@@ -126,19 +123,19 @@ class UsageStore {
 
 	canExtend = $derived(() => {
 		return (
-			this.tierConfig?.canExtend &&
-			this.timer.extensionsUsed < (this.tierConfig?.maxExtensions || 0) &&
+			this.tier?.canExtend &&
+			this.timer.extensionsUsed < (this.tier?.maxExtensions || 0) &&
 			this.timer.isRunning
 		);
 	});
 
 	extensionsRemaining = $derived(() => {
-		if (!this.tierConfig) return 0;
-		return this.tierConfig.maxExtensions - this.timer.extensionsUsed;
+		if (!this.tier) return 0;
+		return (this.tier.maxExtensions || 0) - this.timer.extensionsUsed;
 	});
 
 	isInWarningZone = $derived(() => {
-		return this.timer.remainingMs <= (this.tierConfig?.warningThresholdMs || 0);
+		return this.timer.remainingMs <= (this.tier?.warningThresholdSeconds || 0) * 1000;
 	});
 
 	sessionSecondsUsed = $derived(() => {
@@ -150,14 +147,13 @@ class UsageStore {
 	/**
 	 * Initialize store with user data
 	 */
-	setUser(userId: string, tier: UserTier, tierConfig: TierConfig) {
+	setUser(userId: string, tier: Tier) {
 		this.userId = userId;
 		this.tier = tier;
-		this.tierConfig = tierConfig;
 
-		// Initialize timer duration from tier config
-		this.timer.totalDurationMs = tierConfig.conversationTimeoutMs || 0;
-		this.timer.remainingMs = tierConfig.conversationTimeoutMs || 0;
+		// Initialize timer duration from tier config (convert seconds to milliseconds)
+		this.timer.totalDurationMs = (tier.conversationTimeoutSeconds || 0) * 1000;
+		this.timer.remainingMs = (tier.conversationTimeoutSeconds || 0) * 1000;
 	}
 
 	/**
@@ -224,8 +220,8 @@ class UsageStore {
 			startTime: null,
 			pausedAt: null,
 			elapsedMs: 0,
-			remainingMs: this.tierConfig?.conversationTimeoutMs || 0,
-			totalDurationMs: this.tierConfig?.conversationTimeoutMs || 0,
+			remainingMs: (this.tier?.conversationTimeoutSeconds || 0) * 1000,
+			totalDurationMs: (this.tier?.conversationTimeoutSeconds || 0) * 1000,
 			warningTriggered: false,
 			extensionsUsed: 0,
 			sessionId: null,
@@ -239,7 +235,6 @@ class UsageStore {
 	clear() {
 		this.userId = null;
 		this.tier = null;
-		this.tierConfig = null;
 		this.usage = null;
 		this.loading = false;
 		this.error = null;

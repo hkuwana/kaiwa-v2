@@ -59,16 +59,3 @@ const LANGUAGES = [
 
 // Create store
 export const languageStore = writable(LANGUAGES);
-
-// Helper functions
-export function getLanguageByCode(code: string) {
-	return LANGUAGES.find((lang) => lang.code === code);
-}
-
-export function getAllLanguages() {
-	return LANGUAGES;
-}
-
-export function getLanguageById(id: string) {
-	return LANGUAGES.find((lang) => lang.id === id);
-}

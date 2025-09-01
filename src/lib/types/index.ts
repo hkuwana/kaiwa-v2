@@ -1,32 +1,10 @@
 // 🏗️ Core Types
 // Centralized type definitions for the application
-
-import type { Voice } from './openai.realtime.types';
-
-export interface Scenarios {
-	id: string;
-	title: string;
-	description: string;
-	targetVocabulary?: string[];
-	culturalContext?: string;
-	difficulty: 'beginner' | 'intermediate' | 'advanced';
-	language: string;
-}
-
-export interface Speaker {
-	id: string;
-	voiceName: string;
-	gender: 'male' | 'female' | 'neutral';
-	dialectName: string;
-	region: string;
-	language: string;
-	voiceId: string; // OpenAI voice ID
-	openAIId?: Voice; // OpenAI voice ID for TTS
-	languageId?: string; // Language code (e.g., 'en', 'ja')
-	bcp47Code?: string; // BCP-47 language tag
-	speakerEmoji?: string; // Flag emoji for the language
-	voiceProviderId?: string; // Provider-specific voice ID
-}
+// Re-export database types for convenience
+export type { Scenario, Speaker } from '$lib/server/db/types';
 
 // 🎭 Conversation Types
-export * from './conversation';
+export * from './conversation'; // 📊 Data Types
+export * from './data';
+export * from './openai.realtime.types';
+export * from './api';

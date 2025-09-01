@@ -3,15 +3,14 @@ import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ locals }) => {
 	// Check if user is authenticated
-	if (!locals.user || !locals.userContext) {
+	if (!locals.user) {
 		return json({ error: 'Not authenticated' }, { status: 401 });
 	}
 
 	try {
 		// Return user data and context
 		return json({
-			user: locals.user,
-			userContext: locals.userContext
+			user: locals.user
 		});
 	} catch (error) {
 		console.error('Error fetching user data:', error);
