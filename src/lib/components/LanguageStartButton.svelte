@@ -5,7 +5,6 @@
 	import { speakersData, getSpeakersByLanguage } from '$lib/data/speakers';
 	import { goto } from '$app/navigation';
 	import type { Language as DataLanguage } from '$lib/data/languages';
-	import type { Speaker } from '$lib/types';
 
 	// Component state
 	let isLanguageMenuOpen = $state(false);
@@ -301,7 +300,7 @@
 	>
 		<span class="relative z-10">
 			{#if selectedLanguage}
-				Start Speaking {selectedLanguage.name}
+				Start Onboarding in {selectedLanguage.name}
 			{:else}
 				Loading...
 			{/if}

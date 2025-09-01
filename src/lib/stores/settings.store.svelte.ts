@@ -10,6 +10,7 @@ import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 const STORAGE_KEYS = {
 	LANGUAGE: 'kaiwa_selected_language',
 	SPEAKER: 'kaiwa_selected_speaker',
+	SCENARIO: 'kaiwa_selected_scenario',
 	LANGUAGE_CODE: 'kaiwa_language_code' // Fallback for SSR
 } as const;
 
@@ -75,6 +76,9 @@ export class SettingsStore {
 	// User's selected AI speaker/voice
 	selectedSpeaker = $state('ballad');
 
+	// User's selected learning scenario
+	selectedScenario = $state<string | null>(null);
+
 	// Flag to track if persistence is set up
 	private persistenceInitialized = false;
 
@@ -102,6 +106,15 @@ export class SettingsStore {
 				console.log('🎭 Speaker loaded from storage:', storedSpeaker);
 			} else {
 				console.log('🎭 No stored speaker found, using default: ash');
+			}
+
+			// Set scenario from storage
+			const storedScenario = localStorage.getItem(STORAGE_KEYS.SCENARIO);
+			if (storedScenario) {
+				this.selectedScenario = storedScenario;
+				console.log('🎯 Scenario loaded from storage:', storedScenario);
+			} else {
+				console.log('🎯 No stored scenario found');
 			}
 
 			// Set language from storage or default
@@ -167,6 +180,13 @@ export class SettingsStore {
 				}
 			});
 
+			// Watch for scenario changes
+			$effect(() => {
+				if (this.selectedScenario && browser) {
+					this.persistScenario(this.selectedScenario);
+				}
+			});
+
 			this.persistenceInitialized = true;
 			console.log('✅ Persistence setup complete');
 		} catch (error) {
@@ -210,6 +230,23 @@ export class SettingsStore {
 		}
 	};
 
+	// Persist scenario to both localStorage and cookies
+	private persistScenario = (scenarioId: string) => {
+		if (!browser) return;
+
+		try {
+			// Store in localStorage
+			localStorage.setItem(STORAGE_KEYS.SCENARIO, scenarioId);
+
+			// Store in cookies (for SSR compatibility)
+			cookieUtils.setCookie(STORAGE_KEYS.SCENARIO, scenarioId);
+
+			console.log('💾 Scenario persisted:', scenarioId);
+		} catch (error) {
+			console.warn('⚠️ Failed to persist scenario:', error);
+		}
+	};
+
 	// Update selected language by code
 	setLanguage = (languageCode: string) => {
 		const language = allLanguages.find((lang) => lang.code === languageCode);
@@ -245,21 +282,33 @@ export class SettingsStore {
 		}
 	};
 
+	// Update selected scenario
+	setScenario = (scenarioId: string) => {
+		this.selectedScenario = scenarioId;
+		// Persistence is handled automatically by the effect, but also persist immediately as fallback
+		if (browser && !this.persistenceInitialized) {
+			this.persistScenario(scenarioId);
+		}
+	};
+
 	// Reset to defaults and clear storage
 	reset = () => {
 		const defaultLanguage = allLanguages.find((lang) => lang.code === 'en');
 		this.selectedLanguage = defaultLanguage || null;
 		this.selectedSpeaker = DEFAULT_VOICE;
+		this.selectedScenario = null;
 
 		// Clear persistent storage
 		if (browser) {
 			try {
 				localStorage.removeItem(STORAGE_KEYS.LANGUAGE_CODE);
 				localStorage.removeItem(STORAGE_KEYS.SPEAKER);
+				localStorage.removeItem(STORAGE_KEYS.SCENARIO);
 
 				// Clear cookies
 				cookieUtils.deleteCookie(STORAGE_KEYS.LANGUAGE_CODE);
 				cookieUtils.deleteCookie(STORAGE_KEYS.SPEAKER);
+				cookieUtils.deleteCookie(STORAGE_KEYS.SCENARIO);
 
 				console.log('🗑️ Settings storage cleared');
 			} catch (error) {
@@ -273,15 +322,18 @@ export class SettingsStore {
 		return {
 			language: this.selectedLanguage,
 			speaker: this.selectedSpeaker,
+			scenario: this.selectedScenario,
 			storage: browser
 				? {
 						localStorage: {
 							language: localStorage.getItem(STORAGE_KEYS.LANGUAGE_CODE),
-							speaker: localStorage.getItem(STORAGE_KEYS.SPEAKER)
+							speaker: localStorage.getItem(STORAGE_KEYS.SPEAKER),
+							scenario: localStorage.getItem(STORAGE_KEYS.SCENARIO)
 						},
 						cookies: {
 							language: cookieUtils.getCookie(STORAGE_KEYS.LANGUAGE_CODE),
-							speaker: cookieUtils.getCookie(STORAGE_KEYS.SPEAKER)
+							speaker: cookieUtils.getCookie(STORAGE_KEYS.SPEAKER),
+							scenario: cookieUtils.getCookie(STORAGE_KEYS.SCENARIO)
 						},
 						allCookies: cookieUtils.listCookies()
 					}

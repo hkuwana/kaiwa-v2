@@ -59,7 +59,8 @@ export function getPriceId(tier: 'plus' | 'premium', billingCycle: 'monthly' | '
 }
 
 export function isValidPriceId(priceId: string): boolean {
-	return Object.values(STRIPE_PRICES).includes(priceId);
+	const priceArray = Object.values(STRIPE_PRICES) as string[];
+	return priceArray.includes(priceId);
 }
 
 // Tier detection from price ID

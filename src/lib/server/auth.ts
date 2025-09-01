@@ -87,8 +87,7 @@ export async function validateSessionToken(token: string) {
 }
 
 export type SessionValidationResult = Awaited<ReturnType<typeof validateSessionToken>>;
-// export type UserContext = Awaited<ReturnType<typeof getUserContext>>; // getUserContext disabled in MVP
-
+ 
 export async function invalidateSession(sessionId: string) {
 	await sessionRepository.delete(sessionId);
 }

@@ -1,98 +1,107 @@
 // 🔧 Stripe Utility Functions
-// Convert existing tier data to Stripe service format
+// Fetch real pricing data from Stripe API instead of creating mock objects
 
-import type { StripePrice, PricingTier } from './stripe.service';
-import type { TierConfig } from '../data/tiers';
+import type { PricingTier } from './stripe.service';
+import type { Tier } from '$lib/server/db/types';
 
 /**
- * Convert existing tier config to Stripe service format
+ * Convert tier config to basic pricing format (without Stripe objects)
+ * This avoids type issues while still providing the data needed for display
  */
-export function convertTierToStripeFormat(
-	tierConfig: TierConfig,
-	priceIds: {
-		monthly?: string;
-		annual?: string;
-	}
-): PricingTier {
-	// Convert price strings to StripePrice objects
-	const monthlyPrice: StripePrice | null =
-		tierConfig.monthlyPriceUsd && tierConfig.monthlyPriceUsd !== '0'
-			? ({
-					id: priceIds.monthly || `price_${tierConfig.id}_monthly`,
-					object: 'price',
-					active: true,
-					currency: 'usd',
-					livemode: false,
-					lookup_key: null,
-					metadata: {},
-					nickname: null,
-					product: `prod_${tierConfig.id}`,
-					recurring: {
-						interval: 'month',
-						interval_count: 1,
-						usage_type: 'licensed'
-					},
-					tax_behavior: null,
-					type: 'recurring',
-					unit_amount: Math.round(parseFloat(tierConfig.monthlyPriceUsd) * 100), // Convert to cents
-					unit_amount_decimal: (parseFloat(tierConfig.monthlyPriceUsd) * 100).toString(),
-					created: Math.floor(Date.now() / 1000),
-					unit_amount_min: null,
-					unit_amount_max: null,
-					transform_quantity: null,
-					billing_scheme: 'per_unit'
-				} as StripePrice)
+export function convertTierToBasicFormat(tier: Tier): {
+	id: string;
+	name: string;
+	monthlyPrice: { amount: number; currency: string } | null;
+	annualPrice: { amount: number; currency: string } | null;
+	features: string[];
+	description: string;
+} {
+	// Convert price strings to simple objects
+	const monthlyPrice =
+		tier.monthlyPriceUsd && tier.monthlyPriceUsd !== '0'
+			? { amount: parseFloat(tier.monthlyPriceUsd), currency: 'USD' }
 			: null;
 
-	const annualPrice: StripePrice | null =
-		tierConfig.annualPriceUsd && tierConfig.annualPriceUsd !== '0'
-			? ({
-					id: priceIds.annual || `price_${tierConfig.id}_annual`,
-					object: 'price',
-					active: true,
-					currency: 'usd',
-					livemode: false,
-					lookup_key: null,
-					metadata: {},
-					nickname: null,
-					product: `prod_${tierConfig.id}`,
-					recurring: {
-						interval: 'year',
-						interval_count: 1,
-						usage_type: 'licensed'
-					},
-					tax_behavior: null,
-					type: 'recurring',
-					unit_amount: Math.round(parseFloat(tierConfig.annualPriceUsd) * 100), // Convert to cents
-					unit_amount_decimal: (parseFloat(tierConfig.annualPriceUsd) * 100).toString(),
-					created: Math.floor(Date.now() / 1000),
-					unit_amount_min: null,
-					unit_amount_max: null,
-					transform_quantity: null,
-					billing_scheme: 'per_unit'
-				} as StripePrice)
+	const annualPrice =
+		tier.annualPriceUsd && tier.annualPriceUsd !== '0'
+			? { amount: parseFloat(tier.annualPriceUsd), currency: 'USD' }
 			: null;
 
 	// Extract features from tier config
 	const features = [
-		`${tierConfig.monthlySeconds ? Math.floor(tierConfig.monthlySeconds / 60) : 'Unlimited'} minutes/month`,
-		`${tierConfig.maxSessionLengthSeconds ? Math.floor(tierConfig.maxSessionLengthSeconds / 60) : 'Unlimited'} min sessions`,
-		tierConfig.hasRealtimeAccess ? 'Real-time conversations' : null,
-		tierConfig.hasAdvancedVoices ? 'Advanced AI voices' : null,
-		tierConfig.hasAnalytics ? 'Progress analytics' : null,
-		tierConfig.hasCustomPhrases ? 'Custom phrases' : null,
-		tierConfig.hasConversationMemory ? 'Conversation memory' : null,
-		tierConfig.hasAnkiExport ? 'Anki export' : null
+		`${tier.monthlySeconds ? Math.floor(tier.monthlySeconds / 60) : 'Unlimited'} minutes/month`,
+		`${tier.maxSessionLengthSeconds ? Math.floor(tier.maxSessionLengthSeconds / 60) : 'Unlimited'} min sessions`,
+		tier.hasRealtimeAccess ? 'Real-time conversations' : null,
+		tier.hasAdvancedVoices ? 'Advanced AI voices' : null,
+		tier.hasAnalytics ? 'Progress analytics' : null,
+		tier.hasCustomPhrases ? 'Custom phrases' : null,
+		tier.hasConversationMemory ? 'Conversation memory' : null,
+		tier.hasAnkiExport ? 'Anki export' : null
 	].filter(Boolean) as string[];
 
 	return {
-		id: tierConfig.id,
-		name: tierConfig.name,
+		id: tier.id,
+		name: tier.name,
 		monthlyPrice,
 		annualPrice,
 		features,
-		description: tierConfig.description || ''
+		description: tier.description || ''
 	};
+}
+
+/**
+ * Fetch real Stripe price data for a tier (optional enhancement)
+ */
+export async function fetchTierPricing(
+	tier: Tier,
+	priceIds: {
+		monthly?: string;
+		annual?: string;
+	}
+): Promise<PricingTier> {
+	// Fetch real price data from your Stripe API endpoints
+	const [monthlyPrice, annualPrice] = await Promise.all([
+		priceIds.monthly ? fetchPriceData(priceIds.monthly) : null,
+		priceIds.annual ? fetchPriceData(priceIds.annual) : null
+	]);
+
+	// Extract features from tier config
+	const features = [
+		`${tier.monthlySeconds ? Math.floor(tier.monthlySeconds / 60) : 'Unlimited'} minutes/month`,
+		`${tier.maxSessionLengthSeconds ? Math.floor(tier.maxSessionLengthSeconds / 60) : 'Unlimited'} min sessions`,
+		tier.hasRealtimeAccess ? 'Real-time conversations' : null,
+		tier.hasAdvancedVoices ? 'Advanced AI voices' : null,
+		tier.hasAnalytics ? 'Progress analytics' : null,
+		tier.hasCustomPhrases ? 'Custom phrases' : null,
+		tier.hasConversationMemory ? 'Conversation memory' : null,
+		tier.hasAnkiExport ? 'Anki export' : null
+	].filter(Boolean) as string[];
+
+	return {
+		id: tier.id,
+		name: tier.name,
+		monthlyPrice,
+		annualPrice,
+		features,
+		description: tier.description || ''
+	};
+}
+
+/**
+ * Fetch price data from your Stripe API endpoint
+ */
+async function fetchPriceData(priceId: string) {
+	try {
+		const response = await fetch(`/api/stripe/price/${priceId}`);
+		if (!response.ok) {
+			console.warn(`Failed to fetch price ${priceId}:`, response.statusText);
+			return null;
+		}
+		return await response.json();
+	} catch (error) {
+		console.warn(`Error fetching price ${priceId}:`, error);
+		return null;
+	}
 }
 
 /**
@@ -119,81 +128,29 @@ export function getPriceIdsForTier(tierId: string): {
 }
 
 /**
- * Create mock Stripe prices for development/testing
- */
-export function createMockStripePrices(
-	monthlyPrice: string,
-	annualPrice: string,
-	tierId: string
-): { monthly: StripePrice; annual: StripePrice } {
-	const basePrice: Partial<StripePrice> = {
-		object: 'price',
-		active: true,
-		currency: 'usd',
-		livemode: false,
-		lookup_key: null,
-		metadata: {},
-		nickname: null,
-		product: `prod_${tierId}`,
-		tax_behavior: null,
-		type: 'recurring',
-		created: Math.floor(Date.now() / 1000),
-		unit_amount_min: null,
-		unit_amount_max: null,
-		transform_quantity: null,
-		billing_scheme: 'per_unit'
-	};
-
-	return {
-		monthly: {
-			...basePrice,
-			id: `price_${tierId}_monthly_dev`,
-			recurring: {
-				interval: 'month',
-				interval_count: 1,
-				usage_type: 'licensed'
-			},
-			unit_amount: Math.round(parseFloat(monthlyPrice) * 100),
-			unit_amount_decimal: (parseFloat(monthlyPrice) * 100).toString()
-		} as StripePrice,
-		annual: {
-			...basePrice,
-			id: `price_${tierId}_annual_dev`,
-			recurring: {
-				interval: 'year',
-				interval_count: 1,
-				usage_type: 'licensed'
-			},
-			unit_amount: Math.round(parseFloat(annualPrice) * 100),
-			unit_amount_decimal: (parseFloat(annualPrice) * 100).toString()
-		} as StripePrice
-	};
-}
-
-/**
  * Validate tier configuration for Stripe integration
  */
-export function validateTierForStripe(tierConfig: TierConfig): {
+export function validateTierForStripe(tier: Tier): {
 	isValid: boolean;
 	errors: string[];
 } {
 	const errors: string[] = [];
 
-	if (!tierConfig.monthlyPriceUsd && !tierConfig.annualPriceUsd) {
+	if (!tier.monthlyPriceUsd && !tier.annualPriceUsd) {
 		errors.push('Tier must have at least one price (monthly or annual)');
 	}
 
-	if (tierConfig.monthlyPriceUsd && parseFloat(tierConfig.monthlyPriceUsd) < 0) {
+	if (tier.monthlyPriceUsd && parseFloat(tier.monthlyPriceUsd) < 0) {
 		errors.push('Monthly price cannot be negative');
 	}
 
-	if (tierConfig.annualPriceUsd && parseFloat(tierConfig.annualPriceUsd) < 0) {
+	if (tier.annualPriceUsd && parseFloat(tier.annualPriceUsd) < 0) {
 		errors.push('Annual price cannot be negative');
 	}
 
-	if (tierConfig.monthlyPriceUsd && tierConfig.annualPriceUsd) {
-		const monthly = parseFloat(tierConfig.monthlyPriceUsd);
-		const annual = parseFloat(tierConfig.annualPriceUsd);
+	if (tier.monthlyPriceUsd && tier.annualPriceUsd) {
+		const monthly = parseFloat(tier.monthlyPriceUsd);
+		const annual = parseFloat(tier.annualPriceUsd);
 
 		if (annual > monthly * 12) {
 			errors.push('Annual price should be less than or equal to 12x monthly price');
@@ -210,8 +167,16 @@ export function validateTierForStripe(tierConfig: TierConfig): {
  * Get tier comparison data for display
  */
 export function getTierComparison(
-	tier1: PricingTier,
-	tier2: PricingTier,
+	tier1: {
+		monthlyPrice?: { amount: number } | null;
+		annualPrice?: { amount: number } | null;
+		name: string;
+	},
+	tier2: {
+		monthlyPrice?: { amount: number } | null;
+		annualPrice?: { amount: number } | null;
+		name: string;
+	},
 	billingCycle: 'monthly' | 'annual'
 ): {
 	priceDifference: string;
@@ -221,7 +186,7 @@ export function getTierComparison(
 	const price1 = billingCycle === 'monthly' ? tier1.monthlyPrice : tier1.annualPrice;
 	const price2 = billingCycle === 'monthly' ? tier2.monthlyPrice : tier2.annualPrice;
 
-	if (!price1 || !price2 || !price1.unit_amount || !price2.unit_amount) {
+	if (!price1 || !price2 || !price1.amount || !price2.amount) {
 		return {
 			priceDifference: 'N/A',
 			isMoreExpensive: false,
@@ -229,7 +194,7 @@ export function getTierComparison(
 		};
 	}
 
-	const difference = (price2.unit_amount - price1.unit_amount) / 100; // Convert from cents
+	const difference = price2.amount - price1.amount;
 	const isMoreExpensive = difference > 0;
 
 	let recommendation = '';

@@ -2,10 +2,10 @@
 <!-- Displays learning results and feedback after completing a scenario -->
 
 <script lang="ts">
-	import type { LearningScenario, ScenarioOutcome } from '$lib/types/conversation';
+	import type { Scenario, ScenarioOutcome } from '$lib/types';
 
 	let { scenario, outcome, onRetry, onNextScenario, onBackToScenarios } = $props<{
-		scenario: LearningScenario;
+		scenario: Scenario;
 		outcome: ScenarioOutcome;
 		onRetry: () => void;
 		onNextScenario: () => void;
@@ -98,19 +98,26 @@
 				</div>
 			</div>
 
-			<!-- Goal Achievement -->
-			<div
-				class="goal-achievement rounded-xl border border-green-200 bg-gradient-to-br from-green-50 to-green-100 p-6"
-			>
-				<div class="text-center">
-					<div class="mb-2 text-4xl">
-						{outcome.wasGoalAchieved ? '🎯' : '⏳'}
+			<!-- Session Info -->
+			<div class="session-info rounded-xl border border-gray-200 bg-gray-50 p-6">
+				<div class="space-y-3">
+					<div class="flex items-center justify-between">
+						<span class="text-sm font-medium text-gray-600">Duration:</span>
+						<span class="text-sm font-medium text-gray-800">
+							{formatDuration(outcome.duration)}
+						</span>
 					</div>
-					<div class="mb-2 text-lg font-medium text-green-700">
-						{outcome.wasGoalAchieved ? 'Goal Achieved!' : 'Goal In Progress'}
+					<div class="flex items-center justify-between">
+						<span class="text-sm font-medium text-gray-600">Completed:</span>
+						<span class="text-sm font-medium text-gray-800">
+							{outcome.completedAt.toLocaleDateString()}
+						</span>
 					</div>
-					<div class="text-sm text-green-600">
-						{Math.round((outcome.goalCompletionScore ?? 0) * 100)}% Complete
+					<div class="flex items-center justify-between">
+						<span class="text-sm font-medium text-gray-600">Difficulty:</span>
+						<span class="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
+							{scenario.difficulty}
+						</span>
 					</div>
 				</div>
 			</div>
@@ -119,186 +126,129 @@
 
 	<!-- Detailed Scores -->
 	<div class="detailed-scores mb-8">
-		<h3 class="mb-4 text-xl font-semibold text-gray-800">Detailed Assessment</h3>
+		<h3 class="mb-4 text-xl font-semibold text-gray-800">Performance Breakdown</h3>
 		<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
 			<!-- Vocabulary Score -->
-			<div
-				class="score-card {getScoreBackground(outcome.vocabularyUsageScore)} rounded-lg border p-4"
-			>
-				<div class="text-center">
-					<div class="text-2xl font-bold {getScoreColor(outcome.vocabularyUsageScore)} mb-1">
-						{Math.round(outcome.vocabularyUsageScore * 100)}%
+			<div class="score-card rounded-lg border border-gray-200 bg-white p-4">
+				<div class="mb-2 text-center">
+					<div class="text-2xl font-bold {getScoreColor(outcome.vocabularyUsageScore ?? 0)}">
+						{Math.round((outcome.vocabularyUsageScore ?? 0) * 100)}%
 					</div>
-					<div class="mb-2 text-sm font-medium text-gray-700">Vocabulary</div>
-					<div class="text-xs text-gray-600">
-						{outcome.usedTargetVocabulary.length} / {scenario.targetVocabulary.length} words used
-					</div>
+					<div class="text-sm font-medium text-gray-700">Vocabulary</div>
+				</div>
+				<div class="h-2 w-full rounded-full bg-gray-200">
+					<div
+						class="h-2 rounded-full transition-all duration-300 {getScoreBackground(
+							outcome.vocabularyUsageScore ?? 0
+						)}"
+						style="width: {(outcome.vocabularyUsageScore ?? 0) * 100}%"
+					></div>
 				</div>
 			</div>
 
 			<!-- Grammar Score -->
-			<div class="score-card {getScoreBackground(outcome.grammarUsageScore)} rounded-lg border p-4">
-				<div class="text-center">
-					<div class="text-2xl font-bold {getScoreColor(outcome.grammarUsageScore)} mb-1">
-						{Math.round(outcome.grammarUsageScore * 100)}%
+			<div class="score-card rounded-lg border border-gray-200 bg-white p-4">
+				<div class="mb-2 text-center">
+					<div class="text-2xl font-bold {getScoreColor(outcome.grammarUsageScore ?? 0)}">
+						{Math.round((outcome.grammarUsageScore ?? 0) * 100)}%
 					</div>
-					<div class="mb-2 text-sm font-medium text-gray-700">Grammar</div>
-					<div class="text-xs text-gray-600">
-						{scenario.targetGrammar || 'Not specified'}
-					</div>
+					<div class="text-sm font-medium text-gray-700">Grammar</div>
+				</div>
+				<div class="h-2 w-full rounded-full bg-gray-200">
+					<div
+						class="h-2 rounded-full transition-all duration-300 {getScoreBackground(
+							outcome.grammarUsageScore ?? 0
+						)}"
+						style="width: {(outcome.grammarUsageScore ?? 0) * 100}%"
+					></div>
 				</div>
 			</div>
 
 			<!-- Goal Completion Score -->
-			<div
-				class="score-card {getScoreBackground(outcome.goalCompletionScore)} rounded-lg border p-4"
-			>
-				<div class="text-center">
-					<div class="text-2xl font-bold {getScoreColor(outcome.goalCompletionScore)} mb-1">
-						{Math.round(outcome.goalCompletionScore * 100)}%
+			<div class="score-card rounded-lg border border-gray-200 bg-white p-4">
+				<div class="mb-2 text-center">
+					<div class="text-2xl font-bold {getScoreColor(outcome.goalCompletionScore ?? 0)}">
+						{Math.round((outcome.goalCompletionScore ?? 0) * 100)}%
 					</div>
-					<div class="mb-2 text-sm font-medium text-gray-700">Goal Completion</div>
-					<div class="text-xs text-gray-600">
-						{outcome.wasGoalAchieved ? 'Completed' : 'In Progress'}
-					</div>
+					<div class="text-sm font-medium text-gray-700">Goal Completion</div>
+				</div>
+				<div class="h-2 w-full rounded-full bg-gray-200">
+					<div
+						class="h-2 rounded-full transition-all duration-300 {getScoreBackground(
+							outcome.goalCompletionScore ?? 0
+						)}"
+						style="width: {(outcome.goalCompletionScore ?? 0) * 100}%"
+					></div>
 				</div>
 			</div>
 
-			<!-- Session Stats -->
-			<div class="score-card rounded-lg border border-gray-200 bg-gray-50 p-4">
-				<div class="text-center">
-					<div class="mb-1 text-2xl font-bold text-gray-600">
-						{formatDuration(outcome.durationSeconds)}
+			<!-- Pronunciation Score -->
+			<div class="score-card rounded-lg border border-gray-200 bg-white p-4">
+				<div class="mb-2 text-center">
+					<div class="text-2xl font-bold {getScoreColor(outcome.pronunciationScore ?? 0)}">
+						{Math.round((outcome.pronunciationScore ?? 0) * 100)}%
 					</div>
-					<div class="mb-2 text-sm font-medium text-gray-700">Duration</div>
-					<div class="text-xs text-gray-600">
-						{outcome.exchangeCount} exchanges
-					</div>
+					<div class="text-sm font-medium text-gray-700">Pronunciation</div>
+				</div>
+				<div class="h-2 w-full rounded-full bg-gray-200">
+					<div
+						class="h-2 rounded-full transition-all duration-300 {getScoreBackground(
+							outcome.pronunciationScore ?? 0
+						)}"
+						style="width: {(outcome.pronunciationScore ?? 0) * 100}%"
+					></div>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<!-- Vocabulary Analysis -->
-	<div class="vocabulary-analysis mb-8">
-		<h3 class="mb-4 text-xl font-semibold text-gray-800">Vocabulary Usage</h3>
-		<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-			<!-- Used Vocabulary -->
-			<div class="used-vocabulary">
-				<h4 class="mb-3 text-lg font-medium text-green-700">✅ Words You Used</h4>
-				<div class="flex flex-wrap gap-2">
-					{#each outcome.usedTargetVocabulary as word}
-						<span class="rounded-lg bg-green-100 px-3 py-2 text-sm font-medium text-green-800">
-							{word}
-						</span>
-					{/each}
-					{#if outcome.usedTargetVocabulary.length === 0}
-						<span class="text-sm text-gray-400">No target vocabulary used</span>
-					{/if}
-				</div>
+	<!-- Learning Summary -->
+	<div class="learning-summary mb-8">
+		<h3 class="mb-4 text-xl font-semibold text-gray-800">What You Learned</h3>
+		<div class="rounded-lg border border-gray-200 bg-gray-50 p-6">
+			<div class="mb-4">
+				<h4 class="mb-2 font-medium text-gray-700">Scenario Context:</h4>
+				<p class="text-sm text-gray-600">{scenario.context}</p>
 			</div>
-
-			<!-- Missed Vocabulary -->
-			<div class="missed-vocabulary">
-				<h4 class="mb-3 text-lg font-medium text-orange-700">📚 Words to Practice</h4>
-				<div class="flex flex-wrap gap-2">
-					{#each outcome.missedTargetVocabulary as word}
-						<span class="rounded-lg bg-orange-100 px-3 py-2 text-sm font-medium text-orange-800">
-							{word}
-						</span>
-					{/each}
-					{#if outcome.missedTargetVocabulary.length === 0}
-						<span class="text-sm text-green-600">All vocabulary mastered! 🎉</span>
-					{/if}
-				</div>
+			<div class="mb-4">
+				<h4 class="mb-2 font-medium text-gray-700">Your Goal:</h4>
+				<p class="text-sm text-gray-600">{scenario.instructions}</p>
 			</div>
-		</div>
-	</div>
-
-	<!-- AI Feedback -->
-	<div class="ai-feedback mb-8">
-		<h3 class="mb-4 text-xl font-semibold text-gray-800">AI Feedback</h3>
-		<div class="rounded-lg border border-blue-200 bg-blue-50 p-6">
-			<div class="flex items-start space-x-3">
-				<div class="text-2xl">🤖</div>
-				<div class="flex-1">
-					<p class="mb-4 leading-relaxed text-gray-800">{outcome.aiFeedback}</p>
-
-					{#if outcome.suggestions.length > 0}
-						<div class="suggestions">
-							<h4 class="mb-2 font-medium text-gray-700">Improvement Suggestions:</h4>
-							<ul class="space-y-2">
-								{#each outcome.suggestions as suggestion}
-									<li class="flex items-start space-x-2 text-sm text-gray-700">
-										<span class="mt-1 text-blue-500">💡</span>
-										<span>{suggestion}</span>
-									</li>
-								{/each}
-							</ul>
-						</div>
-					{/if}
+			{#if scenario.expectedOutcome}
+				<div>
+					<h4 class="mb-2 font-medium text-gray-700">Expected Outcome:</h4>
+					<p class="text-sm text-gray-600">{scenario.expectedOutcome}</p>
 				</div>
-			</div>
+			{/if}
 		</div>
 	</div>
 
 	<!-- Action Buttons -->
-	<div class="action-buttons space-y-4 text-center">
-		<div class="flex flex-col justify-center gap-4 sm:flex-row">
-			<button
-				class="rounded-lg bg-blue-500 px-8 py-3 font-medium text-white transition-colors hover:bg-blue-600"
-				onclick={onRetry}
-			>
-				🔄 Practice Again
-			</button>
-
-			<button
-				class="rounded-lg bg-green-500 px-8 py-3 font-medium text-white transition-colors hover:bg-green-600"
-				onclick={onNextScenario}
-			>
-				➡️ Next Scenario
-			</button>
-
-			<button
-				class="rounded-lg bg-gray-500 px-8 py-3 font-medium text-white transition-colors hover:bg-gray-600"
-				onclick={onBackToScenarios}
-			>
-				📚 Choose Another
-			</button>
-		</div>
-
-		<p class="text-sm text-gray-500">Keep practicing to improve your skills!</p>
-	</div>
-
-	<!-- Session Summary -->
-	<div class="session-summary mt-8 border-t border-gray-200 pt-6">
-		<h3 class="mb-3 text-lg font-medium text-gray-700">Session Summary</h3>
-		<div class="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
-			<div class="text-center">
-				<div class="font-medium text-gray-600">Duration</div>
-				<div class="text-gray-800">{formatDuration(outcome.durationSeconds)}</div>
-			</div>
-			<div class="text-center">
-				<div class="font-medium text-gray-600">Exchanges</div>
-				<div class="text-gray-800">{outcome.exchangeCount}</div>
-			</div>
-			<div class="text-center">
-				<div class="font-medium text-gray-600">Vocabulary Used</div>
-				<div class="text-gray-800">
-					{outcome.usedTargetVocabulary.length}/{scenario.targetVocabulary.length}
-				</div>
-			</div>
-			<div class="text-center">
-				<div class="font-medium text-gray-600">Overall Score</div>
-				<div class="text-gray-800">{Math.round(overallScore * 100)}%</div>
-			</div>
-		</div>
+	<div class="action-buttons flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
+		<button
+			class="flex-1 rounded-lg border border-gray-300 bg-white px-6 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-50"
+			onclick={onRetry}
+		>
+			🔄 Try Again
+		</button>
+		<button
+			class="flex-1 rounded-lg border border-gray-300 bg-white px-6 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-50"
+			onclick={onBackToScenarios}
+		>
+			📚 Choose Another Scenario
+		</button>
+		<button
+			class="flex-1 rounded-lg bg-blue-500 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-600"
+			onclick={onNextScenario}
+		>
+			🚀 Next Scenario
+		</button>
 	</div>
 </div>
 
 <style>
 	.scenario-outcome {
-		@apply mx-auto max-w-5xl;
+		@apply transition-all duration-200;
 	}
 
 	.score-card {
@@ -306,20 +256,10 @@
 	}
 
 	.score-card:hover {
-		@apply -translate-y-1 transform;
+		@apply shadow-md;
 	}
 
 	.celebration {
-		@apply animate-bounce;
-	}
-
-	.used-vocabulary span,
-	.missed-vocabulary span {
-		@apply transition-all duration-200;
-	}
-
-	.used-vocabulary span:hover,
-	.missed-vocabulary span:hover {
-		@apply scale-105 transform;
+		@apply animate-pulse;
 	}
 </style>

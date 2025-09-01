@@ -2,14 +2,10 @@
 <!-- Shows learning progress and provides scaffolding during scenario practice -->
 
 <script lang="ts">
-	import type {
-		LearningScenario,
-		ScenarioOutcome,
-		ConversationState
-	} from '$lib/types/conversation';
+	import type { Scenario, ScenarioOutcome, ConversationState } from '$lib/types';
 
 	let { scenario, state, onUseHint, onUseTranslation, onViewExample } = $props<{
-		scenario: LearningScenario;
+		scenario: Scenario;
 		state: ConversationState;
 		onUseHint: (word: string) => void;
 		onUseTranslation: (word: string) => void;
@@ -42,7 +38,7 @@
 	}
 
 	function getUnusedVocabulary(): string[] {
-		return (scenario.targetVocabulary || []).filter(
+		return (scenario.learningObjectives || []).filter(
 			(word: string) => !usedVocabulary.includes(word)
 		);
 	}
@@ -73,7 +69,7 @@
 			</span>
 		</div>
 		<div class="rounded-lg border border-blue-200 bg-blue-50 p-4">
-			<p class="text-sm font-medium text-gray-800">{scenario.goal}</p>
+			<p class="text-sm font-medium text-gray-800">{scenario.instructions}</p>
 		</div>
 		<!-- Goal Progress Bar -->
 		<div class="mt-3">
@@ -101,28 +97,26 @@
 			</div>
 			<div class="h-2 w-full rounded-full bg-green-200">
 				<div
-					class="h-2 {getProgressColor(goalProgress)} rounded-full transition-all duration-300"
+					class="h-2 rounded-full bg-green-500 transition-all duration-300"
 					style="width: {goalProgress * 100}%"
 				></div>
 			</div>
 		</div>
 
 		<!-- Vocabulary Progress -->
-		<div class="metric-card rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+		<div class="metric-card rounded-lg border border-blue-200 bg-blue-50 p-4">
 			<div class="mb-2 flex items-center justify-between">
 				<span class="text-sm font-medium text-gray-700">Vocabulary</span>
-				<span class="text-lg font-bold text-yellow-600">
+				<span class="text-lg font-bold text-blue-600">
 					{Math.round(vocabularyProgress * 100)}%
 				</span>
 			</div>
 			<div class="mb-2 text-xs text-gray-600">
-				{usedVocabulary.length} / {scenario.targetVocabulary.length} words used
+				{getProgressText(vocabularyProgress)}
 			</div>
-			<div class="h-2 w-full rounded-full bg-yellow-200">
+			<div class="h-2 w-full rounded-full bg-blue-200">
 				<div
-					class="h-2 {getProgressColor(
-						vocabularyProgress
-					)} rounded-full transition-all duration-300"
+					class="h-2 rounded-full bg-blue-500 transition-all duration-300"
 					style="width: {vocabularyProgress * 100}%"
 				></div>
 			</div>
@@ -137,150 +131,117 @@
 				</span>
 			</div>
 			<div class="mb-2 text-xs text-gray-600">
-				{scenario.targetGrammar || 'Not specified'}
+				{getProgressText(grammarProgress)}
 			</div>
 			<div class="h-2 w-full rounded-full bg-purple-200">
 				<div
-					class="h-2 {getProgressColor(grammarProgress)} rounded-full transition-all duration-300"
+					class="h-2 rounded-full bg-purple-500 transition-all duration-300"
 					style="width: {grammarProgress * 100}%"
 				></div>
 			</div>
 		</div>
 	</div>
 
-	<!-- Vocabulary Status -->
-	<div class="vocabulary-status mb-6">
+	<!-- Vocabulary Usage -->
+	<div class="vocabulary-usage mb-6">
 		<h4 class="mb-3 font-medium text-gray-700">Vocabulary Progress</h4>
-		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+		<div class="space-y-3">
 			<!-- Used Vocabulary -->
 			<div class="used-vocabulary">
-				<h5 class="mb-2 text-sm font-medium text-green-700">✅ Used Words</h5>
+				<h5 class="mb-2 text-sm font-medium text-green-700">Used Successfully:</h5>
 				<div class="flex flex-wrap gap-2">
 					{#each usedVocabulary as word}
-						<span class="rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+						<span class="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
 							{word}
 						</span>
 					{/each}
-					{#if usedVocabulary.length === 0}
-						<span class="text-xs text-gray-400">No words used yet</span>
-					{/if}
 				</div>
 			</div>
 
 			<!-- Unused Vocabulary -->
 			<div class="unused-vocabulary">
-				<h5 class="mb-2 text-sm font-medium text-gray-700">📚 Still Need to Use</h5>
+				<h5 class="mb-2 text-sm font-medium text-orange-700">Still to Use:</h5>
 				<div class="flex flex-wrap gap-2">
 					{#each getUnusedVocabulary() as word}
-						<span class="rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">
+						<span class="rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-800">
 							{word}
 						</span>
 					{/each}
-					{#if getUnusedVocabulary().length === 0}
-						<span class="text-xs text-green-600">All words used! 🎉</span>
-					{/if}
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<!-- Scaffolding Features -->
-	<div class="scaffolding-features">
-		<h4 class="mb-3 font-medium text-gray-700">Learning Support</h4>
+	<!-- Scaffolding Usage -->
+	<div class="scaffolding-usage mb-6">
+		<h4 class="mb-3 font-medium text-gray-700">Learning Support Usage</h4>
 		<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-			<!-- Translation Hints -->
+			<!-- Hints Used -->
 			<div class="scaffolding-card rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-				<div class="mb-3 flex items-center justify-between">
-					<h5 class="text-sm font-medium text-yellow-800">Translation Hints</h5>
-					<span class="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-600">
-						{hintsUsed} used
-					</span>
+				<div class="mb-2 flex items-center justify-between">
+					<span class="text-sm font-medium text-gray-700">Hints Used</span>
+					<span class="text-lg font-bold text-yellow-600">{hintsUsed}</span>
 				</div>
-				<p class="mb-3 text-xs text-yellow-700">Get help with specific words</p>
-				<div class="space-y-2">
-					{#each getUnusedVocabulary().slice(0, 3) as word}
-						<button
-							class="w-full rounded bg-yellow-100 px-3 py-2 text-left text-sm text-yellow-800 transition-colors hover:bg-yellow-200"
-							onclick={() => onUseHint(word)}
-						>
-							{word} → {scenario.translationHints[word] || 'Click for hint'}
-						</button>
-					{/each}
-				</div>
-			</div>
-
-			<!-- Example Responses -->
-			<div class="scaffolding-card rounded-lg border border-green-200 bg-green-50 p-4">
-				<div class="mb-3 flex items-center justify-between">
-					<h5 class="text-sm font-medium text-green-800">Example Responses</h5>
-					<span class="rounded bg-green-100 px-2 py-1 text-xs text-green-600">
-						{exampleResponsesViewed} viewed
-					</span>
-				</div>
-				<p class="mb-3 text-xs text-green-700">See how to respond naturally</p>
 				<button
-					class="w-full rounded bg-green-100 px-3 py-2 text-sm text-green-800 transition-colors hover:bg-green-200"
-					onclick={onViewExample}
+					class="w-full rounded-lg bg-yellow-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-yellow-600"
+					onclick={() => onUseHint('next')}
 				>
-					View Examples
+					Get Next Hint
 				</button>
 			</div>
 
-			<!-- Progress Summary -->
+			<!-- Translations Used -->
 			<div class="scaffolding-card rounded-lg border border-blue-200 bg-blue-50 p-4">
-				<h5 class="mb-3 text-sm font-medium text-blue-800">Session Summary</h5>
-				<div class="space-y-2 text-xs text-blue-700">
-					<div class="flex justify-between">
-						<span>Hints used:</span>
-						<span class="font-medium">{hintsUsed}</span>
-					</div>
-					<div class="flex justify-between">
-						<span>Translations:</span>
-						<span class="font-medium">{translationsUsed}</span>
-					</div>
-					<div class="flex justify-between">
-						<span>Examples viewed:</span>
-						<span class="font-medium">{exampleResponsesViewed}</span>
-					</div>
-					<div class="flex justify-between">
-						<span>Exchanges:</span>
-						<span class="font-medium">{Math.floor(state.messages.length / 2)}</span>
-					</div>
+				<div class="mb-2 flex items-center justify-between">
+					<span class="text-sm font-medium text-gray-700">Translations</span>
+					<span class="text-lg font-bold text-blue-600">{translationsUsed}</span>
 				</div>
+				<button
+					class="w-full rounded-lg bg-blue-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600"
+					onclick={() => onUseTranslation('current')}
+				>
+					Translate Current
+				</button>
+			</div>
+
+			<!-- Examples Viewed -->
+			<div class="scaffolding-card rounded-lg border border-green-200 bg-green-50 p-4">
+				<div class="mb-2 flex items-center justify-between">
+					<span class="text-sm font-medium text-gray-700">Examples</span>
+					<span class="text-lg font-bold text-green-600">{exampleResponsesViewed}</span>
+				</div>
+				<button
+					class="w-full rounded-lg bg-green-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-green-600"
+					onclick={onViewExample}
+				>
+					View Example
+				</button>
 			</div>
 		</div>
 	</div>
 
-	<!-- Encouragement Message -->
-	{#if goalProgress >= 0.8}
-		<div class="encouragement mt-6 rounded-lg border border-green-200 bg-green-50 p-4 text-center">
-			<div class="mb-2 text-2xl">🎉</div>
-			<p class="font-medium text-green-800">Great progress! You're almost there!</p>
-		</div>
-	{:else if goalProgress >= 0.5}
-		<div class="encouragement mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4 text-center">
-			<div class="mb-2 text-xl">💪</div>
-			<p class="font-medium text-blue-800">Keep going! You're making good progress.</p>
-		</div>
-	{:else}
-		<div
-			class="encouragement mt-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-center"
-		>
-			<div class="mb-2 text-xl">🚀</div>
-			<p class="font-medium text-yellow-800">
-				You're just getting started! Use the hints above to help you.
-			</p>
+	<!-- Expected Outcome -->
+	{#if scenario.expectedOutcome}
+		<div class="expected-outcome">
+			<h4 class="mb-3 font-medium text-gray-700">Expected Outcome</h4>
+			<div class="rounded-lg border border-purple-200 bg-purple-50 p-4">
+				<p class="text-sm text-gray-800">{scenario.expectedOutcome}</p>
+			</div>
 		</div>
 	{/if}
 </div>
 
 <style>
 	.scenario-progress {
-		@apply mx-auto max-w-4xl;
+		@apply transition-all duration-200;
 	}
 
 	.metric-card {
 		@apply transition-all duration-200;
+	}
+
+	.metric-card:hover {
+		@apply shadow-md;
 	}
 
 	.scaffolding-card {
@@ -288,10 +249,6 @@
 	}
 
 	.scaffolding-card:hover {
-		@apply -translate-y-1 transform;
-	}
-
-	.encouragement {
-		@apply transition-all duration-300;
+		@apply shadow-md;
 	}
 </style>

@@ -9,10 +9,8 @@ import { SvelteDate } from 'svelte/reactivity';
 import { browser } from '$app/environment';
 import { realtimeService } from '$lib/services';
 import { audioStore } from '$lib/stores/audio.store.svelte';
-import {
-	generateCompleteOnboardingInstructions,
-	generateCompleteSessionInstructions
-} from '$lib/services/instructions.service';
+import { scenarioStore } from '$lib/stores/scenario.store.svelte';
+import { getInstructions } from '$lib/services/instructions.service';
 import * as messageService from '$lib/services/message.service';
 import * as sessionManagerService from '$lib/services/session-manager.service';
 import * as eventHandlerService from '$lib/services/event-handler.service';
@@ -139,9 +137,11 @@ export class ConversationStore {
 		this.clearTranscriptionState();
 
 		// Extract voice from speaker or use user preference
-		if (speaker && typeof speaker === 'object' && 'openAIId' in speaker) {
+		if (speaker && typeof speaker === 'object') {
 			const speakerVoice =
-				speaker.openAIId || userPreferencesStore.getPreference('preferredVoice') || DEFAULT_VOICE;
+				speaker.openaiVoiceId ||
+				userPreferencesStore.getPreference('preferredVoice') ||
+				DEFAULT_VOICE;
 			this.voice = isValidVoice(speakerVoice) ? speakerVoice : DEFAULT_VOICE;
 		} else {
 			const preferredVoice = userPreferencesStore.getPreference('preferredVoice') || DEFAULT_VOICE;
@@ -546,19 +546,12 @@ export class ConversationStore {
 		});
 
 		// Generate complete instructions based on user type
-		let combinedInstructions: string;
 
-		if (isFirstTime) {
-			// For first-time users, use complete onboarding instructions
-			combinedInstructions = generateCompleteOnboardingInstructions(
-				this.isGuestUser,
-				'en', // source language
-				this.language
-			);
-		} else {
-			// For returning users, use complete session instructions
-			combinedInstructions = generateCompleteSessionInstructions(this.language, userPrefs);
-		}
+		const combinedInstructions = getInstructions('initial', {
+			language: this.language,
+			preferences: userPrefs,
+			scenario: scenarioStore.getSelectedScenario()
+		});
 
 		const sessionConfig = sessionManagerService.createSessionConfig(
 			this.language,

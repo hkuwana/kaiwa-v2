@@ -1,64 +1,23 @@
+import type { Tier, UserTier } from '$lib/server/db/types';
+// DEPRECATED: This file is being replaced by the database schema
+// Use the Tier type from $lib/server/db/types instead
 // tier.ts
-export type UserTier = 'free' | 'plus' | 'premium';
 
-// This interface matches your database schema exactly
-export interface TierConfig {
-	id: string;
-	name: string;
-	description: string | null;
-
-	// Monthly limits
-	monthlyConversations: number | null;
-	monthlySeconds: number | null; // Changed from monthlyMinutes
-	monthlyRealtimeSessions: number | null;
-
-	// Session limits
-	maxSessionLengthSeconds: number | null; // Changed from maxSessionLengthMinutes
-	sessionBankingEnabled: boolean;
-	maxBankedSeconds: number | null; // Changed from maxBankedMinutes
-
-	// Feature access
-	hasRealtimeAccess: boolean;
-	hasAdvancedVoices: boolean;
-	hasAnalytics: boolean;
-	hasCustomPhrases: boolean;
-	hasConversationMemory: boolean;
-	hasAnkiExport: boolean;
-
-	// Pricing
-	monthlyPriceUsd: string | null; // Decimal from DB comes as string
-	annualPriceUsd: string | null;
-	stripeProductId: string | null;
-	stripePriceIdMonthly: string | null;
-	stripePriceIdAnnual: string | null;
-
-	// Timer settings
-	conversationTimeoutMs: number | null;
-	warningThresholdMs: number | null;
-	canExtend: boolean;
-	maxExtensions: number;
-	extensionDurationMs: number;
-
-	// Additional fields for overage (not in DB, calculated)
-	overagePricePerMinute?: number;
-	feedbackSessionsPerMonth?: number | 'unlimited';
-	customizedPhrasesFrequency?: 'weekly' | 'daily';
-	conversationMemoryLevel?: 'basic' | 'human-like' | 'elephant-like';
-	ankiExportLimit?: number | 'unlimited';
-}
+// Re-export UserTier for compatibility
+export type { UserTier };
 
 // Default tier configurations - these would typically come from your database
 // but having defaults helps with type safety and initial setup
-export const defaultTierConfigs: Record<UserTier, TierConfig> = {
+export const defaultTierConfigs: Record<UserTier, Tier> = {
 	free: {
 		id: 'free',
 		name: 'Basic',
 		description: 'Perfect for trying out Kaiwa',
 
 		// Monthly limits (from pricing page)
-		monthlyConversations: null, // Unlimited conversations
+		monthlyConversations: 100, // Unlimited conversations
 		monthlySeconds: 1800, // 30 minutes = 1800 seconds
-		monthlyRealtimeSessions: null, // Unlimited sessions
+		monthlyRealtimeSessions: 100, // Unlimited sessions
 
 		// Session limits
 		maxSessionLengthSeconds: 180, // 3 minutes = 180 seconds
@@ -81,18 +40,21 @@ export const defaultTierConfigs: Record<UserTier, TierConfig> = {
 		stripePriceIdAnnual: null,
 
 		// Timer settings
-		conversationTimeoutMs: 3 * 60 * 1000, // 3 minutes
-		warningThresholdMs: 30 * 1000, // 30 seconds
+		conversationTimeoutSeconds: 3 * 60, // 3 minutes
+		warningThresholdSeconds: 30, // 30 seconds
 		canExtend: false,
 		maxExtensions: 0,
-		extensionDurationMs: 0,
+		extensionDurationSeconds: 0,
 
 		// Additional calculated fields
-		overagePricePerMinute: 0.1,
-		feedbackSessionsPerMonth: 5,
+		overagePricePerMinuteInCents: 10,
 		customizedPhrasesFrequency: 'weekly',
 		conversationMemoryLevel: 'basic',
-		ankiExportLimit: 100
+		ankiExportLimit: 100,
+		feedbackSessionsPerMonth: '100',
+		isActive: false,
+		createdAt: new Date(),
+		updatedAt: new Date()
 	},
 
 	plus: {
@@ -101,9 +63,9 @@ export const defaultTierConfigs: Record<UserTier, TierConfig> = {
 		description: 'For serious language learners',
 
 		// Monthly limits
-		monthlyConversations: null, // Unlimited
+		monthlyConversations: 100, // Unlimited
 		monthlySeconds: 18000, // 300 minutes = 18000 seconds
-		monthlyRealtimeSessions: null, // Unlimited
+		monthlyRealtimeSessions: 100, // Unlimited
 
 		// Session limits
 		maxSessionLengthSeconds: 600, // 10 minutes = 600 seconds
@@ -126,18 +88,21 @@ export const defaultTierConfigs: Record<UserTier, TierConfig> = {
 		stripePriceIdAnnual: null, // Will be populated from environment
 
 		// Timer settings
-		conversationTimeoutMs: 10 * 60 * 1000, // 10 minutes
-		warningThresholdMs: 60 * 1000, // 1 minute
+		conversationTimeoutSeconds: 10 * 60, // 10 minutes
+		warningThresholdSeconds: 60, // 1 minute
 		canExtend: true,
 		maxExtensions: 3,
-		extensionDurationMs: 5 * 60 * 1000, // 5 minutes per extension
+		extensionDurationSeconds: 5 * 60, // 5 minutes per extension
 
 		// Additional calculated fields
-		overagePricePerMinute: 0.08,
+		overagePricePerMinuteInCents: 8,
 		feedbackSessionsPerMonth: 'unlimited',
 		customizedPhrasesFrequency: 'daily',
 		conversationMemoryLevel: 'human-like',
-		ankiExportLimit: 'unlimited'
+		ankiExportLimit: -1,
+		isActive: false,
+		createdAt: new Date(),
+		updatedAt: new Date()
 	},
 
 	premium: {
@@ -146,9 +111,9 @@ export const defaultTierConfigs: Record<UserTier, TierConfig> = {
 		description: 'For power users who want more practice time',
 
 		// Monthly limits
-		monthlyConversations: null, // Unlimited
+		monthlyConversations: 100, // Unlimited
 		monthlySeconds: 36000, // 600 minutes = 36000 seconds
-		monthlyRealtimeSessions: null, // Unlimited
+		monthlyRealtimeSessions: 100, // Unlimited
 
 		// Session limits
 		maxSessionLengthSeconds: 600, // 10 minutes = 600 seconds
@@ -171,23 +136,26 @@ export const defaultTierConfigs: Record<UserTier, TierConfig> = {
 		stripePriceIdAnnual: null, // Will be populated from environment
 
 		// Timer settings
-		conversationTimeoutMs: 10 * 60 * 1000, // 10 minutes
-		warningThresholdMs: 60 * 1000, // 1 minute
+		conversationTimeoutSeconds: 10 * 60, // 10 minutes
+		warningThresholdSeconds: 60, // 1 minute
 		canExtend: true,
 		maxExtensions: 5,
-		extensionDurationMs: 5 * 60 * 1000, // 5 minutes per extension
+		extensionDurationSeconds: 5 * 60, // 5 minutes per extension
 
 		// Additional calculated fields
-		overagePricePerMinute: 0.05,
+		overagePricePerMinuteInCents: 5,
 		feedbackSessionsPerMonth: 'unlimited',
 		customizedPhrasesFrequency: 'daily',
 		conversationMemoryLevel: 'elephant-like',
-		ankiExportLimit: 'unlimited'
+		ankiExportLimit: -1,
+		isActive: false,
+		createdAt: new Date(),
+		updatedAt: new Date()
 	}
 };
 
 // Helper functions to work with tier configurations
-export function getTierConfig(tierId: UserTier): TierConfig {
+export function getTierConfig(tierId: UserTier): Tier {
 	return defaultTierConfigs[tierId];
 }
 
@@ -196,11 +164,11 @@ export function getTimerSettings(tierId: UserTier) {
 	if (!config) return null;
 
 	return {
-		timeoutMs: config.conversationTimeoutMs || 3 * 60 * 1000,
-		warningThresholdMs: config.warningThresholdMs || 30 * 1000,
+		timeoutMs: config.conversationTimeoutSeconds || 3 * 60,
+		warningThresholdMs: config.warningThresholdSeconds || 30,
 		extendable: config.canExtend || false,
 		maxExtensions: config.maxExtensions || 0,
-		extensionDurationMs: config.extensionDurationMs || 0
+		extensionDurationMs: config.extensionDurationSeconds || 0
 	};
 }
 
@@ -209,15 +177,15 @@ export function canExtendConversation(tierId: UserTier): boolean {
 }
 
 export function getConversationTimeout(tierId: UserTier): number {
-	return defaultTierConfigs[tierId]?.conversationTimeoutMs || 3 * 60 * 1000;
+	return defaultTierConfigs[tierId]?.conversationTimeoutSeconds || 3 * 60 * 1000;
 }
 
 export function getWarningThreshold(tierId: UserTier): number {
-	return defaultTierConfigs[tierId]?.warningThresholdMs || 30 * 1000;
+	return defaultTierConfigs[tierId]?.warningThresholdSeconds || 30 * 1000;
 }
 
 export function getMaxSessionLength(tierId: UserTier): number {
-	return defaultTierConfigs[tierId]?.maxSessionLengthSeconds || 180; // Changed from maxSessionLengthMinutes, default 3 minutes = 180 seconds
+	return defaultTierConfigs[tierId]?.maxSessionLengthSeconds || 180; // default 3 minutes = 180 seconds
 }
 
 export function getMonthlySeconds(tierId: UserTier): number {
@@ -234,7 +202,7 @@ export function getMaxBankedSeconds(tierId: UserTier): number {
 
 // Helper to find tier by Stripe IDs
 export function getTierByStripePriceId(
-	tiers: TierConfig[],
+	tiers: Tier[],
 	priceId: string
 ): { tier: UserTier; billingPeriod: 'monthly' | 'annual' } | null {
 	for (const tier of tiers) {
@@ -248,7 +216,7 @@ export function getTierByStripePriceId(
 	return null;
 }
 
-export function getTierByStripeProductId(tiers: TierConfig[], productId: string): UserTier | null {
+export function getTierByStripeProductId(tiers: Tier[], productId: string): UserTier | null {
 	const tier = tiers.find((t) => t.stripeProductId === productId);
 	return tier ? (tier.id as UserTier) : null;
 }

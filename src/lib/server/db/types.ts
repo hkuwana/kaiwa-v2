@@ -16,6 +16,8 @@ import {
 	scenarios,
 	userPreferences
 } from './schema';
+import type { scenarioAttempts } from './schema/scenarioAttempts';
+import type { scenarioOutcomes } from './schema/scenarioOutcomes';
 
 // Tier type definitions
 export type UserTier = 'free' | 'plus' | 'premium';
@@ -33,6 +35,8 @@ export type Conversation = InferSelectModel<typeof conversations>;
 export type Message = InferSelectModel<typeof messages>;
 export type Scenario = InferSelectModel<typeof scenarios>;
 export type UserPreferences = InferSelectModel<typeof userPreferences>;
+export type ScenarioAttempt = InferSelectModel<typeof scenarioAttempts>;
+export type ScenarioOutcome = InferSelectModel<typeof scenarioOutcomes>;
 
 // Insert types for creating new records
 export type NewUser = InferInsertModel<typeof users>;
@@ -48,3 +52,5 @@ export type NewConversation = InferInsertModel<typeof conversations>;
 export type NewMessage = InferInsertModel<typeof messages>;
 export type NewScenario = InferInsertModel<typeof scenarios>;
 export type NewUserPreferences = InferInsertModel<typeof userPreferences>;
+export type NewScenarioAttempt = InferInsertModel<typeof scenarioAttempts>;
+export type NewScenarioOutcome = InferInsertModel<typeof scenarioOutcomes>;

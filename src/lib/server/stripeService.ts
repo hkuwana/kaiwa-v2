@@ -2,21 +2,20 @@
 // Handles subscriptions, payments, and tier management
 
 import Stripe from 'stripe';
+import { db } from './db/index';
+import { users, subscriptions, payments } from './db/schema';
+import { eq, and } from 'drizzle-orm';
+import type { User } from './db/types';
+import type { Subscription as DbSubscription } from './db/types';
+import { tierService } from './tierService';
 import { env } from '$env/dynamic/private';
-import { paymentRepository, userRepository } from '../repositories';
-import { subscriptionRepository } from '../repositories/subscription.repository';
-import { tierService } from '../tierService';
-import type { Subscription } from '../db/types';
-import { STRIPE_PRICES, STRIPE_TRIAL_DAYS } from '../../data/stripe';
 
 // Environment variables
 const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;
 const STRIPE_WEBHOOK_SECRET = env.STRIPE_WEBHOOK_SECRET;
 
-// Stripe configuration is now imported from ../../data/stripe
-
-// Legacy price IDs for backward compatibility
-export const STRIPE_PRICES_LEGACY = {
+// Stripe price IDs for different tiers
+export const STRIPE_PRICES = {
 	pro: env.STRIPE_PRO_PRICE_ID || 'price_pro_monthly',
 	premium: env.STRIPE_PREMIUM_PRICE_ID || 'price_premium_monthly'
 } as const;
@@ -31,35 +30,28 @@ const stripe = new Stripe(STRIPE_SECRET_KEY, {
 });
 
 export class StripeService {
-	// Price ID helper methods are now imported from ../../data/stripe
-
 	/**
-	 * Creates a Stripe customer for a user or retrieves the existing one.
+	 * Create a Stripe customer for a user
 	 */
-	async createCustomer(userId: string, email: string): Promise<string | null> {
-		try {
-			// Check if the user already has a Stripe Customer ID in our database
-			const userProfile = await userRepository.findUserById(userId);
-			if (userProfile?.stripeCustomerId) {
-				return userProfile.stripeCustomerId;
+	async createCustomer(user: User): Promise<string> {
+		const customer = await stripe.customers.create({
+			email: user.email,
+			name: user.displayName || user.username || undefined,
+			metadata: {
+				userId: user.id,
+				tier: user.tier
 			}
+		});
 
-			// If not, create a new customer in Stripe
-			const customer = await stripe.customers.create({
-				email: email,
-				metadata: { userId: userId }
-			});
+		// Update user with Stripe customer ID
+		await db
+			.update(users)
+			.set({
+				subscriptionId: customer.id // Store customer ID in subscriptionId for now
+			})
+			.where(eq(users.id, user.id));
 
-			// Save the new Stripe Customer ID to the user's profile
-			if (userProfile) {
-				await userRepository.updateUserStripeCustomerId(userId, customer.id);
-			}
-
-			return customer.id;
-		} catch (error) {
-			console.error(`Error creating Stripe customer for user ${userId}:`, error);
-			return null;
-		}
+		return customer.id;
 	}
 
 	/**
@@ -71,29 +63,17 @@ export class StripeService {
 		successUrl: string,
 		cancelUrl: string
 	): Promise<{ sessionId: string; url: string }> {
-		const user = await userRepository.findUserById(userId);
-		if (!user) {
+		const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+		if (!user[0]) {
 			throw new Error('User not found');
 		}
 
-		let customerId = user.stripeCustomerId;
+		let customerId = user[0].subscriptionId; // We're storing customer ID here temporarily
 
 		// Create customer if doesn't exist
 		if (!customerId) {
-			customerId = await this.createCustomer(user.id, user.email);
-			if (!customerId) {
-				throw new Error('Failed to create Stripe customer');
-			}
+			customerId = await this.createCustomer(user[0]);
 		}
-
-		// Validate price ID
-		const validPrices = Object.values(STRIPE_PRICES) as string[];
-		if (!validPrices.includes(priceId)) {
-			throw new Error(`Invalid price ID: ${priceId}. Valid prices: ${validPrices.join(', ')}`);
-		}
-
-		// Calculate the trial end date
-		const trialEnd = Math.floor((Date.now() + STRIPE_TRIAL_DAYS * 24 * 60 * 60 * 1000) / 1000);
 
 		const session = await stripe.checkout.sessions.create({
 			customer: customerId,
@@ -105,16 +85,17 @@ export class StripeService {
 				}
 			],
 			mode: 'subscription',
-			subscription_data: {
-				trial_end: trialEnd
-			},
 			success_url: successUrl,
 			cancel_url: cancelUrl,
 			metadata: {
-				userId: userId,
-				planType: priceId.includes('annual') ? 'annual' : 'monthly'
+				userId: userId
 			},
-			allow_promotion_codes: true
+			// Enhanced subscription settings
+			subscription_data: {
+				metadata: {
+					userId: userId
+				}
+			}
 		});
 
 		if (!session.url) {
@@ -173,73 +154,10 @@ export class StripeService {
 
 		// Check price ID pattern
 		if (price.id.includes('premium')) return 'premium';
-		if (price.id.includes('plus')) return 'plus';
+		if (price.id.includes('pro')) return 'pro';
 
 		// Default fallback
-		return 'plus';
-	}
-
-	/**
-	 * Handles the 'checkout.session.completed' webhook event.
-	 * It retrieves necessary data and delegates the subscription update logic
-	 * to the dedicated subscriptionRepository.
-	 */
-	async handleCheckoutSuccess(session: Stripe.Checkout.Session): Promise<void> {
-		// Get userId from metadata (we set this in createCheckoutSession)
-		const userId = session.metadata?.userId;
-
-		if (!userId || !session.subscription || !session.customer) {
-			console.log(
-				'Missing required data in session to handle checkout success. Session ID:',
-				session.id,
-				'userId:',
-				userId,
-				'subscription:',
-				session.subscription,
-				'customer:',
-				session.customer
-			);
-			return;
-		}
-
-		const subscriptionId =
-			typeof session.subscription === 'string' ? session.subscription : session.subscription.id;
-
-		console.log(
-			'🎣 Processing checkout success for user:',
-			userId,
-			'subscription:',
-			subscriptionId
-		);
-
-		// Retrieve the full subscription object to get all details
-		const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-
-		// Extract subscription data to determine tier
-		const subscriptionData = await this.extractSubscriptionData(subscription);
-		const tierId = subscriptionData.tierId;
-
-		console.log('🎣 Determined tier:', tierId, 'for user:', userId);
-
-		// Create subscription record using repository
-		await subscriptionRepository.createSubscription({
-			userId,
-			stripeCustomerId: session.customer as string,
-			stripeSubscriptionId: subscriptionId,
-			stripePriceId: subscriptionData.priceId,
-			status: subscription.status,
-			currentPeriodStart: new Date(subscription.created * 1000),
-			currentPeriodEnd: new Date(
-				(subscription.current_period_end || subscription.created || Date.now() / 1000) * 1000
-			),
-			cancelAtPeriodEnd: subscription.cancel_at_period_end,
-			tierId: tierId
-		});
-
-		// Update user tier - this is crucial for updating the UI
-		await tierService.upgradeUserTier(userId, tierId as 'plus' | 'premium');
-
-		console.log(`✅ Checkout success processed for user ${userId}, tier updated to: ${tierId}`);
+		return 'pro';
 	}
 
 	/**
@@ -255,8 +173,8 @@ export class StripeService {
 		try {
 			const subscriptionData = await this.extractSubscriptionData(stripeSubscription);
 
-			// Create subscription record using repository
-			await subscriptionRepository.createSubscription({
+			// Create subscription record with enhanced data
+			await db.insert(subscriptions).values({
 				userId: userId,
 				stripeSubscriptionId: stripeSubscription.id,
 				stripeCustomerId:
@@ -272,7 +190,7 @@ export class StripeService {
 			});
 
 			// Update user tier
-			await tierService.upgradeUserTier(userId, subscriptionData.tierId as 'plus' | 'premium');
+			await tierService.upgradeUserTier(userId, subscriptionData.tierId as 'pro' | 'premium');
 
 			console.log(`✅ Subscription created for user ${userId}, tier: ${subscriptionData.tierId}`);
 		} catch (error) {
@@ -285,11 +203,13 @@ export class StripeService {
 	 * Handle subscription updates
 	 */
 	async handleSubscriptionUpdated(stripeSubscription: Stripe.Subscription): Promise<void> {
-		const existingSubscription = await subscriptionRepository.findSubscriptionByStripeId(
-			stripeSubscription.id
-		);
+		const existingSubscription = await db
+			.select()
+			.from(subscriptions)
+			.where(eq(subscriptions.stripeSubscriptionId, stripeSubscription.id))
+			.limit(1);
 
-		if (!existingSubscription) {
+		if (!existingSubscription[0]) {
 			console.error('Subscription not found:', stripeSubscription.id);
 			return;
 		}
@@ -297,27 +217,31 @@ export class StripeService {
 		try {
 			const subscriptionData = await this.extractSubscriptionData(stripeSubscription);
 
-			// Update subscription using repository
-			await subscriptionRepository.updateSubscription(existingSubscription.id, {
-				status: stripeSubscription.status,
-				currentPeriodStart: new Date(stripeSubscription.created * 1000),
-				currentPeriodEnd: new Date(stripeSubscription.cancel_at ?? 0 * 1000),
-				cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
-				stripePriceId: subscriptionData.priceId,
-				tierId: subscriptionData.tierId
-			});
+			// Update subscription with enhanced data
+			await db
+				.update(subscriptions)
+				.set({
+					status: stripeSubscription.status,
+					currentPeriodStart: new Date(stripeSubscription.created * 1000),
+					currentPeriodEnd: new Date(stripeSubscription.cancel_at ?? 0 * 1000),
+					cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
+					stripePriceId: subscriptionData.priceId,
+					tierId: subscriptionData.tierId,
+					updatedAt: new Date()
+				})
+				.where(eq(subscriptions.id, existingSubscription[0].id));
 
 			// Update user tier if changed
 			if (subscriptionData.tierId) {
 				await tierService.upgradeUserTier(
-					existingSubscription.userId,
-					subscriptionData.tierId as 'plus' | 'premium'
+					existingSubscription[0].userId,
+					subscriptionData.tierId as 'pro' | 'premium'
 				);
 			}
 
 			// Handle different subscription statuses
 			await this.handleSubscriptionStatusChange(
-				existingSubscription.userId,
+				existingSubscription[0].userId,
 				stripeSubscription.status,
 				subscriptionData.tierId
 			);
@@ -353,13 +277,13 @@ export class StripeService {
 			case 'trialing':
 				// Apply tier benefits during trial
 				if (tierId) {
-					await tierService.upgradeUserTier(userId, tierId as 'plus' | 'premium');
+					await tierService.upgradeUserTier(userId, tierId as 'pro' | 'premium');
 				}
 				break;
 			case 'active':
 				// Ensure user has correct tier
 				if (tierId) {
-					await tierService.upgradeUserTier(userId, tierId as 'plus' | 'premium');
+					await tierService.upgradeUserTier(userId, tierId as 'pro' | 'premium');
 				}
 				break;
 		}
@@ -370,18 +294,23 @@ export class StripeService {
 	 */
 	async handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent): Promise<void> {
 		const subscriptionId = paymentIntent.metadata?.subscription_id;
-		let SubscriptionId: string | null = null;
+		let dbSubscriptionId: string | null = null;
 
 		// Find subscription if available
 		if (subscriptionId) {
-			const subscription = await subscriptionRepository.findSubscriptionByStripeId(subscriptionId);
-			SubscriptionId = subscription?.id || null;
+			const subscription = await db
+				.select()
+				.from(subscriptions)
+				.where(eq(subscriptions.stripeSubscriptionId, subscriptionId))
+				.limit(1);
+
+			dbSubscriptionId = subscription[0]?.id || null;
 		}
 
-		// Record payment using repository
-		await paymentRepository.createPayment({
+		// Record payment
+		await db.insert(payments).values({
 			userId: paymentIntent.metadata?.userId || '', // This should be set in metadata
-			subscriptionId: SubscriptionId,
+			subscriptionId: dbSubscriptionId,
 			stripePaymentIntentId: paymentIntent.id,
 			amount: (paymentIntent.amount / 100).toString(), // Convert from cents
 			currency: paymentIntent.currency,
@@ -394,24 +323,41 @@ export class StripeService {
 	/**
 	 * Get user's active subscription
 	 */
-	async getUserSubscription(userId: string): Promise<Subscription | undefined> {
-		return await subscriptionRepository.findActiveSubscriptionByUserId(userId);
+	async getUserSubscription(userId: string): Promise<DbSubscription | null> {
+		const subscription = await db
+			.select()
+			.from(subscriptions)
+			.where(and(eq(subscriptions.userId, userId), eq(subscriptions.status, 'active')))
+			.limit(1);
+
+		return subscription[0] || null;
 	}
 
 	/**
 	 * Get user's subscription by status
 	 */
-	async getUserSubscriptionByStatus(userId: string, status: string): Promise<Subscription | null> {
-		return await subscriptionRepository
-			.findSubscriptionsByStatus(status)
-			.then((subs) => subs[0] || null);
+	async getUserSubscriptionByStatus(
+		userId: string,
+		status: string
+	): Promise<DbSubscription | null> {
+		const subscription = await db
+			.select()
+			.from(subscriptions)
+			.where(and(eq(subscriptions.userId, userId), eq(subscriptions.status, status)))
+			.limit(1);
+
+		return subscription[0] || null;
 	}
 
 	/**
 	 * Get all user subscriptions
 	 */
-	async getAllUserSubscriptions(userId: string): Promise<Subscription[]> {
-		return await subscriptionRepository.findSubscriptionsByUserId(userId);
+	async getAllUserSubscriptions(userId: string): Promise<DbSubscription[]> {
+		return await db
+			.select()
+			.from(subscriptions)
+			.where(eq(subscriptions.userId, userId))
+			.orderBy(subscriptions.createdAt);
 	}
 
 	/**
@@ -428,8 +374,14 @@ export class StripeService {
 			cancel_at_period_end: true
 		});
 
-		// Update local record using repository
-		await subscriptionRepository.cancelSubscription(subscription.id, true);
+		// Update local record
+		await db
+			.update(subscriptions)
+			.set({
+				cancelAtPeriodEnd: true,
+				updatedAt: new Date()
+			})
+			.where(eq(subscriptions.id, subscription.id));
 
 		console.log(`✅ Subscription cancelled for user ${userId}`);
 	}
@@ -448,14 +400,18 @@ export class StripeService {
 			cancel_at_period_end: false
 		});
 
-		// Update local record using repository
-		await subscriptionRepository.updateSubscription(subscription.id, {
-			cancelAtPeriodEnd: false,
-			status: 'active'
-		});
+		// Update local record
+		await db
+			.update(subscriptions)
+			.set({
+				cancelAtPeriodEnd: false,
+				status: 'active',
+				updatedAt: new Date()
+			})
+			.where(eq(subscriptions.id, subscription.id));
 
 		// Restore user tier
-		await tierService.upgradeUserTier(userId, subscription.tierId as 'plus' | 'premium');
+		await tierService.upgradeUserTier(userId, subscription.tierId as 'pro' | 'premium');
 
 		console.log(`✅ Subscription reactivated for user ${userId}`);
 	}
@@ -513,33 +469,6 @@ export class StripeService {
 	}
 
 	/**
-	 * Retrieves a customer's active subscription from Stripe.
-	 */
-	async getSubscription(stripeCustomerId: string): Promise<Stripe.Subscription | null> {
-		if (!stripeCustomerId) {
-			return null;
-		}
-
-		try {
-			const subscriptions = await stripe.subscriptions.list({
-				customer: stripeCustomerId,
-				status: 'active',
-				limit: 1
-			});
-
-			// If the customer has an active subscription, return the first one.
-			if (subscriptions.data.length > 0) {
-				return subscriptions.data[0];
-			}
-
-			return null;
-		} catch (error) {
-			console.error(`Error fetching subscription for customer ${stripeCustomerId}:`, error);
-			return null;
-		}
-	}
-
-	/**
 	 * Get subscription details from Stripe
 	 */
 	async getStripeSubscription(subscriptionId: string): Promise<Stripe.Subscription | null> {
@@ -560,41 +489,6 @@ export class StripeService {
 		}
 
 		return stripe.webhooks.constructEvent(body, signature, STRIPE_WEBHOOK_SECRET);
-	}
-
-	/**
-	 * Get available price IDs for a specific tier and billing cycle
-	 */
-	getPriceId(tier: 'plus' | 'premium', billingCycle: 'monthly' | 'annual'): string {
-		const key = `${tier}_${billingCycle}` as keyof typeof STRIPE_PRICES;
-		return STRIPE_PRICES[key];
-	}
-
-	/**
-	 * Validate if a price ID is valid
-	 */
-	isValidPriceId(priceId: string): boolean {
-		const validPrices = Object.values(STRIPE_PRICES) as string[];
-		return validPrices.includes(priceId);
-	}
-
-	/**
-	 * Get available price IDs
-	 */
-	get STRIPE_PRICES() {
-		return STRIPE_PRICES;
-	}
-
-	/**
-	 * Retrieve a price from Stripe by ID
-	 */
-	async getPrice(priceId: string): Promise<Stripe.Price | null> {
-		try {
-			return await stripe.prices.retrieve(priceId);
-		} catch (error) {
-			console.error(`Error retrieving price ${priceId}:`, error);
-			return null;
-		}
 	}
 }
 

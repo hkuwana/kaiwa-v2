@@ -176,7 +176,7 @@ export function parsePriceId(priceId: string): {
 	let tier = 'unknown';
 	if (lowerPriceId.includes('plus')) tier = 'plus';
 	else if (lowerPriceId.includes('premium')) tier = 'premium';
-	else if (lowerPriceId.includes('plus')) tier = 'plus';
+	else if (lowerPriceId.includes('free')) tier = 'free';
 
 	// Determine billing cycle
 	let billingCycle: 'monthly' | 'annual' = 'monthly';

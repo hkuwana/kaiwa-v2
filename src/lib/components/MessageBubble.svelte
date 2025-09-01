@@ -139,23 +139,39 @@
 				{/if}
 			</div>
 		{/if}
-
-		<!-- Translation button -->
-		<div class="mt-2 flex justify-end">
-			<button
-				class="btn btn-ghost btn-xs"
-				onclick={handleTranslation}
-				disabled={translationLoading}
-			>
-				{#if translationLoading}
-					<span class="loading loading-xs loading-spinner"></span>
-				{:else if isMessageTranslated(message)}
-					{showTranslation ? 'Hide' : 'Show'} Translation
-				{:else}
-					Translate
-				{/if}
-			</button>
-		</div>
 	</div>
-	<div class="chat-footer opacity-50">{footerText}</div>
+	<div class="chat-footer flex items-center justify-between opacity-50">
+		<span>{footerText}</span>
+		<!-- Translation button with icon -->
+		<button
+			class="btn h-6 min-h-0 w-6 rounded-full p-1 btn-ghost btn-xs hover:bg-base-300/50"
+			onclick={handleTranslation}
+			disabled={translationLoading}
+			title={isMessageTranslated(message)
+				? showTranslation
+					? 'Hide Translation'
+					: 'Show Translation'
+				: 'Translate Message'}
+		>
+			{#if translationLoading}
+				<span class="loading loading-xs loading-spinner"></span>
+			{:else}
+				<!-- Language translation icon -->
+				<svg
+					class="h-3 w-3"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"
+					></path>
+				</svg>
+			{/if}
+		</button>
+	</div>
 </div>
