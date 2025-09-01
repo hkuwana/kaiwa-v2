@@ -1,10 +1,11 @@
+import { GUEST_USER } from '$lib/data/user';
 import type { User, UserTier } from '$lib/server/db/types';
 import { SvelteDate } from 'svelte/reactivity';
 
 // Infer the User type from the database schema
 
 export interface UserManagerState {
-	user: User | null;
+	user: User;
 	isLoggedIn: boolean;
 	effectiveTier: UserTier;
 }
@@ -12,7 +13,7 @@ export interface UserManagerState {
 export class UserManagerStore {
 	// Store state using Svelte 5's $state
 	private _state = $state<UserManagerState>({
-		user: null,
+		user: GUEST_USER,
 		isLoggedIn: false,
 		effectiveTier: 'free'
 	});
@@ -122,7 +123,7 @@ export class UserManagerStore {
 				);
 			}
 		} else {
-			this._state.user = null;
+			this._state.user = GUEST_USER;
 			this._state.isLoggedIn = false;
 			this._state.effectiveTier = 'free';
 			console.log('👤 Store synced: User logged out');
@@ -131,7 +132,7 @@ export class UserManagerStore {
 
 	// Logout user
 	logout(): void {
-		this._state.user = null;
+		this._state.user = GUEST_USER;
 		this._state.isLoggedIn = false;
 		this._state.effectiveTier = 'free';
 		console.log('👤 User logged out');
@@ -139,7 +140,7 @@ export class UserManagerStore {
 
 	// Reset to initial state
 	reset(): void {
-		this._state.user = null;
+		this._state.user = GUEST_USER;
 		this._state.isLoggedIn = false;
 		this._state.effectiveTier = 'free';
 		console.log('👤 User manager reset to initial state');

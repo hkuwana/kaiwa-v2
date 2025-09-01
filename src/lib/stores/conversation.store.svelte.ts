@@ -26,6 +26,7 @@ import {
 } from './conversation-timer.store.svelte';
 import { userPreferencesStore } from './userPreferences.store.svelte';
 import type { ConversationStatus } from '$lib/services/conversation.service';
+import { userManager } from './user.store.svelte';
 
 export class ConversationStore {
 	// Reactive state
@@ -548,6 +549,7 @@ export class ConversationStore {
 		// Generate complete instructions based on user type
 
 		const combinedInstructions = getInstructions('initial', {
+			user: userManager.user,
 			language: this.language,
 			preferences: userPrefs,
 			scenario: scenarioStore.getSelectedScenario()

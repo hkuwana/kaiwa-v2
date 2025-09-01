@@ -45,7 +45,7 @@
 
 	<div class="navbar-end">
 		<ThemeSwitcher />
-		{#if user}
+		{#if user.isLoggedIn}
 			<div class="dropdown dropdown-end">
 				<div tabindex="0" role="button" class="btn avatar btn-circle btn-ghost">
 					<div class="w-10 rounded-full">
