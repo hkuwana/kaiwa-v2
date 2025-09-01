@@ -24,6 +24,7 @@
 	} from '$lib/data/testing';
 	import { languages } from '$lib/data/languages';
 	import { scenariosData } from '$lib/data/scenarios';
+	import { userManager } from '$lib/stores/user.store.svelte';
 
 	// ============================================
 	// STATE
@@ -51,6 +52,7 @@
 	function generateInstructions() {
 		try {
 			const params: TestInstructionParams = {
+				user: userManager.user,
 				language: selectedLanguage,
 				preferences: selectedPreferences,
 				scenario: selectedScenario,
@@ -73,6 +75,7 @@
 	function testSelectedModule() {
 		try {
 			const params: TestModuleParams = {
+				user: userManager.user,
 				moduleId: selectedModuleId,
 				language: selectedLanguage,
 				preferences: selectedPreferences,

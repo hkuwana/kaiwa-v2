@@ -1,18 +1,7 @@
 // 🌍 Enhanced Language Data
 // Matches the structure from kaiwa-old with additional metadata
-
-export interface Language {
-	id: string;
-	code: string;
-	name: string;
-	nativeName: string;
-	flag: string;
-	isRTL: boolean;
-	hasRomanization: boolean;
-	writingSystem: string;
-	supportedScripts: string[];
-	isSupported: boolean;
-}
+export type { Language } from '$lib/server/db/types';
+import type { Language } from '$lib/server/db/types';
 
 export const languages: Language[] = [
 	{

@@ -8,7 +8,7 @@ import type {
 	Language,
 	User
 } from '$lib/server/db/types';
-import { getLanguageById } from '$lib/types';
+import { getLanguageById, languages } from '$lib/types';
 
 // ============================================
 // CORE TYPES (minimal, schema-aligned)
@@ -157,7 +157,7 @@ modules.register({
 ## VOICE CONVERSATION RULES
 - This is REAL-TIME VOICE chat
 - Speak naturally with pauses
-- Use "um", "well", "you know" occasionally
+- Use "hmm", "mmm", "uhh" occasionally
 - Sound human, not robotic`;
 	}
 });
@@ -167,7 +167,7 @@ modules.register({
 	id: 'audio-handling-enhanced',
 	priority: 2,
 	generate: ({ language, user }: ModuleContext) => {
-		const nativeLang = getLanguageById(user.nativeLanguageId) || 'English';
+		const nativeLang = getLanguageById(user.nativeLanguageId);
 
 		return `## AUDIO HANDLING
 
@@ -201,7 +201,11 @@ modules.register({
 	id: 'language-control',
 	priority: 3,
 	generate: ({ language, user }: ModuleContext) => {
-		const nativeLang = getLanguageById(user.nativeLanguageId) || 'English';
+		let nativeLanguageObject = getLanguageById(user.nativeLanguageId);
+		if (!nativeLanguageObject) {
+			console.error('Native language object not found, using default language');
+			nativeLanguageObject = languages[0];
+		}
 
 		return `## LANGUAGE CONTROL
 
@@ -216,14 +220,14 @@ WHEN frustrated (after 2+ failed attempts):
 - Example: "¿Fuiste al parque (park) ayer?"
 
 WHEN confused:
-- Brief ${nativeLang} explanation, then back to ${language.name}
-- "In ${nativeLang}: This means [explanation]. Now in ${language.name}..."
+- Brief ${nativeLanguageObject.nativeName} explanation, then back to ${language.name}
+- "In ${nativeLanguageObject.nativeName}: This means [explanation]. Now in ${language.name}..."
 
 WHEN emotional/upset:
-- Acknowledge in ${nativeLang}, continue in ${language.name}
+- Acknowledge in ${nativeLanguageObject.nativeName}, continue in ${language.name}
 - "I understand this is frustrating. Let's make it easier..."
 
-### NEVER Switch Fully to ${nativeLang} Unless:
+### NEVER Switch Fully to ${nativeLanguageObject.nativeName} Unless:
 - User explicitly requests it
 - Safety concern (see safety module)`;
 	}
@@ -731,3 +735,7 @@ export function getInstructions(
 }
 
 export { modules as instructionModules };
+
+export function testModule(moduleId: string, params: ModuleContext): string {
+	return modules.compose([moduleId], params);
+}

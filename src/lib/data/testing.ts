@@ -1,7 +1,7 @@
 // 🧪 Testing Types and Mock Data
 // Test data for the instructions service
 
-import type { Language, Scenario, UserPreferences } from '$lib/server/db/types';
+import type { Language, Scenario, User, UserPreferences } from '$lib/server/db/types';
 import type { SessionContext, ModuleContext } from '$lib/services/instructions.service';
 import { languages } from './languages';
 import { scenariosData } from './scenarios';
@@ -22,6 +22,7 @@ export type UpdateContext =
 
 // Test parameters that match the getInstructions function signature
 export interface TestInstructionParams {
+	user: User;
 	language: Language;
 	preferences: Partial<UserPreferences>;
 	scenario?: Scenario;
@@ -39,6 +40,51 @@ export interface TestModuleParams extends ModuleContext {
 // ============================================
 // MOCK TEST DATA
 // ============================================
+
+export const mockUsers: User[] = [
+	{
+		id: 'user-1',
+		email: 'test1@example.com',
+		nativeLanguageId: 'en',
+		preferredUILanguageId: 'ja',
+		createdAt: new Date(),
+		lastUsage: new Date(),
+		googleId: null,
+		username: null,
+		displayName: null,
+		avatarUrl: null,
+		stripeCustomerId: null,
+		hashedPassword: null
+	},
+	{
+		id: 'user-2',
+		email: 'test2@example.com',
+		displayName: 'Test User 2',
+		nativeLanguageId: 'es',
+		preferredUILanguageId: 'en',
+		createdAt: new Date(),
+		lastUsage: new Date(),
+		googleId: null,
+		username: null,
+		avatarUrl: null,
+		stripeCustomerId: null,
+		hashedPassword: null
+	},
+	{
+		id: 'user-3',
+		googleId: null,
+		username: null,
+		displayName: 'Test User 3',
+		email: 'test3@example.com',
+		avatarUrl: null,
+		stripeCustomerId: null,
+		nativeLanguageId: 'fr',
+		preferredUILanguageId: 'de',
+		createdAt: new Date(),
+		lastUsage: new Date(),
+		hashedPassword: null
+	}
+];
 
 export const mockUserPreferences: Partial<UserPreferences>[] = [
 	{

@@ -393,7 +393,7 @@
 		<div class="mt-8 rounded-2xl bg-base-100 p-8 shadow-xl">
 			<h3 class="mb-6 text-center text-2xl font-bold">✨ Key Features</h3>
 
-			<div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+			<div class="grid grid-cols-1 gap-6 md:grid-cols-4">
 				<!-- Smooth Movement -->
 				<div class="p-4 text-center">
 					<div class="mb-3 text-3xl">🔄</div>
@@ -418,6 +418,16 @@
 					<h4 class="mb-2 font-semibold">Press to Record</h4>
 					<p class="text-sm text-base-content/70">
 						Intuitive press-and-hold interaction with visual feedback and accessibility support
+					</p>
+				</div>
+
+				<!-- Keyboard Controls -->
+				<div class="p-4 text-center">
+					<div class="mb-3 text-3xl">⌨️</div>
+					<h4 class="mb-2 font-semibold">Keyboard Controls</h4>
+					<p class="text-sm text-base-content/70">
+						Use <kbd class="rounded bg-base-200 px-1 py-0.5 text-xs">Spacebar</kbd> or
+						<kbd class="rounded bg-base-200 px-1 py-0.5 text-xs">Enter</kbd> for hands-free recording
 					</p>
 				</div>
 			</div>

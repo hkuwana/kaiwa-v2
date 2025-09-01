@@ -9,6 +9,7 @@ export const languages = pgTable(
 		name: text('name').notNull(), // e.g., 'Japanese'
 		nativeName: text('native_name').notNull(), // e.g., '日本語'
 		isRTL: boolean('is_rtl').default(false).notNull(),
+		flag: text('flag').notNull(),
 		hasRomanization: boolean('has_romanization').default(true).notNull(),
 		writingSystem: text('writing_system').notNull(), // 'latin', 'chinese', etc.
 		supportedScripts: json('supported_scripts').$type<string[]>(), // ['hiragana', 'katakana', 'kanji']

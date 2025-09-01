@@ -52,23 +52,23 @@ export class UserManagerStore {
 	}
 
 	get displayName() {
-		return this._state.user?.displayName || this._state.user?.username || 'Guest';
+		return this._state.user.displayName || this._state.user.username || 'Guest';
 	}
 
 	get email() {
-		return this._state.user?.email;
+		return this._state.user.email;
 	}
 
 	get avatarUrl() {
-		return this._state.user?.avatarUrl;
+		return this._state.user.avatarUrl;
 	}
 
 	get nativeLanguageId() {
-		return this._state.user?.nativeLanguageId || 'en';
+		return this._state.user.nativeLanguageId || 'en';
 	}
 
 	get preferredUILanguageId() {
-		return this._state.user?.preferredUILanguageId || 'ja';
+		return this._state.user.preferredUILanguageId || 'ja';
 	}
 
 	// Set user (login)
@@ -184,15 +184,15 @@ export class UserManagerStore {
 
 	// Check if user has specific properties
 	hasGoogleAuth(): boolean {
-		return !!this._state.user?.googleId;
+		return !!this._state.user.googleId;
 	}
 
 	hasStripeCustomer(): boolean {
-		return !!this._state.user?.stripeCustomerId;
+		return !!this._state.user.stripeCustomerId;
 	}
 
 	hasPassword(): boolean {
-		return !!this._state.user?.hashedPassword;
+		return !!this._state.user.hashedPassword;
 	}
 
 	// Update last usage timestamp
@@ -207,7 +207,7 @@ export class UserManagerStore {
 }
 
 // Export a factory function
-export function createUserManagerStore(initialUser?: User): UserManagerStore {
+export function createUserManagerStore(initialUser: User): UserManagerStore {
 	return new UserManagerStore(initialUser);
 }
 
