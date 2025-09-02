@@ -42,7 +42,7 @@ export function createAnonymousSession(
 			listeningLevel: 5,
 			readingLevel: 5,
 			writingLevel: 5,
-			confidenceLevel: 50,
+			speakingConfidence: 50,
 			challengePreference: 'moderate',
 			correctionStyle: 'gentle',
 			dailyGoalMinutes: 30,
@@ -132,7 +132,7 @@ export async function persistAnonymousSessionToDatabase(
 			listeningLevel: sessionData.preferences.listeningLevel || 5,
 			readingLevel: sessionData.preferences.readingLevel || 5,
 			writingLevel: sessionData.preferences.writingLevel || 5,
-			confidenceLevel: sessionData.preferences.confidenceLevel || 50,
+			speakingConfidence: sessionData.preferences.speakingConfidence || 50,
 			specificGoals: sessionData.preferences.specificGoals || [],
 			challengePreference: sessionData.preferences.challengePreference || 'moderate',
 			correctionStyle: sessionData.preferences.correctionStyle || 'gentle',
@@ -236,7 +236,7 @@ export function formatUserPreferencesForDisplay(preferences: UserPreferences): {
 		skillLevels: {
 			speaking: preferences.speakingLevel,
 			listening: preferences.listeningLevel,
-			confidence: preferences.confidenceLevel
+			confidence: preferences.speakingConfidence
 		},
 		goals: {
 			main: preferences.learningGoal,

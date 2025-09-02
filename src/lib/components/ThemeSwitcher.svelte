@@ -8,7 +8,7 @@
 	});
 </script>
 
-<label class="swap swap-rotate mr-2">
+<label class="swap ml-2 swap-rotate">
 	<input type="checkbox" data-toggle-theme="night,retro" data-act-class="active" />
 
 	<!-- sun icon (light theme) -->

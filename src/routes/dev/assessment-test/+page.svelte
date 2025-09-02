@@ -14,7 +14,7 @@
 		listeningLevel: 45,
 		readingLevel: 30,
 		writingLevel: 25,
-		confidenceLevel: 60,
+		speakingConfidence: 60,
 		specificGoals: ['Business meetings', 'Technical discussions', 'Networking'],
 		challengePreference: 'moderate',
 		correctionStyle: 'gentle',
@@ -115,7 +115,7 @@
 			...mockAssessmentResults,
 			speakingLevel: 15,
 			listeningLevel: 20,
-			confidenceLevel: 30,
+			speakingConfidence: 30,
 			challengePreference: 'comfortable' as const,
 			correctionStyle: 'immediate' as const
 		};
@@ -129,7 +129,7 @@
 			...mockAssessmentResults,
 			speakingLevel: 85,
 			listeningLevel: 90,
-			confidenceLevel: 80,
+			speakingConfidence: 80,
 			challengePreference: 'challenging' as const,
 			correctionStyle: 'end_of_session' as const
 		};

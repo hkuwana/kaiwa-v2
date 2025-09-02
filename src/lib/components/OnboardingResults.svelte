@@ -168,14 +168,14 @@
 						<div class="space-y-2">
 							<div class="flex items-center justify-between">
 								<span class="text-xs font-medium sm:text-sm">Confidence</span>
-								<div class="badge {getSkillColor(results.confidenceLevel)} badge-xs sm:badge-sm">
-									{results.confidenceLevel}%
+								<div class="badge {getSkillColor(results.speakingConfidence)} badge-xs sm:badge-sm">
+									{results.speakingConfidence}%
 								</div>
 							</div>
 							<div class="h-2 w-full rounded-full bg-base-200">
 								<div
 									class="h-2 rounded-full bg-secondary transition-all duration-1000 ease-out"
-									style="width: {getProgressWidth(results.confidenceLevel)}"
+									style="width: {getProgressWidth(results.speakingConfidence)}"
 								></div>
 							</div>
 						</div>
@@ -221,7 +221,7 @@
 							<div class="card-body p-3 sm:p-4">
 								<div class="text-xs font-medium text-base-content/70 sm:text-sm">Daily Goal:</div>
 								<div class="mt-1 text-xs font-medium sm:text-sm">
-									{results.dailyGoalMinutes} minutes
+									{results.dailyGoalSeconds} seconds
 								</div>
 							</div>
 						</div>

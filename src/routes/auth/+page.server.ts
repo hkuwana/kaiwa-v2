@@ -5,7 +5,7 @@ import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeHexLowerCase } from '@oslojs/encoding';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { createSession, setSessionTokenCookie } from '$lib/server/auth';
+import { createSession, setSessionTokenCookie, findOrCreateUser } from '$lib/server/auth';
 
 export async function load(event) {
 	if (event.locals.session !== null && event.locals.user !== null) {
@@ -32,15 +32,19 @@ export const actions = {
 
 		const hashedPassword = encodeHexLowerCase(sha256(new TextEncoder().encode(password)));
 
-		const [newUser] = await db
-			.insert(table.users)
-			.values({
-				email,
-				hashedPassword
-			})
-			.returning();
+		const { user, isNew } = await findOrCreateUser({
+			email,
+			hashedPassword
+		});
 
-		const { session, token } = await createSession(newUser.id);
+		if (!isNew && user.hashedPassword) {
+			// User already exists with password
+			return fail(400, {
+				message: 'An account with this email already exists'
+			});
+		}
+
+		const { session, token } = await createSession(user.id);
 		setSessionTokenCookie(event, token, session.expiresAt);
 
 		// TODO: Here you would save the pending assessment data to the user's profile

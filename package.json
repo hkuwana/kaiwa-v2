@@ -19,6 +19,8 @@
 		"test:unit:watch": "vitest --watch",
 		"test:e2e:headed": "playwright test --headed",
 		"test:e2e:debug": "playwright test --debug",
+		"test:auth": "vitest run src/lib/server/auth/auth.test.ts",
+		"test:system": "tsx src/lib/test-other-parts.ts",
 		"db:start": "docker compose up",
 		"db:push": "drizzle-kit push",
 		"db:generate": "drizzle-kit generate",

@@ -126,7 +126,7 @@ modules.register({
 	id: 'personality-adaptive',
 	priority: 1,
 	generate: ({ preferences, sessionContext }: ModuleContext) => {
-		const confidence = preferences.confidenceLevel || 50;
+		const confidence = preferences.speakingConfidence || 50;
 		const emotional = sessionContext?.emotionalState || 'neutral';
 		const goal = preferences.learningGoal || 'Connection';
 

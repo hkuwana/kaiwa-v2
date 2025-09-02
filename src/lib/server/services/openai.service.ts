@@ -90,7 +90,7 @@ Respond ONLY with a valid JSON object containing the following structure:
 	"learningMotivation": "Connection" | "Career" | "Travel" | "Academic" | "Culture" | "Growth",
 	"speakingLevel": number (1-100),
 	"listeningLevel": number (1-100),
-	"confidenceLevel": number (1-100),
+	"speakingConfidence": number (1-100),
 	"specificGoals": string[],
 	"challengePreference": "comfortable" | "moderate" | "challenging",
 	"correctionStyle": "immediate" | "gentle" | "end_of_session",
@@ -101,7 +101,7 @@ Respond ONLY with a valid JSON object containing the following structure:
 ASSESSMENT GUIDELINES:
 - speakingLevel: 1-20 (absolute beginner), 21-40 (basic phrases), 41-60 (conversational), 61-80 (fluent), 81-100 (advanced/native-like)
 - listeningLevel: Based on comprehension of questions and instructions
-- confidenceLevel: 1-30 (very shy), 31-60 (hesitant but willing), 61-100 (confident speaker)
+- speakingConfidence: 1-30 (very shy), 31-60 (hesitant but willing), 61-100 (confident speaker)
 - specificGoals: Extract concrete learning objectives like ["ordering food", "job interviews", "family conversations"]
 - If information isn't explicitly stated, make reasonable inferences
 - assessmentNotes: 2-3 sentence summary of their current level and key focus areas
@@ -135,7 +135,7 @@ export async function generateLearningPlan(
 STUDENT PROFILE:
 - Learning goal: ${extractedData.learningGoal}
 - Speaking level: ${extractedData.speakingLevel}/100
-- Confidence: ${extractedData.confidenceLevel}/100
+- Confidence: ${extractedData.speakingConfidence}/100
 - Specific goals: ${extractedData.specificGoals?.join(', ') || 'General conversation'}
 - Prefers ${extractedData.challengePreference} difficulty
 - Likes ${extractedData.correctionStyle} corrections
@@ -175,7 +175,7 @@ export async function generateLessonContent(
 
 STUDENT CONTEXT:
 - Speaking level: ${userPreferences.speakingLevel}/100
-- Confidence: ${userPreferences.confidenceLevel}/100
+- Confidence: ${userPreferences.speakingConfidence}/100
 - Challenge preference: ${userPreferences.challengePreference}
 - Correction style: ${userPreferences.correctionStyle}
 

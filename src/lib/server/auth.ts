@@ -32,7 +32,7 @@ export async function createSession(
 		expiresAt: new Date(Date.now() + DAY_IN_MS * 30)
 	};
 
-	const session = await repository.create(sessionData);
+	const session = await repository.createSession(sessionData);
 	return { session, token };
 }
 
@@ -72,7 +72,7 @@ export async function validateSessionToken(token: string) {
 	const sessionExpired = Date.now() >= session.expiresAt.getTime();
 
 	if (sessionExpired) {
-		await sessionRepository.delete(session.id);
+		await sessionRepository.deleteSession(session.id);
 		return { session: null, user: null };
 	}
 
@@ -80,16 +80,16 @@ export async function validateSessionToken(token: string) {
 
 	if (renewSession) {
 		session.expiresAt = new Date(Date.now() + DAY_IN_MS * 30);
-		await sessionRepository.updateExpiration(session.id, session.expiresAt);
+		await sessionRepository.extendSession(session.id, session.expiresAt);
 	}
 
 	return { session, user };
 }
 
 export type SessionValidationResult = Awaited<ReturnType<typeof validateSessionToken>>;
- 
+
 export async function invalidateSession(sessionId: string) {
-	await sessionRepository.delete(sessionId);
+	await sessionRepository.deleteSession(sessionId);
 }
 
 export function setSessionTokenCookie(event: RequestEvent, token: string, expiresAt: Date) {
@@ -112,4 +112,74 @@ export function deleteSessionTokenCookie(event: RequestEvent) {
 		sameSite: 'lax',
 		secure: isProduction
 	});
+}
+
+/**
+ * Find or create a user, handling both email/password and OAuth accounts
+ * This prevents duplicate email constraint violations by linking accounts
+ */
+export async function findOrCreateUser({
+	email,
+	googleId,
+	displayName,
+	avatarUrl,
+	hashedPassword
+}: {
+	email: string;
+	googleId?: string;
+	displayName?: string;
+	avatarUrl?: string;
+	hashedPassword?: string;
+}) {
+	// First, check if user exists by Google ID
+	if (googleId) {
+		const [existingUserByGoogleId] = await db
+			.select()
+			.from(users)
+			.where(eq(users.googleId, googleId));
+
+		if (existingUserByGoogleId) {
+			return { user: existingUserByGoogleId, isNew: false };
+		}
+	}
+
+	// Check if user exists by email
+	const [existingUserByEmail] = await db.select().from(users).where(eq(users.email, email));
+
+	if (existingUserByEmail) {
+		// Link the missing authentication method to existing user
+		const updateData: Partial<typeof users.$inferInsert> = {};
+
+		if (googleId && !existingUserByEmail.googleId) {
+			updateData.googleId = googleId;
+			updateData.displayName = displayName;
+			updateData.avatarUrl = avatarUrl;
+		}
+
+		if (hashedPassword && !existingUserByEmail.hashedPassword) {
+			updateData.hashedPassword = hashedPassword;
+		}
+
+		if (Object.keys(updateData).length > 0) {
+			await db.update(users).set(updateData).where(eq(users.id, existingUserByEmail.id));
+		}
+
+		return { user: existingUserByEmail, isNew: false };
+	}
+
+	// Create new user
+	const userId = crypto.randomUUID();
+	const [newUser] = await db
+		.insert(users)
+		.values({
+			id: userId,
+			email,
+			googleId,
+			displayName,
+			avatarUrl,
+			hashedPassword
+		})
+		.returning();
+
+	return { user: newUser, isNew: true };
 }

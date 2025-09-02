@@ -1,6 +1,6 @@
 <!-- src/lib/components/ScenarioSelector.svelte -->
 <script lang="ts">
-	import type { Scenario } from '$lib/stores/scenario.store.svelte';
+	import type { Scenario } from '$lib/server/db/types';
 
 	// Props-based design - no direct store access
 	interface Props {

@@ -1,10 +1,9 @@
 <script lang="ts">
- 
 	import ThemeSwitcher from './ThemeSwitcher.svelte';
+	import type { User } from '$lib/server/db/types';
 
-	const { user } = $props();
+	const { user }: { user: User } = $props();
 	// Get user data from page data
-	 
 </script>
 
 <nav class="navbar bg-neutral text-neutral-content shadow-sm">
@@ -44,8 +43,7 @@
 	</div>
 
 	<div class="navbar-end">
-		<ThemeSwitcher />
-		{#if user.isLoggedIn}
+		{#if user.id !== "guest"}
 			<div class="dropdown dropdown-end">
 				<div tabindex="0" role="button" class="btn avatar btn-circle btn-ghost">
 					<div class="w-10 rounded-full">
@@ -63,5 +61,6 @@
 		{:else}
 			<a href="/auth" class="btn btn-outline btn-primary">Get Started</a>
 		{/if}
+		<ThemeSwitcher />
 	</div>
 </nav>

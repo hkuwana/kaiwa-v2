@@ -151,7 +151,7 @@
 			listeningLevel: 30,
 			readingLevel: 20,
 			writingLevel: 15,
-			confidenceLevel: 40,
+			speakingConfidence: 40,
 			specificGoals: hasBusinessFocus
 				? ['Business meetings', 'Client communication', 'Professional networking']
 				: ['Basic conversations', 'Daily interactions', 'Cultural understanding'],
@@ -339,7 +339,7 @@
 							<div><strong>Learning Goal:</strong> {mockResults.learningGoal}</div>
 							<div><strong>Speaking Level:</strong> {mockResults.speakingLevel}/100</div>
 							<div><strong>Listening Level:</strong> {mockResults.listeningLevel}/100</div>
-							<div><strong>Confidence:</strong> {mockResults.confidenceLevel}%</div>
+							<div><strong>Confidence:</strong> {mockResults.speakingConfidence}%</div>
 						</div>
 						<div class="space-y-2">
 							<div><strong>Challenge Preference:</strong> {mockResults.challengePreference}</div>

@@ -11,7 +11,7 @@ export async function updateSkillLevels(
 		listeningLevel?: number;
 		readingLevel?: number;
 		writingLevel?: number;
-		confidenceLevel?: number;
+		speakingConfidence?: number;
 	}
 ): Promise<UserPreferences | null> {
 	return await userPreferencesRepository.updatePreferences(userId, skillUpdates);
@@ -297,7 +297,7 @@ export async function createDefaultPreferences(
 		listeningLevel: 5,
 		readingLevel: 5,
 		writingLevel: 5,
-		confidenceLevel: 50,
+		speakingConfidence: 50,
 		totalStudyTimeMinutes: 0,
 		totalConversations: 0,
 		currentStreakDays: 0,

@@ -21,7 +21,7 @@ export const defaultUserPreference: Omit<
 	writingLevel: 5,
 
 	// Confidence tracking
-	confidenceLevel: 50,
+	speakingConfidence: 50,
 
 	// Basic progress tracking
 	totalStudyTimeMinutes: 0,

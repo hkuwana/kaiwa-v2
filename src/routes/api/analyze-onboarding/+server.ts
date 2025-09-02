@@ -120,7 +120,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			learningGoal: sanitizedResult.learningGoal,
 			speakingLevel: sanitizedResult.speakingLevel,
 			listeningLevel: sanitizedResult.listeningLevel,
-			confidenceLevel: sanitizedResult.confidenceLevel,
+			speakingConfidence: sanitizedResult.speakingConfidence,
 			specificGoals: sanitizedResult.specificGoals,
 			challengePreference: sanitizedResult.challengePreference,
 			correctionStyle: sanitizedResult.correctionStyle,
@@ -197,7 +197,7 @@ function sanitizeAnalysisResult(result: Partial<UserPreferences>): Partial<UserP
 			: 'Connection',
 		speakingLevel: clampNumber(result.speakingLevel, 1, 100, 25),
 		listeningLevel: clampNumber(result.listeningLevel, 1, 100, 30),
-		confidenceLevel: clampNumber(result.confidenceLevel, 1, 100, 50),
+		speakingConfidence: clampNumber(result.speakingConfidence, 1, 100, 50),
 		specificGoals: Array.isArray(result.specificGoals)
 			? result.specificGoals.filter((goal) => typeof goal === 'string' && goal.length > 0)
 			: [],
