@@ -189,15 +189,15 @@
 									<div class="mt-2 flex items-center justify-between">
 										<span>Conversations</span>
 										<span class="font-medium">
-											{usageStatus.usage.conversationsUsed}/{usageStatus.limits
+											{usageStatus.usage.conversationsUsed || 0}/{usageStatus.tier
 												.monthlyConversations || '∞'}
 										</span>
 									</div>
 									<progress
 										class="progress mt-1 w-full progress-warning"
 										value={getUsagePercentage(
-											usageStatus.usage.conversationsUsed,
-											usageStatus.limits.monthlyConversations
+											usageStatus.usage.conversationsUsed || 0,
+											usageStatus.tier.monthlyConversations
 										)}
 										max="100"
 									></progress>

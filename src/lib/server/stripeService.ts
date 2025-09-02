@@ -47,7 +47,7 @@ export class StripeService {
 		await db
 			.update(users)
 			.set({
-				subscriptionId: customer.id // Store customer ID in subscriptionId for now
+				stripeCustomerId: customer.id // Store customer ID in subscriptionId for now
 			})
 			.where(eq(users.id, user.id));
 
@@ -68,7 +68,7 @@ export class StripeService {
 			throw new Error('User not found');
 		}
 
-		let customerId = user[0].subscriptionId; // We're storing customer ID here temporarily
+		let customerId = user[0].stripeCustomerId; // We're storing customer ID here temporarily
 
 		// Create customer if doesn't exist
 		if (!customerId) {
@@ -154,10 +154,10 @@ export class StripeService {
 
 		// Check price ID pattern
 		if (price.id.includes('premium')) return 'premium';
-		if (price.id.includes('pro')) return 'pro';
+		if (price.id.includes('plus')) return 'plus';
 
 		// Default fallback
-		return 'pro';
+		return 'plus';
 	}
 
 	/**
@@ -190,7 +190,7 @@ export class StripeService {
 			});
 
 			// Update user tier
-			await tierService.upgradeUserTier(userId, subscriptionData.tierId as 'pro' | 'premium');
+			await tierService.upgradeUserTier(userId, subscriptionData.tierId as 'plus' | 'premium');
 
 			console.log(`✅ Subscription created for user ${userId}, tier: ${subscriptionData.tierId}`);
 		} catch (error) {
@@ -235,7 +235,7 @@ export class StripeService {
 			if (subscriptionData.tierId) {
 				await tierService.upgradeUserTier(
 					existingSubscription[0].userId,
-					subscriptionData.tierId as 'pro' | 'premium'
+					subscriptionData.tierId as 'plus' | 'premium'
 				);
 			}
 
@@ -277,13 +277,13 @@ export class StripeService {
 			case 'trialing':
 				// Apply tier benefits during trial
 				if (tierId) {
-					await tierService.upgradeUserTier(userId, tierId as 'pro' | 'premium');
+					await tierService.upgradeUserTier(userId, tierId as 'plus' | 'premium');
 				}
 				break;
 			case 'active':
 				// Ensure user has correct tier
 				if (tierId) {
-					await tierService.upgradeUserTier(userId, tierId as 'pro' | 'premium');
+					await tierService.upgradeUserTier(userId, tierId as 'plus' | 'premium');
 				}
 				break;
 		}
@@ -411,7 +411,7 @@ export class StripeService {
 			.where(eq(subscriptions.id, subscription.id));
 
 		// Restore user tier
-		await tierService.upgradeUserTier(userId, subscription.tierId as 'pro' | 'premium');
+		await tierService.upgradeUserTier(userId, subscription.tierId as 'plus' | 'premium');
 
 		console.log(`✅ Subscription reactivated for user ${userId}`);
 	}

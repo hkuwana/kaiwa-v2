@@ -16,7 +16,7 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 
 		// Monthly limits (from pricing page)
 		monthlyConversations: 100, // Unlimited conversations
-		monthlySeconds: 1800, // 30 minutes = 1800 seconds
+		monthlySeconds: 900, // 15 minutes (5 conversations)
 		monthlyRealtimeSessions: 100, // Unlimited sessions
 
 		// Session limits
@@ -81,8 +81,8 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 		hasAnkiExport: true,
 
 		// Pricing
-		monthlyPriceUsd: '15.00',
-		annualPriceUsd: '144.00', // 20% discount
+		monthlyPriceUsd: '10',
+		annualPriceUsd: '100', // 20% discount
 		stripeProductId: null, // Will be populated from environment
 		stripePriceIdMonthly: null, // Will be populated from environment
 		stripePriceIdAnnual: null, // Will be populated from environment

@@ -43,13 +43,13 @@
 	<div class="space-y-3">
 		<!-- Tier Badge -->
 		<div
-			class="badge {tierStyles[tierStatus.tier as keyof typeof tierStyles] ||
+			class="badge {tierStyles[tierStatus.tier.id as keyof typeof tierStyles] ||
 				tierStyles.free} gap-2"
 		>
 			<span class="text-base"
-				>{tierIcons[tierStatus.tier as keyof typeof tierIcons] || tierIcons.free}</span
+				>{tierIcons[tierStatus.tier.id as keyof typeof tierIcons] || tierIcons.free}</span
 			>
-			<span class="capitalize">{tierStatus.tier}</span>
+			<span class="capitalize">{tierStatus.tier.name}</span>
 		</div>
 
 		{#if showDetails}
@@ -61,21 +61,21 @@
 					<div class="flex items-center space-x-2">
 						<span class="font-medium">
 							{formatUsage(
-								tierStatus.usage.conversationsUsed,
-								tierStatus.limits.monthlyConversations
+								tierStatus.usage.conversationsUsed || 0,
+								tierStatus.tier.monthlyConversations
 							)}
 						</span>
-						{#if tierStatus.limits.monthlyConversations !== null}
+						{#if tierStatus.tier.monthlyConversations !== null}
 							<progress
 								class="progress {getProgressBarColor(
 									getUsagePercentage(
-										tierStatus.usage.conversationsUsed,
-										tierStatus.limits.monthlyConversations
+										tierStatus.usage.conversationsUsed || 0,
+										tierStatus.tier.monthlyConversations
 									)
 								)} h-2 w-16"
 								value={getUsagePercentage(
-									tierStatus.usage.conversationsUsed,
-									tierStatus.limits.monthlyConversations
+									tierStatus.usage.conversationsUsed || 0,
+									tierStatus.tier.monthlyConversations
 								)}
 								max="100"
 							></progress>
@@ -83,21 +83,24 @@
 					</div>
 				</div>
 
-				<!-- Minutes -->
+				<!-- Seconds -->
 				<div class="flex items-center justify-between">
-					<span class="opacity-70">Minutes:</span>
+					<span class="opacity-70">Seconds:</span>
 					<div class="flex items-center space-x-2">
 						<span class="font-medium">
-							{formatUsage(tierStatus.usage.minutesUsed, tierStatus.limits.monthlyMinutes)}
+							{formatUsage(tierStatus.usage.secondsUsed || 0, tierStatus.tier.monthlySeconds)}
 						</span>
-						{#if tierStatus.limits.monthlyMinutes !== null}
+						{#if tierStatus.tier.monthlySeconds !== null}
 							<progress
 								class="progress {getProgressBarColor(
-									getUsagePercentage(tierStatus.usage.minutesUsed, tierStatus.limits.monthlyMinutes)
+									getUsagePercentage(
+										tierStatus.usage.secondsUsed || 0,
+										tierStatus.tier.monthlySeconds
+									)
 								)} h-2 w-16"
 								value={getUsagePercentage(
-									tierStatus.usage.minutesUsed,
-									tierStatus.limits.monthlyMinutes
+									tierStatus.usage.secondsUsed || 0,
+									tierStatus.tier.monthlySeconds
 								)}
 								max="100"
 							></progress>
@@ -111,21 +114,21 @@
 					<div class="flex items-center space-x-2">
 						<span class="font-medium">
 							{formatUsage(
-								tierStatus.usage.realtimeSessionsUsed,
-								tierStatus.limits.monthlyRealtimeSessions
+								tierStatus.usage.realtimeSessionsUsed || 0,
+								tierStatus.tier.monthlyRealtimeSessions
 							)}
 						</span>
-						{#if tierStatus.limits.monthlyRealtimeSessions !== null}
+						{#if tierStatus.tier.monthlyRealtimeSessions !== null}
 							<progress
 								class="progress {getProgressBarColor(
 									getUsagePercentage(
-										tierStatus.usage.realtimeSessionsUsed,
-										tierStatus.limits.monthlyRealtimeSessions
+										tierStatus.usage.realtimeSessionsUsed || 0,
+										tierStatus.tier.monthlyRealtimeSessions
 									)
 								)} h-2 w-16"
 								value={getUsagePercentage(
-									tierStatus.usage.realtimeSessionsUsed,
-									tierStatus.limits.monthlyRealtimeSessions
+									tierStatus.usage.realtimeSessionsUsed || 0,
+									tierStatus.tier.monthlyRealtimeSessions
 								)}
 								max="100"
 							></progress>
