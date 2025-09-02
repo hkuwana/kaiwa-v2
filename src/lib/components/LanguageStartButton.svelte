@@ -6,6 +6,13 @@
 	import { goto } from '$app/navigation';
 	import type { Language as DataLanguage } from '$lib/data/languages';
 
+	// Props for tracking
+	interface Props {
+		onStartClick?: () => void;
+	}
+
+	let { onStartClick }: Props = $props();
+
 	// Component state
 	let isLanguageMenuOpen = $state(false);
 	let searchTerm = $state('');
@@ -87,6 +94,11 @@
 	function handleStartClick(event: MouseEvent) {
 		const sessionId = crypto.randomUUID();
 		if (selectedLanguage) {
+			// Track the click event
+			if (onStartClick) {
+				onStartClick();
+			}
+
 			// Add immediate visual feedback
 			const button = event?.currentTarget as HTMLButtonElement;
 			if (button) {

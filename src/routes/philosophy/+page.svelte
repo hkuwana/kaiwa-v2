@@ -31,8 +31,8 @@
 			<div class="rounded-2xl border border-purple-500/20 bg-black/30 p-8 backdrop-blur-sm">
 				<p class="text-lg leading-relaxed text-gray-200">
 					Kaiwa is the anti-language-learning app. We're not here to help you achieve B2 proficiency
-					or master 2000 vocabulary words. We're here to help you survive a night in Kabukicho, talk
-					your way out of missing the last train, and flirt without Google Translate.
+					or master 2000 vocabulary words. We're here to help you survive real situations, connect
+					with loved ones, and handle the conversations that actually matter in your life.
 				</p>
 			</div>
 		</div>
@@ -92,14 +92,14 @@
 					</ul>
 				</div>
 
-				<!-- Night Life Regular -->
+				<!-- Family Connector -->
 				<div class="rounded-2xl border border-purple-500/20 bg-black/30 p-6 backdrop-blur-sm">
-					<h3 class="mb-2 text-xl font-semibold text-white">The Night Life Regular</h3>
-					<p class="mb-4 text-sm text-purple-400">"Own the conversation from Shibuya to sunrise"</p>
+					<h3 class="mb-2 text-xl font-semibold text-white">The Family Connector</h3>
+					<p class="mb-4 text-sm text-purple-400">"Because family shouldn't need subtitles"</p>
 					<ul class="space-y-2 text-sm text-gray-300">
-						<li><strong>Profile:</strong> Goes out in Tokyo regularly</li>
-						<li><strong>Needs:</strong> Bar banter, karaoke negotiations</li>
-						<li><strong>Current solution:</strong> English-speaking bubble</li>
+						<li><strong>Profile:</strong> Has family members who speak the language</li>
+						<li><strong>Needs:</strong> Connect with relatives, understand family stories</li>
+						<li><strong>Current solution:</strong> Missing out on family conversations</li>
 					</ul>
 				</div>
 			</div>
@@ -113,11 +113,11 @@
 					Weekly scenario releases for practicing the conversations you'll actually have:
 				</p>
 				<ul class="space-y-3 text-gray-300">
-					<li>• "Convince the station staff you really did lose your passport"</li>
-					<li>• "Explain to your neighbor their music is too loud (politely)"</li>
-					<li>• "Tell the hairdresser they fucked up (diplomatically)"</li>
-					<li>• "Negotiate at Don Quijote at 3am"</li>
-					<li>• "Explain why you're late (believably)"</li>
+					<li>• "Explain to your partner's parents why you're serious about the relationship"</li>
+					<li>• "Comfort your grandmother when she's feeling lonely"</li>
+					<li>• "Handle a medical emergency with confidence"</li>
+					<li>• "Express your feelings without Google Translate"</li>
+					<li>• "Connect with family members you've never really talked to"</li>
 				</ul>
 			</div>
 		</div>
@@ -163,20 +163,27 @@
 			<div class="rounded-2xl border border-purple-500/20 bg-black/30 p-8 backdrop-blur-sm">
 				<div class="space-y-4 leading-relaxed text-gray-200">
 					<p>
-						We built Kaiwa because we were tired of 'knowing' Japanese but being unable to use it.
+						We built Kaiwa because we were tired of 'knowing' a language but being unable to connect
+						with the people we love.
 					</p>
-					<p>Tired of studying for years but freezing when the delivery guy asks a question.</p>
 					<p>
-						Tired of apps that teach you to say 'the pen is on the table' but not 'the bathroom is
-						flooding.'
+						Tired of watching family conversations happen without us. Tired of our partners having
+						to translate our feelings.
 					</p>
-					<p>Tired of perfect grammar exercises but inability to interrupt politely.</p>
+					<p>
+						Tired of apps that teach you to say 'the pen is on the table' but not 'I love you' or
+						'I'm sorry.'
+					</p>
+					<p>
+						Tired of perfect grammar exercises but inability to express what's really in your heart.
+					</p>
 					<p class="font-semibold text-purple-400">
-						Real life is messy. Conversations are chaotic. And you need to be ready.
+						Real relationships are messy. Real conversations are emotional. And you need to be
+						ready.
 					</p>
-					<p>No courses. No evaluations. Just the conversations you'll actually have.</p>
+					<p>No courses. No evaluations. Just the conversations that actually matter.</p>
 					<p class="text-lg font-bold text-white">
-						Welcome to Kaiwa. The app for people who need to use Japanese, not study it.
+						Welcome to Kaiwa. The app for people who need to connect, not just communicate.
 					</p>
 				</div>
 			</div>

@@ -41,10 +41,10 @@
 						valuable: the ability to create meaningful experiences through real communication.
 					</p>
 					<p>
-						When you're arguing with your landlord in Japanese at 2 AM, or explaining to a doctor
-						why everything hurts, or flirting with someone at a bar in Shibuya—these are the moments
-						that matter. These are the experiences that shape who you are and create the memories
-						you'll carry with you.
+						When you're comforting your grandmother in her native language, or expressing your love
+						to your partner without translation, or connecting with family members you've never
+						really spoken to—these are the moments that matter. These are the experiences that shape
+						who you are and create the memories you'll carry with you.
 					</p>
 					<p class="font-semibold text-purple-400">
 						Kaiwa isn't about passing tests. It's about living fully in the language you're
@@ -60,15 +60,16 @@
 			<div class="rounded-2xl border border-purple-500/20 bg-black/30 p-8 backdrop-blur-sm">
 				<div class="space-y-4 leading-relaxed text-gray-200">
 					<p>
-						Traditional language learning apps teach you to say "the pen is on the table" but not
-						"the bathroom is flooding." They prepare you for hypothetical conversations in perfect
-						grammar, but leave you helpless when real life gets messy.
+						Traditional language learning apps teach you to say "the pen is on the table" but not "I
+						love you" or "I'm sorry." They prepare you for hypothetical conversations in perfect
+						grammar, but leave you helpless when real relationships get emotional.
 					</p>
 					<p>
-						We've all been there: you've studied Japanese for years, you can conjugate verbs
-						perfectly, you have a 500-day streak on Duolingo. But when the convenience store clerk
-						asks if you need a bag, you panic. When your neighbor's music is too loud, you don't
-						know how to complain politely. When you need to explain why you're late, you freeze.
+						We've all been there: you've studied a language for years, you can conjugate verbs
+						perfectly, you have a 500-day streak on Duolingo. But when your partner's family asks
+						about your intentions, you panic. When your grandmother is crying and you want to
+						comfort her, you don't know how. When you need to express your real feelings, you
+						freeze.
 					</p>
 					<p class="font-semibold text-purple-400">
 						This is the gap Kaiwa fills. We prepare you for the conversations you'll actually have,
@@ -85,8 +86,8 @@
 				<div class="rounded-2xl border border-purple-500/20 bg-black/30 p-6 backdrop-blur-sm">
 					<h3 class="mb-4 text-xl font-semibold text-white">Real Situations</h3>
 					<p class="text-gray-300">
-						We focus on the conversations you'll actually have: ordering off-menu, arguing with
-						landlords, explaining why you're late, negotiating at 3 AM convenience stores.
+						We focus on the conversations you'll actually have: meeting your partner's parents,
+						comforting family members, expressing your feelings, handling emotional moments.
 					</p>
 				</div>
 				<div class="rounded-2xl border border-purple-500/20 bg-black/30 p-6 backdrop-blur-sm">
@@ -117,9 +118,9 @@
 						Japanese becomes a memory you'll treasure, not just another lesson completed.
 					</p>
 					<p>
-						We envision Kaiwa users who don't just "know" Japanese—they live it. They navigate
-						Tokyo's nightlife with confidence, build relationships without translation apps, and
-						create the kind of wild, authentic experiences that make life worth living.
+						We envision Kaiwa users who don't just "know" a language—they live it. They connect with
+						family members they've never really spoken to, build relationships without translation
+						apps, and create the kind of deep, authentic connections that make life worth living.
 					</p>
 					<p class="text-lg font-semibold text-purple-400">
 						Because at the end of the day, it's not about what you've learned—it's about what you've
