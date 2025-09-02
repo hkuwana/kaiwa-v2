@@ -11,6 +11,9 @@ export { sessionRepository } from './session.repository';
 export { scenarioRepository } from './scenario.repository';
 export { conversationRepository } from './conversation.repository';
 export { messagesRepository } from './messages.repository';
+export { speakersRepository } from './speakers.repository';
+export { scenarioAttemptsRepository } from './scenarioAttempts.repository';
+export { scenarioOutcomesRepository } from './scenarioOutcomes.repository';
 
 // Subscription and billing repositories
 export { tierRepository } from './tier.repository';
@@ -20,11 +23,8 @@ export { paymentRepository } from './payment.repository';
 // Usage tracking and analytics repositories
 export { userUsageRepository } from './userUsage.repository';
 export { conversationSessionsRepository } from './conversationSessions.repository';
+export { analyticsEventsRepository } from './analyticsEvents.repository';
 
 // Note: Additional repositories can be added here as they are created:
 // - vocabularyRepository (requires v2 schema exports)
-// - speakersRepository (for voice/speaker management)
-// - scenarioOutcomesRepository (for scenario tracking)
-// - analyticsEventsRepository (for event tracking)
-// - sessionRepository (for session management)
 // etc.

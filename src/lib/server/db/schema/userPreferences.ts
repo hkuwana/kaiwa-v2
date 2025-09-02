@@ -38,7 +38,7 @@ export const userPreferences = pgTable(
 			.notNull(),
 		learningGoal: learningMotivationEnum('learning_goal').default('Connection').notNull(), // Using ENUM
 		preferredVoice: text('preferred_voice').default('alloy').notNull(), // Could also be an enum
-		dailyGoalMinutes: integer('daily_goal_minutes').default(30).notNull(),
+		dailyGoalSeconds: integer('daily_goal_seconds').default(1800).notNull(), // 30 minutes = 1800 seconds
 
 		// Skill breakdown by competency (the source of truth for user skill)
 		speakingLevel: integer('speaking_level').default(5).notNull(), // 1-100
@@ -48,21 +48,19 @@ export const userPreferences = pgTable(
 		// `overallSkillLevel` can be calculated in the app to prevent sync issues
 
 		// Confidence tracking
-		confidenceLevel: integer('confidence_level').default(50).notNull(), // 1-100
+		speakingConfidence: integer('speaking_confidence').default(25).notNull(),
+		successfulExchanges: integer('successful_exchanges').default(0).notNull(),
+		comfortZone: jsonb('comfort_zone').$type<string[]>().default([]),
 
-		// Basic progress tracking
-		totalStudyTimeMinutes: integer('total_study_time_minutes').default(0).notNull(),
-		totalConversations: integer('total_conversations').default(0).notNull(),
-		currentStreakDays: integer('current_streak_days').default(0).notNull(),
-		lastStudied: timestamp('last_studied').defaultNow().notNull(),
+		conversationContext: jsonb('conversation_context').$type<{
+			userName?: string;
+			occupation?: string;
+			learningReason?: string;
+			recentTopics?: string[];
+		}>(),
 
 		// Specific learning goals (using jsonb for better querying and performance)
 		specificGoals: jsonb('specific_goals').$type<string[]>(), // e.g., ["ordering food", "job interview"]
-
-		// Progress tracking (using jsonb)
-		recentSessionScores: jsonb('recent_session_scores').$type<number[]>(), // Last 10 scores
-		lastAssessmentDate: timestamp('last_assessment_date'),
-		skillLevelHistory: jsonb('skill_level_history').$type<{ date: string; level: number }[]>(),
 
 		// Adaptive learning preferences (using ENUMs)
 		challengePreference: challengePreferenceEnum('challenge_preference')

@@ -30,7 +30,12 @@ export { payments } from './payments';
 // Usage tracking and analytics
 export { userUsage } from './userUsage';
 export { conversationSessions } from './conversationSessions';
+export { analyticsEvents } from './analyticsEvents';
+
+// Learning scenario tracking
+export { scenarioAttempts } from './scenarioAttempts';
+export { scenarioOutcomes } from './scenarioOutcomes';
 
 // Note: Advanced schemas moved to /v2 for future implementation:
-// - userLearningStats, vocabularyProgress, scenarioAttempts, etc.
+// - userLearningStats, vocabularyProgress, etc.
 // - These will be added back as the app grows beyond MVP
