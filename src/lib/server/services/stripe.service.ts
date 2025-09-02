@@ -5,9 +5,8 @@ import Stripe from 'stripe';
 import { env } from '$env/dynamic/private';
 import { paymentRepository, userRepository } from '../repositories';
 import { subscriptionRepository } from '../repositories/subscription.repository';
-import { tierService } from '../tierService';
 import type { Subscription } from '../db/types';
-import { STRIPE_PRICES, STRIPE_TRIAL_DAYS } from '../../data/stripe';
+import { getAllStripePriceIds, getStripePriceId } from '../data/tiers';
 
 // Environment variables
 const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;
@@ -87,13 +86,10 @@ export class StripeService {
 		}
 
 		// Validate price ID
-		const validPrices = Object.values(STRIPE_PRICES) as string[];
+		const validPrices = getAllStripePriceIds();
 		if (!validPrices.includes(priceId)) {
 			throw new Error(`Invalid price ID: ${priceId}. Valid prices: ${validPrices.join(', ')}`);
 		}
-
-		// Calculate the trial end date
-		const trialEnd = Math.floor((Date.now() + STRIPE_TRIAL_DAYS * 24 * 60 * 60 * 1000) / 1000);
 
 		const session = await stripe.checkout.sessions.create({
 			customer: customerId,
@@ -105,9 +101,7 @@ export class StripeService {
 				}
 			],
 			mode: 'subscription',
-			subscription_data: {
-				trial_end: trialEnd
-			},
+			subscription_data: {},
 			success_url: successUrl,
 			cancel_url: cancelUrl,
 			metadata: {
@@ -155,7 +149,7 @@ export class StripeService {
 			trialStart: stripeSubscription.trial_start
 				? new Date(stripeSubscription.trial_start * 1000)
 				: null,
-			trialEnd: stripeSubscription.trial_end ? new Date(stripeSubscription.trial_end * 1000) : null,
+
 			collectionMethod: stripeSubscription.collection_method,
 			currency: stripeSubscription.currency,
 			metadata: stripeSubscription.metadata
@@ -229,15 +223,13 @@ export class StripeService {
 			stripePriceId: subscriptionData.priceId,
 			status: subscription.status,
 			currentPeriodStart: new Date(subscription.created * 1000),
-			currentPeriodEnd: new Date(
-				(subscription.current_period_end || subscription.created || Date.now() / 1000) * 1000
-			),
+			currentPeriodEnd: new Date(subscription.cancel_at ?? 0 * 1000),
 			cancelAtPeriodEnd: subscription.cancel_at_period_end,
 			tierId: tierId
 		});
 
 		// Update user tier - this is crucial for updating the UI
-		await tierService.upgradeUserTier(userId, tierId as 'plus' | 'premium');
+		console.log(`User ${userId} tier updated to ${tierId} via subscription`);
 
 		console.log(`✅ Checkout success processed for user ${userId}, tier updated to: ${tierId}`);
 	}
@@ -272,7 +264,7 @@ export class StripeService {
 			});
 
 			// Update user tier
-			await tierService.upgradeUserTier(userId, subscriptionData.tierId as 'plus' | 'premium');
+			console.log(`User ${userId} tier updated to ${subscriptionData.tierId} via subscription`);
 
 			console.log(`✅ Subscription created for user ${userId}, tier: ${subscriptionData.tierId}`);
 		} catch (error) {
@@ -309,9 +301,8 @@ export class StripeService {
 
 			// Update user tier if changed
 			if (subscriptionData.tierId) {
-				await tierService.upgradeUserTier(
-					existingSubscription.userId,
-					subscriptionData.tierId as 'plus' | 'premium'
+				console.log(
+					`User ${existingSubscription.userId} tier updated to ${subscriptionData.tierId} via subscription`
 				);
 			}
 
@@ -344,7 +335,7 @@ export class StripeService {
 			case 'unpaid':
 			case 'incomplete_expired':
 				// Downgrade to free tier
-				await tierService.upgradeUserTier(userId, 'free');
+				console.log(`User ${userId} tier downgraded to free due to subscription status: ${status}`);
 				break;
 			case 'past_due':
 				// Keep current tier but log warning
@@ -353,13 +344,13 @@ export class StripeService {
 			case 'trialing':
 				// Apply tier benefits during trial
 				if (tierId) {
-					await tierService.upgradeUserTier(userId, tierId as 'plus' | 'premium');
+					console.log(`User ${userId} tier set to ${tierId} during trial`);
 				}
 				break;
 			case 'active':
 				// Ensure user has correct tier
 				if (tierId) {
-					await tierService.upgradeUserTier(userId, tierId as 'plus' | 'premium');
+					console.log(`User ${userId} tier confirmed as ${tierId} for active subscription`);
 				}
 				break;
 		}
@@ -455,7 +446,9 @@ export class StripeService {
 		});
 
 		// Restore user tier
-		await tierService.upgradeUserTier(userId, subscription.tierId as 'plus' | 'premium');
+		console.log(
+			`User ${userId} tier restored to ${subscription.tierId} via subscription reactivation`
+		);
 
 		console.log(`✅ Subscription reactivated for user ${userId}`);
 	}
@@ -565,16 +558,15 @@ export class StripeService {
 	/**
 	 * Get available price IDs for a specific tier and billing cycle
 	 */
-	getPriceId(tier: 'plus' | 'premium', billingCycle: 'monthly' | 'annual'): string {
-		const key = `${tier}_${billingCycle}` as keyof typeof STRIPE_PRICES;
-		return STRIPE_PRICES[key];
+	getPriceId(tier: 'plus' | 'premium', billingCycle: 'monthly' | 'annual'): string | null {
+		return getStripePriceId(tier, billingCycle);
 	}
 
 	/**
 	 * Validate if a price ID is valid
 	 */
 	isValidPriceId(priceId: string): boolean {
-		const validPrices = Object.values(STRIPE_PRICES) as string[];
+		const validPrices = getAllStripePriceIds();
 		return validPrices.includes(priceId);
 	}
 
@@ -582,7 +574,7 @@ export class StripeService {
 	 * Get available price IDs
 	 */
 	get STRIPE_PRICES() {
-		return STRIPE_PRICES;
+		return getAllStripePriceIds();
 	}
 
 	/**

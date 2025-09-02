@@ -1,13 +1,61 @@
 <script lang="ts">
 	import { dev } from '$app/environment';
 	import { page } from '$app/state';
+	import { browser } from '$app/environment';
 	import LanguageStartButton from '$lib/components/LanguageStartButton.svelte';
 	import ScenarioStartButton from '$lib/components/ScenarioStartButton.svelte';
 	import Navigation from '$lib/components/Navigation.svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
+	import { getFeatureFlag, trackABTest } from '$lib/analytics/posthog';
 
 	// Get user data from page data
 	const user = userManager.user;
+
+	// A/B Testing for headlines
+	const headlineVariants = {
+		original: 'Stop Learning. Start Talking.',
+		cure: 'The cure for the common language app.',
+		onePercent: 'For the 1% of learners who will actually become speakers.'
+	};
+
+	// Get the headline variant from PostHog feature flag
+	let headlineVariant = $state('original');
+	let headlineText = $state(headlineVariants.original);
+
+	// Initialize A/B test on client side
+	if (browser) {
+		// Get the feature flag value
+		const variant = getFeatureFlag('headline_ab_test');
+
+		// Map feature flag values to our variants
+		let currentVariant = 'original';
+		let currentText = headlineVariants.original;
+
+		if (variant === 'cure') {
+			currentVariant = 'cure';
+			currentText = headlineVariants.cure;
+		} else if (variant === 'one_percent') {
+			currentVariant = 'onePercent';
+			currentText = headlineVariants.onePercent;
+		}
+
+		// Update state
+		headlineVariant = currentVariant;
+		headlineText = currentText;
+
+		// Track which variant the user saw
+		trackABTest.headlineVariantShown(currentVariant, currentText);
+	}
+
+	// Function to track when user clicks start speaking
+	function trackStartSpeakingClick() {
+		// Get current values to avoid state reference issues
+		const currentVariant = headlineVariant;
+		const currentText = headlineText;
+		const userType = user ? 'logged_in' : 'guest';
+
+		trackABTest.startSpeakingClicked(currentVariant, currentText, userType);
+	}
 </script>
 
 <svelte:head>
@@ -23,7 +71,7 @@
 			<div class="max-w-md">
 				<h1 class="  text-5xl font-bold">Kaiwa</h1>
 				<h4 class="  text-2xl font-medium opacity-90">
-					No lessons. No evaluations. Just conversations.
+					{headlineText}
 				</h4>
 
 				{#if user || dev}
@@ -33,7 +81,7 @@
 					<ScenarioStartButton />
 				{:else}
 					<p class="mb-6 text-xl opacity-90">Learn languages through AI-assisted conversations</p>
-					<LanguageStartButton />
+					<LanguageStartButton onStartClick={trackStartSpeakingClick} />
 				{/if}
 			</div>
 		</div>
@@ -84,7 +132,7 @@
 					<ScenarioStartButton />
 					<p class="mt-4 text-lg opacity-80">Experience scenarios and onboarding</p>
 				{:else}
-					<LanguageStartButton />
+					<LanguageStartButton onStartClick={trackStartSpeakingClick} />
 					<p class="mt-4 text-lg opacity-80">Experience the new simplified architecture</p>
 				{/if}
 			</div>

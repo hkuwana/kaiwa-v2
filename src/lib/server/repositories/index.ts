@@ -16,7 +16,6 @@ export { scenarioAttemptsRepository } from './scenarioAttempts.repository';
 export { scenarioOutcomesRepository } from './scenarioOutcomes.repository';
 
 // Subscription and billing repositories
-export { tierRepository } from './tier.repository';
 export { subscriptionRepository } from './subscription.repository';
 export { paymentRepository } from './payment.repository';
 

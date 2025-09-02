@@ -133,10 +133,8 @@ export class StripeService {
 			quantity: primaryItem.quantity || 1,
 			billingCycleAnchor: new Date(stripeSubscription.billing_cycle_anchor * 1000),
 			startDate: new Date(stripeSubscription.start_date * 1000),
-			trialStart: stripeSubscription.trial_start
-				? new Date(stripeSubscription.trial_start * 1000)
-				: null,
-			trialEnd: stripeSubscription.trial_end ? new Date(stripeSubscription.trial_end * 1000) : null,
+			 
+		 
 			collectionMethod: stripeSubscription.collection_method,
 			currency: stripeSubscription.currency,
 			metadata: stripeSubscription.metadata

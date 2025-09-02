@@ -197,6 +197,34 @@ export const trackEngagement = {
 };
 
 /**
+ * Track A/B testing events
+ */
+export const trackABTest = {
+	// Headline variant shown
+	headlineVariantShown: (variant: string, headlineText: string) => {
+		track('headline_variant_shown', {
+			variant,
+			headline_text: headlineText,
+			$set: { current_headline_variant: variant }
+		});
+	},
+
+	// Start speaking button clicked (conversion event)
+	startSpeakingClicked: (
+		headlineVariant: string,
+		headlineText: string,
+		userType: 'logged_in' | 'guest'
+	) => {
+		track('start_speaking_clicked', {
+			headline_variant: headlineVariant,
+			headline_text: headlineText,
+			user_type: userType,
+			$set: { has_clicked_start_speaking: true }
+		});
+	}
+};
+
+/**
  * Core tracking function
  */
 export function track(eventName: string, properties?: Record<string, unknown>): void {

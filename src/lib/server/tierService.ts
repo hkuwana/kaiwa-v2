@@ -5,7 +5,7 @@ import { db } from './db/index';
 import { userUsage, conversationSessions, subscriptions } from './db/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import type { UserTier, Tier, UserUsage } from './db/types';
-import { getTierConfig } from '$lib/data/tiers';
+import { getServerTierConfig } from '$lib/server/data/tiers';
 
 export interface UsageStatus {
 	tier: Tier;
@@ -34,7 +34,7 @@ export class TierService {
 	 */
 	async getUsageStatus(userId: string): Promise<UsageStatus> {
 		const tierId = await this.getUserTier(userId);
-		const tierConfig = getTierConfig(tierId);
+		const tierConfig = getServerTierConfig(tierId);
 		const currentPeriod = this.getCurrentPeriod();
 
 		// Get current month's usage
@@ -254,6 +254,13 @@ export class TierService {
 	async canUseRealtime(userId: string): Promise<boolean> {
 		const usageStatus = await this.getUsageStatus(userId);
 		return usageStatus.canUseRealtime;
+	}
+
+	/**
+	 * Get tier configuration by ID
+	 */
+	getTierConfig(tierId: UserTier): Tier {
+		return getServerTierConfig(tierId);
 	}
 }
 
