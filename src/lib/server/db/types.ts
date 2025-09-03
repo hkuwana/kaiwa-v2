@@ -15,7 +15,8 @@ import {
 	messages,
 	scenarios,
 	userPreferences,
-	analyticsEvents
+	analyticsEvents,
+	emailVerification
 } from './schema';
 import type { scenarioAttempts } from './schema/scenarioAttempts';
 import type { scenarioOutcomes } from './schema/scenarioOutcomes';
@@ -39,6 +40,7 @@ export type UserPreferences = InferSelectModel<typeof userPreferences>;
 export type ScenarioAttempt = InferSelectModel<typeof scenarioAttempts>;
 export type ScenarioOutcome = InferSelectModel<typeof scenarioOutcomes>;
 export type AnalyticsEvent = InferSelectModel<typeof analyticsEvents>;
+export type EmailVerification = InferSelectModel<typeof emailVerification>;
 
 // Insert types for creating new records
 export type NewUser = InferInsertModel<typeof users>;
@@ -57,3 +59,4 @@ export type NewUserPreferences = InferInsertModel<typeof userPreferences>;
 export type NewScenarioAttempt = InferInsertModel<typeof scenarioAttempts>;
 export type NewScenarioOutcome = InferInsertModel<typeof scenarioOutcomes>;
 export type NewAnalyticsEvent = InferInsertModel<typeof analyticsEvents>;
+export type NewEmailVerification = InferInsertModel<typeof emailVerification>;

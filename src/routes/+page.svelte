@@ -64,8 +64,6 @@
 </svelte:head>
 
 <div class="min-h-screen bg-gradient-to-br from-primary to-secondary text-primary-content">
-	<Navigation user={userManager.user} />
-
 	<header class="flex min-h-screen items-start justify-center pt-20">
 		<div class="text-center">
 			<div class="max-w-md">

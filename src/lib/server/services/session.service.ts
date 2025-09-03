@@ -45,7 +45,7 @@ export function createAnonymousSession(
 			speakingConfidence: 50,
 			challengePreference: 'moderate',
 			correctionStyle: 'gentle',
-			dailyGoalMinutes: 30,
+			dailyGoalSeconds: 30,
 			...initialPreferences
 		},
 		createdAt: new Date(),
@@ -136,7 +136,7 @@ export async function persistAnonymousSessionToDatabase(
 			specificGoals: sessionData.preferences.specificGoals || [],
 			challengePreference: sessionData.preferences.challengePreference || 'moderate',
 			correctionStyle: sessionData.preferences.correctionStyle || 'gentle',
-			dailyGoalMinutes: sessionData.preferences.dailyGoalMinutes || 30
+			dailyGoalSeconds: sessionData.preferences.dailyGoalSeconds || 30
 		};
 
 		if (existingPrefs.length > 0) {
@@ -245,7 +245,7 @@ export function formatUserPreferencesForDisplay(preferences: UserPreferences): {
 		preferences: {
 			challenge: preferences.challengePreference,
 			corrections: preferences.correctionStyle,
-			dailyMinutes: preferences.dailyGoalMinutes
+			dailyMinutes: preferences.dailyGoalSeconds
 		}
 	};
 }

@@ -51,7 +51,7 @@ export class StripeService {
 
 			// Save the new Stripe Customer ID to the user's profile
 			if (userProfile) {
-				await userRepository.updateUserStripeCustomerId(userId, customer.id);
+				await userRepository.updateUser(userId, { stripeCustomerId: customer.id });
 			}
 
 			return customer.id;

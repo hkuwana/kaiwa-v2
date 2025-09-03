@@ -35,29 +35,6 @@ export const userRepository = {
 		return updatedUser;
 	},
 
-	async updateUserStripeCustomerId(
-		id: string,
-		stripeCustomerId: string
-	): Promise<User | undefined> {
-		const [updatedUser] = await db
-			.update(users)
-			.set({ stripeCustomerId })
-			.where(eq(users.id, id))
-			.returning();
-
-		return updatedUser;
-	},
-
-	async updateLastUsage(id: string): Promise<User | undefined> {
-		const [updatedUser] = await db
-			.update(users)
-			.set({ lastUsage: new Date() })
-			.where(eq(users.id, id))
-			.returning();
-
-		return updatedUser;
-	},
-
 	// DELETE
 	async deleteUser(id: string): Promise<{ success: boolean }> {
 		const result = await db.delete(users).where(eq(users.id, id)).returning({ id: users.id });

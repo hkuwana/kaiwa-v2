@@ -38,8 +38,7 @@ export class StripeService {
 			email: user.email,
 			name: user.displayName || user.username || undefined,
 			metadata: {
-				userId: user.id,
-				tier: user.tier
+				userId: user.id
 			}
 		});
 
@@ -133,8 +132,7 @@ export class StripeService {
 			quantity: primaryItem.quantity || 1,
 			billingCycleAnchor: new Date(stripeSubscription.billing_cycle_anchor * 1000),
 			startDate: new Date(stripeSubscription.start_date * 1000),
-			 
-		 
+
 			collectionMethod: stripeSubscription.collection_method,
 			currency: stripeSubscription.currency,
 			metadata: stripeSubscription.metadata

@@ -94,7 +94,7 @@ Respond ONLY with a valid JSON object containing the following structure:
 	"specificGoals": string[],
 	"challengePreference": "comfortable" | "moderate" | "challenging",
 	"correctionStyle": "immediate" | "gentle" | "end_of_session",
-	"dailyGoalMinutes": 15 | 30 | 45 | 60,
+	"dailyGoalSeconds": 60 | 120 | 180 | 300  ,
 	"assessmentNotes": string
 }
 
@@ -139,7 +139,7 @@ STUDENT PROFILE:
 - Specific goals: ${extractedData.specificGoals?.join(', ') || 'General conversation'}
 - Prefers ${extractedData.challengePreference} difficulty
 - Likes ${extractedData.correctionStyle} corrections
-- Daily goal: ${extractedData.dailyGoalMinutes} minutes
+- Daily goal: ${extractedData.dailyGoalSeconds} seconds
 
 Create a motivating summary that includes:
 1. Positive assessment of their current level

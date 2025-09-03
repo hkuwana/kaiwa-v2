@@ -63,6 +63,8 @@ export const load: LayoutLoad = async ({ data, url }) => {
 	}
 
 	return {
+		user,
+		subscription,
 		seo: {
 			...BASE_SEO,
 			canonical: `${BASE_SEO.canonical}${url.pathname}`,

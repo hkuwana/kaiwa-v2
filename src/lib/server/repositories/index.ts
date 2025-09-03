@@ -6,6 +6,7 @@ export { userRepository } from './user.repository';
 export { languageRepository } from './language.repository';
 export { userPreferencesRepository } from './userPreferences.repository';
 export { sessionRepository } from './session.repository';
+export { emailVerificationRepository } from './emailVerification.repository';
 
 // Content and learning repositories
 export { scenarioRepository } from './scenario.repository';

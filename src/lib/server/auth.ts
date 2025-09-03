@@ -44,20 +44,7 @@ export async function validateSessionToken(token: string) {
 	const [result] = await db
 		.select({
 			// Enhanced user data for orchestrator and kernel
-			user: {
-				id: users.id,
-				displayName: users.displayName,
-				username: users.username,
-				email: users.email,
-				avatarUrl: users.avatarUrl,
-				nativeLanguageId: users.nativeLanguageId,
-				preferredUILanguageId: users.preferredUILanguageId,
-				// tier: users.tier, // Not available in MVP schema
-				// subscriptionStatus: users.subscriptionStatus, // Not available in MVP schema
-				// subscriptionExpiresAt: users.subscriptionExpiresAt, // Not available in MVP schema
-				createdAt: users.createdAt,
-				lastUsage: users.lastUsage
-			},
+			user: users,
 			session: sessionTable
 		})
 		.from(sessionTable)
@@ -87,6 +74,21 @@ export async function validateSessionToken(token: string) {
 }
 
 export type SessionValidationResult = Awaited<ReturnType<typeof validateSessionToken>>;
+
+/**
+ * Get user ID from session cookie in request
+ */
+export async function getUserFromSession(cookies: {
+	get: (name: string) => string | undefined;
+}): Promise<string | null> {
+	const sessionToken = cookies.get(sessionCookieName);
+	if (!sessionToken) {
+		return null;
+	}
+
+	const { user } = await validateSessionToken(sessionToken);
+	return user?.id || null;
+}
 
 export async function invalidateSession(sessionId: string) {
 	await sessionRepository.deleteSession(sessionId);
@@ -177,7 +179,9 @@ export async function findOrCreateUser({
 			googleId,
 			displayName,
 			avatarUrl,
-			hashedPassword
+			hashedPassword,
+			// For OAuth users (Google), mark email as verified since Google already verified it
+			emailVerified: googleId ? new Date() : null
 		})
 		.returning();
 

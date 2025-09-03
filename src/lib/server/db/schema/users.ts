@@ -21,7 +21,11 @@ export const users = pgTable(
 		lastUsage: timestamp('last_usage'),
 
 		// Optional password for email signup (if we add it later)
-		hashedPassword: text('hashed_password')
+		hashedPassword: text('hashed_password'),
+
+		// Email verification
+		emailVerified: timestamp('email_verified'),
+		emailVerificationRequired: timestamp('email_verification_required').defaultNow()
 	},
 	(table) => [
 		// Performance indexes for common queries

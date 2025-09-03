@@ -4,11 +4,17 @@
 // User preferences service
 export * as userPreferencesService from './userPreferences.service';
 
+// User service
+export * as userService from './user.service';
+
 // Session service
 export * as sessionService from './session.service';
 
 // OpenAI service
 export * as openaiService from './openai.service';
+
+// Conversation summary service
+export * as conversationSummaryService from './conversationSummary.service';
 
 // Timer service
 // Note: Additional services can be added here as they are created:

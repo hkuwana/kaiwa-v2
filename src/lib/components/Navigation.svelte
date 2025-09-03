@@ -1,6 +1,6 @@
 <script lang="ts">
 	import ThemeSwitcher from './ThemeSwitcher.svelte';
-	import type { User } from '$lib/server/db/types';
+	import type { User } from '$lib/server/db/types'; 
 
 	const { user }: { user: User } = $props();
 	// Get user data from page data
@@ -31,6 +31,9 @@
 			>
 				<li><a href="/pricing" class="text-neutral-content">Pricing</a></li>
 				<li><a href="/privacy" class="text-neutral-content">Privacy</a></li>
+				{#if user.id !== 'guest'}
+					<li><a href="/profile" class="text-neutral-content">Profile</a></li>
+				{/if}
 			</ul>
 		</div>
 		<a href="/" class="btn text-xl text-base-content btn-ghost">Kaiwa</a>
@@ -43,18 +46,25 @@
 	</div>
 
 	<div class="navbar-end">
-		{#if user.id !== "guest"}
+		{#if user.id !== 'guest'}
 			<div class="dropdown dropdown-end">
 				<div tabindex="0" role="button" class="btn avatar btn-circle btn-ghost">
-					<div class="w-10 rounded-full">
-						<img alt="User avatar" src={user.avatarUrl || '/default-avatar.png'} />
-					</div>
+					{#if user.avatarUrl}
+						<div class="w-24 rounded-full">
+							<img alt="User avatar" src={user.avatarUrl} />
+						</div>
+					{:else}
+						<div class="w-24 rounded-full bg-primary text-neutral-content">
+							<span class="text-3xl">{user.displayName?.slice(0, 1).toUpperCase()}</span>
+						</div>
+					{/if}
 				</div>
 				<ul
 					tabindex="0"
 					class="dropdown-content menu z-[1] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
 				>
 					<li><a href="/conversation" class="text-neutral-content">Start Practice</a></li>
+					<li><a href="/profile" class="text-neutral-content">Profile</a></li>
 					<li><a href="/logout" class="text-neutral-content">Logout</a></li>
 				</ul>
 			</div>

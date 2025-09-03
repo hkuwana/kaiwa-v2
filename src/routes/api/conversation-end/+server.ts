@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { conversationRepository } from '$lib/server/repositories/conversation.repository';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversationSessions.repository';
+import { conversationSummaryService, userService } from '$lib/server/services';
 import { createSuccessResponse, createErrorResponse } from '$lib/types/api';
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -58,12 +59,48 @@ export const POST: RequestHandler = async ({ request }) => {
 			}
 		}
 
+		// Generate conversation memories if user is logged in
+		let summaryResult = null;
+		if (endedConversation.userId) {
+			try {
+				const userTier = await userService.getUserTier(endedConversation.userId);
+				const userPreferences = await userService.getUserPreferences(endedConversation.userId);
+
+				if (userTier && userPreferences) {
+					// Check if we should generate memories based on tier limits
+					const limitCheck = conversationSummaryService.checkMemoryLimit(
+						userPreferences.memories || [],
+						userTier
+					);
+
+					if (limitCheck.withinLimit) {
+						summaryResult = await conversationSummaryService.generateConversationMemories({
+							userId: endedConversation.userId,
+							conversationId,
+							userTier,
+							existingMemories: userPreferences.memories || []
+						});
+					}
+				}
+			} catch (summaryError) {
+				console.error('Error generating conversation memories:', summaryError);
+				// Don't fail the conversation end if memory generation fails
+			}
+		}
+
 		return json(
 			createSuccessResponse(
 				{
 					conversation: updatedConversation,
 					durationSeconds,
-					audioSeconds
+					audioSeconds,
+					...(summaryResult && {
+						memories: {
+							generated: summaryResult.success,
+							truncated: summaryResult.truncated,
+							error: summaryResult.error
+						}
+					})
 				},
 				'Conversation ended successfully'
 			)

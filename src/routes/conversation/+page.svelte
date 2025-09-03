@@ -201,8 +201,8 @@
 											specificGoals: ['Business meetings', 'Technical discussions'],
 											challengePreference: 'moderate',
 											correctionStyle: 'gentle',
-											dailyGoalMinutes: 30,
-											preferredVoice: 'alloy',
+											dailyGoalSeconds: 30,
+											preferredVoice: DEFAULT_VOICE,
 											createdAt: new Date(),
 											updatedAt: new Date()
 										});
@@ -233,8 +233,8 @@
 										specificGoals: ['Business meetings', 'Technical discussions'],
 										challengePreference: 'moderate',
 										correctionStyle: 'gentle',
-										dailyGoalMinutes: 30,
-										preferredVoice: 'alloy',
+										dailyGoalSeconds: 30,
+										preferredVoice: DEFAULT_VOICE,
 										createdAt: new Date(),
 										updatedAt: new Date()
 									})}

@@ -6,6 +6,7 @@ export { users } from './users';
 
 // Session and authentication
 export { session } from './session';
+export { emailVerification } from './emailVerification';
 
 // Content and learning (MVP focused) - order matters for dependencies
 export { languages } from './languages';

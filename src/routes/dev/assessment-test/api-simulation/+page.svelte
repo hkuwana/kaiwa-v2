@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { UserPreferences } from '$lib/server/db/types';
+	import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 
 	// Mock conversation data with full message object structure
 	const mockConversationMessages = [
@@ -157,8 +158,8 @@
 				: ['Basic conversations', 'Daily interactions', 'Cultural understanding'],
 			challengePreference: 'moderate',
 			correctionStyle: 'gentle',
-			dailyGoalMinutes: hasDailyGoal ? 30 : 15,
-			preferredVoice: 'alloy',
+			dailyGoalSeconds: hasDailyGoal ? 30 : 15,
+			preferredVoice: DEFAULT_VOICE,
 			createdAt: new Date(),
 			updatedAt: new Date()
 		};
@@ -344,7 +345,7 @@
 						<div class="space-y-2">
 							<div><strong>Challenge Preference:</strong> {mockResults.challengePreference}</div>
 							<div><strong>Correction Style:</strong> {mockResults.correctionStyle}</div>
-							<div><strong>Daily Goal:</strong> {mockResults.dailyGoalMinutes} minutes</div>
+							<div><strong>Daily Goal:</strong> {mockResults.dailyGoalSeconds} minutes</div>
 							<div><strong>Specific Goals:</strong></div>
 							<div class="flex flex-wrap gap-1">
 								{#each mockResults.specificGoals || [] as goal}

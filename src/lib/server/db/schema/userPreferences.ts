@@ -1,6 +1,7 @@
 import { pgTable, uuid, text, integer, timestamp, index, pgEnum, jsonb } from 'drizzle-orm/pg-core';
 import { users } from './users'; // Assuming you have a users table
 import { languages } from './languages'; // Assuming you have a languages table
+import { DEFAULT_VOICE } from '$lib/types';
 
 export const learningMotivationEnum = pgEnum('learning_motivation_enum', [
 	'Connection',
@@ -37,8 +38,8 @@ export const userPreferences = pgTable(
 			.references(() => languages.id)
 			.notNull(),
 		learningGoal: learningMotivationEnum('learning_goal').default('Connection').notNull(), // Using ENUM
-		preferredVoice: text('preferred_voice').default('alloy').notNull(), // Could also be an enum
-		dailyGoalSeconds: integer('daily_goal_seconds').default(1800).notNull(), // 30 minutes = 1800 seconds
+		preferredVoice: text('preferred_voice').default(DEFAULT_VOICE).notNull(), // Could also be an enum
+		dailyGoalSeconds: integer('daily_goal_seconds').default(180).notNull(), // 3 minutes (Full length of free version)
 
 		// Skill breakdown by competency (the source of truth for user skill)
 		speakingLevel: integer('speaking_level').default(5).notNull(), // 1-100
@@ -67,6 +68,9 @@ export const userPreferences = pgTable(
 			.default('moderate')
 			.notNull(),
 		correctionStyle: correctionStyleEnum('correction_style').default('gentle').notNull(),
+
+		// User memories - array of personal facts and preferences learned from conversations
+		memories: jsonb('memories').$type<string[]>().default([]), // Array of memory strings like "Wants to learn because of speaking with grandma"
 
 		// Metadata
 		createdAt: timestamp('created_at').defaultNow().notNull(),

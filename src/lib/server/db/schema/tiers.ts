@@ -48,6 +48,7 @@ export const tiers = pgTable(
 		customizedPhrasesFrequency: text('customized_phrases_frequency').default('weekly').notNull(), // 'weekly' | 'daily'
 		conversationMemoryLevel: text('conversation_memory_level').default('basic').notNull(), // 'basic' | 'human-like' | 'elephant-like'
 		ankiExportLimit: integer('anki_export_limit').default(-1).notNull(), // 'unlimited' or number
+		maxMemories: integer('max_memories').default(10).notNull(), // Maximum number of memory items
 
 		isActive: boolean('is_active').default(true).notNull(),
 		createdAt: timestamp('created_at').defaultNow().notNull(),

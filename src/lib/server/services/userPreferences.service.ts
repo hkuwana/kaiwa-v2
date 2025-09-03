@@ -1,5 +1,6 @@
 import { userPreferencesRepository } from '$lib/server/repositories/userPreferences.repository';
 import type { NewUserPreferences, UserPreferences } from '$lib/server/db/types';
+import { DEFAULT_VOICE } from '$lib/types';
 
 /**
  * Update skill levels for a user
@@ -24,7 +25,7 @@ export async function updateLearningGoals(
 	userId: string,
 	goalUpdates: {
 		learningGoal?: 'Connection' | 'Career' | 'Travel' | 'Academic' | 'Culture' | 'Growth';
-		dailyGoalMinutes?: number;
+		dailyGoalSeconds?: number;
 		specificGoals?: string[];
 		challengePreference?: 'comfortable' | 'moderate' | 'challenging';
 		correctionStyle?: 'immediate' | 'gentle' | 'end_of_session';
@@ -38,15 +39,7 @@ export async function updateLearningGoals(
  */
 export async function updateProgress(
 	userId: string,
-	progressUpdates: {
-		totalStudyTimeMinutes?: number;
-		totalConversations?: number;
-		currentStreakDays?: number;
-		lastStudied?: Date;
-		recentSessionScores?: number[];
-		lastAssessmentDate?: Date;
-		skillLevelHistory?: { date: string; level: number }[];
-	}
+	progressUpdates: Partial<UserPreferences>
 ): Promise<UserPreferences | null> {
 	return await userPreferencesRepository.updatePreferences(userId, progressUpdates);
 }
@@ -223,7 +216,7 @@ export async function getProgressSummary(userId: string): Promise<{
 export async function getLearningPreferences(userId: string): Promise<{
 	targetLanguageId: string | null;
 	learningGoal: string | null;
-	dailyGoalMinutes: number;
+	dailyGoalSeconds: number;
 	challengePreference: string | null;
 	correctionStyle: string | null;
 	specificGoals: string[];
@@ -233,7 +226,7 @@ export async function getLearningPreferences(userId: string): Promise<{
 		return {
 			targetLanguageId: null,
 			learningGoal: null,
-			dailyGoalMinutes: 30,
+			dailyGoalSeconds: 180,
 			challengePreference: null,
 			correctionStyle: null,
 			specificGoals: []
@@ -243,7 +236,7 @@ export async function getLearningPreferences(userId: string): Promise<{
 	return {
 		targetLanguageId: prefs.targetLanguageId || null,
 		learningGoal: prefs.learningGoal || null,
-		dailyGoalMinutes: prefs.dailyGoalMinutes || 30,
+		dailyGoalSeconds: prefs.dailyGoalSeconds || 180,
 		challengePreference: prefs.challengePreference || null,
 		correctionStyle: prefs.correctionStyle || null,
 		specificGoals: prefs.specificGoals || []
@@ -257,8 +250,8 @@ export async function hasMetDailyGoal(userId: string): Promise<boolean> {
 	const prefs = await userPreferencesRepository.getPreferencesByUserId(userId);
 	if (!prefs) return false;
 
-	const dailyGoal = prefs.dailyGoalMinutes || 30;
-	const todayStudyTime = prefs.totalStudyTimeMinutes || 0;
+	const dailyGoal = prefs.dailyGoalSeconds || 180;
+	const todayStudyTime = prefs.totalStudyTimeSeconds || 0;
 
 	// This is a simplified check - you might want to track daily study time separately
 	return todayStudyTime >= dailyGoal;
@@ -291,21 +284,38 @@ export async function createDefaultPreferences(
 		userId,
 		targetLanguageId,
 		learningGoal: 'Connection',
-		preferredVoice: 'alloy',
-		dailyGoalMinutes: 30,
+		preferredVoice: DEFAULT_VOICE,
+		dailyGoalSeconds: 180,
 		speakingLevel: 5,
 		listeningLevel: 5,
 		readingLevel: 5,
 		writingLevel: 5,
 		speakingConfidence: 50,
-		totalStudyTimeMinutes: 0,
-		totalConversations: 0,
-		currentStreakDays: 0,
+		successfulExchanges: 0,
+		comfortZone: null,
+		memories: null,
 		challengePreference: 'moderate',
 		correctionStyle: 'gentle'
 	};
 
 	return await userPreferencesRepository.createPreferences(defaultPreferences);
+}
+
+/**
+ * Get user preferences by user ID
+ */
+export async function getUserPreferences(userId: string): Promise<UserPreferences | null> {
+	return await userPreferencesRepository.getPreferencesByUserId(userId);
+}
+
+/**
+ * Update user preferences with any valid fields
+ */
+export async function updateUserPreferences(
+	userId: string,
+	updates: Partial<NewUserPreferences>
+): Promise<UserPreferences | null> {
+	return await userPreferencesRepository.updatePreferences(userId, updates);
 }
 
 // Default export with all functions

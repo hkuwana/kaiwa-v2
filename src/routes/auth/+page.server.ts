@@ -6,6 +6,7 @@ import { encodeHexLowerCase } from '@oslojs/encoding';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { createSession, setSessionTokenCookie, findOrCreateUser } from '$lib/server/auth';
+import { EmailVerificationService } from '$lib/server/services/emailVerificationService';
 
 export async function load(event) {
 	if (event.locals.session !== null && event.locals.user !== null) {
@@ -44,11 +45,27 @@ export const actions = {
 			});
 		}
 
+		// For new users, send email verification
+		if (isNew) {
+			const verificationResult = await EmailVerificationService.createAndSendVerificationCode(
+				user.id,
+				email
+			);
+
+			if (!verificationResult.success) {
+				return fail(500, {
+					message: 'Failed to send verification email. Please try again.'
+				});
+			}
+		}
+
 		const { session, token } = await createSession(user.id);
 		setSessionTokenCookie(event, token, session.expiresAt);
 
-		// TODO: Here you would save the pending assessment data to the user's profile
-		// if it exists in localStorage (this would need to be passed from the client)
+		// Redirect to verification page for new users, home for existing users
+		if (isNew) {
+			throw redirect(302, '/auth/verify-email');
+		}
 
 		throw redirect(302, '/');
 	},
@@ -73,6 +90,24 @@ export const actions = {
 			return fail(400, {
 				message: 'Incorrect email or password'
 			});
+		}
+
+		// Check if email is verified
+		if (!user.emailVerified) {
+			// Send verification email if not already sent recently
+			const hasPending = await EmailVerificationService.hasPendingVerification(user.id);
+			if (!hasPending) {
+				await EmailVerificationService.createAndSendVerificationCode(
+					user.id,
+					user.email,
+					user.displayName || undefined
+				);
+			}
+
+			const { session, token } = await createSession(user.id);
+			setSessionTokenCookie(event, token, session.expiresAt);
+
+			throw redirect(302, '/auth/verify-email');
 		}
 
 		const { session, token } = await createSession(user.id);

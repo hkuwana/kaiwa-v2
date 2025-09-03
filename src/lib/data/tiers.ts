@@ -52,6 +52,7 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 		conversationMemoryLevel: 'basic',
 		ankiExportLimit: 100,
 		feedbackSessionsPerMonth: '100',
+		maxMemories: 10, // 10 memory items for basic tier
 		isActive: false,
 		createdAt: new Date(),
 		updatedAt: new Date()
@@ -100,6 +101,7 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 		customizedPhrasesFrequency: 'daily',
 		conversationMemoryLevel: 'human-like',
 		ankiExportLimit: -1,
+		maxMemories: 50, // 50 memory items for plus tier
 		isActive: false,
 		createdAt: new Date(),
 		updatedAt: new Date()
@@ -148,6 +150,7 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 		customizedPhrasesFrequency: 'daily',
 		conversationMemoryLevel: 'elephant-like',
 		ankiExportLimit: -1,
+		maxMemories: 200, // 200 memory items for premium tier
 		isActive: false,
 		createdAt: new Date(),
 		updatedAt: new Date()
@@ -219,4 +222,8 @@ export function getTierByStripePriceId(
 export function getTierByStripeProductId(tiers: Tier[], productId: string): UserTier | null {
 	const tier = tiers.find((t) => t.stripeProductId === productId);
 	return tier ? (tier.id as UserTier) : null;
+}
+
+export function getMaxMemories(tierId: UserTier): number {
+	return defaultTierConfigs[tierId].maxMemories || 10;
 }

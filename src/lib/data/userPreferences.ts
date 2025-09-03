@@ -12,7 +12,7 @@ export const defaultUserPreference: Omit<
 	targetLanguageId: 'en', // Default to English
 	learningGoal: 'Connection',
 	preferredVoice: DEFAULT_VOICE,
-	dailyGoalMinutes: 30,
+	dailyGoalSeconds: 180,
 
 	// Skill breakdown by competency (beginner level)
 	speakingLevel: 5,
@@ -23,23 +23,16 @@ export const defaultUserPreference: Omit<
 	// Confidence tracking
 	speakingConfidence: 50,
 
-	// Basic progress tracking
-	totalStudyTimeMinutes: 0,
-	totalConversations: 0,
-	currentStreakDays: 0,
-	lastStudied: new Date(),
-
 	// Specific learning goals
 	specificGoals: ['basic conversation', 'greetings', 'introductions'],
 
-	// Progress tracking
-	recentSessionScores: [],
-	lastAssessmentDate: null,
-	skillLevelHistory: [],
-
 	// Adaptive learning preferences
 	challengePreference: 'moderate',
-	correctionStyle: 'gentle'
+	correctionStyle: 'gentle',
+	conversationContext: null,
+	successfulExchanges: 0,
+	comfortZone: null,
+	memories: null
 };
 
 // 🌟 Guest User Preferences Factory

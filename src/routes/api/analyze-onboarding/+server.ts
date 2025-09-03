@@ -124,7 +124,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			specificGoals: sanitizedResult.specificGoals,
 			challengePreference: sanitizedResult.challengePreference,
 			correctionStyle: sanitizedResult.correctionStyle,
-			dailyGoalMinutes: sanitizedResult.dailyGoalMinutes,
+			dailyGoalSeconds: sanitizedResult.dailyGoalSeconds,
 			// Derive reading/writing levels from speaking level
 			readingLevel: Math.max(1, (sanitizedResult.speakingLevel || 25) - 5),
 			writingLevel: Math.max(1, (sanitizedResult.speakingLevel || 25) - 10)
@@ -211,8 +211,8 @@ function sanitizeAnalysisResult(result: Partial<UserPreferences>): Partial<UserP
 		)
 			? result.correctionStyle
 			: 'gentle',
-		dailyGoalMinutes: validDailyGoals.includes(result.dailyGoalMinutes as number)
-			? result.dailyGoalMinutes
+		dailyGoalSeconds: validDailyGoals.includes(result.dailyGoalSeconds as number)
+			? result.dailyGoalSeconds
 			: 30
 	};
 }

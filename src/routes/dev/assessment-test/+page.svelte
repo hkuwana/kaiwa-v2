@@ -3,6 +3,7 @@
 	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
 	import OnboardingResults from '$lib/components/OnboardingResults.svelte';
 	import type { UserPreferences } from '$lib/server/db/types';
+	import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 
 	// Mock assessment data for testing
 	const mockAssessmentResults: Partial<UserPreferences> = {
@@ -18,8 +19,8 @@
 		specificGoals: ['Business meetings', 'Technical discussions', 'Networking'],
 		challengePreference: 'moderate',
 		correctionStyle: 'gentle',
-		dailyGoalMinutes: 30,
-		preferredVoice: 'alloy',
+		dailyGoalSeconds: 30,
+		preferredVoice: DEFAULT_VOICE,
 		createdAt: new Date(),
 		updatedAt: new Date()
 	};
@@ -143,7 +144,7 @@
 			...mockAssessmentResults,
 			learningGoal: 'Travel',
 			specificGoals: ['Ordering food', 'Asking directions', 'Shopping'],
-			dailyGoalMinutes: 45
+			dailyGoalSeconds: 45
 		};
 		userPreferencesStore.setAnalysisResults(customResults);
 		currentStep = 'results';

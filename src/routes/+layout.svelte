@@ -3,12 +3,21 @@
 	import { favicon, appleTouchIcon } from '$lib/assets';
 	import { page } from '$app/state';
 	import { ConversationStore } from '$lib/stores/conversation.store.svelte';
-	import { userManager } from '$lib/stores/user.store.svelte';
 	import { setContext, onMount, onDestroy } from 'svelte';
+	import Navigation from '$lib/components/Navigation.svelte';
 
 	const conversationStore = new ConversationStore();
 
 	let { children, data } = $props();
+
+	// Get conversation status to determine if we should hide navigation
+	let status = $derived(conversationStore.status);
+	let messages = $derived(conversationStore.messages);
+
+	// Hide navigation when in active conversation states
+	let shouldHideNavigation = $derived(
+		(status === 'connected' || status === 'streaming') && messages.length > 0
+	);
 
 	// Use Svelte's context to make this single instance available to all child components.
 	setContext('conversation', conversationStore);
@@ -30,8 +39,7 @@
 	const seo = $derived(data.seo);
 
 	// Sync user data with userManager store - directly reactive
-	const user = $derived(page.data.user);
-	const subscription = $derived(page.data.subscription);
+	const user = $derived(data.user);
 </script>
 
 <svelte:head>
@@ -124,5 +132,9 @@
 		}
 	</script>
 </svelte:head>
+
+{#if !shouldHideNavigation}
+	<Navigation {user} />
+{/if}
 
 {@render children?.()}

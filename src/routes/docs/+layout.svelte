@@ -1,12 +1,15 @@
 <script>
 	import { page } from '$app/state';
+	import Navigation from '$lib/components/Navigation.svelte';
+	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 
 	// Get the current page data
 	const { data, children } = $props();
 
+
+	
 	// Dynamic navigation will be handled by the main docs page
 	let currentDoc = $state('');
-
 	$effect(() => {
 		if (page.url.pathname.startsWith('/docs/')) {
 			const pathParts = page.url.pathname.split('/');
@@ -38,7 +41,9 @@
 		{/if}
 	</nav>
 
-	<main class="flex-1">
+
+
+	<main class="">
 		{@render children()}
 	</main>
 </div>

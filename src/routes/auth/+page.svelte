@@ -212,7 +212,7 @@
 					</div>
 					<div>
 						<strong>Daily Goal:</strong>
-						{pendingAssessment?.dailyGoalMinutes || 0} minutes
+						{pendingAssessment?.dailyGoalSeconds || 0} minutes
 					</div>
 				</div>
 				<button class="btn mt-2 btn-outline btn-sm" onclick={clearPendingAssessment}>
