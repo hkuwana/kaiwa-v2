@@ -1,7 +1,7 @@
 import { pgTable, uuid, text, integer, timestamp, index, pgEnum, jsonb } from 'drizzle-orm/pg-core';
 import { users } from './users'; // Assuming you have a users table
 import { languages } from './languages'; // Assuming you have a languages table
-import { DEFAULT_VOICE } from '$lib/types';
+import { DEFAULT_VOICE } from '../../../types/openai.realtime.types';
 
 export const learningMotivationEnum = pgEnum('learning_motivation_enum', [
 	'Connection',
