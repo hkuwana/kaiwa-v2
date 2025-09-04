@@ -1,26 +1,37 @@
 <!-- src/lib/components/LanguageStartButton.svelte -->
 <script lang="ts">
-	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { languages as allLanguages } from '$lib/data/languages';
 	import { speakersData, getSpeakersByLanguage } from '$lib/data/speakers';
 	import { goto } from '$app/navigation';
 	import type { Language as DataLanguage } from '$lib/data/languages';
+	import type { User } from '$lib/server/db/types';
 
 	// Props for tracking
 	interface Props {
+		user: User;
+		selectedLanguage?: DataLanguage | null;
+		selectedSpeaker?: string | null;
+		onLanguageChange?: (language: DataLanguage) => void;
+		onSpeakerChange?: (speakerId: string) => void;
 		onStartClick?: () => void;
 	}
 
-	let { onStartClick }: Props = $props();
+	let {
+		user,
+		selectedLanguage = null,
+		selectedSpeaker = null,
+		onLanguageChange,
+		onSpeakerChange,
+		onStartClick
+	}: Props = $props();
 
 	// Component state
 	let isLanguageMenuOpen = $state(false);
 	let searchTerm = $state('');
 	let viewingSpeakersFor = $state<DataLanguage | null>(null);
 
-	// Derived state from stores
-	const selectedLanguage = $derived(settingsStore.selectedLanguage);
-	const selectedSpeaker = $derived(settingsStore.selectedSpeaker);
+	// Determine if user is a guest
+	const isGuest = user.id === 'guest';
 
 	// Get available speakers for selected language
 	const availableSpeakers = $derived(
@@ -39,8 +50,8 @@
 
 	// Auto-select first speaker if language is selected but no speaker is set
 	$effect(() => {
-		if (selectedLanguage && !selectedSpeaker && availableSpeakers.length > 0) {
-			settingsStore.setSpeaker(availableSpeakers[0].id);
+		if (selectedLanguage && !selectedSpeaker && availableSpeakers.length > 0 && onSpeakerChange) {
+			onSpeakerChange(availableSpeakers[0].id);
 		}
 	});
 
@@ -71,7 +82,9 @@
 
 	// Functions
 	function handleLanguageSelect(lang: DataLanguage) {
-		settingsStore.setLanguageObject(lang);
+		if (onLanguageChange) {
+			onLanguageChange(lang);
+		}
 		// Show speaker selection if there are multiple speakers
 		const speakersForLang = getSpeakersByLanguage(lang.code);
 		if (speakersForLang.length > 1) {
@@ -79,15 +92,17 @@
 			searchTerm = '';
 		} else {
 			// Set the first available speaker if only one exists
-			if (speakersForLang.length === 1) {
-				settingsStore.setSpeaker(speakersForLang[0].id);
+			if (speakersForLang.length === 1 && onSpeakerChange) {
+				onSpeakerChange(speakersForLang[0].id);
 			}
 			closeMenu();
 		}
 	}
 
 	function handleSpeakerSelect(speakerId: string) {
-		settingsStore.setSpeaker(speakerId);
+		if (onSpeakerChange) {
+			onSpeakerChange(speakerId);
+		}
 		closeMenu();
 	}
 
@@ -304,25 +319,39 @@
 	</div>
 
 	<!-- Main Start Button - The hero element -->
-	<button
-		onclick={handleStartClick}
-		disabled={!selectedLanguage}
-		class="group btn btn-lg btn-primary"
-		aria-label={selectedLanguage ? `Start speaking ${selectedLanguage.name}` : 'Loading...'}
-	>
-		<span class="relative z-10">
-			{#if selectedLanguage}
-				Start Onboarding in {selectedLanguage.name}
-			{:else}
-				Loading...
-			{/if}
-		</span>
+	{#if isGuest}
+		<div class=" tooltip tooltip-primary" data-tip="Only logged in users can start conversations">
+			<button
+				disabled
+				class="group btn cursor-not-allowed opacity-50 btn-lg btn-primary"
+				aria-label="Start conversation (disabled for guests)"
+			>
+				<span class="relative z-10">
+					Start Onboarding in {selectedLanguage?.name || 'Selected Language'}
+				</span>
+			</button>
+		</div>
+	{:else}
+		<button
+			onclick={handleStartClick}
+			disabled={!selectedLanguage}
+			class="group btn btn-lg btn-primary"
+			aria-label={selectedLanguage ? `Start speaking ${selectedLanguage.name}` : 'Loading...'}
+		>
+			<span class="relative z-10">
+				{#if selectedLanguage}
+					Start Onboarding in {selectedLanguage.name}
+				{:else}
+					Loading...
+				{/if}
+			</span>
 
-		<!-- Subtle highlight effect -->
-		<div
-			class="absolute inset-0 -translate-x-full -skew-x-12 transform bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full"
-		></div>
-	</button>
+			<!-- Subtle highlight effect -->
+			<div
+				class="absolute inset-0 -translate-x-full -skew-x-12 transform bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+			></div>
+		</button>
+	{/if}
 </div>
 
 <!-- Click outside to close -->

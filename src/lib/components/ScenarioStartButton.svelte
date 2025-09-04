@@ -1,72 +1,67 @@
 <!-- src/lib/components/ScenarioStartButton.svelte -->
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
-	import { userManager } from '$lib/stores/user.store.svelte';
-	import type { Scenario } from '$lib/server/db/types';
+	import type { Scenario, User } from '$lib/server/db/types';
+	import { scenariosData } from '$lib/data/scenarios';
 
 	// Props-based design - no direct store access
 	interface Props {
+		user: User;
+		selectedScenario?: Scenario | null;
+		onScenarioChange?: (scenarioId: string) => void;
 		onScenarioStart?: (scenario: Scenario) => void;
 		forceOnboarding?: boolean; // Force onboarding for guests
 	}
 
-	const { onScenarioStart, forceOnboarding = false }: Props = $props();
-
-	// Get current scenario from store
-	const currentScenario = scenarioStore.getSelectedScenario();
-	const user = userManager.user;
+	const {
+		user,
+		selectedScenario = null,
+		onScenarioChange,
+		onScenarioStart,
+		forceOnboarding = false
+	}: Props = $props();
 
 	// Determine if user is a guest
 	const isGuest = user.id === 'guest';
 
-	// Available scenarios
-	const scenarios = [
-		{
-			id: 'onboarding-welcome',
-			title: '🎯 Onboarding',
-			description: 'Get started with guided learning'
-		},
-		{
-			id: 'business-meeting',
-			title: '💼 Business Meeting',
-			description: 'Practice professional conversations'
-		},
-		{ id: 'travel-conversation', title: '✈️ Travel', description: 'Learn travel-related phrases' },
-		{ id: 'restaurant-ordering', title: '🍽️ Restaurant', description: 'Order food and drinks' },
-		{ id: 'shopping-dialogue', title: '🛍️ Shopping', description: 'Shop and negotiate prices' }
-	];
+	// Available scenarios - use data from scenarios.ts
+	const scenarios = scenariosData;
 
 	// Get available scenarios based on user status
 	const availableScenarios = $derived(
 		forceOnboarding || isGuest ? scenarios.filter((s) => s.id === 'onboarding-welcome') : scenarios
 	);
 
+	// Current scenario or default to onboarding
+	const currentScenario = $derived(selectedScenario || scenariosData[0]);
+
 	function startScenario() {
 		// If no scenario is selected, default to onboarding
-		if (!currentScenario) {
-			scenarioStore.setScenarioById('onboarding-welcome');
-		}
+		const scenarioToUse = currentScenario || scenariosData[0];
 
 		// Call the callback if provided
 		if (onScenarioStart) {
-			onScenarioStart(currentScenario || scenarioStore.getSelectedScenario()!);
+			onScenarioStart(scenarioToUse);
 		}
 
 		// Navigate to conversation with scenario
-		const scenarioId = scenarioStore.getScenarioId();
-		goto(`/conversation?scenario=${scenarioId}`);
+		goto(`/conversation?scenario=${scenarioToUse.id}`);
 	}
 
 	function selectScenario(scenarioId: string) {
 		// If forcing onboarding or user is guest, only allow onboarding
 		if (forceOnboarding || isGuest) {
-			scenarioStore.setScenarioById('onboarding-welcome');
+			if (onScenarioChange) {
+				onScenarioChange('onboarding-welcome');
+			}
 			console.log('🎯 Scenario locked to onboarding for guest');
 			return;
 		}
 
-		scenarioStore.setScenarioById(scenarioId);
+		// Call the parent callback to update scenario
+		if (onScenarioChange) {
+			onScenarioChange(scenarioId);
+		}
 		console.log('🎯 Scenario selected:', scenarioId);
 	}
 
@@ -91,49 +86,36 @@
 
 	<!-- Scenario Selection Dropdown -->
 	<div class="mb-4">
-		<label class="label">
-			<span class="label-text font-medium">Choose Scenario</span>
-		</label>
-		<select
-			class="select-bordered select w-full"
-			onchange={(e) => selectScenario(e.target.value)}
-			value={currentScenario?.id || 'onboarding-welcome'}
-		>
-			{#each scenarios as scenario (scenario.id)}
-				<option
-					value={scenario.id}
-					disabled={forceOnboarding || (isGuest && scenario.id !== 'onboarding-welcome')}
-				>
-					{scenario.title} - {scenario.description}
-				</option>
-			{/each}
-		</select>
-
-		<!-- Show locked scenarios with hover tooltips -->
 		{#if forceOnboarding || isGuest}
-			<div class="mt-2">
-				<p class="mb-2 text-xs text-base-content/60">Available scenarios:</p>
-				<div class="flex flex-wrap gap-2">
-					{#each scenarios as scenario (scenario.id)}
-						<div class="group relative">
-							<button class="btn cursor-not-allowed opacity-50 btn-outline btn-sm" disabled>
-								{scenario.title}
-							</button>
-							{#if scenario.id !== 'onboarding-welcome'}
-								<!-- Tooltip -->
-								<div
-									class="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 transform rounded-lg bg-gray-900 px-3 py-2 text-xs whitespace-nowrap text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-								>
-									Sign up to access scenarios
-									<div
-										class="absolute top-full left-1/2 -translate-x-1/2 transform border-4 border-transparent border-t-gray-900"
-									></div>
-								</div>
-							{/if}
-						</div>
-					{/each}
-				</div>
+			<!-- Disabled select with tooltip for guests -->
+			<div class="tooltip tooltip-primary" data-tip="Only logged in users can choose scenarios">
+				<label class="label" for="scenario-select-disabled">
+					<span class="label-text font-medium">Choose Scenario</span>
+				</label>
+				<select id="scenario-select-disabled" class="select-bordered select w-full" disabled>
+					<option>You can't touch this</option>
+				</select>
 			</div>
+		{:else}
+			<!-- Regular select for logged in users -->
+			<label class="label" for="scenario-select">
+				<span class="label-text font-medium">Choose Scenario</span>
+			</label>
+			<select
+				id="scenario-select"
+				class="select-bordered select w-full"
+				onchange={(e) => {
+					const target = e.target as HTMLSelectElement;
+					selectScenario(target.value);
+				}}
+				value={currentScenario?.id || 'onboarding-welcome'}
+			>
+				{#each availableScenarios as scenario (scenario.id)}
+					<option value={scenario.id}>
+						{scenario.title} - {scenario.description}
+					</option>
+				{/each}
+			</select>
 		{/if}
 	</div>
 

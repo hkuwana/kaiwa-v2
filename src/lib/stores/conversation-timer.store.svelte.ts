@@ -1,4 +1,4 @@
-import { getTimerSettings } from '$lib/data/tiers';
+import { getTimerSettings, getMaxSessionLength, getMonthlySeconds } from '$lib/data/tiers';
 import type { UserTier } from '$lib/server/db/types';
 
 export interface TimerState {
@@ -18,6 +18,13 @@ export interface ConversationTimerState {
 	canExtend: boolean;
 	extensionsUsed: number;
 	maxExtensions: number;
+}
+
+export interface UsageLimits {
+	monthlySeconds: number;
+	maxSessionLengthSeconds: number;
+	usedSeconds: number;
+	remainingSeconds: number;
 }
 
 export class ConversationTimerStore {
@@ -56,6 +63,14 @@ export class ConversationTimerStore {
 		maxExtensions: 0
 	});
 
+	// Usage tracking
+	private _usageLimits = $state<UsageLimits>({
+		monthlySeconds: 0,
+		maxSessionLengthSeconds: 0,
+		usedSeconds: 0,
+		remainingSeconds: 0
+	});
+
 	constructor(userTier: UserTier = 'free') {
 		this.configureForUserTier(userTier);
 	}
@@ -63,6 +78,10 @@ export class ConversationTimerStore {
 	// Public getters
 	get state() {
 		return this._state;
+	}
+
+	get usageLimits() {
+		return this._usageLimits;
 	}
 
 	get isRunning() {
@@ -88,6 +107,8 @@ export class ConversationTimerStore {
 	// Configure for user tier
 	configureForUserTier(tier: UserTier): void {
 		const settings = getTimerSettings(tier);
+		const maxSessionLengthSeconds = getMaxSessionLength(tier);
+		const monthlySeconds = getMonthlySeconds(tier);
 
 		if (!settings) {
 			console.warn(`No timer settings found for tier: ${tier}`);
@@ -95,11 +116,20 @@ export class ConversationTimerStore {
 		}
 
 		this._state.userTier = tier;
-		this.timeoutMs = settings.timeoutMs || 2 * 60 * 1000; // 2 min default
-		this.warningThresholdMs = settings.warningThresholdMs || 30 * 1000; // 30s default
-		this.extensionDurationMs = settings.extensionDurationMs || 60 * 1000; // 1 min default
+		// Convert seconds to milliseconds for internal calculations
+		this.timeoutMs = settings.timeoutMs * 1000; // Convert seconds to milliseconds
+		this.warningThresholdMs = settings.warningThresholdMs * 1000; // Convert seconds to milliseconds
+		this.extensionDurationMs = settings.extensionDurationMs * 1000; // Convert seconds to milliseconds
 		this.maxExtensions = settings.maxExtensions || 0;
 		this.extendable = settings.extendable || false;
+
+		// Update usage limits
+		this._usageLimits = {
+			monthlySeconds,
+			maxSessionLengthSeconds,
+			usedSeconds: 0, // This would come from user's actual usage
+			remainingSeconds: monthlySeconds
+		};
 
 		// Update state
 		this._state.canExtend = this.extendable;
@@ -111,7 +141,9 @@ export class ConversationTimerStore {
 			timeout: this.timeoutMs,
 			warning: this.warningThresholdMs,
 			extendable: this.extendable,
-			maxExtensions: this.maxExtensions
+			maxExtensions: this.maxExtensions,
+			monthlySeconds,
+			maxSessionLengthSeconds
 		});
 	}
 
@@ -188,6 +220,60 @@ export class ConversationTimerStore {
 		const minutes = Math.floor(this._state.timer.timeElapsed / 60000);
 		const seconds = Math.floor((this._state.timer.timeElapsed % 60000) / 1000);
 		return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+	}
+
+	// Get time remaining in seconds
+	getTimeRemainingSeconds(): number {
+		return Math.floor(this._state.timer.timeRemaining / 1000);
+	}
+
+	// Get time elapsed in seconds
+	getTimeElapsedSeconds(): number {
+		return Math.floor(this._state.timer.timeElapsed / 1000);
+	}
+
+	// Get time remaining in milliseconds
+	getTimeRemainingMs(): number {
+		return this._state.timer.timeRemaining;
+	}
+
+	// Get time elapsed in milliseconds
+	getTimeElapsedMs(): number {
+		return this._state.timer.timeElapsed;
+	}
+
+	// Format time in seconds
+	formatTimeInSeconds(timeMs: number): string {
+		const seconds = Math.floor(timeMs / 1000);
+		return `${seconds}s`;
+	}
+
+	// Format time in minutes and seconds
+	formatTimeInMinutes(timeMs: number): string {
+		const minutes = Math.floor(timeMs / 60000);
+		const seconds = Math.floor((timeMs % 60000) / 1000);
+		return `${minutes}m ${seconds}s`;
+	}
+
+	// Check if session time is within limits
+	isWithinSessionLimits(): boolean {
+		const sessionTimeSeconds = this.getTimeElapsedSeconds();
+		return sessionTimeSeconds <= this._usageLimits.maxSessionLengthSeconds;
+	}
+
+	// Check if monthly time is within limits
+	isWithinMonthlyLimits(): boolean {
+		return this._usageLimits.remainingSeconds > 0;
+	}
+
+	// Update usage (call this when timer stops)
+	updateUsage(): void {
+		const usedSeconds = this.getTimeElapsedSeconds();
+		this._usageLimits.usedSeconds += usedSeconds;
+		this._usageLimits.remainingSeconds = Math.max(
+			0,
+			this._usageLimits.monthlySeconds - this._usageLimits.usedSeconds
+		);
 	}
 
 	// Cleanup
@@ -293,3 +379,53 @@ export class ConversationTimerStore {
 export function createConversationTimerStore(userTier: UserTier = 'free'): ConversationTimerStore {
 	return new ConversationTimerStore(userTier);
 }
+
+// Utility functions for working with time units
+export const TimeUtils = {
+	// Convert seconds to milliseconds
+	secondsToMs: (seconds: number): number => seconds * 1000,
+
+	// Convert milliseconds to seconds
+	msToSeconds: (ms: number): number => Math.floor(ms / 1000),
+
+	// Convert minutes to milliseconds
+	minutesToMs: (minutes: number): number => minutes * 60 * 1000,
+
+	// Convert milliseconds to minutes
+	msToMinutes: (ms: number): number => Math.floor(ms / 60000),
+
+	// Format time in different units
+	formatTime: (timeMs: number, unit: 'ms' | 'seconds' | 'minutes' | 'auto' = 'auto'): string => {
+		switch (unit) {
+			case 'ms':
+				return `${timeMs}ms`;
+			case 'seconds':
+				return `${Math.floor(timeMs / 1000)}s`;
+			case 'minutes': {
+				const minutes = Math.floor(timeMs / 60000);
+				const seconds = Math.floor((timeMs % 60000) / 1000);
+				return `${minutes}m ${seconds}s`;
+			}
+			case 'auto':
+			default: {
+				if (timeMs < 1000) return `${timeMs}ms`;
+				if (timeMs < 60000) return `${Math.floor(timeMs / 1000)}s`;
+				const mins = Math.floor(timeMs / 60000);
+				const secs = Math.floor((timeMs % 60000) / 1000);
+				return `${mins}m ${secs}s`;
+			}
+		}
+	},
+
+	// Parse time string to milliseconds
+	parseTime: (timeString: string): number => {
+		// Handle formats like "5m 30s", "5m", "30s", "90s"
+		const match = timeString.match(/(?:(\d+)m\s*)?(?:(\d+)s)?/);
+		if (!match) return 0;
+
+		const minutes = parseInt(match[1] || '0', 10);
+		const seconds = parseInt(match[2] || '0', 10);
+
+		return (minutes * 60 + seconds) * 1000;
+	}
+};

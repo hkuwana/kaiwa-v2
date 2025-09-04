@@ -37,6 +37,7 @@ export class ConversationStore {
 	sessionId = $state<string>('');
 	language = $state<Language | null>(null);
 	voice: Voice = DEFAULT_VOICE;
+	speaker = $state<Speaker | undefined>(undefined);
 	error = $state<string | null>(null);
 
 	availableDevices = $state<MediaDeviceInfo[]>([]);
@@ -132,6 +133,7 @@ export class ConversationStore {
 
 		// Set up conversation parameters from user preferences
 		this.language = language || null;
+		this.speaker = typeof speaker === 'object' ? speaker : undefined;
 		this.transcriptionMode = userPreferencesStore.getTranscriptionMode();
 		this.status = 'connecting';
 		this.error = null;
@@ -552,7 +554,8 @@ export class ConversationStore {
 			user: userManager.user,
 			language: this.language,
 			preferences: userPrefs,
-			scenario: scenarioStore.getSelectedScenario()
+			scenario: scenarioStore.getSelectedScenario(),
+			speaker: this.speaker
 		});
 
 		const sessionConfig = sessionManagerService.createSessionConfig(
@@ -1055,6 +1058,7 @@ export class ConversationStore {
 		this.messagesForAnalysis = [];
 		this.userId = null;
 		this.sessionId = '';
+		this.speaker = undefined;
 		this.error = null;
 		this.isGracefullyEnding = false;
 		this.analysisTriggered = false;

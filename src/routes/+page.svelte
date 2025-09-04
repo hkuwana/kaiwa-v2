@@ -2,18 +2,26 @@
 	import { dev } from '$app/environment';
 	import { page } from '$app/state';
 	import { browser } from '$app/environment';
-	import LanguageStartButton from '$lib/components/LanguageStartButton.svelte';
-	import ScenarioStartButton from '$lib/components/ScenarioStartButton.svelte';
+	import UnifiedStartButton from '$lib/components/UnifiedStartButton.svelte';
 	import Navigation from '$lib/components/Navigation.svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
+	import { settingsStore } from '$lib/stores/settings.store.svelte';
+	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
 	import { getFeatureFlag, trackABTest } from '$lib/analytics/posthog';
+	import type { Language as DataLanguage } from '$lib/data/languages';
+	import type { Scenario } from '$lib/server/db/types';
 
 	// Get user data from page data
 	const user = userManager.user;
 
+	// State management for language, speaker, and scenario selection
+	let selectedLanguage = $state<DataLanguage | null>(settingsStore.selectedLanguage);
+	let selectedSpeaker = $state<string | null>(settingsStore.selectedSpeaker);
+	let selectedScenario = $state<Scenario | null>(scenarioStore.getSelectedScenario());
+
 	// A/B Testing for headlines
 	const headlineVariants = {
-		original: 'Stop Learning. Start Talking.',
+		original: 'Stop Procrastinating. Start Talking.',
 		cure: 'The cure for the common language app.',
 		onePercent: 'For the 1% of learners who will actually become speakers.'
 	};
@@ -56,6 +64,26 @@
 
 		trackABTest.startSpeakingClicked(currentVariant, currentText, userType);
 	}
+
+	// Event handlers for component callbacks
+	function handleLanguageChange(language: DataLanguage) {
+		selectedLanguage = language;
+		settingsStore.setLanguageObject(language);
+	}
+
+	function handleSpeakerChange(speakerId: string) {
+		selectedSpeaker = speakerId;
+		settingsStore.setSpeaker(speakerId);
+	}
+
+	function handleScenarioChange(scenario: Scenario) {
+		scenarioStore.setScenarioById(scenario.id);
+		selectedScenario = scenario;
+	}
+
+	function handleScenarioStart(scenario: Scenario) {
+		console.log('Starting scenario:', scenario.title);
+	}
 </script>
 
 <svelte:head>
@@ -76,11 +104,20 @@
 					<div class="mb-6 text-xl opacity-90">
 						Welcome back, {user ? user.displayName : 'Dev'}!
 					</div>
-					<ScenarioStartButton />
 				{:else}
 					<p class="mb-6 text-xl opacity-90">Learn languages through AI-assisted conversations</p>
-					<ScenarioStartButton forceOnboarding={true} />
 				{/if}
+
+				<UnifiedStartButton
+					{user}
+					{selectedLanguage}
+					{selectedSpeaker}
+					{selectedScenario}
+					onLanguageChange={handleLanguageChange}
+					onSpeakerChange={handleSpeakerChange}
+					onScenarioChange={handleScenarioChange}
+					onStartClick={trackStartSpeakingClick}
+				/>
 			</div>
 		</div>
 	</header>
@@ -126,13 +163,23 @@
 			</div>
 
 			<div class="my-12 text-center">
-				{#if user && user.id !== 'guest'}
-					<ScenarioStartButton />
-					<p class="mt-4 text-lg opacity-80">Experience scenarios and onboarding</p>
-				{:else}
-					<ScenarioStartButton forceOnboarding={true} />
-					<p class="mt-4 text-lg opacity-80">Experience onboarding - sign up for full access</p>
-				{/if}
+				<UnifiedStartButton
+					{user}
+					{selectedLanguage}
+					{selectedSpeaker}
+					{selectedScenario}
+					onLanguageChange={handleLanguageChange}
+					onSpeakerChange={handleSpeakerChange}
+					onScenarioChange={handleScenarioChange}
+					onStartClick={trackStartSpeakingClick}
+				/>
+				<p class="mt-4 text-lg opacity-80">
+					{#if user && user.id !== 'guest'}
+						Experience scenarios and onboarding
+					{:else}
+						Experience onboarding - sign up for full access
+					{/if}
+				</p>
 			</div>
 
 			<div class="card border border-base-300/20 bg-base-100/10 p-8 shadow-xl backdrop-blur-sm">

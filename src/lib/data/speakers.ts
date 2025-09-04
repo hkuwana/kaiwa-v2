@@ -464,6 +464,62 @@ export const speakersData: Speaker[] = [
 		isActive: false,
 		createdAt: null
 	},
+	{
+		id: 'nl-amsterdam-male',
+		languageId: 'nl',
+		region: 'Amsterdam',
+		dialectName: 'Amsterdam Dutch',
+		bcp47Code: 'nl-NL',
+		speakerEmoji: '🏛️',
+		gender: 'male',
+		voiceName: 'Jasper',
+		voiceProviderId: 'openai-jasper',
+		openaiVoiceId: 'alloy',
+		isActive: false,
+		createdAt: null
+	},
+	{
+		id: 'nl-amsterdam-female',
+		languageId: 'nl',
+		region: 'Amsterdam',
+		dialectName: 'Amsterdam Dutch',
+		bcp47Code: 'nl-NL',
+		speakerEmoji: '🏛️',
+		gender: 'female',
+		voiceName: 'Fleur',
+		voiceProviderId: 'openai-fleur',
+		openaiVoiceId: 'echo',
+		isActive: false,
+		createdAt: null
+	},
+	{
+		id: 'nl-antwerp-male',
+		languageId: 'nl',
+		region: 'Antwerp',
+		dialectName: 'Flemish',
+		bcp47Code: 'nl-BE',
+		speakerEmoji: '🏰',
+		gender: 'male',
+		voiceName: 'Lars',
+		voiceProviderId: 'openai-lars',
+		openaiVoiceId: 'ash',
+		isActive: false,
+		createdAt: null
+	},
+	{
+		id: 'nl-antwerp-female',
+		languageId: 'nl',
+		region: 'Antwerp',
+		dialectName: 'Flemish',
+		bcp47Code: 'nl-BE',
+		speakerEmoji: '🏰',
+		gender: 'female',
+		voiceName: 'Eva',
+		voiceProviderId: 'openai-eva',
+		openaiVoiceId: 'shimmer',
+		isActive: false,
+		createdAt: null
+	},
 
 	// --- Filipino Speakers ---
 	{

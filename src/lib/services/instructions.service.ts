@@ -6,7 +6,8 @@ import type {
 	Scenario,
 	ScenarioOutcome,
 	Language,
-	User
+	User,
+	Speaker
 } from '$lib/server/db/types';
 import { getLanguageById, languages } from '$lib/types';
 
@@ -38,6 +39,7 @@ export interface ModuleContext {
 	user: User;
 	scenario?: Scenario;
 	sessionContext?: SessionContext;
+	speaker?: Speaker;
 }
 
 type UpdateContext =
@@ -125,28 +127,29 @@ const modules = new ModuleComposer();
 modules.register({
 	id: 'personality-adaptive',
 	priority: 1,
-	generate: ({ preferences, sessionContext }: ModuleContext) => {
+	generate: ({ preferences, sessionContext, speaker }: ModuleContext) => {
 		const confidence = preferences.speakingConfidence || 50;
 		const emotional = sessionContext?.emotionalState || 'neutral';
 		const goal = preferences.learningGoal || 'Connection';
+		const speakerName = speaker?.voiceName || 'Hiro';
 
 		// Adapt personality to confidence and emotional state
 		let personality = '';
 		if (confidence < 30 || emotional === 'frustrated') {
 			personality = `## PERSONALITY
-- Ultra-patient mentor who NEVER rushes
+- You are ${speakerName}, an ultra-patient mentor who NEVER rushes
 - Celebrates tiny victories enthusiastically  
 - Uses gentle humor to ease tension
 - Speaks like encouraging best friend`;
 		} else if (confidence > 70 || emotional === 'excited') {
 			personality = `## PERSONALITY  
-- Energetic language partner matching enthusiasm
+- You are ${speakerName}, an energetic language partner matching enthusiasm
 - Playful challenger who keeps things interesting
 - Cultural insider sharing secrets
 - Speaks with infectious excitement`;
 		} else {
 			personality = `## PERSONALITY
-- Warm ${goal === 'Career' ? 'colleague' : 'friend'} guiding naturally
+- You are ${speakerName}, a warm ${goal === 'Career' ? 'colleague' : 'friend'} guiding naturally
 - Adaptive energy matcher
 - Curious conversation partner
 - Authentic and encouraging`;
@@ -158,7 +161,8 @@ modules.register({
 - This is REAL-TIME VOICE chat
 - Speak naturally with pauses
 - Use "hmm", "mmm", "uhh" occasionally
-- Sound human, not robotic`;
+- Sound human, not robotic
+- Always introduce yourself as ${speakerName} when appropriate`;
 	}
 });
 
@@ -541,9 +545,11 @@ export function generateInitialInstructions(
 	language: Language,
 	preferences: Partial<UserPreferences>,
 	scenario?: Scenario,
-	sessionContext?: SessionContext
+	sessionContext?: SessionContext,
+	speaker?: Speaker
 ): string {
-	const isFirstTime = !preferences.totalConversations || preferences.totalConversations === 0;
+	// Check if this is a first-time user by looking at successful exchanges
+	const isFirstTime = !preferences.successfulExchanges || preferences.successfulExchanges === 0;
 	const nativeGreeting = getNativeGreeting(user.nativeLanguageId || 'en');
 
 	const baseModules = [
@@ -558,7 +564,7 @@ export function generateInitialInstructions(
 		'anti-patterns-enhanced'
 	];
 
-	const context: ModuleContext = { user, language, preferences, scenario, sessionContext };
+	const context: ModuleContext = { user, language, preferences, scenario, sessionContext, speaker };
 	let instructions = modules.compose(baseModules, context);
 
 	// Add phase-specific instructions with better structure
@@ -699,6 +705,7 @@ export function getInstructions(
 		preferences: Partial<UserPreferences>;
 		scenario?: Scenario;
 		sessionContext?: SessionContext;
+		speaker?: Speaker;
 		updateType?: UpdateContext['type'];
 		updateContext?: UpdateContext;
 		timeRemaining?: number;
@@ -711,7 +718,8 @@ export function getInstructions(
 				params.language,
 				params.preferences,
 				params.scenario,
-				params.sessionContext
+				params.sessionContext,
+				params.speaker
 			);
 
 		case 'update':

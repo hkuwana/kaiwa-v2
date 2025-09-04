@@ -8,6 +8,8 @@
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
+	import { getSpeakerById } from '$lib/data/speakers';
+	import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 
 	// Import all state components
 	import ConnectingState from '$lib/components/ConversationConnectingState.svelte';
@@ -88,7 +90,11 @@
 		console.log('Starting auto-connection with:', selectedLanguage.name);
 
 		try {
-			await conversationStore.startConversation(selectedLanguage, settingsStore.selectedSpeaker);
+			// Get speaker object from ID
+			const speaker = settingsStore.selectedSpeaker
+				? getSpeakerById(settingsStore.selectedSpeaker)
+				: undefined;
+			await conversationStore.startConversation(selectedLanguage, speaker);
 			console.log('Auto-connection successful');
 		} catch (err) {
 			console.error('Auto-connection failed:', err);
