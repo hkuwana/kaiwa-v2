@@ -1,8 +1,8 @@
 <script lang="ts">
 	import ThemeSwitcher from './ThemeSwitcher.svelte';
-	import type { User } from '$lib/server/db/types'; 
+	import type { User } from '$lib/server/db/types';
 
-	const { user }: { user: User } = $props();
+	const { user }: { user: User | null } = $props();
 	// Get user data from page data
 </script>
 
@@ -31,7 +31,7 @@
 			>
 				<li><a href="/pricing" class="text-neutral-content">Pricing</a></li>
 				<li><a href="/privacy" class="text-neutral-content">Privacy</a></li>
-				{#if user.id !== 'guest'}
+				{#if user && user.id !== 'guest'}
 					<li><a href="/profile" class="text-neutral-content">Profile</a></li>
 				{/if}
 			</ul>
@@ -46,7 +46,7 @@
 	</div>
 
 	<div class="navbar-end">
-		{#if user.id !== 'guest'}
+		{#if user && user.id !== 'guest'}
 			<div class="dropdown dropdown-end">
 				<div tabindex="0" role="button" class="btn avatar btn-circle btn-ghost">
 					{#if user.avatarUrl}

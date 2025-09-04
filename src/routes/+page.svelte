@@ -72,14 +72,14 @@
 					{headlineText}
 				</h4>
 
-				{#if user || dev}
+				{#if user.id !== 'guest'}
 					<div class="mb-6 text-xl opacity-90">
 						Welcome back, {user ? user.displayName : 'Dev'}!
 					</div>
 					<ScenarioStartButton />
 				{:else}
 					<p class="mb-6 text-xl opacity-90">Learn languages through AI-assisted conversations</p>
-					<LanguageStartButton onStartClick={trackStartSpeakingClick} />
+					<ScenarioStartButton forceOnboarding={true} />
 				{/if}
 			</div>
 		</div>
@@ -126,12 +126,12 @@
 			</div>
 
 			<div class="my-12 text-center">
-				{#if user}
+				{#if user && user.id !== 'guest'}
 					<ScenarioStartButton />
 					<p class="mt-4 text-lg opacity-80">Experience scenarios and onboarding</p>
 				{:else}
-					<LanguageStartButton onStartClick={trackStartSpeakingClick} />
-					<p class="mt-4 text-lg opacity-80">Experience the new simplified architecture</p>
+					<ScenarioStartButton forceOnboarding={true} />
+					<p class="mt-4 text-lg opacity-80">Experience onboarding - sign up for full access</p>
 				{/if}
 			</div>
 
