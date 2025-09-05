@@ -19,40 +19,56 @@
 	let selectedSpeaker = $state<string | null>(settingsStore.selectedSpeaker);
 	let selectedScenario = $state<Scenario | null>(scenarioStore.getSelectedScenario());
 
-	// A/B Testing for headlines
+	// A/B Testing for headlines - Don Draper Edition
 	const headlineVariants = {
-		original: 'Stop Procrastinating. Start Talking.',
-		cure: 'The cure for the common language app.',
-		onePercent: 'For the 1% of learners who will actually become speakers.'
+		// Main control
+		main: 'No Writing or Reading. Just Talks.',
+
+		// Revolutionary/New variants (excitement + novelty)
+		variant1: 'The anti-language-learning app.',
+		variant2: 'Language learning for the streets.',
+		variant3: "Practice like you're living there.",
+		variant4: 'Finally. Stress-free conversation practice.',
+		variant5: 'The app Duolingo fears.',
+		// Innovation variants (breakthrough positioning)
+		variant6: 'Conversation AI that gets you.',
+		variant7: 'Practice real situations safely.',
+		variant8: 'Your Japanese survival trainer.',
+		variant9: 'AI partner for messy conversations.',
+		variant10: 'The conversation app Japan needed.'
 	};
 
-	// Get the headline variant from PostHog feature flag
-	let headlineVariant = $state('original');
-	let headlineText = $state(headlineVariants.original);
+	// Random headline selection - Don Draper's approach
+	let headlineVariant = $state('main');
+	let headlineText = $state(headlineVariants.main);
 
-	// Initialize A/B test on client side
+	// Initialize random A/B test on client side
 	if (browser) {
-		// Get the feature flag value
-		const variant = getFeatureFlag('headline_ab_test');
+		// Get all variant keys
+		const variantKeys = Object.keys(headlineVariants);
 
-		// Map feature flag values to our variants
-		let currentVariant = 'original';
-		let currentText = headlineVariants.original;
+		// Separate main from variants
+		const mainVariant = variantKeys.filter((key) => key === 'main');
+		const testVariants = variantKeys.filter((key) => key.startsWith('variant'));
 
-		if (variant === 'cure') {
-			currentVariant = 'cure';
-			currentText = headlineVariants.cure;
-		} else if (variant === 'one_percent') {
-			currentVariant = 'onePercent';
-			currentText = headlineVariants.onePercent;
+		let selectedVariant: string;
+		const random = Math.random();
+
+		if (random < 0.2) {
+			// 20% chance for main control
+			selectedVariant = mainVariant[0];
+		} else {
+			// 80% chance for test variants
+			selectedVariant = testVariants[Math.floor(Math.random() * testVariants.length)];
 		}
 
 		// Update state
-		headlineVariant = currentVariant;
-		headlineText = currentText;
+		headlineVariant = selectedVariant;
+		headlineText = headlineVariants[selectedVariant as keyof typeof headlineVariants];
 
 		// Track which variant the user saw
-		trackABTest.headlineVariantShown(currentVariant, currentText);
+		const selectedText = headlineVariants[selectedVariant as keyof typeof headlineVariants];
+		trackABTest.headlineVariantShown(selectedVariant, selectedText);
 	}
 
 	// Function to track when user clicks start speaking

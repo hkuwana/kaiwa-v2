@@ -197,7 +197,7 @@ export const trackEngagement = {
 };
 
 /**
- * Track A/B testing events
+ * Track A/B testing events - Enhanced for Don Draper-level insights
  */
 export const trackABTest = {
 	// Headline variant shown
@@ -205,7 +205,11 @@ export const trackABTest = {
 		track('headline_variant_shown', {
 			variant,
 			headline_text: headlineText,
-			$set: { current_headline_variant: variant }
+			variant_category: getVariantCategory(variant),
+			$set: {
+				current_headline_variant: variant,
+				headline_category: getVariantCategory(variant)
+			}
 		});
 	},
 
@@ -218,11 +222,51 @@ export const trackABTest = {
 		track('start_speaking_clicked', {
 			headline_variant: headlineVariant,
 			headline_text: headlineText,
+			headline_category: getVariantCategory(headlineVariant),
 			user_type: userType,
-			$set: { has_clicked_start_speaking: true }
+			conversion_timestamp: new Date().toISOString(),
+			$set: {
+				has_clicked_start_speaking: true,
+				conversion_headline_variant: headlineVariant
+			}
+		});
+	},
+
+	// Track time spent on page before conversion
+	timeToConversion: (headlineVariant: string, timeSpentSeconds: number) => {
+		track('time_to_conversion', {
+			headline_variant: headlineVariant,
+			time_spent_seconds: timeSpentSeconds,
+			headline_category: getVariantCategory(headlineVariant),
+			$set: {
+				conversion_time_seconds: timeSpentSeconds,
+				conversion_headline_variant: headlineVariant
+			}
+		});
+	},
+
+	// Track scroll depth (engagement metric)
+	scrollDepth: (headlineVariant: string, scrollPercentage: number) => {
+		track('scroll_depth', {
+			headline_variant: headlineVariant,
+			scroll_percentage: scrollPercentage,
+			headline_category: getVariantCategory(headlineVariant)
 		});
 	}
 };
+
+/**
+ * Helper function to categorize headline variants
+ */
+function getVariantCategory(variant: string): string {
+	const revolutionaryVariants = ['variant1', 'variant2', 'variant3', 'variant4', 'variant5'];
+	const breakthroughVariants = ['variant6', 'variant7', 'variant8', 'variant9', 'variant10'];
+
+	if (variant === 'main') return 'control';
+	if (revolutionaryVariants.includes(variant)) return 'revolutionary';
+	if (breakthroughVariants.includes(variant)) return 'breakthrough';
+	return 'unknown';
+}
 
 /**
  * Core tracking function

@@ -47,6 +47,7 @@ RUN --mount=type=secret,id=ALL_SECRETS \
   export STRIPE_WEBHOOK_SECRET="${STRIPE_WEBHOOK_SECRET:-whsec_dummy_webhook_secret}" && \
   export STRIPE_PRO_PRICE_ID="${STRIPE_PRO_PRICE_ID:-price_dummy_pro}" && \
   export STRIPE_PREMIUM_PRICE_ID="${STRIPE_PREMIUM_PRICE_ID:-price_dummy_premium}" && \
+  export RESEND_API_KEY="${RESEND_API_KEY:-re_dummy_resend_key}" && \
   pnpm run build'
 
 # Final stage for app image

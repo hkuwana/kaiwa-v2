@@ -1,7 +1,8 @@
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 
-const resend = new Resend(env.RESEND_API_KEY);
+// Initialize Resend with fallback for missing API key
+const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
 
 export interface EmailVerificationData {
 	email: string;
@@ -15,6 +16,12 @@ export class EmailService {
 	 */
 	static async sendVerificationCode(data: EmailVerificationData): Promise<boolean> {
 		try {
+			// Check if we have a valid API key
+			if (!env.RESEND_API_KEY || env.RESEND_API_KEY === 're_dummy_resend_key') {
+				console.warn('RESEND_API_KEY not configured, skipping email send');
+				return true; // Return true to not block user flow in development
+			}
+
 			const result = await resend.emails.send({
 				from: 'Kaiwa <noreply@kaiwa.fly.dev>',
 				to: [data.email],
