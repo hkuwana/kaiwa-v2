@@ -19,14 +19,10 @@ export const messages = pgTable(
 		targetLanguage: text('target_language'), // Language the content was translated to
 		userNativeLanguage: text('user_native_language'), // User's native language for context
 
-		// Multi-language script support (romanization, pinyin, hiragana, etc.)
-		romanization: text('romanization'), // Latin script representation
-		pinyin: text('pinyin'), // Chinese pinyin
+		// Multi-language script support (consolidated approach)
+		romanization: text('romanization'), // Latin script representation (includes pinyin, romaji, etc.)
 		hiragana: text('hiragana'), // Japanese hiragana
-		katakana: text('katakana'), // Japanese katakana
-		kanji: text('kanji'), // Japanese/Chinese characters
-		hangul: text('hangul'), // Korean hangul
-		otherScripts: jsonb('other_scripts'), // For other writing systems
+		otherScripts: jsonb('other_scripts'), // For katakana, hangul, kanji, and other writing systems
 
 		// Translation metadata
 		translationConfidence: text('translation_confidence').$type<'low' | 'medium' | 'high'>(),
@@ -72,9 +68,7 @@ export const messages = pgTable(
 
 		// Indexes for multi-language script support
 		index('messages_romanization_idx').on(table.romanization),
-		index('messages_pinyin_idx').on(table.pinyin),
 		index('messages_hiragana_idx').on(table.hiragana),
-		index('messages_kanji_idx').on(table.kanji),
 
 		// Composite index for language learning queries
 		index('messages_language_learning_idx').on(
@@ -87,7 +81,6 @@ export const messages = pgTable(
 		index('messages_script_support_idx').on(
 			table.sourceLanguage,
 			table.romanization,
-			table.pinyin,
 			table.hiragana
 		)
 	]

@@ -1,30 +1,64 @@
-// 🌐 Translation Service
-// Handles message translation functionality
+// 🌐 Client-Side Translation Service
+// Handles translation functionality on the client side by making API calls to server
 
 import type { Message } from '$lib/server/db/types';
 
+// Translation result interface (simplified)
+interface TranslationResult {
+	messageId: string;
+	translatedContent: string;
+	romanization?: string;
+	hiragana?: string;
+	otherScripts?: Record<string, string>; // For katakana, hangul, kanji, etc.
+	sourceLanguage: string;
+	targetLanguage: string;
+	confidence?: 'low' | 'medium' | 'high';
+	provider?: string;
+}
+
 /**
- * Translate a message to the target language
+ * Translate text using the server-side translation API
+ */
+export async function translateText(
+	text: string,
+	messageId: string,
+	sourceLanguage: string,
+	targetLanguage: string,
+	model?: string,
+	enableRomanization?: boolean
+): Promise<TranslationResult> {
+	const response = await fetch('/api/translate', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			text,
+			messageId,
+			sourceLanguage,
+			targetLanguage,
+			model,
+			enableRomanization
+		})
+	});
+
+	if (!response.ok) {
+		const errorData = await response.json();
+		throw new Error(errorData.error || 'Translation failed');
+	}
+
+	return await response.json();
+}
+
+/**
+ * Translate a message using the server-side translation API
  */
 export async function translateMessage(
 	message: Message,
 	targetLanguage: string,
 	sourceLanguage: string = 'en'
-): Promise<void> {
-	// TODO: Implement actual translation logic
-	// For now, this is a placeholder that prevents build errors
-
-	console.log(`Translating message to ${targetLanguage} from ${sourceLanguage}`);
-
-	// In a real implementation, you would:
-	// 1. Call a translation API (Google Translate, DeepL, etc.)
-	// 2. Update the message with translation data
-	// 3. Store the translation in the database
-
-	// For now, we'll just log the attempt
-	if (message.content) {
-		console.log(`Message content: ${message.content.substring(0, 100)}...`);
-	}
+): Promise<TranslationResult> {
+	return await translateText(message.content, message.id, sourceLanguage, targetLanguage);
 }
 
 /**
@@ -39,17 +73,17 @@ export function isMessageTranslated(message: Message): boolean {
 }
 
 /**
+ * Get the display content for a message (translated if available, original otherwise)
+ */
+export function getMessageDisplayContent(message: Message): string {
+	return message.translatedContent || message.content;
+}
+
+/**
  * Get romanization for a message if available
  */
 export function getMessageRomanization(message: Message): string | null {
 	return message.romanization || null;
-}
-
-/**
- * Get pinyin for a message if available
- */
-export function getMessagePinyin(message: Message): string | null {
-	return message.pinyin || null;
 }
 
 /**
@@ -66,11 +100,12 @@ export function getMessageScripts(message: Message): Record<string, string> {
 	const scripts: Record<string, string> = {};
 
 	if (message.romanization) scripts.romanization = message.romanization;
-	if (message.pinyin) scripts.pinyin = message.pinyin;
 	if (message.hiragana) scripts.hiragana = message.hiragana;
-	if (message.katakana) scripts.katakana = message.katakana;
-	if (message.kanji) scripts.kanji = message.kanji;
-	if (message.hangul) scripts.hangul = message.hangul;
+
+	// Add other scripts from the otherScripts field
+	if (message.otherScripts) {
+		Object.assign(scripts, message.otherScripts);
+	}
 
 	return scripts;
 }

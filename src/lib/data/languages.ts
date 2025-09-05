@@ -219,3 +219,15 @@ export function getLanguageByCode(code: string): Language | undefined {
 export function getLanguageById(id: string): Language | undefined {
 	return languages.find((lang) => lang.id === id);
 }
+
+// Helper function to get language emoji by code
+export function getLanguageEmoji(code: string): string {
+	const language = getLanguageByCode(code);
+	return language?.flag || '🌐';
+}
+
+// Helper function to get language name by code
+export function getLanguageName(code: string): string {
+	const language = getLanguageByCode(code);
+	return language?.name || code.toUpperCase();
+}

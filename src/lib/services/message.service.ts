@@ -20,11 +20,8 @@ export function createUserPlaceholder(sessionId: string): Message {
 
 		// Multi-language script support
 		romanization: null,
-		pinyin: null,
 		hiragana: null,
-		katakana: null,
-		kanji: null,
-		hangul: null,
+
 		otherScripts: null,
 
 		// Translation metadata
@@ -127,11 +124,7 @@ export function createFinalUserMessage(content: string, sessionId: string): Mess
 
 		// Multi-language script support
 		romanization: null,
-		pinyin: null,
 		hiragana: null,
-		katakana: null,
-		kanji: null,
-		hangul: null,
 		otherScripts: null,
 
 		// Translation metadata
@@ -171,11 +164,7 @@ export function createStreamingMessage(content: string, sessionId: string): Mess
 
 		// Multi-language script support
 		romanization: null,
-		pinyin: null,
 		hiragana: null,
-		katakana: null,
-		kanji: null,
-		hangul: null,
 		otherScripts: null,
 
 		// Translation metadata
@@ -255,11 +244,7 @@ export function createFinalAssistantMessage(content: string, sessionId: string):
 
 		// Multi-language script support
 		romanization: null,
-		pinyin: null,
 		hiragana: null,
-		katakana: null,
-		kanji: null,
-		hangul: null,
 		otherScripts: null,
 
 		// Translation metadata
@@ -316,11 +301,7 @@ export function createMessageFromEventData(
 
 		// Multi-language script support
 		romanization: null,
-		pinyin: null,
 		hiragana: null,
-		katakana: null,
-		kanji: null,
-		hangul: null,
 		otherScripts: null,
 
 		// Translation metadata

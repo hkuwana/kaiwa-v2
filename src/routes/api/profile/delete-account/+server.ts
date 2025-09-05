@@ -111,4 +111,3 @@ export const DELETE: RequestHandler = async ({ locals }) => {
 		return json({ error: 'Failed to delete account' }, { status: 500 });
 	}
 };
-

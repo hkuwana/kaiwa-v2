@@ -1,0 +1,531 @@
+// 🌐 Translation Service
+// Simplified translation service using Google Translate for translation and Kuroshiro for Japanese text processing
+
+import type { Message } from '$lib/server/db/types';
+import { env } from '$env/dynamic/private';
+// Note: Using dynamic imports due to mixed module systems (ES6/CommonJS)
+
+// Translation parameters interface
+interface TranslateParams {
+	text: string;
+	messageId: string;
+	sourceLanguage: string;
+	targetLanguage: string;
+	model?: string;
+}
+
+// Translation result interface
+interface TranslationResult {
+	messageId: string;
+	translatedContent: string;
+	romanization?: string;
+	hiragana?: string;
+	otherScripts?: Record<string, string>;
+	sourceLanguage: string;
+	targetLanguage: string;
+	confidence?: 'low' | 'medium' | 'high';
+	provider: string;
+}
+
+// Google Translate response interface
+interface GoogleTranslateResponse {
+	translations?: Array<{
+		translatedText?: string;
+	}>;
+}
+
+// Google Cloud Translation client (will be initialized when needed)
+let translationClient: unknown = null;
+
+/**
+ * Initialize Google Cloud Translation client
+ * Note: This function only works on the server side
+ */
+async function initializeTranslationClient() {
+	// Check if we're in a browser environment
+	if (typeof window !== 'undefined') {
+		console.warn('Google Translation client is not available in browser environment');
+		return null;
+	}
+
+	if (translationClient) return translationClient;
+
+	try {
+		const { TranslationServiceClient } = await import('@google-cloud/translate');
+		const credentials = JSON.parse(env.GOOGLE_CREDENTIALS_JSON || '{}');
+
+		translationClient = new TranslationServiceClient({
+			credentials: {
+				client_email: credentials.client_email,
+				private_key: credentials.private_key
+			},
+			projectId: env.GOOGLE_CLOUD_PROJECT_ID
+		});
+
+		return translationClient;
+	} catch (error) {
+		console.error('Failed to initialize Google Translation client:', error);
+		return null;
+	}
+}
+
+/**
+ * Convert Japanese text to hiragana using Kuroshiro
+ * This function only works on the server side
+ */
+async function convertToHiragana(text: string): Promise<string> {
+	// Check if we're in a browser environment
+	if (typeof window !== 'undefined') {
+		console.warn('Hiragana conversion is not available in browser environment');
+		return '';
+	}
+
+	try {
+		console.log('[TRANSLATION] Starting hiragana conversion for text:', text);
+
+		// Import Kuroshiro and KuromojiAnalyzer as per documentation
+		const KuroshiroModule = await import('kuroshiro');
+		const KuromojiAnalyzerModule = await import('kuroshiro-analyzer-kuromoji');
+
+		const Kuroshiro = KuroshiroModule.default.default;
+		const KuromojiAnalyzer = KuromojiAnalyzerModule.default;
+
+		const kuroshiro = new Kuroshiro();
+		const analyzer = new KuromojiAnalyzer();
+
+		console.log('[TRANSLATION] Initializing kuroshiro with analyzer...');
+		await kuroshiro.init(analyzer);
+
+		console.log('[TRANSLATION] Converting text to hiragana...');
+		const result = await kuroshiro.convert(text, {
+			to: 'hiragana',
+			mode: 'furigana'
+		});
+
+		console.log('[TRANSLATION] Hiragana conversion result:', result);
+		return result;
+	} catch (error) {
+		console.error('Failed to convert to hiragana:', error);
+		return '';
+	}
+}
+
+/**
+ * Convert Japanese text to katakana using Kuroshiro
+ * This function only works on the server side
+ */
+async function convertToKatakana(text: string): Promise<string> {
+	// Check if we're in a browser environment
+	if (typeof window !== 'undefined') {
+		console.warn('Katakana conversion is not available in browser environment');
+		return '';
+	}
+
+	try {
+		console.log('[TRANSLATION] Starting katakana conversion for text:', text);
+
+		// Import Kuroshiro and KuromojiAnalyzer as per documentation
+		const KuroshiroModule = await import('kuroshiro');
+		const KuromojiAnalyzerModule = await import('kuroshiro-analyzer-kuromoji');
+
+		const Kuroshiro = KuroshiroModule.default.default;
+		const KuromojiAnalyzer = KuromojiAnalyzerModule.default;
+
+		const kuroshiro = new Kuroshiro();
+		const analyzer = new KuromojiAnalyzer();
+
+		console.log('[TRANSLATION] Initializing kuroshiro with analyzer...');
+		await kuroshiro.init(analyzer);
+
+		console.log('[TRANSLATION] Converting text to katakana...');
+		const result = await kuroshiro.convert(text, {
+			to: 'katakana',
+			mode: 'furigana'
+		});
+
+		console.log('[TRANSLATION] Katakana conversion result:', result);
+		return result;
+	} catch (error) {
+		console.error('Failed to convert to katakana:', error);
+		return '';
+	}
+}
+
+/**
+ * Convert Japanese text to romaji using Kuroshiro
+ * This function only works on the server side
+ */
+async function convertToRomaji(text: string): Promise<string> {
+	// Check if we're in a browser environment
+	if (typeof window !== 'undefined') {
+		console.warn('Romaji conversion is not available in browser environment');
+		return '';
+	}
+
+	try {
+		console.log('[TRANSLATION] Starting romaji conversion for text:', text);
+
+		// Import Kuroshiro and KuromojiAnalyzer as per documentation
+		const KuroshiroModule = await import('kuroshiro');
+		const KuromojiAnalyzerModule = await import('kuroshiro-analyzer-kuromoji');
+
+		const Kuroshiro = KuroshiroModule.default.default;
+		const KuromojiAnalyzer = KuromojiAnalyzerModule.default;
+
+		const kuroshiro = new Kuroshiro();
+		const analyzer = new KuromojiAnalyzer();
+
+		console.log('[TRANSLATION] Initializing kuroshiro with analyzer...');
+		await kuroshiro.init(analyzer);
+
+		console.log('[TRANSLATION] Converting text to romaji...');
+		const result = await kuroshiro.convert(text, {
+			to: 'romaji',
+			mode: 'normal',
+			romajiSystem: 'hepburn'
+		});
+
+		console.log('[TRANSLATION] Romaji conversion result:', result);
+		return result;
+	} catch (error) {
+		console.error('Failed to convert to romaji:', error);
+		return '';
+	}
+}
+
+/**
+ * Process Japanese text and generate all scripts using Kuroshiro
+ */
+async function processJapaneseText(text: string): Promise<{
+	hiragana?: string;
+	romanization?: string;
+	otherScripts?: Record<string, string>;
+}> {
+	const result: {
+		hiragana?: string;
+		romanization?: string;
+		otherScripts?: Record<string, string>;
+	} = {};
+
+	// Convert to hiragana
+	const hiragana = await convertToHiragana(text);
+	if (hiragana) {
+		result.hiragana = hiragana;
+	}
+
+	// Convert to romaji (stored in romanization field)
+	const romaji = await convertToRomaji(text);
+	if (romaji) {
+		result.romanization = romaji;
+	}
+
+	// Convert to katakana (stored in otherScripts)
+	const katakana = await convertToKatakana(text);
+	if (katakana) {
+		result.otherScripts = { katakana };
+	}
+
+	return result;
+}
+
+/**
+ * Translate text using Google Cloud Translation API
+ */
+async function translateText(params: TranslateParams): Promise<GoogleTranslateResponse> {
+	const client = await initializeTranslationClient();
+	if (!client) {
+		throw new Error('Translation client not available');
+	}
+
+	const request: Record<string, unknown> = {
+		parent: `projects/${env.GOOGLE_CLOUD_PROJECT_ID}/locations/global`,
+		contents: [params.text],
+		mimeType: 'text/plain',
+		sourceLanguageCode: params.sourceLanguage,
+		targetLanguageCode: params.targetLanguage
+	};
+
+	if (params.model) {
+		request.model = `projects/${env.GOOGLE_CLOUD_PROJECT_ID}/locations/global/models/${params.model}`;
+	}
+
+	try {
+		console.log('Calling translateText with request:', request);
+		const response = await (
+			client as { translateText: (request: unknown) => Promise<GoogleTranslateResponse> }
+		).translateText(request);
+		console.log('Translation response:', response);
+		return response;
+	} catch (error) {
+		console.error('Translation API error:', error);
+		throw error;
+	}
+}
+
+/**
+ * Main translation function that processes text and returns organized translation data
+ */
+export async function translateMessage(
+	message: Message,
+	targetLanguage: string,
+	sourceLanguage: string = 'en'
+): Promise<TranslationResult> {
+	try {
+		console.log(`Translating message ${message.id} to ${targetLanguage} from ${sourceLanguage}`);
+
+		// Check if we have Google credentials
+		if (!env.GOOGLE_CREDENTIALS_JSON || !env.GOOGLE_CLOUD_PROJECT_ID) {
+			console.warn('Google Translate credentials not configured, using fallback translation');
+			return createFallbackTranslation(message, targetLanguage, sourceLanguage);
+		}
+
+		console.log('Google credentials found, proceeding with translation');
+
+		// Translate the text
+		const translationResponse = await translateText({
+			text: message.content,
+			messageId: message.id,
+			sourceLanguage,
+			targetLanguage
+		});
+
+		// Get the translated content
+		console.log('Raw translation response:', JSON.stringify(translationResponse, null, 2));
+
+		// The response is an array, get the first element
+		const responseData = Array.isArray(translationResponse)
+			? translationResponse[0]
+			: translationResponse;
+		console.log('Response data:', responseData);
+
+		// Check if the response has the expected structure
+		if (!responseData?.translations || responseData.translations.length === 0) {
+			console.warn('No translations found in response, using original content');
+			return createFallbackTranslation(message, targetLanguage, sourceLanguage);
+		}
+
+		const translatedContent = responseData?.translations?.[0]?.translatedText || message.content;
+		console.log('Extracted translated content:', translatedContent);
+
+		// If the translated content is the same as the original, something went wrong
+		if (translatedContent === message.content) {
+			console.warn('Translation returned original content, this might indicate an API issue');
+		}
+
+		// Process Japanese text if source language is Japanese
+		let japaneseScripts: {
+			hiragana?: string;
+			romanization?: string;
+			otherScripts?: Record<string, string>;
+		} = {};
+
+		if (sourceLanguage === 'ja') {
+			japaneseScripts = await processJapaneseText(message.content);
+		}
+
+		// Determine confidence based on translation quality
+		const confidence = determineTranslationConfidence(translatedContent, message.content);
+
+		const result: TranslationResult = {
+			messageId: message.id,
+			translatedContent,
+			sourceLanguage,
+			targetLanguage,
+			confidence,
+			provider: 'google-translate',
+			...japaneseScripts
+		};
+
+		console.log('Translation completed:', result);
+		return result;
+	} catch (error) {
+		console.error('Translation failed:', error);
+		// Return fallback translation instead of throwing
+		return createFallbackTranslation(message, targetLanguage, sourceLanguage);
+	}
+}
+
+/**
+ * Create a fallback translation when Google Translate is not available
+ */
+function createFallbackTranslation(
+	message: Message,
+	targetLanguage: string,
+	sourceLanguage: string
+): TranslationResult {
+	// Simple fallback translations for common phrases
+	const fallbackTranslations: Record<string, Record<string, string>> = {
+		'Hello, how are you today?': {
+			ja: 'こんにちは、今日はどうですか？',
+			zh: '你好，你今天怎么样？',
+			ko: '안녕하세요, 오늘 어떠세요?',
+			es: 'Hola, ¿cómo estás hoy?',
+			fr: "Bonjour, comment allez-vous aujourd'hui?",
+			de: 'Hallo, wie geht es dir heute?'
+		},
+		'Thank you': {
+			ja: 'ありがとうございます',
+			zh: '谢谢',
+			ko: '감사합니다',
+			es: 'Gracias',
+			fr: 'Merci',
+			de: 'Danke'
+		},
+		'Good morning': {
+			ja: 'おはようございます',
+			zh: '早上好',
+			ko: '좋은 아침',
+			es: 'Buenos días',
+			fr: 'Bonjour',
+			de: 'Guten Morgen'
+		}
+	};
+
+	const translatedContent =
+		fallbackTranslations[message.content]?.[targetLanguage] ||
+		`[${targetLanguage.toUpperCase()}] ${message.content}`;
+
+	return {
+		messageId: message.id,
+		translatedContent,
+		sourceLanguage,
+		targetLanguage,
+		confidence: 'low' as const,
+		provider: 'fallback'
+	};
+}
+
+/**
+ * Determine translation confidence based on various factors
+ */
+function determineTranslationConfidence(
+	translatedText: string,
+	originalText: string
+): 'low' | 'medium' | 'high' {
+	// Simple heuristic - in practice, you'd use more sophisticated methods
+	const lengthRatio = translatedText.length / originalText.length;
+
+	if (lengthRatio < 0.5 || lengthRatio > 2.0) {
+		return 'low';
+	} else if (lengthRatio < 0.7 || lengthRatio > 1.5) {
+		return 'medium';
+	} else {
+		return 'high';
+	}
+}
+
+/**
+ * Check if a message has been translated
+ */
+export function isMessageTranslated(message: Message): boolean {
+	return (
+		message.isTranslated === true &&
+		message.translatedContent !== null &&
+		message.translatedContent.trim() !== ''
+	);
+}
+
+/**
+ * Get hiragana for a message if available
+ */
+export function getMessageHiragana(message: Message): string | null {
+	return message.hiragana || null;
+}
+
+/**
+ * Get katakana for a message if available
+ */
+export function getMessageKatakana(message: Message): string | null {
+	return (message.otherScripts as Record<string, string>)?.katakana || null;
+}
+
+/**
+ * Get romaji for a message if available
+ */
+export function getMessageRomaji(message: Message): string | null {
+	return message.romanization || null;
+}
+
+/**
+ * Get all available scripts for a message
+ */
+export function getMessageScripts(message: Message): Record<string, string> {
+	const scripts: Record<string, string> = {};
+
+	if (message.hiragana) scripts.hiragana = message.hiragana;
+	if (message.romanization) scripts.romaji = message.romanization;
+
+	// Add other scripts from the otherScripts field
+	if (message.otherScripts) {
+		Object.assign(scripts, message.otherScripts);
+	}
+
+	return scripts;
+}
+
+/**
+ * Pure function to translate text with language-specific processing
+ * This is the main function that should be called from components
+ */
+export async function translateTextWithScripts(
+	text: string,
+	messageId: string,
+	sourceLanguage: string,
+	targetLanguage: string
+): Promise<TranslationResult> {
+	// Create a temporary message object for the translation function
+	const tempMessage: Message = {
+		id: messageId,
+		content: text,
+		role: 'user',
+		timestamp: new Date(),
+		conversationId: '',
+		// Add other required fields with defaults
+		translatedContent: null,
+		sourceLanguage: null,
+		targetLanguage: null,
+		userNativeLanguage: null,
+		romanization: null,
+		hiragana: null,
+		otherScripts: null,
+		translationConfidence: null,
+		translationProvider: null,
+		translationNotes: null,
+		isTranslated: false,
+		grammarAnalysis: null,
+		vocabularyAnalysis: null,
+		pronunciationScore: null,
+		audioUrl: null,
+		audioDuration: null,
+		difficultyLevel: null,
+		learningTags: null,
+		conversationContext: null,
+		messageIntent: null
+	};
+
+	return await translateMessage(tempMessage, targetLanguage, sourceLanguage);
+}
+
+/**
+ * Language-specific script processing functions
+ */
+export const languageScriptProcessors = {
+	/**
+	 * Process Japanese text to extract different scripts using Kuroshiro
+	 */
+	processJapanese: async (text: string) => {
+		return await processJapaneseText(text);
+	},
+
+	/**
+	 * Process Chinese text (no special processing needed)
+	 */
+	processChinese: () => ({}),
+
+	/**
+	 * Process Korean text (already in Hangul)
+	 */
+	processKorean: (text: string) => ({
+		otherScripts: { hangul: text }
+	})
+};

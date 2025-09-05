@@ -31,9 +31,7 @@
 				<h2 class="mb-6 text-3xl font-bold text-white">A Founder's Philosophy</h2>
 				<div class="space-y-4 leading-relaxed text-gray-200">
 					<p class="text-lg">
-						I don't believe you take medals, monuments, or certificates to the afterlife. You only
-						take the wild experiences you have lived to the next world and the memories that come
-						with it.
+						I think there's only one thing you can take to the afterlife: the wild experiences you've lived and the memories that come with it.
 					</p>
 					<p>
 						This philosophy is at the heart of everything we do at Kaiwa. While other language apps

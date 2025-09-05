@@ -39,11 +39,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 			// Multi-language script support
 			romanization: null,
-			pinyin: null,
 			hiragana: null,
-			katakana: null,
-			kanji: null,
-			hangul: null,
 			otherScripts: null,
 
 			// Translation metadata

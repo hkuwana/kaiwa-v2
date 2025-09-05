@@ -3,6 +3,9 @@
 	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
 	import MessageBubble from '$lib/components/MessageBubble.svelte';
 	import type { Message, Language } from '$lib/server/db/types';
+	import type { Speaker } from '$lib/types';
+	import { translationStore } from '$lib/stores/translation.store.svelte';
+	// Remove direct import of translation service since it won't work in browser
 
 	interface Props {
 		status: string;
@@ -14,6 +17,7 @@
 		isTranscribing: boolean;
 		onSendMessage: (content: string) => void;
 		onEndConversation: () => void;
+		speaker?: Speaker;
 	}
 
 	let {
@@ -25,10 +29,12 @@
 		currentTranscript,
 		isTranscribing,
 		onSendMessage,
-		onEndConversation
+		onEndConversation,
+		speaker
 	}: Props = $props();
 
 	let messageInput = $state('');
+	let translationData = $state<Map<string, Partial<Message>>>(new Map());
 
 	function handleSendMessage() {
 		if (messageInput.trim() && (status === 'connected' || status === 'streaming')) {
@@ -41,6 +47,55 @@
 		if (event.key === 'Enter' && !event.shiftKey) {
 			event.preventDefault();
 			handleSendMessage();
+		}
+	}
+
+	async function handleTranslation(event: string, data: any) {
+		const { messageId, message, speaker: messageSpeaker } = data;
+
+		try {
+			// Set loading state
+			translationStore.setTranslating(messageId, true);
+
+			// Get source and target languages
+			const sourceLanguage = selectedLanguage?.code || 'en';
+			const targetLanguage = sourceLanguage === 'en' ? 'ja' : 'en';
+
+			// Call the server-side API endpoint
+			const response = await fetch('/api/translate', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					text: message.content,
+					messageId,
+					sourceLanguage,
+					targetLanguage
+				})
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || 'Translation failed');
+			}
+
+			const result = await response.json();
+
+			// Store the translation data
+			const organizedTranslation = translationStore.organizeTranslationData(messageId, result);
+			translationStore.setTranslationData(messageId, organizedTranslation);
+
+			// Update local translation data for display
+			translationData.set(messageId, organizedTranslation);
+			translationData = new Map(translationData); // Trigger reactivity
+
+			// Show the translation
+			translationStore.showTranslation(messageId);
+		} catch (error) {
+			console.error('Translation failed:', error);
+		} finally {
+			translationStore.setTranslating(messageId, false);
 		}
 	}
 </script>
@@ -80,7 +135,12 @@
 					<div class="flex-1 space-y-3 overflow-y-auto">
 						{#each messages as message, index (message.id)}
 							<div in:fly={{ y: 20, duration: 300, delay: index * 50 }}>
-								<MessageBubble {message} />
+								<MessageBubble
+									{message}
+									{speaker}
+									translation={translationData.get(message.id)}
+									dispatch={handleTranslation}
+								/>
 							</div>
 						{/each}
 					</div>
