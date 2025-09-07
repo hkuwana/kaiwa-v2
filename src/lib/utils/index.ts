@@ -111,6 +111,7 @@ export function removeFromStorage(key: string): void {
 	}
 }
 
-export function capitalize(string: string): string {
+export function capitalize(string: string | null | undefined): string {
+	if (!string) return '';
 	return string.charAt(0).toUpperCase() + string.slice(1);
 }

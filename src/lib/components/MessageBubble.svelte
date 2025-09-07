@@ -9,10 +9,12 @@
 		getMessageScripts
 	} from '$lib/services/translation.service';
 	import { translationStore } from '$lib/stores/translation.store.svelte';
+	import { hasScriptData, detectLanguage } from '$lib/services/scripts.service';
 	import { getSpeakerById } from '$lib/data/speakers';
 	import { getLanguageEmoji, getLanguageName } from '$lib/data/languages';
 	import kitsune from '$lib/assets/kitsune.webp';
 	import face from '$lib/assets/Face.webp';
+	import { capitalize } from '$lib/utils';
 
 	interface Props {
 		message: Message;
@@ -62,6 +64,12 @@
 			isMessageTranslated(message) ||
 			!!translation?.translatedContent
 	);
+
+	// Check if content needs script generation
+	const needsScripts = $derived(detectLanguage(message.content) !== 'other');
+
+	// Check if message has script data (generated after streaming completion)
+	const hasScriptDataFlag = $derived(hasScriptData(message));
 
 	// Get available scripts for the message - use passed translation or message data
 	const availableScripts = $derived(
@@ -134,12 +142,57 @@
 		<time class="text-xs opacity-50">{formattedTime}</time>
 	</div>
 	<div class={bubbleClass}>
-		{message.content}
+		<!-- Main content with scripts for supported languages -->
+		{#if needsScripts && hasScriptDataFlag}
+			<div class="space-y-1">
+				<!-- Japanese text with furigana display -->
+				<div class="text-base">
+					{#if message.hiragana}
+						<!-- Show furigana overlaid on original text -->
+						<div class="furigana-container" style="line-height: 2em;">
+							{@html message.hiragana}
+						</div>
+					{:else}
+						<!-- Fallback to original text if no furigana -->
+						{message.content}
+					{/if}
+				</div>
+				<!-- Romaji if available -->
+				{#if message.romanization}
+					<div class="text-sm italic opacity-70">
+						{message.romanization}
+					</div>
+				{/if}
+				<!-- English translation if available -->
+				{#if translation?.translatedContent || message.translatedContent}
+					<div class="text-sm font-medium text-primary">
+						{translation?.translatedContent || message.translatedContent}
+					</div>
+				{/if}
+			</div>
+		{:else if needsScripts && !hasScriptDataFlag}
+			<!-- Japanese content without furigana yet (still streaming) -->
+			<div class="space-y-1">
+				<div class="text-base">
+					{message.content}
+				</div>
+				<div class="text-sm italic opacity-50">Generating furigana...</div>
+			</div>
+		{:else}
+			<!-- Regular content for non-Japanese -->
+			{message.content}
+		{/if}
 
 		<!-- Translation Section -->
 		{#if showTranslation && (isMessageTranslated(message) || translation?.translatedContent)}
 			<!-- Visual separator -->
 			<div class="divider my-2 {borderClass}"></div>
+			<!-- Romanization for any language -->
+			{#if translation?.romanization || message.romanization}
+				<div class="text-sm italic opacity-70">
+					{translation?.romanization || message.romanization}
+				</div>
+			{/if}
 
 			<!-- Translation content -->
 			<div class="space-y-2">
@@ -165,15 +218,6 @@
 					</div>
 				{/if}
 
-				<!-- Korean-specific scripts -->
-				{#if (translation?.targetLanguage || message.targetLanguage) === 'ko' || translation?.hangul || message.hangul}
-					{#if translation?.hangul || message.hangul}
-						<div class="text-sm opacity-80">
-							{translation?.hangul || message.hangul}
-						</div>
-					{/if}
-				{/if}
-
 				<!-- Chinese-specific scripts (pinyin is now stored in romanization) -->
 				{#if (translation?.targetLanguage || message.targetLanguage) === 'zh'}
 					{#if translation?.romanization || message.romanization}
@@ -181,13 +225,6 @@
 							{translation?.romanization || message.romanization}
 						</div>
 					{/if}
-				{/if}
-
-				<!-- Romanization for any language -->
-				{#if translation?.romanization || message.romanization}
-					<div class="text-sm italic opacity-70">
-						{translation?.romanization || message.romanization}
-					</div>
 				{/if}
 
 				<!-- Other scripts -->
@@ -254,3 +291,18 @@
 		{/if}
 	</div>
 </div>
+
+<style>
+	.furigana-container {
+		position: relative;
+	}
+
+	.furigana-container rt {
+		font-size: 0.7em;
+		opacity: 0.8;
+	}
+
+	.furigana-container ruby {
+		line-height: 1.2;
+	}
+</style>

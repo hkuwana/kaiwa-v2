@@ -395,10 +395,10 @@ export class ConversationStore {
 						console.log('🎵 ConversationStore: Status changed to "streaming"');
 					}, 500);
 				},
-				onOtherEvent: (serverEvent) => {
+				onOtherEvent: async (serverEvent) => {
 					// Process the event using realtime service
 					const processed = realtimeService.processServerEvent(serverEvent);
-					this.handleProcessedEvent(processed);
+					await this.handleProcessedEvent(processed);
 				},
 				onError: (error) => {
 					this.error = error;
@@ -789,7 +789,9 @@ export class ConversationStore {
 	}
 
 	// Modify your existing handleProcessedEvent to check for graceful shutdown
-	private handleProcessedEvent(processed: realtimeService.ProcessedEventResult): void {
+	private async handleProcessedEvent(
+		processed: realtimeService.ProcessedEventResult
+	): Promise<void> {
 		switch (processed.type) {
 			case 'message':
 				this.addMessageToState(processed.data);
@@ -802,7 +804,7 @@ export class ConversationStore {
 				break;
 
 			case 'transcription':
-				this.handleTranscriptionUpdate(processed.data);
+				await this.handleTranscriptionUpdate(processed.data);
 
 				// If we're gracefully ending and user transcription is complete
 				if (

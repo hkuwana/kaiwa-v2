@@ -2,6 +2,11 @@
 // Pure functions for message management
 import type { Message } from '$lib/server/db/types';
 import { SvelteDate } from 'svelte/reactivity';
+import {
+	generateScriptsForMessage,
+	updateMessageWithScripts,
+	needsScriptGeneration
+} from './scripts.service';
 
 export function createUserPlaceholder(sessionId: string): Message {
 	return {
@@ -334,4 +339,138 @@ export function isDuplicateMessage(
 			msg.content === newMessage.content &&
 			Math.abs(msg.timestamp.getTime() - newMessage.timestamp.getTime()) < 2000
 	);
+}
+
+/**
+ * Finalize a message with furigana generation for Japanese content
+ */
+export async function finalizeMessageWithFurigana(
+	messages: Message[],
+	finalText: string,
+	sessionId: string,
+	role: 'user' | 'assistant' = 'user'
+): Promise<Message[]> {
+	// Create the final message
+	const finalMessage =
+		role === 'user'
+			? createFinalUserMessage(finalText, sessionId)
+			: createFinalAssistantMessage(finalText, sessionId);
+
+	// Always check if the message needs script generation
+	if (needsScriptGeneration(finalMessage)) {
+		console.log(`Generating scripts for ${role} message:`, finalText.substring(0, 50));
+		try {
+			const scriptData = await generateScriptsForMessage(finalMessage, true); // Use server
+			if (scriptData && Object.keys(scriptData).length > 0) {
+				console.log('Scripts generated successfully:', scriptData);
+				const updatedMessage = updateMessageWithScripts(finalMessage, scriptData);
+				return [...messages, updatedMessage];
+			} else {
+				console.log('No script data generated');
+			}
+		} catch (error) {
+			console.error('Error generating scripts for message:', error);
+		}
+	}
+
+	// Return the message without furigana if generation failed or not needed
+	return [...messages, finalMessage];
+}
+
+/**
+ * Replace user placeholder with final message including furigana generation
+ */
+export async function replaceUserPlaceholderWithFinalAndFurigana(
+	messages: Message[],
+	finalText: string,
+	sessionId: string
+): Promise<Message[]> {
+	const placeholderIndex = messages.findIndex(
+		(msg) =>
+			msg.role === 'user' &&
+			(msg.id.startsWith('user_placeholder_') ||
+				msg.id.startsWith('user_transcribing_') ||
+				msg.id.startsWith('user_partial_'))
+	);
+
+	if (placeholderIndex === -1) {
+		// No placeholder found, add new message with furigana
+		return await finalizeMessageWithFurigana(messages, finalText, sessionId, 'user');
+	}
+
+	// Create the final message
+	const finalMessage = createFinalUserMessage(finalText, sessionId);
+
+	// Check if the message needs script generation
+	if (needsScriptGeneration(finalMessage)) {
+		console.log('Generating scripts for user message:', finalText.substring(0, 50));
+		try {
+			const scriptData = await generateScriptsForMessage(finalMessage, true); // Use server
+			if (scriptData && Object.keys(scriptData).length > 0) {
+				console.log('Scripts generated successfully for user message:', scriptData);
+				const updatedMessage = updateMessageWithScripts(finalMessage, scriptData);
+				const updatedMessages = [...messages];
+				updatedMessages[placeholderIndex] = updatedMessage;
+				return updatedMessages;
+			} else {
+				console.log('No script data generated for user message');
+			}
+		} catch (error) {
+			console.error('Error generating scripts for user message:', error);
+		}
+	}
+
+	// Replace placeholder with final message
+	const updatedMessages = [...messages];
+	updatedMessages[placeholderIndex] = finalMessage;
+	return updatedMessages;
+}
+
+/**
+ * Finalize streaming message with furigana generation
+ */
+export async function finalizeStreamingMessageWithFurigana(
+	messages: Message[],
+	finalText: string
+): Promise<Message[]> {
+	const streamingMessageIndex = messages.findIndex(
+		(msg) => msg.role === 'assistant' && msg.id.startsWith('streaming_')
+	);
+
+	if (streamingMessageIndex === -1) {
+		// No streaming message found, create final message with furigana
+		return await finalizeMessageWithFurigana(
+			messages,
+			finalText,
+			messages[0]?.conversationId || '',
+			'assistant'
+		);
+	}
+
+	// Create the final message
+	const finalMessage = createFinalAssistantMessage(finalText, messages[0]?.conversationId || '');
+
+	// Check if the message needs script generation
+	if (needsScriptGeneration(finalMessage)) {
+		console.log('Generating scripts for assistant message:', finalText.substring(0, 50));
+		try {
+			const scriptData = await generateScriptsForMessage(finalMessage, true); // Use server
+			if (scriptData && Object.keys(scriptData).length > 0) {
+				console.log('Scripts generated successfully for assistant message:', scriptData);
+				const updatedMessage = updateMessageWithScripts(finalMessage, scriptData);
+				const updatedMessages = [...messages];
+				updatedMessages[streamingMessageIndex] = updatedMessage;
+				return updatedMessages;
+			} else {
+				console.log('No script data generated for assistant message');
+			}
+		} catch (error) {
+			console.error('Error generating scripts for assistant message:', error);
+		}
+	}
+
+	// Replace streaming message with final message
+	const updatedMessages = [...messages];
+	updatedMessages[streamingMessageIndex] = finalMessage;
+	return updatedMessages;
 }

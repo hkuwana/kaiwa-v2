@@ -190,7 +190,7 @@ Second attempt (helpful):
 - "One word at a time is fine!"
 
 Third attempt (code-switch):
-- "No worries! You can say it in ${nativeLang} if you want"
+- "No worries! You can say it in ${nativeLang ? nativeLang.name : 'English'} if you want"
 - "Let's try something easier - [switch topic]"
 
 ### NEVER
@@ -573,7 +573,7 @@ export function generateInitialInstructions(
 
 ## FIRST MEETING MAGIC
 
-### Step 1: Native Language Greeting (${user.nativeLanguageId || 'English'})
+### Step 1: Native Language Greeting (${language.name || 'English'})
 "${nativeGreeting.greeting}"
 Wait for response...
 

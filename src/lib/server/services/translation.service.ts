@@ -3,6 +3,7 @@
 
 import type { Message } from '$lib/server/db/types';
 import { env } from '$env/dynamic/private';
+import { capitalize } from '$lib/utils';
 // Note: Using dynamic imports due to mixed module systems (ES6/CommonJS)
 
 // Translation parameters interface
@@ -181,7 +182,7 @@ async function convertToRomaji(text: string): Promise<string> {
 		console.log('[TRANSLATION] Converting text to romaji...');
 		const result = await kuroshiro.convert(text, {
 			to: 'romaji',
-			mode: 'normal',
+			mode: 'spaced', // Use 'spaced' mode to add proper spacing between words
 			romajiSystem: 'hepburn'
 		});
 
@@ -216,7 +217,7 @@ async function processJapaneseText(text: string): Promise<{
 	// Convert to romaji (stored in romanization field)
 	const romaji = await convertToRomaji(text);
 	if (romaji) {
-		result.romanization = romaji;
+		result.romanization = capitalize(romaji);
 	}
 
 	// Convert to katakana (stored in otherScripts)
