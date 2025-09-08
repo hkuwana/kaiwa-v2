@@ -9,8 +9,7 @@
 // MIGRATION EXPORTS (Use these for new code)
 // ============================================
 export { realtimeCompatibilityService as modernRealtimeService } from './realtime-agents.service';
-export { startMigration as migrateToModernRealtime } from './migration-guide.example';
-
+ 
 import { browser } from '$app/environment';
 import { env } from '$env/dynamic/public';
 import {

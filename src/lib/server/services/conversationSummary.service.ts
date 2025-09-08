@@ -3,7 +3,7 @@
 import * as openaiService from './openai.service';
 import { conversationRepository } from '$lib/server/repositories/conversation.repository';
 import * as userPreferencesService from './userPreferences.service';
-import { getMaxMemories } from '$lib/data/tiers';
+import { getMaxMemories } from '$lib/server/tiers';
 import type { UserTier } from '$lib/server/db/types';
 
 export interface ConversationMemoriesOptions {

@@ -4,7 +4,7 @@ import { conversationSummaryService } from '$lib/server/services';
 import { createSuccessResponse, createErrorResponse } from '$lib/types/api';
 import { getUserFromSession } from '$lib/server/auth';
 import * as userService from '$lib/server/services/user.service';
-import { getMaxMemories } from '$lib/data/tiers';
+import { getMaxMemories } from '$lib/server/tiers';
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
 	try {
