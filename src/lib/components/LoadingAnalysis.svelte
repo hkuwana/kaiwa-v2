@@ -7,10 +7,10 @@
 		language: string;
 	}
 
-	let { messages, language }: Props = $props();
+	const { messages, language }: Props = $props();
 
 	// Filter out placeholder messages for display
-	let displayMessages = $derived(
+	const displayMessages = $derived(
 		messages.filter(
 			(message) =>
 				message.content &&

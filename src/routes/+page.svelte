@@ -32,7 +32,7 @@
 		variant6: 'Conversation AI that gets you.',
 		variant7: 'Practice real situations safely.',
 		variant8: 'Your Japanese survival trainer.',
-		variant9: 'AI partner for messy conversations.', 
+		variant9: 'AI partner for messy conversations.'
 	};
 
 	// Random headline selection - Don Draper's approach

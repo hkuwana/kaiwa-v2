@@ -32,9 +32,7 @@ export const defaultUserPreference: Omit<
 	conversationContext: null,
 	successfulExchanges: 0,
 	comfortZone: null,
-	memories: null
-	,
-
+	memories: null,
 	// Realtime audio interaction settings (client UX defaults)
 	audioSettings: {
 		mode: 'toggle', // default: click to toggle

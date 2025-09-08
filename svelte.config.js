@@ -1,5 +1,5 @@
 import { mdsvex } from 'mdsvex';
-import adapter from "@sveltejs/adapter-node";
+import adapter from '@sveltejs/adapter-node';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';

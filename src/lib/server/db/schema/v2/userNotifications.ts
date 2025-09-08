@@ -1,4 +1,4 @@
-import { pgTable, uuid, text,  timestamp, json, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, json, index } from 'drizzle-orm/pg-core';
 import { users } from '../users';
 
 // User notification and communication preferences

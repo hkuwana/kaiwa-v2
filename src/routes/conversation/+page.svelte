@@ -27,14 +27,14 @@
 	const { data } = $props();
 
 	// Reactive values from stores
-	let status = $derived(conversationStore.status);
-	let messages = $derived(conversationStore.messages);
-	let audioLevel = $derived(audioStore.getCurrentLevel());
-	let error = $derived(conversationStore.error);
-	let selectedLanguage = $derived(settingsStore.selectedLanguage);
-	let hasAnalysisResults = $derived(userPreferencesStore.hasCurrentAnalysisResults);
-	let isAnalyzing = $derived(userPreferencesStore.isCurrentlyAnalyzing);
-	let isGuestUser = $derived(data.isGuest);
+	const status = $derived(conversationStore.status);
+	const messages = $derived(conversationStore.messages);
+	const audioLevel = $derived(audioStore.getCurrentLevel());
+	const error = $derived(conversationStore.error);
+	const selectedLanguage = $derived(settingsStore.selectedLanguage);
+	const hasAnalysisResults = $derived(userPreferencesStore.hasCurrentAnalysisResults);
+	const isAnalyzing = $derived(userPreferencesStore.isCurrentlyAnalyzing);
+	const isGuestUser = $derived(data.isGuest);
 
 	// Connection state
 	let autoConnectAttempted = $state(false);
@@ -160,7 +160,7 @@
 			</div>
 		</div>
 	{/if}
-{:else if (status === 'connected' || status === 'streaming')}
+{:else if status === 'connected' || status === 'streaming'}
 	<ActiveConversationState
 		{status}
 		{messages}
@@ -179,9 +179,19 @@
 				<div class="space-y-3">
 					<!-- Audio interaction dev toggles are above; add a force-greet tester -->
 					<div class="flex flex-wrap items-center gap-2">
-						<button class="btn btn-sm btn-primary" onclick={() => conversationStore.forceGreet()}>Force Greet (audio+text)</button>
-						<button class="btn btn-sm" onclick={() => conversationStore.forceGreet({ audioOnly: true })}>Force Greet (audio only)</button>
-						<button class="btn btn-sm" onclick={() => conversationStore.forceGreet({ outOfBand: true })}>Force Greet OOB</button>
+						<button class="btn btn-sm btn-primary" onclick={() => conversationStore.forceGreet()}
+							>Force Greet (audio+text)</button
+						>
+						<button
+							class="btn btn-sm"
+							onclick={() => conversationStore.forceGreet({ audioOnly: true })}
+							>Force Greet (audio only)</button
+						>
+						<button
+							class="btn btn-sm"
+							onclick={() => conversationStore.forceGreet({ outOfBand: true })}
+							>Force Greet OOB</button
+						>
 					</div>
 					<!-- Audio Interaction Mode -->
 					<div class="flex flex-wrap items-center gap-3">
@@ -191,7 +201,10 @@
 						</div>
 						<button
 							class="btn btn-sm"
-							onclick={() => userPreferencesStore.setAudioMode(userPreferencesStore.getAudioMode() === 'toggle' ? 'push_to_talk' : 'toggle')}
+							onclick={() =>
+								userPreferencesStore.setAudioMode(
+									userPreferencesStore.getAudioMode() === 'toggle' ? 'push_to_talk' : 'toggle'
+								)}
 						>
 							Toggle Mode
 						</button>
@@ -202,12 +215,18 @@
 						</div>
 						<button
 							class="btn btn-sm"
-							onclick={() => userPreferencesStore.setPressBehavior(userPreferencesStore.getPressBehavior() === 'press_hold' ? 'tap_toggle' : 'press_hold')}
+							onclick={() =>
+								userPreferencesStore.setPressBehavior(
+									userPreferencesStore.getPressBehavior() === 'press_hold'
+										? 'tap_toggle'
+										: 'press_hold'
+								)}
 						>
 							Toggle Press
 						</button>
 						<p class="text-xs opacity-70">
-							Hands-free: leave mic open with VAD. Push-to-talk: gate the mic; release requests a response.
+							Hands-free: leave mic open with VAD. Push-to-talk: gate the mic; release requests a
+							response.
 						</p>
 					</div>
 					<div>

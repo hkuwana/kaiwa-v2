@@ -4,9 +4,9 @@
 
 import { RealtimeAgent, OpenAIRealtimeSession } from '../types/openai.realtime.types';
 import {
-    OpenAIRealtimeWebRTC,
-    RealtimeSession,
-    type RealtimeClientMessage
+	OpenAIRealtimeWebRTC,
+	RealtimeSession,
+	type RealtimeClientMessage
 } from '@openai/agents-realtime';
 import { env as publicEnv } from '$env/dynamic/public';
 import { createScenarioSessionConfig } from './instructions.service';
@@ -149,27 +149,27 @@ export type SessionConnection = {
 };
 
 export async function createConnectionWithSession(
-    sessionData: { client_secret: { value: string; expires_at: number } },
-    mediaStream?: MediaStream
+	sessionData: { client_secret: { value: string; expires_at: number } },
+	mediaStream?: MediaStream
 ): Promise<SessionConnection> {
 	const audioElement = document.createElement('audio');
 	audioElement.autoplay = true;
 	audioElement.style.display = 'none';
 	document.body.appendChild(audioElement);
 
-    const transport = new OpenAIRealtimeWebRTC({
+	const transport = new OpenAIRealtimeWebRTC({
 		// Use SDK default baseUrl: https://api.openai.com/v1/realtime/calls
-        audioElement,
-        mediaStream
-    });
+		audioElement,
+		mediaStream
+	});
 
 	const agent = new RealtimeAgent({ name: 'Kaiwa' });
 	const session = new RealtimeSession(agent, { transport });
 
-    await session.connect({
-        apiKey: sessionData.client_secret.value,
-        model: publicEnv.PUBLIC_OPEN_AI_MODEL || 'gpt-realtime'
-    });
+	await session.connect({
+		apiKey: sessionData.client_secret.value,
+		model: publicEnv.PUBLIC_OPEN_AI_MODEL || 'gpt-realtime'
+	});
 
 	return { session, transport, audioElement };
 }
@@ -194,13 +194,13 @@ export function subscribeToSession(
 }
 
 export function sendEventViaSession(conn: SessionConnection, event: RealtimeClientMessage) {
-    // Use the underlying transport to send a raw client event
-    conn.session.transport.sendEvent(event);
+	// Use the underlying transport to send a raw client event
+	conn.session.transport.sendEvent(event);
 }
 
 export function sendTextMessage(conn: SessionConnection, text: string) {
-    // High-level helper to send a user text message
-    conn.session.sendMessage(text);
+	// High-level helper to send a user text message
+	conn.session.sendMessage(text);
 }
 
 export function closeSessionConnection(conn: SessionConnection) {

@@ -9,9 +9,11 @@ This document provides a comprehensive overview of all database schemas in the K
 ### Core User Management
 
 #### `users`
+
 **Purpose**: Central user account management
+
 - **Primary Key**: `id` (UUID)
-- **Key Fields**: 
+- **Key Fields**:
   - `email` (unique identifier)
   - `googleId` (OAuth integration)
   - `displayName`, `username`, `avatarUrl`
@@ -20,7 +22,9 @@ This document provides a comprehensive overview of all database schemas in the K
 - **Usage**: Stores basic user information, authentication data, and billing references
 
 #### `userPreferences`
+
 **Purpose**: User learning preferences and skill tracking
+
 - **Primary Key**: `id` (UUID)
 - **Key Fields**:
   - `targetLanguageId` (language being learned)
@@ -32,7 +36,9 @@ This document provides a comprehensive overview of all database schemas in the K
 - **Usage**: Tracks user skill levels, learning preferences, and adaptive learning settings
 
 #### `session`
+
 **Purpose**: User authentication sessions
+
 - **Primary Key**: `id` (text)
 - **Key Fields**: `userId`, `expiresAt`
 - **Usage**: Manages user login sessions and authentication state
@@ -40,7 +46,9 @@ This document provides a comprehensive overview of all database schemas in the K
 ### Language & Content
 
 #### `languages`
+
 **Purpose**: Supported language definitions
+
 - **Primary Key**: `id` (text, e.g., 'ja')
 - **Key Fields**:
   - `code` (ISO 639-1, e.g., 'ja')
@@ -51,7 +59,9 @@ This document provides a comprehensive overview of all database schemas in the K
 - **Usage**: Defines available languages and their characteristics
 
 #### `speakers`
+
 **Purpose**: Voice/speaker definitions for text-to-speech
+
 - **Primary Key**: `id` (text, e.g., 'ja-jp-male')
 - **Key Fields**:
   - `languageId` (references languages)
@@ -63,7 +73,9 @@ This document provides a comprehensive overview of all database schemas in the K
 ### Conversations & Messages
 
 #### `conversations`
+
 **Purpose**: Core conversation sessions
+
 - **Primary Key**: `id` (text)
 - **Key Fields**:
   - `userId` (nullable for guest users)
@@ -75,7 +87,9 @@ This document provides a comprehensive overview of all database schemas in the K
 - **Usage**: Tracks conversation sessions, usage metrics, and user engagement
 
 #### `messages`
+
 **Purpose**: Individual messages within conversations
+
 - **Primary Key**: `id` (text)
 - **Key Fields**:
   - `conversationId`, `role` (assistant/user/system)
@@ -88,7 +102,9 @@ This document provides a comprehensive overview of all database schemas in the K
 ### Learning Scenarios
 
 #### `scenarios`
+
 **Purpose**: Learning scenario definitions
+
 - **Primary Key**: `id` (text)
 - **Key Fields**:
   - `category` (onboarding/comfort/basic/intermediate)
@@ -99,7 +115,9 @@ This document provides a comprehensive overview of all database schemas in the K
 - **Usage**: Defines structured learning scenarios for user onboarding and practice
 
 #### `scenarioAttempts`
+
 **Purpose**: Track multiple attempts at scenarios
+
 - **Primary Key**: `id` (UUID)
 - **Key Fields**:
   - `userId`, `scenarioId`
@@ -109,7 +127,9 @@ This document provides a comprehensive overview of all database schemas in the K
 - **Usage**: Tracks user progress through scenario attempts and learning analytics
 
 #### `scenarioOutcomes`
+
 **Purpose**: Detailed scenario completion results
+
 - **Primary Key**: `id` (UUID)
 - **Key Fields**:
   - `userId`, `conversationId`, `scenarioId`
@@ -122,7 +142,9 @@ This document provides a comprehensive overview of all database schemas in the K
 ### Billing & Subscriptions
 
 #### `tiers`
+
 **Purpose**: Subscription tier definitions and limits
+
 - **Primary Key**: `id` (text, e.g., 'free', 'plus', 'premium')
 - **Key Fields**:
   - `monthlyConversations`, `monthlySeconds`, `monthlyRealtimeSessions`
@@ -133,7 +155,9 @@ This document provides a comprehensive overview of all database schemas in the K
 - **Usage**: Defines subscription tiers, usage limits, and feature access
 
 #### `subscriptions`
+
 **Purpose**: Active user subscriptions
+
 - **Primary Key**: `id` (UUID)
 - **Key Fields**:
   - `userId`, `tierId`
@@ -144,7 +168,9 @@ This document provides a comprehensive overview of all database schemas in the K
 - **Usage**: Tracks active Stripe subscriptions and billing status
 
 #### `payments`
+
 **Purpose**: Payment transaction history
+
 - **Primary Key**: `id` (UUID)
 - **Key Fields**:
   - `userId`, `subscriptionId`
@@ -155,7 +181,9 @@ This document provides a comprehensive overview of all database schemas in the K
 ### Usage Tracking
 
 #### `userUsage`
+
 **Purpose**: Monthly usage tracking per user
+
 - **Primary Key**: Composite (`userId`, `period`)
 - **Key Fields**:
   - `period` (YYYY-MM format)
@@ -164,7 +192,9 @@ This document provides a comprehensive overview of all database schemas in the K
 - **Usage**: Tracks monthly usage against tier limits and manages session banking
 
 #### `conversationSessions`
+
 **Purpose**: Detailed conversation session analytics (DEPRECATED - moved to v2)
+
 - **Primary Key**: `id` (text)
 - **Key Fields**:
   - `userId`, `language`, `startTime`, `endTime`
@@ -175,7 +205,9 @@ This document provides a comprehensive overview of all database schemas in the K
 ### Analytics
 
 #### `analyticsEvents`
+
 **Purpose**: User behavior and conversion tracking
+
 - **Primary Key**: `id` (UUID)
 - **Key Fields**:
   - `userId` (nullable for anonymous events)
@@ -187,6 +219,7 @@ This document provides a comprehensive overview of all database schemas in the K
 ## 🔄 Schema Relationships
 
 ### Primary Relationships
+
 - `users` → `userPreferences` (1:1)
 - `users` → `conversations` (1:many)
 - `users` → `subscriptions` (1:many)
@@ -196,6 +229,7 @@ This document provides a comprehensive overview of all database schemas in the K
 - `tiers` → `subscriptions` (1:many)
 
 ### Key Design Patterns
+
 - **Guest Support**: Conversations can exist without users (guestId field)
 - **Multi-language**: Comprehensive script support (romanization, pinyin, hiragana, etc.)
 - **Flexible Analytics**: JSON fields for extensible event properties and analysis
@@ -205,6 +239,7 @@ This document provides a comprehensive overview of all database schemas in the K
 ## 📁 V2 Schemas (Future)
 
 Advanced schemas in `/v2` folder for future implementation:
+
 - `userLearningStats` - Detailed progress tracking
 - `vocabularyProgress` - Word mastery and spaced repetition
 - `userNotifications` - Complex notification system

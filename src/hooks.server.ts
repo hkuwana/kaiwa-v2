@@ -60,4 +60,3 @@ const userSetup: Handle = async ({ event, resolve }) => {
 
 // Sequence the handles in the correct order
 export const handle: Handle = sequence(handleParaglide, handleAuth, userSetup);
-

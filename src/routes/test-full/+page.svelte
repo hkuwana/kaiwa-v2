@@ -8,7 +8,7 @@
 	const store = getContext<ConversationStore>('conversation');
 
 	let messageInput = $state('');
-	let selectedLanguage = $state(languages.find(l => l.code === 'en')!);
+	let selectedLanguage = $state(languages.find((l) => l.code === 'en')!);
 	let selectedVoice = $state('alloy');
 
 	const voices = [

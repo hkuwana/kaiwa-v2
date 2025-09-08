@@ -12,12 +12,12 @@
 		onGoHome: () => void;
 	}
 
-	let { messages, language, onStartNewConversation, onAnalyzeConversation, onGoHome } = $props();
+	const { messages, language, onStartNewConversation, onAnalyzeConversation, onGoHome } = $props();
 
-	let audioLevel = $derived(audioStore.getCurrentLevel());
+	const audioLevel = $derived(audioStore.getCurrentLevel());
 
 	// Filter out placeholder messages for display
-	let displayMessages = $derived(
+	const displayMessages = $derived(
 		messages.filter(
 			(message: Message) =>
 				message.content &&
@@ -28,8 +28,8 @@
 	);
 
 	// Group messages by role for better organization
-	let userMessages = $derived(displayMessages.filter((m: Message) => m.role === 'user'));
-	let assistantMessages = $derived(displayMessages.filter((m: Message) => m.role === 'assistant'));
+	const userMessages = $derived(displayMessages.filter((m: Message) => m.role === 'user'));
+	const assistantMessages = $derived(displayMessages.filter((m: Message) => m.role === 'assistant'));
 </script>
 
 <div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">

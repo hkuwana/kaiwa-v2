@@ -4,7 +4,7 @@
 	import { goto } from '$app/navigation';
 
 	// Use $props to define the component's public API.
-	let {
+	const {
 		results,
 		isVisible,
 		isGuestUser = true,
@@ -199,7 +199,9 @@
 					<div class="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-4">
 						<div class="card border border-base-200">
 							<div class="card-body p-3 sm:p-4">
-								<div class="text-xs font-medium text-base-content/70 sm:text-sm">Challenge Level:</div>
+								<div class="text-xs font-medium text-base-content/70 sm:text-sm">
+									Challenge Level:
+								</div>
 								<div class="mt-1 text-xs font-medium capitalize sm:text-sm">
 									{results.challengePreference}
 								</div>

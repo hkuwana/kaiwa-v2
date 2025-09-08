@@ -4,7 +4,7 @@
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
 
-	let { data } = $props();
+	const { data } = $props();
 
 	let verificationCode = $state('');
 	let error = $state('');

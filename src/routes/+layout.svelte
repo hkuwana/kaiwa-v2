@@ -7,14 +7,14 @@
 
 	const conversationStore = new ConversationStore();
 
-	let { children, data } = $props();
+	const { children, data } = $props();
 
 	// Get conversation status to determine if we should hide navigation
-	let status = $derived(conversationStore.status);
-	let messages = $derived(conversationStore.messages);
+	const status = $derived(conversationStore.status);
+	const messages = $derived(conversationStore.messages);
 
 	// Hide navigation when in active conversation states
-	let shouldHideNavigation = $derived(
+	const shouldHideNavigation = $derived(
 		(status === 'connected' || status === 'streaming') && messages.length > 0
 	);
 

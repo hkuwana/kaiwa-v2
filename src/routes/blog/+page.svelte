@@ -22,25 +22,27 @@
 				<article class="blog-card">
 					<div class="blog-card-content">
 						<div class="blog-meta">
-							<time class="blog-date">{new Date(post.date).toLocaleDateString('en-US', { 
-								year: 'numeric', 
-								month: 'long', 
-								day: 'numeric' 
-							})}</time>
+							<time class="blog-date"
+								>{new Date(post.date).toLocaleDateString('en-US', {
+									year: 'numeric',
+									month: 'long',
+									day: 'numeric'
+								})}</time
+							>
 							<span class="blog-read-time">{post.readTime}</span>
 						</div>
-						
+
 						<h2 class="blog-title">
 							<a href={post.path}>{post.title}</a>
 						</h2>
-						
+
 						{#if post.excerpt}
 							<p class="blog-excerpt">{post.excerpt}</p>
 						{/if}
-						
+
 						<div class="blog-footer">
 							<div class="blog-author">By {post.author}</div>
-							
+
 							{#if post.tags.length > 0}
 								<div class="blog-tags">
 									{#each post.tags as tag}
@@ -49,10 +51,8 @@
 								</div>
 							{/if}
 						</div>
-						
-						<a href={post.path} class="blog-read-more">
-							Read more →
-						</a>
+
+						<a href={post.path} class="blog-read-more"> Read more → </a>
 					</div>
 				</article>
 			{/each}

@@ -10,7 +10,7 @@
 		onclick?: () => void;
 	}
 
-	let {
+	const {
 		isRecording = false,
 		isProcessing = false,
 		isSpeaking = false,

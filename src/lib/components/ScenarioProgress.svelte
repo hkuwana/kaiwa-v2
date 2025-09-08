@@ -4,7 +4,7 @@
 <script lang="ts">
 	import type { Scenario, ScenarioOutcome, ConversationState } from '$lib/types';
 
-	let { scenario, state, onUseHint, onUseTranslation, onViewExample } = $props<{
+	const { scenario, state, onUseHint, onUseTranslation, onViewExample } = $props<{
 		scenario: Scenario;
 		state: ConversationState;
 		onUseHint: (word: string) => void;
@@ -13,14 +13,14 @@
 	}>();
 
 	// Derived state
-	let scenarioSession = $derived(state.scenarioSession);
-	let goalProgress = $derived(scenarioSession?.goalProgress || 0);
-	let vocabularyProgress = $derived(scenarioSession?.vocabularyProgress || 0);
-	let grammarProgress = $derived(scenarioSession?.grammarProgress || 0);
-	let usedVocabulary = $derived(scenarioSession?.usedVocabulary || []);
-	let hintsUsed = $derived(scenarioSession?.hintsUsed || 0);
-	let translationsUsed = $derived(scenarioSession?.translationsUsed || 0);
-	let exampleResponsesViewed = $derived(scenarioSession?.exampleResponsesViewed || 0);
+	const scenarioSession = $derived(state.scenarioSession);
+	const goalProgress = $derived(scenarioSession?.goalProgress || 0);
+	const vocabularyProgress = $derived(scenarioSession?.vocabularyProgress || 0);
+	const grammarProgress = $derived(scenarioSession?.grammarProgress || 0);
+	const usedVocabulary = $derived(scenarioSession?.usedVocabulary || []);
+	const hintsUsed = $derived(scenarioSession?.hintsUsed || 0);
+	const translationsUsed = $derived(scenarioSession?.translationsUsed || 0);
+	const exampleResponsesViewed = $derived(scenarioSession?.exampleResponsesViewed || 0);
 
 	// Functions
 	function getProgressColor(progress: number): string {

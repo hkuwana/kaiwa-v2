@@ -27,12 +27,12 @@
 		<!-- Header with metadata -->
 		<header class="mb-12 border-b-2 border-base-300 pb-8">
 			<div class="mb-6">
-				<div class="flex flex-wrap items-center gap-4 text-sm text-base-content/60 mb-4">
+				<div class="mb-4 flex flex-wrap items-center gap-4 text-sm text-base-content/60">
 					<time class="font-medium">
-						{new Date(data.date).toLocaleDateString('en-US', { 
-							year: 'numeric', 
-							month: 'long', 
-							day: 'numeric' 
+						{new Date(data.date).toLocaleDateString('en-US', {
+							year: 'numeric',
+							month: 'long',
+							day: 'numeric'
 						})}
 					</time>
 					<span>•</span>
@@ -42,9 +42,9 @@
 						<span>By {data.author}</span>
 					{/if}
 				</div>
-				
+
 				{#if data.tags && data.tags.length > 0}
-					<div class="flex flex-wrap gap-2 mb-4">
+					<div class="mb-4 flex flex-wrap gap-2">
 						{#each data.tags as tag}
 							<span class="badge badge-outline badge-sm">{tag}</span>
 						{/each}
@@ -55,31 +55,29 @@
 			<h1 class="mb-4 text-4xl leading-tight font-bold text-base-content">{data.title}</h1>
 
 			{#if data.excerpt}
-				<p class="mb-6 text-xl leading-relaxed text-base-content/70 font-medium">{data.excerpt}</p>
+				<p class="mb-6 text-xl leading-relaxed font-medium text-base-content/70">{data.excerpt}</p>
 			{/if}
 		</header>
 
 		<!-- Markdown content with custom styling -->
-		<main class="prose prose-lg max-w-none mb-12">
+		<main class="prose-lg mb-12 prose max-w-none">
 			{@render data.content()}
 		</main>
 
 		<!-- Footer -->
 		<footer class="border-t border-base-300 pt-8">
-			<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-				<a href="/blog" class="btn btn-outline btn-sm gap-2">
-					← Back to Blog
-				</a>
-				
+			<div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+				<a href="/blog" class="btn gap-2 btn-outline btn-sm"> ← Back to Blog </a>
+
 				<div class="flex items-center gap-4 text-sm text-base-content/60">
 					{#if data.author}
 						<span>Written by {data.author}</span>
 					{/if}
 					<time>
-						{new Date(data.date).toLocaleDateString('en-US', { 
-							year: 'numeric', 
-							month: 'long', 
-							day: 'numeric' 
+						{new Date(data.date).toLocaleDateString('en-US', {
+							year: 'numeric',
+							month: 'long',
+							day: 'numeric'
 						})}
 					</time>
 				</div>

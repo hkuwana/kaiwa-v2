@@ -5,7 +5,7 @@
 		autoStart?: boolean;
 	}
 
-	let { language, voice, autoStart = false }: Props = $props();
+	const { language, voice, autoStart = false }: Props = $props();
 </script>
 
 <div class="p-8 text-center">

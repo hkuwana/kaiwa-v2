@@ -3,6 +3,7 @@
 ## Overview
 
 The Enhanced AudioVisualizer is a Svelte 5 component that provides:
+
 - **Smooth movement** during recording (up/down sine wave animation)
 - **Static display** when not recording
 - **Press-to-record** functionality
@@ -13,30 +14,35 @@ The Enhanced AudioVisualizer is a Svelte 5 component that provides:
 ## ✨ Key Features
 
 ### 🎬 Smooth Animation System
+
 - **During Recording**: Smooth up/down movement using sine wave animation
 - **When Idle**: Perfectly static display for clean appearance
 - **60fps Animation**: Uses `requestAnimationFrame` for smooth performance
 - **Hardware Acceleration**: CSS transforms for optimal performance
 
 ### 🎤 Press-to-Record
+
 - **Press & Hold**: Start recording by pressing and holding
 - **Release to Stop**: Stop recording by releasing
 - **Visual Feedback**: Immediate visual response to user interaction
 - **Accessibility**: Full keyboard and screen reader support
 
 ### ⌨️ Keyboard Controls
+
 - **Spacebar/Enter**: Press to start recording, release to stop
 - **Hands-free Operation**: Perfect for when you can't use mouse/touch
 - **Prevents Default**: Stops page scrolling when using spacebar
 - **Immediate Response**: No delay like mouse press-and-hold
 
 ### 🔌 OpenAI Realtime Ready
+
 - **Audio Capture**: Records high-quality WebM/Opus audio
 - **Blob Output**: Provides audio data ready for API transmission
 - **Callback System**: Hooks for integration with AI services
 - **Error Handling**: Comprehensive error management
 
 ### 🔗 Audio Service Integration
+
 - **Uses existing `audio.service.ts`**: Leverages your existing audio infrastructure
 - **Device management**: Automatic device selection and management
 - **Level monitoring**: Real-time audio level updates at 20fps
@@ -48,33 +54,33 @@ The Enhanced AudioVisualizer is a Svelte 5 component that provides:
 
 ```svelte
 <script>
-  import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
-  
-  let audioLevel = 0;
-  let isRecording = false;
-  let isListening = false;
-  
-  function handleRecordStart() {
-    console.log('Recording started');
-  }
-  
-  function handleRecordStop() {
-    console.log('Recording stopped');
-  }
-  
-  function handleRecordComplete(audioData) {
-    console.log('Audio recorded:', audioData.size, 'bytes');
-    // Send to OpenAI realtime API
-  }
+	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
+
+	let audioLevel = 0;
+	let isRecording = false;
+	let isListening = false;
+
+	function handleRecordStart() {
+		console.log('Recording started');
+	}
+
+	function handleRecordStop() {
+		console.log('Recording stopped');
+	}
+
+	function handleRecordComplete(audioData) {
+		console.log('Audio recorded:', audioData.size, 'bytes');
+		// Send to OpenAI realtime API
+	}
 </script>
 
 <AudioVisualizer
-  {audioLevel}
-  {isRecording}
-  {isListening}
-  onRecordStart={handleRecordStart}
-  onRecordStop={handleRecordStop}
-  onRecordComplete={handleRecordComplete}
+	{audioLevel}
+	{isRecording}
+	{isListening}
+	onRecordStart={handleRecordStart}
+	onRecordStop={handleRecordStop}
+	onRecordComplete={handleRecordComplete}
 />
 ```
 
@@ -82,66 +88,70 @@ The Enhanced AudioVisualizer is a Svelte 5 component that provides:
 
 ```svelte
 <script>
-  import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
-  import { audioService } from '$lib/services/audio.service';
-  
-  let audioLevel = 0;
-  let isRecording = false;
-  let isListening = false;
-  let selectedDeviceId = 'default';
-  
-  $effect(() => {
-    // Initialize audio service
-    audioService.initialize();
-    
-    // Set up audio level monitoring
-    audioService.onLevelUpdate((level) => {
-      audioLevel = level.level;
-    });
-  });
+	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
+	import { audioService } from '$lib/services/audio.service';
+
+	let audioLevel = 0;
+	let isRecording = false;
+	let isListening = false;
+	let selectedDeviceId = 'default';
+
+	$effect(() => {
+		// Initialize audio service
+		audioService.initialize();
+
+		// Set up audio level monitoring
+		audioService.onLevelUpdate((level) => {
+			audioLevel = level.level;
+		});
+	});
 </script>
 
 <AudioVisualizer
-  {audioLevel}
-  {isRecording}
-  {isListening}
-  deviceId={selectedDeviceId}
-  onRecordStart={handleRecordStart}
-  onRecordStop={handleRecordStop}
-  onRecordComplete={handleRecordComplete}
+	{audioLevel}
+	{isRecording}
+	{isListening}
+	deviceId={selectedDeviceId}
+	onRecordStart={handleRecordStart}
+	onRecordStop={handleRecordStop}
+	onRecordComplete={handleRecordComplete}
 />
 ```
 
 ## 📋 Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `audioLevel` | `number` | `0` | Audio level (0-1) for visualization |
-| `isRecording` | `boolean` | `false` | Whether currently recording |
-| `isListening` | `boolean` | `false` | Whether AI is processing |
-| `onRecordStart` | `() => void` | `() => {}` | Called when recording starts |
-| `onRecordStop` | `() => void` | `() => {}` | Called when recording stops |
-| `onRecordComplete` | `(Blob) => void` | `() => {}` | Called with audio data when complete |
-| `deviceId` | `string` | `undefined` | Specific audio device to use (optional) |
+| Prop               | Type             | Default     | Description                             |
+| ------------------ | ---------------- | ----------- | --------------------------------------- |
+| `audioLevel`       | `number`         | `0`         | Audio level (0-1) for visualization     |
+| `isRecording`      | `boolean`        | `false`     | Whether currently recording             |
+| `isListening`      | `boolean`        | `false`     | Whether AI is processing                |
+| `onRecordStart`    | `() => void`     | `() => {}`  | Called when recording starts            |
+| `onRecordStop`     | `() => void`     | `() => {}`  | Called when recording stops             |
+| `onRecordComplete` | `(Blob) => void` | `() => {}`  | Called with audio data when complete    |
+| `deviceId`         | `string`         | `undefined` | Specific audio device to use (optional) |
 
 ## 🎯 Event Flow
 
 ### 1. User Presses and Holds
+
 ```
 User Action → handlePointerDown → startRecording → onRecordStart
 ```
 
 ### 2. Recording in Progress
+
 ```
 Recording Active → Audio Level Updates → Smooth Animation → Real-time Visualization
 ```
 
 ### 3. User Releases
+
 ```
 User Release → handlePointerUp → stopRecording → onRecordStop
 ```
 
 ### 4. Processing Complete
+
 ```
 Recording Complete → Audio Blob Created → onRecordComplete → OpenAI Integration
 ```
@@ -160,8 +170,8 @@ await audioService.initialize();
 
 // Set up audio level monitoring
 audioService.onLevelUpdate((level) => {
-  // The AudioVisualizer will automatically use this level
-  console.log('Audio level:', level.level);
+	// The AudioVisualizer will automatically use this level
+	console.log('Audio level:', level.level);
 });
 
 // Get available devices
@@ -185,19 +195,19 @@ The component is designed to work seamlessly with OpenAI's realtime API:
 
 ```typescript
 async function sendToOpenAI(audioBlob: Blob) {
-  // Convert to OpenAI format if needed
-  const formData = new FormData();
-  formData.append('audio', audioBlob);
-  
-  // Send to OpenAI
-  const response = await fetch('/api/openai/realtime', {
-    method: 'POST',
-    body: formData
-  });
-  
-  // Handle response
-  const result = await response.json();
-  // Process AI response...
+	// Convert to OpenAI format if needed
+	const formData = new FormData();
+	formData.append('audio', audioBlob);
+
+	// Send to OpenAI
+	const response = await fetch('/api/openai/realtime', {
+		method: 'POST',
+		body: formData
+	});
+
+	// Handle response
+	const result = await response.json();
+	// Process AI response...
 }
 ```
 
@@ -228,8 +238,9 @@ The component uses Tailwind CSS classes that can be customized:
 The component is responsive and can be scaled using CSS transforms:
 
 ```svelte
-<div class="scale-75"> <!-- 75% size -->
-  <AudioVisualizer />
+<div class="scale-75">
+	<!-- 75% size -->
+	<AudioVisualizer />
 </div>
 ```
 
@@ -238,6 +249,7 @@ The component is responsive and can be scaled using CSS transforms:
 ### Demo Page
 
 Visit `/dev-audiovisualizer` to see the component in action with:
+
 - Real-time recording
 - Audio playback
 - Device selection
@@ -251,20 +263,20 @@ import { render } from '@testing-library/svelte';
 import AudioVisualizer from './AudioVisualizer.svelte';
 
 describe('AudioVisualizer', () => {
-  it('should render correctly', () => {
-    const { getByRole } = render(AudioVisualizer);
-    expect(getByRole('button')).toBeInTheDocument();
-  });
-  
-  it('should handle recording start', async () => {
-    const mockOnRecordStart = jest.fn();
-    const { getByRole } = render(AudioVisualizer, {
-      props: { onRecordStart: mockOnRecordStart }
-    });
-    
-    // Test recording functionality
-    // ... implementation details
-  });
+	it('should render correctly', () => {
+		const { getByRole } = render(AudioVisualizer);
+		expect(getByRole('button')).toBeInTheDocument();
+	});
+
+	it('should handle recording start', async () => {
+		const mockOnRecordStart = jest.fn();
+		const { getByRole } = render(AudioVisualizer, {
+			props: { onRecordStart: mockOnRecordStart }
+		});
+
+		// Test recording functionality
+		// ... implementation details
+	});
 });
 ```
 

@@ -152,7 +152,6 @@ export class MessagesRepository {
 			.orderBy(desc(messages.timestamp))
 			.limit(limit);
 	}
-
 }
 
 // Export singleton instance

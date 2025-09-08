@@ -74,16 +74,24 @@ export const userPreferences = pgTable(
 
 		// Analytics and progress tracking
 		recentSessionScores: jsonb('recent_session_scores').$type<number[]>().default([]), // Last 10 session performance scores
-		skillLevelHistory: jsonb('skill_level_history').$type<Array<{date: string; speaking?: number; listening?: number; reading?: number; writing?: number}>>().default([]), // Last 30 skill level entries
+		skillLevelHistory: jsonb('skill_level_history')
+			.$type<
+				Array<{
+					date: string;
+					speaking?: number;
+					listening?: number;
+					reading?: number;
+					writing?: number;
+				}>
+			>()
+			.default([]), // Last 30 skill level entries
 
 		// Metadata
 		createdAt: timestamp('created_at').defaultNow().notNull(),
 		updatedAt: timestamp('updated_at')
 			.defaultNow()
 			.$onUpdate(() => new Date()) // Automatically update on change
-			.notNull()
-		,
-
+			.notNull(),
 		// Realtime audio interaction settings (client UX preferences)
 		audioSettings: jsonb('audio_settings').$type<{
 			mode?: 'toggle' | 'push_to_talk';

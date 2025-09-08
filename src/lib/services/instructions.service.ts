@@ -121,21 +121,21 @@ class ModuleComposer {
 
 // === Utility: default voice & greeting generator (public helpers) ===
 export function getDefaultVoice(): Voice {
-  return DEFAULT_VOICE;
+	return DEFAULT_VOICE;
 }
 
 export function generateScenarioGreeting(opts: {
-  language?: Language | null;
-  scenario?: Scenario | null;
-  user?: User | null;
+	language?: Language | null;
+	scenario?: Scenario | null;
+	user?: User | null;
 }): string {
-  const languageName = opts.language?.name || 'your target language';
-  const who = opts.user?.displayName ? opts.user.displayName : '';
-  const scenarioTitle = (opts.scenario as any)?.short || opts.scenario?.title || '';
-  if (scenarioTitle) {
-    return `Start with a warm one‑sentence greeting in ${languageName}${who ? ` for ${who}` : ''}. Mention "${scenarioTitle}" and ask exactly one short question to begin.`;
-  }
-  return `Start with a warm one‑sentence greeting in ${languageName}${who ? ` for ${who}` : ''}. Ask exactly one short question to begin.`;
+	const languageName = opts.language?.name || 'your target language';
+	const who = opts.user?.displayName ? opts.user.displayName : '';
+	const scenarioTitle = (opts.scenario as any)?.short || opts.scenario?.title || '';
+	if (scenarioTitle) {
+		return `Start with a warm one‑sentence greeting in ${languageName}${who ? ` for ${who}` : ''}. Mention "${scenarioTitle}" and ask exactly one short question to begin.`;
+	}
+	return `Start with a warm one‑sentence greeting in ${languageName}${who ? ` for ${who}` : ''}. Ask exactly one short question to begin.`;
 }
 
 // ============================================
@@ -676,39 +676,48 @@ Keep under 15 seconds total.`;
 function getNativeGreeting(langCode: string): { greeting: string; confirmation: string } {
 	const greetings: Record<string, { greeting: string; confirmation: string }> = {
 		en: {
-			greeting: "So glad we're meeting! Since this seems like our first time talking, I'm really curious - what's your main objective with this language?",
+			greeting:
+				"So glad we're meeting! Since this seems like our first time talking, I'm really curious - what's your main objective with this language?",
 			confirmation: 'Can you hear me okay?'
 		},
 		es: {
-			greeting: '¡Qué alegría conocerte! Como parece ser nuestra primera conversación, tengo mucha curiosidad - ¿cuál es tu objetivo principal con este idioma?',
+			greeting:
+				'¡Qué alegría conocerte! Como parece ser nuestra primera conversación, tengo mucha curiosidad - ¿cuál es tu objetivo principal con este idioma?',
 			confirmation: '¿Me escuchas bien?'
 		},
 		fr: {
-			greeting: "Je suis si content de te rencontrer! Puisque c'est apparemment notre première conversation, j'aimerais savoir - quel est ton objectif principal avec cette langue?",
+			greeting:
+				"Je suis si content de te rencontrer! Puisque c'est apparemment notre première conversation, j'aimerais savoir - quel est ton objectif principal avec cette langue?",
 			confirmation: "Tu m'entends bien?"
 		},
 		de: {
-			greeting: 'Ich freue mich so, dich kennenzulernen! Da das unser erstes Gespräch zu sein scheint, bin ich neugierig - was ist dein Hauptziel mit dieser Sprache?',
+			greeting:
+				'Ich freue mich so, dich kennenzulernen! Da das unser erstes Gespräch zu sein scheint, bin ich neugierig - was ist dein Hauptziel mit dieser Sprache?',
 			confirmation: 'Hörst du mich gut?'
 		},
 		it: {
-			greeting: 'Che piacere conoscerti! Dato che sembra la nostra prima conversazione, sono curioso - qual è il tuo obiettivo principale con questa lingua?',
+			greeting:
+				'Che piacere conoscerti! Dato che sembra la nostra prima conversazione, sono curioso - qual è il tuo obiettivo principale con questa lingua?',
 			confirmation: 'Mi senti bene?'
 		},
 		pt: {
-			greeting: 'Que alegria te conhecer! Como parece ser nossa primeira conversa, estou curioso - qual é seu objetivo principal com este idioma?',
+			greeting:
+				'Que alegria te conhecer! Como parece ser nossa primeira conversa, estou curioso - qual é seu objetivo principal com este idioma?',
 			confirmation: 'Está me ouvindo bem?'
 		},
 		ja: {
-			greeting: 'お会いできてとても嬉しいです！初めての会話のようですが、この言語での主な目標は何ですか？',
+			greeting:
+				'お会いできてとても嬉しいです！初めての会話のようですが、この言語での主な目標は何ですか？',
 			confirmation: 'よく聞こえますか？'
 		},
 		ko: {
-			greeting: '만나게 되어서 정말 기뻐요! 첫 대화인 것 같은데, 이 언어를 배우는 주된 목표가 무엇인지 궁금해요?',
+			greeting:
+				'만나게 되어서 정말 기뻐요! 첫 대화인 것 같은데, 이 언어를 배우는 주된 목표가 무엇인지 궁금해요?',
 			confirmation: '잘 들리나요?'
 		},
 		zh: {
-			greeting: '很高兴认识你！既然这似乎是我们第一次交谈，我很好奇 - 你学习这门语言的主要目标是什么？',
+			greeting:
+				'很高兴认识你！既然这似乎是我们第一次交谈，我很好奇 - 你学习这门语言的主要目标是什么？',
 			confirmation: '听得清楚吗？'
 		}
 	};
@@ -991,7 +1000,7 @@ function getBaseInstructions(
 ): string {
 	const baseModules = [
 		'personality-adaptive',
-		'audio-handling-enhanced', 
+		'audio-handling-enhanced',
 		'language-control',
 		'speaking-dynamics',
 		'safety-boundaries',
@@ -1009,16 +1018,16 @@ function getBaseInstructions(
 function getSimpleQuestion(languageName: string): string {
 	const questions = {
 		Japanese: "こんにちは！お名前は何ですか？ (Hello! What's your name?)",
-		Spanish: "¡Hola! ¿Cómo estás? (Hello! How are you?)",
-		French: "Salut! Comment allez-vous? (Hello! How are you?)",
+		Spanish: '¡Hola! ¿Cómo estás? (Hello! How are you?)',
+		French: 'Salut! Comment allez-vous? (Hello! How are you?)',
 		German: "Hallo! Wie heißen Sie? (Hello! What's your name?)",
-		Italian: "Ciao! Come stai? (Hello! How are you?)",
-		Portuguese: "Olá! Como está? (Hello! How are you?)",
+		Italian: 'Ciao! Come stai? (Hello! How are you?)',
+		Portuguese: 'Olá! Como está? (Hello! How are you?)',
 		Korean: "안녕하세요! 이름이 뭐예요? (Hello! What's your name?)",
 		Chinese: "你好！你叫什么名字？ (Hello! What's your name?)"
 	};
 
-	return questions[languageName as keyof typeof questions] || "Hello! How are you today?";
+	return questions[languageName as keyof typeof questions] || 'Hello! How are you today?';
 }
 
 /**
@@ -1042,38 +1051,44 @@ Adjust conversation flow based on current phase and user performance.`;
 	switch (scenario.category) {
 		case 'onboarding':
 			return `## ONBOARDING UPDATE - ${phase.toUpperCase()}
-${phase === 'main_activity' ? 
-	`Focus on building confidence. ${userPerformance === 'struggling' ? 
-		'Simplify immediately and give easy wins.' : 
-		'Gradually increase engagement and introduce more vocabulary.'}` :
-	phase === 'wrapping_up' ?
-		'End with enthusiasm and plant seeds for next conversation.' :
-		'Continue establishing comfort and assessing their natural level.'
+${
+	phase === 'main_activity'
+		? `Focus on building confidence. ${
+				userPerformance === 'struggling'
+					? 'Simplify immediately and give easy wins.'
+					: 'Gradually increase engagement and introduce more vocabulary.'
+			}`
+		: phase === 'wrapping_up'
+			? 'End with enthusiasm and plant seeds for next conversation.'
+			: 'Continue establishing comfort and assessing their natural level.'
 }`;
 
 		case 'comfort':
 			return `## COMFORT UPDATE - ${phase.toUpperCase()}
-${userPerformance === 'struggling' ? 
-	'Provide extra support and encouragement. Switch to even easier topics.' :
-	userPerformance === 'excelling' ? 
-		'Keep building confidence. Gradually introduce slightly more complexity.' :
-		'Maintain supportive atmosphere and celebrate progress.'
+${
+	userPerformance === 'struggling'
+		? 'Provide extra support and encouragement. Switch to even easier topics.'
+		: userPerformance === 'excelling'
+			? 'Keep building confidence. Gradually introduce slightly more complexity.'
+			: 'Maintain supportive atmosphere and celebrate progress.'
 }`;
 
 		case 'basic':
 			return `## BASIC UPDATE - ${phase.toUpperCase()}
-${userPerformance === 'struggling' ? 
-	'Focus on most essential vocabulary only. Use lots of repetition.' :
-	'Continue with fundamental practice. Build solid foundation.'
+${
+	userPerformance === 'struggling'
+		? 'Focus on most essential vocabulary only. Use lots of repetition.'
+		: 'Continue with fundamental practice. Build solid foundation.'
 }`;
 
 		case 'intermediate':
 			return `## INTERMEDIATE UPDATE - ${phase.toUpperCase()}
-${userPerformance === 'struggling' ? 
-	'Reduce complexity slightly but maintain interesting topics.' :
-	userPerformance === 'excelling' ?
-		'Introduce more advanced structures and cultural elements.' :
-		'Continue current level with varied topics.'
+${
+	userPerformance === 'struggling'
+		? 'Reduce complexity slightly but maintain interesting topics.'
+		: userPerformance === 'excelling'
+			? 'Introduce more advanced structures and cultural elements.'
+			: 'Continue current level with varied topics.'
 }`;
 
 		default:
@@ -1107,17 +1122,19 @@ export function generateQuickAdjustment(
 	switch (trigger) {
 		case 'struggling':
 			return `## IMMEDIATE SUPPORT NEEDED
-${context?.attemptCount === 1 ? 
-`- Slow down by 30%
+${
+	context?.attemptCount === 1
+		? `- Slow down by 30%
 - "Let me help you with that"
-- Repeat their attempt back slowly` :
-context?.attemptCount === 2 ?
-`- "That's tricky! Let's break it down"
+- Repeat their attempt back slowly`
+		: context?.attemptCount === 2
+			? `- "That's tricky! Let's break it down"
 - Give ONE simple word only
-- Wait for their success` :
-`- Code-switch: "In ${nativeLang?.name || 'English'}, that means..."
+- Wait for their success`
+			: `- Code-switch: "In ${nativeLang?.name || 'English'}, that means..."
 - Move to much easier topic
-- Give guaranteed win within 10 seconds`}
+- Give guaranteed win within 10 seconds`
+}
 
 VOICE TONE: Extra patient, warm, encouraging`;
 
@@ -1132,14 +1149,16 @@ VOICE TONE: Excited, challenging but supportive`;
 
 		case 'unclear_audio':
 			return `## AUDIO CLARIFICATION
-${context?.attemptCount === 1 ?
-`- "Sorry, I didn't quite catch that"
-- Keep tone light and blame the audio, not them` :
-context?.attemptCount === 2 ?
-`- "Try speaking a bit slower for me"  
-- "The audio can be tricky sometimes"` :
-`- "Feel free to type it if that's easier"
-- "Or say it in ${nativeLang?.name || 'English'} and I'll help with ${language.name}"`}
+${
+	context?.attemptCount === 1
+		? `- "Sorry, I didn't quite catch that"
+- Keep tone light and blame the audio, not them`
+		: context?.attemptCount === 2
+			? `- "Try speaking a bit slower for me"  
+- "The audio can be tricky sometimes"`
+			: `- "Feel free to type it if that's easier"
+- "Or say it in ${nativeLang?.name || 'English'} and I'll help with ${language.name}"`
+}
 
 VOICE TONE: Understanding, not frustrated`;
 
@@ -1178,17 +1197,20 @@ export function getTransitionPhrase(
 	language: Language,
 	confidenceLevel: number = 50
 ): string {
-	const transitions = confidenceLevel > 60 ? [
-		`Speaking of ${fromTopic}, ${toTopic} is really interesting too...`,
-		`That reminds me about ${toTopic}...`,
-		`Actually, ${toTopic} connects to what you just said...`,
-		`Oh, and here's something cool about ${toTopic}...`
-	] : [
-		`Let's try talking about ${toTopic}`,
-		`How about we practice with ${toTopic}?`,
-		`${toTopic} might be easier to talk about`,
-		`Let's switch to ${toTopic} for a moment`
-	];
+	const transitions =
+		confidenceLevel > 60
+			? [
+					`Speaking of ${fromTopic}, ${toTopic} is really interesting too...`,
+					`That reminds me about ${toTopic}...`,
+					`Actually, ${toTopic} connects to what you just said...`,
+					`Oh, and here's something cool about ${toTopic}...`
+				]
+			: [
+					`Let's try talking about ${toTopic}`,
+					`How about we practice with ${toTopic}?`,
+					`${toTopic} might be easier to talk about`,
+					`Let's switch to ${toTopic} for a moment`
+				];
 
 	return transitions[Math.floor(Math.random() * transitions.length)];
 }
@@ -1198,13 +1220,22 @@ export function getTransitionPhrase(
  */
 export function getEncouragementPhrase(usedPhrases: Set<string> = new Set()): string {
 	const allPhrases = [
-		"Perfect!", "Exactly right!", "You've got it!", "Beautiful pronunciation!",
-		"That's exactly how natives say it!", "Wonderful!", "You're getting this!",
-		"Spot on!", "Excellent!", "Fantastic!", "Really good!", "Nice work!"
+		'Perfect!',
+		'Exactly right!',
+		"You've got it!",
+		'Beautiful pronunciation!',
+		"That's exactly how natives say it!",
+		'Wonderful!',
+		"You're getting this!",
+		'Spot on!',
+		'Excellent!',
+		'Fantastic!',
+		'Really good!',
+		'Nice work!'
 	];
 
-	const availablePhrases = allPhrases.filter(phrase => !usedPhrases.has(phrase));
-	
+	const availablePhrases = allPhrases.filter((phrase) => !usedPhrases.has(phrase));
+
 	if (availablePhrases.length === 0) {
 		usedPhrases.clear(); // Reset if all used
 		return allPhrases[Math.floor(Math.random() * allPhrases.length)];

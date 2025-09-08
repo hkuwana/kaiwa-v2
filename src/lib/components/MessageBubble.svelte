@@ -56,7 +56,7 @@
 	// Translation state
 	let isHovered = $state(false);
 	let swipeTriggeredShow = $state(false);
-	let translationLoading = $derived(translationStore.isTranslating(message.id));
+	const translationLoading = $derived(translationStore.isTranslating(message.id));
 	let showTranslation = $derived(
 		isHovered ||
 			swipeTriggeredShow ||

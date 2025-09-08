@@ -10,28 +10,28 @@ export interface EventHandlerCallbacks {
 }
 
 export function handleDataChannelMessage(
-    event: MessageEvent,
-    callbacks: EventHandlerCallbacks
+	event: MessageEvent,
+	callbacks: EventHandlerCallbacks
 ): void {
-    try {
-        const serverEvent: ServerEvent = JSON.parse(event.data);
+	try {
+		const serverEvent: ServerEvent = JSON.parse(event.data);
 
-        if (serverEvent.type === 'error') {
-            console.error('Realtime server error event:', serverEvent);
-        }
+		if (serverEvent.type === 'error') {
+			console.error('Realtime server error event:', serverEvent);
+		}
 
-        if (serverEvent.type === 'input_audio_buffer.speech_started') {
-            callbacks.onUserSpeechStarted();
-        } else if (serverEvent.type === 'input_audio_buffer.speech_stopped') {
-            callbacks.onUserSpeechStopped();
-        } else if (serverEvent.type === 'session.created') {
-            callbacks.onSessionCreated();
-        } else {
-            callbacks.onOtherEvent(serverEvent);
-        }
-    } catch (error) {
-        callbacks.onError('Failed to process server message');
-    }
+		if (serverEvent.type === 'input_audio_buffer.speech_started') {
+			callbacks.onUserSpeechStarted();
+		} else if (serverEvent.type === 'input_audio_buffer.speech_stopped') {
+			callbacks.onUserSpeechStopped();
+		} else if (serverEvent.type === 'session.created') {
+			callbacks.onSessionCreated();
+		} else {
+			callbacks.onOtherEvent(serverEvent);
+		}
+	} catch (error) {
+		callbacks.onError('Failed to process server message');
+	}
 }
 
 export function setupDataChannelErrorHandlers(

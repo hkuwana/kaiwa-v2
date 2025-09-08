@@ -19,7 +19,7 @@
 		onStartClick?: () => void;
 	}
 
-	let {
+	const {
 		user,
 		selectedLanguage = null,
 		selectedSpeaker = null,

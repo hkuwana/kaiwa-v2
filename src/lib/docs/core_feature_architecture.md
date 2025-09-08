@@ -60,34 +60,36 @@ Handles all audio-related functionality:
 ```typescript
 // src/lib/services/audio.service.ts
 export class AudioService {
-  // Get audio stream from user's microphone
-  async getStream(deviceId?: string): Promise<MediaStream> {
-    const constraints: MediaStreamConstraints = {
-      audio: deviceId ? { deviceId: { exact: deviceId } } : {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true
-      }
-    };
-    
-    return await navigator.mediaDevices.getUserMedia(constraints);
-  }
+	// Get audio stream from user's microphone
+	async getStream(deviceId?: string): Promise<MediaStream> {
+		const constraints: MediaStreamConstraints = {
+			audio: deviceId
+				? { deviceId: { exact: deviceId } }
+				: {
+						echoCancellation: true,
+						noiseSuppression: true,
+						autoGainControl: true
+					}
+		};
 
-  // Get available audio devices
-  async getAvailableDevices(): Promise<MediaDeviceInfo[]> {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    return devices.filter(device => device.kind === 'audioinput');
-  }
+		return await navigator.mediaDevices.getUserMedia(constraints);
+	}
 
-  // Monitor audio levels
-  onLevelUpdate(callback: (level: AudioLevel) => void): void {
-    // Implementation for audio level monitoring
-  }
+	// Get available audio devices
+	async getAvailableDevices(): Promise<MediaDeviceInfo[]> {
+		const devices = await navigator.mediaDevices.enumerateDevices();
+		return devices.filter((device) => device.kind === 'audioinput');
+	}
 
-  // Clean up resources
-  cleanup(): void {
-    // Stop tracks, close contexts, etc.
-  }
+	// Monitor audio levels
+	onLevelUpdate(callback: (level: AudioLevel) => void): void {
+		// Implementation for audio level monitoring
+	}
+
+	// Clean up resources
+	cleanup(): void {
+		// Stop tracks, close contexts, etc.
+	}
 }
 ```
 
@@ -98,37 +100,36 @@ Manages WebRTC connections and OpenAI API integration:
 ```typescript
 // src/lib/services/realtime.service.ts
 export class RealtimeService {
-  // Connect to OpenAI's realtime API
-  async connectWithSession(
-    sessionData: RealtimeSession,
-    stream: MediaStream,
-    onMessage: (message: Message) => void,
-    onConnectionStateChange: (state: RTCPeerConnectionState) => void
-  ): Promise<void> {
-    // 1. Set up WebRTC peer connection
-    // 2. Add audio tracks from stream
-    // 3. Create data channel for events
-    // 4. Connect to OpenAI API
-    // 5. Handle real-time communication
-  }
+	// Connect to OpenAI's realtime API
+	async connectWithSession(
+		sessionData: RealtimeSession,
+		stream: MediaStream,
+		onMessage: (message: Message) => void,
+		onConnectionStateChange: (state: RTCPeerConnectionState) => void
+	): Promise<void> {
+		// 1. Set up WebRTC peer connection
+		// 2. Add audio tracks from stream
+		// 3. Create data channel for events
+		// 4. Connect to OpenAI API
+		// 5. Handle real-time communication
+	}
 
-  // Send events to OpenAI
-  sendEvent(event: Record<string, unknown>): void {
-    if (this.dataChannel?.readyState === 'open') {
-      this.dataChannel.send(JSON.stringify(event));
-    }
-  }
+	// Send events to OpenAI
+	sendEvent(event: Record<string, unknown>): void {
+		if (this.dataChannel?.readyState === 'open') {
+			this.dataChannel.send(JSON.stringify(event));
+		}
+	}
 
-  // Check connection status
-  isConnected(): boolean {
-    return this.pc?.connectionState === 'connected' && 
-           this.dataChannel?.readyState === 'open';
-  }
+	// Check connection status
+	isConnected(): boolean {
+		return this.pc?.connectionState === 'connected' && this.dataChannel?.readyState === 'open';
+	}
 
-  // Clean up connection
-  disconnect(): void {
-    // Close WebRTC connection, data channel, etc.
-  }
+	// Clean up connection
+	disconnect(): void {
+		// Close WebRTC connection, data channel, etc.
+	}
 }
 ```
 
@@ -139,20 +140,20 @@ Tracks user events and metrics:
 ```typescript
 // src/lib/services/analytics.service.ts
 export class AnalyticsService {
-  // Initialize analytics
-  async init(): Promise<void> {
-    // Set up PostHog or other analytics provider
-  }
+	// Initialize analytics
+	async init(): Promise<void> {
+		// Set up PostHog or other analytics provider
+	}
 
-  // Track user events
-  track(eventName: string, properties?: Record<string, unknown>): void {
-    // Send event to analytics provider
-  }
+	// Track user events
+	track(eventName: string, properties?: Record<string, unknown>): void {
+		// Send event to analytics provider
+	}
 
-  // Identify user
-  identify(userId: string, properties?: Record<string, unknown>): void {
-    // Set user properties in analytics
-  }
+	// Identify user
+	identify(userId: string, properties?: Record<string, unknown>): void {
+		// Set user properties in analytics
+	}
 }
 ```
 
@@ -171,105 +172,105 @@ Orchestrates the conversation experience:
 ```typescript
 // src/lib/stores/conversation.store.svelte.ts
 export class ConversationStore {
-  // Inject services (not other stores)
-  constructor(
-    private realtimeService: RealtimeService,
-    private audioService: AudioService
-  ) {
-    // Initialize audio service
-    this.audioService.initialize();
-    this.audioService.getAvailableDevices().then(devices => {
-      this.availableDevices = devices;
-    });
-  }
+	// Inject services (not other stores)
+	constructor(
+		private realtimeService: RealtimeService,
+		private audioService: AudioService
+	) {
+		// Initialize audio service
+		this.audioService.initialize();
+		this.audioService.getAvailableDevices().then((devices) => {
+			this.availableDevices = devices;
+		});
+	}
 
-  // Reactive state using Svelte 5 runes
-  status = $state<'idle' | 'connecting' | 'connected' | 'streaming' | 'error'>('idle');
-  messages = $state<Message[]>([]);
-  error = $state<string | null>(null);
-  audioLevel = $state<number>(0);
+	// Reactive state using Svelte 5 runes
+	status = $state<'idle' | 'connecting' | 'connected' | 'streaming' | 'error'>('idle');
+	messages = $state<Message[]>([]);
+	error = $state<string | null>(null);
+	audioLevel = $state<number>(0);
 
-  // Main action: Start a conversation
-  startConversation = async (language?: string, speaker?: Speaker) => {
-    if (this.status !== 'idle') return;
+	// Main action: Start a conversation
+	startConversation = async (language?: string, speaker?: Speaker) => {
+		if (this.status !== 'idle') return;
 
-    this.status = 'connecting';
-    this.error = null;
+		this.status = 'connecting';
+		this.error = null;
 
-    try {
-      // 1. Get audio stream from audio service
-      const audioStream = await this.audioService.getStream(this.selectedDeviceId);
+		try {
+			// 1. Get audio stream from audio service
+			const audioStream = await this.audioService.getStream(this.selectedDeviceId);
 
-      // 2. Get session from backend
-      const response = await fetch('/api/realtime-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId: crypto.randomUUID(),
-          model: 'gpt-4o-mini-realtime-preview-2024-12-17',
-          voice: this.voice
-        })
-      });
+			// 2. Get session from backend
+			const response = await fetch('/api/realtime-session', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					sessionId: crypto.randomUUID(),
+					model: 'gpt-4o-mini-realtime-preview-2024-12-17',
+					voice: this.voice
+				})
+			});
 
-      const sessionData = await response.json();
+			const sessionData = await response.json();
 
-      // 3. Connect realtime service
-      await this.realtimeService.connectWithSession(
-        sessionData,
-        audioStream,
-        this.handleMessage,
-        this.handleConnectionStateChange
-      );
-    } catch (e) {
-      this.error = e instanceof Error ? e.message : 'Unknown error';
-      this.status = 'error';
-    }
-  };
+			// 3. Connect realtime service
+			await this.realtimeService.connectWithSession(
+				sessionData,
+				audioStream,
+				this.handleMessage,
+				this.handleConnectionStateChange
+			);
+		} catch (e) {
+			this.error = e instanceof Error ? e.message : 'Unknown error';
+			this.status = 'error';
+		}
+	};
 
-  // Handle incoming messages
-  private handleMessage = (newMessage: { role: string; content: string }) => {
-    const message: Message = {
-      role: newMessage.role === 'assistant' ? 'assistant' : 'user',
-      content: newMessage.content,
-      timestamp: new Date(),
-      id: '',
-      conversationId: '',
-      audioUrl: null,
-      // Language learning fields
-      translatedContent: null,
-      sourceLanguage: null,
-      targetLanguage: null,
-      grammarAnalysis: null,
-      vocabularyAnalysis: null,
-      pronunciationScore: null,
-      audioDuration: null,
-      difficultyLevel: null,
-      learningTags: null
-    };
-    this.messages = [...this.messages, message];
-  };
+	// Handle incoming messages
+	private handleMessage = (newMessage: { role: string; content: string }) => {
+		const message: Message = {
+			role: newMessage.role === 'assistant' ? 'assistant' : 'user',
+			content: newMessage.content,
+			timestamp: new Date(),
+			id: '',
+			conversationId: '',
+			audioUrl: null,
+			// Language learning fields
+			translatedContent: null,
+			sourceLanguage: null,
+			targetLanguage: null,
+			grammarAnalysis: null,
+			vocabularyAnalysis: null,
+			pronunciationScore: null,
+			audioDuration: null,
+			difficultyLevel: null,
+			learningTags: null
+		};
+		this.messages = [...this.messages, message];
+	};
 
-  // Handle connection state changes
-  private handleConnectionStateChange = (connectionState: RTCPeerConnectionState) => {
-    if (connectionState === 'connected') {
-      this.status = 'connected';
-      this.startTime = Date.now();
-    } else if (connectionState === 'failed' || connectionState === 'closed') {
-      this.status = 'idle';
-      this.error = 'Connection lost';
-    }
-  };
+	// Handle connection state changes
+	private handleConnectionStateChange = (connectionState: RTCPeerConnectionState) => {
+		if (connectionState === 'connected') {
+			this.status = 'connected';
+			this.startTime = Date.now();
+		} else if (connectionState === 'failed' || connectionState === 'closed') {
+			this.status = 'idle';
+			this.error = 'Connection lost';
+		}
+	};
 
-  // End conversation
-  endConversation = () => {
-    this.realtimeService.disconnect();
-    this.audioService.cleanup();
-    
-    // Reset state
-    this.status = 'idle';
-    this.messages = [];
-    this.error = null;
-  };
+	// End conversation
+	endConversation = () => {
+		this.realtimeService.disconnect();
+		this.audioService.cleanup();
+
+		// Reset state
+		this.status = 'idle';
+		this.messages = [];
+		this.error = null;
+	};
 }
 ```
 
@@ -280,32 +281,32 @@ Manages user preferences:
 ```typescript
 // src/lib/stores/settings.store.svelte.ts
 export class SettingsStore {
-  // User's selected language
-  selectedLanguage = $state<Language | null>(null);
-  
-  // User's selected AI voice
-  selectedSpeaker = $state('alloy');
+	// User's selected language
+	selectedLanguage = $state<Language | null>(null);
 
-  constructor() {
-    // Initialize with default language
-    const defaultLanguage = allLanguages.find(lang => lang.code === 'ja');
-    if (defaultLanguage) {
-      this.selectedLanguage = defaultLanguage;
-    }
-  }
+	// User's selected AI voice
+	selectedSpeaker = $state('alloy');
 
-  // Update selected language
-  setLanguage = (languageCode: string) => {
-    const language = allLanguages.find(lang => lang.code === languageCode);
-    if (language) {
-      this.selectedLanguage = language;
-    }
-  };
+	constructor() {
+		// Initialize with default language
+		const defaultLanguage = allLanguages.find((lang) => lang.code === 'ja');
+		if (defaultLanguage) {
+			this.selectedLanguage = defaultLanguage;
+		}
+	}
 
-  // Update selected speaker
-  setSpeaker = (speakerId: string) => {
-    this.selectedSpeaker = speakerId;
-  };
+	// Update selected language
+	setLanguage = (languageCode: string) => {
+		const language = allLanguages.find((lang) => lang.code === languageCode);
+		if (language) {
+			this.selectedLanguage = language;
+		}
+	};
+
+	// Update selected speaker
+	setSpeaker = (speakerId: string) => {
+		this.selectedSpeaker = speakerId;
+	};
 }
 ```
 
@@ -324,72 +325,68 @@ Main conversation interface:
 ```svelte
 <!-- src/routes/conversation/+page.svelte -->
 <script lang="ts">
-  import { conversationStore } from '$lib/stores/conversation.store.svelte';
-  import { settingsStore } from '$lib/stores/settings.store.svelte';
-  
-  // Get reactive values from stores
-  const status = $derived(conversationStore.status);
-  const messages = $derived(conversationStore.messages);
-  const error = $derived(conversationStore.error);
-  const audioLevel = $derived(conversationStore.audioLevel);
-  
-  // Get settings
-  const selectedLanguage = $derived(settingsStore.selectedLanguage);
-  const selectedSpeaker = $derived(settingsStore.selectedSpeaker);
+	import { conversationStore } from '$lib/stores/conversation.store.svelte';
+	import { settingsStore } from '$lib/stores/settings.store.svelte';
 
-  // Simple event handlers
-  function handleStart() {
-    conversationStore.startConversation(selectedLanguage?.code, selectedSpeaker);
-  }
+	// Get reactive values from stores
+	const status = $derived(conversationStore.status);
+	const messages = $derived(conversationStore.messages);
+	const error = $derived(conversationStore.error);
+	const audioLevel = $derived(conversationStore.audioLevel);
 
-  function handleEnd() {
-    conversationStore.endConversation();
-  }
+	// Get settings
+	const selectedLanguage = $derived(settingsStore.selectedLanguage);
+	const selectedSpeaker = $derived(settingsStore.selectedSpeaker);
+
+	// Simple event handlers
+	function handleStart() {
+		conversationStore.startConversation(selectedLanguage?.code, selectedSpeaker);
+	}
+
+	function handleEnd() {
+		conversationStore.endConversation();
+	}
 </script>
 
 <div class="mx-auto max-w-4xl p-8 font-sans">
-  <header class="mb-8 text-center">
-    <h1 class="mb-2 text-4xl font-bold text-primary">
-      {selectedLanguage?.name} Conversation
-    </h1>
-  </header>
+	<header class="mb-8 text-center">
+		<h1 class="mb-2 text-4xl font-bold text-primary">
+			{selectedLanguage?.name} Conversation
+		</h1>
+	</header>
 
-  <main>
-    <!-- Status-based UI rendering -->
-    {#if status === 'idle' || status === 'error'}
-      <div class="card my-8 border border-base-300 bg-base-100 p-8 text-center shadow-lg">
-        <button on:click={handleStart} class="btn btn-lg btn-primary">
-          Start Conversation
-        </button>
-        {#if error}
-          <div class="mt-4 alert alert-error">
-            <span>Something went wrong: {error}</span>
-          </div>
-        {/if}
-      </div>
-    {:else if status === 'connecting'}
-      <LoadingScreen />
-    {:else if status === 'connected'}
-      <div class="card my-8 border border-base-300 bg-base-100 p-8 text-center shadow-lg">
-        <p class="mb-4 text-xl text-success">Connected! Ready to start streaming.</p>
-        <button on:click={handleEnd} class="btn btn-lg btn-error">
-          End Conversation
-        </button>
-      </div>
-    {/if}
+	<main>
+		<!-- Status-based UI rendering -->
+		{#if status === 'idle' || status === 'error'}
+			<div class="card my-8 border border-base-300 bg-base-100 p-8 text-center shadow-lg">
+				<button on:click={handleStart} class="btn btn-lg btn-primary"> Start Conversation </button>
+				{#if error}
+					<div class="mt-4 alert alert-error">
+						<span>Something went wrong: {error}</span>
+					</div>
+				{/if}
+			</div>
+		{:else if status === 'connecting'}
+			<LoadingScreen />
+		{:else if status === 'connected'}
+			<div class="card my-8 border border-base-300 bg-base-100 p-8 text-center shadow-lg">
+				<p class="mb-4 text-xl text-success">Connected! Ready to start streaming.</p>
+				<button on:click={handleEnd} class="btn btn-lg btn-error"> End Conversation </button>
+			</div>
+		{/if}
 
-    <!-- Messages display -->
-    {#if messages.length > 0}
-      <div class="card my-8 border border-base-300 bg-base-100 p-6 shadow-lg">
-        <h3 class="mb-4 text-2xl font-semibold text-primary">Conversation</h3>
-        <div class="space-y-3">
-          {#each messages as message}
-            <MessageBubble {message} />
-          {/each}
-        </div>
-      </div>
-    {/if}
-  </main>
+		<!-- Messages display -->
+		{#if messages.length > 0}
+			<div class="card my-8 border border-base-300 bg-base-100 p-6 shadow-lg">
+				<h3 class="mb-4 text-2xl font-semibold text-primary">Conversation</h3>
+				<div class="space-y-3">
+					{#each messages as message}
+						<MessageBubble {message} />
+					{/each}
+				</div>
+			</div>
+		{/if}
+	</main>
 </div>
 ```
 
@@ -424,11 +421,11 @@ Service event → Store callback → State update → UI re-render
 ```typescript
 // Test services in isolation
 describe('AudioService', () => {
-  it('should get audio stream', async () => {
-    const service = new AudioService();
-    const stream = await service.getStream();
-    expect(stream).toBeInstanceOf(MediaStream);
-  });
+	it('should get audio stream', async () => {
+		const service = new AudioService();
+		const stream = await service.getStream();
+		expect(stream).toBeInstanceOf(MediaStream);
+	});
 });
 ```
 
@@ -437,18 +434,18 @@ describe('AudioService', () => {
 ```typescript
 // Test store orchestration
 describe('ConversationStore', () => {
-  it('should start conversation', async () => {
-    const mockAudioService = createMockAudioService();
-    const mockRealtimeService = createMockRealtimeService();
-    
-    const store = new ConversationStore(mockRealtimeService, mockAudioService);
-    
-    await store.startConversation();
-    
-    expect(store.status).toBe('connected');
-    expect(mockAudioService.getStream).toHaveBeenCalled();
-    expect(mockRealtimeService.connectWithSession).toHaveBeenCalled();
-  });
+	it('should start conversation', async () => {
+		const mockAudioService = createMockAudioService();
+		const mockRealtimeService = createMockRealtimeService();
+
+		const store = new ConversationStore(mockRealtimeService, mockAudioService);
+
+		await store.startConversation();
+
+		expect(store.status).toBe('connected');
+		expect(mockAudioService.getStream).toHaveBeenCalled();
+		expect(mockRealtimeService.connectWithSession).toHaveBeenCalled();
+	});
 });
 ```
 
@@ -457,10 +454,10 @@ describe('ConversationStore', () => {
 ```typescript
 // Test UI interactions
 test('should start conversation when button clicked', async ({ page }) => {
-  await page.goto('/conversation');
-  await page.click('button:has-text("Start Conversation")');
-  
-  await expect(page.locator('text=Connected!')).toBeVisible();
+	await page.goto('/conversation');
+	await page.click('button:has-text("Start Conversation")');
+
+	await expect(page.locator('text=Connected!')).toBeVisible();
 });
 ```
 

@@ -6,12 +6,12 @@
 	// No need to manually instantiate or check browser environment
 
 	let devices = $state<MediaDeviceInfo[]>([]);
-	let selectedDevice = $state<string>('default');
+	const selectedDevice = $state<string>('default');
 	let stream = $state<MediaStream | null>(null);
-	let isRecording = $state(false);
-	let error = $state<string | null>(null);
+	const isRecording = $state(false);
+	const error = $state<string | null>(null);
 	let audioLevel = $state(0);
-	let events = $state<Array<{type: string; data: any; timestamp: string}>>([]);
+	let events = $state<Array<{ type: string; data: any; timestamp: string }>>([]);
 	let eventCount = $state(0);
 	let isTesting = $state(false);
 
@@ -94,15 +94,13 @@
 	});
 </script>
 
-<div class="container mx-auto p-6 max-w-4xl">
-	<h1 class="text-3xl font-bold mb-6">🎵 Audio Device Testing</h1>
+<div class="container mx-auto max-w-4xl p-6">
+	<h1 class="mb-6 text-3xl font-bold">🎵 Audio Device Testing</h1>
 
 	<!-- Device Selection -->
 	<div class="devices-section mb-8">
-		<h2 class="text-xl font-semibold mb-4">Available Devices</h2>
-		<button onclick={loadDevices} class="btn btn-outline mb-4">
-			🔄 Refresh Devices
-		</button>
+		<h2 class="mb-4 text-xl font-semibold">Available Devices</h2>
+		<button onclick={loadDevices} class="btn mb-4 btn-outline"> 🔄 Refresh Devices </button>
 
 		<div class="device-list grid gap-4">
 			{#each devices as device}
@@ -113,8 +111,8 @@
 								{device.label || `Device ${device.deviceId.slice(0, 8)}...`}
 							</span>
 						</h3>
-						<button 
-							onclick={() => testDevice(device.deviceId)} 
+						<button
+							onclick={() => testDevice(device.deviceId)}
 							disabled={isTesting}
 							class="btn btn-primary"
 						>
@@ -129,15 +127,15 @@
 	<!-- Audio Level Display -->
 	{#if stream}
 		<div class="audio-section mb-8">
-			<h2 class="text-xl font-semibold mb-4">🎤 Audio Level</h2>
+			<h2 class="mb-4 text-xl font-semibold">🎤 Audio Level</h2>
 			<div class="audio-level-display">
-				<div class="level-bar bg-base-300 rounded-full h-8 overflow-hidden">
-					<div 
-						class="level-fill bg-primary transition-all duration-100 h-full"
+				<div class="level-bar h-8 overflow-hidden rounded-full bg-base-300">
+					<div
+						class="level-fill h-full bg-primary transition-all duration-100"
 						style="width: {audioLevel * 100}%"
 					></div>
 				</div>
-				<div class="level-text text-center mt-2">
+				<div class="level-text mt-2 text-center">
 					Level: {(audioLevel * 100).toFixed(1)}%
 				</div>
 			</div>
@@ -150,20 +148,22 @@
 
 	<!-- Events Log -->
 	<div class="events-section">
-		<h2 class="text-xl font-semibold mb-4">📡 Real-time Events ({eventCount})</h2>
-		<button onclick={clearEvents} class="btn btn-outline mb-4">🗑️ Clear Events</button>
+		<h2 class="mb-4 text-xl font-semibold">📡 Real-time Events ({eventCount})</h2>
+		<button onclick={clearEvents} class="btn mb-4 btn-outline">🗑️ Clear Events</button>
 
 		<div class="events-list max-h-96 overflow-y-auto">
 			{#each events as event, index}
-				<div class="event-item bg-base-200 p-3 rounded mb-2">
-					<div class="event-header flex justify-between items-center mb-2">
-						<span class="event-type font-mono text-sm bg-primary text-primary-content px-2 py-1 rounded">
+				<div class="event-item mb-2 rounded bg-base-200 p-3">
+					<div class="event-header mb-2 flex items-center justify-between">
+						<span
+							class="event-type rounded bg-primary px-2 py-1 font-mono text-sm text-primary-content"
+						>
 							{event.type}
 						</span>
 						<span class="event-time text-sm opacity-70">{event.timestamp}</span>
 					</div>
 					<div class="event-data">
-						<pre class="text-xs overflow-x-auto">{JSON.stringify(event.data, null, 2)}</pre>
+						<pre class="overflow-x-auto text-xs">{JSON.stringify(event.data, null, 2)}</pre>
 					</div>
 				</div>
 			{/each}

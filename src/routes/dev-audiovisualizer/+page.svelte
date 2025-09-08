@@ -28,7 +28,7 @@
 	let isConnected = $state(false);
 	let connection: realtimeService.RealtimeConnection | null = null;
 	let localStream: MediaStream | null = null;
-	let lastVoice: Voice | null = null;
+	const lastVoice: Voice | null = null;
 
 	// Preferences (mode and press behavior)
 	let audioMode: 'toggle' | 'push_to_talk' = $state(userPreferencesStore.getAudioMode());
@@ -106,8 +106,7 @@
 				// Send typed session.update once channel is ready
 				const sessionUpdateEvent = realtimeService.createSessionUpdate({
 					model: 'gpt-realtime',
-					voice: lastVoice || DEFAULT_VOICE,
-				 
+					voice: lastVoice || DEFAULT_VOICE
 				});
 				realtimeService.sendEvent(connection!, sessionUpdateEvent);
 				isConnected = true;

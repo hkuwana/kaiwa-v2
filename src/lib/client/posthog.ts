@@ -5,4 +5,3 @@ export const posthogManager = {
 		track(eventName, properties);
 	}
 };
-

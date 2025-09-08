@@ -26,12 +26,14 @@ The front page now supports A/B testing for three headline variants:
 ### 2. Configure Rollout
 
 Set up the rollout percentages as desired:
+
 - 33% for each variant (equal split)
 - Or adjust based on your testing strategy
 
 ### 3. Set Targeting Rules (Optional)
 
 You can target specific user segments:
+
 - New users only
 - Specific geographic regions
 - Users with certain properties
@@ -41,17 +43,21 @@ You can target specific user segments:
 The A/B test tracks two key events:
 
 ### 1. `headline_variant_shown`
+
 Triggered when a user sees a headline variant.
 
 **Properties:**
+
 - `variant`: The variant shown (original, cure, one_percent)
 - `headline_text`: The actual text displayed
 - `current_headline_variant`: User property set
 
 ### 2. `start_speaking_clicked`
+
 Triggered when a user clicks the "Start Speaking" button.
 
 **Properties:**
+
 - `headline_variant`: Which variant was shown
 - `headline_text`: The actual text displayed
 - `user_type`: Whether user is logged in or guest
@@ -77,6 +83,7 @@ Triggered when a user clicks the "Start Speaking" button.
 ### Statistical Significance
 
 PostHog will automatically calculate statistical significance. Wait for:
+
 - At least 1000 users per variant
 - 95% confidence level
 - Minimum detectable effect of 5-10%
@@ -100,6 +107,7 @@ const variant = getFeatureFlag('headline_ab_test');
 ### Fallback Behavior
 
 If PostHog is unavailable or the feature flag fails:
+
 - Defaults to the original headline
 - Still tracks events for analysis
 - Graceful degradation ensures site functionality

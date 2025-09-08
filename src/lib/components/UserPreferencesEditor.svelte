@@ -12,7 +12,7 @@
 	const { userPreferences, onSave, compact = false }: Props = $props();
 
 	// Local state for form inputs
-	let localPreferences = $state({ ...userPreferences });
+	const localPreferences = $state({ ...userPreferences });
 	let saveTimeout: NodeJS.Timeout | null = null;
 	let isSaving = $state(false);
 	let lastSaved = $state<Date | null>(null);

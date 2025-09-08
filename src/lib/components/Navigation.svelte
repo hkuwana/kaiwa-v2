@@ -7,8 +7,7 @@
 	// Get user data from page data
 
 	async function handleHome() {
-		await goto('/'); 
-		
+		await goto('/');
 	}
 </script>
 

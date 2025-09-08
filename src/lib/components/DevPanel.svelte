@@ -13,7 +13,7 @@
 		position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
 	}
 
-	let {
+	const {
 		status,
 		messagesCount,
 		audioLevel,
@@ -25,10 +25,10 @@
 	}: Props = $props();
 
 	// Only show in dev mode
-	let shouldShow = $derived(dev);
+	const shouldShow = $derived(dev);
 
 	// Position classes
-	let positionClasses = $derived(
+	const positionClasses = $derived(
 		{
 			'top-right': 'top-4 right-4',
 			'top-left': 'top-4 left-4',

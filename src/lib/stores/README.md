@@ -12,36 +12,40 @@ This approach ensures that components never directly access stores, making them 
 ## 🚀 **Usage Pattern**
 
 ### 1. **Store Layer** (Data Management)
+
 ```typescript
 // src/lib/stores/scenario.store.svelte.ts
 export class ScenarioStore {
-  private selectedScenario = $state<Scenario | null>(null);
-  
-  // Public getter methods
-  getSelectedScenario = (): Scenario | null => this.selectedScenario;
-  getScenarioId = (): string => this.selectedScenario?.id || 'onboarding-welcome';
-  
-  // Public setter methods
-  setScenarioById = (scenarioId: string) => { /* ... */ };
+	private selectedScenario = $state<Scenario | null>(null);
+
+	// Public getter methods
+	getSelectedScenario = (): Scenario | null => this.selectedScenario;
+	getScenarioId = (): string => this.selectedScenario?.id || 'onboarding-welcome';
+
+	// Public setter methods
+	setScenarioById = (scenarioId: string) => {
+		/* ... */
+	};
 }
 ```
 
 ### 2. **Parent Component** (Store Integration)
+
 ```typescript
 <!-- src/lib/components/ScenarioManager.svelte -->
 <script lang="ts">
   import { scenarioStore } from '$lib/stores/scenario.store.svelte';
-  
+
   // Local state for component
   let scenarios = $state<Scenario[]>([]);
   let selectedScenario = $state<Scenario | null>(null);
-  
+
   onMount(() => {
     // Get data from store
     scenarios = scenarioStore.getScenariosByCategory('comfort');
     selectedScenario = scenarioStore.getSelectedScenario();
   });
-  
+
   function handleScenarioSelect(scenario: Scenario) {
     // Update local state
     selectedScenario = scenario;
@@ -59,6 +63,7 @@ export class ScenarioStore {
 ```
 
 ### 3. **Child Component** (Pure Props)
+
 ```typescript
 <!-- src/lib/components/ScenarioSelector.svelte -->
 <script lang="ts">
@@ -68,7 +73,7 @@ export class ScenarioStore {
     selectedScenario: Scenario | null;
     onScenarioSelect: (scenario: Scenario) => void;
   }
-  
+
   const { scenarios, selectedScenario, onScenarioSelect } = $props<Props>();
 </script>
 
@@ -85,18 +90,20 @@ export class ScenarioStore {
 ## 🔧 **Benefits**
 
 ### **Testability**
+
 ```typescript
 // Easy to test with mock props
 const mockProps = {
-  scenarios: [mockScenario],
-  selectedScenario: null,
-  onScenarioSelect: vi.fn()
+	scenarios: [mockScenario],
+	selectedScenario: null,
+	onScenarioSelect: vi.fn()
 };
 
 render(ScenarioSelector, { props: mockProps });
 ```
 
 ### **Reusability**
+
 ```typescript
 // Same component can be used in different contexts
 <ScenarioSelector
@@ -113,6 +120,7 @@ render(ScenarioSelector, { props: mockProps });
 ```
 
 ### **Predictability**
+
 - Components always behave the same with the same props
 - No hidden dependencies on store state
 - Clear data flow from parent to child
@@ -120,17 +128,19 @@ render(ScenarioSelector, { props: mockProps });
 ## 📱 **Real Example**
 
 ### **Before (Direct Store Access)**
+
 ```typescript
 // ❌ Component directly accesses store
 <script>
   import { scenarioStore } from '$lib/stores/scenario.store.svelte';
-  
+
   // Direct store access - hard to test and predict
   const selectedScenario = $derived(scenarioStore.selectedScenario);
 </script>
 ```
 
 ### **After (Props-Based)**
+
 ```typescript
 // ✅ Component receives data through props
 <script>
@@ -138,7 +148,7 @@ render(ScenarioSelector, { props: mockProps });
     selectedScenario: Scenario | null;
     onScenarioSelect: (scenario: Scenario) => void;
   }
-  
+
   const { selectedScenario, onScenarioSelect } = $props<Props>();
 </script>
 ```
@@ -159,7 +169,7 @@ App
 // ❌ Don't access stores directly in components
 <script>
   import { scenarioStore } from '$lib/stores/scenario.store.svelte';
-  
+
   // This makes the component unpredictable
   const scenario = $derived(scenarioStore.selectedScenario);
 </script>
@@ -173,12 +183,13 @@ App
   interface Props {
     scenario: Scenario | null;
   }
-  
+
   const { scenario } = $props<Props>();
 </script>
 ```
 
 This approach makes your components:
+
 - 🧪 **Easier to test**
 - 🔄 **More reusable**
 - 📱 **More predictable**

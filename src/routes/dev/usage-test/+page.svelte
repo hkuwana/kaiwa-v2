@@ -26,7 +26,7 @@
 
 	// Timer state management
 	let timerConfig = createDefaultTimerConfig();
-	let timerState = {
+	const timerState = {
 		startTime: 0,
 		pauseTime: 0,
 		totalPausedTime: 0,

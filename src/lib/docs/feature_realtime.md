@@ -61,7 +61,7 @@ async startConversation(language?: string, speaker?: Speaker) {
   try {
     // 1. Get audio stream from AudioService
     const audioStream = await this.audioService.getStream(this.selectedDeviceId);
-    
+
     // 2. Get session from backend
     const response = await fetch('/api/realtime-session', {
       method: 'POST',
@@ -72,9 +72,9 @@ async startConversation(language?: string, speaker?: Speaker) {
         voice: this.voice
       })
     });
-    
+
     const sessionData = await response.json();
-    
+
     // 3. Connect RealtimeService
     await this.realtimeService.connectWithSession(
       sessionData,
@@ -96,20 +96,20 @@ The conversation page automatically uses the realtime feature:
 ```svelte
 <!-- src/routes/conversation/+page.svelte -->
 <script lang="ts">
-  import { conversationStore } from '$lib/stores/conversation.store.svelte';
-  
-  const status = $derived(conversationStore.status);
-  const messages = $derived(conversationStore.messages);
-  
-  function handleStart() {
-    conversationStore.startConversation();
-  }
+	import { conversationStore } from '$lib/stores/conversation.store.svelte';
+
+	const status = $derived(conversationStore.status);
+	const messages = $derived(conversationStore.messages);
+
+	function handleStart() {
+		conversationStore.startConversation();
+	}
 </script>
 
 {#if status === 'idle'}
-  <button on:click={handleStart}>Start Conversation</button>
+	<button on:click={handleStart}>Start Conversation</button>
 {:else if status === 'connected'}
-  <p>Connected! Ready to start streaming.</p>
+	<p>Connected! Ready to start streaming.</p>
 {/if}
 ```
 
@@ -125,10 +125,10 @@ Creates a new realtime session with OpenAI.
 
 ```json
 {
-  "sessionId": "unique-session-identifier",
-  "model": "gpt-4o-mini-realtime-preview-2024-12-17",
-  "voice": "alloy",
-  "language": "en"
+	"sessionId": "unique-session-identifier",
+	"model": "gpt-4o-mini-realtime-preview-2024-12-17",
+	"voice": "alloy",
+	"language": "en"
 }
 ```
 
@@ -136,11 +136,11 @@ Creates a new realtime session with OpenAI.
 
 ```json
 {
-  "session_id": "openai-session-id",
-  "client_secret": {
-    "value": "ephemeral-token",
-    "expires_at": "2024-01-20T10:30:00.000Z"
-  }
+	"session_id": "openai-session-id",
+	"client_secret": {
+		"value": "ephemeral-token",
+		"expires_at": "2024-01-20T10:30:00.000Z"
+	}
 }
 ```
 
@@ -155,22 +155,24 @@ The `AudioService` provides the audio stream that feeds into the realtime featur
 ```typescript
 // AudioService handles all audio concerns
 export class AudioService {
-  async getStream(deviceId?: string): Promise<MediaStream> {
-    const constraints: MediaStreamConstraints = {
-      audio: deviceId ? { deviceId: { exact: deviceId } } : {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true
-      }
-    };
-    
-    return await navigator.mediaDevices.getUserMedia(constraints);
-  }
-  
-  async getAvailableDevices(): Promise<MediaDeviceInfo[]> {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    return devices.filter(device => device.kind === 'audioinput');
-  }
+	async getStream(deviceId?: string): Promise<MediaStream> {
+		const constraints: MediaStreamConstraints = {
+			audio: deviceId
+				? { deviceId: { exact: deviceId } }
+				: {
+						echoCancellation: true,
+						noiseSuppression: true,
+						autoGainControl: true
+					}
+		};
+
+		return await navigator.mediaDevices.getUserMedia(constraints);
+	}
+
+	async getAvailableDevices(): Promise<MediaDeviceInfo[]> {
+		const devices = await navigator.mediaDevices.enumerateDevices();
+		return devices.filter((device) => device.kind === 'audioinput');
+	}
 }
 ```
 
@@ -194,6 +196,7 @@ The `RealtimeService` automatically handles:
 **Cause**: The API response doesn't contain the expected `session_id` field.
 
 **Solution**:
+
 - Check that the `/api/realtime-session` endpoint is working
 - Verify OpenAI API key is configured
 - Check browser console for detailed error logs
@@ -206,7 +209,7 @@ console.log('Raw session data:', sessionData);
 
 // Check if session_id exists
 if (!sessionData.session_id) {
-  console.error('Missing session_id:', sessionData);
+	console.error('Missing session_id:', sessionData);
 }
 ```
 
@@ -215,6 +218,7 @@ if (!sessionData.session_id) {
 **Cause**: WebRTC connection failed or OpenAI API error.
 
 **Solution**:
+
 - Check network connectivity
 - Verify OpenAI API quota/limits
 - Ensure audio permissions are granted
@@ -224,6 +228,7 @@ if (!sessionData.session_id) {
 **Cause**: MediaRecorder not properly initialized or permissions denied.
 
 **Solution**:
+
 - Check browser console for MediaRecorder errors
 - Verify microphone permissions
 - Test with a simple audio recording first
@@ -235,13 +240,13 @@ The store includes comprehensive logging for debugging:
 ```typescript
 // In ConversationStore constructor
 $effect(() => {
-  console.log('CONVERSATION STORE STATE:', {
-    status: this.status,
-    messageCount: this.messages.length,
-    error: this.error,
-    sessionId: this.sessionId,
-    audioLevel: this.audioLevel
-  });
+	console.log('CONVERSATION STORE STATE:', {
+		status: this.status,
+		messageCount: this.messages.length,
+		error: this.error,
+		sessionId: this.sessionId,
+		audioLevel: this.audioLevel
+	});
 });
 ```
 
@@ -270,19 +275,19 @@ $effect(() => {
 ```typescript
 // Test RealtimeService in isolation
 describe('RealtimeService', () => {
-  it('should connect with valid session data', async () => {
-    const service = new RealtimeService();
-    const mockStream = new MediaStream();
-    
-    await service.connectWithSession(
-      mockSessionData,
-      mockStream,
-      mockMessageHandler,
-      mockStateHandler
-    );
-    
-    expect(service.isConnected()).toBe(true);
-  });
+	it('should connect with valid session data', async () => {
+		const service = new RealtimeService();
+		const mockStream = new MediaStream();
+
+		await service.connectWithSession(
+			mockSessionData,
+			mockStream,
+			mockMessageHandler,
+			mockStateHandler
+		);
+
+		expect(service.isConnected()).toBe(true);
+	});
 });
 ```
 
@@ -291,18 +296,18 @@ describe('RealtimeService', () => {
 ```typescript
 // Test conversation orchestration
 describe('ConversationStore', () => {
-  it('should start conversation successfully', async () => {
-    const mockAudioService = createMockAudioService();
-    const mockRealtimeService = createMockRealtimeService();
-    
-    const store = new ConversationStore(mockRealtimeService, mockAudioService);
-    
-    await store.startConversation();
-    
-    expect(store.status).toBe('connected');
-    expect(mockAudioService.getStream).toHaveBeenCalled();
-    expect(mockRealtimeService.connectWithSession).toHaveBeenCalled();
-  });
+	it('should start conversation successfully', async () => {
+		const mockAudioService = createMockAudioService();
+		const mockRealtimeService = createMockRealtimeService();
+
+		const store = new ConversationStore(mockRealtimeService, mockAudioService);
+
+		await store.startConversation();
+
+		expect(store.status).toBe('connected');
+		expect(mockAudioService.getStream).toHaveBeenCalled();
+		expect(mockRealtimeService.connectWithSession).toHaveBeenCalled();
+	});
 });
 ```
 

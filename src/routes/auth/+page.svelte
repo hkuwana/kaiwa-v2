@@ -7,7 +7,7 @@
 	import { onMount } from 'svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
 
-	let { data } = $props();
+	const { data } = $props();
 
 	// Get query parameters from server dat
 	const from = $derived(data.from);

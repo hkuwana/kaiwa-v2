@@ -1,12 +1,10 @@
 <script>
 	import { page } from '$app/state';
 	// @ts-ignore
-	
+
 	// Get the current page data
 	const { data, children } = $props();
 
-
-	
 	// Dynamic navigation will be handled by the main docs page
 	let currentDoc = $state('');
 	$effect(() => {
@@ -39,8 +37,6 @@
 			</div>
 		{/if}
 	</nav>
-
-
 
 	<main class="">
 		{@render children()}

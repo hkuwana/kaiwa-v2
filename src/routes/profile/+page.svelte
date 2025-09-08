@@ -3,7 +3,7 @@
 	import UserPreferencesEditor from '$lib/components/UserPreferencesEditor.svelte';
 	import type { UserPreferences } from '$lib/server/db/types';
 
-	let { data } = $props();
+	const { data } = $props();
 
 	let userPreferences = $state<UserPreferences | null>(data.userPreferences);
 

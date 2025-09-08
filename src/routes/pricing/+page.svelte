@@ -5,12 +5,10 @@
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { SubscriptionTier } from '$lib/enums.js';
 	import { defaultTierConfigs } from '$lib/data/tiers';
-	import {
-		formatPrice,
-		calculateAnnualDiscount	} from '$lib/client/stripe.service';
-	
+	import { formatPrice, calculateAnnualDiscount } from '$lib/client/stripe.service';
+
 	// Get page data from server using runes
-	let { data } = $props();
+	const { data } = $props();
 
 	// Plan selection
 	let selectedPlan = $state('annual');
@@ -19,7 +17,7 @@
 	const COMING_SOON = 'COMING SOON';
 
 	// Assumes tiers are 'free', 'plus', 'premium'
-	let currentTier = $derived(userManager.effectiveTier);
+	const currentTier = $derived(userManager.effectiveTier);
 
 	// Convert tier configs to basic pricing format
 
@@ -130,7 +128,7 @@
 
 	// Testimonial logic
 	let currentTestimonial = $state(0);
-	let testimonials = [
+	const testimonials = [
 		{
 			name: 'David T.',
 			text: 'Being able to practice realistic conversations has helped me gain confidence in speaking Japanese. The feedback is so helpful!',

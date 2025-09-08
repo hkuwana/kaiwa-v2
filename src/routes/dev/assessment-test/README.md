@@ -5,6 +5,7 @@ This directory contains tools for testing the onboarding assessment flow for gue
 ## Routes
 
 ### `/dev/assessment-test` - Basic Testing
+
 - **Purpose**: Test the assessment flow and results display
 - **Features**:
   - Start mock assessment with 3-second simulation
@@ -14,6 +15,7 @@ This directory contains tools for testing the onboarding assessment flow for gue
   - Debug information about store state
 
 ### `/dev/assessment-test/api-simulation` - API Simulation Testing
+
 - **Purpose**: Test the complete assessment flow including API simulation
 - **Features**:
   - Simulate conversation recording and processing
@@ -42,6 +44,7 @@ The testing tools now display the actual message objects that would be sent to t
 ```
 
 ### Key Properties
+
 - **id**: Unique message identifier
 - **role**: User or AI assistant
 - **content**: Actual message text
@@ -54,6 +57,7 @@ The testing tools now display the actual message objects that would be sent to t
 ## How to Use
 
 ### 1. Basic Testing
+
 1. Navigate to `/dev/assessment-test`
 2. View the **Message Objects** section to see the data structure
 3. Click "Start Mock Assessment" to simulate the 3-second analysis process
@@ -62,6 +66,7 @@ The testing tools now display the actual message objects that would be sent to t
 6. Use "Reset Assessment" to start over
 
 ### 2. API Simulation Testing
+
 1. Navigate to `/dev/assessment-test/api-simulation`
 2. View the **Message Objects Structure** section for full object details
 3. View the **API Request Structure** section for the exact API payload
@@ -71,6 +76,7 @@ The testing tools now display the actual message objects that would be sent to t
 7. Check console for API endpoint simulation
 
 ### 3. In-Conversation Testing
+
 1. Start a conversation on `/conversation`
 2. In dev mode, you'll see additional dev controls
 3. Use "Start Analysis" to trigger the analysis state
@@ -80,13 +86,16 @@ The testing tools now display the actual message objects that would be sent to t
 ## Mock Data
 
 The testing tools use realistic mock data including:
+
 - **Beginner Profile**: Low skill levels, comfortable challenge preference
 - **Advanced Profile**: High skill levels, challenging preferences
 - **Travel Focus**: Travel-specific goals and preferences
 - **Business Focus**: Career-oriented goals and business context
 
 ### Sample Message Objects
+
 The tools include realistic conversation data with:
+
 - Mixed language content (Japanese/English)
 - User and AI assistant roles
 - Timestamps and conversation IDs
@@ -96,6 +105,7 @@ The tools include realistic conversation data with:
 ## Store Integration
 
 These tools integrate with:
+
 - `userPreferencesStore` - Manages analysis state and results
 - `conversationStore` - Handles conversation flow
 - `OnboardingResults` component - Displays assessment results
@@ -103,6 +113,7 @@ These tools integrate with:
 ## Testing Scenarios
 
 ### Guest User Flow
+
 1. User starts conversation without account
 2. Conversation ends after timer expires
 3. Analysis process begins automatically
@@ -110,6 +121,7 @@ These tools integrate with:
 5. User can continue learning or save profile
 
 ### First-Time User Flow
+
 1. New user completes onboarding conversation
 2. AI analyzes conversation content and language patterns
 3. Personalized learning profile is generated
@@ -119,6 +131,7 @@ These tools integrate with:
 ## Debug Information
 
 Each testing route includes debug panels showing:
+
 - Current step/state
 - Progress indicators
 - Store state information

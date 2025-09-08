@@ -4,4 +4,3 @@ export enum SubscriptionTier {
 	PLUS = 'plus',
 	PREMIUM = 'premium'
 }
-

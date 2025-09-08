@@ -44,7 +44,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		const {
 			sessionId,
 			// GA default model name; can be overridden via PUBLIC_OPEN_AI_MODEL
-			model = publicEnv.PUBLIC_OPEN_AI_MODEL || 'gpt-realtime', 
+			model = publicEnv.PUBLIC_OPEN_AI_MODEL || 'gpt-realtime',
 			voice = DEFAULT_VOICE,
 			language
 		} = await request.json();
@@ -149,7 +149,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		console.log('Realtime session created successfully:', sessionData);
 
 		// Log the ephemeral key details (GA returns { value, ... })
-		const clientSecret = sessionData.value || sessionData.client_secret?.value || sessionData.client_secret;
+		const clientSecret =
+			sessionData.value || sessionData.client_secret?.value || sessionData.client_secret;
 		const openaiSessionId = sessionData.id || sessionId;
 
 		console.log('🔑 Ephemeral key details:', {
@@ -164,7 +165,8 @@ export const POST: RequestHandler = async ({ request }) => {
 			session_id: openaiSessionId, // Keep shape for client adapter
 			client_secret: {
 				value: clientSecret,
-				expires_at: sessionData.expires_at || sessionData.client_secret?.expires_at || Date.now() + 60000
+				expires_at:
+					sessionData.expires_at || sessionData.client_secret?.expires_at || Date.now() + 60000
 			}
 		});
 	} catch (error) {

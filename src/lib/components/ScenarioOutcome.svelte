@@ -4,7 +4,7 @@
 <script lang="ts">
 	import type { Scenario, ScenarioOutcome } from '$lib/types';
 
-	let { scenario, outcome, onRetry, onNextScenario, onBackToScenarios } = $props<{
+	const { scenario, outcome, onRetry, onNextScenario, onBackToScenarios } = $props<{
 		scenario: Scenario;
 		outcome: ScenarioOutcome;
 		onRetry: () => void;
@@ -13,14 +13,14 @@
 	}>();
 
 	// Derived state
-	let overallScore = $derived(
+	const overallScore = $derived(
 		(outcome.vocabularyUsageScore ?? 0) * 0.4 +
 			(outcome.grammarUsageScore ?? 0) * 0.3 +
 			(outcome.goalCompletionScore ?? 0) * 0.2 +
 			(outcome.pronunciationScore ?? 0) * 0.1
 	);
-	let performanceLevel = $derived(getPerformanceLevel(overallScore));
-	let showCelebration = $derived(overallScore >= 0.8);
+	const performanceLevel = $derived(getPerformanceLevel(overallScore));
+	const showCelebration = $derived(overallScore >= 0.8);
 
 	// Functions
 	function getPerformanceLevel(score: number): string {

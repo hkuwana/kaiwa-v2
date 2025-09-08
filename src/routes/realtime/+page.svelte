@@ -1,12 +1,12 @@
 <script lang="ts">
 	import RealtimeConversation from '$lib/components/RealtimeConversation.svelte';
 	import type { PageData } from './$types';
-	
+
 	interface Props {
 		data: PageData;
 	}
 
-	let { data }: Props = $props();
+	const { data }: Props = $props();
 </script>
 
 <svelte:head>
@@ -14,8 +14,8 @@
 	<meta name="description" content="Practice languages in real-time with AI" />
 </svelte:head>
 
-<RealtimeConversation 
-	language={data.defaultLanguage} 
+<RealtimeConversation
+	language={data.defaultLanguage}
 	voice={data.defaultVoice}
 	autoStart={data.autoStartConversation}
 />

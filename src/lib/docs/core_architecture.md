@@ -46,43 +46,52 @@ Kaiwa v2 adopts a **Clean 3-Layer Architecture** that creates clear separation b
 ## 🎯 Layer Responsibilities
 
 ### **Service Layer (Bottom)**
+
 **Purpose**: Pure business logic and external API integration
 
 **Characteristics**:
+
 - **Zero dependencies** on other services
 - **Zero knowledge** of Svelte or UI
 - **Pure TypeScript classes** with clear interfaces
 - **Testable in isolation** with mocked dependencies
 
 **Examples**:
+
 - `AudioService` - Handles audio device management and processing
 - `RealtimeService` - Manages WebRTC connections and OpenAI API
 - `AnalyticsService` - Tracks user events and metrics
 
 ### **Store Layer (Middle)**
+
 **Purpose**: State management and service orchestration
 
 **Characteristics**:
+
 - **Coordinates between services** to implement features
 - **Manages application state** using Svelte 5 runes
 - **Handles side effects** and async operations
 - **Provides actions** that UI components can call
 
 **Examples**:
+
 - `ConversationStore` - Orchestrates audio and realtime services
 - `SettingsStore` - Manages user preferences and settings
 - `AuthStore` - Handles authentication state and user data
 
 ### **UI Layer (Top)**
+
 **Purpose**: User interface and user interactions
 
 **Characteristics**:
+
 - **Thin and declarative** components
 - **Uses `$derived`** for reactive values from stores
 - **Calls store actions** instead of services directly
 - **Focuses on presentation** and user experience
 
 **Examples**:
+
 - `+page.svelte` - Main conversation interface
 - `AudioVisualizer.svelte` - Audio level visualization
 - `MessageBubble.svelte` - Individual message display
@@ -100,23 +109,25 @@ Kaiwa v2 adopts a **Clean 3-Layer Architecture** that creates clear separation b
 ```typescript
 // ✅ Good: Service with clear, focused responsibility
 export class AudioService {
-  async getStream(deviceId?: string): Promise<MediaStream> {
-    // Pure audio logic - no UI, no other services
-    const constraints: MediaStreamConstraints = {
-      audio: deviceId ? { deviceId: { exact: deviceId } } : {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true
-      }
-    };
-    
-    return await navigator.mediaDevices.getUserMedia(constraints);
-  }
+	async getStream(deviceId?: string): Promise<MediaStream> {
+		// Pure audio logic - no UI, no other services
+		const constraints: MediaStreamConstraints = {
+			audio: deviceId
+				? { deviceId: { exact: deviceId } }
+				: {
+						echoCancellation: true,
+						noiseSuppression: true,
+						autoGainControl: true
+					}
+		};
+
+		return await navigator.mediaDevices.getUserMedia(constraints);
+	}
 }
 
 // ❌ Bad: Service that imports other services
 export class AudioService {
-  constructor(private realtimeService: RealtimeService) {} // Don't do this!
+	constructor(private realtimeService: RealtimeService) {} // Don't do this!
 }
 ```
 
@@ -154,34 +165,34 @@ Stores act as the "orchestrators" that coordinate between services to implement 
 
 ```typescript
 export class ConversationStore {
-  // Inject services (not other stores)
-  constructor(
-    private audioService: AudioService,
-    private realtimeService: RealtimeService
-  ) {}
+	// Inject services (not other stores)
+	constructor(
+		private audioService: AudioService,
+		private realtimeService: RealtimeService
+	) {}
 
-  // Orchestrate the conversation flow
-  async startConversation(language?: string, speaker?: Speaker) {
-    try {
-      // 1. Get audio stream from audio service
-      const audioStream = await this.audioService.getStream();
-      
-      // 2. Get session from realtime service
-      const session = await this.realtimeService.connectWithSession(
-        sessionData,
-        audioStream,
-        this.handleMessage,
-        this.handleConnectionStateChange
-      );
-      
-      // 3. Update local state
-      this.status = 'connected';
-      this.startTime = Date.now();
-    } catch (error) {
-      this.status = 'error';
-      this.error = error.message;
-    }
-  }
+	// Orchestrate the conversation flow
+	async startConversation(language?: string, speaker?: Speaker) {
+		try {
+			// 1. Get audio stream from audio service
+			const audioStream = await this.audioService.getStream();
+
+			// 2. Get session from realtime service
+			const session = await this.realtimeService.connectWithSession(
+				sessionData,
+				audioStream,
+				this.handleMessage,
+				this.handleConnectionStateChange
+			);
+
+			// 3. Update local state
+			this.status = 'connected';
+			this.startTime = Date.now();
+		} catch (error) {
+			this.status = 'error';
+			this.error = error.message;
+		}
+	}
 }
 ```
 
@@ -202,28 +213,28 @@ UI components are thin and declarative, focusing on presentation:
 
 ```svelte
 <script lang="ts">
-  import { conversationStore } from '$lib/stores/conversation.store.svelte';
-  
-  // Use $derived for reactive values
-  const status = $derived(conversationStore.status);
-  const messages = $derived(conversationStore.messages);
-  const error = $derived(conversationStore.error);
-  
-  // Simple event handlers that call store actions
-  function handleStart() {
-    conversationStore.startConversation();
-  }
-  
-  function handleEnd() {
-    conversationStore.endConversation();
-  }
+	import { conversationStore } from '$lib/stores/conversation.store.svelte';
+
+	// Use $derived for reactive values
+	const status = $derived(conversationStore.status);
+	const messages = $derived(conversationStore.messages);
+	const error = $derived(conversationStore.error);
+
+	// Simple event handlers that call store actions
+	function handleStart() {
+		conversationStore.startConversation();
+	}
+
+	function handleEnd() {
+		conversationStore.endConversation();
+	}
 </script>
 
 <!-- Declarative UI based on state -->
 {#if status === 'idle'}
-  <button on:click={handleStart}>Start Conversation</button>
+	<button on:click={handleStart}>Start Conversation</button>
 {:else if status === 'connected'}
-  <button on:click={handleEnd}>End Conversation</button>
+	<button on:click={handleEnd}>End Conversation</button>
 {/if}
 ```
 
@@ -297,15 +308,15 @@ Always implement services first, with clear interfaces:
 ```typescript
 // Define the service interface
 export interface AudioServicePort {
-  getStream(deviceId?: string): Promise<MediaStream>;
-  getAvailableDevices(): Promise<MediaDeviceInfo[]>;
+	getStream(deviceId?: string): Promise<MediaStream>;
+	getAvailableDevices(): Promise<MediaDeviceInfo[]>;
 }
 
 // Implement the service
 export class AudioService implements AudioServicePort {
-  async getStream(deviceId?: string): Promise<MediaStream> {
-    // Implementation
-  }
+	async getStream(deviceId?: string): Promise<MediaStream> {
+		// Implementation
+	}
 }
 ```
 
@@ -313,12 +324,12 @@ export class AudioService implements AudioServicePort {
 
 ```typescript
 export class ConversationStore {
-  constructor(
-    private audioService: AudioServicePort,
-    private realtimeService: RealtimeServicePort
-  ) {}
-  
-  // Orchestrate services to implement features
+	constructor(
+		private audioService: AudioServicePort,
+		private realtimeService: RealtimeServicePort
+	) {}
+
+	// Orchestrate services to implement features
 }
 ```
 
@@ -326,9 +337,9 @@ export class ConversationStore {
 
 ```svelte
 <script>
-  import { conversationStore } from '$lib/stores/conversation.store.svelte';
-  
-  // Use store state and actions
+	import { conversationStore } from '$lib/stores/conversation.store.svelte';
+
+	// Use store state and actions
 </script>
 ```
 
@@ -341,18 +352,18 @@ export class ConversationStore {
 ```typescript
 // ✅ Good: Pure service with clear interface
 export class AudioService {
-  async getStream(): Promise<MediaStream> {
-    // Pure business logic
-  }
+	async getStream(): Promise<MediaStream> {
+		// Pure business logic
+	}
 }
 
 // ❌ Bad: Service that knows about UI
 export class AudioService {
-  async getStream(): Promise<MediaStream> {
-    // Don't do this
-    this.updateUI();
-    this.showNotification();
-  }
+	async getStream(): Promise<MediaStream> {
+		// Don't do this
+		this.updateUI();
+		this.showNotification();
+	}
 }
 ```
 
@@ -361,16 +372,16 @@ export class AudioService {
 ```typescript
 // ✅ Good: Store orchestrates services
 export class ConversationStore {
-  async startConversation() {
-    // 1. Get audio stream from audio service
-    const stream = await this.audioService.getStream();
-    
-    // 2. Get session from realtime service
-    const session = await this.realtimeService.connect(stream);
-    
-    // 3. Update state
-    this.status = 'connected';
-  }
+	async startConversation() {
+		// 1. Get audio stream from audio service
+		const stream = await this.audioService.getStream();
+
+		// 2. Get session from realtime service
+		const session = await this.realtimeService.connect(stream);
+
+		// 3. Update state
+		this.status = 'connected';
+	}
 }
 ```
 
@@ -380,9 +391,9 @@ export class ConversationStore {
 // ✅ Good: UI uses store, not services
 <script>
   import { conversationStore } from '$lib/stores/conversation.store.svelte';
-  
+
   const status = $derived(conversationStore.status);
-  
+
   function handleStart() {
     conversationStore.startConversation();
   }

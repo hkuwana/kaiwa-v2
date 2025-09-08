@@ -32,43 +32,52 @@ Kaiwa uses a **Clean 3-Layer Architecture** that separates concerns clearly:
 ## 🎯 Layer Responsibilities
 
 ### **Service Layer (Bottom)**
+
 **Purpose**: Pure business logic and external API integration
 
 **Characteristics**:
+
 - **Zero dependencies** on other services
 - **Zero knowledge** of Svelte or UI
 - **Pure TypeScript classes** with clear interfaces
 - **Testable in isolation** with mocked dependencies
 
 **Examples**:
+
 - `AudioService` - Handles audio device management and processing
 - `RealtimeService` - Manages WebRTC connections and OpenAI API
 - `AnalyticsService` - Tracks user events and metrics
 
 ### **Store Layer (Middle)**
+
 **Purpose**: State management and service orchestration
 
 **Characteristics**:
+
 - **Coordinates between services** to implement features
 - **Manages application state** using Svelte 5 runes
 - **Handles side effects** and async operations
 - **Provides actions** that UI components can call
 
 **Examples**:
+
 - `ConversationStore` - Orchestrates audio and realtime services
 - `SettingsStore` - Manages user preferences and settings
 - `AuthStore` - Handles authentication state and user data
 
 ### **UI Layer (Top)**
+
 **Purpose**: User interface and user interactions
 
 **Characteristics**:
+
 - **Thin and declarative** components
 - **Uses `$derived`** for reactive values from stores
 - **Calls store actions** instead of services directly
 - **Focuses on presentation** and user experience
 
 **Examples**:
+
 - `+page.svelte` - Main conversation interface
 - `AudioVisualizer.svelte` - Audio level visualization
 - `MessageBubble.svelte` - Individual message display
@@ -84,29 +93,31 @@ Always implement services first, with clear interfaces:
 ```typescript
 // Define the service interface
 export interface AudioServicePort {
-  getStream(deviceId?: string): Promise<MediaStream>;
-  getAvailableDevices(): Promise<MediaDeviceInfo[]>;
+	getStream(deviceId?: string): Promise<MediaStream>;
+	getAvailableDevices(): Promise<MediaDeviceInfo[]>;
 }
 
 // Implement the service
 export class AudioService implements AudioServicePort {
-  async getStream(deviceId?: string): Promise<MediaStream> {
-    // Pure business logic - no UI, no other services
-    const constraints: MediaStreamConstraints = {
-      audio: deviceId ? { deviceId: { exact: deviceId } } : {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true
-      }
-    };
-    
-    return await navigator.mediaDevices.getUserMedia(constraints);
-  }
-  
-  async getAvailableDevices(): Promise<MediaDeviceInfo[]> {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    return devices.filter(device => device.kind === 'audioinput');
-  }
+	async getStream(deviceId?: string): Promise<MediaStream> {
+		// Pure business logic - no UI, no other services
+		const constraints: MediaStreamConstraints = {
+			audio: deviceId
+				? { deviceId: { exact: deviceId } }
+				: {
+						echoCancellation: true,
+						noiseSuppression: true,
+						autoGainControl: true
+					}
+		};
+
+		return await navigator.mediaDevices.getUserMedia(constraints);
+	}
+
+	async getAvailableDevices(): Promise<MediaDeviceInfo[]> {
+		const devices = await navigator.mediaDevices.enumerateDevices();
+		return devices.filter((device) => device.kind === 'audioinput');
+	}
 }
 ```
 
@@ -114,28 +125,28 @@ export class AudioService implements AudioServicePort {
 
 ```typescript
 export class ConversationStore {
-  // Inject services (not other stores)
-  constructor(
-    private audioService: AudioServicePort,
-    private realtimeService: RealtimeServicePort
-  ) {}
-  
-  // Orchestrate services to implement features
-  async startConversation(language?: string, speaker?: Speaker) {
-    try {
-      // 1. Get audio stream from audio service
-      const audioStream = await this.audioService.getStream();
-      
-      // 2. Connect realtime service
-      await this.realtimeService.connect(audioStream);
-      
-      // 3. Update state
-      this.status = 'connected';
-    } catch (error) {
-      this.status = 'error';
-      this.error = error.message;
-    }
-  }
+	// Inject services (not other stores)
+	constructor(
+		private audioService: AudioServicePort,
+		private realtimeService: RealtimeServicePort
+	) {}
+
+	// Orchestrate services to implement features
+	async startConversation(language?: string, speaker?: Speaker) {
+		try {
+			// 1. Get audio stream from audio service
+			const audioStream = await this.audioService.getStream();
+
+			// 2. Connect realtime service
+			await this.realtimeService.connect(audioStream);
+
+			// 3. Update state
+			this.status = 'connected';
+		} catch (error) {
+			this.status = 'error';
+			this.error = error.message;
+		}
+	}
 }
 ```
 
@@ -143,25 +154,25 @@ export class ConversationStore {
 
 ```svelte
 <script lang="ts">
-  import { conversationStore } from '$lib/stores/conversation.store.svelte';
-  
-  // Use $derived for reactive values
-  const status = $derived(conversationStore.status);
-  const error = $derived(conversationStore.error);
-  
-  // Simple event handlers that call store actions
-  function handleStart() {
-    conversationStore.startConversation();
-  }
+	import { conversationStore } from '$lib/stores/conversation.store.svelte';
+
+	// Use $derived for reactive values
+	const status = $derived(conversationStore.status);
+	const error = $derived(conversationStore.error);
+
+	// Simple event handlers that call store actions
+	function handleStart() {
+		conversationStore.startConversation();
+	}
 </script>
 
 <!-- Declarative UI based on state -->
 {#if status === 'idle'}
-  <button on:click={handleStart}>Start Conversation</button>
+	<button on:click={handleStart}>Start Conversation</button>
 {:else if status === 'connected'}
-  <p>Connected! Ready to start.</p>
+	<p>Connected! Ready to start.</p>
 {:else if status === 'error'}
-  <p>Error: {error}</p>
+	<p>Error: {error}</p>
 {/if}
 ```
 
@@ -170,6 +181,7 @@ export class ConversationStore {
 ## 📁 File Structure
 
 ### **Service Files**
+
 ```
 src/lib/services/
 ├── audio.service.ts          # Audio device management
@@ -181,6 +193,7 @@ src/lib/services/
 ```
 
 ### **Store Files**
+
 ```
 src/lib/stores/
 ├── conversation.store.svelte.ts  # Conversation orchestration
@@ -191,6 +204,7 @@ src/lib/stores/
 ```
 
 ### **UI Files**
+
 ```
 src/routes/
 ├── conversation/
@@ -211,17 +225,17 @@ src/routes/
 ```typescript
 // Test services in isolation
 describe('AudioService', () => {
-  it('should get audio stream', async () => {
-    const service = new AudioService();
-    const stream = await service.getStream();
-    expect(stream).toBeInstanceOf(MediaStream);
-  });
-  
-  it('should get available devices', async () => {
-    const service = new AudioService();
-    const devices = await service.getAvailableDevices();
-    expect(Array.isArray(devices)).toBe(true);
-  });
+	it('should get audio stream', async () => {
+		const service = new AudioService();
+		const stream = await service.getStream();
+		expect(stream).toBeInstanceOf(MediaStream);
+	});
+
+	it('should get available devices', async () => {
+		const service = new AudioService();
+		const devices = await service.getAvailableDevices();
+		expect(Array.isArray(devices)).toBe(true);
+	});
 });
 ```
 
@@ -230,33 +244,33 @@ describe('AudioService', () => {
 ```typescript
 // Test store orchestration
 describe('ConversationStore', () => {
-  it('should start conversation successfully', async () => {
-    const mockAudioService = createMockAudioService();
-    const mockRealtimeService = createMockRealtimeService();
-    
-    const store = new ConversationStore(mockRealtimeService, mockAudioService);
-    
-    await store.startConversation();
-    
-    expect(store.status).toBe('connected');
-    expect(mockAudioService.getStream).toHaveBeenCalled();
-    expect(mockRealtimeService.connect).toHaveBeenCalled();
-  });
-  
-  it('should handle errors gracefully', async () => {
-    const mockAudioService = createMockAudioService();
-    const mockRealtimeService = createMockRealtimeService();
-    
-    // Make audio service throw an error
-    mockAudioService.getStream.mockRejectedValue(new Error('Permission denied'));
-    
-    const store = new ConversationStore(mockRealtimeService, mockAudioService);
-    
-    await store.startConversation();
-    
-    expect(store.status).toBe('error');
-    expect(store.error).toBe('Permission denied');
-  });
+	it('should start conversation successfully', async () => {
+		const mockAudioService = createMockAudioService();
+		const mockRealtimeService = createMockRealtimeService();
+
+		const store = new ConversationStore(mockRealtimeService, mockAudioService);
+
+		await store.startConversation();
+
+		expect(store.status).toBe('connected');
+		expect(mockAudioService.getStream).toHaveBeenCalled();
+		expect(mockRealtimeService.connect).toHaveBeenCalled();
+	});
+
+	it('should handle errors gracefully', async () => {
+		const mockAudioService = createMockAudioService();
+		const mockRealtimeService = createMockRealtimeService();
+
+		// Make audio service throw an error
+		mockAudioService.getStream.mockRejectedValue(new Error('Permission denied'));
+
+		const store = new ConversationStore(mockRealtimeService, mockAudioService);
+
+		await store.startConversation();
+
+		expect(store.status).toBe('error');
+		expect(store.error).toBe('Permission denied');
+	});
 });
 ```
 
@@ -265,22 +279,22 @@ describe('ConversationStore', () => {
 ```typescript
 // Test UI interactions
 test('should start conversation when button clicked', async ({ page }) => {
-  await page.goto('/conversation');
-  await page.click('button:has-text("Start Conversation")');
-  
-  await expect(page.locator('text=Connected!')).toBeVisible();
+	await page.goto('/conversation');
+	await page.click('button:has-text("Start Conversation")');
+
+	await expect(page.locator('text=Connected!')).toBeVisible();
 });
 
 test('should show error message when conversation fails', async ({ page }) => {
-  // Mock the API to return an error
-  await page.route('/api/realtime-session', route => 
-    route.fulfill({ status: 500, body: 'Server error' })
-  );
-  
-  await page.goto('/conversation');
-  await page.click('button:has-text("Start Conversation")');
-  
-  await expect(page.locator('text=Error:')).toBeVisible();
+	// Mock the API to return an error
+	await page.route('/api/realtime-session', (route) =>
+		route.fulfill({ status: 500, body: 'Server error' })
+	);
+
+	await page.goto('/conversation');
+	await page.click('button:has-text("Start Conversation")');
+
+	await expect(page.locator('text=Error:')).toBeVisible();
 });
 ```
 
@@ -293,12 +307,12 @@ test('should show error message when conversation fails', async ({ page }) => {
 ```typescript
 // ❌ NEVER: Service importing another service
 export class AudioService {
-  constructor(private realtimeService: RealtimeService) {} // Don't do this!
-  
-  async getStream() {
-    // This creates tight coupling and makes testing impossible
-    await this.realtimeService.someMethod();
-  }
+	constructor(private realtimeService: RealtimeService) {} // Don't do this!
+
+	async getStream() {
+		// This creates tight coupling and makes testing impossible
+		await this.realtimeService.someMethod();
+	}
 }
 ```
 
@@ -307,12 +321,12 @@ export class AudioService {
 ```svelte
 <!-- ❌ NEVER: UI calling services directly -->
 <script>
-  import { audioService } from '$lib/services/audio.service';
-  
-  async function handleStart() {
-    // Don't do this! Use stores instead
-    const stream = await audioService.getStream();
-  }
+	import { audioService } from '$lib/services/audio.service';
+
+	async function handleStart() {
+		// Don't do this! Use stores instead
+		const stream = await audioService.getStream();
+	}
 </script>
 ```
 
@@ -321,10 +335,10 @@ export class AudioService {
 ```typescript
 // ❌ AVOID: Complex event systems
 export class EventBus {
-  emit(event: string, data: any) {
-    // This adds unnecessary complexity
-    // Use stores for coordination instead
-  }
+	emit(event: string, data: any) {
+		// This adds unnecessary complexity
+		// Use stores for coordination instead
+	}
 }
 ```
 
@@ -337,16 +351,16 @@ export class EventBus {
 ```typescript
 // ✅ GOOD: Store coordinates services
 export class ConversationStore {
-  constructor(
-    private audioService: AudioService,
-    private realtimeService: RealtimeService
-  ) {}
-  
-  async startConversation() {
-    const stream = await this.audioService.getStream();
-    await this.realtimeService.connect(stream);
-    this.status = 'connected';
-  }
+	constructor(
+		private audioService: AudioService,
+		private realtimeService: RealtimeService
+	) {}
+
+	async startConversation() {
+		const stream = await this.audioService.getStream();
+		await this.realtimeService.connect(stream);
+		this.status = 'connected';
+	}
 }
 ```
 
@@ -355,21 +369,23 @@ export class ConversationStore {
 ```typescript
 // ✅ GOOD: Service with single responsibility
 export class AudioService {
-  async getStream(deviceId?: string): Promise<MediaStream> {
-    // Pure audio logic - no UI, no other services
-    const constraints = this.buildConstraints(deviceId);
-    return await navigator.mediaDevices.getUserMedia(constraints);
-  }
-  
-  private buildConstraints(deviceId?: string): MediaStreamConstraints {
-    return {
-      audio: deviceId ? { deviceId: { exact: deviceId } } : {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true
-      }
-    };
-  }
+	async getStream(deviceId?: string): Promise<MediaStream> {
+		// Pure audio logic - no UI, no other services
+		const constraints = this.buildConstraints(deviceId);
+		return await navigator.mediaDevices.getUserMedia(constraints);
+	}
+
+	private buildConstraints(deviceId?: string): MediaStreamConstraints {
+		return {
+			audio: deviceId
+				? { deviceId: { exact: deviceId } }
+				: {
+						echoCancellation: true,
+						noiseSuppression: true,
+						autoGainControl: true
+					}
+		};
+	}
 }
 ```
 
@@ -378,11 +394,11 @@ export class AudioService {
 ```typescript
 // ✅ GOOD: Reactive state with Svelte 5 runes
 export class ConversationStore {
-  status = $state<'idle' | 'connecting' | 'connected' | 'error'>('idle');
-  messages = $state<Message[]>([]);
-  error = $state<string | null>(null);
-  
-  // State automatically triggers UI updates
+	status = $state<'idle' | 'connecting' | 'connected' | 'error'>('idle');
+	messages = $state<Message[]>([]);
+	error = $state<string | null>(null);
+
+	// State automatically triggers UI updates
 }
 ```
 
@@ -395,14 +411,14 @@ export class ConversationStore {
 ```typescript
 // src/lib/services/new-feature.service.ts
 export interface NewFeatureServicePort {
-  doSomething(input: string): Promise<string>;
+	doSomething(input: string): Promise<string>;
 }
 
 export class NewFeatureService implements NewFeatureServicePort {
-  async doSomething(input: string): Promise<string> {
-    // Pure business logic
-    return `Processed: ${input}`;
-  }
+	async doSomething(input: string): Promise<string> {
+		// Pure business logic
+		return `Processed: ${input}`;
+	}
 }
 ```
 
@@ -411,17 +427,17 @@ export class NewFeatureService implements NewFeatureServicePort {
 ```typescript
 // src/lib/stores/new-feature.store.svelte.ts
 export class NewFeatureStore {
-  constructor(private newFeatureService: NewFeatureServicePort) {}
-  
-  result = $state<string>('');
-  
-  async processInput(input: string) {
-    try {
-      this.result = await this.newFeatureService.doSomething(input);
-    } catch (error) {
-      console.error('Failed to process input:', error);
-    }
-  }
+	constructor(private newFeatureService: NewFeatureServicePort) {}
+
+	result = $state<string>('');
+
+	async processInput(input: string) {
+		try {
+			this.result = await this.newFeatureService.doSomething(input);
+		} catch (error) {
+			console.error('Failed to process input:', error);
+		}
+	}
 }
 ```
 
@@ -430,24 +446,24 @@ export class NewFeatureStore {
 ```svelte
 <!-- src/routes/new-feature/+page.svelte -->
 <script lang="ts">
-  import { newFeatureStore } from '$lib/stores/new-feature.store.svelte';
-  
-  const result = $derived(newFeatureStore.result);
-  
-  function handleSubmit(event: Event) {
-    const form = event.target as HTMLFormElement;
-    const input = new FormData(form).get('input') as string;
-    newFeatureStore.processInput(input);
-  }
+	import { newFeatureStore } from '$lib/stores/new-feature.store.svelte';
+
+	const result = $derived(newFeatureStore.result);
+
+	function handleSubmit(event: Event) {
+		const form = event.target as HTMLFormElement;
+		const input = new FormData(form).get('input') as string;
+		newFeatureStore.processInput(input);
+	}
 </script>
 
 <form on:submit|preventDefault={handleSubmit}>
-  <input name="input" placeholder="Enter text..." />
-  <button type="submit">Process</button>
+	<input name="input" placeholder="Enter text..." />
+	<button type="submit">Process</button>
 </form>
 
 {#if result}
-  <p>Result: {result}</p>
+	<p>Result: {result}</p>
 {/if}
 ```
 
@@ -456,18 +472,21 @@ export class NewFeatureStore {
 ## 📊 Success Metrics
 
 ### **Code Quality**
+
 - **Zero circular dependencies** between services
 - **Services are pure and testable**
 - **Stores handle all orchestration**
 - **UI is declarative and simple**
 
 ### **Developer Experience**
+
 - **Clear patterns to follow**
 - **Easy to add new features**
 - **Fast test execution**
 - **Intuitive file organization**
 
 ### **User Experience**
+
 - **Features work reliably**
 - **Performance is consistent**
 - **Errors are handled gracefully**

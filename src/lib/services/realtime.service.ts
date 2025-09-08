@@ -274,9 +274,9 @@ export function processServerEvent(event: ServerEvent): ProcessedEventResult {
 		}
 
 		// GA text streaming compatibility
-        case 'response.output_text.delta':
-        case 'response.text.delta': {
-            const anyEvent = event as any;
+		case 'response.output_text.delta':
+		case 'response.text.delta': {
+			const anyEvent = event as any;
 			const delta: string | undefined = anyEvent?.delta;
 			if (delta && typeof delta === 'string') {
 				return {
@@ -292,9 +292,9 @@ export function processServerEvent(event: ServerEvent): ProcessedEventResult {
 			return { type: 'ignore', data: null };
 		}
 
-        case 'response.output_text.done':
-        case 'response.text.done': {
-            const anyEvent = event as any;
+		case 'response.output_text.done':
+		case 'response.text.done': {
+			const anyEvent = event as any;
 			const text: string | undefined = anyEvent?.text;
 			if (text && typeof text === 'string') {
 				return {
