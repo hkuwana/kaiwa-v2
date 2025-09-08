@@ -4,7 +4,10 @@
       "Bash(pnpm build:*)",
       "Bash(pkill:*)",
       "Bash(git fetch:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(pnpm check:*)",
+      "Bash(pnpm db:health:*)",
+      "Bash(pnpm migrate:supabase:import:*)"
     ],
     "deny": [],
     "ask": []

@@ -43,7 +43,9 @@
 		"db:nuke:dev": "dotenv -e .env.development -- tsx ./src/lib/server/db/nuke.ts",
 		"db:nuke:prod": "dotenv -e .env.production  -- tsx ./src/lib/server/db/nuke.ts",
 		"db:clear:dev": "dotenv -e .env.development tsx ./src/lib/server/db/nuke.ts clear",
-		"db:health": "tsx scripts/db-health.ts"
+		"db:health": "tsx scripts/db-health.ts",
+		"migrate:supabase:export": "tsx scripts/export-supabase-users.ts",
+		"migrate:supabase:import": "tsx scripts/migrate-supabase-users.ts"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
