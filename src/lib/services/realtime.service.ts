@@ -199,27 +199,46 @@ export function createInputAudioBufferCommit(): ClientEvent {
  * @returns The session update event
  */
 export function createSessionUpdate(config: SessionConfig): ClientEvent {
-	// GA: Session update shape moved fields under session + audio
-	const payload: any = {
-		type: 'session.update',
-		session: {
-			type: 'realtime',
-			model: config.model || env.PUBLIC_OPEN_AI_MODEL || 'gpt-realtime',
-			instructions: config.instructions || 'You are a helpful assistant.',
-			audio: {
-				output: { voice: config.voice || DEFAULT_VOICE }
-			}
-		}
-	};
+    // GA: Build full session with explicit output modalities and nested audio config
+    const session: any = {
+        type: 'realtime',
+        model: config.model || env.PUBLIC_OPEN_AI_MODEL || 'gpt-realtime',
+        instructions: config.instructions || 'You are a helpful assistant.',
+        output_modalities: ['audio', 'text'],
+        audio: {
+            input: { format: 'pcm16' },
+            output: { format: 'pcm16', voice: config.voice || DEFAULT_VOICE }
+        }
+    };
 
-	// Note: Additional GA fields (audio.input, transcription, turn detection) can be added later
-	return payload as ClientEvent;
+    if (config.input_audio_transcription) {
+        session.audio.input.transcription = {
+            model: config.input_audio_transcription.model,
+            language: config.input_audio_transcription.language
+        };
+    }
+
+    const td = config.turn_detection || {
+        type: 'server_vad' as const,
+        threshold: 0.45,
+        prefix_padding_ms: 300,
+        silence_duration_ms: 600
+    };
+    session.audio.input.turn_detection = {
+        type: td.type || 'server_vad',
+        threshold: td.threshold,
+        prefix_padding_ms: td.prefix_padding_ms,
+        silence_duration_ms: td.silence_duration_ms,
+        create_response: true
+    };
+
+    return { type: 'session.update', session } as ClientEvent;
 }
 
 // === EVENT PROCESSING ===
 
 export function processServerEvent(event: ServerEvent): ProcessedEventResult {
-	switch (event.type) {
+    switch (event.type) {
 		case 'conversation.item.input_audio_transcription.completed': {
 			const transcriptionEvent = event as ConversationItemInputAudioTranscriptionCompletedEvent;
 			return {
@@ -247,19 +266,56 @@ export function processServerEvent(event: ServerEvent): ProcessedEventResult {
 			};
 		}
 
-		case 'response.audio_transcript.done':
-		case 'response.output_audio_transcript.done': {
-			const doneEvent = event as ResponseAudioTranscriptDoneEvent;
-			return {
-				type: 'transcription',
-				data: {
-					type: 'assistant_transcript',
-					text: doneEvent.transcript,
-					isFinal: true,
-					timestamp: new Date()
-				}
-			};
-		}
+        case 'response.audio_transcript.done':
+        case 'response.output_audio_transcript.done': {
+            const doneEvent = event as ResponseAudioTranscriptDoneEvent;
+            return {
+                type: 'transcription',
+                data: {
+                    type: 'assistant_transcript',
+                    text: doneEvent.transcript,
+                    isFinal: true,
+                    timestamp: new Date()
+                }
+            };
+        }
+
+        // GA text streaming compatibility
+        case 'response.output_text.delta':
+        case 'response.text.delta': {
+            const anyEvent = event as any;
+            const delta: string | undefined = anyEvent?.delta;
+            if (delta && typeof delta === 'string') {
+                return {
+                    type: 'transcription',
+                    data: {
+                        type: 'assistant_transcript',
+                        text: delta,
+                        isFinal: false,
+                        timestamp: new Date()
+                    }
+                };
+            }
+            return { type: 'ignore', data: null };
+        }
+
+        case 'response.output_text.done':
+        case 'response.text.done': {
+            const anyEvent = event as any;
+            const text: string | undefined = anyEvent?.text;
+            if (text && typeof text === 'string') {
+                return {
+                    type: 'transcription',
+                    data: {
+                        type: 'assistant_transcript',
+                        text,
+                        isFinal: true,
+                        timestamp: new Date()
+                    }
+                };
+            }
+            return { type: 'ignore', data: null };
+        }
 
 		case 'conversation.item.created':
 		case 'conversation.item.added': {
@@ -286,21 +342,21 @@ export function processServerEvent(event: ServerEvent): ProcessedEventResult {
 			return { type: 'ignore', data: null };
 		}
 
-		case 'response.content_part.done': {
-			const partEvent = event as ResponseContentPartDoneEvent;
-			if (partEvent.part.type === 'text') {
-				const textPart = partEvent.part as TextContent;
-				return {
-					type: 'message',
-					data: {
-						role: 'assistant',
-						content: textPart.text,
-						timestamp: new Date()
-					}
-				};
-			}
-			return { type: 'ignore', data: null };
-		}
+        case 'response.content_part.done': {
+            const partEvent = event as ResponseContentPartDoneEvent;
+            if (partEvent.part.type === 'text') {
+                const textPart = partEvent.part as TextContent;
+                return {
+                    type: 'message',
+                    data: {
+                        role: 'assistant',
+                        content: textPart.text,
+                        timestamp: new Date()
+                    }
+                };
+            }
+            return { type: 'ignore', data: null };
+        }
 
 		case 'session.created':
 		case 'session.updated':

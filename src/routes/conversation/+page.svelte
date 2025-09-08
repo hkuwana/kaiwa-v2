@@ -177,6 +177,12 @@
 			<div class="card-body">
 				<h2 class="card-title">Dev Controls</h2>
 				<div class="space-y-3">
+					<!-- Audio interaction dev toggles are above; add a force-greet tester -->
+					<div class="flex flex-wrap items-center gap-2">
+						<button class="btn btn-sm btn-primary" onclick={() => conversationStore.forceGreet()}>Force Greet (audio+text)</button>
+						<button class="btn btn-sm" onclick={() => conversationStore.forceGreet({ audioOnly: true })}>Force Greet (audio only)</button>
+						<button class="btn btn-sm" onclick={() => conversationStore.forceGreet({ outOfBand: true })}>Force Greet OOB</button>
+					</div>
 					<!-- Audio Interaction Mode -->
 					<div class="flex flex-wrap items-center gap-3">
 						<div>

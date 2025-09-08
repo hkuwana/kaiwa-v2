@@ -10,7 +10,7 @@ import { browser } from '$app/environment';
 import { realtimeService } from '$lib/services';
 import { audioStore } from '$lib/stores/audio.store.svelte';
 import { scenarioStore } from '$lib/stores/scenario.store.svelte';
-import { getInstructions } from '$lib/services/instructions.service';
+import { getInstructions, generateScenarioGreeting } from '$lib/services/instructions.service';
 import * as messageService from '$lib/services/message.service';
 import * as sessionManagerService from '$lib/services/session-manager.service';
 import * as eventHandlerService from '$lib/services/event-handler.service';
@@ -220,6 +220,27 @@ export class ConversationStore {
 		// Request AI response
 		const responseEvent = realtimeService.createResponse(['text', 'audio']);
 		realtimeService.sendEvent(this.realtimeConnection, responseEvent);
+	};
+
+	// Dev/testing helper: force an immediate greeting (no user input required)
+	forceGreet = (opts?: { audioOnly?: boolean; outOfBand?: boolean; instructions?: string }) => {
+		if (!this.realtimeConnection) return;
+		const modalities: ('text' | 'audio')[] = opts?.audioOnly ? ['audio'] : ['audio', 'text'];
+		const scenario = scenarioStore.getSelectedScenario?.() || null;
+		const instructions =
+			opts?.instructions ||
+			generateScenarioGreeting({ language: this.language, scenario, user: userManager.user });
+
+		const event: any = {
+			type: 'response.create',
+			response: {
+				modalities,
+				input: [],
+				instructions
+			}
+		};
+		if (opts?.outOfBand) event.response.conversation = 'none';
+		realtimeService.sendEvent(this.realtimeConnection, event);
 	};
 
 	pauseStreaming = () => {
@@ -575,13 +596,46 @@ export class ConversationStore {
 			instructionType: isFirstTime ? 'complete-onboarding' : 'complete-session'
 		});
 
+
 		// Send the combined configuration
 		const configEvent = realtimeService.createSessionUpdate(sessionConfig);
 		realtimeService.sendEvent(this.realtimeConnection, configEvent);
 
-		// Request the AI to start with the appropriate instructions
-		const responseEvent = realtimeService.createResponse(['text', 'audio']);
-		realtimeService.sendEvent(this.realtimeConnection, responseEvent);
+		// Greet proactively based on preferences
+		const prefs = userPreferencesStore.getPreferences();
+		const autoGreet = prefs.audioSettings?.autoGreet ?? true;
+		if (autoGreet) {
+			const greetingMode = prefs.audioSettings?.greetingMode || 'scenario';
+			const scenario = scenarioStore.getSelectedScenario?.() || null;
+			const greeting =
+				greetingMode === 'scenario'
+					? generateScenarioGreeting({ language: this.language, scenario, user: userManager.user })
+					: `Start the conversation with a short, warm audio greeting in ${this.language?.name || 'the selected language'}. Ask exactly one short question to begin.`;
+
+			// Force a greeting even without prior user input
+			const greetEvent: any = {
+				type: 'response.create',
+				response: {
+					modalities: ['audio', 'text'],
+					input: [],
+					instructions: greeting
+				}
+			};
+			realtimeService.sendEvent(this.realtimeConnection, greetEvent);
+
+			// Optional safety retry after 1.5s if no assistant message yet
+			setTimeout(() => {
+				if (!this.realtimeConnection) return;
+				const hasAssistant = this.messages.some((m) => m.role === 'assistant');
+				if (!hasAssistant) {
+					realtimeService.sendEvent(this.realtimeConnection!, greetEvent);
+				}
+			}, 1500);
+		} else {
+			// Fallback: basic response request
+			const responseEvent = realtimeService.createResponse(['text', 'audio']);
+			realtimeService.sendEvent(this.realtimeConnection, responseEvent);
+		}
 	}
 
 	private clearTranscriptionState(): void {

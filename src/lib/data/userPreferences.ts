@@ -38,7 +38,9 @@ export const defaultUserPreference: Omit<
 	// Realtime audio interaction settings (client UX defaults)
 	audioSettings: {
 		mode: 'toggle', // default: click to toggle
-		pressBehavior: 'tap_toggle' // default: tap toggles on/off
+		pressBehavior: 'tap_toggle', // default: tap toggles on/off
+		autoGreet: true,
+		greetingMode: 'scenario'
 	}
 };
 

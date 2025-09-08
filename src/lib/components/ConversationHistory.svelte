@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Message } from '$lib/types/conversation';
+	import type { Message } from '$lib/server/db/types';
 	import { formatTimestamp } from '$lib/utils/index';
 
 	interface Props {
@@ -7,7 +7,7 @@
 		isCompact?: boolean;
 	}
 
-	let { messages = [], isCompact = false }: Props = $props();
+	const { messages = [], isCompact = false }: Props = $props();
 
 	let scrollContainer = $state<HTMLElement>();
 

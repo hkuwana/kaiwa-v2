@@ -5,8 +5,9 @@
 	import type { Message, Language } from '$lib/server/db/types';
 	import type { Speaker } from '$lib/types';
 	import { translationStore } from '$lib/stores/translation.store.svelte';
-import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
-import { conversationStore } from '$lib/stores/conversation.store.svelte';
+	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
+	import { conversationStore } from '$lib/stores/conversation.store.svelte';
+	import { SvelteMap } from 'svelte/reactivity';
 	// Remove direct import of translation service since it won't work in browser
 
 	interface Props {
@@ -22,7 +23,7 @@ import { conversationStore } from '$lib/stores/conversation.store.svelte';
 		speaker?: Speaker;
 	}
 
-	let {
+	const {
 		status,
 		messages,
 		audioLevel,
@@ -90,7 +91,7 @@ import { conversationStore } from '$lib/stores/conversation.store.svelte';
 
 			// Update local translation data for display
 			translationData.set(messageId, organizedTranslation);
-			translationData = new Map(translationData); // Trigger reactivity
+			translationData = new SvelteMap(translationData); // Trigger reactivity
 
 			// Show the translation
 			translationStore.showTranslation(messageId);
@@ -178,24 +179,23 @@ import { conversationStore } from '$lib/stores/conversation.store.svelte';
 		<div class="mb-4 flex-shrink-0" in:fade={{ duration: 300, delay: 200 }}>
 			<div class=" border-success/20">
 				<div class="card-body p-4 text-center">
-						<div class="mb-2 flex justify-center">
-                        <AudioVisualizer
-                            {audioLevel}
-                            controlMode="external"
-                            pressBehavior={userPreferencesStore.getPressBehavior()}
-                            onRecordStart={() => {
-                                if (userPreferencesStore.getAudioMode() === 'push_to_talk') {
-                                    conversationStore.resumeStreaming();
-                                }
-                            }}
-                            onRecordStop={() => {
-                                if (userPreferencesStore.getAudioMode() === 'push_to_talk') {
-                                    conversationStore.pauseStreaming();
-                                    conversationStore.requestAIResponse();
-                                }
-                            }}
-                        />
-						</div>
+					<div class="mb-2 flex justify-center">
+						<AudioVisualizer
+							{audioLevel}
+							controlMode="external"
+							pressBehavior={userPreferencesStore.getPressBehavior()}
+							onRecordStart={() => {
+								if (userPreferencesStore.getAudioMode() === 'push_to_talk') {
+									conversationStore.resumeStreaming();
+								}
+							}}
+							onRecordStop={() => {
+								if (userPreferencesStore.getAudioMode() === 'push_to_talk') {
+									conversationStore.pauseStreaming();
+								}
+							}}
+						/>
+					</div>
 				</div>
 			</div>
 		</div>

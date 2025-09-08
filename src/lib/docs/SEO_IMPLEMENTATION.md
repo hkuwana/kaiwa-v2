@@ -94,10 +94,7 @@ export const load = async ({ locals }) => {
  <meta name="description" content={data.seo.description} />
  <link rel="canonical" href={data.seo.canonical} />
 
- <!-- Structured Data -->
- <script type="application/ld+json">
-    {JSON.stringify(data.seo.structuredData)}
- </script>
+ 
 </svelte:head>
 ```
 

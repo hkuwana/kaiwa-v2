@@ -10,7 +10,9 @@
       "Bash(pnpm migrate:supabase:import:*)",
       "Bash(echo $PATH)",
       "Bash(git --version)",
-      "Bash(git config:*)"
+      "Bash(git config:*)",
+      "Bash(pnpm lint:*)",
+      "WebFetch(domain:cookbook.openai.com)"
     ],
     "deny": [],
     "ask": []

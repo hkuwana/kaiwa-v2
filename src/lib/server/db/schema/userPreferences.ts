@@ -88,6 +88,8 @@ export const userPreferences = pgTable(
 		audioSettings: jsonb('audio_settings').$type<{
 			mode?: 'toggle' | 'push_to_talk';
 			pressBehavior?: 'tap_toggle' | 'press_hold';
+			autoGreet?: boolean;
+			greetingMode?: 'scenario' | 'generic';
 		}>()
 	},
 	(table) => [

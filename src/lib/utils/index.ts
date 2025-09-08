@@ -11,8 +11,13 @@ export function formatDuration(ms: number): string {
 	return `${remainingSeconds}s`;
 }
 
-export function formatTimestamp(timestamp: number): string {
-	const date = new Date(timestamp);
+export function formatTimestamp(timestamp: number | Date): string {
+	let date: Date;
+	if (typeof timestamp === 'number') {
+		date = new Date(timestamp);
+	} else {
+		date = timestamp;
+	}
 	return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 

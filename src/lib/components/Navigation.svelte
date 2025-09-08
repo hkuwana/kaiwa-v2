@@ -6,9 +6,9 @@
 	const { user }: { user: User | null } = $props();
 	// Get user data from page data
 
-	function handleHome() {
-		invalidateAll();
-		goto('/');
+	async function handleHome() {
+		await goto('/'); 
+		
 	}
 </script>
 

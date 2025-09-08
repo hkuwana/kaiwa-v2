@@ -7,7 +7,7 @@
 		onGoHome: () => void;
 	}
 
-	let { error, onRetry, onGoHome }: Props = $props();
+	const { error, onRetry, onGoHome }: Props = $props();
 </script>
 
 <div

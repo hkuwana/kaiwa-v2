@@ -10,6 +10,8 @@ import type {
 	Speaker
 } from '$lib/server/db/types';
 import { getLanguageById, languages } from '$lib/types';
+import type { Voice } from '$lib/types/openai.realtime.types';
+import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 
 // ============================================
 // CORE TYPES (minimal, schema-aligned)
@@ -115,6 +117,25 @@ class ModuleComposer {
 			.filter(Boolean)
 			.join('\n\n');
 	}
+}
+
+// === Utility: default voice & greeting generator (public helpers) ===
+export function getDefaultVoice(): Voice {
+  return DEFAULT_VOICE;
+}
+
+export function generateScenarioGreeting(opts: {
+  language?: Language | null;
+  scenario?: Scenario | null;
+  user?: User | null;
+}): string {
+  const languageName = opts.language?.name || 'your target language';
+  const who = opts.user?.displayName ? opts.user.displayName : '';
+  const scenarioTitle = (opts.scenario as any)?.short || opts.scenario?.title || '';
+  if (scenarioTitle) {
+    return `Start with a warm one‑sentence greeting in ${languageName}${who ? ` for ${who}` : ''}. Mention "${scenarioTitle}" and ask exactly one short question to begin.`;
+  }
+  return `Start with a warm one‑sentence greeting in ${languageName}${who ? ` for ${who}` : ''}. Ask exactly one short question to begin.`;
 }
 
 // ============================================
@@ -748,6 +769,317 @@ export { modules as instructionModules };
 
 export function testModule(moduleId: string, params: ModuleContext): string {
 	return modules.compose([moduleId], params);
+}
+
+// ============================================
+// SCENARIO-BASED INSTRUCTION GENERATORS
+// ============================================
+
+/**
+ * Generate scenario-specific initial instructions for realtime API
+ * This decouples scenario logic from the main instruction flow
+ */
+export function generateScenarioInstructions(
+	scenario: Scenario | undefined,
+	user: User,
+	language: Language,
+	preferences: Partial<UserPreferences>,
+	speaker?: Speaker
+): { instructions: string; initialMessage?: string } {
+	const nativeGreeting = getNativeGreeting(user.nativeLanguageId || 'en');
+	const isFirstTime = !preferences.successfulExchanges || preferences.successfulExchanges === 0;
+	const speakerName = speaker?.voiceName || 'Hiro';
+
+	// Base instructions that apply to all scenarios
+	const baseInstructions = getBaseInstructions(user, language, preferences, speaker);
+
+	// Handle first-time users regardless of scenario
+	const isOnboardingNeeded = isFirstTime || scenario?.category === 'onboarding';
+
+	if (isOnboardingNeeded) {
+		return {
+			instructions: `${baseInstructions}
+
+## ONBOARDING SCENARIO - FIRST MEETING
+
+### PRIMARY OBJECTIVE: Create immediate comfort and excitement
+### DURATION: 3-5 minutes maximum
+
+### STEP 1: NATIVE LANGUAGE WELCOME (First 15 seconds)
+START with native language greeting:
+"${nativeGreeting.greeting}"
+WAIT for their response before proceeding.
+
+### STEP 2: TRANSITION EXPLANATION (Next 10 seconds)  
+"Great! From here, I'll speak ${language.name}. Don't worry about being perfect - just try your best!"
+[Switch to ${language.name} and speak 30% slower than normal]
+
+### STEP 3: FIRST SUCCESS MOMENT (Within 45 seconds)
+Ask ONE simple question in ${language.name}:
+- ${getSimpleQuestion(language.name)}
+CELEBRATE any attempt: "Perfect! You're already speaking ${language.name}!"
+
+### STEP 4: BUILD CONFIDENCE (Remaining time)
+Practice something immediately useful for their daily life.
+Make them think: "I can actually do this!"
+End with: "You're doing amazing! Ready to continue?"
+
+### CRITICAL ONBOARDING RULES:
+- NO grammar explanations
+- NO "repeat after me" 
+- ONLY positive reinforcement
+- If they struggle, immediately simplify
+- Focus on "you already know this" feeling`,
+
+			initialMessage: nativeGreeting.greeting
+		};
+	}
+
+	switch (scenario?.category) {
+		case 'comfort':
+			return {
+				instructions: `${baseInstructions}
+
+## COMFORT SCENARIO - CONFIDENCE BUILDING
+
+### PRIMARY OBJECTIVE: Build speaking confidence in safe environment
+### APPROACH: Supportive, low-pressure conversation
+
+### COMFORT STRATEGIES:
+- Start with topics they know well
+- Celebrate every attempt enthusiastically
+- Never correct directly - model correct version
+- Keep complexity low but engaging
+- Focus on fluency over accuracy
+
+### CONVERSATION FLOW:
+- Personal interests and experiences
+- Familiar daily activities
+- Simple opinions and preferences
+- Stories about things they enjoy
+- Future plans and dreams
+
+### SUPPORT TECHNIQUES:
+- "That's exactly right!"
+- "You're expressing that beautifully"
+- "I love hearing about that!"
+- Use their ideas as springboards`,
+
+				initialMessage: `Hello! I'm ${speakerName}. I'm so glad to meet you! Let's have a really comfortable chat in ${language.name}. What makes you happiest these days?`
+			};
+
+		case 'basic':
+			return {
+				instructions: `${baseInstructions}
+
+## BASIC SCENARIO - FUNDAMENTAL PRACTICE
+
+### PRIMARY OBJECTIVE: Practice essential language building blocks
+### FOCUS: Core vocabulary and simple structures
+
+### BASIC LANGUAGE ELEMENTS:
+- Essential daily vocabulary
+- Present tense conversations
+- Simple questions and answers
+- Basic descriptions
+- Common phrases and expressions
+
+### PRACTICE APPROACH:
+- Use high-frequency words
+- Short, clear sentences
+- Repetition through natural conversation
+- Visual and contextual support
+- Connect to real-life situations
+
+### PROGRESSION:
+- Greetings and introductions
+- Family and personal information  
+- Daily routines and activities
+- Simple preferences and opinions`,
+
+				initialMessage: `Hi there! I'm ${speakerName}. Let's practice some basic ${language.name} together. Tell me a little about yourself - what do you like to do?`
+			};
+
+		case 'intermediate':
+			return {
+				instructions: `${baseInstructions}
+
+## INTERMEDIATE SCENARIO - EXPANDING SKILLS
+
+### PRIMARY OBJECTIVE: Develop more complex communication
+### FOCUS: Nuanced expression and varied structures
+
+### INTERMEDIATE ELEMENTS:
+- Complex sentence structures
+- Past and future tenses
+- Abstract concepts and ideas
+- Cultural nuances
+- Idiomatic expressions
+
+### CONVERSATION TOPICS:
+- Detailed experiences and stories
+- Opinions on various subjects
+- Hypothetical situations
+- Cultural comparisons
+- Problem-solving discussions
+
+### CHALLENGE LEVEL:
+- Introduce new vocabulary naturally
+- Encourage longer responses
+- Ask follow-up questions for depth
+- Gentle correction through reformulation`,
+
+				initialMessage: `Hello! I'm ${speakerName}. Ready for some engaging ${language.name} conversation? I'd love to hear about something interesting that happened to you recently.`
+			};
+
+		default:
+			// Default to conversation practice for unknown scenarios
+			return {
+				instructions: `${baseInstructions}
+
+## GENERAL CONVERSATION
+
+### PRIMARY OBJECTIVE: Natural, supportive conversation practice
+- Follow user's lead and interests  
+- Adapt to their comfort level
+- Provide gentle guidance and support
+- Keep conversation flowing naturally`,
+
+				initialMessage: `Hello! I'm ${speakerName}. Great to meet you! What would you like to practice in ${language.name} today?`
+			};
+	}
+}
+
+/**
+ * Create realtime-ready session configuration from scenario
+ * This is the main function to call from your realtime service
+ */
+export function createScenarioSessionConfig(
+	scenario: Scenario | undefined,
+	user: User,
+	language: Language,
+	preferences: Partial<UserPreferences>,
+	speaker?: Speaker
+): {
+	instructions: string;
+	initialMessage?: string;
+	voice: string;
+} {
+	const { instructions, initialMessage } = generateScenarioInstructions(
+		scenario,
+		user,
+		language,
+		preferences,
+		speaker
+	);
+
+	return {
+		instructions,
+		initialMessage,
+		voice: speaker?.voiceName || preferences.preferredVoice?.voiceName || 'alloy'
+	};
+}
+
+/**
+ * Get base instructions that apply to all scenarios
+ */
+function getBaseInstructions(
+	user: User,
+	language: Language,
+	preferences: Partial<UserPreferences>,
+	speaker?: Speaker
+): string {
+	const baseModules = [
+		'personality-adaptive',
+		'audio-handling-enhanced', 
+		'language-control',
+		'speaking-dynamics',
+		'safety-boundaries',
+		'variety-phrases',
+		'anti-patterns-enhanced'
+	];
+
+	const context: ModuleContext = { user, language, preferences, speaker };
+	return modules.compose(baseModules, context);
+}
+
+/**
+ * Generate simple questions appropriate for language level
+ */
+function getSimpleQuestion(languageName: string): string {
+	const questions = {
+		Japanese: "こんにちは！お名前は何ですか？ (Hello! What's your name?)",
+		Spanish: "¡Hola! ¿Cómo estás? (Hello! How are you?)",
+		French: "Salut! Comment allez-vous? (Hello! How are you?)",
+		German: "Hallo! Wie heißen Sie? (Hello! What's your name?)",
+		Italian: "Ciao! Come stai? (Hello! How are you?)",
+		Portuguese: "Olá! Como está? (Hello! How are you?)",
+		Korean: "안녕하세요! 이름이 뭐예요? (Hello! What's your name?)",
+		Chinese: "你好！你叫什么名字？ (Hello! What's your name?)"
+	};
+
+	return questions[languageName as keyof typeof questions] || "Hello! How are you today?";
+}
+
+/**
+ * Generate scenario-specific update instructions for mid-conversation
+ */
+export function generateScenarioUpdate(
+	scenario: Scenario | undefined,
+	updateContext: {
+		phase: 'warming_up' | 'main_activity' | 'wrapping_up';
+		timeElapsed: number;
+		userPerformance: 'struggling' | 'doing_well' | 'excelling';
+	}
+): string {
+	const { phase, userPerformance } = updateContext;
+
+	if (!scenario) {
+		return `## GENERAL UPDATE - ${phase.toUpperCase()}
+Adjust conversation flow based on current phase and user performance.`;
+	}
+
+	switch (scenario.category) {
+		case 'onboarding':
+			return `## ONBOARDING UPDATE - ${phase.toUpperCase()}
+${phase === 'main_activity' ? 
+	`Focus on building confidence. ${userPerformance === 'struggling' ? 
+		'Simplify immediately and give easy wins.' : 
+		'Gradually increase engagement and introduce more vocabulary.'}` :
+	phase === 'wrapping_up' ?
+		'End with enthusiasm and plant seeds for next conversation.' :
+		'Continue establishing comfort and assessing their natural level.'
+}`;
+
+		case 'comfort':
+			return `## COMFORT UPDATE - ${phase.toUpperCase()}
+${userPerformance === 'struggling' ? 
+	'Provide extra support and encouragement. Switch to even easier topics.' :
+	userPerformance === 'excelling' ? 
+		'Keep building confidence. Gradually introduce slightly more complexity.' :
+		'Maintain supportive atmosphere and celebrate progress.'
+}`;
+
+		case 'basic':
+			return `## BASIC UPDATE - ${phase.toUpperCase()}
+${userPerformance === 'struggling' ? 
+	'Focus on most essential vocabulary only. Use lots of repetition.' :
+	'Continue with fundamental practice. Build solid foundation.'
+}`;
+
+		case 'intermediate':
+			return `## INTERMEDIATE UPDATE - ${phase.toUpperCase()}
+${userPerformance === 'struggling' ? 
+	'Reduce complexity slightly but maintain interesting topics.' :
+	userPerformance === 'excelling' ?
+		'Introduce more advanced structures and cultural elements.' :
+		'Continue current level with varied topics.'
+}`;
+
+		default:
+			return `## SCENARIO UPDATE - ${phase.toUpperCase()}
+Adjust based on scenario goals and user performance.`;
+	}
 }
 
 // ============================================

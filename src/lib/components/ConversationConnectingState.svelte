@@ -7,7 +7,7 @@
 		onRetry: () => void;
 	}
 
-	let { audioLevel, error, onRetry }: Props = $props();
+	const { audioLevel, error, onRetry }: Props = $props();
 </script>
 
 <LoadingScreen status="connecting" {audioLevel} {error} {onRetry} />

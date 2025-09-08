@@ -27,11 +27,6 @@
 
 	<!-- Canonical -->
 	<link rel="canonical" href={data.seo.canonical} />
-
-	<!-- Structured Data -->
-	<script type="application/ld+json">
-		{JSON.stringify(data.seo.structuredData)}
-	</script>
 </svelte:head>
 
 <div class="flex min-h-screen items-center justify-center bg-base-100 p-6">
@@ -107,4 +102,4 @@
 			</div>
 		</div>
 	</div>
-</div> 
+</div>
