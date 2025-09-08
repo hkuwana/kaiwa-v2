@@ -72,6 +72,10 @@ export const userPreferences = pgTable(
 		// User memories - array of personal facts and preferences learned from conversations
 		memories: jsonb('memories').$type<string[]>().default([]), // Array of memory strings like "Wants to learn because of speaking with grandma"
 
+		// Analytics and progress tracking
+		recentSessionScores: jsonb('recent_session_scores').$type<number[]>().default([]), // Last 10 session performance scores
+		skillLevelHistory: jsonb('skill_level_history').$type<Array<{date: string; speaking?: number; listening?: number; reading?: number; writing?: number}>>().default([]), // Last 30 skill level entries
+
 		// Metadata
 		createdAt: timestamp('created_at').defaultNow().notNull(),
 		updatedAt: timestamp('updated_at')

@@ -25,9 +25,7 @@ if (!STRIPE_SECRET_KEY) {
 }
 
 // Initialize Stripe
-const stripe = new Stripe(STRIPE_SECRET_KEY, {
-	apiVersion: '2025-07-30.basil'
-});
+const stripe = new Stripe(STRIPE_SECRET_KEY);
 
 export class StripeService {
 	/**

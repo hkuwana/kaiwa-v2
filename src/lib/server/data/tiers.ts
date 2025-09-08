@@ -48,6 +48,7 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		conversationMemoryLevel: 'basic',
 		ankiExportLimit: 100,
 		feedbackSessionsPerMonth: '100',
+		maxMemories: 10, // 10 memory items for basic tier
 		isActive: false,
 		createdAt: new Date(),
 		updatedAt: new Date()
@@ -96,6 +97,7 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		customizedPhrasesFrequency: 'daily',
 		conversationMemoryLevel: 'human-like',
 		ankiExportLimit: -1,
+		maxMemories: 50, // 50 memory items for plus tier
 		isActive: false,
 		createdAt: new Date(),
 		updatedAt: new Date()
@@ -144,6 +146,7 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		customizedPhrasesFrequency: 'daily',
 		conversationMemoryLevel: 'elephant-like',
 		ankiExportLimit: -1,
+		maxMemories: 200, // 200 memory items for premium tier
 		isActive: false,
 		createdAt: new Date(),
 		updatedAt: new Date()
@@ -180,4 +183,76 @@ export function getAllStripePriceIds(): string[] {
 	});
 
 	return priceIds;
+}
+
+// Helper to get max memories for a tier
+export function getMaxMemories(tierId: UserTier): number {
+	return serverTierConfigs[tierId]?.maxMemories || 10;
+}
+
+// Re-export all helper functions for backward compatibility
+export function getTierConfig(tierId: UserTier): Tier {
+	return serverTierConfigs[tierId];
+}
+
+export function getTimerSettings(tierId: UserTier) {
+	const config = serverTierConfigs[tierId];
+	if (!config) return null;
+
+	return {
+		timeoutMs: config.conversationTimeoutSeconds || 3 * 60,
+		warningThresholdMs: config.warningThresholdSeconds || 30,
+		extendable: config.canExtend || false,
+		maxExtensions: config.maxExtensions || 0,
+		extensionDurationMs: config.extensionDurationSeconds || 0
+	};
+}
+
+export function canExtendConversation(tierId: UserTier): boolean {
+	return serverTierConfigs[tierId]?.canExtend || false;
+}
+
+export function getConversationTimeout(tierId: UserTier): number {
+	return serverTierConfigs[tierId]?.conversationTimeoutSeconds || 3 * 60 * 1000;
+}
+
+export function getWarningThreshold(tierId: UserTier): number {
+	return serverTierConfigs[tierId]?.warningThresholdSeconds || 30 * 1000;
+}
+
+export function getMaxSessionLength(tierId: UserTier): number {
+	return serverTierConfigs[tierId]?.maxSessionLengthSeconds || 180;
+}
+
+export function getMonthlySeconds(tierId: UserTier): number {
+	return serverTierConfigs[tierId]?.monthlySeconds || 1800;
+}
+
+export function hasSessionBanking(tierId: UserTier): boolean {
+	return serverTierConfigs[tierId]?.sessionBankingEnabled || false;
+}
+
+export function getMaxBankedSeconds(tierId: UserTier): number {
+	return serverTierConfigs[tierId]?.maxBankedSeconds || 0;
+}
+
+// Helper to find tier by Stripe IDs
+export function getTierByStripePriceId(
+	tiers: Tier[],
+	priceId: string
+): { tier: UserTier; billingPeriod: 'monthly' | 'annual' } | null {
+	for (const tier of tiers) {
+		if (tier.stripePriceIdMonthly === priceId) {
+			return { tier: tier.id as UserTier, billingPeriod: 'monthly' };
+		}
+		if (tier.stripePriceIdAnnual === priceId) {
+			return { tier: tier.id as UserTier, billingPeriod: 'annual' };
+		}
+	}
+	return null;
+}
+
+export function getTierByStripeProductId(tiers: Tier[], productId: string): UserTier | null {
+	const tier = tiers.find((t) => t.stripeProductId === productId);
+	return tier ? (tier.id as UserTier) : null;
 }

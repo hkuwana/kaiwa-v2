@@ -12,5 +12,7 @@ export const GUEST_USER: User = {
 	googleId: null,
 	username: null,
 	avatarUrl: null,
-	stripeCustomerId: null
+	stripeCustomerId: null,
+	emailVerified: null,
+	emailVerificationRequired: new Date()
 };

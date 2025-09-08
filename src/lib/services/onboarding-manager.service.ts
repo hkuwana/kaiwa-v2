@@ -27,7 +27,7 @@ export interface UserPreferencesProvider {
  */
 export function shouldTriggerOnboarding(preferencesProvider: UserPreferencesProvider): boolean {
 	return (
-		preferencesProvider.isGuest() || preferencesProvider.getPreference('totalConversations') === 0
+		preferencesProvider.isGuest() || preferencesProvider.getPreference('successfulExchanges') === 0
 	);
 }
 
@@ -109,10 +109,10 @@ export async function updatePreferencesWithAnalysis(
 	analysisData: Record<string, unknown>,
 	preferencesProvider: UserPreferencesProvider
 ): Promise<void> {
-	const currentConversations = preferencesProvider.getPreference('totalConversations') || 0;
+	const currentExchanges = preferencesProvider.getPreference('successfulExchanges') || 0;
 	await preferencesProvider.updatePreferences({
 		...analysisData,
-		totalConversations: currentConversations + 1
+		successfulExchanges: currentExchanges + 1
 	} as Partial<UserPreferences>);
 }
 

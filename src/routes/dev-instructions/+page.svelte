@@ -219,7 +219,7 @@
 						<input
 							type="number"
 							min="0"
-							bind:value={selectedPreferences.totalConversations}
+							bind:value={selectedPreferences.successfulExchanges}
 							class="w-full rounded border p-2"
 							on:input={generateInstructions}
 						/>

@@ -10,6 +10,10 @@
 	let stream = $state<MediaStream | null>(null);
 	let isRecording = $state(false);
 	let error = $state<string | null>(null);
+	let audioLevel = $state(0);
+	let events = $state<Array<{type: string; data: any; timestamp: string}>>([]);
+	let eventCount = $state(0);
+	let isTesting = $state(false);
 
 	// Initialize audio service
 	$effect(() => {
@@ -66,7 +70,7 @@
 			isTesting = true;
 		} catch (error) {
 			console.error('Failed to test device:', error);
-			alert(`Failed to test device: ${error.message}`);
+			alert(`Failed to test device: ${error instanceof Error ? error.message : 'Unknown error'}`);
 		}
 	}
 

@@ -40,7 +40,7 @@ export const STRIPE_TRIAL_DAYS = 8;
 
 // Stripe API configuration
 export const STRIPE_CONFIG = {
-	apiVersion: '2025-07-30.basil' as const,
+	apiVersion: '2025-08-27.basil' as const,
 	typescript: true
 } as const;
 

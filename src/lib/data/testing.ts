@@ -54,7 +54,9 @@ export const mockUsers: User[] = [
 		displayName: null,
 		avatarUrl: null,
 		stripeCustomerId: null,
-		hashedPassword: null
+		hashedPassword: null,
+		emailVerified: null,
+		emailVerificationRequired: new Date()
 	},
 	{
 		id: 'user-2',
@@ -68,7 +70,9 @@ export const mockUsers: User[] = [
 		username: null,
 		avatarUrl: null,
 		stripeCustomerId: null,
-		hashedPassword: null
+		hashedPassword: null,
+		emailVerified: null,
+		emailVerificationRequired: new Date()
 	},
 	{
 		id: 'user-3',
@@ -82,7 +86,9 @@ export const mockUsers: User[] = [
 		preferredUILanguageId: 'de',
 		createdAt: new Date(),
 		lastUsage: new Date(),
-		hashedPassword: null
+		hashedPassword: null,
+		emailVerified: null,
+		emailVerificationRequired: new Date()
 	}
 ];
 
@@ -91,28 +97,24 @@ export const mockUserPreferences: Partial<UserPreferences>[] = [
 		speakingLevel: 20,
 		learningGoal: 'Connection',
 		correctionStyle: 'gentle',
-		totalConversations: 0,
 		targetLanguageId: 'ja'
 	},
 	{
 		speakingLevel: 50,
 		learningGoal: 'Career',
 		correctionStyle: 'immediate',
-		totalConversations: 5,
 		targetLanguageId: 'es'
 	},
 	{
 		speakingLevel: 80,
 		learningGoal: 'Travel',
 		correctionStyle: 'end_of_session',
-		totalConversations: 15,
 		targetLanguageId: 'fr'
 	},
 	{
 		speakingLevel: 100,
 		learningGoal: 'Academic',
 		correctionStyle: 'gentle',
-		totalConversations: 30,
 		targetLanguageId: 'de'
 	}
 ];

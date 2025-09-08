@@ -8,7 +8,7 @@
 	const store = getContext<ConversationStore>('conversation');
 
 	let messageInput = $state('');
-	let selectedLanguage = $state('en');
+	let selectedLanguage = $state(languages.find(l => l.code === 'en')!);
 	let selectedVoice = $state('alloy');
 
 	const voices = [
@@ -63,7 +63,7 @@
 					disabled={store.status === 'connecting' || store.status === 'connected'}
 				>
 					{#each languages as lang}
-						<option value={lang.code}>{lang.name}</option>
+						<option value={lang}>{lang.name}</option>
 					{/each}
 				</select>
 			</div>
