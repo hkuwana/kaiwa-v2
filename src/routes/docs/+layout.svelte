@@ -1,8 +1,7 @@
 <script>
 	import { page } from '$app/state';
-	import Navigation from '$lib/components/Navigation.svelte';
-	import { conversationStore } from '$lib/stores/conversation.store.svelte';
-
+	// @ts-ignore
+	
 	// Get the current page data
 	const { data, children } = $props();
 

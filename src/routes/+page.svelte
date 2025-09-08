@@ -1,13 +1,11 @@
 <script lang="ts">
 	import { dev } from '$app/environment';
-	import { page } from '$app/state';
 	import { browser } from '$app/environment';
 	import UnifiedStartButton from '$lib/components/UnifiedStartButton.svelte';
-	import Navigation from '$lib/components/Navigation.svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
-	import { getFeatureFlag, trackABTest } from '$lib/analytics/posthog';
+	import { trackABTest } from '$lib/analytics/posthog';
 	import type { Language as DataLanguage } from '$lib/data/languages';
 	import type { Scenario } from '$lib/server/db/types';
 
@@ -34,8 +32,7 @@
 		variant6: 'Conversation AI that gets you.',
 		variant7: 'Practice real situations safely.',
 		variant8: 'Your Japanese survival trainer.',
-		variant9: 'AI partner for messy conversations.',
-		variant10: 'The conversation app Japan needed.'
+		variant9: 'AI partner for messy conversations.', 
 	};
 
 	// Random headline selection - Don Draper's approach

@@ -6,7 +6,7 @@ import { env } from '$env/dynamic/private';
 import { paymentRepository, userRepository } from '../repositories';
 import { subscriptionRepository } from '../repositories/subscription.repository';
 import type { Subscription } from '../db/types';
-import { getAllStripePriceIds, getStripePriceId } from '../data/tiers';
+import { getAllStripePriceIds, getStripePriceId } from '../tiers';
 
 // Environment variables
 const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;

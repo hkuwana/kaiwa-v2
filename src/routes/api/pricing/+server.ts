@@ -3,7 +3,7 @@
 
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { getServerTierConfigs } from '$lib/server/data/tiers';
+import { getServerTierConfigs } from '$lib/server/tiers';
 
 export const GET: RequestHandler = async () => {
 	try {

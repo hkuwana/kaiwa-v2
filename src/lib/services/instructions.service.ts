@@ -190,8 +190,8 @@ Second attempt (helpful):
 - "One word at a time is fine!"
 
 Third attempt (code-switch):
-- "No worries! You can say it in ${nativeLang ? nativeLang.name : 'English'} if you want"
-- "Let's try something easier - [switch topic]"
+- "No worries at all! If you'd like to speak in ${nativeLang ? nativeLang.name : 'English'}, that's totally fine - I'll understand and help you say it in ${language.name}"
+- "Or we can try something completely different - what interests you most?"
 
 ### NEVER
 - Guess what they said
@@ -219,9 +219,9 @@ modules.register({
 
 ### Strategic Code-Switching (De-escalation)
 WHEN frustrated (after 2+ failed attempts):
-- Mix languages: "Let's go to the... como se dice... park/parque"  
+- Mix languages: "Let's go to the... how do you say... park"  
 - Scaffold: Say phrase in ${language.name}, then translate key word
-- Example: "¿Fuiste al parque (park) ayer?"
+- Example: "${language.name === 'Japanese' ? '公園に (kouen ni - to the park) 行きましたか？' : 'Say phrase with translation'}"
 
 WHEN confused:
 - Brief ${nativeLanguageObject.nativeName} explanation, then back to ${language.name}
@@ -241,7 +241,7 @@ WHEN emotional/upset:
 modules.register({
 	id: 'conversation-flows',
 	priority: 5,
-	generate: ({ preferences, sessionContext }: ModuleContext) => {
+	generate: ({ preferences, sessionContext, language }: ModuleContext) => {
 		return `## CONVERSATION FLOWS
 
 ### Magic Moment Flow (When user shows breakthrough)
@@ -259,7 +259,7 @@ Response progression:
 
 30-60s: First success
 - They say something correctly
-- "Perfect! You're speaking ${preferences.targetLanguageId}!"
+- "Perfect! You're speaking ${language.name}!"
 
 60-90s: Surprise element
 - Share insider knowledge
@@ -496,7 +496,7 @@ export function generateUpdateInstructions(
 - Rebuild confidence: Give 3 easy wins quickly`;
 			} else {
 				return `## GENTLE SUPPORT
-- Mix languages: "The word for dog... perro... is easy"
+- Mix languages: "The word for 'dog'... ${language.name === 'Japanese' ? 'inu (犬)' : 'in your language'} ... let's practice"
 - Encourage: "You're doing better than you think"
 - Adjust down one level
 - Focus on success, not perfection`;
@@ -515,16 +515,18 @@ export function generateUpdateInstructions(
 			const attempts = context?.type === 'comprehension_issue' ? context.attempts : 1;
 			if (attempts >= 3) {
 				return `## COMPREHENSION RESCUE
-- Code-switch: Say in ${language.name}, then ${nativeLang}
-- "Let's try this: [${language.name}]... in ${nativeLang} that means..."
+- Warmly offer native language: "Hey, no problem at all! Feel free to tell me in ${nativeLang} and I'll help you say it in ${language.name}"
+- Code-switch: Say in ${language.name}, then explain in ${nativeLang}
+- "Let's try this: [${language.name}]... which in ${nativeLang} means..."
 - Move to easier topic immediately
-- Don't dwell on the struggle`;
+- Keep it light: "This happens to everyone - let's try something fun!"`;
 			} else {
 				return `## COMPREHENSION SUPPORT
-- Slow down significantly
-- Break into smaller pieces
-- Use cognates and gestures
-- "Let me say it differently..."`;
+- Slow down significantly and smile in your voice
+- Break into smaller pieces: "Let me say just one part..."
+- Use cognates and context clues
+- "Let me say it differently..." or "Another way to put it..."
+- Stay encouraging: "You're doing great, let's just adjust..."`;
 			}
 		}
 
@@ -573,7 +575,7 @@ export function generateInitialInstructions(
 
 ## FIRST MEETING MAGIC
 
-### Step 1: Native Language Greeting (${language.name || 'English'})
+### Step 1: Native Language Greeting (${getLanguageById(user.nativeLanguageId)?.name || 'English'})
 "${nativeGreeting.greeting}"
 Wait for response...
 
@@ -653,39 +655,39 @@ Keep under 15 seconds total.`;
 function getNativeGreeting(langCode: string): { greeting: string; confirmation: string } {
 	const greetings: Record<string, { greeting: string; confirmation: string }> = {
 		en: {
-			greeting: "Hey! I'm your language tutor. So excited to meet you!",
+			greeting: "So glad we're meeting! Since this seems like our first time talking, I'm really curious - what's your main objective with this language?",
 			confirmation: 'Can you hear me okay?'
 		},
 		es: {
-			greeting: '¡Hola! Soy tu tutor. ¡Qué gusto conocerte!',
+			greeting: '¡Qué alegría conocerte! Como parece ser nuestra primera conversación, tengo mucha curiosidad - ¿cuál es tu objetivo principal con este idioma?',
 			confirmation: '¿Me escuchas bien?'
 		},
 		fr: {
-			greeting: 'Salut! Je suis ton tuteur. Ravi de te rencontrer!',
+			greeting: "Je suis si content de te rencontrer! Puisque c'est apparemment notre première conversation, j'aimerais savoir - quel est ton objectif principal avec cette langue?",
 			confirmation: "Tu m'entends bien?"
 		},
 		de: {
-			greeting: 'Hallo! Ich bin dein Tutor. Freut mich!',
+			greeting: 'Ich freue mich so, dich kennenzulernen! Da das unser erstes Gespräch zu sein scheint, bin ich neugierig - was ist dein Hauptziel mit dieser Sprache?',
 			confirmation: 'Hörst du mich gut?'
 		},
 		it: {
-			greeting: 'Ciao! Sono il tuo tutor. Piacere!',
+			greeting: 'Che piacere conoscerti! Dato che sembra la nostra prima conversazione, sono curioso - qual è il tuo obiettivo principale con questa lingua?',
 			confirmation: 'Mi senti bene?'
 		},
 		pt: {
-			greeting: 'Oi! Sou seu tutor. Prazer em conhecer!',
+			greeting: 'Que alegria te conhecer! Como parece ser nossa primeira conversa, estou curioso - qual é seu objetivo principal com este idioma?',
 			confirmation: 'Está me ouvindo bem?'
 		},
 		ja: {
-			greeting: 'こんにちは！チューターです。よろしく！',
+			greeting: 'お会いできてとても嬉しいです！初めての会話のようですが、この言語での主な目標は何ですか？',
 			confirmation: 'よく聞こえますか？'
 		},
 		ko: {
-			greeting: '안녕! 튜터입니다. 만나서 반가워요!',
+			greeting: '만나게 되어서 정말 기뻐요! 첫 대화인 것 같은데, 이 언어를 배우는 주된 목표가 무엇인지 궁금해요?',
 			confirmation: '잘 들리나요?'
 		},
 		zh: {
-			greeting: '你好！我是你的导师。很高兴认识你！',
+			greeting: '很高兴认识你！既然这似乎是我们第一次交谈，我很好奇 - 你学习这门语言的主要目标是什么？',
 			confirmation: '听得清楚吗？'
 		}
 	};
@@ -746,4 +748,137 @@ export { modules as instructionModules };
 
 export function testModule(moduleId: string, params: ModuleContext): string {
 	return modules.compose([moduleId], params);
+}
+
+// ============================================
+// MID-CONVERSATION INTEGRATION
+// ============================================
+
+/**
+ * Generate quick adjustment instructions for real-time use
+ * Integrates with instruction-midprompt.service.ts for dynamic conversation management
+ */
+export function generateQuickAdjustment(
+	trigger: 'struggling' | 'confident' | 'unclear_audio' | 'engagement_drop' | 'breakthrough',
+	user: User,
+	language: Language,
+	preferences: Partial<UserPreferences>,
+	context?: {
+		attemptCount?: number;
+		successStreak?: number;
+		timeRemaining?: number;
+	}
+): string {
+	const nativeLang = getLanguageById(user.nativeLanguageId);
+	const level = preferences.speakingLevel || 30;
+
+	switch (trigger) {
+		case 'struggling':
+			return `## IMMEDIATE SUPPORT NEEDED
+${context?.attemptCount === 1 ? 
+`- Slow down by 30%
+- "Let me help you with that"
+- Repeat their attempt back slowly` :
+context?.attemptCount === 2 ?
+`- "That's tricky! Let's break it down"
+- Give ONE simple word only
+- Wait for their success` :
+`- Code-switch: "In ${nativeLang?.name || 'English'}, that means..."
+- Move to much easier topic
+- Give guaranteed win within 10 seconds`}
+
+VOICE TONE: Extra patient, warm, encouraging`;
+
+		case 'confident':
+			return `## LEVEL UP OPPORTUNITY
+- "You're ready for something more interesting!"
+- Introduce cultural element or idiom
+- Increase speaking pace by 20%
+- Ask follow-up questions to extend topic
+
+VOICE TONE: Excited, challenging but supportive`;
+
+		case 'unclear_audio':
+			return `## AUDIO CLARIFICATION
+${context?.attemptCount === 1 ?
+`- "Sorry, I didn't quite catch that"
+- Keep tone light and blame the audio, not them` :
+context?.attemptCount === 2 ?
+`- "Try speaking a bit slower for me"  
+- "The audio can be tricky sometimes"` :
+`- "Feel free to type it if that's easier"
+- "Or say it in ${nativeLang?.name || 'English'} and I'll help with ${language.name}"`}
+
+VOICE TONE: Understanding, not frustrated`;
+
+		case 'engagement_drop':
+			return `## RE-ENGAGEMENT NEEDED
+- IMMEDIATELY change topic to something personal
+- "What do you love doing in your free time?"
+- Add energy to voice
+- Make it about THEM, not language learning
+
+VOICE TONE: Energetic, curious, genuinely interested`;
+
+		case 'breakthrough':
+			return `## MAGIC MOMENT - CELEBRATE!
+- INSTANT recognition: "Wait! Did you just...?"
+- Be specific: "You used [specific thing] perfectly!"
+- Build momentum: "You're ready for the fun stuff!"
+- Share insider knowledge: "Here's what natives actually say..."
+
+VOICE TONE: Excited, proud, building anticipation`;
+
+		default:
+			return `## STANDARD ADJUSTMENT
+- Stay responsive to their emotional state
+- Match their energy level
+- Keep conversation natural`;
+	}
+}
+
+/**
+ * Generate transition phrases for smooth conversation flow
+ */
+export function getTransitionPhrase(
+	fromTopic: string,
+	toTopic: string,
+	language: Language,
+	confidenceLevel: number = 50
+): string {
+	const transitions = confidenceLevel > 60 ? [
+		`Speaking of ${fromTopic}, ${toTopic} is really interesting too...`,
+		`That reminds me about ${toTopic}...`,
+		`Actually, ${toTopic} connects to what you just said...`,
+		`Oh, and here's something cool about ${toTopic}...`
+	] : [
+		`Let's try talking about ${toTopic}`,
+		`How about we practice with ${toTopic}?`,
+		`${toTopic} might be easier to talk about`,
+		`Let's switch to ${toTopic} for a moment`
+	];
+
+	return transitions[Math.floor(Math.random() * transitions.length)];
+}
+
+/**
+ * Generate encouragement phrases (with variety tracking)
+ */
+export function getEncouragementPhrase(usedPhrases: Set<string> = new Set()): string {
+	const allPhrases = [
+		"Perfect!", "Exactly right!", "You've got it!", "Beautiful pronunciation!",
+		"That's exactly how natives say it!", "Wonderful!", "You're getting this!",
+		"Spot on!", "Excellent!", "Fantastic!", "Really good!", "Nice work!"
+	];
+
+	const availablePhrases = allPhrases.filter(phrase => !usedPhrases.has(phrase));
+	
+	if (availablePhrases.length === 0) {
+		usedPhrases.clear(); // Reset if all used
+		return allPhrases[Math.floor(Math.random() * allPhrases.length)];
+	}
+
+	const selectedPhrase = availablePhrases[Math.floor(Math.random() * availablePhrases.length)];
+	usedPhrases.add(selectedPhrase);
+	return selectedPhrase;
 }

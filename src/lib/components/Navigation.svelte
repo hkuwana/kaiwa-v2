@@ -1,9 +1,15 @@
 <script lang="ts">
 	import ThemeSwitcher from './ThemeSwitcher.svelte';
 	import type { User } from '$lib/server/db/types';
+	import { goto, invalidate, invalidateAll } from '$app/navigation';
 
 	const { user }: { user: User | null } = $props();
 	// Get user data from page data
+
+	function handleHome() {
+		invalidateAll();
+		goto('/');
+	}
 </script>
 
 <nav class="navbar bg-neutral text-neutral-content shadow-sm">
@@ -36,7 +42,7 @@
 				{/if}
 			</ul>
 		</div>
-		<a href="/" class="btn text-xl text-base-content btn-ghost">Kaiwa</a>
+		<button onclick={handleHome} class="btn text-xl btn-ghost">Kaiwa</button>
 	</div>
 	<div class="navbar-center hidden lg:flex">
 		<ul class="menu menu-horizontal px-1">

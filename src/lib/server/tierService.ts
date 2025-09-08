@@ -5,7 +5,7 @@ import { db } from './db/index';
 import { userUsage, conversationSessions, subscriptions } from './db/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import type { UserTier, Tier, UserUsage } from './db/types';
-import { getServerTierConfig } from '$lib/server/data/tiers';
+import { getServerTierConfig } from '$lib/server/tiers';
 
 export interface UsageStatus {
 	tier: Tier;

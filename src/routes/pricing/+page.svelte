@@ -1,22 +1,14 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import { enhance } from '$app/forms';
 	import { posthogManager } from '$lib/client/posthog';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { SubscriptionTier } from '$lib/enums.js';
-	import { defaultTierConfigs, type UserTier } from '$lib/data/tiers';
+	import { defaultTierConfigs } from '$lib/data/tiers';
 	import {
 		formatPrice,
-		calculateAnnualDiscount,
-		getDisplayPrice,
-		getMonthlyEquivalentPrice,
-		calculateAnnualSavings,
-		formatSavings,
-		BILLING_CYCLES
-	} from '$lib/client/stripe.service';
-	import { convertTierToBasicFormat, getPriceIdsForTier } from '$lib/client/stripe.utils';
-
+		calculateAnnualDiscount	} from '$lib/client/stripe.service';
+	
 	// Get page data from server using runes
 	let { data } = $props();
 

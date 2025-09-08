@@ -1,7 +1,6 @@
 <script lang="ts">
 	import '../app.css';
 	import { favicon, appleTouchIcon } from '$lib/assets';
-	import { page } from '$app/state';
 	import { ConversationStore } from '$lib/stores/conversation.store.svelte';
 	import { setContext, onMount, onDestroy } from 'svelte';
 	import Navigation from '$lib/components/Navigation.svelte';

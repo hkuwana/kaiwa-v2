@@ -1,7 +1,7 @@
 // 🏆 Server-side Tier Configurations
 // This file contains tier configurations that should only be accessible server-side
 
-import type { Tier, UserTier } from '../db/types';
+import type { Tier, UserTier } from './db/types';
 
 // Default tier configurations - server-side only
 export const serverTierConfigs: Record<UserTier, Tier> = {

@@ -8,26 +8,30 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { audioService } from '$lib/services/audio.service';
 
-	interface Props {
-		audioLevel?: number;
-		isRecording?: boolean;
-		isListening?: boolean;
-		onRecordStart?: () => void;
-		onRecordStop?: () => void;
-		onRecordComplete?: (audioData: Blob) => void;
-		deviceId?: string;
-	}
+interface Props {
+	audioLevel?: number;
+	isRecording?: boolean;
+	isListening?: boolean;
+	onRecordStart?: () => void;
+	onRecordStop?: () => void;
+	onRecordComplete?: (audioData: Blob) => void;
+	deviceId?: string;
+	controlMode?: 'internal' | 'external';
+    pressBehavior?: 'press_hold' | 'tap_toggle';
+}
 
 	// --- PROPS ---
-	let {
-		audioLevel = 0,
-		isRecording = false,
-		isListening = false,
-		onRecordStart = () => {},
-		onRecordStop = () => {},
-		onRecordComplete = () => {},
-		deviceId = undefined
-	}: Props = $props();
+let {
+	audioLevel = 0,
+	isRecording = false,
+	isListening = false,
+	onRecordStart = () => {},
+	onRecordStop = () => {},
+	onRecordComplete = () => {},
+	deviceId = undefined,
+	controlMode = 'internal',
+    pressBehavior = 'press_hold'
+}: Props = $props();
 
 	// --- REACTIVE VALUES (SVELTE 5 RUNES) ---
 	/**
@@ -99,86 +103,99 @@
 	}
 
 	// --- RECORDING FUNCTIONS ---
-	async function startRecording() {
-		try {
-			// Use existing audio service to get stream
-			if (!isAudioServiceInitialized) {
-				await audioService.initialize();
-				isAudioServiceInitialized = true;
-			}
-
-			// Get audio stream using the service
-			audioStream = await audioService.getStream(deviceId);
-
-			mediaRecorder = new MediaRecorder(audioStream, {
-				mimeType: 'audio/webm;codecs=opus'
-			});
-
-			audioChunks = [];
-
-			mediaRecorder.ondataavailable = (event) => {
-				if (event.data.size > 0) {
-					audioChunks.push(event.data);
-				}
-			};
-
-			mediaRecorder.onstop = () => {
-				const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-				onRecordComplete(audioBlob);
-
-				// Stop all tracks
-				audioStream?.getTracks().forEach((track) => track.stop());
-				audioStream = null;
-			};
-
-			mediaRecorder.start();
+async function startRecording() {
+	try {
+		if (controlMode === 'external') {
+			// Delegate to parent; do not open a local stream
 			onRecordStart();
-
-			// Start the smooth animation
 			startRecordingAnimation();
-		} catch (error) {
-			console.error('Failed to start recording:', error);
+			return;
 		}
+
+		// Internal demo mode
+		if (!isAudioServiceInitialized) {
+			await audioService.initialize();
+			isAudioServiceInitialized = true;
+		}
+		audioStream = await audioService.getStream(deviceId);
+		mediaRecorder = new MediaRecorder(audioStream, { mimeType: 'audio/webm;codecs=opus' });
+		audioChunks = [];
+		mediaRecorder.ondataavailable = (event) => {
+			if (event.data.size > 0) audioChunks.push(event.data);
+		};
+		mediaRecorder.onstop = () => {
+			const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+			onRecordComplete(audioBlob);
+			audioStream?.getTracks().forEach((track) => track.stop());
+			audioStream = null;
+		};
+		mediaRecorder.start();
+		onRecordStart();
+		startRecordingAnimation();
+	} catch (error) {
+		console.error('Failed to start recording:', error);
+	}
+}
+
+function stopRecording() {
+	if (controlMode === 'external') {
+		onRecordStop();
+		stopRecordingAnimation();
+		return;
 	}
 
-	function stopRecording() {
-		if (mediaRecorder && mediaRecorder.state === 'recording') {
-			mediaRecorder.stop();
-			onRecordStop();
-
-			// Stop the animation
-			stopRecordingAnimation();
-		}
+	if (mediaRecorder && mediaRecorder.state === 'recording') {
+		mediaRecorder.stop();
+		onRecordStop();
+		stopRecordingAnimation();
 	}
+}
 
 	// --- PRESS HANDLING ---
-	function handlePointerDown() {
-		if (isRecording || isListening) return;
+function handlePointerDown() {
+    if (isRecording || isListening) return;
+    // Latching tap-to-toggle when externally controlled
+    if (controlMode === 'external' && pressBehavior === 'tap_toggle') {
+        isPressed = true;
+        pressStartTime = Date.now();
+        if (!isRecording) {
+            startRecording();
+        } else {
+            stopRecording();
+        }
+        return;
+    }
 
-		isPressed = true;
-		pressStartTime = Date.now();
+    // Default press-and-hold behavior
+    isPressed = true;
+    pressStartTime = Date.now();
+    pressTimeout = window.setTimeout(() => {
+        startRecording();
+    }, 100);
+}
 
-		// Start recording after a short delay (to prevent accidental triggers)
-		pressTimeout = window.setTimeout(() => {
-			startRecording();
-		}, 100);
-	}
+function handlePointerUp() {
+    if (!isPressed) return;
 
-	function handlePointerUp() {
-		if (!isPressed) return;
-
-		isPressed = false;
+    isPressed = false;
 
 		if (pressTimeout) {
 			clearTimeout(pressTimeout);
 			pressTimeout = null;
 		}
 
-		// If we were recording, stop it
-		if (mediaRecorder && mediaRecorder.state === 'recording') {
-			stopRecording();
-		}
-	}
+    // In tap-to-toggle, do not auto-stop on pointerup
+    if (controlMode === 'external' && pressBehavior === 'tap_toggle') {
+        return;
+    }
+
+    // Stop based on control mode (press-and-hold)
+    if (controlMode === 'external') {
+        stopRecording();
+    } else if (mediaRecorder && mediaRecorder.state === 'recording') {
+        stopRecording();
+    }
+}
 
 	function handlePointerLeave() {
 		if (isPressed) {
@@ -187,37 +204,45 @@
 	}
 
 	// --- KEYBOARD HANDLING ---
-	function handleKeyDown(event: KeyboardEvent) {
+function handleKeyDown(event: KeyboardEvent) {
 		// Only handle spacebar and enter key
 		if (event.key !== ' ' && event.key !== 'Enter') return;
 
 		// Prevent default behavior (page scroll for spacebar)
 		event.preventDefault();
 
-		if (isRecording || isListening) return;
+    if (controlMode === 'external' && pressBehavior === 'tap_toggle') {
+        if (!isRecording) startRecording(); else stopRecording();
+        return;
+    }
 
-		// Start recording immediately on key press
-		isPressed = true;
-		pressStartTime = Date.now();
-		startRecording();
-	}
+    if (isRecording || isListening) return;
+    isPressed = true;
+    pressStartTime = Date.now();
+    startRecording();
+}
 
-	function handleKeyUp(event: KeyboardEvent) {
+function handleKeyUp(event: KeyboardEvent) {
 		// Only handle spacebar and enter key
 		if (event.key !== ' ' && event.key !== 'Enter') return;
 
 		// Prevent default behavior
 		event.preventDefault();
 
-		if (!isPressed) return;
+    if (controlMode === 'external' && pressBehavior === 'tap_toggle') {
+        // no-op for toggle
+        return;
+    }
 
-		isPressed = false;
+    if (!isPressed) return;
+    isPressed = false;
 
-		// If we were recording, stop it
-		if (mediaRecorder && mediaRecorder.state === 'recording') {
-			stopRecording();
-		}
-	}
+    if (controlMode === 'external') {
+        stopRecording();
+    } else if (mediaRecorder && mediaRecorder.state === 'recording') {
+        stopRecording();
+    }
+}
 
 	// --- AUDIO SERVICE SETUP ---
 	async function initializeAudioService() {
@@ -253,9 +278,9 @@
 	});
 
 	// --- LIFECYCLE ---
-	onMount(() => {
-		initializeAudioService();
-	});
+onMount(() => {
+	if (controlMode === 'internal') initializeAudioService();
+});
 
 	// --- CLEANUP ---
 	onDestroy(() => {

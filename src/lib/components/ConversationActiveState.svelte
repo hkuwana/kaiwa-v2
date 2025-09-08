@@ -5,6 +5,8 @@
 	import type { Message, Language } from '$lib/server/db/types';
 	import type { Speaker } from '$lib/types';
 	import { translationStore } from '$lib/stores/translation.store.svelte';
+import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
+import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	// Remove direct import of translation service since it won't work in browser
 
 	interface Props {
@@ -176,9 +178,24 @@
 		<div class="mb-4 flex-shrink-0" in:fade={{ duration: 300, delay: 200 }}>
 			<div class=" border-success/20">
 				<div class="card-body p-4 text-center">
-					<div class="mb-2 flex justify-center">
-						<AudioVisualizer {audioLevel} />
-					</div>
+						<div class="mb-2 flex justify-center">
+                        <AudioVisualizer
+                            {audioLevel}
+                            controlMode="external"
+                            pressBehavior={userPreferencesStore.getPressBehavior()}
+                            onRecordStart={() => {
+                                if (userPreferencesStore.getAudioMode() === 'push_to_talk') {
+                                    conversationStore.resumeStreaming();
+                                }
+                            }}
+                            onRecordStop={() => {
+                                if (userPreferencesStore.getAudioMode() === 'push_to_talk') {
+                                    conversationStore.pauseStreaming();
+                                    conversationStore.requestAIResponse();
+                                }
+                            }}
+                        />
+						</div>
 				</div>
 			</div>
 		</div>

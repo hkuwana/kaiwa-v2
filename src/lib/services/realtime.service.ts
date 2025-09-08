@@ -178,10 +178,19 @@ export function createTextMessage(text: string): ClientEvent {
 }
 
 export function createResponse(modalities: ('text' | 'audio')[] = ['text', 'audio']): ClientEvent {
-	return {
-		type: 'response.create',
-		response: { modalities }
-	};
+    return {
+        type: 'response.create',
+        response: { modalities }
+    };
+}
+
+// === INPUT AUDIO BUFFER CONTROL (for push-to-talk) ===
+export function createInputAudioBufferClear(): ClientEvent {
+    return { type: 'input_audio_buffer.clear' } as ClientEvent;
+}
+
+export function createInputAudioBufferCommit(): ClientEvent {
+    return { type: 'input_audio_buffer.commit' } as ClientEvent;
 }
 
 /**

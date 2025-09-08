@@ -160,7 +160,7 @@
 			</div>
 		</div>
 	{/if}
-{:else if (status === 'connected' || status === 'streaming') && messages.length > 0}
+{:else if (status === 'connected' || status === 'streaming')}
 	<ActiveConversationState
 		{status}
 		{messages}
@@ -177,6 +177,33 @@
 			<div class="card-body">
 				<h2 class="card-title">Dev Controls</h2>
 				<div class="space-y-3">
+					<!-- Audio Interaction Mode -->
+					<div class="flex flex-wrap items-center gap-3">
+						<div>
+							Mode:
+							<span class="badge badge-ghost">{userPreferencesStore.getAudioMode()}</span>
+						</div>
+						<button
+							class="btn btn-sm"
+							onclick={() => userPreferencesStore.setAudioMode(userPreferencesStore.getAudioMode() === 'toggle' ? 'push_to_talk' : 'toggle')}
+						>
+							Toggle Mode
+						</button>
+						<div class="divider divider-horizontal"></div>
+						<div>
+							Press Behavior:
+							<span class="badge badge-ghost">{userPreferencesStore.getPressBehavior()}</span>
+						</div>
+						<button
+							class="btn btn-sm"
+							onclick={() => userPreferencesStore.setPressBehavior(userPreferencesStore.getPressBehavior() === 'press_hold' ? 'tap_toggle' : 'press_hold')}
+						>
+							Toggle Press
+						</button>
+						<p class="text-xs opacity-70">
+							Hands-free: leave mic open with VAD. Push-to-talk: gate the mic; release requests a response.
+						</p>
+					</div>
 					<div>
 						<h3 class="mb-2 text-sm font-medium">Timer State</h3>
 						<pre class="rounded bg-base-200 p-2 text-xs">{JSON.stringify(

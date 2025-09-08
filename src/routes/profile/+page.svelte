@@ -1,8 +1,5 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
-	import { browser } from '$app/environment';
-	import { onMount } from 'svelte';
 	import UserPreferencesEditor from '$lib/components/UserPreferencesEditor.svelte';
 	import type { UserPreferences } from '$lib/server/db/types';
 
