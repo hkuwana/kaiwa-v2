@@ -88,12 +88,14 @@ export class SecuritySanitizer {
 				break;
 
 			case 'response.audio_transcript.delta':
+			case 'response.output_audio_transcript.delta':
 				if (event.delta) {
 					event.delta = this.sanitizeOutput(event.delta);
 				}
 				break;
 
 			case 'response.audio_transcript.done':
+			case 'response.output_audio_transcript.done':
 				if (event.transcript) {
 					event.transcript = this.sanitizeOutput(event.transcript);
 				}
@@ -126,15 +128,12 @@ export class SecuritySanitizer {
 	private static readonly MAX_REQUESTS_PER_MINUTE = 60;
 
 	static checkRateLimit(identifier: string): boolean {
-		const now = Date.now();
-		const minuteAgo = now - 60000;
-
 		if (!this.requestCounts.has(identifier)) {
 			this.requestCounts.set(identifier, 1);
 			return true;
 		}
 
-		const count = this.requestCounts.get(identifier)!;
+		const count = this.requestCounts.get(identifier) ?? 0;
 		if (count >= this.MAX_REQUESTS_PER_MINUTE) {
 			return false;
 		}

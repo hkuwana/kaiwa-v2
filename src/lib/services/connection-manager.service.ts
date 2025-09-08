@@ -5,7 +5,7 @@
 import { realtimeService } from '$lib/services';
 import type { Language, UserPreferences } from '$lib/server/db/types';
 import type { Voice } from '$lib/types/openai.realtime.types';
-
+import { env as publicEnv } from '$env/dynamic/public';
 export interface ConnectionSetupResult {
 	connection: realtimeService.RealtimeConnection;
 	sessionId: string;
@@ -28,7 +28,7 @@ export async function fetchSessionFromBackend(sessionId: string, voice: Voice) {
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({
 			sessionId: sessionId,
-			model: 'gpt-4o-mini-realtime-preview-2024-12-17',
+			model: publicEnv.PUBLIC_OPEN_AI_MODEL,
 			voice: voice
 		})
 	});

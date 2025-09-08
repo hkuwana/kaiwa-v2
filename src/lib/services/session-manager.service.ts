@@ -1,14 +1,14 @@
 // src/lib/services/session-manager.service.ts
 import type { Language } from '$lib/server/db/types';
 import type { SessionConfig, Voice } from '$lib/types/openai.realtime.types';
-
+import { env as publicEnv } from '$env/dynamic/public';
 export function createSessionConfig(
 	language: Language,
 	voice: Voice,
 	instructions: string
 ): SessionConfig {
 	return {
-		model: 'gpt-4o-mini-realtime-preview-2024-12-17',
+		model: publicEnv.PUBLIC_OPEN_AI_MODEL,
 		voice: voice,
 		instructions: instructions,
 		input_audio_transcription: {
@@ -32,7 +32,7 @@ export async function fetchSessionFromBackend(sessionId: string, voice: Voice) {
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({
 			sessionId: sessionId,
-			model: 'gpt-4o-mini-realtime-preview-2024-12-17',
+			model: publicEnv.PUBLIC_OPEN_AI_MODEL,
 			voice: voice
 		})
 	});
@@ -74,7 +74,7 @@ export function createSessionUpdateConfig(
 	voice: Voice
 ): SessionConfig {
 	return {
-		model: 'gpt-4o-mini-realtime-preview-2024-12-17',
+		model: publicEnv.PUBLIC_OPEN_AI_MODEL,
 		voice: voice,
 		instructions:
 			updates.instructions || `You are a helpful language tutor for ${language.name || 'English'}.`,

@@ -43,7 +43,8 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		const {
 			sessionId,
-			model = publicEnv.PUBLIC_OPEN_AI_MODEL || 'gpt-4o-realtime-preview-2024-10-01',
+			// GA default model name; can be overridden via PUBLIC_OPEN_AI_MODEL
+			model = publicEnv.PUBLIC_OPEN_AI_MODEL || 'gpt-realtime', 
 			voice = DEFAULT_VOICE
 		} = await request.json();
 
@@ -70,9 +71,16 @@ export const POST: RequestHandler = async ({ request }) => {
 			return json({ error: 'OpenAI API key not configured' }, { status: 500 });
 		}
 
+		// GA: client secret creation moved to /v1/realtime/client_secrets
+		// and expects a { session: { ... } } body with type, model, audio config, etc.
 		const requestPayload = {
-			model,
-			voice
+			session: {
+				type: 'realtime',
+				model,
+				audio: {
+					output: { voice }
+				}
+			}
 		};
 
 		console.log(
@@ -80,8 +88,8 @@ export const POST: RequestHandler = async ({ request }) => {
 			JSON.stringify(requestPayload, null, 2)
 		);
 
-		// Create ephemeral token for realtime API
-		const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
+		// GA: Create client secret for realtime API
+		const response = await fetch('https://api.openai.com/v1/realtime/client_secrets', {
 			method: 'POST',
 			headers: {
 				Authorization: `Bearer ${OPENAI_API_KEY}`,
@@ -139,23 +147,23 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		console.log('Realtime session created successfully:', sessionData);
 
-		// Log the ephemeral key details
-		const clientSecret = sessionData.client_secret?.value || sessionData.client_secret;
+		// Log the ephemeral key details (GA returns { value, ... })
+		const clientSecret = sessionData.value || sessionData.client_secret?.value || sessionData.client_secret;
 		const openaiSessionId = sessionData.id || sessionId;
 
 		console.log('🔑 Ephemeral key details:', {
 			sessionId: openaiSessionId,
 			clientSecretLength: clientSecret?.length || 0,
 			clientSecretPrefix: clientSecret?.substring(0, 8) || 'none',
-			expiresAt: sessionData.client_secret?.expires_at || 'unknown'
+			expiresAt: sessionData.expires_at || sessionData.client_secret?.expires_at || 'unknown'
 		});
 
 		// Ensure we return the expected structure that the adapter needs
 		return json({
-			session_id: openaiSessionId, // Use OpenAI's session ID or fallback to our sessionId
+			session_id: openaiSessionId, // Keep shape for client adapter
 			client_secret: {
 				value: clientSecret,
-				expires_at: sessionData.client_secret?.expires_at || Date.now() + 60000
+				expires_at: sessionData.expires_at || sessionData.client_secret?.expires_at || Date.now() + 60000
 			}
 		});
 	} catch (error) {

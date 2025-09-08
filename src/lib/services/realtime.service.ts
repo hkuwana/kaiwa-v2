@@ -15,7 +15,7 @@ import {
 	type SessionConfig,
 	DEFAULT_VOICE
 } from '$lib/types/openai.realtime.types';
-
+import { env as publicEnv } from '$env/dynamic/public';
 // Simple connection state interface
 export interface RealtimeConnection {
 	peerConnection: RTCPeerConnection;
@@ -57,7 +57,7 @@ export type ProcessedEventResult =
 export async function createConnection(
 	sessionData: { client_secret: { value: string; expires_at: number } },
 	audioStream: MediaStream,
-	model: string = env.PUBLIC_OPEN_AI_MODEL || 'gpt-4o-mini-realtime-preview-2024-12-17'
+	model: string = env.PUBLIC_OPEN_AI_MODEL || publicEnv.PUBLIC_OPEN_AI_MODEL
 ): Promise<RealtimeConnection | null> {
 	if (!browser) {
 		console.warn('createConnection can only be called in the browser');
@@ -89,7 +89,8 @@ export async function createConnection(
 	const offer = await pc.createOffer();
 	await pc.setLocalDescription(offer);
 
-	const response = await fetch(`https://api.openai.com/v1/realtime?model=${model}`, {
+	// GA: New URL for WebRTC SDP exchange
+	const response = await fetch(`https://api.openai.com/v1/realtime/calls?model=${model}`, {
 		method: 'POST',
 		body: offer.sdp,
 		headers: {
@@ -189,28 +190,21 @@ export function createResponse(modalities: ('text' | 'audio')[] = ['text', 'audi
  * @returns The session update event
  */
 export function createSessionUpdate(config: SessionConfig): ClientEvent {
-	return {
+	// GA: Session update shape moved fields under session + audio
+	const payload: any = {
 		type: 'session.update',
 		session: {
-			modalities: ['text', 'audio'],
+			type: 'realtime',
+			model: config.model || env.PUBLIC_OPEN_AI_MODEL || 'gpt-realtime',
 			instructions: config.instructions || 'You are a helpful assistant.',
-			input_audio_format: 'pcm16',
-			output_audio_format: 'pcm16',
-			voice: config.voice || DEFAULT_VOICE,
-			input_audio_transcription: config.input_audio_transcription
-				? {
-						model: 'whisper-1',
-						language: config.input_audio_transcription.language
-					}
-				: undefined,
-			turn_detection: config.turn_detection || {
-				type: 'server_vad',
-				threshold: 0.5,
-				prefix_padding_ms: 300,
-				silence_duration_ms: 500
+			audio: {
+				output: { voice: config.voice || DEFAULT_VOICE }
 			}
 		}
 	};
+
+	// Note: Additional GA fields (audio.input, transcription, turn detection) can be added later
+	return payload as ClientEvent;
 }
 
 // === EVENT PROCESSING ===
@@ -230,7 +224,8 @@ export function processServerEvent(event: ServerEvent): ProcessedEventResult {
 			};
 		}
 
-		case 'response.audio_transcript.delta': {
+		case 'response.audio_transcript.delta':
+		case 'response.output_audio_transcript.delta': {
 			const deltaEvent = event as ResponseAudioTranscriptDeltaEvent;
 			return {
 				type: 'transcription',
@@ -243,7 +238,8 @@ export function processServerEvent(event: ServerEvent): ProcessedEventResult {
 			};
 		}
 
-		case 'response.audio_transcript.done': {
+		case 'response.audio_transcript.done':
+		case 'response.output_audio_transcript.done': {
 			const doneEvent = event as ResponseAudioTranscriptDoneEvent;
 			return {
 				type: 'transcription',
@@ -256,7 +252,8 @@ export function processServerEvent(event: ServerEvent): ProcessedEventResult {
 			};
 		}
 
-		case 'conversation.item.created': {
+		case 'conversation.item.created':
+		case 'conversation.item.added': {
 			const createdEvent = event as ConversationItemCreatedEvent;
 			if (createdEvent.item.type === 'message' && createdEvent.item.role === 'assistant') {
 				// Type guard to ensure we only get text content
