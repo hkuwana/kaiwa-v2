@@ -8,6 +8,7 @@
 	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import { SvelteMap } from 'svelte/reactivity';
+	import { shouldTriggerOnboarding } from '$lib/services/onboarding-manager.service';
 	// Remove direct import of translation service since it won't work in browser
 
 	interface Props {
@@ -38,6 +39,16 @@
 
 	let messageInput = $state('');
 	let translationData = $state<Map<string, Partial<Message>>>(new Map());
+
+	// Determine if we are in an onboarding-like session for hinting
+	const showOnboardingHint = $derived(() => {
+		const provider = {
+			isGuest: () => userPreferencesStore.isGuest(),
+			getPreference: (key: any) => userPreferencesStore.getPreference(key),
+			updatePreferences: (updates: any) => userPreferencesStore.updatePreferences(updates)
+		};
+		return shouldTriggerOnboarding(provider);
+	});
 
 	function handleSendMessage() {
 		if (messageInput.trim() && (status === 'connected' || status === 'streaming')) {
@@ -179,15 +190,26 @@
 		<div class="mb-4 flex-shrink-0" in:fade={{ duration: 300, delay: 200 }}>
 			<div class=" border-success/20">
 				<div class="card-body p-4 text-center">
+					{#if showOnboardingHint()}
+						<div class="mt-3 text-sm opacity-80">
+							<span class="mr-2 badge badge-sm badge-info">Tip</span>
+							Tap and hold to talk, then release to hear Kaiwa.
+						</div>
+					{/if}
 					<div class="mb-2 flex justify-center">
 						<AudioVisualizer
 							{audioLevel}
 							controlMode="external"
 							pressBehavior={userPreferencesStore.getPressBehavior()}
 							onRecordStart={() => {
-								if (userPreferencesStore.getAudioMode() === 'push_to_talk') {
-									conversationStore.resumeStreaming();
+								// If not already in push-to-talk, switch immediately when user clicks the control
+								if (userPreferencesStore.getAudioMode() !== 'push_to_talk') {
+									userPreferencesStore.setAudioMode('push_to_talk');
+									if (userPreferencesStore.getPressBehavior() !== 'press_hold') {
+										userPreferencesStore.setPressBehavior('press_hold');
+									}
 								}
+								conversationStore.resumeStreaming();
 							}}
 							onRecordStop={() => {
 								if (userPreferencesStore.getAudioMode() === 'push_to_talk') {

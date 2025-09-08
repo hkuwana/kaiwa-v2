@@ -65,7 +65,7 @@
 			<h2 class="text-xl font-semibold">Test Different Error Types</h2>
 
 			<div class="space-y-3">
-				{#each errorTypes as errorType}
+				{#each errorTypes as errorType (errorType.name)}
 					<button
 						onclick={() => testError(errorType)}
 						class="btn w-full justify-start btn-outline {currentError === errorType.error

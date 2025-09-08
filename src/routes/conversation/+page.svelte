@@ -52,6 +52,15 @@
 	onMount(() => {
 		console.log('Conversation page mounted');
 
+		// Ensure press-to-talk is the default on this route
+		// Only override if not already set
+		if (userPreferencesStore.getAudioMode() !== 'push_to_talk') {
+			userPreferencesStore.setAudioMode('push_to_talk');
+		}
+		if (userPreferencesStore.getPressBehavior() !== 'press_hold') {
+			userPreferencesStore.setPressBehavior('press_hold');
+		}
+
 		// Redirect to home if no language selected
 		if (!selectedLanguage) {
 			goto('/');

@@ -6,10 +6,7 @@
 	// No need to manually instantiate or check browser environment
 
 	let devices = $state<MediaDeviceInfo[]>([]);
-	const selectedDevice = $state<string>('default');
 	let stream = $state<MediaStream | null>(null);
-	const isRecording = $state(false);
-	const error = $state<string | null>(null);
 	let audioLevel = $state(0);
 	let events = $state<Array<{ type: string; data: any; timestamp: string }>>([]);
 	let eventCount = $state(0);
@@ -70,7 +67,6 @@
 			isTesting = true;
 		} catch (error) {
 			console.error('Failed to test device:', error);
-			alert(`Failed to test device: ${error instanceof Error ? error.message : 'Unknown error'}`);
 		}
 	}
 
@@ -103,7 +99,7 @@
 		<button onclick={loadDevices} class="btn mb-4 btn-outline"> 🔄 Refresh Devices </button>
 
 		<div class="device-list grid gap-4">
-			{#each devices as device}
+			{#each devices as device (device.groupId)}
 				<div class="device-card card bg-base-100 shadow-md">
 					<div class="card-body">
 						<h3 class="card-title text-lg">
@@ -152,7 +148,7 @@
 		<button onclick={clearEvents} class="btn mb-4 btn-outline">🗑️ Clear Events</button>
 
 		<div class="events-list max-h-96 overflow-y-auto">
-			{#each events as event, index}
+			{#each events as event (event)}
 				<div class="event-item mb-2 rounded bg-base-200 p-3">
 					<div class="event-header mb-2 flex items-center justify-between">
 						<span

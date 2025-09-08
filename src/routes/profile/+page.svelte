@@ -119,10 +119,10 @@
 								<span class="label-text font-medium">Email Verified</span>
 							</div>
 							<div class="flex items-center gap-2">
-								{#if (data.user as any).emailVerified}
+								{#if data.user.emailVerified}
 									<span class="badge badge-success">Verified</span>
 									<span class="text-sm text-base-content/70">
-										{new Date((data.user as any).emailVerified).toLocaleDateString()}
+										{new Date(data.user.emailVerified).toLocaleDateString()}
 									</span>
 								{:else}
 									<span class="badge badge-error">Not Verified</span>

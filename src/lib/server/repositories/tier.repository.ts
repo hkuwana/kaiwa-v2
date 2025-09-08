@@ -76,7 +76,7 @@ export const tierRepository = {
 	async getTiersByPriceRange(_minPrice: number, _maxPrice: number): Promise<Tier[]> {
 		// Note: This is a simplified implementation since price comparison with decimal types
 		// requires more complex SQL. For now, return all active tiers.
-		 
+
 		return db.query.tiers.findMany({
 			where: eq(tiers.isActive, true),
 			orderBy: [desc(tiers.monthlyPriceUsd)]

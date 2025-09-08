@@ -2,11 +2,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import MessageBubble from '$lib/components/MessageBubble.svelte';
-	import { translationStore } from '$lib/stores/translation.store.svelte';
 	import {
 		generateScriptsForMessage,
-		generateScriptsClient,
-		generateScriptsServer,
 		detectLanguage,
 		hasScriptData,
 		needsScriptGeneration

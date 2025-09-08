@@ -301,7 +301,7 @@
 	const buttonLabel = $derived(() => {
 		if (isRecording) return 'Recording - Release to stop';
 		if (isListening) return 'Listening to AI';
-		return 'Press and hold to record';
+		return 'Press and hold to talk';
 	});
 
 	const buttonClass = $derived(() => {
@@ -392,7 +392,7 @@
 	{:else if isListening}
 		<div class="absolute -bottom-8 text-xs font-medium text-warning">Listening...</div>
 	{:else if !isPressed}
-		<div class="absolute -bottom-8 text-xs text-base-content/60">Press to record</div>
+		<div class="absolute -bottom-8 text-xs text-base-content/60">Press and hold to talk</div>
 	{/if}
 </div>
 

@@ -8,7 +8,7 @@
 	const store = getContext<ConversationStore>('conversation');
 
 	let messageInput = $state('');
-	let selectedLanguage = $state(languages.find((l) => l.code === 'en')!);
+	let selectedLanguage = $state(languages.find((l) => l.code === 'en'));
 	let selectedVoice = $state('alloy');
 
 	const voices = [
@@ -62,7 +62,7 @@
 					bind:value={selectedLanguage}
 					disabled={store.status === 'connecting' || store.status === 'connected'}
 				>
-					{#each languages as lang}
+					{#each languages as lang (lang.id)}
 						<option value={lang}>{lang.name}</option>
 					{/each}
 				</select>
@@ -75,7 +75,7 @@
 					bind:value={selectedVoice}
 					disabled={store.status === 'connecting' || store.status === 'connected'}
 				>
-					{#each voices as voice}
+					{#each voices as voice (voice.id)}
 						<option value={voice.id}>{voice.name}</option>
 					{/each}
 				</select>
@@ -89,7 +89,7 @@
 					disabled={store.status === 'connecting' || store.status === 'connected'}
 				>
 					<option value="default">Default Device</option>
-					{#each store.availableDevices as device}
+					{#each store.availableDevices as device (device.deviceId)}
 						<option value={device.deviceId}>
 							{device.label || `Device ${device.deviceId.slice(0, 8)}...`}
 						</option>
@@ -108,7 +108,7 @@
 		<div class="voice-selector">
 			<label for="voice-select">Select Voice:</label>
 			<select id="voice-select" bind:value={selectedVoice}>
-				{#each voices as voice}
+				{#each voices as voice (voice.id)}
 					<option value={voice.id}>
 						{voice.name} ({voice.id})
 					</option>
@@ -157,7 +157,7 @@
 				<h3>Messages ({store.messages.length})</h3>
 
 				<div class="messages-list">
-					{#each store.messages as message}
+					{#each store.messages as message (message.id)}
 						<div class="message-item {message.role}">
 							<div class="message-header">
 								<span class="message-role">

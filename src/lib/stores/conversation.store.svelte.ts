@@ -402,6 +402,17 @@ export class ConversationStore {
 		this.status = 'connected';
 		console.log('🎵 ConversationStore: Status changed to "connected"');
 
+		// If user preference is push-to-talk, start with input audio paused.
+		// The AudioVisualizer will resume on press.
+		try {
+			if (userPreferencesStore.getAudioMode() === 'push_to_talk' && this.audioStream) {
+				realtimeService.pauseAudioInput(this.audioStream);
+				console.log('🎛️ Input audio paused by default for push_to_talk');
+			}
+		} catch (e) {
+			console.warn('Failed to apply initial push_to_talk gating:', e);
+		}
+
 		// Create preferences provider for checking onboarding
 		const preferencesProvider = {
 			isGuest: () => userPreferencesStore.isGuest(),

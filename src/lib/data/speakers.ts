@@ -35,7 +35,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Yuki',
 		voiceProviderId: 'openai-yuki',
-		openaiVoiceId: 'verse',
+		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null
 	},
@@ -49,7 +49,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Minami',
 		voiceProviderId: 'openai-osaka',
-		openaiVoiceId: 'sage',
+		openaiVoiceId: 'coral',
 		isActive: false,
 		createdAt: null
 	},
@@ -78,7 +78,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Emily',
 		voiceProviderId: 'openai-emily',
-		openaiVoiceId: 'verse',
+		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null
 	},
@@ -136,7 +136,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Sofia',
 		voiceProviderId: 'openai-sofia',
-		openaiVoiceId: 'verse',
+		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null
 	},
@@ -194,7 +194,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Xiaoxiao',
 		voiceProviderId: 'azure-xiaoxiao',
-		openaiVoiceId: 'verse',
+		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null
 	},
@@ -252,7 +252,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Chloé',
 		voiceProviderId: 'openai-chloe',
-		openaiVoiceId: 'verse',
+		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null
 	},
@@ -282,7 +282,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Seo-yeon',
 		voiceProviderId: 'openai-seoyeon',
-		openaiVoiceId: 'verse',
+		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null
 	},
@@ -342,7 +342,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Isabella',
 		voiceProviderId: 'openai-isabella',
-		openaiVoiceId: 'verse',
+		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null
 	},
@@ -400,7 +400,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Giulia',
 		voiceProviderId: 'openai-giulia',
-		openaiVoiceId: 'verse',
+		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null
 	},
@@ -430,7 +430,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Linh',
 		voiceProviderId: 'openai-linh',
-		openaiVoiceId: 'verse',
+		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null
 	},
@@ -488,7 +488,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Fleur',
 		voiceProviderId: 'openai-fleur',
-		openaiVoiceId: 'verse',
+		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null
 	},
@@ -546,7 +546,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Maria',
 		voiceProviderId: 'openai-maria',
-		openaiVoiceId: 'verse',
+		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null
 	},
@@ -576,7 +576,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Saanvi',
 		voiceProviderId: 'openai-saanvi',
-		openaiVoiceId: 'verse',
+		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null
 	},
@@ -606,7 +606,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Svetlana',
 		voiceProviderId: 'openai-svetlana',
-		openaiVoiceId: 'verse',
+		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null
 	},
@@ -636,7 +636,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Citra',
 		voiceProviderId: 'openai-citra',
-		openaiVoiceId: 'verse',
+		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null
 	},

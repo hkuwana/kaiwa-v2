@@ -29,7 +29,9 @@
 
 	// Group messages by role for better organization
 	const userMessages = $derived(displayMessages.filter((m: Message) => m.role === 'user'));
-	const assistantMessages = $derived(displayMessages.filter((m: Message) => m.role === 'assistant'));
+	const assistantMessages = $derived(
+		displayMessages.filter((m: Message) => m.role === 'assistant')
+	);
 </script>
 
 <div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">
