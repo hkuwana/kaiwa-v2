@@ -5,7 +5,7 @@
 	import { audioService } from '$lib/services/audio.service';
 	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
 	import { realtimeService } from '$lib/services';
-    import { DEFAULT_VOICE, type Voice } from '$lib/types/openai.realtime.types';
+	import { DEFAULT_VOICE, type Voice } from '$lib/types/openai.realtime.types';
 
 	// Demo state
 	let isRecording = $state(false);
@@ -25,10 +25,10 @@
 	let selectedDeviceId = $state<string>('default');
 
 	// Realtime state
-    let isConnected = $state(false);
+	let isConnected = $state(false);
 	let connection: realtimeService.RealtimeConnection | null = null;
 	let localStream: MediaStream | null = null;
-    let lastVoice: Voice | null = null;
+	let lastVoice: Voice | null = null;
 
 	// Preferences (mode and press behavior)
 	let audioMode: 'toggle' | 'push_to_talk' = $state(userPreferencesStore.getAudioMode());
@@ -78,11 +78,11 @@
 	}
 
 	// === Realtime wiring ===
-    async function connectRealtime() {
-        try {
-            error = null;
-            // ensure stream
-            localStream = await audioService.getStream(selectedDeviceId);
+	async function connectRealtime() {
+		try {
+			error = null;
+			// ensure stream
+			localStream = await audioService.getStream(selectedDeviceId);
 
 			// fetch session
 			const sessionId = crypto.randomUUID();
@@ -97,40 +97,30 @@
 			const sessionData = await res.json();
 
 			// create connection
-            connection = await realtimeService.createConnection(sessionData, localStream);
-            if (!connection) throw new Error('Realtime connection creation failed');
+			connection = await realtimeService.createConnection(sessionData, localStream);
+			if (!connection) throw new Error('Realtime connection creation failed');
 
-            // basic handlers
-            connection.dataChannel.onopen = () => {
-                console.log('🟢 Data channel open');
-                // Send typed session.update once channel is ready
-                const sessionUpdateEvent = realtimeService.createSessionUpdate({
-                    model: 'gpt-realtime',
-                    voice: (lastVoice || DEFAULT_VOICE),
-                    input_audio_transcription: {
-                        model: 'whisper-1',
-                        language: 'en'
-                    },
-                    // Always use server VAD; for push-to-talk we gate the track
-                    turn_detection: {
-                        type: 'server_vad',
-                        threshold: 0.45,
-                        prefix_padding_ms: 300,
-                        silence_duration_ms: 600
-                    }
-                });
-                realtimeService.sendEvent(connection!, sessionUpdateEvent);
-                isConnected = true;
-            };
+			// basic handlers
+			connection.dataChannel.onopen = () => {
+				console.log('🟢 Data channel open');
+				// Send typed session.update once channel is ready
+				const sessionUpdateEvent = realtimeService.createSessionUpdate({
+					model: 'gpt-realtime',
+					voice: lastVoice || DEFAULT_VOICE,
+				 
+				});
+				realtimeService.sendEvent(connection!, sessionUpdateEvent);
+				isConnected = true;
+			};
 
-            connection.dataChannel.onmessage = (evt) => {
-                try {
-                    const serverEvent = JSON.parse(evt.data);
-                    const processed = realtimeService.processServerEvent(serverEvent);
-                    if (serverEvent.type === 'session.created' || serverEvent.type === 'session.updated') {
-                        isConnected = true;
-                    }
-                    if (processed.type === 'transcription') {
+			connection.dataChannel.onmessage = (evt) => {
+				try {
+					const serverEvent = JSON.parse(evt.data);
+					const processed = realtimeService.processServerEvent(serverEvent);
+					if (serverEvent.type === 'session.created' || serverEvent.type === 'session.updated') {
+						isConnected = true;
+					}
+					if (processed.type === 'transcription') {
 						// simple debug log
 						console.log(
 							`📝 ${processed.data.type} ${processed.data.isFinal ? 'final' : 'delta'}:`,
@@ -151,17 +141,17 @@
 				}
 			};
 
-            // initial track state based on mode
-            if (audioMode === 'push_to_talk' && localStream) {
-                realtimeService.pauseAudioInput(localStream);
-            } else if (localStream) {
-                realtimeService.resumeAudioInput(localStream);
-            }
-        } catch (e) {
-            console.error(e);
-            error = e instanceof Error ? e.message : 'Failed to connect to realtime';
-            isConnected = false;
-        }
+			// initial track state based on mode
+			if (audioMode === 'push_to_talk' && localStream) {
+				realtimeService.pauseAudioInput(localStream);
+			} else if (localStream) {
+				realtimeService.resumeAudioInput(localStream);
+			}
+		} catch (e) {
+			console.error(e);
+			error = e instanceof Error ? e.message : 'Failed to connect to realtime';
+			isConnected = false;
+		}
 	}
 
 	function disconnectRealtime() {
@@ -182,7 +172,6 @@
 		try {
 			realtimeService.sendEvent(connection, realtimeService.createInputAudioBufferClear());
 			realtimeService.resumeAudioInput(localStream);
-			readyToSend = false;
 		} catch (e) {
 			console.warn('pttStart failed', e);
 		}
@@ -193,17 +182,16 @@
 		try {
 			realtimeService.pauseAudioInput(localStream);
 			realtimeService.sendEvent(connection, realtimeService.createInputAudioBufferCommit());
-			readyToSend = true; // user must press Send to request response
 		} catch (e) {
 			console.warn('pttStop failed', e);
 		}
 	}
 
-    function sendAIResponse() {
-        if (!isConnected || !connection) return;
-        realtimeService.sendEvent(connection, realtimeService.createResponse());
-        isListening = true;
-    }
+	function sendAIResponse() {
+		if (!isConnected || !connection) return;
+		realtimeService.sendEvent(connection, realtimeService.createResponse());
+		isListening = true;
+	}
 
 	// Recording handlers
 	function handleRecordStart() {
@@ -233,11 +221,11 @@
 			recordingInterval = null;
 		}
 
-        // If connected and in push_to_talk mode, stop gating and immediately send via Realtime
-        if (isConnected && audioMode === 'push_to_talk') {
-            pttStop();
-        }
-    }
+		// If connected and in push_to_talk mode, stop gating and immediately send via Realtime
+		if (isConnected && audioMode === 'push_to_talk') {
+			pttStop();
+		}
+	}
 
 	function handleRecordComplete(audioData: Blob) {
 		console.log('✅ Recording completed, audio data:', audioData.size, 'bytes');
@@ -425,15 +413,15 @@
 					</div>
 				</div>
 			</div>
-            {#if isConnected && audioMode === 'push_to_talk'}
-                <div class="mt-4 text-sm opacity-70">
-                    {#if pressBehavior === 'tap_toggle'}
-                        Tap to start, tap again to stop. AI will respond automatically.
-                    {:else}
-                        Press and hold to talk; release to let AI respond.
-                    {/if}
-                </div>
-            {/if}
+			{#if isConnected && audioMode === 'push_to_talk'}
+				<div class="mt-4 text-sm opacity-70">
+					{#if pressBehavior === 'tap_toggle'}
+						Tap to start, tap again to stop. AI will respond automatically.
+					{:else}
+						Press and hold to talk; release to let AI respond.
+					{/if}
+				</div>
+			{/if}
 		</div>
 
 		<!-- Main Demo Section -->
@@ -443,17 +431,17 @@
 				<h3 class="mb-6 text-center text-2xl font-bold">🎤 Press-to-Record Visualizer</h3>
 
 				<div class="mb-6 flex justify-center">
-                    <AudioVisualizer
-                        {audioLevel}
-                        {isRecording}
-                        {isListening}
-                        controlMode="external"
-                        pressBehavior={pressBehavior}
-                        deviceId={selectedDeviceId}
-                        onRecordStart={handleRecordStart}
-                        onRecordStop={handleRecordStop}
-                        onRecordComplete={handleRecordComplete}
-                    />
+					<AudioVisualizer
+						{audioLevel}
+						{isRecording}
+						{isListening}
+						controlMode="external"
+						{pressBehavior}
+						deviceId={selectedDeviceId}
+						onRecordStart={handleRecordStart}
+						onRecordStop={handleRecordStop}
+						onRecordComplete={handleRecordComplete}
+					/>
 				</div>
 
 				<!-- Status Display -->

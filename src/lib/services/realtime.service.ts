@@ -9,20 +9,23 @@
 // MIGRATION EXPORTS (Use these for new code)
 // ============================================
 export { realtimeCompatibilityService as modernRealtimeService } from './realtime-agents.service';
- 
+
 import { browser } from '$app/environment';
 import { env } from '$env/dynamic/public';
+// Prefer official types from @openai/agents-realtime where available
+import type {
+	RealtimeClientMessage as ClientEvent,
+	RealtimeSessionConfig as SessionConfig,
+	TransportEvent as ServerEvent,
+	TransportLayerTranscriptDelta as ResponseAudioTranscriptDeltaEvent
+} from '@openai/agents-realtime';
+// Keep local fallback types for events not covered by the official package
 import {
-	type ServerEvent,
-	type ClientEvent,
-	type ConversationItemInputAudioTranscriptionCompletedEvent,
-	type ResponseAudioTranscriptDeltaEvent,
 	type ResponseAudioTranscriptDoneEvent,
 	type ConversationItemCreatedEvent,
 	type ResponseContentPartDoneEvent,
 	type TextContent,
-	type SessionConfig,
-	DEFAULT_VOICE
+	type ConversationItemInputAudioTranscriptionCompletedEvent
 } from '$lib/types/openai.realtime.types';
 import { env as publicEnv } from '$env/dynamic/public';
 // Simple connection state interface
@@ -173,48 +176,13 @@ export function sendEvent(connection: RealtimeConnection, event: ClientEvent): v
  * @param text - The text of the message
  * @returns The text message event
  */
-function generateItemId(): string {
-    // 32-hex chars (16 bytes) to satisfy max length <= 32
-    const bytes = new Uint8Array(16);
-    crypto.getRandomValues(bytes);
-    return Array.from(bytes)
-        .map((b) => b.toString(16).padStart(2, '0'))
-        .join('');
-}
-
-export function createTextMessage(text: string): ClientEvent {
-    return {
-        type: 'conversation.item.create',
-        item: {
-            id: generateItemId(),
-            type: 'message',
-            role: 'user',
-            content: [{ type: 'input_text', text }]
-        }
-    };
-}
+// legacy generateItemId removed
 
 export function createResponse(): ClientEvent {
 	return {
 		type: 'response.create',
 		response: {}
 	};
-}
-
-/**
- * Create an assistant message to start the conversation
- * This is needed to make the AI speak first
- */
-export function createAssistantStartMessage(text: string): ClientEvent {
-    return {
-        type: 'conversation.item.create',
-        item: {
-            id: generateItemId(),
-            type: 'message',
-            role: 'assistant',
-            content: [{ type: 'text', text }]
-        }
-    };
 }
 
 // === INPUT AUDIO BUFFER CONTROL (for push-to-talk) ===
@@ -232,17 +200,18 @@ export function createInputAudioBufferCommit(): ClientEvent {
  * @returns The session update event
  */
 export function createSessionUpdate(config: SessionConfig): ClientEvent {
-    // Minimum compatible payload for preview and GA models
-    const session: any = {
-        type: 'realtime',
-        model: config.model || env.PUBLIC_OPEN_AI_MODEL || 'gpt-realtime',
-        instructions: config.instructions || 'You are a helpful assistant.'
-    };
+	// Minimum compatible payload for preview and GA models
+	return {
+		type: 'session.update',
+		session: {
+			type: 'realtime',
+			model: config.model || env.PUBLIC_OPEN_AI_MODEL || 'gpt-realtime',
+			instructions: config.instructions || 'You are a helpful assistant.'
+		}
+	};
 
-    // Do NOT include voice, input_audio_transcription, or turn_detection here.
-    // Configure those at session creation on the server if needed.
-
-    return { type: 'session.update', session } as ClientEvent;
+	// Do NOT include voice, input_audio_transcription, or turn_detection here.
+	// Configure those at session creation on the server if needed.
 }
 
 // === EVENT PROCESSING ===
@@ -257,6 +226,20 @@ export function processServerEvent(event: ServerEvent): ProcessedEventResult {
 					type: 'user_transcript',
 					text: transcriptionEvent.transcript,
 					isFinal: true,
+					timestamp: new Date()
+				}
+			};
+		}
+
+		// SDK transport layer assistant transcript delta
+		case 'audio_transcript_delta': {
+			const deltaEvent = event as ResponseAudioTranscriptDeltaEvent;
+			return {
+				type: 'transcription',
+				data: {
+					type: 'assistant_transcript',
+					text: deltaEvent.delta,
+					isFinal: false,
 					timestamp: new Date()
 				}
 			};
@@ -291,9 +274,9 @@ export function processServerEvent(event: ServerEvent): ProcessedEventResult {
 		}
 
 		// GA text streaming compatibility
-		case 'response.output_text.delta':
-		case 'response.text.delta': {
-			const anyEvent = event as any;
+        case 'response.output_text.delta':
+        case 'response.text.delta': {
+            const anyEvent = event as any;
 			const delta: string | undefined = anyEvent?.delta;
 			if (delta && typeof delta === 'string') {
 				return {
@@ -309,9 +292,9 @@ export function processServerEvent(event: ServerEvent): ProcessedEventResult {
 			return { type: 'ignore', data: null };
 		}
 
-		case 'response.output_text.done':
-		case 'response.text.done': {
-			const anyEvent = event as any;
+        case 'response.output_text.done':
+        case 'response.text.done': {
+            const anyEvent = event as any;
 			const text: string | undefined = anyEvent?.text;
 			if (text && typeof text === 'string') {
 				return {
@@ -402,27 +385,4 @@ export function stopAudioStream(stream: MediaStream): void {
 
 // === CONNECTION STATUS FUNCTIONS ===
 
-export function getConnectionStatus(connection: RealtimeConnection | null): {
-	isConnected: boolean;
-	connectionState: string;
-	dataChannelState: string;
-	sessionExpired: boolean;
-} {
-	if (!connection) {
-		return {
-			isConnected: false,
-			connectionState: 'disconnected',
-			dataChannelState: 'closed',
-			sessionExpired: false
-		};
-	}
-
-	return {
-		isConnected:
-			connection.peerConnection.connectionState === 'connected' &&
-			connection.dataChannel.readyState === 'open',
-		connectionState: connection.peerConnection.connectionState,
-		dataChannelState: connection.dataChannel.readyState,
-		sessionExpired: connection.expiresAt <= Date.now()
-	};
-}
+// legacy getConnectionStatus removed

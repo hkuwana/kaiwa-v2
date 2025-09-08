@@ -45,7 +45,8 @@ export const POST: RequestHandler = async ({ request }) => {
 			sessionId,
 			// GA default model name; can be overridden via PUBLIC_OPEN_AI_MODEL
 			model = publicEnv.PUBLIC_OPEN_AI_MODEL || 'gpt-realtime', 
-			voice = DEFAULT_VOICE
+			voice = DEFAULT_VOICE,
+			language
 		} = await request.json();
 
 		if (!sessionId) {

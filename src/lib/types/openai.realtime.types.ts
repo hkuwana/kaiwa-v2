@@ -3,15 +3,11 @@
 // Now integrating with official @openai/agents-realtime package
 
 // === Official OpenAI Agents Exports ===
-export { 
-  RealtimeAgent, 
-  RealtimeSession as OpenAIRealtimeSession 
-} from '@openai/agents-realtime';
+export { RealtimeAgent, RealtimeSession as OpenAIRealtimeSession } from '@openai/agents-realtime';
 
 // Re-export commonly used types from the official package
-export type { 
-  // Add official types as they become available
-} from '@openai/agents-realtime';
+export type {} from // Add official types as they become available
+'@openai/agents-realtime';
 
 // === Core Types ===
 export type AudioFormat = 'pcm16' | 'g711_ulaw' | 'g711_alaw';
@@ -94,20 +90,9 @@ export interface FunctionTool {
 }
 
 // === Session Configuration ===
-// Updated based on actual OpenAI Realtime API requirements
-export interface SessionConfig {
-	model?: string;
-	voice?: Voice;
-	instructions?: string;
-	// Note: modalities, input_audio_format, output_audio_format are NOT valid session parameters
-	// They are determined by the WebRTC connection setup
-	input_audio_transcription?: InputAudioTranscription;
-	turn_detection?: TurnDetection;
-	tools?: FunctionTool[];
-	tool_choice?: ToolChoice;
-	temperature?: number;
-	max_response_output_tokens?: number | 'inf';
-}
+// Replace local definition with official SDK config for accuracy and forward compatibility
+import type { RealtimeSessionConfig as OfficialRealtimeSessionConfig } from '@openai/agents-realtime';
+export type SessionConfig = OfficialRealtimeSessionConfig;
 
 // === Simplified Session Config (for your existing code) ===
 export interface SimpleSessionConfig {
@@ -649,51 +634,6 @@ export interface AudioTestResult {
 }
 
 // === API Response Types ===
-export interface CreateSessionRequest {
-	client_secret?: {
-		expires_at?: number;
-	};
-	model?: string;
-	voice?: Voice;
-	instructions?: string;
-	modalities?: Modality[];
-	input_audio_format?: AudioFormat;
-	output_audio_format?: AudioFormat;
-	input_audio_transcription?: InputAudioTranscription;
-	input_audio_noise_reduction?: InputAudioNoiseReduction;
-	turn_detection?: TurnDetection;
-	tools?: FunctionTool[];
-	tool_choice?: ToolChoice;
-	temperature?: number;
-	speed?: number;
-	max_response_output_tokens?: number | 'inf';
-	tracing?: 'auto' | TracingConfig;
-}
-
-export interface CreateSessionResponse {
-	id: string;
-	object: 'realtime.session';
-	model: string;
-	expires_at: number;
-	client_secret: {
-		value: string;
-		expires_at: number;
-	};
-	voice: Voice;
-	instructions: string;
-	modalities: Modality[];
-	input_audio_format: AudioFormat;
-	output_audio_format: AudioFormat;
-	input_audio_transcription?: InputAudioTranscription;
-	input_audio_noise_reduction?: InputAudioNoiseReduction;
-	turn_detection?: TurnDetection;
-	tools?: FunctionTool[];
-	tool_choice?: ToolChoice;
-	temperature: number;
-	speed: number;
-	max_response_output_tokens: number | 'inf';
-	tracing?: 'auto' | TracingConfig;
-}
 
 // === Event Handler Types ===
 export type EventHandler<T extends ServerEvent> = (event: T) => void;

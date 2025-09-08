@@ -3,6 +3,12 @@
 // Provides compatibility layer for existing conversation store
 
 import { RealtimeAgent, OpenAIRealtimeSession } from '../types/openai.realtime.types';
+import {
+    OpenAIRealtimeWebRTC,
+    RealtimeSession,
+    type RealtimeClientMessage
+} from '@openai/agents-realtime';
+import { env as publicEnv } from '$env/dynamic/public';
 import { createScenarioSessionConfig } from './instructions.service';
 import type { User, Language, UserPreferences, Scenario, Speaker } from '$lib/server/db/types';
 
@@ -16,6 +22,9 @@ export interface RealtimeAgentConnection {
 	isConnected: boolean;
 	sessionKey?: string;
 	expiresAt?: number;
+	// Optional transport + audio element when using direct session/transport
+	transport?: OpenAIRealtimeWebRTC;
+	audioElement?: HTMLAudioElement;
 }
 
 export interface AgentMessageData {
@@ -127,6 +136,101 @@ export async function startAgentConversation(
 
 	// The RealtimeSession should automatically start the conversation
 	// based on the agent configuration
+}
+
+// ============================================
+// DIRECT SESSION/TRANSPORT ADAPTER (for ConversationStore)
+// ============================================
+
+export type SessionConnection = {
+	session: RealtimeSession;
+	transport: OpenAIRealtimeWebRTC;
+	audioElement: HTMLAudioElement;
+};
+
+export async function createConnectionWithSession(
+    sessionData: { client_secret: { value: string; expires_at: number } },
+    mediaStream?: MediaStream
+): Promise<SessionConnection> {
+	const audioElement = document.createElement('audio');
+	audioElement.autoplay = true;
+	audioElement.style.display = 'none';
+	document.body.appendChild(audioElement);
+
+    const transport = new OpenAIRealtimeWebRTC({
+		// Use SDK default baseUrl: https://api.openai.com/v1/realtime/calls
+        audioElement,
+        mediaStream
+    });
+
+	const agent = new RealtimeAgent({ name: 'Kaiwa' });
+	const session = new RealtimeSession(agent, { transport });
+
+    await session.connect({
+        apiKey: sessionData.client_secret.value,
+        model: publicEnv.PUBLIC_OPEN_AI_MODEL || 'gpt-realtime'
+    });
+
+	return { session, transport, audioElement };
+}
+
+export function subscribeToSession(
+	conn: SessionConnection,
+	handlers: {
+		onTransportEvent?: (ev: any) => void;
+		onError?: (err: any) => void;
+	}
+): () => void {
+	const off1 = conn.session.on('transport_event', (ev) => handlers.onTransportEvent?.(ev));
+	const off2 = conn.session.on('error', (err) => handlers.onError?.(err));
+	return () => {
+		try {
+			off1?.();
+		} catch {}
+		try {
+			off2?.();
+		} catch {}
+	};
+}
+
+export function sendEventViaSession(conn: SessionConnection, event: RealtimeClientMessage) {
+    // Use the underlying transport to send a raw client event
+    conn.session.transport.sendEvent(event);
+}
+
+export function sendTextMessage(conn: SessionConnection, text: string) {
+    // High-level helper to send a user text message
+    conn.session.sendMessage(text);
+}
+
+export function closeSessionConnection(conn: SessionConnection) {
+	try {
+		conn.session.close();
+	} catch {}
+	try {
+		conn.audioElement.pause();
+		conn.audioElement.remove();
+	} catch {}
+}
+
+export function getSessionConnectionStatus(conn: SessionConnection): {
+	peerConnectionState: string;
+	dataChannelState: string;
+	isConnected: boolean;
+	hasLocalStream: boolean;
+} {
+	const state = conn.transport.connectionState;
+	return {
+		peerConnectionState: state.status,
+		dataChannelState:
+			state.status === 'connected'
+				? 'open'
+				: state.status === 'connecting'
+					? 'connecting'
+					: 'closed',
+		isConnected: state.status === 'connected',
+		hasLocalStream: !!conn.transport
+	};
 }
 
 // ============================================

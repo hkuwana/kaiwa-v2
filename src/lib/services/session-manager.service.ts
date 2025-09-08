@@ -2,6 +2,7 @@
 import type { Language } from '$lib/server/db/types';
 import type { SessionConfig, Voice } from '$lib/types/openai.realtime.types';
 import { env as publicEnv } from '$env/dynamic/public';
+
 export function createSessionConfig(
 	language: Language,
 	voice: Voice,
@@ -10,28 +11,23 @@ export function createSessionConfig(
 	return {
 		model: publicEnv.PUBLIC_OPEN_AI_MODEL,
 		voice: voice,
-		instructions: instructions,
-		input_audio_transcription: {
-			model: 'whisper-1' as const,
-			language: language.code
-		},
-		turn_detection: {
-			type: 'server_vad' as const,
-			threshold: 0.3,
-			prefix_padding_ms: 500,
-			silence_duration_ms: 800
-		}
+		instructions: instructions
 	};
 }
 
-export async function fetchSessionFromBackend(sessionId: string, voice: Voice) {
+export async function fetchSessionFromBackend(
+	sessionId: string,
+	voice: Voice,
+	languageCode?: string
+) {
 	const response = await fetch('/api/realtime-session', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({
 			sessionId: sessionId,
 			model: publicEnv.PUBLIC_OPEN_AI_MODEL,
-			voice: voice
+			voice: voice,
+			language: languageCode
 		})
 	});
 
@@ -75,16 +71,6 @@ export function createSessionUpdateConfig(
 		model: publicEnv.PUBLIC_OPEN_AI_MODEL,
 		voice: voice,
 		instructions:
-			updates.instructions || `You are a helpful language tutor for ${language.name || 'English'}.`,
-		input_audio_transcription: {
-			model: 'whisper-1' as const,
-			language: language.code || 'en'
-		},
-		turn_detection: updates.turnDetection || {
-			type: 'server_vad' as const,
-			threshold: 0.45,
-			prefix_padding_ms: 300,
-			silence_duration_ms: 600
-		}
+			updates.instructions || `You are a helpful language tutor for ${language.name || 'English'}.`
 	};
 }

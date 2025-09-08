@@ -8,12 +8,20 @@
 import { SvelteDate } from 'svelte/reactivity';
 import { browser } from '$app/environment';
 import { realtimeService } from '$lib/services';
+import {
+	createConnectionWithSession,
+	subscribeToSession,
+	sendEventViaSession,
+	getSessionConnectionStatus,
+	closeSessionConnection,
+	type SessionConnection,
+	sendTextMessage
+} from '$lib/services/realtime-agents.service';
 import { audioStore } from '$lib/stores/audio.store.svelte';
 import { scenarioStore } from '$lib/stores/scenario.store.svelte';
-import { getInstructions, generateScenarioGreeting } from '$lib/services/instructions.service';
+import { getInstructions } from '$lib/services/instructions.service';
 import * as messageService from '$lib/services/message.service';
 import * as sessionManagerService from '$lib/services/session-manager.service';
-import * as eventHandlerService from '$lib/services/event-handler.service';
 import * as transcriptionStateService from '$lib/services/transcription-state.service';
 import * as onboardingManagerService from '$lib/services/onboarding-manager.service';
 import type { Message, Language, UserPreferences, UserTier } from '$lib/server/db/types';
@@ -60,9 +68,9 @@ export class ConversationStore {
 	private waitingForAudioCompletion = $state<boolean>(false);
 	private waitingForAIResponse = $state<boolean>(false);
 
-	// Private connection state
-	private realtimeConnection: realtimeService.RealtimeConnection | null = null;
+	// Private connection state (SDK only)
 	private audioStream: MediaStream | null = null;
+	private sessionConnection: SessionConnection | null = null;
 	private timer: ConversationTimerStore = $state(createConversationTimerStore('free'));
 	private currentOptions: Partial<UserPreferences> | null = null;
 
@@ -184,11 +192,8 @@ export class ConversationStore {
 			const sessionData = await this.fetchSessionFromBackend();
 			this.sessionId = sessionData.session_id;
 
-			// 4. Create realtime connection
-			this.realtimeConnection = await realtimeService.createConnection(
-				sessionData,
-				this.audioStream
-			);
+			// 4. Create SDK RealtimeSession connection using existing audio stream
+			this.sessionConnection = await createConnectionWithSession(sessionData, this.audioStream);
 
 			// 5. Set up event handlers
 			this.setupRealtimeEventHandlers();
@@ -204,7 +209,7 @@ export class ConversationStore {
 	};
 
 	sendMessage = (content: string) => {
-		if (!this.realtimeConnection || !browser) return;
+		if (!browser) return;
 
 		// Add message to local state immediately
 		this.addMessageToState({
@@ -213,26 +218,10 @@ export class ConversationStore {
 			timestamp: new SvelteDate()
 		});
 
-		// Send to OpenAI
-		const messageEvent = realtimeService.createTextMessage(content);
-		realtimeService.sendEvent(this.realtimeConnection, messageEvent);
-
-		// Request AI response (minimal response.create)
-		const responseEvent = realtimeService.createResponse();
-		realtimeService.sendEvent(this.realtimeConnection, responseEvent);
-	};
-
-	// Dev/testing helper: force an immediate greeting (no user input required)
-	forceGreet = (opts?: { audioOnly?: boolean; outOfBand?: boolean; instructions?: string }) => {
-		if (!this.realtimeConnection) return;
-		const scenario = scenarioStore.getSelectedScenario?.() || null;
-		const instructions =
-			opts?.instructions ||
-			generateScenarioGreeting({ language: this.language, scenario, user: userManager.user });
-
-		// Trigger assistant response based on current session instructions
-		const response = realtimeService.createResponse();
-		realtimeService.sendEvent(this.realtimeConnection, response);
+		// Send via SDK high-level API; it will handle the response flow
+		if (this.sessionConnection) {
+			sendTextMessage(this.sessionConnection, content);
+		}
 	};
 
 	pauseStreaming = () => {
@@ -296,7 +285,7 @@ export class ConversationStore {
 			};
 		}>
 	) => {
-		if (!this.realtimeConnection || this.status === 'idle' || !this.language) return;
+		if (!this.sessionConnection || this.status === 'idle' || !this.language) return;
 
 		const currentConfig = sessionManagerService.createSessionUpdateConfig(
 			updates,
@@ -305,14 +294,15 @@ export class ConversationStore {
 		);
 
 		const updateEvent = realtimeService.createSessionUpdate(currentConfig);
-		realtimeService.sendEvent(this.realtimeConnection, updateEvent);
+		sendEventViaSession(this.sessionConnection, updateEvent);
 	};
 
 	// === GETTERS ===
 
 	isConnected = () => {
 		if (!browser) return false;
-		const status = realtimeService.getConnectionStatus(this.realtimeConnection);
+		if (!this.sessionConnection) return false;
+		const status = getSessionConnectionStatus(this.sessionConnection);
 		return status.isConnected;
 	};
 
@@ -326,11 +316,20 @@ export class ConversationStore {
 			};
 		}
 
-		const status = realtimeService.getConnectionStatus(this.realtimeConnection);
+		if (!this.sessionConnection) {
+			return {
+				peerConnectionState: 'disconnected',
+				dataChannelState: 'closed',
+				isStreamingPaused: false,
+				hasLocalStream: !!this.audioStream
+			};
+		}
+
+		const status = getSessionConnectionStatus(this.sessionConnection);
 		return {
-			peerConnectionState: status.connectionState,
+			peerConnectionState: status.peerConnectionState,
 			dataChannelState: status.dataChannelState,
-			isStreamingPaused: false, // You'd track this separately if needed
+			isStreamingPaused: false,
 			hasLocalStream: !!this.audioStream
 		};
 	};
@@ -347,7 +346,7 @@ export class ConversationStore {
 			transcriptionMode: this.transcriptionMode,
 			isTranscribing: this.isTranscribing,
 			connectionStatus: this.getConnectionStatus(),
-			hasConnection: !!this.realtimeConnection,
+			hasConnection: !!this.sessionConnection,
 			hasAudioStream: !!this.audioStream,
 			timerState: this.timer.state
 		};
@@ -356,93 +355,79 @@ export class ConversationStore {
 	// === PRIVATE METHODS ===
 
 	private async fetchSessionFromBackend() {
-		return sessionManagerService.fetchSessionFromBackend(crypto.randomUUID(), this.voice);
+		const lang = this.language?.code || 'en';
+		return sessionManagerService.fetchSessionFromBackend(crypto.randomUUID(), this.voice, lang);
 	}
 
 	private setupRealtimeEventHandlers(): void {
-		if (!this.realtimeConnection) return;
+		if (!this.sessionConnection) return;
 
-		const { dataChannel, peerConnection } = this.realtimeConnection;
+		// Subscribe to transport events and map to our handlers
+		subscribeToSession(this.sessionConnection, {
+			onTransportEvent: async (serverEvent) => {
+				// Reuse existing processor
+				const processed = realtimeService.processServerEvent(serverEvent);
+				await this.handleProcessedEvent(processed);
+			},
+			onError: (err) => {
+				this.error = (err?.error?.message || err?.message || 'Realtime error') as string;
+			}
+		});
 
-		// Set up data channel message handler
-		dataChannel.onmessage = (event) => {
-			eventHandlerService.handleDataChannelMessage(event, {
-				onUserSpeechStarted: () => {
-					console.log('🎤 User speech detected');
-					this.handleUserSpeechStarted();
-				},
-				onUserSpeechStopped: () => {
-					console.log('🎤 User speech ended');
-					this.handleUserSpeechStopped();
-				},
-				onSessionCreated: () => {
-					console.log('🎵 ConversationStore: Session created, sending initial setup...');
-					this.sendInitialSetup(); // Combined function
-					this.status = 'connected';
-					console.log('🎵 ConversationStore: Status changed to "connected"');
-
-					// Create preferences provider for checking onboarding
-					const preferencesProvider = {
-						isGuest: () => userPreferencesStore.isGuest(),
-						getPreference: <K extends keyof import('$lib/server/db/types').UserPreferences>(
-							key: K
-						) => userPreferencesStore.getPreference(key),
-						updatePreferences: (updates: Partial<import('$lib/server/db/types').UserPreferences>) =>
-							userPreferencesStore.updatePreferences(updates)
-					};
-
-					// Start timer with onboarding callback if needed
-					if (onboardingManagerService.shouldTriggerOnboarding(preferencesProvider)) {
-						this.timer.start(() => {
-							console.log('Conversation timer expired!');
-							// Handle timer expiration (e.g., end conversation, show modal, etc.)
-							this.handleTimerExpiration();
+		// High-level SDK events: add assistant messages from history
+		try {
+			const sessionAny = this.sessionConnection.session;
+			sessionAny.on?.('history_added', (item: any) => {
+				if (item?.role === 'assistant' && item?.type === 'message' && Array.isArray(item.content)) {
+					const content = item.content
+						.filter((p: any) => p?.type === 'text' && typeof p.text === 'string')
+						.map((p: any) => p.text)
+						.join(' ');
+					if (content) {
+						this.addMessageToState({
+							role: 'assistant',
+							content,
+							timestamp: new SvelteDate()
 						});
-					} else {
-						this.timer.start();
 					}
-
-					// Set status to streaming after a brief delay
-					setTimeout(() => {
-						this.status = 'streaming';
-						console.log('🎵 ConversationStore: Status changed to "streaming"');
-					}, 500);
-				},
-				onOtherEvent: async (serverEvent) => {
-					// Process the event using realtime service
-					const processed = realtimeService.processServerEvent(serverEvent);
-					await this.handleProcessedEvent(processed);
-				},
-				onError: (error) => {
-					this.error = error;
 				}
 			});
+		} catch {
+			console.log('something went wrong with the conversation');
+		}
+
+		// Immediately emulate session-created logic
+		console.log('🎵 ConversationStore: Session created, sending initial setup...');
+		this.sendInitialSetup();
+		this.status = 'connected';
+		console.log('🎵 ConversationStore: Status changed to "connected"');
+
+		// Create preferences provider for checking onboarding
+		const preferencesProvider = {
+			isGuest: () => userPreferencesStore.isGuest(),
+			getPreference: <K extends keyof import('$lib/server/db/types').UserPreferences>(key: K) =>
+				userPreferencesStore.getPreference(key),
+			updatePreferences: (updates: Partial<import('$lib/server/db/types').UserPreferences>) =>
+				userPreferencesStore.updatePreferences(updates)
 		};
 
-		// Set up data channel error handlers
-		eventHandlerService.setupDataChannelErrorHandlers(dataChannel, {
-			onError: (error) => {
-				this.error = error;
-				this.status = 'error';
-			},
-			onClose: () => {
-				this.status = 'idle';
-				this.timer.stop();
-			}
-		});
+		// Start timer with onboarding callback if needed
+		if (onboardingManagerService.shouldTriggerOnboarding(preferencesProvider)) {
+			this.timer.start(() => {
+				console.log('Conversation timer expired!');
+				this.handleTimerExpiration();
+			});
+		} else {
+			this.timer.start();
+		}
 
-		// Set up peer connection handlers
-		eventHandlerService.setupPeerConnectionHandlers(peerConnection, {
-			onConnectionStateChange: () => {
-				// Handle successful connection states if needed
-			},
-			onError: (error) => {
-				this.status = 'error';
-				this.error = error;
-				this.timer.stop();
-			}
-		});
+		// Set status to streaming after a brief delay
+		setTimeout(() => {
+			this.status = 'streaming';
+			console.log('🎵 ConversationStore: Status changed to "streaming"');
+		}, 500);
 	}
+
 	private handleUserSpeechStarted(): void {
 		this.speechDetected = true;
 		this.userSpeechStartTime = Date.now();
@@ -547,7 +532,7 @@ export class ConversationStore {
 	}
 
 	private sendInitialSetup(): void {
-		if (!this.realtimeConnection || !this.language) return;
+		if (!this.sessionConnection || !this.language) return;
 
 		// Get user preferences for instructions
 		const userPrefs = userPreferencesStore.getPreferences();
@@ -581,46 +566,36 @@ export class ConversationStore {
 			language: this.language.name,
 			voice: this.voice,
 			model: sessionConfig.model,
-			transcription: sessionConfig.input_audio_transcription,
-			turnDetection: sessionConfig.turn_detection,
 			isFirstTime,
 			isGuest: this.isGuestUser,
 			instructionType: isFirstTime ? 'complete-onboarding' : 'complete-session'
 		});
 
-
 		// Send the combined configuration
 		const configEvent = realtimeService.createSessionUpdate(sessionConfig);
-		realtimeService.sendEvent(this.realtimeConnection, configEvent);
+		sendEventViaSession(this.sessionConnection, configEvent);
 
 		// Greet proactively based on preferences
 		const prefs = userPreferencesStore.getPreferences();
 		const autoGreet = prefs.audioSettings?.autoGreet ?? true;
 		if (autoGreet) {
-			const greetingMode = prefs.audioSettings?.greetingMode || 'scenario';
-			const scenario = scenarioStore.getSelectedScenario?.() || null;
-			const greeting =
-				greetingMode === 'scenario'
-					? generateScenarioGreeting({ language: this.language, scenario, user: userManager.user })
-					: `Start the conversation with a short, warm audio greeting in ${this.language?.name || 'the selected language'}. Ask exactly one short question to begin.`;
-
 			// Force a greeting even without prior user input
 			const greetResponse = realtimeService.createResponse();
-			realtimeService.sendEvent(this.realtimeConnection, greetResponse);
+			sendEventViaSession(this.sessionConnection, greetResponse);
 
 			// Optional safety retry after 1.5s if no assistant message yet
 			setTimeout(() => {
-				if (!this.realtimeConnection) return;
+				if (!this.sessionConnection) return;
 				const hasAssistant = this.messages.some((m) => m.role === 'assistant');
 				if (!hasAssistant) {
 					const retryResponse = realtimeService.createResponse();
-					realtimeService.sendEvent(this.realtimeConnection!, retryResponse);
+					sendEventViaSession(this.sessionConnection, retryResponse);
 				}
 			}, 1500);
 		} else {
 			// Fallback: basic response request
 			const responseEvent = realtimeService.createResponse();
-			realtimeService.sendEvent(this.realtimeConnection, responseEvent);
+			sendEventViaSession(this.sessionConnection, responseEvent);
 		}
 	}
 
@@ -639,11 +614,11 @@ export class ConversationStore {
 			!!this.audioStream
 		);
 
-		// Close realtime connection
-		if (this.realtimeConnection) {
-			console.log('🧹 ConversationStore: Closing realtime connection');
-			realtimeService.closeConnection(this.realtimeConnection);
-			this.realtimeConnection = null;
+		// Close realtime session
+		if (this.sessionConnection) {
+			console.log('🧹 ConversationStore: Closing SDK realtime session');
+			closeSessionConnection(this.sessionConnection);
+			this.sessionConnection = null;
 		}
 
 		// Stop audio stream
@@ -673,12 +648,7 @@ export class ConversationStore {
 			!!this.audioStream
 		);
 
-		// Close realtime connection
-		if (this.realtimeConnection) {
-			console.log('🧹 ConversationStore: Closing realtime connection');
-			realtimeService.closeConnection(this.realtimeConnection);
-			this.realtimeConnection = null;
-		}
+		// Close realtime session only (legacy path removed)
 
 		// Stop audio stream
 		if (this.audioStream) {
@@ -774,7 +744,7 @@ export class ConversationStore {
 
 		// Check if audio is actively playing
 		const audioIsPlaying =
-			(this.realtimeConnection?.audioElement && !this.realtimeConnection.audioElement.paused) ??
+			(this.sessionConnection?.audioElement && !this.sessionConnection.audioElement.paused) ||
 			false;
 
 		console.log('Graceful shutdown check:', {
@@ -791,7 +761,7 @@ export class ConversationStore {
 	private initiateGracefulShutdown(): void {
 		// Set waiting flags based on what we're waiting for
 		this.waitingForAudioCompletion =
-			(this.realtimeConnection?.audioElement && !this.realtimeConnection.audioElement.paused) ||
+			(this.sessionConnection?.audioElement && !this.sessionConnection.audioElement.paused) ||
 			false;
 		this.waitingForAIResponse = messageService.hasStreamingMessage(this.messages);
 
@@ -809,8 +779,8 @@ export class ConversationStore {
 
 	private setupGracefulShutdownListeners(): void {
 		// Listen for audio completion
-		if (this.realtimeConnection?.audioElement) {
-			const audioElement = this.realtimeConnection.audioElement;
+		if (this.sessionConnection?.audioElement) {
+			const audioElement = this.sessionConnection.audioElement;
 
 			const onAudioEnd = () => {
 				console.log('Audio playback completed');

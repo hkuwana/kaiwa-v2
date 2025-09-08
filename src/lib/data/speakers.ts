@@ -2,7 +2,7 @@
 // All speakers from kaiwa-old with voice provider information
 //
 // Valid OpenAI Realtime API voices:
-// - alloy, ash, ballad, coral, verse, sage, shimmer, verse
+// - alloy, ash, ballad, coral, echo, sage, shimmer, verse
 //
 // Note: 'fable', 'ash', 'nova' are NOT supported by OpenAI Realtime API
 // They are only available in OpenAI TTS API
