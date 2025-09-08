@@ -3,7 +3,7 @@
 
 import type { Message } from '$lib/server/db/types';
 import { env } from '$env/dynamic/private';
-import { capitalize } from '$lib/utils';
+import { generateScriptsServer } from '$lib/services/romanization.service';
 // Note: Using dynamic imports due to mixed module systems (ES6/CommonJS)
 
 // Translation parameters interface
@@ -68,165 +68,6 @@ async function initializeTranslationClient() {
 		console.error('Failed to initialize Google Translation client:', error);
 		return null;
 	}
-}
-
-/**
- * Convert Japanese text to hiragana using Kuroshiro
- * This function only works on the server side
- */
-async function convertToHiragana(text: string): Promise<string> {
-	// Check if we're in a browser environment
-	if (typeof window !== 'undefined') {
-		console.warn('Hiragana conversion is not available in browser environment');
-		return '';
-	}
-
-	try {
-		console.log('[TRANSLATION] Starting hiragana conversion for text:', text);
-
-		// Import Kuroshiro and KuromojiAnalyzer as per documentation
-		const KuroshiroModule = await import('kuroshiro');
-		const KuromojiAnalyzerModule = await import('kuroshiro-analyzer-kuromoji');
-
-		const Kuroshiro = KuroshiroModule.default.default;
-		const KuromojiAnalyzer = KuromojiAnalyzerModule.default;
-
-		const kuroshiro = new Kuroshiro();
-		const analyzer = new KuromojiAnalyzer();
-
-		console.log('[TRANSLATION] Initializing kuroshiro with analyzer...');
-		await kuroshiro.init(analyzer);
-
-		console.log('[TRANSLATION] Converting text to hiragana...');
-		const result = await kuroshiro.convert(text, {
-			to: 'hiragana',
-			mode: 'furigana'
-		});
-
-		console.log('[TRANSLATION] Hiragana conversion result:', result);
-		return result;
-	} catch (error) {
-		console.error('Failed to convert to hiragana:', error);
-		return '';
-	}
-}
-
-/**
- * Convert Japanese text to katakana using Kuroshiro
- * This function only works on the server side
- */
-async function convertToKatakana(text: string): Promise<string> {
-	// Check if we're in a browser environment
-	if (typeof window !== 'undefined') {
-		console.warn('Katakana conversion is not available in browser environment');
-		return '';
-	}
-
-	try {
-		console.log('[TRANSLATION] Starting katakana conversion for text:', text);
-
-		// Import Kuroshiro and KuromojiAnalyzer as per documentation
-		const KuroshiroModule = await import('kuroshiro');
-		const KuromojiAnalyzerModule = await import('kuroshiro-analyzer-kuromoji');
-
-		const Kuroshiro = KuroshiroModule.default.default;
-		const KuromojiAnalyzer = KuromojiAnalyzerModule.default;
-
-		const kuroshiro = new Kuroshiro();
-		const analyzer = new KuromojiAnalyzer();
-
-		console.log('[TRANSLATION] Initializing kuroshiro with analyzer...');
-		await kuroshiro.init(analyzer);
-
-		console.log('[TRANSLATION] Converting text to katakana...');
-		const result = await kuroshiro.convert(text, {
-			to: 'katakana',
-			mode: 'furigana'
-		});
-
-		console.log('[TRANSLATION] Katakana conversion result:', result);
-		return result;
-	} catch (error) {
-		console.error('Failed to convert to katakana:', error);
-		return '';
-	}
-}
-
-/**
- * Convert Japanese text to romaji using Kuroshiro
- * This function only works on the server side
- */
-async function convertToRomaji(text: string): Promise<string> {
-	// Check if we're in a browser environment
-	if (typeof window !== 'undefined') {
-		console.warn('Romaji conversion is not available in browser environment');
-		return '';
-	}
-
-	try {
-		console.log('[TRANSLATION] Starting romaji conversion for text:', text);
-
-		// Import Kuroshiro and KuromojiAnalyzer as per documentation
-		const KuroshiroModule = await import('kuroshiro');
-		const KuromojiAnalyzerModule = await import('kuroshiro-analyzer-kuromoji');
-
-		const Kuroshiro = KuroshiroModule.default.default;
-		const KuromojiAnalyzer = KuromojiAnalyzerModule.default;
-
-		const kuroshiro = new Kuroshiro();
-		const analyzer = new KuromojiAnalyzer();
-
-		console.log('[TRANSLATION] Initializing kuroshiro with analyzer...');
-		await kuroshiro.init(analyzer);
-
-		console.log('[TRANSLATION] Converting text to romaji...');
-		const result = await kuroshiro.convert(text, {
-			to: 'romaji',
-			mode: 'spaced', // Use 'spaced' mode to add proper spacing between words
-			romajiSystem: 'hepburn'
-		});
-
-		console.log('[TRANSLATION] Romaji conversion result:', result);
-		return result;
-	} catch (error) {
-		console.error('Failed to convert to romaji:', error);
-		return '';
-	}
-}
-
-/**
- * Process Japanese text and generate all scripts using Kuroshiro
- */
-async function processJapaneseText(text: string): Promise<{
-	hiragana?: string;
-	romanization?: string;
-	otherScripts?: Record<string, string>;
-}> {
-	const result: {
-		hiragana?: string;
-		romanization?: string;
-		otherScripts?: Record<string, string>;
-	} = {};
-
-	// Convert to hiragana
-	const hiragana = await convertToHiragana(text);
-	if (hiragana) {
-		result.hiragana = hiragana;
-	}
-
-	// Convert to romaji (stored in romanization field)
-	const romaji = await convertToRomaji(text);
-	if (romaji) {
-		result.romanization = capitalize(romaji);
-	}
-
-	// Convert to katakana (stored in otherScripts)
-	const katakana = await convertToKatakana(text);
-	if (katakana) {
-		result.otherScripts = { katakana };
-	}
-
-	return result;
 }
 
 /**
@@ -313,16 +154,8 @@ export async function translateMessage(
 			console.warn('Translation returned original content, this might indicate an API issue');
 		}
 
-		// Process Japanese text if source language is Japanese
-		let japaneseScripts: {
-			hiragana?: string;
-			romanization?: string;
-			otherScripts?: Record<string, string>;
-		} = {};
-
-		if (sourceLanguage === 'ja') {
-			japaneseScripts = await processJapaneseText(message.content);
-		}
+		// Process scripts for the source language using the romanization service
+		const scriptData = await generateScriptsServer(message.content, sourceLanguage);
 
 		// Determine confidence based on translation quality
 		const confidence = determineTranslationConfidence(translatedContent, message.content);
@@ -334,7 +167,7 @@ export async function translateMessage(
 			targetLanguage,
 			confidence,
 			provider: 'google-translate',
-			...japaneseScripts
+			...scriptData
 		};
 
 		console.log('Translation completed:', result);
@@ -506,27 +339,3 @@ export async function translateTextWithScripts(
 
 	return await translateMessage(tempMessage, targetLanguage, sourceLanguage);
 }
-
-/**
- * Language-specific script processing functions
- */
-export const languageScriptProcessors = {
-	/**
-	 * Process Japanese text to extract different scripts using Kuroshiro
-	 */
-	processJapanese: async (text: string) => {
-		return await processJapaneseText(text);
-	},
-
-	/**
-	 * Process Chinese text (no special processing needed)
-	 */
-	processChinese: () => ({}),
-
-	/**
-	 * Process Korean text (already in Hangul)
-	 */
-	processKorean: (text: string) => ({
-		otherScripts: { hangul: text }
-	})
-};

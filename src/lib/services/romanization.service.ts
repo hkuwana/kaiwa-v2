@@ -2,7 +2,6 @@
 // Pure functions for romanization (client and server implementations)
 
 import type { Message } from '$lib/server/db/types';
-import { capitalize } from '$lib/utils';
 
 // Romanization result interface
 export interface RomanizationResult {
@@ -103,4 +102,279 @@ export function getRomanizationDisplayMode(message: Message): 'furigana' | 'hira
 		return 'hiragana';
 	}
 	return 'basic';
+}
+
+// ============================================================================
+// SERVER-SIDE SCRIPT CONVERSION FUNCTIONS
+// These functions only work on the server side and use Kuroshiro for Japanese
+// ============================================================================
+
+/**
+ * Convert Japanese text to hiragana using Kuroshiro
+ * This function only works on the server side
+ */
+export async function convertToHiragana(text: string): Promise<string> {
+	// Temporarily disabled during build to prevent hanging
+	console.warn('Hiragana conversion temporarily disabled during build');
+	return '';
+
+	// Check if we're in a browser environment or during build
+	if (
+		typeof window !== 'undefined' ||
+		typeof process === 'undefined' ||
+		(process.env.NODE_ENV === 'production' && !process.env.SSR) ||
+		process.env.VITE_BUILD ||
+		process.env.BUILDING
+	) {
+		console.warn('Hiragana conversion is not available in browser environment or during build');
+		return '';
+	}
+
+	// Additional check to prevent execution during build
+	if (typeof process !== 'undefined' && process.env.NODE_ENV === 'production' && !process.env.SSR) {
+		return '';
+	}
+
+	try {
+		console.log('[ROMANIZATION] Starting hiragana conversion for text:', text);
+
+		// Import Kuroshiro and KuromojiAnalyzer as per documentation
+		const KuroshiroModule = await import('kuroshiro');
+		const KuromojiAnalyzerModule = await import('kuroshiro-analyzer-kuromoji');
+
+		const Kuroshiro = KuroshiroModule.default.default;
+		const KuromojiAnalyzer = KuromojiAnalyzerModule.default;
+
+		const kuroshiro = new Kuroshiro();
+		const analyzer = new KuromojiAnalyzer();
+
+		console.log('[ROMANIZATION] Initializing kuroshiro with analyzer...');
+		await kuroshiro.init(analyzer);
+
+		console.log('[ROMANIZATION] Converting text to hiragana...');
+		const result = await kuroshiro.convert(text, {
+			to: 'hiragana',
+			mode: 'furigana'
+		});
+
+		console.log('[ROMANIZATION] Hiragana conversion result:', result);
+		return result;
+	} catch (error) {
+		console.error('Failed to convert to hiragana:', error);
+		return '';
+	}
+}
+
+/**
+ * Convert Japanese text to katakana using Kuroshiro
+ * This function only works on the server side
+ */
+export async function convertToKatakana(text: string): Promise<string> {
+	// Temporarily disabled during build to prevent hanging
+	console.warn('Katakana conversion temporarily disabled during build');
+	return '';
+
+	// Check if we're in a browser environment or during build
+	if (
+		typeof window !== 'undefined' ||
+		typeof process === 'undefined' ||
+		(process.env.NODE_ENV === 'production' && !process.env.SSR) ||
+		process.env.VITE_BUILD
+	) {
+		console.warn('Katakana conversion is not available in browser environment or during build');
+		return '';
+	}
+
+	try {
+		console.log('[ROMANIZATION] Starting katakana conversion for text:', text);
+
+		// Import Kuroshiro and KuromojiAnalyzer as per documentation
+		const KuroshiroModule = await import('kuroshiro');
+		const KuromojiAnalyzerModule = await import('kuroshiro-analyzer-kuromoji');
+
+		const Kuroshiro = KuroshiroModule.default.default;
+		const KuromojiAnalyzer = KuromojiAnalyzerModule.default;
+
+		const kuroshiro = new Kuroshiro();
+		const analyzer = new KuromojiAnalyzer();
+
+		console.log('[ROMANIZATION] Initializing kuroshiro with analyzer...');
+		await kuroshiro.init(analyzer);
+
+		console.log('[ROMANIZATION] Converting text to katakana...');
+		const result = await kuroshiro.convert(text, {
+			to: 'katakana',
+			mode: 'furigana'
+		});
+
+		console.log('[ROMANIZATION] Katakana conversion result:', result);
+		return result;
+	} catch (error) {
+		console.error('Failed to convert to katakana:', error);
+		return '';
+	}
+}
+
+/**
+ * Convert Japanese text to romaji using Kuroshiro
+ * This function only works on the server side
+ */
+export async function convertToRomaji(text: string): Promise<string> {
+	// Temporarily disabled during build to prevent hanging
+	console.warn('Romaji conversion temporarily disabled during build');
+	return '';
+
+	// Check if we're in a browser environment or during build
+	if (
+		typeof window !== 'undefined' ||
+		typeof process === 'undefined' ||
+		(process.env.NODE_ENV === 'production' && !process.env.SSR) ||
+		process.env.VITE_BUILD
+	) {
+		console.warn('Romaji conversion is not available in browser environment or during build');
+		return '';
+	}
+
+	try {
+		console.log('[ROMANIZATION] Starting romaji conversion for text:', text);
+
+		// Import Kuroshiro and KuromojiAnalyzer as per documentation
+		const KuroshiroModule = await import('kuroshiro');
+		const KuromojiAnalyzerModule = await import('kuroshiro-analyzer-kuromoji');
+
+		const Kuroshiro = KuroshiroModule.default.default;
+		const KuromojiAnalyzer = KuromojiAnalyzerModule.default;
+
+		const kuroshiro = new Kuroshiro();
+		const analyzer = new KuromojiAnalyzer();
+
+		console.log('[ROMANIZATION] Initializing kuroshiro with analyzer...');
+		await kuroshiro.init(analyzer);
+
+		console.log('[ROMANIZATION] Converting text to romaji...');
+		const result = await kuroshiro.convert(text, {
+			to: 'romaji',
+			mode: 'spaced', // Use 'spaced' mode to add proper spacing between words
+			romajiSystem: 'hepburn'
+		});
+
+		console.log('[ROMANIZATION] Romaji conversion result:', result);
+		return result;
+	} catch (error) {
+		console.error('Failed to convert to romaji:', error);
+		return '';
+	}
+}
+
+/**
+ * Process Japanese text and generate all scripts using Kuroshiro
+ */
+export async function processJapaneseText(text: string): Promise<{
+	hiragana?: string;
+	romanization?: string;
+	otherScripts?: Record<string, string>;
+}> {
+	const result: {
+		hiragana?: string;
+		romanization?: string;
+		otherScripts?: Record<string, string>;
+	} = {};
+
+	// Convert to hiragana
+	const hiragana = await convertToHiragana(text);
+	if (hiragana) {
+		result.hiragana = hiragana;
+	}
+
+	// Convert to romaji (stored in romanization field)
+	const romaji = await convertToRomaji(text);
+	if (romaji) {
+		result.romanization = romaji.charAt(0).toUpperCase() + romaji.slice(1);
+	}
+
+	// Convert to katakana (stored in otherScripts)
+	const katakana = await convertToKatakana(text);
+	if (katakana) {
+		result.otherScripts = { katakana };
+	}
+
+	return result;
+}
+
+/**
+ * Process Chinese text for Pinyin (placeholder - would need a Chinese library)
+ */
+export async function processChineseText(text: string): Promise<{
+	pinyin?: string;
+	otherScripts?: Record<string, string>;
+}> {
+	// This is a placeholder - in a real implementation, you'd use a Chinese library
+	// like pinyin-pro or similar to convert Chinese characters to Pinyin
+	console.log('[ROMANIZATION] Chinese text processing not implemented yet:', text);
+	return {
+		otherScripts: { pinyin: text } // Placeholder
+	};
+}
+
+/**
+ * Process Korean text for Hangul (already in Hangul)
+ */
+export async function processKoreanText(text: string): Promise<{
+	hangul?: string;
+	otherScripts?: Record<string, string>;
+}> {
+	// Korean text is already in Hangul, so we just return it
+	return {
+		hangul: text,
+		otherScripts: { hangul: text }
+	};
+}
+
+/**
+ * Generate scripts for any language (server-side only)
+ */
+export async function generateScriptsServer(
+	text: string,
+	language: string
+): Promise<RomanizationResult> {
+	// Check if we're in a browser environment or during build
+	if (
+		typeof window !== 'undefined' ||
+		typeof process === 'undefined' ||
+		(process.env.NODE_ENV === 'production' && !process.env.SSR) ||
+		process.env.VITE_BUILD
+	) {
+		console.warn('Script generation is not available in browser environment or during build');
+		return {};
+	}
+
+	try {
+		console.log(`[ROMANIZATION] Generating scripts for ${language} text:`, text);
+
+		switch (language) {
+			case 'ja':
+				if (isJapaneseText(text)) {
+					return await processJapaneseText(text);
+				}
+				break;
+			case 'zh':
+				if (isChineseText(text)) {
+					return await processChineseText(text);
+				}
+				break;
+			case 'ko':
+				if (isKoreanText(text)) {
+					return await processKoreanText(text);
+				}
+				break;
+			default:
+				console.log(`[ROMANIZATION] No script processing available for language: ${language}`);
+				return {};
+		}
+
+		return {};
+	} catch (error) {
+		console.error('Script generation failed:', error);
+		return {};
+	}
 }

@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { translateTextWithScripts } from '$lib/server/services/translation.service';
+import { generateScriptsServer } from '$lib/services/romanization.service';
 
 export const POST: RequestHandler = async ({ request }) => {
 	try {
@@ -13,16 +13,16 @@ export const POST: RequestHandler = async ({ request }) => {
 			);
 		}
 
-		// Use the existing translation service to generate scripts
-		const result = await translateTextWithScripts(text, messageId, language, 'en');
+		// Use the romanization service to generate scripts only (no translation)
+		const result = await generateScriptsServer(text, language);
 
 		// Return only the script-related data
 		return json({
 			romanization: result.romanization,
 			hiragana: result.hiragana,
-			katakana: result.otherScripts?.katakana,
-			hangul: result.otherScripts?.hangul,
-			pinyin: result.otherScripts?.pinyin,
+			katakana: result.katakana || result.otherScripts?.katakana,
+			hangul: result.hangul || result.otherScripts?.hangul,
+			pinyin: result.pinyin || result.otherScripts?.pinyin,
 			otherScripts: result.otherScripts
 		});
 	} catch (error) {
