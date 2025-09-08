@@ -12,7 +12,12 @@
       "Bash(git --version)",
       "Bash(git config:*)",
       "Bash(pnpm lint:*)",
-      "WebFetch(domain:cookbook.openai.com)"
+      "WebFetch(domain:cookbook.openai.com)",
+      "WebFetch(domain:platform.openai.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm exec tsc:*)"
     ],
     "deny": [],
     "ask": []

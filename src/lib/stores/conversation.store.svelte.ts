@@ -217,30 +217,22 @@ export class ConversationStore {
 		const messageEvent = realtimeService.createTextMessage(content);
 		realtimeService.sendEvent(this.realtimeConnection, messageEvent);
 
-		// Request AI response
-		const responseEvent = realtimeService.createResponse(['text', 'audio']);
+		// Request AI response (minimal response.create)
+		const responseEvent = realtimeService.createResponse();
 		realtimeService.sendEvent(this.realtimeConnection, responseEvent);
 	};
 
 	// Dev/testing helper: force an immediate greeting (no user input required)
 	forceGreet = (opts?: { audioOnly?: boolean; outOfBand?: boolean; instructions?: string }) => {
 		if (!this.realtimeConnection) return;
-		const modalities: ('text' | 'audio')[] = opts?.audioOnly ? ['audio'] : ['audio', 'text'];
 		const scenario = scenarioStore.getSelectedScenario?.() || null;
 		const instructions =
 			opts?.instructions ||
 			generateScenarioGreeting({ language: this.language, scenario, user: userManager.user });
 
-		const event: any = {
-			type: 'response.create',
-			response: {
-				modalities,
-				input: [],
-				instructions
-			}
-		};
-		if (opts?.outOfBand) event.response.conversation = 'none';
-		realtimeService.sendEvent(this.realtimeConnection, event);
+		// Trigger assistant response based on current session instructions
+		const response = realtimeService.createResponse();
+		realtimeService.sendEvent(this.realtimeConnection, response);
 	};
 
 	pauseStreaming = () => {
@@ -613,27 +605,21 @@ export class ConversationStore {
 					: `Start the conversation with a short, warm audio greeting in ${this.language?.name || 'the selected language'}. Ask exactly one short question to begin.`;
 
 			// Force a greeting even without prior user input
-			const greetEvent: any = {
-				type: 'response.create',
-				response: {
-					modalities: ['audio', 'text'],
-					input: [],
-					instructions: greeting
-				}
-			};
-			realtimeService.sendEvent(this.realtimeConnection, greetEvent);
+			const greetResponse = realtimeService.createResponse();
+			realtimeService.sendEvent(this.realtimeConnection, greetResponse);
 
 			// Optional safety retry after 1.5s if no assistant message yet
 			setTimeout(() => {
 				if (!this.realtimeConnection) return;
 				const hasAssistant = this.messages.some((m) => m.role === 'assistant');
 				if (!hasAssistant) {
-					realtimeService.sendEvent(this.realtimeConnection!, greetEvent);
+					const retryResponse = realtimeService.createResponse();
+					realtimeService.sendEvent(this.realtimeConnection!, retryResponse);
 				}
 			}, 1500);
 		} else {
 			// Fallback: basic response request
-			const responseEvent = realtimeService.createResponse(['text', 'audio']);
+			const responseEvent = realtimeService.createResponse();
 			realtimeService.sendEvent(this.realtimeConnection, responseEvent);
 		}
 	}

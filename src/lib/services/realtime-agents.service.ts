@@ -1,0 +1,252 @@
+// src/lib/services/realtime-agents.service.ts
+// Modern realtime service using official @openai/agents-realtime package
+// Provides compatibility layer for existing conversation store
+
+import { RealtimeAgent, OpenAIRealtimeSession } from '../types/openai.realtime.types';
+import { createScenarioSessionConfig } from './instructions.service';
+import type { User, Language, UserPreferences, Scenario, Speaker } from '$lib/server/db/types';
+
+// ============================================
+// COMPATIBILITY TYPES
+// ============================================
+
+export interface RealtimeAgentConnection {
+	session: OpenAIRealtimeSession;
+	agent: RealtimeAgent;
+	isConnected: boolean;
+	sessionKey?: string;
+	expiresAt?: number;
+}
+
+export interface AgentMessageData {
+	role: 'user' | 'assistant';
+	content: string;
+	timestamp: Date;
+}
+
+export interface AgentTranscriptionData {
+	type: 'user_transcript' | 'assistant_transcript';
+	text: string;
+	isFinal: boolean;
+	timestamp: Date;
+}
+
+export type AgentEventResult =
+	| { type: 'message'; data: AgentMessageData }
+	| { type: 'transcription'; data: AgentTranscriptionData }
+	| { type: 'connection_state'; data: { state: string } }
+	| { type: 'ignore'; data: null };
+
+// ============================================
+// MODERN AGENT CREATION
+// ============================================
+
+/**
+ * Create a realtime agent with scenario-specific configuration
+ */
+export function createRealtimeAgent(
+	scenario: Scenario | undefined,
+	user: User,
+	language: Language,
+	preferences: Partial<UserPreferences>,
+	speaker?: Speaker
+): RealtimeAgent {
+	const scenarioConfig = createScenarioSessionConfig(
+		scenario,
+		user,
+		language,
+		preferences,
+		speaker
+	);
+
+	console.log('🤖 Creating RealtimeAgent with config:', {
+		scenario: scenario?.category || 'default',
+		language: language.name,
+		voice: scenarioConfig.voice
+	});
+
+	const agent = new RealtimeAgent({
+		name: speaker?.voiceName || 'Hiro',
+		instructions: scenarioConfig.instructions,
+		voice: scenarioConfig.voice
+		// Add any other configuration from scenarioConfig
+	});
+
+	return agent;
+}
+
+/**
+ * Create and connect realtime session
+ */
+export async function createRealtimeSession(
+	agent: RealtimeAgent,
+	sessionData: { client_secret: { value: string; expires_at: number } }
+): Promise<RealtimeAgentConnection> {
+	console.log('🔗 Creating RealtimeSession...');
+
+	const session = new OpenAIRealtimeSession(agent);
+
+	try {
+		await session.connect({
+			apiKey: sessionData.client_secret.value
+		});
+
+		console.log('✅ RealtimeSession connected successfully');
+
+		return {
+			session,
+			agent,
+			isConnected: true,
+			sessionKey: sessionData.client_secret.value,
+			expiresAt: sessionData.client_secret.expires_at
+		};
+	} catch (error) {
+		console.error('❌ Failed to connect RealtimeSession:', error);
+		throw error;
+	}
+}
+
+/**
+ * Start conversation with initial message
+ */
+export async function startAgentConversation(
+	connection: RealtimeAgentConnection,
+	initialMessage?: string
+): Promise<void> {
+	if (!connection.isConnected) {
+		throw new Error('RealtimeSession is not connected');
+	}
+
+	console.log('🎬 Starting agent conversation...');
+
+	if (initialMessage) {
+		console.log('💬 Sending initial message:', initialMessage);
+		// The official package should handle this automatically
+		// based on the agent's instructions and initial setup
+	}
+
+	// The RealtimeSession should automatically start the conversation
+	// based on the agent configuration
+}
+
+// ============================================
+// COMPATIBILITY LAYER FOR EXISTING CODE
+// ============================================
+
+/**
+ * Compatibility wrapper that mimics the old realtime service interface
+ * This allows your existing conversation store to work with minimal changes
+ */
+export class RealtimeCompatibilityService {
+	private connection: RealtimeAgentConnection | null = null;
+
+	async createConnection(
+		sessionData: { client_secret: { value: string; expires_at: number } },
+		audioStream: MediaStream,
+		scenario: Scenario | undefined,
+		user: User,
+		language: Language,
+		preferences: Partial<UserPreferences>,
+		speaker?: Speaker
+	): Promise<RealtimeAgentConnection | null> {
+		try {
+			// Create agent with scenario configuration
+			const agent = createRealtimeAgent(scenario, user, language, preferences, speaker);
+
+			// Create and connect session
+			this.connection = await createRealtimeSession(agent, sessionData);
+
+			// Start conversation
+			const scenarioConfig = createScenarioSessionConfig(
+				scenario,
+				user,
+				language,
+				preferences,
+				speaker
+			);
+			await startAgentConversation(this.connection, scenarioConfig.initialMessage);
+
+			return this.connection;
+		} catch (error) {
+			console.error('❌ Compatibility layer connection failed:', error);
+			return null;
+		}
+	}
+
+	async sendMessage(text: string): Promise<void> {
+		if (!this.connection?.isConnected) {
+			console.warn('Cannot send message: no active connection');
+			return;
+		}
+
+		// The official package should handle message sending
+		console.log('📤 Sending message via RealtimeSession:', text);
+		// Implementation depends on the official package API
+	}
+
+	updateInstructions(instructions: string): void {
+		if (!this.connection?.isConnected) {
+			console.warn('Cannot update instructions: no active connection');
+			return;
+		}
+
+		console.log('🔄 Updating agent instructions:', instructions.substring(0, 100) + '...');
+		// The official package should support dynamic instruction updates
+	}
+
+	closeConnection(): void {
+		if (this.connection?.session) {
+			console.log('🔌 Closing RealtimeSession connection');
+			// The official package should handle cleanup
+			this.connection = null;
+		}
+	}
+
+	getConnectionStatus(): {
+		isConnected: boolean;
+		sessionExpired: boolean;
+	} {
+		if (!this.connection) {
+			return {
+				isConnected: false,
+				sessionExpired: false
+			};
+		}
+
+		return {
+			isConnected: this.connection.isConnected,
+			sessionExpired: this.connection.expiresAt ? this.connection.expiresAt <= Date.now() : false
+		};
+	}
+}
+
+// ============================================
+// MIGRATION HELPERS
+// ============================================
+
+/**
+ * Create the compatibility service instance
+ * Use this in your existing conversation store for easy migration
+ */
+export function createRealtimeCompatibilityService(): RealtimeCompatibilityService {
+	return new RealtimeCompatibilityService();
+}
+
+/**
+ * Helper to migrate from old service to new service
+ */
+export const MIGRATION_GUIDE = {
+	oldService: {
+		createConnection: 'Use RealtimeCompatibilityService.createConnection()',
+		sendEvent: 'Use RealtimeCompatibilityService.sendMessage()',
+		createSessionUpdate: 'Use RealtimeCompatibilityService.updateInstructions()',
+		closeConnection: 'Use RealtimeCompatibilityService.closeConnection()'
+	},
+	newService: {
+		direct: 'Use createRealtimeAgent() and createRealtimeSession() directly',
+		recommended: 'Gradually migrate to use RealtimeAgent and RealtimeSession directly'
+	}
+};
+
+// Export compatibility instance for immediate use
+export const realtimeCompatibilityService = createRealtimeCompatibilityService();

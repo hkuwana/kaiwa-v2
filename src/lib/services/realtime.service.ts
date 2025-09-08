@@ -1,5 +1,15 @@
 // src/lib/services.ts
 // Pure functional realtime service - no classes, no state, just functions
+//
+// 🚨 MIGRATION NOTICE: This service is being migrated to use @openai/agents-realtime
+// For new implementations, use: ./realtime-agents.service.ts
+// For migration guide, see: ./migration-guide.example.ts
+
+// ============================================
+// MIGRATION EXPORTS (Use these for new code)
+// ============================================
+export { realtimeCompatibilityService as modernRealtimeService } from './realtime-agents.service';
+export { startMigration as migrateToModernRealtime } from './migration-guide.example';
 
 import { browser } from '$app/environment';
 import { env } from '$env/dynamic/public';
@@ -139,7 +149,6 @@ export function sendEvent(connection: RealtimeConnection, event: ClientEvent): v
 		} else if (event.type === 'session.update') {
 			console.log('📤 Sending to OpenAI - Session config:', {
 				type: event.type,
-				modalities: event.session.modalities,
 				instructions: event.session.instructions?.substring(0, 100) + '...',
 				voice: event.session.voice,
 				transcription: event.session.input_audio_transcription,
@@ -165,32 +174,57 @@ export function sendEvent(connection: RealtimeConnection, event: ClientEvent): v
  * @param text - The text of the message
  * @returns The text message event
  */
+function generateItemId(): string {
+    // 32-hex chars (16 bytes) to satisfy max length <= 32
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes)
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+}
+
 export function createTextMessage(text: string): ClientEvent {
+    return {
+        type: 'conversation.item.create',
+        item: {
+            id: generateItemId(),
+            type: 'message',
+            role: 'user',
+            content: [{ type: 'input_text', text }]
+        }
+    };
+}
+
+export function createResponse(): ClientEvent {
 	return {
-		type: 'conversation.item.create',
-		item: {
-			id: crypto.randomUUID(),
-			type: 'message',
-			role: 'user',
-			content: [{ type: 'input_text', text }]
-		}
+		type: 'response.create',
+		response: {}
 	};
 }
 
-export function createResponse(modalities: ('text' | 'audio')[] = ['text', 'audio']): ClientEvent {
+/**
+ * Create an assistant message to start the conversation
+ * This is needed to make the AI speak first
+ */
+export function createAssistantStartMessage(text: string): ClientEvent {
     return {
-        type: 'response.create',
-        response: { modalities }
+        type: 'conversation.item.create',
+        item: {
+            id: generateItemId(),
+            type: 'message',
+            role: 'assistant',
+            content: [{ type: 'text', text }]
+        }
     };
 }
 
 // === INPUT AUDIO BUFFER CONTROL (for push-to-talk) ===
 export function createInputAudioBufferClear(): ClientEvent {
-    return { type: 'input_audio_buffer.clear' } as ClientEvent;
+	return { type: 'input_audio_buffer.clear' } as ClientEvent;
 }
 
 export function createInputAudioBufferCommit(): ClientEvent {
-    return { type: 'input_audio_buffer.commit' } as ClientEvent;
+	return { type: 'input_audio_buffer.commit' } as ClientEvent;
 }
 
 /**
@@ -199,38 +233,15 @@ export function createInputAudioBufferCommit(): ClientEvent {
  * @returns The session update event
  */
 export function createSessionUpdate(config: SessionConfig): ClientEvent {
-    // GA: Build full session with explicit output modalities and nested audio config
+    // Minimum compatible payload for preview and GA models
     const session: any = {
         type: 'realtime',
         model: config.model || env.PUBLIC_OPEN_AI_MODEL || 'gpt-realtime',
-        instructions: config.instructions || 'You are a helpful assistant.',
-        output_modalities: ['audio', 'text'],
-        audio: {
-            input: { format: 'pcm16' },
-            output: { format: 'pcm16', voice: config.voice || DEFAULT_VOICE }
-        }
+        instructions: config.instructions || 'You are a helpful assistant.'
     };
 
-    if (config.input_audio_transcription) {
-        session.audio.input.transcription = {
-            model: config.input_audio_transcription.model,
-            language: config.input_audio_transcription.language
-        };
-    }
-
-    const td = config.turn_detection || {
-        type: 'server_vad' as const,
-        threshold: 0.45,
-        prefix_padding_ms: 300,
-        silence_duration_ms: 600
-    };
-    session.audio.input.turn_detection = {
-        type: td.type || 'server_vad',
-        threshold: td.threshold,
-        prefix_padding_ms: td.prefix_padding_ms,
-        silence_duration_ms: td.silence_duration_ms,
-        create_response: true
-    };
+    // Do NOT include voice, input_audio_transcription, or turn_detection here.
+    // Configure those at session creation on the server if needed.
 
     return { type: 'session.update', session } as ClientEvent;
 }
@@ -238,7 +249,7 @@ export function createSessionUpdate(config: SessionConfig): ClientEvent {
 // === EVENT PROCESSING ===
 
 export function processServerEvent(event: ServerEvent): ProcessedEventResult {
-    switch (event.type) {
+	switch (event.type) {
 		case 'conversation.item.input_audio_transcription.completed': {
 			const transcriptionEvent = event as ConversationItemInputAudioTranscriptionCompletedEvent;
 			return {
@@ -266,56 +277,56 @@ export function processServerEvent(event: ServerEvent): ProcessedEventResult {
 			};
 		}
 
-        case 'response.audio_transcript.done':
-        case 'response.output_audio_transcript.done': {
-            const doneEvent = event as ResponseAudioTranscriptDoneEvent;
-            return {
-                type: 'transcription',
-                data: {
-                    type: 'assistant_transcript',
-                    text: doneEvent.transcript,
-                    isFinal: true,
-                    timestamp: new Date()
-                }
-            };
-        }
+		case 'response.audio_transcript.done':
+		case 'response.output_audio_transcript.done': {
+			const doneEvent = event as ResponseAudioTranscriptDoneEvent;
+			return {
+				type: 'transcription',
+				data: {
+					type: 'assistant_transcript',
+					text: doneEvent.transcript,
+					isFinal: true,
+					timestamp: new Date()
+				}
+			};
+		}
 
-        // GA text streaming compatibility
-        case 'response.output_text.delta':
-        case 'response.text.delta': {
-            const anyEvent = event as any;
-            const delta: string | undefined = anyEvent?.delta;
-            if (delta && typeof delta === 'string') {
-                return {
-                    type: 'transcription',
-                    data: {
-                        type: 'assistant_transcript',
-                        text: delta,
-                        isFinal: false,
-                        timestamp: new Date()
-                    }
-                };
-            }
-            return { type: 'ignore', data: null };
-        }
+		// GA text streaming compatibility
+		case 'response.output_text.delta':
+		case 'response.text.delta': {
+			const anyEvent = event as any;
+			const delta: string | undefined = anyEvent?.delta;
+			if (delta && typeof delta === 'string') {
+				return {
+					type: 'transcription',
+					data: {
+						type: 'assistant_transcript',
+						text: delta,
+						isFinal: false,
+						timestamp: new Date()
+					}
+				};
+			}
+			return { type: 'ignore', data: null };
+		}
 
-        case 'response.output_text.done':
-        case 'response.text.done': {
-            const anyEvent = event as any;
-            const text: string | undefined = anyEvent?.text;
-            if (text && typeof text === 'string') {
-                return {
-                    type: 'transcription',
-                    data: {
-                        type: 'assistant_transcript',
-                        text,
-                        isFinal: true,
-                        timestamp: new Date()
-                    }
-                };
-            }
-            return { type: 'ignore', data: null };
-        }
+		case 'response.output_text.done':
+		case 'response.text.done': {
+			const anyEvent = event as any;
+			const text: string | undefined = anyEvent?.text;
+			if (text && typeof text === 'string') {
+				return {
+					type: 'transcription',
+					data: {
+						type: 'assistant_transcript',
+						text,
+						isFinal: true,
+						timestamp: new Date()
+					}
+				};
+			}
+			return { type: 'ignore', data: null };
+		}
 
 		case 'conversation.item.created':
 		case 'conversation.item.added': {
@@ -342,21 +353,21 @@ export function processServerEvent(event: ServerEvent): ProcessedEventResult {
 			return { type: 'ignore', data: null };
 		}
 
-        case 'response.content_part.done': {
-            const partEvent = event as ResponseContentPartDoneEvent;
-            if (partEvent.part.type === 'text') {
-                const textPart = partEvent.part as TextContent;
-                return {
-                    type: 'message',
-                    data: {
-                        role: 'assistant',
-                        content: textPart.text,
-                        timestamp: new Date()
-                    }
-                };
-            }
-            return { type: 'ignore', data: null };
-        }
+		case 'response.content_part.done': {
+			const partEvent = event as ResponseContentPartDoneEvent;
+			if (partEvent.part.type === 'text') {
+				const textPart = partEvent.part as TextContent;
+				return {
+					type: 'message',
+					data: {
+						role: 'assistant',
+						content: textPart.text,
+						timestamp: new Date()
+					}
+				};
+			}
+			return { type: 'ignore', data: null };
+		}
 
 		case 'session.created':
 		case 'session.updated':

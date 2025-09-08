@@ -1,5 +1,17 @@
 // 📡 Realtime Services - Types and Interfaces
 // Comprehensive and type-safe definitions for OpenAI Realtime API
+// Now integrating with official @openai/agents-realtime package
+
+// === Official OpenAI Agents Exports ===
+export { 
+  RealtimeAgent, 
+  RealtimeSession as OpenAIRealtimeSession 
+} from '@openai/agents-realtime';
+
+// Re-export commonly used types from the official package
+export type { 
+  // Add official types as they become available
+} from '@openai/agents-realtime';
 
 // === Core Types ===
 export type AudioFormat = 'pcm16' | 'g711_ulaw' | 'g711_alaw';
@@ -82,22 +94,19 @@ export interface FunctionTool {
 }
 
 // === Session Configuration ===
+// Updated based on actual OpenAI Realtime API requirements
 export interface SessionConfig {
-	model: string;
-	voice: Voice;
+	model?: string;
+	voice?: Voice;
 	instructions?: string;
-	modalities?: Modality[];
-	input_audio_format?: AudioFormat;
-	output_audio_format?: AudioFormat;
+	// Note: modalities, input_audio_format, output_audio_format are NOT valid session parameters
+	// They are determined by the WebRTC connection setup
 	input_audio_transcription?: InputAudioTranscription;
-	input_audio_noise_reduction?: InputAudioNoiseReduction;
 	turn_detection?: TurnDetection;
 	tools?: FunctionTool[];
 	tool_choice?: ToolChoice;
 	temperature?: number;
-	speed?: number;
 	max_response_output_tokens?: number | 'inf';
-	tracing?: 'auto' | TracingConfig;
 }
 
 // === Simplified Session Config (for your existing code) ===
@@ -217,10 +226,9 @@ export interface ConversationItemTruncateEvent extends BaseEvent {
 export interface ResponseCreateEvent extends BaseEvent {
 	type: 'response.create';
 	response: {
-		modalities?: Modality[];
-		instructions?: string;
-		voice?: Voice;
-		output_audio_format?: AudioFormat;
+		// Note: modalities, instructions, voice are NOT valid in response.create
+		// They should be set at session level via session.update
+		// Based on OpenAI Realtime API documentation, response.create should be minimal
 		tools?: FunctionTool[];
 		tool_choice?: ToolChoice;
 		temperature?: number;

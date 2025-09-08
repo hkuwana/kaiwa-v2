@@ -103,31 +103,23 @@
             // basic handlers
             connection.dataChannel.onopen = () => {
                 console.log('🟢 Data channel open');
-                // Send GA session.update once channel is ready
-                const sessionUpdateEvent = {
-                  type: 'session.update',
-                  session: {
-                    type: 'realtime',
+                // Send typed session.update once channel is ready
+                const sessionUpdateEvent = realtimeService.createSessionUpdate({
                     model: 'gpt-realtime',
-                    audio: {
-                      output: { voice: lastVoice || DEFAULT_VOICE },
-                      input: {
-                        transcription: {
-                          model: 'whisper-1',
-                          language: 'en'
-                        }
-                      }
+                    voice: (lastVoice || DEFAULT_VOICE),
+                    input_audio_transcription: {
+                        model: 'whisper-1',
+                        language: 'en'
                     },
                     // Always use server VAD; for push-to-talk we gate the track
                     turn_detection: {
-                      type: 'server_vad',
-                      threshold: 0.45,
-                      prefix_padding_ms: 300,
-                      silence_duration_ms: 600
+                        type: 'server_vad',
+                        threshold: 0.45,
+                        prefix_padding_ms: 300,
+                        silence_duration_ms: 600
                     }
-                  }
-                } as const;
-                realtimeService.sendEvent(connection!, sessionUpdateEvent as any);
+                });
+                realtimeService.sendEvent(connection!, sessionUpdateEvent);
                 isConnected = true;
             };
 
@@ -209,7 +201,7 @@
 
     function sendAIResponse() {
         if (!isConnected || !connection) return;
-        realtimeService.sendEvent(connection, realtimeService.createResponse(['text', 'audio']));
+        realtimeService.sendEvent(connection, realtimeService.createResponse());
         isListening = true;
     }
 

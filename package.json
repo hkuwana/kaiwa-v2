@@ -89,6 +89,7 @@
     "@maxmind/geoip2-node": "^6.1.0",
     "@napi-rs/pinyin": "^1.7.6",
     "@node-rs/argon2": "^2.0.2",
+    "@openai/agents-realtime": "^0.1.1",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
     "@paralleldrive/cuid2": "^2.2.2",
@@ -109,7 +110,7 @@
     "resend": "^6.0.2",
     "stripe": "^18.4.0",
     "theme-change": "^2.5.0",
-    "zod": "^4.0.17"
+    "zod": "^3.25.76"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
