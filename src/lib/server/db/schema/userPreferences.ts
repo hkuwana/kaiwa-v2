@@ -82,6 +82,13 @@ export const userPreferences = pgTable(
 			.defaultNow()
 			.$onUpdate(() => new Date()) // Automatically update on change
 			.notNull()
+		,
+
+		// Realtime audio interaction settings (client UX preferences)
+		audioSettings: jsonb('audio_settings').$type<{
+			mode?: 'toggle' | 'push_to_talk';
+			pressBehavior?: 'tap_toggle' | 'press_hold';
+		}>()
 	},
 	(table) => [
 		index('user_preferences_user_id_idx').on(table.userId),

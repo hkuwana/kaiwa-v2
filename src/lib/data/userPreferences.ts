@@ -33,6 +33,13 @@ export const defaultUserPreference: Omit<
 	successfulExchanges: 0,
 	comfortZone: null,
 	memories: null
+	,
+
+	// Realtime audio interaction settings (client UX defaults)
+	audioSettings: {
+		mode: 'toggle', // default: click to toggle
+		pressBehavior: 'tap_toggle' // default: tap toggles on/off
+	}
 };
 
 // 🌟 Guest User Preferences Factory

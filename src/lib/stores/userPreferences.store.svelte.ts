@@ -85,6 +85,37 @@ export class UserPreferencesStore {
 		return this.getPreferences()[key];
 	}
 
+	// === Audio Interaction Preferences ===
+	getAudioMode(): 'toggle' | 'push_to_talk' {
+		const prefs = this.getPreferences();
+		return prefs.audioSettings?.mode || 'toggle';
+	}
+
+	setAudioMode(mode: 'toggle' | 'push_to_talk'): Promise<void> {
+		const prefs = this.getPreferences();
+		return this.updatePreferences({
+			audioSettings: {
+				...prefs.audioSettings,
+				mode
+			}
+		});
+	}
+
+	getPressBehavior(): 'tap_toggle' | 'press_hold' {
+		const prefs = this.getPreferences();
+		return prefs.audioSettings?.pressBehavior || 'tap_toggle';
+	}
+
+	setPressBehavior(behavior: 'tap_toggle' | 'press_hold'): Promise<void> {
+		const prefs = this.getPreferences();
+		return this.updatePreferences({
+			audioSettings: {
+				...prefs.audioSettings,
+				pressBehavior: behavior
+			}
+		});
+	}
+
 	// 🌟 Check if user is guest
 	isGuest(): boolean {
 		return this.getPreferences().userId === GUEST_ID;
