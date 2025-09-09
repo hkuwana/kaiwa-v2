@@ -333,5 +333,4 @@
 	{hasAnalysisResults}
 	{isAnalyzing}
 	timeInSeconds={Math.ceil(conversationStore.timerState.timer.timeRemaining / 1000)}
-	position="bottom-right"
 />

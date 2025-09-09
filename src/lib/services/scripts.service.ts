@@ -133,3 +133,38 @@ export function needsScriptGeneration(message: Message): boolean {
 export function hasScriptData(message: Message): boolean {
 	return !!(message.romanization || message.hiragana || message.otherScripts);
 }
+
+// Generate and store scripts to database for a completed message
+export async function generateAndStoreScriptsForMessage(
+	messageId: string,
+	text: string,
+	language: string = 'ja'
+): Promise<boolean> {
+	try {
+		console.log(`Triggering server-side script generation for message ${messageId}...`);
+		
+		const response = await fetch(`/api/messages/${messageId}/generate-scripts`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				text,
+				language
+			})
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json();
+			throw new Error(`Script generation API failed: ${errorData.error}`);
+		}
+
+		const result = await response.json();
+		console.log(`Scripts generated and stored for message ${messageId}:`, result);
+		return true;
+
+	} catch (error) {
+		console.error('Failed to generate and store scripts:', error);
+		return false;
+	}
+}

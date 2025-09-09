@@ -40,6 +40,9 @@
 	let messageInput = $state('');
 	let translationData = $state<Map<string, Partial<Message>>>(new Map());
 
+	// UI state for chat visibility
+let enableTyping = $state(false);
+
 	// Determine if we are in an onboarding-like session for hinting
 	const showOnboardingHint = $derived(() => {
 		const provider = {
@@ -139,31 +142,33 @@
 			</div>
 		{/if}
 
-		<!-- Conversation Messages - Takes up remaining space -->
-		<div class="mb-4 min-h-0 flex-1">
-			<div class="card h-full bg-base-100 shadow-lg">
-				<div class="card-body flex h-full flex-col">
-					<h3 class="mb-4 card-title flex-shrink-0 text-xl">
-						{isGuestUser && messages.length < 4 ? 'Getting to Know You' : 'Conversation'}
-					</h3>
-					<div class="flex-1 space-y-3 overflow-y-auto">
-						{#each messages as message, index (message.id)}
-							<div in:fly={{ y: 20, duration: 300, delay: index * 50 }}>
-								<MessageBubble
-									{message}
-									{speaker}
-									translation={translationData.get(message.id)}
-									dispatch={handleTranslation}
-								/>
-							</div>
-						{/each}
-					</div>
+	<!-- Conversation Messages - Always visible; input may be hidden -->
+	<div class="mb-4 min-h-0 flex-1">
+		<div class="card h-full bg-base-100 shadow-lg">
+			<div class="card-body flex h-full flex-col">
+				<h3 class="mb-4 card-title flex-shrink-0 text-xl">
+					{isGuestUser && messages.length < 4 ? 'Getting to Know You' : 'Conversation'}
+				</h3>
+				<div class="flex-1 space-y-3 overflow-y-auto">
+					{#each messages as message, index (message.id)}
+						<div in:fly={{ y: 20, duration: 300, delay: index * 50 }}>
+							<MessageBubble
+								{message}
+								{speaker}
+								translation={translationData.get(message.id)}
+								conversationLanguage={selectedLanguage?.code}
+								dispatch={handleTranslation}
+							/>
+						</div>
+					{/each}
 				</div>
 			</div>
 		</div>
+	</div>
 
-		<!-- Text Input -->
-		<div class="mb-4 flex-shrink-0">
+	<!-- Text Input - hidden by default to promote audio; flip enableTyping to true to show -->
+	{#if enableTyping}
+		<div class="mb-4 flex-shrink-0" in:fade={{ duration: 120 }}>
 			<div class="card bg-base-100 shadow-lg">
 				<div class="card-body p-4">
 					<div class="flex gap-2">
@@ -185,6 +190,7 @@
 				</div>
 			</div>
 		</div>
+	{/if}
 
 		<!-- Live Audio Indicator -->
 		<div class="mb-4 flex-shrink-0" in:fade={{ duration: 300, delay: 200 }}>
@@ -228,5 +234,6 @@
 				{isGuestUser ? 'Finish & Get My Results' : 'End Conversation'}
 			</button>
 		</div>
+
 	</div>
 </div>

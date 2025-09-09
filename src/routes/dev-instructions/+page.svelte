@@ -131,7 +131,7 @@
 				class="rounded-lg px-4 py-2 {currentPhase === 'initial'
 					? 'bg-blue-500 text-white'
 					: 'bg-gray-200'}"
-				on:click={() => (currentPhase = 'initial')}
+				onclick={() => (currentPhase = 'initial')}
 			>
 				Initial Instructions
 			</button>
@@ -139,7 +139,7 @@
 				class="rounded-lg px-4 py-2 {currentPhase === 'update'
 					? 'bg-blue-500 text-white'
 					: 'bg-gray-200'}"
-				on:click={() => (currentPhase = 'update')}
+				onclick={() => (currentPhase = 'update')}
 			>
 				Update Instructions
 			</button>
@@ -147,7 +147,7 @@
 				class="rounded-lg px-4 py-2 {currentPhase === 'closing'
 					? 'bg-blue-500 text-white'
 					: 'bg-gray-200'}"
-				on:click={() => (currentPhase = 'closing')}
+				onclick={() => (currentPhase = 'closing')}
 			>
 				Closing Instructions
 			</button>
@@ -163,7 +163,7 @@
 				<select
 					bind:value={selectedLanguage}
 					class="w-full rounded border p-2"
-					on:change={generateInstructions}
+					onchange={generateInstructions}
 				>
 					{#each languages as language}
 						<option value={language}>{language.flag} {language.name}</option>
@@ -183,7 +183,7 @@
 							max="100"
 							bind:value={selectedPreferences.speakingLevel}
 							class="w-full"
-							on:input={generateInstructions}
+							oninput={generateInstructions}
 						/>
 						<span class="text-sm text-gray-600">{selectedPreferences.speakingLevel}</span>
 					</div>
@@ -192,7 +192,7 @@
 						<select
 							bind:value={selectedPreferences.learningGoal}
 							class="w-full rounded border p-2"
-							on:change={generateInstructions}
+							onchange={generateInstructions}
 						>
 							<option value="Connection">Connection</option>
 							<option value="Career">Career</option>
@@ -207,7 +207,7 @@
 						<select
 							bind:value={selectedPreferences.correctionStyle}
 							class="w-full rounded border p-2"
-							on:change={generateInstructions}
+							onchange={generateInstructions}
 						>
 							<option value="immediate">Immediate</option>
 							<option value="gentle">Gentle</option>
@@ -221,7 +221,7 @@
 							min="0"
 							bind:value={selectedPreferences.successfulExchanges}
 							class="w-full rounded border p-2"
-							on:input={generateInstructions}
+							oninput={generateInstructions}
 						/>
 					</div>
 				</div>
@@ -233,7 +233,7 @@
 				<select
 					bind:value={selectedScenario}
 					class="w-full rounded border p-2"
-					on:change={generateInstructions}
+					onchange={generateInstructions}
 				>
 					{#each scenariosData as scenario}
 						<option value={scenario}>{scenario.title} ({scenario.category})</option>
@@ -247,7 +247,7 @@
 				<select
 					bind:value={selectedSessionContext}
 					class="w-full rounded border p-2"
-					on:change={generateInstructions}
+					onchange={generateInstructions}
 				>
 					{#each mockSessionContexts as context}
 						<option value={context}>{context.currentTopic} ({context.timeElapsed}s)</option>
@@ -265,7 +265,7 @@
 							<select
 								bind:value={selectedUpdateType}
 								class="w-full rounded border p-2"
-								on:change={generateInstructions}
+								onchange={generateInstructions}
 							>
 								<option value="topic_change">Topic Change</option>
 								<option value="difficulty_adjust">Difficulty Adjust</option>
@@ -280,7 +280,7 @@
 									type="text"
 									bind:value={selectedUpdateContext.newTopic}
 									class="w-full rounded border p-2"
-									on:input={generateInstructions}
+									oninput={generateInstructions}
 									placeholder="Enter new topic"
 								/>
 							</div>
@@ -290,7 +290,7 @@
 								<input
 									type="checkbox"
 									bind:checked={selectedUpdateContext.increase}
-									on:change={generateInstructions}
+									onchange={generateInstructions}
 								/>
 							</div>
 						{:else if selectedUpdateType === 'engagement_boost' && isEngagementBoost(selectedUpdateContext)}
@@ -300,7 +300,7 @@
 									type="text"
 									bind:value={selectedUpdateContext.reason}
 									class="w-full rounded border p-2"
-									on:input={generateInstructions}
+									oninput={generateInstructions}
 									placeholder="Enter reason"
 								/>
 							</div>
@@ -311,7 +311,7 @@
 									type="text"
 									bind:value={selectedUpdateContext.errorPattern}
 									class="w-full rounded border p-2"
-									on:input={generateInstructions}
+									oninput={generateInstructions}
 									placeholder="Enter error pattern"
 								/>
 							</div>
@@ -329,7 +329,7 @@
 							max="60"
 							bind:value={timeRemaining}
 							class="w-full rounded border p-2"
-							on:input={generateInstructions}
+							oninput={generateInstructions}
 						/>
 					</div>
 				</div>
@@ -353,7 +353,7 @@
 						</select>
 					</div>
 					<button
-						on:click={testSelectedModule}
+						onclick={testSelectedModule}
 						class="w-full rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
 					>
 						Test Module
@@ -366,19 +366,19 @@
 				<h3 class="mb-3 text-lg font-semibold">⚡ Quick Actions</h3>
 				<div class="space-y-2">
 					<button
-						on:click={loadRandomScenario}
+						onclick={loadRandomScenario}
 						class="w-full rounded bg-purple-500 px-4 py-2 text-white hover:bg-purple-600"
 					>
 						Load Random Test Scenario
 					</button>
 					<button
-						on:click={loadRandomData}
+						onclick={loadRandomData}
 						class="w-full rounded bg-orange-500 px-4 py-2 text-white hover:bg-orange-600"
 					>
 						Load Random Data
 					</button>
 					<button
-						on:click={generateInstructions}
+						onclick={generateInstructions}
 						class="w-full rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
 					>
 						Generate Instructions

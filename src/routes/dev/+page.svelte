@@ -56,7 +56,6 @@
 			hasAnalysisResults={false}
 			isAnalyzing={false}
 			timeInSeconds={0}
-			position="bottom-right"
 		/>
 	</div>
 </div>

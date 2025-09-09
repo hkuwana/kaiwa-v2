@@ -21,7 +21,7 @@
 		hasAnalysisResults,
 		isAnalyzing,
 		timeInSeconds,
-		position = 'bottom-right'
+		position = 'bottom-left'
 	}: Props = $props();
 
 	// Only show in dev mode

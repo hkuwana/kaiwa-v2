@@ -53,16 +53,11 @@
 <div class="scenario-manager p-6">
 	<div class="mb-6 flex items-center justify-between">
 		<h2 class="text-2xl font-bold">Learning Scenarios</h2>
-		<button class="btn btn-outline btn-sm" on:click={debugState}> Debug State </button>
+		<button class="btn btn-outline btn-sm" onclick={debugState}> Debug State </button>
 	</div>
 
 	<!-- Pass all data through props - no direct store access -->
-	<ScenarioSelector
-		{scenarios}
-		{selectedScenario}
-		onScenarioSelect={handleScenarioSelect}
-		onReset={handleReset}
-	/>
+	<ScenarioSelector {scenarios} {selectedScenario} onScenarioSelect={handleScenarioSelect} />
 
 	<!-- Additional info -->
 	<div class="mt-6 rounded-lg border bg-base-100 p-4">

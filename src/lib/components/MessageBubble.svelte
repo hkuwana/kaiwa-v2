@@ -20,9 +20,10 @@
 		message: Message;
 		speaker?: Speaker;
 		translation?: Partial<Message>;
+		conversationLanguage?: string;
 	}
 
-	const { message, speaker, translation, dispatch } = $props<
+	const { message, speaker, translation, conversationLanguage, dispatch } = $props<
 		Props & { dispatch?: (event: string, data: any) => void }
 	>();
 
@@ -65,8 +66,10 @@
 			!!translation?.translatedContent
 	);
 
-	// Check if content needs script generation
-	const needsScripts = $derived(detectLanguage(message.content) !== 'other');
+	// Check if content needs script generation - prioritize conversation language
+	const needsScripts = $derived(
+		conversationLanguage === 'ja' || detectLanguage(message.content) !== 'other'
+	);
 
 	// Check if message has script data (generated after streaming completion)
 	const hasScriptDataFlag = $derived(hasScriptData(message));
@@ -163,12 +166,6 @@
 						{message.romanization}
 					</div>
 				{/if}
-				<!-- English translation if available -->
-				{#if translation?.translatedContent || message.translatedContent}
-					<div class="text-sm font-medium text-primary">
-						{translation?.translatedContent || message.translatedContent}
-					</div>
-				{/if}
 			</div>
 		{:else if needsScripts && !hasScriptDataFlag}
 			<!-- Japanese content without furigana yet (still streaming) -->
@@ -183,31 +180,32 @@
 			{message.content}
 		{/if}
 
-		<!-- Translation Section -->
-		{#if showTranslation && (isMessageTranslated(message) || translation?.translatedContent)}
+		<!-- Translation Section (only show if different from main scripts or if no scripts shown above) -->
+		{#if showTranslation && (isMessageTranslated(message) || translation?.translatedContent) && (!needsScripts || !hasScriptDataFlag)}
 			<!-- Visual separator -->
 			<div class="divider my-2 {borderClass}"></div>
-			<!-- Romanization for any language -->
-			{#if translation?.romanization || message.romanization}
-				<div class="text-sm italic opacity-70">
-					{translation?.romanization || message.romanization}
-				</div>
-			{/if}
-
+			
 			<!-- Translation content -->
 			<div class="space-y-2">
 				<!-- Main translation with language emoji -->
 				{#if translation?.translatedContent || message.translatedContent}
 					{@const targetLang = translation?.targetLanguage || message.targetLanguage}
 					<div class="flex items-start gap-2">
-						<div class="text-sm opacity-80">
+						<div class="text-sm font-medium text-primary">
 							{translation?.translatedContent || message.translatedContent}
 						</div>
 					</div>
 				{/if}
 
-				<!-- Japanese-specific scripts -->
-				{#if (translation?.targetLanguage || message.targetLanguage) === 'ja' || translation?.hiragana || message.hiragana || translation?.katakana || message.katakana || translation?.kanji || message.kanji}
+				<!-- Romanization for any language (only if not already shown above) -->
+				{#if translation?.romanization || message.romanization}
+					<div class="text-sm italic opacity-70">
+						{translation?.romanization || message.romanization}
+					</div>
+				{/if}
+
+				<!-- Japanese-specific scripts (only if not already shown above) -->
+				{#if (translation?.targetLanguage || message.targetLanguage) === 'ja' || translation?.hiragana || message.hiragana}
 					<div class="space-y-1">
 						<!-- Hiragana -->
 						{#if translation?.hiragana || message.hiragana}
@@ -218,17 +216,8 @@
 					</div>
 				{/if}
 
-				<!-- Chinese-specific scripts (pinyin is now stored in romanization) -->
-				{#if (translation?.targetLanguage || message.targetLanguage) === 'zh'}
-					{#if translation?.romanization || message.romanization}
-						<div class="text-sm opacity-80">
-							{translation?.romanization || message.romanization}
-						</div>
-					{/if}
-				{/if}
-
 				<!-- Other scripts -->
-				{#if translation?.otherScripts || (message.otherScripts && message.targetLanguage === 'ja')}
+				{#if translation?.otherScripts || message.otherScripts}
 					{@const otherScripts = translation?.otherScripts || message.otherScripts}
 					{#each Object.entries(otherScripts) as [scriptType, scriptValue]}
 						<div class="text-sm opacity-80">
@@ -236,6 +225,12 @@
 						</div>
 					{/each}
 				{/if}
+			</div>
+		{:else if showTranslation && (translation?.translatedContent || message.translatedContent)}
+			<!-- Show only translation text when scripts are already displayed above -->
+			<div class="divider my-2 {borderClass}"></div>
+			<div class="text-sm font-medium text-primary">
+				{translation?.translatedContent || message.translatedContent}
 			</div>
 		{/if}
 	</div>

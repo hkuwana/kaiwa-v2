@@ -5,7 +5,9 @@ import { SvelteDate } from 'svelte/reactivity';
 import {
 	generateScriptsForMessage,
 	updateMessageWithScripts,
-	needsScriptGeneration
+	needsScriptGeneration,
+	generateAndStoreScriptsForMessage,
+	detectLanguage
 } from './scripts.service';
 
 export function createUserPlaceholder(sessionId: string): Message {
@@ -383,7 +385,8 @@ export async function finalizeMessageWithFurigana(
 export async function replaceUserPlaceholderWithFinalAndFurigana(
 	messages: Message[],
 	finalText: string,
-	sessionId: string
+	sessionId: string,
+	conversationLanguage: string = 'en'
 ): Promise<Message[]> {
 	const placeholderIndex = messages.findIndex(
 		(msg) =>
@@ -401,9 +404,13 @@ export async function replaceUserPlaceholderWithFinalAndFurigana(
 	// Create the final message
 	const finalMessage = createFinalUserMessage(finalText, sessionId);
 
-	// Check if the message needs script generation
-	if (needsScriptGeneration(finalMessage)) {
-		console.log('Generating scripts for user message:', finalText.substring(0, 50));
+	// Determine if we should generate scripts based on conversation language or text detection
+	const shouldGenerateScripts = conversationLanguage === 'ja' || needsScriptGeneration(finalMessage);
+	const scriptLanguage = conversationLanguage === 'ja' ? 'ja' : detectLanguage(finalText);
+
+	if (shouldGenerateScripts && scriptLanguage !== 'other') {
+		console.log(`🇯🇵 Auto-generating scripts for user message (conversation lang: ${conversationLanguage}):`, finalText.substring(0, 50));
+		
 		try {
 			const scriptData = await generateScriptsForMessage(finalMessage, true); // Use server
 			if (scriptData && Object.keys(scriptData).length > 0) {
@@ -411,6 +418,20 @@ export async function replaceUserPlaceholderWithFinalAndFurigana(
 				const updatedMessage = updateMessageWithScripts(finalMessage, scriptData);
 				const updatedMessages = [...messages];
 				updatedMessages[placeholderIndex] = updatedMessage;
+
+				// Trigger server-side generation and database storage
+				generateAndStoreScriptsForMessage(finalMessage.id, finalText, scriptLanguage)
+					.then((success) => {
+						if (success) {
+							console.log('✅ Server-side scripts generated and stored for user message');
+						} else {
+							console.warn('⚠️ Server-side script generation failed for user message');
+						}
+					})
+					.catch((error) => {
+						console.error('❌ Error in server-side script generation for user message:', error);
+					});
+
 				return updatedMessages;
 			} else {
 				console.log('No script data generated for user message');
@@ -423,6 +444,21 @@ export async function replaceUserPlaceholderWithFinalAndFurigana(
 	// Replace placeholder with final message
 	const updatedMessages = [...messages];
 	updatedMessages[placeholderIndex] = finalMessage;
+	
+	// Always trigger server-side generation for Japanese conversations or detected Japanese text
+	if (scriptLanguage !== 'other') {
+		console.log(`📝 Triggering server-side script storage (${scriptLanguage})...`);
+		generateAndStoreScriptsForMessage(finalMessage.id, finalText, scriptLanguage)
+			.then((success) => {
+				if (success) {
+					console.log('✅ Server-side scripts generated and stored for user message (fallback)');
+				}
+			})
+			.catch((error) => {
+				console.error('❌ Error in server-side script generation (fallback):', error);
+			});
+	}
+	
 	return updatedMessages;
 }
 
@@ -431,7 +467,8 @@ export async function replaceUserPlaceholderWithFinalAndFurigana(
  */
 export async function finalizeStreamingMessageWithFurigana(
 	messages: Message[],
-	finalText: string
+	finalText: string,
+	conversationLanguage: string = 'en'
 ): Promise<Message[]> {
 	const streamingMessageIndex = messages.findIndex(
 		(msg) => msg.role === 'assistant' && msg.id.startsWith('streaming_')
@@ -450,9 +487,13 @@ export async function finalizeStreamingMessageWithFurigana(
 	// Create the final message
 	const finalMessage = createFinalAssistantMessage(finalText, messages[0]?.conversationId || '');
 
-	// Check if the message needs script generation
-	if (needsScriptGeneration(finalMessage)) {
-		console.log('Generating scripts for assistant message:', finalText.substring(0, 50));
+	// Determine if we should generate scripts based on conversation language or text detection
+	const shouldGenerateScripts = conversationLanguage === 'ja' || needsScriptGeneration(finalMessage);
+	const scriptLanguage = conversationLanguage === 'ja' ? 'ja' : detectLanguage(finalText);
+
+	if (shouldGenerateScripts && scriptLanguage !== 'other') {
+		console.log(`🤖 Auto-generating scripts for assistant message (conversation lang: ${conversationLanguage}):`, finalText.substring(0, 50));
+		
 		try {
 			const scriptData = await generateScriptsForMessage(finalMessage, true); // Use server
 			if (scriptData && Object.keys(scriptData).length > 0) {
@@ -460,6 +501,20 @@ export async function finalizeStreamingMessageWithFurigana(
 				const updatedMessage = updateMessageWithScripts(finalMessage, scriptData);
 				const updatedMessages = [...messages];
 				updatedMessages[streamingMessageIndex] = updatedMessage;
+
+				// Trigger server-side generation and database storage
+				generateAndStoreScriptsForMessage(finalMessage.id, finalText, scriptLanguage)
+					.then((success) => {
+						if (success) {
+							console.log('✅ Server-side scripts generated and stored for assistant message');
+						} else {
+							console.warn('⚠️ Server-side script generation failed for assistant message');
+						}
+					})
+					.catch((error) => {
+						console.error('❌ Error in server-side script generation for assistant message:', error);
+					});
+
 				return updatedMessages;
 			} else {
 				console.log('No script data generated for assistant message');
@@ -472,5 +527,20 @@ export async function finalizeStreamingMessageWithFurigana(
 	// Replace streaming message with final message
 	const updatedMessages = [...messages];
 	updatedMessages[streamingMessageIndex] = finalMessage;
+	
+	// Always trigger server-side generation for Japanese conversations or detected Japanese text
+	if (scriptLanguage !== 'other') {
+		console.log(`🤖📝 Triggering server-side script storage (${scriptLanguage})...`);
+		generateAndStoreScriptsForMessage(finalMessage.id, finalText, scriptLanguage)
+			.then((success) => {
+				if (success) {
+					console.log('✅ Server-side scripts generated and stored for assistant message (fallback)');
+				}
+			})
+			.catch((error) => {
+				console.error('❌ Error in server-side script generation (fallback):', error);
+			});
+	}
+	
 	return updatedMessages;
 }

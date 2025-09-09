@@ -122,7 +122,7 @@
 			{#if displayMessages.length > 0}
 				<div class="space-y-4">
 					{#each displayMessages as message (message.id)}
-						<MessageBubble {message} />
+						<MessageBubble {message} conversationLanguage={language?.code} />
 					{/each}
 				</div>
 			{:else}

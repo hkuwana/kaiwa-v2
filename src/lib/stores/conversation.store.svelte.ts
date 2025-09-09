@@ -482,7 +482,7 @@ export class ConversationStore {
 		}
 	}
 
-	private handleTranscriptionUpdate(data: realtimeService.TranscriptionEventData): void {
+	private async handleTranscriptionUpdate(data: realtimeService.TranscriptionEventData): Promise<void> {
 		console.log('Handling transcription update:', data.type, data.isFinal, data.text);
 
 		// Get current transcription state
@@ -500,7 +500,7 @@ export class ConversationStore {
 
 		// Execute required actions based on service response
 		if (processResult.shouldFinalizePlaceholder) {
-			this.replaceUserPlaceholderWithFinal(data.text);
+			await this.replaceUserPlaceholderWithFinal(data.text);
 			console.log('Final user transcript:', data.text);
 		}
 
@@ -510,7 +510,7 @@ export class ConversationStore {
 		}
 
 		if (processResult.shouldFinalizeStreaming) {
-			this.finalizeStreamingMessage(data.text);
+			await this.finalizeStreamingMessage(data.text);
 			console.log('Final assistant transcript:', data.text);
 		}
 
@@ -519,22 +519,31 @@ export class ConversationStore {
 		}
 	}
 
-	private replaceUserPlaceholderWithFinal(finalText: string): void {
-		this.messages = messageService.replaceUserPlaceholderWithFinal(
+	private async replaceUserPlaceholderWithFinal(finalText: string): Promise<void> {
+		// Use the furigana-enabled version for automatic Japanese script generation
+		// Pass the current conversation language for intelligent script generation
+		this.messages = await messageService.replaceUserPlaceholderWithFinalAndFurigana(
 			this.messages,
 			finalText,
-			this.sessionId
+			this.sessionId,
+			this.language?.code || 'en' // Pass conversation language
 		);
-		console.log('Replaced placeholder with final transcript:', finalText.substring(0, 50));
+		console.log('Replaced placeholder with final transcript (with scripts):', finalText.substring(0, 50));
 	}
 
 	private updateStreamingMessage(deltaText: string): void {
 		this.messages = messageService.updateStreamingMessage(this.messages, deltaText);
 	}
 
-	private finalizeStreamingMessage(finalText: string): void {
-		this.messages = messageService.finalizeStreamingMessage(this.messages, finalText);
-		console.log('Finalized streaming message:', finalText.substring(0, 50));
+	private async finalizeStreamingMessage(finalText: string): Promise<void> {
+		// Use the furigana-enabled version for automatic Japanese script generation
+		// Pass the current conversation language for intelligent script generation
+		this.messages = await messageService.finalizeStreamingMessageWithFurigana(
+			this.messages,
+			finalText,
+			this.language?.code || 'en' // Pass conversation language
+		);
+		console.log('Finalized streaming message (with scripts):', finalText.substring(0, 50));
 
 		// Clear any streaming state
 		const newState = transcriptionStateService.clearTranscriptionState();

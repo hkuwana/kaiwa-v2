@@ -154,8 +154,8 @@ export async function translateMessage(
 			console.warn('Translation returned original content, this might indicate an API issue');
 		}
 
-		// Process scripts for the source language using the romanization service
-		const scriptData = await generateScriptsServer(message.content, sourceLanguage);
+		// Don't automatically generate scripts in translation - let message service handle that
+		// const scriptData = await generateScriptsServer(message.content, sourceLanguage);
 
 		// Determine confidence based on translation quality
 		const confidence = determineTranslationConfidence(translatedContent, message.content);
@@ -166,8 +166,8 @@ export async function translateMessage(
 			sourceLanguage,
 			targetLanguage,
 			confidence,
-			provider: 'google-translate',
-			...scriptData
+			provider: 'google-translate'
+			// ...scriptData // Remove automatic script generation from translation
 		};
 
 		console.log('Translation completed:', result);
