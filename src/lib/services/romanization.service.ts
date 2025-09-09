@@ -46,8 +46,16 @@ export async function generateRomanizationClient(
 			break;
 		case 'zh':
 			if (isChineseText(text)) {
-				// Basic client-side Chinese processing
-				result.pinyin = text; // Placeholder
+				// Use our lightweight client-side pinyin
+				try {
+					const { pinyinize } = await import('$lib/utils/chinese-pinyin');
+					const pinyinStr = pinyinize(text);
+					result.romanization = pinyinStr.charAt(0).toUpperCase() + pinyinStr.slice(1);
+					result.pinyin = pinyinStr;
+				} catch (error) {
+					console.error('Client-side pinyin failed:', error);
+					result.pinyin = text; // Fallback
+				}
 			}
 			break;
 		case 'ko':
@@ -304,18 +312,69 @@ export async function processJapaneseText(text: string): Promise<{
 }
 
 /**
- * Process Chinese text for Pinyin (placeholder - would need a Chinese library)
+ * Process Chinese text for Pinyin - tries server-side API first, then lightweight fallback
  */
 export async function processChineseText(text: string): Promise<{
+	romanization?: string;
 	pinyin?: string;
 	otherScripts?: Record<string, string>;
 }> {
-	// This is a placeholder - in a real implementation, you'd use a Chinese library
-	// like pinyin-pro or similar to convert Chinese characters to Pinyin
-	console.log('[ROMANIZATION] Chinese text processing not implemented yet:', text);
-	return {
-		otherScripts: { pinyin: text } // Placeholder
-	};
+	try {
+		console.log('[ROMANIZATION] Processing Chinese text:', text);
+		
+		// Check if we're in a server environment and try native API
+		if (typeof window === 'undefined') {
+			try {
+				const response = await fetch('/api/pinyin', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						text,
+						messageId: `chinese-${Date.now()}`
+					})
+				});
+
+				if (response.ok) {
+					const result = await response.json();
+					console.log('[ROMANIZATION] Server-side pinyin result:', result);
+					return result;
+				} else {
+					console.warn('[ROMANIZATION] Server-side pinyin failed, using lightweight fallback');
+				}
+			} catch (apiError) {
+				console.warn('[ROMANIZATION] Pinyin API error, using lightweight fallback:', apiError);
+			}
+		}
+		
+		// Use our lightweight implementation as fallback
+		const { pinyinize, pinyinWithTones } = await import('$lib/utils/chinese-pinyin');
+		const pinyinPlainStr = pinyinize(text);
+		const pinyinWithTonesStr = pinyinWithTones(text);
+		
+		console.log('[ROMANIZATION] Chinese pinyin lightweight result:', {
+			withTones: pinyinWithTonesStr,
+			plain: pinyinPlainStr
+		});
+		
+		return {
+			romanization: pinyinPlainStr,
+			pinyin: pinyinWithTonesStr,
+			otherScripts: { 
+				pinyin: pinyinWithTonesStr,
+				pinyinPlain: pinyinPlainStr
+			}
+		};
+		
+	} catch (error) {
+		console.error('Failed to process Chinese text:', error);
+		// Final fallback - return original text
+		return {
+			pinyin: text,
+			otherScripts: { pinyin: text }
+		};
+	}
 }
 
 /**
@@ -378,7 +437,12 @@ export async function generateScriptsServer(
 				break;
 			case 'zh':
 				if (isChineseText(text)) {
-					return await processChineseText(text);
+					const result = await processChineseText(text);
+					return {
+						romanization: result.romanization,
+						pinyin: result.pinyin,
+						otherScripts: result.otherScripts
+					};
 				}
 				break;
 			case 'ko':

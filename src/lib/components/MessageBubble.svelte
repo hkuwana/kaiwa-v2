@@ -68,7 +68,7 @@
 
 	// Check if content needs script generation - prioritize conversation language
 	const needsScripts = $derived(
-		conversationLanguage === 'ja' || conversationLanguage === 'ko' || detectLanguage(message.content) !== 'other'
+		conversationLanguage === 'ja' || conversationLanguage === 'ko' || conversationLanguage === 'zh' || detectLanguage(message.content) !== 'other'
 	);
 
 	// Check if message has script data (generated after streaming completion)

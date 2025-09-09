@@ -287,6 +287,51 @@
 		}
 	}
 
+	async function testNativePinyin() {
+		if (!testText.trim()) return;
+
+		isLoading = true;
+		error = null;
+
+		try {
+			const messageId = `test-message-${Date.now()}`;
+
+			// Call the native pinyin API directly
+			const response = await fetch('/api/pinyin', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					text: testText,
+					messageId
+				})
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || 'Native pinyin API failed');
+			}
+
+			const result = await response.json();
+
+			romanizationResult = {
+				language: 'zh',
+				native: result,
+				pinyin: result.pinyin,
+				otherScripts: result.otherScripts
+			};
+
+			console.log('Native pinyin result:', romanizationResult);
+			lastUpdateTime = new Date();
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'Native pinyin generation failed';
+			console.error('Native pinyin generation error:', err);
+		} finally {
+			isLoading = false;
+		}
+	}
+
 	async function testHangul() {
 		if (!testText.trim()) return;
 
@@ -488,6 +533,15 @@
 									🇰🇷
 								{/if}
 								Test Hangul
+							</button>
+
+							<button class="btn btn-success" onclick={testNativePinyin} disabled={isLoading}>
+								{#if isLoading}
+									<span class="loading loading-sm loading-spinner"></span>
+								{:else}
+									🚀
+								{/if}
+								Test Native Pinyin
 							</button>
 						</div>
 					</div>
