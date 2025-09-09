@@ -52,8 +52,10 @@ export async function generateRomanizationClient(
 			break;
 		case 'ko':
 			if (isKoreanText(text)) {
-				// Basic client-side Korean processing
-				result.hangul = text; // Placeholder
+				// Use our lightweight client-side Korean romanization
+				const { romanizeKorean } = await import('$lib/utils/korean-romanization');
+				result.romanization = romanizeKorean(text);
+				result.hangul = text; // Original Korean text
 			}
 			break;
 	}
@@ -317,17 +319,34 @@ export async function processChineseText(text: string): Promise<{
 }
 
 /**
- * Process Korean text for Hangul (already in Hangul)
+ * Process Korean text for Hangul romanization
  */
 export async function processKoreanText(text: string): Promise<{
+	romanization?: string;
 	hangul?: string;
 	otherScripts?: Record<string, string>;
 }> {
-	// Korean text is already in Hangul, so we just return it
-	return {
-		hangul: text,
-		otherScripts: { hangul: text }
-	};
+	try {
+		console.log('[ROMANIZATION] Processing Korean text:', text);
+		
+		// Use our lightweight client-side Korean romanization
+		const { romanizeKorean } = await import('$lib/utils/korean-romanization');
+		const romanized = romanizeKorean(text);
+		console.log('[ROMANIZATION] Korean romanization result:', romanized);
+		
+		return {
+			romanization: romanized,
+			hangul: text, // Original Korean text
+			otherScripts: { hangul: text }
+		};
+	} catch (error) {
+		console.error('Failed to process Korean text:', error);
+		// Fallback - return original text
+		return {
+			hangul: text,
+			otherScripts: { hangul: text }
+		};
+	}
 }
 
 /**

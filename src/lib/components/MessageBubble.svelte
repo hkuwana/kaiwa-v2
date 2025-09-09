@@ -68,7 +68,7 @@
 
 	// Check if content needs script generation - prioritize conversation language
 	const needsScripts = $derived(
-		conversationLanguage === 'ja' || detectLanguage(message.content) !== 'other'
+		conversationLanguage === 'ja' || conversationLanguage === 'ko' || detectLanguage(message.content) !== 'other'
 	);
 
 	// Check if message has script data (generated after streaming completion)
@@ -149,18 +149,21 @@
 		{#if needsScripts && hasScriptDataFlag}
 			<div class="space-y-1">
 				<!-- Japanese text with furigana display -->
-				<div class="text-base">
-					{#if message.hiragana}
+				{#if message.hiragana}
+					<div class="text-base">
 						<!-- Show furigana overlaid on original text -->
 						<div class="furigana-container" style="line-height: 2em;">
 							{@html message.hiragana}
 						</div>
-					{:else}
-						<!-- Fallback to original text if no furigana -->
+					</div>
+				{:else}
+					<!-- Korean or other text without furigana -->
+					<div class="text-base">
 						{message.content}
-					{/if}
-				</div>
-				<!-- Romaji if available -->
+					</div>
+				{/if}
+				
+				<!-- Romanization (for any language) -->
 				{#if message.romanization}
 					<div class="text-sm italic opacity-70">
 						{message.romanization}
@@ -168,12 +171,12 @@
 				{/if}
 			</div>
 		{:else if needsScripts && !hasScriptDataFlag}
-			<!-- Japanese content without furigana yet (still streaming) -->
+			<!-- Content without scripts yet (still streaming) -->
 			<div class="space-y-1">
 				<div class="text-base">
 					{message.content}
 				</div>
-				<div class="text-sm italic opacity-50">Generating furigana...</div>
+				<div class="text-sm italic opacity-50">Generating scripts...</div>
 			</div>
 		{:else}
 			<!-- Regular content for non-Japanese -->
@@ -189,7 +192,6 @@
 			<div class="space-y-2">
 				<!-- Main translation with language emoji -->
 				{#if translation?.translatedContent || message.translatedContent}
-					{@const targetLang = translation?.targetLanguage || message.targetLanguage}
 					<div class="flex items-start gap-2">
 						<div class="text-sm font-medium text-primary">
 							{translation?.translatedContent || message.translatedContent}
@@ -219,7 +221,7 @@
 				<!-- Other scripts -->
 				{#if translation?.otherScripts || message.otherScripts}
 					{@const otherScripts = translation?.otherScripts || message.otherScripts}
-					{#each Object.entries(otherScripts) as [scriptType, scriptValue]}
+					{#each Object.entries(otherScripts) as [, scriptValue]}
 						<div class="text-sm opacity-80">
 							{@html scriptValue}
 						</div>
@@ -290,14 +292,5 @@
 <style>
 	.furigana-container {
 		position: relative;
-	}
-
-	.furigana-container rt {
-		font-size: 0.7em;
-		opacity: 0.8;
-	}
-
-	.furigana-container ruby {
-		line-height: 1.2;
 	}
 </style>

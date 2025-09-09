@@ -517,7 +517,7 @@
 								message={testMessage}
 								speaker={testSpeaker}
 								translation={translationResult || undefined}
-								conversationLanguage="ja"
+								conversationLanguage={sourceLanguage}
 								dispatch={handleTranslation}
 							/>
 						</div>
