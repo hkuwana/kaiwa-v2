@@ -11,11 +11,18 @@
 
 	const { selectedLanguage = null }: Props = $props();
 
+	// State for tracking which messages show translations
+	let showTranslations = $state<{ [messageId: string]: boolean }>({});
+
 	// Create Message objects for better integration with MessageBubble
 	const createMessage = (
 		role: 'user' | 'assistant',
 		content: string,
-		originalText?: string
+		originalText?: string,
+		romanization?: string,
+		hiragana?: string,
+		otherScripts?: Record<string, string>,
+		sourceLang?: string
 	): Message => ({
 		id: crypto.randomUUID(),
 		conversationId: 'preview',
@@ -23,12 +30,12 @@
 		content,
 		timestamp: new Date(),
 		translatedContent: originalText ? content : null,
-		sourceLanguage: originalText ? selectedLanguage?.code || null : null,
+		sourceLanguage: sourceLang || (originalText ? selectedLanguage?.code || null : null),
 		targetLanguage: originalText ? 'en' : null,
 		userNativeLanguage: null,
-		romanization: null,
-		hiragana: null,
-		otherScripts: null,
+		romanization: romanization || null,
+		hiragana: hiragana || null,
+		otherScripts: otherScripts || null,
 		translationConfidence: null,
 		translationProvider: null,
 		translationNotes: null,
@@ -44,6 +51,11 @@
 		messageIntent: null
 	});
 
+	// Toggle translation for a message
+	function toggleTranslation(messageId: string) {
+		showTranslations[messageId] = !showTranslations[messageId];
+	}
+
 	// Language-specific travel destinations and contexts with proper Message objects
 	const getTravelScenarioData = (_language: string | null) => {
 		const travelOptions = {
@@ -52,18 +64,24 @@
 				messages: [
 					createMessage(
 						'user',
+						'この居心地の良い居酒屋で飲みましょう！',
 						"Let's grab drinks at this cozy izakaya!",
-						'この居心地の良い居酒屋で飲みましょう！'
+						'kono igokochi no yoi izakaya de nomimashou!',
+						'この<ruby>居心地<rt>いごこち</rt></ruby>の<ruby>良<rt>よ</rt></ruby>い<ruby>居酒屋<rt>いざかや</rt></ruby>で<ruby>飲<rt>の</rt></ruby>みましょう！'
 					),
 					createMessage(
 						'assistant',
+						'いいアイデアですね！好きな日本のお酒は何ですか？',
 						"Great idea! What's your favorite Japanese drink?",
-						'いいアイデアですね！好きな日本のお酒は何ですか？'
+						'ii aidea desu ne! suki na nihon no osake wa nan desu ka?',
+						'いい<ruby>考<rt>アイデア</rt></ruby>ですね！<ruby>好<rt>す</rt></ruby>きな<ruby>日本<rt>にほん</rt></ruby>のお<ruby>酒<rt>さけ</rt></ruby>は<ruby>何<rt>なん</rt></ruby>ですか？'
 					),
 					createMessage(
 						'user',
+						'日本酒が好きで、特に純米タイプが好きです。',
 						'I love sake, especially junmai types.',
-						'日本酒が好きで、特に純米タイプが好きです。'
+						'nihonshu ga suki de, toku ni junmai taipu ga suki desu.',
+						'<ruby>日本酒<rt>にほんしゅ</rt></ruby>が<ruby>好<rt>す</rt></ruby>きで、<ruby>特<rt>とく</rt></ruby>に<ruby>純米<rt>じゅんまい</rt></ruby>タイプが<ruby>好<rt>す</rt></ruby>きです。'
 					)
 				],
 				flag: '🇯🇵'
@@ -73,18 +91,21 @@
 				messages: [
 					createMessage(
 						'user',
+						'¡Vamos a ese bar de tapas en Ibiza!',
 						"Let's go to that tapas bar in Ibiza!",
-						'¡Vamos a ese bar de tapas en Ibiza!'
+						'¡ba-mos a e-se bar de ta-pas en i-bi-za!'
 					),
 					createMessage(
 						'assistant',
+						'¡Buena elección! ¿Qué tapas deberíamos probar?',
 						'Great choice! What tapas should we try?',
-						'¡Buena elección! ¿Qué tapas deberíamos probar?'
+						'¡bue-na e-lec-ción! ¿qué ta-pas de-be-ría-mos pro-bar?'
 					),
 					createMessage(
 						'user',
+						'Quiero probar el famoso jamón ibérico.',
 						'I want to try the famous jamón ibérico.',
-						'Quiero probar el famoso jamón ibérico.'
+						'quie-ro pro-bar el fa-mo-so ja-món i-bé-ri-co.'
 					)
 				],
 				flag: '🇪🇸'
@@ -94,21 +115,48 @@
 				messages: [
 					createMessage(
 						'user',
+						'Ce café sur le toit a une vue si romantique !',
 						'This rooftop café has such a romantic view!',
-						'Ce café sur le toit a une vue si romantique !'
+						'sə ka-fé sur lə twa a yn vy si ʁo-man-tik !'
 					),
 					createMessage(
 						'assistant',
+						'Parfait pour notre soirée ensemble. Que voulons-nous commander ?',
 						'Perfect for our evening together. What shall we order?',
-						'Parfait pour notre soirée ensemble. Que voulons-nous commander ?'
+						'par-fɛ pur notr swa-ré ãn-sambl. kə vu-lõ nu ko-mãn-dé ?'
 					),
 					createMessage(
 						'user',
+						'Du vin et du fromage semblent parfaits en ce moment.',
 						'Wine and cheese sound perfect right now.',
-						'Du vin et du fromage semblent parfaits en ce moment.'
+						'dy vɛ̃ é dy fʁo-maʒ sambl par-fɛ ãn sə mo-mãn.'
 					)
 				],
 				flag: '🇫🇷'
+			},
+			ko: {
+				destinations: ['Hongdae café', 'Bukchon hanok', 'Myeongdong street'],
+				messages: [
+					createMessage(
+						'user',
+						'이 카페의 분위기가 정말 좋아요!',
+						'The atmosphere of this café is really nice!',
+						'i kapeui bunwigiga jeongmal joayo!'
+					),
+					createMessage(
+						'assistant',
+						'맞아요! 여기서 뭘 주문할까요?',
+						"That's right! What should we order here?",
+						'majayo! yeogiseo mwol jumunhalkkayo?'
+					),
+					createMessage(
+						'user',
+						'아메리카노랑 치즈케이크 어때요?',
+						'How about americano and cheesecake?',
+						'amerikanorang chijeukeikeueottaeyo?'
+					)
+				],
+				flag: '🇰🇷'
 			},
 			default: {
 				destinations: ['around the world'],
@@ -125,79 +173,51 @@
 		return travelOptions[langCode as keyof typeof travelOptions] || travelOptions.default;
 	};
 
-	// Enhanced scenario data with preview conversations and visual elements - focused on relationships
-	const getScenarioPreviewsData = (language: string | null) => {
-		const travelData = getTravelScenarioData(language);
-
+	// Enhanced scenario data with preview conversations and visual elements
+	const getScenarioPreviewsData = () => {
 		const scenarios = [];
 
-		// Relationship scenarios with multi-language examples
+		// 1) Japanese romance (furigana + romaji)
 		const datePlanningScenario = scenariosData.find((s) => s.id === 'relationship-date-planning');
 		if (datePlanningScenario) {
 			scenarios.push({
 				...datePlanningScenario,
 				icon: '💕',
-				messages:
-					language === 'es'
-						? [
-								createMessage(
-									'user',
-									'I want to plan a romantic rooftop dinner.',
-									'Quiero planear una cena romántica en la azotea.'
-								),
-								createMessage(
-									'assistant',
-									'What a lovely idea! What cuisine should we choose?',
-									'¡Qué idea tan encantadora! ¿Qué cocina deberíamos elegir?'
-								),
-								createMessage(
-									'user',
-									'Spanish tapas would be perfect for sharing.',
-									'Las tapas españolas serían perfectas para compartir.'
-								)
-							]
-						: language === 'fr'
-							? [
-									createMessage(
-										'user',
-										"Let's have a candlelit dinner by the Seine.",
-										'Prenons un dîner aux chandelles au bord de la Seine.'
-									),
-									createMessage(
-										'assistant',
-										'So romantic! What should we order?',
-										'Si romantique ! Que devons-nous commander ?'
-									),
-									createMessage(
-										'user',
-										'Wine and French pastries sound perfect.',
-										'Du vin et des pâtisseries françaises semblent parfaits.'
-									)
-								]
-							: [
-									createMessage(
-										'user',
-										'I want to plan something special for us.',
-										language === 'ja' ? '私たちのために何か特別なことを計画したいです。' : undefined
-									),
-									createMessage(
-										'assistant',
-										'How sweet! What kind of activities do you both enjoy?',
-										language === 'ja'
-											? 'それは素敵ですね！二人はどのような活動が好きですか？'
-											: undefined
-									),
-									createMessage(
-										'user',
-										'We love trying new restaurants together.',
-										language === 'ja' ? '一緒に新しいレストランを試すのが好きです。' : undefined
-									)
-								],
+				messages: [
+					createMessage(
+						'user',
+						'今夜、静かなレストランでディナーしませんか？',
+						'Shall we have dinner at a quiet restaurant tonight?',
+						"Kon'ya, shizukana resutoran de dīnā shimasen ka?",
+						'今夜<rt>こんや</rt>、静<rt>しず</rt>かなレストランでディナーしませんか？',
+						undefined,
+						'ja'
+					),
+					createMessage(
+						'assistant',
+						'いいですね。何時が都合がいいですか？',
+						'Sounds great. What time works for you?',
+						'Ii desu ne. Nanji ga tsugō ga ii desu ka?',
+						'いいですね。何時<rt>なんじ</rt>が<ruby>都合<rt>つごう</rt></ruby>がいいですか？',
+						undefined,
+						'ja'
+					),
+					createMessage(
+						'user',
+						'七時ごろがいいです。お店は予約します。',
+						"Around seven would be good. I'll make a reservation.",
+						'Shichiji goro ga ii desu. Omise wa yoyaku shimasu.',
+						'七時<rt>しちじ</rt>ごろがいいです。お店<rt>みせ</rt>は<ruby>予約<rt>よやく</rt></ruby>します。',
+						undefined,
+						'ja'
+					)
+				],
 				color: 'from-pink-400 to-rose-500',
 				bgPattern: 'heart'
 			});
 		}
 
+		// 2) Korean: Calling home from the platform
 		const familyUpdateScenario = scenariosData.find((s) => s.id === 'relationship-family-update');
 		if (familyUpdateScenario) {
 			scenarios.push({
@@ -206,20 +226,27 @@
 				messages: [
 					createMessage(
 						'user',
-						'I got promoted at work!',
-						language === 'ja' ? '仕事で昇進しました！' : undefined
+						'엄마, 나 오늘 회사에서 승진했어!',
+						'Mom, I got promoted at work today!',
+						'Eomma, na oneul hoesaseo seungjinhaesseo!',
+						undefined,
+						'ko'
 					),
 					createMessage(
 						'assistant',
-						'Congratulations! Your family must be so proud.',
-						language === 'ja'
-							? 'おめでとうございます！ご家族もとても誇らしく思われるでしょうね。'
-							: undefined
+						'정말 잘했다! 축하해. 기분이 어때?',
+						'So proud of you! Congratulations. How do you feel?',
+						'Jeongmal jalhaetda! Chukahae. Gibuni eottae?',
+						undefined,
+						'ko'
 					),
 					createMessage(
 						'user',
-						"I can't wait to tell them the good news.",
-						language === 'ja' ? '良いニュースを伝えるのが待ちきれません。' : undefined
+						'긴장됐지만 기뻐. 주말에 내려가서 같이 밥 먹자.',
+						"I was nervous but happy. Let's get dinner this weekend.",
+						'Ginjang dwaetjiman gippeo. Jumare naeryeogaseo gachi bab meokja.',
+						undefined,
+						'ko'
 					)
 				],
 				color: 'from-green-400 to-teal-500',
@@ -227,19 +254,45 @@
 			});
 		}
 
-		// Travel scenario (always available) - uses language-specific data
+		// 3) Chinese travel (use pinyin as romanization)
 		const travelScenario = scenariosData.find((s) => s.id === 'saturday-travel');
 		if (travelScenario) {
 			scenarios.push({
 				...travelScenario,
 				icon: '✈️',
-				messages: travelData.messages,
+				messages: [
+					createMessage(
+						'user',
+						'请问这附近有什么不太游客的好吃的地方？',
+						"Excuse me, are there any good places to eat nearby that aren't too touristy?",
+						'Qǐngwèn zhè fùjìn yǒu shénme bútài yóukè de hǎochī de dìfāng?',
+						undefined,
+						'zh'
+					),
+					createMessage(
+						'assistant',
+						'拐角那家小馆很地道，推荐他们的牛肉面。',
+						'The small restaurant around the corner is authentic; try their beef noodles.',
+						'Guǎijiǎo nà jiā xiǎo guǎn hěn dìdào, tuījiàn tāmen de niúròu miàn.',
+						undefined,
+						'zh'
+					),
+					createMessage(
+						'user',
+						'谢谢！请问需要预约吗？',
+						'Thanks! Do I need a reservation?',
+						'Xièxie! Qǐngwèn xūyào yùyuē ma?',
+						undefined,
+						'zh'
+					)
+				],
 				color: 'from-blue-400 to-purple-500',
 				bgPattern: 'travel',
-				languageFlag: travelData.flag
+				languageFlag: '🇨🇳'
 			});
 		}
 
+		// 4) French deep connection
 		const deepConnectionScenario = scenariosData.find(
 			(s) => s.id === 'relationship-deep-connection'
 		);
@@ -250,18 +303,27 @@
 				messages: [
 					createMessage(
 						'user',
-						'What do you value most in life?',
-						language === 'ja' ? '人生で最も大切にしていることは何ですか？' : undefined
+						'Qu’est-ce qui compte le plus pour toi dans la vie ?',
+						'What matters most to you in life?',
+						undefined,
+						undefined,
+						'fr'
 					),
 					createMessage(
 						'assistant',
-						"That's a beautiful question. What about you?",
-						language === 'ja' ? 'それは美しい質問ですね。あなたはどうですか？' : undefined
+						'La sincérité et le temps passé avec les proches.',
+						'Sincerity and time spent with loved ones.',
+						undefined,
+						undefined,
+						'fr'
 					),
 					createMessage(
 						'user',
-						'Authentic connections with people.',
-						language === 'ja' ? '人との本物のつながりです。' : undefined
+						'Moi aussi. J’essaie d’être présent chaque jour.',
+						'Me too. I try to be present every day.',
+						undefined,
+						undefined,
+						'fr'
 					)
 				],
 				color: 'from-purple-400 to-indigo-500',
@@ -269,75 +331,41 @@
 			});
 		}
 
-		// Food scenario with language variations
+		// 5) Spanish food
 		const foodScenario = scenariosData.find((s) => s.id === 'wednesday-food');
 		if (foodScenario) {
 			scenarios.push({
 				...foodScenario,
 				icon: '🍽️',
-				messages:
-					language === 'es'
-						? [
-								createMessage(
-									'user',
-									'This paella smells incredible!',
-									'¡Esta paella huele increíble!'
-								),
-								createMessage(
-									'assistant',
-									'My grandmother taught me this recipe. Try some!',
-									'Mi abuela me enseñó esta receta. ¡Prueba un poco!'
-								),
-								createMessage(
-									'user',
-									'The seafood and saffron taste so authentic.',
-									'Los mariscos y el azafrán saben muy auténticos.'
-								)
-							]
-						: language === 'fr'
-							? [
-									createMessage(
-										'user',
-										'These croissants are perfectly flaky.',
-										'Ces croissants sont parfaitement feuilletés.'
-									),
-									createMessage(
-										'assistant',
-										'Fresh from the boulangerie this morning!',
-										'Frais de la boulangerie ce matin !'
-									),
-									createMessage(
-										'user',
-										'Nothing beats French pastry craftsmanship.',
-										"Rien ne vaut l'artisanat pâtissier français."
-									)
-								]
-							: language === 'ja'
-								? [
-										createMessage(
-											'user',
-											'This ramen broth is so rich and flavorful!',
-											'このラーメンのスープはとても濃厚で味わい深いです！'
-										),
-										createMessage(
-											'assistant',
-											'It simmered for 12 hours. The secret is the pork bones.',
-											'12時間煮込みました。秘密は豚骨です。'
-										),
-										createMessage(
-											'user',
-											'I can taste the dedication in every spoonful.',
-											'一口ごとに愛情を感じます。'
-										)
-									]
-								: [
-										createMessage('user', 'I love sharing meals with friends.'),
-										createMessage(
-											'assistant',
-											"Food brings people together! What's your favorite to cook?"
-										),
-										createMessage('user', "I make a great pasta from my grandmother's recipe.")
-									],
+				messages: [
+					createMessage(
+						'user',
+						'Estas tapas huelen increíble. ¿Qué recomiendas?',
+						'These tapas smell amazing. What do you recommend?',
+						undefined,
+						undefined,
+						undefined,
+						'es'
+					),
+					createMessage(
+						'assistant',
+						'La tortilla de patatas y las croquetas son nuestras favoritas.',
+						'The tortilla and croquettes are our favorites.',
+						undefined,
+						undefined,
+						undefined,
+						'es'
+					),
+					createMessage(
+						'user',
+						'Perfecto, y una copa de vino tinto, por favor.',
+						'Perfect, and a glass of red wine, please.',
+						undefined,
+						undefined,
+						undefined,
+						'es'
+					)
+				],
 				color: 'from-orange-400 to-red-500',
 				bgPattern: 'food'
 			});
@@ -346,7 +374,7 @@
 		return scenarios;
 	};
 
-	const scenarioPreviewsData = $derived(getScenarioPreviewsData(selectedLanguage?.code || null));
+	const scenarioPreviewsData = $derived(getScenarioPreviewsData());
 
 	let currentIndex = $state(0);
 	let isAutoPlaying = $state(true);
@@ -487,21 +515,35 @@
 							class="scale-[0.9] opacity-95 transition-all duration-300 hover:scale-95"
 							style="animation-delay: {i * 0.2}s"
 						>
-							<MessageBubble {message} conversationLanguage={selectedLanguage?.code} />
+							<MessageBubble
+								{message}
+								conversationLanguage={selectedLanguage?.code}
+								clickToToggle={true}
+								translation={{
+									translatedContent: showTranslations[message.id]
+										? message.translatedContent
+										: null,
+									romanization: showTranslations[message.id] ? message.romanization : null,
+									hiragana: showTranslations[message.id] ? message.hiragana : null
+								}}
+								dispatch={(event, data) => {
+									if (event === 'translate' || event === 'toggle') {
+										toggleTranslation(message.id);
+									}
+								}}
+							/>
 						</div>
 					{/each}
 				</div>
 
 				<!-- Translation hint -->
-				{#if selectedLanguage && selectedLanguage.code !== 'en'}
-					<div class="mt-2 flex-shrink-0 text-center">
-						<p
-							class="inline-block rounded-full bg-black/20 px-3 py-1 text-xs text-white/70 backdrop-blur-sm"
-						>
-							💬 Hover messages to see {selectedLanguage.name} translations
-						</p>
-					</div>
-				{/if}
+				<div class="mt-2 flex-shrink-0 text-center">
+					<p
+						class="inline-block rounded-full bg-black/20 px-3 py-1 text-xs text-white/70 backdrop-blur-sm"
+					>
+						💬 Click any message to show English translation and romanization
+					</p>
+				</div>
 			</div>
 		</div>
 
@@ -552,62 +594,6 @@
 				aria-label="Go to scenario {i + 1}"
 			></button>
 		{/each}
-	</div>
-
-	<!-- Learning Objectives Preview -->
-	<div class="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-		<div class="card bg-base-200/50 shadow-lg backdrop-blur-sm">
-			<div class="card-body p-4 text-center">
-				<div class="mb-2 text-2xl">🎯</div>
-				<h4 class="mb-2 text-sm font-semibold">Practice Goals</h4>
-				<div class="flex flex-wrap justify-center gap-1">
-					{#each (currentScenario.learningObjectives || []).slice(0, 3) as objective}
-						<span class="badge badge-xs badge-primary">{objective}</span>
-					{/each}
-					{#if (currentScenario.learningObjectives || []).length > 3}
-						<span class="badge badge-outline badge-xs"
-							>+{(currentScenario.learningObjectives || []).length - 3}</span
-						>
-					{/if}
-				</div>
-			</div>
-		</div>
-
-		<div class="card bg-base-200/50 shadow-lg backdrop-blur-sm">
-			<div class="card-body p-4 text-center">
-				<div class="mb-2 text-2xl">📊</div>
-				<h4 class="mb-2 text-sm font-semibold">Comfort Level</h4>
-				<div class="space-y-1 text-xs">
-					<div class="flex justify-between">
-						<span>Confidence</span>
-						<div class="rating-xs rating">
-							{#each Array(currentScenario.comfortIndicators?.confidence || 3) as _}
-								<div class="mask h-3 w-3 bg-orange-400 mask-star-2"></div>
-							{/each}
-						</div>
-					</div>
-					<div class="flex justify-between">
-						<span>Engagement</span>
-						<div class="rating-xs rating">
-							{#each Array(currentScenario.comfortIndicators?.engagement || 3) as _}
-								<div class="mask h-3 w-3 bg-green-400 mask-star-2"></div>
-							{/each}
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="card bg-base-200/50 shadow-lg backdrop-blur-sm">
-			<div class="card-body p-4 text-center">
-				<div class="mb-2 text-2xl">⏱️</div>
-				<h4 class="mb-2 text-sm font-semibold">Session Info</h4>
-				<div class="space-y-1 text-xs">
-					<div>~10-15 minutes</div>
-					<div class="text-xs opacity-70">Real-time AI responses</div>
-				</div>
-			</div>
-		</div>
 	</div>
 </div>
 

@@ -21,11 +21,18 @@
 		speaker?: Speaker;
 		translation?: Partial<Message>;
 		conversationLanguage?: string;
+		// When true, users toggle translation visibility by clicking the bubble (no hover)
+		clickToToggle?: boolean;
 	}
 
-	const { message, speaker, translation, conversationLanguage, dispatch } = $props<
-		Props & { dispatch?: (event: string, data: any) => void }
-	>();
+	const {
+		message,
+		speaker,
+		translation,
+		conversationLanguage,
+		clickToToggle = false,
+		dispatch
+	} = $props<Props & { dispatch?: (event: string, data: any) => void }>();
 
 	// Format timestamp
 	const formattedTime = $derived(
@@ -57,14 +64,21 @@
 	// Translation state
 	let isHovered = $state(false);
 	let swipeTriggeredShow = $state(false);
+	let manualToggle = $state(false);
 	const translationLoading = $derived(translationStore.isTranslating(message.id));
-	let showTranslation = $derived(
-		isHovered ||
-			swipeTriggeredShow ||
-			translationStore.isTranslationVisible(message.id) ||
-			isMessageTranslated(message) ||
-			!!translation?.translatedContent
+
+	// Determine if a translation exists (availability)
+	const hasTranslation = $derived(isMessageTranslated(message) || !!translation?.translatedContent);
+
+	// Raw visibility state before checking availability
+	const rawVisibility = $derived(
+		clickToToggle
+			? manualToggle
+			: isHovered || swipeTriggeredShow || translationStore.isTranslationVisible(message.id)
 	);
+
+	// Final visibility respects availability
+	let showTranslation = $derived(rawVisibility && hasTranslation);
 
 	// Check if content needs script generation - prioritize conversation language
 	const needsScripts = $derived(
@@ -124,11 +138,20 @@
 	}
 
 	function handleMouseEnter() {
-		isHovered = true;
+		if (!clickToToggle) isHovered = true;
 	}
 
 	function handleMouseLeave() {
-		isHovered = false;
+		if (!clickToToggle) isHovered = false;
+	}
+
+	function handleBubbleClick() {
+		if (!clickToToggle || !hasTranslation) return;
+		if (dispatch) {
+			dispatch('toggle', { messageId: message.id });
+		} else {
+			manualToggle = !manualToggle;
+		}
 	}
 </script>
 
@@ -147,7 +170,7 @@
 		{speakerName}
 		<time class="text-xs opacity-50">{formattedTime}</time>
 	</div>
-	<div class={bubbleClass}>
+	<div class={bubbleClass} onclick={handleBubbleClick}>
 		<!-- Main content with scripts for supported languages -->
 		{#if needsScripts && hasScriptDataFlag}
 			<div class="space-y-1">
@@ -195,8 +218,8 @@
 			<div class="space-y-2">
 				<!-- Main translation with language emoji -->
 				{#if translation?.translatedContent || message.translatedContent}
-					<div class="flex items-start gap-2">
-						<div class="text-sm font-medium text-primary">
+					<div class="flex items-start">
+						<div class="text-sm font-medium text-primary-content">
 							{translation?.translatedContent || message.translatedContent}
 						</div>
 					</div>
@@ -233,8 +256,8 @@
 			</div>
 		{:else if showTranslation && (translation?.translatedContent || message.translatedContent)}
 			<!-- Show only translation text when scripts are already displayed above -->
-			<div class="divider my-2 {borderClass}"></div>
-			<div class="text-sm font-medium text-primary">
+
+			<div class="text-sm font-medium text-primary-content">
 				{translation?.translatedContent || message.translatedContent}
 			</div>
 		{/if}
