@@ -107,7 +107,7 @@
 			onScenarioSelect={handleScenarioChange}
 			disabled={false}
 			tooltipMessage=""
-			isGuest={isGuest}
+			{isGuest}
 		/>
 	</div>
 

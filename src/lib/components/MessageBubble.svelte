@@ -195,12 +195,9 @@
 					</div>
 				{/if}
 			</div>
-		{:else if needsScripts && !hasScriptDataFlag}
+		{:else if needsScripts && !hasScriptDataFlag && !message.content}
 			<!-- Content without scripts yet (still streaming) -->
 			<div class="space-y-1">
-				<div class="text-base">
-					{message.content}
-				</div>
 				<div class="text-sm italic opacity-50">Generating scripts...</div>
 			</div>
 		{:else}

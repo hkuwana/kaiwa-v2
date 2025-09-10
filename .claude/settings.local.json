@@ -1,27 +1,29 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(pnpm build:*)",
-      "Bash(pkill:*)",
-      "Bash(git fetch:*)",
-      "Bash(git add:*)",
-      "Bash(pnpm check:*)",
-      "Bash(pnpm db:health:*)",
-      "Bash(pnpm migrate:supabase:import:*)",
-      "Bash(echo $PATH)",
-      "Bash(git --version)",
-      "Bash(git config:*)",
-      "Bash(pnpm lint:*)",
-      "WebFetch(domain:cookbook.openai.com)",
-      "WebFetch(domain:platform.openai.com)",
-      "WebFetch(domain:github.com)",
-      "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(pnpm add:*)",
-      "Bash(pnpm exec tsc:*)",
-      "WebSearch",
-      "Bash(pnpm db:generate:*)"
-    ],
-    "deny": [],
-    "ask": []
-  }
+	"permissions": {
+		"allow": [
+			"Bash(pnpm build:*)",
+			"Bash(pkill:*)",
+			"Bash(git fetch:*)",
+			"Bash(git add:*)",
+			"Bash(pnpm check:*)",
+			"Bash(pnpm db:health:*)",
+			"Bash(pnpm migrate:supabase:import:*)",
+			"Bash(echo $PATH)",
+			"Bash(git --version)",
+			"Bash(git config:*)",
+			"Bash(pnpm lint:*)",
+			"WebFetch(domain:cookbook.openai.com)",
+			"WebFetch(domain:platform.openai.com)",
+			"WebFetch(domain:github.com)",
+			"WebFetch(domain:raw.githubusercontent.com)",
+			"Bash(pnpm add:*)",
+			"Bash(pnpm exec tsc:*)",
+			"WebSearch",
+			"Bash(pnpm db:generate:*)",
+			"Bash(find:*)",
+			"Bash(pnpm format:*)"
+		],
+		"deny": [],
+		"ask": []
+	}
 }

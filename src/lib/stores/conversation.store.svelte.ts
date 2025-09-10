@@ -5,18 +5,9 @@
 // ! Need to make sure that the user preferences are properly handled
 // ! Need to ensure that when the conversation is ended, the onboarding for userPreferences runs
 
-import { SvelteDate } from 'svelte/reactivity';
 import { browser } from '$app/environment';
 import { realtimeService } from '$lib/services';
-import {
-	createConnectionWithSession,
-	subscribeToSession,
-	sendEventViaSession,
-	getSessionConnectionStatus,
-	closeSessionConnection,
-	type SessionConnection,
-	sendTextMessage
-} from '$lib/services/realtime-agents.service';
+import { realtimeOpenAI } from '$lib/stores/realtime-openai.store.svelte';
 import { audioStore } from '$lib/stores/audio.store.svelte';
 import { scenarioStore } from '$lib/stores/scenario.store.svelte';
 import { getInstructions } from '$lib/services/instructions.service';
@@ -24,6 +15,13 @@ import * as messageService from '$lib/services/message.service';
 import * as sessionManagerService from '$lib/services/session-manager.service';
 import * as transcriptionStateService from '$lib/services/transcription-state.service';
 import * as onboardingManagerService from '$lib/services/onboarding-manager.service';
+import {
+	needsScriptGeneration,
+	generateScriptsForMessage,
+	updateMessageWithScripts,
+	detectLanguage,
+	generateAndStoreScriptsForMessage
+} from '$lib/services/scripts.service';
 import type { Message, Language, UserPreferences, UserTier } from '$lib/server/db/types';
 import type { Speaker } from '$lib/types';
 import type { Voice } from '$lib/types/openai.realtime.types';
@@ -70,9 +68,11 @@ export class ConversationStore {
 
 	// Private connection state (SDK only)
 	private audioStream: MediaStream | null = null;
-	private sessionConnection: SessionConnection | null = null;
+	private messageUnsub: (() => void) | null = null;
 	private timer: ConversationTimerStore = $state(createConversationTimerStore('free'));
 	private currentOptions: Partial<UserPreferences> | null = null;
+	// Mirror + sanitize tracking
+	private sanitizedMessageIds = new Set<string>();
 
 	constructor(userTier: UserTier = 'free') {
 		// Only initialize services in browser
@@ -192,8 +192,10 @@ export class ConversationStore {
 			const sessionData = await this.fetchSessionFromBackend();
 			this.sessionId = sessionData.session_id;
 
-			// 4. Create SDK RealtimeSession connection using existing audio stream
-			this.sessionConnection = await createConnectionWithSession(sessionData, this.audioStream);
+			// 4. Connect via SDK-backed store
+			await realtimeOpenAI.connect(sessionData, this.audioStream, {
+				voice: this.voice
+			});
 
 			// 5. Set up event handlers
 			this.setupRealtimeEventHandlers();
@@ -210,16 +212,8 @@ export class ConversationStore {
 
 	sendMessage = (content: string) => {
 		if (!browser) return;
-
-		// Create user message with sequence ID for proper ordering
-		const userMessage = messageService.createFinalUserMessage(content, this.sessionId);
-		const updatedMessages = [...this.messages, userMessage];
-		this.messages = messageService.sortMessagesBySequence(updatedMessages);
-
-		// Send via SDK high-level API; it will handle the response flow
-		if (this.sessionConnection) {
-			sendTextMessage(this.sessionConnection, content);
-		}
+		// Send via SDK high-level API; ConversationStore mirrors from realtimeOpenAI
+		realtimeOpenAI.sendTextMessage(content);
 	};
 
 	pauseStreaming = () => {
@@ -283,7 +277,7 @@ export class ConversationStore {
 			};
 		}>
 	) => {
-		if (!this.sessionConnection || this.status === 'idle' || !this.language) return;
+		if (this.status === 'idle' || !this.language) return;
 
 		const currentConfig = sessionManagerService.createSessionUpdateConfig(
 			updates,
@@ -291,17 +285,18 @@ export class ConversationStore {
 			this.voice
 		);
 
-		const updateEvent = realtimeService.createSessionUpdate(currentConfig);
-		sendEventViaSession(this.sessionConnection, updateEvent);
+		realtimeOpenAI.updateSessionConfig({
+			model: currentConfig.model,
+			voice: this.voice,
+			instructions: currentConfig.instructions
+		});
 	};
 
 	// === GETTERS ===
 
 	isConnected = () => {
 		if (!browser) return false;
-		if (!this.sessionConnection) return false;
-		const status = getSessionConnectionStatus(this.sessionConnection);
-		return status.isConnected;
+		return !!realtimeOpenAI.isConnected;
 	};
 
 	getConnectionStatus = () => {
@@ -314,7 +309,7 @@ export class ConversationStore {
 			};
 		}
 
-		if (!this.sessionConnection) {
+		if (!realtimeOpenAI.isConnected) {
 			return {
 				peerConnectionState: 'disconnected',
 				dataChannelState: 'closed',
@@ -322,11 +317,9 @@ export class ConversationStore {
 				hasLocalStream: !!this.audioStream
 			};
 		}
-
-		const status = getSessionConnectionStatus(this.sessionConnection);
 		return {
-			peerConnectionState: status.peerConnectionState,
-			dataChannelState: status.dataChannelState,
+			peerConnectionState: realtimeOpenAI.isConnected ? 'connected' : 'disconnected',
+			dataChannelState: realtimeOpenAI.isConnected ? 'open' : 'closed',
 			isStreamingPaused: false,
 			hasLocalStream: !!this.audioStream
 		};
@@ -344,7 +337,7 @@ export class ConversationStore {
 			transcriptionMode: this.transcriptionMode,
 			isTranscribing: this.isTranscribing,
 			connectionStatus: this.getConnectionStatus(),
-			hasConnection: !!this.sessionConnection,
+			hasConnection: !!realtimeOpenAI.isConnected,
 			hasAudioStream: !!this.audioStream,
 			timerState: this.timer.state
 		};
@@ -358,41 +351,49 @@ export class ConversationStore {
 	}
 
 	private setupRealtimeEventHandlers(): void {
-		if (!this.sessionConnection) return;
+		// Subscribe to SDK history stream through the new store
+		try {
+			this.messageUnsub?.();
+		} catch {}
+		this.messageUnsub = realtimeOpenAI.onMessageStream(async (ev) => {
+			// Mirror: copy realtime messages directly
+			this.messages = messageService.sortMessagesBySequence([...realtimeOpenAI.messages]);
 
-		// Subscribe to transport events and map to our handlers
-		subscribeToSession(this.sessionConnection, {
-			onTransportEvent: async (serverEvent) => {
-				// Reuse existing processor
-				const processed = realtimeService.processServerEvent(serverEvent);
-				await this.handleProcessedEvent(processed);
-			},
-			onError: (err) => {
-				this.error = (err?.error?.message || err?.message || 'Realtime error') as string;
+			if (!ev.final) return;
+			// Sanitize just-finalized message: add scripts if applicable
+			let idx = -1;
+			for (let i = this.messages.length - 1; i >= 0; i--) {
+				if (
+					this.messages[i].role === ev.role &&
+					(this.messages[i].content || '').trim().length > 0
+				) {
+					idx = i;
+					break;
+				}
+			}
+			if (idx === -1) return;
+			const msg = this.messages[idx];
+			if (this.sanitizedMessageIds.has(msg.id)) return;
+			try {
+				if (needsScriptGeneration(msg)) {
+					const scriptData = await generateScriptsForMessage(msg, true);
+					if (scriptData && Object.keys(scriptData).length > 0) {
+						const updated = updateMessageWithScripts(msg, scriptData);
+						const next = [...this.messages];
+						next[idx] = updated;
+						this.messages = messageService.sortMessagesBySequence(next);
+						const lang = detectLanguage(msg.content);
+						if (lang !== 'other') {
+							generateAndStoreScriptsForMessage(msg.id, msg.content, lang).catch(() => {});
+						}
+					}
+				}
+			} finally {
+				this.sanitizedMessageIds.add(msg.id);
 			}
 		});
 
-		// High-level SDK events: add assistant messages from history
-		try {
-			const sessionAny = this.sessionConnection.session;
-			sessionAny.on?.('history_added', (item: any) => {
-				if (item?.role === 'assistant' && item?.type === 'message' && Array.isArray(item.content)) {
-					const content = item.content
-						.filter((p: any) => p?.type === 'text' && typeof p.text === 'string')
-						.map((p: any) => p.text)
-						.join(' ');
-					if (content) {
-						this.addMessageToState({
-							role: 'assistant',
-							content,
-							timestamp: new SvelteDate()
-						});
-					}
-				}
-			});
-		} catch {
-			console.log('something went wrong with the conversation');
-		}
+		// No legacy transport fallback in mirror mode
 
 		// Immediately emulate session-created logic
 		console.log('🎵 ConversationStore: Session created, sending initial setup...');
@@ -437,123 +438,8 @@ export class ConversationStore {
 		}, 500);
 	}
 
-	private handleUserSpeechStarted(): void {
-		this.speechDetected = true;
-		this.userSpeechStartTime = Date.now();
-		this.messages = [...this.messages, messageService.createUserPlaceholder(this.sessionId)];
-		console.log('Created user speech placeholder');
-	}
-
-	private handleUserSpeechStopped(): void {
-		this.speechDetected = false;
-		this.messages = messageService.updatePlaceholderToTranscribing(this.messages);
-		console.log('Updated placeholder to transcribing state');
-	}
-
-	private updateUserPlaceholderWithPartial(partialText: string): void {
-		this.messages = messageService.updatePlaceholderWithPartial(this.messages, partialText);
-	}
-
-	// Enhanced addMessageToState to handle ordering
-	private addMessageToState(data: realtimeService.MessageEventData): void {
-		// Prevent duplicate messages first
-		if (messageService.isDuplicateMessage(this.messages, data)) {
-			console.log('Skipping duplicate message');
-			return;
-		}
-
-		// For assistant messages, avoid creating duplicates if streaming is in progress
-		if (data.role === 'assistant' && messageService.hasStreamingMessage(this.messages)) {
-			console.log('Skipping duplicate assistant message, streaming in progress');
-			return;
-		}
-
-		// Create the message and add it to the array
-		const message = messageService.createMessageFromEventData(data, this.sessionId);
-		
-		// Always add new messages to the end and then sort by sequence
-		const updatedMessages = [...this.messages, message];
-		this.messages = messageService.sortMessagesBySequence(updatedMessages);
-		
-		console.log(`Added ${data.role} message:`, data.content.substring(0, 50));
-	}
-
-	private async handleTranscriptionUpdate(
-		data: realtimeService.TranscriptionEventData
-	): Promise<void> {
-		console.log('Handling transcription update:', data.type, data.isFinal, data.text);
-
-		// Get current transcription state
-		const currentState: transcriptionStateService.TranscriptionState = {
-			currentTranscript: this.currentTranscript,
-			isTranscribing: this.isTranscribing
-		};
-
-		// Process the transcription update using the service
-		const processResult = transcriptionStateService.processTranscriptionUpdate(data, currentState);
-
-		// Update local state
-		this.currentTranscript = processResult.newState.currentTranscript;
-		this.isTranscribing = processResult.newState.isTranscribing;
-
-		// Execute required actions based on service response
-		if (processResult.shouldFinalizePlaceholder) {
-			await this.replaceUserPlaceholderWithFinal(data.text);
-			console.log('Final user transcript:', data.text);
-		}
-
-		if (processResult.shouldUpdatePlaceholder) {
-			this.updateUserPlaceholderWithPartial(data.text);
-			console.log('Streaming user transcript:', data.text);
-		}
-
-		if (processResult.shouldFinalizeStreaming) {
-			await this.finalizeStreamingMessage(data.text);
-			console.log('Final assistant transcript:', data.text);
-		}
-
-		if (processResult.shouldUpdateStreaming) {
-			this.updateStreamingMessage(data.text);
-		}
-	}
-
-	private async replaceUserPlaceholderWithFinal(finalText: string): Promise<void> {
-		// Use the furigana-enabled version for automatic Japanese script generation
-		// Pass the current conversation language for intelligent script generation
-		this.messages = await messageService.replaceUserPlaceholderWithFinalAndFurigana(
-			this.messages,
-			finalText,
-			this.sessionId,
-			this.language?.code || 'en' // Pass conversation language
-		);
-		console.log(
-			'Replaced placeholder with final transcript (with scripts):',
-			finalText.substring(0, 50)
-		);
-	}
-
-	private updateStreamingMessage(deltaText: string): void {
-		this.messages = messageService.updateStreamingMessage(this.messages, deltaText);
-	}
-
-	private async finalizeStreamingMessage(finalText: string): Promise<void> {
-		// Use the furigana-enabled version for automatic Japanese script generation
-		// Pass the current conversation language for intelligent script generation
-		this.messages = await messageService.finalizeStreamingMessageWithFurigana(
-			this.messages,
-			finalText,
-			this.language?.code || 'en' // Pass conversation language
-		);
-		console.log('Finalized streaming message (with scripts):', finalText.substring(0, 50));
-
-		// Clear any streaming state
-		const newState = transcriptionStateService.clearTranscriptionState();
-		this.currentTranscript = newState.currentTranscript;
-		this.isTranscribing = newState.isTranscribing;
-	}
-
 	private sendInitialSetup(): void {
-		if (!this.sessionConnection || !this.language) return;
+		if (!this.language) return;
 
 		// Get user preferences for instructions
 		const userPrefs = userPreferencesStore.getPreferences();
@@ -593,30 +479,30 @@ export class ConversationStore {
 		});
 
 		// Send the combined configuration
-		const configEvent = realtimeService.createSessionUpdate(sessionConfig);
-		sendEventViaSession(this.sessionConnection, configEvent);
+		realtimeOpenAI.updateSessionConfig({
+			model: sessionConfig.model,
+			voice: this.voice,
+			instructions: sessionConfig.instructions
+		});
 
 		// Greet proactively based on preferences
 		const prefs = userPreferencesStore.getPreferences();
 		const autoGreet = prefs.audioSettings?.autoGreet ?? true;
 		if (autoGreet) {
 			// Force a greeting even without prior user input
-			const greetResponse = realtimeService.createResponse();
-			sendEventViaSession(this.sessionConnection, greetResponse);
+			realtimeOpenAI.sendResponse();
 
 			// Optional safety retry after 1.5s if no assistant message yet
 			setTimeout(() => {
-				if (!this.sessionConnection) return;
+				if (!realtimeOpenAI.isConnected) return;
 				const hasAssistant = this.messages.some((m) => m.role === 'assistant');
 				if (!hasAssistant) {
-					const retryResponse = realtimeService.createResponse();
-					sendEventViaSession(this.sessionConnection, retryResponse);
+					realtimeOpenAI.sendResponse();
 				}
 			}, 1500);
 		} else {
 			// Fallback: basic response request
-			const responseEvent = realtimeService.createResponse();
-			sendEventViaSession(this.sessionConnection, responseEvent);
+			realtimeOpenAI.sendResponse();
 		}
 	}
 
@@ -636,11 +522,14 @@ export class ConversationStore {
 		);
 
 		// Close realtime session
-		if (this.sessionConnection) {
-			console.log('🧹 ConversationStore: Closing SDK realtime session');
-			closeSessionConnection(this.sessionConnection);
-			this.sessionConnection = null;
-		}
+		console.log('🧹 ConversationStore: Closing SDK realtime session');
+		try {
+			this.messageUnsub?.();
+		} catch {}
+		this.messageUnsub = null;
+		try {
+			realtimeOpenAI.disconnect();
+		} catch {}
 
 		// Stop audio stream
 		if (this.audioStream) {
@@ -650,36 +539,6 @@ export class ConversationStore {
 		}
 
 		this.timer.cleanup();
-
-		// Note: Don't stop audio recording here - it should continue for UI audio level display
-		// The audio store will handle its own cleanup when needed
-		console.log(
-			'🧹 ConversationStore: After cleanup - audioStore.isRecording:',
-			audioStore.isRecording
-		);
-	}
-
-	// New method: Clean up only audio and realtime while preserving conversation data
-	private cleanupAudioAndRealtime(): void {
-		console.log('🧹 ConversationStore: Cleaning up audio and realtime only...');
-		console.log(
-			'🧹 ConversationStore: Before cleanup - audioStore.isRecording:',
-			audioStore.isRecording,
-			'audioStream exists:',
-			!!this.audioStream
-		);
-
-		// Close realtime session only (legacy path removed)
-
-		// Stop audio stream
-		if (this.audioStream) {
-			console.log('🧹 ConversationStore: Stopping audio stream');
-			realtimeService.stopAudioStream(this.audioStream);
-			this.audioStream = null;
-		}
-
-		// Pause timer but don't destroy it
-		this.timer.pause();
 
 		// Note: Don't stop audio recording here - it should continue for UI audio level display
 		// The audio store will handle its own cleanup when needed
@@ -764,9 +623,7 @@ export class ConversationStore {
 		const aiIsResponding = messageService.hasStreamingMessage(this.messages);
 
 		// Check if audio is actively playing
-		const audioIsPlaying =
-			(this.sessionConnection?.audioElement && !this.sessionConnection.audioElement.paused) ||
-			false;
+		const audioIsPlaying = false || false;
 
 		console.log('Graceful shutdown check:', {
 			userIsSpeaking,
@@ -781,9 +638,7 @@ export class ConversationStore {
 
 	private initiateGracefulShutdown(): void {
 		// Set waiting flags based on what we're waiting for
-		this.waitingForAudioCompletion =
-			(this.sessionConnection?.audioElement && !this.sessionConnection.audioElement.paused) ||
-			false;
+		this.waitingForAudioCompletion = false || false;
 		this.waitingForAIResponse = messageService.hasStreamingMessage(this.messages);
 
 		// Set up listeners for completion events
@@ -800,61 +655,30 @@ export class ConversationStore {
 
 	private setupGracefulShutdownListeners(): void {
 		// Listen for audio completion
-		if (this.sessionConnection?.audioElement) {
-			const audioElement = this.sessionConnection.audioElement;
+		// We don't maintain a direct audio element reference here with the new store
+		const audioElement = undefined as unknown as HTMLAudioElement | undefined;
 
-			const onAudioEnd = () => {
-				console.log('Audio playback completed');
-				this.waitingForAudioCompletion = false;
-				audioElement.removeEventListener('ended', onAudioEnd);
-				audioElement.removeEventListener('pause', onAudioEnd);
-				this.checkIfReadyToEnd();
-			};
+		const onAudioEnd = () => {
+			console.log('Audio playback completed');
+			this.waitingForAudioCompletion = false;
+			try {
+				audioElement?.removeEventListener('ended', onAudioEnd);
+			} catch {}
+			try {
+				audioElement?.removeEventListener('pause', onAudioEnd);
+			} catch {}
+			this.checkIfReadyToEnd();
+		};
 
-			audioElement.addEventListener('ended', onAudioEnd);
-			audioElement.addEventListener('pause', onAudioEnd);
-		}
+		try {
+			audioElement?.addEventListener('ended', onAudioEnd);
+		} catch {}
+		try {
+			audioElement?.addEventListener('pause', onAudioEnd);
+		} catch {}
 
 		// The AI response completion will be handled in your existing message handling
 		// We'll check for completion in the existing handleProcessedEvent method
-	}
-
-	// Modify your existing handleProcessedEvent to check for graceful shutdown
-	private async handleProcessedEvent(
-		processed: realtimeService.ProcessedEventResult
-	): Promise<void> {
-		switch (processed.type) {
-			case 'message':
-				this.addMessageToState(processed.data);
-
-				// If we're gracefully ending and this completes the AI response
-				if (this.isGracefullyEnding && processed.data.role === 'assistant') {
-					this.waitingForAIResponse = false;
-					this.checkIfReadyToEnd();
-				}
-				break;
-
-			case 'transcription':
-				await this.handleTranscriptionUpdate(processed.data);
-
-				// If we're gracefully ending and user transcription is complete
-				if (
-					this.isGracefullyEnding &&
-					processed.data.type === 'user_transcript' &&
-					processed.data.isFinal
-				) {
-					this.checkIfReadyToEnd();
-				}
-				break;
-
-			case 'connection_state':
-				console.log('Connection state update:', processed.data.state);
-				break;
-
-			case 'ignore':
-				// Do nothing for ignored events
-				break;
-		}
 	}
 
 	private checkIfReadyToEnd(): void {

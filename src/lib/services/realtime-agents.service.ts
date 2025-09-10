@@ -203,6 +203,18 @@ export function sendTextMessage(conn: SessionConnection, text: string) {
 	conn.session.sendMessage(text);
 }
 
+export function interruptSession(conn: SessionConnection) {
+	try {
+		conn.session.interrupt();
+	} catch {}
+}
+
+export function muteSession(conn: SessionConnection, mute: boolean) {
+	try {
+		conn.session.mute(mute);
+	} catch {}
+}
+
 export function closeSessionConnection(conn: SessionConnection) {
 	try {
 		conn.session.close();

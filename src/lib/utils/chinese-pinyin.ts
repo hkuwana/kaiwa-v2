@@ -71,7 +71,6 @@ const PINYIN_MAP: Record<string, string> = {
 	秒: 'miao',
 	早: 'zao',
 	晚: 'wan',
- 
 	午: 'wu',
 	点: 'dian',
 
@@ -83,7 +82,7 @@ const PINYIN_MAP: Record<string, string> = {
 	来: 'lai',
 	去: 'qu',
 	看: 'kan',
-	听: 'ting', 
+	听: 'ting',
 	读: 'du',
 	写: 'xie',
 	学: 'xue',
@@ -110,7 +109,6 @@ const PINYIN_MAP: Record<string, string> = {
 	// Places and directions
 	北: 'bei',
 	京: 'jing',
-	 
 	海: 'hai',
 	广: 'guang',
 	州: 'zhou',
@@ -119,11 +117,9 @@ const PINYIN_MAP: Record<string, string> = {
 	南: 'nan',
 	西: 'xi',
 	东: 'dong',
-	 
 	外: 'wai',
 	内: 'nei',
 	前: 'qian',
-	 
 	左: 'zuo',
 	右: 'you',
 	旁: 'pang',
@@ -159,7 +155,6 @@ const PINYIN_MAP: Record<string, string> = {
 	对: 'dui',
 	起: 'qi',
 	没: 'mei',
-	 
 	系: 'xi',
 	再: 'zai',
 	见: 'jian',
@@ -169,12 +164,10 @@ const PINYIN_MAP: Record<string, string> = {
 	临: 'lin',
 
 	// School and learning
-	 
 	校: 'xiao',
 	老: 'lao',
 	师: 'shi',
 	同: 'tong',
-	 
 	生: 'sheng',
 	书: 'shu',
 	文: 'wen',
@@ -183,7 +176,6 @@ const PINYIN_MAP: Record<string, string> = {
 	英: 'ying',
 	法: 'fa',
 	德: 'de',
-	 
 
 	// Food
 	饭: 'fan',
@@ -220,7 +212,6 @@ const PINYIN_MAP: Record<string, string> = {
 	话: 'hua',
 	网: 'wang',
 	络: 'luo',
-	 
 	器: 'qi',
 	视: 'shi',
 	频: 'pin',
@@ -234,7 +225,6 @@ const PINYIN_MAP: Record<string, string> = {
 	块: 'kuai',
 	元: 'yuan',
 	角: 'jiao',
-	 
 	商: 'shang',
 	店: 'dian',
 	市: 'shi',
@@ -258,7 +248,6 @@ const PINYIN_MAP: Record<string, string> = {
 	心: 'xin',
 
 	// Common adjectives
- 
 	坏: 'huai',
 	新: 'xin',
 	旧: 'jiu',
@@ -276,14 +265,12 @@ const PINYIN_MAP: Record<string, string> = {
 	短: 'duan',
 	宽: 'kuan',
 	窄: 'zhai',
-	深: 'shen',
 	浅: 'qian',
 
 	// Additional common characters
 	首: 'shou',
 	都: 'du',
 	喜: 'xi',
-	欢: 'huan',
 	意: 'yi',
 	思: 'si',
 	想: 'xiang',
@@ -293,18 +280,13 @@ const PINYIN_MAP: Record<string, string> = {
 	题: 'ti',
 	答: 'da',
 	案: 'an',
-	方: 'fang',
-	法: 'fa',
 	感: 'gan',
 	觉: 'jue',
 	真: 'zhen',
-	假: 'jia',
-	对: 'dui',
 	错: 'cuo',
 	帮: 'bang',
 	助: 'zhu',
 	需: 'xu',
-	要: 'yao',
 
 	// Question words and common phrases
 	怎: 'zen',
@@ -313,12 +295,9 @@ const PINYIN_MAP: Record<string, string> = {
 	什: 'shen',
 	哪: 'na',
 	谁: 'shei',
-	为: 'wei',
 	什么: 'shenme',
 	怎么: 'zenme',
 	怎样: 'zenyang',
-	多: 'duo',
-	少: 'shao',
 	几: 'ji',
 	哪里: 'nali',
 	什么时候: 'shenmeshihou',
@@ -329,9 +308,6 @@ const PINYIN_MAP: Record<string, string> = {
 	让: 'rang',
 	叫: 'jiao',
 	找: 'zhao',
-	想: 'xiang',
-	觉: 'jue',
-	帮: 'bang',
 	告: 'gao',
 	诉: 'su',
 	拿: 'na',

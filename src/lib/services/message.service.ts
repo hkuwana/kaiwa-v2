@@ -14,7 +14,7 @@ export function createUserPlaceholder(sessionId: string, speechStartTime?: numbe
 	// Use actual speech start time if provided, otherwise current time
 	const actualTime = speechStartTime || Date.now();
 	const timestamp = new SvelteDate(actualTime);
-	
+
 	return {
 		role: 'user',
 		content: '',
@@ -112,7 +112,7 @@ export function replaceUserPlaceholderWithFinal(
 
 	const updatedMessages = [...messages];
 	const placeholder = updatedMessages[placeholderIndex];
-	
+
 	// Build final user message preserving original timestamp for proper ordering
 	const finalized = {
 		...placeholder,
@@ -122,7 +122,7 @@ export function replaceUserPlaceholderWithFinal(
 		timestamp: placeholder.timestamp,
 		sequenceId: placeholder.sequenceId || placeholder.timestamp.getTime().toString()
 	};
-	
+
 	// Replace placeholder in-place to maintain chronological order
 	updatedMessages[placeholderIndex] = finalized;
 	return sortMessagesBySequence(updatedMessages);

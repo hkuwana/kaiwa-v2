@@ -5,6 +5,7 @@
 	import { audioService } from '$lib/services/audio.service';
 	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
 	import { realtimeService } from '$lib/services';
+	import { realtimeOpenAI } from '$lib/stores/realtime-openai.store.svelte';
 	import { DEFAULT_VOICE, type Voice } from '$lib/types/openai.realtime.types';
 	import { page } from '$app/state';
 
@@ -16,8 +17,6 @@
 	let recordedAudio: Blob | null = $state(null);
 	let audioUrl: string | null = $state(null);
 	let isPlaying = $state(false);
-	let aiResponse = $state<string | null>(null);
-	let error = $state<string | null>(null);
 	let recordingInterval: number | null = null;
 
 	// Visual testing controls
@@ -52,10 +51,19 @@
 	let selectedDeviceId = $state<string>('default');
 
 	// Realtime state
-	let isConnected = $state(false);
-	let connection: realtimeService.RealtimeConnection | null = null;
+	const isConnected = $derived(realtimeOpenAI.isConnected);
 	let localStream: MediaStream | null = null;
 	const lastVoice: Voice | null = null;
+
+	const error = $derived(realtimeOpenAI.error);
+	const aiResponse = $derived(realtimeOpenAI.aiResponse);
+
+	$effect(() => {
+		// When a new AI response appears, stop the 'listening' indicator
+		if (aiResponse) {
+			isListening = false;
+		}
+	});
 
 	// Preferences (mode and press behavior)
 	let audioMode: 'toggle' | 'push_to_talk' = $state(userPreferencesStore.getAudioMode());
@@ -92,7 +100,7 @@
 
 			audioService.onStreamError((errorMsg) => {
 				console.error('❌ Audio stream error:', errorMsg);
-				error = errorMsg;
+				realtimeOpenAI.setError(errorMsg);
 			});
 
 			// Load available devices
@@ -100,14 +108,16 @@
 			console.log('🎵 Available audio devices:', availableDevices.length);
 		} catch (err) {
 			console.error('❌ Failed to initialize audio service:', err);
-			error = err instanceof Error ? err.message : 'Failed to initialize audio service';
+			realtimeOpenAI.setError(
+				(err instanceof Error ? err.message : 'Failed to initialize audio service') as string
+			);
 		}
 	}
 
 	// === Realtime wiring ===
 	async function connectRealtime() {
 		try {
-			error = null;
+			realtimeOpenAI.clearError();
 			// ensure stream
 			localStream = await audioService.getStream(selectedDeviceId);
 
@@ -123,49 +133,10 @@
 			}
 			const sessionData = await res.json();
 
-			// create connection
-			connection = await realtimeService.createConnection(sessionData, localStream);
-			if (!connection) throw new Error('Realtime connection creation failed');
-
-			// basic handlers
-			connection.dataChannel.onopen = () => {
-				console.log('🟢 Data channel open');
-				// Send typed session.update once channel is ready
-				const sessionUpdateEvent = realtimeService.createSessionUpdate({
-					model: 'gpt-realtime',
-					voice: lastVoice || DEFAULT_VOICE
-				});
-				realtimeService.sendEvent(connection!, sessionUpdateEvent);
-				isConnected = true;
-			};
-
-			connection.dataChannel.onmessage = (evt) => {
-				try {
-					const serverEvent = JSON.parse(evt.data);
-					const processed = realtimeService.processServerEvent(serverEvent);
-					if (serverEvent.type === 'session.created' || serverEvent.type === 'session.updated') {
-						isConnected = true;
-					}
-					if (processed.type === 'transcription') {
-						// simple debug log
-						console.log(
-							`📝 ${processed.data.type} ${processed.data.isFinal ? 'final' : 'delta'}:`,
-							processed.data.text
-						);
-						if (processed.data.type === 'assistant_transcript' && processed.data.isFinal) {
-							// optional: set aiResponse from transcript text
-							aiResponse = processed.data.text;
-							isListening = false;
-						}
-					} else if (processed.type === 'message') {
-						console.log('🤖 Assistant message:', processed.data.content);
-						aiResponse = processed.data.content;
-						isListening = false;
-					}
-				} catch (e) {
-					console.warn('Failed to parse server event', e);
-				}
-			};
+			await realtimeOpenAI.connect(sessionData, localStream, {
+				model: 'gpt-realtime',
+				voice: lastVoice || DEFAULT_VOICE
+			});
 
 			// initial track state based on mode
 			if (audioMode === 'push_to_talk' && localStream) {
@@ -175,18 +146,13 @@
 			}
 		} catch (e) {
 			console.error(e);
-			error = e instanceof Error ? e.message : 'Failed to connect to realtime';
-			isConnected = false;
+			// Error propagates via store
 		}
 	}
 
-	function disconnectRealtime() {
+	async function disconnectRealtime() {
 		try {
-			if (connection) {
-				realtimeService.closeConnection(connection);
-				connection = null;
-			}
-			isConnected = false;
+			await realtimeOpenAI.disconnect();
 		} catch (e) {
 			console.warn('Disconnect failed', e);
 		}
@@ -194,36 +160,34 @@
 
 	// Push-to-talk controls using buffer clear/commit and track gating
 	function pttStart() {
-		if (!isConnected || !connection || !localStream) return;
+		if (!isConnected || !localStream) return;
 		try {
-			realtimeService.sendEvent(connection, realtimeService.createInputAudioBufferClear());
-			realtimeService.resumeAudioInput(localStream);
+			realtimeOpenAI.pttStart(localStream);
 		} catch (e) {
 			console.warn('pttStart failed', e);
 		}
 	}
 
 	function pttStop() {
-		if (!isConnected || !connection || !localStream) return;
+		if (!isConnected || !localStream) return;
 		try {
-			realtimeService.pauseAudioInput(localStream);
-			realtimeService.sendEvent(connection, realtimeService.createInputAudioBufferCommit());
+			realtimeOpenAI.pttStop(localStream);
 		} catch (e) {
 			console.warn('pttStop failed', e);
 		}
 	}
 
 	function sendAIResponse() {
-		if (!isConnected || !connection) return;
-		realtimeService.sendEvent(connection, realtimeService.createResponse());
+		if (!isConnected) return;
+		realtimeOpenAI.sendResponse();
 		isListening = true;
 	}
 
 	// Recording handlers
 	function handleRecordStart() {
 		console.log('🎤 Starting recording...');
-		error = null;
-		aiResponse = null;
+		realtimeOpenAI.clearError();
+		realtimeOpenAI.clearAiResponse();
 		isRecording = true;
 		recordingDuration = 0;
 
@@ -269,7 +233,7 @@
 				isListening = true;
 				setTimeout(() => {
 					isListening = false;
-					aiResponse = 'I heard your recording! (offline simulation)';
+					realtimeOpenAI.setAiResponse('I heard your recording! (offline simulation)');
 				}, 2000);
 			}, 1000);
 		}
@@ -303,14 +267,14 @@
 
 	// Clear error
 	function clearError() {
-		error = null;
+		realtimeOpenAI.clearError();
 	}
 
 	// Test audio device
 	async function testAudioDevice(deviceId: string) {
 		try {
 			selectedDeviceId = deviceId;
-			error = null;
+			realtimeOpenAI.clearError();
 
 			// Get stream to test device
 			const stream = await audioService.getStream(deviceId);
@@ -320,7 +284,9 @@
 			stream.getTracks().forEach((track) => track.stop());
 		} catch (err) {
 			console.error('❌ Device test failed:', err);
-			error = `Failed to test device: ${err instanceof Error ? err.message : 'Unknown error'}`;
+			realtimeOpenAI.setError(
+				`Failed to test device: ${err instanceof Error ? err.message : 'Unknown error'}`
+			);
 		}
 	}
 
@@ -333,11 +299,7 @@
 			clearInterval(recordingInterval);
 		}
 		audioService.cleanup();
-		if (connection) {
-			realtimeService.closeConnection(connection);
-			connection = null;
-			isConnected = false;
-		}
+		realtimeOpenAI.disconnect().catch(() => {});
 	});
 </script>
 
