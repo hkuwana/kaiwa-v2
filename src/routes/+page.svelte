@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { dev } from '$app/environment';
 	import { browser } from '$app/environment';
 	import UnifiedStartButton from '$lib/components/UnifiedStartButton.svelte';
+	import ChatBubbleFlow from '$lib/components/ChatBubbleFlow.svelte';
+	import InteractiveScenarioPreview from '$lib/components/InteractiveScenarioPreview.svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
@@ -94,9 +95,6 @@
 		selectedScenario = scenario;
 	}
 
-	function handleScenarioStart(scenario: Scenario) {
-		console.log('Starting scenario:', scenario.title);
-	}
 </script>
 
 <svelte:head>
@@ -134,108 +132,82 @@
 			</div>
 		</div>
 	</header>
-	{#if dev}
-		<main class="container mx-auto px-4 py-8">
-			<div class="mb-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+	<!-- New Component Showcase Section -->
+	<main class="container mx-auto px-4 py-12 space-y-16">
+		<!-- Section Header -->
+		<div class="text-center max-w-3xl mx-auto">
+			<h2 class="text-4xl font-bold mb-4 text-white">Experience Real Conversations</h2>
+			<p class="text-xl opacity-90 text-white">
+				Practice speaking naturally with AI-powered conversations in multiple languages
+			</p>
+		</div>
+
+		<!-- Option 1: Chat Bubble Flow Animation -->
+		<section class="space-y-8">
+			<div class="text-center">
+				<h3 class="text-2xl font-bold mb-3 text-white">💬 Live Conversation Flow</h3>
+				<p class="text-lg opacity-80 text-white">See real conversations happening across different languages</p>
+			</div>
+			<ChatBubbleFlow />
+		</section>
+
+		<!-- CTA Section -->
+		<div class="text-center py-8">
+			<UnifiedStartButton
+				{user}
+				{selectedLanguage}
+				{selectedSpeaker}
+				{selectedScenario}
+				onLanguageChange={handleLanguageChange}
+				onSpeakerChange={handleSpeakerChange}
+				onScenarioChange={handleScenarioChange}
+				onStartClick={trackStartSpeakingClick}
+			/>
+			<p class="mt-4 text-lg opacity-80 text-white">
+				{#if user && user.id !== 'guest'}
+					Ready to start your next conversation?
+				{:else}
+					Try your first conversation - sign up for full access
+				{/if}
+			</p>
+		</div>
+
+		<!-- Option 3: Interactive Scenario Preview -->
+		<section class="space-y-8">
+			<div class="text-center">
+				<h3 class="text-2xl font-bold mb-3 text-white">Choose Your Scenario</h3>
+				<p class="text-lg opacity-80 text-white">Explore different conversation topics and practice situations</p>
+			</div>
+			<InteractiveScenarioPreview {selectedLanguage} />
+		</section>
+
+		<!-- Features Grid -->
+		<section class="mt-16">
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
 				<div class="card border border-base-300/20 bg-base-100/10 shadow-xl backdrop-blur-sm">
-					<div class="card-body">
-						<h3 class="mb-4 card-title text-2xl text-warning">🚀 3-Day MVP Architecture</h3>
-						<p class="mb-4">Clean, simple, and maintainable codebase with three clear layers:</p>
-						<ul class="space-y-2">
-							<li class="flex items-center gap-2">
-								<span class="badge badge-sm badge-primary">Services</span>
-								<span>Business logic (WebRTC, Audio, Conversation)</span>
-							</li>
-							<li class="flex items-center gap-2">
-								<span class="badge badge-sm badge-secondary">Stores</span>
-								<span>State management with Svelte 5 runes</span>
-							</li>
-							<li class="flex items-center gap-2">
-								<span class="badge badge-sm badge-accent">Components</span>
-								<span>UI that displays data and calls actions</span>
-							</li>
-						</ul>
+					<div class="card-body text-center">
+						<div class="text-4xl mb-4">🎤</div>
+						<h3 class="text-xl font-bold mb-3 text-white">Real-time Audio</h3>
+						<p class="text-white/80">Practice speaking with instant AI responses using advanced speech technology</p>
 					</div>
 				</div>
 
 				<div class="card border border-base-300/20 bg-base-100/10 shadow-xl backdrop-blur-sm">
-					<div class="card-body">
-						<h3 class="mb-4 card-title text-2xl text-warning">🎤 Real-time Audio</h3>
-						<p>Practice speaking with instant AI responses using WebRTC technology.</p>
+					<div class="card-body text-center">
+						<div class="text-4xl mb-4">🌍</div>
+						<h3 class="text-xl font-bold mb-3 text-white">Multiple Languages</h3>
+						<p class="text-white/80">Learn Japanese, Spanish, French, German, and more with native-like pronunciation</p>
 					</div>
 				</div>
 
 				<div class="card border border-base-300/20 bg-base-100/10 shadow-xl backdrop-blur-sm">
-					<div class="card-body">
-						<h3 class="mb-4 card-title text-2xl text-warning">🌍 Multiple Languages</h3>
-						<p>
-							Learn English, Japanese, Spanish, German, and more with native-like pronunciation.
-						</p>
+					<div class="card-body text-center">
+						<div class="text-4xl mb-4">🎯</div>
+						<h3 class="text-xl font-bold mb-3 text-white">Practical Scenarios</h3>
+						<p class="text-white/80">Real-world situations from ordering food to job interviews</p>
 					</div>
 				</div>
 			</div>
-
-			<div class="my-12 text-center">
-				<UnifiedStartButton
-					{user}
-					{selectedLanguage}
-					{selectedSpeaker}
-					{selectedScenario}
-					onLanguageChange={handleLanguageChange}
-					onSpeakerChange={handleSpeakerChange}
-					onScenarioChange={handleScenarioChange}
-					onStartClick={trackStartSpeakingClick}
-				/>
-				<p class="mt-4 text-lg opacity-80">
-					{#if user && user.id !== 'guest'}
-						Experience scenarios and onboarding
-					{:else}
-						Experience onboarding - sign up for full access
-					{/if}
-				</p>
-			</div>
-
-			<div class="card border border-base-300/20 bg-base-100/10 p-8 shadow-xl backdrop-blur-sm">
-				<h3 class="mb-8 text-center text-3xl font-bold text-warning">🏗️ Architecture Benefits</h3>
-				<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-					<div class="text-center">
-						<div class="placeholder avatar mb-4">
-							<div class="w-16 rounded-full bg-warning/20 text-warning">
-								<span class="text-2xl">🧠</span>
-							</div>
-						</div>
-						<h4 class="mb-2 text-lg font-semibold text-warning">Simple Mental Model</h4>
-						<p class="text-sm opacity-90">Three clear layers: Services → Stores → Components</p>
-					</div>
-					<div class="text-center">
-						<div class="placeholder avatar mb-4">
-							<div class="w-16 rounded-full bg-warning/20 text-warning">
-								<span class="text-2xl">🔧</span>
-							</div>
-						</div>
-						<h4 class="mb-2 text-lg font-semibold text-warning">Easy to Change</h4>
-						<p class="text-sm opacity-90">Modify one layer without breaking others</p>
-					</div>
-					<div class="text-center">
-						<div class="placeholder avatar mb-4">
-							<div class="w-16 rounded-full bg-warning/20 text-warning">
-								<span class="text-2xl">🐛</span>
-							</div>
-						</div>
-						<h4 class="mb-2 text-lg font-semibold text-warning">Easy to Debug</h4>
-						<p class="text-sm opacity-90">Clear data flow and separation of concerns</p>
-					</div>
-					<div class="text-center">
-						<div class="placeholder avatar mb-4">
-							<div class="w-16 rounded-full bg-warning/20 text-warning">
-								<span class="text-2xl">⚡</span>
-							</div>
-						</div>
-						<h4 class="mb-2 text-lg font-semibold text-warning">Fast Development</h4>
-						<p class="text-sm opacity-90">No complex event buses or orchestrators</p>
-					</div>
-				</div>
-			</div>
-		</main>
-	{/if}
+		</section>
+	</main>
 </div>

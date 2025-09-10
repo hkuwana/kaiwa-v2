@@ -87,9 +87,9 @@ export function updatePlaceholderWithPartial(messages: Message[], partialText: s
 }
 
 export function replaceUserPlaceholderWithFinal(
-	messages: Message[],
-	finalText: string,
-	sessionId: string
+    messages: Message[],
+    finalText: string,
+    sessionId: string
 ): Message[] {
 	const placeholderIndex = messages.findIndex(
 		(msg) =>
@@ -104,14 +104,17 @@ export function replaceUserPlaceholderWithFinal(
 		return [...messages, createFinalUserMessage(finalText, sessionId)];
 	}
 
-	const updatedMessages = [...messages];
-	updatedMessages[placeholderIndex] = {
-		...updatedMessages[placeholderIndex],
-		content: finalText,
-		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-		timestamp: new SvelteDate()
-	};
-	return updatedMessages;
+    const updatedMessages = [...messages];
+    // Build final user message
+    const finalized = {
+        ...updatedMessages[placeholderIndex],
+        content: finalText,
+        id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+        timestamp: new SvelteDate()
+    };
+    // Remove placeholder from its current position and append finalized message to end
+    updatedMessages.splice(placeholderIndex, 1);
+    return [...updatedMessages, finalized];
 }
 
 export function createFinalUserMessage(content: string, sessionId: string): Message {
@@ -383,10 +386,10 @@ export async function finalizeMessageWithFurigana(
  * Replace user placeholder with final message including furigana generation
  */
 export async function replaceUserPlaceholderWithFinalAndFurigana(
-	messages: Message[],
-	finalText: string,
-	sessionId: string,
-	conversationLanguage: string = 'en'
+    messages: Message[],
+    finalText: string,
+    sessionId: string,
+    conversationLanguage: string = 'en'
 ): Promise<Message[]> {
 	const placeholderIndex = messages.findIndex(
 		(msg) =>
@@ -413,11 +416,12 @@ export async function replaceUserPlaceholderWithFinalAndFurigana(
 		
 		try {
 			const scriptData = await generateScriptsForMessage(finalMessage, true); // Use server
-			if (scriptData && Object.keys(scriptData).length > 0) {
-				console.log('Scripts generated successfully for user message:', scriptData);
-				const updatedMessage = updateMessageWithScripts(finalMessage, scriptData);
-				const updatedMessages = [...messages];
-				updatedMessages[placeholderIndex] = updatedMessage;
+            if (scriptData && Object.keys(scriptData).length > 0) {
+                console.log('Scripts generated successfully for user message:', scriptData);
+                const updatedMessage = updateMessageWithScripts(finalMessage, scriptData);
+                const updatedMessages = [...messages];
+                // Replace placeholder in its original position to maintain correct chronological order
+                updatedMessages[placeholderIndex] = updatedMessage;
 
 				// Trigger server-side generation and database storage
 				generateAndStoreScriptsForMessage(finalMessage.id, finalText, scriptLanguage)
@@ -441,9 +445,9 @@ export async function replaceUserPlaceholderWithFinalAndFurigana(
 		}
 	}
 
-	// Replace placeholder with final message
-	const updatedMessages = [...messages];
-	updatedMessages[placeholderIndex] = finalMessage;
+    // Replace placeholder in its original position to maintain correct chronological order
+    const updatedMessages = [...messages];
+    updatedMessages[placeholderIndex] = finalMessage;
 	
 	// Always trigger server-side generation for Japanese conversations or detected Japanese text
 	if (scriptLanguage !== 'other') {

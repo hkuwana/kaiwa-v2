@@ -17,14 +17,31 @@
 		conversationId: 'preview',
 		role,
 		content,
-		 
 		timestamp: new Date(),
-		isTranscript: role === 'user',
-		translatedText: originalText ? content : undefined
+		translatedContent: originalText ? content : null,
+		sourceLanguage: originalText ? (selectedLanguage?.code || null) : null,
+		targetLanguage: originalText ? 'en' : null,
+		userNativeLanguage: null,
+		romanization: null,
+		hiragana: null,
+		otherScripts: null,
+		translationConfidence: null,
+		translationProvider: null,
+		translationNotes: null,
+		isTranslated: !!originalText,
+		grammarAnalysis: null,
+		vocabularyAnalysis: null,
+		pronunciationScore: null,
+		audioUrl: null,
+		audioDuration: null,
+		difficultyLevel: null,
+		learningTags: null,
+		conversationContext: null,
+		messageIntent: null
 	});
 
 	// Language-specific travel destinations and contexts with proper Message objects
-	const getTravelScenarioData = (language: string | null) => {
+	const getTravelScenarioData = (_language: string | null) => {
 		const travelOptions = {
 			ja: {
 				destinations: ['Tokyo', 'Kyoto', 'Osaka'],
@@ -184,18 +201,24 @@
 	}
 
 	function nextScenario() {
+		stopAutoPlay(); // Stop auto-play when manually navigating
 		currentIndex = (currentIndex + 1) % scenarioPreviewsData.length;
 		animateMessages();
+		setTimeout(() => resumeAutoPlay(), 3000); // Resume after 3 seconds
 	}
 
 	function prevScenario() {
+		stopAutoPlay(); // Stop auto-play when manually navigating
 		currentIndex = (currentIndex - 1 + scenarioPreviewsData.length) % scenarioPreviewsData.length;
 		animateMessages();
+		setTimeout(() => resumeAutoPlay(), 3000); // Resume after 3 seconds
 	}
 
 	function goToScenario(index: number) {
+		stopAutoPlay(); // Stop auto-play when manually navigating
 		currentIndex = index;
 		animateMessages();
+		setTimeout(() => resumeAutoPlay(), 3000); // Resume after 3 seconds
 	}
 
 	function animateMessages() {
@@ -304,23 +327,29 @@
 		</div>
 
 		<!-- Navigation Controls -->
-		<div class="absolute inset-y-0 left-0 flex items-center">
+		<div class="absolute inset-y-0 left-0 flex items-center z-20">
 			<button
-				class="btn ml-4 btn-circle border-white/20 bg-black/20 text-white btn-ghost backdrop-blur-sm hover:bg-black/30"
+				class="btn ml-2 btn-circle border-white/30 bg-black/30 text-white hover:bg-black/50 hover:scale-110 transition-all duration-200 shadow-lg"
 				onclick={prevScenario}
 				aria-label="Previous scenario"
+				style="backdrop-filter: blur(8px);"
 			>
-				❮
+				<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+					<path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+				</svg>
 			</button>
 		</div>
 
-		<div class="absolute inset-y-0 right-0 flex items-center">
+		<div class="absolute inset-y-0 right-0 flex items-center z-20">
 			<button
-				class="btn mr-4 btn-circle border-white/20 bg-black/20 text-white btn-ghost backdrop-blur-sm hover:bg-black/30"
+				class="btn mr-2 btn-circle border-white/30 bg-black/30 text-white hover:bg-black/50 hover:scale-110 transition-all duration-200 shadow-lg"
 				onclick={nextScenario}
 				aria-label="Next scenario"
+				style="backdrop-filter: blur(8px);"
 			>
-				❯
+				<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+					<path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+				</svg>
 			</button>
 		</div>
 	</div>

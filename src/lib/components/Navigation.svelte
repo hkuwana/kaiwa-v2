@@ -21,7 +21,7 @@
   ];
 </script>
 
-<nav class="navbar bg-neutral text-neutral-content shadow-sm">
+<nav class="navbar bg-neutral text-neutral-content shadow-sm relative z-50">
 	<div class="navbar-start">
 		<div class="dropdown">
 			<div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
@@ -42,7 +42,7 @@
 			</div>
 			<ul
 				tabindex="0"
-				class="dropdown-content menu z-[1] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
+				class="dropdown-content menu z-[60] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
 			>
 				<li><a href="/pricing" class="text-neutral-content">Pricing</a></li>
 				<li><a href="/privacy" class="text-neutral-content">Privacy</a></li>
@@ -96,7 +96,7 @@
 				</div>
 				<ul
 					tabindex="0"
-					class="dropdown-content menu z-[1] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
+					class="dropdown-content menu z-[60] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
 				>
 					<li><a href="/conversation" class="text-neutral-content">Start Practice</a></li>
 					<li><a href="/profile" class="text-neutral-content">Profile</a></li>

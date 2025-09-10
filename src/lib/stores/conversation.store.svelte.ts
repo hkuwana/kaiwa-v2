@@ -458,18 +458,31 @@ export class ConversationStore {
 
 	// Enhanced addMessageToState to handle ordering
 	private addMessageToState(data: realtimeService.MessageEventData): void {
-		// For assistant messages, check if there's a pending user placeholder
+		// Do not delay assistant messages; we want them to appear immediately
 		if (data.role === 'assistant') {
-			if (messageService.hasPendingUserPlaceholder(this.messages)) {
-				// Don't add assistant message yet if user transcription is pending
-				console.log('Delaying assistant message due to pending user transcription');
-				setTimeout(() => this.addMessageToState(data), 1000); // Retry in 1 second
+			// Avoid creating duplicate assistant streaming messages
+			if (messageService.hasStreamingMessage(this.messages)) {
+				console.log('Skipping duplicate assistant message, streaming in progress');
 				return;
 			}
 
-			// Check for existing streaming message
-			if (messageService.hasStreamingMessage(this.messages)) {
-				console.log('Skipping duplicate assistant message, streaming in progress');
+			// If a user placeholder is present, insert assistant just before it
+			const placeholderIndex = this.messages.findIndex(
+				(msg) =>
+					msg.role === 'user' &&
+					(msg.id.startsWith('user_placeholder_') ||
+						msg.id.startsWith('user_transcribing_') ||
+						msg.id.startsWith('user_partial_'))
+			);
+
+			if (placeholderIndex !== -1) {
+				if (!messageService.isDuplicateMessage(this.messages, data)) {
+					const message = messageService.createMessageFromEventData(data, this.sessionId);
+					const updated = [...this.messages];
+					updated.splice(placeholderIndex, 0, message);
+					this.messages = updated;
+					console.log('Inserted assistant message before user placeholder');
+				}
 				return;
 			}
 		}

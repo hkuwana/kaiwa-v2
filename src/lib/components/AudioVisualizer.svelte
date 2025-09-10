@@ -18,6 +18,9 @@
 		deviceId?: string;
 		controlMode?: 'internal' | 'external';
 		pressBehavior?: 'press_hold' | 'tap_toggle';
+		// Visuals
+		highContrast?: boolean; // adds ring + offset to ensure visibility against varied backgrounds
+		primaryColor?: 'accent' | 'primary' | 'secondary' | 'success' | 'warning' | 'error';
 	}
 
 	// --- PROPS ---
@@ -30,7 +33,9 @@
 		onRecordComplete = () => {},
 		deviceId = undefined,
 		controlMode = 'internal',
-		pressBehavior = 'press_hold'
+		pressBehavior = 'press_hold',
+		highContrast = true,
+		primaryColor = 'accent'
 	}: Props = $props();
 
 	// --- REACTIVE VALUES (SVELTE 5 RUNES) ---
@@ -40,9 +45,9 @@
 	const scale = $derived(1 + audioLevel);
 
 	/**
-	 * The opacity of the outer glow will range from 0.1 (no sound) to 0.9 (max sound).
+	 * The opacity of the outer glow will range from 0.25 (no sound) to ~0.9 (max sound) for stronger contrast.
 	 */
-	const opacity = $derived(0.1 + audioLevel * 0.8);
+	const glowOpacity = $derived(() => Math.min(0.25 + audioLevel * 0.65, 0.95));
 
 	/**
 	 * The blur radius for the glow effect, making it more dynamic.
@@ -55,8 +60,29 @@
 	const colorIntensity = $derived(() => {
 		if (isRecording) return 'bg-error';
 		if (isListening) return 'bg-warning';
-		return audioLevel > 0.5 ? 'bg-accent-focus' : 'bg-accent';
+		const base = primaryColor;
+		return audioLevel > 0.5 ? `bg-${base}-focus` : `bg-${base}`;
 	});
+
+	// Classes to enhance contrast with surrounding background
+	const outerClasses = $derived(() =>
+		`absolute h-full w-full rounded-full transition-all duration-75 ease-out ${colorIntensity()} ${
+			highContrast ? 'ring-2 ring-base-content ring-offset-2 ring-offset-base-100' : ''
+		}`
+	);
+
+	// Core color uses a solid DaisyUI color for maximum contrast
+	const coreColorClass = $derived(() => {
+		if (isRecording) return 'bg-error';
+		if (isListening) return 'bg-warning';
+		return `bg-${primaryColor}`;
+	});
+
+	const innerClasses = $derived(() =>
+		`relative h-12 w-12 rounded-full ${coreColorClass()} transition-all duration-300`
+	);
+
+	const innerOpacity = $derived(() => (highContrast ? 0.95 : 0.85));
 
 	/**
 	 * Smooth vertical movement for recording state
@@ -318,6 +344,23 @@
 
 		return `${base} hover:scale-105 active:scale-95`;
 	});
+
+	// Tailwind safelist for dynamic color classes used above
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const __safelist = [
+		'bg-accent',
+		'bg-accent-focus',
+		'bg-primary',
+		'bg-primary-focus',
+		'bg-secondary',
+		'bg-secondary-focus',
+		'bg-success',
+		'bg-success-focus',
+		'bg-warning',
+		'bg-warning-focus',
+		'bg-error',
+		'bg-error-focus'
+	];
 </script>
 
 <!-- 
@@ -351,16 +394,17 @@
 >
 	<!-- Outer Circle (The Pulse/Glow) -->
 	<div
-		class="absolute h-full w-full rounded-full transition-all duration-75 ease-out {colorIntensity()}"
+		class={outerClasses()}
 		style:transform="translateY({verticalOffset}px) scale({scale})"
-		style:opacity
+		style:opacity={glowOpacity}
 		style:filter="blur({blurRadius}px)"
 	></div>
 
 	<!-- Inner Circle (The Core) -->
 	<div
-		class="relative h-12 w-12 rounded-full {colorIntensity()}/80 transition-all duration-300"
+		class={innerClasses()}
 		style:transform="translateY({verticalOffset}px)"
+		style:opacity={innerOpacity}
 	></div>
 
 	<!-- Recording Indicator -->

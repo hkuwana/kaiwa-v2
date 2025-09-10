@@ -221,6 +221,7 @@
 							{audioLevel}
 							controlMode="external"
 							pressBehavior={userPreferencesStore.getPressBehavior()}
+							highContrast={true}
 							onRecordStart={() => {
 								// If not already in push-to-talk, switch immediately when user clicks the control
 								if (userPreferencesStore.getAudioMode() !== 'push_to_talk') {
