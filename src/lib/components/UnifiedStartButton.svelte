@@ -2,6 +2,7 @@
 <script lang="ts">
 	import { scenariosData } from '$lib/data/scenarios';
 	import { goto } from '$app/navigation';
+	import { track } from '$lib/analytics/posthog';
 	import LanguageSelector from './LanguageSelector.svelte';
 	import ScenarioSelector from './ScenarioSelector.svelte';
 	import type { Language as DataLanguage } from '$lib/data/languages';
@@ -62,6 +63,10 @@
 		const sessionId = crypto.randomUUID();
 		if (selectedLanguage && currentScenario) {
 			// Track the click event
+			track('start_language_clicked', {
+				language: selectedLanguage.code || selectedLanguage.name,
+				scenario_id: currentScenario.id
+			});
 			if (onStartClick) {
 				onStartClick();
 			}

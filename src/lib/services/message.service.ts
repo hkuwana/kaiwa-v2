@@ -11,11 +11,14 @@ import {
 } from './scripts.service';
 
 export function createUserPlaceholder(sessionId: string): Message {
+	const now = new SvelteDate();
 	return {
 		role: 'user',
 		content: '',
-		timestamp: new SvelteDate(),
-		id: `user_placeholder_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+		timestamp: now,
+		id: `user_placeholder_${now.getTime()}_${Math.random().toString(36).slice(2, 9)}`,
+		// Add sequence tracking for proper ordering
+		sequenceId: now.getTime().toString(),
 		conversationId: sessionId,
 		audioUrl: null,
 
@@ -101,28 +104,35 @@ export function replaceUserPlaceholderWithFinal(
 
 	if (placeholderIndex === -1) {
 		// No placeholder found, add new message
-		return [...messages, createFinalUserMessage(finalText, sessionId)];
+		return sortMessagesBySequence([...messages, createFinalUserMessage(finalText, sessionId)]);
 	}
 
 	const updatedMessages = [...messages];
-	// Build final user message
+	const placeholder = updatedMessages[placeholderIndex];
+	
+	// Build final user message preserving original timestamp for proper ordering
 	const finalized = {
-		...updatedMessages[placeholderIndex],
+		...placeholder,
 		content: finalText,
 		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-		timestamp: new SvelteDate()
+		// Keep original timestamp to maintain chronological order
+		timestamp: placeholder.timestamp,
+		sequenceId: placeholder.sequenceId || placeholder.timestamp.getTime().toString()
 	};
-	// Remove placeholder from its current position and append finalized message to end
-	updatedMessages.splice(placeholderIndex, 1);
-	return [...updatedMessages, finalized];
+	
+	// Replace placeholder in-place to maintain chronological order
+	updatedMessages[placeholderIndex] = finalized;
+	return sortMessagesBySequence(updatedMessages);
 }
 
 export function createFinalUserMessage(content: string, sessionId: string): Message {
+	const now = new SvelteDate();
 	return {
 		role: 'user',
 		content,
-		timestamp: new SvelteDate(),
-		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+		timestamp: now,
+		id: `msg_${now.getTime()}_${Math.random().toString(36).slice(2, 9)}`,
+		sequenceId: now.getTime().toString(),
 		conversationId: sessionId,
 		audioUrl: null,
 
@@ -158,11 +168,13 @@ export function createFinalUserMessage(content: string, sessionId: string): Mess
 }
 
 export function createStreamingMessage(content: string, sessionId: string): Message {
+	const now = new SvelteDate();
 	return {
 		role: 'assistant',
 		content,
-		timestamp: new SvelteDate(),
-		id: `streaming_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+		timestamp: now,
+		id: `streaming_${now.getTime()}_${Math.random().toString(36).slice(2, 9)}`,
+		sequenceId: now.getTime().toString(),
 		conversationId: sessionId,
 		audioUrl: null,
 
@@ -238,11 +250,13 @@ export function finalizeStreamingMessage(messages: Message[], finalText: string)
 }
 
 export function createFinalAssistantMessage(content: string, sessionId: string): Message {
+	const now = new SvelteDate();
 	return {
 		role: 'assistant',
 		content,
-		timestamp: new SvelteDate(),
-		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+		timestamp: now,
+		id: `msg_${now.getTime()}_${Math.random().toString(36).slice(2, 9)}`,
+		sequenceId: now.getTime().toString(),
 		conversationId: sessionId,
 		audioUrl: null,
 
@@ -295,11 +309,13 @@ export function createMessageFromEventData(
 	data: { role: string; content: string; timestamp: Date },
 	sessionId: string
 ): Message {
+	const now = new SvelteDate();
 	return {
 		role: data.role as 'user' | 'assistant',
 		content: data.content,
-		timestamp: new SvelteDate(),
-		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+		timestamp: now,
+		id: `msg_${now.getTime()}_${Math.random().toString(36).slice(2, 9)}`,
+		sequenceId: now.getTime().toString(),
 		conversationId: sessionId,
 		audioUrl: null,
 
@@ -344,6 +360,17 @@ export function isDuplicateMessage(
 			msg.content === newMessage.content &&
 			Math.abs(msg.timestamp.getTime() - newMessage.timestamp.getTime()) < 2000
 	);
+}
+
+/**
+ * Sort messages by sequence ID/timestamp to maintain chronological order
+ */
+export function sortMessagesBySequence(messages: Message[]): Message[] {
+	return [...messages].sort((a, b) => {
+		const aSeq = a.sequenceId ? parseInt(a.sequenceId) : a.timestamp.getTime();
+		const bSeq = b.sequenceId ? parseInt(b.sequenceId) : b.timestamp.getTime();
+		return aSeq - bSeq;
+	});
 }
 
 /**
@@ -440,7 +467,7 @@ export async function replaceUserPlaceholderWithFinalAndFurigana(
 						console.error('❌ Error in server-side script generation for user message:', error);
 					});
 
-				return updatedMessages;
+				return sortMessagesBySequence(updatedMessages);
 			} else {
 				console.log('No script data generated for user message');
 			}
@@ -467,7 +494,7 @@ export async function replaceUserPlaceholderWithFinalAndFurigana(
 			});
 	}
 
-	return updatedMessages;
+	return sortMessagesBySequence(updatedMessages);
 }
 
 /**
@@ -530,7 +557,7 @@ export async function finalizeStreamingMessageWithFurigana(
 						);
 					});
 
-				return updatedMessages;
+				return sortMessagesBySequence(updatedMessages);
 			} else {
 				console.log('No script data generated for assistant message');
 			}
@@ -559,5 +586,5 @@ export async function finalizeStreamingMessageWithFurigana(
 			});
 	}
 
-	return updatedMessages;
+	return sortMessagesBySequence(updatedMessages);
 }

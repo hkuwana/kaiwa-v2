@@ -69,11 +69,9 @@ const PINYIN_MAP: Record<string, string> = {
 	时: 'shi',
 	分: 'fen',
 	秒: 'miao',
-	年: 'nian',
 	早: 'zao',
 	晚: 'wan',
-	上: 'shang',
-	下: 'xia',
+ 
 	午: 'wu',
 	点: 'dian',
 
@@ -85,8 +83,7 @@ const PINYIN_MAP: Record<string, string> = {
 	来: 'lai',
 	去: 'qu',
 	看: 'kan',
-	听: 'ting',
-	说: 'shuo',
+	听: 'ting', 
 	读: 'du',
 	写: 'xie',
 	学: 'xue',
@@ -113,7 +110,7 @@ const PINYIN_MAP: Record<string, string> = {
 	// Places and directions
 	北: 'bei',
 	京: 'jing',
-	上: 'shang',
+	 
 	海: 'hai',
 	广: 'guang',
 	州: 'zhou',
@@ -122,11 +119,11 @@ const PINYIN_MAP: Record<string, string> = {
 	南: 'nan',
 	西: 'xi',
 	东: 'dong',
-	中: 'zhong',
+	 
 	外: 'wai',
 	内: 'nei',
 	前: 'qian',
-	后: 'hou',
+	 
 	左: 'zuo',
 	右: 'you',
 	旁: 'pang',
@@ -162,7 +159,7 @@ const PINYIN_MAP: Record<string, string> = {
 	对: 'dui',
 	起: 'qi',
 	没: 'mei',
-	关: 'guan',
+	 
 	系: 'xi',
 	再: 'zai',
 	见: 'jian',
@@ -172,12 +169,12 @@ const PINYIN_MAP: Record<string, string> = {
 	临: 'lin',
 
 	// School and learning
-	学: 'xue',
+	 
 	校: 'xiao',
 	老: 'lao',
 	师: 'shi',
 	同: 'tong',
-	学: 'xue',
+	 
 	生: 'sheng',
 	书: 'shu',
 	文: 'wen',
@@ -186,7 +183,7 @@ const PINYIN_MAP: Record<string, string> = {
 	英: 'ying',
 	法: 'fa',
 	德: 'de',
-	日: 'ri',
+	 
 
 	// Food
 	饭: 'fan',
@@ -223,7 +220,7 @@ const PINYIN_MAP: Record<string, string> = {
 	话: 'hua',
 	网: 'wang',
 	络: 'luo',
-	机: 'ji',
+	 
 	器: 'qi',
 	视: 'shi',
 	频: 'pin',
@@ -237,7 +234,7 @@ const PINYIN_MAP: Record<string, string> = {
 	块: 'kuai',
 	元: 'yuan',
 	角: 'jiao',
-	分: 'fen',
+	 
 	商: 'shang',
 	店: 'dian',
 	市: 'shi',
@@ -261,7 +258,7 @@ const PINYIN_MAP: Record<string, string> = {
 	心: 'xin',
 
 	// Common adjectives
-	好: 'hao',
+ 
 	坏: 'huai',
 	新: 'xin',
 	旧: 'jiu',

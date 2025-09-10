@@ -1,5 +1,6 @@
 import { getTimerSettings, getMaxSessionLength, getMonthlySeconds } from '$lib/data/tiers';
 import type { UserTier } from '$lib/server/db/types';
+import { track } from '$lib/analytics/posthog';
 
 export interface TimerState {
 	isActive: boolean;
@@ -166,12 +167,27 @@ export class ConversationTimerStore {
 
 		// Start update loop
 		this._startUpdateLoop();
+
+		// Track session start
+		try {
+			track('conversation_session_started', {
+				tier: this._state.userTier
+			});
+		} catch {}
 	}
 
 	// Stop the timer
 	stop(): void {
 		console.log('⏰ Stopping conversation timer');
-
+		// Capture duration before reset
+		const durationSeconds = this.getTimeElapsedSeconds();
+		try {
+			track('conversation_session_ended', {
+				reason: 'stopped',
+				duration_seconds: durationSeconds,
+				tier: this._state.userTier
+			});
+		} catch {}
 		this._stopUpdateLoop();
 		this._resetState();
 		this.onExpired = undefined;
@@ -332,6 +348,14 @@ export class ConversationTimerStore {
 			this._stopUpdateLoop();
 
 			console.log('⏰ Timer expired!');
+			// Track expiry with duration
+			try {
+				track('conversation_session_ended', {
+					reason: 'expired',
+					duration_seconds: this.getTimeElapsedSeconds(),
+					tier: this._state.userTier
+				});
+			} catch {}
 			if (this.onExpired) {
 				try {
 					this.onExpired();

@@ -14,7 +14,6 @@
 	import { getLanguageEmoji, getLanguageName } from '$lib/data/languages';
 	import kitsune from '$lib/assets/kitsune.webp';
 	import face from '$lib/assets/Face.webp';
-	import { capitalize } from '$lib/utils';
 
 	interface Props {
 		message: Message;

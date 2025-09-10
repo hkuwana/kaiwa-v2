@@ -2,7 +2,6 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { conversationRepository } from '$lib/server/repositories/conversation.repository';
 import { messagesRepository } from '$lib/server/repositories/messages.repository';
-import { generateSessionId } from '$lib/utils';
 import { createSuccessResponse, createErrorResponse } from '$lib/types/api';
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -25,7 +24,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		// Create new message with comprehensive language support
 		const message = await messagesRepository.createMessage({
-			id: generateSessionId(),
+			id: crypto.randomUUID(),
 			conversationId,
 			role,
 			content,

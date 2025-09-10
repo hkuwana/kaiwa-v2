@@ -211,12 +211,10 @@ export class ConversationStore {
 	sendMessage = (content: string) => {
 		if (!browser) return;
 
-		// Add message to local state immediately
-		this.addMessageToState({
-			role: 'user',
-			content,
-			timestamp: new SvelteDate()
-		});
+		// Create user message with sequence ID for proper ordering
+		const userMessage = messageService.createFinalUserMessage(content, this.sessionId);
+		const updatedMessages = [...this.messages, userMessage];
+		this.messages = messageService.sortMessagesBySequence(updatedMessages);
 
 		// Send via SDK high-level API; it will handle the response flow
 		if (this.sessionConnection) {
@@ -458,41 +456,26 @@ export class ConversationStore {
 
 	// Enhanced addMessageToState to handle ordering
 	private addMessageToState(data: realtimeService.MessageEventData): void {
-		// Do not delay assistant messages; we want them to appear immediately
-		if (data.role === 'assistant') {
-			// Avoid creating duplicate assistant streaming messages
-			if (messageService.hasStreamingMessage(this.messages)) {
-				console.log('Skipping duplicate assistant message, streaming in progress');
-				return;
-			}
-
-			// If a user placeholder is present, insert assistant just before it
-			const placeholderIndex = this.messages.findIndex(
-				(msg) =>
-					msg.role === 'user' &&
-					(msg.id.startsWith('user_placeholder_') ||
-						msg.id.startsWith('user_transcribing_') ||
-						msg.id.startsWith('user_partial_'))
-			);
-
-			if (placeholderIndex !== -1) {
-				if (!messageService.isDuplicateMessage(this.messages, data)) {
-					const message = messageService.createMessageFromEventData(data, this.sessionId);
-					const updated = [...this.messages];
-					updated.splice(placeholderIndex, 0, message);
-					this.messages = updated;
-					console.log('Inserted assistant message before user placeholder');
-				}
-				return;
-			}
+		// Prevent duplicate messages first
+		if (messageService.isDuplicateMessage(this.messages, data)) {
+			console.log('Skipping duplicate message');
+			return;
 		}
 
-		// Prevent duplicate messages
-		if (!messageService.isDuplicateMessage(this.messages, data)) {
-			const message = messageService.createMessageFromEventData(data, this.sessionId);
-			this.messages = [...this.messages, message];
-			console.log(`Added ${data.role} message:`, data.content.substring(0, 50));
+		// For assistant messages, avoid creating duplicates if streaming is in progress
+		if (data.role === 'assistant' && messageService.hasStreamingMessage(this.messages)) {
+			console.log('Skipping duplicate assistant message, streaming in progress');
+			return;
 		}
+
+		// Create the message and add it to the array
+		const message = messageService.createMessageFromEventData(data, this.sessionId);
+		
+		// Always add new messages to the end and then sort by sequence
+		const updatedMessages = [...this.messages, message];
+		this.messages = messageService.sortMessagesBySequence(updatedMessages);
+		
+		console.log(`Added ${data.role} message:`, data.content.substring(0, 50));
 	}
 
 	private async handleTranscriptionUpdate(

@@ -4,6 +4,8 @@
 	import { ConversationStore } from '$lib/stores/conversation.store.svelte';
 	import { setContext, onMount, onDestroy } from 'svelte';
 	import Navigation from '$lib/components/Navigation.svelte';
+ 	import { onMount } from 'svelte';
+ 	import { initializePostHog, trackPageView } from '$lib/analytics/posthog';
 
 	const conversationStore = new ConversationStore();
 
@@ -22,6 +24,8 @@
 	setContext('conversation', conversationStore);
 
 	onMount(() => {
+		initializePostHog();
+		trackPageView();
 		console.log('🔄 ConversationStore mounted');
 		return () => {
 			console.log('🔄 ConversationStore unmounting, cleaning up...');
