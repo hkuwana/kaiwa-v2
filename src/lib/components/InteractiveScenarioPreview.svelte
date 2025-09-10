@@ -29,7 +29,8 @@
 		role,
 		content,
 		timestamp: new Date(),
-		translatedContent: originalText ? content : null,
+		// Here `content` is the foreign-language text and `originalText` is the English translation
+		translatedContent: originalText ? originalText : null,
 		sourceLanguage: sourceLang || (originalText ? selectedLanguage?.code || null : null),
 		targetLanguage: originalText ? 'en' : null,
 		userNativeLanguage: null,
@@ -229,24 +230,21 @@
 						'엄마, 나 오늘 회사에서 승진했어!',
 						'Mom, I got promoted at work today!',
 						'Eomma, na oneul hoesaseo seungjinhaesseo!',
-						undefined,
-						'ko'
+						undefined
 					),
 					createMessage(
 						'assistant',
 						'정말 잘했다! 축하해. 기분이 어때?',
 						'So proud of you! Congratulations. How do you feel?',
 						'Jeongmal jalhaetda! Chukahae. Gibuni eottae?',
-						undefined,
-						'ko'
+						undefined
 					),
 					createMessage(
 						'user',
 						'긴장됐지만 기뻐. 주말에 내려가서 같이 밥 먹자.',
 						"I was nervous but happy. Let's get dinner this weekend.",
 						'Ginjang dwaetjiman gippeo. Jumare naeryeogaseo gachi bab meokja.',
-						undefined,
-						'ko'
+						undefined
 					)
 				],
 				color: 'from-green-400 to-teal-500',
@@ -266,24 +264,21 @@
 						'请问这附近有什么不太游客的好吃的地方？',
 						"Excuse me, are there any good places to eat nearby that aren't too touristy?",
 						'Qǐngwèn zhè fùjìn yǒu shénme bútài yóukè de hǎochī de dìfāng?',
-						undefined,
-						'zh'
+						undefined
 					),
 					createMessage(
 						'assistant',
 						'拐角那家小馆很地道，推荐他们的牛肉面。',
 						'The small restaurant around the corner is authentic; try their beef noodles.',
 						'Guǎijiǎo nà jiā xiǎo guǎn hěn dìdào, tuījiàn tāmen de niúròu miàn.',
-						undefined,
-						'zh'
+						undefined
 					),
 					createMessage(
 						'user',
 						'谢谢！请问需要预约吗？',
 						'Thanks! Do I need a reservation?',
 						'Xièxie! Qǐngwèn xūyào yùyuē ma?',
-						undefined,
-						'zh'
+						undefined
 					)
 				],
 				color: 'from-blue-400 to-purple-500',
@@ -306,24 +301,21 @@
 						'Qu’est-ce qui compte le plus pour toi dans la vie ?',
 						'What matters most to you in life?',
 						undefined,
-						undefined,
-						'fr'
+						undefined
 					),
 					createMessage(
 						'assistant',
 						'La sincérité et le temps passé avec les proches.',
 						'Sincerity and time spent with loved ones.',
 						undefined,
-						undefined,
-						'fr'
+						undefined
 					),
 					createMessage(
 						'user',
 						'Moi aussi. J’essaie d’être présent chaque jour.',
 						'Me too. I try to be present every day.',
 						undefined,
-						undefined,
-						'fr'
+						undefined
 					)
 				],
 				color: 'from-purple-400 to-indigo-500',
@@ -517,7 +509,7 @@
 						>
 							<MessageBubble
 								{message}
-								conversationLanguage={selectedLanguage?.code}
+								conversationLanguage={message.sourceLanguage || selectedLanguage?.code}
 								clickToToggle={true}
 								translation={{
 									translatedContent: showTranslations[message.id]

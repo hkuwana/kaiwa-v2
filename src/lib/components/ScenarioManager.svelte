@@ -57,7 +57,12 @@
 	</div>
 
 	<!-- Pass all data through props - no direct store access -->
-	<ScenarioSelector {scenarios} {selectedScenario} onScenarioSelect={handleScenarioSelect} />
+	<ScenarioSelector
+		{scenarios}
+		{selectedScenario}
+		onScenarioSelect={handleScenarioSelect}
+		tooltipMessage={''}
+	/>
 
 	<!-- Additional info -->
 	<div class="mt-6 rounded-lg border bg-base-100 p-4">

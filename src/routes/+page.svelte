@@ -152,27 +152,6 @@
 			<ChatBubbleFlow />
 		</section>
 
-		<!-- CTA Section -->
-		<div class="py-8 text-center">
-			<UnifiedStartButton
-				{user}
-				{selectedLanguage}
-				{selectedSpeaker}
-				{selectedScenario}
-				onLanguageChange={handleLanguageChange}
-				onSpeakerChange={handleSpeakerChange}
-				onScenarioChange={handleScenarioChange}
-				onStartClick={trackStartSpeakingClick}
-			/>
-			<p class="mt-4 text-lg text-white opacity-80">
-				{#if user && user.id !== 'guest'}
-					Ready to start your next conversation?
-				{:else}
-					Try your first conversation - sign up for full access
-				{/if}
-			</p>
-		</div>
-
 		<!-- Option 3: Interactive Scenario Preview -->
 		<section class="space-y-8">
 			<div class="text-center">
@@ -181,38 +160,26 @@
 			</div>
 			<InteractiveScenarioPreview {selectedLanguage} />
 		</section>
-
-		<!-- Features Grid -->
-		<section class="mt-16">
-			<div class="grid grid-cols-1 gap-8 md:grid-cols-3">
-				<div class="card border border-base-300/20 bg-base-100/10 shadow-xl backdrop-blur-sm">
-					<div class="card-body text-center">
-						<div class="mb-4 text-4xl">🤖</div>
-						<h3 class="mb-3 text-xl font-bold text-white">AI Conversation Practice</h3>
-						<p class="text-white/80">
-							Practice natural conversations with intelligent AI tutors that adapt to your level
-						</p>
-					</div>
-				</div>
-
-				<div class="card border border-base-300/20 bg-base-100/10 shadow-xl backdrop-blur-sm">
-					<div class="card-body text-center">
-						<div class="mb-4 text-4xl">📈</div>
-						<h3 class="mb-3 text-xl font-bold text-white">Progress Tracking</h3>
-						<p class="text-white/80">
-							Monitor your improvement with detailed feedback and personalized learning paths
-						</p>
-					</div>
-				</div>
-
-				<div class="card border border-base-300/20 bg-base-100/10 shadow-xl backdrop-blur-sm">
-					<div class="card-body text-center">
-						<div class="mb-4 text-4xl">🎯</div>
-						<h3 class="mb-3 text-xl font-bold text-white">Immersive Scenarios</h3>
-						<p class="text-white/80">Place-rich, real moments you’ll actually live</p>
-					</div>
-				</div>
-			</div>
-		</section>
 	</main>
+	<!-- CTA Section -->
+	<div class="py-8 text-center">
+		<div class="bold pb-4">Try getting started with our free onboarding session!</div>
+		<UnifiedStartButton
+			{user}
+			{selectedLanguage}
+			{selectedSpeaker}
+			{selectedScenario}
+			onLanguageChange={handleLanguageChange}
+			onSpeakerChange={handleSpeakerChange}
+			onScenarioChange={handleScenarioChange}
+			onStartClick={trackStartSpeakingClick}
+		/>
+		<p class="mt-4 text-lg text-white opacity-80">
+			{#if user && user.id !== 'guest'}
+				Ready to start your next conversation?
+			{:else}
+				Try your first conversation - sign up for full access
+			{/if}
+		</p>
+	</div>
 </div>

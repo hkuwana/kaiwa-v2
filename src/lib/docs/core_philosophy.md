@@ -259,7 +259,6 @@ src/lib/
 ├── components/        # Reusable UI
 │   ├── RealtimeConversation.svelte
 │   ├── LanguageSelector.svelte
-│   ├── RecordButton.svelte
 │   └── [25+ components]
 ├── types/            # Type definitions
 ├── utils/            # Helper functions
