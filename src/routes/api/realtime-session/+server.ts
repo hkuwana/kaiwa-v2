@@ -45,8 +45,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			sessionId,
 			// GA default model name; can be overridden via PUBLIC_OPEN_AI_MODEL
 			model = publicEnv.PUBLIC_OPEN_AI_MODEL || 'gpt-realtime',
-			voice = DEFAULT_VOICE,
-			language
+			voice = DEFAULT_VOICE
 		} = await request.json();
 
 		if (!sessionId) {
@@ -81,6 +80,7 @@ export const POST: RequestHandler = async ({ request }) => {
 				audio: {
 					output: { voice }
 				}
+				// Note: input_audio_transcription should be configured via session.update after connection
 			}
 		};
 

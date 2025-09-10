@@ -10,15 +10,18 @@ import {
 	detectLanguage
 } from './scripts.service';
 
-export function createUserPlaceholder(sessionId: string): Message {
-	const now = new SvelteDate();
+export function createUserPlaceholder(sessionId: string, speechStartTime?: number): Message {
+	// Use actual speech start time if provided, otherwise current time
+	const actualTime = speechStartTime || Date.now();
+	const timestamp = new SvelteDate(actualTime);
+	
 	return {
 		role: 'user',
 		content: '',
-		timestamp: now,
-		id: `user_placeholder_${now.getTime()}_${Math.random().toString(36).slice(2, 9)}`,
-		// Add sequence tracking for proper ordering
-		sequenceId: now.getTime().toString(),
+		timestamp,
+		id: `user_placeholder_${actualTime}_${Math.random().toString(36).slice(2, 9)}`,
+		// Use actual speech start time for proper chronological ordering
+		sequenceId: actualTime.toString(),
 		conversationId: sessionId,
 		audioUrl: null,
 
