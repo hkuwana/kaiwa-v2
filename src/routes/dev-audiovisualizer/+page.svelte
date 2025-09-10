@@ -22,8 +22,11 @@
 
 	// Visual testing controls
 	let highContrast = $state(true);
-	let primaryColor: 'accent' | 'primary' | 'secondary' | 'success' | 'warning' | 'error' = $state('accent');
-	let bgChoice = $state<'gradient' | 'base100' | 'base200' | 'neutral' | 'primary' | 'secondary' | 'dark'>('gradient');
+	let primaryColor: 'accent' | 'primary' | 'secondary' | 'success' | 'warning' | 'error' =
+		$state('accent');
+	let bgChoice = $state<
+		'gradient' | 'base100' | 'base200' | 'neutral' | 'primary' | 'secondary' | 'dark'
+	>('gradient');
 	const bgClass = $derived(() => {
 		switch (bgChoice) {
 			case 'base100':
@@ -398,7 +401,7 @@
 		{/if}
 
 		<!-- Realtime Controls -->
-			<div class="mb-8 rounded-2xl bg-base-100 p-6 shadow-xl">
+		<div class="mb-8 rounded-2xl bg-base-100 p-6 shadow-xl">
 			<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 				<div class="flex items-center gap-3">
 					<button
@@ -445,32 +448,28 @@
 					{/if}
 				</div>
 			{/if}
-			</div>
+		</div>
 
-			<!-- Main Demo Section -->
-			<div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
-				<!-- AudioVisualizer Demo -->
-				<div class="rounded-2xl bg-base-100 p-8 shadow-xl">
-					<h3 class="mb-6 text-center text-2xl font-bold">🎤 Press-to-Record Visualizer</h3>
+		<!-- Main Demo Section -->
+		<div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+			<!-- AudioVisualizer Demo -->
+			<div class="rounded-2xl bg-base-100 p-8 shadow-xl">
+				<h3 class="mb-6 text-center text-2xl font-bold">🎤 Press-to-Record Visualizer</h3>
 
-					<div class="mb-6 flex justify-center">
-						<AudioVisualizer
-							{audioLevel}
-							{isRecording}
-							{isListening}
-							controlMode="external"
-							{pressBehavior}
-							deviceId={selectedDeviceId}
-							highContrast={highContrast}
-							primaryColor={primaryColor}
-							onRecordStart={handleRecordStart}
-							onRecordStop={handleRecordStop}
-							onRecordComplete={handleRecordComplete}
-						/>
-					</div>
+				<div class="mb-6 flex justify-center">
+					<AudioVisualizer
+						{audioLevel}
+						{isRecording}
+						{isListening}
+						fixed={false}
+						showHint={false}
+						onRecordStart={handleRecordStart}
+						onRecordStop={handleRecordStop}
+					/>
+				</div>
 
-					<!-- Status Display -->
-					<div class="space-y-2 text-center">
+				<!-- Status Display -->
+				<div class="space-y-2 text-center">
 					<div class="text-sm">
 						<span class="font-semibold">Status:</span>
 						{#if isRecording}
@@ -513,7 +512,7 @@
 				<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
 					<div>
 						<label class="mb-2 block text-sm font-semibold">Background</label>
-						<select class="select select-bordered w-full" bind:value={bgChoice}>
+						<select class="select-bordered select w-full" bind:value={bgChoice}>
 							<option value="gradient">Base Gradient</option>
 							<option value="base100">Base 100</option>
 							<option value="base200">Base 200</option>
@@ -525,7 +524,7 @@
 					</div>
 					<div>
 						<label class="mb-2 block text-sm font-semibold">Primary Color</label>
-						<select class="select select-bordered w-full" bind:value={primaryColor}>
+						<select class="select-bordered select w-full" bind:value={primaryColor}>
 							<option value="accent">Accent</option>
 							<option value="primary">Primary</option>
 							<option value="secondary">Secondary</option>

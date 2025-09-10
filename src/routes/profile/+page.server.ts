@@ -21,10 +21,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 		// Load user preferences for authenticated user only
 		console.log(`👤 Loading preferences for user: ${locals.user.id}`);
 		let userPreferences = await userPreferencesRepository.getPreferencesByUserId(locals.user.id);
-		
+
 		if (!userPreferences) {
 			console.log('👤 No preferences found, creating default preferences');
-			
+
 			// Get languages from the database to ensure foreign key constraint is satisfied
 			const languages = await languageRepository.findSupportedLanguages();
 			const defaultLanguage = languages.find((lang) => lang.isSupported) || languages[0];
@@ -34,7 +34,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 				throw new Error('No languages found in database. Please seed the languages table.');
 			}
 
-			console.log(`👤 Creating preferences with language: ${defaultLanguage.id} (${defaultLanguage.name})`);
+			console.log(
+				`👤 Creating preferences with language: ${defaultLanguage.id} (${defaultLanguage.name})`
+			);
 
 			// Create default preferences using a valid language ID from the database
 			userPreferences = await userPreferencesRepository.createPreferences({
@@ -61,12 +63,12 @@ export const load: PageServerLoad = async ({ locals }) => {
 		};
 	} catch (error) {
 		console.error('❌ Error loading profile:', error);
-		
+
 		// If it's a database/foreign key error, provide more context
 		if (error instanceof Error && error.message.includes('foreign key')) {
 			throw new Error('Database configuration error. Please ensure all required data is seeded.');
 		}
-		
+
 		// Re-throw other errors
 		throw error;
 	}

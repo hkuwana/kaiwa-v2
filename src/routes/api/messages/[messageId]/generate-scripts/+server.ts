@@ -1,9 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { 
-	generateScriptsServer, 
-	isJapaneseText
-} from '$lib/services/romanization.service';
+import { generateScriptsServer, isJapaneseText } from '$lib/services/romanization.service';
 import { db } from '$lib/server/db';
 import { messages } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
@@ -31,7 +28,7 @@ async function processJapaneseTextDirect(text: string): Promise<{
 		await kuroshiro.init(analyzer);
 
 		console.log('[DIRECT_KUROSHIRO] Converting to different scripts...');
-		
+
 		// Generate all scripts in parallel
 		const [hiraganaResult, romajiResult, katakanaResult] = await Promise.all([
 			kuroshiro.convert(text, { to: 'hiragana', mode: 'furigana' }),
@@ -53,7 +50,6 @@ async function processJapaneseTextDirect(text: string): Promise<{
 				furigana: hiraganaResult // Use hiragana as furigana for now
 			}
 		};
-
 	} catch (error) {
 		console.error('[DIRECT_KUROSHIRO] Error processing Japanese text:', error);
 		return {
@@ -73,27 +69,27 @@ export const POST: RequestHandler = async ({ request, params }) => {
 		const { text, language } = await request.json();
 
 		if (!messageId || !text) {
-			return json(
-				{ error: 'Missing required parameters: messageId, text' },
-				{ status: 400 }
-			);
+			return json({ error: 'Missing required parameters: messageId, text' }, { status: 400 });
 		}
 
-		console.log(`Generating scripts for message ${messageId} in language ${language}:`, text.substring(0, 50));
+		console.log(
+			`Generating scripts for message ${messageId} in language ${language}:`,
+			text.substring(0, 50)
+		);
 
 		// Generate scripts based on language
 		let scriptResults: any = {};
 
 		if (language === 'ja' || isJapaneseText(text)) {
 			console.log('Generating Japanese scripts directly with Kuroshiro...');
-			
+
 			// Use our direct Kuroshiro processing that bypasses the disabled checks
 			scriptResults = await processJapaneseTextDirect(text);
-			
+
 			console.log('Direct Kuroshiro results:', scriptResults);
 		} else if (language && language !== 'en') {
 			console.log(`Generating scripts for ${language}...`);
-			
+
 			// Generate scripts for other languages
 			scriptResults = await generateScriptsServer(text, language);
 		} else {
@@ -117,11 +113,11 @@ export const POST: RequestHandler = async ({ request, params }) => {
 		// Handle otherScripts (katakana, furigana, etc.)
 		if (scriptResults.katakana || scriptResults.furigana || scriptResults.otherScripts) {
 			const otherScripts: Record<string, string> = {};
-			
+
 			if (scriptResults.katakana) {
 				otherScripts.katakana = scriptResults.katakana;
 			}
-			
+
 			if (scriptResults.furigana) {
 				otherScripts.furigana = scriptResults.furigana;
 			}
@@ -139,11 +135,8 @@ export const POST: RequestHandler = async ({ request, params }) => {
 		// Only update if we have script data to save
 		if (Object.keys(updateData).length > 0) {
 			console.log('Updating message in database with scripts:', updateData);
-			
-			await db
-				.update(messages)
-				.set(updateData)
-				.where(eq(messages.id, messageId));
+
+			await db.update(messages).set(updateData).where(eq(messages.id, messageId));
 
 			console.log(`Scripts successfully saved to database for message ${messageId}`);
 		}
@@ -154,11 +147,10 @@ export const POST: RequestHandler = async ({ request, params }) => {
 			scriptsGenerated: Object.keys(updateData),
 			data: scriptResults
 		});
-
 	} catch (error) {
 		console.error('Script generation and storage error:', error);
 		return json(
-			{ 
+			{
 				error: error instanceof Error ? error.message : 'Script generation failed',
 				messageId: params.messageId
 			},

@@ -12,34 +12,34 @@ async function processChineseTextNative(text: string): Promise<{
 
 		// Try to import the native library using dynamic import
 		const pinyinModule = await import('@napi-rs/pinyin');
-		
+
 		// Check if the module loaded properly
 		if (pinyinModule.pinyin && pinyinModule.PINYIN_STYLE) {
 			// Convert Chinese text to pinyin with tones
-			const pinyinWithTones = pinyinModule.pinyin(text, { 
-				style: pinyinModule.PINYIN_STYLE.WithTone, 
-				heteronym: false 
+			const pinyinWithTones = pinyinModule.pinyin(text, {
+				style: pinyinModule.PINYIN_STYLE.WithTone,
+				heteronym: false
 			});
-			
+
 			// Convert to plain pinyin for romanization
-			const pinyinPlain = pinyinModule.pinyin(text, { 
-				style: pinyinModule.PINYIN_STYLE.Plain, 
-				heteronym: false 
+			const pinyinPlain = pinyinModule.pinyin(text, {
+				style: pinyinModule.PINYIN_STYLE.Plain,
+				heteronym: false
 			});
-			
+
 			// Join the arrays into strings
 			const pinyinWithTonesStr = pinyinWithTones.join(' ');
 			const pinyinPlainStr = pinyinPlain.join(' ');
-			
+
 			console.log('[PINYIN_API] Native pinyin result:', {
 				withTones: pinyinWithTonesStr,
 				plain: pinyinPlainStr
 			});
-			
+
 			return {
 				romanization: pinyinPlainStr.charAt(0).toUpperCase() + pinyinPlainStr.slice(1),
 				pinyin: pinyinWithTonesStr,
-				otherScripts: { 
+				otherScripts: {
 					pinyin: pinyinWithTonesStr,
 					pinyinPlain: pinyinPlainStr
 				}
@@ -47,24 +47,23 @@ async function processChineseTextNative(text: string): Promise<{
 		} else {
 			throw new Error('Native pinyin module not loaded properly');
 		}
-		
 	} catch (error) {
 		console.error('[PINYIN_API] Native pinyin processing failed:', error);
-		
+
 		// Fallback to lightweight implementation
 		const { pinyinize, pinyinWithTones } = await import('$lib/utils/chinese-pinyin');
 		const pinyinPlainStr = pinyinize(text);
 		const pinyinWithTonesStr = pinyinWithTones(text);
-		
+
 		console.log('[PINYIN_API] Using lightweight fallback:', {
 			withTones: pinyinWithTonesStr,
 			plain: pinyinPlainStr
 		});
-		
+
 		return {
 			romanization: pinyinPlainStr,
 			pinyin: pinyinWithTonesStr,
-			otherScripts: { 
+			otherScripts: {
 				pinyin: pinyinWithTonesStr,
 				pinyinPlain: pinyinPlainStr
 			}
@@ -91,7 +90,6 @@ export const POST: RequestHandler = async ({ request }) => {
 			pinyin: result.pinyin,
 			otherScripts: result.otherScripts
 		});
-		
 	} catch (error) {
 		console.error('Pinyin API error:', error);
 		return json(

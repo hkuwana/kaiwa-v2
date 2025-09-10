@@ -142,7 +142,7 @@ export async function generateAndStoreScriptsForMessage(
 ): Promise<boolean> {
 	try {
 		console.log(`Triggering server-side script generation for message ${messageId}...`);
-		
+
 		const response = await fetch(`/api/messages/${messageId}/generate-scripts`, {
 			method: 'POST',
 			headers: {
@@ -162,7 +162,6 @@ export async function generateAndStoreScriptsForMessage(
 		const result = await response.json();
 		console.log(`Scripts generated and stored for message ${messageId}:`, result);
 		return true;
-
 	} catch (error) {
 		console.error('Failed to generate and store scripts:', error);
 		return false;

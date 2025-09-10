@@ -1,9 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { 
-	isJapaneseText,
-	processJapaneseText 
-} from '$lib/services/romanization.service';
+import { isJapaneseText, processJapaneseText } from '$lib/services/romanization.service';
 
 // Direct Kuroshiro processing function that bypasses the disabled checks
 async function processJapaneseTextDirect(text: string): Promise<{
@@ -28,7 +25,7 @@ async function processJapaneseTextDirect(text: string): Promise<{
 		await kuroshiro.init(analyzer);
 
 		console.log('[FURIGANA_API] Converting to different scripts...');
-		
+
 		// Generate all scripts in parallel
 		const [hiraganaResult, romajiResult, katakanaResult] = await Promise.all([
 			kuroshiro.convert(text, { to: 'hiragana', mode: 'furigana' }),
@@ -50,7 +47,6 @@ async function processJapaneseTextDirect(text: string): Promise<{
 				furigana: hiraganaResult // Use hiragana as furigana for now
 			}
 		};
-
 	} catch (error) {
 		console.error('[FURIGANA_API] Error processing Japanese text:', error);
 		return {

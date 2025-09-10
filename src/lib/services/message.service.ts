@@ -87,9 +87,9 @@ export function updatePlaceholderWithPartial(messages: Message[], partialText: s
 }
 
 export function replaceUserPlaceholderWithFinal(
-    messages: Message[],
-    finalText: string,
-    sessionId: string
+	messages: Message[],
+	finalText: string,
+	sessionId: string
 ): Message[] {
 	const placeholderIndex = messages.findIndex(
 		(msg) =>
@@ -104,17 +104,17 @@ export function replaceUserPlaceholderWithFinal(
 		return [...messages, createFinalUserMessage(finalText, sessionId)];
 	}
 
-    const updatedMessages = [...messages];
-    // Build final user message
-    const finalized = {
-        ...updatedMessages[placeholderIndex],
-        content: finalText,
-        id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-        timestamp: new SvelteDate()
-    };
-    // Remove placeholder from its current position and append finalized message to end
-    updatedMessages.splice(placeholderIndex, 1);
-    return [...updatedMessages, finalized];
+	const updatedMessages = [...messages];
+	// Build final user message
+	const finalized = {
+		...updatedMessages[placeholderIndex],
+		content: finalText,
+		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+		timestamp: new SvelteDate()
+	};
+	// Remove placeholder from its current position and append finalized message to end
+	updatedMessages.splice(placeholderIndex, 1);
+	return [...updatedMessages, finalized];
 }
 
 export function createFinalUserMessage(content: string, sessionId: string): Message {
@@ -386,10 +386,10 @@ export async function finalizeMessageWithFurigana(
  * Replace user placeholder with final message including furigana generation
  */
 export async function replaceUserPlaceholderWithFinalAndFurigana(
-    messages: Message[],
-    finalText: string,
-    sessionId: string,
-    conversationLanguage: string = 'en'
+	messages: Message[],
+	finalText: string,
+	sessionId: string,
+	conversationLanguage: string = 'en'
 ): Promise<Message[]> {
 	const placeholderIndex = messages.findIndex(
 		(msg) =>
@@ -408,20 +408,24 @@ export async function replaceUserPlaceholderWithFinalAndFurigana(
 	const finalMessage = createFinalUserMessage(finalText, sessionId);
 
 	// Determine if we should generate scripts based on conversation language or text detection
-	const shouldGenerateScripts = conversationLanguage === 'ja' || needsScriptGeneration(finalMessage);
+	const shouldGenerateScripts =
+		conversationLanguage === 'ja' || needsScriptGeneration(finalMessage);
 	const scriptLanguage = conversationLanguage === 'ja' ? 'ja' : detectLanguage(finalText);
 
 	if (shouldGenerateScripts && scriptLanguage !== 'other') {
-		console.log(`🇯🇵 Auto-generating scripts for user message (conversation lang: ${conversationLanguage}):`, finalText.substring(0, 50));
-		
+		console.log(
+			`🇯🇵 Auto-generating scripts for user message (conversation lang: ${conversationLanguage}):`,
+			finalText.substring(0, 50)
+		);
+
 		try {
 			const scriptData = await generateScriptsForMessage(finalMessage, true); // Use server
-            if (scriptData && Object.keys(scriptData).length > 0) {
-                console.log('Scripts generated successfully for user message:', scriptData);
-                const updatedMessage = updateMessageWithScripts(finalMessage, scriptData);
-                const updatedMessages = [...messages];
-                // Replace placeholder in its original position to maintain correct chronological order
-                updatedMessages[placeholderIndex] = updatedMessage;
+			if (scriptData && Object.keys(scriptData).length > 0) {
+				console.log('Scripts generated successfully for user message:', scriptData);
+				const updatedMessage = updateMessageWithScripts(finalMessage, scriptData);
+				const updatedMessages = [...messages];
+				// Replace placeholder in its original position to maintain correct chronological order
+				updatedMessages[placeholderIndex] = updatedMessage;
 
 				// Trigger server-side generation and database storage
 				generateAndStoreScriptsForMessage(finalMessage.id, finalText, scriptLanguage)
@@ -445,10 +449,10 @@ export async function replaceUserPlaceholderWithFinalAndFurigana(
 		}
 	}
 
-    // Replace placeholder in its original position to maintain correct chronological order
-    const updatedMessages = [...messages];
-    updatedMessages[placeholderIndex] = finalMessage;
-	
+	// Replace placeholder in its original position to maintain correct chronological order
+	const updatedMessages = [...messages];
+	updatedMessages[placeholderIndex] = finalMessage;
+
 	// Always trigger server-side generation for Japanese conversations or detected Japanese text
 	if (scriptLanguage !== 'other') {
 		console.log(`📝 Triggering server-side script storage (${scriptLanguage})...`);
@@ -462,7 +466,7 @@ export async function replaceUserPlaceholderWithFinalAndFurigana(
 				console.error('❌ Error in server-side script generation (fallback):', error);
 			});
 	}
-	
+
 	return updatedMessages;
 }
 
@@ -492,12 +496,16 @@ export async function finalizeStreamingMessageWithFurigana(
 	const finalMessage = createFinalAssistantMessage(finalText, messages[0]?.conversationId || '');
 
 	// Determine if we should generate scripts based on conversation language or text detection
-	const shouldGenerateScripts = conversationLanguage === 'ja' || needsScriptGeneration(finalMessage);
+	const shouldGenerateScripts =
+		conversationLanguage === 'ja' || needsScriptGeneration(finalMessage);
 	const scriptLanguage = conversationLanguage === 'ja' ? 'ja' : detectLanguage(finalText);
 
 	if (shouldGenerateScripts && scriptLanguage !== 'other') {
-		console.log(`🤖 Auto-generating scripts for assistant message (conversation lang: ${conversationLanguage}):`, finalText.substring(0, 50));
-		
+		console.log(
+			`🤖 Auto-generating scripts for assistant message (conversation lang: ${conversationLanguage}):`,
+			finalText.substring(0, 50)
+		);
+
 		try {
 			const scriptData = await generateScriptsForMessage(finalMessage, true); // Use server
 			if (scriptData && Object.keys(scriptData).length > 0) {
@@ -516,7 +524,10 @@ export async function finalizeStreamingMessageWithFurigana(
 						}
 					})
 					.catch((error) => {
-						console.error('❌ Error in server-side script generation for assistant message:', error);
+						console.error(
+							'❌ Error in server-side script generation for assistant message:',
+							error
+						);
 					});
 
 				return updatedMessages;
@@ -531,20 +542,22 @@ export async function finalizeStreamingMessageWithFurigana(
 	// Replace streaming message with final message
 	const updatedMessages = [...messages];
 	updatedMessages[streamingMessageIndex] = finalMessage;
-	
+
 	// Always trigger server-side generation for Japanese conversations or detected Japanese text
 	if (scriptLanguage !== 'other') {
 		console.log(`🤖📝 Triggering server-side script storage (${scriptLanguage})...`);
 		generateAndStoreScriptsForMessage(finalMessage.id, finalText, scriptLanguage)
 			.then((success) => {
 				if (success) {
-					console.log('✅ Server-side scripts generated and stored for assistant message (fallback)');
+					console.log(
+						'✅ Server-side scripts generated and stored for assistant message (fallback)'
+					);
 				}
 			})
 			.catch((error) => {
 				console.error('❌ Error in server-side script generation (fallback):', error);
 			});
 	}
-	
+
 	return updatedMessages;
 }

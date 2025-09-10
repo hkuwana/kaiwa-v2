@@ -495,7 +495,9 @@ export class ConversationStore {
 		}
 	}
 
-	private async handleTranscriptionUpdate(data: realtimeService.TranscriptionEventData): Promise<void> {
+	private async handleTranscriptionUpdate(
+		data: realtimeService.TranscriptionEventData
+	): Promise<void> {
 		console.log('Handling transcription update:', data.type, data.isFinal, data.text);
 
 		// Get current transcription state
@@ -541,7 +543,10 @@ export class ConversationStore {
 			this.sessionId,
 			this.language?.code || 'en' // Pass conversation language
 		);
-		console.log('Replaced placeholder with final transcript (with scripts):', finalText.substring(0, 50));
+		console.log(
+			'Replaced placeholder with final transcript (with scripts):',
+			finalText.substring(0, 50)
+		);
 	}
 
 	private updateStreamingMessage(deltaText: string): void {

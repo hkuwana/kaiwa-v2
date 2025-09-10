@@ -321,7 +321,7 @@ export async function processChineseText(text: string): Promise<{
 }> {
 	try {
 		console.log('[ROMANIZATION] Processing Chinese text:', text);
-		
+
 		// Check if we're in a server environment and try native API
 		if (typeof window === 'undefined') {
 			try {
@@ -347,26 +347,25 @@ export async function processChineseText(text: string): Promise<{
 				console.warn('[ROMANIZATION] Pinyin API error, using lightweight fallback:', apiError);
 			}
 		}
-		
+
 		// Use our lightweight implementation as fallback
 		const { pinyinize, pinyinWithTones } = await import('$lib/utils/chinese-pinyin');
 		const pinyinPlainStr = pinyinize(text);
 		const pinyinWithTonesStr = pinyinWithTones(text);
-		
+
 		console.log('[ROMANIZATION] Chinese pinyin lightweight result:', {
 			withTones: pinyinWithTonesStr,
 			plain: pinyinPlainStr
 		});
-		
+
 		return {
 			romanization: pinyinPlainStr,
 			pinyin: pinyinWithTonesStr,
-			otherScripts: { 
+			otherScripts: {
 				pinyin: pinyinWithTonesStr,
 				pinyinPlain: pinyinPlainStr
 			}
 		};
-		
 	} catch (error) {
 		console.error('Failed to process Chinese text:', error);
 		// Final fallback - return original text
@@ -387,12 +386,12 @@ export async function processKoreanText(text: string): Promise<{
 }> {
 	try {
 		console.log('[ROMANIZATION] Processing Korean text:', text);
-		
+
 		// Use our lightweight client-side Korean romanization
 		const { romanizeKorean } = await import('$lib/utils/korean-romanization');
 		const romanized = romanizeKorean(text);
 		console.log('[ROMANIZATION] Korean romanization result:', romanized);
-		
+
 		return {
 			romanization: romanized,
 			hangul: text, // Original Korean text

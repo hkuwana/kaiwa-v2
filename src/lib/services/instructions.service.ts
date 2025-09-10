@@ -738,15 +738,11 @@ function getNativeGreeting(langCode: string): { greeting: string; confirmation: 
 }
 
 // Shared onboarding block (single source of truth)
-function buildOnboardingBlock(
-    user: User,
-    language: Language,
-    nativeGreetingText?: string
-): string {
-    const nativeName = getLanguageById(user.nativeLanguageId)?.name || 'English';
-    const greeting = nativeGreetingText || getNativeGreeting(user.nativeLanguageId || 'en').greeting;
+function buildOnboardingBlock(user: User, language: Language, nativeGreetingText?: string): string {
+	const nativeName = getLanguageById(user.nativeLanguageId)?.name || 'English';
+	const greeting = nativeGreetingText || getNativeGreeting(user.nativeLanguageId || 'en').greeting;
 
-    return `## FIRST MEETING MAGIC (Onboarding)
+	return `## FIRST MEETING MAGIC (Onboarding)
 
 ### PRIMARY OBJECTIVE
 Create immediate comfort and excitement in the first 3–5 minutes
