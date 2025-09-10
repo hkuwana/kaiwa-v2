@@ -12,6 +12,7 @@ export const messages = pgTable(
 		role: text('role').$type<'assistant' | 'user' | 'system'>().notNull(),
 		content: text('content').notNull(),
 		timestamp: timestamp('timestamp').notNull().defaultNow(),
+		sequenceId: text('sequence_id'), // For maintaining chronological order - nullable for backwards compatibility
 
 		// Comprehensive translation support
 		translatedContent: text('translated_content'),
@@ -54,6 +55,7 @@ export const messages = pgTable(
 		index('messages_conversation_id_idx').on(table.conversationId),
 		index('messages_role_idx').on(table.role),
 		index('messages_timestamp_idx').on(table.timestamp),
+		index('messages_sequence_idx').on(table.sequenceId),
 		// Composite index for conversation + timestamp queries
 		index('messages_conversation_timestamp_idx').on(table.conversationId, table.timestamp),
 		// Index for role-based queries within conversations
