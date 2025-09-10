@@ -18,22 +18,23 @@
 	let selectedSpeaker = $state<string | null>(settingsStore.selectedSpeaker);
 	let selectedScenario = $state<Scenario | null>(scenarioStore.getSelectedScenario());
 
-	// A/B Testing for headlines - Don Draper Edition
+	// A/B Testing for headlines - Relationship-first positioning
 	const headlineVariants = {
-		// Main control
-		main: 'No Writing or Reading. Just Talks.',
+		// Main control (solution-oriented)
+		main: 'Finally speak with your partner and family — in their language.',
 
-		// Revolutionary/New variants (excitement + novelty)
-		variant1: 'The anti-language-learning app.',
-		variant2: 'Language learning for the streets.',
-		variant3: "5 minutes like you're living there.",
-		variant4: 'Conversation practice.',
-		variant5: 'The app Duolingo fears.',
-		// Innovation variants (breakthrough positioning)
-		variant6: 'Conversation AI that gets you.',
-		variant7: 'Practice real situations safely.',
-		variant8: 'Your language survival trainer.',
-		variant9: 'AI partner for messy conversations.'
+		// Problem-focused variants (apps failing, relationship goal)
+		variant1: 'A language site for language relationships.',
+		variant2: 'Language for love and family, not tests.',
+		variant3: 'Stop drills. Start dinner‑table conversations.',
+		variant4: 'Practice the hard, messy moments — safely.',
+		variant5: 'Say what matters, not just the words.',
+
+		// Premium/differentiated positioning (Hinge‑style clarity)
+		variant6: 'The relationship‑first language app.',
+		variant7: 'Learn to talk to their parents.',
+		variant8: '5 minutes a day that bring you closer.',
+		variant9: 'When other apps give up, we keep talking.'
 	};
 
 	// Random headline selection - Don Draper's approach
