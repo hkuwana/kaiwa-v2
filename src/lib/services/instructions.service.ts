@@ -238,6 +238,12 @@ modules.register({
 - ALWAYS speak ${language.name} after initial greeting
 - MAINTAIN ${language.name} throughout session
 
+### Allowed Languages Only
+- Allowed: ${language.name} (primary), ${nativeLanguageObject.name} (support only)
+- Never use any other language
+- Keep any ${nativeLanguageObject.name} aside minimal and temporary (1 short clause max)
+- When quoting translations, wrap brief ${nativeLanguageObject.name} in parentheses, then return to ${language.name}
+
 ### Strategic Code-Switching (De-escalation)
 WHEN frustrated (after 2+ failed attempts):
 - Mix languages: "Let's go to the... how do you say... park"  
@@ -255,6 +261,31 @@ WHEN emotional/upset:
 ### NEVER Switch Fully to ${nativeLanguageObject.nativeName} Unless:
 - User explicitly requests it
 - Safety concern (see safety module)`;
+	}
+});
+
+// Memory-aware personalization module (uses saved memories + recent topics)
+modules.register({
+	id: 'memory-context',
+	priority: 3.1,
+	generate: ({ language, preferences }: ModuleContext) => {
+		const memories = (preferences as any)?.memories as string[] | undefined;
+		const recentTopics = (preferences as any)?.conversationContext?.recentTopics as
+			| string[]
+			| undefined;
+
+		if ((!memories || memories.length === 0) && (!recentTopics || recentTopics.length === 0)) {
+			return '';
+		}
+
+		const topMemories = (memories || []).slice(0, 5);
+		const topTopics = (recentTopics || []).slice(0, 3);
+
+		return `## MEMORY CONTEXT (for personalization, do not recite)
+- Weave these facts naturally into ${language.name} conversation only
+- Use as hints to choose topics, not as a script
+${topMemories.length ? `\n### Learner Facts\n- ${topMemories.join('\n- ')}` : ''}
+${topTopics.length ? `\n### Recent Topics\n- ${topTopics.join('\n- ')}` : ''}`;
 	}
 });
 
@@ -579,6 +610,7 @@ export function generateInitialInstructions(
 		'personality-adaptive',
 		'audio-handling-enhanced',
 		'language-control',
+		'memory-context',
 		'speaking-dynamics',
 		'conversation-flows',
 		'safety-boundaries',
@@ -592,27 +624,7 @@ export function generateInitialInstructions(
 
 	// Add phase-specific instructions with better structure
 	if (isFirstTime || scenario?.category === 'onboarding') {
-		instructions = `${instructions}
-
-## FIRST MEETING MAGIC
-
-### Step 1: Native Language Greeting (${getLanguageById(user.nativeLanguageId)?.name || 'English'})
-"${nativeGreeting.greeting}"
-Wait for response...
-
-### Step 2: Transition to ${language.name}
-"From here, I'll speak ${language.name}. Just try your best!"
-[Speak SLOWLY and clearly]
-
-### Step 3: First Success (within 60 seconds)
-Ask simple question in ${language.name}
-Celebrate ANY attempt at response
-"Perfect! You're already speaking ${language.name}!"
-
-### Step 4: Build Momentum
-Practice something immediately useful
-Make them think: "I can actually do this!"
-End with: "You're doing amazing! Let's continue?"`;
+		instructions = `${instructions}\n\n${buildOnboardingBlock(user, language, nativeGreeting.greeting)}`;
 	} else {
 		instructions = `${instructions}
 
@@ -725,6 +737,45 @@ function getNativeGreeting(langCode: string): { greeting: string; confirmation: 
 	return greetings[langCode] || greetings.en;
 }
 
+// Shared onboarding block (single source of truth)
+function buildOnboardingBlock(
+    user: User,
+    language: Language,
+    nativeGreetingText?: string
+): string {
+    const nativeName = getLanguageById(user.nativeLanguageId)?.name || 'English';
+    const greeting = nativeGreetingText || getNativeGreeting(user.nativeLanguageId || 'en').greeting;
+
+    return `## FIRST MEETING MAGIC (Onboarding)
+
+### PRIMARY OBJECTIVE
+Create immediate comfort and excitement in the first 3–5 minutes
+
+### STEP 1: NATIVE LANGUAGE WELCOME (First ~15s)
+"${greeting}"
+Wait for response before proceeding.
+
+### STEP 2: TRANSITION TO ${language.name} (Next ~10s)
+"From here, I'll speak ${language.name}. Don't worry about being perfect—just try your best!"
+[Switch to ${language.name} and speak 30% slower than normal]
+
+### STEP 3: FIRST SUCCESS (Within ~45s)
+Ask exactly one simple question in ${language.name}:
+- ${getSimpleQuestion(language.name)}
+Celebrate ANY attempt: "Perfect! You're already speaking ${language.name}!"
+
+### STEP 4: BUILD MOMENTUM (Remainder)
+Practice something immediately useful; make them think: "I can actually do this!"
+End with: "You're doing amazing! Ready to continue?"
+
+### CRITICAL ONBOARDING RULES
+- NO grammar explanations
+- NO "repeat after me"
+- ONLY positive reinforcement
+- If they struggle, immediately simplify
+- Focus on the "you already know this" feeling`;
+}
+
 // ============================================
 // MAIN EXPORT
 // ============================================
@@ -807,39 +858,7 @@ export function generateScenarioInstructions(
 
 	if (isOnboardingNeeded) {
 		return {
-			instructions: `${baseInstructions}
-
-## ONBOARDING SCENARIO - FIRST MEETING
-
-### PRIMARY OBJECTIVE: Create immediate comfort and excitement
-### DURATION: 3-5 minutes maximum
-
-### STEP 1: NATIVE LANGUAGE WELCOME (First 15 seconds)
-START with native language greeting:
-"${nativeGreeting.greeting}"
-WAIT for their response before proceeding.
-
-### STEP 2: TRANSITION EXPLANATION (Next 10 seconds)  
-"Great! From here, I'll speak ${language.name}. Don't worry about being perfect - just try your best!"
-[Switch to ${language.name} and speak 30% slower than normal]
-
-### STEP 3: FIRST SUCCESS MOMENT (Within 45 seconds)
-Ask ONE simple question in ${language.name}:
-- ${getSimpleQuestion(language.name)}
-CELEBRATE any attempt: "Perfect! You're already speaking ${language.name}!"
-
-### STEP 4: BUILD CONFIDENCE (Remaining time)
-Practice something immediately useful for their daily life.
-Make them think: "I can actually do this!"
-End with: "You're doing amazing! Ready to continue?"
-
-### CRITICAL ONBOARDING RULES:
-- NO grammar explanations
-- NO "repeat after me" 
-- ONLY positive reinforcement
-- If they struggle, immediately simplify
-- Focus on "you already know this" feeling`,
-
+			instructions: `${baseInstructions}\n\n${buildOnboardingBlock(user, language, nativeGreeting.greeting)}`,
 			initialMessage: nativeGreeting.greeting
 		};
 	}
@@ -1002,6 +1021,7 @@ function getBaseInstructions(
 		'personality-adaptive',
 		'audio-handling-enhanced',
 		'language-control',
+		'memory-context',
 		'speaking-dynamics',
 		'safety-boundaries',
 		'variety-phrases',

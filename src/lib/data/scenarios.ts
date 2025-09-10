@@ -237,6 +237,126 @@ export const scenariosData: Scenario[] = [
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date()
+	},
+	{
+		id: 'relationship-date-planning',
+		title: 'Planning a Date Night',
+		description: 'Practice planning romantic activities and expressing preferences with a partner',
+		category: 'relationships',
+		difficulty: 'intermediate',
+		instructions: 'Discuss date ideas, preferences, and coordinate plans with your partner',
+		context: 'Building intimacy through shared activities and thoughtful planning strengthens relationships.',
+		expectedOutcome: 'Successfully plan a memorable date while practicing relationship communication',
+		learningObjectives: [
+			'romantic expressions',
+			'activity planning',
+			'preferences sharing',
+			'time coordination',
+			'location discussion',
+			'budget considerations',
+			'surprise planning',
+			'emotional expression',
+			'compromise',
+			'affection'
+		],
+		comfortIndicators: {
+			confidence: 4,
+			engagement: 5,
+			understanding: 4
+		},
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'relationship-family-update',
+		title: 'Sharing Life Updates with Family',
+		description: 'Practice sharing personal news and connecting with relatives about your life',
+		category: 'relationships',
+		difficulty: 'intermediate',
+		instructions: 'Share recent life events, career updates, and personal growth with family members',
+		context: 'Maintaining family connections through meaningful conversations about life changes.',
+		expectedOutcome: 'Confidently share personal updates and deepen family relationships',
+		learningObjectives: [
+			'life updates',
+			'career discussion',
+			'personal growth',
+			'family bonds',
+			'emotional sharing',
+			'achievements',
+			'challenges',
+			'support seeking',
+			'gratitude expression',
+			'future plans'
+		],
+		comfortIndicators: {
+			confidence: 4,
+			engagement: 5,
+			understanding: 4
+		},
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'relationship-deep-connection',
+		title: 'Building Deeper Connections',
+		description: 'Practice vulnerable conversations that strengthen human bonds and understanding',
+		category: 'relationships',
+		difficulty: 'advanced',
+		instructions: 'Engage in meaningful dialogue about values, dreams, and authentic self-expression',
+		context: 'Deep conversations create lasting connections and mutual understanding between people.',
+		expectedOutcome: 'Build genuine connections through authentic and vulnerable communication',
+		learningObjectives: [
+			'vulnerability',
+			'active listening',
+			'empathy expression',
+			'personal values',
+			'life philosophy',
+			'emotional intelligence',
+			'trust building',
+			'authentic sharing',
+			'meaningful questions',
+			'deep understanding'
+		],
+		comfortIndicators: {
+			confidence: 3,
+			engagement: 5,
+			understanding: 4
+		},
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'relationship-conflict-resolution',
+		title: 'Healthy Conflict Resolution',
+		description: 'Learn to navigate disagreements and resolve conflicts constructively',
+		category: 'relationships',
+		difficulty: 'advanced',
+		instructions: 'Practice expressing concerns, listening to others, and finding mutually beneficial solutions',
+		context: 'Healthy conflict resolution strengthens relationships and builds mutual respect.',
+		expectedOutcome: 'Navigate disagreements with empathy and find constructive solutions',
+		learningObjectives: [
+			'active listening',
+			'expressing concerns',
+			'empathy',
+			'compromise',
+			'boundary setting',
+			'apology giving',
+			'forgiveness',
+			'solution finding',
+			'emotional regulation',
+			'respectful disagreement'
+		],
+		comfortIndicators: {
+			confidence: 3,
+			engagement: 4,
+			understanding: 4
+		},
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
 	}
 ];
 

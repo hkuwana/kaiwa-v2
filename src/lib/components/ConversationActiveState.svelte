@@ -39,9 +39,10 @@
 
 	let messageInput = $state('');
 	let translationData = $state<Map<string, Partial<Message>>>(new Map());
+	let messagesContainer: HTMLElement;
 
 	// UI state for chat visibility
-let enableTyping = $state(false);
+	let enableTyping = $state(false);
 
 	// Determine if we are in an onboarding-like session for hinting
 	const showOnboardingHint = $derived(() => {
@@ -51,6 +52,19 @@ let enableTyping = $state(false);
 			updatePreferences: (updates: any) => userPreferencesStore.updatePreferences(updates)
 		};
 		return shouldTriggerOnboarding(provider);
+	});
+
+	// Auto-scroll to latest message when new messages arrive
+	$effect(() => {
+		if (messages.length > 0 && messagesContainer) {
+			// Use a small delay to ensure the new message DOM is rendered
+			setTimeout(() => {
+				messagesContainer.scrollTo({
+					top: messagesContainer.scrollHeight,
+					behavior: 'smooth'
+				});
+			}, 100);
+		}
 	});
 
 	function handleSendMessage() {
@@ -67,8 +81,8 @@ let enableTyping = $state(false);
 		}
 	}
 
-	async function handleTranslation(event: string, data: any) {
-		const { messageId, message, speaker: messageSpeaker } = data;
+	async function handleTranslation(_event: string, data: any) {
+		const { messageId, message } = data;
 
 		try {
 			// Set loading state
@@ -149,7 +163,7 @@ let enableTyping = $state(false);
 				<h3 class="mb-4 card-title flex-shrink-0 text-xl">
 					{isGuestUser && messages.length < 4 ? 'Getting to Know You' : 'Conversation'}
 				</h3>
-				<div class="flex-1 space-y-3 overflow-y-auto">
+				<div class="flex-1 space-y-3 overflow-y-auto" bind:this={messagesContainer}>
 					{#each messages as message, index (message.id)}
 						<div in:fly={{ y: 20, duration: 300, delay: index * 50 }}>
 							<MessageBubble

@@ -2,6 +2,7 @@
 	import ThemeSwitcher from './ThemeSwitcher.svelte';
 	import type { User } from '$lib/server/db/types';
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
+  import { dev } from '$app/environment';
 
 	const { user }: { user: User | null } = $props();
 	// Get user data from page data
@@ -9,6 +10,15 @@
 	async function handleHome() {
 		await goto('/');
 	}
+
+  // Dev routes (only shown when running in dev mode)
+  const DEV_LINKS = [
+    { href: '/dev', label: 'Dev Home' },
+    { href: '/dev-instructions', label: 'Dev: Instructions' },
+    { href: '/dev-audiovisualizer', label: 'Dev: Audio Visualizer' },
+    { href: '/dev-messages', label: 'Dev: Messages' },
+    { href: '/dev-conversation', label: 'Dev: Conversations' }
+  ];
 </script>
 
 <nav class="navbar bg-neutral text-neutral-content shadow-sm">
@@ -39,6 +49,13 @@
 				{#if user && user.id !== 'guest'}
 					<li><a href="/profile" class="text-neutral-content">Profile</a></li>
 				{/if}
+
+				{#if dev}
+					<li class="menu-title"><span>Dev</span></li>
+					{#each DEV_LINKS as link}
+						<li><a href={link.href} class="text-neutral-content">{link.label}</a></li>
+					{/each}
+				{/if}
 			</ul>
 		</div>
 		<button onclick={handleHome} class="btn text-xl btn-ghost">Kaiwa</button>
@@ -47,6 +64,19 @@
 		<ul class="menu menu-horizontal px-1">
 			<li><a href="/pricing" class="text-neutral-content">Pricing</a></li>
 			<li><a href="/privacy" class="text-neutral-content">Privacy</a></li>
+
+			{#if dev}
+				<li tabindex="0">
+					<details>
+						<summary class="text-neutral-content">Dev</summary>
+						<ul class="p-2 bg-base-100 rounded-t-none">
+							{#each DEV_LINKS as link}
+								<li><a href={link.href}>{link.label}</a></li>
+							{/each}
+						</ul>
+					</details>
+				</li>
+			{/if}
 		</ul>
 	</div>
 
