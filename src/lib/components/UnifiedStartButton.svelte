@@ -33,10 +33,8 @@
 	// Determine if user is a guest
 	const isGuest = user.id === 'guest';
 
-	// Available scenarios - guests only get onboarding
-	const availableScenarios = $derived(
-		isGuest ? scenariosData.filter((s) => s.id === 'onboarding-welcome') : scenariosData
-	);
+	// Available scenarios - show all scenarios
+	const availableScenarios = $derived(scenariosData);
 
 	// Current scenario or default to onboarding
 	const currentScenario = $derived(selectedScenario || scenariosData[0]);
@@ -85,7 +83,7 @@
 	}
 </script>
 
-<div class="flex flex-col items-center gap-6 text-base-content">
+<div class="flex flex-col items-center gap-6 text-primary-content">
 	<!-- Two Choice Buttons Row -->
 	<div class="flex w-full max-w-md flex-col gap-4">
 		<!-- Language Selection -->
@@ -102,7 +100,9 @@
 			scenarios={availableScenarios}
 			selectedScenario={currentScenario}
 			onScenarioSelect={handleScenarioChange}
-			disabled={isGuest}
+			disabled={false}
+			tooltipMessage=""
+			isGuest={isGuest}
 		/>
 	</div>
 
@@ -130,13 +130,17 @@
 			></div>
 		</button>
 
-		<!-- Login prompt for guests -->
+		<!-- Coming soon note or login prompt -->
 		{#if isGuest}
 			<div class="mt-4 text-center">
-				<p class="mb-2 text-sm opacity-70">Log In to choose scenarios</p>
+				<p class="mb-2 text-sm opacity-70">Log in to access more scenarios</p>
 				<button class="btn btn-outline btn-sm" onclick={handleLoginRedirect}>
 					🔐 Sign Up / Login
 				</button>
+			</div>
+		{:else}
+			<div class="mt-4 text-center">
+				<p class="text-sm opacity-70">More scenarios coming soon!</p>
 			</div>
 		{/if}
 	</div>

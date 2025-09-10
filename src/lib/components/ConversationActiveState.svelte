@@ -9,7 +9,6 @@
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import { SvelteMap } from 'svelte/reactivity';
 	import { shouldTriggerOnboarding } from '$lib/services/onboarding-manager.service';
-	// Remove direct import of translation service since it won't work in browser
 
 	interface Props {
 		status: string;
@@ -43,6 +42,9 @@
 
 	// UI state for chat visibility
 	let enableTyping = $state(false);
+
+	// Audio control state
+	let hasUsedAudioControl = $state(false);
 
 	// Determine if we are in an onboarding-like session for hinting
 	const showOnboardingHint = $derived(() => {
@@ -129,6 +131,7 @@
 			translationStore.setTranslating(messageId, false);
 		}
 	}
+
 </script>
 
 <div
@@ -141,7 +144,7 @@
 			<div class="mb-4 flex-shrink-0" in:fly={{ y: -10, duration: 200 }}>
 				<div class="card border-l-4 border-l-info bg-info/5">
 					<div class="card-body p-4">
-						<h3 class="card-title text-lg text-info">You're saying:</h3>
+						<div class="card-title text-lg text-info">You're saying:</div>
 						<div class="rounded-lg bg-base-100 p-4">
 							<p class="text-lg">{currentTranscript}</p>
 							{#if isTranscribing}
@@ -156,99 +159,111 @@
 			</div>
 		{/if}
 
-	<!-- Conversation Messages - Always visible; input may be hidden -->
-	<div class="mb-4 min-h-0 flex-1">
-		<div class="card h-full bg-base-100 shadow-lg">
-			<div class="card-body flex h-full flex-col">
-				<h3 class="mb-4 card-title flex-shrink-0 text-xl">
-					{isGuestUser && messages.length < 4 ? 'Getting to Know You' : 'Conversation'}
-				</h3>
-				<div class="flex-1 space-y-3 overflow-y-auto" bind:this={messagesContainer}>
-					{#each messages as message, index (message.id)}
-						<div in:fly={{ y: 20, duration: 300, delay: index * 50 }}>
-							<MessageBubble
-								{message}
-								{speaker}
-								translation={translationData.get(message.id)}
-								conversationLanguage={selectedLanguage?.code}
-								dispatch={handleTranslation}
+		<!-- Conversation Messages - Always visible; input may be hidden -->
+		<div class="mb-4 min-h-0 flex-1">
+			<div class="card h-full bg-base-100 shadow-lg">
+				<div class="card-body flex h-full flex-col">
+					<div class="mb-4 card-title flex-shrink-0 text-xl">
+						{isGuestUser && messages.length < 4 ? 'Getting to Know You' : 'Conversation'}
+					</div>
+					<div class="flex-1 space-y-3 overflow-y-auto" bind:this={messagesContainer}>
+						{#each messages as message, index (message.id)}
+							<div in:fly={{ y: 20, duration: 300, delay: index * 50 }}>
+								<MessageBubble
+									{message}
+									{speaker}
+									translation={translationData.get(message.id)}
+									conversationLanguage={selectedLanguage?.code}
+									dispatch={handleTranslation}
+								/>
+							</div>
+						{/each}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Text Input - hidden by default to promote audio; flip enableTyping to true to show -->
+		{#if enableTyping}
+			<div class="mb-4 flex-shrink-0" in:fade={{ duration: 120 }}>
+				<div class="card bg-base-100 shadow-lg">
+					<div class="card-body p-4">
+						<div class="flex gap-2">
+							<input
+								type="text"
+								bind:value={messageInput}
+								onkeypress={handleKeyPress}
+								placeholder="Type your response..."
+								class="input-bordered input flex-1"
 							/>
+							<button
+								onclick={handleSendMessage}
+								class="btn btn-primary"
+								disabled={!messageInput.trim()}
+							>
+								Send
+							</button>
 						</div>
-					{/each}
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Text Input - hidden by default to promote audio; flip enableTyping to true to show -->
-	{#if enableTyping}
-		<div class="mb-4 flex-shrink-0" in:fade={{ duration: 120 }}>
-			<div class="card bg-base-100 shadow-lg">
-				<div class="card-body p-4">
-					<div class="flex gap-2">
-						<input
-							type="text"
-							bind:value={messageInput}
-							onkeypress={handleKeyPress}
-							placeholder="Type your response..."
-							class="input-bordered input flex-1"
-						/>
-						<button
-							onclick={handleSendMessage}
-							class="btn btn-primary"
-							disabled={!messageInput.trim()}
-						>
-							Send
-						</button>
 					</div>
 				</div>
 			</div>
-		</div>
-	{/if}
+		{/if}
 
-		<!-- Live Audio Indicator -->
-		<div class="mb-4 flex-shrink-0" in:fade={{ duration: 300, delay: 200 }}>
-			<div class=" border-success/20">
-				<div class="card-body p-4 text-center">
-					{#if showOnboardingHint()}
-						<div class="mt-3 text-sm opacity-80">
-							<span class="mr-2 badge badge-sm badge-info">Tip</span>
-							Tap and hold to talk, then release to hear Kaiwa.
-						</div>
-					{/if}
-					<div class="mb-2 flex justify-center">
-						<AudioVisualizer
-							{audioLevel}
-							controlMode="external"
-							pressBehavior={userPreferencesStore.getPressBehavior()}
-							highContrast={true}
-							onRecordStart={() => {
-								// If not already in push-to-talk, switch immediately when user clicks the control
-								if (userPreferencesStore.getAudioMode() !== 'push_to_talk') {
-									userPreferencesStore.setAudioMode('push_to_talk');
-									if (userPreferencesStore.getPressBehavior() !== 'press_hold') {
-										userPreferencesStore.setPressBehavior('press_hold');
-									}
-								}
-								conversationStore.resumeStreaming();
-							}}
-							onRecordStop={() => {
-								if (userPreferencesStore.getAudioMode() === 'push_to_talk') {
-									conversationStore.pauseStreaming();
-								}
-							}}
-						/>
-					</div>
+		<!-- AudioVisualizer - Fixed at bottom center -->
+		<div class="fixed bottom-8 left-1/2 z-30 -translate-x-1/2 transform">
+			<AudioVisualizer
+				{audioLevel}
+				controlMode="external"
+				pressBehavior={userPreferencesStore.getPressBehavior()}
+				highContrast={true}
+				onRecordStart={() => {
+					hasUsedAudioControl = true;
+					// If not already in push-to-talk, switch immediately when user clicks the control
+					if (userPreferencesStore.getAudioMode() !== 'push_to_talk') {
+						userPreferencesStore.setAudioMode('push_to_talk');
+						if (userPreferencesStore.getPressBehavior() !== 'press_hold') {
+							userPreferencesStore.setPressBehavior('press_hold');
+						}
+					}
+					conversationStore.resumeStreaming();
+				}}
+				onRecordStop={() => {
+					if (userPreferencesStore.getAudioMode() === 'push_to_talk') {
+						conversationStore.pauseStreaming();
+					}
+				}}
+			/>
+		</div>
+
+		<!-- Centered Hint - Managed by ConversationActiveState -->
+		{#if showOnboardingHint() && !hasUsedAudioControl}
+			<div class="pointer-events-none fixed inset-x-0 bottom-28 z-50 select-none">
+				<div class="mx-auto w-auto max-w-[80vw] rounded-md bg-base-200 px-4 py-2 text-sm text-base-content shadow-lg text-center">
+					Tap and hold to talk, then release to hear Kaiwa
 				</div>
+				<svg
+					class="mx-auto mt-2 h-7 w-7 animate-bounce text-base-content"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+				>
+					<path d="M6 9l6 6 6-6" />
+				</svg>
 			</div>
-		</div>
+		{/if}
 
-		<!-- End Conversation -->
-		<div class="flex flex-shrink-0 justify-center">
-			<button onclick={onEndConversation} class="btn btn-outline btn-error">
-				{isGuestUser ? 'Finish & Get My Results' : 'End Conversation'}
+		<!-- End Conversation (fixed bottom-right) -->
+		<div class="pointer-events-none fixed right-4 bottom-4 z-40">
+			<button
+				onclick={onEndConversation}
+				class="btn-small sm:btn-medium btn pointer-events-auto btn-outline btn-error"
+			>
+				{isGuestUser ? 'Finish Chat' : 'End Conversation'}
 			</button>
 		</div>
-
 	</div>
 </div>

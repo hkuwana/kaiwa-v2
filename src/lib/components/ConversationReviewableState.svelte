@@ -51,7 +51,7 @@
 					Conversation Complete
 				</div>
 			</div>
-			<h1 class="mb-2 text-3xl font-bold">Review Your Conversation</h1>
+			<div class="mb-2 text-3xl font-bold">Review Your Conversation</div>
 			<p class="text-lg text-base-content/70">
 				Take a look at your {language.name} conversation and decide what to do next
 			</p>

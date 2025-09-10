@@ -12,14 +12,18 @@
 	const { selectedLanguage = null }: Props = $props();
 
 	// Create Message objects for better integration with MessageBubble
-	const createMessage = (role: 'user' | 'assistant', content: string, originalText?: string): Message => ({
+	const createMessage = (
+		role: 'user' | 'assistant',
+		content: string,
+		originalText?: string
+	): Message => ({
 		id: crypto.randomUUID(),
 		conversationId: 'preview',
 		role,
 		content,
 		timestamp: new Date(),
 		translatedContent: originalText ? content : null,
-		sourceLanguage: originalText ? (selectedLanguage?.code || null) : null,
+		sourceLanguage: originalText ? selectedLanguage?.code || null : null,
 		targetLanguage: originalText ? 'en' : null,
 		userNativeLanguage: null,
 		romanization: null,
@@ -44,29 +48,65 @@
 	const getTravelScenarioData = (_language: string | null) => {
 		const travelOptions = {
 			ja: {
-				destinations: ['Tokyo', 'Kyoto', 'Osaka'],
+				destinations: ['Shibuya izakaya', 'Kyoto temple', 'Osaka market'],
 				messages: [
-					createMessage('user', "I'm planning a trip to Tokyo!", "東京に旅行を計画しています！"),
-					createMessage('assistant', "That's exciting! What would you like to see there?", "それはワクワクしますね！そこで何を見たいですか？"),
-					createMessage('user', 'I want to visit traditional temples.', "伝統的なお寺を訪れたいです。")
+					createMessage(
+						'user',
+						"Let's grab drinks at this cozy izakaya!",
+						'この居心地の良い居酒屋で飲みましょう！'
+					),
+					createMessage(
+						'assistant',
+						"Great idea! What's your favorite Japanese drink?",
+						'いいアイデアですね！好きな日本のお酒は何ですか？'
+					),
+					createMessage(
+						'user',
+						'I love sake, especially junmai types.',
+						'日本酒が好きで、特に純米タイプが好きです。'
+					)
 				],
 				flag: '🇯🇵'
 			},
 			es: {
-				destinations: ['Madrid', 'Barcelona', 'Sevilla'],
+				destinations: ['Ibiza', 'Sevilla', 'Valencia'],
 				messages: [
-					createMessage('user', "I'm excited to visit Barcelona!", "¡Estoy emocionado de visitar Barcelona!"),
-					createMessage('assistant', 'What attracts you to Barcelona?', '¿Qué te atrae de Barcelona?'),
-					createMessage('user', 'The architecture and beaches look amazing.', 'La arquitectura y las playas se ven increíbles.')
+					createMessage(
+						'user',
+						"Let's go to that tapas bar in Ibiza!",
+						'¡Vamos a ese bar de tapas en Ibiza!'
+					),
+					createMessage(
+						'assistant',
+						'Great choice! What tapas should we try?',
+						'¡Buena elección! ¿Qué tapas deberíamos probar?'
+					),
+					createMessage(
+						'user',
+						'I want to try the famous jamón ibérico.',
+						'Quiero probar el famoso jamón ibérico.'
+					)
 				],
 				flag: '🇪🇸'
 			},
 			fr: {
-				destinations: ['Paris', 'Lyon', 'Nice'],
+				destinations: ['Rooftop café', 'Montmartre', 'Seine riverside'],
 				messages: [
-					createMessage('user', "I'm dreaming of visiting Paris!", "Je rêve de visiter Paris !"),
-					createMessage('assistant', 'What would you like to experience?', "Qu'aimeriez-vous découvrir ?"),
-					createMessage('user', 'The art museums and cafés.', 'Les musées d\'art et les cafés.')
+					createMessage(
+						'user',
+						'This rooftop café has such a romantic view!',
+						'Ce café sur le toit a une vue si romantique !'
+					),
+					createMessage(
+						'assistant',
+						'Perfect for our evening together. What shall we order?',
+						'Parfait pour notre soirée ensemble. Que voulons-nous commander ?'
+					),
+					createMessage(
+						'user',
+						'Wine and cheese sound perfect right now.',
+						'Du vin et du fromage semblent parfaits en ce moment.'
+					)
 				],
 				flag: '🇫🇷'
 			},
@@ -97,11 +137,62 @@
 			scenarios.push({
 				...datePlanningScenario,
 				icon: '💕',
-				messages: [
-					createMessage('user', 'I want to plan something special for us.', language === 'ja' ? '私たちのために何か特別なことを計画したいです。' : undefined),
-					createMessage('assistant', 'How sweet! What kind of activities do you both enjoy?', language === 'ja' ? 'それは素敵ですね！二人はどのような活動が好きですか？' : undefined),
-					createMessage('user', 'We love trying new restaurants together.', language === 'ja' ? '一緒に新しいレストランを試すのが好きです。' : undefined)
-				],
+				messages:
+					language === 'es'
+						? [
+								createMessage(
+									'user',
+									'I want to plan a romantic rooftop dinner.',
+									'Quiero planear una cena romántica en la azotea.'
+								),
+								createMessage(
+									'assistant',
+									'What a lovely idea! What cuisine should we choose?',
+									'¡Qué idea tan encantadora! ¿Qué cocina deberíamos elegir?'
+								),
+								createMessage(
+									'user',
+									'Spanish tapas would be perfect for sharing.',
+									'Las tapas españolas serían perfectas para compartir.'
+								)
+							]
+						: language === 'fr'
+							? [
+									createMessage(
+										'user',
+										"Let's have a candlelit dinner by the Seine.",
+										'Prenons un dîner aux chandelles au bord de la Seine.'
+									),
+									createMessage(
+										'assistant',
+										'So romantic! What should we order?',
+										'Si romantique ! Que devons-nous commander ?'
+									),
+									createMessage(
+										'user',
+										'Wine and French pastries sound perfect.',
+										'Du vin et des pâtisseries françaises semblent parfaits.'
+									)
+								]
+							: [
+									createMessage(
+										'user',
+										'I want to plan something special for us.',
+										language === 'ja' ? '私たちのために何か特別なことを計画したいです。' : undefined
+									),
+									createMessage(
+										'assistant',
+										'How sweet! What kind of activities do you both enjoy?',
+										language === 'ja'
+											? 'それは素敵ですね！二人はどのような活動が好きですか？'
+											: undefined
+									),
+									createMessage(
+										'user',
+										'We love trying new restaurants together.',
+										language === 'ja' ? '一緒に新しいレストランを試すのが好きです。' : undefined
+									)
+								],
 				color: 'from-pink-400 to-rose-500',
 				bgPattern: 'heart'
 			});
@@ -113,9 +204,23 @@
 				...familyUpdateScenario,
 				icon: '👨‍👩‍👧‍👦',
 				messages: [
-					createMessage('user', 'I got promoted at work!', language === 'ja' ? '仕事で昇進しました！' : undefined),
-					createMessage('assistant', 'Congratulations! Your family must be so proud.', language === 'ja' ? 'おめでとうございます！ご家族もとても誇らしく思われるでしょうね。' : undefined),
-					createMessage('user', "I can't wait to tell them the good news.", language === 'ja' ? '良いニュースを伝えるのが待ちきれません。' : undefined)
+					createMessage(
+						'user',
+						'I got promoted at work!',
+						language === 'ja' ? '仕事で昇進しました！' : undefined
+					),
+					createMessage(
+						'assistant',
+						'Congratulations! Your family must be so proud.',
+						language === 'ja'
+							? 'おめでとうございます！ご家族もとても誇らしく思われるでしょうね。'
+							: undefined
+					),
+					createMessage(
+						'user',
+						"I can't wait to tell them the good news.",
+						language === 'ja' ? '良いニュースを伝えるのが待ちきれません。' : undefined
+					)
 				],
 				color: 'from-green-400 to-teal-500',
 				bgPattern: 'family'
@@ -143,9 +248,21 @@
 				...deepConnectionScenario,
 				icon: '🤝',
 				messages: [
-					createMessage('user', 'What do you value most in life?', language === 'ja' ? '人生で最も大切にしていることは何ですか？' : undefined),
-					createMessage('assistant', "That's a beautiful question. What about you?", language === 'ja' ? 'それは美しい質問ですね。あなたはどうですか？' : undefined),
-					createMessage('user', 'Authentic connections with people.', language === 'ja' ? '人との本物のつながりです。' : undefined)
+					createMessage(
+						'user',
+						'What do you value most in life?',
+						language === 'ja' ? '人生で最も大切にしていることは何ですか？' : undefined
+					),
+					createMessage(
+						'assistant',
+						"That's a beautiful question. What about you?",
+						language === 'ja' ? 'それは美しい質問ですね。あなたはどうですか？' : undefined
+					),
+					createMessage(
+						'user',
+						'Authentic connections with people.',
+						language === 'ja' ? '人との本物のつながりです。' : undefined
+					)
 				],
 				color: 'from-purple-400 to-indigo-500',
 				bgPattern: 'connection'
@@ -158,11 +275,69 @@
 			scenarios.push({
 				...foodScenario,
 				icon: '🍽️',
-				messages: [
-					createMessage('user', 'I love sharing meals with friends.', language === 'ja' ? '友達と食事を共有するのが大好きです。' : undefined),
-					createMessage('assistant', "Food brings people together! What's your favorite to cook?", language === 'ja' ? '食べ物は人をつなげますね！何を作るのが好きですか？' : undefined),
-					createMessage('user', "I make a great pasta from my grandmother's recipe.", language === 'ja' ? '祖母のレシピで美味しいパスタを作ります。' : undefined)
-				],
+				messages:
+					language === 'es'
+						? [
+								createMessage(
+									'user',
+									'This paella smells incredible!',
+									'¡Esta paella huele increíble!'
+								),
+								createMessage(
+									'assistant',
+									'My grandmother taught me this recipe. Try some!',
+									'Mi abuela me enseñó esta receta. ¡Prueba un poco!'
+								),
+								createMessage(
+									'user',
+									'The seafood and saffron taste so authentic.',
+									'Los mariscos y el azafrán saben muy auténticos.'
+								)
+							]
+						: language === 'fr'
+							? [
+									createMessage(
+										'user',
+										'These croissants are perfectly flaky.',
+										'Ces croissants sont parfaitement feuilletés.'
+									),
+									createMessage(
+										'assistant',
+										'Fresh from the boulangerie this morning!',
+										'Frais de la boulangerie ce matin !'
+									),
+									createMessage(
+										'user',
+										'Nothing beats French pastry craftsmanship.',
+										"Rien ne vaut l'artisanat pâtissier français."
+									)
+								]
+							: language === 'ja'
+								? [
+										createMessage(
+											'user',
+											'This ramen broth is so rich and flavorful!',
+											'このラーメンのスープはとても濃厚で味わい深いです！'
+										),
+										createMessage(
+											'assistant',
+											'It simmered for 12 hours. The secret is the pork bones.',
+											'12時間煮込みました。秘密は豚骨です。'
+										),
+										createMessage(
+											'user',
+											'I can taste the dedication in every spoonful.',
+											'一口ごとに愛情を感じます。'
+										)
+									]
+								: [
+										createMessage('user', 'I love sharing meals with friends.'),
+										createMessage(
+											'assistant',
+											"Food brings people together! What's your favorite to cook?"
+										),
+										createMessage('user', "I make a great pasta from my grandmother's recipe.")
+									],
 				color: 'from-orange-400 to-red-500',
 				bgPattern: 'food'
 			});
@@ -250,7 +425,8 @@
 		aria-label="Conversation scenario previews"
 	>
 		<!-- Main Scenario Card - Uniform height -->
-		<div class="relative h-[600px] bg-gradient-to-br {currentScenario.color} p-6 text-white flex flex-col"
+		<div
+			class="relative h-[600px] bg-gradient-to-br {currentScenario.color} flex flex-col p-6 text-white"
 		>
 			<!-- Background Pattern -->
 			<div class="absolute inset-0 opacity-10">
@@ -301,24 +477,27 @@
 
 			<!-- Preview Conversation with MessageBubble -->
 			<div class="relative z-10 flex-1 overflow-hidden">
-				<div class="space-y-1 {animatingMessages ? 'animate-fade-in' : ''} max-h-[420px] overflow-y-auto">
+				<div
+					class="space-y-1 {animatingMessages
+						? 'animate-fade-in'
+						: ''} max-h-[420px] overflow-y-auto"
+				>
 					{#each currentScenario.messages as message, i}
 						<div
-							class="opacity-95 scale-[0.9] transition-all duration-300 hover:scale-95"
+							class="scale-[0.9] opacity-95 transition-all duration-300 hover:scale-95"
 							style="animation-delay: {i * 0.2}s"
 						>
-							<MessageBubble 
-								{message} 
-								conversationLanguage={selectedLanguage?.code}
-							/>
+							<MessageBubble {message} conversationLanguage={selectedLanguage?.code} />
 						</div>
 					{/each}
 				</div>
-				
+
 				<!-- Translation hint -->
 				{#if selectedLanguage && selectedLanguage.code !== 'en'}
-					<div class="mt-2 text-center flex-shrink-0">
-						<p class="text-xs text-white/70 bg-black/20 rounded-full px-3 py-1 backdrop-blur-sm inline-block">
+					<div class="mt-2 flex-shrink-0 text-center">
+						<p
+							class="inline-block rounded-full bg-black/20 px-3 py-1 text-xs text-white/70 backdrop-blur-sm"
+						>
 							💬 Hover messages to see {selectedLanguage.name} translations
 						</p>
 					</div>
@@ -327,28 +506,36 @@
 		</div>
 
 		<!-- Navigation Controls -->
-		<div class="absolute inset-y-0 left-0 flex items-center z-20">
+		<div class="absolute inset-y-0 left-0 z-20 flex items-center">
 			<button
-				class="btn ml-2 btn-circle border-white/30 bg-black/30 text-white hover:bg-black/50 hover:scale-110 transition-all duration-200 shadow-lg"
+				class="btn ml-2 btn-circle border-white/30 bg-black/30 text-white shadow-lg transition-all duration-200 hover:scale-110 hover:bg-black/50"
 				onclick={prevScenario}
 				aria-label="Previous scenario"
 				style="backdrop-filter: blur(8px);"
 			>
-				<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-					<path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+				<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+					<path
+						fill-rule="evenodd"
+						d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+						clip-rule="evenodd"
+					></path>
 				</svg>
 			</button>
 		</div>
 
-		<div class="absolute inset-y-0 right-0 flex items-center z-20">
+		<div class="absolute inset-y-0 right-0 z-20 flex items-center">
 			<button
-				class="btn mr-2 btn-circle border-white/30 bg-black/30 text-white hover:bg-black/50 hover:scale-110 transition-all duration-200 shadow-lg"
+				class="btn mr-2 btn-circle border-white/30 bg-black/30 text-white shadow-lg transition-all duration-200 hover:scale-110 hover:bg-black/50"
 				onclick={nextScenario}
 				aria-label="Next scenario"
 				style="backdrop-filter: blur(8px);"
 			>
-				<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-					<path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+				<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+					<path
+						fill-rule="evenodd"
+						d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+						clip-rule="evenodd"
+					></path>
 				</svg>
 			</button>
 		</div>

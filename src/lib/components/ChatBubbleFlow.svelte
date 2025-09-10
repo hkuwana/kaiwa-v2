@@ -8,17 +8,37 @@
 			language: 'Japanese',
 			flag: '🇯🇵',
 			messages: [
-				{ type: 'user', text: 'こんにちは! はじめまして。', translation: 'Hello! Nice to meet you.' },
-				{ type: 'ai', text: 'はじめまして! お名前は何ですか？', translation: 'Nice to meet you! What is your name?' },
-				{ type: 'user', text: '田中です。よろしくお願いします。', translation: "I'm Tanaka. Please treat me favorably." }
+				{
+					type: 'user',
+					text: 'こんにちは! はじめまして。',
+					translation: 'Hello! Nice to meet you.'
+				},
+				{
+					type: 'ai',
+					text: 'はじめまして! お名前は何ですか？',
+					translation: 'Nice to meet you! What is your name?'
+				},
+				{
+					type: 'user',
+					text: '田中です。よろしくお願いします。',
+					translation: "I'm Tanaka. Please treat me favorably."
+				}
 			]
 		},
 		{
 			language: 'Spanish',
 			flag: '🇪🇸',
 			messages: [
-				{ type: 'user', text: '¿Dónde está el restaurante?', translation: 'Where is the restaurant?' },
-				{ type: 'ai', text: 'Está a dos cuadras de aquí.', translation: 'It is two blocks from here.' },
+				{
+					type: 'user',
+					text: '¿Dónde está el restaurante?',
+					translation: 'Where is the restaurant?'
+				},
+				{
+					type: 'ai',
+					text: 'Está a dos cuadras de aquí.',
+					translation: 'It is two blocks from here.'
+				},
 				{ type: 'user', text: 'Perfecto, ¡gracias!', translation: 'Perfect, thank you!' }
 			]
 		},
@@ -26,18 +46,30 @@
 			language: 'French',
 			flag: '🇫🇷',
 			messages: [
-				{ type: 'user', text: 'Je voudrais commander, s\'il vous plaît.', translation: 'I would like to order, please.' },
-				{ type: 'ai', text: 'Bien sûr! Que désirez-vous?', translation: 'Of course! What would you like?' },
-				{ type: 'user', text: 'Un café au lait, merci.', translation: 'A coffee with milk, thank you.' }
+				{
+					type: 'user',
+					text: "Je voudrais commander, s'il vous plaît.",
+					translation: 'I would like to order, please.'
+				},
+				{
+					type: 'ai',
+					text: 'Bien sûr! Que désirez-vous?',
+					translation: 'Of course! What would you like?'
+				},
+				{
+					type: 'user',
+					text: 'Un café au lait, merci.',
+					translation: 'A coffee with milk, thank you.'
+				}
 			]
 		}
 	];
 
 	let visibleBubbles: Array<{
 		id: string;
-		conversation: typeof conversations[0];
+		conversation: (typeof conversations)[0];
 		messageIndex: number;
-		message: typeof conversations[0]['messages'][0];
+		message: (typeof conversations)[0]['messages'][0];
 		position: { x: number; y: number };
 		delay: number;
 		column: number;
@@ -50,7 +82,7 @@
 		const conversation = conversations[Math.floor(Math.random() * conversations.length)];
 		const messageIndex = Math.floor(Math.random() * conversation.messages.length);
 		const message = conversation.messages[messageIndex];
-		
+
 		const bubble = {
 			id: `bubble-${bubbleCounter++}`,
 			conversation,
@@ -68,7 +100,7 @@
 
 		// Remove bubble after animation completes
 		setTimeout(() => {
-			visibleBubbles = visibleBubbles.filter(b => b.id !== bubble.id);
+			visibleBubbles = visibleBubbles.filter((b) => b.id !== bubble.id);
 		}, 8000);
 	}
 
@@ -92,7 +124,9 @@
 	});
 </script>
 
-<div class="relative h-96 w-full overflow-hidden rounded-xl bg-gradient-to-b from-base-200/50 to-base-300/30 backdrop-blur-sm">
+<div
+	class="relative h-96 w-full overflow-hidden rounded-xl bg-gradient-to-b from-base-200/50 to-base-300/30 backdrop-blur-sm"
+>
 	<!-- Background pattern -->
 	<div class="absolute inset-0 opacity-10">
 		<svg class="h-full w-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
@@ -107,31 +141,39 @@
 
 	<!-- Animated chat bubbles -->
 	{#each visibleBubbles as bubble (bubble.id)}
-		<div 
-			class="absolute animate-float-up-fade"
+		<div
+			class="animate-float-up-fade absolute"
 			style="left: {bubble.position.x}px; animation-delay: {bubble.delay}ms;"
 		>
 			<!-- Language flag and indicator -->
 			<div class="mb-2 flex items-center gap-2 text-sm font-medium opacity-80">
 				<span class="text-lg">{bubble.conversation.flag}</span>
-				<span class="text-xs badge badge-primary badge-sm">{bubble.conversation.language}</span>
+				<span class="badge badge-sm text-xs badge-primary">{bubble.conversation.language}</span>
 			</div>
-			
+
 			<!-- Chat bubble -->
 			<div class="chat {bubble.message.type === 'user' ? 'chat-end' : 'chat-start'}">
-				<div class="chat-image avatar">
-					<div class="w-8 rounded-full bg-{bubble.message.type === 'user' ? 'primary' : 'secondary'}/20 flex items-center justify-center">
+				<div class="avatar chat-image">
+					<div
+						class="w-8 rounded-full bg-{bubble.message.type === 'user'
+							? 'primary'
+							: 'secondary'}/20 flex items-center justify-center"
+					>
 						<span class="text-xs">
 							{bubble.message.type === 'user' ? '👤' : '🤖'}
 						</span>
 					</div>
 				</div>
-				<div class="chat-bubble max-w-xs {bubble.message.type === 'user' ? 'chat-bubble-primary' : 'chat-bubble-secondary'} shadow-lg">
+				<div
+					class="chat-bubble max-w-xs {bubble.message.type === 'user'
+						? 'chat-bubble-primary'
+						: 'chat-bubble-secondary'} shadow-lg"
+				>
 					<div class="text-sm font-medium">
 						{bubble.message.text}
 					</div>
 					{#if bubble.message.translation}
-						<div class="mt-1 text-xs opacity-70 italic">
+						<div class="mt-1 text-xs italic opacity-70">
 							{bubble.message.translation}
 						</div>
 					{/if}
@@ -141,20 +183,26 @@
 	{/each}
 
 	<!-- Floating elements for visual interest -->
-	<div class="absolute top-4 right-4 animate-bounce-slow">
-		<div class="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-2 text-xs font-medium backdrop-blur-sm">
+	<div class="animate-bounce-slow absolute top-4 right-4">
+		<div
+			class="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-2 text-xs font-medium backdrop-blur-sm"
+		>
 			💬 Real conversations
 		</div>
 	</div>
-	
-	<div class="absolute bottom-4 left-4 animate-bounce-slow" style="animation-delay: 1s;">
-		<div class="flex items-center gap-2 rounded-full bg-secondary/10 px-3 py-2 text-xs font-medium backdrop-blur-sm">
+
+	<div class="animate-bounce-slow absolute bottom-4 left-4" style="animation-delay: 1s;">
+		<div
+			class="flex items-center gap-2 rounded-full bg-secondary/10 px-3 py-2 text-xs font-medium backdrop-blur-sm"
+		>
 			🎯 Practice speaking
 		</div>
 	</div>
 
-	<div class="absolute top-1/2 right-8 animate-bounce-slow" style="animation-delay: 2s;">
-		<div class="flex items-center gap-2 rounded-full bg-accent/10 px-3 py-2 text-xs font-medium backdrop-blur-sm">
+	<div class="animate-bounce-slow absolute top-1/2 right-8" style="animation-delay: 2s;">
+		<div
+			class="flex items-center gap-2 rounded-full bg-accent/10 px-3 py-2 text-xs font-medium backdrop-blur-sm"
+		>
 			🌍 Multiple languages
 		</div>
 	</div>
@@ -179,7 +227,8 @@
 	}
 
 	@keyframes bounce-slow {
-		0%, 100% {
+		0%,
+		100% {
 			transform: translateY(-5px);
 		}
 		50% {

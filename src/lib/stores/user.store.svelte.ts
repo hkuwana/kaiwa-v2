@@ -6,7 +6,6 @@ import { SvelteDate } from 'svelte/reactivity';
 
 export interface UserManagerState {
 	user: User;
-	isLoggedIn: boolean;
 	effectiveTier: UserTier;
 }
 
@@ -14,7 +13,6 @@ export class UserManagerStore {
 	// Store state using Svelte 5's $state
 	private _state = $state<UserManagerState>({
 		user: GUEST_USER,
-		isLoggedIn: false,
 		effectiveTier: 'free'
 	});
 
@@ -36,7 +34,7 @@ export class UserManagerStore {
 	}
 
 	get isLoggedIn() {
-		return this._state.isLoggedIn;
+		return this._state.user.id !== 'guest';
 	}
 
 	get effectiveTier() {
@@ -74,7 +72,6 @@ export class UserManagerStore {
 	// Set user (login)
 	setUser(user: User): void {
 		this._state.user = user;
-		this._state.isLoggedIn = true;
 		// Note: effectiveTier is now managed separately through subscription data
 		// Default to 'free' until subscription data is loaded
 		this._state.effectiveTier = 'free';
@@ -99,7 +96,6 @@ export class UserManagerStore {
 	syncFromPageData(user: User | null, subscription: { effectiveTier?: string } | null): void {
 		if (user) {
 			this._state.user = user;
-			this._state.isLoggedIn = true;
 
 			// Set effective tier based on subscription data
 			if (subscription?.effectiveTier) {
@@ -124,7 +120,6 @@ export class UserManagerStore {
 			}
 		} else {
 			this._state.user = GUEST_USER;
-			this._state.isLoggedIn = false;
 			this._state.effectiveTier = 'free';
 			console.log('👤 Store synced: User logged out');
 		}
@@ -133,7 +128,6 @@ export class UserManagerStore {
 	// Logout user
 	logout(): void {
 		this._state.user = GUEST_USER;
-		this._state.isLoggedIn = false;
 		this._state.effectiveTier = 'free';
 		console.log('👤 User logged out');
 	}
@@ -141,7 +135,6 @@ export class UserManagerStore {
 	// Reset to initial state
 	reset(): void {
 		this._state.user = GUEST_USER;
-		this._state.isLoggedIn = false;
 		this._state.effectiveTier = 'free';
 		console.log('👤 User manager reset to initial state');
 	}

@@ -65,10 +65,11 @@
 	});
 
 	// Classes to enhance contrast with surrounding background
-	const outerClasses = $derived(() =>
-		`absolute h-full w-full rounded-full transition-all duration-75 ease-out ${colorIntensity()} ${
-			highContrast ? 'ring-2 ring-base-content ring-offset-2 ring-offset-base-100' : ''
-		}`
+	const outerClasses = $derived(
+		() =>
+			`absolute h-full w-full rounded-full transition-all duration-75 ease-out ${colorIntensity()} ${
+				highContrast ? 'ring-2 ring-base-content ring-offset-2 ring-offset-base-100' : ''
+			}`
 	);
 
 	// Core color uses a solid DaisyUI color for maximum contrast
@@ -78,8 +79,8 @@
 		return `bg-${primaryColor}`;
 	});
 
-	const innerClasses = $derived(() =>
-		`relative h-12 w-12 rounded-full ${coreColorClass()} transition-all duration-300`
+	const innerClasses = $derived(
+		() => `relative h-12 w-12 rounded-full ${coreColorClass()} transition-all duration-300`
 	);
 
 	const innerOpacity = $derived(() => (highContrast ? 0.95 : 0.85));
@@ -95,7 +96,6 @@
 	let mediaRecorder: MediaRecorder | null = null;
 	let audioChunks: Blob[] = [];
 	let isPressed = $state(false);
-	let pressStartTime = $state(0);
 	let pressTimeout: number | null = null;
 	let audioStream: MediaStream | null = null;
 
@@ -194,7 +194,6 @@
 
 		// Default press-and-hold behavior
 		isPressed = true;
-		pressStartTime = Date.now();
 		pressTimeout = window.setTimeout(() => {
 			startRecording();
 		}, 100);
@@ -345,22 +344,6 @@
 		return `${base} hover:scale-105 active:scale-95`;
 	});
 
-	// Tailwind safelist for dynamic color classes used above
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const __safelist = [
-		'bg-accent',
-		'bg-accent-focus',
-		'bg-primary',
-		'bg-primary-focus',
-		'bg-secondary',
-		'bg-secondary-focus',
-		'bg-success',
-		'bg-success-focus',
-		'bg-warning',
-		'bg-warning-focus',
-		'bg-error',
-		'bg-error-focus'
-	];
 </script>
 
 <!-- 
@@ -396,7 +379,7 @@
 	<div
 		class={outerClasses()}
 		style:transform="translateY({verticalOffset}px) scale({scale})"
-		style:opacity={glowOpacity}
+		style:opacity={glowOpacity()}
 		style:filter="blur({blurRadius}px)"
 	></div>
 
@@ -404,7 +387,7 @@
 	<div
 		class={innerClasses()}
 		style:transform="translateY({verticalOffset}px)"
-		style:opacity={innerOpacity}
+		style:opacity={innerOpacity()}
 	></div>
 
 	<!-- Recording Indicator -->
@@ -438,6 +421,7 @@
 	{:else if !isPressed}
 		<div class="absolute -bottom-8 text-xs text-base-content/60">Press and hold to talk</div>
 	{/if}
+
 </div>
 
 <style>

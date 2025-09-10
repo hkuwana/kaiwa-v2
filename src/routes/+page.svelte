@@ -26,13 +26,13 @@
 		// Revolutionary/New variants (excitement + novelty)
 		variant1: 'The anti-language-learning app.',
 		variant2: 'Language learning for the streets.',
-		variant3: "Practice like you're living there.",
-		variant4: 'Finally. Stress-free conversation practice.',
+		variant3: "5 minutes like you're living there.",
+		variant4: 'Conversation practice.',
 		variant5: 'The app Duolingo fears.',
 		// Innovation variants (breakthrough positioning)
 		variant6: 'Conversation AI that gets you.',
 		variant7: 'Practice real situations safely.',
-		variant8: 'Your Japanese survival trainer.',
+		variant8: 'Your language survival trainer.',
 		variant9: 'AI partner for messy conversations.'
 	};
 
@@ -94,7 +94,6 @@
 		scenarioStore.setScenarioById(scenario.id);
 		selectedScenario = scenario;
 	}
-
 </script>
 
 <svelte:head>
@@ -133,26 +132,28 @@
 		</div>
 	</header>
 	<!-- New Component Showcase Section -->
-	<main class="container mx-auto px-4 py-12 space-y-16">
+	<main class="container mx-auto space-y-16 px-4 py-12">
 		<!-- Section Header -->
-		<div class="text-center max-w-3xl mx-auto">
-			<h2 class="text-4xl font-bold mb-4 text-white">Experience Real Conversations</h2>
-			<p class="text-xl opacity-90 text-white">
-				Practice speaking naturally with AI-powered conversations in multiple languages
+		<div class="mx-auto max-w-3xl text-center">
+			<h2 class="mb-4 text-4xl font-bold text-white">Experience Real Conversations</h2>
+			<p class="text-xl text-white opacity-90">
+				Practice speaking naturally with AI-powered conversations
 			</p>
 		</div>
 
 		<!-- Option 1: Chat Bubble Flow Animation -->
 		<section class="space-y-8">
 			<div class="text-center">
-				<h3 class="text-2xl font-bold mb-3 text-white">💬 Live Conversation Flow</h3>
-				<p class="text-lg opacity-80 text-white">See real conversations happening across different languages</p>
+				<h3 class="mb-3 text-2xl font-bold text-white">💬 Live Conversation Flow</h3>
+				<p class="text-lg text-white opacity-80">
+					See real conversations happening across different languages
+				</p>
 			</div>
 			<ChatBubbleFlow />
 		</section>
 
 		<!-- CTA Section -->
-		<div class="text-center py-8">
+		<div class="py-8 text-center">
 			<UnifiedStartButton
 				{user}
 				{selectedLanguage}
@@ -163,7 +164,7 @@
 				onScenarioChange={handleScenarioChange}
 				onStartClick={trackStartSpeakingClick}
 			/>
-			<p class="mt-4 text-lg opacity-80 text-white">
+			<p class="mt-4 text-lg text-white opacity-80">
 				{#if user && user.id !== 'guest'}
 					Ready to start your next conversation?
 				{:else}
@@ -175,36 +176,40 @@
 		<!-- Option 3: Interactive Scenario Preview -->
 		<section class="space-y-8">
 			<div class="text-center">
-				<h3 class="text-2xl font-bold mb-3 text-white">Choose Your Scenario</h3>
-				<p class="text-lg opacity-80 text-white">Explore different conversation topics and practice situations</p>
+				<div class="mb-3 text-2xl font-bold text-white">Craft Your Adventure</div>
+				<p class="text-lg text-white opacity-80">Explore places, moments, and moods to practice</p>
 			</div>
 			<InteractiveScenarioPreview {selectedLanguage} />
 		</section>
 
 		<!-- Features Grid -->
 		<section class="mt-16">
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+			<div class="grid grid-cols-1 gap-8 md:grid-cols-3">
 				<div class="card border border-base-300/20 bg-base-100/10 shadow-xl backdrop-blur-sm">
 					<div class="card-body text-center">
-						<div class="text-4xl mb-4">🎤</div>
-						<h3 class="text-xl font-bold mb-3 text-white">Real-time Audio</h3>
-						<p class="text-white/80">Practice speaking with instant AI responses using advanced speech technology</p>
+						<div class="mb-4 text-4xl">🤖</div>
+						<h3 class="mb-3 text-xl font-bold text-white">AI Conversation Practice</h3>
+						<p class="text-white/80">
+							Practice natural conversations with intelligent AI tutors that adapt to your level
+						</p>
 					</div>
 				</div>
 
 				<div class="card border border-base-300/20 bg-base-100/10 shadow-xl backdrop-blur-sm">
 					<div class="card-body text-center">
-						<div class="text-4xl mb-4">🌍</div>
-						<h3 class="text-xl font-bold mb-3 text-white">Multiple Languages</h3>
-						<p class="text-white/80">Learn Japanese, Spanish, French, German, and more with native-like pronunciation</p>
+						<div class="mb-4 text-4xl">📈</div>
+						<h3 class="mb-3 text-xl font-bold text-white">Progress Tracking</h3>
+						<p class="text-white/80">
+							Monitor your improvement with detailed feedback and personalized learning paths
+						</p>
 					</div>
 				</div>
 
 				<div class="card border border-base-300/20 bg-base-100/10 shadow-xl backdrop-blur-sm">
 					<div class="card-body text-center">
-						<div class="text-4xl mb-4">🎯</div>
-						<h3 class="text-xl font-bold mb-3 text-white">Practical Scenarios</h3>
-						<p class="text-white/80">Real-world situations from ordering food to job interviews</p>
+						<div class="mb-4 text-4xl">🎯</div>
+						<h3 class="mb-3 text-xl font-bold text-white">Immersive Scenarios</h3>
+						<p class="text-white/80">Place-rich, real moments you’ll actually live</p>
 					</div>
 				</div>
 			</div>

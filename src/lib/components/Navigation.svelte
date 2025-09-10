@@ -2,7 +2,7 @@
 	import ThemeSwitcher from './ThemeSwitcher.svelte';
 	import type { User } from '$lib/server/db/types';
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
-  import { dev } from '$app/environment';
+	import { dev } from '$app/environment';
 
 	const { user }: { user: User | null } = $props();
 	// Get user data from page data
@@ -11,17 +11,17 @@
 		await goto('/');
 	}
 
-  // Dev routes (only shown when running in dev mode)
-  const DEV_LINKS = [
-    { href: '/dev', label: 'Dev Home' },
-    { href: '/dev-instructions', label: 'Dev: Instructions' },
-    { href: '/dev-audiovisualizer', label: 'Dev: Audio Visualizer' },
-    { href: '/dev-messages', label: 'Dev: Messages' },
-    { href: '/dev-conversation', label: 'Dev: Conversations' }
-  ];
+	// Dev routes (only shown when running in dev mode)
+	const DEV_LINKS = [
+		{ href: '/dev', label: 'Dev Home' },
+		{ href: '/dev-instructions', label: 'Dev: Instructions' },
+		{ href: '/dev-audiovisualizer', label: 'Dev: Audio Visualizer' },
+		{ href: '/dev-messages', label: 'Dev: Messages' },
+		{ href: '/dev-conversation', label: 'Dev: Conversations' }
+	];
 </script>
 
-<nav class="navbar bg-neutral text-neutral-content shadow-sm relative z-50">
+<nav class="relative z-50 navbar bg-neutral text-neutral-content shadow-sm">
 	<div class="navbar-start">
 		<div class="dropdown">
 			<div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
@@ -69,7 +69,7 @@
 				<li tabindex="0">
 					<details>
 						<summary class="text-neutral-content">Dev</summary>
-						<ul class="p-2 bg-base-100 rounded-t-none">
+						<ul class="rounded-t-none bg-base-100 p-2">
 							{#each DEV_LINKS as link}
 								<li><a href={link.href}>{link.label}</a></li>
 							{/each}

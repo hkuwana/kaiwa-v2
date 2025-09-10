@@ -68,7 +68,10 @@
 
 	// Check if content needs script generation - prioritize conversation language
 	const needsScripts = $derived(
-		conversationLanguage === 'ja' || conversationLanguage === 'ko' || conversationLanguage === 'zh' || detectLanguage(message.content) !== 'other'
+		conversationLanguage === 'ja' ||
+			conversationLanguage === 'ko' ||
+			conversationLanguage === 'zh' ||
+			detectLanguage(message.content) !== 'other'
 	);
 
 	// Check if message has script data (generated after streaming completion)
@@ -162,7 +165,7 @@
 						{message.content}
 					</div>
 				{/if}
-				
+
 				<!-- Romanization (for any language) -->
 				{#if message.romanization}
 					<div class="text-sm italic opacity-70">
@@ -187,7 +190,7 @@
 		{#if showTranslation && (isMessageTranslated(message) || translation?.translatedContent) && (!needsScripts || !hasScriptDataFlag)}
 			<!-- Visual separator -->
 			<div class="divider my-2 {borderClass}"></div>
-			
+
 			<!-- Translation content -->
 			<div class="space-y-2">
 				<!-- Main translation with language emoji -->

@@ -268,6 +268,28 @@
 				<li><strong>Cloud infrastructure</strong> - Secure hosting and database services</li>
 			</ul>
 
+			<h3>OpenAI Data Sharing for Free Users</h3>
+			<p>
+				<strong>Free Tier Users:</strong> To operate and sustain our free tier, we may share certain data 
+				with OpenAI in accordance with OpenAI's privacy policy and data usage terms. This data sharing 
+				helps us maintain the free service while managing operational costs. The shared data may include:
+			</p>
+			<ul>
+				<li>Conversation content and messages exchanged with AI tutors</li>
+				<li>Learning interaction data and educational content usage</li>
+				<li>Language practice sessions and AI-generated feedback</li>
+			</ul>
+			<p>
+				<strong>Premium Users:</strong> Premium subscription users have enhanced data protection, and 
+				their data is not shared with OpenAI beyond the minimum necessary for service operation.
+			</p>
+			<p>
+				<strong>Opt-Out Option:</strong> Free users can opt out of this data sharing by enabling the 
+				"Enhanced Data Privacy" option in their User Preferences settings. However, opting out may 
+				result in reduced service quality or feature limitations as we may need to limit usage to 
+				maintain operational sustainability.
+			</p>
+
 			<h3>Data Protection</h3>
 			<ul>
 				<li><strong>No selling</strong> - We never sell your personal data to third parties</li>
@@ -294,6 +316,10 @@
 
 			<h3>Privacy Settings</h3>
 			<ul>
+				<li>
+					<strong>Enhanced Data Privacy</strong> - Free users can opt out of OpenAI data sharing 
+					through this setting in User Preferences (may result in feature limitations)
+				</li>
 				<li>
 					<strong>Analytics opt-out</strong> - Disable PostHog tracking in your account settings
 				</li>

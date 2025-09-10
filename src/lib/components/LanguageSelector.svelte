@@ -162,7 +162,7 @@
 					{#if viewingSpeakersFor}
 						Choose Speaker for {viewingSpeakersFor.name}
 					{:else}
-						🌍 Choose Practice Language
+						Choose Practice Language
 					{/if}
 				</h3>
 			</div>
@@ -177,7 +177,6 @@
 							class="group btn my-1 flex w-full items-center justify-between rounded-xl px-4 py-3 text-left btn-ghost transition-colors duration-150 hover:bg-base-200/50"
 							class:bg-primary={selectedSpeaker === speaker.id}
 							class:text-primary-content={selectedSpeaker === speaker.id}
-							class:hover:bg-primary={selectedSpeaker === speaker.id}
 						>
 							<div class="flex items-center gap-3">
 								<span class="text-xl">{getGenderIcon(speaker.gender)}</span>
@@ -211,7 +210,6 @@
 							class="group btn my-1 flex w-full items-center justify-between rounded-xl px-4 py-3 text-left btn-ghost transition-colors duration-150 hover:bg-base-200/50"
 							class:bg-primary={selectedLanguage?.code === language.code}
 							class:text-primary-content={selectedLanguage?.code === language.code}
-							class:hover:bg-primary={selectedLanguage?.code === language.code}
 						>
 							<div class="flex items-center gap-3">
 								<span class="text-xl">{language.flag || '🌍'}</span>

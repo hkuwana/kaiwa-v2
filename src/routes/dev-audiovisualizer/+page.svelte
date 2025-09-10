@@ -6,6 +6,7 @@
 	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
 	import { realtimeService } from '$lib/services';
 	import { DEFAULT_VOICE, type Voice } from '$lib/types/openai.realtime.types';
+	import { page } from '$app/state';
 
 	// Demo state
 	let isRecording = $state(false);
