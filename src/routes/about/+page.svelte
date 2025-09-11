@@ -71,20 +71,21 @@
 				<h2 class="mb-6 text-3xl font-bold">The Problem</h2>
 				<div class="space-y-4 leading-relaxed">
 					<p>
-						I always loved learning languages, but I was never good at it. Tried Duolingo, took classes, 
-						but I never built real confidence until I actually talked to native speakers. Even though I 
-						grew up bilingual in Japanese and Chinese, my first foreign language breakthrough came with Chinese.
+						I always loved learning languages, but I was never good at it. Tried Duolingo, took
+						classes, but I never built real confidence until I actually talked to native speakers.
+						Even though I grew up bilingual in Japanese and Chinese, my first foreign language
+						breakthrough came with Chinese.
 					</p>
 					<p>
-						Within 2 months of living in Taiwan, something clicked. I became conversational, played 
-						Mahjong with my host family, talked about life and school. It wasn't because I suddenly 
-						mastered grammar rules—it was because I fell in love with the learning process through 
+						Within 2 months of living in Taiwan, something clicked. I became conversational, played
+						Mahjong with my host family, talked about life and school. It wasn't because I suddenly
+						mastered grammar rules—it was because I fell in love with the learning process through
 						real conversations.
 					</p>
 					<p>
-						That's when I realized: each language is like an opening to an experience. Sure, you need 
-						to memorize vocabulary sometimes, but the most important part is building the confidence 
-						to actually use it with real people.
+						That's when I realized: each language is like an opening to an experience. Sure, you
+						need to memorize vocabulary sometimes, but the most important part is building the
+						confidence to actually use it with real people.
 					</p>
 					<p class="font-semibold">
 						Most language apps prepare you for tests, not for touching people's hearts.
@@ -101,18 +102,18 @@
 			>
 				<div class="space-y-4 leading-relaxed">
 					<p>
-						Kaiwa is a language learning site with AI conversations designed for people who want to 
-						build real communication skills. We focus on the conversations that actually matter—the 
+						Kaiwa is a language learning site with AI conversations designed for people who want to
+						build real communication skills. We focus on the conversations that actually matter—the
 						ones that create connections and memories.
 					</p>
 					<p>
-						AI will soon translate business emails and basic interactions for us. But when you're 
-						chatting in an izakaya in Tokyo, sharing stories at a tapas bar in Granada, or connecting 
-						with your in-laws in their native tongue—that's when you touch people's hearts, not just 
-						their minds.
+						AI will soon translate business emails and basic interactions for us. But when you're
+						chatting in an izakaya in Tokyo, sharing stories at a tapas bar in Granada, or
+						connecting with your in-laws in their native tongue—that's when you touch people's
+						hearts, not just their minds.
 					</p>
 					<p class="font-semibold">
-						These heart-to-heart moments are what keep the human parts of communication alive, and 
+						These heart-to-heart moments are what keep the human parts of communication alive, and
 						that's what we're here to help you build.
 					</p>
 				</div>
@@ -128,7 +129,7 @@
 				>
 					<h3 class="font-semibold-content mb-4 text-xl">Real Conversations</h3>
 					<p class="">
-						Practice the scenarios that actually happen: meeting your partner's parents, sharing 
+						Practice the scenarios that actually happen: meeting your partner's parents, sharing
 						personal stories, navigating emotional moments with warmth and authenticity.
 					</p>
 				</div>
@@ -137,7 +138,7 @@
 				>
 					<h3 class="font-semibold-content mb-4 text-xl">Conversation-First</h3>
 					<p class="">
-						Skip the streaks and points. Focus on building the confidence to speak naturally in 
+						Skip the streaks and points. Focus on building the confidence to speak naturally in
 						situations that matter to you and your relationships.
 					</p>
 				</div>
@@ -146,7 +147,7 @@
 				>
 					<h3 class="font-semibold-content mb-4 text-xl">Learning Through Connection</h3>
 					<p class="">
-						We're preparing you for the beautiful, messy reality of human connection—not just 
+						We're preparing you for the beautiful, messy reality of human connection—not just
 						passing tests or completing lessons.
 					</p>
 				</div>
@@ -161,18 +162,19 @@
 				<h2 class="mb-6 text-3xl font-bold">Why This Matters</h2>
 				<div class="space-y-4 leading-relaxed">
 					<p>
-						Language learning isn't really about the language—it's about the doors it opens. When 
-						you can laugh with strangers at a local cafe, comfort someone in their mother tongue, or 
-						share your thoughts without needing translation, you create experiences that stick with you.
+						Language learning isn't really about the language—it's about the doors it opens. When
+						you can laugh with strangers at a local cafe, comfort someone in their mother tongue, or
+						share your thoughts without needing translation, you create experiences that stick with
+						you.
 					</p>
 					<p>
-						We believe the people who use Kaiwa won't just "know" a language—they'll live it. They'll 
-						build relationships that wouldn't have existed otherwise and create memories that make all 
-						the practice worth it.
+						We believe the people who use Kaiwa won't just "know" a language—they'll live it.
+						They'll build relationships that wouldn't have existed otherwise and create memories
+						that make all the practice worth it.
 					</p>
 					<p class="text-lg font-semibold">
-						Because the best part of learning a language isn't the learning—it's what becomes possible 
-						afterward.
+						Because the best part of learning a language isn't the learning—it's what becomes
+						possible afterward.
 					</p>
 				</div>
 			</div>
@@ -181,7 +183,7 @@
 		<!-- Call to Action -->
 		<div class="text-center">
 			<div
-				class="mx-auto max-w-2xl rounded-2xl border border-primary/20 bg-secondary/30 p-8 text-secondary-content backdrop-blur-sm"
+				class="mx-auto max-w-2xl rounded-2xl border border-primary/20 bg-secondary/30 p-8 text-secondary-content"
 			>
 				<h2 class="mb-4 text-2xl font-bold">Ready to start exploring?</h2>
 				<p class="mb-6">

@@ -18,7 +18,8 @@
 		{ href: '/dev-audiovisualizer', label: 'Dev: Audio Visualizer' },
 		{ href: '/dev-messages', label: 'Dev: Messages' },
 		{ href: '/dev-conversation', label: 'Dev: Conversations' },
-		{ href: '/dev-marketing', label: 'Dev: Marketing' }
+		{ href: '/dev-marketing', label: 'Dev: Marketing' },
+		{ href: 'dev-animated', label: 'animated' }
 	];
 </script>
 
