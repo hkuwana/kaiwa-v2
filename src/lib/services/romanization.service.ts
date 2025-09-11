@@ -88,15 +88,44 @@ export async function generateRomanizationClient(
 			break;
 		case 'zh':
 			if (isChineseText(text)) {
-				// Use our lightweight client-side pinyin
+				// Try server-side pinyin API first (more accurate)
 				try {
-					const { pinyinize } = await import('$lib/utils/chinese-pinyin');
-					const pinyinStr = pinyinize(text);
-					result.romanization = pinyinStr.charAt(0).toUpperCase() + pinyinStr.slice(1);
-					result.pinyin = pinyinStr;
+					const response = await fetch('/api/pinyin', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							text,
+							messageId: `client-chinese-${Date.now()}`
+						})
+					});
+
+					if (response.ok) {
+						const serverResult = await response.json();
+						result.romanization = serverResult.romanization;
+						result.pinyin = serverResult.pinyin;
+						result.otherScripts = serverResult.otherScripts;
+						break; // Success - exit case
+					}
+				} catch (apiError) {
+					console.warn('Server-side pinyin API failed, using client fallback:', apiError);
+				}
+
+				// Fallback to lightweight client-side pinyin
+				try {
+					const { pinyinize, pinyinWithTones } = await import('$lib/utils/chinese-pinyin');
+					const pinyinPlainStr = pinyinize(text);
+					const pinyinWithTonesStr = pinyinWithTones(text);
+					result.romanization = pinyinPlainStr.charAt(0).toUpperCase() + pinyinPlainStr.slice(1);
+					result.pinyin = pinyinWithTonesStr;
+					result.otherScripts = {
+						pinyin: pinyinWithTonesStr,
+						pinyinPlain: pinyinPlainStr
+					};
 				} catch (error) {
 					console.error('Client-side pinyin failed:', error);
-					result.pinyin = text; // Fallback
+					result.pinyin = text; // Final fallback
 				}
 			}
 			break;

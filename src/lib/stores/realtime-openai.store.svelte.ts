@@ -76,8 +76,55 @@ export class RealtimeOpenAIStore {
 	}
 
 	// Process individual server event in proper order
-	private async processServerEventOrdered(serverEvent: any) {
-		const processed = realtimeService.processServerEvent(serverEvent);
+  private async processServerEventOrdered(serverEvent: any) {
+    // Inject a user placeholder as soon as VAD fires so ordering feels natural
+    try {
+      if (serverEvent?.type === 'input_audio_buffer.speech_started') {
+        // Only add one placeholder per utterance
+        const hasPlaceholder = this.messages.some(
+          (m) =>
+            m.role === 'user' &&
+            (m.id.startsWith('user_placeholder_') ||
+              m.id.startsWith('user_transcribing_') ||
+              m.id.startsWith('user_partial_'))
+        );
+        if (!hasPlaceholder) {
+          const ts = typeof serverEvent?.audio_start_ms === 'number'
+            ? Date.now() // we don't have an absolute start time; use now for ordering
+            : Date.now();
+          const ph = messageService.createUserPlaceholder(this.sessionId, ts);
+          // Immediately show an ellipsis until transcription arrives
+          const withPh = messageService.removeDuplicateMessages(
+            messageService.sortMessagesBySequence([...this.messages, ph])
+          );
+          this.messages = messageService.updatePlaceholderWithPartial(withPh, '...');
+          // Notify listeners so UI mirrors now, before assistant output arrives
+          this.emitMessage({
+            itemId: 'vad-user-placeholder',
+            role: 'user',
+            text: '',
+            delta: true,
+            final: false
+          });
+        }
+      } else if (serverEvent?.type === 'input_audio_buffer.speech_stopped') {
+        // Optionally flip the placeholder into a transcribing state while we wait
+        this.messages = messageService.updatePlaceholderToTranscribing(this.messages);
+        // Ping listeners to mirror updated state
+        this.emitMessage({
+          itemId: 'vad-user-transcribing',
+          role: 'user',
+          text: '',
+          delta: true,
+          final: false
+        });
+      }
+    } catch (err) {
+      // Non-fatal; continue normal processing
+      if (this.debug) console.debug('[realtime] placeholder hook error:', err);
+    }
+
+    const processed = realtimeService.processServerEvent(serverEvent);
 
 		if (serverEvent.type === 'session.created' || serverEvent.type === 'session.updated') {
 			this.isConnected = true;
