@@ -8,7 +8,11 @@
 	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
 	import { trackABTest } from '$lib/analytics/posthog';
 	import type { Language as DataLanguage } from '$lib/data/languages';
+	import { languages as allLanguages } from '$lib/data/languages';
+	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import type { Scenario } from '$lib/server/db/types';
+	import { dev } from '$app/environment';
 
 	// Get user data from page data
 	const user = userManager.user;
@@ -40,6 +44,21 @@
 	// Random headline selection - Don Draper's approach
 	let headlineVariant = $state('main');
 	let headlineText = $state(headlineVariants.main);
+
+	// Rotating language subtitle (for visual cue)
+	const featuredCodes = ['ja', 'es', 'ko', 'zh'];
+	const featuredLanguages = allLanguages.filter((l) => featuredCodes.includes(l.code));
+	let rotateIndex = $state(0);
+	let rotatingLanguage = $state(featuredLanguages[0]);
+	if (browser) {
+		onMount(() => {
+			const id = setInterval(() => {
+				rotateIndex = (rotateIndex + 1) % featuredLanguages.length;
+				rotatingLanguage = featuredLanguages[rotateIndex];
+			}, 2200);
+			return () => clearInterval(id);
+		});
+	}
 
 	// Initialize random A/B test on client side
 	if (browser) {
@@ -107,16 +126,21 @@
 		<div class="text-center">
 			<div class="max-w-md">
 				<h1 class="  text-5xl font-bold">Kaiwa</h1>
-				<h4 class="  text-2xl font-medium opacity-90">
-					{headlineText}
-				</h4>
+					<h4 class="  text-2xl font-medium opacity-90">
+						{headlineText}
+					</h4>
+					<div class="mt-2 text-lg opacity-80">
+						{#key rotatingLanguage.code}
+							<span transition:fade>Speak in <span class="font-semibold">{rotatingLanguage.name}</span> {rotatingLanguage.flag}</span>
+						{/key}
+					</div>
 
 				{#if user.id !== 'guest'}
 					<div class="mb-6 text-xl opacity-90">
 						Welcome back, {user ? user.displayName : 'Dev'}!
 					</div>
 				{:else}
-					<p class="mb-6 text-xl opacity-90">Learn languages through AI-assisted conversations</p>
+					<p class="mb-6 text-xl opacity-90">Practice real conversations for relationships and family — quick 3‑minute onboarding.</p>
 				{/if}
 
 				<UnifiedStartButton
@@ -132,6 +156,37 @@
 			</div>
 		</div>
 	</header>
+
+	<!-- Quick value props strip -->
+	<section class="border-y border-white/10 bg-secondary/20 py-6 text-white/90">
+		<div class="container mx-auto grid max-w-5xl grid-cols-1 gap-4 px-4 md:grid-cols-3">
+			<div>
+				<div class="text-sm font-semibold uppercase tracking-wide">Who it's for</div>
+				<div class="text-base opacity-90">Couples across languages • Diaspora families</div>
+			</div>
+			<div>
+				<div class="text-sm font-semibold uppercase tracking-wide">How it works</div>
+				<div class="text-base opacity-90">3‑minute onboarding • Personalized scenarios • Quick daily chats</div>
+			</div>
+			<div>
+				<div class="text-sm font-semibold uppercase tracking-wide">What users say</div>
+				<div class="text-base italic opacity-90">“Kaiwa is like WD‑40 for being rusty at a language.” — Scott H.</div>
+			</div>
+		</div>
+	</section>
+
+	{#if dev}
+	<!-- Dev-only demo video slot -->
+	<section class="container mx-auto max-w-3xl px-4 py-8">
+		<div class="rounded-xl border border-white/10 bg-secondary/20 p-4 text-white/80">
+			<div class="mb-2 text-sm uppercase tracking-wide">Demo (dev only)</div>
+			<video class="w-full rounded-lg" src="/demo.mp4" controls preload="metadata">
+				Sorry, add your demo video to static/demo.mp4
+			</video>
+			<p class="mt-2 text-xs opacity-70">Place your demo at static/demo.mp4. Hidden in production.</p>
+		</div>
+	</section>
+	{/if}
 	<!-- New Component Showcase Section -->
 	<main class="container mx-auto space-y-16 px-4 py-12">
 		<!-- Section Header -->

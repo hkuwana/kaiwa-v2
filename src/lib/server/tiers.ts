@@ -2,6 +2,7 @@
 // This file contains tier configurations that should only be accessible server-side
 
 import type { Tier, UserTier } from './db/types';
+import { env } from '$env/dynamic/private';
 
 // Default tier configurations - server-side only
 export const serverTierConfigs: Record<UserTier, Tier> = {
@@ -175,14 +176,19 @@ export function getStripePriceId(
 
 // Helper to get all available Stripe price IDs
 export function getAllStripePriceIds(): string[] {
-	const priceIds: string[] = [];
+    const priceIds: string[] = [];
 
-	Object.values(serverTierConfigs).forEach((tier) => {
-		if (tier.stripePriceIdMonthly) priceIds.push(tier.stripePriceIdMonthly);
-		if (tier.stripePriceIdAnnual) priceIds.push(tier.stripePriceIdAnnual);
-	});
+    Object.values(serverTierConfigs).forEach((tier) => {
+        if (tier.stripePriceIdMonthly) priceIds.push(tier.stripePriceIdMonthly);
+        if (tier.stripePriceIdAnnual) priceIds.push(tier.stripePriceIdAnnual);
+    });
 
-	return priceIds;
+    // Include optional Early‑Backer price ID via env
+    if (env.STRIPE_EARLY_BACKER_PRICE_ID) {
+        priceIds.push(env.STRIPE_EARLY_BACKER_PRICE_ID);
+    }
+
+    return priceIds;
 }
 
 // Helper to get max memories for a tier

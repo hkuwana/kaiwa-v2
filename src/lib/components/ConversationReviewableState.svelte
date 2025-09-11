@@ -3,6 +3,9 @@
 	import type { Language } from '$lib/server/db/types';
 	import MessageBubble from './MessageBubble.svelte';
 	import { audioStore } from '$lib/stores/audio.store.svelte';
+	import { userManager } from '$lib/stores/user.store.svelte';
+	import ShareKaiwa from '$lib/components/ShareKaiwa.svelte';
+	import { track } from '$lib/analytics/posthog';
 
 	interface Props {
 		messages: Message[];
@@ -32,6 +35,13 @@
 	const assistantMessages = $derived(
 		displayMessages.filter((m: Message) => m.role === 'assistant')
 	);
+
+	const isFree = $derived(userManager.isFree);
+
+	function handleUpsellClick() {
+		track('upsell_banner_clicked', { source: 'conversation_review', tier: userManager.effectiveTier });
+		window.location.href = '/pricing?utm_source=app&utm_medium=upsell&utm_campaign=early_backer';
+	}
 </script>
 
 <div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">
@@ -112,6 +122,20 @@
 					<div class="stat-title">Tutor Responses</div>
 					<div class="stat-value text-accent">{assistantMessages.length}</div>
 				</div>
+			</div>
+		</div>
+
+		<!-- Upsell + Share -->
+		<div class="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+			{#if isFree}
+				<div class="rounded-2xl border border-base-300/60 bg-base-100/70 p-6 shadow-sm">
+					<div class="mb-2 text-lg font-semibold">Early‑backer Plus</div>
+					<p class="mb-4 text-base-content/70">Support the mission and unlock more practice time — $5/mo for 12 months.</p>
+					<button class="btn btn-primary" onclick={handleUpsellClick}>Support + Unlock</button>
+				</div>
+			{/if}
+			<div>
+				<ShareKaiwa source="conversation_review" />
 			</div>
 		</div>
 

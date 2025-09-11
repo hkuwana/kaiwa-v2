@@ -1,10 +1,50 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import UnifiedStartButton from '$lib/components/UnifiedStartButton.svelte';
+	import { userManager } from '$lib/stores/user.store.svelte';
+	import { settingsStore } from '$lib/stores/settings.store.svelte';
+	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
+	import type { Language as DataLanguage } from '$lib/data/languages';
+	import type { Scenario } from '$lib/server/db/types';
+	import { track } from '$lib/analytics/posthog';
+	import ShareKaiwa from '$lib/components/ShareKaiwa.svelte';
 
+	// Page title
 	onMount(() => {
-		// Set page title
 		document.title = 'About - Kaiwa';
 	});
+
+	// Current user
+	const user = userManager.user;
+
+	// Local state for CTA selectors
+	let selectedLanguage = $state<DataLanguage | null>(settingsStore.selectedLanguage);
+	let selectedSpeaker = $state<string | null>(settingsStore.selectedSpeaker);
+	let selectedScenario = $state<Scenario | null>(scenarioStore.getSelectedScenario());
+
+	function handleLanguageChange(language: DataLanguage) {
+		selectedLanguage = language;
+		settingsStore.setLanguageObject(language);
+	}
+
+	function handleSpeakerChange(speakerId: string) {
+		selectedSpeaker = speakerId;
+		settingsStore.setSpeaker(speakerId);
+	}
+
+	function handleScenarioChange(scenario: Scenario) {
+		scenarioStore.setScenarioById(scenario.id);
+		selectedScenario = scenario;
+	}
+
+	function handleAboutStartClick() {
+		track('about_cta_clicked', {
+			source: 'about_page',
+			user_type: user && user.id !== 'guest' ? 'logged_in' : 'guest'
+		});
+	}
+
+
 </script>
 
 <svelte:head>
@@ -102,7 +142,7 @@
 					<h3 class="mb-4 text-xl font-semibold text-primary-content">Survival Focus</h3>
 					<p class="text-gray-300">
 						We're not preparing you for a test. We're preparing you for life. For the messy,
-						chaotic, beautiful reality of actually using Japanese.
+						chaotic, beautiful reality of actually using the language you care about.
 					</p>
 				</div>
 			</div>
@@ -115,8 +155,8 @@
 				<div class="space-y-4 leading-relaxed text-gray-200">
 					<p>
 						Imagine a world where language learning isn't about accumulating knowledge, but about
-						building the confidence to create experiences. Where every conversation you have in
-						Japanese becomes a memory you'll treasure, not just another lesson completed.
+						building the confidence to create experiences. Where every conversation you have in your
+						partner's language becomes a memory you'll treasure, not just another lesson completed.
 					</p>
 					<p>
 						We envision Kaiwa users who don't just "know" a language—they live it. They connect with
@@ -140,12 +180,24 @@
 				<p class="mb-6 text-gray-300">
 					Stop studying. Start surviving. Start creating the experiences that matter.
 				</p>
-				<a
-					href="/"
-					class="inline-block rounded-lg bg-purple-600 px-8 py-3 font-semibold text-white transition-colors duration-200 hover:bg-purple-700"
-				>
-					Try Kaiwa Now
-				</a>
+				<div class="mb-4 text-sm text-gray-300">Try a free 3‑minute onboarding</div>
+				<UnifiedStartButton
+					{user}
+					{selectedLanguage}
+					{selectedSpeaker}
+					{selectedScenario}
+					onLanguageChange={handleLanguageChange}
+					onSpeakerChange={handleSpeakerChange}
+					onScenarioChange={handleScenarioChange}
+					onStartClick={handleAboutStartClick}
+				/>
+			</div>
+		</div>
+
+		<!-- Share Block -->
+		<div class="mt-8 text-center">
+			<div class="mx-auto max-w-2xl">
+				<ShareKaiwa source="about_page" />
 			</div>
 		</div>
 	</div>

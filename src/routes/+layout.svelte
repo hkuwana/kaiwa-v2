@@ -4,7 +4,7 @@
 	import { ConversationStore } from '$lib/stores/conversation.store.svelte';
 	import { setContext, onMount, onDestroy } from 'svelte';
 	import Navigation from '$lib/components/Navigation.svelte';
-	import { initializePostHog, trackPageView } from '$lib/analytics/posthog';
+	import { initializePostHog, trackPageView, posthog, track } from '$lib/analytics/posthog';
 
 	const conversationStore = new ConversationStore();
 
@@ -24,6 +24,41 @@
 
 	onMount(() => {
 		initializePostHog();
+		// Capture UTM params and shareId/ref for attribution
+		try {
+			const params = new URLSearchParams(window.location.search);
+			const utm: Record<string, string> = {};
+			['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach((k) => {
+				const v = params.get(k);
+				if (v) utm[k] = v;
+			});
+			const shareId = params.get('shareId') || params.get('ref');
+
+			// Persist locally for future sessions
+				const existing = localStorage.getItem('kaiwa_attribution');
+				const payload = {
+					utm,
+					shareId: shareId || (existing ? JSON.parse(existing).shareId : null),
+					ts: Date.now()
+				};
+				localStorage.setItem('kaiwa_attribution', JSON.stringify(payload));
+
+				// Also persist shareId to cookie for cross-path navigation before signup
+				if (payload.shareId) {
+					document.cookie = `kaiwa_share_id=${encodeURIComponent(payload.shareId)}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
+				}
+
+			// Register as PostHog super properties if available
+			if (posthog) {
+				posthog.register({ ...utm, share_id: payload.shareId });
+				if (payload.shareId) {
+					track('share_referred_visit', { share_id: payload.shareId });
+				}
+			}
+		} catch (e) {
+			console.warn('Attribution capture failed', e);
+		}
+
 		trackPageView();
 		console.log('🔄 ConversationStore mounted');
 		return () => {

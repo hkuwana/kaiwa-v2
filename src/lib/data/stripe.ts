@@ -2,6 +2,7 @@
 // Centralized configuration for all Stripe-related settings
 
 import { dev } from '$app/environment';
+import { env as publicEnv } from '$env/dynamic/public';
 
 // Environment-aware price IDs (dev vs prod)
 export const STRIPE_PRICE_IDS = {
@@ -60,7 +61,8 @@ export function getPriceId(tier: 'plus' | 'premium', billingCycle: 'monthly' | '
 
 export function isValidPriceId(priceId: string): boolean {
 	const priceArray = Object.values(STRIPE_PRICES) as string[];
-	return priceArray.includes(priceId);
+	const eb = publicEnv.PUBLIC_STRIPE_EARLY_BACKER_PRICE_ID;
+	return priceArray.includes(priceId) || (!!eb && priceId === eb);
 }
 
 // Tier detection from price ID
@@ -80,7 +82,15 @@ export function getTierFromPriceId(priceId: string): 'plus' | 'premium' | 'unkno
 	}
 	if (priceId.includes('premium')) return 'premium';
 	if (priceId.includes('plus')) return 'plus';
+	// Early‑backer maps to plus unless specified otherwise
+	if (publicEnv.PUBLIC_STRIPE_EARLY_BACKER_PRICE_ID && priceId === publicEnv.PUBLIC_STRIPE_EARLY_BACKER_PRICE_ID) {
+		return 'plus';
+	}
 	return 'unknown';
+}
+
+export function getEarlyBackerPriceId(): string | null {
+	return publicEnv.PUBLIC_STRIPE_EARLY_BACKER_PRICE_ID || null;
 }
 
 // Billing cycle detection from price ID

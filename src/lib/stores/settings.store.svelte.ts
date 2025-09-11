@@ -133,9 +133,9 @@ export class SettingsStore {
 				console.log('🌍 No stored language found');
 			}
 
-			// If no stored language, set default
+			// If no stored language, set default (Japanese-first for launch)
 			if (!this.selectedLanguage) {
-				const defaultLanguage = allLanguages.find((lang) => lang.code === 'en');
+				const defaultLanguage = allLanguages.find((lang) => lang.code === 'ja');
 				if (defaultLanguage) {
 					this.selectedLanguage = defaultLanguage;
 					console.log('🌍 Setting default language:', defaultLanguage.name);
@@ -151,7 +151,7 @@ export class SettingsStore {
 			console.log('✅ Settings initialization complete');
 		} else {
 			// Server-side: set default language
-			const defaultLanguage = allLanguages.find((lang) => lang.code === 'en');
+			const defaultLanguage = allLanguages.find((lang) => lang.code === 'ja');
 			if (defaultLanguage) {
 				this.selectedLanguage = defaultLanguage;
 			}

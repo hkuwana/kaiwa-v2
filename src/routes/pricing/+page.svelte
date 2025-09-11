@@ -6,6 +6,7 @@
 	import { SubscriptionTier } from '$lib/enums.js';
 	import { defaultTierConfigs } from '$lib/data/tiers';
 	import { formatPrice, calculateAnnualDiscount } from '$lib/client/stripe.service';
+  import { env as publicEnv } from '$env/dynamic/public';
 
 	// Get page data from server using runes
 	const { data } = $props();
@@ -166,6 +167,30 @@
 	];
 	let expandedFaq = $state(-1);
 
+	// Early‑Backer price id (optional)
+	const earlyBackerPriceId = $state(publicEnv.PUBLIC_STRIPE_EARLY_BACKER_PRICE_ID || '');
+
+	async function handleEarlyBackerCheckout() {
+		if (!userManager.isLoggedIn) {
+			await goto('/auth');
+			return;
+		}
+		if (!earlyBackerPriceId) return;
+		try {
+			const res = await fetch('/api/stripe/checkout', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ priceId: earlyBackerPriceId, successPath: '/profile', cancelPath: '/pricing' })
+			});
+			const data = await res.json();
+			if (data?.url) {
+				window.location.href = data.url;
+			}
+		} catch (e) {
+			console.warn('Early‑Backer checkout failed', e);
+		}
+	}
+
 	onMount(() => {
 		const interval = setInterval(() => {
 			currentTestimonial = (currentTestimonial + 1) % testimonials.length;
@@ -314,6 +339,14 @@
 			{/if}
 		</div>
 	</div>
+
+	{#if earlyBackerPriceId}
+	<div class="mx-auto mb-10 max-w-5xl rounded-2xl border-2 border-success/40 bg-success/5 p-6 text-center">
+		<div class="mb-2 text-lg font-semibold">Early‑Backer</div>
+		<p class="mb-4 text-base-content/70">Support the mission and unlock more practice time — $5/mo for 12 months.</p>
+		<button class="btn btn-success" onclick={handleEarlyBackerCheckout}>Support + Unlock</button>
+	</div>
+	{/if}
 
 	<div class="mt-24">
 		<h2 class="mb-10 text-center text-3xl font-bold">Feature Comparison</h2>

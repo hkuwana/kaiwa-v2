@@ -118,8 +118,27 @@
 						}
 					} else {
 						if (browser) {
+							// Pull attribution from localStorage/cookie
+							let shareId: string | null = null;
+							try {
+								const stored = localStorage.getItem('kaiwa_attribution');
+								if (stored) {
+									shareId = JSON.parse(stored).shareId || null;
+								}
+								if (!shareId) {
+									const m = document.cookie.match(/(?:^|; )kaiwa_share_id=([^;]*)/);
+									shareId = m ? decodeURIComponent(m[1]) : null;
+								}
+							} catch {}
+							let utm: any = {};
+							try {
+								const stored = localStorage.getItem('kaiwa_attribution');
+								if (stored) utm = JSON.parse(stored).utm || {};
+							} catch {}
 							posthog.capture('auth_form_success', {
-								method: isLogin ? 'login' : 'signup'
+								method: isLogin ? 'login' : 'signup',
+								share_id: shareId,
+								...utm
 							});
 						}
 						await update();
