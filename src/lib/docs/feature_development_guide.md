@@ -168,7 +168,7 @@ export class ConversationStore {
 
 <!-- Declarative UI based on state -->
 {#if status === 'idle'}
-	<button on:click={handleStart}>Start Conversation</button>
+	<button onclick={handleStart}>Start Conversation</button>
 {:else if status === 'connected'}
 	<p>Connected! Ready to start.</p>
 {:else if status === 'error'}

@@ -40,7 +40,7 @@
 			<label class="text-sm text-gray-600">Language ID (optional)</label>
 			<input class="w-48 rounded border p-2" placeholder="e.g., ja, es" bind:value={languageId} />
 		</div>
-		<button class="rounded bg-blue-600 px-3 py-2 text-white" on:click={loadConversations}>
+		<button class="rounded bg-blue-600 px-3 py-2 text-white" onclick={loadConversations}>
 			Refresh
 		</button>
 	</div>

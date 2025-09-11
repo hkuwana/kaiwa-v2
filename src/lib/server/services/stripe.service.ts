@@ -166,6 +166,9 @@ export class StripeService {
 		}
 
 		// Check price ID pattern
+		if (env.STRIPE_EARLY_BACKER_PRICE_ID && price.id === env.STRIPE_EARLY_BACKER_PRICE_ID) {
+			return 'plus';
+		}
 		if (price.id.includes('premium')) return 'premium';
 		if (price.id.includes('plus')) return 'plus';
 

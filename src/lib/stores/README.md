@@ -80,7 +80,7 @@ export class ScenarioStore {
 <!-- Component only uses props -->
 <div class="scenario-selector">
   {#each scenarios as scenario}
-    <div on:click={() => onScenarioSelect(scenario)}>
+    <div onclick={() => onScenarioSelect(scenario)}>
       {scenario.title}
     </div>
   {/each}

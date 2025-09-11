@@ -359,7 +359,7 @@ Main conversation interface:
 		<!-- Status-based UI rendering -->
 		{#if status === 'idle' || status === 'error'}
 			<div class="card my-8 border border-base-300 bg-base-100 p-8 text-center shadow-lg">
-				<button on:click={handleStart} class="btn btn-lg btn-primary"> Start Conversation </button>
+				<button onclick={handleStart} class="btn btn-lg btn-primary"> Start Conversation </button>
 				{#if error}
 					<div class="mt-4 alert alert-error">
 						<span>Something went wrong: {error}</span>
@@ -371,7 +371,7 @@ Main conversation interface:
 		{:else if status === 'connected'}
 			<div class="card my-8 border border-base-300 bg-base-100 p-8 text-center shadow-lg">
 				<p class="mb-4 text-xl text-success">Connected! Ready to start streaming.</p>
-				<button on:click={handleEnd} class="btn btn-lg btn-error"> End Conversation </button>
+				<button onclick={handleEnd} class="btn btn-lg btn-error"> End Conversation </button>
 			</div>
 		{/if}
 

@@ -232,9 +232,9 @@ UI components are thin and declarative, focusing on presentation:
 
 <!-- Declarative UI based on state -->
 {#if status === 'idle'}
-	<button on:click={handleStart}>Start Conversation</button>
+	<button onclick={handleStart}>Start Conversation</button>
 {:else if status === 'connected'}
-	<button on:click={handleEnd}>End Conversation</button>
+	<button onclick={handleEnd}>End Conversation</button>
 {/if}
 ```
 

@@ -22,7 +22,7 @@
 	];
 </script>
 
-<nav class="relative z-50 navbar bg-neutral text-neutral-content shadow-sm">
+<nav class="relative z-50 navbar bg-base-100 shadow-sm">
 	<div class="navbar-start">
 		<div class="dropdown">
 			<div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
@@ -45,33 +45,33 @@
 				tabindex="0"
 				class="dropdown-content menu z-[60] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
 			>
-				<li><a href="/about" class="text-neutral-content">About</a></li>
-				<li><a href="/pricing" class="text-neutral-content">Pricing</a></li>
-				<li><a href="/privacy" class="text-neutral-content">Privacy</a></li>
+				<li><a href="/about" class="">About</a></li>
+				<li><a href="/pricing" class="">Pricing</a></li>
+				<li><a href="/privacy" class="">Privacy</a></li>
 				{#if user && user.id !== 'guest'}
-					<li><a href="/profile" class="text-neutral-content">Profile</a></li>
+					<li><a href="/profile" class="">Profile</a></li>
 				{/if}
 
 				{#if dev}
 					<li class="menu-title"><span>Dev</span></li>
 					{#each DEV_LINKS as link}
-						<li><a href={link.href} class="text-neutral-content">{link.label}</a></li>
+						<li><a href={link.href} class="">{link.label}</a></li>
 					{/each}
 				{/if}
 			</ul>
 		</div>
 		<button onclick={handleHome} class="btn text-xl btn-ghost">Kaiwa</button>
 	</div>
-	<div class="navbar-center hidden lg:flex">
+	<div class="navbar-center hidden lg:flex items-center">
 		<ul class="menu menu-horizontal px-1">
-			<li><a href="/about" class="text-neutral-content">About</a></li>
-			<li><a href="/pricing" class="text-neutral-content">Pricing</a></li>
-			<li><a href="/privacy" class="text-neutral-content">Privacy</a></li>
+			<li><a href="/about" class="">About</a></li>
+			<li><a href="/pricing" class="">Pricing</a></li>
+			<li><a href="/privacy" class="">Privacy</a></li>
 
 			{#if dev}
 				<li tabindex="0">
 					<details>
-						<summary class="text-neutral-content">Dev</summary>
+						<summary class="">Dev</summary>
 						<ul class="rounded-t-none bg-base-100 p-2">
 							{#each DEV_LINKS as link}
 								<li><a href={link.href}>{link.label}</a></li>
@@ -92,7 +92,7 @@
 							<img alt="User avatar" src={user.avatarUrl} />
 						</div>
 					{:else}
-						<div class="w-24 rounded-full bg-primary text-neutral-content">
+						<div class="w-24 rounded-full bg-primary">
 							<span class="text-3xl">{user.displayName?.slice(0, 1).toUpperCase()}</span>
 						</div>
 					{/if}
@@ -101,13 +101,13 @@
 					tabindex="0"
 					class="dropdown-content menu z-[60] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
 				>
-					<li><a href="/conversation" class="text-neutral-content">Start Practice</a></li>
-					<li><a href="/profile" class="text-neutral-content">Profile</a></li>
-					<li><a href="/logout" class="text-neutral-content">Logout</a></li>
+					<li><a href="/conversation" class="">Start Practice</a></li>
+					<li><a href="/profile" class="">Profile</a></li>
+					<li><a href="/logout" class="">Logout</a></li>
 				</ul>
 			</div>
 		{:else}
-			<a href="/auth" class="btn btn-outline btn-primary">Get Started</a>
+			<a href="/auth" class="btn btn-outline">Get Started</a>
 		{/if}
 		<ThemeSwitcher />
 	</div>

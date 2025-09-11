@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import RotatingLanguages from '$lib/components/RotatingLanguages.svelte';
+	import ShareKaiwa from '$lib/components/ShareKaiwa.svelte';
+	import { languages as allLanguages } from '$lib/data/languages';
+	import { env as publicEnv } from '$env/dynamic/public';
 
 	type Task = { id: string; label: string; done: boolean };
 	const STORAGE_KEY = 'kaiwa_marketing_tasks_v1';
@@ -53,6 +57,36 @@
 	}
 	function goAbout() {
 		goto('/about');
+	}
+
+	// Component samples
+	const sampleLabels = allLanguages
+		.filter((l) => ['ja', 'es', 'ko', 'zh'].includes(l.code))
+		.map((l) => `${l.name} ${l.flag}`);
+
+	const earlyBackerPriceId = publicEnv.PUBLIC_STRIPE_EARLY_BACKER_PRICE_ID || '';
+	async function testEarlyBackerCheckout() {
+		if (!earlyBackerPriceId) return alert('Set PUBLIC_STRIPE_EARLY_BACKER_PRICE_ID');
+		try {
+			const res = await fetch('/api/stripe/checkout', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					priceId: earlyBackerPriceId,
+					successPath: '/profile',
+					cancelPath: '/pricing'
+				})
+			});
+			const data = await res.json();
+			if (data?.url) {
+				window.location.href = data.url;
+			} else {
+				alert('Checkout creation failed. See console.');
+				console.log('Checkout response', data);
+			}
+		} catch (e) {
+			console.warn(e);
+		}
 	}
 </script>
 
@@ -129,6 +163,106 @@
 					Tip: Add PUBLIC_STRIPE_EARLY_BACKER_PRICE_ID to .env and test checkout.
 				</div>
 			</div>
+		</div>
+
+		<div class="mt-8 rounded-xl bg-base-100 p-5 shadow">
+			<div class="mb-4 text-lg font-semibold">Component Testbed</div>
+			<div class="mb-6">
+				<div class="mb-2 text-sm uppercase tracking-wide text-base-content/60">Rotating Languages</div>
+				<div class="text-lg">Speak in <RotatingLanguages items={sampleLabels} /></div>
+			</div>
+			<div class="mb-6">
+				<div class="mb-2 text-sm uppercase tracking-wide text-base-content/60">Share Module</div>
+				<ShareKaiwa source="dev_marketing" />
+			</div>
+			<div>
+				<div class="mb-2 text-sm uppercase tracking-wide text-base-content/60">Early‑Backer Checkout</div>
+				<div class="mb-2 text-xs">PUBLIC_STRIPE_EARLY_BACKER_PRICE_ID: <code>{earlyBackerPriceId || '(unset)'}</code></div>
+				<button class="btn btn-primary" onclick={testEarlyBackerCheckout} disabled={!earlyBackerPriceId}>Start Test Checkout</button>
+			</div>
+		</div>
+
+		<!-- Detailed Timeline -->
+		<div class="mt-8 rounded-xl bg-base-100 p-5 shadow">
+			<div class="mb-4 text-lg font-semibold">Launch Timeline (2.5 Weeks)</div>
+			<ul class="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical">
+				<li>
+					<div class="timeline-middle">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5">
+							<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+						</svg>
+					</div>
+					<div class="timeline-start mb-10 md:text-end">
+						<time class="font-mono italic">Week 0–0.5</time>
+						<div class="text-lg font-black">Messaging + Instrumentation</div>
+						- Home/About: Who it’s for, How it works, JP‑first default<br />
+						- AB headlines: 3 emotional variants live<br />
+						- UTM + shareId capture to PostHog; cookie + localStorage persistence
+					</div>
+					<hr />
+				</li>
+				<li>
+					<hr />
+					<div class="timeline-middle">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5">
+							<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+						</svg>
+					</div>
+					<div class="timeline-end md:mb-10">
+						<time class="font-mono italic">Week 1</time>
+						<div class="text-lg font-black">Warm Start + Seeding</div>
+						- Email #1 (founder story) → 3‑minute onboarding CTA + gentle share ask<br />
+						- Reddit founder story + 30–45s demo (link in comments; disclose self‑promo)
+					</div>
+					<hr />
+				</li>
+				<li>
+					<hr />
+					<div class="timeline-middle">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5">
+							<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+						</svg>
+					</div>
+					<div class="timeline-start mb-10 md:text-end">
+						<time class="font-mono italic">Week 1.5</time>
+						<div class="text-lg font-black">Activation + Practical Content</div>
+						- Reddit practical post (handling emotional convos); link in comments<br />
+						- In‑product share prompt + serene thanks animation live<br />
+						- Capture 2–3 authentic quotes (with permission) for Home
+					</div>
+					<hr />
+				</li>
+				<li>
+					<hr />
+					<div class="timeline-middle">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5">
+							<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+						</svg>
+					</div>
+					<div class="timeline-end md:mb-10">
+						<time class="font-mono italic">Week 2</time>
+						<div class="text-lg font-black">Retention Loop + Early‑Backer</div>
+						- Gentle post‑session nudge to Plus (Early‑Backer $5/mo for 12 months)<br />
+						- Monitor session frequency (2+ sessions in 3 days target)
+					</div>
+					<hr />
+				</li>
+				<li>
+					<hr />
+					<div class="timeline-middle">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5">
+							<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+						</svg>
+					</div>
+					<div class="timeline-start mb-10 md:text-end">
+						<time class="font-mono italic">Week 2–2.5</time>
+						<div class="text-lg font-black">Review + Iterate</div>
+						- Analyze funnel (UTM → onboarding → sessions), AB headline results<br />
+						- Email #2 (behind‑the‑scenes + reminder); invite replies<br />
+						- Publish a small case study (authentic testimonial + short clip)
+					</div>
+				</li>
+			</ul>
 		</div>
 	</div>
 </div>

@@ -88,7 +88,7 @@
 	}
 </script>
 
-<div class="flex flex-col items-center gap-6 text-primary-content">
+<div class="flex flex-col items-center gap-6">
 	<!-- Two Choice Buttons Row -->
 	<div class="flex w-full max-w-md flex-col gap-4">
 		<!-- Language Selection -->

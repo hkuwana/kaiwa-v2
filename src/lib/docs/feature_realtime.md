@@ -107,7 +107,7 @@ The conversation page automatically uses the realtime feature:
 </script>
 
 {#if status === 'idle'}
-	<button on:click={handleStart}>Start Conversation</button>
+	<button onclick={handleStart}>Start Conversation</button>
 {:else if status === 'connected'}
 	<p>Connected! Ready to start streaming.</p>
 {/if}
