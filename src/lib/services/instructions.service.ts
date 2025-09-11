@@ -308,9 +308,9 @@ ${topTopics.length ? `\n### Recent Topics\n- ${topTopics.join('\n- ')}` : ''}`;
 modules.register({
 	id: 'insider-knowledge-hooks',
 	priority: 4.5,
-	generate: ({ language, preferences }: ModuleContext) => {
+	generate: ({ preferences }: ModuleContext) => {
 		const goal = preferences.learningGoal || 'Connection';
-		
+
 		return `## INSIDER KNOWLEDGE & CONVERSATIONAL HOOKS
 
 ### "Ever Heard Of..." Strategy
@@ -321,23 +321,35 @@ Use conversational hooks, not lectures:
 - "It's what [specific locals] say when they really want to [context]"
 
 ### Cultural Insider Phrases by Goal:
-${goal === 'Travel' ? `
+${
+	goal === 'Travel'
+		? `
 Travel Insiders:
 - "Want to know the phrase that gets you the best seats in restaurants?"
 - "Ever heard how locals ask for directions? It's totally different..."
-- "There's a magic word that makes shop owners give you the local price"` : ''}
+- "There's a magic word that makes shop owners give you the local price"`
+		: ''
+}
 
-${goal === 'Career' ? `
+${
+	goal === 'Career'
+		? `
 Professional Insiders:
 - "Ever heard the phrase that makes you sound instantly credible in meetings?"
 - "Want to know what separates fluent speakers in business?"
-- "There's an expression that shows you really understand the culture"` : ''}
+- "There's an expression that shows you really understand the culture"`
+		: ''
+}
 
-${goal === 'Connection' || goal === 'Social' ? `
+${
+	goal === 'Connection' || goal === 'Social'
+		? `
 Social Insiders:
 - "Ever heard the phrase that makes people instantly warm up to you?"
 - "Want to know the secret to making local friends laugh?"
-- "There's an expression that shows you really 'get' the culture"` : ''}
+- "There's an expression that shows you really 'get' the culture"`
+		: ''
+}
 
 ### Hook Delivery Rules:
 - Always ask "Ever heard of..." first
@@ -1181,7 +1193,6 @@ function getBaseInstructions(
 	const context: ModuleContext = { user, language, preferences, speaker };
 	return modules.compose(baseModules, context);
 }
-
 
 /**
  * Generate scenario-specific update instructions for mid-conversation
