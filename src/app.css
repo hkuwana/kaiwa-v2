@@ -1,17 +1,10 @@
 @import 'tailwindcss';
 @plugin '@iconify/tailwind4';
 
-@layer base {
-	/* Base styles */
-}
-
-@layer components {
-	/* Component styles */
-}
-
-@layer utilities {
-	/* Utility styles */
-}
+/* Keep layers for project-specific additions if needed */
+@layer base {}
+@layer components {}
+@layer utilities {}
 
 /* DaisyUI theme configuration */
 @plugin "daisyui" {
@@ -19,167 +12,18 @@
 		caramellatte --default,
 		night --prefersdark;
 }
- 
-/* Strong and emphasis */
-strong {
-	@apply font-bold text-base-content;
-}
 
-em {
-	@apply text-base-content/90 italic;
-}
+/* Minimal global element styling to avoid layout interference */
+strong { @apply font-bold text-base-content; }
+em { @apply text-base-content/90 italic; }
 
 /* Code styling */
-code {
-	@apply rounded border border-base-content/10 bg-base-200 px-2 py-1 font-mono text-sm text-error;
-}
+code { @apply rounded border border-base-content/10 bg-base-200 px-2 py-1 font-mono text-sm text-error; }
+code:not(pre code) { @apply bg-base-200 text-error; }
+pre { @apply mb-6 overflow-x-auto rounded-lg border border-base-content/10 bg-base-200 p-6 text-base-content shadow-lg; }
+pre code { @apply border-none bg-transparent p-0 text-sm; }
 
-code:not(pre code) {
-	@apply bg-base-200 text-error;
-}
-
-/* Code blocks */
-pre {
-	@apply mb-6 overflow-x-auto rounded-lg border border-base-content/10 bg-base-200 p-6 text-base-content shadow-lg;
-}
-
-pre code {
-	@apply border-none bg-transparent p-0 text-sm;
-}
-
-/* Blockquotes with better styling */
-blockquote {
-	@apply mb-6 rounded-r-lg border-l-4 border-primary bg-gradient-to-r from-base-200/50 to-transparent py-4 pl-6 text-base-content/80 italic;
-}
-
-blockquote p {
-	@apply mb-2 last:mb-0;
-}
-
-blockquote p:first-child::before {
-	content: '"';
-	@apply mr-2 text-2xl text-primary/60;
-}
-
-blockquote p:last-child::after {
-	content: '"';
-	@apply ml-2 text-2xl text-primary/60;
-}
-
-/* Enhanced lists */
-ul,
-ol {
-	@apply mb-6 space-y-2;
-}
- 
-/* Tables with better styling */
-table {
-	@apply mb-8 w-full border-collapse overflow-hidden rounded-lg shadow-lg;
-}
-
-th,
-td {
-	@apply border border-base-content/20 p-4;
-}
-
-th {
-	@apply bg-primary/10 text-center font-bold text-base-content;
-}
-
-td {
-	@apply text-base-content/90;
-}
-
-tr:nth-child(even) {
-	@apply bg-base-200/30;
-}
-
-tr:hover {
-	@apply bg-base-200/50;
-}
- 
-/* Horizontal rules */
-hr {
-	@apply my-12 rounded-full border-2 border-primary/20;
-}
-
-/* Special text elements */
-del {
-	@apply text-base-content/50 line-through;
-}
-
-mark {
-	@apply rounded bg-yellow-200 px-1 text-base-content;
-}
-
-/* Code blocks with language indicators */
-pre[class*='language-'] {
-	@apply relative;
-}
-
-pre[class*='language ']::before {
-	content: attr(class);
-	@apply absolute top-2 right-4 rounded bg-base-200/10 px-2 py-1 text-xs text-base-content/50;
-}
-
-/* Enhanced scrollbars for code blocks */
-pre::-webkit-scrollbar {
-	@apply h-2;
-}
-
-pre::-webkit-scrollbar-track {
-	@apply rounded bg-base-200;
-}
-
-pre::-webkit-scrollbar-thumb {
-	@apply rounded bg-primary/30 hover:bg-primary/50;
-}
-
-/* Special styling for architecture diagrams */
-pre:has(code:contains('┌')) {
-	@apply bg-base-100 font-mono text-sm text-base-content;
-}
-
-/* Enhanced spacing for sections */
-section {
-	@apply mb-12;
-}
-
- 
-/* Additional enhancements */
-/* Better inline code in headings */
-h1 code,
-h2 code,
-h3 code,
-h4 code,
-h5 code,
-h6 code {
-	@apply bg-base-200/50 px-2 py-1 text-sm;
-}
- 
-/* Enhanced blockquote styling for different types */
-blockquote:has(strong) {
-	@apply border-l-4 border-warning bg-warning/5;
-}
-
-blockquote:has(code) {
-	@apply border-l-4 border-info bg-info/5;
-}
-
-/* Special styling for architecture diagrams */
-pre:has(code:contains('┌')) code {
-	@apply border-none bg-transparent p-0 text-base-content;
-}
-
-/* Enhanced table responsiveness */
-@media (max-width: 768px) {
-	table {
-		@apply text-sm;
-	}
-
-	th,
-	td {
-		@apply p-2;
-	}
-}
- 
+/* Subtle scrollbars for code blocks */
+pre::-webkit-scrollbar { @apply h-2; }
+pre::-webkit-scrollbar-track { @apply rounded bg-base-200; }
+pre::-webkit-scrollbar-thumb { @apply rounded bg-primary/30 hover:bg-primary/50; }

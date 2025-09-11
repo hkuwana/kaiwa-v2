@@ -446,7 +446,7 @@
 	>
 		<!-- Main Scenario Card - Uniform height -->
 		<div
-			class="relative h-[600px] bg-gradient-to-br {currentScenario.color} flex flex-col p-6 text-white"
+			class="relative h-[520px] sm:h-[560px] md:h-[600px] bg-gradient-to-br {currentScenario.color} flex flex-col p-6 text-white"
 		>
 			<!-- Background Pattern -->
 			<div class="absolute inset-0 opacity-10">
@@ -500,7 +500,7 @@
 				<div
 					class="space-y-1 {animatingMessages
 						? 'animate-fade-in'
-						: ''} max-h-[420px] overflow-y-auto"
+						: ''} max-h-64 sm:max-h-80 md:max-h-[420px] overflow-y-auto"
 				>
 					{#each currentScenario.messages as message, i}
 						<div

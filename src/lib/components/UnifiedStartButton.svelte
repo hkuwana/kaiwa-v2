@@ -105,8 +105,8 @@
 			scenarios={availableScenarios}
 			selectedScenario={currentScenario}
 			onScenarioSelect={handleScenarioChange}
-			disabled={false}
-			tooltipMessage=""
+			disabled={!selectedLanguage}
+			tooltipMessage={!selectedLanguage ? 'Choose your language first' : ''}
 			{isGuest}
 		/>
 	</div>
@@ -118,14 +118,14 @@
 			class="group btn w-full btn-lg btn-primary"
 			aria-label={selectedLanguage
 				? `Start ${currentScenario?.category?.charAt(0).toUpperCase() + currentScenario?.category?.slice(1) || 'Learning'} in ${selectedLanguage.name}`
-				: 'Select a language first'}
+				: 'Choose your language to start'}
 		>
 			<span class="relative z-10 flex items-center gap-2">
 				{#if selectedLanguage}
 					Start {currentScenario?.category?.charAt(0).toUpperCase() +
 						currentScenario?.category?.slice(1) || 'Learning'} in {selectedLanguage.name}
 				{:else}
-					Loading...
+					Choose your language to start
 				{/if}
 			</span>
 
@@ -137,11 +137,11 @@
 
 		<!-- Coming soon note or login prompt -->
 		{#if isGuest}
-			<div class="mt-4 text-center">
-				<p class="mb-2 text-sm opacity-70">Log in to access more scenarios</p>
-				<button class="btn btn-outline btn-sm" onclick={handleLoginRedirect}>
-					🔐 Sign Up / Login
+			<div class="mt-4">
+				<button class="btn btn-secondary btn-lg w-full" onclick={handleLoginRedirect}>
+					🔐 Unlock more scenarios — Sign up / Login
 				</button>
+				<p class="mt-2 text-center text-sm opacity-70">Get full access and save progress</p>
 			</div>
 		{:else}
 			<div class="mt-4 text-center">

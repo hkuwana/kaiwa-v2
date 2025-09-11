@@ -19,7 +19,16 @@
 		disabled = false,
 		tooltipMessage,
 		isGuest = false
-	} = $props();
+	}: Props = $props();
+
+	// Emoji by scenario category (onboarding | comfort | basic | intermediate | relationships)
+	const categoryEmoji: Record<'onboarding' | 'comfort' | 'basic' | 'intermediate' | 'relationships', string> = {
+		onboarding: '☕️',
+		comfort: '🌆',
+		basic: '📘',
+		intermediate: '🧭',
+		relationships: '💞'
+	};
 
 	let isOpen = $state(false);
 
@@ -47,9 +56,17 @@
 				{disabled}
 			>
 				<div class="flex items-center gap-3">
-					<span class="text-lg">🎯</span>
+					<span class="text-lg"
+						>{disabled
+							? '🔒'
+							: selectedScenario
+								? categoryEmoji[selectedScenario.category] || '🎯'
+								: '🎯'}</span
+					>
 					<div class="flex flex-col items-start">
-						<span class="text-base font-medium">Scenario</span>
+						<span class="text-base font-medium"
+							>{disabled ? 'Scenario - Onboarding' : 'Scenario'}</span
+						>
 						{#if selectedScenario}
 							<span class="text-sm opacity-70">{selectedScenario.title}</span>
 						{:else}
@@ -84,7 +101,7 @@
 			{disabled}
 		>
 			<div class="flex items-center gap-3">
-				<span class="text-lg">🎯</span>
+				<span class="text-lg">{selectedScenario ? categoryEmoji[selectedScenario.category] || '🎯' : '🎯'}</span>
 				<div class="flex flex-col items-start">
 					<span class="text-base font-medium">Scenario</span>
 					{#if selectedScenario}
@@ -112,14 +129,14 @@
 			class="absolute top-full left-1/2 z-50 mt-3 w-96 -translate-x-1/2 transform rounded-2xl border border-base-200 bg-base-100 py-4 shadow-2xl backdrop-blur-md"
 		>
 			<div class="mb-3 px-4">
-				<h3 class="mb-2 text-sm font-semibold text-base-content/70">🎯 Choose Learning Scenario</h3>
+				<h3 class="mb-2 text-sm font-semibold text-base-content/70">Choose Learning Scenario</h3>
 			</div>
 			<div class="max-h-80 overflow-y-auto px-2">
 				{#each scenarios as scenario (scenario.id)}
 					{@const isLocked = isGuest && scenario.category !== 'onboarding'}
 					<button
 						onclick={() => selectScenario(scenario)}
-						class="group btn my-1 flex w-full items-start justify-between rounded-xl px-4 py-3 text-left btn-ghost transition-colors duration-150"
+						class="group btn my-1 relative flex w-full flex-col items-center justify-center rounded-xl px-4 py-4 text-center btn-ghost transition-colors duration-150"
 						class:bg-primary={selectedScenario?.id === scenario.id}
 						class:text-primary-content={selectedScenario?.id === scenario.id}
 						class:hover:bg-primary={selectedScenario?.id === scenario.id}
@@ -128,6 +145,7 @@
 						disabled={isLocked}
 					>
 						<div class="flex items-center gap-2">
+							<span class="text-lg">{categoryEmoji[scenario.category] || '🎯'}</span>
 							<span class="font-medium">{scenario.title}</span>
 							{#if isLocked}
 								<span class="text-xs opacity-60">🔒</span>
@@ -136,7 +154,7 @@
 
 						{#if selectedScenario?.id === scenario.id}
 							<svg
-								class="mt-1 h-5 w-5 flex-shrink-0"
+								class="absolute right-3 top-3 h-5 w-5"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"

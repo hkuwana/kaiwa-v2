@@ -57,123 +57,122 @@
 	<div class="container mx-auto px-4 py-16">
 		<!-- Hero Section -->
 		<div class="mb-16 text-center">
-			<h1 class="mb-6 text-5xl font-bold md:text-7xl">Only Immersion works</h1>
+			<h1 class="mb-6 text-5xl font-bold md:text-7xl">Languages open doors to experiences</h1>
 			<p class="mx-auto max-w-4xl text-xl leading-relaxed md:text-2xl">
-				Why I started creating the anti-language-learning app
+				A conversation-focused language learning site for explorers and connection builders
 			</p>
 		</div>
 
-		<!-- Founder's Philosophy -->
+		<!-- My Story -->
 		<div class="mx-auto mb-16 max-w-4xl">
 			<div
 				class="rounded-2xl border border-primary/20 bg-secondary/30 p-8 text-secondary-content backdrop-blur-sm"
 			>
-				<h2 class="mb-6 text-3xl font-bold">A Founder's Philosophy</h2>
+				<h2 class="mb-6 text-3xl font-bold">The Problem</h2>
 				<div class="space-y-4 leading-relaxed">
-					<p class="text-lg">
-						I think there's only one thing you can take to the afterlife: the wild experiences
-						you've lived and the memories that come with it.
+					<p>
+						I always loved learning languages, but I was never good at it. Tried Duolingo, took classes, 
+						but I never built real confidence until I actually talked to native speakers. Even though I 
+						grew up bilingual in Japanese and Chinese, my first foreign language breakthrough came with Chinese.
 					</p>
 					<p>
-						This philosophy is at the heart of everything we do at Kaiwa. While other language apps
-						focus on achievements, progress bars, and certifications, we focus on something far more
-						valuable: the ability to create meaningful experiences through real communication.
+						Within 2 months of living in Taiwan, something clicked. I became conversational, played 
+						Mahjong with my host family, talked about life and school. It wasn't because I suddenly 
+						mastered grammar rules—it was because I fell in love with the learning process through 
+						real conversations.
 					</p>
 					<p>
-						When you're comforting your grandmother in her native language, or expressing your love
-						to your partner without translation, or connecting with family members you've never
-						really spoken to—these are the moments that matter. These are the experiences that shape
-						who you are and create the memories you'll carry with you.
+						That's when I realized: each language is like an opening to an experience. Sure, you need 
+						to memorize vocabulary sometimes, but the most important part is building the confidence 
+						to actually use it with real people.
 					</p>
 					<p class="font-semibold">
-						Kaiwa isn't about passing tests. It's about living fully in the language you're
-						learning.
+						Most language apps prepare you for tests, not for touching people's hearts.
 					</p>
 				</div>
 			</div>
 		</div>
 
-		<!-- The Problem We're Solving -->
+		<!-- Our Solution -->
 		<div class="mx-auto mb-16 max-w-4xl">
-			<h2 class="font-bold-content mb-8 text-center text-3xl">The Problem We're Solving</h2>
+			<h2 class="font-bold-content mb-8 text-center text-3xl">Our Solution</h2>
 			<div
 				class="rounded-2xl border border-primary/20 bg-secondary/30 p-8 text-secondary-content backdrop-blur-sm"
 			>
 				<div class="space-y-4 leading-relaxed">
 					<p>
-						Traditional language learning apps teach you to say "the pen is on the table" but not "I
-						love you" or "I'm sorry." They prepare you for hypothetical conversations in perfect
-						grammar, but leave you helpless when real relationships get emotional.
+						Kaiwa is a language learning site with AI conversations designed for people who want to 
+						build real communication skills. We focus on the conversations that actually matter—the 
+						ones that create connections and memories.
 					</p>
 					<p>
-						We've all been there: you've studied a language for years, you can conjugate verbs
-						perfectly, you have a 500-day streak on Duolingo. But when your partner's family asks
-						about your intentions, you panic. When your grandmother is crying and you want to
-						comfort her, you don't know how. When you need to express your real feelings, you
-						freeze.
+						AI will soon translate business emails and basic interactions for us. But when you're 
+						chatting in an izakaya in Tokyo, sharing stories at a tapas bar in Granada, or connecting 
+						with your in-laws in their native tongue—that's when you touch people's hearts, not just 
+						their minds.
 					</p>
 					<p class="font-semibold">
-						This is the gap Kaiwa fills. We prepare you for the conversations you'll actually have,
-						not the ones in textbooks.
+						These heart-to-heart moments are what keep the human parts of communication alive, and 
+						that's what we're here to help you build.
 					</p>
 				</div>
 			</div>
 		</div>
 
-		<!-- Our Approach -->
+		<!-- How We Do It -->
 		<div class="mx-auto mb-16 max-w-6xl">
-			<h2 class="font-bold-content mb-8 text-center text-3xl">Our Approach</h2>
+			<h2 class="font-bold-content mb-8 text-center text-3xl">How We Do It</h2>
 			<div class="grid gap-8 md:grid-cols-3">
 				<div
 					class="rounded-2xl border border-primary/20 bg-secondary/30 p-6 text-secondary-content backdrop-blur-sm"
 				>
-					<h3 class="font-semibold-content mb-4 text-xl">Real Situations</h3>
+					<h3 class="font-semibold-content mb-4 text-xl">Real Conversations</h3>
 					<p class="">
-						We focus on the conversations you'll actually have: meeting your partner's parents,
-						comforting family members, expressing your feelings, handling emotional moments.
+						Practice the scenarios that actually happen: meeting your partner's parents, sharing 
+						personal stories, navigating emotional moments with warmth and authenticity.
 					</p>
 				</div>
 				<div
 					class="rounded-2xl border border-primary/20 bg-secondary/30 p-6 text-secondary-content backdrop-blur-sm"
 				>
-					<h3 class="font-semibold-content mb-4 text-xl">No Gamification</h3>
+					<h3 class="font-semibold-content mb-4 text-xl">Conversation-First</h3>
 					<p class="">
-						No points, no streaks, no certificates. Just the satisfaction of being able to handle
-						real situations when they matter most.
+						Skip the streaks and points. Focus on building the confidence to speak naturally in 
+						situations that matter to you and your relationships.
 					</p>
 				</div>
 				<div
 					class="rounded-2xl border border-primary/20 bg-secondary/30 p-6 text-secondary-content backdrop-blur-sm"
 				>
-					<h3 class="font-semibold-content mb-4 text-xl">Survival Focus</h3>
+					<h3 class="font-semibold-content mb-4 text-xl">Learning Through Connection</h3>
 					<p class="">
-						We're not preparing you for a test. We're preparing you for life. For the messy,
-						chaotic, beautiful reality of actually using the language you care about.
+						We're preparing you for the beautiful, messy reality of human connection—not just 
+						passing tests or completing lessons.
 					</p>
 				</div>
 			</div>
 		</div>
 
-		<!-- The Vision -->
+		<!-- Why This Matters -->
 		<div class="mx-auto mb-16 max-w-4xl">
 			<div
 				class="rounded-2xl border border-primary/20 bg-secondary/30 p-8 text-secondary-content backdrop-blur-sm"
 			>
-				<h2 class="mb-6 text-3xl font-bold">The Vision</h2>
+				<h2 class="mb-6 text-3xl font-bold">Why This Matters</h2>
 				<div class="space-y-4 leading-relaxed">
 					<p>
-						Imagine a world where language learning isn't about accumulating knowledge, but about
-						building the confidence to create experiences. Where every conversation you have in your
-						partner's language becomes a memory you'll treasure, not just another lesson completed.
+						Language learning isn't really about the language—it's about the doors it opens. When 
+						you can laugh with strangers at a local cafe, comfort someone in their mother tongue, or 
+						share your thoughts without needing translation, you create experiences that stick with you.
 					</p>
 					<p>
-						We envision Kaiwa users who don't just "know" a language—they live it. They connect with
-						family members they've never really spoken to, build relationships without translation
-						apps, and create the kind of deep, authentic connections that make life worth living.
+						We believe the people who use Kaiwa won't just "know" a language—they'll live it. They'll 
+						build relationships that wouldn't have existed otherwise and create memories that make all 
+						the practice worth it.
 					</p>
 					<p class="text-lg font-semibold">
-						Because at the end of the day, it's not about what you've learned—it's about what you've
-						lived.
+						Because the best part of learning a language isn't the learning—it's what becomes possible 
+						afterward.
 					</p>
 				</div>
 			</div>
@@ -184,9 +183,9 @@
 			<div
 				class="mx-auto max-w-2xl rounded-2xl border border-primary/20 bg-secondary/30 p-8 text-secondary-content backdrop-blur-sm"
 			>
-				<h2 class="mb-4 text-2xl font-bold">Ready to Start trying?</h2>
+				<h2 class="mb-4 text-2xl font-bold">Ready to start exploring?</h2>
 				<p class="mb-6">
-					Stop passive sessions. Start active learning. Create experiences that matter.
+					Begin building the conversations that will create your next great memory.
 				</p>
 				<div class="mb-4 text-sm">Try our free 3‑minute onboarding</div>
 				<UnifiedStartButton

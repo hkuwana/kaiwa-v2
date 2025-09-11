@@ -107,9 +107,9 @@
 		{disabled}
 	>
 		<div class="flex items-center gap-3">
-			<span class="text-lg">🌍</span>
+			<span class="text-lg">{selectedLanguage?.flag || '🌍'}</span>
 			<div class="flex flex-col items-start">
-				<span class="text-base font-medium">Language</span>
+				<span class="text-base font-medium">{selectedLanguage ? 'Language' : 'Choose Your Language'}</span>
 				{#if selectedLanguage}
 					<span class="text-sm opacity-70">
 						{selectedLanguage.name}
@@ -118,7 +118,7 @@
 						{/if}
 					</span>
 				{:else}
-					<span class="animate-pulse text-sm opacity-50">Loading...</span>
+					<span class="text-sm opacity-50">Not selected</span>
 				{/if}
 			</div>
 		</div>
@@ -162,7 +162,7 @@
 					{#if viewingSpeakersFor}
 						Choose Speaker for {viewingSpeakersFor.name}
 					{:else}
-						Choose Practice Language
+						Choose Your Language
 					{/if}
 				</h3>
 			</div>

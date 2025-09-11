@@ -70,28 +70,34 @@
 		conversation: (typeof conversations)[0];
 		messageIndex: number;
 		message: (typeof conversations)[0]['messages'][0];
-		position: { x: number; y: number };
+		leftPercent: number;
 		delay: number;
 		column: number;
 	}> = [];
 
 	let bubbleCounter = 0;
 	let animationInterval: NodeJS.Timeout;
+	let numColumns = $state(3);
+
+	function updateColumns() {
+		if (typeof window === 'undefined') return;
+		const w = window.innerWidth;
+		numColumns = w < 640 ? 1 : w < 1024 ? 2 : 3; // mobile:1, tablet:2, desktop:3
+	}
 
 	function createBubble(column: number) {
 		const conversation = conversations[Math.floor(Math.random() * conversations.length)];
 		const messageIndex = Math.floor(Math.random() * conversation.messages.length);
 		const message = conversation.messages[messageIndex];
 
+		const colWidth = 100 / Math.max(1, numColumns);
+		const jitter = Math.max(0, colWidth - 18); // leave some margin for bubble width
 		const bubble = {
 			id: `bubble-${bubbleCounter++}`,
 			conversation,
 			messageIndex,
 			message,
-			position: {
-				x: column * 300 + Math.random() * 100, // Spread across columns with some randomness
-				y: 100 // Start from bottom
-			},
+			leftPercent: column * colWidth + Math.random() * jitter,
 			delay: Math.random() * 2000, // Random delay up to 2 seconds
 			column
 		};
@@ -105,14 +111,16 @@
 	}
 
 	onMount(() => {
+		updateColumns();
+		window.addEventListener('resize', updateColumns);
 		// Create initial bubbles
 		for (let i = 0; i < 3; i++) {
-			setTimeout(() => createBubble(i), i * 1000);
+			setTimeout(() => createBubble(i % Math.max(1, numColumns)), i * 1000);
 		}
 
 		// Continue creating bubbles at intervals
 		animationInterval = setInterval(() => {
-			const column = Math.floor(Math.random() * 3);
+			const column = Math.floor(Math.random() * Math.max(1, numColumns));
 			createBubble(column);
 		}, 3000);
 
@@ -120,12 +128,13 @@
 			if (animationInterval) {
 				clearInterval(animationInterval);
 			}
+			window.removeEventListener('resize', updateColumns);
 		};
 	});
 </script>
 
 <div
-	class="relative h-96 w-full overflow-hidden rounded-xl bg-gradient-to-b from-base-200/50 to-base-300/30 backdrop-blur-sm"
+	class="relative mx-auto w-full max-w-5xl overflow-hidden rounded-xl bg-gradient-to-b from-base-200/50 to-base-300/30 backdrop-blur-sm h-72 sm:h-80 md:h-96"
 >
 	<!-- Background pattern -->
 	<div class="absolute inset-0 opacity-10">
@@ -143,7 +152,7 @@
 	{#each visibleBubbles as bubble (bubble.id)}
 		<div
 			class="animate-float-up-fade absolute"
-			style="left: {bubble.position.x}px; animation-delay: {bubble.delay}ms;"
+			style="left: {bubble.leftPercent}%; animation-delay: {bubble.delay}ms;"
 		>
 			<!-- Language flag and indicator -->
 			<div class="mb-2 flex items-center gap-2 text-sm font-medium opacity-80">

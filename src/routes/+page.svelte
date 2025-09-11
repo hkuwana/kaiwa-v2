@@ -9,8 +9,6 @@
 	import { trackABTest } from '$lib/analytics/posthog';
 	import type { Language as DataLanguage } from '$lib/data/languages';
 	import { languages as allLanguages } from '$lib/data/languages';
-	import { onMount } from 'svelte';
-	import RotatingLanguages from '$lib/components/RotatingLanguages.svelte';
 	import type { Scenario } from '$lib/server/db/types';
 	import { dev } from '$app/environment';
 
@@ -37,12 +35,6 @@
 	// Random headline selection - Don Draper's approach
 	let headlineVariant = $state('main');
 	let headlineText = $state(headlineVariants.main);
-
-	// Rotating languages labels (spinning animation)
-	const featuredCodes = ['ja', 'es', 'ko', 'zh'];
-	const featuredLanguages = allLanguages
-		.filter((l) => featuredCodes.includes(l.code))
-		.map((l) => l.name);
 
 	// Initialize random A/B test on client side
 	if (browser) {
@@ -91,16 +83,15 @@
 	<meta name="description" content="Practice conversation with AI tutor" />
 </svelte:head>
 
-<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 text-base-content">
+<div
+	class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 px-2 text-base-content sm:px-4"
+>
 	<header class="flex min-h-screen items-start justify-center pt-20">
 		<div class="text-center">
 			<div class="max-w-md">
-				<h4 class="  text-3xl font-semibold opacity-90">
+				<h4 class="  text-3xl font-semibold opacity-90 mb-2 sm:mb-4">
 					{headlineText}
 				</h4>
-				<div class="mt-3 text-lg opacity-80">
-					Speak in <RotatingLanguages items={featuredLanguages} intervalMs={2000} />
-				</div>
 
 				{#if user.id !== 'guest'}
 					<div class="mb-6 text-xl opacity-90">
@@ -108,7 +99,7 @@
 					</div>
 				{:else}
 					<p class="mb-6 text-xl opacity-90">
-						Practice real conversations for relationships and family — quick 3‑minute onboarding.
+						Practice life-like conversations for relationships and family — quick 3‑minute onboarding.
 					</p>
 				{/if}
 
@@ -127,7 +118,7 @@
 	</header>
 
 	<!-- Quick value props strip -->
-	<section class="border-y border-white/10 bg-secondary/20 py-6">
+	<section class="border-y border-white/10 bg-secondary/20 py-6 rounded-2xl">
 		<div class="container mx-auto grid max-w-5xl grid-cols-1 gap-4 px-4 md:grid-cols-3">
 			<div>
 				<div class="text-sm font-semibold tracking-wide uppercase">Who it's for</div>
@@ -150,7 +141,7 @@
 
 	{#if dev}
 		<!-- Dev-only demo video slot -->
-		<section class="container mx-auto max-w-3xl px-4 py-8">
+		<section class="container mx-auto max-w-3xl py-8">
 			<div class="/80 rounded-xl border border-white/10 bg-secondary/20 p-4">
 				<div class="mb-2 text-sm tracking-wide uppercase">Demo (dev only)</div>
 				<video class="w-full rounded-lg" src="/demo.mp4" controls preload="metadata">
@@ -163,7 +154,7 @@
 		</section>
 	{/if}
 	<!-- New Component Showcase Section -->
-	<main class="container mx-auto space-y-16 px-4 py-12">
+	<main class="container mx-auto space-y-16 py-12">
 		<!-- Section Header -->
 		<div class="mx-auto max-w-3xl text-center">
 			<h2 class="mb-4 text-4xl font-bold">Experience Real Conversations</h2>
