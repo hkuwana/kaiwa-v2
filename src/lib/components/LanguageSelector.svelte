@@ -98,7 +98,7 @@
 <div class="relative w-full">
 	<!-- Language selector button -->
 	<button
-		class="group btn flex w-full items-center justify-between border-2 px-6 py-4 text-base-content transition-all duration-200 btn-outline btn-lg hover:border-primary hover:bg-primary hover:text-primary-content"
+		class="group btn flex w-full items-center justify-center border-2 px-6 py-4 text-base-content transition-all duration-200 btn-outline btn-lg hover:border-primary hover:bg-primary hover:text-primary-content"
 		class:opacity-50={disabled}
 		class:cursor-not-allowed={disabled}
 		onclick={() => !disabled && (isOpen = !isOpen)}
@@ -106,9 +106,9 @@
 		aria-expanded={isOpen}
 		{disabled}
 	>
-		<div class="flex items-center gap-3">
+		<div class="flex w-full items-center justify-center gap-3 text-center">
 			<span class="text-lg">{selectedLanguage?.flag || '🌍'}</span>
-			<div class="flex flex-col items-start">
+			<div class="flex flex-col items-center">
 				<span class="text-base font-medium">{selectedLanguage ? 'Language' : 'Choose Your Language'}</span>
 				{#if selectedLanguage}
 					<span class="text-sm opacity-70">
