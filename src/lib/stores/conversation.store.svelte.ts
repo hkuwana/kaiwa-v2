@@ -359,7 +359,9 @@ export class ConversationStore {
 		} catch {}
 		this.messageUnsub = realtimeOpenAI.onMessageStream(async (ev) => {
 			// Mirror: copy realtime messages directly with duplicate removal
-			this.messages = messageService.removeDuplicateMessages(messageService.sortMessagesBySequence([...realtimeOpenAI.messages]));
+			this.messages = messageService.removeDuplicateMessages(
+				messageService.sortMessagesBySequence([...realtimeOpenAI.messages])
+			);
 
 			if (!ev.final) return;
 			// Sanitize just-finalized message: add scripts if applicable
@@ -378,7 +380,7 @@ export class ConversationStore {
 			if (this.sanitizedMessageIds.has(msg.id)) return;
 			try {
 				let updatedMsg = msg;
-				
+
 				// Add scripts if needed
 				if (needsScriptGeneration(msg)) {
 					const scriptData = await generateScriptsForMessage(msg, true);
@@ -392,28 +394,32 @@ export class ConversationStore {
 				}
 
 				// Add translation if needed
-				// For language learning: if user is learning Japanese, their native language is English  
+				// For language learning: if user is learning Japanese, their native language is English
 				const targetLanguage = userPreferencesStore.getPreference('targetLanguageId') || 'en';
 				const userNativeLanguage = userManager.user.nativeLanguageId || 'en';
-				
+
 				if (messageService.needsTranslation(updatedMsg, userNativeLanguage)) {
-					console.log(`🌐 Adding translation for ${updatedMsg.role} message: "${updatedMsg.content.substring(0, 50)}..." from auto-detected to ${userNativeLanguage}`);
+					console.log(
+						`🌐 Adding translation for ${updatedMsg.role} message: "${updatedMsg.content.substring(0, 50)}..." from auto-detected to ${userNativeLanguage}`
+					);
 					updatedMsg = await messageService.addTranslationToMessage(updatedMsg, userNativeLanguage);
 				}
 
 				// Detect native-language usage during onboarding and update instructions once
-				if (
-					ev.role === 'user' &&
-					this.language &&
-					!this.nativeSwitchAnnounced
- 				) {
+				if (ev.role === 'user' && this.language && !this.nativeSwitchAnnounced) {
 					const detectedCode = this.detectLanguageCode(
 						msg.content || '',
 						userManager.user.nativeLanguageId,
 						this.language.code
 					);
-					if (detectedCode && detectedCode === userManager.user.nativeLanguageId && detectedCode !== this.language.code) {
-						const detectedName = (await import('$lib/data/languages')).getLanguageById(detectedCode)?.name || 'your native language';
+					if (
+						detectedCode &&
+						detectedCode === userManager.user.nativeLanguageId &&
+						detectedCode !== this.language.code
+					) {
+						const detectedName =
+							(await import('$lib/data/languages')).getLanguageById(detectedCode)?.name ||
+							'your native language';
 						const userPrefs = userPreferencesStore.getPreferences();
 						const delta = getInstructions('update', {
 							user: userManager.user,
@@ -573,7 +579,7 @@ export class ConversationStore {
 		if (/[\u0900-\u097F]/.test(t)) return 'hi';
 		if (/[\u4E00-\u9FFF]/.test(t)) return 'zh';
 		// Latin-based heuristic; focus on user's native language cues
-		const asciiLetters = (t.match(/[a-z]/g)?.length || 0);
+		const asciiLetters = t.match(/[a-z]/g)?.length || 0;
 		const asciiRatio = asciiLetters / t.length;
 		if (asciiRatio < 0.5) return null;
 		// Minimal stopwords per lang

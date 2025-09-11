@@ -13,15 +13,57 @@ export interface RomanizationResult {
 	otherScripts?: Record<string, string>;
 }
 
-// Language detection
+// Language detection - improved to prevent furigana interference for Chinese learners
 export function isJapaneseText(text: string): boolean {
 	if (!text) return false;
-	return /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(text);
+
+	// First check for uniquely Japanese characters (hiragana and katakana)
+	const hasHiragana = /[\u3040-\u309F]/.test(text);
+	const hasKatakana = /[\u30A0-\u30FF]/.test(text);
+
+	// If we find hiragana or katakana, it's definitely Japanese
+	if (hasHiragana || hasKatakana) {
+		return true;
+	}
+
+	// For CJK ideographs only, be more conservative
+	// Only consider it Japanese if no Chinese-specific indicators are present
+	const hasCJK = /[\u4E00-\u9FAF]/.test(text);
+	if (hasCJK) {
+		// Check for Chinese-specific indicators
+		const hasChinesePunctuation = /[，。；：！？""''（）【】《》〈〉]/.test(text);
+		const hasSimplifiedChars = /[亿万币值贝财购买你好世界热很国人民]/.test(text);
+		const hasChineseGrammarWords = /[了的吗呢吧]/.test(text);
+
+		// If we detect Chinese indicators, don't treat as Japanese
+		if (hasChinesePunctuation || hasSimplifiedChars || hasChineseGrammarWords) {
+			return false;
+		}
+
+		// Otherwise, could be Japanese kanji
+		return true;
+	}
+
+	return false;
 }
 
 export function isChineseText(text: string): boolean {
 	if (!text) return false;
-	return /[\u4E00-\u9FAF]/.test(text);
+
+	// Check for CJK ideographs
+	const hasCJK = /[\u4E00-\u9FAF]/.test(text);
+	if (!hasCJK) return false;
+
+	// If there are uniquely Japanese characters, it's not Chinese
+	const hasHiragana = /[\u3040-\u309F]/.test(text);
+	const hasKatakana = /[\u30A0-\u30FF]/.test(text);
+
+	if (hasHiragana || hasKatakana) {
+		return false;
+	}
+
+	// Otherwise, treat CJK characters as Chinese by default
+	return true;
 }
 
 export function isKoreanText(text: string): boolean {

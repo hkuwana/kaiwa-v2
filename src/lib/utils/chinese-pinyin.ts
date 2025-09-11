@@ -333,31 +333,44 @@ const TONE_MARKS: Record<string, Record<string, string>> = {
 };
 
 /**
- * Check if a character is Chinese
+ * Check if a character is Chinese (improved to avoid Japanese interference)
  */
 export function isChinese(char: string): boolean {
 	const code = char.charCodeAt(0);
-	// CJK Unified Ideographs range
-	return (
+
+	// First check if it's in CJK Unified Ideographs range
+	const isCJK =
 		(code >= 0x4e00 && code <= 0x9fff) ||
 		(code >= 0x3400 && code <= 0x4dbf) ||
-		(code >= 0x20000 && code <= 0x2a6df)
-	);
+		(code >= 0x20000 && code <= 0x2a6df);
+
+	if (!isCJK) return false;
+
+	// Exclude Japanese-specific ranges if we're being strict
+	// For single character checking, we'll be permissive and let context handle it
+	return true;
 }
 
 /**
- * Check if text contains Chinese characters
+ * Check if text contains Chinese characters (improved detection)
  */
 export function isChineseText(text: string): boolean {
 	if (!text) return false;
 
-	for (let i = 0; i < text.length; i++) {
-		if (isChinese(text[i])) {
-			return true;
-		}
+	// Check for CJK ideographs
+	const hasCJK = /[\u4E00-\u9FAF]/.test(text);
+	if (!hasCJK) return false;
+
+	// If there are uniquely Japanese characters, it's not Chinese
+	const hasHiragana = /[\u3040-\u309F]/.test(text);
+	const hasKatakana = /[\u30A0-\u30FF]/.test(text);
+
+	if (hasHiragana || hasKatakana) {
+		return false;
 	}
 
-	return false;
+	// Otherwise, treat CJK characters as Chinese by default
+	return true;
 }
 
 /**

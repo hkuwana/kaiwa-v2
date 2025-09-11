@@ -224,7 +224,10 @@ export function updateStreamingMessage(messages: Message[], deltaText: string): 
 
 	if (streamingMessageIndex === -1) {
 		// Create new streaming message
-		const newMessages = [...messages, createStreamingMessage(deltaText, messages[0]?.conversationId || '')];
+		const newMessages = [
+			...messages,
+			createStreamingMessage(deltaText, messages[0]?.conversationId || '')
+		];
 		return removeDuplicateMessages(sortMessagesBySequence(newMessages));
 	}
 
@@ -244,7 +247,10 @@ export function finalizeStreamingMessage(messages: Message[], finalText: string)
 
 	if (streamingMessageIndex === -1) {
 		// No streaming message found, create final message directly
-		const newMessages = [...messages, createFinalAssistantMessage(finalText, messages[0]?.conversationId || '')];
+		const newMessages = [
+			...messages,
+			createFinalAssistantMessage(finalText, messages[0]?.conversationId || '')
+		];
 		return removeDuplicateMessages(sortMessagesBySequence(newMessages));
 	}
 
@@ -396,16 +402,20 @@ export function sortMessagesBySequence(messages: Message[]): Message[] {
  */
 export function removeDuplicateMessages(messages: Message[]): Message[] {
 	const seen = new Set<string>();
-	return messages.filter(msg => {
+	return messages.filter((msg) => {
 		// Create a unique key based on role, content, and timestamp (within 1 second)
 		const roundedTimestamp = Math.floor(msg.timestamp.getTime() / 1000) * 1000;
 		const key = `${msg.role}:${msg.content.trim()}:${roundedTimestamp}`;
-		
+
 		if (seen.has(key)) {
-			console.debug('Removing duplicate message:', { role: msg.role, content: msg.content.substring(0, 50), id: msg.id });
+			console.debug('Removing duplicate message:', {
+				role: msg.role,
+				content: msg.content.substring(0, 50),
+				id: msg.id
+			});
 			return false;
 		}
-		
+
 		seen.add(key);
 		return true;
 	});
@@ -438,26 +448,24 @@ export function needsTranslation(message: Message, userNativeLanguage: string): 
  * Add translation to a message
  */
 export async function addTranslationToMessage(
-	message: Message, 
+	message: Message,
 	userNativeLanguage: string = 'en'
 ): Promise<Message> {
 	try {
 		// Detect source language if not set
 		const sourceLanguage = message.sourceLanguage || detectLanguage(message.content);
-		
+
 		// Don't translate if not needed
 		if (!needsTranslation(message, userNativeLanguage)) {
 			return message;
 		}
 
-		console.log(`🌐 Translating message "${message.content.substring(0, 50)}..." from ${sourceLanguage} to ${userNativeLanguage}`);
+		console.log(
+			`🌐 Translating message "${message.content.substring(0, 50)}..." from ${sourceLanguage} to ${userNativeLanguage}`
+		);
 
 		// Call translation service
-		const translationResult = await translateMessage(
-			message, 
-			userNativeLanguage, 
-			sourceLanguage
-		);
+		const translationResult = await translateMessage(message, userNativeLanguage, sourceLanguage);
 
 		// Update message with translation data
 		const updatedMessage: Message = {

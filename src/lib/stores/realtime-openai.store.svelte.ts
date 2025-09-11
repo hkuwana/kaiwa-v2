@@ -97,10 +97,9 @@ export class RealtimeOpenAIStore {
 					);
 					if (!hasStreamingMessage) {
 						const streamingMessage = messageService.createStreamingMessage('', this.sessionId);
-						this.messages = messageService.removeDuplicateMessages(messageService.sortMessagesBySequence([
-							...this.messages,
-							streamingMessage
-						]));
+						this.messages = messageService.removeDuplicateMessages(
+							messageService.sortMessagesBySequence([...this.messages, streamingMessage])
+						);
 					}
 					this.messages = messageService.updateStreamingMessage(
 						this.messages,
@@ -140,7 +139,9 @@ export class RealtimeOpenAIStore {
 					);
 					if (!hasPlaceholder) {
 						const ph = messageService.createUserPlaceholder(this.sessionId, Date.now());
-						this.messages = messageService.removeDuplicateMessages(messageService.sortMessagesBySequence([...this.messages, ph]));
+						this.messages = messageService.removeDuplicateMessages(
+							messageService.sortMessagesBySequence([...this.messages, ph])
+						);
 					}
 					this.messages = messageService.updatePlaceholderWithPartial(
 						this.messages,
@@ -449,10 +450,9 @@ export class RealtimeOpenAIStore {
 					);
 					if (!hasStreamingMessage) {
 						const streamingMessage = messageService.createStreamingMessage('', this.sessionId);
-						this.messages = messageService.removeDuplicateMessages(messageService.sortMessagesBySequence([
-							...this.messages,
-							streamingMessage
-						]));
+						this.messages = messageService.removeDuplicateMessages(
+							messageService.sortMessagesBySequence([...this.messages, streamingMessage])
+						);
 					}
 					this.messages = messageService.updateStreamingMessage(this.messages, deltaText);
 				} else {
@@ -466,7 +466,9 @@ export class RealtimeOpenAIStore {
 					);
 					if (!hasPlaceholder) {
 						const ph = messageService.createUserPlaceholder(this.sessionId, Date.now());
-						this.messages = messageService.removeDuplicateMessages(messageService.sortMessagesBySequence([...this.messages, ph]));
+						this.messages = messageService.removeDuplicateMessages(
+							messageService.sortMessagesBySequence([...this.messages, ph])
+						);
 					}
 					this.messages = messageService.updatePlaceholderWithPartial(this.messages, newText);
 				}
