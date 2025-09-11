@@ -23,16 +23,18 @@
 	// A/B Testing for headlines - Relationship-first positioning
 	const headlineVariants = {
 		// Main control (solution-oriented)
-		main: 'Finally speak to the people you love in their language.',
+		main: 'Connect with your family in the language of their heart.',
 
 		// Anti-competitor positioning variant
-		variant1: 'Stop drills. Start dinner‑table conversations.',
+		variant1: 'Skip the flashcards. Share your feelings.',
 
 		// Specific emotional scenario variant
-		variant2: 'Learn to talk to their family.'
+		variant2: "Speak your grandmother's language fluently.",
+		variant3: 'Conversations that matter. In any language.',
+		variant4: 'Turn language learning into love stories.'
 	};
 
-	// Random headline selection - Don Draper's approach
+	// Random headline selection
 	let headlineVariant = $state('main');
 	let headlineText = $state(headlineVariants.main);
 
@@ -89,7 +91,7 @@
 	<header class="flex min-h-screen items-start justify-center pt-20">
 		<div class="text-center">
 			<div class="max-w-md">
-				<h4 class="  text-3xl font-semibold opacity-90 mb-2 sm:mb-4">
+				<h4 class="  mb-2 text-3xl font-semibold opacity-90 sm:mb-4">
 					{headlineText}
 				</h4>
 
@@ -99,7 +101,8 @@
 					</div>
 				{:else}
 					<p class="mb-6 text-xl opacity-90">
-						Practice life-like conversations for relationships and family — quick 3‑minute onboarding.
+						Practice life-like conversations for relationships and family — quick 3‑minute
+						onboarding.
 					</p>
 				{/if}
 
@@ -118,7 +121,7 @@
 	</header>
 
 	<!-- Quick value props strip -->
-	<section class="border-y border-white/10 bg-secondary/20 py-6 rounded-2xl">
+	<section class="rounded-2xl border-y border-white/10 bg-secondary/20 py-6">
 		<div class="container mx-auto grid max-w-5xl grid-cols-1 gap-4 px-4 md:grid-cols-3">
 			<div>
 				<div class="text-sm font-semibold tracking-wide uppercase">Who it's for</div>

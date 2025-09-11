@@ -47,7 +47,7 @@
 	{#if disabled && tooltipMessage}
 		<div class="tooltip tooltip-top w-full" data-tip={tooltipMessage}>
 			<button
-				class="group btn flex w-full items-center justify-between border-2 px-6 py-4 text-base-content transition-all duration-200 btn-outline btn-lg hover:border-primary hover:bg-primary hover:text-primary-content"
+				class="group btn flex w-full items-center justify-center border-2 px-6 py-4 text-base-content transition-all duration-200 btn-outline btn-lg hover:border-primary hover:bg-primary hover:text-primary-content"
 				class:opacity-50={disabled}
 				class:cursor-not-allowed={disabled}
 				onclick={() => !disabled && (isOpen = !isOpen)}
@@ -55,7 +55,7 @@
 				aria-expanded={isOpen}
 				{disabled}
 			>
-				<div class="flex items-center gap-3">
+				<div class="flex w-full items-center justify-center gap-3 text-center">
 					<span class="text-lg"
 						>{disabled
 							? '🔒'
@@ -63,7 +63,7 @@
 								? categoryEmoji[selectedScenario.category] || '🎯'
 								: '🎯'}</span
 					>
-					<div class="flex flex-col items-start">
+					<div class="flex flex-col items-center">
 						<span class="text-base font-medium"
 							>{disabled ? 'Scenario - Onboarding' : 'Scenario'}</span
 						>
@@ -92,7 +92,7 @@
 		</div>
 	{:else}
 		<button
-			class="group btn flex w-full items-center justify-between border-2 px-6 py-4 text-base-content transition-all duration-200 btn-outline btn-lg hover:border-primary hover:bg-primary hover:text-primary-content"
+			class="group btn flex w-full items-center justify-center border-2 px-6 py-4 text-base-content transition-all duration-200 btn-outline btn-lg hover:border-primary hover:bg-primary hover:text-primary-content"
 			class:opacity-50={disabled}
 			class:cursor-not-allowed={disabled}
 			onclick={() => !disabled && (isOpen = !isOpen)}
@@ -100,9 +100,9 @@
 			aria-expanded={isOpen}
 			{disabled}
 		>
-			<div class="flex items-center gap-3">
+			<div class="flex w-full items-center justify-center gap-3 text-center">
 				<span class="text-lg">{selectedScenario ? categoryEmoji[selectedScenario.category] || '🎯' : '🎯'}</span>
-				<div class="flex flex-col items-start">
+				<div class="flex flex-col items-center">
 					<span class="text-base font-medium">Scenario</span>
 					{#if selectedScenario}
 						<span class="text-sm opacity-70">{selectedScenario.title}</span>
@@ -128,7 +128,7 @@
 		<div
 			class="absolute top-full left-1/2 z-50 mt-3 w-96 -translate-x-1/2 transform rounded-2xl border border-base-200 bg-base-100 py-4 shadow-2xl backdrop-blur-md"
 		>
-			<div class="mb-3 px-4">
+			<div class="mb-3 px-4 text-center">
 				<h3 class="mb-2 text-sm font-semibold text-base-content/70">Choose Learning Scenario</h3>
 			</div>
 			<div class="max-h-80 overflow-y-auto px-2">

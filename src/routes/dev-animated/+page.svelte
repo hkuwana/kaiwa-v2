@@ -15,8 +15,11 @@
 		generating?: boolean;
 	}>>([]);
 
+	// Selected model
+	let selectedModel = $state<'dall-e-3' | 'gpt-image-1'>('dall-e-3');
+
 	// Generate image for a specific speaker
-	async function generateSpeakerImage(speaker: any) {
+	async function generateSpeakerImage(speaker: any, model: 'dall-e-3' | 'gpt-image-1' = selectedModel) {
 		const prompt = generateSpeakerPrompt(speaker);
 		
 		// Add to results with generating state
@@ -33,7 +36,8 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					speakerId: speaker.id,
-					prompt
+					prompt,
+					model
 				})
 			});
 
@@ -129,7 +133,7 @@
 				personalityTraits = 'warm, approachable, genuinely interested in helping';
 		}
 
-		return `Studio Ghibli character design. ${ageRange} ${genderDescriptor} named ${speaker.voiceName} with ${personalityTraits}. ${culturalElements}. Warm, genuine smile that shows readiness to help with language learning. Soft, approachable features that convey patience and encouragement. Style reminiscent of supportive characters from Spirited Away or Castle in the Sky. Clean character sheet style, neutral background, showing warmth and cultural authenticity without stereotypes. Aspect ratio 1:1.`;
+		return `IMPORTANT: Only one person in image. Single Japanese anime character portrait, close-up headshot from shoulders up, looking directly at camera. One individual ${ageRange} ${genderDescriptor} named ${speaker.voiceName} with ${personalityTraits}. ${culturalElements}. Direct eye contact with viewer, mouth slightly open as if speaking or about to speak, warm gentle expression with kind eyes that show readiness to help with language learning and conversation practice. Soft anime art style with clean line art, subtle shading, and expressive features. High-quality Japanese animation style similar to modern anime films. Portrait orientation, simple neutral background, focus on single person's facial features and direct gaze. Clean, polished anime aesthetic with authentic cultural representation. Professional character design, exactly one person only, headshot composition, facing forward, no other people visible.`;
 	}
 
 	const aboutPagePrompts = [
@@ -174,27 +178,27 @@
 		{
 			title: 'Language Learner - Confident',
 			description: 'Main character archetype - someone who has found their voice',
-			prompt: `Studio Ghibli character design. Young adult with warm, confident expression, eyes showing determination and joy. Simple, approachable clothing. Soft features, genuine smile that conveys both humility and excitement about learning. Clean character sheet style like Princess Mononoke or Castle in the Sky protagonists. Neutral background, multiple angle views (front, profile, 3/4). Aspect ratio 1:1.`
+			prompt: `IMPORTANT: Only one person in image. Single Japanese anime character portrait, close-up headshot from shoulders up, looking directly at camera. One individual young adult with warm, confident expression, direct eye contact with viewer, mouth slightly open as if speaking, eyes showing determination and joy. Soft anime features with genuine smile that conveys both humility and excitement about learning. High-quality Japanese animation style with clean line art and expressive eyes. Simple neutral background, focus on single person's facial expression and direct gaze. Professional anime character design, exactly one person only, portrait composition, facing forward, no other people visible.`
 		},
 		{
 			title: 'Language Learner - Nervous Beginner',
 			description: 'Someone just starting their journey',
-			prompt: `Studio Ghibli character design. Person with slightly nervous but hopeful expression, holding language materials. Conveys vulnerability and courage simultaneously. Soft, approachable features. Style like early Spirited Away Chihiro - uncertain but brave. Clean character design, neutral background, showing the beginning of a transformation. Aspect ratio 1:1.`
+			prompt: `IMPORTANT: Only one person in image. Single Japanese anime character portrait, close-up headshot from shoulders up, looking directly at camera. One individual person with slightly nervous but hopeful expression, direct eye contact with viewer, mouth slightly open as if about to speak, conveying vulnerability and courage simultaneously. Soft, approachable anime features with expressive eyes. Modern Japanese animation style with clean aesthetic. Neutral background, exactly one person only, showing the beginning of a learning journey through facial expression. Professional anime portrait design, facing forward, no other people visible.`
 		},
 		{
 			title: 'Native Speaker - Welcoming',
 			description: 'The people who help learners feel at home',
-			prompt: `Studio Ghibli character design. Warm, welcoming person with kind eyes and genuine smile. Traditional cultural elements in clothing or accessories (subtle, not stereotypical). Conveys patience, wisdom, and joy in sharing their culture. Style like Spirited Away's helpful spirits or Totoro's family characters. Clean design, neutral background. Aspect ratio 1:1.`
+			prompt: `IMPORTANT: Only one person in image. Single Japanese anime character portrait, close-up headshot from shoulders up, looking directly at camera. One individual warm, welcoming person with kind eyes and genuine smile, direct eye contact with viewer, mouth slightly open as if speaking encouragingly. Subtle cultural elements in appearance (not stereotypical). Conveys patience, wisdom, and joy in sharing culture through facial expression. High-quality anime art style with soft shading and expressive features. Simple background, exactly one person only, focus on welcoming personality. Professional anime character portrait, facing forward, no other people visible.`
 		},
 		{
 			title: 'Host Family Member',
 			description: 'The Taiwan host family archetype',
-			prompt: `Studio Ghibli character design. Middle-aged person with warm, nurturing expression, slightly weathered hands suggesting life experience. Traditional but modern clothing. Eyes show patience and genuine care for helping others. Style reminiscent of Spirited Away's Zeniba or Castle in the Sky's caring adults. Clean character sheet, neutral background. Aspect ratio 1:1.`
+			prompt: `IMPORTANT: Only one person in image. Single Japanese anime character portrait, close-up headshot from shoulders up, looking directly at camera. One individual middle-aged person with warm, nurturing expression, direct eye contact with viewer, mouth slightly open as if offering gentle guidance, showing life experience and wisdom. Eyes convey patience and genuine care for helping others. Modern anime art style with detailed facial features and gentle expression. Traditional but contemporary appearance. Neutral background, exactly one person only, professional anime portrait composition, facing forward, no other people visible.`
 		},
 		{
 			title: 'Fellow Language Explorer',
 			description: 'Someone also on the journey',
-			prompt: `Studio Ghibli character design. Person with excited, curious expression holding conversation materials or cultural items. Conveys enthusiasm for discovery and connection. Mix of cultures in subtle clothing details. Style like Kiki's Delivery Service's friendly townspeople. Bright, optimistic expression showing love of exploration. Neutral background. Aspect ratio 1:1.`
+			prompt: `IMPORTANT: Only one person in image. Single Japanese anime character portrait, close-up headshot from shoulders up, looking directly at camera. One individual person with excited, curious expression, direct eye contact with viewer, mouth slightly open as if eagerly sharing discoveries, showing enthusiasm for discovery and connection. Bright, optimistic anime features with sparkling eyes showing love of exploration. High-quality Japanese animation style with expressive face and gentle shading. Simple background, exactly one person only, focus on adventurous personality through facial expression, facing forward, no other people visible.`
 		}
 	];
 
@@ -245,18 +249,68 @@
 			<h2 class="mb-6 text-3xl font-bold text-success">🤖 Live Image Generation</h2>
 			<div class="mb-6 alert alert-info">
 				<div>
-					<p><strong>Test OpenAI DALL-E integration</strong> - Generate character images directly using your API credits.</p>
+					<p><strong>Test OpenAI Image Generation</strong> - Generate character images directly using your API credits.</p>
+				</div>
+			</div>
+
+			<!-- Model Selector -->
+			<div class="mb-6 card border border-info/20 bg-base-200 p-4">
+				<h3 class="font-bold mb-3">🤖 Model Selection</h3>
+				<div class="form-control">
+					<label class="label cursor-pointer">
+						<span class="label-text">
+							<strong>DALL-E 3</strong> - Stable, widely available ($0.08 per HD image)
+						</span>
+						<input 
+							type="radio" 
+							name="model" 
+							class="radio checked:bg-blue-500" 
+							bind:group={selectedModel}
+							value="dall-e-3"
+						/>
+					</label>
+				</div>
+				<div class="form-control">
+					<label class="label cursor-pointer">
+						<span class="label-text">
+							<strong>GPT-Image-1</strong> - Better instruction following, may solve multiple character issue (Preview, variable cost)
+						</span>
+						<input 
+							type="radio" 
+							name="model" 
+							class="radio checked:bg-green-500" 
+							bind:group={selectedModel}
+							value="gpt-image-1"
+						/>
+					</label>
+				</div>
+				<div class="mt-2 text-sm opacity-70">
+					Current selection: <strong>{selectedModel}</strong>
 				</div>
 			</div>
 			
-			<div class="mb-6 flex gap-4">
+			<div class="mb-6 flex flex-wrap gap-4">
+				<button 
+					class="btn btn-success" 
+					disabled={isGenerating}
+					onclick={() => generateSpeakerImage(speakersData.find(s => s.id === 'ja-jp-male'))}
+				>
+					Generate Hiro 🇯🇵 (Male)
+				</button>
+				<button 
+					class="btn btn-success" 
+					disabled={isGenerating}
+					onclick={() => generateSpeakerImage(speakersData.find(s => s.id === 'ja-jp-female'))}
+				>
+					Generate Yuki 🇯🇵 (Female)
+				</button>
 				<button 
 					class="btn btn-success" 
 					class:loading={isGenerating}
 					disabled={isGenerating}
 					onclick={generateJapaneseSpeakers}
 				>
-					{isGenerating ? 'Generating...' : 'Generate Japanese Speakers (3 images)'}
+					{isGenerating ? 'Generating...' : 'Generate All 3 Japanese Speakers'}
 				</button>
 				<button 
 					class="btn btn-outline" 
