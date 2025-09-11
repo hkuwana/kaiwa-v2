@@ -12,7 +12,7 @@
 	const { selectedLanguage = null }: Props = $props();
 
 	// State for tracking which messages show translations
-	let showTranslations = $state<{ [messageId: string]: boolean }>({});
+	const showTranslations = $state<{ [messageId: string]: boolean }>({});
 
 	// Create Message objects for better integration with MessageBubble
 	const createMessage = (
@@ -432,7 +432,7 @@
 		};
 	});
 
-	let currentScenario = $derived(scenarioPreviewsData[currentIndex]);
+	const currentScenario = $derived(scenarioPreviewsData[currentIndex]);
 </script>
 
 <div class="mx-auto flex w-full max-w-5xl flex-col items-center">

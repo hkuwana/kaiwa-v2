@@ -5,23 +5,38 @@
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import type { ConversationStatus } from '$lib/services/conversation.service';
 	import AnimatedHeadphones from './AnimatedHeadphones.svelte';
+	import AudioPermissionPrompt from './AudioPermissionPrompt.svelte';
 	import { getSpeakerById } from '$lib/data/speakers';
+	import { audioStore } from '$lib/stores/audio.store.svelte';
 
 	const {
 		status = 'connecting',
 		audioLevel = 0,
 		error = null,
-		onRetry = () => {}
+		onRetry = () => {},
+		onPermissionGranted = () => {},
+		onSkipAudio = () => {}
 	} = $props<{
 		status?: ConversationStatus;
 		audioLevel?: number;
 		error?: string | null;
 		onRetry?: () => void;
+		onPermissionGranted?: () => void;
+		onSkipAudio?: () => void;
 	}>();
 
 	// Get current settings
 	const selectedSpeaker = $derived(settingsStore.selectedSpeaker);
 	const currentSpeaker = $derived(selectedSpeaker ? getSpeakerById(selectedSpeaker) : null);
+
+	// Check if we should show audio permission prompt
+	const shouldShowPermissionPrompt = $derived(
+		status === 'connecting' &&
+			audioStore.permissionState &&
+			(audioStore.permissionState.state === 'denied' ||
+				audioStore.permissionState.state === 'prompt' ||
+				audioStore.userFriendlyError?.type === 'permission')
+	);
 
 	// Preparation steps that cycle through during connection
 	const preparationSteps = [
@@ -170,6 +185,13 @@
 					className="hidden md:block"
 				/>
 			</div>
+
+			<!-- Audio Permission Prompt -->
+			{#if shouldShowPermissionPrompt}
+				<div class="mb-6">
+					<AudioPermissionPrompt {onPermissionGranted} onSkip={onSkipAudio} showSkipOption={true} />
+				</div>
+			{/if}
 
 			<!-- Audio Visualizer with Pulsing Animation -->
 

@@ -32,6 +32,10 @@ export class RealtimeOpenAIStore {
 	events = $state<Array<{ dir: 'server' | 'client'; type: string; payload: any; ts: number }>>([]);
 	private maxEvents = 100;
 
+	// Event queue for ordered processing
+	private eventQueue: Array<{ event: any; timestamp: number }> = [];
+	private processingEvents = false;
+
 	// Lightweight messages array for UIs that want a direct feed
 	messages = $state<Message[]>([]);
 	private sessionId: string = '';
@@ -44,6 +48,134 @@ export class RealtimeOpenAIStore {
 			);
 		} catch (error) {
 			console.log('something went wrong with the log event of server', error);
+		}
+	}
+
+	// Queue event for ordered processing
+	private queueEvent(event: any) {
+		this.eventQueue.push({ event, timestamp: Date.now() });
+		this.processEventQueue();
+	}
+
+	// Process events in chronological order
+	private async processEventQueue() {
+		if (this.processingEvents) return;
+		this.processingEvents = true;
+
+		try {
+			// Sort events by timestamp to ensure proper ordering
+			this.eventQueue.sort((a, b) => a.timestamp - b.timestamp);
+
+			while (this.eventQueue.length > 0) {
+				const { event } = this.eventQueue.shift()!;
+				await this.processServerEventOrdered(event);
+			}
+		} finally {
+			this.processingEvents = false;
+		}
+	}
+
+	// Process individual server event in proper order
+	private async processServerEventOrdered(serverEvent: any) {
+		const processed = realtimeService.processServerEvent(serverEvent);
+
+		if (serverEvent.type === 'session.created' || serverEvent.type === 'session.updated') {
+			this.isConnected = true;
+		}
+
+		if (processed.type === 'transcription') {
+			if (processed.data.type === 'assistant_transcript') {
+				if (!processed.data.isFinal) {
+					// Stream assistant delta
+					this.assistantDelta += processed.data.text;
+
+					// Also update message array for streaming
+					const hasStreamingMessage = this.messages.some(
+						(m) =>
+							m.role === 'assistant' &&
+							(m.id.startsWith('streaming_') || m.content === '[Assistant is responding...]')
+					);
+					if (!hasStreamingMessage) {
+						const streamingMessage = messageService.createStreamingMessage('', this.sessionId);
+						this.messages = messageService.removeDuplicateMessages(messageService.sortMessagesBySequence([
+							...this.messages,
+							streamingMessage
+						]));
+					}
+					this.messages = messageService.updateStreamingMessage(
+						this.messages,
+						processed.data.text // Pass individual delta, function will accumulate
+					);
+
+					// Don't emit individual deltas - wait for final message
+				} else {
+					// Finalize assistant transcript
+					this.aiResponse = processed.data.text;
+					this.assistantDelta = '';
+					this.messages = messageService.finalizeStreamingMessage(
+						this.messages,
+						processed.data.text
+					);
+
+					// Emit final message stream event
+					this.emitMessage({
+						itemId: 'transcription-assistant',
+						role: 'assistant',
+						text: processed.data.text,
+						delta: false,
+						final: true
+					});
+				}
+			} else if (processed.data.type === 'user_transcript') {
+				if (!processed.data.isFinal) {
+					this.userDelta += processed.data.text;
+
+					// Also update message array for user placeholder
+					const hasPlaceholder = this.messages.some(
+						(m) =>
+							m.role === 'user' &&
+							(m.id.startsWith('user_placeholder_') ||
+								m.id.startsWith('user_transcribing_') ||
+								m.id.startsWith('user_partial_'))
+					);
+					if (!hasPlaceholder) {
+						const ph = messageService.createUserPlaceholder(this.sessionId, Date.now());
+						this.messages = messageService.removeDuplicateMessages(messageService.sortMessagesBySequence([...this.messages, ph]));
+					}
+					this.messages = messageService.updatePlaceholderWithPartial(
+						this.messages,
+						this.userDelta
+					);
+
+					// Don't emit individual user deltas - wait for final message
+				} else {
+					// Keep final user transcript visible when no streaming available
+					this.userDelta = processed.data.text;
+					this.messages = messageService.replaceUserPlaceholderWithFinal(
+						this.messages,
+						processed.data.text,
+						this.sessionId
+					);
+
+					// Emit final user message event
+					this.emitMessage({
+						itemId: 'transcription-user',
+						role: 'user',
+						text: processed.data.text,
+						delta: false,
+						final: true
+					});
+				}
+			}
+		} else if (processed.type === 'message') {
+			// Assistant text message
+			if (processed.data.role === 'assistant') {
+				this.aiResponse = processed.data.content;
+			}
+		} else if (processed.type === 'ignore') {
+			if (this.debug) {
+				console.debug('[realtime] ignored event:', serverEvent?.type, serverEvent);
+			}
 		}
 	}
 
@@ -68,116 +200,15 @@ export class RealtimeOpenAIStore {
 			this.connection = await createConnectionWithSession(sessionData, mediaStream);
 			this.sessionId = sessionData.session_id || crypto.randomUUID();
 
-			// Subscribe to transport events and map via existing processor
+			// Subscribe to transport events and queue them for ordered processing
 			this.unsubscribe = subscribeToSession(this.connection, {
 				onTransportEvent: (serverEvent) => {
 					if (this.debug) {
 						console.debug('[realtime] transport_event:', serverEvent?.type, serverEvent);
 					}
 					this.logEvent('server', serverEvent?.type || 'unknown', serverEvent);
-					const processed = realtimeService.processServerEvent(serverEvent);
-
-					if (serverEvent.type === 'session.created' || serverEvent.type === 'session.updated') {
-						this.isConnected = true;
-					}
-
-					if (processed.type === 'transcription') {
-						if (processed.data.type === 'assistant_transcript') {
-							if (!processed.data.isFinal) {
-								// Stream assistant delta
-								this.assistantDelta += processed.data.text;
-
-								// Also update message array for streaming
-								const hasStreamingMessage = this.messages.some(
-									(m) =>
-										m.role === 'assistant' &&
-										(m.id.startsWith('streaming_') || m.content === '[Assistant is responding...]')
-								);
-								if (!hasStreamingMessage) {
-									const streamingMessage = messageService.createStreamingMessage(
-										'',
-										this.sessionId
-									);
-									this.messages = messageService.sortMessagesBySequence([
-										...this.messages,
-										streamingMessage
-									]);
-								}
-								this.messages = messageService.updateStreamingMessage(
-									this.messages,
-									processed.data.text // Pass individual delta, function will accumulate
-								);
-
-								// Don't emit individual deltas - wait for final message
-							} else {
-								// Finalize assistant transcript
-								this.aiResponse = processed.data.text;
-								this.assistantDelta = '';
-								this.messages = messageService.finalizeStreamingMessage(
-									this.messages,
-									processed.data.text
-								);
-
-								// Emit final message stream event
-								this.emitMessage({
-									itemId: 'transcription-assistant',
-									role: 'assistant',
-									text: processed.data.text,
-									delta: false,
-									final: true
-								});
-							}
-						} else if (processed.data.type === 'user_transcript') {
-							if (!processed.data.isFinal) {
-								this.userDelta += processed.data.text;
-
-								// Also update message array for user placeholder
-								const hasPlaceholder = this.messages.some(
-									(m) =>
-										m.role === 'user' &&
-										(m.id.startsWith('user_placeholder_') ||
-											m.id.startsWith('user_transcribing_') ||
-											m.id.startsWith('user_partial_'))
-								);
-								if (!hasPlaceholder) {
-									const ph = messageService.createUserPlaceholder(this.sessionId, Date.now());
-									this.messages = messageService.sortMessagesBySequence([...this.messages, ph]);
-								}
-								this.messages = messageService.updatePlaceholderWithPartial(
-									this.messages,
-									this.userDelta
-								);
-
-								// Don't emit individual user deltas - wait for final message
-							} else {
-								// Keep final user transcript visible when no streaming available
-								this.userDelta = processed.data.text;
-								this.messages = messageService.replaceUserPlaceholderWithFinal(
-									this.messages,
-									processed.data.text,
-									this.sessionId
-								);
-
-								// Emit final user message event
-								this.emitMessage({
-									itemId: 'transcription-user',
-									role: 'user',
-									text: processed.data.text,
-									delta: false,
-									final: true
-								});
-							}
-						}
-					} else if (processed.type === 'message') {
-						// Assistant text message
-						if (processed.data.role === 'assistant') {
-							this.aiResponse = processed.data.content;
-						}
-					} else if (processed.type === 'ignore') {
-						if (this.debug) {
-							console.debug('[realtime] ignored event:', serverEvent?.type, serverEvent);
-						}
-					}
+					// Queue event for ordered processing instead of immediate processing
+					this.queueEvent(serverEvent);
 				},
 				onError: (err) => {
 					this.error = err?.message || 'Realtime error';
@@ -208,7 +239,6 @@ export class RealtimeOpenAIStore {
 			const sessionUpdateEvent = realtimeService.createSessionUpdate({
 				model: options?.model || publicEnv.PUBLIC_OPEN_AI_MODEL,
 				voice: options?.voice || 'verse',
-				instructions: options?.instructions,
 				input_audio_transcription: transcriptionLanguage
 					? {
 							model: (options?.transcriptionModel || 'gpt-4o-transcribe') as any,
@@ -419,10 +449,10 @@ export class RealtimeOpenAIStore {
 					);
 					if (!hasStreamingMessage) {
 						const streamingMessage = messageService.createStreamingMessage('', this.sessionId);
-						this.messages = messageService.sortMessagesBySequence([
+						this.messages = messageService.removeDuplicateMessages(messageService.sortMessagesBySequence([
 							...this.messages,
 							streamingMessage
-						]);
+						]));
 					}
 					this.messages = messageService.updateStreamingMessage(this.messages, deltaText);
 				} else {
@@ -436,7 +466,7 @@ export class RealtimeOpenAIStore {
 					);
 					if (!hasPlaceholder) {
 						const ph = messageService.createUserPlaceholder(this.sessionId, Date.now());
-						this.messages = messageService.sortMessagesBySequence([...this.messages, ph]);
+						this.messages = messageService.removeDuplicateMessages(messageService.sortMessagesBySequence([...this.messages, ph]));
 					}
 					this.messages = messageService.updatePlaceholderWithPartial(this.messages, newText);
 				}

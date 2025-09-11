@@ -61,7 +61,7 @@
 		{scenarios}
 		{selectedScenario}
 		onScenarioSelect={handleScenarioSelect}
-		tooltipMessage={''}
+		tooltipMessage=""
 	/>
 
 	<!-- Additional info -->

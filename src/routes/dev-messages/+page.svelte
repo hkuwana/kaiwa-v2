@@ -15,6 +15,7 @@
 	} from '$lib/services/romanization.service';
 	import type { Message } from '$lib/server/db/types';
 	import type { Speaker } from '$lib/types';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	// Test data
 	let testText = $state('こんにちは、元気ですか？');
@@ -34,8 +35,9 @@
 		id: 'test-message-1',
 		content: testText,
 		role: 'user' as const,
-		timestamp: new Date(),
+		timestamp: new SvelteDate(),
 		conversationId: 'test-conversation',
+		sequenceId: Date.now().toString(),
 		translatedContent: translationResult?.translatedContent || null,
 		sourceLanguage: sourceLanguage,
 		targetLanguage: targetLanguage,

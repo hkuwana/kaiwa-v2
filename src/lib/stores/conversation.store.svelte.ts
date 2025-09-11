@@ -73,6 +73,8 @@ export class ConversationStore {
 	private currentOptions: Partial<UserPreferences> | null = null;
 	// Mirror + sanitize tracking
 	private sanitizedMessageIds = new Set<string>();
+	private lastInstructions: string = '';
+	private nativeSwitchAnnounced: boolean = false;
 
 	constructor(userTier: UserTier = 'free') {
 		// Only initialize services in browser
@@ -356,8 +358,8 @@ export class ConversationStore {
 			this.messageUnsub?.();
 		} catch {}
 		this.messageUnsub = realtimeOpenAI.onMessageStream(async (ev) => {
-			// Mirror: copy realtime messages directly
-			this.messages = messageService.sortMessagesBySequence([...realtimeOpenAI.messages]);
+			// Mirror: copy realtime messages directly with duplicate removal
+			this.messages = messageService.removeDuplicateMessages(messageService.sortMessagesBySequence([...realtimeOpenAI.messages]));
 
 			if (!ev.final) return;
 			// Sanitize just-finalized message: add scripts if applicable
@@ -375,18 +377,61 @@ export class ConversationStore {
 			const msg = this.messages[idx];
 			if (this.sanitizedMessageIds.has(msg.id)) return;
 			try {
+				let updatedMsg = msg;
+				
+				// Add scripts if needed
 				if (needsScriptGeneration(msg)) {
 					const scriptData = await generateScriptsForMessage(msg, true);
 					if (scriptData && Object.keys(scriptData).length > 0) {
-						const updated = updateMessageWithScripts(msg, scriptData);
-						const next = [...this.messages];
-						next[idx] = updated;
-						this.messages = messageService.sortMessagesBySequence(next);
+						updatedMsg = updateMessageWithScripts(updatedMsg, scriptData);
 						const lang = detectLanguage(msg.content);
 						if (lang !== 'other') {
 							generateAndStoreScriptsForMessage(msg.id, msg.content, lang).catch(() => {});
 						}
 					}
+				}
+
+				// Add translation if needed
+				// For language learning: if user is learning Japanese, their native language is English  
+				const targetLanguage = userPreferencesStore.getPreference('targetLanguageId') || 'en';
+				const userNativeLanguage = userManager.user.nativeLanguageId || 'en';
+				
+				if (messageService.needsTranslation(updatedMsg, userNativeLanguage)) {
+					console.log(`🌐 Adding translation for ${updatedMsg.role} message: "${updatedMsg.content.substring(0, 50)}..." from auto-detected to ${userNativeLanguage}`);
+					updatedMsg = await messageService.addTranslationToMessage(updatedMsg, userNativeLanguage);
+				}
+
+				// Detect native-language usage during onboarding and update instructions once
+				if (
+					ev.role === 'user' &&
+					this.language &&
+					!this.nativeSwitchAnnounced
+ 				) {
+					const detectedCode = this.detectLanguageCode(
+						msg.content || '',
+						userManager.user.nativeLanguageId,
+						this.language.code
+					);
+					if (detectedCode && detectedCode === userManager.user.nativeLanguageId && detectedCode !== this.language.code) {
+						const detectedName = (await import('$lib/data/languages')).getLanguageById(detectedCode)?.name || 'your native language';
+						const userPrefs = userPreferencesStore.getPreferences();
+						const delta = getInstructions('update', {
+							user: userManager.user,
+							language: this.language,
+							preferences: userPrefs,
+							updateType: 'native_switch',
+							updateContext: { type: 'native_switch', language: detectedName }
+						});
+						this.applyInstructionUpdate(delta);
+						this.nativeSwitchAnnounced = true;
+					}
+				}
+
+				// Update the message array if any changes were made
+				if (updatedMsg !== msg) {
+					const next = [...this.messages];
+					next[idx] = updatedMsg;
+					this.messages = messageService.sortMessagesBySequence(next);
 				}
 			} finally {
 				this.sanitizedMessageIds.add(msg.id);
@@ -485,6 +530,8 @@ export class ConversationStore {
 			instructions: sessionConfig.instructions
 		});
 
+		this.lastInstructions = sessionConfig.instructions;
+
 		// Greet proactively based on preferences
 		const prefs = userPreferencesStore.getPreferences();
 		const autoGreet = prefs.audioSettings?.autoGreet ?? true;
@@ -504,6 +551,50 @@ export class ConversationStore {
 			// Fallback: basic response request
 			realtimeOpenAI.sendResponse();
 		}
+	}
+
+	private applyInstructionUpdate(delta: string) {
+		if (!this.language) return;
+		const combined = `${this.lastInstructions}\n\n${delta}`;
+		realtimeOpenAI.updateSessionConfig({
+			instructions: combined
+		});
+		this.lastInstructions = combined;
+	}
+
+	private detectLanguageCode(text: string, nativeCode: string, targetCode: string): string | null {
+		const t = (text || '').toLowerCase();
+		if (!t || t.length < 2) return null;
+		// Script-based quick checks
+		if (/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(t)) return 'ja';
+		if (/[\uAC00-\uD7AF]/.test(t)) return 'ko';
+		if (/[\u0400-\u04FF]/.test(t)) return 'ru';
+		if (/[\u0600-\u06FF]/.test(t)) return 'ar';
+		if (/[\u0900-\u097F]/.test(t)) return 'hi';
+		if (/[\u4E00-\u9FFF]/.test(t)) return 'zh';
+		// Latin-based heuristic; focus on user's native language cues
+		const asciiLetters = (t.match(/[a-z]/g)?.length || 0);
+		const asciiRatio = asciiLetters / t.length;
+		if (asciiRatio < 0.5) return null;
+		// Minimal stopwords per lang
+		const stops: Record<string, string[]> = {
+			en: [' the ', ' and ', ' i ', " i'm ", ' you ', ' to ', ' in ', ' is ', ' it ', " don't "],
+			nl: [' de ', ' het ', ' en ', ' ik ', ' jij ', ' je ', ' niet ', ' een ', ' van ', ' voor '],
+			es: [' el ', ' la ', ' y ', ' de ', ' que ', ' no ', ' una ', ' un '],
+			fr: [' le ', ' la ', ' les ', ' de ', ' des ', ' et ', ' je ', ' ne ', " c'", ' pas '],
+			de: [' der ', ' die ', ' das ', ' und ', ' ist ', ' nicht ', ' ich ', ' du '],
+			it: [' il ', ' la ', ' e ', ' di ', ' che ', ' non ', ' un ', ' una '],
+			pt: [' o ', ' a ', ' e ', ' de ', ' que ', ' não ', ' um ', ' uma '],
+			tr: [' ve ', ' bir ', ' değil ', ' için ', ' ben ', ' sen ', ' o '],
+			id: [' dan ', ' yang ', ' saya ', ' kamu ', ' tidak ', ' ini ', ' itu '],
+			fil: [' at ', ' ako ', ' ikaw ', ' hindi ', ' ito ', ' iyon '],
+			vi: [' và ', ' tôi ', ' bạn ', ' không ', ' một ', ' là ', ' trong ']
+		};
+		const nativeStops = stops[nativeCode];
+		if (nativeStops && nativeStops.some((w) => t.includes(w))) return nativeCode;
+		// If text looks purely ASCII words and no strong native stopword match, guess English as fallback
+		if (!nativeStops && asciiRatio > 0.7) return 'en';
+		return null;
 	}
 
 	private clearTranscriptionState(): void {

@@ -20,8 +20,8 @@
 	let messageUpdateCounter = $state(0);
 
 	// Conversation state for testing
-	let messages = $derived(conversationStore.messages);
-	let conversationStatus = $derived(conversationStore.status);
+	const messages = $derived(conversationStore.messages);
+	const conversationStatus = $derived(conversationStore.status);
 
 	onMount(async () => {
 		// Initialize services

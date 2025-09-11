@@ -135,11 +135,31 @@
 		conversationStore.dismissAnalysisResults();
 		goto('/');
 	}
+
+	function handlePermissionGranted() {
+		console.log('🔒 Permission granted, attempting to reconnect...');
+		// Clear any permission-related errors and retry connection
+		audioStore.clearError();
+		handleRetryConnection();
+	}
+
+	function handleSkipAudio() {
+		console.log('🔇 User chose to skip audio, continuing without voice...');
+		// For now, just retry connection - the system should handle graceful degradation
+		// In the future, you could set a flag to disable audio features
+		handleRetryConnection();
+	}
 </script>
 
 {#if status === 'connecting'}
 	<!-- Use new ConnectingState component -->
-	<ConnectingState {audioLevel} {error} onRetry={handleRetryConnection} />
+	<ConnectingState
+		{audioLevel}
+		{error}
+		onRetry={handleRetryConnection}
+		onPermissionGranted={handlePermissionGranted}
+		onSkipAudio={handleSkipAudio}
+	/>
 {:else if status === 'error'}
 	<!-- Use new ErrorState component -->
 	<ErrorState

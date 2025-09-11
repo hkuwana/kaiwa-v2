@@ -5,9 +5,18 @@
 		audioLevel: number;
 		error: string | null;
 		onRetry: () => void;
+		onPermissionGranted?: () => void;
+		onSkipAudio?: () => void;
 	}
 
-	const { audioLevel, error, onRetry }: Props = $props();
+	const { audioLevel, error, onRetry, onPermissionGranted, onSkipAudio }: Props = $props();
 </script>
 
-<LoadingScreen status="connecting" {audioLevel} {error} {onRetry} />
+<LoadingScreen
+	status="connecting"
+	{audioLevel}
+	{error}
+	{onRetry}
+	{onPermissionGranted}
+	{onSkipAudio}
+/>

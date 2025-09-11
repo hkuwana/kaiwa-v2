@@ -9,19 +9,21 @@ import {
 	generateAndStoreScriptsForMessage,
 	detectLanguage
 } from './scripts.service';
+import { translateMessage } from './translation.service';
 
 export function createUserPlaceholder(sessionId: string, speechStartTime?: number): Message {
 	// Use actual speech start time if provided, otherwise current time
 	const actualTime = speechStartTime || Date.now();
 	const timestamp = new SvelteDate(actualTime);
+	const sequenceId = generateSequenceId();
 
 	return {
 		role: 'user',
 		content: '',
 		timestamp,
 		id: `user_placeholder_${actualTime}_${Math.random().toString(36).slice(2, 9)}`,
-		// Use actual speech start time for proper chronological ordering
-		sequenceId: actualTime.toString(),
+		// Use generated sequence ID for strict chronological ordering
+		sequenceId,
 		conversationId: sessionId,
 		audioUrl: null,
 
@@ -107,35 +109,37 @@ export function replaceUserPlaceholderWithFinal(
 
 	if (placeholderIndex === -1) {
 		// No placeholder found, add new message
-		return sortMessagesBySequence([...messages, createFinalUserMessage(finalText, sessionId)]);
+		const newMessages = [...messages, createFinalUserMessage(finalText, sessionId)];
+		return removeDuplicateMessages(sortMessagesBySequence(newMessages));
 	}
 
 	const updatedMessages = [...messages];
 	const placeholder = updatedMessages[placeholderIndex];
 
-	// Build final user message preserving original timestamp for proper ordering
+	// Build final user message preserving original timestamp and sequence for proper ordering
 	const finalized = {
 		...placeholder,
 		content: finalText,
 		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-		// Keep original timestamp to maintain chronological order
+		// Keep original timestamp and sequenceId to maintain chronological order
 		timestamp: placeholder.timestamp,
-		sequenceId: placeholder.sequenceId || placeholder.timestamp.getTime().toString()
+		sequenceId: placeholder.sequenceId || generateSequenceId()
 	};
 
 	// Replace placeholder in-place to maintain chronological order
 	updatedMessages[placeholderIndex] = finalized;
-	return sortMessagesBySequence(updatedMessages);
+	return removeDuplicateMessages(sortMessagesBySequence(updatedMessages));
 }
 
 export function createFinalUserMessage(content: string, sessionId: string): Message {
 	const now = new SvelteDate();
+	const sequenceId = generateSequenceId();
 	return {
 		role: 'user',
 		content,
 		timestamp: now,
 		id: `msg_${now.getTime()}_${Math.random().toString(36).slice(2, 9)}`,
-		sequenceId: now.getTime().toString(),
+		sequenceId,
 		conversationId: sessionId,
 		audioUrl: null,
 
@@ -172,12 +176,13 @@ export function createFinalUserMessage(content: string, sessionId: string): Mess
 
 export function createStreamingMessage(content: string, sessionId: string): Message {
 	const now = new SvelteDate();
+	const sequenceId = generateSequenceId();
 	return {
 		role: 'assistant',
 		content,
 		timestamp: now,
 		id: `streaming_${now.getTime()}_${Math.random().toString(36).slice(2, 9)}`,
-		sequenceId: now.getTime().toString(),
+		sequenceId,
 		conversationId: sessionId,
 		audioUrl: null,
 
@@ -219,7 +224,8 @@ export function updateStreamingMessage(messages: Message[], deltaText: string): 
 
 	if (streamingMessageIndex === -1) {
 		// Create new streaming message
-		return [...messages, createStreamingMessage(deltaText, messages[0]?.conversationId || '')];
+		const newMessages = [...messages, createStreamingMessage(deltaText, messages[0]?.conversationId || '')];
+		return removeDuplicateMessages(sortMessagesBySequence(newMessages));
 	}
 
 	// Accumulate text in existing streaming message
@@ -228,7 +234,7 @@ export function updateStreamingMessage(messages: Message[], deltaText: string): 
 		...updatedMessages[streamingMessageIndex],
 		content: updatedMessages[streamingMessageIndex].content + deltaText
 	};
-	return updatedMessages;
+	return removeDuplicateMessages(updatedMessages);
 }
 
 export function finalizeStreamingMessage(messages: Message[], finalText: string): Message[] {
@@ -238,7 +244,8 @@ export function finalizeStreamingMessage(messages: Message[], finalText: string)
 
 	if (streamingMessageIndex === -1) {
 		// No streaming message found, create final message directly
-		return [...messages, createFinalAssistantMessage(finalText, messages[0]?.conversationId || '')];
+		const newMessages = [...messages, createFinalAssistantMessage(finalText, messages[0]?.conversationId || '')];
+		return removeDuplicateMessages(sortMessagesBySequence(newMessages));
 	}
 
 	// Replace streaming message with final message
@@ -249,7 +256,7 @@ export function finalizeStreamingMessage(messages: Message[], finalText: string)
 		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
 		timestamp: new SvelteDate()
 	};
-	return updatedMessages;
+	return removeDuplicateMessages(sortMessagesBySequence(updatedMessages));
 }
 
 export function createFinalAssistantMessage(content: string, sessionId: string): Message {
@@ -368,12 +375,120 @@ export function isDuplicateMessage(
 /**
  * Sort messages by sequence ID/timestamp to maintain chronological order
  */
+// Global sequence counter to ensure strict ordering
+let globalSequenceCounter = 0;
+
 export function sortMessagesBySequence(messages: Message[]): Message[] {
 	return [...messages].sort((a, b) => {
 		const aSeq = a.sequenceId ? parseInt(a.sequenceId) : a.timestamp.getTime();
 		const bSeq = b.sequenceId ? parseInt(b.sequenceId) : b.timestamp.getTime();
+
+		// If timestamps are equal, use a secondary sort by ID to ensure consistent ordering
+		if (aSeq === bSeq) {
+			return a.id.localeCompare(b.id);
+		}
 		return aSeq - bSeq;
 	});
+}
+
+/**
+ * Remove duplicate messages based on content and role to prevent double entries
+ */
+export function removeDuplicateMessages(messages: Message[]): Message[] {
+	const seen = new Set<string>();
+	return messages.filter(msg => {
+		// Create a unique key based on role, content, and timestamp (within 1 second)
+		const roundedTimestamp = Math.floor(msg.timestamp.getTime() / 1000) * 1000;
+		const key = `${msg.role}:${msg.content.trim()}:${roundedTimestamp}`;
+		
+		if (seen.has(key)) {
+			console.debug('Removing duplicate message:', { role: msg.role, content: msg.content.substring(0, 50), id: msg.id });
+			return false;
+		}
+		
+		seen.add(key);
+		return true;
+	});
+}
+
+/**
+ * Check if a message needs translation
+ */
+export function needsTranslation(message: Message, userNativeLanguage: string): boolean {
+	// Don't translate if already translated
+	if (message.isTranslated && message.translatedContent) {
+		return false;
+	}
+
+	// Don't translate empty messages
+	if (!message.content?.trim()) {
+		return false;
+	}
+
+	// Don't translate if the source language is the same as user's native language
+	const sourceLanguage = message.sourceLanguage || detectLanguage(message.content);
+	if (sourceLanguage === userNativeLanguage || sourceLanguage === 'other') {
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Add translation to a message
+ */
+export async function addTranslationToMessage(
+	message: Message, 
+	userNativeLanguage: string = 'en'
+): Promise<Message> {
+	try {
+		// Detect source language if not set
+		const sourceLanguage = message.sourceLanguage || detectLanguage(message.content);
+		
+		// Don't translate if not needed
+		if (!needsTranslation(message, userNativeLanguage)) {
+			return message;
+		}
+
+		console.log(`🌐 Translating message "${message.content.substring(0, 50)}..." from ${sourceLanguage} to ${userNativeLanguage}`);
+
+		// Call translation service
+		const translationResult = await translateMessage(
+			message, 
+			userNativeLanguage, 
+			sourceLanguage
+		);
+
+		// Update message with translation data
+		const updatedMessage: Message = {
+			...message,
+			translatedContent: translationResult.translatedContent,
+			sourceLanguage: translationResult.sourceLanguage,
+			targetLanguage: translationResult.targetLanguage,
+			userNativeLanguage,
+			translationConfidence: translationResult.confidence || 'medium',
+			translationProvider: translationResult.provider || 'google-translate',
+			isTranslated: true,
+			// Add romanization if available
+			romanization: translationResult.romanization || message.romanization,
+			hiragana: translationResult.hiragana || message.hiragana,
+			otherScripts: translationResult.otherScripts || message.otherScripts
+		};
+
+		console.log(`✅ Translation completed for message ${message.id}`);
+		return updatedMessage;
+	} catch (error) {
+		console.error(`❌ Translation failed for message ${message.id}:`, error);
+		// Return original message if translation fails
+		return message;
+	}
+}
+
+export function generateSequenceId(): string {
+	// Combine timestamp with auto-incrementing counter for strict ordering
+	const timestamp = Date.now();
+	const sequence = ++globalSequenceCounter;
+	return `${timestamp}_${sequence.toString().padStart(6, '0')}`;
 }
 
 /**

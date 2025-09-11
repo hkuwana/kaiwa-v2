@@ -41,7 +41,7 @@
 	let messagesContainer: HTMLElement;
 
 	// UI state for chat visibility
-	let enableTyping = $state(false);
+	const enableTyping = $state(false);
 
 	// Audio control state
 	let hasUsedAudioControl = $state(false);

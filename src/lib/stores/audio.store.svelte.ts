@@ -1,5 +1,10 @@
 // audio.store.svelte.ts - Audio store using Svelte 5 runes in a class
-import { audioService, type AudioLevel } from '$lib/services/audio.service';
+import {
+	audioService,
+	type AudioLevel,
+	type PermissionState,
+	createUserFriendlyError
+} from '$lib/services/audio.service';
 import { browser } from '$app/environment';
 
 export class AudioStore {
@@ -12,14 +17,26 @@ export class AudioStore {
 	availableDevices = $state<MediaDeviceInfo[]>([]);
 	audioError = $state<string | null>(null);
 	isInitialized = $state<boolean>(false);
+	permissionState = $state<PermissionState | null>(null);
+	userFriendlyError = $state<ReturnType<typeof createUserFriendlyError> | null>(null);
 
 	// =====================================
 	// DERIVED STATE (using runes)
 	// =====================================
 	levelPercentage = $derived(Math.round(this.currentLevel.level * 100));
 	hasDevices = $derived(this.availableDevices.length > 0);
-	canRecord = $derived(this.hasDevices && !this.audioError && this.isInitialized);
+	canRecord = $derived(
+		this.hasDevices &&
+			!this.audioError &&
+			this.isInitialized &&
+			this.permissionState?.state !== 'denied'
+	);
 	isLevelActive = $derived(this.currentLevel.level > 0.01);
+	hasPermission = $derived(this.permissionState?.state === 'granted');
+	needsPermission = $derived(
+		this.permissionState?.state === 'denied' || this.permissionState?.state === 'prompt'
+	);
+	canRetryPermission = $derived(this.permissionState?.canRetry === true);
 
 	// Device selector helpers
 	selectedDevice = $derived(
@@ -28,7 +45,17 @@ export class AudioStore {
 	hasMultipleDevices = $derived(this.availableDevices.length > 1);
 
 	constructor() {
-		// No need to set up callbacks in constructor - they'll be set up when recording starts
+		if (browser) {
+			// Set up permission and error callbacks
+			audioService.onPermissionUpdate((permission: PermissionState) => {
+				this.permissionState = { ...permission };
+			});
+
+			audioService.onUserFriendlyError((error: ReturnType<typeof createUserFriendlyError>) => {
+				this.userFriendlyError = { ...error };
+				this.audioError = error.message;
+			});
+		}
 	}
 
 	// =====================================
@@ -41,11 +68,16 @@ export class AudioStore {
 			console.log('🎵 AudioStore: Initializing...');
 			await audioService.initialize();
 
+			// Check permissions first
+			const permission = await audioService.checkPermissions();
+			console.log('🔒 AudioStore: Permission state:', permission);
+
 			// Get available devices
 			const devices = await audioService.getAvailableDevices();
 			this.availableDevices = [...devices];
 			this.isInitialized = true;
 			this.audioError = null;
+			this.userFriendlyError = null;
 
 			console.log('✅ AudioStore: Initialized with', devices.length, 'devices');
 		} catch (error) {
@@ -116,6 +148,35 @@ export class AudioStore {
 
 	clearError() {
 		this.audioError = null;
+		this.userFriendlyError = null;
+	}
+
+	// =====================================
+	// PERMISSION METHODS
+	// =====================================
+	async checkPermissions(): Promise<PermissionState> {
+		if (!browser)
+			return { state: 'unknown', canRetry: false, userFriendlyMessage: 'Not in browser' };
+		return await audioService.checkPermissions();
+	}
+
+	async requestPermissionGracefully(): Promise<{
+		success: boolean;
+		stream?: MediaStream;
+		error?: ReturnType<typeof createUserFriendlyError>;
+	}> {
+		if (!browser) return { success: false };
+
+		this.audioError = null;
+		this.userFriendlyError = null;
+
+		const result = await audioService.requestPermissionGracefully();
+
+		if (result.success && result.stream) {
+			this.isRecording = true;
+		}
+
+		return result;
 	}
 
 	// =====================================
@@ -174,6 +235,8 @@ export class AudioStore {
 		this.stopRecording();
 		this.selectedDeviceId = 'default';
 		this.audioError = null;
+		this.userFriendlyError = null;
+		this.permissionState = null;
 		this.isInitialized = false;
 		this.availableDevices = [];
 	}

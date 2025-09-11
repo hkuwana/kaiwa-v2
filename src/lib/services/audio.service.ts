@@ -7,6 +7,166 @@ export interface AudioLevel {
 }
 
 // =====================================
+// PERMISSION HANDLING UTILITIES
+// =====================================
+
+export interface PermissionState {
+	state: 'granted' | 'denied' | 'prompt' | 'unknown';
+	canRetry: boolean;
+	userFriendlyMessage: string;
+}
+
+const checkAudioPermission = async (): Promise<PermissionState> => {
+	try {
+		if (!navigator.permissions) {
+			return {
+				state: 'unknown',
+				canRetry: true,
+				userFriendlyMessage: 'Permission status unknown - will try to request access'
+			};
+		}
+
+		const permission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+
+		switch (permission.state) {
+			case 'granted':
+				return {
+					state: 'granted',
+					canRetry: false,
+					userFriendlyMessage: 'Microphone access granted'
+				};
+			case 'denied':
+				return {
+					state: 'denied',
+					canRetry: false,
+					userFriendlyMessage:
+						"Microphone access denied. Please click the microphone icon in your browser's address bar to allow access."
+				};
+			case 'prompt':
+				return {
+					state: 'prompt',
+					canRetry: true,
+					userFriendlyMessage: 'Will request microphone access'
+				};
+			default:
+				return {
+					state: 'unknown',
+					canRetry: true,
+					userFriendlyMessage: 'Permission status unknown - will try to request access'
+				};
+		}
+	} catch (error) {
+		console.warn('🔒 Permission check failed:', error);
+		return {
+			state: 'unknown',
+			canRetry: true,
+			userFriendlyMessage: 'Could not check permission status - will try to request access'
+		};
+	}
+};
+
+const createUserFriendlyError = (
+	error: Error
+): {
+	type: 'permission' | 'device' | 'constraint' | 'security' | 'unknown';
+	title: string;
+	message: string;
+	canRetry: boolean;
+	suggestions: string[];
+} => {
+	const errorName = error.name;
+	const errorMessage = error.message.toLowerCase();
+
+	// Permission denied errors
+	if (errorName === 'NotAllowedError' || errorName === 'PermissionDeniedError') {
+		return {
+			type: 'permission',
+			title: 'Microphone Access Denied',
+			message: 'We need access to your microphone for voice conversations.',
+			canRetry: true,
+			suggestions: [
+				"Click the microphone icon in your browser's address bar",
+				'Select "Allow" when prompted for microphone access',
+				"Check your browser settings if the icon isn't visible",
+				"Make sure your microphone isn't being used by another app"
+			]
+		};
+	}
+
+	// Device not found errors
+	if (errorName === 'NotFoundError' || errorName === 'DevicesNotFoundError') {
+		return {
+			type: 'device',
+			title: 'No Microphone Found',
+			message: "We couldn't find a microphone on your device.",
+			canRetry: true,
+			suggestions: [
+				'Check that your microphone is properly connected',
+				'Try refreshing the page',
+				"Check your device's audio settings",
+				"Make sure other apps aren't using your microphone"
+			]
+		};
+	}
+
+	// Device in use errors
+	if (errorName === 'NotReadableError' || errorName === 'TrackStartError') {
+		return {
+			type: 'device',
+			title: 'Microphone Unavailable',
+			message: 'Your microphone appears to be in use by another application.',
+			canRetry: true,
+			suggestions: [
+				'Close other apps that might be using your microphone',
+				'Try refreshing the page',
+				'Restart your browser',
+				'Check for other browser tabs using your microphone'
+			]
+		};
+	}
+
+	// Constraint errors
+	if (errorName === 'OverconstrainedError' || errorName === 'ConstraintNotSatisfiedError') {
+		return {
+			type: 'constraint',
+			title: 'Audio Configuration Issue',
+			message: "Your microphone doesn't support the required audio settings.",
+			canRetry: true,
+			suggestions: [
+				"We'll try with simplified audio settings",
+				'Check if your microphone drivers are up to date',
+				'Try a different microphone if available'
+			]
+		};
+	}
+
+	// Security context errors
+	if (errorMessage.includes('secure') || errorMessage.includes('https')) {
+		return {
+			type: 'security',
+			title: 'Secure Connection Required',
+			message: 'Microphone access requires a secure connection (HTTPS).',
+			canRetry: false,
+			suggestions: ["Make sure you're using HTTPS", 'Contact support if this problem persists']
+		};
+	}
+
+	// Generic error
+	return {
+		type: 'unknown',
+		title: 'Audio Setup Failed',
+		message: 'An unexpected error occurred while setting up audio.',
+		canRetry: true,
+		suggestions: [
+			'Try refreshing the page',
+			'Check your browser settings',
+			'Make sure your microphone is working',
+			'Contact support if this problem persists'
+		]
+	};
+};
+
+// =====================================
 // PURE FUNCTIONAL UTILITIES
 // =====================================
 
@@ -108,6 +268,8 @@ interface AudioServiceState {
 	levelInterval: number | null;
 	currentDeviceId: string;
 	lastLevel: number;
+	permissionState: PermissionState | null;
+	lastError: ReturnType<typeof createUserFriendlyError> | null;
 }
 
 const createAudioServiceCore = () => {
@@ -117,13 +279,17 @@ const createAudioServiceCore = () => {
 		analyser: null,
 		levelInterval: null,
 		currentDeviceId: 'default',
-		lastLevel: 0
+		lastLevel: 0,
+		permissionState: null,
+		lastError: null
 	};
 
 	// Event callbacks (functional approach)
 	let onLevelUpdate: (level: AudioLevel) => void = () => {};
 	let onStreamReady: (stream: MediaStream) => void = () => {};
 	let onStreamError: (error: string) => void = () => {};
+	let onPermissionUpdate: (permission: PermissionState) => void = () => {};
+	let onUserFriendlyError: (error: ReturnType<typeof createUserFriendlyError>) => void = () => {};
 
 	const cleanup = () => {
 		if (state.levelInterval) {
@@ -213,6 +379,19 @@ const createAudioServiceCore = () => {
 					)
 				});
 
+				// Check permission state first
+				console.log('🔒 AudioService: Checking permission state...');
+				state.permissionState = await checkAudioPermission();
+				console.log('🔒 Permission state:', state.permissionState);
+				onPermissionUpdate(state.permissionState);
+
+				// If permission is already denied, provide helpful guidance
+				if (state.permissionState.state === 'denied') {
+					const permissionError = new Error('Permission denied') as Error & { name: string };
+					permissionError.name = 'NotAllowedError';
+					throw permissionError;
+				}
+
 				const constraints = createConstraints(deviceId);
 				console.log('🎵 AudioService: Using constraints:', JSON.stringify(constraints, null, 2));
 
@@ -249,37 +428,64 @@ const createAudioServiceCore = () => {
 			} catch (error) {
 				console.error('❌ AudioService: getStream failed:', error);
 
-				// Try fallback constraints for mobile devices
-				if (error instanceof Error && error.message.includes('Invalid constraint')) {
-					console.log('🔄 AudioService: Trying fallback constraints for mobile...');
-					try {
-						const fallbackConstraints = { audio: { echoCancellation: { ideal: false } } };
-						console.log(
-							'🔄 AudioService: Using fallback constraints:',
-							JSON.stringify(fallbackConstraints, null, 2)
-						);
+				// Create user-friendly error information
+				const userFriendlyError = createUserFriendlyError(error as Error);
+				state.lastError = userFriendlyError;
+				console.log('🚨 User-friendly error:', userFriendlyError);
+				onUserFriendlyError(userFriendlyError);
 
-						state.stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
-						console.log('✅ AudioService: Fallback constraints worked!');
+				// Try progressive fallbacks for constraint errors
+				if (
+					userFriendlyError.type === 'constraint' ||
+					(error instanceof Error && error.message.includes('Invalid constraint'))
+				) {
+					console.log('🔄 AudioService: Trying progressive fallback constraints...');
 
-						state.currentDeviceId = deviceId || 'default';
+					const fallbackStrategies = [
+						// Strategy 1: Simplified constraints with echo cancellation off
+						{ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } },
+						// Strategy 2: Just basic audio
+						{ audio: true },
+						// Strategy 3: Mobile-optimized
+						{ audio: { channelCount: 1, sampleRate: 16000 } }
+					];
 
+					for (let i = 0; i < fallbackStrategies.length; i++) {
 						try {
-							const { audioContext, analyser } = await createAudioAnalyser(state.stream);
-							state.audioContext = audioContext;
-							state.analyser = analyser;
-							startLevelMonitoring();
-						} catch (analyserError) {
-							console.warn('⚠️ AudioService: Fallback audio analyser setup failed:', analyserError);
-						}
+							const fallbackConstraints = fallbackStrategies[i];
+							console.log(
+								`🔄 AudioService: Trying fallback strategy ${i + 1}:`,
+								JSON.stringify(fallbackConstraints, null, 2)
+							);
 
-						onStreamReady(state.stream);
-						return state.stream;
-					} catch (fallbackError) {
-						console.error('❌ AudioService: Fallback constraints also failed:', fallbackError);
+							state.stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
+							console.log(`✅ AudioService: Fallback strategy ${i + 1} worked!`);
+
+							state.currentDeviceId = deviceId || 'default';
+							state.lastError = null; // Clear error on success
+
+							try {
+								const { audioContext, analyser } = await createAudioAnalyser(state.stream);
+								state.audioContext = audioContext;
+								state.analyser = analyser;
+								startLevelMonitoring();
+							} catch (analyserError) {
+								console.warn(
+									'⚠️ AudioService: Fallback audio analyser setup failed:',
+									analyserError
+								);
+							}
+
+							onStreamReady(state.stream);
+							return state.stream;
+						} catch (fallbackError) {
+							console.log(`❌ AudioService: Fallback strategy ${i + 1} failed:`, fallbackError);
+							continue;
+						}
 					}
 				}
 
+				// If all fallbacks failed, provide clear error guidance
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 				onStreamError(errorMessage);
 				throw new Error(`Failed to get audio stream: ${errorMessage}`);
@@ -294,6 +500,32 @@ const createAudioServiceCore = () => {
 		hasActiveStream: () => state.stream !== null,
 		getCurrentStream: () => state.stream,
 		getAvailableDevices: getAudioDevices,
+		getPermissionState: () => state.permissionState,
+		getLastError: () => state.lastError,
+
+		// Permission utilities
+		async checkPermissions(): Promise<PermissionState> {
+			state.permissionState = await checkAudioPermission();
+			onPermissionUpdate(state.permissionState);
+			return state.permissionState;
+		},
+
+		async requestPermissionGracefully(): Promise<{
+			success: boolean;
+			stream?: MediaStream;
+			error?: ReturnType<typeof createUserFriendlyError>;
+		}> {
+			const core = this;
+			try {
+				const stream = await core.getStream();
+				return { success: true, stream };
+			} catch (error) {
+				return {
+					success: false,
+					error: state.lastError || createUserFriendlyError(error as Error)
+				};
+			}
+		},
 
 		// Event handlers
 		setLevelUpdateCallback: (callback: (level: AudioLevel) => void) => {
@@ -304,6 +536,14 @@ const createAudioServiceCore = () => {
 		},
 		setStreamErrorCallback: (callback: (error: string) => void) => {
 			onStreamError = callback;
+		},
+		setPermissionUpdateCallback: (callback: (permission: PermissionState) => void) => {
+			onPermissionUpdate = callback;
+		},
+		setUserFriendlyErrorCallback: (
+			callback: (error: ReturnType<typeof createUserFriendlyError>) => void
+		) => {
+			onUserFriendlyError = callback;
 		},
 
 		// Testing utilities
@@ -414,6 +654,14 @@ export class AudioService {
 		this.core.setStreamErrorCallback(callback);
 	}
 
+	onPermissionUpdate(callback: (permission: PermissionState) => void): void {
+		this.core.setPermissionUpdateCallback(callback);
+	}
+
+	onUserFriendlyError(callback: (error: ReturnType<typeof createUserFriendlyError>) => void): void {
+		this.core.setUserFriendlyErrorCallback(callback);
+	}
+
 	getCurrentDeviceId(): string {
 		return this.core.getCurrentDeviceId();
 	}
@@ -436,6 +684,27 @@ export class AudioService {
 
 	async testConstraints() {
 		return this.core.testConstraints();
+	}
+
+	// New permission-related methods
+	getPermissionState(): PermissionState | null {
+		return this.core.getPermissionState();
+	}
+
+	getLastError(): ReturnType<typeof createUserFriendlyError> | null {
+		return this.core.getLastError();
+	}
+
+	async checkPermissions(): Promise<PermissionState> {
+		return this.core.checkPermissions();
+	}
+
+	async requestPermissionGracefully(): Promise<{
+		success: boolean;
+		stream?: MediaStream;
+		error?: ReturnType<typeof createUserFriendlyError>;
+	}> {
+		return this.core.requestPermissionGracefully();
 	}
 
 	// =====================================
@@ -497,6 +766,8 @@ class DummyAudioService {
 	onLevelUpdate() {}
 	onStreamReady() {}
 	onStreamError() {}
+	onPermissionUpdate() {}
+	onUserFriendlyError() {}
 	getCurrentDeviceId() {
 		return 'default';
 	}
@@ -523,6 +794,22 @@ class DummyAudioService {
 	pipe<T>(fn: (service: unknown) => T): T {
 		return fn(this);
 	}
+	getPermissionState(): PermissionState | null {
+		return null;
+	}
+	getLastError(): ReturnType<typeof createUserFriendlyError> | null {
+		return null;
+	}
+	async checkPermissions(): Promise<PermissionState> {
+		return { state: 'unknown', canRetry: false, userFriendlyMessage: 'Not available in SSR' };
+	}
+	async requestPermissionGracefully(): Promise<{
+		success: boolean;
+		stream?: MediaStream;
+		error?: ReturnType<typeof createUserFriendlyError>;
+	}> {
+		return { success: false };
+	}
 	static create() {
 		return new DummyAudioService();
 	}
@@ -539,4 +826,10 @@ export const audioService = browser ? new AudioService() : new DummyAudioService
 export const createAudioService = () => (browser ? new AudioService() : new DummyAudioService());
 
 // Export utilities for advanced usage
-export { createConstraints, calculateAudioLevel, getAudioDevices };
+export {
+	createConstraints,
+	calculateAudioLevel,
+	getAudioDevices,
+	checkAudioPermission,
+	createUserFriendlyError
+};
