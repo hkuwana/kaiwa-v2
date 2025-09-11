@@ -22,7 +22,7 @@
 	];
 </script>
 
-<nav class="relative z-50 navbar bg-base-100 shadow-sm">
+<nav class="relative z-50 navbar bg-base-100">
 	<div class="navbar-start">
 		<div class="dropdown">
 			<div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
@@ -62,7 +62,7 @@
 		</div>
 		<button onclick={handleHome} class="btn text-xl btn-ghost">Kaiwa</button>
 	</div>
-	<div class="navbar-center hidden lg:flex items-center">
+	<div class="navbar-center hidden items-center lg:flex">
 		<ul class="menu menu-horizontal px-1">
 			<li><a href="/about" class="">About</a></li>
 			<li><a href="/pricing" class="">Pricing</a></li>

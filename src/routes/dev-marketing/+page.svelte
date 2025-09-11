@@ -264,5 +264,89 @@
 				</li>
 			</ul>
 		</div>
+
+		<!-- Detailed Plan (long form) -->
+		<div class="mt-8 rounded-xl bg-base-100 p-5 shadow">
+			<div class="mb-4 text-lg font-semibold">Detailed Plan (In Progress)</div>
+			<div class="space-y-6 text-sm leading-relaxed">
+				<div>
+					<div class="mb-1 font-semibold">Audience & Positioning</div>
+					<ul class="list-disc pl-6">
+						<li>Primary: couples across languages; secondary: diaspora family communication.</li>
+						<li>Problem: apps focus on drills; real emotional conversations remain hard.</li>
+						<li>Positioning: relationship‑first practice for moments that matter.</li>
+						<li>JP‑first emphasis in marketing; product remains multi‑language.</li>
+					</ul>
+				</div>
+				<div>
+					<div class="mb-1 font-semibold">Core Experience & Aha</div>
+					<ul class="list-disc pl-6">
+						<li>Free 3‑minute onboarding: sample flow + quick level assessment.</li>
+						<li>Daily quick chat loop: small wins with phrases that feel useful now.</li>
+						<li>Post‑session review screen: clear next step (analyze / practice / share).</li>
+					</ul>
+				</div>
+				<div>
+					<div class="mb-1 font-semibold">Content & Channels</div>
+					<ul class="list-disc pl-6">
+						<li><span class="font-medium">Email #1 (Week 1):</span> founder story, 3‑min onboarding CTA, gentle share ask; subject ideas: “I made Kaiwa for couples across languages”, “3 minutes to talk in their language”.</li>
+						<li><span class="font-medium">Email #2 (Week 2–2.5):</span> behind‑the‑scenes + reminder; share 30–45s demo; invite replies with personal use cases.</li>
+						<li><span class="font-medium">Reddit founder story (Week 1):</span> authentic narrative, short demo; link in comments; disclose self‑promo; respect rules.</li>
+						<li><span class="font-medium">Reddit practical post (Week 1.5):</span> “How I’m tackling emotional convos across languages with AI” + examples; link in comments.</li>
+						<li><span class="font-medium">Personal networks:</span> 1‑to‑1 messages; avoid mass spam; include personal reason and a simple link.</li>
+					</ul>
+				</div>
+				<div>
+					<div class="mb-1 font-semibold">In‑Product Moments</div>
+					<ul class="list-disc pl-6">
+						<li><span class="font-medium">Share module:</span> native share on mobile; WhatsApp/text + copy on desktop; serene thanks animation.</li>
+						<li><span class="font-medium">Placement:</span> About page and post‑session review (implemented).</li>
+						<li><span class="font-medium">Copy:</span> neutral, calm, personal—no moral pressure.</li>
+						<li><span class="font-medium">Upsell:</span> Early‑Backer Plus banner on review screen; pricing page CTA if env price set.</li>
+					</ul>
+				</div>
+				<div>
+					<div class="mb-1 font-semibold">Measurement & Attribution</div>
+					<ul class="list-disc pl-6">
+						<li>Capture <code>utm_*</code> + <code>shareId</code>/<code>ref</code> in layout; persist in localStorage + cookie.</li>
+						<li>Register super properties in PostHog; track <code>share_referred_visit</code>, <code>about_cta_clicked</code>, auth success props.</li>
+						<li>Activation: onboarding complete → first scenario → 2+ sessions in 3 days.</li>
+						<li>Referrals: count signups with <code>share_id</code>; monitor share actions volume.</li>
+					</ul>
+				</div>
+				<div>
+					<div class="mb-1 font-semibold">Referral Implementation</div>
+					<ul class="list-disc pl-6">
+						<li>Share links use <code>/?shareId={userId}</code>.</li>
+						<li>Persist shareId in cookie (<code>kaiwa_share_id</code>) + storage for pre‑signup navigation.</li>
+						<li>Include shareId and UTMs on signup success event for attribution.</li>
+					</ul>
+				</div>
+				<div>
+					<div class="mb-1 font-semibold">Monetization Approach</div>
+					<ul class="list-disc pl-6">
+						<li>Usage and shares first; keep free onboarding and quick chats open.</li>
+						<li>Early‑Backer Plus ($5/mo for 12 months) via env price; maps to Plus tier server‑side.</li>
+						<li>Overage minutes deferred until operational support exists.</li>
+					</ul>
+				</div>
+				<div>
+					<div class="mb-1 font-semibold">Risks & Mitigations</div>
+					<ul class="list-disc pl-6">
+						<li>Reddit self‑promo sensitivity → founder narrative, value share, link in comments, follow subreddit rules.</li>
+						<li>Pay friction → avoid hard paywall; keep free loop; position Early‑Backer as support + unlock.</li>
+						<li>Cost control → short sessions; cap defaults; monitor usage.</li>
+					</ul>
+				</div>
+				<div>
+					<div class="mb-1 font-semibold">Next Iterations</div>
+					<ul class="list-disc pl-6">
+						<li>Drop a 30–45s demo on Home (prod‑gated by env) once recorded.</li>
+						<li>Collect 2–3 named testimonials; add to Home hero/strip.</li>
+						<li>Optional: language‑specific landing (e.g., Japanese relationships) for targeted posts.</li>
+					</ul>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
