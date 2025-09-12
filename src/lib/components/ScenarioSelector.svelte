@@ -22,7 +22,10 @@
 	}: Props = $props();
 
 	// Emoji by scenario category (onboarding | comfort | basic | intermediate | relationships)
-	const categoryEmoji: Record<'onboarding' | 'comfort' | 'basic' | 'intermediate' | 'relationships', string> = {
+	const categoryEmoji: Record<
+		'onboarding' | 'comfort' | 'basic' | 'intermediate' | 'relationships',
+		string
+	> = {
 		onboarding: '☕️',
 		comfort: '🌆',
 		basic: '📘',
@@ -101,9 +104,16 @@
 			{disabled}
 		>
 			<div class="flex w-full items-center justify-center gap-3 text-center">
-				<span class="text-lg">{selectedScenario ? categoryEmoji[selectedScenario.category] || '🎯' : '🎯'}</span>
+				<span class="text-lg"
+					>{selectedScenario ? categoryEmoji[selectedScenario.category] || '🎯' : '🎯'}</span
+				>
 				<div class="flex flex-col items-center">
-					<span class="text-base font-medium">Scenario</span>
+					<span class="text-base font-medium"
+						>Scenario – {selectedScenario
+							? selectedScenario?.category.slice(0, 1).toLocaleUpperCase() +
+								selectedScenario?.category.slice(1)
+							: ''}</span
+					>
 					{#if selectedScenario}
 						<span class="text-sm opacity-70">{selectedScenario.title}</span>
 					{:else}
@@ -136,7 +146,7 @@
 					{@const isLocked = isGuest && scenario.category !== 'onboarding'}
 					<button
 						onclick={() => selectScenario(scenario)}
-						class="group btn my-1 relative flex w-full flex-col items-center justify-center rounded-xl px-4 py-4 text-center btn-ghost transition-colors duration-150"
+						class="group btn relative my-1 flex w-full flex-col items-center justify-center rounded-xl px-4 py-4 text-center btn-ghost transition-colors duration-150"
 						class:bg-primary={selectedScenario?.id === scenario.id}
 						class:text-primary-content={selectedScenario?.id === scenario.id}
 						class:hover:bg-primary={selectedScenario?.id === scenario.id}
@@ -154,7 +164,7 @@
 
 						{#if selectedScenario?.id === scenario.id}
 							<svg
-								class="absolute right-3 top-3 h-5 w-5"
+								class="absolute top-3 right-3 h-5 w-5"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"

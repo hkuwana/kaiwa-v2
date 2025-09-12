@@ -57,10 +57,16 @@
 	<div class="container mx-auto px-4 py-16">
 		<!-- Hero Section -->
 		<div class="mb-16 text-center">
-			<h1 class="mb-6 text-5xl font-bold md:text-7xl">Languages open doors to experiences</h1>
+			<h1 class="mb-6 text-5xl font-bold md:text-7xl">Languages Open Doors to Human Connection</h1>
 			<p class="mx-auto max-w-4xl text-xl leading-relaxed md:text-2xl">
-				A conversation-focused language learning site for explorers and connection builders
+				The story behind Kaiwa: Why we built an AI language learning app that prioritizes meaningful conversation over test scores
 			</p>
+			<div class="mt-6 flex justify-center space-x-4 text-sm opacity-70">
+				<span>🌍 Global Community</span>
+				<span>💬 Conversation-First</span>
+				<span>🤖 AI-Powered</span>
+				<span>❤️ Heart-to-Heart</span>
+			</div>
 		</div>
 
 		<!-- My Story -->
@@ -68,13 +74,10 @@
 			<div
 				class="rounded-2xl border border-primary/20 bg-secondary/30 p-8 text-secondary-content backdrop-blur-sm"
 			>
-				<h2 class="mb-6 text-3xl font-bold">The Problem</h2>
+				<h2 class="mb-6 text-3xl font-bold">The Problem with Traditional Language Learning</h2>
 				<div class="space-y-4 leading-relaxed">
 					<p>
-						I always loved learning languages, but I was never good at it. Tried Duolingo, took
-						classes, but I never built real confidence until I actually talked to native speakers.
-						Even though I grew up bilingual in Japanese and Chinese, my first foreign language
-						breakthrough came with Chinese.
+						I always loved learning languages, but I struggled with traditional methods. Like millions of others, I tried Duolingo, attended formal classes, and memorized vocabulary lists. But I never built real confidence until I actually talked to native speakers. Despite growing up bilingual in Japanese and Chinese, my breakthrough with learning foreign languages only came when I immersed myself in real conversations during my time in Taiwan.
 					</p>
 					<p>
 						Within 2 months of living in Taiwan, something clicked. I became conversational, played
@@ -96,25 +99,19 @@
 
 		<!-- Our Solution -->
 		<div class="mx-auto mb-16 max-w-4xl">
-			<h2 class="font-bold-content mb-8 text-center text-3xl">Our Solution</h2>
+			<h2 class="font-bold-content mb-8 text-center text-3xl">How Kaiwa Solves the Conversation Gap</h2>
 			<div
 				class="rounded-2xl border border-primary/20 bg-secondary/30 p-8 text-secondary-content backdrop-blur-sm"
 			>
 				<div class="space-y-4 leading-relaxed">
 					<p>
-						Kaiwa is a language learning site with AI conversations designed for people who want to
-						build real communication skills. We focus on the conversations that actually matter—the
-						ones that create connections and memories.
+						Kaiwa is an AI language learning platform designed for people who want to build real communication skills through conversation practice. Unlike traditional language apps that focus on vocabulary drills and grammar exercises, we prioritize the conversations that actually matter—the ones that create human connections and lasting memories.
 					</p>
 					<p>
-						AI will soon translate business emails and basic interactions for us. But when you're
-						chatting in an izakaya in Tokyo, sharing stories at a tapas bar in Granada, or
-						connecting with your in-laws in their native tongue—that's when you touch people's
-						hearts, not just their minds.
+						We recognize that AI will soon handle routine translations for business emails and basic interactions. But when you're laughing with friends in an izakaya in Tokyo, sharing personal stories at a tapas bar in Granada, or having heart-to-heart conversations with your in-laws in their native tongue—that's when you touch people's hearts, not just exchange information.
 					</p>
 					<p class="font-semibold">
-						These heart-to-heart moments are what keep the human parts of communication alive, and
-						that's what we're here to help you build.
+						These authentic, emotional moments are what keep the human element of communication alive. Kaiwa helps you practice for these real-world scenarios through AI-powered conversation practice that prepares you for meaningful human connection.
 					</p>
 				</div>
 			</div>

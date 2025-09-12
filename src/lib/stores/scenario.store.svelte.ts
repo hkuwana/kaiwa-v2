@@ -132,22 +132,12 @@ export class ScenarioStore {
 		console.log('🔗 Setting up automatic scenario persistence...');
 
 		try {
-			// Watch for scenario changes
-			$effect(() => {
-				if (this.selectedScenario && browser) {
-					this.persistScenario(this.selectedScenario);
-				}
-			});
-
-			// Watch for history changes
-			$effect(() => {
-				if (this.scenarioHistory && browser) {
-					this.persistHistory(this.scenarioHistory);
-				}
-			});
-
+			// Since we can't use $effect in stores outside component context,
+			// we'll rely on manual persistence calls in the setter methods
+			// This is actually more predictable and avoids the component lifecycle issues
+			
 			this.persistenceInitialized = true;
-			console.log('✅ Scenario persistence setup complete');
+			console.log('✅ Scenario persistence setup complete (manual mode)');
 		} catch (error) {
 			console.warn('⚠️ Failed to setup scenario persistence, will retry later:', error);
 			// Reset flag so we can try again
@@ -199,8 +189,8 @@ export class ScenarioStore {
 		// Add to history
 		this.addToHistory(this.selectedScenario);
 
-		// Persistence is handled automatically by the effect, but also persist immediately as fallback
-		if (browser && !this.persistenceInitialized) {
+		// Since we no longer use $effect, manually trigger persistence
+		if (browser) {
 			this.persistScenario(this.selectedScenario);
 		}
 	};
@@ -212,8 +202,8 @@ export class ScenarioStore {
 		// Add to history
 		this.addToHistory(scenario);
 
-		// Persistence is handled automatically by the effect, but also persist immediately as fallback
-		if (browser && !this.persistenceInitialized) {
+		// Since we no longer use $effect, manually trigger persistence
+		if (browser) {
 			this.persistScenario(scenario);
 		}
 	};
@@ -231,8 +221,8 @@ export class ScenarioStore {
 			this.scenarioHistory = this.scenarioHistory.slice(0, 10);
 		}
 
-		// Persistence is handled automatically by the effect, but also persist immediately as fallback
-		if (browser && !this.persistenceInitialized) {
+		// Since we no longer use $effect, manually trigger persistence
+		if (browser) {
 			this.persistHistory(this.scenarioHistory);
 		}
 	};

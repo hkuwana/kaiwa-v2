@@ -14,12 +14,13 @@
 	// Dev routes (only shown when running in dev mode)
 	const DEV_LINKS = [
 		{ href: '/dev', label: 'Dev Home' },
-		{ href: '/dev-instructions', label: 'Dev: Instructions' },
-		{ href: '/dev-audiovisualizer', label: 'Dev: Audio Visualizer' },
-		{ href: '/dev-messages', label: 'Dev: Messages' },
-		{ href: '/dev-conversation', label: 'Dev: Conversations' },
-		{ href: '/dev-marketing', label: 'Dev: Marketing' },
-		{ href: 'dev-animated', label: 'animated' }
+		{ href: '/dev-instructions', label: 'Instructions' },
+		{ href: '/dev-audiovisualizer', label: 'Audio Visualizer' },
+		{ href: '/dev-messages', label: 'Messages' },
+		{ href: '/dev-conversation', label: 'Conversations' },
+		{ href: '/dev-marketing', label: 'Marketing' },
+		{ href: 'dev-animated', label: 'Animated' },
+		{ href: 'dev-payment', label: 'Payment' }
 	];
 </script>
 
@@ -108,7 +109,7 @@
 				</ul>
 			</div>
 		{:else}
-			<a href="/auth" class="btn btn-outline">Get Started</a>
+			<a href="/auth" class="btn btn-outline">Sign Up</a>
 		{/if}
 		<ThemeSwitcher />
 	</div>

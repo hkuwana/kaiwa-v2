@@ -1,6 +1,6 @@
 <!-- ChatBubbleFlow.svelte - Animated chat conversations showcasing the app -->
 <script lang="ts">
-	import { onMount } from 'svelte';
+    import { onMount } from 'svelte';
 
 	// Sample conversation data showcasing different languages and scenarios
 	const conversations = [
@@ -65,7 +65,7 @@
 		}
 	];
 
-	let visibleBubbles: Array<{
+	let visibleBubbles = $state<Array<{
 		id: string;
 		conversation: (typeof conversations)[0];
 		messageIndex: number;
@@ -73,11 +73,21 @@
 		leftPercent: number;
 		delay: number;
 		column: number;
-	}> = [];
+	}>>([]);
 
-	let bubbleCounter = 0;
-	let animationInterval: NodeJS.Timeout;
-	let numColumns = $state(3);
+    let bubbleCounter = 0;
+    let animationInterval: NodeJS.Timeout;
+    let numColumns = $state(3);
+
+	function getInitials(language: string): string {
+		if (!language) return 'AI';
+		const parts = language.trim().split(/\s+/);
+		if (parts.length >= 2) {
+			return (parts[0][0] + parts[1][0]).toUpperCase();
+		}
+		const firstTwo = language.slice(0, 2).toUpperCase();
+		return firstTwo || 'AI';
+	}
 
 	function updateColumns() {
 		if (typeof window === 'undefined') return;
@@ -114,8 +124,9 @@
 		updateColumns();
 		window.addEventListener('resize', updateColumns);
 		// Create initial bubbles
-		for (let i = 0; i < 3; i++) {
-			setTimeout(() => createBubble(i % Math.max(1, numColumns)), i * 1000);
+		for (let i = 0; i < 5; i++) {
+			// Seed a few bubbles quickly so something is visible immediately
+			setTimeout(() => createBubble(i % Math.max(1, numColumns)), i * 300);
 		}
 
 		// Continue creating bubbles at intervals
@@ -136,23 +147,13 @@
 <div
 	class="relative mx-auto w-full max-w-5xl overflow-hidden rounded-xl bg-gradient-to-b from-base-200/50 to-base-300/30 backdrop-blur-sm h-72 sm:h-80 md:h-96"
 >
-	<!-- Background pattern -->
-	<div class="absolute inset-0 opacity-10">
-		<svg class="h-full w-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-			<defs>
-				<pattern id="chat-pattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-					<circle cx="10" cy="10" r="1" fill="currentColor" />
-				</pattern>
-			</defs>
-			<rect width="100%" height="100%" fill="url(#chat-pattern)" />
-		</svg>
-	</div>
+    <!-- Background pattern removed per request (dots) -->
 
 	<!-- Animated chat bubbles -->
 	{#each visibleBubbles as bubble (bubble.id)}
 		<div
-			class="animate-float-up-fade absolute"
-			style="left: {bubble.leftPercent}%; animation-delay: {bubble.delay}ms;"
+			class="animate-float-up-fade absolute z-10"
+			style="left: {bubble.leftPercent}%; bottom: 8px; animation-delay: {bubble.delay}ms;"
 		>
 			<!-- Language flag and indicator -->
 			<div class="mb-2 flex items-center gap-2 text-sm font-medium opacity-80">
@@ -163,20 +164,16 @@
 			<!-- Chat bubble -->
 			<div class="chat {bubble.message.type === 'user' ? 'chat-end' : 'chat-start'}">
 				<div class="avatar chat-image">
-					<div
-						class="w-8 rounded-full bg-{bubble.message.type === 'user'
-							? 'primary'
-							: 'secondary'}/20 flex items-center justify-center"
-					>
-						<span class="text-xs">
-							{bubble.message.type === 'user' ? '👤' : '🤖'}
-						</span>
+					<div class={`w-8 rounded-full flex items-center justify-center ${
+						bubble.message.type === 'user' ? 'bg-primary/20' : 'bg-secondary/20'
+					}`}> 
+                <span class="text-xs font-semibold">
+                    {bubble.message.type === 'user' ? '👤' : getInitials(bubble.conversation.language)}
+                </span>
 					</div>
 				</div>
 				<div
-					class="chat-bubble max-w-xs {bubble.message.type === 'user'
-						? 'chat-bubble-primary'
-						: 'chat-bubble-secondary'} shadow-lg"
+					class="chat-bubble max-w-xs shadow-lg {bubble.message.type === 'user' ? 'chat-bubble-primary' : 'chat-bubble-secondary'} bg-base-100/90 text-base-content"
 				>
 					<div class="text-sm font-medium">
 						{bubble.message.text}
@@ -218,22 +215,22 @@
 </div>
 
 <style>
-	@keyframes float-up-fade {
-		0% {
-			transform: translateY(100px);
-			opacity: 0;
-		}
-		10% {
-			opacity: 1;
-		}
-		90% {
-			opacity: 1;
-		}
-		100% {
-			transform: translateY(-100px);
-			opacity: 0;
-		}
-	}
+@keyframes float-up-fade {
+    0% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+    5% {
+        opacity: 1;
+    }
+    95% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-140px);
+        opacity: 0;
+    }
+}
 
 	@keyframes bounce-slow {
 		0%,

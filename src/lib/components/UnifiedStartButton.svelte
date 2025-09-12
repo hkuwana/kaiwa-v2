@@ -122,10 +122,13 @@
 		>
 			<span class="relative z-10 flex items-center gap-2">
 				{#if selectedLanguage}
-					Start {currentScenario?.category?.charAt(0).toUpperCase() +
-						currentScenario?.category?.slice(1) || 'Learning'} in {selectedLanguage.name}
+					<span class=""
+						>Start {currentScenario?.category?.charAt(0).toUpperCase() +
+							(currentScenario?.category?.slice(1) || '')}
+					</span>
 				{:else}
-					Choose your language to start
+					<span class="sm:hidden">Choose language</span>
+					<span class="hidden sm:inline">Choose your language to start</span>
 				{/if}
 			</span>
 
@@ -135,18 +138,6 @@
 			></div>
 		</button>
 
-		<!-- Coming soon note or login prompt -->
-		{#if isGuest}
-			<div class="mt-4">
-				<button class="btn btn-secondary btn-lg w-full" onclick={handleLoginRedirect}>
-					🔐 Unlock more scenarios — Sign up / Login
-				</button>
-				<p class="mt-2 text-center text-sm opacity-70">Get full access and save progress</p>
-			</div>
-		{:else}
-			<div class="mt-4 text-center">
-				<p class="text-sm opacity-70">More scenarios coming soon!</p>
-			</div>
-		{/if}
+		<!-- Guest CTA removed in favor of top nav Sign Up button -->
 	</div>
 </div>

@@ -166,29 +166,12 @@ export class SettingsStore {
 		console.log('🔗 Setting up automatic persistence...');
 
 		try {
-			// Watch for language changes
-			$effect(() => {
-				if (this.selectedLanguage && browser) {
-					this.persistLanguage(this.selectedLanguage);
-				}
-			});
-
-			// Watch for speaker changes
-			$effect(() => {
-				if (this.selectedSpeaker && browser) {
-					this.persistSpeaker(this.selectedSpeaker);
-				}
-			});
-
-			// Watch for scenario changes
-			$effect(() => {
-				if (this.selectedScenario && browser) {
-					this.persistScenario(this.selectedScenario);
-				}
-			});
-
+			// Since we can't use $effect in stores outside component context,
+			// we'll rely on manual persistence calls in the setter methods
+			// This is actually more predictable and avoids the component lifecycle issues
+			
 			this.persistenceInitialized = true;
-			console.log('✅ Persistence setup complete');
+			console.log('✅ Persistence setup complete (manual mode)');
 		} catch (error) {
 			console.warn('⚠️ Failed to setup persistence, will retry later:', error);
 			// Reset flag so we can try again
@@ -252,8 +235,8 @@ export class SettingsStore {
 		const language = allLanguages.find((lang) => lang.code === languageCode);
 		if (language) {
 			this.selectedLanguage = language;
-			// Persistence is handled automatically by the effect, but also persist immediately as fallback
-			if (browser && !this.persistenceInitialized) {
+			// Since we no longer use $effect, manually trigger persistence
+			if (browser) {
 				this.persistLanguage(language);
 			}
 		}
@@ -276,8 +259,8 @@ export class SettingsStore {
 	// Update selected speaker
 	setSpeaker = (speakerId: string) => {
 		this.selectedSpeaker = speakerId;
-		// Persistence is handled automatically by the effect, but also persist immediately as fallback
-		if (browser && !this.persistenceInitialized) {
+		// Since we no longer use $effect, manually trigger persistence
+		if (browser) {
 			this.persistSpeaker(speakerId);
 		}
 	};
@@ -285,8 +268,8 @@ export class SettingsStore {
 	// Update selected scenario
 	setScenario = (scenarioId: string) => {
 		this.selectedScenario = scenarioId;
-		// Persistence is handled automatically by the effect, but also persist immediately as fallback
-		if (browser && !this.persistenceInitialized) {
+		// Since we no longer use $effect, manually trigger persistence
+		if (browser) {
 			this.persistScenario(scenarioId);
 		}
 	};
