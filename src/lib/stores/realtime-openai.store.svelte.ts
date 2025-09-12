@@ -39,6 +39,8 @@ export class RealtimeOpenAIStore {
 	// Lightweight messages array for UIs that want a direct feed
 	messages = $state<Message[]>([]);
 	private sessionId: string = '';
+    // Track finalized history item IDs to avoid re-creating partials after final
+    private finalizedItemIds = new Set<string>();
 
 	private logEvent(dir: 'server' | 'client', type: string, payload: any) {
 		try {
@@ -231,22 +233,27 @@ export class RealtimeOpenAIStore {
 	private connection: SessionConnection | null = null;
 	private unsubscribe: (() => void) | null = null;
 
-	async connect(
-		sessionData: SessionData,
-		mediaStream: MediaStream,
-		options?: {
-			model?: string;
-			voice?: Voice;
-			transcriptionLanguage?: string;
-			transcriptionModel?: string;
-		}
-	): Promise<void> {
-		try {
-			this.error = null;
+    async connect(
+        sessionData: SessionData,
+        mediaStream: MediaStream,
+        options?: {
+            model?: string;
+            voice?: Voice;
+            transcriptionLanguage?: string;
+            transcriptionModel?: string;
+        }
+    ): Promise<void> {
+        try {
+            this.error = null;
+            // Reset transient tracking for a fresh session
+            this.finalizedItemIds.clear();
+            this.historyText = {} as any;
+            this.assistantDelta = '';
+            this.userDelta = '';
 
-			// Create session + transport using existing audio stream
-			this.connection = await createConnectionWithSession(sessionData, mediaStream);
-			this.sessionId = sessionData.session_id || crypto.randomUUID();
+            // Create session + transport using existing audio stream
+            this.connection = await createConnectionWithSession(sessionData, mediaStream);
+            this.sessionId = sessionData.session_id || crypto.randomUUID();
 
 			// Subscribe to transport events and queue them for ordered processing
 			this.unsubscribe = subscribeToSession(this.connection, {
@@ -311,21 +318,26 @@ export class RealtimeOpenAIStore {
 		}
 	}
 
-	async disconnect(): Promise<void> {
-		if (this.unsubscribe) {
-			try {
-				this.unsubscribe();
-			} catch {}
-			this.unsubscribe = null;
-		}
-		if (this.connection) {
-			try {
-				closeSessionConnection(this.connection);
-			} catch {}
-			this.connection = null;
-		}
-		this.isConnected = false;
-	}
+    async disconnect(): Promise<void> {
+        if (this.unsubscribe) {
+            try {
+                this.unsubscribe();
+            } catch {}
+            this.unsubscribe = null;
+        }
+        if (this.connection) {
+            try {
+                closeSessionConnection(this.connection);
+            } catch {}
+            this.connection = null;
+        }
+        this.isConnected = false;
+        // Clear transient state
+        this.finalizedItemIds.clear();
+        this.historyText = {} as any;
+        this.assistantDelta = '';
+        this.userDelta = '';
+    }
 
 	// High-level helpers
 	sendResponse(): void {
@@ -503,6 +515,18 @@ export class RealtimeOpenAIStore {
 					}
 					this.messages = messageService.updateStreamingMessage(this.messages, deltaText);
 				} else {
+					// If this history item is already finalized, ignore any further user deltas
+					if (this.finalizedItemIds.has(itemId)) {
+						return;
+					}
+					// Also guard against recreating a partial if a final message with the same
+					// content already exists in our visible message list
+					const hasIdenticalFinal = this.messages.some(
+						(m) => m.role === 'user' && m.id.startsWith('msg_') && m.content.trim() === newText.trim()
+					);
+					if (hasIdenticalFinal) {
+						return;
+					}
 					// ensure placeholder exists
 					const hasPlaceholder = this.messages.some(
 						(m) =>
@@ -530,6 +554,8 @@ export class RealtimeOpenAIStore {
 			return;
 		}
 		this.historyText[itemId] = finalText;
+		// Mark this item as finalized so future deltas for this itemId are ignored
+		this.finalizedItemIds.add(itemId);
 		this.emitMessage({ itemId, role, text: finalText, delta: false, final: true });
 		if (role === 'assistant') {
 			this.aiResponse = finalText;

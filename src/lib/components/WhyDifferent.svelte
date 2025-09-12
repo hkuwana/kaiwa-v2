@@ -3,49 +3,50 @@
 
   const items = [
     {
-      title: 'One‑Click Speak',
-      desc: 'Click, say hello, and start a real conversation — no setup.',
-      icon: '▶️'
+      title: 'Start Speaking Immediately',
+      desc: 'No tutorials, no setup screens. Just click and have a real conversation in seconds.',
+      icon: '⚡'
     },
     {
-      title: 'Emotional Fluency',
-      desc: 'Practice apology, affection, conflict, humor — moments that matter.',
-      icon: '❤️'
+      title: 'Real Human Emotions',
+      desc: 'Practice apologizing, expressing affection, handling conflict — the conversations that actually matter in relationships.',
+      icon: '💝'
     },
     {
-      title: 'Japanese / Korean / Chinese Comfort',
-      desc: 'Furigana and romanization options help you speak without anxiety.',
+      title: 'Asian Language Support',
+      desc: 'Reading aids for Japanese, Korean, and Chinese speakers — because seeing characters shouldn\'t stop you from speaking.',
       icon: '文'
     },
     {
-      title: 'Conversation Memory',
-      desc: 'Opt‑in memory weaves your facts and topics into future chats.',
-      icon: '🧠'
+      title: 'Builds on Your Life',
+      desc: 'Remembers your interests and experiences to create personally relevant conversations you actually care about.',
+      icon: '🌱'
     },
     {
-      title: 'Voice‑First',
-      desc: 'Realtime turn‑taking that sounds natural — not robotic.',
-      icon: '🎙️'
+      title: 'Natural Conversation Flow',
+      desc: 'True back-and-forth dialogue that feels human — no awkward pauses or robotic responses.',
+      icon: '💬'
     },
     {
-      title: 'Insider Phrases',
-      desc: 'Learn what locals actually say, with cultural nuance.',
-      icon: '✨'
+      title: 'Cultural Insider Knowledge',
+      desc: 'Learn phrases locals actually use and understand the cultural context behind them.',
+      icon: '🗝️'
     }
   ];
 
   const compare = [
-    { key: 'Realtime voice conversations', kaiwa: 'Yes', typical: 'Limited' },
-    { key: 'Emotional/relationship scenarios', kaiwa: 'Core', typical: 'No' },
-    { key: 'CJK script comfort', kaiwa: 'Yes', typical: 'No' },
-    { key: 'Continuity memory (opt‑in)', kaiwa: 'Yes', typical: 'No' },
+    { key: 'Instant conversation start', kaiwa: 'One click', typical: 'Setup required', problem: 'Most apps make you complete lessons before speaking' },
+    { key: 'Unlimited speaking time', kaiwa: 'Always free', typical: 'Paywall/limits', problem: 'ChatGPT limits daily voice usage, Duolingo caps at 2 minutes' },
+    { key: 'Emotional conversations', kaiwa: 'Built-in scenarios', typical: 'Basic topics only', problem: 'Other apps avoid complex human emotions and relationships' },
+    { key: 'Asian language reading help', kaiwa: 'Furigana/romanization', typical: 'Not available', problem: 'Learning stops when you can\'t read the characters' },
+    { key: 'Personal conversation memory', kaiwa: 'Remembers your life', typical: 'Starts fresh', problem: 'Repetitive conversations that don\'t build on your experiences' },
   ];
 </script>
 
 <section class="container mx-auto max-w-5xl py-12">
   <div class="mx-auto mb-6 max-w-3xl text-center">
-    <h3 class="text-2xl font-bold">Why Kaiwa Is Different</h3>
-    <p class="mt-2 text-base opacity-80">Built for real conversations and human connection — not drills.</p>
+    <h3 class="text-2xl font-bold">The Real Conversation Difference</h3>
+    <p class="mt-2 text-base opacity-80">While other apps focus on lessons and drills, Kaiwa gets you speaking like a human from day one.</p>
   </div>
 
   <div class="grid gap-4 md:grid-cols-3">
@@ -62,26 +63,35 @@
     {/each}
   </div>
 
-  <div class="mt-8 overflow-x-auto rounded-xl border border-base-300 bg-base-100 shadow">
-    <div class="px-4 py-3 text-sm font-semibold">Kaiwa Free vs Typical Free</div>
-    <table class="table">
-      <thead>
-        <tr class="text-sm">
-          <th class="bg-base-200">Capability</th>
-          <th class="text-primary">Kaiwa</th>
-          <th>Typical</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each compare as row}
-          <tr class="text-sm">
-            <td class="font-medium">{row.key}</td>
-            <td class="font-semibold text-primary">{row.kaiwa}</td>
-            <td>{row.typical}</td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-    <div class="p-3 text-xs opacity-70">Comparisons refer to commonly available free offerings; features vary by product. Built with advanced AI (OpenAI Realtime APIs). “OpenAI” is a trademark of OpenAI; no endorsement implied.</div>
+  <div class="mt-12 space-y-6">
+    <div class="mx-auto mb-6 max-w-2xl text-center">
+      <h4 class="text-xl font-bold">What Other Apps Get Wrong</h4>
+      <p class="mt-2 text-sm opacity-70">Real problems that stop learners from actually speaking</p>
+    </div>
+    
+    <div class="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+      {#each compare as row}
+        <div class="rounded-xl border border-base-300 bg-base-50 p-4">
+          <div class="mb-2 flex items-center justify-between gap-4">
+            <h5 class="font-medium text-base">{row.key}</h5>
+          </div>
+          <div class="grid gap-2 text-sm">
+            <div class="flex items-center gap-2">
+              <span class="inline-block w-12 text-xs font-medium opacity-60">Kaiwa:</span>
+              <span class="font-semibold text-primary">{row.kaiwa}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="inline-block w-12 text-xs font-medium opacity-60">Others:</span>
+              <span class="opacity-70">{row.typical}</span>
+            </div>
+            <div class="mt-2 text-xs opacity-60 italic">Why it matters: {row.problem}</div>
+          </div>
+        </div>
+      {/each}
+    </div>
+    
+    <div class="mt-6 text-center">
+      <p class="text-xs opacity-60">Based on ChatGPT Voice, Speak.com, Babbel, Duolingo features as of 2024. Features vary by product and pricing tier.</p>
+    </div>
   </div>
 </section>

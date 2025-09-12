@@ -19,6 +19,7 @@
 	import LoadingAnalysis from '$lib/components/LoadingAnalysis.svelte';
 	import ConversationReviewableState from '$lib/components/ConversationReviewableState.svelte';
 	import DevPanel from '$lib/components/DevPanel.svelte';
+	import RealtimeDebugPanel from '$lib/components/RealtimeDebugPanel.svelte';
 
 	// Keep existing components for analysis temporarily
 	import { fade } from 'svelte/transition';
@@ -40,6 +41,10 @@
 
 	// Connection state
 	let autoConnectAttempted = $state(false);
+	
+	// Debug panel state (only in dev mode)
+	let showDebugPanel = $state(dev && true); // Show by default in dev mode
+	let debugCollapsed = $state(false); // Start expanded
 
 	// Extract session parameters from URL
 	const sessionId = $derived(page.url.searchParams.get('sessionId') || crypto.randomUUID());
@@ -74,6 +79,20 @@
 			const newUrl = new URL(page.url);
 			newUrl.searchParams.set('sessionId', sessionId);
 			goto(newUrl.toString(), { replaceState: true });
+		}
+
+		// Listen for clear events from debug panel (dev mode only)
+		if (dev) {
+			const handleClearEvents = () => {
+				realtimeOpenAI.clearEvents();
+			};
+			
+			document.addEventListener('clearEvents', handleClearEvents);
+			
+			// Return cleanup function
+			return () => {
+				document.removeEventListener('clearEvents', handleClearEvents);
+			};
 		}
 	});
 
@@ -149,6 +168,19 @@
 		// In the future, you could set a flag to disable audio features
 		handleRetryConnection();
 	}
+
+	function toggleDebugPanel() {
+		if (!showDebugPanel) {
+			showDebugPanel = true;
+			debugCollapsed = false;
+		} else {
+			debugCollapsed = !debugCollapsed;
+		}
+	}
+
+	function hideDebugPanel() {
+		showDebugPanel = false;
+	}
 </script>
 
 {#if status === 'connecting'}
@@ -208,6 +240,27 @@
 			<div class="card-body">
 				<h2 class="card-title">Dev Controls</h2>
 				<div class="space-y-3">
+					<!-- Debug controls -->
+					<div class="flex flex-wrap items-center gap-2">
+						<button 
+							class="btn btn-sm {showDebugPanel ? 'btn-secondary' : 'btn-outline'}" 
+							onclick={toggleDebugPanel}
+						>
+							{#if !showDebugPanel}
+								Show Debug Panel
+							{:else if debugCollapsed}
+								Expand Debug
+							{:else}
+								Collapse Debug
+							{/if}
+						</button>
+						{#if showDebugPanel}
+							<button class="btn btn-sm btn-ghost" onclick={hideDebugPanel}>
+								Hide Debug
+							</button>
+						{/if}
+					</div>
+					
 					<!-- Audio interaction dev toggles are above; add a force-greet tester -->
 					<div class="flex flex-wrap items-center gap-2">
 						<button class="btn btn-sm btn-primary" onclick={() => conversationStore.forceGreet()}
@@ -356,3 +409,17 @@
 	{isAnalyzing}
 	timeInSeconds={Math.ceil(conversationStore.timerState.timer.timeRemaining / 1000)}
 />
+
+<!-- Realtime Debug Panel at bottom (only shown in dev mode) -->
+{#if dev && showDebugPanel}
+	<section class="mt-8 mx-auto max-w-7xl px-6 pb-6">
+		<RealtimeDebugPanel 
+			messages={conversationStore.messages}
+			realtimeMessages={realtimeOpenAI.messages}
+			events={realtimeOpenAI.events}
+			connectionStatus={conversationStore.status}
+			isCollapsed={debugCollapsed}
+			onToggleCollapse={toggleDebugPanel}
+		/>
+	</section>
+{/if}
