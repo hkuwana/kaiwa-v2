@@ -22,7 +22,8 @@
       "Bash(pnpm db:generate:*)",
       "Bash(find:*)",
       "Bash(pnpm format:*)",
-      "Bash(pnpm dev:*)"
+      "Bash(pnpm dev:*)",
+      "WebFetch(domain:daisyui.com)"
     ],
     "deny": [],
     "ask": []

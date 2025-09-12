@@ -8,3 +8,4 @@ export * as conversationService from './conversation.service';
 export * as timerService from './timer.service';
 export * as userPreferencesService from './userPreferences.service';
 export * as userMemoryService from './userMemory.service';
+export * as analysisService from './analysis.service';
