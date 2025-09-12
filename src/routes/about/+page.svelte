@@ -51,6 +51,10 @@
 		name="description"
 		content="About Kaiwa and the philosophy behind the anti-language-learning app."
 	/>
+  <meta name="keywords" content="Kaiwa story, about Kaiwa, language learning philosophy, conversation-first language learning, AI voice practice" />
+  <meta property="og:title" content="About Kaiwa" />
+  <meta property="og:description" content="Why we built Kaiwa: a conversation-first approach focused on meaningful human connection." />
+  <meta property="og:type" content="website" />
 </svelte:head>
 
 <div class="min-h-screen bg-gradient-to-br from-base-100 to-accent">

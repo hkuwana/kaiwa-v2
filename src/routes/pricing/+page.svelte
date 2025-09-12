@@ -7,6 +7,7 @@
 	import { defaultTierConfigs } from '$lib/data/tiers';
 	import { formatPrice, calculateAnnualDiscount } from '$lib/client/stripe.service';
   import { env as publicEnv } from '$env/dynamic/public';
+  import WhyDifferent from '$lib/components/WhyDifferent.svelte';
 
 	// Get page data from server using runes
 	const { data } = $props();
@@ -232,6 +233,10 @@
 		name="description"
 		content="Choose a Kaiwa plan that fits your language learning goals. Basic, Plus, and Premium options available."
 	/>
+  <meta name="keywords" content="Kaiwa pricing, language learning pricing, AI conversation practice plans, Japanese learning, Spanish practice, language app subscription" />
+  <meta property="og:title" content="Kaiwa | Pricing Plans" />
+  <meta property="og:description" content="Compare Kaiwa plans and choose the conversation practice that fits your goals." />
+  <meta property="og:type" content="website" />
 </svelte:head>
 
 <div class="container mx-auto max-w-7xl px-4 py-16 sm:py-20">
@@ -434,4 +439,9 @@
 			{/each}
 		</div>
 	</div>
+
+  <!-- Extended Differentiators (educate near bottom) -->
+  <div class="mt-24">
+    <WhyDifferent variant="extended" />
+  </div>
 </div>

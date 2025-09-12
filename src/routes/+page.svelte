@@ -11,6 +11,7 @@
 	import { languages as allLanguages } from '$lib/data/languages';
 	import type { Scenario } from '$lib/server/db/types';
 	import { dev } from '$app/environment';
+	import WhyDifferent from '$lib/components/WhyDifferent.svelte';
 
 	// Get user data from page data
 	const user = userManager.user;
@@ -250,4 +251,28 @@
 			</div>
 		</div>
 	</section>
+
+  <!-- Comparison + Differentiators (toward bottom, before social proof) -->
+  <WhyDifferent variant="compact" />
+
+  <!-- Social Proof Section (moved to end) -->
+  <section class="py-12 text-center">
+    <div class="container mx-auto max-w-4xl">
+      <h3 class="text-2xl font-semibold mb-8 opacity-90">Trusted by Language Learners Worldwide</h3>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="text-center">
+          <div class="text-3xl font-bold text-primary">5,000+</div>
+          <div class="text-sm opacity-70">Conversations Completed</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-bold text-primary">8</div>
+          <div class="text-sm opacity-70">Languages Supported</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-bold text-primary">95%</div>
+          <div class="text-sm opacity-70">Report Improved Confidence</div>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>

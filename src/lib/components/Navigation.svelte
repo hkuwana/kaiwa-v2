@@ -2,7 +2,7 @@
 	import ThemeSwitcher from './ThemeSwitcher.svelte';
 	import type { User } from '$lib/server/db/types';
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
-	import { dev } from '$app/environment';
+	import { browser, dev } from '$app/environment';
 
 	const { user }: { user: User | null } = $props();
 	// Get user data from page data
@@ -13,21 +13,65 @@
 
 	// Dev routes (only shown when running in dev mode)
 	const DEV_LINKS = [
-		{ href: '/dev', label: 'Dev Home' },
-		{ href: '/dev-instructions', label: 'Instructions' },
-		{ href: '/dev-audiovisualizer', label: 'Audio Visualizer' },
-		{ href: '/dev-messages', label: 'Messages' },
-		{ href: '/dev-conversation', label: 'Conversations' },
-		{ href: '/dev-marketing', label: 'Marketing' },
-		{ href: 'dev-animated', label: 'Animated' },
-		{ href: 'dev-payment', label: 'Payment' }
+		{
+			category: 'General',
+			links: [{ href: '/dev', label: 'Dev Home' }]
+		},
+		{
+			category: 'Debug & Testing',
+			links: [
+				{ href: '/dev-realtime-debug', label: 'Realtime Debug' },
+				{ href: '/dev-messages', label: 'Messages' },
+				{ href: '/dev-conversation', label: 'Conversations' },
+				{ href: '/dev-audiovisualizer', label: 'Audio Visualizer' }
+			]
+		},
+		{
+			category: 'UI & Content',
+			links: [
+				{ href: '/dev-instructions', label: 'Instructions' },
+				{ href: '/dev-marketing', label: 'Marketing' },
+				{ href: '/dev-animated', label: 'Animated' }
+			]
+		},
+		{
+			category: 'Strategy',
+			links: [{ href: '/dev-competition', label: 'Competition' }]
+		},
+		{
+			category: 'Features',
+			links: [{ href: '/dev-payment', label: 'Payment' }]
+		}
 	];
+
+	// Close the Dev Tools <details> when clicking outside (desktop view)
+	let devDetailsEl: HTMLDetailsElement | null = null;
+	function handleDocumentClick(e: MouseEvent) {
+		if (!devDetailsEl) return;
+		const target = e.target as Node | null;
+		if (devDetailsEl.open && target && !devDetailsEl.contains(target)) {
+			devDetailsEl.open = false;
+		}
+	}
+
+	import { onMount, onDestroy } from 'svelte';
+	onMount(() => {
+		// Attach only in browser/dev
+		if (dev && browser) {
+			document.addEventListener('click', handleDocumentClick, true);
+		}
+	});
+	onDestroy(() => {
+		if (dev && browser) {
+			document.removeEventListener('click', handleDocumentClick, true);
+		}
+	});
 </script>
 
 <nav class="relative z-50 navbar bg-base-100">
 	<div class="navbar-start">
 		<div class="dropdown">
-			<div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+			<div role="button" class="btn btn-ghost lg:hidden" tabindex="0">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					class="h-5 w-5"
@@ -44,8 +88,8 @@
 				</svg>
 			</div>
 			<ul
-				tabindex="0"
 				class="dropdown-content menu z-[60] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
+				tabindex="0"
 			>
 				<li><a href="/about" class="">About</a></li>
 				<li><a href="/pricing" class="">Pricing</a></li>
@@ -55,9 +99,12 @@
 				{/if}
 
 				{#if dev}
-					<li class="menu-title"><span>Dev</span></li>
-					{#each DEV_LINKS as link}
-						<li><a href={link.href} class="">{link.label}</a></li>
+					<li class="menu-title"><span>Dev Tools</span></li>
+					{#each DEV_LINKS as category}
+						<li class="menu-title text-xs"><span>{category.category}</span></li>
+						{#each category.links as link}
+							<li><a href={link.href} class="pl-4">{link.label}</a></li>
+						{/each}
 					{/each}
 				{/if}
 			</ul>
@@ -71,12 +118,18 @@
 			<li><a href="/privacy" class="">Privacy</a></li>
 
 			{#if dev}
-				<li tabindex="0">
-					<details>
-						<summary class="">Dev</summary>
-						<ul class="rounded-t-none bg-base-100 p-2">
-							{#each DEV_LINKS as link}
-								<li><a href={link.href}>{link.label}</a></li>
+				<li>
+					<details bind:this={devDetailsEl}>
+						<summary class="">Dev Tools</summary>
+						<ul class="w-56 rounded-t-none bg-base-100 p-2">
+							{#each DEV_LINKS as category}
+								<li class="menu-title text-xs"><span>{category.category}</span></li>
+								{#each category.links as link}
+									<li><a href={link.href} class="pl-2 text-sm">{link.label}</a></li>
+								{/each}
+								{#if category !== DEV_LINKS[DEV_LINKS.length - 1]}
+									<li><hr class="my-1" /></li>
+								{/if}
 							{/each}
 						</ul>
 					</details>
