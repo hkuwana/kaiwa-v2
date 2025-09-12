@@ -3,6 +3,7 @@
 
 import type { Tier, UserTier } from './db/types';
 import { env } from '$env/dynamic/private';
+import { SERVER_STRIPE_PRICE_IDS, isStripeDevServer } from './stripe-config';
 
 // Default tier configurations - server-side only
 export const serverTierConfigs: Record<UserTier, Tier> = {
@@ -78,12 +79,16 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		hasConversationMemory: true,
 		hasAnkiExport: true,
 
-		// Pricing
+		// Pricing - using environment-aware price IDs
 		monthlyPriceUsd: '15.00',
 		annualPriceUsd: '144.00', // 20% discount
-		stripeProductId: 'prod_plus_123', // Replace with actual Stripe product ID
-		stripePriceIdMonthly: 'price_plus_monthly_123', // Replace with actual Stripe price ID
-		stripePriceIdAnnual: 'price_plus_annual_123', // Replace with actual Stripe price ID
+		stripeProductId: null, // Will be fetched from Stripe API when needed
+		stripePriceIdMonthly: isStripeDevServer
+			? SERVER_STRIPE_PRICE_IDS.plus_monthly.dev
+			: SERVER_STRIPE_PRICE_IDS.plus_monthly.prod,
+		stripePriceIdAnnual: isStripeDevServer
+			? SERVER_STRIPE_PRICE_IDS.plus_annual.dev
+			: SERVER_STRIPE_PRICE_IDS.plus_annual.prod,
 
 		// Timer settings
 		conversationTimeoutSeconds: 10 * 60, // 10 minutes
@@ -127,13 +132,16 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		hasConversationMemory: true,
 		hasAnkiExport: true,
 
-		// Pricing
+		// Pricing - using environment-aware price IDs
 		monthlyPriceUsd: '25.00',
 		annualPriceUsd: '240.00', // 20% discount
-		stripeProductId: 'prod_premium_456', // Replace with actual Stripe product ID
-		stripePriceIdMonthly: 'price_premium_monthly_456', // Replace with actual Stripe price ID
-		stripePriceIdAnnual: 'price_premium_annual_456', // Replace with actual Stripe price ID
-
+		stripeProductId: null, // Will be fetched from Stripe API when needed
+		stripePriceIdMonthly: isStripeDevServer
+			? SERVER_STRIPE_PRICE_IDS.premium_monthly.dev
+			: SERVER_STRIPE_PRICE_IDS.premium_monthly.prod,
+		stripePriceIdAnnual: isStripeDevServer
+			? SERVER_STRIPE_PRICE_IDS.premium_annual.dev
+			: SERVER_STRIPE_PRICE_IDS.premium_annual.prod,
 		// Timer settings
 		conversationTimeoutSeconds: 10 * 60, // 10 minutes
 		warningThresholdSeconds: 60, // 1 minute
@@ -174,21 +182,33 @@ export function getStripePriceId(
 	return billingCycle === 'monthly' ? tier.stripePriceIdMonthly : tier.stripePriceIdAnnual;
 }
 
-// Helper to get all available Stripe price IDs
+// Helper to get all available Stripe price IDs for current environment
 export function getAllStripePriceIds(): string[] {
-    const priceIds: string[] = [];
+	const priceIds: string[] = [];
 
-    Object.values(serverTierConfigs).forEach((tier) => {
-        if (tier.stripePriceIdMonthly) priceIds.push(tier.stripePriceIdMonthly);
-        if (tier.stripePriceIdAnnual) priceIds.push(tier.stripePriceIdAnnual);
-    });
+	// Get current environment price IDs from tier configs
+	Object.values(serverTierConfigs).forEach((tier) => {
+		if (tier.stripePriceIdMonthly) priceIds.push(tier.stripePriceIdMonthly);
+		if (tier.stripePriceIdAnnual) priceIds.push(tier.stripePriceIdAnnual);
+	});
 
-    // Include optional Early‑Backer price ID via env
-    if (env.STRIPE_EARLY_BACKER_PRICE_ID) {
-        priceIds.push(env.STRIPE_EARLY_BACKER_PRICE_ID);
-    }
+	// Include optional Early‑Backer price ID via env
+	if (env.STRIPE_EARLY_BACKER_PRICE_ID) {
+		priceIds.push(env.STRIPE_EARLY_BACKER_PRICE_ID);
+	}
 
-    return priceIds;
+	// Filter out placeholder values
+	return priceIds.filter((id) => id && !id.includes('placeholder'));
+}
+
+// Get environment info for debugging
+export function getTierEnvironmentInfo() {
+	return {
+		isStripeDev: isStripeDevServer,
+		currentTierConfigs: serverTierConfigs,
+		availablePriceIds: getAllStripePriceIds(),
+		stripeDevMode: env.STRIPE_DEV_MODE
+	};
 }
 
 // Helper to get max memories for a tier

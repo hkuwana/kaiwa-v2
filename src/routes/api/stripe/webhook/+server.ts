@@ -5,6 +5,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { stripeService } from '$lib/server/services/stripe.service';
 import { analytics } from '$lib/server/analyticsService';
+import { addWebhookEvent } from '$lib/server/webhook-events-manager';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const body = await request.text();
@@ -21,6 +22,9 @@ export const POST: RequestHandler = async ({ request }) => {
 		const event = stripeService.verifyWebhook(body, signature);
 
 		console.log(`🎣 Stripe webhook received: ${event.type}`);
+		
+		// Track webhook event for dev dashboard
+		addWebhookEvent(event);
 
 		// Handle different event types
 		switch (event.type) {

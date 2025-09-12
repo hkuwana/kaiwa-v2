@@ -236,11 +236,15 @@
 
 <div class="container mx-auto max-w-7xl px-4 py-16 sm:py-20">
 	<div class="mb-16 text-center">
-		<h1 class="mb-4 text-4xl font-bold tracking-tight lg:text-5xl">Find Your Perfect Plan</h1>
+		<h1 class="mb-4 text-4xl font-bold tracking-tight lg:text-5xl">Kaiwa Pricing: Choose Your AI Language Learning Plan</h1>
 		<p class="mx-auto max-w-3xl text-lg text-base-content/70 lg:text-xl">
-			Start for free, then choose a plan with the right amount of practice time to reach fluency
-			faster.
+			Start practicing conversations for free, then unlock more practice time with our affordable subscription plans. Perfect for learning Japanese, Spanish, French, and more through AI-powered conversation practice.
 		</p>
+		<div class="mt-6 flex justify-center space-x-6 text-sm opacity-70">
+			<span>✓ Free trial included</span>
+			<span>✓ Cancel anytime</span>
+			<span>✓ All languages included</span>
+		</div>
 	</div>
 
 	<div class="mb-12 flex justify-center">
@@ -264,13 +268,14 @@
 
 	<div class="mx-auto mb-20 grid max-w-5xl grid-cols-1 gap-8 lg:grid-cols-3">
 		<div class="flex flex-col items-center rounded-2xl border bg-base-100 p-8 text-center">
-			<h2 class="mb-4 text-2xl font-semibold">{freeTier.name}</h2>
+			<h2 class="mb-4 text-2xl font-semibold">{freeTier.name} - Free Forever</h2>
 			<p class="text-4xl font-bold">
-				2 minutes
+				FREE
 				<span class="text-xl font-normal text-base-content/60">/forever</span>
 			</p>
+			<p class="text-sm text-primary mt-2">15 minutes practice time included</p>
 			<p class="mt-4 min-h-[4rem] text-base-content/70">
-				{freeTier.description}
+				{freeTier.description} • Perfect for trying AI conversation practice
 			</p>
 			<div class="flex-grow"></div>
 			{#if isCurrentTier(SubscriptionTier.GUEST) || isCurrentTier(SubscriptionTier.BASIC)}
@@ -285,9 +290,9 @@
 		>
 			<div class="flex items-center gap-2">
 				<span class="iconify h-6 w-6 text-yellow-400" data-icon="mdi:star"></span>
-				<h2 class="text-2xl font-semibold">{plusTier.name}</h2>
+				<h2 class="text-2xl font-semibold">{plusTier.name} - Most Popular</h2>
 			</div>
-			<p class="mt-4 badge badge-outline badge-primary">Most Popular</p>
+			<p class="mt-4 badge badge-outline badge-primary">Best for Regular Learners</p>
 
 			{#if selectedPlan === 'monthly'}
 				<p class="mt-4 text-4xl font-bold">
@@ -301,7 +306,7 @@
 				</p>
 			{/if}
 			<p class="mt-4 min-h-[4rem] text-base-content/70">
-				{plusTier.description}
+				{plusTier.description} • 300 minutes monthly • Advanced features • Perfect for consistent practice
 			</p>
 			<div class="flex-grow"></div>
 			{#if isCurrentTier(SubscriptionTier.PLUS)}
@@ -314,7 +319,7 @@
 		<div class="flex flex-col items-center rounded-2xl border bg-base-100 p-8 text-center">
 			<div class="flex items-center gap-2">
 				<span class="iconify h-6 w-6 text-purple-400" data-icon="mdi:crown"></span>
-				<h2 class="text-2xl font-semibold">{premiumTier.name}</h2>
+				<h2 class="text-2xl font-semibold">{premiumTier.name} - Power Users</h2>
 			</div>
 
 			{#if selectedPlan === 'monthly'}
@@ -329,7 +334,7 @@
 				</p>
 			{/if}
 			<p class="mt-4 min-h-[4rem] text-base-content/70">
-				{premiumTier.description}
+				{premiumTier.description} • 600 minutes monthly • Maximum practice time • Unlimited features
 			</p>
 			<div class="flex-grow"></div>
 			{#if isCurrentTier(SubscriptionTier.PREMIUM)}

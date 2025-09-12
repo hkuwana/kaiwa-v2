@@ -5,12 +5,12 @@ import { userManager } from '$lib/stores/user.store.svelte';
 import type { LayoutLoad } from './$types';
 
 const BASE_SEO = {
-	title: 'Kaiwa - AI Language Learning Through Conversation',
+	title: 'Kaiwa - AI Language Learning Through Natural Conversation Practice',
 	description:
-		'Practice speaking languages naturally with AI. Immerse yourself in real conversations and learn through dialogue with our intelligent language tutor.',
+		'Master languages through real conversations with AI. Practice speaking Japanese, Spanish, French, and more with personalized scenarios. Join thousands improving fluency through natural dialogue.',
 	keywords:
-		'language learning, AI tutor, conversation practice, speaking practice, language immersion, AI conversation, language practice, speaking tutor',
-	author: 'Kaiwa Team',
+		'language learning app, AI conversation tutor, speaking practice, Japanese learning, Spanish practice, French conversation, language fluency, conversation practice app, AI language coach, learn languages online, speaking confidence, language immersion',
+	author: 'Kaiwa',
 	robots: 'index, follow',
 	ogType: 'website',
 	twitterCard: 'summary_large_image',

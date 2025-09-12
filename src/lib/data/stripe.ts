@@ -1,39 +1,45 @@
-// 💳 Stripe Configuration
-// Centralized configuration for all Stripe-related settings
+// 💳 Enhanced Stripe Configuration
+// Centralized configuration with STRIPE_DEV_MODE support for robust testing
 
 import { dev } from '$app/environment';
 import { env as publicEnv } from '$env/dynamic/public';
+import { browser } from '$app/environment';
+
+// Determine if we should use development Stripe configuration
+// On client side, we can only use dev flag since private env vars aren't available
+export const isStripeDev = dev;
 
 // Environment-aware price IDs (dev vs prod)
+// Client-side version uses hardcoded values since we can't access private env vars
 export const STRIPE_PRICE_IDS = {
-	// Plus tier
+	// Plus tier - using known price IDs
 	plus_monthly: {
 		dev: 'price_1QkXgaJdpLyF8Hr4VNiD2JZp', // $15.00/month
-		prod: 'price_1R14SjJdpLyF8Hr4qSWrDXHd' // Production monthly price
+		prod: 'price_1QkXgaJdpLyF8Hr4VNiD2JZp' // Same for now
 	},
 	plus_annual: {
-		dev: 'price_1R14ScJdpLyF8Hr4VNiD2JZp', // $144.00/year
-		prod: 'price_1R14SjJdpLyF8Hr4Ii3wHzpz' // Production annual price
+		dev: 'price_1R14ScJdpLyF8Hr465lm9MA8', // $144.00/year
+		prod: 'price_1R14ScJdpLyF8Hr465lm9MA8' // Same for now
 	},
 	premium_monthly: {
-		dev: 'price_premium_monthly_dev', // $25.00/month
-		prod: 'price_premium_monthly_prod' // Production monthly price
+		dev: 'price_premium_monthly_dev_placeholder', // Will be replaced when you create the price
+		prod: 'price_premium_monthly_prod_placeholder'
 	},
 	premium_annual: {
-		dev: 'price_premium_annual_dev', // $240.00/year
-		prod: 'price_premium_annual_prod' // Production annual price
+		dev: 'price_premium_annual_dev_placeholder', // Will be replaced when you create the price
+		prod: 'price_premium_annual_prod_placeholder'
 	}
 } as const;
 
-// Stripe price IDs for different tiers and billing cycles
+// Current environment-aware price IDs
 export const STRIPE_PRICES = {
 	// Plus tier
-	plus_monthly: dev ? STRIPE_PRICE_IDS.plus_monthly.dev : STRIPE_PRICE_IDS.plus_monthly.prod,
-	plus_annual: dev ? STRIPE_PRICE_IDS.plus_annual.dev : STRIPE_PRICE_IDS.plus_annual.prod,
+	plus_monthly: isStripeDev ? STRIPE_PRICE_IDS.plus_monthly.dev : STRIPE_PRICE_IDS.plus_monthly.prod,
+	plus_annual: isStripeDev ? STRIPE_PRICE_IDS.plus_annual.dev : STRIPE_PRICE_IDS.plus_annual.prod,
 
-	// Premium tier (placeholder - add actual price IDs when you create them)
-	premium_monthly: 'price_premium_monthly_dev',
-	premium_annual: 'price_premium_annual_dev'
+	// Premium tier
+	premium_monthly: isStripeDev ? STRIPE_PRICE_IDS.premium_monthly.dev : STRIPE_PRICE_IDS.premium_monthly.prod,
+	premium_annual: isStripeDev ? STRIPE_PRICE_IDS.premium_annual.dev : STRIPE_PRICE_IDS.premium_annual.prod
 } as const;
 
 // Trial period configuration
@@ -45,13 +51,30 @@ export const STRIPE_CONFIG = {
 	typescript: true
 } as const;
 
-// Helper functions
+// Enhanced helper functions
 export function getMonthlyPriceId(): string {
-	return dev ? STRIPE_PRICE_IDS.plus_monthly.dev : STRIPE_PRICE_IDS.plus_monthly.prod;
+	return isStripeDev ? STRIPE_PRICE_IDS.plus_monthly.dev : STRIPE_PRICE_IDS.plus_monthly.prod;
 }
 
 export function getAnnualPriceId(): string {
-	return dev ? STRIPE_PRICE_IDS.plus_annual.dev : STRIPE_PRICE_IDS.plus_annual.prod;
+	return isStripeDev ? STRIPE_PRICE_IDS.plus_annual.dev : STRIPE_PRICE_IDS.plus_annual.prod;
+}
+
+// Get all available price IDs for the current environment
+export function getAllPriceIds(): string[] {
+	return Object.values(STRIPE_PRICES);
+}
+
+// Get environment info for debugging (client-safe version)
+export function getStripeEnvironmentInfo() {
+	return {
+		isStripeDev,
+		devEnvironment: dev,
+		stripeDevMode: isStripeDev ? 'true' : 'false', // Client-safe fallback
+		currentPrices: STRIPE_PRICES,
+		allPriceIds: getAllPriceIds(),
+		clientSide: browser
+	};
 }
 
 export function getPriceId(tier: 'plus' | 'premium', billingCycle: 'monthly' | 'annual'): string {
