@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { fly, fade } from 'svelte/transition';
-	import type { AnalysisResult, CustomScenario } from '$lib/services/analysis.service';
+	import type { AnalysisResult } from '$lib/services/analysis.service';
 
 	interface Props {
 		isVisible: boolean;

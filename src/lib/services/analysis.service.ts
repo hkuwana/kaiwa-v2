@@ -113,15 +113,10 @@ async function handleOnboardingAnalysis(
 	);
 
 	if (result.success) {
-		// Get the updated preferences after onboarding analysis
-		const updatedPreferences = userPreferencesProvider.getPreference('id') 
-			? userPreferencesProvider
-			: userPreferencesProvider;
-
 		return {
 			success: true,
 			data: {
-				analysisResults: result
+				analysisResults: { success: true, message: 'Onboarding analysis completed successfully' }
 			},
 			analysisType: 'onboarding'
 		};
