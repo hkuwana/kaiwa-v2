@@ -39,8 +39,9 @@ export class RealtimeOpenAIStore {
 	// Lightweight messages array for UIs that want a direct feed
 	messages = $state<Message[]>([]);
 	private sessionId: string = '';
-    // Track finalized history item IDs to avoid re-creating partials after final
-    private finalizedItemIds = new Set<string>();
+	private sessionStartMs: number = 0;
+	// Track finalized history item IDs to avoid re-creating partials after final
+	private finalizedItemIds = new Set<string>();
 
 	private logEvent(dir: 'server' | 'client', type: string, payload: any) {
 		try {
@@ -78,55 +79,56 @@ export class RealtimeOpenAIStore {
 	}
 
 	// Process individual server event in proper order
-  private async processServerEventOrdered(serverEvent: any) {
-    // Inject a user placeholder as soon as VAD fires so ordering feels natural
-    try {
-      if (serverEvent?.type === 'input_audio_buffer.speech_started') {
-        // Only add one placeholder per utterance
-        const hasPlaceholder = this.messages.some(
-          (m) =>
-            m.role === 'user' &&
-            (m.id.startsWith('user_placeholder_') ||
-              m.id.startsWith('user_transcribing_') ||
-              m.id.startsWith('user_partial_'))
-        );
-        if (!hasPlaceholder) {
-          const ts = typeof serverEvent?.audio_start_ms === 'number'
-            ? Date.now() // we don't have an absolute start time; use now for ordering
-            : Date.now();
-          const ph = messageService.createUserPlaceholder(this.sessionId, ts);
-          // Immediately show an ellipsis until transcription arrives
-          const withPh = messageService.removeDuplicateMessages(
-            messageService.sortMessagesBySequence([...this.messages, ph])
-          );
-          this.messages = messageService.updatePlaceholderWithPartial(withPh, '...');
-          // Notify listeners so UI mirrors now, before assistant output arrives
-          this.emitMessage({
-            itemId: 'vad-user-placeholder',
-            role: 'user',
-            text: '',
-            delta: true,
-            final: false
-          });
-        }
-      } else if (serverEvent?.type === 'input_audio_buffer.speech_stopped') {
-        // Optionally flip the placeholder into a transcribing state while we wait
-        this.messages = messageService.updatePlaceholderToTranscribing(this.messages);
-        // Ping listeners to mirror updated state
-        this.emitMessage({
-          itemId: 'vad-user-transcribing',
-          role: 'user',
-          text: '',
-          delta: true,
-          final: false
-        });
-      }
-    } catch (err) {
-      // Non-fatal; continue normal processing
-      if (this.debug) console.debug('[realtime] placeholder hook error:', err);
-    }
+	private async processServerEventOrdered(serverEvent: any) {
+		// Inject a user placeholder as soon as VAD fires so ordering feels natural
+		try {
+			if (serverEvent?.type === 'input_audio_buffer.speech_started') {
+				// Only add one placeholder per utterance
+				const hasPlaceholder = this.messages.some(
+					(m) =>
+						m.role === 'user' &&
+						(m.id.startsWith('user_placeholder_') ||
+							m.id.startsWith('user_transcribing_') ||
+							m.id.startsWith('user_partial_'))
+				);
+				if (!hasPlaceholder) {
+					const ts =
+						typeof serverEvent?.audio_start_ms === 'number'
+							? Date.now() // we don't have an absolute start time; use now for ordering
+							: Date.now();
+					const ph = messageService.createUserPlaceholder(this.sessionId, ts);
+					// Immediately show an ellipsis until transcription arrives
+					const withPh = messageService.removeDuplicateMessages(
+						messageService.sortMessagesBySequence([...this.messages, ph])
+					);
+					this.messages = messageService.updatePlaceholderWithPartial(withPh, '...');
+					// Notify listeners so UI mirrors now, before assistant output arrives
+					this.emitMessage({
+						itemId: 'vad-user-placeholder',
+						role: 'user',
+						text: '',
+						delta: true,
+						final: false
+					});
+				}
+			} else if (serverEvent?.type === 'input_audio_buffer.speech_stopped') {
+				// Optionally flip the placeholder into a transcribing state while we wait
+				this.messages = messageService.updatePlaceholderToTranscribing(this.messages);
+				// Ping listeners to mirror updated state
+				this.emitMessage({
+					itemId: 'vad-user-transcribing',
+					role: 'user',
+					text: '',
+					delta: true,
+					final: false
+				});
+			}
+		} catch (err) {
+			// Non-fatal; continue normal processing
+			if (this.debug) console.debug('[realtime] placeholder hook error:', err);
+		}
 
-    const processed = realtimeService.processServerEvent(serverEvent);
+		const processed = realtimeService.processServerEvent(serverEvent);
 
 		if (serverEvent.type === 'session.created' || serverEvent.type === 'session.updated') {
 			this.isConnected = true;
@@ -233,27 +235,28 @@ export class RealtimeOpenAIStore {
 	private connection: SessionConnection | null = null;
 	private unsubscribe: (() => void) | null = null;
 
-    async connect(
-        sessionData: SessionData,
-        mediaStream: MediaStream,
-        options?: {
-            model?: string;
-            voice?: Voice;
-            transcriptionLanguage?: string;
-            transcriptionModel?: string;
-        }
-    ): Promise<void> {
-        try {
-            this.error = null;
-            // Reset transient tracking for a fresh session
-            this.finalizedItemIds.clear();
-            this.historyText = {} as any;
-            this.assistantDelta = '';
-            this.userDelta = '';
+	async connect(
+		sessionData: SessionData,
+		mediaStream: MediaStream,
+		options?: {
+			model?: string;
+			voice?: Voice;
+			transcriptionLanguage?: string;
+			transcriptionModel?: string;
+		}
+	): Promise<void> {
+		try {
+			this.error = null;
+			// Reset transient tracking for a fresh session
+			this.finalizedItemIds.clear();
+			this.historyText = {} as any;
+			this.assistantDelta = '';
+			this.userDelta = '';
 
-            // Create session + transport using existing audio stream
-            this.connection = await createConnectionWithSession(sessionData, mediaStream);
-            this.sessionId = sessionData.session_id || crypto.randomUUID();
+			// Create session + transport using existing audio stream
+			this.connection = await createConnectionWithSession(sessionData, mediaStream);
+			this.sessionId = sessionData.session_id || crypto.randomUUID();
+			this.sessionStartMs = Date.now();
 
 			// Subscribe to transport events and queue them for ordered processing
 			this.unsubscribe = subscribeToSession(this.connection, {
@@ -318,26 +321,26 @@ export class RealtimeOpenAIStore {
 		}
 	}
 
-    async disconnect(): Promise<void> {
-        if (this.unsubscribe) {
-            try {
-                this.unsubscribe();
-            } catch {}
-            this.unsubscribe = null;
-        }
-        if (this.connection) {
-            try {
-                closeSessionConnection(this.connection);
-            } catch {}
-            this.connection = null;
-        }
-        this.isConnected = false;
-        // Clear transient state
-        this.finalizedItemIds.clear();
-        this.historyText = {} as any;
-        this.assistantDelta = '';
-        this.userDelta = '';
-    }
+	async disconnect(): Promise<void> {
+		if (this.unsubscribe) {
+			try {
+				this.unsubscribe();
+			} catch {}
+			this.unsubscribe = null;
+		}
+		if (this.connection) {
+			try {
+				closeSessionConnection(this.connection);
+			} catch {}
+			this.connection = null;
+		}
+		this.isConnected = false;
+		// Clear transient state
+		this.finalizedItemIds.clear();
+		this.historyText = {} as any;
+		this.assistantDelta = '';
+		this.userDelta = '';
+	}
 
 	// High-level helpers
 	sendResponse(): void {
@@ -504,14 +507,31 @@ export class RealtimeOpenAIStore {
 					const hasStreamingMessage = this.messages.some(
 						(m) =>
 							m.role === 'assistant' &&
-							(m.id.startsWith('assistant_streaming_') ||
-								m.content === '[Assistant is responding...]')
+							(m.id.startsWith('streaming_') || m.content === '[Assistant is responding...]')
 					);
 					if (!hasStreamingMessage) {
 						const streamingMessage = messageService.createStreamingMessage('', this.sessionId);
 						this.messages = messageService.removeDuplicateMessages(
 							messageService.sortMessagesBySequence([...this.messages, streamingMessage])
 						);
+
+						// If this is the first assistant output of the session,
+						// bias its ordering to appear before any user message
+						// by assigning an early sequence id.
+						const isFirstAssistant = !this.messages.some((m) => m.role === 'assistant');
+						if (isFirstAssistant) {
+							const idx = this.messages.findIndex(
+								(m) => m.role === 'assistant' && m.id.startsWith('streaming_')
+							);
+							if (idx !== -1) {
+								const forcedSeqBase = Math.max(0, this.sessionStartMs - 1);
+								this.messages[idx] = {
+									...this.messages[idx],
+									sequenceId: `${forcedSeqBase}_000000`
+								} as any;
+								this.messages = messageService.sortMessagesBySequence(this.messages);
+							}
+						}
 					}
 					this.messages = messageService.updateStreamingMessage(this.messages, deltaText);
 				} else {
@@ -522,7 +542,8 @@ export class RealtimeOpenAIStore {
 					// Also guard against recreating a partial if a final message with the same
 					// content already exists in our visible message list
 					const hasIdenticalFinal = this.messages.some(
-						(m) => m.role === 'user' && m.id.startsWith('msg_') && m.content.trim() === newText.trim()
+						(m) =>
+							m.role === 'user' && m.id.startsWith('msg_') && m.content.trim() === newText.trim()
 					);
 					if (hasIdenticalFinal) {
 						return;

@@ -21,11 +21,17 @@ export const isStripeDevServer = shouldUseDev();
 export const SERVER_STRIPE_PRICE_IDS = {
 	// Plus tier - using environment variables
 	plus_monthly: {
-		dev: privateEnv.STRIPE_PLUS_MONTHLY_DEV_PRICE_ID || privateEnv.STRIPE_PLUS_MONTHLY_PRICE_ID || 'price_1QkXgaJdpLyF8Hr4VNiD2JZp',
+		dev:
+			privateEnv.STRIPE_PLUS_MONTHLY_DEV_PRICE_ID ||
+			privateEnv.STRIPE_PLUS_MONTHLY_PRICE_ID ||
+			'price_1QkXgaJdpLyF8Hr4VNiD2JZp',
 		prod: privateEnv.STRIPE_PLUS_MONTHLY_PRICE_ID || 'price_1QkXgaJdpLyF8Hr4VNiD2JZp'
 	},
 	plus_annual: {
-		dev: privateEnv.STRIPE_PLUS_ANNUAL_DEV_PRICE_ID || privateEnv.STRIPE_PLUS_ANNUAL_PRICE_ID || 'price_1R14ScJdpLyF8Hr465lm9MA8',
+		dev:
+			privateEnv.STRIPE_PLUS_ANNUAL_DEV_PRICE_ID ||
+			privateEnv.STRIPE_PLUS_ANNUAL_PRICE_ID ||
+			'price_1R14ScJdpLyF8Hr465lm9MA8',
 		prod: privateEnv.STRIPE_PLUS_ANNUAL_PRICE_ID || 'price_1R14ScJdpLyF8Hr465lm9MA8'
 	},
 	premium_monthly: {
@@ -40,29 +46,44 @@ export const SERVER_STRIPE_PRICE_IDS = {
 
 // Current server-side price IDs
 export const SERVER_STRIPE_PRICES = {
-	plus_monthly: isStripeDevServer ? SERVER_STRIPE_PRICE_IDS.plus_monthly.dev : SERVER_STRIPE_PRICE_IDS.plus_monthly.prod,
-	plus_annual: isStripeDevServer ? SERVER_STRIPE_PRICE_IDS.plus_annual.dev : SERVER_STRIPE_PRICE_IDS.plus_annual.prod,
-	premium_monthly: isStripeDevServer ? SERVER_STRIPE_PRICE_IDS.premium_monthly.dev : SERVER_STRIPE_PRICE_IDS.premium_monthly.prod,
-	premium_annual: isStripeDevServer ? SERVER_STRIPE_PRICE_IDS.premium_annual.dev : SERVER_STRIPE_PRICE_IDS.premium_annual.prod
+	plus_monthly: isStripeDevServer
+		? SERVER_STRIPE_PRICE_IDS.plus_monthly.dev
+		: SERVER_STRIPE_PRICE_IDS.plus_monthly.prod,
+	plus_annual: isStripeDevServer
+		? SERVER_STRIPE_PRICE_IDS.plus_annual.dev
+		: SERVER_STRIPE_PRICE_IDS.plus_annual.prod,
+	premium_monthly: isStripeDevServer
+		? SERVER_STRIPE_PRICE_IDS.premium_monthly.dev
+		: SERVER_STRIPE_PRICE_IDS.premium_monthly.prod,
+	premium_annual: isStripeDevServer
+		? SERVER_STRIPE_PRICE_IDS.premium_annual.dev
+		: SERVER_STRIPE_PRICE_IDS.premium_annual.prod
 } as const;
 
 // Server-side helper functions
 export function getServerMonthlyPriceId(): string {
-	return isStripeDevServer ? SERVER_STRIPE_PRICE_IDS.plus_monthly.dev : SERVER_STRIPE_PRICE_IDS.plus_monthly.prod;
+	return isStripeDevServer
+		? SERVER_STRIPE_PRICE_IDS.plus_monthly.dev
+		: SERVER_STRIPE_PRICE_IDS.plus_monthly.prod;
 }
 
 export function getServerAnnualPriceId(): string {
-	return isStripeDevServer ? SERVER_STRIPE_PRICE_IDS.plus_annual.dev : SERVER_STRIPE_PRICE_IDS.plus_annual.prod;
+	return isStripeDevServer
+		? SERVER_STRIPE_PRICE_IDS.plus_annual.dev
+		: SERVER_STRIPE_PRICE_IDS.plus_annual.prod;
 }
 
-export function getServerPriceId(tier: 'plus' | 'premium', billingCycle: 'monthly' | 'annual'): string {
+export function getServerPriceId(
+	tier: 'plus' | 'premium',
+	billingCycle: 'monthly' | 'annual'
+): string {
 	const key = `${tier}_${billingCycle}` as keyof typeof SERVER_STRIPE_PRICES;
 	return SERVER_STRIPE_PRICES[key];
 }
 
 // Get all server-side price IDs
 export function getAllServerPriceIds(): string[] {
-	return Object.values(SERVER_STRIPE_PRICES).filter(id => id && !id.includes('placeholder'));
+	return Object.values(SERVER_STRIPE_PRICES).filter((id) => id && !id.includes('placeholder'));
 }
 
 // Server-side environment info

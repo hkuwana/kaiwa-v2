@@ -95,31 +95,31 @@ export function updatePlaceholderWithPartial(messages: Message[], partialText: s
 }
 
 export function replaceUserPlaceholderWithFinal(
-    messages: Message[],
-    finalText: string,
-    sessionId: string
+	messages: Message[],
+	finalText: string,
+	sessionId: string
 ): Message[] {
-    const placeholderIndex = messages.findIndex(
-        (msg) =>
-            msg.role === 'user' &&
-            (msg.id.startsWith('user_placeholder_') ||
-                msg.id.startsWith('user_transcribing_') ||
-                msg.id.startsWith('user_partial_'))
-    );
+	const placeholderIndex = messages.findIndex(
+		(msg) =>
+			msg.role === 'user' &&
+			(msg.id.startsWith('user_placeholder_') ||
+				msg.id.startsWith('user_transcribing_') ||
+				msg.id.startsWith('user_partial_'))
+	);
 
-    if (placeholderIndex === -1) {
-        // If a final message with identical content already exists, avoid adding a duplicate
-        const existsFinalWithSameContent = messages.some(
-            (m) => m.role === 'user' && m.id.startsWith('msg_') && m.content.trim() === finalText.trim()
-        );
-        if (existsFinalWithSameContent) {
-            return removeDuplicateMessages(sortMessagesBySequence(messages));
-        }
+	if (placeholderIndex === -1) {
+		// If a final message with identical content already exists, avoid adding a duplicate
+		const existsFinalWithSameContent = messages.some(
+			(m) => m.role === 'user' && m.id.startsWith('msg_') && m.content.trim() === finalText.trim()
+		);
+		if (existsFinalWithSameContent) {
+			return removeDuplicateMessages(sortMessagesBySequence(messages));
+		}
 
-        // No placeholder found, add new message
-        const newMessages = [...messages, createFinalUserMessage(finalText, sessionId)];
-        return removeDuplicateMessages(sortMessagesBySequence(newMessages));
-    }
+		// No placeholder found, add new message
+		const newMessages = [...messages, createFinalUserMessage(finalText, sessionId)];
+		return removeDuplicateMessages(sortMessagesBySequence(newMessages));
+	}
 
 	const updatedMessages = [...messages];
 	const placeholder = updatedMessages[placeholderIndex];

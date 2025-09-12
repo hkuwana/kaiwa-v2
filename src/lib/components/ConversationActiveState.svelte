@@ -238,7 +238,7 @@
 		{#if showOnboardingHint() && !hasUsedAudioControl}
 			<div class="pointer-events-none fixed inset-x-0 bottom-28 z-50 select-none">
 				<div
-					class="mx-auto w-auto max-w-[80vw] md:max-w-[40vw] rounded-md bg-base-200 px-4 py-2 text-center text-sm text-base-content shadow-lg"
+					class="mx-auto w-auto max-w-[80vw] rounded-md bg-base-200 px-4 py-2 text-center text-sm text-base-content shadow-lg md:max-w-[40vw]"
 				>
 					Tap and hold to talk, then release to hear Kaiwa
 				</div>

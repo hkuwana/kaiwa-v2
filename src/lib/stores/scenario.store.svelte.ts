@@ -135,7 +135,7 @@ export class ScenarioStore {
 			// Since we can't use $effect in stores outside component context,
 			// we'll rely on manual persistence calls in the setter methods
 			// This is actually more predictable and avoids the component lifecycle issues
-			
+
 			this.persistenceInitialized = true;
 			console.log('✅ Scenario persistence setup complete (manual mode)');
 		} catch (error) {

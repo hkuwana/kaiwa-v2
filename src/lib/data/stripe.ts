@@ -34,12 +34,18 @@ export const STRIPE_PRICE_IDS = {
 // Current environment-aware price IDs
 export const STRIPE_PRICES = {
 	// Plus tier
-	plus_monthly: isStripeDev ? STRIPE_PRICE_IDS.plus_monthly.dev : STRIPE_PRICE_IDS.plus_monthly.prod,
+	plus_monthly: isStripeDev
+		? STRIPE_PRICE_IDS.plus_monthly.dev
+		: STRIPE_PRICE_IDS.plus_monthly.prod,
 	plus_annual: isStripeDev ? STRIPE_PRICE_IDS.plus_annual.dev : STRIPE_PRICE_IDS.plus_annual.prod,
 
 	// Premium tier
-	premium_monthly: isStripeDev ? STRIPE_PRICE_IDS.premium_monthly.dev : STRIPE_PRICE_IDS.premium_monthly.prod,
-	premium_annual: isStripeDev ? STRIPE_PRICE_IDS.premium_annual.dev : STRIPE_PRICE_IDS.premium_annual.prod
+	premium_monthly: isStripeDev
+		? STRIPE_PRICE_IDS.premium_monthly.dev
+		: STRIPE_PRICE_IDS.premium_monthly.prod,
+	premium_annual: isStripeDev
+		? STRIPE_PRICE_IDS.premium_annual.dev
+		: STRIPE_PRICE_IDS.premium_annual.prod
 } as const;
 
 // Trial period configuration
@@ -106,7 +112,10 @@ export function getTierFromPriceId(priceId: string): 'plus' | 'premium' | 'unkno
 	if (priceId.includes('premium')) return 'premium';
 	if (priceId.includes('plus')) return 'plus';
 	// Early‑backer maps to plus unless specified otherwise
-	if (publicEnv.PUBLIC_STRIPE_EARLY_BACKER_PRICE_ID && priceId === publicEnv.PUBLIC_STRIPE_EARLY_BACKER_PRICE_ID) {
+	if (
+		publicEnv.PUBLIC_STRIPE_EARLY_BACKER_PRICE_ID &&
+		priceId === publicEnv.PUBLIC_STRIPE_EARLY_BACKER_PRICE_ID
+	) {
 		return 'plus';
 	}
 	return 'unknown';

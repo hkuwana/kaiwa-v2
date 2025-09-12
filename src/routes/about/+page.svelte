@@ -51,10 +51,16 @@
 		name="description"
 		content="About Kaiwa and the philosophy behind the anti-language-learning app."
 	/>
-  <meta name="keywords" content="Kaiwa story, about Kaiwa, language learning philosophy, conversation-first language learning, AI voice practice" />
-  <meta property="og:title" content="About Kaiwa" />
-  <meta property="og:description" content="Why we built Kaiwa: a conversation-first approach focused on meaningful human connection." />
-  <meta property="og:type" content="website" />
+	<meta
+		name="keywords"
+		content="Kaiwa story, about Kaiwa, language learning philosophy, conversation-first language learning, AI voice practice"
+	/>
+	<meta property="og:title" content="About Kaiwa" />
+	<meta
+		property="og:description"
+		content="Why we built Kaiwa: a conversation-first approach focused on meaningful human connection."
+	/>
+	<meta property="og:type" content="website" />
 </svelte:head>
 
 <div class="min-h-screen bg-gradient-to-br from-base-100 to-accent">
@@ -63,7 +69,8 @@
 		<div class="mb-16 text-center">
 			<h1 class="mb-6 text-5xl font-bold md:text-7xl">Languages Open Doors to Human Connection</h1>
 			<p class="mx-auto max-w-4xl text-xl leading-relaxed md:text-2xl">
-				The story behind Kaiwa: Why we built an AI language learning app that prioritizes meaningful conversation over test scores
+				The story behind Kaiwa: Why we built an AI language learning app that prioritizes meaningful
+				conversation over test scores
 			</p>
 			<div class="mt-6 flex justify-center space-x-4 text-sm opacity-70">
 				<span>🌍 Global Community</span>
@@ -81,7 +88,12 @@
 				<h2 class="mb-6 text-3xl font-bold">The Problem with Traditional Language Learning</h2>
 				<div class="space-y-4 leading-relaxed">
 					<p>
-						I always loved learning languages, but I struggled with traditional methods. Like millions of others, I tried Duolingo, attended formal classes, and memorized vocabulary lists. But I never built real confidence until I actually talked to native speakers. Despite growing up bilingual in Japanese and Chinese, my breakthrough with learning foreign languages only came when I immersed myself in real conversations during my time in Taiwan.
+						I always loved learning languages, but I struggled with traditional methods. Like
+						millions of others, I tried Duolingo, attended formal classes, and memorized vocabulary
+						lists. But I never built real confidence until I actually talked to native speakers.
+						Despite growing up bilingual in Japanese and Chinese, my breakthrough with learning
+						foreign languages only came when I immersed myself in real conversations during my time
+						in Taiwan.
 					</p>
 					<p>
 						Within 2 months of living in Taiwan, something clicked. I became conversational, played
@@ -103,19 +115,30 @@
 
 		<!-- Our Solution -->
 		<div class="mx-auto mb-16 max-w-4xl">
-			<h2 class="font-bold-content mb-8 text-center text-3xl">How Kaiwa Solves the Conversation Gap</h2>
+			<h2 class="font-bold-content mb-8 text-center text-3xl">
+				How Kaiwa Solves the Conversation Gap
+			</h2>
 			<div
 				class="rounded-2xl border border-primary/20 bg-secondary/30 p-8 text-secondary-content backdrop-blur-sm"
 			>
 				<div class="space-y-4 leading-relaxed">
 					<p>
-						Kaiwa is an AI language learning platform designed for people who want to build real communication skills through conversation practice. Unlike traditional language apps that focus on vocabulary drills and grammar exercises, we prioritize the conversations that actually matter—the ones that create human connections and lasting memories.
+						Kaiwa is an AI language learning platform designed for people who want to build real
+						communication skills through conversation practice. Unlike traditional language apps
+						that focus on vocabulary drills and grammar exercises, we prioritize the conversations
+						that actually matter—the ones that create human connections and lasting memories.
 					</p>
 					<p>
-						We recognize that AI will soon handle routine translations for business emails and basic interactions. But when you're laughing with friends in an izakaya in Tokyo, sharing personal stories at a tapas bar in Granada, or having heart-to-heart conversations with your in-laws in their native tongue—that's when you touch people's hearts, not just exchange information.
+						We recognize that AI will soon handle routine translations for business emails and basic
+						interactions. But when you're laughing with friends in an izakaya in Tokyo, sharing
+						personal stories at a tapas bar in Granada, or having heart-to-heart conversations with
+						your in-laws in their native tongue—that's when you touch people's hearts, not just
+						exchange information.
 					</p>
 					<p class="font-semibold">
-						These authentic, emotional moments are what keep the human element of communication alive. Kaiwa helps you practice for these real-world scenarios through AI-powered conversation practice that prepares you for meaningful human connection.
+						These authentic, emotional moments are what keep the human element of communication
+						alive. Kaiwa helps you practice for these real-world scenarios through AI-powered
+						conversation practice that prepares you for meaningful human connection.
 					</p>
 				</div>
 			</div>

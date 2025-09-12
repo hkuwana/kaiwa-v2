@@ -169,7 +169,7 @@ export class SettingsStore {
 			// Since we can't use $effect in stores outside component context,
 			// we'll rely on manual persistence calls in the setter methods
 			// This is actually more predictable and avoids the component lifecycle issues
-			
+
 			this.persistenceInitialized = true;
 			console.log('✅ Persistence setup complete (manual mode)');
 		} catch (error) {

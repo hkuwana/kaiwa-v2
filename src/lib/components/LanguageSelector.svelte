@@ -109,7 +109,9 @@
 		<div class="flex w-full items-center justify-center gap-3 text-center">
 			<span class="text-lg">{selectedLanguage?.flag || '🌍'}</span>
 			<div class="flex flex-col items-center">
-				<span class="text-base font-medium">{selectedLanguage ? 'Language' : 'Choose Your Language'}</span>
+				<span class="text-base font-medium"
+					>{selectedLanguage ? 'Language' : 'Choose Your Language'}</span
+				>
 				{#if selectedLanguage}
 					<span class="text-sm opacity-70">
 						{selectedLanguage.name}

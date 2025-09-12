@@ -1,6 +1,6 @@
 <!-- ChatBubbleFlow.svelte - Animated chat conversations showcasing the app -->
 <script lang="ts">
-    import { onMount } from 'svelte';
+	import { onMount } from 'svelte';
 
 	// Sample conversation data showcasing different languages and scenarios
 	const conversations = [
@@ -65,19 +65,21 @@
 		}
 	];
 
-	let visibleBubbles = $state<Array<{
-		id: string;
-		conversation: (typeof conversations)[0];
-		messageIndex: number;
-		message: (typeof conversations)[0]['messages'][0];
-		leftPercent: number;
-		delay: number;
-		column: number;
-	}>>([]);
+	let visibleBubbles = $state<
+		Array<{
+			id: string;
+			conversation: (typeof conversations)[0];
+			messageIndex: number;
+			message: (typeof conversations)[0]['messages'][0];
+			leftPercent: number;
+			delay: number;
+			column: number;
+		}>
+	>([]);
 
-    let bubbleCounter = 0;
-    let animationInterval: NodeJS.Timeout;
-    let numColumns = $state(3);
+	let bubbleCounter = 0;
+	let animationInterval: NodeJS.Timeout;
+	let numColumns = $state(3);
 
 	function getInitials(language: string): string {
 		if (!language) return 'AI';
@@ -145,9 +147,9 @@
 </script>
 
 <div
-	class="relative mx-auto w-full max-w-5xl overflow-hidden rounded-xl bg-gradient-to-b from-base-200/50 to-base-300/30 backdrop-blur-sm h-72 sm:h-80 md:h-96"
+	class="relative mx-auto h-72 w-full max-w-5xl overflow-hidden rounded-xl bg-gradient-to-b from-base-200/50 to-base-300/30 backdrop-blur-sm sm:h-80 md:h-96"
 >
-    <!-- Background pattern removed per request (dots) -->
+	<!-- Background pattern removed per request (dots) -->
 
 	<!-- Animated chat bubbles -->
 	{#each visibleBubbles as bubble (bubble.id)}
@@ -164,16 +166,20 @@
 			<!-- Chat bubble -->
 			<div class="chat {bubble.message.type === 'user' ? 'chat-end' : 'chat-start'}">
 				<div class="avatar chat-image">
-					<div class={`w-8 rounded-full flex items-center justify-center ${
-						bubble.message.type === 'user' ? 'bg-primary/20' : 'bg-secondary/20'
-					}`}> 
-                <span class="text-xs font-semibold">
-                    {bubble.message.type === 'user' ? '👤' : getInitials(bubble.conversation.language)}
-                </span>
+					<div
+						class={`flex w-8 items-center justify-center rounded-full ${
+							bubble.message.type === 'user' ? 'bg-primary/20' : 'bg-secondary/20'
+						}`}
+					>
+						<span class="text-xs font-semibold">
+							{bubble.message.type === 'user' ? '👤' : getInitials(bubble.conversation.language)}
+						</span>
 					</div>
 				</div>
 				<div
-					class="chat-bubble max-w-xs shadow-lg {bubble.message.type === 'user' ? 'chat-bubble-primary' : 'chat-bubble-secondary'} bg-base-100/90 text-base-content"
+					class="chat-bubble max-w-xs shadow-lg {bubble.message.type === 'user'
+						? 'chat-bubble-primary'
+						: 'chat-bubble-secondary'} bg-base-100/90 text-base-content"
 				>
 					<div class="text-sm font-medium">
 						{bubble.message.text}
@@ -215,22 +221,22 @@
 </div>
 
 <style>
-@keyframes float-up-fade {
-    0% {
-        transform: translateY(0);
-        opacity: 0;
-    }
-    5% {
-        opacity: 1;
-    }
-    95% {
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(-140px);
-        opacity: 0;
-    }
-}
+	@keyframes float-up-fade {
+		0% {
+			transform: translateY(0);
+			opacity: 0;
+		}
+		5% {
+			opacity: 1;
+		}
+		95% {
+			opacity: 1;
+		}
+		100% {
+			transform: translateY(-140px);
+			opacity: 0;
+		}
+	}
 
 	@keyframes bounce-slow {
 		0%,

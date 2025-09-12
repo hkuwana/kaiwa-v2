@@ -41,7 +41,7 @@
 
 	// Connection state
 	let autoConnectAttempted = $state(false);
-	
+
 	// Debug panel state (only in dev mode)
 	let showDebugPanel = $state(dev && true); // Show by default in dev mode
 	let debugCollapsed = $state(false); // Start expanded
@@ -86,9 +86,9 @@
 			const handleClearEvents = () => {
 				realtimeOpenAI.clearEvents();
 			};
-			
+
 			document.addEventListener('clearEvents', handleClearEvents);
-			
+
 			// Return cleanup function
 			return () => {
 				document.removeEventListener('clearEvents', handleClearEvents);
@@ -144,15 +144,14 @@
 	}
 
 	function handleContinueAfterResults() {
-		conversationStore.completeAnalyzedSession();
-		goto('/');
+		conversationStore.dismissAnalysisNotification();
+		// Continue conversation instead of going home
 	}
 
 	function handleSaveAndContinue() {
 		// This would typically trigger a signup/login flow
-		// For now, just dismiss results
-		conversationStore.dismissAnalysisResults();
-		goto('/');
+		// For now, just dismiss results and continue conversation
+		conversationStore.dismissAnalysisNotification();
 	}
 
 	function handlePermissionGranted() {
@@ -242,8 +241,8 @@
 				<div class="space-y-3">
 					<!-- Debug controls -->
 					<div class="flex flex-wrap items-center gap-2">
-						<button 
-							class="btn btn-sm {showDebugPanel ? 'btn-secondary' : 'btn-outline'}" 
+						<button
+							class="btn btn-sm {showDebugPanel ? 'btn-secondary' : 'btn-outline'}"
 							onclick={toggleDebugPanel}
 						>
 							{#if !showDebugPanel}
@@ -255,28 +254,10 @@
 							{/if}
 						</button>
 						{#if showDebugPanel}
-							<button class="btn btn-sm btn-ghost" onclick={hideDebugPanel}>
-								Hide Debug
-							</button>
+							<button class="btn btn-ghost btn-sm" onclick={hideDebugPanel}> Hide Debug </button>
 						{/if}
 					</div>
-					
-					<!-- Audio interaction dev toggles are above; add a force-greet tester -->
-					<div class="flex flex-wrap items-center gap-2">
-						<button class="btn btn-sm btn-primary" onclick={() => conversationStore.forceGreet()}
-							>Force Greet (audio+text)</button
-						>
-						<button
-							class="btn btn-sm"
-							onclick={() => conversationStore.forceGreet({ audioOnly: true })}
-							>Force Greet (audio only)</button
-						>
-						<button
-							class="btn btn-sm"
-							onclick={() => conversationStore.forceGreet({ outOfBand: true })}
-							>Force Greet OOB</button
-						>
-					</div>
+
 					<!-- Audio Interaction Mode -->
 					<div class="flex flex-wrap items-center gap-3">
 						<div>
@@ -412,8 +393,8 @@
 
 <!-- Realtime Debug Panel at bottom (only shown in dev mode) -->
 {#if dev && showDebugPanel}
-	<section class="mt-8 mx-auto max-w-7xl px-6 pb-6">
-		<RealtimeDebugPanel 
+	<section class="mx-auto mt-8 max-w-7xl px-6 pb-6">
+		<RealtimeDebugPanel
 			messages={conversationStore.messages}
 			realtimeMessages={realtimeOpenAI.messages}
 			events={realtimeOpenAI.events}

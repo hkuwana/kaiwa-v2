@@ -39,7 +39,10 @@
 	const isFree = $derived(userManager.isFree);
 
 	function handleUpsellClick() {
-		track('upsell_banner_clicked', { source: 'conversation_review', tier: userManager.effectiveTier });
+		track('upsell_banner_clicked', {
+			source: 'conversation_review',
+			tier: userManager.effectiveTier
+		});
 		window.location.href = '/pricing?utm_source=app&utm_medium=upsell&utm_campaign=early_backer';
 	}
 </script>
@@ -130,7 +133,9 @@
 			{#if isFree}
 				<div class="rounded-2xl border border-base-300/60 bg-base-100/70 p-6 shadow-sm">
 					<div class="mb-2 text-lg font-semibold">Early‑backer Plus</div>
-					<p class="mb-4 text-base-content/70">Support the mission and unlock more practice time — $5/mo for 12 months.</p>
+					<p class="mb-4 text-base-content/70">
+						Support the mission and unlock more practice time — $5/mo for 12 months.
+					</p>
 					<button class="btn btn-primary" onclick={handleUpsellClick}>Support + Unlock</button>
 				</div>
 			{/if}

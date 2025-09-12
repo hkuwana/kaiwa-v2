@@ -79,19 +79,20 @@
 	}
 </script>
 
-<div class="bg-white border border-gray-300 rounded-lg shadow-lg {isCollapsed ? 'h-auto' : 'min-h-[500px]'} transition-all duration-300">
+<div
+	class="rounded-lg border border-gray-300 bg-white shadow-lg {isCollapsed
+		? 'h-auto'
+		: 'min-h-[500px]'} transition-all duration-300"
+>
 	<!-- Header -->
-	<div class="flex items-center justify-between p-3 border-b bg-gray-50 rounded-t-lg">
-		<h3 class="font-semibold text-sm">Realtime Debug Panel</h3>
+	<div class="flex items-center justify-between rounded-t-lg border-b bg-gray-50 p-3">
+		<h3 class="text-sm font-semibold">Realtime Debug Panel</h3>
 		<div class="flex items-center gap-2">
-			<button
-				class="px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"
-				onclick={clearEvents}
-			>
+			<button class="rounded bg-gray-200 px-2 py-1 text-xs hover:bg-gray-300" onclick={clearEvents}>
 				Clear Events
 			</button>
 			<button
-				class="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+				class="rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700"
 				onclick={onToggleCollapse}
 			>
 				{isCollapsed ? 'Expand' : 'Collapse'}
@@ -101,23 +102,23 @@
 
 	{#if isCollapsed}
 		<!-- Collapsed view - just stats -->
-		<div class="p-3 space-y-2">
+		<div class="space-y-2 p-3">
 			<div class="grid grid-cols-2 gap-2 text-xs">
-				<div class="bg-blue-50 p-2 rounded">
+				<div class="rounded bg-blue-50 p-2">
 					<div class="font-semibold text-blue-900">Status</div>
 					<div class="text-blue-700">{connectionStatus}</div>
 				</div>
-				<div class="bg-green-50 p-2 rounded">
+				<div class="rounded bg-green-50 p-2">
 					<div class="font-semibold text-green-900">Messages</div>
 					<div class="text-green-700">{messages.length}</div>
 				</div>
 			</div>
 			<div class="grid grid-cols-2 gap-2 text-xs">
-				<div class="bg-purple-50 p-2 rounded">
+				<div class="rounded bg-purple-50 p-2">
 					<div class="font-semibold text-purple-900">Realtime</div>
 					<div class="text-purple-700">{realtimeMessages.length}</div>
 				</div>
-				<div class="bg-orange-50 p-2 rounded">
+				<div class="rounded bg-orange-50 p-2">
 					<div class="font-semibold text-orange-900">Events</div>
 					<div class="text-orange-700">{events.length}</div>
 				</div>
@@ -125,10 +126,10 @@
 		</div>
 	{:else}
 		<!-- Expanded view - full debug interface -->
-		<div class="p-4 space-y-4 h-full overflow-y-auto">
+		<div class="h-full space-y-4 overflow-y-auto p-4">
 			<!-- Controls -->
-			<div class="bg-gray-100 p-3 rounded">
-				<h4 class="font-semibold mb-2 text-sm">Display Options</h4>
+			<div class="rounded bg-gray-100 p-3">
+				<h4 class="mb-2 text-sm font-semibold">Display Options</h4>
 				<div class="flex flex-wrap gap-3 text-xs">
 					<label class="flex items-center gap-1">
 						<input type="checkbox" bind:checked={showRawMessages} class="scale-75" />
@@ -149,11 +150,11 @@
 				</div>
 			</div>
 
-			<div class="grid grid-cols-2 gap-4 h-full">
+			<div class="grid h-full grid-cols-2 gap-4">
 				<!-- Conversation Store Messages -->
 				<div class="space-y-2">
-					<h4 class="font-semibold text-sm">Conversation Store ({messages.length})</h4>
-					<div class="space-y-1 max-h-48 overflow-y-auto text-xs">
+					<h4 class="text-sm font-semibold">Conversation Store ({messages.length})</h4>
+					<div class="max-h-48 space-y-1 overflow-y-auto text-xs">
 						{#each messages as msg, i}
 							{@const status = getMessageStatus(msg)}
 							{@const isDup = isDuplicateByContent(msg, messages)}
@@ -163,10 +164,11 @@
 										? 'border-2 border-red-500'
 										: ''}"
 								>
-									<div class="flex items-center justify-between mb-1">
+									<div class="mb-1 flex items-center justify-between">
 										<div class="flex items-center gap-1">
 											<span
-												class="rounded px-1 py-0.5 text-xs font-semibold uppercase {msg.role === 'user'
+												class="rounded px-1 py-0.5 text-xs font-semibold uppercase {msg.role ===
+												'user'
 													? 'bg-blue-100'
 													: 'bg-green-100'}"
 											>
@@ -185,10 +187,10 @@
 									</div>
 
 									{#if showSequenceIds}
-										<div class="text-xs text-gray-500 mb-1">
+										<div class="mb-1 text-xs text-gray-500">
 											ID: {msg.id.substring(0, 20)}...
 										</div>
-										<div class="text-xs text-gray-500 mb-1">
+										<div class="mb-1 text-xs text-gray-500">
 											Seq: {msg.sequenceId || 'none'} | {formatTimestamp(msg.timestamp)}
 										</div>
 									{/if}
@@ -204,8 +206,8 @@
 
 				<!-- Realtime Store Messages -->
 				<div class="space-y-2">
-					<h4 class="font-semibold text-sm">Realtime Store ({realtimeMessages.length})</h4>
-					<div class="space-y-1 max-h-48 overflow-y-auto text-xs">
+					<h4 class="text-sm font-semibold">Realtime Store ({realtimeMessages.length})</h4>
+					<div class="max-h-48 space-y-1 overflow-y-auto text-xs">
 						{#each realtimeMessages as msg, i}
 							{@const status = getMessageStatus(msg)}
 							{@const isDup = isDuplicateByContent(msg, realtimeMessages)}
@@ -215,10 +217,11 @@
 										? 'border-2 border-red-500'
 										: ''}"
 								>
-									<div class="flex items-center justify-between mb-1">
+									<div class="mb-1 flex items-center justify-between">
 										<div class="flex items-center gap-1">
 											<span
-												class="rounded px-1 py-0.5 text-xs font-semibold uppercase {msg.role === 'user'
+												class="rounded px-1 py-0.5 text-xs font-semibold uppercase {msg.role ===
+												'user'
 													? 'bg-blue-100'
 													: 'bg-green-100'}"
 											>
@@ -237,10 +240,10 @@
 									</div>
 
 									{#if showSequenceIds}
-										<div class="text-xs text-gray-500 mb-1">
+										<div class="mb-1 text-xs text-gray-500">
 											ID: {msg.id.substring(0, 20)}...
 										</div>
-										<div class="text-xs text-gray-500 mb-1">
+										<div class="mb-1 text-xs text-gray-500">
 											Seq: {msg.sequenceId || 'none'} | {formatTimestamp(msg.timestamp)}
 										</div>
 									{/if}
@@ -258,13 +261,11 @@
 			<!-- Recent Events -->
 			{#if showRawMessages}
 				<div class="space-y-2">
-					<h4 class="font-semibold text-sm">Recent Events (Last 10)</h4>
-					<div class="space-y-1 max-h-32 overflow-y-auto text-xs">
+					<h4 class="text-sm font-semibold">Recent Events (Last 10)</h4>
+					<div class="max-h-32 space-y-1 overflow-y-auto text-xs">
 						{#each events.slice(0, 10) as event}
 							<div
-								class="rounded border p-2 {event.dir === 'server'
-									? 'bg-blue-50'
-									: 'bg-green-50'}"
+								class="rounded border p-2 {event.dir === 'server' ? 'bg-blue-50' : 'bg-green-50'}"
 							>
 								<div class="flex items-center justify-between">
 									<span
@@ -279,11 +280,11 @@
 									</span>
 								</div>
 								{#if showEventDetails}
-									<pre class="whitespace-pre-wrap text-gray-600 mt-1 text-xs">{JSON.stringify(
-										event.payload,
-										null,
-										2
-									).substring(0, 200)}...</pre>
+									<pre class="mt-1 text-xs whitespace-pre-wrap text-gray-600">{JSON.stringify(
+											event.payload,
+											null,
+											2
+										).substring(0, 200)}...</pre>
 								{/if}
 							</div>
 						{/each}

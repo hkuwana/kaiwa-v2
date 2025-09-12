@@ -199,6 +199,38 @@ modules.register({
 	}
 });
 
+// Turn-taking and brevity: keep responses short, conversational
+modules.register({
+    id: 'turn-taking-brevity',
+    priority: 3.2,
+    generate: ({ language }: ModuleContext) => {
+        return `## TURN-TAKING & BREVITY
+
+### Default Turn Length
+- 1 short sentence by default (5–12 words)
+- Max 2 short sentences only when needed
+- Avoid paragraphs and lists unless explicitly requested
+
+### Keep It Conversational
+- End most turns with exactly ONE short question
+- Use brief backchannels ("mm", "yeah", "got it") sparingly
+- Stop after 3–5 seconds; let the learner speak
+- If they interrupt, stop immediately
+
+### Teaching Moments
+- After a correction, give the corrected phrase once, then a short prompt
+- Keep translations in parentheses and brief; return to ${language.name} right away
+- Cultural/context notes: one quick line, not a lecture
+
+### Long User Messages
+- Reply with a concise reaction/summary (one line) + one follow-up question
+
+### NEVER
+- Monologue for more than two sentences
+- Chain multiple examples without pausing for their response`;
+    }
+});
+
 // TIP #3: Handle unclear audio with escalation
 modules.register({
 	id: 'audio-handling-enhanced',
@@ -698,30 +730,31 @@ Example:
 // ============================================
 
 export function generateInitialInstructions(
-	user: User,
-	language: Language,
-	preferences: Partial<UserPreferences>,
-	scenario?: Scenario,
-	sessionContext?: SessionContext,
-	speaker?: Speaker
+    user: User,
+    language: Language,
+    preferences: Partial<UserPreferences>,
+    scenario?: Scenario,
+    sessionContext?: SessionContext,
+    speaker?: Speaker
 ): string {
 	// Check if this is a first-time user by looking at successful exchanges
 	const isFirstTime = !preferences.successfulExchanges || preferences.successfulExchanges === 0;
 	const nativeGreeting = getNativeGreeting(user.nativeLanguageId || 'en');
 
-	const baseModules = [
-		'personality-adaptive',
-		'audio-handling-enhanced',
-		'language-control',
-		'memory-context',
-		'insider-knowledge-hooks',
-		'speaking-dynamics',
-		'conversation-flows',
-		'safety-boundaries',
-		'session-pacing',
-		'variety-phrases',
-		'anti-patterns-enhanced'
-	];
+    const baseModules = [
+        'personality-adaptive',
+        'audio-handling-enhanced',
+        'language-control',
+        'turn-taking-brevity',
+        'memory-context',
+        'insider-knowledge-hooks',
+        'speaking-dynamics',
+        'conversation-flows',
+        'safety-boundaries',
+        'session-pacing',
+        'variety-phrases',
+        'anti-patterns-enhanced'
+    ];
 
 	const context: ModuleContext = { user, language, preferences, scenario, sessionContext, speaker };
 	let instructions = modules.compose(baseModules, context);
@@ -1173,22 +1206,23 @@ export function createScenarioSessionConfig(
  * Get base instructions that apply to all scenarios
  */
 function getBaseInstructions(
-	user: User,
-	language: Language,
-	preferences: Partial<UserPreferences>,
-	speaker?: Speaker
+    user: User,
+    language: Language,
+    preferences: Partial<UserPreferences>,
+    speaker?: Speaker
 ): string {
-	const baseModules = [
-		'personality-adaptive',
-		'audio-handling-enhanced',
-		'language-control',
-		'memory-context',
-		'insider-knowledge-hooks',
-		'speaking-dynamics',
-		'safety-boundaries',
-		'variety-phrases',
-		'anti-patterns-enhanced'
-	];
+    const baseModules = [
+        'personality-adaptive',
+        'audio-handling-enhanced',
+        'language-control',
+        'turn-taking-brevity',
+        'memory-context',
+        'insider-knowledge-hooks',
+        'speaking-dynamics',
+        'safety-boundaries',
+        'variety-phrases',
+        'anti-patterns-enhanced'
+    ];
 
 	const context: ModuleContext = { user, language, preferences, speaker };
 	return modules.compose(baseModules, context);

@@ -69,13 +69,23 @@ export async function analyzeConversation(request: AnalysisRequest): Promise<Ana
 
 		switch (analysisType) {
 			case 'onboarding':
-				return await handleOnboardingAnalysis(messages, language, sessionId, userPreferencesProvider);
+				return await handleOnboardingAnalysis(
+					messages,
+					language,
+					sessionId,
+					userPreferencesProvider
+				);
 
 			case 'regular':
 				return await handleRegularAnalysis(messages, language, sessionId, userPreferencesProvider);
 
 			case 'scenario-generation':
-				return await handleScenarioGeneration(messages, language, sessionId, userPreferencesProvider);
+				return await handleScenarioGeneration(
+					messages,
+					language,
+					sessionId,
+					userPreferencesProvider
+				);
 
 			default:
 				return {
@@ -242,7 +252,9 @@ async function handleScenarioGeneration(
 				success: true,
 				data: {
 					customScenarios: result.data.scenarios,
-					insights: [`Generated ${result.data.scenarios.length} custom scenarios based on your interests`]
+					insights: [
+						`Generated ${result.data.scenarios.length} custom scenarios based on your interests`
+					]
 				},
 				analysisType: 'scenario-generation'
 			};
@@ -294,18 +306,45 @@ function extractConversationContext(messages: Message[]): {
 function extractTopics(content: string): string[] {
 	// Basic topic extraction - could be enhanced with better NLP
 	const topicKeywords = [
-		'work', 'job', 'career', 'business', 'meeting',
-		'travel', 'vacation', 'trip', 'hotel', 'flight',
-		'food', 'restaurant', 'cooking', 'eating',
-		'shopping', 'buying', 'store', 'market',
-		'family', 'friends', 'relationship', 'dating',
-		'hobby', 'sport', 'music', 'movie', 'book',
-		'health', 'doctor', 'hospital', 'medicine',
-		'school', 'university', 'study', 'learning'
+		'work',
+		'job',
+		'career',
+		'business',
+		'meeting',
+		'travel',
+		'vacation',
+		'trip',
+		'hotel',
+		'flight',
+		'food',
+		'restaurant',
+		'cooking',
+		'eating',
+		'shopping',
+		'buying',
+		'store',
+		'market',
+		'family',
+		'friends',
+		'relationship',
+		'dating',
+		'hobby',
+		'sport',
+		'music',
+		'movie',
+		'book',
+		'health',
+		'doctor',
+		'hospital',
+		'medicine',
+		'school',
+		'university',
+		'study',
+		'learning'
 	];
 
 	const lowerContent = content.toLowerCase();
-	return topicKeywords.filter(keyword => lowerContent.includes(keyword));
+	return topicKeywords.filter((keyword) => lowerContent.includes(keyword));
 }
 
 /**
@@ -321,10 +360,10 @@ function extractInterests(content: string): string[] {
 	];
 
 	const interests: string[] = [];
-	interestPatterns.forEach(pattern => {
+	interestPatterns.forEach((pattern) => {
 		const matches = content.match(pattern);
 		if (matches) {
-			matches.forEach(match => {
+			matches.forEach((match) => {
 				const interest = match.replace(pattern, '$2').trim();
 				if (interest && interest.length > 2) {
 					interests.push(interest);
@@ -352,7 +391,9 @@ function estimateDifficulty(content: string): string {
 /**
  * Determine analysis type based on user status and conversation context
  */
-export function determineAnalysisType(userPreferencesProvider: UserPreferencesProvider): AnalysisType {
+export function determineAnalysisType(
+	userPreferencesProvider: UserPreferencesProvider
+): AnalysisType {
 	// Check if user should trigger onboarding
 	if (onboardingManagerService.shouldTriggerOnboarding(userPreferencesProvider)) {
 		return 'onboarding';

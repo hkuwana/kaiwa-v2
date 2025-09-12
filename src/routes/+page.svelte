@@ -92,7 +92,7 @@
 	<header class="flex min-h-screen items-start justify-center pt-20">
 		<div class="text-center">
 			<div class="max-w-md">
-				<h4 class="mb-2 text-2xl sm:text-3xl font-semibold opacity-90 sm:mb-4">
+				<h4 class="mb-2 text-2xl font-semibold opacity-90 sm:mb-4 sm:text-3xl">
 					{headlineText}
 				</h4>
 
@@ -101,7 +101,7 @@
 						Welcome back, {user ? user.displayName : 'Dev'}!
 					</div>
 				{:else}
-					<p class="mb-6 text-xl opacity-90 hidden sm:block">
+					<p class="mb-6 hidden text-xl opacity-90 sm:block">
 						Practice life-like conversations for relationships and family — quick 3‑minute
 						onboarding.
 					</p>
@@ -122,22 +122,28 @@
 	</header>
 
 	<!-- Quick value props strip -->
-<section class="rounded-2xl border-y border-white/10 bg-secondary/20 py-8 hidden md:block">
+	<section class="hidden rounded-2xl border-y border-white/10 bg-secondary/20 py-8 md:block">
 		<div class="container mx-auto grid max-w-5xl grid-cols-1 gap-6 px-4 md:grid-cols-3">
 			<div>
-				<div class="text-sm font-semibold tracking-wide uppercase text-primary">Perfect For</div>
-				<div class="text-base opacity-90 mt-2">Multicultural couples • Heritage language learners • Business professionals • Travel enthusiasts</div>
+				<div class="text-sm font-semibold tracking-wide text-primary uppercase">Perfect For</div>
+				<div class="mt-2 text-base opacity-90">
+					Multicultural couples • Heritage language learners • Business professionals • Travel
+					enthusiasts
+				</div>
 			</div>
 			<div>
-				<div class="text-sm font-semibold tracking-wide uppercase text-primary">Languages Available</div>
-				<div class="text-base opacity-90 mt-2">
+				<div class="text-sm font-semibold tracking-wide text-primary uppercase">
+					Languages Available
+				</div>
+				<div class="mt-2 text-base opacity-90">
 					Japanese • Spanish • French • Italian • German • Portuguese • Chinese • Korean
 				</div>
 			</div>
 			<div>
-				<div class="text-sm font-semibold tracking-wide uppercase text-primary">Proven Results</div>
-				<div class="text-base italic opacity-90 mt-2">
-					"Kaiwa is like WD‑40 for being rusty at a language. I gained confidence in weeks, not months." — Scott H.
+				<div class="text-sm font-semibold tracking-wide text-primary uppercase">Proven Results</div>
+				<div class="mt-2 text-base italic opacity-90">
+					"Kaiwa is like WD‑40 for being rusty at a language. I gained confidence in weeks, not
+					months." — Scott H.
 				</div>
 			</div>
 		</div>
@@ -162,26 +168,42 @@
 		<!-- Section Header -->
 		<div class="mx-auto max-w-3xl text-center">
 			<h2 class="mb-4 text-4xl font-bold">Why Kaiwa Works: Real Conversation Practice</h2>
-			<p class="text-xl opacity-90">Unlike traditional language apps that focus on grammar and vocab lists, Kaiwa immerses you in realistic conversations that mirror real-life situations. Practice speaking naturally with our AI conversation partner.</p>
+			<p class="text-xl opacity-90">
+				Unlike traditional language apps that focus on grammar and vocab lists, Kaiwa immerses you
+				in realistic conversations that mirror real-life situations. Practice speaking naturally
+				with our AI conversation partner.
+			</p>
 		</div>
 
 		<!-- Benefits Section -->
-		<section class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-			<div class="bg-base-100 rounded-xl p-6 shadow-lg">
-				<h3 class="text-xl font-semibold mb-3 text-primary">🎯 Conversation-First Learning</h3>
-				<p class="opacity-90">Skip the flashcards and grammar drills. Jump straight into meaningful conversations that teach you how languages are actually spoken.</p>
+		<section class="mx-auto grid max-w-4xl gap-8 md:grid-cols-2">
+			<div class="rounded-xl bg-base-100 p-6 shadow-lg">
+				<h3 class="mb-3 text-xl font-semibold text-primary">🎯 Conversation-First Learning</h3>
+				<p class="opacity-90">
+					Skip the flashcards and grammar drills. Jump straight into meaningful conversations that
+					teach you how languages are actually spoken.
+				</p>
 			</div>
-			<div class="bg-base-100 rounded-xl p-6 shadow-lg">
-				<h3 class="text-xl font-semibold mb-3 text-primary">🗣️ Build Speaking Confidence</h3>
-				<p class="opacity-90">Practice speaking without fear of judgment. Our AI conversation partner helps you build confidence through natural, encouraging dialogue.</p>
+			<div class="rounded-xl bg-base-100 p-6 shadow-lg">
+				<h3 class="mb-3 text-xl font-semibold text-primary">🗣️ Build Speaking Confidence</h3>
+				<p class="opacity-90">
+					Practice speaking without fear of judgment. Our AI conversation partner helps you build
+					confidence through natural, encouraging dialogue.
+				</p>
 			</div>
-			<div class="bg-base-100 rounded-xl p-6 shadow-lg">
-				<h3 class="text-xl font-semibold mb-3 text-primary">📱 Learn Anywhere, Anytime</h3>
-				<p class="opacity-90">Web-based platform works on all devices. Practice during your commute, lunch break, or whenever you have a few minutes.</p>
+			<div class="rounded-xl bg-base-100 p-6 shadow-lg">
+				<h3 class="mb-3 text-xl font-semibold text-primary">📱 Learn Anywhere, Anytime</h3>
+				<p class="opacity-90">
+					Web-based platform works on all devices. Practice during your commute, lunch break, or
+					whenever you have a few minutes.
+				</p>
 			</div>
-			<div class="bg-base-100 rounded-xl p-6 shadow-lg">
-				<h3 class="text-xl font-semibold mb-3 text-primary">🎭 Real-Life Scenarios</h3>
-				<p class="opacity-90">From ordering coffee in Tokyo to having deep conversations with your in-laws, practice scenarios that actually matter to your life.</p>
+			<div class="rounded-xl bg-base-100 p-6 shadow-lg">
+				<h3 class="mb-3 text-xl font-semibold text-primary">🎭 Real-Life Scenarios</h3>
+				<p class="opacity-90">
+					From ordering coffee in Tokyo to having deep conversations with your in-laws, practice
+					scenarios that actually matter to your life.
+				</p>
 			</div>
 		</section>
 
@@ -206,11 +228,17 @@
 		</section>
 	</main>
 	<!-- CTA Section -->
-	<section class="py-16 text-center bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl mx-4">
+	<section
+		class="mx-4 rounded-2xl bg-gradient-to-r from-primary/10 to-secondary/10 py-16 text-center"
+	>
 		<div class="container mx-auto max-w-2xl">
-			<h2 class="text-3xl font-bold mb-4">Ready to Start Speaking?</h2>
-			<p class="text-lg opacity-90 mb-2">Join thousands of learners who've chosen conversation over cramming.</p>
-			<div class="text-sm opacity-70 pb-6">✓ Free to try • ✓ No credit card required • ✓ 3-minute setup</div>
+			<h2 class="mb-4 text-3xl font-bold">Ready to Start Speaking?</h2>
+			<p class="mb-2 text-lg opacity-90">
+				Join thousands of learners who've chosen conversation over cramming.
+			</p>
+			<div class="pb-6 text-sm opacity-70">
+				✓ Free to try • ✓ No credit card required • ✓ 3-minute setup
+			</div>
 			<UnifiedStartButton
 				{user}
 				{selectedLanguage}
@@ -221,7 +249,7 @@
 				onScenarioChange={handleScenarioChange}
 				onStartClick={trackStartSpeakingClick}
 			/>
-		<p class="mt-6 text-base opacity-80">
+			<p class="mt-6 text-base opacity-80">
 				{#if user && user.id !== 'guest'}
 					Welcome back! Continue building your language confidence.
 				{:else}
@@ -234,8 +262,8 @@
 	<!-- Social Proof Section -->
 	<section class="py-12 text-center">
 		<div class="container mx-auto max-w-4xl">
-			<h3 class="text-2xl font-semibold mb-8 opacity-90">Trusted by Language Learners Worldwide</h3>
-			<div class="grid md:grid-cols-3 gap-6">
+			<h3 class="mb-8 text-2xl font-semibold opacity-90">Trusted by Language Learners Worldwide</h3>
+			<div class="grid gap-6 md:grid-cols-3">
 				<div class="text-center">
 					<div class="text-3xl font-bold text-primary">5,000+</div>
 					<div class="text-sm opacity-70">Conversations Completed</div>
@@ -252,27 +280,27 @@
 		</div>
 	</section>
 
-  <!-- Comparison + Differentiators (toward bottom, before social proof) -->
-  <WhyDifferent variant="compact" />
+	<!-- Comparison + Differentiators (toward bottom, before social proof) -->
+	<WhyDifferent variant="compact" />
 
-  <!-- Social Proof Section (moved to end) -->
-  <section class="py-12 text-center">
-    <div class="container mx-auto max-w-4xl">
-      <h3 class="text-2xl font-semibold mb-8 opacity-90">Trusted by Language Learners Worldwide</h3>
-      <div class="grid md:grid-cols-3 gap-6">
-        <div class="text-center">
-          <div class="text-3xl font-bold text-primary">5,000+</div>
-          <div class="text-sm opacity-70">Conversations Completed</div>
-        </div>
-        <div class="text-center">
-          <div class="text-3xl font-bold text-primary">8</div>
-          <div class="text-sm opacity-70">Languages Supported</div>
-        </div>
-        <div class="text-center">
-          <div class="text-3xl font-bold text-primary">95%</div>
-          <div class="text-sm opacity-70">Report Improved Confidence</div>
-        </div>
-      </div>
-    </div>
-  </section>
+	<!-- Social Proof Section (moved to end) -->
+	<section class="py-12 text-center">
+		<div class="container mx-auto max-w-4xl">
+			<h3 class="mb-8 text-2xl font-semibold opacity-90">Trusted by Language Learners Worldwide</h3>
+			<div class="grid gap-6 md:grid-cols-3">
+				<div class="text-center">
+					<div class="text-3xl font-bold text-primary">5,000+</div>
+					<div class="text-sm opacity-70">Conversations Completed</div>
+				</div>
+				<div class="text-center">
+					<div class="text-3xl font-bold text-primary">8</div>
+					<div class="text-sm opacity-70">Languages Supported</div>
+				</div>
+				<div class="text-center">
+					<div class="text-3xl font-bold text-primary">95%</div>
+					<div class="text-sm opacity-70">Report Improved Confidence</div>
+				</div>
+			</div>
+		</div>
+	</section>
 </div>

@@ -2,9 +2,12 @@
 @plugin '@iconify/tailwind4';
 
 /* Keep layers for project-specific additions if needed */
-@layer base {}
-@layer components {}
-@layer utilities {}
+@layer base {
+}
+@layer components {
+}
+@layer utilities {
+}
 
 /* DaisyUI theme configuration */
 @plugin "daisyui" {
@@ -14,16 +17,34 @@
 }
 
 /* Minimal global element styling to avoid layout interference */
-strong { @apply font-bold text-base-content; }
-em { @apply text-base-content/90 italic; }
+strong {
+	@apply font-bold text-base-content;
+}
+em {
+	@apply text-base-content/90 italic;
+}
 
 /* Code styling */
-code { @apply rounded border border-base-content/10 bg-base-200 px-2 py-1 font-mono text-sm text-error; }
-code:not(pre code) { @apply bg-base-200 text-error; }
-pre { @apply mb-6 overflow-x-auto rounded-lg border border-base-content/10 bg-base-200 p-6 text-base-content shadow-lg; }
-pre code { @apply border-none bg-transparent p-0 text-sm; }
+code {
+	@apply rounded border border-base-content/10 bg-base-200 px-2 py-1 font-mono text-sm text-error;
+}
+code:not(pre code) {
+	@apply bg-base-200 text-error;
+}
+pre {
+	@apply mb-6 overflow-x-auto rounded-lg border border-base-content/10 bg-base-200 p-6 text-base-content shadow-lg;
+}
+pre code {
+	@apply border-none bg-transparent p-0 text-sm;
+}
 
 /* Subtle scrollbars for code blocks */
-pre::-webkit-scrollbar { @apply h-2; }
-pre::-webkit-scrollbar-track { @apply rounded bg-base-200; }
-pre::-webkit-scrollbar-thumb { @apply rounded bg-primary/30 hover:bg-primary/50; }
+pre::-webkit-scrollbar {
+	@apply h-2;
+}
+pre::-webkit-scrollbar-track {
+	@apply rounded bg-base-200;
+}
+pre::-webkit-scrollbar-thumb {
+	@apply rounded bg-primary/30 hover:bg-primary/50;
+}

@@ -668,6 +668,12 @@ export class ConversationStore {
 		userPreferencesStore.clearAnalysisResults();
 	};
 
+	// New method: Only dismiss analysis notification without resetting conversation
+	dismissAnalysisNotification = () => {
+		userPreferencesStore.clearAnalysisResults();
+		// Don't reset conversation state - keep messages and continue conversation
+	};
+
 	reset = () => {
 		if (browser) {
 			this.cleanup();

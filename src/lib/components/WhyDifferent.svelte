@@ -1,97 +1,130 @@
 <script lang="ts">
-  export let variant: 'compact' | 'extended' = 'compact';
+	export let variant: 'compact' | 'extended' = 'compact';
 
-  const items = [
-    {
-      title: 'Start Speaking Immediately',
-      desc: 'No tutorials, no setup screens. Just click and have a real conversation in seconds.',
-      icon: '⚡'
-    },
-    {
-      title: 'Real Human Emotions',
-      desc: 'Practice apologizing, expressing affection, handling conflict — the conversations that actually matter in relationships.',
-      icon: '💝'
-    },
-    {
-      title: 'Asian Language Support',
-      desc: 'Reading aids for Japanese, Korean, and Chinese speakers — because seeing characters shouldn\'t stop you from speaking.',
-      icon: '文'
-    },
-    {
-      title: 'Builds on Your Life',
-      desc: 'Remembers your interests and experiences to create personally relevant conversations you actually care about.',
-      icon: '🌱'
-    },
-    {
-      title: 'Natural Conversation Flow',
-      desc: 'True back-and-forth dialogue that feels human — no awkward pauses or robotic responses.',
-      icon: '💬'
-    },
-    {
-      title: 'Cultural Insider Knowledge',
-      desc: 'Learn phrases locals actually use and understand the cultural context behind them.',
-      icon: '🗝️'
-    }
-  ];
+	const items = [
+		{
+			title: 'Start Speaking Immediately',
+			desc: 'No tutorials, no setup screens. Just click and have a real conversation in seconds.',
+			icon: '⚡'
+		},
+		{
+			title: 'Real Human Emotions',
+			desc: 'Practice apologizing, expressing affection, handling conflict — the conversations that actually matter in relationships.',
+			icon: '💝'
+		},
+		{
+			title: 'Asian Language Support',
+			desc: "Reading aids for Japanese, Korean, and Chinese speakers — because seeing characters shouldn't stop you from speaking.",
+			icon: '文'
+		},
+		{
+			title: 'Builds on Your Life',
+			desc: 'Remembers your interests and experiences to create personally relevant conversations you actually care about.',
+			icon: '🌱'
+		},
+		{
+			title: 'Natural Conversation Flow',
+			desc: 'True back-and-forth dialogue that feels human — no awkward pauses or robotic responses.',
+			icon: '💬'
+		},
+		{
+			title: 'Cultural Insider Knowledge',
+			desc: 'Learn phrases locals actually use and understand the cultural context behind them.',
+			icon: '🗝️'
+		}
+	];
 
-  const compare = [
-    { key: 'Instant conversation start', kaiwa: 'One click', typical: 'Setup required', problem: 'Most apps make you complete lessons before speaking' },
-    { key: 'Unlimited speaking time', kaiwa: 'Always free', typical: 'Paywall/limits', problem: 'ChatGPT limits daily voice usage, Duolingo caps at 2 minutes' },
-    { key: 'Emotional conversations', kaiwa: 'Built-in scenarios', typical: 'Basic topics only', problem: 'Other apps avoid complex human emotions and relationships' },
-    { key: 'Asian language reading help', kaiwa: 'Furigana/romanization', typical: 'Not available', problem: 'Learning stops when you can\'t read the characters' },
-    { key: 'Personal conversation memory', kaiwa: 'Remembers your life', typical: 'Starts fresh', problem: 'Repetitive conversations that don\'t build on your experiences' },
-  ];
+	const compare = [
+		{
+			key: 'Instant conversation start',
+			kaiwa: 'One click',
+			typical: 'Setup required',
+			problem: 'Most apps make you complete lessons before speaking'
+		},
+		{
+			key: 'Unlimited speaking time',
+			kaiwa: 'Always free',
+			typical: 'Paywall/limits',
+			problem: 'ChatGPT limits daily voice usage, Duolingo caps at 2 minutes'
+		},
+		{
+			key: 'Emotional conversations',
+			kaiwa: 'Built-in scenarios',
+			typical: 'Basic topics only',
+			problem: 'Other apps avoid complex human emotions and relationships'
+		},
+		{
+			key: 'Asian language reading help',
+			kaiwa: 'Furigana/romanization',
+			typical: 'Not available',
+			problem: "Learning stops when you can't read the characters"
+		},
+		{
+			key: 'Personal conversation memory',
+			kaiwa: 'Remembers your life',
+			typical: 'Starts fresh',
+			problem: "Repetitive conversations that don't build on your experiences"
+		}
+	];
 </script>
 
 <section class="container mx-auto max-w-5xl py-12">
-  <div class="mx-auto mb-6 max-w-3xl text-center">
-    <h3 class="text-2xl font-bold">The Real Conversation Difference</h3>
-    <p class="mt-2 text-base opacity-80">While other apps focus on lessons and drills, Kaiwa gets you speaking like a human from day one.</p>
-  </div>
+	<div class="mx-auto mb-6 max-w-3xl text-center">
+		<h3 class="text-2xl font-bold">The Real Conversation Difference</h3>
+		<p class="mt-2 text-base opacity-80">
+			While other apps focus on lessons and drills, Kaiwa gets you speaking like a human from day
+			one.
+		</p>
+	</div>
 
-  <div class="grid gap-4 md:grid-cols-3">
-    {#each (variant === 'compact' ? items.slice(0,6) : items) as item}
-      <div class="rounded-xl bg-base-100 p-4 shadow">
-        <div class="flex items-center gap-3">
-          <div class="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary text-lg">
-            {item.icon}
-          </div>
-          <div class="text-base font-semibold">{item.title}</div>
-        </div>
-        <div class="mt-2 text-sm opacity-80">{item.desc}</div>
-      </div>
-    {/each}
-  </div>
+	<div class="grid gap-4 md:grid-cols-3">
+		{#each variant === 'compact' ? items.slice(0, 6) : items as item}
+			<div class="rounded-xl bg-base-100 p-4 shadow">
+				<div class="flex items-center gap-3">
+					<div
+						class="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-lg text-primary"
+					>
+						{item.icon}
+					</div>
+					<div class="text-base font-semibold">{item.title}</div>
+				</div>
+				<div class="mt-2 text-sm opacity-80">{item.desc}</div>
+			</div>
+		{/each}
+	</div>
 
-  <div class="mt-12 space-y-6">
-    <div class="mx-auto mb-6 max-w-2xl text-center">
-      <h4 class="text-xl font-bold">What Other Apps Get Wrong</h4>
-      <p class="mt-2 text-sm opacity-70">Real problems that stop learners from actually speaking</p>
-    </div>
-    
-    <div class="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
-      {#each compare as row}
-        <div class="rounded-xl border border-base-300 bg-base-50 p-4">
-          <div class="mb-2 flex items-center justify-between gap-4">
-            <h5 class="font-medium text-base">{row.key}</h5>
-          </div>
-          <div class="grid gap-2 text-sm">
-            <div class="flex items-center gap-2">
-              <span class="inline-block w-12 text-xs font-medium opacity-60">Kaiwa:</span>
-              <span class="font-semibold text-primary">{row.kaiwa}</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="inline-block w-12 text-xs font-medium opacity-60">Others:</span>
-              <span class="opacity-70">{row.typical}</span>
-            </div>
-            <div class="mt-2 text-xs opacity-60 italic">Why it matters: {row.problem}</div>
-          </div>
-        </div>
-      {/each}
-    </div>
-    
-    <div class="mt-6 text-center">
-      <p class="text-xs opacity-60">Based on ChatGPT Voice, Speak.com, Babbel, Duolingo features as of 2024. Features vary by product and pricing tier.</p>
-    </div>
-  </div>
+	<div class="mt-12 space-y-6">
+		<div class="mx-auto mb-6 max-w-2xl text-center">
+			<h4 class="text-xl font-bold">What Other Apps Get Wrong</h4>
+			<p class="mt-2 text-sm opacity-70">Real problems that stop learners from actually speaking</p>
+		</div>
+
+		<div class="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+			{#each compare as row}
+				<div class="bg-base-50 rounded-xl border border-base-300 p-4">
+					<div class="mb-2 flex items-center justify-between gap-4">
+						<h5 class="text-base font-medium">{row.key}</h5>
+					</div>
+					<div class="grid gap-2 text-sm">
+						<div class="flex items-center gap-2">
+							<span class="inline-block w-12 text-xs font-medium opacity-60">Kaiwa:</span>
+							<span class="font-semibold text-primary">{row.kaiwa}</span>
+						</div>
+						<div class="flex items-center gap-2">
+							<span class="inline-block w-12 text-xs font-medium opacity-60">Others:</span>
+							<span class="opacity-70">{row.typical}</span>
+						</div>
+						<div class="mt-2 text-xs italic opacity-60">Why it matters: {row.problem}</div>
+					</div>
+				</div>
+			{/each}
+		</div>
+
+		<div class="mt-6 text-center">
+			<p class="text-xs opacity-60">
+				Based on ChatGPT Voice, Speak.com, Babbel, Duolingo features as of 2024. Features vary by
+				product and pricing tier.
+			</p>
+		</div>
+	</div>
 </section>

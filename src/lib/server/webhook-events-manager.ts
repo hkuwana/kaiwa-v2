@@ -9,7 +9,7 @@ let webhookEvents: any[] = [];
 
 export function addWebhookEvent(event: any) {
 	if (!dev) return; // Only store in development
-	
+
 	webhookEvents.push({
 		id: event.id,
 		type: event.type,
@@ -26,14 +26,12 @@ export function addWebhookEvent(event: any) {
 
 export function getWebhookEvents(): any[] {
 	// Return the most recent 50 events, sorted by timestamp
-	return webhookEvents
-		.sort((a, b) => b.created - a.created)
-		.slice(0, 50);
+	return webhookEvents.sort((a, b) => b.created - a.created).slice(0, 50);
 }
 
 export function addManualWebhookEvent(eventData: any) {
 	if (!dev) return; // Only store in development
-	
+
 	// Add event to in-memory storage
 	const event = {
 		id: `evt_${Date.now()}`,

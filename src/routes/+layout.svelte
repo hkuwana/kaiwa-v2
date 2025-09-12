@@ -35,18 +35,18 @@
 			const shareId = params.get('shareId') || params.get('ref');
 
 			// Persist locally for future sessions
-				const existing = localStorage.getItem('kaiwa_attribution');
-				const payload = {
-					utm,
-					shareId: shareId || (existing ? JSON.parse(existing).shareId : null),
-					ts: Date.now()
-				};
-				localStorage.setItem('kaiwa_attribution', JSON.stringify(payload));
+			const existing = localStorage.getItem('kaiwa_attribution');
+			const payload = {
+				utm,
+				shareId: shareId || (existing ? JSON.parse(existing).shareId : null),
+				ts: Date.now()
+			};
+			localStorage.setItem('kaiwa_attribution', JSON.stringify(payload));
 
-				// Also persist shareId to cookie for cross-path navigation before signup
-				if (payload.shareId) {
-					document.cookie = `kaiwa_share_id=${encodeURIComponent(payload.shareId)}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
-				}
+			// Also persist shareId to cookie for cross-path navigation before signup
+			if (payload.shareId) {
+				document.cookie = `kaiwa_share_id=${encodeURIComponent(payload.shareId)}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
+			}
 
 			// Register as PostHog super properties if available
 			if (posthog) {
