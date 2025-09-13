@@ -97,6 +97,7 @@
 	let audioChunks: Blob[] = [];
 	let isPressed = $state(false);
 	let pressTimeout: number | null = null;
+	let pressStartTime = 0;
 	let audioStream: MediaStream | null = null;
 
 	// --- AUDIO SERVICE INTEGRATION ---

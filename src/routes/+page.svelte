@@ -154,9 +154,10 @@
 		<section class="container mx-auto max-w-3xl py-8">
 			<div class="/80 rounded-xl border border-white/10 bg-secondary/20 p-4">
 				<div class="mb-2 text-sm tracking-wide uppercase">Demo (dev only)</div>
-				<video class="w-full rounded-lg" src="/demo.mp4" controls preload="metadata">
-					Sorry, add your demo video to static/demo.mp4
-				</video>
+                <video class="w-full rounded-lg" src="/demo.mp4" controls preload="metadata">
+                    <track kind="captions" srcLang="en" label="English" default />
+                    Sorry, add your demo video to static/demo.mp4
+                </video>
 				<p class="mt-2 text-xs opacity-70">
 					Place your demo at static/demo.mp4. Hidden in production.
 				</p>

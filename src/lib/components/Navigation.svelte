@@ -87,10 +87,9 @@
 					/>
 				</svg>
 			</div>
-			<ul
-				class="dropdown-content menu z-[60] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
-				tabindex="0"
-			>
+            <ul
+                class="dropdown-content menu z-[60] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
+            >
 				<li><a href="/about" class="">About</a></li>
 				<li><a href="/pricing" class="">Pricing</a></li>
 				<li><a href="/privacy" class="">Privacy</a></li>
@@ -152,10 +151,9 @@
 						</div>
 					{/if}
 				</div>
-				<ul
-					tabindex="0"
-					class="dropdown-content menu z-[60] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
-				>
+                <ul
+                    class="dropdown-content menu z-[60] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
+                >
 					<li><a href="/conversation" class="">Start Practice</a></li>
 					<li><a href="/profile" class="">Profile</a></li>
 					<li><a href="/logout" class="">Logout</a></li>

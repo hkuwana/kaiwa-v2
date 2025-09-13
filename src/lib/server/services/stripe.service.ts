@@ -263,11 +263,11 @@ export class StripeService {
 			console.log('  - id:', subscription.id);
 			console.log('  - status:', subscription.status);
 			console.log('  - customer:', subscription.customer);
-			console.log('  - created:', new Date(subscription.created * 1000).toISOString());
-			console.log('  - current_period_start:', new Date(subscription.current_period_start * 1000).toISOString());
-			console.log('  - current_period_end:', new Date(subscription.current_period_end * 1000).toISOString());
-			console.log('  - items count:', subscription.items.data.length);
-			console.log('  - metadata:', subscription.metadata);
+			console.log('  - created:', (subscription as any).created ? new Date((subscription as any).created * 1000).toISOString() : 'null');
+			console.log('  - current_period_start:', (subscription as any).current_period_start ? new Date((subscription as any).current_period_start * 1000).toISOString() : 'null');
+			console.log('  - current_period_end:', (subscription as any).current_period_end ? new Date((subscription as any).current_period_end * 1000).toISOString() : 'null');
+			console.log('  - items count:', (subscription as any).items?.data?.length || 0);
+			console.log('  - metadata:', (subscription as any).metadata);
 
 			// Extract subscription data to determine tier
 			console.log('🎣 [CHECKOUT SUCCESS] Extracting subscription data...');
@@ -292,9 +292,9 @@ export class StripeService {
 				// Update existing subscription
 				const updated = await subscriptionRepository.updateSubscription(existingSubscription.id, {
 					status: subscription.status,
-					currentPeriodStart: new Date(subscription.current_period_start * 1000),
-					currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-					cancelAtPeriodEnd: subscription.cancel_at_period_end,
+					currentPeriodStart: new Date((subscription)?.current_period_start * 1000) : new Date(),
+					currentPeriodEnd: (subscription)?.current_period_end ? new Date((subscription as any).current_period_end * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Default to 30 days from now
+					cancelAtPeriodEnd: (subscription)?.cancel_at_period_end || false,
 					stripePriceId: subscriptionData.priceId,
 					tierId: tierId,
 					isActive: ['active', 'trialing'].includes(subscription.status),
@@ -311,9 +311,9 @@ export class StripeService {
 					stripeSubscriptionId: subscriptionId,
 					stripePriceId: subscriptionData.priceId,
 					status: subscription.status,
-					currentPeriodStart: new Date(subscription.current_period_start * 1000),
-					currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-					cancelAtPeriodEnd: subscription.cancel_at_period_end,
+					currentPeriodStart: (subscription as any).current_period_start ? new Date((subscription as any).current_period_start * 1000) : new Date(),
+					currentPeriodEnd: (subscription as any).current_period_end ? new Date((subscription as any).current_period_end * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Default to 30 days from now
+					cancelAtPeriodEnd: (subscription as any).cancel_at_period_end || false,
 					tierId: tierId,
 					isActive: ['active', 'trialing'].includes(subscription.status),
 					effectiveTier: tierId
@@ -368,8 +368,8 @@ export class StripeService {
 						: stripeSubscription.customer.id,
 				stripePriceId: subscriptionData.priceId,
 				status: stripeSubscription.status,
-				currentPeriodStart: new Date(stripeSubscription.created * 1000),
-				currentPeriodEnd: new Date((stripeSubscription.cancel_at ?? 0) * 1000),
+				currentPeriodStart: stripeSubscription.created ? new Date(stripeSubscription.created * 1000) : new Date(),
+				currentPeriodEnd: stripeSubscription.cancel_at ? new Date(stripeSubscription.cancel_at * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
 				cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
 				tierId: subscriptionData.tierId
 			});
@@ -403,8 +403,8 @@ export class StripeService {
 			// Update subscription using repository
 			await subscriptionRepository.updateSubscription(existingSubscription.id, {
 				status: stripeSubscription.status,
-				currentPeriodStart: new Date(stripeSubscription.created * 1000),
-				currentPeriodEnd: new Date(stripeSubscription.cancel_at ?? 0 * 1000),
+				currentPeriodStart: stripeSubscription.created ? new Date(stripeSubscription.created * 1000) : new Date(),
+				currentPeriodEnd: stripeSubscription.cancel_at ? new Date(stripeSubscription.cancel_at * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
 				cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
 				stripePriceId: subscriptionData.priceId,
 				tierId: subscriptionData.tierId
@@ -473,6 +473,18 @@ export class StripeService {
 	async handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent): Promise<void> {
 		const subscriptionId = paymentIntent.metadata?.subscription_id;
 		let SubscriptionId: string | null = null;
+		const userId = paymentIntent.metadata?.userId;
+
+		console.log(`🎯 [PAYMENT SUCCESS] Processing payment intent: ${paymentIntent.id}`);
+		console.log(`  - Amount: ${paymentIntent.amount / 100} ${paymentIntent.currency}`);
+		console.log(`  - User ID from metadata: ${userId}`);
+		console.log(`  - Subscription ID from metadata: ${subscriptionId}`);
+
+		// Skip recording payment if no userId is provided
+		if (!userId) {
+			console.log(`⚠️ [PAYMENT SUCCESS] No userId in payment metadata, skipping payment record creation`);
+			return;
+		}
 
 		// Find subscription if available
 		if (subscriptionId) {
@@ -482,7 +494,7 @@ export class StripeService {
 
 		// Record payment using repository
 		await paymentRepository.createPayment({
-			userId: paymentIntent.metadata?.userId || '', // This should be set in metadata
+			userId: userId,
 			subscriptionId: SubscriptionId,
 			stripePaymentIntentId: paymentIntent.id,
 			amount: (paymentIntent.amount / 100).toString(), // Convert from cents

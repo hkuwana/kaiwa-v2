@@ -4,6 +4,7 @@
 	import MessageBubble from './MessageBubble.svelte';
 	import { onMount } from 'svelte';
 	import type { Message } from '$lib/server/db/types';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	interface Props {
 		selectedLanguage?: { name: string; code: string; flag: string } | null;
@@ -28,7 +29,8 @@
 		conversationId: 'preview',
 		role,
 		content,
-		timestamp: new Date(),
+		timestamp: new SvelteDate(),
+		sequenceId: null,
 		// Here `content` is the foreign-language text and `originalText` is the English translation
 		translatedContent: originalText ? originalText : null,
 		sourceLanguage: sourceLang || (originalText ? selectedLanguage?.code || null : null),

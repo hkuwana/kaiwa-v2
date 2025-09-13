@@ -374,13 +374,13 @@ Professional Insiders:
 }
 
 ${
-	goal === 'Connection' || goal === 'Social'
-		? `
+    goal === 'Connection'
+        ? `
 Social Insiders:
 - "Ever heard the phrase that makes people instantly warm up to you?"
 - "Want to know the secret to making local friends laugh?"
 - "There's an expression that shows you really 'get' the culture"`
-		: ''
+        : ''
 }
 
 ### Hook Delivery Rules:

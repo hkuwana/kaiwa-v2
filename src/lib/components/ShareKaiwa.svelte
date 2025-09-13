@@ -9,9 +9,9 @@
 	const { source = 'unknown' }: Props = $props();
 
 	const user = userManager.user;
-	let shareUrl = '';
-	let canNativeShare = false;
-	let showThanks = false;
+    let shareUrl = '';
+    let canNativeShare = $state(false);
+    let showThanks = $state(false);
 
 	onMount(() => {
 		if (typeof window !== 'undefined') {

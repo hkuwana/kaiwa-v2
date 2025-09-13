@@ -125,8 +125,8 @@ export async function getLearningStats(userId: string): Promise<{
 
 	return {
 		averageSessionScore: Math.round(averageScore * 100) / 100,
-		totalStudyTime: prefs.totalStudyTimeMinutes || 0,
-		currentStreak: prefs.currentStreakDays || 0,
+		totalStudyTime: 0,
+		currentStreak: 0,
 		skillLevels,
 		overallSkillLevel
 	};
@@ -201,10 +201,10 @@ export async function getProgressSummary(userId: string): Promise<{
 		recentScores.length > 0 ? recentScores.reduce((a, b) => a + b, 0) / recentScores.length : 0;
 
 	return {
-		totalStudyTime: prefs.totalStudyTimeMinutes || 0,
-		totalConversations: prefs.totalConversations || 0,
-		currentStreak: prefs.currentStreakDays || 0,
-		lastStudied: prefs.lastStudied || null,
+		totalStudyTime: 0,
+		totalConversations: 0,
+		currentStreak: 0,
+		lastStudied: null,
 		recentScores,
 		averageScore: Math.round(averageScore * 100) / 100
 	};
@@ -251,7 +251,8 @@ export async function hasMetDailyGoal(userId: string): Promise<boolean> {
 	if (!prefs) return false;
 
 	const dailyGoal = prefs.dailyGoalSeconds || 180;
-	const todayStudyTime = prefs.totalStudyTimeSeconds || 0;
+	// TODO: Replace with real daily study time when available
+	const todayStudyTime = 0;
 
 	// This is a simplified check - you might want to track daily study time separately
 	return todayStudyTime >= dailyGoal;

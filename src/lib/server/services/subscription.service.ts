@@ -271,13 +271,14 @@ export class SubscriptionService {
 		// Reactivate in Stripe
 		await stripeService.reactivateSubscription(userId);
 
-		// Update local record
-		return await subscriptionRepository.updateSubscription(subscription.id, {
-			cancelAtPeriodEnd: false,
-			status: 'active',
-			isActive: true,
-			effectiveTier: subscription.tierId
-		});
+        // Update local record
+        const updated = await subscriptionRepository.updateSubscription(subscription.id, {
+            cancelAtPeriodEnd: false,
+            status: 'active',
+            isActive: true,
+            effectiveTier: subscription.tierId
+        });
+        return updated ?? null;
 	}
 
 	/**
@@ -292,10 +293,11 @@ export class SubscriptionService {
 		// Cancel in Stripe
 		await stripeService.cancelSubscription(userId);
 
-		// Update local record
-		return await subscriptionRepository.updateSubscription(subscription.id, {
-			cancelAtPeriodEnd: true
-		});
+        // Update local record
+        const updated = await subscriptionRepository.updateSubscription(subscription.id, {
+            cancelAtPeriodEnd: true
+        });
+        return updated ?? null;
 	}
 
 	/**

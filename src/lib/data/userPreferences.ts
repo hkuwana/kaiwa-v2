@@ -5,8 +5,8 @@ import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 // This provides sensible defaults for users who haven't logged in yet
 
 export const defaultUserPreference: Omit<
-	UserPreferences,
-	'id' | 'userId' | 'createdAt' | 'updatedAt'
+    UserPreferences,
+    'id' | 'userId' | 'createdAt' | 'updatedAt'
 > = {
 	// Essential learning preferences
 	targetLanguageId: 'en', // Default to English
@@ -32,12 +32,15 @@ export const defaultUserPreference: Omit<
 	conversationContext: null,
 	successfulExchanges: 0,
 	comfortZone: null,
-	memories: null,
-	// Realtime audio interaction settings (client UX defaults)
-	audioSettings: {
-		mode: 'toggle', // default: click to toggle
-		pressBehavior: 'tap_toggle', // default: tap toggles on/off
-		autoGreet: true,
+    memories: null,
+    // Progress tracking defaults
+    recentSessionScores: [],
+    skillLevelHistory: [],
+    // Realtime audio interaction settings (client UX defaults)
+    audioSettings: {
+        mode: 'toggle', // default: click to toggle
+        pressBehavior: 'tap_toggle', // default: tap toggles on/off
+        autoGreet: true,
 		greetingMode: 'scenario'
 	}
 };

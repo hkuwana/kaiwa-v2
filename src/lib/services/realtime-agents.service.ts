@@ -181,16 +181,12 @@ export function subscribeToSession(
 		onError?: (err: any) => void;
 	}
 ): () => void {
-	const off1 = conn.session.on('transport_event', (ev) => handlers.onTransportEvent?.(ev));
-	const off2 = conn.session.on('error', (err) => handlers.onError?.(err));
-	return () => {
-		try {
-			off1?.();
-		} catch {}
-		try {
-			off2?.();
-		} catch {}
-	};
+    conn.session.on('transport_event', (ev) => handlers.onTransportEvent?.(ev));
+    conn.session.on('error', (err) => handlers.onError?.(err));
+    // The SDK's `.on` returns the session for chaining; no explicit unsubscribe here
+    return () => {
+        // If the SDK exposes an `.off` API in the future, wire it here.
+    };
 }
 
 export function sendEventViaSession(conn: SessionConnection, event: RealtimeClientMessage) {

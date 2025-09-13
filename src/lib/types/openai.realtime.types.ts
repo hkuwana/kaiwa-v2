@@ -294,11 +294,11 @@ export interface ConversationObject {
 }
 
 // === Full Session Object ===
-export interface FullSessionObject extends SessionConfig {
-	id: string;
-	object: 'realtime.session';
-	expires_at?: number;
-}
+export type FullSessionObject = SessionConfig & {
+    id: string;
+    object: 'realtime.session';
+    expires_at?: number;
+};
 
 // === Server Events ===
 export interface ErrorEvent extends BaseEvent {
