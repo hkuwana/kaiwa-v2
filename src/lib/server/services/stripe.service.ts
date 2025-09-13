@@ -126,21 +126,35 @@ export class StripeService {
 	 * Uses Stripe metadata and dynamic pricing instead of hardcoded mappings
 	 */
 	private async extractSubscriptionData(stripeSubscription: Stripe.Subscription) {
+		console.log('🔍 [EXTRACT DATA] Starting subscription data extraction...');
+		
 		const primaryItem = stripeSubscription.items.data[0];
 		if (!primaryItem) {
 			throw new Error('No subscription items found');
 		}
 
 		const price = primaryItem.price;
+		
+		console.log('🔍 [EXTRACT DATA] Primary subscription item:');
+		console.log('  - price.id:', price.id);
+		console.log('  - price.metadata:', price.metadata);
+		console.log('  - price.product:', typeof price.product === 'string' ? price.product : price.product?.id);
+		console.log('  - price.unit_amount:', price.unit_amount);
+		console.log('  - price.currency:', price.currency);
+		console.log('  - price.recurring:', price.recurring);
 
 		// Get tier from price metadata or fallback to price ID analysis
 		let tierId = price.metadata?.tier;
+		console.log('🔍 [EXTRACT DATA] Tier from price metadata:', tierId);
+		
 		if (!tierId) {
+			console.log('🔍 [EXTRACT DATA] No tier in metadata, inferring from price...');
 			// Fallback: analyze price ID or description for tier info
 			tierId = this.inferTierFromPrice(price);
+			console.log('🔍 [EXTRACT DATA] Inferred tier:', tierId);
 		}
 
-		return {
+		const extractedData = {
 			priceId: price.id,
 			tierId,
 			quantity: primaryItem.quantity || 1,
@@ -154,25 +168,58 @@ export class StripeService {
 			currency: stripeSubscription.currency,
 			metadata: stripeSubscription.metadata
 		};
+
+		console.log('🔍 [EXTRACT DATA] Final extracted data:', extractedData);
+		return extractedData;
 	}
 
 	/**
 	 * Infer tier from price information when metadata is not available
 	 */
 	private inferTierFromPrice(price: Stripe.Price): string {
+		console.log('🔍 [INFER TIER] Starting tier inference...');
+		console.log('  - price.id:', price.id);
+		console.log('  - price.metadata:', price.metadata);
+		console.log('  - env.STRIPE_EARLY_BACKER_PRICE_ID:', env.STRIPE_EARLY_BACKER_PRICE_ID);
+		
 		// Check price metadata first
 		if (price.metadata?.tier) {
+			console.log('🔍 [INFER TIER] Found tier in metadata:', price.metadata.tier);
 			return price.metadata.tier;
 		}
 
 		// Check price ID pattern
 		if (env.STRIPE_EARLY_BACKER_PRICE_ID && price.id === env.STRIPE_EARLY_BACKER_PRICE_ID) {
+			console.log('🔍 [INFER TIER] Matched early backer price ID → plus');
 			return 'plus';
 		}
-		if (price.id.includes('premium')) return 'premium';
-		if (price.id.includes('plus')) return 'plus';
+		
+		if (price.id.includes('premium')) {
+			console.log('🔍 [INFER TIER] Price ID contains "premium" → premium');
+			return 'premium';
+		}
+		
+		if (price.id.includes('plus')) {
+			console.log('🔍 [INFER TIER] Price ID contains "plus" → plus');
+			return 'plus';
+		}
+
+		// Check product name if available
+		if (typeof price.product === 'object' && price.product?.name) {
+			console.log('🔍 [INFER TIER] Checking product name:', price.product.name);
+			const productName = price.product.name.toLowerCase();
+			if (productName.includes('premium')) {
+				console.log('🔍 [INFER TIER] Product name contains "premium" → premium');
+				return 'premium';
+			}
+			if (productName.includes('plus')) {
+				console.log('🔍 [INFER TIER] Product name contains "plus" → plus');
+				return 'plus';
+			}
+		}
 
 		// Default fallback
+		console.log('🔍 [INFER TIER] No match found, using default fallback → plus');
 		return 'plus';
 	}
 
@@ -182,59 +229,120 @@ export class StripeService {
 	 * to the dedicated subscriptionRepository.
 	 */
 	async handleCheckoutSuccess(session: Stripe.Checkout.Session): Promise<void> {
+		console.log('🎣 [CHECKOUT SUCCESS] Starting handleCheckoutSuccess...');
+		
 		// Get userId from metadata (we set this in createCheckoutSession)
 		const userId = session.metadata?.userId;
 
+		console.log('🎣 [CHECKOUT SUCCESS] Extracted data from session:');
+		console.log('  - userId:', userId);
+		console.log('  - session.subscription:', session.subscription);
+		console.log('  - session.customer:', session.customer);
+		console.log('  - session.payment_status:', session.payment_status);
+
 		if (!userId || !session.subscription || !session.customer) {
-			console.log(
-				'Missing required data in session to handle checkout success. Session ID:',
-				session.id,
-				'userId:',
-				userId,
-				'subscription:',
-				session.subscription,
-				'customer:',
-				session.customer
-			);
+			console.error('🎣 [CHECKOUT SUCCESS] ❌ Missing required data in session:');
+			console.error('  - Session ID:', session.id);
+			console.error('  - userId:', userId);
+			console.error('  - subscription:', session.subscription);
+			console.error('  - customer:', session.customer);
 			return;
 		}
 
 		const subscriptionId =
 			typeof session.subscription === 'string' ? session.subscription : session.subscription.id;
 
-		console.log(
-			'🎣 Processing checkout success for user:',
-			userId,
-			'subscription:',
-			subscriptionId
-		);
+		console.log('🎣 [CHECKOUT SUCCESS] Processing for user:', userId, 'subscription:', subscriptionId);
 
-		// Retrieve the full subscription object to get all details
-		const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+		try {
+			// Retrieve the full subscription object to get all details
+			console.log('🎣 [CHECKOUT SUCCESS] Retrieving full subscription from Stripe...');
+			const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+			
+			console.log('🎣 [CHECKOUT SUCCESS] Full subscription data:');
+			console.log('  - id:', subscription.id);
+			console.log('  - status:', subscription.status);
+			console.log('  - customer:', subscription.customer);
+			console.log('  - created:', new Date(subscription.created * 1000).toISOString());
+			console.log('  - current_period_start:', new Date(subscription.current_period_start * 1000).toISOString());
+			console.log('  - current_period_end:', new Date(subscription.current_period_end * 1000).toISOString());
+			console.log('  - items count:', subscription.items.data.length);
+			console.log('  - metadata:', subscription.metadata);
 
-		// Extract subscription data to determine tier
-		const subscriptionData = await this.extractSubscriptionData(subscription);
-		const tierId = subscriptionData.tierId;
+			// Extract subscription data to determine tier
+			console.log('🎣 [CHECKOUT SUCCESS] Extracting subscription data...');
+			const subscriptionData = await this.extractSubscriptionData(subscription);
+			const tierId = subscriptionData.tierId;
 
-		console.log('🎣 Determined tier:', tierId, 'for user:', userId);
+			console.log('🎣 [CHECKOUT SUCCESS] Extracted subscription data:');
+			console.log('  - priceId:', subscriptionData.priceId);
+			console.log('  - tierId:', tierId);
+			console.log('  - currency:', subscriptionData.currency);
 
-		// Create subscription record using repository
-		await subscriptionRepository.createSubscription({
-			userId,
-			stripeCustomerId: session.customer as string,
-			stripeSubscriptionId: subscriptionId,
-			stripePriceId: subscriptionData.priceId,
-			status: subscription.status,
-			currentPeriodStart: new Date(subscription.created * 1000),
-			currentPeriodEnd: new Date(subscription.cancel_at ?? 0 * 1000),
-			cancelAtPeriodEnd: subscription.cancel_at_period_end,
-			tierId: tierId
-		});
+			// Check if subscription already exists
+			console.log('🎣 [CHECKOUT SUCCESS] Checking for existing subscription...');
+			const existingSubscription = await subscriptionRepository.findSubscriptionByStripeId(subscriptionId);
+			
+			if (existingSubscription) {
+				console.log('🎣 [CHECKOUT SUCCESS] ⚠️ Subscription already exists:', existingSubscription.id);
+				console.log('  - Current status:', existingSubscription.status);
+				console.log('  - Current tier:', existingSubscription.tierId);
+				console.log('  - Is active:', existingSubscription.isActive);
+				
+				// Update existing subscription
+				const updated = await subscriptionRepository.updateSubscription(existingSubscription.id, {
+					status: subscription.status,
+					currentPeriodStart: new Date(subscription.current_period_start * 1000),
+					currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+					cancelAtPeriodEnd: subscription.cancel_at_period_end,
+					stripePriceId: subscriptionData.priceId,
+					tierId: tierId,
+					isActive: ['active', 'trialing'].includes(subscription.status),
+					effectiveTier: tierId
+				});
+				
+				console.log('🎣 [CHECKOUT SUCCESS] ✅ Updated existing subscription:', updated?.id);
+			} else {
+				// Create subscription record using repository
+				console.log('🎣 [CHECKOUT SUCCESS] Creating new subscription record...');
+				const newSubscription = await subscriptionRepository.createSubscription({
+					userId,
+					stripeCustomerId: session.customer as string,
+					stripeSubscriptionId: subscriptionId,
+					stripePriceId: subscriptionData.priceId,
+					status: subscription.status,
+					currentPeriodStart: new Date(subscription.current_period_start * 1000),
+					currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+					cancelAtPeriodEnd: subscription.cancel_at_period_end,
+					tierId: tierId,
+					isActive: ['active', 'trialing'].includes(subscription.status),
+					effectiveTier: tierId
+				});
 
-		// Update user tier - this is crucial for updating the UI
-		console.log(`User ${userId} tier updated to ${tierId} via subscription`);
+				console.log('🎣 [CHECKOUT SUCCESS] ✅ Created new subscription:', newSubscription.id);
+			}
 
-		console.log(`✅ Checkout success processed for user ${userId}, tier updated to: ${tierId}`);
+			// Verify the subscription was created/updated properly
+			console.log('🎣 [CHECKOUT SUCCESS] Verifying subscription in database...');
+			const finalSubscription = await subscriptionRepository.findActiveSubscriptionByUserId(userId);
+			
+			if (finalSubscription) {
+				console.log('🎣 [CHECKOUT SUCCESS] ✅ Final verification successful:');
+				console.log('  - Subscription ID:', finalSubscription.id);
+				console.log('  - User ID:', finalSubscription.userId);
+				console.log('  - Tier ID:', finalSubscription.tierId);
+				console.log('  - Effective Tier:', finalSubscription.effectiveTier);
+				console.log('  - Is Active:', finalSubscription.isActive);
+				console.log('  - Status:', finalSubscription.status);
+			} else {
+				console.error('🎣 [CHECKOUT SUCCESS] ❌ No active subscription found after creation/update!');
+			}
+
+			console.log(`🎣 [CHECKOUT SUCCESS] ✅ Checkout success processed for user ${userId}, tier updated to: ${tierId}`);
+		} catch (error) {
+			console.error('🎣 [CHECKOUT SUCCESS] ❌ Error processing checkout success:', error);
+			throw error;
+		}
 	}
 
 	/**

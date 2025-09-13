@@ -16,10 +16,19 @@ export * as openaiService from './openai.service';
 // Conversation summary service
 export * as conversationSummaryService from './conversationSummary.service';
 
-// Timer service
+// Payment and subscription services
+export { paymentService } from './payment.service';
+export { subscriptionService } from './subscription.service';
+export { stripeService } from './stripe.service';
+
+// Email services
+export * as emailService from './emailService';
+export * as emailVerificationService from './emailVerificationService';
+
+// Translation service
+export * as translationService from './translation.service';
+
 // Note: Additional services can be added here as they are created:
-// - userService (for user-related business logic)
-// - conversationService (for conversation-related business logic)
 // - analyticsService (for analytics and reporting)
 // - notificationService (for user notifications)
 // etc.
