@@ -189,12 +189,13 @@
 				vocabularyAnalysis: null,
 				pronunciationScore: null,
 				audioUrl: null,
-				audioDuration: null,
-				difficultyLevel: null,
-				learningTags: null,
-				conversationContext: null,
-				messageIntent: null
-			};
+                audioDuration: null,
+                difficultyLevel: null,
+                learningTags: null,
+                conversationContext: null,
+                messageIntent: null,
+                sequenceId: null
+            };
 
 			// Test server-side script generation
 			scriptResult = await generateScriptsForMessage(testMessage, true);

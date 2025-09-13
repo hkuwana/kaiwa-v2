@@ -6,7 +6,6 @@ import { dev } from '$app/environment';
 import type { RequestHandler } from './$types';
 import { paymentService } from '$lib/server/services/payment.service';
 import { subscriptionService } from '$lib/server/services/subscription.service';
-import { userService } from '$lib/server/services/user.service';
 
 // Only allow in development mode
 if (!dev) {
@@ -157,17 +156,17 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 					payment
 				});
 
-			case 'update_status':
-				// Simulate subscription status update
-				const { stripeSubscriptionId, status } = params;
-				if (!stripeSubscriptionId || !status) {
-					throw error(400, 'stripeSubscriptionId and status are required');
-				}
+            case 'update_status':
+                // Simulate subscription status update
+                const { stripeSubscriptionId: subId, status } = params;
+                if (!subId || !status) {
+                    throw error(400, 'stripeSubscriptionId and status are required');
+                }
 
-				const updated = await subscriptionService.updateSubscriptionStatus(
-					stripeSubscriptionId,
-					status
-				);
+                const updated = await subscriptionService.updateSubscriptionStatus(
+                    subId,
+                    status
+                );
 
 				return json({
 					message: `Subscription status updated to ${status}`,

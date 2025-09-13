@@ -5,6 +5,7 @@ import { json, error } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import type { RequestHandler } from './$types';
 import { subscriptionRepository } from '$lib/server/repositories/subscription.repository';
+import type Stripe from 'stripe';
 import { userRepository } from '$lib/server/repositories/user.repository';
 import { paymentRepository } from '$lib/server/repositories/payment.repository';
 import { stripeService } from '$lib/server/services/stripe.service';
@@ -95,23 +96,26 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 				console.log('🔍 Fetching Stripe data for customer:', user.stripeCustomerId);
 				
 				// Get active subscription from Stripe
-				const stripeSubscription = await stripeService.getSubscription(user.stripeCustomerId);
-				debugInfo.stripeSubscription = stripeSubscription ? {
-					id: stripeSubscription.id,
-					status: stripeSubscription.status,
-					customer: stripeSubscription.customer,
-					current_period_start: new Date(stripeSubscription.current_period_start * 1000).toISOString(),
-					current_period_end: new Date(stripeSubscription.current_period_end * 1000).toISOString(),
-					cancel_at_period_end: stripeSubscription.cancel_at_period_end,
-					items: stripeSubscription.items.data.map(item => ({
-						price_id: item.price.id,
-						product: typeof item.price.product === 'string' ? item.price.product : item.price.product?.id,
-						unit_amount: item.price.unit_amount,
-						currency: item.price.currency,
-						interval: item.price.recurring?.interval
-					})),
-					metadata: stripeSubscription.metadata
-				} : null;
+                const stripeSubscription: Stripe.Subscription | null = await stripeService.getSubscription(
+                    user.stripeCustomerId
+                );
+                const ss: any = stripeSubscription as any;
+                debugInfo.stripeSubscription = stripeSubscription ? {
+                    id: stripeSubscription.id,
+                    status: stripeSubscription.status,
+                    customer: stripeSubscription.customer,
+                    current_period_start: new Date(ss.current_period_start * 1000).toISOString(),
+                    current_period_end: new Date(ss.current_period_end * 1000).toISOString(),
+                    cancel_at_period_end: ss.cancel_at_period_end,
+                    items: stripeSubscription.items.data.map(item => ({
+                        price_id: item.price.id,
+                        product: typeof item.price.product === 'string' ? item.price.product : item.price.product?.id,
+                        unit_amount: item.price.unit_amount,
+                        currency: item.price.currency,
+                        interval: item.price.recurring?.interval
+                    })),
+                    metadata: stripeSubscription.metadata
+                } : null;
 
 			} catch (stripeError) {
 				debugInfo.stripeError = {
@@ -216,9 +220,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 			case 'clear_all_subscriptions':
 				// WARNING: This deletes all subscriptions for the user (dev only!)
+				const userSubs = await subscriptionRepository.findSubscriptionsByUserId(userId);
 				const deletedCount = await Promise.all(
-					(await subscriptionRepository.findSubscriptionsByUserId(userId))
-						.map(sub => subscriptionRepository.deleteSubscription(sub.id))
+					userSubs.map(sub => subscriptionRepository.deleteSubscription(sub.id))
 				);
 				result.success = true;
 				result.deletedCount = deletedCount.filter(r => r.success).length;
@@ -227,9 +231,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			case 'create_debug_subscription':
 				// Create a test subscription
 				const { tierId = 'plus', status = 'active' } = body;
+				const debugUser = await userRepository.findUserById(userId);
 				const debugSub = await subscriptionRepository.createSubscription({
 					userId,
-					stripeCustomerId: user?.stripeCustomerId || 'debug_customer',
+					stripeCustomerId: debugUser?.stripeCustomerId || 'debug_customer',
 					stripeSubscriptionId: `debug_${Date.now()}`,
 					stripePriceId: `debug_price_${tierId}`,
 					status,

@@ -132,7 +132,7 @@
 
 	// Reddit Post Helper
 	let redditPostContent = '';
-	let selectedRedditPost = 'founder-story';
+let selectedRedditPost: keyof typeof redditTemplates = 'founder-story';
 	const redditTemplates = {
 		'founder-story': `**Title: I built an AI partner to practice conversations in my wife's language. It's called Kaiwa.**
 
@@ -165,9 +165,9 @@ It's been a game-changer for my confidence. Has anyone else found good ways to p
 (I'll put a link to the tool in the comments if anyone's interested - self-promo disclosure!)`
 	};
 
-	function updateRedditTemplate() {
-		redditPostContent = redditTemplates[selectedRedditPost];
-	}
+function updateRedditTemplate() {
+    redditPostContent = redditTemplates[selectedRedditPost];
+}
 
 	onMount(() => {
 		generateBlogPostIdea();

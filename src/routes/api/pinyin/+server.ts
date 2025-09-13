@@ -11,21 +11,22 @@ async function processChineseTextNative(text: string): Promise<{
 		console.log('[PINYIN_API] Starting native Chinese text processing for:', text);
 
 		// Try to import the native library using dynamic import
-		const pinyinModule = await import('@napi-rs/pinyin');
+        const pinyinModule = await import('@napi-rs/pinyin');
+        const PM: any = pinyinModule as any;
 
-		// Check if the module loaded properly
-		if (pinyinModule.pinyin && pinyinModule.PINYIN_STYLE) {
-			// Convert Chinese text to pinyin with tones
-			const pinyinWithTones = pinyinModule.pinyin(text, {
-				style: pinyinModule.PINYIN_STYLE.WithTone,
-				heteronym: false
-			});
+        // Check if the module loaded properly
+        if (PM.pinyin) {
+            // Convert Chinese text to pinyin with tones
+            const pinyinWithTones = PM.pinyin(text, {
+                style: PM.PINYIN_STYLE?.WithTone ?? 0,
+                heteronym: false
+            });
 
-			// Convert to plain pinyin for romanization
-			const pinyinPlain = pinyinModule.pinyin(text, {
-				style: pinyinModule.PINYIN_STYLE.Plain,
-				heteronym: false
-			});
+            // Convert to plain pinyin for romanization
+            const pinyinPlain = PM.pinyin(text, {
+                style: PM.PINYIN_STYLE?.Plain ?? 0,
+                heteronym: false
+            });
 
 			// Join the arrays into strings
 			const pinyinWithTonesStr = pinyinWithTones.join(' ');
