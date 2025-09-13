@@ -205,7 +205,7 @@ export class StripeService {
 		}
 
 		// Check product name if available
-		if (typeof price.product === 'object' && price.product?.name) {
+		if (typeof price.product === 'object' && price.product && 'name' in price.product && price.product.name) {
 			console.log('🔍 [INFER TIER] Checking product name:', price.product.name);
 			const productName = price.product.name.toLowerCase();
 			if (productName.includes('premium')) {
