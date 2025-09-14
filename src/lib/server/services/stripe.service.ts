@@ -4,8 +4,7 @@
 import Stripe from 'stripe';
 import { env } from '$env/dynamic/private';
 import { paymentRepository, userRepository } from '../repositories';
-import { subscriptionRepository } from '../repositories/subscription.repository';
-import type { Subscription } from '../db/types';
+// Note: Using simplified payment.service.ts instead of subscription repository
 import { getAllStripePriceIds, getStripePriceId } from '../tiers';
 import { SvelteDate } from 'svelte/reactivity';
 

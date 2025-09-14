@@ -7,7 +7,7 @@ import { serverTierConfigs, getStripePriceId } from '../tiers';
 import { db } from '../db';
 import { subscriptions } from '../db/schema/subscriptions';
 import { users } from '../db/schema/users';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import type { UserTier } from '../db/types';
 
 // =============================================================================
@@ -86,7 +86,9 @@ export async function getUserTierFromStripe(stripeCustomerId: string): Promise<{
 		subscriptionId: stripeSubscription.id,
 		priceId: stripeSubscription.items?.data?.[0]?.price?.id,
 		status: stripeSubscription.status,
-		currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000)
+		currentPeriodEnd: (stripeSubscription as any).current_period_end
+			? new Date((stripeSubscription as any).current_period_end * 1000)
+			: undefined
 	};
 }
 
