@@ -6,6 +6,7 @@ import { paraglideMiddleware } from '$lib/paraglide/server';
 import * as auth from '$lib/server/auth';
 import { nanoid } from 'nanoid';
 import { userRepository } from '$lib/server/repositories';
+import { ensureStripeCustomer } from '$lib/server/services/payment.service';
 
 const handleParaglide: Handle = ({ event, resolve }) =>
 	paraglideMiddleware(event.request, ({ request, locale }) => {
@@ -50,8 +51,20 @@ const userSetup: Handle = async ({ event, resolve }) => {
 			// Fetch the complete user object using the repository
 			const fullUser = await userRepository.findUserById(event.locals.user.id);
 			event.locals.user = fullUser || null;
+
+			// Ensure user has Stripe customer ID (auto-create if missing)
+			if (fullUser && !fullUser.stripeCustomerId) {
+				console.log(`🔧 Auto-creating Stripe customer for user ${fullUser.id}`);
+				const stripeCustomerId = await ensureStripeCustomer(fullUser.id, fullUser.email);
+				if (stripeCustomerId) {
+					// Update the user object with the new Stripe customer ID
+					const updatedUser = await userRepository.findUserById(fullUser.id);
+					event.locals.user = updatedUser || fullUser;
+					console.log(`✅ Created Stripe customer ${stripeCustomerId} for user ${fullUser.id}`);
+				}
+			}
 		} catch (error) {
-			console.error('Error fetching full user profile in userSetup:', error);
+			console.error('Error in userSetup:', error);
 			event.locals.user = null;
 		}
 	}
