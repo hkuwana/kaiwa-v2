@@ -4,17 +4,17 @@ import type { SessionConfig, Voice } from '$lib/types/openai.realtime.types';
 import { env as publicEnv } from '$env/dynamic/public';
 
 export function createSessionConfig(
-    language: Language,
-    voice: Voice,
-    instructions: string
+	language: Language,
+	voice: Voice,
+	instructions: string
 ): SessionConfig {
-    return {
-        model: publicEnv.PUBLIC_OPEN_AI_MODEL,
-        voice: voice,
-        instructions: instructions,
-        toolChoice: 'auto',
-        tools: []
-    };
+	return {
+		model: publicEnv.PUBLIC_OPEN_AI_MODEL,
+		voice: voice,
+		instructions: instructions,
+		toolChoice: 'auto',
+		tools: []
+	};
 }
 
 export async function fetchSessionFromBackend(
@@ -69,12 +69,12 @@ export function createSessionUpdateConfig(
 	language: Language,
 	voice: Voice
 ): SessionConfig {
-    return {
-        model: publicEnv.PUBLIC_OPEN_AI_MODEL,
-        voice: voice,
-        instructions:
-            updates.instructions || `You are a helpful language tutor for ${language.name || 'English'}.`,
-        toolChoice: 'auto',
-        tools: []
-    };
+	return {
+		model: publicEnv.PUBLIC_OPEN_AI_MODEL,
+		voice: voice,
+		instructions:
+			updates.instructions || `You are a helpful language tutor for ${language.name || 'English'}.`,
+		toolChoice: 'auto',
+		tools: []
+	};
 }

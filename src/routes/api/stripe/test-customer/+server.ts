@@ -30,8 +30,8 @@ export const POST: RequestHandler = async ({ locals }) => {
 			return json({ error: 'User not found' }, { status: 404 });
 		}
 
-        // Create Stripe customer
-        const customerId = await stripeService.createCustomer(user[0].id, user[0].email);
+		// Create Stripe customer
+		const customerId = await stripeService.createCustomer(user[0].id, user[0].email);
 
 		// Track test customer creation
 		await analytics.track('test_customer_created', userId, {

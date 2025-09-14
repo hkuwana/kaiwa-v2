@@ -298,14 +298,19 @@
 						<h4 class="mb-6 text-lg font-medium">{quizQuestions[currentQuestion].question}</h4>
 
 						<div class="grid gap-3">
-                            {#each quizQuestions[currentQuestion].options as option}
-                                <div
-                                    class="card-compact card cursor-pointer bg-base-200 transition-colors hover:bg-base-300"
-                                    role="button"
-                                    tabindex="0"
-                                    onclick={() => selectAnswer(currentQuestion, option.id)}
-                                    onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectAnswer(currentQuestion, option.id); } }}
-                                >
+							{#each quizQuestions[currentQuestion].options as option}
+								<div
+									class="card-compact card cursor-pointer bg-base-200 transition-colors hover:bg-base-300"
+									role="button"
+									tabindex="0"
+									onclick={() => selectAnswer(currentQuestion, option.id)}
+									onkeydown={(e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											e.preventDefault();
+											selectAnswer(currentQuestion, option.id);
+										}
+									}}
+								>
 									<div class="card-body">
 										<p>{option.text}</p>
 									</div>

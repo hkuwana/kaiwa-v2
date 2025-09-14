@@ -200,9 +200,9 @@ export function createInputAudioBufferCommit(): ClientEvent {
  * @returns The session update event
  */
 export type ExtendedSessionConfig = Partial<SessionConfig> & {
-    // Allow callers to pass extra fields (ignored by this function)
-    voice?: unknown;
-    input_audio_transcription?: { model: string; language: string };
+	// Allow callers to pass extra fields (ignored by this function)
+	voice?: unknown;
+	input_audio_transcription?: { model: string; language: string };
 };
 
 export function createSessionUpdate(config: ExtendedSessionConfig): ClientEvent {

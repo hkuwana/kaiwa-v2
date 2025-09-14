@@ -1,6 +1,6 @@
 import { eq, and, desc, asc, sql, count, gte, lte, lt } from 'drizzle-orm';
 import { db } from '$lib/server/db/index';
-import { session } from '$lib/server/db/schema';
+import { session, users } from '$lib/server/db/schema';
 import type { NewSession, Session } from '$lib/server/db/types';
 
 export class SessionRepository {
@@ -18,6 +18,22 @@ export class SessionRepository {
 	async getSessionById(id: string): Promise<Session | null> {
 		const result = await db.select().from(session).where(eq(session.id, id)).limit(1);
 		return result[0] || null;
+	}
+
+	/**
+	 * Find a session by token (hashed)
+	 */
+	async findSessionAndUser(sessionId: string) {
+		const [result] = await db
+			.select({
+				user: users,
+				session: session
+			})
+			.from(session)
+			.innerJoin(users, eq(session.userId, users.id))
+			.where(eq(session.id, sessionId));
+
+		return result;
 	}
 
 	/**

@@ -20,7 +20,7 @@
 	import ConversationReviewableState from '$lib/components/ConversationReviewableState.svelte';
 	import DevPanel from '$lib/components/DevPanel.svelte';
 	import RealtimeDebugPanel from '$lib/components/RealtimeDebugPanel.svelte';
-  import { SvelteDate } from 'svelte/reactivity';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	// Keep existing components for analysis temporarily
 	import { fade } from 'svelte/transition';

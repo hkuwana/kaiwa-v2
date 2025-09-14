@@ -12,13 +12,17 @@ const pages = [
 export const GET: RequestHandler = async () => {
 	const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${pages.map(page => `
+${pages
+	.map(
+		(page) => `
 	<url>
 		<loc>https://kaiwa.app${page.url}</loc>
 		<changefreq>${page.changefreq}</changefreq>
 		<priority>${page.priority}</priority>
 		<lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-	</url>`).join('')}
+	</url>`
+	)
+	.join('')}
 </urlset>`;
 
 	return new Response(sitemap, {

@@ -22,7 +22,10 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 				return json(await usageService.getCurrentUsage(userId));
 
 			case 'check': {
-				const type = url.searchParams.get('type') as 'conversation' | 'seconds' | 'realtime_session';
+				const type = url.searchParams.get('type') as
+					| 'conversation'
+					| 'seconds'
+					| 'realtime_session';
 				const amount = url.searchParams.get('amount');
 
 				if (!type || !['conversation', 'seconds', 'realtime_session'].includes(type)) {
@@ -90,7 +93,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				return json({ success: true, message: 'Realtime session usage recorded' });
 
 			default:
-				throw error(400, 'Invalid action. Available: record, record_conversation, record_seconds, record_realtime_session');
+				throw error(
+					400,
+					'Invalid action. Available: record, record_conversation, record_seconds, record_realtime_session'
+				);
 		}
 	} catch (err) {
 		console.error('Usage API POST error:', err);

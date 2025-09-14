@@ -21,7 +21,7 @@ export const GET: RequestHandler = async () => {
 			hasWebhookSecret: !!env.STRIPE_WEBHOOK_SECRET,
 			webhookSecretPrefix: env.STRIPE_WEBHOOK_SECRET?.substring(0, 12) + '...',
 			hasPublishableKey: !!env.STRIPE_PUBLISHABLE_KEY,
-			publishableKeyPrefix: env.STRIPE_PUBLISHABLE_KEY?.substring(0, 12) + '...',
+			publishableKeyPrefix: env.STRIPE_PUBLISHABLE_KEY?.substring(0, 12) + '...'
 		},
 		webhookEndpoints: {
 			main: 'http://localhost:5173/api/stripe/webhook',
@@ -38,7 +38,7 @@ export const GET: RequestHandler = async () => {
 		},
 		requiredEvents: [
 			'checkout.session.completed',
-			'customer.subscription.created', 
+			'customer.subscription.created',
 			'customer.subscription.updated',
 			'payment_intent.succeeded'
 		],

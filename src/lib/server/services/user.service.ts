@@ -28,10 +28,10 @@ export async function createUser(userData: NewUser): Promise<User> {
 	try {
 		// Create the user
 		const user = await userRepository.createUser(userData);
-		
+
 		// Ensure user has a free subscription
 		await subscriptionService.getOrCreateUserSubscription(user.id);
-		
+
 		return user;
 	} catch (error) {
 		console.error('Error creating user:', error);
@@ -59,7 +59,10 @@ export async function getUserById(userId: string): Promise<User | undefined> {
 /**
  * Update user data
  */
-export async function updateUser(userId: string, updates: Partial<NewUser>): Promise<User | undefined> {
+export async function updateUser(
+	userId: string,
+	updates: Partial<NewUser>
+): Promise<User | undefined> {
 	try {
 		return await userRepository.updateUser(userId, updates);
 	} catch (error) {

@@ -74,7 +74,9 @@
 		testResult = `🔍 Checking ${type}...`;
 
 		try {
-			const url = `/api/dev/usage-debug?action=check_${type}` + (amount ? `&${type === 'seconds' ? 'seconds' : 'amount'}=${amount}` : '');
+			const url =
+				`/api/dev/usage-debug?action=check_${type}` +
+				(amount ? `&${type === 'seconds' ? 'seconds' : 'amount'}=${amount}` : '');
 			const response = await fetch(url);
 			const result = await response.json();
 
@@ -100,38 +102,38 @@
 	}
 </script>
 
-<div class="container mx-auto p-6 max-w-6xl">
-	<h1 class="text-3xl font-bold mb-8 text-center">
-		📊 Usage Tracking Debug
-	</h1>
+<div class="container mx-auto max-w-6xl p-6">
+	<h1 class="mb-8 text-center text-3xl font-bold">📊 Usage Tracking Debug</h1>
 
 	{#if !userManager.isLoggedIn}
-		<div class="alert alert-warning mb-6">
+		<div class="mb-6 alert alert-warning">
 			<span>⚠️ Please log in to test usage functionality</span>
 		</div>
 	{/if}
 
 	<!-- Test Status -->
-	<div class="card bg-base-100 shadow-xl mb-6">
+	<div class="card mb-6 bg-base-100 shadow-xl">
 		<div class="card-body">
-			<h2 class="card-title text-xl mb-4">Test Status</h2>
+			<h2 class="mb-4 card-title text-xl">Test Status</h2>
 
 			{#if testResult}
-				<div class="alert {testResult.includes('❌') ? 'alert-error' : testResult.includes('✅') ? 'alert-success' : 'alert-info'}">
+				<div
+					class="alert {testResult.includes('❌')
+						? 'alert-error'
+						: testResult.includes('✅')
+							? 'alert-success'
+							: 'alert-info'}"
+				>
 					<span>{testResult}</span>
 				</div>
 			{/if}
 
 			{#if isLoading}
-				<div class="loading loading-spinner loading-lg"></div>
+				<div class="loading loading-lg loading-spinner"></div>
 			{/if}
 
-			<div class="flex gap-2 flex-wrap">
-				<button
-					class="btn btn-primary"
-					onclick={loadDebugData}
-					disabled={isLoading}
-				>
+			<div class="flex flex-wrap gap-2">
+				<button class="btn btn-primary" onclick={loadDebugData} disabled={isLoading}>
 					🔄 Refresh Data
 				</button>
 			</div>
@@ -140,24 +142,24 @@
 
 	<!-- Current Usage Summary -->
 	{#if debugData?.summary}
-		<div class="card bg-base-100 shadow-xl mb-6">
+		<div class="card mb-6 bg-base-100 shadow-xl">
 			<div class="card-body">
-				<h2 class="card-title text-xl mb-4">Current Usage Summary</h2>
+				<h2 class="mb-4 card-title text-xl">Current Usage Summary</h2>
 
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-					<div class="stat bg-base-200 rounded-lg">
+				<div class="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+					<div class="stat rounded-lg bg-base-200">
 						<div class="stat-title">User & Tier</div>
 						<div class="stat-value text-sm">{debugData.user?.email}</div>
 						<div class="stat-desc capitalize">Tier: {debugData.summary.tier}</div>
 					</div>
 
-					<div class="stat bg-base-200 rounded-lg">
+					<div class="stat rounded-lg bg-base-200">
 						<div class="stat-title">Period</div>
 						<div class="stat-value text-lg">{debugData.summary.period}</div>
 						<div class="stat-desc">Current billing month</div>
 					</div>
 
-					<div class="stat bg-base-200 rounded-lg">
+					<div class="stat rounded-lg bg-base-200">
 						<div class="stat-title">Overall Status</div>
 						<div class="stat-value text-sm">
 							{#if debugData.summary.status.atLimits}
@@ -175,13 +177,13 @@
 				</div>
 
 				<!-- Feature Usage -->
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+				<div class="grid grid-cols-1 gap-6 md:grid-cols-3">
 					<!-- Conversations -->
-					<div class="border border-base-300 rounded-lg p-4">
-						<h3 class="font-semibold mb-3 flex items-center">
+					<div class="rounded-lg border border-base-300 p-4">
+						<h3 class="mb-3 flex items-center font-semibold">
 							💬 Conversations
 							{#if debugData.summary.conversations.unlimited}
-								<span class="badge badge-success ml-2">Unlimited</span>
+								<span class="ml-2 badge badge-success">Unlimited</span>
 							{/if}
 						</h3>
 						<div class="space-y-2">
@@ -196,12 +198,16 @@
 								</div>
 								<div class="flex justify-between">
 									<span>Available:</span>
-									<span class="font-mono font-semibold">{debugData.summary.conversations.available}</span>
+									<span class="font-mono font-semibold"
+										>{debugData.summary.conversations.available}</span
+									>
 								</div>
 							{/if}
 							<div class="flex justify-between">
 								<span>Can Use:</span>
-								<span class="{debugData.summary.conversations.canUse ? 'text-success' : 'text-error'}">
+								<span
+									class={debugData.summary.conversations.canUse ? 'text-success' : 'text-error'}
+								>
 									{debugData.summary.conversations.canUse ? '✅ Yes' : '❌ No'}
 								</span>
 							</div>
@@ -209,8 +215,8 @@
 					</div>
 
 					<!-- Time -->
-					<div class="border border-base-300 rounded-lg p-4">
-						<h3 class="font-semibold mb-3">⏱️ Time Usage</h3>
+					<div class="rounded-lg border border-base-300 p-4">
+						<h3 class="mb-3 font-semibold">⏱️ Time Usage</h3>
 						<div class="space-y-2">
 							<div class="flex justify-between">
 								<span>Used:</span>
@@ -218,21 +224,27 @@
 							</div>
 							<div class="flex justify-between">
 								<span>Available:</span>
-								<span class="font-mono font-semibold">{debugData.summary.seconds.availableMinutes}min</span>
+								<span class="font-mono font-semibold"
+									>{debugData.summary.seconds.availableMinutes}min</span
+								>
 							</div>
 							<div class="flex justify-between">
 								<span>Monthly:</span>
-								<span class="font-mono">{Math.floor(debugData.summary.seconds.monthlyUsed / 60)}min</span>
+								<span class="font-mono"
+									>{Math.floor(debugData.summary.seconds.monthlyUsed / 60)}min</span
+								>
 							</div>
 							{#if debugData.summary.seconds.bankedAvailable > 0}
 								<div class="flex justify-between">
 									<span>Banked:</span>
-									<span class="font-mono">{Math.floor(debugData.summary.seconds.bankedAvailable / 60)}min</span>
+									<span class="font-mono"
+										>{Math.floor(debugData.summary.seconds.bankedAvailable / 60)}min</span
+									>
 								</div>
 							{/if}
 							<div class="flex justify-between">
 								<span>Can Use:</span>
-								<span class="{debugData.summary.seconds.canUse ? 'text-success' : 'text-error'}">
+								<span class={debugData.summary.seconds.canUse ? 'text-success' : 'text-error'}>
 									{debugData.summary.seconds.canUse ? '✅ Yes' : '❌ No'}
 								</span>
 							</div>
@@ -240,11 +252,11 @@
 					</div>
 
 					<!-- Realtime Sessions -->
-					<div class="border border-base-300 rounded-lg p-4">
-						<h3 class="font-semibold mb-3 flex items-center">
+					<div class="rounded-lg border border-base-300 p-4">
+						<h3 class="mb-3 flex items-center font-semibold">
 							🎙️ Realtime Sessions
 							{#if debugData.summary.realtimeSessions.unlimited}
-								<span class="badge badge-success ml-2">Unlimited</span>
+								<span class="ml-2 badge badge-success">Unlimited</span>
 							{/if}
 						</h3>
 						<div class="space-y-2">
@@ -259,12 +271,16 @@
 								</div>
 								<div class="flex justify-between">
 									<span>Available:</span>
-									<span class="font-mono font-semibold">{debugData.summary.realtimeSessions.available}</span>
+									<span class="font-mono font-semibold"
+										>{debugData.summary.realtimeSessions.available}</span
+									>
 								</div>
 							{/if}
 							<div class="flex justify-between">
 								<span>Can Use:</span>
-								<span class="{debugData.summary.realtimeSessions.canUse ? 'text-success' : 'text-error'}">
+								<span
+									class={debugData.summary.realtimeSessions.canUse ? 'text-success' : 'text-error'}
+								>
 									{debugData.summary.realtimeSessions.canUse ? '✅ Yes' : '❌ No'}
 								</span>
 							</div>
@@ -276,11 +292,11 @@
 	{/if}
 
 	<!-- Feature Checks -->
-	<div class="card bg-base-100 shadow-xl mb-6">
+	<div class="card mb-6 bg-base-100 shadow-xl">
 		<div class="card-body">
-			<h2 class="card-title text-xl mb-4">🔍 Feature Limit Checks</h2>
+			<h2 class="mb-4 card-title text-xl">🔍 Feature Limit Checks</h2>
 
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+			<div class="grid grid-cols-1 gap-3 md:grid-cols-3">
 				<button
 					class="btn btn-outline"
 					onclick={() => checkFeature('conversation')}
@@ -309,13 +325,13 @@
 	</div>
 
 	<!-- Record Usage -->
-	<div class="card bg-base-100 shadow-xl mb-6">
+	<div class="card mb-6 bg-base-100 shadow-xl">
 		<div class="card-body">
-			<h2 class="card-title text-xl mb-4">📝 Record Usage</h2>
+			<h2 class="mb-4 card-title text-xl">📝 Record Usage</h2>
 
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+			<div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
 				<button
-					class="btn btn-primary btn-sm"
+					class="btn btn-sm btn-primary"
 					onclick={() => recordUsage('record_conversation')}
 					disabled={isLoading || !userManager.isLoggedIn}
 				>
@@ -323,7 +339,7 @@
 				</button>
 
 				<button
-					class="btn btn-primary btn-sm"
+					class="btn btn-sm btn-primary"
 					onclick={() => recordUsage('record_seconds', { seconds: 300 })}
 					disabled={isLoading || !userManager.isLoggedIn}
 				>
@@ -331,7 +347,7 @@
 				</button>
 
 				<button
-					class="btn btn-primary btn-sm"
+					class="btn btn-sm btn-primary"
 					onclick={() => recordUsage('record_realtime')}
 					disabled={isLoading || !userManager.isLoggedIn}
 				>
@@ -339,15 +355,16 @@
 				</button>
 
 				<button
-					class="btn btn-secondary btn-sm"
-					onclick={() => recordUsage('record_multiple', { conversations: 3, seconds: 900, realtimeSessions: 2 })}
+					class="btn btn-sm btn-secondary"
+					onclick={() =>
+						recordUsage('record_multiple', { conversations: 3, seconds: 900, realtimeSessions: 2 })}
 					disabled={isLoading || !userManager.isLoggedIn}
 				>
 					+Multiple (3conv, 15min, 2rt)
 				</button>
 
 				<button
-					class="btn btn-warning btn-sm"
+					class="btn btn-sm btn-warning"
 					onclick={() => recordUsage('simulate_heavy_usage')}
 					disabled={isLoading || !userManager.isLoggedIn}
 				>
@@ -355,7 +372,7 @@
 				</button>
 
 				<button
-					class="btn btn-error btn-sm"
+					class="btn btn-sm btn-error"
 					onclick={() => recordUsage('reset_usage')}
 					disabled={isLoading || !userManager.isLoggedIn}
 				>
@@ -367,14 +384,14 @@
 
 	<!-- Feature Access -->
 	{#if debugData?.summary?.features}
-		<div class="card bg-base-100 shadow-xl mb-6">
+		<div class="card mb-6 bg-base-100 shadow-xl">
 			<div class="card-body">
-				<h2 class="card-title text-xl mb-4">🎯 Feature Access</h2>
+				<h2 class="mb-4 card-title text-xl">🎯 Feature Access</h2>
 
-				<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+				<div class="grid grid-cols-2 gap-4 md:grid-cols-4">
 					{#each Object.entries(debugData.summary.features) as [feature, hasAccess]}
 						<div class="flex items-center space-x-2">
-							<span class="{hasAccess ? 'text-success' : 'text-base-content/50'}">
+							<span class={hasAccess ? 'text-success' : 'text-base-content/50'}>
 								{hasAccess ? '✅' : '❌'}
 							</span>
 							<span class="text-sm {hasAccess ? '' : 'text-base-content/50'}">{feature}</span>
@@ -389,7 +406,7 @@
 	{#if debugData?.history}
 		<div class="card bg-base-100 shadow-xl">
 			<div class="card-body">
-				<h2 class="card-title text-xl mb-4">📈 Usage History</h2>
+				<h2 class="mb-4 card-title text-xl">📈 Usage History</h2>
 
 				{#if debugData.history.length > 0}
 					<div class="overflow-x-auto">
@@ -417,9 +434,7 @@
 						</table>
 					</div>
 				{:else}
-					<div class="text-center text-base-content/50 py-8">
-						No usage history found
-					</div>
+					<div class="py-8 text-center text-base-content/50">No usage history found</div>
 				{/if}
 			</div>
 		</div>

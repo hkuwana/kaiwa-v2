@@ -17,33 +17,47 @@ export const POST: RequestHandler = async ({ request, url, locals }) => {
 			return json({ error: 'Authentication required' }, { status: 401 });
 		}
 
-		const { tier, billing = 'monthly', successPath = '/dashboard', cancelPath = '/pricing' } = await request.json();
+		const {
+			tier,
+			billing = 'monthly',
+			successPath = '/dashboard',
+			cancelPath = '/pricing'
+		} = await request.json();
 
 		// Validate tier
 		if (!tier || !(tier in serverTierConfigs)) {
-			return json({
-				error: 'Invalid tier',
-				validTiers: Object.keys(serverTierConfigs),
-				receivedTier: tier
-			}, { status: 400 });
+			return json(
+				{
+					error: 'Invalid tier',
+					validTiers: Object.keys(serverTierConfigs),
+					receivedTier: tier
+				},
+				{ status: 400 }
+			);
 		}
 
 		// Validate billing
 		if (!['monthly', 'annual'].includes(billing)) {
-			return json({
-				error: 'Invalid billing cycle',
-				validBilling: ['monthly', 'annual'],
-				receivedBilling: billing
-			}, { status: 400 });
+			return json(
+				{
+					error: 'Invalid billing cycle',
+					validBilling: ['monthly', 'annual'],
+					receivedBilling: billing
+				},
+				{ status: 400 }
+			);
 		}
 
 		// Get price ID from tier configs
 		const priceId = getStripePriceId(tier as UserTier, billing);
 		if (!priceId) {
-			return json({
-				error: `No price ID found for ${tier} ${billing}`,
-				tierConfig: serverTierConfigs[tier as UserTier]
-			}, { status: 400 });
+			return json(
+				{
+					error: `No price ID found for ${tier} ${billing}`,
+					tierConfig: serverTierConfigs[tier as UserTier]
+				},
+				{ status: 400 }
+			);
 		}
 
 		console.log(`🔧 Creating checkout for ${tier} ${billing} (${priceId})`);
@@ -95,9 +109,12 @@ export const POST: RequestHandler = async ({ request, url, locals }) => {
 			});
 		}
 
-		return json({
-			error: 'Failed to create checkout session',
-			details: error instanceof Error ? error.message : 'Unknown error'
-		}, { status: 500 });
+		return json(
+			{
+				error: 'Failed to create checkout session',
+				details: error instanceof Error ? error.message : 'Unknown error'
+			},
+			{ status: 500 }
+		);
 	}
 };

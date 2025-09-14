@@ -114,38 +114,38 @@
 	}
 </script>
 
-<div class="container mx-auto p-6 max-w-4xl">
-	<h1 class="text-3xl font-bold mb-8 text-center">
-		🔧 Payment Testing (MVP)
-	</h1>
+<div class="container mx-auto max-w-4xl p-6">
+	<h1 class="mb-8 text-center text-3xl font-bold">🔧 Payment Testing (MVP)</h1>
 
 	{#if !userManager.isLoggedIn}
-		<div class="alert alert-warning mb-6">
+		<div class="mb-6 alert alert-warning">
 			<span>⚠️ Please log in to test payment functionality</span>
 		</div>
 	{/if}
 
 	<!-- Test Status -->
-	<div class="card bg-base-100 shadow-xl mb-6">
+	<div class="card mb-6 bg-base-100 shadow-xl">
 		<div class="card-body">
-			<h2 class="card-title text-xl mb-4">Test Status</h2>
+			<h2 class="mb-4 card-title text-xl">Test Status</h2>
 
 			{#if testResult}
-				<div class="alert {testResult.includes('❌') ? 'alert-error' : testResult.includes('✅') ? 'alert-success' : 'alert-info'}">
+				<div
+					class="alert {testResult.includes('❌')
+						? 'alert-error'
+						: testResult.includes('✅')
+							? 'alert-success'
+							: 'alert-info'}"
+				>
 					<span>{testResult}</span>
 				</div>
 			{/if}
 
 			{#if isLoading}
-				<div class="loading loading-spinner loading-lg"></div>
+				<div class="loading loading-lg loading-spinner"></div>
 			{/if}
 
-			<div class="flex gap-2 flex-wrap">
-				<button
-					class="btn btn-primary"
-					onclick={loadDebugData}
-					disabled={isLoading}
-				>
+			<div class="flex flex-wrap gap-2">
+				<button class="btn btn-primary" onclick={loadDebugData} disabled={isLoading}>
 					🔄 Refresh Debug Data
 				</button>
 			</div>
@@ -154,12 +154,12 @@
 
 	<!-- User & Subscription Status -->
 	{#if debugData}
-		<div class="card bg-base-100 shadow-xl mb-6">
+		<div class="card mb-6 bg-base-100 shadow-xl">
 			<div class="card-body">
-				<h2 class="card-title text-xl mb-4">Current Status</h2>
+				<h2 class="mb-4 card-title text-xl">Current Status</h2>
 
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div class="stat bg-base-200 rounded-lg">
+				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+					<div class="stat rounded-lg bg-base-200">
 						<div class="stat-title">User</div>
 						<div class="stat-value text-sm">{debugData.user?.email}</div>
 						<div class="stat-desc">
@@ -167,7 +167,7 @@
 						</div>
 					</div>
 
-					<div class="stat bg-base-200 rounded-lg">
+					<div class="stat rounded-lg bg-base-200">
 						<div class="stat-title">Current Tier</div>
 						<div class="stat-value text-lg capitalize">{debugData.currentTier}</div>
 						<div class="stat-desc">
@@ -183,13 +183,19 @@
 				<!-- Comparison -->
 				{#if debugData.comparison}
 					<div class="mt-4">
-						<h3 class="font-semibold mb-2">Data Comparison</h3>
-						<div class="bg-base-200 rounded-lg p-3">
+						<h3 class="mb-2 font-semibold">Data Comparison</h3>
+						<div class="rounded-lg bg-base-200 p-3">
 							<div class="text-sm">
-								<div>Stripe Tier: <span class="font-mono">{debugData.comparison.stripeTier}</span></div>
+								<div>
+									Stripe Tier: <span class="font-mono">{debugData.comparison.stripeTier}</span>
+								</div>
 								<div>DB Tier: <span class="font-mono">{debugData.comparison.dbTier}</span></div>
 								<div>Match: {debugData.comparison.tierMatch ? '✅' : '❌'}</div>
-								<div>Recommendation: <span class="font-mono font-semibold">{debugData.comparison.recommendation}</span></div>
+								<div>
+									Recommendation: <span class="font-mono font-semibold"
+										>{debugData.comparison.recommendation}</span
+									>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -199,11 +205,11 @@
 	{/if}
 
 	<!-- Test Actions -->
-	<div class="card bg-base-100 shadow-xl mb-6">
+	<div class="card mb-6 bg-base-100 shadow-xl">
 		<div class="card-body">
-			<h2 class="card-title text-xl mb-4">Test Actions</h2>
+			<h2 class="mb-4 card-title text-xl">Test Actions</h2>
 
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+			<div class="grid grid-cols-1 gap-3 md:grid-cols-2">
 				<button
 					class="btn btn-outline"
 					onclick={() => testPaymentAction('ensure_stripe_customer')}
@@ -232,29 +238,31 @@
 	</div>
 
 	<!-- Checkout Tests -->
-	<div class="card bg-base-100 shadow-xl mb-6">
+	<div class="card mb-6 bg-base-100 shadow-xl">
 		<div class="card-body">
-			<h2 class="card-title text-xl mb-4">🛒 Test Checkout Flow</h2>
-			<p class="mb-4 text-base-content/70">Test the complete checkout process with real Stripe sessions</p>
+			<h2 class="mb-4 card-title text-xl">🛒 Test Checkout Flow</h2>
+			<p class="mb-4 text-base-content/70">
+				Test the complete checkout process with real Stripe sessions
+			</p>
 
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+			<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 				{#each tiers as tier}
-					<div class="border border-base-300 rounded-lg p-4">
-						<h3 class="text-lg font-semibold mb-2">{tier.name}</h3>
-						<div class="text-sm text-base-content/70 mb-4">
+					<div class="rounded-lg border border-base-300 p-4">
+						<h3 class="mb-2 text-lg font-semibold">{tier.name}</h3>
+						<div class="mb-4 text-sm text-base-content/70">
 							Monthly: {tier.price} | Annual: {tier.priceAnnual}
 						</div>
 
 						<div class="flex gap-2">
 							<button
-								class="btn btn-primary btn-sm flex-1"
+								class="btn flex-1 btn-sm btn-primary"
 								onclick={() => testCheckout(tier.id, 'monthly')}
 								disabled={isLoading || !userManager.isLoggedIn}
 							>
 								Monthly
 							</button>
 							<button
-								class="btn btn-secondary btn-sm flex-1"
+								class="btn flex-1 btn-sm btn-secondary"
 								onclick={() => testCheckout(tier.id, 'annual')}
 								disabled={isLoading || !userManager.isLoggedIn}
 							>
@@ -271,21 +279,21 @@
 	{#if debugData?.availableTiers}
 		<div class="card bg-base-100 shadow-xl">
 			<div class="card-body">
-				<h2 class="card-title text-xl mb-4">Available Tiers</h2>
+				<h2 class="mb-4 card-title text-xl">Available Tiers</h2>
 
-				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+				<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 					{#each debugData.availableTiers as tier}
-						<div class="bg-base-200 rounded-lg p-3">
+						<div class="rounded-lg bg-base-200 p-3">
 							<h3 class="font-semibold capitalize">{tier.tier}</h3>
 							<div class="text-sm">
 								<div>{tier.name}</div>
-								<div class="font-mono text-xs mt-1">
-									Monthly: {tier.monthlyPrice || 'Free'}<br>
+								<div class="mt-1 font-mono text-xs">
+									Monthly: {tier.monthlyPrice || 'Free'}<br />
 									Annual: {tier.annualPrice || 'Free'}
 								</div>
 								{#if tier.stripePriceIdMonthly}
-									<div class="text-xs text-base-content/50 mt-1">
-										M: {tier.stripePriceIdMonthly?.slice(0, 20)}...<br>
+									<div class="mt-1 text-xs text-base-content/50">
+										M: {tier.stripePriceIdMonthly?.slice(0, 20)}...<br />
 										A: {tier.stripePriceIdAnnual?.slice(0, 20)}...
 									</div>
 								{/if}

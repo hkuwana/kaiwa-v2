@@ -189,13 +189,13 @@
 				vocabularyAnalysis: null,
 				pronunciationScore: null,
 				audioUrl: null,
-                audioDuration: null,
-                difficultyLevel: null,
-                learningTags: null,
-                conversationContext: null,
-                messageIntent: null,
-                sequenceId: null
-            };
+				audioDuration: null,
+				difficultyLevel: null,
+				learningTags: null,
+				conversationContext: null,
+				messageIntent: null,
+				sequenceId: null
+			};
 
 			// Test server-side script generation
 			scriptResult = await generateScriptsForMessage(testMessage, true);
@@ -280,8 +280,8 @@
 				otherScripts: result.otherScripts
 			};
 
-				console.log('Pinyin result:', romanizationResult);
-				lastUpdateTime = new SvelteDate();
+			console.log('Pinyin result:', romanizationResult);
+			lastUpdateTime = new SvelteDate();
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Pinyin generation failed';
 			console.error('Pinyin generation error:', err);
@@ -325,8 +325,8 @@
 				otherScripts: result.otherScripts
 			};
 
-				console.log('Native pinyin result:', romanizationResult);
-				lastUpdateTime = new SvelteDate();
+			console.log('Native pinyin result:', romanizationResult);
+			lastUpdateTime = new SvelteDate();
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Native pinyin generation failed';
 			console.error('Native pinyin generation error:', err);
@@ -354,8 +354,8 @@
 				otherScripts: result.otherScripts
 			};
 
-				console.log('Hangul result:', romanizationResult);
-				lastUpdateTime = new SvelteDate();
+			console.log('Hangul result:', romanizationResult);
+			lastUpdateTime = new SvelteDate();
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Hangul generation failed';
 			console.error('Hangul generation error:', err);

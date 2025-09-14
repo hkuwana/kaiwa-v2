@@ -4,11 +4,9 @@
 
 import { stripe } from './stripe.service';
 import { serverTierConfigs, getStripePriceId } from '../tiers';
-import { db } from '../db';
-import { subscriptions } from '../db/schema/subscriptions';
-import { users } from '../db/schema/users';
-import { eq } from 'drizzle-orm';
 import type { UserTier } from '../db/types';
+import { subscriptionRepository } from '../repositories/subscription.repository';
+import { userRepository } from '../repositories/user.repository';
 
 // =============================================================================
 // STRIPE API FUNCTIONS (Pure functions that query Stripe directly)
@@ -23,11 +21,11 @@ export async function getStripeSubscription(stripeCustomerId: string) {
 		const subscriptions = await stripe.subscriptions.list({
 			customer: stripeCustomerId,
 			status: 'all',
-			limit: 1,
+			limit: 1
 		});
 
-		const activeSubscription = subscriptions.data.find(sub =>
-			sub.status === 'active' || sub.status === 'trialing'
+		const activeSubscription = subscriptions.data.find(
+			(sub) => sub.status === 'active' || sub.status === 'trialing'
 		);
 
 		return activeSubscription || null;
@@ -103,9 +101,7 @@ export async function createStripeCustomer(userId: string, email: string): Promi
 		});
 
 		// Update user with Stripe customer ID
-		await db.update(users)
-			.set({ stripeCustomerId: customer.id })
-			.where(eq(users.id, userId));
+		await userRepository.updateUser(userId, { stripeCustomerId: customer.id });
 
 		return customer.id;
 	} catch (error) {
@@ -136,8 +132,8 @@ export async function createStripeCheckout(
 			line_items: [
 				{
 					price: priceId,
-					quantity: 1,
-				},
+					quantity: 1
+				}
 			],
 			mode: 'subscription',
 			success_url: successUrl,
@@ -166,15 +162,7 @@ export async function createStripeCheckout(
  * Get user's subscription from local DB (backup/fallback)
  */
 export async function getUserSubscriptionFromDB(userId: string) {
-	try {
-		const subscription = await db.query.subscriptions.findFirst({
-			where: eq(subscriptions.userId, userId)
-		});
-		return subscription || null;
-	} catch (error) {
-		console.error('Error fetching subscription from DB:', error);
-		return null;
-	}
+	return await subscriptionRepository.findSubscriptionByUserId(userId);
 }
 
 /**
@@ -186,37 +174,12 @@ export async function updateUserSubscriptionInDB(
 	stripePriceId: string,
 	currentTier: UserTier
 ) {
-	try {
-		// Check if subscription exists
-		const existing = await db.query.subscriptions.findFirst({
-			where: eq(subscriptions.userId, userId)
-		});
-
-		if (existing) {
-			// Update existing
-			await db.update(subscriptions)
-				.set({
-					stripeSubscriptionId,
-					stripePriceId,
-					currentTier,
-					updatedAt: new Date()
-				})
-				.where(eq(subscriptions.userId, userId));
-		} else {
-			// Create new
-			await db.insert(subscriptions).values({
-				userId,
-				stripeSubscriptionId,
-				stripePriceId,
-				currentTier
-			});
-		}
-
-		return true;
-	} catch (error) {
-		console.error('Error updating subscription in DB:', error);
-		return false;
-	}
+	return await subscriptionRepository.upsertSubscription(
+		userId,
+		stripeSubscriptionId,
+		stripePriceId,
+		currentTier
+	);
 }
 
 /**
@@ -249,9 +212,7 @@ export async function syncUserSubscription(userId: string, stripeCustomerId: str
 export async function getUserCurrentTier(userId: string): Promise<UserTier> {
 	try {
 		// Get user to check if they have Stripe customer ID
-		const user = await db.query.users.findFirst({
-			where: eq(users.id, userId)
-		});
+		const user = await userRepository.findUserById(userId);
 
 		if (!user?.stripeCustomerId) {
 			return 'free';
@@ -273,7 +234,6 @@ export async function getUserCurrentTier(userId: string): Promise<UserTier> {
 		// Fallback to DB if Stripe fails
 		const dbSubscription = await getUserSubscriptionFromDB(userId);
 		return (dbSubscription?.currentTier as UserTier) || 'free';
-
 	} catch (error) {
 		console.error('Error getting user tier:', error);
 
@@ -294,9 +254,7 @@ export async function getUserCurrentTier(userId: string): Promise<UserTier> {
 export async function ensureStripeCustomer(userId: string, email: string): Promise<string | null> {
 	try {
 		// Check if user already has customer ID
-		const user = await db.query.users.findFirst({
-			where: eq(users.id, userId)
-		});
+		const user = await userRepository.findUserById(userId);
 
 		if (user?.stripeCustomerId) {
 			return user.stripeCustomerId;

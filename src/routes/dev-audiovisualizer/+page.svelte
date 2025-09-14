@@ -419,13 +419,13 @@
 				<h3 class="mb-6 text-center text-2xl font-bold">🎤 Press-to-Record Visualizer</h3>
 
 				<div class="mb-6 flex justify-center">
-                    <AudioVisualizer
-                        {audioLevel}
-                        {isRecording}
-                        {isListening}
-                        onRecordStart={handleRecordStart}
-                        onRecordStop={handleRecordStop}
-                    />
+					<AudioVisualizer
+						{audioLevel}
+						{isRecording}
+						{isListening}
+						onRecordStart={handleRecordStart}
+						onRecordStop={handleRecordStop}
+					/>
 				</div>
 
 				<!-- Status Display -->

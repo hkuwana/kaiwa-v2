@@ -6,8 +6,8 @@
 	import { SubscriptionTier } from '$lib/enums.js';
 	import { defaultTierConfigs } from '$lib/data/tiers';
 	import { formatPrice, calculateAnnualDiscount } from '$lib/client/stripe.service';
-  import { env as publicEnv } from '$env/dynamic/public';
-  import WhyDifferent from '$lib/components/WhyDifferent.svelte';
+	import { env as publicEnv } from '$env/dynamic/public';
+	import WhyDifferent from '$lib/components/WhyDifferent.svelte';
 
 	// Get page data from server using runes
 	const { data } = $props();
@@ -181,7 +181,11 @@
 			const res = await fetch('/api/stripe/checkout', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ priceId: earlyBackerPriceId, successPath: '/profile', cancelPath: '/pricing' })
+				body: JSON.stringify({
+					priceId: earlyBackerPriceId,
+					successPath: '/profile',
+					cancelPath: '/pricing'
+				})
 			});
 			const data = await res.json();
 			if (data?.url) {
@@ -233,17 +237,27 @@
 		name="description"
 		content="Choose a Kaiwa plan that fits your language learning goals. Basic, Plus, and Premium options available."
 	/>
-  <meta name="keywords" content="Kaiwa pricing, language learning pricing, AI conversation practice plans, Japanese learning, Spanish practice, language app subscription" />
-  <meta property="og:title" content="Kaiwa | Pricing Plans" />
-  <meta property="og:description" content="Compare Kaiwa plans and choose the conversation practice that fits your goals." />
-  <meta property="og:type" content="website" />
+	<meta
+		name="keywords"
+		content="Kaiwa pricing, language learning pricing, AI conversation practice plans, Japanese learning, Spanish practice, language app subscription"
+	/>
+	<meta property="og:title" content="Kaiwa | Pricing Plans" />
+	<meta
+		property="og:description"
+		content="Compare Kaiwa plans and choose the conversation practice that fits your goals."
+	/>
+	<meta property="og:type" content="website" />
 </svelte:head>
 
 <div class="container mx-auto max-w-7xl px-4 py-16 sm:py-20">
 	<div class="mb-16 text-center">
-		<h1 class="mb-4 text-4xl font-bold tracking-tight lg:text-5xl">Kaiwa Pricing: Choose Your AI Language Learning Plan</h1>
+		<h1 class="mb-4 text-4xl font-bold tracking-tight lg:text-5xl">
+			Kaiwa Pricing: Choose Your AI Language Learning Plan
+		</h1>
 		<p class="mx-auto max-w-3xl text-lg text-base-content/70 lg:text-xl">
-			Start practicing conversations for free, then unlock more practice time with our affordable subscription plans. Perfect for learning Japanese, Spanish, French, and more through AI-powered conversation practice.
+			Start practicing conversations for free, then unlock more practice time with our affordable
+			subscription plans. Perfect for learning Japanese, Spanish, French, and more through
+			AI-powered conversation practice.
 		</p>
 		<div class="mt-6 flex justify-center space-x-6 text-sm opacity-70">
 			<span>✓ Free trial included</span>
@@ -278,7 +292,7 @@
 				FREE
 				<span class="text-xl font-normal text-base-content/60">/forever</span>
 			</p>
-			<p class="text-sm text-primary mt-2">15 minutes practice time included</p>
+			<p class="mt-2 text-sm text-primary">15 minutes practice time included</p>
 			<p class="mt-4 min-h-[4rem] text-base-content/70">
 				{freeTier.description} • Perfect for trying AI conversation practice
 			</p>
@@ -351,11 +365,15 @@
 	</div>
 
 	{#if earlyBackerPriceId}
-	<div class="mx-auto mb-10 max-w-5xl rounded-2xl border-2 border-success/40 bg-success/5 p-6 text-center">
-		<div class="mb-2 text-lg font-semibold">Early‑Backer</div>
-		<p class="mb-4 text-base-content/70">Support the mission and unlock more practice time — $5/mo for 12 months.</p>
-		<button class="btn btn-success" onclick={handleEarlyBackerCheckout}>Support + Unlock</button>
-	</div>
+		<div
+			class="mx-auto mb-10 max-w-5xl rounded-2xl border-2 border-success/40 bg-success/5 p-6 text-center"
+		>
+			<div class="mb-2 text-lg font-semibold">Early‑Backer</div>
+			<p class="mb-4 text-base-content/70">
+				Support the mission and unlock more practice time — $5/mo for 12 months.
+			</p>
+			<button class="btn btn-success" onclick={handleEarlyBackerCheckout}>Support + Unlock</button>
+		</div>
 	{/if}
 
 	<div class="mt-24">
@@ -440,8 +458,8 @@
 		</div>
 	</div>
 
-  <!-- Extended Differentiators (educate near bottom) -->
-  <div class="mt-24">
-    <WhyDifferent variant="extended" />
-  </div>
+	<!-- Extended Differentiators (educate near bottom) -->
+	<div class="mt-24">
+		<WhyDifferent variant="extended" />
+	</div>
 </div>

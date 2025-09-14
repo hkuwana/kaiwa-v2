@@ -122,22 +122,28 @@ export class UserUsageRepository {
 			updateData.secondsUsed = (current.secondsUsed || 0) + updates.secondsUsed;
 		}
 		if (updates.realtimeSessionsUsed !== undefined) {
-			updateData.realtimeSessionsUsed = (current.realtimeSessionsUsed || 0) + updates.realtimeSessionsUsed;
+			updateData.realtimeSessionsUsed =
+				(current.realtimeSessionsUsed || 0) + updates.realtimeSessionsUsed;
 		}
 		if (updates.ankiExportsUsed !== undefined) {
 			updateData.ankiExportsUsed = (current.ankiExportsUsed || 0) + updates.ankiExportsUsed;
 		}
 		if (updates.sessionExtensionsUsed !== undefined) {
-			updateData.sessionExtensionsUsed = (current.sessionExtensionsUsed || 0) + updates.sessionExtensionsUsed;
+			updateData.sessionExtensionsUsed =
+				(current.sessionExtensionsUsed || 0) + updates.sessionExtensionsUsed;
 		}
 		if (updates.advancedVoiceSeconds !== undefined) {
-			updateData.advancedVoiceSeconds = (current.advancedVoiceSeconds || 0) + updates.advancedVoiceSeconds;
+			updateData.advancedVoiceSeconds =
+				(current.advancedVoiceSeconds || 0) + updates.advancedVoiceSeconds;
 		}
 		if (updates.completedSessions !== undefined) {
 			updateData.completedSessions = (current.completedSessions || 0) + updates.completedSessions;
 		}
 		if (updates.longestSessionSeconds !== undefined) {
-			updateData.longestSessionSeconds = Math.max((current.longestSessionSeconds || 0), updates.longestSessionSeconds);
+			updateData.longestSessionSeconds = Math.max(
+				current.longestSessionSeconds || 0,
+				updates.longestSessionSeconds
+			);
 		}
 		if (updates.averageSessionSeconds !== undefined) {
 			updateData.averageSessionSeconds = updates.averageSessionSeconds; // Direct set for average

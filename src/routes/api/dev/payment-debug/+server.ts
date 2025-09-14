@@ -86,11 +86,14 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 		return json(result);
 	} catch (err) {
 		console.error('Payment debug error:', err);
-		return json({
-			error: 'Debug failed',
-			message: err instanceof Error ? err.message : 'Unknown error',
-			timestamp: new Date().toISOString()
-		}, { status: 500 });
+		return json(
+			{
+				error: 'Debug failed',
+				message: err instanceof Error ? err.message : 'Unknown error',
+				timestamp: new Date().toISOString()
+			},
+			{ status: 500 }
+		);
 	}
 };
 
@@ -144,10 +147,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		return json(result);
 	} catch (err) {
 		console.error('Payment debug POST error:', err);
-		return json({
-			error: 'Debug action failed',
-			message: err instanceof Error ? err.message : 'Unknown error',
-			timestamp: new Date().toISOString()
-		}, { status: 500 });
+		return json(
+			{
+				error: 'Debug action failed',
+				message: err instanceof Error ? err.message : 'Unknown error',
+				timestamp: new Date().toISOString()
+			},
+			{ status: 500 }
+		);
 	}
 };

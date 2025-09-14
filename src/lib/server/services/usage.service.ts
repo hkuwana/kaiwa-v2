@@ -53,10 +53,19 @@ export async function getCurrentUsage(userId: string) {
 /**
  * Check if user can use a specific feature
  */
-export async function canUseFeature(userId: string, feature: {
-	type: 'conversation' | 'seconds' | 'realtime_session' | 'anki_export' | 'session_extension' | 'advanced_voice';
-	amount?: number;
-}): Promise<{
+export async function canUseFeature(
+	userId: string,
+	feature: {
+		type:
+			| 'conversation'
+			| 'seconds'
+			| 'realtime_session'
+			| 'anki_export'
+			| 'session_extension'
+			| 'advanced_voice';
+		amount?: number;
+	}
+): Promise<{
 	canUse: boolean;
 	reason: string;
 	current: number;
@@ -75,7 +84,7 @@ export async function canUseFeature(userId: string, feature: {
 		case 'conversation': {
 			const limit = tierConfig.monthlyConversations;
 			const unlimited = limit === 100; // 100 = unlimited in your config
-			const available = unlimited ? 999999 : (limit - usage.conversationsUsed);
+			const available = unlimited ? 999999 : limit - usage.conversationsUsed;
 
 			return {
 				canUse: unlimited || usage.conversationsUsed < limit,
@@ -100,9 +109,10 @@ export async function canUseFeature(userId: string, feature: {
 
 			return {
 				canUse: available >= requestedSeconds,
-				reason: available >= requestedSeconds
-					? `${available} seconds available (${Math.floor(available / 60)}min)`
-					: `Not enough time (need ${requestedSeconds}s, have ${available}s)`,
+				reason:
+					available >= requestedSeconds
+						? `${available} seconds available (${Math.floor(available / 60)}min)`
+						: `Not enough time (need ${requestedSeconds}s, have ${available}s)`,
 				current: totalUsed,
 				limit: totalAvailable,
 				available: Math.max(0, available),
@@ -113,7 +123,7 @@ export async function canUseFeature(userId: string, feature: {
 		case 'realtime_session': {
 			const limit = tierConfig.monthlyRealtimeSessions;
 			const unlimited = limit === 100; // 100 = unlimited
-			const available = unlimited ? 999999 : (limit - usage.realtimeSessionsUsed);
+			const available = unlimited ? 999999 : limit - usage.realtimeSessionsUsed;
 
 			return {
 				canUse: unlimited || usage.realtimeSessionsUsed < limit,
@@ -209,7 +219,14 @@ export async function getUsageSummary(userId: string) {
 	const tierConfig = serverTierConfigs[userTier];
 
 	// Check each feature
-	const [conversationCheck, secondsCheck, realtimeCheck, ankiCheck, extensionCheck, advancedVoiceCheck] = await Promise.all([
+	const [
+		conversationCheck,
+		secondsCheck,
+		realtimeCheck,
+		ankiCheck,
+		extensionCheck,
+		advancedVoiceCheck
+	] = await Promise.all([
 		canUseFeature(userId, { type: 'conversation' }),
 		canUseFeature(userId, { type: 'seconds', amount: 0 }),
 		canUseFeature(userId, { type: 'realtime_session' }),
@@ -309,8 +326,11 @@ export async function getUsageSummary(userId: string) {
 
 		// Overall status
 		status: {
-			hasAnyLimits: !conversationCheck.unlimited || !realtimeCheck.unlimited || secondsCheck.available < 3600,
-			nearLimits: secondsCheck.available < 600 || (!conversationCheck.unlimited && conversationCheck.available < 5),
+			hasAnyLimits:
+				!conversationCheck.unlimited || !realtimeCheck.unlimited || secondsCheck.available < 3600,
+			nearLimits:
+				secondsCheck.available < 600 ||
+				(!conversationCheck.unlimited && conversationCheck.available < 5),
 			atLimits: !conversationCheck.canUse || !secondsCheck.canUse || !realtimeCheck.canUse
 		}
 	};
@@ -350,16 +370,19 @@ export async function recordRealtimeSession(userId: string) {
 /**
  * Record multiple usage types at once
  */
-export async function recordUsage(userId: string, usage: {
-	conversations?: number;
-	seconds?: number;
-	realtimeSessions?: number;
-	ankiExports?: number;
-	sessionExtensions?: number;
-	advancedVoiceSeconds?: number;
-	completedSessions?: number;
-	overageSeconds?: number;
-}) {
+export async function recordUsage(
+	userId: string,
+	usage: {
+		conversations?: number;
+		seconds?: number;
+		realtimeSessions?: number;
+		ankiExports?: number;
+		sessionExtensions?: number;
+		advancedVoiceSeconds?: number;
+		completedSessions?: number;
+		overageSeconds?: number;
+	}
+) {
 	const updates: Parameters<typeof userUsageRepository.incrementUsage>[1] = {};
 
 	if (usage.conversations) updates.conversationsUsed = usage.conversations;

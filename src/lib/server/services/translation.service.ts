@@ -302,24 +302,24 @@ export function getMessageScripts(message: Message): Record<string, string> {
  * This is the main function that should be called from components
  */
 export async function translateTextWithScripts(
-    text: string,
-    messageId: string,
-    sourceLanguage: string,
-    targetLanguage: string
+	text: string,
+	messageId: string,
+	sourceLanguage: string,
+	targetLanguage: string
 ): Promise<TranslationResult> {
-    // Create a temporary message object for the translation function
-    const tempMessage: Message = {
-        id: messageId,
-        content: text,
-        role: 'user',
-        timestamp: new Date(),
-        conversationId: '',
-        sequenceId: null,
-        // Add other required fields with defaults
-        translatedContent: null,
-        sourceLanguage: null,
-        targetLanguage: null,
-        userNativeLanguage: null,
+	// Create a temporary message object for the translation function
+	const tempMessage: Message = {
+		id: messageId,
+		content: text,
+		role: 'user',
+		timestamp: new Date(),
+		conversationId: '',
+		sequenceId: null,
+		// Add other required fields with defaults
+		translatedContent: null,
+		sourceLanguage: null,
+		targetLanguage: null,
+		userNativeLanguage: null,
 		romanization: null,
 		hiragana: null,
 		otherScripts: null,

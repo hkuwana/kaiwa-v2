@@ -336,8 +336,8 @@ export class RealtimeOpenAIStore {
 		}
 		this.isConnected = false;
 		// Clear transient state
-			this.finalizedItemIds.clear();
-			this.historyText = {} as Record<string, string>;
+		this.finalizedItemIds.clear();
+		this.historyText = {} as Record<string, string>;
 		this.assistantDelta = '';
 		this.userDelta = '';
 	}
@@ -345,15 +345,15 @@ export class RealtimeOpenAIStore {
 	// High-level helpers
 	sendResponse(): void {
 		if (!this.connection) return;
-			const ev = realtimeService.createResponse();
-			this.logEvent('client', String(ev.type), ev);
+		const ev = realtimeService.createResponse();
+		this.logEvent('client', String(ev.type), ev);
 		sendEventViaSession(this.connection, ev);
 	}
 
 	pttStart(mediaStream: MediaStream): void {
 		if (!this.connection) return;
-			const ev = realtimeService.createInputAudioBufferClear();
-			this.logEvent('client', String(ev.type), ev);
+		const ev = realtimeService.createInputAudioBufferClear();
+		this.logEvent('client', String(ev.type), ev);
 		sendEventViaSession(this.connection, ev);
 		realtimeService.resumeAudioInput(mediaStream);
 	}
@@ -361,8 +361,8 @@ export class RealtimeOpenAIStore {
 	pttStop(mediaStream: MediaStream): void {
 		if (!this.connection) return;
 		realtimeService.pauseAudioInput(mediaStream);
-			const ev = realtimeService.createInputAudioBufferCommit();
-			this.logEvent('client', String(ev.type), ev);
+		const ev = realtimeService.createInputAudioBufferCommit();
+		this.logEvent('client', String(ev.type), ev);
 		sendEventViaSession(this.connection, ev);
 	}
 
@@ -376,15 +376,15 @@ export class RealtimeOpenAIStore {
 		if (!this.connection) return;
 		const prefLang = userPreferencesStore.getPreference('targetLanguageId') as unknown as string;
 		const transcriptionLanguage = config.transcriptionLanguage || prefLang || 'en';
-			const update = realtimeService.createSessionUpdate({
-				...config,
-				input_audio_transcription: transcriptionLanguage
-					? {
-							model: config.transcriptionModel || 'gpt-4o-transcribe',
-							language: transcriptionLanguage
-						}
-					: undefined
-			});
+		const update = realtimeService.createSessionUpdate({
+			...config,
+			input_audio_transcription: transcriptionLanguage
+				? {
+						model: config.transcriptionModel || 'gpt-4o-transcribe',
+						language: transcriptionLanguage
+					}
+				: undefined
+		});
 		this.logEvent('client', 'session.update', update);
 		sendEventViaSession(this.connection, update);
 	}
@@ -525,10 +525,10 @@ export class RealtimeOpenAIStore {
 							);
 							if (idx !== -1) {
 								const forcedSeqBase = Math.max(0, this.sessionStartMs - 1);
-									this.messages[idx] = {
-										...this.messages[idx],
-										sequenceId: `${forcedSeqBase}_000000`
-									};
+								this.messages[idx] = {
+									...this.messages[idx],
+									sequenceId: `${forcedSeqBase}_000000`
+								};
 								this.messages = messageService.sortMessagesBySequence(this.messages);
 							}
 						}

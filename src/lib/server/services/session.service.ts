@@ -2,11 +2,9 @@
 
 import { dev } from '$app/environment';
 import type { Cookies } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
-import { userPreferences } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 import type { UserPreferences } from '$lib/server/db/types';
+import { userPreferencesRepository } from '../repositories/userPreferences.repository';
 
 // Cookie-based session data for anonymous users (before they sign up)
 interface AnonymousSessionData {
@@ -117,13 +115,6 @@ export async function persistAnonymousSessionToDatabase(
 	userId: string
 ): Promise<void> {
 	try {
-		// Check if user already has preferences
-		const existingPrefs = await db
-			.select()
-			.from(userPreferences)
-			.where(eq(userPreferences.userId, userId))
-			.limit(1);
-
 		const prefsData = {
 			userId,
 			targetLanguageId: sessionData.preferences.targetLanguageId || 'en',
@@ -139,19 +130,7 @@ export async function persistAnonymousSessionToDatabase(
 			dailyGoalSeconds: sessionData.preferences.dailyGoalSeconds || 30
 		};
 
-		if (existingPrefs.length > 0) {
-			// Update existing preferences
-			await db
-				.update(userPreferences)
-				.set({
-					...prefsData,
-					updatedAt: new Date()
-				})
-				.where(eq(userPreferences.userId, userId));
-		} else {
-			// Create new preferences
-			await db.insert(userPreferences).values(prefsData);
-		}
+		await userPreferencesRepository.upsertPreferences(prefsData);
 
 		// Note: Cookie clearing should be done by the caller after successful persistence
 
@@ -167,17 +146,7 @@ export async function persistAnonymousSessionToDatabase(
  */
 export async function loadUserPreferences(userId: string): Promise<UserPreferences | null> {
 	try {
-		const userPrefs = await db
-			.select()
-			.from(userPreferences)
-			.where(eq(userPreferences.userId, userId))
-			.limit(1);
-
-		if (userPrefs.length === 0) {
-			return null;
-		}
-
-		return userPrefs[0];
+		return await userPreferencesRepository.getPreferencesByUserId(userId);
 	} catch (error) {
 		console.error('Failed to load user preferences:', error);
 		throw error;

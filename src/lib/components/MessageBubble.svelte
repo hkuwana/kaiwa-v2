@@ -169,7 +169,18 @@
 		{speakerName}
 		<time class="text-xs opacity-50">{formattedTime}</time>
 	</div>
-    <div class={bubbleClass} role="button" tabindex="0" onclick={handleBubbleClick} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleBubbleClick(); } }}>
+	<div
+		class={bubbleClass}
+		role="button"
+		tabindex="0"
+		onclick={handleBubbleClick}
+		onkeydown={(e) => {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				handleBubbleClick();
+			}
+		}}
+	>
 		<!-- Main content with scripts for supported languages -->
 		{#if needsScripts && hasScriptDataFlag}
 			<div class="space-y-1">

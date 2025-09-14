@@ -54,7 +54,10 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 
 			case 'check_seconds':
 				const seconds = parseInt(url.searchParams.get('seconds') || '300');
-				result.check = await usageService.canUseFeature(userId, { type: 'seconds', amount: seconds });
+				result.check = await usageService.canUseFeature(userId, {
+					type: 'seconds',
+					amount: seconds
+				});
 				break;
 
 			case 'check_realtime':
@@ -73,8 +76,18 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 				result.check = await usageService.canUseFeature(userId, { type: 'advanced_voice' });
 				break;
 
-			case 'all':
-				{ const [summary, current, history, convCheck, secCheck, rtCheck, ankiCheck, extCheck, voiceCheck] = await Promise.all([
+			case 'all': {
+				const [
+					summary,
+					current,
+					history,
+					convCheck,
+					secCheck,
+					rtCheck,
+					ankiCheck,
+					extCheck,
+					voiceCheck
+				] = await Promise.all([
 					usageService.getUsageSummary(userId),
 					usageService.getCurrentUsage(userId),
 					usageService.getUsageHistory(userId, 2),
@@ -97,7 +110,8 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 					sessionExtension: extCheck,
 					advancedVoice: voiceCheck
 				};
-				break; }
+				break;
+			}
 
 			default:
 				throw new Error(`Unknown action: ${action}`);
@@ -108,11 +122,14 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 		return json(result);
 	} catch (err) {
 		console.error('Usage debug error:', err);
-		return json({
-			error: 'Debug failed',
-			message: err instanceof Error ? err.message : 'Unknown error',
-			timestamp: new Date().toISOString()
-		}, { status: 500 });
+		return json(
+			{
+				error: 'Debug failed',
+				message: err instanceof Error ? err.message : 'Unknown error',
+				timestamp: new Date().toISOString()
+			},
+			{ status: 500 }
+		);
 	}
 };
 
@@ -216,7 +233,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 					overageSeconds: 300 // 5 minutes overage
 				});
 				result.success = true;
-				result.message = 'Simulated heavy usage: 15 conversations, 1 hour, 5 realtime sessions, 3 Anki exports, 2 extensions, 10min advanced voice, 12 completed sessions, 5min overage';
+				result.message =
+					'Simulated heavy usage: 15 conversations, 1 hour, 5 realtime sessions, 3 Anki exports, 2 extensions, 10min advanced voice, 12 completed sessions, 5min overage';
 				break;
 
 			case 'reset_usage':
@@ -239,10 +257,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		return json(result);
 	} catch (err) {
 		console.error('Usage debug POST error:', err);
-		return json({
-			error: 'Debug action failed',
-			message: err instanceof Error ? err.message : 'Unknown error',
-			timestamp: new Date().toISOString()
-		}, { status: 500 });
+		return json(
+			{
+				error: 'Debug action failed',
+				message: err instanceof Error ? err.message : 'Unknown error',
+				timestamp: new Date().toISOString()
+			},
+			{ status: 500 }
+		);
 	}
 };

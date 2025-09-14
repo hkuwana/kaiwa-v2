@@ -201,10 +201,10 @@ modules.register({
 
 // Turn-taking and brevity: keep responses short, conversational
 modules.register({
-    id: 'turn-taking-brevity',
-    priority: 3.2,
-    generate: ({ language }: ModuleContext) => {
-        return `## TURN-TAKING & BREVITY
+	id: 'turn-taking-brevity',
+	priority: 3.2,
+	generate: ({ language }: ModuleContext) => {
+		return `## TURN-TAKING & BREVITY
 
 ### Default Turn Length
 - 1 short sentence by default (5–12 words)
@@ -228,7 +228,7 @@ modules.register({
 ### NEVER
 - Monologue for more than two sentences
 - Chain multiple examples without pausing for their response`;
-    }
+	}
 });
 
 // TIP #3: Handle unclear audio with escalation
@@ -374,13 +374,13 @@ Professional Insiders:
 }
 
 ${
-    goal === 'Connection'
-        ? `
+	goal === 'Connection'
+		? `
 Social Insiders:
 - "Ever heard the phrase that makes people instantly warm up to you?"
 - "Want to know the secret to making local friends laugh?"
 - "There's an expression that shows you really 'get' the culture"`
-        : ''
+		: ''
 }
 
 ### Hook Delivery Rules:
@@ -730,31 +730,31 @@ Example:
 // ============================================
 
 export function generateInitialInstructions(
-    user: User,
-    language: Language,
-    preferences: Partial<UserPreferences>,
-    scenario?: Scenario,
-    sessionContext?: SessionContext,
-    speaker?: Speaker
+	user: User,
+	language: Language,
+	preferences: Partial<UserPreferences>,
+	scenario?: Scenario,
+	sessionContext?: SessionContext,
+	speaker?: Speaker
 ): string {
 	// Check if this is a first-time user by looking at successful exchanges
 	const isFirstTime = !preferences.successfulExchanges || preferences.successfulExchanges === 0;
 	const nativeGreeting = getNativeGreeting(user.nativeLanguageId || 'en');
 
-    const baseModules = [
-        'personality-adaptive',
-        'audio-handling-enhanced',
-        'language-control',
-        'turn-taking-brevity',
-        'memory-context',
-        'insider-knowledge-hooks',
-        'speaking-dynamics',
-        'conversation-flows',
-        'safety-boundaries',
-        'session-pacing',
-        'variety-phrases',
-        'anti-patterns-enhanced'
-    ];
+	const baseModules = [
+		'personality-adaptive',
+		'audio-handling-enhanced',
+		'language-control',
+		'turn-taking-brevity',
+		'memory-context',
+		'insider-knowledge-hooks',
+		'speaking-dynamics',
+		'conversation-flows',
+		'safety-boundaries',
+		'session-pacing',
+		'variety-phrases',
+		'anti-patterns-enhanced'
+	];
 
 	const context: ModuleContext = { user, language, preferences, scenario, sessionContext, speaker };
 	let instructions = modules.compose(baseModules, context);
@@ -1206,23 +1206,23 @@ export function createScenarioSessionConfig(
  * Get base instructions that apply to all scenarios
  */
 function getBaseInstructions(
-    user: User,
-    language: Language,
-    preferences: Partial<UserPreferences>,
-    speaker?: Speaker
+	user: User,
+	language: Language,
+	preferences: Partial<UserPreferences>,
+	speaker?: Speaker
 ): string {
-    const baseModules = [
-        'personality-adaptive',
-        'audio-handling-enhanced',
-        'language-control',
-        'turn-taking-brevity',
-        'memory-context',
-        'insider-knowledge-hooks',
-        'speaking-dynamics',
-        'safety-boundaries',
-        'variety-phrases',
-        'anti-patterns-enhanced'
-    ];
+	const baseModules = [
+		'personality-adaptive',
+		'audio-handling-enhanced',
+		'language-control',
+		'turn-taking-brevity',
+		'memory-context',
+		'insider-knowledge-hooks',
+		'speaking-dynamics',
+		'safety-boundaries',
+		'variety-phrases',
+		'anti-patterns-enhanced'
+	];
 
 	const context: ModuleContext = { user, language, preferences, speaker };
 	return modules.compose(baseModules, context);

@@ -8,7 +8,7 @@
 
 	type Task = { id: string; label: string; done: boolean };
 	const STORAGE_KEY = 'kaiwa_marketing_tasks_v1';
-	let userId = 'USER_ID';
+	const userId = 'USER_ID';
 	let tasks: Task[] = [
 		{ id: 'clarify-positioning', label: 'Clarify Home/About positioning', done: true },
 		{ id: 'email-seq', label: 'Send 2-email sequence (story + BTS)', done: false },
@@ -132,7 +132,7 @@
 
 	// Reddit Post Helper
 	let redditPostContent = '';
-let selectedRedditPost: keyof typeof redditTemplates = 'founder-story';
+	let selectedRedditPost: keyof typeof redditTemplates = 'founder-story';
 	const redditTemplates = {
 		'founder-story': `**Title: I built an AI partner to practice conversations in my wife's language. It's called Kaiwa.**
 
@@ -165,9 +165,9 @@ It's been a game-changer for my confidence. Has anyone else found good ways to p
 (I'll put a link to the tool in the comments if anyone's interested - self-promo disclosure!)`
 	};
 
-function updateRedditTemplate() {
-    redditPostContent = redditTemplates[selectedRedditPost];
-}
+	function updateRedditTemplate() {
+		redditPostContent = redditTemplates[selectedRedditPost];
+	}
 
 	onMount(() => {
 		generateBlogPostIdea();

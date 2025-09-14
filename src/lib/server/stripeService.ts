@@ -235,7 +235,11 @@ export class StripeService {
 	/**
 	 * Handle subscription status changes
 	 */
-	private async handleSubscriptionStatusChange(userId: string, _status: string, tierId: string | null): Promise<void> {
+	private async handleSubscriptionStatusChange(
+		userId: string,
+		_status: string,
+		tierId: string | null
+	): Promise<void> {
 		// Minimal handler: ensure tier is applied when provided
 		if (tierId) {
 			await tierService.upgradeUserTier(userId, tierId as 'plus' | 'premium');
@@ -289,7 +293,10 @@ export class StripeService {
 	/**
 	 * Get user's subscription by status
 	 */
-	async getUserSubscriptionByStatus(userId: string, _status: string): Promise<DbSubscription | null> {
+	async getUserSubscriptionByStatus(
+		userId: string,
+		_status: string
+	): Promise<DbSubscription | null> {
 		return await this.getUserSubscription(userId);
 	}
 
@@ -319,7 +326,10 @@ export class StripeService {
 		});
 
 		// Update local record
-		await db.update(subscriptions).set({ updatedAt: new Date() }).where(eq(subscriptions.id, subscription.id));
+		await db
+			.update(subscriptions)
+			.set({ updatedAt: new Date() })
+			.where(eq(subscriptions.id, subscription.id));
 
 		console.log(`✅ Subscription cancelled for user ${userId}`);
 	}
@@ -339,7 +349,10 @@ export class StripeService {
 		});
 
 		// Update local record
-		await db.update(subscriptions).set({ updatedAt: new Date() }).where(eq(subscriptions.id, subscription.id));
+		await db
+			.update(subscriptions)
+			.set({ updatedAt: new Date() })
+			.where(eq(subscriptions.id, subscription.id));
 
 		// Restore user tier
 		await tierService.upgradeUserTier(userId, subscription.currentTier as 'plus' | 'premium');
@@ -395,7 +408,10 @@ export class StripeService {
 		const userRow = await db.select().from(users).where(eq(users.id, userId)).limit(1);
 		const customerId = userRow[0]?.stripeCustomerId;
 		if (!customerId) throw new Error('User missing Stripe customer ID');
-		const session = await stripe.billingPortal.sessions.create({ customer: customerId, return_url: returnUrl });
+		const session = await stripe.billingPortal.sessions.create({
+			customer: customerId,
+			return_url: returnUrl
+		});
 
 		return session.url;
 	}

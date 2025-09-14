@@ -8,20 +8,25 @@
 
 	// Image generation state
 	let isGenerating = $state(false);
-	let generationResults = $state<Array<{
-		speaker: any;
-		imageUrl: string;
-		error?: string;
-		generating?: boolean;
-	}>>([]);
+	let generationResults = $state<
+		Array<{
+			speaker: any;
+			imageUrl: string;
+			error?: string;
+			generating?: boolean;
+		}>
+	>([]);
 
 	// Selected model
 	let selectedModel = $state<'dall-e-3' | 'gpt-image-1'>('dall-e-3');
 
 	// Generate image for a specific speaker
-	async function generateSpeakerImage(speaker: any, model: 'dall-e-3' | 'gpt-image-1' = selectedModel) {
+	async function generateSpeakerImage(
+		speaker: any,
+		model: 'dall-e-3' | 'gpt-image-1' = selectedModel
+	) {
 		const prompt = generateSpeakerPrompt(speaker);
-		
+
 		// Add to results with generating state
 		const resultIndex = generationResults.length;
 		generationResults.push({
@@ -69,13 +74,13 @@
 
 	// Generate all Japanese speakers
 	async function generateJapaneseSpeakers() {
-		const japaneseSpeakers = speakersData.filter(s => s.languageId === 'ja');
+		const japaneseSpeakers = speakersData.filter((s) => s.languageId === 'ja');
 		isGenerating = true;
 
 		for (const speaker of japaneseSpeakers) {
 			await generateSpeakerImage(speaker);
 			// Add delay between requests
-			await new Promise(resolve => setTimeout(resolve, 2000));
+			await new Promise((resolve) => setTimeout(resolve, 2000));
 		}
 
 		isGenerating = false;
@@ -90,22 +95,29 @@
 	function generateSpeakerPrompt(speaker: any): string {
 		const genderDescriptor = speaker.gender === 'male' ? 'man' : 'woman';
 		const ageRange = speaker.gender === 'male' ? 'young to middle-aged' : 'young to middle-aged';
-		
+
 		let culturalElements = '';
 		let personalityTraits = '';
-		
+
 		// Add subtle cultural context without stereotypes
 		switch (speaker.languageId) {
 			case 'ja':
-				culturalElements = 'subtle Japanese aesthetic in clothing choice, clean and thoughtful presentation';
+				culturalElements =
+					'subtle Japanese aesthetic in clothing choice, clean and thoughtful presentation';
 				personalityTraits = 'gentle, attentive, with quiet confidence';
 				break;
 			case 'es':
-				culturalElements = speaker.region === 'Spain' ? 'European Spanish style, warm Mediterranean colors' : 'Latin American warmth in expression';
+				culturalElements =
+					speaker.region === 'Spain'
+						? 'European Spanish style, warm Mediterranean colors'
+						: 'Latin American warmth in expression';
 				personalityTraits = 'expressive, warm-hearted, naturally welcoming';
 				break;
 			case 'zh':
-				culturalElements = speaker.region === 'Taiwan' ? 'modern Taiwanese casual style' : 'contemporary Chinese aesthetic';
+				culturalElements =
+					speaker.region === 'Taiwan'
+						? 'modern Taiwanese casual style'
+						: 'contemporary Chinese aesthetic';
 				personalityTraits = 'thoughtful, patient, encouraging demeanor';
 				break;
 			case 'fr':
@@ -121,7 +133,10 @@
 				personalityTraits = 'direct but kind, genuinely helpful';
 				break;
 			case 'pt':
-				culturalElements = speaker.region === 'Brazil' ? 'Brazilian warmth and vibrancy' : 'Portuguese classic style';
+				culturalElements =
+					speaker.region === 'Brazil'
+						? 'Brazilian warmth and vibrancy'
+						: 'Portuguese classic style';
 				personalityTraits = 'naturally joyful, inclusive, life-loving';
 				break;
 			case 'it':
@@ -239,8 +254,8 @@
 		<div class="mb-8">
 			<h1 class="mb-4 text-4xl font-bold">Kaiwa Animation Prompts</h1>
 			<p class="text-lg opacity-75">
-				Studio Ghibli-style prompts optimized for DALL-E, Midjourney, or Stable Diffusion.
-				Click any prompt to copy to clipboard.
+				Studio Ghibli-style prompts optimized for DALL-E, Midjourney, or Stable Diffusion. Click any
+				prompt to copy to clipboard.
 			</p>
 		</div>
 
@@ -249,22 +264,25 @@
 			<h2 class="mb-6 text-3xl font-bold text-success">🤖 Live Image Generation</h2>
 			<div class="mb-6 alert alert-info">
 				<div>
-					<p><strong>Test OpenAI Image Generation</strong> - Generate character images directly using your API credits.</p>
+					<p>
+						<strong>Test OpenAI Image Generation</strong> - Generate character images directly using
+						your API credits.
+					</p>
 				</div>
 			</div>
 
 			<!-- Model Selector -->
-			<div class="mb-6 card border border-info/20 bg-base-200 p-4">
-				<h3 class="font-bold mb-3">🤖 Model Selection</h3>
+			<div class="card mb-6 border border-info/20 bg-base-200 p-4">
+				<h3 class="mb-3 font-bold">🤖 Model Selection</h3>
 				<div class="form-control">
 					<label class="label cursor-pointer">
 						<span class="label-text">
 							<strong>DALL-E 3</strong> - Stable, widely available ($0.08 per HD image)
 						</span>
-						<input 
-							type="radio" 
-							name="model" 
-							class="radio checked:bg-blue-500" 
+						<input
+							type="radio"
+							name="model"
+							class="radio checked:bg-blue-500"
 							bind:group={selectedModel}
 							value="dall-e-3"
 						/>
@@ -273,12 +291,13 @@
 				<div class="form-control">
 					<label class="label cursor-pointer">
 						<span class="label-text">
-							<strong>GPT-Image-1</strong> - Better instruction following, may solve multiple character issue (Preview, variable cost)
+							<strong>GPT-Image-1</strong> - Better instruction following, may solve multiple character
+							issue (Preview, variable cost)
 						</span>
-						<input 
-							type="radio" 
-							name="model" 
-							class="radio checked:bg-green-500" 
+						<input
+							type="radio"
+							name="model"
+							class="radio checked:bg-green-500"
 							bind:group={selectedModel}
 							value="gpt-image-1"
 						/>
@@ -288,35 +307,31 @@
 					Current selection: <strong>{selectedModel}</strong>
 				</div>
 			</div>
-			
+
 			<div class="mb-6 flex flex-wrap gap-4">
-				<button 
-					class="btn btn-success" 
+				<button
+					class="btn btn-success"
 					disabled={isGenerating}
-					onclick={() => generateSpeakerImage(speakersData.find(s => s.id === 'ja-jp-male'))}
+					onclick={() => generateSpeakerImage(speakersData.find((s) => s.id === 'ja-jp-male'))}
 				>
 					Generate Hiro 🇯🇵 (Male)
 				</button>
-				<button 
-					class="btn btn-success" 
+				<button
+					class="btn btn-success"
 					disabled={isGenerating}
-					onclick={() => generateSpeakerImage(speakersData.find(s => s.id === 'ja-jp-female'))}
+					onclick={() => generateSpeakerImage(speakersData.find((s) => s.id === 'ja-jp-female'))}
 				>
 					Generate Yuki 🇯🇵 (Female)
 				</button>
-				<button 
-					class="btn btn-success" 
+				<button
+					class="btn btn-success"
 					class:loading={isGenerating}
 					disabled={isGenerating}
 					onclick={generateJapaneseSpeakers}
 				>
 					{isGenerating ? 'Generating...' : 'Generate All 3 Japanese Speakers'}
 				</button>
-				<button 
-					class="btn btn-outline" 
-					onclick={clearResults}
-					disabled={isGenerating}
-				>
+				<button class="btn btn-outline" onclick={clearResults} disabled={isGenerating}>
 					Clear Results
 				</button>
 			</div>
@@ -327,14 +342,17 @@
 						<div class="card border border-success/20 bg-base-200 shadow-xl">
 							<div class="card-body">
 								<h3 class="card-title text-lg">
-									{result.speaker.speakerEmoji} {result.speaker.voiceName}
+									{result.speaker.speakerEmoji}
+									{result.speaker.voiceName}
 									<div class="badge badge-sm">{result.speaker.region}</div>
 								</h3>
-								<p class="text-sm opacity-75">{result.speaker.dialectName} • {result.speaker.gender}</p>
-								
+								<p class="text-sm opacity-75">
+									{result.speaker.dialectName} • {result.speaker.gender}
+								</p>
+
 								{#if result.generating}
 									<div class="flex items-center justify-center py-8">
-										<span class="loading loading-spinner loading-lg"></span>
+										<span class="loading loading-lg loading-spinner"></span>
 									</div>
 								{:else if result.error}
 									<div class="alert alert-error">
@@ -342,21 +360,21 @@
 									</div>
 								{:else if result.imageUrl}
 									<div class="mt-4">
-										<img 
-											src={result.imageUrl} 
+										<img
+											src={result.imageUrl}
 											alt={`Generated character for ${result.speaker.voiceName}`}
 											class="w-full rounded-lg"
 											loading="lazy"
 										/>
 										<div class="mt-2 flex gap-2">
-											<button 
+											<button
 												class="btn btn-xs btn-primary"
 												onclick={() => window.open(result.imageUrl, '_blank')}
 											>
 												Open Full Size
 											</button>
-											<button 
-												class="btn btn-xs btn-outline"
+											<button
+												class="btn btn-outline btn-xs"
 												onclick={() => copyToClipboard(result.imageUrl)}
 											>
 												Copy URL
@@ -382,12 +400,12 @@
 							<p class="text-sm opacity-75">{item.description}</p>
 							<div class="mt-4">
 								<textarea
-									class="textarea textarea-bordered h-32 w-full text-sm"
+									class="textarea-bordered textarea h-32 w-full text-sm"
 									readonly
 									value={item.prompt}
 								></textarea>
 								<button
-									class="btn btn-primary btn-sm mt-2"
+									class="btn mt-2 btn-sm btn-primary"
 									onclick={() => copyToClipboard(item.prompt)}
 								>
 									Copy Prompt
@@ -410,12 +428,12 @@
 							<p class="text-sm opacity-75">{item.description}</p>
 							<div class="mt-4">
 								<textarea
-									class="textarea textarea-bordered h-32 w-full text-sm"
+									class="textarea-bordered textarea h-32 w-full text-sm"
 									readonly
 									value={item.prompt}
 								></textarea>
 								<button
-									class="btn btn-secondary btn-sm mt-2"
+									class="btn mt-2 btn-sm btn-secondary"
 									onclick={() => copyToClipboard(item.prompt)}
 								>
 									Copy Prompt
@@ -429,10 +447,15 @@
 
 		<!-- Speaker Characters -->
 		<section class="mb-12">
-			<h2 class="mb-6 text-3xl font-bold text-info">Speaker Characters ({speakersData.length} total)</h2>
+			<h2 class="mb-6 text-3xl font-bold text-info">
+				Speaker Characters ({speakersData.length} total)
+			</h2>
 			<div class="mb-4 alert alert-info">
 				<div>
-					<p><strong>Auto-generated prompts</strong> for each speaker in your database. Each prompt includes their name, cultural context, and personality traits while avoiding stereotypes.</p>
+					<p>
+						<strong>Auto-generated prompts</strong> for each speaker in your database. Each prompt includes
+						their name, cultural context, and personality traits while avoiding stereotypes.
+					</p>
 				</div>
 			</div>
 			<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -440,18 +463,19 @@
 					<div class="card border border-info/20 bg-base-200 shadow-xl">
 						<div class="card-body p-4">
 							<h3 class="card-title text-base">
-								{speaker.speakerEmoji} {speaker.voiceName}
+								{speaker.speakerEmoji}
+								{speaker.voiceName}
 								<div class="badge badge-sm">{speaker.region}</div>
 							</h3>
 							<p class="text-xs opacity-75">{speaker.dialectName} • {speaker.gender}</p>
 							<div class="mt-3">
 								<textarea
-									class="textarea textarea-bordered h-24 w-full text-xs"
+									class="textarea-bordered textarea h-24 w-full text-xs"
 									readonly
 									value={generateSpeakerPrompt(speaker)}
 								></textarea>
 								<button
-									class="btn btn-info btn-xs mt-2"
+									class="btn mt-2 btn-xs btn-info"
 									onclick={() => copyToClipboard(generateSpeakerPrompt(speaker))}
 								>
 									Copy Prompt
@@ -474,12 +498,12 @@
 							<p class="text-sm opacity-75">{item.description}</p>
 							<div class="mt-4">
 								<textarea
-									class="textarea textarea-bordered h-32 w-full text-sm"
+									class="textarea-bordered textarea h-32 w-full text-sm"
 									readonly
 									value={item.prompt}
 								></textarea>
 								<button
-									class="btn btn-accent btn-sm mt-2"
+									class="btn mt-2 btn-sm btn-accent"
 									onclick={() => copyToClipboard(item.prompt)}
 								>
 									Copy Prompt
@@ -498,7 +522,7 @@
 				<div class="card border border-warning/20 bg-base-200 shadow-xl">
 					<div class="card-body">
 						<h3 class="card-title text-lg">🤖 OpenAI DALL-E API</h3>
-						<p class="text-sm opacity-75 mb-4">Most reliable for Ghibli-style consistency</p>
+						<p class="mb-4 text-sm opacity-75">Most reliable for Ghibli-style consistency</p>
 						<div class="space-y-2 text-sm">
 							<p><strong>Endpoint:</strong> https://api.openai.com/v1/images/generations</p>
 							<p><strong>Model:</strong> dall-e-3</p>
@@ -507,7 +531,10 @@
 							<p><strong>Batch Size:</strong> 1 image per request</p>
 						</div>
 						<div class="mt-4">
-							<button class="btn btn-warning btn-sm" onclick={() => copyToClipboard(`
+							<button
+								class="btn btn-sm btn-warning"
+								onclick={() =>
+									copyToClipboard(`
 // OpenAI DALL-E API automation example
 async function generateSpeakerImages() {
   const speakers = speakersData;
@@ -540,7 +567,8 @@ async function generateSpeakerImages() {
     // Add delay to respect rate limits
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
-}`)}>
+}`)}
+							>
 								Copy API Code
 							</button>
 						</div>
@@ -550,7 +578,7 @@ async function generateSpeakerImages() {
 				<div class="card border border-warning/20 bg-base-200 shadow-xl">
 					<div class="card-body">
 						<h3 class="card-title text-lg">🎨 Stable Diffusion Local</h3>
-						<p class="text-sm opacity-75 mb-4">Free but requires local setup</p>
+						<p class="mb-4 text-sm opacity-75">Free but requires local setup</p>
 						<div class="space-y-2 text-sm">
 							<p><strong>Setup:</strong> Automatic1111 WebUI or ComfyUI</p>
 							<p><strong>Model:</strong> Dreamshaper XL or similar anime model</p>
@@ -559,7 +587,10 @@ async function generateSpeakerImages() {
 							<p><strong>Speed:</strong> ~30-60 seconds per image</p>
 						</div>
 						<div class="mt-4">
-							<button class="btn btn-warning btn-sm" onclick={() => copyToClipboard(`
+							<button
+								class="btn btn-sm btn-warning"
+								onclick={() =>
+									copyToClipboard(`
 # Stable Diffusion automation script (Python)
 import requests
 import json
@@ -594,7 +625,8 @@ def generate_speaker_images():
             print(f"Generated image for {speaker['voiceName']}")
         
         time.sleep(2)  # Avoid overloading
-`)}>
+`)}
+							>
 								Copy Python Script
 							</button>
 						</div>
@@ -604,10 +636,14 @@ def generate_speaker_images():
 				<div class="card border border-warning/20 bg-base-200 shadow-xl">
 					<div class="card-body">
 						<h3 class="card-title text-lg">⚡ Batch Processing Tips</h3>
-						<ul class="mt-2 list-disc pl-5 space-y-1 text-sm">
-							<li><strong>Start Small:</strong> Generate 5-10 characters first to test consistency</li>
+						<ul class="mt-2 list-disc space-y-1 pl-5 text-sm">
+							<li>
+								<strong>Start Small:</strong> Generate 5-10 characters first to test consistency
+							</li>
 							<li><strong>Use Seeds:</strong> For character consistency across variations</li>
-							<li><strong>Naming Convention:</strong> speaker-[speaker-id].png or character-[speaker-name].png</li>
+							<li>
+								<strong>Naming Convention:</strong> speaker-[speaker-id].png or character-[speaker-name].png
+							</li>
 							<li><strong>Quality Check:</strong> Review each image for cultural sensitivity</li>
 							<li><strong>Backup Originals:</strong> Keep high-res versions before resizing</li>
 						</ul>
@@ -625,13 +661,17 @@ def generate_speaker_images():
 							<p><strong>5.</strong> Update database with image paths</p>
 						</div>
 						<div class="mt-4">
-							<button class="btn btn-warning btn-sm" onclick={() => copyToClipboard(`# Image optimization script (after generation)
+							<button
+								class="btn btn-sm btn-warning"
+								onclick={() =>
+									copyToClipboard(`# Image optimization script (after generation)
 # Resize and optimize all generated images
 mogrify -resize 400x400^ -gravity center -extent 400x400 -quality 85 speaker-*.png
 # Convert to WebP for smaller file sizes
 for file in speaker-*.png; do
   cwebp -q 85 "$file" -o "\${file%.png}.webp"
-done`)}>
+done`)}
+							>
 								Copy Optimization Script
 							</button>
 						</div>
@@ -645,13 +685,21 @@ done`)}>
 			<div class="alert alert-success">
 				<div>
 					<h3 class="font-bold">Generation Tips & Best Practices:</h3>
-					<ul class="mt-2 list-disc pl-5 space-y-1">
-						<li><strong>DALL-E 3:</strong> Most consistent for Ghibli style, works with prompts as-is</li>
+					<ul class="mt-2 list-disc space-y-1 pl-5">
+						<li>
+							<strong>DALL-E 3:</strong> Most consistent for Ghibli style, works with prompts as-is
+						</li>
 						<li><strong>Midjourney:</strong> Add "--ar 1:1 --style raw" for character sheets</li>
 						<li><strong>Stable Diffusion:</strong> Use anime/manga models like Dreamshaper XL</li>
-						<li><strong>Consistency:</strong> Use the same seed/style reference across characters</li>
-						<li><strong>Cultural Sensitivity:</strong> Always review generated images for respectful representation</li>
-						<li><strong>Backup Strategy:</strong> Keep original high-res versions before any processing</li>
+						<li>
+							<strong>Consistency:</strong> Use the same seed/style reference across characters
+						</li>
+						<li>
+							<strong>Cultural Sensitivity:</strong> Always review generated images for respectful representation
+						</li>
+						<li>
+							<strong>Backup Strategy:</strong> Keep original high-res versions before any processing
+						</li>
 					</ul>
 				</div>
 			</div>

@@ -3,10 +3,7 @@
 
 import Stripe from 'stripe';
 import { env } from '$env/dynamic/private';
-import { paymentRepository, userRepository } from '../repositories';
-import { db } from '../db';
-import { subscriptions } from '../db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { paymentRepository, userRepository, subscriptionRepository } from '../repositories';
 import type { Subscription as DbSubscription } from '../db/types';
 // Note: Using simplified payment.service.ts instead of subscription repository
 import { getAllStripePriceIds, getStripePriceId } from '../tiers';
@@ -310,12 +307,7 @@ export class StripeService {
 			// Check if subscription already exists
 			console.log('🎣 [CHECKOUT SUCCESS] Checking for existing subscription...');
 			// Check for existing record in minimal subscriptions table
-			const existingRows = await db
-				.select()
-				.from(subscriptions)
-				.where(eq(subscriptions.stripeSubscriptionId, subscriptionId))
-				.limit(1);
-			const existingSubscription = existingRows[0];
+			const existingSubscription = await subscriptionRepository.findSubscriptionByStripeId(subscriptionId);
 
 			if (existingSubscription) {
 				console.log(
@@ -327,41 +319,32 @@ export class StripeService {
 				console.log('  - Is active:', existingSubscription.isActive);
 
 				// Update existing subscription
-				await db
-					.update(subscriptions)
-					.set({
-						stripePriceId: subscriptionData.priceId,
-						currentTier: tierId || existingSubscription.currentTier,
-						updatedAt: new SvelteDate()
-					})
-					.where(eq(subscriptions.id, existingSubscription.id));
+				await subscriptionRepository.updateSubscription(existingSubscription.id, {
+					stripePriceId: subscriptionData.priceId,
+					currentTier: tierId || existingSubscription.currentTier,
+					updatedAt: new SvelteDate()
+				});
 
-				console.log('🎣 [CHECKOUT SUCCESS] ✅ Updated existing subscription:', existingSubscription.id);
+				console.log(
+					'🎣 [CHECKOUT SUCCESS] ✅ Updated existing subscription:',
+					existingSubscription.id
+				);
 			} else {
 				// Create subscription record using repository
 				console.log('🎣 [CHECKOUT SUCCESS] Creating new subscription record...');
-				const inserted = await db
-					.insert(subscriptions)
-					.values({
-						userId,
-						stripeSubscriptionId: subscriptionId,
-						stripePriceId: subscriptionData.priceId,
-						currentTier: tierId || 'free'
-					})
-					.returning({ id: subscriptions.id });
+				const inserted = await subscriptionRepository.createSubscription({
+					userId,
+					stripeSubscriptionId: subscriptionId,
+					stripePriceId: subscriptionData.priceId,
+					currentTier: tierId || 'free'
+				});
 
-				console.log('🎣 [CHECKOUT SUCCESS] ✅ Created new subscription:', inserted[0]?.id);
+				console.log('🎣 [CHECKOUT SUCCESS] ✅ Created new subscription:', inserted.id);
 			}
 
 			// Verify the subscription was created/updated properly
 			console.log('🎣 [CHECKOUT SUCCESS] Verifying subscription in database...');
-			const finalRows = await db
-				.select()
-				.from(subscriptions)
-				.where(eq(subscriptions.userId, userId))
-				.orderBy(desc(subscriptions.updatedAt))
-				.limit(1);
-			const finalSubscription = finalRows[0];
+			const finalSubscription = await subscriptionRepository.findSubscriptionByUserId(userId);
 
 			if (finalSubscription) {
 				console.log('🎣 [CHECKOUT SUCCESS] ✅ Final verification successful:');
@@ -558,19 +541,16 @@ export class StripeService {
 	 * Get user's active subscription
 	 */
 	async getUserSubscription(userId: string): Promise<DbSubscription | null> {
-		const rows = await db
-			.select()
-			.from(subscriptions)
-			.where(eq(subscriptions.userId, userId))
-			.orderBy(desc(subscriptions.updatedAt))
-			.limit(1);
-		return rows[0] || null;
+		return await subscriptionRepository.findSubscriptionByUserId(userId);
 	}
 
 	/**
 	 * Get user's subscription by status
 	 */
-	async getUserSubscriptionByStatus(userId: string, _status: string): Promise<DbSubscription | null> {
+	async getUserSubscriptionByStatus(
+		userId: string,
+		_status: string
+	): Promise<DbSubscription | null> {
 		// Minimal schema does not track status; return latest if any
 		return await this.getUserSubscription(userId);
 	}
@@ -579,7 +559,7 @@ export class StripeService {
 	 * Get all user subscriptions
 	 */
 	async getAllUserSubscriptions(userId: string): Promise<DbSubscription[]> {
-		return await db.select().from(subscriptions).where(eq(subscriptions.userId, userId));
+		return await subscriptionRepository.getAllUserSubscriptions(userId);
 	}
 
 	/**
@@ -598,7 +578,7 @@ export class StripeService {
 
 		// Update local record using repository
 		// Minimal schema: no status/cancel flags to persist; update timestamp
-		await db.update(subscriptions).set({ updatedAt: new SvelteDate() }).where(eq(subscriptions.id, subscription.id));
+		await subscriptionRepository.updateSubscription(subscription.id, { updatedAt: new SvelteDate() });
 
 		console.log(`✅ Subscription cancelled for user ${userId}`);
 	}
@@ -619,7 +599,7 @@ export class StripeService {
 
 		// Update local record using repository
 		// Minimal schema: no status/cancel flags to persist; update timestamp
-		await db.update(subscriptions).set({ updatedAt: new SvelteDate() }).where(eq(subscriptions.id, subscription.id));
+		await subscriptionRepository.updateSubscription(subscription.id, { updatedAt: new SvelteDate() });
 
 		// Restore user tier
 		console.log(

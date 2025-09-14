@@ -295,9 +295,9 @@ export interface ConversationObject {
 
 // === Full Session Object ===
 export type FullSessionObject = SessionConfig & {
-    id: string;
-    object: 'realtime.session';
-    expires_at?: number;
+	id: string;
+	object: 'realtime.session';
+	expires_at?: number;
 };
 
 // === Server Events ===

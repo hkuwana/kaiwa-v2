@@ -11,9 +11,9 @@
 	let debugCollapsed = $state(false);
 
 	// Raw data for debugging
-	let messages = $derived(conversationStore.messages);
-	let realtimeMessages = $derived(realtimeOpenAI.messages);
-	let events = $derived(realtimeOpenAI.events);
+	const messages = $derived(conversationStore.messages);
+	const realtimeMessages = $derived(realtimeOpenAI.messages);
+	const events = $derived(realtimeOpenAI.events);
 
 	// Mock language for testing
 	const testLanguage: Language = languages[0];
@@ -38,14 +38,14 @@
 
 	onMount(() => {
 		console.log('Debug page mounted');
-		
+
 		// Listen for clear events from the debug panel
 		const handleClearEvents = () => {
 			clearDebugData();
 		};
-		
+
 		document.addEventListener('clearEvents', handleClearEvents);
-		
+
 		return () => {
 			document.removeEventListener('clearEvents', handleClearEvents);
 		};
@@ -75,33 +75,36 @@
 	</div>
 
 	<!-- Status Card -->
-	<div class="bg-gray-50 p-6 rounded-lg">
-		<h2 class="text-lg font-semibold mb-4">Session Status</h2>
+	<div class="rounded-lg bg-gray-50 p-6">
+		<h2 class="mb-4 text-lg font-semibold">Session Status</h2>
 		<div class="grid grid-cols-4 gap-4">
-			<div class="bg-blue-50 p-4 rounded">
+			<div class="rounded bg-blue-50 p-4">
 				<h3 class="font-semibold text-blue-900">Connection</h3>
 				<p class="text-sm text-blue-700">{conversationStore.status}</p>
 			</div>
-			<div class="bg-green-50 p-4 rounded">
+			<div class="rounded bg-green-50 p-4">
 				<h3 class="font-semibold text-green-900">Store Messages</h3>
 				<p class="text-sm text-green-700">{messages.length}</p>
 			</div>
-			<div class="bg-purple-50 p-4 rounded">
+			<div class="rounded bg-purple-50 p-4">
 				<h3 class="font-semibold text-purple-900">Realtime Messages</h3>
 				<p class="text-sm text-purple-700">{realtimeMessages.length}</p>
 			</div>
-			<div class="bg-orange-50 p-4 rounded">
+			<div class="rounded bg-orange-50 p-4">
 				<h3 class="font-semibold text-orange-900">Events</h3>
 				<p class="text-sm text-orange-700">{events.length}</p>
 			</div>
 		</div>
 	</div>
 
-	<div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-		<h3 class="font-semibold text-blue-900 mb-2">💡 Usage Tips</h3>
-		<ul class="text-sm text-blue-800 space-y-1">
+	<div class="rounded-lg border border-blue-200 bg-blue-50 p-4">
+		<h3 class="mb-2 font-semibold text-blue-900">💡 Usage Tips</h3>
+		<ul class="space-y-1 text-sm text-blue-800">
 			<li>• Start a debug session and speak to see realtime message processing</li>
-			<li>• Look for messages highlighted in <span class="bg-red-200 px-1 rounded">red borders</span> - these are duplicates</li>
+			<li>
+				• Look for messages highlighted in <span class="rounded bg-red-200 px-1">red borders</span> -
+				these are duplicates
+			</li>
 			<li>• The debug panel below can be collapsed/expanded and embedded in other pages</li>
 			<li>• Check sequence IDs and timestamps to understand message ordering</li>
 		</ul>
@@ -109,10 +112,10 @@
 </section>
 
 <!-- Debug Panel Component -->
-<RealtimeDebugPanel 
-	{messages} 
-	{realtimeMessages} 
-	{events} 
+<RealtimeDebugPanel
+	{messages}
+	{realtimeMessages}
+	{events}
 	connectionStatus={conversationStore.status}
 	isCollapsed={debugCollapsed}
 	onToggleCollapse={toggleDebugPanel}

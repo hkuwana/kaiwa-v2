@@ -27,10 +27,10 @@
 		main: 'Connect with your family in the language of their heart.',
 
 		// Anxiety-free positioning
-		variant1: 'Practice Japanese without fear. Connect with confidence.',
+		variant1: 'Practice Languages without fear. Connect with confidence.',
 
 		// Specific emotional scenario variant
-		variant2: "Talk to your Japanese grandmother. We'll help you find the words.",
+		variant2: "Talk to your grandmother in her language. We'll help you find the words.",
 		variant3: 'Gentle conversations. Meaningful connections.',
 		variant4: 'A safe space to practice. A bridge to your loved ones.'
 	};

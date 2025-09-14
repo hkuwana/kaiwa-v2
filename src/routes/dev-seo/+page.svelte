@@ -6,22 +6,82 @@
 	// SEO Target Keywords Strategy
 	const targetKeywords = {
 		primary: [
-			{ keyword: 'authentic conversation practice in Japanese', volume: 1200, difficulty: 65, competitors: ['Rocket Japanese', 'Langua', 'iTalki', 'Pimsleur'] },
-			{ keyword: 'build confidence in Japanese', volume: 800, difficulty: 60, competitors: ['Pimsleur', 'Falou', 'HelloTalk'] },
-			{ keyword: 'Japanese conversation practice AI', volume: 2400, difficulty: 70, competitors: ['TalkPal', 'Langua', 'Falou'] },
-			{ keyword: 'natural Japanese speaking practice', volume: 900, difficulty: 55, competitors: ['iTalki', 'Preply', 'HelloTalk'] }
+			{
+				keyword: 'authentic conversation practice in Japanese',
+				volume: 1200,
+				difficulty: 65,
+				competitors: ['Rocket Japanese', 'Langua', 'iTalki', 'Pimsleur']
+			},
+			{
+				keyword: 'build confidence in Japanese',
+				volume: 800,
+				difficulty: 60,
+				competitors: ['Pimsleur', 'Falou', 'HelloTalk']
+			},
+			{
+				keyword: 'Japanese conversation practice AI',
+				volume: 2400,
+				difficulty: 70,
+				competitors: ['TalkPal', 'Langua', 'Falou']
+			},
+			{
+				keyword: 'natural Japanese speaking practice',
+				volume: 900,
+				difficulty: 55,
+				competitors: ['iTalki', 'Preply', 'HelloTalk']
+			}
 		],
 		secondary: [
-			{ keyword: 'Japanese conversation practice app', volume: 3200, difficulty: 75, competitors: ['Duolingo', 'Busuu', 'Babbel'] },
-			{ keyword: 'practice Japanese speaking online', volume: 1800, difficulty: 65, competitors: ['FluentU', 'JapanesePod101', 'Rocket Japanese'] },
-			{ keyword: 'AI Japanese tutor conversation', volume: 1100, difficulty: 60, competitors: ['Andy English Bot', 'Speechling'] },
-			{ keyword: 'Japanese speaking confidence', volume: 600, difficulty: 50, competitors: ['Pimsleur', 'Rosetta Stone'] }
+			{
+				keyword: 'Japanese conversation practice app',
+				volume: 3200,
+				difficulty: 75,
+				competitors: ['Duolingo', 'Busuu', 'Babbel']
+			},
+			{
+				keyword: 'practice Japanese speaking online',
+				volume: 1800,
+				difficulty: 65,
+				competitors: ['FluentU', 'JapanesePod101', 'Rocket Japanese']
+			},
+			{
+				keyword: 'AI Japanese tutor conversation',
+				volume: 1100,
+				difficulty: 60,
+				competitors: ['Andy English Bot', 'Speechling']
+			},
+			{
+				keyword: 'Japanese speaking confidence',
+				volume: 600,
+				difficulty: 50,
+				competitors: ['Pimsleur', 'Rosetta Stone']
+			}
 		],
 		longTail: [
-			{ keyword: 'practice Japanese conversation with AI for free', volume: 400, difficulty: 35, competitors: ['HelloTalk', 'Tandem'] },
-			{ keyword: 'build confidence speaking Japanese online', volume: 320, difficulty: 40, competitors: ['iTalki', 'Preply'] },
-			{ keyword: 'authentic Japanese conversation practice app', volume: 280, difficulty: 45, competitors: ['Langua', 'Falou'] },
-			{ keyword: 'natural Japanese dialogue practice', volume: 190, difficulty: 30, competitors: ['JapanesePod101'] }
+			{
+				keyword: 'practice Japanese conversation with AI for free',
+				volume: 400,
+				difficulty: 35,
+				competitors: ['HelloTalk', 'Tandem']
+			},
+			{
+				keyword: 'build confidence speaking Japanese online',
+				volume: 320,
+				difficulty: 40,
+				competitors: ['iTalki', 'Preply']
+			},
+			{
+				keyword: 'authentic Japanese conversation practice app',
+				volume: 280,
+				difficulty: 45,
+				competitors: ['Langua', 'Falou']
+			},
+			{
+				keyword: 'natural Japanese dialogue practice',
+				volume: 190,
+				difficulty: 30,
+				competitors: ['JapanesePod101']
+			}
 		]
 	};
 
@@ -31,25 +91,41 @@
 			topic: 'Family Conversation Scenarios',
 			opportunity: 'High',
 			reason: 'Emotional connection angle missing from competitors',
-			keywords: ['speak to Japanese grandmother', 'family conversations in Japanese', 'connect with Japanese family']
+			keywords: [
+				'speak to Japanese grandmother',
+				'family conversations in Japanese',
+				'connect with Japanese family'
+			]
 		},
 		{
 			topic: 'Professional Japanese Confidence',
 			opportunity: 'Medium',
 			reason: 'Business conversation practice underserved',
-			keywords: ['Japanese business conversations', 'professional Japanese speaking', 'workplace Japanese confidence']
+			keywords: [
+				'Japanese business conversations',
+				'professional Japanese speaking',
+				'workplace Japanese confidence'
+			]
 		},
 		{
 			topic: 'Anxiety-Free Learning',
 			opportunity: 'High',
 			reason: 'Few apps address speaking anxiety specifically',
-			keywords: ['overcome Japanese speaking anxiety', 'safe Japanese practice', 'judgment-free Japanese learning']
+			keywords: [
+				'overcome Japanese speaking anxiety',
+				'safe Japanese practice',
+				'judgment-free Japanese learning'
+			]
 		},
 		{
 			topic: 'Real-Time Feedback',
 			opportunity: 'Medium',
 			reason: 'AI feedback quality varies widely',
-			keywords: ['instant Japanese correction', 'real-time Japanese feedback', 'AI Japanese pronunciation help']
+			keywords: [
+				'instant Japanese correction',
+				'real-time Japanese feedback',
+				'AI Japanese pronunciation help'
+			]
 		}
 	];
 
@@ -134,7 +210,7 @@
 
 		// Measure page load time
 		const startTime = performance.now();
-		await new Promise(resolve => setTimeout(resolve, 100));
+		await new Promise((resolve) => setTimeout(resolve, 100));
 		loadTime = Math.round(performance.now() - startTime);
 
 		// Analyze current page SEO
@@ -174,7 +250,7 @@
 
 		// Check for alt tags on images
 		const images = document.querySelectorAll('img');
-		const imagesWithoutAlt = Array.from(images).filter(img => !img.alt);
+		const imagesWithoutAlt = Array.from(images).filter((img) => !img.alt);
 		if (imagesWithoutAlt.length > 0) {
 			issues.push(`${imagesWithoutAlt.length} images missing alt text`);
 		}
@@ -223,10 +299,14 @@
 
 	function getOpportunityColor(opportunity: string) {
 		switch (opportunity) {
-			case 'High': return 'text-green-600 bg-green-50';
-			case 'Medium': return 'text-yellow-600 bg-yellow-50';
-			case 'Low': return 'text-red-600 bg-red-50';
-			default: return 'text-gray-600 bg-gray-50';
+			case 'High':
+				return 'text-green-600 bg-green-50';
+			case 'Medium':
+				return 'text-yellow-600 bg-yellow-50';
+			case 'Low':
+				return 'text-red-600 bg-red-50';
+			default:
+				return 'text-gray-600 bg-gray-50';
 		}
 	}
 </script>
@@ -245,25 +325,41 @@
 		<div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 			<div class="rounded-lg bg-white p-4 shadow">
 				<div class="text-sm font-medium text-gray-500">Current SEO Score</div>
-				<div class="mt-1 text-3xl font-semibold {seoScore >= 80 ? 'text-green-600' : seoScore >= 60 ? 'text-yellow-600' : 'text-red-600'}">
+				<div
+					class="mt-1 text-3xl font-semibold {seoScore >= 80
+						? 'text-green-600'
+						: seoScore >= 60
+							? 'text-yellow-600'
+							: 'text-red-600'}"
+				>
 					{seoScore}/100
 				</div>
 			</div>
 			<div class="rounded-lg bg-white p-4 shadow">
 				<div class="text-sm font-medium text-gray-500">Page Load Time</div>
-				<div class="mt-1 text-3xl font-semibold {loadTime < 2000 ? 'text-green-600' : 'text-yellow-600'}">
+				<div
+					class="mt-1 text-3xl font-semibold {loadTime < 2000
+						? 'text-green-600'
+						: 'text-yellow-600'}"
+				>
 					{loadTime}ms
 				</div>
 			</div>
 			<div class="rounded-lg bg-white p-4 shadow">
 				<div class="text-sm font-medium text-gray-500">Target Keywords</div>
 				<div class="mt-1 text-3xl font-semibold text-blue-600">
-					{targetKeywords.primary.length + targetKeywords.secondary.length + targetKeywords.longTail.length}
+					{targetKeywords.primary.length +
+						targetKeywords.secondary.length +
+						targetKeywords.longTail.length}
 				</div>
 			</div>
 			<div class="rounded-lg bg-white p-4 shadow">
 				<div class="text-sm font-medium text-gray-500">SEO Issues</div>
-				<div class="mt-1 text-3xl font-semibold {seoIssues.length === 0 ? 'text-green-600' : 'text-red-600'}">
+				<div
+					class="mt-1 text-3xl font-semibold {seoIssues.length === 0
+						? 'text-green-600'
+						: 'text-red-600'}"
+				>
 					{seoIssues.length}
 				</div>
 			</div>
@@ -271,22 +367,33 @@
 
 		<!-- Current Page Analysis -->
 		<div class="mb-8 rounded-lg bg-white p-6 shadow">
-			<h2 class="text-2xl font-bold text-gray-900 mb-4">📊 Current Page SEO Analysis</h2>
+			<h2 class="mb-4 text-2xl font-bold text-gray-900">📊 Current Page SEO Analysis</h2>
 
-			<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+			<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
 				<div>
-					<h3 class="text-lg font-semibold text-gray-800 mb-3">Page Details</h3>
+					<h3 class="mb-3 text-lg font-semibold text-gray-800">Page Details</h3>
 					<div class="space-y-2 text-sm">
-						<div><strong>Title:</strong> {currentPageSEO.title} <span class="text-gray-500">({currentPageSEO.titleLength} chars)</span></div>
-						<div><strong>Meta Description:</strong> {currentPageSEO.metaDescription} <span class="text-gray-500">({currentPageSEO.metaDescLength} chars)</span></div>
+						<div>
+							<strong>Title:</strong>
+							{currentPageSEO.title}
+							<span class="text-gray-500">({currentPageSEO.titleLength} chars)</span>
+						</div>
+						<div>
+							<strong>Meta Description:</strong>
+							{currentPageSEO.metaDescription}
+							<span class="text-gray-500">({currentPageSEO.metaDescLength} chars)</span>
+						</div>
 						<div><strong>H1 Tags:</strong> {currentPageSEO.h1Count}</div>
-						<div><strong>Images:</strong> {currentPageSEO.imagesWithAlt}/{currentPageSEO.imageCount} with alt text</div>
+						<div>
+							<strong>Images:</strong>
+							{currentPageSEO.imagesWithAlt}/{currentPageSEO.imageCount} with alt text
+						</div>
 						<div><strong>Canonical:</strong> {currentPageSEO.hasCanonical ? '✅' : '❌'}</div>
 					</div>
 				</div>
 
 				<div>
-					<h3 class="text-lg font-semibold text-gray-800 mb-3">Issues to Fix</h3>
+					<h3 class="mb-3 text-lg font-semibold text-gray-800">Issues to Fix</h3>
 					{#if seoIssues.length === 0}
 						<p class="text-green-600">🎉 No major SEO issues detected!</p>
 					{:else}
@@ -302,12 +409,12 @@
 
 		<!-- Target Keywords Strategy -->
 		<div class="mb-8 rounded-lg bg-white p-6 shadow">
-			<h2 class="text-2xl font-bold text-gray-900 mb-4">🎯 Target Keywords Strategy</h2>
+			<h2 class="mb-4 text-2xl font-bold text-gray-900">🎯 Target Keywords Strategy</h2>
 
 			<div class="space-y-6">
 				<!-- Primary Keywords -->
 				<div>
-					<h3 class="text-lg font-semibold text-gray-800 mb-3">Primary Keywords (High Priority)</h3>
+					<h3 class="mb-3 text-lg font-semibold text-gray-800">Primary Keywords (High Priority)</h3>
 					<div class="overflow-x-auto">
 						<table class="w-full text-sm">
 							<thead>
@@ -323,8 +430,12 @@
 									<tr class="border-t">
 										<td class="px-4 py-2 font-medium">{keyword.keyword}</td>
 										<td class="px-4 py-2 text-center">{keyword.volume.toLocaleString()}</td>
-										<td class="px-4 py-2 text-center {getKeywordDifficultyColor(keyword.difficulty)}">{keyword.difficulty}/100</td>
-										<td class="px-4 py-2 text-xs text-gray-600">{keyword.competitors.join(', ')}</td>
+										<td
+											class="px-4 py-2 text-center {getKeywordDifficultyColor(keyword.difficulty)}"
+											>{keyword.difficulty}/100</td
+										>
+										<td class="px-4 py-2 text-xs text-gray-600">{keyword.competitors.join(', ')}</td
+										>
 									</tr>
 								{/each}
 							</tbody>
@@ -334,13 +445,18 @@
 
 				<!-- Secondary Keywords -->
 				<div>
-					<h3 class="text-lg font-semibold text-gray-800 mb-3">Secondary Keywords (Medium Priority)</h3>
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<h3 class="mb-3 text-lg font-semibold text-gray-800">
+						Secondary Keywords (Medium Priority)
+					</h3>
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 						{#each targetKeywords.secondary as keyword}
-							<div class="border rounded p-3">
+							<div class="rounded border p-3">
 								<div class="font-medium">{keyword.keyword}</div>
-								<div class="text-sm text-gray-600 mt-1">
-									Volume: {keyword.volume} • Difficulty: <span class="{getKeywordDifficultyColor(keyword.difficulty)}">{keyword.difficulty}/100</span>
+								<div class="mt-1 text-sm text-gray-600">
+									Volume: {keyword.volume} • Difficulty:
+									<span class={getKeywordDifficultyColor(keyword.difficulty)}
+										>{keyword.difficulty}/100</span
+									>
 								</div>
 							</div>
 						{/each}
@@ -349,13 +465,14 @@
 
 				<!-- Long-tail Keywords -->
 				<div>
-					<h3 class="text-lg font-semibold text-gray-800 mb-3">Long-tail Keywords (Quick Wins)</h3>
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+					<h3 class="mb-3 text-lg font-semibold text-gray-800">Long-tail Keywords (Quick Wins)</h3>
+					<div class="grid grid-cols-1 gap-3 md:grid-cols-2">
 						{#each targetKeywords.longTail as keyword}
-							<div class="border rounded p-3 bg-green-50">
-								<div class="font-medium text-sm">{keyword.keyword}</div>
-								<div class="text-xs text-gray-600 mt-1">
-									Volume: {keyword.volume} • Difficulty: <span class="text-green-600">{keyword.difficulty}/100</span>
+							<div class="rounded border bg-green-50 p-3">
+								<div class="text-sm font-medium">{keyword.keyword}</div>
+								<div class="mt-1 text-xs text-gray-600">
+									Volume: {keyword.volume} • Difficulty:
+									<span class="text-green-600">{keyword.difficulty}/100</span>
 								</div>
 							</div>
 						{/each}
@@ -366,19 +483,22 @@
 
 		<!-- Content Gap Analysis -->
 		<div class="mb-8 rounded-lg bg-white p-6 shadow">
-			<h2 class="text-2xl font-bold text-gray-900 mb-4">🔍 Content Gap Analysis</h2>
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+			<h2 class="mb-4 text-2xl font-bold text-gray-900">🔍 Content Gap Analysis</h2>
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 				{#each contentGaps as gap}
-					<div class="border rounded-lg p-4">
-						<div class="flex items-center justify-between mb-2">
+					<div class="rounded-lg border p-4">
+						<div class="mb-2 flex items-center justify-between">
 							<h3 class="font-semibold text-gray-800">{gap.topic}</h3>
-							<span class="px-2 py-1 rounded text-xs font-medium {getOpportunityColor(gap.opportunity)}">
+							<span
+								class="rounded px-2 py-1 text-xs font-medium {getOpportunityColor(gap.opportunity)}"
+							>
 								{gap.opportunity} Opportunity
 							</span>
 						</div>
-						<p class="text-sm text-gray-600 mb-3">{gap.reason}</p>
+						<p class="mb-3 text-sm text-gray-600">{gap.reason}</p>
 						<div class="text-xs text-gray-500">
-							<strong>Target keywords:</strong> {gap.keywords.join(', ')}
+							<strong>Target keywords:</strong>
+							{gap.keywords.join(', ')}
 						</div>
 					</div>
 				{/each}
@@ -387,7 +507,7 @@
 
 		<!-- Competitor Analysis -->
 		<div class="mb-8 rounded-lg bg-white p-6 shadow">
-			<h2 class="text-2xl font-bold text-gray-900 mb-4">⚔️ Competitor Analysis</h2>
+			<h2 class="mb-4 text-2xl font-bold text-gray-900">⚔️ Competitor Analysis</h2>
 			<div class="overflow-x-auto">
 				<table class="w-full text-sm">
 					<thead>
@@ -403,7 +523,13 @@
 						{#each competitorAnalysis as competitor}
 							<tr class="border-t">
 								<td class="px-4 py-2 font-medium">{competitor.name}</td>
-								<td class="px-4 py-2 text-center {competitor.SEOScore >= 80 ? 'text-red-600' : competitor.SEOScore >= 60 ? 'text-yellow-600' : 'text-green-600'}">
+								<td
+									class="px-4 py-2 text-center {competitor.SEOScore >= 80
+										? 'text-red-600'
+										: competitor.SEOScore >= 60
+											? 'text-yellow-600'
+											: 'text-green-600'}"
+								>
 									{competitor.SEOScore}/100
 								</td>
 								<td class="px-4 py-2 text-center font-medium">{competitor.monthlyTraffic}</td>
@@ -418,7 +544,7 @@
 
 		<!-- SEO Strategy Roadmap -->
 		<div class="mb-8 rounded-lg bg-white p-6 shadow">
-			<h2 class="text-2xl font-bold text-gray-900 mb-4">🗺️ SEO Strategy Roadmap</h2>
+			<h2 class="mb-4 text-2xl font-bold text-gray-900">🗺️ SEO Strategy Roadmap</h2>
 
 			<div class="space-y-6">
 				{#each Object.entries(seoStrategy) as [phase, details]}
@@ -439,37 +565,75 @@
 
 		<!-- Action Items -->
 		<div class="rounded-lg bg-blue-50 p-6">
-			<h2 class="text-2xl font-bold text-blue-900 mb-4">🎯 Immediate Action Items</h2>
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-				<div class="bg-white rounded-lg p-4">
-					<h3 class="font-semibold text-blue-800 mb-2">Week 1: Technical Fixes</h3>
-					<ul class="text-sm text-gray-600 space-y-1">
-						<li>• Fix meta descriptions</li>
-						<li>• Add missing alt tags</li>
-						<li>• Optimize Core Web Vitals</li>
-						<li>• Implement schema markup</li>
+			<h2 class="mb-4 text-2xl font-bold text-blue-900">🎯 Immediate Action Items</h2>
+
+			<!-- Completed Items -->
+			<div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4">
+				<h3 class="mb-2 font-semibold text-green-800">✅ Completed Today</h3>
+				<ul class="space-y-1 text-sm text-green-700">
+					<li>
+						✅ Optimized homepage title: "Connect with Family in Japanese | Anxiety-Free AI
+						Practice"
+					</li>
+					<li>✅ Created family conversation landing page at /japanese-family-conversations</li>
+					<li>✅ Implemented anxiety-free messaging throughout homepage</li>
+					<li>✅ Developed soothing Japanese-inspired corporate identity</li>
+					<li>✅ Updated headline variants for emotional connection</li>
+				</ul>
+			</div>
+
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+				<div class="rounded-lg bg-white p-4">
+					<h3 class="mb-2 font-semibold text-blue-800">Week 1: Technical SEO</h3>
+					<ul class="space-y-1 text-sm text-gray-600">
+						<li>• Add schema markup for educational app</li>
+						<li>• Optimize Core Web Vitals (currently loading)</li>
+						<li>• Add missing alt tags to images</li>
+						<li>• Create XML sitemap</li>
+						<li>• Implement breadcrumb navigation</li>
 					</ul>
 				</div>
 
-				<div class="bg-white rounded-lg p-4">
-					<h3 class="font-semibold text-blue-800 mb-2">Week 2: Content Optimization</h3>
-					<ul class="text-sm text-gray-600 space-y-1">
-						<li>• Optimize homepage for primary keywords</li>
-						<li>• Create keyword-focused landing pages</li>
-						<li>• Add FAQ section</li>
-						<li>• Write blog post: "How to build confidence speaking Japanese"</li>
+				<div class="rounded-lg bg-white p-4">
+					<h3 class="mb-2 font-semibold text-blue-800">Week 2: Content Creation</h3>
+					<ul class="space-y-1 text-sm text-gray-600">
+						<li>• Write "How to Build Confidence Speaking Japanese" blog</li>
+						<li>• Create /anxiety-free-japanese-learning page</li>
+						<li>• Add FAQ section with target keywords</li>
+						<li>• Build comparison page: Kaiwa vs iTalki vs Pimsleur</li>
+						<li>• Create user testimonials section</li>
 					</ul>
 				</div>
 
-				<div class="bg-white rounded-lg p-4">
-					<h3 class="font-semibold text-blue-800 mb-2">Week 3: Authority Building</h3>
-					<ul class="text-sm text-gray-600 space-y-1">
-						<li>• Submit to "best Japanese apps" lists</li>
-						<li>• Create comparison pages</li>
-						<li>• Start guest posting outreach</li>
-						<li>• Optimize for featured snippets</li>
+				<div class="rounded-lg bg-white p-4">
+					<h3 class="mb-2 font-semibold text-blue-800">Week 3: Authority Building</h3>
+					<ul class="space-y-1 text-sm text-gray-600">
+						<li>• Submit to Japanese learning app directories</li>
+						<li>• Reach out to language learning YouTubers</li>
+						<li>• Write guest post for FluentU or JapanesePod101</li>
+						<li>• Create shareable family conversation infographic</li>
+						<li>• Optimize for "How to" featured snippets</li>
 					</ul>
 				</div>
+			</div>
+
+			<!-- Priority Focus -->
+			<div class="mt-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+				<h3 class="mb-2 font-semibold text-yellow-800">
+					🎯 Priority Focus: Family + Anxiety-Free Positioning
+				</h3>
+				<p class="mb-2 text-sm text-yellow-700">Your unique angle that competitors aren't using:</p>
+				<ul class="space-y-1 text-sm text-yellow-700">
+					<li>
+						• <strong>Family Connection:</strong> "Talk to your Japanese grandmother" messaging
+					</li>
+					<li>
+						• <strong>Anxiety-Free:</strong> "Safe space to practice without judgment" positioning
+					</li>
+					<li>
+						• <strong>Emotional Benefits:</strong> Focus on meaningful moments over technical features
+					</li>
+				</ul>
 			</div>
 		</div>
 	</div>

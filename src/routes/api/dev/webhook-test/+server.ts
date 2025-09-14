@@ -13,24 +13,24 @@ if (!dev) {
 export const POST: RequestHandler = async ({ request }) => {
 	const body = await request.text();
 	const signature = request.headers.get('stripe-signature');
-	
+
 	console.log('🎣 [WEBHOOK TEST] Received webhook call:');
 	console.log('  - Content-Length:', request.headers.get('content-length'));
 	console.log('  - Stripe-Signature present:', !!signature);
 	console.log('  - Body length:', body.length);
 	console.log('  - Body preview:', body.substring(0, 200) + '...');
-	
+
 	if (signature) {
 		console.log('  - Signature preview:', signature.substring(0, 50) + '...');
 	}
-	
+
 	// Try to parse as JSON to see the event type
 	try {
 		const event = JSON.parse(body);
 		console.log('  - Event type:', event.type);
 		console.log('  - Event ID:', event.id);
 		console.log('  - Event created:', new Date(event.created * 1000).toISOString());
-		
+
 		if (event.type === 'checkout.session.completed') {
 			console.log('🎯 [WEBHOOK TEST] CHECKOUT SESSION COMPLETED detected!');
 			console.log('  - Session ID:', event.data.object.id);
@@ -41,9 +41,9 @@ export const POST: RequestHandler = async ({ request }) => {
 	} catch (parseError) {
 		console.log('  - JSON parse error:', parseError);
 	}
-	
-	return json({ 
-		received: true, 
+
+	return json({
+		received: true,
 		timestamp: new Date().toISOString(),
 		message: 'Webhook test received successfully'
 	});

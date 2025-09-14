@@ -152,7 +152,7 @@ export class TierService {
 	async getUserConversationSessions(
 		userId: string,
 		limit = 50
-	): Promise<(typeof conversationSessionsRepository.getUserSessions.prototype.returns)> {
+	): Promise<typeof conversationSessionsRepository.getUserSessions.prototype.returns> {
 		return await conversationSessionsRepository.getUserSessions(userId, limit);
 	}
 
@@ -162,7 +162,7 @@ export class TierService {
 	async getUserUsageHistory(
 		userId: string,
 		limit = 12
-	): Promise<(typeof userUsageRepository.getUsageHistory.prototype.returns)> {
+	): Promise<typeof userUsageRepository.getUsageHistory.prototype.returns> {
 		return await userUsageRepository.getUsageHistory(userId, limit);
 	}
 

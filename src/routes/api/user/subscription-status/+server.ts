@@ -55,7 +55,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 				createdAt: subscription.createdAt,
 				updatedAt: subscription.updatedAt
 			},
-			allSubscriptions: allSubscriptions.map(sub => ({
+			allSubscriptions: allSubscriptions.map((sub) => ({
 				id: sub.id,
 				tierId: sub.tierId,
 				status: sub.status,
@@ -66,10 +66,9 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 			debug: {
 				userId,
 				subscriptionCount: allSubscriptions.length,
-				activeSubscriptions: allSubscriptions.filter(sub => sub.isActive).length
+				activeSubscriptions: allSubscriptions.filter((sub) => sub.isActive).length
 			}
 		});
-
 	} catch (err) {
 		console.error('Subscription status error:', err);
 		throw error(500, 'Failed to get subscription status');

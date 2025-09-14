@@ -17,7 +17,7 @@ export const GET: RequestHandler = async () => {
 	try {
 		// Get server-side tier info
 		const serverInfo = getTierEnvironmentInfo();
-		
+
 		// Get server-side stripe info (has access to private env vars)
 		const serverStripeInfo = getServerStripeEnvironmentInfo();
 
@@ -35,7 +35,7 @@ export const GET: RequestHandler = async () => {
 		return json(combinedInfo);
 	} catch (error) {
 		console.error('Error fetching Stripe environment info:', error);
-		
+
 		// Fallback to client-side info only
 		try {
 			const fallbackInfo = getStripeEnvironmentInfo();

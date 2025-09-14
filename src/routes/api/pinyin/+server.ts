@@ -11,25 +11,25 @@ async function processChineseTextNative(text: string): Promise<{
 		console.log('[PINYIN_API] Starting native Chinese text processing for:', text);
 
 		// Try to import the native library using dynamic import
-        const pinyinModule = await import('@napi-rs/pinyin');
-        const PM = pinyinModule as unknown as {
-            pinyin: (text: string, opts: { style: number; heteronym: boolean }) => string[];
-            PINYIN_STYLE?: { WithTone?: number; Plain?: number };
-        };
+		const pinyinModule = await import('@napi-rs/pinyin');
+		const PM = pinyinModule as unknown as {
+			pinyin: (text: string, opts: { style: number; heteronym: boolean }) => string[];
+			PINYIN_STYLE?: { WithTone?: number; Plain?: number };
+		};
 
-        // Check if the module loaded properly
-        if (PM.pinyin) {
-            // Convert Chinese text to pinyin with tones
-            const pinyinWithTones = PM.pinyin(text, {
-                style: PM.PINYIN_STYLE?.WithTone ?? 0,
-                heteronym: false
-            });
+		// Check if the module loaded properly
+		if (PM.pinyin) {
+			// Convert Chinese text to pinyin with tones
+			const pinyinWithTones = PM.pinyin(text, {
+				style: PM.PINYIN_STYLE?.WithTone ?? 0,
+				heteronym: false
+			});
 
-            // Convert to plain pinyin for romanization
-            const pinyinPlain = PM.pinyin(text, {
-                style: PM.PINYIN_STYLE?.Plain ?? 0,
-                heteronym: false
-            });
+			// Convert to plain pinyin for romanization
+			const pinyinPlain = PM.pinyin(text, {
+				style: PM.PINYIN_STYLE?.Plain ?? 0,
+				heteronym: false
+			});
 
 			// Join the arrays into strings
 			const pinyinWithTonesStr = pinyinWithTones.join(' ');

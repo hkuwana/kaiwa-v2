@@ -67,21 +67,21 @@
 	let customTimeoutMs = $state(60000); // 1 minute default
 	let customWarningMs = $state(10000); // 10 seconds default
 
-    onMount(async () => {
-        // Initialize usage store with mock data
-        usageStore.setUser(mockUserId, tierConfig);
+	onMount(async () => {
+		// Initialize usage store with mock data
+		usageStore.setUser(mockUserId, tierConfig);
 
 		// Set mock usage data
 		usageStore.usage = mockUsageData;
 
 		// Configure timer
-        timerConfig = createTimerConfig({
-            timeoutMs: (tierConfig.conversationTimeoutSeconds || 60) * 1000,
-            warningThresholdMs: (tierConfig.warningThresholdSeconds || 10) * 1000,
-            extendable: tierConfig.canExtend,
-            maxExtensions: tierConfig.maxExtensions,
-            extensionDurationMs: (tierConfig.extensionDurationSeconds || 0) * 1000
-        });
+		timerConfig = createTimerConfig({
+			timeoutMs: (tierConfig.conversationTimeoutSeconds || 60) * 1000,
+			warningThresholdMs: (tierConfig.warningThresholdSeconds || 10) * 1000,
+			extendable: tierConfig.canExtend,
+			maxExtensions: tierConfig.maxExtensions,
+			extensionDurationMs: (tierConfig.extensionDurationSeconds || 0) * 1000
+		});
 
 		// Initialize timer state
 		currentTimerState = {
@@ -102,24 +102,24 @@
 	});
 
 	// Handle tier change
-    function handleTierChange(tier: UserTier) {
-        selectedTier = tier;
-        tierConfig = defaultTierConfigs[tier];
+	function handleTierChange(tier: UserTier) {
+		selectedTier = tier;
+		tierConfig = defaultTierConfigs[tier];
 
-        // Update store
-        usageStore.setUser(mockUserId, tierConfig);
+		// Update store
+		usageStore.setUser(mockUserId, tierConfig);
 
 		// Update mock usage data based on tier
 		updateMockUsageForTier(tier);
 
 		// Reconfigure timer
-        timerConfig = createTimerConfig({
-            timeoutMs: (tierConfig.conversationTimeoutSeconds || 60) * 1000,
-            warningThresholdMs: (tierConfig.warningThresholdSeconds || 10) * 1000,
-            extendable: tierConfig.canExtend,
-            maxExtensions: tierConfig.maxExtensions,
-            extensionDurationMs: (tierConfig.extensionDurationSeconds || 0) * 1000
-        });
+		timerConfig = createTimerConfig({
+			timeoutMs: (tierConfig.conversationTimeoutSeconds || 60) * 1000,
+			warningThresholdMs: (tierConfig.warningThresholdSeconds || 10) * 1000,
+			extendable: tierConfig.canExtend,
+			maxExtensions: tierConfig.maxExtensions,
+			extensionDurationMs: (tierConfig.extensionDurationSeconds || 0) * 1000
+		});
 
 		// Reset timer
 		usageStore.resetTimer();
@@ -195,14 +195,14 @@
 		}, 100);
 
 		// Update store
-        usageStore.updateTimer({
-            isRunning: true,
-            sessionId,
-            language: 'en',
-            startTime: new Date(),
-            remainingMs: (tierConfig.conversationTimeoutSeconds || 60) * 1000,
-            totalDurationMs: (tierConfig.conversationTimeoutSeconds || 60) * 1000
-        });
+		usageStore.updateTimer({
+			isRunning: true,
+			sessionId,
+			language: 'en',
+			startTime: new Date(),
+			remainingMs: (tierConfig.conversationTimeoutSeconds || 60) * 1000,
+			totalDurationMs: (tierConfig.conversationTimeoutSeconds || 60) * 1000
+		});
 
 		console.log('🚀 Session started:', sessionId);
 	}
@@ -263,11 +263,11 @@
 	function handleExtend() {
 		if (!usageStore.canExtend) return;
 
-        const result = extendTimer(
-            currentTimerState,
-            timerConfig,
-            (tierConfig.extensionDurationSeconds || 0) * 1000
-        );
+		const result = extendTimer(
+			currentTimerState,
+			timerConfig,
+			(tierConfig.extensionDurationSeconds || 0) * 1000
+		);
 		if (result.state !== currentTimerState) {
 			currentTimerState = result.state;
 			timerState.extensionsUsed = result.state.extensionsUsed;
@@ -289,8 +289,8 @@
 
 	// Reset everything
 	function handleReset() {
-    usageStore.clear();
-    usageStore.setUser(mockUserId, tierConfig);
+		usageStore.clear();
+		usageStore.setUser(mockUserId, tierConfig);
 		usageStore.usage = mockUsageData;
 		usageStore.resetTimer();
 
@@ -301,13 +301,13 @@
 		}
 
 		// Configure timer with new tier settings
-    timerConfig = createTimerConfig({
-        timeoutMs: (tierConfig.conversationTimeoutSeconds || 60) * 1000,
-        warningThresholdMs: (tierConfig.warningThresholdSeconds || 10) * 1000,
-        extendable: tierConfig.canExtend,
-        maxExtensions: tierConfig.maxExtensions,
-        extensionDurationMs: (tierConfig.extensionDurationSeconds || 0) * 1000
-    });
+		timerConfig = createTimerConfig({
+			timeoutMs: (tierConfig.conversationTimeoutSeconds || 60) * 1000,
+			warningThresholdMs: (tierConfig.warningThresholdSeconds || 10) * 1000,
+			extendable: tierConfig.canExtend,
+			maxExtensions: tierConfig.maxExtensions,
+			extensionDurationMs: (tierConfig.extensionDurationSeconds || 0) * 1000
+		});
 
 		// Reset timer state
 		currentTimerState = {
@@ -329,13 +329,13 @@
 		}
 
 		// Configure timer with custom settings
-    timerConfig = createTimerConfig({
-        timeoutMs: customTimeoutMs,
-        warningThresholdMs: customWarningMs,
-        extendable: tierConfig.canExtend,
-        maxExtensions: tierConfig.maxExtensions,
-        extensionDurationMs: (tierConfig.extensionDurationSeconds || 0) * 1000
-    });
+		timerConfig = createTimerConfig({
+			timeoutMs: customTimeoutMs,
+			warningThresholdMs: customWarningMs,
+			extendable: tierConfig.canExtend,
+			maxExtensions: tierConfig.maxExtensions,
+			extensionDurationMs: (tierConfig.extensionDurationSeconds || 0) * 1000
+		});
 
 		// Reset timer state
 		currentTimerState = {
@@ -389,13 +389,13 @@
 				</div>
 
 				<div class="stat">
-                    <div class="stat-title">Session Timeout</div>
-                    <div class="stat-value">{(tierConfig.conversationTimeoutSeconds || 0) / 60}m</div>
+					<div class="stat-title">Session Timeout</div>
+					<div class="stat-value">{(tierConfig.conversationTimeoutSeconds || 0) / 60}m</div>
 				</div>
 
 				<div class="stat">
-                    <div class="stat-title">Warning Threshold</div>
-                    <div class="stat-value">{tierConfig.warningThresholdSeconds || 0}s</div>
+					<div class="stat-title">Warning Threshold</div>
+					<div class="stat-value">{tierConfig.warningThresholdSeconds || 0}s</div>
 				</div>
 
 				<div class="stat">
@@ -578,9 +578,7 @@
 	{#if usageStore.timer.warningTriggered}
 		<div class="alert alert-warning">
 			<span class="iconify h-4 w-4" data-icon="mdi:alert-triangle"></span>
-            <span
-                >Warning: Less than {tierConfig.warningThresholdSeconds || 0} seconds remaining!</span
-            >
+			<span>Warning: Less than {tierConfig.warningThresholdSeconds || 0} seconds remaining!</span>
 		</div>
 	{/if}
 

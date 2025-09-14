@@ -22,7 +22,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		const event = stripeService.verifyWebhook(body, signature);
 
 		console.log(`🎣 Stripe webhook received: ${event.type}`);
-		
+
 		// Track webhook event for dev dashboard
 		addWebhookEvent(event);
 
