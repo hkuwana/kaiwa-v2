@@ -21,18 +21,18 @@
 	let selectedSpeaker = $state<string | null>(settingsStore.selectedSpeaker);
 	let selectedScenario = $state<Scenario | null>(scenarioStore.getSelectedScenario());
 
-	// A/B Testing for headlines - Relationship-first positioning
+	// A/B Testing for headlines - Family connection & anxiety-free positioning
 	const headlineVariants = {
-		// Main control (solution-oriented)
+		// Main control (family connection)
 		main: 'Connect with your family in the language of their heart.',
 
-		// Anti-competitor positioning variant
-		variant1: 'Skip the flashcards. Share your feelings.',
+		// Anxiety-free positioning
+		variant1: 'Practice Japanese without fear. Connect with confidence.',
 
 		// Specific emotional scenario variant
-		variant2: "Speak your grandmother's language fluently.",
-		variant3: 'Conversations that matter. In any language.',
-		variant4: 'Turn language learning into love stories.'
+		variant2: "Talk to your Japanese grandmother. We'll help you find the words.",
+		variant3: 'Gentle conversations. Meaningful connections.',
+		variant4: 'A safe space to practice. A bridge to your loved ones.'
 	};
 
 	// Random headline selection
@@ -154,10 +154,10 @@
 		<section class="container mx-auto max-w-3xl py-8">
 			<div class="/80 rounded-xl border border-white/10 bg-secondary/20 p-4">
 				<div class="mb-2 text-sm tracking-wide uppercase">Demo (dev only)</div>
-                <video class="w-full rounded-lg" src="/demo.mp4" controls preload="metadata">
-                    <track kind="captions" srcLang="en" label="English" default />
-                    Sorry, add your demo video to static/demo.mp4
-                </video>
+				<video class="w-full rounded-lg" src="/demo.mp4" controls preload="metadata">
+					<track kind="captions" srcLang="en" label="English" default />
+					Sorry, add your demo video to static/demo.mp4
+				</video>
 				<p class="mt-2 text-xs opacity-70">
 					Place your demo at static/demo.mp4. Hidden in production.
 				</p>

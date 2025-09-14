@@ -1,11 +1,11 @@
 // 🏆 Tier Management Service - Aligned with userUsage and conversationSessions
 // This service manages user tiers and usage tracking based on the database schema
 
-import { db } from './db/index';
-import { userUsage, conversationSessions, subscriptions } from './db/schema';
-import { eq, and, desc } from 'drizzle-orm';
 import type { UserTier, Tier, UserUsage } from './db/types';
 import { getServerTierConfig } from '$lib/server/tiers';
+import { subscriptionRepository } from './repositories/subscription.repository';
+import { userUsageRepository } from './repositories/userUsage.repository';
+import { conversationSessionsRepository } from './repositories/conversationSessions.repository';
 
 export interface UsageStatus {
 	tier: Tier;
@@ -20,14 +20,7 @@ export class TierService {
 	 * Get user's current tier from their active subscription
 	 */
 	async getUserTier(userId: string): Promise<UserTier> {
-		const rows = await db
-			.select()
-			.from(subscriptions)
-			.where(eq(subscriptions.userId, userId))
-			.orderBy(desc(subscriptions.updatedAt))
-			.limit(1);
-
-		return (rows[0]?.currentTier as UserTier) || 'free';
+		return await subscriptionRepository.getUserTier(userId);
 	}
 
 	/**
@@ -39,13 +32,9 @@ export class TierService {
 		const currentPeriod = this.getCurrentPeriod();
 
 		// Get current month's usage
-		const usage = await db
-			.select()
-			.from(userUsage)
-			.where(and(eq(userUsage.userId, userId), eq(userUsage.period, currentPeriod)))
-			.limit(1);
+		const usage = await userUsageRepository.getCurrentMonthUsage(userId);
 
-		const currentUsage = usage[0] || {
+		const currentUsage = usage || {
 			userId,
 			period: currentPeriod,
 			conversationsUsed: 0,
@@ -83,73 +72,19 @@ export class TierService {
 	 * Record conversation usage
 	 */
 	async recordConversationUsage(userId: string, durationSeconds: number): Promise<void> {
-		const currentPeriod = this.getCurrentPeriod();
-
-		// Get or create usage record for current period
-		const existingUsage = await db
-			.select()
-			.from(userUsage)
-			.where(and(eq(userUsage.userId, userId), eq(userUsage.period, currentPeriod)))
-			.limit(1);
-
-		if (existingUsage[0]) {
-			// Update existing usage
-			await db
-				.update(userUsage)
-				.set({
-					conversationsUsed: (existingUsage[0].conversationsUsed || 0) + 1,
-					secondsUsed: (existingUsage[0].secondsUsed || 0) + durationSeconds,
-					updatedAt: new Date()
-				})
-				.where(and(eq(userUsage.userId, userId), eq(userUsage.period, currentPeriod)));
-		} else {
-			// Create new usage record
-			await db.insert(userUsage).values({
-				userId,
-				period: currentPeriod,
-				conversationsUsed: 1,
-				secondsUsed: durationSeconds,
-				realtimeSessionsUsed: 0,
-				bankedSeconds: 0,
-				bankedSecondsUsed: 0
-			});
-		}
+		await userUsageRepository.incrementUsage(userId, {
+			conversationsUsed: 1,
+			secondsUsed: durationSeconds
+		});
 	}
 
 	/**
 	 * Record realtime session usage
 	 */
 	async recordRealtimeSessionUsage(userId: string): Promise<void> {
-		const currentPeriod = this.getCurrentPeriod();
-
-		// Get or create usage record for current period
-		const existingUsage = await db
-			.select()
-			.from(userUsage)
-			.where(and(eq(userUsage.userId, userId), eq(userUsage.period, currentPeriod)))
-			.limit(1);
-
-		if (existingUsage[0]) {
-			// Update existing usage
-			await db
-				.update(userUsage)
-				.set({
-					realtimeSessionsUsed: (existingUsage[0].realtimeSessionsUsed || 0) + 1,
-					updatedAt: new Date()
-				})
-				.where(and(eq(userUsage.userId, userId), eq(userUsage.period, currentPeriod)));
-		} else {
-			// Create new usage record
-			await db.insert(userUsage).values({
-				userId,
-				period: currentPeriod,
-				conversationsUsed: 0,
-				secondsUsed: 0,
-				realtimeSessionsUsed: 1,
-				bankedSeconds: 0,
-				bankedSecondsUsed: 0
-			});
-		}
+		await userUsageRepository.incrementUsage(userId, {
+			realtimeSessionsUsed: 1
+		});
 	}
 
 	/**
@@ -168,7 +103,7 @@ export class TierService {
 		transcriptionMode?: boolean;
 		deviceType?: string;
 	}): Promise<void> {
-		await db.insert(conversationSessions).values({
+		await conversationSessionsRepository.createSession({
 			id: sessionData.id,
 			userId: sessionData.userId,
 			language: sessionData.language,
@@ -217,13 +152,8 @@ export class TierService {
 	async getUserConversationSessions(
 		userId: string,
 		limit = 50
-	): Promise<(typeof conversationSessions.$inferSelect)[]> {
-		return await db
-			.select()
-			.from(conversationSessions)
-			.where(eq(conversationSessions.userId, userId))
-			.orderBy(desc(conversationSessions.startTime))
-			.limit(limit);
+	): Promise<(typeof conversationSessionsRepository.getUserSessions.prototype.returns)> {
+		return await conversationSessionsRepository.getUserSessions(userId, limit);
 	}
 
 	/**
@@ -232,13 +162,8 @@ export class TierService {
 	async getUserUsageHistory(
 		userId: string,
 		limit = 12
-	): Promise<(typeof userUsage.$inferSelect)[]> {
-		return await db
-			.select()
-			.from(userUsage)
-			.where(eq(userUsage.userId, userId))
-			.orderBy(desc(userUsage.period))
-			.limit(limit);
+	): Promise<(typeof userUsageRepository.getUsageHistory.prototype.returns)> {
+		return await userUsageRepository.getUsageHistory(userId, limit);
 	}
 
 	/**

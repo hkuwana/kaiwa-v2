@@ -98,5 +98,27 @@ export default ts.config(
 				}
 			]
 		}
+	},
+	// 🎯 ARCHITECTURE RULE: ENSURE SERVICES USE REPOSITORIES FOR DB ACCESS
+	{
+		files: ['src/lib/server/**/*.ts'],
+		ignores: ['src/lib/server/repositories/**/*.ts', 'src/lib/server/db/**/*.ts'],
+		rules: {
+			'no-restricted-imports': [
+				'error',
+				{
+					name: 'drizzle-orm',
+					message: 'Direct import of drizzle-orm is not allowed. Use a repository instead.'
+				},
+				{
+					name: '$lib/server/db',
+					message: 'Direct import of the db instance is not allowed. Use a repository instead.'
+				},
+				{
+					name: '$lib/server/db/index',
+					message: 'Direct import of the db instance is not allowed. Use a repository instead.'
+				}
+			]
+		}
 	}
 );

@@ -67,25 +67,27 @@
 
 <!-- Notification Popup -->
 {#if isVisible}
-    <div
-        class="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm"
-        in:fade={{ duration: 200 }}
-        out:fade={{ duration: 200 }}
-        onclick={onDismiss}
-        role="dialog"
-        aria-modal="true"
-        tabindex="-1"
-        onkeydown={(e) => { if (e.key === 'Escape') onDismiss(); }}
-    >
-        <div
-            class="mx-4 w-full max-w-lg transform rounded-2xl bg-base-100 shadow-2xl"
-            in:fly={{ y: 20, duration: 300, delay: 100 }}
-            out:fly={{ y: -20, duration: 200 }}
-            role="presentation"
-            tabindex="-1"
-            onclick={(e) => e.stopPropagation()}
-            onkeydown={(e) => e.stopPropagation()}
-        >
+	<div
+		class="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm"
+		in:fade={{ duration: 200 }}
+		out:fade={{ duration: 200 }}
+		onclick={onDismiss}
+		role="dialog"
+		aria-modal="true"
+		tabindex="-1"
+		onkeydown={(e) => {
+			if (e.key === 'Escape') onDismiss();
+		}}
+	>
+		<div
+			class="mx-4 w-full max-w-lg transform rounded-2xl bg-base-100 shadow-2xl"
+			in:fly={{ y: 20, duration: 300, delay: 100 }}
+			out:fly={{ y: -20, duration: 200 }}
+			role="presentation"
+			tabindex="-1"
+			onclick={(e) => e.stopPropagation()}
+			onkeydown={(e) => e.stopPropagation()}
+		>
 			<!-- Header -->
 			<div class="flex items-center justify-between border-b border-base-200 p-6 pb-4">
 				<div class="flex items-center gap-3">

@@ -1,21 +1,18 @@
 // 📊 Usage Debug API (Development)
 // Test and debug usage tracking and tier limits
 
-import { json, error } from '@sveltejs/kit';
-import { dev } from '$app/environment';
+import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { usageService } from '$lib/server/services/usage.service';
 import { userRepository } from '$lib/server/repositories';
-
-// Only allow in development mode
-if (!dev) {
-	throw error(404, 'Not found');
-}
+import { guardDevelopmentAPI } from '$lib/guards/dev.guard';
 
 export const GET: RequestHandler = async ({ locals, url }) => {
+	guardDevelopmentAPI();
+
 	const userId = locals.user?.id;
 	if (!userId) {
-		throw error(401, 'Unauthorized');
+		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
 
 	const action = url.searchParams.get('action') || 'summary';
@@ -77,7 +74,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 				break;
 
 			case 'all':
-				const [summary, current, history, convCheck, secCheck, rtCheck, ankiCheck, extCheck, voiceCheck] = await Promise.all([
+				{ const [summary, current, history, convCheck, secCheck, rtCheck, ankiCheck, extCheck, voiceCheck] = await Promise.all([
 					usageService.getUsageSummary(userId),
 					usageService.getCurrentUsage(userId),
 					usageService.getUsageHistory(userId, 2),
@@ -100,7 +97,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 					sessionExtension: extCheck,
 					advancedVoice: voiceCheck
 				};
-				break;
+				break; }
 
 			default:
 				throw new Error(`Unknown action: ${action}`);
@@ -120,10 +117,11 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 };
 
 export const POST: RequestHandler = async ({ request, locals }) => {
-	const userId = locals.user?.id;
+	guardDevelopmentAPI();
 
+	const userId = locals.user?.id;
 	if (!userId) {
-		throw error(401, 'Unauthorized');
+		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
 
 	try {

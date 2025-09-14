@@ -1,12 +1,9 @@
 import type { RequestEvent } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
-import { db } from './db';
-import { session as sessionTable } from './db/schema';
 import type { Session } from './db/types';
-import { users } from './db/schema';
 import { sessionRepository, type SessionRepository } from './repositories/session.repository';
+import { userRepository } from './repositories/user.repository';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
@@ -39,17 +36,7 @@ export async function createSession(
 export async function validateSessionToken(token: string) {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 
-	// We still need a direct DB call here because this is a complex join,
-	// not a simple session lookup. A repository for this specific query might be overkill.
-	const [result] = await db
-		.select({
-			// Enhanced user data for orchestrator and kernel
-			user: users,
-			session: sessionTable
-		})
-		.from(sessionTable)
-		.innerJoin(users, eq(sessionTable.userId, users.id))
-		.where(eq(sessionTable.id, sessionId));
+	const result = await sessionRepository.findSessionAndUser(sessionId);
 
 	if (!result) {
 		return { session: null, user: null };
@@ -135,10 +122,7 @@ export async function findOrCreateUser({
 }) {
 	// First, check if user exists by Google ID
 	if (googleId) {
-		const [existingUserByGoogleId] = await db
-			.select()
-			.from(users)
-			.where(eq(users.googleId, googleId));
+		const existingUserByGoogleId = await userRepository.findUserByGoogleId(googleId);
 
 		if (existingUserByGoogleId) {
 			return { user: existingUserByGoogleId, isNew: false };
@@ -146,11 +130,11 @@ export async function findOrCreateUser({
 	}
 
 	// Check if user exists by email
-	const [existingUserByEmail] = await db.select().from(users).where(eq(users.email, email));
+	const existingUserByEmail = await userRepository.findUserByEmail(email);
 
 	if (existingUserByEmail) {
 		// Link the missing authentication method to existing user
-		const updateData: Partial<typeof users.$inferInsert> = {};
+		const updateData: Partial<any> = {};
 
 		if (googleId && !existingUserByEmail.googleId) {
 			updateData.googleId = googleId;
@@ -163,7 +147,7 @@ export async function findOrCreateUser({
 		}
 
 		if (Object.keys(updateData).length > 0) {
-			await db.update(users).set(updateData).where(eq(users.id, existingUserByEmail.id));
+			await userRepository.updateUser(existingUserByEmail.id, updateData);
 		}
 
 		return { user: existingUserByEmail, isNew: false };
@@ -171,19 +155,16 @@ export async function findOrCreateUser({
 
 	// Create new user
 	const userId = crypto.randomUUID();
-	const [newUser] = await db
-		.insert(users)
-		.values({
-			id: userId,
-			email,
-			googleId,
-			displayName,
-			avatarUrl,
-			hashedPassword,
-			// For OAuth users (Google), mark email as verified since Google already verified it
-			emailVerified: googleId ? new Date() : null
-		})
-		.returning();
+	const newUser = await userRepository.createUser({
+		id: userId,
+		email,
+		googleId,
+		displayName,
+		avatarUrl,
+		hashedPassword,
+		// For OAuth users (Google), mark email as verified since Google already verified it
+		emailVerified: googleId ? new Date() : null
+	});
 
 	return { user: newUser, isNew: true };
 }

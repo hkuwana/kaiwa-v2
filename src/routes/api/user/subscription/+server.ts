@@ -24,12 +24,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 		return json({
 			id: subscription.id,
 			userId: subscription.userId,
-			status: subscription.status,
-			tierId: subscription.tierId,
-			currentPeriodStart: subscription.currentPeriodStart,
-			currentPeriodEnd: subscription.currentPeriodEnd,
-			cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
-			isActive: subscription.isActive,
+
 			stripeSubscriptionId: subscription.stripeSubscriptionId,
 			stripePriceId: subscription.stripePriceId,
 			createdAt: subscription.createdAt,

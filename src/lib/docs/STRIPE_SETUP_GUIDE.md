@@ -5,10 +5,12 @@ This guide will help you create the necessary Stripe test price IDs for your pre
 ## Current Status
 
 ✅ **Plus Tier Price IDs** - Already configured:
+
 - Monthly: `price_1QkXgaJdpLyF8Hr4VNiD2JZp` ($15.00/month)
 - Annual: `price_1R14ScJdpLyF8Hr465lm9MA8` ($144.00/year)
 
 ❌ **Premium Tier Price IDs** - Need to be created:
+
 - Monthly: $25.00/month
 - Annual: $240.00/year (20% discount)
 
@@ -45,6 +47,7 @@ This guide will help you create the necessary Stripe test price IDs for your pre
 Add the new Premium price IDs to your environment files:
 
 ### `.env.development`
+
 ```bash
 # Premium tier price IDs (test)
 STRIPE_PREMIUM_MONTHLY_DEV_PRICE_ID='price_YOUR_PREMIUM_MONTHLY_ID_HERE'
@@ -52,6 +55,7 @@ STRIPE_PREMIUM_ANNUAL_DEV_PRICE_ID='price_YOUR_PREMIUM_ANNUAL_ID_HERE'
 ```
 
 ### `.env` (for production, when ready)
+
 ```bash
 # Premium tier price IDs (production)
 STRIPE_PREMIUM_MONTHLY_PRICE_ID='price_YOUR_PROD_PREMIUM_MONTHLY_ID_HERE'
@@ -82,6 +86,7 @@ Ensure your webhook endpoint is properly configured:
 After updating the price IDs, restart your development server and test:
 
 1. **Test Environment Info**:
+
    ```bash
    pnpm dev
    # Visit: http://localhost:5173/dev-payment

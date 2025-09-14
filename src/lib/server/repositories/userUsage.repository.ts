@@ -94,6 +94,13 @@ export class UserUsageRepository {
 			conversationsUsed?: number;
 			secondsUsed?: number;
 			realtimeSessionsUsed?: number;
+			ankiExportsUsed?: number;
+			sessionExtensionsUsed?: number;
+			advancedVoiceSeconds?: number;
+			completedSessions?: number;
+			longestSessionSeconds?: number;
+			averageSessionSeconds?: number;
+			overageSeconds?: number;
 		}
 	): Promise<UserUsage | null> {
 		const current = await this.getCurrentMonthUsage(userId);
@@ -103,16 +110,46 @@ export class UserUsageRepository {
 			return await this.upsertCurrentMonthUsage(userId, updates);
 		}
 
+		// Build the update object dynamically
+		const updateData: Partial<UserUsage> = {
+			updatedAt: new Date()
+		};
+
+		if (updates.conversationsUsed !== undefined) {
+			updateData.conversationsUsed = (current.conversationsUsed || 0) + updates.conversationsUsed;
+		}
+		if (updates.secondsUsed !== undefined) {
+			updateData.secondsUsed = (current.secondsUsed || 0) + updates.secondsUsed;
+		}
+		if (updates.realtimeSessionsUsed !== undefined) {
+			updateData.realtimeSessionsUsed = (current.realtimeSessionsUsed || 0) + updates.realtimeSessionsUsed;
+		}
+		if (updates.ankiExportsUsed !== undefined) {
+			updateData.ankiExportsUsed = (current.ankiExportsUsed || 0) + updates.ankiExportsUsed;
+		}
+		if (updates.sessionExtensionsUsed !== undefined) {
+			updateData.sessionExtensionsUsed = (current.sessionExtensionsUsed || 0) + updates.sessionExtensionsUsed;
+		}
+		if (updates.advancedVoiceSeconds !== undefined) {
+			updateData.advancedVoiceSeconds = (current.advancedVoiceSeconds || 0) + updates.advancedVoiceSeconds;
+		}
+		if (updates.completedSessions !== undefined) {
+			updateData.completedSessions = (current.completedSessions || 0) + updates.completedSessions;
+		}
+		if (updates.longestSessionSeconds !== undefined) {
+			updateData.longestSessionSeconds = Math.max((current.longestSessionSeconds || 0), updates.longestSessionSeconds);
+		}
+		if (updates.averageSessionSeconds !== undefined) {
+			updateData.averageSessionSeconds = updates.averageSessionSeconds; // Direct set for average
+		}
+		if (updates.overageSeconds !== undefined) {
+			updateData.overageSeconds = (current.overageSeconds || 0) + updates.overageSeconds;
+		}
+
 		// Update existing record
 		const [updated] = await db
 			.update(userUsage)
-			.set({
-				conversationsUsed: (current.conversationsUsed || 0) + (updates.conversationsUsed || 0),
-				secondsUsed: (current.secondsUsed || 0) + (updates.secondsUsed || 0),
-				realtimeSessionsUsed:
-					(current.realtimeSessionsUsed || 0) + (updates.realtimeSessionsUsed || 0),
-				updatedAt: new Date()
-			})
+			.set(updateData)
 			.where(and(eq(userUsage.userId, userId), eq(userUsage.period, current.period)))
 			.returning();
 

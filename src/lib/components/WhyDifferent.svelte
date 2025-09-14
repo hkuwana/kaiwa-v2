@@ -41,15 +41,10 @@
 			typical: 'Setup required',
 			problem: 'Most apps make you complete lessons before speaking'
 		},
-		{
-			key: 'Unlimited speaking time',
-			kaiwa: 'Always free',
-			typical: 'Paywall/limits',
-			problem: 'ChatGPT limits daily voice usage, Duolingo caps at 2 minutes'
-		},
+
 		{
 			key: 'Emotional conversations',
-			kaiwa: 'Built-in scenarios',
+			kaiwa: 'Built-in and custom scenarios',
 			typical: 'Basic topics only',
 			problem: 'Other apps avoid complex human emotions and relationships'
 		},

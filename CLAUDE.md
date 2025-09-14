@@ -101,3 +101,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - E2E tests for user flows with Playwright
 - Smoke tests for production monitoring
 - Authentication-specific test commands available
+
+### Documentation Standards
+
+- **All new markdown files** should be created in `src/lib/docs/`
+- **File naming**: Follow the convention in `src/lib/docs/DOCUMENTATION_STATUS.md`
+  - Core documents: `core_*.md`
+  - Feature documents: `feature_*.md`
+  - Development guides: `*_guide.md` or `*_strategy.md`
+  - Status documents: `*_status.md`
+- **Content standards**: Use clear headings with emojis, include working code examples, keep concise
+- **Markdown formatting**: Use consistent formatting, include table of contents for long documents
+- **Update `DOCUMENTATION_STATUS.md`** when adding new documentation files
