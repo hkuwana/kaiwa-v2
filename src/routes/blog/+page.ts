@@ -5,10 +5,22 @@ const blogPosts = import.meta.glob('../../lib/blog/*.md', { eager: true });
 
 export const load: PageLoad = () => {
 	// Convert the glob results to a more usable format
+	interface BlogModuleMeta {
+		metadata?: {
+			title?: string;
+			description?: string;
+			excerpt?: string;
+			author?: string;
+			date?: string;
+			tags?: string[];
+			published?: boolean;
+			readTime?: string;
+		};
+	}
 	const posts = Object.entries(blogPosts)
 		.map(([path, module]) => {
 			const filename = path.split('/').pop()?.replace('.md', '') || '';
-			const metadata = (module as any).metadata || {};
+			const metadata = (module as BlogModuleMeta).metadata || {};
 
 			return {
 				slug: filename,

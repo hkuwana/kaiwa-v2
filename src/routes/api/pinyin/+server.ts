@@ -12,7 +12,10 @@ async function processChineseTextNative(text: string): Promise<{
 
 		// Try to import the native library using dynamic import
         const pinyinModule = await import('@napi-rs/pinyin');
-        const PM: any = pinyinModule as any;
+        const PM = pinyinModule as unknown as {
+            pinyin: (text: string, opts: { style: number; heteronym: boolean }) => string[];
+            PINYIN_STYLE?: { WithTone?: number; Plain?: number };
+        };
 
         // Check if the module loaded properly
         if (PM.pinyin) {

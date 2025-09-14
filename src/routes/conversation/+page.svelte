@@ -20,6 +20,7 @@
 	import ConversationReviewableState from '$lib/components/ConversationReviewableState.svelte';
 	import DevPanel from '$lib/components/DevPanel.svelte';
 	import RealtimeDebugPanel from '$lib/components/RealtimeDebugPanel.svelte';
+  import { SvelteDate } from 'svelte/reactivity';
 
 	// Keep existing components for analysis temporarily
 	import { fade } from 'svelte/transition';
@@ -326,8 +327,8 @@
 											correctionStyle: 'gentle',
 											dailyGoalSeconds: 30,
 											preferredVoice: DEFAULT_VOICE,
-											createdAt: new Date(),
-											updatedAt: new Date()
+											createdAt: new SvelteDate(),
+											updatedAt: new SvelteDate()
 										});
 									}, 3000);
 								}}
@@ -358,8 +359,8 @@
 										correctionStyle: 'gentle',
 										dailyGoalSeconds: 30,
 										preferredVoice: DEFAULT_VOICE,
-										createdAt: new Date(),
-										updatedAt: new Date()
+										createdAt: new SvelteDate(),
+										updatedAt: new SvelteDate()
 									})}
 							>
 								Set Mock Results

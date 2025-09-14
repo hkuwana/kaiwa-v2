@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import type { UserPreferences } from '$lib/server/db/types';
 	import { languages } from '$lib/data/languages';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	interface Props {
 		userPreferences: UserPreferences;
@@ -12,10 +13,10 @@
 	const { userPreferences, onSave, compact = false }: Props = $props();
 
 	// Local state for form inputs
-	const localPreferences = $state({ ...userPreferences });
+	const localPreferences: UserPreferences = $state({ ...userPreferences });
 	let saveTimeout: NodeJS.Timeout | null = null;
 	let isSaving = $state(false);
-	let lastSaved = $state<Date | null>(null);
+	let lastSaved = $state<SvelteDate | null>(null);
 
 	// Debounced save function
 	const debouncedSave = (updates: Partial<UserPreferences>) => {
@@ -44,7 +45,7 @@
 				throw new Error('Failed to save preferences');
 			}
 
-			lastSaved = new Date();
+			lastSaved = new SvelteDate();
 			onSave?.(updates);
 		} catch (error) {
 			console.error('Error saving preferences:', error);
@@ -53,10 +54,14 @@
 		}
 	};
 
-	// Handle input changes
-	const handleInputChange = (field: keyof UserPreferences, value: string | number | string[]) => {
-		(localPreferences as any)[field] = value;
-		debouncedSave({ [field]: value });
+	// Handle input changes with precise typing
+	const handleInputChange = <K extends keyof UserPreferences>(
+		field: K,
+		value: UserPreferences[K]
+	) => {
+		localPreferences[field] = value as UserPreferences[K];
+		const updates = { [field]: value } as { [P in K]: UserPreferences[P] };
+		debouncedSave(updates as Partial<UserPreferences>);
 	};
 
 	// Learning goal options
@@ -106,11 +111,12 @@
 	<div class="grid gap-4 {compact ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}">
 		<!-- Target Language -->
 		<div class="form-control {compact ? 'mb-2' : ''}">
-			<label class="label {compact ? 'py-1' : ''}">
+			<label class="label {compact ? 'py-1' : ''}" for="pref-target-language">
 				<span class="label-text {compact ? 'text-sm' : ''}">Target Language</span>
 			</label>
 			<select
 				class="select-bordered select w-full"
+				id="pref-target-language"
 				bind:value={localPreferences.targetLanguageId}
 				onchange={(e) =>
 					handleInputChange('targetLanguageId', (e.target as HTMLSelectElement).value)}
@@ -126,13 +132,18 @@
 
 		<!-- Learning Goal -->
 		<div class="form-control {compact ? 'mb-2' : ''}">
-			<label class="label {compact ? 'py-1' : ''}">
+			<label class="label {compact ? 'py-1' : ''}" for="pref-learning-goal">
 				<span class="label-text {compact ? 'text-sm' : ''}">Learning Goal</span>
 			</label>
 			<select
 				class="select-bordered select w-full"
+				id="pref-learning-goal"
 				bind:value={localPreferences.learningGoal}
-				onchange={(e) => handleInputChange('learningGoal', (e.target as HTMLSelectElement).value)}
+				onchange={(e) =>
+					handleInputChange(
+						'learningGoal',
+						(e.target as HTMLSelectElement).value as UserPreferences['learningGoal']
+					)}
 			>
 				{#each learningGoals as goal}
 					<option value={goal.value}>{goal.label}</option>
@@ -142,12 +153,13 @@
 
 		<!-- Daily Goal -->
 		<div class="form-control {compact ? 'mb-2' : ''}">
-			<label class="label {compact ? 'py-1' : ''}">
+			<label class="label {compact ? 'py-1' : ''}" for="pref-daily-goal">
 				<span class="label-text {compact ? 'text-sm' : ''}">Daily Goal (minutes)</span>
 			</label>
 			<input
 				type="number"
 				class="input-bordered input w-full"
+				id="pref-daily-goal"
 				min="1"
 				max="120"
 				value={secondsToMinutes(localPreferences.dailyGoalSeconds)}
@@ -161,14 +173,18 @@
 
 		<!-- Challenge Preference -->
 		<div class="form-control {compact ? 'mb-2' : ''}">
-			<label class="label {compact ? 'py-1' : ''}">
+			<label class="label {compact ? 'py-1' : ''}" for="pref-challenge-level">
 				<span class="label-text {compact ? 'text-sm' : ''}">Challenge Level</span>
 			</label>
 			<select
 				class="select-bordered select w-full"
+				id="pref-challenge-level"
 				bind:value={localPreferences.challengePreference}
 				onchange={(e) =>
-					handleInputChange('challengePreference', (e.target as HTMLSelectElement).value)}
+					handleInputChange(
+						'challengePreference',
+						(e.target as HTMLSelectElement).value as UserPreferences['challengePreference']
+					)}
 			>
 				{#each challengePreferences as pref}
 					<option value={pref.value}>{pref.label}</option>
@@ -178,14 +194,18 @@
 
 		<!-- Correction Style -->
 		<div class="form-control {compact ? 'mb-2' : ''}">
-			<label class="label {compact ? 'py-1' : ''}">
+			<label class="label {compact ? 'py-1' : ''}" for="pref-correction-style">
 				<span class="label-text {compact ? 'text-sm' : ''}">Correction Style</span>
 			</label>
 			<select
 				class="select-bordered select w-full"
+				id="pref-correction-style"
 				bind:value={localPreferences.correctionStyle}
 				onchange={(e) =>
-					handleInputChange('correctionStyle', (e.target as HTMLSelectElement).value)}
+					handleInputChange(
+						'correctionStyle',
+						(e.target as HTMLSelectElement).value as UserPreferences['correctionStyle']
+					)}
 			>
 				{#each correctionStyles as style}
 					<option value={style.value}>{style.label}</option>
@@ -196,7 +216,7 @@
 		{#if !compact}
 			<!-- Speaking Level -->
 			<div class="form-control {compact ? 'mb-2' : ''}">
-				<label class="label {compact ? 'py-1' : ''}">
+				<label class="label {compact ? 'py-1' : ''}" for="pref-speaking-level">
 					<span class="label-text {compact ? 'text-sm' : ''}">Speaking Level</span>
 					<span class="label-text-alt {compact ? 'text-sm' : ''}"
 						>{localPreferences.speakingLevel}/100</span
@@ -207,6 +227,7 @@
 					min="1"
 					max="100"
 					class="range range-primary"
+					id="pref-speaking-level"
 					bind:value={localPreferences.speakingLevel}
 					oninput={(e) =>
 						handleInputChange('speakingLevel', parseInt((e.target as HTMLInputElement).value))}
@@ -215,7 +236,7 @@
 
 			<!-- Listening Level -->
 			<div class="form-control {compact ? 'mb-2' : ''}">
-				<label class="label {compact ? 'py-1' : ''}">
+				<label class="label {compact ? 'py-1' : ''}" for="pref-listening-level">
 					<span class="label-text {compact ? 'text-sm' : ''}">Listening Level</span>
 					<span class="label-text-alt {compact ? 'text-sm' : ''}"
 						>{localPreferences.listeningLevel}/100</span
@@ -226,6 +247,7 @@
 					min="1"
 					max="100"
 					class="range range-primary"
+					id="pref-listening-level"
 					bind:value={localPreferences.listeningLevel}
 					oninput={(e) =>
 						handleInputChange('listeningLevel', parseInt((e.target as HTMLInputElement).value))}
@@ -234,7 +256,7 @@
 
 			<!-- Reading Level -->
 			<div class="form-control {compact ? 'mb-2' : ''}">
-				<label class="label {compact ? 'py-1' : ''}">
+				<label class="label {compact ? 'py-1' : ''}" for="pref-reading-level">
 					<span class="label-text {compact ? 'text-sm' : ''}">Reading Level</span>
 					<span class="label-text-alt {compact ? 'text-sm' : ''}"
 						>{localPreferences.readingLevel}/100</span
@@ -245,6 +267,7 @@
 					min="1"
 					max="100"
 					class="range range-primary"
+					id="pref-reading-level"
 					bind:value={localPreferences.readingLevel}
 					oninput={(e) =>
 						handleInputChange('readingLevel', parseInt((e.target as HTMLInputElement).value))}
@@ -253,7 +276,7 @@
 
 			<!-- Writing Level -->
 			<div class="form-control {compact ? 'mb-2' : ''}">
-				<label class="label {compact ? 'py-1' : ''}">
+				<label class="label {compact ? 'py-1' : ''}" for="pref-writing-level">
 					<span class="label-text {compact ? 'text-sm' : ''}">Writing Level</span>
 					<span class="label-text-alt {compact ? 'text-sm' : ''}"
 						>{localPreferences.writingLevel}/100</span
@@ -264,6 +287,7 @@
 					min="1"
 					max="100"
 					class="range range-primary"
+					id="pref-writing-level"
 					bind:value={localPreferences.writingLevel}
 					oninput={(e) =>
 						handleInputChange('writingLevel', parseInt((e.target as HTMLInputElement).value))}
@@ -272,7 +296,7 @@
 
 			<!-- Speaking Confidence -->
 			<div class="form-control {compact ? 'mb-2' : ''}">
-				<label class="label {compact ? 'py-1' : ''}">
+				<label class="label {compact ? 'py-1' : ''}" for="pref-speaking-confidence">
 					<span class="label-text {compact ? 'text-sm' : ''}">Speaking Confidence</span>
 					<span class="label-text-alt {compact ? 'text-sm' : ''}"
 						>{localPreferences.speakingConfidence}/100</span
@@ -283,6 +307,7 @@
 					min="1"
 					max="100"
 					class="range range-primary"
+					id="pref-speaking-confidence"
 					bind:value={localPreferences.speakingConfidence}
 					oninput={(e) =>
 						handleInputChange('speakingConfidence', parseInt((e.target as HTMLInputElement).value))}
@@ -291,11 +316,12 @@
 
 			<!-- Specific Goals -->
 			<div class="form-control md:col-span-2 {compact ? 'mb-2' : ''}">
-				<label class="label {compact ? 'py-1' : ''}">
+				<label class="label {compact ? 'py-1' : ''}" for="pref-specific-goals">
 					<span class="label-text {compact ? 'text-sm' : ''}">Specific Learning Goals</span>
 				</label>
 				<textarea
 					class="textarea-bordered textarea"
+					id="pref-specific-goals"
 					placeholder="Enter your specific learning goals (one per line)"
 					value={Array.isArray(localPreferences.specificGoals)
 						? localPreferences.specificGoals.join('\n')

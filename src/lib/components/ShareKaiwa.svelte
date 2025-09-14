@@ -9,22 +9,22 @@
 	const { source = 'unknown' }: Props = $props();
 
 	const user = userManager.user;
-    let shareUrl = '';
-    let canNativeShare = $state(false);
-    let showThanks = $state(false);
+	let shareUrl = '';
+	let canNativeShare = $state(false);
+	let showThanks = $state(false);
 
 	onMount(() => {
 		if (typeof window !== 'undefined') {
 			const origin = window.location.origin || 'https://kaiwa.app';
 			shareUrl =
 				user && user.id !== 'guest' ? `${origin}/?shareId=${encodeURIComponent(user.id)}` : origin;
-			canNativeShare = !!(navigator as any).share;
+			canNativeShare = !!navigator.share;
 		}
 	});
 
 	async function handleNativeShare() {
 		try {
-			await (navigator as any).share({
+			await navigator.share({
 				title: 'Kaiwa — relationship-first language practice',
 				text: 'Practice real conversations for relationships and family. Join me on Kaiwa.',
 				url: shareUrl

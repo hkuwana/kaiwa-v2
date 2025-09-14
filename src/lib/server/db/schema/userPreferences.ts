@@ -4,7 +4,7 @@ import {
 	text,
 	integer,
 	timestamp,
-	boolean,
+	boolean as pgBoolean,
 	index,
 	pgEnum,
 	jsonb
@@ -111,8 +111,8 @@ export const userPreferences = pgTable(
 		}>(),
 
 		// Email marketing preferences
-		receiveMarketingEmails: boolean('receive_marketing_emails').default(true).notNull(),
-		receiveDailyReminderEmails: boolean('receive_daily_reminder_emails').default(true).notNull(),
+		receiveMarketingEmails: pgBoolean('receive_marketing_emails').default(true).notNull(),
+		receiveDailyReminderEmails: pgBoolean('receive_daily_reminder_emails').default(true).notNull(),
 		dailyReminderSentCount: integer('daily_reminder_sent_count').default(0).notNull(),
 		lastReminderSentAt: timestamp('last_reminder_sent_at')
 	},
