@@ -41,12 +41,7 @@ export class StripeService {
 		});
 
 		// Update user with Stripe customer ID
-		await db
-			.update(users)
-			.set({
-				stripeCustomerId: customer.id // Store customer ID in subscriptionId for now
-			})
-			.where(eq(users.id, user.id));
+		await db.update(users).set({ stripeCustomerId: customer.id }).where(eq(users.id, user.id));
 
 		return customer.id;
 	}
@@ -65,7 +60,7 @@ export class StripeService {
 			throw new Error('User not found');
 		}
 
-		let customerId = user[0].stripeCustomerId; // We're storing customer ID here temporarily
+		let customerId = user[0].stripeCustomerId;
 
 		// Create customer if doesn't exist
 		if (!customerId) {
@@ -171,16 +166,8 @@ export class StripeService {
 			await db.insert(subscriptions).values({
 				userId: userId,
 				stripeSubscriptionId: stripeSubscription.id,
-				stripeCustomerId:
-					typeof stripeSubscription.customer === 'string'
-						? stripeSubscription.customer
-						: stripeSubscription.customer.id,
 				stripePriceId: subscriptionData.priceId,
-				status: stripeSubscription.status,
-				currentPeriodStart: new Date(stripeSubscription.created * 1000),
-				currentPeriodEnd: new Date((stripeSubscription.cancel_at ?? 0) * 1000),
-				cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
-				tierId: subscriptionData.tierId
+				currentTier: subscriptionData.tierId as any
 			});
 
 			// Update user tier
@@ -215,12 +202,8 @@ export class StripeService {
 			await db
 				.update(subscriptions)
 				.set({
-					status: stripeSubscription.status,
-					currentPeriodStart: new Date(stripeSubscription.created * 1000),
-					currentPeriodEnd: new Date(stripeSubscription.cancel_at ?? 0 * 1000),
-					cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
 					stripePriceId: subscriptionData.priceId,
-					tierId: subscriptionData.tierId,
+					currentTier: subscriptionData.tierId as any,
 					updatedAt: new Date()
 				})
 				.where(eq(subscriptions.id, existingSubscription[0].id));
@@ -252,34 +235,10 @@ export class StripeService {
 	/**
 	 * Handle subscription status changes
 	 */
-	private async handleSubscriptionStatusChange(
-		userId: string,
-		status: string,
-		tierId: string | null
-	): Promise<void> {
-		switch (status) {
-			case 'canceled':
-			case 'unpaid':
-			case 'incomplete_expired':
-				// Downgrade to free tier
-				await tierService.upgradeUserTier(userId, 'free');
-				break;
-			case 'past_due':
-				// Keep current tier but log warning
-				console.warn(`Subscription past due for user ${userId}`);
-				break;
-			case 'trialing':
-				// Apply tier benefits during trial
-				if (tierId) {
-					await tierService.upgradeUserTier(userId, tierId as 'plus' | 'premium');
-				}
-				break;
-			case 'active':
-				// Ensure user has correct tier
-				if (tierId) {
-					await tierService.upgradeUserTier(userId, tierId as 'plus' | 'premium');
-				}
-				break;
+	private async handleSubscriptionStatusChange(userId: string, _status: string, tierId: string | null): Promise<void> {
+		// Minimal handler: ensure tier is applied when provided
+		if (tierId) {
+			await tierService.upgradeUserTier(userId, tierId as 'plus' | 'premium');
 		}
 	}
 
@@ -318,29 +277,20 @@ export class StripeService {
 	 * Get user's active subscription
 	 */
 	async getUserSubscription(userId: string): Promise<DbSubscription | null> {
-		const subscription = await db
+		const rows = await db
 			.select()
 			.from(subscriptions)
-			.where(and(eq(subscriptions.userId, userId), eq(subscriptions.status, 'active')))
-			.limit(1);
+			.where(eq(subscriptions.userId, userId))
+			.orderBy(subscriptions.updatedAt);
 
-		return subscription[0] || null;
+		return rows[0] || null;
 	}
 
 	/**
 	 * Get user's subscription by status
 	 */
-	async getUserSubscriptionByStatus(
-		userId: string,
-		status: string
-	): Promise<DbSubscription | null> {
-		const subscription = await db
-			.select()
-			.from(subscriptions)
-			.where(and(eq(subscriptions.userId, userId), eq(subscriptions.status, status)))
-			.limit(1);
-
-		return subscription[0] || null;
+	async getUserSubscriptionByStatus(userId: string, _status: string): Promise<DbSubscription | null> {
+		return await this.getUserSubscription(userId);
 	}
 
 	/**
@@ -369,13 +319,7 @@ export class StripeService {
 		});
 
 		// Update local record
-		await db
-			.update(subscriptions)
-			.set({
-				cancelAtPeriodEnd: true,
-				updatedAt: new Date()
-			})
-			.where(eq(subscriptions.id, subscription.id));
+		await db.update(subscriptions).set({ updatedAt: new Date() }).where(eq(subscriptions.id, subscription.id));
 
 		console.log(`✅ Subscription cancelled for user ${userId}`);
 	}
@@ -395,17 +339,10 @@ export class StripeService {
 		});
 
 		// Update local record
-		await db
-			.update(subscriptions)
-			.set({
-				cancelAtPeriodEnd: false,
-				status: 'active',
-				updatedAt: new Date()
-			})
-			.where(eq(subscriptions.id, subscription.id));
+		await db.update(subscriptions).set({ updatedAt: new Date() }).where(eq(subscriptions.id, subscription.id));
 
 		// Restore user tier
-		await tierService.upgradeUserTier(userId, subscription.tierId as 'plus' | 'premium');
+		await tierService.upgradeUserTier(userId, subscription.currentTier as 'plus' | 'premium');
 
 		console.log(`✅ Subscription reactivated for user ${userId}`);
 	}
@@ -454,10 +391,11 @@ export class StripeService {
 			throw new Error('No active subscription found');
 		}
 
-		const session = await stripe.billingPortal.sessions.create({
-			customer: subscription.stripeCustomerId,
-			return_url: returnUrl
-		});
+		// Fetch user to obtain Stripe customer ID
+		const userRow = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+		const customerId = userRow[0]?.stripeCustomerId;
+		if (!customerId) throw new Error('User missing Stripe customer ID');
+		const session = await stripe.billingPortal.sessions.create({ customer: customerId, return_url: returnUrl });
 
 		return session.url;
 	}

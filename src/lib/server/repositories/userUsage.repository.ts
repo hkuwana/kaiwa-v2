@@ -1,4 +1,4 @@
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 import { db } from '$lib/server/db/index';
 import { userUsage } from '$lib/server/db/schema';
 import type { NewUserUsage, UserUsage } from '$lib/server/db/types';
@@ -38,10 +38,11 @@ export class UserUsageRepository {
 	async getUsageHistory(userId: string, months: number = 12): Promise<UserUsage[]> {
 		const periods = this.getLastNPeriods(months);
 
+		// Use Drizzle's inArray operator for better compatibility
 		return await db
 			.select()
 			.from(userUsage)
-			.where(and(eq(userUsage.userId, userId), sql`${userUsage.period} = ANY(${periods})`))
+			.where(and(eq(userUsage.userId, userId), inArray(userUsage.period, periods)))
 			.orderBy(desc(userUsage.period));
 	}
 

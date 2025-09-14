@@ -71,6 +71,13 @@
       "when": 1757816318202,
       "tag": "0009_mysterious_the_stranger",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1757883470205,
+      "tag": "0010_short_tattoo",
+      "breakpoints": true
     }
   ]
 }

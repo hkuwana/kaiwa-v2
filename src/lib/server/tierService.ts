@@ -20,13 +20,14 @@ export class TierService {
 	 * Get user's current tier from their active subscription
 	 */
 	async getUserTier(userId: string): Promise<UserTier> {
-		const subscription = await db
+		const rows = await db
 			.select()
 			.from(subscriptions)
-			.where(and(eq(subscriptions.userId, userId), eq(subscriptions.status, 'active')))
+			.where(eq(subscriptions.userId, userId))
+			.orderBy(desc(subscriptions.updatedAt))
 			.limit(1);
 
-		return (subscription[0]?.tierId as UserTier) || 'free';
+		return (rows[0]?.currentTier as UserTier) || 'free';
 	}
 
 	/**

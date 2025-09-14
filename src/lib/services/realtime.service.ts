@@ -199,7 +199,13 @@ export function createInputAudioBufferCommit(): ClientEvent {
  * @param config - The session config
  * @returns The session update event
  */
-export function createSessionUpdate(config: SessionConfig): ClientEvent {
+export type ExtendedSessionConfig = Partial<SessionConfig> & {
+    // Allow callers to pass extra fields (ignored by this function)
+    voice?: unknown;
+    input_audio_transcription?: { model: string; language: string };
+};
+
+export function createSessionUpdate(config: ExtendedSessionConfig): ClientEvent {
 	// Minimum compatible payload for preview and GA models
 	return {
 		type: 'session.update',

@@ -1,7 +1,7 @@
 import { PostHog } from 'posthog-node';
 import { env } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
-import { subscriptionRepository } from '$lib/server/repositories';
+import { getUserCurrentTier } from '$lib/server/services/payment.service';
 
 // PostHog configuration for server-side
 const POSTHOG_KEY = publicEnv.PUBLIC_POSTHOG_KEY || 'phc_your_key_here';
@@ -21,13 +21,13 @@ export const load = async ({ url, request, locals }) => {
 	// Get user data from locals (set by hooks.server.ts)
 	const user = locals.user || null;
 
-	// If user exists, also load their active subscription to determine effective tier
-	let subscription = null;
+	// If user exists, get their current tier using simplified service
+	let currentTier = 'free';
 	if (user) {
 		try {
-			subscription = await subscriptionRepository.findActiveSubscriptionByUserId(user.id);
+			currentTier = await getUserCurrentTier(user.id);
 		} catch (error) {
-			console.error('Error fetching user subscription in layout:', error);
+			console.error('Error fetching user tier in layout:', error);
 		}
 	}
 
@@ -41,7 +41,7 @@ export const load = async ({ url, request, locals }) => {
 			request.method
 		),
 		user,
-		subscription
+		currentTier
 	};
 };
 

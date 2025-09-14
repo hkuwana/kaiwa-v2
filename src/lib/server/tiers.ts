@@ -10,7 +10,7 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 	free: {
 		id: 'free',
 		name: 'Basic',
-		description: 'Perfect for trying out Kaiwa',
+		description: 'For trying out Kaiwa',
 
 		// Monthly limits (from pricing page)
 		monthlyConversations: 100, // Unlimited conversations

@@ -16,9 +16,8 @@ export * as openaiService from './openai.service';
 // Conversation summary service
 export * as conversationSummaryService from './conversationSummary.service';
 
-// Payment and subscription services
-export { paymentService } from './payment.service';
-export { subscriptionService } from './subscription.service';
+// Payment and Stripe services
+export * as paymentService from './payment.service';
 export { stripeService } from './stripe.service';
 
 // Email services
