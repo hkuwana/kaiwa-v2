@@ -64,6 +64,13 @@
       "when": 1757515287844,
       "tag": "0008_awesome_zarda",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1757816318202,
+      "tag": "0009_mysterious_the_stranger",
+      "breakpoints": true
     }
   ]
 }

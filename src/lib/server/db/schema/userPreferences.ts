@@ -1,4 +1,14 @@
-import { pgTable, uuid, text, integer, timestamp, index, pgEnum, jsonb } from 'drizzle-orm/pg-core';
+import {
+	pgTable,
+	uuid,
+	text,
+	integer,
+	timestamp,
+	boolean,
+	index,
+	pgEnum,
+	jsonb
+} from 'drizzle-orm/pg-core';
 import { users } from './users'; // Assuming you have a users table
 import { languages } from './languages'; // Assuming you have a languages table
 import { DEFAULT_VOICE } from '../../../types/openai.realtime.types';
@@ -98,7 +108,13 @@ export const userPreferences = pgTable(
 			pressBehavior?: 'tap_toggle' | 'press_hold';
 			autoGreet?: boolean;
 			greetingMode?: 'scenario' | 'generic';
-		}>()
+		}>(),
+
+		// Email marketing preferences
+		receiveMarketingEmails: boolean('receive_marketing_emails').default(true).notNull(),
+		receiveDailyReminderEmails: boolean('receive_daily_reminder_emails').default(true).notNull(),
+		dailyReminderSentCount: integer('daily_reminder_sent_count').default(0).notNull(),
+		lastReminderSentAt: timestamp('last_reminder_sent_at')
 	},
 	(table) => [
 		index('user_preferences_user_id_idx').on(table.userId),
