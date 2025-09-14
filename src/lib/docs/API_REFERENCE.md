@@ -117,7 +117,7 @@ export interface AuthResult {
 #### API Endpoints
 
 ```typescript
-// POST /auth/google/login
+// POST /auth/google/auth
 export interface GoogleLoginRequest {
 	googleToken: string;
 	redirectUri?: string;

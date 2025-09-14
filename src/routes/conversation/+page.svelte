@@ -149,7 +149,7 @@
 	}
 
 	function handleSaveAndContinue() {
-		// This would typically trigger a signup/login flow
+		// This would typically trigger a signup/auth flow
 		// For now, just dismiss results and continue conversation
 		conversationStore.dismissAnalysisNotification();
 	}

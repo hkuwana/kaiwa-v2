@@ -96,7 +96,7 @@ test.describe('Smoke Tests', () => {
 	});
 
 	test('@smoke should handle authentication flow', async ({ page }) => {
-		await page.goto('/login');
+		await page.goto('/auth');
 
 		// Check auth page loads
 		await expect(page.getByRole('button', { name: /Google|Sign in/i })).toBeVisible();
@@ -142,7 +142,7 @@ test.describe('Smoke Tests', () => {
 				elements: ['nav', 'main', 'button']
 			},
 			{
-				path: '/login',
+				path: '/auth',
 				elements: ['form', 'button']
 			},
 			{
