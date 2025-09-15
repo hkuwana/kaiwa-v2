@@ -307,7 +307,8 @@ export class StripeService {
 			// Check if subscription already exists
 			console.log('🎣 [CHECKOUT SUCCESS] Checking for existing subscription...');
 			// Check for existing record in minimal subscriptions table
-			const existingSubscription = await subscriptionRepository.findSubscriptionByStripeId(subscriptionId);
+			const existingSubscription =
+				await subscriptionRepository.findSubscriptionByStripeId(subscriptionId);
 
 			if (existingSubscription) {
 				console.log(
@@ -557,7 +558,9 @@ export class StripeService {
 
 		// Update local record using repository
 		// Minimal schema: no status/cancel flags to persist; update timestamp
-		await subscriptionRepository.updateSubscription(subscription.id, { updatedAt: new SvelteDate() });
+		await subscriptionRepository.updateSubscription(subscription.id, {
+			updatedAt: new SvelteDate()
+		});
 
 		console.log(`✅ Subscription cancelled for user ${userId}`);
 	}
@@ -578,7 +581,9 @@ export class StripeService {
 
 		// Update local record using repository
 		// Minimal schema: no status/cancel flags to persist; update timestamp
-		await subscriptionRepository.updateSubscription(subscription.id, { updatedAt: new SvelteDate() });
+		await subscriptionRepository.updateSubscription(subscription.id, {
+			updatedAt: new SvelteDate()
+		});
 
 		// Restore user tier
 		console.log(

@@ -13,10 +13,8 @@ const config = {
 		mdsvex({
 			extensions: ['.md', '.svx'],
 			remarkPlugins: [remarkGfm],
-			rehypePlugins: [
-				rehypeSlug
-			],
-			highlight: false  // Disable mdsvex's internal syntax highlighting
+			rehypePlugins: [rehypeSlug],
+			highlight: false // Disable mdsvex's internal syntax highlighting
 		})
 	],
 	kit: {

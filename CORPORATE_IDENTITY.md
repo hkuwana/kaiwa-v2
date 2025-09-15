@@ -140,15 +140,15 @@ background: linear-gradient(135deg, #ede9fe 0%, #ecfdf5 100%);
 ```css
 /* Primary Button - Gentle Green */
 .btn-primary {
- background: linear-gradient(135deg, #059669, #10b981);
- border-radius: 24px;
- box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
- transition: all 0.3s ease;
+	background: linear-gradient(135deg, #059669, #10b981);
+	border-radius: 24px;
+	box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+	transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
- transform: translateY(-1px);
- box-shadow: 0 6px 20px rgba(5, 150, 105, 0.3);
+	transform: translateY(-1px);
+	box-shadow: 0 6px 20px rgba(5, 150, 105, 0.3);
 }
 ```
 
@@ -156,10 +156,10 @@ background: linear-gradient(135deg, #ede9fe 0%, #ecfdf5 100%);
 
 ```css
 .card-gentle {
- background: linear-gradient(135deg, #ffffff, #f8fafc);
- border-radius: 16px;
- border: 1px solid rgba(0, 0, 0, 0.05);
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+	background: linear-gradient(135deg, #ffffff, #f8fafc);
+	border-radius: 16px;
+	border: 1px solid rgba(0, 0, 0, 0.05);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 ```
 
@@ -167,14 +167,14 @@ background: linear-gradient(135deg, #ede9fe 0%, #ecfdf5 100%);
 
 ```css
 .input-gentle {
- border: 2px solid #e5e7eb;
- border-radius: 12px;
- transition: all 0.3s ease;
+	border: 2px solid #e5e7eb;
+	border-radius: 12px;
+	transition: all 0.3s ease;
 }
 
 .input-gentle:focus {
- border-color: #059669;
- box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+	border-color: #059669;
+	box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
 }
 ```
 
@@ -213,15 +213,15 @@ background: linear-gradient(135deg, #ede9fe 0%, #ecfdf5 100%);
 ```css
 /* Gentle Scale */
 .gentle-hover {
- transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .gentle-hover:hover {
- transform: scale(1.02);
+	transform: scale(1.02);
 }
 
 /* Flowing Fade */
 .gentle-fade {
- transition: opacity 0.5s ease-in-out;
+	transition: opacity 0.5s ease-in-out;
 }
 ```
 

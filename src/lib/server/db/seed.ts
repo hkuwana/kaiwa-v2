@@ -30,7 +30,11 @@ async function seedLanguages() {
 	for (const language of languageData) {
 		try {
 			// Check if language already exists
-			const existing = await db.select().from(languages).where(eq(languages.id, language.id)).limit(1);
+			const existing = await db
+				.select()
+				.from(languages)
+				.where(eq(languages.id, language.id))
+				.limit(1);
 
 			if (existing.length > 0) {
 				console.log(`  ✓ Language ${language.name} (${language.id}) already exists`);
@@ -100,7 +104,11 @@ async function seedScenarios() {
 	for (const scenario of scenariosData) {
 		try {
 			// Check if scenario already exists
-			const existing = await db.select().from(scenarios).where(eq(scenarios.id, scenario.id)).limit(1);
+			const existing = await db
+				.select()
+				.from(scenarios)
+				.where(eq(scenarios.id, scenario.id))
+				.limit(1);
 
 			if (existing.length > 0) {
 				console.log(`  ✓ Scenario ${scenario.title} (${scenario.id}) already exists`);

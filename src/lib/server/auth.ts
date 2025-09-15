@@ -4,6 +4,7 @@ import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
 import type { Session } from './db/types';
 import { sessionRepository, type SessionRepository } from './repositories/session.repository';
 import { userRepository } from './repositories/user.repository';
+import { subscriptionService } from './services/subscription.service';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
@@ -165,6 +166,9 @@ export async function findOrCreateUser({
 		// For OAuth users (Google), mark email as verified since Google already verified it
 		emailVerified: googleId ? new Date() : null
 	});
+
+	// Ensure new user has a free tier subscription
+	await subscriptionService.getOrCreateUserSubscription(newUser.id);
 
 	return { user: newUser, isNew: true };
 }

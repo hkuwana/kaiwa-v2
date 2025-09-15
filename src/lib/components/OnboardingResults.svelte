@@ -88,7 +88,11 @@
 						<p class="text-xs text-base-content/60 sm:text-sm">Based on our short conversation:</p>
 					</div>
 				</div>
-				<button class="btn btn-circle btn-ghost btn-sm" onclick={onDismiss} aria-label="Close learning profile">
+				<button
+					class="btn btn-circle btn-ghost btn-sm"
+					onclick={onDismiss}
+					aria-label="Close learning profile"
+				>
 					<svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path
 							stroke-linecap="round"

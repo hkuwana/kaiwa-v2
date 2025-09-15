@@ -4,7 +4,7 @@ import { generateCodeVerifier, generateState } from 'arctic';
 export function GET(event): Response {
 	// Check if Google OAuth is enabled
 	if (!isGoogleOAuthEnabled || !google) {
-		console.log('Google OAuth is not configured');
+		console.log('Google OAuth is not configured', isGoogleOAuthEnabled);
 		return new Response('Google OAuth is not configured', { status: 500 });
 	}
 	const state = generateState();

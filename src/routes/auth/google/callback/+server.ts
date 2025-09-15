@@ -13,7 +13,7 @@ interface IdTokenClaims {
 export async function GET(event: RequestEvent): Promise<Response> {
 	// Check if Google OAuth is enabled
 	if (!isGoogleOAuthEnabled || !google) {
-		console.log('Google OAuth is not configured');
+		console.log('Google OAuth is not configured here', isGoogleOAuthEnabled);
 		return new Response('Google OAuth is not configured', { status: 500 });
 	}
 

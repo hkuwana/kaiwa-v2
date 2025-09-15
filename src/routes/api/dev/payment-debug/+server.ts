@@ -13,9 +13,10 @@ import {
 } from '$lib/server/services/payment.service';
 import { serverTierConfigs } from '$lib/server/tiers';
 import { userRepository } from '$lib/server/repositories';
+import { subscriptionService } from '$lib/server/services/subscription.service';
+import type { UserTier } from '$lib/server/db/types';
 
 // Only allow in development mode
-
 
 export const GET: RequestHandler = async ({ locals, url }) => {
 	const userId = locals.user?.id;
@@ -104,7 +105,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	}
 
 	try {
-		const { action } = await request.json();
+		const body = await request.json();
+		const { action } = body;
 
 		const result: Record<string, any> = {
 			timestamp: new Date().toISOString(),
@@ -135,6 +137,29 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				result.success = true;
 				result.currentTier = currentTier;
 				break;
+
+			case 'set_tier': {
+				const { tier } = body;
+				if (!tier || !['free', 'plus', 'premium'].includes(tier)) {
+					throw new Error('Invalid tier specified');
+				}
+
+				// Get or create subscription and update the tier directly
+				const subscription = await subscriptionService.getOrCreateUserSubscription(userId);
+
+				// Use the repository to update the subscription tier directly
+				const { subscriptionRepository } = await import('$lib/server/repositories/subscription.repository');
+				await subscriptionRepository.updateSubscription(subscription.id, {
+					currentTier: tier as UserTier,
+					stripePriceId: tier === 'free' ? 'free' : `${tier}_dev`,
+					updatedAt: new Date()
+				});
+
+				result.success = true;
+				result.newTier = tier;
+				result.message = `Successfully switched to ${tier} tier`;
+				break;
+			}
 
 			default:
 				throw new Error(`Unknown action: ${action}`);

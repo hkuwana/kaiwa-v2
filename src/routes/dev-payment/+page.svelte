@@ -112,6 +112,41 @@
 			isLoading = false;
 		}
 	}
+
+	// Quick tier switching
+	async function switchTier(tier: string) {
+		if (!userManager.isLoggedIn) {
+			testResult = '❌ Please log in first';
+			return;
+		}
+
+		isLoading = true;
+		testResult = `🔧 Switching to ${tier} tier...`;
+
+		try {
+			const response = await fetch('/api/dev/payment-debug', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ action: 'set_tier', tier })
+			});
+
+			const result = await response.json();
+
+			if (response.ok) {
+				testResult = `✅ Successfully switched to ${tier} tier`;
+				console.log('Tier switch result:', result);
+
+				// Reload debug data
+				await loadDebugData();
+			} else {
+				testResult = `❌ Tier switch failed: ${result.message}`;
+			}
+		} catch (error) {
+			testResult = `❌ Tier switch error: ${error}`;
+		} finally {
+			isLoading = false;
+		}
+	}
 </script>
 
 <div class="container mx-auto max-w-4xl p-6">
@@ -203,6 +238,48 @@
 			</div>
 		</div>
 	{/if}
+
+	<!-- Quick Tier Switching -->
+	<div class="card mb-6 bg-base-100 shadow-xl">
+		<div class="card-body">
+			<h2 class="mb-4 card-title text-xl">⚡ Quick Tier Switching</h2>
+			<p class="mb-4 text-base-content/70">
+				Instantly switch between tiers for testing (Dev only - bypasses Stripe)
+			</p>
+
+			<div class="flex flex-wrap gap-3">
+				<button
+					class="btn btn-outline btn-success"
+					onclick={() => switchTier('free')}
+					disabled={isLoading || !userManager.isLoggedIn}
+				>
+					🆓 Free Tier
+				</button>
+
+				<button
+					class="btn btn-outline btn-primary"
+					onclick={() => switchTier('plus')}
+					disabled={isLoading || !userManager.isLoggedIn}
+				>
+					➕ Plus Tier
+				</button>
+
+				<button
+					class="btn btn-outline btn-secondary"
+					onclick={() => switchTier('premium')}
+					disabled={isLoading || !userManager.isLoggedIn}
+				>
+					⭐ Premium Tier
+				</button>
+			</div>
+
+			{#if debugData?.currentTier}
+				<div class="mt-4 alert alert-info">
+					<span>Current tier: <strong class="capitalize">{debugData.currentTier}</strong></span>
+				</div>
+			{/if}
+		</div>
+	</div>
 
 	<!-- Test Actions -->
 	<div class="card mb-6 bg-base-100 shadow-xl">

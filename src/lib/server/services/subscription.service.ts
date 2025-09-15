@@ -147,7 +147,10 @@ export async function updateSubscriptionFromStripe(
  */
 function mapStripePriceToTier(stripePriceId: string): UserTier {
 	for (const [tier, config] of Object.entries(serverTierConfigs)) {
-		if (config.stripePriceIdMonthly === stripePriceId || config.stripePriceIdAnnual === stripePriceId) {
+		if (
+			config.stripePriceIdMonthly === stripePriceId ||
+			config.stripePriceIdAnnual === stripePriceId
+		) {
 			return tier as UserTier;
 		}
 	}

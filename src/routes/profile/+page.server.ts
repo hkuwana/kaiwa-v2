@@ -3,6 +3,7 @@ import type { PageServerLoad } from './$types';
 import { userPreferencesRepository } from '$lib/server/repositories/userPreferences.repository';
 import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 import { languages } from '$lib/data/languages';
+import { subscriptionService } from '$lib/server/services/subscription.service';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	// Early authentication check - redirect if not authenticated or is guest
@@ -26,7 +27,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			console.log('👤 No preferences found, creating default preferences');
 
 			// Get languages from the database to ensure foreign key constraint is satisfied
-		 
+
 			const defaultLanguage = languages.find((lang) => lang.isSupported) || languages[0];
 
 			if (!defaultLanguage) {
@@ -57,9 +58,15 @@ export const load: PageServerLoad = async ({ locals }) => {
 			console.log('✅ Default preferences created successfully');
 		}
 
+		// Get user's subscription information
+		const subscription = await subscriptionService.getOrCreateUserSubscription(locals.user.id);
+		const usageLimits = await subscriptionService.getUsageLimits(locals.user.id);
+
 		return {
 			user: locals.user,
-			userPreferences
+			userPreferences,
+			subscription,
+			usageLimits
 		};
 	} catch (error) {
 		console.error('❌ Error loading profile:', error);

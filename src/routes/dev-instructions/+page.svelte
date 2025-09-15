@@ -176,7 +176,9 @@
 				<h3 class="mb-3 text-lg font-semibold">👤 User Preferences</h3>
 				<div class="space-y-3">
 					<div>
-						<label for="speaking-level" class="mb-1 block text-sm font-medium">Speaking Level (0-100)</label>
+						<label for="speaking-level" class="mb-1 block text-sm font-medium"
+							>Speaking Level (0-100)</label
+						>
 						<input
 							id="speaking-level"
 							type="range"
@@ -205,7 +207,9 @@
 						</select>
 					</div>
 					<div>
-						<label for="correction-style" class="mb-1 block text-sm font-medium">Correction Style</label>
+						<label for="correction-style" class="mb-1 block text-sm font-medium"
+							>Correction Style</label
+						>
 						<select
 							id="correction-style"
 							bind:value={selectedPreferences.correctionStyle}
@@ -218,7 +222,9 @@
 						</select>
 					</div>
 					<div>
-						<label for="total-conversations" class="mb-1 block text-sm font-medium">Total Conversations</label>
+						<label for="total-conversations" class="mb-1 block text-sm font-medium"
+							>Total Conversations</label
+						>
 						<input
 							id="total-conversations"
 							type="number"
@@ -292,7 +298,9 @@
 							</div>
 						{:else if selectedUpdateType === 'difficulty_adjust' && isDifficultyAdjust(selectedUpdateContext)}
 							<div>
-								<label for="increase-difficulty" class="mb-1 block text-sm font-medium">Increase Difficulty</label>
+								<label for="increase-difficulty" class="mb-1 block text-sm font-medium"
+									>Increase Difficulty</label
+								>
 								<input
 									id="increase-difficulty"
 									type="checkbox"
@@ -314,7 +322,9 @@
 							</div>
 						{:else if selectedUpdateType === 'correction_needed' && isCorrectionNeeded(selectedUpdateContext)}
 							<div>
-								<label for="error-pattern" class="mb-1 block text-sm font-medium">Error Pattern</label>
+								<label for="error-pattern" class="mb-1 block text-sm font-medium"
+									>Error Pattern</label
+								>
 								<input
 									id="error-pattern"
 									type="text"
@@ -331,7 +341,9 @@
 				<div class="rounded-lg bg-white p-4 shadow">
 					<h3 class="mb-3 text-lg font-semibold">⏰ Closing Parameters</h3>
 					<div>
-						<label for="time-remaining" class="mb-1 block text-sm font-medium">Time Remaining (seconds)</label>
+						<label for="time-remaining" class="mb-1 block text-sm font-medium"
+							>Time Remaining (seconds)</label
+						>
 						<input
 							id="time-remaining"
 							type="number"

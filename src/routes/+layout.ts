@@ -46,9 +46,7 @@ export const load: LayoutLoad = async ({ data, url }) => {
 	if (user) {
 		// Sync the userManager with user and tier data
 		// The user data from server may not have all optional fields, so we cast it
-		const subscriptionData = currentTier
-			? { effectiveTier: currentTier }
-			: null;
+		const subscriptionData = currentTier ? { effectiveTier: currentTier } : null;
 		// Cast user to User type since server data may not have all optional fields
 		userManager.syncFromPageData(user as import('$lib/server/db/types').User, subscriptionData);
 		console.log('👤 Layout: UserManager synced with user data', {

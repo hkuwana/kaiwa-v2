@@ -129,6 +129,30 @@
 								{/if}
 							</div>
 						</div>
+
+						<div class="form-control">
+							<div class="label">
+								<span class="label-text font-medium">Subscription Plan</span>
+							</div>
+							<div class="flex items-center gap-2">
+								{#if data.subscription}
+									<span class="badge capitalize badge-primary">
+										{data.subscription.currentTier}
+									</span>
+									{#if data.subscription.currentTier === 'free'}
+										<span class="text-sm text-base-content/70">
+											{data.usageLimits.conversationsPerMonth} conversations/month,
+											{data.usageLimits.audioMinutesPerMonth} audio minutes/month
+										</span>
+									{:else}
+										<span class="text-sm text-base-content/70"> Premium features enabled </span>
+									{/if}
+								{:else}
+									<span class="badge badge-neutral">Free</span>
+									<span class="text-sm text-base-content/70">Default plan</span>
+								{/if}
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -14,7 +14,7 @@ export async function getUserTier(userId: string): Promise<UserTier> {
 	try {
 		// This will create a free subscription if none exists
 		const subscription = await subscriptionService.getOrCreateUserSubscription(userId);
-		return (subscription.effectiveTier || subscription.tierId) as UserTier;
+		return subscription.currentTier as UserTier;
 	} catch (error) {
 		console.error('Error getting user tier:', error);
 		return 'free'; // Default to free tier

@@ -90,22 +90,22 @@ Kaiwa embodies the Japanese concept of **"優しさ" (yasashisa)** - gentle kind
 ```css
 /* Light Theme Gradients */
 .gradient-light {
-  background: linear-gradient(135deg, oklch(var(--b1)) 0%, oklch(var(--b2)) 100%);
+	background: linear-gradient(135deg, oklch(var(--b1)) 0%, oklch(var(--b2)) 100%);
 }
 
 /* Dark Theme Gradients */
 .gradient-dark {
-  background: linear-gradient(135deg, oklch(var(--b1)) 0%, oklch(var(--b3)) 100%);
+	background: linear-gradient(135deg, oklch(var(--b1)) 0%, oklch(var(--b3)) 100%);
 }
 
 /* Primary Accent Gradient */
 .gradient-primary {
-  background: linear-gradient(135deg, oklch(var(--p) / 0.1) 0%, oklch(var(--s) / 0.1) 100%);
+	background: linear-gradient(135deg, oklch(var(--p) / 0.1) 0%, oklch(var(--s) / 0.1) 100%);
 }
 
 /* Neutral Gentle Gradient */
 .gradient-neutral {
-  background: linear-gradient(135deg, oklch(var(--n) / 0.05) 0%, oklch(var(--nc) / 0.05) 100%);
+	background: linear-gradient(135deg, oklch(var(--n) / 0.05) 0%, oklch(var(--nc) / 0.05) 100%);
 }
 ```
 
@@ -125,16 +125,16 @@ Kaiwa embodies the Japanese concept of **"優しさ" (yasashisa)** - gentle kind
 ```css
 /* Correct - Theme-aware colors */
 .custom-element {
-  background: oklch(var(--b1));
-  color: oklch(var(--bc));
-  border: 1px solid oklch(var(--b3));
+	background: oklch(var(--b1));
+	color: oklch(var(--bc));
+	border: 1px solid oklch(var(--b3));
 }
 
 /* Avoid - Hardcoded colors that don't adapt */
 .bad-element {
-  background: #ffffff;
-  color: #000000;
-  border: 1px solid #e5e7eb;
+	background: #ffffff;
+	color: #000000;
+	border: 1px solid #e5e7eb;
 }
 ```
 
@@ -154,15 +154,15 @@ Kaiwa embodies the Japanese concept of **"優しさ" (yasashisa)** - gentle kind
 ```css
 /* Components that adapt to theme characteristics */
 .theme-adaptive-card {
-  /* Caramellatte gets 2rem radius, Night gets 1rem */
-  border-radius: var(--rounded-box, 1rem);
+	/* Caramellatte gets 2rem radius, Night gets 1rem */
+	border-radius: var(--rounded-box, 1rem);
 
-  /* Caramellatte gets depth, Night stays flat */
-  box-shadow: var(--caramellatte-shadow, 0 1px 3px oklch(var(--b3) / 0.2));
+	/* Caramellatte gets depth, Night stays flat */
+	box-shadow: var(--caramellatte-shadow, 0 1px 3px oklch(var(--b3) / 0.2));
 }
 
-[data-theme="night"] .theme-adaptive-card {
-  --caramellatte-shadow: none;
+[data-theme='night'] .theme-adaptive-card {
+	--caramellatte-shadow: none;
 }
 ```
 
@@ -202,21 +202,21 @@ Kaiwa embodies the Japanese concept of **"優しさ" (yasashisa)** - gentle kind
 ```css
 /* Primary Button - Uses DaisyUI Variables */
 .btn-primary {
-  /* DaisyUI handles all primary button styling */
-  /* Caramellatte: Black background, white text */
-  /* Night: Sky blue background, dark text */
-  border-radius: 1rem; /* Matches DaisyUI night theme radius */
-  transition: all 0.3s ease;
+	/* DaisyUI handles all primary button styling */
+	/* Caramellatte: Black background, white text */
+	/* Night: Sky blue background, dark text */
+	border-radius: 1rem; /* Matches DaisyUI night theme radius */
+	transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px oklch(var(--p) / 0.3);
+	transform: translateY(-1px);
+	box-shadow: 0 6px 20px oklch(var(--p) / 0.3);
 }
 
 /* Caramellatte theme uses 2rem radius for selectors */
 .btn-rounded {
-  border-radius: 2rem;
+	border-radius: 2rem;
 }
 ```
 
@@ -224,11 +224,11 @@ Kaiwa embodies the Japanese concept of **"優しさ" (yasashisa)** - gentle kind
 
 ```css
 .card {
-  /* Uses DaisyUI base colors automatically */
-  background: oklch(var(--b1));
-  border-radius: 1rem;
-  border: 1px solid oklch(var(--b3));
-  box-shadow: 0 1px 3px oklch(var(--b3) / 0.2);
+	/* Uses DaisyUI base colors automatically */
+	background: oklch(var(--b1));
+	border-radius: 1rem;
+	border: 1px solid oklch(var(--b3));
+	box-shadow: 0 1px 3px oklch(var(--b3) / 0.2);
 }
 ```
 
@@ -236,15 +236,15 @@ Kaiwa embodies the Japanese concept of **"優しさ" (yasashisa)** - gentle kind
 
 ```css
 .input {
-  /* DaisyUI handles theme-aware styling */
-  border: 1px solid oklch(var(--b3)); /* Night theme uses 1px borders */
-  border-radius: 0.5rem; /* DaisyUI field radius */
-  transition: all 0.3s ease;
+	/* DaisyUI handles theme-aware styling */
+	border: 1px solid oklch(var(--b3)); /* Night theme uses 1px borders */
+	border-radius: 0.5rem; /* DaisyUI field radius */
+	transition: all 0.3s ease;
 }
 
 .input:focus {
-  border-color: oklch(var(--p));
-  box-shadow: 0 0 0 3px oklch(var(--p) / 0.1);
+	border-color: oklch(var(--p));
+	box-shadow: 0 0 0 3px oklch(var(--p) / 0.1);
 }
 ```
 
@@ -362,6 +362,7 @@ Kaiwa embodies the Japanese concept of **"優しさ" (yasashisa)** - gentle kind
 ## 🎨 Theme Switching Considerations
 
 ### Caramellatte Theme (Light)
+
 - Perfect for daytime use and bright environments
 - Black primary creates strong, confident actions
 - Cream base provides gentle, warm foundation
@@ -369,6 +370,7 @@ Kaiwa embodies the Japanese concept of **"優しさ" (yasashisa)** - gentle kind
 - 2px borders with depth effects add subtle sophistication
 
 ### Night Theme (Dark)
+
 - Ideal for evening use and low-light environments
 - Sky blue primary feels calm and trustworthy
 - Dark blue-gray base reduces eye strain

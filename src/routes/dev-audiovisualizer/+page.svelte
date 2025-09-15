@@ -483,8 +483,14 @@
 						</select>
 					</div>
 					<div>
-						<label for="primary-color-select" class="mb-2 block text-sm font-semibold">Primary Color</label>
-						<select id="primary-color-select" class="select-bordered select w-full" bind:value={primaryColor}>
+						<label for="primary-color-select" class="mb-2 block text-sm font-semibold"
+							>Primary Color</label
+						>
+						<select
+							id="primary-color-select"
+							class="select-bordered select w-full"
+							bind:value={primaryColor}
+						>
 							<option value="accent">Accent</option>
 							<option value="primary">Primary</option>
 							<option value="secondary">Secondary</option>
