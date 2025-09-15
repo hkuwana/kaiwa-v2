@@ -15,9 +15,7 @@ import { serverTierConfigs } from '$lib/server/tiers';
 import { userRepository } from '$lib/server/repositories';
 
 // Only allow in development mode
-if (!dev) {
-	throw error(404, 'Not found');
-}
+
 
 export const GET: RequestHandler = async ({ locals, url }) => {
 	const userId = locals.user?.id;

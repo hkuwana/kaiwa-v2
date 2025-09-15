@@ -1,17 +1,16 @@
 // src/routes/api/dev/stripe-setup-check/+server.ts
 // Check Stripe webhook and environment setup
 
-import { json } from '@sveltejs/kit';
+import { json, error } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
 import type { RequestHandler } from './$types';
 
-// Only allow in development mode
-if (!dev) {
-	throw new Error('Setup check endpoint only available in development');
-}
-
 export const GET: RequestHandler = async () => {
+	// Only allow in development mode
+	if (!dev) {
+		throw error(404, 'Not found');
+	}
 	const setupInfo = {
 		timestamp: new Date().toISOString(),
 		environment: 'development',

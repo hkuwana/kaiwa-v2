@@ -1,8 +1,8 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { userPreferencesRepository } from '$lib/server/repositories/userPreferences.repository';
-import { languageRepository } from '$lib/server/repositories/language.repository';
 import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
+import { languages } from '$lib/data/languages';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	// Early authentication check - redirect if not authenticated or is guest
@@ -26,7 +26,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			console.log('👤 No preferences found, creating default preferences');
 
 			// Get languages from the database to ensure foreign key constraint is satisfied
-			const languages = await languageRepository.findSupportedLanguages();
+		 
 			const defaultLanguage = languages.find((lang) => lang.isSupported) || languages[0];
 
 			if (!defaultLanguage) {

@@ -1,7 +1,6 @@
 import { mdsvex } from 'mdsvex';
 import adapter from '@sveltejs/adapter-node';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
 
@@ -14,7 +13,10 @@ const config = {
 		mdsvex({
 			extensions: ['.md', '.svx'],
 			remarkPlugins: [remarkGfm],
-			rehypePlugins: [rehypeSlug, rehypeHighlight]
+			rehypePlugins: [
+				rehypeSlug
+			],
+			highlight: false  // Disable mdsvex's internal syntax highlighting
 		})
 	],
 	kit: {

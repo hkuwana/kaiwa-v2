@@ -1,16 +1,15 @@
 // src/routes/api/dev/webhook-test/+server.ts
 // Simple webhook test endpoint to verify Stripe webhooks are working
 
-import { json } from '@sveltejs/kit';
+import { json, error } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import type { RequestHandler } from './$types';
 
-// Only allow in development mode
-if (!dev) {
-	throw new Error('Webhook test endpoint only available in development');
-}
-
 export const POST: RequestHandler = async ({ request }) => {
+	// Only allow in development mode
+	if (!dev) {
+		throw error(404, 'Not found');
+	}
 	const body = await request.text();
 	const signature = request.headers.get('stripe-signature');
 
@@ -50,6 +49,10 @@ export const POST: RequestHandler = async ({ request }) => {
 };
 
 export const GET: RequestHandler = async () => {
+	// Only allow in development mode
+	if (!dev) {
+		throw error(404, 'Not found');
+	}
 	return json({
 		status: 'Webhook test endpoint is active',
 		instructions: [

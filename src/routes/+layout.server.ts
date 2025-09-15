@@ -22,12 +22,15 @@ export const load = async ({ url, request, locals }) => {
 	const user = locals.user || null;
 
 	// If user exists, get their current tier using simplified service
+	// During build, skip Stripe API calls to avoid 404 errors
 	let currentTier = 'free';
-	if (user) {
+	if (user && env.NODE_ENV !== 'build') {
 		try {
 			currentTier = await getUserCurrentTier(user.id);
 		} catch (error) {
 			console.error('Error fetching user tier in layout:', error);
+			// Fallback to free tier if Stripe API fails
+			currentTier = 'free';
 		}
 	}
 

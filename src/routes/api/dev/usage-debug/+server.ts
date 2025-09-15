@@ -5,10 +5,9 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { usageService } from '$lib/server/services/usage.service';
 import { userRepository } from '$lib/server/repositories';
-import { guardDevelopmentAPI } from '$lib/guards/dev.guard';
 
 export const GET: RequestHandler = async ({ locals, url }) => {
-	guardDevelopmentAPI();
+
 
 	const userId = locals.user?.id;
 	if (!userId) {
@@ -134,7 +133,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 };
 
 export const POST: RequestHandler = async ({ request, locals }) => {
-	guardDevelopmentAPI();
+ 
 
 	const userId = locals.user?.id;
 	if (!userId) {

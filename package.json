@@ -99,6 +99,7 @@
 		"date-fns": "^4.1.0",
 		"drizzle-orm": "^0.40.0",
 		"google-auth-library": "^10.3.0",
+		"highlight.js": "^11.11.1",
 		"howler": "^2.2.4",
 		"kuroshiro": "^1.2.0",
 		"kuroshiro-analyzer-kuromoji": "^1.1.0",
