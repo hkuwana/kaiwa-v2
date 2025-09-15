@@ -32,7 +32,6 @@ export class ConversationTimerStore {
 	// Configuration
 	private timeoutMs: number = $state(0);
 	private warningThresholdMs: number = $state(0);
-	private extensionDurationMs: number = $state(0);
 	private maxExtensions: number = $state(0);
 	private extendable: boolean = $state(false);
 
@@ -40,7 +39,6 @@ export class ConversationTimerStore {
 	private startTime: number = $state(0);
 	private totalPausedTime: number = $state(0);
 	private pauseStartTime: number = $state(0);
-	private extensionsUsed: number = $state(0);
 
 	// Update interval
 	private updateInterval: NodeJS.Timeout | null = $state(null);
@@ -156,7 +154,6 @@ export class ConversationTimerStore {
 		this.startTime = Date.now();
 		this.totalPausedTime = 0;
 		this.pauseStartTime = 0;
-		this.extensionsUsed = 0;
 
 		// Update state
 		this._state.timer.isActive = true;
@@ -390,7 +387,6 @@ export class ConversationTimerStore {
 		this.startTime = 0;
 		this.totalPausedTime = 0;
 		this.pauseStartTime = 0;
-		this.extensionsUsed = 0;
 	}
 
 	private _hidePrompts(): void {
