@@ -22,11 +22,8 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 
 		const basicInfo = {
 			tier,
-			hasActiveSubscription: !!subscription && subscription.isActive,
-			status: subscription.status,
-			effectiveTier: subscription.effectiveTier,
-			currentPeriodEnd: subscription.currentPeriodEnd,
-			cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+			hasActiveSubscription: !!subscription,
+			currentTier: subscription.currentTier,
 			limits
 		};
 
@@ -50,23 +47,21 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 				id: subscription.id,
 				stripeSubscriptionId: subscription.stripeSubscriptionId,
 				stripePriceId: subscription.stripePriceId,
-				tierId: subscription.tierId,
-				currentPeriodStart: subscription.currentPeriodStart,
+				currentTier: subscription.currentTier,
 				createdAt: subscription.createdAt,
 				updatedAt: subscription.updatedAt
 			},
 			allSubscriptions: allSubscriptions.map((sub) => ({
 				id: sub.id,
-				tierId: sub.tierId,
-				status: sub.status,
-				isActive: sub.isActive,
+				currentTier: sub.currentTier,
+				stripePriceId: sub.stripePriceId,
 				createdAt: sub.createdAt
 			})),
 			featureAccess,
 			debug: {
 				userId,
 				subscriptionCount: allSubscriptions.length,
-				activeSubscriptions: allSubscriptions.filter((sub) => sub.isActive).length
+				activeSubscriptions: allSubscriptions.length // All subscriptions are considered active in simplified schema
 			}
 		});
 	} catch (err) {

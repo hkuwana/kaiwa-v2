@@ -45,7 +45,7 @@
 	];
 
 	// Close the Dev Tools <details> when clicking outside (desktop view)
-	let devDetailsEl: HTMLDetailsElement | null = null;
+	let devDetailsEl = $state<HTMLDetailsElement | null>(null);
 	function handleDocumentClick(e: MouseEvent) {
 		if (!devDetailsEl) return;
 		const target = e.target as Node | null;

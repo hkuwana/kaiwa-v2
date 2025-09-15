@@ -314,9 +314,7 @@ export class StripeService {
 					'🎣 [CHECKOUT SUCCESS] ⚠️ Subscription already exists:',
 					existingSubscription.id
 				);
-				console.log('  - Current status:', existingSubscription.status);
-				console.log('  - Current tier:', existingSubscription.tierId);
-				console.log('  - Is active:', existingSubscription.isActive);
+				console.log('  - Current tier:', existingSubscription.currentTier);
 
 				// Update existing subscription
 				await subscriptionRepository.updateSubscription(existingSubscription.id, {
@@ -350,7 +348,6 @@ export class StripeService {
 				console.log('🎣 [CHECKOUT SUCCESS] ✅ Final verification successful:');
 				console.log('  - Subscription ID:', finalSubscription.id);
 				console.log('  - User ID:', finalSubscription.userId);
-				console.log('  - Tier ID:', finalSubscription.tierId);
 				console.log('  - Current Tier:', finalSubscription.currentTier);
 			} else {
 				console.error(
@@ -384,20 +381,8 @@ export class StripeService {
 			await subscriptionRepository.createSubscription({
 				userId: userId,
 				stripeSubscriptionId: stripeSubscription.id,
-				stripeCustomerId:
-					typeof stripeSubscription.customer === 'string'
-						? stripeSubscription.customer
-						: stripeSubscription.customer.id,
 				stripePriceId: subscriptionData.priceId,
-				status: stripeSubscription.status,
-				currentPeriodStart: stripeSubscription.created
-					? new SvelteDate(stripeSubscription.created * 1000)
-					: new SvelteDate(),
-				currentPeriodEnd: stripeSubscription.cancel_at
-					? new SvelteDate(stripeSubscription.cancel_at * 1000)
-					: new SvelteDate(Date.now() + 30 * 24 * 60 * 60 * 1000),
-				cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
-				tierId: subscriptionData.tierId
+				currentTier: subscriptionData.tierId || 'free'
 			});
 
 			// Update user tier
@@ -428,16 +413,8 @@ export class StripeService {
 
 			// Update subscription using repository
 			await subscriptionRepository.updateSubscription(existingSubscription.id, {
-				status: stripeSubscription.status,
-				currentPeriodStart: stripeSubscription.created
-					? new SvelteDate(stripeSubscription.created * 1000)
-					: new SvelteDate(),
-				currentPeriodEnd: stripeSubscription.cancel_at
-					? new SvelteDate(stripeSubscription.cancel_at * 1000)
-					: new SvelteDate(Date.now() + 30 * 24 * 60 * 60 * 1000),
-				cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
 				stripePriceId: subscriptionData.priceId,
-				tierId: subscriptionData.tierId
+				currentTier: subscriptionData.tierId || 'free'
 			});
 
 			// Update user tier if changed
@@ -549,9 +526,11 @@ export class StripeService {
 	 */
 	async getUserSubscriptionByStatus(
 		userId: string,
-		_status: string
+		status: string
 	): Promise<DbSubscription | null> {
 		// Minimal schema does not track status; return latest if any
+		// NOTE: Status parameter is currently unused due to simplified schema
+		console.log(`Requested subscription for user ${userId} with status ${status}`);
 		return await this.getUserSubscription(userId);
 	}
 
@@ -559,7 +538,7 @@ export class StripeService {
 	 * Get all user subscriptions
 	 */
 	async getAllUserSubscriptions(userId: string): Promise<DbSubscription[]> {
-		return await subscriptionRepository.getAllUserSubscriptions(userId);
+		return await subscriptionRepository.findSubscriptionsByUserId(userId);
 	}
 
 	/**
@@ -603,7 +582,7 @@ export class StripeService {
 
 		// Restore user tier
 		console.log(
-			`User ${userId} tier restored to ${subscription.tierId} via subscription reactivation`
+			`User ${userId} tier restored to ${subscription.currentTier} via subscription reactivation`
 		);
 
 		console.log(`✅ Subscription reactivated for user ${userId}`);
@@ -653,8 +632,15 @@ export class StripeService {
 			throw new Error('No active subscription found');
 		}
 
+		// Get customer ID from user
+		const user = await userRepository.findUserById(userId);
+		if (!user?.stripeCustomerId) {
+			throw new Error('No customer ID found for user');
+		}
+		const customerId = user.stripeCustomerId;
+
 		const session = await stripe.billingPortal.sessions.create({
-			customer: subscription.stripeCustomerId,
+			customer: customerId,
 			return_url: returnUrl
 		});
 

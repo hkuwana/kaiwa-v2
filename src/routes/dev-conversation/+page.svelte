@@ -33,12 +33,12 @@
 
 	<div class="flex items-end gap-2">
 		<div>
-			<label class="text-sm text-gray-600">Limit</label>
-			<input class="w-24 rounded border p-2" type="number" bind:value={limit} min="1" max="50" />
+			<label for="limit-input" class="text-sm text-gray-600">Limit</label>
+			<input id="limit-input" class="w-24 rounded border p-2" type="number" bind:value={limit} min="1" max="50" />
 		</div>
 		<div>
-			<label class="text-sm text-gray-600">Language ID (optional)</label>
-			<input class="w-48 rounded border p-2" placeholder="e.g., ja, es" bind:value={languageId} />
+			<label for="language-input" class="text-sm text-gray-600">Language ID (optional)</label>
+			<input id="language-input" class="w-48 rounded border p-2" placeholder="e.g., ja, es" bind:value={languageId} />
 		</div>
 		<button class="rounded bg-blue-600 px-3 py-2 text-white" onclick={loadConversations}>
 			Refresh

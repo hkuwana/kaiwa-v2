@@ -17,7 +17,7 @@ export { scenarioAttemptsRepository } from './scenarioAttempts.repository';
 export { scenarioOutcomesRepository } from './scenarioOutcomes.repository';
 
 // Subscription and billing repositories
-// Note: subscriptionRepository removed - using simplified payment.service.ts instead
+export { subscriptionRepository } from './subscription.repository';
 export { paymentRepository } from './payment.repository';
 
 // Usage tracking and analytics repositories

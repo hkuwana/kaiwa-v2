@@ -528,10 +528,11 @@
 			{#if showAdvancedControls}
 				<div class="mb-4 grid grid-cols-2 gap-4">
 					<div>
-						<label class="label">
+						<label for="custom-timeout" class="label">
 							<span class="label-text">Custom Timeout (ms)</span>
 						</label>
 						<input
+							id="custom-timeout"
 							type="number"
 							class="input-bordered input w-full"
 							bind:value={customTimeoutMs}
@@ -541,10 +542,11 @@
 					</div>
 
 					<div>
-						<label class="label">
+						<label for="custom-warning" class="label">
 							<span class="label-text">Custom Warning (ms)</span>
 						</label>
 						<input
+							id="custom-warning"
 							type="number"
 							class="input-bordered input w-full"
 							bind:value={customWarningMs}

@@ -471,8 +471,8 @@
 				<h3 class="mb-4 text-center text-2xl font-bold">🎨 Visual Test Controls</h3>
 				<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
 					<div>
-						<label class="mb-2 block text-sm font-semibold">Background</label>
-						<select class="select-bordered select w-full" bind:value={bgChoice}>
+						<label for="bg-select" class="mb-2 block text-sm font-semibold">Background</label>
+						<select id="bg-select" class="select-bordered select w-full" bind:value={bgChoice}>
 							<option value="gradient">Base Gradient</option>
 							<option value="base100">Base 100</option>
 							<option value="base200">Base 200</option>
@@ -483,8 +483,8 @@
 						</select>
 					</div>
 					<div>
-						<label class="mb-2 block text-sm font-semibold">Primary Color</label>
-						<select class="select-bordered select w-full" bind:value={primaryColor}>
+						<label for="primary-color-select" class="mb-2 block text-sm font-semibold">Primary Color</label>
+						<select id="primary-color-select" class="select-bordered select w-full" bind:value={primaryColor}>
 							<option value="accent">Accent</option>
 							<option value="primary">Primary</option>
 							<option value="secondary">Secondary</option>

@@ -9,10 +9,10 @@
 
 	const { items, intervalMs = 2200, rotationMs = 500 }: Props = $props();
 
-	let current = 0;
-	let rotation = 0; // degrees of rotation
-	let transitioning = false;
-	let spinnerEl: HTMLDivElement | null = null;
+	let current = $state(0);
+	let rotation = $state(0); // degrees of rotation
+	let transitioning = $state(false);
+	let spinnerEl = $state<HTMLDivElement | null>(null);
 	let timer: any;
 
 	function tick() {

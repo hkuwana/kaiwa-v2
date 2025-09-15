@@ -29,6 +29,20 @@ export const subscriptionRepository = {
         }
     },
 
+    async findSubscriptionsByUserId(userId: string): Promise<Subscription[]> {
+        try {
+            const subscriptionList = await db
+                .select()
+                .from(subscriptions)
+                .where(eq(subscriptions.userId, userId))
+                .orderBy(desc(subscriptions.createdAt));
+            return subscriptionList;
+        } catch (error) {
+            console.error('Error fetching subscriptions from DB:', error);
+            return [];
+        }
+    },
+
     async findSubscriptionByStripeId(stripeSubscriptionId: string): Promise<Subscription | null> {
         try {
             const subscription = await db.query.subscriptions.findFirst({

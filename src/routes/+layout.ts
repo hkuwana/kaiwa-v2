@@ -41,20 +41,19 @@ export const load: LayoutLoad = async ({ data, url }) => {
 	}
 
 	// Sync user data with userManager store
-	const { user, subscription } = data;
+	const { user, currentTier } = data;
 
 	if (user) {
-		// Sync the userManager with user and subscription data
+		// Sync the userManager with user and tier data
 		// The user data from server may not have all optional fields, so we cast it
-		// Also handle the subscription type properly
-		const subscriptionData = subscription
-			? { effectiveTier: subscription.effectiveTier || undefined }
+		const subscriptionData = currentTier
+			? { effectiveTier: currentTier }
 			: null;
 		// Cast user to User type since server data may not have all optional fields
 		userManager.syncFromPageData(user as import('$lib/server/db/types').User, subscriptionData);
 		console.log('👤 Layout: UserManager synced with user data', {
 			userId: user.id,
-			tier: subscription?.effectiveTier || 'free'
+			tier: currentTier || 'free'
 		});
 	} else {
 		// Reset userManager to guest state
@@ -64,7 +63,7 @@ export const load: LayoutLoad = async ({ data, url }) => {
 
 	return {
 		user,
-		subscription,
+		currentTier,
 		seo: {
 			...BASE_SEO,
 			canonical: `${BASE_SEO.canonical}${url.pathname}`,

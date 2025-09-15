@@ -176,8 +176,9 @@
 				<h3 class="mb-3 text-lg font-semibold">👤 User Preferences</h3>
 				<div class="space-y-3">
 					<div>
-						<label class="mb-1 block text-sm font-medium">Speaking Level (0-100)</label>
+						<label for="speaking-level" class="mb-1 block text-sm font-medium">Speaking Level (0-100)</label>
 						<input
+							id="speaking-level"
 							type="range"
 							min="0"
 							max="100"
@@ -188,8 +189,9 @@
 						<span class="text-sm text-gray-600">{selectedPreferences.speakingLevel}</span>
 					</div>
 					<div>
-						<label class="mb-1 block text-sm font-medium">Learning Goal</label>
+						<label for="learning-goal" class="mb-1 block text-sm font-medium">Learning Goal</label>
 						<select
+							id="learning-goal"
 							bind:value={selectedPreferences.learningGoal}
 							class="w-full rounded border p-2"
 							onchange={generateInstructions}
@@ -203,8 +205,9 @@
 						</select>
 					</div>
 					<div>
-						<label class="mb-1 block text-sm font-medium">Correction Style</label>
+						<label for="correction-style" class="mb-1 block text-sm font-medium">Correction Style</label>
 						<select
+							id="correction-style"
 							bind:value={selectedPreferences.correctionStyle}
 							class="w-full rounded border p-2"
 							onchange={generateInstructions}
@@ -215,8 +218,9 @@
 						</select>
 					</div>
 					<div>
-						<label class="mb-1 block text-sm font-medium">Total Conversations</label>
+						<label for="total-conversations" class="mb-1 block text-sm font-medium">Total Conversations</label>
 						<input
+							id="total-conversations"
 							type="number"
 							min="0"
 							bind:value={selectedPreferences.successfulExchanges}
@@ -261,8 +265,9 @@
 					<h3 class="mb-3 text-lg font-semibold">🔄 Update Parameters</h3>
 					<div class="space-y-3">
 						<div>
-							<label class="mb-1 block text-sm font-medium">Update Type</label>
+							<label for="update-type" class="mb-1 block text-sm font-medium">Update Type</label>
 							<select
+								id="update-type"
 								bind:value={selectedUpdateType}
 								class="w-full rounded border p-2"
 								onchange={generateInstructions}
@@ -275,8 +280,9 @@
 						</div>
 						{#if selectedUpdateType === 'topic_change' && isTopicChange(selectedUpdateContext)}
 							<div>
-								<label class="mb-1 block text-sm font-medium">New Topic</label>
+								<label for="new-topic" class="mb-1 block text-sm font-medium">New Topic</label>
 								<input
+									id="new-topic"
 									type="text"
 									bind:value={selectedUpdateContext.newTopic}
 									class="w-full rounded border p-2"
@@ -286,8 +292,9 @@
 							</div>
 						{:else if selectedUpdateType === 'difficulty_adjust' && isDifficultyAdjust(selectedUpdateContext)}
 							<div>
-								<label class="mb-1 block text-sm font-medium">Increase Difficulty</label>
+								<label for="increase-difficulty" class="mb-1 block text-sm font-medium">Increase Difficulty</label>
 								<input
+									id="increase-difficulty"
 									type="checkbox"
 									bind:checked={selectedUpdateContext.increase}
 									onchange={generateInstructions}
@@ -295,8 +302,9 @@
 							</div>
 						{:else if selectedUpdateType === 'engagement_boost' && isEngagementBoost(selectedUpdateContext)}
 							<div>
-								<label class="mb-1 block text-sm font-medium">Reason</label>
+								<label for="reason" class="mb-1 block text-sm font-medium">Reason</label>
 								<input
+									id="reason"
 									type="text"
 									bind:value={selectedUpdateContext.reason}
 									class="w-full rounded border p-2"
@@ -306,8 +314,9 @@
 							</div>
 						{:else if selectedUpdateType === 'correction_needed' && isCorrectionNeeded(selectedUpdateContext)}
 							<div>
-								<label class="mb-1 block text-sm font-medium">Error Pattern</label>
+								<label for="error-pattern" class="mb-1 block text-sm font-medium">Error Pattern</label>
 								<input
+									id="error-pattern"
 									type="text"
 									bind:value={selectedUpdateContext.errorPattern}
 									class="w-full rounded border p-2"
@@ -322,8 +331,9 @@
 				<div class="rounded-lg bg-white p-4 shadow">
 					<h3 class="mb-3 text-lg font-semibold">⏰ Closing Parameters</h3>
 					<div>
-						<label class="mb-1 block text-sm font-medium">Time Remaining (seconds)</label>
+						<label for="time-remaining" class="mb-1 block text-sm font-medium">Time Remaining (seconds)</label>
 						<input
+							id="time-remaining"
 							type="number"
 							min="0"
 							max="60"
@@ -340,8 +350,8 @@
 				<h3 class="mb-3 text-lg font-semibold">🧩 Module Testing</h3>
 				<div class="space-y-3">
 					<div>
-						<label class="mb-1 block text-sm font-medium">Module ID</label>
-						<select bind:value={selectedModuleId} class="w-full rounded border p-2">
+						<label for="module-id" class="mb-1 block text-sm font-medium">Module ID</label>
+						<select id="module-id" bind:value={selectedModuleId} class="w-full rounded border p-2">
 							<option value="personality">personality</option>
 							<option value="pace">pace</option>
 							<option value="complexity">complexity</option>

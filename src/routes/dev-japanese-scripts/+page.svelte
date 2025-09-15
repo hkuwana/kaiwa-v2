@@ -286,10 +286,11 @@
 				<h2 class="card-title">🎯 Test Input</h2>
 
 				<div class="form-control">
-					<label class="label">
+					<label for="japanese-text" class="label">
 						<span class="label-text">Japanese Text to Process:</span>
 					</label>
 					<input
+						id="japanese-text"
 						bind:value={testText}
 						type="text"
 						placeholder="こんにちは、今日はどうですか？"

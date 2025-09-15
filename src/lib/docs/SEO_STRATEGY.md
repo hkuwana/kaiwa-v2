@@ -28,7 +28,7 @@ Rank #1 for "authentic conversation practice in Japanese" and "build confidence 
 
 #### Technical SEO Fixes:
 
-- [ ] Optimize Core Web Vitals (LCP < 2.5s, FID < 100ms, CLS < 0.1)
+- [ ] Optimize Core Web Vitals (LCP &lt; 2.5s, FID &lt; 100ms, CLS &lt; 0.1)
 - [ ] Add comprehensive schema markup for educational applications
 - [ ] Implement language-specific hreflang tags
 - [ ] Add breadcrumb navigation with schema
