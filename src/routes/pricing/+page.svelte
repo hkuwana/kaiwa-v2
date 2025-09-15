@@ -65,40 +65,16 @@
 	const allFeatures = [
 		{
 			feature: 'Monthly Practice Time',
-			basic: `${formatTime(freeTier.monthlySeconds)} + $${freeTier.overagePricePerMinuteInCents / 100}/extra minute`,
-			plus: `${formatTime(plusTier.monthlySeconds)} + $${plusTier.overagePricePerMinuteInCents / 100}/extra minute`,
-			premium: `${formatTime(premiumTier.monthlySeconds)} + $${premiumTier.overagePricePerMinuteInCents / 100}/extra minute`,
+			basic: `${formatTime(freeTier.monthlySeconds)} + 10 cents/extra minute`,
+			plus: `${formatTime(plusTier.monthlySeconds)} + 8 cents/extra minute`,
+			premium: `${formatTime(premiumTier.monthlySeconds)} + 5 cents/extra minute`,
 			tooltip: 'Total conversation time available each month.'
 		},
 		{
-			feature: 'Max Session Length',
-			basic: formatTime(freeTier.maxSessionLengthSeconds),
-			plus: formatTime(plusTier.maxSessionLengthSeconds),
-			premium: formatTime(premiumTier.maxSessionLengthSeconds),
-			tooltip: 'Maximum duration for a single conversation practice.'
-		},
-		{
-			feature: 'Session Banking',
-			basic: '—',
-			plus: freeTier.sessionBankingEnabled
-				? `Unused minutes rollover (${formatTime(plusTier.maxBankedSeconds)})`
-				: '—',
-			premium: premiumTier.sessionBankingEnabled
-				? `Unused minutes rollover (${formatTime(premiumTier.maxBankedSeconds)})`
-				: '—',
-			tooltip: 'Save your practice time. Use it when you need it.'
-		},
-		{
 			feature: 'Feedback & Reports',
-			basic: `${freeTier.feedbackSessionsPerMonth} sessions / month`,
-			plus:
-				plusTier.feedbackSessionsPerMonth === 'unlimited'
-					? 'After every session'
-					: `${plusTier.feedbackSessionsPerMonth} sessions / month`,
-			premium:
-				premiumTier.feedbackSessionsPerMonth === 'unlimited'
-					? 'After every session'
-					: `${premiumTier.feedbackSessionsPerMonth} sessions / month`,
+			basic: '10 reports / month',
+			plus: 'Unlimited',
+			premium: 'Unlimited',
 			tooltip: 'Receive detailed feedback on your conversations.'
 		},
 		{
@@ -118,11 +94,8 @@
 		{
 			feature: 'Anki Export',
 			basic: `First ${freeTier.ankiExportLimit} words`,
-			plus: `First ${plusTier.ankiExportLimit} words`,
-			premium:
-				premiumTier.ankiExportLimit === -1
-					? 'Unlimited'
-					: `First ${premiumTier.ankiExportLimit} words`,
+			plus: '✓',
+			premium: '✓',
 			status: COMING_SOON,
 			tooltip: 'Easily export vocabulary to Anki for spaced repetition practice.'
 		}

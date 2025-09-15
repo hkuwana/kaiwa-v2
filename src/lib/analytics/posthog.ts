@@ -3,7 +3,7 @@
 
 import { browser } from '$app/environment';
 import { page } from '$app/state';
-import { PUBLIC_POSTHOG_KEY } from '$env/static/public';
+import { env } from '$env/dynamic/public';
 import posthog from 'posthog-js';
 
 // PostHog configuration
@@ -17,7 +17,7 @@ export function initializePostHog(): void {
 
 	// Dynamic import to avoid SSR issues
 	import('posthog-js').then(({ default: posthog }) => {
-		posthog.init(PUBLIC_POSTHOG_KEY, {
+		posthog.init(env.PUBLIC_POSTHOG_KEY, {
 			api_host: POSTHOG_HOST,
 			person_profiles: 'identified_only', // Only create profiles for logged-in users
 			capture_pageview: false, // We'll handle this manually

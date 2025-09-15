@@ -30,7 +30,9 @@
       "Bash(grep:*)",
       "Bash(git rm:*)",
       "Bash(pnpm db:seed:dev:*)",
-      "Bash(pnpm db:seed:prod:*)"
+      "Bash(pnpm db:seed:prod:*)",
+      "Bash(echo:*)",
+      "Bash(fly secrets:*)"
     ],
     "deny": [],
     "ask": []

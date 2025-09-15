@@ -1,7 +1,12 @@
-import { google } from '$lib/services/auth-oauth.service';
+import { google, isGoogleOAuthEnabled } from '$lib/services/auth-oauth.service';
 import { generateCodeVerifier, generateState } from 'arctic';
 
 export function GET(event): Response {
+	// Check if Google OAuth is enabled
+	if (!isGoogleOAuthEnabled || !google) {
+		console.log('Google OAuth is not configured');
+		return new Response('Google OAuth is not configured', { status: 500 });
+	}
 	const state = generateState();
 	const codeVerifier = generateCodeVerifier();
 	const url = google.createAuthorizationURL(state, codeVerifier, ['openid', 'profile', 'email']);
