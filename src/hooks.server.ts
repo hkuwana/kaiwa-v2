@@ -2,11 +2,23 @@
 
 import { sequence } from '@sveltejs/kit/hooks';
 import type { Handle } from '@sveltejs/kit';
+import { dev } from '$app/environment';
+import { error } from '@sveltejs/kit';
 import { paraglideMiddleware } from '$lib/paraglide/server';
 import * as auth from '$lib/server/auth';
 import { nanoid } from 'nanoid';
 import { userRepository } from '$lib/server/repositories';
 import { ensureStripeCustomer } from '$lib/server/services/payment.service';
+
+const handleDevRoutes: Handle = async ({ event, resolve }) => {
+	// Block access to dev routes in production
+	if (event.url.pathname.startsWith('/dev') || event.url.pathname.startsWith('/api/dev')) {
+		if (!dev) {
+			throw error(404, 'Not found');
+		}
+	}
+	return resolve(event);
+};
 
 const handleParaglide: Handle = ({ event, resolve }) =>
 	paraglideMiddleware(event.request, ({ request, locale }) => {
@@ -72,4 +84,4 @@ const userSetup: Handle = async ({ event, resolve }) => {
 };
 
 // Sequence the handles in the correct order
-export const handle: Handle = sequence(handleParaglide, handleAuth, userSetup);
+export const handle: Handle = sequence(handleDevRoutes, handleParaglide, handleAuth, userSetup);

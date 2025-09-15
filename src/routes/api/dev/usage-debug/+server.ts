@@ -7,7 +7,7 @@ import { usageService } from '$lib/server/services/usage.service';
 import { userRepository } from '$lib/server/repositories';
 
 export const GET: RequestHandler = async ({ locals, url }) => {
-
+	// Access controlled by hooks.server.ts
 
 	const userId = locals.user?.id;
 	if (!userId) {
@@ -133,7 +133,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 };
 
 export const POST: RequestHandler = async ({ request, locals }) => {
- 
+	// Access controlled by hooks.server.ts
 
 	const userId = locals.user?.id;
 	if (!userId) {
