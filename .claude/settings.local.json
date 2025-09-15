@@ -29,7 +29,8 @@
       "Bash(stripe trigger:*)",
       "Bash(grep:*)",
       "Bash(git rm:*)",
-      "Bash(pnpm db:seed:dev:*)"
+      "Bash(pnpm db:seed:dev:*)",
+      "Bash(pnpm db:seed:prod:*)"
     ],
     "deny": [],
     "ask": []
