@@ -1,12 +1,12 @@
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ parent }) => {
-	const { seo, ...data } = await parent();
+	const parentData = await parent();
 
 	return {
-		...data,
+		...parentData,
 		seo: {
-			...seo,
+			...parentData.seo,
 			title: 'Kaiwa - Master Languages Through AI Conversation Practice',
 			description:
 				'Learn languages naturally with AI-powered conversations. Practice speaking Japanese, Spanish, French, and more through realistic scenarios. Start your free conversation today.',

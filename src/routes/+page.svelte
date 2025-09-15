@@ -8,12 +8,13 @@
 	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
 	import { trackABTest } from '$lib/analytics/posthog';
 	import type { Language as DataLanguage } from '$lib/data/languages';
-	import { languages as allLanguages } from '$lib/data/languages';
 	import type { Scenario } from '$lib/server/db/types';
 	import { dev } from '$app/environment';
 	import WhyDifferent from '$lib/components/WhyDifferent.svelte';
+	import UsageTimer from '$lib/components/UsageTimer.svelte';
 
 	// Get user data from page data
+	const { data } = $props();
 	const user = userManager.user;
 
 	// State management for language, speaker, and scenario selection
@@ -101,10 +102,35 @@
 						Welcome back, {user ? user.displayName : 'Dev'}!
 					</div>
 				{:else}
-					<p class="mb-6 hidden text-xl opacity-90 sm:block">
-						Practice life-like conversations for relationships and family — quick 3‑minute
-						onboarding.
-					</p>
+					<!-- Guest user value prop with clear assessment explanation -->
+					<div class="mb-6 space-y-3">
+						<p class="text-lg opacity-90 sm:text-xl">
+							Get your speaking level assessed in 3 minutes. Start practicing conversations that
+							match your skill.
+						</p>
+						<div class="mx-auto max-w-sm rounded-lg bg-primary/10 px-4 py-3 text-sm">
+							<div class="mb-2 font-medium text-primary">✨ What you get free:</div>
+							<ul class="space-y-1 text-left opacity-80">
+								<li>• 3-minute skill assessment</li>
+								<li>• {data.usageLimits?.audioMinutesPerMonth || (data as any).usageLimits?.audioMinutesPerMonth || 15} minutes of conversation practice</li>
+								<li>• Personalized difficulty matching</li>
+								<li>• No signup required to start</li>
+							</ul>
+							{#if data.usageLimits || (data as any).usageLimits}
+								<div class="mt-3 pt-3 border-t border-primary/20">
+									<div class="flex items-center justify-between">
+										<span class="text-xs opacity-70">Available now:</span>
+										<UsageTimer
+											remainingMinutes={data.usageLimits?.audioMinutesPerMonth || (data as any).usageLimits?.audioMinutesPerMonth || 15}
+											totalMinutes={data.usageLimits?.audioMinutesPerMonth || (data as any).usageLimits?.audioMinutesPerMonth || 15}
+											size="sm"
+											className="text-primary"
+										/>
+									</div>
+								</div>
+							{/if}
+						</div>
+					</div>
 				{/if}
 
 				<UnifiedStartButton

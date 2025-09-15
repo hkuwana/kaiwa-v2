@@ -6,15 +6,15 @@ import type { Scenario } from '$lib/server/db/types';
 export const scenariosData: Scenario[] = [
 	{
 		id: 'onboarding-welcome',
-		title: 'Welcome to Kaiwa',
-		description: 'Get comfortable with your first conversation in a new language',
+		title: '3-Minute Speaking Assessment',
+		description: 'Let our AI understand your speaking level and learning goals',
 		category: 'onboarding',
 		difficulty: 'beginner',
-		instructions: "Introduce yourself to a friendly barista and share why you're learning.",
+		instructions: "Have a natural conversation about yourself and your language goals. Our AI will listen and create a personalized learning path for you.",
 		context:
-			'Morning light through the window, clink of cups, the barista asks your name and what brings you in.',
-		expectedOutcome: 'Exchange greetings and a short intro while feeling at ease',
-		learningObjectives: ['basic greetings', 'self-introduction', 'reasons for learning'],
+			'A friendly language coach wants to understand your current level and what you hope to achieve. Just be yourself—this helps us create better conversations for you.',
+		expectedOutcome: 'Personalized recommendations based on your conversation',
+		learningObjectives: ['skill assessment', 'goal identification', 'learning preferences', 'personalized recommendations'],
 		comfortIndicators: {
 			confidence: 3,
 			engagement: 4,

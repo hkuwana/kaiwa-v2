@@ -2,10 +2,7 @@
 // Test and debug the simplified payment flow
 
 import { json, error } from '@sveltejs/kit';
-import { dev } from '$app/environment';
-import type { RequestHandler } from './$types';
 import {
-	getUserCurrentTier,
 	getUserTierFromStripe,
 	getUserSubscriptionFromDB,
 	syncUserSubscription,
@@ -18,7 +15,7 @@ import type { UserTier } from '$lib/server/db/types';
 
 // Only allow in development mode
 
-export const GET: RequestHandler = async ({ locals, url }) => {
+export const GET = async ({ locals, url }) => {
 	const userId = locals.user?.id;
 	if (!userId) {
 		throw error(401, 'Unauthorized');
@@ -44,8 +41,8 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 		};
 
 		if (action === 'status' || action === 'full') {
-			// Get current tier using our simple service
-			const currentTier = await getUserCurrentTier(userId);
+			// Get current tier from subscription service (DB first, good for dev)
+			const currentTier = await subscriptionService.getUserTier(userId);
 			result.currentTier = currentTier;
 
 			// Get DB subscription (backup)
@@ -96,7 +93,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 	}
 };
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST = async ({ request, locals }) => {
 	const userId = locals.user?.id;
 	const userEmail = locals.user?.email;
 
@@ -117,26 +114,28 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 		switch (action) {
 			case 'ensure_stripe_customer':
-				const stripeCustomerId = await ensureStripeCustomer(userId, userEmail);
+				{ const stripeCustomerId = await ensureStripeCustomer(userId, userEmail);
 				result.success = !!stripeCustomerId;
 				result.stripeCustomerId = stripeCustomerId;
-				break;
+				break; }
 
 			case 'sync_from_stripe':
-				const user = await userRepository.findUserById(userId);
+				{ const user = await userRepository.findUserById(userId);
 				if (!user?.stripeCustomerId) {
 					throw new Error('User has no Stripe customer ID');
 				}
 				const syncData = await syncUserSubscription(userId, user.stripeCustomerId);
 				result.success = true;
 				result.syncData = syncData;
-				break;
+				break; }
 
-			case 'get_current_tier':
-				const currentTier = await getUserCurrentTier(userId);
+			case 'get_current_tier': {
+				// Use subscription service for dev (DB first)
+				const currentTier = await subscriptionService.getUserTier(userId);
 				result.success = true;
 				result.currentTier = currentTier;
 				break;
+			}
 
 			case 'set_tier': {
 				const { tier } = body;
@@ -148,7 +147,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				const subscription = await subscriptionService.getOrCreateUserSubscription(userId);
 
 				// Use the repository to update the subscription tier directly
-				const { subscriptionRepository } = await import('$lib/server/repositories/subscription.repository');
+				const { subscriptionRepository } = await import(
+					'$lib/server/repositories/subscription.repository'
+				);
 				await subscriptionRepository.updateSubscription(subscription.id, {
 					currentTier: tier as UserTier,
 					stripePriceId: tier === 'free' ? 'free' : `${tier}_dev`,

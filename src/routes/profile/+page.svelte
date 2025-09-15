@@ -14,6 +14,17 @@
 
 	const requiredText = 'DELETE PROFILE';
 
+	// Billing state
+	let isManagingBilling = $state(false);
+	let billingError = $state('');
+
+	// Tier pricing for display
+	const tierPricing: Record<string, string> = {
+		free: '0',
+		plus: '19',
+		premium: '29'
+	};
+
 	const handleDeleteClick = () => {
 		showDeleteModal = true;
 		deleteConfirmation = '';
@@ -61,6 +72,94 @@
 	const handlePreferencesSave = (updates: Partial<UserPreferences>) => {
 		if (userPreferences) {
 			userPreferences = { ...userPreferences, ...updates };
+		}
+	};
+
+	// Billing functions
+	const openBillingPortal = async () => {
+		isManagingBilling = true;
+		billingError = '';
+
+		try {
+			const response = await fetch('/api/billing/portal', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' }
+			});
+
+			if (!response.ok) {
+				const result = await response.json();
+				billingError = result.error || 'Failed to open billing portal';
+				return;
+			}
+
+			const { url } = await response.json();
+			window.location.href = url;
+		} catch (err) {
+			billingError = 'Network error. Please try again.';
+		} finally {
+			isManagingBilling = false;
+		}
+	};
+
+	const cancelSubscription = async () => {
+		if (
+			!confirm(
+				'Are you sure you want to cancel your subscription? It will remain active until the end of your billing period.'
+			)
+		) {
+			return;
+		}
+
+		isManagingBilling = true;
+		billingError = '';
+
+		try {
+			const response = await fetch('/api/subscription/cancel', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' }
+			});
+
+			if (!response.ok) {
+				const result = await response.json();
+				billingError = result.error || 'Failed to cancel subscription';
+				return;
+			}
+
+			// Refresh the page to show updated subscription status
+			window.location.reload();
+		} catch (err) {
+			billingError = 'Network error. Please try again.';
+		} finally {
+			isManagingBilling = false;
+		}
+	};
+
+	const pauseSubscription = async () => {
+		if (!confirm('Are you sure you want to pause your subscription? You can resume it anytime.')) {
+			return;
+		}
+
+		isManagingBilling = true;
+		billingError = '';
+
+		try {
+			const response = await fetch('/api/subscription/pause', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' }
+			});
+
+			if (!response.ok) {
+				const result = await response.json();
+				billingError = result.error || 'Failed to pause subscription';
+				return;
+			}
+
+			// Refresh the page to show updated subscription status
+			window.location.reload();
+		} catch (err) {
+			billingError = 'Network error. Please try again.';
+		} finally {
+			isManagingBilling = false;
 		}
 	};
 </script>
@@ -129,30 +228,171 @@
 								{/if}
 							</div>
 						</div>
+					</div>
+				</div>
+			</div>
 
+			<!-- Billing & Subscription Card -->
+			<div class="card mb-6 bg-base-100 shadow-xl">
+				<div class="card-body">
+					<h2 class="mb-4 card-title text-xl">Billing & Subscription</h2>
+
+					{#if billingError}
+						<div class="mb-4 alert alert-error">
+							<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M6 18L18 6M6 6l12 12"
+								/>
+							</svg>
+							<span>{billingError}</span>
+						</div>
+					{/if}
+
+					<div class="space-y-4">
+						<!-- Current Plan -->
 						<div class="form-control">
 							<div class="label">
-								<span class="label-text font-medium">Subscription Plan</span>
+								<span class="label-text font-medium">Current Plan</span>
 							</div>
-							<div class="flex items-center gap-2">
-								{#if data.subscription}
-									<span class="badge capitalize badge-primary">
-										{data.subscription.currentTier}
+							<div class="flex items-center justify-between">
+								<div class="flex items-center gap-2">
+									<span
+										class="badge capitalize {data.subscription?.currentTier === 'free'
+											? 'badge-neutral'
+											: 'badge-primary'}"
+									>
+										{data.subscription?.currentTier || 'free'}
 									</span>
-									{#if data.subscription.currentTier === 'free'}
+									{#if data.subscription?.currentTier !== 'free'}
 										<span class="text-sm text-base-content/70">
-											{data.usageLimits.conversationsPerMonth} conversations/month,
-											{data.usageLimits.audioMinutesPerMonth} audio minutes/month
+											${tierPricing[data.subscription.currentTier]}/month
 										</span>
 									{:else}
-										<span class="text-sm text-base-content/70"> Premium features enabled </span>
+										<span class="text-sm text-base-content/70">
+											{data.usageLimits?.conversationsPerMonth || 100} conversations/month,
+											{Math.round(data.usageLimits?.audioMinutesPerMonth || 15)} audio minutes/month
+										</span>
 									{/if}
+								</div>
+
+								{#if data.subscription?.currentTier === 'free'}
+									<a href="/pricing" class="btn btn-sm btn-primary">
+										<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="M5 10l7-7m0 0l7 7m-7-7v18"
+											/>
+										</svg>
+										Upgrade
+									</a>
 								{:else}
-									<span class="badge badge-neutral">Free</span>
-									<span class="text-sm text-base-content/70">Default plan</span>
+									<button
+										class="btn btn-outline btn-sm"
+										onclick={openBillingPortal}
+										disabled={isManagingBilling}
+									>
+										{#if isManagingBilling}
+											<span class="loading loading-sm loading-spinner"></span>
+											Loading...
+										{:else}
+											<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+												<path
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+												/>
+												<path
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+												/>
+											</svg>
+											Manage Billing
+										{/if}
+									</button>
 								{/if}
 							</div>
 						</div>
+
+						<!-- Usage Limits -->
+						{#if data.usageLimits}
+							<div class="form-control">
+								<div class="label">
+									<span class="label-text font-medium">Monthly Limits</span>
+								</div>
+								<div class="space-y-2">
+									<div class="flex items-center justify-between">
+										<span class="text-sm">Conversations</span>
+										<span class="badge badge-ghost">
+											{data.usageLimits.conversationsPerMonth === 100
+												? 'Unlimited'
+												: data.usageLimits.conversationsPerMonth}
+										</span>
+									</div>
+									<div class="flex items-center justify-between">
+										<span class="text-sm">Audio Minutes</span>
+										<span class="badge badge-ghost"
+											>{data.usageLimits.audioMinutesPerMonth} min/month</span
+										>
+									</div>
+									{#if data.usageLimits.canUseRealtime}
+										<div class="flex items-center justify-between">
+											<span class="text-sm">Real-time Conversations</span>
+											<span class="badge badge-success">✓</span>
+										</div>
+									{/if}
+									{#if data.usageLimits.canUseAdvancedAnalytics}
+										<div class="flex items-center justify-between">
+											<span class="text-sm">Advanced Analytics</span>
+											<span class="badge badge-success">✓</span>
+										</div>
+									{/if}
+								</div>
+							</div>
+						{/if}
+
+						<!-- Quick Actions -->
+						{#if data.subscription?.currentTier !== 'free'}
+							<div class="flex gap-2 pt-2">
+								<button
+									class="btn btn-outline btn-sm"
+									onclick={pauseSubscription}
+									disabled={isManagingBilling}
+								>
+									<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"
+										/>
+									</svg>
+									Pause Subscription
+								</button>
+								<button
+									class="btn btn-outline btn-sm btn-error"
+									onclick={cancelSubscription}
+									disabled={isManagingBilling}
+								>
+									<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M6 18L18 6M6 6l12 12"
+										/>
+									</svg>
+									Cancel Subscription
+								</button>
+							</div>
+						{/if}
 					</div>
 				</div>
 			</div>

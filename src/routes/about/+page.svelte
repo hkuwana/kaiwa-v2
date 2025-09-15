@@ -73,10 +73,10 @@
 				conversation over test scores
 			</p>
 			<div class="mt-6 flex justify-center space-x-4 text-sm opacity-70">
-				<span>🌍 Global Community</span>
-				<span>💬 Conversation-First</span>
-				<span>🤖 AI-Powered</span>
-				<span>❤️ Heart-to-Heart</span>
+				<span>Global Community</span>
+				<span>Conversation-First</span>
+				<span>AI-Powered</span>
+				<span>Heart-to-Heart</span>
 			</div>
 		</div>
 
@@ -213,7 +213,7 @@
 				<p class="mb-6">
 					Begin building the conversations that will create your next great memory.
 				</p>
-				<div class="mb-4 text-sm">Try our free 3‑minute onboarding</div>
+				<div class="mb-4 text-sm">Get your speaking level assessed in 3 minutes</div>
 				<UnifiedStartButton
 					{user}
 					{selectedLanguage}
