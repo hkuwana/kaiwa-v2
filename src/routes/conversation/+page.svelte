@@ -234,6 +234,9 @@
 		isTranscribing={conversationStore.isTranscribing}
 		onSendMessage={(content) => conversationStore.sendMessage(content)}
 		onEndConversation={handleEndConversation}
+		timeRemaining={Math.ceil(conversationStore.timerState.timer.timeRemaining / 1000)}
+		isTimerActive={conversationStore.timerState.timer.isActive}
+		maxSessionLengthSeconds={conversationStore.usageLimits?.maxSessionLengthSeconds || 180}
 	/>
 	{#if dev}
 		<div class="card bg-base-100 shadow-xl">

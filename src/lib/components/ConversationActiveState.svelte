@@ -52,17 +52,6 @@
 	// Audio control state
 	let hasUsedAudioControl = $state(false);
 
-	// Timer display logic
-	const progressPercentage = $derived(Math.round((timeRemaining / maxSessionLengthSeconds) * 100));
-	const showTimeLeft = $derived(timeRemaining <= 30);
-
-	function formatTime(seconds: number): string {
-		const mins = Math.floor(seconds / 60);
-		const secs = seconds % 60;
-		return `${mins}:${secs.toString().padStart(2, '0')}`;
-	}
-
-
 
 	// Determine if we are in an onboarding-like session for hinting
 	const showOnboardingHint = $derived(() => {
@@ -156,7 +145,6 @@
 	in:fly={{ y: 20, duration: 400 }}
 >
 	<div class="container mx-auto flex h-screen max-w-4xl flex-col px-4 py-4">
-
 		<!-- Live Transcription -->
 		{#if currentTranscript}
 			<div class="mb-4 flex-shrink-0" in:fly={{ y: -10, duration: 200 }}>
@@ -231,9 +219,11 @@
 		<div class="fixed bottom-8 left-1/2 z-30 -translate-x-1/2 transform">
 			<AudioVisualizer
 				{audioLevel}
+				{timeRemaining}
+				{isTimerActive}
+				{maxSessionLengthSeconds}
 				controlMode="external"
 				pressBehavior={userPreferencesStore.getPressBehavior()}
-				highContrast={true}
 				onRecordStart={() => {
 					hasUsedAudioControl = true;
 					// If not already in push-to-talk, switch immediately when user clicks the control
@@ -250,40 +240,7 @@
 						conversationStore.pauseStreaming();
 					}
 				}}
-			>
-				{#snippet children()}
-					{#if isTimerActive && timeRemaining > 0}
-						<div class="flex items-center gap-1">
-							{#if showTimeLeft}
-								<!-- Show time remaining when under 30 seconds -->
-								<div
-									class="text-xs font-bold {timeRemaining <= 30 ? 'text-error' : 'text-warning'}
-									bg-base-100/90 px-2 py-1 rounded-full shadow-sm"
-								>
-									{formatTime(timeRemaining)}
-								</div>
-							{:else}
-								<!-- Show small radial progress indicator -->
-								<div
-									class="radial-progress {timeRemaining <= 60 ? 'text-warning' : 'text-primary/60'}"
-									style="--value:{progressPercentage}; --size:1.5rem; --thickness:2px;"
-									role="progressbar"
-									aria-valuenow={progressPercentage}
-									aria-valuemin="0"
-									aria-valuemax="100"
-									title="Session progress"
-								>
-									<!-- Small microphone icon -->
-									<svg class="w-3 h-3 opacity-70" fill="currentColor" viewBox="0 0 24 24">
-										<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-										<path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-									</svg>
-								</div>
-							{/if}
-						</div>
-					{/if}
-				{/snippet}
-			</AudioVisualizer>
+			/>
 		</div>
 
 		<!-- Centered Hint - Managed by ConversationActiveState -->

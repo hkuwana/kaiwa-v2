@@ -19,8 +19,10 @@
 		controlMode?: 'internal' | 'external';
 		pressBehavior?: 'press_hold' | 'tap_toggle';
 		// Visuals
-		highContrast?: boolean; // adds ring + offset to ensure visibility against varied backgrounds
-		primaryColor?: 'accent' | 'primary' | 'secondary' | 'success' | 'warning' | 'error';
+		// Timer props
+		timeRemaining?: number; // in seconds
+		isTimerActive?: boolean;
+		maxSessionLengthSeconds?: number;
 		// Children support
 		children?: import('svelte').Snippet;
 	}
@@ -36,57 +38,13 @@
 		deviceId = undefined,
 		controlMode = 'internal',
 		pressBehavior = 'press_hold',
-		highContrast = true,
-		primaryColor = 'accent',
+		timeRemaining = 180,
+		isTimerActive = false,
+		maxSessionLengthSeconds = 180,
 		children
 	}: Props = $props();
 
 	// --- REACTIVE VALUES (SVELTE 5 RUNES) ---
-	/**
-	 * The scale will range from 1 (no sound) to 2 (max sound) for more dramatic effect.
-	 */
-	const scale = $derived(1 + audioLevel);
-
-	/**
-	 * The opacity of the outer glow will range from 0.25 (no sound) to ~0.9 (max sound) for stronger contrast.
-	 */
-	const glowOpacity = $derived(() => Math.min(0.25 + audioLevel * 0.65, 0.95));
-
-	/**
-	 * The blur radius for the glow effect, making it more dynamic.
-	 */
-	const blurRadius = $derived(2 + audioLevel * 8);
-
-	/**
-	 * The color intensity based on audio level and recording state.
-	 */
-	const colorIntensity = $derived(() => {
-		if (isRecording) return 'bg-error';
-		if (isListening) return 'bg-warning';
-		const base = primaryColor;
-		return audioLevel > 0.5 ? `bg-${base}-focus` : `bg-${base}`;
-	});
-
-	// Classes to enhance contrast with surrounding background
-	const outerClasses = $derived(
-		() =>
-			`absolute h-full w-full rounded-full transition-all duration-75 ease-out ${colorIntensity()} ${
-				highContrast ? 'ring-2 ring-base-content ring-offset-2 ring-offset-base-100' : ''
-			}`
-	);
-
-	// Core color uses a solid DaisyUI color for maximum contrast
-	const coreColorClass = $derived(() => {
-		if (isRecording) return 'bg-error';
-		if (isListening) return 'bg-warning';
-		return `bg-${primaryColor}`;
-	});
-
-	const innerClasses = $derived(
-		() => `relative h-12 w-12 rounded-full ${coreColorClass()} transition-all duration-300`
-	);
-
-	const innerOpacity = $derived(() => (highContrast ? 0.95 : 0.85));
 
 	/**
 	 * Smooth vertical movement for recording state
@@ -333,6 +291,20 @@
 		return '';
 	});
 
+	// Timer calculations
+	const progressPercentage = $derived(
+		isTimerActive && timeRemaining && maxSessionLengthSeconds
+			? Math.round((timeRemaining / maxSessionLengthSeconds) * 100)
+			: 100
+	);
+
+	const timerColor = $derived(() => {
+		if (!isTimerActive) return 'text-primary';
+		if (timeRemaining <= 30) return 'text-error';
+		if (timeRemaining <= 60) return 'text-warning';
+		return 'text-primary';
+	});
+
 	const buttonClass = $derived(() => {
 		const base =
 			'relative flex h-24 w-24 items-center justify-center cursor-pointer select-none transition-all duration-300';
@@ -378,34 +350,59 @@
 		}
 	}}
 >
-	<!-- Outer Circle (The Pulse/Glow) -->
+	<!-- Timer Ring (Custom SVG for better control) -->
+	<svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+		<!-- Background circle -->
+		<circle
+			cx="50"
+			cy="50"
+			r="46"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="4"
+			class="text-base-300 opacity-30"
+		/>
+		<!-- Progress circle (only show if timer is active) -->
+		{#if isTimerActive}
+			<circle
+				cx="50"
+				cy="50"
+				r="46"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="4"
+				stroke-linecap="round"
+				class={timerColor()}
+				style="stroke-dasharray: {2 * Math.PI * 46}; stroke-dashoffset: {2 * Math.PI * 46 * (1 - progressPercentage / 100)}; transition: stroke-dashoffset 0.3s ease;"
+			/>
+		{/if}
+	</svg>
+
+	<!-- Audio Activity Pulse -->
 	<div
-		class={outerClasses()}
-		style:transform="translateY({verticalOffset}px) scale({scale})"
-		style:opacity={glowOpacity()}
-		style:filter="blur({blurRadius}px)"
+		class="absolute inset-4 rounded-full bg-primary/10 transition-all duration-300"
+		style="opacity: {audioLevel * 0.8}; transform: scale({1 + audioLevel * 0.2}); background: radial-gradient(circle, currentColor 0%, transparent 70%);"
+		style:transform="translateY({verticalOffset}px) scale({1 + audioLevel * 0.2})"
 	></div>
 
-	<!-- Inner Circle (The Core) -->
-	<div
-		class={innerClasses()}
-		style:transform="translateY({verticalOffset}px)"
-		style:opacity={innerOpacity()}
-	></div>
+	<!-- Center Microphone Icon (Larger) -->
+	<div class="relative z-10 flex items-center justify-center pointer-events-none">
+		<svg class="w-10 h-10 {timerColor()}" fill="currentColor" viewBox="0 0 24 24">
+			<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+			<path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+		</svg>
+	</div>
 
-	<!-- Children Content (e.g., Timer) in Center -->
+	<!-- Children Content (e.g., additional info) in Center -->
 	{#if children}
 		<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
 			{@render children()}
 		</div>
 	{/if}
 
-	<!-- Recording Indicator -->
+	<!-- Recording State Indicator -->
 	{#if isRecording}
-		<div
-			class="absolute inset-0 animate-ping rounded-full bg-error opacity-25"
-			aria-hidden="true"
-		></div>
+		<div class="absolute inset-0 animate-ping rounded-full border-2 border-error opacity-25 transition-opacity duration-200" aria-hidden="true"></div>
 	{/if}
 
 	<!-- Press State Indicator -->

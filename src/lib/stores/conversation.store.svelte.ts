@@ -33,6 +33,7 @@ import {
 import { userPreferencesStore } from './userPreferences.store.svelte';
 import type { ConversationStatus } from '$lib/services/conversation.service';
 import { userManager } from './user.store.svelte';
+import { SvelteSet } from 'svelte/reactivity';
 
 export class ConversationStore {
 	// Reactive state
@@ -72,7 +73,7 @@ export class ConversationStore {
 	private timer: ConversationTimerStore = $state(createConversationTimerStore('free'));
 	private currentOptions: Partial<UserPreferences> | null = null;
 	// Mirror + sanitize tracking
-	private sanitizedMessageIds = new Set<string>();
+	private sanitizedMessageIds = new SvelteSet<string>();
 	private lastInstructions: string = '';
 	private nativeSwitchAnnounced: boolean = false;
 
@@ -356,7 +357,9 @@ export class ConversationStore {
 		// Subscribe to SDK history stream through the new store
 		try {
 			this.messageUnsub?.();
-		} catch {}
+		} catch {
+			console.log('an error with conversation store. Chekc it out');
+		}
 		this.messageUnsub = realtimeOpenAI.onMessageStream(async (ev) => {
 			// Mirror: copy realtime messages directly with duplicate removal
 			this.messages = messageService.removeDuplicateMessages(
@@ -395,7 +398,6 @@ export class ConversationStore {
 
 				// Add translation if needed
 				// For language learning: if user is learning Japanese, their native language is English
-				const targetLanguage = userPreferencesStore.getPreference('targetLanguageId') || 'en';
 				const userNativeLanguage = userManager.user.nativeLanguageId || 'en';
 
 				if (messageService.needsTranslation(updatedMsg, userNativeLanguage)) {
@@ -622,11 +624,15 @@ export class ConversationStore {
 		console.log('🧹 ConversationStore: Closing SDK realtime session');
 		try {
 			this.messageUnsub?.();
-		} catch {}
+		} catch {
+			console.log('an error with conversation store. Chekc it out');
+		}
 		this.messageUnsub = null;
 		try {
 			realtimeOpenAI.disconnect();
-		} catch {}
+		} catch {
+			console.log('an error with conversation store. Chekc it out');
+		}
 
 		// Stop audio stream
 		if (this.audioStream) {
@@ -726,7 +732,7 @@ export class ConversationStore {
 		const aiIsResponding = messageService.hasStreamingMessage(this.messages);
 
 		// Check if audio is actively playing
-		const audioIsPlaying = false || false;
+		const audioIsPlaying = false;
 
 		console.log('Graceful shutdown check:', {
 			userIsSpeaking,
@@ -741,7 +747,7 @@ export class ConversationStore {
 
 	private initiateGracefulShutdown(): void {
 		// Set waiting flags based on what we're waiting for
-		this.waitingForAudioCompletion = false || false;
+		this.waitingForAudioCompletion = false;
 		this.waitingForAIResponse = messageService.hasStreamingMessage(this.messages);
 
 		// Set up listeners for completion events
@@ -766,19 +772,27 @@ export class ConversationStore {
 			this.waitingForAudioCompletion = false;
 			try {
 				audioElement?.removeEventListener('ended', onAudioEnd);
-			} catch {}
+			} catch {
+				console.log('an error with conversation store. Chekc it out');
+			}
 			try {
 				audioElement?.removeEventListener('pause', onAudioEnd);
-			} catch {}
+			} catch {
+				console.log('an error with conversation store. Chekc it out');
+			}
 			this.checkIfReadyToEnd();
 		};
 
 		try {
 			audioElement?.addEventListener('ended', onAudioEnd);
-		} catch {}
+		} catch {
+			console.log('an error with conversation store. Chekc it out');
+		}
 		try {
 			audioElement?.addEventListener('pause', onAudioEnd);
-		} catch {}
+		} catch {
+			console.log('an error with conversation store. Chekc it out');
+		}
 
 		// The AI response completion will be handled in your existing message handling
 		// We'll check for completion in the existing handleProcessedEvent method

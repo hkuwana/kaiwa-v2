@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { speakersData } from '$lib/data/speakers';
+	import { aboutPagePrompts, characterPrompts, scenarioPrompts } from '$lib/prompts/dev-animated';
 
 	onMount(() => {
 		document.title = 'Animation Prompts - Kaiwa Dev';
@@ -94,7 +95,6 @@
 	// Generate character prompt for each speaker
 	function generateSpeakerPrompt(speaker: any): string {
 		const genderDescriptor = speaker.gender === 'male' ? 'man' : 'woman';
-		const ageRange = speaker.gender === 'male' ? 'young to middle-aged' : 'young to middle-aged';
 
 		let culturalElements = '';
 		let personalityTraits = '';
@@ -103,142 +103,66 @@
 		switch (speaker.languageId) {
 			case 'ja':
 				culturalElements =
-					'subtle Japanese aesthetic in clothing choice, clean and thoughtful presentation';
-				personalityTraits = 'gentle, attentive, with quiet confidence';
+					'subtle Japanese aesthetic in their clothing choice, reflecting a clean and thoughtful presentation';
+				personalityTraits = 'a gentle, attentive, and quietly confident personality';
 				break;
 			case 'es':
 				culturalElements =
 					speaker.region === 'Spain'
-						? 'European Spanish style, warm Mediterranean colors'
-						: 'Latin American warmth in expression';
-				personalityTraits = 'expressive, warm-hearted, naturally welcoming';
+						? 'a European Spanish style with warm, Mediterranean colors'
+						: 'a style that reflects Latin American warmth in their expression';
+				personalityTraits = 'an expressive, warm-hearted, and naturally welcoming personality';
 				break;
 			case 'zh':
 				culturalElements =
 					speaker.region === 'Taiwan'
-						? 'modern Taiwanese casual style'
-						: 'contemporary Chinese aesthetic';
-				personalityTraits = 'thoughtful, patient, encouraging demeanor';
+						? 'a modern Taiwanese casual style'
+						: 'a contemporary Chinese aesthetic';
+				personalityTraits = 'a thoughtful, patient, and encouraging demeanor';
 				break;
 			case 'fr':
-				culturalElements = 'classic French style, elegant simplicity';
-				personalityTraits = 'sophisticated yet approachable, naturally expressive';
+				culturalElements = 'a classic French style that is simple and elegant';
+				personalityTraits = 'a sophisticated yet approachable and naturally expressive personality';
 				break;
 			case 'ko':
-				culturalElements = 'modern Korean fashion sense, clean contemporary style';
-				personalityTraits = 'friendly, considerate, quietly supportive';
+				culturalElements = 'a modern Korean fashion sense with a clean, contemporary style';
+				personalityTraits = 'a friendly, considerate, and quietly supportive personality';
 				break;
 			case 'de':
-				culturalElements = 'German practicality in style, understated elegance';
-				personalityTraits = 'direct but kind, genuinely helpful';
+				culturalElements = 'a German practicality in their style, with understated elegance';
+				personalityTraits = 'a direct but kind and genuinely helpful personality';
 				break;
 			case 'pt':
 				culturalElements =
 					speaker.region === 'Brazil'
-						? 'Brazilian warmth and vibrancy'
-						: 'Portuguese classic style';
-				personalityTraits = 'naturally joyful, inclusive, life-loving';
+						? 'a style with Brazilian warmth and vibrancy'
+						: 'a classic Portuguese style';
+				personalityTraits = 'a naturally joyful, inclusive, and life-loving personality';
 				break;
 			case 'it':
-				culturalElements = 'Italian sense of style, natural elegance';
-				personalityTraits = 'passionate, expressive, naturally charming';
+				culturalElements = 'an Italian sense of style and natural elegance';
+				personalityTraits = 'a passionate, expressive, and naturally charming personality';
 				break;
 			default:
-				culturalElements = 'international modern style';
-				personalityTraits = 'warm, approachable, genuinely interested in helping';
+				culturalElements = 'an international modern style';
+				personalityTraits = 'a warm, approachable, and genuinely interested personality';
 		}
 
-		return `IMPORTANT: Only one person in image. Single Japanese anime character portrait, close-up headshot from shoulders up, looking directly at camera. One individual ${ageRange} ${genderDescriptor} named ${speaker.voiceName} with ${personalityTraits}. ${culturalElements}. Direct eye contact with viewer, mouth slightly open as if speaking or about to speak, warm gentle expression with kind eyes that show readiness to help with language learning and conversation practice. Soft anime art style with clean line art, subtle shading, and expressive features. High-quality Japanese animation style similar to modern anime films. Portrait orientation, simple neutral background, focus on single person's facial features and direct gaze. Clean, polished anime aesthetic with authentic cultural representation. Professional character design, exactly one person only, headshot composition, facing forward, no other people visible.`;
+		const prompt = `
+			A heartwarming and gentle character portrait in the nostalgic, hand-drawn animation style of Studio Ghibli, reminiscent of films like "Whisper of the Heart" or "Kiki's Delivery Service".
+
+			**Subject:** A young ${genderDescriptor} named ${speaker.voiceName}. The character has ${personalityTraits} and wears clothing with ${culturalElements}.
+
+			**Composition:** Close-up headshot from the shoulders up, with the character facing forward and looking directly at the camera.
+
+			**Action:** A warm, gentle expression with kind eyes that show readiness to help. The mouth is slightly open, as if in the middle of a friendly conversation.
+
+			**Location:** A simple, clean, neutral background that keeps the focus entirely on the character.
+
+			**Editing Instructions:** Portrait orientation. The lighting should be soft and natural. The art should have clean line art, subtle watercolor-like shading, and highly expressive facial features. Ensure authentic and respectful cultural representation. IMPORTANT: Only one person in the image.
+		`;
+		return prompt.trim();
 	}
-
-	const aboutPagePrompts = [
-		{
-			title: 'Hero Section - Language Doors',
-			description: 'Main visual for "Languages open doors to experiences"',
-			prompt: `Studio Ghibli style illustration, warm and inviting scene. A person standing before multiple ornate doors floating in a dreamlike space, each door glowing with warm light and showing glimpses of different cultural scenes behind them (Japanese garden, Spanish plaza, Chinese courtyard). Soft watercolor style, golden hour lighting, sense of wonder and possibility. No text overlays. Aspect ratio 16:9.`
-		},
-		{
-			title: 'The Problem - Struggling Alone',
-			description: 'Someone frustrated with traditional language learning',
-			prompt: `Studio Ghibli style illustration. A young person sitting alone at a desk surrounded by language textbooks, phone with language app open, looking overwhelmed and discouraged. Room feels cold and isolated. Muted colors, soft shadows, conveying loneliness and frustration. Books are scattered, one hand on forehead in a gesture of defeat. Style reminiscent of Spirited Away's quieter moments. Aspect ratio 4:3.`
-		},
-		{
-			title: 'Taiwan Breakthrough - Mahjong Scene',
-			description: 'The moment everything clicked in Taiwan',
-			prompt: `Studio Ghibli style illustration, warm and joyful. A cozy scene around a mahjong table with a young foreign student laughing and playing with a Taiwanese host family. Soft evening lighting through windows, traditional tiles on table, everyone engaged and smiling. Warm yellows and oranges, conveying breakthrough moment and human connection. Style like Spirited Away or My Neighbor Totoro's family scenes. Aspect ratio 16:9.`
-		},
-		{
-			title: 'Cultural Connections - Izakaya',
-			description: 'Connecting hearts in an izakaya',
-			prompt: `Studio Ghibli style illustration. Intimate izakaya scene with warm lantern lighting, people of different backgrounds sharing stories over drinks and small plates. Focus on expressions of genuine connection and laughter. Rich warm colors - amber lights, wooden textures, traditional Japanese elements. Conveys the magic of cross-cultural friendship. Style reminiscent of Spirited Away's bathhouse warmth. Aspect ratio 21:9.`
-		},
-		{
-			title: 'Cultural Connections - Spanish Tapas',
-			description: 'Heart-to-heart in Granada tapas bar',
-			prompt: `Studio Ghibli style illustration. Vibrant Spanish tapas bar scene with people sharing animated conversation over small plates and wine. Warm Mediterranean colors - terracotta, deep reds, golden yellows. Stone walls, hanging ham, bustling but intimate atmosphere. Focus on genuine human connection across cultures. Evening light filtering through small windows. Aspect ratio 21:9.`
-		},
-		{
-			title: 'Family Connection',
-			description: 'Connecting with in-laws in native tongue',
-			prompt: `Studio Ghibli style illustration. Multi-generational family gathering around a dinner table, with special focus on meaningful eye contact between family members. Warm home lighting, traditional cultural elements subtly in background. Expressions show understanding and acceptance. Soft, warm color palette conveying love and belonging. Style like Castle in the Sky's family moments. Aspect ratio 16:9.`
-		},
-		{
-			title: 'The Vision - Experiences Map',
-			description: 'Languages creating life experiences',
-			prompt: `Studio Ghibli style illustration, magical realism. An artistic map showing different cultural experiences connected by flowing ribbons of light - conversations in cafes, family dinners, street markets, festivals. Each scene glows warmly, connected by ethereal paths. Watercolor style with golden accents. Conveys the journey of language opening doors to experiences. Dreamlike quality. Aspect ratio 16:9.`
-		}
-	];
-
-	const characterPrompts = [
-		{
-			title: 'Language Learner - Confident',
-			description: 'Main character archetype - someone who has found their voice',
-			prompt: `IMPORTANT: Only one person in image. Single Japanese anime character portrait, close-up headshot from shoulders up, looking directly at camera. One individual young adult with warm, confident expression, direct eye contact with viewer, mouth slightly open as if speaking, eyes showing determination and joy. Soft anime features with genuine smile that conveys both humility and excitement about learning. High-quality Japanese animation style with clean line art and expressive eyes. Simple neutral background, focus on single person's facial expression and direct gaze. Professional anime character design, exactly one person only, portrait composition, facing forward, no other people visible.`
-		},
-		{
-			title: 'Language Learner - Nervous Beginner',
-			description: 'Someone just starting their journey',
-			prompt: `IMPORTANT: Only one person in image. Single Japanese anime character portrait, close-up headshot from shoulders up, looking directly at camera. One individual person with slightly nervous but hopeful expression, direct eye contact with viewer, mouth slightly open as if about to speak, conveying vulnerability and courage simultaneously. Soft, approachable anime features with expressive eyes. Modern Japanese animation style with clean aesthetic. Neutral background, exactly one person only, showing the beginning of a learning journey through facial expression. Professional anime portrait design, facing forward, no other people visible.`
-		},
-		{
-			title: 'Native Speaker - Welcoming',
-			description: 'The people who help learners feel at home',
-			prompt: `IMPORTANT: Only one person in image. Single Japanese anime character portrait, close-up headshot from shoulders up, looking directly at camera. One individual warm, welcoming person with kind eyes and genuine smile, direct eye contact with viewer, mouth slightly open as if speaking encouragingly. Subtle cultural elements in appearance (not stereotypical). Conveys patience, wisdom, and joy in sharing culture through facial expression. High-quality anime art style with soft shading and expressive features. Simple background, exactly one person only, focus on welcoming personality. Professional anime character portrait, facing forward, no other people visible.`
-		},
-		{
-			title: 'Host Family Member',
-			description: 'The Taiwan host family archetype',
-			prompt: `IMPORTANT: Only one person in image. Single Japanese anime character portrait, close-up headshot from shoulders up, looking directly at camera. One individual middle-aged person with warm, nurturing expression, direct eye contact with viewer, mouth slightly open as if offering gentle guidance, showing life experience and wisdom. Eyes convey patience and genuine care for helping others. Modern anime art style with detailed facial features and gentle expression. Traditional but contemporary appearance. Neutral background, exactly one person only, professional anime portrait composition, facing forward, no other people visible.`
-		},
-		{
-			title: 'Fellow Language Explorer',
-			description: 'Someone also on the journey',
-			prompt: `IMPORTANT: Only one person in image. Single Japanese anime character portrait, close-up headshot from shoulders up, looking directly at camera. One individual person with excited, curious expression, direct eye contact with viewer, mouth slightly open as if eagerly sharing discoveries, showing enthusiasm for discovery and connection. Bright, optimistic anime features with sparkling eyes showing love of exploration. High-quality Japanese animation style with expressive face and gentle shading. Simple background, exactly one person only, focus on adventurous personality through facial expression, facing forward, no other people visible.`
-		}
-	];
-
-	const scenarioPrompts = [
-		{
-			title: 'Coffee Shop Discovery',
-			description: 'First real conversation in a foreign country',
-			prompt: `Studio Ghibli style background illustration. Cozy international coffee shop with warm lighting, steam rising from cups, comfortable seating areas. Mix of local cultural elements and universal cafe atmosphere. Golden hour lighting through large windows. Style like Whisper of the Heart's antique shop - inviting and full of stories. Aspect ratio 21:9.`
-		},
-		{
-			title: 'Family Kitchen',
-			description: 'Cooking and connecting with host family',
-			prompt: `Studio Ghibli style kitchen scene. Traditional kitchen with modern touches, ingredients and cooking tools visible, warm lighting suggesting evening meal preparation. Steam and aromatic elements. Style like Spirited Away's kitchen scenes or Castle in the Sky's cozy domestic moments. Rich, warm colors. Aspect ratio 16:9.`
-		},
-		{
-			title: 'Local Festival',
-			description: 'Being invited into cultural celebration',
-			prompt: `Studio Ghibli style festival scene. Vibrant local celebration with lanterns, traditional decorations, people in festive clothing. Warm evening light, sense of community and joy. Cultural elements that feel authentic but not stereotypical. Style like Spirited Away's festival scenes. Rich, celebratory colors. Aspect ratio 21:9.`
-		},
-		{
-			title: 'Neighborhood Market',
-			description: 'Daily life conversations with vendors',
-			prompt: `Studio Ghibli style market scene. Bustling but friendly local market with fresh produce, friendly vendors, morning light. Conveys daily life authenticity and community warmth. Style like Castle in the Sky's marketplace scenes. Earthy, natural colors with warm accent lighting. Aspect ratio 16:9.`
-		}
-	];
 
 	function copyToClipboard(text: string) {
 		navigator.clipboard.writeText(text);
@@ -400,7 +324,7 @@
 							<p class="text-sm opacity-75">{item.description}</p>
 							<div class="mt-4">
 								<textarea
-									class="textarea-bordered textarea h-32 w-full text-sm"
+									class="textarea-bordered textarea h-48 w-full text-sm"
 									readonly
 									value={item.prompt}
 								></textarea>
@@ -428,7 +352,7 @@
 							<p class="text-sm opacity-75">{item.description}</p>
 							<div class="mt-4">
 								<textarea
-									class="textarea-bordered textarea h-32 w-full text-sm"
+									class="textarea-bordered textarea h-48 w-full text-sm"
 									readonly
 									value={item.prompt}
 								></textarea>
@@ -470,7 +394,7 @@
 							<p class="text-xs opacity-75">{speaker.dialectName} • {speaker.gender}</p>
 							<div class="mt-3">
 								<textarea
-									class="textarea-bordered textarea h-24 w-full text-xs"
+									class="textarea-bordered textarea h-48 w-full text-xs"
 									readonly
 									value={generateSpeakerPrompt(speaker)}
 								></textarea>
@@ -498,7 +422,7 @@
 							<p class="text-sm opacity-75">{item.description}</p>
 							<div class="mt-4">
 								<textarea
-									class="textarea-bordered textarea h-32 w-full text-sm"
+									class="textarea-bordered textarea h-48 w-full text-sm"
 									readonly
 									value={item.prompt}
 								></textarea>
@@ -562,7 +486,7 @@ async function generateSpeakerImages() {
     const imageUrl = data.data[0].url;
     
     // Save image with filename: speaker-[speaker.id].png
-    console.log(\`Generated image for \${speaker.voiceName}: \${imageUrl}\`);
+    console.log("Generated image for ${speaker.voiceName}: ${imageUrl}\n");
     
     // Add delay to respect rate limits
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -600,7 +524,7 @@ def generate_speaker_images():
     speakers = speakersData  # Load your speakers data
     
     for speaker in speakers:
-        prompt = generate_speaker_prompt(speaker)
+        prompt = generateSpeakerPrompt(speaker)
         enhanced_prompt = f"{prompt}, high quality, detailed, masterpiece, best quality"
         
         payload = {
@@ -659,21 +583,6 @@ def generate_speaker_images():
 							<p><strong>3.</strong> Run automated batch generation</p>
 							<p><strong>4.</strong> Post-process: resize, optimize, rename</p>
 							<p><strong>5.</strong> Update database with image paths</p>
-						</div>
-						<div class="mt-4">
-							<button
-								class="btn btn-sm btn-warning"
-								onclick={() =>
-									copyToClipboard(`# Image optimization script (after generation)
-# Resize and optimize all generated images
-mogrify -resize 400x400^ -gravity center -extent 400x400 -quality 85 speaker-*.png
-# Convert to WebP for smaller file sizes
-for file in speaker-*.png; do
-  cwebp -q 85 "$file" -o "\${file%.png}.webp"
-done`)}
-							>
-								Copy Optimization Script
-							</button>
 						</div>
 					</div>
 				</div>
