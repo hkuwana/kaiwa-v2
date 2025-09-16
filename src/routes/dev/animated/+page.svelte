@@ -37,7 +37,7 @@
 		});
 
 		try {
-			const response = await fetch('/dev-animated/generate', {
+			const response = await fetch('/dev/animated/generate', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({

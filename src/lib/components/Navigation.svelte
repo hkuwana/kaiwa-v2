@@ -20,27 +20,27 @@
 		{
 			category: 'Debug & Testing',
 			links: [
-				{ href: '/dev-realtime-debug', label: 'Realtime Debug' },
-				{ href: '/dev-messages', label: 'Messages' },
-				{ href: '/dev-conversation', label: 'Conversations' },
-				{ href: '/dev-audiovisualizer', label: 'Audio Visualizer' }
+				{ href: '/dev/realtime-debug', label: 'Realtime Debug' },
+				{ href: '/dev/messages', label: 'Messages' },
+				{ href: '/dev/conversation', label: 'Conversations' },
+				{ href: '/dev/audiovisualizer', label: 'Audio Visualizer' }
 			]
 		},
 		{
 			category: 'UI & Content',
 			links: [
-				{ href: '/dev-instructions', label: 'Instructions' },
-				{ href: '/dev-marketing', label: 'Marketing' },
-				{ href: '/dev-animated', label: 'Animated' }
+				{ href: '/dev/instructions', label: 'Instructions' },
+				{ href: '/dev/marketing', label: 'Marketing' },
+				{ href: '/dev/animated', label: 'Animated' }
 			]
 		},
 		{
 			category: 'Strategy',
-			links: [{ href: '/dev-competition', label: 'Competition' }]
+			links: [{ href: '/dev/competition', label: 'Competition' }]
 		},
 		{
 			category: 'Features',
-			links: [{ href: '/dev-payment', label: 'Payment' }]
+			links: [{ href: '/dev/payment', label: 'Payment' }]
 		}
 	];
 
