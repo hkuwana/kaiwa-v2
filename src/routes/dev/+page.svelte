@@ -21,7 +21,8 @@
 				{ href: '/dev/realtime', label: 'Realtime Chat', desc: 'Test WebRTC and real-time conversation features' },
 				{ href: '/dev/realtime-debug', label: 'Realtime Debug', desc: 'Debug real-time connection and audio pipeline' },
 				{ href: '/dev/conversation', label: 'Conversations', desc: 'View and manage conversation history' },
-				{ href: '/dev/messages', label: 'Messages', desc: 'Test message components and script generation' }
+				{ href: '/dev/messages', label: 'Messages', desc: 'Test message components and script generation' },
+				{ href: '/analysis?sessionId=test-session-123', label: 'Analysis Route', desc: 'Test analysis route for ended conversations' }
 			]
 		},
 		{

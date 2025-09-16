@@ -3,6 +3,7 @@
 
 import type { Language } from '$lib/server/db/types';
 import { languages as allLanguages } from '$lib/data/languages';
+import { getDefaultSpeakerForLanguage } from '$lib/data/speakers';
 import { browser } from '$app/environment';
 import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 
@@ -235,6 +236,17 @@ export class SettingsStore {
 		const language = allLanguages.find((lang) => lang.code === languageCode);
 		if (language) {
 			this.selectedLanguage = language;
+
+			// Auto-select default female speaker for the language
+			const defaultSpeaker = getDefaultSpeakerForLanguage(language.id);
+			if (defaultSpeaker && (!this.selectedSpeaker || !this.selectedSpeaker.includes(language.id))) {
+				this.selectedSpeaker = defaultSpeaker.id;
+				if (browser) {
+					this.persistSpeaker(defaultSpeaker.id);
+				}
+				console.log('🎙️ Auto-selected female speaker:', defaultSpeaker.voiceName, 'for', language.name);
+			}
+
 			// Since we no longer use $effect, manually trigger persistence
 			if (browser) {
 				this.persistLanguage(language);
@@ -245,6 +257,18 @@ export class SettingsStore {
 	// Update selected language with full language object
 	setLanguageObject = (language: Language) => {
 		this.selectedLanguage = language;
+
+		// Auto-select default female speaker for the language if none is currently selected
+		// or if the current speaker doesn't match the new language
+		const defaultSpeaker = getDefaultSpeakerForLanguage(language.id);
+		if (defaultSpeaker && (!this.selectedSpeaker || !this.selectedSpeaker.includes(language.id))) {
+			this.selectedSpeaker = defaultSpeaker.id;
+			if (browser) {
+				this.persistSpeaker(defaultSpeaker.id);
+			}
+			console.log('🎙️ Auto-selected female speaker:', defaultSpeaker.voiceName, 'for', language.name);
+		}
+
 		// Persistence is handled automatically by the effect, but also persist immediately as fallback
 		if (browser && !this.persistenceInitialized) {
 			this.persistLanguage(language);

@@ -15,6 +15,9 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 		monthlyConversations: 100,
 		monthlySeconds: 900,
 		monthlyRealtimeSessions: 100,
+		dailyConversations: 1,
+		dailySeconds: 180,
+		dailyAnalyses: 1,
 		maxSessionLengthSeconds: 180,
 		sessionBankingEnabled: false,
 		maxBankedSeconds: 0,
@@ -51,6 +54,9 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 		monthlyConversations: 100,
 		monthlySeconds: 18000,
 		monthlyRealtimeSessions: 100,
+		dailyConversations: null,
+		dailySeconds: null,
+		dailyAnalyses: null,
 		maxSessionLengthSeconds: 600,
 		sessionBankingEnabled: true,
 		maxBankedSeconds: 6000,
@@ -87,6 +93,9 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 		monthlyConversations: 100,
 		monthlySeconds: 36000,
 		monthlyRealtimeSessions: 100,
+		dailyConversations: null,
+		dailySeconds: null,
+		dailyAnalyses: null,
 		maxSessionLengthSeconds: 600,
 		sessionBankingEnabled: true,
 		maxBankedSeconds: 12000,
@@ -148,7 +157,12 @@ export function getWarningThreshold(tierId: UserTier): number {
 }
 
 export function getMaxSessionLength(tierId: UserTier): number {
-	return defaultTierConfigs[tierId]?.maxSessionLengthSeconds || 0;
+    return defaultTierConfigs[tierId]?.maxSessionLengthSeconds || 0;
+}
+
+// Alias for clarity when consumers expect `sessionSeconds`
+export function getSessionSeconds(tierId: UserTier): number {
+    return defaultTierConfigs[tierId]?.maxSessionLengthSeconds || 0;
 }
 
 export function getMonthlySeconds(tierId: UserTier): number {

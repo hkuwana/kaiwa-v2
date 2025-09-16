@@ -17,6 +17,11 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		monthlySeconds: 900, // 15 minutes (5 conversations)
 		monthlyRealtimeSessions: 100, // Unlimited sessions
 
+		// Daily limits for free users (encourages daily engagement + upgrades)
+		dailyConversations: 1, // 1 conversation per day
+		dailySeconds: 180, // 3 minutes per day
+		dailyAnalyses: 1, // 1 analysis per day
+
 		// Session limits
 		maxSessionLengthSeconds: 180, // 3 minutes = 180 seconds
 		sessionBankingEnabled: false,
@@ -65,6 +70,11 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		monthlyConversations: 100, // Unlimited
 		monthlySeconds: 18000, // 300 minutes = 18000 seconds
 		monthlyRealtimeSessions: 100, // Unlimited
+
+		// No daily limits for plus users
+		dailyConversations: null,
+		dailySeconds: null,
+		dailyAnalyses: null,
 
 		// Session limits
 		maxSessionLengthSeconds: 600, // 10 minutes = 600 seconds
@@ -118,6 +128,11 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		monthlyConversations: 100, // Unlimited
 		monthlySeconds: 36000, // 600 minutes = 36000 seconds
 		monthlyRealtimeSessions: 100, // Unlimited
+
+		// No daily limits for premium users
+		dailyConversations: null,
+		dailySeconds: null,
+		dailyAnalyses: null,
 
 		// Session limits
 		maxSessionLengthSeconds: 600, // 10 minutes = 600 seconds
@@ -247,7 +262,12 @@ export function getWarningThreshold(tierId: UserTier): number {
 }
 
 export function getMaxSessionLength(tierId: UserTier): number {
-	return serverTierConfigs[tierId]?.maxSessionLengthSeconds || 180;
+    return serverTierConfigs[tierId]?.maxSessionLengthSeconds || 180;
+}
+
+// Alias for clarity when consumers expect `sessionSeconds`
+export function getSessionSeconds(tierId: UserTier): number {
+    return serverTierConfigs[tierId]?.maxSessionLengthSeconds || 0;
 }
 
 export function getMonthlySeconds(tierId: UserTier): number {

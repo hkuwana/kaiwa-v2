@@ -26,6 +26,7 @@ export const userUsage = pgTable(
 		ankiExportsUsed: integer('anki_exports_used').default(0), // ankiExportLimit from tiers
 		sessionExtensionsUsed: integer('session_extensions_used').default(0), // maxExtensions from tiers
 		advancedVoiceSeconds: integer('advanced_voice_seconds').default(0), // hasAdvancedVoices feature
+		analysesUsed: integer('analyses_used').default(0), // AI conversation analyses used
 
 		// Quality & engagement metrics
 		completedSessions: integer('completed_sessions').default(0), // Sessions that weren't abandoned early

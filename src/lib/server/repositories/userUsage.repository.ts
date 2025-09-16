@@ -1,7 +1,7 @@
 import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 import { db } from '$lib/server/db/index';
-import { userUsage } from '$lib/server/db/schema';
-import type { NewUserUsage, UserUsage } from '$lib/server/db/types';
+import { userUsage, dailyUsage } from '$lib/server/db/schema';
+import type { NewUserUsage, UserUsage, DailyUsage } from '$lib/server/db/types';
 
 export class UserUsageRepository {
 	/**
@@ -97,6 +97,7 @@ export class UserUsageRepository {
 			ankiExportsUsed?: number;
 			sessionExtensionsUsed?: number;
 			advancedVoiceSeconds?: number;
+			analysesUsed?: number;
 			completedSessions?: number;
 			longestSessionSeconds?: number;
 			averageSessionSeconds?: number;
@@ -135,6 +136,9 @@ export class UserUsageRepository {
 		if (updates.advancedVoiceSeconds !== undefined) {
 			updateData.advancedVoiceSeconds =
 				(current.advancedVoiceSeconds || 0) + updates.advancedVoiceSeconds;
+		}
+		if (updates.analysesUsed !== undefined) {
+			updateData.analysesUsed = (current.analysesUsed || 0) + updates.analysesUsed;
 		}
 		if (updates.completedSessions !== undefined) {
 			updateData.completedSessions = (current.completedSessions || 0) + updates.completedSessions;
@@ -276,6 +280,96 @@ export class UserUsageRepository {
 			.from(userUsage)
 			.where(eq(userUsage.period, period))
 			.orderBy(desc(userUsage.secondsUsed));
+	}
+
+	/**
+	 * Daily usage methods for features with daily limits (e.g., free tier analysis)
+	 */
+
+	/**
+	 * Get daily usage for a user
+	 */
+	async getDailyUsage(userId: string, date: string): Promise<DailyUsage | null> {
+		const result = await db
+			.select()
+			.from(dailyUsage)
+			.where(and(eq(dailyUsage.userId, userId), eq(dailyUsage.date, date)))
+			.limit(1);
+
+		return result[0] || null;
+	}
+
+	/**
+	 * Create daily usage record
+	 */
+	async createDailyUsage(userId: string, date: string): Promise<DailyUsage> {
+		const [created] = await db
+			.insert(dailyUsage)
+			.values({
+				userId,
+				date,
+				analysesUsed: 0,
+				conversationsStarted: 0,
+				secondsUsed: 0,
+				realtimeSecondsUsed: 0,
+				advancedFeaturesUsed: 0
+			})
+			.returning();
+
+		return created;
+	}
+
+	/**
+	 * Increment daily usage
+	 */
+	async incrementDailyUsage(
+		userId: string,
+		date: string,
+		updates: {
+			analysesUsed?: number;
+			conversationsStarted?: number;
+			secondsUsed?: number;
+			realtimeSecondsUsed?: number;
+			advancedFeaturesUsed?: number;
+		}
+	): Promise<DailyUsage> {
+		const current = await this.getDailyUsage(userId, date);
+
+		if (!current) {
+			// Create new record first
+			await this.createDailyUsage(userId, date);
+		}
+
+		// Build the update object dynamically
+		const updateData: Partial<DailyUsage> = {
+			updatedAt: new Date()
+		};
+
+		const existing = current || await this.getDailyUsage(userId, date);
+
+		if (updates.analysesUsed !== undefined) {
+			updateData.analysesUsed = (existing?.analysesUsed || 0) + updates.analysesUsed;
+		}
+		if (updates.conversationsStarted !== undefined) {
+			updateData.conversationsStarted = (existing?.conversationsStarted || 0) + updates.conversationsStarted;
+		}
+		if (updates.secondsUsed !== undefined) {
+			updateData.secondsUsed = (existing?.secondsUsed || 0) + updates.secondsUsed;
+		}
+		if (updates.realtimeSecondsUsed !== undefined) {
+			updateData.realtimeSecondsUsed = (existing?.realtimeSecondsUsed || 0) + updates.realtimeSecondsUsed;
+		}
+		if (updates.advancedFeaturesUsed !== undefined) {
+			updateData.advancedFeaturesUsed = (existing?.advancedFeaturesUsed || 0) + updates.advancedFeaturesUsed;
+		}
+
+		const [updated] = await db
+			.update(dailyUsage)
+			.set(updateData)
+			.where(and(eq(dailyUsage.userId, userId), eq(dailyUsage.date, date)))
+			.returning();
+
+		return updated;
 	}
 
 	// Helper methods for period management

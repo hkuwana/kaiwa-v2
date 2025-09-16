@@ -1,25 +1,22 @@
 <script lang="ts">
-	import { page } from '$app/state';
-
-	// Get the slug from the URL
-	const slug = page.params.slug;
-
-	// The content will be loaded by the +page.ts load function
 	const { data } = $props();
 </script>
 
 <svelte:head>
-	<title>{data.title} - Kaiwa Blog</title>
-	<meta name="description" content={data.description || data.excerpt} />
-	<meta property="og:title" content={data.title} />
-	<meta property="og:description" content={data.description || data.excerpt} />
-	<meta property="og:type" content="article" />
-	{#if data.author}
-		<meta name="author" content={data.author} />
-	{/if}
-	{#if data.date}
-		<meta property="article:published_time" content={data.date} />
-	{/if}
+	<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "BlogPosting",
+			"headline": data.metadata.title,
+			"description": data.metadata.description,
+			"author": {
+				"@type": "Organization",
+				"name": data.metadata.author || "Kaiwa Team"
+			},
+			"datePublished": data.metadata.date,
+			"image": `https://kaiwa.app/og-image.png`
+		}
+	</script>
 </svelte:head>
 
 {#if data.content}
@@ -29,33 +26,33 @@
 			<div class="mb-6">
 				<div class="mb-4 flex flex-wrap items-center gap-4 text-sm text-base-content/60">
 					<time class="font-medium">
-						{new Date(data.date).toLocaleDateString('en-US', {
+						{new Date(data.metadata.date).toLocaleDateString('en-US', {
 							year: 'numeric',
 							month: 'long',
 							day: 'numeric'
 						})}
 					</time>
 					<span>•</span>
-					<span>{data.readTime}</span>
-					{#if data.author}
+					<span>{data.metadata.readTime}</span>
+					{#if data.metadata.author}
 						<span>•</span>
-						<span>By {data.author}</span>
+						<span>By {data.metadata.author}</span>
 					{/if}
 				</div>
 
-				{#if data.tags && data.tags.length > 0}
+				{#if data.metadata.tags && data.metadata.tags.length > 0}
 					<div class="mb-4 flex flex-wrap gap-2">
-						{#each data.tags as tag}
+						{#each data.metadata.tags as tag}
 							<span class="badge badge-outline badge-sm">{tag}</span>
 						{/each}
 					</div>
 				{/if}
 			</div>
 
-			<h1 class="mb-4 text-4xl leading-tight font-bold text-base-content">{data.title}</h1>
+			<h1 class="mb-4 text-4xl leading-tight font-bold text-base-content">{data.metadata.title}</h1>
 
-			{#if data.excerpt}
-				<p class="mb-6 text-xl leading-relaxed font-medium text-base-content/70">{data.excerpt}</p>
+			{#if data.metadata.excerpt}
+				<p class="mb-6 text-xl leading-relaxed font-medium text-base-content/70">{data.metadata.excerpt}</p>
 			{/if}
 		</header>
 
@@ -70,11 +67,11 @@
 				<a href="/blog" class="btn gap-2 btn-outline btn-sm"> ← Back to Blog </a>
 
 				<div class="flex items-center gap-4 text-sm text-base-content/60">
-					{#if data.author}
-						<span>Written by {data.author}</span>
+					{#if data.metadata.author}
+						<span>Written by {data.metadata.author}</span>
 					{/if}
 					<time>
-						{new Date(data.date).toLocaleDateString('en-US', {
+						{new Date(data.metadata.date).toLocaleDateString('en-US', {
 							year: 'numeric',
 							month: 'long',
 							day: 'numeric'

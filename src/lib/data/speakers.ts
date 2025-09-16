@@ -682,8 +682,16 @@ export function getSpeakerById(id: string): Speaker | undefined {
 	return speakersData.find((speaker) => speaker.id === id);
 }
 
-// Helper function to get default speaker for a language
+// Helper function to get default speaker for a language (prioritize female speakers)
 export function getDefaultSpeakerForLanguage(languageId: string): Speaker | undefined {
 	const languageSpeakers = getSpeakersByLanguage(languageId);
-	return languageSpeakers[0]; // Return first available speaker
+
+	// First try to find a female speaker
+	const femaleSpeaker = languageSpeakers.find(speaker => speaker.gender === 'female');
+	if (femaleSpeaker) {
+		return femaleSpeaker;
+	}
+
+	// Fallback to first available speaker
+	return languageSpeakers[0];
 }

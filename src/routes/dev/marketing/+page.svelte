@@ -18,7 +18,15 @@
 		{ id: 'share-module', label: 'In-product share prompt', done: true },
 		{ id: 'upsell', label: 'Early-backer upsell ready', done: false },
 		{ id: 'pricing-id', label: 'Create Early‑Backer Stripe price', done: false },
-		{ id: 'track-signup', label: 'Thread shareId → signup', done: true }
+		{ id: 'track-signup', label: 'Thread shareId → signup', done: true },
+		// New: ICP JP/ES landing + ops cadence
+		{ id: 'lp-jp-parents', label: 'Publish blog: JP — Meet the Parents', done: false },
+		{ id: 'lp-es-parents', label: 'Publish blog: ES — Meet the Parents', done: false },
+		{ id: 'blog-weekly', label: 'Ship 1 blog/week (support LP)', done: false },
+		{ id: 'video-3x-week', label: '3 shorts/week (scenario demo)', done: false },
+		{ id: 'reddit-weekly', label: '1 Reddit post/week (value-first)', done: false },
+		{ id: 'posthog-daily', label: 'Daily: Check PostHog dashboard', done: false },
+		{ id: 'stripe-daily', label: 'Daily: Check Stripe revenue', done: false }
 	];
 
 	let goalShares = 5;
@@ -173,6 +181,66 @@ It's been a game-changer for my confidence. Has anyone else found good ways to p
 		generateBlogPostIdea();
 		updateRedditTemplate();
 	});
+
+	// Newsletter composer state
+	let newsletterSubject = $state('Weekly Kaiwa update');
+	let newsletterIntro = $state('<p>Here’s what’s new and helpful this week.</p>');
+	let includeBlog = $state(true);
+	let includeYouTube = $state(false);
+	let youtubeChannelId = $state('');
+	let replyToEmail = $state('support@kaiwa.app');
+	let calendlyUrl = $state('');
+	let whatsapp = $state('');
+	let adminToken = $state('');
+	let previewHtml = $state('');
+	let loadingPreview = $state(false);
+	let sending = $state(false);
+	let previewContainer: HTMLDivElement | null = null;
+
+	async function previewNewsletter() {
+		loadingPreview = true;
+		try {
+			const res = await fetch('/api/newsletter/send?preview=1', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					subject: newsletterSubject,
+					introHtml: newsletterIntro,
+					includeBlog,
+					includeYouTube,
+					youtubeChannelId,
+					contact: { replyToEmail, calendlyUrl, whatsapp }
+				})
+			});
+			const data = await res.json();
+			previewHtml = data.html || '';
+			if (previewContainer) previewContainer.innerHTML = previewHtml;
+		} finally {
+			loadingPreview = false;
+		}
+	}
+
+	async function sendNewsletter() {
+		sending = true;
+		try {
+			const res = await fetch('/api/newsletter/send', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json', 'x-newsletter-token': adminToken },
+				body: JSON.stringify({
+					subject: newsletterSubject,
+					introHtml: newsletterIntro,
+					includeBlog,
+					includeYouTube,
+					youtubeChannelId,
+					contact: { replyToEmail, calendlyUrl, whatsapp }
+				})
+			});
+			const data = await res.json();
+			alert(data.ok ? `Sent to ${data?.result?.sent ?? 0} subscribers` : (data.error || 'Failed'));
+		} finally {
+			sending = false;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -213,6 +281,26 @@ It's been a game-changer for my confidence. Has anyone else found good ways to p
 					/>
 					<span class="text-sm text-base-content/60">people sharing</span>
 				</div>
+			</div>
+		</div>
+
+		<!-- Marketing Goals & Cadence -->
+		<div class="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+			<div class="rounded-xl bg-base-100 p-5 shadow md:col-span-2">
+				<div class="mb-2 text-sm tracking-wide text-base-content/60 uppercase">Marketing Goals (ICP: Couples JP/ES)</div>
+				<ul class="list-disc pl-6 text-sm leading-6">
+					<li>North Star: First conversation started; D7 return.</li>
+					<li>30‑day: 4 blog LPs (JP/ES), 4 blogs, 12 shorts, 4 Reddit posts.</li>
+					<li>Paid: $300/week → exact‑match long‑tail; conversion = practice_started.</li>
+				</ul>
+			</div>
+			<div class="rounded-xl bg-base-100 p-5 shadow">
+				<div class="mb-2 text-sm tracking-wide text-base-content/60 uppercase">Quick Links</div>
+				<ul class="text-sm leading-6">
+					<li><a class="link link-primary" href="/blog/japanese-meet-the-parents" target="_blank">JP — Meet the Parents</a></li>
+					<li><a class="link link-primary" href="/blog/spanish-meet-the-parents" target="_blank">ES — Conocer a los padres</a></li>
+					<li><a class="link link-primary" href="/blog" target="_blank">Blog Index</a></li>
+				</ul>
 			</div>
 		</div>
 
@@ -259,6 +347,43 @@ It's been a game-changer for my confidence. Has anyone else found good ways to p
 					<div class="text-sm tracking-wide text-base-content/60 uppercase">Contacts Reached</div>
 				</div>
 			</div>
+		</div>
+
+		<!-- Newsletter Composer -->
+		<div class="mb-6 rounded-xl bg-base-100 p-5 shadow">
+			<div class="mb-4 text-lg font-semibold">Newsletter Composer</div>
+			<div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+				<label class="form-control">
+					<div class="label"><span class="label-text">Subject</span></div>
+					<input class="input input-bordered input-sm" bind:value={newsletterSubject} placeholder="Weekly update: JP/ES scenarios + demo" />
+				</label>
+				<label class="form-control md:col-span-2">
+					<div class="label"><span class="label-text">Intro (HTML allowed)</span></div>
+					<textarea class="textarea textarea-bordered h-28 text-sm" bind:value={newsletterIntro} placeholder="A quick note about what's new this week…"></textarea>
+				</label>
+				<div class="flex flex-col gap-3 md:flex-row md:items-center">
+					<label class="cursor-pointer flex items-center gap-2"><input type="checkbox" class="checkbox checkbox-sm" bind:checked={includeBlog} /> <span class="text-sm">Include latest blog</span></label>
+					<label class="cursor-pointer flex items-center gap-2"><input type="checkbox" class="checkbox checkbox-sm" bind:checked={includeYouTube} /> <span class="text-sm">Include latest YouTube</span></label>
+					<input class="input input-bordered input-sm flex-1" placeholder="YouTube channel ID" bind:value={youtubeChannelId} />
+				</div>
+				<div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+					<input class="input input-bordered input-sm" placeholder="Reply-to email" bind:value={replyToEmail} />
+					<input class="input input-bordered input-sm" placeholder="Calendly URL (optional)" bind:value={calendlyUrl} />
+					<input class="input input-bordered input-sm" placeholder="WhatsApp link (optional)" bind:value={whatsapp} />
+				</div>
+			</div>
+			<div class="mt-4 flex flex-wrap gap-2">
+				<button class="btn btn-sm btn-outline" onclick={previewNewsletter} disabled={loadingPreview}>Preview</button>
+				<button class="btn btn-sm btn-primary" onclick={sendNewsletter} disabled={sending || !newsletterSubject}>Send</button>
+				<input class="input input-bordered input-xs" type="password" placeholder="Admin token" bind:value={adminToken} />
+				<a class="btn btn-sm btn-secondary" href="/api/dev/marketing/calendar.ics" target="_blank">Add cadence to calendar (.ics)</a>
+			</div>
+			{#if previewHtml}
+				<div class="mt-4 rounded-lg border border-base-300 p-3">
+					<div class="mb-2 text-sm font-semibold">Preview</div>
+					<div class="prose max-w-none" this={previewContainer}></div>
+				</div>
+			{/if}
 		</div>
 
 		<!-- Reddit Post Helper -->

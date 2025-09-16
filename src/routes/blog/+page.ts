@@ -1,10 +1,6 @@
-import type { PageLoad } from './$types';
-
-// Import all markdown files from the blog directory
 const blogPosts = import.meta.glob('../../lib/blog/*.md', { eager: true });
 
-export const load: PageLoad = () => {
-	// Convert the glob results to a more usable format
+export const load = ({ data }) => {
 	interface BlogModuleMeta {
 		metadata?: {
 			title?: string;
@@ -30,22 +26,26 @@ export const load: PageLoad = () => {
 				author: metadata.author || 'Kaiwa Team',
 				date: metadata.date || new Date().toISOString(),
 				tags: metadata.tags || [],
-				published: metadata.published !== false, // Default to true unless explicitly false
+				published: metadata.published !== false,
 				path: `/blog/${filename}`,
 				readTime: metadata.readTime || estimateReadTime(metadata.excerpt || '')
 			};
 		})
-		// Filter out unpublished posts in production
 		.filter((post) => post.published)
-		// Sort by date, newest first
 		.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
+	const blogIndexSeo = {
+		title: 'Kaiwa Blog - Language Learning Tips and Insights',
+		description:
+			'Explore articles on language learning, conversation practice, and cultural insights from the Kaiwa team.'
+	};
+
 	return {
-		posts
+		posts,
+		seo: { ...data.seo, ...blogIndexSeo }
 	};
 };
 
-// Simple read time estimation (words per minute average)
 function estimateReadTime(text: string): string {
 	const wordsPerMinute = 200;
 	const words = text.split(' ').length;

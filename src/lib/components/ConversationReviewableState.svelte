@@ -1,11 +1,14 @@
 <script lang="ts">
-	import type { Message } from '$lib/server/db/types';
+	import type { Message, UserPreferences } from '$lib/server/db/types';
 	import type { Language } from '$lib/server/db/types';
 	import MessageBubble from './MessageBubble.svelte';
+	import OnboardingResults from './OnboardingResults.svelte';
 	import { audioStore } from '$lib/stores/audio.store.svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
+	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
 	import ShareKaiwa from '$lib/components/ShareKaiwa.svelte';
 	import { track } from '$lib/analytics/posthog';
+	import { onMount } from 'svelte';
 
 	interface Props {
 		messages: Message[];
@@ -13,9 +16,32 @@
 		onStartNewConversation: () => void;
 		onAnalyzeConversation: () => void;
 		onGoHome: () => void;
+		analysisResults?: UserPreferences | null;
+		showAnalysisResults?: boolean;
 	}
 
-	const { messages, language, onStartNewConversation, onAnalyzeConversation, onGoHome } = $props();
+	const {
+		messages,
+		language,
+		onStartNewConversation,
+		onAnalyzeConversation,
+		onGoHome,
+		analysisResults = null,
+		showAnalysisResults = false
+	} = $props();
+
+	// State for mobile-friendly sections and analytics
+	let currentSection = $state<'summary' | 'analytics' | 'conversation' | 'results'>('summary');
+	let showDeeperAnalytics = $state(false);
+	let isAnalyzing = $state(false);
+	let quotaStatus = $state<{
+		canAnalyze: boolean;
+		remainingAnalyses: number;
+		resetTime: Date;
+		tier: string;
+		quotaExceeded: boolean;
+		upgradeRequired: boolean;
+	} | null>(null);
 
 	const audioLevel = $derived(audioStore.getCurrentLevel());
 
@@ -36,6 +62,23 @@
 		displayMessages.filter((m: Message) => m.role === 'assistant')
 	);
 
+	// Calculate conversation analytics
+	const conversationAnalytics = $derived({
+		totalMessages: displayMessages.length,
+		userMessages: userMessages.length,
+		assistantMessages: assistantMessages.length,
+		averageWordsPerMessage: Math.round(
+			displayMessages.reduce((sum, msg) => sum + msg.content.split(' ').length, 0) / displayMessages.length || 0
+		),
+		conversationDuration: displayMessages.length > 0
+			? Math.round((displayMessages[displayMessages.length - 1].timestamp.getTime() - displayMessages[0].timestamp.getTime()) / 60000)
+			: 0,
+		languageMix: {
+			userLanguage: userMessages.filter(m => m.sourceLanguage === language.code).length,
+			targetLanguage: userMessages.filter(m => m.sourceLanguage !== language.code).length
+		}
+	});
+
 	const isFree = $derived(userManager.isFree);
 
 	function handleUpsellClick() {
@@ -45,12 +88,110 @@
 		});
 		window.location.href = '/pricing?utm_source=app&utm_medium=upsell&utm_campaign=early_backer';
 	}
+
+	async function handleAnalyzeConversation() {
+		// Check quota first if user is logged in
+		if (userManager.isLoggedIn) {
+			try {
+				const quotaCheck = await fetch('/api/analysis/quota-check', {
+					method: 'GET',
+					headers: { 'Content-Type': 'application/json' }
+				});
+
+				if (quotaCheck.ok) {
+					const fetchedQuotaStatus = await quotaCheck.json();
+					quotaStatus = fetchedQuotaStatus;
+
+					if (!fetchedQuotaStatus.canAnalyze) {
+						// Don't proceed with analysis
+						return;
+					}
+				}
+			} catch (error) {
+				console.warn('Could not check quota:', error);
+				// Continue with analysis anyway if quota check fails
+			}
+		}
+
+		isAnalyzing = true;
+		currentSection = 'results';
+		track('analyze_conversation_clicked', {
+			source: 'conversation_review',
+			messageCount: displayMessages.length
+		});
+		onAnalyzeConversation();
+
+		// Simulate analysis delay
+		setTimeout(() => {
+			isAnalyzing = false;
+		}, 3000);
+	}
+
+	function handleShowDeeperAnalytics() {
+		showDeeperAnalytics = !showDeeperAnalytics;
+		track('deeper_analytics_toggled', {
+			source: 'conversation_review',
+			expanded: showDeeperAnalytics
+		});
+	}
+
+	function scrollToSection(section: typeof currentSection) {
+		currentSection = section;
+		const element = document.getElementById(`section-${section}`);
+		if (element) {
+			element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		}
+	}
+
+	// Load quota status on mount if user is logged in
+	onMount(async () => {
+		if (userManager.isLoggedIn) {
+			try {
+				const quotaCheck = await fetch('/api/analysis/quota-check');
+				if (quotaCheck.ok) {
+					quotaStatus = await quotaCheck.json();
+				}
+			} catch (error) {
+				console.warn('Could not load quota status:', error);
+			}
+		}
+	});
 </script>
 
 <div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">
-	<div class="container mx-auto max-w-4xl px-4 py-8">
+	<!-- Mobile-friendly sticky navigation -->
+	<div class="sticky top-0 z-10 bg-base-100/80 backdrop-blur-sm border-b border-base-300/20 md:hidden">
+		<div class="flex overflow-x-auto px-4 py-2">
+			<button
+				class="btn btn-sm {currentSection === 'summary' ? 'btn-primary' : 'btn-ghost'} mr-2 flex-shrink-0"
+				onclick={() => scrollToSection('summary')}
+			>
+				Summary
+			</button>
+			<button
+				class="btn btn-sm {currentSection === 'analytics' ? 'btn-primary' : 'btn-ghost'} mr-2 flex-shrink-0"
+				onclick={() => scrollToSection('analytics')}
+			>
+				Analytics
+			</button>
+			<button
+				class="btn btn-sm {currentSection === 'conversation' ? 'btn-primary' : 'btn-ghost'} mr-2 flex-shrink-0"
+				onclick={() => scrollToSection('conversation')}
+			>
+				Messages
+			</button>
+			<button
+				class="btn btn-sm {currentSection === 'results' ? 'btn-primary' : 'btn-ghost'} flex-shrink-0"
+				onclick={() => scrollToSection('results')}
+			>
+				Results
+			</button>
+		</div>
+	</div>
+
+	<div class="container mx-auto max-w-4xl px-4 py-6 md:py-8">
 		<!-- Header -->
-		<div class="mb-8 text-center">
+		<div id="section-summary" class="mb-6 md:mb-8 text-center">
 			<div class="mb-4 flex justify-center">
 				<div class="badge gap-2 badge-lg badge-success">
 					<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -64,15 +205,59 @@
 					Conversation Complete
 				</div>
 			</div>
-			<div class="mb-2 text-3xl font-bold">Review Your Conversation</div>
-			<p class="text-lg text-base-content/70">
-				Take a look at your {language.name} conversation and decide what to do next
+			<div class="mb-2 text-2xl md:text-3xl font-bold">Review Your Conversation</div>
+			<p class="text-base md:text-lg text-base-content/70">
+				Your {language.name} conversation is ready for review
 			</p>
 		</div>
 
-		<!-- Action Buttons -->
-		<div class="mb-8 flex flex-wrap justify-center gap-4">
-			<button class="btn gap-2 btn-lg btn-primary" onclick={onAnalyzeConversation}>
+		<!-- Quota Status Display -->
+		{#if quotaStatus && quotaStatus.quotaExceeded}
+			<div class="mb-4 md:mb-6 rounded-xl bg-warning/10 border border-warning/20 p-4 text-center">
+				<div class="flex justify-center mb-2">
+					<svg class="h-6 w-6 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+						/>
+					</svg>
+				</div>
+				<h3 class="font-semibold text-warning mb-1">Analysis Limit Reached</h3>
+				<p class="text-sm text-base-content/70 mb-3">
+					{#if quotaStatus.upgradeRequired}
+						You've used your daily analysis. Upgrade to get more analyses!
+					{:else}
+						You've used your monthly analyses. Quota resets: {quotaStatus.resetTime.toLocaleDateString()}
+					{/if}
+				</p>
+				{#if quotaStatus.upgradeRequired}
+					<button class="btn btn-warning btn-sm" onclick={handleUpsellClick}>
+						Upgrade Now
+					</button>
+				{/if}
+			</div>
+		{:else if quotaStatus && userManager.isLoggedIn}
+			<div class="mb-4 md:mb-6 rounded-xl bg-info/10 border border-info/20 p-3 text-center">
+				<p class="text-sm text-info">
+					{#if quotaStatus.remainingAnalyses === -1}
+						✨ Unlimited analyses available
+					{:else}
+						{quotaStatus.remainingAnalyses} analysis{quotaStatus.remainingAnalyses === 1 ? '' : 'es'} remaining
+						({quotaStatus.tier} tier)
+					{/if}
+				</p>
+			</div>
+		{/if}
+
+		<!-- Primary Action Buttons -->
+		<div class="mb-6 md:mb-8 flex flex-col sm:flex-row justify-center gap-3 md:gap-4">
+			<button
+				class="btn gap-2 btn-lg flex-1 sm:flex-none {quotaStatus?.quotaExceeded ? 'btn-disabled' : 'btn-primary'}"
+				onclick={handleAnalyzeConversation}
+				disabled={quotaStatus?.quotaExceeded}
+			>
 				<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path
 						stroke-linecap="round"
@@ -81,10 +266,10 @@
 						d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
 					/>
 				</svg>
-				Analyze & Get Results
+				{quotaStatus?.quotaExceeded ? 'Analysis Limit Reached' : 'Get Learning Analysis'}
 			</button>
 
-			<button class="btn gap-2 btn-outline btn-lg" onclick={onStartNewConversation}>
+			<button class="btn gap-2 btn-outline btn-lg flex-1 sm:flex-none" onclick={onStartNewConversation}>
 				<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path
 						stroke-linecap="round"
@@ -93,69 +278,128 @@
 						d="M12 6v6m0 0v6m0-6h6m-6 0H6"
 					/>
 				</svg>
-				Start New Conversation
-			</button>
-
-			<button class="btn gap-2 btn-ghost btn-lg" onclick={onGoHome}>
-				<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-					/>
-				</svg>
-				Go Home
+				Practice More
 			</button>
 		</div>
 
-		<!-- Conversation Summary -->
-		<div class="mb-8 rounded-lg bg-base-100 p-6 shadow-lg">
-			<h2 class="mb-4 text-xl font-semibold">Conversation Summary</h2>
-			<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-				<div class="stat">
-					<div class="stat-title">Total Messages</div>
-					<div class="stat-value text-primary">{displayMessages.length}</div>
+		<!-- Quick Stats -->
+		<div class="mb-6 md:mb-8 rounded-xl bg-base-100 p-4 md:p-6 shadow-lg">
+			<h2 class="mb-4 text-lg md:text-xl font-semibold">Conversation Overview</h2>
+			<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+				<div class="stat p-2">
+					<div class="stat-title text-xs md:text-sm">Messages</div>
+					<div class="stat-value text-lg md:text-2xl text-primary">{conversationAnalytics.totalMessages}</div>
 				</div>
-				<div class="stat">
-					<div class="stat-title">Your Messages</div>
-					<div class="stat-value text-secondary">{userMessages.length}</div>
+				<div class="stat p-2">
+					<div class="stat-title text-xs md:text-sm">Duration</div>
+					<div class="stat-value text-lg md:text-2xl text-secondary">{conversationAnalytics.conversationDuration}m</div>
 				</div>
-				<div class="stat">
-					<div class="stat-title">Tutor Responses</div>
-					<div class="stat-value text-accent">{assistantMessages.length}</div>
+				<div class="stat p-2">
+					<div class="stat-title text-xs md:text-sm">Your Input</div>
+					<div class="stat-value text-lg md:text-2xl text-accent">{conversationAnalytics.userMessages}</div>
+				</div>
+				<div class="stat p-2">
+					<div class="stat-title text-xs md:text-sm">Avg Words</div>
+					<div class="stat-value text-lg md:text-2xl text-info">{conversationAnalytics.averageWordsPerMessage}</div>
 				</div>
 			</div>
 		</div>
 
-		<!-- Upsell + Share -->
-		<div class="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-			{#if isFree}
-				<div class="rounded-2xl border border-base-300/60 bg-base-100/70 p-6 shadow-sm">
-					<div class="mb-2 text-lg font-semibold">Early‑backer Plus</div>
-					<p class="mb-4 text-base-content/70">
-						Support the mission and unlock more practice time — $5/mo for 12 months.
-					</p>
-					<button class="btn btn-primary" onclick={handleUpsellClick}>Support + Unlock</button>
+		<!-- Deeper Analytics Section -->
+		<div id="section-analytics" class="mb-6 md:mb-8">
+			<div class="rounded-xl bg-gradient-to-r from-secondary/5 to-primary/5 border border-secondary/20 p-4 md:p-6 shadow-lg">
+				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
+					<h2 class="text-lg md:text-xl font-semibold mb-2 sm:mb-0">Conversation Insights</h2>
+					<button class="btn btn-secondary btn-sm" onclick={handleShowDeeperAnalytics}>
+						<svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+							/>
+						</svg>
+						{showDeeperAnalytics ? 'Hide' : 'Show'} Deeper Analytics
+					</button>
 				</div>
-			{/if}
-			<div>
-				<ShareKaiwa source="conversation_review" />
+
+				{#if showDeeperAnalytics}
+					<div class="space-y-4">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div class="bg-base-100/50 rounded-lg p-4">
+								<h3 class="font-semibold text-sm text-secondary mb-2">Language Usage</h3>
+								<div class="text-sm space-y-1">
+									<div class="flex justify-between">
+										<span>{language.name}:</span>
+										<span class="font-medium">{conversationAnalytics.languageMix.userLanguage} messages</span>
+									</div>
+									<div class="flex justify-between">
+										<span>English:</span>
+										<span class="font-medium">{conversationAnalytics.languageMix.targetLanguage} messages</span>
+									</div>
+								</div>
+							</div>
+							<div class="bg-base-100/50 rounded-lg p-4">
+								<h3 class="font-semibold text-sm text-secondary mb-2">Participation</h3>
+								<div class="text-sm space-y-1">
+									<div class="flex justify-between">
+										<span>Your messages:</span>
+										<span class="font-medium">{Math.round((conversationAnalytics.userMessages / conversationAnalytics.totalMessages) * 100)}%</span>
+									</div>
+									<div class="flex justify-between">
+										<span>Tutor responses:</span>
+										<span class="font-medium">{Math.round((conversationAnalytics.assistantMessages / conversationAnalytics.totalMessages) * 100)}%</span>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="bg-base-100/50 rounded-lg p-4">
+							<h3 class="font-semibold text-sm text-secondary mb-2">Ready for Advanced Analysis?</h3>
+							<p class="text-sm text-base-content/70 mb-3">
+								Get detailed feedback on your grammar, vocabulary usage, and personalized learning recommendations.
+							</p>
+							<button class="btn btn-primary btn-sm" onclick={handleAnalyzeConversation}>
+								Unlock Full Analysis
+							</button>
+						</div>
+					</div>
+				{/if}
+			</div>
+		</div>
+
+		<!-- Share Section -->
+		<div class="mb-6 md:mb-8 flex justify-center">
+			<div class="rounded-xl bg-secondary/10 border border-secondary/30 p-4 md:p-6 w-full max-w-md">
+				<div class="text-center">
+					<h3 class="font-semibold text-secondary mb-2">Share Your Progress</h3>
+					<ShareKaiwa source="conversation_review" />
+				</div>
 			</div>
 		</div>
 
 		<!-- Messages Display -->
-		<div class="rounded-lg bg-base-100 p-6 shadow-lg">
-			<h2 class="mb-6 text-xl font-semibold">Your Conversation</h2>
+		<div id="section-conversation" class="mb-6 md:mb-8 rounded-xl bg-base-100 p-4 md:p-6 shadow-lg">
+			<h2 class="mb-4 md:mb-6 text-lg md:text-xl font-semibold flex items-center">
+				<svg class="h-5 w-5 mr-2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+					/>
+				</svg>
+				Your Conversation
+			</h2>
 
 			{#if displayMessages.length > 0}
-				<div class="space-y-4">
+				<div class="space-y-3 md:space-y-4 max-h-96 md:max-h-none overflow-y-auto">
 					{#each displayMessages as message (message.id)}
 						<MessageBubble {message} conversationLanguage={language?.code} />
 					{/each}
 				</div>
 			{:else}
-				<div class="text-center text-base-content/50">
+				<div class="text-center text-base-content/50 py-8">
 					<svg class="mx-auto mb-4 h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path
 							stroke-linecap="round"
@@ -169,14 +413,64 @@
 			{/if}
 		</div>
 
-		<!-- Bottom Action Bar -->
-		<div class="mt-8 flex justify-center">
-			<div class="flex gap-4">
-				<button class="btn btn-primary" onclick={onAnalyzeConversation}>
-					Get Your Learning Profile
-				</button>
-				<button class="btn btn-outline" onclick={onStartNewConversation}> Practice More </button>
+		<!-- Analysis Results Section -->
+		<div id="section-results" class="mb-6 md:mb-8">
+			{#if isAnalyzing}
+				<div class="rounded-xl bg-base-100 p-6 md:p-8 shadow-lg text-center">
+					<div class="flex justify-center mb-4">
+						<div class="loading loading-lg loading-spinner text-primary"></div>
+					</div>
+					<h2 class="text-xl md:text-2xl font-bold mb-2">Analyzing Your Conversation</h2>
+					<p class="text-base-content/70">Creating your personalized learning insights...</p>
+				</div>
+			{:else if showAnalysisResults && analysisResults}
+				<div class="rounded-xl bg-base-100 p-4 md:p-6 shadow-lg">
+					<h2 class="text-lg md:text-xl font-semibold mb-4 flex items-center">
+						<svg class="h-5 w-5 mr-2 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+							/>
+						</svg>
+						Your Learning Analysis
+					</h2>
+					<OnboardingResults
+						results={analysisResults}
+						isVisible={true}
+						isGuestUser={!userManager.isLoggedIn}
+						onDismiss={() => {}}
+						onSave={() => {}}
+					/>
+				</div>
+			{/if}
+		</div>
+
+		<!-- Upsell Section -->
+		{#if isFree}
+			<div class="mb-6 md:mb-8 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5 p-4 md:p-6 shadow-lg">
+				<div class="text-center">
+					<div class="mb-2 text-lg md:text-xl font-semibold">Unlock Your Full Potential</div>
+					<p class="mb-4 text-sm md:text-base text-base-content/70">
+						Support Kaiwa and get unlimited practice time, advanced analytics, and more — $5/mo for 12 months.
+					</p>
+					<button class="btn btn-primary" onclick={handleUpsellClick}>Support + Unlock Features</button>
+				</div>
 			</div>
+		{/if}
+
+		<!-- Bottom Action Bar -->
+		<div class="flex flex-col sm:flex-row justify-center gap-3 md:gap-4">
+			<button class="btn btn-primary flex-1 sm:flex-none" onclick={handleAnalyzeConversation}>
+				{analysisResults ? 'View Full Analysis' : 'Get Learning Analysis'}
+			</button>
+			<button class="btn btn-outline flex-1 sm:flex-none" onclick={onStartNewConversation}>
+				Continue Practicing
+			</button>
+			<button class="btn btn-ghost flex-1 sm:flex-none" onclick={onGoHome}>
+				Back Home
+			</button>
 		</div>
 	</div>
 </div>

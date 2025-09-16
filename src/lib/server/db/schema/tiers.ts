@@ -13,6 +13,11 @@ export const tiers = pgTable(
 		monthlySeconds: integer('monthly_seconds').notNull(), // Changed from monthly_minutes
 		monthlyRealtimeSessions: integer('monthly_realtime_sessions').notNull(),
 
+		// Daily limits (mainly for free tier)
+		dailyConversations: integer('daily_conversations').default(1), // null = no daily limit
+		dailySeconds: integer('daily_seconds').default(180), // null = no daily limit
+		dailyAnalyses: integer('daily_analyses').default(1), // null = no daily limit
+
 		// Session limits
 		maxSessionLengthSeconds: integer('max_session_length_seconds').notNull(), // Changed from max_session_length_minutes
 		sessionBankingEnabled: boolean('session_banking_enabled').default(false).notNull(),

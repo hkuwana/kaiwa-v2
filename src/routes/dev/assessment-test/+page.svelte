@@ -2,7 +2,8 @@
 	import { onMount } from 'svelte';
 	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
 	import OnboardingResults from '$lib/components/OnboardingResults.svelte';
-	import type { UserPreferences } from '$lib/server/db/types';
+	import ConversationReviewableState from '$lib/components/ConversationReviewableState.svelte';
+	import type { UserPreferences, Message, Language } from '$lib/server/db/types';
 	import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 
 	// Mock assessment data for testing
@@ -25,51 +26,189 @@
 		updatedAt: new Date()
 	};
 
-	// Mock conversation messages for testing
-	const mockConversationMessages = [
+	// Mock language data
+	const mockJapaneseLanguage: Language = {
+		id: 'ja',
+		code: 'ja',
+		name: 'Japanese',
+		nativeName: '日本語',
+		isRTL: false,
+		flag: '🇯🇵',
+		hasRomanization: true,
+		writingSystem: 'chinese',
+		supportedScripts: ['hiragana', 'katakana', 'kanji'],
+		isSupported: true
+	};
+
+	// Mock conversation messages for testing (properly typed)
+	const mockConversationMessages: Message[] = [
 		{
 			id: 'msg-1',
+			conversationId: 'conv-dev-test',
 			role: 'user',
 			content: 'こんにちは、お元気ですか？',
 			timestamp: new Date(Date.now() - 300000),
-			language: 'ja'
+			sequenceId: null,
+			translatedContent: null,
+			sourceLanguage: 'ja',
+			targetLanguage: null,
+			userNativeLanguage: null,
+			romanization: null,
+			hiragana: null,
+			otherScripts: null,
+			translationConfidence: null,
+			translationProvider: null,
+			translationNotes: null,
+			isTranslated: false,
+			grammarAnalysis: null,
+			vocabularyAnalysis: null,
+			pronunciationScore: null,
+			audioUrl: null,
+			audioDuration: null,
+			difficultyLevel: null,
+			learningTags: null,
+			conversationContext: null,
+			messageIntent: 'greeting'
 		},
 		{
 			id: 'msg-2',
+			conversationId: 'conv-dev-test',
 			role: 'assistant',
-			content: "I'm doing well, thank you. I'm learning Japanese for business purposes.",
+			content: "I'm doing well, thank you! How has your Japanese learning been going?",
 			timestamp: new Date(Date.now() - 280000),
-			language: 'en'
+			sequenceId: null,
+			translatedContent: null,
+			sourceLanguage: 'en',
+			targetLanguage: null,
+			userNativeLanguage: null,
+			romanization: null,
+			hiragana: null,
+			otherScripts: null,
+			translationConfidence: null,
+			translationProvider: null,
+			translationNotes: null,
+			isTranslated: false,
+			grammarAnalysis: null,
+			vocabularyAnalysis: null,
+			pronunciationScore: null,
+			audioUrl: null,
+			audioDuration: null,
+			difficultyLevel: null,
+			learningTags: null,
+			conversationContext: null,
+			messageIntent: 'question'
 		},
 		{
 			id: 'msg-3',
+			conversationId: 'conv-dev-test',
 			role: 'user',
-			content: 'ビジネスで日本語を学びたいんですね。どのくらいのレベルですか？',
+			content: 'まあまあです。毎日勉強していますが、まだ難しいです。',
 			timestamp: new Date(Date.now() - 260000),
-			language: 'ja'
+			sequenceId: null,
+			translatedContent: null,
+			sourceLanguage: 'ja',
+			targetLanguage: null,
+			userNativeLanguage: null,
+			romanization: null,
+			hiragana: null,
+			otherScripts: null,
+			translationConfidence: null,
+			translationProvider: null,
+			translationNotes: null,
+			isTranslated: false,
+			grammarAnalysis: null,
+			vocabularyAnalysis: null,
+			pronunciationScore: null,
+			audioUrl: null,
+			audioDuration: null,
+			difficultyLevel: null,
+			learningTags: null,
+			conversationContext: null,
+			messageIntent: 'statement'
 		},
 		{
 			id: 'msg-4',
+			conversationId: 'conv-dev-test',
 			role: 'assistant',
-			content:
-				"I'm a beginner, maybe A2 level. I want to be able to have basic business conversations.",
+			content: "That's great that you're studying every day! What do you find most challenging?",
 			timestamp: new Date(Date.now() - 240000),
-			language: 'en'
+			sequenceId: null,
+			translatedContent: null,
+			sourceLanguage: 'en',
+			targetLanguage: null,
+			userNativeLanguage: null,
+			romanization: null,
+			hiragana: null,
+			otherScripts: null,
+			translationConfidence: null,
+			translationProvider: null,
+			translationNotes: null,
+			isTranslated: false,
+			grammarAnalysis: null,
+			vocabularyAnalysis: null,
+			pronunciationScore: null,
+			audioUrl: null,
+			audioDuration: null,
+			difficultyLevel: null,
+			learningTags: null,
+			conversationContext: null,
+			messageIntent: 'question'
 		},
 		{
 			id: 'msg-5',
+			conversationId: 'conv-dev-test',
 			role: 'user',
-			content: '素晴らしい目標ですね。どのような場面で日本語を使いたいですか？',
+			content: '敬語が一番難しいと思います。ビジネスで使うので、とても重要です。',
 			timestamp: new Date(Date.now() - 220000),
-			language: 'ja'
+			sequenceId: null,
+			translatedContent: null,
+			sourceLanguage: 'ja',
+			targetLanguage: null,
+			userNativeLanguage: null,
+			romanization: null,
+			hiragana: null,
+			otherScripts: null,
+			translationConfidence: null,
+			translationProvider: null,
+			translationNotes: null,
+			isTranslated: false,
+			grammarAnalysis: null,
+			vocabularyAnalysis: null,
+			pronunciationScore: null,
+			audioUrl: null,
+			audioDuration: null,
+			difficultyLevel: null,
+			learningTags: null,
+			conversationContext: null,
+			messageIntent: 'statement'
 		},
 		{
 			id: 'msg-6',
+			conversationId: 'conv-dev-test',
 			role: 'assistant',
-			content:
-				'I need to communicate with Japanese clients and colleagues. Also for business meetings.',
+			content: "Business Japanese is definitely challenging! Keigo (honorific language) takes time to master, but you're on the right track.",
 			timestamp: new Date(Date.now() - 200000),
-			language: 'en'
+			sequenceId: null,
+			translatedContent: null,
+			sourceLanguage: 'en',
+			targetLanguage: null,
+			userNativeLanguage: null,
+			romanization: null,
+			hiragana: null,
+			otherScripts: null,
+			translationConfidence: null,
+			translationProvider: null,
+			translationNotes: null,
+			isTranslated: false,
+			grammarAnalysis: null,
+			vocabularyAnalysis: null,
+			pronunciationScore: null,
+			audioUrl: null,
+			audioDuration: null,
+			difficultyLevel: null,
+			learningTags: null,
+			conversationContext: null,
+			messageIntent: 'statement'
 		}
 	];
 
@@ -77,6 +216,7 @@
 	let showResults = $state(false);
 	let isAnalyzing = $state(false);
 	let currentStep = $state<'idle' | 'analyzing' | 'results'>('idle');
+	let showConversationReview = $state(false);
 
 	// Test functions
 	function startMockAssessment() {
@@ -150,19 +290,44 @@
 		currentStep = 'results';
 		showResults = true;
 	}
+
+	// Conversation review functions
+	function showConversationReviewState() {
+		showConversationReview = true;
+	}
+
+	function hideConversationReviewState() {
+		showConversationReview = false;
+	}
+
+	function handleStartNewConversation() {
+		console.log('Starting new conversation...');
+		hideConversationReviewState();
+	}
+
+	function handleAnalyzeConversation() {
+		console.log('Analyzing conversation...');
+		hideConversationReviewState();
+		startMockAssessment();
+	}
+
+	function handleGoHome() {
+		console.log('Going home...');
+		hideConversationReviewState();
+	}
 </script>
 
 <svelte:head>
-	<title>Assessment Testing - Dev Panel</title>
-	<meta name="description" content="Test the assessment flow and onboarding results" />
+	<title>Assessment & Conversation Review Testing - Dev Panel</title>
+	<meta name="description" content="Test the assessment flow, onboarding results, and conversation review state" />
 </svelte:head>
 
 <div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 p-6">
 	<div class="container mx-auto max-w-4xl">
 		<div class="mb-8">
-			<h1 class="mb-2 text-3xl font-bold text-primary">Assessment Testing Panel</h1>
+			<h1 class="mb-2 text-3xl font-bold text-primary">Assessment & Conversation Review Testing Panel</h1>
 			<p class="text-base-content/70">
-				Test the onboarding assessment flow and results display for guest/first-time users
+				Test the onboarding assessment flow, results display, and conversation review state UX
 			</p>
 		</div>
 
@@ -184,10 +349,22 @@
 					<strong>Message Count:</strong>
 					{mockConversationMessages.length} |
 					<strong>Languages:</strong>
-					{[...new Set(mockConversationMessages.map((m) => m.language))].join(', ')} |
+					{[...new Set(mockConversationMessages.map((m) => m.sourceLanguage).filter(Boolean))].join(', ')} |
 					<strong>Roles:</strong>
 					{[...new Set(mockConversationMessages.map((m) => m.role))].join(', ')}
 				</div>
+			</div>
+		</div>
+
+		<div class="card mb-6 bg-base-100 shadow-xl">
+			<div class="card-body">
+				<h2 class="card-title text-xl">Test Conversation Review State</h2>
+				<p class="mb-4 text-base-content/70">
+					Test the ConversationReviewableState component that shows after a conversation ends
+				</p>
+				<button class="btn btn-lg btn-secondary" onclick={showConversationReviewState}>
+					Show Conversation Review
+				</button>
 			</div>
 		</div>
 
@@ -298,6 +475,31 @@
 			/>
 		{/if}
 
+		{#if showConversationReview}
+			<div class="card mb-6 bg-base-100 shadow-xl">
+				<div class="card-body">
+					<h2 class="mb-4 card-title text-xl">Conversation Review State Active</h2>
+					<div class="flex gap-2 mb-4">
+						<button class="btn btn-outline btn-sm" onclick={hideConversationReviewState}>
+							Hide Review State
+						</button>
+						<button class="btn btn-outline btn-sm" onclick={() => {hideConversationReviewState(); showConversationReviewState();}}>
+							Refresh State
+						</button>
+					</div>
+				</div>
+			</div>
+			<ConversationReviewableState
+				messages={mockConversationMessages}
+				language={mockJapaneseLanguage}
+				onStartNewConversation={handleStartNewConversation}
+				onAnalyzeConversation={handleAnalyzeConversation}
+				onGoHome={handleGoHome}
+				analysisResults={userPreferencesStore.getAnalysisResults()}
+				showAnalysisResults={showResults}
+			/>
+		{/if}
+
 		<!-- Debug Info -->
 		<div class="card mt-6 bg-base-100 shadow-xl">
 			<div class="card-body">
@@ -306,6 +508,7 @@
 					<div><strong>Current Step:</strong> {currentStep}</div>
 					<div><strong>Is Analyzing:</strong> {isAnalyzing}</div>
 					<div><strong>Show Results:</strong> {showResults}</div>
+					<div><strong>Show Conversation Review:</strong> {showConversationReview}</div>
 					<div>
 						<strong>Has Analysis Results:</strong>
 						{userPreferencesStore.hasCurrentAnalysisResults}
@@ -314,6 +517,8 @@
 						<strong>Is Currently Analyzing:</strong>
 						{userPreferencesStore.isCurrentlyAnalyzing}
 					</div>
+					<div><strong>Mock Messages Count:</strong> {mockConversationMessages.length}</div>
+					<div><strong>Mock Language:</strong> {mockJapaneseLanguage.name} ({mockJapaneseLanguage.code})</div>
 				</div>
 			</div>
 		</div>

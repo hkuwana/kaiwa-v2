@@ -3,6 +3,7 @@
 	import UnifiedStartButton from '$lib/components/UnifiedStartButton.svelte';
 	import ChatBubbleFlow from '$lib/components/ChatBubbleFlow.svelte';
 	import InteractiveScenarioPreview from '$lib/components/InteractiveScenarioPreview.svelte';
+	import DynamicLanguageText from '$lib/components/DynamicLanguageText.svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
@@ -24,31 +25,38 @@
 		// Main control (family connection)
 		main: 'Connect with your family in the language of their heart.',
 
-		// Anxiety-free positioning
-		variant1: 'Practice Languages without fear. Connect with confidence.',
-
-		// Specific emotional scenario variant
-		variant2: 'Talk to your grandmother in her language.',
-		variant3: 'Gentle conversations. Meaningful connections.'
+		// Dynamic language-specific variations
+		grandmother: 'dynamic-grandmother',
+		practice: 'dynamic-practice',
+		connect: 'dynamic-connect'
 	};
 
 	// Random headline selection
 	let headlineVariant = $state('main');
 	let headlineText = $state(headlineVariants.main);
+	let useDynamicLanguage = $state(false);
+	let dynamicVariant: 'grandmother' | 'practice' | 'connect' = $state('grandmother');
 
 	// Initialize random A/B test on client side
 	if (browser) {
-		// Test the 2 refined variants
-		const shortlist = ['variant1', 'variant2'] as const;
-		const selectedVariant = shortlist[Math.floor(Math.random() * shortlist.length)];
+		// Test dynamic language variants
+		const dynamicVariants = ['grandmother', 'practice', 'connect'] as const;
+		const selectedVariant = dynamicVariants[Math.floor(Math.random() * dynamicVariants.length)];
 
 		// Update state
 		headlineVariant = selectedVariant;
-		headlineText = headlineVariants[selectedVariant as keyof typeof headlineVariants];
+		useDynamicLanguage = true;
+		dynamicVariant = selectedVariant;
+		headlineText = `dynamic-${selectedVariant}`;
 
 		// Track which variant the user saw
-		const selectedText = headlineVariants[selectedVariant as keyof typeof headlineVariants];
-		trackABTest.headlineVariantShown(selectedVariant, selectedText);
+		const trackingTexts = {
+			grandmother: 'Talk to your grandmother in [Language]',
+			practice: 'Practice [Language] without fear',
+			connect: 'Connect through heart in [Language]'
+		};
+
+		trackABTest.headlineVariantShown(selectedVariant, trackingTexts[selectedVariant]);
 	}
 
 	// Function to track when user clicks start speaking
@@ -76,6 +84,11 @@
 		scenarioStore.setScenarioById(scenario.id);
 		selectedScenario = scenario;
 	}
+
+	function handleDynamicLanguageSelect(language: DataLanguage) {
+		selectedLanguage = language;
+		settingsStore.setLanguageObject(language);
+	}
 </script>
 
 <svelte:head>
@@ -90,7 +103,17 @@
 		<div class="text-center">
 			<div class="max-w-md">
 				<h4 class="mb-2 text-2xl font-semibold opacity-90 sm:mb-4 sm:text-3xl">
-					{headlineText}
+					{#if useDynamicLanguage}
+						<DynamicLanguageText
+							bind:selectedLanguage={selectedLanguage}
+							onLanguageSelect={handleDynamicLanguageSelect}
+							variant={dynamicVariant}
+							animationInterval={2800}
+							interactive={false}
+						/>
+					{:else}
+						{headlineText}
+					{/if}
 				</h4>
 
 				{#if user.id !== 'guest'}

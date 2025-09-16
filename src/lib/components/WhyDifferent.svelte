@@ -1,5 +1,9 @@
 <script lang="ts">
-	export let variant: 'compact' | 'extended' = 'compact';
+	interface Props {
+		variant?: 'compact' | 'extended';
+	}
+
+	let { variant = 'compact' }: Props = $props();
 
 	const items = [
 		{
