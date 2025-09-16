@@ -32,9 +32,7 @@
 						<a href="/dev/assessment-test/api-simulation" class="btn btn-outline btn-sm">
 							API Simulation
 						</a>
-						<a href="/dev/analysis" class="btn btn-outline btn-sm">
-							🧪 Analysis Pipeline
-						</a>
+						<a href="/dev/analysis" class="btn btn-outline btn-sm"> 🧪 Analysis Pipeline </a>
 					</div>
 				</div>
 			</div>

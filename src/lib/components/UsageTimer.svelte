@@ -55,7 +55,9 @@
 		<!-- Sand timer icon -->
 		<div class="relative {iconSizes[size]} {colorClass}">
 			<svg fill="currentColor" viewBox="0 0 24 24" class="h-full w-full">
-				<path d="M6 2h12v2.4L12 10l6 5.6V18H6v-2.4L12 10 6 4.4V2zm2 2v1.6l4 3.2 4-3.2V4H8zm0 12h8v-1.6l-4-3.2-4 3.2V16z"/>
+				<path
+					d="M6 2h12v2.4L12 10l6 5.6V18H6v-2.4L12 10 6 4.4V2zm2 2v1.6l4 3.2 4-3.2V4H8zm0 12h8v-1.6l-4-3.2-4 3.2V16z"
+				/>
 			</svg>
 			<!-- Sand animation based on usage -->
 			<div
@@ -70,8 +72,8 @@
 	</span>
 
 	<!-- Optional progress bar -->
-	<div class="flex-1 max-w-16">
-		<div class="h-1.5 bg-base-300 rounded-full overflow-hidden">
+	<div class="max-w-16 flex-1">
+		<div class="h-1.5 overflow-hidden rounded-full bg-base-300">
 			<div
 				class="h-full transition-all duration-300 {colorClass.replace('text-', 'bg-')}"
 				style="width: {percentageRemaining}%"

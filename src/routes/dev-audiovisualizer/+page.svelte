@@ -44,7 +44,9 @@
 		<!-- Header -->
 		<div class="mb-8">
 			<h1 class="text-3xl font-bold text-base-content">🎛️ AudioVisualizer Experiments</h1>
-			<p class="mt-2 text-base-content/70">Test different designs for the AudioVisualizer component</p>
+			<p class="mt-2 text-base-content/70">
+				Test different designs for the AudioVisualizer component
+			</p>
 		</div>
 
 		<div class="grid gap-8 lg:grid-cols-2">
@@ -53,7 +55,9 @@
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body">
 						<h2 class="card-title text-lg">🔴 Current Design (With Inner Circle)</h2>
-						<p class="text-sm opacity-70 mb-4">Current implementation with inner circle + children</p>
+						<p class="mb-4 text-sm opacity-70">
+							Current implementation with inner circle + children
+						</p>
 
 						<div class="flex justify-center py-8">
 							<AudioVisualizer
@@ -66,7 +70,9 @@
 								{#if isTimerActive && timeRemaining > 0}
 									<div class="flex items-center gap-1">
 										{#if showTimeLeft}
-											<div class="text-xs font-bold text-error bg-base-100/90 px-2 py-1 rounded-full shadow-sm">
+											<div
+												class="rounded-full bg-base-100/90 px-2 py-1 text-xs font-bold text-error shadow-sm"
+											>
 												{formatTime(timeRemaining)}
 											</div>
 										{:else}
@@ -76,9 +82,13 @@
 												role="progressbar"
 												title="Session progress"
 											>
-												<svg class="w-3 h-3 opacity-70" fill="currentColor" viewBox="0 0 24 24">
-													<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-													<path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+												<svg class="h-3 w-3 opacity-70" fill="currentColor" viewBox="0 0 24 24">
+													<path
+														d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"
+													/>
+													<path
+														d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"
+													/>
 												</svg>
 											</div>
 										{/if}
@@ -88,7 +98,7 @@
 						</div>
 
 						<div class="text-xs opacity-60">
-							<strong>Pros:</strong> Clear button structure, defined interaction area<br>
+							<strong>Pros:</strong> Clear button structure, defined interaction area<br />
 							<strong>Cons:</strong> Visual complexity, competing elements
 						</div>
 					</div>
@@ -108,8 +118,8 @@
 										max="1"
 										step="0.1"
 										bind:value={audioLevel}
-										class="range range-sm range-primary"
-									>
+										class="range range-primary range-sm"
+									/>
 									<span class="label-text ml-3">{Math.round(audioLevel * 100)}%</span>
 								</label>
 							</div>
@@ -118,8 +128,8 @@
 								<span class="text-sm">Time Remaining:</span>
 								<span class="badge badge-outline">{formatTime(timeRemaining)}</span>
 								<button
-									class="btn btn-xs btn-outline"
-									onclick={() => timeRemaining = timeRemaining <= 30 ? 180 : 15}
+									class="btn btn-outline btn-xs"
+									onclick={() => (timeRemaining = timeRemaining <= 30 ? 180 : 15)}
 								>
 									Toggle Phase
 								</button>
@@ -134,12 +144,12 @@
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body">
 						<h2 class="card-title text-lg">✨ Ring Timer Design</h2>
-						<p class="text-sm opacity-70 mb-4">Ring IS the timer progress + audio pulse feedback</p>
+						<p class="mb-4 text-sm opacity-70">Ring IS the timer progress + audio pulse feedback</p>
 
 						<div class="flex justify-center py-8">
 							<!-- Ring Timer Design -->
 							<div
-								class="relative flex h-24 w-24 items-center justify-center cursor-pointer select-none transition-all duration-200 hover:scale-105 active:scale-95"
+								class="relative flex h-24 w-24 cursor-pointer items-center justify-center transition-all duration-200 select-none hover:scale-105 active:scale-95"
 								role="button"
 								tabindex="0"
 								onpointerdown={(e) => {
@@ -150,7 +160,7 @@
 									e.currentTarget.style.transform = 'scale(1.05)';
 									console.log('Record stop - Ring Timer');
 								}}
-								onpointerleave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+								onpointerleave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
 								onkeydown={(e) => {
 									if (e.key === ' ' || e.key === 'Enter') {
 										e.preventDefault();
@@ -165,7 +175,7 @@
 								}}
 							>
 								<!-- Timer Ring (Custom SVG for better control) -->
-								<svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+								<svg class="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 100 100">
 									<!-- Background circle -->
 									<circle
 										cx="50"
@@ -185,32 +195,56 @@
 										stroke="currentColor"
 										stroke-width="4"
 										stroke-linecap="round"
-										class="{timeRemaining <= 30 ? 'text-error' : timeRemaining <= 60 ? 'text-warning' : 'text-primary'}"
-										style="stroke-dasharray: {2 * Math.PI * 46}; stroke-dashoffset: {2 * Math.PI * 46 * (1 - progressPercentage / 100)}; transition: stroke-dashoffset 0.3s ease;"
+										class={timeRemaining <= 30
+											? 'text-error'
+											: timeRemaining <= 60
+												? 'text-warning'
+												: 'text-primary'}
+										style="stroke-dasharray: {2 * Math.PI * 46}; stroke-dashoffset: {2 *
+											Math.PI *
+											46 *
+											(1 - progressPercentage / 100)}; transition: stroke-dashoffset 0.3s ease;"
 									/>
 								</svg>
 
 								<!-- Audio Activity Pulse -->
 								<div
 									class="absolute inset-4 rounded-full bg-primary/10 transition-all duration-300"
-									style="opacity: {audioLevel * 0.8}; transform: scale({1 + audioLevel * 0.2}); background: radial-gradient(circle, currentColor 0%, transparent 70%);"
+									style="opacity: {audioLevel * 0.8}; transform: scale({1 +
+										audioLevel *
+											0.2}); background: radial-gradient(circle, currentColor 0%, transparent 70%);"
 								></div>
 
 								<!-- Center Microphone Icon (Larger) -->
-								<div class="relative z-10 flex items-center justify-center pointer-events-none">
-									<svg class="w-10 h-10 {timeRemaining <= 30 ? 'text-error' : timeRemaining <= 60 ? 'text-warning' : 'text-primary'}" fill="currentColor" viewBox="0 0 24 24">
-										<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-										<path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+								<div class="pointer-events-none relative z-10 flex items-center justify-center">
+									<svg
+										class="h-10 w-10 {timeRemaining <= 30
+											? 'text-error'
+											: timeRemaining <= 60
+												? 'text-warning'
+												: 'text-primary'}"
+										fill="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"
+										/>
+										<path
+											d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"
+										/>
 									</svg>
 								</div>
 
 								<!-- Recording State Indicator -->
-								<div class="absolute inset-0 animate-ping rounded-full border-2 border-error opacity-0 transition-opacity duration-200" style="display: none;"></div>
+								<div
+									class="absolute inset-0 animate-ping rounded-full border-2 border-error opacity-0 transition-opacity duration-200"
+									style="display: none;"
+								></div>
 							</div>
 						</div>
 
 						<div class="text-xs opacity-60">
-							<strong>Pros:</strong> Ring = timer (genius!), clear feedback, minimal design<br>
+							<strong>Pros:</strong> Ring = timer (genius!), clear feedback, minimal design<br />
 							<strong>Cons:</strong> Different from current design, may need user education
 						</div>
 					</div>
@@ -221,21 +255,20 @@
 					<div class="card-body">
 						<h3 class="card-title text-base">🔬 Design Variants</h3>
 						<div class="space-y-4">
-
 							<!-- Variant 1: Ring Timer with Click Feedback -->
-							<div class="border rounded-lg p-4">
-								<h4 class="font-medium mb-2">Ring Timer with Click Feedback</h4>
-								<div class="flex justify-center mb-2">
+							<div class="rounded-lg border p-4">
+								<h4 class="mb-2 font-medium">Ring Timer with Click Feedback</h4>
+								<div class="mb-2 flex justify-center">
 									<div
-										class="relative flex h-20 w-20 items-center justify-center cursor-pointer select-none transition-all duration-200 hover:scale-105"
+										class="relative flex h-20 w-20 cursor-pointer items-center justify-center transition-all duration-200 select-none hover:scale-105"
 										role="button"
 										tabindex="0"
-										onpointerdown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
-										onpointerup={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-										onpointerleave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+										onpointerdown={(e) => (e.currentTarget.style.transform = 'scale(0.95)')}
+										onpointerup={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+										onpointerleave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
 									>
 										<!-- Timer Ring (Custom SVG) -->
-										<svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+										<svg class="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 100 100">
 											<!-- Background circle -->
 											<circle
 												cx="50"
@@ -255,22 +288,42 @@
 												stroke="currentColor"
 												stroke-width="6"
 												stroke-linecap="round"
-												class="{timeRemaining <= 30 ? 'text-error' : timeRemaining <= 60 ? 'text-warning' : 'text-primary'}"
-												style="stroke-dasharray: {2 * Math.PI * 44}; stroke-dashoffset: {2 * Math.PI * 44 * (1 - progressPercentage / 100)}; transition: stroke-dashoffset 0.3s ease;"
+												class={timeRemaining <= 30
+													? 'text-error'
+													: timeRemaining <= 60
+														? 'text-warning'
+														: 'text-primary'}
+												style="stroke-dasharray: {2 * Math.PI * 44}; stroke-dashoffset: {2 *
+													Math.PI *
+													44 *
+													(1 - progressPercentage / 100)}; transition: stroke-dashoffset 0.3s ease;"
 											/>
 										</svg>
 
 										<!-- Audio Activity Pulse -->
 										<div
 											class="absolute inset-3 rounded-full bg-primary/10 transition-all duration-300"
-											style="opacity: {audioLevel * 0.8}; transform: scale({1 + audioLevel * 0.15});"
+											style="opacity: {audioLevel * 0.8}; transform: scale({1 +
+												audioLevel * 0.15});"
 										></div>
 
 										<!-- Center Microphone Icon -->
 										<div class="relative z-10 flex items-center justify-center">
-											<svg class="w-7 h-7 {timeRemaining <= 30 ? 'text-error' : timeRemaining <= 60 ? 'text-warning' : 'text-primary'}" fill="currentColor" viewBox="0 0 24 24">
-												<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-												<path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+											<svg
+												class="h-7 w-7 {timeRemaining <= 30
+													? 'text-error'
+													: timeRemaining <= 60
+														? 'text-warning'
+														: 'text-primary'}"
+												fill="currentColor"
+												viewBox="0 0 24 24"
+											>
+												<path
+													d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"
+												/>
+												<path
+													d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"
+												/>
 											</svg>
 										</div>
 									</div>
@@ -279,21 +332,27 @@
 							</div>
 
 							<!-- Variant 2: Glass Effect -->
-							<div class="border rounded-lg p-4">
-								<h4 class="font-medium mb-2">Glassmorphism Design</h4>
-								<div class="flex justify-center mb-2">
-									<div class="relative flex h-20 w-20 items-center justify-center cursor-pointer">
-										<div class="absolute inset-0 rounded-full bg-primary/20 backdrop-blur-sm border border-primary/30 transition-all duration-300"></div>
-										<div class="radial-progress text-primary/80" style="--value:{progressPercentage}; --size:1.8rem;">
-											<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-												<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+							<div class="rounded-lg border p-4">
+								<h4 class="mb-2 font-medium">Glassmorphism Design</h4>
+								<div class="mb-2 flex justify-center">
+									<div class="relative flex h-20 w-20 cursor-pointer items-center justify-center">
+										<div
+											class="absolute inset-0 rounded-full border border-primary/30 bg-primary/20 backdrop-blur-sm transition-all duration-300"
+										></div>
+										<div
+											class="radial-progress text-primary/80"
+											style="--value:{progressPercentage}; --size:1.8rem;"
+										>
+											<svg class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
+												<path
+													d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"
+												/>
 											</svg>
 										</div>
 									</div>
 								</div>
 								<p class="text-xs opacity-60">Glass effect with subtle backdrop</p>
 							</div>
-
 						</div>
 					</div>
 				</div>

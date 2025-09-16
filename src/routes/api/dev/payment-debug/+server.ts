@@ -113,21 +113,23 @@ export const POST = async ({ request, locals }) => {
 		};
 
 		switch (action) {
-			case 'ensure_stripe_customer':
-				{ const stripeCustomerId = await ensureStripeCustomer(userId, userEmail);
+			case 'ensure_stripe_customer': {
+				const stripeCustomerId = await ensureStripeCustomer(userId, userEmail);
 				result.success = !!stripeCustomerId;
 				result.stripeCustomerId = stripeCustomerId;
-				break; }
+				break;
+			}
 
-			case 'sync_from_stripe':
-				{ const user = await userRepository.findUserById(userId);
+			case 'sync_from_stripe': {
+				const user = await userRepository.findUserById(userId);
 				if (!user?.stripeCustomerId) {
 					throw new Error('User has no Stripe customer ID');
 				}
 				const syncData = await syncUserSubscription(userId, user.stripeCustomerId);
 				result.success = true;
 				result.syncData = syncData;
-				break; }
+				break;
+			}
 
 			case 'get_current_tier': {
 				// Use subscription service for dev (DB first)

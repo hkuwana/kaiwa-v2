@@ -10,11 +10,17 @@ export const scenariosData: Scenario[] = [
 		description: 'Let our AI understand your speaking level and learning goals',
 		category: 'onboarding',
 		difficulty: 'beginner',
-		instructions: "Have a natural conversation about yourself and your language goals. Our AI will listen and create a personalized learning path for you.",
+		instructions:
+			'Have a natural conversation about yourself and your language goals. Our AI will listen and create a personalized learning path for you.',
 		context:
 			'A friendly language coach wants to understand your current level and what you hope to achieve. Just be yourself—this helps us create better conversations for you.',
 		expectedOutcome: 'Personalized recommendations based on your conversation',
-		learningObjectives: ['skill assessment', 'goal identification', 'learning preferences', 'personalized recommendations'],
+		learningObjectives: [
+			'skill assessment',
+			'goal identification',
+			'learning preferences',
+			'personalized recommendations'
+		],
 		comfortIndicators: {
 			confidence: 3,
 			engagement: 4,

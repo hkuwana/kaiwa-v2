@@ -351,7 +351,7 @@
 	}}
 >
 	<!-- Timer Ring (Custom SVG for better control) -->
-	<svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+	<svg class="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 100 100">
 		<!-- Background circle -->
 		<circle
 			cx="50"
@@ -373,7 +373,10 @@
 				stroke-width="4"
 				stroke-linecap="round"
 				class={timerColor()}
-				style="stroke-dasharray: {2 * Math.PI * 46}; stroke-dashoffset: {2 * Math.PI * 46 * (1 - progressPercentage / 100)}; transition: stroke-dashoffset 0.3s ease;"
+				style="stroke-dasharray: {2 * Math.PI * 46}; stroke-dashoffset: {2 *
+					Math.PI *
+					46 *
+					(1 - progressPercentage / 100)}; transition: stroke-dashoffset 0.3s ease;"
 			/>
 		{/if}
 	</svg>
@@ -381,28 +384,34 @@
 	<!-- Audio Activity Pulse -->
 	<div
 		class="absolute inset-4 rounded-full bg-primary/10 transition-all duration-300"
-		style="opacity: {audioLevel * 0.8}; transform: scale({1 + audioLevel * 0.2}); background: radial-gradient(circle, currentColor 0%, transparent 70%);"
+		style="opacity: {audioLevel * 0.8}; transform: scale({1 +
+			audioLevel * 0.2}); background: radial-gradient(circle, currentColor 0%, transparent 70%);"
 		style:transform="translateY({verticalOffset}px) scale({1 + audioLevel * 0.2})"
 	></div>
 
 	<!-- Center Microphone Icon (Larger) -->
-	<div class="relative z-10 flex items-center justify-center pointer-events-none">
-		<svg class="w-10 h-10 {timerColor()}" fill="currentColor" viewBox="0 0 24 24">
-			<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-			<path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+	<div class="pointer-events-none relative z-10 flex items-center justify-center">
+		<svg class="h-10 w-10 {timerColor()}" fill="currentColor" viewBox="0 0 24 24">
+			<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+			<path
+				d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"
+			/>
 		</svg>
 	</div>
 
 	<!-- Children Content (e.g., additional info) in Center -->
 	{#if children}
-		<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+		<div class="pointer-events-none absolute inset-0 flex items-center justify-center">
 			{@render children()}
 		</div>
 	{/if}
 
 	<!-- Recording State Indicator -->
 	{#if isRecording}
-		<div class="absolute inset-0 animate-ping rounded-full border-2 border-error opacity-25 transition-opacity duration-200" aria-hidden="true"></div>
+		<div
+			class="absolute inset-0 animate-ping rounded-full border-2 border-error opacity-25 transition-opacity duration-200"
+			aria-hidden="true"
+		></div>
 	{/if}
 
 	<!-- Press State Indicator -->

@@ -11,10 +11,7 @@
 	import type { Scenario } from '$lib/server/db/types';
 	import { dev } from '$app/environment';
 	import WhyDifferent from '$lib/components/WhyDifferent.svelte';
-	import UsageTimer from '$lib/components/UsageTimer.svelte';
 
-	// Get user data from page data
-	const { data } = $props();
 	const user = userManager.user;
 
 	// State management for language, speaker, and scenario selection
@@ -101,42 +98,14 @@
 						Welcome back, {user ? user.displayName : 'Dev'}!
 					</div>
 				{:else}
-					<!-- Guest user value prop with clear assessment explanation -->
+					<!-- Simplified guest value prop -->
 					<div class="mb-6 space-y-3">
 						<p class="text-lg opacity-90 sm:text-xl">
-							Get your speaking level assessed in 3 minutes. Start practicing conversations that
-							match your skill.
+							3-minute onboarding to create personalized conversation scenarios just for you.
 						</p>
-						<div class="mx-auto max-w-sm rounded-lg bg-primary/10 px-4 py-3 text-sm">
-							<div class="mb-2 font-medium text-primary">✨ What you get free:</div>
-							<ul class="space-y-1 text-left opacity-80">
-								<li>• 3-minute skill assessment</li>
-								<li>
-									• {data.usageLimits?.audioMinutesPerMonth ||
-										(data as any).usageLimits?.audioMinutesPerMonth ||
-										15} minutes of conversation practice
-								</li>
-								<li>• Personalized difficulty matching</li>
-								<li>• No signup required to start</li>
-							</ul>
-							{#if data.usageLimits || (data as any).usageLimits}
-								<div class="mt-3 border-t border-primary/20 pt-3">
-									<div class="flex items-center justify-between">
-										<span class="text-xs opacity-70">Available now:</span>
-										<UsageTimer
-											remainingSeconds={data.usageLimits?.audioSecondsPerMonth ||
-												(data as any).usageLimits?.audioSecondsPerMonth ||
-												900}
-											totalSeconds={data.usageLimits?.audioSecondsPerMonth ||
-												(data as any).usageLimits?.audioSecondsPerMonth ||
-												900}
-											size="sm"
-											className="text-primary"
-										/>
-									</div>
-								</div>
-							{/if}
-						</div>
+						<p class="hidden text-sm opacity-70 sm:block">
+							Free practice • No signup required • Start speaking in minutes
+						</p>
 					</div>
 				{/if}
 
@@ -197,68 +166,79 @@
 			</div>
 		</section>
 	{/if}
-	<!-- New Component Showcase Section -->
-	<main class="container mx-auto space-y-16 py-12">
-		<!-- Section Header -->
-		<div class="mx-auto max-w-3xl text-center">
-			<h2 class="mb-4 text-4xl font-bold">Why Kaiwa Works: Real Conversation Practice</h2>
-			<p class="text-xl opacity-90">
-				Unlike traditional language apps that focus on grammar and vocab lists, Kaiwa immerses you
-				in realistic conversations that mirror real-life situations. Practice speaking naturally
-				with our AI conversation partner.
-			</p>
+	<!-- Simplified content for mobile -->
+	<main class="container mx-auto space-y-8 py-8 md:space-y-16 md:py-12">
+		<!-- Hide complex sections on mobile to reduce clutter -->
+		<div class="hidden md:block">
+			<!-- Section Header -->
+			<div class="mx-auto max-w-3xl text-center">
+				<h2 class="mb-4 text-4xl font-bold">Why Kaiwa Works: Real Conversation Practice</h2>
+				<p class="text-xl opacity-90">
+					Unlike traditional language apps that focus on grammar and vocab lists, Kaiwa immerses you
+					in realistic conversations that mirror real-life situations. Practice speaking naturally
+					with our AI conversation partner.
+				</p>
+			</div>
+
+			<!-- Benefits Section -->
+			<section class="mx-auto grid max-w-4xl gap-8 md:grid-cols-2">
+				<div class="rounded-xl bg-base-100 p-6 shadow-lg">
+					<h3 class="mb-3 text-xl font-semibold text-primary">🎯 Conversation-First Learning</h3>
+					<p class="opacity-90">
+						Skip the flashcards and grammar drills. Jump straight into meaningful conversations that
+						teach you how languages are actually spoken.
+					</p>
+				</div>
+				<div class="rounded-xl bg-base-100 p-6 shadow-lg">
+					<h3 class="mb-3 text-xl font-semibold text-primary">🗣️ Build Speaking Confidence</h3>
+					<p class="opacity-90">
+						Practice speaking without fear of judgment. Our AI conversation partner helps you build
+						confidence through natural, encouraging dialogue.
+					</p>
+				</div>
+				<div class="rounded-xl bg-base-100 p-6 shadow-lg">
+					<h3 class="mb-3 text-xl font-semibold text-primary">📱 Learn Anywhere, Anytime</h3>
+					<p class="opacity-90">
+						Web-based platform works on all devices. Practice during your commute, lunch break, or
+						whenever you have a few minutes.
+					</p>
+				</div>
+				<div class="rounded-xl bg-base-100 p-6 shadow-lg">
+					<h3 class="mb-3 text-xl font-semibold text-primary">🎭 Real-Life Scenarios</h3>
+					<p class="opacity-90">
+						From ordering coffee in Tokyo to having deep conversations with your in-laws, practice
+						scenarios that actually matter to your life.
+					</p>
+				</div>
+			</section>
+
+			<!-- Option 1: Chat Bubble Flow Animation -->
+			<section class="space-y-8">
+				<div class="text-center">
+					<h3 class="mb-3 text-2xl font-bold">💬 Live Conversation Flow</h3>
+					<p class="text-lg opacity-80">
+						See real conversations happening across different languages
+					</p>
+				</div>
+				<ChatBubbleFlow />
+			</section>
+
+			<!-- Option 3: Interactive Scenario Preview -->
+			<section class="space-y-8">
+				<div class="text-center">
+					<div class="mb-3 text-2xl font-bold">Craft Your Adventure</div>
+					<p class="text-lg opacity-80">Explore places, moments, and moods to practice</p>
+				</div>
+				<InteractiveScenarioPreview {selectedLanguage} />
+			</section>
 		</div>
 
-		<!-- Benefits Section -->
-		<section class="mx-auto grid max-w-4xl gap-8 md:grid-cols-2">
-			<div class="rounded-xl bg-base-100 p-6 shadow-lg">
-				<h3 class="mb-3 text-xl font-semibold text-primary">🎯 Conversation-First Learning</h3>
-				<p class="opacity-90">
-					Skip the flashcards and grammar drills. Jump straight into meaningful conversations that
-					teach you how languages are actually spoken.
-				</p>
-			</div>
-			<div class="rounded-xl bg-base-100 p-6 shadow-lg">
-				<h3 class="mb-3 text-xl font-semibold text-primary">🗣️ Build Speaking Confidence</h3>
-				<p class="opacity-90">
-					Practice speaking without fear of judgment. Our AI conversation partner helps you build
-					confidence through natural, encouraging dialogue.
-				</p>
-			</div>
-			<div class="rounded-xl bg-base-100 p-6 shadow-lg">
-				<h3 class="mb-3 text-xl font-semibold text-primary">📱 Learn Anywhere, Anytime</h3>
-				<p class="opacity-90">
-					Web-based platform works on all devices. Practice during your commute, lunch break, or
-					whenever you have a few minutes.
-				</p>
-			</div>
-			<div class="rounded-xl bg-base-100 p-6 shadow-lg">
-				<h3 class="mb-3 text-xl font-semibold text-primary">🎭 Real-Life Scenarios</h3>
-				<p class="opacity-90">
-					From ordering coffee in Tokyo to having deep conversations with your in-laws, practice
-					scenarios that actually matter to your life.
-				</p>
-			</div>
-		</section>
-
-		<!-- Option 1: Chat Bubble Flow Animation -->
-		<section class="space-y-8">
+		<!-- Mobile-only simplified preview -->
+		<section class="block md:hidden">
 			<div class="text-center">
-				<h3 class="mb-3 text-2xl font-bold">💬 Live Conversation Flow</h3>
-				<p class="text-lg opacity-80">
-					See real conversations happening across different languages
-				</p>
+				<h3 class="mb-4 text-xl font-bold">Real Conversations, Real Progress</h3>
+				<ChatBubbleFlow />
 			</div>
-			<ChatBubbleFlow />
-		</section>
-
-		<!-- Option 3: Interactive Scenario Preview -->
-		<section class="space-y-8">
-			<div class="text-center">
-				<div class="mb-3 text-2xl font-bold">Craft Your Adventure</div>
-				<p class="text-lg opacity-80">Explore places, moments, and moods to practice</p>
-			</div>
-			<InteractiveScenarioPreview {selectedLanguage} />
 		</section>
 	</main>
 	<!-- CTA Section -->
@@ -293,46 +273,29 @@
 		</div>
 	</section>
 
-	<!-- Social Proof Section -->
-	<section class="py-12 text-center">
-		<div class="container mx-auto max-w-4xl">
-			<h3 class="mb-8 text-2xl font-semibold opacity-90">Trusted by Language Learners Worldwide</h3>
-			<div class="grid gap-6 md:grid-cols-3">
-				<div class="text-center">
-					<div class="text-3xl font-bold text-primary">5,000+</div>
-					<div class="text-sm opacity-70">Conversations Completed</div>
-				</div>
-				<div class="text-center">
-					<div class="text-3xl font-bold text-primary">8</div>
-					<div class="text-sm opacity-70">Languages Supported</div>
-				</div>
-				<div class="text-center">
-					<div class="text-3xl font-bold text-primary">95%</div>
-					<div class="text-sm opacity-70">Report Improved Confidence</div>
-				</div>
-			</div>
-		</div>
-	</section>
+	<!-- Hide comparison section on mobile -->
+	<div class="hidden md:block">
+		<WhyDifferent variant="compact" />
+	</div>
 
-	<!-- Comparison + Differentiators (toward bottom, before social proof) -->
-	<WhyDifferent variant="compact" />
-
-	<!-- Social Proof Section (moved to end) -->
-	<section class="py-12 text-center">
+	<!-- Simplified Social Proof Section -->
+	<section class="py-8 text-center md:py-12">
 		<div class="container mx-auto max-w-4xl">
-			<h3 class="mb-8 text-2xl font-semibold opacity-90">Trusted by Language Learners Worldwide</h3>
-			<div class="grid gap-6 md:grid-cols-3">
+			<h3 class="mb-6 text-xl font-semibold opacity-90 md:mb-8 md:text-2xl">
+				Trusted by Language Learners Worldwide
+			</h3>
+			<div class="grid gap-4 md:grid-cols-3 md:gap-6">
 				<div class="text-center">
-					<div class="text-3xl font-bold text-primary">5,000+</div>
-					<div class="text-sm opacity-70">Conversations Completed</div>
+					<div class="text-2xl font-bold text-primary md:text-3xl">5,000+</div>
+					<div class="text-xs opacity-70 md:text-sm">Conversations Completed</div>
 				</div>
 				<div class="text-center">
-					<div class="text-3xl font-bold text-primary">8</div>
-					<div class="text-sm opacity-70">Languages Supported</div>
+					<div class="text-2xl font-bold text-primary md:text-3xl">8</div>
+					<div class="text-xs opacity-70 md:text-sm">Languages Supported</div>
 				</div>
 				<div class="text-center">
-					<div class="text-3xl font-bold text-primary">95%</div>
-					<div class="text-sm opacity-70">Report Improved Confidence</div>
+					<div class="text-2xl font-bold text-primary md:text-3xl">95%</div>
+					<div class="text-xs opacity-70 md:text-sm">Report Improved Confidence</div>
 				</div>
 			</div>
 		</div>

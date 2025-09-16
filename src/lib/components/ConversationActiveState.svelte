@@ -52,7 +52,6 @@
 	// Audio control state
 	let hasUsedAudioControl = $state(false);
 
-
 	// Determine if we are in an onboarding-like session for hinting
 	const showOnboardingHint = $derived(() => {
 		const provider = {
