@@ -900,6 +900,10 @@ export class ConversationStore {
 		return this.timer.state;
 	}
 
+	get usageLimits(): ConversationTimerStore['usageLimits'] {
+		return this.timer.usageLimits;
+	}
+
 	get analysisMessages(): Message[] {
 		return this.messagesForAnalysis;
 	}

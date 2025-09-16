@@ -31,9 +31,8 @@
 		variant1: 'Practice Languages without fear. Connect with confidence.',
 
 		// Specific emotional scenario variant
-		variant2: "Talk to your grandmother in her language. We'll help you find the words.",
-		variant3: 'Gentle conversations. Meaningful connections.',
-		variant4: 'A safe space to practice. A bridge to your loved ones.'
+		variant2: 'Talk to your grandmother in her language.',
+		variant3: 'Gentle conversations. Meaningful connections.'
 	};
 
 	// Random headline selection
@@ -112,17 +111,25 @@
 							<div class="mb-2 font-medium text-primary">✨ What you get free:</div>
 							<ul class="space-y-1 text-left opacity-80">
 								<li>• 3-minute skill assessment</li>
-								<li>• {data.usageLimits?.audioMinutesPerMonth || (data as any).usageLimits?.audioMinutesPerMonth || 15} minutes of conversation practice</li>
+								<li>
+									• {data.usageLimits?.audioMinutesPerMonth ||
+										(data as any).usageLimits?.audioMinutesPerMonth ||
+										15} minutes of conversation practice
+								</li>
 								<li>• Personalized difficulty matching</li>
 								<li>• No signup required to start</li>
 							</ul>
 							{#if data.usageLimits || (data as any).usageLimits}
-								<div class="mt-3 pt-3 border-t border-primary/20">
+								<div class="mt-3 border-t border-primary/20 pt-3">
 									<div class="flex items-center justify-between">
 										<span class="text-xs opacity-70">Available now:</span>
 										<UsageTimer
-											remainingMinutes={data.usageLimits?.audioMinutesPerMonth || (data as any).usageLimits?.audioMinutesPerMonth || 15}
-											totalMinutes={data.usageLimits?.audioMinutesPerMonth || (data as any).usageLimits?.audioMinutesPerMonth || 15}
+											remainingSeconds={data.usageLimits?.audioSecondsPerMonth ||
+												(data as any).usageLimits?.audioSecondsPerMonth ||
+												900}
+											totalSeconds={data.usageLimits?.audioSecondsPerMonth ||
+												(data as any).usageLimits?.audioSecondsPerMonth ||
+												900}
 											size="sm"
 											className="text-primary"
 										/>

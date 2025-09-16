@@ -25,6 +25,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			conversationsPerMonth: tierInfo.monthlyConversations,
 			messagesPerConversation: 50,
 			audioMinutesPerMonth: Math.floor(tierInfo.monthlySeconds / 60), // Convert seconds to minutes
+			audioSecondsPerMonth: tierInfo.monthlySeconds, // Keep original seconds
 			canUseRealtime: tierInfo.hasRealtimeAccess,
 			canUseAdvancedAnalytics: tierInfo.hasAnalytics
 		};

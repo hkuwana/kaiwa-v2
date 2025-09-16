@@ -21,6 +21,8 @@
 		// Visuals
 		highContrast?: boolean; // adds ring + offset to ensure visibility against varied backgrounds
 		primaryColor?: 'accent' | 'primary' | 'secondary' | 'success' | 'warning' | 'error';
+		// Children support
+		children?: import('svelte').Snippet;
 	}
 
 	// --- PROPS ---
@@ -35,7 +37,8 @@
 		controlMode = 'internal',
 		pressBehavior = 'press_hold',
 		highContrast = true,
-		primaryColor = 'accent'
+		primaryColor = 'accent',
+		children
 	}: Props = $props();
 
 	// --- REACTIVE VALUES (SVELTE 5 RUNES) ---
@@ -389,6 +392,13 @@
 		style:transform="translateY({verticalOffset}px)"
 		style:opacity={innerOpacity()}
 	></div>
+
+	<!-- Children Content (e.g., Timer) in Center -->
+	{#if children}
+		<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+			{@render children()}
+		</div>
+	{/if}
 
 	<!-- Recording Indicator -->
 	{#if isRecording}
