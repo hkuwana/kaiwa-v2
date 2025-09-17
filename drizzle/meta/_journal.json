@@ -78,6 +78,13 @@
       "when": 1757883470205,
       "tag": "0010_short_tattoo",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1758072427152,
+      "tag": "0011_thick_sway",
+      "breakpoints": true
     }
   ]
 }
