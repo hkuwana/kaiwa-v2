@@ -95,15 +95,16 @@
 		}
 	});
 
-	onDestroy(() => {
+	onDestroy(async () => {
 		console.log('Cleaning up conversation...');
-		conversationStore.destroyConversation();
+		await conversationStore.destroyConversation();
 	});
 
 	// Browser cleanup
 	if (browser) {
 		const handleBeforeUnload = () => {
-			conversationStore.destroyConversation();
+			// For beforeunload, we can't use async, so use the sync queue method
+			conversationStore.queueConversationSave();
 		};
 
 		window.addEventListener('beforeunload', handleBeforeUnload);
@@ -116,9 +117,12 @@
 		if (autoConnectAttempted || !selectedLanguage) return;
 
 		autoConnectAttempted = true;
-		console.log('Starting auto-connection with:', selectedLanguage.name);
+		console.log('Starting auto-connection with:', selectedLanguage.name, 'sessionId:', sessionId);
 
 		try {
+			// Set sessionId in conversation store before starting
+			conversationStore.sessionId = sessionId;
+
 			// Get speaker object from ID
 			const speaker = settingsStore.selectedSpeaker
 				? getSpeakerById(settingsStore.selectedSpeaker)
@@ -139,12 +143,20 @@
 	}
 
 	function handleEndConversation() {
-		// End conversation and redirect to quick analysis
+		// End conversation first
 		conversationStore.endConversation();
 
-		// Determine analysis type and redirect to analysis page with quick mode
-		const analysisType = determineAnalysisType(userPreferencesStore);
-		goto(`/analysis?mode=quick&type=${analysisType}&sessionId=${sessionId}`);
+		// Wait a moment for conversation state to update, then redirect
+		setTimeout(() => {
+			// Determine analysis type and redirect to analysis page with quick mode
+			const analysisType = determineAnalysisType(userPreferencesStore);
+			goto(`/analysis?mode=quick&type=${analysisType}&sessionId=${sessionId}`, {
+				replaceState: false,
+				noScroll: false,
+				keepFocus: false,
+				invalidateAll: false
+			});
+		}, 100);
 	}
 
 	function handleContinueAfterResults() {
@@ -203,22 +215,31 @@
 		onGoHome={() => goto('/')}
 	/>
 {:else if status === 'analyzing'}
-	<!-- Redirect to analysis page with quick mode -->
+	<!-- Show loading state while redirecting to analysis -->
+	<div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-base-100 to-base-200">
+		<div class="text-center">
+			<div class="loading loading-spinner loading-lg text-primary mb-4"></div>
+			<h2 class="text-2xl font-bold mb-2">Analyzing Your Conversation</h2>
+			<p class="text-base-content/70">Preparing your personalized insights...</p>
+		</div>
+	</div>
 	{#if selectedLanguage}
-		<script>
-			// Auto-redirect to analysis page for quick analysis
+		{setTimeout(() => {
 			const analysisType = determineAnalysisType(userPreferencesStore);
-			goto(`/analysis?mode=quick&type=${analysisType}&sessionId=${sessionId}`);
-		</script>
+			goto(`/analysis?mode=quick&type=${analysisType}&sessionId=${sessionId}`, {
+				replaceState: true
+			});
+		}, 1500)}
 	{/if}
 {:else if status === 'analyzed'}
 	<!-- Redirect to analysis page instead of showing ConversationReviewableState -->
 	{#if selectedLanguage}
-		<script>
-			// Auto-redirect to analysis page
+		{(() => {
 			const analysisType = determineAnalysisType(userPreferencesStore);
-			goto(`/analysis?mode=quick&type=${analysisType}&sessionId=${sessionId}`);
-		</script>
+			goto(`/analysis?mode=quick&type=${analysisType}&sessionId=${sessionId}`, {
+				replaceState: true
+			});
+		})()}
 	{:else}
 		<div class="flex min-h-screen items-center justify-center">
 			<div class="text-center">
@@ -312,7 +333,7 @@
 					</div>
 					<div>
 						<h3 class="mb-2 text-sm font-medium">Assessment Testing</h3>
-						<div class="flex gap-2">
+						<div class="flex flex-wrap gap-2">
 							<button
 								class="btn btn-outline btn-sm"
 								onclick={() => {
@@ -372,6 +393,9 @@
 							>
 								Set Mock Results
 							</button>
+							<a href="/dev/analysis-test" class="btn btn-secondary btn-sm">
+								🧪 Test Analysis Page
+							</a>
 						</div>
 					</div>
 				</div>

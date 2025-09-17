@@ -19,8 +19,15 @@
 	// Get selected language from settings
 	const selectedLanguage = $derived(settingsStore.selectedLanguage);
 
-	// Get messages from conversation store
-	const messages = $derived(conversationStore.messages);
+	// Get messages from conversation store - use analysisMessages if available, fallback to messages
+	const messages = $derived(
+		conversationStore.analysisMessages.length > 0
+			? conversationStore.analysisMessages
+			: conversationStore.messages
+	);
+
+	// Get analysis results state
+	const hasAnalysisResults = $derived(userPreferencesStore.hasCurrentAnalysisResults);
 
 	// Analysis state
 	let analysisMode = $state<'quick' | 'full'>('quick');
@@ -45,25 +52,63 @@
 		analysisMode = urlParams.mode || 'quick';
 		analysisType = urlParams.type || determineAnalysisType(userPreferencesStore);
 
-		// Generate quick analysis data if in quick mode
-		if (analysisMode === 'quick' && selectedLanguage) {
-			const result = getQuickAnalysis(messages, selectedLanguage, analysisType);
-			if (result.success) {
-				quickAnalysisData = result.data;
+		// Handle test scenarios for development
+		if (data.sessionId?.startsWith('test-')) {
+			console.log('🧪 Detected test session, using mock data');
+			return; // Skip normal flow for test sessions
+		}
+
+		// If we have messages from conversationStore, use them for analysis
+		if (messages.length > 0 && selectedLanguage) {
+			console.log('Using conversation store messages for analysis:', messages.length, 'messages');
+			// Generate quick analysis data if in quick mode
+			if (analysisMode === 'quick') {
+				const result = getQuickAnalysis(messages, selectedLanguage, analysisType);
+				if (result.success) {
+					quickAnalysisData = result.data;
+				}
 			}
+		} else if (data.sessionId && !data.isGuest && data.conversationSession) {
+			// For authenticated users with a valid session, we could load messages from the session
+			// This would require implementing message retrieval from the session
+			console.log('Could load conversation messages from session:', data.conversationSession);
+		} else if (data.sessionId && !data.isGuest && !data.conversationSession) {
+			// Session not found in DB but we're authenticated - try using store data
+			console.log('Session not found in database, checking if we have recent analysis data');
+			// Check if we have recent analysis results from user preferences
+			if (hasAnalysisResults) {
+				console.log('Found recent analysis results, proceeding with display');
+			} else {
+				console.warn('No session in DB and no store data - redirecting to conversation');
+				goto('/conversation');
+				return;
+			}
+		} else if (messages.length === 0 && !hasAnalysisResults) {
+			// No messages available and no analysis results - redirect back to conversation
+			console.warn('No conversation data available for analysis');
+			goto('/conversation');
+			return;
 		}
 
 		console.log('Analysis page loaded:', {
 			sessionId: data.sessionId,
+			conversationStoreSessionId: conversationStore.currentSessionId,
 			mode: analysisMode,
-			type: analysisType
+			type: analysisType,
+			messagesCount: messages.length,
+			hasConversationSession: !!data.conversationSession,
+			hasAnalysisResults,
+			isGuest: data.isGuest,
+			note: data.note
 		});
 	});
 
 	function handleStartNewConversation() {
 		// Clear current conversation and start new one
 		conversationStore.destroyConversation();
-		goto('/conversation');
+		// Generate new sessionId for the new conversation
+		const newSessionId = crypto.randomUUID();
+		goto(`/conversation?sessionId=${newSessionId}`);
 	}
 
 	function handleGoHome() {

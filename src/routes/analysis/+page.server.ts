@@ -11,25 +11,39 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 		throw redirect(302, '/');
 	}
 
-	// For authenticated users, verify session exists and has ended
+	// For authenticated users, try to verify session exists
 	if (user) {
-		const existingSession = await conversationSessionsRepository.getSessionById(sessionId);
+		try {
+			const existingSession = await conversationSessionsRepository.getSessionById(sessionId);
 
-		// If session doesn't exist, redirect to home
-		if (!existingSession) {
-			throw error(404, 'Conversation session not found');
+			// If session exists and has ended, use it
+			if (existingSession && existingSession.endTime) {
+				return {
+					user,
+					isGuest: false,
+					sessionId,
+					conversationSession: existingSession
+				};
+			}
+
+			// If session exists but hasn't ended yet, redirect back to conversation
+			if (existingSession && !existingSession.endTime) {
+				throw redirect(302, `/conversation?sessionId=${sessionId}`);
+			}
+		} catch (error) {
+			console.warn('Could not load conversation session:', error);
+			// Session might not be persisted yet (e.g., fresh conversation end)
+			// Allow analysis to proceed with store data
 		}
 
-		// If session hasn't ended yet, redirect back to conversation
-		if (!existingSession.endTime) {
-			throw redirect(302, `/conversation?sessionId=${sessionId}`);
-		}
-
+		// Session not found in DB - could be a fresh conversation end
+		// Allow analysis page to proceed and use data from conversation store
 		return {
 			user,
 			isGuest: false,
 			sessionId,
-			conversationSession: existingSession
+			conversationSession: null,
+			note: 'Session not found in database - using store data'
 		};
 	}
 

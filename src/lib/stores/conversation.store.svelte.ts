@@ -34,6 +34,7 @@ import { userPreferencesStore } from './userPreferences.store.svelte';
 import type { ConversationStatus } from '$lib/services/conversation.service';
 import { userManager } from './user.store.svelte';
 import { SvelteSet } from 'svelte/reactivity';
+import { conversationPersistenceService } from '$lib/services/conversation-persistence.service';
 
 export class ConversationStore {
 	// Reactive state
@@ -66,6 +67,10 @@ export class ConversationStore {
 	private analysisTriggered = $state<boolean>(false);
 	private waitingForAudioCompletion = $state<boolean>(false);
 	private waitingForAIResponse = $state<boolean>(false);
+
+	// Conversation tracking
+	private conversationStartTime = $state<Date | null>(null);
+	private lastSaveTime = $state<Date | null>(null);
 
 	// Private connection state (SDK only)
 	private audioStream: MediaStream | null = null;
@@ -149,6 +154,9 @@ export class ConversationStore {
 		this.status = 'connecting';
 		this.error = null;
 		this.clearTranscriptionState();
+
+		// Track conversation start time for persistence
+		this.conversationStartTime = new Date();
 
 		// Extract voice from speaker or use user preference
 		if (speaker && typeof speaker === 'object') {
@@ -350,7 +358,10 @@ export class ConversationStore {
 
 	private async fetchSessionFromBackend() {
 		const lang = this.language?.code || 'en';
-		return sessionManagerService.fetchSessionFromBackend(crypto.randomUUID(), this.voice, lang);
+		// Use existing sessionId if available, otherwise generate new one
+		const sessionIdToUse = this.sessionId || crypto.randomUUID();
+		this.sessionId = sessionIdToUse; // Ensure sessionId is set
+		return sessionManagerService.fetchSessionFromBackend(sessionIdToUse, this.voice, lang);
 	}
 
 	private setupRealtimeEventHandlers(): void {
@@ -367,6 +378,20 @@ export class ConversationStore {
 			);
 
 			if (!ev.final) return;
+
+			// Auto-save after user messages (every few user interactions)
+			if (ev.role === 'user') {
+				const userMessageCount = this.messages.filter(m => m.role === 'user').length;
+				// Save every 3 user messages, or if it's been more than 2 minutes since last save
+				const timeSinceLastSave = this.lastSaveTime
+					? Date.now() - this.lastSaveTime.getTime()
+					: Number.MAX_SAFE_INTEGER;
+
+				if (userMessageCount % 3 === 0 || timeSinceLastSave > 120000) {
+					console.log('🔄 Auto-saving conversation (user message trigger)');
+					this.queueConversationSave();
+				}
+			}
 			// Sanitize just-finalized message: add scripts if applicable
 			let idx = -1;
 			for (let i = this.messages.length - 1; i >= 0; i--) {
@@ -834,6 +859,15 @@ export class ConversationStore {
 		try {
 			console.log('Starting conversation analysis...');
 
+			// Ensure realtime session and audio are fully torn down before analysis
+			// so the connection does not linger after the timer expires.
+			// This preserves messages for analysis while cutting the transport.
+			try {
+				this.cleanup();
+			} catch (e) {
+				console.warn('Cleanup before analysis failed (continuing):', e);
+			}
+
 			// Trigger analysis if we have messages and language
 			if (this.messages.length > 0 && this.language) {
 				this.status = 'analyzing';
@@ -922,6 +956,106 @@ export class ConversationStore {
 		return this.messagesForAnalysis;
 	}
 
+	get currentSessionId(): string {
+		return this.sessionId;
+	}
+
+	// === CONVERSATION PERSISTENCE ===
+
+	/**
+	 * Save current conversation to database
+	 */
+	private async saveConversationToDatabase(isOnDestroy = false): Promise<void> {
+		if (!browser || !this.sessionId || !this.language) {
+			console.log('⏭️ Skipping save - no session or language');
+			return;
+		}
+
+		// Only save if we have meaningful messages
+		const meaningfulMessages = this.messages.filter(
+			msg =>
+				msg.content &&
+				msg.content.trim().length > 0 &&
+				!msg.content.includes('[Speaking...]') &&
+				!msg.content.includes('[Transcribing...]')
+		);
+
+		if (meaningfulMessages.length === 0) {
+			console.log('⏭️ Skipping save - no meaningful messages');
+			return;
+		}
+
+		try {
+			const now = new Date();
+			const startTime = this.conversationStartTime || now;
+			const durationSeconds = Math.round((now.getTime() - startTime.getTime()) / 1000);
+
+			const conversationData = conversationPersistenceService.createConversationSaveData(
+				this.sessionId,
+				this.language,
+				startTime,
+				now,
+				durationSeconds
+			);
+
+			const preparedMessages = conversationPersistenceService.prepareMessagesForSave(meaningfulMessages);
+
+			console.log('💾 Saving conversation to database...', {
+				sessionId: this.sessionId,
+				messagesCount: preparedMessages.length,
+				isOnDestroy,
+				durationSeconds
+			});
+
+			// Use retry logic for critical saves (onDestroy)
+			const result = isOnDestroy
+				? await conversationPersistenceService.saveConversationWithRetry(conversationData, preparedMessages)
+				: await conversationPersistenceService.saveConversation(conversationData, preparedMessages);
+
+			if (result.success) {
+				this.lastSaveTime = now;
+				console.log('✅ Conversation saved successfully');
+			} else {
+				console.error('❌ Failed to save conversation:', result.error);
+			}
+		} catch (error) {
+			console.error('❌ Error saving conversation:', error);
+		}
+	}
+
+	/**
+	 * Queue conversation for background saving
+	 */
+	queueConversationSave(): void {
+		if (!browser || !this.sessionId || !this.language) return;
+
+		const meaningfulMessages = this.messages.filter(
+			msg =>
+				msg.content &&
+				msg.content.trim().length > 0 &&
+				!msg.content.includes('[Speaking...]') &&
+				!msg.content.includes('[Transcribing...]')
+		);
+
+		if (meaningfulMessages.length === 0) return;
+
+		const now = new Date();
+		const startTime = this.conversationStartTime || now;
+		const durationSeconds = Math.round((now.getTime() - startTime.getTime()) / 1000);
+
+		const conversationData = conversationPersistenceService.createConversationSaveData(
+			this.sessionId,
+			this.language,
+			startTime,
+			now,
+			durationSeconds
+		);
+
+		const preparedMessages = conversationPersistenceService.prepareMessagesForSave(meaningfulMessages);
+
+		conversationPersistenceService.queueSave(conversationData, preparedMessages);
+	}
+
 	// Modify your existing endConversation method to handle graceful shutdown
 	endConversation = () => {
 		if (!browser) return;
@@ -937,6 +1071,11 @@ export class ConversationStore {
 		if (!this.isGracefullyEnding) {
 			this.isGracefullyEnding = true;
 		}
+
+		// Save conversation to database before ending
+		this.saveConversationToDatabase(false).catch(error => {
+			console.warn('Failed to save conversation on end:', error);
+		});
 
 		// Stop timer
 		this.timer.stop();
@@ -1011,11 +1150,34 @@ export class ConversationStore {
 		}
 	};
 
+	// Add method to preserve conversation context for analysis navigation
+	preserveForAnalysis = () => {
+		if (!browser) return;
+
+		console.log('Preserving conversation for analysis...');
+
+		// Keep messages and session info for analysis page
+		this.messagesForAnalysis = [...this.messages];
+
+		// Stop timer but don't reset session info yet
+		this.timer.stop();
+
+		// Clean up realtime connections but preserve state
+		this.cleanup();
+
+		console.log('Conversation preserved for analysis with', this.messagesForAnalysis.length, 'messages');
+	};
+
 	// Add method to completely destroy conversation (for page changes, etc.)
-	destroyConversation = () => {
+	destroyConversation = async () => {
 		if (!browser) return;
 
 		console.log('Destroying conversation completely...');
+
+		// Save conversation to database before destroying (critical save with retry)
+		await this.saveConversationToDatabase(true).catch(error => {
+			console.error('Failed to save conversation on destroy:', error);
+		});
 
 		// Stop timer completely
 		this.timer.stop();
@@ -1042,6 +1204,8 @@ export class ConversationStore {
 		this.analysisTriggered = false;
 		this.waitingForAudioCompletion = false;
 		this.waitingForAIResponse = false;
+		this.conversationStartTime = null;
+		this.lastSaveTime = null;
 		this.clearTranscriptionState();
 	}
 }
