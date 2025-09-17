@@ -23,7 +23,7 @@ export const GET = async ({ locals }) => {
 				targetLanguageId: defaultLanguage.id,
 				learningGoal: 'Connection',
 				preferredVoice: DEFAULT_VOICE,
-				dailyGoalSeconds: 180, // 3 minutes (Full length of free version)
+				dailyGoalSeconds: 240, // 4 minutes (Full length of free version)
 				speakingLevel: 5,
 				listeningLevel: 5,
 				readingLevel: 5,

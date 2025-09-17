@@ -3,7 +3,15 @@
 
 import type { Scenario } from '$lib/server/db/types';
 
-export const scenariosData: Scenario[] = [
+// Extended scenario type with optional speaker selection hints
+export type ScenarioWithHints = Scenario & {
+  // Preferred locales for the conversation partner's voice (BCP‑47 codes)
+  localeHints?: string[]; // e.g., ['en-GB', 'en-US']
+  // Soft preference for speaker gender (used as tie-breaker only)
+  speakerGenderPreference?: 'male' | 'female' | 'neutral';
+};
+
+export const scenariosData: ScenarioWithHints[] = [
 	{
 		id: 'onboarding-welcome',
 		title: '3-Minute Speaking Assessment',
@@ -119,6 +127,8 @@ export const scenariosData: Scenario[] = [
 		},
 		isActive: true,
 		createdAt: new Date(),
+		// Spanish bar setting – prefer Spain Spanish if practicing Spanish
+		localeHints: ['es-ES'],
 		updatedAt: new Date()
 	},
 	{
@@ -209,6 +219,8 @@ export const scenariosData: Scenario[] = [
 		},
 		isActive: true,
 		createdAt: new Date(),
+		// Old town in Europe – lean to local varieties (e.g., Spanish/French/Italian)
+		localeHints: ['es-ES', 'fr-FR', 'it-IT'],
 		updatedAt: new Date()
 	},
 	{
@@ -269,6 +281,8 @@ export const scenariosData: Scenario[] = [
 		},
 		isActive: true,
 		createdAt: new Date(),
+		// Romantic tone – slight preference to female voices
+		speakerGenderPreference: 'female',
 		updatedAt: new Date()
 	},
 	{
@@ -329,6 +343,8 @@ export const scenariosData: Scenario[] = [
 		},
 		isActive: true,
 		createdAt: new Date(),
+		// Intimate setting – no strong locale preference
+		speakerGenderPreference: 'neutral',
 		updatedAt: new Date()
 	},
 	{
@@ -357,6 +373,226 @@ export const scenariosData: Scenario[] = [
 			engagement: 4,
 			understanding: 4
 		},
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+
+	// ——— Added: Wider Variety Scenarios ———
+	{
+		id: 'biz-conference-negotiation',
+		title: 'Negotiating at a Business Conference',
+		description: 'Navigate terms, timelines, and concessions with a potential partner.',
+		category: 'intermediate',
+		difficulty: 'advanced',
+		instructions:
+			'Clarify goals, propose terms, handle objections, and move toward a tentative agreement.',
+		context:
+			'A bustling expo floor, coffee in hand, you sit at a high-top table to discuss a deal.',
+		expectedOutcome: 'Reach clear next steps and a draft agreement structure',
+		learningObjectives: [
+			'negotiation language',
+			'clarifying questions',
+			'concessions and trade-offs',
+			'timelines and deliverables',
+			'formal vs informal tone'
+		],
+		comfortIndicators: { confidence: 3, engagement: 4, understanding: 4 },
+		// English business contexts commonly use both UK and US varieties
+		localeHints: ['en-GB', 'en-US'],
+		speakerGenderPreference: 'neutral',
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'bar-flirting',
+		title: 'Flirting at a Cozy Bar',
+		description: 'Break the ice, read signals, and keep it playful and respectful.',
+		category: 'relationships',
+		difficulty: 'intermediate',
+		instructions:
+			'Open with light conversation, share a bit about yourself, and suggest a next step if it feels right.',
+		context: 'Warm lighting, quiet music, and an easy laugh from someone beside you at the bar.',
+		expectedOutcome: 'Enjoy a lively chat and optionally exchange contact info',
+		learningObjectives: [
+			'openers and compliments',
+			'playful tone',
+			'respectful boundaries',
+			'reading cues',
+			'suggesting next steps'
+		],
+		comfortIndicators: { confidence: 3, engagement: 5, understanding: 4 },
+		localeHints: ['en-US', 'es-ES', 'fr-FR'],
+		speakerGenderPreference: 'female',
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'job-interview',
+		title: 'Job Interview: Behavioral Questions',
+		description: 'Structure examples with STAR, ask smart questions, and show fit.',
+		category: 'intermediate',
+		difficulty: 'advanced',
+		instructions:
+			'Answer behavioral prompts, back them with specifics, and ask clarifying questions.',
+		context: 'Conference room or video call with a hiring manager and a notepad at hand.',
+		expectedOutcome: 'Deliver concise, persuasive answers and build rapport',
+		learningObjectives: [
+			'STAR method',
+			'clarifying questions',
+			'professional tone',
+			'summarizing strengths',
+			'closing questions'
+		],
+		comfortIndicators: { confidence: 3, engagement: 4, understanding: 4 },
+		localeHints: ['en-US', 'en-GB'],
+		speakerGenderPreference: 'neutral',
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'market-haggling',
+		title: 'Haggling in a Street Market',
+		description: 'Ask prices, compare quality, and bargain politely.',
+		category: 'basic',
+		difficulty: 'intermediate',
+		instructions:
+			'Greet, ask for price, counter-offer, and agree politely or walk away kindly.',
+		context: 'Colorful stalls, friendly sellers, and lively chatter fill the air.',
+		expectedOutcome: 'Reach a fair price or decline respectfully',
+		learningObjectives: [
+			'prices and numbers',
+			'polite bargaining',
+			'quality descriptions',
+			'cash vs card',
+			'final offers'
+		],
+		comfortIndicators: { confidence: 4, engagement: 5, understanding: 4 },
+		localeHints: ['es-MX', 'es-ES', 'tr-TR'],
+		speakerGenderPreference: 'neutral',
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'doctor-appointment',
+		title: 'Doctor Appointment: Symptoms and History',
+		description: 'Describe symptoms, timeline, and medications clearly.',
+		category: 'basic',
+		difficulty: 'intermediate',
+		instructions:
+			'Explain what you feel, when it started, any triggers, and ask about next steps.',
+		context: 'Calm clinic room; the doctor is attentive and taking notes.',
+		expectedOutcome: 'Share clear history and understand the plan',
+		learningObjectives: [
+			'symptoms vocabulary',
+			'timeline and severity',
+			'allergies and meds',
+			'follow-up instructions',
+			'asking for clarification'
+		],
+		comfortIndicators: { confidence: 3, engagement: 4, understanding: 4 },
+		localeHints: ['fr-FR', 'en-GB', 'en-US'],
+		speakerGenderPreference: 'neutral',
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'hotel-overbooking',
+		title: 'Hotel Overbooking: Calm Resolution',
+		description: 'Stay courteous while requesting solutions and compensation.',
+		category: 'intermediate',
+		difficulty: 'intermediate',
+		instructions:
+			'Explain the reservation, express inconvenience, and ask for options like rebooking or upgrades.',
+		context: 'Reception desk, suitcase beside you; the clerk looks apologetic.',
+		expectedOutcome: 'Secure a suitable room or alternative with fair terms',
+		learningObjectives: [
+			'polite escalation',
+			'service vocabulary',
+			'compensation requests',
+			'dates and times',
+			'solutions language'
+		],
+		comfortIndicators: { confidence: 4, engagement: 4, understanding: 4 },
+		localeHints: ['it-IT', 'en-GB', 'en-US'],
+		speakerGenderPreference: 'neutral',
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'airport-checkin-issue',
+		title: 'Airport Check‑in Issue',
+		description: 'Handle baggage or seating problems under time pressure.',
+		category: 'basic',
+		difficulty: 'intermediate',
+		instructions:
+			'Explain the issue briefly, ask about options, and choose efficiently.',
+		context: 'Busy counter, announcements overhead; you need a quick resolution.',
+		expectedOutcome: 'Get a workable solution and boarding pass updated',
+		learningObjectives: [
+			'baggage terms',
+			'seat options',
+			'fees and policies',
+			'time expressions',
+			'calm escalation'
+		],
+		comfortIndicators: { confidence: 4, engagement: 4, understanding: 4 },
+		localeHints: ['de-DE', 'en-GB', 'en-US'],
+		speakerGenderPreference: 'neutral',
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'university-office-hours',
+		title: 'University Office Hours: Clarify Concepts',
+		description: 'Ask targeted questions and confirm your understanding.',
+		category: 'intermediate',
+		difficulty: 'intermediate',
+		instructions:
+			'Explain what confuses you, reference examples, and summarize what you learned.',
+		context: 'Quiet office; your professor invites you to walk through a problem.',
+		expectedOutcome: 'Leave with a clear plan to study and practice',
+		learningObjectives: [
+			'academic vocabulary',
+			'clarifying questions',
+			'paraphrasing',
+			'summarizing',
+			'next steps'
+		],
+		comfortIndicators: { confidence: 3, engagement: 4, understanding: 4 },
+		localeHints: ['en-US', 'en-GB'],
+		speakerGenderPreference: 'neutral',
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'apartment-viewing',
+		title: 'Apartment Viewing with a Landlord',
+		description: 'Ask about rent, utilities, rules, and negotiate a bit.',
+		category: 'basic',
+		difficulty: 'intermediate',
+		instructions:
+			'Ask practical questions, clarify contract terms, and express interest or concerns.',
+		context: 'Bright living room; you tour the place and chat about details.',
+		expectedOutcome: 'Decide on next steps and application requirements',
+		learningObjectives: [
+			'rental terms',
+			'utilities',
+			'deposit and fees',
+			'house rules',
+			'contract basics'
+		],
+		comfortIndicators: { confidence: 4, engagement: 4, understanding: 4 },
+		localeHints: ['en-US', 'en-GB', 'fr-FR'],
+		speakerGenderPreference: 'neutral',
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date()

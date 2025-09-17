@@ -226,7 +226,7 @@ export async function getLearningPreferences(userId: string): Promise<{
 		return {
 			targetLanguageId: null,
 			learningGoal: null,
-			dailyGoalSeconds: 180,
+			dailyGoalSeconds: 240,
 			challengePreference: null,
 			correctionStyle: null,
 			specificGoals: []

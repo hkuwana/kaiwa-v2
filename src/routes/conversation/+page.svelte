@@ -11,19 +11,17 @@
 	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
 	import { getSpeakerById } from '$lib/data/speakers';
 	import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
+	import { determineAnalysisType } from '$lib/services/analysis.service';
 
 	// Import all state components
 	import ConnectingState from '$lib/components/ConversationConnectingState.svelte';
 	import ErrorState from '$lib/components/ConversationErrorState.svelte';
 	import ActiveConversationState from '$lib/components/ConversationActiveState.svelte';
-	import LoadingAnalysis from '$lib/components/LoadingAnalysis.svelte';
-	import ConversationReviewableState from '$lib/components/ConversationReviewableState.svelte';
 	import DevPanel from '$lib/components/DevPanel.svelte';
 	import RealtimeDebugPanel from '$lib/components/RealtimeDebugPanel.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 
 	// Keep existing components for analysis temporarily
-	import { fade } from 'svelte/transition';
 	import OnboardingResults from '$lib/components/OnboardingResults.svelte';
 	import { audioStore } from '$lib/stores/audio.store.svelte';
 
@@ -141,7 +139,12 @@
 	}
 
 	function handleEndConversation() {
+		// End conversation and redirect to quick analysis
 		conversationStore.endConversation();
+
+		// Determine analysis type and redirect to analysis page with quick mode
+		const analysisType = determineAnalysisType(userPreferencesStore);
+		goto(`/analysis?mode=quick&type=${analysisType}&sessionId=${sessionId}`);
 	}
 
 	function handleContinueAfterResults() {
@@ -200,21 +203,22 @@
 		onGoHome={() => goto('/')}
 	/>
 {:else if status === 'analyzing'}
-	<!-- Loading Analysis Component -->
-	<LoadingAnalysis
-		messages={conversationStore.analysisMessages}
-		language={selectedLanguage?.id || 'en'}
-	/>
-{:else if status === 'analyzed'}
-	<!-- Analyzed Conversation State -->
+	<!-- Redirect to analysis page with quick mode -->
 	{#if selectedLanguage}
-		<ConversationReviewableState
-			{messages}
-			language={selectedLanguage}
-			onStartNewConversation={() => conversationStore.startNewConversationFromReview()}
-			onAnalyzeConversation={() => conversationStore.endConversation()}
-			onGoHome={() => goto('/')}
-		/>
+		<script>
+			// Auto-redirect to analysis page for quick analysis
+			const analysisType = determineAnalysisType(userPreferencesStore);
+			goto(`/analysis?mode=quick&type=${analysisType}&sessionId=${sessionId}`);
+		</script>
+	{/if}
+{:else if status === 'analyzed'}
+	<!-- Redirect to analysis page instead of showing ConversationReviewableState -->
+	{#if selectedLanguage}
+		<script>
+			// Auto-redirect to analysis page
+			const analysisType = determineAnalysisType(userPreferencesStore);
+			goto(`/analysis?mode=quick&type=${analysisType}&sessionId=${sessionId}`);
+		</script>
 	{:else}
 		<div class="flex min-h-screen items-center justify-center">
 			<div class="text-center">

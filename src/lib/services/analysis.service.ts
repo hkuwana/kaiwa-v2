@@ -6,12 +6,14 @@ import type { Message, Language, UserPreferences } from '$lib/server/db/types';
 import * as onboardingManagerService from './onboarding-manager.service';
 
 export type AnalysisType = 'onboarding' | 'regular' | 'scenario-generation';
+export type AnalysisMode = 'quick' | 'full';
 
 export interface AnalysisRequest {
 	messages: Message[];
 	language: Language;
 	sessionId: string;
 	analysisType: AnalysisType;
+	analysisMode?: AnalysisMode; // quick or full analysis
 	userPreferencesProvider: UserPreferencesProvider;
 	userId?: string; // Added for quota checking
 }
@@ -22,9 +24,17 @@ export interface AnalysisResult {
 		analysisResults?: Record<string, unknown>;
 		customScenarios?: CustomScenario[];
 		insights?: string[];
+		quickStats?: {
+			totalMessages: number;
+			userMessages: number;
+			estimatedLevel: string;
+			keyTopics: string[];
+			practiceTime: number;
+		};
 	};
 	error?: string;
 	analysisType: AnalysisType;
+	analysisMode?: AnalysisMode;
 	quotaExceeded?: boolean;
 	quotaStatus?: {
 		remainingAnalyses: number;
@@ -52,7 +62,7 @@ export interface UserPreferencesProvider {
  * Main analysis function that routes to appropriate analysis type
  */
 export async function analyzeConversation(request: AnalysisRequest): Promise<AnalysisResult> {
-	const { messages, language, sessionId, analysisType, userPreferencesProvider, userId } = request;
+	const { messages, language, sessionId, analysisType, analysisMode = 'full', userPreferencesProvider, userId } = request;
 
 	// Validate prerequisites
 	if (!language) {
@@ -71,8 +81,8 @@ export async function analyzeConversation(request: AnalysisRequest): Promise<Ana
 		};
 	}
 
-	// Check quota if userId is provided
-	if (userId) {
+	// Check quota if userId is provided and doing full analysis
+	if (userId && analysisMode === 'full') {
 		try {
 			const response = await fetch('/api/analysis/quota-check');
 			if (response.ok) {
@@ -101,43 +111,49 @@ export async function analyzeConversation(request: AnalysisRequest): Promise<Ana
 	}
 
 	try {
-		console.log(`🔍 Starting ${analysisType} analysis...`);
+		console.log(`🔍 Starting ${analysisMode} ${analysisType} analysis...`);
 
 		let result: AnalysisResult;
 
-		switch (analysisType) {
-			case 'onboarding':
-				result = await handleOnboardingAnalysis(
-					messages,
-					language,
-					sessionId,
-					userPreferencesProvider
-				);
-				break;
+		// Handle quick analysis mode
+		if (analysisMode === 'quick') {
+			result = handleQuickAnalysis(messages, language, analysisType);
+		} else {
+			// Handle full analysis mode
+			switch (analysisType) {
+				case 'onboarding':
+					result = await handleOnboardingAnalysis(
+						messages,
+						language,
+						sessionId,
+						userPreferencesProvider
+					);
+					break;
 
-			case 'regular':
-				result = await handleRegularAnalysis(messages, language, sessionId, userPreferencesProvider);
-				break;
+				case 'regular':
+					result = await handleRegularAnalysis(messages, language, sessionId, userPreferencesProvider);
+					break;
 
-			case 'scenario-generation':
-				result = await handleScenarioGeneration(
-					messages,
-					language,
-					sessionId,
-					userPreferencesProvider
-				);
-				break;
+				case 'scenario-generation':
+					result = await handleScenarioGeneration(
+						messages,
+						language,
+						sessionId,
+						userPreferencesProvider
+					);
+					break;
 
-			default:
-				result = {
-					success: false,
-					error: `Unknown analysis type: ${analysisType}`,
-					analysisType
-				};
+				default:
+					result = {
+						success: false,
+						error: `Unknown analysis type: ${analysisType}`,
+						analysisType
+					};
+			}
 		}
 
-		// Record usage if analysis was successful and userId is provided
-		if (result.success && userId) {
+		// Record usage if full analysis was successful and userId is provided
+		if (result.success && userId && analysisMode === 'full') {
 			try {
 				await fetch('/api/analysis/record-usage', {
 					method: 'POST',
@@ -447,6 +463,122 @@ function estimateDifficulty(content: string): string {
 }
 
 /**
+ * Handle quick analysis for immediate display
+ */
+function handleQuickAnalysis(
+	messages: Message[],
+	language: Language,
+	analysisType: AnalysisType
+): AnalysisResult {
+	console.log('⚡ Running quick analysis...');
+
+	// Filter out placeholder messages
+	const displayMessages = messages.filter(
+		(message: Message) =>
+			message.content &&
+			message.content.trim().length > 0 &&
+			!message.content.includes('[Speaking...]') &&
+			!message.content.includes('[Transcribing...]')
+	);
+
+	const userMessages = displayMessages.filter((m: Message) => m.role === 'user');
+
+	// Calculate quick stats
+	const totalMessages = displayMessages.length;
+	const userMessageCount = userMessages.length;
+	const practiceTime = displayMessages.length > 0
+		? Math.round((displayMessages[displayMessages.length - 1].timestamp.getTime() - displayMessages[0].timestamp.getTime()) / 60000)
+		: 0;
+
+	// Extract key topics
+	const allContent = userMessages.map(m => m.content).join(' ').toLowerCase();
+	const keyTopics = extractTopics(allContent);
+
+	// Estimate level
+	const estimatedLevel = estimateUserLevel(userMessages);
+
+	// Generate insights based on analysis type
+	const insights = generateQuickInsights(analysisType, {
+		totalMessages,
+		userMessages: userMessageCount,
+		estimatedLevel,
+		keyTopics,
+		practiceTime
+	}, language);
+
+	return {
+		success: true,
+		data: {
+			quickStats: {
+				totalMessages,
+				userMessages: userMessageCount,
+				estimatedLevel,
+				keyTopics,
+				practiceTime
+			},
+			insights
+		},
+		analysisType,
+		analysisMode: 'quick'
+	};
+}
+
+/**
+ * Generate quick insights based on analysis type
+ */
+function generateQuickInsights(
+	analysisType: AnalysisType,
+	stats: {
+		totalMessages: number;
+		userMessages: number;
+		estimatedLevel: string;
+		keyTopics: string[];
+		practiceTime: number;
+	},
+	language: Language
+): string[] {
+	switch (analysisType) {
+		case 'onboarding':
+			return [
+				`Great start! You exchanged ${stats.totalMessages} messages in ${language.name}`,
+				`Your conversation style suggests ${stats.estimatedLevel} level`,
+				'Ready for personalized learning recommendations',
+				'Custom scenarios will be suggested based on your interests'
+			];
+
+		case 'scenario-generation':
+			return [
+				`Conversation topics: ${stats.keyTopics.length > 0 ? stats.keyTopics.join(', ') : 'general conversation'}`,
+				`We can create ${Math.min(stats.keyTopics.length + 2, 5)} custom scenarios for you`,
+				`Your ${stats.estimatedLevel} level conversations are perfect for targeted practice`,
+				'Scenarios will match your interests and skill level'
+			];
+
+		default: // regular
+			return [
+				`Completed ${stats.userMessages} exchanges in ${stats.practiceTime} minutes`,
+				`Conversation covered: ${stats.keyTopics.length > 0 ? stats.keyTopics.join(', ') : 'general topics'}`,
+				`Your ${stats.estimatedLevel} level responses show consistent progress`,
+				'Ready for detailed grammar and vocabulary analysis'
+			];
+	}
+}
+
+/**
+ * Estimate user level based on message complexity
+ */
+function estimateUserLevel(userMessages: Message[]): string {
+	if (userMessages.length === 0) return 'beginner';
+
+	const avgWordsPerMessage = userMessages.reduce((sum, msg) =>
+		sum + msg.content.split(' ').length, 0) / userMessages.length;
+
+	if (avgWordsPerMessage < 3) return 'beginner';
+	if (avgWordsPerMessage < 8) return 'intermediate';
+	return 'advanced';
+}
+
+/**
  * Determine analysis type based on user status and conversation context
  */
 export function determineAnalysisType(
@@ -468,8 +600,20 @@ export function getScenarioGenerationType(): AnalysisType {
 	return 'scenario-generation';
 }
 
+/**
+ * Get quick analysis for immediate display
+ */
+export function getQuickAnalysis(
+	messages: Message[],
+	language: Language,
+	analysisType: AnalysisType = 'regular'
+): AnalysisResult {
+	return handleQuickAnalysis(messages, language, analysisType);
+}
+
 export default {
 	analyzeConversation,
 	determineAnalysisType,
-	getScenarioGenerationType
+	getScenarioGenerationType,
+	getQuickAnalysis
 };

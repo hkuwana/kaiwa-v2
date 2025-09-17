@@ -7,6 +7,7 @@
 	import ScenarioSelector from './ScenarioSelector.svelte';
 	import type { Language as DataLanguage } from '$lib/data/languages';
 	import type { User, Scenario } from '$lib/server/db/types';
+	import { getTopSpeakerForScenario, getSpeakersByLanguage } from '$lib/data/speakers';
 
 	// Props
 	interface Props {
@@ -39,6 +40,23 @@
 
 	// Current scenario or default to onboarding
 	const currentScenario = $derived(selectedScenario || scenariosData[0]);
+
+	// Auto-pick a best-fitting speaker when language + scenario are set
+	$effect(() => {
+		if (!selectedLanguage || !currentScenario || !onSpeakerChange) return;
+
+		// If current selectedSpeaker is not from the chosen language, or not set, choose best
+		const speakersForLang = getSpeakersByLanguage(selectedLanguage.code);
+		const speakerIsValid =
+			!!selectedSpeaker && speakersForLang.some((s) => s.id === selectedSpeaker);
+
+		if (!speakerIsValid) {
+			const best = getTopSpeakerForScenario(currentScenario, selectedLanguage.code);
+			if (best && best.id !== selectedSpeaker) {
+				onSpeakerChange(best.id);
+			}
+		}
+	});
 
 	// Functions
 	function handleLanguageChange(language: DataLanguage) {

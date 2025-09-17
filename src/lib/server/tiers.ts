@@ -23,7 +23,7 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		dailyAnalyses: 1, // 1 analysis per day
 
 		// Session limits
-		maxSessionLengthSeconds: 180, // 3 minutes = 180 seconds
+		maxSessionLengthSeconds: 240, // 4 minutes = 180 seconds
 		sessionBankingEnabled: false,
 		maxBankedSeconds: 0,
 
@@ -58,7 +58,8 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		maxMemories: 10, // 10 memory items for basic tier
 		isActive: false,
 		createdAt: new Date(),
-		updatedAt: new Date()
+		updatedAt: new Date(),
+		hasDeepAnalysis: false
 	},
 
 	plus: {
@@ -116,7 +117,8 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		maxMemories: 50, // 50 memory items for plus tier
 		isActive: false,
 		createdAt: new Date(),
-		updatedAt: new Date()
+		updatedAt: new Date(),
+		hasDeepAnalysis: false
 	},
 
 	premium: {
@@ -173,7 +175,8 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		maxMemories: 200, // 200 memory items for premium tier
 		isActive: false,
 		createdAt: new Date(),
-		updatedAt: new Date()
+		updatedAt: new Date(),
+		hasDeepAnalysis: false
 	}
 };
 
@@ -262,12 +265,12 @@ export function getWarningThreshold(tierId: UserTier): number {
 }
 
 export function getMaxSessionLength(tierId: UserTier): number {
-    return serverTierConfigs[tierId]?.maxSessionLengthSeconds || 180;
+	return serverTierConfigs[tierId]?.maxSessionLengthSeconds || 180;
 }
 
 // Alias for clarity when consumers expect `sessionSeconds`
 export function getSessionSeconds(tierId: UserTier): number {
-    return serverTierConfigs[tierId]?.maxSessionLengthSeconds || 0;
+	return serverTierConfigs[tierId]?.maxSessionLengthSeconds || 0;
 }
 
 export function getMonthlySeconds(tierId: UserTier): number {
