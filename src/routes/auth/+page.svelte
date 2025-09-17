@@ -9,8 +9,9 @@
 
 	const { data } = $props();
 
-	// Get query parameters from server dat
+	// Get query parameters from server data
 	const from = $derived(data.from);
+	const newsletter = $derived(data.newsletter);
 
 	let isLogin = $state(userManager.isLoggedIn ? true : false);
 	let email = $state('');
@@ -84,6 +85,29 @@
 				<div>
 					<h4 class="text-sm font-bold">Assessment Data Ready</h4>
 					<div class="text-xs">Your learning profile will be saved when you create an account</div>
+				</div>
+			</div>
+		{/if}
+
+		<!-- Newsletter Signup Alert -->
+		{#if newsletter}
+			<div class="alert alert-success">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-6 w-6 shrink-0 stroke-current"
+					fill="none"
+					viewBox="0 0 24 24"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+					/>
+				</svg>
+				<div>
+					<h4 class="text-sm font-bold">📧 Join Our Newsletter</h4>
+					<div class="text-xs">Create an account to subscribe and get language learning tips & updates</div>
 				</div>
 			</div>
 		{/if}

@@ -1,21 +1,57 @@
-import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
-import { newsletterService } from '$lib/server/services/newsletter.service';
+import type { RequestHandler } from './$types';
+import { userPreferencesRepository } from '$lib/server/repositories/userPreferences.repository';
 
-export const POST: RequestHandler = async ({ request }) => {
-  try {
-    const body = await request.json().catch(() => ({}));
-    const email = (body.email || '').toString().trim().toLowerCase();
-    const name = (body.name || '').toString().trim();
-    const source = (body.source || '').toString().trim();
-    if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-      return json({ ok: false, error: 'Invalid email' }, { status: 400 });
-    }
-    const res = await newsletterService.subscribe(email, name || undefined, source || undefined);
-    return json({ ok: true, subscribed: !!res });
-  } catch (e) {
-    console.error('newsletter subscribe error', e);
-    return json({ ok: false, error: 'Server error' }, { status: 500 });
-  }
+export const POST: RequestHandler = async ({ locals }) => {
+	try {
+		// Check if user is authenticated
+		if (!locals.user || !locals.user.id) {
+			return json({ message: 'Authentication required' }, { status: 401 });
+		}
+
+		const userId = locals.user.id;
+
+		// Get user's current preferences
+		const preferences = await userPreferencesRepository.getPreferencesByUserId(userId);
+
+		if (!preferences) {
+			return json({ message: 'User preferences not found' }, { status: 404 });
+		}
+
+		// Check if already subscribed
+		if (preferences.receiveMarketingEmails) {
+			return json({ message: 'Already subscribed to newsletter' }, { status: 200 });
+		}
+
+		// Update preferences to subscribe to newsletter
+		await userPreferencesRepository.updatePreferences(userId, {
+			receiveMarketingEmails: true
+		});
+
+		return json({ message: 'Successfully subscribed to newsletter' }, { status: 200 });
+	} catch (error) {
+		console.error('Newsletter subscription error:', error);
+		return json({ message: 'Internal server error' }, { status: 500 });
+	}
 };
 
+export const DELETE: RequestHandler = async ({ locals }) => {
+	try {
+		// Check if user is authenticated
+		if (!locals.user || !locals.user.id) {
+			return json({ message: 'Authentication required' }, { status: 401 });
+		}
+
+		const userId = locals.user.id;
+
+		// Update preferences to unsubscribe from newsletter
+		await userPreferencesRepository.updatePreferences(userId, {
+			receiveMarketingEmails: false
+		});
+
+		return json({ message: 'Successfully unsubscribed from newsletter' }, { status: 200 });
+	} catch (error) {
+		console.error('Newsletter unsubscribe error:', error);
+		return json({ message: 'Internal server error' }, { status: 500 });
+	}
+};

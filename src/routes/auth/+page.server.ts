@@ -16,10 +16,12 @@ export async function load(event) {
 	// Get query parameters for assessment flow
 	const action = event.url.searchParams.get('action');
 	const from = event.url.searchParams.get('from');
+	const newsletter = event.url.searchParams.get('newsletter') === 'true';
 
 	return {
 		action,
 		from,
+		newsletter,
 		title: action === 'create_account' ? 'Create Account - Kaiwa' : 'Login - Kaiwa',
 		description: 'Login or create account to save your learning progress'
 	};

@@ -30,20 +30,20 @@
 	// STATE
 	// ============================================
 
-	let currentPhase: 'initial' | 'update' | 'closing' = 'initial';
-	let currentInstructions = '';
-	let selectedLanguage = languages[0];
-	let selectedPreferences = mockUserPreferences[0];
-	let selectedScenario = scenariosData[0];
-	let selectedSessionContext = mockSessionContexts[0];
+	let currentPhase: 'initial' | 'update' | 'closing' = $state('initial');
+	let currentInstructions = $state('');
+	let selectedLanguage = $state(languages[0]);
+	let selectedPreferences = $state(mockUserPreferences[0]);
+	let selectedScenario = $state(scenariosData[0]);
+	let selectedSessionContext = $state(mockSessionContexts[0]);
 	let selectedUpdateType:
 		| 'topic_change'
 		| 'difficulty_adjust'
 		| 'engagement_boost'
-		| 'correction_needed' = 'topic_change';
-	let selectedUpdateContext: UpdateContext = mockUpdateContexts[0];
-	let timeRemaining = 30;
-	let selectedModuleId = 'personality';
+		| 'correction_needed' = $state('topic_change');
+	let selectedUpdateContext: UpdateContext = $state(mockUpdateContexts[0]);
+	let timeRemaining = $state(30);
+	let selectedModuleId = $state('personality');
 
 	// ============================================
 	// FUNCTIONS

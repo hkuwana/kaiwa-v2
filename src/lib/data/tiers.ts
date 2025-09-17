@@ -26,7 +26,7 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 		hasAnalytics: false,
 		hasCustomPhrases: false,
 		hasConversationMemory: true,
-		hasAnkiExport: false,
+		hasAnkiExport: true,
 		monthlyPriceUsd: '0',
 		annualPriceUsd: '0',
 		conversationTimeoutSeconds: 3 * 60,
@@ -45,7 +45,8 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 		maxMemories: 0,
 		isActive: false,
 		createdAt: new Date(),
-		updatedAt: new Date()
+		updatedAt: new Date(),
+		hasDeepAnalysis: false
 	},
 	plus: {
 		id: 'plus',
@@ -84,7 +85,8 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 		maxMemories: 0,
 		isActive: false,
 		createdAt: new Date(),
-		updatedAt: new Date()
+		updatedAt: new Date(),
+		hasDeepAnalysis: false
 	},
 	premium: {
 		id: 'premium',
@@ -123,7 +125,8 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 		maxMemories: 0,
 		isActive: false,
 		createdAt: new Date(),
-		updatedAt: new Date()
+		updatedAt: new Date(),
+		hasDeepAnalysis: false
 	}
 };
 

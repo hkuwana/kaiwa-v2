@@ -1,6 +1,6 @@
 import { eq, and, desc } from 'drizzle-orm';
 import { db } from '$lib/server/db/index';
-import { userPreferences } from '$lib/server/db/schema';
+import { userPreferences, users } from '$lib/server/db/schema';
 import type { NewUserPreferences, UserPreferences } from '$lib/server/db/types';
 import type { challengePreferenceEnum, learningMotivationEnum } from '../db/schema/userPreferences';
 
@@ -139,6 +139,19 @@ export class UserPreferencesRepository {
 			.where(eq(userPreferences.challengePreference, challengePreference));
 
 		return result.map((row) => row.userId);
+	}
+
+	/**
+	 * Get all users who have opted in to marketing emails
+	 */
+	async getMarketingEmailSubscribers(): Promise<{ email: string }[]> {
+		const result = await db
+			.select({ email: users.email })
+			.from(userPreferences)
+			.innerJoin(users, eq(userPreferences.userId, users.id))
+			.where(eq(userPreferences.receiveMarketingEmails, true));
+
+		return result;
 	}
 }
 

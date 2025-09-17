@@ -90,7 +90,7 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		hasAnkiExport: true,
 
 		// Pricing - using environment-aware price IDs
-		monthlyPriceUsd: '15.00',
+		monthlyPriceUsd: '19.00',
 		annualPriceUsd: '144.00', // 20% discount
 		stripeProductId: null, // Will be fetched from Stripe API when needed
 		stripePriceIdMonthly: isStripeDevServer
@@ -148,8 +148,8 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		hasAnkiExport: true,
 
 		// Pricing - using environment-aware price IDs
-		monthlyPriceUsd: '25.00',
-		annualPriceUsd: '240.00', // 20% discount
+		monthlyPriceUsd: '29.00',
+		annualPriceUsd: '240.00', // 30% discount
 		stripeProductId: null, // Will be fetched from Stripe API when needed
 		stripePriceIdMonthly: isStripeDevServer
 			? SERVER_STRIPE_PRICE_IDS.premium_monthly.dev

@@ -182,65 +182,7 @@ It's been a game-changer for my confidence. Has anyone else found good ways to p
 		updateRedditTemplate();
 	});
 
-	// Newsletter composer state
-	let newsletterSubject = $state('Weekly Kaiwa update');
-	let newsletterIntro = $state('<p>Here’s what’s new and helpful this week.</p>');
-	let includeBlog = $state(true);
-	let includeYouTube = $state(false);
-	let youtubeChannelId = $state('');
-	let replyToEmail = $state('support@kaiwa.app');
-	let calendlyUrl = $state('');
-	let whatsapp = $state('');
-	let adminToken = $state('');
-	let previewHtml = $state('');
-	let loadingPreview = $state(false);
-	let sending = $state(false);
-	let previewContainer: HTMLDivElement | null = null;
-
-	async function previewNewsletter() {
-		loadingPreview = true;
-		try {
-			const res = await fetch('/api/newsletter/send?preview=1', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					subject: newsletterSubject,
-					introHtml: newsletterIntro,
-					includeBlog,
-					includeYouTube,
-					youtubeChannelId,
-					contact: { replyToEmail, calendlyUrl, whatsapp }
-				})
-			});
-			const data = await res.json();
-			previewHtml = data.html || '';
-			if (previewContainer) previewContainer.innerHTML = previewHtml;
-		} finally {
-			loadingPreview = false;
-		}
-	}
-
-	async function sendNewsletter() {
-		sending = true;
-		try {
-			const res = await fetch('/api/newsletter/send', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json', 'x-newsletter-token': adminToken },
-				body: JSON.stringify({
-					subject: newsletterSubject,
-					introHtml: newsletterIntro,
-					includeBlog,
-					includeYouTube,
-					youtubeChannelId,
-					contact: { replyToEmail, calendlyUrl, whatsapp }
-				})
-			});
-			const data = await res.json();
-			alert(data.ok ? `Sent to ${data?.result?.sent ?? 0} subscribers` : (data.error || 'Failed'));
-		} finally {
-			sending = false;
-		}
-	}
+	// Newsletter composer removed for MVP
 </script>
 
 <svelte:head>
@@ -349,41 +291,10 @@ It's been a game-changer for my confidence. Has anyone else found good ways to p
 			</div>
 		</div>
 
-		<!-- Newsletter Composer -->
+		<!-- Newsletter Composer removed; keep cadence link accessible -->
 		<div class="mb-6 rounded-xl bg-base-100 p-5 shadow">
-			<div class="mb-4 text-lg font-semibold">Newsletter Composer</div>
-			<div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-				<label class="form-control">
-					<div class="label"><span class="label-text">Subject</span></div>
-					<input class="input input-bordered input-sm" bind:value={newsletterSubject} placeholder="Weekly update: JP/ES scenarios + demo" />
-				</label>
-				<label class="form-control md:col-span-2">
-					<div class="label"><span class="label-text">Intro (HTML allowed)</span></div>
-					<textarea class="textarea textarea-bordered h-28 text-sm" bind:value={newsletterIntro} placeholder="A quick note about what's new this week…"></textarea>
-				</label>
-				<div class="flex flex-col gap-3 md:flex-row md:items-center">
-					<label class="cursor-pointer flex items-center gap-2"><input type="checkbox" class="checkbox checkbox-sm" bind:checked={includeBlog} /> <span class="text-sm">Include latest blog</span></label>
-					<label class="cursor-pointer flex items-center gap-2"><input type="checkbox" class="checkbox checkbox-sm" bind:checked={includeYouTube} /> <span class="text-sm">Include latest YouTube</span></label>
-					<input class="input input-bordered input-sm flex-1" placeholder="YouTube channel ID" bind:value={youtubeChannelId} />
-				</div>
-				<div class="grid grid-cols-1 gap-3 md:grid-cols-3">
-					<input class="input input-bordered input-sm" placeholder="Reply-to email" bind:value={replyToEmail} />
-					<input class="input input-bordered input-sm" placeholder="Calendly URL (optional)" bind:value={calendlyUrl} />
-					<input class="input input-bordered input-sm" placeholder="WhatsApp link (optional)" bind:value={whatsapp} />
-				</div>
-			</div>
-			<div class="mt-4 flex flex-wrap gap-2">
-				<button class="btn btn-sm btn-outline" onclick={previewNewsletter} disabled={loadingPreview}>Preview</button>
-				<button class="btn btn-sm btn-primary" onclick={sendNewsletter} disabled={sending || !newsletterSubject}>Send</button>
-				<input class="input input-bordered input-xs" type="password" placeholder="Admin token" bind:value={adminToken} />
-				<a class="btn btn-sm btn-secondary" href="/api/dev/marketing/calendar.ics" target="_blank">Add cadence to calendar (.ics)</a>
-			</div>
-			{#if previewHtml}
-				<div class="mt-4 rounded-lg border border-base-300 p-3">
-					<div class="mb-2 text-sm font-semibold">Preview</div>
-					<div class="prose max-w-none" this={previewContainer}></div>
-				</div>
-			{/if}
+			<div class="mb-2 text-sm tracking-wide text-base-content/60 uppercase">Cadence</div>
+			<a class="btn btn-sm btn-secondary" href="/api/dev/marketing/calendar.ics" target="_blank">Add cadence to calendar (.ics)</a>
 		</div>
 
 		<!-- Reddit Post Helper -->

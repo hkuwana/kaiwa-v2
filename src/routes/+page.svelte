@@ -12,6 +12,7 @@
 	import type { Scenario } from '$lib/server/db/types';
 	import { dev } from '$app/environment';
 	import WhyDifferent from '$lib/components/WhyDifferent.svelte';
+// Newsletter signup removed for MVP
 
 	const user = userManager.user;
 
@@ -300,6 +301,16 @@
 	<div class="hidden md:block">
 		<WhyDifferent variant="compact" />
 	</div>
+
+	<!-- Newsletter removed: keep simple contact CTA -->
+	<section class="py-8 md:py-12">
+		<div class="container mx-auto max-w-2xl px-4 text-center">
+			<div class="rounded-xl bg-base-200 p-6">
+				<div class="text-lg font-semibold">Stay in the loop</div>
+				<div class="mt-1 text-sm opacity-80">Questions or feedback? Email support@kaiwa.app</div>
+			</div>
+		</div>
+	</section>
 
 	<!-- Simplified Social Proof Section -->
 	<section class="py-8 text-center md:py-12">

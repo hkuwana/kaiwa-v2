@@ -1,10 +1,10 @@
 <script lang="ts">
-	let selectedConcept = 'quiz';
+	let selectedConcept = $state('quiz');
 
 	// Quiz state
-	let currentQuestion = 0;
+	let currentQuestion = $state(0);
 	let answers: string[] = [];
-	let showResults = false;
+	let showResults = $state(false);
 
 	const quizQuestions = [
 		{

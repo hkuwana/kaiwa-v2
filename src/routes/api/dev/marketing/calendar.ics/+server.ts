@@ -42,10 +42,10 @@ export const GET: RequestHandler = async () => {
       summary: `Publish 3 Shorts (scenario demo)`
     });
     events.push({
-      uid: `newsletter-${w}@kaiwa`,
+      uid: `update-${w}@kaiwa`,
       start: fri,
       end: addDays(fri, 0),
-      summary: `Send weekly newsletter`,
+      summary: `Publish weekly update`,
       desc: 'Include latest blog + video + reply/contact block'
     });
   }
@@ -74,4 +74,3 @@ export const GET: RequestHandler = async () => {
     }
   });
 };
-

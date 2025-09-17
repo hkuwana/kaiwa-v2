@@ -212,8 +212,10 @@
 				<div class="text-sm italic opacity-50">Generating scripts...</div>
 			</div>
 		{:else}
-			<!-- Regular content for non-Japanese -->
-			{message.content}
+			<div class="text-base">
+				<!-- Regular content for non-Japanese -->
+				{message.content}
+			</div>
 		{/if}
 
 		<!-- Translation Section (only show if different from main scripts or if no scripts shown above) -->
@@ -226,7 +228,7 @@
 				<!-- Main translation with language emoji -->
 				{#if translation?.translatedContent || message.translatedContent}
 					<div class="flex items-start">
-						<div class="text-sm font-medium text-primary-content">
+						<div class=" text-sm font-medium">
 							{translation?.translatedContent || message.translatedContent}
 						</div>
 					</div>
@@ -264,7 +266,7 @@
 		{:else if showTranslation && (translation?.translatedContent || message.translatedContent)}
 			<!-- Show only translation text when scripts are already displayed above -->
 
-			<div class="text-sm font-medium text-primary-content">
+			<div class="text-sm font-medium text-base-content/90">
 				{translation?.translatedContent || message.translatedContent}
 			</div>
 		{/if}

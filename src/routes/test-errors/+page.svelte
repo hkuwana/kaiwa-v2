@@ -3,8 +3,8 @@
 	import LoadingScreen from '$lib/components/LoadingScreen.svelte';
 	import { onMount } from 'svelte';
 
-	let currentError: string | null = null;
-	let status: 'connecting' | 'connected' | 'error' = 'connecting';
+	let currentError: string | null = $state(null);
+	let status: 'connecting' | 'connected' | 'error' = $state('connecting');
 
 	const errorTypes = [
 		{

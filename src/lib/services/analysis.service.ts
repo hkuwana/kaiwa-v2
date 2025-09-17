@@ -13,6 +13,7 @@ export interface AnalysisRequest {
 	sessionId: string;
 	analysisType: AnalysisType;
 	userPreferencesProvider: UserPreferencesProvider;
+	userId?: string; // Added for quota checking
 }
 
 export interface AnalysisResult {
@@ -24,6 +25,12 @@ export interface AnalysisResult {
 	};
 	error?: string;
 	analysisType: AnalysisType;
+	quotaExceeded?: boolean;
+	quotaStatus?: {
+		remainingAnalyses: number;
+		resetTime: Date;
+		tier: string;
+	};
 }
 
 export interface CustomScenario {
@@ -45,7 +52,7 @@ export interface UserPreferencesProvider {
  * Main analysis function that routes to appropriate analysis type
  */
 export async function analyzeConversation(request: AnalysisRequest): Promise<AnalysisResult> {
-	const { messages, language, sessionId, analysisType, userPreferencesProvider } = request;
+	const { messages, language, sessionId, analysisType, userPreferencesProvider, userId } = request;
 
 	// Validate prerequisites
 	if (!language) {
@@ -64,36 +71,87 @@ export async function analyzeConversation(request: AnalysisRequest): Promise<Ana
 		};
 	}
 
+	// Check quota if userId is provided
+	if (userId) {
+		try {
+			const response = await fetch('/api/analysis/quota-check');
+			if (response.ok) {
+				const quotaStatus = await response.json();
+
+				if (!quotaStatus.canAnalyze) {
+					return {
+						success: false,
+						error: quotaStatus.upgradeRequired
+							? 'Daily analysis limit reached. Upgrade to get more analyses!'
+							: 'Monthly analysis limit reached. Your quota will reset soon.',
+						analysisType,
+						quotaExceeded: true,
+						quotaStatus: {
+							remainingAnalyses: quotaStatus.remainingAnalyses,
+							resetTime: quotaStatus.resetTime,
+							tier: quotaStatus.tier
+						}
+					};
+				}
+			}
+		} catch (error) {
+			console.warn('Could not check analysis quota:', error);
+			// Continue with analysis if quota check fails
+		}
+	}
+
 	try {
 		console.log(`🔍 Starting ${analysisType} analysis...`);
 
+		let result: AnalysisResult;
+
 		switch (analysisType) {
 			case 'onboarding':
-				return await handleOnboardingAnalysis(
+				result = await handleOnboardingAnalysis(
 					messages,
 					language,
 					sessionId,
 					userPreferencesProvider
 				);
+				break;
 
 			case 'regular':
-				return await handleRegularAnalysis(messages, language, sessionId, userPreferencesProvider);
+				result = await handleRegularAnalysis(messages, language, sessionId, userPreferencesProvider);
+				break;
 
 			case 'scenario-generation':
-				return await handleScenarioGeneration(
+				result = await handleScenarioGeneration(
 					messages,
 					language,
 					sessionId,
 					userPreferencesProvider
 				);
+				break;
 
 			default:
-				return {
+				result = {
 					success: false,
 					error: `Unknown analysis type: ${analysisType}`,
 					analysisType
 				};
 		}
+
+		// Record usage if analysis was successful and userId is provided
+		if (result.success && userId) {
+			try {
+				await fetch('/api/analysis/record-usage', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ userId })
+				});
+				console.log(`📊 Recorded analysis usage for user ${userId}`);
+			} catch (error) {
+				console.warn('Could not record analysis usage:', error);
+				// Don't fail the analysis if usage recording fails
+			}
+		}
+
+		return result;
 	} catch (error) {
 		console.error(`❌ Analysis failed:`, error);
 		return {

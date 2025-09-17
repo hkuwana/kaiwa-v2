@@ -27,6 +27,7 @@ export const tiers = pgTable(
 		hasRealtimeAccess: boolean('has_realtime_access').default(false).notNull(),
 		hasAdvancedVoices: boolean('has_advanced_voices').default(false).notNull(),
 		hasAnalytics: boolean('has_analytics').default(false).notNull(),
+		hasDeepAnalysis: boolean('has_deep_analysis').default(false).notNull(),
 		hasCustomPhrases: boolean('has_custom_phrases').default(false).notNull(),
 		hasConversationMemory: boolean('has_conversation_memory').default(false).notNull(),
 		hasAnkiExport: boolean('has_anki_export').default(false).notNull(),

@@ -64,10 +64,10 @@
 	// Feature comparison based on tier data
 	const allFeatures = [
 		{
-			feature: 'Monthly Practice Time',
-			basic: `${formatTime(freeTier.monthlySeconds)} + 10 cents/extra minute`,
-			plus: `${formatTime(plusTier.monthlySeconds)} + 8 cents/extra minute`,
-			premium: `${formatTime(premiumTier.monthlySeconds)} + 5 cents/extra minute`,
+			feature: 'Practice Time',
+			basic: `${formatTime(freeTier.monthlySeconds)} / month `,
+			plus: `${formatTime(plusTier.monthlySeconds)} / month `,
+			premium: `${formatTime(premiumTier.monthlySeconds)} / month `,
 			tooltip: 'Total conversation time available each month.'
 		},
 		{

@@ -4,11 +4,11 @@
 
 	type Conversation = Awaited<ReturnType<typeof userMemoryService.getRecentConversations>>[number];
 
-	let loading = true;
-	let error: string | null = null;
-	let conversations: Conversation[] = [];
-	let limit = 10;
-	let languageId = '';
+	let loading = $state(true);
+	let error: string | null = $state(null);
+	let conversations: Conversation[] = $state([]);
+	let limit = $state(10);
+	let languageId = $state('');
 
 	async function loadConversations() {
 		loading = true;

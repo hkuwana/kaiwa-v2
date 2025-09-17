@@ -37,6 +37,8 @@ export { analyticsEvents } from './analyticsEvents';
 export { scenarioAttempts } from './scenarioAttempts';
 export { scenarioOutcomes } from './scenarioOutcomes';
 
+// Newsletter removed; preferences live on userPreferences
+
 // Note: Advanced schemas moved to /v2 for future implementation:
 // - userLearningStats, vocabularyProgress, etc.
 // - These will be added back as the app grows beyond MVP

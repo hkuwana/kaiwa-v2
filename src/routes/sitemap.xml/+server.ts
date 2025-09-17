@@ -1,18 +1,41 @@
 import type { RequestHandler } from './$types';
+import { glob } from 'glob';
+import path from 'path';
 
-const pages = [
+const staticPages = [
 	{ url: '', changefreq: 'daily', priority: 1.0 },
 	{ url: '/about', changefreq: 'monthly', priority: 0.8 },
 	{ url: '/pricing', changefreq: 'weekly', priority: 0.9 },
-	{ url: '/auth', changefreq: 'monthly', priority: 0.7 },
+	{ url: '/philosophy', changefreq: 'monthly', priority: 0.8 },
 	{ url: '/privacy', changefreq: 'monthly', priority: 0.5 },
 	{ url: '/terms', changefreq: 'monthly', priority: 0.5 }
 ];
 
 export const GET: RequestHandler = async () => {
+	const blogFiles = await new Promise<string[]>((resolve, reject) => {
+		glob('src/lib/blog/*.md', (err, files) => {
+			if (err) {
+				reject(err);
+			} else {
+				resolve(files);
+			}
+		});
+	});
+
+	const blogPosts = blogFiles.map((file) => {
+		const slug = path.basename(file, '.md');
+		return {
+			url: `/blog/${slug}`,
+			changefreq: 'weekly',
+			priority: 0.9
+		};
+	});
+
+	const allPages = [...staticPages, ...blogPosts];
+
 	const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${pages
+${allPages
 	.map(
 		(page) => `
 	<url>
