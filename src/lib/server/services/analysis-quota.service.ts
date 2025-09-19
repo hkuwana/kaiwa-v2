@@ -31,29 +31,29 @@ export class AnalysisQuotaService {
 			throw new Error(`Tier configuration not found for tier: ${userTier}`);
 		}
 
-    // Gate by analytics/deep analysis feature only
-    if (tierConfig.hasAnalytics === false) {
-      return {
-        canAnalyze: false,
-        remainingAnalyses: 0,
-        resetTime: new Date(),
-        resetType: 'monthly',
-        tier: userTier,
-        quotaExceeded: true,
-        upgradeRequired: true
-      };
-    }
+		// Gate by analytics/deep analysis feature only
+		if (tierConfig.hasAnalytics === false) {
+			return {
+				canAnalyze: false,
+				remainingAnalyses: 0,
+				resetTime: new Date(),
+				resetType: 'monthly',
+				tier: userTier,
+				quotaExceeded: true,
+				upgradeRequired: true
+			};
+		}
 
-    // For MVP: allow analysis when feature is enabled; no per-day tracking
-    return {
-      canAnalyze: true,
-      remainingAnalyses: -1,
-      resetTime: this.getNextMonthResetTime(),
-      resetType: 'monthly',
-      tier: userTier,
-      quotaExceeded: false,
-      upgradeRequired: false
-    };
+		// For MVP: allow analysis when feature is enabled; no per-day tracking
+		return {
+			canAnalyze: true,
+			remainingAnalyses: -1,
+			resetTime: this.getNextMonthResetTime(),
+			resetType: 'monthly',
+			tier: userTier,
+			quotaExceeded: false,
+			upgradeRequired: false
+		};
 	}
 
 	/**
@@ -63,12 +63,12 @@ export class AnalysisQuotaService {
 		const userTier = await this.tierService.getUserTier(userId);
 		const tierConfig = await tierRepository.getTierById(userTier);
 
-    if (!tierConfig || tierConfig.hasAnalytics === false) {
-      return;
-    }
+		if (!tierConfig || tierConfig.hasAnalytics === false) {
+			return;
+		}
 
-    // No daily tracking; optionally increment monthly analyses for analytics
-    await this.recordMonthlyAnalysisUsage(userId);
+		// No daily tracking; optionally increment monthly analyses for analytics
+		await this.recordMonthlyAnalysisUsage(userId);
 	}
 
 	/**
@@ -79,26 +79,26 @@ export class AnalysisQuotaService {
 		return status.canAnalyze;
 	}
 
-  // Daily/monthly analysis counts removed for MVP
+	// Daily/monthly analysis counts removed for MVP
 
-  /**
-   * Record monthly analysis usage
-   */
-  private async recordMonthlyAnalysisUsage(userId: string): Promise<void> {
+	/**
+	 * Record monthly analysis usage
+	 */
+	private async recordMonthlyAnalysisUsage(userId: string): Promise<void> {
 		await userUsageRepository.incrementUsage(userId, {
 			analysesUsed: 1
 		});
 	}
 
-  // Utility methods for date handling
+	// Utility methods for date handling
 
-  private getNextMonthResetTime(): Date {
-    const nextMonth = new Date();
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
-    nextMonth.setDate(1);
-    nextMonth.setHours(0, 0, 0, 0); // Start of next month
-    return nextMonth;
-  }
+	private getNextMonthResetTime(): Date {
+		const nextMonth = new Date();
+		nextMonth.setMonth(nextMonth.getMonth() + 1);
+		nextMonth.setDate(1);
+		nextMonth.setHours(0, 0, 0, 0); // Start of next month
+		return nextMonth;
+	}
 }
 
 // Singleton instance

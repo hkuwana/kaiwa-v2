@@ -59,123 +59,6 @@
 		showTranslations[messageId] = !showTranslations[messageId];
 	}
 
-	// Language-specific travel destinations and contexts with proper Message objects
-	const getTravelScenarioData = (_language: string | null) => {
-		const travelOptions = {
-			ja: {
-				destinations: ['Shibuya izakaya', 'Kyoto temple', 'Osaka market'],
-				messages: [
-					createMessage(
-						'user',
-						'この居心地の良い居酒屋で飲みましょう！',
-						"Let's grab drinks at this cozy izakaya!",
-						'kono igokochi no yoi izakaya de nomimashou!',
-						'この<ruby>居心地<rt>いごこち</rt></ruby>の<ruby>良<rt>よ</rt></ruby>い<ruby>居酒屋<rt>いざかや</rt></ruby>で<ruby>飲<rt>の</rt></ruby>みましょう！'
-					),
-					createMessage(
-						'assistant',
-						'いいアイデアですね！好きな日本のお酒は何ですか？',
-						"Great idea! What's your favorite Japanese drink?",
-						'ii aidea desu ne! suki na nihon no osake wa nan desu ka?',
-						'いい<ruby>考<rt>アイデア</rt></ruby>ですね！<ruby>好<rt>す</rt></ruby>きな<ruby>日本<rt>にほん</rt></ruby>のお<ruby>酒<rt>さけ</rt></ruby>は<ruby>何<rt>なん</rt></ruby>ですか？'
-					),
-					createMessage(
-						'user',
-						'日本酒が好きで、特に純米タイプが好きです。',
-						'I love sake, especially junmai types.',
-						'nihonshu ga suki de, toku ni junmai taipu ga suki desu.',
-						'<ruby>日本酒<rt>にほんしゅ</rt></ruby>が<ruby>好<rt>す</rt></ruby>きで、<ruby>特<rt>とく</rt></ruby>に<ruby>純米<rt>じゅんまい</rt></ruby>タイプが<ruby>好<rt>す</rt></ruby>きです。'
-					)
-				],
-				flag: '🇯🇵'
-			},
-			es: {
-				destinations: ['Ibiza', 'Sevilla', 'Valencia'],
-				messages: [
-					createMessage(
-						'user',
-						'¡Vamos a ese bar de tapas en Ibiza!',
-						"Let's go to that tapas bar in Ibiza!",
-						'¡ba-mos a e-se bar de ta-pas en i-bi-za!'
-					),
-					createMessage(
-						'assistant',
-						'¡Buena elección! ¿Qué tapas deberíamos probar?',
-						'Great choice! What tapas should we try?',
-						'¡bue-na e-lec-ción! ¿qué ta-pas de-be-ría-mos pro-bar?'
-					),
-					createMessage(
-						'user',
-						'Quiero probar el famoso jamón ibérico.',
-						'I want to try the famous jamón ibérico.',
-						'quie-ro pro-bar el fa-mo-so ja-món i-bé-ri-co.'
-					)
-				],
-				flag: '🇪🇸'
-			},
-			fr: {
-				destinations: ['Rooftop café', 'Montmartre', 'Seine riverside'],
-				messages: [
-					createMessage(
-						'user',
-						'Ce café sur le toit a une vue si romantique !',
-						'This rooftop café has such a romantic view!',
-						'sə ka-fé sur lə twa a yn vy si ʁo-man-tik !'
-					),
-					createMessage(
-						'assistant',
-						'Parfait pour notre soirée ensemble. Que voulons-nous commander ?',
-						'Perfect for our evening together. What shall we order?',
-						'par-fɛ pur notr swa-ré ãn-sambl. kə vu-lõ nu ko-mãn-dé ?'
-					),
-					createMessage(
-						'user',
-						'Du vin et du fromage semblent parfaits en ce moment.',
-						'Wine and cheese sound perfect right now.',
-						'dy vɛ̃ é dy fʁo-maʒ sambl par-fɛ ãn sə mo-mãn.'
-					)
-				],
-				flag: '🇫🇷'
-			},
-			ko: {
-				destinations: ['Hongdae café', 'Bukchon hanok', 'Myeongdong street'],
-				messages: [
-					createMessage(
-						'user',
-						'이 카페의 분위기가 정말 좋아요!',
-						'The atmosphere of this café is really nice!',
-						'i kapeui bunwigiga jeongmal joayo!'
-					),
-					createMessage(
-						'assistant',
-						'맞아요! 여기서 뭘 주문할까요?',
-						"That's right! What should we order here?",
-						'majayo! yeogiseo mwol jumunhalkkayo?'
-					),
-					createMessage(
-						'user',
-						'아메리카노랑 치즈케이크 어때요?',
-						'How about americano and cheesecake?',
-						'amerikanorang chijeukeikeueottaeyo?'
-					)
-				],
-				flag: '🇰🇷'
-			},
-			default: {
-				destinations: ['around the world'],
-				messages: [
-					createMessage('user', 'I love exploring new places!'),
-					createMessage('assistant', "That's wonderful! Where would you like to go next?"),
-					createMessage('user', 'Somewhere with rich culture and history.')
-				],
-				flag: '🌍'
-			}
-		};
-
-		const langCode = selectedLanguage?.code || 'default';
-		return travelOptions[langCode as keyof typeof travelOptions] || travelOptions.default;
-	};
-
 	// Enhanced scenario data with preview conversations and visual elements
 	const getScenarioPreviewsData = () => {
 		const scenarios = [];
@@ -520,7 +403,7 @@
 									romanization: showTranslations[message.id] ? message.romanization : null,
 									hiragana: showTranslations[message.id] ? message.hiragana : null
 								}}
-								dispatch={(event, data) => {
+								dispatch={(event, _data) => {
 									if (event === 'translate' || event === 'toggle') {
 										toggleTranslation(message.id);
 									}
@@ -579,7 +462,7 @@
 
 	<!-- Indicator Dots -->
 	<div class="mt-6 flex justify-center gap-3">
-		{#each scenarioPreviewsData as _, i}
+		{#each scenarioPreviewsData as scenario, i (scenario.id)}
 			<button
 				class="h-3 w-3 rounded-full transition-all duration-300 {i === currentIndex
 					? 'scale-125 bg-primary'

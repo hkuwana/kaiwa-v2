@@ -10,10 +10,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		const userId = locals.user?.id || requestUserId;
 
 		if (!userId) {
-			return json(
-				{ error: 'User authentication required' },
-				{ status: 401 }
-			);
+			return json({ error: 'User authentication required' }, { status: 401 });
 		}
 
 		// Record analysis usage
@@ -25,9 +22,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		});
 	} catch (error) {
 		console.error('Failed to record analysis usage:', error);
-		return json(
-			{ error: 'Failed to record analysis usage' },
-			{ status: 500 }
-		);
+		return json({ error: 'Failed to record analysis usage' }, { status: 500 });
 	}
 };

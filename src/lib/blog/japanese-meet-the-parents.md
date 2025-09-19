@@ -1,12 +1,12 @@
 ---
-title: "Meet Your Partner’s Parents in Japanese: Scripts, Cultural Tips, and AI Practice"
-description: "Practical phrases, cultural do’s and don’ts, and ready‑to‑use conversation scripts for meeting your Japanese partner’s parents — plus a 3‑minute AI practice flow."
-excerpt: "A gentle, practical guide to first impressions with Japanese in‑laws: greetings, small talk, compliments, and polite offers — with scripts you can practice in minutes."
-author: "Kaiwa Team"
-date: "2025-09-16"
-tags: ["Japanese", "Family", "Scenarios", "Anxiety‑Free"]
+title: 'Meet Your Partner’s Parents in Japanese: Scripts, Cultural Tips, and AI Practice'
+description: 'Practical phrases, cultural do’s and don’ts, and ready‑to‑use conversation scripts for meeting your Japanese partner’s parents — plus a 3‑minute AI practice flow.'
+excerpt: 'A gentle, practical guide to first impressions with Japanese in‑laws: greetings, small talk, compliments, and polite offers — with scripts you can practice in minutes.'
+author: 'Kaiwa Team'
+date: '2025-09-16'
+tags: ['Japanese', 'Family', 'Scenarios', 'Anxiety‑Free']
 published: true
-readTime: "6 min read"
+readTime: '6 min read'
 ---
 
 # Meet Your Partner’s Parents in Japanese: Scripts, Cultural Tips, and AI Practice
@@ -82,10 +82,10 @@ You: Thank you. Please let me help with cleanup later.
 
 ## Practice This Scenario in Kaiwa (3 Minutes)
 
-1. Go to the home page and select “Japanese”.  
-2. Choose a warm, friendly voice.  
-3. Start a conversation and try one script above.  
-4. Repeat with small variations (different gifts, dishes, or questions).  
+1. Go to the home page and select “Japanese”.
+2. Choose a warm, friendly voice.
+3. Start a conversation and try one script above.
+4. Repeat with small variations (different gifts, dishes, or questions).
 
 Start here: [Practice now](/?utm_source=blog&utm_medium=post&utm_campaign=jp_meet_parents#start).
 
@@ -104,4 +104,3 @@ Use: すみません、もう一度お願いできますか？ (Excuse me, could
 
 **How do I politely leave?**  
 今日は本当にありがとうございました。とても楽しかったです。またお会いできるのを楽しみにしています。
-

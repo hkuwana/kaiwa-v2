@@ -3,7 +3,6 @@
 // 🗄️ Database Migration Script
 // Runs the migration to add speakers table and enhance languages
 
-import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -21,7 +20,6 @@ async function runMigration() {
 	try {
 		// Create database connection
 		const client = postgres(databaseUrl);
-		const db = drizzle(client);
 
 		console.log('📖 Reading migration file...');
 

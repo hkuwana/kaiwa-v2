@@ -3,9 +3,8 @@
 	// Clean UI component for selecting conversation language and speaker
 
 	import { languages as allLanguages } from '$lib/data/languages';
-	import { speakersData, getSpeakersByLanguage } from '$lib/data/speakers';
+	import { getSpeakersByLanguage } from '$lib/data/speakers';
 	import type { Language as DataLanguage } from '$lib/data/languages';
-	import type { Speaker } from '$lib/server/db/types';
 
 	const {
 		selectedLanguage = null,
@@ -25,7 +24,6 @@
 	const languages = $derived(allLanguages.filter((l) => l.isSupported));
 
 	// Get current language info
-	const currentLanguage = $derived(selectedLanguage || languages[0]);
 
 	// Get available speakers for selected language
 	const availableSpeakers = $derived(
@@ -85,12 +83,6 @@
 				return '👤';
 			default:
 				return '👤';
-		}
-	}
-
-	function handleKeydown(event: KeyboardEvent) {
-		if (event.key === 'Escape') {
-			closeMenu();
 		}
 	}
 </script>

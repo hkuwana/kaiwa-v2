@@ -35,20 +35,27 @@ export const GET: RequestHandler = async ({ params, cookies }) => {
 		const messages = await messagesRepository.getConversationMessages(conversationId, 1000);
 
 		// Calculate conversation statistics
-		const userMessages = messages.filter(m => m.role === 'user');
-		const assistantMessages = messages.filter(m => m.role === 'assistant');
+		const userMessages = messages.filter((m) => m.role === 'user');
+		const assistantMessages = messages.filter((m) => m.role === 'assistant');
 
 		const stats = {
 			totalMessages: messages.length,
 			userMessages: userMessages.length,
 			assistantMessages: assistantMessages.length,
-			averageWordsPerMessage: messages.length > 0
-				? Math.round(messages.reduce((sum, msg) => sum + (msg.content?.split(' ').length || 0), 0) / messages.length)
-				: 0,
+			averageWordsPerMessage:
+				messages.length > 0
+					? Math.round(
+							messages.reduce((sum, msg) => sum + (msg.content?.split(' ').length || 0), 0) /
+								messages.length
+						)
+					: 0,
 			conversationDuration: conversation.durationSeconds || 0,
 			languageMix: {
-				userLanguage: userMessages.filter(m => m.sourceLanguage === conversation.targetLanguageId).length,
-				targetLanguage: userMessages.filter(m => m.sourceLanguage !== conversation.targetLanguageId).length
+				userLanguage: userMessages.filter((m) => m.sourceLanguage === conversation.targetLanguageId)
+					.length,
+				targetLanguage: userMessages.filter(
+					(m) => m.sourceLanguage !== conversation.targetLanguageId
+				).length
 			}
 		};
 
@@ -60,7 +67,9 @@ export const GET: RequestHandler = async ({ params, cookies }) => {
 			scenarioId: conversation.scenarioId,
 			isOnboarding: conversation.isOnboarding,
 			startedAt: conversation.startedAt?.toISOString?.() || conversation.startedAt,
-			endedAt: conversation.endedAt ? (conversation.endedAt as Date).toISOString?.() || conversation.endedAt : null,
+			endedAt: conversation.endedAt
+				? (conversation.endedAt as Date).toISOString?.() || conversation.endedAt
+				: null,
 			durationSeconds: conversation.durationSeconds || 0,
 			messageCount: conversation.messageCount || 0,
 			mode: conversation.mode || 'realtime',
@@ -71,7 +80,7 @@ export const GET: RequestHandler = async ({ params, cookies }) => {
 		};
 
 		// Format messages
-		const formattedMessages = messages.map(msg => ({
+		const formattedMessages = messages.map((msg) => ({
 			id: msg.id,
 			role: msg.role,
 			content: msg.content,
@@ -86,10 +95,12 @@ export const GET: RequestHandler = async ({ params, cookies }) => {
 
 		console.log('✅ Found conversation with', formattedMessages.length, 'messages');
 
-		return json(createSuccessResponse({
-			conversation: conversationDetails,
-			messages: formattedMessages
-		}));
+		return json(
+			createSuccessResponse({
+				conversation: conversationDetails,
+				messages: formattedMessages
+			})
+		);
 	} catch (error) {
 		console.error('Get conversation details API error:', error);
 		return json(createErrorResponse('Internal server error'), { status: 500 });

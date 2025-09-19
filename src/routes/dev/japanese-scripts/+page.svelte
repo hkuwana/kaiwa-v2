@@ -2,7 +2,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
-	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
 	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
 	import MessageBubble from '$lib/components/MessageBubble.svelte';
 	import { SvelteDate } from 'svelte/reactivity';

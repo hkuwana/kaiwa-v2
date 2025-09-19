@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import type { UserPreferences } from '$lib/server/db/types';
 	import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 

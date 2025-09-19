@@ -2,7 +2,7 @@
 <script lang="ts">
 	import { fade, fly, scale } from 'svelte/transition';
 	import { audioStore } from '$lib/stores/audio.store.svelte';
-	import type { PermissionState } from '$lib/services/audio.service';
+
 	import { createUserFriendlyError } from '$lib/services/audio.service';
 
 	const {
@@ -162,7 +162,7 @@
 							Manual Setup for {browserInfo.browser}
 						</h4>
 						<ol class="list-inside list-decimal space-y-1 text-sm text-base-content/70">
-							{#each browserInfo.steps as step}
+							{#each browserInfo.steps as step (step)}
 								<li>{step}</li>
 							{/each}
 						</ol>
@@ -192,7 +192,7 @@
 							<summary class="collapse-title text-sm font-medium"> Troubleshooting Tips </summary>
 							<div class="collapse-content text-sm">
 								<ul class="list-inside list-disc space-y-1 text-base-content/70">
-									{#each displayError.suggestions as suggestion}
+									{#each displayError.suggestions as suggestion (suggestion)}
 										<li>{suggestion}</li>
 									{/each}
 								</ul>

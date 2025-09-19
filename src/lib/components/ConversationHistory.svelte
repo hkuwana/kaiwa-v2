@@ -35,7 +35,7 @@
 			? 'text-sm'
 			: ''}"
 	>
-		{#each messages as message, i (message.timestamp + message.role)}
+		{#each messages as message (message.timestamp + message.role)}
 			{#if message.role === 'user'}
 				<div class="chat-end chat">
 					<div class="chat-bubble chat-bubble-primary">

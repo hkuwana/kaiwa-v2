@@ -91,7 +91,10 @@ export class SmokeTestUtils {
 		console.log(`✅ Accessibility check passed for ${pagePath}`);
 	}
 
-	async mockApiResponse(pattern: string, response: any) {
+	async mockApiResponse(
+		pattern: string,
+		response: { [key: string]: string | number | { [key: string]: string | number } }
+	) {
 		await this.page.route(pattern, (route) =>
 			route.fulfill({
 				status: 200,

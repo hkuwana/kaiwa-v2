@@ -27,7 +27,7 @@ test.describe('Smoke Tests', () => {
 		await utils.waitForPageLoad();
 
 		// Open language selector modal
-		const modal = await utils.openLanguageSelector();
+		await utils.openLanguageSelector();
 
 		// Verify modal content
 		await expect(page.getByText(/Select Language|Choose Language/i)).toBeVisible();
@@ -96,7 +96,7 @@ test.describe('Smoke Tests', () => {
 	});
 
 	test('@smoke should handle authentication flow', async ({ page }) => {
-		await page.goto('/auth');
+		await page.goto(resolve('/auth'));
 
 		// Check auth page loads
 		await expect(page.getByRole('button', { name: /Google|Sign in/i })).toBeVisible();
@@ -130,10 +130,12 @@ test.describe('Smoke Tests', () => {
 		await expect(page).toHaveURL('/');
 	});
 
+		// eslint-disable-next-line unused-imports/no-unused-vars
 	test('@smoke should handle responsive design', async ({ page }) => {
 		await utils.checkResponsiveDesign();
 	});
 
+	// eslint-disable-next-line unused-imports/no-unused-vars
 	test('@smoke should check critical page accessibility', async ({ page }) => {
 		// Test critical pages for essential elements
 		const pageTests = [

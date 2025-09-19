@@ -2,7 +2,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
 	import MessageBubble from '$lib/components/MessageBubble.svelte';
-	import type { Message, Language } from '$lib/server/db/types';
+	import type { Message, Language, UserPreferences } from '$lib/server/db/types';
 	import type { Speaker } from '$lib/types';
 	import { translationStore } from '$lib/stores/translation.store.svelte';
 	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
@@ -57,7 +57,8 @@
 		const provider = {
 			isGuest: () => userPreferencesStore.isGuest(),
 			getPreference: (key: any) => userPreferencesStore.getPreference(key),
-			updatePreferences: (updates: any) => userPreferencesStore.updatePreferences(updates)
+			updatePreferences: (updates: UserPreferences) =>
+				userPreferencesStore.updatePreferences(updates)
 		};
 		return shouldTriggerOnboarding(provider);
 	});
@@ -89,7 +90,7 @@
 		}
 	}
 
-	async function handleTranslation(_event: string, data: any) {
+	async function handleTranslation(_event: string, data: { messageId: string; message: Message }) {
 		const { messageId, message } = data;
 
 		try {

@@ -11,12 +11,7 @@
 		autoScroll?: boolean;
 	}
 
-	const {
-		messages,
-		conversationLanguage,
-		maxHeight = '50vh',
-		autoScroll = true
-	} = $props();
+	const { messages, conversationLanguage, maxHeight = '50vh', autoScroll = true } = $props();
 
 	let container: HTMLElement;
 	let scrollPosition = $state(0);
@@ -101,14 +96,14 @@
 		<div class="mb-3 flex items-center justify-between text-sm text-base-content/60">
 			<span>{messages.length} message{messages.length === 1 ? '' : 's'}</span>
 			{#if messages.length > 50}
-				<span class="badge badge-info badge-sm">Optimized view</span>
+				<span class="badge badge-sm badge-info">Optimized view</span>
 			{/if}
 		</div>
 
 		<div
 			bind:this={container}
 			onscroll={handleScroll}
-			class="overflow-y-auto scroll-smooth border border-base-300 rounded-lg bg-gradient-to-b from-base-50 to-base-100 relative"
+			class="from-base-50 relative overflow-y-auto scroll-smooth rounded-lg border border-base-300 bg-gradient-to-b to-base-100"
 			style="max-height: {maxHeight};"
 		>
 			{#if messages.length > 50}
@@ -128,7 +123,7 @@
 				<div class="space-y-3 p-4">
 					{#each messages as message, index (message.id)}
 						<div
-							class="message-item opacity-0 animate-[fadeInUp_0.3s_ease-out_forwards]"
+							class="transition-all duration-200 ease-in-out hover:-translate-y-px animate-[fadeInUp_0.3s_ease-out_forwards]"
 							style="animation-delay: {Math.min(index * 50, 1000)}ms"
 						>
 							<MessageBubble {message} {conversationLanguage} />
@@ -139,22 +134,34 @@
 
 			<!-- Scroll to bottom button -->
 			{#if messages.length > 10}
-				<div class="sticky bottom-2 right-2 flex justify-end pointer-events-none">
+				<div class="pointer-events-none sticky right-2 bottom-2 flex justify-end">
 					<button
-						class="btn btn-circle btn-sm btn-primary opacity-70 hover:opacity-100 pointer-events-auto shadow-lg"
+						class="btn pointer-events-auto btn-circle opacity-70 shadow-lg btn-sm btn-primary hover:opacity-100"
 						onclick={scrollToBottom}
 						title="Scroll to bottom"
 					>
 						<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M19 14l-7 7m0 0l-7-7m7 7V3"
+							/>
 						</svg>
 					</button>
 				</div>
 			{/if}
 		</div>
 	{:else}
-		<div class="text-center text-base-content/50 py-12 border border-dashed border-base-300 rounded-lg">
-			<svg class="mx-auto mb-4 h-12 w-12 text-base-content/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+		<div
+			class="rounded-lg border border-dashed border-base-300 py-12 text-center text-base-content/50"
+		>
+			<svg
+				class="mx-auto mb-4 h-12 w-12 text-base-content/30"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke="currentColor"
+			>
 				<path
 					stroke-linecap="round"
 					stroke-linejoin="round"
@@ -179,13 +186,6 @@
 		}
 	}
 
-	.message-item {
-		transition: all 0.2s ease;
-	}
-
-	.message-item:hover {
-		transform: translateY(-1px);
-	}
 
 	/* Custom scrollbar */
 	:global(.overflow-y-auto) {

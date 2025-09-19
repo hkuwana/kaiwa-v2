@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
 	import OnboardingResults from '$lib/components/OnboardingResults.svelte';
 	import ConversationReviewableState from '$lib/components/ConversationReviewableState.svelte';
@@ -186,7 +185,8 @@
 			id: 'msg-6',
 			conversationId: 'conv-dev-test',
 			role: 'assistant',
-			content: "Business Japanese is definitely challenging! Keigo (honorific language) takes time to master, but you're on the right track.",
+			content:
+				"Business Japanese is definitely challenging! Keigo (honorific language) takes time to master, but you're on the right track.",
 			timestamp: new Date(Date.now() - 200000),
 			sequenceId: null,
 			translatedContent: null,
@@ -319,13 +319,18 @@
 
 <svelte:head>
 	<title>Assessment & Conversation Review Testing - Dev Panel</title>
-	<meta name="description" content="Test the assessment flow, onboarding results, and conversation review state" />
+	<meta
+		name="description"
+		content="Test the assessment flow, onboarding results, and conversation review state"
+	/>
 </svelte:head>
 
 <div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 p-6">
 	<div class="container mx-auto max-w-4xl">
 		<div class="mb-8">
-			<h1 class="mb-2 text-3xl font-bold text-primary">Assessment & Conversation Review Testing Panel</h1>
+			<h1 class="mb-2 text-3xl font-bold text-primary">
+				Assessment & Conversation Review Testing Panel
+			</h1>
 			<p class="text-base-content/70">
 				Test the onboarding assessment flow, results display, and conversation review state UX
 			</p>
@@ -349,7 +354,9 @@
 					<strong>Message Count:</strong>
 					{mockConversationMessages.length} |
 					<strong>Languages:</strong>
-					{[...new Set(mockConversationMessages.map((m) => m.sourceLanguage).filter(Boolean))].join(', ')} |
+					{[...new Set(mockConversationMessages.map((m) => m.sourceLanguage).filter(Boolean))].join(
+						', '
+					)} |
 					<strong>Roles:</strong>
 					{[...new Set(mockConversationMessages.map((m) => m.role))].join(', ')}
 				</div>
@@ -479,11 +486,17 @@
 			<div class="card mb-6 bg-base-100 shadow-xl">
 				<div class="card-body">
 					<h2 class="mb-4 card-title text-xl">Conversation Review State Active</h2>
-					<div class="flex gap-2 mb-4">
+					<div class="mb-4 flex gap-2">
 						<button class="btn btn-outline btn-sm" onclick={hideConversationReviewState}>
 							Hide Review State
 						</button>
-						<button class="btn btn-outline btn-sm" onclick={() => {hideConversationReviewState(); showConversationReviewState();}}>
+						<button
+							class="btn btn-outline btn-sm"
+							onclick={() => {
+								hideConversationReviewState();
+								showConversationReviewState();
+							}}
+						>
 							Refresh State
 						</button>
 					</div>
@@ -518,7 +531,10 @@
 						{userPreferencesStore.isCurrentlyAnalyzing}
 					</div>
 					<div><strong>Mock Messages Count:</strong> {mockConversationMessages.length}</div>
-					<div><strong>Mock Language:</strong> {mockJapaneseLanguage.name} ({mockJapaneseLanguage.code})</div>
+					<div>
+						<strong>Mock Language:</strong>
+						{mockJapaneseLanguage.name} ({mockJapaneseLanguage.code})
+					</div>
 				</div>
 			</div>
 		</div>

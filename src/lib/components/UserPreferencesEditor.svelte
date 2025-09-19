@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import type { UserPreferences } from '$lib/server/db/types';
 	import { languages } from '$lib/data/languages';
 	import { SvelteDate } from 'svelte/reactivity';

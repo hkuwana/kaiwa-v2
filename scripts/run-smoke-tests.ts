@@ -43,7 +43,7 @@ async function runSmokeTests() {
 		try {
 			execSync('pnpm install', { stdio: 'inherit' });
 		} catch (error) {
-			console.error('❌ Failed to install dependencies');
+			console.error('❌ Failed to install dependencies', error);
 			process.exit(1);
 		}
 	}
@@ -54,7 +54,7 @@ async function runSmokeTests() {
 		try {
 			execSync('pnpm exec playwright install --with-deps', { stdio: 'inherit' });
 		} catch (error) {
-			console.error('❌ Failed to install Playwright browsers');
+			console.error('❌ Failed to install Playwright browsers', error);
 			process.exit(1);
 		}
 	}
@@ -74,7 +74,7 @@ async function runSmokeTests() {
 			console.log(`✅ ${config.name} smoke tests passed!\n`);
 			passedTests++;
 		} catch (error) {
-			console.error(`❌ ${config.name} smoke tests failed!\n`);
+			console.error(`❌ ${config.name} smoke tests failed!\n`, error);
 			failedTests++;
 		}
 	}

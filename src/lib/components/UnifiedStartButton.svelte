@@ -8,6 +8,7 @@
 	import type { Language as DataLanguage } from '$lib/data/languages';
 	import type { User, Scenario } from '$lib/server/db/types';
 	import { getTopSpeakerForScenario, getSpeakersByLanguage } from '$lib/data/speakers';
+	import { GUEST_USER } from '$lib/data/user';
 
 	// Props
 	interface Props {
@@ -19,11 +20,13 @@
 		onSpeakerChange?: (speakerId: string) => void;
 		onScenarioChange?: (scenario: Scenario) => void;
 		onStartClick?: () => void;
+		children?: import('svelte').Snippet;
 	}
 
 	const {
-		user,
+		user = GUEST_USER,
 		selectedLanguage = null,
+		children,
 		selectedSpeaker = null,
 		selectedScenario = null,
 		onLanguageChange,
@@ -100,10 +103,6 @@
 			goto(`/conversation?sessionId=${sessionId}&scenario=${currentScenario.id}&autoStart=true`);
 		}
 	}
-
-	function handleLoginRedirect() {
-		goto('/auth');
-	}
 </script>
 
 <div class="flex flex-col items-center gap-6">
@@ -156,6 +155,8 @@
 			></div>
 		</button>
 
-		<!-- Guest CTA removed in favor of top nav Sign Up button -->
+		{#if children}
+			{@render children()}
+		{/if}
 	</div>
 </div>

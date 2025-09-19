@@ -1,5 +1,5 @@
 import type { PageServerLoad } from './$types';
-import { error, redirect } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversationSessions.repository';
 
 export const load: PageServerLoad = async ({ url, locals }) => {

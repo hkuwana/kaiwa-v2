@@ -5,10 +5,10 @@ import type { Scenario } from '$lib/server/db/types';
 
 // Extended scenario type with optional speaker selection hints
 export type ScenarioWithHints = Scenario & {
-  // Preferred locales for the conversation partner's voice (BCP‑47 codes)
-  localeHints?: string[]; // e.g., ['en-GB', 'en-US']
-  // Soft preference for speaker gender (used as tie-breaker only)
-  speakerGenderPreference?: 'male' | 'female' | 'neutral';
+	// Preferred locales for the conversation partner's voice (BCP‑47 codes)
+	localeHints?: string[]; // e.g., ['en-GB', 'en-US']
+	// Soft preference for speaker gender (used as tie-breaker only)
+	speakerGenderPreference?: 'male' | 'female' | 'neutral';
 };
 
 export const scenariosData: ScenarioWithHints[] = [
@@ -459,8 +459,7 @@ export const scenariosData: ScenarioWithHints[] = [
 		description: 'Ask prices, compare quality, and bargain politely.',
 		category: 'basic',
 		difficulty: 'intermediate',
-		instructions:
-			'Greet, ask for price, counter-offer, and agree politely or walk away kindly.',
+		instructions: 'Greet, ask for price, counter-offer, and agree politely or walk away kindly.',
 		context: 'Colorful stalls, friendly sellers, and lively chatter fill the air.',
 		expectedOutcome: 'Reach a fair price or decline respectfully',
 		learningObjectives: [
@@ -483,8 +482,7 @@ export const scenariosData: ScenarioWithHints[] = [
 		description: 'Describe symptoms, timeline, and medications clearly.',
 		category: 'basic',
 		difficulty: 'intermediate',
-		instructions:
-			'Explain what you feel, when it started, any triggers, and ask about next steps.',
+		instructions: 'Explain what you feel, when it started, any triggers, and ask about next steps.',
 		context: 'Calm clinic room; the doctor is attentive and taking notes.',
 		expectedOutcome: 'Share clear history and understand the plan',
 		learningObjectives: [
@@ -531,8 +529,7 @@ export const scenariosData: ScenarioWithHints[] = [
 		description: 'Handle baggage or seating problems under time pressure.',
 		category: 'basic',
 		difficulty: 'intermediate',
-		instructions:
-			'Explain the issue briefly, ask about options, and choose efficiently.',
+		instructions: 'Explain the issue briefly, ask about options, and choose efficiently.',
 		context: 'Busy counter, announcements overhead; you need a quick resolution.',
 		expectedOutcome: 'Get a workable solution and boarding pass updated',
 		learningObjectives: [
@@ -555,8 +552,7 @@ export const scenariosData: ScenarioWithHints[] = [
 		description: 'Ask targeted questions and confirm your understanding.',
 		category: 'intermediate',
 		difficulty: 'intermediate',
-		instructions:
-			'Explain what confuses you, reference examples, and summarize what you learned.',
+		instructions: 'Explain what confuses you, reference examples, and summarize what you learned.',
 		context: 'Quiet office; your professor invites you to walk through a problem.',
 		expectedOutcome: 'Leave with a clear plan to study and practice',
 		learningObjectives: [

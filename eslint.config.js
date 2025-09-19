@@ -1,15 +1,17 @@
 import prettier from 'eslint-config-prettier';
 import { includeIgnoreFile } from '@eslint/compat';
 import js from '@eslint/js';
+import { defineConfig } from 'eslint/config';
 import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript-eslint';
+import unusedImports from 'eslint-plugin-unused-imports';
 import svelteConfig from './svelte.config.js';
 
 const gitignorePath = fileURLToPath(new URL('./.gitignore', import.meta.url));
 
-export default ts.config(
+export default defineConfig(
 	includeIgnoreFile(gitignorePath),
 	js.configs.recommended,
 	...ts.configs.recommended,
@@ -17,6 +19,9 @@ export default ts.config(
 	prettier,
 	...svelte.configs.prettier,
 	{
+		plugins: {
+			'unused-imports': unusedImports
+		},
 		languageOptions: {
 			globals: { ...globals.browser, ...globals.node }
 		},
@@ -31,7 +36,18 @@ export default ts.config(
 			'@typescript-eslint/no-explicit-any': 'error', // No any types
 
 			// 2. BASIC TYPE SAFETY RULES
-			'@typescript-eslint/no-unused-vars': 'error', // No unused variables
+			'@typescript-eslint/no-unused-vars': 'off',
+			'unused-imports/no-unused-imports': 'error',
+			'unused-imports/no-unused-vars': [
+				'error',
+				{
+					vars: 'all',
+					varsIgnorePattern: '^_',
+					args: 'after-used',
+					argsIgnorePattern: '^_',
+					ignoreRestSiblings: true
+				}
+			],
 			'@typescript-eslint/no-unused-expressions': 'error', // No unused expressions
 
 			// 3. STANDARD RULES
@@ -46,7 +62,7 @@ export default ts.config(
 			'no-new-func': 'error', // No new Function()
 			'no-script-url': 'error', // No javascript: URLs
 			'no-var': 'error', // Use const/let instead of var
-			'prefer-const': 'error', // Prefer const over let
+			'prefer-const': 'off', // Allow let when desired for readability
 			'no-unused-vars': 'off' // Turned off in favor of TypeScript version
 		}
 	},

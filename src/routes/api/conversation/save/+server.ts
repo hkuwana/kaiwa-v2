@@ -35,7 +35,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			engagementLevel: conversation.engagementLevel || null
 		};
 
-		console.log('💾 Saving conversation:', conversationData.id, 'with', messages?.length || 0, 'messages');
+		console.log(
+			'💾 Saving conversation:',
+			conversationData.id,
+			'with',
+			messages?.length || 0,
+			'messages'
+		);
 
 		// Check if conversation already exists
 		const existingConversation = await conversationRepository.findConversationById(conversation.id);
@@ -59,7 +65,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		}
 
 		// Save messages if provided
-		let savedMessages = [];
+		const savedMessages = [];
 		if (messages && Array.isArray(messages) && messages.length > 0) {
 			console.log('💬 Saving', messages.length, 'messages...');
 

@@ -62,7 +62,15 @@ export interface UserPreferencesProvider {
  * Main analysis function that routes to appropriate analysis type
  */
 export async function analyzeConversation(request: AnalysisRequest): Promise<AnalysisResult> {
-	const { messages, language, sessionId, analysisType, analysisMode = 'full', userPreferencesProvider, userId } = request;
+	const {
+		messages,
+		language,
+		sessionId,
+		analysisType,
+		analysisMode = 'full',
+		userPreferencesProvider,
+		userId
+	} = request;
 
 	// Validate prerequisites
 	if (!language) {
@@ -131,7 +139,12 @@ export async function analyzeConversation(request: AnalysisRequest): Promise<Ana
 					break;
 
 				case 'regular':
-					result = await handleRegularAnalysis(messages, language, sessionId, userPreferencesProvider);
+					result = await handleRegularAnalysis(
+						messages,
+						language,
+						sessionId,
+						userPreferencesProvider
+					);
 					break;
 
 				case 'scenario-generation':
@@ -486,25 +499,37 @@ function handleQuickAnalysis(
 	// Calculate quick stats
 	const totalMessages = displayMessages.length;
 	const userMessageCount = userMessages.length;
-	const practiceTime = displayMessages.length > 0
-		? Math.round((displayMessages[displayMessages.length - 1].timestamp.getTime() - displayMessages[0].timestamp.getTime()) / 60000)
-		: 0;
+	const practiceTime =
+		displayMessages.length > 0
+			? Math.round(
+					(displayMessages[displayMessages.length - 1].timestamp.getTime() -
+						displayMessages[0].timestamp.getTime()) /
+						60000
+				)
+			: 0;
 
 	// Extract key topics
-	const allContent = userMessages.map(m => m.content).join(' ').toLowerCase();
+	const allContent = userMessages
+		.map((m) => m.content)
+		.join(' ')
+		.toLowerCase();
 	const keyTopics = extractTopics(allContent);
 
 	// Estimate level
 	const estimatedLevel = estimateUserLevel(userMessages);
 
 	// Generate insights based on analysis type
-	const insights = generateQuickInsights(analysisType, {
-		totalMessages,
-		userMessages: userMessageCount,
-		estimatedLevel,
-		keyTopics,
-		practiceTime
-	}, language);
+	const insights = generateQuickInsights(
+		analysisType,
+		{
+			totalMessages,
+			userMessages: userMessageCount,
+			estimatedLevel,
+			keyTopics,
+			practiceTime
+		},
+		language
+	);
 
 	return {
 		success: true,
@@ -570,8 +595,8 @@ function generateQuickInsights(
 function estimateUserLevel(userMessages: Message[]): string {
 	if (userMessages.length === 0) return 'beginner';
 
-	const avgWordsPerMessage = userMessages.reduce((sum, msg) =>
-		sum + msg.content.split(' ').length, 0) / userMessages.length;
+	const avgWordsPerMessage =
+		userMessages.reduce((sum, msg) => sum + msg.content.split(' ').length, 0) / userMessages.length;
 
 	if (avgWordsPerMessage < 3) return 'beginner';
 	if (avgWordsPerMessage < 8) return 'intermediate';

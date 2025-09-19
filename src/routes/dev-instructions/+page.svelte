@@ -1,16 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import {
-		getInstructions,
-		testModule,
-		instructionModules
-	} from '$lib/services/instructions.service';
+	import { getInstructions, testModule } from '$lib/services/instructions.service';
 	import type { TestInstructionParams, TestModuleParams, UpdateContext } from '$lib/data/testing';
 	import {
 		mockUserPreferences,
 		mockSessionContexts,
 		mockUpdateContexts,
-		testScenarios,
 		getRandomTestScenario,
 		getRandomLanguage,
 		getRandomPreferences,

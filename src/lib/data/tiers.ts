@@ -160,12 +160,12 @@ export function getWarningThreshold(tierId: UserTier): number {
 }
 
 export function getMaxSessionLength(tierId: UserTier): number {
-    return defaultTierConfigs[tierId]?.maxSessionLengthSeconds || 0;
+	return defaultTierConfigs[tierId]?.maxSessionLengthSeconds || 0;
 }
 
 // Alias for clarity when consumers expect `sessionSeconds`
 export function getSessionSeconds(tierId: UserTier): number {
-    return defaultTierConfigs[tierId]?.maxSessionLengthSeconds || 0;
+	return defaultTierConfigs[tierId]?.maxSessionLengthSeconds || 0;
 }
 
 export function getMonthlySeconds(tierId: UserTier): number {

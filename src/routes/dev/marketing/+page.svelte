@@ -229,7 +229,9 @@ It's been a game-changer for my confidence. Has anyone else found good ways to p
 		<!-- Marketing Goals & Cadence -->
 		<div class="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
 			<div class="rounded-xl bg-base-100 p-5 shadow md:col-span-2">
-				<div class="mb-2 text-sm tracking-wide text-base-content/60 uppercase">Marketing Goals (ICP: Couples JP/ES)</div>
+				<div class="mb-2 text-sm tracking-wide text-base-content/60 uppercase">
+					Marketing Goals (ICP: Couples JP/ES)
+				</div>
 				<ul class="list-disc pl-6 text-sm leading-6">
 					<li>North Star: First conversation started; D7 return.</li>
 					<li>30‑day: 4 blog LPs (JP/ES), 4 blogs, 12 shorts, 4 Reddit posts.</li>
@@ -239,8 +241,16 @@ It's been a game-changer for my confidence. Has anyone else found good ways to p
 			<div class="rounded-xl bg-base-100 p-5 shadow">
 				<div class="mb-2 text-sm tracking-wide text-base-content/60 uppercase">Quick Links</div>
 				<ul class="text-sm leading-6">
-					<li><a class="link link-primary" href="/blog/japanese-meet-the-parents" target="_blank">JP — Meet the Parents</a></li>
-					<li><a class="link link-primary" href="/blog/spanish-meet-the-parents" target="_blank">ES — Conocer a los padres</a></li>
+					<li>
+						<a class="link link-primary" href="/blog/japanese-meet-the-parents" target="_blank"
+							>JP — Meet the Parents</a
+						>
+					</li>
+					<li>
+						<a class="link link-primary" href="/blog/spanish-meet-the-parents" target="_blank"
+							>ES — Conocer a los padres</a
+						>
+					</li>
 					<li><a class="link link-primary" href="/blog" target="_blank">Blog Index</a></li>
 				</ul>
 			</div>
@@ -294,7 +304,9 @@ It's been a game-changer for my confidence. Has anyone else found good ways to p
 		<!-- Newsletter Composer removed; keep cadence link accessible -->
 		<div class="mb-6 rounded-xl bg-base-100 p-5 shadow">
 			<div class="mb-2 text-sm tracking-wide text-base-content/60 uppercase">Cadence</div>
-			<a class="btn btn-sm btn-secondary" href="/api/dev/marketing/calendar.ics" target="_blank">Add cadence to calendar (.ics)</a>
+			<a class="btn btn-sm btn-secondary" href="/api/dev/marketing/calendar.ics" target="_blank"
+				>Add cadence to calendar (.ics)</a
+			>
 		</div>
 
 		<!-- Reddit Post Helper -->

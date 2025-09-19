@@ -1,4 +1,4 @@
-import { eq, and, desc, asc, sql, count, gte, lte } from 'drizzle-orm';
+import { eq, and, desc, sql, count, gte, lte } from 'drizzle-orm';
 import { db } from '$lib/server/db/index';
 import { scenarioOutcomes } from '$lib/server/db/schema';
 import type { NewScenarioOutcome, ScenarioOutcome } from '$lib/server/db/types';

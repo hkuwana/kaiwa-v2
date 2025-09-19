@@ -9,9 +9,7 @@
 		pauseTimer,
 		resumeTimer,
 		extendTimer,
-		calculateTimerState,
-		formatTimeRemaining,
-		formatTimeElapsed
+		calculateTimerState
 	} from '$lib/services/timer.service';
 	import { onMount, onDestroy } from 'svelte';
 	// Using Iconify icons via Tailwind classes

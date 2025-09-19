@@ -2,7 +2,6 @@
 	import { enhance } from '$app/forms';
 	import posthog from 'posthog-js';
 	import { browser } from '$app/environment';
-	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
@@ -107,7 +106,9 @@
 				</svg>
 				<div>
 					<h4 class="text-sm font-bold">📧 Join Our Newsletter</h4>
-					<div class="text-xs">Create an account to subscribe and get language learning tips & updates</div>
+					<div class="text-xs">
+						Create an account to subscribe and get language learning tips & updates
+					</div>
 				</div>
 			</div>
 		{/if}

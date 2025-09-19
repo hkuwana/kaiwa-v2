@@ -690,7 +690,7 @@ export function getDefaultSpeakerForLanguage(languageId: string): Speaker | unde
 	const languageSpeakers = getSpeakersByLanguage(languageId);
 
 	// First try to find a female speaker
-	const femaleSpeaker = languageSpeakers.find(speaker => speaker.gender === 'female');
+	const femaleSpeaker = languageSpeakers.find((speaker) => speaker.gender === 'female');
 	if (femaleSpeaker) {
 		return femaleSpeaker;
 	}
@@ -700,65 +700,62 @@ export function getDefaultSpeakerForLanguage(languageId: string): Speaker | unde
 }
 
 // Helper: rank speakers for a scenario and language
-function scoreSpeakerForScenario(
-  speaker: Speaker,
-  scenario: Scenario | ScenarioWithHints
-): number {
-  let score = 0;
+function scoreSpeakerForScenario(speaker: Speaker, scenario: Scenario | ScenarioWithHints): number {
+	let score = 0;
 
-  const hints = (scenario as ScenarioWithHints).localeHints || [];
-  const genderPref = (scenario as ScenarioWithHints).speakerGenderPreference;
+	const hints = (scenario as ScenarioWithHints).localeHints || [];
+	const genderPref = (scenario as ScenarioWithHints).speakerGenderPreference;
 
-  // Strong boost for exact BCP‑47 matches listed first in hints
-  if (hints.length > 0) {
-    const idx = hints.findIndex((h) => h.toLowerCase() === (speaker.bcp47Code || '').toLowerCase());
-    if (idx >= 0) {
-      // Earlier hints are stronger
-      score += 100 - idx * 5;
-    }
-  }
+	// Strong boost for exact BCP‑47 matches listed first in hints
+	if (hints.length > 0) {
+		const idx = hints.findIndex((h) => h.toLowerCase() === (speaker.bcp47Code || '').toLowerCase());
+		if (idx >= 0) {
+			// Earlier hints are stronger
+			score += 100 - idx * 5;
+		}
+	}
 
-  // Gentle nudge for gender preference (tie-breaker only)
-  if (genderPref && speaker.gender === genderPref) {
-    score += 5;
-  }
+	// Gentle nudge for gender preference (tie-breaker only)
+	if (genderPref && speaker.gender === genderPref) {
+		score += 5;
+	}
 
-  // Small bonus if this is an OpenAI voice we list as common defaults
-  const openaiPreferred = ['alloy', 'ash', 'sage', 'coral', 'verse', 'ballad', 'echo'];
-  if (openaiPreferred.includes((speaker.openaiVoiceId || '').toLowerCase())) {
-    score += 1;
-  }
+	// Small bonus if this is an OpenAI voice we list as common defaults
+	const openaiPreferred = ['alloy', 'ash', 'sage', 'coral', 'verse', 'ballad', 'echo'];
+	if (openaiPreferred.includes((speaker.openaiVoiceId || '').toLowerCase())) {
+		score += 1;
+	}
 
-  return score;
+	return score;
 }
 
 // Get best-fitting speakers for a given scenario and language
 export function getBestSpeakersForScenario(
-  scenario: Scenario | ScenarioWithHints,
-  languageId: string,
-  limit = 3
+	scenario: Scenario | ScenarioWithHints,
+	languageId: string,
+	limit = 3
 ): Speaker[] {
-  const candidates = getSpeakersByLanguage(languageId);
-  if (candidates.length === 0) return [];
+	const candidates = getSpeakersByLanguage(languageId);
+	if (candidates.length === 0) return [];
 
-  const ranked = [...candidates].sort((a, b) => {
-    const sa = scoreSpeakerForScenario(a, scenario);
-    const sb = scoreSpeakerForScenario(b, scenario);
-    if (sb !== sa) return sb - sa;
-    // Stable-ish tie-breakers: prefer active, then alphabetical voiceName
-    if (a.isActive !== b.isActive) return (b.isActive ? 1 : 0) - (a.isActive ? 1 : 0);
-    return (a.voiceName || '').localeCompare(b.voiceName || '');
-  });
+	const ranked = [...candidates].sort((a, b) => {
+		const sa = scoreSpeakerForScenario(a, scenario);
+		const sb = scoreSpeakerForScenario(b, scenario);
+		if (sb !== sa) return sb - sa;
+		// Stable-ish tie-breakers: prefer active, then alphabetical voiceName
+		if (a.isActive !== b.isActive) return (b.isActive ? 1 : 0) - (a.isActive ? 1 : 0);
+		return (a.voiceName || '').localeCompare(b.voiceName || '');
+	});
 
-  return ranked.slice(0, Math.max(1, limit));
+	return ranked.slice(0, Math.max(1, limit));
 }
 
 // Convenience: get a single top speaker for scenario + language
 export function getTopSpeakerForScenario(
-  scenario: Scenario | ScenarioWithHints,
-  languageId: string
+	scenario: Scenario | ScenarioWithHints,
+	languageId: string
 ): Speaker | undefined {
-  const best = getBestSpeakersForScenario(scenario, languageId, 1);
-  if (best.length > 0) return best[0];
-  return getDefaultSpeakerForLanguage(languageId);
+	const best = getBestSpeakersForScenario(scenario, languageId, 1);
+	if (best.length > 0) return best[0];
+	return getDefaultSpeakerForLanguage(languageId);
 }

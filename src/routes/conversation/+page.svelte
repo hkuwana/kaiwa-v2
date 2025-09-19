@@ -18,8 +18,7 @@
 	import ErrorState from '$lib/components/ConversationErrorState.svelte';
 	import ActiveConversationState from '$lib/components/ConversationActiveState.svelte';
 	import DevPanel from '$lib/components/DevPanel.svelte';
-	import RealtimeDebugPanel from '$lib/components/RealtimeDebugPanel.svelte';
-	import ConversationDebugger from '$lib/components/ConversationDebugger.svelte';
+	import UnifiedDebugPanel from '$lib/components/UnifiedDebugPanel.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 
 	// Keep existing components for analysis temporarily
@@ -217,10 +216,12 @@
 	/>
 {:else if status === 'analyzing'}
 	<!-- Show loading state while redirecting to analysis -->
-	<div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-base-100 to-base-200">
+	<div
+		class="flex min-h-screen items-center justify-center bg-gradient-to-br from-base-100 to-base-200"
+	>
 		<div class="text-center">
-			<div class="loading loading-spinner loading-lg text-primary mb-4"></div>
-			<h2 class="text-2xl font-bold mb-2">Analyzing Your Conversation</h2>
+			<div class="loading mb-4 loading-lg loading-spinner text-primary"></div>
+			<h2 class="mb-2 text-2xl font-bold">Analyzing Your Conversation</h2>
 			<p class="text-base-content/70">Preparing your personalized insights...</p>
 		</div>
 	</div>
@@ -333,16 +334,18 @@
 								<div>Connected: {conversationStore.isConnected()}</div>
 								<details>
 									<summary class="cursor-pointer">Show all messages</summary>
-									<pre class="mt-2 rounded bg-base-300 p-2 text-xs max-h-32 overflow-y-auto">{JSON.stringify(
-										messages.map(m => ({
-											id: m.id,
-											role: m.role,
-											content: m.content?.substring(0, 50) + (m.content?.length > 50 ? '...' : ''),
-											timestamp: m.timestamp
-										})),
-										null,
-										2
-									)}</pre>
+									<pre
+										class="mt-2 max-h-32 overflow-y-auto rounded bg-base-300 p-2 text-xs">{JSON.stringify(
+											messages.map((m) => ({
+												id: m.id,
+												role: m.role,
+												content:
+													m.content?.substring(0, 50) + (m.content?.length > 50 ? '...' : ''),
+												timestamp: m.timestamp
+											})),
+											null,
+											2
+										)}</pre>
 								</details>
 							</div>
 						</div>
@@ -417,7 +420,7 @@
 							>
 								Set Mock Results
 							</button>
-							<a href="/dev/analysis-test" class="btn btn-secondary btn-sm">
+							<a href="/dev/analysis-test" class="btn btn-sm btn-secondary">
 								🧪 Test Analysis Page
 							</a>
 						</div>
@@ -452,7 +455,10 @@
 										timestamp: new Date(),
 										sequenceId: Date.now()
 									};
-									conversationStore.messages = [...conversationStore.messages, testAssistantMessage];
+									conversationStore.messages = [
+										...conversationStore.messages,
+										testAssistantMessage
+									];
 								}}
 							>
 								Add Test Assistant Message
@@ -493,19 +499,9 @@
 	timeInSeconds={Math.ceil(conversationStore.timerState.timer.timeRemaining / 1000)}
 />
 
-<!-- Conversation Debugger (floating, top-right) -->
-<ConversationDebugger />
-
-<!-- Realtime Debug Panel at bottom (only shown in dev mode) -->
-{#if dev && showDebugPanel}
-	<section class="mx-auto mt-8 max-w-7xl px-6 pb-6">
-		<RealtimeDebugPanel
-			messages={conversationStore.messages}
-			realtimeMessages={realtimeOpenAI.messages}
-			events={realtimeOpenAI.events}
-			connectionStatus={conversationStore.status}
-			isCollapsed={debugCollapsed}
-			onToggleCollapse={toggleDebugPanel}
-		/>
-	</section>
-{/if}
+<!-- Unified Debug Panel at bottom (only shown in dev mode) -->
+<UnifiedDebugPanel
+	show={showDebugPanel}
+	isCollapsed={debugCollapsed}
+	onToggleCollapse={toggleDebugPanel}
+/>

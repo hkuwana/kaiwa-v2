@@ -3,7 +3,7 @@
 		variant?: 'compact' | 'extended';
 	}
 
-	let { variant = 'compact' }: Props = $props();
+	const { variant = 'compact' }: Props = $props();
 
 	const items = [
 		{

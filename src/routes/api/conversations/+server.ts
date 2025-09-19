@@ -24,7 +24,11 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 			searchQuery
 		});
 
-		const conversations = await conversationRepository.findConversationsByUserId(userId, limit, offset);
+		const conversations = await conversationRepository.findConversationsByUserId(
+			userId,
+			limit,
+			offset
+		);
 
 		const filtered = languageId
 			? conversations.filter((c) => c.targetLanguageId === languageId)
@@ -39,16 +43,19 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 
 					// Get first user message for preview
 					const allMessages = await messagesRepository.getConversationMessages(conversation.id, 10);
-					const firstUserMessage = allMessages.find(m => m.role === 'user');
+					const firstUserMessage = allMessages.find((m) => m.role === 'user');
 
 					return {
 						id: conversation.id,
-						title: conversation.title || `${conversation.targetLanguageId.toUpperCase()} Conversation`,
+						title:
+							conversation.title || `${conversation.targetLanguageId.toUpperCase()} Conversation`,
 						targetLanguageId: conversation.targetLanguageId,
 						scenarioId: conversation.scenarioId,
 						isOnboarding: conversation.isOnboarding,
 						startedAt: conversation.startedAt?.toISOString?.() || conversation.startedAt,
-						endedAt: conversation.endedAt ? (conversation.endedAt as Date).toISOString?.() || conversation.endedAt : null,
+						endedAt: conversation.endedAt
+							? (conversation.endedAt as Date).toISOString?.() || conversation.endedAt
+							: null,
 						durationSeconds: conversation.durationSeconds || 0,
 						messageCount: conversation.messageCount || 0,
 						preview: {
@@ -61,12 +68,15 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 					console.warn('Error fetching details for conversation:', conversation.id, error);
 					return {
 						id: conversation.id,
-						title: conversation.title || `${conversation.targetLanguageId.toUpperCase()} Conversation`,
+						title:
+							conversation.title || `${conversation.targetLanguageId.toUpperCase()} Conversation`,
 						targetLanguageId: conversation.targetLanguageId,
 						scenarioId: conversation.scenarioId,
 						isOnboarding: conversation.isOnboarding,
 						startedAt: conversation.startedAt?.toISOString?.() || conversation.startedAt,
-						endedAt: conversation.endedAt ? (conversation.endedAt as Date).toISOString?.() || conversation.endedAt : null,
+						endedAt: conversation.endedAt
+							? (conversation.endedAt as Date).toISOString?.() || conversation.endedAt
+							: null,
 						durationSeconds: conversation.durationSeconds || 0,
 						messageCount: conversation.messageCount || 0,
 						preview: {
@@ -83,28 +93,35 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		let finalConversations = conversationsWithDetails;
 		if (searchQuery && searchQuery.trim()) {
 			const query = searchQuery.toLowerCase().trim();
-			finalConversations = conversationsWithDetails.filter(conv =>
-				conv.title?.toLowerCase().includes(query) ||
-				conv.preview.firstUserMessage?.toLowerCase().includes(query) ||
-				conv.preview.lastMessage?.toLowerCase().includes(query)
+			finalConversations = conversationsWithDetails.filter(
+				(conv) =>
+					conv.title?.toLowerCase().includes(query) ||
+					conv.preview.firstUserMessage?.toLowerCase().includes(query) ||
+					conv.preview.lastMessage?.toLowerCase().includes(query)
 			);
 		}
 
 		// Get total count for pagination
-		const allUserConversations = await conversationRepository.findConversationsByUserId(userId, 1000, 0);
+		const allUserConversations = await conversationRepository.findConversationsByUserId(
+			userId,
+			1000,
+			0
+		);
 		const totalFiltered = languageId
-			? allUserConversations.filter(c => c.targetLanguageId === languageId).length
+			? allUserConversations.filter((c) => c.targetLanguageId === languageId).length
 			: allUserConversations.length;
 
-		return json(createSuccessResponse({
-			conversations: finalConversations,
-			pagination: {
-				limit,
-				offset,
-				total: totalFiltered,
-				hasMore: offset + limit < totalFiltered
-			}
-		}));
+		return json(
+			createSuccessResponse({
+				conversations: finalConversations,
+				pagination: {
+					limit,
+					offset,
+					total: totalFiltered,
+					hasMore: offset + limit < totalFiltered
+				}
+			})
+		);
 	} catch (error) {
 		console.error('Get conversations API error:', error);
 		return json(createErrorResponse('Internal server error'), { status: 500 });

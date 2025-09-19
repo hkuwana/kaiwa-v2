@@ -239,12 +239,20 @@ export class SettingsStore {
 
 			// Auto-select default female speaker for the language
 			const defaultSpeaker = getDefaultSpeakerForLanguage(language.id);
-			if (defaultSpeaker && (!this.selectedSpeaker || !this.selectedSpeaker.includes(language.id))) {
+			if (
+				defaultSpeaker &&
+				(!this.selectedSpeaker || !this.selectedSpeaker.includes(language.id))
+			) {
 				this.selectedSpeaker = defaultSpeaker.id;
 				if (browser) {
 					this.persistSpeaker(defaultSpeaker.id);
 				}
-				console.log('🎙️ Auto-selected female speaker:', defaultSpeaker.voiceName, 'for', language.name);
+				console.log(
+					'🎙️ Auto-selected female speaker:',
+					defaultSpeaker.voiceName,
+					'for',
+					language.name
+				);
 			}
 
 			// Since we no longer use $effect, manually trigger persistence
@@ -266,7 +274,12 @@ export class SettingsStore {
 			if (browser) {
 				this.persistSpeaker(defaultSpeaker.id);
 			}
-			console.log('🎙️ Auto-selected female speaker:', defaultSpeaker.voiceName, 'for', language.name);
+			console.log(
+				'🎙️ Auto-selected female speaker:',
+				defaultSpeaker.voiceName,
+				'for',
+				language.name
+			);
 		}
 
 		// Persistence is handled automatically by the effect, but also persist immediately as fallback

@@ -11,7 +11,7 @@
 	import { translationStore } from '$lib/stores/translation.store.svelte';
 	import { hasScriptData, detectLanguage } from '$lib/services/scripts.service';
 	import { getSpeakerById } from '$lib/data/speakers';
-	import { getLanguageEmoji, getLanguageName } from '$lib/data/languages';
+	import { getLanguageEmoji } from '$lib/data/languages';
 	import kitsune from '$lib/assets/kitsune.webp';
 	import face from '$lib/assets/Face.webp';
 
@@ -188,7 +188,7 @@
 				{#if message.hiragana}
 					<div class="text-base">
 						<!-- Show furigana overlaid on original text -->
-						<div class="furigana-container" style="line-height: 2em;">
+						<div class="relative" style="line-height: 2em;">
 							{@html message.hiragana}
 						</div>
 					</div>
@@ -324,8 +324,3 @@
 	</div>
 </div>
 
-<style>
-	.furigana-container {
-		position: relative;
-	}
-</style>

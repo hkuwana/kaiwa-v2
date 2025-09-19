@@ -28,7 +28,7 @@
 	}
 
 	// --- PROPS ---
-	let {
+	const {
 		audioLevel = 0,
 		isRecording = false,
 		isListening = false,
@@ -58,7 +58,7 @@
 	let audioChunks: Blob[] = [];
 	let isPressed = $state(false);
 	let pressTimeout: number | null = null;
-	let pressStartTime = 0;
+
 	let audioStream: MediaStream | null = null;
 
 	// --- AUDIO SERVICE INTEGRATION ---
@@ -145,7 +145,7 @@
 		// Latching tap-to-toggle when externally controlled
 		if (controlMode === 'external' && pressBehavior === 'tap_toggle') {
 			isPressed = true;
-			pressStartTime = Date.now();
+
 			if (!isRecording) {
 				startRecording();
 			} else {
@@ -206,7 +206,7 @@
 
 		if (isRecording || isListening) return;
 		isPressed = true;
-		pressStartTime = Date.now();
+
 		startRecording();
 	}
 
@@ -258,10 +258,14 @@
 		}
 	});
 
+	let displayAudioLevel = $state(audioLevel);
+
 	// Use audio level from service if not provided as prop
 	$effect(() => {
 		if (audioLevel === 0 && currentAudioLevel > 0) {
-			audioLevel = currentAudioLevel;
+			displayAudioLevel = currentAudioLevel;
+		} else {
+			displayAudioLevel = audioLevel;
 		}
 	});
 
@@ -307,7 +311,7 @@
 
 	const buttonClass = $derived(() => {
 		const base =
-			'relative flex h-24 w-24 items-center justify-center cursor-pointer select-none transition-all duration-300';
+			'relative flex h-24 w-24 items-center justify-center cursor-pointer select-none transition-all duration-300 active:cursor-grabbing';
 
 		if (isRecording) {
 			return `${base} scale-110`;
@@ -384,8 +388,8 @@
 	<!-- Audio Activity Pulse -->
 	<div
 		class="absolute inset-4 rounded-full bg-primary/10 transition-all duration-300"
-		style="opacity: {audioLevel * 0.8}; transform: scale({1 +
-			audioLevel * 0.2}); background: radial-gradient(circle, currentColor 0%, transparent 70%);"
+		style="opacity: {audioLevel *
+			0.8}; background: radial-gradient(circle, currentColor 0%, transparent 70%);"
 		style:transform="translateY({verticalOffset}px) scale({1 + audioLevel * 0.2})"
 	></div>
 
@@ -423,9 +427,9 @@
 	{/if}
 
 	<!-- Audio Level Indicator Text (for debugging) -->
-	{#if audioLevel > 0}
+	{#if displayAudioLevel > 0}
 		<div class="absolute -bottom-8 text-xs text-base-content/60">
-			{Math.round(audioLevel * 100)}%
+			{Math.round(displayAudioLevel * 100)}%
 		</div>
 	{/if}
 </div>
@@ -437,8 +441,4 @@
 		backface-visibility: hidden;
 	}
 
-	/* Custom cursor for recording state */
-	.cursor-pointer:active {
-		cursor: grabbing;
-	}
 </style>

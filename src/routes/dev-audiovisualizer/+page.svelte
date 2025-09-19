@@ -6,7 +6,6 @@
 	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
 	import { realtimeService } from '$lib/services';
 	import { DEFAULT_VOICE, type Voice } from '$lib/types/openai.realtime.types';
-	import { page } from '$app/state';
 
 	// Demo state
 	let isRecording = $state(false);
@@ -125,17 +124,20 @@
 
 			// create connection
 			connection = await realtimeService.createConnection(sessionData, localStream);
-			if (!connection) throw new Error('Realtime connection creation failed');
+			if (!connection || connection == null) throw new Error('Realtime connection creation failed');
 
 			// basic handlers
 			connection.dataChannel.onopen = () => {
 				console.log('🟢 Data channel open');
+				if (!connection || connection == null)
+					throw new Error('Realtime connection creation failed');
 				// Send typed session.update once channel is ready
 				const sessionUpdateEvent = realtimeService.createSessionUpdate({
 					model: 'gpt-realtime',
 					voice: lastVoice || DEFAULT_VOICE
 				});
-				realtimeService.sendEvent(connection!, sessionUpdateEvent);
+
+				realtimeService.sendEvent(connection, sessionUpdateEvent);
 				isConnected = true;
 			};
 
@@ -461,8 +463,6 @@
 						{audioLevel}
 						{isRecording}
 						{isListening}
-						fixed={false}
-						showHint={false}
 						onRecordStart={handleRecordStart}
 						onRecordStop={handleRecordStop}
 					/>

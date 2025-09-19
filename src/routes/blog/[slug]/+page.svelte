@@ -52,7 +52,9 @@
 			<h1 class="mb-4 text-4xl leading-tight font-bold text-base-content">{data.metadata.title}</h1>
 
 			{#if data.metadata.excerpt}
-				<p class="mb-6 text-xl leading-relaxed font-medium text-base-content/70">{data.metadata.excerpt}</p>
+				<p class="mb-6 text-xl leading-relaxed font-medium text-base-content/70">
+					{data.metadata.excerpt}
+				</p>
 			{/if}
 		</header>
 

@@ -161,7 +161,7 @@
 		<div class="card mb-6 bg-base-100 shadow-xl">
 			<div class="card-body">
 				<h2 class="card-title text-xl">Current User Status</h2>
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+				<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
 					<div class="stat">
 						<div class="stat-title">User Type</div>
 						<div class="stat-value text-sm">
@@ -173,13 +173,13 @@
 					</div>
 					<div class="stat">
 						<div class="stat-title">Current Tier</div>
-						<div class="stat-value text-primary text-sm">{userManager.effectiveTier}</div>
+						<div class="stat-value text-sm text-primary">{userManager.effectiveTier}</div>
 					</div>
 					<div class="stat">
 						<div class="stat-title">Quota Check</div>
 						<div class="stat-actions">
 							<button
-								class="btn btn-primary btn-sm"
+								class="btn btn-sm btn-primary"
 								onclick={checkQuotaStatus}
 								disabled={isLoading}
 							>
@@ -192,22 +192,36 @@
 		</div>
 
 		<!-- Quota Status Display -->
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+		<div class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
 			<!-- Conversation Quota Status -->
 			<div class="card bg-base-100 shadow-xl">
 				<div class="card-body">
-					<h3 class="card-title text-lg flex items-center">
-						<svg class="h-5 w-5 mr-2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+					<h3 class="card-title flex items-center text-lg">
+						<svg
+							class="mr-2 h-5 w-5 text-primary"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+							/>
 						</svg>
 						Conversation Quota
 					</h3>
 
 					{#if currentQuotaStatus}
 						<div class="space-y-3">
-							<div class="flex justify-between items-center">
+							<div class="flex items-center justify-between">
 								<span class="text-sm font-medium">Can Start Conversation:</span>
-								<div class="badge {currentQuotaStatus.canStartConversation ? 'badge-success' : 'badge-error'}">
+								<div
+									class="badge {currentQuotaStatus.canStartConversation
+										? 'badge-success'
+										: 'badge-error'}"
+								>
 									{currentQuotaStatus.canStartConversation ? 'Yes' : 'No'}
 								</div>
 							</div>
@@ -215,7 +229,12 @@
 							{#if currentQuotaStatus.dailyLimitReached}
 								<div class="alert alert-warning">
 									<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+										/>
 									</svg>
 									<span class="text-xs">Daily limit reached! Resets: {getDailyResetTime()}</span>
 								</div>
@@ -241,11 +260,13 @@
 							</div>
 
 							<div class="text-xs text-base-content/50">
-								Resets: {currentQuotaStatus.resetType === 'daily' ? getDailyResetTime() : getMonthlyResetTime()}
+								Resets: {currentQuotaStatus.resetType === 'daily'
+									? getDailyResetTime()
+									: getMonthlyResetTime()}
 							</div>
 						</div>
 					{:else}
-						<div class="text-center py-4 text-base-content/50">
+						<div class="py-4 text-center text-base-content/50">
 							Click "Check Quotas" to load status
 						</div>
 					{/if}
@@ -255,18 +276,30 @@
 			<!-- Analysis Quota Status -->
 			<div class="card bg-base-100 shadow-xl">
 				<div class="card-body">
-					<h3 class="card-title text-lg flex items-center">
-						<svg class="h-5 w-5 mr-2 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+					<h3 class="card-title flex items-center text-lg">
+						<svg
+							class="mr-2 h-5 w-5 text-secondary"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+							/>
 						</svg>
 						Analysis Quota
 					</h3>
 
 					{#if analysisQuotaStatus}
 						<div class="space-y-3">
-							<div class="flex justify-between items-center">
+							<div class="flex items-center justify-between">
 								<span class="text-sm font-medium">Can Analyze:</span>
-								<div class="badge {analysisQuotaStatus.canAnalyze ? 'badge-success' : 'badge-error'}">
+								<div
+									class="badge {analysisQuotaStatus.canAnalyze ? 'badge-success' : 'badge-error'}"
+								>
 									{analysisQuotaStatus.canAnalyze ? 'Yes' : 'No'}
 								</div>
 							</div>
@@ -274,7 +307,12 @@
 							{#if analysisQuotaStatus.quotaExceeded}
 								<div class="alert alert-warning">
 									<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+										/>
 									</svg>
 									<span class="text-xs">{analysisQuotaStatus.error}</span>
 								</div>
@@ -290,11 +328,14 @@
 							</div>
 
 							<div class="text-xs text-base-content/50">
-								Tier: {analysisQuotaStatus.tier} | Resets: {analysisQuotaStatus.resetType === 'daily' ? 'Daily' : 'Monthly'}
+								Tier: {analysisQuotaStatus.tier} | Resets: {analysisQuotaStatus.resetType ===
+								'daily'
+									? 'Daily'
+									: 'Monthly'}
 							</div>
 						</div>
 					{:else}
-						<div class="text-center py-4 text-base-content/50">
+						<div class="py-4 text-center text-base-content/50">
 							Click "Check Quotas" to load status
 						</div>
 					{/if}
@@ -305,9 +346,9 @@
 		<!-- Tier Comparison Table -->
 		<div class="card bg-base-100 shadow-xl">
 			<div class="card-body">
-				<h2 class="card-title text-xl mb-4">Enhanced Tier Configurations</h2>
+				<h2 class="mb-4 card-title text-xl">Enhanced Tier Configurations</h2>
 				<div class="overflow-x-auto">
-					<table class="table table-zebra w-full">
+					<table class="table w-full table-zebra">
 						<thead>
 							<tr>
 								<th>Feature</th>
@@ -326,37 +367,37 @@
 							<tr class="bg-warning/5">
 								<td class="font-semibold">🆕 Daily Conversations</td>
 								<td class="text-center">
-									<span class="badge badge-error badge-sm">1 per day</span>
+									<span class="badge badge-sm badge-error">1 per day</span>
 								</td>
 								<td class="text-center">
-									<span class="badge badge-success badge-sm">Unlimited</span>
+									<span class="badge badge-sm badge-success">Unlimited</span>
 								</td>
 								<td class="text-center">
-									<span class="badge badge-success badge-sm">Unlimited</span>
+									<span class="badge badge-sm badge-success">Unlimited</span>
 								</td>
 							</tr>
 							<tr class="bg-warning/5">
 								<td class="font-semibold">🆕 Daily Time Limit</td>
 								<td class="text-center">
-									<span class="badge badge-error badge-sm">3 min/day</span>
+									<span class="badge badge-sm badge-error">3 min/day</span>
 								</td>
 								<td class="text-center">
-									<span class="badge badge-success badge-sm">No limit</span>
+									<span class="badge badge-sm badge-success">No limit</span>
 								</td>
 								<td class="text-center">
-									<span class="badge badge-success badge-sm">No limit</span>
+									<span class="badge badge-sm badge-success">No limit</span>
 								</td>
 							</tr>
 							<tr class="bg-warning/5">
 								<td class="font-semibold">🆕 Daily Analyses</td>
 								<td class="text-center">
-									<span class="badge badge-error badge-sm">1 per day</span>
+									<span class="badge badge-sm badge-error">1 per day</span>
 								</td>
 								<td class="text-center">
-									<span class="badge badge-info badge-sm">10/month</span>
+									<span class="badge badge-sm badge-info">10/month</span>
 								</td>
 								<td class="text-center">
-									<span class="badge badge-success badge-sm">Unlimited</span>
+									<span class="badge badge-sm badge-success">Unlimited</span>
 								</td>
 							</tr>
 							<tr>
@@ -367,9 +408,17 @@
 							</tr>
 							<tr>
 								<td>Max Session Length</td>
-								<td class="text-center">{formatTime((tierConfigs.find(t => t.id === 'free')?.sessionSeconds) || 0)}</td>
-								<td class="text-center">{formatTime((tierConfigs.find(t => t.id === 'plus')?.sessionSeconds) || 0)}</td>
-								<td class="text-center">{formatTime((tierConfigs.find(t => t.id === 'premium')?.sessionSeconds) || 0)}</td>
+								<td class="text-center"
+									>{formatTime(tierConfigs.find((t) => t.id === 'free')?.sessionSeconds || 0)}</td
+								>
+								<td class="text-center"
+									>{formatTime(tierConfigs.find((t) => t.id === 'plus')?.sessionSeconds || 0)}</td
+								>
+								<td class="text-center"
+									>{formatTime(
+										tierConfigs.find((t) => t.id === 'premium')?.sessionSeconds || 0
+									)}</td
+								>
 							</tr>
 							<tr>
 								<td>Advanced Features</td>
@@ -377,23 +426,30 @@
 									<span class="badge badge-ghost badge-sm">Basic</span>
 								</td>
 								<td class="text-center">
-									<span class="badge badge-primary badge-sm">Full</span>
+									<span class="badge badge-sm badge-primary">Full</span>
 								</td>
 								<td class="text-center">
-									<span class="badge badge-secondary badge-sm">Premium</span>
+									<span class="badge badge-sm badge-secondary">Premium</span>
 								</td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
 
-				<div class="mt-6 p-4 bg-info/10 rounded-lg border border-info/20">
-					<h3 class="font-semibold text-info mb-2">🎯 New Daily Limits Strategy</h3>
-					<ul class="text-sm text-base-content/70 space-y-1">
-						<li>• <strong>Free users:</strong> Daily limits encourage daily engagement and upgrades</li>
+				<div class="mt-6 rounded-lg border border-info/20 bg-info/10 p-4">
+					<h3 class="mb-2 font-semibold text-info">🎯 New Daily Limits Strategy</h3>
+					<ul class="space-y-1 text-sm text-base-content/70">
+						<li>
+							• <strong>Free users:</strong> Daily limits encourage daily engagement and upgrades
+						</li>
 						<li>• <strong>Paid users:</strong> No daily limits, only generous monthly quotas</li>
-						<li>• <strong>Analysis limits:</strong> Prevent AI cost abuse while encouraging feature usage</li>
-						<li>• <strong>Conversation limits:</strong> Drive users to experience value before hitting limits</li>
+						<li>
+							• <strong>Analysis limits:</strong> Prevent AI cost abuse while encouraging feature usage
+						</li>
+						<li>
+							• <strong>Conversation limits:</strong> Drive users to experience value before hitting
+							limits
+						</li>
 					</ul>
 				</div>
 			</div>
@@ -403,10 +459,10 @@
 		<div class="card mt-6 bg-base-100 shadow-xl">
 			<div class="card-body">
 				<h3 class="card-title text-lg">🔧 API Endpoint Testing</h3>
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 					<div>
-						<h4 class="font-semibold mb-2">Available Endpoints:</h4>
-						<ul class="text-sm space-y-1 text-base-content/70">
+						<h4 class="mb-2 font-semibold">Available Endpoints:</h4>
+						<ul class="space-y-1 text-sm text-base-content/70">
 							<li>• <code>GET /api/analysis/quota-check</code></li>
 							<li>• <code>GET /api/conversation/quota-check</code></li>
 							<li>• <code>POST /api/conversation/start</code> (with quota check)</li>
@@ -414,7 +470,7 @@
 						</ul>
 					</div>
 					<div>
-						<h4 class="font-semibold mb-2">Testing Actions:</h4>
+						<h4 class="mb-2 font-semibold">Testing Actions:</h4>
 						<div class="flex flex-wrap gap-2">
 							<button
 								class="btn btn-outline btn-sm"
@@ -423,10 +479,8 @@
 							>
 								Refresh Quotas
 							</button>
-							<a href="/dev/assessment-test" class="btn btn-primary btn-sm">
-								Test Analysis Flow
-							</a>
-							<a href="/conversation?scenario=onboarding-welcome" class="btn btn-secondary btn-sm">
+							<a href="/dev/assessment-test" class="btn btn-sm btn-primary"> Test Analysis Flow </a>
+							<a href="/conversation?scenario=onboarding-welcome" class="btn btn-sm btn-secondary">
 								Test Conversation
 							</a>
 						</div>

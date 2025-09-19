@@ -5,8 +5,8 @@
 	// Mock data for testing
 	let audioLevel = $state(0.3);
 	let timeRemaining = $state(45);
-	let maxSessionLengthSeconds = $state(180);
-	let isTimerActive = $state(true);
+	const maxSessionLengthSeconds = $state(180);
+	const isTimerActive = $state(true);
 
 	// Timer display logic (copied from ConversationActiveState)
 	const progressPercentage = $derived(Math.round((timeRemaining / maxSessionLengthSeconds) * 100));
@@ -234,12 +234,6 @@
 										/>
 									</svg>
 								</div>
-
-								<!-- Recording State Indicator -->
-								<div
-									class="absolute inset-0 animate-ping rounded-full border-2 border-error opacity-0 transition-opacity duration-200"
-									style="display: none;"
-								></div>
 							</div>
 						</div>
 

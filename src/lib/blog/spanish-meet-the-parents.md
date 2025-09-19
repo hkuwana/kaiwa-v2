@@ -1,12 +1,12 @@
 ---
-title: "Conocer a los padres en español: frases, consejos culturales y práctica con IA"
-description: "Frases útiles, guiones cortos y consejos culturales para causar una buena impresión al conocer a los padres de tu pareja — con práctica en 3 minutos."
-excerpt: "Guía práctica y amable para tu primera cena familiar en español: saludos, conversación ligera, cumplidos y ofrecer ayuda — con guiones listos para practicar."
-author: "Kaiwa Team"
-date: "2025-09-16"
-tags: ["Spanish", "Familia", "Escenarios", "Sin Ansiedad"]
+title: 'Conocer a los padres en español: frases, consejos culturales y práctica con IA'
+description: 'Frases útiles, guiones cortos y consejos culturales para causar una buena impresión al conocer a los padres de tu pareja — con práctica en 3 minutos.'
+excerpt: 'Guía práctica y amable para tu primera cena familiar en español: saludos, conversación ligera, cumplidos y ofrecer ayuda — con guiones listos para practicar.'
+author: 'Kaiwa Team'
+date: '2025-09-16'
+tags: ['Spanish', 'Familia', 'Escenarios', 'Sin Ansiedad']
 published: true
-readTime: "6 min read"
+readTime: '6 min read'
 ---
 
 # Conocer a los padres en español: frases, consejos culturales y práctica con IA
@@ -62,10 +62,10 @@ Tú: Gracias. Entonces, con gusto les ayudo a recoger después.
 
 ## Practica este escenario en Kaiwa (3 minutos)
 
-1. Ve a la página de inicio y elige “Spanish / Español”.  
-2. Elige una voz amigable.  
-3. Empieza la conversación y prueba uno de los guiones.  
-4. Repite cambiando detalles (regalo, plato, tema de conversación).  
+1. Ve a la página de inicio y elige “Spanish / Español”.
+2. Elige una voz amigable.
+3. Empieza la conversación y prueba uno de los guiones.
+4. Repite cambiando detalles (regalo, plato, tema de conversación).
 
 Empieza aquí: [Practicar ahora](/?utm_source=blog&utm_medium=post&utm_campaign=es_meet_parents#start).
 
@@ -84,4 +84,3 @@ Perdón, ¿podrías repetirlo por favor? / ¿Cómo se dice…?
 
 **¿Cómo me despido con amabilidad?**  
 Muchas gracias por todo. Me encantó conocerles. Ojalá nos veamos pronto.
-

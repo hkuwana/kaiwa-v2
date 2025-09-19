@@ -59,12 +59,20 @@
 		// Calculate basic stats
 		const totalMessages = displayMessages.length;
 		const userMessageCount = userMessages.length;
-		const practiceTime = displayMessages.length > 0
-			? Math.round((displayMessages[displayMessages.length - 1].timestamp.getTime() - displayMessages[0].timestamp.getTime()) / 60000)
-			: 0;
+		const practiceTime =
+			displayMessages.length > 0
+				? Math.round(
+						(displayMessages[displayMessages.length - 1].timestamp.getTime() -
+							displayMessages[0].timestamp.getTime()) /
+							60000
+					)
+				: 0;
 
 		// Extract key topics from conversation
-		const allContent = userMessages.map((m: Message) => m.content).join(' ').toLowerCase();
+		const allContent = userMessages
+			.map((m: Message) => m.content)
+			.join(' ')
+			.toLowerCase();
 		const keyTopics = extractKeyTopics(allContent);
 
 		// Estimate level based on message complexity
@@ -84,22 +92,38 @@
 
 	function extractKeyTopics(content: string): string[] {
 		const topicKeywords = [
-			'work', 'job', 'career', 'business', 'meeting',
-			'travel', 'vacation', 'trip', 'hotel', 'flight',
-			'food', 'restaurant', 'cooking', 'family', 'friends',
-			'hobby', 'sport', 'music', 'movie', 'shopping', 'health'
+			'work',
+			'job',
+			'career',
+			'business',
+			'meeting',
+			'travel',
+			'vacation',
+			'trip',
+			'hotel',
+			'flight',
+			'food',
+			'restaurant',
+			'cooking',
+			'family',
+			'friends',
+			'hobby',
+			'sport',
+			'music',
+			'movie',
+			'shopping',
+			'health'
 		];
 
-		return topicKeywords
-			.filter(keyword => content.includes(keyword))
-			.slice(0, 3);
+		return topicKeywords.filter((keyword) => content.includes(keyword)).slice(0, 3);
 	}
 
 	function estimateLevel(userMessages: Message[]): string {
 		if (userMessages.length === 0) return 'beginner';
 
-		const avgWordsPerMessage = userMessages.reduce((sum, msg) =>
-			sum + msg.content.split(' ').length, 0) / userMessages.length;
+		const avgWordsPerMessage =
+			userMessages.reduce((sum, msg) => sum + msg.content.split(' ').length, 0) /
+			userMessages.length;
 
 		if (avgWordsPerMessage < 3) return 'beginner';
 		if (avgWordsPerMessage < 8) return 'intermediate';
@@ -171,7 +195,10 @@
 </script>
 
 {#if isVisible}
-	<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200" transition:fade={{ duration: 300 }}>
+	<div
+		class="min-h-screen bg-gradient-to-br from-base-100 to-base-200"
+		transition:fade={{ duration: 300 }}
+	>
 		<div class="container mx-auto max-w-4xl px-4 py-6">
 			<!-- Header -->
 			<div class="mb-6 text-center" transition:slide={{ duration: 400, delay: 100 }}>
@@ -188,7 +215,7 @@
 						{getAnalysisTypeTitle(analysisType)} Ready
 					</div>
 				</div>
-				<h1 class="text-3xl font-bold mb-2">{getAnalysisTypeTitle(analysisType)}</h1>
+				<h1 class="mb-2 text-3xl font-bold">{getAnalysisTypeTitle(analysisType)}</h1>
 				<p class="text-lg text-base-content/70">
 					Your {language.name} conversation has been reviewed
 				</p>
@@ -196,19 +223,27 @@
 
 			<!-- Quick Stats -->
 			{#if conversationStats}
-				<div class="mb-6 rounded-xl bg-base-100 p-6 shadow-lg" transition:slide={{ duration: 400, delay: 200 }}>
-					<h2 class="mb-4 text-xl font-semibold flex items-center">
-						<svg class="h-5 w-5 mr-2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<div
+					class="mb-6 rounded-xl bg-base-100 p-6 shadow-lg"
+					transition:slide={{ duration: 400, delay: 200 }}
+				>
+					<h2 class="mb-4 flex items-center text-xl font-semibold">
+						<svg
+							class="mr-2 h-5 w-5 text-primary"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
 							<path
 								stroke-linecap="round"
 								stroke-linejoin="round"
 								stroke-width="2"
-								d="{getAnalysisTypeIcon(analysisType)}"
+								d={getAnalysisTypeIcon(analysisType)}
 							/>
 						</svg>
 						Conversation Overview
 					</h2>
-					<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+					<div class="grid grid-cols-2 gap-4 md:grid-cols-4">
 						<div class="stat p-2">
 							<div class="stat-title text-sm">Messages</div>
 							<div class="stat-value text-2xl text-primary">{conversationStats.totalMessages}</div>
@@ -219,7 +254,9 @@
 						</div>
 						<div class="stat p-2">
 							<div class="stat-title text-sm">Level</div>
-							<div class="stat-value text-xl text-accent capitalize">{conversationStats.estimatedLevel}</div>
+							<div class="stat-value text-xl text-accent capitalize">
+								{conversationStats.estimatedLevel}
+							</div>
 						</div>
 						<div class="stat p-2">
 							<div class="stat-title text-sm">Duration</div>
@@ -230,12 +267,20 @@
 			{/if}
 
 			<!-- Quick Insights -->
-			<div class="mb-6 rounded-xl bg-gradient-to-r from-primary/5 to-secondary/5 border border-primary/20 p-6 shadow-lg" transition:slide={{ duration: 400, delay: 300 }}>
+			<div
+				class="mb-6 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5 p-6 shadow-lg"
+				transition:slide={{ duration: 400, delay: 300 }}
+			>
 				<h2 class="mb-4 text-xl font-semibold">Quick Insights</h2>
 				<div class="space-y-3">
 					{#each quickInsights as insight, i}
-						<div class="flex items-start gap-3" transition:slide={{ duration: 300, delay: 400 + i * 100 }}>
-							<div class="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+						<div
+							class="flex items-start gap-3"
+							transition:slide={{ duration: 300, delay: 400 + i * 100 }}
+						>
+							<div
+								class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-primary/20"
+							>
 								<span class="text-xs font-bold text-primary">{i + 1}</span>
 							</div>
 							<p class="text-sm text-base-content/80">{insight}</p>
@@ -247,30 +292,31 @@
 			<!-- Call to Action -->
 			<div class="mb-6 text-center" transition:slide={{ duration: 400, delay: 600 }}>
 				<div class="rounded-xl bg-base-100 p-6 shadow-lg">
-					<h3 class="text-lg font-semibold mb-3">Ready for More?</h3>
-					<p class="text-base-content/70 mb-4">
+					<h3 class="mb-3 text-lg font-semibold">Ready for More?</h3>
+					<p class="mb-4 text-base-content/70">
 						{#if analysisType === 'onboarding'}
 							Get your complete learning profile with personalized recommendations and goals.
 						{:else if analysisType === 'scenario-generation'}
 							Generate custom practice scenarios based on your conversation topics and interests.
 						{:else}
-							Get detailed feedback on grammar, vocabulary, pronunciation, and personalized recommendations.
+							Get detailed feedback on grammar, vocabulary, pronunciation, and personalized
+							recommendations.
 						{/if}
 					</p>
-					<div class="flex flex-col sm:flex-row justify-center gap-3">
-						<button class="btn btn-primary btn-lg" onclick={onGoToFullAnalysis}>
-							<svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<div class="flex flex-col justify-center gap-3 sm:flex-row">
+						<button class="btn btn-lg btn-primary" onclick={onGoToFullAnalysis}>
+							<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path
 									stroke-linecap="round"
 									stroke-linejoin="round"
 									stroke-width="2"
-									d="{getAnalysisTypeIcon(analysisType)}"
+									d={getAnalysisTypeIcon(analysisType)}
 								/>
 							</svg>
 							{getCtaText(analysisType)}
 						</button>
 						<button class="btn btn-outline btn-lg" onclick={onStartNewConversation}>
-							<svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path
 									stroke-linecap="round"
 									stroke-linejoin="round"
@@ -280,9 +326,14 @@
 							</svg>
 							Practice More
 						</button>
-						<button class="btn btn-ghost btn-lg" onclick={() => showShareModal = true}>
-							<svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+						<button class="btn btn-ghost btn-lg" onclick={() => (showShareModal = true)}>
+							<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
+								/>
 							</svg>
 							Share
 						</button>
@@ -292,9 +343,7 @@
 
 			<!-- Secondary Actions -->
 			<div class="flex justify-center">
-				<button class="btn btn-ghost" onclick={onGoHome}>
-					← Back to Home
-				</button>
+				<button class="btn btn-ghost" onclick={onGoHome}> ← Back to Home </button>
 			</div>
 		</div>
 	</div>
@@ -302,23 +351,20 @@
 
 <!-- Share Modal -->
 {#if showShareModal}
-	<div class="modal modal-open">
+	<div class="modal-open modal">
 		<div class="modal-box">
-			<div class="flex justify-between items-center mb-4">
-				<h3 class="font-bold text-lg">Share Your Progress</h3>
-				<button
-					class="btn btn-sm btn-circle btn-ghost"
-					onclick={() => showShareModal = false}
-				>
+			<div class="mb-4 flex items-center justify-between">
+				<h3 class="text-lg font-bold">Share Your Progress</h3>
+				<button class="btn btn-circle btn-ghost btn-sm" onclick={() => (showShareModal = false)}>
 					✕
 				</button>
 			</div>
 
 			<div class="py-4">
 				<!-- Import ShareKaiwa component -->
-				<div class="text-center p-6 bg-base-200 rounded-lg">
-					<h4 class="font-medium mb-2">🎉 Great work on your {language.name} practice!</h4>
-					<p class="text-sm text-base-content/70 mb-4">
+				<div class="rounded-lg bg-base-200 p-6 text-center">
+					<h4 class="mb-2 font-medium">🎉 Great work on your {language.name} practice!</h4>
+					<p class="mb-4 text-sm text-base-content/70">
 						You completed {conversationStats?.userMessages || 0} exchanges
 						{#if conversationStats?.keyTopics.length}
 							covering {conversationStats.keyTopics.join(', ')}
@@ -326,7 +372,9 @@
 					</p>
 					<div class="flex flex-wrap justify-center gap-2">
 						<div class="badge badge-primary">{conversationStats?.totalMessages || 0} messages</div>
-						<div class="badge badge-secondary">{conversationStats?.estimatedLevel || 'beginner'} level</div>
+						<div class="badge badge-secondary">
+							{conversationStats?.estimatedLevel || 'beginner'} level
+						</div>
 						{#if conversationStats?.practiceTime}
 							<div class="badge badge-accent">{conversationStats.practiceTime}min practice</div>
 						{/if}
@@ -335,9 +383,9 @@
 			</div>
 
 			<div class="modal-action">
-				<button class="btn" onclick={() => showShareModal = false}>Close</button>
+				<button class="btn" onclick={() => (showShareModal = false)}>Close</button>
 			</div>
 		</div>
-		<div class="modal-backdrop" onclick={() => showShareModal = false}></div>
+		<div class="modal-backdrop" onclick={() => (showShareModal = false)}></div>
 	</div>
 {/if}

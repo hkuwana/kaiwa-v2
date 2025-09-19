@@ -1,4 +1,4 @@
-import { eq, and, desc, asc, sql, count } from 'drizzle-orm';
+import { eq, and, asc, sql, count } from 'drizzle-orm';
 import { db } from '$lib/server/db/index';
 import { speakers } from '$lib/server/db/schema';
 import type { NewSpeaker, Speaker } from '$lib/server/db/types';

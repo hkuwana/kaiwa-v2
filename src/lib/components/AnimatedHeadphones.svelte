@@ -1,6 +1,6 @@
 <!-- src/lib/components/AnimatedHeadphones.svelte -->
 <script lang="ts">
-	import { fade, fly, scale } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 
 	interface Props {
 		animation?: 'pulse' | 'bounce' | 'ping' | 'spin' | 'wiggle';

@@ -1044,6 +1044,8 @@ export class ConversationStore {
 			const conversationData = conversationPersistenceService.createConversationSaveData(
 				this.sessionId,
 				this.language,
+				this.isGuestUser,
+				userManager.user?.id,
 				startTime,
 				now,
 				durationSeconds
@@ -1101,6 +1103,8 @@ export class ConversationStore {
 		const conversationData = conversationPersistenceService.createConversationSaveData(
 			this.sessionId,
 			this.language,
+			this.isGuestUser,
+			userManager.user?.id,
 			startTime,
 			now,
 			durationSeconds

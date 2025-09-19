@@ -30,9 +30,10 @@
 	let lastUpdateTime = $state<Date | null>(null);
 
 	// Test message with full schema - reactive to all test results
-	const testMessage = $derived({
+	const testMessage: Message = $derived({
 		id: 'test-message-1',
 		content: testText,
+		sequenceId: '1',
 		role: 'user' as const,
 		timestamp: new Date(),
 		conversationId: 'test-conversation',
@@ -169,6 +170,7 @@
 			const testMessage = {
 				id: messageId,
 				content: testText,
+				sequenceId: null,
 				role: 'user' as const,
 				timestamp: new Date(),
 				conversationId: 'test-conversation',

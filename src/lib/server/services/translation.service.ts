@@ -3,7 +3,6 @@
 
 import type { Message } from '$lib/server/db/types';
 import { env } from '$env/dynamic/private';
-import { generateScriptsServer } from '$lib/services/romanization.service';
 // Note: Using dynamic imports due to mixed module systems (ES6/CommonJS)
 
 // Translation parameters interface

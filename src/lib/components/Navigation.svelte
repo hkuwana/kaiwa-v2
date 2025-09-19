@@ -1,14 +1,14 @@
 <script lang="ts">
 	import ThemeSwitcher from './ThemeSwitcher.svelte';
 	import type { User } from '$lib/server/db/types';
-	import { goto, invalidate, invalidateAll } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	import { browser, dev } from '$app/environment';
 
 	const { user }: { user: User | null } = $props();
 	// Get user data from page data
 
-	async function handleHome() {
-		await goto('/');
+	function handleHome() {
+		goto(resolve('/'));
 	}
 
 	// Dev routes (only shown when running in dev mode)
@@ -55,6 +55,7 @@
 	}
 
 	import { onMount, onDestroy } from 'svelte';
+	import { resolve } from '$app/paths';
 	onMount(() => {
 		// Attach only in browser/dev
 		if (dev && browser) {

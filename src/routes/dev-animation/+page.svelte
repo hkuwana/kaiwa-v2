@@ -1,7 +1,7 @@
 <!-- src/routes/dev-animation/+page.svelte -->
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { fade, fly, scale, slide } from 'svelte/transition';
+	import { fade, fly, scale } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import AnimatedHeadphones from '$lib/components/AnimatedHeadphones.svelte';
 

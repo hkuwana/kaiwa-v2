@@ -1,7 +1,7 @@
 // 🚪 Logout Handler
 // Invalidates session and redirects to home
 
-import { invalidateSession, deleteSessionTokenCookie, sessionCookieName } from '$lib/server/auth';
+import { invalidateSession, sessionCookieName } from '$lib/server/auth';
 import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 

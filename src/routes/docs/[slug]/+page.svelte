@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { error } from '@sveltejs/kit';
 
 	// Get the slug from the URL
 	const slug = page.params.slug;

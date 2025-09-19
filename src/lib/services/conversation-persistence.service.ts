@@ -68,7 +68,7 @@ export class ConversationPersistenceService {
 
 		return {
 			id: sessionId,
-			userId: isGuest ? null : (userId || null),
+			userId: isGuest ? null : userId || null,
 			guestId: isGuest ? 'anonymous' : null,
 			targetLanguageId: language.id,
 			title: `${language.name} Conversation`,

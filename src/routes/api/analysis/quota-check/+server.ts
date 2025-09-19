@@ -32,9 +32,12 @@ export const GET: RequestHandler = async ({ locals }) => {
 	} catch (error) {
 		console.error('Error checking analysis quota:', error);
 
-		return json({
-			canAnalyze: false,
-			error: 'Unable to check analysis quota. Please try again.'
-		}, { status: 500 });
+		return json(
+			{
+				canAnalyze: false,
+				error: 'Unable to check analysis quota. Please try again.'
+			},
+			{ status: 500 }
+		);
 	}
 };

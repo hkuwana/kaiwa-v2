@@ -80,14 +80,24 @@
 
 <div class="container mx-auto max-w-4xl px-4 py-8">
 	<!-- Redirect Notice -->
-	<div class="alert alert-warning mb-8">
-		<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
-			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+	<div class="mb-8 alert alert-warning">
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			fill="none"
+			viewBox="0 0 24 24"
+			class="h-6 w-6 shrink-0 stroke-current"
+		>
+			<path
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				stroke-width="2"
+				d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"
+			></path>
 		</svg>
 		<div>
 			<h3 class="font-bold">Page Moved!</h3>
 			<p>This component showcase has been moved to a comprehensive showcase page.</p>
-			<button class="btn btn-sm btn-primary mt-2" onclick={redirectToNewShowcase}>
+			<button class="btn mt-2 btn-sm btn-primary" onclick={redirectToNewShowcase}>
 				Go to New Showcase →
 			</button>
 		</div>
@@ -105,25 +115,17 @@
 		<div class="card-body">
 			<h2 class="card-title">Quick Test</h2>
 			<div class="flex flex-wrap gap-3">
-				<button
-					class="btn btn-primary"
-					onclick={() => openModal('limit_modal', 'free')}
-				>
+				<button class="btn btn-primary" onclick={() => openModal('limit_modal', 'free')}>
 					Test Limit Modal
 				</button>
-				<button
-					class="btn btn-secondary"
-					onclick={() => openModal('navbar', 'free')}
-				>
+				<button class="btn btn-secondary" onclick={() => openModal('navbar', 'free')}>
 					Test Navbar Modal
 				</button>
 			</div>
 
 			<div class="mt-4 text-sm opacity-70">
 				<strong>Current State:</strong>
-				Modal: {isModalOpen ? 'Open' : 'Closed'} |
-				Tier: {currentTier} |
-				Source: {modalSource}
+				Modal: {isModalOpen ? 'Open' : 'Closed'} | Tier: {currentTier} | Source: {modalSource}
 			</div>
 		</div>
 	</div>

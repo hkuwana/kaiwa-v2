@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { page } from '$app/stores';
 	import PricingModal from '$lib/components/PricingModal.svelte';
 	import ScenarioOutcome from '$lib/components/ScenarioOutcome.svelte';
 	import ScenarioProgress from '$lib/components/ScenarioProgress.svelte';
 	import TierBadge from '$lib/components/TierBadge.svelte';
 	import VoiceSelector from '$lib/components/VoiceSelector.svelte';
-	 
+
 	import type { UsageStatus } from '$lib/server/tierService';
 
 	// State for pricing modal
@@ -90,7 +89,8 @@
 		instructions: 'Order a latte, ask about the Wi-Fi password, and find out what time they close.',
 		difficulty: 'Intermediate',
 		learningObjectives: ['注文', 'コーヒー', 'ラテ', 'WiFi', 'パスワード', '閉店時間'],
-		expectedOutcome: 'Successfully order your drink, get connected to Wi-Fi, and know when to leave.',
+		expectedOutcome:
+			'Successfully order your drink, get connected to Wi-Fi, and know when to leave.',
 		estimatedDuration: 5,
 		language: 'japanese'
 	};
@@ -147,7 +147,7 @@
 	<!-- Header -->
 	<div class="mb-8">
 		<h1 class="mb-4 text-4xl font-bold">Component Showcase</h1>
-		<p class="text-base-content/70 text-lg">
+		<p class="text-lg text-base-content/70">
 			Interactive showcase of all modal and UI components in the Kaiwa application.
 		</p>
 	</div>
@@ -165,26 +165,26 @@
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body">
 						<h3 class="card-title">Controls</h3>
-						<p class="text-sm text-base-content/70 mb-4">
+						<p class="mb-4 text-sm text-base-content/70">
 							Smart freemium pricing modal with usage tracking and Stripe integration.
 						</p>
 						<div class="space-y-3">
 							<button
-								class="btn btn-primary btn-block"
+								class="btn btn-block btn-primary"
 								onclick={() => openPricingModal('limit_modal', 'free')}
 							>
 								Open Limit Reached Modal
 								<span class="badge badge-outline">Shows usage warnings</span>
 							</button>
 							<button
-								class="btn btn-secondary btn-block"
+								class="btn btn-block btn-secondary"
 								onclick={() => openPricingModal('navbar', 'plus')}
 							>
 								Open Navbar Modal
 								<span class="badge badge-outline">Standard pricing</span>
 							</button>
 							<button
-								class="btn btn-accent btn-block"
+								class="btn btn-block btn-accent"
 								onclick={() => openPricingModal('settings', 'free')}
 							>
 								Open Settings Modal
@@ -208,8 +208,6 @@
 				</div>
 			</div>
 		</section>
-
- 
 
 		<!-- Tier Badge Section -->
 		<section id="tier-badge" class="space-y-6">
@@ -236,7 +234,7 @@
 				<div class="card bg-base-200">
 					<div class="card-body">
 						<h4 class="font-semibold">Features:</h4>
-						<ul class="text-sm space-y-1">
+						<ul class="space-y-1 text-sm">
 							<li>🎯 Tier indicators with icons</li>
 							<li>📊 Usage progress bars</li>
 							<li>⚠️ Limit warnings</li>
@@ -258,12 +256,13 @@
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body">
 						<h3 class="card-title text-lg">Interactive Selector</h3>
-						<p class="text-sm text-base-content/70 mb-4">
+						<p class="mb-4 text-sm text-base-content/70">
 							Choose from 6 different OpenAI TTS voices with preview functionality.
 						</p>
 						<VoiceSelector {selectedVoice} onVoiceChange={handleVoiceChange} />
 						<div class="mt-4 text-sm">
-							<strong>Selected:</strong> {selectedVoice}
+							<strong>Selected:</strong>
+							{selectedVoice}
 						</div>
 					</div>
 				</div>
@@ -299,7 +298,7 @@
 				<h3 class="text-xl font-semibold">Scenario Progress</h3>
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body">
-						<p class="text-sm text-base-content/70 mb-4">
+						<p class="mb-4 text-sm text-base-content/70">
 							Shows learning progress and provides scaffolding during scenario practice.
 						</p>
 						<ScenarioProgress
@@ -318,7 +317,7 @@
 				<h3 class="text-xl font-semibold">Scenario Outcome</h3>
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body">
-						<p class="text-sm text-base-content/70 mb-4">
+						<p class="mb-4 text-sm text-base-content/70">
 							Displays learning results and feedback after completing a scenario.
 						</p>
 						<ScenarioOutcome

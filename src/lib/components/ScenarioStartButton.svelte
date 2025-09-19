@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation';
 	import type { Scenario, User } from '$lib/server/db/types';
 	import { scenariosData } from '$lib/data/scenarios';
+	import { resolve } from '$app/paths';
 
 	// Props-based design - no direct store access
 	interface Props {
@@ -66,7 +67,7 @@
 	}
 
 	function handleLoginRedirect() {
-		goto('/auth');
+		goto(resolve('/auth'));
 	}
 </script>
 

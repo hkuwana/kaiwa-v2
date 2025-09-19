@@ -12,7 +12,7 @@
 	import type { Scenario } from '$lib/server/db/types';
 	import { dev } from '$app/environment';
 	import WhyDifferent from '$lib/components/WhyDifferent.svelte';
-// Newsletter signup removed for MVP
+	// Newsletter signup removed for MVP
 
 	const user = userManager.user;
 
@@ -106,7 +106,7 @@
 				<h4 class="mb-2 text-2xl font-semibold opacity-90 sm:mb-4 sm:text-3xl">
 					{#if useDynamicLanguage}
 						<DynamicLanguageText
-							bind:selectedLanguage={selectedLanguage}
+							bind:selectedLanguage
 							onLanguageSelect={handleDynamicLanguageSelect}
 							variant={dynamicVariant}
 							animationInterval={2800}

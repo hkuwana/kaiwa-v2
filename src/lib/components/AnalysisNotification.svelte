@@ -48,13 +48,15 @@
 					? "We've analyzed your conversation and created a personalized learning profile. Create an account to save your progress!"
 					: 'Your personalized learning profile has been updated based on this conversation.';
 
-			case 'regular':
+			case 'regular': {
 				const insightCount = data?.insights?.length || 0;
 				return `We found ${insightCount} key insights from your conversation to help improve your learning.`;
+			}
 
-			case 'scenario-generation':
+			case 'scenario-generation': {
 				const scenarioCount = data?.customScenarios?.length || 0;
 				return `We've created ${scenarioCount} custom practice scenarios based on your interests and topics you discussed.`;
+			}
 
 			default:
 				return 'Your conversation has been analyzed successfully.';
@@ -167,7 +169,7 @@
 					<div class="mb-4 rounded-lg bg-base-200/50 p-4">
 						<h3 class="mb-2 text-sm font-medium text-base-content">Custom Scenarios Preview:</h3>
 						<div class="space-y-2">
-							{#each customScenarios.slice(0, 2) as scenario}
+							{#each customScenarios.slice(0, 2) as scenario (scenario.title)}
 								<div class="flex items-center justify-between rounded bg-base-100 p-2">
 									<div>
 										<div class="text-sm font-medium">{scenario.title}</div>

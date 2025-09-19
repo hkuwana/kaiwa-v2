@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import type { AudioLevel } from './audio.service';
 import type { Message } from '$lib/server/db/types';
@@ -106,19 +105,19 @@ export class DummyRealtimeCoordinatorService {
 		return;
 	}
 
-	sendEvent(event: any): void {
+	sendEvent(_event: Event): void {
 		// Do nothing on the server
 		console.log('🔇 DummyRealtimeCoordinatorService: sendEvent() called on server');
 		return;
 	}
 
-	sendMessage(content: string): void {
+	sendMessage(_content: string): void {
 		// Do nothing on the server
 		console.log('🔇 DummyRealtimeCoordinatorService: sendMessage() called on server');
 		return;
 	}
 
-	createResponse(modalities: string[] = ['text', 'audio']): void {
+	createResponse(_modalities: string[] = ['text', 'audio']): void {
 		// Do nothing on the server
 		console.log('🔇 DummyRealtimeCoordinatorService: createResponse() called on server');
 		return;
@@ -169,7 +168,7 @@ export class DummyRealtimeCoordinatorService {
 		return 0;
 	}
 
-	updateAudioLevel(level: number): void {
+	updateAudioLevel(_level: number): void {
 		console.log('🔇 DummyRealtimeCoordinatorService: updateAudioLevel() called on server');
 	}
 
@@ -183,7 +182,7 @@ export class DummyRealtimeCoordinatorService {
 		return [];
 	}
 
-	async switchAudioDevice(deviceId: string): Promise<boolean> {
+	async switchAudioDevice(_deviceId: string): Promise<boolean> {
 		console.log('🔇 DummyRealtimeCoordinatorService: switchAudioDevice() called on server');
 		return false;
 	}
@@ -231,13 +230,13 @@ export class DummyRealtimeService {
 		return;
 	}
 
-	sendEvent(event: any): void {
+	sendEvent(_event: any): void {
 		// Do nothing on the server
 		console.log('🔇 DummyRealtimeService: sendEvent() called on server');
 		return;
 	}
 
-	send(data: object): void {
+	send(_data: object): void {
 		// Do nothing on the server
 		console.log('🔇 DummyRealtimeService: send() called on server');
 		return;

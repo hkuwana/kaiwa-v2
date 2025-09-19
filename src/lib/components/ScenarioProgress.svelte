@@ -2,7 +2,7 @@
 <!-- Shows learning progress and provides scaffolding during scenario practice -->
 
 <script lang="ts">
-	import type { Scenario, ScenarioOutcome, ConversationState } from '$lib/types';
+	import type { Scenario, ConversationState } from '$lib/types';
 
 	const { scenario, state, onUseHint, onUseTranslation, onViewExample } = $props<{
 		scenario: Scenario;
@@ -230,5 +230,3 @@
 		</div>
 	{/if}
 </div>
-
- 
