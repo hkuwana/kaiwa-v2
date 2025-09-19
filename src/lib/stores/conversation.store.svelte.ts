@@ -411,15 +411,32 @@ export class ConversationStore {
 
 			// Auto-save after user messages (every few user interactions)
 			if (ev.role === 'user') {
-				const userMessageCount = this.messages.filter(m => m.role === 'user').length;
+				const userMessageCount = this.messages.filter((m) => m.role === 'user').length;
 				// Save every 3 user messages, or if it's been more than 2 minutes since last save
 				const timeSinceLastSave = this.lastSaveTime
 					? Date.now() - this.lastSaveTime.getTime()
 					: Number.MAX_SAFE_INTEGER;
 
-				if (userMessageCount % 3 === 0 || timeSinceLastSave > 120000) {
+				// Only save if no streaming messages are currently active
+				const hasStreamingMessages = messageService.hasStreamingMessage(this.messages);
+
+				if ((userMessageCount % 3 === 0 || timeSinceLastSave > 120000) && !hasStreamingMessages) {
 					console.log('🔄 Auto-saving conversation (user message trigger)');
 					this.queueConversationSave();
+				} else if (hasStreamingMessages) {
+					console.log('⏭️ Skipping auto-save - streaming messages active');
+				}
+			}
+
+			// Trigger save after assistant messages complete (with delay to ensure finalization)
+			if (ev.role === 'assistant') {
+				const hasStreamingMessages = messageService.hasStreamingMessage(this.messages);
+				if (!hasStreamingMessages) {
+					console.log('🤖 Assistant message complete - scheduling save');
+					// Delay save slightly to ensure all message processing is complete
+					setTimeout(() => {
+						this.queueConversationSave();
+					}, 500);
 				}
 			}
 			// Sanitize just-finalized message: add scripts if applicable
@@ -505,7 +522,10 @@ export class ConversationStore {
 
 		// Immediately emulate session-created logic
 		console.log('🎵 ConversationStore: Session created, sending initial setup...');
-		console.log('🎵 ConversationStore: Event handlers set up, realtime messages:', realtimeOpenAI.messages.length);
+		console.log(
+			'🎵 ConversationStore: Event handlers set up, realtime messages:',
+			realtimeOpenAI.messages.length
+		);
 		this.sendInitialSetup();
 		this.status = 'connected';
 		console.log('🎵 ConversationStore: Status changed to "connected"');
@@ -1004,7 +1024,7 @@ export class ConversationStore {
 
 		// Only save if we have meaningful messages
 		const meaningfulMessages = this.messages.filter(
-			msg =>
+			(msg) =>
 				msg.content &&
 				msg.content.trim().length > 0 &&
 				!msg.content.includes('[Speaking...]') &&
@@ -1029,7 +1049,8 @@ export class ConversationStore {
 				durationSeconds
 			);
 
-			const preparedMessages = conversationPersistenceService.prepareMessagesForSave(meaningfulMessages);
+			const preparedMessages =
+				conversationPersistenceService.prepareMessagesForSave(meaningfulMessages);
 
 			console.log('💾 Saving conversation to database...', {
 				sessionId: this.sessionId,
@@ -1040,7 +1061,10 @@ export class ConversationStore {
 
 			// Use retry logic for critical saves (onDestroy)
 			const result = isOnDestroy
-				? await conversationPersistenceService.saveConversationWithRetry(conversationData, preparedMessages)
+				? await conversationPersistenceService.saveConversationWithRetry(
+						conversationData,
+						preparedMessages
+					)
 				: await conversationPersistenceService.saveConversation(conversationData, preparedMessages);
 
 			if (result.success) {
@@ -1061,7 +1085,7 @@ export class ConversationStore {
 		if (!browser || !this.sessionId || !this.language) return;
 
 		const meaningfulMessages = this.messages.filter(
-			msg =>
+			(msg) =>
 				msg.content &&
 				msg.content.trim().length > 0 &&
 				!msg.content.includes('[Speaking...]') &&
@@ -1082,7 +1106,8 @@ export class ConversationStore {
 			durationSeconds
 		);
 
-		const preparedMessages = conversationPersistenceService.prepareMessagesForSave(meaningfulMessages);
+		const preparedMessages =
+			conversationPersistenceService.prepareMessagesForSave(meaningfulMessages);
 
 		conversationPersistenceService.queueSave(conversationData, preparedMessages);
 	}
@@ -1104,7 +1129,7 @@ export class ConversationStore {
 		}
 
 		// Save conversation to database before ending
-		this.saveConversationToDatabase(false).catch(error => {
+		this.saveConversationToDatabase(false).catch((error) => {
 			console.warn('Failed to save conversation on end:', error);
 		});
 
@@ -1196,7 +1221,11 @@ export class ConversationStore {
 		// Clean up realtime connections but preserve state
 		this.cleanup();
 
-		console.log('Conversation preserved for analysis with', this.messagesForAnalysis.length, 'messages');
+		console.log(
+			'Conversation preserved for analysis with',
+			this.messagesForAnalysis.length,
+			'messages'
+		);
 	};
 
 	// Add method to completely destroy conversation (for page changes, etc.)
@@ -1206,7 +1235,7 @@ export class ConversationStore {
 		console.log('Destroying conversation completely...');
 
 		// Save conversation to database before destroying (critical save with retry)
-		await this.saveConversationToDatabase(true).catch(error => {
+		await this.saveConversationToDatabase(true).catch((error) => {
 			console.error('Failed to save conversation on destroy:', error);
 		});
 

@@ -1,39 +1,21 @@
 // src/lib/services/conversation-persistence.service.ts
 // Service for persisting conversation data to the database
 
-import type { Message, Language } from '$lib/server/db/types';
-import { userManager } from '$lib/stores/user.store.svelte';
-
-export interface ConversationSaveData {
-	id: string;
-	guestId?: string;
-	targetLanguageId: string;
-	title?: string;
-	mode?: 'traditional' | 'realtime';
-	voice?: string;
-	scenarioId?: string;
-	isOnboarding?: string;
-	startedAt?: Date;
-	endedAt?: Date;
-	durationSeconds?: number;
-	audioSeconds?: string;
-	comfortRating?: number;
-	engagementLevel?: 'low' | 'medium' | 'high';
-}
+import type { Message, Language, NewConversation } from '$lib/server/db/types';
 
 export class ConversationPersistenceService {
 	/**
 	 * Save conversation and messages to database
 	 */
 	async saveConversation(
-		conversationData: ConversationSaveData,
+		conversationData: NewConversation,
 		messages: Message[]
 	): Promise<{ success: boolean; error?: string }> {
 		try {
 			console.log('💾 ConversationPersistenceService: Saving conversation...', {
 				conversationId: conversationData.id,
 				messagesCount: messages.length,
-				isAuthenticated: userManager.isLoggedIn
+				isGuest: !!conversationData.guestId
 			});
 
 			const response = await fetch('/api/conversation/save', {
@@ -74,25 +56,33 @@ export class ConversationPersistenceService {
 	createConversationSaveData(
 		sessionId: string,
 		language: Language | null,
+		isGuest: boolean,
+		userId?: string | null,
 		startTime?: Date,
 		endTime?: Date,
 		durationSeconds?: number
-	): ConversationSaveData {
+	): NewConversation {
 		if (!language) {
 			throw new Error('Language is required for conversation save data');
 		}
 
 		return {
 			id: sessionId,
-			guestId: !userManager.isLoggedIn ? 'anonymous' : undefined,
+			userId: isGuest ? null : (userId || null),
+			guestId: isGuest ? 'anonymous' : null,
 			targetLanguageId: language.id,
 			title: `${language.name} Conversation`,
 			mode: 'realtime',
+			voice: null,
+			scenarioId: null,
 			isOnboarding: 'false', // Most conversations are not onboarding
 			startedAt: startTime || new Date(),
 			endedAt: endTime || new Date(),
-			durationSeconds: durationSeconds || 0,
-			audioSeconds: '0' // Could be calculated from actual audio data
+			durationSeconds: durationSeconds || null,
+			messageCount: 0, // Will be set when saving
+			audioSeconds: '0', // Could be calculated from actual audio data
+			comfortRating: null,
+			engagementLevel: null
 		};
 	}
 
@@ -101,15 +91,20 @@ export class ConversationPersistenceService {
 	 */
 	prepareMessagesForSave(messages: Message[]): Message[] {
 		return messages
-			.filter(message =>
-				message.content &&
-				message.content.trim().length > 0 &&
-				!message.content.includes('[Speaking...]') &&
-				!message.content.includes('[Transcribing...]')
+			.filter(
+				(message) =>
+					message.content &&
+					message.content.trim().length > 0 &&
+					!message.content.includes('[Speaking...]') &&
+					!message.content.includes('[Transcribing...]') &&
+					!message.id.startsWith('streaming_') &&
+					!message.id.startsWith('user_placeholder_') &&
+					!message.id.startsWith('user_transcribing_') &&
+					!message.id.startsWith('user_partial_')
 			)
 			.map((message, index) => ({
 				...message,
-				sequence: message.sequence || index + 1,
+				sequenceId: message.sequenceId || (index + 1).toString(),
 				timestamp: message.timestamp || new Date()
 			}));
 	}
@@ -118,14 +113,16 @@ export class ConversationPersistenceService {
 	 * Save conversation with retry logic
 	 */
 	async saveConversationWithRetry(
-		conversationData: ConversationSaveData,
+		conversationData: NewConversation,
 		messages: Message[],
 		maxRetries: number = 3
 	): Promise<{ success: boolean; error?: string }> {
 		let lastError: string | undefined;
 
 		for (let attempt = 1; attempt <= maxRetries; attempt++) {
-			console.log(`💾 Attempt ${attempt}/${maxRetries} to save conversation ${conversationData.id}`);
+			console.log(
+				`💾 Attempt ${attempt}/${maxRetries} to save conversation ${conversationData.id}`
+			);
 
 			const result = await this.saveConversation(conversationData, messages);
 
@@ -139,7 +136,7 @@ export class ConversationPersistenceService {
 				// Wait before retrying (exponential backoff)
 				const delay = Math.pow(2, attempt - 1) * 1000; // 1s, 2s, 4s
 				console.log(`⏱️ Retrying in ${delay}ms...`);
-				await new Promise(resolve => setTimeout(resolve, delay));
+				await new Promise((resolve) => setTimeout(resolve, delay));
 			}
 		}
 
@@ -153,14 +150,14 @@ export class ConversationPersistenceService {
 	 * Queue conversation for background saving (for non-critical saves)
 	 */
 	private saveQueue: Array<{
-		conversationData: ConversationSaveData;
+		conversationData: NewConversation;
 		messages: Message[];
 		timestamp: number;
 	}> = [];
 
 	private isProcessingQueue = false;
 
-	queueSave(conversationData: ConversationSaveData, messages: Message[]): void {
+	queueSave(conversationData: NewConversation, messages: Message[]): void {
 		this.saveQueue.push({
 			conversationData,
 			messages,
@@ -193,7 +190,7 @@ export class ConversationPersistenceService {
 			await this.saveConversation(item.conversationData, item.messages);
 
 			// Small delay between saves to avoid overwhelming the server
-			await new Promise(resolve => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 		}
 
 		this.isProcessingQueue = false;
