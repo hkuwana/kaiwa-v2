@@ -1,7 +1,8 @@
 import { error } from '@sveltejs/kit';
 
-export const load = async ({ params, data }) => {
+export const load = async ({ params, parent }) => {
 	const { slug } = params;
+	const { seo } = await parent();
 
 	try {
 		const module = await import(`../../../lib/blog/${slug}.md`);
@@ -25,7 +26,7 @@ export const load = async ({ params, data }) => {
 		return {
 			content: module.default,
 			metadata,
-			seo: { ...data.seo, ...postSeo }
+			seo: { ...seo, ...postSeo }
 		};
 	} catch (e: unknown) {
 		console.error('Error loading blog post:', e);

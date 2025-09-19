@@ -387,7 +387,7 @@
 						? 'animate-fade-in'
 						: ''} max-h-64 overflow-y-auto sm:max-h-80 md:max-h-[420px]"
 				>
-					{#each currentScenario.messages as message, i}
+					{#each currentScenario.messages as message, i (message.id)}
 						<div
 							class="scale-[0.9] opacity-95 transition-all duration-300 hover:scale-95"
 							style="animation-delay: {i * 0.2}s"

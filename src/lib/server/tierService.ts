@@ -42,6 +42,18 @@ export class TierService {
 			realtimeSessionsUsed: 0,
 			bankedSeconds: 0,
 			bankedSecondsUsed: 0,
+			ankiExportsUsed: 0,
+			sessionExtensionsUsed: 0,
+			advancedVoiceSeconds: 0,
+			analysesUsed: 0,
+			completedSessions: 0,
+			longestSessionSeconds: 0,
+			averageSessionSeconds: 0,
+			overageSeconds: 0,
+			tierWhenUsed: 'free',
+			lastConversationAt: null,
+			lastRealtimeAt: null,
+			firstActivityAt: null,
 			createdAt: new Date(),
 			updatedAt: new Date()
 		};

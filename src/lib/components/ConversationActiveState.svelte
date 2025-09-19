@@ -90,7 +90,14 @@
 		}
 	}
 
-	async function handleTranslation(_event: string, data: { messageId: string; message: Message }) {
+	async function handleTranslation(
+		event: string,
+		data: {
+			messageId: string;
+			message: Message;
+			speaker?: Speaker;
+		}
+	) {
 		const { messageId, message } = data;
 
 		try {

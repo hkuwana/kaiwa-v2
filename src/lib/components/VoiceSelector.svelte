@@ -171,7 +171,7 @@
 	</button>
 
 	<!-- Voice dropdown -->
-	<ul tabindex="0" class="dropdown-content menu z-[1] w-80 rounded-box bg-base-100 p-2 shadow">
+	<ul class="dropdown-content menu z-[1] w-80 rounded-box bg-base-100 p-2 shadow" role="listbox">
 		{#each voices as voice}
 			<li>
 				<div
@@ -179,8 +179,15 @@
 						? 'active'
 						: ''}"
 					onclick={() => voice.enabled && selectVoice(voice.id)}
+					onkeydown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							if (voice.enabled) selectVoice(voice.id);
+						}
+					}}
 					role="option"
 					aria-selected={voice.id === selectedVoice}
+					tabindex="0"
 				>
 					<div class="flex flex-1 items-start space-x-3 text-left">
 						<span class="text-lg">{getGenderIcon(voice.gender)}</span>
@@ -205,7 +212,10 @@
 					<!-- Preview button -->
 					<button
 						class="btn ml-2 btn-circle btn-ghost btn-sm"
-						onclick={() => (isPlaying === voice.id ? stopPreview() : previewVoice(voice))}
+						onclick={(e) => {
+							e.stopPropagation;
+							isPlaying === voice.id ? stopPreview() : previewVoice(voice);
+						}}
 						title={isPlaying === voice.id ? 'Stop preview' : 'Preview voice'}
 					>
 						{#if isPlaying === voice.id}

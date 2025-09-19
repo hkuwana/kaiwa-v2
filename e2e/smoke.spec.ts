@@ -130,7 +130,7 @@ test.describe('Smoke Tests', () => {
 		await expect(page).toHaveURL('/');
 	});
 
-		// eslint-disable-next-line unused-imports/no-unused-vars
+	// eslint-disable-next-line unused-imports/no-unused-vars
 	test('@smoke should handle responsive design', async ({ page }) => {
 		await utils.checkResponsiveDesign();
 	});

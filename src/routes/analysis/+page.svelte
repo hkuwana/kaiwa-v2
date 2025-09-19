@@ -32,7 +32,7 @@
 	// Analysis state
 	let analysisMode = $state<'quick' | 'full'>('quick');
 	let analysisType = $state<AnalysisType>('regular');
-	let quickAnalysisData = $state(null);
+	let quickAnalysisData: any = $state(null);
 
 	// URL parameters
 	const urlParams = $derived({

@@ -4,6 +4,7 @@
 	import ConversationReviewableState from '$lib/components/ConversationReviewableState.svelte';
 	import type { UserPreferences, Message, Language } from '$lib/server/db/types';
 	import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
+	import { createGuestUserPreferences } from '$lib/data/userPreferences';
 
 	// Mock assessment data for testing
 	const mockAssessmentResults: Partial<UserPreferences> = {
@@ -211,6 +212,12 @@
 			messageIntent: 'statement'
 		}
 	];
+
+	const mockAssessmentFullResults = createGuestUserPreferences(mockAssessmentResults);
+	const latestAnalysisResults = $derived(() => {
+		const results = userPreferencesStore.getAnalysisResults();
+		return results ? createGuestUserPreferences(results) : null;
+	});
 
 	// State
 	let showResults = $state(false);
@@ -473,8 +480,7 @@
 
 		{#if showResults}
 			<OnboardingResults
-				results={(userPreferencesStore.getAnalysisResults() as UserPreferences) ||
-					(mockAssessmentResults as UserPreferences)}
+				results={latestAnalysisResults || mockAssessmentFullResults}
 				isVisible={true}
 				isGuestUser={true}
 				onDismiss={handleContinueAfterResults}
@@ -508,7 +514,7 @@
 				onStartNewConversation={handleStartNewConversation}
 				onAnalyzeConversation={handleAnalyzeConversation}
 				onGoHome={handleGoHome}
-				analysisResults={userPreferencesStore.getAnalysisResults()}
+				analysisResults={latestAnalysisResults}
 				showAnalysisResults={showResults}
 			/>
 		{/if}

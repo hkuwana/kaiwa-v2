@@ -486,7 +486,7 @@ async function generateSpeakerImages() {
     const imageUrl = data.data[0].url;
     
     // Save image with filename: speaker-[speaker.id].png
-    console.log("Generated image for ${speaker.voiceName}: ${imageUrl}\n");
+	    console.log("Generated image for \${speaker.voiceName}: \${imageUrl}\\n");
     
     // Add delay to respect rate limits
     await new Promise(resolve => setTimeout(resolve, 1000));

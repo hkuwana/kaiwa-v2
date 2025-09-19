@@ -14,8 +14,8 @@
 	}
 
 	let {
-		onLanguageSelect,
 		selectedLanguage = $bindable(),
+		onLanguageSelect,
 		autoAnimate = true,
 		animationInterval = 2500,
 		variant = 'grandmother',

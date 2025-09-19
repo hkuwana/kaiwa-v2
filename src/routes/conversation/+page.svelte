@@ -24,6 +24,7 @@
 	// Keep existing components for analysis temporarily
 	import OnboardingResults from '$lib/components/OnboardingResults.svelte';
 	import { audioStore } from '$lib/stores/audio.store.svelte';
+	import type { Message } from '$lib/server/db/types';
 
 	const { data } = $props();
 
@@ -432,12 +433,33 @@
 								class="btn btn-outline btn-sm"
 								onclick={() => {
 									// Add a test user message
-									const testUserMessage = {
+									const testUserMessage: Message = {
 										id: `test_user_${Date.now()}`,
 										role: 'user',
 										content: 'Hello, this is a test user message!',
 										timestamp: new Date(),
-										sequenceId: Date.now()
+										sequenceId: Date.now().toString(),
+										conversationId: '',
+										translatedContent: null,
+										sourceLanguage: null,
+										targetLanguage: null,
+										userNativeLanguage: null,
+										romanization: null,
+										hiragana: null,
+										otherScripts: undefined,
+										translationConfidence: null,
+										translationProvider: null,
+										translationNotes: null,
+										isTranslated: null,
+										grammarAnalysis: undefined,
+										vocabularyAnalysis: undefined,
+										pronunciationScore: null,
+										audioUrl: null,
+										audioDuration: null,
+										difficultyLevel: null,
+										learningTags: undefined,
+										conversationContext: null,
+										messageIntent: null
 									};
 									conversationStore.messages = [...conversationStore.messages, testUserMessage];
 								}}
@@ -448,12 +470,34 @@
 								class="btn btn-outline btn-sm"
 								onclick={() => {
 									// Add a test assistant message
-									const testAssistantMessage = {
+									const testAssistantMessage: Message = {
 										id: `test_assistant_${Date.now()}`,
+										conversationId: sessionId,
 										role: 'assistant',
 										content: 'Hello! This is a test assistant response. How are you doing today?',
 										timestamp: new Date(),
-										sequenceId: Date.now()
+										sequenceId: String(Date.now()),
+										translatedContent: null,
+										sourceLanguage: null,
+										targetLanguage: null,
+
+										audioUrl: null,
+										userNativeLanguage: null,
+										romanization: null,
+										hiragana: null,
+										otherScripts: undefined,
+										translationConfidence: null,
+										translationProvider: null,
+										translationNotes: null,
+										isTranslated: null,
+										grammarAnalysis: undefined,
+										vocabularyAnalysis: undefined,
+										pronunciationScore: null,
+										audioDuration: null,
+										difficultyLevel: null,
+										learningTags: undefined,
+										conversationContext: null,
+										messageIntent: null
 									};
 									conversationStore.messages = [
 										...conversationStore.messages,

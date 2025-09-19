@@ -31,7 +31,18 @@
 		conversationLanguage,
 		clickToToggle = false,
 		dispatch
-	} = $props<Props & { dispatch?: (event: string, data: any) => void }>();
+	} = $props<
+		Props & {
+			dispatch?: (
+				event: string,
+				data: {
+					messageId: string;
+					message: Message;
+					speaker?: Speaker;
+				}
+			) => void;
+		}
+	>();
 
 	// Format timestamp
 	const formattedTime = $derived(
@@ -90,19 +101,7 @@
 	// Check if message has script data (generated after streaming completion)
 	const hasScriptDataFlag = $derived(hasScriptData(message));
 
-	// Get available scripts for the message - use passed translation or message data
-	const availableScripts = $derived(
-		translation
-			? {
-					...(translation.translatedContent && {
-						translatedContent: translation.translatedContent
-					}),
-					...(translation.romanization && { romanization: translation.romanization }),
-					...(translation.hiragana && { hiragana: translation.hiragana }),
-					...(translation.otherScripts && { otherScripts: translation.otherScripts })
-				}
-			: getMessageScripts(message)
-	);
+	
 
 	async function handleTranslation() {
 		// Dispatch translation request to parent
@@ -323,4 +322,3 @@
 		{/if}
 	</div>
 </div>
-

@@ -32,6 +32,7 @@ export class ConversationTimerStore {
 	// Configuration
 	private timeoutMs: number = $state(0);
 	private warningThresholdMs: number = $state(0);
+	private extensionDurationMs: number = $state(0);
 	private maxExtensions: number = $state(0);
 	private extendable: boolean = $state(false);
 

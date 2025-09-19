@@ -546,6 +546,12 @@
 				<button class="btn" onclick={() => (showShareModal = false)}>Close</button>
 			</div>
 		</div>
-		<div class="modal-backdrop" onclick={() => (showShareModal = false)}></div>
+		<div
+			class="modal-backdrop"
+			onclick={() => (showShareModal = false)}
+			role="button"
+			tabindex="0"
+			onkeydown={(e) => e.key === 'Escape' && (showShareModal = false)}
+		></div>
 	</div>
 {/if}

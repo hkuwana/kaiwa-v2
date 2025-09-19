@@ -265,7 +265,11 @@
 									bind:value={searchQuery}
 									onkeydown={(e) => e.key === 'Enter' && handleSearch()}
 								/>
-								<button class="btn btn-square btn-primary" onclick={handleSearch}>
+								<button
+									class="btn btn-square btn-primary"
+									onclick={handleSearch}
+									aria-label="Search conversations"
+								>
 									<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 										<path
 											stroke-linecap="round"
@@ -490,6 +494,7 @@
 							class="btn btn-square btn-ghost"
 							onclick={() => goToAnalysis(conversation.id)}
 							title="Analyze conversation"
+							aria-label="Analyze conversation"
 						>
 							<svg class="size-[1.2em]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path
@@ -639,4 +644,3 @@
 		{/if}
 	</div>
 </div>
-

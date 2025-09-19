@@ -1,6 +1,6 @@
 const blogPosts = import.meta.glob('../../lib/blog/*.md', { eager: true });
 
-export const load = ({ data }) => {
+export const load = async ({ parent }) => {
 	interface BlogModuleMeta {
 		metadata?: {
 			title?: string;
@@ -13,6 +13,7 @@ export const load = ({ data }) => {
 			readTime?: string;
 		};
 	}
+	const { seo } = await parent();
 	const posts = Object.entries(blogPosts)
 		.map(([path, module]) => {
 			const filename = path.split('/').pop()?.replace('.md', '') || '';
@@ -42,7 +43,7 @@ export const load = ({ data }) => {
 
 	return {
 		posts,
-		seo: { ...data.seo, ...blogIndexSeo }
+		seo: { ...seo, ...blogIndexSeo }
 	};
 };
 

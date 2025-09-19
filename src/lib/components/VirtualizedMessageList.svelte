@@ -4,6 +4,8 @@
 	import type { Message } from '$lib/server/db/types';
 	import MessageBubble from './MessageBubble.svelte';
 
+	type VirtualizedMessage = Message & { virtualIndex: number };
+
 	interface Props {
 		messages: Message[];
 		conversationLanguage?: string;
@@ -13,17 +15,17 @@
 
 	const { messages, conversationLanguage, maxHeight = '50vh', autoScroll = true } = $props();
 
-	let container: HTMLElement;
+	let container = $state<HTMLElement>();
 	let scrollPosition = $state(0);
 	let containerHeight = $state(0);
 	let isUserScrolling = $state(false);
-	let scrollTimeout: number;
+	let scrollTimeout: ReturnType<typeof setTimeout>;
 
 	// Performance: Only render visible messages for very long conversations
 	const itemHeight = 80; // Approximate height per message
 	const bufferSize = 5; // Extra items to render outside viewport
 
-	const visibleMessages = $derived(() => {
+	const visibleMessages: (Message | VirtualizedMessage)[] = $derived(() => {
 		if (messages.length <= 50) return messages; // For shorter conversations, render all
 
 		const startIndex = Math.max(0, Math.floor(scrollPosition / itemHeight) - bufferSize);
@@ -32,7 +34,7 @@
 			Math.ceil((scrollPosition + containerHeight) / itemHeight) + bufferSize
 		);
 
-		return messages.slice(startIndex, endIndex).map((message, index) => ({
+		return messages.slice(startIndex, endIndex).map((message: Message, index: number): VirtualizedMessage => ({
 			...message,
 			virtualIndex: startIndex + index
 		}));
@@ -42,7 +44,9 @@
 	$effect(() => {
 		if (autoScroll && container && !isUserScrolling && messages.length > 0) {
 			setTimeout(() => {
-				container.scrollTop = container.scrollHeight;
+				if (container) {
+					container.scrollTop = container.scrollHeight;
+				}
 			}, 100);
 		}
 	});
@@ -110,11 +114,12 @@
 				<!-- Virtual scrolling for long conversations -->
 				<div style="height: {messages.length * itemHeight}px; position: relative;">
 					{#each visibleMessages as message (message.id)}
+						{@const virtualizedMessage = message as VirtualizedMessage}
 						<div
 							class="absolute w-full px-4 py-2"
-							style="top: {message.virtualIndex * itemHeight}px; height: {itemHeight}px;"
+							style="top: {virtualizedMessage.virtualIndex * itemHeight}px; height: {itemHeight}px;"
 						>
-							<MessageBubble {message} {conversationLanguage} />
+							<MessageBubble message={virtualizedMessage} {conversationLanguage} />
 						</div>
 					{/each}
 				</div>
@@ -139,6 +144,7 @@
 						class="btn pointer-events-auto btn-circle opacity-70 shadow-lg btn-sm btn-primary hover:opacity-100"
 						onclick={scrollToBottom}
 						title="Scroll to bottom"
+						aria-label="Scroll to bottom"
 					>
 						<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path

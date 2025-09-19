@@ -42,7 +42,13 @@ export const defaultUserPreference: Omit<
 		pressBehavior: 'tap_toggle', // default: tap toggles on/off
 		autoGreet: true,
 		greetingMode: 'scenario'
-	}
+	},
+
+	// Email marketing preferences
+	receiveMarketingEmails: true,
+	receiveDailyReminderEmails: true,
+	dailyReminderSentCount: 0,
+	lastReminderSentAt: null
 };
 
 // 🌟 Guest User Preferences Factory

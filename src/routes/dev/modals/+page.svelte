@@ -6,6 +6,12 @@
 	import VoiceSelector from '$lib/components/VoiceSelector.svelte';
 
 	import type { UsageStatus } from '$lib/server/tierService';
+	import type {
+		Scenario,
+		ScenarioOutcome as ScenarioOutcomeType,
+		ConversationState
+	} from '$lib/types';
+	import { RealtimeConversationStatus } from '$lib/types';
 
 	// State for pricing modal
 	let isPricingModalOpen = $state(false);
@@ -65,48 +71,74 @@
 			conversationsUsed: 7,
 			secondsUsed: 1200,
 			realtimeSessionsUsed: 2,
-			analysesUsed: null,
-			dailyUsage: {},
-			isActive: true,
-			maxConversationsReached: false,
-			maxSecondsReached: false,
-			maxRealtimeSessionsReached: false,
-			maxAnalysesReached: false,
-			lastActivityAt: new Date(),
-			firstActivityAt: new Date()
+			bankedSeconds: 0,
+			bankedSecondsUsed: 0,
+			ankiExportsUsed: 0,
+			sessionExtensionsUsed: 0,
+			advancedVoiceSeconds: 0,
+			analysesUsed: 0,
+			completedSessions: 5,
+			longestSessionSeconds: 900,
+			averageSessionSeconds: 600,
+			overageSeconds: 0,
+			tierWhenUsed: 'free',
+			lastConversationAt: new Date(),
+			lastRealtimeAt: new Date(Date.now() - 86400000),
+			firstActivityAt: new Date(Date.now() - 14 * 86400000)
 		},
-		status: 'active',
-		isLimitReached: false,
 		canStartConversation: true,
 		canUseRealtime: true,
 		resetDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000) // 20 days from now
 	};
 
-	const mockScenario = {
+	const mockScenario: Scenario = {
 		id: 'test-scenario',
 		title: 'Ordering Coffee in Tokyo',
-		context: 'You are in a busy coffee shop in Shibuya, Tokyo. The barista speaks limited English.',
+		description: 'Practice ordering coffee in a bustling Tokyo cafe.',
+		category: 'intermediate',
+		difficulty: 'intermediate',
 		instructions: 'Order a latte, ask about the Wi-Fi password, and find out what time they close.',
-		difficulty: 'Intermediate',
-		learningObjectives: ['注文', 'コーヒー', 'ラテ', 'WiFi', 'パスワード', '閉店時間'],
+		context: 'You are in a busy coffee shop in Shibuya, Tokyo. The barista speaks limited English.',
 		expectedOutcome:
 			'Successfully order your drink, get connected to Wi-Fi, and know when to leave.',
-		estimatedDuration: 5,
-		language: 'japanese'
+		learningObjectives: ['注文', 'コーヒー', 'ラテ', 'WiFi', 'パスワード', '閉店時間'],
+		comfortIndicators: {
+			confidence: 3,
+			engagement: 4,
+			understanding: 3
+		},
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
 	};
 
-	const mockScenarioOutcome = {
-		id: 'test-outcome',
+	const mockScenarioOutcome: ScenarioOutcomeType = {
+		scenarioId: mockScenario.id,
 		vocabularyUsageScore: 0.85,
 		grammarUsageScore: 0.78,
 		goalCompletionScore: 0.92,
 		pronunciationScore: 0.74,
 		duration: 420, // 7 minutes
-		completedAt: new Date(),
-		feedback: 'Great job! You successfully ordered your coffee and got the information you needed.'
+		completedAt: new Date()
 	};
 
-	const mockConversationState = {
+	const mockConversationState: ConversationState & {
+		scenarioSession: {
+			goalProgress: number;
+			vocabularyProgress: number;
+			grammarProgress: number;
+			usedVocabulary: string[];
+			hintsUsed: number;
+			translationsUsed: number;
+			exampleResponsesViewed: number;
+		};
+	} = {
+		status: RealtimeConversationStatus.IDLE,
+		messages: [],
+		sessionId: 'demo-session',
+		language: 'ja',
+		voice: 'alloy',
+		scenario: mockScenario,
 		scenarioSession: {
 			goalProgress: 0.65,
 			vocabularyProgress: 0.73,
@@ -134,8 +166,16 @@
 		console.log('Scenario action triggered');
 	}
 
-	function handleScenarioSupport(type: string) {
-		console.log(`Scenario support used: ${type}`);
+	function handleScenarioHint(word: string) {
+		console.log(`Scenario hint used: ${word}`);
+	}
+
+	function handleScenarioTranslation(word: string) {
+		console.log(`Scenario translation used: ${word}`);
+	}
+
+	function handleScenarioExample() {
+		console.log('Scenario example viewed');
 	}
 </script>
 
@@ -304,9 +344,9 @@
 						<ScenarioProgress
 							scenario={mockScenario}
 							state={mockConversationState}
-							onUseHint={handleScenarioSupport}
-							onUseTranslation={handleScenarioSupport}
-							onViewExample={handleScenarioSupport}
+							onUseHint={handleScenarioHint}
+							onUseTranslation={handleScenarioTranslation}
+							onViewExample={handleScenarioExample}
 						/>
 					</div>
 				</div>

@@ -440,5 +440,4 @@
 		transform-style: preserve-3d;
 		backface-visibility: hidden;
 	}
-
 </style>

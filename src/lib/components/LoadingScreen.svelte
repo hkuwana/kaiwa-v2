@@ -11,14 +11,12 @@
 
 	const {
 		status = 'connecting',
-		audioLevel = 0,
 		error = null,
 		onRetry = () => {},
 		onPermissionGranted = () => {},
 		onSkipAudio = () => {}
 	} = $props<{
 		status?: ConversationStatus;
-		audioLevel?: number;
 		error?: string | null;
 		onRetry?: () => void;
 		onPermissionGranted?: () => void;
@@ -153,7 +151,7 @@
 
 <div class="flex min-h-screen items-center justify-center p-4">
 	<div
-		class="card w-full max-w-lg border shadow-2xl backdrop-blur-sm animate-[slideInScale_0.6s_cubic-bezier(0.34,1.56,0.64,1)] {statusConfig.bgColor} {statusConfig.borderColor}"
+		class="card w-full max-w-lg animate-[slideInScale_0.6s_cubic-bezier(0.34,1.56,0.64,1)] border shadow-2xl backdrop-blur-sm {statusConfig.bgColor} {statusConfig.borderColor}"
 	>
 		<div class="card-body text-center">
 			<!-- Language Header -->
@@ -358,7 +356,6 @@
 </div>
 
 <style>
-
 	@keyframes slideInScale {
 		from {
 			opacity: 0;

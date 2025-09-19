@@ -12,15 +12,7 @@ const staticPages = [
 ];
 
 export const GET: RequestHandler = async () => {
-	const blogFiles = await new Promise<string[]>((resolve, reject) => {
-		glob('src/lib/blog/*.md', (err, files) => {
-			if (err) {
-				reject(err);
-			} else {
-				resolve(files);
-			}
-		});
-	});
+	const blogFiles = await glob('src/lib/blog/*.md');
 
 	const blogPosts = blogFiles.map((file) => {
 		const slug = path.basename(file, '.md');
