@@ -3,11 +3,7 @@
 	import type { Message } from '$lib/server/db/types';
 	import type { Speaker } from '$lib/types';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
-	import {
-		translateMessage,
-		isMessageTranslated,
-		getMessageScripts
-	} from '$lib/services/translation.service';
+	import { translateMessage, isMessageTranslated } from '$lib/services/translation.service';
 	import { translationStore } from '$lib/stores/translation.store.svelte';
 	import { hasScriptData, detectLanguage } from '$lib/services/scripts.service';
 	import { getSpeakerById } from '$lib/data/speakers';
@@ -100,8 +96,6 @@
 
 	// Check if message has script data (generated after streaming completion)
 	const hasScriptDataFlag = $derived(hasScriptData(message));
-
-	
 
 	async function handleTranslation() {
 		// Dispatch translation request to parent
@@ -257,6 +251,7 @@
 					{@const otherScripts = translation?.otherScripts || message.otherScripts}
 					{#each Object.entries(otherScripts) as [, scriptValue]}
 						<div class="text-sm opacity-80">
+							<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 							{@html scriptValue}
 						</div>
 					{/each}

@@ -5,121 +5,84 @@
 	import type { Message, Language, UserPreferences } from '$lib/server/db/types';
 	import { languages } from '$lib/data/languages';
 
+	const ANALYSIS_CONVERSATION_ID = 'analysis-dev-conversation';
+
+	function createMessage({
+		id,
+		role,
+		content,
+		messageIntent = null
+	}: {
+		id: string;
+		role: Message['role'];
+		content: string;
+		messageIntent?: Message['messageIntent'];
+	}): Message {
+		return {
+			id,
+			conversationId: ANALYSIS_CONVERSATION_ID,
+			role,
+			content,
+			timestamp: new Date(),
+			sequenceId: null,
+			translatedContent: null,
+			sourceLanguage: null,
+			targetLanguage: null,
+			userNativeLanguage: null,
+			romanization: null,
+			hiragana: null,
+			otherScripts: null,
+			translationConfidence: null,
+			translationProvider: null,
+			translationNotes: null,
+			isTranslated: false,
+			grammarAnalysis: null,
+			vocabularyAnalysis: null,
+			pronunciationScore: null,
+			audioUrl: null,
+			audioDuration: null,
+			difficultyLevel: null,
+			learningTags: null,
+			conversationContext: null,
+			messageIntent
+		};
+	}
+
 	// Mock data for testing
 	const dummyMessages: Message[] = [
-		{
+		createMessage({
 			id: '1',
 			role: 'user',
 			content:
 				'Hello, my name is Sarah. I want to learn Japanese because my boyfriend is Japanese and I want to talk to his family.',
-			timestamp: new Date(),
-			conversationId: 'test-conversation',
-			sequenceId: null,
-			translatedContent: null,
-			sourceLanguage: null,
-			targetLanguage: null,
-			furiganaData: null,
-			romanizationData: null,
-			contextualNotes: null,
-			difficultyLevel: null,
-			vocabularyLevel: null,
-			grammarComplexity: null,
-			culturalContext: null,
-			emotionalTone: null,
-			messageIntent: null,
-			isSummarized: false,
-			isError: false
-		},
-		{
+			messageIntent: 'statement'
+		}),
+		createMessage({
 			id: '2',
 			role: 'assistant',
 			content: "That's wonderful! How long have you been studying Japanese?",
-			timestamp: new Date(),
-			conversationId: 'test-conversation',
-			sequenceId: null,
-			translatedContent: null,
-			sourceLanguage: null,
-			targetLanguage: null,
-			furiganaData: null,
-			romanizationData: null,
-			contextualNotes: null,
-			difficultyLevel: null,
-			vocabularyLevel: null,
-			grammarComplexity: null,
-			culturalContext: null,
-			emotionalTone: null,
-			messageIntent: null,
-			isSummarized: false,
-			isError: false
-		},
-		{
+			messageIntent: 'question'
+		}),
+		createMessage({
 			id: '3',
 			role: 'user',
 			content:
 				"Um, I started about six months ago but I'm still very nervous. I can read some hiragana but speaking is scary.",
-			timestamp: new Date(),
-			conversationId: 'test-conversation',
-			sequenceId: null,
-			translatedContent: null,
-			sourceLanguage: null,
-			targetLanguage: null,
-			furiganaData: null,
-			romanizationData: null,
-			contextualNotes: null,
-			difficultyLevel: null,
-			vocabularyLevel: null,
-			grammarComplexity: null,
-			culturalContext: null,
-			emotionalTone: null,
-			messageIntent: null,
-			isSummarized: false,
-			isError: false
-		},
-		{
+			messageIntent: 'statement'
+		}),
+		createMessage({
 			id: '4',
 			role: 'assistant',
 			content: "That's completely normal! What situations worry you most about speaking Japanese?",
-			timestamp: new Date(),
-			conversationId: 'test-conversation',
-			sequenceId: null,
-			translatedContent: null,
-			sourceLanguage: null,
-			targetLanguage: null,
-			furiganaData: null,
-			romanizationData: null,
-			contextualNotes: null,
-			difficultyLevel: null,
-			vocabularyLevel: null,
-			grammarComplexity: null,
-			culturalContext: null,
-			emotionalTone: null,
-			messageIntent: null,
-			isSummarized: false,
-			isError: false
-		},
-		{
+			messageIntent: 'question'
+		}),
+		createMessage({
 			id: '5',
 			role: 'user',
 			content:
 				"Meeting his parents for the first time. I want to make a good impression and show respect, but I don't want to mess up basic greetings.",
-			timestamp: new Date(),
-			conversationId: 'test-conversation',
-			sequenceId: null,
-			translatedContent: null,
-			sourceLanguage: null,
-			targetLanguage: null,
-			furiganaData: null,
-			romanizationData: null,
-			contextualNotes: null,
-			difficultyLevel: null,
-			vocabularyLevel: null,
-			grammarComplexity: null,
-			culturalContext: null,
-			emotionalTone: null,
-			messageIntent: null,
-			isSummarized: false,
-			isError: false
-		}
+			messageIntent: 'statement'
+		})
 	];
 
 	// State

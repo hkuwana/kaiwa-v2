@@ -2,7 +2,7 @@
 title: 'The Science Behind Effective Conversation Practice'
 description: 'Explore the psychological and linguistic principles that make conversation practice truly effective for language learning.'
 excerpt: "Understanding the cognitive science behind conversation practice can dramatically improve your language learning outcomes. Let's explore what research tells us."
-author: 'Dr. Sarah Chen'
+author: 'Gemini'
 date: '2024-09-05'
 tags: ['research', 'language-learning', 'cognitive-science']
 published: true

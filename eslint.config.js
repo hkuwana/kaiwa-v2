@@ -63,7 +63,10 @@ export default defineConfig(
 			'no-script-url': 'error', // No javascript: URLs
 			'no-var': 'error', // Use const/let instead of var
 			'prefer-const': 'off', // Allow let when desired for readability
-			'no-unused-vars': 'off' // Turned off in favor of TypeScript version
+			'no-unused-vars': 'off', // Turned off in favor of TypeScript version
+
+			// 5. SVELTE RULES
+			'svelte/no-navigation-without-resolve': 'off' // Allow <a> tags without resolve()
 		}
 	},
 	{

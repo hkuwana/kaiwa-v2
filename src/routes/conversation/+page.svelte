@@ -202,7 +202,6 @@
 {#if status === 'connecting'}
 	<!-- Use new ConnectingState component -->
 	<ConnectingState
-		{audioLevel}
 		{error}
 		onRetry={handleRetryConnection}
 		onPermissionGranted={handlePermissionGranted}

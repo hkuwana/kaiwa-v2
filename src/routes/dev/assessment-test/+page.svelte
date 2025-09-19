@@ -213,10 +213,15 @@
 		}
 	];
 
-	const mockAssessmentFullResults = createGuestUserPreferences(mockAssessmentResults);
-	const latestAnalysisResults = $derived(() => {
+	const guestPreferencesTemplate = createGuestUserPreferences();
+	const mockAssessmentFullResults: UserPreferences = {
+		...guestPreferencesTemplate,
+		...mockAssessmentResults
+	};
+	let latestAnalysisResults = $state<UserPreferences | null>(null);
+	$effect(() => {
 		const results = userPreferencesStore.getAnalysisResults();
-		return results ? createGuestUserPreferences(results) : null;
+		latestAnalysisResults = results ? { ...guestPreferencesTemplate, ...results } : null;
 	});
 
 	// State

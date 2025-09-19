@@ -25,8 +25,13 @@
 	const itemHeight = 80; // Approximate height per message
 	const bufferSize = 5; // Extra items to render outside viewport
 
-	const visibleMessages: (Message | VirtualizedMessage)[] = $derived(() => {
-		if (messages.length <= 50) return messages; // For shorter conversations, render all
+	let visibleMessages = $state<(Message | VirtualizedMessage)[]>(messages);
+
+	$effect(() => {
+		if (messages.length <= 50) {
+			visibleMessages = messages;
+			return;
+		}
 
 		const startIndex = Math.max(0, Math.floor(scrollPosition / itemHeight) - bufferSize);
 		const endIndex = Math.min(
@@ -34,10 +39,12 @@
 			Math.ceil((scrollPosition + containerHeight) / itemHeight) + bufferSize
 		);
 
-		return messages.slice(startIndex, endIndex).map((message: Message, index: number): VirtualizedMessage => ({
-			...message,
-			virtualIndex: startIndex + index
-		}));
+		visibleMessages = messages.slice(startIndex, endIndex).map(
+			(message: Message, index: number): VirtualizedMessage => ({
+				...message,
+				virtualIndex: startIndex + index
+			})
+		);
 	});
 
 	// Auto-scroll to bottom when new messages arrive
@@ -128,7 +135,7 @@
 				<div class="space-y-3 p-4">
 					{#each messages as message, index (message.id)}
 						<div
-							class="transition-all duration-200 ease-in-out hover:-translate-y-px animate-[fadeInUp_0.3s_ease-out_forwards]"
+							class="animate-[fadeInUp_0.3s_ease-out_forwards] transition-all duration-200 ease-in-out hover:-translate-y-px"
 							style="animation-delay: {Math.min(index * 50, 1000)}ms"
 						>
 							<MessageBubble {message} {conversationLanguage} />
@@ -191,7 +198,6 @@
 			transform: translateY(0);
 		}
 	}
-
 
 	/* Custom scrollbar */
 	:global(.overflow-y-auto) {

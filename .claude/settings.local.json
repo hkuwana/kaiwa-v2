@@ -34,7 +34,9 @@
 			"Bash(echo:*)",
 			"Bash(fly secrets:*)",
 			"Bash(dig:*)",
-			"Bash(nslookup:*)"
+			"Bash(nslookup:*)",
+			"WebFetch(domain:kit.svelte.dev)",
+			"WebFetch(domain:svelte.dev)"
 		],
 		"deny": [],
 		"ask": []
