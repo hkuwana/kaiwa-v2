@@ -83,15 +83,22 @@ export class ConversationStore {
 	private nativeSwitchAnnounced: boolean = false;
 
 	constructor(userTier: UserTier = 'free') {
+		console.log('🏗️ ConversationStore constructor:', {
+			browser,
+			isBrowser: typeof window !== 'undefined',
+			userAgent: typeof window !== 'undefined' ? window.navigator?.userAgent : 'SSR',
+			userTier
+		});
+
 		// Only initialize services in browser
 		if (!browser) {
 			console.log('ConversationStore: SSR mode, skipping service initialization');
 			// Create a dummy timer store for SSR
-
 			return;
 		}
 
 		// Browser initialization
+		console.log('🚀 ConversationStore: Browser mode, initializing services');
 		this.timer = createConversationTimerStore(userTier);
 		this.initializeServices();
 		this.initializeUserPreferences();
@@ -129,6 +136,14 @@ export class ConversationStore {
 		speaker?: Speaker | string,
 		options?: Partial<UserPreferences>
 	) => {
+		console.log('🚀 ConversationStore: Starting conversation:', {
+			browser,
+			isBrowser: typeof window !== 'undefined',
+			status: this.status,
+			language: language?.name,
+			speaker: typeof speaker === 'object' ? speaker?.voiceName : speaker
+		});
+
 		if (!browser) {
 			console.warn('Cannot start conversation on server');
 			return;
@@ -372,10 +387,25 @@ export class ConversationStore {
 			console.log('an error with conversation store. Chekc it out');
 		}
 		this.messageUnsub = realtimeOpenAI.onMessageStream(async (ev) => {
+			console.log('📨 ConversationStore: Message stream event:', {
+				role: ev.role,
+				final: ev.final,
+				realtimeMessagesCount: realtimeOpenAI.messages.length,
+				currentConvMessagesCount: this.messages.length
+			});
+
 			// Mirror: copy realtime messages directly with duplicate removal
-			this.messages = messageService.removeDuplicateMessages(
+			const newMessages = messageService.removeDuplicateMessages(
 				messageService.sortMessagesBySequence([...realtimeOpenAI.messages])
 			);
+
+			console.log('🔄 ConversationStore: Message mirroring:', {
+				before: this.messages.length,
+				after: newMessages.length,
+				change: newMessages.length - this.messages.length
+			});
+
+			this.messages = newMessages;
 
 			if (!ev.final) return;
 
@@ -475,6 +505,7 @@ export class ConversationStore {
 
 		// Immediately emulate session-created logic
 		console.log('🎵 ConversationStore: Session created, sending initial setup...');
+		console.log('🎵 ConversationStore: Event handlers set up, realtime messages:', realtimeOpenAI.messages.length);
 		this.sendInitialSetup();
 		this.status = 'connected';
 		console.log('🎵 ConversationStore: Status changed to "connected"');

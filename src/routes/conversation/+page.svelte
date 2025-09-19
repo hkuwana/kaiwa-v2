@@ -19,6 +19,7 @@
 	import ActiveConversationState from '$lib/components/ConversationActiveState.svelte';
 	import DevPanel from '$lib/components/DevPanel.svelte';
 	import RealtimeDebugPanel from '$lib/components/RealtimeDebugPanel.svelte';
+	import ConversationDebugger from '$lib/components/ConversationDebugger.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 
 	// Keep existing components for analysis temporarily
@@ -324,6 +325,29 @@
 						</p>
 					</div>
 					<div>
+						<h3 class="mb-2 text-sm font-medium">Messages Debug</h3>
+						<div class="space-y-2">
+							<div class="rounded bg-base-200 p-2 text-xs">
+								<div>Messages count: {messages.length}</div>
+								<div>Status: {status}</div>
+								<div>Connected: {conversationStore.isConnected()}</div>
+								<details>
+									<summary class="cursor-pointer">Show all messages</summary>
+									<pre class="mt-2 rounded bg-base-300 p-2 text-xs max-h-32 overflow-y-auto">{JSON.stringify(
+										messages.map(m => ({
+											id: m.id,
+											role: m.role,
+											content: m.content?.substring(0, 50) + (m.content?.length > 50 ? '...' : ''),
+											timestamp: m.timestamp
+										})),
+										null,
+										2
+									)}</pre>
+								</details>
+							</div>
+						</div>
+					</div>
+					<div>
 						<h3 class="mb-2 text-sm font-medium">Timer State</h3>
 						<pre class="rounded bg-base-200 p-2 text-xs">{JSON.stringify(
 								conversationStore.timerState,
@@ -398,6 +422,52 @@
 							</a>
 						</div>
 					</div>
+					<div>
+						<h3 class="mb-2 text-sm font-medium">Message Testing</h3>
+						<div class="flex flex-wrap gap-2">
+							<button
+								class="btn btn-outline btn-sm"
+								onclick={() => {
+									// Add a test user message
+									const testUserMessage = {
+										id: `test_user_${Date.now()}`,
+										role: 'user',
+										content: 'Hello, this is a test user message!',
+										timestamp: new Date(),
+										sequenceId: Date.now()
+									};
+									conversationStore.messages = [...conversationStore.messages, testUserMessage];
+								}}
+							>
+								Add Test User Message
+							</button>
+							<button
+								class="btn btn-outline btn-sm"
+								onclick={() => {
+									// Add a test assistant message
+									const testAssistantMessage = {
+										id: `test_assistant_${Date.now()}`,
+										role: 'assistant',
+										content: 'Hello! This is a test assistant response. How are you doing today?',
+										timestamp: new Date(),
+										sequenceId: Date.now()
+									};
+									conversationStore.messages = [...conversationStore.messages, testAssistantMessage];
+								}}
+							>
+								Add Test Assistant Message
+							</button>
+							<button
+								class="btn btn-outline btn-sm"
+								onclick={() => {
+									// Clear all messages
+									conversationStore.messages = [];
+								}}
+							>
+								Clear Messages
+							</button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -422,6 +492,9 @@
 	{isAnalyzing}
 	timeInSeconds={Math.ceil(conversationStore.timerState.timer.timeRemaining / 1000)}
 />
+
+<!-- Conversation Debugger (floating, top-right) -->
+<ConversationDebugger />
 
 <!-- Realtime Debug Panel at bottom (only shown in dev mode) -->
 {#if dev && showDebugPanel}

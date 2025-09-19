@@ -170,19 +170,39 @@
 				<div class="card-body flex h-full flex-col">
 					<div class="mb-4 card-title flex-shrink-0 text-xl">
 						{isGuestUser && messages.length < 4 ? 'Getting to Know You' : 'Conversation'}
+						<span class="text-sm font-normal opacity-70">({messages.length} messages)</span>
 					</div>
 					<div class="flex-1 space-y-3 overflow-y-auto" bind:this={messagesContainer}>
-						{#each messages as message, index (message.id)}
-							<div in:fly={{ y: 20, duration: 300, delay: index * 50 }}>
-								<MessageBubble
-									{message}
-									{speaker}
-									translation={translationData.get(message.id)}
-									conversationLanguage={selectedLanguage?.code}
-									dispatch={handleTranslation}
-								/>
+						{#if messages.length === 0}
+							<div class="flex h-full items-center justify-center">
+								<div class="text-center">
+									<div class="text-lg opacity-70">No messages yet</div>
+									<div class="text-sm opacity-50">
+										{#if status === 'connecting'}
+											Connecting to conversation...
+										{:else if status === 'connected'}
+											Start talking to begin the conversation
+										{:else if status === 'streaming'}
+											Listening for your voice...
+										{:else}
+											Status: {status}
+										{/if}
+									</div>
+								</div>
 							</div>
-						{/each}
+						{:else}
+							{#each messages as message, index (message.id)}
+								<div in:fly={{ y: 20, duration: 300, delay: index * 50 }}>
+									<MessageBubble
+										{message}
+										{speaker}
+										translation={translationData.get(message.id)}
+										conversationLanguage={selectedLanguage?.code}
+										dispatch={handleTranslation}
+									/>
+								</div>
+							{/each}
+						{/if}
 					</div>
 				</div>
 			</div>

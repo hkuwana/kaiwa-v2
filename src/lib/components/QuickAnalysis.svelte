@@ -22,6 +22,7 @@
 	} = $props();
 
 	let isVisible = $state(false);
+	let showShareModal = $state(false);
 	let quickInsights = $state<string[]>([]);
 	let conversationStats = $state<{
 		totalMessages: number;
@@ -279,6 +280,12 @@
 							</svg>
 							Practice More
 						</button>
+						<button class="btn btn-ghost btn-lg" onclick={() => showShareModal = true}>
+							<svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+							</svg>
+							Share
+						</button>
 					</div>
 				</div>
 			</div>
@@ -290,5 +297,47 @@
 				</button>
 			</div>
 		</div>
+	</div>
+{/if}
+
+<!-- Share Modal -->
+{#if showShareModal}
+	<div class="modal modal-open">
+		<div class="modal-box">
+			<div class="flex justify-between items-center mb-4">
+				<h3 class="font-bold text-lg">Share Your Progress</h3>
+				<button
+					class="btn btn-sm btn-circle btn-ghost"
+					onclick={() => showShareModal = false}
+				>
+					✕
+				</button>
+			</div>
+
+			<div class="py-4">
+				<!-- Import ShareKaiwa component -->
+				<div class="text-center p-6 bg-base-200 rounded-lg">
+					<h4 class="font-medium mb-2">🎉 Great work on your {language.name} practice!</h4>
+					<p class="text-sm text-base-content/70 mb-4">
+						You completed {conversationStats?.userMessages || 0} exchanges
+						{#if conversationStats?.keyTopics.length}
+							covering {conversationStats.keyTopics.join(', ')}
+						{/if}
+					</p>
+					<div class="flex flex-wrap justify-center gap-2">
+						<div class="badge badge-primary">{conversationStats?.totalMessages || 0} messages</div>
+						<div class="badge badge-secondary">{conversationStats?.estimatedLevel || 'beginner'} level</div>
+						{#if conversationStats?.practiceTime}
+							<div class="badge badge-accent">{conversationStats.practiceTime}min practice</div>
+						{/if}
+					</div>
+				</div>
+			</div>
+
+			<div class="modal-action">
+				<button class="btn" onclick={() => showShareModal = false}>Close</button>
+			</div>
+		</div>
+		<div class="modal-backdrop" onclick={() => showShareModal = false}></div>
 	</div>
 {/if}

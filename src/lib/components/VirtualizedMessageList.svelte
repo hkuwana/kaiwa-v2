@@ -1,0 +1,212 @@
+<!-- VirtualizedMessageList.svelte - Performance optimized message display -->
+<script lang="ts">
+	import { onMount, onDestroy } from 'svelte';
+	import type { Message } from '$lib/server/db/types';
+	import MessageBubble from './MessageBubble.svelte';
+
+	interface Props {
+		messages: Message[];
+		conversationLanguage?: string;
+		maxHeight?: string;
+		autoScroll?: boolean;
+	}
+
+	const {
+		messages,
+		conversationLanguage,
+		maxHeight = '50vh',
+		autoScroll = true
+	} = $props();
+
+	let container: HTMLElement;
+	let scrollPosition = $state(0);
+	let containerHeight = $state(0);
+	let isUserScrolling = $state(false);
+	let scrollTimeout: number;
+
+	// Performance: Only render visible messages for very long conversations
+	const itemHeight = 80; // Approximate height per message
+	const bufferSize = 5; // Extra items to render outside viewport
+
+	const visibleMessages = $derived(() => {
+		if (messages.length <= 50) return messages; // For shorter conversations, render all
+
+		const startIndex = Math.max(0, Math.floor(scrollPosition / itemHeight) - bufferSize);
+		const endIndex = Math.min(
+			messages.length,
+			Math.ceil((scrollPosition + containerHeight) / itemHeight) + bufferSize
+		);
+
+		return messages.slice(startIndex, endIndex).map((message, index) => ({
+			...message,
+			virtualIndex: startIndex + index
+		}));
+	});
+
+	// Auto-scroll to bottom when new messages arrive
+	$effect(() => {
+		if (autoScroll && container && !isUserScrolling && messages.length > 0) {
+			setTimeout(() => {
+				container.scrollTop = container.scrollHeight;
+			}, 100);
+		}
+	});
+
+	function handleScroll() {
+		if (!container) return;
+
+		scrollPosition = container.scrollTop;
+
+		// Detect if user is manually scrolling
+		isUserScrolling = true;
+		clearTimeout(scrollTimeout);
+		scrollTimeout = setTimeout(() => {
+			isUserScrolling = false;
+		}, 1000);
+	}
+
+	function scrollToBottom() {
+		if (container) {
+			container.scrollTo({
+				top: container.scrollHeight,
+				behavior: 'smooth'
+			});
+		}
+	}
+
+	function handleResize() {
+		if (container) {
+			containerHeight = container.clientHeight;
+		}
+	}
+
+	onMount(() => {
+		if (container) {
+			containerHeight = container.clientHeight;
+			// Initial scroll to bottom
+			setTimeout(() => scrollToBottom(), 100);
+		}
+
+		window.addEventListener('resize', handleResize);
+	});
+
+	onDestroy(() => {
+		clearTimeout(scrollTimeout);
+		window.removeEventListener('resize', handleResize);
+	});
+</script>
+
+<div class="relative">
+	{#if messages.length > 0}
+		<div class="mb-3 flex items-center justify-between text-sm text-base-content/60">
+			<span>{messages.length} message{messages.length === 1 ? '' : 's'}</span>
+			{#if messages.length > 50}
+				<span class="badge badge-info badge-sm">Optimized view</span>
+			{/if}
+		</div>
+
+		<div
+			bind:this={container}
+			onscroll={handleScroll}
+			class="overflow-y-auto scroll-smooth border border-base-300 rounded-lg bg-gradient-to-b from-base-50 to-base-100 relative"
+			style="max-height: {maxHeight};"
+		>
+			{#if messages.length > 50}
+				<!-- Virtual scrolling for long conversations -->
+				<div style="height: {messages.length * itemHeight}px; position: relative;">
+					{#each visibleMessages as message (message.id)}
+						<div
+							class="absolute w-full px-4 py-2"
+							style="top: {message.virtualIndex * itemHeight}px; height: {itemHeight}px;"
+						>
+							<MessageBubble {message} {conversationLanguage} />
+						</div>
+					{/each}
+				</div>
+			{:else}
+				<!-- Normal rendering for shorter conversations -->
+				<div class="space-y-3 p-4">
+					{#each messages as message, index (message.id)}
+						<div
+							class="message-item opacity-0 animate-[fadeInUp_0.3s_ease-out_forwards]"
+							style="animation-delay: {Math.min(index * 50, 1000)}ms"
+						>
+							<MessageBubble {message} {conversationLanguage} />
+						</div>
+					{/each}
+				</div>
+			{/if}
+
+			<!-- Scroll to bottom button -->
+			{#if messages.length > 10}
+				<div class="sticky bottom-2 right-2 flex justify-end pointer-events-none">
+					<button
+						class="btn btn-circle btn-sm btn-primary opacity-70 hover:opacity-100 pointer-events-auto shadow-lg"
+						onclick={scrollToBottom}
+						title="Scroll to bottom"
+					>
+						<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+						</svg>
+					</button>
+				</div>
+			{/if}
+		</div>
+	{:else}
+		<div class="text-center text-base-content/50 py-12 border border-dashed border-base-300 rounded-lg">
+			<svg class="mx-auto mb-4 h-12 w-12 text-base-content/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+				/>
+			</svg>
+			<p class="text-sm">No messages to display</p>
+		</div>
+	{/if}
+</div>
+
+<style>
+	@keyframes fadeInUp {
+		from {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.message-item {
+		transition: all 0.2s ease;
+	}
+
+	.message-item:hover {
+		transform: translateY(-1px);
+	}
+
+	/* Custom scrollbar */
+	:global(.overflow-y-auto) {
+		scrollbar-width: thin;
+		scrollbar-color: rgb(203 213 225) transparent;
+	}
+
+	:global(.overflow-y-auto::-webkit-scrollbar) {
+		width: 6px;
+	}
+
+	:global(.overflow-y-auto::-webkit-scrollbar-track) {
+		background: transparent;
+	}
+
+	:global(.overflow-y-auto::-webkit-scrollbar-thumb) {
+		background-color: rgb(203 213 225);
+		border-radius: 3px;
+	}
+
+	:global(.overflow-y-auto::-webkit-scrollbar-thumb:hover) {
+		background-color: rgb(148 163 184);
+	}
+</style>

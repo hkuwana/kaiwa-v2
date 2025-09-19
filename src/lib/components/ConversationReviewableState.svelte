@@ -2,6 +2,7 @@
 	import type { Message, UserPreferences } from '$lib/server/db/types';
 	import type { Language } from '$lib/server/db/types';
 	import MessageBubble from './MessageBubble.svelte';
+	import VirtualizedMessageList from './VirtualizedMessageList.svelte';
 	import OnboardingResults from './OnboardingResults.svelte';
 	import { audioStore } from '$lib/stores/audio.store.svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
@@ -34,6 +35,7 @@
 	let currentSection = $state<'summary' | 'analytics' | 'conversation' | 'results'>('summary');
 	let showDeeperAnalytics = $state(false);
 	let isAnalyzing = $state(false);
+	let showShareModal = $state(false);
 	let quotaStatus = $state<{
 		canAnalyze: boolean;
 		remainingAnalyses: number;
@@ -142,6 +144,7 @@
 			element.scrollIntoView({ behavior: 'smooth', block: 'start' });
 		}
 	}
+
 
 	// Load quota status on mount if user is logged in
 	onMount(async () => {
@@ -368,39 +371,12 @@
 			</div>
 		</div>
 
-		<!-- Share Section -->
-		<div class="mb-6 md:mb-8 flex justify-center">
-			<div class="rounded-xl bg-secondary/10 border border-secondary/30 p-4 md:p-6 w-full max-w-md">
-				<div class="text-center">
-					<h3 class="font-semibold text-secondary mb-2">Share Your Progress</h3>
-					<ShareKaiwa source="conversation_review" />
-				</div>
-			</div>
-		</div>
 
 		<!-- Messages Display -->
 		<div id="section-conversation" class="mb-6 md:mb-8 rounded-xl bg-base-100 p-4 md:p-6 shadow-lg">
-			<h2 class="mb-4 md:mb-6 text-lg md:text-xl font-semibold flex items-center">
-				<svg class="h-5 w-5 mr-2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-					/>
-				</svg>
-				Your Conversation
-			</h2>
-
-			{#if displayMessages.length > 0}
-				<div class="space-y-3 md:space-y-4 max-h-96 md:max-h-none overflow-y-auto">
-					{#each displayMessages as message (message.id)}
-						<MessageBubble {message} conversationLanguage={language?.code} />
-					{/each}
-				</div>
-			{:else}
-				<div class="text-center text-base-content/50 py-8">
-					<svg class="mx-auto mb-4 h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<h2 class="mb-4 md:mb-6 text-lg md:text-xl font-semibold flex items-center justify-between">
+				<div class="flex items-center">
+					<svg class="h-5 w-5 mr-2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"
@@ -408,9 +384,26 @@
 							d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
 						/>
 					</svg>
-					<p class="text-sm">No messages to display</p>
+					Your Conversation
 				</div>
-			{/if}
+				<button
+					class="btn btn-ghost btn-sm"
+					onclick={() => showShareModal = true}
+					title="Share your progress"
+				>
+					<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+					</svg>
+					Share
+				</button>
+			</h2>
+
+			<VirtualizedMessageList
+				messages={displayMessages}
+				conversationLanguage={language?.code}
+				maxHeight="50vh"
+				autoScroll={true}
+			/>
 		</div>
 
 		<!-- Analysis Results Section -->
@@ -474,3 +467,29 @@
 		</div>
 	</div>
 </div>
+
+<!-- Share Modal -->
+{#if showShareModal}
+	<div class="modal modal-open">
+		<div class="modal-box">
+			<div class="flex justify-between items-center mb-4">
+				<h3 class="font-bold text-lg">Share Your Progress</h3>
+				<button
+					class="btn btn-sm btn-circle btn-ghost"
+					onclick={() => showShareModal = false}
+				>
+					✕
+				</button>
+			</div>
+
+			<div class="py-4">
+				<ShareKaiwa source="conversation_review" />
+			</div>
+
+			<div class="modal-action">
+				<button class="btn" onclick={() => showShareModal = false}>Close</button>
+			</div>
+		</div>
+		<div class="modal-backdrop" onclick={() => showShareModal = false}></div>
+	</div>
+{/if}
