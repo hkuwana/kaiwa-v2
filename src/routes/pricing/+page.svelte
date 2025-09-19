@@ -301,7 +301,7 @@
 		</div>
 
 		<div class="grid gap-8 lg:grid-cols-3">
-			{#each Array.from({ length: 3 }) as _}
+			{#each Array.from({ length: 3 }) as _ (_)}
 				<div
 					class="flex flex-col items-center rounded-2xl border bg-base-100 p-8 text-center shadow-sm"
 				>
@@ -317,7 +317,7 @@
 		<div class="rounded-2xl border bg-base-100 p-6">
 			<div class="h-6 w-1/4 skeleton"></div>
 			<div class="mt-6 grid gap-4 lg:grid-cols-4">
-				{#each Array.from({ length: 8 }) as _}
+				{#each Array.from({ length: 8 }) as _ (_)}
 					<div class="h-4 w-full skeleton"></div>
 				{/each}
 			</div>
@@ -516,7 +516,7 @@
 				{/each}
 			</div>
 			<div class="mb-20 flex justify-center gap-2">
-				{#each testimonials as _, i}
+				{#each testimonials as _, i (_)}
 					<button
 						aria-label={`Testimonial ${i + 1}`}
 						onclick={() => (currentTestimonial = i)}
@@ -531,7 +531,7 @@
 
 			<h2 class="mb-10 text-center text-3xl font-bold">Common Questions</h2>
 			<div class="mx-auto max-w-3xl space-y-4">
-				{#each faqs as faq, index}
+				{#each faqs as faq, index (faq.question)}
 					<div class="collapse-plus collapse bg-base-200">
 						<input
 							type="radio"

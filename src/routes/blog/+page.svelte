@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { SvelteDate } from 'svelte/reactivity';
+
 	const { data } = $props();
 </script>
 
@@ -23,7 +25,7 @@
 					<div class="blog-card-content">
 						<div class="blog-meta">
 							<time class="blog-date"
-								>{new Date(post.date).toLocaleDateString('en-US', {
+								>{new SvelteDate(post.date).toLocaleDateString('en-US', {
 									year: 'numeric',
 									month: 'long',
 									day: 'numeric'

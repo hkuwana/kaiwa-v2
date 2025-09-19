@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { fade, slide } from 'svelte/transition';
 	import { dev } from '$app/environment';
 	import type { Message } from '$lib/server/db/types';
 	import VirtualizedMessageList from '$lib/components/VirtualizedMessageList.svelte';
-	import { SvelteURLSearchParams } from 'svelte/reactivity';
+	import { SvelteDate, SvelteMap, SvelteSet, SvelteURLSearchParams } from 'svelte/reactivity';
 
 	interface ConversationPreview {
 		id: string;
@@ -54,8 +55,8 @@
 	let conversations = $state<ConversationPreview[]>([]);
 	let conversationDetails = $state<
 		Map<string, { details: ConversationDetails; messages: Message[] }>
-	>(new Map());
-	let expandedConversations = $state<Set<string>>(new Set());
+	>(new SvelteMap());
+	let expandedConversations = $state<Set<string>>(new SvelteSet());
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 	let searchQuery = $state('');
@@ -63,12 +64,12 @@
 	let currentPage = $state(0);
 	let totalConversations = $state(0);
 	let hasMore = $state(false);
-	let loadingDetails = $state<Set<string>>(new Set());
+	let loadingDetails = $state<Set<string>>(new SvelteSet());
 	let showDevMode = $state(false);
 
 	const limit = 10;
 	const languages = $derived(() => {
-		const langs = new Set(conversations.map((c) => c.targetLanguageId));
+		const langs = new SvelteSet(conversations.map((c) => c.targetLanguageId));
 		return Array.from(langs).sort();
 	});
 
@@ -129,7 +130,7 @@
 		}
 
 		loadingDetails.add(conversationId);
-		loadingDetails = new Set(loadingDetails);
+		loadingDetails = new SvelteSet(loadingDetails);
 
 		try {
 			const response = await fetch(`/api/conversations/${conversationId}`);
@@ -143,13 +144,13 @@
 				details: data.data.conversation,
 				messages: data.data.messages
 			});
-			conversationDetails = new Map(conversationDetails);
+			conversationDetails = new SvelteMap(conversationDetails);
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load conversation details';
 			console.error('Error loading conversation details:', err);
 		} finally {
 			loadingDetails.delete(conversationId);
-			loadingDetails = new Set(loadingDetails);
+			loadingDetails = new SvelteSet(loadingDetails);
 		}
 	}
 
@@ -161,7 +162,7 @@
 			// Collapse
 			console.log('📉 Collapsing conversation:', conversationId);
 			expandedConversations.delete(conversationId);
-			expandedConversations = new Set(expandedConversations);
+			expandedConversations = new SvelteSet(expandedConversations);
 		} else {
 			// Expand - load details if not already loaded
 			console.log('📈 Expanding conversation:', conversationId);
@@ -170,7 +171,7 @@
 				await loadConversationDetails(conversationId);
 			}
 			expandedConversations.add(conversationId);
-			expandedConversations = new Set(expandedConversations);
+			expandedConversations = new SvelteSet(expandedConversations);
 		}
 
 		console.log('✅ New expanded state:', Array.from(expandedConversations));
@@ -190,7 +191,7 @@
 	}
 
 	function formatDate(dateString: string): string {
-		return new Date(dateString).toLocaleDateString('en-US', {
+		return new SvelteDate(dateString).toLocaleDateString('en-US', {
 			year: 'numeric',
 			month: 'short',
 			day: 'numeric',
@@ -212,7 +213,7 @@
 	}
 
 	function startNewConversation() {
-		goto('/conversation');
+		goto(resolve('/conversation'));
 	}
 </script>
 
@@ -379,7 +380,7 @@
 									loadConversationDetails(c.id);
 								}
 							});
-							expandedConversations = new Set(expandedConversations);
+							expandedConversations = new SvelteSet(expandedConversations);
 						}}
 					>
 						Expand All (Test)
@@ -389,7 +390,7 @@
 						onclick={() => {
 							console.log('📤 Collapsing all conversations');
 							expandedConversations.clear();
-							expandedConversations = new Set(expandedConversations);
+							expandedConversations = new SvelteSet(expandedConversations);
 						}}
 					>
 						Collapse All

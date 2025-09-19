@@ -1,6 +1,7 @@
 <!-- Test Audio Devices -->
 <script lang="ts">
 	import { audioService } from '$lib/services/audio.service';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	// Use the exported instance that automatically handles browser/server
 	// No need to manually instantiate or check browser environment
@@ -26,7 +27,7 @@
 				{
 					type: 'audio.level.update',
 					data: { level: level.level.toFixed(3) },
-					timestamp: new Date().toLocaleTimeString()
+					timestamp: new SvelteDate().toLocaleTimeString()
 				}
 			];
 			eventCount++;
@@ -38,7 +39,7 @@
 				{
 					type: 'audio.stream.ready',
 					data: { streamId: stream.id },
-					timestamp: new Date().toLocaleTimeString()
+					timestamp: new SvelteDate().toLocaleTimeString()
 				}
 			];
 			eventCount++;
@@ -50,7 +51,7 @@
 				{
 					type: 'audio.stream.error',
 					data: { error: errorMsg },
-					timestamp: new Date().toLocaleTimeString()
+					timestamp: new SvelteDate().toLocaleTimeString()
 				}
 			];
 			eventCount++;

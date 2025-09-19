@@ -4,6 +4,7 @@
 	import { executeOnboardingAnalysis } from '$lib/services/onboarding-manager.service';
 	import type { Message, Language, UserPreferences } from '$lib/server/db/types';
 	import { languages } from '$lib/data/languages';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	const ANALYSIS_CONVERSATION_ID = 'analysis-dev-conversation';
 
@@ -23,7 +24,7 @@
 			conversationId: ANALYSIS_CONVERSATION_ID,
 			role,
 			content,
-			timestamp: new Date(),
+			timestamp: new SvelteDate(),
 			sequenceId: null,
 			translatedContent: null,
 			sourceLanguage: null,

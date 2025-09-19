@@ -5,6 +5,7 @@
 	import type { UserPreferences, Message, Language } from '$lib/server/db/types';
 	import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 	import { createGuestUserPreferences } from '$lib/data/userPreferences';
+	import { SvelteDate, SvelteSet } from 'svelte/reactivity';
 
 	// Mock assessment data for testing
 	const mockAssessmentResults: Partial<UserPreferences> = {
@@ -22,8 +23,8 @@
 		correctionStyle: 'gentle',
 		dailyGoalSeconds: 30,
 		preferredVoice: DEFAULT_VOICE,
-		createdAt: new Date(),
-		updatedAt: new Date()
+		createdAt: new SvelteDate(),
+		updatedAt: new SvelteDate()
 	};
 
 	// Mock language data
@@ -47,7 +48,7 @@
 			conversationId: 'conv-dev-test',
 			role: 'user',
 			content: 'こんにちは、お元気ですか？',
-			timestamp: new Date(Date.now() - 300000),
+			timestamp: new SvelteDate(Date.now() - 300000),
 			sequenceId: null,
 			translatedContent: null,
 			sourceLanguage: 'ja',
@@ -75,7 +76,7 @@
 			conversationId: 'conv-dev-test',
 			role: 'assistant',
 			content: "I'm doing well, thank you! How has your Japanese learning been going?",
-			timestamp: new Date(Date.now() - 280000),
+			timestamp: new SvelteDate(Date.now() - 280000),
 			sequenceId: null,
 			translatedContent: null,
 			sourceLanguage: 'en',
@@ -103,7 +104,7 @@
 			conversationId: 'conv-dev-test',
 			role: 'user',
 			content: 'まあまあです。毎日勉強していますが、まだ難しいです。',
-			timestamp: new Date(Date.now() - 260000),
+			timestamp: new SvelteDate(Date.now() - 260000),
 			sequenceId: null,
 			translatedContent: null,
 			sourceLanguage: 'ja',
@@ -131,7 +132,7 @@
 			conversationId: 'conv-dev-test',
 			role: 'assistant',
 			content: "That's great that you're studying every day! What do you find most challenging?",
-			timestamp: new Date(Date.now() - 240000),
+			timestamp: new SvelteDate(Date.now() - 240000),
 			sequenceId: null,
 			translatedContent: null,
 			sourceLanguage: 'en',
@@ -159,7 +160,7 @@
 			conversationId: 'conv-dev-test',
 			role: 'user',
 			content: '敬語が一番難しいと思います。ビジネスで使うので、とても重要です。',
-			timestamp: new Date(Date.now() - 220000),
+			timestamp: new SvelteDate(Date.now() - 220000),
 			sequenceId: null,
 			translatedContent: null,
 			sourceLanguage: 'ja',
@@ -188,7 +189,7 @@
 			role: 'assistant',
 			content:
 				"Business Japanese is definitely challenging! Keigo (honorific language) takes time to master, but you're on the right track.",
-			timestamp: new Date(Date.now() - 200000),
+			timestamp: new SvelteDate(Date.now() - 200000),
 			sequenceId: null,
 			translatedContent: null,
 			sourceLanguage: 'en',
@@ -366,11 +367,11 @@
 					<strong>Message Count:</strong>
 					{mockConversationMessages.length} |
 					<strong>Languages:</strong>
-					{[...new Set(mockConversationMessages.map((m) => m.sourceLanguage).filter(Boolean))].join(
-						', '
-					)} |
+					{[
+						...new SvelteSet(mockConversationMessages.map((m) => m.sourceLanguage).filter(Boolean))
+					].join(', ')} |
 					<strong>Roles:</strong>
-					{[...new Set(mockConversationMessages.map((m) => m.role))].join(', ')}
+					{[...new SvelteSet(mockConversationMessages.map((m) => m.role))].join(', ')}
 				</div>
 			</div>
 		</div>

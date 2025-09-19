@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { UserPreferences } from '$lib/server/db/types';
 	import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
+	import { SvelteDate, SvelteSet } from 'svelte/reactivity';
 
 	// Mock conversation data with full message object structure
 	const mockConversationMessages = [
@@ -8,7 +9,7 @@
 			id: 'msg-1',
 			role: 'user',
 			content: 'こんにちは、お元気ですか？',
-			timestamp: new Date(Date.now() - 300000),
+			timestamp: new SvelteDate(Date.now() - 300000),
 			language: 'ja',
 			conversationId: 'conv-001',
 			audioUrl: null,
@@ -18,7 +19,7 @@
 			id: 'msg-2',
 			role: 'assistant',
 			content: "I'm doing well, thank you. I'm learning Japanese for business purposes.",
-			timestamp: new Date(Date.now() - 280000),
+			timestamp: new SvelteDate(Date.now() - 280000),
 			language: 'en',
 			conversationId: 'conv-001',
 			audioUrl: null,
@@ -28,7 +29,7 @@
 			id: 'msg-3',
 			role: 'user',
 			content: 'ビジネスで日本語を学びたいんですね。どのくらいのレベルですか？',
-			timestamp: new Date(Date.now() - 260000),
+			timestamp: new SvelteDate(Date.now() - 260000),
 			language: 'ja',
 			conversationId: 'conv-001',
 			audioUrl: null,
@@ -39,7 +40,7 @@
 			role: 'assistant',
 			content:
 				"I'm a beginner, maybe A2 level. I want to be able to have basic business conversations.",
-			timestamp: new Date(Date.now() - 240000),
+			timestamp: new SvelteDate(Date.now() - 240000),
 			language: 'en',
 			conversationId: 'conv-001',
 			audioUrl: null,
@@ -49,7 +50,7 @@
 			id: 'msg-5',
 			role: 'user',
 			content: '素晴らしい目標ですね。どのような場面で日本語を使いたいですか？',
-			timestamp: new Date(Date.now() - 220000),
+			timestamp: new SvelteDate(Date.now() - 220000),
 			language: 'ja',
 			conversationId: 'conv-001',
 			audioUrl: null,
@@ -60,7 +61,7 @@
 			role: 'assistant',
 			content:
 				'I need to communicate with Japanese clients and colleagues. Also for business meetings.',
-			timestamp: new Date(Date.now() - 200000),
+			timestamp: new SvelteDate(Date.now() - 200000),
 			language: 'en',
 			conversationId: 'conv-001',
 			audioUrl: null,
@@ -70,7 +71,7 @@
 			id: 'msg-7',
 			role: 'user',
 			content: '会議でのコミュニケーションですね。どのくらいの頻度で練習したいですか？',
-			timestamp: new Date(Date.now() - 180000),
+			timestamp: new SvelteDate(Date.now() - 180000),
 			language: 'ja',
 			conversationId: 'conv-001',
 			audioUrl: null,
@@ -80,7 +81,7 @@
 			id: 'msg-8',
 			role: 'assistant',
 			content: "I'd like to practice 30 minutes every day if possible.",
-			timestamp: new Date(Date.now() - 160000),
+			timestamp: new SvelteDate(Date.now() - 160000),
 			language: 'en',
 			conversationId: 'conv-001',
 			audioUrl: null,
@@ -159,8 +160,8 @@
 			correctionStyle: 'gentle',
 			dailyGoalSeconds: hasDailyGoal ? 30 : 15,
 			preferredVoice: DEFAULT_VOICE,
-			createdAt: new Date(),
-			updatedAt: new Date()
+			createdAt: new SvelteDate(),
+			updatedAt: new SvelteDate()
 		};
 	}
 
@@ -247,9 +248,9 @@
 						<strong>Message Count:</strong>
 						{mockConversationMessages.length} |
 						<strong>Languages:</strong>
-						{[...new Set(mockConversationMessages.map((m) => m.language))].join(', ')} |
+						{[...new SvelteSet(mockConversationMessages.map((m) => m.language))].join(', ')} |
 						<strong>Roles:</strong>
-						{[...new Set(mockConversationMessages.map((m) => m.role))].join(', ')} |
+						{[...new SvelteSet(mockConversationMessages.map((m) => m.role))].join(', ')} |
 						<strong>Conversation ID:</strong>
 						{mockConversationMessages[0]?.conversationId}
 					</div>

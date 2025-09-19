@@ -1,9 +1,10 @@
 <script lang="ts">
 	import type { Message } from '$lib/server/db/types';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	function formatTimestamp(timestamp: Date | string): string {
 		if (!timestamp) return 'No timestamp';
-		const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+		const date = timestamp instanceof Date ? timestamp : new SvelteDate(timestamp);
 		return date.toISOString().split('T')[1].slice(0, -1);
 	}
 

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	// Mock tier data for testing - matches our server configurations
 	const tierConfigs = [
@@ -95,14 +96,14 @@
 	}
 
 	function getDailyResetTime() {
-		const tomorrow = new Date();
+		const tomorrow = new SvelteDate();
 		tomorrow.setDate(tomorrow.getDate() + 1);
 		tomorrow.setHours(0, 0, 0, 0);
 		return tomorrow.toLocaleString();
 	}
 
 	function getMonthlyResetTime() {
-		const nextMonth = new Date();
+		const nextMonth = new SvelteDate();
 		nextMonth.setMonth(nextMonth.getMonth() + 1);
 		nextMonth.setDate(1);
 		nextMonth.setHours(0, 0, 0, 0);

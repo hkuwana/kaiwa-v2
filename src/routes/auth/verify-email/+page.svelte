@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
 
 	const { data } = $props();
@@ -58,7 +59,7 @@
 
 			success = true;
 			setTimeout(() => {
-				goto('/');
+				goto(resolve('/'));
 			}, 2000);
 		} catch (err) {
 			error = 'Network error. Please try again.';

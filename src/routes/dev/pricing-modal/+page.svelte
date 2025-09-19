@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import PricingModal from '$lib/components/PricingModal.svelte';
 	import type { UsageStatus } from '$lib/server/tierService';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	// State for controlling the modal
 	let isModalOpen = $state(false);
@@ -47,13 +49,13 @@
 			feedbackSessionsPerMonth: '0',
 			maxMemories: 10,
 			isActive: true,
-			createdAt: new Date(),
-			updatedAt: new Date()
+			createdAt: new SvelteDate(),
+			updatedAt: new SvelteDate()
 		},
 		usage: {
-			createdAt: new Date(),
+			createdAt: new SvelteDate(),
 			userId: 'demo-user',
-			updatedAt: new Date(),
+			updatedAt: new SvelteDate(),
 			period: '2024-01',
 			conversationsUsed: 8,
 			secondsUsed: 1600,
@@ -69,13 +71,13 @@
 			averageSessionSeconds: 500,
 			overageSeconds: 0,
 			tierWhenUsed: 'free',
-			lastConversationAt: new Date(),
-			lastRealtimeAt: new Date(Date.now() - 2 * 86400000),
-			firstActivityAt: new Date(Date.now() - 20 * 86400000)
+			lastConversationAt: new SvelteDate(),
+			lastRealtimeAt: new SvelteDate(Date.now() - 2 * 86400000),
+			firstActivityAt: new SvelteDate(Date.now() - 20 * 86400000)
 		},
 		canStartConversation: true,
 		canUseRealtime: true,
-		resetDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000)
+		resetDate: new SvelteDate(Date.now() + 20 * 24 * 60 * 60 * 1000)
 	};
 
 	// Functions to open modal with different configurations
@@ -86,7 +88,7 @@
 	}
 
 	function redirectToNewShowcase() {
-		goto('/dev/modals');
+		goto(resolve('/dev/modals'));
 	}
 </script>
 

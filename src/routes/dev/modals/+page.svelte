@@ -12,6 +12,7 @@
 		ConversationState
 	} from '$lib/types';
 	import { RealtimeConversationStatus } from '$lib/types';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	// State for pricing modal
 	let isPricingModalOpen = $state(false);
@@ -60,13 +61,13 @@
 			feedbackSessionsPerMonth: '0',
 			maxMemories: 10,
 			isActive: true,
-			createdAt: new Date(),
-			updatedAt: new Date()
+			createdAt: new SvelteDate(),
+			updatedAt: new SvelteDate()
 		},
 		usage: {
-			createdAt: new Date(),
+			createdAt: new SvelteDate(),
 			userId: 'test-user',
-			updatedAt: new Date(),
+			updatedAt: new SvelteDate(),
 			period: '2024-01',
 			conversationsUsed: 7,
 			secondsUsed: 1200,
@@ -82,13 +83,13 @@
 			averageSessionSeconds: 600,
 			overageSeconds: 0,
 			tierWhenUsed: 'free',
-			lastConversationAt: new Date(),
-			lastRealtimeAt: new Date(Date.now() - 86400000),
-			firstActivityAt: new Date(Date.now() - 14 * 86400000)
+			lastConversationAt: new SvelteDate(),
+			lastRealtimeAt: new SvelteDate(Date.now() - 86400000),
+			firstActivityAt: new SvelteDate(Date.now() - 14 * 86400000)
 		},
 		canStartConversation: true,
 		canUseRealtime: true,
-		resetDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000) // 20 days from now
+		resetDate: new SvelteDate(Date.now() + 20 * 24 * 60 * 60 * 1000) // 20 days from now
 	};
 
 	const mockScenario: Scenario = {
@@ -108,8 +109,8 @@
 			understanding: 3
 		},
 		isActive: true,
-		createdAt: new Date(),
-		updatedAt: new Date()
+		createdAt: new SvelteDate(),
+		updatedAt: new SvelteDate()
 	};
 
 	const mockScenarioOutcome: ScenarioOutcomeType = {
@@ -119,7 +120,7 @@
 		goalCompletionScore: 0.92,
 		pronunciationScore: 0.74,
 		duration: 420, // 7 minutes
-		completedAt: new Date()
+		completedAt: new SvelteDate()
 	};
 
 	const mockConversationState: ConversationState & {

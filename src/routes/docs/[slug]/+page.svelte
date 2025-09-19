@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	// Get the slug from the URL
 	const slug = page.params.slug;
@@ -31,7 +32,7 @@
 						<span>By {data.metadata.author}</span>
 					{/if}
 					{#if data.metadata?.date}
-						<span>{new Date(data.metadata.date).toLocaleDateString()}</span>
+						<span>{new SvelteDate(data.metadata.date).toLocaleDateString()}</span>
 					{/if}
 				</div>
 			{/if}

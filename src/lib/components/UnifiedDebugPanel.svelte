@@ -5,6 +5,7 @@
 	import { realtimeOpenAI } from '$lib/stores/realtime-openai.store.svelte';
 	import { audioStore } from '$lib/stores/audio.store.svelte';
 	import type { Message } from '$lib/server/db/types';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	interface Props {
 		show?: boolean;
@@ -47,7 +48,7 @@
 
 	function formatTimestamp(timestamp: Date | any): string {
 		if (!timestamp) return 'No timestamp';
-		const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+		const date = timestamp instanceof Date ? timestamp : new SvelteDate(timestamp);
 		return date.toISOString().split('T')[1].slice(0, -1);
 	}
 
@@ -491,7 +492,7 @@
 												{event.dir.toUpperCase()}: {event.type}
 											</span>
 											<span class="text-gray-500">
-												{new Date(event.ts).toLocaleTimeString()}
+												{new SvelteDate(event.ts).toLocaleTimeString()}
 											</span>
 										</div>
 										{#if showEventDetails}

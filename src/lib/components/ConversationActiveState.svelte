@@ -43,7 +43,7 @@
 	}: Props = $props();
 
 	let messageInput = $state('');
-	let translationData = $state<Map<string, Partial<Message>>>(new Map());
+	let translationData = $state<Map<string, Partial<Message>>>(new SvelteMap());
 	let messagesContainer: HTMLElement;
 
 	// UI state for chat visibility

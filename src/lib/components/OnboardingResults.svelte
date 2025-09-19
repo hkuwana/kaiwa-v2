@@ -2,6 +2,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import type { UserPreferences } from '$lib/server/db/types';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	// Use $props to define the component's public API.
 	const {
@@ -57,7 +58,7 @@
 	// Handle start new conversation for logged-in users
 	function handleStartNewConversation() {
 		onDismiss();
-		goto('/');
+		goto(resolve('/'));
 	}
 </script>
 

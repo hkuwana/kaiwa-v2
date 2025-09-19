@@ -4,6 +4,7 @@
 
 	import { getContext } from 'svelte';
 	import type { ConversationStore } from '$lib/stores/conversation.store.svelte';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	const store = getContext<ConversationStore>('conversation');
 
@@ -164,7 +165,7 @@
 									{message.role === 'user' ? '👤 You' : '🤖 Assistant'}
 								</span>
 								<span class="message-time">
-									{new Date(message.timestamp).toLocaleTimeString()}
+									{new SvelteDate(message.timestamp).toLocaleTimeString()}
 								</span>
 							</div>
 							<div class="message-content">

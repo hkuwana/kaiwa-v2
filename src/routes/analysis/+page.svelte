@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
 
 	import ConversationReviewableState from '$lib/components/ConversationReviewableState.svelte';
@@ -44,7 +45,7 @@
 	onMount(async () => {
 		// If no language selected, redirect to home
 		if (!selectedLanguage) {
-			goto('/');
+			goto(resolve('/'));
 			return;
 		}
 
@@ -80,13 +81,13 @@
 				console.log('Found recent analysis results, proceeding with display');
 			} else {
 				console.warn('No session in DB and no store data - redirecting to conversation');
-				goto('/conversation');
+				goto(resolve('/conversation'));
 				return;
 			}
 		} else if (messages.length === 0 && !hasAnalysisResults) {
 			// No messages available and no analysis results - redirect back to conversation
 			console.warn('No conversation data available for analysis');
-			goto('/conversation');
+			goto(resolve('/conversation'));
 			return;
 		}
 
@@ -112,7 +113,7 @@
 	}
 
 	function handleGoHome() {
-		goto('/');
+		goto(resolve('/'));
 	}
 
 	function handleAnalyzeConversation() {

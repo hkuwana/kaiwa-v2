@@ -14,6 +14,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	// Using Iconify icons via Tailwind classes
 	import { defaultTierConfigs, type UserTier } from '$lib/data/tiers';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	// Mock user ID for testing
 	const mockUserId = 'dev-test-user-123';
@@ -197,7 +198,7 @@
 			isRunning: true,
 			sessionId,
 			language: 'en',
-			startTime: new Date(),
+			startTime: new SvelteDate(),
 			remainingMs: (tierConfig.conversationTimeoutSeconds || 60) * 1000,
 			totalDurationMs: (tierConfig.conversationTimeoutSeconds || 60) * 1000
 		});
@@ -253,7 +254,7 @@
 			const result = pauseTimer(currentTimerState, pauseTime);
 			currentTimerState = result.state;
 
-			usageStore.updateTimer({ isPaused: true, pausedAt: new Date() });
+			usageStore.updateTimer({ isPaused: true, pausedAt: new SvelteDate() });
 		}
 	}
 

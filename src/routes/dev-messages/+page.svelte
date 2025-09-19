@@ -15,6 +15,7 @@
 	} from '$lib/services/romanization.service';
 	import type { Message } from '$lib/server/db/types';
 	import type { Speaker } from '$lib/types';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	// Test data
 	let testText = $state('こんにちは、元気ですか？');
@@ -35,7 +36,7 @@
 		content: testText,
 		sequenceId: '1',
 		role: 'user' as const,
-		timestamp: new Date(),
+		timestamp: new SvelteDate(),
 		conversationId: 'test-conversation',
 		translatedContent: translationResult?.translatedContent || null,
 		sourceLanguage: sourceLanguage,
@@ -80,7 +81,7 @@
 		voiceName: 'Test Speaker',
 		openaiVoiceId: 'alloy',
 		languageId: 'ja',
-		createdAt: new Date(),
+		createdAt: new SvelteDate(),
 		isActive: true,
 		region: 'JP',
 		dialectName: 'Standard',
@@ -150,7 +151,7 @@
 			};
 
 			console.log('Translation result:', result);
-			lastUpdateTime = new Date();
+			lastUpdateTime = new SvelteDate();
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Translation failed';
 			console.error('Translation error:', err);
@@ -172,7 +173,7 @@
 				content: testText,
 				sequenceId: null,
 				role: 'user' as const,
-				timestamp: new Date(),
+				timestamp: new SvelteDate(),
 				conversationId: 'test-conversation',
 				translatedContent: null,
 				sourceLanguage: sourceLanguage,
@@ -199,7 +200,7 @@
 			// Test server-side script generation
 			scriptResult = await generateScriptsForMessage(testMessage, true);
 			console.log('Scripts result:', scriptResult);
-			lastUpdateTime = new Date();
+			lastUpdateTime = new SvelteDate();
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Script generation failed';
 			console.error('Script generation error:', err);
@@ -224,7 +225,7 @@
 			};
 
 			console.log('Furigana result:', furiganaResult);
-			lastUpdateTime = new Date();
+			lastUpdateTime = new SvelteDate();
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Furigana generation failed';
 			console.error('Furigana generation error:', err);
@@ -251,7 +252,7 @@
 			};
 
 			console.log('Romanization result:', romanizationResult);
-			lastUpdateTime = new Date();
+			lastUpdateTime = new SvelteDate();
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Romanization generation failed';
 			console.error('Romanization generation error:', err);
@@ -280,7 +281,7 @@
 			};
 
 			console.log('Pinyin result:', romanizationResult);
-			lastUpdateTime = new Date();
+			lastUpdateTime = new SvelteDate();
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Pinyin generation failed';
 			console.error('Pinyin generation error:', err);
@@ -325,7 +326,7 @@
 			};
 
 			console.log('Native pinyin result:', romanizationResult);
-			lastUpdateTime = new Date();
+			lastUpdateTime = new SvelteDate();
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Native pinyin generation failed';
 			console.error('Native pinyin generation error:', err);
@@ -354,7 +355,7 @@
 			};
 
 			console.log('Hangul result:', romanizationResult);
-			lastUpdateTime = new Date();
+			lastUpdateTime = new SvelteDate();
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Hangul generation failed';
 			console.error('Hangul generation error:', err);

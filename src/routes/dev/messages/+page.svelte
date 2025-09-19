@@ -81,7 +81,7 @@
 		voiceName: 'Test Speaker',
 		openaiVoiceId: 'alloy',
 		languageId: 'ja',
-		createdAt: new Date(),
+		createdAt: new SvelteDate(),
 		isActive: true,
 		region: 'JP',
 		dialectName: 'Standard',

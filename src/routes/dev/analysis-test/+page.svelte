@@ -65,7 +65,7 @@
 				id: 'msg-1',
 				role: 'assistant',
 				content: '¡Hola! ¿Cómo estás hoy? Me alegra poder practicar español contigo.',
-				timestamp: new Date(baseTime.getTime() - 300000),
+				timestamp: new SvelteDate(baseTime.getTime() - 300000),
 				sourceLanguage: 'es',
 				translatedContent: "Hello! How are you today? I'm happy to practice Spanish with you.",
 				sequenceId: '1',
@@ -76,7 +76,7 @@
 				role: 'user',
 				content:
 					'Hola, estoy bien, gracias. Quiero practicar mi español porque tengo una entrevista de trabajo la próxima semana.',
-				timestamp: new Date(baseTime.getTime() - 240000),
+				timestamp: new SvelteDate(baseTime.getTime() - 240000),
 				sourceLanguage: 'es',
 				translatedContent:
 					"Hello, I'm fine, thank you. I want to practice my Spanish because I have a job interview next week.",
@@ -88,7 +88,7 @@
 				role: 'assistant',
 				content:
 					'¡Excelente! Una entrevista de trabajo es muy importante. ¿En qué tipo de empresa vas a trabajar? ¿Qué puesto es?',
-				timestamp: new Date(baseTime.getTime() - 180000),
+				timestamp: new SvelteDate(baseTime.getTime() - 180000),
 				sourceLanguage: 'es',
 				translatedContent:
 					'Excellent! A job interview is very important. What type of company are you going to work for? What position is it?',
@@ -100,7 +100,7 @@
 				role: 'user',
 				content:
 					'Es una empresa de tecnología. El puesto es para desarrollador de software. Estoy un poco nervioso porque necesito hablar español con mis colegas.',
-				timestamp: new Date(baseTime.getTime() - 120000),
+				timestamp: new SvelteDate(baseTime.getTime() - 120000),
 				sourceLanguage: 'es',
 				translatedContent:
 					"It's a technology company. The position is for software developer. I'm a bit nervous because I need to speak Spanish with my colleagues.",
@@ -112,7 +112,7 @@
 				role: 'assistant',
 				content:
 					'Entiendo perfectamente. Es normal estar nervioso, pero tu español suena muy bien. ¿Cuánto tiempo llevas estudiando español?',
-				timestamp: new Date(baseTime.getTime() - 60000),
+				timestamp: new SvelteDate(baseTime.getTime() - 60000),
 				sourceLanguage: 'es',
 				translatedContent:
 					"I understand perfectly. It's normal to be nervous, but your Spanish sounds very good. How long have you been studying Spanish?",
@@ -124,7 +124,7 @@
 				role: 'user',
 				content:
 					'He estado estudiando por dos años. Me gusta mucho la programación y espero que pueda combinar mis habilidades técnicas con el español.',
-				timestamp: new Date(baseTime.getTime() - 30000),
+				timestamp: new SvelteDate(baseTime.getTime() - 30000),
 				sourceLanguage: 'es',
 				translatedContent:
 					"I've been studying for two years. I really like programming and I hope I can combine my technical skills with Spanish.",
@@ -177,7 +177,7 @@
 						role: 'assistant',
 						content:
 							'¡Dos años es bastante tiempo! Seguramente has aprendido mucho. ¿Qué es lo más difícil del español para ti?',
-						timestamp: new Date(),
+						timestamp: new SvelteDate(),
 						sourceLanguage: 'es',
 						translatedContent:
 							"Two years is quite a long time! You must have learned a lot. What's the most difficult thing about Spanish for you?",
@@ -189,7 +189,7 @@
 						role: 'user',
 						content:
 							'Creo que lo más difícil son los tiempos verbales, especialmente el subjuntivo. También a veces me confundo con ser y estar.',
-						timestamp: new Date(),
+						timestamp: new SvelteDate(),
 						sourceLanguage: 'es',
 						translatedContent:
 							'I think the most difficult thing is verb tenses, especially the subjunctive. Also sometimes I get confused with ser and estar.',

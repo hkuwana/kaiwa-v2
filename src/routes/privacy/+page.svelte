@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { trackPageView } from '$lib/analytics/posthog';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	onMount(() => {
 		trackPageView('/privacy');
@@ -63,7 +64,7 @@
 <div class="privacy-container">
 	<header class="privacy-header">
 		<h1>Privacy Policy</h1>
-		<p class="last-updated">Last updated: {new Date().toLocaleDateString()}</p>
+		<p class="last-updated">Last updated: {new SvelteDate().toLocaleDateString()}</p>
 	</header>
 
 	<div class="privacy-content">

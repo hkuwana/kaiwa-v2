@@ -4,6 +4,7 @@
 	import { browser, dev } from '$app/environment';
 	import { onMount, onDestroy } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import { realtimeOpenAI } from '$lib/stores/realtime-openai.store.svelte';
@@ -70,7 +71,7 @@
 
 		// Redirect to home if no language selected
 		if (!selectedLanguage) {
-			goto('/');
+			goto(resolve('/'));
 			return;
 		}
 
@@ -212,7 +213,7 @@
 	<ErrorState
 		error={error || 'Unknown error'}
 		onRetry={handleRetryConnection}
-		onGoHome={() => goto('/')}
+		onGoHome={() => goto(resolve('/'))}
 	/>
 {:else if status === 'analyzing'}
 	<!-- Show loading state while redirecting to analysis -->
@@ -436,7 +437,7 @@
 										id: `test_user_${Date.now()}`,
 										role: 'user',
 										content: 'Hello, this is a test user message!',
-										timestamp: new Date(),
+										timestamp: new SvelteDate(),
 										sequenceId: Date.now().toString(),
 										conversationId: '',
 										translatedContent: null,
@@ -474,7 +475,7 @@
 										conversationId: sessionId,
 										role: 'assistant',
 										content: 'Hello! This is a test assistant response. How are you doing today?',
-										timestamp: new Date(),
+										timestamp: new SvelteDate(),
 										sequenceId: String(Date.now()),
 										translatedContent: null,
 										sourceLanguage: null,

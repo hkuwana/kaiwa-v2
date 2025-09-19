@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import UserPreferencesEditor from '$lib/components/UserPreferencesEditor.svelte';
 	import type { UserPreferences } from '$lib/server/db/types';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	const { data } = $props();
 
@@ -55,7 +57,7 @@
 			}
 
 			// Account deleted successfully, redirect to home
-			goto('/');
+			goto(resolve('/'));
 		} catch (err) {
 			deleteError = 'Network error. Please try again.';
 		} finally {
@@ -208,7 +210,7 @@
 							</div>
 							<div class="input-bordered input bg-base-200">
 								{data.user.createdAt
-									? new Date(data.user.createdAt).toLocaleDateString()
+									? new SvelteDate(data.user.createdAt).toLocaleDateString()
 									: 'Unknown'}
 							</div>
 						</div>
@@ -221,7 +223,7 @@
 								{#if data.user.emailVerified}
 									<span class="badge badge-success">Verified</span>
 									<span class="text-sm text-base-content/70">
-										{new Date(data.user.emailVerified).toLocaleDateString()}
+										{new SvelteDate(data.user.emailVerified).toLocaleDateString()}
 									</span>
 								{:else}
 									<span class="badge badge-error">Not Verified</span>

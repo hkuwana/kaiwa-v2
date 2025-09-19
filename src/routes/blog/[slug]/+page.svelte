@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { SvelteDate } from 'svelte/reactivity';
+
 	const { data } = $props();
 </script>
 
@@ -26,7 +28,7 @@
 			<div class="mb-6">
 				<div class="mb-4 flex flex-wrap items-center gap-4 text-sm text-base-content/60">
 					<time class="font-medium">
-						{new Date(data.metadata.date).toLocaleDateString('en-US', {
+						{new SvelteDate(data.metadata.date).toLocaleDateString('en-US', {
 							year: 'numeric',
 							month: 'long',
 							day: 'numeric'
@@ -73,7 +75,7 @@
 						<span>Written by {data.metadata.author}</span>
 					{/if}
 					<time>
-						{new Date(data.metadata.date).toLocaleDateString('en-US', {
+						{new SvelteDate(data.metadata.date).toLocaleDateString('en-US', {
 							year: 'numeric',
 							month: 'long',
 							day: 'numeric'

@@ -6,6 +6,7 @@
 	import * as messageService from '$lib/services/message.service';
 	import { DEFAULT_VOICE, type Voice } from '$lib/types/openai.realtime.types';
 	import MessageBubble from '$lib/components/MessageBubble.svelte';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	let stream: MediaStream | null = null;
 	let deviceId = $state<string>('default');
@@ -194,7 +195,7 @@
 			{#each events as e, i}
 				<div class="border-b px-3 py-2 text-xs">
 					<div class="opacity-70">
-						[{new Date(e.ts).toLocaleTimeString()}] {e.dir.toUpperCase()} • {e.type}
+						[{new SvelteDate(e.ts).toLocaleTimeString()}] {e.dir.toUpperCase()} • {e.type}
 					</div>
 					<pre class="whitespace-pre-wrap">{JSON.stringify(e.payload, null, 2)}</pre>
 				</div>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { trackPageView } from '$lib/analytics/posthog';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	onMount(() => {
 		trackPageView('/terms');
@@ -66,7 +67,7 @@
 <div class="terms-container">
 	<header class="terms-header">
 		<h1>Terms of Service</h1>
-		<p class="last-updated">Last updated: {new Date().toLocaleDateString()}</p>
+		<p class="last-updated">Last updated: {new SvelteDate().toLocaleDateString()}</p>
 	</header>
 
 	<div class="terms-content">

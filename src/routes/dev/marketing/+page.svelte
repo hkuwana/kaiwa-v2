@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import RotatingLanguages from '$lib/components/RotatingLanguages.svelte';
 	import ShareKaiwa from '$lib/components/ShareKaiwa.svelte';
 	import { languages as allLanguages } from '$lib/data/languages';
@@ -58,13 +59,13 @@
 	}
 
 	function goPricing() {
-		goto('/pricing');
+		goto(resolve('/pricing'));
 	}
 	function goHome() {
-		goto('/');
+		goto(resolve('/'));
 	}
 	function goAbout() {
-		goto('/about');
+		goto(resolve('/about'));
 	}
 
 	// Component samples
