@@ -18,35 +18,81 @@ export const GET: RequestHandler = async () => {
 	const now = new Date();
 	const events: { uid: string; start: Date; end: Date; summary: string; desc?: string }[] = [];
 
-	// Content cadence: 4 weeks
-	for (let w = 0; w < 4; w++) {
-		const base = addDays(now, w * 7);
-		const monday = new Date(base);
-		monday.setDate(base.getDate() + ((1 - base.getDay() + 7) % 7)); // next Monday
-		monday.setHours(16, 0, 0, 0); // 4pm local
-		const wed = addDays(monday, 2);
-		wed.setHours(16, 0, 0, 0);
-		const fri = addDays(monday, 4);
-		fri.setHours(16, 0, 0, 0);
+	// Simplified 2-week focused plan
+	const getNextWeekday = (dayOfWeek: number, hour: number = 16) => {
+		const date = new Date(now);
+		const daysUntil = (dayOfWeek - date.getDay() + 7) % 7;
+		if (daysUntil === 0 && date.getHours() >= hour) {
+			date.setDate(date.getDate() + 7); // Next week if today already passed
+		} else {
+			date.setDate(date.getDate() + daysUntil);
+		}
+		date.setHours(hour, 0, 0, 0);
+		return date;
+	};
 
+	// Week 1: Foundation
+	events.push({
+		uid: 'demo-video@kaiwa',
+		start: getNextWeekday(1, 14), // Monday 2pm
+		end: getNextWeekday(1, 15),
+		summary: '🎥 Record 30-45s demo video',
+		desc: 'Use existing Reddit script template. Keep it simple and authentic.'
+	});
+
+	events.push({
+		uid: 'founder-email@kaiwa',
+		start: getNextWeekday(3, 16), // Wednesday 4pm
+		end: getNextWeekday(3, 17),
+		summary: '📧 Send founder story email',
+		desc: 'Use existing template. Include demo video link and gentle share ask.'
+	});
+
+	events.push({
+		uid: 'reddit-founder@kaiwa',
+		start: getNextWeekday(5, 18), // Friday 6pm
+		end: getNextWeekday(5, 19),
+		summary: '📝 Post Reddit founder story',
+		desc: 'Use template with demo link in comments. Disclose self-promo.'
+	});
+
+	// Week 2: Activation
+	const week2Start = addDays(getNextWeekday(1), 7);
+
+	events.push({
+		uid: 'personal-outreach@kaiwa',
+		start: new Date(week2Start.getTime()),
+		end: addDays(week2Start, 0),
+		summary: '💬 Personal outreach (10 people)',
+		desc: 'Message friends/family who know your ICP. Use personal template.'
+	});
+
+	events.push({
+		uid: 'reddit-practical@kaiwa',
+		start: addDays(week2Start, 2),
+		end: addDays(week2Start, 2),
+		summary: '📝 Post Reddit practical guide',
+		desc: 'Use "emotional convos" template. Link in comments.'
+	});
+
+	events.push({
+		uid: 'bts-email@kaiwa',
+		start: addDays(week2Start, 4),
+		end: addDays(week2Start, 4),
+		summary: '📧 Send BTS email',
+		desc: 'Behind-the-scenes story. Include demo. Invite replies.'
+	});
+
+	// Daily check-ins for first 5 days
+	for (let i = 0; i < 5; i++) {
+		const checkDate = addDays(now, i);
+		checkDate.setHours(9, 0, 0, 0);
 		events.push({
-			uid: `blog-${w}@kaiwa`,
-			start: monday,
-			end: addDays(monday, 0),
-			summary: `Ship blog + LP (JP/ES scenario)`
-		});
-		events.push({
-			uid: `shorts-${w}@kaiwa`,
-			start: wed,
-			end: addDays(wed, 0),
-			summary: `Publish 3 Shorts (scenario demo)`
-		});
-		events.push({
-			uid: `update-${w}@kaiwa`,
-			start: fri,
-			end: addDays(fri, 0),
-			summary: `Publish weekly update`,
-			desc: 'Include latest blog + video + reply/contact block'
+			uid: `check-${i}@kaiwa`,
+			start: checkDate,
+			end: addDays(checkDate, 0),
+			summary: '✅ Quick progress check',
+			desc: 'Review yesterday\'s action. Plan today\'s priority.'
 		});
 	}
 

@@ -6,6 +6,7 @@ import {
 	analyzeOnboardingConversation,
 	parseAndValidateJSON
 } from '$lib/server/services/openai.service';
+import type { AnalysisFocus } from '$lib/server/services/openai.service';
 import {
 	updateAnonymousSessionPreferences,
 	getOrCreateAnonymousSession
@@ -16,6 +17,8 @@ export interface AnalyzeOnboardingRequest {
 	conversationMessages: string[];
 	targetLanguage: string;
 	sessionId?: string;
+	scenarioCategory?: string;
+	analysisFocus?: AnalysisFocus[];
 }
 
 export interface AnalyzeOnboardingResponse {
@@ -30,6 +33,8 @@ export interface AnalyzeOnboardingResponse {
 		conversationSummary: string;
 		assessmentNotes?: string;
 		processingSteps: string[];
+		scenarioCategory: string;
+		analysisFocus: AnalysisFocus[];
 		timestamp: string;
 	};
 }
@@ -37,7 +42,7 @@ export interface AnalyzeOnboardingResponse {
 export const POST: RequestHandler = async ({ request, cookies }) => {
 	try {
 		const body: AnalyzeOnboardingRequest = await request.json();
-		const { conversationMessages, targetLanguage } = body;
+		const { conversationMessages, targetLanguage, scenarioCategory, analysisFocus } = body;
 
 		// Validation
 		if (
@@ -74,10 +79,16 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		console.log(`Analyzing onboarding for session: ${sessionData.sessionId}`);
 
 		// Call OpenAI to analyze the conversation
-		const analysisResponse = await analyzeOnboardingConversation(
-			conversationMessages,
-			targetLanguage
-		);
+		const analysisResponse = await analyzeOnboardingConversation(conversationMessages, {
+			targetLanguage,
+			scenarioCategory,
+			analysisFocus
+		});
+
+		console.log('🧠 [Onboarding API] Raw OpenAI response', {
+			scenarioCategory: scenarioCategory ?? 'general',
+			response: analysisResponse.content
+		});
 
 		// Parse the JSON response
 		const analysisResult = parseAndValidateJSON<Partial<UserPreferences>>(analysisResponse.content);
@@ -97,6 +108,14 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		// Validate and sanitize the analysis result
 		const sanitizedResult = sanitizeAnalysisResult(analysisResult);
 
+		const combinedFocus = Array.from(
+			new Set<AnalysisFocus>([
+				'preferences',
+				'memories',
+				...(analysisFocus ?? [])
+			])
+		);
+
 		// Create analysis metadata for transparency
 		const analysisMetadata = {
 			rawAIResponse: analysisResponse.content,
@@ -111,6 +130,8 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 				'Validated and sanitized results',
 				'Applied business logic constraints'
 			],
+			scenarioCategory: scenarioCategory ?? 'general',
+			analysisFocus: combinedFocus,
 			timestamp: new Date().toISOString()
 		};
 
@@ -129,6 +150,12 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			readingLevel: Math.max(1, (sanitizedResult.speakingLevel || 25) - 5),
 			writingLevel: Math.max(1, (sanitizedResult.speakingLevel || 25) - 10)
 		});
+
+		if (sanitizedResult.memories?.length) {
+			console.log('🧠 [Onboarding API] Sanitized memories', sanitizedResult.memories);
+		} else {
+			console.log('🧠 [Onboarding API] No memories returned in sanitized result');
+		}
 
 		if (!updatedSession) {
 			return json(
@@ -187,7 +214,7 @@ function sanitizeAnalysisResult(result: Partial<UserPreferences>): Partial<UserP
 		'end_of_session'
 	];
 
-	const validDailyGoals = [1, 2, 5, 10];
+	const validDailyGoals = [60, 120, 180, 300];
 
 	return {
 		learningGoal: validMotivations.includes(
@@ -213,7 +240,13 @@ function sanitizeAnalysisResult(result: Partial<UserPreferences>): Partial<UserP
 			: 'gentle',
 		dailyGoalSeconds: validDailyGoals.includes(result.dailyGoalSeconds as number)
 			? result.dailyGoalSeconds
-			: 30
+			: 180,
+		memories: Array.isArray(result.memories)
+			? result.memories
+				.filter((memory) => typeof memory === 'string')
+				.map((memory) => memory.trim())
+				.filter(Boolean)
+			: []
 	};
 }
 

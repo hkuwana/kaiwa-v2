@@ -644,6 +644,83 @@ export const scenariosData: ScenarioWithHints[] = [
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date()
+	},
+	{
+		id: 'roleplay-date-night',
+		title: 'Romantic Date Night Plans',
+		description: 'Coordinate a thoughtful evening with your partner, balancing surprises and comfort.',
+		category: 'roleplay',
+		difficulty: 'intermediate',
+		instructions:
+			'Share what kind of atmosphere you both enjoy, pick a place to meet, and plan a small gesture that feels meaningful.',
+		context: 'City lights, a favorite playlist, and anticipation for a relaxed night together.',
+		expectedOutcome: 'Agree on timing, location, and one special touch that fits both of you',
+		learningObjectives: [
+			'affectionate language',
+			'preference sharing',
+			'coordinating schedules',
+			'complimenting naturally',
+			'planning surprises',
+			'checking in on comfort',
+			'setting expectations',
+			'emotional reassurance'
+		],
+		comfortIndicators: { confidence: 4, engagement: 5, understanding: 4 },
+		speakerGenderPreference: 'female',
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'roleplay-friends-night-out',
+		title: 'Catching Up Over Drinks',
+		description: 'Meet a close friend at a lively bar to swap stories and unwind.',
+		category: 'roleplay',
+		difficulty: 'intermediate',
+		instructions: 'Pick a spot, order drinks, and trade updates about work, relationships, and weekend plans.',
+		context: 'A cozy booth, soft background music, and laughter from a nearby table.',
+		expectedOutcome: 'Share highlights honestly, offer encouragement, and settle on the next hangout',
+		learningObjectives: [
+			'casual storytelling',
+			'active listening cues',
+			'expressing encouragement',
+			'staying inclusive',
+			'setting future plans',
+			'ordering drinks',
+			'light teasing',
+			'boundaries with alcohol'
+		],
+		comfortIndicators: { confidence: 4, engagement: 5, understanding: 4 },
+		speakerGenderPreference: 'neutral',
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'roleplay-family-catchup',
+		title: 'Afternoon Tea with Grandma',
+		description: 'Recount your week gently, ask about family stories, and show care in her language.',
+		category: 'roleplay',
+		difficulty: 'beginner',
+		instructions:
+			'Share recent memories, ask follow-up questions, and respond warmly to advice and anecdotes.',
+		context: 'Sunlit kitchen table, teacups clinking, the smell of a fresh pastry.',
+		expectedOutcome: 'Leave Grandma feeling cherished and up to date with your life',
+		learningObjectives: [
+			'family vocabulary',
+			'past tense storytelling',
+			'expressing gratitude',
+			'asking gentle questions',
+			'showing empathy',
+			'reassuring loved ones',
+			'sharing future plans',
+			'cultural traditions'
+		],
+		comfortIndicators: { confidence: 4, engagement: 4, understanding: 4 },
+		speakerGenderPreference: 'neutral',
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
 	}
 ];
 

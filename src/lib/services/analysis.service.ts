@@ -4,6 +4,7 @@
 
 import type { Message, Language, UserPreferences } from '$lib/server/db/types';
 import * as onboardingManagerService from './onboarding-manager.service';
+import * as conversationMemoryService from './conversationMemory.service';
 
 export type AnalysisType = 'onboarding' | 'regular' | 'scenario-generation';
 export type AnalysisMode = 'quick' | 'full';
@@ -270,12 +271,30 @@ async function handleRegularAnalysis(
 		const result = await response.json();
 
 		if (result.success) {
-			// Update user preferences with new insights
 			const currentExchanges = userPreferencesProvider.getPreference('successfulExchanges') || 0;
-			await userPreferencesProvider.updatePreferences({
-				successfulExchanges: currentExchanges + 1,
-				lastConversationInsights: result.data.insights
-			} as Partial<UserPreferences>);
+			const existingMemories =
+				(userPreferencesProvider.getPreference('memories') as string[] | null) || [];
+			const incomingMemories = conversationMemoryService.extractMemoriesFromAnalysis(result.data);
+			const mergedMemories = conversationMemoryService.mergeMemories({
+				existing: existingMemories,
+				incoming: incomingMemories
+			});
+
+			const preferenceUpdates: Partial<UserPreferences> = {
+				successfulExchanges: currentExchanges + 1
+			};
+
+			if (incomingMemories.length > 0 || mergedMemories.length !== existingMemories.length) {
+				preferenceUpdates.memories = mergedMemories;
+			}
+
+			console.log('🧠 [Regular Analysis] Memory merge', {
+				existingBefore: existingMemories,
+				incomingMemories,
+				mergedMemories: preferenceUpdates.memories
+			});
+
+			await userPreferencesProvider.updatePreferences(preferenceUpdates);
 
 			return {
 				success: true,

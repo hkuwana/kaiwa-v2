@@ -8,7 +8,7 @@ export const scenarios = pgTable(
 		title: text('title').notNull(),
 		description: text('description').notNull(),
 		category: text('category')
-			.$type<'onboarding' | 'comfort' | 'basic' | 'intermediate' | 'relationships'>()
+			.$type<'onboarding' | 'comfort' | 'basic' | 'intermediate' | 'relationships' | 'roleplay'>()
 			.default('comfort')
 			.notNull(),
 

@@ -32,7 +32,8 @@ export const defaultUserPreference: Omit<
 	conversationContext: null,
 	successfulExchanges: 0,
 	comfortZone: null,
-	memories: null,
+	memories: [],
+	favoriteScenarioIds: [],
 	// Progress tracking defaults
 	recentSessionScores: [],
 	skillLevelHistory: []

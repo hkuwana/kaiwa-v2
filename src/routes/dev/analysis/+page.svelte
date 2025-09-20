@@ -93,21 +93,33 @@
 	let selectedLanguage = $state<Language>(languages.find((l) => l.code === 'ja') || languages[0]);
 	let analysisSteps = $state<string[]>([]);
 	let rawAIResponse = $state<string>('');
+	let storedMemories = $state<string[]>([]);
+	let lastPreferenceUpdate = $state<Partial<UserPreferences> | null>(null);
 
 	// Mock preferences provider for testing
 	const mockPreferencesProvider = {
 		isGuest: () => true,
 		getPreference: <K extends keyof UserPreferences>(key: K) => {
+			if (key === 'memories') {
+				return storedMemories as unknown as UserPreferences[K];
+			}
+
 			const defaults: Partial<UserPreferences> = {
 				successfulExchanges: 0,
 				speakingLevel: 25,
 				listeningLevel: 30,
-				learningGoal: 'Connection'
+				learningGoal: 'Connection',
+				favoriteScenarioIds: [],
+				memories: storedMemories
 			};
 			return defaults[key] as UserPreferences[K];
 		},
 		updatePreferences: async (updates: Partial<UserPreferences>) => {
 			console.log('Mock: Would update preferences with:', updates);
+			if (Array.isArray(updates.memories)) {
+				storedMemories = updates.memories as string[];
+			}
+			lastPreferenceUpdate = updates;
 			analysisResult = { ...analysisResult, ...updates };
 		}
 	};
@@ -151,6 +163,13 @@
 					...analysisSteps,
 					`📊 Found ${Object.keys(finalResult || {}).length} preference updates`
 				];
+
+				analysisSteps = [
+					...analysisSteps,
+					storedMemories.length > 0
+						? `🧠 Stored memories (${storedMemories.length}): ${storedMemories.join(', ')}`
+						: '🧠 Stored memories: none (analysis payload did not include memories)'
+				];
 			} else {
 				analysisError = result.error || 'Analysis failed';
 				analysisSteps = [...analysisSteps, `❌ Analysis failed: ${analysisError}`];
@@ -162,12 +181,6 @@
 			isAnalyzing = false;
 		}
 	}
-
-	// Auto-run analysis on mount for quick testing
-	onMount(() => {
-		// Auto-run after a short delay to see the loading state
-		setTimeout(runAnalysis, 1000);
-	});
 </script>
 
 <svelte:head>
@@ -262,6 +275,41 @@
 								</div>
 							{/if}
 						</div>
+					</div>
+				</div>
+
+				<!-- Stored Memories Preview -->
+				<div class="card bg-base-100 shadow-lg">
+					<div class="card-body">
+						<h2 class="card-title text-lg">🧠 Stored Memories</h2>
+						{#if storedMemories.length > 0}
+							<ul class="space-y-2 text-sm">
+								{#each storedMemories as memory, index}
+									<li class="flex items-start gap-2 rounded bg-base-200 p-2">
+										<span class="text-xs opacity-70">#{index + 1}</span>
+										<span>{memory}</span>
+									</li>
+								{/each}
+							</ul>
+						{:else}
+							<p class="text-sm opacity-70">
+								No memories stored yet. Run the analysis to populate them.
+							</p>
+						{/if}
+					</div>
+				</div>
+
+				<!-- Last Preference Update -->
+				<div class="card bg-base-100 shadow-lg">
+					<div class="card-body">
+						<h2 class="card-title text-lg">📦 Last Preference Update Payload</h2>
+						{#if lastPreferenceUpdate}
+							<pre class="max-h-48 overflow-y-auto rounded bg-base-200 p-3 text-xs">
+								{JSON.stringify(lastPreferenceUpdate, null, 2)}
+							</pre>
+						{:else}
+							<p class="text-sm opacity-70">No updates captured yet.</p>
+						{/if}
 					</div>
 				</div>
 

@@ -3,11 +3,13 @@
 // NO store imports - pure functions only
 
 import type { Message, Language, UserPreferences } from '$lib/server/db/types';
+import * as conversationMemoryService from './conversationMemory.service';
 
 export interface OnboardingAnalysisRequest {
 	conversationMessages: string[];
 	targetLanguage: string;
 	sessionId: string;
+	scenarioCategory?: string;
 }
 
 export interface OnboardingAnalysisResult {
@@ -110,10 +112,37 @@ export async function updatePreferencesWithAnalysis(
 	preferencesProvider: UserPreferencesProvider
 ): Promise<void> {
 	const currentExchanges = preferencesProvider.getPreference('successfulExchanges') || 0;
-	await preferencesProvider.updatePreferences({
-		...analysisData,
+	const { memories: rawMemories, ...otherData } = analysisData as {
+		memories?: unknown;
+	} & Record<string, unknown>;
+
+	const updates: Partial<UserPreferences> = {
+		...otherData,
 		successfulExchanges: currentExchanges + 1
-	} as Partial<UserPreferences>);
+	} as Partial<UserPreferences>;
+
+	const existingMemories =
+		(preferencesProvider.getPreference('memories') as string[] | null) || [];
+	const incomingMemories = conversationMemoryService.sanitizeMemories(
+		(rawMemories as string[]) || []
+	);
+
+	if (incomingMemories.length > 0) {
+		updates.memories = conversationMemoryService.mergeMemories({
+			existing: existingMemories,
+			incoming: incomingMemories
+		});
+
+		console.log('🧠 [Onboarding] Memory merge', {
+			existingBefore: existingMemories,
+			incomingMemories,
+			mergedMemories: updates.memories
+		});
+	} else {
+		console.log('🧠 [Onboarding] No incoming memories from analysis payload');
+	}
+
+	await preferencesProvider.updatePreferences(updates);
 }
 
 /**
@@ -147,7 +176,8 @@ export async function executeOnboardingAnalysis(
 		const analysisResult = await callAnalysisAPI({
 			conversationMessages,
 			targetLanguage: language.code,
-			sessionId
+			sessionId,
+			scenarioCategory: 'onboarding'
 		});
 
 		if (analysisResult.success && analysisResult.data) {

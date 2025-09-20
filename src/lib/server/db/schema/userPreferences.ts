@@ -81,6 +81,9 @@ export const userPreferences = pgTable(
 
 		// User memories - array of personal facts and preferences learned from conversations
 		memories: jsonb('memories').$type<string[]>().default([]), // Array of memory strings like "Wants to learn because of speaking with grandma"
+		favoriteScenarioIds: jsonb('favorite_scenario_ids')
+			.$type<string[]>()
+			.default([]), // Scenario IDs starred by the user for quick access
 
 		// Analytics and progress tracking
 		recentSessionScores: jsonb('recent_session_scores').$type<number[]>().default([]), // Last 10 session performance scores
