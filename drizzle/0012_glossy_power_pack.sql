@@ -1,0 +1,1 @@
+ALTER TABLE "user_preferences" ADD CONSTRAINT "user_preferences_user_language_unique" UNIQUE("user_id","target_language_id");

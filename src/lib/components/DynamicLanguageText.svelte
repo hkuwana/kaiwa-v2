@@ -34,11 +34,11 @@
 		},
 		practice: {
 			prefix: 'Practice ',
-			suffix: ' without fear. Connect with confidence.'
+			suffix: ' without fear. Speak with confidence.'
 		},
 		connect: {
 			prefix: '',
-			suffix: ' conversations to speak with your partner'
+			suffix: ' conversations to speak with your loved ones'
 		}
 	};
 

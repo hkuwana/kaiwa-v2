@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { userPreferencesRepository } from '$lib/server/repositories/userPreferences.repository';
+import { userSettingsRepository } from '$lib/server/repositories/userSettings.repository';
 
 export const POST: RequestHandler = async ({ locals }) => {
 	try {
@@ -11,22 +11,23 @@ export const POST: RequestHandler = async ({ locals }) => {
 
 		const userId = locals.user.id;
 
-		// Get user's current preferences
-		const preferences = await userPreferencesRepository.getPreferencesByUserId(userId);
+		// Get user's current settings
+		const settings = await userSettingsRepository.getSettingsByUserId(userId);
 
-		if (!preferences) {
-			return json({ message: 'User preferences not found' }, { status: 404 });
-		}
-
-		// Check if already subscribed
-		if (preferences.receiveMarketingEmails) {
+		if (!settings) {
+			// Create default settings if they don't exist
+			await userSettingsRepository.upsertSettings({
+				userId,
+				receiveMarketingEmails: true
+			});
+		} else if (settings.receiveMarketingEmails) {
 			return json({ message: 'Already subscribed to newsletter' }, { status: 200 });
+		} else {
+			// Update settings to subscribe to newsletter
+			await userSettingsRepository.updateEmailPreferences(userId, {
+				receiveMarketingEmails: true
+			});
 		}
-
-		// Update preferences to subscribe to newsletter
-		await userPreferencesRepository.updatePreferences(userId, {
-			receiveMarketingEmails: true
-		});
 
 		return json({ message: 'Successfully subscribed to newsletter' }, { status: 200 });
 	} catch (error) {
@@ -44,8 +45,8 @@ export const DELETE: RequestHandler = async ({ locals }) => {
 
 		const userId = locals.user.id;
 
-		// Update preferences to unsubscribe from newsletter
-		await userPreferencesRepository.updatePreferences(userId, {
+		// Update settings to unsubscribe from newsletter
+		await userSettingsRepository.updateEmailPreferences(userId, {
 			receiveMarketingEmails: false
 		});
 

@@ -2,7 +2,7 @@
 	import ThemeSwitcher from './ThemeSwitcher.svelte';
 	import type { User } from '$lib/server/db/types';
 	import { goto } from '$app/navigation';
-	import { browser, dev } from '$app/environment';
+	import { dev } from '$app/environment';
 	import { resolve } from '$app/paths';
 	const { user }: { user: User | null } = $props();
 	// Get user data from page data

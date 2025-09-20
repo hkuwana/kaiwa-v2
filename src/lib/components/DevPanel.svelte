@@ -177,7 +177,7 @@
 			{:else}
 				<!-- Expanded view -->
 				<div
-					class="card w-96 border border-warning/30 bg-base-100 shadow-xl max-h-[80vh] overflow-hidden"
+					class="card max-h-[80vh] w-96 overflow-hidden border border-warning/30 bg-base-100 shadow-xl"
 				>
 					<div class="card-body p-0">
 						<!-- Header -->
@@ -190,7 +190,7 @@
 								<span class="text-sm font-semibold">Enhanced Debug Panel</span>
 							</div>
 							<button
-								class="btn btn-xs btn-ghost"
+								class="btn btn-ghost btn-xs"
 								onclick={() => (isExpanded = false)}
 								aria-label="Collapse debug panel"
 							>
@@ -257,7 +257,11 @@
 										<div class="grid grid-cols-2 gap-2 text-xs">
 											<div class="flex justify-between">
 												<span>RT Connected:</span>
-												<div class="badge badge-xs {realtimeConnectionState ? 'badge-success' : 'badge-error'}">
+												<div
+													class="badge badge-xs {realtimeConnectionState
+														? 'badge-success'
+														: 'badge-error'}"
+												>
 													{realtimeConnectionState ? 'Yes' : 'No'}
 												</div>
 											</div>
@@ -309,17 +313,19 @@
 								<!-- Messages tab -->
 								<div class="space-y-2">
 									<h4 class="text-sm font-medium">All Messages ({messages.length})</h4>
-									<div class="space-y-1 max-h-80 overflow-y-auto">
+									<div class="max-h-80 space-y-1 overflow-y-auto">
 										{#each messages as message, i}
 											<div class="rounded bg-base-200 p-2 text-xs">
-												<div class="flex justify-between items-start">
+												<div class="flex items-start justify-between">
 													<div>
 														<span class="font-medium">{message.role}</span>
 														<span class="opacity-50">#{i}</span>
 													</div>
 													<div class="text-right">
 														<div class="badge badge-xs">{getMessageStatus(message)}</div>
-														<div class="text-xs opacity-50">{formatTimestamp(message.timestamp)}</div>
+														<div class="text-xs opacity-50">
+															{formatTimestamp(message.timestamp)}
+														</div>
 													</div>
 												</div>
 												<div class="mt-1 text-xs">{message.content || '<empty>'}</div>
@@ -331,11 +337,11 @@
 							{:else if activeTab === 'events'}
 								<!-- Events tab -->
 								<div class="space-y-2">
-									<div class="flex justify-between items-center">
+									<div class="flex items-center justify-between">
 										<h4 class="text-sm font-medium">Realtime Events ({events.length})</h4>
 										<button class="btn btn-xs" onclick={clearEvents}>Clear</button>
 									</div>
-									<div class="space-y-1 max-h-80 overflow-y-auto">
+									<div class="max-h-80 space-y-1 overflow-y-auto">
 										{#each events.slice(-20) as event, i}
 											<div class="rounded bg-base-200 p-2 text-xs">
 												<div class="flex justify-between">
@@ -343,7 +349,7 @@
 													<span class="opacity-50">#{i}</span>
 												</div>
 												{#if event.payload}
-													<div class="mt-1 opacity-70 text-xs">
+													<div class="mt-1 text-xs opacity-70">
 														{JSON.stringify(event.payload).substring(0, 100)}...
 													</div>
 												{/if}

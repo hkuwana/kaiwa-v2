@@ -85,6 +85,20 @@
       "when": 1758072427152,
       "tag": "0011_thick_sway",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1758378495521,
+      "tag": "0012_glossy_power_pack",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1758379172771,
+      "tag": "0013_needy_viper",
+      "breakpoints": true
     }
   ]
 }

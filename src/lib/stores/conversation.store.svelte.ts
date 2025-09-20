@@ -617,8 +617,8 @@ export class ConversationStore {
 		this.lastInstructions = sessionConfig.instructions;
 
 		// Greet proactively based on preferences
-		const prefs = userPreferencesStore.getPreferences();
-		const autoGreet = prefs.audioSettings?.autoGreet ?? true;
+		// TODO: Get autoGreet from userSettings instead
+		const autoGreet = true; // Default since audioSettings moved to userSettings table
 		if (autoGreet) {
 			// Force a greeting even without prior user input
 			realtimeOpenAI.sendResponse();

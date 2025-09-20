@@ -472,7 +472,7 @@
 									<div class="badge badge-xs badge-accent">Scenario</div>
 								{/if}
 								{#if dev && showDevMode}
-									<div class="badge badge-xs badge-warning font-mono" title="Conversation ID">
+									<div class="badge badge-xs font-mono badge-warning" title="Conversation ID">
 										{conversation.id}
 									</div>
 								{/if}

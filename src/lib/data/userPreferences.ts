@@ -35,20 +35,8 @@ export const defaultUserPreference: Omit<
 	memories: null,
 	// Progress tracking defaults
 	recentSessionScores: [],
-	skillLevelHistory: [],
-	// Realtime audio interaction settings (client UX defaults)
-	audioSettings: {
-		mode: 'toggle', // default: click to toggle
-		pressBehavior: 'tap_toggle', // default: tap toggles on/off
-		autoGreet: true,
-		greetingMode: 'scenario'
-	},
-
-	// Email marketing preferences
-	receiveMarketingEmails: true,
-	receiveDailyReminderEmails: true,
-	dailyReminderSentCount: 0,
-	lastReminderSentAt: null
+	skillLevelHistory: []
+	// Note: audioSettings and email preferences moved to userSettings table
 };
 
 // 🌟 Guest User Preferences Factory

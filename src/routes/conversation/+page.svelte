@@ -44,13 +44,18 @@
 	// Connection state
 	let autoConnectAttempted = $state(false);
 
-
 	// Extract session parameters from URL
 	const sessionId = $derived(page.url.searchParams.get('sessionId') || crypto.randomUUID());
 
 	// Auto-connection effect (skip for static views)
 	$effect(() => {
-		if (browser && !autoConnectAttempted && !isStaticView && status === 'idle' && selectedLanguage) {
+		if (
+			browser &&
+			!autoConnectAttempted &&
+			!isStaticView &&
+			status === 'idle' &&
+			selectedLanguage
+		) {
 			attemptAutoConnection();
 		}
 	});
@@ -183,7 +188,6 @@
 		// In the future, you could set a flag to disable audio features
 		handleRetryConnection();
 	}
-
 </script>
 
 {#if status === 'static'}
@@ -210,10 +214,7 @@
 								>
 									View Analysis
 								</button>
-								<button
-									class="btn btn-outline"
-									onclick={() => goto('/')}
-								>
+								<button class="btn btn-outline" onclick={() => goto('/')}>
 									New Conversation
 								</button>
 							</div>
@@ -326,7 +327,6 @@
 			<div class="card-body">
 				<h2 class="card-title">Dev Controls</h2>
 				<div class="space-y-3">
-
 					<!-- Audio Interaction Mode -->
 					<div class="flex flex-wrap items-center gap-3">
 						<div>
@@ -580,4 +580,3 @@
 	{isAnalyzing}
 	timeInSeconds={Math.ceil(conversationStore.timerState.timer.timeRemaining / 1000)}
 />
-

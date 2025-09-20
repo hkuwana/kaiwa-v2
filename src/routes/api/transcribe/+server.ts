@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
+import { env } from '$env/dynamic/private';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST = async ({ request }) => {
 	try {
 		const formData = await request.formData();
 		const audioFile = formData.get('file') as File;
@@ -12,8 +12,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			return json({ error: 'No audio file provided' }, { status: 400 });
 		}
 
-		// TODO: Replace with your OpenAI API key
-		const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+		const OPENAI_API_KEY = env.OPENAI_API_KEY;
 
 		if (!OPENAI_API_KEY) {
 			// Fallback response for development

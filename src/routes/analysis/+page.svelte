@@ -149,27 +149,50 @@
 </svelte:head>
 
 {#if sessionNotFound}
-	<div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-base-100 to-base-200">
-		<div class="text-center max-w-md mx-auto p-8">
+	<div
+		class="flex min-h-screen items-center justify-center bg-gradient-to-br from-base-100 to-base-200"
+	>
+		<div class="mx-auto max-w-md p-8 text-center">
 			<div class="mb-6">
-				<svg class="mx-auto h-16 w-16 text-warning mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+				<svg
+					class="mx-auto mb-4 h-16 w-16 text-warning"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+					/>
 				</svg>
-				<h1 class="text-2xl font-bold mb-2">Conversation Not Found</h1>
-				<p class="text-base-content/70 mb-6">
-					This conversation session doesn't exist or has been removed. You can start a new conversation to practice your language skills.
+				<h1 class="mb-2 text-2xl font-bold">Conversation Not Found</h1>
+				<p class="mb-6 text-base-content/70">
+					This conversation session doesn't exist or has been removed. You can start a new
+					conversation to practice your language skills.
 				</p>
 			</div>
-			<div class="flex flex-col sm:flex-row gap-3 justify-center">
+			<div class="flex flex-col justify-center gap-3 sm:flex-row">
 				<button class="btn btn-primary" onclick={handleStartNewConversation}>
 					<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+						/>
 					</svg>
 					Start New Conversation
 				</button>
 				<button class="btn btn-ghost" onclick={handleGoHome}>
 					<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+						/>
 					</svg>
 					Go Home
 				</button>
@@ -195,7 +218,6 @@
 			onStartNewConversation={handleStartNewConversation}
 			onAnalyzeConversation={handleAnalyzeConversation}
 			onGoHome={handleGoHome}
-			isHistorical={data.hasExistingData}
 		/>
 	{/if}
 {:else}

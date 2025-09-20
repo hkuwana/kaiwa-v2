@@ -238,7 +238,9 @@
 				{/if}
 				<h1 class="mb-2 text-3xl font-bold">{getAnalysisTypeTitle(analysisType)}</h1>
 				<p class="text-lg text-base-content/70">
-					Your {language.name} conversation {isHistorical ? 'from a previous session' : 'has been reviewed'}
+					Your {language.name} conversation {isHistorical
+						? 'from a previous session'
+						: 'has been reviewed'}
 				</p>
 			</div>
 
@@ -365,7 +367,9 @@
 									stroke-linecap="round"
 									stroke-linejoin="round"
 									stroke-width="2"
-									d={isHistorical ? "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" : "M12 6v6m0 0v6m0-6h6m-6 0H6"}
+									d={isHistorical
+										? 'M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z'
+										: 'M12 6v6m0 0v6m0-6h6m-6 0H6'}
 								/>
 							</svg>
 							{isHistorical ? 'View Conversation' : 'Practice More'}

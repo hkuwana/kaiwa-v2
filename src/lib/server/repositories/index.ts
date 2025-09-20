@@ -5,6 +5,7 @@
 export { userRepository } from './user.repository';
 export { languageRepository } from './language.repository';
 export { userPreferencesRepository } from './userPreferences.repository';
+export { userSettingsRepository } from './userSettings.repository';
 export { sessionRepository } from './session.repository';
 export { emailVerificationRepository } from './emailVerification.repository';
 

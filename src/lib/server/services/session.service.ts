@@ -130,7 +130,7 @@ export async function persistAnonymousSessionToDatabase(
 			dailyGoalSeconds: sessionData.preferences.dailyGoalSeconds || 30
 		};
 
-		await userPreferencesRepository.upsertPreferences(prefsData);
+		await userPreferencesRepository.upsertPreferencesForLanguage(prefsData);
 
 		// Note: Cookie clearing should be done by the caller after successful persistence
 

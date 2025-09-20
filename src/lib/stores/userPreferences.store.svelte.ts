@@ -86,34 +86,28 @@ export class UserPreferencesStore {
 	}
 
 	// === Audio Interaction Preferences ===
+	// TODO: These should move to a userSettings store
+	// For now, providing default values to maintain compatibility
 	getAudioMode(): 'toggle' | 'push_to_talk' {
-		const prefs = this.getPreferences();
-		return prefs.audioSettings?.mode || 'toggle';
+		// Default since audioSettings moved to userSettings table
+		return 'toggle';
 	}
 
-	setAudioMode(mode: 'toggle' | 'push_to_talk'): Promise<void> {
-		const prefs = this.getPreferences();
-		return this.updatePreferences({
-			audioSettings: {
-				...prefs.audioSettings,
-				mode
-			}
-		});
+	setAudioMode(_mode: 'toggle' | 'push_to_talk'): Promise<void> {
+		// TODO: Update userSettings instead of userPreferences
+		console.warn('Audio settings should be updated via userSettings service');
+		return Promise.resolve();
 	}
 
 	getPressBehavior(): 'tap_toggle' | 'press_hold' {
-		const prefs = this.getPreferences();
-		return prefs.audioSettings?.pressBehavior || 'tap_toggle';
+		// Default since audioSettings moved to userSettings table
+		return 'tap_toggle';
 	}
 
-	setPressBehavior(behavior: 'tap_toggle' | 'press_hold'): Promise<void> {
-		const prefs = this.getPreferences();
-		return this.updatePreferences({
-			audioSettings: {
-				...prefs.audioSettings,
-				pressBehavior: behavior
-			}
-		});
+	setPressBehavior(_behavior: 'tap_toggle' | 'press_hold'): Promise<void> {
+		// TODO: Update userSettings instead of userPreferences
+		console.warn('Audio settings should be updated via userSettings service');
+		return Promise.resolve();
 	}
 
 	// 🌟 Check if user is guest

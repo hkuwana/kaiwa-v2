@@ -4,10 +4,10 @@ import {
 	text,
 	integer,
 	timestamp,
-	boolean as pgBoolean,
 	index,
 	pgEnum,
-	jsonb
+	jsonb,
+	unique
 } from 'drizzle-orm/pg-core';
 import { users } from './users'; // Assuming you have a users table
 import { languages } from './languages'; // Assuming you have a languages table
@@ -101,23 +101,12 @@ export const userPreferences = pgTable(
 		updatedAt: timestamp('updated_at')
 			.defaultNow()
 			.$onUpdate(() => new Date()) // Automatically update on change
-			.notNull(),
-		// Realtime audio interaction settings (client UX preferences)
-		audioSettings: jsonb('audio_settings').$type<{
-			mode?: 'toggle' | 'push_to_talk';
-			pressBehavior?: 'tap_toggle' | 'press_hold';
-			autoGreet?: boolean;
-			greetingMode?: 'scenario' | 'generic';
-		}>(),
-
-		// Email marketing preferences
-		receiveMarketingEmails: pgBoolean('receive_marketing_emails').default(true).notNull(),
-		receiveDailyReminderEmails: pgBoolean('receive_daily_reminder_emails').default(true).notNull(),
-		dailyReminderSentCount: integer('daily_reminder_sent_count').default(0).notNull(),
-		lastReminderSentAt: timestamp('last_reminder_sent_at')
+			.notNull()
+		// Note: Audio settings and email preferences moved to userSettings table
 	},
 	(table) => [
 		index('user_preferences_user_id_idx').on(table.userId),
-		index('user_preferences_target_language_idx').on(table.targetLanguageId)
+		index('user_preferences_target_language_idx').on(table.targetLanguageId),
+		unique('user_preferences_user_language_unique').on(table.userId, table.targetLanguageId)
 	]
 );

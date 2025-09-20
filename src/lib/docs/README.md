@@ -74,6 +74,7 @@
 ## 📋 Documentation Standards
 
 ### File Naming Convention
+
 - **Core documents**: `01-03_core_*.md`
 - **Development guides**: `04-07_dev_*.md`
 - **Feature documents**: `08-10_feature_*.md`
@@ -82,6 +83,7 @@
 - **Maintenance docs**: `18-20_maintenance_*.md`
 
 ### Content Standards
+
 - Use clear headings with emojis for visual appeal
 - Include working code examples
 - Keep content concise and up-to-date

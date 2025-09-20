@@ -23,6 +23,9 @@ export {
 	userPreferences
 } from './userPreferences';
 
+// User settings (global preferences, not language-specific)
+export { userSettings } from './userSettings';
+
 // Subscription and billing (simplified)
 export { tiers } from './tiers';
 export { subscriptions } from './subscriptions';

@@ -9,6 +9,8 @@ export type ScenarioWithHints = Scenario & {
 	localeHints?: string[]; // e.g., ['en-GB', 'en-US']
 	// Soft preference for speaker gender (used as tie-breaker only)
 	speakerGenderPreference?: 'male' | 'female' | 'neutral';
+	// Preferred target languages for this scenario (language IDs from languages table)
+	preferredLanguages?: string[]; // e.g., ['japanese', 'spanish', 'chinese']
 };
 
 export const scenariosData: ScenarioWithHints[] = [
@@ -129,6 +131,7 @@ export const scenariosData: ScenarioWithHints[] = [
 		createdAt: new Date(),
 		// Spanish bar setting – prefer Spain Spanish if practicing Spanish
 		localeHints: ['es-ES'],
+		preferredLanguages: ['es'],
 		updatedAt: new Date()
 	},
 	{
@@ -472,6 +475,7 @@ export const scenariosData: ScenarioWithHints[] = [
 		comfortIndicators: { confidence: 4, engagement: 5, understanding: 4 },
 		localeHints: ['es-MX', 'es-ES', 'tr-TR'],
 		speakerGenderPreference: 'neutral',
+		preferredLanguages: ['es', 'tr', 'ar'],
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date()
@@ -592,17 +596,137 @@ export const scenariosData: ScenarioWithHints[] = [
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date()
+	},
+	{
+		id: 'izakaya-ordering',
+		title: 'Izakaya Night: Ordering Like a Local',
+		description: 'Navigate a lively izakaya menu and connect with fellow diners.',
+		category: 'comfort',
+		difficulty: 'intermediate',
+		instructions: 'Order drinks and food, ask for recommendations, and enjoy casual conversation.',
+		context: 'Warm lanterns, the sizzle of grilled chicken, and friendly chatter around you.',
+		expectedOutcome: 'Successfully order a satisfying meal and engage in light conversation',
+		learningObjectives: [
+			'food ordering',
+			'drink preferences',
+			'casual conversation',
+			'menu navigation',
+			'cultural dining'
+		],
+		comfortIndicators: { confidence: 3, engagement: 5, understanding: 4 },
+		localeHints: ['ja-JP'],
+		preferredLanguages: ['ja'],
+		speakerGenderPreference: 'neutral',
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'dim-sum-ordering',
+		title: 'Dim Sum Brunch: Sharing Small Plates',
+		description: 'Navigate a traditional dim sum restaurant with rolling carts.',
+		category: 'comfort',
+		difficulty: 'intermediate',
+		instructions: 'Order from the cart, share plates with tablemates, and ask about ingredients.',
+		context: 'Busy restaurant, steaming carts, the aroma of dumplings and tea.',
+		expectedOutcome: 'Order a variety of dishes and enjoy the communal dining experience',
+		learningObjectives: [
+			'food descriptions',
+			'sharing etiquette',
+			'ingredients inquiry',
+			'restaurant vocabulary',
+			'communal dining'
+		],
+		comfortIndicators: { confidence: 3, engagement: 5, understanding: 4 },
+		localeHints: ['zh-CN', 'zh-HK'],
+		preferredLanguages: ['zh'],
+		speakerGenderPreference: 'neutral',
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
 	}
 ];
 
-export const getOnboardingScenario = (): Scenario | undefined => {
+export const getOnboardingScenario = (): ScenarioWithHints | undefined => {
 	return scenariosData.find((scenario) => scenario.category === 'onboarding');
 };
 
-export const getComfortScenarios = (): Scenario[] => {
+export const getComfortScenarios = (): ScenarioWithHints[] => {
 	return scenariosData.filter((scenario) => scenario.category === 'comfort');
 };
 
-export const getScenarioById = (id: string): Scenario | undefined => {
+export const getScenarioById = (id: string): ScenarioWithHints | undefined => {
 	return scenariosData.find((scenario) => scenario.id === id);
+};
+
+/**
+ * Get scenarios filtered by language preference
+ * Prioritizes scenarios that prefer the given language, then returns all others
+ */
+export const getScenariosByLanguage = (languageId: string): ScenarioWithHints[] => {
+	const preferred = scenariosData.filter((scenario) =>
+		scenario.preferredLanguages?.includes(languageId)
+	);
+	const general = scenariosData.filter(
+		(scenario) => !scenario.preferredLanguages || !scenario.preferredLanguages.includes(languageId)
+	);
+
+	return [...preferred, ...general];
+};
+
+/**
+ * Get scenarios for a user based on their language preferences
+ * If user has preferences for the language, exclude onboarding scenarios
+ * If user has no preferences, only show onboarding scenario
+ */
+export const getScenariosForUser = (
+	hasPreferences: boolean,
+	languageId?: string
+): ScenarioWithHints[] => {
+	if (!hasPreferences) {
+		// User has no preferences - show only onboarding scenario
+		const onboarding = getOnboardingScenario();
+		return onboarding ? [onboarding] : [];
+	}
+
+	// User has preferences - exclude onboarding, filter by language if specified
+	let scenarios = scenariosData.filter((scenario) => scenario.category !== 'onboarding');
+
+	if (languageId) {
+		// Prioritize scenarios for the user's language
+		const preferred = scenarios.filter((scenario) =>
+			scenario.preferredLanguages?.includes(languageId)
+		);
+		const general = scenarios.filter(
+			(scenario) =>
+				!scenario.preferredLanguages || !scenario.preferredLanguages.includes(languageId)
+		);
+		scenarios = [...preferred, ...general];
+	}
+
+	return scenarios;
+};
+
+/**
+ * Get scenarios by category, optionally filtered by language
+ */
+export const getScenariosByCategory = (
+	category: string,
+	languageId?: string
+): ScenarioWithHints[] => {
+	let scenarios = scenariosData.filter((scenario) => scenario.category === category);
+
+	if (languageId) {
+		// Prioritize scenarios for the specified language
+		const preferred = scenarios.filter((scenario) =>
+			scenario.preferredLanguages?.includes(languageId)
+		);
+		const general = scenarios.filter(
+			(scenario) =>
+				!scenario.preferredLanguages || !scenario.preferredLanguages.includes(languageId)
+		);
+		scenarios = [...preferred, ...general];
+	}
+
+	return scenarios;
 };

@@ -1,6 +1,6 @@
 import { eq, and, desc } from 'drizzle-orm';
 import { db } from '$lib/server/db/index';
-import { userPreferences, users } from '$lib/server/db/schema';
+import { userPreferences } from '$lib/server/db/schema';
 import type { NewUserPreferences, UserPreferences } from '$lib/server/db/types';
 import type { challengePreferenceEnum, learningMotivationEnum } from '../db/schema/userPreferences';
 
@@ -78,10 +78,13 @@ export class UserPreferencesRepository {
 	}
 
 	/**
-	 * Upsert user preferences (create if doesn't exist, update if it does)
+	 * Upsert user preferences for specific language (create if doesn't exist, update if it does)
 	 */
-	async upsertPreferences(preferences: NewUserPreferences): Promise<UserPreferences> {
-		const existing = await this.getPreferencesByUserId(preferences.userId);
+	async upsertPreferencesForLanguage(preferences: NewUserPreferences): Promise<UserPreferences> {
+		const existing = await this.getPreferencesByUserAndLanguage(
+			preferences.userId,
+			preferences.targetLanguageId
+		);
 
 		if (existing) {
 			// Update existing
@@ -91,7 +94,12 @@ export class UserPreferencesRepository {
 					...preferences,
 					updatedAt: new Date()
 				})
-				.where(eq(userPreferences.userId, preferences.userId))
+				.where(
+					and(
+						eq(userPreferences.userId, preferences.userId),
+						eq(userPreferences.targetLanguageId, preferences.targetLanguageId)
+					)
+				)
 				.returning();
 
 			return updated;
@@ -99,6 +107,66 @@ export class UserPreferencesRepository {
 			// Create new
 			return await this.createPreferences(preferences);
 		}
+	}
+
+	/**
+	 * Update user preferences for specific language
+	 */
+	async updatePreferencesForLanguage(
+		userId: string,
+		targetLanguageId: string,
+		updates: Partial<NewUserPreferences>
+	): Promise<UserPreferences | null> {
+		const [updated] = await db
+			.update(userPreferences)
+			.set({
+				...updates,
+				updatedAt: new Date()
+			})
+			.where(
+				and(
+					eq(userPreferences.userId, userId),
+					eq(userPreferences.targetLanguageId, targetLanguageId)
+				)
+			)
+			.returning();
+
+		return updated || null;
+	}
+
+	/**
+	 * Get user's preferred/default language (most recently updated preference)
+	 */
+	async getUserPreferredLanguage(userId: string): Promise<string | null> {
+		const result = await db
+			.select({ targetLanguageId: userPreferences.targetLanguageId })
+			.from(userPreferences)
+			.where(eq(userPreferences.userId, userId))
+			.orderBy(desc(userPreferences.updatedAt))
+			.limit(1);
+
+		return result[0]?.targetLanguageId || null;
+	}
+
+	/**
+	 * Check if user has preferences for specific language
+	 */
+	async hasPreferencesForLanguage(userId: string, targetLanguageId: string): Promise<boolean> {
+		const result = await this.getPreferencesByUserAndLanguage(userId, targetLanguageId);
+		return result !== null;
+	}
+
+	/**
+	 * Get user languages (all languages user has preferences for)
+	 */
+	async getUserLanguages(userId: string): Promise<string[]> {
+		const result = await db
+			.select({ targetLanguageId: userPreferences.targetLanguageId })
+			.from(userPreferences)
+			.where(eq(userPreferences.userId, userId))
+			.orderBy(desc(userPreferences.updatedAt));
+
+		return result.map((row) => row.targetLanguageId);
 	}
 
 	/**
@@ -141,18 +209,7 @@ export class UserPreferencesRepository {
 		return result.map((row) => row.userId);
 	}
 
-	/**
-	 * Get all users who have opted in to marketing emails
-	 */
-	async getMarketingEmailSubscribers(): Promise<{ email: string }[]> {
-		const result = await db
-			.select({ email: users.email })
-			.from(userPreferences)
-			.innerJoin(users, eq(userPreferences.userId, users.id))
-			.where(eq(userPreferences.receiveMarketingEmails, true));
-
-		return result;
-	}
+	// Note: Email marketing methods moved to userSettingsRepository
 }
 
 // Export singleton instance

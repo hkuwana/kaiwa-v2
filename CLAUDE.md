@@ -26,17 +26,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Key Files & Utilities
 
 ### Core Files
+
 - `src/lib/utils/functional.ts` - Result types, error handling, functional utilities
 - `src/lib/utils/security.ts` - Security utilities and validation
 - `src/lib/server/db/schema/index.ts` - Database schema definitions
 - `src/lib/services/index.ts` - Client-side service exports
 
 ### Services Architecture
+
 - **Server Services**: `src/lib/server/services/` - Business logic (auth, payments, OpenAI)
 - **Client Services**: `src/lib/services/` - Frontend services (audio, conversation, analytics)
 - **Repositories**: `src/lib/server/repositories/` - Data access layer
 
 ### Data & Configuration
+
 - `src/lib/data/scenarios.ts` - Learning scenarios
 - `src/lib/data/languages.ts` - Language definitions
 - `src/lib/enums.ts` - Application enums
@@ -44,6 +47,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## All Available Commands
 
 ### Development
+
 - `pnpm build` - Build for production
 - `pnpm preview` - Preview production build
 - `pnpm start` - Start production server
@@ -51,6 +55,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm format` - Format code with Prettier
 
 ### Testing
+
 - `pnpm test:unit` - Run unit tests with Vitest
 - `pnpm test:unit:watch` - Watch mode unit tests
 - `pnpm test:e2e` - Run Playwright e2e tests
@@ -61,6 +66,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm ci` - Full CI pipeline (lint + check + test + build)
 
 ### Database Management
+
 - `pnpm db:start` - Start PostgreSQL with Docker Compose
 - `pnpm db:push` - Push schema changes to database
 - `pnpm db:generate` - Generate Drizzle migrations
