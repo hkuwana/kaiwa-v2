@@ -12,8 +12,8 @@
 /* DaisyUI theme configuration */
 @plugin "daisyui" {
 	themes:
-		caramellatte --default,
-		night --prefersdark;
+		night --default,
+		caramellatte --preferslight;
 }
 
 /* Minimal global element styling to avoid layout interference */

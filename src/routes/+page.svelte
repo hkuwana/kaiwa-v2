@@ -207,28 +207,40 @@
 			<!-- Benefits Section -->
 			<section class="mx-auto grid max-w-4xl gap-8 md:grid-cols-2">
 				<div class="rounded-xl bg-base-100 p-6 shadow-lg">
-					<h3 class="mb-3 text-xl font-semibold text-primary">🎯 Conversation-First Learning</h3>
+					<h3 class="mb-3 text-xl font-semibold text-primary flex items-center gap-2">
+						<span class="icon-[mdi--target] h-6 w-6 text-primary"></span>
+						Conversation-First Learning
+					</h3>
 					<p class="opacity-90">
 						Skip the flashcards and grammar drills. Jump straight into meaningful conversations that
 						teach you how languages are actually spoken.
 					</p>
 				</div>
 				<div class="rounded-xl bg-base-100 p-6 shadow-lg">
-					<h3 class="mb-3 text-xl font-semibold text-primary">🗣️ Build Speaking Confidence</h3>
+					<h3 class="mb-3 text-xl font-semibold text-secondary flex items-center gap-2">
+						<span class="icon-[mdi--microphone] h-6 w-6 text-secondary"></span>
+						Build Speaking Confidence
+					</h3>
 					<p class="opacity-90">
 						Practice speaking without fear of judgment. Our AI conversation partner helps you build
 						confidence through natural, encouraging dialogue.
 					</p>
 				</div>
 				<div class="rounded-xl bg-base-100 p-6 shadow-lg">
-					<h3 class="mb-3 text-xl font-semibold text-primary">📱 Learn Anywhere, Anytime</h3>
+					<h3 class="mb-3 text-xl font-semibold text-accent flex items-center gap-2">
+						<span class="icon-[mdi--cellphone] h-6 w-6 text-accent"></span>
+						Learn Anywhere, Anytime
+					</h3>
 					<p class="opacity-90">
 						Web-based platform works on all devices. Practice during your commute, lunch break, or
 						whenever you have a few minutes.
 					</p>
 				</div>
 				<div class="rounded-xl bg-base-100 p-6 shadow-lg">
-					<h3 class="mb-3 text-xl font-semibold text-primary">🎭 Real-Life Scenarios</h3>
+					<h3 class="mb-3 text-xl font-semibold text-success flex items-center gap-2">
+						<span class="icon-[mdi--drama-masks] h-6 w-6 text-success"></span>
+						Real-Life Scenarios
+					</h3>
 					<p class="opacity-90">
 						From ordering coffee in Tokyo to having deep conversations with your in-laws, practice
 						scenarios that actually matter to your life.
@@ -239,7 +251,10 @@
 			<!-- Option 1: Chat Bubble Flow Animation -->
 			<section class="space-y-8">
 				<div class="text-center">
-					<h3 class="mb-3 text-2xl font-bold">💬 Live Conversation Flow</h3>
+					<h3 class="mb-3 text-2xl font-bold flex items-center justify-center gap-2">
+						<span class="icon-[mdi--chat] h-7 w-7 text-primary"></span>
+						Live Conversation Flow
+					</h3>
 					<p class="text-lg opacity-80">
 						See real conversations happening across different languages
 					</p>
@@ -274,8 +289,12 @@
 			<p class="mb-2 text-lg opacity-90">
 				Join thousands of learners who've chosen conversation over cramming.
 			</p>
-			<div class="pb-6 text-sm opacity-70">
-				✓ Free to try • ✓ No credit card required • ✓ 3-minute setup
+			<div class="pb-6 text-sm opacity-70 flex items-center justify-center gap-2">
+				<span class="icon-[mdi--check] h-4 w-4 text-green-500"></span> Free to try
+				<span class="mx-1">•</span>
+				<span class="icon-[mdi--check] h-4 w-4 text-green-500"></span> No credit card required
+				<span class="mx-1">•</span>
+				<span class="icon-[mdi--check] h-4 w-4 text-green-500"></span> 3-minute setup
 			</div>
 			<UnifiedStartButton
 				{user}

@@ -21,16 +21,27 @@
 		isGuest = false
 	}: Props = $props();
 
-	// Emoji by scenario category (onboarding | comfort | basic | intermediate | relationships)
-	const categoryEmoji: Record<
+	// Icons and colors by scenario category (onboarding | comfort | basic | intermediate | relationships)
+	const categoryIcons: Record<
 		'onboarding' | 'comfort' | 'basic' | 'intermediate' | 'relationships',
 		string
 	> = {
-		onboarding: '☕️',
-		comfort: '🌆',
-		basic: '📘',
-		intermediate: '🧭',
-		relationships: '💞'
+		onboarding: 'icon-[mdi--coffee]',
+		comfort: 'icon-[mdi--city]',
+		basic: 'icon-[mdi--book-open]',
+		intermediate: 'icon-[mdi--compass]',
+		relationships: 'icon-[mdi--heart-multiple]'
+	};
+
+	const categoryColors: Record<
+		'onboarding' | 'comfort' | 'basic' | 'intermediate' | 'relationships',
+		string
+	> = {
+		onboarding: 'primary',
+		comfort: 'secondary',
+		basic: 'accent',
+		intermediate: 'success',
+		relationships: 'warning'
 	};
 
 	let isOpen = $state(false);
@@ -59,13 +70,15 @@
 				{disabled}
 			>
 				<div class="flex w-full items-center justify-center gap-3 text-center">
-					<span class="text-lg"
-						>{disabled
-							? '🔒'
-							: selectedScenario
-								? categoryEmoji[selectedScenario.category] || '🎯'
-								: '🎯'}</span
-					>
+					<span class="h-5 w-5">
+						{#if disabled}
+							<span class="icon-[mdi--lock] h-5 w-5 text-base-content/60"></span>
+						{:else if selectedScenario}
+							<span class="{categoryIcons[selectedScenario.category] || 'icon-[mdi--target]'} h-5 w-5 text-{categoryColors[selectedScenario.category] || 'primary'}"></span>
+						{:else}
+							<span class="icon-[mdi--target] h-5 w-5 text-primary"></span>
+						{/if}
+					</span>
 					<div class="flex flex-col items-center">
 						<span class="text-base font-medium"
 							>{disabled ? 'Scenario - Onboarding' : 'Scenario'}</span
@@ -104,9 +117,13 @@
 			{disabled}
 		>
 			<div class="flex w-full items-center justify-center gap-3 text-center">
-				<span class="text-lg"
-					>{selectedScenario ? categoryEmoji[selectedScenario.category] || '🎯' : '🎯'}</span
-				>
+				<span class="h-5 w-5">
+					{#if selectedScenario}
+						<span class="{categoryIcons[selectedScenario.category] || 'icon-[mdi--target]'} h-5 w-5 text-{categoryColors[selectedScenario.category] || 'primary'}"></span>
+					{:else}
+						<span class="icon-[mdi--target] h-5 w-5 text-primary"></span>
+					{/if}
+				</span>
 				<div class="flex flex-col items-center">
 					<span class="text-base font-medium"
 						>Scenario – {selectedScenario
@@ -155,10 +172,10 @@
 						disabled={isLocked}
 					>
 						<div class="flex items-center gap-2">
-							<span class="text-lg">{categoryEmoji[scenario.category] || '🎯'}</span>
+							<span class="{categoryIcons[scenario.category] || 'icon-[mdi--target]'} h-5 w-5 text-{categoryColors[scenario.category] || 'primary'}"></span>
 							<span class="font-medium">{scenario.title}</span>
 							{#if isLocked}
-								<span class="text-xs opacity-60">🔒</span>
+								<span class="icon-[mdi--lock] h-4 w-4 text-base-content/40"></span>
 							{/if}
 						</div>
 

@@ -9,32 +9,38 @@
 		{
 			title: 'Start Speaking Immediately',
 			desc: 'No tutorials, no setup screens. Just click and have a real conversation in seconds.',
-			icon: '⚡'
+			icon: 'icon-[mdi--lightning-bolt]',
+			color: 'primary'
 		},
 		{
 			title: 'Real Human Emotions',
 			desc: 'Practice apologizing, expressing affection, handling conflict — the conversations that actually matter in relationships.',
-			icon: '💝'
+			icon: 'icon-[mdi--heart]',
+			color: 'secondary'
 		},
 		{
 			title: 'Asian Language Support',
 			desc: "Reading aids for Japanese, Korean, and Chinese speakers — because seeing characters shouldn't stop you from speaking.",
-			icon: '文'
+			icon: 'icon-[mdi--translate]',
+			color: 'accent'
 		},
 		{
 			title: 'Builds on Your Life',
 			desc: 'Remembers your interests and experiences to create personally relevant conversations you actually care about.',
-			icon: '🌱'
+			icon: 'icon-[mdi--sprout]',
+			color: 'success'
 		},
 		{
 			title: 'Natural Conversation Flow',
 			desc: 'True back-and-forth dialogue that feels human — no awkward pauses or robotic responses.',
-			icon: '💬'
+			icon: 'icon-[mdi--chat]',
+			color: 'info'
 		},
 		{
 			title: 'Cultural Insider Knowledge',
 			desc: 'Learn phrases locals actually use and understand the cultural context behind them.',
-			icon: '🗝️'
+			icon: 'icon-[mdi--key]',
+			color: 'warning'
 		}
 	];
 
@@ -80,10 +86,8 @@
 		{#each variant === 'compact' ? items.slice(0, 6) : items as item}
 			<div class="rounded-xl bg-base-100 p-4 shadow">
 				<div class="flex items-center gap-3">
-					<div
-						class="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-lg text-primary"
-					>
-						{item.icon}
+					<div class="flex h-9 w-9 items-center justify-center rounded-full bg-{item.color}/10">
+						<span class="{item.icon} h-5 w-5 text-{item.color}"></span>
 					</div>
 					<div class="text-base font-semibold">{item.title}</div>
 				</div>
