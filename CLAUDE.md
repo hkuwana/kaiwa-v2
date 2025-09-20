@@ -2,24 +2,55 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Development Commands
-
-### Core Development
+## Daily Commands (Most Used)
 
 - `pnpm dev` - Start development server
+- `pnpm check` - TypeScript type checking
+- `pnpm lint` - Run ESLint and Prettier checks
+- `fly deploy` - Deploy to production
+
+## Code Style Guidelines
+
+- **IMPORTANT**: Use camelCase for all variables, functions, and file names
+- **IMPORTANT**: Use Svelte 5 runes syntax (`$state`, `$derived`, `$effect`)
+- Use ES modules (import/export) syntax
+- Destructure imports when possible
+- Follow existing patterns in components and services
+
+## Critical Gotchas
+
+- **IMPORTANT**: For Fly.io deployment, ALL environment variables must be imported via `env` dynamic imports. Direct variable access doesn't work with SSR setup on Fly.
+- Always run `pnpm check` after code changes
+- Database schema changes require `pnpm db:generate` before `pnpm db:push`
+
+## Key Files & Utilities
+
+### Core Files
+- `src/lib/utils/functional.ts` - Result types, error handling, functional utilities
+- `src/lib/utils/security.ts` - Security utilities and validation
+- `src/lib/server/db/schema/index.ts` - Database schema definitions
+- `src/lib/services/index.ts` - Client-side service exports
+
+### Services Architecture
+- **Server Services**: `src/lib/server/services/` - Business logic (auth, payments, OpenAI)
+- **Client Services**: `src/lib/services/` - Frontend services (audio, conversation, analytics)
+- **Repositories**: `src/lib/server/repositories/` - Data access layer
+
+### Data & Configuration
+- `src/lib/data/scenarios.ts` - Learning scenarios
+- `src/lib/data/languages.ts` - Language definitions
+- `src/lib/enums.ts` - Application enums
+
+## All Available Commands
+
+### Development
 - `pnpm build` - Build for production
 - `pnpm preview` - Preview production build
 - `pnpm start` - Start production server
-
-### Code Quality
-
-- `pnpm check` - TypeScript type checking
 - `pnpm check:watch` - Watch mode type checking
-- `pnpm lint` - Run ESLint and Prettier checks
 - `pnpm format` - Format code with Prettier
 
 ### Testing
-
 - `pnpm test:unit` - Run unit tests with Vitest
 - `pnpm test:unit:watch` - Watch mode unit tests
 - `pnpm test:e2e` - Run Playwright e2e tests
@@ -30,7 +61,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm ci` - Full CI pipeline (lint + check + test + build)
 
 ### Database Management
-
 - `pnpm db:start` - Start PostgreSQL with Docker Compose
 - `pnpm db:push` - Push schema changes to database
 - `pnpm db:generate` - Generate Drizzle migrations
@@ -39,68 +69,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm db:seed:dev` - Seed development database
 - `pnpm db:nuke:dev` - Clear development database
 
-## Architecture Overview
+## Repository Etiquette (Future Team Guidelines)
 
-### Framework & Core Technologies
+### Code Reviews
 
-- **SvelteKit** with TypeScript for full-stack web application
-- **Drizzle ORM** with PostgreSQL for database management
-- **Tailwind CSS** + **DaisyUI** for styling
-- **Playwright** for e2e testing, **Vitest** for unit tests
-- **Paraglide** for internationalization
+- Test changes locally with `pnpm check && pnpm lint && pnpm test:unit`
+- Ensure TypeScript has no errors before submitting PRs
+- Test database migrations in development environment
 
-### Key Application Structure
+### Commit Standards
 
-#### Database Layer (`src/lib/server/`)
+- Use conventional commits (feat:, fix:, docs:, refactor:)
+- Include affected areas in commit messages (e.g., "feat(auth): add OAuth flow")
+- Test deployment-critical changes with `fly deploy` in staging first
 
-- **Schema**: Database schema definitions in `db/schema/` (with v2 migration structure)
-- **Repositories**: Data access layer following repository pattern
-- **Auth**: OAuth integration with Google, session management
-- **Services**: Business logic services (analytics, user management)
+### Branch Strategy
 
-#### API Layer (`src/routes/api/`)
-
-- **Audio Processing**: `/api/audio/transcribe`, `/api/audio/tts`
-- **Chat**: `/api/chat` for AI conversation responses
-- **Realtime**: `/api/realtime-session/` for WebSocket-like real-time features
-- **Stripe**: Payment processing endpoints
-
-#### Frontend Architecture (`src/lib/`)
-
-- **Services**: Client-side services for audio, conversation, real-time communication
-- **Components**: Reusable Svelte components for conversation UI
-- **Stores**: Svelte 5 runes-based state management
-- **Utils**: Utility functions and type definitions
-
-#### Core Features
-
-- **Conversation Practice**: AI-powered language learning conversations
-- **Audio Processing**: Speech-to-text, text-to-speech, real-time audio
-- **Scenarios**: Structured learning scenarios with progress tracking
-- **User Management**: Authentication, preferences, usage tracking
-- **Payment System**: Stripe integration for subscriptions
-
-### Environment Requirements
-
-- `DATABASE_URL` - PostgreSQL connection string
-- `OPENAI_API_KEY` - For AI chat and audio processing
-- Google OAuth credentials for authentication
-- Stripe keys for payment processing
-
-### Development Patterns
-
-- Repository pattern for data access
-- Service layer for business logic
-- TypeScript throughout with strict type checking
-- Functional programming utilities in `utils/functional.ts`
-- Security utilities in `utils/security.ts`
-
-### Testing Strategy
-
-- Unit tests for services and utilities
-- E2E tests for user flows with Playwright
-- Smoke tests for production monitoring
-- Authentication-specific test commands available
+- Use feature branches for new development
+- Keep PRs focused and small when possible
+- Always ensure CI passes before merging
 
 ### Documentation Standards
 

@@ -161,6 +161,7 @@ We follow a clean, predictable pattern:
 ### 4\. **UI Simplicity**
 
 - **UI components are thin and declarative**
+- **IMPORTANT: Use Svelte 5 runes syntax** (`$state`, `$derived`, `$effect`)
 - **UI uses `$derived` for reactive values**
 - **UI calls store actions, never services directly**
 - **UI focuses on presentation, not logic**
@@ -309,7 +310,7 @@ src/lib/
 - ✅ 3-layer architecture implemented
 - ✅ Services are independent
 - ✅ Stores orchestrate services
-- ✅ UI is clean and simplef
+- ✅ UI is clean and simple
 
 ### **Next Steps**
 
