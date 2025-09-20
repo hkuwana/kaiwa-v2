@@ -1,0 +1,1 @@
+ALTER TABLE "user_preferences" ADD COLUMN "favorite_scenario_ids" jsonb DEFAULT '[]'::jsonb;

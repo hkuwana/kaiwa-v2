@@ -2,8 +2,11 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import UserPreferencesEditor from '$lib/components/UserPreferencesEditor.svelte';
+	import TierBadge from '$lib/features/payments/components/TierBadge.svelte';
 	import type { UserPreferences } from '$lib/server/db/types';
+	import type { UsageStatus } from '$lib/server/tierService';
 	import { SvelteDate } from 'svelte/reactivity';
+	import { onMount } from 'svelte';
 
 	const { data } = $props();
 
@@ -19,6 +22,10 @@
 	// Billing state
 	let isManagingBilling = $state(false);
 	let billingError = $state('');
+
+	// Usage status state
+	let usageStatus = $state<UsageStatus | null>(null);
+	let isLoadingUsage = $state(false);
 
 	// Tier pricing for display
 	const tierPricing: Record<string, string> = {
@@ -164,6 +171,28 @@
 			isManagingBilling = false;
 		}
 	};
+
+	// Load user's detailed usage status
+	const loadUsageStatus = async () => {
+		isLoadingUsage = true;
+		try {
+			const response = await fetch('/api/usage/status');
+			if (response.ok) {
+				usageStatus = await response.json();
+			} else {
+				console.error('Failed to load usage status:', response.statusText);
+			}
+		} catch (error) {
+			console.error('Error loading usage status:', error);
+		} finally {
+			isLoadingUsage = false;
+		}
+	};
+
+	// Load usage status when component mounts
+	onMount(() => {
+		loadUsageStatus();
+	});
 </script>
 
 <svelte:head>
@@ -252,6 +281,41 @@
 							<span>{billingError}</span>
 						</div>
 					{/if}
+
+					<!-- Usage Statistics -->
+					<div class="mb-6">
+						<div class="mb-3 flex items-center justify-between">
+							<h3 class="text-lg font-semibold">Usage Statistics</h3>
+							<button
+								class="btn btn-ghost btn-sm"
+								onclick={loadUsageStatus}
+								disabled={isLoadingUsage}
+							>
+								{#if isLoadingUsage}
+									<span class="icon-[mdi--loading] h-4 w-4 animate-spin"></span>
+								{:else}
+									<span class="icon-[mdi--refresh] h-4 w-4"></span>
+								{/if}
+								Refresh
+							</button>
+						</div>
+
+						{#if isLoadingUsage}
+							<div class="flex items-center gap-2">
+								<span class="loading loading-sm loading-spinner"></span>
+								<span class="text-sm text-base-content/70">Loading usage statistics...</span>
+							</div>
+						{:else if usageStatus}
+							<TierBadge tierStatus={usageStatus} showDetails={true} />
+						{:else}
+							<div class="rounded-lg border border-warning/20 bg-warning/10 p-4">
+								<div class="flex items-center gap-2 text-warning">
+									<span class="icon-[mdi--alert-circle] h-5 w-5"></span>
+									<span class="text-sm">Unable to load usage statistics. Try refreshing.</span>
+								</div>
+							</div>
+						{/if}
+					</div>
 
 					<div class="space-y-4">
 						<!-- Current Plan -->

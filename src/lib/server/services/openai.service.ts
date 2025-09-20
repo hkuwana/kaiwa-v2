@@ -4,6 +4,13 @@ import OpenAI from 'openai';
 import { env } from '$env/dynamic/private';
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import type { UserPreferences } from '$lib/server/db/types';
+import {
+	buildOnboardingInstructions,
+	type OnboardingAnalysisConfig,
+	type AnalysisFocus
+} from './analysisInstruction.service';
+
+export type { AnalysisFocus, OnboardingAnalysisConfig } from './analysisInstruction.service';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -74,79 +81,6 @@ export async function createCompletion(
 /**
  * Analyze onboarding conversation and extract user preferences
  */
-export type AnalysisFocus = 'preferences' | 'memories' | 'grammar' | 'revision';
-
-export interface OnboardingAnalysisConfig {
-	/** Primary language being studied */
-	targetLanguage: string;
-	/** Scenario category to tailor extraction heuristics */
-	scenarioCategory?: string | null;
-	/** Additional focus areas to mention in the prompt */
-	analysisFocus?: AnalysisFocus[];
-}
-
-const DEFAULT_ANALYSIS_FOCUS: AnalysisFocus[] = ['preferences', 'memories'];
-
-const scenarioGuidelines: Record<string, string> = {
-	general: `BASE GUIDELINES:\n- Identify the learner's motivation, confidence, and specific goals.\n- Capture any explicit personal facts or commitments as short "memories".\n- Keep answers concise and evidence-based.`,
-	onboarding: `ONBOARDING FOCUS:\n- Prioritise extracting preferences that help craft a personalised learning plan.\n- Collect any personal facts relevant to future conversations (family, work, travel plans).`,
-	roleplay: `ROLEPLAY FOCUS:\n- Pay attention to relationships, shared plans, and emotional tone.\n- Extract concrete memories such as names, locations, commitments, or interests mentioned in the roleplay.`,
-	comfort: `COMFORT SCENARIO FOCUS:\n- Emphasise everyday interests, routines, and comfort levels with the language.\n- Store memories that could improve small-talk or follow-up sessions.`,
-	relationships: `RELATIONSHIP SCENARIO FOCUS:\n- Capture interpersonal details (who they are speaking with, goals, anniversaries, shared preferences).\n- Note communication challenges or emotional needs relevant to future coaching.`,
-	basic: `BASIC SCENARIO FOCUS:\n- Focus on foundational preferences and any blockers.\n- Save memories about essential needs (work schedule, study constraints, key motivations).`
-};
-
-const focusDescriptions: Record<AnalysisFocus, string> = {
-	preferences:
-		'- Extract learning preferences, motivation, confidence, and tangible goals for personalisation.',
-	memories:
-		'- Collect short first-person memory strings that describe personal facts, relationships, or interests (e.g., "enjoys hiking", "planning a trip to Osaka").',
-	grammar:
-		'- Evaluate grammar strengths and issues. Summarise specific patterns that need revision.',
-	revision:
-		'- Identify points that should be reviewed in the next session (pronunciation, vocabulary gaps, misunderstandings).'
-};
-
-function buildOnboardingSystemPrompt(
-	targetLanguage: string,
-	scenarioCategory: string,
-	focusAreas: AnalysisFocus[]
-): string {
-	const guideline =
-		scenarioGuidelines[scenarioCategory] ?? scenarioGuidelines.general;
-	const focusSummary = focusAreas
-		.map((focus) => focusDescriptions[focus])
-		.filter(Boolean)
-		.join('\n');
-
-	return `You are an expert language learning analyst. Analyse the conversation between a language tutor and student to extract structured insights. Work in the context of the ${scenarioCategory} scenario while remembering the student is learning ${targetLanguage}.
-
-${guideline}
-
-FOCUS AREAS:
-${focusSummary}
-
-Respond ONLY with a valid JSON object matching the schema:
-{
-	"learningGoal": "Connection" | "Career" | "Travel" | "Academic" | "Culture" | "Growth",
-	"speakingLevel": number (1-100),
-	"listeningLevel": number (1-100),
-	"speakingConfidence": number (1-100),
-	"specificGoals": string[],
-	"challengePreference": "comfortable" | "moderate" | "challenging",
-	"correctionStyle": "immediate" | "gentle" | "end_of_session",
-	"dailyGoalSeconds": 60 | 120 | 180 | 300,
-	"memories": string[] (short personal facts or preferences for future conversations; return [] if none),
-	"assessmentNotes": string (2-3 sentences summarising level, needs, and follow-up focus)
-}
-
-RULES:
-- Keep "memories" in English even if conversation is in another language.
-- Use concise phrases for memories (under 80 characters each).
-- Do not invent details without contextual clues; return an empty array when unsure.
-- Do not include any explanation outside the JSON.`;
-}
-
 export async function analyzeOnboardingConversation(
 	conversationMessages: string[],
 	configOrLanguage: string | OnboardingAnalysisConfig
@@ -158,23 +92,11 @@ export async function analyzeOnboardingConversation(
 			? { targetLanguage: configOrLanguage }
 			: configOrLanguage;
 
-	const scenarioCategory = config.scenarioCategory?.toLowerCase() || 'general';
-	const focusAreas = Array.from(
-		new Set([
-			...DEFAULT_ANALYSIS_FOCUS,
-			...(config.analysisFocus ?? [])
-		])
-	);
-
-	const systemPrompt = buildOnboardingSystemPrompt(
-		config.targetLanguage,
-		scenarioCategory,
-		focusAreas
-	);
+	const instructions = buildOnboardingInstructions(conversation, config);
 
 	const messages: ChatCompletionMessageParam[] = [
-		{ role: 'system', content: systemPrompt },
-		{ role: 'user', content: `Analyze this conversation:\n\n${conversation}` }
+		{ role: 'system', content: instructions.systemPrompt },
+		{ role: 'user', content: instructions.userPrompt }
 	];
 
 	const response = await createCompletion(messages, {
@@ -185,8 +107,8 @@ export async function analyzeOnboardingConversation(
 	});
 
 	console.log('🧠 [OpenAI Service] Onboarding analysis response received', {
-		scenarioCategory,
-		focusAreas,
+		scenarioCategory: instructions.scenarioCategory,
+		focusAreas: instructions.focusAreas,
 		content: response.content
 	});
 

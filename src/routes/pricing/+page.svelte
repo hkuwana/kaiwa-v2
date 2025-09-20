@@ -5,9 +5,14 @@
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { SubscriptionTier } from '$lib/enums.js';
 	import { defaultTierConfigs, type UserTier } from '$lib/data/tiers';
-	import { formatPrice, calculateAnnualDiscount } from '$lib/client/stripe.service';
+	import {
+		formatPrice,
+		calculateAnnualDiscount
+	} from '$lib/features/payments/services/stripe.service';
+	import { PricingService } from '$lib/features/payments/services/pricing.service';
 	import { env as publicEnv } from '$env/dynamic/public';
 	import WhyDifferent from '$lib/components/WhyDifferent.svelte';
+	import Faq from '$lib/features/payments/components/Faq.svelte';
 	import { resolve } from '$app/paths';
 
 	// Get page data from server using runes
@@ -41,26 +46,14 @@
 		};
 
 		try {
-			const response = await fetch('/api/pricing');
-			if (!response.ok) {
-				throw new Error(`Failed to load pricing data (${response.status})`);
-			}
-			const payload = (await response.json()) as {
-				success: boolean;
-				tiers?: PricingApiTier[];
-				error?: string;
-			};
-			if (!payload.success || !payload.tiers) {
-				throw new Error(payload.error || 'Pricing data unavailable');
-			}
-
+			const tiers = await PricingService.fetchPricing();
 			const hydrated: Record<UserTier, PricingTier> = {
 				free: { ...fallback.free },
 				plus: { ...fallback.plus },
 				premium: { ...fallback.premium }
 			};
 
-			for (const tier of payload.tiers) {
+			for (const tier of tiers) {
 				const id = tier.id as UserTier;
 				if (id && id in hydrated) {
 					hydrated[id] = { ...hydrated[id], ...tier } as PricingTier;
@@ -178,52 +171,11 @@
 		}
 	];
 
-	// FAQ logic
-	const faqs = [
-		{
-			question: 'Can I cancel anytime?',
-			answer:
-				'Yes, you can cancel your subscription at any time. Your benefits will continue until the end of your billing period. You can manage your subscription through your account settings.'
-		},
-		{
-			question: 'What happens to my rollover minutes if I cancel?',
-			answer:
-				'Rollover minutes are a benefit of an active subscription. If you cancel, your accumulated rollover minutes will expire at the end of your final billing period.'
-		},
-		{
-			question: 'Can I upgrade or downgrade my plan?',
-			answer:
-				'Absolutely! You can change your plan at any time from your account settings. The new plan will be prorated and take effect immediately.'
-		}
-	];
-	let expandedFaq = $state(-1);
-
 	// Early‑Backer price id (optional)
 	const earlyBackerPriceId = $state(publicEnv.PUBLIC_STRIPE_EARLY_BACKER_PRICE_ID || '');
 
 	async function handleEarlyBackerCheckout() {
-		if (!userManager.isLoggedIn) {
-			await goto(resolve('/auth'));
-			return;
-		}
-		if (!earlyBackerPriceId) return;
-		try {
-			const res = await fetch('/api/stripe/checkout', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					priceId: earlyBackerPriceId,
-					successPath: '/profile',
-					cancelPath: '/pricing'
-				})
-			});
-			const data = await res.json();
-			if (data?.url) {
-				window.location.href = data.url;
-			}
-		} catch (e) {
-			console.warn('Early‑Backer checkout failed', e);
-		}
+		await PricingService.handleEarlyBackerCheckout(earlyBackerPriceId, userManager.user);
 	}
 
 	onMount(() => {
@@ -529,23 +481,7 @@
 				{/each}
 			</div>
 
-			<h2 class="mb-10 text-center text-3xl font-bold">Common Questions</h2>
-			<div class="mx-auto max-w-3xl space-y-4">
-				{#each faqs as faq, index (faq.question)}
-					<div class="collapse-plus collapse bg-base-200">
-						<input
-							type="radio"
-							name="faq-accordion"
-							checked={expandedFaq === index}
-							onchange={() => (expandedFaq = expandedFaq === index ? -1 : index)}
-						/>
-						<div class="collapse-title text-xl font-medium">{faq.question}</div>
-						<div class="collapse-content">
-							<p class="pt-2 text-base-content/90">{faq.answer}</p>
-						</div>
-					</div>
-				{/each}
-			</div>
+			<Faq />
 		</div>
 
 		<!-- Extended Differentiators (educate near bottom) -->

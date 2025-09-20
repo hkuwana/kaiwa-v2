@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import PricingModal from '$lib/components/PricingModal.svelte';
+	import PricingModal from '$lib/features/payments/components/PricingModal.svelte';
 	import type { UsageStatus } from '$lib/server/tierService';
 	import { SvelteDate } from 'svelte/reactivity';
 
