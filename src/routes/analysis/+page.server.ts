@@ -1,6 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversationSessions.repository';
+import { messagesRepository } from '$lib/server/repositories/messages.repository';
 
 export const load: PageServerLoad = async ({ url, locals }) => {
 	const user = locals.user || null;
@@ -16,13 +17,17 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 		try {
 			const existingSession = await conversationSessionsRepository.getSessionById(sessionId);
 
-			// If session exists and has ended, use it
+			// If session exists and has ended, load it with messages
 			if (existingSession && existingSession.endTime) {
+				const messages = await messagesRepository.getConversationMessages(sessionId);
+
 				return {
 					user,
 					isGuest: false,
 					sessionId,
-					conversationSession: existingSession
+					conversationSession: existingSession,
+					messages,
+					hasExistingData: true
 				};
 			}
 
@@ -43,6 +48,8 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 			isGuest: false,
 			sessionId,
 			conversationSession: null,
+			messages: [],
+			hasExistingData: false,
 			note: 'Session not found in database - using store data'
 		};
 	}
@@ -52,6 +59,8 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 		user,
 		isGuest: true,
 		sessionId,
-		conversationSession: null
+		conversationSession: null,
+		messages: [],
+		hasExistingData: false
 	};
 };

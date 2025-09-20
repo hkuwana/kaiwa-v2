@@ -2,11 +2,13 @@
 	import { fade, fly } from 'svelte/transition';
 	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
 	import MessageBubble from '$lib/components/MessageBubble.svelte';
+	import ConversationFab from '$lib/components/ConversationFab.svelte';
 	import type { Message, Language, UserPreferences } from '$lib/server/db/types';
 	import type { Speaker } from '$lib/types';
 	import { translationStore } from '$lib/stores/translation.store.svelte';
 	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
+	import { userManager } from '$lib/stores/user.store.svelte';
 	import { SvelteMap } from 'svelte/reactivity';
 	import { shouldTriggerOnboarding } from '$lib/services/onboarding-manager.service';
 
@@ -51,6 +53,9 @@
 
 	// Audio control state
 	let hasUsedAudioControl = $state(false);
+	let isEnding = $state(false);
+
+	const isLoggedIn = $derived(userManager.isLoggedIn);
 
 	// Determine if we are in an onboarding-like session for hinting
 	const showOnboardingHint = $derived(() => {
@@ -89,6 +94,23 @@
 			handleSendMessage();
 		}
 	}
+
+	function handleEndRequest() {
+		if (isEnding) return;
+		isEnding = true;
+		onEndConversation();
+	}
+
+	function handleRestartConversation() {
+		isEnding = false;
+		conversationStore.startNewConversationFromReview();
+	}
+
+	$effect(() => {
+		if (status !== 'connected' && status !== 'streaming') {
+			isEnding = false;
+		}
+	});
 
 	async function handleTranslation(
 		event: string,
@@ -293,14 +315,12 @@
 			</div>
 		{/if}
 
-		<!-- End Conversation (fixed bottom-right) -->
-		<div class="pointer-events-none fixed right-4 bottom-4 z-40">
-			<button
-				onclick={onEndConversation}
-				class="btn-small sm:btn-medium btn pointer-events-auto btn-outline btn-error"
-			>
-				{isGuestUser ? 'Finish Chat' : 'End Conversation'}
-			</button>
-		</div>
+		<ConversationFab
+			user={userManager.user}
+			{timeRemaining}
+			timerActive={isTimerActive}
+			onEndConversation={handleEndRequest}
+			onRestartConversation={handleRestartConversation}
+		/>
 	</div>
 </div>

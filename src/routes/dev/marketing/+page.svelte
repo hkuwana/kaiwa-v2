@@ -10,7 +10,7 @@
 	type Task = { id: string; label: string; done: boolean };
 	const STORAGE_KEY = 'kaiwa_marketing_tasks_v1';
 	const userId = 'USER_ID';
-	let tasks: Task[] = [
+	let tasks: Task[] = $state([
 		{ id: 'clarify-positioning', label: 'Clarify Home/About positioning', done: true },
 		{ id: 'email-seq', label: 'Send 2-email sequence (story + BTS)', done: false },
 		{ id: 'reddit-founder', label: 'Post founder story + demo', done: false },
@@ -28,10 +28,10 @@
 		{ id: 'reddit-weekly', label: '1 Reddit post/week (value-first)', done: false },
 		{ id: 'posthog-daily', label: 'Daily: Check PostHog dashboard', done: false },
 		{ id: 'stripe-daily', label: 'Daily: Check Stripe revenue', done: false }
-	];
+	]);
 
-	let goalShares = 5;
-	let shareEvents = 0;
+	let goalShares = $state(5);
+	let shareEvents = $state(0);
 
 	onMount(() => {
 		try {
@@ -99,7 +99,7 @@
 	}
 
 	// Blog Post Idea Generator
-	let blogPostIdea = '';
+	let blogPostIdea = $state('');
 	const blogPostTopics = [
 		'The Future of Language Learning',
 		'AI in Conversation Practice',
@@ -130,18 +130,18 @@
 	}
 
 	// Demo Video Steps
-	const demoVideoSteps = [
+	const demoVideoSteps = $state([
 		{ id: 'script', label: 'Write a 30-45 second script', done: false },
 		{ id: 'screen-record', label: 'Record screen with high resolution', done: false },
 		{ id: 'voiceover', label: 'Record clear voiceover', done: false },
 		{ id: 'editing', label: 'Edit video and add background music', done: false },
 		{ id: 'feedback', label: 'Get feedback from 3 people', done: false },
 		{ id: 'upload', label: 'Upload to YouTube/Vimeo', done: false }
-	];
+	]);
 
 	// Reddit Post Helper
-	let redditPostContent = '';
-	let selectedRedditPost: keyof typeof redditTemplates = 'founder-story';
+	let redditPostContent = $state('');
+	let selectedRedditPost: keyof typeof redditTemplates = $state('founder-story');
 	const redditTemplates = {
 		'founder-story': `**Title: I built an AI partner to practice conversations in my wife's language. It's called Kaiwa.**
 

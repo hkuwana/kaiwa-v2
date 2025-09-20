@@ -471,6 +471,11 @@
 								{#if conversation.scenarioId}
 									<div class="badge badge-xs badge-accent">Scenario</div>
 								{/if}
+								{#if dev && showDevMode}
+									<div class="badge badge-xs badge-warning font-mono" title="Conversation ID">
+										{conversation.id}
+									</div>
+								{/if}
 							</div>
 							<div class="text-xs font-semibold uppercase opacity-60">
 								{formatDate(conversation.startedAt)}

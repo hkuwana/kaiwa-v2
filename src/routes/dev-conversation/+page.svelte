@@ -4,11 +4,11 @@
 
 	type Conversation = Awaited<ReturnType<typeof userMemoryService.getRecentConversations>>[number];
 
-	let loading = true;
-	let error: string | null = null;
-	let conversations: Conversation[] = [];
-	let limit = 10;
-	let languageId = '';
+	let loading = $state(true);
+	let error: string | null = $state(null);
+	let conversations: Conversation[] = $state([]);
+	let limit = $state(10);
+	let languageId = $state('');
 
 	async function loadConversations() {
 		loading = true;
@@ -54,7 +54,7 @@
 				bind:value={languageId}
 			/>
 		</div>
-		<button class="rounded bg-blue-600 px-3 py-2 text-white" on:click={loadConversations}>
+		<button class="rounded bg-blue-600 px-3 py-2 text-white" onclick={loadConversations}>
 			Refresh
 		</button>
 	</div>

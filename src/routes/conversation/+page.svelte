@@ -19,7 +19,7 @@
 	import ErrorState from '$lib/components/ConversationErrorState.svelte';
 	import ActiveConversationState from '$lib/components/ConversationActiveState.svelte';
 	import DevPanel from '$lib/components/DevPanel.svelte';
-	import UnifiedDebugPanel from '$lib/components/UnifiedDebugPanel.svelte';
+	import MessageBubble from '$lib/components/MessageBubble.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 
 	// Keep existing components for analysis temporarily
@@ -29,30 +29,28 @@
 
 	const { data } = $props();
 
-	// Reactive values from stores
-	const status = $derived(conversationStore.status);
-	// Use conversationStore.messages as primary source since it has mirroring and script generation
-	const messages = $derived(conversationStore.messages);
+	// Reactive values from stores or server data
+	const status = $derived(data.isStaticView ? 'static' : conversationStore.status);
+	// Use server messages for static view, otherwise use store messages
+	const messages = $derived(data.isStaticView ? data.messages : conversationStore.messages);
 	const audioLevel = $derived(audioStore.getCurrentLevel());
 	const error = $derived(conversationStore.error);
 	const selectedLanguage = $derived(settingsStore.selectedLanguage);
 	const hasAnalysisResults = $derived(userPreferencesStore.hasCurrentAnalysisResults);
 	const isAnalyzing = $derived(userPreferencesStore.isCurrentlyAnalyzing);
 	const isGuestUser = $derived(data.isGuest);
+	const isStaticView = $derived(data.isStaticView);
 
 	// Connection state
 	let autoConnectAttempted = $state(false);
 
-	// Debug panel state (only in dev mode)
-	let showDebugPanel = $state(dev && true); // Show by default in dev mode
-	let debugCollapsed = $state(false); // Start expanded
 
 	// Extract session parameters from URL
 	const sessionId = $derived(page.url.searchParams.get('sessionId') || crypto.randomUUID());
 
-	// Auto-connection effect
+	// Auto-connection effect (skip for static views)
 	$effect(() => {
-		if (browser && !autoConnectAttempted && status === 'idle' && selectedLanguage) {
+		if (browser && !autoConnectAttempted && !isStaticView && status === 'idle' && selectedLanguage) {
 			attemptAutoConnection();
 		}
 	});
@@ -186,21 +184,78 @@
 		handleRetryConnection();
 	}
 
-	function toggleDebugPanel() {
-		if (!showDebugPanel) {
-			showDebugPanel = true;
-			debugCollapsed = false;
-		} else {
-			debugCollapsed = !debugCollapsed;
-		}
-	}
-
-	function hideDebugPanel() {
-		showDebugPanel = false;
-	}
 </script>
 
-{#if status === 'connecting'}
+{#if status === 'static'}
+	<!-- Static view of existing conversation -->
+	<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">
+		<div class="container mx-auto flex h-screen max-w-4xl flex-col px-4 py-4">
+			<!-- Header for static view -->
+			<div class="mb-4 flex-shrink-0">
+				<div class="card bg-base-100 shadow-lg">
+					<div class="card-body p-4">
+						<div class="flex items-center justify-between">
+							<div>
+								<h1 class="text-xl font-bold">Past Conversation</h1>
+								<p class="text-sm text-base-content/70">
+									{#if data.existingSession}
+										Started {data.existingSession.startTime.toLocaleDateString()} at {data.existingSession.startTime.toLocaleTimeString()}
+									{/if}
+								</p>
+							</div>
+							<div class="flex gap-2">
+								<button
+									class="btn btn-primary"
+									onclick={() => goto(`/analysis?sessionId=${sessionId}`)}
+								>
+									View Analysis
+								</button>
+								<button
+									class="btn btn-outline"
+									onclick={() => goto('/')}
+								>
+									New Conversation
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Conversation Messages -->
+			<div class="mb-4 min-h-0 flex-1">
+				<div class="card h-full bg-base-100 shadow-lg">
+					<div class="card-body flex h-full flex-col">
+						<div class="mb-4 card-title flex-shrink-0 text-xl">
+							Conversation History
+							<span class="text-sm font-normal opacity-70">({messages.length} messages)</span>
+						</div>
+						<div class="flex-1 space-y-3 overflow-y-auto">
+							{#if messages.length === 0}
+								<div class="flex h-full items-center justify-center">
+									<div class="text-center">
+										<div class="text-lg opacity-70">No messages found</div>
+										<div class="text-sm opacity-50">This conversation may not have been saved</div>
+									</div>
+								</div>
+							{:else}
+								{#each messages as message (message.id)}
+									<div>
+										<MessageBubble
+											{message}
+											conversationLanguage={selectedLanguage?.code}
+											dispatch={() => {}}
+										/>
+									</div>
+								{/each}
+							{/if}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{:else if status === 'connecting'}
 	<!-- Use new ConnectingState component -->
 	<ConnectingState
 		{error}
@@ -271,24 +326,6 @@
 			<div class="card-body">
 				<h2 class="card-title">Dev Controls</h2>
 				<div class="space-y-3">
-					<!-- Debug controls -->
-					<div class="flex flex-wrap items-center gap-2">
-						<button
-							class="btn btn-sm {showDebugPanel ? 'btn-secondary' : 'btn-outline'}"
-							onclick={toggleDebugPanel}
-						>
-							{#if !showDebugPanel}
-								Show Debug Panel
-							{:else if debugCollapsed}
-								Expand Debug
-							{:else}
-								Collapse Debug
-							{/if}
-						</button>
-						{#if showDebugPanel}
-							<button class="btn btn-ghost btn-sm" onclick={hideDebugPanel}> Hide Debug </button>
-						{/if}
-					</div>
 
 					<!-- Audio Interaction Mode -->
 					<div class="flex flex-wrap items-center gap-3">
@@ -530,6 +567,7 @@
 		{isGuestUser}
 		onDismiss={handleContinueAfterResults}
 		onSave={handleSaveAndContinue}
+		expandable={false}
 	/>
 {/if}
 <!-- Dev Panel -->
@@ -543,9 +581,3 @@
 	timeInSeconds={Math.ceil(conversationStore.timerState.timer.timeRemaining / 1000)}
 />
 
-<!-- Unified Debug Panel at bottom (only shown in dev mode) -->
-<UnifiedDebugPanel
-	show={showDebugPanel}
-	isCollapsed={debugCollapsed}
-	onToggleCollapse={toggleDebugPanel}
-/>

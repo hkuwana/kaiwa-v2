@@ -397,7 +397,7 @@
 				class="flex flex-col items-center rounded-2xl border-2 border-primary bg-base-100 p-8 text-center shadow-xl shadow-primary/20"
 			>
 				<div class="flex items-center gap-2">
-					<span class="iconify h-6 w-6 text-yellow-400" data-icon="mdi:star"></span>
+					<span class="icon-[mdi--star] h-6 w-6 text-yellow-400"></span>
 					<h2 class="text-2xl font-semibold">{plusTier.name} - Most Popular</h2>
 				</div>
 				<p class="mt-4 badge badge-outline badge-primary">Best for Regular Learners</p>
@@ -426,7 +426,7 @@
 
 			<div class="flex flex-col items-center rounded-2xl border bg-base-100 p-8 text-center">
 				<div class="flex items-center gap-2">
-					<span class="iconify h-6 w-6 text-purple-400" data-icon="mdi:crown"></span>
+					<span class="icon-[mdi--crown] h-6 w-6 text-purple-400"></span>
 					<h2 class="text-2xl font-semibold">{premiumTier.name} - Power Users</h2>
 				</div>
 

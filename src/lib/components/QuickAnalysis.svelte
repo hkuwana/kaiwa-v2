@@ -10,6 +10,9 @@
 		onGoToFullAnalysis: () => void;
 		onGoHome: () => void;
 		analysisType?: 'onboarding' | 'regular' | 'scenario-generation';
+		isGuestUser?: boolean;
+		expandable?: boolean;
+		isHistorical?: boolean;
 	}
 
 	const {
@@ -18,7 +21,10 @@
 		onStartNewConversation,
 		onGoToFullAnalysis,
 		onGoHome,
-		analysisType = 'regular'
+		analysisType = 'regular',
+		isGuestUser = false,
+		expandable = true,
+		isHistorical = false
 	} = $props();
 
 	let isVisible = $state(false);
@@ -185,7 +191,7 @@
 	function getCtaText(type: string): string {
 		switch (type) {
 			case 'onboarding':
-				return 'Get Your Learning Profile';
+				return isGuestUser ? 'Create Account to Save Profile' : 'Get Your Learning Profile';
 			case 'scenario-generation':
 				return 'Generate Custom Scenarios';
 			default:
@@ -215,9 +221,24 @@
 						{getAnalysisTypeTitle(analysisType)} Ready
 					</div>
 				</div>
+				{#if isHistorical}
+					<div class="mb-3 flex justify-center">
+						<div class="badge gap-2 badge-lg badge-info">
+							<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+								/>
+							</svg>
+							Historical Conversation
+						</div>
+					</div>
+				{/if}
 				<h1 class="mb-2 text-3xl font-bold">{getAnalysisTypeTitle(analysisType)}</h1>
 				<p class="text-lg text-base-content/70">
-					Your {language.name} conversation has been reviewed
+					Your {language.name} conversation {isHistorical ? 'from a previous session' : 'has been reviewed'}
 				</p>
 			</div>
 
@@ -295,7 +316,12 @@
 					<h3 class="mb-3 text-lg font-semibold">Ready for More?</h3>
 					<p class="mb-4 text-base-content/70">
 						{#if analysisType === 'onboarding'}
-							Get your complete learning profile with personalized recommendations and goals.
+							{#if isGuestUser}
+								Create an account to save your learning profile with personalized recommendations
+								and goals.
+							{:else}
+								Get your complete learning profile with personalized recommendations and goals.
+							{/if}
 						{:else if analysisType === 'scenario-generation'}
 							Generate custom practice scenarios based on your conversation topics and interests.
 						{:else}
@@ -304,27 +330,45 @@
 						{/if}
 					</p>
 					<div class="flex flex-col justify-center gap-3 sm:flex-row">
-						<button class="btn btn-lg btn-primary" onclick={onGoToFullAnalysis}>
-							<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d={getAnalysisTypeIcon(analysisType)}
-								/>
-							</svg>
-							{getCtaText(analysisType)}
-						</button>
+						{#if expandable}
+							<button class="btn btn-lg btn-primary" onclick={onGoToFullAnalysis}>
+								<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d={getAnalysisTypeIcon(analysisType)}
+									/>
+								</svg>
+								{getCtaText(analysisType)}
+							</button>
+						{:else}
+							<div class="alert alert-info">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									class="h-6 w-6 shrink-0 stroke-current"
+									><path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+									></path></svg
+								>
+								<span>End your conversation to access your learning profile</span>
+							</div>
+						{/if}
 						<button class="btn btn-outline btn-lg" onclick={onStartNewConversation}>
 							<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path
 									stroke-linecap="round"
 									stroke-linejoin="round"
 									stroke-width="2"
-									d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+									d={isHistorical ? "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" : "M12 6v6m0 0v6m0-6h6m-6 0H6"}
 								/>
 							</svg>
-							Practice More
+							{isHistorical ? 'View Conversation' : 'Practice More'}
 						</button>
 						<button class="btn btn-ghost btn-lg" onclick={() => (showShareModal = true)}>
 							<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

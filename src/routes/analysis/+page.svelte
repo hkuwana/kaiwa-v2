@@ -20,11 +20,13 @@
 	// Get selected language from settings
 	const selectedLanguage = $derived(settingsStore.selectedLanguage);
 
-	// Get messages from conversation store - use analysisMessages if available, fallback to messages
+	// Get messages - prioritize server data if available, otherwise use conversation store
 	const messages = $derived(
-		conversationStore.analysisMessages.length > 0
-			? conversationStore.analysisMessages
-			: conversationStore.messages
+		data.hasExistingData && data.messages.length > 0
+			? data.messages
+			: conversationStore.analysisMessages.length > 0
+				? conversationStore.analysisMessages
+				: conversationStore.messages
 	);
 
 	// Get analysis results state
@@ -34,6 +36,7 @@
 	let analysisMode = $state<'quick' | 'full'>('quick');
 	let analysisType = $state<AnalysisType>('regular');
 	let quickAnalysisData: any = $state(null);
+	let sessionNotFound = $state(false);
 
 	// URL parameters
 	const urlParams = $derived({
@@ -59,15 +62,19 @@
 			return; // Skip normal flow for test sessions
 		}
 
-		// If we have messages from conversationStore, use them for analysis
+		// If we have existing data from server (prioritized) or messages from conversationStore
 		if (messages.length > 0 && selectedLanguage) {
-			console.log('Using conversation store messages for analysis:', messages.length, 'messages');
-			// Generate quick analysis data if in quick mode
-			if (analysisMode === 'quick') {
+			const dataSource = data.hasExistingData ? 'server data' : 'conversation store';
+			console.log(`Using ${dataSource} for analysis:`, messages.length, 'messages');
+
+			// Only generate new analysis for fresh conversations (not existing server data)
+			if (analysisMode === 'quick' && !data.hasExistingData) {
 				const result = getQuickAnalysis(messages, selectedLanguage, analysisType);
 				if (result.success) {
 					quickAnalysisData = result.data;
 				}
+			} else if (data.hasExistingData) {
+				console.log('📄 Displaying historical conversation - skipping new analysis generation');
 			}
 		} else if (data.sessionId && !data.isGuest && data.conversationSession) {
 			// For authenticated users with a valid session, we could load messages from the session
@@ -80,14 +87,14 @@
 			if (hasAnalysisResults) {
 				console.log('Found recent analysis results, proceeding with display');
 			} else {
-				console.warn('No session in DB and no store data - redirecting to conversation');
-				goto(resolve('/conversation'));
+				console.warn('No session in DB and no store data - showing session not found message');
+				sessionNotFound = true;
 				return;
 			}
 		} else if (messages.length === 0 && !hasAnalysisResults) {
-			// No messages available and no analysis results - redirect back to conversation
+			// No messages available and no analysis results - show session not found message
 			console.warn('No conversation data available for analysis');
-			goto(resolve('/conversation'));
+			sessionNotFound = true;
 			return;
 		}
 
@@ -105,11 +112,16 @@
 	});
 
 	function handleStartNewConversation() {
-		// Clear current conversation and start new one
-		conversationStore.destroyConversation();
-		// Generate new sessionId for the new conversation
-		const newSessionId = crypto.randomUUID();
-		goto(`/conversation?sessionId=${newSessionId}`);
+		// For historical conversations, navigate back to the same conversation
+		if (data.hasExistingData && data.sessionId && !sessionNotFound) {
+			goto(`/conversation?sessionId=${data.sessionId}`);
+		} else {
+			// Clear current conversation and start new one
+			conversationStore.destroyConversation();
+			// Generate new sessionId for the new conversation
+			const newSessionId = crypto.randomUUID();
+			goto(`/conversation?sessionId=${newSessionId}`);
+		}
 	}
 
 	function handleGoHome() {
@@ -136,7 +148,35 @@
 	<meta name="description" content="Review and analyze your conversation practice session" />
 </svelte:head>
 
-{#if selectedLanguage}
+{#if sessionNotFound}
+	<div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-base-100 to-base-200">
+		<div class="text-center max-w-md mx-auto p-8">
+			<div class="mb-6">
+				<svg class="mx-auto h-16 w-16 text-warning mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+				</svg>
+				<h1 class="text-2xl font-bold mb-2">Conversation Not Found</h1>
+				<p class="text-base-content/70 mb-6">
+					This conversation session doesn't exist or has been removed. You can start a new conversation to practice your language skills.
+				</p>
+			</div>
+			<div class="flex flex-col sm:flex-row gap-3 justify-center">
+				<button class="btn btn-primary" onclick={handleStartNewConversation}>
+					<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+					</svg>
+					Start New Conversation
+				</button>
+				<button class="btn btn-ghost" onclick={handleGoHome}>
+					<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+					</svg>
+					Go Home
+				</button>
+			</div>
+		</div>
+	</div>
+{:else if selectedLanguage}
 	{#if analysisMode === 'quick'}
 		<QuickAnalysis
 			{messages}
@@ -145,6 +185,8 @@
 			onGoToFullAnalysis={handleGoToFullAnalysis}
 			onGoHome={handleGoHome}
 			{analysisType}
+			isGuestUser={data.isGuest}
+			isHistorical={data.hasExistingData}
 		/>
 	{:else}
 		<ConversationReviewableState
@@ -153,6 +195,7 @@
 			onStartNewConversation={handleStartNewConversation}
 			onAnalyzeConversation={handleAnalyzeConversation}
 			onGoHome={handleGoHome}
+			isHistorical={data.hasExistingData}
 		/>
 	{/if}
 {:else}

@@ -479,28 +479,28 @@
 							onclick={handleStart}
 							disabled={!usageStore.canStartNewSession()}
 						>
-							<span class="iconify h-4 w-4" data-icon="mdi:play"></span>
+							<span class="icon-[mdi--play] h-4 w-4"></span>
 							Start Session
 						</button>
 					{:else}
 						<button class="btn btn-error" onclick={handleStop}>
-							<span class="iconify h-4 w-4" data-icon="mdi:stop"></span>
+							<span class="icon-[mdi--stop] h-4 w-4"></span>
 							End Session
 						</button>
 
 						<button class="btn btn-secondary" onclick={handlePauseResume}>
 							{#if usageStore.timer.isPaused}
-								<span class="iconify h-4 w-4" data-icon="mdi:play"></span>
+								<span class="icon-[mdi--play] h-4 w-4"></span>
 								Resume
 							{:else}
-								<span class="iconify h-4 w-4" data-icon="mdi:pause"></span>
+								<span class="icon-[mdi--pause] h-4 w-4"></span>
 								Pause
 							{/if}
 						</button>
 
 						{#if usageStore.canExtend()}
 							<button class="btn btn-warning" onclick={handleExtend}>
-								<span class="iconify h-4 w-4" data-icon="mdi:refresh"></span>
+								<span class="icon-[mdi--refresh] h-4 w-4"></span>
 								Extend ({usageStore.extensionsRemaining()})
 							</button>
 						{/if}
@@ -519,7 +519,7 @@
 					class="btn btn-ghost btn-sm"
 					onclick={() => (showAdvancedControls = !showAdvancedControls)}
 				>
-					<span class="iconify h-4 w-4" data-icon="mdi:cog"></span>
+					<span class="icon-[mdi--cog] h-4 w-4"></span>
 					{showAdvancedControls ? 'Hide' : 'Show'}
 				</button>
 			</div>
@@ -569,7 +569,7 @@
 	<!-- Warnings and Status -->
 	{#if usageStore.willIncurOverage() && !usageStore.timer.isRunning}
 		<div class="alert alert-warning">
-			<span class="iconify h-4 w-4" data-icon="mdi:alert-triangle"></span>
+			<span class="icon-[mdi--alert-triangle] h-4 w-4"></span>
 			<span
 				>You've used all included minutes. Additional time will be charged at ${usageStore.overageRate()}/minute</span
 			>
@@ -578,14 +578,14 @@
 
 	{#if usageStore.timer.warningTriggered}
 		<div class="alert alert-warning">
-			<span class="iconify h-4 w-4" data-icon="mdi:alert-triangle"></span>
+			<span class="icon-[mdi--alert-triangle] h-4 w-4"></span>
 			<span>Warning: Less than {tierConfig.warningThresholdSeconds || 0} seconds remaining!</span>
 		</div>
 	{/if}
 
 	{#if !usageStore.canStartNewSession()}
 		<div class="alert alert-error">
-			<span class="iconify h-4 w-4" data-icon="mdi:alert-triangle"></span>
+			<span class="icon-[mdi--alert-triangle] h-4 w-4"></span>
 			<span>Cannot start new session - limits reached</span>
 		</div>
 	{/if}
