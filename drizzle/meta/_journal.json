@@ -99,6 +99,13 @@
       "when": 1758379172771,
       "tag": "0013_needy_viper",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1758385188731,
+      "tag": "0014_common_kitty_pryde",
+      "breakpoints": true
     }
   ]
 }
