@@ -178,7 +178,25 @@
 		try {
 			const response = await fetch('/api/usage/status');
 			if (response.ok) {
-				usageStatus = await response.json();
+				const data = await response.json();
+				// Convert date strings back to Date objects
+				usageStatus = {
+					...data,
+					resetDate: new Date(data.resetDate),
+					tier: {
+						...data.tier,
+						createdAt: new Date(data.tier.createdAt),
+						updatedAt: new Date(data.tier.updatedAt)
+					},
+					usage: {
+						...data.usage,
+						createdAt: new Date(data.usage.createdAt),
+						updatedAt: new Date(data.usage.updatedAt),
+						lastConversationAt: data.usage.lastConversationAt ? new Date(data.usage.lastConversationAt) : null,
+						lastRealtimeAt: data.usage.lastRealtimeAt ? new Date(data.usage.lastRealtimeAt) : null,
+						firstActivityAt: data.usage.firstActivityAt ? new Date(data.usage.firstActivityAt) : null
+					}
+				};
 			} else {
 				console.error('Failed to load usage status:', response.statusText);
 			}
