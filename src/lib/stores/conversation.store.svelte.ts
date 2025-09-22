@@ -249,15 +249,56 @@ export class ConversationStore {
 	};
 
 	pauseStreaming = () => {
-		if (this.audioStream) {
-			realtimeService.pauseAudioInput(this.audioStream);
+		if (!this.audioStream) {
+			console.log('🎙️ ConversationStore: pauseStreaming ignored - no active stream');
+			return;
 		}
+
+		const track = this.audioStream.getAudioTracks()[0];
+		console.log('🎙️ ConversationStore: pauseStreaming requested', {
+			audioStoreRecording: audioStore.isRecording,
+			currentLevel: audioStore.currentLevel.level,
+			streamId: this.audioStream.id,
+			track: this.describeAudioTrack(track)
+		});
+
+		realtimeOpenAI.pttStop(this.audioStream);
+		if (track) {
+			track.enabled = false;
+		}
+		try {
+			audioStore.currentLevel = { level: 0, timestamp: Date.now() };
+		} catch (err) {
+			console.warn('🎙️ ConversationStore: Failed to reset audio level on pause', err);
+		}
+
+		console.log('🎙️ ConversationStore: pauseStreaming applied', {
+			track: this.describeAudioTrack(track)
+		});
 	};
 
 	resumeStreaming = () => {
-		if (this.audioStream) {
-			realtimeService.resumeAudioInput(this.audioStream);
+		if (!this.audioStream) {
+			console.log('🎙️ ConversationStore: resumeStreaming ignored - no active stream');
+			return;
 		}
+
+		const track = this.audioStream.getAudioTracks()[0];
+		console.log('🎙️ ConversationStore: resumeStreaming requested', {
+			audioStoreRecording: audioStore.isRecording,
+			currentLevel: audioStore.currentLevel.level,
+			streamId: this.audioStream.id,
+			track: this.describeAudioTrack(track)
+		});
+
+		realtimeOpenAI.pttStart(this.audioStream);
+		if (track) {
+			track.enabled = true;
+		}
+
+		console.log('🎙️ ConversationStore: resumeStreaming applied', {
+			track: this.describeAudioTrack(track)
+		});
 	};
 
 	pauseTimer(): void {
@@ -371,9 +412,56 @@ export class ConversationStore {
 			connectionStatus: this.getConnectionStatus(),
 			hasConnection: !!realtimeOpenAI.isConnected,
 			hasAudioStream: !!this.audioStream,
-			timerState: this.timer.state
+			timerState: this.timer.state,
+			audio: this.getAudioDebugInfo()
 		};
 	};
+
+	getAudioDebugInfo = () => {
+		const stream = this.audioStream;
+		const track = stream?.getAudioTracks()[0];
+		return {
+			hasStream: !!stream,
+			streamId: stream?.id,
+			trackCount: stream?.getAudioTracks().length || 0,
+			track: this.describeAudioTrack(track),
+			selectedDeviceId: this.selectedDeviceId,
+			audioStore: {
+				isInitialized: audioStore.isInitialized,
+				isRecording: audioStore.isRecording,
+				currentLevel: audioStore.currentLevel.level,
+				lastLevelTimestamp: audioStore.currentLevel.timestamp,
+				selectedDeviceId: audioStore.selectedDeviceId,
+				permissionState: audioStore.permissionState
+			}
+		};
+	};
+
+	private describeAudioTrack(track?: MediaStreamTrack) {
+		if (!track) return null;
+		let settings: MediaTrackSettings | undefined;
+		let constraints: MediaTrackConstraints | undefined;
+		try {
+			settings = track.getSettings();
+		} catch (error) {
+			console.warn('🎙️ ConversationStore: Failed to read track settings', error);
+		}
+		try {
+			constraints = track.getConstraints();
+		} catch (error) {
+			console.warn('🎙️ ConversationStore: Failed to read track constraints', error);
+		}
+		return {
+			id: track.id,
+			label: track.label,
+			kind: track.kind,
+			enabled: track.enabled,
+			muted: track.muted,
+			readyState: track.readyState,
+			settings,
+			constraints
+		};
+	}
 
 	// === PRIVATE METHODS ===
 
@@ -536,12 +624,11 @@ export class ConversationStore {
 		this.status = 'connected';
 		console.log('🎵 ConversationStore: Status changed to "connected"');
 
-		// If user preference is push-to-talk, start with input audio paused.
-		// The AudioVisualizer will resume on press.
+		// Always start with streaming paused so the user explicitly taps the mic
+		// before any audio is sent. This avoids capturing audio before consent.
 		try {
-			if (userPreferencesStore.getAudioMode() === 'push_to_talk' && this.audioStream) {
-				realtimeService.pauseAudioInput(this.audioStream);
-				console.log('🎛️ Input audio paused by default for push_to_talk');
+			if (this.audioStream) {
+				this.pauseStreaming();
 			}
 		} catch (e) {
 			console.warn('Failed to apply initial push_to_talk gating:', e);

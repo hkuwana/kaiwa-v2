@@ -517,7 +517,7 @@ const createAudioServiceCore = () => {
 		}> {
 			const core = this;
 			try {
-				const stream = await core.getStream();
+				const stream = await this.getStream();
 				return { success: true, stream };
 			} catch (error) {
 				return {

@@ -94,6 +94,10 @@
 				error = errorMsg;
 			});
 
+			// Get an audio stream to set up the analyser, but don't start level monitoring yet
+			await audioService.getStream();
+			console.log('🎵 Audio stream created (level monitoring not started)');
+
 			// Load available devices
 			availableDevices = await audioService.getAvailableDevices();
 			console.log('🎵 Available audio devices:', availableDevices.length);

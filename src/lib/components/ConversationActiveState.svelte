@@ -44,6 +44,11 @@
 		maxSessionLengthSeconds = 180
 	}: Props = $props();
 
+	const pressBehavior = $derived(() => {
+		const pref = userPreferencesStore.getPressBehavior();
+		return pref === 'tap_toggle' ? 'press_hold' : pref;
+	});
+
 	let messageInput = $state('');
 	let translationData = $state<Map<string, Partial<Message>>>(new SvelteMap());
 	let messagesContainer: HTMLElement;
@@ -272,7 +277,7 @@
 				{isTimerActive}
 				{maxSessionLengthSeconds}
 				controlMode="external"
-				pressBehavior={userPreferencesStore.getPressBehavior()}
+				pressBehavior={pressBehavior()}
 				onRecordStart={() => {
 					hasUsedAudioControl = true;
 					conversationStore.resumeStreaming();
