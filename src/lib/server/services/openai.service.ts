@@ -6,8 +6,7 @@ import type { ChatCompletionMessageParam } from 'openai/resources/chat/completio
 import type { UserPreferences } from '$lib/server/db/types';
 import {
 	buildOnboardingInstructions,
-	type OnboardingAnalysisConfig,
-	type AnalysisFocus
+	type OnboardingAnalysisConfig
 } from './analysisInstruction.service';
 
 export type { AnalysisFocus, OnboardingAnalysisConfig } from './analysisInstruction.service';
@@ -88,9 +87,7 @@ export async function analyzeOnboardingConversation(
 	const conversation = conversationMessages.join('\n\n');
 
 	const config: OnboardingAnalysisConfig =
-		typeof configOrLanguage === 'string'
-			? { targetLanguage: configOrLanguage }
-			: configOrLanguage;
+		typeof configOrLanguage === 'string' ? { targetLanguage: configOrLanguage } : configOrLanguage;
 
 	const instructions = buildOnboardingInstructions(conversation, config);
 

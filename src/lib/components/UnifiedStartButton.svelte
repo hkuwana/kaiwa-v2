@@ -61,6 +61,9 @@
 		}
 	});
 
+	// State for button loading
+	let isLoading = $state(false);
+
 	// Functions
 	function handleLanguageChange(language: DataLanguage) {
 		if (onLanguageChange) {
@@ -80,9 +83,13 @@
 		}
 	}
 
-	function handleStartClick(event: MouseEvent) {
+	async function handleStartClick(event: MouseEvent) {
+		if (isLoading) return;
+
 		const sessionId = crypto.randomUUID();
 		if (selectedLanguage && currentScenario) {
+			isLoading = true;
+
 			// Track the click event
 			track('start_language_clicked', {
 				language: selectedLanguage.code || selectedLanguage.name,
@@ -90,13 +97,6 @@
 			});
 			if (onStartClick) {
 				onStartClick();
-			}
-
-			// Add immediate visual feedback
-			const button = event?.currentTarget as HTMLButtonElement;
-			if (button) {
-				button.classList.add('loading');
-				button.disabled = true;
 			}
 
 			// Navigate with scenario parameter
@@ -131,14 +131,16 @@
 	<div class="w-full max-w-md">
 		<button
 			onclick={handleStartClick}
-			disabled={!selectedLanguage}
 			class="group btn w-full btn-lg btn-primary"
 			aria-label={selectedLanguage
 				? `Start ${currentScenario?.category?.charAt(0).toUpperCase() + currentScenario?.category?.slice(1) || 'Learning'} in ${selectedLanguage.name}`
 				: 'Choose your language to start'}
 		>
 			<span class="relative z-10 flex items-center gap-2">
-				{#if selectedLanguage}
+				{#if isLoading}
+					<span class="loading loading-sm loading-spinner"></span>
+					<span>Preparing...</span>
+				{:else if selectedLanguage}
 					<span class=""
 						>Start {currentScenario?.category?.charAt(0).toUpperCase() +
 							(currentScenario?.category?.slice(1) || '')}
@@ -148,11 +150,6 @@
 					<span class="hidden sm:inline">Choose your language to start</span>
 				{/if}
 			</span>
-
-			<!-- Subtle highlight effect -->
-			<div
-				class="absolute inset-0 -translate-x-full -skew-x-12 transform bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full"
-			></div>
 		</button>
 
 		{#if children}

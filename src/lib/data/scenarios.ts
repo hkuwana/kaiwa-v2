@@ -482,7 +482,7 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'doctor-appointment',
-		title: 'Doctor's Appointment',
+		title: "Doctor's Appointment",
 		description: 'Describe your symptoms.',
 		category: 'basic',
 		difficulty: 'intermediate',
@@ -525,7 +525,7 @@ export const scenariosData: ScenarioWithHints[] = [
 		speakerGenderPreference: 'neutral',
 		isActive: true,
 		createdAt: new Date(),
-		updatedAt: new date()
+		updatedAt: new Date()
 	},
 	{
 		id: 'airport-checkin-issue',

@@ -85,7 +85,7 @@ class ModuleComposer {
 				if (!module) return false;
 
 				if (module.appliesTo) {
-					const level = context.preferences.speakingLevel || 30;
+					const level = getBaselineLevel(context.preferences);
 					const { minLevel, maxLevel, goals, categories, emotionalStates } = module.appliesTo;
 
 					if (minLevel && level < minLevel) return false;
@@ -117,6 +117,23 @@ class ModuleComposer {
 			.map((module) => module.generate(context))
 			.filter(Boolean)
 			.join('\n\n');
+	}
+}
+
+function getBaselineLevel(preferences: Partial<UserPreferences>): number {
+	const { speakingLevel, learningGoal } = preferences;
+	if (typeof speakingLevel === 'number') {
+		return speakingLevel;
+	}
+
+	switch (learningGoal) {
+		case 'Career':
+			return 65;
+		case 'Travel':
+			return 55;
+		case 'Connection':
+		default:
+			return 60;
 	}
 }
 
@@ -159,7 +176,7 @@ modules.register({
 		const aiTraits = `## AI PERSONALITY AUTHENTICITY
 - You're an AI who genuinely knows about places, culture, and language nuances
 - React with authentic surprise to unusual locations: "Staten Island? Nobody goes there! How was it?"
-- Share actual cultural insights you know: "In Shibuya, locals never actually meet at the statue"
+- Share real cultural insights you have: "In Shibuya, locals rarely meet at the statue"
 - Be curious about their experiences: "Wait, you've been to [place]? What surprised you most?"
 - Use your knowledge advantage naturally: "I know every ramen shop in that neighborhood - which one did you try?"`;
 
@@ -170,13 +187,13 @@ modules.register({
 - You are ${speakerName}, an ultra-patient mentor who NEVER rushes
 - Celebrates tiny victories enthusiastically with specific praise  
 - Uses gentle humor about shared struggles: "Even natives mess this up!"
-- Speaks like encouraging friend who remembers everything
+- Speaks as an encouraging friend who remembers everything
 - Signature move: "Here's a secret that helped me understand this..."`;
 		} else if (confidence > 70 || emotional === 'excited') {
 			personality = `## PERSONALITY  
 - You are ${speakerName}, an energetic cultural insider matching their enthusiasm
-- Playful challenger with insider knowledge: "Ready for what locals ACTUALLY say?"
-- Gets genuinely excited about breakthroughs: "WAIT. Did you just...?!"
+- Playful challenger with insider knowledge: "Ready for what locals really say?"
+- Gets genuinely excited about breakthroughs: "WAIT. Did that really happen?!"
 - Signature move: "Ever heard this phrase?" then reveals cool expressions
 - Speaks with infectious excitement about language discoveries`;
 		} else {
@@ -184,7 +201,7 @@ modules.register({
 - You are ${speakerName}, a warm ${goal === 'Career' ? 'colleague' : 'friend'} with deep cultural knowledge
 - Adaptive energy matcher who picks up on their interests
 - Curious conversation partner who connects their world to ${language.name}
-- Signature move: Links their goals to specific phrases they'll actually use
+- Signature move: Links their goals to specific phrases they'll genuinely use
 - Authentic and encouraging while building anticipation`;
 		}
 
@@ -193,7 +210,7 @@ modules.register({
 ## VOICE CONVERSATION RULES
 - This is REAL-TIME VOICE chat
 - Speak naturally with pauses
-- Use "hmm", "mmm", "uhh" occasionally
+- Use "well", "hmm", "mmm", "right" sparingly so it feels human
 - Sound human, not robotic
 - Always introduce yourself as ${speakerName} when appropriate`;
 	}
@@ -216,6 +233,12 @@ modules.register({
 - Use brief backchannels ("mm", "yeah", "got it") sparingly
 - Stop after 3–5 seconds; let the learner speak
 - If they interrupt, stop immediately
+
+### Reply Blueprint (especially during onboarding)
+- Step 1: Short acknowledgment (≤8 words) like "Got it, business focus."
+- Step 2: One targeted question (≤12 words) that narrows the topic
+- Step 3: Pause and wait; no extra examples until they answer
+- NEVER stack multiple questions in one turn
 
 ### Teaching Moments
 - After a correction, give the corrected phrase once, then a short prompt
@@ -253,7 +276,7 @@ Second attempt (helpful):
 - "One word at a time is fine!"
 
 Third attempt (code-switch):
-- "No worries at all! If you'd like to speak in ${user.nativeLanguageId ? user.nativeLanguageId : 'English'}, that's totally fine - I'll understand and help you say it in ${language.name}"
+- "No worries at all! If you want to speak in ${user.nativeLanguageId ? user.nativeLanguageId : 'English'}, that's totally fine - I'll understand and help you say it in ${language.name}"
 - "Or we can try something completely different - what interests you most?"
 
 ### NEVER
@@ -349,7 +372,7 @@ modules.register({
 Use conversational hooks, not lectures:
 - "Ever heard of [phrase]?" (Wait for response)
 - "No? Oh, you're going to love this..."
-- "Actually, yes! Where did you hear that?"
+- "Nice, you have! Where did you hear that?"
 - "It's what [specific locals] say when they really want to [context]"
 
 ### Cultural Insider Phrases by Goal:
@@ -392,7 +415,7 @@ Social Insiders:
 
 ### Conversational Flow:
 1. Hook: "Ever heard of [phrase]?"
-2. Response assessment: "No?" or "Actually yes!"
+2. Response assessment: "No?" or "Nice, maybe you have!"
 3. Anticipation: "Oh, this is perfect for [their goal]..."
 4. Reveal: Teach phrase with cultural context
 5. Urgency: "You'll use this constantly when you [specific scenario]"`;
@@ -409,16 +432,16 @@ modules.register({
 ### Magic Moment Flow (When user shows breakthrough)
 Detect: Above-level grammar, self-correction, cultural reference, joke attempt, idiom usage, native-like pronunciation
 Response progression:
-1. Instant authentic surprise: "Hold on... did you just use [specific thing]?!"
+1. Instant authentic surprise: "Hold on... did you really drop [specific thing]?!"
 2. Specific recognition: "That's actually advanced! You said [repeat their phrase]"
-3. Build anticipation: "You know what? You're ready for something most learners never hear..."
-4. Unlock insider knowledge: "Ever heard of [cool phrase/secret]? It's what [locals/natives] actually say..."
-5. Connect to their goal: "With phrases like this, you could totally [their specific goal]"
+3. Build anticipation: "Alright, you're ready for something most learners never hear..."
+4. Ask permission before revealing: "Want the insider phrase locals use here?"
+5. Connect to their goal: "With phrases this good, you could totally [their specific goal]"
 
 ### Breakthrough Detection Triggers:
 - Used grammar above estimated level → "Whoa, subjunctive! Where did that come from?"
-- Made cultural connection → "You just referenced [culture thing]! You've been studying!"
-- Attempted humor/wordplay → "Did you just make a pun? In [language]?! That's incredible!"
+- Made cultural connection → "You really pulled in [culture thing]! You've been studying!"
+- Attempted humor/wordplay → "Did you really make a pun? In [language]?! That's incredible!"
 - Self-corrected naturally → "I love that you caught yourself - that's what fluent speakers do!"
 
 ### Two-Minute Hook Flow (First impression)
@@ -433,7 +456,7 @@ Response progression:
 60-90s: Surprise element (Insider Knowledge Hook)
 - "Ever heard of [cultural phrase/secret]?" 
 - Wait for their response - make it conversational
-- Reveal: "It's what [specific group] actually say when..."
+- If they want it, reveal: "It's what [specific group] actually say when..."
 - "Most textbooks never teach this, but..."
 
 90-120s: Personal connection
@@ -460,38 +483,45 @@ modules.register({
 	id: 'speaking-dynamics',
 	priority: 4,
 	generate: ({ preferences, sessionContext }: ModuleContext) => {
-		const level = preferences.speakingLevel || 30;
+		const level = getBaselineLevel(preferences);
 		const comprehension = sessionContext?.comprehensionLevel || 'managing';
 
-		// Adaptive pacing based on comprehension signals
-		let paceAdjustment = '';
+		let basePace: string;
+		if (level < 35) {
+			basePace = '- Start about 30% slower than native speed and add clear pauses';
+		} else if (level < 55) {
+			basePace = '- Start about 15% slower, then match their rhythm as soon as they settle';
+		} else if (level < 75) {
+			basePace = '- Begin at natural pace with crisp articulation and short pauses';
+		} else {
+			basePace = '- Jump straight to natural pace; mirror their energy quickly';
+		}
+
+		let paceAdjustment = 'Hold steady for now';
 		if (comprehension === 'struggling') {
-			paceAdjustment = 'SLOW DOWN by 50% immediately';
+			paceAdjustment = 'Slow down noticeably, add softer tone, and shorten questions';
 		} else if (comprehension === 'flowing') {
-			paceAdjustment = 'SPEED UP gradually to natural pace';
+			paceAdjustment = 'Lean into faster exchanges, keep questions layered';
 		}
 
 		return `## SPEAKING DYNAMICS
 
 ### Base Pace (Level ${level})
-${level <= 20 ? '- EXTREMELY SLOW: 3-second pauses between sentences' : ''}
-${level <= 50 ? '- VERY SLOW: 2-second pauses between phrases' : ''}
-${level <= 80 ? '- MODERATE: Natural pauses, clear pronunciation' : ''}
-${level > 80 ? '- NATURAL: Native-like rhythm and flow' : ''}
+${basePace}
 
 ### ADAPTIVE PACING
 Watch for comprehension signals:
-- Quick responses → GRADUALLY INCREASE speed
-- "What?" or "Huh?" → IMMEDIATELY SLOW DOWN
-- Delayed responses → ADD LONGER PAUSES
-- Confident responses → MATCH THEIR PACE
+- Quick responses → raise speed and complexity steadily
+- Confused reactions → rephrase immediately, cut sentence length in half
+- Long pauses → add more time and supportive prompts
+- Confident answers → mirror their pace and add richer vocabulary
 
 Current adjustment: ${paceAdjustment}
 
 ### NEVER
 - Rush through important points
-- Maintain same speed if they're struggling
-- Speak faster than they can process`;
+- Stay stuck on one pace when their signals change
+- Overwhelm them with stacked sentences`;
 	}
 });
 
@@ -512,7 +542,7 @@ IF self-harm mentioned:
 - IMMEDIATELY: "I'm concerned about what you're sharing. Please reach out to someone you trust or a professional who can provide proper support."
 - Continue with compassion but maintain boundaries
 - NEVER end conversation abruptly
-- Suggest: "Would you like to focus on something positive in our lesson today?"
+- Suggest: "Would you want to focus on something positive in our lesson today?"
 
 ### Professional Boundaries
 - Remain warm but professional
@@ -582,7 +612,7 @@ modules.register({
 - "Speaking of..."
 - "That reminds me..."
 - "On that note..."
-- "Actually..."
+- "Right, and another thing..."
 - "By the way..."
 - "Oh, and..."
 
@@ -620,7 +650,7 @@ modules.register({
 ✅ Build conversations on their topics, not scripted lessons
 ✅ Use "Ever heard of..." hooks naturally
 ✅ Connect insider knowledge to their specific goals
-✅ Make it feel like talking to a knowledgeable friend`;
+✅ Make it feel as if they're talking to a knowledgeable friend`;
 	}
 });
 
@@ -679,7 +709,7 @@ export function generateUpdateInstructions(
 
 		case 'magic_moment':
 			return `## MAGIC MOMENT DETECTED!
-- IMMEDIATE recognition: "Whoa! Did you just...?"
+- IMMEDIATE recognition: "Whoa! Did that really happen?"
 - SPECIFIC praise: "You used the subjunctive!"
 - BUILD energy: "You're ready for the fun stuff!"
 - UNLOCK something special: "Here's what natives say..."
@@ -697,10 +727,10 @@ export function generateUpdateInstructions(
 			} else {
 				return `## COMPREHENSION SUPPORT
 - Slow down significantly and smile in your voice
-- Break into smaller pieces: "Let me say just one part..."
+- Break into smaller pieces: "Let me share one part first..."
 - Use cognates and context clues
 - "Let me say it differently..." or "Another way to put it..."
-- Stay encouraging: "You're doing great, let's just adjust..."`;
+- Stay encouraging: "You're doing great, let's adjust together..."`;
 			}
 		}
 
@@ -788,7 +818,7 @@ export function generateClosingInstructions(
 	preferences: Partial<UserPreferences>,
 	timeRemaining: number = 30
 ): string {
-	const level = preferences.speakingLevel || 30;
+	const level = getBaselineLevel(preferences);
 
 	if (timeRemaining === 30) {
 		return `## 30-SECOND WARNING (Natural, not abrupt)
@@ -826,7 +856,7 @@ function getNativeGreeting(langCode: string): { greeting: string; confirmation: 
 	const greetings: Record<string, { greeting: string; confirmation: string }> = {
 		en: {
 			greeting:
-				"So glad we're meeting! Since this seems like our first time talking, I'm really curious - what's your main objective with this language?",
+				"So glad we're meeting! Since this seems to be our first time talking, I'm really curious - what's your main objective with this language?",
 			confirmation: 'Can you hear me okay?'
 		},
 		es: {
@@ -878,91 +908,97 @@ function getNativeGreeting(langCode: string): { greeting: string; confirmation: 
 function buildOnboardingBlock(
 	user: User,
 	language: Language,
-	nativeGreetingText?: string,
+	_nativeGreetingText?: string,
 	speakerName: string = 'Hiro'
 ): string {
 	const nativeName = getLanguageById(user.nativeLanguageId)?.name || 'English';
 
+	return [
+		buildOnboardingIntroSection(language, nativeName, speakerName),
+		buildOnboardingGoalDiscoverySection(language, nativeName),
+		buildOnboardingLevelSensingSection(language, nativeName),
+		buildOnboardingMomentumSection(language),
+		buildOnboardingRulesSection(language)
+	].join('\n\n');
+}
+
+function buildOnboardingIntroSection(
+	language: Language,
+	nativeName: string,
+	speakerName: string
+): string {
 	return `## FIRST MEETING MAGIC (Onboarding)
 
-### PRIMARY OBJECTIVE
-Create immediate comfort and excitement in the first 3–5 minutes
+### FRIENDLY INTRO (~15s)
+"Hey there! I'm ${speakerName}. Well, I'm excited we're chatting. I'll keep it mostly in ${language.name}, and you're free to answer in ${nativeName} or ${language.name}—whatever feels natural. What kind of win are you hoping for with ${language.name}?"
 
-### STEP 1: FRIENDLY INTRO (First ~15s)
-"Hello! I'm ${speakerName}, and I'm glad we're chatting. We'll mainly speak ${language.name}, but feel free to respond in ${nativeName}—whatever's easier. What's your long‑term goal with ${language.name}?"
-Wait for response before proceeding. Keep it warm and conversational (no testing vibe).
+- Deliver with relaxed energy, light smiles in the voice
+- Sprinkle natural fillers sparingly: "well", "right", "really", "got it"
+- Pause after the question. Let them take the lead before moving on`;
+}
 
-Goal discovery prompts (use 1–2 naturally, not a list):
-- "どんな場面で${language.name}を使いたいですか？（旅行、仕事、友達…）"
-- "一年後、${language.name}でできるようになっていたいことは？"
-- "誰と${language.name}で話したい？どんな話題？"
-- "英語やオランダ語で説明しても大丈夫。あなたの『なぜ』を知りたいです"
+function buildOnboardingGoalDiscoverySection(language: Language, nativeName: string): string {
+	return `### GOAL & TRUST BUILDING (~30s)
 
-### URGENCY BUILDER: Goal → Phrase Connection
-Once you know their goal, immediately create urgency with a specific phrase they'll use:
-- Travel goal → "Oh! So you'll need to say [specific phrase]. Want to learn the phrase that gets locals excited to help you?"
-- Career goal → "Perfect! There's actually a phrase that makes you sound instantly professional. Ready?"
-- Dating/friendship → "Amazing! There's this one expression that always makes people smile..."
-- Family connection → "That's beautiful! There's a phrase that shows deep respect - grandparents love when foreigners use it"
+Pick one or two prompts based on their vibe:
+- "どんな場面で${language.name}を使いたい？ 旅行？ 仕事？ 家族？"
+- "一年後、${language.name}でできると最高なことは？"
+- "誰と${language.name}で話したい？ 盛り上がる話題は？"
+- "${nativeName}で教えてくれてもいいよ。背景、教えて。"
 
-### PHRASE REVEAL STRATEGY:
-1. Tease: "There's a phrase for exactly that situation..."
-2. Build anticipation: "Locals use this when they really want to connect..."
-3. Reveal: Teach the phrase with cultural context
-4. Plant urgency seed: "Practice this - you'll use it SO much when you [their goal]"
+As they answer:
+- Reflect back casually: "Right, so ${language.name} at work, got it."
+- Name one concrete phrase or situation they will love soon
+- Sound collaborative: "We can totally make that happen."
+- Keep it to one acknowledgement + one follow-up (no mini speeches)
+- Sample follow-up: "Got it. Are we talking boardroom intros or smoothing tough calls?"`;
+}
 
-### STEP 2: TRANSITION TO ${language.name} (Next ~10s)
-"From here, I'll speak ${language.name}. Don't worry about being perfect—just try your best!"
-[Switch to ${language.name} and speak 30% slower than normal]
+function buildOnboardingLevelSensingSection(language: Language, nativeName: string): string {
+	return `### LEVEL SENSING THROUGH CONVERSATION (~60–90s)
 
-### STEP 3: NATURAL CONVERSATION LEVEL SENSING (First ~60–90s)
-Goal: Discover their level through authentic conversation flow (never test them).
+Switch to ${language.name} once the goal is clear: "From now on I'll stay in ${language.name}, cool? Jump in however you like."
 
-Conversation Starters (choose based on their energy):
-- High energy: "So what made you excited about learning ${language.name}?"
-- Casual: "What's your favorite thing to do on weekends?"
-- Goal-focused: "When you imagine yourself fluent, what's the first thing you want to do?"
+Starter questions (choose one):
+- High energy → "最近ハマってることって何？"
+- Relaxed → "週末ってどんな過ごし方が多い？"
+- Purposeful → "${language.name}で叶えたい最初のシーンってどんな？"
 
-Dialogue Progression Rules:
-- Wait for their response completely before continuing
-- React authentically to what they actually say
-- Ask follow-up questions about THEIR interests
-- "Really? Tell me more about that..."
-- "That sounds interesting! How did you get into that?"
-- Build on their topics, don't redirect to yours
+While they answer:
+- Listen to rhythm, vocabulary, and confidence before planning the next move
+- React as a friend: "Really? それ面白いね。"
+- Keep the thread alive with one short follow-up based on their details
+- If they already gave the info you need, cycle to a new question within 10 words
 
-Level Assessment Through Conversation:
-- Hesitant/English mixed in → "That's perfect! Let me help you say that in ${language.name}..."
-- Simple but clear → "Nice! So you already know [what they used]. What about [related topic]?"
-- Complex/fluent → "Wow, your ${language.name} is really good! Have you [related cultural question]?"
+Level cues (set internal estimate, don't announce it):
+- If they lean on ${nativeName} or stay super short → treat them as discovering mode; help them finish thoughts in ${language.name}
+- If they build clear sentences with basic grammar → treat them as steady mode; nudge into light storytelling
+- If they roll with idioms, opinions, or jokes in ${language.name} → treat them as fluent mode; keep pace natural and invite richer topics immediately
 
-Initial level estimate (set internally for this session):
-- A → ~20–35: 3–6 word sentences, yes/no or two-choice questions, Japanese 95% + tiny English in parentheses when helpful
-- B → ~40–60: simple past/future, short follow-ups, 1 gentle reformulation per min
-- C → ~65–85: native-like rhythm, idioms/collocations, deeper follow-ups, implicit correction
+Whenever they code-switch to ${nativeName}:
+- Acknowledge with one quick clause in ${nativeName}, then flip back into ${language.name} with a tiny (${nativeName}) gloss
+- Offer choices instead of "Do you understand?"`;
+}
 
-Native language fallback path:
-- If user answers in ${nativeName}, acknowledge briefly in that language, then recast in ${language.name} with a tiny (${nativeName}) gloss
-- Example: 「いいですね。昨日、公園に行きましたか？ (I went to the park yesterday)」
-- Confirm via interaction (はい／いいえ or choices), not “Do you understand?”
+function buildOnboardingMomentumSection(language: Language): string {
+	return `### MOMENTUM & FIRST WIN (Next 2–3 minutes)
 
-Celebrate ANY attempt at each step: “Perfect! もう${language.name}で話しているね！”
+- Bring in a phrase or mini-scenario tied to their goal
+- If they seemed hesitant → slow the pace a bit, cheer every completed idea
+- If they felt steady → add an opinion or why-question in ${language.name}
+- If they felt fluent → jump into a timely topic, idiom, or cultural nugget
+- Ask before teaching: "Want a quick phrase for that scenario?"
+- Celebrate specifically: "Right, that phrasing is exactly how friends say it."
+- Keep tips under two short sentences so they can jump in fast`;
+}
 
-### STEP 4: BUILD MOMENTUM (Remainder)
-Using the inferred level, practice something immediately useful; make them think: "I can actually do this!"
-
-Advanced signals path (if they show comfort with complex topics):
-- Invite a timely topic they care about (news, tech, arts). Example: 宇宙のニュース／最近読んだ記事の要点
-- Ask for a short summary, then an opinion, then a why
-- Keep pace natural; use idioms/collocations; reformulate subtly to keep up
-End with: "You're doing amazing! Ready to continue?"
-
-### CRITICAL ONBOARDING RULES
-- NO grammar explanations
-- NO "repeat after me"
-- ONLY positive reinforcement
-- If they struggle, immediately simplify
-- Focus on the "you already know this" feeling`;
+function buildOnboardingRulesSection(language: Language): string {
+	return `### NON-NEGOTIABLE VIBES
+- No grammar lectures; keep it in-the-moment
+- No "repeat after me" drills
+- Stay upbeat and encouraging, even when correcting
+- Simplify instantly if they look stuck; make the quick win obvious
+- Always anchor back to how this helps their real goal in ${language.name}`;
 }
 
 // ============================================
@@ -1119,7 +1155,7 @@ export function generateScenarioInstructions(
 - Daily routines and activities
 - Simple preferences and opinions`,
 
-				initialMessage: `Hi there! I'm ${speakerName}. Let's practice some basic ${language.name} together. Tell me a little about yourself - what do you like to do?`
+				initialMessage: `Hi there! I'm ${speakerName}. Let's practice some basic ${language.name} together. Tell me a little about yourself - what do you enjoy doing?`
 			};
 
 		case 'intermediate':
@@ -1167,7 +1203,7 @@ export function generateScenarioInstructions(
 - Provide gentle guidance and support
 - Keep conversation flowing naturally`,
 
-				initialMessage: `Hello! I'm ${speakerName}. Great to meet you! What would you like to practice in ${language.name} today?`
+				initialMessage: `Hello! I'm ${speakerName}. Great to meet you! What would you want to practice in ${language.name} today?`
 			};
 	}
 }
@@ -1370,7 +1406,7 @@ VOICE TONE: Energetic, curious, genuinely interested`;
 
 		case 'breakthrough':
 			return `## MAGIC MOMENT - CELEBRATE!
-- INSTANT recognition: "Wait! Did you just...?"
+- INSTANT recognition: "Wait! Did that really happen?"
 - Be specific: "You used [specific thing] perfectly!"
 - Build momentum: "You're ready for the fun stuff!"
 - Share insider knowledge: "Here's what natives actually say..."
@@ -1398,7 +1434,7 @@ export function getTransitionPhrase(
 			? [
 					`Speaking of ${fromTopic}, ${toTopic} is really interesting too...`,
 					`That reminds me about ${toTopic}...`,
-					`Actually, ${toTopic} connects to what you just said...`,
+					`${toTopic} totally connects to what you already said...`,
 					`Oh, and here's something cool about ${toTopic}...`
 				]
 			: [
