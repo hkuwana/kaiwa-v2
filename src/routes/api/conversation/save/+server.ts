@@ -98,6 +98,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 							pronunciationScore: message.pronunciationScore || null,
 							audioUrl: message.audioUrl || null,
 							audioDuration: message.audioDuration || null,
+							speechTimings: message.speechTimings || null,
 							difficultyLevel: message.difficultyLevel || null,
 							learningTags: message.learningTags || null,
 							conversationContext: message.conversationContext || null,
@@ -112,7 +113,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 							translatedContent: message.translatedContent || existingMessage.translatedContent,
 							romanization: message.romanization || existingMessage.romanization,
 							hiragana: message.hiragana || existingMessage.hiragana,
-							isTranslated: !!message.translatedContent || existingMessage.isTranslated
+							isTranslated: !!message.translatedContent || existingMessage.isTranslated,
+							speechTimings: message.speechTimings || existingMessage.speechTimings
 						});
 						if (updatedMessage) {
 							savedMessages.push(updatedMessage);

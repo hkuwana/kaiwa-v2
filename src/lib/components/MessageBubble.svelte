@@ -1,6 +1,6 @@
 <!-- src/lib/components/MessageBubble.svelte -->
 <script lang="ts">
-	import type { Message } from '$lib/server/db/types';
+	import type { Message, SpeechTiming } from '$lib/server/db/types';
 	import type { Speaker } from '$lib/types';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { translateMessage, isMessageTranslated } from '$lib/services/translation.service';
@@ -11,6 +11,7 @@
 	import kitsune from '$lib/assets/kitsune.webp';
 	import face from '$lib/assets/Face.webp';
 	import { SvelteDate } from 'svelte/reactivity';
+	import WordSyncedText from '$lib/components/WordSyncedText.svelte';
 
 	interface Props {
 		message: Message;
@@ -19,6 +20,8 @@
 		conversationLanguage?: string;
 		// When true, users toggle translation visibility by clicking the bubble (no hover)
 		clickToToggle?: boolean;
+		wordTimings?: SpeechTiming[];
+		activeWordIndex?: number;
 	}
 
 	const {
@@ -27,6 +30,8 @@
 		translation,
 		conversationLanguage,
 		clickToToggle = false,
+		wordTimings = [],
+		activeWordIndex = -1,
 		dispatch
 	} = $props<
 		Props & {
@@ -67,6 +72,14 @@
 	);
 	const bubbleClass = $derived(isUser ? 'chat-bubble chat-bubble-primary' : 'chat-bubble');
 	const borderClass = $derived(isUser ? 'border-primary/20' : 'border-base-content/20');
+	const hasWordHighlights = $derived(
+		!isUser && wordTimings.length > 0 && typeof message.content === 'string'
+	);
+	const normalizedActiveWordIndex = $derived(
+		hasWordHighlights && activeWordIndex >= 0
+			? Math.min(activeWordIndex, wordTimings.length - 1)
+			: -1
+	);
 
 	// Translation state
 	let isHovered = $state(false);
@@ -208,7 +221,15 @@
 		{:else}
 			<div class="text-base">
 				<!-- Regular content for non-Japanese -->
-				{message.content}
+				{#if hasWordHighlights}
+					<WordSyncedText
+						text={message.content}
+						timings={wordTimings}
+						activeIndex={normalizedActiveWordIndex}
+					/>
+				{:else}
+					{message.content}
+				{/if}
 			</div>
 		{/if}
 

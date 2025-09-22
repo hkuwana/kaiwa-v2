@@ -48,6 +48,7 @@
 		pronunciationScore: null,
 		audioUrl: null,
 		audioDuration: null,
+		speechTimings: null,
 		difficultyLevel: null,
 		learningTags: null,
 		conversationContext: null,

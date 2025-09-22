@@ -20,6 +20,8 @@
 	const realtimeMessages = $derived(realtimeOpenAI.messages);
 	const conversationMessages = $derived(conversationStore.messages);
 	const events = $derived(realtimeOpenAI.events);
+	const wordTimingMap = $derived(realtimeOpenAI.messageWordTimings);
+	const activeWordMap = $derived(realtimeOpenAI.activeWordByMessage);
 
 	const voice: Voice = DEFAULT_VOICE;
 	let lang = $state<string>('en');
@@ -84,6 +86,7 @@
 		realtimeOpenAI.clearError();
 		realtimeOpenAI.clearAiResponse();
 		realtimeOpenAI.clearDeltas();
+		realtimeOpenAI.clearWordTimingState();
 		realtimeOpenAI.clearEvents();
 		// Also reset conversation store messages for testing
 		conversationStore.reset();
@@ -145,7 +148,12 @@
 				{:else}
 					<div class="space-y-3" role="list">
 						{#each realtimeMessages as m (m.id)}
-							<MessageBubble message={m} conversationLanguage={lang} />
+							<MessageBubble
+								message={m}
+								conversationLanguage={lang}
+								wordTimings={wordTimingMap[m.id] ?? []}
+								activeWordIndex={activeWordMap[m.id] ?? -1}
+							/>
 						{/each}
 					</div>
 				{/if}
@@ -159,7 +167,12 @@
 				{:else}
 					<div class="space-y-3" role="list">
 						{#each conversationMessages as m (m.id)}
-							<MessageBubble message={m} conversationLanguage={lang} />
+							<MessageBubble
+								message={m}
+								conversationLanguage={lang}
+								wordTimings={wordTimingMap[m.id] ?? []}
+								activeWordIndex={activeWordMap[m.id] ?? -1}
+							/>
 						{/each}
 					</div>
 				{/if}
@@ -203,6 +216,55 @@
 			{#if events.length === 0}
 				<div class="p-3 text-sm opacity-60">No events yet…</div>
 			{/if}
+		</div>
+	</div>
+
+	<div class="card mt-6 bg-base-200 p-4">
+		<h3 class="mb-2 font-semibold">Realtime Word Highlight Flow</h3>
+		<pre class="text-xs leading-5 whitespace-pre-wrap">
+Audio/Text Events ─▶ realtimeOpenAI.processServerEventOrdered
+    │
+    ├─ text delta ──▶ recordAssistantWordDelta ──▶ messageWordTimings[state]
+    │                                        │
+    │                                        └─▶ messages[] (speechTimings)
+    │
+    ├─ audio delta ─▶ handleAssistantAudioDelta ─┐
+    │                                           ├─▶ finalizeAssistantWordTimings
+    └─ audio done  ─▶ handleAssistantAudioDone ─┘        │
+                                                        └─▶ alignment log (events)
+
+UI Bindings ─▶ MessageBubble ─▶ WordSyncedText ─▶ Active word highlight
+		</pre>
+	</div>
+
+	<div class="card mt-6 bg-base-200 p-4 space-y-6">
+		<div>
+			<h3 class="mb-2 font-semibold">Realtime Word Highlight Flow</h3>
+			<pre class="bg-base-100 p-3 text-xs leading-5 whitespace-pre-wrap">
+Audio/Text Events ─▶ realtimeOpenAI.processServerEventOrdered
+    │
+    ├─ text delta ──▶ recordAssistantWordDelta ──▶ messageWordTimings[state]
+    │                                        │
+    │                                        └─▶ messages[] (speechTimings)
+    │
+    ├─ audio delta ─▶ handleAssistantAudioDelta ─┐
+    │                                           ├─▶ finalizeAssistantWordTimings
+    └─ audio done  ─▶ handleAssistantAudioDone ─┘        │
+                                                        └─▶ alignment log (events)
+
+UI Bindings ─▶ MessageBubble ─▶ WordSyncedText ─▶ Active word highlight
+		</pre>
+		</div>
+
+		<div>
+			<h3 class="mb-2 font-semibold">Next Steps / Plan</h3>
+			<ul class="list-disc space-y-1 pl-5 text-sm">
+				<li>Create dedicated <code>WordTimingController</code> module to own timing state.</li>
+				<li>Subscribe to <code>audioElement</code> (<code>playing/timeupdate/ended</code>) and drive word highlights from the actual playback clock.</li>
+				<li>Store <code>itemId → messageId</code> mapping so audio deltas resolve to the correct conversation entry.</li>
+				<li>Persist <code>speechTimings</code> only when final timings exist (avoid zero-duration rows).</li>
+				<li>Validate behaviour against OpenAI realtime events (<a class="link" href="https://platform.openai.com/docs/api-reference/realtime" target="_blank" rel="noreferrer">API docs</a>) and SDK internals (<a class="link" href="https://github.com/openai/openai-realtime-agents" target="_blank" rel="noreferrer">openai-realtime-agents</a>).</li>
+			</ul>
 		</div>
 	</div>
 </div>

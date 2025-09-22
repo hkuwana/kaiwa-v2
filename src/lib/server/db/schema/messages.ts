@@ -25,6 +25,17 @@ export const messages = pgTable(
 		hiragana: text('hiragana'), // Japanese hiragana
 		otherScripts: jsonb('other_scripts'), // For katakana, hangul, kanji, and other writing systems
 
+		// Word-level audio alignment
+		speechTimings: jsonb('speech_timings').$type<
+			Array<{
+				word: string;
+				startMs: number;
+				endMs: number;
+				charStart: number;
+				charEnd: number;
+			}>
+		>(),
+
 		// Translation metadata
 		translationConfidence: text('translation_confidence').$type<'low' | 'medium' | 'high'>(),
 		translationProvider: text('translation_provider'), // e.g., 'openai', 'google', 'manual'

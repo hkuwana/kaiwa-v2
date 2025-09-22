@@ -36,6 +36,7 @@ export type Subscription = InferSelectModel<typeof subscriptions>;
 export type Payment = InferInsertModel<typeof payments>;
 export type Conversation = InferSelectModel<typeof conversations>;
 export type Message = InferSelectModel<typeof messages>;
+export type SpeechTiming = NonNullable<Message['speechTimings']>[number];
 export type Scenario = InferSelectModel<typeof scenarios>;
 export type UserPreferences = InferSelectModel<typeof userPreferences>;
 export type ScenarioAttempt = InferSelectModel<typeof scenarioAttempts>;

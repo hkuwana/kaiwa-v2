@@ -271,21 +271,27 @@
 						<h3 class="mb-2 text-lg font-semibold">Switch Mock Tier:</h3>
 						<div class="flex gap-2">
 							<button
-								class="btn btn-sm {mockUsageStatus.tier.id === 'free' ? 'btn-active' : 'btn-outline'}"
+								class="btn btn-sm {mockUsageStatus.tier.id === 'free'
+									? 'btn-active'
+									: 'btn-outline'}"
 								onclick={() => switchMockTier('free')}
 							>
 								<span class="icon-[mdi--account-outline] h-4 w-4"></span>
 								Free
 							</button>
 							<button
-								class="btn btn-sm {mockUsageStatus.tier.id === 'plus' ? 'btn-active btn-primary' : 'btn-outline'}"
+								class="btn btn-sm {mockUsageStatus.tier.id === 'plus'
+									? 'btn-active btn-primary'
+									: 'btn-outline'}"
 								onclick={() => switchMockTier('plus')}
 							>
 								<span class="icon-[mdi--star] h-4 w-4"></span>
 								Plus
 							</button>
 							<button
-								class="btn btn-sm {mockUsageStatus.tier.id === 'premium' ? 'btn-active btn-secondary' : 'btn-outline'}"
+								class="btn btn-sm {mockUsageStatus.tier.id === 'premium'
+									? 'btn-active btn-secondary'
+									: 'btn-outline'}"
 								onclick={() => switchMockTier('premium')}
 							>
 								<span class="icon-[mdi--crown] h-4 w-4"></span>
@@ -298,14 +304,14 @@
 					<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 						<div class="space-y-3">
 							<h4 class="font-semibold">Simple Badge (showDetails=false):</h4>
-							<div class="rounded-lg border p-4 bg-base-200">
+							<div class="rounded-lg border bg-base-200 p-4">
 								<TierBadge tierStatus={mockUsageStatus} showDetails={false} />
 							</div>
 						</div>
 
 						<div class="space-y-3">
 							<h4 class="font-semibold">Detailed Badge (showDetails=true):</h4>
-							<div class="rounded-lg border p-4 bg-base-200">
+							<div class="rounded-lg border bg-base-200 p-4">
 								<TierBadge tierStatus={mockUsageStatus} showDetails={true} />
 							</div>
 						</div>
@@ -316,9 +322,22 @@
 						<h4 class="mb-2 font-semibold text-info">Current Mock Data:</h4>
 						<div class="text-sm text-base-content/70">
 							<p><strong>Tier:</strong> {mockUsageStatus.tier.name} ({mockUsageStatus.tier.id})</p>
-							<p><strong>Conversations:</strong> {mockUsageStatus.usage.conversationsUsed}/{mockUsageStatus.tier.monthlyConversations}</p>
-							<p><strong>Time:</strong> {formatTime(mockUsageStatus.usage.secondsUsed)}/{formatTime(mockUsageStatus.tier.monthlySeconds)}</p>
-							<p><strong>Realtime:</strong> {mockUsageStatus.usage.realtimeSessionsUsed}/{mockUsageStatus.tier.monthlyRealtimeSessions}</p>
+							<p>
+								<strong>Conversations:</strong>
+								{mockUsageStatus.usage.conversationsUsed}/{mockUsageStatus.tier
+									.monthlyConversations}
+							</p>
+							<p>
+								<strong>Time:</strong>
+								{formatTime(mockUsageStatus.usage.secondsUsed?)}/{formatTime(
+									mockUsageStatus.tier.monthlySeconds
+								)}
+							</p>
+							<p>
+								<strong>Realtime:</strong>
+								{mockUsageStatus.usage.realtimeSessionsUsed}/{mockUsageStatus.tier
+									.monthlyRealtimeSessions}
+							</p>
 						</div>
 					</div>
 				</div>
@@ -525,12 +544,16 @@
 								</td>
 								<td class="text-center">
 									<span class="badge badge-sm badge-success">
-										{defaultTierConfigs.plus.dailySeconds ? formatTime(defaultTierConfigs.plus.dailySeconds) : 'No limit'}
+										{defaultTierConfigs.plus.dailySeconds
+											? formatTime(defaultTierConfigs.plus.dailySeconds)
+											: 'No limit'}
 									</span>
 								</td>
 								<td class="text-center">
 									<span class="badge badge-sm badge-success">
-										{defaultTierConfigs.premium.dailySeconds ? formatTime(defaultTierConfigs.premium.dailySeconds) : 'No limit'}
+										{defaultTierConfigs.premium.dailySeconds
+											? formatTime(defaultTierConfigs.premium.dailySeconds)
+											: 'No limit'}
 									</span>
 								</td>
 							</tr>
@@ -560,32 +583,50 @@
 							</tr>
 							<tr>
 								<td>Max Session Length</td>
-								<td class="text-center">{formatTime(defaultTierConfigs.free.maxSessionLengthSeconds)}</td>
-								<td class="text-center">{formatTime(defaultTierConfigs.plus.maxSessionLengthSeconds)}</td>
-								<td class="text-center">{formatTime(defaultTierConfigs.premium.maxSessionLengthSeconds)}</td>
+								<td class="text-center"
+									>{formatTime(defaultTierConfigs.free.maxSessionLengthSeconds)}</td
+								>
+								<td class="text-center"
+									>{formatTime(defaultTierConfigs.plus.maxSessionLengthSeconds)}</td
+								>
+								<td class="text-center"
+									>{formatTime(defaultTierConfigs.premium.maxSessionLengthSeconds)}</td
+								>
 							</tr>
 							<tr>
 								<td>Memory Level</td>
 								<td class="text-center">
-									<span class="badge badge-ghost badge-sm">{defaultTierConfigs.free.conversationMemoryLevel}</span>
+									<span class="badge badge-ghost badge-sm"
+										>{defaultTierConfigs.free.conversationMemoryLevel}</span
+									>
 								</td>
 								<td class="text-center">
-									<span class="badge badge-sm badge-primary">{defaultTierConfigs.plus.conversationMemoryLevel}</span>
+									<span class="badge badge-sm badge-primary"
+										>{defaultTierConfigs.plus.conversationMemoryLevel}</span
+									>
 								</td>
 								<td class="text-center">
-									<span class="badge badge-sm badge-secondary">{defaultTierConfigs.premium.conversationMemoryLevel}</span>
+									<span class="badge badge-sm badge-secondary"
+										>{defaultTierConfigs.premium.conversationMemoryLevel}</span
+									>
 								</td>
 							</tr>
 							<tr>
 								<td>Pricing</td>
 								<td class="text-center">
-									<span class="badge badge-ghost badge-sm">${defaultTierConfigs.free.monthlyPriceUsd}/mo</span>
+									<span class="badge badge-ghost badge-sm"
+										>${defaultTierConfigs.free.monthlyPriceUsd}/mo</span
+									>
 								</td>
 								<td class="text-center">
-									<span class="badge badge-sm badge-primary">${defaultTierConfigs.plus.monthlyPriceUsd}/mo</span>
+									<span class="badge badge-sm badge-primary"
+										>${defaultTierConfigs.plus.monthlyPriceUsd}/mo</span
+									>
 								</td>
 								<td class="text-center">
-									<span class="badge badge-sm badge-secondary">${defaultTierConfigs.premium.monthlyPriceUsd}/mo</span>
+									<span class="badge badge-sm badge-secondary"
+										>${defaultTierConfigs.premium.monthlyPriceUsd}/mo</span
+									>
 								</td>
 							</tr>
 						</tbody>

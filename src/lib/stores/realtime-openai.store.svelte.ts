@@ -3,7 +3,7 @@
 // Phase 1: wrap OpenAI Agents Realtime transport with minimal API.
 
 import { realtimeService } from '$lib/services';
-import type { Message } from '$lib/server/db/types';
+import type { Message, SpeechTiming } from '$lib/server/db/types';
 import * as messageService from '$lib/services/message.service';
 import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
 import type { Voice } from '$lib/types/openai.realtime.types';
@@ -38,10 +38,28 @@ export class RealtimeOpenAIStore {
 
 	// Lightweight messages array for UIs that want a direct feed
 	messages = $state<Message[]>([]);
+	messageWordTimings = $state<Record<string, SpeechTiming[]>>({});
+	activeWordByMessage = $state<Record<string, number>>({});
 	private sessionId: string = '';
 	private sessionStartMs: number = 0;
 	// Track finalized history item IDs to avoid re-creating partials after final
 	private finalizedItemIds = new Set<string>();
+	private wordTimingBuffers: Record<string, SpeechTiming[]> = {};
+	private wordCharOffsetByMessage: Record<string, number> = {};
+	private currentAssistantMessageId: string | null = null;
+	private finalizedWordTimings = new Set<string>();
+	private assistantAudioTracking: {
+		messageId: string | null;
+		startEpochMs: number | null;
+		accumulatedMs: number;
+		totalDurationMs: number | null;
+	} = {
+		messageId: null,
+		startEpochMs: null,
+		accumulatedMs: 0,
+		totalDurationMs: null
+	};
+	private readonly DEFAULT_WORD_DURATION_MS = 220;
 
 	private logEvent(dir: 'server' | 'client', type: string, payload: any) {
 		try {
@@ -76,6 +94,224 @@ export class RealtimeOpenAIStore {
 		} finally {
 			this.processingEvents = false;
 		}
+	}
+
+	private estimateWordDuration(charLength: number): number {
+		const scaled = charLength * 45; // heuristically scale duration by token length
+		return Math.max(this.DEFAULT_WORD_DURATION_MS, Math.min(scaled, 850));
+	}
+
+	private ensureWordTracking(messageId: string) {
+		if (!this.wordTimingBuffers[messageId]) {
+			this.wordTimingBuffers[messageId] = [];
+		}
+		if (this.wordCharOffsetByMessage[messageId] === undefined) {
+			this.wordCharOffsetByMessage[messageId] = 0;
+		}
+	}
+
+	private recordAssistantWordDelta(messageId: string, deltaText: string) {
+		if (!deltaText || !deltaText.trim()) return;
+		this.ensureWordTracking(messageId);
+		const tokens = deltaText.match(/\S+|\s+/g) ?? [];
+		if (tokens.length === 0) return;
+
+		const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+		if (!this.assistantAudioTracking.startEpochMs) {
+			this.assistantAudioTracking.startEpochMs = now;
+			this.assistantAudioTracking.messageId = messageId;
+		}
+		const baseEpoch = this.assistantAudioTracking.startEpochMs ?? now;
+		const relativeNow = Math.max(0, now - baseEpoch);
+
+		const buffer = this.wordTimingBuffers[messageId] ?? [];
+		let charOffset = this.wordCharOffsetByMessage[messageId] ?? 0;
+		let lastEnd = buffer.length > 0 ? buffer[buffer.length - 1].endMs : 0;
+
+		for (const token of tokens) {
+			const length = token.length;
+			if (!length) continue;
+			const isWhitespace = /^\s+$/.test(token);
+			if (isWhitespace) {
+				charOffset += length;
+				continue;
+			}
+
+			const startMs = buffer.length === 0 ? relativeNow : Math.max(relativeNow, lastEnd);
+			const endMs = startMs + this.estimateWordDuration(length);
+			buffer.push({
+				word: token,
+				startMs,
+				endMs,
+				charStart: charOffset,
+				charEnd: charOffset + length
+			});
+			charOffset += length;
+			lastEnd = endMs;
+		}
+
+		this.wordTimingBuffers[messageId] = buffer;
+		this.wordCharOffsetByMessage[messageId] = charOffset;
+
+		const clonedTimings = buffer.map((entry) => ({ ...entry }));
+		this.messageWordTimings = { ...this.messageWordTimings, [messageId]: clonedTimings };
+		this.activeWordByMessage = {
+			...this.activeWordByMessage,
+			[messageId]: clonedTimings.length ? clonedTimings.length - 1 : 0
+		};
+
+		const idx = this.messages.findIndex((m) => m.id === messageId);
+		if (idx !== -1) {
+			const updated = [...this.messages];
+			updated[idx] = { ...updated[idx], speechTimings: clonedTimings };
+			this.messages = updated;
+		}
+	}
+
+	private finalizeAssistantWordTimings(messageId: string, totalDurationMs?: number | null) {
+		if (this.finalizedWordTimings.has(messageId)) {
+			return;
+		}
+		const buffer = this.wordTimingBuffers[messageId] ?? this.messageWordTimings[messageId];
+		if (!buffer || buffer.length === 0) return;
+		const finalBuffer = buffer.map((entry) => ({ ...entry }));
+
+		for (let i = 0; i < finalBuffer.length; i++) {
+			const current = finalBuffer[i];
+			const next = finalBuffer[i + 1];
+			if (next) {
+				current.endMs = Math.max(current.startMs, next.startMs);
+			} else {
+				const fallback =
+					typeof totalDurationMs === 'number' && totalDurationMs > 0
+						? totalDurationMs
+						: current.endMs;
+				current.endMs = Math.max(current.startMs + this.DEFAULT_WORD_DURATION_MS, fallback);
+			}
+		}
+
+		this.messageWordTimings = { ...this.messageWordTimings, [messageId]: finalBuffer };
+		this.wordTimingBuffers[messageId] = finalBuffer;
+		const idx = this.messages.findIndex((m) => m.id === messageId);
+		if (idx !== -1) {
+			const updated = [...this.messages];
+			updated[idx] = { ...updated[idx], speechTimings: finalBuffer };
+			this.messages = updated;
+		}
+		this.finalizedWordTimings.add(messageId);
+		delete this.wordCharOffsetByMessage[messageId];
+
+		if (this.debug && finalBuffer.length > 0) {
+			const last = finalBuffer[finalBuffer.length - 1];
+			const diff =
+				typeof totalDurationMs === 'number' && totalDurationMs > 0
+					? totalDurationMs - last.endMs
+					: null;
+			this.logEvent('client', 'timing.finalized', {
+				messageId,
+				totalDurationMs: totalDurationMs ?? null,
+				lastWordEndMs: last.endMs,
+				diffMs: diff
+			});
+		}
+	}
+
+	private promoteWordTimingKey(oldId: string, newId: string) {
+		if (!oldId || !newId || oldId === newId) return;
+		const timings = this.messageWordTimings[oldId];
+		const active = this.activeWordByMessage[oldId];
+		const buffer = this.wordTimingBuffers[oldId];
+		const charOffset = this.wordCharOffsetByMessage[oldId];
+		const wasFinalized = this.finalizedWordTimings.has(oldId);
+
+		const nextTimings = timings ? timings.map((entry) => ({ ...entry })) : undefined;
+		const nextWordTimings = nextTimings ? { ...this.messageWordTimings, [newId]: nextTimings } : { ...this.messageWordTimings };
+		if (nextTimings) {
+			delete nextWordTimings[oldId];
+			this.messageWordTimings = nextWordTimings;
+		}
+
+		const nextActive = { ...this.activeWordByMessage } as Record<string, number>;
+		if (typeof active === 'number') {
+			nextActive[newId] = active;
+		}
+		delete nextActive[oldId];
+		this.activeWordByMessage = nextActive;
+
+		if (buffer) {
+			this.wordTimingBuffers[newId] = buffer;
+			delete this.wordTimingBuffers[oldId];
+		}
+		if (charOffset !== undefined) {
+			this.wordCharOffsetByMessage[newId] = charOffset;
+			delete this.wordCharOffsetByMessage[oldId];
+		}
+		if (wasFinalized) {
+			this.finalizedWordTimings.add(newId);
+			this.finalizedWordTimings.delete(oldId);
+		}
+	}
+
+	private extractAudioDurationMs(event: any): number | null {
+		const candidates = [
+			event?.delta?.duration_ms,
+			event?.delta?.duration,
+			event?.delta?.seconds,
+			event?.duration_ms,
+			event?.duration,
+			event?.seconds,
+			event?.delta?.audio?.duration_ms,
+			event?.delta?.audio?.duration,
+			event?.audio?.duration_ms,
+			event?.audio?.duration
+		];
+		for (const value of candidates) {
+			if (typeof value === 'number' && !Number.isNaN(value)) {
+				return value > 10 ? value : value * 1000;
+			}
+		}
+		return null;
+	}
+
+	private handleAssistantAudioDelta(event: any) {
+		const messageId = this.currentAssistantMessageId;
+		if (!messageId) return;
+		if (!this.assistantAudioTracking.messageId) {
+			this.assistantAudioTracking.messageId = messageId;
+			this.assistantAudioTracking.startEpochMs =
+				typeof performance !== 'undefined' ? performance.now() : Date.now();
+		}
+		const durationMs = this.extractAudioDurationMs(event);
+		if (durationMs) {
+			this.assistantAudioTracking.accumulatedMs += durationMs;
+		}
+	}
+
+	private handleAssistantAudioDone(event: any) {
+		const messageId = this.assistantAudioTracking.messageId || this.currentAssistantMessageId;
+		if (!messageId) return;
+		const durationMs = this.extractAudioDurationMs(event);
+		if (durationMs) {
+			this.assistantAudioTracking.totalDurationMs = durationMs;
+		}
+		const total =
+			this.assistantAudioTracking.totalDurationMs ?? this.assistantAudioTracking.accumulatedMs;
+		this.finalizeAssistantWordTimings(messageId, total);
+	}
+
+	clearWordTimingState(): void {
+		this.messageWordTimings = {};
+		this.activeWordByMessage = {};
+		this.wordTimingBuffers = {};
+		this.wordCharOffsetByMessage = {};
+		this.currentAssistantMessageId = null;
+		this.assistantAudioTracking = {
+			messageId: null,
+			startEpochMs: null,
+			accumulatedMs: 0,
+			totalDurationMs: null
+		};
+		this.finalizedWordTimings.clear();
 	}
 
 	// Process individual server event in proper order
@@ -128,6 +364,18 @@ export class RealtimeOpenAIStore {
 			if (this.debug) console.debug('[realtime] placeholder hook error:', err);
 		}
 
+		if (
+			serverEvent?.type === 'response.output_audio.delta' ||
+			serverEvent?.type === 'response.audio.delta'
+		) {
+			this.handleAssistantAudioDelta(serverEvent);
+		} else if (
+			serverEvent?.type === 'response.output_audio.done' ||
+			serverEvent?.type === 'response.audio.done'
+		) {
+			this.handleAssistantAudioDone(serverEvent);
+		}
+
 		const processed = realtimeService.processServerEvent(serverEvent);
 
 		if (serverEvent.type === 'session.created' || serverEvent.type === 'session.updated') {
@@ -151,14 +399,31 @@ export class RealtimeOpenAIStore {
 						this.messages = messageService.removeDuplicateMessages(
 							messageService.sortMessagesBySequence([...this.messages, streamingMessage])
 						);
+						this.currentAssistantMessageId = streamingMessage.id;
+						this.finalizedWordTimings.delete(streamingMessage.id);
 					}
 					this.messages = messageService.updateStreamingMessage(
 						this.messages,
 						processed.data.text // Pass individual delta, function will accumulate
 					);
+					const streaming = this.messages.find(
+						(m) => m.role === 'assistant' && m.id.startsWith('streaming_')
+					);
+					if (streaming) {
+						this.currentAssistantMessageId = streaming.id;
+						this.recordAssistantWordDelta(streaming.id, processed.data.text);
+					}
 
 					// Don't emit individual deltas - wait for final message
 				} else {
+					const streamingIndex = this.messages.findIndex(
+						(m) => m.role === 'assistant' && m.id.startsWith('streaming_')
+					);
+					const streamingId = streamingIndex !== -1 ? this.messages[streamingIndex].id : null;
+					const totalDuration =
+						this.assistantAudioTracking.messageId === streamingId
+							? this.assistantAudioTracking.totalDurationMs ?? this.assistantAudioTracking.accumulatedMs
+							: this.assistantAudioTracking.totalDurationMs;
 					// Finalize assistant transcript
 					this.aiResponse = processed.data.text;
 					this.assistantDelta = '';
@@ -166,6 +431,20 @@ export class RealtimeOpenAIStore {
 						this.messages,
 						processed.data.text
 					);
+					if (streamingIndex !== -1) {
+						const finalId = this.messages[streamingIndex].id;
+						if (streamingId) {
+							this.promoteWordTimingKey(streamingId, finalId);
+						}
+						this.finalizeAssistantWordTimings(finalId, totalDuration);
+						this.currentAssistantMessageId = null;
+						this.assistantAudioTracking = {
+							messageId: null,
+							startEpochMs: null,
+							accumulatedMs: 0,
+							totalDurationMs: null
+						};
+					}
 
 					// Emit final message stream event
 					this.emitMessage({
@@ -252,6 +531,7 @@ export class RealtimeOpenAIStore {
 			this.historyText = {} as Record<string, string>;
 			this.assistantDelta = '';
 			this.userDelta = '';
+			this.clearWordTimingState();
 
 			// Create session + transport using existing audio stream
 			this.connection = await createConnectionWithSession(sessionData, mediaStream);
@@ -340,6 +620,7 @@ export class RealtimeOpenAIStore {
 		this.historyText = {} as Record<string, string>;
 		this.assistantDelta = '';
 		this.userDelta = '';
+		this.clearWordTimingState();
 	}
 
 	// High-level helpers

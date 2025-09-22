@@ -39,7 +39,8 @@
       "WebFetch(domain:svelte.dev)",
       "WebFetch(domain:iconify.design)",
       "WebFetch(domain:icon-sets.iconify.design)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "WebFetch(domain:openai.com)"
     ],
     "deny": [],
     "ask": []

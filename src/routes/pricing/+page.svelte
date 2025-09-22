@@ -152,13 +152,6 @@
 		];
 	}
 
-	// Early‑Backer price id (optional)
-	const earlyBackerPriceId = $state(publicEnv.PUBLIC_STRIPE_EARLY_BACKER_PRICE_ID || '');
-
-	async function handleEarlyBackerCheckout() {
-		await PricingService.handleEarlyBackerCheckout(earlyBackerPriceId, userManager.user);
-	}
-
 	onMount(() => {
 		posthogManager.trackEvent('pricing_page_viewed', { plan: selectedPlan });
 	});
