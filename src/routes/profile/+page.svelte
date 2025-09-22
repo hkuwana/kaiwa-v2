@@ -2,15 +2,18 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import UserPreferencesEditor from '$lib/components/UserPreferencesEditor.svelte';
-	import TierBadge from '$lib/features/payments/components/TierBadge.svelte';
 	import type { UserPreferences } from '$lib/server/db/types';
 	import type { UsageStatus } from '$lib/server/tierService';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { onMount } from 'svelte';
+	import PaymentManagement from '$lib/components/PaymentManagement.svelte';
 
 	const { data } = $props();
 
-	let userPreferences = $state<UserPreferences | null>(data.userPreferences);
+	// Client-side data loading
+	let userPreferences = $state<UserPreferences | null>(null);
+	let subscription = $state<any>(null);
+	let usageLimits = $state<any>(null);
 
 	let showDeleteModal = $state(false);
 	let deleteConfirmation = $state('');
@@ -19,6 +22,15 @@
 
 	const requiredText = 'DELETE PROFILE';
 
+	// Tab navigation
+	let activeTab = $state('account');
+	const tabs = [
+		{ id: 'account', label: 'Account', icon: 'user' },
+		{ id: 'billing', label: 'Billing & Payments', icon: 'credit-card' },
+		{ id: 'preferences', label: 'Learning Preferences', icon: 'settings' },
+		{ id: 'danger', label: 'Danger Zone', icon: 'warning' }
+	];
+
 	// Billing state
 	let isManagingBilling = $state(false);
 	let billingError = $state('');
@@ -26,6 +38,11 @@
 	// Usage status state
 	let usageStatus = $state<UsageStatus | null>(null);
 	let isLoadingUsage = $state(false);
+
+	// Data loading promises
+	let userPreferencesPromise = $state<Promise<UserPreferences | null>>();
+	let subscriptionPromise = $state<Promise<any>>();
+	let usageLimitsPromise = $state<Promise<any>>();
 
 	// Tier pricing for display
 	const tierPricing: Record<string, string> = {
@@ -172,6 +189,48 @@
 		}
 	};
 
+	// Load user preferences
+	const loadUserPreferences = async (): Promise<UserPreferences | null> => {
+		try {
+			const response = await fetch('/api/user/preferences');
+			if (response.ok) {
+				return await response.json();
+			}
+			return null;
+		} catch (error) {
+			console.error('Error loading user preferences:', error);
+			return null;
+		}
+	};
+
+	// Load subscription data
+	const loadSubscription = async () => {
+		try {
+			const response = await fetch('/api/user/subscription');
+			if (response.ok) {
+				return await response.json();
+			}
+			return null;
+		} catch (error) {
+			console.error('Error loading subscription:', error);
+			return null;
+		}
+	};
+
+	// Load usage limits
+	const loadUsageLimits = async () => {
+		try {
+			const response = await fetch('/api/user/subscription-status');
+			if (response.ok) {
+				return await response.json();
+			}
+			return null;
+		} catch (error) {
+			console.error('Error loading usage limits:', error);
+			return null;
+		}
+	};
+
 	// Load user's detailed usage status
 	const loadUsageStatus = async () => {
 		isLoadingUsage = true;
@@ -192,9 +251,13 @@
 						...data.usage,
 						createdAt: new Date(data.usage.createdAt),
 						updatedAt: new Date(data.usage.updatedAt),
-						lastConversationAt: data.usage.lastConversationAt ? new Date(data.usage.lastConversationAt) : null,
+						lastConversationAt: data.usage.lastConversationAt
+							? new Date(data.usage.lastConversationAt)
+							: null,
 						lastRealtimeAt: data.usage.lastRealtimeAt ? new Date(data.usage.lastRealtimeAt) : null,
-						firstActivityAt: data.usage.firstActivityAt ? new Date(data.usage.firstActivityAt) : null
+						firstActivityAt: data.usage.firstActivityAt
+							? new Date(data.usage.firstActivityAt)
+							: null
 					}
 				};
 			} else {
@@ -207,9 +270,26 @@
 		}
 	};
 
-	// Load usage status when component mounts
+	// Load all data when component mounts
 	onMount(() => {
+		// Initialize data loading promises
+		userPreferencesPromise = loadUserPreferences();
+		subscriptionPromise = loadSubscription();
+		usageLimitsPromise = loadUsageLimits();
+
+		// Load usage status
 		loadUsageStatus();
+
+		// Update reactive state when promises resolve
+		userPreferencesPromise?.then(prefs => {
+			userPreferences = prefs;
+		});
+		subscriptionPromise?.then(sub => {
+			subscription = sub;
+		});
+		usageLimitsPromise?.then(limits => {
+			usageLimits = limits;
+		});
 	});
 </script>
 
@@ -220,252 +300,178 @@
 
 <div class="min-h-screen bg-base-200">
 	<div class="container mx-auto px-4 py-8">
-		<div class="mx-auto max-w-2xl">
+		<div class="mx-auto max-w-4xl">
 			<!-- Header -->
 			<div class="mb-8">
 				<h1 class="text-3xl font-bold text-base-content">Profile Settings</h1>
 				<p class="mt-2 text-base-content/70">Manage your account and preferences</p>
 			</div>
 
-			<!-- Profile Card -->
-			<div class="card mb-6 bg-base-100 shadow-xl">
-				<div class="card-body">
-					<h2 class="mb-4 card-title text-xl">Account Information</h2>
-
-					<div class="space-y-4">
-						<div class="form-control">
-							<div class="label">
-								<span class="label-text font-medium">Email</span>
-							</div>
-							<div class="input-bordered input bg-base-200">
-								{data.user.email}
-							</div>
-						</div>
-
-						<div class="form-control">
-							<div class="label">
-								<span class="label-text font-medium">Display Name</span>
-							</div>
-							<div class="input-bordered input bg-base-200">
-								{data.user.displayName || 'Not set'}
-							</div>
-						</div>
-
-						<div class="form-control">
-							<div class="label">
-								<span class="label-text font-medium">Account Created</span>
-							</div>
-							<div class="input-bordered input bg-base-200">
-								{data.user.createdAt
-									? new SvelteDate(data.user.createdAt).toLocaleDateString()
-									: 'Unknown'}
-							</div>
-						</div>
-
-						<div class="form-control">
-							<div class="label">
-								<span class="label-text font-medium">Email Verified</span>
-							</div>
-							<div class="flex items-center gap-2">
-								{#if data.user.emailVerified}
-									<span class="badge badge-success">Verified</span>
-									<span class="text-sm text-base-content/70">
-										{new SvelteDate(data.user.emailVerified).toLocaleDateString()}
-									</span>
-								{:else}
-									<span class="badge badge-error">Not Verified</span>
-								{/if}
-							</div>
-						</div>
-					</div>
-				</div>
+			<!-- Tab Navigation -->
+			<div class="tabs-boxed mb-6 tabs bg-base-100 shadow-xl">
+				{#each tabs as tab (tab.id)}
+					<button
+						class="tab-lg tab {activeTab === tab.id ? 'tab-active' : ''}"
+						onclick={() => (activeTab = tab.id)}
+					>
+						<span class="icon-[mdi--{tab.icon}] mr-2 h-5 w-5"></span>
+						{tab.label}
+					</button>
+				{/each}
 			</div>
 
-			<!-- Billing & Subscription Card -->
-			<div class="card mb-6 bg-base-100 shadow-xl">
-				<div class="card-body">
-					<h2 class="mb-4 card-title text-xl">Billing & Subscription</h2>
+			<!-- Tab Content -->
+			<div class="rounded-box border-base-300 bg-base-100 p-6 shadow-xl">
+				<!-- Account Tab -->
+				{#if activeTab === 'account'}
+					<div class="card mb-6 bg-base-100 shadow-xl">
+						<div class="card-body">
+							<h2 class="mb-4 card-title text-xl">
+								<span class="mr-2 icon-[mdi--user] h-6 w-6"></span>
+								Account Information
+							</h2>
 
-					{#if billingError}
-						<div class="mb-4 alert alert-error">
-							<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M6 18L18 6M6 6l12 12"
-								/>
-							</svg>
-							<span>{billingError}</span>
-						</div>
-					{/if}
+							<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+								<div class="form-control">
+									<div class="label">
+										<span class="label-text font-medium">Email</span>
+									</div>
+									<div class="input-bordered input bg-base-200">
+										{data.user.email}
+									</div>
+								</div>
 
-					<!-- Usage Statistics -->
-					<div class="mb-6">
-						<div class="mb-3 flex items-center justify-between">
-							<h3 class="text-lg font-semibold">Usage Statistics</h3>
-							<button
-								class="btn btn-ghost btn-sm"
-								onclick={loadUsageStatus}
-								disabled={isLoadingUsage}
-							>
-								{#if isLoadingUsage}
-									<span class="icon-[mdi--loading] h-4 w-4 animate-spin"></span>
-								{:else}
-									<span class="icon-[mdi--refresh] h-4 w-4"></span>
-								{/if}
-								Refresh
-							</button>
-						</div>
+								<div class="form-control">
+									<div class="label">
+										<span class="label-text font-medium">Display Name</span>
+									</div>
+									<div class="input-bordered input bg-base-200">
+										{data.user.displayName || 'Not set'}
+									</div>
+								</div>
 
-						{#if isLoadingUsage}
-							<div class="flex items-center gap-2">
-								<span class="loading loading-sm loading-spinner"></span>
-								<span class="text-sm text-base-content/70">Loading usage statistics...</span>
-							</div>
-						{:else if usageStatus}
-							<TierBadge tierStatus={usageStatus} showDetails={true} />
-						{:else}
-							<div class="rounded-lg border border-warning/20 bg-warning/10 p-4">
-								<div class="flex items-center gap-2 text-warning">
-									<span class="icon-[mdi--alert-circle] h-5 w-5"></span>
-									<span class="text-sm">Unable to load usage statistics. Try refreshing.</span>
+								<div class="form-control">
+									<div class="label">
+										<span class="label-text font-medium">Account Created</span>
+									</div>
+									<div class="input-bordered input bg-base-200">
+										{data.user.createdAt
+											? new SvelteDate(data.user.createdAt).toLocaleDateString()
+											: 'Unknown'}
+									</div>
+								</div>
+
+								<div class="form-control">
+									<div class="label">
+										<span class="label-text font-medium">Email Verified</span>
+									</div>
+									<div class="flex items-center gap-2">
+										{#if data.user.emailVerified}
+											<span class="badge badge-success">Verified</span>
+											<span class="text-sm text-base-content/70">
+												{new SvelteDate(data.user.emailVerified).toLocaleDateString()}
+											</span>
+										{:else}
+											<span class="badge badge-error">Not Verified</span>
+										{/if}
+									</div>
 								</div>
 							</div>
-						{/if}
+						</div>
 					</div>
+				{/if}
 
-					<div class="space-y-4">
-						<!-- Current Plan -->
-						<div class="form-control">
-							<div class="label">
-								<span class="label-text font-medium">Current Plan</span>
-							</div>
-							<div class="flex items-center justify-between">
-								<div class="flex items-center gap-2">
-									<span
-										class="badge capitalize {data.subscription?.currentTier === 'free'
-											? 'badge-neutral'
-											: 'badge-primary'}"
-									>
-										{data.subscription?.currentTier || 'free'}
-									</span>
-									{#if data.subscription?.currentTier !== 'free'}
-										<span class="text-sm text-base-content/70">
-											${tierPricing[data.subscription.currentTier]}/month
-										</span>
-									{:else}
-										<span class="text-sm text-base-content/70">
-											{data.usageLimits?.conversationsPerMonth || 100} conversations/month,
-											{Math.round(data.usageLimits?.audioMinutesPerMonth || 15)} audio minutes/month
-										</span>
-									{/if}
+				<!-- Billing Tab -->
+				{#if activeTab === 'billing'}
+					<PaymentManagement
+						{data}
+						{usageStatus}
+						{isLoadingUsage}
+						{loadUsageStatus}
+						{tierPricing}
+						{billingError}
+						{isManagingBilling}
+						{openBillingPortal}
+						{pauseSubscription}
+						{cancelSubscription}
+						{subscription}
+						{usageLimits}
+					/>
+				{/if}
+
+				<!-- Learning Preferences Tab -->
+				{#if activeTab === 'preferences'}
+					<div class="card mb-6 bg-base-100 shadow-xl">
+						<div class="card-body">
+							<h2 class="mb-4 card-title text-xl">
+								<span class="mr-2 icon-[mdi--settings] h-6 w-6"></span>
+								Learning Preferences
+							</h2>
+							{#await userPreferencesPromise}
+								<!-- Skeleton Loading State -->
+								<div class="space-y-6">
+									<!-- Language preferences skeleton -->
+									<div class="form-control">
+										<div class="mb-2 h-4 w-32 skeleton"></div>
+										<div class="h-12 w-full skeleton rounded-lg"></div>
+									</div>
+
+									<!-- Difficulty level skeleton -->
+									<div class="form-control">
+										<div class="mb-2 h-4 w-24 skeleton"></div>
+										<div class="flex gap-2">
+											{#each Array(3) as _, i (i)}
+												<div class="h-10 w-20 skeleton rounded-lg"></div>
+											{/each}
+										</div>
+									</div>
+
+									<!-- Practice focus skeleton -->
+									<div class="form-control">
+										<div class="mb-2 h-4 w-28 skeleton"></div>
+										<div class="grid grid-cols-2 gap-2 md:grid-cols-3">
+											{#each Array(6) as _, i (i)}
+												<div class="h-10 w-full skeleton rounded-lg"></div>
+											{/each}
+										</div>
+									</div>
+
+									<!-- Settings toggles skeleton -->
+									<div class="space-y-4">
+										{#each Array(4) as _, i (i)}
+											<div class="flex items-center justify-between">
+												<div class="flex-1">
+													<div class="mb-1 h-4 w-40 skeleton"></div>
+													<div class="h-3 w-60 skeleton"></div>
+												</div>
+												<div class="h-6 w-12 skeleton rounded-full"></div>
+											</div>
+										{/each}
+									</div>
 								</div>
-
-								{#if data.subscription?.currentTier === 'free'}
-									<a href="/pricing" class="btn btn-sm btn-primary">
-										<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							{:then userPrefs}
+								{#if userPrefs}
+									<UserPreferencesEditor
+										userPreferences={userPrefs}
+										onSave={handlePreferencesSave}
+										compact={false}
+									/>
+								{:else}
+									<div class="alert alert-warning">
+										<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 											<path
 												stroke-linecap="round"
 												stroke-linejoin="round"
 												stroke-width="2"
-												d="M5 10l7-7m0 0l7 7m-7-7v18"
+												d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
 											/>
 										</svg>
-										Upgrade
-									</a>
-								{:else}
-									<button
-										class="btn btn-outline btn-sm"
-										onclick={openBillingPortal}
-										disabled={isManagingBilling}
-									>
-										{#if isManagingBilling}
-											<span class="loading loading-sm loading-spinner"></span>
-											Loading...
-										{:else}
-											<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-												<path
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													stroke-width="2"
-													d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-												/>
-												<path
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													stroke-width="2"
-													d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-												/>
-											</svg>
-											Manage Billing
-										{/if}
-									</button>
+										<span>Unable to load preferences. Please try refreshing the page.</span>
+									</div>
 								{/if}
-							</div>
-						</div>
-
-						<!-- Usage Limits -->
-						{#if data.usageLimits}
-							<div class="form-control">
-								<div class="label">
-									<span class="label-text font-medium">Monthly Limits</span>
-								</div>
-								<div class="space-y-2">
-									<div class="flex items-center justify-between">
-										<span class="text-sm">Conversations</span>
-										<span class="badge badge-ghost">
-											{data.usageLimits.conversationsPerMonth === 100
-												? 'Unlimited'
-												: data.usageLimits.conversationsPerMonth}
-										</span>
-									</div>
-									<div class="flex items-center justify-between">
-										<span class="text-sm">Audio Minutes</span>
-										<span class="badge badge-ghost"
-											>{data.usageLimits.audioMinutesPerMonth} min/month</span
-										>
-									</div>
-									{#if data.usageLimits.canUseRealtime}
-										<div class="flex items-center justify-between">
-											<span class="text-sm">Real-time Conversations</span>
-											<span class="badge badge-success">✓</span>
-										</div>
-									{/if}
-									{#if data.usageLimits.canUseAdvancedAnalytics}
-										<div class="flex items-center justify-between">
-											<span class="text-sm">Advanced Analytics</span>
-											<span class="badge badge-success">✓</span>
-										</div>
-									{/if}
-								</div>
-							</div>
-						{/if}
-
-						<!-- Quick Actions -->
-						{#if data.subscription?.currentTier !== 'free'}
-							<div class="flex gap-2 pt-2">
-								<button
-									class="btn btn-outline btn-sm"
-									onclick={pauseSubscription}
-									disabled={isManagingBilling}
-								>
-									<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"
-										/>
-									</svg>
-									Pause Subscription
-								</button>
-								<button
-									class="btn btn-outline btn-sm btn-error"
-									onclick={cancelSubscription}
-									disabled={isManagingBilling}
-								>
-									<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							{:catch error}
+								<div class="alert alert-error">
+									<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 										<path
 											stroke-linecap="round"
 											stroke-linejoin="round"
@@ -473,60 +479,39 @@
 											d="M6 18L18 6M6 6l12 12"
 										/>
 									</svg>
-									Cancel Subscription
-								</button>
-							</div>
-						{/if}
-					</div>
-				</div>
-			</div>
-
-			<!-- Learning Preferences -->
-			<div class="card mb-6 bg-base-100 shadow-xl">
-				<div class="card-body">
-					<h2 class="mb-4 card-title text-xl">Learning Preferences</h2>
-					{#if userPreferences}
-						<UserPreferencesEditor
-							{userPreferences}
-							onSave={handlePreferencesSave}
-							compact={false}
-						/>
-					{:else}
-						<div class="alert alert-warning">
-							<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-								/>
-							</svg>
-							<span>Unable to load preferences. Please try refreshing the page.</span>
+									<span>Error loading preferences: {error.message}</span>
+								</div>
+							{/await}
 						</div>
-					{/if}
-				</div>
-			</div>
+					</div>
+				{/if}
 
-			<!-- Danger Zone -->
-			<div class="card border-2 border-error/20 bg-base-100 shadow-xl">
-				<div class="card-body">
-					<h2 class="mb-4 card-title text-xl text-error">Danger Zone</h2>
-					<p class="mb-4 text-base-content/70">
-						Once you delete your account, there is no going back. Please be certain.
-					</p>
+				<!-- Danger Zone Tab -->
+				{#if activeTab === 'danger'}
+					<div class="card border-2 border-error/20 bg-base-100 shadow-xl">
+						<div class="card-body">
+							<h2 class="mb-4 card-title text-xl text-error">
+								<span class="mr-2 icon-[mdi--warning] h-6 w-6"></span>
+								Danger Zone
+							</h2>
+							<p class="mb-4 text-base-content/70">
+								Once you delete your account, there is no going back. Please be certain.
+							</p>
 
-					<button type="button" class="btn btn-outline btn-error" onclick={handleDeleteClick}>
-						<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-							/>
-						</svg>
-						Permanently Delete Account
-					</button>
-				</div>
+							<button type="button" class="btn btn-outline btn-error" onclick={handleDeleteClick}>
+								<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+									/>
+								</svg>
+								Permanently Delete Account
+							</button>
+						</div>
+					</div>
+				{/if}
 			</div>
 		</div>
 	</div>

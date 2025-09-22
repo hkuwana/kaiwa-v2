@@ -237,7 +237,7 @@ UI Bindings ─▶ MessageBubble ─▶ WordSyncedText ─▶ Active word highli
 		</pre>
 	</div>
 
-	<div class="card mt-6 bg-base-200 p-4 space-y-6">
+	<div class="card mt-6 space-y-6 bg-base-200 p-4">
 		<div>
 			<h3 class="mb-2 font-semibold">Realtime Word Highlight Flow</h3>
 			<pre class="bg-base-100 p-3 text-xs leading-5 whitespace-pre-wrap">
@@ -260,10 +260,30 @@ UI Bindings ─▶ MessageBubble ─▶ WordSyncedText ─▶ Active word highli
 			<h3 class="mb-2 font-semibold">Next Steps / Plan</h3>
 			<ul class="list-disc space-y-1 pl-5 text-sm">
 				<li>Create dedicated <code>WordTimingController</code> module to own timing state.</li>
-				<li>Subscribe to <code>audioElement</code> (<code>playing/timeupdate/ended</code>) and drive word highlights from the actual playback clock.</li>
-				<li>Store <code>itemId → messageId</code> mapping so audio deltas resolve to the correct conversation entry.</li>
-				<li>Persist <code>speechTimings</code> only when final timings exist (avoid zero-duration rows).</li>
-				<li>Validate behaviour against OpenAI realtime events (<a class="link" href="https://platform.openai.com/docs/api-reference/realtime" target="_blank" rel="noreferrer">API docs</a>) and SDK internals (<a class="link" href="https://github.com/openai/openai-realtime-agents" target="_blank" rel="noreferrer">openai-realtime-agents</a>).</li>
+				<li>
+					Subscribe to <code>audioElement</code> (<code>playing/timeupdate/ended</code>) and drive
+					word highlights from the actual playback clock.
+				</li>
+				<li>
+					Store <code>itemId → messageId</code> mapping so audio deltas resolve to the correct conversation
+					entry.
+				</li>
+				<li>
+					Persist <code>speechTimings</code> only when final timings exist (avoid zero-duration rows).
+				</li>
+				<li>
+					Validate behaviour against OpenAI realtime events (<a
+						class="link"
+						href="https://platform.openai.com/docs/api-reference/realtime"
+						target="_blank"
+						rel="noreferrer">API docs</a
+					>) and SDK internals (<a
+						class="link"
+						href="https://github.com/openai/openai-realtime-agents"
+						target="_blank"
+						rel="noreferrer">openai-realtime-agents</a
+					>).
+				</li>
 			</ul>
 		</div>
 	</div>

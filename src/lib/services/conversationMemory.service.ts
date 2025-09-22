@@ -50,10 +50,7 @@ export function getCharacterCount(memories: MemoryList): number {
 /**
  * Resolve the character limit for a tier.
  */
-export function getMemoryCharacterLimit(
-	tier: UserTier = 'free',
-	override?: number
-): number {
+export function getMemoryCharacterLimit(tier: UserTier = 'free', override?: number): number {
 	if (override && override > 0) {
 		return override;
 	}
@@ -64,10 +61,7 @@ export function getMemoryCharacterLimit(
  * Clip memories from the end until the character limit is respected.
  * Assumes the first items are the newest so we remove from the tail.
  */
-export function enforceCharacterLimit(
-	memories: MemoryList,
-	limit: number
-): MemoryList {
+export function enforceCharacterLimit(memories: MemoryList, limit: number): MemoryList {
 	const safeLimit = Math.max(limit, 0);
 	const result = [...memories];
 
@@ -108,10 +102,7 @@ export function mergeMemories({
 		combined.push(memory);
 	}
 
-	return enforceCharacterLimit(
-		combined,
-		getMemoryCharacterLimit(tier, maxCharactersOverride)
-	);
+	return enforceCharacterLimit(combined, getMemoryCharacterLimit(tier, maxCharactersOverride));
 }
 
 /**
@@ -119,9 +110,7 @@ export function mergeMemories({
  * We expect the upstream analysis service to provide an array of strings or
  * a property named `memories` in the data object.
  */
-export function extractMemoriesFromAnalysis(
-	analysisData: unknown
-): MemoryList {
+export function extractMemoriesFromAnalysis(analysisData: unknown): MemoryList {
 	if (!analysisData || typeof analysisData !== 'object') return [];
 
 	const maybeMemories = (analysisData as { memories?: unknown }).memories;

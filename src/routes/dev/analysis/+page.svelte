@@ -1,6 +1,5 @@
 <!-- Dev Analysis Testing Route -->
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { executeOnboardingAnalysis } from '$lib/services/onboarding-manager.service';
 	import type { Message, Language, UserPreferences } from '$lib/server/db/types';
 	import { languages } from '$lib/data/languages';
@@ -39,11 +38,11 @@
 			isTranslated: false,
 			grammarAnalysis: null,
 			vocabularyAnalysis: null,
-		pronunciationScore: null,
-		audioUrl: null,
-		audioDuration: null,
-		speechTimings: null,
-		difficultyLevel: null,
+			pronunciationScore: null,
+			audioUrl: null,
+			audioDuration: null,
+			speechTimings: null,
+			difficultyLevel: null,
 			learningTags: null,
 			conversationContext: null,
 			messageIntent

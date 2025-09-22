@@ -21,6 +21,104 @@
 	import { scenariosData } from '$lib/data/scenarios';
 	import { userManager } from '$lib/stores/user.store.svelte';
 
+	const instructionFlowDiagram = String.raw`
+                 +-------------------------+
+                 |  getInstructions(phase) |
+                 +-----------+-------------+
+                             |
+        +--------------------+-----------------------+
+        |                                            |
+        v                                            v
++---------------+                           +-----------------------------+
+| Phase: initial|                           | Phase: update / closing     |
++-------+-------+                           +-----------+-----------------+
+        |                                               |
+        |                                               |
+        v                                               v
++---------------------------+                +---------------------------+
+| ModuleComposer.compose()  |                | Phase specific generators  |
+| (applies to all phases)   |                | - generateUpdateInstructions|
++-----------+---------------+                | - generateClosingInstructions|
+            |                                 +-------------+-------------+
+            |                                               |
+            v                                               v
+    +------------------+                             +-------------------+
+    | Instruction Mods |                             | Update / Closing  |
+    | (priority sorted)|                             | templates         |
+    +---------+--------+                             +-------------------+
+              |
+              v
+  +-----------------------------+
+  | Core Modules pull from      |
+  |-----------------------------|
+  | User (db.users)             |
+  | UserPreferences (db.user_*) |
+  | Scenario (db.scenarios)     |
+  | SessionContext (runtime)    |
+  | Speaker (db.speakers)       |
+  | Language (db.languages)     |
+  +-----------------------------+
+              |
+              v
+   +----------------------------+
+   | Onboarding Branch?         |
+   +-------------+--------------+
+                 |
+        +--------+---------+
+        |                  |
+        v                  v
++---------------+   +--------------------------+
+| First-time or |   | Returning user (no       |
+| scenario=onbd |   | onboarding block)        |
++-------+-------+   +-----------+--------------+
+        |                       |
+        v                       v
++------------------------------+        +-------------------------------+
+| buildOnboardingBlock()       |        | RETURNING USER WELCOME block  |
+|  - intro section             |        +-------------------------------+
+|  - goal discovery            |
+|  - level sensing             |
+|  - momentum builder          |
+|  - non-negotiable vibes      |
++---------------+--------------+
+                |
+                v
+      +--------------------+
+      | Combined output    |
+      +--------------------+
+                |
+                v
+      +--------------------+
+      | Realtime prompt    |
+      +--------------------+
+
+Supplementary Path (Scenario-first)
+-----------------------------------
+
+Scenario input + base data --> generateScenarioInstructions()
+    |                                  |
+    |                                  v
+    |                         +---------------------+
+    |                         | Base instructions   |
+    |                         +---------+-----------+
+    |                                   |
+    |                                   v
+    |                        +--------------------------+
+    |                        | Onboarding condition?    |
+    |                        +-----------+--------------+
+    |                                    |
+    |            yes --------------------+---------------- no
+    |             |                                          |
+    v             v                                          v
+initialMessage + onboarding block            Scenario-specific additions`;
+
+	const instructionFlowLegend = String.raw`
+Legend
+------
+User fields → db.users                Scenario → db.scenarios
+Preferences → db.user_preferences     Speaker → db.speakers
+Language → db.languages               SessionContext → runtime context`;
+
 	// ============================================
 	// STATE
 	// ============================================
@@ -117,6 +215,16 @@
 
 <div class="container mx-auto max-w-6xl p-6">
 	<h1 class="mb-6 text-center text-3xl font-bold">🧪 Instructions Service Testing</h1>
+
+	<section class="mb-8 rounded-lg bg-white p-4 shadow">
+		<h2 class="mb-4 text-2xl font-semibold">Instruction Flow Map</h2>
+		<pre class="overflow-auto whitespace-pre font-mono text-xs leading-relaxed">
+			{instructionFlowDiagram}
+		</pre>
+		<pre class="mt-4 whitespace-pre-wrap font-mono text-xs text-gray-600">
+			{instructionFlowLegend}
+		</pre>
+	</section>
 
 	<!-- Phase Selection -->
 	<div class="mb-8">

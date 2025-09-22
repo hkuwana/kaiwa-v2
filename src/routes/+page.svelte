@@ -207,7 +207,7 @@
 			<!-- Benefits Section -->
 			<section class="mx-auto grid max-w-4xl gap-8 md:grid-cols-2">
 				<div class="rounded-xl bg-base-100 p-6 shadow-lg">
-					<h3 class="mb-3 text-xl font-semibold text-primary flex items-center gap-2">
+					<h3 class="mb-3 flex items-center gap-2 text-xl font-semibold text-primary">
 						<span class="icon-[mdi--target] h-6 w-6 text-primary"></span>
 						Conversation-First Learning
 					</h3>
@@ -217,7 +217,7 @@
 					</p>
 				</div>
 				<div class="rounded-xl bg-base-100 p-6 shadow-lg">
-					<h3 class="mb-3 text-xl font-semibold text-secondary flex items-center gap-2">
+					<h3 class="mb-3 flex items-center gap-2 text-xl font-semibold text-secondary">
 						<span class="icon-[mdi--microphone] h-6 w-6 text-secondary"></span>
 						Build Speaking Confidence
 					</h3>
@@ -227,7 +227,7 @@
 					</p>
 				</div>
 				<div class="rounded-xl bg-base-100 p-6 shadow-lg">
-					<h3 class="mb-3 text-xl font-semibold text-accent flex items-center gap-2">
+					<h3 class="mb-3 flex items-center gap-2 text-xl font-semibold text-accent">
 						<span class="icon-[mdi--cellphone] h-6 w-6 text-accent"></span>
 						Learn Anywhere, Anytime
 					</h3>
@@ -237,7 +237,7 @@
 					</p>
 				</div>
 				<div class="rounded-xl bg-base-100 p-6 shadow-lg">
-					<h3 class="mb-3 text-xl font-semibold text-success flex items-center gap-2">
+					<h3 class="mb-3 flex items-center gap-2 text-xl font-semibold text-success">
 						<span class="icon-[mdi--drama-masks] h-6 w-6 text-success"></span>
 						Real-Life Scenarios
 					</h3>
@@ -251,12 +251,11 @@
 			<!-- Option 1: Chat Bubble Flow Animation -->
 			<section class="space-y-8">
 				<div class="text-center">
-					<h3 class="mb-3 text-2xl font-bold flex items-center justify-center gap-2">
+					<h3 class="mb-3 flex items-center justify-center gap-2 text-2xl font-bold">
 						<span class="icon-[mdi--chat] h-7 w-7 text-primary"></span>
 						Live Conversation Flow
 					</h3>
 					<p class="text-lg opacity-80">
-
 						See real conversations happening across different languages
 					</p>
 				</div>
@@ -290,7 +289,7 @@
 			<p class="mb-2 text-lg opacity-90">
 				Join thousands of learners who've chosen conversation over cramming.
 			</p>
-			<div class="pb-6 text-sm opacity-70 flex items-center justify-center gap-2">
+			<div class="flex items-center justify-center gap-2 pb-6 text-sm opacity-70">
 				<span class="icon-[mdi--check] h-4 w-4 text-green-500"></span> Free to try
 				<span class="mx-1">•</span>
 				<span class="icon-[mdi--check] h-4 w-4 text-green-500"></span> No credit card required

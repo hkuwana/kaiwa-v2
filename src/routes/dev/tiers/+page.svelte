@@ -329,7 +329,7 @@
 							</p>
 							<p>
 								<strong>Time:</strong>
-								{formatTime(mockUsageStatus.usage.secondsUsed?)}/{formatTime(
+								{formatTime(mockUsageStatus.usage.secondsUsed ?? 0)}/{formatTime(
 									mockUsageStatus.tier.monthlySeconds
 								)}
 							</p>

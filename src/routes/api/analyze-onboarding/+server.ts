@@ -109,11 +109,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		const sanitizedResult = sanitizeAnalysisResult(analysisResult);
 
 		const combinedFocus = Array.from(
-			new Set<AnalysisFocus>([
-				'preferences',
-				'memories',
-				...(analysisFocus ?? [])
-			])
+			new Set<AnalysisFocus>(['preferences', 'memories', ...(analysisFocus ?? [])])
 		);
 
 		// Create analysis metadata for transparency
@@ -243,9 +239,9 @@ function sanitizeAnalysisResult(result: Partial<UserPreferences>): Partial<UserP
 			: 180,
 		memories: Array.isArray(result.memories)
 			? result.memories
-				.filter((memory) => typeof memory === 'string')
-				.map((memory) => memory.trim())
-				.filter(Boolean)
+					.filter((memory) => typeof memory === 'string')
+					.map((memory) => memory.trim())
+					.filter(Boolean)
 			: []
 	};
 }
