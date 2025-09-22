@@ -4,7 +4,10 @@
 import type { CulturalDNA, ShareLinkData } from '../types/cultural-dna.types';
 
 // Generate share link for different platforms
-export function generateShareLink(dna: CulturalDNA, platform: 'instagram' | 'tiktok' | 'twitter' | 'whatsapp' | 'link'): string {
+export function generateShareLink(
+	dna: CulturalDNA,
+	platform: 'instagram' | 'tiktok' | 'twitter' | 'whatsapp' | 'link'
+): string {
 	const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://kaiwa.app';
 	const resultUrl = `${baseUrl}${dna.shareableData.shareUrl}`;
 
@@ -64,7 +67,10 @@ function generateShareText(dna: CulturalDNA, platform: string): string {
 }
 
 // Generate shareable image URL (placeholder for future implementation)
-export function generateShareImageUrl(dna: CulturalDNA, format: 'square' | 'story' | 'landscape' = 'square'): string {
+export function generateShareImageUrl(
+	dna: CulturalDNA,
+	format: 'square' | 'story' | 'landscape' = 'square'
+): string {
 	// This would generate a beautiful graphic showing:
 	// - DNA helix with cultural flags
 	// - Personality type headline

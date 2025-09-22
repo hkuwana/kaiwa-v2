@@ -12,7 +12,9 @@ import type {
 } from '../types/cultural-dna.types';
 import { culturalTraitMappings, culturalDescriptors } from '../data/cultural-traits';
 import { hyperSpecificTraitMappings, languageToHyperCultures } from '../data/hyper-specific-traits';
-import { viralPersonalityArchetypes, getArchetypeByCulturalMatch } from '../data/viral-personality-archetypes';
+import {
+	viralPersonalityArchetypes
+} from '../data/viral-personality-archetypes';
 import { viralScenarios } from '../data/viral-scenarios';
 
 // Use the viral personality archetypes
@@ -77,8 +79,8 @@ function analyzeConversationTraits(session: DNAAssessmentSession): ConversationT
 		communicationPace: 0
 	};
 
-	responses.forEach(response => {
-		const scenario = viralScenarios.find(s => s.id === response.scenarioId);
+	responses.forEach((response) => {
+		const scenario = viralScenarios.find((s) => s.id === response.scenarioId);
 		if (!scenario) return;
 
 		// Analyze response content for trait indicators
@@ -87,7 +89,9 @@ function analyzeConversationTraits(session: DNAAssessmentSession): ConversationT
 		// Apply weighted contributions
 		Object.entries(scenario.analysisWeights).forEach(([trait, weight]) => {
 			const traitKey = trait as keyof typeof aggregatedTraits;
-			const traitValue = getTraitScore(responseTraits[traitKey as keyof ConversationTraits] || 'moderate');
+			const traitValue = getTraitScore(
+				responseTraits[traitKey as keyof ConversationTraits] || 'moderate'
+			);
 			aggregatedTraits[traitKey] += traitValue * weight;
 		});
 	});
@@ -103,29 +107,54 @@ function analyzeConversationTraits(session: DNAAssessmentSession): ConversationT
 }
 
 // Analyze response content for trait indicators with hyper-specific cultural detection
-function analyzeResponseContent(transcript: string, scenarioId: string): Partial<ConversationTraits> {
+function analyzeResponseContent(
+	transcript: string,
+	scenarioId: string
+): Partial<ConversationTraits> {
 	const text = transcript.toLowerCase();
 	const traits: Partial<ConversationTraits> = {};
 
 	// Enhanced conflict style analysis with cultural markers
-	if (text.includes('excuse me') || text.includes('sorry') || text.includes('pardon') || text.includes('sumimasen')) {
+	if (
+		text.includes('excuse me') ||
+		text.includes('sorry') ||
+		text.includes('pardon') ||
+		text.includes('sumimasen')
+	) {
 		traits.conflictStyle = 'diplomatic';
-	} else if (text.includes('hey') || text.includes('that\'s not fair') || text.includes('you cut') || text.includes('wat doe je')) {
+	} else if (
+		text.includes('hey') ||
+		text.includes("that's not fair") ||
+		text.includes('you cut') ||
+		text.includes('wat doe je')
+	) {
 		traits.conflictStyle = 'direct';
-	} else if (text.includes('whatever') || text.includes('fine') || text.includes('doesn\'t matter') || text.includes('never mind')) {
+	} else if (
+		text.includes('whatever') ||
+		text.includes('fine') ||
+		text.includes("doesn't matter") ||
+		text.includes('never mind')
+	) {
 		traits.conflictStyle = 'avoidant';
 	} else {
 		traits.conflictStyle = 'harmonious';
 	}
 
 	// Enhanced emotional expression with cultural intensity markers
-	const dramaticWords = ['absolutely', 'incredible', 'disaster', 'magnificent', 'terrible', 'fantastic'];
+	const dramaticWords = [
+		'absolutely',
+		'incredible',
+		'disaster',
+		'magnificent',
+		'terrible',
+		'fantastic'
+	];
 	const expressiveWords = ['love', 'hate', 'amazing', 'awful', 'feel', 'excited', 'upset'];
 	const reservedWords = ['i think', 'perhaps', 'maybe', 'possibly', 'somewhat', 'rather'];
 
-	const hasDramaticWords = dramaticWords.some(word => text.includes(word));
-	const hasExpressiveWords = expressiveWords.some(word => text.includes(word));
-	const hasReservedWords = reservedWords.some(word => text.includes(word));
+	const hasDramaticWords = dramaticWords.some((word) => text.includes(word));
+	const hasExpressiveWords = expressiveWords.some((word) => text.includes(word));
+	const hasReservedWords = reservedWords.some((word) => text.includes(word));
 
 	if (text.includes('!') && (hasDramaticWords || text.length > 80)) {
 		traits.emotionalExpression = 'dramatic';
@@ -138,15 +167,22 @@ function analyzeResponseContent(transcript: string, scenarioId: string): Partial
 	}
 
 	// Enhanced formality with cultural politeness markers
-	const formalMarkers = ['sir', 'ma\'am', 'please accept my apologies', 'i would be honored', 'sensei', 'sama'];
+	const formalMarkers = [
+		'sir',
+		"ma'am",
+		'please accept my apologies',
+		'i would be honored',
+		'sensei',
+		'sama'
+	];
 	const casualMarkers = ['hey', 'dude', 'yeah', 'nah', 'sup', 'mate', 'bro'];
 	const ceremonialMarkers = ['deeply sorry', 'humbly request', 'with great respect'];
 
-	if (ceremonialMarkers.some(marker => text.includes(marker))) {
+	if (ceremonialMarkers.some((marker) => text.includes(marker))) {
 		traits.formalityLevel = 'ceremonial';
-	} else if (formalMarkers.some(marker => text.includes(marker))) {
+	} else if (formalMarkers.some((marker) => text.includes(marker))) {
 		traits.formalityLevel = 'formal';
-	} else if (casualMarkers.some(marker => text.includes(marker))) {
+	} else if (casualMarkers.some((marker) => text.includes(marker))) {
 		traits.formalityLevel = 'casual';
 	} else {
 		traits.formalityLevel = 'balanced';
@@ -165,7 +201,7 @@ function analyzeResponseContent(transcript: string, scenarioId: string): Partial
 		}
 	} else {
 		// General decision making analysis
-		if (text.includes('let\'s discuss') || text.includes('what do you think')) {
+		if (text.includes("let's discuss") || text.includes('what do you think')) {
 			traits.decisionMaking = 'collaborative';
 		} else if (text.includes('everyone should') || text.includes('group decision')) {
 			traits.decisionMaking = 'consensus';
@@ -180,11 +216,11 @@ function analyzeResponseContent(transcript: string, scenarioId: string): Partial
 	const rapidMarkers = ['quick', 'fast', 'asap', 'immediately', 'right now'];
 	const slowMarkers = ['carefully', 'thoughtfully', 'when the time is right', 'patience'];
 
-	if (rapidMarkers.some(marker => text.includes(marker)) || text.length < 15) {
+	if (rapidMarkers.some((marker) => text.includes(marker)) || text.length < 15) {
 		traits.communicationPace = 'rapid';
 	} else if (text.length < 30) {
 		traits.communicationPace = 'fast';
-	} else if (slowMarkers.some(marker => text.includes(marker)) || text.length > 120) {
+	} else if (slowMarkers.some((marker) => text.includes(marker)) || text.length > 120) {
 		traits.communicationPace = 'slow';
 	} else {
 		traits.communicationPace = 'moderate';
@@ -194,7 +230,10 @@ function analyzeResponseContent(transcript: string, scenarioId: string): Partial
 }
 
 // Calculate cultural mix based on traits and language context
-function calculateCulturalMix(traits: ConversationTraits, session: DNAAssessmentSession): CulturalMix[] {
+function calculateCulturalMix(
+	traits: ConversationTraits,
+	session: DNAAssessmentSession
+): CulturalMix[] {
 	const culturalScores: Record<string, number> = {};
 	const languageCode = session.selectedLanguage.code;
 
@@ -202,7 +241,7 @@ function calculateCulturalMix(traits: ConversationTraits, session: DNAAssessment
 	const hyperCultures = languageToHyperCultures[languageCode] || [];
 
 	// Score hyper-specific cultures first (higher weight)
-	hyperCultures.forEach(hyperCulture => {
+	hyperCultures.forEach((hyperCulture) => {
 		const hyperTraits = hyperSpecificTraitMappings[hyperCulture];
 		if (hyperTraits) {
 			let score = 0;
@@ -240,28 +279,33 @@ function calculateCulturalMix(traits: ConversationTraits, session: DNAAssessment
 		});
 
 		// Only add if not already covered by hyper-specific
-		if (!hyperCultures.some(hc => hc.includes(culture))) {
+		if (!hyperCultures.some((hc) => hc.includes(culture))) {
 			culturalScores[culture] = score;
 		}
 	});
 
 	// Get top 2-3 cultures
 	const sortedCultures = Object.entries(culturalScores)
-		.sort(([,a], [,b]) => b - a)
+		.sort(([, a], [, b]) => b - a)
 		.slice(0, 3);
 
 	// Calculate percentages
-	const totalScore = sortedCultures.reduce((sum, [,score]) => sum + score, 0);
+	const totalScore = sortedCultures.reduce((sum, [, score]) => sum + score, 0);
 
 	const culturalMix: CulturalMix[] = sortedCultures.map(([culture, score]) => {
 		// Try to get traits from hyper-specific first, then fall back to basic
-		const hyperTraits = hyperSpecificTraitMappings[culture as keyof typeof hyperSpecificTraitMappings];
+		const hyperTraits =
+			hyperSpecificTraitMappings[culture as keyof typeof hyperSpecificTraitMappings];
 		const basicTraits = culturalDescriptors[culture as keyof typeof culturalDescriptors];
 
 		let dominantTraits: string[] = [];
 		if (hyperTraits) {
 			// Extract surprising traits for hyper-specific cultures
-			dominantTraits = [hyperTraits.unexpectedTrait.split(' ')[0], hyperTraits.viralDescription.split(' ')[0], hyperTraits.viralDescription.split(' ')[1] || 'unique'];
+			dominantTraits = [
+				hyperTraits.unexpectedTrait.split(' ')[0],
+				hyperTraits.viralDescription.split(' ')[0],
+				hyperTraits.viralDescription.split(' ')[1] || 'unique'
+			];
 		} else if (basicTraits) {
 			dominantTraits = basicTraits.keywords.slice(0, 3);
 		}
@@ -279,11 +323,14 @@ function calculateCulturalMix(traits: ConversationTraits, session: DNAAssessment
 		culturalMix[0].percentage += 100 - totalPercentage;
 	}
 
-	return culturalMix.filter(mix => mix.percentage >= 15); // Only include significant percentages
+	return culturalMix.filter((mix) => mix.percentage >= 15); // Only include significant percentages
 }
 
 // Determine personality archetype
-function determinePersonalityType(traits: ConversationTraits, culturalMix: CulturalMix[]): DNAPersonalityType {
+function determinePersonalityType(
+	traits: ConversationTraits,
+	culturalMix: CulturalMix[]
+): DNAPersonalityType {
 	// For now, use a simple matching algorithm
 	// In production, this could be more sophisticated
 
@@ -293,12 +340,12 @@ function determinePersonalityType(traits: ConversationTraits, culturalMix: Cultu
 	let bestMatch = personalityArchetypes[0]; // Default
 	let bestScore = 0;
 
-	personalityArchetypes.forEach(archetype => {
+	personalityArchetypes.forEach((archetype) => {
 		let score = 0;
 
 		// Score based on cultural mix similarity
-		culturalMix.forEach(mix => {
-			const archetypeMix = archetype.culturalMix.find(am => am.culture === mix.culture);
+		culturalMix.forEach((mix) => {
+			const archetypeMix = archetype.culturalMix.find((am) => am.culture === mix.culture);
 			if (archetypeMix) {
 				score += Math.min(mix.percentage, archetypeMix.percentage);
 			}
@@ -322,7 +369,10 @@ function determinePersonalityType(traits: ConversationTraits, culturalMix: Cultu
 }
 
 // Calculate cultural compatibility
-function calculateCompatibility(traits: ConversationTraits, culturalMix: CulturalMix[]): CulturalCompatibility {
+function calculateCompatibility(
+	traits: ConversationTraits,
+	culturalMix: CulturalMix[]
+): CulturalCompatibility {
 	// This is a simplified version - could be much more sophisticated
 	const primaryCulture = culturalMix[0]?.culture || 'american';
 
@@ -344,16 +394,22 @@ function calculateCompatibility(traits: ConversationTraits, culturalMix: Cultura
 }
 
 // Generate shareable data for social media with hyper-specific appeal
-function generateShareableData(personalityType: DNAPersonalityType, culturalMix: CulturalMix[], sessionId: string): ShareableData {
+function generateShareableData(
+	personalityType: DNAPersonalityType,
+	culturalMix: CulturalMix[],
+	sessionId: string
+): ShareableData {
 	const mixSummary = culturalMix
-		.map(mix => {
+		.map((mix) => {
 			// Check if it's a hyper-specific culture
-			const hyperTraits = hyperSpecificTraitMappings[mix.culture as keyof typeof hyperSpecificTraitMappings];
+			const hyperTraits =
+				hyperSpecificTraitMappings[mix.culture as keyof typeof hyperSpecificTraitMappings];
 			if (hyperTraits) {
 				// Use the hyper-specific name (e.g., "Tokyo Salaryman" instead of "Japanese")
-				const cultureName = mix.culture.split('_').map(word =>
-					word.charAt(0).toUpperCase() + word.slice(1)
-				).join(' ');
+				const cultureName = mix.culture
+					.split('_')
+					.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+					.join(' ');
 				return `${mix.percentage}% ${cultureName}`;
 			} else {
 				// Fall back to basic culture name
@@ -364,7 +420,9 @@ function generateShareableData(personalityType: DNAPersonalityType, culturalMix:
 
 	// Create more viral one-liner using dominant traits
 	const primaryCulture = culturalMix[0]?.culture;
-	const hyperTraits = primaryCulture ? hyperSpecificTraitMappings[primaryCulture as keyof typeof hyperSpecificTraitMappings] : null;
+	const hyperTraits = primaryCulture
+		? hyperSpecificTraitMappings[primaryCulture as keyof typeof hyperSpecificTraitMappings]
+		: null;
 
 	let oneLiner: string;
 	if (hyperTraits) {
@@ -392,18 +450,33 @@ function generateShareableData(personalityType: DNAPersonalityType, culturalMix:
 		culturalMixSummary: mixSummary,
 		oneLineSummary: oneLiner,
 		shareUrl: `/cultural-dna/results/${sessionId}`,
-		hashtags: viralHashtags,
+		hashtags: viralHashtags
 	};
 }
 
 // Helper functions for trait scoring
 function getTraitScore(trait: string): number {
 	const scores: Record<string, number> = {
-		'direct': 4, 'diplomatic': 3, 'harmonious': 2, 'avoidant': 1,
-		'dramatic': 4, 'expressive': 3, 'warm': 2, 'reserved': 1,
-		'individual': 4, 'collaborative': 3, 'consensus': 2, 'hierarchical': 1,
-		'formal': 4, 'balanced': 3, 'casual': 2, 'ceremonial': 1,
-		'rapid': 4, 'fast': 3, 'moderate': 2, 'slow': 1
+		direct: 4,
+		diplomatic: 3,
+		harmonious: 2,
+		avoidant: 1,
+		dramatic: 4,
+		expressive: 3,
+		warm: 2,
+		reserved: 1,
+		individual: 4,
+		collaborative: 3,
+		consensus: 2,
+		hierarchical: 1,
+		formal: 4,
+		balanced: 3,
+		casual: 2,
+		ceremonial: 1,
+		rapid: 4,
+		fast: 3,
+		moderate: 2,
+		slow: 1
 	};
 	return scores[trait] || 2;
 }
@@ -445,16 +518,19 @@ function scoreToCommunicationPace(score: number): ConversationTraits['communicat
 
 // Generate mock DNA for testing with hyper-specific traits
 export function generateMockDNA(): CulturalDNA {
-	const mockArchetype = personalityArchetypes[Math.floor(Math.random() * personalityArchetypes.length)];
+	const mockArchetype =
+		personalityArchetypes[Math.floor(Math.random() * personalityArchetypes.length)];
 
 	// Generate mock shareable data with hyper-specific appeal
 	const mixSummary = mockArchetype.culturalMix
-		.map(mix => {
-			const hyperTraits = hyperSpecificTraitMappings[mix.culture as keyof typeof hyperSpecificTraitMappings];
+		.map((mix) => {
+			const hyperTraits =
+				hyperSpecificTraitMappings[mix.culture as keyof typeof hyperSpecificTraitMappings];
 			if (hyperTraits) {
-				const cultureName = mix.culture.split('_').map(word =>
-					word.charAt(0).toUpperCase() + word.slice(1)
-				).join(' ');
+				const cultureName = mix.culture
+					.split('_')
+					.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+					.join(' ');
 				return `${mix.percentage}% ${cultureName}`;
 			} else {
 				return `${mix.percentage}% ${culturalDescriptors[mix.culture as keyof typeof culturalDescriptors]?.name || mix.culture}`;
@@ -472,12 +548,23 @@ export function generateMockDNA(): CulturalDNA {
 			goodMatches: ['amsterdam_blunt_cyclist', 'seoul_hierarchical_perfectionist'],
 			growthAreas: ['neapolitan_passionate', 'rio_beach_philosopher'],
 			travelCompatibility: [
-				{ culture: 'berlin_efficiency_expert', compatibilityScore: 95, reason: 'Perfect efficiency wavelength' },
-				{ culture: 'kyoto_traditional_diplomat', compatibilityScore: 90, reason: 'Shared respect for thoughtful processes' }
+				{
+					culture: 'berlin_efficiency_expert',
+					compatibilityScore: 95,
+					reason: 'Perfect efficiency wavelength'
+				},
+				{
+					culture: 'kyoto_traditional_diplomat',
+					compatibilityScore: 90,
+					reason: 'Shared respect for thoughtful processes'
+				}
 			],
 			relationshipStyle: {
 				strengths: mockArchetype.career_strengths,
-				challenges: ['Can be overly analytical about feelings', 'May schedule romance too precisely'],
+				challenges: [
+					'Can be overly analytical about feelings',
+					'May schedule romance too precisely'
+				],
 				idealPartnerTraits: ['Patient with systems', 'Appreciates efficiency', 'Values depth'],
 				communicationTips: ['Be direct but respectful', 'Appreciate their methodical care']
 			}
@@ -489,7 +576,13 @@ export function generateMockDNA(): CulturalDNA {
 			culturalMixSummary: mixSummary,
 			oneLineSummary: mockArchetype.description,
 			shareUrl: `/cultural-dna/results/mock_${Date.now()}`,
-			hashtags: ['CulturalDNA', 'PersonalityTest', 'LanguageLearning', 'Kaiwa', mockArchetype.name.replace(/\s+/g, '')]
+			hashtags: [
+				'CulturalDNA',
+				'PersonalityTest',
+				'LanguageLearning',
+				'Kaiwa',
+				mockArchetype.name.replace(/\s+/g, '')
+			]
 		}
 	};
 }

@@ -92,4 +92,3 @@ export const fetchPricing = PricingService.fetchPricing;
 export const getTier = PricingService.getTier;
 export const getAllTiers = PricingService.getAllTiers;
 export const getPricingComparison = PricingService.getPricingComparison;
-

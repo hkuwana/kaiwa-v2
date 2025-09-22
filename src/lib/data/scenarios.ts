@@ -21,9 +21,9 @@ export const scenariosData: ScenarioWithHints[] = [
 		category: 'onboarding',
 		difficulty: 'beginner',
 		instructions:
-			'Have a natural conversation about yourself and your language goals. Our AI will listen and create a personalized learning path for you.',
+			'Share what lights you up and where you want to go next. Your local guide will listen closely and shape practice that feels personal to you.',
 		context:
-			'A friendly language coach wants to understand your current level and what you hope to achieve. Just be yourself—this helps us create better conversations for you.',
+			'A warm, well-traveled friend is excited to hear your story and help map out the journey. Relax, chat naturally, and let them gather the details that matter most.',
 		expectedOutcome: 'Personalized recommendations based on your conversation',
 		learningObjectives: [
 			'skill assessment',

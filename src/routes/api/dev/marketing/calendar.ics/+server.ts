@@ -92,7 +92,7 @@ export const GET: RequestHandler = async () => {
 			start: checkDate,
 			end: addDays(checkDate, 0),
 			summary: '✅ Quick progress check',
-			desc: 'Review yesterday\'s action. Plan today\'s priority.'
+			desc: "Review yesterday's action. Plan today's priority."
 		});
 	}
 

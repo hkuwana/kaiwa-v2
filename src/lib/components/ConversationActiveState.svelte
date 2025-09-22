@@ -275,19 +275,10 @@
 				pressBehavior={userPreferencesStore.getPressBehavior()}
 				onRecordStart={() => {
 					hasUsedAudioControl = true;
-					// If not already in push-to-talk, switch immediately when user clicks the control
-					if (userPreferencesStore.getAudioMode() !== 'push_to_talk') {
-						userPreferencesStore.setAudioMode('push_to_talk');
-						if (userPreferencesStore.getPressBehavior() !== 'press_hold') {
-							userPreferencesStore.setPressBehavior('press_hold');
-						}
-					}
 					conversationStore.resumeStreaming();
 				}}
 				onRecordStop={() => {
-					if (userPreferencesStore.getAudioMode() === 'push_to_talk') {
-						conversationStore.pauseStreaming();
-					}
+					conversationStore.pauseStreaming();
 				}}
 			/>
 		</div>

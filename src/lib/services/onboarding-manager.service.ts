@@ -121,8 +121,7 @@ export async function updatePreferencesWithAnalysis(
 		successfulExchanges: currentExchanges + 1
 	} as Partial<UserPreferences>;
 
-	const existingMemories =
-		(preferencesProvider.getPreference('memories') as string[] | null) || [];
+	const existingMemories = (preferencesProvider.getPreference('memories') as string[] | null) || [];
 	const incomingMemories = conversationMemoryService.sanitizeMemories(
 		(rawMemories as string[]) || []
 	);

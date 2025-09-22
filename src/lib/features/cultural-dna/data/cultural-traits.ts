@@ -113,13 +113,18 @@ export const culturalTraitMappings: Partial<Record<CultureType, ConversationTrai
 };
 
 // Cultural descriptors for personality generation (basic cultures only)
-export const culturalDescriptors: Partial<Record<CultureType, {
-	name: string;
-	flag: string;
-	keywords: string[];
-	positiveTraits: string[];
-	communicationStyle: string;
-}>> = {
+export const culturalDescriptors: Partial<
+	Record<
+		CultureType,
+		{
+			name: string;
+			flag: string;
+			keywords: string[];
+			positiveTraits: string[];
+			communicationStyle: string;
+		}
+	>
+> = {
 	german: {
 		name: 'German',
 		flag: '🇩🇪',
@@ -233,17 +238,22 @@ export function getCulturalDescriptor(culture: CultureType) {
 }
 
 export function getCulturalTraits(culture: CultureType): ConversationTraits {
-	return culturalTraitMappings[culture] ?? {
-		conflictStyle: 'direct',
-		emotionalExpression: 'warm',
-		decisionMaking: 'individual',
-		formalityLevel: 'casual',
-		communicationPace: 'fast'
-	};
+	return (
+		culturalTraitMappings[culture] ?? {
+			conflictStyle: 'direct',
+			emotionalExpression: 'warm',
+			decisionMaking: 'individual',
+			formalityLevel: 'casual',
+			communicationPace: 'fast'
+		}
+	);
 }
 
 // Get cultures that match specific traits
-export function getCulturesWithTrait(trait: keyof ConversationTraits, value: string): CultureType[] {
+export function getCulturesWithTrait(
+	trait: keyof ConversationTraits,
+	value: string
+): CultureType[] {
 	return Object.entries(culturalTraitMappings)
 		.filter(([, traits]) => traits[trait] === value)
 		.map(([culture]) => culture as CultureType);

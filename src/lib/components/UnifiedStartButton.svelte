@@ -133,7 +133,12 @@
 			onclick={handleStartClick}
 			class="group btn w-full btn-lg btn-primary"
 			aria-label={selectedLanguage
-				? `Start ${currentScenario?.category?.charAt(0).toUpperCase() + currentScenario?.category?.slice(1) || 'Learning'} in ${selectedLanguage.name}`
+				? currentScenario?.category === 'onboarding'
+					? `Meet your guide in ${selectedLanguage.name}`
+					: `Start ${
+							currentScenario?.category?.charAt(0).toUpperCase() +
+								(currentScenario?.category?.slice(1) || '') || 'Learning'
+						} in ${selectedLanguage.name}`
 				: 'Choose your language to start'}
 		>
 			<span class="relative z-10 flex items-center gap-2">
@@ -141,10 +146,14 @@
 					<span class="loading loading-sm loading-spinner"></span>
 					<span>Preparing...</span>
 				{:else if selectedLanguage}
-					<span class=""
-						>Start {currentScenario?.category?.charAt(0).toUpperCase() +
-							(currentScenario?.category?.slice(1) || '')}
-					</span>
+					{#if currentScenario?.category === 'onboarding'}
+						<span>Start Chat</span>
+					{:else}
+						<span
+							>Start {currentScenario?.category?.charAt(0).toUpperCase() +
+								(currentScenario?.category?.slice(1) || '')}
+						</span>
+					{/if}
 				{:else}
 					<span class="sm:hidden">Choose language</span>
 					<span class="hidden sm:inline">Choose your language to start</span>

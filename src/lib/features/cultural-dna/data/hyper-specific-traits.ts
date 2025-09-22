@@ -1,41 +1,69 @@
 // 🎭 Hyper-Specific Cultural Traits
 // City/region-specific personality types that are surprisingly accurate and shareable
 
-import type { CultureType, ConversationTraits } from '../types/cultural-dna.types';
+import type { ConversationTraits } from '../types/cultural-dna.types';
 
 // Extended culture types with city/regional specificity
 export type HyperSpecificCultureType =
 	// English variants
-	| 'london_tube_commuter' | 'brooklyn_hipster' | 'silicon_valley_optimist' | 'australian_larrikin'
+	| 'london_tube_commuter'
+	| 'brooklyn_hipster'
+	| 'silicon_valley_optimist'
+	| 'australian_larrikin'
 	// German variants
-	| 'berlin_efficiency_expert' | 'bavarian_gemutlichkeit' | 'hamburg_maritime_direct'
+	| 'berlin_efficiency_expert'
+	| 'bavarian_gemutlichkeit'
+	| 'hamburg_maritime_direct'
 	// French variants
-	| 'parisian_intellectual' | 'lyon_food_critic' | 'nice_vacation_philosopher'
+	| 'parisian_intellectual'
+	| 'lyon_food_critic'
+	| 'nice_vacation_philosopher'
 	// Spanish variants
-	| 'madrid_night_owl' | 'barcelona_creative' | 'seville_family_gatherer'
+	| 'madrid_night_owl'
+	| 'barcelona_creative'
+	| 'seville_family_gatherer'
 	// Italian variants
-	| 'milanese_fashion_critic' | 'roman_storyteller' | 'neapolitan_passionate'
+	| 'milanese_fashion_critic'
+	| 'roman_storyteller'
+	| 'neapolitan_passionate'
 	// Japanese variants
-	| 'tokyo_salaryman' | 'kyoto_traditional_diplomat' | 'osaka_comedian'
+	| 'tokyo_salaryman'
+	| 'kyoto_traditional_diplomat'
+	| 'osaka_comedian'
 	// Chinese variants
-	| 'beijing_authority_respecter' | 'shanghai_business_networker' | 'guangzhou_pragmatic_trader'
+	| 'beijing_authority_respecter'
+	| 'shanghai_business_networker'
+	| 'guangzhou_pragmatic_trader'
 	// Korean variants
-	| 'seoul_hierarchical_perfectionist' | 'busan_coastal_direct' | 'jeju_island_peaceful'
+	| 'seoul_hierarchical_perfectionist'
+	| 'busan_coastal_direct'
+	| 'jeju_island_peaceful'
 	// Portuguese variants
-	| 'lisbon_melancholic_poet' | 'rio_beach_philosopher' | 'sao_paulo_hustle_culture'
+	| 'lisbon_melancholic_poet'
+	| 'rio_beach_philosopher'
+	| 'sao_paulo_hustle_culture'
 	// Arabic variants
-	| 'dubai_international_connector' | 'cairo_storytelling_historian' | 'marrakech_hospitality_master'
+	| 'dubai_international_connector'
+	| 'cairo_storytelling_historian'
+	| 'marrakech_hospitality_master'
 	// Other specific types
-	| 'amsterdam_blunt_cyclist' | 'istanbul_bridge_cultural' | 'mumbai_bollywood_dramatic'
-	| 'moscow_stoic_survivor' | 'hanoi_family_consensus' | 'manila_relationship_harmony'
+	| 'amsterdam_blunt_cyclist'
+	| 'istanbul_bridge_cultural'
+	| 'mumbai_bollywood_dramatic'
+	| 'moscow_stoic_survivor'
+	| 'hanoi_family_consensus'
+	| 'manila_relationship_harmony'
 	| 'jakarta_humble_community';
 
 // Hyper-specific cultural mappings with unexpected traits
-export const hyperSpecificTraitMappings: Record<HyperSpecificCultureType, ConversationTraits & {
-	unexpectedTrait: string;
-	funnyScenario: string;
-	viralDescription: string;
-}> = {
+export const hyperSpecificTraitMappings: Record<
+	HyperSpecificCultureType,
+	ConversationTraits & {
+		unexpectedTrait: string;
+		funnyScenario: string;
+		viralDescription: string;
+	}
+> = {
 	// English variants
 	london_tube_commuter: {
 		conflictStyle: 'avoidant',
@@ -74,8 +102,9 @@ export const hyperSpecificTraitMappings: Record<HyperSpecificCultureType, Conver
 		formalityLevel: 'casual',
 		communicationPace: 'fast',
 		unexpectedTrait: 'Calls everyone "mate" including their boss and their mother',
-		funnyScenario: 'Argues that putting pineapple on pizza is less controversial than their coffee preferences',
-		viralDescription: 'Laid-back until someone insults their sports team, then it\'s personal'
+		funnyScenario:
+			'Argues that putting pineapple on pizza is less controversial than their coffee preferences',
+		viralDescription: "Laid-back until someone insults their sports team, then it's personal"
 	},
 
 	// German variants
@@ -86,7 +115,8 @@ export const hyperSpecificTraitMappings: Record<HyperSpecificCultureType, Conver
 		formalityLevel: 'casual',
 		communicationPace: 'fast',
 		unexpectedTrait: 'Schedules spontaneous activities in their calendar',
-		funnyScenario: 'Arrives exactly 3 minutes early to everything, considers this "fashionably late"',
+		funnyScenario:
+			'Arrives exactly 3 minutes early to everything, considers this "fashionably late"',
 		viralDescription: 'Direct but cool, treats small talk like a waste of renewable energy'
 	},
 	bavarian_gemutlichkeit: {
@@ -107,7 +137,7 @@ export const hyperSpecificTraitMappings: Record<HyperSpecificCultureType, Conver
 		communicationPace: 'moderate',
 		unexpectedTrait: 'Uses nautical metaphors for everything, including dating',
 		funnyScenario: 'Describes their relationship status as "anchored but ready to sail"',
-		viralDescription: 'Straightforward as a ship\'s compass, weather-tested emotional stability'
+		viralDescription: "Straightforward as a ship's compass, weather-tested emotional stability"
 	},
 
 	// French variants
@@ -119,7 +149,8 @@ export const hyperSpecificTraitMappings: Record<HyperSpecificCultureType, Conver
 		communicationPace: 'moderate',
 		unexpectedTrait: 'Judges people by their choice of bookstore, not books',
 		funnyScenario: 'Spends 20 minutes explaining why their café choice reflects their worldview',
-		viralDescription: 'Philosophical about everything, including the "correct" way to eat croissants'
+		viralDescription:
+			'Philosophical about everything, including the "correct" way to eat croissants'
 	},
 	lyon_food_critic: {
 		conflictStyle: 'diplomatic',
@@ -160,7 +191,8 @@ export const hyperSpecificTraitMappings: Record<HyperSpecificCultureType, Conver
 		formalityLevel: 'casual',
 		communicationPace: 'moderate',
 		unexpectedTrait: 'Sees artistic potential in urban architecture and breakfast presentations',
-		funnyScenario: 'Takes Instagram photos of their coffee foam art before every important conversation',
+		funnyScenario:
+			'Takes Instagram photos of their coffee foam art before every important conversation',
 		viralDescription: 'Gaudí-level creativity in daily life, treats mundane moments as art projects'
 	},
 	seville_family_gatherer: {
@@ -192,7 +224,7 @@ export const hyperSpecificTraitMappings: Record<HyperSpecificCultureType, Conver
 		formalityLevel: 'casual',
 		communicationPace: 'moderate',
 		unexpectedTrait: 'Relates every modern situation to something that happened during the Empire',
-		funnyScenario: 'Explains traffic jams by referencing Caesar\'s military strategies',
+		funnyScenario: "Explains traffic jams by referencing Caesar's military strategies",
 		viralDescription: 'Living history book, makes grocery shopping sound like an epic saga'
 	},
 	neapolitan_passionate: {
@@ -214,7 +246,7 @@ export const hyperSpecificTraitMappings: Record<HyperSpecificCultureType, Conver
 		formalityLevel: 'formal',
 		communicationPace: 'moderate',
 		unexpectedTrait: 'Bows slightly while talking on the phone',
-		funnyScenario: 'Apologizes to vending machine when it doesn\'t accept wrinkled bills',
+		funnyScenario: "Apologizes to vending machine when it doesn't accept wrinkled bills",
 		viralDescription: 'Next-level politeness, treats punctuality as a spiritual practice'
 	},
 	kyoto_traditional_diplomat: {
@@ -224,7 +256,8 @@ export const hyperSpecificTraitMappings: Record<HyperSpecificCultureType, Conver
 		formalityLevel: 'ceremonial',
 		communicationPace: 'slow',
 		unexpectedTrait: 'Considers silence more eloquent than words',
-		funnyScenario: 'Spends 10 minutes choosing the perfect emoji to convey subtle seasonal feelings',
+		funnyScenario:
+			'Spends 10 minutes choosing the perfect emoji to convey subtle seasonal feelings',
 		viralDescription: 'Ancient wisdom meets modern problems, masters of meaningful pauses'
 	},
 	osaka_comedian: {
@@ -235,7 +268,8 @@ export const hyperSpecificTraitMappings: Record<HyperSpecificCultureType, Conver
 		communicationPace: 'fast',
 		unexpectedTrait: 'Finds humor in the most mundane daily situations',
 		funnyScenario: 'Makes the convenience store clerk laugh while buying serious business supplies',
-		viralDescription: 'Comedy-first approach to life, believes laughter is the best business strategy'
+		viralDescription:
+			'Comedy-first approach to life, believes laughter is the best business strategy'
 	},
 
 	// Chinese variants
@@ -256,7 +290,7 @@ export const hyperSpecificTraitMappings: Record<HyperSpecificCultureType, Conver
 		formalityLevel: 'balanced',
 		communicationPace: 'fast',
 		unexpectedTrait: 'Sees every social interaction as potential business opportunity',
-		funnyScenario: 'Exchanges business cards at their cousin\'s wedding',
+		funnyScenario: "Exchanges business cards at their cousin's wedding",
 		viralDescription: 'Global mindset, treats relationship-building as high art'
 	},
 	guangzhou_pragmatic_trader: {
@@ -287,7 +321,7 @@ export const hyperSpecificTraitMappings: Record<HyperSpecificCultureType, Conver
 		decisionMaking: 'individual',
 		formalityLevel: 'casual',
 		communicationPace: 'fast',
-		unexpectedTrait: 'Speaks to everyone like they\'ve been friends since childhood',
+		unexpectedTrait: "Speaks to everyone like they've been friends since childhood",
 		funnyScenario: 'Calls their CEO "hyung" and somehow gets promoted',
 		viralDescription: 'Port city energy, treats formality as mainland nonsense'
 	},
@@ -329,7 +363,7 @@ export const hyperSpecificTraitMappings: Record<HyperSpecificCultureType, Conver
 		decisionMaking: 'individual',
 		formalityLevel: 'casual',
 		communicationPace: 'rapid',
-		unexpectedTrait: 'Drinks coffee like it\'s a competitive sport',
+		unexpectedTrait: "Drinks coffee like it's a competitive sport",
 		funnyScenario: 'Schedules lunch meetings during their lunch meetings',
 		viralDescription: 'Paulistano energy, treats relaxation as a productivity optimization strategy'
 	},
@@ -361,7 +395,8 @@ export const hyperSpecificTraitMappings: Record<HyperSpecificCultureType, Conver
 		decisionMaking: 'collaborative',
 		formalityLevel: 'formal',
 		communicationPace: 'slow',
-		unexpectedTrait: 'Insists on feeding everyone who enters their house, including delivery drivers',
+		unexpectedTrait:
+			'Insists on feeding everyone who enters their house, including delivery drivers',
 		funnyScenario: 'Invites Uber driver in for mint tea and life advice',
 		viralDescription: 'Hospitality as high art, treats guest comfort as personal mission'
 	},
@@ -394,7 +429,7 @@ export const hyperSpecificTraitMappings: Record<HyperSpecificCultureType, Conver
 		formalityLevel: 'casual',
 		communicationPace: 'rapid',
 		unexpectedTrait: 'Tells everyday stories with Bollywood-level emotional intensity',
-		funnyScenario: 'Describes their commute like it\'s an epic hero\'s journey with dance numbers',
+		funnyScenario: "Describes their commute like it's an epic hero's journey with dance numbers",
 		viralDescription: 'Maximum drama energy, treats mundane life as blockbuster entertainment'
 	},
 	moscow_stoic_survivor: {
@@ -425,7 +460,8 @@ export const hyperSpecificTraitMappings: Record<HyperSpecificCultureType, Conver
 		communicationPace: 'moderate',
 		unexpectedTrait: 'Considers "pakikipagkapwa" essential for proper selfie-taking',
 		funnyScenario: 'Includes extended family in group chats about grocery shopping decisions',
-		viralDescription: 'Harmony-first mentality, treats conflict avoidance as relationship superpower'
+		viralDescription:
+			'Harmony-first mentality, treats conflict avoidance as relationship superpower'
 	},
 	jakarta_humble_community: {
 		conflictStyle: 'avoidant',
@@ -441,23 +477,32 @@ export const hyperSpecificTraitMappings: Record<HyperSpecificCultureType, Conver
 
 // Mapping from language codes to possible hyper-specific culture types
 export const languageToHyperCultures: Record<string, HyperSpecificCultureType[]> = {
-	'en': ['london_tube_commuter', 'brooklyn_hipster', 'silicon_valley_optimist', 'australian_larrikin'],
-	'de': ['berlin_efficiency_expert', 'bavarian_gemutlichkeit', 'hamburg_maritime_direct'],
-	'fr': ['parisian_intellectual', 'lyon_food_critic', 'nice_vacation_philosopher'],
-	'es': ['madrid_night_owl', 'barcelona_creative', 'seville_family_gatherer'],
-	'it': ['milanese_fashion_critic', 'roman_storyteller', 'neapolitan_passionate'],
-	'ja': ['tokyo_salaryman', 'kyoto_traditional_diplomat', 'osaka_comedian'],
-	'zh': ['beijing_authority_respecter', 'shanghai_business_networker', 'guangzhou_pragmatic_trader'],
-	'ko': ['seoul_hierarchical_perfectionist', 'busan_coastal_direct', 'jeju_island_peaceful'],
-	'pt': ['lisbon_melancholic_poet', 'rio_beach_philosopher', 'sao_paulo_hustle_culture'],
-	'ar': ['dubai_international_connector', 'cairo_storytelling_historian', 'marrakech_hospitality_master'],
-	'nl': ['amsterdam_blunt_cyclist'],
-	'tr': ['istanbul_bridge_cultural'],
-	'hi': ['mumbai_bollywood_dramatic'],
-	'ru': ['moscow_stoic_survivor'],
-	'vi': ['hanoi_family_consensus'],
-	'fil': ['manila_relationship_harmony'],
-	'id': ['jakarta_humble_community']
+	en: [
+		'london_tube_commuter',
+		'brooklyn_hipster',
+		'silicon_valley_optimist',
+		'australian_larrikin'
+	],
+	de: ['berlin_efficiency_expert', 'bavarian_gemutlichkeit', 'hamburg_maritime_direct'],
+	fr: ['parisian_intellectual', 'lyon_food_critic', 'nice_vacation_philosopher'],
+	es: ['madrid_night_owl', 'barcelona_creative', 'seville_family_gatherer'],
+	it: ['milanese_fashion_critic', 'roman_storyteller', 'neapolitan_passionate'],
+	ja: ['tokyo_salaryman', 'kyoto_traditional_diplomat', 'osaka_comedian'],
+	zh: ['beijing_authority_respecter', 'shanghai_business_networker', 'guangzhou_pragmatic_trader'],
+	ko: ['seoul_hierarchical_perfectionist', 'busan_coastal_direct', 'jeju_island_peaceful'],
+	pt: ['lisbon_melancholic_poet', 'rio_beach_philosopher', 'sao_paulo_hustle_culture'],
+	ar: [
+		'dubai_international_connector',
+		'cairo_storytelling_historian',
+		'marrakech_hospitality_master'
+	],
+	nl: ['amsterdam_blunt_cyclist'],
+	tr: ['istanbul_bridge_cultural'],
+	hi: ['mumbai_bollywood_dramatic'],
+	ru: ['moscow_stoic_survivor'],
+	vi: ['hanoi_family_consensus'],
+	fil: ['manila_relationship_harmony'],
+	id: ['jakarta_humble_community']
 };
 
 // Get hyper-specific cultures for a language

@@ -1,7 +1,7 @@
 // 🎭 Viral Personality Archetypes
 // Hyper-specific personality combinations designed for maximum shareability
 
-import type { DNAPersonalityType, CulturalMix } from '../types/cultural-dna.types';
+import type { DNAPersonalityType } from '../types/cultural-dna.types';
 
 // Viral personality archetypes using hyper-specific culture combinations
 export const viralPersonalityArchetypes: DNAPersonalityType[] = [
@@ -10,8 +10,16 @@ export const viralPersonalityArchetypes: DNAPersonalityType[] = [
 		name: 'The Efficient Zen Master',
 		description: 'Berlin productivity meets Kyoto mindfulness',
 		culturalMix: [
-			{ culture: 'berlin_efficiency_expert', percentage: 65, dominantTraits: ['efficient', 'direct', 'organized'] },
-			{ culture: 'kyoto_traditional_diplomat', percentage: 35, dominantTraits: ['thoughtful', 'respectful', 'ceremonial'] }
+			{
+				culture: 'berlin_efficiency_expert',
+				percentage: 65,
+				dominantTraits: ['efficient', 'direct', 'organized']
+			},
+			{
+				culture: 'kyoto_traditional_diplomat',
+				percentage: 35,
+				dominantTraits: ['thoughtful', 'respectful', 'ceremonial']
+			}
 		],
 		traits: {
 			conflictStyle: 'diplomatic',
@@ -29,8 +37,16 @@ export const viralPersonalityArchetypes: DNAPersonalityType[] = [
 		name: 'The Passionate Strategist',
 		description: 'Neapolitan fire with Shanghai business acumen',
 		culturalMix: [
-			{ culture: 'neapolitan_passionate', percentage: 55, dominantTraits: ['dramatic', 'expressive', 'family-oriented'] },
-			{ culture: 'shanghai_business_networker', percentage: 45, dominantTraits: ['strategic', 'networked', 'international'] }
+			{
+				culture: 'neapolitan_passionate',
+				percentage: 55,
+				dominantTraits: ['dramatic', 'expressive', 'family-oriented']
+			},
+			{
+				culture: 'shanghai_business_networker',
+				percentage: 45,
+				dominantTraits: ['strategic', 'networked', 'international']
+			}
 		],
 		traits: {
 			conflictStyle: 'direct',
@@ -48,8 +64,16 @@ export const viralPersonalityArchetypes: DNAPersonalityType[] = [
 		name: 'The Philosophical Hustler',
 		description: 'Parisian intellectual depth with São Paulo grind energy',
 		culturalMix: [
-			{ culture: 'parisian_intellectual', percentage: 60, dominantTraits: ['sophisticated', 'analytical', 'artistic'] },
-			{ culture: 'sao_paulo_hustle_culture', percentage: 40, dominantTraits: ['driven', 'entrepreneurial', 'coffee-powered'] }
+			{
+				culture: 'parisian_intellectual',
+				percentage: 60,
+				dominantTraits: ['sophisticated', 'analytical', 'artistic']
+			},
+			{
+				culture: 'sao_paulo_hustle_culture',
+				percentage: 40,
+				dominantTraits: ['driven', 'entrepreneurial', 'coffee-powered']
+			}
 		],
 		traits: {
 			conflictStyle: 'diplomatic',
@@ -67,8 +91,16 @@ export const viralPersonalityArchetypes: DNAPersonalityType[] = [
 		name: 'The Humble Drama Queen',
 		description: 'Jakarta modesty with Mumbai Bollywood flair',
 		culturalMix: [
-			{ culture: 'jakarta_humble_community', percentage: 70, dominantTraits: ['humble', 'community-focused', 'consensus-seeking'] },
-			{ culture: 'mumbai_bollywood_dramatic', percentage: 30, dominantTraits: ['dramatic', 'storytelling', 'expressive'] }
+			{
+				culture: 'jakarta_humble_community',
+				percentage: 70,
+				dominantTraits: ['humble', 'community-focused', 'consensus-seeking']
+			},
+			{
+				culture: 'mumbai_bollywood_dramatic',
+				percentage: 30,
+				dominantTraits: ['dramatic', 'storytelling', 'expressive']
+			}
 		],
 		traits: {
 			conflictStyle: 'harmonious',
@@ -86,8 +118,16 @@ export const viralPersonalityArchetypes: DNAPersonalityType[] = [
 		name: 'The Blunt Poet',
 		description: 'Amsterdam directness with Lisbon melancholy',
 		culturalMix: [
-			{ culture: 'amsterdam_blunt_cyclist', percentage: 65, dominantTraits: ['direct', 'honest', 'practical'] },
-			{ culture: 'lisbon_melancholic_poet', percentage: 35, dominantTraits: ['melancholic', 'artistic', 'contemplative'] }
+			{
+				culture: 'amsterdam_blunt_cyclist',
+				percentage: 65,
+				dominantTraits: ['direct', 'honest', 'practical']
+			},
+			{
+				culture: 'lisbon_melancholic_poet',
+				percentage: 35,
+				dominantTraits: ['melancholic', 'artistic', 'contemplative']
+			}
 		],
 		traits: {
 			conflictStyle: 'direct',
@@ -105,8 +145,16 @@ export const viralPersonalityArchetypes: DNAPersonalityType[] = [
 		name: 'The Diplomatic Survivor',
 		description: 'Moscow resilience with Seoul perfectionist manners',
 		culturalMix: [
-			{ culture: 'moscow_stoic_survivor', percentage: 55, dominantTraits: ['resilient', 'stoic', 'unbreakable'] },
-			{ culture: 'seoul_hierarchical_perfectionist', percentage: 45, dominantTraits: ['perfectionist', 'respectful', 'hierarchical'] }
+			{
+				culture: 'moscow_stoic_survivor',
+				percentage: 55,
+				dominantTraits: ['resilient', 'stoic', 'unbreakable']
+			},
+			{
+				culture: 'seoul_hierarchical_perfectionist',
+				percentage: 45,
+				dominantTraits: ['perfectionist', 'respectful', 'hierarchical']
+			}
 		],
 		traits: {
 			conflictStyle: 'diplomatic',
@@ -116,7 +164,8 @@ export const viralPersonalityArchetypes: DNAPersonalityType[] = [
 			communicationPace: 'slow'
 		},
 		famous_examples: ['Russian chess master meets K-pop manager'],
-		relationship_style: 'Politely indestructible, survives relationship winters with perfect manners',
+		relationship_style:
+			'Politely indestructible, survives relationship winters with perfect manners',
 		career_strengths: ['Crisis management', 'International diplomacy', 'Luxury brand management']
 	},
 	{
@@ -124,8 +173,16 @@ export const viralPersonalityArchetypes: DNAPersonalityType[] = [
 		name: 'The Global Harmonizer',
 		description: 'Dubai international connector meets Manila family harmony',
 		culturalMix: [
-			{ culture: 'dubai_international_connector', percentage: 50, dominantTraits: ['international', 'networking', 'multicultural'] },
-			{ culture: 'manila_relationship_harmony', percentage: 50, dominantTraits: ['harmony-seeking', 'family-oriented', 'consensus-building'] }
+			{
+				culture: 'dubai_international_connector',
+				percentage: 50,
+				dominantTraits: ['international', 'networking', 'multicultural']
+			},
+			{
+				culture: 'manila_relationship_harmony',
+				percentage: 50,
+				dominantTraits: ['harmony-seeking', 'family-oriented', 'consensus-building']
+			}
 		],
 		traits: {
 			conflictStyle: 'harmonious',
@@ -143,8 +200,16 @@ export const viralPersonalityArchetypes: DNAPersonalityType[] = [
 		name: 'The Creative Historian',
 		description: 'Barcelona artistic vision with Cairo storytelling wisdom',
 		culturalMix: [
-			{ culture: 'barcelona_creative', percentage: 60, dominantTraits: ['creative', 'artistic', 'innovative'] },
-			{ culture: 'cairo_storytelling_historian', percentage: 40, dominantTraits: ['storytelling', 'historical', 'wise'] }
+			{
+				culture: 'barcelona_creative',
+				percentage: 60,
+				dominantTraits: ['creative', 'artistic', 'innovative']
+			},
+			{
+				culture: 'cairo_storytelling_historian',
+				percentage: 40,
+				dominantTraits: ['storytelling', 'historical', 'wise']
+			}
 		],
 		traits: {
 			conflictStyle: 'diplomatic',
@@ -154,7 +219,7 @@ export const viralPersonalityArchetypes: DNAPersonalityType[] = [
 			communicationPace: 'moderate'
 		},
 		famous_examples: ['Gaudí meets ancient Egyptian scribe'],
-		relationship_style: 'Artistically wise, dates like it\'s a historically significant art project',
+		relationship_style: "Artistically wise, dates like it's a historically significant art project",
 		career_strengths: ['Museum curation', 'Documentary filmmaking', 'Cultural preservation']
 	},
 	{
@@ -162,8 +227,16 @@ export const viralPersonalityArchetypes: DNAPersonalityType[] = [
 		name: 'The Island Innovator',
 		description: 'Jeju peaceful wisdom with Silicon Valley optimism',
 		culturalMix: [
-			{ culture: 'jeju_island_peaceful', percentage: 65, dominantTraits: ['peaceful', 'nature-connected', 'slow-living'] },
-			{ culture: 'silicon_valley_optimist', percentage: 35, dominantTraits: ['optimistic', 'innovative', 'solution-focused'] }
+			{
+				culture: 'jeju_island_peaceful',
+				percentage: 65,
+				dominantTraits: ['peaceful', 'nature-connected', 'slow-living']
+			},
+			{
+				culture: 'silicon_valley_optimist',
+				percentage: 35,
+				dominantTraits: ['optimistic', 'innovative', 'solution-focused']
+			}
 		],
 		traits: {
 			conflictStyle: 'harmonious',
@@ -181,8 +254,16 @@ export const viralPersonalityArchetypes: DNAPersonalityType[] = [
 		name: 'The Hospitality Hipster',
 		description: 'Marrakech hosting mastery with Brooklyn cultural curation',
 		culturalMix: [
-			{ culture: 'marrakech_hospitality_master', percentage: 70, dominantTraits: ['hospitable', 'generous', 'welcoming'] },
-			{ culture: 'brooklyn_hipster', percentage: 30, dominantTraits: ['curated', 'artistic', 'trend-setting'] }
+			{
+				culture: 'marrakech_hospitality_master',
+				percentage: 70,
+				dominantTraits: ['hospitable', 'generous', 'welcoming']
+			},
+			{
+				culture: 'brooklyn_hipster',
+				percentage: 30,
+				dominantTraits: ['curated', 'artistic', 'trend-setting']
+			}
 		],
 		traits: {
 			conflictStyle: 'harmonious',
@@ -193,7 +274,11 @@ export const viralPersonalityArchetypes: DNAPersonalityType[] = [
 		},
 		famous_examples: ['Moroccan tea master meets artisanal coffee roaster'],
 		relationship_style: 'Hosts legendary dinner parties, curates perfect date experiences',
-		career_strengths: ['Event hospitality', 'Restaurant concept development', 'Cultural experience design']
+		career_strengths: [
+			'Event hospitality',
+			'Restaurant concept development',
+			'Cultural experience design'
+		]
 	}
 ];
 
@@ -204,16 +289,21 @@ export function getRandomViralArchetype(): DNAPersonalityType {
 
 // Find archetype by ID
 export function getViralArchetypeById(id: string): DNAPersonalityType | undefined {
-	return viralPersonalityArchetypes.find(archetype => archetype.id === id);
+	return viralPersonalityArchetypes.find((archetype) => archetype.id === id);
 }
 
 // Get archetype by cultural mix similarity
-export function getArchetypeByCulturalMatch(primaryCulture: string, secondaryCulture?: string): DNAPersonalityType {
+export function getArchetypeByCulturalMatch(
+	primaryCulture: string,
+	secondaryCulture?: string
+): DNAPersonalityType {
 	// Find best match based on cultural composition
-	const matches = viralPersonalityArchetypes.filter(archetype => {
-		const cultures = archetype.culturalMix.map(mix => mix.culture);
-		return cultures.includes(primaryCulture as any) ||
-			   (secondaryCulture && cultures.includes(secondaryCulture as any));
+	const matches = viralPersonalityArchetypes.filter((archetype) => {
+		const cultures = archetype.culturalMix.map((mix) => mix.culture);
+		return (
+			cultures.includes(primaryCulture as any) ||
+			(secondaryCulture && cultures.includes(secondaryCulture as any))
+		);
 	});
 
 	return matches.length > 0 ? matches[0] : viralPersonalityArchetypes[0];

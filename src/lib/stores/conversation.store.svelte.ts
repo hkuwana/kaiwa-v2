@@ -118,8 +118,8 @@ export class ConversationStore {
 	}
 
 	private initializeServices(): void {
-		// Initialize audio service
-		audioStore.initialize();
+		// Audio service will be initialized only when conversation starts
+		// This prevents unnecessary microphone access requests on non-conversation pages
 	}
 
 	// === PUBLIC ACTIONS ===
@@ -191,13 +191,19 @@ export class ConversationStore {
 		}
 
 		try {
-			// 1. Test audio constraints using the audio store
+			// 1. Initialize audio store if not already initialized
+			if (!audioStore.isInitialized) {
+				console.log('🎵 ConversationStore: Initializing audio store...');
+				await audioStore.initialize();
+			}
+
+			// 2. Test audio constraints using the audio store
 			const constraintTest = await audioStore.getCore()?.testConstraints();
 			if (!constraintTest?.success) {
 				console.warn('Audio constraint test failed, proceeding with defaults');
 			}
 
-			// 2. Start audio recording using the audio store
+			// 3. Start audio recording using the audio store
 			console.log('🎵 ConversationStore: Starting audio recording...');
 			await audioStore.startRecording(audioStore.selectedDeviceId);
 

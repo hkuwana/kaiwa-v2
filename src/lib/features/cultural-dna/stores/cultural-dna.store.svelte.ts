@@ -69,7 +69,11 @@ class CulturalDNAStore {
 		};
 
 		this.currentSession.responses.push(fullResponse);
-		console.log('🎭 Added scenario response:', currentScenario.id, response.audioTranscript.substring(0, 50));
+		console.log(
+			'🎭 Added scenario response:',
+			currentScenario.id,
+			response.audioTranscript.substring(0, 50)
+		);
 	}
 
 	// Move to next scenario
@@ -98,16 +102,18 @@ class CulturalDNAStore {
 		console.log('🧬 Assessment complete, starting analysis...');
 
 		// Import and run analysis
-		import('../services/dna-analysis.service').then(({ analyzeCulturalDNA }) => {
-			if (this.currentSession) {
-				this.dnaResults = analyzeCulturalDNA(this.currentSession);
+		import('../services/dna-analysis.service')
+			.then(({ analyzeCulturalDNA }) => {
+				if (this.currentSession) {
+					this.dnaResults = analyzeCulturalDNA(this.currentSession);
+					this.isAnalyzing = false;
+					console.log('✨ DNA analysis complete:', this.dnaResults?.personalityType);
+				}
+			})
+			.catch((err) => {
+				this.error = 'Failed to analyze DNA: ' + err.message;
 				this.isAnalyzing = false;
-				console.log('✨ DNA analysis complete:', this.dnaResults?.personalityType);
-			}
-		}).catch(err => {
-			this.error = 'Failed to analyze DNA: ' + err.message;
-			this.isAnalyzing = false;
-		});
+			});
 	}
 
 	// Get assessment progress
@@ -119,7 +125,9 @@ class CulturalDNAStore {
 		return {
 			current: this.currentSession.currentScenario,
 			total: this.currentSession.totalScenarios,
-			percentage: Math.round((this.currentSession.currentScenario / this.currentSession.totalScenarios) * 100)
+			percentage: Math.round(
+				(this.currentSession.currentScenario / this.currentSession.totalScenarios) * 100
+			)
 		};
 	}
 
@@ -139,7 +147,9 @@ class CulturalDNAStore {
 	}
 
 	// Share DNA results
-	async shareResults(platform: 'instagram' | 'tiktok' | 'twitter' | 'whatsapp' | 'link'): Promise<string> {
+	async shareResults(
+		platform: 'instagram' | 'tiktok' | 'twitter' | 'whatsapp' | 'link'
+	): Promise<string> {
 		if (!this.dnaResults) {
 			throw new Error('No DNA results to share');
 		}

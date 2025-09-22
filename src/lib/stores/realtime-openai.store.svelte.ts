@@ -225,7 +225,9 @@ export class RealtimeOpenAIStore {
 		const wasFinalized = this.finalizedWordTimings.has(oldId);
 
 		const nextTimings = timings ? timings.map((entry) => ({ ...entry })) : undefined;
-		const nextWordTimings = nextTimings ? { ...this.messageWordTimings, [newId]: nextTimings } : { ...this.messageWordTimings };
+		const nextWordTimings = nextTimings
+			? { ...this.messageWordTimings, [newId]: nextTimings }
+			: { ...this.messageWordTimings };
 		if (nextTimings) {
 			delete nextWordTimings[oldId];
 			this.messageWordTimings = nextWordTimings;
@@ -422,7 +424,8 @@ export class RealtimeOpenAIStore {
 					const streamingId = streamingIndex !== -1 ? this.messages[streamingIndex].id : null;
 					const totalDuration =
 						this.assistantAudioTracking.messageId === streamingId
-							? this.assistantAudioTracking.totalDurationMs ?? this.assistantAudioTracking.accumulatedMs
+							? (this.assistantAudioTracking.totalDurationMs ??
+								this.assistantAudioTracking.accumulatedMs)
 							: this.assistantAudioTracking.totalDurationMs;
 					// Finalize assistant transcript
 					this.aiResponse = processed.data.text;
