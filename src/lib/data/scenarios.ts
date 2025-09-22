@@ -16,8 +16,8 @@ export type ScenarioWithHints = Scenario & {
 export const scenariosData: ScenarioWithHints[] = [
 	{
 		id: 'onboarding-welcome',
-		title: '3-Minute Speaking Assessment',
-		description: 'Let our AI understand your speaking level and learning goals',
+		title: 'Meet Your Tutor',
+		description: 'Chat about your language goals.',
 		category: 'onboarding',
 		difficulty: 'beginner',
 		instructions:
@@ -42,8 +42,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'monday-planning',
-		title: 'Map Your Week Over Coffee',
-		description: 'Plan your week like a traveler plotting a route.',
+		title: 'Weekly Coffee Planning',
+		description: 'Plan your week over coffee.',
 		category: 'comfort',
 		difficulty: 'beginner',
 		instructions: 'Talk through key plans, times, and priorities for the week.',
@@ -72,8 +72,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'tuesday-lifestyle',
-		title: 'A Day in Your City',
-		description: 'Walk through your day from sunrise to night lights.',
+		title: 'Day In The City',
+		description: 'Describe your day in the city.',
 		category: 'comfort',
 		difficulty: 'beginner',
 		instructions: 'Describe your routine with places, times, and feelings.',
@@ -102,8 +102,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'wednesday-food',
-		title: 'Tapas at a Barcelona Bar',
-		description: 'Squeeze into a lively tapas bar and order like a local.',
+		title: 'Barcelona Tapas Bar',
+		description: 'Order tapas like a local.',
 		category: 'comfort',
 		difficulty: 'beginner',
 		instructions: 'Ask for recommendations, order plates, and chat with the bartender.',
@@ -136,8 +136,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'thursday-hobbies',
-		title: 'Park Meetup: Sharing Your Passions',
-		description: 'Join a casual meetup and bond over what you love.',
+		title: 'Park Hobby Meetup',
+		description: 'Share your passions at a park.',
 		category: 'comfort',
 		difficulty: 'beginner',
 		instructions: 'Introduce your hobby, ask questions, and find common interests.',
@@ -166,8 +166,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'friday-weekend',
-		title: 'Last‑Minute Weekend Escape',
-		description: 'Plan a quick getaway like catching a fast train to the coast.',
+		title: 'Spontaneous Weekend Getaway',
+		description: 'Plan a last-minute trip.',
 		category: 'comfort',
 		difficulty: 'beginner',
 		instructions: 'Discuss options, compare times and costs, and settle on a plan.',
@@ -196,8 +196,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'saturday-travel',
-		title: 'Old Town Stroll: Hidden Gems',
-		description: 'Wander cobblestone streets and ask locals for the best spots.',
+		title: 'Old Town Exploration',
+		description: 'Explore and ask for local tips.',
 		category: 'comfort',
 		difficulty: 'beginner',
 		instructions: 'Ask for directions, opening hours, and what not to miss.',
@@ -228,8 +228,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'sunday-reflection',
-		title: 'Riverside Sunset: Weekly Reflection',
-		description: 'Slow down, look back, and set gentle intentions ahead.',
+		title: 'Riverside Weekly Reflection',
+		description: 'Reflect on your week by the river.',
 		category: 'comfort',
 		difficulty: 'beginner',
 		instructions: 'Reflect on wins, challenges, and one small next step.',
@@ -258,8 +258,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'relationship-date-planning',
-		title: 'Rooftop Date Under City Lights',
-		description: 'Plan a thoughtful evening with small, memorable touches.',
+		title: 'Rooftop Date Planning',
+		description: 'Plan a special date night.',
 		category: 'relationships',
 		difficulty: 'intermediate',
 		instructions: 'Share ideas, preferences, and make a plan that feels special.',
@@ -290,8 +290,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'relationship-family-update',
-		title: 'Calling Home From the Platform',
-		description: 'Share good news with family as a train hums in the background.',
+		title: 'Train Platform Family Call',
+		description: 'Share good news with family.',
 		category: 'relationships',
 		difficulty: 'intermediate',
 		instructions: 'Give clear updates, express gratitude, and answer caring questions.',
@@ -320,8 +320,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'relationship-deep-connection',
-		title: 'Night Walk: Hopes and Values',
-		description: 'Trade unhurried questions that open doors.',
+		title: 'Deep Connection Night Walk',
+		description: 'Discuss hopes and values.',
 		category: 'relationships',
 		difficulty: 'advanced',
 		instructions: 'Name what matters, listen well, and reflect back.',
@@ -352,8 +352,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'relationship-conflict-resolution',
-		title: 'Kitchen Table Talk',
-		description: 'Work through a misunderstanding with care.',
+		title: 'Resolving A Misunderstanding',
+		description: 'Work through a conflict.',
 		category: 'relationships',
 		difficulty: 'advanced',
 		instructions: 'State feelings, seek to understand, and co-create a next step.',
@@ -384,8 +384,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	// ——— Added: Wider Variety Scenarios ———
 	{
 		id: 'biz-conference-negotiation',
-		title: 'Negotiating at a Business Conference',
-		description: 'Navigate terms, timelines, and concessions with a potential partner.',
+		title: 'Business Conference Negotiation',
+		description: 'Negotiate with a business partner.',
 		category: 'intermediate',
 		difficulty: 'advanced',
 		instructions:
@@ -410,8 +410,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'bar-flirting',
-		title: 'Flirting at a Cozy Bar',
-		description: 'Break the ice, read signals, and keep it playful and respectful.',
+		title: 'Cozy Bar Flirting',
+		description: 'Break the ice at a bar.',
 		category: 'relationships',
 		difficulty: 'intermediate',
 		instructions:
@@ -434,8 +434,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'job-interview',
-		title: 'Job Interview: Behavioral Questions',
-		description: 'Structure examples with STAR, ask smart questions, and show fit.',
+		title: 'Job Interview Practice',
+		description: 'Answer behavioral questions.',
 		category: 'intermediate',
 		difficulty: 'advanced',
 		instructions:
@@ -458,8 +458,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'market-haggling',
-		title: 'Haggling in a Street Market',
-		description: 'Ask prices, compare quality, and bargain politely.',
+		title: 'Street Market Bargaining',
+		description: 'Bargain with a street vendor.',
 		category: 'basic',
 		difficulty: 'intermediate',
 		instructions: 'Greet, ask for price, counter-offer, and agree politely or walk away kindly.',
@@ -482,8 +482,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'doctor-appointment',
-		title: 'Doctor Appointment: Symptoms and History',
-		description: 'Describe symptoms, timeline, and medications clearly.',
+		title: 'Doctor's Appointment',
+		description: 'Describe your symptoms.',
 		category: 'basic',
 		difficulty: 'intermediate',
 		instructions: 'Explain what you feel, when it started, any triggers, and ask about next steps.',
@@ -505,8 +505,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'hotel-overbooking',
-		title: 'Hotel Overbooking: Calm Resolution',
-		description: 'Stay courteous while requesting solutions and compensation.',
+		title: 'Resolving Hotel Overbooking',
+		description: 'Resolve a hotel booking issue.',
 		category: 'intermediate',
 		difficulty: 'intermediate',
 		instructions:
@@ -525,12 +525,12 @@ export const scenariosData: ScenarioWithHints[] = [
 		speakerGenderPreference: 'neutral',
 		isActive: true,
 		createdAt: new Date(),
-		updatedAt: new Date()
+		updatedAt: new date()
 	},
 	{
 		id: 'airport-checkin-issue',
-		title: 'Airport Check‑in Issue',
-		description: 'Handle baggage or seating problems under time pressure.',
+		title: 'Airport Check-in Problem',
+		description: 'Handle a baggage or seating issue.',
 		category: 'basic',
 		difficulty: 'intermediate',
 		instructions: 'Explain the issue briefly, ask about options, and choose efficiently.',
@@ -552,8 +552,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'university-office-hours',
-		title: 'University Office Hours: Clarify Concepts',
-		description: 'Ask targeted questions and confirm your understanding.',
+		title: 'University Office Hours',
+		description: 'Clarify concepts with a professor.',
 		category: 'intermediate',
 		difficulty: 'intermediate',
 		instructions: 'Explain what confuses you, reference examples, and summarize what you learned.',
@@ -575,8 +575,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'apartment-viewing',
-		title: 'Apartment Viewing with a Landlord',
-		description: 'Ask about rent, utilities, rules, and negotiate a bit.',
+		title: 'Viewing Apartment',
+		description: 'Ask a landlord about an apartment.',
 		category: 'basic',
 		difficulty: 'intermediate',
 		instructions:
@@ -599,8 +599,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'izakaya-ordering',
-		title: 'Izakaya Night: Ordering Like a Local',
-		description: 'Navigate a lively izakaya menu and connect with fellow diners.',
+		title: 'Izakaya Night Ordering',
+		description: 'Order at a Japanese izakaya.',
 		category: 'comfort',
 		difficulty: 'intermediate',
 		instructions: 'Order drinks and food, ask for recommendations, and enjoy casual conversation.',
@@ -623,8 +623,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'dim-sum-ordering',
-		title: 'Dim Sum Brunch: Sharing Small Plates',
-		description: 'Navigate a traditional dim sum restaurant with rolling carts.',
+		title: 'Dim Sum Brunch',
+		description: 'Order from a dim sum cart.',
 		category: 'comfort',
 		difficulty: 'intermediate',
 		instructions: 'Order from the cart, share plates with tablemates, and ask about ingredients.',
@@ -647,8 +647,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'roleplay-date-night',
-		title: 'Romantic Date Night Plans',
-		description: 'Coordinate a thoughtful evening with your partner, balancing surprises and comfort.',
+		title: 'Planning a Date Night',
+		description: 'Plan a romantic evening.',
 		category: 'roleplay',
 		difficulty: 'intermediate',
 		instructions:
@@ -673,13 +673,15 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'roleplay-friends-night-out',
-		title: 'Catching Up Over Drinks',
-		description: 'Meet a close friend at a lively bar to swap stories and unwind.',
+		title: 'Drinks With a Friend',
+		description: 'Catch up with a friend at a bar.',
 		category: 'roleplay',
 		difficulty: 'intermediate',
-		instructions: 'Pick a spot, order drinks, and trade updates about work, relationships, and weekend plans.',
+		instructions:
+			'Pick a spot, order drinks, and trade updates about work, relationships, and weekend plans.',
 		context: 'A cozy booth, soft background music, and laughter from a nearby table.',
-		expectedOutcome: 'Share highlights honestly, offer encouragement, and settle on the next hangout',
+		expectedOutcome:
+			'Share highlights honestly, offer encouragement, and settle on the next hangout',
 		learningObjectives: [
 			'casual storytelling',
 			'active listening cues',
@@ -698,8 +700,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'roleplay-family-catchup',
-		title: 'Afternoon Tea with Grandma',
-		description: 'Recount your week gently, ask about family stories, and show care in her language.',
+		title: 'Tea With Grandma',
+		description: 'Chat with your grandma over tea.',
 		category: 'roleplay',
 		difficulty: 'beginner',
 		instructions:

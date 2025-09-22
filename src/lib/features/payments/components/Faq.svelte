@@ -20,21 +20,21 @@
 </script>
 
 <div class="mx-auto mt-24 max-w-5xl">
-    <h2 class="mb-10 text-center text-3xl font-bold">Common Questions</h2>
-    <div class="mx-auto max-w-3xl space-y-4">
-        {#each faqs as faq, index (faq.question)}
-            <div class="collapse-plus collapse bg-base-200">
-                <input
-                    type="radio"
-                    name="faq-accordion"
-                    checked={expandedFaq === index}
-                    onchange={() => (expandedFaq = expandedFaq === index ? -1 : index)}
-                />
-                <div class="collapse-title text-xl font-medium">{faq.question}</div>
-                <div class="collapse-content">
-                    <p class="pt-2 text-base-content/90">{faq.answer}</p>
-                </div>
-            </div>
-        {/each}
-    </div>
+	<h2 class="mb-10 text-center text-3xl font-bold">Common Questions</h2>
+	<div class="mx-auto max-w-3xl space-y-4">
+		{#each faqs as faq, index (faq.question)}
+			<div class="collapse-plus collapse bg-base-200">
+				<input
+					type="radio"
+					name="faq-accordion"
+					checked={expandedFaq === index}
+					onchange={() => (expandedFaq = expandedFaq === index ? -1 : index)}
+				/>
+				<div class="collapse-title text-xl font-medium">{faq.question}</div>
+				<div class="collapse-content">
+					<p class="pt-2 text-base-content/90">{faq.answer}</p>
+				</div>
+			</div>
+		{/each}
+	</div>
 </div>

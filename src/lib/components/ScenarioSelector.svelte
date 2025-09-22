@@ -23,25 +23,27 @@
 
 	// Icons and colors by scenario category (onboarding | comfort | basic | intermediate | relationships)
 	const categoryIcons: Record<
-		'onboarding' | 'comfort' | 'basic' | 'intermediate' | 'relationships',
+		'onboarding' | 'comfort' | 'basic' | 'intermediate' | 'relationships' | 'roleplay',
 		string
 	> = {
 		onboarding: 'icon-[mdi--coffee]',
 		comfort: 'icon-[mdi--city]',
 		basic: 'icon-[mdi--book-open]',
 		intermediate: 'icon-[mdi--compass]',
-		relationships: 'icon-[mdi--heart-multiple]'
+		relationships: 'icon-[mdi--heart-multiple]',
+		roleplay: 'icon-[mdi--account-group]'
 	};
 
 	const categoryColors: Record<
-		'onboarding' | 'comfort' | 'basic' | 'intermediate' | 'relationships',
+		'onboarding' | 'comfort' | 'basic' | 'intermediate' | 'relationships' | 'roleplay',
 		string
 	> = {
 		onboarding: 'primary',
 		comfort: 'secondary',
 		basic: 'accent',
 		intermediate: 'success',
-		relationships: 'warning'
+		relationships: 'warning',
+		roleplay: 'info'
 	};
 
 	let isOpen = $state(false);
@@ -74,15 +76,17 @@
 						{#if disabled}
 							<span class="icon-[mdi--lock] h-5 w-5 text-base-content/60"></span>
 						{:else if selectedScenario}
-							<span class="{categoryIcons[selectedScenario.category] || 'icon-[mdi--target]'} h-5 w-5 text-{categoryColors[selectedScenario.category] || 'primary'}"></span>
+							<span
+								class="{categoryIcons[selectedScenario.category] ||
+									'icon-[mdi--target]'} h-5 w-5 text-{categoryColors[selectedScenario.category] ||
+									'primary'}"
+							></span>
 						{:else}
 							<span class="icon-[mdi--target] h-5 w-5 text-primary"></span>
 						{/if}
 					</span>
 					<div class="flex flex-col items-center">
-						<span class="text-base font-medium"
-							>{disabled ? 'Scenario - Onboarding' : 'Scenario'}</span
-						>
+						<span class="text-base font-medium">{disabled ? 'Meet Your Tutor' : 'Scenario'}</span>
 						{#if selectedScenario}
 							<span class="text-sm opacity-70">{selectedScenario.title}</span>
 						{:else}
@@ -119,20 +123,21 @@
 			<div class="flex w-full items-center justify-center gap-3 text-center">
 				<span class="h-5 w-5">
 					{#if selectedScenario}
-						<span class="{categoryIcons[selectedScenario.category] || 'icon-[mdi--target]'} h-5 w-5 text-{categoryColors[selectedScenario.category] || 'primary'}"></span>
+						<span
+							class="{categoryIcons[selectedScenario.category] ||
+								'icon-[mdi--target]'} h-5 w-5 text-{categoryColors[selectedScenario.category] ||
+								'primary'}"
+						></span>
 					{:else}
 						<span class="icon-[mdi--target] h-5 w-5 text-primary"></span>
 					{/if}
 				</span>
 				<div class="flex flex-col items-center">
 					<span class="text-base font-medium"
-						>Scenario – {selectedScenario
-							? selectedScenario?.category.slice(0, 1).toLocaleUpperCase() +
-								selectedScenario?.category.slice(1)
-							: ''}</span
+						>{selectedScenario ? selectedScenario?.title : ''}</span
 					>
 					{#if selectedScenario}
-						<span class="text-sm opacity-70">{selectedScenario.title}</span>
+						<span class="text-sm opacity-70">{selectedScenario.description}</span>
 					{:else}
 						<span class="animate-pulse text-sm opacity-50">Loading...</span>
 					{/if}
@@ -172,7 +177,11 @@
 						disabled={isLocked}
 					>
 						<div class="flex items-center gap-2">
-							<span class="{categoryIcons[scenario.category] || 'icon-[mdi--target]'} h-5 w-5 text-{categoryColors[scenario.category] || 'primary'}"></span>
+							<span
+								class="{categoryIcons[scenario.category] ||
+									'icon-[mdi--target]'} h-5 w-5 text-{categoryColors[scenario.category] ||
+									'primary'}"
+							></span>
 							<span class="font-medium">{scenario.title}</span>
 							{#if isLocked}
 								<span class="icon-[mdi--lock] h-4 w-4 text-base-content/40"></span>

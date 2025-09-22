@@ -60,8 +60,8 @@ This directory contains all server-side code.
 
 - **Separation of Concerns**: A clear separation between client-side and server-side logic.
 - **`database`**: A subdirectory for all database interactions.
-    - **`repositories`**: All database queries (CRUD operations) are encapsulated in `*.repository.ts` files. These are the only files that should import and use Drizzle.
-    - Server-side services will use these repositories to access data.
+  - **`repositories`**: All database queries (CRUD operations) are encapsulated in `*.repository.ts` files. These are the only files that should import and use Drizzle.
+  - Server-side services will use these repositories to access data.
 
 ---
 

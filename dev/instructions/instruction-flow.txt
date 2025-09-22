@@ -1,0 +1,99 @@
+Instruction Generation Overview
+================================
+
+                 +-------------------------+
+                 |  getInstructions(phase) |
+                 +-----------+-------------+
+                             |
+        +--------------------+-----------------------+
+        |                                            |
+        v                                            v
++---------------+                           +-----------------------------+
+| Phase: initial|                           | Phase: update / closing     |
++-------+-------+                           +-----------+-----------------+
+        |                                               |
+        |                                               |
+        v                                               v
++---------------------------+                +---------------------------+
+| ModuleComposer.compose()  |                | Phase specific generators  |
+| (applies to all phases)   |                | - generateUpdateInstructions|
++-----------+---------------+                | - generateClosingInstructions|
+            |                                 +-------------+-------------+
+            |                                               |
+            v                                               v
+    +------------------+                             +-------------------+
+    | Instruction Mods |                             | Update / Closing  |
+    | (priority sorted)|                             | templates         |
+    +---------+--------+                             +-------------------+
+              |
+              v
+  +-----------------------------+
+  | Core Modules pull from      |
+  |-----------------------------|
+  | User (db.users)             |
+  | UserPreferences (db.user_*) |
+  | Scenario (db.scenarios)     |
+  | SessionContext (runtime)    |
+  | Speaker (db.speakers)       |
+  | Language (db.languages)     |
+  +-----------------------------+
+              |
+              v
+   +----------------------------+
+   | Onboarding Branch?         |
+   +-------------+--------------+
+                 |
+        +--------+---------+
+        |                  |
+        v                  v
++---------------+   +--------------------------+
+| First-time or |   | Returning user (no       |
+| scenario=onbd |   | onboarding block)        |
++-------+-------+   +-----------+--------------+
+        |                       |
+        v                       v
++------------------------------+        +-------------------------------+
+| buildOnboardingBlock()       |        | RETURNING USER WELCOME block  |
+|  - intro section             |        +-------------------------------+
+|  - goal discovery            |
+|  - level sensing             |
+|  - momentum builder          |
+|  - non-negotiable vibes      |
++---------------+--------------+
+                |
+                v
+      +--------------------+
+      | Combined output    |
+      +--------------------+
+                |
+                v
+      +--------------------+
+      | Realtime prompt    |
+      +--------------------+
+
+Supplementary Path (Scenario-first)
+-----------------------------------
+
+Scenario input + base data --> generateScenarioInstructions()
+    |                                  |
+    |                                  v
+    |                         +---------------------+
+    |                         | Base instructions   |
+    |                         +---------+-----------+
+    |                                   |
+    |                                   v
+    |                        +--------------------------+
+    |                        | Onboarding condition?    |
+    |                        +-----------+--------------+
+    |                                    |
+    |            yes --------------------+---------------- no
+    |             |                                          |
+    v             v                                          v
+initialMessage + onboarding block            Scenario-specific additions
+
+Legend
+------
+User fields → db.users                Scenario → db.scenarios
+Preferences → db.user_preferences     Speaker → db.speakers
+Language → db.languages               SessionContext → runtime context
+

@@ -10,7 +10,6 @@
 		calculateAnnualDiscount
 	} from '$lib/features/payments/services/stripe.service';
 	import { PricingService } from '$lib/features/payments/services/pricing.service';
-	import { env as publicEnv } from '$env/dynamic/public';
 	import WhyDifferent from '$lib/components/WhyDifferent.svelte';
 	import Faq from '$lib/features/payments/components/Faq.svelte';
 	import Testimonials from '$lib/features/payments/components/Testimonials.svelte';
@@ -374,19 +373,6 @@
 				{/if}
 			</div>
 		</div>
-
-		{#if earlyBackerPriceId}
-			<div
-				class="mx-auto mb-10 max-w-5xl rounded-2xl border-2 border-success/40 bg-success/5 p-6 text-center"
-			>
-				<div class="mb-2 text-lg font-semibold">Early‑Backer</div>
-				<p class="mb-4 text-base-content/70">
-					Support the mission and unlock more practice time — $5/mo for 12 months.
-				</p>
-				<button class="btn btn-success" onclick={handleEarlyBackerCheckout}>Support + Unlock</button
-				>
-			</div>
-		{/if}
 
 		<div class="mt-24">
 			<h2 class="mb-10 text-center text-3xl font-bold">Feature Comparison</h2>

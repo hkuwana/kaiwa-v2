@@ -47,8 +47,7 @@
 				tierStyles.free} gap-2"
 		>
 			<span
-				class="{tierIcons[tierStatus.tier.id as keyof typeof tierIcons] ||
-					tierIcons.free} h-4 w-4"
+				class="{tierIcons[tierStatus.tier.id as keyof typeof tierIcons] || tierIcons.free} h-4 w-4"
 			></span>
 			<span class="capitalize">{tierStatus.tier.name}</span>
 		</div>
