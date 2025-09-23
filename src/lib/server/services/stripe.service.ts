@@ -652,6 +652,9 @@ export class StripeService {
 			const configurations = await stripe.billingPortal.configurations.list({ limit: 10 });
 			console.log(`🔧 [PORTAL CONFIG] Found ${configurations.data.length} existing configurations`);
 
+			// TODO: Temporarily forcing new config creation for payment method updates
+			// Uncomment the block below after testing to use existing configs
+			/*
 			if (configurations.data.length > 0) {
 				const defaultConfig = configurations.data.find((config) => config.is_default);
 				if (defaultConfig) {
@@ -662,14 +665,21 @@ export class StripeService {
 				console.log(`🔧 [PORTAL CONFIG] Using first available configuration: ${configurations.data[0].id}`);
 				return configurations.data[0].id;
 			}
+			*/
 
 			// If no configurations exist, create a basic one
 			console.log('🔧 [PORTAL CONFIG] No configurations found, creating new one...');
 			const configuration = await stripe.billingPortal.configurations.create({
 				business_profile: {
-					headline: 'Manage your subscription'
+					headline: 'Manage your subscription and payment methods'
 				},
 				features: {
+					payment_method_update: {
+						enabled: true
+					},
+					invoice_history: {
+						enabled: true
+					},
 					subscription_cancel: {
 						enabled: true,
 						mode: 'at_period_end'

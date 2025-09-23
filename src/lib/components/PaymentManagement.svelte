@@ -31,8 +31,6 @@
 		billingError,
 		isManagingBilling,
 		openBillingPortal,
-		pauseSubscription,
-		cancelSubscription,
 		subscription,
 		usageLimits
 	}: {
@@ -44,14 +42,11 @@
 		billingError: string;
 		isManagingBilling: boolean;
 		openBillingPortal: () => Promise<void>;
-		pauseSubscription: () => Promise<void>;
-		cancelSubscription: () => Promise<void>;
 		subscription: any;
 		usageLimits: any;
 	} = $props();
 
 	// Payment method state
-	let showAddPaymentModal = $state(false);
 	let paymentMethodError = $state('');
 
 	// Subscription management state
@@ -179,19 +174,6 @@
 		}
 	};
 
-	// Add payment method - redirect to Stripe billing portal
-	const addPaymentMethod = async () => {
-		paymentMethodError = '';
-
-		try {
-			// Use the same billing portal that's used for general billing management
-			// This will allow users to add/remove payment methods through Stripe's interface
-			await openBillingPortal();
-			showAddPaymentModal = false;
-		} catch (error) {
-			paymentMethodError = 'Unable to open payment management portal';
-		}
-	};
 
 	// Remove payment method
 	const removePaymentMethod = async (paymentMethodId: string) => {
@@ -326,9 +308,9 @@
 						{#if isManagingBilling}
 							<span class="loading loading-sm loading-spinner"></span>
 						{:else}
-							<span class="icon-[mdi--settings] h-4 w-4"></span>
+							<span class="icon-[mdi--credit-card] h-4 w-4"></span>
 						{/if}
-						Manage Billing
+						Manage Billing & Payments
 					</button>
 					<button class="btn btn-outline" onclick={() => (showUpgradeModal = true)}>
 						<span class="icon-[mdi--arrow-up] h-4 w-4"></span>
@@ -342,15 +324,14 @@
 	<!-- Payment Methods -->
 	<div class="card bg-base-100 shadow-xl">
 		<div class="card-body">
-			<div class="mb-4 flex items-center justify-between">
+			<div class="mb-4">
 				<h3 class="text-lg font-semibold">
 					<span class="mr-2 icon-[mdi--credit-card-outline] h-5 w-5"></span>
 					Payment Methods
 				</h3>
-				<button class="btn btn-outline btn-sm" onclick={() => (showAddPaymentModal = true)}>
-					<span class="icon-[mdi--credit-card-plus] h-4 w-4"></span>
-					Manage Payment Methods
-				</button>
+				<p class="text-sm text-base-content/70 mt-1">
+					Use "Manage Billing & Payments" above to add, update, or remove payment methods
+				</p>
 			</div>
 
 			{#if paymentMethodError}
@@ -437,24 +418,12 @@
 						</div>
 					{/if}
 
-					<!-- Quick Actions -->
-					<div class="flex flex-wrap gap-2">
-						<button
-							class="btn btn-outline btn-sm"
-							onclick={pauseSubscription}
-							disabled={isManagingBilling}
-						>
-							<span class="icon-[mdi--pause] h-4 w-4"></span>
-							Pause Subscription
-						</button>
-						<button
-							class="btn btn-outline btn-sm btn-error"
-							onclick={cancelSubscription}
-							disabled={isManagingBilling}
-						>
-							<span class="icon-[mdi--cancel] h-4 w-4"></span>
-							Cancel Subscription
-						</button>
+					<!-- Subscription Actions -->
+					<div class="rounded-lg bg-base-200/50 p-3">
+						<p class="text-sm text-base-content/70">
+							<span class="icon-[mdi--information-outline] h-4 w-4 inline mr-1"></span>
+							To cancel your subscription or modify billing settings, use "Manage Billing & Payments" above
+						</p>
 					</div>
 				</div>
 			</div>
@@ -614,62 +583,3 @@
 	</div>
 {/if}
 
-<!-- Add Payment Method Modal -->
-{#if showAddPaymentModal}
-	<div class="modal-open modal">
-		<div class="modal-box">
-			<h3 class="mb-4 text-lg font-bold">Manage Payment Methods</h3>
-
-			<div class="py-4">
-				<p class="mb-4 text-base-content/70">
-					You'll be redirected to Stripe's secure billing portal where you can safely add, remove,
-					or update your payment methods.
-				</p>
-
-				<div class="rounded-lg border border-primary/20 bg-primary/5 p-6">
-					<div class="mb-3 flex items-center gap-3">
-						<span class="icon-[mdi--shield-check] h-8 w-8 text-primary"></span>
-						<div>
-							<h4 class="font-semibold text-primary">Secure & Protected</h4>
-							<p class="text-sm text-base-content/70">Powered by Stripe's secure infrastructure</p>
-						</div>
-					</div>
-
-					<ul class="space-y-2 text-sm text-base-content/70">
-						<li class="flex items-center gap-2">
-							<span class="icon-[mdi--check] h-4 w-4 text-success"></span>
-							Add credit or debit cards
-						</li>
-						<li class="flex items-center gap-2">
-							<span class="icon-[mdi--check] h-4 w-4 text-success"></span>
-							Set default payment method
-						</li>
-						<li class="flex items-center gap-2">
-							<span class="icon-[mdi--check] h-4 w-4 text-success"></span>
-							Update billing information
-						</li>
-						<li class="flex items-center gap-2">
-							<span class="icon-[mdi--check] h-4 w-4 text-success"></span>
-							Remove old payment methods
-						</li>
-					</ul>
-				</div>
-
-				{#if paymentMethodError}
-					<div class="mt-4 alert alert-error">
-						<span class="icon-[mdi--alert-circle] h-5 w-5"></span>
-						<span>{paymentMethodError}</span>
-					</div>
-				{/if}
-			</div>
-
-			<div class="modal-action">
-				<button class="btn btn-ghost" onclick={() => (showAddPaymentModal = false)}>Cancel</button>
-				<button class="btn btn-primary" onclick={addPaymentMethod}>
-					<span class="icon-[mdi--open-in-new] h-4 w-4"></span>
-					Open Billing Portal
-				</button>
-			</div>
-		</div>
-	</div>
-{/if}

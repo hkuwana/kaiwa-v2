@@ -160,34 +160,6 @@
 		}
 	};
 
-	const pauseSubscription = async () => {
-		if (!confirm('Are you sure you want to pause your subscription? You can resume it anytime.')) {
-			return;
-		}
-
-		isManagingBilling = true;
-		billingError = '';
-
-		try {
-			const response = await fetch('/api/subscription/pause', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' }
-			});
-
-			if (!response.ok) {
-				const result = await response.json();
-				billingError = result.error || 'Failed to pause subscription';
-				return;
-			}
-
-			// Refresh the page to show updated subscription status
-			window.location.reload();
-		} catch (err) {
-			billingError = 'Network error. Please try again.';
-		} finally {
-			isManagingBilling = false;
-		}
-	};
 
 	// Load user preferences
 	const loadUserPreferences = async (): Promise<UserPreferences | null> => {
@@ -392,8 +364,6 @@
 						{billingError}
 						{isManagingBilling}
 						{openBillingPortal}
-						{pauseSubscription}
-						{cancelSubscription}
 						{subscription}
 						{usageLimits}
 					/>
