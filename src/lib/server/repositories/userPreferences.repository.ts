@@ -4,6 +4,12 @@ import { userPreferences } from '$lib/server/db/schema';
 import type { NewUserPreferences, UserPreferences } from '$lib/server/db/types';
 import type { challengePreferenceEnum, learningMotivationEnum } from '../db/schema/userPreferences';
 
+function cleanUpdate<T extends Record<string, unknown>>(data: T, omit: (keyof T)[] = []) {
+	return Object.fromEntries(
+		Object.entries(data).filter(([key, value]) => !omit.includes(key as keyof T) && value !== undefined)
+	) as Partial<T>;
+}
+
 export class UserPreferencesRepository {
 	/**
 	 * Create user preferences
@@ -67,10 +73,15 @@ export class UserPreferencesRepository {
 	): Promise<UserPreferences | null> {
 		const [updated] = await db
 			.update(userPreferences)
-			.set({
-				...updates,
-				updatedAt: new Date()
-			})
+			.set(
+				cleanUpdate(
+					{
+						...updates,
+						updatedAt: new Date()
+					},
+					['id', 'userId', 'targetLanguageId']
+				)
+			)
 			.where(eq(userPreferences.userId, userId))
 			.returning();
 
@@ -81,32 +92,22 @@ export class UserPreferencesRepository {
 	 * Upsert user preferences for specific language (create if doesn't exist, update if it does)
 	 */
 	async upsertPreferencesForLanguage(preferences: NewUserPreferences): Promise<UserPreferences> {
-		const existing = await this.getPreferencesByUserAndLanguage(
-			preferences.userId,
-			preferences.targetLanguageId
-		);
-
-		if (existing) {
-			// Update existing
-			const [updated] = await db
-				.update(userPreferences)
-				.set({
-					...preferences,
-					updatedAt: new Date()
-				})
-				.where(
-					and(
-						eq(userPreferences.userId, preferences.userId),
-						eq(userPreferences.targetLanguageId, preferences.targetLanguageId)
-					)
+		const [result] = await db
+			.insert(userPreferences)
+			.values(preferences)
+			.onConflictDoUpdate({
+				target: [userPreferences.userId, userPreferences.targetLanguageId],
+				set: cleanUpdate(
+					{
+						...preferences,
+						updatedAt: new Date()
+					},
+					['id', 'userId', 'targetLanguageId']
 				)
-				.returning();
+			})
+			.returning();
 
-			return updated;
-		} else {
-			// Create new
-			return await this.createPreferences(preferences);
-		}
+		return result;
 	}
 
 	/**
@@ -119,10 +120,15 @@ export class UserPreferencesRepository {
 	): Promise<UserPreferences | null> {
 		const [updated] = await db
 			.update(userPreferences)
-			.set({
-				...updates,
-				updatedAt: new Date()
-			})
+			.set(
+				cleanUpdate(
+					{
+						...updates,
+						updatedAt: new Date()
+					},
+					['id', 'userId', 'targetLanguageId']
+				)
+			)
 			.where(
 				and(
 					eq(userPreferences.userId, userId),

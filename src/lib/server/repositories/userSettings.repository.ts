@@ -3,6 +3,12 @@ import { db } from '$lib/server/db/index';
 import { userSettings } from '$lib/server/db/schema';
 import type { NewUserSettings, UserSettings } from '$lib/server/db/types';
 
+function cleanUpdate<T extends Record<string, unknown>>(data: T, omit: (keyof T)[] = []) {
+	return Object.fromEntries(
+		Object.entries(data).filter(([key, value]) => !omit.includes(key as keyof T) && value !== undefined)
+	) as Partial<T>;
+}
+
 export class UserSettingsRepository {
 	/**
 	 * Create user settings
@@ -34,10 +40,15 @@ export class UserSettingsRepository {
 	): Promise<UserSettings | null> {
 		const [updated] = await db
 			.update(userSettings)
-			.set({
-				...updates,
-				updatedAt: new Date()
-			})
+			.set(
+				cleanUpdate(
+					{
+						...updates,
+						updatedAt: new Date()
+					},
+					['userId']
+				)
+			)
 			.where(eq(userSettings.userId, userId))
 			.returning();
 
@@ -48,32 +59,22 @@ export class UserSettingsRepository {
 	 * Upsert user settings (create if doesn't exist, update if it does)
 	 */
 	async upsertSettings(settings: NewUserSettings): Promise<UserSettings> {
-		const existing = await this.getSettingsByUserId(settings.userId);
+		const [result] = await db
+			.insert(userSettings)
+			.values(settings)
+			.onConflictDoUpdate({
+				target: userSettings.userId,
+				set: cleanUpdate(
+					{
+						...settings,
+						updatedAt: new Date()
+					},
+					['userId']
+				)
+			})
+			.returning();
 
-		if (existing) {
-			// Update existing
-			const [updated] = await db
-				.update(userSettings)
-				.set({
-					...settings,
-					updatedAt: new Date()
-				})
-				.where(eq(userSettings.userId, settings.userId))
-				.returning();
-
-			return updated;
-		} else {
-			// Create new with defaults
-			const defaultSettings: NewUserSettings = {
-				receiveMarketingEmails: true,
-				receiveDailyReminderEmails: true,
-				dailyReminderSentCount: 0,
-				theme: 'system',
-				notificationsEnabled: true,
-				...settings
-			};
-			return await this.createSettings(defaultSettings);
-		}
+		return result;
 	}
 
 	/**

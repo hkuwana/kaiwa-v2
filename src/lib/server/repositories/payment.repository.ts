@@ -5,10 +5,34 @@ import { payments } from '$lib/server/db/schema';
 import type { NewPayment, Payment } from '$lib/server/db/types';
 import { eq, and, desc, gte, lte } from 'drizzle-orm';
 
+function buildConflictUpdate(newPayment: NewPayment) {
+	return {
+		status: newPayment.status,
+		amount: newPayment.amount,
+		currency: newPayment.currency,
+		subscriptionId: newPayment.subscriptionId ?? null,
+		userId: newPayment.userId
+	};
+}
+
 export const paymentRepository = {
 	// CREATE
 	async createPayment(newPayment: NewPayment): Promise<Payment> {
-		const [createdPayment] = await db.insert(payments).values(newPayment).returning();
+		let query = db.insert(payments).values(newPayment);
+
+		if (newPayment.stripePaymentIntentId) {
+			query = query.onConflictDoUpdate({
+				target: payments.stripePaymentIntentId,
+				set: buildConflictUpdate(newPayment)
+			});
+		} else if (newPayment.stripeInvoiceId) {
+			query = query.onConflictDoUpdate({
+				target: payments.stripeInvoiceId,
+				set: buildConflictUpdate(newPayment)
+			});
+		}
+
+		const [createdPayment] = await query.returning();
 
 		return createdPayment;
 	},

@@ -3,6 +3,12 @@ import { db } from '$lib/server/db/index';
 import { userUsage } from '$lib/server/db/schema';
 import type { NewUserUsage, UserUsage } from '$lib/server/db/types';
 
+function cleanUpdate<T extends Record<string, unknown>>(data: T, omit: (keyof T)[] = []) {
+	return Object.fromEntries(
+		Object.entries(data).filter(([key, value]) => !omit.includes(key as keyof T) && value !== undefined)
+	) as Partial<T>;
+}
+
 export class UserUsageRepository {
 	/**
 	 * Get current month usage for a user
@@ -55,34 +61,30 @@ export class UserUsageRepository {
 	): Promise<UserUsage> {
 		const currentPeriod = this.getCurrentPeriod();
 
-		// Try to get existing record
-		const existing = await this.getCurrentMonthUsage(userId);
+		const insertPayload = {
+			userId,
+			period: currentPeriod,
+			...(cleanUpdate(updates as Record<string, unknown>) as Partial<NewUserUsage>)
+		};
 
-		if (existing) {
-			// Update existing record
-			const [updated] = await db
-				.update(userUsage)
-				.set({
-					...updates,
-					updatedAt: new Date()
-				})
-				.where(and(eq(userUsage.userId, userId), eq(userUsage.period, currentPeriod)))
-				.returning();
+		const updatePayload = cleanUpdate(
+			{
+				...updates,
+				updatedAt: new Date()
+			} as Record<string, unknown>,
+			['userId', 'period']
+		) as Partial<NewUserUsage>;
 
-			return updated;
-		} else {
-			// Create new record
-			const [created] = await db
-				.insert(userUsage)
-				.values({
-					userId,
-					period: currentPeriod,
-					...updates
-				})
-				.returning();
+		const [result] = await db
+			.insert(userUsage)
+			.values(insertPayload)
+			.onConflictDoUpdate({
+				target: [userUsage.userId, userUsage.period],
+				set: updatePayload
+			})
+			.returning();
 
-			return created;
-		}
+		return result;
 	}
 
 	/**
