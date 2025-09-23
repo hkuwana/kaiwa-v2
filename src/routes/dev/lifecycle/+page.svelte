@@ -6,7 +6,7 @@
 	// State for testing different scenarios
 	let completedSteps = $state<string[]>([]);
 	let showRetentionHints = $state(true);
-	let selectedVariant = $state<'minimal' | 'detailed' | 'floating'>('detailed');
+	let selectedVariant = $state<'mobile' | 'desktop' | 'compact'>('desktop');
 
 	// Test scenarios
 	const testScenarios = [
@@ -137,7 +137,7 @@
 			<div class="card-body">
 				<h3 class="card-title text-lg">🎨 Variants</h3>
 				<div class="space-y-2">
-					{#each ['detailed', 'minimal', 'floating'] as variant}
+					{#each ['desktop', 'mobile', 'compact'] as variant}
 						<label class="label cursor-pointer justify-start">
 							<input
 								type="radio"
@@ -146,7 +146,12 @@
 								value={variant}
 								bind:group={selectedVariant}
 							/>
-							<span class="label-text capitalize">{variant}</span>
+							<div class="flex flex-col">
+								<span class="label-text capitalize">{variant}</span>
+								{#if variant === 'compact'}
+									<span class="text-xs text-base-content/60">Auto-adapts to route</span>
+								{/if}
+							</div>
 						</label>
 					{/each}
 				</div>
@@ -168,25 +173,25 @@
 	<!-- Component Preview -->
 	<div class="space-y-8">
 		<!-- Detailed Preview -->
-		{#if selectedVariant === 'detailed'}
+		{#if selectedVariant === 'desktop'}
 			<section>
 				<h2 class="mb-4 text-2xl font-bold">📋 Detailed View</h2>
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body">
-						<OnboardingLifecycle {completedSteps} {showRetentionHints} variant="detailed" />
+						<OnboardingLifecycle variant="desktop" />
 					</div>
 				</div>
 			</section>
 		{/if}
 
 		<!-- Minimal Preview -->
-		{#if selectedVariant === 'minimal'}
+		{#if selectedVariant === 'mobile'}
 			<section>
 				<h2 class="mb-4 text-2xl font-bold">📊 Minimal View</h2>
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body">
 						<div class="mx-auto max-w-md">
-							<OnboardingLifecycle {completedSteps} {showRetentionHints} variant="minimal" />
+							<OnboardingLifecycle variant="mobile" />
 						</div>
 					</div>
 				</div>
@@ -194,9 +199,9 @@
 		{/if}
 
 		<!-- Floating Preview -->
-		{#if selectedVariant === 'floating'}
+		{#if selectedVariant === 'compact'}
 			<section>
-				<h2 class="mb-4 text-2xl font-bold">🎈 Floating Widget</h2>
+				<h2 class="mb-4 text-2xl font-bold">📦 Compact Layout</h2>
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body">
 						<div class="alert alert-info">
@@ -208,10 +213,10 @@
 								></path>
 							</svg>
 							<div>
-								<h4 class="font-semibold">Floating Widget Active</h4>
+								<h4 class="font-semibold">Compact Layout Active</h4>
 								<p class="text-sm">
-									The floating widget appears in the bottom-right corner of the page. Scroll down to
-									see it in action!
+									The compact layout shows just symbols and minimal text. Perfect for header
+									navigation or limited space.
 								</p>
 							</div>
 						</div>
@@ -246,11 +251,18 @@
   import OnboardingLifecycle from '$lib/components/OnboardingLifecycle.svelte';
 &lt;/script&gt;
 
+&lt;!-- Smart variant (recommended) --&gt;
 &lt;OnboardingLifecycle
-  currentPath="/conversation/abc123"
   completedSteps={['setup']}
   showRetentionHints={true}
-  variant="detailed"
+  variant="smart"
+/&gt;
+
+&lt;!-- Manual control --&gt;
+&lt;OnboardingLifecycle
+  completedSteps={['setup']}
+  variant="floating"
+  hideOnRoutes={['/conversation']}
 /&gt;</code
 								></pre>
 						</div>
@@ -262,18 +274,19 @@
 						<h3 class="card-title">🎯 Integration Ideas</h3>
 						<div class="space-y-3 text-sm">
 							<div>
-								<strong>Home Page:</strong> Show minimal variant at top of page to set expectations
+								<strong>Smart Variant:</strong> ✨ Auto-adapts to routes (recommended for production)
 							</div>
 							<div>
-								<strong>Conversation Page:</strong> Use floating widget to remind users about upcoming
-								analysis
+								<strong>Home Page:</strong> Minimal variant to set expectations without overwhelming
 							</div>
 							<div>
-								<strong>Layout Component:</strong> Add route detection to automatically show/hide based
-								on user state
+								<strong>Analysis Pages:</strong> Floating widget for contextual encouragement
 							</div>
 							<div>
-								<strong>Onboarding Flow:</strong> Use detailed variant as a standalone progress page
+								<strong>Conversations:</strong> Hidden completely to avoid distractions
+							</div>
+							<div>
+								<strong>Mobile Optimized:</strong> Responsive sizing and positioning
 							</div>
 						</div>
 					</div>
@@ -328,6 +341,4 @@
 </div>
 
 <!-- Render floating widget when selected -->
-{#if selectedVariant === 'floating'}
-	<OnboardingLifecycle {completedSteps} {showRetentionHints} variant="floating" />
-{/if}
+<!-- Removed floating widget demo -->
