@@ -6,6 +6,10 @@
 // ! Need to ensure that when the conversation is ended, the onboarding for userPreferences runs
 
 import { browser } from '$app/environment';
+
+// Environment-based logging
+const isDev = browser && typeof window !== 'undefined' && window.location.hostname === 'localhost';
+const log = (...args: unknown[]) => isDev && console.log(...args);
 import { realtimeService } from '$lib/services';
 import { realtimeOpenAI } from '$lib/stores/realtime-openai.store.svelte';
 import { audioStore } from '$lib/stores/audio.store.svelte';
@@ -83,7 +87,7 @@ export class ConversationStore {
 	private nativeSwitchAnnounced: boolean = false;
 
 	constructor(userTier: UserTier = 'free') {
-		console.log('🏗️ ConversationStore constructor:', {
+		log('🏗️ ConversationStore constructor:', {
 			browser,
 			isBrowser: typeof window !== 'undefined',
 			userAgent: typeof window !== 'undefined' ? window.navigator?.userAgent : 'SSR',
@@ -92,13 +96,13 @@ export class ConversationStore {
 
 		// Only initialize services in browser
 		if (!browser) {
-			console.log('ConversationStore: SSR mode, skipping service initialization');
+			log('ConversationStore: SSR mode, skipping service initialization');
 			// Create a dummy timer store for SSR
 			return;
 		}
 
 		// Browser initialization
-		console.log('🚀 ConversationStore: Browser mode, initializing services');
+		log('🚀 ConversationStore: Browser mode, initializing services');
 		this.timer = createConversationTimerStore(userTier);
 		this.initializeServices();
 		this.initializeUserPreferences();
@@ -856,7 +860,7 @@ export class ConversationStore {
 		this.resetState();
 		this.timer.reset();
 		this.currentOptions = null;
-		console.log('Conversation store reset');
+		log('Conversation store reset');
 	};
 
 	forceCleanup = () => {

@@ -55,7 +55,6 @@ export const load = async ({ data, url }) => {
 	} else {
 		// Reset userManager to guest state
 		userManager.reset();
-		console.log('👤 Layout: UserManager reset to guest state');
 	}
 
 	return {

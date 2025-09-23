@@ -139,8 +139,7 @@
 				<span>{textParts.prefix}</span>
 				<div class="dropdown dropdown-end">
 					<button
-						tabindex="0"
-						role="button"
+						type="button"
 						class="btn m-1 inline-flex items-center gap-1 rounded-md border-b-2 border-primary/40 bg-primary/10 px-2 py-1 transition-all duration-200 btn-sm hover:border-primary/60 hover:bg-primary/20"
 						class:scale-110={isAnimating}
 					>
@@ -165,8 +164,8 @@
 						</svg>
 					</button>
 					<div
-						tabindex="0"
 						class="dropdown-content z-30 mt-2 max-h-80 w-80 overflow-y-auto rounded-xl border border-base-300 bg-base-100 p-4 shadow-xl"
+						tabindex="-1"
 					>
 						<div class="mb-3 flex items-center gap-2 text-sm font-semibold text-base-content">
 							<span>🌍</span>

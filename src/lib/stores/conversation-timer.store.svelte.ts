@@ -136,15 +136,6 @@ export class ConversationTimerStore {
 		this._state.maxExtensions = this.maxExtensions;
 		this._state.timer.timeRemaining = this.timeoutMs;
 		this._state.timer.canExtend = this.extendable;
-
-		console.log(`⏰ Timer configured for ${tier}:`, {
-			timeout: this.timeoutMs,
-			warning: this.warningThresholdMs,
-			extendable: this.extendable,
-			maxExtensions: this.maxExtensions,
-			monthlySeconds,
-			maxSessionLengthSeconds
-		});
 	}
 
 	// Start the timer
@@ -214,8 +205,6 @@ export class ConversationTimerStore {
 
 	// Reset the timer
 	reset(): void {
-		console.log('⏰ Resetting timer');
-
 		this._stopUpdateLoop();
 		this._resetInternalState();
 		this._resetState();

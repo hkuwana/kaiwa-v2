@@ -94,9 +94,9 @@
 
 				<!-- Path Info -->
 				<div class="form-control">
-					<label class="label">
+					<div class="label">
 						<span class="label-text">Current Path (Auto-detected)</span>
-					</label>
+					</div>
 					<div class="rounded bg-base-200 p-2 text-sm">
 						Uses: <code>$page.url.pathname</code>
 					</div>

@@ -12,6 +12,14 @@ export default defineConfig({
 			outdir: './src/lib/paraglide'
 		})
 	],
+	build: {
+		reportCompressedSize: false,
+		chunkSizeWarningLimit: 1000,
+		minify: 'esbuild'
+	},
+	esbuild: {
+		logLevel: 'error'
+	},
 	test: {
 		expect: { requireAssertions: true },
 		projects: [

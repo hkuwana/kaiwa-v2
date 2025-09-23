@@ -359,29 +359,49 @@
 			</div>
 		</div>
 
-		<div class="tabs-lifted tabs">
-			<a
+		<div class="tabs-lifted tabs" role="tablist" aria-label="Roadmap view selection">
+			<button
+				type="button"
 				class={`tab ${activeView === 'month' ? 'tab-active' : ''}`}
+				role="tab"
+				aria-selected={activeView === 'month'}
+				id="roadmap-month-tab"
 				onclick={() => (activeView = 'month')}
+				aria-controls="roadmap-month-panel"
 			>
 				Monthly
-			</a>
-			<a
+			</button>
+			<button
+				type="button"
 				class={`tab ${activeView === 'week' ? 'tab-active' : ''}`}
+				role="tab"
+				aria-selected={activeView === 'week'}
+				id="roadmap-week-tab"
 				onclick={() => (activeView = 'week')}
+				aria-controls="roadmap-week-panel"
 			>
 				Weekly
-			</a>
-			<a
+			</button>
+			<button
+				type="button"
 				class={`tab ${activeView === 'day' ? 'tab-active' : ''}`}
+				role="tab"
+				aria-selected={activeView === 'day'}
+				id="roadmap-day-tab"
 				onclick={() => (activeView = 'day')}
+				aria-controls="roadmap-day-panel"
 			>
 				Daily
-			</a>
+			</button>
 		</div>
 
 		{#if activeView === 'month'}
-			<div class="space-y-4">
+			<div
+				class="space-y-4"
+				id="roadmap-month-panel"
+				role="tabpanel"
+				aria-labelledby="roadmap-month-tab"
+			>
 				{#each monthlyMilestones as item}
 					<div class="card bg-base-100 shadow">
 						<div class="card-body">
@@ -408,7 +428,12 @@
 				{/each}
 			</div>
 		{:else if activeView === 'week'}
-			<div class="grid gap-4 md:grid-cols-2">
+			<div
+				class="grid gap-4 md:grid-cols-2"
+				id="roadmap-week-panel"
+				role="tabpanel"
+				aria-labelledby="roadmap-week-tab"
+			>
 				{#each weeklySprint as item}
 					<div class="card bg-base-100 shadow">
 						<div class="card-body">
@@ -434,7 +459,13 @@
 					</div>
 				{/each}
 			</div>
-		{:else}
+	{:else}
+		<div
+			class="space-y-4"
+			id="roadmap-day-panel"
+			role="tabpanel"
+			aria-labelledby="roadmap-day-tab"
+		>
 			<div class="card bg-base-100 shadow">
 				<div class="card-body p-0">
 					<div class="overflow-x-auto">
@@ -472,7 +503,8 @@
 					</div>
 				</div>
 			</div>
-		{/if}
+		</div>
+	{/if}
 
 		<div class="alert alert-info">
 			<span>
