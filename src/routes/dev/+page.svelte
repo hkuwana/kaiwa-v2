@@ -1,6 +1,4 @@
 <script lang="ts">
-	import DevPanel from '$lib/components/DevPanel.svelte';
-
 	// Organized dev tools directory
 	const devTools = [
 		{
@@ -8,29 +6,29 @@
 			icon: '🧪',
 			tools: [
 				{
+					href: '/dev/analysis',
+					label: 'Analysis',
+					desc: 'Test conversation analysis and insights'
+				},
+				{
+					href: '/dev/analysis-test',
+					label: 'Analysis Test',
+					desc: 'Test analysis components'
+				},
+				{
 					href: '/dev/assessment-test',
 					label: 'Assessment Test',
 					desc: 'Test onboarding flow and results display'
 				},
 				{
-					href: '/dev/assessment-test/api-simulation',
-					label: 'API Simulation',
-					desc: 'Mock assessment API responses'
-				},
-				{
-					href: '/dev/analysis',
-					label: 'Analysis Pipeline',
-					desc: 'Test conversation analysis and insights'
+					href: '/dev/usage',
+					label: 'Usage',
+					desc: 'Analytics and usage tracking debug tools'
 				},
 				{
 					href: '/dev/usage-test',
 					label: 'Usage Test',
 					desc: 'Timer functionality and session management'
-				},
-				{
-					href: '/dev/usage',
-					label: 'Usage Debug',
-					desc: 'Analytics and usage tracking debug tools'
 				}
 			]
 		},
@@ -52,16 +50,6 @@
 					href: '/dev/conversation',
 					label: 'Conversations',
 					desc: 'View and manage conversation history'
-				},
-				{
-					href: '/dev/messages',
-					label: 'Messages',
-					desc: 'Test message components and script generation'
-				},
-				{
-					href: '/analysis?sessionId=test-session-123',
-					label: 'Analysis Route',
-					desc: 'Test analysis route for ended conversations'
 				}
 			]
 		},
@@ -70,19 +58,24 @@
 			icon: '🎨',
 			tools: [
 				{
+					href: '/dev/animated',
+					label: 'Animated',
+					desc: 'Test animations'
+				},
+				{
+					href: '/dev/animation',
+					label: 'Animation',
+					desc: 'Test various animations'
+				},
+				{
 					href: '/dev/audiovisualizer',
 					label: 'Audio Visualizer',
 					desc: 'Test audio visualization components'
 				},
 				{
-					href: '/dev/animation',
-					label: 'Animation Test',
-					desc: 'Test Tailwind animations and transitions'
-				},
-				{
-					href: '/dev/animated',
-					label: 'AI Art Generation',
-					desc: 'Generate Studio Ghibli-style character art'
+					href: '/dev/modals',
+					label: 'Modals',
+					desc: 'Test modal components'
 				}
 			]
 		},
@@ -100,24 +93,17 @@
 					label: 'Japanese Scripts',
 					desc: 'Test script generation for Japanese learning'
 				},
-				{ href: '/dev/tutorial', label: 'Tutorial', desc: 'Test user onboarding tutorial flow' }
+				{
+					href: '/dev/messages',
+					label: 'Messages',
+					desc: 'Test message components'
+				}
 			]
 		},
 		{
 			category: 'Business & Marketing',
 			icon: '💼',
 			tools: [
-				{
-					href: '/dev/payment',
-					label: 'Payment',
-					desc: 'Test Stripe integration and subscription flows'
-				},
-				{
-					href: '/dev/marketing',
-					label: 'Marketing',
-					desc: 'Marketing components and landing page elements'
-				},
-				{ href: '/dev/seo', label: 'SEO', desc: 'SEO strategy testing and optimization tools' },
 				{
 					href: '/dev/competition',
 					label: 'Competition',
@@ -127,6 +113,52 @@
 					href: '/dev/competitor',
 					label: 'Competitor',
 					desc: 'Interactive competitor research quiz'
+				},
+				{
+					href: '/dev/marketing',
+					label: 'Marketing',
+					desc: 'Marketing components and landing page elements'
+				},
+				{
+					href: '/dev/payment',
+					label: 'Payment',
+					desc: 'Test Stripe integration and subscription flows'
+				},
+				{
+					href: '/dev/pricing-modal',
+					label: 'Pricing Modal',
+					desc: 'Test pricing modal component'
+				},
+				{
+					href: '/dev/seo',
+					label: 'SEO',
+					desc: 'SEO strategy testing and optimization tools'
+				},
+				{
+					href: '/dev/tiers',
+					label: 'Tiers',
+					desc: 'Test pricing tiers component'
+				}
+			]
+		},
+		{
+			category: 'Other',
+			icon: '📦',
+			tools: [
+				{
+					href: '/dev/cultural-dna',
+					label: 'Cultural DNA',
+					desc: 'Test cultural DNA components'
+				},
+				{
+					href: '/dev/fab',
+					label: 'Fab',
+					desc: 'Test floating action button'
+				},
+				{
+					href: '/dev/lifecycle',
+					label: 'Lifecycle',
+					desc: 'Test lifecycle components'
 				}
 			]
 		}
@@ -145,47 +177,6 @@
 			<p class="text-lg text-base-content/70">
 				Comprehensive development and testing tools for Kaiwa
 			</p>
-		</div>
-
-		<!-- Quick Access Cards -->
-		<div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-			<div class="card border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5">
-				<div class="card-body">
-					<h3 class="card-title text-primary">🚀 Quick Start</h3>
-					<p class="mb-3 text-sm text-base-content/70">Jump into core functionality testing</p>
-					<div class="flex flex-wrap gap-2">
-						<a href="/dev/assessment-test" class="btn btn-xs btn-primary">Assessment</a>
-						<a href="/dev/realtime" class="btn btn-xs btn-primary">Realtime</a>
-						<a href="/dev/payment" class="btn btn-xs btn-primary">Payment</a>
-					</div>
-				</div>
-			</div>
-
-			<div
-				class="card border border-secondary/20 bg-gradient-to-br from-secondary/10 to-secondary/5"
-			>
-				<div class="card-body">
-					<h3 class="card-title text-secondary">🎨 Creative Tools</h3>
-					<p class="mb-3 text-sm text-base-content/70">UI, animation, and content generation</p>
-					<div class="flex flex-wrap gap-2">
-						<a href="/dev/animated" class="btn btn-xs btn-secondary">AI Art</a>
-						<a href="/dev/animation" class="btn btn-xs btn-secondary">Animation</a>
-						<a href="/dev/marketing" class="btn btn-xs btn-secondary">Marketing</a>
-					</div>
-				</div>
-			</div>
-
-			<div class="card border border-accent/20 bg-gradient-to-br from-accent/10 to-accent/5">
-				<div class="card-body">
-					<h3 class="card-title text-accent">🔍 Debug & Analysis</h3>
-					<p class="mb-3 text-sm text-base-content/70">Debugging and analysis tools</p>
-					<div class="flex flex-wrap gap-2">
-						<a href="/dev/realtime-debug" class="btn btn-xs btn-accent">Debug</a>
-						<a href="/dev/analysis" class="btn btn-xs btn-accent">Analysis</a>
-						<a href="/dev/usage" class="btn btn-xs btn-accent">Usage</a>
-					</div>
-				</div>
-			</div>
 		</div>
 
 		<!-- Organized Tool Categories -->
@@ -215,20 +206,6 @@
 					</div>
 				</div>
 			{/each}
-		</div>
-
-		<!-- Dev Panel -->
-		<div class="mt-12">
-			<h2 class="mb-4 text-2xl font-bold">🎛️ Dev Panel</h2>
-			<DevPanel
-				status="dev"
-				messagesCount={0}
-				audioLevel={0}
-				isGuestUser={true}
-				hasAnalysisResults={false}
-				isAnalyzing={false}
-				timeInSeconds={0}
-			/>
 		</div>
 	</div>
 </div>
