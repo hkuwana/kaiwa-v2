@@ -19,10 +19,14 @@ export const subscriptionRepository = {
 
 	async findSubscriptionByUserId(userId: string): Promise<Subscription | null> {
 		try {
-			const subscription = await db.query.subscriptions.findFirst({
-				where: eq(subscriptions.userId, userId)
-			});
-			return subscription || null;
+			const subscriptionList = await db
+				.select()
+				.from(subscriptions)
+				.where(eq(subscriptions.userId, userId))
+				.orderBy(desc(subscriptions.updatedAt))
+				.limit(1);
+
+			return subscriptionList[0] || null;
 		} catch (error) {
 			console.error('Error fetching subscription from DB:', error);
 			return null;
@@ -82,32 +86,23 @@ export const subscriptionRepository = {
 		currentTier: UserTier
 	) {
 		try {
-			// Check if subscription exists
-			const existing = await db.query.subscriptions.findFirst({
-				where: eq(subscriptions.userId, userId)
-			});
-
-			if (existing) {
-				// Update existing
-				await db
-					.update(subscriptions)
-					.set({
-						stripeSubscriptionId,
-						stripePriceId,
-						currentTier,
-						updatedAt: new Date()
-					})
-					.where(eq(subscriptions.userId, userId));
-			} else {
-				// Create new
-				await db.insert(subscriptions).values({
+			await db
+				.insert(subscriptions)
+				.values({
 					userId,
 					stripeSubscriptionId,
 					stripePriceId,
 					currentTier
+				})
+				.onConflictDoUpdate({
+					target: subscriptions.stripeSubscriptionId,
+					set: {
+						userId,
+						stripePriceId,
+						currentTier,
+						updatedAt: new Date()
+					}
 				});
-			}
-
 			return true;
 		} catch (error) {
 			console.error('Error updating subscription in DB:', error);
