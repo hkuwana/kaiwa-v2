@@ -1,7 +1,6 @@
 <!-- src/lib/components/AnimatedHeadphones.svelte -->
 <script lang="ts">
-	
-interface Props {
+	interface Props {
 		animation?: 'pulse' | 'bounce' | 'ping' | 'spin' | 'wiggle';
 		size?: 'sm' | 'md' | 'lg' | 'xl';
 		showTooltip?: boolean;
@@ -48,7 +47,7 @@ interface Props {
 			class:animate-spin={animation === 'spin'}
 			class:animate-wiggle={animation === 'wiggle'}
 		>
-			🎧
+			<span class="icon-[mdi--headset]"></span>
 		</div>
 	</div>
 </div>

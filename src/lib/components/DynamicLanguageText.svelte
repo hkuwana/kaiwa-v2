@@ -135,84 +135,77 @@
 	{:else}
 		<!-- Interactive version with dropdown -->
 		<div class="group text-left transition-all duration-300 focus:outline-none">
-			<div class="transition-all duration-300">
+			<div class="inline-flex items-center transition-all duration-300">
 				<span>{textParts.prefix}</span>
-				<button
-					class="relative inline-flex items-center gap-1 rounded-md border-b-2 border-primary/40 bg-primary/10 px-2 py-1 transition-all duration-200 hover:border-primary/60 hover:bg-primary/20"
-					class:scale-110={isAnimating}
-					class:bg-primary={showDropdown}
-					class:border-primary={showDropdown}
-					onclick={toggleDropdown}
-				>
-					<span
-						class="inline-block font-semibold text-primary transition-transform duration-300 [transform-style:preserve-3d]"
-						class:animate-flip={isAnimating}
+				<div class="dropdown dropdown-end">
+					<button
+						tabindex="0"
+						role="button"
+						class="btn m-1 inline-flex items-center gap-1 rounded-md border-b-2 border-primary/40 bg-primary/10 px-2 py-1 transition-all duration-200 btn-sm hover:border-primary/60 hover:bg-primary/20"
+						class:scale-110={isAnimating}
 					>
-						{textParts.languageName}
-					</span>
-					<svg
-						class="h-3 w-3 text-primary/70 transition-transform duration-200"
-						class:rotate-180={showDropdown}
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
+						<span
+							class="inline-block font-semibold text-primary transition-transform duration-300 [transform-style:preserve-3d]"
+							class:animate-flip={isAnimating}
+						>
+							{textParts.languageName}
+						</span>
+						<svg
+							class="h-3 w-3 text-primary/70 transition-transform duration-200 group-focus-within:rotate-180"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="m19 9-7 7-7-7"
+							></path>
+						</svg>
+					</button>
+					<div
+						tabindex="0"
+						class="dropdown-content z-30 mt-2 max-h-80 w-80 overflow-y-auto rounded-xl border border-base-300 bg-base-100 p-4 shadow-xl"
 					>
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"
-						></path>
-					</svg>
-				</button>
+						<div class="mb-3 flex items-center gap-2 text-sm font-semibold text-base-content">
+							<span>🌍</span>
+							Choose your language:
+						</div>
+
+						<ul class="menu -mx-4 mt-2 -mb-4 gap-1">
+							{#each languages.filter((lang) => lang.id !== 'en') as language (language.id)}
+								<li>
+									<button
+										class="flex items-center gap-3 rounded-lg p-3 text-left transition-all duration-200 hover:bg-primary/10"
+										onclick={() => handleLanguageClick(language)}
+									>
+										<span class="text-lg">{language.flag}</span>
+										<div class="flex-1">
+											<div class="font-medium">{language.name}</div>
+											<div class="text-xs opacity-70 transition-opacity group-hover:opacity-90">
+												{textParts.prefix}{language.name}{textParts.suffix}
+											</div>
+										</div>
+									</button>
+								</li>
+							{/each}
+						</ul>
+
+						{#if isUserSelected}
+							<div class="divider my-2"></div>
+							<button
+								class="btn w-full text-base-content/70 btn-ghost transition-colors duration-200 btn-sm hover:text-primary"
+								onclick={resetToAnimation}
+							>
+								↻ Reset to auto-cycle
+							</button>
+						{/if}
+					</div>
+				</div>
 				<span>{textParts.suffix}</span>
 			</div>
-
-			<!-- Subtle interaction hint -->
-			<div class="mt-1 text-xs opacity-60 transition-opacity duration-200 group-hover:opacity-80">
-				{#if isUserSelected}
-					✨ {currentLanguage.flag} Selected • Click to change
-				{:else}
-					🎯 Click to choose your language
-				{/if}
-			</div>
 		</div>
-
-		<!-- Language dropdown -->
-		{#if showDropdown}
-			<div
-				class="absolute top-full left-0 z-20 mt-3 max-h-80 w-80 overflow-y-auto rounded-xl border border-base-300 bg-base-100 shadow-xl"
-			>
-				<div class="p-4">
-					<div class="mb-3 flex items-center gap-2 text-sm font-semibold text-base-content">
-						<span>🌍</span>
-						Choose your language:
-					</div>
-
-					<div class="grid grid-cols-1 gap-1">
-						{#each languages.filter((lang) => lang.id !== 'en') as language (language.id)}
-							<button
-								class="group flex items-center gap-3 rounded-lg p-3 text-left transition-all duration-200 hover:bg-primary/10"
-								onclick={() => handleLanguageClick(language)}
-							>
-								<span class="text-lg">{language.flag}</span>
-								<div class="flex-1">
-									<div class="font-medium">{language.name}</div>
-									<div class="text-xs opacity-70 transition-opacity group-hover:opacity-90">
-										{textParts.prefix}{language.name}{textParts.suffix}
-									</div>
-								</div>
-							</button>
-						{/each}
-					</div>
-
-					{#if isUserSelected}
-						<button
-							class="mt-3 w-full border-t border-base-300 p-2 text-sm text-base-content/70 transition-colors duration-200 hover:text-primary"
-							onclick={resetToAnimation}
-						>
-							↻ Reset to auto-cycle
-						</button>
-					{/if}
-				</div>
-			</div>
-		{/if}
 	{/if}
 </div>
 

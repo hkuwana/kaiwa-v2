@@ -416,11 +416,9 @@
 
 				<!-- Translation hint -->
 				<div class="mt-2 flex-shrink-0 text-center">
-					<p
-						class="inline-block rounded-full bg-black/20 px-3 py-1 text-xs text-white/70 backdrop-blur-sm"
-					>
+					<div class="badge badge-ghost badge-lg backdrop-blur-sm">
 						💬 Click any message to show English translation and romanization
-					</p>
+					</div>
 				</div>
 			</div>
 		</div>

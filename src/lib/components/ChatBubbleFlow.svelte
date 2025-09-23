@@ -209,7 +209,7 @@
 
 	<div class="animate-bounce-slow absolute top-1/2 right-8" style="animation-delay: 2s;">
 		<div class="badge gap-2 badge-outline badge-lg backdrop-blur-sm badge-accent">
-			🌍 Multiple languages
+			<span class="icon-[mdi--earth]"></span> Multiple languages
 		</div>
 	</div>
 </div>
