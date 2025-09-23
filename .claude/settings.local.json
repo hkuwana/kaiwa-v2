@@ -40,7 +40,8 @@
 			"WebFetch(domain:iconify.design)",
 			"WebFetch(domain:icon-sets.iconify.design)",
 			"Bash(tree:*)",
-			"WebFetch(domain:openai.com)"
+			"WebFetch(domain:openai.com)",
+			"WebFetch(domain:docs.stripe.com)"
 		],
 		"deny": [],
 		"ask": []

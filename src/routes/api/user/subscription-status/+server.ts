@@ -14,15 +14,14 @@ export const GET = async ({ locals, url }) => {
 	const detailed = url.searchParams.get('detailed') === 'true';
 
 	try {
-		// Get current subscription
+		// Get current subscription and tier (now Stripe-dependent)
 		const subscription = await subscriptionService.getOrCreateUserSubscription(userId);
-		const tier = await subscriptionService.getUserTier(userId);
+		const effectiveTier = await subscriptionService.getUserTier(userId); // This now checks Stripe
 		const limits = await subscriptionService.getUsageLimits(userId);
 
 		const basicInfo = {
-			tier,
 			hasActiveSubscription: !!subscription,
-			currentTier: subscription.currentTier,
+			currentTier: effectiveTier, // Use Stripe-verified tier
 			limits
 		};
 
@@ -30,7 +29,8 @@ export const GET = async ({ locals, url }) => {
 			return json(basicInfo);
 		}
 
-		// Detailed info for debugging
+		// Detailed info for debugging - includes Stripe data
+		const detailedData = await subscriptionService.getDetailedSubscriptionData(userId);
 		const allSubscriptions = await subscriptionRepository.findSubscriptionsByUserId(userId);
 		const featureAccess = {
 			realtime: await subscriptionService.hasFeatureAccess(userId, 'realtime_access'),
@@ -42,14 +42,9 @@ export const GET = async ({ locals, url }) => {
 
 		return json({
 			...basicInfo,
-			subscription: {
-				id: subscription.id,
-				stripeSubscriptionId: subscription.stripeSubscriptionId,
-				stripePriceId: subscription.stripePriceId,
-				currentTier: subscription.currentTier,
-				createdAt: subscription.createdAt,
-				updatedAt: subscription.updatedAt
-			},
+			subscription: detailedData.local,
+			stripe: detailedData.stripe,
+			syncCheck: detailedData.syncCheck,
 			allSubscriptions: allSubscriptions.map((sub) => ({
 				id: sub.id,
 				currentTier: sub.currentTier,
@@ -60,7 +55,9 @@ export const GET = async ({ locals, url }) => {
 			debug: {
 				userId,
 				subscriptionCount: allSubscriptions.length,
-				activeSubscriptions: allSubscriptions.length // All subscriptions are considered active in simplified schema
+				effectiveTier,
+				isFromStripe: detailedData.effective.isFromStripe,
+				tierSource: detailedData.effective.isFromStripe ? 'stripe' : 'database'
 			}
 		});
 	} catch (err) {

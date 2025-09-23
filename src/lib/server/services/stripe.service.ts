@@ -4,7 +4,7 @@
 import Stripe from 'stripe';
 import { env } from '$env/dynamic/private';
 import { paymentRepository, userRepository, subscriptionRepository } from '../repositories';
-import type { Subscription as DbSubscription } from '../db/types';
+import type { Subscription as DbSubscription, UserTier } from '../db/types';
 // Note: Using simplified payment.service.ts instead of subscription repository
 import { getAllStripePriceIds, getStripePriceId } from '../tiers';
 import { SvelteDate } from 'svelte/reactivity';
@@ -230,6 +230,13 @@ export class StripeService {
 		return 'plus';
 	}
 
+	private normalizeTier(tierId: string | null | undefined): UserTier {
+		if (tierId === 'plus' || tierId === 'premium') {
+			return tierId;
+		}
+		return 'free';
+	}
+
 	/**
 	 * Handles the 'checkout.session.completed' webhook event.
 	 * It retrieves necessary data and delegates the subscription update logic
@@ -297,11 +304,12 @@ export class StripeService {
 			// Extract subscription data to determine tier
 			console.log('🎣 [CHECKOUT SUCCESS] Extracting subscription data...');
 			const subscriptionData = await this.extractSubscriptionData(subscription);
-			const tierId = subscriptionData.tierId;
+			const normalizedTier =
+				subscriptionData.tierId != null ? this.normalizeTier(subscriptionData.tierId) : null;
 
 			console.log('🎣 [CHECKOUT SUCCESS] Extracted subscription data:');
 			console.log('  - priceId:', subscriptionData.priceId);
-			console.log('  - tierId:', tierId);
+			console.log('  - tier:', normalizedTier ?? 'inherit');
 			console.log('  - currency:', subscriptionData.currency);
 
 			// Check if subscription already exists
@@ -311,6 +319,7 @@ export class StripeService {
 				await subscriptionRepository.findSubscriptionByStripeId(subscriptionId);
 
 			if (existingSubscription) {
+				const tier = normalizedTier ?? existingSubscription.currentTier;
 				console.log(
 					'🎣 [CHECKOUT SUCCESS] ⚠️ Subscription already exists:',
 					existingSubscription.id
@@ -320,7 +329,7 @@ export class StripeService {
 				// Update existing subscription
 				await subscriptionRepository.updateSubscription(existingSubscription.id, {
 					stripePriceId: subscriptionData.priceId,
-					currentTier: tierId || existingSubscription.currentTier,
+					currentTier: tier,
 					updatedAt: new SvelteDate()
 				});
 
@@ -329,13 +338,14 @@ export class StripeService {
 					existingSubscription.id
 				);
 			} else {
+				const tier = normalizedTier ?? 'free';
 				// Create subscription record using repository
 				console.log('🎣 [CHECKOUT SUCCESS] Creating new subscription record...');
 				const inserted = await subscriptionRepository.createSubscription({
 					userId,
 					stripeSubscriptionId: subscriptionId,
 					stripePriceId: subscriptionData.priceId,
-					currentTier: tierId || 'free'
+					currentTier: tier
 				});
 
 				console.log('🎣 [CHECKOUT SUCCESS] ✅ Created new subscription:', inserted.id);
@@ -356,8 +366,9 @@ export class StripeService {
 				);
 			}
 
+			const finalTier = normalizedTier ?? finalSubscription?.currentTier ?? 'free';
 			console.log(
-				`🎣 [CHECKOUT SUCCESS] ✅ Checkout success processed for user ${userId}, tier updated to: ${tierId}`
+				`🎣 [CHECKOUT SUCCESS] ✅ Checkout success processed for user ${userId}, tier updated to: ${finalTier}`
 			);
 		} catch (error) {
 			console.error('🎣 [CHECKOUT SUCCESS] ❌ Error processing checkout success:', error);
@@ -377,19 +388,22 @@ export class StripeService {
 
 		try {
 			const subscriptionData = await this.extractSubscriptionData(stripeSubscription);
+			const tier = this.normalizeTier(subscriptionData.tierId);
 
-			// Create subscription record using repository
-			await subscriptionRepository.createSubscription({
-				userId: userId,
-				stripeSubscriptionId: stripeSubscription.id,
-				stripePriceId: subscriptionData.priceId,
-				currentTier: subscriptionData.tierId || 'free'
-			});
+			const success = await subscriptionRepository.upsertSubscription(
+				userId,
+				stripeSubscription.id,
+				subscriptionData.priceId,
+				tier
+			);
 
-			// Update user tier
-			console.log(`User ${userId} tier updated to ${subscriptionData.tierId} via subscription`);
+			if (!success) {
+				console.error(`Failed to persist subscription ${stripeSubscription.id} for user ${userId}`);
+				return;
+			}
 
-			console.log(`✅ Subscription created for user ${userId}, tier: ${subscriptionData.tierId}`);
+			console.log(`User ${userId} tier updated to ${tier} via subscription`);
+			console.log(`✅ Subscription recorded for user ${userId}, tier: ${tier}`);
 		} catch (error) {
 			console.error('Error handling subscription creation:', error);
 			throw error;
@@ -411,25 +425,24 @@ export class StripeService {
 
 		try {
 			const subscriptionData = await this.extractSubscriptionData(stripeSubscription);
+			const tier = this.normalizeTier(subscriptionData.tierId);
 
 			// Update subscription using repository
 			await subscriptionRepository.updateSubscription(existingSubscription.id, {
 				stripePriceId: subscriptionData.priceId,
-				currentTier: subscriptionData.tierId || 'free'
+				currentTier: tier
 			});
 
 			// Update user tier if changed
-			if (subscriptionData.tierId) {
-				console.log(
-					`User ${existingSubscription.userId} tier updated to ${subscriptionData.tierId} via subscription`
-				);
+			if (tier !== existingSubscription.currentTier) {
+				console.log(`User ${existingSubscription.userId} tier updated to ${tier} via subscription`);
 			}
 
 			// Handle different subscription statuses
 			await this.handleSubscriptionStatusChange(
 				existingSubscription.userId,
 				stripeSubscription.status,
-				subscriptionData.tierId
+				tier
 			);
 
 			console.log(
@@ -447,7 +460,7 @@ export class StripeService {
 	private async handleSubscriptionStatusChange(
 		userId: string,
 		status: string,
-		tierId: string | null
+		tier: UserTier
 	): Promise<void> {
 		switch (status) {
 			case 'canceled':
@@ -462,14 +475,14 @@ export class StripeService {
 				break;
 			case 'trialing':
 				// Apply tier benefits during trial
-				if (tierId) {
-					console.log(`User ${userId} tier set to ${tierId} during trial`);
+				if (tier !== 'free') {
+					console.log(`User ${userId} tier set to ${tier} during trial`);
 				}
 				break;
 			case 'active':
 				// Ensure user has correct tier
-				if (tierId) {
-					console.log(`User ${userId} tier confirmed as ${tierId} for active subscription`);
+				if (tier !== 'free') {
+					console.log(`User ${userId} tier confirmed as ${tier} for active subscription`);
 				}
 				break;
 		}
@@ -629,13 +642,61 @@ export class StripeService {
 	}
 
 	/**
+	 * Create or get default portal configuration
+	 */
+	private async ensurePortalConfiguration(): Promise<string | undefined> {
+		try {
+			console.log('🔧 [PORTAL CONFIG] Checking for existing portal configurations...');
+
+			// First, try to list existing configurations
+			const configurations = await stripe.billingPortal.configurations.list({ limit: 10 });
+			console.log(`🔧 [PORTAL CONFIG] Found ${configurations.data.length} existing configurations`);
+
+			if (configurations.data.length > 0) {
+				const defaultConfig = configurations.data.find((config) => config.is_default);
+				if (defaultConfig) {
+					console.log(`🔧 [PORTAL CONFIG] Using existing default configuration: ${defaultConfig.id}`);
+					return defaultConfig.id;
+				}
+				// If no default, use the first one
+				console.log(`🔧 [PORTAL CONFIG] Using first available configuration: ${configurations.data[0].id}`);
+				return configurations.data[0].id;
+			}
+
+			// If no configurations exist, create a basic one
+			console.log('🔧 [PORTAL CONFIG] No configurations found, creating new one...');
+			const configuration = await stripe.billingPortal.configurations.create({
+				business_profile: {
+					headline: 'Manage your subscription'
+				},
+				features: {
+					subscription_cancel: {
+						enabled: true,
+						mode: 'at_period_end'
+					}
+				}
+			});
+
+			console.log(`🔧 [PORTAL CONFIG] ✅ Created new configuration: ${configuration.id}`);
+			return configuration.id;
+		} catch (error) {
+			console.error('🔧 [PORTAL CONFIG] ❌ Error ensuring portal configuration:', error);
+			// Instead of returning undefined, let's throw the error to see what's happening
+			throw error;
+		}
+	}
+
+	/**
 	 * Create customer portal session
 	 */
 	async createPortalSession(userId: string, returnUrl: string): Promise<string> {
+		console.log(`🏪 [PORTAL SESSION] Creating portal session for user: ${userId}`);
+
 		const subscription = await this.getUserSubscription(userId);
 		if (!subscription) {
 			throw new Error('No active subscription found');
 		}
+		console.log(`🏪 [PORTAL SESSION] Found subscription: ${subscription.id}`);
 
 		// Get customer ID from user
 		const user = await userRepository.findUserById(userId);
@@ -643,12 +704,35 @@ export class StripeService {
 			throw new Error('No customer ID found for user');
 		}
 		const customerId = user.stripeCustomerId;
+		console.log(`🏪 [PORTAL SESSION] Using customer ID: ${customerId}`);
 
-		const session = await stripe.billingPortal.sessions.create({
+		// Ensure portal configuration exists
+		console.log(`🏪 [PORTAL SESSION] Ensuring portal configuration...`);
+		const configurationId = await this.ensurePortalConfiguration();
+		console.log(`🏪 [PORTAL SESSION] Configuration ID: ${configurationId || 'none'}`);
+
+		const sessionParams: Stripe.BillingPortal.SessionCreateParams = {
 			customer: customerId,
 			return_url: returnUrl
+		};
+
+		// Only add configuration if we have one
+		if (configurationId) {
+			sessionParams.configuration = configurationId;
+			console.log(`🏪 [PORTAL SESSION] Added configuration to session params`);
+		} else {
+			console.log(`🏪 [PORTAL SESSION] No configuration - using Stripe default`);
+		}
+
+		console.log(`🏪 [PORTAL SESSION] Creating session with params:`, {
+			customer: customerId,
+			return_url: returnUrl,
+			configuration: configurationId || 'default'
 		});
 
+		const session = await stripe.billingPortal.sessions.create(sessionParams);
+
+		console.log(`🏪 [PORTAL SESSION] ✅ Session created successfully: ${session.id}`);
 		return session.url;
 	}
 
