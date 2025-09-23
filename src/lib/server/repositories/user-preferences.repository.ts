@@ -2,7 +2,7 @@ import { eq, and, desc } from 'drizzle-orm';
 import { db } from '$lib/server/db/index';
 import { userPreferences } from '$lib/server/db/schema';
 import type { NewUserPreferences, UserPreferences } from '$lib/server/db/types';
-import type { challengePreferenceEnum, learningMotivationEnum } from '../db/schema/userPreferences';
+import type { challengePreferenceEnum, learningMotivationEnum } from '../db/schema/user-preferences';
 
 function cleanUpdate<T extends Record<string, unknown>>(data: T, omit: (keyof T)[] = []) {
 	return Object.fromEntries(

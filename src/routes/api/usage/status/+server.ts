@@ -1,5 +1,5 @@
 import { json, error } from '@sveltejs/kit';
-import { tierService } from '$lib/server/tierService';
+import { tierService } from '$lib/server/tier-service';
 
 export const GET = async ({ locals }) => {
 	const userId = locals.user?.id;

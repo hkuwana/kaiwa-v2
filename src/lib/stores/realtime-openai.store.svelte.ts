@@ -5,7 +5,7 @@
 import { realtimeService } from '$lib/services';
 import type { Message, SpeechTiming } from '$lib/server/db/types';
 import * as messageService from '$lib/services/message.service';
-import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
+import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
 import type { Voice } from '$lib/types/openai.realtime.types';
 import {
 	createConnectionWithSession,

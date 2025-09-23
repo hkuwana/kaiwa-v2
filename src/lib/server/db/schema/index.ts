@@ -6,7 +6,7 @@ export { users } from './users';
 
 // Session and authentication
 export { session } from './session';
-export { emailVerification } from './emailVerification';
+export { emailVerification } from './email-verification';
 
 // Content and learning (MVP focused) - order matters for dependencies
 export { languages } from './languages';
@@ -21,10 +21,10 @@ export {
 	challengePreferenceEnum,
 	correctionStyleEnum,
 	userPreferences
-} from './userPreferences';
+} from './user-preferences';
 
 // User settings (global preferences, not language-specific)
-export { userSettings } from './userSettings';
+export { userSettings } from './user-settings';
 
 // Subscription and billing (simplified)
 export { tiers } from './tiers';
@@ -32,13 +32,13 @@ export { subscriptions } from './subscriptions';
 export { payments } from './payments';
 
 // Usage tracking and analytics
-export { userUsage } from './userUsage';
-export { conversationSessions } from './conversationSessions';
-export { analyticsEvents } from './analyticsEvents';
+export { userUsage } from './user-usage';
+export { conversationSessions } from './conversation-sessions';
+export { analyticsEvents } from './analytics-events';
 
 // Learning scenario tracking
-export { scenarioAttempts } from './scenarioAttempts';
-export { scenarioOutcomes } from './scenarioOutcomes';
+export { scenarioAttempts } from './scenario-attempts';
+export { scenarioOutcomes } from './scenario-outcomes';
 
 // Newsletter removed; preferences live on userPreferences
 

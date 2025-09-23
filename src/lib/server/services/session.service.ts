@@ -4,7 +4,7 @@ import { dev } from '$app/environment';
 import type { Cookies } from '@sveltejs/kit';
 import { randomUUID } from 'crypto';
 import type { UserPreferences } from '$lib/server/db/types';
-import { userPreferencesRepository } from '../repositories/userPreferences.repository';
+import { userPreferencesRepository } from '../repositories/user-preferences.repository';
 
 // Cookie-based session data for anonymous users (before they sign up)
 interface AnonymousSessionData {

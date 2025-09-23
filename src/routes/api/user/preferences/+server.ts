@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { userPreferencesRepository } from '$lib/server/repositories/userPreferences.repository';
+import { userPreferencesRepository } from '$lib/server/repositories/user-preferences.repository';
 import { createSuccessResponse, createErrorResponse } from '$lib/types/api';
 import type { UserPreferences } from '$lib/server/db/types';
 import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';

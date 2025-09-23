@@ -1,4 +1,4 @@
-import { userPreferencesRepository } from '$lib/server/repositories/userPreferences.repository';
+import { userPreferencesRepository } from '$lib/server/repositories/user-preferences.repository';
 import type { NewUserPreferences, UserPreferences } from '$lib/server/db/types';
 import { DEFAULT_VOICE } from '$lib/types';
 

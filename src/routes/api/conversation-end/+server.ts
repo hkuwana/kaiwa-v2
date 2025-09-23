@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { conversationRepository } from '$lib/server/repositories/conversation.repository';
-import { conversationSessionsRepository } from '$lib/server/repositories/conversationSessions.repository';
+import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
 import { conversationSummaryService, userService } from '$lib/server/services';
 import { createSuccessResponse, createErrorResponse } from '$lib/types/api';
 

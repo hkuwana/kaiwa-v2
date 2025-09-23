@@ -1,6 +1,6 @@
 <script lang="ts">
 	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
-	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
+	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
 
 	// Mock data for testing
 	let audioLevel = $state(0.3);

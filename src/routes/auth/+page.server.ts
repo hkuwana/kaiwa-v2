@@ -6,7 +6,7 @@ import { encodeHexLowerCase } from '@oslojs/encoding';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { createSession, setSessionTokenCookie, findOrCreateUser } from '$lib/server/auth';
-import { EmailVerificationService } from '$lib/server/services/emailVerificationService';
+import { EmailVerificationService } from '$lib/server/services/email-verification.service';
 
 export async function load(event) {
 	if (event.locals.session !== null && event.locals.user !== null) {

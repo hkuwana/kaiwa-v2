@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { EmailVerificationService } from '$lib/server/services/emailVerificationService';
+import { EmailVerificationService } from '$lib/server/services/email-verification.service';
 
 export const POST = async ({ request, locals }) => {
 	if (!locals.user) {

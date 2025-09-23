@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
+	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
 	import OnboardingResults from '$lib/components/OnboardingResults.svelte';
 	import ConversationReviewableState from '$lib/components/ConversationReviewableState.svelte';
 	import type { UserPreferences, Message, Language } from '$lib/server/db/types';
 	import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
-	import { createGuestUserPreferences } from '$lib/data/userPreferences';
+	import { createGuestUserPreferences } from '$lib/data/user-preferences';
 	import { SvelteDate, SvelteSet } from 'svelte/reactivity';
 
 	// Mock assessment data for testing

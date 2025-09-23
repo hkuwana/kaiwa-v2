@@ -256,7 +256,7 @@ src/lib/
 │   ├── audio.store.svelte.ts
 │   ├── languageStore.svelte.ts
 │   ├── settings.store.svelte.ts
-│   └── userPreferences.store.svelte.ts
+│   └── user-preferences.store.svelte.ts
 ├── components/        # Reusable UI
 │   ├── RealtimeConversation.svelte
 │   ├── LanguageSelector.svelte

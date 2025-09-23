@@ -3,7 +3,7 @@
 
 <script lang="ts">
 	import { trackConversion } from '$lib/analytics/posthog';
-	import type { UsageStatus } from '$lib/server/tierService';
+	import type { UsageStatus } from '$lib/server/tier-service';
 
 	// Props
 	let {

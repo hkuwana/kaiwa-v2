@@ -1,5 +1,5 @@
 import { emailVerificationRepository, userRepository } from '$lib/server/repositories';
-import { EmailService } from './emailService';
+import { EmailService } from './email-service';
 
 export class EmailVerificationService {
 	/**

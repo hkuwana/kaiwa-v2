@@ -3,7 +3,7 @@
 // NO store imports - pure functions only
 
 import type { Message, Language, UserPreferences } from '$lib/server/db/types';
-import * as conversationMemoryService from './conversationMemory.service';
+import * as conversationMemoryService from './conversation-memory.service';
 
 export interface OnboardingAnalysisRequest {
 	conversationMessages: string[];

@@ -4,7 +4,7 @@ import {
 	createGuestUserPreferences,
 	defaultUserPreference,
 	getLanguageSpecificPreferences
-} from '$lib/data/userPreferences';
+} from '$lib/data/user-preferences';
 import { SvelteDate } from 'svelte/reactivity';
 
 // 🌟 User Preferences Store

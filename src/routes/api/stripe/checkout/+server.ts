@@ -4,7 +4,7 @@
 import { json } from '@sveltejs/kit';
 import { createStripeCheckout, ensureStripeCustomer } from '$lib/server/services/payment.service';
 import { getStripePriceId, serverTierConfigs } from '$lib/server/tiers';
-import { analytics } from '$lib/server/analyticsService';
+import { analytics } from '$lib/server/analytics-service';
 import type { UserTier } from '$lib/server/db/types';
 
 export const POST = async ({ request, url, locals }) => {

@@ -19,8 +19,8 @@ import {
 	emailVerification,
 	userSettings
 } from './schema';
-import type { scenarioAttempts } from './schema/scenarioAttempts';
-import type { scenarioOutcomes } from './schema/scenarioOutcomes';
+import type { scenarioAttempts } from './schema/scenario-attempts';
+import type { scenarioOutcomes } from './schema/scenario-outcomes';
 
 // Tier type definitions
 export type UserTier = 'free' | 'plus' | 'premium';

@@ -1,6 +1,6 @@
 // src/lib/server/services/user.service.ts
 
-import * as userPreferencesService from './userPreferences.service';
+import * as userPreferencesService from './user-preferences.service';
 import { subscriptionService } from './subscription.service';
 import { userRepository } from '$lib/server/repositories/user.repository';
 import type { UserPreferences, UserTier, User, NewUser } from '$lib/server/db/types';

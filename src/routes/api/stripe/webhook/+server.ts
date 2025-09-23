@@ -3,7 +3,7 @@
 
 import { json } from '@sveltejs/kit';
 import { stripeService } from '$lib/server/services/stripe.service';
-import { analytics } from '$lib/server/analyticsService';
+import { analytics } from '$lib/server/analytics-service';
 import { addWebhookEvent } from '$lib/server/webhook-events-manager';
 
 export const POST = async ({ request }) => {

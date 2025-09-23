@@ -4,8 +4,8 @@
 import type { UserTier, Tier, UserUsage } from './db/types';
 import { getServerTierConfig } from '$lib/server/tiers';
 import { subscriptionRepository } from './repositories/subscription.repository';
-import { userUsageRepository } from './repositories/userUsage.repository';
-import { conversationSessionsRepository } from './repositories/conversationSessions.repository';
+import { userUsageRepository } from './repositories/user-usage.repository';
+import { conversationSessionsRepository } from './repositories/conversation-sessions.repository';
 
 export interface UsageStatus {
 	tier: Tier;

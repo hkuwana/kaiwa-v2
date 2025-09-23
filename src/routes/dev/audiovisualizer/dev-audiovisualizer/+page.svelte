@@ -3,7 +3,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
 	import { audioService } from '$lib/services/audio.service';
-	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
+	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
 	import { realtimeService } from '$lib/services';
 	import { DEFAULT_VOICE, type Voice } from '$lib/types/openai.realtime.types';
 

@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import { conversationSessionsRepository } from '$lib/server/repositories/conversationSessions.repository';
+import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
 import { messagesRepository } from '$lib/server/repositories/messages.repository';
 
 export const load = async ({ url, locals }) => {

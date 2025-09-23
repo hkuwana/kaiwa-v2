@@ -6,7 +6,7 @@
 	import type { Message, Language, UserPreferences } from '$lib/server/db/types';
 	import type { Speaker } from '$lib/types';
 	import { translationStore } from '$lib/stores/translation.store.svelte';
-	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
+	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { SvelteMap } from 'svelte/reactivity';

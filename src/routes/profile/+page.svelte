@@ -3,7 +3,7 @@
 	import { resolve } from '$app/paths';
 	import UserPreferencesEditor from '$lib/components/UserPreferencesEditor.svelte';
 	import type { UserPreferences } from '$lib/server/db/types';
-	import type { UsageStatus } from '$lib/server/tierService';
+	import type { UsageStatus } from '$lib/server/tier-service';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { onMount } from 'svelte';
 	import PaymentManagement from '$lib/components/PaymentManagement.svelte';

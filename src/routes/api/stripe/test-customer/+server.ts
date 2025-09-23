@@ -3,7 +3,7 @@
 
 import { json } from '@sveltejs/kit';
 import { stripeService } from '$lib/server/services/stripe.service';
-import { analytics } from '$lib/server/analyticsService';
+import { analytics } from '$lib/server/analytics-service';
 import { dev } from '$app/environment';
 
 export const POST = async ({ locals }) => {

@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { userSettingsRepository } from '$lib/server/repositories/userSettings.repository';
+import { userSettingsRepository } from '$lib/server/repositories/user-settings.repository';
 
 export const POST = async ({ locals }) => {
 	try {

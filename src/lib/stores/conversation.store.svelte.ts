@@ -30,10 +30,10 @@ import {
 	createConversationTimerStore,
 	type ConversationTimerStore
 } from './conversation-timer.store.svelte';
-import { userPreferencesStore } from './userPreferences.store.svelte';
+import { userPreferencesStore } from './user-preferences.store.svelte';
 import type { ConversationStatus } from '$lib/services/conversation.service';
 import { userManager } from './user.store.svelte';
-import { SvelteSet } from 'svelte/reactivity';
+import { SvelteDate, SvelteSet } from 'svelte/reactivity';
 import { conversationPersistenceService } from '$lib/services/conversation-persistence.service';
 
 export class ConversationStore {
@@ -171,7 +171,7 @@ export class ConversationStore {
 		this.clearTranscriptionState();
 
 		// Track conversation start time for persistence
-		this.conversationStartTime = new Date();
+		this.conversationStartTime = new SvelteDate();
 
 		// Extract voice from speaker or use user preference
 		if (speaker && typeof speaker === 'object') {
@@ -739,7 +739,7 @@ export class ConversationStore {
 		this.lastInstructions = combined;
 	}
 
-	private detectLanguageCode(text: string, nativeCode: string, targetCode: string): string | null {
+	private detectLanguageCode(text: string, nativeCode: string, _targetCode: string): string | null {
 		const t = (text || '').toLowerCase();
 		if (!t || t.length < 2) return null;
 		// Script-based quick checks
@@ -1130,7 +1130,7 @@ export class ConversationStore {
 		}
 
 		try {
-			const now = new Date();
+			const now = new SvelteDate();
 			const startTime = this.conversationStartTime || now;
 			const durationSeconds = Math.round((now.getTime() - startTime.getTime()) / 1000);
 
@@ -1189,7 +1189,7 @@ export class ConversationStore {
 
 		if (meaningfulMessages.length === 0) return;
 
-		const now = new Date();
+		const now = new SvelteDate();
 		const startTime = this.conversationStartTime || now;
 		const durationSeconds = Math.round((now.getTime() - startTime.getTime()) / 1000);
 

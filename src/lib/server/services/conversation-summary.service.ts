@@ -2,7 +2,7 @@
 
 import * as openaiService from './openai.service';
 import { conversationRepository } from '$lib/server/repositories/conversation.repository';
-import * as userPreferencesService from './userPreferences.service';
+import * as userPreferencesService from './user-preferences.service';
 import { getMaxMemories } from '$lib/server/tiers';
 import type { UserTier } from '$lib/server/db/types';
 

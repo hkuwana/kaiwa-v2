@@ -7,7 +7,7 @@ import { users, subscriptions, payments } from './db/schema';
 import { eq } from 'drizzle-orm';
 import type { User } from './db/types';
 import type { Subscription as DbSubscription } from './db/types';
-import { tierService } from './tierService';
+import { tierService } from './tier-service';
 import { env } from '$env/dynamic/private';
 
 // Environment variables

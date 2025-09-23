@@ -13,7 +13,7 @@
 		determineAnalysisType,
 		type AnalysisType
 	} from '$lib/services/analysis.service';
-	import { userPreferencesStore } from '$lib/stores/userPreferences.store.svelte';
+	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
 
 	const { data } = $props();
 

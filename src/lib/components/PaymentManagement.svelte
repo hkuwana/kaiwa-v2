@@ -1,6 +1,6 @@
 <script lang="ts">
 	import TierBadge from '$lib/features/payments/components/TierBadge.svelte';
-	import type { UsageStatus } from '$lib/server/tierService';
+	import type { UsageStatus } from '$lib/server/tier-service';
 
 	// Type definitions
 	interface PaymentMethod {

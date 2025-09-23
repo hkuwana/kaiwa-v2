@@ -3,19 +3,19 @@
 // They will be gradually added back as the application grows
 
 // Advanced Learning Analytics
-export { userLearningStats } from './userLearningStats';
-export { vocabularyProgress } from './vocabularyProgress';
+export { userLearningStats } from './user-learning-stats';
+export { vocabularyProgress } from './vocabulary-progress';
 
 // Conversation Analytics (Moved from MVP for simplicity)
-export { conversationSessions } from './conversationSessions';
+export { conversationSessions } from './conversation-sessions';
 
 // Scenario Management
-export { scenarioAttempts } from './scenarioAttempts';
-export { scenarioOutcomes } from './scenarioOutcomes';
+export { scenarioAttempts } from './scenario-attempts';
+export { scenarioOutcomes } from './scenario-outcomes';
 
 // User Experience & Notifications
-export { userNotifications } from './userNotifications';
-export { userUsage } from './userUsage';
+export { userNotifications } from './user-notifications';
+export { userUsage } from './user-usage';
 
 // Implementation Priority:
 // 1. userLearningStats - After basic progress tracking is stable

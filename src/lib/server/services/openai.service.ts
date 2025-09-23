@@ -7,9 +7,9 @@ import type { UserPreferences } from '$lib/server/db/types';
 import {
 	buildOnboardingInstructions,
 	type OnboardingAnalysisConfig
-} from './analysisInstruction.service';
+} from './analysis-instruction.service';
 
-export type { AnalysisFocus, OnboardingAnalysisConfig } from './analysisInstruction.service';
+export type { AnalysisFocus, OnboardingAnalysisConfig } from './analysis-instruction.service';
 
 // Initialize OpenAI client
 const openai = new OpenAI({

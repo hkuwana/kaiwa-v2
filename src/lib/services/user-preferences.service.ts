@@ -2,7 +2,7 @@ import type { UserPreferences } from '$lib/server/db/types';
 import {
 	createGuestUserPreferences,
 	getLanguageSpecificPreferences
-} from '$lib/data/userPreferences';
+} from '$lib/data/user-preferences';
 
 // 🌟 User Preferences Service
 // Pure, stateless functions for working with user preferences

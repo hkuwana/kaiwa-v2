@@ -4,7 +4,7 @@
 
 import type { Message, Language, UserPreferences } from '$lib/server/db/types';
 import * as onboardingManagerService from './onboarding-manager.service';
-import * as conversationMemoryService from './conversationMemory.service';
+import * as conversationMemoryService from './conversation-memory.service';
 
 export type AnalysisType = 'onboarding' | 'regular' | 'scenario-generation';
 export type AnalysisMode = 'quick' | 'full';
