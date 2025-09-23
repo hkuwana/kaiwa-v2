@@ -1,10 +1,9 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { conversationRepository } from '$lib/server/repositories/conversation.repository';
 import { messagesRepository } from '$lib/server/repositories/messages.repository';
 import { createSuccessResponse, createErrorResponse } from '$lib/types/api';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST = async ({ request }) => {
 	try {
 		const body = await request.json();
 		const { conversationId, role, content, audioUrl } = body;
@@ -79,7 +78,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 };
 
-export const GET: RequestHandler = async ({ url }) => {
+export const GET = async ({ url }) => {
 	try {
 		const conversationId = url.searchParams.get('conversationId');
 		const limit = parseInt(url.searchParams.get('limit') || '100');

@@ -1,8 +1,7 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { stripeService } from '$lib/server/services/stripe.service';
 
-export const GET: RequestHandler = async ({ params }) => {
+export const GET = async ({ params }) => {
 	try {
 		const { priceId } = params;
 

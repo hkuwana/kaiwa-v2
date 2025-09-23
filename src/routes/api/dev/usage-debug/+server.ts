@@ -2,11 +2,10 @@
 // Test and debug usage tracking and tier limits
 
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { usageService } from '$lib/server/services/usage.service';
 import { userRepository } from '$lib/server/repositories';
 
-export const GET: RequestHandler = async ({ locals, url }) => {
+export const GET = async ({ locals, url }) => {
 	// Access controlled by hooks.server.ts
 
 	const userId = locals.user?.id;
@@ -132,7 +131,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 	}
 };
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST = async ({ request, locals }) => {
 	// Access controlled by hooks.server.ts
 
 	const userId = locals.user?.id;

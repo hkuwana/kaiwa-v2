@@ -1,4 +1,3 @@
-import type { RequestHandler } from './$types';
 import { glob } from 'glob';
 import path from 'path';
 
@@ -11,7 +10,7 @@ const staticPages = [
 	{ url: '/terms', changefreq: 'monthly', priority: 0.5 }
 ];
 
-export const GET: RequestHandler = async () => {
+export const GET = async () => {
 	const blogFiles = await glob('src/lib/blog/*.md');
 
 	const blogPosts = blogFiles.map((file) => {

@@ -1,8 +1,7 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { analysisQuotaService } from '$lib/server/services/analysis-quota.service';
 
-export const GET: RequestHandler = async ({ locals }) => {
+export const GET = async ({ locals }) => {
 	try {
 		// Check if user is authenticated
 		if (!locals.user || !locals.session) {

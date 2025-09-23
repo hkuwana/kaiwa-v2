@@ -1,4 +1,4 @@
-import { json, type RequestHandler } from '@sveltejs/kit';
+import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { speakersData } from '$lib/data/speakers';
 import type { OpenAI } from 'openai';
@@ -9,7 +9,7 @@ interface GenerateImageRequest {
 	model?: 'dall-e-3' | 'gpt-image-1';
 }
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST = async ({ request }) => {
 	try {
 		const { speakerId, prompt, model = 'dall-e-3' }: GenerateImageRequest = await request.json();
 
@@ -93,7 +93,7 @@ export const POST: RequestHandler = async ({ request }) => {
 };
 
 // GET endpoint to list available speakers for testing
-export const GET: RequestHandler = async () => {
+export const GET = async () => {
 	const japaneseSpeakers = speakersData.filter((s) => s.languageId === 'ja');
 
 	return json({

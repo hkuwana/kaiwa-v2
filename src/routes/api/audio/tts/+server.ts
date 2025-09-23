@@ -1,9 +1,8 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { env } from '$env/dynamic/private';
 import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST = async ({ request }) => {
 	try {
 		const OPENAI_API_KEY = env.OPENAI_API_KEY;
 		if (!OPENAI_API_KEY) {

@@ -218,10 +218,10 @@ Language → db.languages               SessionContext → runtime context`;
 
 	<section class="mb-8 rounded-lg bg-white p-4 shadow">
 		<h2 class="mb-4 text-2xl font-semibold">Instruction Flow Map</h2>
-		<pre class="overflow-auto whitespace-pre font-mono text-xs leading-relaxed">
+		<pre class="overflow-auto font-mono text-xs leading-relaxed whitespace-pre">
 			{instructionFlowDiagram}
 		</pre>
-		<pre class="mt-4 whitespace-pre-wrap font-mono text-xs text-gray-600">
+		<pre class="mt-4 font-mono text-xs whitespace-pre-wrap text-gray-600">
 			{instructionFlowLegend}
 		</pre>
 	</section>

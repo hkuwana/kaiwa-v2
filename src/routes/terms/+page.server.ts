@@ -1,6 +1,4 @@
-import type { PageServerLoad } from './$types';
-
-export const load: PageServerLoad = async () => {
+export const load = async () => {
 	return {
 		meta: {
 			title: 'Terms of Service - Kaiwa | Legal Agreement & User Rights',

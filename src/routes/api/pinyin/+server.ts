@@ -1,5 +1,4 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 
 // Server-side only native pinyin processing
 async function processChineseTextNative(text: string): Promise<{
@@ -75,7 +74,7 @@ async function processChineseTextNative(text: string): Promise<{
 	}
 }
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST = async ({ request }) => {
 	try {
 		const { text, messageId } = await request.json();
 

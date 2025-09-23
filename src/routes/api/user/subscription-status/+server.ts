@@ -2,11 +2,10 @@
 // Client-accessible endpoint to check current subscription status
 
 import { json, error } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { subscriptionService } from '$lib/server/services/subscription.service';
 import { subscriptionRepository } from '$lib/server/repositories/subscription.repository';
 
-export const GET: RequestHandler = async ({ locals, url }) => {
+export const GET = async ({ locals, url }) => {
 	const userId = locals.user?.id;
 	if (!userId) {
 		throw error(401, 'Unauthorized');

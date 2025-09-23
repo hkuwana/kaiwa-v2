@@ -222,22 +222,22 @@
 							>
 								Messages
 							</button>
-						<button
-							class="flex-1 py-2 text-xs transition-colors {activeTab === 'audio'
-								? 'bg-primary text-primary-content'
-								: 'hover:bg-base-200'}"
-							onclick={() => (activeTab = 'audio')}
-						>
-							Audio
-						</button>
-						<button
-							class="flex-1 py-2 text-xs transition-colors {activeTab === 'events'
-								? 'bg-primary text-primary-content'
-								: 'hover:bg-base-200'}"
-							onclick={() => (activeTab = 'events')}
-						>
-							Events
-						</button>
+							<button
+								class="flex-1 py-2 text-xs transition-colors {activeTab === 'audio'
+									? 'bg-primary text-primary-content'
+									: 'hover:bg-base-200'}"
+								onclick={() => (activeTab = 'audio')}
+							>
+								Audio
+							</button>
+							<button
+								class="flex-1 py-2 text-xs transition-colors {activeTab === 'events'
+									? 'bg-primary text-primary-content'
+									: 'hover:bg-base-200'}"
+								onclick={() => (activeTab = 'events')}
+							>
+								Events
+							</button>
 						</div>
 
 						<!-- Tab content -->
@@ -279,30 +279,34 @@
 													{realtimeConnectionState ? 'Yes' : 'No'}
 												</div>
 											</div>
-										<div class="flex justify-between">
-											<span>Audio Level:</span>
-											<div class="badge badge-xs">{audioLevel.toFixed(2)}</div>
-										</div>
+											<div class="flex justify-between">
+												<span>Audio Level:</span>
+												<div class="badge badge-xs">{audioLevel.toFixed(2)}</div>
+											</div>
 											<div class="flex justify-between">
 												<span>Guest User:</span>
 												<div class="badge badge-xs">{isGuestUser ? 'Yes' : 'No'}</div>
 											</div>
-										<div class="flex justify-between">
-											<span>Recording:</span>
-											<div class="badge badge-xs">{audioStore.isRecording ? 'Yes' : 'No'}</div>
-										</div>
-										<div class="flex justify-between">
-											<span>Track Enabled:</span>
-											<div class="badge badge-xs">
-												{audioDebugInfo.track ? (audioDebugInfo.track.enabled ? 'Yes' : 'No') : 'N/A'}
+											<div class="flex justify-between">
+												<span>Recording:</span>
+												<div class="badge badge-xs">{audioStore.isRecording ? 'Yes' : 'No'}</div>
 											</div>
-										</div>
-										<div class="flex justify-between">
-											<span>Track Ready:</span>
-											<div class="badge badge-xs">
-												{audioDebugInfo.track ? audioDebugInfo.track.readyState : 'N/A'}
+											<div class="flex justify-between">
+												<span>Track Enabled:</span>
+												<div class="badge badge-xs">
+													{audioDebugInfo.track
+														? audioDebugInfo.track.enabled
+															? 'Yes'
+															: 'No'
+														: 'N/A'}
+												</div>
 											</div>
-										</div>
+											<div class="flex justify-between">
+												<span>Track Ready:</span>
+												<div class="badge badge-xs">
+													{audioDebugInfo.track ? audioDebugInfo.track.readyState : 'N/A'}
+												</div>
+											</div>
 										</div>
 									</div>
 
@@ -311,10 +315,10 @@
 										<h4 class="text-sm font-medium">Quick Actions</h4>
 										<div class="grid grid-cols-2 gap-1">
 											<button class="btn btn-xs" onclick={refreshDebugInfo}>Refresh</button>
-										<button class="btn btn-xs" onclick={clearEvents}>Clear Events</button>
-										<button class="btn btn-xs" onclick={logConversationMessages}>Log Conv</button>
-										<button class="btn btn-xs" onclick={logRealtimeMessages}>Log RT</button>
-										<button class="btn btn-xs" onclick={logAudioDebug}>Log Audio</button>
+											<button class="btn btn-xs" onclick={clearEvents}>Clear Events</button>
+											<button class="btn btn-xs" onclick={logConversationMessages}>Log Conv</button>
+											<button class="btn btn-xs" onclick={logRealtimeMessages}>Log RT</button>
+											<button class="btn btn-xs" onclick={logAudioDebug}>Log Audio</button>
 										</div>
 									</div>
 
@@ -382,11 +386,21 @@
 											<div>Ready State: {audioDebugInfo.track.readyState}</div>
 											{#if audioDebugInfo.track.settings}
 												<div class="mt-2 font-medium">Settings</div>
-												<pre class="whitespace-pre-wrap break-all bg-base-300/60 p-2">{JSON.stringify(audioDebugInfo.track.settings, null, 2)}</pre>
+												<pre
+													class="bg-base-300/60 p-2 break-all whitespace-pre-wrap">{JSON.stringify(
+														audioDebugInfo.track.settings,
+														null,
+														2
+													)}</pre>
 											{/if}
 											{#if audioDebugInfo.track.constraints}
 												<div class="mt-2 font-medium">Constraints</div>
-												<pre class="whitespace-pre-wrap break-all bg-base-300/60 p-2">{JSON.stringify(audioDebugInfo.track.constraints, null, 2)}</pre>
+												<pre
+													class="bg-base-300/60 p-2 break-all whitespace-pre-wrap">{JSON.stringify(
+														audioDebugInfo.track.constraints,
+														null,
+														2
+													)}</pre>
 											{/if}
 										{:else}
 											<div>No active audio track</div>
@@ -397,10 +411,16 @@
 										<div>Initialized: {audioDebugInfo.audioStore.isInitialized ? 'Yes' : 'No'}</div>
 										<div>Recording: {audioDebugInfo.audioStore.isRecording ? 'Yes' : 'No'}</div>
 										<div>Current Level: {audioDebugInfo.audioStore.currentLevel.toFixed(3)}</div>
-										<div>Level Timestamp: {audioDebugInfo.audioStore.lastLevelTimestamp || 'N/A'}</div>
+										<div>
+											Level Timestamp: {audioDebugInfo.audioStore.lastLevelTimestamp || 'N/A'}
+										</div>
 										<div>Device (Store): {audioDebugInfo.audioStore.selectedDeviceId}</div>
 										<div class="mt-2 font-medium">Permission State</div>
-										<pre class="whitespace-pre-wrap break-all bg-base-300/60 p-2">{JSON.stringify(audioDebugInfo.audioStore.permissionState, null, 2) || 'N/A'}</pre>
+										<pre class="bg-base-300/60 p-2 break-all whitespace-pre-wrap">{JSON.stringify(
+												audioDebugInfo.audioStore.permissionState,
+												null,
+												2
+											) || 'N/A'}</pre>
 									</div>
 								</div>
 							{:else if activeTab === 'events'}

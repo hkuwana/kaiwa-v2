@@ -2,10 +2,9 @@
 // Gets current subscription data for the authenticated user
 
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { stripeService } from '$lib/server/services/stripe.service';
 
-export const GET: RequestHandler = async ({ locals }) => {
+export const GET = async ({ locals }) => {
 	try {
 		// Check if user is logged in
 		const userId = locals.user?.id;

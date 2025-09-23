@@ -2,12 +2,11 @@
 // Creates test customers for development purposes
 
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { stripeService } from '$lib/server/services/stripe.service';
 import { analytics } from '$lib/server/analyticsService';
 import { dev } from '$app/environment';
 
-export const POST: RequestHandler = async ({ locals }) => {
+export const POST = async ({ locals }) => {
 	// Only allow in development
 	if (!dev) {
 		return json({ error: 'Not available in production' }, { status: 403 });

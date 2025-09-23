@@ -354,36 +354,21 @@
 		}
 	}}
 >
-	<!-- Timer Ring (Custom SVG for better control) -->
-	<svg class="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 100 100">
-		<!-- Background circle -->
-		<circle
-			cx="50"
-			cy="50"
-			r="46"
-			fill="none"
-			stroke="currentColor"
-			stroke-width="4"
-			class="text-base-300 opacity-30"
-		/>
-		<!-- Progress circle (only show if timer is active) -->
-		{#if isTimerActive}
-			<circle
-				cx="50"
-				cy="50"
-				r="46"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="4"
-				stroke-linecap="round"
-				class={timerColor()}
-				style="stroke-dasharray: {2 * Math.PI * 46}; stroke-dashoffset: {2 *
-					Math.PI *
-					46 *
-					(1 - progressPercentage / 100)}; transition: stroke-dashoffset 0.3s ease;"
-			/>
-		{/if}
-	</svg>
+	<!-- Timer Ring (DaisyUI Radial Progress) -->
+	<div class="absolute inset-0">
+		<div
+			class="radial-progress text-base-300/30"
+			style="--value:100; --size:6rem; --thickness: 4px;"
+		></div>
+	</div>
+	{#if isTimerActive}
+		<div class="absolute inset-0">
+			<div
+				class="radial-progress {timerColor()}"
+				style="--value:{progressPercentage}; --size:6rem; --thickness: 4px; transition: --value 0.3s ease;"
+			></div>
+		</div>
+	{/if}
 
 	<!-- Audio Activity Pulse -->
 	<div

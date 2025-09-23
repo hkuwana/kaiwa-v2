@@ -196,25 +196,19 @@
 
 	<!-- Floating elements for visual interest -->
 	<div class="animate-bounce-slow absolute top-4 right-4">
-		<div
-			class="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-2 text-xs font-medium backdrop-blur-sm"
-		>
+		<div class="badge gap-2 badge-outline badge-lg backdrop-blur-sm badge-primary">
 			💬 Real conversations
 		</div>
 	</div>
 
 	<div class="animate-bounce-slow absolute bottom-4 left-4" style="animation-delay: 1s;">
-		<div
-			class="flex items-center gap-2 rounded-full bg-secondary/10 px-3 py-2 text-xs font-medium backdrop-blur-sm"
-		>
+		<div class="badge gap-2 badge-outline badge-lg backdrop-blur-sm badge-secondary">
 			🎯 Practice speaking
 		</div>
 	</div>
 
 	<div class="animate-bounce-slow absolute top-1/2 right-8" style="animation-delay: 2s;">
-		<div
-			class="flex items-center gap-2 rounded-full bg-accent/10 px-3 py-2 text-xs font-medium backdrop-blur-sm"
-		>
+		<div class="badge gap-2 badge-outline badge-lg backdrop-blur-sm badge-accent">
 			🌍 Multiple languages
 		</div>
 	</div>

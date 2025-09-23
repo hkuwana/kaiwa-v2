@@ -1,9 +1,8 @@
-import type { PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversationSessions.repository';
 import { messagesRepository } from '$lib/server/repositories/messages.repository';
 
-export const load: PageServerLoad = async ({ url, locals }) => {
+export const load = async ({ url, locals }) => {
 	const user = locals.user || null;
 	const sessionId = url.searchParams.get('sessionId');
 

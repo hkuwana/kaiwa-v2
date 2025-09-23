@@ -2,13 +2,12 @@
 // Returns Stripe environment configuration for development monitoring
 
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { dev } from '$app/environment';
 import { getTierEnvironmentInfo } from '$lib/server/tiers';
 import { getStripeEnvironmentInfo } from '$lib/data/stripe';
 import { getServerStripeEnvironmentInfo } from '$lib/server/stripe-config';
 
-export const GET: RequestHandler = async () => {
+export const GET = async () => {
 	// Only allow in development
 	if (!dev) {
 		return json({ error: 'Not available in production' }, { status: 403 });

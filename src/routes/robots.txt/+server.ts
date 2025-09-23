@@ -1,6 +1,4 @@
-import type { RequestHandler } from './$types';
-
-export const GET: RequestHandler = async () => {
+export const GET = async () => {
 	const robots = `User-agent: *
 Allow: /
 Disallow: /dev*

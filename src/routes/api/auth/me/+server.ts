@@ -1,7 +1,6 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async ({ locals }) => {
+export const GET = async ({ locals }) => {
 	// Check if user is authenticated
 	if (!locals.user) {
 		return json({ error: 'Not authenticated' }, { status: 401 });

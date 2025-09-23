@@ -1,8 +1,7 @@
 <!-- src/lib/components/AnimatedHeadphones.svelte -->
 <script lang="ts">
-	import { fly } from 'svelte/transition';
-
-	interface Props {
+	
+interface Props {
 		animation?: 'pulse' | 'bounce' | 'ping' | 'spin' | 'wiggle';
 		size?: 'sm' | 'md' | 'lg' | 'xl';
 		showTooltip?: boolean;
@@ -35,7 +34,7 @@
 	const animationDuration = $derived(`${3 / animationSpeed}s`);
 </script>
 
-<div class="group relative {className}">
+<div class="group relative {className}" class:tooltip={showTooltip} data-tip={tooltipText}>
 	<!-- Animated headphone icon -->
 	<div class="relative z-20">
 		<div
@@ -52,25 +51,6 @@
 			🎧
 		</div>
 	</div>
-
-	<!-- Floating hint text -->
-	{#if showTooltip}
-		<div
-			class="absolute -bottom-8 left-1/2 -translate-x-1/2 transform"
-			in:fly={{ y: 20, duration: 300 }}
-			out:fly={{ y: -20, duration: 200 }}
-		>
-			<div
-				class="rounded-full bg-primary/90 px-3 py-1 text-xs whitespace-nowrap text-primary-content backdrop-blur-sm"
-			>
-				{tooltipText}
-			</div>
-			<!-- Arrow pointing up -->
-			<div
-				class="absolute -top-1 left-1/2 h-0 w-0 -translate-x-1/2 transform border-r-4 border-b-4 border-l-4 border-transparent border-b-primary/90"
-			></div>
-		</div>
-	{/if}
 </div>
 
 <style>

@@ -1,8 +1,7 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { EmailVerificationService } from '$lib/server/services/emailVerificationService';
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST = async ({ request, locals }) => {
 	if (!locals.user) {
 		return json({ error: 'Not authenticated' }, { status: 401 });
 	}

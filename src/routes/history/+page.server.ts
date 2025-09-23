@@ -1,8 +1,7 @@
-import type { PageServerLoad } from './$types';
 import { getUserFromSession } from '$lib/server/auth';
 import { redirect } from '@sveltejs/kit';
 
-export const load = (async ({ cookies }) => {
+export const load = async ({ cookies }) => {
 	const userId = await getUserFromSession(cookies);
 
 	if (!userId) {
@@ -15,4 +14,4 @@ export const load = (async ({ cookies }) => {
 			id: userId
 		}
 	};
-}) satisfies PageServerLoad;
+};

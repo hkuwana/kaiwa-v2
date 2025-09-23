@@ -1,5 +1,3 @@
-import type { RequestHandler } from '@sveltejs/kit';
-
 function pad(n: number) {
 	return n < 10 ? `0${n}` : `${n}`;
 }
@@ -14,7 +12,7 @@ function addDays(d: Date, days: number) {
 	return nd;
 }
 
-export const GET: RequestHandler = async () => {
+export const GET = async () => {
 	const now = new Date();
 	const events: { uid: string; start: Date; end: Date; summary: string; desc?: string }[] = [];
 

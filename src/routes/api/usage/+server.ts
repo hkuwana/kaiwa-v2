@@ -2,10 +2,9 @@
 // Clean API for checking and recording usage
 
 import { json, error } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { usageService } from '$lib/server/services/usage.service';
 
-export const GET: RequestHandler = async ({ locals, url }) => {
+export const GET = async ({ locals, url }) => {
 	const userId = locals.user?.id;
 	if (!userId) {
 		throw error(401, 'Unauthorized');
@@ -45,7 +44,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 	}
 };
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST = async ({ request, locals }) => {
 	const userId = locals.user?.id;
 	if (!userId) {
 		throw error(401, 'Unauthorized');

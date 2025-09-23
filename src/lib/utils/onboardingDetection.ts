@@ -84,9 +84,7 @@ export function isInOnboardingFlow(pathname: string, userContext: UserContext = 
 	// Non-guests who haven't completed onboarding and are on relevant pages
 	if (!hasCompletedOnboarding) {
 		return (
-			pathname === '/' ||
-			pathname.startsWith('/conversation') ||
-			pathname.startsWith('/analysis')
+			pathname === '/' || pathname.startsWith('/conversation') || pathname.startsWith('/analysis')
 		);
 	}
 
@@ -104,7 +102,7 @@ export function getRetentionMessage(
 
 	const messages = {
 		setup: "Don't worry, the conversation is just 5 minutes!",
-		conversation: "Almost done! Your personalized analysis is being prepared...",
+		conversation: 'Almost done! Your personalized analysis is being prepared...',
 		analysis: "🎉 You've reached the wow moment! Share your results."
 	};
 

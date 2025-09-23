@@ -3,9 +3,8 @@
 
 import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
-import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async () => {
+export const GET = async () => {
 	// Access controlled by hooks.server.ts
 	const setupInfo = {
 		timestamp: new Date().toISOString(),

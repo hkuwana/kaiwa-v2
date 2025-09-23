@@ -1,10 +1,9 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 
 // Simple in-memory storage for MVP (replace with database later)
 const storage = new Map<string, unknown>();
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST = async ({ request }) => {
 	try {
 		const { key, data } = await request.json();
 
@@ -20,7 +19,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 };
 
-export const GET: RequestHandler = async ({ url }) => {
+export const GET = async ({ url }) => {
 	try {
 		const key = url.searchParams.get('key');
 
@@ -41,7 +40,7 @@ export const GET: RequestHandler = async ({ url }) => {
 	}
 };
 
-export const DELETE: RequestHandler = async ({ url }) => {
+export const DELETE = async ({ url }) => {
 	try {
 		const key = url.searchParams.get('key');
 

@@ -281,13 +281,13 @@
 		loadUsageStatus();
 
 		// Update reactive state when promises resolve
-		userPreferencesPromise?.then(prefs => {
+		userPreferencesPromise?.then((prefs) => {
 			userPreferences = prefs;
 		});
-		subscriptionPromise?.then(sub => {
+		subscriptionPromise?.then((sub) => {
 			subscription = sub;
 		});
-		usageLimitsPromise?.then(limits => {
+		usageLimitsPromise?.then((limits) => {
 			usageLimits = limits;
 		});
 	});

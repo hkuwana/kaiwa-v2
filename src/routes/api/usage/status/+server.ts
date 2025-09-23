@@ -1,8 +1,7 @@
 import { json, error } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { tierService } from '$lib/server/tierService';
 
-export const GET: RequestHandler = async ({ locals }) => {
+export const GET = async ({ locals }) => {
 	const userId = locals.user?.id;
 	if (!userId) {
 		throw error(401, 'Unauthorized');

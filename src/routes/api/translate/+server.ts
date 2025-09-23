@@ -1,8 +1,7 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { translateTextWithScripts } from '$lib/server/services/translation.service';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST = async ({ request }) => {
 	try {
 		const { text, messageId, sourceLanguage, targetLanguage } = await request.json();
 

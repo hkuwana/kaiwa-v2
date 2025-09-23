@@ -1,7 +1,6 @@
 import { redirect } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load = async ({ locals }) => {
 	// Early authentication check - redirect if not authenticated or is guest
 	if (!locals.user || locals.user.id === 'guest') {
 		console.log('⚠️ Profile access denied: User not authenticated');

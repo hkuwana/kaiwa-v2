@@ -36,14 +36,14 @@
 		}
 	];
 
-	function applyScenario(scenario: typeof testScenarios[0]) {
+	function applyScenario(scenario: (typeof testScenarios)[0]) {
 		goto(scenario.path);
 		completedSteps = [...scenario.completed];
 	}
 
 	function toggleStep(stepId: string) {
 		if (completedSteps.includes(stepId)) {
-			completedSteps = completedSteps.filter(id => id !== stepId);
+			completedSteps = completedSteps.filter((id) => id !== stepId);
 		} else {
 			completedSteps = [...completedSteps, stepId];
 		}
@@ -64,7 +64,7 @@
 	</div>
 
 	<!-- Controls -->
-	<div class="grid gap-6 lg:grid-cols-3 mb-8">
+	<div class="mb-8 grid gap-6 lg:grid-cols-3">
 		<!-- Test Scenarios -->
 		<div class="card bg-base-100 shadow-lg">
 			<div class="card-body">
@@ -72,8 +72,9 @@
 				<div class="space-y-2">
 					{#each testScenarios as scenario}
 						<button
-							class="btn btn-sm btn-block justify-start text-left"
-							class:btn-primary={JSON.stringify(completedSteps) === JSON.stringify(scenario.completed)}
+							class="btn btn-block justify-start text-left btn-sm"
+							class:btn-primary={JSON.stringify(completedSteps) ===
+								JSON.stringify(scenario.completed)}
 							onclick={() => applyScenario(scenario)}
 						>
 							<div class="text-left">
@@ -96,7 +97,7 @@
 					<label class="label">
 						<span class="label-text">Current Path (Auto-detected)</span>
 					</label>
-					<div class="text-sm p-2 bg-base-200 rounded">
+					<div class="rounded bg-base-200 p-2 text-sm">
 						Uses: <code>$page.url.pathname</code>
 					</div>
 				</div>
@@ -111,7 +112,7 @@
 							<label class="label cursor-pointer justify-start">
 								<input
 									type="checkbox"
-									class="checkbox checkbox-sm mr-2"
+									class="checkbox mr-2 checkbox-sm"
 									checked={completedSteps.includes(stepId)}
 									onchange={() => toggleStep(stepId)}
 								/>
@@ -141,7 +142,7 @@
 							<input
 								type="radio"
 								name="variant"
-								class="radio radio-sm mr-2"
+								class="radio mr-2 radio-sm"
 								value={variant}
 								bind:group={selectedVariant}
 							/>
@@ -151,9 +152,12 @@
 				</div>
 
 				<!-- Current State Display -->
-				<div class="mt-4 p-3 bg-base-200 rounded-lg">
-					<div class="text-sm space-y-1">
-						<div><strong>Completed:</strong> {completedSteps.length ? completedSteps.join(', ') : 'None'}</div>
+				<div class="mt-4 rounded-lg bg-base-200 p-3">
+					<div class="space-y-1 text-sm">
+						<div>
+							<strong>Completed:</strong>
+							{completedSteps.length ? completedSteps.join(', ') : 'None'}
+						</div>
 						<div><strong>Variant:</strong> {selectedVariant}</div>
 					</div>
 				</div>
@@ -166,14 +170,10 @@
 		<!-- Detailed Preview -->
 		{#if selectedVariant === 'detailed'}
 			<section>
-				<h2 class="text-2xl font-bold mb-4">📋 Detailed View</h2>
+				<h2 class="mb-4 text-2xl font-bold">📋 Detailed View</h2>
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body">
-						<OnboardingLifecycle
-							{completedSteps}
-							{showRetentionHints}
-							variant="detailed"
-						/>
+						<OnboardingLifecycle {completedSteps} {showRetentionHints} variant="detailed" />
 					</div>
 				</div>
 			</section>
@@ -182,15 +182,11 @@
 		<!-- Minimal Preview -->
 		{#if selectedVariant === 'minimal'}
 			<section>
-				<h2 class="text-2xl font-bold mb-4">📊 Minimal View</h2>
+				<h2 class="mb-4 text-2xl font-bold">📊 Minimal View</h2>
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body">
-						<div class="max-w-md mx-auto">
-							<OnboardingLifecycle
-									{completedSteps}
-								{showRetentionHints}
-								variant="minimal"
-							/>
+						<div class="mx-auto max-w-md">
+							<OnboardingLifecycle {completedSteps} {showRetentionHints} variant="minimal" />
 						</div>
 					</div>
 				</div>
@@ -200,28 +196,35 @@
 		<!-- Floating Preview -->
 		{#if selectedVariant === 'floating'}
 			<section>
-				<h2 class="text-2xl font-bold mb-4">🎈 Floating Widget</h2>
+				<h2 class="mb-4 text-2xl font-bold">🎈 Floating Widget</h2>
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body">
 						<div class="alert alert-info">
-							<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-								<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+							<svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+								<path
+									fill-rule="evenodd"
+									d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+									clip-rule="evenodd"
+								></path>
 							</svg>
 							<div>
 								<h4 class="font-semibold">Floating Widget Active</h4>
-								<p class="text-sm">The floating widget appears in the bottom-right corner of the page. Scroll down to see it in action!</p>
+								<p class="text-sm">
+									The floating widget appears in the bottom-right corner of the page. Scroll down to
+									see it in action!
+								</p>
 							</div>
 						</div>
 
 						<!-- Demo content to show floating behavior -->
-						<div class="space-y-4 mt-6">
-							<div class="h-32 bg-base-200 rounded-lg flex items-center justify-center">
+						<div class="mt-6 space-y-4">
+							<div class="flex h-32 items-center justify-center rounded-lg bg-base-200">
 								<span class="text-base-content/50">Demo content area 1</span>
 							</div>
-							<div class="h-32 bg-base-200 rounded-lg flex items-center justify-center">
+							<div class="flex h-32 items-center justify-center rounded-lg bg-base-200">
 								<span class="text-base-content/50">Demo content area 2</span>
 							</div>
-							<div class="h-32 bg-base-200 rounded-lg flex items-center justify-center">
+							<div class="flex h-32 items-center justify-center rounded-lg bg-base-200">
 								<span class="text-base-content/50">Demo content area 3</span>
 							</div>
 						</div>
@@ -232,13 +235,14 @@
 
 		<!-- Implementation Guide -->
 		<section>
-			<h2 class="text-2xl font-bold mb-4">🛠️ Implementation Guide</h2>
+			<h2 class="mb-4 text-2xl font-bold">🛠️ Implementation Guide</h2>
 			<div class="grid gap-6 lg:grid-cols-2">
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body">
 						<h3 class="card-title">📁 Component Usage</h3>
 						<div class="mockup-code text-sm">
-							<pre><code>&lt;script&gt;
+							<pre><code
+									>&lt;script&gt;
   import OnboardingLifecycle from '$lib/components/OnboardingLifecycle.svelte';
 &lt;/script&gt;
 
@@ -247,7 +251,8 @@
   completedSteps={['setup']}
   showRetentionHints={true}
   variant="detailed"
-/&gt;</code></pre>
+/&gt;</code
+								></pre>
 						</div>
 					</div>
 				</div>
@@ -260,10 +265,12 @@
 								<strong>Home Page:</strong> Show minimal variant at top of page to set expectations
 							</div>
 							<div>
-								<strong>Conversation Page:</strong> Use floating widget to remind users about upcoming analysis
+								<strong>Conversation Page:</strong> Use floating widget to remind users about upcoming
+								analysis
 							</div>
 							<div>
-								<strong>Layout Component:</strong> Add route detection to automatically show/hide based on user state
+								<strong>Layout Component:</strong> Add route detection to automatically show/hide based
+								on user state
 							</div>
 							<div>
 								<strong>Onboarding Flow:</strong> Use detailed variant as a standalone progress page
@@ -276,12 +283,12 @@
 
 		<!-- Retention Strategies -->
 		<section>
-			<h2 class="text-2xl font-bold mb-4">🎣 Retention Strategy Features</h2>
+			<h2 class="mb-4 text-2xl font-bold">🎣 Retention Strategy Features</h2>
 			<div class="grid gap-4 lg:grid-cols-3">
-				<div class="card bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
+				<div class="card border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5">
 					<div class="card-body">
 						<h4 class="card-title text-primary">💡 Expectation Setting</h4>
-						<ul class="text-sm space-y-1">
+						<ul class="space-y-1 text-sm">
 							<li>• Clear progress indicators</li>
 							<li>• Step descriptions</li>
 							<li>• Time estimates</li>
@@ -290,10 +297,12 @@
 					</div>
 				</div>
 
-				<div class="card bg-gradient-to-br from-secondary/10 to-secondary/5 border border-secondary/20">
+				<div
+					class="card border border-secondary/20 bg-gradient-to-br from-secondary/10 to-secondary/5"
+				>
 					<div class="card-body">
 						<h4 class="card-title text-secondary">🎯 Engagement Hooks</h4>
-						<ul class="text-sm space-y-1">
+						<ul class="space-y-1 text-sm">
 							<li>• Contextual hints</li>
 							<li>• Progress animations</li>
 							<li>• Achievement feedback</li>
@@ -302,10 +311,10 @@
 					</div>
 				</div>
 
-				<div class="card bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20">
+				<div class="card border border-accent/20 bg-gradient-to-br from-accent/10 to-accent/5">
 					<div class="card-body">
 						<h4 class="card-title text-accent">🚀 Motivation Boosters</h4>
-						<ul class="text-sm space-y-1">
+						<ul class="space-y-1 text-sm">
 							<li>• Curiosity building</li>
 							<li>• Social proof hints</li>
 							<li>• Value reminders</li>
@@ -320,9 +329,5 @@
 
 <!-- Render floating widget when selected -->
 {#if selectedVariant === 'floating'}
-	<OnboardingLifecycle
-		{completedSteps}
-		{showRetentionHints}
-		variant="floating"
-	/>
+	<OnboardingLifecycle {completedSteps} {showRetentionHints} variant="floating" />
 {/if}

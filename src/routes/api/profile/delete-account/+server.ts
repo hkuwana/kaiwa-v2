@@ -1,10 +1,9 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { db } from '$lib/server/db';
 import { users, emailVerification, session } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 
-export const DELETE: RequestHandler = async ({ locals }) => {
+export const DELETE = async ({ locals }) => {
 	if (!locals.user) {
 		return json({ error: 'Not authenticated' }, { status: 401 });
 	}

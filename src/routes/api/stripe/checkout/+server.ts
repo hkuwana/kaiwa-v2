@@ -2,13 +2,12 @@
 // Creates checkout sessions using serverTierConfigs directly
 
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { createStripeCheckout, ensureStripeCustomer } from '$lib/server/services/payment.service';
 import { getStripePriceId, serverTierConfigs } from '$lib/server/tiers';
 import { analytics } from '$lib/server/analyticsService';
 import type { UserTier } from '$lib/server/db/types';
 
-export const POST: RequestHandler = async ({ request, url, locals }) => {
+export const POST = async ({ request, url, locals }) => {
 	try {
 		const userId = locals.user?.id;
 		const userEmail = locals.user?.email;

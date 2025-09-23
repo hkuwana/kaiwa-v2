@@ -2,11 +2,10 @@
 // Returns recent webhook events for development monitoring
 
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { dev } from '$app/environment';
 import { getWebhookEvents, addManualWebhookEvent } from '$lib/server/webhook-events-manager';
 
-export const GET: RequestHandler = async () => {
+export const GET = async () => {
 	// Only allow in development
 	if (!dev) {
 		return json({ error: 'Not available in production' }, { status: 403 });
@@ -27,7 +26,7 @@ export const GET: RequestHandler = async () => {
 	}
 };
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST = async ({ request }) => {
 	// Only allow in development
 	if (!dev) {
 		return json({ error: 'Not available in production' }, { status: 403 });

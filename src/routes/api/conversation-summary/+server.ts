@@ -1,12 +1,11 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { conversationSummaryService } from '$lib/server/services';
 import { createSuccessResponse, createErrorResponse } from '$lib/types/api';
 import { getUserFromSession } from '$lib/server/auth';
 import * as userService from '$lib/server/services/user.service';
 import { getMaxMemories } from '$lib/server/tiers';
 
-export const POST: RequestHandler = async ({ request, cookies }) => {
+export const POST = async ({ request, cookies }) => {
 	try {
 		// Get authenticated user ID
 		const userId = await getUserFromSession(cookies);
@@ -58,7 +57,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 	}
 };
 
-export const GET: RequestHandler = async ({ cookies }) => {
+export const GET = async ({ cookies }) => {
 	try {
 		// Get authenticated user ID
 		const userId = await getUserFromSession(cookies);
@@ -88,7 +87,7 @@ export const GET: RequestHandler = async ({ cookies }) => {
 	}
 };
 
-export const PUT: RequestHandler = async ({ request, cookies }) => {
+export const PUT = async ({ request, cookies }) => {
 	try {
 		// Get authenticated user ID
 		const userId = await getUserFromSession(cookies);

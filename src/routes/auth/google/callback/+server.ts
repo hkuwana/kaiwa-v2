@@ -1,7 +1,6 @@
 import { google, isGoogleOAuthEnabled } from '$lib/services/auth-oauth.service';
 import { createSession, setSessionTokenCookie, findOrCreateUser } from '$lib/server/auth';
 import { OAuth2RequestError, decodeIdToken } from 'arctic';
-import type { RequestEvent } from './$types';
 
 interface IdTokenClaims {
 	sub: string;
@@ -10,7 +9,7 @@ interface IdTokenClaims {
 	email: string;
 }
 
-export async function GET(event: RequestEvent): Promise<Response> {
+export async function GET(event): Promise<Response> {
 	// Check if Google OAuth is enabled
 	if (!isGoogleOAuthEnabled || !google) {
 		console.log('Google OAuth is not configured here', isGoogleOAuthEnabled);

@@ -1,9 +1,7 @@
-import type { PageLoad } from './$types';
-
 // Import all markdown files from the docs directory
 const docs = import.meta.glob('../../lib/docs/*.md', { eager: true });
 
-export const load: PageLoad = () => {
+export const load = () => {
 	// Convert the glob results to a more usable format
 	interface DocModule {
 		metadata?: { title?: string; description?: string };

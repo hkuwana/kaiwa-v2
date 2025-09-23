@@ -2,11 +2,10 @@
 // Cancels the user's active subscription
 
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { stripeService } from '$lib/server/services/stripe.service';
 import { analytics } from '$lib/server/analyticsService';
 
-export const POST: RequestHandler = async ({ locals }) => {
+export const POST = async ({ locals }) => {
 	try {
 		// Check if user is logged in
 		const userId = locals.user?.id;

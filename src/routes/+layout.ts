@@ -2,7 +2,6 @@ import posthog from 'posthog-js';
 import { browser } from '$app/environment';
 import { env } from '$env/dynamic/public';
 import { userManager } from '$lib/stores/user.store.svelte';
-import type { LayoutLoad } from './$types';
 
 const BASE_SEO = {
 	title: 'Kaiwa - AI Language Learning Through Natural Conversation Practice',
@@ -17,7 +16,7 @@ const BASE_SEO = {
 	canonical: 'https://kaiwa.app'
 };
 
-export const load: LayoutLoad = async ({ data, url }) => {
+export const load = async ({ data, url }) => {
 	if (browser && env.PUBLIC_POSTHOG_KEY) {
 		posthog.init(env.PUBLIC_POSTHOG_KEY, {
 			api_host: 'https://us.i.posthog.com',

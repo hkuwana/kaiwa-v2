@@ -1,5 +1,4 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { generateScriptsServer, isJapaneseText } from '$lib/services/romanization.service';
 import { db } from '$lib/server/db';
 import { messages } from '$lib/server/db/schema';
@@ -63,7 +62,7 @@ async function processJapaneseTextDirect(text: string): Promise<{
 	}
 }
 
-export const POST: RequestHandler = async ({ request, params }) => {
+export const POST = async ({ request, params }) => {
 	try {
 		const messageId = params.messageId;
 		const { text, language } = await request.json();

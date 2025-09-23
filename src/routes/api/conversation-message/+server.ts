@@ -1,9 +1,8 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { messagesRepository } from '$lib/server/repositories/messages.repository';
 import { createSuccessResponse, createErrorResponse } from '$lib/types/api';
 
-export const GET: RequestHandler = async ({ url }) => {
+export const GET = async ({ url }) => {
 	try {
 		const messageId = url.searchParams.get('id');
 		if (!messageId) {
@@ -23,7 +22,7 @@ export const GET: RequestHandler = async ({ url }) => {
 	}
 };
 
-export const PUT: RequestHandler = async ({ url, request }) => {
+export const PUT = async ({ url, request }) => {
 	try {
 		const messageId = url.searchParams.get('id');
 		if (!messageId) {
@@ -55,7 +54,7 @@ export const PUT: RequestHandler = async ({ url, request }) => {
 	}
 };
 
-export const DELETE: RequestHandler = async ({ url }) => {
+export const DELETE = async ({ url }) => {
 	try {
 		const messageId = url.searchParams.get('id');
 		if (!messageId) {

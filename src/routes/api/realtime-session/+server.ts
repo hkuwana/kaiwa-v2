@@ -1,5 +1,4 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
@@ -12,7 +11,7 @@ const sessionRequests = new Map<string, { timestamp: number; count: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const MAX_REQUESTS = dev ? 100 : 3; // Max 3 requests per minute in production
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST = async ({ request }) => {
 	console.log('🔄 Realtime session creation request received');
 
 	try {

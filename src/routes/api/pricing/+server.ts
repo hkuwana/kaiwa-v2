@@ -2,10 +2,9 @@
 // Exposes public pricing information to the frontend
 
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { getServerTierConfigs } from '$lib/server/tiers';
 
-export const GET: RequestHandler = async () => {
+export const GET = async () => {
 	try {
 		const tierConfigs = getServerTierConfigs();
 

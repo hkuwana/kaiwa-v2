@@ -1,7 +1,6 @@
 // src/routes/api/analyze-onboarding/+server.ts
 
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import {
 	analyzeOnboardingConversation,
 	parseAndValidateJSON
@@ -39,7 +38,7 @@ export interface AnalyzeOnboardingResponse {
 	};
 }
 
-export const POST: RequestHandler = async ({ request, cookies }) => {
+export const POST = async ({ request, cookies }) => {
 	try {
 		const body: AnalyzeOnboardingRequest = await request.json();
 		const { conversationMessages, targetLanguage, scenarioCategory, analysisFocus } = body;

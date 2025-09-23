@@ -1,5 +1,4 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { isJapaneseText } from '$lib/services/romanization.service';
 
 // Direct Kuroshiro processing function that bypasses the disabled checks
@@ -60,7 +59,7 @@ async function processJapaneseTextDirect(text: string): Promise<{
 	}
 }
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST = async ({ request }) => {
 	try {
 		const { text, messageId } = await request.json();
 

@@ -2,9 +2,8 @@
 // Simple webhook test endpoint to verify Stripe webhooks are working
 
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST = async ({ request }) => {
 	// Access controlled by hooks.server.ts
 	const body = await request.text();
 	const signature = request.headers.get('stripe-signature');
@@ -44,7 +43,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	});
 };
 
-export const GET: RequestHandler = async () => {
+export const GET = async () => {
 	// Access controlled by hooks.server.ts
 	return json({
 		status: 'Webhook test endpoint is active',

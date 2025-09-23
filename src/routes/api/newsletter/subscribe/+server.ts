@@ -1,8 +1,7 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { userSettingsRepository } from '$lib/server/repositories/userSettings.repository';
 
-export const POST: RequestHandler = async ({ locals }) => {
+export const POST = async ({ locals }) => {
 	try {
 		// Check if user is authenticated
 		if (!locals.user || !locals.user.id) {
@@ -36,7 +35,7 @@ export const POST: RequestHandler = async ({ locals }) => {
 	}
 };
 
-export const DELETE: RequestHandler = async ({ locals }) => {
+export const DELETE = async ({ locals }) => {
 	try {
 		// Check if user is authenticated
 		if (!locals.user || !locals.user.id) {

@@ -1,8 +1,7 @@
 import { redirect } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
 import { dev } from '$app/environment';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load = async ({ locals }) => {
 	// Only allow access in development mode
 	if (!dev) {
 		throw redirect(302, '/');

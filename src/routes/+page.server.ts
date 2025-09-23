@@ -1,8 +1,7 @@
-import type { PageServerLoad } from './$types';
 import { subscriptionService } from '$lib/server/services/subscription.service';
 import { serverTierConfigs } from '$lib/server/tiers';
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load = async ({ locals, url }) => {
 	// Get user data from locals (set by hooks.server.ts)
 	const user = locals.user || null;
 

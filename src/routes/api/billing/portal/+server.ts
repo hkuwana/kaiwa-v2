@@ -23,10 +23,13 @@ export const POST = async ({ locals, url }) => {
 		if (error instanceof Error) {
 			// Handle specific Stripe portal configuration error
 			if (error.message.includes('No configuration provided')) {
-				return json({
-					error: 'Billing portal not configured. Please contact support.',
-					isConfigurationError: true
-				}, { status: 503 });
+				return json(
+					{
+						error: 'Billing portal not configured. Please contact support.',
+						isConfigurationError: true
+					},
+					{ status: 503 }
+				);
 			}
 			return json({ error: error.message }, { status: 400 });
 		}

@@ -20,8 +20,8 @@
 		status: string;
 		invoice_pdf?: string;
 	}
-	
-// Props from parent component
+
+	// Props from parent component
 	const {
 		data,
 		usageStatus,
@@ -347,10 +347,7 @@
 					<span class="mr-2 icon-[mdi--credit-card-outline] h-5 w-5"></span>
 					Payment Methods
 				</h3>
-				<button
-					class="btn btn-outline btn-sm"
-					onclick={() => (showAddPaymentModal = true)}
-				>
+				<button class="btn btn-outline btn-sm" onclick={() => (showAddPaymentModal = true)}>
 					<span class="icon-[mdi--credit-card-plus] h-4 w-4"></span>
 					Manage Payment Methods
 				</button>
@@ -625,11 +622,12 @@
 
 			<div class="py-4">
 				<p class="mb-4 text-base-content/70">
-					You'll be redirected to Stripe's secure billing portal where you can safely add, remove, or update your payment methods.
+					You'll be redirected to Stripe's secure billing portal where you can safely add, remove,
+					or update your payment methods.
 				</p>
 
 				<div class="rounded-lg border border-primary/20 bg-primary/5 p-6">
-					<div class="flex items-center gap-3 mb-3">
+					<div class="mb-3 flex items-center gap-3">
 						<span class="icon-[mdi--shield-check] h-8 w-8 text-primary"></span>
 						<div>
 							<h4 class="font-semibold text-primary">Secure & Protected</h4>

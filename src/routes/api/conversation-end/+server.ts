@@ -1,11 +1,10 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { conversationRepository } from '$lib/server/repositories/conversation.repository';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversationSessions.repository';
 import { conversationSummaryService, userService } from '$lib/server/services';
 import { createSuccessResponse, createErrorResponse } from '$lib/types/api';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST = async ({ request }) => {
 	try {
 		const body = await request.json();
 		const {

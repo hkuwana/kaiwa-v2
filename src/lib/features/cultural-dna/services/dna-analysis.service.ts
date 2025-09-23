@@ -12,9 +12,7 @@ import type {
 } from '../types/cultural-dna.types';
 import { culturalTraitMappings, culturalDescriptors } from '../data/cultural-traits';
 import { hyperSpecificTraitMappings, languageToHyperCultures } from '../data/hyper-specific-traits';
-import {
-	viralPersonalityArchetypes
-} from '../data/viral-personality-archetypes';
+import { viralPersonalityArchetypes } from '../data/viral-personality-archetypes';
 import { viralScenarios } from '../data/viral-scenarios';
 
 // Use the viral personality archetypes
