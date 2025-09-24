@@ -19,7 +19,7 @@
 
 <svelte:head>
 	<script type="application/ld+json">
-JSON.stringify(jsonLd)
+		{@html JSON.stringify(jsonLd)}
 	</script>
 </svelte:head>
 

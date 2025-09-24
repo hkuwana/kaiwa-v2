@@ -221,7 +221,7 @@
 							🌍 Cultural Traits ({Object.keys(culturalDescriptors).length})
 						</h2>
 						<div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-							{#each Object.entries(culturalDescriptors) as [culture, descriptor]}
+							{#each Object.entries(culturalDescriptors) as [_culture, descriptor]}
 								<div class="rounded-lg border border-base-200 p-3">
 									<div class="mb-2 flex items-center gap-2">
 										<span class="text-lg">{descriptor.flag}</span>

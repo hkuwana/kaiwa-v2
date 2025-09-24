@@ -18,21 +18,31 @@ function buildConflictUpdate(newPayment: NewPayment) {
 export const paymentRepository = {
 	// CREATE
 	async createPayment(newPayment: NewPayment): Promise<Payment> {
-		let query = db.insert(payments).values(newPayment);
+		const baseInsert = db.insert(payments).values(newPayment);
 
 		if (newPayment.stripePaymentIntentId) {
-			query = query.onConflictDoUpdate({
-				target: payments.stripePaymentIntentId,
-				set: buildConflictUpdate(newPayment)
-			});
-		} else if (newPayment.stripeInvoiceId) {
-			query = query.onConflictDoUpdate({
-				target: payments.stripeInvoiceId,
-				set: buildConflictUpdate(newPayment)
-			});
+			const [createdPayment] = await baseInsert
+				.onConflictDoUpdate({
+					target: payments.stripePaymentIntentId,
+					set: buildConflictUpdate(newPayment)
+				})
+				.returning();
+
+			return createdPayment;
 		}
 
-		const [createdPayment] = await query.returning();
+		if (newPayment.stripeInvoiceId) {
+			const [createdPayment] = await baseInsert
+				.onConflictDoUpdate({
+					target: payments.stripeInvoiceId,
+					set: buildConflictUpdate(newPayment)
+				})
+				.returning();
+
+			return createdPayment;
+		}
+
+		const [createdPayment] = await baseInsert.returning();
 
 		return createdPayment;
 	},

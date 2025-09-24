@@ -2,12 +2,20 @@
 // In-memory storage for webhook events (dev only)
 
 import { dev } from '$app/environment';
+import type Stripe from 'stripe';
 
 // In-memory storage for webhook events (dev only)
 // In production, this would come from a database or logging service
-let webhookEvents: any[] = [];
+interface StoredWebhookEvent {
+	id: string;
+	type: string;
+	created: number;
+	data: unknown;
+	object: string;
+}
+let webhookEvents: StoredWebhookEvent[] = [];
 
-export function addWebhookEvent(event: any) {
+export function addWebhookEvent(event: Stripe.Event) {
 	if (!dev) return; // Only store in development
 
 	webhookEvents.push({
@@ -24,16 +32,19 @@ export function addWebhookEvent(event: any) {
 	}
 }
 
-export function getWebhookEvents(): any[] {
+export function getWebhookEvents(): StoredWebhookEvent[] {
 	// Return the most recent 50 events, sorted by timestamp
 	return webhookEvents.sort((a, b) => b.created - a.created).slice(0, 50);
 }
 
-export function addManualWebhookEvent(eventData: any) {
+export function addManualWebhookEvent(eventData: {
+	type?: string;
+	data?: Record<string, unknown>;
+}): StoredWebhookEvent | undefined {
 	if (!dev) return; // Only store in development
 
 	// Add event to in-memory storage
-	const event = {
+	const event: StoredWebhookEvent = {
 		id: `evt_${Date.now()}`,
 		type: eventData.type || 'manual.test',
 		created: Math.floor(Date.now() / 1000),
@@ -41,6 +52,6 @@ export function addManualWebhookEvent(eventData: any) {
 		object: 'event'
 	};
 
-	addWebhookEvent(event);
+	webhookEvents.push(event);
 	return event;
 }

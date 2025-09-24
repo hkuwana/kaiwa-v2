@@ -327,7 +327,7 @@
 										<div class="space-y-2">
 											<h4 class="text-sm font-medium">Recent Messages</h4>
 											<div class="space-y-1">
-												{#each messages.slice(-3) as message}
+												{#each messages.slice(-3) as message (message.id)}
 													<div class="rounded bg-base-200 p-2 text-xs">
 														<div class="flex justify-between">
 															<span class="font-medium">{message.role}</span>
@@ -345,7 +345,7 @@
 								<div class="space-y-2">
 									<h4 class="text-sm font-medium">All Messages ({messages.length})</h4>
 									<div class="max-h-80 space-y-1 overflow-y-auto">
-										{#each messages as message, i}
+										{#each messages as message, i (message.id)}
 											<div class="rounded bg-base-200 p-2 text-xs">
 												<div class="flex items-start justify-between">
 													<div>
@@ -431,7 +431,7 @@
 										<button class="btn btn-xs" onclick={clearEvents}>Clear</button>
 									</div>
 									<div class="max-h-80 space-y-1 overflow-y-auto">
-										{#each events.slice(-20) as event, i}
+										{#each events.slice(-20) as event, i (event.ts)}
 											<div class="rounded bg-base-200 p-2 text-xs">
 												<div class="flex justify-between">
 													<span class="font-medium">{event.type}</span>

@@ -30,7 +30,7 @@
 	// Convert tier configs to basic pricing format
 
 	type PricingTier = (typeof defaultTierConfigs)[UserTier];
-	type PricingApiTier = Partial<PricingTier> & { id: string };
+
 	type PricingLoadResult = {
 		tiers: Record<UserTier, PricingTier>;
 		error?: string;

@@ -24,12 +24,12 @@ export interface ConversationState {
 
 export interface ConversationAction {
 	type: string;
-	payload?: any;
+	payload?: Record<string, unknown>;
 }
 
 export interface ConversationEffect {
 	type: string;
-	payload?: any;
+	payload?: Record<string, unknown>;
 }
 
 // 🎯 Scenario Outcome Types

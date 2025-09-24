@@ -3,7 +3,11 @@
 
 import DOMPurify from 'dompurify';
 import type { Message } from '$lib/server/db/types';
-import type { ConversationItemCreatedEvent, ResponseAudioTranscriptDeltaEvent, ResponseAudioTranscriptDoneEvent } from '$lib/types/openai.realtime.types';
+import type {
+	ConversationItemCreatedEvent,
+	ResponseAudioTranscriptDeltaEvent,
+	ResponseAudioTranscriptDoneEvent
+} from '$lib/types/openai.realtime.types';
 
 export class SecuritySanitizer {
 	// Sanitize text input from user
@@ -84,7 +88,13 @@ export class SecuritySanitizer {
 	}
 
 	// Sanitize and validate GPT event using proper types
-	static sanitizeGPTEvent<T extends ConversationItemCreatedEvent | ResponseAudioTranscriptDeltaEvent | ResponseAudioTranscriptDoneEvent | Record<string, unknown>>(event: T): T | null {
+	static sanitizeGPTEvent<
+		T extends
+			| ConversationItemCreatedEvent
+			| ResponseAudioTranscriptDeltaEvent
+			| ResponseAudioTranscriptDoneEvent
+			| Record<string, unknown>
+	>(event: T): T | null {
 		if (!this.validateGPTResponse(event as Record<string, unknown>)) {
 			console.warn('🔒 Rejected potentially malicious GPT event:', event);
 			return null;
@@ -98,7 +108,7 @@ export class SecuritySanitizer {
 			case 'conversation.item.created': {
 				const createdEvent = sanitizedEvent as ConversationItemCreatedEvent;
 				if (createdEvent.item?.type === 'message' && createdEvent.item.content) {
-					createdEvent.item.content = createdEvent.item.content.map(content => {
+					createdEvent.item.content = createdEvent.item.content.map((content) => {
 						if (content.type === 'text' && 'text' in content) {
 							return {
 								...content,
@@ -138,7 +148,7 @@ export class SecuritySanitizer {
 		const dangerousPatterns = [
 			/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
 			/javascript:/gi,
-			/data:/gi,
+			/data:(?!image\/)/gi, // Allow data: for images, block for scripts
 			/vbscript:/gi,
 			/on\w+\s*=/gi,
 			/<iframe/gi,
@@ -154,7 +164,7 @@ export class SecuritySanitizer {
 	static sanitizeFuriganaHTML(html: string): string {
 		if (typeof html !== 'string') return '';
 
-			// Configure DOMPurify to allow only safe tags used by furigana/ruby markup
+		// Configure DOMPurify to allow only safe tags used by furigana/ruby markup
 		const cleanHTML = DOMPurify.sanitize(html, {
 			ALLOWED_TAGS: ['ruby', 'rt', 'rp', 'span', 'div'], // Japanese ruby markup tags
 			ALLOWED_ATTR: ['class', 'lang', 'data-*'], // Allow basic styling/language attributes
@@ -168,7 +178,7 @@ export class SecuritySanitizer {
 		return cleanHTML;
 	}
 
-	// Sanitize script generation content (hiragana, katakana, romaji, etc.)
+	// Sanitize script generation content (hiragana, katakana, romanization, etc.)
 	static sanitizeScriptContent(content: string): string {
 		if (typeof content !== 'string') return '';
 
@@ -201,7 +211,7 @@ export class SecuritySanitizer {
 		];
 
 		const contentString = JSON.stringify(content).toLowerCase();
-		return !dangerousPatterns.some(pattern => pattern.test(contentString));
+		return !dangerousPatterns.some((pattern) => pattern.test(contentString));
 	}
 
 	// Rate limiting for security

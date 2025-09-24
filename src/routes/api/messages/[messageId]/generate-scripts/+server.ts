@@ -77,7 +77,13 @@ export const POST = async ({ request, params }) => {
 		);
 
 		// Generate scripts based on language
-		let scriptResults: any = {};
+		let scriptResults: {
+			hiragana?: string;
+			romanization?: string;
+			katakana?: string;
+			furigana?: string;
+			otherScripts?: Record<string, string>;
+		} = {};
 
 		if (language === 'ja' || isJapaneseText(text)) {
 			console.log('Generating Japanese scripts directly with Kuroshiro...');
@@ -99,7 +105,11 @@ export const POST = async ({ request, params }) => {
 		console.log('Generated script results:', scriptResults);
 
 		// Update the message in the database with the generated scripts
-		const updateData: any = {};
+		const updateData: {
+			hiragana?: string;
+			romanization?: string;
+			otherScripts?: Record<string, string>;
+		} = {};
 
 		if (scriptResults.hiragana) {
 			updateData.hiragana = scriptResults.hiragana;

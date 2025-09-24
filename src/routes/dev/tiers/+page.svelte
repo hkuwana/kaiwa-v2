@@ -7,7 +7,6 @@
 	import { defaultTierConfigs, type UserTier } from '$lib/data/tiers';
 
 	// Use real tier configurations from data/tiers.ts
-	const tierConfigs = Object.values(defaultTierConfigs);
 
 	// State for quota testing
 	let currentQuotaStatus = $state<{
@@ -34,7 +33,6 @@
 		error?: string;
 	} | null>(null);
 
-	let selectedTier = $state('free');
 	let isLoading = $state(false);
 
 	// Mock usage status for TierBadge testing
@@ -195,13 +193,6 @@
 		} finally {
 			isLoading = false;
 		}
-	}
-
-	async function simulateTierChange(tierId: string) {
-		selectedTier = tierId;
-		// In a real scenario, this would update the user's tier in the database
-		console.log(`Simulating tier change to: ${tierId}`);
-		await checkQuotaStatus();
 	}
 
 	// Load quota status on mount

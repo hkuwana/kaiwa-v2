@@ -484,7 +484,7 @@
 		<div class="mb-8 rounded-lg bg-white p-6 shadow">
 			<h2 class="mb-4 text-2xl font-bold text-gray-900">🔍 Content Gap Analysis</h2>
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-				{#each contentGaps as gap}
+				{#each contentGaps as gap (gap.topic)}
 					<div class="rounded-lg border p-4">
 						<div class="mb-2 flex items-center justify-between">
 							<h3 class="font-semibold text-gray-800">{gap.topic}</h3>

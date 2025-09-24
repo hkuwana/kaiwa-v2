@@ -153,12 +153,14 @@ export function trackShare(dna: CulturalDNA, platform: string): void {
 }
 
 // Validate share link data
-export function validateShareData(shareData: any): shareData is ShareLinkData {
+export function validateShareData(shareData: unknown): shareData is ShareLinkData {
+	if (!shareData || typeof shareData !== 'object') return false;
+	const data = shareData as Record<string, unknown>;
 	return (
-		typeof shareData.dnaId === 'string' &&
-		typeof shareData.personalityType === 'string' &&
-		typeof shareData.culturalMix === 'string' &&
-		typeof shareData.shareText === 'string' &&
-		['instagram', 'tiktok', 'twitter', 'whatsapp', 'link'].includes(shareData.platform)
+		typeof data.dnaId === 'string' &&
+		typeof data.personalityType === 'string' &&
+		typeof data.culturalMix === 'string' &&
+		typeof data.shareText === 'string' &&
+		['instagram', 'tiktok', 'twitter', 'whatsapp', 'link'].includes(data.platform as string)
 	);
 }

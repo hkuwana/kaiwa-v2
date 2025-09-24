@@ -5,6 +5,7 @@
 import { stripe } from './stripe.service';
 import { serverTierConfigs, getStripePriceId } from '../tiers';
 import type { UserTier } from '../db/types';
+import type Stripe from 'stripe';
 import { subscriptionRepository } from '../repositories/subscription.repository';
 import { userRepository } from '../repositories/user.repository';
 
@@ -39,7 +40,9 @@ export async function getStripeSubscription(stripeCustomerId: string) {
  * Determine user's tier from Stripe subscription
  * Maps Stripe price ID to our tier system
  */
-export function getTierFromStripeSubscription(stripeSubscription: any): UserTier {
+export function getTierFromStripeSubscription(
+	stripeSubscription: Stripe.Subscription | null | undefined
+): UserTier {
 	if (!stripeSubscription) return 'free';
 
 	const priceId = stripeSubscription.items?.data?.[0]?.price?.id;
@@ -84,9 +87,18 @@ export async function getUserTierFromStripe(stripeCustomerId: string): Promise<{
 		subscriptionId: stripeSubscription.id,
 		priceId: stripeSubscription.items?.data?.[0]?.price?.id,
 		status: stripeSubscription.status,
-		currentPeriodEnd: (stripeSubscription as any).current_period_end
-			? new Date((stripeSubscription as any).current_period_end * 1000)
-			: undefined
+		currentPeriodEnd: (() => {
+			const extendedSubscription = stripeSubscription as Stripe.Subscription & {
+				current_period_end?: number;
+			};
+			if (extendedSubscription.current_period_end) {
+				return new Date(extendedSubscription.current_period_end * 1000);
+			}
+			if (stripeSubscription.cancel_at) {
+				return new Date(stripeSubscription.cancel_at * 1000);
+			}
+			return undefined;
+		})()
 	};
 }
 
@@ -243,12 +255,12 @@ export async function getUserCurrentTier(userId: string): Promise<UserTier> {
 
 		// Try Stripe first (source of truth)
 		const stripeData = await getUserTierFromStripe(user.stripeCustomerId);
-		if (stripeData.hasActiveSubscription) {
+		if (stripeData.hasActiveSubscription && stripeData.subscriptionId && stripeData.priceId) {
 			// Sync to DB for backup
 			await updateUserSubscriptionInDB(
 				userId,
-				stripeData.subscriptionId!,
-				stripeData.priceId!,
+				stripeData.subscriptionId,
+				stripeData.priceId,
 				stripeData.tier
 			);
 			return stripeData.tier;

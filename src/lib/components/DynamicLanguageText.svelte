@@ -104,15 +104,6 @@
 		startAnimation();
 	}
 
-	function toggleDropdown() {
-		showDropdown = !showDropdown;
-		if (showDropdown) {
-			stopAnimation();
-		} else if (!isUserSelected) {
-			startAnimation();
-		}
-	}
-
 	onMount(() => {
 		startAnimation();
 		return () => stopAnimation();

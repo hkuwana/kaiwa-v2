@@ -28,7 +28,7 @@ const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
 		"frame-ancestors 'none'", // Prevent embedding in frames
 		"base-uri 'self'", // Restrict base tag
 		"form-action 'self' https://api.stripe.com", // Allow form submissions to Stripe
-		"upgrade-insecure-requests", // Force HTTPS in production
+		'upgrade-insecure-requests', // Force HTTPS in production
 		`report-uri ${dev ? '' : '/api/csp-report'}` // CSP violation reporting
 	].filter(Boolean);
 
@@ -39,9 +39,11 @@ const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
 		'X-Content-Type-Options': 'nosniff',
 		'Referrer-Policy': 'strict-origin-when-cross-origin',
 		'Permissions-Policy': 'geolocation=(), microphone=(), camera=(), payment=()',
-		...(dev ? {} : {
-			'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
-		})
+		...(dev
+			? {}
+			: {
+					'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+				})
 	};
 
 	// Set security headers
@@ -126,4 +128,10 @@ const userSetup: Handle = async ({ event, resolve }) => {
 };
 
 // Sequence the handles in the correct order
-export const handle: Handle = sequence(handleDevRoutes, handleParaglide, handleAuth, userSetup, handleSecurityHeaders);
+export const handle: Handle = sequence(
+	handleDevRoutes,
+	handleParaglide,
+	handleAuth,
+	userSetup,
+	handleSecurityHeaders
+);
