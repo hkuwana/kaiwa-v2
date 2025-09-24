@@ -52,7 +52,12 @@ This is where the feature-specific, client-side (or universal) code lives.
 
 - **Encapsulation**: All client-side code related to a single feature (UI, state, logic) is co-located.
 - **Clear Boundaries**: Features should not directly import from other features. They can only interact with shared code from the root of `src/lib/`.
-- **Example**: The `payments` feature contains all the components, stores, and services needed for the payment processing experience.
+- **Simple Structure**: Each feature uses a consistent 3-folder pattern:
+  - `components/` - Feature-specific UI components
+  - `services/` - Feature business logic (can include processors, config as needed)
+  - `stores/` - Feature-specific state management
+- **Cross-feature Communication**: Via `FeatureBridge` utility only
+- **Example**: The `realtime-conversation` feature contains all components, stores, and services needed for conducting conversations.
 
 ### `src/lib/server`
 
@@ -92,18 +97,45 @@ The data flow is designed to maintain clear boundaries between layers.
 
 ---
 
-## 🚚 Migration Strategy
+## 🚚 Migration Strategy: 4-Phase Approach
 
-We can migrate to this new architecture incrementally, one feature at a time.
+We migrate to feature-based architecture incrementally over 6 weeks:
 
-1.  **Start with a small feature**: Begin with a less critical feature, like `payments`.
-2.  **Create the new directories**: Set up the `features` and `server/database` directories.
-3.  **Move the files**:
-    - Move the feature's client-side components, stores, and services into `src/lib/features/[feature_name]`.
-    - Move any server-side database logic into a repository in `src/lib/server/database/repositories`.
-4.  **Update imports**: Adjust all imports to point to the new file locations.
-5.  **Test**: Thoroughly test the migrated feature.
-6.  **Repeat**: Continue this process for all other features.
+### **Phase 1: Prepare Feature Structure (Week 1)**
+1. Create `src/lib/features/` directory
+2. Verify shared components in `$lib/` are properly organized
+3. Set up feature folder templates with simple 3-folder pattern:
+   - `components/` - Feature-specific UI
+   - `services/` - Feature business logic
+   - `stores/` - Feature state management
+
+### **Phase 2: Extract Features (Week 2-3)**
+Priority order for extraction:
+1. **`realtime-conversation`** - Core conversation functionality
+2. **`analysis`** - Post-conversation analysis pipeline
+3. **`onboarding`** - User onboarding flow
+4. **`cultural-dna`** - Viral sharing feature
+
+For each feature:
+- Move feature-specific components, stores, services
+- Update import paths from `$lib/services/X` to `$lib/features/X/services/Y`
+- Ensure feature only imports from `$lib/*` (shared), never other features
+
+### **Phase 3: Feature Bridges (Week 4)**
+1. Implement `FeatureBridge` utility for cross-feature communication
+2. Set up permission utilities for tier-based access control
+3. Create feature event system for loose coupling
+4. Test feature independence (no circular imports)
+
+### **Phase 4: API Reorganization (Week 5-6)**
+1. Restructure API routes to resource-oriented approach:
+   - `api/users/` - User management
+   - `api/conversations/` - Conversation CRUD
+   - `api/billing/` - Payment operations
+   - `api/features/` - Feature-specific endpoints
+2. Implement repository pattern in `src/lib/server/repositories/`
+3. Migrate existing endpoints to new structure
+4. Update client code to use new API structure
 
 ---
 

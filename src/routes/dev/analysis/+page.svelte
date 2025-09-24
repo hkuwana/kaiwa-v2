@@ -1,9 +1,22 @@
 <!-- Dev Analysis Testing Route -->
 <script lang="ts">
-	import { executeOnboardingAnalysis } from '$lib/services/onboarding-manager.service';
-	import type { Message, Language, UserPreferences } from '$lib/server/db/types';
 	import { languages } from '$lib/data/languages';
+	import { cloneDefaultCategories } from '$lib/features/analysis/config/analysis-categories.config';
+	import { runAnalysisOrchestrator } from '$lib/features/analysis/services/analysis-orchestrator.service';
+	import type { Language, Message, UserPreferences } from '$lib/server/db/types';
 	import { SvelteDate } from 'svelte/reactivity';
+
+	
+	type Finding = {
+		id: string;
+		category: string;
+		modality: string;
+		summary: string;
+		details?: Record<string, unknown>;
+		targetMessageId?: string;
+		suggestedAction?: string;
+		confidence?: number;
+	};
 
 	const ANALYSIS_CONVERSATION_ID = 'analysis-dev-conversation';
 
@@ -49,7 +62,6 @@
 		};
 	}
 
-	// Mock data for testing
 	const dummyMessages: Message[] = [
 		createMessage({
 			id: '1',
@@ -86,94 +98,126 @@
 		})
 	];
 
-	// State
-	let isAnalyzing = $state(false);
-	let analysisResult = $state<any>(null);
-	let analysisError = $state<string | null>(null);
-	let selectedLanguage = $state<Language>(languages.find((l) => l.code === 'ja') || languages[0]);
-	let analysisSteps = $state<string[]>([]);
-	let rawAIResponse = $state<string>('');
-	let storedMemories = $state<string[]>([]);
-	let lastPreferenceUpdate = $state<Partial<UserPreferences> | null>(null);
-
-	// Mock preferences provider for testing
-	const mockPreferencesProvider = {
-		isGuest: () => true,
-		getPreference: <K extends keyof UserPreferences>(key: K) => {
-			if (key === 'memories') {
-				return storedMemories as unknown as UserPreferences[K];
-			}
-
-			const defaults: Partial<UserPreferences> = {
-				successfulExchanges: 0,
-				speakingLevel: 25,
-				listeningLevel: 30,
-				learningGoal: 'Connection',
-				favoriteScenarioIds: [],
-				memories: storedMemories
-			};
-			return defaults[key] as UserPreferences[K];
-		},
-		updatePreferences: async (updates: Partial<UserPreferences>) => {
-			console.log('Mock: Would update preferences with:', updates);
-			if (Array.isArray(updates.memories)) {
-				storedMemories = updates.memories as string[];
-			}
-			lastPreferenceUpdate = updates;
-			analysisResult = { ...analysisResult, ...updates };
-		}
+	const baselinePreferences: Partial<UserPreferences> = {
+		successfulExchanges: 0,
+		speakingLevel: 25,
+		listeningLevel: 30,
+		learningGoal: 'Connection',
+		favoriteScenarioIds: []
 	};
 
+	const allCategories = cloneDefaultCategories();
+
+	let isAnalyzing = $state(false);
+	let analysisError = $state<string | null>(null);
+	let selectedLanguage = $state<Language>(languages.find((l) => l.code === 'ja') || languages[0]);
+	let analysisMode = $state<'quick' | 'full'>('full');
+	let selectedCategoryIds = $state<string[]>(
+		allCategories.filter((category) => category.defaultEnabled !== false).map((category) => category.id)
+	);
+	let analysisSteps = $state<string[]>([]);
+	let analysisSnapshot = $state<any>(null);
+	let categoryStatusMap = $state<Record<string, ReturnType<typeof buildCategoryStatus>>>({});
+	let runCounter = $state(0);
+
+	function buildCategoryStatus(category: (typeof allCategories)[number]) {
+		return {
+			id: category.id,
+			label: category.label,
+			modality: category.modality,
+			state: 'pending' as 'pending' | 'running' | 'complete',
+			durationMs: 0,
+			findingsCount: 0,
+			summary: ''
+		};
+	}
+
+	function buildEmptySnapshot() {
+		return {
+			meta: null,
+			categories: [] as string[],
+			findings: [] as Array<Record<string, unknown>>,
+			logs: [] as string[]
+		};
+	}
+
+	function toggleCategory(id: string) {
+		if (isAnalyzing) return;
+		if (selectedCategoryIds.includes(id)) {
+			selectedCategoryIds = selectedCategoryIds.filter((existing) => existing !== id);
+		} else {
+			selectedCategoryIds = [...selectedCategoryIds, id];
+		}
+	}
+
 	async function runAnalysis() {
+		const categoriesToRun = allCategories.filter((category) => selectedCategoryIds.includes(category.id));
+		if (categoriesToRun.length === 0) {
+			analysisError = 'Select at least one category to run analysis.';
+			return;
+		}
+
 		isAnalyzing = true;
 		analysisError = null;
-		analysisResult = null;
 		analysisSteps = [];
-		rawAIResponse = '';
+		analysisSnapshot = buildEmptySnapshot();
+		categoryStatusMap = Object.fromEntries(categoriesToRun.map((category) => [category.id, buildCategoryStatus(category)]));
+		runCounter += 1;
+
+		const sessionId = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+			? crypto.randomUUID()
+			: `dev-session-${runCounter}`;
+
+		analysisSteps = [...analysisSteps, `🚀 Run #${runCounter} starting (${analysisMode} mode)`];
+		analysisSteps = [...analysisSteps, `📋 Session ID: ${sessionId}`];
+		analysisSteps = [
+			...analysisSteps,
+			`🗣️ User messages: ${dummyMessages.filter((message) => message.role === 'user').length}`
+		];
+		analysisSteps = [...analysisSteps, `🌍 Target language: ${selectedLanguage.name}`];
+		analysisSteps = [...analysisSteps, `🧩 Categories: ${categoriesToRun.map((category) => category.label).join(', ')}`];
 
 		try {
-			analysisSteps = [...analysisSteps, '🚀 Starting analysis pipeline...'];
-
-			const sessionId = crypto.randomUUID();
-			analysisSteps = [...analysisSteps, `📋 Session ID: ${sessionId}`];
-			analysisSteps = [
-				...analysisSteps,
-				`🗣️ Analyzing ${dummyMessages.filter((m) => m.role === 'user').length} user messages`
-			];
-			analysisSteps = [
-				...analysisSteps,
-				`🌍 Target language: ${selectedLanguage.name} (${selectedLanguage.code})`
-			];
-
-			// Call the actual analysis pipeline
-			const result = await executeOnboardingAnalysis(
-				selectedLanguage,
-				dummyMessages,
-				sessionId,
-				mockPreferencesProvider
+			const result = await runAnalysisOrchestrator(
+				{
+					categories: categoriesToRun,
+					messages: dummyMessages,
+					language: selectedLanguage,
+					mode: analysisMode,
+					preferences: baselinePreferences,
+					sessionId,
+					context: { source: 'dev-analysis-route' }
+				},
+				{
+					onCategoryStart: ({ id, label }) => {
+						analysisSteps = [...analysisSteps, `⏳ ${label} starting...`];
+						categoryStatusMap = {
+							...categoryStatusMap,
+							[id]: {
+								...categoryStatusMap[id],
+								state: 'running'
+							}
+						};
+					},
+					onCategoryComplete: ({ config, findings, durationMs, summary }) => {
+						analysisSteps = [...analysisSteps, `✅ ${config.label} completed (${durationMs.toFixed(1)}ms)`];
+						categoryStatusMap = {
+							...categoryStatusMap,
+							[config.id]: {
+								...categoryStatusMap[config.id],
+								state: 'complete',
+								durationMs,
+								findingsCount: findings.length,
+								summary: summary ?? ''
+							}
+						};
+					}
+				}
 			);
 
-			if (result.success) {
-				analysisSteps = [...analysisSteps, '✅ Analysis completed successfully!'];
-				analysisSteps = [...analysisSteps, '🎯 Extracting user preferences...'];
+			analysisSnapshot = result.snapshot;
 
-				// Get the updated result from our mock provider
-				const finalResult = analysisResult;
-				analysisSteps = [
-					...analysisSteps,
-					`📊 Found ${Object.keys(finalResult || {}).length} preference updates`
-				];
-
-				analysisSteps = [
-					...analysisSteps,
-					storedMemories.length > 0
-						? `🧠 Stored memories (${storedMemories.length}): ${storedMemories.join(', ')}`
-						: '🧠 Stored memories: none (analysis payload did not include memories)'
-				];
-			} else {
-				analysisError = result.error || 'Analysis failed';
-				analysisSteps = [...analysisSteps, `❌ Analysis failed: ${analysisError}`];
-			}
+			analysisSteps = [...analysisSteps, '🏁 Analysis run complete'];
 		} catch (error) {
 			analysisError = error instanceof Error ? error.message : 'Unknown error';
 			analysisSteps = [...analysisSteps, `💥 Exception: ${analysisError}`];
@@ -181,6 +225,10 @@
 			isAnalyzing = false;
 		}
 	}
+
+	const categoryList = $derived(Object.values(categoryStatusMap));
+
+	const activeFindings = $derived(analysisSnapshot?.findings ?? []);
 </script>
 
 <svelte:head>
@@ -192,27 +240,72 @@
 		<!-- Header -->
 		<div class="mb-8">
 			<h1 class="text-3xl font-bold text-base-content">🧪 Analysis Pipeline Testing</h1>
-			<p class="mt-2 text-base-content/70">
-				Test the onboarding analysis with dummy conversation data
-			</p>
+				<p class="mt-2 text-base-content/70">
+					Exercise the modular analysis pipeline with sample conversation data
+				</p>
 		</div>
 
 		<div class="grid gap-6 lg:grid-cols-2">
-			<!-- Left Column: Input & Controls -->
+			<!-- Left Column: Inputs & Controls -->
 			<div class="space-y-6">
 				<!-- Language Selection -->
 				<div class="card bg-base-100 shadow-lg">
-					<div class="card-body">
+					<div class="card-body space-y-4">
 						<h2 class="card-title text-lg">🌍 Language Selection</h2>
 						<select
 							class="select-bordered select w-full"
 							bind:value={selectedLanguage}
 							disabled={isAnalyzing}
 						>
-							{#each languages.filter((l) => l.isSupported) as lang}
+							{#each languages.filter((lang) => lang.isSupported) as lang}
 								<option value={lang}>{lang.name} ({lang.code})</option>
 							{/each}
 						</select>
+
+						<div class="flex items-center justify-between">
+							<span class="text-sm font-medium">Mode</span>
+							<div class="join">
+								<button
+									class={`btn btn-sm join-item ${analysisMode === 'quick' ? 'btn-primary' : 'btn-ghost'}`}
+									onclick={() => (analysisMode = 'quick')}
+									disabled={isAnalyzing}
+								>
+									Quick
+								</button>
+								<button
+									class={`btn btn-sm join-item ${analysisMode === 'full' ? 'btn-primary' : 'btn-ghost'}`}
+									onclick={() => (analysisMode = 'full')}
+									disabled={isAnalyzing}
+								>
+									Full
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Category Selection -->
+				<div class="card bg-base-100 shadow-lg">
+					<div class="card-body">
+						<h2 class="card-title text-lg">🧩 Categories</h2>
+						<p class="text-sm opacity-70">Toggle the analysis modules you want to exercise.</p>
+						<div class="mt-4 space-y-3">
+							{#each allCategories as category}
+								<label class="flex cursor-pointer items-start gap-3 rounded-lg border border-base-200 p-3 hover:border-primary/50">
+									<input
+										type="checkbox"
+										class="checkbox"
+										checked={selectedCategoryIds.includes(category.id)}
+										onchange={() => toggleCategory(category.id)}
+										disabled={isAnalyzing && !selectedCategoryIds.includes(category.id)}
+									/>
+									<div>
+										<p class="font-medium">{category.label}</p>
+										<p class="text-xs opacity-60">{category.description}</p>
+									</div>
+								</label>
+							{/each}
+						</div>
 					</div>
 				</div>
 
@@ -220,12 +313,10 @@
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body">
 						<h2 class="card-title text-lg">💬 Test Conversation</h2>
-						<div class="max-h-96 space-y-3 overflow-y-auto">
+						<div class="max-h-80 space-y-3 overflow-y-auto">
 							{#each dummyMessages as message}
 								<div
-									class="rounded-lg p-3 {message.role === 'user'
-										? 'ml-4 bg-primary/10'
-										: 'mr-4 bg-base-200'}"
+									class={`rounded-lg p-3 ${message.role === 'user' ? 'ml-4 bg-primary/10' : 'mr-4 bg-base-200'}`}
 								>
 									<div class="mb-1 text-xs font-medium opacity-70">
 										{message.role === 'user' ? '👤 User' : '🤖 Assistant'}
@@ -239,8 +330,11 @@
 
 				<!-- Controls -->
 				<div class="card bg-base-100 shadow-lg">
-					<div class="card-body">
+					<div class="card-body space-y-4">
 						<h2 class="card-title text-lg">🎮 Controls</h2>
+						<div class="text-sm opacity-70">
+							Selected categories: {selectedCategoryIds.length} / {allCategories.length}
+						</div>
 						<button class="btn w-full btn-primary" onclick={runAnalysis} disabled={isAnalyzing}>
 							{#if isAnalyzing}
 								<span class="loading loading-sm loading-spinner"></span>
@@ -253,7 +347,7 @@
 				</div>
 			</div>
 
-			<!-- Right Column: Results & Pipeline -->
+			<!-- Right Column: Results & Diagnostics -->
 			<div class="space-y-6">
 				<!-- Analysis Steps -->
 				<div class="card bg-base-100 shadow-lg">
@@ -278,70 +372,96 @@
 					</div>
 				</div>
 
-				<!-- Stored Memories Preview -->
+				<!-- Category Status -->
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body">
-						<h2 class="card-title text-lg">🧠 Stored Memories</h2>
-						{#if storedMemories.length > 0}
-							<ul class="space-y-2 text-sm">
-								{#each storedMemories as memory, index}
-									<li class="flex items-start gap-2 rounded bg-base-200 p-2">
-										<span class="text-xs opacity-70">#{index + 1}</span>
-										<span>{memory}</span>
+						<h2 class="card-title text-lg">🧭 Category Status</h2>
+						{#if categoryList.length === 0}
+							<p class="text-sm opacity-70">Run an analysis to populate status.</p>
+						{:else}
+							<ul class="space-y-3">
+								{#each categoryList as category}
+									<li class="rounded-lg border border-base-200 p-3">
+										<div class="flex items-center justify-between text-sm">
+											<span class="font-medium">{category.label}</span>
+											<span class={`badge badge-sm ${category.state === 'complete' ? 'badge-success' : category.state === 'running' ? 'badge-warning' : 'badge-ghost'}`}>
+												{category.state}
+											</span>
+										</div>
+										<div class="mt-2 text-xs opacity-70">
+											{category.summary || 'Awaiting summary'}
+										</div>
+										<div class="mt-1 flex items-center justify-between text-xs">
+											<span>Findings: {category.findingsCount}</span>
+											<span>{category.durationMs ? `${category.durationMs.toFixed(1)}ms` : '—'}</span>
+										</div>
 									</li>
 								{/each}
 							</ul>
-						{:else}
-							<p class="text-sm opacity-70">
-								No memories stored yet. Run the analysis to populate them.
-							</p>
 						{/if}
 					</div>
 				</div>
 
-				<!-- Last Preference Update -->
+				<!-- Findings -->
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body">
-						<h2 class="card-title text-lg">📦 Last Preference Update Payload</h2>
-						{#if lastPreferenceUpdate}
-							<pre class="max-h-48 overflow-y-auto rounded bg-base-200 p-3 text-xs">
-								{JSON.stringify(lastPreferenceUpdate, null, 2)}
-							</pre>
+						<h2 class="card-title text-lg">🔎 Findings</h2>
+						{#if activeFindings.length === 0}
+							<p class="text-sm opacity-70">No findings yet. Run the analysis or wait for completion.</p>
 						{:else}
-							<p class="text-sm opacity-70">No updates captured yet.</p>
-						{/if}
-					</div>
-				</div>
-
-				<!-- Analysis Results -->
-				{#if analysisResult}
-					<div class="card bg-base-100 shadow-lg">
-						<div class="card-body">
-							<h2 class="card-title text-lg">🎯 Analysis Results</h2>
 							<div class="space-y-3">
-								{#each Object.entries(analysisResult) as [key, value]}
-									<div class="flex items-center justify-between">
-										<span class="text-sm font-medium capitalize"
-											>{key.replace(/([A-Z])/g, ' $1')}:</span
-										>
-										<span class="rounded bg-primary/10 px-2 py-1 text-sm">
-											{typeof value === 'object' ? JSON.stringify(value) : String(value)}
-										</span>
+								{#each activeFindings as finding, index}
+									<div class="rounded-lg border border-base-200 p-3">
+										<div class="flex items-center justify-between text-xs">
+											<span class="font-semibold">{finding.category}</span>
+											<span class="badge badge-outline">{finding.modality}</span>
+										</div>
+										<p class="mt-2 text-sm">{finding.summary}</p>
+										{#if finding.details}
+											<details class="mt-2">
+												<summary class="cursor-pointer text-xs font-medium text-primary">Details</summary>
+												<pre class="mt-1 max-h-48 overflow-y-auto rounded bg-base-200 p-2 text-[11px]">
+													{JSON.stringify(finding.details, null, 2)}
+												</pre>
+											</details>
+										{/if}
+										<div class="mt-2 flex flex-wrap gap-2 text-[11px] opacity-70">
+											{#if finding.targetMessageId}
+												<span>Message: {finding.targetMessageId}</span>
+											{/if}
+											{#if finding.suggestedAction}
+												<span>Action: {finding.suggestedAction}</span>
+											{/if}
+											{#if typeof finding.confidence === 'number'}
+												<span>Confidence: {(finding.confidence * 100).toFixed(0)}%</span>
+											{/if}
+										</div>
 									</div>
 								{/each}
 							</div>
-						</div>
+						{/if}
 					</div>
-				{/if}
+				</div>
 
-				<!-- Raw AI Response -->
-				{#if rawAIResponse}
+				<!-- Snapshot & Raw Output -->
+				{#if analysisSnapshot}
 					<div class="card bg-base-100 shadow-lg">
-						<div class="card-body">
-							<h2 class="card-title text-lg">🤖 Raw AI Response</h2>
-							<div class="max-h-48 overflow-y-auto rounded bg-base-200 p-3 font-mono text-xs">
-								{rawAIResponse}
-							</div>
+						<div class="card-body space-y-4">
+							<h2 class="card-title text-lg">🗂️ Snapshot</h2>
+							{#if analysisSnapshot.meta}
+								<div class="grid gap-2 text-xs opacity-70 sm:grid-cols-2">
+									<span>Mode: {analysisSnapshot.meta.mode}</span>
+									<span>Language: {analysisSnapshot.meta.languageCode}</span>
+									<span>Session: {analysisSnapshot.meta.sessionId}</span>
+									<span>Run ID: {analysisSnapshot.meta.analysisRunId}</span>
+								</div>
+							{/if}
+							<details>
+								<summary class="cursor-pointer text-sm font-medium text-primary">View JSON Snapshot</summary>
+								<pre class="mt-2 max-h-60 overflow-y-auto rounded bg-base-200 p-3 text-[11px]">
+									{JSON.stringify(analysisSnapshot, null, 2)}
+								</pre>
+							</details>
 						</div>
 					</div>
 				{/if}
@@ -350,12 +470,7 @@
 				{#if analysisError}
 					<div class="alert alert-error">
 						<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M6 18L18 6M6 6l12 12"
-							></path>
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
 						</svg>
 						<div>
 							<h3 class="font-medium">Analysis Error</h3>

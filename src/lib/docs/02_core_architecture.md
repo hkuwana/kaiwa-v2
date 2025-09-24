@@ -460,20 +460,61 @@ export class ConversationStore {
 - ✅ Stores orchestrate services effectively
 - ✅ UI is clean and declarative
 
-### Next Steps
+### Next Steps: Feature-Based Migration
 
-- 🔄 Add authentication service and store
-- 🔄 Add persistence service and store
-- 🔄 Add analytics service and store
-- 🔄 Enhance conversation features
+**Phase 1: Prepare Feature Structure (Week 1)**
+- 🔄 Create `src/lib/features/` directory structure
+- 🔄 Verify shared components in `$lib/` are properly organized
+
+**Phase 2: Extract Features (Week 2-3)**
+- 🔄 Extract `realtime-conversation` feature (core functionality)
+- 🔄 Extract `analysis` feature (post-conversation analysis)
+- 🔄 Extract `onboarding` feature (user onboarding flow)
+- 🔄 Extract `cultural-dna` feature (viral sharing)
+
+**Phase 3: Feature Bridges (Week 4)**
+- 🔄 Implement FeatureBridge utility for cross-feature communication
+- 🔄 Set up permission utilities for tier-based access
+- 🔄 Test feature independence and isolation
+
+**Phase 4: API Reorganization (Week 5-6)**
+- 🔄 Restructure API routes to resource-oriented approach
+- 🔄 Implement repository pattern for data access
+- 🔄 Migrate existing endpoints to new structure
+
+### Architecture Evolution: Implicit Sharing + Features
+
+The current 3-layer architecture will evolve to support feature-based development:
+
+```text
+src/lib/
+├── stores/           # SHARED by default (Cross-cutting concerns)
+├── services/         # SHARED by default (Business logic)
+├── utils/            # SHARED by default (Helper functions)
+├── components/       # SHARED by default (Reusable UI)
+└── features/         # Feature-specific implementations
+    ├── realtime-conversation/
+    │   ├── components/    # Feature-specific UI
+    │   ├── services/      # Feature business logic
+    │   └── stores/        # Feature state management
+    ├── analysis/
+    ├── cultural-dna/
+    └── onboarding/
+```
+
+**Key Principles:**
+- **Implicit Sharing**: Top-level `$lib/` is shared by default
+- **Feature Isolation**: Features never import from each other
+- **Cross-feature Communication**: Via FeatureBridge utility only
+- **Gradual Migration**: Features can be extracted incrementally
 
 ### Long-term Vision
 
-- **Multi-language support**
-- **Advanced conversation modes**
-- **Social features**
-- **Mobile applications**
+- **Feature Independence**: Each feature can be developed and tested in isolation
+- **Scalable Team Development**: Multiple developers can work on different features
+- **Clean API Structure**: Resource-oriented endpoints with repository pattern
+- **Advanced Features**: Analysis pipeline, viral sharing, personalized learning
 
 ---
 
-_This architecture ensures Kaiwa v2 is maintainable, scalable, and follows modern best practices for complex applications._
+_This architecture ensures Kaiwa v2 remains maintainable and scalable while supporting feature-based development and team collaboration._
