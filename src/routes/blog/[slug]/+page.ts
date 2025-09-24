@@ -1,35 +1,40 @@
 import { error } from '@sveltejs/kit';
+import { getBlogPost, getRelatedPosts, getAllBlogPosts } from '$lib/blog/utils/blogIndex.js';
+import { createBlogSeo } from '$lib/blog/utils/blogSeo.js';
+import { calculateReadingTime } from '$lib/blog/utils/blogProcessor.js';
 
-export const load = async ({ params, parent }) => {
+export const load = async ({ params, parent, url }) => {
 	const { slug } = params;
 	const { seo } = await parent();
 
-	try {
-		const module = await import(`../../../lib/blog/${slug}.md`);
-		const metadata = module.metadata || {};
+	const post = await getBlogPost(slug);
 
-		if (metadata.published === false) {
-			throw error(404, `Blog post "${slug}" not found`);
-		}
-
-		const postSeo = {
-			title: `${metadata.title} | Kaiwa Blog`,
-			description: metadata.description,
-			ogType: 'article',
-			article: {
-				published_time: metadata.date,
-				authors: [metadata.author || 'Kaiwa Team'],
-				tags: metadata.tags || []
-			}
-		};
-
-		return {
-			content: module.default,
-			metadata,
-			seo: { ...seo, ...postSeo }
-		};
-	} catch (e: unknown) {
-		console.error('Error loading blog post:', e);
+	if (!post) {
 		throw error(404, `Blog post "${slug}" not found`);
 	}
+
+	// Calculate reading time if not provided
+	if (!post.metadata.readTime) {
+		// Get raw content from the module to calculate reading time
+		try {
+			const module = await import(`../../../lib/blog/posts/${slug}.md?raw`);
+			const rawContent = module.default;
+			post.metadata.readTime = calculateReadingTime(rawContent);
+		} catch {
+			post.metadata.readTime = '5 min read';
+		}
+	}
+
+	// Get related posts
+	const allPosts = await getAllBlogPosts();
+	const relatedPosts = getRelatedPosts(post, allPosts, 3);
+
+	// Create enhanced SEO data
+	const postSeo = createBlogSeo(post.metadata, slug, url.origin);
+
+	return {
+		post,
+		relatedPosts,
+		seo: { ...seo, ...postSeo }
+	};
 };

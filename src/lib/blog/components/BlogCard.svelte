@@ -1,13 +1,13 @@
 <script lang="ts">
-	import type { BlogPost } from '../utils/blogProcessor.js';
-	import { formatDate } from '../utils/blogProcessor.js';
+	import type { BlogPost } from '$lib/blog/utils/blogProcessor.js';
+	import { formatDate } from '$lib/blog/utils/blogProcessor.js';
 
 	const { post } = $props<{ post: BlogPost }>();
 </script>
 
-<article class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+<article class="card bg-base-100 shadow-xl transition-shadow duration-300 hover:shadow-2xl">
 	<div class="card-body">
-		<div class="flex flex-wrap items-center gap-2 text-sm text-base-content/60 mb-3">
+		<div class="mb-3 flex flex-wrap items-center gap-2 text-sm text-base-content/60">
 			<time class="font-medium">
 				{formatDate(post.metadata.date)}
 			</time>
@@ -21,20 +21,20 @@
 			{/if}
 		</div>
 
-		<h2 class="card-title text-xl font-bold hover:text-primary transition-colors">
+		<h2 class="card-title text-xl font-bold transition-colors hover:text-primary">
 			<a href="/blog/{post.slug}" class="link-hover">
 				{post.metadata.title}
 			</a>
 		</h2>
 
 		{#if post.metadata.excerpt}
-			<p class="text-base-content/80 leading-relaxed mb-4">
+			<p class="mb-4 leading-relaxed text-base-content/80">
 				{post.metadata.excerpt}
 			</p>
 		{/if}
 
 		{#if post.metadata.tags && post.metadata.tags.length > 0}
-			<div class="flex flex-wrap gap-2 mb-4">
+			<div class="mb-4 flex flex-wrap gap-2">
 				{#each post.metadata.tags as tag}
 					<span class="badge badge-outline badge-sm">{tag}</span>
 				{/each}
@@ -42,9 +42,7 @@
 		{/if}
 
 		<div class="card-actions justify-end">
-			<a href="/blog/{post.slug}" class="btn btn-primary btn-sm">
-				Read More
-			</a>
+			<a href="/blog/{post.slug}" class="btn btn-sm btn-primary"> Read More </a>
 		</div>
 	</div>
 </article>

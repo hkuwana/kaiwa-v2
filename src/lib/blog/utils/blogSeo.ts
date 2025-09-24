@@ -16,7 +16,11 @@ export interface BlogSeoData {
 	};
 }
 
-export function createBlogSeo(metadata: BlogMetadata, slug: string, baseUrl: string = 'https://trykaiwa.com'): BlogSeoData {
+export function createBlogSeo(
+	metadata: BlogMetadata,
+	slug: string,
+	baseUrl: string = 'https://trykaiwa.com'
+): BlogSeoData {
 	const url = `${baseUrl}/blog/${slug}`;
 
 	return {
@@ -39,7 +43,8 @@ export function createBlogSeo(metadata: BlogMetadata, slug: string, baseUrl: str
 export function createBlogListSeo(baseUrl: string = 'https://trykaiwa.com'): BlogSeoData {
 	return {
 		title: 'Blog | Kaiwa - Conversation Practice & Language Learning',
-		description: 'Discover insights on conversation practice, language learning techniques, and AI-powered education from the Kaiwa team.',
+		description:
+			'Discover insights on conversation practice, language learning techniques, and AI-powered education from the Kaiwa team.',
 		ogType: 'website',
 		ogImage: `${baseUrl}/og-image.png`,
 		twitterCard: 'summary_large_image',
@@ -70,14 +75,18 @@ export function generateMetaTags(seoData: BlogSeoData): string {
 	}
 
 	if (seoData.article) {
-		tags.push(`<meta property="article:published_time" content="${seoData.article.published_time}">`);
+		tags.push(
+			`<meta property="article:published_time" content="${seoData.article.published_time}">`
+		);
 		if (seoData.article.modified_time) {
-			tags.push(`<meta property="article:modified_time" content="${seoData.article.modified_time}">`);
+			tags.push(
+				`<meta property="article:modified_time" content="${seoData.article.modified_time}">`
+			);
 		}
-		seoData.article.authors.forEach(author => {
+		seoData.article.authors.forEach((author) => {
 			tags.push(`<meta property="article:author" content="${author}">`);
 		});
-		seoData.article.tags.forEach(tag => {
+		seoData.article.tags.forEach((tag) => {
 			tags.push(`<meta property="article:tag" content="${tag}">`);
 		});
 		if (seoData.article.section) {

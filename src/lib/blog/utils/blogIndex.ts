@@ -25,7 +25,9 @@ export async function getAllBlogPosts(): Promise<BlogPost[]> {
 	}
 
 	// Sort by date (newest first)
-	return posts.sort((a, b) => new Date(b.metadata.date).getTime() - new Date(a.metadata.date).getTime());
+	return posts.sort(
+		(a, b) => new Date(b.metadata.date).getTime() - new Date(a.metadata.date).getTime()
+	);
 }
 
 export async function getBlogPost(slug: string): Promise<BlogPost | null> {
@@ -63,21 +65,23 @@ export function paginatePosts(posts: BlogPost[], page: number, postsPerPage: num
 	};
 }
 
-export function getRelatedPosts(currentPost: BlogPost, allPosts: BlogPost[], limit: number = 3): BlogPost[] {
+export function getRelatedPosts(
+	currentPost: BlogPost,
+	allPosts: BlogPost[],
+	limit: number = 3
+): BlogPost[] {
 	const currentTags = currentPost.metadata.tags || [];
 
 	if (currentTags.length === 0) {
-		return allPosts
-			.filter(post => post.slug !== currentPost.slug)
-			.slice(0, limit);
+		return allPosts.filter((post) => post.slug !== currentPost.slug).slice(0, limit);
 	}
 
 	// Calculate relevance score based on shared tags
 	const scoredPosts = allPosts
-		.filter(post => post.slug !== currentPost.slug)
-		.map(post => {
+		.filter((post) => post.slug !== currentPost.slug)
+		.map((post) => {
 			const postTags = post.metadata.tags || [];
-			const sharedTags = currentTags.filter(tag => postTags.includes(tag));
+			const sharedTags = currentTags.filter((tag) => postTags.includes(tag));
 			return {
 				post,
 				score: sharedTags.length
@@ -85,7 +89,7 @@ export function getRelatedPosts(currentPost: BlogPost, allPosts: BlogPost[], lim
 		})
 		.sort((a, b) => b.score - a.score);
 
-	return scoredPosts.slice(0, limit).map(item => item.post);
+	return scoredPosts.slice(0, limit).map((item) => item.post);
 }
 
 export function generateRssFeed(posts: BlogPost[]): string {
@@ -94,7 +98,8 @@ export function generateRssFeed(posts: BlogPost[]): string {
 
 	const items = posts
 		.slice(0, 20) // Latest 20 posts
-		.map(post => `
+		.map(
+			(post) => `
 		<item>
 			<title><![CDATA[${post.metadata.title}]]></title>
 			<description><![CDATA[${post.metadata.description}]]></description>
@@ -102,9 +107,11 @@ export function generateRssFeed(posts: BlogPost[]): string {
 			<guid isPermaLink="true">${baseUrl}/blog/${post.slug}</guid>
 			<pubDate>${new Date(post.metadata.date).toUTCString()}</pubDate>
 			${post.metadata.author ? `<author>noreply@trykaiwa.com (${post.metadata.author})</author>` : ''}
-			${post.metadata.tags?.map(tag => `<category>${tag}</category>`).join('') || ''}
+			${post.metadata.tags?.map((tag) => `<category>${tag}</category>`).join('') || ''}
 		</item>
-	`).join('');
+	`
+		)
+		.join('');
 
 	return `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">

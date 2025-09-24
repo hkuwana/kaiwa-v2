@@ -23,7 +23,9 @@ export function calculateReadingTime(content: string): string {
 	return `${minutes} min read`;
 }
 
-export function generateTableOfContents(content: string): Array<{ title: string; anchor: string; level: number }> {
+export function generateTableOfContents(
+	content: string
+): Array<{ title: string; anchor: string; level: number }> {
 	const headingRegex = /^(#{1,6})\s+(.+)$/gm;
 	const toc: Array<{ title: string; anchor: string; level: number }> = [];
 	let match;
