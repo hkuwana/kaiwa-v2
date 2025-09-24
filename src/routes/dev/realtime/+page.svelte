@@ -5,7 +5,7 @@
 	import { audioService } from '$lib/services/audio.service';
 	import * as messageService from '$lib/services/message.service';
 	import { DEFAULT_VOICE, type Voice } from '$lib/types/openai.realtime.types';
-	import MessageBubble from '$lib/components/MessageBubble.svelte';
+	import MessageBubble from '$lib/features/conversation/components/MessageBubble.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 
 	let stream: MediaStream | null = null;

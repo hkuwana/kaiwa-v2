@@ -2,7 +2,7 @@
 	import { browser } from '$app/environment';
 	import UnifiedStartButton from '$lib/components/UnifiedStartButton.svelte';
 	import ChatBubbleFlow from '$lib/components/ChatBubbleFlow.svelte';
-	import InteractiveScenarioPreview from '$lib/components/InteractiveScenarioPreview.svelte';
+	import InteractiveScenarioPreview from '$lib/features/scenarios/components/InteractiveScenarioPreview.svelte';
 	import DynamicLanguageText from '$lib/components/DynamicLanguageText.svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';

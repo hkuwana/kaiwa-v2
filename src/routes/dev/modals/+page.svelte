@@ -1,7 +1,7 @@
 <script lang="ts">
 	import PricingModal from '$lib/features/payments/components/PricingModal.svelte';
-	import ScenarioOutcome from '$lib/components/ScenarioOutcome.svelte';
-	import ScenarioProgress from '$lib/components/ScenarioProgress.svelte';
+	import ScenarioOutcome from '$lib/features/scenarios/components/ScenarioOutcome.svelte';
+	import ScenarioProgress from '$lib/features/scenarios/components/ScenarioProgress.svelte';
 	import TierBadge from '$lib/features/payments/components/TierBadge.svelte';
 	import VoiceSelector from '$lib/components/VoiceSelector.svelte';
 

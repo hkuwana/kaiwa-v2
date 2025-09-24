@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import { conversationRepository } from '$lib/server/repositories/conversation.repository';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
 import { conversationSummaryService, userService } from '$lib/server/services';
+import { usageService } from '$lib/server/services/usage.service';
 import { createSuccessResponse, createErrorResponse } from '$lib/types/api';
 
 export const POST = async ({ request }) => {
@@ -55,6 +56,17 @@ export const POST = async ({ request }) => {
 					extensionsUsed,
 					wasExtended
 				);
+			}
+		}
+
+		// Record usage for the user
+		if (endedConversation.userId) {
+			try {
+				await usageService.recordConversation(endedConversation.userId, {
+					seconds: durationSeconds
+				});
+			} catch (usageError) {
+				console.error('Error recording conversation usage:', usageError);
 			}
 		}
 

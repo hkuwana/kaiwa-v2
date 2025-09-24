@@ -16,7 +16,7 @@ A reusable debug panel component for investigating duplicate messages and realti
 ### 1. Import the component
 
 ```svelte
-import RealtimeDebugPanel from '$lib/components/RealtimeDebugPanel.svelte';
+import RealtimeDebugPanel from '$lib/features/development/components/RealtimeDebugPanel.svelte';
 ```
 
 ### 2. Add the component to your template

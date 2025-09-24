@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { fade, fly, scale } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
-	import AnimatedHeadphones from '$lib/components/AnimatedHeadphones.svelte';
+	import AnimatedHeadphones from '$lib/features/audio/components/AnimatedHeadphones.svelte';
 
 	let showHeadphones = $state(true);
 	let showTooltip = $state(false);

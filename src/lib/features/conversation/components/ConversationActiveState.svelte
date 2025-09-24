@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
-	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
-	import MessageBubble from '$lib/components/MessageBubble.svelte';
-	import ConversationFab from '$lib/components/ConversationFab.svelte';
+	import AudioVisualizer from '$lib/features/audio/components/AudioVisualizer.svelte';
+	import MessageBubble from '$lib/features/conversation/components/MessageBubble.svelte';
+	import ConversationFab from '$lib/features/conversation/components/ConversationFab.svelte';
 	import type { Message, Language, UserPreferences } from '$lib/server/db/types';
 	import type { Speaker } from '$lib/types';
 	import { translationStore } from '$lib/stores/translation.store.svelte';

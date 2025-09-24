@@ -106,6 +106,10 @@ export class UserUsageRepository {
 			longestSessionSeconds?: number;
 			averageSessionSeconds?: number;
 			overageSeconds?: number;
+			tierWhenUsed?: UserUsage['tierWhenUsed'];
+			lastConversationAt?: Date;
+			lastRealtimeAt?: Date;
+			firstActivityAt?: Date;
 		}
 	): Promise<UserUsage | null> {
 		const current = await this.getCurrentMonthUsage(userId);
@@ -158,6 +162,22 @@ export class UserUsageRepository {
 		}
 		if (updates.overageSeconds !== undefined) {
 			updateData.overageSeconds = (current.overageSeconds || 0) + updates.overageSeconds;
+		}
+
+		if (updates.tierWhenUsed !== undefined) {
+			updateData.tierWhenUsed = updates.tierWhenUsed;
+		}
+		if (updates.lastConversationAt) {
+			updateData.lastConversationAt = updates.lastConversationAt;
+		}
+		if (updates.lastRealtimeAt) {
+			updateData.lastRealtimeAt = updates.lastRealtimeAt;
+		}
+		if (!current.firstActivityAt) {
+			updateData.firstActivityAt = updates.firstActivityAt || new Date();
+		} else if (updates.firstActivityAt) {
+			// Allow explicit overrides when we intentionally pass a timestamp
+			updateData.firstActivityAt = updates.firstActivityAt;
 		}
 
 		// Update existing record

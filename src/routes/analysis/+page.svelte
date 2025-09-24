@@ -4,8 +4,8 @@
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
 
-	import ConversationReviewableState from '$lib/components/ConversationReviewableState.svelte';
-	import QuickAnalysis from '$lib/components/QuickAnalysis.svelte';
+	import ConversationReviewableState from '$lib/features/conversation/components/ConversationReviewableState.svelte';
+	import QuickAnalysis from '$lib/features/analysis/components/QuickAnalysis.svelte';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import {

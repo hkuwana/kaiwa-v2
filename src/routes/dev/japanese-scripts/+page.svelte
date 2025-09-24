@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
-	import MessageBubble from '$lib/components/MessageBubble.svelte';
+	import MessageBubble from '$lib/features/conversation/components/MessageBubble.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 	// import { getUserJapaneseScenarios } from '$lib/data/testing';
 

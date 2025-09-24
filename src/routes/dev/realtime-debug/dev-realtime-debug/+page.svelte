@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import { realtimeOpenAI } from '$lib/stores/realtime-openai.store.svelte';
-	import RealtimeDebugPanel from '$lib/components/RealtimeDebugPanel.svelte';
+	import RealtimeDebugPanel from '$lib/features/development/components/RealtimeDebugPanel.svelte';
 	import type { Language } from '$lib/server/db/types';
 	import { languages } from '$lib/data/languages';
 

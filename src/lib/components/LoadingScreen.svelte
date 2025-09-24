@@ -4,8 +4,8 @@
 	import { fade, fly, scale } from 'svelte/transition';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import type { ConversationStatus } from '$lib/services/conversation.service';
-	import AnimatedHeadphones from './AnimatedHeadphones.svelte';
-	import AudioPermissionPrompt from './AudioPermissionPrompt.svelte';
+	import AnimatedHeadphones from '$lib/features/audio/components/AnimatedHeadphones.svelte';
+	import AudioPermissionPrompt from '$lib/features/audio/components/AudioPermissionPrompt.svelte';
 	import { getSpeakerById } from '$lib/data/speakers';
 	import { audioStore } from '$lib/stores/audio.store.svelte';
 

@@ -343,9 +343,21 @@ export async function getUsageSummary(userId: string) {
 /**
  * Record conversation usage
  */
-export async function recordConversation(userId: string) {
+export async function recordConversation(
+	userId: string,
+	options?: {
+		seconds?: number;
+	}
+) {
+	const userTier = await getUserCurrentTier(userId);
+	const now = new Date();
+
 	return await userUsageRepository.incrementUsage(userId, {
-		conversationsUsed: 1
+		conversationsUsed: 1,
+		...(options?.seconds !== undefined ? { secondsUsed: options.seconds } : {}),
+		lastConversationAt: now,
+		firstActivityAt: now,
+		tierWhenUsed: userTier
 	});
 }
 
@@ -353,8 +365,13 @@ export async function recordConversation(userId: string) {
  * Record seconds used
  */
 export async function recordSeconds(userId: string, seconds: number) {
+	const userTier = await getUserCurrentTier(userId);
+	const now = new Date();
+
 	return await userUsageRepository.incrementUsage(userId, {
-		secondsUsed: seconds
+		secondsUsed: seconds,
+		firstActivityAt: now,
+		tierWhenUsed: userTier
 	});
 }
 
@@ -362,8 +379,14 @@ export async function recordSeconds(userId: string, seconds: number) {
  * Record realtime session usage
  */
 export async function recordRealtimeSession(userId: string) {
+	const userTier = await getUserCurrentTier(userId);
+	const now = new Date();
+
 	return await userUsageRepository.incrementUsage(userId, {
-		realtimeSessionsUsed: 1
+		realtimeSessionsUsed: 1,
+		lastRealtimeAt: now,
+		firstActivityAt: now,
+		tierWhenUsed: userTier
 	});
 }
 
@@ -384,10 +407,17 @@ export async function recordUsage(
 	}
 ) {
 	const updates: Parameters<typeof userUsageRepository.incrementUsage>[1] = {};
+	const now = new Date();
 
-	if (usage.conversations) updates.conversationsUsed = usage.conversations;
+	if (usage.conversations) {
+		updates.conversationsUsed = usage.conversations;
+		updates.lastConversationAt = now;
+	}
 	if (usage.seconds) updates.secondsUsed = usage.seconds;
-	if (usage.realtimeSessions) updates.realtimeSessionsUsed = usage.realtimeSessions;
+	if (usage.realtimeSessions) {
+		updates.realtimeSessionsUsed = usage.realtimeSessions;
+		updates.lastRealtimeAt = now;
+	}
 	if (usage.ankiExports) updates.ankiExportsUsed = usage.ankiExports;
 	if (usage.sessionExtensions) updates.sessionExtensionsUsed = usage.sessionExtensions;
 	if (usage.advancedVoiceSeconds) updates.advancedVoiceSeconds = usage.advancedVoiceSeconds;
@@ -397,6 +427,10 @@ export async function recordUsage(
 	if (Object.keys(updates).length === 0) {
 		return null;
 	}
+
+	const userTier = await getUserCurrentTier(userId);
+	updates.tierWhenUsed = userTier;
+	updates.firstActivityAt = now;
 
 	return await userUsageRepository.incrementUsage(userId, updates);
 }

@@ -54,7 +54,7 @@ The Enhanced AudioVisualizer is a Svelte 5 component that provides:
 
 ```svelte
 <script>
-	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
+	import AudioVisualizer from '$lib/features/audio/components/AudioVisualizer.svelte';
 
 	let audioLevel = 0;
 	let isRecording = false;
@@ -88,7 +88,7 @@ The Enhanced AudioVisualizer is a Svelte 5 component that provides:
 
 ```svelte
 <script>
-	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
+	import AudioVisualizer from '$lib/features/audio/components/AudioVisualizer.svelte';
 	import { audioService } from '$lib/services/audio.service';
 
 	let audioLevel = 0;

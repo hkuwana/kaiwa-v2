@@ -15,15 +15,15 @@
 	import { determineAnalysisType } from '$lib/services/analysis.service';
 
 	// Import all state components
-	import ConnectingState from '$lib/components/ConversationConnectingState.svelte';
-	import ErrorState from '$lib/components/ConversationErrorState.svelte';
-	import ActiveConversationState from '$lib/components/ConversationActiveState.svelte';
+	import ConnectingState from '$lib/features/conversation/components/ConversationConnectingState.svelte';
+	import ErrorState from '$lib/features/conversation/components/ConversationErrorState.svelte';
+	import ActiveConversationState from '$lib/features/conversation/components/ConversationActiveState.svelte';
 	import DevPanel from '$lib/components/DevPanel.svelte';
-	import MessageBubble from '$lib/components/MessageBubble.svelte';
+	import MessageBubble from '$lib/features/conversation/components/MessageBubble.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 
 	// Keep existing components for analysis temporarily
-	import OnboardingResults from '$lib/components/OnboardingResults.svelte';
+	import OnboardingResults from '$lib/features/scenarios/components/OnboardingResults.svelte';
 	import { audioStore } from '$lib/stores/audio.store.svelte';
 	import type { Message } from '$lib/server/db/types';
 

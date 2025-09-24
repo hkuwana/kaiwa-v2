@@ -1,5 +1,5 @@
 <script lang="ts">
-	import LoadingScreen from './LoadingScreen.svelte';
+	import LoadingScreen from '$lib/components/LoadingScreen.svelte';
 
 	interface Props {
 		error: string | null;

@@ -1,7 +1,7 @@
 <!-- Dev Messages Testing Page -->
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import MessageBubble from '$lib/components/MessageBubble.svelte';
+	import MessageBubble from '$lib/features/conversation/components/MessageBubble.svelte';
 	import {
 		generateScriptsForMessage,
 		detectLanguage,

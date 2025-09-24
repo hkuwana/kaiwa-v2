@@ -1,5 +1,5 @@
 <script lang="ts">
-	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
+	import AudioVisualizer from '$lib/features/audio/components/AudioVisualizer.svelte';
 	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
 
 	// Mock data for testing

@@ -1,7 +1,7 @@
 <!-- InteractiveScenarioPreview.svelte - Interactive carousel showcasing conversation scenarios -->
 <script lang="ts">
 	import { scenariosData } from '$lib/data/scenarios';
-	import MessageBubble from './MessageBubble.svelte';
+	import MessageBubble from '$lib/features/conversation/components/MessageBubble.svelte';
 	import { onMount } from 'svelte';
 	import type { Message } from '$lib/server/db/types';
 	import { SvelteDate } from 'svelte/reactivity';
@@ -404,7 +404,7 @@
 									romanization: showTranslations[message.id] ? message.romanization : null,
 									hiragana: showTranslations[message.id] ? message.hiragana : null
 								}}
-								dispatch={(event, _data) => {
+								dispatch={(event: string, _data: any) => {
 									if (event === 'translate' || event === 'toggle') {
 										toggleTranslation(message.id);
 									}

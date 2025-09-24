@@ -5,7 +5,7 @@
 	import { fade, slide } from 'svelte/transition';
 	import { dev } from '$app/environment';
 	import type { Message } from '$lib/server/db/types';
-	import VirtualizedMessageList from '$lib/components/VirtualizedMessageList.svelte';
+	import VirtualizedMessageList from '$lib/features/conversation/components/VirtualizedMessageList.svelte';
 	import { SvelteDate, SvelteMap, SvelteSet, SvelteURLSearchParams } from 'svelte/reactivity';
 
 	interface ConversationPreview {

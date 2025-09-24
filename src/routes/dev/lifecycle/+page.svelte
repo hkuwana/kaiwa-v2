@@ -1,5 +1,5 @@
 <script lang="ts">
-	import OnboardingLifecycle from '$lib/components/OnboardingLifecycle.svelte';
+	import OnboardingLifecycle from '$lib/features/scenarios/components/OnboardingLifecycle.svelte';
 
 	import { goto } from '$app/navigation';
 
@@ -248,7 +248,7 @@
 						<div class="mockup-code text-sm">
 							<pre><code
 									>&lt;script&gt;
-  import OnboardingLifecycle from '$lib/components/OnboardingLifecycle.svelte';
+  import OnboardingLifecycle from '$lib/features/scenarios/components/OnboardingLifecycle.svelte';
 &lt;/script&gt;
 
 &lt;!-- Smart variant (recommended) --&gt;

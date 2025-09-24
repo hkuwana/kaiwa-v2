@@ -22,9 +22,54 @@
 		premium: 'icon-[mdi--crown]'
 	};
 
-	function formatUsage(used: number, limit: number | null): string {
+	function formatUsage(
+		used: number,
+		limit: number | null,
+		options?: { treatHundredAsUnlimited?: boolean }
+	): string {
 		if (limit === null) return `${used}`;
+		if (options?.treatHundredAsUnlimited && limit >= 100) {
+			return `${used}`;
+		}
 		return `${used}/${limit}`;
+	}
+
+	function formatSecondsReadable(seconds: number): string {
+		if (seconds <= 0) return '0s';
+		const minutes = Math.floor(seconds / 60);
+		const remainingSeconds = seconds % 60;
+
+		if (minutes > 0 && remainingSeconds > 0) {
+			return `${minutes}m ${remainingSeconds}s`;
+		}
+		if (minutes > 0) {
+			return `${minutes}m`;
+		}
+		return `${remainingSeconds}s`;
+	}
+
+	function formatRemainingConversations(used: number, limit: number | null): string {
+		if (limit === null || limit >= 100) {
+			return 'Unlimited';
+		}
+		const remaining = Math.max(limit - used, 0);
+		return `${remaining} left`;
+	}
+
+	function formatRemainingSeconds(used: number, limit: number | null): string {
+		if (limit === null) {
+			return 'Unlimited';
+		}
+		const remaining = Math.max(limit - used, 0);
+		return `${formatSecondsReadable(remaining)} left`;
+	}
+
+	function formatRemainingRealtime(used: number, limit: number | null): string {
+		if (limit === null || limit >= 100) {
+			return 'Unlimited';
+		}
+		const remaining = Math.max(limit - used, 0);
+		return `${remaining} left`;
 	}
 
 	function getUsagePercentage(used: number, limit: number | null): number {
@@ -54,85 +99,114 @@
 
 		{#if showDetails}
 			<!-- Usage Details -->
-			<div class="space-y-2 text-sm">
+			<div class="space-y-3 text-sm">
 				<!-- Conversations -->
-				<div class="flex items-center justify-between">
-					<span class="opacity-70">Conversations:</span>
-					<div class="flex items-center space-x-2">
-						<span class="font-medium">
-							{formatUsage(
+				<div class="flex items-start justify-between gap-4">
+					<span class="mt-0.5 opacity-70">Conversations:</span>
+					<div class="flex flex-col items-end gap-1 text-right">
+						<div class="flex items-center gap-2">
+							<span class="font-medium">
+								{formatUsage(
+									tierStatus.usage.conversationsUsed || 0,
+									tierStatus.tier.monthlyConversations,
+									{ treatHundredAsUnlimited: true }
+								)}
+								used
+							</span>
+							{#if tierStatus.tier.monthlyConversations !== null}
+								<progress
+									class="progress {getProgressBarColor(
+										getUsagePercentage(
+											tierStatus.usage.conversationsUsed || 0,
+											tierStatus.tier.monthlyConversations
+										)
+									)} h-2 w-16"
+									value={getUsagePercentage(
+										tierStatus.usage.conversationsUsed || 0,
+										tierStatus.tier.monthlyConversations
+									)}
+									max="100"
+								></progress>
+							{/if}
+						</div>
+						<span class="text-xs opacity-60">
+							{formatRemainingConversations(
 								tierStatus.usage.conversationsUsed || 0,
 								tierStatus.tier.monthlyConversations
 							)}
 						</span>
-						{#if tierStatus.tier.monthlyConversations !== null}
-							<progress
-								class="progress {getProgressBarColor(
-									getUsagePercentage(
-										tierStatus.usage.conversationsUsed || 0,
-										tierStatus.tier.monthlyConversations
-									)
-								)} h-2 w-16"
-								value={getUsagePercentage(
-									tierStatus.usage.conversationsUsed || 0,
-									tierStatus.tier.monthlyConversations
-								)}
-								max="100"
-							></progress>
-						{/if}
 					</div>
 				</div>
 
 				<!-- Seconds -->
-				<div class="flex items-center justify-between">
-					<span class="opacity-70">Seconds:</span>
-					<div class="flex items-center space-x-2">
-						<span class="font-medium">
-							{formatUsage(tierStatus.usage.secondsUsed || 0, tierStatus.tier.monthlySeconds)}
-						</span>
-						{#if tierStatus.tier.monthlySeconds !== null}
-							<progress
-								class="progress {getProgressBarColor(
-									getUsagePercentage(
+				<div class="flex items-start justify-between gap-4">
+					<span class="mt-0.5 opacity-70">Seconds:</span>
+					<div class="flex flex-col items-end gap-1 text-right">
+						<div class="flex items-center gap-2">
+							<span class="font-medium">
+								{formatUsage(tierStatus.usage.secondsUsed || 0, tierStatus.tier.monthlySeconds)}
+								used
+							</span>
+							{#if tierStatus.tier.monthlySeconds !== null}
+								<progress
+									class="progress {getProgressBarColor(
+										getUsagePercentage(
+											tierStatus.usage.secondsUsed || 0,
+											tierStatus.tier.monthlySeconds
+										)
+									)} h-2 w-16"
+									value={getUsagePercentage(
 										tierStatus.usage.secondsUsed || 0,
 										tierStatus.tier.monthlySeconds
-									)
-								)} h-2 w-16"
-								value={getUsagePercentage(
-									tierStatus.usage.secondsUsed || 0,
-									tierStatus.tier.monthlySeconds
-								)}
-								max="100"
-							></progress>
-						{/if}
+									)}
+									max="100"
+								></progress>
+							{/if}
+						</div>
+						<span class="text-xs opacity-60">
+							{formatRemainingSeconds(
+								tierStatus.usage.secondsUsed || 0,
+								tierStatus.tier.monthlySeconds
+							)}
+						</span>
 					</div>
 				</div>
 
 				<!-- Realtime Sessions -->
-				<div class="flex items-center justify-between">
-					<span class="opacity-70">Realtime:</span>
-					<div class="flex items-center space-x-2">
-						<span class="font-medium">
-							{formatUsage(
+				<div class="flex items-start justify-between gap-4">
+					<span class="mt-0.5 opacity-70">Realtime:</span>
+					<div class="flex flex-col items-end gap-1 text-right">
+						<div class="flex items-center gap-2">
+							<span class="font-medium">
+								{formatUsage(
+									tierStatus.usage.realtimeSessionsUsed || 0,
+									tierStatus.tier.monthlyRealtimeSessions,
+									{ treatHundredAsUnlimited: true }
+								)}
+								used
+							</span>
+							{#if tierStatus.tier.monthlyRealtimeSessions !== null}
+								<progress
+									class="progress {getProgressBarColor(
+										getUsagePercentage(
+											tierStatus.usage.realtimeSessionsUsed || 0,
+											tierStatus.tier.monthlyRealtimeSessions
+										)
+									)} h-2 w-16"
+									value={getUsagePercentage(
+										tierStatus.usage.realtimeSessionsUsed || 0,
+										tierStatus.tier.monthlyRealtimeSessions
+									)}
+									max="100"
+								></progress>
+							{/if}
+						</div>
+						<span class="text-xs opacity-60">
+							{formatRemainingRealtime(
 								tierStatus.usage.realtimeSessionsUsed || 0,
 								tierStatus.tier.monthlyRealtimeSessions
 							)}
 						</span>
-						{#if tierStatus.tier.monthlyRealtimeSessions !== null}
-							<progress
-								class="progress {getProgressBarColor(
-									getUsagePercentage(
-										tierStatus.usage.realtimeSessionsUsed || 0,
-										tierStatus.tier.monthlyRealtimeSessions
-									)
-								)} h-2 w-16"
-								value={getUsagePercentage(
-									tierStatus.usage.realtimeSessionsUsed || 0,
-									tierStatus.tier.monthlyRealtimeSessions
-								)}
-								max="100"
-							></progress>
-						{/if}
 					</div>
 				</div>
 

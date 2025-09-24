@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ConversationFab from '$lib/components/ConversationFab.svelte';
+	import ConversationFab from '$lib/features/conversation/components/ConversationFab.svelte';
 	import { GUEST_USER } from '$lib/data/user';
 	import type { User } from '$lib/server/db/types';
 

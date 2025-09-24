@@ -1,7 +1,7 @@
 <!-- Enhanced AudioVisualizer Demo -->
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import AudioVisualizer from '$lib/components/AudioVisualizer.svelte';
+	import AudioVisualizer from '$lib/features/audio/components/AudioVisualizer.svelte';
 	import { audioService } from '$lib/services/audio.service';
 	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
 	import { realtimeService } from '$lib/services';

@@ -2,7 +2,7 @@
 	import type { Message, UserPreferences } from '$lib/server/db/types';
 	import type { Language } from '$lib/server/db/types';
 	import VirtualizedMessageList from './VirtualizedMessageList.svelte';
-	import OnboardingResults from './OnboardingResults.svelte';
+	import OnboardingResults from '$lib/features/scenarios/components/OnboardingResults.svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import ShareKaiwa from '$lib/components/ShareKaiwa.svelte';
 	import { track } from '$lib/analytics/posthog';

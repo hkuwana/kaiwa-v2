@@ -4,7 +4,7 @@
 	import { goto } from '$app/navigation';
 	import { track } from '$lib/analytics/posthog';
 	import LanguageSelector from './LanguageSelector.svelte';
-	import ScenarioSelector from './ScenarioSelector.svelte';
+	import ScenarioSelector from '$lib/features/scenarios/components/ScenarioSelector.svelte';
 	import type { Language as DataLanguage } from '$lib/data/languages';
 	import type { User, Scenario } from '$lib/server/db/types';
 	import { getTopSpeakerForScenario, getSpeakersByLanguage } from '$lib/data/speakers';
