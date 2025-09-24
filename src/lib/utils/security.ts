@@ -1,6 +1,10 @@
 // 🔒 Security Utilities
 // Sanitize GPT data in real-time to prevent XSS and injection attacks
 
+import DOMPurify from 'dompurify';
+import type { Message } from '$lib/server/db/types';
+import type { ConversationItemCreatedEvent, ResponseAudioTranscriptDeltaEvent, ResponseAudioTranscriptDoneEvent } from '$lib/types/openai.realtime.types';
+
 export class SecuritySanitizer {
 	// Sanitize text input from user
 	static sanitizeInput(text: string): string {
@@ -30,25 +34,34 @@ export class SecuritySanitizer {
 			.slice(0, 50000); // Limit length
 	}
 
-	// Sanitize conversation message
-	static sanitizeMessage(message: any): any {
+	// Sanitize conversation message using proper Message type
+	static sanitizeMessage(message: Partial<Message>): Partial<Message> {
 		if (!message || typeof message !== 'object') return message;
 
 		const sanitized = { ...message };
 
-		if (sanitized.content) {
+		if (sanitized.content && typeof sanitized.content === 'string') {
 			sanitized.content = this.sanitizeOutput(sanitized.content);
 		}
 
-		if (sanitized.text) {
-			sanitized.text = this.sanitizeOutput(sanitized.text);
+		if (sanitized.translatedContent && typeof sanitized.translatedContent === 'string') {
+			sanitized.translatedContent = this.sanitizeOutput(sanitized.translatedContent);
+		}
+
+		// Sanitize script content fields
+		if (sanitized.hiragana && typeof sanitized.hiragana === 'string') {
+			sanitized.hiragana = this.sanitizeFuriganaHTML(sanitized.hiragana);
+		}
+
+		if (sanitized.romanization && typeof sanitized.romanization === 'string') {
+			sanitized.romanization = this.sanitizeScriptContent(sanitized.romanization);
 		}
 
 		return sanitized;
 	}
 
 	// Validate GPT response structure
-	static validateGPTResponse(response: any): boolean {
+	static validateGPTResponse(response: Record<string, unknown>): boolean {
 		if (!response || typeof response !== 'object') return false;
 
 		// Check for required fields
@@ -70,39 +83,52 @@ export class SecuritySanitizer {
 		return !dangerousPatterns.some((pattern) => responseStr.includes(pattern));
 	}
 
-	// Sanitize and validate GPT event
-	static sanitizeGPTEvent(event: any): any {
-		if (!this.validateGPTResponse(event)) {
+	// Sanitize and validate GPT event using proper types
+	static sanitizeGPTEvent<T extends ConversationItemCreatedEvent | ResponseAudioTranscriptDeltaEvent | ResponseAudioTranscriptDoneEvent | Record<string, unknown>>(event: T): T | null {
+		if (!this.validateGPTResponse(event as Record<string, unknown>)) {
 			console.warn('🔒 Rejected potentially malicious GPT event:', event);
 			return null;
 		}
 
+		// Create a copy to avoid mutating the original event
+		const sanitizedEvent = { ...event } as T;
+
 		// Sanitize based on event type
 		switch (event.type) {
-			case 'conversation.item.completed':
-				if (event.item?.content) {
-					event.item.content = event.item.content.map((c: any) =>
-						c.type === 'output_text' ? this.sanitizeMessage(c) : c
-					);
+			case 'conversation.item.created': {
+				const createdEvent = sanitizedEvent as ConversationItemCreatedEvent;
+				if (createdEvent.item?.type === 'message' && createdEvent.item.content) {
+					createdEvent.item.content = createdEvent.item.content.map(content => {
+						if (content.type === 'text' && 'text' in content) {
+							return {
+								...content,
+								text: this.sanitizeOutput(content.text)
+							};
+						}
+						return content;
+					});
 				}
 				break;
+			}
 
-			case 'response.audio_transcript.delta':
-			case 'response.output_audio_transcript.delta':
-				if (event.delta) {
-					event.delta = this.sanitizeOutput(event.delta);
+			case 'response.audio_transcript.delta': {
+				const deltaEvent = sanitizedEvent as ResponseAudioTranscriptDeltaEvent;
+				if (deltaEvent.delta) {
+					deltaEvent.delta = this.sanitizeOutput(deltaEvent.delta);
 				}
 				break;
+			}
 
-			case 'response.audio_transcript.done':
-			case 'response.output_audio_transcript.done':
-				if (event.transcript) {
-					event.transcript = this.sanitizeOutput(event.transcript);
+			case 'response.audio_transcript.done': {
+				const doneEvent = sanitizedEvent as ResponseAudioTranscriptDoneEvent;
+				if (doneEvent.transcript) {
+					doneEvent.transcript = this.sanitizeOutput(doneEvent.transcript);
 				}
 				break;
+			}
 		}
 
-		return event;
+		return sanitizedEvent;
 	}
 
 	// Check if text contains potentially dangerous content
@@ -121,6 +147,61 @@ export class SecuritySanitizer {
 		];
 
 		return dangerousPatterns.some((pattern) => pattern.test(text));
+	}
+
+	// Sanitize HTML content for furigana/pinyin display
+	// Allows only safe HTML tags used by Japanese/Chinese script libraries
+	static sanitizeFuriganaHTML(html: string): string {
+		if (typeof html !== 'string') return '';
+
+			// Configure DOMPurify to allow only safe tags used by furigana/ruby markup
+		const cleanHTML = DOMPurify.sanitize(html, {
+			ALLOWED_TAGS: ['ruby', 'rt', 'rp', 'span', 'div'], // Japanese ruby markup tags
+			ALLOWED_ATTR: ['class', 'lang', 'data-*'], // Allow basic styling/language attributes
+			ALLOW_DATA_ATTR: true, // Allow data attributes for styling
+			KEEP_CONTENT: true, // Keep text content even if tags are stripped
+			SANITIZE_DOM: true, // Deep DOM sanitization
+			RETURN_DOM: false, // Return string, not DOM object
+			RETURN_DOM_FRAGMENT: false
+		});
+
+		return cleanHTML;
+	}
+
+	// Sanitize script generation content (hiragana, katakana, romaji, etc.)
+	static sanitizeScriptContent(content: string): string {
+		if (typeof content !== 'string') return '';
+
+		// For non-HTML script content, escape HTML entities
+		return content
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#x27;')
+			.slice(0, 10000); // Reasonable length limit
+	}
+
+	// Enhanced validation specifically for script generation content
+	static validateScriptContent(content: Record<string, unknown>): boolean {
+		if (!content || typeof content !== 'object') return false;
+
+		// Check each field for dangerous content
+		const dangerousPatterns = [
+			/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+			/javascript:/gi,
+			/data:(?!image\/)/gi, // Allow data: for images, block for scripts
+			/vbscript:/gi,
+			/on\w+\s*=/gi, // Event handlers
+			/<iframe/gi,
+			/<object/gi,
+			/<embed/gi,
+			/<link/gi,
+			/<meta/gi
+		];
+
+		const contentString = JSON.stringify(content).toLowerCase();
+		return !dangerousPatterns.some(pattern => pattern.test(contentString));
 	}
 
 	// Rate limiting for security

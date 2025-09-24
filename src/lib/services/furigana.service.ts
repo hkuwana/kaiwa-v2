@@ -3,6 +3,7 @@
 
 import type { Message } from '$lib/server/db/types';
 import { isJapaneseText } from './romanization.service';
+import { SecuritySanitizer } from '$lib/utils/security';
 
 // Furigana result interface
 export interface FuriganaResult {
@@ -61,16 +62,30 @@ export async function generateFuriganaServer(
 	}
 }
 
-// Update message with furigana data
+// Update message with furigana data - WITH SANITIZATION
 export function updateMessageWithFurigana(message: Message, furiganaData: FuriganaResult): Message {
+	// Validate and sanitize all script content before storing
+	if (!SecuritySanitizer.validateScriptContent(furiganaData as Record<string, unknown>)) {
+		console.warn('⚠️ Potentially unsafe script content detected, using fallback');
+		return message; // Return original message if validation fails
+	}
+
 	return {
 		...message,
-		hiragana: furiganaData.hiragana || message.hiragana,
-		romanization: furiganaData.romanization || message.romanization,
+		hiragana: furiganaData.hiragana
+			? SecuritySanitizer.sanitizeFuriganaHTML(furiganaData.hiragana)
+			: message.hiragana,
+		romanization: furiganaData.romanization
+			? SecuritySanitizer.sanitizeScriptContent(furiganaData.romanization)
+			: message.romanization,
 		otherScripts: {
 			...(message.otherScripts || {}),
-			...(furiganaData.katakana && { katakana: furiganaData.katakana }),
-			...(furiganaData.furigana && { furigana: furiganaData.furigana })
+			...(furiganaData.katakana && {
+				katakana: SecuritySanitizer.sanitizeScriptContent(furiganaData.katakana)
+			}),
+			...(furiganaData.furigana && {
+				furigana: SecuritySanitizer.sanitizeFuriganaHTML(furiganaData.furigana)
+			})
 		}
 	};
 }

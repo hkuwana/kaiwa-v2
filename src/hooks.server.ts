@@ -10,6 +10,48 @@ import { nanoid } from 'nanoid';
 import { userRepository } from '$lib/server/repositories';
 import { ensureStripeCustomer } from '$lib/server/services/payment.service';
 
+// 🔒 Security Headers Handle - CSP and Security Headers
+const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
+	const response = await resolve(event);
+
+	// Content Security Policy - Secure but allows furigana HTML
+	const cspDirectives = [
+		"default-src 'self'",
+		"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://app.posthog.com https://us-assets.i.posthog.com", // Allow Stripe, PostHog
+		"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com", // Allow inline styles for components, Google Fonts
+		"font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com", // Google Fonts
+		"img-src 'self' data: https: blob:", // Allow images from various sources
+		"connect-src 'self' https://api.stripe.com wss://realtime.api.openai.com https://app.posthog.com https://us.i.posthog.com https://us-assets.i.posthog.com", // API connections
+		"media-src 'self' blob: data:", // Audio/video from blob URLs and data
+		"object-src 'none'", // Block Flash/Java objects
+		"frame-src 'self' https://js.stripe.com https://hooks.stripe.com", // Allow Stripe frames
+		"frame-ancestors 'none'", // Prevent embedding in frames
+		"base-uri 'self'", // Restrict base tag
+		"form-action 'self' https://api.stripe.com", // Allow form submissions to Stripe
+		"upgrade-insecure-requests", // Force HTTPS in production
+		`report-uri ${dev ? '' : '/api/csp-report'}` // CSP violation reporting
+	].filter(Boolean);
+
+	// Apply security headers
+	const securityHeaders = {
+		'Content-Security-Policy': cspDirectives.join('; '),
+		'X-Frame-Options': 'DENY',
+		'X-Content-Type-Options': 'nosniff',
+		'Referrer-Policy': 'strict-origin-when-cross-origin',
+		'Permissions-Policy': 'geolocation=(), microphone=(), camera=(), payment=()',
+		...(dev ? {} : {
+			'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+		})
+	};
+
+	// Set security headers
+	Object.entries(securityHeaders).forEach(([key, value]) => {
+		response.headers.set(key, value);
+	});
+
+	return response;
+};
+
 const handleDevRoutes: Handle = async ({ event, resolve }) => {
 	// Block access to dev routes in production
 	if (event.url.pathname.startsWith('/dev') || event.url.pathname.startsWith('/api/dev')) {
@@ -84,4 +126,4 @@ const userSetup: Handle = async ({ event, resolve }) => {
 };
 
 // Sequence the handles in the correct order
-export const handle: Handle = sequence(handleDevRoutes, handleParaglide, handleAuth, userSetup);
+export const handle: Handle = sequence(handleDevRoutes, handleParaglide, handleAuth, userSetup, handleSecurityHeaders);

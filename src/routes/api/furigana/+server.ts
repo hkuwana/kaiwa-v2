@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { isJapaneseText } from '$lib/services/romanization.service';
+import { SecuritySanitizer } from '$lib/utils/security';
 
 // Direct Kuroshiro processing function that bypasses the disabled checks
 async function processJapaneseTextDirect(text: string): Promise<{
@@ -38,12 +39,27 @@ async function processJapaneseTextDirect(text: string): Promise<{
 			katakana: katakanaResult
 		});
 
-		return {
+		const result = {
 			hiragana: hiraganaResult,
 			romanization: romajiResult.charAt(0).toUpperCase() + romajiResult.slice(1),
 			otherScripts: {
 				katakana: katakanaResult,
 				furigana: hiraganaResult // Use hiragana as furigana for now
+			}
+		};
+
+		// 🔒 Validate and sanitize all generated content before returning
+		if (!SecuritySanitizer.validateScriptContent(result)) {
+			console.warn('[FURIGANA_API] ⚠️ Generated content failed security validation');
+			throw new Error('Generated content contains potentially unsafe data');
+		}
+
+		return {
+			hiragana: SecuritySanitizer.sanitizeFuriganaHTML(result.hiragana),
+			romanization: SecuritySanitizer.sanitizeScriptContent(result.romanization),
+			otherScripts: {
+				katakana: SecuritySanitizer.sanitizeScriptContent(result.otherScripts.katakana),
+				furigana: SecuritySanitizer.sanitizeFuriganaHTML(result.otherScripts.furigana)
 			}
 		};
 	} catch (error) {
