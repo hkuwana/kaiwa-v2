@@ -33,13 +33,57 @@ export class StripeService {
 
 	/**
 	 * Creates a Stripe customer for a user or retrieves the existing one.
+	 * Prevents duplicate customers by checking email in both Stripe and our database.
 	 */
 	async createCustomer(userId: string, email: string): Promise<string | null> {
 		try {
 			// Check if the user already has a Stripe Customer ID in our database
 			const userProfile = await userRepository.findUserById(userId);
 			if (userProfile?.stripeCustomerId) {
-				return userProfile.stripeCustomerId;
+				// Verify the customer still exists in Stripe and has the correct email
+				try {
+					const stripeCustomer = await stripe.customers.retrieve(userProfile.stripeCustomerId);
+					if (typeof stripeCustomer === 'object' && !stripeCustomer.deleted && 'email' in stripeCustomer && stripeCustomer.email === email) {
+						return userProfile.stripeCustomerId;
+					}
+					const customerEmail = 'email' in stripeCustomer ? stripeCustomer.email : 'unknown';
+					console.warn(`Stripe customer ${userProfile.stripeCustomerId} email mismatch or deleted. Expected: ${email}, Got: ${customerEmail}`);
+				} catch {
+					console.warn(`Stripe customer ${userProfile.stripeCustomerId} not found in Stripe, will create/link new one`);
+				}
+			}
+
+			// Check if another user in our database has the same email and stripeCustomerId
+			const existingUserWithEmail = await userRepository.findUserByEmail(email);
+			if (existingUserWithEmail && existingUserWithEmail.id !== userId && existingUserWithEmail.stripeCustomerId) {
+				console.log(`Found existing user with same email ${email} and Stripe customer ID: ${existingUserWithEmail.stripeCustomerId}`);
+
+				// Update current user to use the same Stripe customer ID
+				await userRepository.updateUser(userId, { stripeCustomerId: existingUserWithEmail.stripeCustomerId });
+				return existingUserWithEmail.stripeCustomerId;
+			}
+
+			// Check if a customer with this email already exists in Stripe
+			const existingCustomers = await stripe.customers.list({
+				email,
+				limit: 1
+			});
+
+			if (existingCustomers.data.length > 0) {
+				const existingCustomer = existingCustomers.data[0];
+				console.log(`Found existing Stripe customer for email ${email}: ${existingCustomer.id}`);
+
+				// Update user with existing Stripe customer ID
+				await userRepository.updateUser(userId, { stripeCustomerId: existingCustomer.id });
+
+				// Also update the customer's metadata to include this userId if not already set
+				if (!existingCustomer.metadata?.userId) {
+					await stripe.customers.update(existingCustomer.id, {
+						metadata: { userId }
+					});
+				}
+
+				return existingCustomer.id;
 			}
 
 			// If not, create a new customer in Stripe
@@ -55,9 +99,9 @@ export class StripeService {
 
 			return customer.id;
 		} catch (error) {
-			console.error(`Error creating Stripe customer for user ${userId}:`, error);
-			return null;
-		}
+				console.error(`Error creating Stripe customer for user ${userId}:`, error);
+				return null;
+			}
 	}
 
 	/**
@@ -829,6 +873,7 @@ export class StripeService {
 			return null;
 		}
 	}
+
 }
 
 // Export singleton instance

@@ -2,25 +2,6 @@
 	import TierBadge from '$lib/features/payments/components/TierBadge.svelte';
 	import type { UsageStatus } from '$lib/server/tier-service';
 
-	// Type definitions
-	interface PaymentMethod {
-		id: string;
-		last4: string;
-		brand: string;
-		exp_month: number;
-		exp_year: number;
-		is_default: boolean;
-	}
-
-	interface Invoice {
-		id: string;
-		amount_paid: number;
-		currency: string;
-		created: number;
-		status: string;
-		invoice_pdf?: string;
-	}
-
 	// Props from parent component
 	const {
 		data,
@@ -46,18 +27,12 @@
 		usageLimits: any;
 	} = $props();
 
-	// Payment method state
-	let paymentMethodError = $state('');
-
 	// Subscription management state
 	let showUpgradeModal = $state(false);
 	let selectedTier = $state<'plus' | 'premium'>('plus');
 	let selectedBilling = $state<'monthly' | 'annual'>('monthly');
 	let isProcessingUpgrade = $state(false);
-
-	// Data loading promises
-	let paymentMethodsPromise = $state<Promise<PaymentMethod[]>>();
-	let invoiceHistoryPromise = $state<Promise<Invoice[]>>();
+	let upgradeError = $state('');
 
 	// Available tiers for upgrade
 	const availableTiers: Array<{
@@ -91,117 +66,10 @@
 		}
 	];
 
-	// Load payment methods
-	const loadPaymentMethods = async (): Promise<PaymentMethod[]> => {
-		paymentMethodError = '';
-
-		try {
-			const response = await fetch('/api/billing/payment-methods');
-			if (response.ok) {
-				const result = await response.json();
-				return result.paymentMethods || [];
-			} else if (response.status === 404) {
-				// API endpoint doesn't exist yet, return mock data
-				return [
-					{
-						id: 'pm_mock1',
-						last4: '4242',
-						brand: 'visa',
-						exp_month: 12,
-						exp_year: 2025,
-						is_default: true
-					},
-					{
-						id: 'pm_mock2',
-						last4: '1234',
-						brand: 'mastercard',
-						exp_month: 8,
-						exp_year: 2026,
-						is_default: false
-					}
-				];
-			} else {
-				const error = await response.json();
-				throw new Error(error.error || 'Failed to load payment methods');
-			}
-		} catch (error) {
-			if (error instanceof TypeError) {
-				// Network error, return empty array
-				console.warn('Payment methods API not available, using fallback');
-				return [];
-			}
-			throw error;
-		}
-	};
-
-	// Load invoice history
-	const loadInvoiceHistory = async (): Promise<Invoice[]> => {
-		try {
-			const response = await fetch('/api/billing/invoices');
-			if (response.ok) {
-				const result = await response.json();
-				return result.invoices || [];
-			} else if (response.status === 404) {
-				// API endpoint doesn't exist yet, return mock data
-				return [
-					{
-						id: 'in_mock1',
-						amount_paid: 1900,
-						currency: 'usd',
-						created: Math.floor(Date.now() / 1000) - 86400 * 30,
-						status: 'paid',
-						invoice_pdf: '#'
-					},
-					{
-						id: 'in_mock2',
-						amount_paid: 1900,
-						currency: 'usd',
-						created: Math.floor(Date.now() / 1000) - 86400 * 60,
-						status: 'paid',
-						invoice_pdf: '#'
-					}
-				];
-			} else {
-				throw new Error('Failed to load invoice history');
-			}
-		} catch (error) {
-			if (error instanceof TypeError) {
-				// Network error, return empty array
-				console.warn('Invoice history API not available, using fallback');
-				return [];
-			}
-			throw error;
-		}
-	};
-
-
-	// Remove payment method
-	const removePaymentMethod = async (paymentMethodId: string) => {
-		if (!confirm('Are you sure you want to remove this payment method?')) return;
-
-		try {
-			const response = await fetch(`/api/billing/payment-methods/${paymentMethodId}`, {
-				method: 'DELETE'
-			});
-
-			if (response.ok) {
-				// Reload payment methods
-				paymentMethodsPromise = loadPaymentMethods();
-			} else if (response.status === 404) {
-				// API doesn't exist, just reload with mock data
-				paymentMethodsPromise = loadPaymentMethods();
-			} else {
-				const error = await response.json();
-				paymentMethodError = error.error || 'Failed to remove payment method';
-			}
-		} catch (error) {
-			paymentMethodError = 'Network error removing payment method';
-		}
-	};
-
 	// Upgrade subscription
 	const upgradeSubscription = async () => {
 		isProcessingUpgrade = true;
+		upgradeError = '';
 
 		try {
 			const response = await fetch('/api/stripe/checkout', {
@@ -220,18 +88,14 @@
 				window.location.href = url;
 			} else {
 				const error = await response.json();
-				paymentMethodError = error.error || 'Failed to create checkout session';
+				upgradeError = error.error || 'Failed to create checkout session';
 			}
 		} catch (error) {
-			paymentMethodError = 'Network error creating checkout session';
+			upgradeError = 'Network error creating checkout session';
 		} finally {
 			isProcessingUpgrade = false;
 		}
 	};
-
-	// Initialize data loading promises
-	paymentMethodsPromise = loadPaymentMethods();
-	invoiceHistoryPromise = loadInvoiceHistory();
 </script>
 
 <div class="space-y-6">
@@ -308,9 +172,9 @@
 						{#if isManagingBilling}
 							<span class="loading loading-sm loading-spinner"></span>
 						{:else}
-							<span class="icon-[mdi--credit-card] h-4 w-4"></span>
+							<span class="icon-[mdi--external-link] h-4 w-4"></span>
 						{/if}
-						Manage Billing & Payments
+						Manage Billing in Stripe
 					</button>
 					<button class="btn btn-outline" onclick={() => (showUpgradeModal = true)}>
 						<span class="icon-[mdi--arrow-up] h-4 w-4"></span>
@@ -321,178 +185,54 @@
 		</div>
 	</div>
 
-	<!-- Payment Methods -->
-	<div class="card bg-base-100 shadow-xl">
-		<div class="card-body">
-			<div class="mb-4">
-				<h3 class="text-lg font-semibold">
-					<span class="mr-2 icon-[mdi--credit-card-outline] h-5 w-5"></span>
-					Payment Methods
-				</h3>
-				<p class="text-sm text-base-content/70 mt-1">
-					Use "Manage Billing & Payments" above to add, update, or remove payment methods
-				</p>
-			</div>
-
-			{#if paymentMethodError}
-				<div class="mb-4 alert alert-error">
-					<span class="icon-[mdi--alert-circle] h-5 w-5"></span>
-					<span>{paymentMethodError}</span>
-				</div>
-			{/if}
-
-			{#await paymentMethodsPromise}
-				<div class="space-y-3">
-					{#each Array(2) as _, i (i)}
-						<div class="flex items-center gap-4">
-							<div class="h-12 w-12 skeleton rounded-lg"></div>
-							<div class="flex-1">
-								<div class="mb-2 h-4 w-24 skeleton"></div>
-								<div class="h-3 w-32 skeleton"></div>
-							</div>
-							<div class="h-8 w-16 skeleton"></div>
-						</div>
-					{/each}
-				</div>
-			{:then paymentMethods}
-				{@const methods = paymentMethods || []}
-				{#if methods.length === 0}
-					<div class="py-8 text-center">
-						<span class="mx-auto mb-4 icon-[mdi--credit-card-off] h-16 w-16 text-base-content/30"
-						></span>
-						<p class="text-base-content/70">No payment methods on file</p>
-						<p class="text-sm text-base-content/50">
-							Add a payment method to manage your subscription
-						</p>
-					</div>
-				{:else}
-					<div class="space-y-3">
-						{#each methods as method (method.id)}
-							<div class="flex items-center gap-4 rounded-lg border border-base-300 p-4">
-								<div class="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-									<span class="icon-[mdi--credit-card] h-6 w-6 text-primary"></span>
-								</div>
-								<div class="flex-1">
-									<div class="font-medium">**** **** **** {method.last4}</div>
-									<div class="text-sm text-base-content/70">
-										{method.brand?.toUpperCase()} • Expires {method.exp_month}/{method.exp_year}
-									</div>
-								</div>
-								{#if method.is_default}
-									<span class="badge badge-primary">Default</span>
-								{/if}
-								<button
-									class="btn btn-ghost btn-sm"
-									onclick={() => removePaymentMethod(method.id)}
-									aria-label="Remove payment method"
-								>
-									<span class="icon-[mdi--delete] h-4 w-4"></span>
-								</button>
-							</div>
-						{/each}
-					</div>
-				{/if}
-			{:catch error}
-				<div class="alert alert-error">
-					<span class="icon-[mdi--alert-circle] h-5 w-5"></span>
-					<span>Failed to load payment methods: {error.message}</span>
-				</div>
-			{/await}
-		</div>
-	</div>
-
-	<!-- Subscription Management -->
-	{#if usageLimits?.currentTier !== 'free'}
-		<div class="card bg-base-100 shadow-xl">
-			<div class="card-body">
-				<h3 class="mb-4 text-lg font-semibold">
-					<span class="mr-2 icon-[mdi--calendar-clock] h-5 w-5"></span>
-					Subscription Management
-				</h3>
-
-				<div class="space-y-4">
-					<!-- Detailed usage if available -->
-					{#if usageStatus}
-						<div class="rounded-lg bg-base-200 p-4">
-							<TierBadge tierStatus={usageStatus} showDetails={true} />
-						</div>
-					{/if}
-
-					<!-- Subscription Actions -->
-					<div class="rounded-lg bg-base-200/50 p-3">
-						<p class="text-sm text-base-content/70">
-							<span class="icon-[mdi--information-outline] h-4 w-4 inline mr-1"></span>
-							To cancel your subscription or modify billing settings, use "Manage Billing & Payments" above
-						</p>
-					</div>
-				</div>
-			</div>
-		</div>
-	{/if}
-
-	<!-- Invoice History -->
+	<!-- Billing Management Info -->
 	<div class="card bg-base-100 shadow-xl">
 		<div class="card-body">
 			<h3 class="mb-4 text-lg font-semibold">
-				<span class="mr-2 icon-[mdi--receipt] h-5 w-5"></span>
-				Invoice History
+				<span class="mr-2 icon-[mdi--information-outline] h-5 w-5"></span>
+				Billing Management
 			</h3>
 
-			{#await invoiceHistoryPromise}
-				<div class="space-y-3">
-					{#each Array(3) as _, i (i)}
-						<div class="flex items-center justify-between">
-							<div class="flex-1">
-								<div class="mb-2 h-4 w-32 skeleton"></div>
-								<div class="h-3 w-24 skeleton"></div>
-							</div>
-							<div class="h-8 w-20 skeleton"></div>
+			<div class="space-y-4">
+				<div class="rounded-lg bg-base-200/50 p-4">
+					<div class="flex items-start gap-3">
+						<span class="icon-[mdi--credit-card-outline] h-6 w-6 text-primary mt-0.5"></span>
+						<div class="flex-1">
+							<h4 class="font-medium mb-2">Payment Methods & Invoices</h4>
+							<p class="text-sm text-base-content/70 mb-3">
+								We use Stripe to securely manage all billing, payment methods, and invoices.
+								Click "Manage Billing in Stripe" above to:
+							</p>
+							<ul class="text-sm text-base-content/70 space-y-1 list-disc list-inside">
+								<li>Add or update payment methods</li>
+								<li>View and download invoices</li>
+								<li>Update billing information</li>
+								<li>Cancel or modify your subscription</li>
+							</ul>
 						</div>
-					{/each}
-				</div>
-			{:then invoiceHistory}
-				{#if invoiceHistory.length === 0}
-					<div class="py-8 text-center">
-						<span class="mx-auto mb-4 icon-[mdi--receipt-outline] h-16 w-16 text-base-content/30"
-						></span>
-						<p class="text-base-content/70">No invoices yet</p>
-						<p class="text-sm text-base-content/50">Your billing history will appear here</p>
 					</div>
-				{:else}
-					<div class="space-y-3">
-						{#each invoiceHistory as invoice (invoice.id)}
-							<div class="flex items-center justify-between rounded-lg border border-base-300 p-4">
-								<div class="flex-1">
-									<div class="font-medium">
-										${(invoice.amount_paid / 100).toFixed(2)}
-										{invoice.currency.toUpperCase()}
-									</div>
-									<div class="text-sm text-base-content/70">
-										{new Date(invoice.created * 1000).toLocaleDateString()} •
-										<span class="capitalize">{invoice.status}</span>
-									</div>
-								</div>
-								{#if invoice.invoice_pdf}
-									<a
-										href={invoice.invoice_pdf}
-										target="_blank"
-										class="btn btn-ghost btn-sm"
-										rel="noopener noreferrer"
-									>
-										<span class="icon-[mdi--download] h-4 w-4"></span>
-										Download
-									</a>
-								{/if}
-							</div>
-						{/each}
+				</div>
+
+				<div class="rounded-lg bg-info/10 border border-info/20 p-4">
+					<div class="flex items-start gap-3">
+						<span class="icon-[mdi--shield-check] h-6 w-6 text-info mt-0.5"></span>
+						<div class="flex-1">
+							<h4 class="font-medium text-info mb-1">Secure & Trusted</h4>
+							<p class="text-sm text-base-content/70">
+								You'll be redirected to Stripe's secure portal where you can safely manage
+								all aspects of your billing. We never store your payment information directly.
+							</p>
+						</div>
+					</div>
+				</div>
+
+				{#if usageStatus && usageLimits?.currentTier !== 'free'}
+					<div class="rounded-lg bg-base-200 p-4">
+						<h4 class="font-medium mb-3">Current Usage</h4>
+						<TierBadge tierStatus={usageStatus} showDetails={true} />
 					</div>
 				{/if}
-			{:catch error}
-				<div class="alert alert-error">
-					<span class="icon-[mdi--alert-circle] h-5 w-5"></span>
-					<span>Failed to load invoice history: {error.message}</span>
-				</div>
-			{/await}
+			</div>
 		</div>
 	</div>
 </div>
@@ -563,6 +303,13 @@
 					</button>
 				{/each}
 			</div>
+
+			{#if upgradeError}
+				<div class="mb-4 alert alert-error">
+					<span class="icon-[mdi--alert-circle] h-5 w-5"></span>
+					<span>{upgradeError}</span>
+				</div>
+			{/if}
 
 			<div class="modal-action">
 				<button class="btn btn-ghost" onclick={() => (showUpgradeModal = false)}>Cancel</button>

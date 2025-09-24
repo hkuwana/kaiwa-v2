@@ -95,6 +95,29 @@ export async function getUserTierFromStripe(stripeCustomerId: string): Promise<{
  */
 export async function createStripeCustomer(userId: string, email: string): Promise<string | null> {
 	try {
+		// First, check if a customer with this email already exists in Stripe
+		const existingCustomers = await stripe.customers.list({
+			email,
+			limit: 1
+		});
+
+		if (existingCustomers.data.length > 0) {
+			const existingCustomer = existingCustomers.data[0];
+			console.log(`Found existing Stripe customer for email ${email}: ${existingCustomer.id}`);
+
+			// Update user with existing Stripe customer ID
+			await userRepository.updateUser(userId, { stripeCustomerId: existingCustomer.id });
+
+			// Also update the customer's metadata to include this userId if not already set
+			if (!existingCustomer.metadata?.userId) {
+				await stripe.customers.update(existingCustomer.id, {
+					metadata: { userId }
+				});
+			}
+
+			return existingCustomer.id;
+		}
+
 		const customer = await stripe.customers.create({
 			email,
 			metadata: { userId }
@@ -249,7 +272,7 @@ export async function getUserCurrentTier(userId: string): Promise<UserTier> {
 
 /**
  * Ensure user has Stripe customer ID
- * Creates one if missing
+ * Creates one if missing, or links to existing customer with same email
  */
 export async function ensureStripeCustomer(userId: string, email: string): Promise<string | null> {
 	try {
@@ -257,10 +280,31 @@ export async function ensureStripeCustomer(userId: string, email: string): Promi
 		const user = await userRepository.findUserById(userId);
 
 		if (user?.stripeCustomerId) {
-			return user.stripeCustomerId;
+			// Verify the customer still exists in Stripe and has the correct email
+			try {
+				const stripeCustomer = await stripe.customers.retrieve(user.stripeCustomerId);
+				if (typeof stripeCustomer === 'object' && !stripeCustomer.deleted && 'email' in stripeCustomer && stripeCustomer.email === email) {
+					return user.stripeCustomerId;
+				}
+				// Customer exists but email doesn't match - need to handle this edge case
+				const customerEmail = 'email' in stripeCustomer ? stripeCustomer.email : 'unknown';
+				console.warn(`Stripe customer ${user.stripeCustomerId} email mismatch. Expected: ${email}, Got: ${customerEmail}`);
+			} catch {
+				console.warn(`Stripe customer ${user.stripeCustomerId} not found in Stripe, will create/link new one`);
+			}
 		}
 
-		// Create new Stripe customer
+		// Also check if any other user in our DB has the same email and already has a stripeCustomerId
+		const existingUserWithEmail = await userRepository.findUserByEmail(email);
+		if (existingUserWithEmail && existingUserWithEmail.id !== userId && existingUserWithEmail.stripeCustomerId) {
+			console.log(`Found existing user with same email ${email} and Stripe customer ID: ${existingUserWithEmail.stripeCustomerId}`);
+
+			// Update current user to use the same Stripe customer ID
+			await userRepository.updateUser(userId, { stripeCustomerId: existingUserWithEmail.stripeCustomerId });
+			return existingUserWithEmail.stripeCustomerId;
+		}
+
+		// Create new Stripe customer or link to existing one
 		return await createStripeCustomer(userId, email);
 	} catch (error) {
 		console.error('Error ensuring Stripe customer:', error);
