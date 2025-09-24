@@ -569,7 +569,7 @@
 	<!-- Warnings and Status -->
 	{#if usageStore.willIncurOverage() && !usageStore.timer.isRunning}
 		<div class="alert alert-warning">
-			<span class="h-4 w-4 icon-[mdi--alert]"></span>
+			<span class="icon-[mdi--alert] h-4 w-4"></span>
 			<span
 				>You've used all included minutes. Additional time will be charged at ${usageStore.overageRate()}/minute</span
 			>
@@ -578,14 +578,14 @@
 
 	{#if usageStore.timer.warningTriggered}
 		<div class="alert alert-warning">
-			<span class="h-4 w-4 icon-[mdi--alert]"></span>
+			<span class="icon-[mdi--alert] h-4 w-4"></span>
 			<span>Warning: Less than {tierConfig.warningThresholdSeconds || 0} seconds remaining!</span>
 		</div>
 	{/if}
 
 	{#if !usageStore.canStartNewSession()}
 		<div class="alert alert-error">
-			<span class="h-4 w-4 icon-[mdi--alert]"></span>
+			<span class="icon-[mdi--alert] h-4 w-4"></span>
 			<span>Cannot start new session - limits reached</span>
 		</div>
 	{/if}

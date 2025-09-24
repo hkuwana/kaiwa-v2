@@ -160,7 +160,6 @@
 		}
 	};
 
-
 	// Load user preferences
 	const loadUserPreferences = async (): Promise<UserPreferences | null> => {
 		try {

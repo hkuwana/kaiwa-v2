@@ -196,14 +196,14 @@
 			<div class="space-y-4">
 				<div class="rounded-lg bg-base-200/50 p-4">
 					<div class="flex items-start gap-3">
-						<span class="icon-[mdi--credit-card-outline] h-6 w-6 text-primary mt-0.5"></span>
+						<span class="mt-0.5 icon-[mdi--credit-card-outline] h-6 w-6 text-primary"></span>
 						<div class="flex-1">
-							<h4 class="font-medium mb-2">Payment Methods & Invoices</h4>
-							<p class="text-sm text-base-content/70 mb-3">
-								We use Stripe to securely manage all billing, payment methods, and invoices.
-								Click "Manage Billing in Stripe" above to:
+							<h4 class="mb-2 font-medium">Payment Methods & Invoices</h4>
+							<p class="mb-3 text-sm text-base-content/70">
+								We use Stripe to securely manage all billing, payment methods, and invoices. Click
+								"Manage Billing in Stripe" above to:
 							</p>
-							<ul class="text-sm text-base-content/70 space-y-1 list-disc list-inside">
+							<ul class="list-inside list-disc space-y-1 text-sm text-base-content/70">
 								<li>Add or update payment methods</li>
 								<li>View and download invoices</li>
 								<li>Update billing information</li>
@@ -213,14 +213,14 @@
 					</div>
 				</div>
 
-				<div class="rounded-lg bg-info/10 border border-info/20 p-4">
+				<div class="rounded-lg border border-info/20 bg-info/10 p-4">
 					<div class="flex items-start gap-3">
-						<span class="icon-[mdi--shield-check] h-6 w-6 text-info mt-0.5"></span>
+						<span class="mt-0.5 icon-[mdi--shield-check] h-6 w-6 text-info"></span>
 						<div class="flex-1">
-							<h4 class="font-medium text-info mb-1">Secure & Trusted</h4>
+							<h4 class="mb-1 font-medium text-info">Secure & Trusted</h4>
 							<p class="text-sm text-base-content/70">
-								You'll be redirected to Stripe's secure portal where you can safely manage
-								all aspects of your billing. We never store your payment information directly.
+								You'll be redirected to Stripe's secure portal where you can safely manage all
+								aspects of your billing. We never store your payment information directly.
 							</p>
 						</div>
 					</div>
@@ -228,7 +228,7 @@
 
 				{#if usageStatus && usageLimits?.currentTier !== 'free'}
 					<div class="rounded-lg bg-base-200 p-4">
-						<h4 class="font-medium mb-3">Current Usage</h4>
+						<h4 class="mb-3 font-medium">Current Usage</h4>
 						<TierBadge tierStatus={usageStatus} showDetails={true} />
 					</div>
 				{/if}
@@ -329,4 +329,3 @@
 		</div>
 	</div>
 {/if}
-

@@ -5,7 +5,9 @@ import type { NewUserUsage, UserUsage } from '$lib/server/db/types';
 
 function cleanUpdate<T extends Record<string, unknown>>(data: T, omit: (keyof T)[] = []) {
 	return Object.fromEntries(
-		Object.entries(data).filter(([key, value]) => !omit.includes(key as keyof T) && value !== undefined)
+		Object.entries(data).filter(
+			([key, value]) => !omit.includes(key as keyof T) && value !== undefined
+		)
 	) as Partial<T>;
 }
 

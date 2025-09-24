@@ -2,22 +2,24 @@
 	import { SvelteDate } from 'svelte/reactivity';
 
 	const { data } = $props();
+
+	const jsonLd = {
+		'@context': 'https://schema.org',
+		'@type': 'BlogPosting',
+		headline: data.metadata.title,
+		description: data.metadata.description,
+		author: {
+			'@type': 'Organization',
+			name: data.metadata.author ?? 'Kaiwa Team'
+		},
+		datePublished: data.metadata.date,
+		image: 'https://kaiwa.app/og-image.png'
+	};
 </script>
 
 <svelte:head>
 	<script type="application/ld+json">
-		{
-			"@context": "https://schema.org",
-			"@type": "BlogPosting",
-			"headline": data.metadata.title,
-			"description": data.metadata.description,
-			"author": {
-				"@type": "Organization",
-				"name": data.metadata.author || "Kaiwa Team"
-			},
-			"datePublished": data.metadata.date,
-			"image": `https://kaiwa.app/og-image.png`
-		}
+JSON.stringify(jsonLd)
 	</script>
 </svelte:head>
 

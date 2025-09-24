@@ -459,52 +459,54 @@
 					</div>
 				{/each}
 			</div>
-	{:else}
-		<div
-			class="space-y-4"
-			id="roadmap-day-panel"
-			role="tabpanel"
-			aria-labelledby="roadmap-day-tab"
-		>
-			<div class="card bg-base-100 shadow">
-				<div class="card-body p-0">
-					<div class="overflow-x-auto">
-						<table class="table">
-							<thead>
-								<tr>
-									<th>Task</th>
-									<th>Owner</th>
-									<th>When</th>
-									<th>Status</th>
-									<th></th>
-								</tr>
-							</thead>
-							<tbody>
-								{#each dailyFocus as item}
+		{:else}
+			<div
+				class="space-y-4"
+				id="roadmap-day-panel"
+				role="tabpanel"
+				aria-labelledby="roadmap-day-tab"
+			>
+				<div class="card bg-base-100 shadow">
+					<div class="card-body p-0">
+						<div class="overflow-x-auto">
+							<table class="table">
+								<thead>
 									<tr>
-										<td>
-											<div class="font-semibold">{item.title}</div>
-											<div class="text-xs text-base-content/70">{item.detail}</div>
-										</td>
-										<td class="text-sm">{item.owner}</td>
-										<td class="text-sm">{item.due}</td>
-										<td>
-											<span class={statusBadgeClass(item.status)}>{statusLabel(item.status)}</span>
-										</td>
-										<td>
-											<button class="btn btn-ghost btn-xs" onclick={() => cycleItem('day', item.id)}
-												>Cycle</button
-											>
-										</td>
+										<th>Task</th>
+										<th>Owner</th>
+										<th>When</th>
+										<th>Status</th>
+										<th></th>
 									</tr>
-								{/each}
-							</tbody>
-						</table>
+								</thead>
+								<tbody>
+									{#each dailyFocus as item}
+										<tr>
+											<td>
+												<div class="font-semibold">{item.title}</div>
+												<div class="text-xs text-base-content/70">{item.detail}</div>
+											</td>
+											<td class="text-sm">{item.owner}</td>
+											<td class="text-sm">{item.due}</td>
+											<td>
+												<span class={statusBadgeClass(item.status)}>{statusLabel(item.status)}</span
+												>
+											</td>
+											<td>
+												<button
+													class="btn btn-ghost btn-xs"
+													onclick={() => cycleItem('day', item.id)}>Cycle</button
+												>
+											</td>
+										</tr>
+									{/each}
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-	{/if}
+		{/if}
 
 		<div class="alert alert-info">
 			<span>

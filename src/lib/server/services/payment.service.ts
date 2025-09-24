@@ -283,24 +283,41 @@ export async function ensureStripeCustomer(userId: string, email: string): Promi
 			// Verify the customer still exists in Stripe and has the correct email
 			try {
 				const stripeCustomer = await stripe.customers.retrieve(user.stripeCustomerId);
-				if (typeof stripeCustomer === 'object' && !stripeCustomer.deleted && 'email' in stripeCustomer && stripeCustomer.email === email) {
+				if (
+					typeof stripeCustomer === 'object' &&
+					!stripeCustomer.deleted &&
+					'email' in stripeCustomer &&
+					stripeCustomer.email === email
+				) {
 					return user.stripeCustomerId;
 				}
 				// Customer exists but email doesn't match - need to handle this edge case
 				const customerEmail = 'email' in stripeCustomer ? stripeCustomer.email : 'unknown';
-				console.warn(`Stripe customer ${user.stripeCustomerId} email mismatch. Expected: ${email}, Got: ${customerEmail}`);
+				console.warn(
+					`Stripe customer ${user.stripeCustomerId} email mismatch. Expected: ${email}, Got: ${customerEmail}`
+				);
 			} catch {
-				console.warn(`Stripe customer ${user.stripeCustomerId} not found in Stripe, will create/link new one`);
+				console.warn(
+					`Stripe customer ${user.stripeCustomerId} not found in Stripe, will create/link new one`
+				);
 			}
 		}
 
 		// Also check if any other user in our DB has the same email and already has a stripeCustomerId
 		const existingUserWithEmail = await userRepository.findUserByEmail(email);
-		if (existingUserWithEmail && existingUserWithEmail.id !== userId && existingUserWithEmail.stripeCustomerId) {
-			console.log(`Found existing user with same email ${email} and Stripe customer ID: ${existingUserWithEmail.stripeCustomerId}`);
+		if (
+			existingUserWithEmail &&
+			existingUserWithEmail.id !== userId &&
+			existingUserWithEmail.stripeCustomerId
+		) {
+			console.log(
+				`Found existing user with same email ${email} and Stripe customer ID: ${existingUserWithEmail.stripeCustomerId}`
+			);
 
 			// Update current user to use the same Stripe customer ID
-			await userRepository.updateUser(userId, { stripeCustomerId: existingUserWithEmail.stripeCustomerId });
+			await userRepository.updateUser(userId, {
+				stripeCustomerId: existingUserWithEmail.stripeCustomerId
+			});
 			return existingUserWithEmail.stripeCustomerId;
 		}
 

@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 
 	// Get the current page data
-	const { data, children } = $props();
+	const { children } = $props();
 
 	// Dynamic navigation will be handled by the main blog page
 	let currentPost = $state('');
