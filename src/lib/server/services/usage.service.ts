@@ -30,6 +30,15 @@ export async function getCurrentUsage(userId: string) {
 		ankiExportsUsed: usage?.ankiExportsUsed ?? 0,
 		sessionExtensionsUsed: usage?.sessionExtensionsUsed ?? 0,
 		advancedVoiceSeconds: usage?.advancedVoiceSeconds ?? 0,
+		analysesUsed: usage?.analysesUsed ?? 0,
+
+		// Analysis usage by type (MVP approach)
+		basicAnalysesUsed: usage?.basicAnalysesUsed ?? 0,
+		advancedGrammarUsed: usage?.advancedGrammarUsed ?? 0,
+		fluencyAnalysisUsed: usage?.fluencyAnalysisUsed ?? 0,
+		onboardingProfileUsed: usage?.onboardingProfileUsed ?? 0,
+		pronunciationAnalysisUsed: usage?.pronunciationAnalysisUsed ?? 0,
+		speechRhythmUsed: usage?.speechRhythmUsed ?? 0,
 
 		// Quality metrics
 		completedSessions: usage?.completedSessions ?? 0,

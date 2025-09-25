@@ -102,6 +102,14 @@ export class UserUsageRepository {
 			sessionExtensionsUsed?: number;
 			advancedVoiceSeconds?: number;
 			analysesUsed?: number;
+			// Analysis usage by type
+			basicAnalysesUsed?: number;
+			advancedGrammarUsed?: number;
+			fluencyAnalysisUsed?: number;
+			onboardingProfileUsed?: number;
+			pronunciationAnalysisUsed?: number;
+			speechRhythmUsed?: number;
+			// Other usage tracking
 			completedSessions?: number;
 			longestSessionSeconds?: number;
 			averageSessionSeconds?: number;
@@ -148,6 +156,27 @@ export class UserUsageRepository {
 		if (updates.analysesUsed !== undefined) {
 			updateData.analysesUsed = (current.analysesUsed || 0) + updates.analysesUsed;
 		}
+
+		// Analysis usage by type increments
+		if (updates.basicAnalysesUsed !== undefined) {
+			updateData.basicAnalysesUsed = (current.basicAnalysesUsed || 0) + updates.basicAnalysesUsed;
+		}
+		if (updates.advancedGrammarUsed !== undefined) {
+			updateData.advancedGrammarUsed = (current.advancedGrammarUsed || 0) + updates.advancedGrammarUsed;
+		}
+		if (updates.fluencyAnalysisUsed !== undefined) {
+			updateData.fluencyAnalysisUsed = (current.fluencyAnalysisUsed || 0) + updates.fluencyAnalysisUsed;
+		}
+		if (updates.onboardingProfileUsed !== undefined) {
+			updateData.onboardingProfileUsed = (current.onboardingProfileUsed || 0) + updates.onboardingProfileUsed;
+		}
+		if (updates.pronunciationAnalysisUsed !== undefined) {
+			updateData.pronunciationAnalysisUsed = (current.pronunciationAnalysisUsed || 0) + updates.pronunciationAnalysisUsed;
+		}
+		if (updates.speechRhythmUsed !== undefined) {
+			updateData.speechRhythmUsed = (current.speechRhythmUsed || 0) + updates.speechRhythmUsed;
+		}
+
 		if (updates.completedSessions !== undefined) {
 			updateData.completedSessions = (current.completedSessions || 0) + updates.completedSessions;
 		}

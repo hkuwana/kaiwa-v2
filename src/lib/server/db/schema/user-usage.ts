@@ -1,4 +1,4 @@
-import { pgTable, text, integer, timestamp, index, primaryKey, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, timestamp, index, primaryKey, uuid, jsonb } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
 // Track monthly usage for ALL users (free and paid) - Industry standard
@@ -26,7 +26,23 @@ export const userUsage = pgTable(
 		ankiExportsUsed: integer('anki_exports_used').default(0), // ankiExportLimit from tiers
 		sessionExtensionsUsed: integer('session_extensions_used').default(0), // maxExtensions from tiers
 		advancedVoiceSeconds: integer('advanced_voice_seconds').default(0), // hasAdvancedVoices feature
-		analysesUsed: integer('analyses_used').default(0), // AI conversation analyses used
+		analysesUsed: integer('analyses_used').default(0), // Total AI conversation analyses used
+
+		// Simple analysis usage by type (MVP approach)
+		basicAnalysesUsed: integer('basic_analyses_used').default(0),
+		quickStatsUsed: integer('quick_stats_used').default(0),
+		grammarSuggestionsUsed: integer('grammar_suggestions_used').default(0),
+		advancedGrammarUsed: integer('advanced_grammar_used').default(0),
+		fluencyAnalysisUsed: integer('fluency_analysis_used').default(0),
+		phraseSuggestionsUsed: integer('phrase_suggestions_used').default(0),
+		onboardingProfileUsed: integer('onboarding_profile_used').default(0),
+		pronunciationAnalysisUsed: integer('pronunciation_analysis_used').default(0),
+		speechRhythmUsed: integer('speech_rhythm_used').default(0),
+		audioSuggestionUsed: integer('audio_suggestion_used').default(0),
+
+		// Daily tracking for real-time limiting (detailed granular tracking)
+		dailyUsage: jsonb('daily_usage').$type<Record<string, Record<string, number>>>().default({}),
+		// Structure: { "2025-01-15": { "advanced-grammar": 3, "fluency-analysis": 2 } }
 
 		// Quality & engagement metrics
 		completedSessions: integer('completed_sessions').default(0), // Sessions that weren't abandoned early
@@ -40,6 +56,7 @@ export const userUsage = pgTable(
 		// Activity timestamps (for engagement tracking)
 		lastConversationAt: timestamp('last_conversation_at'),
 		lastRealtimeAt: timestamp('last_realtime_at'),
+		lastAnalysisAt: timestamp('last_analysis_at'),
 		firstActivityAt: timestamp('first_activity_at'), // First activity this month
 
 		// Tracking
