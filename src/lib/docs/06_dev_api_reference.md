@@ -689,7 +689,7 @@ Content-Type: application/json
 #### Create Realtime Session
 
 ```http
-POST /api/realtime-session
+POST /api/features/transcribe
 Content-Type: application/json
 ```
 

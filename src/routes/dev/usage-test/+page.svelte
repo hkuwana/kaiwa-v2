@@ -14,6 +14,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	// Using Iconify icons via Tailwind classes
 	import { defaultTierConfigs, type UserTier } from '$lib/data/tiers';
+	import type { UserUsage } from '$lib/server/db/types';
 	import { SvelteDate } from 'svelte/reactivity';
 
 	// Mock user ID for testing
@@ -42,24 +43,47 @@
 	let timerInterval: NodeJS.Timeout | null = null;
 
 	// Mock usage data for testing
-	let mockUsageData = {
-		secondsUsed: 0, // Changed from minutesUsed
-		secondsRemaining: 1800, // 30 minutes = 1800 seconds
-		totalAvailableSeconds: 1800, // 30 minutes = 1800 seconds
-		bankedSeconds: 0, // Changed from bankedMinutes
-		bankedSecondsUsed: 0, // Changed from bankedMinutesUsed
-		conversationsUsed: 0,
-		realtimeSessionsUsed: 0,
-		monthlySeconds: 1800, // 30 minutes = 1800 seconds
-		monthlyConversations: 0,
-		monthlyRealtimeSessions: 0,
-		maxBankedSeconds: 0, // Changed from maxBankedMinutes
-		currentPeriod: '2024-01',
-		percentageUsed: 0,
-		canStartSession: true,
-		estimatedOverageCharge: 0,
-		sessionsToday: 0
-	};
+	function getCurrentPeriod(): string {
+		const now = new Date();
+		return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+	}
+
+	function createMockUsage(overrides: Partial<UserUsage> = {}): UserUsage {
+		const now = new Date();
+		return {
+			userId: mockUserId,
+			period: getCurrentPeriod(),
+			conversationsUsed: 0,
+			secondsUsed: 0,
+			realtimeSessionsUsed: 0,
+			bankedSeconds: 0,
+			bankedSecondsUsed: 0,
+			ankiExportsUsed: 0,
+			sessionExtensionsUsed: 0,
+			advancedVoiceSeconds: 0,
+			analysesUsed: 0,
+			// Simplified analysis usage fields for MVP
+			basicAnalysesUsed: 0,
+			advancedGrammarUsed: 0,
+			fluencyAnalysisUsed: 0,
+			onboardingProfileUsed: 0,
+			pronunciationAnalysisUsed: 0,
+			speechRhythmUsed: 0,
+			completedSessions: 0,
+			longestSessionSeconds: 0,
+			averageSessionSeconds: 0,
+			overageSeconds: 0,
+			tierWhenUsed: selectedTier,
+			lastConversationAt: null,
+			lastRealtimeAt: null,
+			firstActivityAt: null,
+			createdAt: now,
+			updatedAt: now,
+			...overrides
+		};
+	}
+
+	let mockUsageData: UserUsage = createMockUsage();
 
 	// Test controls
 	let showAdvancedControls = $state(false);
@@ -134,13 +158,7 @@
 
 	// Update mock usage data based on tier
 	function updateMockUsageForTier(tier: UserTier) {
-		const config = defaultTierConfigs[tier];
-		mockUsageData = {
-			...mockUsageData,
-			monthlySeconds: config.monthlySeconds || 0,
-			totalAvailableSeconds: config.monthlySeconds || 0,
-			secondsRemaining: config.monthlySeconds || 0
-		};
+		mockUsageData = createMockUsage({ tierWhenUsed: tier });
 		usageStore.usage = mockUsageData;
 	}
 
@@ -290,6 +308,7 @@
 	function handleReset() {
 		usageStore.clear();
 		usageStore.setUser(mockUserId, tierConfig);
+		mockUsageData = createMockUsage();
 		usageStore.usage = mockUsageData;
 		usageStore.resetTimer();
 
@@ -415,8 +434,7 @@
 					<div class="stat">
 						<div class="stat-title">Seconds Remaining</div>
 						<div class="stat-value">
-							{Math.floor(usageStore.usage.secondsRemaining / 60)}m {usageStore.usage
-								.secondsRemaining % 60}s
+							{Math.floor(usageStore.secondsRemaining / 60)}m {usageStore.secondsRemaining % 60}s
 						</div>
 						<div class="stat-desc">
 							{#if usageStore.willIncurOverage()}
@@ -424,16 +442,16 @@
 									Overage rate: ${usageStore.overageRate()}/min
 								</span>
 							{:else}
-								{usageStore.usage.percentageUsed.toFixed(0)}% used this month
+								{usageStore.percentageUsed.toFixed(0)}% used this month
 							{/if}
 						</div>
 					</div>
 
-					{#if usageStore.usage.bankedSeconds > 0}
+					{#if (usageStore.usage?.bankedSeconds || 0) > 0}
 						<div class="stat">
 							<div class="stat-title">Banked Seconds</div>
 							<div class="stat-value">
-								{Math.floor(usageStore.usage.bankedSeconds / 60)}m {usageStore.usage.bankedSeconds %
+								{Math.floor((usageStore.usage?.bankedSeconds || 0) / 60)}m {(usageStore.usage?.bankedSeconds || 0) %
 									60}s
 							</div>
 							<div class="stat-desc">Rolled over from last month</div>
@@ -442,7 +460,7 @@
 
 					<div class="stat">
 						<div class="stat-title">Sessions Today</div>
-						<div class="stat-value">{usageStore.usage.sessionsToday}</div>
+						<div class="stat-value">{usageStore.sessionsToday}</div>
 					</div>
 				</div>
 			</div>

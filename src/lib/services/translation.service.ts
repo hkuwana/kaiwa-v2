@@ -27,7 +27,7 @@ export async function translateText(
 	model?: string,
 	enableRomanization?: boolean
 ): Promise<TranslationResult> {
-	const response = await fetch('/api/translate', {
+	const response = await fetch('/api/features/translate', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'

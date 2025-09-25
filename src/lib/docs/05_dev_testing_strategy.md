@@ -201,7 +201,7 @@ describe('Conversation Page', () => {
 
 	it('should show error message when conversation fails', async ({ page }) => {
 		// Mock the API to return an error
-		await page.route('/api/realtime-session', (route) =>
+		await page.route('/api/features/transcribe', (route) =>
 			route.fulfill({ status: 500, body: 'Server error' })
 		);
 

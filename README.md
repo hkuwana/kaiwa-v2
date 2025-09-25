@@ -105,8 +105,8 @@ SESSION_SECRET=your-secret-here
 
 ### API Endpoints
 
-- `POST /api/transcribe` - Audio → Text (Whisper)
-- `POST /api/chat` - Text → AI Response (GPT)
+ 
+ 
 - `POST /api/tts` - Text → Audio (OpenAI TTS)
 
 ## 🎨 Usage Examples

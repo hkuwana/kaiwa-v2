@@ -118,7 +118,7 @@
 			const messageId = `test-message-${Date.now()}`;
 
 			// Call the server-side API endpoint
-			const response = await fetch('/api/translate', {
+			const response = await fetch('/api/features/translate', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -302,7 +302,7 @@
 			const messageId = `test-message-${Date.now()}`;
 
 			// Call the native pinyin API directly
-			const response = await fetch('/api/pinyin', {
+			const response = await fetch('/api/features/pinyin', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'

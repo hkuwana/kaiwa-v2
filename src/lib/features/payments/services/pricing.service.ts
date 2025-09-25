@@ -23,7 +23,7 @@ export class PricingService {
 		}
 
 		try {
-			const response = await fetch('/api/pricing');
+			const response = await fetch('/api/billing/pricing');
 
 			if (!response.ok) {
 				throw new Error(`Failed to fetch pricing: ${response.status}`);

@@ -32,7 +32,7 @@
 	const savePreferences = async (updates: Partial<UserPreferences>) => {
 		try {
 			isSaving = true;
-			const response = await fetch('/api/user/preferences', {
+			const response = await fetch(`/api/users/${userPreferences.userId}/preferences`, {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json'

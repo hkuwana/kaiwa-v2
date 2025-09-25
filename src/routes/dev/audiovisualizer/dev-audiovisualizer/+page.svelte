@@ -116,7 +116,7 @@
 
 			// fetch session
 			const sessionId = crypto.randomUUID();
-			const res = await fetch('/api/realtime-session', {
+			const res = await fetch('/api/features/transcribe', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ sessionId, model: 'gpt-realtime', voice: lastVoice || undefined })

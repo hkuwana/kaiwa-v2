@@ -107,7 +107,7 @@ test.describe('Home Page', () => {
 
 	test('should handle session creation errors gracefully', async ({ page }) => {
 		// Mock API to return error
-		await page.route('**/api/realtime-session', (route) =>
+		await page.route('**/api/features/transcribe', (route) =>
 			route.fulfill({ status: 500, body: 'Internal Server Error' })
 		);
 

@@ -39,7 +39,7 @@ export async function generateFuriganaServer(
 	}
 
 	try {
-		const response = await fetch('/api/furigana', {
+		const response = await fetch('/api/features/furigana', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

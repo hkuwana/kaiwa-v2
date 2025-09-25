@@ -70,7 +70,7 @@ test.describe('Smoke Tests', () => {
 
 	test('@smoke should handle basic recording interaction', async ({ page }) => {
 		// Mock API endpoints
-		await utils.mockApiResponse('**/api/realtime-session', {
+		await utils.mockApiResponse('**/api/features/transcribe', {
 			session_id: 'test-session-123',
 			client_secret: {
 				value: 'test-secret-key',

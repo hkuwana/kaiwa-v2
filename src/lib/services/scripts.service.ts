@@ -136,6 +136,7 @@ export function hasScriptData(message: Message): boolean {
 
 // Generate and store scripts to database for a completed message
 export async function generateAndStoreScriptsForMessage(
+	conversationId: string,
 	messageId: string,
 	text: string,
 	language: string = 'ja'
@@ -143,16 +144,19 @@ export async function generateAndStoreScriptsForMessage(
 	try {
 		console.log(`Triggering server-side script generation for message ${messageId}...`);
 
-		const response = await fetch(`/api/messages/${messageId}/generate-scripts`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				text,
-				language
-			})
-		});
+		const response = await fetch(
+			`/api/conversations/${conversationId}/messages/${messageId}/generate-scripts`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					text,
+					language
+				})
+			}
+		);
 
 		if (!response.ok) {
 			const errorData = await response.json();

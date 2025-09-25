@@ -63,7 +63,7 @@ async startConversation(language?: string, speaker?: Speaker) {
     const audioStream = await this.audioService.getStream(this.selectedDeviceId);
 
     // 2. Get session from backend
-    const response = await fetch('/api/realtime-session', {
+    const response = await fetch('/api/features/transcribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -197,7 +197,7 @@ The `RealtimeService` automatically handles:
 
 **Solution**:
 
-- Check that the `/api/realtime-session` endpoint is working
+- Check that the `/api/features/transcribe` endpoint is working
 - Verify OpenAI API key is configured
 - Check browser console for detailed error logs
 

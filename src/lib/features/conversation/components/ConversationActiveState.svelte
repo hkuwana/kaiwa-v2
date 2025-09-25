@@ -136,7 +136,7 @@
 			const targetLanguage = sourceLanguage === 'en' ? 'ja' : 'en';
 
 			// Call the server-side API endpoint
-			const response = await fetch('/api/translate', {
+			const response = await fetch('/api/features/translate', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'

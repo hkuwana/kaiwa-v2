@@ -90,7 +90,7 @@ export async function generateRomanizationClient(
 			if (isChineseText(text)) {
 				// Try server-side pinyin API first (more accurate)
 				try {
-					const response = await fetch('/api/pinyin', {
+					const response = await fetch('/api/features/pinyin', {
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/json'
@@ -149,7 +149,7 @@ export async function generateRomanizationServer(
 	messageId: string
 ): Promise<RomanizationResult> {
 	try {
-		const response = await fetch('/api/romanization', {
+		const response = await fetch('/api/features/romanization', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -396,7 +396,7 @@ export async function processChineseText(text: string): Promise<{
 		// Check if we're in a server environment and try native API
 		if (typeof window === 'undefined') {
 			try {
-				const response = await fetch('/api/pinyin', {
+				const response = await fetch('/api/features/pinyin', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json'

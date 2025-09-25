@@ -67,7 +67,7 @@
 		deleteError = '';
 
 		try {
-			const response = await fetch('/api/profile/delete-account', {
+			const response = await fetch(`/api/users/${data.user.id}`, {
 				method: 'DELETE',
 				headers: {
 					'Content-Type': 'application/json'
@@ -130,7 +130,7 @@
 	// Load user preferences
 	const loadUserPreferences = async (): Promise<UserPreferences | null> => {
 		try {
-			const response = await fetch('/api/user/preferences');
+			const response = await fetch(`/api/users/${data.user.id}/preferences`);
 			if (response.ok) {
 				return await response.json();
 			}
@@ -158,7 +158,7 @@
 	// Load usage limits
 	const loadUsageLimits = async () => {
 		try {
-			const response = await fetch('/api/user/subscription-status');
+			const response = await fetch(`/api/users/${data.user.id}/subscription`);
 			if (response.ok) {
 				return await response.json();
 			}
@@ -173,7 +173,7 @@
 	const loadUsageStatus = async () => {
 		isLoadingUsage = true;
 		try {
-			const response = await fetch('/api/usage/status');
+			const response = await fetch(`/api/users/${data.user.id}/usage?action=status`);
 			if (response.ok) {
 				const data = await response.json();
 				// Convert date strings back to Date objects

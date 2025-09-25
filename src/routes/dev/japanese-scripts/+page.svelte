@@ -598,7 +598,7 @@
 					<div>
 						<h3 class="mb-2 font-semibold">1. Direct API Test:</h3>
 						<ul class="list-inside list-disc space-y-1 text-sm">
-							<li>Tests the `/api/furigana` endpoint directly</li>
+							<li>Tests the `/api/features/furigana` endpoint directly</li>
 							<li>Shows immediate results without conversation context</li>
 							<li>Good for debugging script generation issues</li>
 						</ul>

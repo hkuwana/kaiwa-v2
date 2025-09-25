@@ -42,7 +42,7 @@
 		error = '';
 
 		try {
-			const response = await fetch('/api/auth/verify-email', {
+			const response = await fetch('/api/users/verify-email', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'

@@ -22,7 +22,7 @@ export async function fetchSessionFromBackend(
 	voice: Voice,
 	languageCode?: string
 ) {
-	const response = await fetch('/api/realtime-session', {
+	const response = await fetch('/api/features/transcribe', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({

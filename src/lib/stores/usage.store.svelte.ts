@@ -1,6 +1,6 @@
 // usage.store.svelte.ts
 // Combined store for MVP - handles both usage tracking and timer functionality
-import type { Tier } from '$lib/server/db/types';
+import type { Tier, UserUsage } from '$lib/server/db/types';
 export interface TimerState {
 	isRunning: boolean;
 	isPaused: boolean;
@@ -15,37 +15,40 @@ export interface TimerState {
 	language: string | null;
 }
 
-export interface UsageData {
-	// Current period usage
-	secondsUsed: number; // Changed from minutesUsed
-	secondsRemaining: number; // Changed from minutesRemaining
-	totalAvailableSeconds: number; // Changed from totalAvailableMinutes
-	bankedSeconds: number; // Changed from bankedMinutes
-	bankedSecondsUsed: number; // Changed from bankedMinutesUsed
-	conversationsUsed: number;
-	realtimeSessionsUsed: number;
-
-	// Limits from tier
-	monthlySeconds: number; // Changed from monthlyMinutes
-	monthlyConversations: number;
-	monthlyRealtimeSessions: number;
-	maxBankedSeconds: number; // Changed from maxBankedMinutes
-
-	// Meta
-	currentPeriod: string;
-	percentageUsed: number;
-	canStartSession: boolean;
-	estimatedOverageCharge: number;
-	sessionsToday: number;
-}
-
 class UsageStore {
 	// User info
 	userId = $state<string | null>(null);
 	tier = $state<Tier | null>(null);
 
 	// Usage data
-	usage = $state<UsageData | null>(null);
+	usage = $state<UserUsage | null>(null);
+	sessionsToday = $state(0);
+
+	totalAvailableSeconds = $derived(() => {
+		const monthly = this.tier?.monthlySeconds ?? 0;
+		const banked = this.usage?.bankedSeconds ?? 0;
+		return monthly + banked;
+	});
+
+	secondsRemaining = $derived(() => {
+		if (!this.usage || !this.tier) return 0;
+		const total = this.totalAvailableSeconds();
+		const used = (this.usage.secondsUsed ?? 0) + (this.usage.bankedSecondsUsed ?? 0);
+		return Math.max(0, total - used);
+	});
+
+	percentageUsed = $derived(() => {
+		if (!this.usage || !this.tier) return 0;
+		const total = this.totalAvailableSeconds();
+		if (total <= 0) return 0;
+		const used = (this.usage.secondsUsed ?? 0) + (this.usage.bankedSecondsUsed ?? 0);
+		return (used / total) * 100;
+	});
+
+	estimatedOverageCharge = $derived(() => {
+		const overageSeconds = this.usage?.overageSeconds ?? 0;
+		return overageSeconds * this.overageRate();
+	});
 
 	// Timer state (embedded for MVP)
 	timer = $state<TimerState>({
@@ -70,29 +73,24 @@ class UsageStore {
 	canStartNewSession = $derived(() => {
 		if (!this.usage || !this.tier) return false;
 
-		// Check conversation limits
-		if (
-			this.tier.monthlyConversations &&
-			this.usage.conversationsUsed >= this.tier.monthlyConversations
-		) {
+		const conversationsUsed = this.usage.conversationsUsed ?? 0;
+		const conversationLimit = this.tier.monthlyConversations ?? 0;
+		if (conversationLimit > 0 && conversationsUsed >= conversationLimit) {
 			return false;
 		}
 
-		// Check realtime session limits
-		if (
-			this.tier.monthlyRealtimeSessions &&
-			this.usage.realtimeSessionsUsed >= this.tier.monthlyRealtimeSessions
-		) {
+		const realtimeSessionsUsed = this.usage.realtimeSessionsUsed ?? 0;
+		const realtimeLimit = this.tier.monthlyRealtimeSessions ?? 0;
+		if (realtimeLimit > 0 && realtimeSessionsUsed >= realtimeLimit) {
 			return false;
 		}
 
-		// Seconds can go into overage, so always true for paid users
 		return true;
 	});
 
 	willIncurOverage = $derived(() => {
-		if (!this.usage) return false;
-		return this.usage.secondsRemaining <= 0;
+		if (!this.usage || !this.tier) return false;
+		return this.secondsRemaining() <= 0;
 	});
 
 	overageRate = $derived(() => {
@@ -139,7 +137,24 @@ class UsageStore {
 	});
 
 	sessionSecondsUsed = $derived(() => {
-		return Math.ceil(this.timer.elapsedMs / 1000); // Changed from sessionMinutesUsed, now returns seconds
+		return Math.ceil(this.timer.elapsedMs / 1000);
+	});
+
+	// Simplified analysis usage derived values for MVP
+	monthlyAnalysisUsed = $derived(() => {
+		if (!this.usage) return {};
+		return {
+			basic: this.usage.basicAnalysesUsed || 0,
+			'advanced-grammar': this.usage.advancedGrammarUsed || 0,
+			'fluency-analysis': this.usage.fluencyAnalysisUsed || 0,
+			'onboarding-profile': this.usage.onboardingProfileUsed || 0,
+			'pronunciation-analysis': this.usage.pronunciationAnalysisUsed || 0,
+			'speech-rhythm': this.usage.speechRhythmUsed || 0
+		};
+	});
+
+	totalAnalysesThisMonth = $derived(() => {
+		return this.usage?.analysesUsed || 0;
 	});
 
 	// --- Methods ---
@@ -150,6 +165,7 @@ class UsageStore {
 	setUser(userId: string, tier: Tier) {
 		this.userId = userId;
 		this.tier = tier;
+		this.sessionsToday = 0;
 
 		// Initialize timer duration from tier config (convert seconds to milliseconds)
 		this.timer.totalDurationMs = (tier.conversationTimeoutSeconds || 0) * 1000;
@@ -166,15 +182,82 @@ class UsageStore {
 		this.error = null;
 
 		try {
-			const response = await fetch(`/api/usage/${this.userId}`);
+			const response = await fetch(`/api/users/${this.userId}/usage`);
 			if (!response.ok) throw new Error('Failed to load usage');
 
 			const data = await response.json();
-			this.usage = data;
+			const usage = data as UserUsage & { sessionsToday?: number };
+			this.usage = usage;
+			this.sessionsToday = usage.sessionsToday ?? 0;
 		} catch (err) {
 			this.error = err instanceof Error ? err.message : 'Failed to load usage';
 		} finally {
 			this.loading = false;
+		}
+	}
+
+	/**
+	 * Check if user can use a specific analysis type
+	 */
+	async checkAnalysisUsage(analysisType: string): Promise<{
+		allowed: boolean;
+		reason?: string;
+		dailyRemaining: number;
+		monthlyRemaining: number;
+	}> {
+		if (!this.userId) {
+			return { allowed: false, reason: 'User not authenticated', dailyRemaining: 0, monthlyRemaining: 0 };
+		}
+
+		try {
+			const response = await fetch('/api/analysis/check-usage', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					userId: this.userId,
+					analysisType
+				})
+			});
+
+			if (!response.ok) {
+				throw new Error('Failed to check analysis usage');
+			}
+
+			const result = await response.json();
+			return {
+				allowed: result.allowed,
+				reason: result.reason,
+				dailyRemaining: result.dailyRemaining,
+				monthlyRemaining: result.monthlyRemaining
+			};
+		} catch (error) {
+			console.error('Error checking analysis usage:', error);
+			return { allowed: false, reason: 'Error checking usage limits', dailyRemaining: 0, monthlyRemaining: 0 };
+		}
+	}
+
+	/**
+	 * Record analysis usage after successful analysis
+	 */
+	async recordAnalysisUsage(analysisType: string): Promise<void> {
+		if (!this.userId) return;
+
+		try {
+			const response = await fetch('/api/analysis/record-usage', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					userId: this.userId,
+					analysisType
+				})
+			});
+
+			if (response.ok) {
+				// Reload usage data to get updated counts
+				await this.loadUsage();
+			}
+		} catch (error) {
+			console.error('Error recording analysis usage:', error);
 		}
 	}
 
@@ -189,25 +272,23 @@ class UsageStore {
 	 * Update usage after a session
 	 */
 	updateUsageAfterSession(secondsUsed: number, overageSeconds: number = 0) {
-		// Changed from minutesUsed, overageMinutes
 		if (!this.usage) return;
 
-		// Update local state optimistically
+		const now = new Date();
+		const updatedOverage = (this.usage.overageSeconds ?? 0) + overageSeconds;
+
 		this.usage = {
 			...this.usage,
-			secondsUsed: this.usage.secondsUsed + secondsUsed, // Changed from minutesUsed
-			secondsRemaining: Math.max(0, this.usage.secondsRemaining - secondsUsed), // Changed from minutesRemaining
-			conversationsUsed: this.usage.conversationsUsed + 1,
-			realtimeSessionsUsed: this.usage.realtimeSessionsUsed + 1,
-			sessionsToday: this.usage.sessionsToday + 1,
-			percentageUsed:
-				((this.usage.secondsUsed + secondsUsed) / this.usage.totalAvailableSeconds) * 100 // Changed from totalAvailableMinutes
+			secondsUsed: (this.usage.secondsUsed ?? 0) + secondsUsed,
+			conversationsUsed: (this.usage.conversationsUsed ?? 0) + 1,
+			realtimeSessionsUsed: (this.usage.realtimeSessionsUsed ?? 0) + 1,
+			overageSeconds: updatedOverage,
+			lastConversationAt: now,
+			lastRealtimeAt: now,
+			updatedAt: now
 		};
 
-		if (overageSeconds > 0) {
-			// Changed from overageMinutes
-			this.usage.estimatedOverageCharge = overageSeconds * this.overageRate();
-		}
+		this.sessionsToday += 1;
 	}
 
 	/**
@@ -236,6 +317,7 @@ class UsageStore {
 		this.userId = null;
 		this.tier = null;
 		this.usage = null;
+		this.sessionsToday = 0;
 		this.loading = false;
 		this.error = null;
 		this.resetTimer();

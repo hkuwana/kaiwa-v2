@@ -3,6 +3,7 @@
 // Integrates with onboarding-manager.service.ts and extends functionality
 
 import type { Message, Language, UserPreferences } from '$lib/server/db/types';
+import type { AnalysisModuleId } from '$lib/features/analysis/types/analysis-module.types';
 import * as onboardingManagerService from './onboarding-manager.service';
 import * as conversationMemoryService from './conversation-memory.service';
 
@@ -93,22 +94,31 @@ export async function analyzeConversation(request: AnalysisRequest): Promise<Ana
 	// Check quota if userId is provided and doing full analysis
 	if (userId && analysisMode === 'full') {
 		try {
-			const response = await fetch('/api/analysis/quota-check');
-			if (response.ok) {
-				const quotaStatus = await response.json();
+			// Determine analysis type based on conversation analysis type
+			const apiAnalysisType = getApiAnalysisType(analysisType);
 
-				if (!quotaStatus.canAnalyze) {
+			const response = await fetch('/api/analysis/check-usage', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					userId,
+					analysisType: apiAnalysisType
+				})
+			});
+
+			if (response.ok) {
+				const usageStatus = await response.json();
+
+				if (!usageStatus.allowed) {
 					return {
 						success: false,
-						error: quotaStatus.upgradeRequired
-							? 'Daily analysis limit reached. Upgrade to get more analyses!'
-							: 'Monthly analysis limit reached. Your quota will reset soon.',
+						error: usageStatus.reason || 'Analysis limit reached',
 						analysisType,
 						quotaExceeded: true,
 						quotaStatus: {
-							remainingAnalyses: quotaStatus.remainingAnalyses,
-							resetTime: quotaStatus.resetTime,
-							tier: quotaStatus.tier
+							remainingAnalyses: usageStatus.dailyRemaining,
+							resetTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+							tier: usageStatus.tier
 						}
 					};
 				}
@@ -140,12 +150,13 @@ export async function analyzeConversation(request: AnalysisRequest): Promise<Ana
 					break;
 
 				case 'regular':
-					result = await handleRegularAnalysis(
+					result = await handleServerAnalysis({
 						messages,
 						language,
 						sessionId,
-						userPreferencesProvider
-					);
+						userPreferencesProvider,
+						moduleIds: ['quick-stats', 'grammar-suggestions', 'phrase-suggestions', 'advanced-grammar']
+					});
 					break;
 
 				case 'scenario-generation':
@@ -167,14 +178,19 @@ export async function analyzeConversation(request: AnalysisRequest): Promise<Ana
 		}
 
 		// Record usage if full analysis was successful and userId is provided
-		if (result.success && userId && analysisMode === 'full') {
+		if (result.success && userId && analysisMode === 'full' && analysisType !== 'regular') {
 			try {
+				const apiAnalysisType = getApiAnalysisType(analysisType);
+
 				await fetch('/api/analysis/record-usage', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ userId })
+					body: JSON.stringify({
+						userId,
+						analysisType: apiAnalysisType
+					})
 				});
-				console.log(`📊 Recorded analysis usage for user ${userId}`);
+				console.log(`📊 Recorded analysis usage for user ${userId} (type: ${apiAnalysisType})`);
 			} catch (error) {
 				console.warn('Could not record analysis usage:', error);
 				// Don't fail the analysis if usage recording fails
@@ -227,91 +243,68 @@ async function handleOnboardingAnalysis(
 	};
 }
 
-/**
- * Handle regular conversation analysis for returning users
- */
-async function handleRegularAnalysis(
-	messages: Message[],
-	language: Language,
-	sessionId: string,
-	userPreferencesProvider: UserPreferencesProvider
-): Promise<AnalysisResult> {
-	console.log('📊 Running regular conversation analysis...');
+interface ServerAnalysisOptions {
+	messages: Message[];
+	language: Language;
+	sessionId: string;
+	userPreferencesProvider: UserPreferencesProvider;
+	moduleIds: AnalysisModuleId[];
+}
+
+async function handleServerAnalysis(options: ServerAnalysisOptions): Promise<AnalysisResult> {
+	const { messages, language, sessionId, userPreferencesProvider, moduleIds } = options;
+	console.log('📊 Running server-side conversation analysis...', { moduleIds });
 
 	try {
-		// Filter user messages for analysis
-		const userMessages = messages
-			.filter((msg) => msg.role === 'user' && msg.content.trim())
-			.map((msg) => msg.content);
-
-		if (userMessages.length === 0) {
-			return {
-				success: false,
-				error: 'No user messages found for regular analysis',
-				analysisType: 'regular'
-			};
-		}
-
-		// Call regular analysis API
-		const response = await fetch('/api/analyze-conversation', {
+		const response = await fetch('/api/analysis/run', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
-				conversationMessages: userMessages,
-				targetLanguage: language.code,
-				sessionId,
-				analysisType: 'regular'
+				conversationId: sessionId,
+				languageCode: language.code,
+				moduleIds,
+				messages: messages.map((message) => ({
+					id: message.id,
+					role: message.role,
+					content: message.content,
+					timestamp: message.timestamp ?? undefined
+				}))
 			})
 		});
 
 		if (!response.ok) {
-			throw new Error(`Regular analysis failed: ${response.statusText}`);
+			throw new Error(`Server analysis failed: ${response.statusText}`);
 		}
 
-		const result = await response.json();
+		const payload = await response.json();
 
-		if (result.success) {
-			const currentExchanges = userPreferencesProvider.getPreference('successfulExchanges') || 0;
-			const existingMemories =
-				(userPreferencesProvider.getPreference('memories') as string[] | null) || [];
-			const incomingMemories = conversationMemoryService.extractMemoriesFromAnalysis(result.data);
-			const mergedMemories = conversationMemoryService.mergeMemories({
-				existing: existingMemories,
-				incoming: incomingMemories
-			});
-
-			const preferenceUpdates: Partial<UserPreferences> = {
-				successfulExchanges: currentExchanges + 1
-			};
-
-			if (incomingMemories.length > 0 || mergedMemories.length !== existingMemories.length) {
-				preferenceUpdates.memories = mergedMemories;
-			}
-
-			console.log('🧠 [Regular Analysis] Memory merge', {
-				existingBefore: existingMemories,
-				incomingMemories,
-				mergedMemories: preferenceUpdates.memories
-			});
-
-			await userPreferencesProvider.updatePreferences(preferenceUpdates);
-
+		if (!payload?.success) {
 			return {
-				success: true,
-				data: {
-					insights: result.data.insights,
-					analysisResults: result.data
-				},
+				success: false,
+				error: payload?.error || 'Analysis failed',
 				analysisType: 'regular'
 			};
 		}
 
+		const run = payload.run as {
+			moduleResults: Array<{ summary: string; moduleId: string; recommendations?: string[] }>;
+		};
+
+		const insights = run.moduleResults.flatMap((moduleResult) => moduleResult.recommendations || [moduleResult.summary]);
+
+		const currentExchanges = userPreferencesProvider.getPreference('successfulExchanges') || 0;
+		await userPreferencesProvider.updatePreferences({ successfulExchanges: currentExchanges + 1 });
+
 		return {
-			success: false,
-			error: result.error || 'Regular analysis failed',
+			success: true,
+			data: {
+				analysisResults: run,
+				insights
+			},
 			analysisType: 'regular'
 		};
 	} catch (error) {
+		console.error('Server analysis failed', error);
 		return {
 			success: false,
 			error: error instanceof Error ? error.message : 'Regular analysis failed',
@@ -653,6 +646,22 @@ export function getQuickAnalysis(
 	analysisType: AnalysisType = 'regular'
 ): AnalysisResult {
 	return handleQuickAnalysis(messages, language, analysisType);
+}
+
+/**
+ * Map conversation analysis types to API analysis types for usage tracking
+ */
+function getApiAnalysisType(analysisType: AnalysisType): string {
+	switch (analysisType) {
+		case 'onboarding':
+			return 'onboarding-profile';
+		case 'regular':
+			return 'advanced-grammar'; // Regular analysis includes grammar checking
+		case 'scenario-generation':
+			return 'basic';
+		default:
+			return 'basic';
+	}
 }
 
 export default {

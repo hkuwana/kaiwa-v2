@@ -86,8 +86,7 @@ GET /api/usage?action=check&type=realtime_session
 **POST** - Record usage
 
 ```json
-// Record multiple
-POST /api/usage
+POST /api/users/[id]/usage
 {
   "action": "record",
   "data": {

@@ -4,125 +4,87 @@ import { messagesRepository } from '$lib/server/repositories/messages.repository
 import { createErrorResponse, createSuccessResponse } from '$lib/types/api';
 import { getUserFromSession } from '$lib/server/auth';
 
-export const GET = async ({ url, cookies }) => {
+export const POST = async ({ request, locals }) => {
 	try {
-		const userId = await getUserFromSession(cookies);
-		if (!userId) {
-			return json(createErrorResponse('Authentication required'), { status: 401 });
+		const { conversation, messages } = await request.json();
+
+		if (!conversation) {
+			return json({ error: 'Conversation data is required' }, { status: 400 });
 		}
 
-		const limit = Math.min(parseInt(url.searchParams.get('limit') || '20', 10), 100);
-		const offset = parseInt(url.searchParams.get('offset') || '0', 10);
-		const languageId = url.searchParams.get('languageId') || undefined;
-		const searchQuery = url.searchParams.get('search');
+		// Get user info from locals
+		const user = locals.user;
 
-		console.log('📚 Fetching conversations for user:', userId, {
-			limit,
-			offset,
-			languageId,
-			searchQuery
-		});
+		// Prepare conversation data
+		const conversationData: NewConversation = {
+			id: conversation.id,
+			userId: user?.id || null,
+			guestId: !user ? conversation.guestId || 'anonymous' : null,
+			targetLanguageId: conversation.targetLanguageId,
+			title: conversation.title || null,
+			mode: conversation.mode || 'realtime',
+			voice: conversation.voice || null,
+			scenarioId: conversation.scenarioId || null,
+			isOnboarding: conversation.isOnboarding || 'false',
+			startedAt: conversation.startedAt ? new Date(conversation.startedAt) : new Date(),
+			endedAt: conversation.endedAt ? new Date(conversation.endedAt) : null,
+			durationSeconds: conversation.durationSeconds || null,
+			messageCount: messages?.length || 0,
+			audioSeconds: conversation.audioSeconds || '0',
+			comfortRating: conversation.comfortRating || null,
+			engagementLevel: conversation.engagementLevel || null
+		};
 
-		const conversations = await conversationRepository.findConversationsByUserId(
-			userId,
-			limit,
-			offset
-		);
+		// Create new conversation
+		const savedConversation = await conversationRepository.createConversation(conversationData);
 
-		const filtered = languageId
-			? conversations.filter((c) => c.targetLanguageId === languageId)
-			: conversations;
+		// Save messages if provided
+		const savedMessages = [];
+		if (messages && Array.isArray(messages) && messages.length > 0) {
+			for (const message of messages) {
+				const messageData: NewMessage = {
+					id: message.id,
+					conversationId: conversation.id,
+					role: message.role,
+					content: message.content,
+					timestamp: message.timestamp ? new Date(message.timestamp) : new Date(),
+					sequenceId: message.sequence?.toString() || null,
+					translatedContent: message.translatedContent || null,
+					sourceLanguage: message.sourceLanguage || null,
+					targetLanguage: message.targetLanguage || null,
+					userNativeLanguage: message.userNativeLanguage || null,
+					romanization: message.romanization || null,
+					hiragana: message.hiragana || null,
+					otherScripts: message.otherScripts || null,
+					translationConfidence: message.translationConfidence || null,
+					translationProvider: message.translationProvider || null,
+					translationNotes: message.translationNotes || null,
+					isTranslated: !!message.translatedContent,
+					grammarAnalysis: message.grammarAnalysis || null,
+					vocabularyAnalysis: message.vocabularyAnalysis || null,
+					pronunciationScore: message.pronunciationScore || null,
+					audioUrl: message.audioUrl || null,
+					audioDuration: message.audioDuration || null,
+					speechTimings: message.speechTimings || null,
+					difficultyLevel: message.difficultyLevel || null,
+					learningTags: message.learningTags || null,
+					conversationContext: message.conversationContext || null,
+					messageIntent: message.messageIntent || null
+				};
 
-		// Get additional details for each conversation
-		const conversationsWithDetails = await Promise.all(
-			filtered.map(async (conversation) => {
-				try {
-					// Get recent messages for preview
-					const recentMessages = await messagesRepository.getRecentMessages(conversation.id, 3);
-
-					// Get first user message for preview
-					const allMessages = await messagesRepository.getConversationMessages(conversation.id, 10);
-					const firstUserMessage = allMessages.find((m) => m.role === 'user');
-
-					return {
-						id: conversation.id,
-						title:
-							conversation.title || `${conversation.targetLanguageId.toUpperCase()} Conversation`,
-						targetLanguageId: conversation.targetLanguageId,
-						scenarioId: conversation.scenarioId,
-						isOnboarding: conversation.isOnboarding,
-						startedAt: conversation.startedAt?.toISOString?.() || conversation.startedAt,
-						endedAt: conversation.endedAt
-							? (conversation.endedAt as Date).toISOString?.() || conversation.endedAt
-							: null,
-						durationSeconds: conversation.durationSeconds || 0,
-						messageCount: conversation.messageCount || 0,
-						preview: {
-							firstUserMessage: firstUserMessage?.content?.substring(0, 150) || null,
-							lastMessage: recentMessages[0]?.content?.substring(0, 100) || null,
-							messageCount: recentMessages.length
-						}
-					};
-				} catch (error) {
-					console.warn('Error fetching details for conversation:', conversation.id, error);
-					return {
-						id: conversation.id,
-						title:
-							conversation.title || `${conversation.targetLanguageId.toUpperCase()} Conversation`,
-						targetLanguageId: conversation.targetLanguageId,
-						scenarioId: conversation.scenarioId,
-						isOnboarding: conversation.isOnboarding,
-						startedAt: conversation.startedAt?.toISOString?.() || conversation.startedAt,
-						endedAt: conversation.endedAt
-							? (conversation.endedAt as Date).toISOString?.() || conversation.endedAt
-							: null,
-						durationSeconds: conversation.durationSeconds || 0,
-						messageCount: conversation.messageCount || 0,
-						preview: {
-							firstUserMessage: null,
-							lastMessage: null,
-							messageCount: 0
-						}
-					};
-				}
-			})
-		);
-
-		// Filter by search query if provided
-		let finalConversations = conversationsWithDetails;
-		if (searchQuery && searchQuery.trim()) {
-			const query = searchQuery.toLowerCase().trim();
-			finalConversations = conversationsWithDetails.filter(
-				(conv) =>
-					conv.title?.toLowerCase().includes(query) ||
-					conv.preview.firstUserMessage?.toLowerCase().includes(query) ||
-					conv.preview.lastMessage?.toLowerCase().includes(query)
-			);
+				const savedMessage = await messagesRepository.createMessage(messageData);
+				savedMessages.push(savedMessage);
+			}
 		}
-
-		// Get total count for pagination
-		const allUserConversations = await conversationRepository.findConversationsByUserId(
-			userId,
-			1000,
-			0
-		);
-		const totalFiltered = languageId
-			? allUserConversations.filter((c) => c.targetLanguageId === languageId).length
-			: allUserConversations.length;
 
 		return json(
 			createSuccessResponse({
-				conversations: finalConversations,
-				pagination: {
-					limit,
-					offset,
-					total: totalFiltered,
-					hasMore: offset + limit < totalFiltered
-				}
+				conversation: savedConversation,
+				messagesCount: savedMessages.length
 			})
 		);
 	} catch (error) {
-		console.error('Get conversations API error:', error);
+		console.error('Create conversation API error:', error);
 		return json(createErrorResponse('Internal server error'), { status: 500 });
 	}
 };

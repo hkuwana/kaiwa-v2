@@ -181,5 +181,5 @@ export function getMaxBankedSeconds(tierId: UserTier): number {
 }
 
 // NOTE: Stripe product/price IDs and any sensitive mapping SHOULD come from the backend.
-// For Stripe price IDs, use `$lib/data/stripe` or fetch `/api/pricing` and Stripe endpoints.
+// For Stripe price IDs, use `$lib/data/stripe` or fetch `/api/billing/pricing` and Stripe endpoints.
 // Intentionally not exposing getTierByStripePriceId / getTierByStripeProductId on the client.

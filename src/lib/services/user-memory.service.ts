@@ -23,17 +23,17 @@ export interface RecentConversationSummary {
 }
 
 // Fetch current memories for the authenticated user
-export async function getMemories(): Promise<MemorySummary> {
-	const res = await fetch('/api/conversation-summary', { method: 'GET' });
+export async function getMemories(userId: string): Promise<MemorySummary> {
+	const res = await fetch(`/api/users/${userId}/preferences`, { method: 'GET' });
 	if (!res.ok) throw new Error('Failed to fetch memories');
 	const data = await res.json();
 	// Expected shape from createSuccessResponse({ ... })
-	return data.data as MemorySummary;
+	return data.data.memories as MemorySummary;
 }
 
 // Replace memories (validates against tier limits server-side)
-export async function updateMemories(memories: string[]): Promise<MemorySummary> {
-	const res = await fetch('/api/conversation-summary', {
+export async function updateMemories(userId: string, memories: string[]): Promise<MemorySummary> {
+	const res = await fetch(`/api/users/${userId}/preferences`, {
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ memories })

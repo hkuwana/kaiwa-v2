@@ -66,6 +66,13 @@
 			sessionExtensionsUsed: 0,
 			advancedVoiceSeconds: 0,
 			analysesUsed: 1,
+			// Simplified analysis usage fields for MVP
+			basicAnalysesUsed: 1,
+			advancedGrammarUsed: 0,
+			fluencyAnalysisUsed: 0,
+			onboardingProfileUsed: 0,
+			pronunciationAnalysisUsed: 0,
+			speechRhythmUsed: 0,
 			completedSessions: 6,
 			longestSessionSeconds: 900,
 			averageSessionSeconds: 500,
