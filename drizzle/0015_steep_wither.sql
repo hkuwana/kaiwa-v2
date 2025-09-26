@@ -10,4 +10,4 @@ ALTER TABLE "user_usage" ADD COLUMN "speech_rhythm_used" integer DEFAULT 0;--> s
 ALTER TABLE "user_usage" ADD COLUMN "audio_suggestion_used" integer DEFAULT 0;--> statement-breakpoint
 ALTER TABLE "user_usage" ADD COLUMN "daily_usage" jsonb DEFAULT '{}'::jsonb;--> statement-breakpoint
 ALTER TABLE "user_usage" ADD COLUMN "last_analysis_at" timestamp;--> statement-breakpoint
-ALTER TABLE "user_usage" DROP COLUMN "detailed_analysis_usage";
+ 
