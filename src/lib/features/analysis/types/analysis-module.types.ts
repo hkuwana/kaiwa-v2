@@ -38,4 +38,5 @@ export type AnalysisModuleId =
 	| 'phrase-suggestions'
 	| 'onboarding-profile'
 	| 'pronunciation-analysis'
-	| 'speech-rhythm';
+	| 'speech-rhythm'
+	| 'language-level-assessment';

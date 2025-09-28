@@ -5,7 +5,6 @@
 import type { Message, Language, UserPreferences } from '$lib/server/db/types';
 import type { AnalysisModuleId } from '$lib/features/analysis/types/analysis-module.types';
 import * as onboardingManagerService from './onboarding-manager.service';
-import * as conversationMemoryService from './conversation-memory.service';
 
 export type AnalysisType = 'onboarding' | 'regular' | 'scenario-generation';
 export type AnalysisMode = 'quick' | 'full';
@@ -149,15 +148,22 @@ export async function analyzeConversation(request: AnalysisRequest): Promise<Ana
 					);
 					break;
 
-				case 'regular':
+				case 'regular': {
+					const regularModules: AnalysisModuleId[] = [
+						'quick-stats',
+						'grammar-suggestions',
+						'phrase-suggestions',
+						'advanced-grammar'
+					];
 					result = await handleServerAnalysis({
 						messages,
 						language,
 						sessionId,
 						userPreferencesProvider,
-						moduleIds: ['quick-stats', 'grammar-suggestions', 'phrase-suggestions', 'advanced-grammar']
+						moduleIds: regularModules
 					});
 					break;
+				}
 
 				case 'scenario-generation':
 					result = await handleScenarioGeneration(
@@ -267,7 +273,7 @@ async function handleServerAnalysis(options: ServerAnalysisOptions): Promise<Ana
 					id: message.id,
 					role: message.role,
 					content: message.content,
-					timestamp: message.timestamp ?? undefined
+					timestamp: message.timestamp ? new Date(message.timestamp).toISOString() : undefined
 				}))
 			})
 		});

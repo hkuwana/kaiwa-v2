@@ -37,7 +37,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			userId: userId ?? undefined,
 			messagesOverride: body.messages?.map((msg) => ({
 				id: msg.id,
-				conversationId: body.conversationId,
 				role: msg.role,
 				content: msg.content,
 				timestamp: msg.timestamp ? new Date(msg.timestamp) : undefined

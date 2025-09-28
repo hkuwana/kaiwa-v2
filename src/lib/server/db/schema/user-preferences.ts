@@ -58,6 +58,18 @@ export const userPreferences = pgTable(
 		writingLevel: integer('writing_level').default(5).notNull(), // 1-100
 		// `overallSkillLevel` can be calculated in the app to prevent sync issues
 
+		// Language Level Tracking (CEFR-based but user-friendly)
+		currentLanguageLevel: text('current_language_level').default('A1.1').notNull(), // CEFR sublevel
+		practicalLevel: text('practical_level').default('basic-greetings').notNull(), // User-friendly description
+		confidenceScore: integer('confidence_score').default(50).notNull(), // 0-100
+		lastLevelAssessment: timestamp('last_level_assessment'),
+		levelProgression: jsonb('level_progression').$type<Array<{
+			level: string;
+			practicalLevel: string;
+			achievedAt: string; // ISO date string
+			confidenceAtTime: number;
+		}>>().default([]),
+
 		// Confidence tracking
 		speakingConfidence: integer('speaking_confidence').default(25).notNull(),
 		successfulExchanges: integer('successful_exchanges').default(0).notNull(),

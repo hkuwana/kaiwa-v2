@@ -39,14 +39,20 @@ export class AnalysisPipelineService {
 	async runAnalysis(options: AnalysisPipelineOptions): Promise<AnalysisPipelineRun> {
 		const modules = this.resolveModules(options.moduleIds);
 
-		const messages = options.messagesOverride ??
-			(await messagesRepository.getConversationMessages(options.conversationId));
+		const sourceMessages: PipelineMessage[] = options.messagesOverride
+			? options.messagesOverride
+			: (await messagesRepository.getConversationMessages(options.conversationId)).map((msg) => ({
+				id: msg.id,
+				role: msg.role,
+				content: msg.content,
+				timestamp: msg.timestamp ?? undefined
+			}));
 
-		if (!messages || messages.length === 0) {
+		if (!sourceMessages || sourceMessages.length === 0) {
 			throw new Error('No conversation messages found for analysis');
 		}
 
-		const normalizedMessages: AnalysisModuleContext['messages'] = messages.map((msg) => ({
+		const normalizedMessages: AnalysisModuleContext['messages'] = sourceMessages.map((msg) => ({
 			id: msg.id,
 			role: msg.role,
 			content: msg.content,

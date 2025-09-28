@@ -36,7 +36,14 @@ export const defaultUserPreference: Omit<
 	favoriteScenarioIds: [],
 	// Progress tracking defaults
 	recentSessionScores: [],
-	skillLevelHistory: []
+	skillLevelHistory: [],
+
+	// Language Level Tracking (CEFR-based but user-friendly)
+	currentLanguageLevel: 'A1.1',
+	practicalLevel: 'basic-greetings',
+	confidenceScore: 50,
+	lastLevelAssessment: null,
+	levelProgression: []
 	// Note: audioSettings and email preferences moved to userSettings table
 };
 

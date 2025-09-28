@@ -61,6 +61,7 @@ Kaiwa v2 adopts a **Clean 3-Layer Architecture** that creates clear separation b
 - `AudioService` - Handles audio device management and processing
 - `RealtimeService` - Manages WebRTC connections and OpenAI API
 - `AnalyticsService` - Tracks user events and metrics
+- `AnalysisService` - Coordinates analysis API calls and data transformation
 
 ### **Store Layer (Middle)**
 
@@ -78,6 +79,7 @@ Kaiwa v2 adopts a **Clean 3-Layer Architecture** that creates clear separation b
 - `ConversationStore` - Orchestrates audio and realtime services
 - `SettingsStore` - Manages user preferences and settings
 - `AuthStore` - Handles authentication state and user data
+- `AnalysisStore` - Orchestrates analysis services and manages assessment state
 
 ### **UI Layer (Top)**
 
@@ -95,6 +97,122 @@ Kaiwa v2 adopts a **Clean 3-Layer Architecture** that creates clear separation b
 - `+page.svelte` - Main conversation interface
 - `AudioVisualizer.svelte` - Audio level visualization
 - `MessageBubble.svelte` - Individual message display
+
+---
+
+## 💡 Analysis Feature: Complete Architecture Example
+
+The **Analysis Feature** demonstrates the complete 3-layer architecture in practice, showing how language analysis and assessment are implemented following our core principles.
+
+### 🏗️ Analysis Feature Structure
+
+```text
+src/lib/features/analysis/
+├── services/
+│   ├── analysis.service.ts              # Clean API communication layer
+│   ├── analysis-pipeline.service.ts     # Backend processing orchestration
+│   └── module-registry.ts               # Module definitions (simplified)
+├── stores/
+│   └── analysis.store.svelte.ts         # State management using Svelte 5 runes
+├── components/
+│   ├── QuickAnalysis.svelte             # Analysis results display
+│   └── ConfidenceTracker.svelte         # Level progression tracking
+└── types/
+    └── analysis-module.types.ts         # Type definitions
+```
+
+### 🎯 Layer Implementation
+
+#### **Service Layer** - Pure Business Logic
+```typescript
+// analysis.service.ts - Clean API communication
+export class AnalysisService {
+  async runAnalysis(conversationId: string, languageCode: string, messages: AnalysisMessage[]): Promise<AnalysisRunResult> {
+    // Pure API communication - no UI knowledge
+    const response = await fetch(`${this.baseUrl}/run`, { /* ... */ });
+    return this.transformResponse(response);
+  }
+
+  async assessLevel(messages: AnalysisMessage[], languageCode: string): Promise<LevelAssessmentResult> {
+    // CEFR assessment via backend API
+    const response = await fetch(`${this.baseUrl}/assess-level`, { /* ... */ });
+    return this.transformResponse(response);
+  }
+}
+```
+
+#### **Store Layer** - State Management & Orchestration
+```typescript
+// analysis.store.svelte.ts - Coordinates analysis services
+export class AnalysisStore {
+  private _state = $state<AnalysisState>({
+    currentRun: null,
+    isRunning: false,
+    error: null,
+    lastAssessment: null,
+    availableModules: []
+  });
+
+  async runAnalysis(conversationId: string, languageCode: string, messages: AnalysisMessage[]) {
+    this._state.isRunning = true;
+    try {
+      // Orchestrate service call and manage state
+      const result = await analysisService.runAnalysis(conversationId, languageCode, messages);
+      this._state.currentRun = result;
+    } catch (error) {
+      this._state.error = error.message;
+    } finally {
+      this._state.isRunning = false;
+    }
+  }
+}
+```
+
+#### **UI Layer** - Reactive Components
+```svelte
+<!-- QuickAnalysis.svelte - Thin, declarative UI -->
+<script lang="ts">
+  import { analysisStore } from '../stores/analysis.store.svelte';
+
+  // Reactive state using $derived
+  const currentRun = $derived(analysisStore.currentRun);
+  const isRunning = $derived(analysisStore.isRunning);
+  const error = $derived(analysisStore.error);
+
+  // Simple action handlers
+  function handleAnalyze() {
+    analysisStore.runAnalysis(conversationId, languageCode, messages);
+  }
+</script>
+
+{#if isRunning}
+  <p>Analyzing conversation...</p>
+{:else if currentRun}
+  <div class="results">
+    {#each currentRun.results as result}
+      <div class="module-result">
+        <h3>{result.moduleId}</h3>
+        <p>{result.summary}</p>
+      </div>
+    {/each}
+  </div>
+{/if}
+```
+
+### 🎯 Architecture Benefits Demonstrated
+
+- **Service Independence**: Analysis service has zero dependencies on UI or other services
+- **Store Orchestration**: Analysis store coordinates multiple services (assessment, modules, state)
+- **UI Simplicity**: Components are purely reactive and declarative
+- **Backend Processing**: Heavy analysis work happens on the server, frontend just coordinates
+- **Type Safety**: Comprehensive TypeScript interfaces across all layers
+
+### 🔄 Data Flow Example
+```text
+User clicks "Analyze" → UI calls store.runAnalysis() → Store calls service.runAnalysis()
+→ Service makes API call → Backend processes → Response flows back through layers
+→ UI updates reactively via $derived
+```
 
 ---
 
@@ -468,7 +586,7 @@ export class ConversationStore {
 
 **Phase 2: Extract Features (Week 2-3)**
 - 🔄 Extract `realtime-conversation` feature (core functionality)
-- 🔄 Extract `analysis` feature (post-conversation analysis)
+- ✅ Extract `analysis` feature (post-conversation analysis) - **COMPLETED**
 - 🔄 Extract `onboarding` feature (user onboarding flow)
 - 🔄 Extract `cultural-dna` feature (viral sharing)
 
