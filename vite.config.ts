@@ -1,7 +1,19 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { paraglideVitePlugin } from '@inlang/paraglide-js';
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
+
+const certDir = path.resolve(process.cwd(), 'certs');
+const httpsConfig =
+	fs.existsSync(path.join(certDir, 'localhost+2.pem')) &&
+	fs.existsSync(path.join(certDir, 'localhost+2-key.pem'))
+		? {
+			key: fs.readFileSync(path.join(certDir, 'localhost+2-key.pem')),
+			cert: fs.readFileSync(path.join(certDir, 'localhost+2.pem'))
+		}
+		: undefined;
 
 export default defineConfig({
 	plugins: [
@@ -48,5 +60,15 @@ export default defineConfig({
 				}
 			}
 		]
+	},
+	server: {
+		https: httpsConfig,
+		host: '0.0.0.0',
+		port: 5173
+	},
+	preview: {
+		https: httpsConfig,
+		host: '0.0.0.0',
+		port: 5173
 	}
 });

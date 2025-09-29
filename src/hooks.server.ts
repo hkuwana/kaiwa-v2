@@ -21,7 +21,7 @@ const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
 		"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com", // Allow inline styles for components, Google Fonts
 		"font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com", // Google Fonts
 		"img-src 'self' data: https: blob:", // Allow images from various sources
-		"connect-src 'self' https://api.stripe.com wss://realtime.api.openai.com https://app.posthog.com https://us.i.posthog.com https://us-assets.i.posthog.com", // API connections
+		"connect-src 'self' https://api.stripe.com https://api.openai.com wss://realtime.api.openai.com https://app.posthog.com https://us.i.posthog.com https://us-assets.i.posthog.com", // API connections
 		"media-src 'self' blob: data:", // Audio/video from blob URLs and data
 		"object-src 'none'", // Block Flash/Java objects
 		"frame-src 'self' https://js.stripe.com https://hooks.stripe.com", // Allow Stripe frames
@@ -38,7 +38,7 @@ const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
 		'X-Frame-Options': 'DENY',
 		'X-Content-Type-Options': 'nosniff',
 		'Referrer-Policy': 'strict-origin-when-cross-origin',
-		'Permissions-Policy': 'geolocation=(), microphone=(), camera=(), payment=()',
+		'Permissions-Policy': 'geolocation=(), microphone=*, camera=(), payment=()',
 		...(dev
 			? {}
 			: {
