@@ -52,12 +52,20 @@ export class LinguisticFeaturesRepository {
 	}
 
 	async getFeatureById(id: string): Promise<LinguisticFeature | null> {
-		const result = await db.select().from(linguisticFeatures).where(eq(linguisticFeatures.id, id)).limit(1);
+		const result = await db
+			.select()
+			.from(linguisticFeatures)
+			.where(eq(linguisticFeatures.id, id))
+			.limit(1);
 		return result[0] ?? null;
 	}
 
 	async findFeatureByKey(params: FeatureLookupParams): Promise<LinguisticFeature | null> {
-		const conditions = [eq(linguisticFeatures.macroSkill, params.macroSkill), eq(linguisticFeatures.subSkill, params.subSkill), eq(linguisticFeatures.microRule, params.microRule)];
+		const conditions = [
+			eq(linguisticFeatures.macroSkill, params.macroSkill),
+			eq(linguisticFeatures.subSkill, params.subSkill),
+			eq(linguisticFeatures.microRule, params.microRule)
+		];
 		if (params.languageId) {
 			conditions.push(eq(linguisticFeatures.languageId, params.languageId));
 		}
@@ -71,12 +79,17 @@ export class LinguisticFeaturesRepository {
 		return result[0] ?? null;
 	}
 
-	async createFeature(feature: Omit<NewLinguisticFeature, 'createdAt' | 'updatedAt'>): Promise<LinguisticFeature> {
+	async createFeature(
+		feature: Omit<NewLinguisticFeature, 'createdAt' | 'updatedAt'>
+	): Promise<LinguisticFeature> {
 		const [created] = await db.insert(linguisticFeatures).values(feature).returning();
 		return created;
 	}
 
-	async findAlias(alias: string, languageId?: string | null): Promise<LinguisticFeatureAlias | null> {
+	async findAlias(
+		alias: string,
+		languageId?: string | null
+	): Promise<LinguisticFeatureAlias | null> {
 		const conditions = [eq(linguisticFeatureAliases.alias, alias.toLowerCase())];
 		if (languageId) {
 			conditions.push(eq(linguisticFeatureAliases.languageId, languageId));
@@ -91,7 +104,9 @@ export class LinguisticFeaturesRepository {
 		return result[0] ?? null;
 	}
 
-	async createAlias(alias: Omit<NewLinguisticFeatureAlias, 'createdAt'>): Promise<LinguisticFeatureAlias> {
+	async createAlias(
+		alias: Omit<NewLinguisticFeatureAlias, 'createdAt'>
+	): Promise<LinguisticFeatureAlias> {
 		const [created] = await db
 			.insert(linguisticFeatureAliases)
 			.values({ ...alias, alias: alias.alias.toLowerCase() })
@@ -100,7 +115,12 @@ export class LinguisticFeaturesRepository {
 	}
 
 	generateFeatureId(params: FeatureLookupParams & { languageId?: string | null }): string {
-		const parts = [params.languageId || 'global', params.macroSkill, params.subSkill, params.microRule]
+		const parts = [
+			params.languageId || 'global',
+			params.macroSkill,
+			params.subSkill,
+			params.microRule
+		]
 			.filter(Boolean)
 			.map((part) => part.replace(/\s+/g, '-').toLowerCase());
 		return parts.join(':');

@@ -40,23 +40,25 @@ export const GET = async ({ locals, url }) => {
 				result.current = await usageService.getCurrentUsage(userId);
 				break;
 
-			case 'history':
+			case 'history': {
 				const months = Math.min(parseInt(url.searchParams.get('months') || '3'), 24); // Limit to 24 months max
 				result.history = await usageService.getUsageHistory(userId, months);
 				result.historyCount = result.history.length;
 				break;
+			}
 
 			case 'check_conversation':
 				result.check = await usageService.canUseFeature(userId, { type: 'conversation' });
 				break;
 
-			case 'check_seconds':
+			case 'check_seconds': {
 				const seconds = parseInt(url.searchParams.get('seconds') || '300');
 				result.check = await usageService.canUseFeature(userId, {
 					type: 'seconds',
 					amount: seconds
 				});
 				break;
+			}
 
 			case 'check_realtime':
 				result.check = await usageService.canUseFeature(userId, { type: 'realtime_session' });
@@ -156,12 +158,13 @@ export const POST = async ({ request, locals }) => {
 				result.message = 'Recorded 1 conversation';
 				break;
 
-			case 'record_seconds':
+			case 'record_seconds': {
 				const seconds = data?.seconds || 300;
 				await usageService.recordSeconds(userId, seconds);
 				result.success = true;
 				result.message = `Recorded ${seconds} seconds (${Math.floor(seconds / 60)} minutes)`;
 				break;
+			}
 
 			case 'record_realtime':
 				await usageService.recordRealtimeSession(userId);
@@ -169,7 +172,7 @@ export const POST = async ({ request, locals }) => {
 				result.message = 'Recorded 1 realtime session';
 				break;
 
-			case 'record_multiple':
+			case 'record_multiple': {
 				const usage = {
 					conversations: data?.conversations || 0,
 					seconds: data?.seconds || 0,
@@ -184,6 +187,7 @@ export const POST = async ({ request, locals }) => {
 				result.success = true;
 				result.message = `Recorded usage: ${JSON.stringify(usage)}`;
 				break;
+			}
 
 			case 'record_anki_export':
 				await usageService.recordAnkiExport(userId);
@@ -197,26 +201,29 @@ export const POST = async ({ request, locals }) => {
 				result.message = 'Recorded 1 session extension';
 				break;
 
-			case 'record_advanced_voice':
+			case 'record_advanced_voice': {
 				const voiceSeconds = data?.seconds || 60;
 				await usageService.recordAdvancedVoice(userId, voiceSeconds);
 				result.success = true;
 				result.message = `Recorded ${voiceSeconds} seconds of advanced voice usage`;
 				break;
+			}
 
-			case 'record_completed_session':
+			case 'record_completed_session': {
 				const sessionLength = data?.sessionLength || 300; // 5 minutes default
 				await usageService.recordCompletedSession(userId, sessionLength);
 				result.success = true;
 				result.message = `Recorded completed session (${sessionLength} seconds)`;
 				break;
+			}
 
-			case 'set_banked_seconds':
+			case 'set_banked_seconds': {
 				const bankedSeconds = data?.bankedSeconds || 0;
 				await usageService.setBankedSeconds(userId, bankedSeconds);
 				result.success = true;
 				result.message = `Set banked seconds to ${bankedSeconds}`;
 				break;
+			}
 
 			case 'simulate_heavy_usage':
 				// Simulate a month of heavy usage for testing limits

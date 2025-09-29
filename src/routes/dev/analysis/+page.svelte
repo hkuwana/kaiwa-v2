@@ -46,67 +46,358 @@
 	let findingDrafts = $state<AnalysisFindingDraft[]>([]);
 	let showFindingsJson = $state(false);
 	let findingsError = $state<string | null>(null);
+	let allModulesSelected = $derived(
+		modules.length > 0 && selectedModuleIds.size === modules.length
+	);
 
 	// Mock conversation samples with errors and expected corrections
 	const conversationSamples: Record<string, ConversationSample> = {
 		'spanish-restaurant': {
 			title: '🇪🇸 Spanish Restaurant - Complex Grammar & Vocabulary',
 			messages: [
-				{ id: 'msg-1', role: 'assistant', content: '¡Buenas noches! Bienvenidos a El Sabor de Sevilla. ¿Tienen una reserva?', timestamp: new Date('2024-05-21T20:00:00') },
-				{ id: 'msg-2', role: 'user', content: 'Buenas noches. Sí, somos dos. La reserva es para Alejandro.', timestamp: new Date('2024-05-21T20:00:15'), errors: ["es para Alejandro -> está a nombre de Alejandro"], expected: 'Buenas noches. Sí, somos dos. La reserva está a nombre de Alejandro.' },
-				{ id: 'msg-3', role: 'assistant', content: 'Perfecto, por aquí por favor. Aquí tienen sus menús. ¿Quieren algo para beber para empezar?', timestamp: new Date('2024-05-21T20:01:00') },
-				{ id: 'msg-4', role: 'user', content: 'Sí, para mí un vaso de vino tinto, por favor. Y para mi amiga, ella querrá agua.', timestamp: new Date('2024-05-21T20:01:45'), errors: ["querrá -> quiere"], expected: 'Sí, para mí un vaso de vino tinto, por favor. Y para mi amiga, ella quiere agua.' },
-				{ id: 'msg-5', role: 'assistant', content: 'Muy bien. Un tinto y un agua con gas o sin gas?', timestamp: new Date('2024-05-21T20:02:15') },
-				{ id: 'msg-6', role: 'user', content: 'Sin gas está bien. Estamos listos para ordenar la comida también. Yo soy muy hambriento.', timestamp: new Date('2024-05-21T20:03:00'), errors: ["soy muy hambriento -> tengo mucha hambre"], expected: 'Sin gas está bien. Estamos listos para ordenar la comida también. Yo tengo mucha hambre.' },
-				{ id: 'msg-7', role: 'assistant', content: '¡Claro! ¿Qué les apetece hoy?', timestamp: new Date('2024-05-21T20:03:30') },
-				{ id: 'msg-8', role: 'user', content: 'Me gustaría probar la paella. ¿Es para compartir, o es una porción para uno?', timestamp: new Date('2024-05-21T20:04:10'), errors: [], expected: 'Me gustaría probar la paella. ¿Es para compartir, o es una porción para uno?' },
-				{ id: 'msg-9', role: 'assistant', content: 'Nuestra paella de mariscos es bastante grande, ideal para dos personas. La recomiendo mucho.', timestamp: new Date('2024-05-21T20:04:45') },
-				{ id: 'msg-10', role: 'user', content: 'Perfecto, entonces pedimos la paella. Y también una porción de patatas bravas para empezar. ¿Las patatas son muy picantes?', timestamp: new Date('2024-05-21T20:05:30'), errors: ["son muy picantes -> están muy picantes"], expected: 'Perfecto, entonces pedimos la paella. Y también una porción de patatas bravas para empezar. ¿Las patatas están muy picantes?' },
-				{ id: 'msg-11', role: 'assistant', content: 'Un poquito, pero no demasiado. Es un picante sabroso. ¿Algo más?', timestamp: new Date('2024-05-21T20:06:00') },
-				{ id: 'msg-12', role: 'user', content: 'No, eso es todo por ahora. Gracias. Es posible que nosotros pedimos postre más tarde.', timestamp: new Date('2024-05-21T20:06:45'), errors: ["pedimos -> pidamos (subjunctive)"], expected: 'No, eso es todo por ahora. Gracias. Es posible que nosotros pidamos postre más tarde.' },
-				{ id: 'msg-13', role: 'assistant', content: '¡Excelente elección! La paella tardará unos 20 minutos. Les traigo las bebidas y las bravas en un momento.', timestamp: new Date('2024-05-21T20:07:15') },
-				{ id: 'msg-14', role: 'user', content: 'Disculpe, ¿el pan es con o sin gluten? Mi amiga es celíaca.', timestamp: new Date('2024-05-21T20:10:00'), errors: ["es celíaca -> es celíaca (ser is correct here, but good to check)"], expected: 'Disculpe, ¿el pan es con o sin gluten? Mi amiga es celíaca.' },
-				{ id: 'msg-15', role: 'assistant', content: 'Tenemos pan sin gluten especial para celíacos. Se lo traigo en seguida.', timestamp: new Date('2024-05-21T20:10:30') }
+				{
+					id: 'msg-1',
+					role: 'assistant',
+					content: '¡Buenas noches! Bienvenidos a El Sabor de Sevilla. ¿Tienen una reserva?',
+					timestamp: new Date('2024-05-21T20:00:00')
+				},
+				{
+					id: 'msg-2',
+					role: 'user',
+					content: 'Buenas noches. Sí, somos dos. La reserva es para Alejandro.',
+					timestamp: new Date('2024-05-21T20:00:15'),
+					errors: ['es para Alejandro -> está a nombre de Alejandro'],
+					expected: 'Buenas noches. Sí, somos dos. La reserva está a nombre de Alejandro.'
+				},
+				{
+					id: 'msg-3',
+					role: 'assistant',
+					content:
+						'Perfecto, por aquí por favor. Aquí tienen sus menús. ¿Quieren algo para beber para empezar?',
+					timestamp: new Date('2024-05-21T20:01:00')
+				},
+				{
+					id: 'msg-4',
+					role: 'user',
+					content:
+						'Sí, para mí un vaso de vino tinto, por favor. Y para mi amiga, ella querrá agua.',
+					timestamp: new Date('2024-05-21T20:01:45'),
+					errors: ['querrá -> quiere'],
+					expected:
+						'Sí, para mí un vaso de vino tinto, por favor. Y para mi amiga, ella quiere agua.'
+				},
+				{
+					id: 'msg-5',
+					role: 'assistant',
+					content: 'Muy bien. Un tinto y un agua con gas o sin gas?',
+					timestamp: new Date('2024-05-21T20:02:15')
+				},
+				{
+					id: 'msg-6',
+					role: 'user',
+					content:
+						'Sin gas está bien. Estamos listos para ordenar la comida también. Yo soy muy hambriento.',
+					timestamp: new Date('2024-05-21T20:03:00'),
+					errors: ['soy muy hambriento -> tengo mucha hambre'],
+					expected:
+						'Sin gas está bien. Estamos listos para ordenar la comida también. Yo tengo mucha hambre.'
+				},
+				{
+					id: 'msg-7',
+					role: 'assistant',
+					content: '¡Claro! ¿Qué les apetece hoy?',
+					timestamp: new Date('2024-05-21T20:03:30')
+				},
+				{
+					id: 'msg-8',
+					role: 'user',
+					content: 'Me gustaría probar la paella. ¿Es para compartir, o es una porción para uno?',
+					timestamp: new Date('2024-05-21T20:04:10'),
+					errors: [],
+					expected: 'Me gustaría probar la paella. ¿Es para compartir, o es una porción para uno?'
+				},
+				{
+					id: 'msg-9',
+					role: 'assistant',
+					content:
+						'Nuestra paella de mariscos es bastante grande, ideal para dos personas. La recomiendo mucho.',
+					timestamp: new Date('2024-05-21T20:04:45')
+				},
+				{
+					id: 'msg-10',
+					role: 'user',
+					content:
+						'Perfecto, entonces pedimos la paella. Y también una porción de patatas bravas para empezar. ¿Las patatas son muy picantes?',
+					timestamp: new Date('2024-05-21T20:05:30'),
+					errors: ['son muy picantes -> están muy picantes'],
+					expected:
+						'Perfecto, entonces pedimos la paella. Y también una porción de patatas bravas para empezar. ¿Las patatas están muy picantes?'
+				},
+				{
+					id: 'msg-11',
+					role: 'assistant',
+					content: 'Un poquito, pero no demasiado. Es un picante sabroso. ¿Algo más?',
+					timestamp: new Date('2024-05-21T20:06:00')
+				},
+				{
+					id: 'msg-12',
+					role: 'user',
+					content:
+						'No, eso es todo por ahora. Gracias. Es posible que nosotros pedimos postre más tarde.',
+					timestamp: new Date('2024-05-21T20:06:45'),
+					errors: ['pedimos -> pidamos (subjunctive)'],
+					expected:
+						'No, eso es todo por ahora. Gracias. Es posible que nosotros pidamos postre más tarde.'
+				},
+				{
+					id: 'msg-13',
+					role: 'assistant',
+					content:
+						'¡Excelente elección! La paella tardará unos 20 minutos. Les traigo las bebidas y las bravas en un momento.',
+					timestamp: new Date('2024-05-21T20:07:15')
+				},
+				{
+					id: 'msg-14',
+					role: 'user',
+					content: 'Disculpe, ¿el pan es con o sin gluten? Mi amiga es celíaca.',
+					timestamp: new Date('2024-05-21T20:10:00'),
+					errors: ['es celíaca -> es celíaca (ser is correct here, but good to check)'],
+					expected: 'Disculpe, ¿el pan es con o sin gluten? Mi amiga es celíaca.'
+				},
+				{
+					id: 'msg-15',
+					role: 'assistant',
+					content: 'Tenemos pan sin gluten especial para celíacos. Se lo traigo en seguida.',
+					timestamp: new Date('2024-05-21T20:10:30')
+				}
 			]
 		},
 		'french-market': {
 			title: '🇫🇷 French Market - Negotiation & Cultural Nuances',
 			messages: [
-				{ id: 'msg-1', role: 'user', content: 'Bonjour. Ce vase, c\'est combien?', timestamp: new Date('2024-05-21T10:00:00'), errors: ["Ce vase, c'est combien? -> Bonjour, ce vase est à combien, s'il vous plaît?"], expected: "Bonjour, ce vase est à combien, s'il vous plaît?" },
-				{ id: 'msg-2', role: 'assistant', content: 'Bonjour Madame. C\'est une belle pièce des années 30. Il est à 50 euros.', timestamp: new Date('2024-05-21T10:00:30') },
-				{ id: 'msg-3', role: 'user', content: '50 euros... c\'est un peu cher pour moi. Tu peux faire un meilleur prix?', timestamp: new Date('2024-05-21T10:01:00'), errors: ["Tu peux -> Pourriez-vous (using 'vous' is more polite)"], expected: "50 euros... c'est un peu cher pour moi. Pourriez-vous faire un meilleur prix?" },
-				{ id: 'msg-4', role: 'assistant', content: 'Hmm, il est en parfait état. Allez, pour vous, je peux le laisser à 45 euros.', timestamp: new Date('2024-05-21T10:01:45') },
-				{ id: 'msg-5', role: 'user', content: 'Je te donne 30 euros. C\'est ma dernière offre.', timestamp: new Date('2024-05-21T10:02:15'), errors: ["Je te donne -> Je vous en propose 30 euros."], expected: "Je vous en propose 30 euros. C'est ma dernière offre." },
-				{ id: 'msg-6', role: 'assistant', content: 'Ah non, 30 euros ce n\'est pas possible. Couper la poire en deux, 40 euros?', timestamp: new Date('2024-05-21T10:03:00') },
-				{ id: 'msg-7', role: 'user', content: 'Ok, 35 euros et je le prends tout de suite.', timestamp: new Date('2024-05-21T10:03:30'), errors: [], expected: 'Ok, 35 euros et je le prends tout de suite.' },
-				{ id: 'msg-8', role: 'assistant', content: 'Bon... d\'accord pour 35. C\'est parce que c\'est vous. Vous voulez un sac?', timestamp: new Date('2024-05-21T10:04:00'), errors: ["Vous voulez un sac? -> Je vous mets un sac?"], expected: "Bon... d'accord pour 35. C'est parce que c'est vous. Je vous mets un sac?" },
-				{ id: 'msg-9', role: 'user', content: 'Oui, merci. J\'aime beaucoup les choses que vous avez. Je reviendrai.', timestamp: new Date('2024-05-21T10:04:30') },
-				{ id: 'msg-10', role: 'assistant', content: 'Avec plaisir. Tenez, bien emballé. Ça fera 35 euros.', timestamp: new Date('2024-05-21T10:05:00') },
-				{ id: 'msg-11', role: 'user', content: 'Est-ce que vous acceptez la carte de crédit?', timestamp: new Date('2024-05-21T10:05:20') },
-				{ id: 'msg-12', role: 'assistant', content: 'Désolé, uniquement en espèces. Le distributeur est juste au coin de la rue.', timestamp: new Date('2024-05-21T10:05:40') },
-				{ id: 'msg-13', role: 'user', content: 'Pas de problème. Voilà 40 euros.', timestamp: new Date('2024-05-21T10:06:10') },
-				{ id: 'msg-14', role: 'assistant', content: 'Merci, et voilà votre monnaie de 5 euros. Bonne journée!', timestamp: new Date('2024-05-21T10:06:25') }
+				{
+					id: 'msg-1',
+					role: 'user',
+					content: "Bonjour. Ce vase, c'est combien?",
+					timestamp: new Date('2024-05-21T10:00:00'),
+					errors: ["Ce vase, c'est combien? -> Bonjour, ce vase est à combien, s'il vous plaît?"],
+					expected: "Bonjour, ce vase est à combien, s'il vous plaît?"
+				},
+				{
+					id: 'msg-2',
+					role: 'assistant',
+					content: "Bonjour Madame. C'est une belle pièce des années 30. Il est à 50 euros.",
+					timestamp: new Date('2024-05-21T10:00:30')
+				},
+				{
+					id: 'msg-3',
+					role: 'user',
+					content: "50 euros... c'est un peu cher pour moi. Tu peux faire un meilleur prix?",
+					timestamp: new Date('2024-05-21T10:01:00'),
+					errors: ["Tu peux -> Pourriez-vous (using 'vous' is more polite)"],
+					expected: "50 euros... c'est un peu cher pour moi. Pourriez-vous faire un meilleur prix?"
+				},
+				{
+					id: 'msg-4',
+					role: 'assistant',
+					content: 'Hmm, il est en parfait état. Allez, pour vous, je peux le laisser à 45 euros.',
+					timestamp: new Date('2024-05-21T10:01:45')
+				},
+				{
+					id: 'msg-5',
+					role: 'user',
+					content: "Je te donne 30 euros. C'est ma dernière offre.",
+					timestamp: new Date('2024-05-21T10:02:15'),
+					errors: ['Je te donne -> Je vous en propose 30 euros.'],
+					expected: "Je vous en propose 30 euros. C'est ma dernière offre."
+				},
+				{
+					id: 'msg-6',
+					role: 'assistant',
+					content: "Ah non, 30 euros ce n'est pas possible. Couper la poire en deux, 40 euros?",
+					timestamp: new Date('2024-05-21T10:03:00')
+				},
+				{
+					id: 'msg-7',
+					role: 'user',
+					content: 'Ok, 35 euros et je le prends tout de suite.',
+					timestamp: new Date('2024-05-21T10:03:30'),
+					errors: [],
+					expected: 'Ok, 35 euros et je le prends tout de suite.'
+				},
+				{
+					id: 'msg-8',
+					role: 'assistant',
+					content: "Bon... d'accord pour 35. C'est parce que c'est vous. Vous voulez un sac?",
+					timestamp: new Date('2024-05-21T10:04:00'),
+					errors: ['Vous voulez un sac? -> Je vous mets un sac?'],
+					expected: "Bon... d'accord pour 35. C'est parce que c'est vous. Je vous mets un sac?"
+				},
+				{
+					id: 'msg-9',
+					role: 'user',
+					content: "Oui, merci. J'aime beaucoup les choses que vous avez. Je reviendrai.",
+					timestamp: new Date('2024-05-21T10:04:30')
+				},
+				{
+					id: 'msg-10',
+					role: 'assistant',
+					content: 'Avec plaisir. Tenez, bien emballé. Ça fera 35 euros.',
+					timestamp: new Date('2024-05-21T10:05:00')
+				},
+				{
+					id: 'msg-11',
+					role: 'user',
+					content: 'Est-ce que vous acceptez la carte de crédit?',
+					timestamp: new Date('2024-05-21T10:05:20')
+				},
+				{
+					id: 'msg-12',
+					role: 'assistant',
+					content: 'Désolé, uniquement en espèces. Le distributeur est juste au coin de la rue.',
+					timestamp: new Date('2024-05-21T10:05:40')
+				},
+				{
+					id: 'msg-13',
+					role: 'user',
+					content: 'Pas de problème. Voilà 40 euros.',
+					timestamp: new Date('2024-05-21T10:06:10')
+				},
+				{
+					id: 'msg-14',
+					role: 'assistant',
+					content: 'Merci, et voilà votre monnaie de 5 euros. Bonne journée!',
+					timestamp: new Date('2024-05-21T10:06:25')
+				}
 			]
 		},
 		'japanese-interview': {
 			title: '🇯🇵 Japanese Interview - Formal Business Communication (Keigo)',
 			messages: [
-				{ id: 'msg-1', role: 'assistant', content: '本日は面接にお越しいただき、誠にありがとうございます。田中と申します。よろしくお願いいたします。', timestamp: new Date('2024-05-21T14:00:00') },
-				{ id: 'msg-2', role: 'user', content: 'はい、スミスです。よろしく。', timestamp: new Date('2024-05-21T14:00:30'), errors: ["よろしく -> よろしくお願いいたします (more formal)"], expected: 'はい、スミスと申します。本日はよろしくお願いいたします。' },
-				{ id: 'msg-3', role: 'assistant', content: 'では、スミスさん、まず自己紹介をお願いできますでしょうか。', timestamp: new Date('2024-05-21T14:01:00') },
-				{ id: 'msg-4', role: 'user', content: 'はい。私はアメリカから来ました。大学でコンピュータサイエンスを勉強しました。日本で働くのが夢でした。', timestamp: new Date('2024-05-21T14:01:45'), errors: ["勉強しました -> 専攻しておりました (more humble/formal)"], expected: 'はい。私はアメリカから参りました。大学ではコンピュータサイエンスを専攻しておりました。日本で働くことが長年の夢でございました。' },
-				{ id: 'msg-5', role: 'assistant', content: 'そうですか。素晴らしいですね。当社の求人はどこでお知りになりましたか。', timestamp: new Date('2024-05-21T14:03:00') },
-				{ id: 'msg-6', role: 'user', content: 'インターネットで見ました。御社のウェブサイトです。', timestamp: new Date('2024-05-21T14:03:30'), errors: ["見ました -> 拝見しました (humble form)"], expected: 'はい、インターネットで拝見いたしました。御社のウェブサイトです。' },
-				{ id: 'msg-7', role: 'assistant', content: 'ありがとうございます。当社のどのような点に興味を持たれましたか。', timestamp: new Date('2024-05-21T14:04:30') },
-				{ id: 'msg-8', role: 'user', content: 'グローバルなチームで働けることと、AI技術を使っていることがいいと思います。', timestamp: new Date('2024-05-21T14:05:15'), errors: ["いいと思います -> に魅力を感じております (more formal/stronger interest)"], expected: 'グローバルなチームで働ける点と、最先端のAI技術を活用されている点に大変魅力を感じております。' },
-				{ id: 'msg-9', role: 'assistant', content: 'なるほど。あなたの長所と短所を教えてください。', timestamp: new Date('2024-05-21T14:06:30') },
-				{ id: 'msg-10', role: 'user', content: '私の長所は、新しいことを学ぶのが早いことです。短所は、時々仕事に集中しすぎることです。', timestamp: new Date('2024-05-21T14:07:15'), errors: [], expected: '私の長所は、新しい技術や知識を迅速に習得できる点です。短所としましては、時に一つの業務に集中しすぎてしまう傾向があるため、全体の進捗管理を意識するよう努めております。' },
-				{ id: 'msg-11', role: 'assistant', content: '承知いたしました。最後に、何か質問はありますか。', timestamp: new Date('2024-05-21T14:10:00') },
-				{ id: 'msg-12', role: 'user', content: 'はい、あります。チームの雰囲気はどんな感じですか。', timestamp: new Date('2024-05-21T14:10:45'), errors: ["どんな感じですか -> どのような雰囲気でいらっしゃいますでしょうか (more polite/formal)"], expected: 'はい、ございます。もし差し支えなければ、配属予定のチームの雰囲気についてお伺いしてもよろしいでしょうか。' },
-				{ id: 'msg-13', role: 'assistant', content: '非常に協力的で、多国籍のメンバーが活発に意見交換をしています。風通しの良い職場ですよ。', timestamp: new Date('2024-05-21T14:11:30') },
-				{ id: 'msg-14', role: 'user', content: 'わかりました。ありがとうございます。', timestamp: new Date('2024-05-21T14:12:00'), errors: ["わかりました -> かしこまりました or 承知いたしました"], expected: 'かしこまりました。よく分かりました、ありがとうございます。' },
-				{ id: 'msg-15', role: 'assistant', content: '本日は以上となります。結果については、一週間以内にメールでご連絡いたします。', timestamp: new Date('2024-05-21T14:12:30') },
-				{ id: 'msg-16', role: 'user', content: 'はい、ありがとうございました。', timestamp: new Date('2024-05-21T14:12:45'), errors: ["ありがとうございました -> 本日は貴重なお時間をいただき、誠にありがとうございました。"], expected: '本日は貴重なお時間をいただき、誠にありがとうございました。' }
+				{
+					id: 'msg-1',
+					role: 'assistant',
+					content:
+						'本日は面接にお越しいただき、誠にありがとうございます。田中と申します。よろしくお願いいたします。',
+					timestamp: new Date('2024-05-21T14:00:00')
+				},
+				{
+					id: 'msg-2',
+					role: 'user',
+					content: 'はい、スミスです。よろしく。',
+					timestamp: new Date('2024-05-21T14:00:30'),
+					errors: ['よろしく -> よろしくお願いいたします (more formal)'],
+					expected: 'はい、スミスと申します。本日はよろしくお願いいたします。'
+				},
+				{
+					id: 'msg-3',
+					role: 'assistant',
+					content: 'では、スミスさん、まず自己紹介をお願いできますでしょうか。',
+					timestamp: new Date('2024-05-21T14:01:00')
+				},
+				{
+					id: 'msg-4',
+					role: 'user',
+					content:
+						'はい。私はアメリカから来ました。大学でコンピュータサイエンスを勉強しました。日本で働くのが夢でした。',
+					timestamp: new Date('2024-05-21T14:01:45'),
+					errors: ['勉強しました -> 専攻しておりました (more humble/formal)'],
+					expected:
+						'はい。私はアメリカから参りました。大学ではコンピュータサイエンスを専攻しておりました。日本で働くことが長年の夢でございました。'
+				},
+				{
+					id: 'msg-5',
+					role: 'assistant',
+					content: 'そうですか。素晴らしいですね。当社の求人はどこでお知りになりましたか。',
+					timestamp: new Date('2024-05-21T14:03:00')
+				},
+				{
+					id: 'msg-6',
+					role: 'user',
+					content: 'インターネットで見ました。御社のウェブサイトです。',
+					timestamp: new Date('2024-05-21T14:03:30'),
+					errors: ['見ました -> 拝見しました (humble form)'],
+					expected: 'はい、インターネットで拝見いたしました。御社のウェブサイトです。'
+				},
+				{
+					id: 'msg-7',
+					role: 'assistant',
+					content: 'ありがとうございます。当社のどのような点に興味を持たれましたか。',
+					timestamp: new Date('2024-05-21T14:04:30')
+				},
+				{
+					id: 'msg-8',
+					role: 'user',
+					content: 'グローバルなチームで働けることと、AI技術を使っていることがいいと思います。',
+					timestamp: new Date('2024-05-21T14:05:15'),
+					errors: ['いいと思います -> に魅力を感じております (more formal/stronger interest)'],
+					expected:
+						'グローバルなチームで働ける点と、最先端のAI技術を活用されている点に大変魅力を感じております。'
+				},
+				{
+					id: 'msg-9',
+					role: 'assistant',
+					content: 'なるほど。あなたの長所と短所を教えてください。',
+					timestamp: new Date('2024-05-21T14:06:30')
+				},
+				{
+					id: 'msg-10',
+					role: 'user',
+					content:
+						'私の長所は、新しいことを学ぶのが早いことです。短所は、時々仕事に集中しすぎることです。',
+					timestamp: new Date('2024-05-21T14:07:15'),
+					errors: [],
+					expected:
+						'私の長所は、新しい技術や知識を迅速に習得できる点です。短所としましては、時に一つの業務に集中しすぎてしまう傾向があるため、全体の進捗管理を意識するよう努めております。'
+				},
+				{
+					id: 'msg-11',
+					role: 'assistant',
+					content: '承知いたしました。最後に、何か質問はありますか。',
+					timestamp: new Date('2024-05-21T14:10:00')
+				},
+				{
+					id: 'msg-12',
+					role: 'user',
+					content: 'はい、あります。チームの雰囲気はどんな感じですか。',
+					timestamp: new Date('2024-05-21T14:10:45'),
+					errors: [
+						'どんな感じですか -> どのような雰囲気でいらっしゃいますでしょうか (more polite/formal)'
+					],
+					expected:
+						'はい、ございます。もし差し支えなければ、配属予定のチームの雰囲気についてお伺いしてもよろしいでしょうか。'
+				},
+				{
+					id: 'msg-13',
+					role: 'assistant',
+					content:
+						'非常に協力的で、多国籍のメンバーが活発に意見交換をしています。風通しの良い職場ですよ。',
+					timestamp: new Date('2024-05-21T14:11:30')
+				},
+				{
+					id: 'msg-14',
+					role: 'user',
+					content: 'わかりました。ありがとうございます。',
+					timestamp: new Date('2024-05-21T14:12:00'),
+					errors: ['わかりました -> かしこまりました or 承知いたしました'],
+					expected: 'かしこまりました。よく分かりました、ありがとうございます。'
+				},
+				{
+					id: 'msg-15',
+					role: 'assistant',
+					content: '本日は以上となります。結果については、一週間以内にメールでご連絡いたします。',
+					timestamp: new Date('2024-05-21T14:12:30')
+				},
+				{
+					id: 'msg-16',
+					role: 'user',
+					content: 'はい、ありがとうございました。',
+					timestamp: new Date('2024-05-21T14:12:45'),
+					errors: [
+						'ありがとうございました -> 本日は貴重なお時間をいただき、誠にありがとうございました。'
+					],
+					expected: '本日は貴重なお時間をいただき、誠にありがとうございました。'
+				}
 			]
 		}
 	};
@@ -168,7 +459,8 @@
 			}
 
 			lastRun = data.run;
-			suggestions = data.suggestions ??
+			suggestions =
+				data.suggestions ??
 				analysisSuggestionService.extract(lastRun, {
 					runId: lastRun.runId,
 					messages
@@ -202,6 +494,27 @@
 		}
 		selectedModuleIds = next;
 	}
+
+	function toggleAllModules() {
+		if (allModulesSelected) {
+			selectedModuleIds = new Set();
+		} else {
+			selectedModuleIds = new Set(modules.map((module) => module.id));
+		}
+	}
+
+	// Module API usage information
+	const moduleApiInfo: Record<string, { api: string; description: string }> = {
+		'quick-stats': { api: 'None', description: 'Local calculation only' },
+		'grammar-suggestions': { api: 'GPT-4o-mini', description: 'AI-powered grammar corrections' },
+		'advanced-grammar': { api: 'None (Placeholder)', description: 'Not implemented yet' },
+		'fluency-analysis': { api: 'GPT-4o-mini', description: 'AI-powered fluency scoring' },
+		'phrase-suggestions': { api: 'None (Placeholder)', description: 'Not implemented yet' },
+		'onboarding-profile': { api: 'None (Placeholder)', description: 'Not implemented yet' },
+		'language-level-assessment': { api: 'None (Placeholder)', description: 'Not implemented yet' },
+		'pronunciation-analysis': { api: 'None (Placeholder)', description: 'Requires audio input' },
+		'speech-rhythm': { api: 'None (Placeholder)', description: 'Requires audio input' }
+	};
 </script>
 
 <div class="min-h-screen bg-base-200 py-10">
@@ -218,14 +531,6 @@
 			<h2 class="text-xl font-semibold">Conversation Samples</h2>
 			<div class="mt-4 space-y-6">
 				<div class="flex flex-wrap gap-4">
-					<label class="form-control">
-						<div class="label">Conversation ID</div>
-						<input class="input-bordered input" bind:value={conversationId} />
-					</label>
-					<label class="form-control">
-						<div class="label">Language Code</div>
-						<input class="input-bordered input" bind:value={languageCode} />
-					</label>
 					<label class="form-control">
 						<div class="label">Scenario</div>
 						<select class="select-bordered select" bind:value={selectedScenario}>
@@ -347,10 +652,19 @@
 		<section class="rounded-lg bg-base-100 p-6 shadow">
 			<div class="mb-4 flex items-center justify-between">
 				<h2 class="text-xl font-semibold">Modules</h2>
-				<label class="flex cursor-pointer items-center gap-2">
-					<input type="checkbox" class="toggle toggle-sm" bind:checked={showModulesJson} />
-					<span class="text-sm">Show JSON</span>
-				</label>
+				<div class="flex items-center gap-4">
+					<button
+						class="btn btn-outline btn-sm"
+						onclick={toggleAllModules}
+						disabled={modules.length === 0}
+					>
+						{allModulesSelected ? 'Turn All Off' : 'Turn All On'}
+					</button>
+					<label class="flex cursor-pointer items-center gap-2">
+						<input type="checkbox" class="toggle toggle-sm" bind:checked={showModulesJson} />
+						<span class="text-sm">Show JSON</span>
+					</label>
+				</div>
 			</div>
 
 			{#if modules.length === 0}
@@ -380,9 +694,20 @@
 
 				<div class="grid gap-4 md:grid-cols-2">
 					{#each modules as module}
-						<label class="flex cursor-pointer flex-col gap-2 rounded border border-base-300 p-4">
+						{@const apiInfo = moduleApiInfo[module.id] || {
+							api: 'Unknown',
+							description: 'No API info available'
+						}}
+						<label
+							class="hover:bg-base-50 flex cursor-pointer flex-col gap-3 rounded border border-base-300 p-4"
+						>
 							<div class="flex items-center justify-between gap-3">
-								<span class="font-medium">{module.label}</span>
+								<div class="flex items-center gap-2">
+									<span class="font-medium">{module.label}</span>
+									{#if module.tier}
+										<span class="badge badge-outline badge-xs">{module.tier}</span>
+									{/if}
+								</div>
 								<input
 									type="checkbox"
 									class="toggle"
@@ -391,13 +716,119 @@
 								/>
 							</div>
 							<p class="text-sm text-base-content">{module.description}</p>
-							<div class="text-xs text-base-content/50">
-								Modality: {module.modality}
-								{module.tier ? `• Tier: ${module.tier}` : ''}
+
+							<!-- API Usage Information -->
+							<div class="rounded bg-base-200 p-3">
+								<div class="mb-2 flex items-center gap-2">
+									<svg class="h-4 w-4 text-info" fill="currentColor" viewBox="0 0 20 20">
+										<path
+											fill-rule="evenodd"
+											d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h12a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm8 6a1 1 0 100-2 1 1 0 000 2z"
+											clip-rule="evenodd"
+										></path>
+									</svg>
+									<span class="text-xs font-medium text-base-content/80">API Usage</span>
+								</div>
+								<div class="text-xs text-base-content/70">
+									<div class="font-medium">{apiInfo.api}</div>
+									<div class="text-base-content/60">{apiInfo.description}</div>
+								</div>
+							</div>
+
+							<div class="flex items-center justify-between text-xs text-base-content/50">
+								<span>Modality: {module.modality}</span>
+								{#if module.requiresAudio}
+									<span class="text-warning">🎤 Audio Required</span>
+								{/if}
 							</div>
 						</label>
 					{/each}
 				</div>
+
+				<!-- Module Overlap Analysis -->
+				{#if selectedModuleIds.size > 1}
+					{@const selectedModules = Array.from(selectedModuleIds)
+						.map((id) => modules.find((m) => m.id === id))
+						.filter(Boolean)}
+					{@const apiModules = selectedModules.filter(
+						(m) => m && moduleApiInfo[m.id]?.api?.includes('GPT-4o-mini')
+					)}
+					{@const placeholderModules = selectedModules.filter(
+						(m) => m && moduleApiInfo[m.id]?.api?.includes('Placeholder')
+					)}
+					{@const audioModules = selectedModules.filter((m) => m && m.requiresAudio)}
+
+					<div class="mt-4 rounded-lg border border-warning/20 bg-warning/10 p-4">
+						<div class="mb-3 flex items-center gap-2">
+							<svg class="h-5 w-5 text-warning" fill="currentColor" viewBox="0 0 20 20">
+								<path
+									fill-rule="evenodd"
+									d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+									clip-rule="evenodd"
+								></path>
+							</svg>
+							<h3 class="font-semibold text-warning-content">Module Analysis & Recommendations</h3>
+						</div>
+
+						<div class="space-y-3 text-sm">
+							{#if apiModules.length > 0}
+								<div class="rounded bg-warning/20 p-3">
+									<div class="font-medium text-warning-content">
+										🤖 AI-Powered Modules ({apiModules.length})
+									</div>
+									<div class="text-warning-content/80">
+										These modules use GPT-4o-mini and will consume API credits:
+										{apiModules
+											.map((m) => m?.label)
+											.filter(Boolean)
+											.join(', ')}
+									</div>
+								</div>
+							{/if}
+
+							{#if placeholderModules.length > 0}
+								<div class="rounded bg-base-200 p-3">
+									<div class="font-medium text-base-content">
+										⚠️ Placeholder Modules ({placeholderModules.length})
+									</div>
+									<div class="text-base-content/70">
+										These modules are not yet implemented and won't provide useful output:
+										{placeholderModules
+											.map((m) => m?.label)
+											.filter(Boolean)
+											.join(', ')}
+									</div>
+								</div>
+							{/if}
+
+							{#if audioModules.length > 0}
+								<div class="rounded bg-error/20 p-3">
+									<div class="font-medium text-error-content">
+										🎤 Audio Modules ({audioModules.length})
+									</div>
+									<div class="text-error-content/80">
+										These modules require audio input and won't work with text-only conversations:
+										{audioModules
+											.map((m) => m?.label)
+											.filter(Boolean)
+											.join(', ')}
+									</div>
+								</div>
+							{/if}
+
+							<div class="rounded bg-info/20 p-3">
+								<div class="font-medium text-info-content">💡 Recommendations</div>
+								<div class="text-info-content/80">
+									• For text analysis: Keep "Quick Stats", "Grammar Suggestions", and "Fluency
+									Analysis"<br />
+									• Remove placeholder modules unless testing UI components<br />
+									• Remove audio modules for text-only conversations<br />
+									• Consider running modules separately to see individual outputs
+								</div>
+							</div>
+						</div>
+					</div>
+				{/if}
 
 				<!-- Selected Modules Summary -->
 				{#if selectedModuleIds.size > 0}
@@ -665,12 +1096,13 @@
 								<div>
 									<h4 class="text-lg font-semibold">Conversation Suggestions</h4>
 									<p class="text-sm text-base-content/70">
-										Keep the transcript visible while expanding targeted grammar and politeness nudges.
+										Keep the transcript visible while expanding targeted grammar and politeness
+										nudges.
 									</p>
 								</div>
-								<span class="badge badge-neutral badge-sm">{suggestions.length} suggestions</span>
+								<span class="badge badge-sm badge-neutral">{suggestions.length} suggestions</span>
 							</div>
-						<UnifiedConversationBubble {messages} {suggestions} />
+							<UnifiedConversationBubble {messages} {suggestions} />
 						</div>
 					{/if}
 
@@ -690,8 +1122,8 @@
 								<div>
 									<h4 class="text-lg font-semibold">Logbook Draft Entries</h4>
 									<p class="text-sm text-base-content/70">
-										Objects mirror <code>analysis_findings</code> rows so we can inspect the
-										analysis → logbook flow end-to-end.
+										Objects mirror <code>analysis_findings</code> rows so we can inspect the analysis
+										→ logbook flow end-to-end.
 									</p>
 								</div>
 								<label class="flex cursor-pointer items-center gap-2">
@@ -701,11 +1133,12 @@
 							</div>
 
 							{#if showFindingsJson}
-								<pre class="max-h-72 overflow-auto rounded bg-base-200 p-4 text-xs text-base-content/80">{JSON.stringify(
-									findingDrafts,
-									null,
-									2
-								)}</pre>
+								<pre
+									class="max-h-72 overflow-auto rounded bg-base-200 p-4 text-xs text-base-content/80">{JSON.stringify(
+										findingDrafts,
+										null,
+										2
+									)}</pre>
 							{:else}
 								<div class="overflow-auto">
 									<table class="table table-sm">
@@ -857,121 +1290,6 @@
 			{/if}
 		</section>
 
-		<!-- Language Level Assessment Demo -->
-		<section class="rounded-lg bg-base-100 p-6 shadow">
-			<h2 class="mb-4 text-xl font-semibold">🎯 Language Level Assessment (New!)</h2>
-			<div class="grid gap-6 md:grid-cols-2">
-				<div class="space-y-4">
-					<h3 class="flex items-center gap-2 text-lg font-medium">
-						<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-							<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-						</svg>
-						CEFR-to-Practical Mapping
-					</h3>
-					<div class="space-y-2 text-sm">
-						<div class="rounded border border-blue-200 bg-blue-50 p-3">
-							<div class="font-medium text-blue-900">A1.1-A1.2: Basic Talk</div>
-							<div class="text-blue-700">Greetings, simple phrases, everyday conversations</div>
-						</div>
-						<div class="rounded border border-green-200 bg-green-50 p-3">
-							<div class="font-medium text-green-900">B1.1: Converse with Strangers</div>
-							<div class="text-green-700">Comfortable conversations with new people</div>
-						</div>
-						<div class="rounded border border-purple-200 bg-purple-50 p-3">
-							<div class="font-medium text-purple-900">B2.1: University Level</div>
-							<div class="text-purple-700">Academic discussions, complex topics</div>
-						</div>
-						<div class="rounded border border-orange-200 bg-orange-50 p-3">
-							<div class="font-medium text-orange-900">B2.2: Work Conversations</div>
-							<div class="text-orange-700">Professional settings, meetings, presentations</div>
-						</div>
-					</div>
-				</div>
-
-				<div class="space-y-4">
-					<h3 class="flex items-center gap-2 text-lg font-medium">
-						<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-							<path
-								d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-							></path>
-						</svg>
-						Confidence-First Approach
-					</h3>
-					<div class="space-y-3 text-sm">
-						<div class="rounded border border-success/20 bg-success p-3">
-							<div class="font-medium text-success-content">🌟 High Confidence</div>
-							<div class="text-success-content/80">
-								Initiates conversations, recovers from mistakes gracefully
-							</div>
-						</div>
-						<div class="rounded border border-warning/20 bg-warning p-3">
-							<div class="font-medium text-warning-content">💪 Building Confidence</div>
-							<div class="text-warning-content/80">
-								Uses complex structures, self-corrects occasionally
-							</div>
-						</div>
-						<div class="rounded border border-info/20 bg-info p-3">
-							<div class="font-medium text-info-content">🌱 Growing Confidence</div>
-							<div class="text-info-content/80">Taking brave first steps, building foundation</div>
-						</div>
-					</div>
-
-					<div class="mt-4 rounded border border-primary/20 bg-primary p-4">
-						<h4 class="mb-2 font-medium text-primary-content">💡 Why Confidence Matters</h4>
-						<p class="text-sm text-primary-content/80">
-							Research shows that confident learners progress faster, retain more, and are more
-							likely to continue learning. Unlike Duolingo's focus on streaks, we measure real
-							conversational confidence.
-						</p>
-					</div>
-				</div>
-			</div>
-
-			<!-- Test Assessment Button -->
-			<div class="mt-6 rounded-lg bg-base-200 p-4">
-				<h4 class="mb-3 font-medium">🧪 Test the Assessment API</h4>
-				<p class="mb-3 text-sm text-base-content">
-					Click below to test the language level assessment with the current scenario messages:
-				</p>
-				<button
-					class="btn btn-primary"
-					onclick={async () => {
-						try {
-							const response = await fetch('/api/analysis/assess-level', {
-								method: 'POST',
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({
-									languageCode,
-									messages: messages
-										.filter((m) => m.role === 'user')
-										.map((m) => ({
-											id: m.id,
-											role: m.role,
-											content: m.content,
-											timestamp: m.timestamp?.toISOString()
-										})),
-									includeRecommendations: true
-								})
-							});
-							const data = await response.json();
-							console.log('Assessment Result:', data);
-							alert(
-								`Level: ${data.assessment?.currentLevel?.practicalLevel || 'Unknown'} (${data.assessment?.currentLevel?.cefrLevel || 'N/A'})\nConfidence: ${data.assessment?.confidenceLevel || 'Unknown'}`
-							);
-						} catch (error) {
-							console.error('Assessment failed:', error);
-							alert('Assessment failed - check console for details');
-						}
-					}}
-				>
-					🎯 Run Language Assessment
-				</button>
-				<div class="mt-2 text-xs text-base-content/60">
-					Check browser console for detailed results
-				</div>
-			</div>
-		</section>
-
 		<!-- Reviewable State Demo -->
 		<section class="rounded-lg bg-base-100 p-6 shadow">
 			<div class="mb-4 flex items-center justify-between">
@@ -983,17 +1301,28 @@
 			</div>
 
 			{#if showReviewableDemo}
-				<div class="rounded-lg border border-info/20 bg-info/10 p-4 mb-4">
+				<div class="mb-4 rounded-lg border border-info/20 bg-info/10 p-4">
 					<h3 class="mb-2 font-medium text-info-content">🎭 Full Reviewable State Experience</h3>
 					<p class="text-sm text-info-content/80">
-						This demonstrates the complete conversation review experience with UnifiedConversationBubble integration,
-						including hover highlighting for suggestions.
+						This demonstrates the complete conversation review experience with
+						UnifiedConversationBubble integration, including hover highlighting for suggestions.
 					</p>
 				</div>
 
 				<!-- Mock language object for the demo -->
-				{@const mockLanguage = { code: 'en', name: 'English', emoji: '🇺🇸' }}
-				{@const mockMessages = messages.map(msg => ({
+				{@const mockLanguage = {
+					id: 'en',
+					code: 'en',
+					name: 'English',
+					nativeName: 'English',
+					isRTL: false,
+					flag: '🇺🇸',
+					hasRomanization: false,
+					writingSystem: 'latin',
+					supportedScripts: ['latin'] as string[],
+					isSupported: true
+				}}
+				{@const mockMessages = messages.map((msg) => ({
 					...msg,
 					conversationId: conversationId,
 					sequenceId: null,
@@ -1020,7 +1349,7 @@
 					messageIntent: null
 				}))}
 
-				<div class="rounded-lg border border-base-300 bg-base-50 p-4">
+				<div class="bg-base-50 rounded-lg border border-base-300 p-4">
 					<ConversationReviewableState
 						messages={mockMessages}
 						language={mockLanguage}
@@ -1032,37 +1361,6 @@
 					/>
 				</div>
 			{/if}
-		</section>
-
-		<!-- Server Console Logging -->
-		<section class="rounded-lg bg-base-100 p-6 shadow">
-			<h2 class="mb-4 text-xl font-semibold">🔍 Server Debug Console</h2>
-			<div class="rounded-lg border border-info/20 bg-info p-4">
-				<h3 class="mb-3 font-medium text-info-content">Real-time OpenAI Debugging</h3>
-				<p class="text-sm text-info-content/80">
-					The analysis modules now use real OpenAI processing. Check your server console to see:
-				</p>
-				<ul class="mt-2 list-inside list-disc space-y-1 text-sm text-info-content/80">
-					<li>
-						<strong>🤖 Raw Request to OpenAI:</strong> Full request payload with prompts and settings
-					</li>
-					<li><strong>🤖 Raw Response from OpenAI:</strong> Complete API response with metadata</li>
-					<li><strong>🚨 API Errors:</strong> Detailed error logging with request context</li>
-				</ul>
-				<div class="mt-4 rounded border border-info/10 bg-info/5 p-3">
-					<div class="font-mono text-xs text-info-content">
-						<div>📊 Request tracking includes:</div>
-						<div class="ml-2">• Timestamp and payload</div>
-						<div class="ml-2">• Message count and character counts</div>
-						<div class="ml-2">• Model and parameters used</div>
-						<br />
-						<div>📈 Response tracking includes:</div>
-						<div class="ml-2">• Full OpenAI response object</div>
-						<div class="ml-2">• Token usage statistics</div>
-						<div class="ml-2">• Finish reason and response length</div>
-					</div>
-				</div>
-			</div>
 		</section>
 	</div>
 </div>

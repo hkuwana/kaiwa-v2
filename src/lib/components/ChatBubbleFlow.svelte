@@ -196,20 +196,20 @@
 					<div class="text-sm font-medium">
 						{bubble.message.text}
 					</div>
-					
+
 					{#if bubble.message.translation}
-						<button 
-							class="btn btn-xs btn-ghost mt-1 opacity-60 hover:opacity-100"
+						<button
+							class="btn mt-1 opacity-60 btn-ghost btn-xs hover:opacity-100"
 							onclick={() => toggleTranslation(bubble.id)}
 						>
-							<span class="icon-[mdi--google-translate] mr-1"></span>
+							<span class="mr-1 icon-[mdi--google-translate]"></span>
 							Translate
 						</button>
 					{/if}
 
 					{#if translationsVisible.has(bubble.id)}
 						<div transition:slide={{ duration: 300 }}>
-							<div class="mt-2 text-xs italic opacity-80 border-t border-base-content/10 pt-2">
+							<div class="mt-2 border-t border-base-content/10 pt-2 text-xs italic opacity-80">
 								{bubble.message.translation}
 							</div>
 						</div>

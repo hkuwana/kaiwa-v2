@@ -1,12 +1,10 @@
 import { pgTable, text, timestamp, uuid, index } from 'drizzle-orm/pg-core';
 
 /**
- * Users table - Stores basic user account information
+ * Users - Core user account information
  *
- * This table holds the essential user data for the Kaiwa language learning app.
- * It includes authentication info (Google OAuth, email/password), user preferences
- * (native language, UI language), payment integration (Stripe customer ID),
- * and basic tracking data like registration and last activity times.
+ * Central user table containing authentication, preferences, and billing data.
+ * Supports Google OAuth and email/password authentication.
  */
 export const users = pgTable(
 	'users',
@@ -19,20 +17,18 @@ export const users = pgTable(
 		avatarUrl: text('avatar_url'),
 		stripeCustomerId: text('stripe_customer_id'),
 
-		// Essential settings
+		// Language preferences
 		nativeLanguageId: text('native_language_id').notNull().default('en'),
 		preferredUILanguageId: text('preferred_ui_language_id').notNull().default('ja'),
 
+		// Authentication
+		hashedPassword: text('hashed_password'),
+		emailVerified: timestamp('email_verified'),
+		emailVerificationRequired: timestamp('email_verification_required').defaultNow(),
+
 		// Tracking
 		createdAt: timestamp('created_at').defaultNow(),
-		lastUsage: timestamp('last_usage'),
-
-		// Optional password for email signup (if we add it later)
-		hashedPassword: text('hashed_password'),
-
-		// Email verification
-		emailVerified: timestamp('email_verified'),
-		emailVerificationRequired: timestamp('email_verification_required').defaultNow()
+		lastUsage: timestamp('last_usage')
 	},
 	(table) => [
 		// Performance indexes for common queries

@@ -8,9 +8,14 @@ interface RawSuggestion {
 	id?: string;
 	ruleId?: string;
 	category?: string;
+	macroSkill?: string;
+	subSkill?: string;
+	microRule?: string;
 	severity?: 'info' | 'hint' | 'warning';
 	messageId?: string;
 	text?: string;
+	originalText?: string;
+	suggestedText?: string;
 	suggestion?: string;
 	explanation?: string;
 	example?: string;
@@ -33,14 +38,18 @@ export class AnalysisSuggestionService {
 				const messageId = raw.messageId ?? this.resolveMessageId(raw, messageMap);
 				if (!messageId || !messageMap.has(messageId)) continue;
 
+				const severity = this.normalizeSeverity(raw.severity);
+
 				suggestions.push({
 					id: raw.id ?? `${result.moduleId}-${suggestions.length}`,
-					ruleId: raw.ruleId ?? `${result.moduleId}-rule`,
-					category: raw.category ?? result.moduleId ?? 'general',
-					severity: raw.severity ?? 'hint',
+					ruleId: raw.ruleId ?? raw.microRule ?? `${result.moduleId}-rule`,
+					category:
+						raw.category ??
+						`${raw.macroSkill ?? 'grammar'}${raw.subSkill ? `:${raw.subSkill}` : ''}`,
+					severity,
 					messageId,
-					originalText: raw.text ?? messageMap.get(messageId)?.content ?? '',
-					suggestedText: raw.suggestion ?? raw.example ?? raw.text ?? '',
+					originalText: raw.originalText ?? raw.text ?? messageMap.get(messageId)?.content ?? '',
+					suggestedText: raw.suggestedText ?? raw.suggestion ?? raw.example ?? raw.text ?? '',
 					explanation: raw.explanation ?? 'Consider this tweak to sound more natural.',
 					example: raw.example,
 					offsets: raw.offsets
@@ -48,25 +57,14 @@ export class AnalysisSuggestionService {
 			}
 		}
 
-		if (suggestions.length === 0 && context.messages.length > 0) {
-			const fallback = context.messages.find((msg) => msg.role === 'user') ?? context.messages[0];
-			if (fallback) {
-				suggestions.push({
-					id: 'fallback-politeness',
-					ruleId: 'politeness-modal',
-					category: 'politeness',
-					severity: 'info',
-					messageId: fallback.id,
-					originalText: fallback.content,
-					suggestedText: 'Could you tell me if you have any local beers?',
-					explanation: "Adding 'could' can make your requests sound more polite.",
-					example:
-						"Instead of 'Do you have any local beers?', try 'Could you tell me if you have any local beers?'"
-				});
-			}
-		}
-
 		return suggestions;
+	}
+
+	private normalizeSeverity(severity?: string | null): 'info' | 'hint' | 'warning' {
+		const value = (severity ?? '').toLowerCase();
+		if (value === 'warning') return 'warning';
+		if (value === 'info') return 'info';
+		return 'hint';
 	}
 
 	private resolveRawSuggestions(details: unknown): RawSuggestion[] {
@@ -87,8 +85,9 @@ export class AnalysisSuggestionService {
 		raw: RawSuggestion,
 		messageMap: Map<string, AnalysisMessage>
 	): string | undefined {
-		if (!raw.text) return undefined;
-		const lower = raw.text.toLowerCase();
+		const sourceText = raw.originalText ?? raw.text;
+		if (!sourceText) return undefined;
+		const lower = sourceText.toLowerCase();
 		for (const [id, message] of messageMap.entries()) {
 			if (message.content.toLowerCase().includes(lower)) {
 				return id;

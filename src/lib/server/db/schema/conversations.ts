@@ -4,12 +4,10 @@ import { languages } from './languages';
 import { scenarios } from './scenarios';
 
 /**
- * Conversations table - Stores individual language learning conversation sessions
+ * Conversations - Language learning conversation sessions
  *
- * This table tracks each conversation session between a user and the AI tutor.
- * It includes session metadata (duration, message count, audio time), learning context
- * (target language, scenario, onboarding status), and engagement metrics (comfort rating).
- * Supports both traditional text conversations and realtime voice conversations.
+ * Tracks conversation sessions between users and AI tutor including metadata,
+ * learning context, and engagement metrics. Supports both text and voice modes.
  */
 export const conversations = pgTable(
 	'conversations',
@@ -24,20 +22,21 @@ export const conversations = pgTable(
 		mode: text('mode').$type<'traditional' | 'realtime'>().default('traditional').notNull(),
 		voice: text('voice'),
 
-		// Basic scenario support for onboarding
+		// Learning context
 		scenarioId: text('scenario_id').references(() => scenarios.id),
-		isOnboarding: text('is_onboarding').default('true').notNull(), // First comfort session
+		isOnboarding: text('is_onboarding').default('true').notNull(),
 
+		// Session timing
 		startedAt: timestamp('started_at').defaultNow().notNull(),
 		endedAt: timestamp('ended_at'),
 		durationSeconds: integer('duration_seconds'),
 
-		// Usage tracking
+		// Usage metrics
 		messageCount: integer('message_count').default(0),
-		audioSeconds: decimal('audio_seconds', { precision: 8, scale: 2 }).default('0').notNull(), // Changed from audio_minutes
+		audioSeconds: decimal('audio_seconds', { precision: 8, scale: 2 }).default('0').notNull(),
 
-		// Basic comfort/engagement tracking
-		comfortRating: integer('comfort_rating'), // 1-5 scale from user feedback
+		// Engagement
+		comfortRating: integer('comfort_rating'), // 1-5 scale
 		engagementLevel: text('engagement_level').$type<'low' | 'medium' | 'high'>()
 	},
 	(table) => [

@@ -56,7 +56,7 @@
 	let conversationDetails = $state<
 		Map<string, { details: ConversationDetails; messages: Message[] }>
 	>(new SvelteMap());
-	let expandedConversations = $state<Set<string>>(new SvelteSet());
+	let expandedConversations = new SvelteSet();
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 	let searchQuery = $state('');
@@ -64,7 +64,7 @@
 	let currentPage = $state(0);
 	let totalConversations = $state(0);
 	let hasMore = $state(false);
-	let loadingDetails = $state<Set<string>>(new SvelteSet());
+	let loadingDetails = new SvelteSet();
 	let showDevMode = $state(false);
 
 	const limit = 10;

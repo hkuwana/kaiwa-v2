@@ -125,7 +125,7 @@
 		{speakerName}
 		<time class="text-xs opacity-50">{formattedTime}</time>
 		{#if hasAudio}
-			<span class="icon-[mdi--volume-high] ml-2 h-3 w-3 opacity-50"></span>
+			<span class="ml-2 icon-[mdi--volume-high] h-3 w-3 opacity-50"></span>
 		{/if}
 	</div>
 
@@ -135,18 +135,20 @@
 			<!-- Text Content (if available) -->
 			{#if message.content}
 				<div class="text-content">
-					<p class="text-sm mb-2">{message.content}</p>
+					<p class="mb-2 text-sm">{message.content}</p>
 				</div>
 			{/if}
 
 			<!-- Audio Player Controls -->
 			{#if hasAudio}
-				<div class="audio-player bg-base-200/50 rounded-lg p-3">
+				<div class="audio-player rounded-lg bg-base-200/50 p-3">
 					<div class="flex items-center gap-3">
 						<!-- Play/Pause Button -->
 						<button
 							type="button"
-							class="btn btn-circle btn-sm {isPlayingAudio ? 'btn-primary' : 'btn-ghost'} transition-all duration-200"
+							class="btn btn-circle btn-sm {isPlayingAudio
+								? 'btn-primary'
+								: 'btn-ghost'} transition-all duration-200"
 							onclick={handlePlayPause}
 							title={isPlayingAudio ? 'Pause' : 'Play'}
 						>
@@ -163,7 +165,7 @@
 								<!-- Waveform Visualization -->
 								<div
 									bind:this={waveformContainer}
-									class="waveform-container relative h-8 cursor-pointer rounded overflow-hidden bg-base-300/30"
+									class="waveform-container relative h-8 cursor-pointer overflow-hidden rounded bg-base-300/30"
 									onclick={handleWaveformClick}
 									role="button"
 									tabindex="0"
@@ -178,7 +180,9 @@
 												class="waveform-bar transition-colors duration-150 {isActive
 													? 'bg-primary'
 													: 'bg-base-content/20'}"
-												style="height: {Math.max(2, amplitude * 100)}%; width: {100 / waveform.length - 1}%;"
+												style="height: {Math.max(2, amplitude * 100)}%; width: {100 /
+													waveform.length -
+													1}%;"
 											></div>
 										{/each}
 									</div>
@@ -192,7 +196,7 @@
 							{:else}
 								<!-- Simple Progress Bar -->
 								<div
-									class="progress-bar-container relative h-2 cursor-pointer rounded-full bg-base-content/20 overflow-hidden"
+									class="progress-bar-container relative h-2 cursor-pointer overflow-hidden rounded-full bg-base-content/20"
 									onclick={handleWaveformClick}
 									role="button"
 									tabindex="0"
@@ -210,7 +214,9 @@
 						</div>
 
 						<!-- Time Display -->
-						<div class="time-display text-xs font-mono text-base-content/70 min-w-[4rem] text-right">
+						<div
+							class="time-display min-w-[4rem] text-right font-mono text-xs text-base-content/70"
+						>
 							{#if totalDuration > 0}
 								{formattedCurrentTime} / {formattedTotalTime}
 							{:else}
@@ -221,7 +227,7 @@
 
 					<!-- Audio Status Indicators -->
 					{#if isPlayingAudio}
-						<div class="flex items-center justify-center mt-2">
+						<div class="mt-2 flex items-center justify-center">
 							<div class="audio-visualizer flex gap-1">
 								<div class="bar animate-pulse bg-primary"></div>
 								<div class="bar animate-pulse bg-primary" style="animation-delay: 0.1s;"></div>
@@ -233,8 +239,8 @@
 				</div>
 			{:else}
 				<!-- No Audio Available -->
-				<div class="no-audio-placeholder bg-base-300/20 rounded-lg p-3 text-center">
-					<span class="icon-[mdi--volume-off] h-6 w-6 opacity-50 mx-auto mb-2"></span>
+				<div class="no-audio-placeholder rounded-lg bg-base-300/20 p-3 text-center">
+					<span class="mx-auto mb-2 icon-[mdi--volume-off] h-6 w-6 opacity-50"></span>
 					<p class="text-xs text-base-content/50">Audio not available</p>
 				</div>
 			{/if}

@@ -242,10 +242,7 @@
 							{:else}
 								{#each messages as message (message.id)}
 									<div>
-										<MessageBubble
-											{message}
-											dispatch={() => {}}
-										/>
+										<MessageBubble {message} dispatch={() => {}} />
 									</div>
 								{/each}
 							{/if}

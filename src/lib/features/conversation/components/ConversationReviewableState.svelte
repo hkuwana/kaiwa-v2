@@ -87,12 +87,14 @@
 
 	// Convert Message[] to AnalysisMessage[] for UnifiedConversationBubble
 	const analysisMessages = $derived(
-		displayMessages.map((message): AnalysisMessage => ({
-			id: message.id,
-			role: message.role,
-			content: message.content,
-			timestamp: message.timestamp
-		}))
+		displayMessages.map(
+			(message): AnalysisMessage => ({
+				id: message.id,
+				role: message.role,
+				content: message.content,
+				timestamp: message.timestamp
+			})
+		)
 	);
 
 	// Mock suggestions for demonstration - in a real app these would come from analysis
@@ -111,7 +113,10 @@
 					suggestedText: 'would like',
 					explanation: 'Use "would like" instead of "want" for more polite requests',
 					example: 'I would like to try that dish.',
-					offsets: { start: message.content.indexOf('want'), end: message.content.indexOf('want') + 4 }
+					offsets: {
+						start: message.content.indexOf('want'),
+						end: message.content.indexOf('want') + 4
+					}
 				});
 			}
 		});

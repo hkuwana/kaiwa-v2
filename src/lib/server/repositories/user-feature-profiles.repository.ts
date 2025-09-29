@@ -3,7 +3,9 @@ import { db } from '$lib/server/db';
 import { userFeatureProfiles } from '$lib/server/db/schema/user-feature-profiles';
 import type { UserFeatureProfile } from '$lib/server/db/types';
 
-export type UserFeatureProfileUpsert = Partial<Omit<UserFeatureProfile, 'createdAt' | 'updatedAt'>> & {
+export type UserFeatureProfileUpsert = Partial<
+	Omit<UserFeatureProfile, 'createdAt' | 'updatedAt'>
+> & {
 	userId: string;
 	featureId: string;
 };
@@ -13,12 +15,17 @@ export class UserFeatureProfilesRepository {
 		const result = await db
 			.select()
 			.from(userFeatureProfiles)
-			.where(and(eq(userFeatureProfiles.userId, userId), eq(userFeatureProfiles.featureId, featureId)))
+			.where(
+				and(eq(userFeatureProfiles.userId, userId), eq(userFeatureProfiles.featureId, featureId))
+			)
 			.limit(1);
 		return result[0] ?? null;
 	}
 
-	async listProfilesForUser(userId: string, languageId?: string | null): Promise<UserFeatureProfile[]> {
+	async listProfilesForUser(
+		userId: string,
+		languageId?: string | null
+	): Promise<UserFeatureProfile[]> {
 		const conditions = [eq(userFeatureProfiles.userId, userId)];
 		if (languageId) {
 			conditions.push(eq(userFeatureProfiles.languageId, languageId));
@@ -48,7 +55,12 @@ export class UserFeatureProfilesRepository {
 					metadata: payload.metadata ?? existing.metadata,
 					languageId: payload.languageId ?? existing.languageId
 				})
-				.where(and(eq(userFeatureProfiles.userId, payload.userId), eq(userFeatureProfiles.featureId, payload.featureId)))
+				.where(
+					and(
+						eq(userFeatureProfiles.userId, payload.userId),
+						eq(userFeatureProfiles.featureId, payload.featureId)
+					)
+				)
 				.returning();
 			return updated ?? existing;
 		}

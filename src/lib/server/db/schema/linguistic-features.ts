@@ -1,13 +1,4 @@
-import {
-	pgTable,
-	text,
-	timestamp,
-	jsonb,
-	boolean,
-	index,
-	pgEnum,
-	uuid
-} from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, jsonb, boolean, index, pgEnum, uuid } from 'drizzle-orm/pg-core';
 import { languages } from './languages';
 
 /**

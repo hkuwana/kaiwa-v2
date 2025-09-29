@@ -40,7 +40,10 @@ export class AnalysisLogbookService {
 		for (const suggestion of suggestions) {
 			const macroSkill = this.mapCategoryToMacroSkill(suggestion.category);
 			const subSkill = this.normalize(suggestion.category, 'usage');
-			const microRule = this.normalize(suggestion.ruleId, suggestion.originalText || suggestion.suggestedText || 'phrase');
+			const microRule = this.normalize(
+				suggestion.ruleId,
+				suggestion.originalText || suggestion.suggestedText || 'phrase'
+			);
 			const alias = `${macroSkill}:${subSkill}:${microRule}`;
 
 			let featureId = alias;
@@ -85,7 +88,7 @@ export class AnalysisLogbookService {
 				originalText: suggestion.originalText,
 				suggestedText: suggestion.suggestedText,
 				explanation: suggestion.explanation,
-				example: suggestion.example,
+				example: suggestion.example ?? null,
 				metadata: {
 					draft: true
 				},
@@ -102,11 +105,16 @@ export class AnalysisLogbookService {
 	async persistDrafts(drafts: AnalysisFindingDraft[]): Promise<AnalysisFinding[]> {
 		if (!drafts.length) return [];
 
-		const payload: NewAnalysisFinding[] = drafts.map(({ featureLabel: _label, suggestionId: _suggestionId, ...rest }) => rest);
+		const payload: NewAnalysisFinding[] = drafts.map(
+			({ featureLabel: _label, suggestionId: _suggestionId, ...rest }) => rest
+		);
 		return await analysisFindingsRepository.bulkInsert(payload);
 	}
 
-	async updateActionStatus(id: string, action: AnalysisFindingAction): Promise<AnalysisFinding | null> {
+	async updateActionStatus(
+		id: string,
+		action: AnalysisFindingAction
+	): Promise<AnalysisFinding | null> {
 		return await analysisFindingsRepository.updateActionStatus(id, action);
 	}
 }

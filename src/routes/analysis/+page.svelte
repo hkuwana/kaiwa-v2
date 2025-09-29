@@ -35,7 +35,7 @@
 	// Analysis state
 	let analysisMode = $state<'quick' | 'full'>('quick');
 	let analysisType = $state<AnalysisType>('regular');
-	let quickAnalysisData: any = $state(null);
+	let quickAnalysisData = $state(null);
 	let sessionNotFound = $state(false);
 
 	// URL parameters

@@ -1,21 +1,29 @@
-import { pgTable, text, integer, timestamp, index, boolean, uuid } from 'drizzle-orm/pg-core';
+import {
+	pgTable,
+	text,
+	integer,
+	timestamp,
+	index,
+	boolean,
+	pgEnum,
+	uuid
+} from 'drizzle-orm/pg-core';
 import { users } from './users';
 
 /**
- * Conversation Sessions table (DEPRECATED) - Legacy session tracking
+ * Device type enumeration for session tracking
+ */
+export const deviceTypeEnum = pgEnum('device_type', ['desktop', 'mobile', 'tablet']);
+
+/**
+ * Conversation Sessions - Enhanced session tracking for detailed analytics
  *
- * DEPRECATED: This schema has been moved to v2/conversationSessions.ts
- * The v2 version removes tierId for cleaner MVP implementation.
- * Use the v2 version for new development.
- *
- * This legacy table tracked individual conversation sessions for detailed analytics,
- * including session duration, language practice, extension usage, and device information.
- * Replaced by a simpler v2 implementation that focuses on essential MVP functionality.
+ * Tracks individual conversation sessions with comprehensive analytics including
+ * duration, usage consumption, device type, and engagement metrics.
  */
 export const conversationSessions = pgTable(
 	'conversation_sessions',
 	{
-		// Use camelCase for TypeScript properties, snake_case for DB columns
 		id: text('id').primaryKey(),
 		userId: uuid('user_id')
 			.notNull()
@@ -34,13 +42,19 @@ export const conversationSessions = pgTable(
 
 		// Metadata
 		transcriptionMode: boolean('transcription_mode').default(false),
-		deviceType: text('device_type'), // 'desktop', 'mobile', 'tablet'
-
+		deviceType: deviceTypeEnum('device_type'),
 		createdAt: timestamp('created_at').defaultNow()
 	},
 	(table) => [
 		index('conversation_sessions_user_idx').on(table.userId),
 		index('conversation_sessions_start_time_idx').on(table.startTime),
-		index('conversation_sessions_language_idx').on(table.language)
+		index('conversation_sessions_language_idx').on(table.language),
+		index('conversation_sessions_device_type_idx').on(table.deviceType),
+		// Composite index for user language analytics
+		index('conversation_sessions_user_language_idx').on(table.userId, table.language),
+		// Index for duration-based analytics
+		index('conversation_sessions_duration_idx').on(table.durationMinutes),
+		// Index for extension tracking
+		index('conversation_sessions_extensions_idx').on(table.wasExtended, table.extensionsUsed)
 	]
 );

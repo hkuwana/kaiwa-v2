@@ -12,7 +12,10 @@
 	import face from '$lib/assets/Face.webp';
 	import { SvelteDate } from 'svelte/reactivity';
 	import WordSyncedText from '$lib/components/WordSyncedText.svelte';
-	import { createHighlightedSegments, createHighlightedHtml } from '$lib/features/analysis/utils/text-highlighting.utils';
+	import {
+		createHighlightedSegments,
+		createHighlightedHtml
+	} from '$lib/features/analysis/utils/text-highlighting.utils';
 
 	interface Props {
 		message: Message;
@@ -67,9 +70,7 @@
 		isUser ? null : speaker || getSpeakerById(settingsStore.selectedSpeaker)
 	);
 
-	const speakerName = $derived(
-		isUser ? 'You' : currentSpeaker?.voiceName || 'AI'
-	);
+	const speakerName = $derived(isUser ? 'You' : currentSpeaker?.voiceName || 'AI');
 
 	// Derive conversation language from speaker
 	const conversationLanguage = $derived(
@@ -92,7 +93,10 @@
 			return null;
 		}
 		const segments = createHighlightedSegments(message.content, highlightOffsets);
-		return createHighlightedHtml(segments, 'bg-warning/50 text-warning-content font-semibold rounded px-2 py-1 shadow-sm');
+		return createHighlightedHtml(
+			segments,
+			'bg-warning/50 text-warning-content font-semibold rounded px-2 py-1 shadow-sm'
+		);
 	});
 
 	// Translation state

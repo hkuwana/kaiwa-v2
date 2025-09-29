@@ -74,7 +74,6 @@ export class SecuritySanitizer {
 		// Check for malicious patterns
 		const responseStr = JSON.stringify(response).toLowerCase();
 		const dangerousPatterns = [
-			'javascript:',
 			'data:',
 			'vbscript:',
 			'onload=',

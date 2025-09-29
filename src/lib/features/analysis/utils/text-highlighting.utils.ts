@@ -70,7 +70,10 @@ export function createHighlightedSegments(
  * @param searchText - The text to find
  * @returns Array of {start, end} offsets where the text was found
  */
-export function findTextOffsets(fullText: string, searchText: string): Array<{ start: number; end: number }> {
+export function findTextOffsets(
+	fullText: string,
+	searchText: string
+): Array<{ start: number; end: number }> {
 	const offsets: Array<{ start: number; end: number }> = [];
 	let index = 0;
 
@@ -100,7 +103,7 @@ export function createHighlightedHtml(
 	highlightClass: string = 'bg-warning/30 text-warning-content rounded px-1'
 ): string {
 	return segments
-		.map(segment => {
+		.map((segment) => {
 			const escapedText = escapeHtml(segment.text);
 			return segment.isHighlighted
 				? `<span class="${highlightClass}">${escapedText}</span>`

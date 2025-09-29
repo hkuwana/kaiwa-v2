@@ -1,13 +1,4 @@
-import {
-	pgTable,
-	uuid,
-	text,
-	integer,
-	timestamp,
-	jsonb,
-	index,
-	pgEnum
-} from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, integer, timestamp, jsonb, index, pgEnum } from 'drizzle-orm/pg-core';
 import { users } from './users';
 import { messages } from './messages';
 import { conversations } from './conversations';
@@ -15,13 +6,10 @@ import { languages } from './languages';
 import { linguisticFeatures } from './linguistic-features';
 
 /**
- * Analysis Findings table - Stores AI-generated language learning suggestions
+ * Analysis Findings - AI-generated language learning suggestions
  *
- * This table contains specific language learning feedback and suggestions generated
- * by AI analysis of user messages. Each finding is linked to a specific message and
- * linguistic feature, includes the problematic text, suggested improvements, explanations,
- * and examples. Users can accept, ignore, or dismiss suggestions. Used to provide
- * personalized, contextual language learning feedback based on actual conversation content.
+ * Stores AI analysis results for user messages including grammar corrections,
+ * vocabulary suggestions, and learning feedback. Users can accept/ignore suggestions.
  */
 
 export const analysisSuggestionSeverityEnum = pgEnum('analysis_suggestion_severity', [
@@ -59,12 +47,15 @@ export const analysisFindings = pgTable(
 		severity: analysisSuggestionSeverityEnum('severity').default('hint').notNull(),
 		actionStatus: analysisFindingActionEnum('action_status').default('pending').notNull(),
 		actionUpdatedAt: timestamp('action_updated_at'),
+
+		// Text analysis
 		offsetStart: integer('offset_start'),
 		offsetEnd: integer('offset_end'),
 		originalText: text('original_text'),
 		suggestedText: text('suggested_text'),
 		explanation: text('explanation'),
 		example: text('example'),
+
 		metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
 		createdAt: timestamp('created_at').defaultNow().notNull(),
 		updatedAt: timestamp('updated_at')

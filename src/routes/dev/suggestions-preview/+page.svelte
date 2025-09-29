@@ -107,7 +107,7 @@
 		{
 			id: 'msg-6',
 			role: 'assistant',
-			content: 'Of course! I\'d be happy to help you with that.',
+			content: "Of course! I'd be happy to help you with that.",
 			timestamp: new Date()
 		},
 		{
@@ -206,7 +206,8 @@
 		<div class="mb-6">
 			<h1 class="mb-2 text-3xl font-bold">🔍 Conversation Suggestions Preview</h1>
 			<p class="text-base-content/70">
-				Test the UnifiedConversationBubble component with side-by-side correction panels and different types of language learning suggestions
+				Test the UnifiedConversationBubble component with side-by-side correction panels and
+				different types of language learning suggestions
 			</p>
 		</div>
 
@@ -214,23 +215,23 @@
 		<div class="card mb-6 bg-base-100 shadow-xl">
 			<div class="card-body">
 				<h2 class="card-title">Test Scenarios</h2>
-				<div class="flex flex-wrap gap-4 items-center">
-					<div class="tabs tabs-boxed">
+				<div class="flex flex-wrap items-center gap-4">
+					<div class="tabs-boxed tabs">
 						<button
 							class="tab {selectedScenario === 'scenario1' ? 'tab-active' : ''}"
-							onclick={() => selectedScenario = 'scenario1'}
+							onclick={() => (selectedScenario = 'scenario1')}
 						>
 							Scenario 1
 						</button>
 						<button
 							class="tab {selectedScenario === 'scenario2' ? 'tab-active' : ''}"
-							onclick={() => selectedScenario = 'scenario2'}
+							onclick={() => (selectedScenario = 'scenario2')}
 						>
 							Scenario 2
 						</button>
 						<button
 							class="tab {selectedScenario === 'scenario3' ? 'tab-active' : ''}"
-							onclick={() => selectedScenario = 'scenario3'}
+							onclick={() => (selectedScenario = 'scenario3')}
 						>
 							Scenario 3
 						</button>
@@ -261,8 +262,14 @@
 					<div class="stat">
 						<div class="stat-title">Suggestion Types</div>
 						<div class="stat-value text-sm">
-							{#each [...new Set(currentSuggestions().map(s => s.severity))] as severity}
-								<div class="badge badge-xs {severity === 'warning' ? 'badge-warning' : severity === 'hint' ? 'badge-success' : 'badge-info'} mr-1">
+							{#each [...new Set(currentSuggestions().map((s) => s.severity))] as severity}
+								<div
+									class="badge badge-xs {severity === 'warning'
+										? 'badge-warning'
+										: severity === 'hint'
+											? 'badge-success'
+											: 'badge-info'} mr-1"
+								>
 									{severity}
 								</div>
 							{/each}
@@ -279,24 +286,24 @@
 							Shows multiple suggestions on a single message with different categories.
 						</p>
 						<div class="mt-2 rounded bg-base-200/50 p-2 text-xs">
-							<strong>Example:</strong> "I goes to the store yesterday and buy some foods."
-							→ "I went to the store yesterday and bought some food."
+							<strong>Example:</strong> "I goes to the store yesterday and buy some foods." → "I went
+							to the store yesterday and bought some food."
 						</div>
 					</div>
 				{:else if selectedScenario === 'scenario2'}
 					<div class="mt-4">
 						<h4 class="font-semibold">Scenario 2: Pronunciation & Fluency</h4>
 						<p class="text-sm text-base-content/70">
-							Tests pronunciation tips (info badges) and fluency suggestions (hint badges) for Spanish conversation.
-							Demonstrates different language learning aspects.
+							Tests pronunciation tips (info badges) and fluency suggestions (hint badges) for
+							Spanish conversation. Demonstrates different language learning aspects.
 						</p>
 					</div>
 				{:else if selectedScenario === 'scenario3'}
 					<div class="mt-4">
 						<h4 class="font-semibold">Scenario 3: Mixed Severity</h4>
 						<p class="text-sm text-base-content/70">
-							Shows multiple messages with various suggestion types and severities.
-							Tests the full range of badge colors and suggestion categories.
+							Shows multiple messages with various suggestion types and severities. Tests the full
+							range of badge colors and suggestion categories.
 						</p>
 					</div>
 				{/if}

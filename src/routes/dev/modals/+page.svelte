@@ -381,7 +381,7 @@
 				</div>
 			</div>
 		</section>
- 
+
 		<!-- Scenario Components Section -->
 		<section id="scenario-components" class="space-y-6">
 			<div class="flex items-center space-x-4">

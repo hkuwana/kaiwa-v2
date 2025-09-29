@@ -54,11 +54,12 @@
 		conversationId: 'analysis-preview',
 		role: message.role,
 		content: message.content,
-		timestamp: message.timestamp instanceof Date
-			? message.timestamp
-			: message.timestamp
-				? new Date(message.timestamp)
-				: new Date(),
+		timestamp:
+			message.timestamp instanceof Date
+				? message.timestamp
+				: message.timestamp
+					? new Date(message.timestamp)
+					: new Date(),
 		sequenceId: '1',
 		translatedContent: null,
 		sourceLanguage: null,
@@ -128,7 +129,7 @@
 		// Only highlight if the hovered suggestion belongs to this specific message
 		const messageSuggestions = getMessageSuggestions(message.id);
 		const matchingSuggestion = messageSuggestions.find(
-			suggestion => suggestion.originalText === hoveredSuggestion
+			(suggestion) => suggestion.originalText === hoveredSuggestion
 		);
 
 		// If no suggestion for this message matches the hovered text, don't highlight anything
@@ -161,7 +162,7 @@
 				<div class="flex justify-{isFromUser ? 'end' : 'start'}">
 					<button
 						type="button"
-						class="btn btn-circle btn-sm btn-ghost hover:btn-primary transition-colors duration-200"
+						class="btn btn-circle btn-ghost transition-colors duration-200 btn-sm hover:btn-primary"
 						title={isPlayingAudio ? 'Pause audio' : 'Play audio'}
 						onclick={() => handlePlayAudio(message.id)}
 					>
@@ -186,16 +187,16 @@
 				<div class="flex justify-end">
 					<button
 						type="button"
-						class="btn btn-sm btn-outline btn-warning gap-2"
+						class="btn gap-2 btn-outline btn-sm btn-warning"
 						onclick={() => toggleSuggestions(message.id)}
 					>
-						<span class="icon-[mdi--lightbulb] w-4 h-4"></span>
+						<span class="icon-[mdi--lightbulb] h-4 w-4"></span>
 						{#if suggestionsOpen}
 							Hide suggestions
-							<span class="icon-[mdi--chevron-up] w-4 h-4"></span>
+							<span class="icon-[mdi--chevron-up] h-4 w-4"></span>
 						{:else}
 							Show suggestions ({messageSuggestions.length})
-							<span class="icon-[mdi--chevron-down] w-4 h-4"></span>
+							<span class="icon-[mdi--chevron-down] h-4 w-4"></span>
 						{/if}
 					</button>
 				</div>
@@ -214,8 +215,6 @@
 					</div>
 				</div>
 			{/if}
-
-		 
 		</div>
 	{/each}
 </div>

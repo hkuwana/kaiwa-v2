@@ -315,11 +315,7 @@
 
 						<!-- Message Bubble -->
 						<div class="relative transition-all duration-200 hover:-translate-y-px">
-							<MessageBubble
-								message={createBubbleMessage(message)}
-								{conversationLanguage}
-								clickToToggle={true}
-							/>
+							<MessageBubble message={createBubbleMessage(message)} clickToToggle={true} />
 
 							<!-- Suggestions Indicator Badge -->
 							{#if hasSuggestions && !suggestionsOpen}

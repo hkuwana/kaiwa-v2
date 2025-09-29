@@ -27,10 +27,10 @@ const registry: Record<AnalysisModuleId, AnalysisModuleDefinition> = {
 	'grammar-suggestions': {
 		id: 'grammar-suggestions',
 		label: 'Grammar Suggestions',
-		description: 'Heuristic grammar checks with actionable tips',
+		description: 'Targets concrete grammar issues with replacements tied to each utterance',
 		modality: 'text',
 		run: async ({ messages, languageCode }: AnalysisModuleContext) => {
-			const userMessages = messages.filter((m) => m.role === 'user').map((m) => m.content);
+			const userMessages = messages.filter((m) => m.role === 'user');
 
 			if (userMessages.length === 0) {
 				return {
@@ -40,30 +40,40 @@ const registry: Record<AnalysisModuleId, AnalysisModuleDefinition> = {
 				};
 			}
 
-			const systemPrompt = `You are a language learning assistant specializing in grammar suggestions. Analyze the user's messages in ${languageCode} and provide helpful, encouraging grammar suggestions.
+			const userMessageDigest = userMessages
+				.map(
+					(msg, index) =>
+						`#${index + 1} | id: ${msg.id} | text: "${msg.content.replace(/"/g, '\\"')}"`
+				)
+				.join('\n');
 
-Focus on:
-- Common grammar patterns that could be improved
-- Positive reinforcement for correct usage
-- Gentle suggestions for improvement
-- Practical tips for better grammar
+			const conversationDigest = messages
+				.map(
+					(msg, index) =>
+						`#${index + 1} | role: ${msg.role} | id: ${msg.id} | text: "${msg.content.replace(/"/g, '\\"')}"`
+				)
+				.join('\n');
 
-Be encouraging and constructive. Avoid being overly critical.`;
-
-			const userPrompt = `Analyze these user messages for grammar patterns and suggestions:
-
-${userMessages.map((msg, i) => `Message ${i + 1}: "${msg}"`).join('\n')}
-
-Provide 3-5 specific, actionable grammar suggestions in JSON format:
-{
+			const schemaExample = `{
   "suggestions": [
     {
-      "category": "verb_tenses",
-      "suggestion": "Consider using past tense when describing completed actions",
-      "example": "Instead of 'I go yesterday', try 'I went yesterday'"
+      "messageId": "msg-3",
+      "originalText": "50 euros... c'est un peu cher pour moi. Tu peux faire un meilleur prix?",
+      "suggestedText": "50 euros ? C'est un peu cher pour moi. Vous pourriez faire un meilleur prix ?",
+      "explanation": "Use polite 'vous' and proper punctuation for a formal negotiation.",
+      "example": "Vous pourriez faire un meilleur prix ?",
+      "severity": "hint",
+      "macroSkill": "grammar",
+      "subSkill": "politeness",
+      "microRule": "fr.polite-request",
+      "ruleId": "grammar.politeness.request"
     }
   ]
 }`;
+
+			const systemPrompt = `You are a meticulous language coach. Analyse user turns in ${languageCode} conversations and return concrete corrections. Respond ONLY with valid JSON.`;
+
+			const userPrompt = `Full conversation transcript (user and assistant):\n${conversationDigest}\n\nFocus corrections only on user messages:\n${userMessageDigest}\n\nReturn JSON matching this schema:\n${schemaExample}\n\nGuidelines:\n- Suggest only when there is a real error or a significantly better phrasing for the SAME user message.\n- Provide the corrected sentence in "suggestedText" using the same language as the original message.\n- "severity" must be one of: "warning" (blocking), "hint" (nice-to-have), "info" (positive reinforcement).\n- macroSkill options: grammar, lexis, pragmatics, discourse, pronunciation, fluency, sociolinguistic. Pick the best fit.\n- subSkill and microRule should be short, kebab-case identifiers (e.g., politeness, fr.past-imperfect).\n- Include ruleId referencing your reasoning (e.g., grammar.pronoun.formality).\n- Never invent corrections for assistant messages or messages that are already correct.`;
 
 			try {
 				const response = await createCompletion(
@@ -73,19 +83,25 @@ Provide 3-5 specific, actionable grammar suggestions in JSON format:
 					],
 					{
 						model: 'gpt-4o-mini',
-						temperature: 0.3,
-						maxTokens: 500,
+						temperature: 0.1,
+						maxTokens: 800,
 						responseFormat: 'json'
 					}
 				);
 
-				const parsed = JSON.parse(response.content);
+				const parsed = JSON.parse(response.content ?? '{}');
+				const suggestions = Array.isArray(parsed?.suggestions) ? parsed.suggestions : [];
+
 				return {
 					moduleId: 'grammar-suggestions',
-					summary: `Found ${parsed.suggestions?.length || 0} grammar suggestions`,
-					recommendations:
-						parsed.suggestions?.map((s: any) => `${s.category}: ${s.suggestion}`) || [],
-					details: parsed
+					summary: suggestions.length
+						? `Found ${suggestions.length} grammar corrections`
+						: 'Grammar analysis complete – no actionable corrections',
+					recommendations: suggestions.map(
+						(s: any) =>
+							`${s.macroSkill || s.category || 'grammar'}: ${s.explanation ?? s.suggestedText}`
+					),
+					details: { suggestions }
 				};
 			} catch (error) {
 				console.error('Grammar suggestions module failed:', error);
