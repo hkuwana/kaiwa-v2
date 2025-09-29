@@ -14,8 +14,12 @@
 		nextSteps: string[];
 	}
 
-	export let confidenceData: ConfidenceData;
-	export let showDetails = false;
+	interface Props {
+		confidenceData: ConfidenceData;
+		showDetails?: boolean;
+	}
+
+	let { confidenceData, showDetails = $bindable(false) }: Props = $props();
 
 	// Calculate confidence change
 	const confidenceChange = confidenceData.previousScore

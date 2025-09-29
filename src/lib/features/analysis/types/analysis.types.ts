@@ -3,7 +3,10 @@
 import type { Message } from '$lib/server/db/types';
 
 // Reuse existing Message type from database schema
-export type AnalysisMessage = Pick<Message, 'id' | 'role' | 'content' | 'timestamp'>;
+// Making timestamp optional to maintain backward compatibility during transition
+export type AnalysisMessage = Pick<Message, 'id' | 'role' | 'content'> & {
+	timestamp?: Date;
+};
 
 // Core analysis result - standardized across all processors
 export interface AnalysisResult {

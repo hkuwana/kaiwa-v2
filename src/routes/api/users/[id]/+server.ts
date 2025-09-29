@@ -1,7 +1,8 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { users, emailVerification, session } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { userRepository } from '$lib/server/repositories/user.repository';
+import { emailVerificationRepository } from '$lib/server/repositories/email-verification.repository';
+import { sessionRepository } from '$lib/server/repositories/session.repository';
 
 export const DELETE = async ({ locals, params }) => {
 	if (!locals.user) {
@@ -18,10 +19,10 @@ export const DELETE = async ({ locals, params }) => {
 		// Delete all user-related data in the correct order (respecting foreign key constraints)
 
 		// 1. Delete email verification records
-		await db.delete(emailVerification).where(eq(emailVerification.userId, userId));
+		await emailVerificationRepository.deleteEmailVerificationByUserId(userId);
 
 		// 2. Delete user sessions
-		await db.delete(session).where(eq(session.userId, userId));
+		await sessionRepository.deleteSessionByUserId(userId);
 
 		// 3. Delete user preferences (if exists)
 		try {
@@ -104,7 +105,7 @@ export const DELETE = async ({ locals, params }) => {
 		}
 
 		// 13. Finally, delete the user record
-		await db.delete(users).where(eq(users.id, userId));
+		await userRepository.deleteUser(userId);
 
 		console.log(`Account permanently deleted for user: ${userId}`);
 

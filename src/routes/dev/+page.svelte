@@ -1,6 +1,14 @@
 <script lang="ts">
 	// Flattened dev tools list for compact display
 	const devTools = [
+		// Product Roadmap - Always first
+		{
+			category: '🛠️ Development & Planning',
+			name: 'Product Roadmap',
+			href: '/dev/roadmap',
+			desc: 'View development roadmap and feature planning'
+		},
+
 		// Core Testing & Analysis
 		{
 			category: '🧪 Core Testing & Analysis',
@@ -79,24 +87,23 @@
 			desc: 'Test pricing tiers and feature comparison display'
 		},
 
-		// Marketing & Growth
 		{
 			category: '📈 Marketing & Growth',
 			name: 'Marketing',
 			href: '/dev/marketing',
-			desc: 'Marketing components and landing page elements'
+			desc: 'Email reminders and marketing campaign management'
 		},
 		{
 			category: '📈 Marketing & Growth',
 			name: 'Marketing Automation',
 			href: '/dev/marketing-automation',
-			desc: 'Test automated email campaigns and user onboarding'
+			desc: 'AI content generation and social media automation'
 		},
 		{
 			category: '📈 Marketing & Growth',
 			name: 'Competition Analysis',
-			href: '/dev/competition',
-			desc: 'Competitive analysis data and positioning insights'
+			href: '/dev/competition-analysis',
+			desc: 'Comprehensive competitor research and market analysis'
 		},
 		{
 			category: '📈 Marketing & Growth',
@@ -107,6 +114,24 @@
 		{
 			category: '📈 Marketing & Growth',
 			name: 'SEO Tools',
+			href: '/dev/seo-tools',
+			desc: 'Advanced SEO analysis and keyword research tools'
+		},
+		{
+			category: '📈 Marketing & Growth',
+			name: 'Content Optimization',
+			href: '/dev/content-optimization',
+			desc: 'A/B testing and content performance optimization'
+		},
+		{
+			category: '📈 Marketing & Growth',
+			name: 'Marketing Analytics',
+			href: '/dev/marketing-analytics',
+			desc: 'Performance tracking and campaign analytics'
+		},
+		{
+			category: '📈 Marketing & Growth',
+			name: 'SEO Dashboard',
 			href: '/dev/seo',
 			desc: 'SEO strategy testing and content optimization'
 		},
@@ -164,12 +189,6 @@
 		},
 
 		// Development & Planning
-		{
-			category: '🛠️ Development & Planning',
-			name: 'Product Roadmap',
-			href: '/dev/roadmap',
-			desc: 'View development roadmap and feature planning'
-		},
 		{
 			category: '🛠️ Development & Planning',
 			name: 'Data Migration',

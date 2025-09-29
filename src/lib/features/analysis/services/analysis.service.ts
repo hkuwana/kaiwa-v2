@@ -5,27 +5,10 @@
  * No dependencies on other services, no UI knowledge, fully testable.
  */
 
-export interface AnalysisMessage {
-	id: string;
-	role: 'user' | 'assistant' | 'system';
-	content: string;
-	timestamp?: Date;
-}
+import type { AnalysisMessage, AnalysisResult, LanguageLevel } from '../types/analysis.types';
 
-export interface AnalysisResult {
-	moduleId: string;
-	summary: string;
-	confidence?: number;
-	recommendations?: string[];
-	data?: Record<string, unknown>;
-}
-
-export interface LanguageLevel {
-	cefrLevel: string; // A1, A2, B1, B2, C1, C2
-	cefrSubLevel: string; // A1.1, A1.2, etc.
-	practicalLevel: string; // basic-talk, converse-strangers, etc.
-	confidenceScore: number; // 0-100
-}
+// Re-export types for backward compatibility
+export type { AnalysisMessage, AnalysisResult, LanguageLevel } from '../types/analysis.types';
 
 export interface AnalysisRunResult {
 	runId: string;

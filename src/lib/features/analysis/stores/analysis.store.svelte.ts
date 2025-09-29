@@ -4,6 +4,14 @@ import type {
 	AnalysisRunResult,
 	LevelAssessmentResult
 } from '../services/analysis.service';
+import { growthPlaybookService } from '../services/growth-playbook.service';
+import { analysisSuggestionService } from '../services/analysis-suggestion.service';
+import type {
+	GrowthPlaybook,
+	GrowthPlaybookPersona,
+	ScenarioMasterySignal
+} from '../types/analysis-playbook.types';
+import type { AnalysisSuggestion } from '../types/analysis-suggestion.types';
 
 interface AnalysisState {
 	currentRun: AnalysisRunResult | null;
@@ -17,6 +25,10 @@ interface AnalysisState {
 		modality: 'text' | 'audio';
 		tier?: 'free' | 'pro' | 'premium';
 	}>;
+	persona: GrowthPlaybookPersona;
+	playbook: GrowthPlaybook | null;
+	suggestions: AnalysisSuggestion[];
+	messagesSnapshot: AnalysisMessage[];
 }
 
 /**
@@ -32,7 +44,11 @@ export class AnalysisStore {
 		isRunning: false,
 		error: null,
 		lastAssessment: null,
-		availableModules: []
+		availableModules: [],
+		persona: 'relationship-navigator',
+		playbook: null,
+		suggestions: [],
+		messagesSnapshot: []
 	});
 
 	// Derived reactive values
@@ -51,6 +67,18 @@ export class AnalysisStore {
 	get availableModules() {
 		return this._state.availableModules;
 	}
+	get persona() {
+		return this._state.persona;
+	}
+	get playbook() {
+		return this._state.playbook;
+	}
+	get suggestions() {
+		return this._state.suggestions;
+	}
+	get messagesSnapshot() {
+		return this._state.messagesSnapshot;
+	}
 
 	/**
 	 * Run analysis on conversation messages
@@ -60,12 +88,23 @@ export class AnalysisStore {
 		conversationId: string,
 		languageCode: string,
 		messages: AnalysisMessage[],
-		moduleIds?: string[]
+		moduleIds?: string[],
+		options?: {
+			persona?: GrowthPlaybookPersona;
+			scenarioSignals?: ScenarioMasterySignal[];
+			autoGeneratePlaybook?: boolean;
+		}
 	): Promise<void> {
 		if (this._state.isRunning) return;
 
 		this._state.isRunning = true;
 		this._state.error = null;
+		this._state.playbook = null;
+		this._state.suggestions = [];
+		this._state.messagesSnapshot = messages;
+		if (options?.persona) {
+			this._state.persona = options.persona;
+		}
 
 		try {
 			const result = await analysisService.runAnalysis(
@@ -76,6 +115,16 @@ export class AnalysisStore {
 			);
 
 			this._state.currentRun = result;
+			this._state.suggestions = analysisSuggestionService.extract(result, {
+				runId: result.runId,
+				messages: messages
+			});
+			if (options?.autoGeneratePlaybook) {
+				this._state.playbook = growthPlaybookService.buildFromAnalysis(result, {
+					persona: this._state.persona,
+					scenarioMastery: options.scenarioSignals
+				});
+			}
 		} catch (error) {
 			this._state.error = error instanceof Error ? error.message : 'Analysis failed';
 		} finally {
@@ -118,6 +167,9 @@ export class AnalysisStore {
 	clearResults() {
 		this._state.currentRun = null;
 		this._state.error = null;
+		this._state.playbook = null;
+		this._state.suggestions = [];
+		this._state.messagesSnapshot = [];
 	}
 
 	/**
@@ -129,8 +181,33 @@ export class AnalysisStore {
 			isRunning: false,
 			error: null,
 			lastAssessment: null,
-			availableModules: []
+			availableModules: [],
+			persona: 'relationship-navigator',
+			playbook: null,
+			suggestions: [],
+			messagesSnapshot: []
 		};
+	}
+
+	setPersona(persona: GrowthPlaybookPersona) {
+		this._state.persona = persona;
+	}
+
+	generatePlaybook(options?: { scenarioSignals?: ScenarioMasterySignal[] }) {
+		if (!this._state.currentRun) {
+			this._state.playbook = growthPlaybookService.buildFromAnalysis(null, {
+				persona: this._state.persona,
+				scenarioMastery: options?.scenarioSignals
+			});
+			return this._state.playbook;
+		}
+
+		this._state.playbook = growthPlaybookService.buildFromAnalysis(this._state.currentRun, {
+			persona: this._state.persona,
+			scenarioMastery: options?.scenarioSignals
+		});
+
+		return this._state.playbook;
 	}
 }
 

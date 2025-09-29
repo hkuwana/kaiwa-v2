@@ -2,6 +2,9 @@
 	import { onMount } from 'svelte';
 	import MessageBubble from '$lib/features/conversation/components/MessageBubble.svelte';
 	import { scenariosData } from '$lib/data/scenarios';
+	import { analysisSuggestionService } from '$lib/features/analysis/services/analysis-suggestion.service';
+	import ConversationSuggestionsPreview from '$lib/features/analysis/components/ConversationSuggestionsPreview.svelte';
+	import type { AnalysisSuggestion } from '$lib/features/analysis/types/analysis-suggestion.types';
 
 	type ModuleMeta = {
 		id: string;
@@ -171,6 +174,7 @@
 	let isLoading = $state(false);
 	let lastRun: any = $state(null);
 	let errorMessage = $state<string | null>(null);
+	let suggestions = $state<AnalysisSuggestion[]>([]);
 
 	onMount(async () => {
 		await loadModules();
@@ -198,6 +202,7 @@
 		isLoading = true;
 		errorMessage = null;
 		lastRun = null;
+		suggestions = [];
 		usageInfo = null;
 
 		try {
@@ -219,6 +224,10 @@
 			}
 
 			lastRun = data.run;
+			suggestions = analysisSuggestionService.extract(lastRun, {
+				runId: lastRun.runId,
+				messages
+			});
 
 			// Fetch updated usage info after running analysis
 			try {
@@ -701,6 +710,21 @@
 									</div>
 								</div>
 							{/if}
+						</div>
+					{/if}
+
+					{#if suggestions.length > 0}
+						<div class="rounded-lg border border-base-300 bg-base-100 p-4">
+							<div class="mb-3 flex items-center justify-between">
+								<div>
+									<h4 class="text-lg font-semibold">Conversation Suggestions</h4>
+									<p class="text-sm text-base-content/70">
+										Keep the transcript visible while expanding targeted grammar and politeness nudges.
+									</p>
+								</div>
+								<span class="badge badge-neutral badge-sm">{suggestions.length} suggestions</span>
+							</div>
+						<ConversationSuggestionsPreview {messages} {suggestions} conversationLanguage={languageCode} />
 						</div>
 					{/if}
 

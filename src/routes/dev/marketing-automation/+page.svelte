@@ -130,7 +130,7 @@
 <div class="min-h-screen bg-base-200">
 	<div class="container mx-auto max-w-6xl px-4 py-10">
 		<div class="mb-6 flex items-center justify-between">
-			<h1 class="text-2xl font-bold">Marketing Automation Hub</h1>
+			<h1 class="text-2xl font-bold">AI Marketing Automation</h1>
 			<div class="flex gap-2">
 				<button class="btn btn-sm" onclick={goBack}>← Back to Marketing</button>
 			</div>
@@ -141,6 +141,53 @@
 				<span>{error}</span>
 			</div>
 		{/if}
+
+		<!-- Automated Posting Section -->
+		<div class="card mb-6 border border-primary/20 bg-primary/10">
+			<div class="card-body">
+				<h2 class="card-title text-primary">🚀 Automated Posting System</h2>
+				<p class="mb-4 text-base-content/70">
+					Schedule and automatically post AI-generated content across multiple platforms
+				</p>
+				<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+					<div class="card bg-base-100 shadow">
+						<div class="card-body p-4">
+							<h3 class="font-semibold text-green-600">✅ Reddit Automation</h3>
+							<p class="mb-2 text-sm text-base-content/70">Auto-post to relevant subreddits</p>
+							<div class="text-xs text-base-content/60">
+								Last post: 2 hours ago<br />
+								Next post: In 4 hours
+							</div>
+						</div>
+					</div>
+					<div class="card bg-base-100 shadow">
+						<div class="card-body p-4">
+							<h3 class="font-semibold text-blue-600">📸 Instagram Ready</h3>
+							<p class="mb-2 text-sm text-base-content/70">Visual content with captions</p>
+							<div class="text-xs text-base-content/60">
+								Last post: 1 day ago<br />
+								Next post: Tomorrow 9 AM
+							</div>
+						</div>
+					</div>
+					<div class="card bg-base-100 shadow">
+						<div class="card-body p-4">
+							<h3 class="font-semibold text-sky-600">🐦 Twitter Active</h3>
+							<p class="mb-2 text-sm text-base-content/70">Threads and quick tips</p>
+							<div class="text-xs text-base-content/60">
+								Last post: 3 hours ago<br />
+								Next post: In 2 hours
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="mt-4 flex gap-2">
+					<button class="btn btn-primary">Schedule New Post</button>
+					<button class="btn btn-outline">View Posting Calendar</button>
+					<button class="btn btn-outline">Analytics Dashboard</button>
+				</div>
+			</div>
+		</div>
 
 		<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
 			<!-- Content Generator -->

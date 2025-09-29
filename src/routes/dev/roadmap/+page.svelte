@@ -36,114 +36,155 @@
 			date.setDate(date.getDate() + 7);
 			return date.toISOString();
 		})(),
-		context: 'Turn Growth Playbook wins into 5 share stories in the next 10 days.'
+		context:
+			'Generate and post 50 pieces of AI-assisted content across social media platforms in the next 10 days.'
 	});
 
 	let monthlyMilestones = $state<RoadmapItem[]>([
 		{
-			id: 'growth-playbook-launch',
-			title: 'Launch Growth Playbook loop',
+			id: 'ai-content-automation',
+			title: 'Launch AI Content Automation System',
 			detail:
-				'Link analysis runs to persona-aware celebrations and next-scenario CTA for relationship navigators first.',
+				'Build automated posting system for Reddit, Instagram, Twitter with AI-generated content and Japanese phrases.',
 			status: 'in-progress',
-			owner: 'Product',
-			due: 'June — Week 1'
+			owner: 'Marketing',
+			due: 'January — Week 1'
 		},
 		{
-			id: 'retention-flywheel',
-			title: 'Automate 5-minute reminder flywheel',
+			id: 'social-media-scheduler',
+			title: 'Deploy Social Media Scheduler',
 			detail:
-				'Pair analysis usage with reminder preferences to trigger Resend nudges and scenario deep links.',
+				'Create automated posting schedule with platform-specific content optimization and engagement tracking.',
+			status: 'todo',
+			owner: 'Marketing',
+			due: 'January — Week 2'
+		},
+		{
+			id: 'content-generation-ai',
+			title: 'Enhance AI Content Generation',
+			detail:
+				'Improve AI prompts for blog posts, social content, and Japanese language learning materials with cultural context.',
+			status: 'todo',
+			owner: 'AI/Content',
+			due: 'January — Week 3'
+		},
+		{
+			id: 'marketing-analytics-dashboard',
+			title: 'Build Marketing Performance Dashboard',
+			detail:
+				'Track content performance, engagement metrics, and conversion rates across all marketing channels.',
+			status: 'todo',
+			owner: 'Analytics',
+			due: 'February — Week 1'
+		},
+		{
+			id: 'email-automation-expansion',
+			title: 'Expand Email Automation Campaigns',
+			detail:
+				'Create advanced email sequences for user onboarding, practice reminders, and content sharing with personalization.',
 			status: 'todo',
 			owner: 'Lifecycle',
-			due: 'June — Week 1'
-		},
-		{
-			id: 'scenario-mastery-system',
-			title: 'Ship scenario mastery telemetry',
-			detail:
-				'Blend attempts, outcomes, and comfort ratings into mastery scores powering share prompts.',
-			status: 'todo',
-			owner: 'Data',
-			due: 'June — Week 2'
+			due: 'February — Week 2'
 		}
 	]);
 
 	let weeklySprint = $state<RoadmapItem[]>([
 		{
-			id: 'growth-playbook-service',
-			title: 'Wire Growth Playbook service',
+			id: 'reddit-automation',
+			title: 'Build Reddit Auto-Posting System',
 			detail:
-				'Expose celebration copy + next scenario CTA from analysis store using persona-aware templates.',
+				'Create automated Reddit posting with AI-generated content, community targeting, and engagement tracking.',
 			status: 'in-progress',
-			owner: 'Dev',
+			owner: 'Marketing',
 			due: 'Mon'
 		},
 		{
-			id: 'reminder-scheduler',
-			title: 'Design reminder cadence + Resend template',
+			id: 'instagram-content-pipeline',
+			title: 'Setup Instagram Content Pipeline',
 			detail:
-				'Model cadence from usage data and segment by challenge preference for 5-minute nudges.',
+				'Design visual content templates, captions, and hashtag optimization for Japanese learning content.',
 			status: 'todo',
-			owner: 'Lifecycle',
+			owner: 'Content',
 			due: 'Tue'
 		},
 		{
-			id: 'mastery-score',
-			title: 'Draft scenario mastery scoring',
+			id: 'twitter-thread-generator',
+			title: 'Build Twitter Thread Generator',
 			detail:
-				'Blend attempts, outcomes, and comfort ratings, persist to userPreferences + PostHog.',
+				'Create AI system to generate educational Twitter threads about Japanese learning and cultural insights.',
 			status: 'todo',
-			owner: 'Data',
+			owner: 'AI/Content',
 			due: 'Wed'
 		},
 		{
-			id: 'share-template-experiment',
-			title: 'Ship post-analysis share strip',
-			detail: 'Attach share CTA with Growth Playbook insight and track launches vs shares.',
+			id: 'japanese-phrase-database',
+			title: 'Expand Japanese Phrase Database',
+			detail:
+				'Build comprehensive database of useful Japanese phrases for marketing and user education.',
 			status: 'todo',
-			owner: 'Growth',
+			owner: 'Content',
 			due: 'Thu'
 		},
 		{
-			id: 'posthog-dashboard',
-			title: 'Build retention & share dashboard',
-			detail: 'Chart conversations/week, reminder sends, CTA clicks to monitor new loops.',
+			id: 'content-performance-tracking',
+			title: 'Implement Content Performance Tracking',
+			detail: 'Track engagement, clicks, and conversions across all automated content channels.',
 			status: 'todo',
 			owner: 'Analytics',
 			due: 'Fri'
+		},
+		{
+			id: 'blog-content-automation',
+			title: 'Automate Blog Content Generation',
+			detail:
+				'Create AI system to generate SEO-optimized blog posts about Japanese learning topics.',
+			status: 'in-progress',
+			owner: 'Content',
+			due: 'Thu'
 		}
 	]);
 
 	let dailyFocus = $state<RoadmapItem[]>([
 		{
-			id: 'persona-copy-review',
-			title: '09:30 Growth Playbook voice check',
-			detail: 'Review relationship navigator tone for celebration snippets and CTA language.',
+			id: 'content-generation-review',
+			title: '09:30 AI Content Quality Check',
+			detail:
+				'Review AI-generated content for accuracy, cultural appropriateness, and engagement potential.',
 			status: 'todo',
-			owner: 'Product Marketing',
+			owner: 'Content',
 			due: 'Morning'
 		},
 		{
-			id: 'reminder-qa',
-			title: 'QA reminder deep links',
-			detail: 'Validate scenario pre-selection + login path for upcoming Resend flow.',
+			id: 'social-media-posting',
+			title: '10:00 Daily Social Media Posting',
+			detail:
+				'Schedule and post AI-generated content across Reddit, Instagram, and Twitter channels.',
 			status: 'todo',
-			owner: 'Dev',
-			due: 'Focus block'
+			owner: 'Marketing',
+			due: 'Morning'
 		},
 		{
-			id: 'mastery-data-review',
-			title: 'Inspect mastery telemetry',
-			detail: 'Spot-check scenario attempt/outcome data and align with analytics events.',
+			id: 'japanese-phrase-research',
+			title: '14:00 Japanese Phrase Research',
+			detail: 'Research and add new useful Japanese phrases to the marketing content database.',
 			status: 'todo',
-			owner: 'Data',
+			owner: 'Content',
 			due: 'Afternoon'
 		},
 		{
-			id: 'share-metrics-sync',
-			title: '17:00 Share loop pulse',
-			detail: 'Review CTA clicks vs launches, capture learnings, prep notes for tomorrow.',
+			id: 'content-performance-analysis',
+			title: '16:00 Content Performance Analysis',
+			detail:
+				'Analyze engagement metrics, click-through rates, and conversion data from automated posts.',
+			status: 'todo',
+			owner: 'Analytics',
+			due: 'Afternoon'
+		},
+		{
+			id: 'marketing-automation-optimization',
+			title: '17:00 Marketing Automation Optimization',
+			detail:
+				'Review and optimize AI prompts, posting schedules, and content performance for better results.',
 			status: 'todo',
 			owner: 'Hiro',
 			due: 'EOD'
@@ -256,8 +297,8 @@
 		return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 	}
 
-	function goDevMarketing() {
-		goto(resolve('/dev/marketing'));
+	function goDevMarketingAutomation() {
+		goto(resolve('/dev/marketing-automation'));
 	}
 	function goHome() {
 		goto(resolve('/'));
@@ -281,7 +322,7 @@
 			</div>
 			<div class="flex gap-2">
 				<button class="btn btn-sm" onclick={goHome}>Home</button>
-				<button class="btn btn-sm" onclick={goDevMarketing}>Marketing Hub</button>
+				<button class="btn btn-sm" onclick={goDevMarketingAutomation}>Marketing Automation</button>
 			</div>
 		</div>
 

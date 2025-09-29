@@ -122,7 +122,7 @@
 			<h2 class="mb-8 text-center text-3xl font-bold">What Went Wrong With Language Apps?</h2>
 			<div class="flex justify-center">
 				<div class="grid w-full max-w-4xl gap-8 md:grid-cols-2">
-					<div 
+					<div
 						class="card bg-base-300/50 shadow-lg transition-transform duration-200 ease-out"
 						style="transform: translateY({scrollY * 0.03}px);"
 					>
@@ -157,7 +157,7 @@
 							</div>
 						</div>
 					</div>
-					<div 
+					<div
 						class="card bg-primary text-primary-content shadow-xl transition-transform duration-200 ease-out"
 						style="transform: translateY({scrollY * -0.03}px);"
 					>

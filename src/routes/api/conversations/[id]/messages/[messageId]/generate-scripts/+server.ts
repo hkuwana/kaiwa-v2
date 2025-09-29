@@ -1,8 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { generateScriptsServer, isJapaneseText } from '$lib/services/romanization.service';
-import { db } from '$lib/server/db';
-import { messages } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { messagesRepository } from '$lib/server/repositories/messages.repository';
 
 // Direct Kuroshiro processing function that bypasses the disabled checks
 async function processJapaneseTextDirect(text: string): Promise<{
@@ -145,7 +143,7 @@ export const POST = async ({ request, params }) => {
 		if (Object.keys(updateData).length > 0) {
 			console.log('Updating message in database with scripts:', updateData);
 
-			await db.update(messages).set(updateData).where(eq(messages.id, messageId));
+			await messagesRepository.updateMessage(messageId, updateData);
 
 			console.log(`Scripts successfully saved to database for message ${messageId}`);
 		}

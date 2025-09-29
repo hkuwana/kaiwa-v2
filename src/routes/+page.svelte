@@ -12,7 +12,7 @@
 	import type { Scenario } from '$lib/server/db/types';
 	import { dev } from '$app/environment';
 	import WhyDifferent from '$lib/components/WhyDifferent.svelte';
-	// Newsletter signup removed for MVP
+	import InteractiveDemo from '$lib/components/InteractiveDemo.svelte';
 
 	const user = userManager.user;
 
@@ -280,6 +280,18 @@
 			</div>
 		</section>
 	</main>
+
+	<section class="py-16">
+		<div class="mx-auto max-w-3xl text-center">
+			<h2 class="mb-4 text-4xl font-bold">See Kaiwa in Action</h2>
+			<p class="mb-8 text-xl opacity-90">
+				This is a real, interactive demo. Click the prompt after the conversation to see how our
+				feedback works.
+			</p>
+		</div>
+		<InteractiveDemo />
+	</section>
+
 	<!-- CTA Section -->
 	<section
 		class="mx-4 rounded-2xl bg-gradient-to-r from-primary/10 to-secondary/10 py-16 text-center"

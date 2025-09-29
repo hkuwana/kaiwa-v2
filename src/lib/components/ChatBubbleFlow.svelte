@@ -1,6 +1,7 @@
 <!-- ChatBubbleFlow.svelte - Animated chat conversations showcasing the app -->
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { slide } from 'svelte/transition';
 
 	// Sample conversation data showcasing different languages and scenarios
 	const conversations = [
@@ -16,7 +17,7 @@
 				{
 					type: 'ai',
 					text: 'はじめまして! お名前は何ですか？',
-					translation: 'Nice to meet you! What is your name?'
+					translation: 'Nice to you! What is your name?'
 				},
 				{
 					type: 'user',
@@ -65,21 +66,34 @@
 		}
 	];
 
-	let visibleBubbles = $state<
-		Array<{
-			id: string;
-			conversation: (typeof conversations)[0];
-			messageIndex: number;
-			message: (typeof conversations)[0]['messages'][0];
-			leftPercent: number;
-			delay: number;
-			column: number;
-		}>
-	>([]);
+	interface BubbleData {
+		id: string;
+		conversation: (typeof conversations)[0];
+		messageIndex: number;
+		message: (typeof conversations)[0]['messages'][0];
+		leftPercent: number;
+		delay: number;
+		column: number;
+	}
 
-	let bubbleCounter = 0;
-	let animationInterval: NodeJS.Timeout;
+	let visibleBubbles = $state<BubbleData[]>([]);
+	let translationsVisible = $state(new Set<string>());
+	let bubbleCounter = $state(0);
+	let animationInterval: NodeJS.Timeout | undefined = $state(undefined);
 	let numColumns = $state(3);
+
+	// Derived reactive values
+	const currentTime = $derived(new Date().toLocaleTimeString());
+
+	function toggleTranslation(bubbleId: string) {
+		const newSet = new Set(translationsVisible);
+		if (newSet.has(bubbleId)) {
+			newSet.delete(bubbleId);
+		} else {
+			newSet.add(bubbleId);
+		}
+		translationsVisible = newSet;
+	}
 
 	function getInitials(language: string): string {
 		if (!language) return 'AI';
@@ -149,8 +163,6 @@
 <div
 	class="relative mx-auto h-72 w-full max-w-5xl overflow-hidden rounded-xl bg-gradient-to-b from-base-200/50 to-base-300/30 backdrop-blur-sm sm:h-80 md:h-96"
 >
-	<!-- Background pattern removed per request (dots) -->
-
 	<!-- Animated chat bubbles -->
 	{#each visibleBubbles as bubble (bubble.id)}
 		<div
@@ -184,9 +196,22 @@
 					<div class="text-sm font-medium">
 						{bubble.message.text}
 					</div>
+					
 					{#if bubble.message.translation}
-						<div class="mt-1 text-xs italic opacity-70">
-							{bubble.message.translation}
+						<button 
+							class="btn btn-xs btn-ghost mt-1 opacity-60 hover:opacity-100"
+							onclick={() => toggleTranslation(bubble.id)}
+						>
+							<span class="icon-[mdi--google-translate] mr-1"></span>
+							Translate
+						</button>
+					{/if}
+
+					{#if translationsVisible.has(bubble.id)}
+						<div transition:slide={{ duration: 300 }}>
+							<div class="mt-2 text-xs italic opacity-80 border-t border-base-content/10 pt-2">
+								{bubble.message.translation}
+							</div>
 						</div>
 					{/if}
 				</div>
