@@ -22,7 +22,7 @@
 		context: string;
 	}
 
-	const STORAGE_KEY = 'kaiwa_dev_roadmap_v1';
+	const STORAGE_KEY = 'kaiwa_dev_roadmap_v2';
 
 	const statusCycle: Status[] = ['todo', 'in-progress', 'done'];
 
@@ -36,103 +36,114 @@
 			date.setDate(date.getDate() + 7);
 			return date.toISOString();
 		})(),
-		context: 'Have 5 people actively sharing Kaiwa within the next 1.5 weeks.'
+		context: 'Turn Growth Playbook wins into 5 share stories in the next 10 days.'
 	});
 
 	let monthlyMilestones = $state<RoadmapItem[]>([
 		{
-			id: 'mkt-funnel-upgrade',
-			title: 'Upgrade top-of-funnel storytelling',
+			id: 'growth-playbook-launch',
+			title: 'Launch Growth Playbook loop',
 			detail:
-				'Refresh home/about pages with clarified positioning and emotional narrative to highlight Kaiwa vs. chatGPT Realtime.',
+				'Link analysis runs to persona-aware celebrations and next-scenario CTA for relationship navigators first.',
 			status: 'in-progress',
 			owner: 'Product',
-			due: 'May — Week 4'
-		},
-		{
-			id: 'analysis-ux-polish',
-			title: 'Ship coached analysis loop',
-			detail:
-				'Reframe quick analysis into a “growth playbook” with coach verdict, confidence trend, and next drill teasers.',
-			status: 'todo',
-			owner: 'Design',
 			due: 'June — Week 1'
 		},
 		{
-			id: 'sharing-experiment',
-			title: 'Sharing flywheel experiment',
-			detail: 'Instrument share prompts and capture what compels users to invite 5 friends each.',
+			id: 'retention-flywheel',
+			title: 'Automate 5-minute reminder flywheel',
+			detail:
+				'Pair analysis usage with reminder preferences to trigger Resend nudges and scenario deep links.',
 			status: 'todo',
-			owner: 'Growth',
+			owner: 'Lifecycle',
+			due: 'June — Week 1'
+		},
+		{
+			id: 'scenario-mastery-system',
+			title: 'Ship scenario mastery telemetry',
+			detail:
+				'Blend attempts, outcomes, and comfort ratings into mastery scores powering share prompts.',
+			status: 'todo',
+			owner: 'Data',
 			due: 'June — Week 2'
 		}
 	]);
 
 	let weeklySprint = $state<RoadmapItem[]>([
 		{
-			id: 'roadmap-live',
-			title: 'Publish dev roadmap hub',
+			id: 'growth-playbook-service',
+			title: 'Wire Growth Playbook service',
 			detail:
-				'Create dev/roadmap with DaisyUI timeline, goal tracker, and weekly operating cadence.',
+				'Expose celebration copy + next scenario CTA from analysis store using persona-aware templates.',
 			status: 'in-progress',
 			owner: 'Dev',
 			due: 'Mon'
 		},
 		{
-			id: 'analysis-copy',
-			title: 'Draft analysis “Coach Verdict” copy',
-			detail: 'Write tone/voice for quick analysis sections and preview CTA for full report.',
+			id: 'reminder-scheduler',
+			title: 'Design reminder cadence + Resend template',
+			detail:
+				'Model cadence from usage data and segment by challenge preference for 5-minute nudges.',
 			status: 'todo',
-			owner: 'Product Marketing',
+			owner: 'Lifecycle',
+			due: 'Tue'
+		},
+		{
+			id: 'mastery-score',
+			title: 'Draft scenario mastery scoring',
+			detail:
+				'Blend attempts, outcomes, and comfort ratings, persist to userPreferences + PostHog.',
+			status: 'todo',
+			owner: 'Data',
 			due: 'Wed'
 		},
 		{
-			id: 'share-loop',
-			title: 'Instrument share goal tracking',
-			detail: 'Connect ShareKaiwa events to PostHog dashboards and daily alert.',
+			id: 'share-template-experiment',
+			title: 'Ship post-analysis share strip',
+			detail: 'Attach share CTA with Growth Playbook insight and track launches vs shares.',
 			status: 'todo',
 			owner: 'Growth',
 			due: 'Thu'
 		},
 		{
-			id: 'weekly-retro',
-			title: 'Friday retro + next sprint brief',
-			detail: 'Review weekly roadmap outcomes, mark DONE, draft following week on call.',
+			id: 'posthog-dashboard',
+			title: 'Build retention & share dashboard',
+			detail: 'Chart conversations/week, reminder sends, CTA clicks to monitor new loops.',
 			status: 'todo',
-			owner: 'Team',
+			owner: 'Analytics',
 			due: 'Fri'
 		}
 	]);
 
 	let dailyFocus = $state<RoadmapItem[]>([
 		{
-			id: 'daily-standup',
-			title: '09:30 Update dev roadmap',
-			detail: 'Toggle daily items, adjust blockers, log quick notes.',
+			id: 'persona-copy-review',
+			title: '09:30 Growth Playbook voice check',
+			detail: 'Review relationship navigator tone for celebration snippets and CTA language.',
 			status: 'todo',
-			owner: 'Hiro',
+			owner: 'Product Marketing',
 			due: 'Morning'
 		},
 		{
-			id: 'feature-polish',
-			title: 'Polish quick analysis headers',
-			detail: 'Implement status badges + highlight for scenario vs onboarding variants.',
+			id: 'reminder-qa',
+			title: 'QA reminder deep links',
+			detail: 'Validate scenario pre-selection + login path for upcoming Resend flow.',
 			status: 'todo',
 			owner: 'Dev',
 			due: 'Focus block'
 		},
 		{
-			id: 'outreach-touch',
-			title: 'Ping 2 potential sharers',
-			detail: 'Personal outreach or request for share stories to hit 5 goal.',
+			id: 'mastery-data-review',
+			title: 'Inspect mastery telemetry',
+			detail: 'Spot-check scenario attempt/outcome data and align with analytics events.',
 			status: 'todo',
-			owner: 'Hiro',
+			owner: 'Data',
 			due: 'Afternoon'
 		},
 		{
-			id: 'end-of-day',
-			title: '17:00 Snapshot & notes',
-			detail: 'Mark items DONE, capture learnings, prep for tomorrow.',
+			id: 'share-metrics-sync',
+			title: '17:00 Share loop pulse',
+			detail: 'Review CTA clicks vs launches, capture learnings, prep notes for tomorrow.',
 			status: 'todo',
 			owner: 'Hiro',
 			due: 'EOD'
@@ -397,114 +408,144 @@
 
 		{#if activeView === 'month'}
 			<div
-				class="space-y-4"
+				class="overflow-x-auto"
 				id="roadmap-month-panel"
 				role="tabpanel"
 				aria-labelledby="roadmap-month-tab"
 			>
-				{#each monthlyMilestones as item}
-					<div class="card bg-base-100 shadow">
-						<div class="card-body">
-							<div class="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-								<div>
-									<h3 class="card-title">{item.title}</h3>
-									<p class="text-sm text-base-content/70">{item.detail}</p>
-								</div>
-								<div class="flex flex-col items-end gap-2 text-sm">
-									{#if item.owner}
-										<span class="badge badge-outline">{item.owner}</span>
+				<table class="table-pin-rows table table-sm">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>Milestone</th>
+							<th>Owner</th>
+							<th>Due</th>
+							<th>Status</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each monthlyMilestones as item, index}
+							<tr>
+								<th>{index + 1}</th>
+								<td>
+									<div class="font-semibold">{item.title}</div>
+									{#if item.detail}
+										<div class="text-xs text-base-content/70">{item.detail}</div>
 									{/if}
-									{#if item.due}
-										<span class="text-xs text-base-content/60">{item.due}</span>
-									{/if}
+								</td>
+								<td>{item.owner ?? '—'}</td>
+								<td>{item.due ?? '—'}</td>
+								<td>
 									<span class={statusBadgeClass(item.status)}>{statusLabel(item.status)}</span>
-									<button class="btn btn-xs" onclick={() => cycleItem('month', item.id)}
-										>Cycle Status</button
+								</td>
+								<td>
+									<button
+										type="button"
+										class="btn btn-ghost btn-xs"
+										onclick={() => cycleItem('month', item.id)}
 									>
-								</div>
-							</div>
-						</div>
-					</div>
-				{/each}
+										Next
+									</button>
+								</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
 			</div>
 		{:else if activeView === 'week'}
 			<div
-				class="grid gap-4 md:grid-cols-2"
+				class="overflow-x-auto"
 				id="roadmap-week-panel"
 				role="tabpanel"
 				aria-labelledby="roadmap-week-tab"
 			>
-				{#each weeklySprint as item}
-					<div class="card bg-base-100 shadow">
-						<div class="card-body">
-							<div class="flex items-start justify-between gap-4">
-								<div>
-									<h3 class="card-title">{item.title}</h3>
-									<p class="text-sm text-base-content/70">{item.detail}</p>
-								</div>
-								<div class="flex flex-col items-end gap-2 text-sm">
-									{#if item.due}
-										<span class="badge badge-ghost badge-sm">Due {item.due}</span>
+				<table class="table table-zebra table-sm">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>Sprint Item</th>
+							<th>Owner</th>
+							<th>Due</th>
+							<th>Status</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each weeklySprint as item, index}
+							<tr>
+								<th>{index + 1}</th>
+								<td>
+									<div class="font-semibold">{item.title}</div>
+									{#if item.detail}
+										<div class="text-xs text-base-content/70">{item.detail}</div>
 									{/if}
-									{#if item.owner}
-										<span class="badge badge-outline badge-sm">{item.owner}</span>
-									{/if}
+								</td>
+								<td>{item.owner ?? '—'}</td>
+								<td>{item.due ?? '—'}</td>
+								<td>
 									<span class={statusBadgeClass(item.status)}>{statusLabel(item.status)}</span>
-									<button class="btn btn-xs" onclick={() => cycleItem('week', item.id)}
-										>Cycle Status</button
+								</td>
+								<td>
+									<button
+										type="button"
+										class="btn btn-ghost btn-xs"
+										onclick={() => cycleItem('week', item.id)}
 									>
-								</div>
-							</div>
-						</div>
-					</div>
-				{/each}
+										Next
+									</button>
+								</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
 			</div>
 		{:else}
 			<div
-				class="space-y-4"
+				class="overflow-x-auto"
 				id="roadmap-day-panel"
 				role="tabpanel"
 				aria-labelledby="roadmap-day-tab"
 			>
-				<div class="card bg-base-100 shadow">
-					<div class="card-body p-0">
-						<div class="overflow-x-auto">
-							<table class="table">
-								<thead>
-									<tr>
-										<th>Task</th>
-										<th>Owner</th>
-										<th>When</th>
-										<th>Status</th>
-										<th></th>
-									</tr>
-								</thead>
-								<tbody>
-									{#each dailyFocus as item}
-										<tr>
-											<td>
-												<div class="font-semibold">{item.title}</div>
-												<div class="text-xs text-base-content/70">{item.detail}</div>
-											</td>
-											<td class="text-sm">{item.owner}</td>
-											<td class="text-sm">{item.due}</td>
-											<td>
-												<span class={statusBadgeClass(item.status)}>{statusLabel(item.status)}</span
-												>
-											</td>
-											<td>
-												<button
-													class="btn btn-ghost btn-xs"
-													onclick={() => cycleItem('day', item.id)}>Cycle</button
-												>
-											</td>
-										</tr>
-									{/each}
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</div>
+				<table class="table table-sm">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>Focus</th>
+							<th>Owner</th>
+							<th>Due</th>
+							<th>Status</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each dailyFocus as item, index}
+							<tr>
+								<th>{index + 1}</th>
+								<td>
+									<div class="font-semibold">{item.title}</div>
+									{#if item.detail}
+										<div class="text-xs text-base-content/70">{item.detail}</div>
+									{/if}
+								</td>
+								<td>{item.owner ?? '—'}</td>
+								<td>{item.due ?? '—'}</td>
+								<td>
+									<span class={statusBadgeClass(item.status)}>{statusLabel(item.status)}</span>
+								</td>
+								<td>
+									<button
+										type="button"
+										class="btn btn-ghost btn-xs"
+										onclick={() => cycleItem('day', item.id)}
+									>
+										Next
+									</button>
+								</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
 			</div>
 		{/if}
 

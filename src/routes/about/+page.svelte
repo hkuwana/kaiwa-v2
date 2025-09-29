@@ -8,6 +8,9 @@
 	import type { Scenario } from '$lib/server/db/types';
 	import { track } from '$lib/analytics/posthog';
 	import ShareKaiwa from '$lib/components/ShareKaiwa.svelte';
+	import { fly } from 'svelte/transition';
+
+	let scrollY = 0;
 
 	// Page title
 	onMount(() => {
@@ -63,156 +66,141 @@
 	<meta property="og:type" content="website" />
 </svelte:head>
 
+<svelte:window bind:scrollY />
+
 <div class="min-h-screen bg-gradient-to-br from-base-100 to-accent">
 	<div class="container mx-auto px-4 py-16">
 		<!-- Hero Section -->
-		<div class="mb-16 text-center">
-			<h1 class="mb-6 text-5xl font-bold md:text-7xl">Languages Open Doors to Human Connection</h1>
+		<div class="mb-16 text-center" in:fly={{ y: -20, duration: 500, delay: 200 }}>
+			<h1 class="mb-4 text-5xl font-bold md:text-7xl">Your personality is not a translation.</h1>
 			<p class="mx-auto max-w-4xl text-xl leading-relaxed md:text-2xl">
-				The story behind Kaiwa: Why we built an AI language learning app that prioritizes meaningful
-				conversation over test scores
+				Language tools have become robotic. We're making them human again.
 			</p>
-			<div class="mt-6 flex justify-center space-x-4 text-sm opacity-70">
-				<span>Global Community</span>
-				<span>Conversation-First</span>
-				<span>AI-Powered</span>
-				<span>Heart-to-Heart</span>
-			</div>
 		</div>
 
-		<!-- My Story -->
+		<!-- The Story -->
 		<div class="mx-auto mb-16 max-w-4xl">
-			<div
-				class="rounded-2xl border border-primary/20 bg-secondary/30 p-8 text-secondary-content backdrop-blur-sm"
-			>
-				<h2 class="mb-6 text-3xl font-bold">The Problem with Traditional Language Learning</h2>
-				<div class="space-y-4 leading-relaxed">
-					<p>
-						I always loved learning languages, but I struggled with traditional methods. Like
-						millions of others, I tried Duolingo, attended formal classes, and memorized vocabulary
-						lists. But I never built real confidence until I actually talked to native speakers.
-						Despite growing up bilingual in Japanese and Chinese, my breakthrough with learning
-						foreign languages only came when I immersed myself in real conversations during my time
-						in Taiwan.
-					</p>
-					<p>
-						Within 2 months of living in Taiwan, something clicked. I became conversational, played
-						Mahjong with my host family, talked about life and school. It wasn't because I suddenly
-						mastered grammar rules—it was because I fell in love with the learning process through
-						real conversations.
-					</p>
-					<p>
-						That's when I realized: each language is like an opening to an experience. Sure, you
-						need to memorize vocabulary sometimes, but the most important part is building the
-						confidence to actually use it with real people.
-					</p>
-					<p class="font-semibold">
-						Most language apps prepare you for tests, not for touching people's hearts.
-					</p>
-				</div>
-			</div>
+			<ul class="steps steps-vertical">
+				<li class="step step-primary">
+					<div class="p-4 text-left" in:fly={{ y: 20, duration: 500, delay: 400 }}>
+						<h3 class="text-lg font-bold">The Dream</h3>
+						<p>To connect with the people I love, in their language. To make their family laugh.</p>
+					</div>
+				</li>
+				<li class="step step-primary">
+					<div class="p-4 text-left" in:fly={{ y: 20, duration: 500, delay: 600 }}>
+						<h3 class="text-lg font-bold">The Wall</h3>
+						<p>
+							Language apps felt like spreadsheets. Robotic voices, points, streaks. My personality
+							was trapped.
+						</p>
+					</div>
+				</li>
+				<li class="step step-primary">
+					<div class="p-4 text-left" in:fly={{ y: 20, duration: 500, delay: 800 }}>
+						<h3 class="text-lg font-bold">The Breaking Point</h3>
+						<p>
+							I realized the tools were the problem. They were anti-human, turning connection into a
+							chore.
+						</p>
+					</div>
+				</li>
+				<li class="step">
+					<div class="p-4 text-left" in:fly={{ y: 20, duration: 500, delay: 1000 }}>
+						<h3 class="text-lg font-bold">The Solution: Kaiwa</h3>
+						<p>
+							So we built a conversation partner. A place for the messy, real talks that build
+							relationships.
+						</p>
+					</div>
+				</li>
+			</ul>
 		</div>
 
-		<!-- Our Solution -->
-		<div class="mx-auto mb-16 max-w-4xl">
-			<h2 class="font-bold-content mb-8 text-center text-3xl">
-				How Kaiwa Solves the Conversation Gap
-			</h2>
-			<div
-				class="rounded-2xl border border-primary/20 bg-secondary/30 p-8 text-secondary-content backdrop-blur-sm"
-			>
-				<div class="space-y-4 leading-relaxed">
-					<p>
-						Kaiwa is an AI language learning platform designed for people who want to build real
-						communication skills through conversation practice. Unlike traditional language apps
-						that focus on vocabulary drills and grammar exercises, we prioritize the conversations
-						that actually matter—the ones that create human connections and lasting memories.
-					</p>
-					<p>
-						We recognize that AI will soon handle routine translations for business emails and basic
-						interactions. But when you're laughing with friends in an izakaya in Tokyo, sharing
-						personal stories at a tapas bar in Granada, or having heart-to-heart conversations with
-						your in-laws in their native tongue—that's when you touch people's hearts, not just
-						exchange information.
-					</p>
-					<p class="font-semibold">
-						These authentic, emotional moments are what keep the human element of communication
-						alive. Kaiwa helps you practice for these real-world scenarios through AI-powered
-						conversation practice that prepares you for meaningful human connection.
-					</p>
-				</div>
-			</div>
-		</div>
-
-		<!-- How We Do It -->
-		<div class="mx-auto mb-16 max-w-6xl">
-			<h2 class="font-bold-content mb-8 text-center text-3xl">How We Do It</h2>
-			<div class="grid gap-8 md:grid-cols-3">
-				<div
-					class="rounded-2xl border border-primary/20 bg-secondary/30 p-6 text-secondary-content backdrop-blur-sm"
-				>
-					<h3 class="font-semibold-content mb-4 text-xl">Real Conversations</h3>
-					<p class="">
-						Practice the scenarios that actually happen: meeting your partner's parents, sharing
-						personal stories, navigating emotional moments with warmth and authenticity.
-					</p>
-				</div>
-				<div
-					class="rounded-2xl border border-primary/20 bg-secondary/30 p-6 text-secondary-content backdrop-blur-sm"
-				>
-					<h3 class="font-semibold-content mb-4 text-xl">Conversation-First</h3>
-					<p class="">
-						Skip the streaks and points. Focus on building the confidence to speak naturally in
-						situations that matter to you and your relationships.
-					</p>
-				</div>
-				<div
-					class="rounded-2xl border border-primary/20 bg-secondary/30 p-6 text-secondary-content backdrop-blur-sm"
-				>
-					<h3 class="font-semibold-content mb-4 text-xl">Learning Through Connection</h3>
-					<p class="">
-						We're preparing you for the beautiful, messy reality of human connection—not just
-						passing tests or completing lessons.
-					</p>
-				</div>
-			</div>
-		</div>
-
-		<!-- Why This Matters -->
-		<div class="mx-auto mb-16 max-w-4xl">
-			<div
-				class="rounded-2xl border border-primary/20 bg-secondary/30 p-8 text-secondary-content backdrop-blur-sm"
-			>
-				<h2 class="mb-6 text-3xl font-bold">Why This Matters</h2>
-				<div class="space-y-4 leading-relaxed">
-					<p>
-						Language learning isn't really about the language—it's about the doors it opens. When
-						you can laugh with strangers at a local cafe, comfort someone in their mother tongue, or
-						share your thoughts without needing translation, you create experiences that stick with
-						you.
-					</p>
-					<p>
-						We believe the people who use Kaiwa won't just "know" a language—they'll live it.
-						They'll build relationships that wouldn't have existed otherwise and create memories
-						that make all the practice worth it.
-					</p>
-					<p class="text-lg font-semibold">
-						Because the best part of learning a language isn't the learning—it's what becomes
-						possible afterward.
-					</p>
+		<!-- Visual Comparison Section -->
+		<div class="mb-16" in:fly={{ y: 20, duration: 500, delay: 1200 }}>
+			<h2 class="mb-8 text-center text-3xl font-bold">What Went Wrong With Language Apps?</h2>
+			<div class="flex justify-center">
+				<div class="grid w-full max-w-4xl gap-8 md:grid-cols-2">
+					<div 
+						class="card bg-base-300/50 shadow-lg transition-transform duration-200 ease-out"
+						style="transform: translateY({scrollY * 0.03}px);"
+					>
+						<div class="card-body">
+							<h3 class="card-title text-error">The "Old Way"</h3>
+							<ul class="space-y-3 opacity-70">
+								<li class="flex items-center">
+									<span class="mr-2 icon-[mdi--robot-outline] text-xl"></span><span
+										>Robotic voices</span
+									>
+								</li>
+								<li class="flex items-center">
+									<span class="mr-2 icon-[mdi--gamepad-variant-outline] text-xl"></span><span
+										>Points, streaks, and games</span
+									>
+								</li>
+								<li class="flex items-center">
+									<span class="mr-2 icon-[mdi--file-document-outline] text-xl"></span><span
+										>Sterile translations</span
+									>
+								</li>
+								<li class="flex items-center">
+									<span class="mr-2 icon-[mdi--format-list-bulleted] text-xl"></span><span
+										>Memorizing lists</span
+									>
+								</li>
+							</ul>
+							<div
+								class="mt-3 border-t border-base-content/10 pt-3 font-bold text-error-content/80"
+							>
+								Result: You sound like a textbook.
+							</div>
+						</div>
+					</div>
+					<div 
+						class="card bg-primary text-primary-content shadow-xl transition-transform duration-200 ease-out"
+						style="transform: translateY({scrollY * -0.03}px);"
+					>
+						<div class="card-body">
+							<h3 class="card-title">The Kaiwa Way</h3>
+							<ul class="space-y-3">
+								<li class="flex items-center">
+									<span class="mr-2 icon-[mdi--human-greeting-variant] text-xl"></span><span
+										>Natural, human-like voices</span
+									>
+								</li>
+								<li class="flex items-center">
+									<span class="mr-2 icon-[mdi--forum-outline] text-xl"></span><span
+										>Real conversations</span
+									>
+								</li>
+								<li class="flex items-center">
+									<span class="mr-2 icon-[mdi--heart-outline] text-xl"></span><span
+										>Emotional connection</span
+									>
+								</li>
+								<li class="flex items-center">
+									<span class="mr-2 icon-[mdi--emoticon-happy-outline] text-xl"></span><span
+										>Sharing your actual personality</span
+									>
+								</li>
+							</ul>
+							<div class="mt-3 border-t border-primary-content/20 pt-3 font-bold">
+								Result: You sound like you.
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
 
 		<!-- Call to Action -->
-		<div class="text-center">
+		<div class="text-center" in:fly={{ y: 20, duration: 500, delay: 1400 }}>
 			<div
 				class="mx-auto max-w-2xl rounded-2xl border border-primary/20 bg-secondary/30 p-8 text-secondary-content"
 			>
-				<h2 class="mb-4 text-2xl font-bold">Ready to start exploring?</h2>
-				<p class="mb-6">
-					Begin building the conversations that will create your next great memory.
-				</p>
+				<h2 class="mb-4 text-2xl font-bold">Ready to Connect?</h2>
+				<p class="mb-6">Practice the conversations that will define your relationships.</p>
 				<div class="mb-4 text-sm">Get your speaking level assessed in 3 minutes</div>
 				<UnifiedStartButton
 					{user}

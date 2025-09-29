@@ -1,166 +1,186 @@
 <script lang="ts">
-	// Organized dev tools directory
+	// Flattened dev tools list for compact display
 	const devTools = [
+		// Core Testing & Analysis
 		{
-			category: 'Core Testing & Analysis',
-			icon: '🧪',
-			tools: [
-				{
-					href: '/dev/analysis',
-					label: 'Analysis',
-					desc: 'Test conversation analysis and insights'
-				},
-				{
-					href: '/dev/analysis-test',
-					label: 'Analysis Test',
-					desc: 'Test analysis components'
-				},
-				{
-					href: '/dev/assessment-test',
-					label: 'Assessment Test',
-					desc: 'Test onboarding flow and results display'
-				},
-				{
-					href: '/dev/usage',
-					label: 'Usage',
-					desc: 'Analytics and usage tracking debug tools'
-				},
-				{
-					href: '/dev/usage-test',
-					label: 'Usage Test',
-					desc: 'Timer functionality and session management'
-				}
-			]
+			category: '🧪 Core Testing & Analysis',
+			name: 'Analysis',
+			href: '/dev/analysis',
+			desc: 'Test conversation analysis and insights generation'
 		},
 		{
-			category: 'Real-time Communication',
-			icon: '🔄',
-			tools: [
-				{
-					href: '/dev/realtime',
-					label: 'Realtime Chat',
-					desc: 'Test WebRTC and real-time conversation features'
-				},
-				{
-					href: '/dev/realtime-debug',
-					label: 'Realtime Debug',
-					desc: 'Debug real-time connection and audio pipeline'
-				},
-				{
-					href: '/dev/conversation',
-					label: 'Conversations',
-					desc: 'View and manage conversation history'
-				}
-			]
+			category: '🧪 Core Testing & Analysis',
+			name: 'Analysis Test',
+			href: '/dev/analysis-test',
+			desc: 'Unit testing for analysis components and algorithms'
 		},
 		{
-			category: 'UI Components & Animation',
-			icon: '🎨',
-			tools: [
-				{
-					href: '/dev/animated',
-					label: 'Animated',
-					desc: 'Test animations'
-				},
-				{
-					href: '/dev/animation',
-					label: 'Animation',
-					desc: 'Test various animations'
-				},
-				{
-					href: '/dev/audiovisualizer',
-					label: 'Audio Visualizer',
-					desc: 'Test audio visualization components'
-				},
-				{
-					href: '/dev/modals',
-					label: 'Modals',
-					desc: 'Test modal components'
-				}
-			]
+			category: '🧪 Core Testing & Analysis',
+			name: 'Assessment Test',
+			href: '/dev/assessment-test',
+			desc: 'Test language assessment flow and results display'
 		},
 		{
-			category: 'Content & Localization',
-			icon: '🌍',
-			tools: [
-				{
-					href: '/dev/instructions',
-					label: 'Instructions',
-					desc: 'Test instruction generation and modules'
-				},
-				{
-					href: '/dev/japanese-scripts',
-					label: 'Japanese Scripts',
-					desc: 'Test script generation for Japanese learning'
-				},
-				{
-					href: '/dev/messages',
-					label: 'Messages',
-					desc: 'Test message components'
-				}
-			]
+			category: '🧪 Core Testing & Analysis',
+			name: 'Usage Analytics',
+			href: '/dev/usage',
+			desc: 'Monitor user behavior and feature usage patterns'
 		},
 		{
-			category: 'Business & Marketing',
-			icon: '💼',
-			tools: [
-				{
-					href: '/dev/competition',
-					label: 'Competition',
-					desc: 'Competitive analysis and positioning data'
-				},
-				{
-					href: '/dev/competitor',
-					label: 'Competitor',
-					desc: 'Interactive competitor research quiz'
-				},
-				{
-					href: '/dev/marketing',
-					label: 'Marketing',
-					desc: 'Marketing components and landing page elements'
-				},
-				{
-					href: '/dev/payment',
-					label: 'Payment',
-					desc: 'Test Stripe integration and subscription flows'
-				},
-				{
-					href: '/dev/pricing-modal',
-					label: 'Pricing Modal',
-					desc: 'Test pricing modal component'
-				},
-				{
-					href: '/dev/seo',
-					label: 'SEO',
-					desc: 'SEO strategy testing and optimization tools'
-				},
-				{
-					href: '/dev/tiers',
-					label: 'Tiers',
-					desc: 'Test pricing tiers component'
-				}
-			]
+			category: '🧪 Core Testing & Analysis',
+			name: 'Usage Test',
+			href: '/dev/usage-test',
+			desc: 'Test timer functionality and session management'
+		},
+
+		// Real-time Communication
+		{
+			category: '🔄 Real-time Communication',
+			name: 'Realtime Chat',
+			href: '/dev/realtime',
+			desc: 'Test WebRTC and real-time conversation features'
 		},
 		{
-			category: 'Other',
-			icon: '📦',
-			tools: [
-				{
-					href: '/dev/cultural-dna',
-					label: 'Cultural DNA',
-					desc: 'Test cultural DNA components'
-				},
-				{
-					href: '/dev/fab',
-					label: 'Fab',
-					desc: 'Test floating action button'
-				},
-				{
-					href: '/dev/lifecycle',
-					label: 'Lifecycle',
-					desc: 'Test lifecycle components'
-				}
-			]
+			category: '🔄 Real-time Communication',
+			name: 'Realtime Debug',
+			href: '/dev/realtime-debug',
+			desc: 'Debug real-time connection and audio pipeline issues'
+		},
+		{
+			category: '🔄 Real-time Communication',
+			name: 'Conversations',
+			href: '/dev/conversation',
+			desc: 'View and manage conversation history and metadata'
+		},
+		{
+			category: '🔄 Real-time Communication',
+			name: 'Audio Visualizer',
+			href: '/dev/audiovisualizer',
+			desc: 'Test audio visualization and waveform components'
+		},
+
+		// Business & Payments
+		{
+			category: '💰 Business & Payments',
+			name: 'Payment',
+			href: '/dev/payment',
+			desc: 'Test Stripe integration and subscription flows'
+		},
+		{
+			category: '💰 Business & Payments',
+			name: 'Pricing Modal',
+			href: '/dev/pricing-modal',
+			desc: 'Test subscription pricing modal components'
+		},
+		{
+			category: '💰 Business & Payments',
+			name: 'Tiers',
+			href: '/dev/tiers',
+			desc: 'Test pricing tiers and feature comparison display'
+		},
+
+		// Marketing & Growth
+		{
+			category: '📈 Marketing & Growth',
+			name: 'Marketing',
+			href: '/dev/marketing',
+			desc: 'Marketing components and landing page elements'
+		},
+		{
+			category: '📈 Marketing & Growth',
+			name: 'Marketing Automation',
+			href: '/dev/marketing-automation',
+			desc: 'Test automated email campaigns and user onboarding'
+		},
+		{
+			category: '📈 Marketing & Growth',
+			name: 'Competition Analysis',
+			href: '/dev/competition',
+			desc: 'Competitive analysis data and positioning insights'
+		},
+		{
+			category: '📈 Marketing & Growth',
+			name: 'Competitor Quiz',
+			href: '/dev/competitor',
+			desc: 'Interactive competitor research and comparison tool'
+		},
+		{
+			category: '📈 Marketing & Growth',
+			name: 'SEO Tools',
+			href: '/dev/seo',
+			desc: 'SEO strategy testing and content optimization'
+		},
+
+		// UI Components & Animation
+		{
+			category: '🎨 UI Components & Animation',
+			name: 'Modals',
+			href: '/dev/modals',
+			desc: 'Test modal components and overlay interactions'
+		},
+		{
+			category: '🎨 UI Components & Animation',
+			name: 'Animated Components',
+			href: '/dev/animated',
+			desc: 'Test animated UI elements and transitions'
+		},
+		{
+			category: '🎨 UI Components & Animation',
+			name: 'Animation Library',
+			href: '/dev/animation',
+			desc: 'Test animation utilities and custom effects'
+		},
+		{
+			category: '🎨 UI Components & Animation',
+			name: 'Floating Action Button',
+			href: '/dev/fab',
+			desc: 'Test floating action button component variants'
+		},
+
+		// Content & Localization
+		{
+			category: '🌍 Content & Localization',
+			name: 'Instructions',
+			href: '/dev/instructions',
+			desc: 'Test AI-generated learning instructions and prompts'
+		},
+		{
+			category: '🌍 Content & Localization',
+			name: 'Japanese Scripts',
+			href: '/dev/japanese-scripts',
+			desc: 'Test Japanese script generation and romanization'
+		},
+		{
+			category: '🌍 Content & Localization',
+			name: 'Message Components',
+			href: '/dev/messages',
+			desc: 'Test chat message display and formatting'
+		},
+		{
+			category: '🌍 Content & Localization',
+			name: 'Cultural DNA',
+			href: '/dev/cultural-dna',
+			desc: 'Test cultural context and personalization features'
+		},
+
+		// Development & Planning
+		{
+			category: '🛠️ Development & Planning',
+			name: 'Product Roadmap',
+			href: '/dev/roadmap',
+			desc: 'View development roadmap and feature planning'
+		},
+		{
+			category: '🛠️ Development & Planning',
+			name: 'Data Migration',
+			href: '/dev/migration',
+			desc: 'Test database migration scripts and data integrity'
+		},
+		{
+			category: '🛠️ Development & Planning',
+			name: 'Component Lifecycle',
+			href: '/dev/lifecycle',
+			desc: 'Test component lifecycle management and cleanup'
 		}
 	];
 </script>
@@ -171,7 +191,7 @@
 </svelte:head>
 
 <div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 p-6">
-	<div class="container mx-auto max-w-6xl">
+	<div class="container mx-auto max-w-5xl">
 		<div class="mb-8">
 			<h1 class="mb-2 text-4xl font-bold text-primary">🛠️ Dev Tools Directory</h1>
 			<p class="text-lg text-base-content/70">
@@ -179,33 +199,39 @@
 			</p>
 		</div>
 
-		<!-- Organized Tool Categories -->
-		<div class="space-y-8">
-			{#each devTools as category}
-				<div class="card bg-base-100 shadow-xl">
-					<div class="card-body">
-						<h2 class="mb-4 card-title text-2xl">
-							<span class="text-3xl">{category.icon}</span>
-							{category.category}
-						</h2>
-						<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-							{#each category.tools as tool}
-								<div class="rounded-lg border p-4 transition-colors hover:bg-base-200">
-									<div class="mb-2 flex items-start justify-between">
-										<h3 class="font-semibold text-primary">
-											<a href={tool.href} class="hover:underline">
-												{tool.label}
-											</a>
-										</h3>
+		<!-- Compact Dev Tools List -->
+		<div class="card bg-base-100 shadow-xl">
+			<div class="card-body p-0">
+				<div class="overflow-x-auto">
+					<table class="table table-zebra">
+						<thead>
+							<tr>
+								<th class="w-1/3">Category</th>
+								<th class="w-1/4">Tool</th>
+								<th>Description</th>
+								<th class="w-16"></th>
+							</tr>
+						</thead>
+						<tbody>
+							{#each devTools as tool}
+								<tr
+									class="hover cursor-pointer"
+									onclick={() => {
+										window.location.href = tool.href;
+									}}
+								>
+									<td class="text-sm font-medium">{tool.category}</td>
+									<td class="font-semibold text-primary">{tool.name}</td>
+									<td class="text-sm text-base-content/70">{tool.desc}</td>
+									<td>
 										<a href={tool.href} class="btn btn-ghost btn-xs">→</a>
-									</div>
-									<p class="text-sm text-base-content/70">{tool.desc}</p>
-								</div>
+									</td>
+								</tr>
 							{/each}
-						</div>
-					</div>
+						</tbody>
+					</table>
 				</div>
-			{/each}
+			</div>
 		</div>
 	</div>
 </div>

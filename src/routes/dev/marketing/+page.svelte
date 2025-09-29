@@ -184,6 +184,50 @@ It's been a game-changer for my confidence. Has anyone else found good ways to p
 	});
 
 	// Newsletter composer removed for MVP
+
+	// Email Reminder Functions
+	async function sendTestReminder() {
+		try {
+			const response = await fetch('/api/marketing/reminder', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ userId: 'current-user' }) // You might want to get actual user ID
+			});
+
+			const data = await response.json();
+			if (data.success) {
+				alert('Test reminder sent successfully!');
+			} else {
+				alert('Failed to send test reminder: ' + data.error);
+			}
+		} catch (error) {
+			alert('Error sending test reminder');
+		}
+	}
+
+	async function sendBulkReminders() {
+		if (
+			!confirm('Send bulk reminders to all users? This will send emails to all verified users.')
+		) {
+			return;
+		}
+
+		try {
+			const response = await fetch('/api/marketing/bulk-reminder', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' }
+			});
+
+			const data = await response.json();
+			if (data.success) {
+				alert(data.message);
+			} else {
+				alert('Failed to send bulk reminders: ' + data.error);
+			}
+		} catch (error) {
+			alert('Error sending bulk reminders');
+		}
+	}
 </script>
 
 <svelte:head>
@@ -253,7 +297,42 @@ It's been a game-changer for my confidence. Has anyone else found good ways to p
 						>
 					</li>
 					<li><a class="link link-primary" href="/blog" target="_blank">Blog Index</a></li>
+					<li>
+						<a class="link link-primary" href="/dev/marketing-automation">🤖 Marketing Automation</a
+						>
+					</li>
 				</ul>
+			</div>
+		</div>
+
+		<!-- Email Reminder System -->
+		<div class="mb-6 rounded-xl bg-base-100 p-5 shadow">
+			<div class="mb-4 text-lg font-semibold">Email Reminder System</div>
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+				<div>
+					<h3 class="mb-2 font-semibold">Practice Reminders</h3>
+					<p class="mb-4 text-sm text-base-content/70">
+						Send personalized practice reminders with scenario suggestions based on user history.
+					</p>
+					<div class="space-y-2">
+						<button class="btn btn-sm btn-primary" onclick={sendTestReminder}>
+							Send Test Reminder
+						</button>
+						<button class="btn btn-sm btn-secondary" onclick={sendBulkReminders}>
+							Send Bulk Reminders
+						</button>
+					</div>
+				</div>
+				<div>
+					<h3 class="mb-2 font-semibold">Features</h3>
+					<ul class="space-y-1 text-sm">
+						<li>• Personalized scenario recommendations</li>
+						<li>• Streak tracking and motivation</li>
+						<li>• Last practice date awareness</li>
+						<li>• Direct links to practice scenarios</li>
+						<li>• Japanese phrasing integration</li>
+					</ul>
+				</div>
 			</div>
 		</div>
 
