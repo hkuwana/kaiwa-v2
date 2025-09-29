@@ -33,11 +33,12 @@
 		conversationId: 'analysis-preview',
 		role: message.role,
 		content: message.content,
-		timestamp: message.timestamp instanceof Date
-			? message.timestamp
-			: message.timestamp
-				? new Date(message.timestamp)
-				: new Date(),
+		timestamp:
+			message.timestamp instanceof Date
+				? message.timestamp
+				: message.timestamp
+					? new Date(message.timestamp)
+					: new Date(),
 		sequenceId: '1',
 		translatedContent: null,
 		sourceLanguage: null,
@@ -74,7 +75,7 @@
 	// Count suggestions by severity
 	const suggestionCounts = $derived(() => {
 		const counts = { info: 0, hint: 0, warning: 0 };
-		suggestions.forEach(s => {
+		suggestions.forEach((s) => {
 			if (s.severity in counts) {
 				counts[s.severity as keyof typeof counts]++;
 			}
@@ -97,7 +98,10 @@
 	};
 
 	// Generate full corrected sentence by applying all suggestions
-	const generateCorrectedSentence = (originalContent: string, messageSuggestions: AnalysisSuggestion[]) => {
+	const generateCorrectedSentence = (
+		originalContent: string,
+		messageSuggestions: AnalysisSuggestion[]
+	) => {
 		let correctedContent = originalContent;
 
 		// Sort suggestions by position (if available) or by original text length (longest first)
@@ -149,7 +153,7 @@
 					<!-- Suggestions Header -->
 					<button
 						type="button"
-						class="btn mb-2 w-full btn-outline btn-xs hover:btn-primary transition-all duration-200"
+						class="btn mb-2 w-full transition-all duration-200 btn-outline btn-xs hover:btn-primary"
 						title="{suggestions.length} suggestion{suggestions.length > 1 ? 's' : ''} available"
 						onclick={toggleSuggestions}
 					>
@@ -185,34 +189,46 @@
 							<div class="space-y-2">
 								{#each suggestions as suggestion}
 									<div
-										class="rounded-lg border border-base-300 p-3 transition-all duration-200 hover:shadow-md {suggestion.severity === 'warning' ? 'bg-warning/5 hover:bg-warning/10' : suggestion.severity === 'hint' ? 'bg-success/5 hover:bg-success/10' : 'bg-info/5 hover:bg-info/10'}"
+										class="rounded-lg border border-base-300 p-3 transition-all duration-200 hover:shadow-md {suggestion.severity ===
+										'warning'
+											? 'bg-warning/5 hover:bg-warning/10'
+											: suggestion.severity === 'hint'
+												? 'bg-success/5 hover:bg-success/10'
+												: 'bg-info/5 hover:bg-info/10'}"
 										role="button"
 										tabindex="0"
-										onmouseenter={() => hoveredSuggestion = suggestion.originalText}
-										onmouseleave={() => hoveredSuggestion = null}
+										onmouseenter={() => (hoveredSuggestion = suggestion.originalText)}
+										onmouseleave={() => (hoveredSuggestion = null)}
 									>
 										<div class="mb-2 flex items-center justify-between">
 											<div class="flex items-center gap-2">
 												<div class="badge badge-xs {getSeverityBadgeClass(suggestion.severity)}">
 													{suggestion.severity}
 												</div>
-												<span class="text-xs font-medium text-base-content/70">{suggestion.category}</span>
+												<span class="text-xs font-medium text-base-content/70"
+													>{suggestion.category}</span
+												>
 											</div>
 										</div>
 										<p class="mb-2 text-sm text-base-content/80">{suggestion.explanation}</p>
 										<div class="flex flex-wrap items-center gap-2 text-sm">
 											<span class="text-base-content/60">
-												"<span class="line-through decoration-2 decoration-error/50">{suggestion.originalText}</span>"
+												"<span class="line-through decoration-error/50 decoration-2"
+													>{suggestion.originalText}</span
+												>"
 											</span>
 											<span class="icon-[mdi--arrow-right] h-4 w-4 text-base-content/40"></span>
 											<span class="font-medium text-success">
-												"<span class="rounded bg-success/20 px-2 py-0.5">{suggestion.suggestedText}</span>"
+												"<span class="rounded bg-success/20 px-2 py-0.5"
+													>{suggestion.suggestedText}</span
+												>"
 											</span>
 										</div>
 										{#if suggestion.example}
-											<div class="mt-2 pt-2 border-t border-base-content/10">
-												<p class="text-xs text-base-content/60 italic flex items-start gap-1">
-													<span class="icon-[mdi--lightbulb-outline] h-3 w-3 mt-0.5 flex-shrink-0"></span>
+											<div class="mt-2 border-t border-base-content/10 pt-2">
+												<p class="flex items-start gap-1 text-xs text-base-content/60 italic">
+													<span class="mt-0.5 icon-[mdi--lightbulb-outline] h-3 w-3 flex-shrink-0"
+													></span>
 													<span>{suggestion.example}</span>
 												</p>
 											</div>
@@ -237,7 +253,7 @@
 					<div class="mb-2 flex justify-{isFromUser ? 'end' : 'start'}">
 						<button
 							type="button"
-							class="btn btn-circle btn-sm btn-ghost hover:btn-primary transition-colors duration-200"
+							class="btn btn-circle btn-ghost transition-colors duration-200 btn-sm hover:btn-primary"
 							title={isPlayingAudio ? 'Pause audio' : 'Play audio'}
 							onclick={handlePlayAudio}
 						>
@@ -252,19 +268,8 @@
 
 				<!-- Message Bubble -->
 				<div class="message-bubble-wrapper">
-					<MessageBubble
-						message={bubbleMessage}
-						{conversationLanguage}
-						clickToToggle={true}
-					/>
+					<MessageBubble message={bubbleMessage} clickToToggle={true} />
 				</div>
-
-				<!-- Message Actions -->
-				{#if hasSuggestions && hoveredSuggestion}
-					<div class="mt-2 text-xs text-base-content/50 italic">
-						Highlighting: "{hoveredSuggestion}"
-					</div>
-				{/if}
 			</div>
 		</div>
 	</div>
@@ -276,10 +281,10 @@
 	}
 
 	.suggestions-panel {
-		background: var(--fallback-b1,oklch(var(--b1)/1));
+		background: var(--fallback-b1, oklch(var(--b1) / 1));
 		border-radius: 0.5rem;
 		padding: 1rem;
-		border: 1px solid var(--fallback-b3,oklch(var(--b3)/1));
+		border: 1px solid var(--fallback-b3, oklch(var(--b3) / 1));
 	}
 
 	.message-bubble-container {

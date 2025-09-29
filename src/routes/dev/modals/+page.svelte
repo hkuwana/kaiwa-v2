@@ -480,7 +480,7 @@
 							<td>Scenario System, Learning Analytics</td>
 						</tr>
 						<tr>
-							<td class="font-semibold">ConversationSuggestionsPreview</td>
+							<td class="font-semibold">UnifiedConversationBubble</td>
 							<td>Shows inline coaching for post-conversation analysis</td>
 							<td><span class="badge badge-warning">Prototype</span></td>
 							<td>Analysis Store, Growth Playbook, Reminder Loop</td>

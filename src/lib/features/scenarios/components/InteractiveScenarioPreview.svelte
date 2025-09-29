@@ -395,7 +395,6 @@
 						>
 							<MessageBubble
 								{message}
-								conversationLanguage={message.sourceLanguage || selectedLanguage?.code}
 								clickToToggle={true}
 								translation={{
 									translatedContent: showTranslations[message.id]

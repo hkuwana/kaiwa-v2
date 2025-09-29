@@ -232,7 +232,6 @@
 										{message}
 										{speaker}
 										translation={translationData.get(message.id)}
-										conversationLanguage={selectedLanguage?.code}
 										dispatch={handleTranslation}
 									/>
 								</div>

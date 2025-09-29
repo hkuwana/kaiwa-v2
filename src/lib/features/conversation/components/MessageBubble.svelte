@@ -12,26 +12,28 @@
 	import face from '$lib/assets/Face.webp';
 	import { SvelteDate } from 'svelte/reactivity';
 	import WordSyncedText from '$lib/components/WordSyncedText.svelte';
+	import { createHighlightedSegments, createHighlightedHtml } from '$lib/features/analysis/utils/text-highlighting.utils';
 
 	interface Props {
 		message: Message;
 		speaker?: Speaker;
 		translation?: Partial<Message>;
-		conversationLanguage?: string;
 		// When true, users toggle translation visibility by clicking the bubble (no hover)
 		clickToToggle?: boolean;
 		wordTimings?: SpeechTiming[];
 		activeWordIndex?: number;
+		// For highlighting specific text segments (e.g., for analysis suggestions)
+		highlightOffsets?: Array<{ start: number; end: number }>;
 	}
 
 	const {
 		message,
 		speaker,
 		translation,
-		conversationLanguage,
 		clickToToggle = false,
 		wordTimings = [],
 		activeWordIndex = -1,
+		highlightOffsets = [],
 		dispatch
 	} = $props<
 		Props & {
@@ -61,14 +63,17 @@
 	const chatClass = $derived(isUser ? 'chat-end' : 'chat-start');
 	const avatarSrc = $derived(isUser ? kitsune : face);
 	const avatarAlt = $derived(isUser ? 'User avatar' : 'AI avatar');
+	const currentSpeaker = $derived(
+		isUser ? null : speaker || getSpeakerById(settingsStore.selectedSpeaker)
+	);
+
 	const speakerName = $derived(
-		isUser
-			? 'You'
-			: (() => {
-					// Use passed speaker prop first, then fall back to settings
-					const currentSpeaker = speaker || getSpeakerById(settingsStore.selectedSpeaker);
-					return currentSpeaker?.voiceName || 'AI';
-				})()
+		isUser ? 'You' : currentSpeaker?.voiceName || 'AI'
+	);
+
+	// Derive conversation language from speaker
+	const conversationLanguage = $derived(
+		currentSpeaker?.language || settingsStore.selectedLanguage?.code || 'en'
 	);
 	const bubbleClass = $derived(isUser ? 'chat-bubble chat-bubble-primary' : 'chat-bubble');
 	const borderClass = $derived(isUser ? 'border-primary/20' : 'border-base-content/20');
@@ -80,6 +85,15 @@
 			? Math.min(activeWordIndex, wordTimings.length - 1)
 			: -1
 	);
+
+	// Create highlighted content when highlight offsets are provided
+	const highlightedContent = $derived(() => {
+		if (!highlightOffsets.length || typeof message.content !== 'string') {
+			return null;
+		}
+		const segments = createHighlightedSegments(message.content, highlightOffsets);
+		return createHighlightedHtml(segments, 'bg-warning/50 text-warning-content font-semibold rounded px-2 py-1 shadow-sm');
+	});
 
 	// Translation state
 	let isHovered = $state(false);
@@ -202,7 +216,11 @@
 				{:else}
 					<!-- Korean or other text without furigana -->
 					<div class="text-base">
-						{message.content}
+						{#if highlightedContent()}
+							{@html highlightedContent()}
+						{:else}
+							{message.content}
+						{/if}
 					</div>
 				{/if}
 
@@ -227,6 +245,8 @@
 						timings={wordTimings}
 						activeIndex={normalizedActiveWordIndex}
 					/>
+				{:else if highlightedContent()}
+					{@html highlightedContent()}
 				{:else}
 					{message.content}
 				{/if}

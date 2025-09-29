@@ -601,7 +601,6 @@
 										</h4>
 										<VirtualizedMessageList
 											messages={data.messages}
-											conversationLanguage={data.details.targetLanguageId}
 											maxHeight="30vh"
 											autoScroll={false}
 										/>

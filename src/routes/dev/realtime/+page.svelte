@@ -150,7 +150,6 @@
 						{#each realtimeMessages as m (m.id)}
 							<MessageBubble
 								message={m}
-								conversationLanguage={lang}
 								wordTimings={wordTimingMap[m.id] ?? []}
 								activeWordIndex={activeWordMap[m.id] ?? -1}
 							/>
@@ -169,7 +168,6 @@
 						{#each conversationMessages as m (m.id)}
 							<MessageBubble
 								message={m}
-								conversationLanguage={lang}
 								wordTimings={wordTimingMap[m.id] ?? []}
 								activeWordIndex={activeWordMap[m.id] ?? -1}
 							/>

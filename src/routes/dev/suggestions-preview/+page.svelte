@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ConversationSuggestionsPreview from '$lib/features/analysis/components/ConversationSuggestionsPreview.svelte';
+	import UnifiedConversationBubble from '$lib/features/analysis/components/UnifiedConversationBubble.svelte';
 	import type { AnalysisMessage } from '$lib/features/analysis/services/analysis.service';
 	import type { AnalysisSuggestion } from '$lib/features/analysis/types/analysis-suggestion.types';
 
@@ -206,7 +206,7 @@
 		<div class="mb-6">
 			<h1 class="mb-2 text-3xl font-bold">🔍 Conversation Suggestions Preview</h1>
 			<p class="text-base-content/70">
-				Test the ConversationSuggestionsPreview component with side-by-side correction panels and different types of language learning suggestions
+				Test the UnifiedConversationBubble component with side-by-side correction panels and different types of language learning suggestions
 			</p>
 		</div>
 
@@ -308,10 +308,9 @@
 			<div class="card-body">
 				<h3 class="card-title">Preview</h3>
 				<div class="mt-4">
-					<ConversationSuggestionsPreview
+					<UnifiedConversationBubble
 						messages={currentMessages()}
 						suggestions={currentSuggestions()}
-						conversationLanguage={selectedScenario === 'scenario2' ? 'es' : 'en'}
 						{showSuggestions}
 					/>
 				</div>

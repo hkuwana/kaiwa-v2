@@ -3,8 +3,9 @@
 	import MessageBubble from '$lib/features/conversation/components/MessageBubble.svelte';
 	import { scenariosData } from '$lib/data/scenarios';
 	import { analysisSuggestionService } from '$lib/features/analysis/services/analysis-suggestion.service';
-	import ConversationSuggestionsPreview from '$lib/features/analysis/components/ConversationSuggestionsPreview.svelte';
+	import UnifiedConversationBubble from '$lib/features/analysis/components/UnifiedConversationBubble.svelte';
 	import type { AnalysisSuggestion } from '$lib/features/analysis/types/analysis-suggestion.types';
+	import ConversationReviewableState from '$lib/features/conversation/components/ConversationReviewableState.svelte';
 
 	type ModuleMeta = {
 		id: string;
@@ -40,6 +41,7 @@
 	let usageInfo = $state<any>(null);
 	let showUsageDetails = $state(false);
 	let showDebugInput = $state(false);
+	let showReviewableDemo = $state(false);
 
 	// Mock conversation samples with errors and expected corrections
 	const conversationSamples: Record<string, ConversationSample> = {
@@ -342,7 +344,6 @@
 									completionTokens: null,
 									messageIntent: null
 								} as any}
-								conversationLanguage={languageCode}
 								clickToToggle={false}
 							/>
 
@@ -724,7 +725,7 @@
 								</div>
 								<span class="badge badge-neutral badge-sm">{suggestions.length} suggestions</span>
 							</div>
-						<ConversationSuggestionsPreview {messages} {suggestions} conversationLanguage={languageCode} />
+						<UnifiedConversationBubble {messages} {suggestions} />
 						</div>
 					{/if}
 
@@ -959,6 +960,68 @@
 					Check browser console for detailed results
 				</div>
 			</div>
+		</section>
+
+		<!-- Reviewable State Demo -->
+		<section class="rounded-lg bg-base-100 p-6 shadow">
+			<div class="mb-4 flex items-center justify-between">
+				<h2 class="text-xl font-semibold">📋 Reviewable State Demo</h2>
+				<label class="flex cursor-pointer items-center gap-2">
+					<input type="checkbox" class="toggle toggle-primary" bind:checked={showReviewableDemo} />
+					<span>Show Demo</span>
+				</label>
+			</div>
+
+			{#if showReviewableDemo}
+				<div class="rounded-lg border border-info/20 bg-info/10 p-4 mb-4">
+					<h3 class="mb-2 font-medium text-info-content">🎭 Full Reviewable State Experience</h3>
+					<p class="text-sm text-info-content/80">
+						This demonstrates the complete conversation review experience with UnifiedConversationBubble integration,
+						including hover highlighting for suggestions.
+					</p>
+				</div>
+
+				<!-- Mock language object for the demo -->
+				{@const mockLanguage = { code: 'en', name: 'English', emoji: '🇺🇸' }}
+				{@const mockMessages = messages.map(msg => ({
+					...msg,
+					conversationId: conversationId,
+					sequenceId: null,
+					translatedContent: null,
+					sourceLanguage: null,
+					targetLanguage: null,
+					userNativeLanguage: null,
+					romanization: null,
+					hiragana: null,
+					otherScripts: null,
+					speechTimings: null,
+					translationConfidence: null,
+					translationProvider: null,
+					translationNotes: null,
+					isTranslated: false,
+					grammarAnalysis: null,
+					vocabularyAnalysis: null,
+					pronunciationScore: null,
+					audioUrl: null,
+					audioDuration: null,
+					difficultyLevel: null,
+					learningTags: null,
+					conversationContext: null,
+					messageIntent: null
+				}))}
+
+				<div class="rounded-lg border border-base-300 bg-base-50 p-4">
+					<ConversationReviewableState
+						messages={mockMessages}
+						language={mockLanguage}
+						onStartNewConversation={() => alert('Start new conversation clicked')}
+						onAnalyzeConversation={() => alert('Analyze conversation clicked')}
+						onGoHome={() => alert('Go home clicked')}
+						analysisResults={null}
+						showAnalysisResults={false}
+					/>
+				</div>
+			{/if}
 		</section>
 
 		<!-- Server Console Logging -->

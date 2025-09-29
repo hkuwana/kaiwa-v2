@@ -1,8 +1,9 @@
 <script lang="ts">
 	import type { Message, UserPreferences } from '$lib/server/db/types';
 	import type { Language } from '$lib/server/db/types';
-	import VirtualizedMessageList from './VirtualizedMessageList.svelte';
+	import UnifiedConversationBubble from '$lib/features/analysis/components/UnifiedConversationBubble.svelte';
 	import OnboardingResults from '$lib/features/scenarios/components/OnboardingResults.svelte';
+	import type { AnalysisMessage } from '$lib/features/analysis/services/analysis.service';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import ShareKaiwa from '$lib/components/ShareKaiwa.svelte';
 	import { track } from '$lib/analytics/posthog';
@@ -83,6 +84,39 @@
 	});
 
 	const isFree = $derived(userManager.isFree);
+
+	// Convert Message[] to AnalysisMessage[] for UnifiedConversationBubble
+	const analysisMessages = $derived(
+		displayMessages.map((message): AnalysisMessage => ({
+			id: message.id,
+			role: message.role,
+			content: message.content,
+			timestamp: message.timestamp
+		}))
+	);
+
+	// Mock suggestions for demonstration - in a real app these would come from analysis
+	const mockSuggestions = $derived(() => {
+		const suggestions: any[] = [];
+		// Add some mock suggestions to user messages for demo purposes
+		displayMessages.forEach((message, index) => {
+			if (message.role === 'user' && message.content.includes('want')) {
+				suggestions.push({
+					id: `suggestion-${index}-1`,
+					ruleId: 'politeness-suggestion',
+					category: 'Politeness',
+					severity: 'hint' as const,
+					messageId: message.id,
+					originalText: 'want',
+					suggestedText: 'would like',
+					explanation: 'Use "would like" instead of "want" for more polite requests',
+					example: 'I would like to try that dish.',
+					offsets: { start: message.content.indexOf('want'), end: message.content.indexOf('want') + 4 }
+				});
+			}
+		});
+		return suggestions;
+	});
 
 	function handleUpsellClick() {
 		track('upsell_banner_clicked', {
@@ -449,11 +483,10 @@
 				</button>
 			</h2>
 
-			<VirtualizedMessageList
-				messages={displayMessages}
-				conversationLanguage={language?.code}
-				maxHeight="50vh"
-				autoScroll={true}
+			<UnifiedConversationBubble
+				messages={analysisMessages}
+				suggestions={mockSuggestions()}
+				showSuggestions={true}
 			/>
 		</div>
 

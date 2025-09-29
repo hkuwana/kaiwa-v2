@@ -244,7 +244,6 @@
 									<div>
 										<MessageBubble
 											{message}
-											conversationLanguage={selectedLanguage?.code}
 											dispatch={() => {}}
 										/>
 									</div>
