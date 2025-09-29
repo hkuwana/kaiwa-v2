@@ -13,7 +13,9 @@ export const GET = async ({ params, cookies }) => {
 
 		const { id: conversationId, messageId } = params;
 		if (!conversationId || !messageId) {
-			return json(createErrorResponse('Conversation ID and Message ID are required'), { status: 400 });
+			return json(createErrorResponse('Conversation ID and Message ID are required'), {
+				status: 400
+			});
 		}
 
 		const conversation = await conversationRepository.findConversationById(conversationId);
@@ -47,7 +49,9 @@ export const PUT = async ({ params, request, cookies }) => {
 
 		const { id: conversationId, messageId } = params;
 		if (!conversationId || !messageId) {
-			return json(createErrorResponse('Conversation ID and Message ID are required'), { status: 400 });
+			return json(createErrorResponse('Conversation ID and Message ID are required'), {
+				status: 400
+			});
 		}
 
 		const conversation = await conversationRepository.findConversationById(conversationId);
@@ -97,7 +101,9 @@ export const DELETE = async ({ params, cookies }) => {
 
 		const { id: conversationId, messageId } = params;
 		if (!conversationId || !messageId) {
-			return json(createErrorResponse('Conversation ID and Message ID are required'), { status: 400 });
+			return json(createErrorResponse('Conversation ID and Message ID are required'), {
+				status: 400
+			});
 		}
 
 		const conversation = await conversationRepository.findConversationById(conversationId);

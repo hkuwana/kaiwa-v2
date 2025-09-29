@@ -162,16 +162,20 @@ export class UserUsageRepository {
 			updateData.basicAnalysesUsed = (current.basicAnalysesUsed || 0) + updates.basicAnalysesUsed;
 		}
 		if (updates.advancedGrammarUsed !== undefined) {
-			updateData.advancedGrammarUsed = (current.advancedGrammarUsed || 0) + updates.advancedGrammarUsed;
+			updateData.advancedGrammarUsed =
+				(current.advancedGrammarUsed || 0) + updates.advancedGrammarUsed;
 		}
 		if (updates.fluencyAnalysisUsed !== undefined) {
-			updateData.fluencyAnalysisUsed = (current.fluencyAnalysisUsed || 0) + updates.fluencyAnalysisUsed;
+			updateData.fluencyAnalysisUsed =
+				(current.fluencyAnalysisUsed || 0) + updates.fluencyAnalysisUsed;
 		}
 		if (updates.onboardingProfileUsed !== undefined) {
-			updateData.onboardingProfileUsed = (current.onboardingProfileUsed || 0) + updates.onboardingProfileUsed;
+			updateData.onboardingProfileUsed =
+				(current.onboardingProfileUsed || 0) + updates.onboardingProfileUsed;
 		}
 		if (updates.pronunciationAnalysisUsed !== undefined) {
-			updateData.pronunciationAnalysisUsed = (current.pronunciationAnalysisUsed || 0) + updates.pronunciationAnalysisUsed;
+			updateData.pronunciationAnalysisUsed =
+				(current.pronunciationAnalysisUsed || 0) + updates.pronunciationAnalysisUsed;
 		}
 		if (updates.speechRhythmUsed !== undefined) {
 			updateData.speechRhythmUsed = (current.speechRhythmUsed || 0) + updates.speechRhythmUsed;

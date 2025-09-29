@@ -296,7 +296,9 @@ async function handleServerAnalysis(options: ServerAnalysisOptions): Promise<Ana
 			moduleResults: Array<{ summary: string; moduleId: string; recommendations?: string[] }>;
 		};
 
-		const insights = run.moduleResults.flatMap((moduleResult) => moduleResult.recommendations || [moduleResult.summary]);
+		const insights = run.moduleResults.flatMap(
+			(moduleResult) => moduleResult.recommendations || [moduleResult.summary]
+		);
 
 		const currentExchanges = userPreferencesProvider.getPreference('successfulExchanges') || 0;
 		await userPreferencesProvider.updatePreferences({ successfulExchanges: currentExchanges + 1 });

@@ -46,18 +46,36 @@ export async function createCompletion(
 		responseFormat = 'text'
 	} = options;
 
+	const requestPayload = {
+		model,
+		messages,
+		temperature,
+		max_tokens: maxTokens,
+		...(responseFormat === 'json' && {
+			response_format: { type: 'json_object' as const }
+		})
+	};
+
+	console.log('🤖 [OpenAI Service] Raw Request to OpenAI:', {
+		timestamp: new Date().toISOString(),
+		requestPayload: JSON.stringify(requestPayload, null, 2),
+		messagesCount: messages.length,
+		totalPromptChars: messages.reduce((sum, msg) => sum + (msg.content?.length || 0), 0)
+	});
+
 	try {
-		const completion = await openai.chat.completions.create({
-			model,
-			messages,
-			temperature,
-			max_tokens: maxTokens,
-			...(responseFormat === 'json' && {
-				response_format: { type: 'json_object' }
-			})
-		});
+		const completion = await openai.chat.completions.create(requestPayload);
 
 		const content = completion.choices[0]?.message?.content || '';
+
+		console.log('🤖 [OpenAI Service] Raw Response from OpenAI:', {
+			timestamp: new Date().toISOString(),
+			fullResponse: JSON.stringify(completion, null, 2),
+			extractedContent: content,
+			usage: completion.usage,
+			finishReason: completion.choices[0]?.finish_reason,
+			responseContentLength: content.length
+		});
 
 		return {
 			content,
@@ -70,7 +88,12 @@ export async function createCompletion(
 				: undefined
 		};
 	} catch (error) {
-		console.error('OpenAI API error:', error);
+		console.error('🚨 [OpenAI Service] API Error:', {
+			timestamp: new Date().toISOString(),
+			error: error,
+			requestPayload: requestPayload,
+			errorMessage: error instanceof Error ? error.message : 'Unknown error'
+		});
 		throw new Error(
 			`OpenAI completion failed: ${error instanceof Error ? error.message : 'Unknown error'}`
 		);

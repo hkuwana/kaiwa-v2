@@ -58,10 +58,7 @@ const ANALYSIS_CONFIG = {
 		}
 	},
 	modules: {
-		assessmentModules: [
-			'language-level-assessment',
-			'onboarding-profile'
-		],
+		assessmentModules: ['language-level-assessment', 'onboarding-profile'],
 		analysisModules: [
 			'quick-stats',
 			'grammar-suggestions',
@@ -69,10 +66,7 @@ const ANALYSIS_CONFIG = {
 			'fluency-analysis',
 			'phrase-suggestions'
 		],
-		audioModules: [
-			'pronunciation-analysis',
-			'speech-rhythm'
-		]
+		audioModules: ['pronunciation-analysis', 'speech-rhythm']
 	},
 	practicalLevels: {
 		'A1.1': {
@@ -135,7 +129,7 @@ const ANALYSIS_CONFIG = {
 			scenarios: ['cultural-nuances', 'humor-appreciation', 'emotional-expression'],
 			estimatedHours: '1000+ hours of practice'
 		},
-		'C2': {
+		C2: {
 			level: 'expert',
 			description: 'Expert-level communication',
 			scenarios: ['professional-negotiation', 'academic-conference', 'literary-analysis'],

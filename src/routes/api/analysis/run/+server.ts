@@ -53,7 +53,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		});
 	} catch (error) {
 		console.error('Failed to run analysis', error);
-		return json({ error: error instanceof Error ? error.message : 'Analysis failed' }, { status: 500 });
+		return json(
+			{ error: error instanceof Error ? error.message : 'Analysis failed' },
+			{ status: 500 }
+		);
 	}
 };
 

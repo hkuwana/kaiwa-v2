@@ -6,7 +6,7 @@ import { getUserCurrentTier } from '$lib/server/services/payment.service';
 // Simplified MVP approach: monthly limits only
 const ANALYSIS_LIMITS = {
 	free: {
-		'basic': 50,
+		basic: 50,
 		'advanced-grammar': 10,
 		'fluency-analysis': 5,
 		'onboarding-profile': 1,
@@ -14,7 +14,7 @@ const ANALYSIS_LIMITS = {
 		'speech-rhythm': 3
 	},
 	pro: {
-		'basic': 500,
+		basic: 500,
 		'advanced-grammar': 100,
 		'fluency-analysis': 50,
 		'onboarding-profile': 5,
@@ -22,7 +22,7 @@ const ANALYSIS_LIMITS = {
 		'speech-rhythm': 25
 	},
 	premium: {
-		'basic': 2000,
+		basic: 2000,
 		'advanced-grammar': 500,
 		'fluency-analysis': 200,
 		'onboarding-profile': 20,
@@ -71,7 +71,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		}
 
 		// Get limits for user tier
-		const limits = ANALYSIS_LIMITS[userTier as keyof typeof ANALYSIS_LIMITS] || ANALYSIS_LIMITS.free;
+		const limits =
+			ANALYSIS_LIMITS[userTier as keyof typeof ANALYSIS_LIMITS] || ANALYSIS_LIMITS.free;
 		const monthlyLimit = limits[analysisType as keyof typeof limits] || limits['basic'];
 
 		// Check if allowed
@@ -100,12 +101,8 @@ export const POST: RequestHandler = async ({ request }) => {
 			tier: userTier,
 			upgradeRecommendations
 		});
-
 	} catch (error) {
 		console.error('Error checking analysis usage:', error);
-		return json(
-			{ error: 'Failed to check analysis usage' },
-			{ status: 500 }
-		);
+		return json({ error: 'Failed to check analysis usage' }, { status: 500 });
 	}
 };

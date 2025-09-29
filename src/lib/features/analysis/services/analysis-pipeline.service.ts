@@ -1,15 +1,11 @@
 import { messagesRepository } from '$lib/server/repositories/messages.repository';
-import {
-	getAnalysisModule,
-	listAnalysisModules
-} from './module-registry';
+import { getAnalysisModule, listAnalysisModules } from './module-registry';
 import type {
 	AnalysisModuleContext,
 	AnalysisModuleDefinition,
 	AnalysisModuleId,
 	AnalysisModuleResult
 } from '../types/analysis-module.types';
-
 
 type PipelineMessage = {
 	id: string;
@@ -42,11 +38,11 @@ export class AnalysisPipelineService {
 		const sourceMessages: PipelineMessage[] = options.messagesOverride
 			? options.messagesOverride
 			: (await messagesRepository.getConversationMessages(options.conversationId)).map((msg) => ({
-				id: msg.id,
-				role: msg.role,
-				content: msg.content,
-				timestamp: msg.timestamp ?? undefined
-			}));
+					id: msg.id,
+					role: msg.role,
+					content: msg.content,
+					timestamp: msg.timestamp ?? undefined
+				}));
 
 		if (!sourceMessages || sourceMessages.length === 0) {
 			throw new Error('No conversation messages found for analysis');

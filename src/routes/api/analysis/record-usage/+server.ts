@@ -63,7 +63,6 @@ export const POST = async ({ request, locals }) => {
 				speechRhythmUsed: updatedUsage.speechRhythmUsed
 			}
 		});
-
 	} catch (error) {
 		console.error('Failed to record analysis usage:', error);
 		return json({ error: 'Failed to record analysis usage' }, { status: 500 });

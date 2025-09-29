@@ -63,12 +63,16 @@ export const userPreferences = pgTable(
 		practicalLevel: text('practical_level').default('basic-greetings').notNull(), // User-friendly description
 		confidenceScore: integer('confidence_score').default(50).notNull(), // 0-100
 		lastLevelAssessment: timestamp('last_level_assessment'),
-		levelProgression: jsonb('level_progression').$type<Array<{
-			level: string;
-			practicalLevel: string;
-			achievedAt: string; // ISO date string
-			confidenceAtTime: number;
-		}>>().default([]),
+		levelProgression: jsonb('level_progression')
+			.$type<
+				Array<{
+					level: string;
+					practicalLevel: string;
+					achievedAt: string; // ISO date string
+					confidenceAtTime: number;
+				}>
+			>()
+			.default([]),
 
 		// Confidence tracking
 		speakingConfidence: integer('speaking_confidence').default(25).notNull(),

@@ -596,10 +596,16 @@ export async function replaceUserPlaceholderWithFinalAndFurigana(
 				updatedMessages[placeholderIndex] = updatedMessage;
 
 				// Trigger server-side generation and database storage
-				                generateAndStoreScriptsForMessage(finalMessage.conversationId, finalMessage.id, finalText, scriptLanguage)
-				                    .then((success) => {
-				                        if (success) {
-				                            console.log('✅ Server-side scripts generated and stored for user message');						} else {
+				generateAndStoreScriptsForMessage(
+					finalMessage.conversationId,
+					finalMessage.id,
+					finalText,
+					scriptLanguage
+				)
+					.then((success) => {
+						if (success) {
+							console.log('✅ Server-side scripts generated and stored for user message');
+						} else {
 							console.warn('⚠️ Server-side script generation failed for user message');
 						}
 					})

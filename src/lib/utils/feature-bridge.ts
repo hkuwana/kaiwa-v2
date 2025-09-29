@@ -50,7 +50,9 @@ export class FeatureBridge {
 	/**
 	 * Pass conversation data to analysis feature
 	 */
-	static async passToAnalysis(conversationData: ConversationEndData): Promise<AnalysisResults | null> {
+	static async passToAnalysis(
+		conversationData: ConversationEndData
+	): Promise<AnalysisResults | null> {
 		try {
 			// Dynamic import to avoid circular dependencies
 			// @ts-ignore - Vite dynamic import limitation
@@ -80,13 +82,18 @@ export class FeatureBridge {
 	static async evaluateForSharing(analysisResults: AnalysisResults): Promise<ShareableMoment[]> {
 		try {
 			// @ts-ignore - Vite dynamic import limitation
-			const culturalDnaFeature = await import(/* @vite-ignore */ '$lib/features/cultural-dna/index.js');
+			const culturalDnaFeature = await import(
+				/* @vite-ignore */ '$lib/features/cultural-dna/index.js'
+			);
 
 			if (culturalDnaFeature.evaluateShareableMoments) {
 				const moments = await culturalDnaFeature.evaluateShareableMoments(analysisResults);
 
 				// Emit event for UI updates
-				this.emit('sharable-moments-detected', { moments, analysisId: analysisResults.conversationId });
+				this.emit('sharable-moments-detected', {
+					moments,
+					analysisId: analysisResults.conversationId
+				});
 
 				return moments;
 			}
@@ -105,7 +112,9 @@ export class FeatureBridge {
 	static async triggerOnboarding(type: 'user' | 'feature', context: any): Promise<void> {
 		try {
 			// @ts-ignore - Vite dynamic import limitation
-			const onboardingFeature = await import(/* @vite-ignore */ '$lib/features/onboarding/index.js');
+			const onboardingFeature = await import(
+				/* @vite-ignore */ '$lib/features/onboarding/index.js'
+			);
 
 			if (onboardingFeature.startOnboarding) {
 				await onboardingFeature.startOnboarding(type, context);
@@ -153,7 +162,7 @@ export class FeatureBridge {
 				timestamp: Date.now()
 			};
 
-			listeners.forEach(callback => {
+			listeners.forEach((callback) => {
 				try {
 					callback(notification);
 				} catch (error) {
@@ -163,7 +172,10 @@ export class FeatureBridge {
 		}
 	}
 
-	static subscribe(event: string, callback: (notification: FeatureNotification) => void): () => void {
+	static subscribe(
+		event: string,
+		callback: (notification: FeatureNotification) => void
+	): () => void {
 		if (!this.eventListeners.has(event)) {
 			this.eventListeners.set(event, new Set());
 		}

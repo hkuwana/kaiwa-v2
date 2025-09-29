@@ -69,20 +69,23 @@ export const canUseFeature = (
 	const limits = getTierLimits(user.tier);
 
 	switch (feature) {
-		case 'continue-conversation':
-			{ if (limits.maxMessagesPerConversation === -1) return true;
+		case 'continue-conversation': {
+			if (limits.maxMessagesPerConversation === -1) return true;
 			const messageCount = context?.messageCount || 0;
-			return messageCount < limits.maxMessagesPerConversation; }
+			return messageCount < limits.maxMessagesPerConversation;
+		}
 
-		case 'start-conversation':
-			{ if (limits.maxConversationsPerDay === -1) return true;
+		case 'start-conversation': {
+			if (limits.maxConversationsPerDay === -1) return true;
 			const todayCount = context?.conversationsToday || 0;
-			return todayCount < limits.maxConversationsPerDay; }
+			return todayCount < limits.maxConversationsPerDay;
+		}
 
-		case 'run-analysis':
-			{ if (limits.maxAnalysisPerMonth === -1) return true;
+		case 'run-analysis': {
+			if (limits.maxAnalysisPerMonth === -1) return true;
 			const monthlyCount = context?.analysisThisMonth || 0;
-			return monthlyCount < limits.maxAnalysisPerMonth; }
+			return monthlyCount < limits.maxAnalysisPerMonth;
+		}
 
 		case 'share-content':
 			return limits.canShareContent;

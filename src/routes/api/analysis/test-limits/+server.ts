@@ -22,11 +22,14 @@ export const POST: RequestHandler = async ({ request }) => {
 		// If allowed, test recording usage
 		let recordResult = null;
 		if (checkResult.allowed) {
-			const recordResponse = await fetch(`${request.url.replace('/test-limits', '/record-usage')}`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ userId, analysisType })
-			});
+			const recordResponse = await fetch(
+				`${request.url.replace('/test-limits', '/record-usage')}`,
+				{
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ userId, analysisType })
+				}
+			);
 			recordResult = await recordResponse.json();
 		}
 
@@ -37,7 +40,6 @@ export const POST: RequestHandler = async ({ request }) => {
 			recordResult,
 			testStatus: 'completed'
 		});
-
 	} catch (error) {
 		console.error('Test error:', error);
 		return json(

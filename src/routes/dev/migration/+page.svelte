@@ -129,7 +129,9 @@
 			<h2 class="mb-6 text-2xl font-bold text-white">🤔 When to Break Out of Simple Structure?</h2>
 
 			<div class="mb-8">
-				<h3 class="mb-4 text-lg font-semibold text-green-400">✅ Start Simple: services/stores/components</h3>
+				<h3 class="mb-4 text-lg font-semibold text-green-400">
+					✅ Start Simple: services/stores/components
+				</h3>
 				<div class="rounded-lg bg-green-900/20 p-4">
 					<pre class="text-sm text-green-300">{`// features/payments/services/payments.service.ts
 export class PaymentsService {
@@ -151,35 +153,53 @@ export class PaymentsService {
 				<h3 class="mb-4 text-lg font-semibold text-orange-400">⚠️ When Complexity Emerges</h3>
 				<div class="grid gap-4 md:grid-cols-3">
 					<div class="rounded-lg bg-gray-800/50 p-4">
-						<h4 class="text-sm font-medium text-orange-400 mb-2">Processors Needed</h4>
-						<p class="text-xs text-gray-400">When you have 5+ data processing functions that could be separate files</p>
+						<h4 class="mb-2 text-sm font-medium text-orange-400">Processors Needed</h4>
+						<p class="text-xs text-gray-400">
+							When you have 5+ data processing functions that could be separate files
+						</p>
 					</div>
 					<div class="rounded-lg bg-gray-800/50 p-4">
-						<h4 class="text-sm font-medium text-orange-400 mb-2">Config Gets Large</h4>
-						<p class="text-xs text-gray-400">When configuration is 100+ lines or used by multiple files</p>
+						<h4 class="mb-2 text-sm font-medium text-orange-400">Config Gets Large</h4>
+						<p class="text-xs text-gray-400">
+							When configuration is 100+ lines or used by multiple files
+						</p>
 					</div>
 					<div class="rounded-lg bg-gray-800/50 p-4">
-						<h4 class="text-sm font-medium text-orange-400 mb-2">Orchestration Needed</h4>
-						<p class="text-xs text-gray-400">When you need to coordinate 3+ processors with complex logic</p>
+						<h4 class="mb-2 text-sm font-medium text-orange-400">Orchestration Needed</h4>
+						<p class="text-xs text-gray-400">
+							When you need to coordinate 3+ processors with complex logic
+						</p>
 					</div>
 				</div>
 			</div>
 
 			<div class="mb-8">
-				<h3 class="mb-4 text-lg font-semibold text-blue-400">🔧 Analysis Feature Example (Why It's Complex)</h3>
+				<h3 class="mb-4 text-lg font-semibold text-blue-400">
+					🔧 Analysis Feature Example (Why It's Complex)
+				</h3>
 				<div class="grid gap-4 md:grid-cols-2">
 					<div>
-						<h4 class="text-sm font-medium text-gray-400 mb-3">Why Break It Out:</h4>
-						<ul class="text-sm text-gray-400 space-y-2">
-							<li>• <strong>5+ different analysis types:</strong> grammar, vocabulary, fluency, pronunciation, cultural</li>
-							<li>• <strong>Each analysis = 100+ lines:</strong> Complex algorithms for each type</li>
-							<li>• <strong>Complex configuration:</strong> What analysis runs when, for which languages</li>
-							<li>• <strong>Needs orchestration:</strong> Run multiple analyses, combine results, handle errors</li>
+						<h4 class="mb-3 text-sm font-medium text-gray-400">Why Break It Out:</h4>
+						<ul class="space-y-2 text-sm text-gray-400">
+							<li>
+								• <strong>5+ different analysis types:</strong> grammar, vocabulary, fluency, pronunciation,
+								cultural
+							</li>
+							<li>
+								• <strong>Each analysis = 100+ lines:</strong> Complex algorithms for each type
+							</li>
+							<li>
+								• <strong>Complex configuration:</strong> What analysis runs when, for which languages
+							</li>
+							<li>
+								• <strong>Needs orchestration:</strong> Run multiple analyses, combine results, handle
+								errors
+							</li>
 						</ul>
 					</div>
 					<div>
-						<h4 class="text-sm font-medium text-gray-400 mb-3">Solution:</h4>
-						<pre class="text-sm text-gray-300 bg-gray-900/50 rounded p-3">{`services/
+						<h4 class="mb-3 text-sm font-medium text-gray-400">Solution:</h4>
+						<pre class="rounded bg-gray-900/50 p-3 text-sm text-gray-300">{`services/
 ├── analysis-orchestrator.service.ts    # 50 lines
 ├── processors/                         # Each 100+ lines
 │   ├── grammar.processor.ts
@@ -192,12 +212,16 @@ export class PaymentsService {
 				</div>
 			</div>
 
-			<div class="rounded-lg bg-red-900/20 border border-red-500/30 p-6">
-				<h3 class="mb-4 text-lg font-semibold text-red-400">❌ Don't Over-Engineer Simple Features</h3>
+			<div class="rounded-lg border border-red-500/30 bg-red-900/20 p-6">
+				<h3 class="mb-4 text-lg font-semibold text-red-400">
+					❌ Don't Over-Engineer Simple Features
+				</h3>
 				<div class="grid gap-4 md:grid-cols-2">
 					<div>
-						<h4 class="text-sm font-medium text-gray-400 mb-3">Bad: Settings Feature (Too Complex)</h4>
-						<pre class="text-sm text-red-300 bg-red-900/30 rounded p-3">{`settings/
+						<h4 class="mb-3 text-sm font-medium text-gray-400">
+							Bad: Settings Feature (Too Complex)
+						</h4>
+						<pre class="rounded bg-red-900/30 p-3 text-sm text-red-300">{`settings/
 ├── services/
 │   ├── settings-orchestrator.service.ts  # 20 lines
 │   └── processors/
@@ -206,8 +230,8 @@ export class PaymentsService {
     └── themes.config.ts                  # 5 lines`}</pre>
 					</div>
 					<div>
-						<h4 class="text-sm font-medium text-gray-400 mb-3">Good: Keep It Simple</h4>
-						<pre class="text-sm text-green-300 bg-green-900/30 rounded p-3">{`settings/
+						<h4 class="mb-3 text-sm font-medium text-gray-400">Good: Keep It Simple</h4>
+						<pre class="rounded bg-green-900/30 p-3 text-sm text-green-300">{`settings/
 ├── services/
 │   └── settings.service.ts               # 35 lines total
 ├── stores/
@@ -223,7 +247,7 @@ export class PaymentsService {
 				<div class="grid gap-4 md:grid-cols-2">
 					<div>
 						<p class="text-sm text-blue-300"><strong>Keep it simple if:</strong></p>
-						<ul class="text-sm text-gray-400 space-y-1 mt-2">
+						<ul class="mt-2 space-y-1 text-sm text-gray-400">
 							<li>• Service file under 200 lines</li>
 							<li>• Less than 8 methods</li>
 							<li>• Config under 50 lines</li>
@@ -232,7 +256,7 @@ export class PaymentsService {
 					</div>
 					<div>
 						<p class="text-sm text-blue-300"><strong>Break it out when:</strong></p>
-						<ul class="text-sm text-gray-400 space-y-1 mt-2">
+						<ul class="mt-2 space-y-1 text-sm text-gray-400">
 							<li>• Service file over 200 lines</li>
 							<li>• 10+ methods doing very different things</li>
 							<li>• Config over 100 lines or shared</li>
@@ -383,7 +407,7 @@ export class FeatureBridge {
 						<div>
 							<h4 class="mb-2 text-sm font-medium text-gray-300">1. Create Directory Structure</h4>
 							<pre
-								class="rounded bg-gray-900 p-2 text-xs text-gray-300">{`mkdir -p src/lib/features`}</pre>
+								class="rounded bg-gray-900 p-2 text-xs text-gray-300">mkdir -p src/lib/features</pre>
 						</div>
 						<div>
 							<h4 class="mb-2 text-sm font-medium text-gray-300">2. Verify Shared Structure</h4>

@@ -206,7 +206,12 @@ class UsageStore {
 		monthlyRemaining: number;
 	}> {
 		if (!this.userId) {
-			return { allowed: false, reason: 'User not authenticated', dailyRemaining: 0, monthlyRemaining: 0 };
+			return {
+				allowed: false,
+				reason: 'User not authenticated',
+				dailyRemaining: 0,
+				monthlyRemaining: 0
+			};
 		}
 
 		try {
@@ -232,7 +237,12 @@ class UsageStore {
 			};
 		} catch (error) {
 			console.error('Error checking analysis usage:', error);
-			return { allowed: false, reason: 'Error checking usage limits', dailyRemaining: 0, monthlyRemaining: 0 };
+			return {
+				allowed: false,
+				reason: 'Error checking usage limits',
+				dailyRemaining: 0,
+				monthlyRemaining: 0
+			};
 		}
 	}
 

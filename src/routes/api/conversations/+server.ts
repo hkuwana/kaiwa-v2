@@ -2,7 +2,6 @@ import { json } from '@sveltejs/kit';
 import { conversationRepository } from '$lib/server/repositories/conversation.repository';
 import { messagesRepository } from '$lib/server/repositories/messages.repository';
 import { createErrorResponse, createSuccessResponse } from '$lib/types/api';
-import { getUserFromSession } from '$lib/server/auth';
 
 export const POST = async ({ request, locals }) => {
 	try {

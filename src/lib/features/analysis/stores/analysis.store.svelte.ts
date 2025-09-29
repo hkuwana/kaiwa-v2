@@ -2,8 +2,7 @@ import { analysisService } from '../services/analysis.service';
 import type {
 	AnalysisMessage,
 	AnalysisRunResult,
-	LevelAssessmentResult,
-	LanguageLevel
+	LevelAssessmentResult
 } from '../services/analysis.service';
 
 interface AnalysisState {
@@ -37,11 +36,21 @@ export class AnalysisStore {
 	});
 
 	// Derived reactive values
-	get currentRun() { return this._state.currentRun; }
-	get isRunning() { return this._state.isRunning; }
-	get error() { return this._state.error; }
-	get lastAssessment() { return this._state.lastAssessment; }
-	get availableModules() { return this._state.availableModules; }
+	get currentRun() {
+		return this._state.currentRun;
+	}
+	get isRunning() {
+		return this._state.isRunning;
+	}
+	get error() {
+		return this._state.error;
+	}
+	get lastAssessment() {
+		return this._state.lastAssessment;
+	}
+	get availableModules() {
+		return this._state.availableModules;
+	}
 
 	/**
 	 * Run analysis on conversation messages
@@ -67,7 +76,6 @@ export class AnalysisStore {
 			);
 
 			this._state.currentRun = result;
-
 		} catch (error) {
 			this._state.error = error instanceof Error ? error.message : 'Analysis failed';
 		} finally {

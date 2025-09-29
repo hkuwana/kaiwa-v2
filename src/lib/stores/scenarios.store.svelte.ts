@@ -40,7 +40,7 @@ export class ScenariosStore {
 		this.selectedScenario = scenario;
 
 		// Notify all subscribing features
-		this.subscribers.forEach(callback => {
+		this.subscribers.forEach((callback) => {
 			try {
 				callback(scenario);
 			} catch (error) {
@@ -65,7 +65,7 @@ export class ScenariosStore {
 	 * Set scenario by ID
 	 */
 	setScenarioById(scenarioId: string): boolean {
-		const scenario = this.allScenarios.find(s => s.id === scenarioId);
+		const scenario = this.allScenarios.find((s) => s.id === scenarioId);
 		if (scenario) {
 			this.setSelectedScenario(scenario);
 			return true;
@@ -77,16 +77,14 @@ export class ScenariosStore {
 	 * Get scenarios by type/category
 	 */
 	getScenariosByType(type: string): Scenario[] {
-		return this.allScenarios.filter(scenario =>
-			scenario.category === type
-		);
+		return this.allScenarios.filter((scenario) => scenario.category === type);
 	}
 
 	/**
 	 * Get scenarios by difficulty
 	 */
 	getScenariosByDifficulty(difficulty: 'beginner' | 'intermediate' | 'advanced'): Scenario[] {
-		return this.allScenarios.filter(scenario => scenario.difficulty === difficulty);
+		return this.allScenarios.filter((scenario) => scenario.difficulty === difficulty);
 	}
 
 	/**
@@ -94,7 +92,7 @@ export class ScenariosStore {
 	 */
 	addCustomScenario(scenario: Scenario) {
 		// Check if already exists
-		const exists = this.customScenarios.some(s => s.id === scenario.id);
+		const exists = this.customScenarios.some((s) => s.id === scenario.id);
 		if (!exists) {
 			this.customScenarios = [...this.customScenarios, scenario];
 			this.saveUserScenarios();
@@ -106,7 +104,7 @@ export class ScenariosStore {
 	 */
 	updateRecommendations(recommendedScenarios: Scenario[]) {
 		// Notify features about new recommendations
-		this.recommendationSubscribers.forEach(callback => {
+		this.recommendationSubscribers.forEach((callback) => {
 			try {
 				callback(recommendedScenarios);
 			} catch (error) {
@@ -154,7 +152,7 @@ export class ScenariosStore {
 			if (savedSelected) {
 				const scenario = JSON.parse(savedSelected);
 				// Verify scenario still exists
-				const exists = this.allScenarios.some(s => s.id === scenario.id);
+				const exists = this.allScenarios.some((s) => s.id === scenario.id);
 				if (exists) {
 					this.selectedScenario = scenario;
 				}
@@ -196,7 +194,7 @@ export class ScenariosStore {
 	searchScenarios(query: string): Scenario[] {
 		const lowerQuery = query.toLowerCase();
 		return this.allScenarios.filter(
-			scenario =>
+			(scenario) =>
 				scenario.title.toLowerCase().includes(lowerQuery) ||
 				scenario.description.toLowerCase().includes(lowerQuery)
 		);
@@ -209,7 +207,7 @@ export class ScenariosStore {
 		let available = this.availableScenarios;
 
 		if (excludeCurrent && this.selectedScenario) {
-			available = available.filter(s => s.id !== this.selectedScenario!.id);
+			available = available.filter((s) => s.id !== this.selectedScenario!.id);
 		}
 
 		if (available.length === 0) return null;

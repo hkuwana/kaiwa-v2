@@ -1,4 +1,13 @@
-import { pgTable, text, integer, timestamp, index, primaryKey, uuid, jsonb } from 'drizzle-orm/pg-core';
+import {
+	pgTable,
+	text,
+	integer,
+	timestamp,
+	index,
+	primaryKey,
+	uuid,
+	jsonb
+} from 'drizzle-orm/pg-core';
 import { users } from './users';
 
 // Track monthly usage for ALL users (free and paid) - Industry standard

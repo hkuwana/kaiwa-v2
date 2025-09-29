@@ -451,8 +451,8 @@
 						<div class="stat">
 							<div class="stat-title">Banked Seconds</div>
 							<div class="stat-value">
-								{Math.floor((usageStore.usage?.bankedSeconds || 0) / 60)}m {(usageStore.usage?.bankedSeconds || 0) %
-									60}s
+								{Math.floor((usageStore.usage?.bankedSeconds || 0) / 60)}m {(usageStore.usage
+									?.bankedSeconds || 0) % 60}s
 							</div>
 							<div class="stat-desc">Rolled over from last month</div>
 						</div>

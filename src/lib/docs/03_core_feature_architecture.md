@@ -102,6 +102,7 @@ The data flow is designed to maintain clear boundaries between layers.
 We migrate to feature-based architecture incrementally over 6 weeks:
 
 ### **Phase 1: Prepare Feature Structure (Week 1)**
+
 1. Create `src/lib/features/` directory
 2. Verify shared components in `$lib/` are properly organized
 3. Set up feature folder templates with simple 3-folder pattern:
@@ -110,24 +111,29 @@ We migrate to feature-based architecture incrementally over 6 weeks:
    - `stores/` - Feature state management
 
 ### **Phase 2: Extract Features (Week 2-3)**
+
 Priority order for extraction:
+
 1. **`realtime-conversation`** - Core conversation functionality
 2. **`analysis`** - Post-conversation analysis pipeline
 3. **`onboarding`** - User onboarding flow
 4. **`cultural-dna`** - Viral sharing feature
 
 For each feature:
+
 - Move feature-specific components, stores, services
 - Update import paths from `$lib/services/X` to `$lib/features/X/services/Y`
 - Ensure feature only imports from `$lib/*` (shared), never other features
 
 ### **Phase 3: Feature Bridges (Week 4)**
+
 1. Implement `FeatureBridge` utility for cross-feature communication
 2. Set up permission utilities for tier-based access control
 3. Create feature event system for loose coupling
 4. Test feature independence (no circular imports)
 
 ### **Phase 4: API Reorganization (Week 5-6)**
+
 1. Restructure API routes to resource-oriented approach:
    - `api/users/` - User management
    - `api/conversations/` - Conversation CRUD

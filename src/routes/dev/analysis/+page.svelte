@@ -37,6 +37,7 @@
 	let showRawAnalysis = $state(false);
 	let usageInfo = $state<any>(null);
 	let showUsageDetails = $state(false);
+	let showDebugInput = $state(false);
 
 	// Mock conversation samples with errors and expected corrections
 	const conversationSamples: Record<string, ConversationSample> = {
@@ -168,11 +169,6 @@
 
 	let messages = $derived(conversationSamples[selectedScenario]?.messages || []);
 
-	function runAnalysisWithSample() {
-		// Use the selected scenario messages for analysis
-		runAnalysis();
-	}
-
 	let isLoading = $state(false);
 	let lastRun: any = $state(null);
 	let errorMessage = $state<string | null>(null);
@@ -250,10 +246,6 @@
 			next.add(id);
 		}
 		selectedModuleIds = next;
-	}
-
-	function goToAnalysisPage() {
-		goto(`/analysis?mode=full&type=regular&sessionId=${conversationId}`);
 	}
 </script>
 
@@ -348,7 +340,7 @@
 
 							<!-- Error analysis -->
 							{#if showComparison && message.role === 'user' && (message.errors || message.expected)}
-								<div class="ml-14 rounded-lg border border-warning/20 bg-base p-4">
+								<div class="bg-base ml-14 rounded-lg border border-warning/20 p-4">
 									<div
 										class="mb-2 flex items-center gap-2 text-sm font-semibold text-warning-content"
 									>
@@ -484,23 +476,100 @@
 		<section class="rounded-lg bg-base-100 p-6 shadow">
 			<div class="mb-4 flex items-center justify-between">
 				<h2 class="text-xl font-semibold">Analysis Results</h2>
-				{#if lastRun}
+				<div class="flex gap-4">
 					<label class="flex cursor-pointer items-center gap-2">
-						<input type="checkbox" class="toggle toggle-sm" bind:checked={showRawAnalysis} />
-						<span class="text-sm">Show Raw JSON</span>
+						<input type="checkbox" class="toggle toggle-sm" bind:checked={showDebugInput} />
+						<span class="text-sm">Show Debug Input</span>
 					</label>
-				{/if}
+					{#if lastRun}
+						<label class="flex cursor-pointer items-center gap-2">
+							<input type="checkbox" class="toggle toggle-sm" bind:checked={showRawAnalysis} />
+							<span class="text-sm">Show Raw JSON</span>
+						</label>
+					{/if}
+				</div>
 			</div>
 
 			<div class="flex flex-wrap items-center gap-4">
 				<button class="btn btn-primary" onclick={runAnalysis} disabled={isLoading}>
 					{isLoading ? 'Running analysis…' : 'Run Analysis'}
 				</button>
-				<button class="btn btn-ghost" onclick={goToAnalysisPage}>Open Analysis Page</button>
 			</div>
 
 			{#if errorMessage}
 				<p class="mt-4 rounded bg-error/20 p-3 text-error">{errorMessage}</p>
+			{/if}
+
+			{#if showDebugInput}
+				<!-- Debug Input Display -->
+				<div class="mt-6 rounded-lg bg-base-200 p-4">
+					<div class="mb-4 flex items-center gap-2">
+						<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+							<path
+								fill-rule="evenodd"
+								d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+								clip-rule="evenodd"
+							></path>
+						</svg>
+						<h4 class="font-semibold">Analysis Input Data</h4>
+						<button
+							class="btn ml-auto btn-outline btn-xs"
+							onclick={() =>
+								navigator.clipboard.writeText(
+									JSON.stringify(
+										{
+											conversationId,
+											languageCode,
+											moduleIds: Array.from(selectedModuleIds),
+											messages: messages.map((m) => ({
+												id: m.id,
+												role: m.role,
+												content: m.content,
+												timestamp: m.timestamp
+											}))
+										},
+										null,
+										2
+									)
+								)}>Copy Input JSON</button
+						>
+					</div>
+					<div class="grid gap-4 md:grid-cols-2">
+						<div>
+							<h5 class="mb-2 font-medium text-base-content/80">Request Metadata</h5>
+							<div class="rounded bg-base-300 p-3 text-xs">
+								<div><strong>Conversation ID:</strong> {conversationId}</div>
+								<div><strong>Language Code:</strong> {languageCode}</div>
+								<div><strong>Selected Modules:</strong> {Array.from(selectedModuleIds).length}</div>
+								<div><strong>Messages Count:</strong> {messages.length}</div>
+								<div>
+									<strong>User Messages:</strong>
+									{messages.filter((m) => m.role === 'user').length}
+								</div>
+							</div>
+						</div>
+						<div>
+							<h5 class="mb-2 font-medium text-base-content/80">Selected Module IDs</h5>
+							<div class="rounded bg-base-300 p-3 text-xs">
+								<pre>{JSON.stringify(Array.from(selectedModuleIds), null, 2)}</pre>
+							</div>
+						</div>
+					</div>
+					<div class="mt-4">
+						<h5 class="mb-2 font-medium text-base-content/80">Messages for Analysis</h5>
+						<pre
+							class="max-h-64 overflow-auto rounded bg-base-300 p-3 text-xs text-base-content/80">{JSON.stringify(
+								messages.map((m) => ({
+									id: m.id,
+									role: m.role,
+									content: m.content,
+									timestamp: m.timestamp
+								})),
+								null,
+								2
+							)}</pre>
+					</div>
+				</div>
 			{/if}
 
 			{#if lastRun}
@@ -869,98 +938,34 @@
 			</div>
 		</section>
 
-		<!-- Fluency Metrics Recommendations -->
+		<!-- Server Console Logging -->
 		<section class="rounded-lg bg-base-100 p-6 shadow">
-			<h2 class="mb-4 text-xl font-semibold">💡 Better Fluency Metrics (No WPM!)</h2>
-			<div class="grid gap-6 md:grid-cols-2">
-				<div class="space-y-4">
-					<h3 class="flex items-center gap-2 text-lg font-medium">
-						<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-							<path
-								fill-rule="evenodd"
-								d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-								clip-rule="evenodd"
-							></path>
-						</svg>
-						Current Good Metrics
-					</h3>
-					<div class="space-y-3 text-sm">
-						<div class="rounded border border-success bg-success p-3">
-							<div class="font-medium text-success-content">Vocabulary Diversity</div>
-							<div class="text-success-content/80">
-								Unique words / total words ratio - shows lexical range
-							</div>
-						</div>
-						<div class="rounded border border-success/20 bg-success p-3">
-							<div class="font-medium text-success-content">Conversation Flow</div>
-							<div class="text-success-content/80">
-								Consistency of message lengths - natural rhythm
-							</div>
-						</div>
-						<div class="rounded border border-success/20 bg-success p-3">
-							<div class="font-medium text-success-content">Hesitation Patterns</div>
-							<div class="text-success-content/80">
-								Detects "um", "uh", "like" - confidence indicators
-							</div>
-						</div>
-						<div class="rounded border border-success/20 bg-success p-3">
-							<div class="font-medium text-success-content">Sentence Complexity</div>
-							<div class="text-success-content/80">
-								Average words per sentence - structural sophistication
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<div class="space-y-4">
-					<h3 class="flex items-center gap-2 text-lg font-medium">
-						<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-							<path
-								d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-							></path>
-						</svg>
-						Suggested Alternatives to WPM
-					</h3>
-					<div class="space-y-3 text-sm">
-						<div class="rounded border border-info/20 bg-info p-3">
-							<div class="font-medium text-info-content">Response Latency</div>
-							<div class="text-info-content/80">
-								Time to start responding - cognitive processing speed
-							</div>
-						</div>
-						<div class="rounded border border-info/20 bg-info p-3">
-							<div class="font-medium text-info-content">Grammar Accuracy Rate</div>
-							<div class="text-info-content/80">
-								Correct structures / total structures - precision
-							</div>
-						</div>
-						<div class="rounded border border-info/20 bg-info p-3">
-							<div class="font-medium text-info-content">Natural Rhythm Score</div>
-							<div class="text-info-content/80">Syllable timing patterns - not word speed</div>
-						</div>
-						<div class="rounded border border-info/20 bg-info p-3">
-							<div class="font-medium text-info-content">Contextual Coherence</div>
-							<div class="text-info-content/80">How well responses fit the conversation flow</div>
-						</div>
-						<div class="rounded border border-warning/20 bg-warning p-3">
-							<div class="font-medium text-warning-content">❌ Words Per Minute</div>
-							<div class="text-warning-content/80">
-								Not a good fluency indicator - speed ≠ fluency
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div class="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
-				<h4 class="mb-2 font-medium text-blue-900">🔧 Implementation Note</h4>
-				<p class="text-sm text-blue-800">
-					The current fluency processor at <code class="rounded bg-blue-100 px-1"
-						>src/lib/features/analysis/processors/fluency-analysis.processor.ts:107</code
-					>
-					calculates WPM on line 76. Consider replacing or de-emphasizing this metric in favor of the
-					alternatives above.
+			<h2 class="mb-4 text-xl font-semibold">🔍 Server Debug Console</h2>
+			<div class="rounded-lg border border-info/20 bg-info p-4">
+				<h3 class="mb-3 font-medium text-info-content">Real-time OpenAI Debugging</h3>
+				<p class="text-sm text-info-content/80">
+					The analysis modules now use real OpenAI processing. Check your server console to see:
 				</p>
+				<ul class="mt-2 list-inside list-disc space-y-1 text-sm text-info-content/80">
+					<li>
+						<strong>🤖 Raw Request to OpenAI:</strong> Full request payload with prompts and settings
+					</li>
+					<li><strong>🤖 Raw Response from OpenAI:</strong> Complete API response with metadata</li>
+					<li><strong>🚨 API Errors:</strong> Detailed error logging with request context</li>
+				</ul>
+				<div class="mt-4 rounded border border-info/10 bg-info/5 p-3">
+					<div class="font-mono text-xs text-info-content">
+						<div>📊 Request tracking includes:</div>
+						<div class="ml-2">• Timestamp and payload</div>
+						<div class="ml-2">• Message count and character counts</div>
+						<div class="ml-2">• Model and parameters used</div>
+						<br />
+						<div>📈 Response tracking includes:</div>
+						<div class="ml-2">• Full OpenAI response object</div>
+						<div class="ml-2">• Token usage statistics</div>
+						<div class="ml-2">• Finish reason and response length</div>
+					</div>
+				</div>
 			</div>
 		</section>
 	</div>

@@ -105,8 +105,6 @@ SESSION_SECRET=your-secret-here
 
 ### API Endpoints
 
- 
- 
 - `POST /api/tts` - Text → Audio (OpenAI TTS)
 
 ## 🎨 Usage Examples

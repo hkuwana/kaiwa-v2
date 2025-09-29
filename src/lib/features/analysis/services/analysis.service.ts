@@ -71,7 +71,7 @@ export class AnalysisService {
 				conversationId,
 				languageCode,
 				moduleIds,
-				messages: messages.map(msg => ({
+				messages: messages.map((msg) => ({
 					id: msg.id,
 					role: msg.role,
 					content: msg.content,
@@ -118,7 +118,7 @@ export class AnalysisService {
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
 				languageCode,
-				messages: messages.map(msg => ({
+				messages: messages.map((msg) => ({
 					id: msg.id,
 					role: msg.role,
 					content: msg.content,
@@ -150,13 +150,15 @@ export class AnalysisService {
 	/**
 	 * Get available analysis modules
 	 */
-	async getAvailableModules(): Promise<Array<{
-		id: string;
-		label: string;
-		description: string;
-		modality: 'text' | 'audio';
-		tier?: 'free' | 'pro' | 'premium';
-	}>> {
+	async getAvailableModules(): Promise<
+		Array<{
+			id: string;
+			label: string;
+			description: string;
+			modality: 'text' | 'audio';
+			tier?: 'free' | 'pro' | 'premium';
+		}>
+	> {
 		const response = await fetch(`${this.baseUrl}/modules`);
 
 		if (!response.ok) {
