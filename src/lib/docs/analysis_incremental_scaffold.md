@@ -26,6 +26,10 @@
    - Pass into `growthPlaybookService.buildCustom` for more precise reminder hooks.
 3. **Component QA**
    - Snapshot test the Svelte card (e.g., Playwright component test) to lock layout and copy placeholders.
+4. **Logbook Storage Layer**
+   - Ship the new `linguistic_features`, `analysis_findings`, and `user_feature_profiles` tables in code (no migration yet) and wire extraction to emit canonical `feature_id`s.
+   - Record `action_status` transitions (`pending → accepted/ignored/dismissed_auto`) the moment a suggestion card is tapped so we can validate engagement funnels early.
+   - Backfill scheduler stub that lowers `review_priority` whenever inferred mastery rises; audio hooks stay dormant until pronunciation feedback lands.
 
 ---
 

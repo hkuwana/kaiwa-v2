@@ -1,6 +1,11 @@
-// V2 Database Schemas - Advanced Features for Future Implementation
-// These schemas are moved here to keep the MVP clean and focused
-// They will be gradually added back as the application grows
+/**
+ * V2 Database Schemas - Advanced features planned for future implementation
+ *
+ * This directory contains enhanced schema definitions that extend beyond the MVP functionality.
+ * These schemas are organized here to keep the main schema directory focused on core features
+ * while providing a roadmap for future development. They include advanced learning analytics,
+ * detailed conversation tracking, sophisticated scenario management, and enhanced user experience features.
+ */
 
 // Advanced Learning Analytics
 export { userLearningStats } from './user-learning-stats';

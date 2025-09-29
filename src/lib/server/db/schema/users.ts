@@ -1,6 +1,13 @@
 import { pgTable, text, timestamp, uuid, index } from 'drizzle-orm/pg-core';
 
-// Core user management - simplified and focused
+/**
+ * Users table - Stores basic user account information
+ *
+ * This table holds the essential user data for the Kaiwa language learning app.
+ * It includes authentication info (Google OAuth, email/password), user preferences
+ * (native language, UI language), payment integration (Stripe customer ID),
+ * and basic tracking data like registration and last activity times.
+ */
 export const users = pgTable(
 	'users',
 	{

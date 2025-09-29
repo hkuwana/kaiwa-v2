@@ -1,6 +1,15 @@
 import { pgTable, text, timestamp, uuid, index } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
+/**
+ * Session table - Manages user authentication sessions
+ *
+ * This table stores active user authentication sessions for the app.
+ * Each session has a unique ID, links to a user account, and includes
+ * an expiration timestamp for automatic cleanup. Used by the authentication
+ * system to maintain user login state securely.
+ */
+
 export const session = pgTable(
 	'session',
 	{

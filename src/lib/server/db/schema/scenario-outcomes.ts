@@ -12,7 +12,15 @@ import { users } from './users';
 import { conversations } from './conversations';
 import { scenarios } from './scenarios';
 
-// 📊 SCENARIO OUTCOMES - Track learning progress and success
+/**
+ * Scenario Outcomes table - Records learning progress and success metrics for completed scenarios
+ *
+ * This table stores detailed assessment results after users complete learning scenarios.
+ * It tracks goal achievement, language proficiency scores (grammar, vocabulary, pronunciation),
+ * specific words used and missed, grammar errors made, AI-generated feedback and suggestions,
+ * and session metrics. Used for progress tracking, personalized learning recommendations,
+ * and measuring educational effectiveness.
+ */
 export const scenarioOutcomes = pgTable('scenario_outcomes', {
 	id: uuid('id').primaryKey().defaultRandom(),
 	userId: uuid('user_id')

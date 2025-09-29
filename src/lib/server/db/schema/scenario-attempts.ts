@@ -2,7 +2,15 @@ import { pgTable, uuid, text, integer, timestamp, json } from 'drizzle-orm/pg-co
 import { users } from './users';
 import { scenarios } from './scenarios';
 
-// 🔄 SCENARIO ATTEMPTS - Track multiple attempts at the same scenario
+/**
+ * Scenario Attempts table - Tracks user attempts at specific learning scenarios
+ *
+ * This table records each time a user attempts a learning scenario, allowing
+ * for multiple tries at the same scenario to track improvement over time.
+ * It captures completion status, progress through scenario steps, time spent,
+ * learning aids used (hints, translations), and where users might have
+ * abandoned the scenario. Used for learning analytics and progress tracking.
+ */
 export const scenarioAttempts = pgTable('scenario_attempts', {
 	id: uuid('id').primaryKey().defaultRandom(),
 	userId: uuid('user_id')

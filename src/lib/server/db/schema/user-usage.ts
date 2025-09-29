@@ -10,8 +10,15 @@ import {
 } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
-// Track monthly usage for ALL users (free and paid) - Industry standard
-// This enables conversion analytics, limit enforcement, and growth metrics
+/**
+ * User Usage table - Tracks monthly usage limits and consumption by user
+ *
+ * This table monitors how much each user has consumed of their monthly allowances
+ * (conversations, seconds, realtime sessions, analyses, etc.). It tracks usage for
+ * all users regardless of tier to enable conversion analytics and limit enforcement.
+ * Includes feature-specific usage tracking, banking (rollover) for paid users,
+ * daily granular tracking, engagement metrics, and business analytics data.
+ */
 export const userUsage = pgTable(
 	'user_usage',
 	{

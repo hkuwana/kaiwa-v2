@@ -5,6 +5,7 @@
 	import { analysisSuggestionService } from '$lib/features/analysis/services/analysis-suggestion.service';
 	import UnifiedConversationBubble from '$lib/features/analysis/components/UnifiedConversationBubble.svelte';
 	import type { AnalysisSuggestion } from '$lib/features/analysis/types/analysis-suggestion.types';
+	import type { AnalysisFindingDraft } from '$lib/features/analysis/types/analysis-logbook.types';
 	import ConversationReviewableState from '$lib/features/conversation/components/ConversationReviewableState.svelte';
 
 	type ModuleMeta = {
@@ -34,7 +35,7 @@
 	let selectedModuleIds = $state<Set<string>>(new Set());
 	let conversationId = $state('dev-conversation');
 	let languageCode = $state('en');
-	let selectedScenario = $state('wednesday-food');
+	let selectedScenario = $state('spanish-restaurant');
 	let showComparison = $state(false);
 	let showModulesJson = $state(false);
 	let showRawAnalysis = $state(false);
@@ -42,131 +43,70 @@
 	let showUsageDetails = $state(false);
 	let showDebugInput = $state(false);
 	let showReviewableDemo = $state(false);
+	let findingDrafts = $state<AnalysisFindingDraft[]>([]);
+	let showFindingsJson = $state(false);
+	let findingsError = $state<string | null>(null);
 
 	// Mock conversation samples with errors and expected corrections
 	const conversationSamples: Record<string, ConversationSample> = {
-		'wednesday-food': {
-			title: 'Barcelona Tapas Bar - Grammar Errors',
+		'spanish-restaurant': {
+			title: '🇪🇸 Spanish Restaurant - Complex Grammar & Vocabulary',
 			messages: [
-				{
-					id: 'msg-1',
-					role: 'assistant' as const,
-					content: '¡Hola! Welcome to our tapas bar. What can I bring for you today?',
-					timestamp: new Date('2024-01-15T19:30:00')
-				},
-				{
-					id: 'msg-2',
-					role: 'user' as const,
-					content: 'Hi! I want to try some typical Spanish food. Can you recommend me something?',
-					timestamp: new Date('2024-01-15T19:30:15'),
-					errors: ['want to try → would like to try', 'recommend me → recommend to me'],
-					expected:
-						'Hi! I would like to try some typical Spanish food. Can you recommend something to me?'
-				},
-				{
-					id: 'msg-3',
-					role: 'assistant' as const,
-					content:
-						'Of course! I recommend the jamón ibérico, patatas bravas, and gambas al ajillo. They are our most popular dishes.',
-					timestamp: new Date('2024-01-15T19:30:30')
-				},
-				{
-					id: 'msg-4',
-					role: 'user' as const,
-					content: 'Sounds great! I will take the jamón and the gambas. How much time it takes?',
-					timestamp: new Date('2024-01-15T19:30:45'),
-					errors: ['How much time it takes? → How long does it take?'],
-					expected: 'Sounds great! I will take the jamón and the gambas. How long does it take?'
-				},
-				{
-					id: 'msg-5',
-					role: 'assistant' as const,
-					content: 'About 10-15 minutes. Would you like something to drink while you wait?',
-					timestamp: new Date('2024-01-15T19:31:00')
-				},
-				{
-					id: 'msg-6',
-					role: 'user' as const,
-					content: 'Yes, I would like a beer please. Do you have any local beers?',
-					timestamp: new Date('2024-01-15T19:31:15')
-				}
+				{ id: 'msg-1', role: 'assistant', content: '¡Buenas noches! Bienvenidos a El Sabor de Sevilla. ¿Tienen una reserva?', timestamp: new Date('2024-05-21T20:00:00') },
+				{ id: 'msg-2', role: 'user', content: 'Buenas noches. Sí, somos dos. La reserva es para Alejandro.', timestamp: new Date('2024-05-21T20:00:15'), errors: ["es para Alejandro -> está a nombre de Alejandro"], expected: 'Buenas noches. Sí, somos dos. La reserva está a nombre de Alejandro.' },
+				{ id: 'msg-3', role: 'assistant', content: 'Perfecto, por aquí por favor. Aquí tienen sus menús. ¿Quieren algo para beber para empezar?', timestamp: new Date('2024-05-21T20:01:00') },
+				{ id: 'msg-4', role: 'user', content: 'Sí, para mí un vaso de vino tinto, por favor. Y para mi amiga, ella querrá agua.', timestamp: new Date('2024-05-21T20:01:45'), errors: ["querrá -> quiere"], expected: 'Sí, para mí un vaso de vino tinto, por favor. Y para mi amiga, ella quiere agua.' },
+				{ id: 'msg-5', role: 'assistant', content: 'Muy bien. Un tinto y un agua con gas o sin gas?', timestamp: new Date('2024-05-21T20:02:15') },
+				{ id: 'msg-6', role: 'user', content: 'Sin gas está bien. Estamos listos para ordenar la comida también. Yo soy muy hambriento.', timestamp: new Date('2024-05-21T20:03:00'), errors: ["soy muy hambriento -> tengo mucha hambre"], expected: 'Sin gas está bien. Estamos listos para ordenar la comida también. Yo tengo mucha hambre.' },
+				{ id: 'msg-7', role: 'assistant', content: '¡Claro! ¿Qué les apetece hoy?', timestamp: new Date('2024-05-21T20:03:30') },
+				{ id: 'msg-8', role: 'user', content: 'Me gustaría probar la paella. ¿Es para compartir, o es una porción para uno?', timestamp: new Date('2024-05-21T20:04:10'), errors: [], expected: 'Me gustaría probar la paella. ¿Es para compartir, o es una porción para uno?' },
+				{ id: 'msg-9', role: 'assistant', content: 'Nuestra paella de mariscos es bastante grande, ideal para dos personas. La recomiendo mucho.', timestamp: new Date('2024-05-21T20:04:45') },
+				{ id: 'msg-10', role: 'user', content: 'Perfecto, entonces pedimos la paella. Y también una porción de patatas bravas para empezar. ¿Las patatas son muy picantes?', timestamp: new Date('2024-05-21T20:05:30'), errors: ["son muy picantes -> están muy picantes"], expected: 'Perfecto, entonces pedimos la paella. Y también una porción de patatas bravas para empezar. ¿Las patatas están muy picantes?' },
+				{ id: 'msg-11', role: 'assistant', content: 'Un poquito, pero no demasiado. Es un picante sabroso. ¿Algo más?', timestamp: new Date('2024-05-21T20:06:00') },
+				{ id: 'msg-12', role: 'user', content: 'No, eso es todo por ahora. Gracias. Es posible que nosotros pedimos postre más tarde.', timestamp: new Date('2024-05-21T20:06:45'), errors: ["pedimos -> pidamos (subjunctive)"], expected: 'No, eso es todo por ahora. Gracias. Es posible que nosotros pidamos postre más tarde.' },
+				{ id: 'msg-13', role: 'assistant', content: '¡Excelente elección! La paella tardará unos 20 minutos. Les traigo las bebidas y las bravas en un momento.', timestamp: new Date('2024-05-21T20:07:15') },
+				{ id: 'msg-14', role: 'user', content: 'Disculpe, ¿el pan es con o sin gluten? Mi amiga es celíaca.', timestamp: new Date('2024-05-21T20:10:00'), errors: ["es celíaca -> es celíaca (ser is correct here, but good to check)"], expected: 'Disculpe, ¿el pan es con o sin gluten? Mi amiga es celíaca.' },
+				{ id: 'msg-15', role: 'assistant', content: 'Tenemos pan sin gluten especial para celíacos. Se lo traigo en seguida.', timestamp: new Date('2024-05-21T20:10:30') }
 			]
 		},
-		'market-haggling': {
-			title: 'Street Market - Complex Errors',
+		'french-market': {
+			title: '🇫🇷 French Market - Negotiation & Cultural Nuances',
 			messages: [
-				{
-					id: 'msg-1',
-					role: 'assistant' as const,
-					content: 'Buenos días! These oranges are very fresh, just arrived this morning.',
-					timestamp: new Date('2024-01-15T10:00:00')
-				},
-				{
-					id: 'msg-2',
-					role: 'user' as const,
-					content: 'Hello! How much costs one kilo of oranges?',
-					timestamp: new Date('2024-01-15T10:00:10'),
-					errors: ['How much costs → How much does... cost'],
-					expected: 'Hello! How much does one kilo of oranges cost?'
-				},
-				{
-					id: 'msg-3',
-					role: 'assistant' as const,
-					content: 'They are 3 euros per kilo. But for you, special price - 2.50 euros!',
-					timestamp: new Date('2024-01-15T10:00:20')
-				},
-				{
-					id: 'msg-4',
-					role: 'user' as const,
-					content: 'Hmm, that seems still expensive to me. In the other shop was more cheaper.',
-					timestamp: new Date('2024-01-15T10:00:35'),
-					errors: ['more cheaper → cheaper', 'In the other shop was → At the other shop it was'],
-					expected: 'Hmm, that still seems expensive to me. At the other shop it was cheaper.'
-				},
-				{
-					id: 'msg-5',
-					role: 'assistant' as const,
-					content: 'Okay, okay! For a good customer like you - 2 euros. Final price!',
-					timestamp: new Date('2024-01-15T10:00:50')
-				}
+				{ id: 'msg-1', role: 'user', content: 'Bonjour. Ce vase, c\'est combien?', timestamp: new Date('2024-05-21T10:00:00'), errors: ["Ce vase, c'est combien? -> Bonjour, ce vase est à combien, s'il vous plaît?"], expected: "Bonjour, ce vase est à combien, s'il vous plaît?" },
+				{ id: 'msg-2', role: 'assistant', content: 'Bonjour Madame. C\'est une belle pièce des années 30. Il est à 50 euros.', timestamp: new Date('2024-05-21T10:00:30') },
+				{ id: 'msg-3', role: 'user', content: '50 euros... c\'est un peu cher pour moi. Tu peux faire un meilleur prix?', timestamp: new Date('2024-05-21T10:01:00'), errors: ["Tu peux -> Pourriez-vous (using 'vous' is more polite)"], expected: "50 euros... c'est un peu cher pour moi. Pourriez-vous faire un meilleur prix?" },
+				{ id: 'msg-4', role: 'assistant', content: 'Hmm, il est en parfait état. Allez, pour vous, je peux le laisser à 45 euros.', timestamp: new Date('2024-05-21T10:01:45') },
+				{ id: 'msg-5', role: 'user', content: 'Je te donne 30 euros. C\'est ma dernière offre.', timestamp: new Date('2024-05-21T10:02:15'), errors: ["Je te donne -> Je vous en propose 30 euros."], expected: "Je vous en propose 30 euros. C'est ma dernière offre." },
+				{ id: 'msg-6', role: 'assistant', content: 'Ah non, 30 euros ce n\'est pas possible. Couper la poire en deux, 40 euros?', timestamp: new Date('2024-05-21T10:03:00') },
+				{ id: 'msg-7', role: 'user', content: 'Ok, 35 euros et je le prends tout de suite.', timestamp: new Date('2024-05-21T10:03:30'), errors: [], expected: 'Ok, 35 euros et je le prends tout de suite.' },
+				{ id: 'msg-8', role: 'assistant', content: 'Bon... d\'accord pour 35. C\'est parce que c\'est vous. Vous voulez un sac?', timestamp: new Date('2024-05-21T10:04:00'), errors: ["Vous voulez un sac? -> Je vous mets un sac?"], expected: "Bon... d'accord pour 35. C'est parce que c'est vous. Je vous mets un sac?" },
+				{ id: 'msg-9', role: 'user', content: 'Oui, merci. J\'aime beaucoup les choses que vous avez. Je reviendrai.', timestamp: new Date('2024-05-21T10:04:30') },
+				{ id: 'msg-10', role: 'assistant', content: 'Avec plaisir. Tenez, bien emballé. Ça fera 35 euros.', timestamp: new Date('2024-05-21T10:05:00') },
+				{ id: 'msg-11', role: 'user', content: 'Est-ce que vous acceptez la carte de crédit?', timestamp: new Date('2024-05-21T10:05:20') },
+				{ id: 'msg-12', role: 'assistant', content: 'Désolé, uniquement en espèces. Le distributeur est juste au coin de la rue.', timestamp: new Date('2024-05-21T10:05:40') },
+				{ id: 'msg-13', role: 'user', content: 'Pas de problème. Voilà 40 euros.', timestamp: new Date('2024-05-21T10:06:10') },
+				{ id: 'msg-14', role: 'assistant', content: 'Merci, et voilà votre monnaie de 5 euros. Bonne journée!', timestamp: new Date('2024-05-21T10:06:25') }
 			]
 		},
-		'job-interview': {
-			title: 'Job Interview - Advanced Grammar',
+		'japanese-interview': {
+			title: '🇯🇵 Japanese Interview - Formal Business Communication (Keigo)',
 			messages: [
-				{
-					id: 'msg-1',
-					role: 'assistant' as const,
-					content:
-						'Thank you for coming today. Can you tell me about a challenging project you have worked on?',
-					timestamp: new Date('2024-01-15T14:00:00')
-				},
-				{
-					id: 'msg-2',
-					role: 'user' as const,
-					content:
-						'Yes, of course. Last year I was working in a project where we had to migrate the entire database to a new system.',
-					timestamp: new Date('2024-01-15T14:00:15'),
-					errors: ['working in a project → working on a project'],
-					expected:
-						'Yes, of course. Last year I was working on a project where we had to migrate the entire database to a new system.'
-				},
-				{
-					id: 'msg-3',
-					role: 'assistant' as const,
-					content: 'That sounds complex. What was the biggest challenge you faced?',
-					timestamp: new Date('2024-01-15T14:00:30')
-				},
-				{
-					id: 'msg-4',
-					role: 'user' as const,
-					content:
-						'The most difficult part was to ensure that no data would be lost during the migration. We have to test everything multiple times.',
-					timestamp: new Date('2024-01-15T14:00:45'),
-					errors: ['We have to test → We had to test (past tense consistency)'],
-					expected:
-						'The most difficult part was to ensure that no data would be lost during the migration. We had to test everything multiple times.'
-				}
+				{ id: 'msg-1', role: 'assistant', content: '本日は面接にお越しいただき、誠にありがとうございます。田中と申します。よろしくお願いいたします。', timestamp: new Date('2024-05-21T14:00:00') },
+				{ id: 'msg-2', role: 'user', content: 'はい、スミスです。よろしく。', timestamp: new Date('2024-05-21T14:00:30'), errors: ["よろしく -> よろしくお願いいたします (more formal)"], expected: 'はい、スミスと申します。本日はよろしくお願いいたします。' },
+				{ id: 'msg-3', role: 'assistant', content: 'では、スミスさん、まず自己紹介をお願いできますでしょうか。', timestamp: new Date('2024-05-21T14:01:00') },
+				{ id: 'msg-4', role: 'user', content: 'はい。私はアメリカから来ました。大学でコンピュータサイエンスを勉強しました。日本で働くのが夢でした。', timestamp: new Date('2024-05-21T14:01:45'), errors: ["勉強しました -> 専攻しておりました (more humble/formal)"], expected: 'はい。私はアメリカから参りました。大学ではコンピュータサイエンスを専攻しておりました。日本で働くことが長年の夢でございました。' },
+				{ id: 'msg-5', role: 'assistant', content: 'そうですか。素晴らしいですね。当社の求人はどこでお知りになりましたか。', timestamp: new Date('2024-05-21T14:03:00') },
+				{ id: 'msg-6', role: 'user', content: 'インターネットで見ました。御社のウェブサイトです。', timestamp: new Date('2024-05-21T14:03:30'), errors: ["見ました -> 拝見しました (humble form)"], expected: 'はい、インターネットで拝見いたしました。御社のウェブサイトです。' },
+				{ id: 'msg-7', role: 'assistant', content: 'ありがとうございます。当社のどのような点に興味を持たれましたか。', timestamp: new Date('2024-05-21T14:04:30') },
+				{ id: 'msg-8', role: 'user', content: 'グローバルなチームで働けることと、AI技術を使っていることがいいと思います。', timestamp: new Date('2024-05-21T14:05:15'), errors: ["いいと思います -> に魅力を感じております (more formal/stronger interest)"], expected: 'グローバルなチームで働ける点と、最先端のAI技術を活用されている点に大変魅力を感じております。' },
+				{ id: 'msg-9', role: 'assistant', content: 'なるほど。あなたの長所と短所を教えてください。', timestamp: new Date('2024-05-21T14:06:30') },
+				{ id: 'msg-10', role: 'user', content: '私の長所は、新しいことを学ぶのが早いことです。短所は、時々仕事に集中しすぎることです。', timestamp: new Date('2024-05-21T14:07:15'), errors: [], expected: '私の長所は、新しい技術や知識を迅速に習得できる点です。短所としましては、時に一つの業務に集中しすぎてしまう傾向があるため、全体の進捗管理を意識するよう努めております。' },
+				{ id: 'msg-11', role: 'assistant', content: '承知いたしました。最後に、何か質問はありますか。', timestamp: new Date('2024-05-21T14:10:00') },
+				{ id: 'msg-12', role: 'user', content: 'はい、あります。チームの雰囲気はどんな感じですか。', timestamp: new Date('2024-05-21T14:10:45'), errors: ["どんな感じですか -> どのような雰囲気でいらっしゃいますでしょうか (more polite/formal)"], expected: 'はい、ございます。もし差し支えなければ、配属予定のチームの雰囲気についてお伺いしてもよろしいでしょうか。' },
+				{ id: 'msg-13', role: 'assistant', content: '非常に協力的で、多国籍のメンバーが活発に意見交換をしています。風通しの良い職場ですよ。', timestamp: new Date('2024-05-21T14:11:30') },
+				{ id: 'msg-14', role: 'user', content: 'わかりました。ありがとうございます。', timestamp: new Date('2024-05-21T14:12:00'), errors: ["わかりました -> かしこまりました or 承知いたしました"], expected: 'かしこまりました。よく分かりました、ありがとうございます。' },
+				{ id: 'msg-15', role: 'assistant', content: '本日は以上となります。結果については、一週間以内にメールでご連絡いたします。', timestamp: new Date('2024-05-21T14:12:30') },
+				{ id: 'msg-16', role: 'user', content: 'はい、ありがとうございました。', timestamp: new Date('2024-05-21T14:12:45'), errors: ["ありがとうございました -> 本日は貴重なお時間をいただき、誠にありがとうございました。"], expected: '本日は貴重なお時間をいただき、誠にありがとうございました。' }
 			]
 		}
 	};
@@ -206,6 +146,8 @@
 		lastRun = null;
 		suggestions = [];
 		usageInfo = null;
+		findingDrafts = [];
+		findingsError = null;
 
 		try {
 			const response = await fetch('/api/analysis/run', {
@@ -226,10 +168,13 @@
 			}
 
 			lastRun = data.run;
-			suggestions = analysisSuggestionService.extract(lastRun, {
-				runId: lastRun.runId,
-				messages
-			});
+			suggestions = data.suggestions ??
+				analysisSuggestionService.extract(lastRun, {
+					runId: lastRun.runId,
+					messages
+				});
+			findingDrafts = data.findings ?? [];
+			findingsError = data.findingsError ?? null;
 
 			// Fetch updated usage info after running analysis
 			try {
@@ -284,9 +229,9 @@
 					<label class="form-control">
 						<div class="label">Scenario</div>
 						<select class="select-bordered select" bind:value={selectedScenario}>
-							<option value="wednesday-food">Barcelona Tapas Bar</option>
-							<option value="market-haggling">Street Market Haggling</option>
-							<option value="job-interview">Job Interview</option>
+							<option value="spanish-restaurant">🇪🇸 Spanish Restaurant</option>
+							<option value="french-market">🇫🇷 French Market</option>
+							<option value="japanese-interview">🇯🇵 Japanese Interview</option>
 						</select>
 					</label>
 				</div>
@@ -726,6 +671,71 @@
 								<span class="badge badge-neutral badge-sm">{suggestions.length} suggestions</span>
 							</div>
 						<UnifiedConversationBubble {messages} {suggestions} />
+						</div>
+					{/if}
+
+					{#if findingsError}
+						<div class="alert alert-warning">
+							<span class="icon-[mdi--alert] h-5 w-5"></span>
+							<div>
+								<h4 class="font-semibold">Logbook Drafts Unavailable</h4>
+								<p class="text-sm">{findingsError}</p>
+							</div>
+						</div>
+					{/if}
+
+					{#if findingDrafts.length > 0}
+						<div class="rounded-lg border border-base-300 bg-base-100 p-4">
+							<div class="mb-3 flex items-center justify-between gap-4">
+								<div>
+									<h4 class="text-lg font-semibold">Logbook Draft Entries</h4>
+									<p class="text-sm text-base-content/70">
+										Objects mirror <code>analysis_findings</code> rows so we can inspect the
+										analysis → logbook flow end-to-end.
+									</p>
+								</div>
+								<label class="flex cursor-pointer items-center gap-2">
+									<input type="checkbox" class="toggle toggle-sm" bind:checked={showFindingsJson} />
+									<span class="text-sm">Show JSON</span>
+								</label>
+							</div>
+
+							{#if showFindingsJson}
+								<pre class="max-h-72 overflow-auto rounded bg-base-200 p-4 text-xs text-base-content/80">{JSON.stringify(
+									findingDrafts,
+									null,
+									2
+								)}</pre>
+							{:else}
+								<div class="overflow-auto">
+									<table class="table table-sm">
+										<thead>
+											<tr>
+												<th>Feature</th>
+												<th>Original</th>
+												<th>Suggested</th>
+												<th>Severity</th>
+												<th>Offsets</th>
+											</tr>
+										</thead>
+										<tbody>
+											{#each findingDrafts as finding}
+												<tr>
+													<td class="font-medium">{finding.featureLabel}</td>
+													<td class="whitespace-pre-wrap">{finding.originalText}</td>
+													<td class="whitespace-pre-wrap text-success">{finding.suggestedText}</td>
+													<td>
+														<span class="badge badge-outline badge-sm">{finding.severity}</span>
+													</td>
+													<td class="text-xs text-base-content/60">
+														{finding.offsetStart ?? '—'} → {finding.offsetEnd ?? '—'}
+													</td>
+												</tr>
+											{/each}
+										</tbody>
+									</table>
+								</div>
+							{/if}
 						</div>
 					{/if}
 

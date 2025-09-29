@@ -1,11 +1,17 @@
 import { pgTable, text, integer, timestamp, index, boolean, uuid } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
-// DEPRECATED: This schema has been moved to v2/conversationSessions.ts
-// The v2 version removes tierId for cleaner MVP implementation
-// Use the v2 version for new development
-
-// Track individual conversation sessions for detailed analytics
+/**
+ * Conversation Sessions table (DEPRECATED) - Legacy session tracking
+ *
+ * DEPRECATED: This schema has been moved to v2/conversationSessions.ts
+ * The v2 version removes tierId for cleaner MVP implementation.
+ * Use the v2 version for new development.
+ *
+ * This legacy table tracked individual conversation sessions for detailed analytics,
+ * including session duration, language practice, extension usage, and device information.
+ * Replaced by a simpler v2 implementation that focuses on essential MVP functionality.
+ */
 export const conversationSessions = pgTable(
 	'conversation_sessions',
 	{

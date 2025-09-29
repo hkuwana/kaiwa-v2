@@ -16,6 +16,9 @@ export { messagesRepository } from './messages.repository';
 export { speakersRepository } from './speakers.repository';
 export { scenarioAttemptsRepository } from './scenario-attempts.repository';
 export { scenarioOutcomesRepository } from './scenario-outcomes.repository';
+export { linguisticFeaturesRepository } from './linguistic-features.repository';
+export { analysisFindingsRepository } from './analysis-findings.repository';
+export { userFeatureProfilesRepository } from './user-feature-profiles.repository';
 
 // Subscription and billing repositories
 export { subscriptionRepository } from './subscription.repository';

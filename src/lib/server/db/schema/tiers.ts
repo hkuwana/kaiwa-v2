@@ -1,6 +1,14 @@
 import { pgTable, text, integer, boolean, decimal, index, timestamp } from 'drizzle-orm/pg-core';
 
-// Tier definitions and limits
+/**
+ * Tiers table - Defines subscription tier limits and features
+ *
+ * This table stores the configuration for each subscription tier (free, plus, premium).
+ * It defines usage limits (monthly conversations, seconds, realtime sessions),
+ * feature access (advanced voices, analytics, deep analysis), pricing information,
+ * session management settings (timeouts, extensions), and tier-specific capabilities
+ * like conversation memory levels and Anki export limits.
+ */
 export const tiers = pgTable(
 	'tiers',
 	{

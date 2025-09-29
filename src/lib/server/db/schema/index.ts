@@ -1,5 +1,11 @@
-// Database schema definitions - MVP Focused
-// This file exports all table schemas for use throughout the application
+/**
+ * Main database schema exports file
+ *
+ * This file acts as the central hub for all database table definitions in the Kaiwa language learning app.
+ * It exports all the schemas in dependency order, making them available throughout the application.
+ * The schemas are organized into logical groups: user management, authentication, content/learning,
+ * subscriptions/billing, usage tracking, and scenario management.
+ */
 
 // Core user management
 export { users } from './users';
@@ -14,6 +20,18 @@ export { speakers } from './speakers';
 export { scenarios } from './scenarios'; // Simplified for onboarding/comfort
 export { conversations } from './conversations';
 export { messages } from './messages';
+export {
+	linguisticMacroSkillEnum,
+	linguisticFeatures,
+	linguisticFeatureAliases
+} from './linguistic-features';
+
+export {
+	analysisSuggestionSeverityEnum,
+	analysisFindingActionEnum,
+	analysisFindings
+} from './analysis-findings';
+export { userFeatureProfiles } from './user-feature-profiles';
 
 // User preferences (depends on users and languages)
 export {

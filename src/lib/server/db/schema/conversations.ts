@@ -3,7 +3,14 @@ import { users } from './users';
 import { languages } from './languages';
 import { scenarios } from './scenarios';
 
-// Conversations - core feature with basic scenario support
+/**
+ * Conversations table - Stores individual language learning conversation sessions
+ *
+ * This table tracks each conversation session between a user and the AI tutor.
+ * It includes session metadata (duration, message count, audio time), learning context
+ * (target language, scenario, onboarding status), and engagement metrics (comfort rating).
+ * Supports both traditional text conversations and realtime voice conversations.
+ */
 export const conversations = pgTable(
 	'conversations',
 	{

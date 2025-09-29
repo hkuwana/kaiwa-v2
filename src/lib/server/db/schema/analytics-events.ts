@@ -1,7 +1,15 @@
 import { pgTable, uuid, text, json, timestamp } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
-// Analytics events for conversion tracking
+/**
+ * Analytics Events table - Tracks user behavior and conversion events
+ *
+ * This table captures user interaction events for analytics and conversion tracking.
+ * It stores event names (like 'conversation_started', 'subscription_purchased'),
+ * flexible properties in JSON format, user context (user agent, IP, referrer),
+ * and session information. Used for product analytics, A/B testing, and
+ * understanding user behavior patterns.
+ */
 export const analyticsEvents = pgTable('analytics_events', {
 	id: uuid('id').primaryKey().defaultRandom(),
 	userId: uuid('user_id').references(() => users.id), // nullable for anonymous events

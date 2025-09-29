@@ -271,6 +271,19 @@ The `/dev/analysis` page provides comprehensive debugging tools:
 
 ---
 
+## 📚 Logbook Data Model (MVP)
+
+The logbook keeps corrections learner-centered and analytics-ready without overwhelming the conversation UI.
+
+- **`linguistic_features`** — Canonical dictionary of coachable skills. Each row stores `macro_skill` (with a reserved `pronunciation` slot for future audio work), `sub_skill`, `micro_rule`, CEFR references, and coaching copy so multiple modules share consistent language.
+- **`linguistic_feature_aliases`** — Soft mapping layer that translates whatever label an analysis module emits into the appropriate `feature_id` without code changes.
+- **`analysis_findings`** — Immutable event log written the moment a suggestion card is shown. Captures run/module metadata, offset ranges, original vs. suggested text, severity, and `action_status` (`pending`, `accepted`, `ignored`, `dismissed_auto`) so we can track whether cards were seen even if mastery is inferred later.
+- **`user_feature_profiles`** — Aggregated "player stats" per learner and feature. `mastery_score` only moves when downstream analysis detects the learner using the form correctly in later conversations; button clicks never boost the score. `review_priority` lets us down-rank hints as mastery improves instead of hiding them outright.
+
+Audio feedback remains out of scope for the MVP, but the schema already anticipates it—`pronunciation` lives in the dictionary today, and we can introduce a dedicated `audio_feature_profiles` table and dashboard card later without refactoring.
+
+---
+
 ## 🎯 CEFR + Practical Level System
 
 ### CEFR Mapping

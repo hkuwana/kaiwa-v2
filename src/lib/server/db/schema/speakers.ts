@@ -1,7 +1,15 @@
 import { pgTable, text, boolean, timestamp, index } from 'drizzle-orm/pg-core';
 import { languages } from './languages';
 
-// Speakers - for voice selection and language practice
+/**
+ * Speakers table - Defines AI voice personas for different languages and regions
+ *
+ * This table stores information about available AI voice speakers that users can
+ * choose for conversations. Each speaker represents a specific language, region,
+ * dialect, and gender combination (like Japanese male from Tokyo, French female from Paris).
+ * It includes voice provider details (OpenAI voice IDs), regional characteristics,
+ * and display information like emojis and friendly names for the user interface.
+ */
 export const speakers = pgTable(
 	'speakers',
 	{

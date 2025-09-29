@@ -1,6 +1,14 @@
 import { pgTable, text, boolean, json, index } from 'drizzle-orm/pg-core';
 
-// Languages - enhanced to match kaiwa-old structure
+/**
+ * Languages table - Defines supported languages and their characteristics
+ *
+ * This table stores information about all languages supported by the Kaiwa app.
+ * It includes language codes (ISO 639-1), display names in English and native script,
+ * writing system details (Latin, Chinese, Arabic, etc.), supported scripts
+ * (hiragana, katakana, kanji for Japanese), and technical features like
+ * right-to-left text support and romanization availability.
+ */
 export const languages = pgTable(
 	'languages',
 	{

@@ -1,6 +1,15 @@
 import { pgTable, uuid, text, timestamp, integer, index } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
+/**
+ * Email Verification table - Manages email verification codes and attempts
+ *
+ * This table stores 6-digit verification codes sent to users for email verification.
+ * It tracks the email being verified, expiration times, verification status,
+ * and failed attempt counts for security purposes. Used during user registration
+ * and email change processes to ensure users own the email addresses they provide.
+ */
+
 export const emailVerification = pgTable(
 	'email_verification',
 	{

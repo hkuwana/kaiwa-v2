@@ -13,6 +13,16 @@ import { users } from './users'; // Assuming you have a users table
 import { languages } from './languages'; // Assuming you have a languages table
 import { DEFAULT_VOICE } from '../../../types/openai.realtime.types';
 
+/**
+ * User Preferences table - Stores individual user learning preferences and progress
+ *
+ * This table contains detailed learning preferences for each user-language combination.
+ * It tracks skill levels (speaking, listening, reading, writing), learning goals and motivations,
+ * conversation context and memories, progress history, and adaptive learning settings
+ * like challenge preference and correction style. Each user can have different preferences
+ * for different target languages they're learning.
+ */
+
 export const learningMotivationEnum = pgEnum('learning_motivation_enum', [
 	'Connection',
 	'Career',

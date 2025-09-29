@@ -1,7 +1,15 @@
 import { pgTable, text, timestamp, index, jsonb, boolean } from 'drizzle-orm/pg-core';
 import { conversations } from './conversations';
 
-// Messages - conversation content with comprehensive language support
+/**
+ * Messages table - Stores individual messages within conversations
+ *
+ * This table contains all the messages exchanged between users and the AI tutor during conversations.
+ * It includes comprehensive language support (translations, romanization, multiple scripts),
+ * audio features (speech timings, pronunciation analysis), and learning analytics
+ * (grammar analysis, vocabulary tracking, difficulty levels). Each message can be translated
+ * and provides rich context for language learning feedback.
+ */
 export const messages = pgTable(
 	'messages',
 	{

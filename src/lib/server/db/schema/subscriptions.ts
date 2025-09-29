@@ -1,7 +1,14 @@
 import { pgTable, uuid, text, timestamp, index } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
-// Simple subscription backup - Stripe is the source of truth
+/**
+ * Subscriptions table - Tracks user subscription status as backup to Stripe
+ *
+ * This table maintains a local copy of user subscription information for quick access,
+ * while Stripe remains the source of truth. It stores the current tier (free/plus/premium),
+ * Stripe subscription and price IDs, and sync timestamps. Used to quickly check
+ * user access levels without making external API calls to Stripe.
+ */
 export const subscriptions = pgTable(
 	'subscriptions',
 	{

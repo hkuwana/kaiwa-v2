@@ -1,8 +1,11 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { analysisPipelineService } from '$lib/features/analysis/services/analysis-pipeline.service';
+import { analysisSuggestionService } from '$lib/features/analysis/services/analysis-suggestion.service';
+import { analysisLogbookService } from '$lib/features/analysis/services/analysis-logbook.service';
 import type { AnalysisModuleId } from '$lib/features/analysis/types/analysis-module.types';
 import { userUsageRepository } from '$lib/server/repositories/user-usage.repository';
+import type { AnalysisMessage } from '$lib/features/analysis/services/analysis.service';
 
 interface RunAnalysisPayload {
 	conversationId: string;
@@ -30,18 +33,37 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	}
 
 	try {
+		const normalizedMessages: AnalysisMessage[] | undefined = body.messages?.map((msg) => ({
+			id: msg.id,
+			role: msg.role,
+			content: msg.content,
+			timestamp: msg.timestamp ? new Date(msg.timestamp) : undefined
+		}));
+
 		const run = await analysisPipelineService.runAnalysis({
 			conversationId: body.conversationId,
 			languageCode: body.languageCode,
 			moduleIds: body.moduleIds,
 			userId: userId ?? undefined,
-			messagesOverride: body.messages?.map((msg) => ({
-				id: msg.id,
-				role: msg.role,
-				content: msg.content,
-				timestamp: msg.timestamp ? new Date(msg.timestamp) : undefined
-			}))
+			messagesOverride: normalizedMessages
 		});
+
+		const suggestions = analysisSuggestionService.extract(run, {
+			runId: run.runId,
+			messages: normalizedMessages ?? []
+		});
+
+		let findingDrafts = [];
+		let findingsError: string | null = null;
+		try {
+			findingDrafts = await analysisLogbookService.buildDrafts(suggestions, {
+				conversationId: body.conversationId,
+				languageId: body.languageCode,
+				userId: userId ?? null
+			});
+		} catch (draftError) {
+			findingsError = draftError instanceof Error ? draftError.message : 'Failed to build findings';
+		}
 
 		if (userId) {
 			await recordAnalysisUsage(userId, body.moduleIds ?? run.moduleResults.map((m) => m.moduleId));
@@ -49,7 +71,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 		return json({
 			success: true,
-			run
+			run,
+			suggestions,
+			findings: findingDrafts,
+			findingsError
 		});
 	} catch (error) {
 		console.error('Failed to run analysis', error);

@@ -17,7 +17,14 @@ import {
 	userPreferences,
 	analyticsEvents,
 	emailVerification,
-	userSettings
+	userSettings,
+	linguisticMacroSkillEnum,
+	linguisticFeatures,
+	linguisticFeatureAliases,
+	analysisSuggestionSeverityEnum,
+	analysisFindingActionEnum,
+	analysisFindings,
+	userFeatureProfiles
 } from './schema';
 import type { scenarioAttempts } from './schema/scenario-attempts';
 import type { scenarioOutcomes } from './schema/scenario-outcomes';
@@ -44,6 +51,13 @@ export type ScenarioOutcome = InferSelectModel<typeof scenarioOutcomes>;
 export type AnalyticsEvent = InferSelectModel<typeof analyticsEvents>;
 export type EmailVerification = InferSelectModel<typeof emailVerification>;
 export type UserSettings = InferSelectModel<typeof userSettings>;
+export type LinguisticMacroSkill = (typeof linguisticMacroSkillEnum.enumValues)[number];
+export type LinguisticFeature = InferSelectModel<typeof linguisticFeatures>;
+export type LinguisticFeatureAlias = InferSelectModel<typeof linguisticFeatureAliases>;
+export type AnalysisSuggestionSeverity = (typeof analysisSuggestionSeverityEnum.enumValues)[number];
+export type AnalysisFindingAction = (typeof analysisFindingActionEnum.enumValues)[number];
+export type AnalysisFinding = InferSelectModel<typeof analysisFindings>;
+export type UserFeatureProfile = InferSelectModel<typeof userFeatureProfiles>;
 
 // Insert types for creating new records
 export type NewUser = InferInsertModel<typeof users>;
@@ -64,3 +78,7 @@ export type NewScenarioOutcome = InferInsertModel<typeof scenarioOutcomes>;
 export type NewAnalyticsEvent = InferInsertModel<typeof analyticsEvents>;
 export type NewEmailVerification = InferInsertModel<typeof emailVerification>;
 export type NewUserSettings = InferInsertModel<typeof userSettings>;
+export type NewLinguisticFeature = InferInsertModel<typeof linguisticFeatures>;
+export type NewLinguisticFeatureAlias = InferInsertModel<typeof linguisticFeatureAliases>;
+export type NewAnalysisFinding = InferInsertModel<typeof analysisFindings>;
+export type NewUserFeatureProfile = InferInsertModel<typeof userFeatureProfiles>;

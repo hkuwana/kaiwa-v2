@@ -1,6 +1,14 @@
 import { pgTable, text, timestamp, json, index, boolean } from 'drizzle-orm/pg-core';
 
-// Scenarios - MVP focused on onboarding and comfort-building
+/**
+ * Scenarios table - Defines structured learning situations and contexts
+ *
+ * This table stores predefined conversation scenarios that guide users through
+ * specific learning situations (like ordering food, job interviews, casual chat).
+ * Each scenario includes instructions, context, difficulty level, learning objectives,
+ * and comfort indicators to help users practice language skills in realistic contexts.
+ * Used primarily for onboarding and building user confidence.
+ */
 export const scenarios = pgTable(
 	'scenarios',
 	{
