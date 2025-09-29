@@ -13,7 +13,7 @@ export type { AnalysisMessage, AnalysisResult, LanguageLevel } from '../types/an
 export interface AnalysisRunResult {
 	runId: string;
 	conversationId: string;
-	results: AnalysisResult[];
+	moduleResults: AnalysisResult[];
 	startedAt: Date;
 	completedAt: Date;
 	languageCode: string;

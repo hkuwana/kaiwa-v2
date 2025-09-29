@@ -15,6 +15,7 @@ import {
 	type SessionConnection
 } from '$lib/services/realtime-agents.service';
 import { env as publicEnv } from '$env/dynamic/public';
+import { SvelteSet } from 'svelte/reactivity';
 
 type SessionData = { client_secret: { value: string; expires_at: number }; session_id?: string };
 
@@ -43,11 +44,11 @@ export class RealtimeOpenAIStore {
 	private sessionId: string = '';
 	private sessionStartMs: number = 0;
 	// Track finalized history item IDs to avoid re-creating partials after final
-	private finalizedItemIds = new Set<string>();
+	private finalizedItemIds = new SvelteSet<string>();
 	private wordTimingBuffers: Record<string, SpeechTiming[]> = {};
 	private wordCharOffsetByMessage: Record<string, number> = {};
 	private currentAssistantMessageId: string | null = null;
-	private finalizedWordTimings = new Set<string>();
+	private finalizedWordTimings = new SvelteSet<string>();
 	private assistantAudioTracking: {
 		messageId: string | null;
 		startEpochMs: number | null;

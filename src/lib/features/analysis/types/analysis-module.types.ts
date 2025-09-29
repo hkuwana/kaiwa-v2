@@ -33,10 +33,6 @@ export interface AnalysisModuleDefinition {
 export type AnalysisModuleId =
 	| 'quick-stats'
 	| 'grammar-suggestions'
-	| 'advanced-grammar'
-	| 'fluency-analysis'
-	| 'phrase-suggestions'
-	| 'onboarding-profile'
+	| 'language-assessment'
 	| 'pronunciation-analysis'
-	| 'speech-rhythm'
-	| 'language-level-assessment';
+	| 'speech-rhythm';

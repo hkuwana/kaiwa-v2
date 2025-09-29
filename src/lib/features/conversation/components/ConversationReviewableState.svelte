@@ -5,6 +5,7 @@
 	import OnboardingResults from '$lib/features/scenarios/components/OnboardingResults.svelte';
 	import type { AnalysisMessage } from '$lib/features/analysis/services/analysis.service';
 	import { userManager } from '$lib/stores/user.store.svelte';
+	import { analysisStore } from '$lib/features/analysis/stores/analysis.store.svelte';
 	import ShareKaiwa from '$lib/components/ShareKaiwa.svelte';
 	import { track } from '$lib/analytics/posthog';
 	import { onMount } from 'svelte';
@@ -97,31 +98,18 @@
 		)
 	);
 
-	// Mock suggestions for demonstration - in a real app these would come from analysis
-	const mockSuggestions = $derived(() => {
-		const suggestions: any[] = [];
-		// Add some mock suggestions to user messages for demo purposes
-		displayMessages.forEach((message, index) => {
-			if (message.role === 'user' && message.content.includes('want')) {
-				suggestions.push({
-					id: `suggestion-${index}-1`,
-					ruleId: 'politeness-suggestion',
-					category: 'Politeness',
-					severity: 'hint' as const,
-					messageId: message.id,
-					originalText: 'want',
-					suggestedText: 'would like',
-					explanation: 'Use "would like" instead of "want" for more polite requests',
-					example: 'I would like to try that dish.',
-					offsets: {
-						start: message.content.indexOf('want'),
-						end: message.content.indexOf('want') + 4
-					}
-				});
-			}
-		});
-		return suggestions;
+	// Keep unified conversation state in sync with current messages for downstream components
+	$effect(() => {
+		if (analysisMessages.length > 0) {
+			analysisStore.setUnifiedConversationMessages(analysisMessages);
+		}
 	});
+
+	const unifiedConversationState = $derived(analysisStore.unifiedConversation);
+	const conversationSuggestions = $derived(unifiedConversationState.suggestions ?? []);
+	const unifiedMessages = $derived(
+		unifiedConversationState.messages.length ? unifiedConversationState.messages : analysisMessages
+	);
 
 	function handleUpsellClick() {
 		track('upsell_banner_clicked', {
@@ -161,12 +149,24 @@
 			source: 'conversation_review',
 			messageCount: displayMessages.length
 		});
-		onAnalyzeConversation();
 
-		// Simulate analysis delay
-		setTimeout(() => {
-			isAnalyzing = false;
-		}, 3000);
+		const conversationId =
+			displayMessages[0]?.conversationId ||
+			`analysis-review-${
+				typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+					? crypto.randomUUID()
+					: Date.now()
+			}`;
+		const moduleIds = ['grammar-suggestions'];
+
+		try {
+			await analysisStore.runAnalysis(conversationId, language.code, analysisMessages, moduleIds);
+		} catch (error) {
+			console.error('Failed to run analysis from review state', error);
+		}
+
+		onAnalyzeConversation();
+		isAnalyzing = false;
 	}
 
 	function handleShowDeeperAnalytics() {
@@ -489,8 +489,8 @@
 			</h2>
 
 			<UnifiedConversationBubble
-				messages={analysisMessages}
-				suggestions={mockSuggestions()}
+				messages={unifiedMessages}
+				suggestions={conversationSuggestions}
 				showSuggestions={true}
 			/>
 		</div>

@@ -32,8 +32,8 @@ export class AnalysisSuggestionService {
 		const messageMap = new Map(context.messages.map((msg) => [msg.id, msg]));
 		const suggestions: AnalysisSuggestion[] = [];
 
-		for (const result of run.results ?? []) {
-			const rawSuggestions = this.resolveRawSuggestions(result.data);
+		for (const result of run.moduleResults ?? []) {
+			const rawSuggestions = this.resolveRawSuggestions(result.details);
 			for (const raw of rawSuggestions) {
 				const messageId = raw.messageId ?? this.resolveMessageId(raw, messageMap);
 				if (!messageId || !messageMap.has(messageId)) continue;

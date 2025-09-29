@@ -12,6 +12,13 @@ import type {
 	ScenarioMasterySignal
 } from '../types/analysis-playbook.types';
 import type { AnalysisSuggestion } from '../types/analysis-suggestion.types';
+import { SvelteDate } from 'svelte/reactivity';
+
+interface UnifiedConversationState {
+	messages: AnalysisMessage[];
+	suggestions: AnalysisSuggestion[];
+	lastUpdated: Date | null;
+}
 
 interface AnalysisState {
 	currentRun: AnalysisRunResult | null;
@@ -29,6 +36,7 @@ interface AnalysisState {
 	playbook: GrowthPlaybook | null;
 	suggestions: AnalysisSuggestion[];
 	messagesSnapshot: AnalysisMessage[];
+	unifiedConversation: UnifiedConversationState;
 }
 
 /**
@@ -48,7 +56,12 @@ export class AnalysisStore {
 		persona: 'relationship-navigator',
 		playbook: null,
 		suggestions: [],
-		messagesSnapshot: []
+		messagesSnapshot: [],
+		unifiedConversation: {
+			messages: [],
+			suggestions: [],
+			lastUpdated: null
+		}
 	});
 
 	// Derived reactive values
@@ -78,6 +91,10 @@ export class AnalysisStore {
 	}
 	get messagesSnapshot() {
 		return this._state.messagesSnapshot;
+	}
+
+	get unifiedConversation() {
+		return this._state.unifiedConversation;
 	}
 
 	/**
@@ -119,6 +136,7 @@ export class AnalysisStore {
 				runId: result.runId,
 				messages: messages
 			});
+			this.updateUnifiedConversation(messages, this._state.suggestions);
 			if (options?.autoGeneratePlaybook) {
 				this._state.playbook = growthPlaybookService.buildFromAnalysis(result, {
 					persona: this._state.persona,
@@ -170,6 +188,11 @@ export class AnalysisStore {
 		this._state.playbook = null;
 		this._state.suggestions = [];
 		this._state.messagesSnapshot = [];
+		this._state.unifiedConversation = {
+			messages: [],
+			suggestions: [],
+			lastUpdated: null
+		};
 	}
 
 	/**
@@ -185,7 +208,12 @@ export class AnalysisStore {
 			persona: 'relationship-navigator',
 			playbook: null,
 			suggestions: [],
-			messagesSnapshot: []
+			messagesSnapshot: [],
+			unifiedConversation: {
+				messages: [],
+				suggestions: [],
+				lastUpdated: null
+			}
 		};
 	}
 
@@ -208,6 +236,44 @@ export class AnalysisStore {
 		});
 
 		return this._state.playbook;
+	}
+
+	setUnifiedConversationMessages(messages: AnalysisMessage[]): void {
+		this._state.unifiedConversation = {
+			...this._state.unifiedConversation,
+			messages,
+			lastUpdated: new SvelteDate()
+		};
+	}
+
+	setUnifiedConversation(messages: AnalysisMessage[], suggestions: AnalysisSuggestion[]): void {
+		this.updateUnifiedConversation(messages, suggestions);
+	}
+
+	/**
+	 * Update the current analysis run and suggestions
+	 * Used when analysis results come from external sources (like dev/analysis page)
+	 */
+	setAnalysisResults(
+		run: AnalysisRunResult,
+		suggestions: AnalysisSuggestion[],
+		messages: AnalysisMessage[]
+	): void {
+		this._state.currentRun = run;
+		this._state.suggestions = suggestions;
+		this._state.messagesSnapshot = messages;
+		this.updateUnifiedConversation(messages, suggestions);
+	}
+
+	private updateUnifiedConversation(
+		messages: AnalysisMessage[],
+		suggestions: AnalysisSuggestion[]
+	): void {
+		this._state.unifiedConversation = {
+			messages,
+			suggestions,
+			lastUpdated: new SvelteDate()
+		};
 	}
 }
 

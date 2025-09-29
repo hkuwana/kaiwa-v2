@@ -58,14 +58,8 @@ const ANALYSIS_CONFIG = {
 		}
 	},
 	modules: {
-		assessmentModules: ['language-level-assessment', 'onboarding-profile'],
-		analysisModules: [
-			'quick-stats',
-			'grammar-suggestions',
-			'advanced-grammar',
-			'fluency-analysis',
-			'phrase-suggestions'
-		],
+		assessmentModules: ['language-assessment'],
+		analysisModules: ['quick-stats', 'grammar-suggestions'],
 		audioModules: ['pronunciation-analysis', 'speech-rhythm']
 	},
 	practicalLevels: {

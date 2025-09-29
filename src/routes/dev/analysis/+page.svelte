@@ -6,7 +6,8 @@
 	import UnifiedConversationBubble from '$lib/features/analysis/components/UnifiedConversationBubble.svelte';
 	import type { AnalysisSuggestion } from '$lib/features/analysis/types/analysis-suggestion.types';
 	import type { AnalysisFindingDraft } from '$lib/features/analysis/types/analysis-logbook.types';
-	import ConversationReviewableState from '$lib/features/conversation/components/ConversationReviewableState.svelte';
+	// Lazy load analysis store to prevent initialization issues
+	let analysisStore: any = null;
 
 	type ModuleMeta = {
 		id: string;
@@ -46,6 +47,7 @@
 	let findingDrafts = $state<AnalysisFindingDraft[]>([]);
 	let showFindingsJson = $state(false);
 	let findingsError = $state<string | null>(null);
+	let showUnifiedConversationDebug = $state(false);
 	let allModulesSelected = $derived(
 		modules.length > 0 && selectedModuleIds.size === modules.length
 	);
@@ -409,6 +411,10 @@
 	let errorMessage = $state<string | null>(null);
 	let suggestions = $state<AnalysisSuggestion[]>([]);
 
+	// Reactive suggestions from analysis store
+	const storeSuggestions = $derived(analysisStore?.unifiedConversation?.suggestions || []);
+	const displaySuggestions = $derived(storeSuggestions.length > 0 ? storeSuggestions : suggestions);
+
 	onMount(async () => {
 		await loadModules();
 	});
@@ -441,6 +447,14 @@
 		findingsError = null;
 
 		try {
+			// Lazy load analysis store only when needed
+			if (!analysisStore) {
+				const { analysisStore: store } = await import(
+					'$lib/features/analysis/stores/analysis.store.svelte'
+				);
+				analysisStore = store;
+			}
+
 			const response = await fetch('/api/analysis/run', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -459,12 +473,23 @@
 			}
 
 			lastRun = data.run;
-			suggestions =
+			const extractedSuggestions =
 				data.suggestions ??
 				analysisSuggestionService.extract(lastRun, {
 					runId: lastRun.runId,
 					messages
 				});
+			suggestions = extractedSuggestions;
+
+			const normalizedMessages = messages.map((message) => ({
+				id: message.id,
+				role: message.role,
+				content: message.content,
+				timestamp: message.timestamp
+			}));
+
+			// Update the analysis store with the complete analysis results
+			analysisStore.setAnalysisResults(lastRun, extractedSuggestions, normalizedMessages);
 			findingDrafts = data.findings ?? [];
 			findingsError = data.findingsError ?? null;
 
@@ -506,12 +531,14 @@
 	// Module API usage information
 	const moduleApiInfo: Record<string, { api: string; description: string }> = {
 		'quick-stats': { api: 'None', description: 'Local calculation only' },
-		'grammar-suggestions': { api: 'GPT-4o-mini', description: 'AI-powered grammar corrections' },
-		'advanced-grammar': { api: 'None (Placeholder)', description: 'Not implemented yet' },
-		'fluency-analysis': { api: 'GPT-4o-mini', description: 'AI-powered fluency scoring' },
-		'phrase-suggestions': { api: 'None (Placeholder)', description: 'Not implemented yet' },
-		'onboarding-profile': { api: 'None (Placeholder)', description: 'Not implemented yet' },
-		'language-level-assessment': { api: 'None (Placeholder)', description: 'Not implemented yet' },
+		'grammar-suggestions': {
+			api: 'GPT-4o-mini',
+			description: 'AI-powered grammar, phrase, and language suggestions'
+		},
+		'language-assessment': {
+			api: 'GPT-4o-mini',
+			description: 'Comprehensive language level, fluency, and learning profile assessment'
+		},
 		'pronunciation-analysis': { api: 'None (Placeholder)', description: 'Requires audio input' },
 		'speech-rhythm': { api: 'None (Placeholder)', description: 'Requires audio input' }
 	};
@@ -871,6 +898,14 @@
 							<input type="checkbox" class="toggle toggle-sm" bind:checked={showRawAnalysis} />
 							<span class="text-sm">Show Raw JSON</span>
 						</label>
+						<label class="flex cursor-pointer items-center gap-2">
+							<input
+								type="checkbox"
+								class="toggle toggle-sm"
+								bind:checked={showUnifiedConversationDebug}
+							/>
+							<span class="text-sm">Show Unified Conversation Debug</span>
+						</label>
 					{/if}
 				</div>
 			</div>
@@ -1090,7 +1125,7 @@
 						</div>
 					{/if}
 
-					{#if suggestions.length > 0}
+					{#if displaySuggestions.length > 0}
 						<div class="rounded-lg border border-base-300 bg-base-100 p-4">
 							<div class="mb-3 flex items-center justify-between">
 								<div>
@@ -1100,9 +1135,109 @@
 										nudges.
 									</p>
 								</div>
-								<span class="badge badge-sm badge-neutral">{suggestions.length} suggestions</span>
+								<span class="badge badge-sm badge-neutral"
+									>{displaySuggestions.length} suggestions</span
+								>
 							</div>
-							<UnifiedConversationBubble {messages} {suggestions} />
+							<UnifiedConversationBubble
+								messages={analysisStore?.unifiedConversation?.messages || messages}
+								suggestions={displaySuggestions}
+							/>
+						</div>
+					{/if}
+
+					{#if showUnifiedConversationDebug && lastRun}
+						<!-- Unified Conversation Debug Section -->
+						<div class="rounded-lg bg-base-200 p-4">
+							<div class="mb-4 flex items-center gap-2">
+								<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+									<path
+										fill-rule="evenodd"
+										d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+										clip-rule="evenodd"
+									></path>
+								</svg>
+								<h4 class="font-semibold">Unified Conversation Debug</h4>
+								<button
+									class="btn ml-auto btn-outline btn-xs"
+									onclick={() => {
+										const debugData = {
+											rawAnalysis: lastRun,
+											extractedSuggestions: suggestions,
+											analysisStoreState: analysisStore
+												? {
+														unifiedConversation: analysisStore.unifiedConversation,
+														currentRun: analysisStore.currentRun,
+														suggestions: analysisStore.suggestions
+													}
+												: null,
+											displaySuggestions: displaySuggestions,
+											storeSuggestions: storeSuggestions
+										};
+										navigator.clipboard.writeText(JSON.stringify(debugData, null, 2));
+									}}>Copy Debug Data</button
+								>
+							</div>
+
+							<div class="grid gap-4 md:grid-cols-2">
+								<div>
+									<h5 class="mb-2 font-medium text-base-content/80">Raw Analysis Results</h5>
+									<pre
+										class="max-h-64 overflow-auto rounded bg-base-300 p-3 text-xs text-base-content/80">{JSON.stringify(
+											lastRun,
+											null,
+											2
+										)}</pre>
+								</div>
+
+								<div>
+									<h5 class="mb-2 font-medium text-base-content/80">Extracted Suggestions</h5>
+									<pre
+										class="max-h-64 overflow-auto rounded bg-base-300 p-3 text-xs text-base-content/80">{JSON.stringify(
+											suggestions,
+											null,
+											2
+										)}</pre>
+								</div>
+							</div>
+
+							<div class="mt-4">
+								<h5 class="mb-2 font-medium text-base-content/80">Analysis Store State</h5>
+								<pre
+									class="max-h-64 overflow-auto rounded bg-base-300 p-3 text-xs text-base-content/80">{JSON.stringify(
+										analysisStore
+											? {
+													unifiedConversation: analysisStore.unifiedConversation,
+													currentRun: analysisStore.currentRun,
+													suggestions: analysisStore.suggestions
+												}
+											: 'Analysis store not loaded',
+										null,
+										2
+									)}</pre>
+							</div>
+
+							<div class="mt-4">
+								<h5 class="mb-2 font-medium text-base-content/80">Display Suggestions (Final)</h5>
+								<pre
+									class="max-h-64 overflow-auto rounded bg-base-300 p-3 text-xs text-base-content/80">{JSON.stringify(
+										displaySuggestions,
+										null,
+										2
+									)}</pre>
+							</div>
+
+							<div class="mt-4">
+								<h5 class="mb-2 font-medium text-base-content/80">
+									Messages Being Passed to UnifiedConversationBubble
+								</h5>
+								<pre
+									class="max-h-64 overflow-auto rounded bg-base-300 p-3 text-xs text-base-content/80">{JSON.stringify(
+										analysisStore?.unifiedConversation?.messages || messages,
+										null,
+										2
+									)}</pre>
+							</div>
 						</div>
 					{/if}
 
@@ -1302,63 +1437,73 @@
 
 			{#if showReviewableDemo}
 				<div class="mb-4 rounded-lg border border-info/20 bg-info/10 p-4">
-					<h3 class="mb-2 font-medium text-info-content">🎭 Full Reviewable State Experience</h3>
+					<h3 class="mb-2 font-medium text-info-content">🎭 Reviewable State Demo</h3>
 					<p class="text-sm text-info-content/80">
-						This demonstrates the complete conversation review experience with
-						UnifiedConversationBubble integration, including hover highlighting for suggestions.
+						This demonstrates the conversation review experience with analysis suggestions.
 					</p>
 				</div>
 
-				<!-- Mock language object for the demo -->
-				{@const mockLanguage = {
-					id: 'en',
-					code: 'en',
-					name: 'English',
-					nativeName: 'English',
-					isRTL: false,
-					flag: '🇺🇸',
-					hasRomanization: false,
-					writingSystem: 'latin',
-					supportedScripts: ['latin'] as string[],
-					isSupported: true
-				}}
-				{@const mockMessages = messages.map((msg) => ({
-					...msg,
-					conversationId: conversationId,
-					sequenceId: null,
-					translatedContent: null,
-					sourceLanguage: null,
-					targetLanguage: null,
-					userNativeLanguage: null,
-					romanization: null,
-					hiragana: null,
-					otherScripts: null,
-					speechTimings: null,
-					translationConfidence: null,
-					translationProvider: null,
-					translationNotes: null,
-					isTranslated: false,
-					grammarAnalysis: null,
-					vocabularyAnalysis: null,
-					pronunciationScore: null,
-					audioUrl: null,
-					audioDuration: null,
-					difficultyLevel: null,
-					learningTags: null,
-					conversationContext: null,
-					messageIntent: null
-				}))}
-
 				<div class="bg-base-50 rounded-lg border border-base-300 p-4">
-					<ConversationReviewableState
-						messages={mockMessages}
-						language={mockLanguage}
-						onStartNewConversation={() => alert('Start new conversation clicked')}
-						onAnalyzeConversation={() => alert('Analyze conversation clicked')}
-						onGoHome={() => alert('Go home clicked')}
-						analysisResults={null}
-						showAnalysisResults={false}
-					/>
+					<div class="space-y-4">
+						<!-- Demo Header -->
+						<div class="text-center">
+							<div class="mb-2 text-lg font-semibold">Review Your Conversation</div>
+							<p class="text-sm text-base-content/70">
+								Your English conversation is ready for review
+							</p>
+						</div>
+
+						<!-- Demo Stats -->
+						<div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+							<div class="stat p-2">
+								<div class="stat-title text-xs">Messages</div>
+								<div class="stat-value text-lg text-primary">{messages.length}</div>
+							</div>
+							<div class="stat p-2">
+								<div class="stat-title text-xs">Duration</div>
+								<div class="stat-value text-lg text-secondary">5m</div>
+							</div>
+							<div class="stat p-2">
+								<div class="stat-title text-xs">Your Input</div>
+								<div class="stat-value text-lg text-accent">
+									{messages.filter((m) => m.role === 'user').length}
+								</div>
+							</div>
+							<div class="stat p-2">
+								<div class="stat-title text-xs">Avg Words</div>
+								<div class="stat-value text-lg text-info">12</div>
+							</div>
+						</div>
+
+						<!-- Demo Messages -->
+						<div class="space-y-3">
+							<h3 class="font-semibold">Your Conversation</h3>
+							{#each messages as msg}
+								<div class="chat {msg.role === 'user' ? 'chat-end' : 'chat-start'}">
+									<div
+										class="chat-bubble {msg.role === 'user'
+											? 'chat-bubble-primary'
+											: 'chat-bubble-secondary'}"
+									>
+										{msg.content}
+									</div>
+								</div>
+							{/each}
+						</div>
+
+						<!-- Demo Actions -->
+						<div class="flex gap-2">
+							<button
+								class="btn btn-sm btn-primary"
+								onclick={() => alert('Analysis would run here')}
+							>
+								Get Learning Analysis
+							</button>
+							<button class="btn btn-outline btn-sm" onclick={() => alert('New conversation')}>
+								Practice More
+							</button>
+						</div>
+					</div>
 				</div>
 			{/if}
 		</section>

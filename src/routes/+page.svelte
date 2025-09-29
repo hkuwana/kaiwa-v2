@@ -24,7 +24,7 @@
 	// A/B Testing for headlines - Family connection & anxiety-free positioning
 	const headlineVariants = {
 		// Main control (family connection)
-		main: 'Connect with your family in the language of their heart.',
+		main: 'Connect with family in their language.',
 
 		// Dynamic language-specific variations
 		grandmother: 'dynamic-grandmother',

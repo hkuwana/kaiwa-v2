@@ -26,8 +26,8 @@ const registry: Record<AnalysisModuleId, AnalysisModuleDefinition> = {
 	},
 	'grammar-suggestions': {
 		id: 'grammar-suggestions',
-		label: 'Grammar Suggestions',
-		description: 'Targets concrete grammar issues with replacements tied to each utterance',
+		label: 'Grammar & Language Suggestions',
+		description: 'Comprehensive grammar corrections, advanced patterns, and phrase suggestions',
 		modality: 'text',
 		run: async ({ messages, languageCode }: AnalysisModuleContext) => {
 			const userMessages = messages.filter((m) => m.role === 'user');
@@ -67,13 +67,31 @@ const registry: Record<AnalysisModuleId, AnalysisModuleDefinition> = {
       "subSkill": "politeness",
       "microRule": "fr.polite-request",
       "ruleId": "grammar.politeness.request"
+    },
+    {
+      "messageId": "msg-5",
+      "originalText": "I want to go to the store",
+      "suggestedText": "I'd like to go to the store",
+      "explanation": "More natural and polite phrasing for expressing desires",
+      "example": "I'd like to visit the museum",
+      "severity": "info",
+      "macroSkill": "pragmatics",
+      "subSkill": "politeness",
+      "microRule": "en.polite-desire",
+      "ruleId": "pragmatics.politeness.desire"
     }
   ]
 }`;
 
-			const systemPrompt = `You are a meticulous language coach. Analyse user turns in ${languageCode} conversations and return concrete corrections. Respond ONLY with valid JSON.`;
+			const systemPrompt = `You are a comprehensive language coach. Analyze user turns in ${languageCode} conversations and provide:
+1. Grammar corrections (errors, tense, agreement, etc.)
+2. Advanced grammar patterns (complex structures, subjunctive, etc.)
+3. Phrase suggestions (more natural, idiomatic expressions)
+4. Pragmatic improvements (politeness, formality, cultural appropriateness)
 
-			const userPrompt = `Full conversation transcript (user and assistant):\n${conversationDigest}\n\nFocus corrections only on user messages:\n${userMessageDigest}\n\nReturn JSON matching this schema:\n${schemaExample}\n\nGuidelines:\n- Suggest only when there is a real error or a significantly better phrasing for the SAME user message.\n- Provide the corrected sentence in "suggestedText" using the same language as the original message.\n- "severity" must be one of: "warning" (blocking), "hint" (nice-to-have), "info" (positive reinforcement).\n- macroSkill options: grammar, lexis, pragmatics, discourse, pronunciation, fluency, sociolinguistic. Pick the best fit.\n- subSkill and microRule should be short, kebab-case identifiers (e.g., politeness, fr.past-imperfect).\n- Include ruleId referencing your reasoning (e.g., grammar.pronoun.formality).\n- Never invent corrections for assistant messages or messages that are already correct.`;
+Respond ONLY with valid JSON.`;
+
+			const userPrompt = `Full conversation transcript (user and assistant):\n${conversationDigest}\n\nFocus suggestions only on user messages:\n${userMessageDigest}\n\nReturn JSON matching this schema:\n${schemaExample}\n\nGuidelines:\n- Provide concrete corrections for actual errors\n- Suggest more natural/idiomatic phrasing when appropriate\n- Include advanced grammar pattern improvements\n- Consider cultural and pragmatic appropriateness\n- "severity" options: "warning" (blocking error), "hint" (improvement), "info" (positive reinforcement)\n- macroSkill options: grammar, lexis, pragmatics, discourse, pronunciation, fluency, sociolinguistic\n- subSkill and microRule should be short, kebab-case identifiers\n- Include ruleId for categorization\n- Never suggest changes to assistant messages or already correct messages`;
 
 			try {
 				const response = await createCompletion(
@@ -84,7 +102,7 @@ const registry: Record<AnalysisModuleId, AnalysisModuleDefinition> = {
 					{
 						model: 'gpt-4o-mini',
 						temperature: 0.1,
-						maxTokens: 800,
+						maxTokens: 1200,
 						responseFormat: 'json'
 					}
 				);
@@ -95,11 +113,10 @@ const registry: Record<AnalysisModuleId, AnalysisModuleDefinition> = {
 				return {
 					moduleId: 'grammar-suggestions',
 					summary: suggestions.length
-						? `Found ${suggestions.length} grammar corrections`
-						: 'Grammar analysis complete – no actionable corrections',
+						? `Found ${suggestions.length} language suggestions (grammar, phrases, patterns)`
+						: 'Language analysis complete – no actionable suggestions',
 					recommendations: suggestions.map(
-						(s: any) =>
-							`${s.macroSkill || s.category || 'grammar'}: ${s.explanation ?? s.suggestedText}`
+						(s: any) => `${s.macroSkill || 'grammar'}: ${s.explanation ?? s.suggestedText}`
 					),
 					details: { suggestions }
 				};
@@ -107,31 +124,16 @@ const registry: Record<AnalysisModuleId, AnalysisModuleDefinition> = {
 				console.error('Grammar suggestions module failed:', error);
 				return {
 					moduleId: 'grammar-suggestions',
-					summary: 'Grammar analysis failed',
+					summary: 'Language analysis failed',
 					details: { error: 'Processing failed', suggestions: [] }
 				};
 			}
 		}
 	},
-	'advanced-grammar': {
-		id: 'advanced-grammar',
-		label: 'Advanced Grammar',
-		description: 'Detailed analysis of grammar usage and error patterns',
-		modality: 'text',
-		tier: 'pro',
-		run: ({ messages: _messages }: AnalysisModuleContext) => {
-			return {
-				moduleId: 'advanced-grammar',
-				summary: 'Advanced grammar analysis complete',
-				details: { patterns: [], errors: [] }
-			};
-		}
-	},
-	'fluency-analysis': {
-		id: 'fluency-analysis',
-		label: 'Fluency Analysis',
-		description:
-			'Analyzes natural flow, confidence indicators, and communication effectiveness (no WPM)',
+	'language-assessment': {
+		id: 'language-assessment',
+		label: 'Language Assessment',
+		description: 'Comprehensive language level assessment, fluency analysis, and learning profile',
 		modality: 'text',
 		tier: 'pro',
 		run: async ({ messages, languageCode }: AnalysisModuleContext) => {
@@ -139,39 +141,79 @@ const registry: Record<AnalysisModuleId, AnalysisModuleDefinition> = {
 
 			if (userMessages.length === 0) {
 				return {
-					moduleId: 'fluency-analysis',
-					summary: 'No user messages found for fluency analysis',
-					details: { fluencyScore: 0, insights: [] }
+					moduleId: 'language-assessment',
+					summary: 'No user messages found for language assessment',
+					details: {
+						fluencyScore: 0,
+						cefrLevel: 'Unknown',
+						profile: {},
+						insights: []
+					}
 				};
 			}
 
-			const systemPrompt = `You are a language fluency expert. Analyze the user's conversation for natural flow and communication effectiveness in ${languageCode}.
+			const systemPrompt = `You are a comprehensive language assessment expert. Analyze the user's conversation in ${languageCode} and provide:
+
+1. CEFR-based language level assessment
+2. Fluency and communication effectiveness analysis
+3. Learning profile with strengths and growth areas
+4. Practical recommendations for improvement
 
 Focus on QUALITY metrics (NOT speed/WPM):
 - Natural conversation flow and coherence
 - Confidence indicators vs hesitation patterns
 - Vocabulary diversity and appropriate usage
 - Response appropriateness to context
-- Self-correction and recovery patterns
+- Grammar complexity and accuracy
+- Cultural and pragmatic appropriateness
 
-Avoid speed-based metrics. Focus on communication effectiveness and natural expression.`;
+Respond ONLY with valid JSON.`;
 
-			const userPrompt = `Analyze these user messages for fluency patterns:
+			const userPrompt = `Analyze these user messages for comprehensive language assessment:
 
 ${userMessages.map((msg, i) => `Message ${i + 1}: "${msg}"`).join('\n')}
 
 Provide analysis in JSON format:
 {
-  "fluencyScore": 85,
-  "naturalFlow": "high/medium/low",
-  "confidenceLevel": "high/medium/low",
-  "vocabularyDiversity": "high/medium/low",
-  "insights": [
-    "Shows strong confidence with complex sentence structures",
-    "Uses natural conversational connectors effectively"
-  ],
-  "strengths": ["Natural rhythm", "Appropriate responses"],
-  "growthAreas": ["Vocabulary expansion", "Complex grammar structures"]
+  "cefrAssessment": {
+    "currentLevel": {
+      "cefrLevel": "B1",
+      "cefrSubLevel": "B1.2",
+      "practicalLevel": "conversational-basics",
+      "confidenceScore": 75
+    },
+    "suggestedNextLevel": {
+      "cefrLevel": "B2",
+      "cefrSubLevel": "B2.1",
+      "practicalLevel": "discuss-topics",
+      "confidenceScore": 85
+    },
+    "strengthAreas": ["Basic conversation", "Everyday vocabulary"],
+    "growthAreas": ["Complex grammar", "Formal language"],
+    "confidenceIndicators": ["Uses simple sentences correctly", "Understands main ideas"]
+  },
+  "fluencyAnalysis": {
+    "fluencyScore": 85,
+    "naturalFlow": "high/medium/low",
+    "confidenceLevel": "high/medium/low",
+    "vocabularyDiversity": "high/medium/low",
+    "insights": [
+      "Shows strong confidence with complex sentence structures",
+      "Uses natural conversational connectors effectively"
+    ]
+  },
+  "learningProfile": {
+    "learningStyle": "visual/auditory/kinesthetic",
+    "preferredComplexity": "simple/moderate/complex",
+    "communicationStyle": "formal/casual/mixed",
+    "strengths": ["Natural rhythm", "Appropriate responses"],
+    "growthAreas": ["Vocabulary expansion", "Complex grammar structures"],
+    "recommendations": [
+      "Practice with more complex sentence structures",
+      "Expand vocabulary in professional contexts"
+    ]
+  },
+  "practicalLevelDescription": "You can handle basic conversations about familiar topics and express yourself in simple terms."
 }`;
 
 			try {
@@ -183,56 +225,41 @@ Provide analysis in JSON format:
 					{
 						model: 'gpt-4o-mini',
 						temperature: 0.3,
-						maxTokens: 600,
+						maxTokens: 1000,
 						responseFormat: 'json'
 					}
 				);
 
 				const parsed = JSON.parse(response.content);
 				return {
-					moduleId: 'fluency-analysis',
-					summary: `Fluency score: ${parsed.fluencyScore}/100. ${parsed.confidenceLevel} confidence level.`,
-					score: parsed.fluencyScore,
+					moduleId: 'language-assessment',
+					summary: `Level: ${parsed.cefrAssessment?.currentLevel?.cefrLevel || 'Unknown'} | Fluency: ${parsed.fluencyAnalysis?.fluencyScore || 0}/100`,
+					score: parsed.fluencyAnalysis?.fluencyScore || 0,
 					recommendations: [
-						...(parsed.strengths || []).map((s: string) => `✅ Strength: ${s}`),
-						...(parsed.growthAreas || []).map((g: string) => `📈 Growth area: ${g}`)
+						...(parsed.learningProfile?.strengths || []).map((s: string) => `✅ Strength: ${s}`),
+						...(parsed.learningProfile?.growthAreas || []).map(
+							(g: string) => `📈 Growth area: ${g}`
+						),
+						...(parsed.learningProfile?.recommendations || []).map(
+							(r: string) => `💡 Recommendation: ${r}`
+						)
 					],
 					details: parsed
 				};
 			} catch (error) {
-				console.error('Fluency analysis module failed:', error);
+				console.error('Language assessment module failed:', error);
 				return {
-					moduleId: 'fluency-analysis',
-					summary: 'Fluency analysis failed',
-					details: { error: 'Processing failed', fluencyScore: 0, insights: [] }
+					moduleId: 'language-assessment',
+					summary: 'Language assessment failed',
+					details: {
+						error: 'Processing failed',
+						fluencyScore: 0,
+						cefrLevel: 'Unknown',
+						profile: {},
+						insights: []
+					}
 				};
 			}
-		}
-	},
-	'phrase-suggestions': {
-		id: 'phrase-suggestions',
-		label: 'Phrase Suggestions',
-		description: 'Alternative phrases to sound more natural',
-		modality: 'text',
-		run: ({ messages: _messages }: AnalysisModuleContext) => {
-			return {
-				moduleId: 'phrase-suggestions',
-				summary: 'Phrase suggestions generated',
-				details: { suggestions: [] }
-			};
-		}
-	},
-	'onboarding-profile': {
-		id: 'onboarding-profile',
-		label: 'Onboarding Profile',
-		description: 'Learning profile and recommendation draft',
-		modality: 'text',
-		run: ({ messages: _messages }: AnalysisModuleContext) => {
-			return {
-				moduleId: 'onboarding-profile',
-				summary: 'Onboarding profile ready',
-				details: { profile: {}, recommendations: [] }
-			};
 		}
 	},
 	'pronunciation-analysis': {
@@ -262,40 +289,6 @@ Provide analysis in JSON format:
 				moduleId: 'speech-rhythm',
 				summary: 'Speech rhythm analysis complete',
 				details: { rhythmScore: 75, observations: [] }
-			};
-		}
-	},
-	'language-level-assessment': {
-		id: 'language-level-assessment',
-		label: 'Language Level Assessment',
-		description: 'CEFR-based language level assessment with practical mapping',
-		modality: 'text',
-		run: ({ messages: _messages }: AnalysisModuleContext) => {
-			return {
-				moduleId: 'language-level-assessment',
-				summary: 'Language level assessed',
-				details: {
-					assessment: {
-						currentLevel: {
-							cefrLevel: 'B1',
-							cefrSubLevel: 'B1.2',
-							practicalLevel: 'conversational-basics',
-							confidenceScore: 75
-						},
-						suggestedNextLevel: {
-							cefrLevel: 'B2',
-							cefrSubLevel: 'B2.1',
-							practicalLevel: 'discuss-topics',
-							confidenceScore: 85
-						},
-						strengthAreas: ['Basic conversation', 'Everyday vocabulary'],
-						growthAreas: ['Complex grammar', 'Formal language'],
-						confidenceIndicators: ['Uses simple sentences correctly', 'Understands main ideas']
-					},
-					practicalLevelDescription:
-						'You can handle basic conversations about familiar topics and express yourself in simple terms.',
-					confidenceLevel: 'medium'
-				}
 			};
 		}
 	}
