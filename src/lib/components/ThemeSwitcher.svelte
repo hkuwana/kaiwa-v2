@@ -9,7 +9,7 @@
 </script>
 
 <label class="swap ml-2 swap-rotate">
-	<input type="checkbox" data-toggle-theme="night,retro" data-act-class="active" />
+	<input type="checkbox" data-toggle-theme="night,light" data-act-class="active" />
 
 	<!-- sun icon (light theme) -->
 	<div class="swap-on btn btn-circle btn-primary">
