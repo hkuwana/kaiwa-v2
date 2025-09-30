@@ -154,12 +154,16 @@
 									const m = document.cookie.match(/(?:^|; )kaiwa_share_id=([^;]*)/);
 									shareId = m ? decodeURIComponent(m[1]) : null;
 								}
-							} catch {}
+							} catch {
+								// Intentionally empty - attribution data is optional
+							}
 							let utm: any = {};
 							try {
 								const stored = localStorage.getItem('kaiwa_attribution');
 								if (stored) utm = JSON.parse(stored).utm || {};
-							} catch {}
+							} catch {
+								// Intentionally empty - UTM data is optional
+							}
 							posthog.capture('auth_form_success', {
 								method: isLogin ? 'login' : 'signup',
 								share_id: shareId,

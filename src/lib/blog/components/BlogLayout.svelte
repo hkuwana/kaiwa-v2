@@ -10,12 +10,12 @@
 	// Calculate reading time if not provided
 	const readTime = post.metadata.readTime || '5 min read';
 
-	const jsonLd = createBlogJsonLd(post.metadata, `https://trykaiwa.com/blog/${post.slug}`);
+	const _jsonLd = createBlogJsonLd(post.metadata, `https://trykaiwa.com/blog/${post.slug}`);
 </script>
 
 <svelte:head>
 	<script type="application/ld+json">
-		{@html JSON.stringify(jsonLd)}
+		{@html JSON.stringify(_jsonLd)}
 	</script>
 </svelte:head>
 
@@ -37,7 +37,7 @@
 
 			{#if post.metadata.tags && post.metadata.tags.length > 0}
 				<div class="mb-4 flex flex-wrap gap-2">
-					{#each post.metadata.tags as tag}
+					{#each post.metadata.tags as tag (tag)}
 						<span class="badge badge-outline badge-sm">{tag}</span>
 					{/each}
 				</div>
@@ -65,7 +65,7 @@
 		<section class="mb-8 border-t border-base-300 pt-8">
 			<h2 class="mb-6 text-2xl font-bold text-base-content">Related Posts</h2>
 			<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-				{#each relatedPosts as relatedPost}
+				{#each relatedPosts as relatedPost (relatedPost.slug)}
 					<div class="card bg-base-100 shadow-md transition-shadow hover:shadow-lg">
 						<div class="card-body p-4">
 							<h3 class="card-title text-lg">

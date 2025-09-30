@@ -10,7 +10,7 @@
 		isVisible,
 		isGuestUser = true,
 		onDismiss = () => {},
-		onSave = () => {},
+		onSave: _onSave = () => {},
 		expandable = true
 	}: {
 		results: UserPreferences;
@@ -139,7 +139,7 @@
 									<div class="space-y-2">
 										<div class="text-xs font-medium sm:text-sm">Specific Goals</div>
 										<div class="flex flex-wrap gap-1 sm:gap-2">
-											{#each results.specificGoals as goal}
+											{#each results.specificGoals as goal (goal)}
 												<span class="badge badge-outline badge-xs sm:badge-sm">{goal}</span>
 											{/each}
 										</div>

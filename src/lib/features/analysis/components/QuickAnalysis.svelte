@@ -3,7 +3,8 @@
 	import { onMount } from 'svelte';
 	import { fade, slide } from 'svelte/transition';
 
-	interface Props {
+	// Props interface (not used as variable name)
+	interface _Props {
 		messages: Message[];
 		language: Language;
 		onStartNewConversation: () => void;
@@ -25,7 +26,7 @@
 		isGuestUser = false,
 		expandable = true,
 		isHistorical = false
-	} = $props();
+	}: _Props = $props();
 
 	let isVisible = $state(false);
 	let showShareModal = $state(false);
@@ -296,7 +297,7 @@
 			>
 				<h2 class="mb-4 text-xl font-semibold">Quick Insights</h2>
 				<div class="space-y-3">
-					{#each quickInsights as insight, i}
+					{#each quickInsights as insight, i (i)}
 						<div
 							class="flex items-start gap-3"
 							transition:slide={{ duration: 300, delay: 400 + i * 100 }}

@@ -49,7 +49,7 @@
 </script>
 
 <span class="word-synced" aria-live="polite">
-	{#each getSegments() as segment}
+	{#each getSegments() as segment (segment.index)}
 		{#if segment.highlight}
 			<span class="word-synced__segment word-synced__segment--active" data-token={segment.index}>
 				{segment.text}

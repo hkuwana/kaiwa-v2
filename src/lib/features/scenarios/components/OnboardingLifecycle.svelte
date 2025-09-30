@@ -76,7 +76,7 @@
 		<!-- Mobile Variant - Vertical Steps with Symbols -->
 		<div class="mx-auto w-full max-w-sm">
 			<ul class="steps steps-vertical w-full">
-				{#each lifecycleSteps() as step}
+				{#each lifecycleSteps() as step (step.id)}
 					<li
 						class="step {step.isCompleted
 							? 'step-success'
@@ -112,7 +112,7 @@
 
 			<!-- Horizontal Steps -->
 			<ul class="steps steps-horizontal w-full">
-				{#each lifecycleSteps() as step}
+				{#each lifecycleSteps() as step (step.id)}
 					<li
 						class="step {step.isCompleted
 							? 'step-success'
@@ -136,7 +136,7 @@
 	{:else if variant === 'compact'}
 		<!-- Compact Variant - Minimal Icons Only -->
 		<div class="flex items-center justify-center gap-4">
-			{#each lifecycleSteps() as step}
+			{#each lifecycleSteps() as step (step.id)}
 				<div
 					class="flex flex-col items-center gap-1 {step.isCompleted
 						? 'text-success'

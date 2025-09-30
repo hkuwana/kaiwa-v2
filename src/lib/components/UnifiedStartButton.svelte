@@ -83,7 +83,7 @@
 		}
 	}
 
-	async function handleStartClick(event: MouseEvent) {
+	async function handleStartClick(_event: MouseEvent) {
 		if (isLoading) return;
 
 		const sessionId = crypto.randomUUID();

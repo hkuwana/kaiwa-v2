@@ -494,7 +494,7 @@
 					<h2 class="card-title">💬 Conversation Messages vs MessageBubble Comparison</h2>
 
 					<div class="space-y-6">
-						{#each messages as message}
+						{#each messages as message (message.id)}
 							<div
 								class="grid grid-cols-1 gap-4 rounded-lg border border-base-300 p-4 lg:grid-cols-2"
 							>

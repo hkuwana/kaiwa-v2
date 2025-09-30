@@ -467,7 +467,7 @@
 					<div class="card-body">
 						<h3 class="card-title">Sample Messages</h3>
 						<div class="grid grid-cols-1 gap-2">
-							{#each sampleMessages as sample}
+							{#each sampleMessages as sample (sample.id)}
 								<button
 									class="btn justify-start btn-outline btn-sm"
 									onclick={() => loadSampleMessage(sample)}

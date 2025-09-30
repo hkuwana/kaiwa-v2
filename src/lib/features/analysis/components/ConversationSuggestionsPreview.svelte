@@ -4,6 +4,7 @@
 	import type { AnalysisSuggestion } from '../types/analysis-suggestion.types';
 	import type { AnalysisMessage } from '../services/analysis.service';
 	import { slide } from 'svelte/transition';
+	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 
 	interface Props {
 		messages: AnalysisMessage[];
@@ -19,17 +20,17 @@
 	const {
 		messages,
 		suggestions,
-		conversationLanguage = 'en',
+		conversationLanguage: _conversationLanguage = 'en',
 		showSuggestions = true,
-		audioUrls = new Map(),
+		audioUrls = new SvelteMap(),
 		playingAudioId,
 		onPlayAudio,
 		onPauseAudio
 	}: Props = $props();
 
 	// State management using Svelte 5 runes
-	let openSuggestions = $state(new Set<string>());
-	let hoveredSuggestions = $state(new Map<string, string>());
+	let openSuggestions = $state(new SvelteSet<string>());
+	let hoveredSuggestions = $state(new SvelteMap<string, string>());
 	let hasAutoOpened = $state(false);
 
 	// Auto-open first message with suggestions
@@ -47,7 +48,7 @@
 
 	// Group suggestions by message ID
 	const groupedSuggestions = $derived(() => {
-		const map = new Map<string, AnalysisSuggestion[]>();
+		const map = new SvelteMap<string, AnalysisSuggestion[]>();
 		for (const suggestion of suggestions ?? []) {
 			if (!map.has(suggestion.messageId)) {
 				map.set(suggestion.messageId, []);
@@ -145,7 +146,7 @@
 
 	// Event handlers
 	function toggleSuggestions(messageId: string) {
-		const newSet = new Set(openSuggestions);
+		const newSet = new SvelteSet(openSuggestions);
 		if (newSet.has(messageId)) {
 			newSet.delete(messageId);
 		} else {
@@ -163,7 +164,7 @@
 	}
 
 	function setHoveredSuggestion(messageId: string, suggestionText: string | null) {
-		const newMap = new Map(hoveredSuggestions);
+		const newMap = new SvelteMap(hoveredSuggestions);
 		if (suggestionText) {
 			newMap.set(messageId, suggestionText);
 		} else {
@@ -180,7 +181,7 @@
 		{@const isFromUser = message.role === 'user'}
 		{@const hasAudio = audioUrls.has(message.id)}
 		{@const isPlayingAudio = playingAudioId === message.id}
-		{@const suggestionCounts = messageSuggestions.reduce(
+		{@const _suggestionCounts = messageSuggestions.reduce(
 			(counts, s) => {
 				counts[s.severity as keyof typeof counts] =
 					(counts[s.severity as keyof typeof counts] || 0) + 1;
@@ -190,7 +191,7 @@
 		)}
 		{@const correctedSentence = generateCorrectedSentence(message.content, messageSuggestions)}
 		{@const suggestionsOpen = openSuggestions.has(message.id)}
-		{@const hoveredSuggestion = hoveredSuggestions.get(message.id)}
+		{@const _hoveredSuggestion = hoveredSuggestions.get(message.id)}
 
 		<div class="relative mb-4">
 			<div class="flex gap-4 {isFromUser ? 'flex-row-reverse' : 'flex-row'} items-start">
@@ -230,7 +231,7 @@
 
 									<!-- Individual Suggestions -->
 									<div class="space-y-2">
-										{#each messageSuggestions as suggestion}
+										{#each messageSuggestions as suggestion (suggestion.originalText + suggestion.suggestedText)}
 											<div
 												class="rounded-lg border border-base-300 p-3 transition-all duration-200 hover:shadow-md {suggestion.severity ===
 												'warning'

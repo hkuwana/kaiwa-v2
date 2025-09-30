@@ -4,10 +4,8 @@
 	import ScenarioProgress from '$lib/features/scenarios/components/ScenarioProgress.svelte';
 	import TierBadge from '$lib/features/payments/components/TierBadge.svelte';
 	import VoiceSelector from '$lib/components/VoiceSelector.svelte';
-	import type { AnalysisMessage } from '$lib/features/analysis/services/analysis.service';
-	import type { AnalysisSuggestion } from '$lib/features/analysis/types/analysis-suggestion.types';
-
-	import type { UsageStatus } from '$lib/server/tier-service';
+	
+import type { UsageStatus } from '$lib/server/tier-service';
 	import type {
 		Scenario,
 		ScenarioOutcome as ScenarioOutcomeType,
@@ -187,52 +185,6 @@
 	function handleScenarioExample() {
 		console.log('Scenario example viewed');
 	}
-
-	const mockAnalysisMessages: AnalysisMessage[] = [
-		{
-			id: 'analysis-msg-1',
-			role: 'assistant',
-			content: 'Welcome! What kind of local dishes are you curious about tonight?',
-			timestamp: new Date('2024-05-01T18:01:00Z')
-		},
-		{
-			id: 'analysis-msg-2',
-			role: 'user',
-			content: 'Do you have any local beers?',
-			timestamp: new Date('2024-05-01T18:01:07Z')
-		},
-		{
-			id: 'analysis-msg-3',
-			role: 'assistant',
-			content: 'Absolutely! We have a citrus lager from Osaka and a dark ale from Kyoto.',
-			timestamp: new Date('2024-05-01T18:01:15Z')
-		}
-	];
-
-	const mockAnalysisSuggestions: AnalysisSuggestion[] = [
-		{
-			id: 'suggestion-1',
-			ruleId: 'politeness-modal',
-			category: 'politeness',
-			severity: 'hint',
-			messageId: 'analysis-msg-2',
-			originalText: 'Do you have any local beers?',
-			suggestedText: 'Could you tell me if you have any local beers?',
-			explanation: "Adding 'could' makes the request sound more polite and natural.",
-			example:
-				"Instead of 'Do you have any local beers?', try 'Could you tell me if you have any local beers?'"
-		},
-		{
-			id: 'suggestion-2',
-			ruleId: 'vocabulary-detail',
-			category: 'clarity',
-			severity: 'info',
-			messageId: 'analysis-msg-2',
-			originalText: 'Do you have any local beers?',
-			suggestedText: 'Could you recommend a local beer you like?',
-			explanation: 'Inviting a recommendation keeps the conversation flowing and sounds warmer.'
-		}
-	];
 </script>
 
 <svelte:head>

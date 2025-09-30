@@ -19,7 +19,7 @@
 	const {
 		message,
 		suggestions = [],
-		conversationLanguage = 'en',
+		conversationLanguage: _conversationLanguage = 'en',
 		showSuggestions = true,
 		audioUrl,
 		isPlayingAudio = false,
@@ -65,7 +65,7 @@
 
 	// State management using Svelte 5 runes
 	let suggestionsOpen = $state(false);
-	let hoveredSuggestion = $state<string | null>(null);
+	let _hoveredSuggestion = $state<string | null>(null);
 
 	// Derived states
 	const hasSuggestions = $derived(suggestions.length > 0);
@@ -187,7 +187,7 @@
 
 							<!-- Individual Suggestions -->
 							<div class="space-y-2">
-								{#each suggestions as suggestion}
+								{#each suggestions as suggestion (suggestion.originalText + suggestion.suggestedText)}
 									<div
 										class="rounded-lg border border-base-300 p-3 transition-all duration-200 hover:shadow-md {suggestion.severity ===
 										'warning'
@@ -197,8 +197,8 @@
 												: 'bg-info/5 hover:bg-info/10'}"
 										role="button"
 										tabindex="0"
-										onmouseenter={() => (hoveredSuggestion = suggestion.originalText)}
-										onmouseleave={() => (hoveredSuggestion = null)}
+										onmouseenter={() => (_hoveredSuggestion = suggestion.originalText)}
+										onmouseleave={() => (_hoveredSuggestion = null)}
 									>
 										<div class="mb-2 flex items-center justify-between">
 											<div class="flex items-center gap-2">

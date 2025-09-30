@@ -202,23 +202,31 @@ export function sendTextMessage(conn: SessionConnection, text: string) {
 export function interruptSession(conn: SessionConnection) {
 	try {
 		conn.session.interrupt();
-	} catch {}
+	} catch {
+		// Intentionally empty - session might already be interrupted or closed
+	}
 }
 
 export function muteSession(conn: SessionConnection, mute: boolean) {
 	try {
 		conn.session.mute(mute);
-	} catch {}
+	} catch {
+		// Intentionally empty - session might not support muting or already closed
+	}
 }
 
 export function closeSessionConnection(conn: SessionConnection) {
 	try {
 		conn.session.close();
-	} catch {}
+	} catch {
+		// Intentionally empty - session might already be closed
+	}
 	try {
 		conn.audioElement.pause();
 		conn.audioElement.remove();
-	} catch {}
+	} catch {
+		// Intentionally empty - audio element might already be removed or not exist
+	}
 }
 
 export function getSessionConnectionStatus(conn: SessionConnection): {

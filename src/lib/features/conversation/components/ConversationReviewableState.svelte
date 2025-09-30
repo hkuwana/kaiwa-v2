@@ -157,7 +157,7 @@
 					? crypto.randomUUID()
 					: Date.now()
 			}`;
-		const moduleIds = ['grammar-suggestions'];
+		const moduleIds = ['quick-stats', 'grammar-suggestions', 'language-assessment'];
 
 		try {
 			await analysisStore.runAnalysis(conversationId, language.code, analysisMessages, moduleIds);

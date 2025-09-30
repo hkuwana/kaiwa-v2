@@ -120,7 +120,7 @@
 				onchange={(e) =>
 					handleInputChange('targetLanguageId', (e.target as HTMLSelectElement).value)}
 			>
-				{#each languages.filter((lang) => lang.isSupported) as language}
+				{#each languages.filter((lang) => lang.isSupported) as language (language.id)}
 					<option value={language.id}>
 						{language.flag}
 						{language.name} ({language.nativeName})
@@ -144,7 +144,7 @@
 						(e.target as HTMLSelectElement).value as UserPreferences['learningGoal']
 					)}
 			>
-				{#each learningGoals as goal}
+				{#each learningGoals as goal (goal.value)}
 					<option value={goal.value}>{goal.label}</option>
 				{/each}
 			</select>
@@ -185,7 +185,7 @@
 						(e.target as HTMLSelectElement).value as UserPreferences['challengePreference']
 					)}
 			>
-				{#each challengePreferences as pref}
+				{#each challengePreferences as pref (pref.value)}
 					<option value={pref.value}>{pref.label}</option>
 				{/each}
 			</select>
@@ -206,7 +206,7 @@
 						(e.target as HTMLSelectElement).value as UserPreferences['correctionStyle']
 					)}
 			>
-				{#each correctionStyles as style}
+				{#each correctionStyles as style (style.value)}
 					<option value={style.value}>{style.label}</option>
 				{/each}
 			</select>

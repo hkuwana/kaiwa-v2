@@ -172,9 +172,9 @@ export class FeatureBridge {
 		}
 	}
 
-	static subscribe(
+	static subscribe<_TOutput = any>(
 		event: string,
-		callback: (notification: FeatureNotification) => void
+		callback: (notification: FeatureNotification<_TOutput>) => void
 	): () => void {
 		if (!this.eventListeners.has(event)) {
 			this.eventListeners.set(event, new Set());

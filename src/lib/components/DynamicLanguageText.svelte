@@ -46,7 +46,6 @@
 	let isAnimating = $state(false);
 	let intervalId: number | null = null;
 	let isUserSelected = $state(false);
-	let showDropdown = $state(false);
 
 	// Get current language for display
 	const currentLanguage = $derived(
@@ -92,7 +91,7 @@
 	function handleLanguageClick(language: Language) {
 		isUserSelected = true;
 		selectedLanguage = language;
-		showDropdown = false;
+
 		stopAnimation();
 		onLanguageSelect?.(language);
 	}
@@ -100,7 +99,7 @@
 	function resetToAnimation() {
 		isUserSelected = false;
 		selectedLanguage = null;
-		showDropdown = false;
+
 		startAnimation();
 	}
 

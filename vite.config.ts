@@ -10,9 +10,9 @@ const httpsConfig =
 	fs.existsSync(path.join(certDir, 'localhost+2.pem')) &&
 	fs.existsSync(path.join(certDir, 'localhost+2-key.pem'))
 		? {
-			key: fs.readFileSync(path.join(certDir, 'localhost+2-key.pem')),
-			cert: fs.readFileSync(path.join(certDir, 'localhost+2.pem'))
-		}
+				key: fs.readFileSync(path.join(certDir, 'localhost+2-key.pem')),
+				cert: fs.readFileSync(path.join(certDir, 'localhost+2.pem'))
+			}
 		: undefined;
 
 export default defineConfig({

@@ -186,7 +186,7 @@
 					<div class="card-body">
 						<h2 class="card-title">🎭 Viral Scenarios ({viralScenarios.length})</h2>
 						<div class="space-y-3">
-							{#each viralScenarios as scenario, i}
+							{#each viralScenarios as scenario, i (i)}
 								<div class="rounded-lg border border-base-200 p-3">
 									<div class="mb-2 flex items-center gap-2">
 										<span class="badge badge-sm badge-primary">{i + 1}</span>
@@ -200,7 +200,7 @@
 											<p><strong>Context:</strong> {scenario.context}</p>
 											<div>
 												<strong>Analysis Weights:</strong>
-												{#each Object.entries(scenario.analysisWeights) as [trait, weight]}
+												{#each Object.entries(scenario.analysisWeights) as [trait, weight] (trait)}
 													<span class="mr-1 badge badge-ghost badge-xs">
 														{trait}: {Math.round(weight * 100)}%
 													</span>
@@ -221,7 +221,7 @@
 							🌍 Cultural Traits ({Object.keys(culturalDescriptors).length})
 						</h2>
 						<div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-							{#each Object.entries(culturalDescriptors) as [_culture, descriptor]}
+							{#each Object.entries(culturalDescriptors) as [_culture, descriptor] (_culture)}
 								<div class="rounded-lg border border-base-200 p-3">
 									<div class="mb-2 flex items-center gap-2">
 										<span class="text-lg">{descriptor.flag}</span>
@@ -372,7 +372,7 @@
 							<div class="mb-6">
 								<h3 class="mb-3 font-semibold">Conversation Traits</h3>
 								<div class="grid grid-cols-2 gap-3 md:grid-cols-3">
-									{#each Object.entries(dnaResults.traits) as [trait, value]}
+									{#each Object.entries(dnaResults.traits) as [trait, value] (trait)}
 										<div class="rounded-lg bg-base-100 p-2 text-center">
 											<div class="text-xs text-base-content/60 capitalize">
 												{trait.replace(/([A-Z])/g, ' $1')}

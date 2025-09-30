@@ -323,7 +323,7 @@
 			</p>
 
 			<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-				{#each tiers as tier}
+				{#each tiers as tier (tier.id)}
 					<div class="rounded-lg border border-base-300 p-4">
 						<h3 class="mb-2 text-lg font-semibold">{tier.name}</h3>
 						<div class="mb-4 text-sm text-base-content/70">

@@ -546,7 +546,7 @@
 			<h2 class="mb-4 text-2xl font-bold text-gray-900">🗺️ SEO Strategy Roadmap</h2>
 
 			<div class="space-y-6">
-				{#each Object.entries(seoStrategy) as [_phase, details]}
+				{#each Object.entries(seoStrategy) as [_phase, details] (_phase)}
 					<div class="border-l-4 border-blue-500 pl-4">
 						<h3 class="text-lg font-semibold text-gray-800">{details.title}</h3>
 						<ul class="mt-2 space-y-1">

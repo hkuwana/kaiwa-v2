@@ -321,7 +321,7 @@
 							<div class="mt-4 rounded bg-base-200 p-3">
 								<div class="mb-2 font-semibold">Recent Messages (Last 3)</div>
 								<div class="space-y-1">
-									{#each conversationStore.messages.slice(-3) as message}
+									{#each conversationStore.messages.slice(-3) as message (message.id)}
 										<div class="rounded bg-base-100 p-2 text-xs">
 											<div class="flex justify-between">
 												<span class="font-medium">{message.role}</span>
@@ -357,7 +357,7 @@
 							<div class="space-y-2">
 								<h4 class="text-sm font-semibold">Conversation Store ({messages.length})</h4>
 								<div class="max-h-64 space-y-1 overflow-y-auto text-xs">
-									{#each messages as msg, i}
+									{#each messages as msg, i (msg.id || i)}
 										{@const status = getMessageStatus(msg)}
 										{@const isDup = isDuplicateByContent(msg, messages)}
 										{#if showPlaceholders || (!status.includes('PLACEHOLDER') && !status.includes('TRANSCRIBING'))}
@@ -410,7 +410,7 @@
 							<div class="space-y-2">
 								<h4 class="text-sm font-semibold">Realtime Store ({realtimeMessages.length})</h4>
 								<div class="max-h-64 space-y-1 overflow-y-auto text-xs">
-									{#each realtimeMessages as msg, i}
+									{#each realtimeMessages as msg, i (msg.id || i)}
 										{@const status = getMessageStatus(msg)}
 										{@const isDup = isDuplicateByContent(msg, realtimeMessages)}
 										{#if showPlaceholders || (!status.includes('PLACEHOLDER') && !status.includes('TRANSCRIBING'))}
@@ -477,7 +477,7 @@
 						<div class="space-y-2">
 							<h4 class="text-sm font-semibold">Recent Events (Last 20)</h4>
 							<div class="max-h-72 space-y-1 overflow-y-auto text-xs">
-								{#each events.slice(0, 20) as event}
+								{#each events.slice(0, 20) as event (event.timestamp + event.type)}
 									<div
 										class="rounded border p-2 {event.dir === 'server'
 											? 'bg-blue-50'

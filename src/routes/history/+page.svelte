@@ -452,7 +452,7 @@
 						: 's'})
 				</li>
 
-				{#each conversations as conversation, i}
+				{#each conversations as conversation, i (i)}
 					<li class="list-row" transition:slide={{ duration: 300, delay: i * 50 }}>
 						<!-- Language Icon/Avatar -->
 						<div class="placeholder avatar">

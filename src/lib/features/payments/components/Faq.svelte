@@ -22,7 +22,7 @@
 <div class="mx-auto mt-24 max-w-5xl">
 	<h2 class="mb-10 text-center text-3xl font-bold">Common Questions</h2>
 	<div class="mx-auto max-w-3xl space-y-4">
-		{#each faqs as faq, index (faq.question)}
+		{#each faqs as faq, index (index)}
 			<div class="collapse-plus collapse bg-base-200">
 				<input
 					type="radio"

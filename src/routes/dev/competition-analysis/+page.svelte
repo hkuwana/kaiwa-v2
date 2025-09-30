@@ -480,7 +480,7 @@
 
 				<!-- Competitor Grid -->
 				<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-					{#each filteredCompetitors as competitor}
+					{#each filteredCompetitors as competitor (competitor.id || competitor.name)}
 						<div
 							class="card cursor-pointer bg-base-100 shadow-lg transition-shadow hover:shadow-xl"
 							role="button"
@@ -536,7 +536,7 @@
 					<div class="card-body">
 						<h2 class="mb-4 card-title">🎯 Market Opportunities</h2>
 						<div class="grid gap-4 md:grid-cols-2">
-							{#each marketOpportunities as opportunity}
+							{#each marketOpportunities as opportunity (opportunity.title || opportunity)}
 								<div class="card bg-base-200 shadow">
 									<div class="card-body p-4">
 										<div class="mb-2 flex items-center justify-between">
@@ -607,7 +607,7 @@
 								<div>
 									<h4 class="mb-2 font-semibold text-green-600">Strengths</h4>
 									<ul class="list-inside list-disc space-y-1 text-sm">
-										{#each selectedCompetitor.strengths as strength}
+										{#each selectedCompetitor.strengths as strength (strength)}
 											<li>{strength}</li>
 										{/each}
 									</ul>
@@ -615,7 +615,7 @@
 								<div>
 									<h4 class="mb-2 font-semibold text-red-600">Weaknesses</h4>
 									<ul class="list-inside list-disc space-y-1 text-sm">
-										{#each selectedCompetitor.weaknesses as weakness}
+										{#each selectedCompetitor.weaknesses as weakness (weakness)}
 											<li>{weakness}</li>
 										{/each}
 									</ul>
@@ -643,7 +643,7 @@
 									<div>
 										<span class="font-semibold">Top Keywords:</span>
 										<div class="mt-1 flex flex-wrap gap-1">
-											{#each selectedCompetitor.seo.keywords as keyword}
+											{#each selectedCompetitor.seo.keywords as keyword (keyword.term || keyword)}
 												<span class="badge badge-outline badge-sm">{keyword}</span>
 											{/each}
 										</div>
@@ -697,7 +697,7 @@
 										<div>
 											<span class="text-sm font-medium text-green-600">Common Praises:</span>
 											<ul class="list-inside list-disc text-xs text-base-content/70">
-												{#each selectedCompetitor.userReviews.commonPraises as praise}
+												{#each selectedCompetitor.userReviews.commonPraises as praise (praise)}
 													<li>{praise}</li>
 												{/each}
 											</ul>
@@ -705,7 +705,7 @@
 										<div>
 											<span class="text-sm font-medium text-red-600">Common Complaints:</span>
 											<ul class="list-inside list-disc text-xs text-base-content/70">
-												{#each selectedCompetitor.userReviews.commonComplaints as complaint}
+												{#each selectedCompetitor.userReviews.commonComplaints as complaint (complaint)}
 													<li>{complaint}</li>
 												{/each}
 											</ul>
@@ -724,7 +724,7 @@
 								<div>
 									<h4 class="mb-2 font-semibold">Platforms</h4>
 									<div class="flex flex-wrap gap-1">
-										{#each selectedCompetitor.technical.platform as platform}
+										{#each selectedCompetitor.technical.platform as platform (platform)}
 											<span class="badge badge-sm">{platform}</span>
 										{/each}
 									</div>
@@ -738,7 +738,7 @@
 								<div>
 									<h4 class="mb-2 font-semibold">AI Capabilities</h4>
 									<div class="flex flex-wrap gap-1">
-										{#each selectedCompetitor.technical.aiCapabilities as capability}
+										{#each selectedCompetitor.technical.aiCapabilities as capability (capability)}
 											<span class="badge badge-outline badge-sm">{capability}</span>
 										{/each}
 									</div>
@@ -758,7 +758,7 @@
 					<div class="card-body">
 						<h2 class="mb-4 card-title">🚀 Kaiwa's Competitive Advantages</h2>
 						<div class="grid gap-4 md:grid-cols-2">
-							{#each kaiwaAdvantages as advantage}
+							{#each kaiwaAdvantages as advantage (advantage.title || advantage)}
 								<div class="card border border-primary/20 bg-primary/10">
 									<div class="card-body p-4">
 										<div class="mb-2 flex items-center gap-2">
@@ -786,7 +786,7 @@
 								<thead>
 									<tr>
 										<th>Feature</th>
-										{#each competitors as comp}
+										{#each competitors as comp (comp.id || comp.name)}
 											<th class="text-center">{comp.name}</th>
 										{/each}
 										<th class="text-center text-primary">Kaiwa</th>
@@ -795,7 +795,7 @@
 								<tbody>
 									<tr>
 										<td class="font-semibold">Emotional Conversations</td>
-										{#each competitors as comp}
+										{#each competitors as comp (comp.id || comp.name)}
 											<td class="text-center">
 												{comp.name === 'Speak' ? 'Partial' : comp.name === 'iTalki' ? 'Yes' : 'No'}
 											</td>
@@ -804,7 +804,7 @@
 									</tr>
 									<tr>
 										<td class="font-semibold">Asian Language Support</td>
-										{#each competitors as comp}
+										{#each competitors as comp (comp.id || comp.name)}
 											<td class="text-center">
 												{comp.name === 'ELSA Speak' ? 'Limited' : 'No'}
 											</td>
@@ -813,7 +813,7 @@
 									</tr>
 									<tr>
 										<td class="font-semibold">Conversation Memory</td>
-										{#each competitors as comp}
+										{#each competitors as comp (comp.id || comp.name)}
 											<td class="text-center">
 												{comp.name === 'TalkPal' ? 'Limited' : 'No'}
 											</td>
@@ -822,7 +822,7 @@
 									</tr>
 									<tr>
 										<td class="font-semibold">Unlimited Free Practice</td>
-										{#each competitors as comp}
+										{#each competitors as comp (comp.id || comp.name)}
 											<td class="text-center">
 												{comp.name === 'Duolingo'
 													? 'Limited'
@@ -835,7 +835,7 @@
 									</tr>
 									<tr>
 										<td class="font-semibold">Cultural Context</td>
-										{#each competitors as comp}
+										{#each competitors as comp (comp.id || comp.name)}
 											<td class="text-center">
 												{comp.name === 'iTalki' ? 'Yes' : 'Limited'}
 											</td>
@@ -844,7 +844,7 @@
 									</tr>
 									<tr>
 										<td class="font-semibold">Anxiety-Free Learning</td>
-										{#each competitors as comp}
+										{#each competitors as comp (comp.id || comp.name)}
 											<td class="text-center">No</td>
 										{/each}
 										<td class="text-center font-bold text-primary">Core</td>

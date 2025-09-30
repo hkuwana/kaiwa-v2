@@ -174,11 +174,13 @@ const createConstraints = (deviceId?: string): MediaStreamConstraints => {
 	const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
 		navigator.userAgent
 	);
+	const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
 
-	if (deviceId) {
+	// For Safari, avoid deviceId constraints as they can cause OverconstrainedError
+	if (deviceId && deviceId !== 'default' && !isSafari) {
 		return {
 			audio: {
-				deviceId: { exact: deviceId },
+				deviceId: { ideal: deviceId },
 				echoCancellation: { ideal: true },
 				noiseSuppression: { ideal: true },
 				autoGainControl: { ideal: true },
@@ -379,21 +381,10 @@ const createAudioServiceCore = () => {
 					)
 				});
 
-				// Check permission state first
-				console.log('🔒 AudioService: Checking permission state...');
-				state.permissionState = await checkAudioPermission();
-				console.log('🔒 Permission state:', state.permissionState);
-				onPermissionUpdate(state.permissionState);
-
-				// If permission is already denied, provide helpful guidance
-				if (state.permissionState.state === 'denied') {
-					const permissionError = new Error('Permission denied') as Error & { name: string };
-					permissionError.name = 'NotAllowedError';
-					throw permissionError;
-				}
-
 				const constraints = createConstraints(deviceId);
 				console.log('🎵 AudioService: Using constraints:', JSON.stringify(constraints, null, 2));
+				console.log('🎵 AudioService: DeviceId requested:', deviceId);
+				console.log('🎵 AudioService: User agent:', navigator.userAgent);
 
 				console.log('🎵 AudioService: Calling getUserMedia...');
 				state.stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -409,6 +400,14 @@ const createAudioServiceCore = () => {
 						readyState: track.readyState
 					}))
 				});
+
+				// Update permission state after successful stream
+				state.permissionState = {
+					state: 'granted',
+					canRetry: false,
+					userFriendlyMessage: 'Microphone access granted'
+				};
+				onPermissionUpdate(state.permissionState);
 
 				state.currentDeviceId = deviceId || 'default';
 

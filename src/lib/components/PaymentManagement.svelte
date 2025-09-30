@@ -4,7 +4,7 @@
 
 	// Props from parent component
 	const {
-		data,
+		data: _data,
 		usageStatus,
 		isLoadingUsage,
 		loadUsageStatus,
@@ -12,7 +12,7 @@
 		billingError,
 		isManagingBilling,
 		openBillingPortal,
-		subscription,
+		subscription: _subscription,
 		usageLimits
 	}: {
 		data: any;
@@ -87,10 +87,10 @@
 				const { url } = await response.json();
 				window.location.href = url;
 			} else {
-				const error = await response.json();
-				upgradeError = error.error || 'Failed to create checkout session';
+				const _error = await response.json();
+				upgradeError = _error.error || 'Failed to create checkout session';
 			}
-		} catch (error) {
+		} catch (_error) {
 			upgradeError = 'Network error creating checkout session';
 		} finally {
 			isProcessingUpgrade = false;

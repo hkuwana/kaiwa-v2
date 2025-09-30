@@ -342,7 +342,7 @@
 					{#if previewMessages.length > 0}
 						<div class="divider">Sample Messages</div>
 						<div class="max-h-48 space-y-2 overflow-y-auto">
-							{#each previewMessages.slice(0, 3) as message}
+							{#each previewMessages.slice(0, 3) as message (message.id)}
 								<div class="chat {message.role === 'user' ? 'chat-end' : 'chat-start'}">
 									<div
 										class="chat-bubble chat-bubble-{message.role === 'user'

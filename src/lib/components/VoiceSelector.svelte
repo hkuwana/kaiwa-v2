@@ -130,13 +130,6 @@
 		isPlaying = null;
 	}
 
-	function handleKeydown(event: KeyboardEvent) {
-		if (event.key === 'Escape') {
-			isOpen = false;
-			stopPreview();
-		}
-	}
-
 	// Gender icon helper
 	function getGenderIcon(gender: string) {
 		switch (gender) {
@@ -172,7 +165,7 @@
 
 	<!-- Voice dropdown -->
 	<ul class="dropdown-content menu z-[1] w-80 rounded-box bg-base-100 p-2 shadow" role="listbox">
-		{#each voices as voice}
+		{#each voices as voice (voice.id)}
 			<li>
 				<div
 					class="flex w-full items-center justify-between {voice.id === selectedVoice

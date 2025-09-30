@@ -83,7 +83,7 @@
 	</div>
 
 	<div class="grid gap-4 md:grid-cols-3">
-		{#each variant === 'compact' ? items.slice(0, 6) : items as item}
+		{#each variant === 'compact' ? items.slice(0, 6) : items as item (item.title)}
 			<div class="rounded-xl bg-base-100 p-4 shadow">
 				<div class="flex items-center gap-3">
 					<div class="flex h-9 w-9 items-center justify-center rounded-full bg-{item.color}/10">
@@ -103,7 +103,7 @@
 		</div>
 
 		<div class="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
-			{#each compare as row}
+			{#each compare as row (row.key)}
 				<div class="bg-base-50 rounded-xl border border-base-300 p-4">
 					<div class="mb-2 flex items-center justify-between gap-4">
 						<h5 class="text-base font-medium">{row.key}</h5>

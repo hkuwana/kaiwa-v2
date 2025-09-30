@@ -6,14 +6,19 @@
 
 	type VirtualizedMessage = Message & { virtualIndex: number };
 
-	interface Props {
+	interface _Props {
 		messages: Message[];
 		conversationLanguage?: string;
 		maxHeight?: string;
 		autoScroll?: boolean;
 	}
 
-	const { messages, conversationLanguage, maxHeight = '50vh', autoScroll = true } = $props();
+	const {
+		messages,
+		conversationLanguage,
+		maxHeight = '50vh',
+		autoScroll = true
+	}: _Props = $props();
 
 	let container = $state<HTMLElement>();
 	let scrollPosition = $state(0);

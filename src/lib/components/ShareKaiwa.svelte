@@ -32,7 +32,7 @@
 			track('share_native_share', { source });
 			bumpShareCount();
 			thank();
-		} catch (e) {
+		} catch (_e) {
 			// user cancelled
 		}
 	}
@@ -60,7 +60,9 @@
 			const k = 'kaiwa_share_events';
 			const n = parseInt(localStorage.getItem(k) || '0', 10) + 1;
 			localStorage.setItem(k, String(n));
-		} catch {}
+		} catch {
+			// Intentionally empty - localStorage not available or disabled
+		}
 	}
 
 	function thank() {

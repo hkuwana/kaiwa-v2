@@ -24,19 +24,21 @@ export function generateShareLink(
 			// Instagram doesn't support URL parameters for stories, so return the base URL
 			return resultUrl;
 
-		case 'tiktok':
-			// TikTok web sharing
+		case 'tiktok': { // TikTok web sharing
 			const tiktokText = encodeURIComponent(shareData.shareText);
 			return `https://www.tiktok.com/share?url=${encodeURIComponent(resultUrl)}&title=${tiktokText}`;
+		}
 
-		case 'twitter':
+		case 'twitter': {
 			const twitterText = encodeURIComponent(shareData.shareText);
 			const hashtags = encodeURIComponent(dna.shareableData.hashtags.join(','));
-			return `https://twitter.com/intent/tweet?text=${twitterText}&url=${encodeURIComponent(resultUrl)}&hashtags=${hashtags}`;
 
-		case 'whatsapp':
+			return `https://twitter.com/intent/tweet?text=${twitterText}&url=${encodeURIComponent(resultUrl)}&hashtags=${hashtags}`;
+		}
+		case 'whatsapp': {
 			const whatsappText = encodeURIComponent(`${shareData.shareText}\n\n${resultUrl}`);
 			return `https://wa.me/?text=${whatsappText}`;
+		}
 
 		case 'link':
 		default:

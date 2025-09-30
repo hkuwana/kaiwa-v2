@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { browser } from '$app/environment';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	type Status = 'todo' | 'in-progress' | 'done';
 
@@ -32,7 +33,7 @@
 		target: 5,
 		current: 1,
 		deadlineISO: (() => {
-			const date = new Date();
+			const date = new SvelteDate();
 			date.setDate(date.getDate() + 7);
 			return date.toISOString();
 		})(),
@@ -466,7 +467,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#each monthlyMilestones as item, index}
+						{#each monthlyMilestones as item, index (index)}
 							<tr>
 								<th>{index + 1}</th>
 								<td>
@@ -513,7 +514,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#each weeklySprint as item, index}
+						{#each weeklySprint as item, index (index)}
 							<tr>
 								<th>{index + 1}</th>
 								<td>
@@ -560,7 +561,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#each dailyFocus as item, index}
+						{#each dailyFocus as item, index (index)}
 							<tr>
 								<th>{index + 1}</th>
 								<td>

@@ -201,7 +201,7 @@
 					What we noticed about your confidence:
 				</h4>
 				<ul class="space-y-1">
-					{#each confidenceData.indicators as indicator}
+					{#each confidenceData.indicators as indicator (indicator)}
 						<li class="flex items-start gap-2 text-sm {colors.text} opacity-80">
 							<span class="mt-0.5 text-success">✓</span>
 							<span>{indicator}</span>
@@ -221,7 +221,7 @@
 					Confidence Milestones:
 				</h4>
 				<div class="grid gap-2">
-					{#each confidenceData.milestones as milestone}
+					{#each confidenceData.milestones as milestone (milestone.name)}
 						<div class="flex items-center gap-3 rounded bg-white/10 p-2">
 							<div
 								class="flex h-5 w-5 items-center justify-center rounded-full"
@@ -267,7 +267,7 @@
 					Next steps to build confidence:
 				</h4>
 				<ul class="space-y-1">
-					{#each confidenceData.nextSteps as step}
+					{#each confidenceData.nextSteps as step (step)}
 						<li class="flex items-start gap-2 text-sm {colors.text} opacity-80">
 							<span class="mt-0.5 text-primary">→</span>
 							<span>{step}</span>

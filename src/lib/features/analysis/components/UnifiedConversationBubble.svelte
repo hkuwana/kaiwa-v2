@@ -5,6 +5,7 @@
 	import type { AnalysisSuggestion } from '../types/analysis-suggestion.types';
 	import type { AnalysisMessage } from '../services/analysis.service';
 	import { findTextOffsets } from '../utils/text-highlighting.utils';
+	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 
 	interface Props {
 		messages: AnalysisMessage[];
@@ -23,7 +24,7 @@
 		messages,
 		suggestions,
 		showSuggestions = true,
-		audioUrls = new Map(),
+		audioUrls = new SvelteMap(),
 		playingAudioId,
 		onPlayAudio,
 		onPauseAudio,
@@ -33,12 +34,13 @@
 
 	// Group suggestions by message ID
 	const groupedSuggestions = $derived(() => {
-		const map = new Map<string, AnalysisSuggestion[]>();
+		const map = new SvelteMap<string, AnalysisSuggestion[]>();
 		for (const suggestion of suggestions ?? []) {
 			if (!map.has(suggestion.messageId)) {
 				map.set(suggestion.messageId, []);
 			}
-			map.get(suggestion.messageId)!.push(suggestion);
+
+			map.get(suggestion.messageId).push(suggestion);
 		}
 		return map;
 	});
@@ -86,7 +88,7 @@
 
 	// State for suggestion highlighting
 	let hoveredSuggestion = $state<string | null>(null);
-	let internalOpenSuggestions = $state(new Set<string>());
+	let internalOpenSuggestions = $state(new SvelteSet<string>());
 
 	// Use external state if provided, otherwise use internal state
 	const openSuggestions = $derived(externalOpenSuggestions || internalOpenSuggestions);
@@ -106,7 +108,7 @@
 			onToggleSuggestions(messageId);
 		} else {
 			// Use internal state
-			const newSet = new Set(internalOpenSuggestions);
+			const newSet = new SvelteSet(internalOpenSuggestions);
 			if (newSet.has(messageId)) {
 				newSet.delete(messageId);
 			} else {

@@ -41,10 +41,14 @@
 				if (Array.isArray(parsed?.tasks)) tasks = parsed.tasks;
 				if (typeof parsed?.goalShares === 'number') goalShares = parsed.goalShares;
 			}
-		} catch {}
+		} catch {
+			// Intentionally empty - localStorage not available or invalid data
+		}
 		try {
 			shareEvents = parseInt(localStorage.getItem('kaiwa_share_events') || '0', 10);
-		} catch {}
+		} catch {
+			// Intentionally empty - localStorage not available
+		}
 	});
 
 	function toggleTask(t: Task) {
@@ -55,7 +59,9 @@
 	function persist() {
 		try {
 			localStorage.setItem(STORAGE_KEY, JSON.stringify({ tasks, goalShares }));
-		} catch {}
+		} catch {
+			// Intentionally empty - localStorage not available or disabled
+		}
 	}
 
 	function goPricing() {
@@ -75,6 +81,7 @@
 
 	const earlyBackerPriceId = publicEnv.PUBLIC_STRIPE_EARLY_BACKER_PRICE_ID || '';
 	async function testEarlyBackerCheckout() {
+		// eslint-disable-next-line no-alert
 		if (!earlyBackerPriceId) return alert('Set PUBLIC_STRIPE_EARLY_BACKER_PRICE_ID');
 		try {
 			const res = await fetch('/api/stripe/checkout', {
@@ -90,6 +97,7 @@
 			if (data?.url) {
 				window.location.href = data.url;
 			} else {
+				// eslint-disable-next-line no-alert
 				alert('Checkout creation failed. See console.');
 				console.log('Checkout response', data);
 			}
@@ -196,17 +204,21 @@ It's been a game-changer for my confidence. Has anyone else found good ways to p
 
 			const data = await response.json();
 			if (data.success) {
+				// eslint-disable-next-line no-alert
 				alert('Test reminder sent successfully!');
 			} else {
+				// eslint-disable-next-line no-alert
 				alert('Failed to send test reminder: ' + data.error);
 			}
 		} catch (error) {
+			// eslint-disable-next-line no-alert
 			alert('Error sending test reminder');
 		}
 	}
 
 	async function sendBulkReminders() {
 		if (
+			// eslint-disable-next-line no-alert
 			!confirm('Send bulk reminders to all users? This will send emails to all verified users.')
 		) {
 			return;
@@ -220,11 +232,14 @@ It's been a game-changer for my confidence. Has anyone else found good ways to p
 
 			const data = await response.json();
 			if (data.success) {
+				// eslint-disable-next-line no-alert
 				alert(data.message);
 			} else {
+				// eslint-disable-next-line no-alert
 				alert('Failed to send bulk reminders: ' + data.error);
 			}
 		} catch (error) {
+			// eslint-disable-next-line no-alert
 			alert('Error sending bulk reminders');
 		}
 	}

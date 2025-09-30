@@ -6,6 +6,7 @@
 	import UnifiedConversationBubble from '$lib/features/analysis/components/UnifiedConversationBubble.svelte';
 	import type { AnalysisSuggestion } from '$lib/features/analysis/types/analysis-suggestion.types';
 	import type { AnalysisFindingDraft } from '$lib/features/analysis/types/analysis-logbook.types';
+	import { SvelteSet } from 'svelte/reactivity';
 	// Lazy load analysis store to prevent initialization issues
 	let analysisStore: any = null;
 
@@ -33,7 +34,7 @@
 	};
 
 	let modules = $state<ModuleMeta[]>([]);
-	let selectedModuleIds = $state<Set<string>>(new Set());
+	let selectedModuleIds = $state<Set<string>>(new SvelteSet());
 	let conversationId = $state('dev-conversation');
 	let languageCode = $state('en');
 	let selectedScenario = $state('spanish-restaurant');
@@ -427,7 +428,7 @@
 			const data = await response.json();
 			modules = data.modules;
 
-			selectedModuleIds = new Set(
+			selectedModuleIds = new SvelteSet(
 				modules
 					.filter((module: ModuleMeta) => module.modality === 'text')
 					.map((module) => module.id)
@@ -511,7 +512,7 @@
 	}
 
 	function toggleModule(id: string) {
-		const next = new Set(selectedModuleIds);
+		const next = new SvelteSet(selectedModuleIds);
 		if (next.has(id)) {
 			next.delete(id);
 		} else {
@@ -522,9 +523,9 @@
 
 	function toggleAllModules() {
 		if (allModulesSelected) {
-			selectedModuleIds = new Set();
+			selectedModuleIds = new SvelteSet();
 		} else {
-			selectedModuleIds = new Set(modules.map((module) => module.id));
+			selectedModuleIds = new SvelteSet(modules.map((module) => module.id));
 		}
 	}
 
@@ -596,7 +597,7 @@
 
 				<!-- Messages Display -->
 				<div class="space-y-4">
-					{#each messages as message}
+					{#each messages as message (message.id)}
 						<div class="space-y-2">
 							<!-- Original message -->
 							<MessageBubble
@@ -644,7 +645,7 @@
 										<div class="mb-3">
 											<div class="mb-1 text-sm font-medium text-base-content/80">Errors Found:</div>
 											<ul class="list-inside list-disc space-y-1 text-sm text-base-content">
-												{#each message.errors as error}
+												{#each message.errors as error (error)}
 													<li>{error}</li>
 												{/each}
 											</ul>
@@ -720,7 +721,7 @@
 				{/if}
 
 				<div class="grid gap-4 md:grid-cols-2">
-					{#each modules as module}
+					{#each modules as module (module.id)}
 						{@const apiInfo = moduleApiInfo[module.id] || {
 							api: 'Unknown',
 							description: 'No API info available'
@@ -873,7 +874,7 @@
 							>
 						</div>
 						<div class="flex flex-wrap gap-2">
-							{#each Array.from(selectedModuleIds) as moduleId}
+							{#each Array.from(selectedModuleIds) as moduleId (moduleId)}
 								{@const module = modules.find((m) => m.id === moduleId)}
 								{#if module}
 									<span class="badge badge-sm badge-info">{module.label}</span>
@@ -1287,7 +1288,7 @@
 											</tr>
 										</thead>
 										<tbody>
-											{#each findingDrafts as finding}
+											{#each findingDrafts as finding, i (i)}
 												<tr>
 													<td class="font-medium">{finding.featureLabel}</td>
 													<td class="whitespace-pre-wrap">{finding.originalText}</td>
@@ -1342,7 +1343,7 @@
 							</svg>
 							Module Results
 						</h3>
-						{#each lastRun.moduleResults as moduleResult, index}
+						{#each lastRun.moduleResults as moduleResult, index (index)}
 							<div class="bg-base-50 rounded-lg border border-base-300 p-4">
 								<div class="mb-3 flex items-center justify-between">
 									<div class="flex items-center gap-2">
@@ -1386,7 +1387,7 @@
 											Recommendations ({moduleResult.recommendations.length}):
 										</h4>
 										<ul class="space-y-2">
-											{#each moduleResult.recommendations as recommendation, recIndex}
+											{#each moduleResult.recommendations as recommendation, recIndex (recIndex)}
 												<li class="flex items-start gap-2 text-sm text-base-content/80">
 													<span class="mt-0.5 badge badge-xs badge-info">{recIndex + 1}</span>
 													<span>{recommendation}</span>
@@ -1478,7 +1479,7 @@
 						<!-- Demo Messages -->
 						<div class="space-y-3">
 							<h3 class="font-semibold">Your Conversation</h3>
-							{#each messages as msg}
+							{#each messages as msg (msg.id)}
 								<div class="chat {msg.role === 'user' ? 'chat-end' : 'chat-start'}">
 									<div
 										class="chat-bubble {msg.role === 'user'
@@ -1495,11 +1496,20 @@
 						<div class="flex gap-2">
 							<button
 								class="btn btn-sm btn-primary"
-								onclick={() => alert('Analysis would run here')}
+								onclick={() => {
+									// eslint-disable-next-line no-alert
+									alert('Analysis would run here');
+								}}
 							>
 								Get Learning Analysis
 							</button>
-							<button class="btn btn-outline btn-sm" onclick={() => alert('New conversation')}>
+							<button
+								class="btn btn-outline btn-sm"
+								onclick={() => {
+									// eslint-disable-next-line no-alert
+									alert('New conversation');
+								}}
+							>
 								Practice More
 							</button>
 						</div>

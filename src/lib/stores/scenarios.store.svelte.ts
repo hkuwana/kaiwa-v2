@@ -3,6 +3,7 @@
 
 import type { Scenario } from '$lib/server/db/types';
 import { browser } from '$app/environment';
+import { SvelteSet } from 'svelte/reactivity';
 
 // Use existing scenario store for static data
 import { scenarioStore as existingStore } from '$lib/stores/scenario.store.svelte';
@@ -20,8 +21,8 @@ export class ScenariosStore {
 	hasCustomScenarios = $derived(this.customScenarios.length > 0);
 
 	// Feature event system
-	private subscribers = new Set<(scenario: Scenario | null) => void>();
-	private recommendationSubscribers = new Set<(scenarios: Scenario[]) => void>();
+	private subscribers = new SvelteSet<(scenario: Scenario | null) => void>();
+	private recommendationSubscribers = new SvelteSet<(scenarios: Scenario[]) => void>();
 
 	constructor() {
 		// Only run in browser

@@ -323,14 +323,6 @@ const PINYIN_MAP: Record<string, string> = {
 };
 
 // Tone marks mapping for enhanced display
-const TONE_MARKS: Record<string, Record<string, string>> = {
-	a: { '1': 'ā', '2': 'á', '3': 'ǎ', '4': 'à' },
-	o: { '1': 'ō', '2': 'ó', '3': 'ǒ', '4': 'ò' },
-	e: { '1': 'ē', '2': 'é', '3': 'ě', '4': 'è' },
-	i: { '1': 'ī', '2': 'í', '3': 'ǐ', '4': 'ì' },
-	u: { '1': 'ū', '2': 'ú', '3': 'ǔ', '4': 'ù' },
-	v: { '1': 'ǖ', '2': 'ǘ', '3': 'ǚ', '4': 'ǜ' } // ü sound
-};
 
 /**
  * Check if a character is Chinese (improved to avoid Japanese interference)
@@ -398,7 +390,7 @@ export function pinyinize(
 		separator?: string;
 	} = {}
 ): string {
-	const { withTones = false, separator = ' ' } = options;
+	const { separator = ' ' } = options;
 
 	if (!text || typeof text !== 'string') {
 		return '';

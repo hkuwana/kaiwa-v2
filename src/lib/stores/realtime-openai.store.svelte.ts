@@ -571,7 +571,9 @@ export class RealtimeOpenAIStore {
 				this.connection.session.on('guardrail_tripped', (...args: any[]) => {
 					if (this.debug) console.debug('[realtime] guardrail_tripped:', ...args);
 				});
-			} catch {}
+			} catch {
+			// Intentionally empty - session event handlers are optional
+		}
 
 			// Resolve transcription language
 			const prefLang = userPreferencesStore.getPreference('targetLanguageId') as unknown as string;
@@ -609,13 +611,17 @@ export class RealtimeOpenAIStore {
 		if (this.unsubscribe) {
 			try {
 				this.unsubscribe();
-			} catch {}
+			} catch {
+				// Intentionally empty - unsubscribe might already be done
+			}
 			this.unsubscribe = null;
 		}
 		if (this.connection) {
 			try {
 				closeSessionConnection(this.connection);
-			} catch {}
+			} catch {
+				// Intentionally empty - connection might already be closed
+			}
 			this.connection = null;
 		}
 		this.isConnected = false;
@@ -701,7 +707,7 @@ export class RealtimeOpenAIStore {
 	}
 
 	// ===== Message streaming API =====
-	private messageListeners = new Set<
+	private messageListeners = new SvelteSet<
 		(ev: {
 			itemId: string;
 			role: 'user' | 'assistant';
@@ -725,7 +731,9 @@ export class RealtimeOpenAIStore {
 		return () => {
 			try {
 				this.messageListeners.delete(fn);
-			} catch {}
+			} catch {
+				// Intentionally empty - listener might already be removed
+			}
 		};
 	}
 

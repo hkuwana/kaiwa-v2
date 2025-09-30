@@ -232,7 +232,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							{#each devTools as tool}
+							{#each devTools as tool (tool.path)}
 								<tr
 									class="hover cursor-pointer"
 									onclick={() => {

@@ -2,6 +2,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
+	import { SvelteSet } from 'svelte/reactivity';
 
 	// Sample conversation data showcasing different languages and scenarios
 	const conversations = [
@@ -77,16 +78,16 @@
 	}
 
 	let visibleBubbles = $state<BubbleData[]>([]);
-	let translationsVisible = $state(new Set<string>());
+	let translationsVisible = new SvelteSet<string>();
 	let bubbleCounter = $state(0);
 	let animationInterval: NodeJS.Timeout | undefined = $state(undefined);
 	let numColumns = $state(3);
 
 	// Derived reactive values
-	const currentTime = $derived(new Date().toLocaleTimeString());
+	const _currentTime = $derived(new Date().toLocaleTimeString());
 
 	function toggleTranslation(bubbleId: string) {
-		const newSet = new Set(translationsVisible);
+		const newSet = new SvelteSet(translationsVisible);
 		if (newSet.has(bubbleId)) {
 			newSet.delete(bubbleId);
 		} else {

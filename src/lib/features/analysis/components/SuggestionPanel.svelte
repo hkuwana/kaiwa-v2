@@ -78,7 +78,7 @@
 
 			<!-- Individual Suggestions -->
 			<div class="space-y-2">
-				{#each suggestions as suggestion}
+				{#each suggestions as suggestion (suggestion.originalText + suggestion.suggestedText)}
 					{@const alertType =
 						suggestion.severity === 'warning'
 							? 'alert-warning'

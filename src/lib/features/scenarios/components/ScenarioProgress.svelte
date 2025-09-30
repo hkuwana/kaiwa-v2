@@ -23,12 +23,6 @@
 	const exampleResponsesViewed = $derived(scenarioSession?.exampleResponsesViewed || 0);
 
 	// Functions
-	function getProgressColor(progress: number): string {
-		if (progress >= 0.8) return 'bg-green-500';
-		if (progress >= 0.6) return 'bg-yellow-500';
-		if (progress >= 0.4) return 'bg-orange-500';
-		return 'bg-red-500';
-	}
 
 	function getProgressText(progress: number): string {
 		if (progress >= 0.8) return 'Excellent';
@@ -150,7 +144,7 @@
 			<div class="used-vocabulary">
 				<h5 class="mb-2 text-sm font-medium text-green-700">Used Successfully:</h5>
 				<div class="flex flex-wrap gap-2">
-					{#each usedVocabulary as word}
+					{#each usedVocabulary as word (word)}
 						<span class="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
 							{word}
 						</span>
@@ -162,7 +156,7 @@
 			<div class="unused-vocabulary">
 				<h5 class="mb-2 text-sm font-medium text-orange-700">Still to Use:</h5>
 				<div class="flex flex-wrap gap-2">
-					{#each getUnusedVocabulary() as word}
+					{#each getUnusedVocabulary() as word (word)}
 						<span class="rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-800">
 							{word}
 						</span>

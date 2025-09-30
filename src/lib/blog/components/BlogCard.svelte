@@ -35,7 +35,7 @@
 
 		{#if post.metadata.tags && post.metadata.tags.length > 0}
 			<div class="mb-4 flex flex-wrap gap-2">
-				{#each post.metadata.tags as tag}
+				{#each post.metadata.tags as tag (tag)}
 					<span class="badge badge-outline badge-sm">{tag}</span>
 				{/each}
 			</div>

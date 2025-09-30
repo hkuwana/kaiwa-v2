@@ -166,7 +166,8 @@ class CulturalDNAStore {
 			// For now, return null - implement based on your backend
 			console.log('🔗 Loading shared DNA results:', dnaId);
 			return null;
-		} catch (err) {
+		} catch (_err) {
+			console.error('Failed to load shared results', _err);
 			this.error = 'Failed to load shared results';
 			return null;
 		}

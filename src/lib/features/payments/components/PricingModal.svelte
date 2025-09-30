@@ -119,7 +119,8 @@
 			}
 		} catch (error) {
 			console.error('Checkout error:', error);
-			alert('Something went wrong. Please try again.');
+			// TODO: Replace with toast notification when available
+			console.error('Something went wrong. Please try again.');
 		} finally {
 			isLoading = false;
 		}
@@ -229,7 +230,7 @@
 
 			<!-- Pricing cards -->
 			<div class="grid gap-6 md:grid-cols-3">
-				{#each plans as plan}
+				{#each plans as plan (plan.id)}
 					{@const savings = getYearlySavings(plan)}
 					<div
 						class="card {plan.popular ? 'card-primary' : 'bg-base-100'} shadow-xl {plan.id ===
@@ -274,7 +275,7 @@
 
 							<!-- Features -->
 							<ul class="mb-6 space-y-2">
-								{#each plan.features as feature}
+								{#each plan.features as feature (feature)}
 									<li class="flex items-center text-sm">
 										<svg class="mr-2 h-4 w-4 text-success" fill="currentColor" viewBox="0 0 20 20">
 											<path

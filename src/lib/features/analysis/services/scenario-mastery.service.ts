@@ -7,7 +7,7 @@ export interface ScenarioMasteryQuery {
 }
 
 export class ScenarioMasteryService {
-	async fetchSignals(query: ScenarioMasteryQuery): Promise<ScenarioMasterySignal[]> {
+	async fetchSignals(_query: ScenarioMasteryQuery): Promise<ScenarioMasterySignal[]> {
 		console.warn('ScenarioMasteryService.fetchSignals is using placeholder data.');
 
 		return [

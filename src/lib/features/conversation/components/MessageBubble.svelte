@@ -295,7 +295,7 @@
 				<!-- Other scripts -->
 				{#if translation?.otherScripts || message.otherScripts}
 					{@const otherScripts = translation?.otherScripts || message.otherScripts}
-					{#each Object.entries(otherScripts) as [, scriptValue]}
+					{#each Object.entries(otherScripts) as [key, scriptValue] (key)}
 						<div class="text-sm opacity-80">
 							<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 							{@html scriptValue}

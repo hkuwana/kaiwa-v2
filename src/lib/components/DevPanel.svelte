@@ -23,8 +23,8 @@
 		messagesCount,
 		audioLevel,
 		isGuestUser,
-		hasAnalysisResults,
-		isAnalyzing,
+		hasAnalysisResults: _hasAnalysisResults,
+		isAnalyzing: _isAnalyzing,
 		timeInSeconds,
 		position = 'bottom-left'
 	}: Props = $props();
@@ -79,7 +79,7 @@
 		console.table(realtimeMessages);
 	}
 
-	function logFullDebug() {
+	function _logFullDebug() {
 		console.log('Full Debug:', {
 			conversationStore: debugInfo,
 			realtimeStore: {

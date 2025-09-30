@@ -156,7 +156,7 @@
 				<div class="space-y-2">
 					<h4 class="text-sm font-semibold">Conversation Store ({messages.length})</h4>
 					<div class="max-h-48 space-y-1 overflow-y-auto text-xs">
-						{#each messages as msg, i}
+						{#each messages as msg, i (msg.id || i)}
 							{@const status = getMessageStatus(msg)}
 							{@const isDup = isDuplicateByContent(msg, messages)}
 							{#if showPlaceholders || (!status.includes('PLACEHOLDER') && !status.includes('TRANSCRIBING'))}
@@ -209,7 +209,7 @@
 				<div class="space-y-2">
 					<h4 class="text-sm font-semibold">Realtime Store ({realtimeMessages.length})</h4>
 					<div class="max-h-48 space-y-1 overflow-y-auto text-xs">
-						{#each realtimeMessages as msg, i}
+						{#each realtimeMessages as msg, i (msg.id || i)}
 							{@const status = getMessageStatus(msg)}
 							{@const isDup = isDuplicateByContent(msg, realtimeMessages)}
 							{#if showPlaceholders || (!status.includes('PLACEHOLDER') && !status.includes('TRANSCRIBING'))}
@@ -264,7 +264,7 @@
 				<div class="space-y-2">
 					<h4 class="text-sm font-semibold">Recent Events (Last 10)</h4>
 					<div class="max-h-32 space-y-1 overflow-y-auto text-xs">
-						{#each events.slice(0, 10) as event}
+						{#each events.slice(0, 10) as event (event.ts + event.type)}
 							<div
 								class="rounded border p-2 {event.dir === 'server' ? 'bg-blue-50' : 'bg-green-50'}"
 							>

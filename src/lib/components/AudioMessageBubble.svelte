@@ -25,7 +25,7 @@
 	const {
 		message,
 		speaker,
-		conversationLanguage = 'en',
+		conversationLanguage: _conversationLanguage = 'en',
 		audioUrl,
 		isPlayingAudio = false,
 		currentTime = 0,
@@ -67,7 +67,7 @@
 	// Conditional values based on message type
 	const chatClass = $derived(isFromUser ? 'chat-end' : 'chat-start');
 	const avatarSrc = $derived(isFromUser ? kitsune : face);
-	const avatarAlt = $derived(isFromUser ? 'User avatar' : 'AI avatar');
+	const _avatarAlt = $derived(isFromUser ? 'User avatar' : 'AI avatar');
 	const speakerName = $derived(
 		isFromUser
 			? 'You'
@@ -173,7 +173,7 @@
 								>
 									<!-- Waveform Bars -->
 									<div class="absolute inset-0 flex items-end justify-around px-1">
-										{#each waveform as amplitude, index}
+										{#each waveform as amplitude, index (index)}
 											{@const barProgress = (index / waveform.length) * 100}
 											{@const isActive = barProgress <= progress}
 											<div

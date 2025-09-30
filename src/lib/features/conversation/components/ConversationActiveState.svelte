@@ -60,8 +60,6 @@
 	let hasUsedAudioControl = $state(false);
 	let isEnding = $state(false);
 
-	const isLoggedIn = $derived(userManager.isLoggedIn);
-
 	// Determine if we are in an onboarding-like session for hinting
 	const showOnboardingHint = $derived(() => {
 		const provider = {

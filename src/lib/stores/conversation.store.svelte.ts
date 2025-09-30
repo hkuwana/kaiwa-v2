@@ -201,15 +201,15 @@ export class ConversationStore {
 				await audioStore.initialize();
 			}
 
-			// 2. Test audio constraints using the audio store
-			const constraintTest = await audioStore.getCore()?.testConstraints();
-			if (!constraintTest?.success) {
-				console.warn('Audio constraint test failed, proceeding with defaults');
-			}
+			// 2. Request audio permission and start recording
+			console.log('🎵 ConversationStore: Requesting audio permission and starting recording...');
+			const audioResult = await audioStore.requestPermissionGracefully();
 
-			// 3. Start audio recording using the audio store
-			console.log('🎵 ConversationStore: Starting audio recording...');
-			await audioStore.startRecording(audioStore.selectedDeviceId);
+			if (!audioResult.success) {
+				const errorMessage = audioResult.error?.message || 'Failed to get microphone access';
+				console.error('❌ ConversationStore: Audio permission denied:', errorMessage);
+				throw new Error(`Audio setup failed: ${errorMessage}`);
+			}
 
 			// Get the stream from the audio store
 			this.audioStream = audioStore.getCurrentStream();
@@ -220,8 +220,7 @@ export class ConversationStore {
 				audioStore.isRecording
 			);
 			if (this.audioStream === null) {
-				console.warn('No audio stream available');
-				return;
+				throw new Error('No audio stream available after successful permission request');
 			}
 
 			// 3. Get session from backend

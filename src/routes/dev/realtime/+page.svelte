@@ -203,7 +203,7 @@
 	<div class="mt-6">
 		<h3 class="mb-2 font-semibold">Raw Events (latest 100)</h3>
 		<div class="max-h-96 overflow-auto rounded border">
-			{#each events as e, i}
+			{#each events as e, i (i)}
 				<div class="border-b px-3 py-2 text-xs">
 					<div class="opacity-70">
 						[{new SvelteDate(e.ts).toLocaleTimeString()}] {e.dir.toUpperCase()} • {e.type}

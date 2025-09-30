@@ -162,7 +162,9 @@ export class ConversationTimerStore {
 			track('conversation_session_started', {
 				tier: this._state.userTier
 			});
-		} catch {}
+		} catch {
+			// Intentionally empty - analytics tracking is non-critical
+		}
 	}
 
 	// Stop the timer
@@ -176,7 +178,9 @@ export class ConversationTimerStore {
 				duration_seconds: durationSeconds,
 				tier: this._state.userTier
 			});
-		} catch {}
+		} catch {
+			// Intentionally empty - analytics tracking is non-critical
+		}
 		this._stopUpdateLoop();
 		this._resetState();
 		this.onExpired = undefined;
@@ -342,7 +346,9 @@ export class ConversationTimerStore {
 					duration_seconds: this.getTimeElapsedSeconds(),
 					tier: this._state.userTier
 				});
-			} catch {}
+			} catch {
+				// Intentionally empty - analytics tracking is non-critical
+			}
 			if (this.onExpired) {
 				try {
 					this.onExpired();

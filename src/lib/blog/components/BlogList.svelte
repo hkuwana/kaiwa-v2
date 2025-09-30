@@ -33,7 +33,7 @@
 	<!-- Blog Posts Grid -->
 	{#if posts.length > 0}
 		<div class="mb-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-			{#each posts as post}
+			{#each posts as post (post.slug)}
 				<BlogCard {post} />
 			{/each}
 		</div>
@@ -46,7 +46,7 @@
 				{/if}
 
 				<div class="flex items-center gap-2">
-					{#each Array(totalPages) as _, i}
+					{#each Array(totalPages) as _, i (i)}
 						{@const page = i + 1}
 						{#if page === currentPage}
 							<span class="btn btn-sm btn-primary">{page}</span>

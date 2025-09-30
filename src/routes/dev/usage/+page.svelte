@@ -389,7 +389,7 @@
 				<h2 class="mb-4 card-title text-xl">🎯 Feature Access</h2>
 
 				<div class="grid grid-cols-2 gap-4 md:grid-cols-4">
-					{#each Object.entries(debugData.summary.features) as [feature, hasAccess]}
+					{#each Object.entries(debugData.summary.features) as [feature, hasAccess] (feature)}
 						<div class="flex items-center space-x-2">
 							<span class={hasAccess ? 'text-success' : 'text-base-content/50'}>
 								{hasAccess ? '✅' : '❌'}

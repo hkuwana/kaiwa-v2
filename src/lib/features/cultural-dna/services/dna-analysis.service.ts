@@ -243,13 +243,13 @@ function calculateCulturalMix(
 		const hyperTraits = hyperSpecificTraitMappings[hyperCulture];
 		if (hyperTraits) {
 			let score = 0;
-			let matchCount = 0;
+			let _matchCount = 0;
 
 			Object.entries(traits).forEach(([trait, value]) => {
 				const traitKey = trait as keyof ConversationTraits;
 				if (hyperTraits[traitKey] === value) {
 					score += 30; // Higher weight for hyper-specific matches
-					matchCount++;
+					_matchCount++;
 				} else {
 					score += 8; // Partial credit
 				}
@@ -264,13 +264,13 @@ function calculateCulturalMix(
 	// Score basic cultures (lower weight)
 	Object.entries(culturalTraitMappings).forEach(([culture, cultureTraits]) => {
 		let score = 0;
-		let matchCount = 0;
+		let _matchCount = 0;
 
 		Object.entries(traits).forEach(([trait, value]) => {
 			const traitKey = trait as keyof ConversationTraits;
 			if (cultureTraits[traitKey] === value) {
 				score += 20; // Perfect match
-				matchCount++;
+				_matchCount++;
 			} else {
 				score += 5; // Partial credit for having the trait
 			}
@@ -332,7 +332,7 @@ function determinePersonalityType(
 	// For now, use a simple matching algorithm
 	// In production, this could be more sophisticated
 
-	const primaryCulture = culturalMix[0]?.culture || 'american';
+	const _primaryCulture = culturalMix[0]?.culture || 'american';
 
 	// Find best matching archetype based on primary culture
 	let bestMatch = personalityArchetypes[0]; // Default

@@ -18,8 +18,7 @@
 		onRestartConversation
 	}: Props = $props();
 
-	let isOpen = $state(false);
-	let displaySeconds = $state(normalizeTime(timeRemaining));
+	let displaySeconds = $derived(normalizeTime(timeRemaining));
 
 	const isGuest = $derived(user.id === 'guest');
 	const displayTime = $derived(formatDisplay(displaySeconds));
@@ -93,7 +92,6 @@
 				aria-label="End conversation"
 				onclick={(event) => {
 					event.stopPropagation();
-					isOpen = false;
 					onEndConversation?.();
 				}}
 			>
@@ -107,7 +105,6 @@
 				onclick={(event) => {
 					if (!onRestartConversation) return;
 					event.stopPropagation();
-					isOpen = false;
 					onRestartConversation();
 				}}
 			>

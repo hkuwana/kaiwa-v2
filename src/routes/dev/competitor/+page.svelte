@@ -465,7 +465,7 @@
 			</div>
 
 			<div class="carousel w-full">
-				{#each competitorProblems as problem, i}
+				{#each competitorProblems as problem, i (i)}
 					<div id="slide{i + 1}" class="relative carousel-item w-full">
 						<div class="card {problem.color} mx-auto w-full max-w-2xl shadow-xl">
 							<div class="card-body">
@@ -505,7 +505,7 @@
 			</div>
 
 			<div class="flex w-full justify-center gap-2 py-2">
-				{#each competitorProblems as _, i}
+				{#each competitorProblems as _, i (i)}
 					<a href="#slide{i + 1}" class="btn btn-xs">{i + 1}</a>
 				{/each}
 			</div>
@@ -582,7 +582,7 @@
 			</div>
 
 			<div class="tabs-lifted tabs justify-center tabs-lg">
-				{#each Object.entries(userTypes) as [key, userType]}
+				{#each Object.entries(userTypes) as [key, userType] (key)}
 					<input
 						type="radio"
 						name="user_tabs"
