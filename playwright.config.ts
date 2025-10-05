@@ -1,12 +1,18 @@
 import { defineConfig, devices } from '@playwright/test';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+const resolveFromRoot = (relativePath: string) =>
+	path.join(path.dirname(fileURLToPath(import.meta.url)), relativePath);
 
 export default defineConfig({
 	webServer: {
-		command: 'pnpm run build && pnpm run preview',
+		command: 'pnpm run preview -- --host 127.0.0.1 --port 4173',
 		port: 4173,
-		reuseExistingServer: !process.env.CI
+		reuseExistingServer: !process.env.CI,
+		timeout: 120_000
 	},
-	testDir: 'e2e',
+	testDir: resolveFromRoot('e2e/specs'),
 	fullyParallel: true,
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 2 : 0,
@@ -40,6 +46,6 @@ export default defineConfig({
 			use: { ...devices['iPhone 12'] }
 		}
 	],
-	globalSetup: require.resolve('./e2e/global-setup.ts'),
-	globalTeardown: require.resolve('./e2e/global-teardown.ts')
+	globalSetup: resolveFromRoot('e2e/global-setup.ts'),
+	globalTeardown: resolveFromRoot('e2e/global-teardown.ts')
 });
