@@ -32,6 +32,7 @@ export const actions = {
 		const formData = await event.request.formData();
 		const email = formData.get('email') as string;
 		const password = formData.get('password') as string;
+		const redirectUrl = event.url.searchParams.get('redirect');
 
 		const hashedPassword = encodeHexLowerCase(sha256(new TextEncoder().encode(password)));
 
@@ -64,18 +65,19 @@ export const actions = {
 		const { session, token } = await createSession(user.id);
 		setSessionTokenCookie(event, token, session.expiresAt);
 
-		// Redirect to verification page for new users, home for existing users
+		// Redirect to verification page for new users, custom redirect or home for existing users
 		if (isNew) {
 			throw redirect(302, '/auth/verify-email');
 		}
 
-		throw redirect(302, '/');
+		throw redirect(302, redirectUrl || '/');
 	},
 
 	login: async (event) => {
 		const formData = await event.request.formData();
 		const email = formData.get('email') as string;
 		const password = formData.get('password') as string;
+		const redirectUrl = event.url.searchParams.get('redirect');
 
 		const user = await db.query.users.findFirst({
 			where: and(eq(table.users.email, email))
@@ -115,6 +117,6 @@ export const actions = {
 		const { session, token } = await createSession(user.id);
 		setSessionTokenCookie(event, token, session.expiresAt);
 
-		throw redirect(302, '/');
+		throw redirect(302, redirectUrl || '/');
 	}
 };

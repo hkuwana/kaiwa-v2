@@ -17,6 +17,7 @@
 	let password = $state('');
 	let error = $state('');
 	let pendingAssessment: any = $state(null);
+	let agreedToTerms = $state(false);
 
 	onMount(() => {
 		// Check if we have pending assessment data
@@ -210,7 +211,11 @@
 			</div>
 
 			<!-- Submit Button -->
-			<button type="submit" class="btn w-full btn-primary">
+			<button
+				type="submit"
+				class="btn w-full btn-primary"
+				disabled={!isLogin && !agreedToTerms}
+			>
 				{isLogin ? 'Sign in' : 'Create account'}
 			</button>
 
@@ -269,11 +274,22 @@
 			</div>
 		{/if}
 
-		<div class="mt-2 mb-4 text-center text-xs text-base-content/70">
-			By continuing, you agree to our
-			<a href="/terms" class="text-primary hover:underline">Terms of Service</a>
-			and
-			<a href="/privacy" class="text-primary hover:underline">Privacy Policy</a>.
-		</div>
-	</div>
+				<!-- Terms and Conditions Checkbox -->
+				{#if !isLogin}
+					<div class="form-control mt-4">
+						<label class="label cursor-pointer items-start">
+							<input
+								type="checkbox"
+								bind:checked={agreedToTerms}
+								class="checkbox checkbox-primary mr-2"
+							/>
+							<span class="label-text text-xs"
+								>I agree to the
+								<a href="/terms" class="link link-primary">Terms of Service</a>
+								and
+								<a href="/privacy" class="link link-primary">Privacy Policy</a>.</span
+							>
+						</label>
+					</div>
+				{/if}	</div>
 </div>

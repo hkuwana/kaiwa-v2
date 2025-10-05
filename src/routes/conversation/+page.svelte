@@ -43,6 +43,7 @@
 
 	// Connection state
 	let autoConnectAttempted = $state(false);
+	let shouldDestroyOnUnmount = true;
 
 	// Extract session parameters from URL
 	const sessionId = $derived(page.url.searchParams.get('sessionId') || crypto.randomUUID());
@@ -101,8 +102,17 @@
 	});
 
 	onDestroy(async () => {
-		console.log('Cleaning up conversation...');
-		await conversationStore.destroyConversation();
+		const shouldDestroy =
+			shouldDestroyOnUnmount &&
+			conversationStore.status !== 'analyzing' &&
+			conversationStore.status !== 'analyzed';
+
+		if (shouldDestroy) {
+			console.log('Cleaning up conversation...');
+			await conversationStore.destroyConversation();
+		} else {
+			console.log('Preserving conversation store for analysis view');
+		}
 	});
 
 	// Browser cleanup
@@ -150,6 +160,7 @@
 	function handleEndConversation() {
 		// End conversation first
 		conversationStore.endConversation();
+		shouldDestroyOnUnmount = false;
 
 		// Wait a moment for conversation state to update, then redirect
 		setTimeout(() => {

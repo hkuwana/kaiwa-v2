@@ -18,6 +18,12 @@
 		},
 		{
 			category: '🧪 Core Testing & Analysis',
+			name: 'Guest Analysis Playground',
+			href: '/dev/guest-analysis',
+			desc: 'Test guest conversion flow with CTA modals and limited insights'
+		},
+		{
+			category: '🧪 Core Testing & Analysis',
 			name: 'Analysis Test',
 			href: '/dev/analysis-test',
 			desc: 'Unit testing for analysis components and algorithms'
@@ -232,7 +238,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							{#each devTools as tool (tool.path)}
+							{#each devTools as tool (tool.name)}
 								<tr
 									class="hover cursor-pointer"
 									onclick={() => {

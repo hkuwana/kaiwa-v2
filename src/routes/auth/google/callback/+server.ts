@@ -19,6 +19,7 @@ export async function GET(event): Promise<Response> {
 	console.log('Google OAuth callback received');
 	const storedState = event.cookies.get('google_oauth_state') ?? null;
 	const codeVerifier = event.cookies.get('google_code_verifier') ?? null;
+	const redirectUrl = event.cookies.get('google_oauth_redirect') ?? null;
 	const code = event.url.searchParams.get('code');
 	const state = event.url.searchParams.get('state');
 
@@ -65,10 +66,19 @@ export async function GET(event): Promise<Response> {
 			sessionId: session.id
 		});
 
+		// Clear the redirect cookie
+		if (redirectUrl) {
+			event.cookies.delete('google_oauth_redirect', { path: '/' });
+		}
+
+		// Redirect to stored URL or default to home
+		const finalRedirect = redirectUrl || '/';
+		console.log('Redirecting to:', finalRedirect);
+
 		return new Response(null, {
 			status: 302,
 			headers: {
-				Location: '/'
+				Location: finalRedirect
 			}
 		});
 	} catch (e) {

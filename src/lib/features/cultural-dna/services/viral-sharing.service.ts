@@ -24,7 +24,8 @@ export function generateShareLink(
 			// Instagram doesn't support URL parameters for stories, so return the base URL
 			return resultUrl;
 
-		case 'tiktok': { // TikTok web sharing
+		case 'tiktok': {
+			// TikTok web sharing
 			const tiktokText = encodeURIComponent(shareData.shareText);
 			return `https://www.tiktok.com/share?url=${encodeURIComponent(resultUrl)}&title=${tiktokText}`;
 		}

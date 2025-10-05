@@ -210,6 +210,7 @@
 			{analysisType}
 			isGuestUser={data.isGuest}
 			isHistorical={data.hasExistingData}
+			sessionId={data.sessionId}
 		/>
 	{:else}
 		<ConversationReviewableState

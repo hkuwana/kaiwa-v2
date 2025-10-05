@@ -572,8 +572,8 @@ export class RealtimeOpenAIStore {
 					if (this.debug) console.debug('[realtime] guardrail_tripped:', ...args);
 				});
 			} catch {
-			// Intentionally empty - session event handlers are optional
-		}
+				// Intentionally empty - session event handlers are optional
+			}
 
 			// Resolve transcription language
 			const prefLang = userPreferencesStore.getPreference('targetLanguageId') as unknown as string;

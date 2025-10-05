@@ -11,6 +11,18 @@ export function GET(event): Response {
 	const codeVerifier = generateCodeVerifier();
 	const url = google.createAuthorizationURL(state, codeVerifier, ['openid', 'profile', 'email']);
 
+	// Store redirect URL if provided
+	const redirectUrl = event.url.searchParams.get('redirect');
+	if (redirectUrl) {
+		event.cookies.set('google_oauth_redirect', redirectUrl, {
+			httpOnly: true,
+			maxAge: 60 * 10,
+			secure: import.meta.env.PROD,
+			path: '/',
+			sameSite: 'lax'
+		});
+	}
+
 	event.cookies.set('google_oauth_state', state, {
 		httpOnly: true,
 		maxAge: 60 * 10,

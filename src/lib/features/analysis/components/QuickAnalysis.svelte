@@ -2,6 +2,7 @@
 	import type { Message, Language } from '$lib/server/db/types';
 	import { onMount } from 'svelte';
 	import { fade, slide } from 'svelte/transition';
+	import AnalysisGuestCta from './AnalysisGuestCta.svelte';
 
 	// Props interface (not used as variable name)
 	interface _Props {
@@ -14,6 +15,7 @@
 		isGuestUser?: boolean;
 		expandable?: boolean;
 		isHistorical?: boolean;
+		sessionId?: string;
 	}
 
 	const {
@@ -25,11 +27,13 @@
 		analysisType = 'regular',
 		isGuestUser = false,
 		expandable = true,
-		isHistorical = false
+		isHistorical = false,
+		sessionId
 	}: _Props = $props();
 
 	let isVisible = $state(false);
 	let showShareModal = $state(false);
+	let showGuestCta = $state(isGuestUser);
 	let quickInsights = $state<string[]>([]);
 	let conversationStats = $state<{
 		totalMessages: number;
@@ -292,12 +296,14 @@
 
 			<!-- Quick Insights -->
 			<div
-				class="mb-6 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5 p-6 shadow-lg"
+				class="mb-6 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5 p-6 shadow-lg {isGuestUser
+					? 'relative'
+					: ''}"
 				transition:slide={{ duration: 400, delay: 300 }}
 			>
 				<h2 class="mb-4 text-xl font-semibold">Quick Insights</h2>
 				<div class="space-y-3">
-					{#each quickInsights as insight, i (i)}
+					{#each quickInsights.slice(0, isGuestUser ? 2 : quickInsights.length) as insight, i (i)}
 						<div
 							class="flex items-start gap-3"
 							transition:slide={{ duration: 300, delay: 400 + i * 100 }}
@@ -310,7 +316,45 @@
 							<p class="text-sm text-base-content/80">{insight}</p>
 						</div>
 					{/each}
+					{#if isGuestUser && quickInsights.length > 2}
+						<!-- Blurred remaining insights -->
+						{#each quickInsights.slice(2) as insight, i (i + 2)}
+							<div
+								class="flex items-start gap-3 blur-sm"
+								transition:slide={{ duration: 300, delay: 400 + (i + 2) * 100 }}
+							>
+								<div
+									class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-primary/20"
+								>
+									<span class="text-xs font-bold text-primary">{i + 3}</span>
+								</div>
+								<p class="text-sm text-base-content/80">{insight}</p>
+							</div>
+						{/each}
+					{/if}
 				</div>
+				{#if isGuestUser}
+					<!-- Lock overlay for guests -->
+					<div
+						class="absolute right-0 bottom-0 left-0 flex items-center justify-center rounded-b-xl bg-gradient-to-t from-base-200/95 to-transparent pt-8 pb-4"
+					>
+						<button
+							class="btn btn-sm btn-primary"
+							onclick={() => (showGuestCta = true)}
+							aria-label="Unlock full insights"
+						>
+							<svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+								/>
+							</svg>
+							Unlock {quickInsights.length - 2} More Insights
+						</button>
+					</div>
+				{/if}
 			</div>
 
 			<!-- Call to Action -->
@@ -327,13 +371,29 @@
 							{/if}
 						{:else if analysisType === 'scenario-generation'}
 							Generate custom practice scenarios based on your conversation topics and interests.
+						{:else if isGuestUser}
+							Sign up to get detailed feedback on grammar, vocabulary, and personalized
+							recommendations.
 						{:else}
 							Get detailed feedback on grammar, vocabulary, pronunciation, and personalized
 							recommendations.
 						{/if}
 					</p>
 					<div class="flex flex-col justify-center gap-3 sm:flex-row">
-						{#if expandable}
+						{#if isGuestUser}
+							<!-- Guest user sees login CTA -->
+							<button class="btn btn-lg btn-primary" onclick={() => (showGuestCta = true)}>
+								<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+									/>
+								</svg>
+								Login to Unlock Full Analysis
+							</button>
+						{:else if expandable}
 							<button class="btn btn-lg btn-primary" onclick={onGoToFullAnalysis}>
 								<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 									<path
@@ -375,17 +435,19 @@
 							</svg>
 							{isHistorical ? 'View Conversation' : 'Practice More'}
 						</button>
-						<button class="btn btn-ghost btn-lg" onclick={() => (showShareModal = true)}>
-							<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
-								/>
-							</svg>
-							Share
-						</button>
+						{#if !isGuestUser}
+							<button class="btn btn-ghost btn-lg" onclick={() => (showShareModal = true)}>
+								<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
+									/>
+								</svg>
+								Share
+							</button>
+						{/if}
 					</div>
 				</div>
 			</div>
@@ -396,6 +458,16 @@
 			</div>
 		</div>
 	</div>
+{/if}
+
+<!-- Guest CTA Modal -->
+{#if showGuestCta}
+	<AnalysisGuestCta
+		{sessionId}
+		messageCount={conversationStats?.totalMessages}
+		conversationDuration={conversationStats?.practiceTime}
+		onClose={() => (showGuestCta = false)}
+	/>
 {/if}
 
 <!-- Share Modal -->
