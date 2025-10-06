@@ -107,8 +107,8 @@
 			<h3>3.1 Data Sharing with AI Providers</h3>
 			<p>
 				As detailed in our <a href="/privacy">Privacy Policy</a>, conversation data for free-tier
-				users may be shared with our AI provider, OpenAI, to improve their services. Premium
-				users benefit from stricter data privacy measures.
+				users may be shared with our AI provider, OpenAI, to improve their services. Premium users
+				benefit from stricter data privacy measures.
 			</p>
 		</section>
 
@@ -262,8 +262,8 @@
 			<h4>10.2.1 AI-Generated Content Disclaimer</h4>
 			<p>
 				While we strive to make our AI safe, we are not responsible for any offensive,
-				inappropriate, or harmful content it may generate. Users interact with the AI at their
-				own risk.
+				inappropriate, or harmful content it may generate. Users interact with the AI at their own
+				risk.
 			</p>
 
 			<h3>10.3 Limitation of Liability</h3>

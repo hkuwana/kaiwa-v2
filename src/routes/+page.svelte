@@ -343,24 +343,28 @@
 		</div>
 	</section>
 
-	<!-- Simplified Social Proof Section -->
+	<!-- Early Access Section -->
 	<section class="py-8 text-center md:py-12">
-		<div class="container mx-auto max-w-4xl">
+		<div class="container mx-auto max-w-4xl px-4">
 			<h3 class="mb-6 text-xl font-semibold opacity-90 md:mb-8 md:text-2xl">
-				Trusted by Language Learners Worldwide
+				Early Access — Build This With Us
 			</h3>
-			<div class="grid gap-4 md:grid-cols-3 md:gap-6">
-				<div class="text-center">
-					<div class="text-2xl font-bold text-primary md:text-3xl">5,000+</div>
-					<div class="text-xs opacity-70 md:text-sm">Conversations Completed</div>
+			<div class="grid gap-6 md:grid-cols-2">
+				<div class="rounded-lg bg-base-200 p-6 text-left">
+					<div class="mb-3 text-3xl">🎯</div>
+					<div class="mb-2 text-lg font-semibold">Honest Feedback Welcome</div>
+					<div class="text-sm opacity-80">
+						We're working with the first 100 users to build conversation scenarios that actually
+						matter. Tell us what works and what doesn't — we're building this with you, not for you.
+					</div>
 				</div>
-				<div class="text-center">
-					<div class="text-2xl font-bold text-primary md:text-3xl">8</div>
-					<div class="text-xs opacity-70 md:text-sm">Languages Supported</div>
-				</div>
-				<div class="text-center">
-					<div class="text-2xl font-bold text-primary md:text-3xl">95%</div>
-					<div class="text-xs opacity-70 md:text-sm">Report Improved Confidence</div>
+				<div class="rounded-lg bg-base-200 p-6 text-left">
+					<div class="mb-3 text-3xl">💬</div>
+					<div class="mb-2 text-lg font-semibold">Focus: Cross-Language Relationships</div>
+					<div class="text-sm opacity-80">
+						Especially if you're preparing to talk with your partner's family in their language. We
+						know this anxiety intimately, and we're building scenarios that help.
+					</div>
 				</div>
 			</div>
 		</div>

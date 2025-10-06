@@ -1,4 +1,5 @@
 # Kaiwa Code Refactor Recommendations
+
 **Purpose:** Specific file changes to support 30-day validation roadmap
 **Priority:** Immediate (Week 0) vs. Week 2+ vs. Defer
 **Timeline:** Changes aligned with `roadmap-oct-nov-2025.md`
@@ -12,6 +13,7 @@
 **File:** [src/routes/+page.svelte](src/routes/+page.svelte#L354-365)
 
 **Problem:**
+
 ```svelte
 <!-- Lines 354-365: Unfounded claims -->
 <div class="text-2xl font-bold text-primary md:text-3xl">5,000+</div>
@@ -22,11 +24,13 @@
 ```
 
 **Why this is critical:**
+
 - With 5 users, "5,000+ conversations" kills credibility
 - Visitors who try the product and find it empty will never return
 - Honesty about early stage builds trust with early adopters
 
 **Fix:**
+
 ```svelte
 <!-- Replace section starting at line 347 -->
 <section class="py-8 text-center md:py-12">
@@ -39,16 +43,16 @@
 				<div class="mb-3 text-3xl">🎯</div>
 				<div class="mb-2 text-lg font-semibold">Honest Feedback Welcome</div>
 				<div class="text-sm opacity-80">
-					We're working with the first 100 users to build conversation scenarios that actually matter.
-					Tell us what works and what doesn't — we're building this with you, not for you.
+					We're working with the first 100 users to build conversation scenarios that actually
+					matter. Tell us what works and what doesn't — we're building this with you, not for you.
 				</div>
 			</div>
 			<div class="rounded-lg bg-base-200 p-6 text-left">
 				<div class="mb-3 text-3xl">💬</div>
 				<div class="mb-2 text-lg font-semibold">Focus: Cross-Language Relationships</div>
 				<div class="text-sm opacity-80">
-					Especially if you're preparing to talk with your partner's family in their language.
-					We know this anxiety intimately, and we're building scenarios that help.
+					Especially if you're preparing to talk with your partner's family in their language. We
+					know this anxiety intimately, and we're building scenarios that help.
 				</div>
 			</div>
 		</div>
@@ -59,6 +63,7 @@
 **Deploy:** Immediately after testing locally
 
 **Test:**
+
 ```bash
 pnpm dev
 # Visit localhost:5173
@@ -122,12 +127,10 @@ pnpm dev
 	}
 </script>
 
-<dialog class="modal modal-open">
+<dialog class="modal-open modal">
 	<div class="modal-box max-w-md">
 		<h3 class="mb-4 text-xl font-bold">Quick Question Before You Go</h3>
-		<p class="mb-4 text-base opacity-90">
-			What conversation were you hoping to practice?
-		</p>
+		<p class="mb-4 text-base opacity-90">What conversation were you hoping to practice?</p>
 
 		<div class="mb-4 space-y-2">
 			<label class="flex cursor-pointer items-center gap-3 rounded-lg p-3 hover:bg-base-200">
@@ -136,7 +139,7 @@ pnpm dev
 					name="reason"
 					value="partner_family"
 					bind:group={reason}
-					class="radio radio-primary radio-sm"
+					class="radio radio-sm radio-primary"
 				/>
 				<span class="text-sm">Meeting my partner's family</span>
 			</label>
@@ -147,7 +150,7 @@ pnpm dev
 					name="reason"
 					value="heritage"
 					bind:group={reason}
-					class="radio radio-primary radio-sm"
+					class="radio radio-sm radio-primary"
 				/>
 				<span class="text-sm">Talking with heritage relatives (grandparents, etc.)</span>
 			</label>
@@ -158,7 +161,7 @@ pnpm dev
 					name="reason"
 					value="travel"
 					bind:group={reason}
-					class="radio radio-primary radio-sm"
+					class="radio radio-sm radio-primary"
 				/>
 				<span class="text-sm">Travel/survival conversations</span>
 			</label>
@@ -169,7 +172,7 @@ pnpm dev
 					name="reason"
 					value="business"
 					bind:group={reason}
-					class="radio radio-primary radio-sm"
+					class="radio radio-sm radio-primary"
 				/>
 				<span class="text-sm">Business/work scenarios</span>
 			</label>
@@ -180,7 +183,7 @@ pnpm dev
 					name="reason"
 					value="general"
 					bind:group={reason}
-					class="radio radio-primary radio-sm"
+					class="radio radio-sm radio-primary"
 				/>
 				<span class="text-sm">General practice</span>
 			</label>
@@ -191,25 +194,23 @@ pnpm dev
 					name="reason"
 					value="other"
 					bind:group={reason}
-					class="radio radio-primary radio-sm"
+					class="radio radio-sm radio-primary"
 				/>
 				<span class="text-sm">Something else</span>
 			</label>
 		</div>
 
 		<textarea
-			class="textarea textarea-bordered mb-4 w-full text-sm"
+			class="textarea-bordered textarea mb-4 w-full text-sm"
 			placeholder="Anything else we should know? (optional)"
 			rows="3"
 			bind:value={comment}
 		></textarea>
 
 		<div class="modal-action">
-			<button class="btn btn-ghost btn-sm" onclick={onClose} disabled={isSubmitting}>
-				Skip
-			</button>
+			<button class="btn btn-ghost btn-sm" onclick={onClose} disabled={isSubmitting}> Skip </button>
 			<button
-				class="btn btn-primary btn-sm"
+				class="btn btn-sm btn-primary"
 				onclick={handleSubmit}
 				disabled={!reason || isSubmitting}
 			>
@@ -265,6 +266,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 **File:** [src/lib/features/conversation/components/ConversationReviewableState.svelte](src/lib/features/conversation/components/ConversationReviewableState.svelte)
 
 **Add imports:**
+
 ```svelte
 <script lang="ts">
 	// ... existing imports
@@ -294,16 +296,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 <!-- Add to template -->
 {#if showExitSurvey}
-	<ExitSurvey
-		sessionId={conversationStore.sessionId}
-		onClose={() => showExitSurvey = false}
-	/>
+	<ExitSurvey sessionId={conversationStore.sessionId} onClose={() => (showExitSurvey = false)} />
 {/if}
 ```
 
 **Deploy:** Test locally, then deploy immediately
 
 **Test:**
+
 ```bash
 pnpm dev
 # Start a conversation
@@ -329,10 +329,10 @@ pnpm dev
 
 // OpenAI Realtime API Pricing (as of Oct 2024)
 const PRICING = {
-	audioInputPerMin: 0.06,   // $0.06 per minute of audio input
-	audioOutputPerMin: 0.24,  // $0.24 per minute of audio output
-	textInputPer1M: 2.50,     // $2.50 per 1M input tokens
-	textOutputPer1M: 10.00    // $10.00 per 1M output tokens
+	audioInputPerMin: 0.06, // $0.06 per minute of audio input
+	audioOutputPerMin: 0.24, // $0.24 per minute of audio output
+	textInputPer1M: 2.5, // $2.50 per 1M input tokens
+	textOutputPer1M: 10.0 // $10.00 per 1M output tokens
 };
 
 // Test scenarios (fill in after running 10 sessions)
@@ -342,7 +342,11 @@ const TEST_SESSIONS = [
 	// Add your 10 test sessions here after dogfooding
 ];
 
-function calculateSessionCost(session: { durationMin: number; audioInputMin: number; audioOutputMin: number }) {
+function calculateSessionCost(session: {
+	durationMin: number;
+	audioInputMin: number;
+	audioOutputMin: number;
+}) {
 	const audioInputCost = session.audioInputMin * PRICING.audioInputPerMin;
 	const audioOutputCost = session.audioOutputMin * PRICING.audioOutputPerMin;
 	const totalCost = audioInputCost + audioOutputCost;
@@ -375,26 +379,36 @@ if (TEST_SESSIONS.length === 0) {
 
 	console.log(`\n✅ Analyzed ${TEST_SESSIONS.length} sessions`);
 	console.log(`\n💰 Cost per session (average): $${avgCost.toFixed(4)}`);
-	console.log(`   • Audio input:  $${(costs.reduce((sum, c) => sum + c.audioInputCost, 0) / costs.length).toFixed(4)}`);
-	console.log(`   • Audio output: $${(costs.reduce((sum, c) => sum + c.audioOutputCost, 0) / costs.length).toFixed(4)}`);
+	console.log(
+		`   • Audio input:  $${(costs.reduce((sum, c) => sum + c.audioInputCost, 0) / costs.length).toFixed(4)}`
+	);
+	console.log(
+		`   • Audio output: $${(costs.reduce((sum, c) => sum + c.audioOutputCost, 0) / costs.length).toFixed(4)}`
+	);
 
 	console.log('\n📈 Monthly Burn Projections:');
 	const scenarios = [
 		{ users: 10, sessionsPerUser: 5 },
 		{ users: 50, sessionsPerUser: 5 },
 		{ users: 100, sessionsPerUser: 5 },
-		{ users: 100, sessionsPerUser: 10 },
+		{ users: 100, sessionsPerUser: 10 }
 	];
 
 	scenarios.forEach(({ users, sessionsPerUser }) => {
 		const totalSessions = users * sessionsPerUser;
 		const monthlyCost = calculateMonthlyBurn(avgCost, totalSessions);
-		console.log(`   • ${users} users × ${sessionsPerUser} sessions: $${monthlyCost.toFixed(2)}/month`);
+		console.log(
+			`   • ${users} users × ${sessionsPerUser} sessions: $${monthlyCost.toFixed(2)}/month`
+		);
 	});
 
 	console.log('\n💡 Revenue Required to Break Even:');
-	console.log(`   • At $10/month: ${Math.ceil(calculateMonthlyBurn(avgCost, 50) / 10)} paying users (50 sessions/month)`);
-	console.log(`   • At $20/month: ${Math.ceil(calculateMonthlyBurn(avgCost, 50) / 20)} paying users (50 sessions/month)`);
+	console.log(
+		`   • At $10/month: ${Math.ceil(calculateMonthlyBurn(avgCost, 50) / 10)} paying users (50 sessions/month)`
+	);
+	console.log(
+		`   • At $20/month: ${Math.ceil(calculateMonthlyBurn(avgCost, 50) / 20)} paying users (50 sessions/month)`
+	);
 
 	console.log('\n═'.repeat(50));
 }
@@ -417,6 +431,7 @@ if (TEST_SESSIONS.length === 0) {
 **File:** [src/lib/data/scenarios.ts](src/lib/data/scenarios.ts)
 
 **Current structure:**
+
 ```typescript
 {
   id: 'relationship-family-update',
@@ -429,6 +444,7 @@ if (TEST_SESSIONS.length === 0) {
 ```
 
 **New structure (example for Level 1):**
+
 ```typescript
 {
 	id: 'partner-family-level-1-greetings',
@@ -530,6 +546,7 @@ ${language === 'ja' ? `
 ```
 
 **Create 5 levels:**
+
 1. **Level 1:** Greetings & First Impression
 2. **Level 2:** Dinner Small Talk (job, family, hobbies)
 3. **Level 3:** Relationship Questions (intentions, future plans)
@@ -537,6 +554,7 @@ ${language === 'ja' ? `
 5. **Level 5:** Complex Family Dynamics (managing expectations, addressing concerns)
 
 **File changes needed:**
+
 - `src/lib/data/scenarios.ts`: Add 5 new scenario objects
 - `src/lib/types/scenario.types.ts`: Add `personalizationPrompts` type
 - `src/lib/services/instructions.service.ts`: Parse personalization into AI instructions
@@ -582,34 +600,28 @@ ${language === 'ja' ? `
 	}
 </script>
 
-<div class="max-w-md mx-auto p-6">
+<div class="mx-auto max-w-md p-6">
 	<div class="mb-8">
-		<div class="text-sm opacity-60 mb-2">
+		<div class="mb-2 text-sm opacity-60">
 			Question {currentIndex + 1} of {prompts.length}
 		</div>
-		<progress
-			class="progress progress-primary w-full"
-			value={currentIndex + 1}
-			max={prompts.length}
+		<progress class="progress w-full progress-primary" value={currentIndex + 1} max={prompts.length}
 		></progress>
 	</div>
 
 	<div class="mb-8">
-		<h3 class="text-2xl font-bold mb-4">{currentPrompt.question}</h3>
+		<h3 class="mb-4 text-2xl font-bold">{currentPrompt.question}</h3>
 
 		{#if currentPrompt.type === 'text'}
 			<input
 				type="text"
-				class="input input-bordered w-full text-lg"
+				class="input-bordered input w-full text-lg"
 				placeholder={currentPrompt.placeholder || ''}
 				bind:value={answers[currentPrompt.id]}
 				autofocus
 			/>
 		{:else if currentPrompt.type === 'select'}
-			<select
-				class="select select-bordered w-full text-lg"
-				bind:value={answers[currentPrompt.id]}
-			>
+			<select class="select-bordered select w-full text-lg" bind:value={answers[currentPrompt.id]}>
 				<option value="">Choose...</option>
 				{#each currentPrompt.options || [] as option}
 					<option value={option}>{option}</option>
@@ -620,15 +632,9 @@ ${language === 'ja' ? `
 
 	<div class="flex gap-4">
 		{#if currentIndex > 0}
-			<button class="btn btn-ghost" onclick={handleBack}>
-				Back
-			</button>
+			<button class="btn btn-ghost" onclick={handleBack}> Back </button>
 		{/if}
-		<button
-			class="btn btn-primary flex-1"
-			onclick={handleNext}
-			disabled={!canProceed}
-		>
+		<button class="btn flex-1 btn-primary" onclick={handleNext} disabled={!canProceed}>
 			{isLastPrompt ? 'Start Scenario' : 'Next'}
 		</button>
 	</div>
@@ -696,18 +702,18 @@ Before starting conversation, show personalization if scenario has prompts:
 	}
 </script>
 
-<div class="modal modal-open">
+<div class="modal-open modal">
 	<div class="modal-box max-w-lg">
-		<div class="text-center mb-6">
-			<div class="text-6xl mb-4">✨</div>
-			<h2 class="text-2xl font-bold mb-2">Great Practice!</h2>
+		<div class="mb-6 text-center">
+			<div class="mb-4 text-6xl">✨</div>
+			<h2 class="mb-2 text-2xl font-bold">Great Practice!</h2>
 			<p class="text-lg opacity-90">
 				You've practiced "{scenarioTitle}" {attemptCount} time{attemptCount > 1 ? 's' : ''}.
 			</p>
 		</div>
 
-		<div class="bg-base-200 rounded-lg p-4 mb-6">
-			<div class="text-sm font-semibold mb-2">Next Steps:</div>
+		<div class="mb-6 rounded-lg bg-base-200 p-4">
+			<div class="mb-2 text-sm font-semibold">Next Steps:</div>
 			<ul class="space-y-2 text-sm">
 				<li>• Try the next difficulty level</li>
 				<li>• Practice with your partner to show progress</li>
@@ -716,16 +722,16 @@ Before starting conversation, show personalization if scenario has prompts:
 		</div>
 
 		<div class="border-t border-base-300 pt-6">
-			<div class="text-center mb-4">
-				<div class="text-sm opacity-70 mb-2">Know someone who needs this?</div>
+			<div class="mb-4 text-center">
+				<div class="mb-2 text-sm opacity-70">Know someone who needs this?</div>
 				<div class="text-xs opacity-60">
 					(Sharing helps us keep Kaiwa free for early users like you)
 				</div>
 			</div>
 
-			<div class="flex gap-2 justify-center">
+			<div class="flex justify-center gap-2">
 				{#if navigator.share}
-					<button class="btn btn-primary btn-sm" onclick={() => handleShare('native')}>
+					<button class="btn btn-sm btn-primary" onclick={() => handleShare('native')}>
 						Share
 					</button>
 				{/if}
@@ -815,7 +821,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		try {
 			await sendEmail({
 				to: user.email,
-				subject: "We miss you at Kaiwa 💬",
+				subject: 'We miss you at Kaiwa 💬',
 				html: `
 					<p>Hi ${user.displayName || 'there'},</p>
 
@@ -846,6 +852,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 **Set up Fly.io cron:**
 Add to `fly.toml`:
+
 ```toml
 [http_service]
   processes = ["app"]
@@ -878,11 +885,13 @@ Add to top of conversation UI:
 
 ```svelte
 {#if scenarioAttemptCount > 0}
-	<div class="alert alert-info mb-4">
+	<div class="mb-4 alert alert-info">
 		<span class="icon-[mdi--trophy] text-2xl"></span>
 		<div>
 			<div class="font-semibold">
-				You've practiced this scenario {scenarioAttemptCount} time{scenarioAttemptCount > 1 ? 's' : ''}!
+				You've practiced this scenario {scenarioAttemptCount} time{scenarioAttemptCount > 1
+					? 's'
+					: ''}!
 			</div>
 			<div class="text-sm opacity-80">Keep going — repetition builds confidence.</div>
 		</div>
@@ -891,6 +900,7 @@ Add to top of conversation UI:
 ```
 
 **Backend query:**
+
 ```typescript
 // In conversation/+page.server.ts
 const attemptCount = await db
@@ -915,6 +925,7 @@ const attemptCount = await db
 **Only build if you have 20+ active users.**
 
 Create founder dashboard:
+
 - User cohort retention (D1, D7, D30)
 - Scenario completion rates
 - Drop-off points in funnel
@@ -931,6 +942,7 @@ Use PostHog API or query `analytics_events` table directly.
 **Only build if you have users willing to pay.**
 
 A/B test pricing:
+
 - $10/mo vs. $15/mo vs. $20/mo
 - Monthly vs. Annual
 - Early backer discount
@@ -946,6 +958,7 @@ Already partially built in marketing hub. Full implementation needed for product
 "Give 1 month free, get 1 month free" system.
 
 **Tables needed:**
+
 - `referrals` (referrer_id, referred_user_id, status, reward_claimed)
 - Track via `utm_source=referral&ref={userId}`
 
@@ -953,12 +966,12 @@ Already partially built in marketing hub. Full implementation needed for product
 
 ## Summary: What to Build When
 
-| Week | Priority | Features | Time | Deploy |
-|------|----------|----------|------|--------|
-| Week 0 | 🔴 Critical | Remove fake social proof, Add exit survey, Calculate unit economics | 4 hours | Immediately |
-| Week 2 | 🟡 High | Perfect scenario (5 levels), Personalization, Success page | 14 hours | After Week 1 validation |
-| Week 3 | 🟢 Medium | Email reminders, Session count, Polish based on feedback | 5 hours | If users are returning |
-| Week 4+ | ⚪ Deferred | Analytics dashboard, Pricing tests, Referral system | 18+ hours | Only if PMF signal |
+| Week    | Priority    | Features                                                            | Time      | Deploy                  |
+| ------- | ----------- | ------------------------------------------------------------------- | --------- | ----------------------- |
+| Week 0  | 🔴 Critical | Remove fake social proof, Add exit survey, Calculate unit economics | 4 hours   | Immediately             |
+| Week 2  | 🟡 High     | Perfect scenario (5 levels), Personalization, Success page          | 14 hours  | After Week 1 validation |
+| Week 3  | 🟢 Medium   | Email reminders, Session count, Polish based on feedback            | 5 hours   | If users are returning  |
+| Week 4+ | ⚪ Deferred | Analytics dashboard, Pricing tests, Referral system                 | 18+ hours | Only if PMF signal      |
 
 **Total immediate work:** ~23 hours (Week 0 + Week 2)
 
@@ -969,6 +982,7 @@ Already partially built in marketing hub. Full implementation needed for product
 Before deploying each change:
 
 ### Week 0 Changes
+
 - [ ] Homepage shows honest early access messaging (no fake numbers)
 - [ ] Exit survey appears when user leaves mid-session
 - [ ] Exit survey saves to `analytics_events` table
@@ -976,6 +990,7 @@ Before deploying each change:
 - [ ] Unit economics script runs with test data
 
 ### Week 2 Changes
+
 - [ ] 5 scenario variations exist with different difficulty levels
 - [ ] Personalization prompts appear before scenario starts
 - [ ] User answers are passed to AI instructions
@@ -984,6 +999,7 @@ Before deploying each change:
 - [ ] PostHog receives `scenario_share_clicked` event
 
 ### Week 3 Changes
+
 - [ ] Email reminder sent to inactive users (3 days)
 - [ ] Session count displays correctly
 - [ ] Users can opt out of reminders
@@ -1018,17 +1034,20 @@ fly deploy
 ## Code Quality Notes
 
 ### Don't Overengineer
+
 - You have 5 users. Premature optimization is the enemy.
 - Use simple solutions: Google Sheets > PostHog dashboards
 - Hardcode first, abstract later
 
 ### Follow Existing Patterns
+
 - Repositories for DB access
 - Services for business logic
 - Svelte 5 runes syntax (`$state`, `$derived`, `$effect`)
 - camelCase for all variables/functions
 
 ### Test Before Shipping
+
 - Run `pnpm check` (TypeScript)
 - Run `pnpm lint` (ESLint + Prettier)
 - Run `pnpm test:e2e` (Playwright)

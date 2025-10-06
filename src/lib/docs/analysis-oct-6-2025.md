@@ -12,16 +12,16 @@
 
 ### Key Finding: Built vs. Proven
 
-| Status | Category | Reality |
-|--------|----------|---------|
-| ✅ **Built** | Technical Infrastructure | Production-ready, scalable architecture |
-| ✅ **Built** | Core Experience | OpenAI Realtime API integration, 30+ scenarios |
-| ✅ **Built** | Analytics Foundation | PostHog + custom DB tracking ready |
-| ⚠️ **Aspirational** | Product-Market Fit | 5 users ≠ validated demand |
-| ⚠️ **Aspirational** | Marketing Claims | "5,000+ conversations" on homepage (unfounded) |
-| ⚠️ **Unvalidated** | Target Audience | Multiple ICPs without focus |
-| ❌ **No Data Yet** | Actual User Behavior | No sessions to analyze |
-| ❌ **No Revenue** | Monetization | $0 MRR; infrastructure exists but untested |
+| Status              | Category                 | Reality                                        |
+| ------------------- | ------------------------ | ---------------------------------------------- |
+| ✅ **Built**        | Technical Infrastructure | Production-ready, scalable architecture        |
+| ✅ **Built**        | Core Experience          | OpenAI Realtime API integration, 30+ scenarios |
+| ✅ **Built**        | Analytics Foundation     | PostHog + custom DB tracking ready             |
+| ⚠️ **Aspirational** | Product-Market Fit       | 5 users ≠ validated demand                     |
+| ⚠️ **Aspirational** | Marketing Claims         | "5,000+ conversations" on homepage (unfounded) |
+| ⚠️ **Unvalidated**  | Target Audience          | Multiple ICPs without focus                    |
+| ❌ **No Data Yet**  | Actual User Behavior     | No sessions to analyze                         |
+| ❌ **No Revenue**   | Monetization             | $0 MRR; infrastructure exists but untested     |
 
 ---
 
@@ -143,6 +143,7 @@
 ### C. The Onboarding Promise vs. Reality
 
 **Homepage Claim:**
+
 > "3-minute onboarding to create personalized conversation scenarios just for you."
 
 **Code Reality:**
@@ -185,16 +186,16 @@
 ```typescript
 // src/lib/analytics/posthog.ts:15
 export function initializePostHog(): void {
-  if (!browser) return;
-  posthog.init(env.PUBLIC_POSTHOG_KEY, {
-    api_host: 'https://us.i.posthog.com',
-    person_profiles: 'identified_only',
-    capture_pageview: false, // Manual tracking
-    session_recording: {
-      maskAllInputs: true,
-      maskInputOptions: { password: true, email: false }
-    }
-  });
+	if (!browser) return;
+	posthog.init(env.PUBLIC_POSTHOG_KEY, {
+		api_host: 'https://us.i.posthog.com',
+		person_profiles: 'identified_only',
+		capture_pageview: false, // Manual tracking
+		session_recording: {
+			maskAllInputs: true,
+			maskInputOptions: { password: true, email: false }
+		}
+	});
 }
 ```
 
@@ -290,6 +291,7 @@ Proven Results: "95% report improved confidence"
 **Source:** `src/routes/about/+page.svelte`
 
 **Core Narrative:**
+
 > "Your personality is not a translation."
 > Built to connect with partner's family → overcome robotic language apps
 
@@ -345,12 +347,12 @@ The two "Meet the Parents" posts show focus on:
 
 **Kaiwa's Claim:**
 
-| Traditional Apps | Kaiwa |
-|------------------|-------|
-| Robotic voices | Natural, human-like voices |
-| Points, streaks, games | Real conversations |
-| Sterile translations | Emotional connection |
-| Memorizing lists | Sharing your personality |
+| Traditional Apps       | Kaiwa                      |
+| ---------------------- | -------------------------- |
+| Robotic voices         | Natural, human-like voices |
+| Points, streaks, games | Real conversations         |
+| Sterile translations   | Emotional connection       |
+| Memorizing lists       | Sharing your personality   |
 
 **Actual Competitors:**
 
@@ -461,9 +463,8 @@ Premium Tier ($25/mo):
 
 ```svelte
 <!-- src/routes/dev/marketing/+page.svelte:294 -->
-North Star: First conversation started; D7 return.
-30-day: 4 blog LPs (JP/ES), 4 blogs, 12 shorts, 4 Reddit posts.
-Paid: $300/week → exact-match long-tail; conversion = practice_started.
+North Star: First conversation started; D7 return. 30-day: 4 blog LPs (JP/ES), 4 blogs, 12 shorts, 4
+Reddit posts. Paid: $300/week → exact-match long-tail; conversion = practice_started.
 ```
 
 **Gap:** This is a marketing plan without distribution. $300/week on ads with 5 users is premature optimization.
@@ -472,15 +473,15 @@ Paid: $300/week → exact-match long-tail; conversion = practice_started.
 
 ## VII. The PMF Assessment Matrix
 
-| Dimension | Evidence | Score (1-10) | Notes |
-|-----------|----------|--------------|-------|
-| **Problem Validation** | 5 users, unknown use cases | 2/10 | Assume problem exists, but not validated |
-| **Solution Fit** | Tech works, but no usage data | 4/10 | Can't know if it solves the problem |
-| **Willingness to Pay** | $0 MRR, no pricing tests | 1/10 | No one has paid yet |
-| **Retention Signal** | No D7 return data | 1/10 | Can't measure with 5 users |
-| **Word of Mouth** | Share feature built, no shares | 1/10 | No organic growth |
-| **Use Case Clarity** | Multiple ICPs, no focus | 3/10 | Positioning exists but unvalidated |
-| **Founder Conviction** | Built for 6+ months, shipped | 7/10 | You're committed, but is market? |
+| Dimension              | Evidence                       | Score (1-10) | Notes                                    |
+| ---------------------- | ------------------------------ | ------------ | ---------------------------------------- |
+| **Problem Validation** | 5 users, unknown use cases     | 2/10         | Assume problem exists, but not validated |
+| **Solution Fit**       | Tech works, but no usage data  | 4/10         | Can't know if it solves the problem      |
+| **Willingness to Pay** | $0 MRR, no pricing tests       | 1/10         | No one has paid yet                      |
+| **Retention Signal**   | No D7 return data              | 1/10         | Can't measure with 5 users               |
+| **Word of Mouth**      | Share feature built, no shares | 1/10         | No organic growth                        |
+| **Use Case Clarity**   | Multiple ICPs, no focus        | 3/10         | Positioning exists but unvalidated       |
+| **Founder Conviction** | Built for 6+ months, shipped   | 7/10         | You're committed, but is market?         |
 
 **Overall PMF Score: 2.7/10** - Pre-PMF, requires validation
 
@@ -601,16 +602,16 @@ Paid: $300/week → exact-match long-tail; conversion = practice_started.
    ```typescript
    // On session end without completion:
    if (!completedSuccessfully) {
-     showExitSurvey({
-       question: "What conversation were you hoping to practice?",
-       options: [
-         "Meeting partner's family",
-         "Talking with heritage relatives",
-         "Business/work conversations",
-         "General practice",
-         "Other"
-       ]
-     });
+   	showExitSurvey({
+   		question: 'What conversation were you hoping to practice?',
+   		options: [
+   			"Meeting partner's family",
+   			'Talking with heritage relatives',
+   			'Business/work conversations',
+   			'General practice',
+   			'Other'
+   		]
+   	});
    }
    ```
 

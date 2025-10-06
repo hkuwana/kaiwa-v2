@@ -22,6 +22,18 @@ We believe technology should feel like it was crafted for the streets, not the c
 
 ---
 
+## 🔥 Signature Scenarios (Current Build)
+
+We cut the library down to three scenarios that embody the mission and give users unmistakable proof that Kaiwa is built for real life, not drills:
+
+- **Mission Kickoff Briefing** — Rapid intake with your coach to surface the conversations that matter, their emotional stakes, and the definition of "ready."
+- **Midnight Clinic Triage** — Survival practice for explaining urgent symptoms, clarifying the treatment plan, and staying calm when it counts.
+- **Partner's Parents Dinner** — Relationship rehearsal to earn trust, read cultural cues, and leave the table with a future invitation.
+
+Everything else in the product should make these three experiences unforgettable.
+
+---
+
 ## 🧠 Guiding Principles
 
 ### 1\. **The Survival Training Ground, Not a Classroom**

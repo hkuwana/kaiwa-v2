@@ -211,11 +211,7 @@
 			</div>
 
 			<!-- Submit Button -->
-			<button
-				type="submit"
-				class="btn w-full btn-primary"
-				disabled={!isLogin && !agreedToTerms}
-			>
+			<button type="submit" class="btn w-full btn-primary" disabled={!isLogin && !agreedToTerms}>
 				{isLogin ? 'Sign in' : 'Create account'}
 			</button>
 
@@ -274,22 +270,23 @@
 			</div>
 		{/if}
 
-				<!-- Terms and Conditions Checkbox -->
-				{#if !isLogin}
-					<div class="form-control mt-4">
-						<label class="label cursor-pointer items-start">
-							<input
-								type="checkbox"
-								bind:checked={agreedToTerms}
-								class="checkbox checkbox-primary mr-2"
-							/>
-							<span class="label-text text-xs"
-								>I agree to the
-								<a href="/terms" class="link link-primary">Terms of Service</a>
-								and
-								<a href="/privacy" class="link link-primary">Privacy Policy</a>.</span
-							>
-						</label>
-					</div>
-				{/if}	</div>
+		<!-- Terms and Conditions Checkbox -->
+		{#if !isLogin}
+			<div class="form-control mt-4">
+				<label class="label cursor-pointer items-start">
+					<input
+						type="checkbox"
+						bind:checked={agreedToTerms}
+						class="checkbox mr-2 checkbox-primary"
+					/>
+					<span class="label-text text-xs"
+						>I agree to the
+						<a href="/terms" class="link link-primary">Terms of Service</a>
+						and
+						<a href="/privacy" class="link link-primary">Privacy Policy</a>.</span
+					>
+				</label>
+			</div>
+		{/if}
+	</div>
 </div>

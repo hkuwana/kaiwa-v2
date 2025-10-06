@@ -29,9 +29,6 @@ File: `src/routes/+page.svelte`
 **Remove (lines 354-365):**
 
 ```svelte
-<div class="text-2xl font-bold text-primary md:text-3xl">5,000+</div>
-<div class="text-xs opacity-70 md:text-sm">Conversations Completed</div>
-
 <div class="text-2xl font-bold text-primary md:text-3xl">95%</div>
 <div class="text-xs opacity-70 md:text-sm">Report Improved Confidence</div>
 ```
@@ -40,28 +37,28 @@ File: `src/routes/+page.svelte`
 
 ```svelte
 <section class="py-8 text-center md:py-12">
-  <div class="container mx-auto max-w-4xl">
-    <h3 class="mb-6 text-xl font-semibold">Early Access</h3>
-    <p class="mb-4 text-base opacity-90">
-      We're working with the first 100 users to build conversation scenarios that actually matter.
-    </p>
-    <div class="grid gap-4 md:grid-cols-2">
-      <div class="rounded-lg bg-base-200 p-6">
-        <div class="text-3xl mb-2">🎯</div>
-        <div class="font-semibold">Honest Feedback Welcome</div>
-        <div class="text-sm opacity-80 mt-2">
-          Tell us what works and what doesn't. We're building this with you, not for you.
-        </div>
-      </div>
-      <div class="rounded-lg bg-base-200 p-6">
-        <div class="text-3xl mb-2">💬</div>
-        <div class="font-semibold">Focus: Cross-Language Relationships</div>
-        <div class="text-sm opacity-80 mt-2">
-          Especially if you're preparing to talk with your partner's family in their language.
-        </div>
-      </div>
-    </div>
-  </div>
+	<div class="container mx-auto max-w-4xl">
+		<h3 class="mb-6 text-xl font-semibold">Early Access</h3>
+		<p class="mb-4 text-base opacity-90">
+			We're working with the first 100 users to build conversation scenarios that actually matter.
+		</p>
+		<div class="grid gap-4 md:grid-cols-2">
+			<div class="rounded-lg bg-base-200 p-6">
+				<div class="mb-2 text-3xl">🎯</div>
+				<div class="font-semibold">Honest Feedback Welcome</div>
+				<div class="mt-2 text-sm opacity-80">
+					Tell us what works and what doesn't. We're building this with you, not for you.
+				</div>
+			</div>
+			<div class="rounded-lg bg-base-200 p-6">
+				<div class="mb-2 text-3xl">💬</div>
+				<div class="font-semibold">Focus: Cross-Language Relationships</div>
+				<div class="mt-2 text-sm opacity-80">
+					Especially if you're preparing to talk with your partner's family in their language.
+				</div>
+			</div>
+		</div>
+	</div>
 </section>
 ```
 
@@ -78,78 +75,96 @@ File: `src/lib/features/conversation/components/ConversationReviewableState.svel
 
 ```svelte
 <script lang="ts">
-  let showExitSurvey = $state(false);
-  let exitReason = $state('');
-  let exitComment = $state('');
+	let showExitSurvey = $state(false);
+	let exitReason = $state('');
+	let exitComment = $state('');
 
-  function handleSessionEnd() {
-    if (!conversationStore.completedSuccessfully) {
-      showExitSurvey = true;
-    }
-  }
+	function handleSessionEnd() {
+		if (!conversationStore.completedSuccessfully) {
+			showExitSurvey = true;
+		}
+	}
 
-  async function submitExitSurvey() {
-    await fetch('/api/feedback/exit-survey', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sessionId: conversationStore.sessionId,
-        reason: exitReason,
-        comment: exitComment,
-        timestamp: new Date().toISOString()
-      })
-    });
-    showExitSurvey = false;
-  }
+	async function submitExitSurvey() {
+		await fetch('/api/feedback/exit-survey', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				sessionId: conversationStore.sessionId,
+				reason: exitReason,
+				comment: exitComment,
+				timestamp: new Date().toISOString()
+			})
+		});
+		showExitSurvey = false;
+	}
 </script>
 
 {#if showExitSurvey}
-  <dialog class="modal modal-open">
-    <div class="modal-box">
-      <h3 class="font-bold text-lg mb-4">Quick Question Before You Go</h3>
-      <p class="mb-4">What conversation were you hoping to practice?</p>
+	<dialog class="modal-open modal">
+		<div class="modal-box">
+			<h3 class="mb-4 text-lg font-bold">Quick Question Before You Go</h3>
+			<p class="mb-4">What conversation were you hoping to practice?</p>
 
-      <div class="space-y-2 mb-4">
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input type="radio" name="reason" value="partner_family" bind:group={exitReason} class="radio" />
-          <span>Meeting my partner's family</span>
-        </label>
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input type="radio" name="reason" value="heritage" bind:group={exitReason} class="radio" />
-          <span>Talking with heritage relatives</span>
-        </label>
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input type="radio" name="reason" value="travel" bind:group={exitReason} class="radio" />
-          <span>Travel/survival conversations</span>
-        </label>
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input type="radio" name="reason" value="business" bind:group={exitReason} class="radio" />
-          <span>Business/work scenarios</span>
-        </label>
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input type="radio" name="reason" value="general" bind:group={exitReason} class="radio" />
-          <span>General practice</span>
-        </label>
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input type="radio" name="reason" value="other" bind:group={exitReason} class="radio" />
-          <span>Something else</span>
-        </label>
-      </div>
+			<div class="mb-4 space-y-2">
+				<label class="flex cursor-pointer items-center gap-2">
+					<input
+						type="radio"
+						name="reason"
+						value="partner_family"
+						bind:group={exitReason}
+						class="radio"
+					/>
+					<span>Meeting my partner's family</span>
+				</label>
+				<label class="flex cursor-pointer items-center gap-2">
+					<input
+						type="radio"
+						name="reason"
+						value="heritage"
+						bind:group={exitReason}
+						class="radio"
+					/>
+					<span>Talking with heritage relatives</span>
+				</label>
+				<label class="flex cursor-pointer items-center gap-2">
+					<input type="radio" name="reason" value="travel" bind:group={exitReason} class="radio" />
+					<span>Travel/survival conversations</span>
+				</label>
+				<label class="flex cursor-pointer items-center gap-2">
+					<input
+						type="radio"
+						name="reason"
+						value="business"
+						bind:group={exitReason}
+						class="radio"
+					/>
+					<span>Business/work scenarios</span>
+				</label>
+				<label class="flex cursor-pointer items-center gap-2">
+					<input type="radio" name="reason" value="general" bind:group={exitReason} class="radio" />
+					<span>General practice</span>
+				</label>
+				<label class="flex cursor-pointer items-center gap-2">
+					<input type="radio" name="reason" value="other" bind:group={exitReason} class="radio" />
+					<span>Something else</span>
+				</label>
+			</div>
 
-      <textarea
-        class="textarea textarea-bordered w-full mb-4"
-        placeholder="Anything else we should know? (optional)"
-        bind:value={exitComment}
-      ></textarea>
+			<textarea
+				class="textarea-bordered textarea mb-4 w-full"
+				placeholder="Anything else we should know? (optional)"
+				bind:value={exitComment}
+			></textarea>
 
-      <div class="modal-action">
-        <button class="btn btn-ghost" onclick={() => showExitSurvey = false}>Skip</button>
-        <button class="btn btn-primary" onclick={submitExitSurvey} disabled={!exitReason}>
-          Submit
-        </button>
-      </div>
-    </div>
-  </dialog>
+			<div class="modal-action">
+				<button class="btn btn-ghost" onclick={() => (showExitSurvey = false)}>Skip</button>
+				<button class="btn btn-primary" onclick={submitExitSurvey} disabled={!exitReason}>
+					Submit
+				</button>
+			</div>
+		</div>
+	</dialog>
 {/if}
 ```
 
@@ -162,17 +177,17 @@ import { db } from '$lib/server/db';
 import { analyticsEvents } from '$lib/server/db/schema';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
-  const { sessionId, reason, comment, timestamp } = await request.json();
+	const { sessionId, reason, comment, timestamp } = await request.json();
 
-  await db.insert(analyticsEvents).values({
-    userId: locals.user?.id,
-    sessionId,
-    eventName: 'exit_survey_submitted',
-    properties: { reason, comment },
-    createdAt: new Date(timestamp)
-  });
+	await db.insert(analyticsEvents).values({
+		userId: locals.user?.id,
+		sessionId,
+		eventName: 'exit_survey_submitted',
+		properties: { reason, comment },
+		createdAt: new Date(timestamp)
+	});
 
-  return json({ success: true });
+	return json({ success: true });
 };
 ```
 
@@ -184,6 +199,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 ### Day 2 (Oct 8): Interview Preparation
 
 **Tasks:**
+
 1. ✅ Pull list of 5 users from database
 2. ✅ Draft outreach emails (use template from `user-interview-template.md`)
 3. ✅ Set up calendly/scheduling link
@@ -199,6 +215,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 **Goal:** Use Kaiwa yourself intensively to find what's broken
 
 **Tasks:**
+
 1. **Morning:** Complete "Meet the Parents (Japanese)" scenario
    - Time it. Is it actually 3 minutes?
    - Note any awkward AI responses
@@ -238,6 +255,7 @@ Calculate: Cost per session, projected monthly burn at 100 users
 ### Oct 10-14: Conduct 5 User Interviews
 
 **Schedule:**
+
 - Monday: Users 1-2
 - Tuesday: User 3
 - Wednesday: User 4
@@ -245,12 +263,14 @@ Calculate: Cost per session, projected monthly burn at 100 users
 - Friday: Synthesis
 
 **During Each Interview:**
+
 1. Use script from `user-interview-template.md`
 2. Record (with permission) and transcribe
 3. Take real-time notes in Google Doc
 4. Immediately after: Write 1-sentence summary
 
 **Questions to Answer:**
+
 - Did 3+ users share the same use case?
 - Did anyone have a "holy shit" moment?
 - Would anyone be upset if Kaiwa disappeared?
@@ -265,6 +285,7 @@ Calculate: Cost per session, projected monthly burn at 100 users
 **Friday (Oct 15): Interview Synthesis**
 
 Create synthesis document with:
+
 1. **Use Case Breakdown**
 
    ```
@@ -313,6 +334,7 @@ Based on interviews, choose ONE path:
 **Signal:** Users tried once out of curiosity, prefer ChatGPT Voice, wouldn't pay
 
 **Next Action:** Pivot decision
+
 - Interview 20 MORE people BEFORE building anything
 - Or: Gracefully sunset and apply learnings elsewhere
 
@@ -331,6 +353,7 @@ Based on Week 1 insights, choose THE scenario:
 **Example: "First Dinner with Partner's Family"**
 
 **Tasks:**
+
 1. Create 5 difficulty variations:
    - Level 1: Meeting for first time, basic greetings
    - Level 2: Small talk over meal, answering questions about yourself
@@ -354,17 +377,18 @@ Based on Week 1 insights, choose THE scenario:
 
    ```svelte
    <div class="success-modal">
-     <h2>Great Practice!</h2>
-     <p>You've practiced this scenario {count} times.</p>
-     <p>Ready for the real thing? Share your progress:</p>
-     <button>"Send to [Partner Name]"</button>
-     <button>"Share on WhatsApp"</button>
+   	<h2>Great Practice!</h2>
+   	<p>You've practiced this scenario {count} times.</p>
+   	<p>Ready for the real thing? Share your progress:</p>
+   	<button>"Send to [Partner Name]"</button>
+   	<button>"Share on WhatsApp"</button>
    </div>
    ```
 
 **Estimated Time:** 3 days (20-30 hours)
 
 **Code Changes:**
+
 - File: `src/lib/data/scenarios.ts` - Add 5 new scenario variations
 - File: `src/lib/services/instructions.service.ts` - Add personalization logic
 - File: `src/lib/features/scenarios/components/ScenarioSuccess.svelte` - New component
@@ -378,12 +402,14 @@ Based on Week 1 insights, choose THE scenario:
 **Channel 1: Reddit (Founder Story) - Oct 20**
 
 **Subreddits:**
+
 - r/languagelearning (2.3M members)
 - r/JapaneseLanguage (150K members, if Japanese is your focus)
 - r/Spanish (130K members, if Spanish)
 - r/relationships (9M members - risky but high upside)
 
 **Post Title:**
+
 > "I built an AI partner to practice conversations with my girlfriend's family in [Language]. Here's what I learned."
 
 **Post Body (350-500 words):**
@@ -439,11 +465,13 @@ If you've ever been anxious about a specific conversation in another language, I
 ```
 
 **Expected Response:**
+
 - 50-200 upvotes (organic, value-first post)
 - 10-30 comments
 - 5-15 trial signups
 
 **Measure:**
+
 - UTM tracking: `?utm_source=reddit&utm_medium=founder_story&utm_campaign=oct_validation`
 - PostHog event: `reddit_founder_story_visit`
 
@@ -454,6 +482,7 @@ If you've ever been anxious about a specific conversation in another language, I
 **Goal:** 1-to-1 messages to people in your network
 
 **Target List (20 people):**
+
 - Friends in cross-language relationships
 - People you know learning Japanese/Spanish
 - Expat friends
@@ -479,6 +508,7 @@ P.S. If it's not useful, even better — tell me why so I can fix it or kill it.
 ```
 
 **Measure:**
+
 - Track who clicks, who signs up, who completes session
 - Follow up with phone call if they try it
 
@@ -509,6 +539,7 @@ Overall Week 2:
 ```
 
 **Decision Point:**
+
 - If 5+ new users completed session → Continue to Week 3
 - If 0-2 new users completed → Pause, interview 10 more prospects BEFORE building
 
@@ -521,6 +552,7 @@ Overall Week 2:
 ### Oct 24-26: Personal Challenge
 
 **Your Commitment:**
+
 > "I will use Kaiwa every day this week to prepare for my girlfriend's family dinner."
 
 **Daily Log:**
@@ -546,11 +578,13 @@ Day 3 (Oct 26):
 ```
 
 **Hypothesis to Test:**
+
 - Does practicing 3x in a row build confidence?
 - Do you notice improvement in fluency?
 - Would you use this even if you didn't build it?
 
 **Key Question:**
+
 > If this doesn't help YOU prep for your girlfriend's family, why would it help anyone else?
 
 ---
@@ -560,17 +594,20 @@ Day 3 (Oct 26):
 **Goal:** Get 3 people close to you to complete full scenario
 
 **Recruits:**
+
 1. **Your girlfriend** (learning Japanese for your family)
 2. **Friend in cross-language relationship**
 3. **Expat friend** (preparing for work conversations)
 
 **Test Protocol:**
+
 1. Send them link with specific scenario
 2. Ask them to screen record (with permission)
 3. Don't help them — observe where they get stuck
 4. 30-min follow-up interview after they try
 
 **Questions:**
+
 - What was confusing?
 - What felt natural?
 - Would you use this again?
@@ -585,6 +622,7 @@ Day 3 (Oct 26):
 Based on Week 3 feedback, make 3 quick improvements:
 
 **Example Improvements:**
+
 1. Add "pronunciation hint" button for tricky phrases
 2. Improve AI response naturalness (adjust temperature/prompts)
 3. Add progress indicator: "You've practiced this scenario 3 times"
@@ -666,6 +704,7 @@ Revenue needed to break even: $?
 Fill out this profile:
 
 **Beachhead User Profile:**
+
 - **Age:** ?
 - **Life Stage:** ? (e.g., 25-35, in serious relationship)
 - **Use Case:** ? (e.g., preparing to meet partner's family)
@@ -682,14 +721,14 @@ Fill out this profile:
 
 Compare Kaiwa vs. ChatGPT Voice:
 
-| Feature | Kaiwa | ChatGPT Voice | Winner |
-|---------|-------|---------------|--------|
-| Scenario Library | 30+ pre-built | User must prompt | ? |
-| Cultural Context | Embedded | Generic | ? |
-| Personalization | User inputs | None | ? |
-| Voice Quality | OpenAI | Same (OpenAI) | Tie |
-| Price | $10/mo | $20/mo | Kaiwa |
-| Flexibility | Structured | Open-ended | ChatGPT |
+| Feature          | Kaiwa         | ChatGPT Voice    | Winner  |
+| ---------------- | ------------- | ---------------- | ------- |
+| Scenario Library | 30+ pre-built | User must prompt | ?       |
+| Cultural Context | Embedded      | Generic          | ?       |
+| Personalization  | User inputs   | None             | ?       |
+| Voice Quality    | OpenAI        | Same (OpenAI)    | Tie     |
+| Price            | $10/mo        | $20/mo           | Kaiwa   |
+| Flexibility      | Structured    | Open-ended       | ChatGPT |
 
 **Honest Answer:** Is Kaiwa clearly better for ONE specific job?
 
@@ -707,6 +746,7 @@ Based on the assessment, make ONE of three choices:
 ## PATH 1: SCALE (Found PMF Signal)
 
 **Criteria:**
+
 - 3+ users with 3+ sessions each
 - Same use case (e.g., partner's family)
 - Would pay $10/mo
@@ -770,6 +810,7 @@ Based on the assessment, make ONE of three choices:
 ## PATH 2: PIVOT (No Clear PMF)
 
 **Criteria:**
+
 - No use case with 3+ users
 - Low engagement (users don't return)
 - Won't pay ("ChatGPT Voice is better")
@@ -781,6 +822,7 @@ Based on the assessment, make ONE of three choices:
 "The tech works, but we're targeting the wrong people."
 
 **Actions:**
+
 1. Interview 20 people in DIFFERENT segment
    - Example: Business professionals need role-play practice
    - Example: Heritage learners want family connection
@@ -798,6 +840,7 @@ Based on the assessment, make ONE of three choices:
 "One person LOVES this. Find 10 more like them."
 
 **Actions:**
+
 1. Interview super user for 2 hours
    - What's different about them?
    - What job is Kaiwa doing?
@@ -807,6 +850,7 @@ Based on the assessment, make ONE of three choices:
 3. Find 10 more people in that niche
 
 **Example:**
+
 > "Super user is 2nd-gen Japanese American reconnecting with heritage. They use Kaiwa to practice with grandparents."
 
 **Action:** Target 2nd-gen communities, build grandparent-specific scenarios.
@@ -818,17 +862,20 @@ Based on the assessment, make ONE of three choices:
 "This isn't the right problem to solve."
 
 **Accept These Truths:**
+
 - 5 users after 6 months = no demand
 - ChatGPT Voice is good enough for most use cases
 - People prefer practicing with real humans
 
 **What You Learned:**
+
 1. OpenAI Realtime API implementation
 2. SvelteKit + Drizzle production app
 3. PMF validation process
 4. User interview skills
 
 **What's Next:**
+
 - Apply learnings to a new problem
 - Join a startup with traction
 - Take a break, reflect, try again
@@ -840,6 +887,7 @@ Based on the assessment, make ONE of three choices:
 ## PATH 3: PERSIST (Weak Signal, Need More Data)
 
 **Criteria:**
+
 - 1-2 users engaged, but not enough data
 - Some value, but unclear if it's repeatable
 - Mixed feedback, no clear pattern
@@ -851,6 +899,7 @@ Based on the assessment, make ONE of three choices:
 **Goal:** Find 3 people who would be upset if Kaiwa disappeared
 
 **Plan:**
+
 1. Post in 5 niche communities per week
    - r/JapaneseLanguage (if JP focus)
    - Cross-language relationship Facebook groups
@@ -865,6 +914,7 @@ Based on the assessment, make ONE of three choices:
 3. Track which message resonates
 
 **Decision Point (30 days):**
+
 - If you find 3 users with strong signal → Move to PATH 1 (Scale)
 - If you find 0 users with strong signal → Move to PATH 2 (Pivot)
 
@@ -925,6 +975,7 @@ Word-of-Mouth:
 ```
 
 **Where to Track:**
+
 - PostHog dashboard (daily login)
 - Google Sheet (manual updates)
 - Stripe dashboard (revenue)
@@ -1038,23 +1089,28 @@ See Week 2, Channel 2
 ## Week [X] Reflection (Date)
 
 ### Wins
+
 - What went well this week?
 - Any user success stories?
 
 ### Challenges
+
 - What's blocking progress?
 - What surprised us negatively?
 
 ### Learnings
+
 - What did we learn about users?
 - What did we learn about the product?
 
 ### Next Week Priorities
+
 1.
 2.
 3.
 
 ### Energy Check (1-10)
+
 Founder motivation: ?/10
 Product conviction: ?/10
 ```
@@ -1066,6 +1122,7 @@ Product conviction: ?/10
 ### This roadmap assumes you want PMF validation, not feature building.
 
 If you find yourself saying:
+
 - "I'll just add one more feature before talking to users"
 - "The product isn't ready for distribution yet"
 - "I need to polish the UI before showing people"
