@@ -68,7 +68,7 @@
 
 <svelte:window bind:scrollY />
 
-<div class="min-h-screen bg-gradient-to-br from-base-100 to-accent">
+<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">
 	<div class="container mx-auto px-4 py-16">
 		<!-- Hero Section -->
 		<div class="mb-16 text-center" in:fly={{ y: -20, duration: 500, delay: 200 }}>
@@ -84,27 +84,21 @@
 				<li class="step step-primary">
 					<div class="p-4 text-left" in:fly={{ y: 20, duration: 500, delay: 400 }}>
 						<h3 class="text-lg font-bold">The Dream</h3>
-						<p>To connect with the people I love, in their language. To make their family laugh.</p>
+						<p>
+							To connect with the people we love, in their language. To make their family laugh.
+						</p>
 					</div>
 				</li>
 				<li class="step step-primary">
 					<div class="p-4 text-left" in:fly={{ y: 20, duration: 500, delay: 600 }}>
 						<h3 class="text-lg font-bold">The Wall</h3>
 						<p>
-							Language apps felt like spreadsheets. Robotic voices, points, streaks. My personality
-							was trapped.
+							Language apps felt disconnected with practical needs and too gamified or uncreative.
+							Robotic voices, points, streaks.
 						</p>
 					</div>
 				</li>
-				<li class="step step-primary">
-					<div class="p-4 text-left" in:fly={{ y: 20, duration: 500, delay: 800 }}>
-						<h3 class="text-lg font-bold">The Breaking Point</h3>
-						<p>
-							I realized the tools were the problem. They were anti-human, turning connection into a
-							chore.
-						</p>
-					</div>
-				</li>
+
 				<li class="step">
 					<div class="p-4 text-left" in:fly={{ y: 20, duration: 500, delay: 1000 }}>
 						<h3 class="text-lg font-bold">The Solution: Kaiwa</h3>
@@ -196,9 +190,7 @@
 
 		<!-- Call to Action -->
 		<div class="text-center" in:fly={{ y: 20, duration: 500, delay: 1400 }}>
-			<div
-				class="mx-auto max-w-2xl rounded-2xl border border-primary/20 bg-secondary/30 p-8 text-secondary-content"
-			>
+			<div class="mx-auto max-w-2xl rounded-2xl border p-4 sm:p-8">
 				<h2 class="mb-4 text-2xl font-bold">Ready to Connect?</h2>
 				<p class="mb-6">Practice the conversations that will define your relationships.</p>
 				<div class="mb-4 text-sm">Get your speaking level assessed in 3 minutes</div>

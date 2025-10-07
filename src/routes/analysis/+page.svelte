@@ -6,6 +6,7 @@
 
 	import ConversationReviewableState from '$lib/features/conversation/components/ConversationReviewableState.svelte';
 	import QuickAnalysis from '$lib/features/analysis/components/QuickAnalysis.svelte';
+	import ExitSurvey from '$lib/components/ExitSurvey.svelte';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import {
@@ -37,11 +38,13 @@
 	let analysisType = $state<AnalysisType>('regular');
 	let quickAnalysisData = $state(null);
 	let sessionNotFound = $state(false);
+	let showExitSurvey = $state(false);
 
 	// URL parameters
 	const urlParams = $derived({
 		mode: page.url.searchParams.get('mode') as 'quick' | 'full' | null,
-		type: page.url.searchParams.get('type') as AnalysisType | null
+		type: page.url.searchParams.get('type') as AnalysisType | null,
+		messageCount: page.url.searchParams.get('messageCount')
 	});
 
 	// Handle cases where we need to load conversation data
@@ -55,6 +58,12 @@
 		// Set analysis mode and type from URL params or defaults
 		analysisMode = urlParams.mode || 'quick';
 		analysisType = urlParams.type || determineAnalysisType(userPreferencesStore);
+
+		// Check if we should show exit survey (early exit with < 5 messages)
+		const messageCount = urlParams.messageCount ? parseInt(urlParams.messageCount) : messages.length;
+		if (messageCount > 0 && messageCount < 5 && !data.hasExistingData) {
+			showExitSurvey = true;
+		}
 
 		// Handle test scenarios for development
 		if (data.sessionId?.startsWith('test-')) {
@@ -140,6 +149,10 @@
 		url.searchParams.set('mode', 'full');
 		url.searchParams.set('type', analysisType);
 		goto(url.toString());
+	}
+
+	function handleExitSurveyClose() {
+		showExitSurvey = false;
 	}
 </script>
 
@@ -229,4 +242,9 @@
 			<button class="btn btn-primary" onclick={handleGoHome}> Go Home </button>
 		</div>
 	</div>
+{/if}
+
+<!-- Exit Survey Modal -->
+{#if showExitSurvey && data.sessionId}
+	<ExitSurvey sessionId={data.sessionId} onClose={handleExitSurveyClose} />
 {/if}

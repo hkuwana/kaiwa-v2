@@ -39,12 +39,22 @@ async function processJapaneseTextDirect(text: string): Promise<{
 			katakana: katakanaResult
 		});
 
+		// Clean up HTML entities from the results
+		const cleanHtml = (html: string) => {
+			return html
+				.replace(/&quot;/g, '"')
+				.replace(/&#39;/g, "'")
+				.replace(/&lt;/g, '<')
+				.replace(/&gt;/g, '>')
+				.replace(/&amp;/g, '&');
+		};
+
 		return {
-			hiragana: hiraganaResult,
+			hiragana: cleanHtml(hiraganaResult),
 			romanization: romajiResult.charAt(0).toUpperCase() + romajiResult.slice(1),
 			otherScripts: {
-				katakana: katakanaResult,
-				furigana: hiraganaResult // Use hiragana as furigana for now
+				katakana: cleanHtml(katakanaResult),
+				furigana: cleanHtml(hiraganaResult) // Use hiragana as furigana for now
 			}
 		};
 	} catch (error) {

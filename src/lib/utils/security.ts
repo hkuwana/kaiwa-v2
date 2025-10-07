@@ -1,7 +1,7 @@
 // 🔒 Security Utilities
 // Sanitize GPT data in real-time to prevent XSS and injection attacks
 
-import DOMPurify from 'dompurify';
+import DOMPurify from 'isomorphic-dompurify';
 import type { Message } from '$lib/server/db/types';
 import type {
 	ConversationItemCreatedEvent,

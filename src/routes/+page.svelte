@@ -10,7 +10,6 @@
 	import { trackABTest } from '$lib/analytics/posthog';
 	import type { Language as DataLanguage } from '$lib/data/languages';
 	import type { Scenario } from '$lib/server/db/types';
-	import { dev } from '$app/environment';
 	import WhyDifferent from '$lib/components/WhyDifferent.svelte';
 	import InteractiveDemo from '$lib/components/InteractiveDemo.svelte';
 
@@ -175,21 +174,17 @@
 		</div>
 	</section>
 
-	{#if dev}
-		<!-- Dev-only demo video slot -->
-		<section class="container mx-auto max-w-3xl py-8">
-			<div class="/80 rounded-xl border border-white/10 bg-secondary/20 p-4">
-				<div class="mb-2 text-sm tracking-wide uppercase">Demo (dev only)</div>
-				<video class="w-full rounded-lg" src="/demo.mp4" controls preload="metadata">
-					<track kind="captions" srcLang="en" label="English" default />
-					Sorry, add your demo video to static/demo.mp4
-				</video>
-				<p class="mt-2 text-xs opacity-70">
-					Place your demo at static/demo.mp4. Hidden in production.
-				</p>
-			</div>
-		</section>
-	{/if}
+	<section class="py-16">
+		<div class="mx-auto max-w-3xl text-center">
+			<h2 class="mb-4 text-4xl font-bold">See Kaiwa in Action</h2>
+			<p class="mb-8 text-xl opacity-90">
+				This is a real, interactive demo. Click the prompt after the conversation to see how our
+				feedback works.
+			</p>
+		</div>
+		<InteractiveDemo />
+	</section>
+
 	<!-- Simplified content for mobile -->
 	<main class="container mx-auto space-y-8 py-8 md:space-y-16 md:py-12">
 		<!-- Hide complex sections on mobile to reduce clutter -->
@@ -280,17 +275,6 @@
 			</div>
 		</section>
 	</main>
-
-	<section class="py-16">
-		<div class="mx-auto max-w-3xl text-center">
-			<h2 class="mb-4 text-4xl font-bold">See Kaiwa in Action</h2>
-			<p class="mb-8 text-xl opacity-90">
-				This is a real, interactive demo. Click the prompt after the conversation to see how our
-				feedback works.
-			</p>
-		</div>
-		<InteractiveDemo />
-	</section>
 
 	<!-- CTA Section -->
 	<section

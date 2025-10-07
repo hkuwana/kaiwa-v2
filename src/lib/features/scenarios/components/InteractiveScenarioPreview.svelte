@@ -65,36 +65,36 @@
 		const scenarios = [];
 
 		// 1) Japanese romance (furigana + romaji)
-		const datePlanningScenario = scenariosData.find((s) => s.id === 'relationship-date-planning');
-		if (datePlanningScenario) {
+		const familyDinnerScenario = scenariosData.find((s) => s.id === 'family-dinner-introduction');
+		if (familyDinnerScenario) {
 			scenarios.push({
-				...datePlanningScenario,
+				...familyDinnerScenario,
 				icon: '💕',
 				messages: [
 					createMessage(
 						'user',
-						'今夜、静かなレストランでディナーしませんか？',
-						'Shall we have dinner at a quiet restaurant tonight?',
-						"Kon'ya, shizukana resutoran de dīnā shimasen ka?",
-						'今夜<rt>こんや</rt>、静<rt>しず</rt>かなレストランでディナーしませんか？',
+						'はじめまして、どうぞよろしくお願いいたします。',
+						'Nice to meet you, I look forward to getting to know you.',
+						'Hajimemashite, dōzo yoroshiku onegai itashimasu.',
+						'はじめまして、どうぞよろしくお願<rt>ねが</rt>いいたします。',
 						undefined,
 						'ja'
 					),
 					createMessage(
 						'assistant',
-						'いいですね。何時が都合がいいですか？',
-						'Sounds great. What time works for you?',
-						'Ii desu ne. Nanji ga tsugō ga ii desu ka?',
-						'いいですね。何時<rt>なんじ</rt>が<ruby>都合<rt>つごう</rt></ruby>がいいですか？',
+						'こちらこそ。どうぞ、お座りください。',
+						"It's a pleasure to meet you too. Please, have a seat.",
+						'Kochira koso. Dōzo, o-suwari kudasai.',
+						'こちらこそ。どうぞ、お座<rt>すわ</rt>りください。',
 						undefined,
 						'ja'
 					),
 					createMessage(
 						'user',
-						'七時ごろがいいです。お店は予約します。',
-						"Around seven would be good. I'll make a reservation.",
-						'Shichiji goro ga ii desu. Omise wa yoyaku shimasu.',
-						'七時<rt>しちじ</rt>ごろがいいです。お店<rt>みせ</rt>は<ruby>予約<rt>よやく</rt></ruby>します。',
+						'お招きいただき、ありがとうございます。',
+						'Thank you for inviting me.',
+						'O-maneki itadaki, arigatō gozaimasu.',
+						'お招<rt>まね</rt>きいただき、ありがとうございます。',
 						undefined,
 						'ja'
 					)
@@ -105,147 +105,42 @@
 		}
 
 		// 2) Korean: Calling home from the platform
-		const familyUpdateScenario = scenariosData.find((s) => s.id === 'relationship-family-update');
-		if (familyUpdateScenario) {
+		const clinicScenario = scenariosData.find((s) => s.id === 'clinic-night-triage');
+		if (clinicScenario) {
 			scenarios.push({
-				...familyUpdateScenario,
+				...clinicScenario,
 				icon: '👨‍👩‍👧‍👦',
 				messages: [
 					createMessage(
 						'user',
-						'엄마, 나 오늘 회사에서 승진했어!',
-						'Mom, I got promoted at work today!',
-						'Eomma, na oneul hoesaseo seungjinhaesseo!',
-						undefined
+						'すみません、急に気分が悪くなってしまって。',
+						'Excuse me, I suddenly feel unwell.',
+						'Sumimasen, kyū ni kibun ga waruku natte shimatte.',
+						'すみません、急<rt>きゅう</rt>に気分<rt>きぶん</rt>が悪<rt>わる</rt>くなってしまって。',
+						undefined,
+						'ja'
 					),
 					createMessage(
 						'assistant',
-						'정말 잘했다! 축하해. 기분이 어때?',
-						'So proud of you! Congratulations. How do you feel?',
-						'Jeongmal jalhaetda! Chukahae. Gibuni eottae?',
-						undefined
+						'大丈夫ですか？どのような症状ですか？',
+						'Are you alright? What are your symptoms?',
+						'Daijōbu desu ka? Dono yō na shōjō desu ka?',
+						'大丈夫<rt>だいじょうぶ</rt>ですか？どのような症状<rt>しょうじょう</rt>ですか？',
+						undefined,
+						'ja'
 					),
 					createMessage(
 						'user',
-						'긴장됐지만 기뻐. 주말에 내려가서 같이 밥 먹자.',
-						"I was nervous but happy. Let's get dinner this weekend.",
-						'Ginjang dwaetjiman gippeo. Jumare naeryeogaseo gachi bab meokja.',
-						undefined
+						'頭痛と吐き気がします。',
+						'I have a headache and feel nauseous.',
+						'Zutsū to hakike ga shimasu.',
+						'頭痛<rt>ずつう</rt>と吐<rt>は</rt>き気<rt>け</rt>がします。',
+						undefined,
+						'ja'
 					)
 				],
 				color: 'from-green-400 to-teal-500',
 				bgPattern: 'family'
-			});
-		}
-
-		// 3) Chinese travel (use pinyin as romanization)
-		const travelScenario = scenariosData.find((s) => s.id === 'saturday-travel');
-		if (travelScenario) {
-			scenarios.push({
-				...travelScenario,
-				icon: '✈️',
-				messages: [
-					createMessage(
-						'user',
-						'请问这附近有什么不太游客的好吃的地方？',
-						"Excuse me, are there any good places to eat nearby that aren't too touristy?",
-						'Qǐngwèn zhè fùjìn yǒu shénme bútài yóukè de hǎochī de dìfāng?',
-						undefined
-					),
-					createMessage(
-						'assistant',
-						'拐角那家小馆很地道，推荐他们的牛肉面。',
-						'The small restaurant around the corner is authentic; try their beef noodles.',
-						'Guǎijiǎo nà jiā xiǎo guǎn hěn dìdào, tuījiàn tāmen de niúròu miàn.',
-						undefined
-					),
-					createMessage(
-						'user',
-						'谢谢！请问需要预约吗？',
-						'Thanks! Do I need a reservation?',
-						'Xièxie! Qǐngwèn xūyào yùyuē ma?',
-						undefined
-					)
-				],
-				color: 'from-blue-400 to-purple-500',
-				bgPattern: 'travel',
-				languageFlag: '🇨🇳'
-			});
-		}
-
-		// 4) French deep connection
-		const deepConnectionScenario = scenariosData.find(
-			(s) => s.id === 'relationship-deep-connection'
-		);
-		if (deepConnectionScenario) {
-			scenarios.push({
-				...deepConnectionScenario,
-				icon: '🤝',
-				messages: [
-					createMessage(
-						'user',
-						'Qu’est-ce qui compte le plus pour toi dans la vie ?',
-						'What matters most to you in life?',
-						undefined,
-						undefined
-					),
-					createMessage(
-						'assistant',
-						'La sincérité et le temps passé avec les proches.',
-						'Sincerity and time spent with loved ones.',
-						undefined,
-						undefined
-					),
-					createMessage(
-						'user',
-						'Moi aussi. J’essaie d’être présent chaque jour.',
-						'Me too. I try to be present every day.',
-						undefined,
-						undefined
-					)
-				],
-				color: 'from-purple-400 to-indigo-500',
-				bgPattern: 'connection'
-			});
-		}
-
-		// 5) Spanish food
-		const foodScenario = scenariosData.find((s) => s.id === 'wednesday-food');
-		if (foodScenario) {
-			scenarios.push({
-				...foodScenario,
-				icon: '🍽️',
-				messages: [
-					createMessage(
-						'user',
-						'Estas tapas huelen increíble. ¿Qué recomiendas?',
-						'These tapas smell amazing. What do you recommend?',
-						undefined,
-						undefined,
-						undefined,
-						'es'
-					),
-					createMessage(
-						'assistant',
-						'La tortilla de patatas y las croquetas son nuestras favoritas.',
-						'The tortilla and croquettes are our favorites.',
-						undefined,
-						undefined,
-						undefined,
-						'es'
-					),
-					createMessage(
-						'user',
-						'Perfecto, y una copa de vino tinto, por favor.',
-						'Perfect, and a glass of red wine, please.',
-						undefined,
-						undefined,
-						undefined,
-						'es'
-					)
-				],
-				color: 'from-orange-400 to-red-500',
-				bgPattern: 'food'
 			});
 		}
 
@@ -331,8 +226,9 @@
 		aria-label="Conversation scenario previews"
 	>
 		<!-- Main Scenario Card - Uniform height -->
+		{#if currentScenario}
 		<div
-			class="relative h-[520px] bg-gradient-to-br sm:h-[560px] md:h-[600px] {currentScenario.color} flex flex-col p-6 text-white"
+			class="relative h-[520px] sm:h-[560px] md:h-[600px] flex flex-col p-6"
 		>
 			<!-- Background Pattern -->
 			<div class="absolute inset-0 opacity-10">
@@ -421,6 +317,7 @@
 				</div>
 			</div>
 		</div>
+		{/if}
 
 		<!-- Navigation Controls -->
 		<div class="absolute inset-y-0 left-0 z-20 flex items-center">

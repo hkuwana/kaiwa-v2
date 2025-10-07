@@ -559,8 +559,8 @@ export class ConversationStore {
 					if (scriptData && Object.keys(scriptData).length > 0) {
 						updatedMsg = updateMessageWithScripts(updatedMsg, scriptData);
 						const lang = detectLanguage(msg.content);
-						if (lang !== 'other') {
-							generateAndStoreScriptsForMessage(msg.id, msg.content, lang).catch(() => {});
+						if (lang !== 'other' && this.sessionId) {
+							generateAndStoreScriptsForMessage(this.sessionId, msg.id, msg.content, lang).catch(() => {});
 						}
 					}
 				}

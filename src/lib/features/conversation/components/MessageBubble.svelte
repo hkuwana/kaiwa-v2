@@ -100,23 +100,19 @@
 	});
 
 	// Translation state
-	let isHovered = $state(false);
 	let swipeTriggeredShow = $state(false);
 	let manualToggle = $state(false);
+	let localToggle = $state(false); // For show/hide translation button toggle
+	let showScripts = $state(false); // For showing/hiding furigana and romanization
 	const translationLoading = $derived(translationStore.isTranslating(message.id));
 
 	// Determine if a translation exists (availability)
 	const hasTranslation = $derived(isMessageTranslated(message) || !!translation?.translatedContent);
 
-	// Raw visibility state before checking availability
-	const rawVisibility = $derived(
-		clickToToggle
-			? manualToggle
-			: isHovered || swipeTriggeredShow || translationStore.isTranslationVisible(message.id)
+	// Translation visibility - button only, no hover
+	const showTranslation = $derived(
+		(clickToToggle ? manualToggle : localToggle || swipeTriggeredShow || translationStore.isTranslationVisible(message.id)) && hasTranslation
 	);
-
-	// Final visibility respects availability
-	let showTranslation = $derived(rawVisibility && hasTranslation);
 
 	// Check if content needs script generation - prioritize conversation language
 	const needsScripts = $derived(
@@ -161,14 +157,6 @@
 		}
 	}
 
-	function handleMouseEnter() {
-		if (!clickToToggle) isHovered = true;
-	}
-
-	function handleMouseLeave() {
-		if (!clickToToggle) isHovered = false;
-	}
-
 	function handleBubbleClick() {
 		if (!clickToToggle || !hasTranslation) return;
 		if (dispatch) {
@@ -182,8 +170,6 @@
 <div
 	class="chat {chatClass}"
 	role="listitem"
-	onmouseenter={handleMouseEnter}
-	onmouseleave={handleMouseLeave}
 >
 	<div class="avatar chat-image">
 		<div class="w-10 rounded-full">
@@ -217,21 +203,36 @@
 							{@html message.hiragana}
 						</div>
 					</div>
+					<!-- Romanization (only visible when showScripts is true) -->
+					{#if message.romanization && showScripts}
+						<div class="text-sm italic opacity-70">
+							{message.romanization}
+						</div>
+					{/if}
+				{:else if message.romanization}
+					<!-- Show romanization if hiragana not yet available (only when showScripts is true) -->
+					{#if showScripts}
+						<div class="text-sm italic opacity-70">
+							{message.romanization}
+						</div>
+					{:else}
+						<!-- Show original content when scripts not visible -->
+						<div class="text-base">
+							{#if highlightedContent()}
+								{@html highlightedContent()}
+							{:else}
+								{message.content}
+							{/if}
+						</div>
+					{/if}
 				{:else}
-					<!-- Korean or other text without furigana -->
+					<!-- Korean or other text without furigana/romanization -->
 					<div class="text-base">
 						{#if highlightedContent()}
 							{@html highlightedContent()}
 						{:else}
 							{message.content}
 						{/if}
-					</div>
-				{/if}
-
-				<!-- Romanization (for any language) -->
-				{#if message.romanization}
-					<div class="text-sm italic opacity-70">
-						{message.romanization}
 					</div>
 				{/if}
 			</div>
@@ -257,61 +258,31 @@
 			</div>
 		{/if}
 
-		<!-- Translation Section (only show if different from main scripts or if no scripts shown above) -->
-		{#if showTranslation && (isMessageTranslated(message) || translation?.translatedContent) && (!needsScripts || !hasScriptDataFlag)}
+		<!-- Translation Section - Always show translation text when available -->
+		{#if showTranslation && (translation?.translatedContent || message.translatedContent)}
 			<!-- Visual separator -->
 			<div class="divider my-2 {borderClass}"></div>
 
 			<!-- Translation content -->
-			<div class="space-y-2">
-				<!-- Main translation with language emoji -->
-				{#if translation?.translatedContent || message.translatedContent}
-					<div class="flex items-start">
-						<div class=" text-sm font-medium">
-							{translation?.translatedContent || message.translatedContent}
-						</div>
-					</div>
-				{/if}
-
-				<!-- Romanization for any language (only if not already shown above) -->
-				{#if translation?.romanization || message.romanization}
-					<div class="text-sm italic opacity-70">
-						{translation?.romanization || message.romanization}
-					</div>
-				{/if}
-
-				<!-- Japanese-specific scripts (only if not already shown above) -->
-				{#if (translation?.targetLanguage || message.targetLanguage) === 'ja' || translation?.hiragana || message.hiragana}
-					<div class="space-y-1">
-						<!-- Hiragana -->
-						{#if translation?.hiragana || message.hiragana}
-							<div class="text-sm opacity-80">
-								{@html translation?.hiragana || message.hiragana}
-							</div>
-						{/if}
-					</div>
-				{/if}
-
-				<!-- Other scripts -->
-				{#if translation?.otherScripts || message.otherScripts}
-					{@const otherScripts = translation?.otherScripts || message.otherScripts}
-					{#each Object.entries(otherScripts) as [key, scriptValue] (key)}
-						<div class="text-sm opacity-80">
-							<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-							{@html scriptValue}
-						</div>
-					{/each}
-				{/if}
-			</div>
-		{:else if showTranslation && (translation?.translatedContent || message.translatedContent)}
-			<!-- Show only translation text when scripts are already displayed above -->
-
 			<div class="text-sm font-medium text-base-content/90">
 				{translation?.translatedContent || message.translatedContent}
 			</div>
 		{/if}
 	</div>
-	<div class="chat-footer flex items-center justify-between opacity-50">
+	<div class="chat-footer flex items-center gap-2 opacity-50">
+		<!-- Scripts toggle button (for messages with scripts) -->
+		{#if needsScripts && hasScriptDataFlag && message.romanization}
+			<button
+				class="btn flex h-6 min-h-0 items-center gap-1 rounded-full px-2 btn-ghost btn-xs hover:bg-base-300/50"
+				onclick={() => (showScripts = !showScripts)}
+				title={showScripts ? 'Hide Romanization' : 'Show Romanization'}
+			>
+				<span class="text-xs">
+					{showScripts ? 'Hide' : 'Show'} Romaji
+				</span>
+			</button>
+		{/if}
+
 		<!-- Translation button -->
 		{#if !isMessageTranslated(message) && !translation?.translatedContent}
 			<!-- Translate button -->
@@ -345,7 +316,7 @@
 			<!-- Show/Hide translation button -->
 			<button
 				class="btn flex h-6 min-h-0 items-center gap-1 rounded-full px-2 btn-ghost btn-xs hover:bg-base-300/50"
-				onclick={() => (showTranslation = !showTranslation)}
+				onclick={() => (localToggle = !localToggle)}
 				disabled={translationLoading}
 				title={showTranslation ? 'Hide Translation' : 'Show Translation'}
 			>

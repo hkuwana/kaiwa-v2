@@ -162,17 +162,17 @@
 		conversationStore.endConversation();
 		shouldDestroyOnUnmount = false;
 
-		// Wait a moment for conversation state to update, then redirect
-		setTimeout(() => {
-			// Determine analysis type and redirect to analysis page with quick mode
-			const analysisType = determineAnalysisType(userPreferencesStore);
-			goto(`/analysis?mode=quick&type=${analysisType}&sessionId=${sessionId}`, {
+		// Navigate to analysis page with message count for exit survey logic
+		const analysisType = determineAnalysisType(userPreferencesStore);
+		goto(
+			`/analysis?mode=quick&type=${analysisType}&sessionId=${sessionId}&messageCount=${messages.length}`,
+			{
 				replaceState: false,
 				noScroll: false,
 				keepFocus: false,
 				invalidateAll: false
-			});
-		}, 100);
+			}
+		);
 	}
 
 	function handleContinueAfterResults() {
@@ -579,6 +579,7 @@
 		expandable={false}
 	/>
 {/if}
+
 <!-- Dev Panel -->
 <DevPanel
 	{status}

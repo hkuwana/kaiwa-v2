@@ -45,7 +45,7 @@ export const scenariosData: ScenarioWithHints[] = [
 	{
 		id: 'clinic-night-triage',
 		title: 'Midnight Clinic Triage',
-		description: 'Explain a sudden medical issue at an urgent care clinic.',
+		description: 'Explain a medical issue at an urgent care clinic.',
 		category: 'roleplay',
 		difficulty: 'intermediate',
 		instructions: `Describe your symptoms, when they started, and what makes them better or worse. Ask the nurse to repeat the plan until you can say it back confidently.`,
@@ -74,7 +74,7 @@ export const scenariosData: ScenarioWithHints[] = [
 	{
 		id: 'family-dinner-introduction',
 		title: "Partner's Parents Dinner",
-		description: 'Earn trust over a home-cooked meal with your partner’s parents.',
+		description: 'Earn trust over a meal with your partner’s parents.',
 		category: 'relationships',
 		difficulty: 'intermediate',
 		instructions: `Share who you are, ask questions that show respect, and respond to advice with warmth. Practice toasts, compliments, and the small cultural cues that matter.`,

@@ -18,7 +18,7 @@ export class ConversationPersistenceService {
 				isGuest: !!conversationData.guestId
 			});
 
-			const response = await fetch('/api/conversation/save', {
+			const response = await fetch('/api/conversations', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
