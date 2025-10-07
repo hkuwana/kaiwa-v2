@@ -18,7 +18,7 @@
 		isCorrectionNeeded
 	} from '$lib/data/testing';
 	import { languages } from '$lib/data/languages';
-	import { scenariosData } from '$lib/data/scenarios';
+	import { scenariosData, type ScenarioWithHints } from '$lib/data/scenarios';
 	import { userManager } from '$lib/stores/user.store.svelte';
 
 	const instructionFlowDiagram = String.raw`
@@ -137,6 +137,14 @@ Language → db.languages               SessionContext → runtime context`;
 	let selectedUpdateContext: UpdateContext = $state(mockUpdateContexts[0]);
 	let timeRemaining = $state(30);
 	let selectedModuleId = $state('personality');
+	const defaultComparisonScenario =
+		scenariosData.find((scenario) => scenario.id !== scenariosData[0]?.id) || null;
+	let compareMode = $state(false);
+	let comparisonScenario = $state(defaultComparisonScenario);
+	let comparisonInstructions = $state('');
+	const comparisonOptions = $derived(
+		scenariosData.filter((scenario) => scenario.id !== selectedScenario?.id)
+	) as ScenarioWithHints[];
 
 	// ============================================
 	// FUNCTIONS
@@ -163,6 +171,13 @@ Language → db.languages               SessionContext → runtime context`;
 		} catch (error) {
 			currentInstructions = `Error: ${error instanceof Error ? error.message : String(error)}`;
 		}
+
+		if (compareMode) {
+			ensureComparisonScenario();
+			syncComparisonInstructions();
+		} else {
+			comparisonInstructions = '';
+		}
 	}
 
 	function testSelectedModule() {
@@ -180,6 +195,28 @@ Language → db.languages               SessionContext → runtime context`;
 		} catch (error) {
 			currentInstructions = `Error: ${error instanceof Error ? error.message : String(error)}`;
 		}
+
+		if (compareMode) {
+			if (comparisonScenario) {
+				try {
+					const comparisonParams: TestModuleParams = {
+						user: userManager.user,
+						moduleId: selectedModuleId,
+						language: selectedLanguage,
+						preferences: selectedPreferences,
+						scenario: comparisonScenario,
+						sessionContext: selectedSessionContext
+					};
+					comparisonInstructions = testModule(selectedModuleId, comparisonParams);
+				} catch (error) {
+					comparisonInstructions = `Error: ${error instanceof Error ? error.message : String(error)}`;
+				}
+			} else {
+				comparisonInstructions = 'Select a second scenario to compare module output.';
+			}
+		} else {
+			comparisonInstructions = '';
+		}
 	}
 
 	function loadRandomScenario() {
@@ -188,6 +225,65 @@ Language → db.languages               SessionContext → runtime context`;
 		selectedPreferences = random.params.preferences;
 		selectedScenario = random.params.scenario;
 		selectedSessionContext = random.params.sessionContext;
+		generateInstructions();
+	}
+
+	function ensureComparisonScenario() {
+		if (!compareMode) return;
+		if (!comparisonScenario || comparisonScenario.id === selectedScenario.id) {
+			comparisonScenario = comparisonOptions[0] ?? null;
+		}
+	}
+
+	function syncComparisonInstructions() {
+		if (!compareMode) {
+			comparisonInstructions = '';
+			return;
+		}
+
+		ensureComparisonScenario();
+
+		if (!comparisonScenario) {
+			comparisonInstructions = 'Select a second scenario to compare.';
+			return;
+		}
+
+		try {
+			const params: TestInstructionParams = {
+				user: userManager.user,
+				language: selectedLanguage,
+				preferences: selectedPreferences,
+				scenario: comparisonScenario,
+				sessionContext: selectedSessionContext
+			};
+
+			if (currentPhase === 'update') {
+				params.updateType = selectedUpdateType;
+				params.updateContext = selectedUpdateContext;
+			} else if (currentPhase === 'closing') {
+				params.timeRemaining = timeRemaining;
+			}
+
+			comparisonInstructions = getInstructions(currentPhase, params);
+		} catch (error) {
+			comparisonInstructions = `Error: ${error instanceof Error ? error.message : String(error)}`;
+		}
+	}
+
+	function handleCompareToggle(enabled: boolean) {
+		if (enabled) {
+			ensureComparisonScenario();
+			syncComparisonInstructions();
+		} else {
+			comparisonInstructions = '';
+		}
+	}
+
+	function swapScenarios() {
+		if (!comparisonScenario) return;
+		const previousPrimary = selectedScenario;
+		selectedScenario = comparisonScenario;
+		comparisonScenario = previousPrimary;
 		generateInstructions();
 	}
 
@@ -257,7 +353,7 @@ Language → db.languages               SessionContext → runtime context`;
 		</div>
 	</div>
 
-	<div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+	<div class="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
 		<!-- Parameters Panel -->
 		<div class="space-y-6">
 			<!-- Language Selection -->
@@ -352,6 +448,50 @@ Language → db.languages               SessionContext → runtime context`;
 						<option value={scenario}>{scenario.title} ({scenario.category})</option>
 					{/each}
 				</select>
+			</div>
+
+			<div class="rounded-lg bg-white p-4 shadow">
+				<div class="flex items-center justify-between gap-2">
+					<h3 class="text-lg font-semibold">🆚 Scenario Comparison</h3>
+					<label class="flex items-center gap-2 text-sm font-medium">
+						<span>Compare</span>
+						<input
+							type="checkbox"
+							class="toggle toggle-sm"
+							bind:checked={compareMode}
+							onchange={() => handleCompareToggle(compareMode)}
+							aria-label="Toggle scenario comparison"
+						/>
+					</label>
+				</div>
+				{#if compareMode}
+					<div class="mt-4 space-y-3">
+						{#if comparisonOptions.length > 0}
+							<select
+								bind:value={comparisonScenario}
+								class="w-full rounded border p-2"
+								onchange={() => syncComparisonInstructions()}
+							>
+								{#each comparisonOptions as scenario (scenario.id)}
+									<option value={scenario}>{scenario.title} ({scenario.category})</option>
+								{/each}
+							</select>
+							<button
+								class="w-full rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-60"
+								onclick={swapScenarios}
+								disabled={!comparisonScenario}
+							>
+								Swap with Primary Scenario
+							</button>
+						{:else}
+							<p
+								class="rounded border border-dashed border-gray-300 bg-gray-50 p-3 text-sm text-gray-600"
+							>
+								Add at least one more active scenario to enable side-by-side comparison.
+							</p>
+						{/if}
+					</div>
+				{/if}
 			</div>
 
 			<!-- Session Context -->
@@ -512,55 +652,128 @@ Language → db.languages               SessionContext → runtime context`;
 			</div>
 		</div>
 
-		<!-- Instructions Output -->
-		<div class="rounded-lg bg-white p-4 shadow">
-			<h3 class="mb-3 text-lg font-semibold">📋 Generated Instructions</h3>
-			<div
-				class="max-h-96 overflow-y-auto rounded border bg-gray-50 p-4 font-mono text-sm whitespace-pre-wrap"
-			>
-				{currentInstructions || 'Click "Generate Instructions" to see output...'}
+		<div class="space-y-6">
+			<div class="rounded-lg bg-white p-4 shadow xl:sticky xl:top-6">
+				<h3 class="mb-3 text-lg font-semibold">📊 Current Parameters</h3>
+				<div class="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
+					<div>
+						<strong>Language:</strong>
+						{selectedLanguage.name} ({selectedLanguage.code})
+					</div>
+					<div>
+						<strong>Level:</strong>
+						{selectedPreferences.speakingLevel}/100
+					</div>
+					<div>
+						<strong>Goal:</strong>
+						{selectedPreferences.learningGoal}
+					</div>
+					<div>
+						<strong>Corrections:</strong>
+						{selectedPreferences.correctionStyle}
+					</div>
+					<div>
+						<strong>Scenario:</strong>
+						{selectedScenario.title}
+					</div>
+					<div>
+						<strong>Topic:</strong>
+						{selectedSessionContext.currentTopic}
+					</div>
+					<div>
+						<strong>Time Elapsed:</strong>
+						{selectedSessionContext.timeElapsed}s
+					</div>
+					<div>
+						<strong>Phase:</strong>
+						{currentPhase}
+					</div>
+				</div>
+
+				{#if compareMode}
+					<div class="mt-4 rounded border border-dashed border-gray-300 p-3 text-sm">
+						{#if comparisonScenario}
+							<p class="mb-1 font-semibold">Comparison Scenario</p>
+							<p>
+								<strong>Scenario:</strong>
+								{comparisonScenario.title}
+							</p>
+							<p>
+								<strong>Category:</strong>
+								{comparisonScenario.category}
+							</p>
+						{:else}
+							<p class="text-gray-500">Select another scenario to enable comparison output.</p>
+						{/if}
+					</div>
+				{/if}
 			</div>
 		</div>
 	</div>
 
-	<!-- Current Parameters Display -->
-	<div class="mt-8 rounded-lg bg-white p-4 shadow">
-		<h3 class="mb-3 text-lg font-semibold">📊 Current Parameters</h3>
-		<div class="grid grid-cols-1 gap-4 text-sm md:grid-cols-2 lg:grid-cols-4">
-			<div>
-				<strong>Language:</strong>
-				{selectedLanguage.name} ({selectedLanguage.code})
-			</div>
-			<div>
-				<strong>Level:</strong>
-				{selectedPreferences.speakingLevel}/100
-			</div>
-			<div>
-				<strong>Goal:</strong>
-				{selectedPreferences.learningGoal}
-			</div>
-			<div>
-				<strong>Corrections:</strong>
-				{selectedPreferences.correctionStyle}
-			</div>
-			<div>
-				<strong>Scenario:</strong>
-				{selectedScenario.title}
-			</div>
-			<div>
-				<strong>Topic:</strong>
-				{selectedSessionContext.currentTopic}
-			</div>
-			<div>
-				<strong>Time Elapsed:</strong>
-				{selectedSessionContext.timeElapsed}s
-			</div>
-			<div>
-				<strong>Phase:</strong>
-				{currentPhase}
+	<section class="mt-10 space-y-4">
+		<div class="flex flex-wrap items-center justify-between gap-3">
+			<h2 class="text-2xl font-semibold">📋 Generated Instructions</h2>
+			<div class="text-sm text-gray-600">
+				{#if compareMode && comparisonScenario}
+					Comparing "{selectedScenario.title}" ↔ "{comparisonScenario.title}"
+				{:else if compareMode}
+					Select another scenario to compare with "{selectedScenario.title}".
+				{:else}
+					Current scenario: {selectedScenario.title}
+				{/if}
 			</div>
 		</div>
-	</div>
+
+		{#if compareMode && comparisonScenario}
+			<div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+				<article class="rounded-lg bg-white p-4 shadow">
+					<header class="mb-3">
+						<h3 class="text-lg font-semibold">{selectedScenario.title}</h3>
+						<p class="text-xs tracking-wide text-gray-500 uppercase">
+							{selectedScenario.category}
+						</p>
+					</header>
+					<div
+						class="min-h-[28rem] overflow-x-auto rounded border bg-gray-50 p-4 font-mono text-sm whitespace-pre-wrap"
+					>
+						{currentInstructions || 'Click "Generate Instructions" to see output...'}
+					</div>
+				</article>
+				<article class="rounded-lg bg-white p-4 shadow">
+					<header class="mb-3">
+						<h3 class="text-lg font-semibold">{comparisonScenario.title}</h3>
+						<p class="text-xs tracking-wide text-gray-500 uppercase">
+							{comparisonScenario.category}
+						</p>
+					</header>
+					<div
+						class="min-h-[28rem] overflow-x-auto rounded border bg-gray-50 p-4 font-mono text-sm whitespace-pre-wrap"
+					>
+						{comparisonInstructions || 'Adjust parameters or regenerate to view comparison.'}
+					</div>
+				</article>
+			</div>
+		{:else}
+			<article class="rounded-lg bg-white p-4 shadow">
+				<header class="mb-3">
+					<h3 class="text-lg font-semibold">{selectedScenario.title}</h3>
+					<p class="text-xs tracking-wide text-gray-500 uppercase">{selectedScenario.category}</p>
+				</header>
+				<div
+					class="min-h-[32rem] overflow-x-auto rounded border bg-gray-50 p-4 font-mono text-sm whitespace-pre-wrap"
+				>
+					{currentInstructions || 'Click "Generate Instructions" to see output...'}
+				</div>
+			</article>
+
+			{#if compareMode && !comparisonScenario}
+				<p class="text-sm text-red-500">
+					No additional scenarios available for comparison. Add another scenario to compare outputs.
+				</p>
+			{/if}
+		{/if}
+	</section>
 </div>
 
 <style>

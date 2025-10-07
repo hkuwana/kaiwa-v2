@@ -1,12 +1,12 @@
 <!-- src/lib/components/UnifiedStartButton.svelte -->
 <script lang="ts">
-	import { scenariosData } from '$lib/data/scenarios';
+	import { scenariosData, sortScenariosByDifficulty, type ScenarioWithHints } from '$lib/data/scenarios';
 	import { goto } from '$app/navigation';
 	import { track } from '$lib/analytics/posthog';
 	import LanguageSelector from './LanguageSelector.svelte';
 	import ScenarioSelector from '$lib/features/scenarios/components/ScenarioSelector.svelte';
 	import type { Language as DataLanguage } from '$lib/data/languages';
-	import type { User, Scenario } from '$lib/server/db/types';
+	import type { User } from '$lib/server/db/types';
 	import { getTopSpeakerForScenario, getSpeakersByLanguage } from '$lib/data/speakers';
 	import { GUEST_USER } from '$lib/data/user';
 
@@ -15,10 +15,10 @@
 		user: User;
 		selectedLanguage?: DataLanguage | null;
 		selectedSpeaker?: string | null;
-		selectedScenario?: Scenario | null;
+		selectedScenario?: ScenarioWithHints | null;
 		onLanguageChange?: (language: DataLanguage) => void;
 		onSpeakerChange?: (speakerId: string) => void;
-		onScenarioChange?: (scenario: Scenario) => void;
+		onScenarioChange?: (scenario: ScenarioWithHints) => void;
 		onStartClick?: () => void;
 		children?: import('svelte').Snippet;
 	}
@@ -39,10 +39,10 @@
 	const isGuest = user.id === 'guest';
 
 	// Available scenarios - show all scenarios
-	const availableScenarios = $derived(scenariosData);
+	const availableScenarios = $derived(sortScenariosByDifficulty(scenariosData));
 
 	// Current scenario or default to onboarding
-	const currentScenario = $derived(selectedScenario || scenariosData[0]);
+	const currentScenario = $derived(selectedScenario || availableScenarios[0]);
 
 	// Auto-pick a best-fitting speaker when language + scenario are set
 	$effect(() => {
@@ -77,7 +77,7 @@
 		}
 	}
 
-	function handleScenarioChange(scenario: Scenario) {
+	function handleScenarioChange(scenario: ScenarioWithHints) {
 		if (onScenarioChange) {
 			onScenarioChange(scenario);
 		}

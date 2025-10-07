@@ -59,6 +59,7 @@
 	// Audio control state
 	let hasUsedAudioControl = $state(false);
 	let isEnding = $state(false);
+	let hasTriggeredInitialGreeting = $state(false);
 
 	// Determine if we are in an onboarding-like session for hinting
 	const showOnboardingHint = $derived(() => {
@@ -70,6 +71,9 @@
 		};
 		return shouldTriggerOnboarding(provider);
 	});
+
+	// Check if we're waiting for user to start
+	const waitingForUserToStart = $derived(conversationStore.waitingForUserToStart);
 
 	// Auto-scroll to latest message when new messages arrive
 	$effect(() => {
@@ -277,6 +281,12 @@
 				pressBehavior={pressBehavior()}
 				onRecordStart={() => {
 					hasUsedAudioControl = true;
+					// Trigger initial greeting if this is the first interaction
+					if (waitingForUserToStart && !hasTriggeredInitialGreeting) {
+						console.log('👤 User tapped AudioVisualizer for first time, triggering greeting');
+						hasTriggeredInitialGreeting = true;
+						conversationStore.triggerInitialGreeting();
+					}
 					conversationStore.resumeStreaming();
 				}}
 				onRecordStop={() => {
@@ -285,8 +295,28 @@
 			/>
 		</div>
 
-		<!-- Centered Hint - Managed by ConversationActiveState -->
-		{#if showOnboardingHint() && !hasUsedAudioControl}
+		<!-- Centered Hint - Show waiting message or onboarding hint -->
+		{#if waitingForUserToStart && !hasTriggeredInitialGreeting}
+			<div class="pointer-events-none fixed inset-x-0 bottom-28 z-50 select-none">
+				<div
+					class="mx-auto w-auto max-w-[80vw] rounded-md bg-base-200 px-4 py-2 text-center text-sm text-base-content shadow-lg md:max-w-[40vw]"
+				>
+					Tap the microphone when you're ready to begin
+				</div>
+				<svg
+					class="mx-auto mt-2 h-7 w-7 animate-bounce text-base-content"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+				>
+					<path d="M6 9l6 6 6-6" />
+				</svg>
+			</div>
+		{:else if showOnboardingHint() && !hasUsedAudioControl}
 			<div class="pointer-events-none fixed inset-x-0 bottom-28 z-50 select-none">
 				<div
 					class="mx-auto w-auto max-w-[80vw] rounded-md bg-base-200 px-4 py-2 text-center text-sm text-base-content shadow-lg md:max-w-[40vw]"

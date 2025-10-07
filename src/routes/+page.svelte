@@ -11,7 +11,6 @@
 	import type { Language as DataLanguage } from '$lib/data/languages';
 	import type { Scenario } from '$lib/server/db/types';
 	import WhyDifferent from '$lib/components/WhyDifferent.svelte';
-	import InteractiveDemo from '$lib/components/InteractiveDemo.svelte';
 
 	const user = userManager.user;
 
@@ -146,43 +145,12 @@
 		</div>
 	</header>
 
-	<!-- Quick value props strip -->
-	<section class="hidden rounded-2xl border-y border-white/10 bg-secondary/20 py-8 md:block">
-		<div class="container mx-auto grid max-w-5xl grid-cols-1 gap-6 px-4 md:grid-cols-3">
-			<div>
-				<div class="text-sm font-semibold tracking-wide text-primary uppercase">Perfect For</div>
-				<div class="mt-2 text-base opacity-90">
-					Multicultural couples • Heritage language learners • Business professionals • Travel
-					enthusiasts
-				</div>
-			</div>
-			<div>
-				<div class="text-sm font-semibold tracking-wide text-primary uppercase">
-					Languages Available
-				</div>
-				<div class="mt-2 text-base opacity-90">
-					Japanese • Spanish • French • Italian • German • Portuguese • Chinese • Korean
-				</div>
-			</div>
-			<div>
-				<div class="text-sm font-semibold tracking-wide text-primary uppercase">Proven Results</div>
-				<div class="mt-2 text-base italic opacity-90">
-					"Kaiwa is like WD‑40 for being rusty at a language. I gained confidence in weeks, not
-					months." — Scott H.
-				</div>
-			</div>
+	<section class="space-y-8">
+		<div class="text-center">
+			<div class="mb-3 text-2xl font-bold">Craft Your Adventure</div>
+			<p class="text-lg opacity-80">Explore places, moments, and moods to practice</p>
 		</div>
-	</section>
-
-	<section class="py-16">
-		<div class="mx-auto max-w-3xl text-center">
-			<h2 class="mb-4 text-4xl font-bold">See Kaiwa in Action</h2>
-			<p class="mb-8 text-xl opacity-90">
-				This is a real, interactive demo. Click the prompt after the conversation to see how our
-				feedback works.
-			</p>
-		</div>
-		<InteractiveDemo />
+		<InteractiveScenarioPreview {selectedLanguage} />
 	</section>
 
 	<!-- Simplified content for mobile -->
@@ -255,15 +223,6 @@
 					</p>
 				</div>
 				<ChatBubbleFlow />
-			</section>
-
-			<!-- Option 3: Interactive Scenario Preview -->
-			<section class="space-y-8">
-				<div class="text-center">
-					<div class="mb-3 text-2xl font-bold">Craft Your Adventure</div>
-					<p class="text-lg opacity-80">Explore places, moments, and moods to practice</p>
-				</div>
-				<InteractiveScenarioPreview {selectedLanguage} />
 			</section>
 		</div>
 

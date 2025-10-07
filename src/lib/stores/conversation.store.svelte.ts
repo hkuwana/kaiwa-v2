@@ -51,6 +51,7 @@ export class ConversationStore {
 	voice: Voice = DEFAULT_VOICE;
 	speaker = $state<Speaker | undefined>(undefined);
 	error = $state<string | null>(null);
+	waitingForUserToStart = $state<boolean>(false);
 
 	availableDevices = $state<MediaDeviceInfo[]>([]);
 	selectedDeviceId = $state<string>('default');
@@ -229,7 +230,8 @@ export class ConversationStore {
 
 			// 4. Connect via SDK-backed store
 			await realtimeOpenAI.connect(sessionData, this.audioStream, {
-				voice: this.voice
+				voice: this.voice,
+				transcriptionLanguage: this.language.code
 			});
 
 			// 5. Set up event handlers
@@ -258,11 +260,12 @@ export class ConversationStore {
 		}
 
 		const track = this.audioStream.getAudioTracks()[0];
-		console.log('🎙️ ConversationStore: pauseStreaming requested', {
+		console.warn('⏸️ PAUSE STREAMING (PTT STOP)', {
 			audioStoreRecording: audioStore.isRecording,
 			currentLevel: audioStore.currentLevel.level,
 			streamId: this.audioStream.id,
-			track: this.describeAudioTrack(track)
+			trackEnabled: track?.enabled,
+			timestamp: new Date().toISOString()
 		});
 
 		realtimeOpenAI.pttStop(this.audioStream);
@@ -274,10 +277,6 @@ export class ConversationStore {
 		} catch (err) {
 			console.warn('🎙️ ConversationStore: Failed to reset audio level on pause', err);
 		}
-
-		console.log('🎙️ ConversationStore: pauseStreaming applied', {
-			track: this.describeAudioTrack(track)
-		});
 	};
 
 	resumeStreaming = () => {
@@ -287,11 +286,12 @@ export class ConversationStore {
 		}
 
 		const track = this.audioStream.getAudioTracks()[0];
-		console.log('🎙️ ConversationStore: resumeStreaming requested', {
+		console.warn('▶️ RESUME STREAMING (PTT START)', {
 			audioStoreRecording: audioStore.isRecording,
 			currentLevel: audioStore.currentLevel.level,
 			streamId: this.audioStream.id,
-			track: this.describeAudioTrack(track)
+			trackEnabled: track?.enabled,
+			timestamp: new Date().toISOString()
 		});
 
 		realtimeOpenAI.pttStart(this.audioStream);
@@ -712,25 +712,37 @@ export class ConversationStore {
 
 		this.lastInstructions = sessionConfig.instructions;
 
-		// Greet proactively based on preferences
-		// TODO: Get autoGreet from userSettings instead
-		const autoGreet = true; // Default since audioSettings moved to userSettings table
-		if (autoGreet) {
-			// Force a greeting even without prior user input
-			realtimeOpenAI.sendResponse();
+		// Set flag to wait for user to manually start
+		// Don't auto-greet - let the user tap to begin
+		this.waitingForUserToStart = true;
+		console.log('🎵 ConversationStore: Waiting for user to start conversation...');
+	}
 
-			// Optional safety retry after 1.5s if no assistant message yet
-			setTimeout(() => {
-				if (!realtimeOpenAI.isConnected) return;
-				const hasAssistant = this.messages.some((m) => m.role === 'assistant');
-				if (!hasAssistant) {
-					realtimeOpenAI.sendResponse();
-				}
-			}, 1500);
-		} else {
-			// Fallback: basic response request
-			realtimeOpenAI.sendResponse();
+	/**
+	 * Trigger the AI's first greeting after user interaction
+	 * This should be called when the user taps the AudioVisualizer for the first time
+	 */
+	triggerInitialGreeting = () => {
+		if (!this.waitingForUserToStart) {
+			console.log('🎵 ConversationStore: Initial greeting already sent');
+			return;
 		}
+
+		console.log('🎵 ConversationStore: User initiated conversation, sending initial greeting...');
+		this.waitingForUserToStart = false;
+
+		// Send the initial response to get AI greeting
+		realtimeOpenAI.sendResponse();
+
+		// Optional safety retry after 1.5s if no assistant message yet
+		setTimeout(() => {
+			if (!realtimeOpenAI.isConnected) return;
+			const hasAssistant = this.messages.some((m) => m.role === 'assistant');
+			if (!hasAssistant) {
+				console.log('🎵 ConversationStore: Retry sending initial greeting...');
+				realtimeOpenAI.sendResponse();
+			}
+		}, 1500);
 	}
 
 	private applyInstructionUpdate(delta: string) {

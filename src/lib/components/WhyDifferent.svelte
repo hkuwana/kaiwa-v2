@@ -125,7 +125,7 @@
 
 		<div class="mt-6 text-center">
 			<p class="text-xs opacity-60">
-				Based on ChatGPT Voice, Speak.com, Babbel, Duolingo features as of 2024. Features vary by
+				Based on ChatGPT Voice, Speak.com, Babbel, Duolingo features as of 2025. Features vary by
 				product and pricing tier.
 			</p>
 		</div>

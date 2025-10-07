@@ -1,16 +1,21 @@
 <!-- src/lib/components/ScenarioStartButton.svelte -->
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import type { Scenario, User } from '$lib/server/db/types';
-	import { scenariosData } from '$lib/data/scenarios';
+	import type { User } from '$lib/server/db/types';
+	import {
+		scenariosData,
+		sortScenariosByDifficulty,
+		type ScenarioWithHints
+	} from '$lib/data/scenarios';
+	import { difficultyRatingToCefr, formatCefrBadge } from '$lib/utils/cefr';
 	import { resolve } from '$app/paths';
 
 	// Props-based design - no direct store access
 	interface Props {
 		user: User;
-		selectedScenario?: Scenario | null;
+		selectedScenario?: ScenarioWithHints | null;
 		onScenarioChange?: (scenarioId: string) => void;
-		onScenarioStart?: (scenario: Scenario) => void;
+		onScenarioStart?: (scenario: ScenarioWithHints) => void;
 		forceOnboarding?: boolean; // Force onboarding for guests
 	}
 
@@ -26,7 +31,7 @@
 	const isGuest = user.id === 'guest';
 
 	// Available scenarios - use data from scenarios.ts
-	const scenarios = scenariosData;
+	const scenarios = sortScenariosByDifficulty(scenariosData);
 
 	// Get available scenarios based on user status
 	const availableScenarios = $derived(
@@ -34,7 +39,7 @@
 	);
 
 	// Current scenario or default to onboarding
-	const currentScenario = $derived(selectedScenario || scenariosData[0]);
+	const currentScenario = $derived(selectedScenario || scenarios[0]);
 
 	function startScenario() {
 		// If no scenario is selected, default to onboarding
@@ -113,7 +118,11 @@
 			>
 				{#each availableScenarios as scenario (scenario.id)}
 					<option value={scenario.id}>
-						{scenario.title} - {scenario.description}
+						{scenario.title} ·
+						{formatCefrBadge(
+							scenario.cefrLevel || difficultyRatingToCefr(scenario.difficultyRating),
+							{ withDescriptor: true }
+						)}
 					</option>
 				{/each}
 			</select>

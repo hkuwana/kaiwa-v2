@@ -1,12 +1,13 @@
 <!-- src/lib/components/ScenarioSelector.svelte -->
 <script lang="ts">
-	import type { Scenario } from '$lib/server/db/types';
+	import type { ScenarioWithHints } from '$lib/data/scenarios';
+import { difficultyRatingToStars } from '$lib/utils/cefr';
 
 	// Props-based design - no direct store access
 	interface Props {
-		scenarios: Scenario[];
-		selectedScenario: Scenario | null;
-		onScenarioSelect: (scenario: Scenario) => void;
+		scenarios: ScenarioWithHints[];
+		selectedScenario: ScenarioWithHints | null;
+		onScenarioSelect: (scenario: ScenarioWithHints) => void;
 		disabled?: boolean;
 		tooltipMessage?: string;
 		isGuest?: boolean;
@@ -48,7 +49,16 @@
 
 	let isOpen = $state(false);
 
-	function selectScenario(scenario: Scenario) {
+	const createRange = (count: number) => Array.from({ length: Math.max(0, count) });
+
+	function getScenarioMeta(scenario: ScenarioWithHints) {
+		const rating = scenario.difficultyRating ?? 1;
+		return {
+			stars: difficultyRatingToStars(rating)
+		};
+	}
+
+	function selectScenario(scenario: ScenarioWithHints) {
 		// Only allow onboarding scenario for guests
 		if (isGuest && scenario.category !== 'onboarding') {
 			return;
@@ -85,12 +95,10 @@
 							<span class="icon-[mdi--target] h-5 w-5 text-primary"></span>
 						{/if}
 					</span>
-					<div class="flex flex-col items-center">
+					<div class="flex items-center gap-2">
 						<span class="text-base font-medium">{disabled ? 'Meet Your Tutor' : 'Scenario'}</span>
 						{#if selectedScenario}
-							<span class="text-sm opacity-70">{selectedScenario.title}</span>
-						{:else}
-							<span class="animate-pulse text-sm opacity-50">Loading...</span>
+							<span class="badge badge-sm capitalize">{selectedScenario.category}</span>
 						{/if}
 					</div>
 				</div>
@@ -132,12 +140,10 @@
 						<span class="icon-[mdi--target] h-5 w-5 text-primary"></span>
 					{/if}
 				</span>
-				<div class="flex flex-col items-center">
-					<span class="text-base font-medium"
-						>{selectedScenario ? selectedScenario?.title : ''}</span
-					>
+				<div class="flex items-center gap-2">
 					{#if selectedScenario}
-						<span class="text-sm opacity-70">{selectedScenario.description}</span>
+						<span class="max-w-xs truncate text-base font-medium">{selectedScenario.title}</span>
+						<span class="badge badge-sm capitalize">{selectedScenario.category}</span>
 					{:else}
 						<span class="animate-pulse text-sm opacity-50">Loading...</span>
 					{/if}
@@ -166,9 +172,10 @@
 			<div class="max-h-80 overflow-y-auto px-2">
 				{#each scenarios as scenario (scenario.id)}
 					{@const isLocked = isGuest && scenario.category !== 'onboarding'}
+					{@const meta = getScenarioMeta(scenario)}
 					<button
 						onclick={() => selectScenario(scenario)}
-						class="group btn relative my-1 flex w-full flex-col items-center justify-center rounded-xl px-4 py-4 text-center btn-ghost transition-colors duration-150"
+						class="group btn relative my-1 flex w-full items-center justify-start rounded-xl px-4 py-3 text-left btn-ghost transition-colors duration-150"
 						class:bg-primary={selectedScenario?.id === scenario.id}
 						class:text-primary-content={selectedScenario?.id === scenario.id}
 						class:hover:bg-primary={selectedScenario?.id === scenario.id}
@@ -176,17 +183,20 @@
 						class:cursor-not-allowed={isLocked}
 						disabled={isLocked}
 					>
-						<div class="flex items-center gap-2">
-							<span
-								class="{categoryIcons[scenario.category] ||
-									'icon-[mdi--target]'} h-5 w-5 text-{categoryColors[scenario.category] ||
-									'primary'}"
-							></span>
-							<span class="font-medium">{scenario.title}</span>
-							{#if isLocked}
-								<span class="icon-[mdi--lock] h-4 w-4 text-base-content/40"></span>
-							{/if}
-						</div>
+						<span
+							class="{categoryIcons[scenario.category] ||
+								'icon-[mdi--target]'} mr-3 h-5 w-5 flex-shrink-0 text-{categoryColors[scenario.category] ||
+								'primary'}"
+						></span>
+						<span class="flex-1 truncate text-sm font-medium">{scenario.title}</span>
+						<span class="ml-3 flex flex-shrink-0 items-center gap-0.5 text-amber-300">
+							{#each createRange(meta.stars) as _}
+								<span class="icon-[mdi--star] h-3.5 w-3.5"></span>
+							{/each}
+						</span>
+						{#if isLocked}
+							<span class="ml-2 icon-[mdi--lock] h-4 w-4 text-base-content/40"></span>
+						{/if}
 
 						{#if selectedScenario?.id === scenario.id}
 							<svg

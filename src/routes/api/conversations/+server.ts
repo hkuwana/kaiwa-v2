@@ -2,6 +2,47 @@ import { json } from '@sveltejs/kit';
 import { conversationRepository } from '$lib/server/repositories/conversation.repository';
 import { messagesRepository } from '$lib/server/repositories/messages.repository';
 import { createErrorResponse, createSuccessResponse } from '$lib/types/api';
+import { z } from 'zod';
+
+export const GET = async ({ locals, url }) => {
+	const user = locals.user;
+	if (!user) {
+		return json(createErrorResponse('Unauthorized'), { status: 401 });
+	}
+
+	const querySchema = z.object({
+		limit: z.coerce.number().int().min(1).max(100).default(10),
+		offset: z.coerce.number().int().min(0).default(0)
+	});
+
+	const params = querySchema.safeParse(Object.fromEntries(url.searchParams));
+
+	if (!params.success) {
+		return json(createErrorResponse('Invalid query parameters', params.error.flatten()), {
+			status: 400
+		});
+	}
+
+	try {
+		const { limit, offset } = params.data;
+		const conversations = await conversationRepository.findConversationsByUserId(
+			user.id,
+			limit,
+			offset
+		);
+		const totalConversations = await conversationRepository.countConversationsByUserId(user.id);
+
+		return json(
+			createSuccessResponse({
+				conversations,
+				total: totalConversations
+			})
+		);
+	} catch (error) {
+		console.error('Get conversations API error:', error);
+		return json(createErrorResponse('Internal server error'), { status: 500 });
+	}
+};
 
 export const POST = async ({ request, locals }) => {
 	try {

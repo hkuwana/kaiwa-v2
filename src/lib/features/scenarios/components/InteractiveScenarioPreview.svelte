@@ -5,6 +5,12 @@
 	import { onMount } from 'svelte';
 	import type { Message } from '$lib/server/db/types';
 	import { SvelteDate } from 'svelte/reactivity';
+	import { fade } from 'svelte/transition';
+	import {
+		difficultyRatingToCefr,
+		difficultyRatingToStars,
+		formatCefrBadge
+	} from '$lib/utils/cefr';
 
 	interface Props {
 		selectedLanguage?: { name: string; code: string; flag: string } | null;
@@ -15,6 +21,12 @@
 	// State for tracking which messages show translations
 	const showTranslations = $state<{ [messageId: string]: boolean }>({});
 
+	type Analysis = {
+		summary: string;
+		suggestion: string;
+		culturalTip?: string;
+	};
+
 	// Create Message objects for better integration with MessageBubble
 	const createMessage = (
 		role: 'user' | 'assistant',
@@ -23,7 +35,8 @@
 		romanization?: string,
 		hiragana?: string,
 		otherScripts?: Record<string, string>,
-		sourceLang?: string
+		sourceLang?: string,
+		analysis?: Analysis
 	): Message => ({
 		id: crypto.randomUUID(),
 		conversationId: 'preview',
@@ -43,7 +56,7 @@
 		translationProvider: null,
 		translationNotes: null,
 		isTranslated: !!originalText,
-		grammarAnalysis: null,
+		grammarAnalysis: analysis ? JSON.stringify(analysis) : null,
 		vocabularyAnalysis: null,
 		pronunciationScore: null,
 		audioUrl: null,
@@ -60,16 +73,30 @@
 		showTranslations[messageId] = !showTranslations[messageId];
 	}
 
+	let showAnalysisFor = $state<Message | null>(null);
+
+	function handleRevealAnalysis(message: Message) {
+		if (message.grammarAnalysis) {
+			showAnalysisFor = message;
+		}
+	}
+
 	// Enhanced scenario data with preview conversations and visual elements
+	const createRange = (count: number) => Array.from({ length: Math.max(0, count) }, (_, i) => i);
+
 	const getScenarioPreviewsData = () => {
 		const scenarios = [];
 
 		// 1) Japanese romance (furigana + romaji)
 		const familyDinnerScenario = scenariosData.find((s) => s.id === 'family-dinner-introduction');
 		if (familyDinnerScenario) {
+			const rating = familyDinnerScenario.difficultyRating ?? 1;
+			const cefr = familyDinnerScenario.cefrLevel || difficultyRatingToCefr(rating);
 			scenarios.push({
 				...familyDinnerScenario,
 				icon: '💕',
+				difficultyStars: difficultyRatingToStars(rating),
+				cefrBadge: formatCefrBadge(cefr, { withDescriptor: true }),
 				messages: [
 					createMessage(
 						'user',
@@ -96,7 +123,14 @@
 						'O-maneki itadaki, arigatō gozaimasu.',
 						'お招<rt>まね</rt>きいただき、ありがとうございます。',
 						undefined,
-						'ja'
+						'ja',
+						{
+							summary: 'Great compliment! Very polite.',
+							suggestion:
+								'For a slightly more natural and humble tone, you could try: 「素敵なオフィスですね。」 (Suteki na ofisu desu ne.)',
+							culturalTip:
+								"In Japan, complimenting someone's office or home is a common and appreciated way to break the ice."
+						}
 					)
 				],
 				color: 'from-pink-400 to-rose-500',
@@ -107,9 +141,13 @@
 		// 2) Korean: Calling home from the platform
 		const clinicScenario = scenariosData.find((s) => s.id === 'clinic-night-triage');
 		if (clinicScenario) {
+			const rating = clinicScenario.difficultyRating ?? 1;
+			const cefr = clinicScenario.cefrLevel || difficultyRatingToCefr(rating);
 			scenarios.push({
 				...clinicScenario,
 				icon: '👨‍👩‍👧‍👦',
+				difficultyStars: difficultyRatingToStars(rating),
+				cefrBadge: formatCefrBadge(cefr, { withDescriptor: true }),
 				messages: [
 					createMessage(
 						'user',
@@ -144,8 +182,67 @@
 			});
 		}
 
-		return scenarios;
+		const executiveScenario = scenariosData.find((s) => s.id === 'executive-board-negotiation');
+		if (executiveScenario) {
+			const rating = executiveScenario.difficultyRating ?? 7;
+			const cefr = executiveScenario.cefrLevel || difficultyRatingToCefr(rating);
+			scenarios.push({
+				...executiveScenario,
+				icon: '📈',
+				difficultyStars: difficultyRatingToStars(rating),
+				cefrBadge: formatCefrBadge(cefr, { withDescriptor: true }),
+				messages: [
+					createMessage(
+						'user',
+						'本日の議題は、新しい市場参入戦略の承認です。',
+						'Today’s agenda is approving the new market entry plan.',
+						'Honjitsu no gidai wa, atarashii shijō sannyū senryaku no shōnin desu.',
+						'本<rt>ほん</rt>日<rt>じつ</rt>の議題<rt>ぎだい</rt>は、新<rt>あたら</rt>しい市場<rt>しじょう</rt>参<rt>さん</rt>入<rt>にゅう</rt>戦<rt>せん</rt>略<rt>りゃく</rt>の承<rt>しょう</rt>認<rt>にん</rt>です。',
+						undefined,
+						'ja'
+					),
+					createMessage(
+						'assistant',
+						'まず、期待される投資回収期間を教えてください。',
+						'First, walk us through the expected payback period.',
+						'Mazu, kitai sareru tōshi kaishū kikan o oshiete kudasai.',
+						'まず、期待<rt>きたい</rt>される投資<rt>とうし</rt>回収<rt>かいしゅう</rt>期間<rt>きかん</rt>を教<rt>おし</rt>えてください。',
+						undefined,
+						'ja'
+					),
+					createMessage(
+						'user',
+						'18か月で黒字化できますが、為替リスクへの備えを強化する必要があります。',
+						'We can hit profitability in 18 months, but we need stronger hedging against FX risk.',
+						'Jūhachi-kagetsu de kuroji-ka dekimasu ga, kawase risuku e no sonae o kyōka suru hitsuyō ga arimasu.',
+						'18<rt>じゅうはち</rt>か月<rt>げつ</rt>で黒字<rt>くろじ</rt>化<rt>か</rt>できますが、為替<rt>かわせ</rt>リスクへの備<rt>そな</rt>えを強<rt>きょう</rt>化<rt>か</rt>する必要<rt>ひつよう</rt>があります。',
+						undefined,
+						'ja',
+						{
+							summary: 'Excellent register and precise risk framing.',
+							suggestion:
+								'To sound even tighter, try 「為替変動に対するヘッジを即時に拡張します」.',
+							culturalTip:
+								'Directly addressing risk trade-offs builds credibility in senior Japanese boardrooms.'
+						}
+					)
+				],
+				color: 'from-slate-700 to-slate-900',
+				bgPattern: 'calendar'
+			});
+		}
+
+		// Sort previews by difficulty to show natural progression
+		return scenarios.sort((a, b) => {
+			const ratingA = a.difficultyRating ?? 1;
+			const ratingB = b.difficultyRating ?? 1;
+			if (ratingA === ratingB) return a.title.localeCompare(b.title);
+			return ratingA - ratingB;
+		});
 	};
+
+	const renderStars = (count: number) => createRange(count);
+	const renderEmptyStars = (count: number) => createRange(Math.max(0, 5 - count));
 
 	const scenarioPreviewsData = $derived(getScenarioPreviewsData());
 
@@ -272,6 +369,17 @@
 								>{currentScenario.difficulty}</span
 							>
 						</div>
+						<div class="mt-2 flex items-center gap-3">
+							<div class="flex items-center gap-1 text-amber-400">
+								{#each renderStars(currentScenario.difficultyStars || 1) as _}
+									<span class="icon-[mdi--star] h-4 w-4"></span>
+								{/each}
+								{#each renderEmptyStars(currentScenario.difficultyStars || 1) as _}
+									<span class="icon-[mdi--star-outline] h-4 w-4 text-base-content/30"></span>
+								{/each}
+							</div>
+							<span class="badge badge-outline badge-sm">{currentScenario.cefrBadge}</span>
+						</div>
 					</div>
 				</div>
 				<p class="max-w-md text-base opacity-90">{currentScenario.description}</p>
@@ -318,6 +426,49 @@
 			</div>
 		</div>
 		{/if}
+
+		<!-- Interaction Layer -->
+		<div class="pt-4 text-center">
+			{#if !showAnalysisFor}
+				<div in:fade={{ duration: 500 }}>
+					<button
+						class="btn animate-pulse btn-outline btn-accent"
+						onclick={() => handleRevealAnalysis(currentScenario.messages[2])}
+					>
+						Was that the best way to say it? Click for feedback.
+					</button>
+				</div>
+			{/if}
+
+			{#if showAnalysisFor}
+				<div class="card bg-base-100 shadow-xl" in:fade={{ duration: 500 }}>
+					<div class="card-body">
+						<h3 class="card-title text-accent">Analysis & Feedback</h3>
+						<p class="text-left">
+							<strong class="text-base-content/70">Original:</strong> "{showAnalysisFor.content}"
+						</p>
+						<p class="text-left">
+							<strong class="text-base-content/70">Translation:</strong>
+							"{showAnalysisFor.translatedContent}"
+						</p>
+						<div class="divider my-2"></div>
+						<div class="space-y-3 text-left">
+							<p>
+								<strong class="text-success">Suggestion:</strong>
+								{JSON.parse(showAnalysisFor.grammarAnalysis).suggestion}
+							</p>
+							<p>
+								<strong class="text-info">Cultural Tip:</strong>
+								{JSON.parse(showAnalysisFor.grammarAnalysis).culturalTip}
+							</p>
+						</div>
+						<div class="mt-6 card-actions justify-center">
+							<a href="/auth" class="btn btn-wide btn-primary"> Practice Your Own Conversations </a>
+						</div>
+					</div>
+				</div>
+			{/if}
+		</div>
 
 		<!-- Navigation Controls -->
 		<div class="absolute inset-y-0 left-0 z-20 flex items-center">

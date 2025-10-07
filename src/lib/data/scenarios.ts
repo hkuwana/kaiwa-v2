@@ -2,6 +2,7 @@
 // Focused scenario set for the MVP
 
 import type { Scenario } from '$lib/server/db/types';
+import type { CEFRLevel } from '$lib/utils/cefr';
 
 // Extended scenario type with optional speaker selection hints
 export type ScenarioWithHints = Scenario & {
@@ -11,6 +12,10 @@ export type ScenarioWithHints = Scenario & {
 	speakerGenderPreference?: 'male' | 'female' | 'neutral';
 	// Preferred target languages for this scenario (language IDs from languages table)
 	preferredLanguages?: string[]; // e.g., ['japanese', 'spanish', 'chinese']
+	// Numeric difficulty rating mapped to CEFR (1-8 scale)
+	difficultyRating?: number;
+	// Cached CEFR level label
+	cefrLevel?: CEFRLevel;
 };
 
 export const scenariosData: ScenarioWithHints[] = [
@@ -20,6 +25,8 @@ export const scenariosData: ScenarioWithHints[] = [
 		description: 'Map the real conversations you need next.',
 		category: 'onboarding',
 		difficulty: 'beginner',
+		difficultyRating: 1,
+		cefrLevel: 'A1',
 		instructions: `Name the three situations you dread most, how they currently go, and what "ready" would feel like. Your guide is listening for stakes, vocabulary gaps, and the people who matter to you.`,
 		context:
 			'You and your coach sit in a quiet studio, whiteboard ready to capture the missions that actually matter.',
@@ -48,6 +55,8 @@ export const scenariosData: ScenarioWithHints[] = [
 		description: 'Explain a medical issue at an urgent care clinic.',
 		category: 'roleplay',
 		difficulty: 'intermediate',
+		difficultyRating: 4,
+		cefrLevel: 'B1',
 		instructions: `Describe your symptoms, when they started, and what makes them better or worse. Ask the nurse to repeat the plan until you can say it back confidently.`,
 		context:
 			'Fluorescent lights, rain still on your jacket, a calm nurse ushering you into a small exam room.',
@@ -77,6 +86,8 @@ export const scenariosData: ScenarioWithHints[] = [
 		description: 'Earn trust over a meal with your partner’s parents.',
 		category: 'relationships',
 		difficulty: 'intermediate',
+		difficultyRating: 5,
+		cefrLevel: 'B2',
 		instructions: `Share who you are, ask questions that show respect, and respond to advice with warmth. Practice toasts, compliments, and the small cultural cues that matter.`,
 		context:
 			'A low table, seasonal dishes, and parents who are curious but cautious about welcoming you in.',
@@ -100,15 +111,94 @@ export const scenariosData: ScenarioWithHints[] = [
 		speakerGenderPreference: 'neutral',
 		createdAt: new Date(),
 		updatedAt: new Date()
+	},
+	{
+		id: 'executive-board-negotiation',
+		title: 'Executive Board Negotiation',
+		description:
+			'Defend a strategic decision in front of skeptical executives and earn their approval.',
+		category: 'intermediate',
+		difficulty: 'advanced',
+		difficultyRating: 7,
+		cefrLevel: 'C1',
+		instructions: `Lay out your recommendation in two concise points, anticipate objections, and clarify trade-offs with precise language. Push for a decision by summarizing consensus in the target language.`,
+		context:
+			'A glass-walled boardroom late at night. Revenue dashboards glow on the wall while senior leaders wait for your proposal.',
+		expectedOutcome:
+			'Secure stakeholder alignment on a high-stakes initiative with confident, nuanced language',
+		learningObjectives: [
+			'strategic framing',
+			'objection handling',
+			'persuasive summaries',
+			'executive tone control',
+			'high-register vocabulary'
+		],
+		comfortIndicators: {
+			confidence: 4,
+			engagement: 4,
+			understanding: 4
+		},
+		isActive: true,
+		localeHints: ['ja-JP'],
+		preferredLanguages: ['ja'],
+		speakerGenderPreference: 'neutral',
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'crisis-press-briefing',
+		title: 'Crisis Press Briefing',
+		description:
+			'Face international reporters during a live briefing and manage follow-up questions with precision.',
+		category: 'roleplay',
+		difficulty: 'advanced',
+		difficultyRating: 8,
+		cefrLevel: 'C2',
+		instructions: `Deliver a crisp opening statement, field fast-paced questions without losing composure, and close with a controlled call to action. Keep your language exact, diplomatic, and adaptive.`,
+		context:
+			'Bright lights, cameras blinking red, microphones thrust forward from every angle. Broadcasters are live in multiple languages.',
+		expectedOutcome:
+			'Demonstrate native-level fluency while handling probing questions under public pressure',
+		learningObjectives: [
+			'diplomatic phrasing',
+			'rapid response control',
+			'register shifting',
+			'press conference etiquette',
+			'precision under pressure'
+		],
+		comfortIndicators: {
+			confidence: 2,
+			engagement: 5,
+			understanding: 5
+		},
+		isActive: true,
+		localeHints: ['ja-JP'],
+		preferredLanguages: ['ja'],
+		speakerGenderPreference: 'neutral',
+		createdAt: new Date(),
+		updatedAt: new Date()
 	}
 ];
+
+const DEFAULT_RATING = 99;
+
+const sortByDifficultyRating = (a: ScenarioWithHints, b: ScenarioWithHints) => {
+	const ratingA = a.difficultyRating ?? DEFAULT_RATING;
+	const ratingB = b.difficultyRating ?? DEFAULT_RATING;
+	if (ratingA === ratingB) return a.title.localeCompare(b.title);
+	return ratingA - ratingB;
+};
+
+export const sortScenariosByDifficulty = (input: ScenarioWithHints[]): ScenarioWithHints[] => {
+	return [...input].sort(sortByDifficultyRating);
+};
 
 export const getOnboardingScenario = (): ScenarioWithHints | undefined => {
 	return scenariosData.find((scenario) => scenario.category === 'onboarding');
 };
 
 export const getComfortScenarios = (): ScenarioWithHints[] => {
-	return scenariosData.filter((scenario) => scenario.category !== 'onboarding');
+	return scenariosData.filter((scenario) => scenario.category !== 'onboarding').sort(sortByDifficultyRating);
 };
 
 export const getScenarioById = (id: string): ScenarioWithHints | undefined => {
@@ -127,7 +217,7 @@ export const getScenariosByLanguage = (languageId: string): ScenarioWithHints[] 
 		(scenario) => !scenario.preferredLanguages || !scenario.preferredLanguages.includes(languageId)
 	);
 
-	return [...preferred, ...general];
+	return [...preferred.sort(sortByDifficultyRating), ...general.sort(sortByDifficultyRating)];
 };
 
 /**
@@ -157,10 +247,13 @@ export const getScenariosForUser = (
 			(scenario) =>
 				!scenario.preferredLanguages || !scenario.preferredLanguages.includes(languageId)
 		);
-		scenarios = [...preferred, ...general];
+		scenarios = [
+			...preferred.sort(sortByDifficultyRating),
+			...general.sort(sortByDifficultyRating)
+		];
 	}
 
-	return scenarios;
+	return scenarios.sort(sortByDifficultyRating);
 };
 
 /**
@@ -181,8 +274,11 @@ export const getScenariosByCategory = (
 			(scenario) =>
 				!scenario.preferredLanguages || !scenario.preferredLanguages.includes(languageId)
 		);
-		scenarios = [...preferred, ...general];
+		scenarios = [
+			...preferred.sort(sortByDifficultyRating),
+			...general.sort(sortByDifficultyRating)
+		];
 	}
 
-	return scenarios;
+	return scenarios.sort(sortByDifficultyRating);
 };

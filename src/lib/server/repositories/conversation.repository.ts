@@ -3,7 +3,7 @@
 import { db } from '$lib/server/db/index';
 import { conversations, messages } from '$lib/server/db/schema';
 import type { NewConversation, NewMessage, Conversation, Message } from '$lib/server/db/types';
-import { eq, desc, asc } from 'drizzle-orm';
+import { eq, desc, asc, count } from 'drizzle-orm';
 
 export const conversationRepository = {
 	// CREATE
@@ -66,6 +66,14 @@ export const conversationRepository = {
 
 	async findMessageById(id: string): Promise<Message | undefined> {
 		return db.query.messages.findFirst({ where: eq(messages.id, id) });
+	},
+
+	async countConversationsByUserId(userId: string): Promise<number> {
+		const result = await db
+			.select({ count: count() })
+			.from(conversations)
+			.where(eq(conversations.userId, userId));
+		return result[0]?.count ?? 0;
 	},
 
 	// UPDATE
