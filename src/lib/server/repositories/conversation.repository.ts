@@ -3,7 +3,7 @@
 import { db } from '$lib/server/db/index';
 import { conversations, messages } from '$lib/server/db/schema';
 import type { NewConversation, NewMessage, Conversation, Message } from '$lib/server/db/types';
-import { eq, desc, asc, count } from 'drizzle-orm';
+import { eq, desc, asc, count, inArray, and } from 'drizzle-orm';
 
 export const conversationRepository = {
 	// CREATE
@@ -74,6 +74,20 @@ export const conversationRepository = {
 			.from(conversations)
 			.where(eq(conversations.userId, userId));
 		return result[0]?.count ?? 0;
+	},
+
+	async findConversationsByIdsForUser(
+		conversationIds: string[],
+		userId: string
+	): Promise<Conversation[]> {
+		if (conversationIds.length === 0) {
+			return [];
+		}
+
+		return db
+			.select()
+			.from(conversations)
+			.where(and(eq(conversations.userId, userId), inArray(conversations.id, conversationIds)));
 	},
 
 	// UPDATE
@@ -150,6 +164,21 @@ export const conversationRepository = {
 			.where(eq(conversations.id, id))
 			.returning({ id: conversations.id });
 		return { success: result.length > 0 };
+	},
+
+	async deleteConversations(conversationIds: string[]): Promise<string[]> {
+		if (conversationIds.length === 0) {
+			return [];
+		}
+
+		await db.delete(messages).where(inArray(messages.conversationId, conversationIds));
+
+		const deleted = await db
+			.delete(conversations)
+			.where(inArray(conversations.id, conversationIds))
+			.returning({ id: conversations.id });
+
+		return deleted.map((record) => record.id);
 	},
 
 	async deleteMessage(id: string): Promise<{ success: boolean }> {

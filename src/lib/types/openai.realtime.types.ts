@@ -1,22 +1,53 @@
 // 📡 Realtime Services - Types and Interfaces
 // Comprehensive and type-safe definitions for OpenAI Realtime API
 // Now integrating with official @openai/agents-realtime package
+//
+// 🎯 TYPE SOURCE GUIDE:
+// ✅ From SDK (@openai/agents-realtime):
+//    - RealtimeAgent, RealtimeSession, FunctionTool, tool
+//    - RealtimeClientMessage, RealtimeAudioFormat, RealtimeSessionConfig
+//    - TransportEvent (SDKTransportEvent), TransportError, TransportToolCallEvent
+//    - RealtimeItem, RealtimeMessageItem, RealtimeToolCallItem
+//    - OpenAIRealtimeWebRTC, OpenAIRealtimeWebSocket
+//
+// 📝 Local definitions (not exported by SDK):
+//    - RealtimeAudioConfig, RealtimeAudioInputConfig, RealtimeAudioOutputConfig
+//    - RealtimeTurnDetectionConfig, RealtimeInputAudioTranscriptionConfig
+//    - RealtimeToolDefinition (simplified function-only version)
+//    - SessionConfig (merged type for backward compatibility)
+//    - ServerEvent (detailed WebSocket protocol events)
+//    - Voice type and validation helpers
 
 // === Official OpenAI Agents Exports ===
-export { RealtimeAgent, RealtimeSession as OpenAIRealtimeSession } from '@openai/agents-realtime';
+// Re-export official classes and utilities from the SDK
+export { RealtimeAgent, RealtimeSession as OpenAIRealtimeSession, tool } from '@openai/agents-realtime';
 
-// Import from the main package - only exports available
-import type {
-	RealtimeClientMessage,
-	RealtimeAudioFormat,
-	RealtimeSessionConfig
-} from '@openai/agents-realtime';
-
+// Re-export official types from the @openai/agents-realtime package
+// These are the high-level transport-layer types that the SDK provides
 export type {
 	RealtimeClientMessage,
 	RealtimeAudioFormat,
-	RealtimeSessionConfig
+	RealtimeSessionConfig,
+	TransportEvent as SDKTransportEvent, // Official SDK transport event type
+	TransportError,
+	TransportToolCallEvent,
+	TransportLayerAudio,
+	TransportLayerTranscriptDelta,
+	TransportLayerResponseCompleted,
+	TransportLayerResponseStarted,
+	RealtimeItem,
+	RealtimeMessageItem,
+	RealtimeToolCallItem,
+	RealtimeBaseItem,
+	RealtimeSessionOptions,
+	RealtimeSessionConnectOptions,
+	OpenAIRealtimeWebRTC,
+	OpenAIRealtimeWebSocket,
+	FunctionTool as OfficialFunctionTool
 } from '@openai/agents-realtime';
+
+// Import types needed for our local type definitions
+import type { RealtimeAudioFormat } from '@openai/agents-realtime';
 
 // The following types are not exported from the package, so we'll define them locally
 // based on the package's internal definitions
@@ -611,6 +642,9 @@ export interface OutputAudioBufferClearedEvent extends BaseEvent {
 	response_id: string;
 }
 
+// Local ServerEvent type for backward compatibility with existing code
+// Note: The SDK provides SDKTransportEvent (re-exported above) which is a simpler transport-layer type
+// This local ServerEvent type includes detailed event structures for the raw WebSocket protocol
 export type ServerEvent =
 	| ErrorEvent
 	| SessionCreatedEvent

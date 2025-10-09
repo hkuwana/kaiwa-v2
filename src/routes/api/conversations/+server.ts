@@ -5,16 +5,20 @@ import { createErrorResponse, createSuccessResponse } from '$lib/types/api';
 import { z } from 'zod';
 import type { NewConversation, NewMessage } from '$lib/server/db/types';
 
+const querySchema = z.object({
+	limit: z.coerce.number().int().min(1).max(100).default(10),
+	offset: z.coerce.number().int().min(0).default(0)
+});
+
+const deleteSchema = z.object({
+	conversationIds: z.array(z.string().min(1)).min(1).max(50)
+});
+
 export const GET = async ({ locals, url }) => {
 	const user = locals.user;
 	if (!user) {
 		return json(createErrorResponse('Unauthorized'), { status: 401 });
 	}
-
-	const querySchema = z.object({
-		limit: z.coerce.number().int().min(1).max(100).default(10),
-		offset: z.coerce.number().int().min(0).default(0)
-	});
 
 	const params = querySchema.safeParse(Object.fromEntries(url.searchParams));
 
@@ -126,6 +130,56 @@ export const POST = async ({ request, locals }) => {
 		);
 	} catch (error) {
 		console.error('Create conversation API error:', error);
+		return json(createErrorResponse('Internal server error'), { status: 500 });
+	}
+};
+
+export const DELETE = async ({ request, locals }) => {
+	const user = locals.user;
+	if (!user) {
+		return json(createErrorResponse('Unauthorized'), { status: 401 });
+	}
+
+	let body: unknown;
+	try {
+		body = await request.json();
+	} catch {
+		return json(createErrorResponse('Invalid request body'), { status: 400 });
+	}
+
+	const parsed = deleteSchema.safeParse(body);
+	if (!parsed.success) {
+		return json(createErrorResponse('Invalid request body'), { status: 400 });
+	}
+
+	try {
+		const { conversationIds } = parsed.data;
+		const ownedConversations = await conversationRepository.findConversationsByIdsForUser(
+			conversationIds,
+			user.id
+		);
+
+		if (ownedConversations.length === 0) {
+			return json(createErrorResponse('No conversations found for deletion'), { status: 404 });
+		}
+
+		const ownedIds = ownedConversations.map((conversation) => conversation.id);
+		const skippedIds = conversationIds.filter((id) => !ownedIds.includes(id));
+
+		const deletedIds = await conversationRepository.deleteConversations(ownedIds);
+		const totalAfterDeletion = await conversationRepository.countConversationsByUserId(user.id);
+
+		return json(
+			createSuccessResponse({
+				deletedIds,
+				skippedIds,
+				deletedCount: deletedIds.length,
+				skippedCount: skippedIds.length,
+				totalAfterDeletion
+			})
+		);
+	} catch (error) {
+		console.error('Delete conversations API error:', error);
 		return json(createErrorResponse('Internal server error'), { status: 500 });
 	}
 };

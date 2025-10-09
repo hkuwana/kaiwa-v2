@@ -297,9 +297,9 @@
 
 		<!-- Centered Hint - Show waiting message or onboarding hint -->
 		{#if waitingForUserToStart && !hasTriggeredInitialGreeting}
-			<div class="pointer-events-none fixed inset-x-0 bottom-28 z-50 select-none">
+			<div class="pointer-events-none fixed inset-x-0 bottom-28 z-50 select-none sm:pb-8">
 				<div
-					class="mx-auto w-auto max-w-[80vw] rounded-md bg-base-200 px-4 py-2 text-center text-sm text-base-content shadow-lg md:max-w-[40vw]"
+					class="mx-auto w-auto max-w-[60vw] rounded-md bg-accent px-4 py-2 text-center text-sm text-accent-content shadow-lg md:max-w-[40vw]"
 				>
 					Tap the microphone when you're ready to begin
 				</div>

@@ -18,11 +18,13 @@
 		endedAt: string | null;
 		durationSeconds: number;
 		messageCount: number;
-		preview: {
-			firstUserMessage: string | null;
-			lastMessage: string | null;
-			messageCount: number;
-		};
+		preview?:
+			| {
+					firstUserMessage: string | null;
+					lastMessage: string | null;
+					messageCount: number;
+			  }
+			| null;
 	}
 
 	interface ConversationDetails {
@@ -53,31 +55,45 @@
 	}
 
 	let conversations = $state<ConversationPreview[]>([]);
-	let conversationDetails = $state<
-		Map<string, { details: ConversationDetails; messages: Message[] }>
-	>(new SvelteMap());
-	let expandedConversations = new SvelteSet();
-	let loading = $state(true);
-	let error = $state<string | null>(null);
-	let searchQuery = $state('');
-	let selectedLanguage = $state('');
-	let currentPage = $state(0);
-	let totalConversations = $state(0);
-	let hasMore = $state(false);
-	let loadingDetails = new SvelteSet();
-	let showDevMode = $state(false);
+let conversationDetails = $state<
+	Map<string, { details: ConversationDetails; messages: Message[] }>
+>(new SvelteMap());
+let expandedConversations = $state(new SvelteSet<string>());
+let loading = $state(true);
+let error = $state<string | null>(null);
+let searchQuery = $state('');
+let selectedLanguage = $state('');
+let currentPage = $state(0);
+let totalConversations = $state(0);
+let hasMore = $state(false);
+let loadingDetails = $state(new SvelteSet<string>());
+let showDevMode = $state(false);
+let selectedConversations = $state(new SvelteSet<string>());
+let deleting = $state(false);
+let actionMessage = $state<string | null>(null);
+let actionError = $state<string | null>(null);
 
 	const limit = 10;
 	const languages = $derived(() => {
 		const langs = new SvelteSet(conversations.map((c) => c.targetLanguageId));
 		return Array.from(langs).sort();
 	});
+	const selectedCount = $derived(() => selectedConversations.size);
+	const hasSelection = $derived(() => selectedConversations.size > 0);
+	const hasVisibleSelection = $derived(() =>
+		conversations.some((conversation) => selectedConversations.has(conversation.id))
+	);
+	const allVisibleSelected = $derived(
+		() =>
+			conversations.length > 0 &&
+			conversations.every((conversation) => selectedConversations.has(conversation.id))
+	);
 
 	onMount(() => {
 		loadConversations();
 	});
 
-	async function loadConversations(reset = false) {
+async function loadConversations(reset = false) {
 		if (reset) {
 			currentPage = 0;
 			conversations = [];
@@ -119,6 +135,8 @@
 			} else {
 				conversations = [...conversations, ...conversationBatch];
 			}
+
+			syncStateWithConversations();
 
 			const pagination =
 				data.pagination ??
@@ -208,6 +226,81 @@
 		console.log('✅ New expanded state:', Array.from(expandedConversations));
 	}
 
+	function handleConversationCheckbox(conversationId: string, checked: boolean) {
+		if (checked) {
+			selectedConversations.add(conversationId);
+		} else {
+			selectedConversations.delete(conversationId);
+		}
+		selectedConversations = new SvelteSet(selectedConversations);
+	}
+
+	function handleSelectAllVisible(checked: boolean) {
+		if (checked) {
+			conversations.forEach((conversation) => selectedConversations.add(conversation.id));
+		} else {
+			conversations.forEach((conversation) => selectedConversations.delete(conversation.id));
+		}
+		selectedConversations = new SvelteSet(selectedConversations);
+	}
+
+	function clearSelection() {
+		selectedConversations = new SvelteSet();
+	}
+
+	async function deleteSelectedConversations() {
+		if (selectedConversations.size === 0 || deleting) {
+			return;
+		}
+
+		deleting = true;
+		actionError = null;
+		actionMessage = null;
+
+		const idsToDelete = Array.from(selectedConversations);
+
+		try {
+			const response = await fetch('/api/conversations', {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ conversationIds: idsToDelete })
+			});
+
+			const data = await response.json();
+
+			if (!response.ok || !data.success) {
+				throw new Error(data.error || 'Failed to delete conversations');
+			}
+
+			const deletedIds: string[] = Array.isArray(data.data?.deletedIds)
+				? data.data.deletedIds
+				: [];
+			const skippedIds: string[] = Array.isArray(data.data?.skippedIds)
+				? data.data.skippedIds
+				: [];
+
+			selectedConversations = new SvelteSet();
+
+			await loadConversations(true);
+
+			if (deletedIds.length > 0) {
+				actionMessage = `Deleted ${deletedIds.length} conversation${deletedIds.length === 1 ? '' : 's'}.`;
+			}
+
+			if (skippedIds.length > 0) {
+				actionError = `Skipped ${skippedIds.length} conversation${skippedIds.length === 1 ? '' : 's'} you do not have access to.`;
+			}
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Failed to delete conversations';
+			actionError = message;
+			console.error('Delete conversations error:', err);
+		} finally {
+			deleting = false;
+		}
+	}
+
 	function handleSearch() {
 		loadConversations(true);
 	}
@@ -245,6 +338,33 @@
 
 	function startNewConversation() {
 		goto(resolve('/conversation'));
+	}
+
+	function syncStateWithConversations() {
+		const validIds = new Set(conversations.map((conversation) => conversation.id));
+
+		const prunedSelection = Array.from(selectedConversations).filter((id) => validIds.has(id));
+		selectedConversations = new SvelteSet<string>(prunedSelection);
+
+		const prunedExpanded = Array.from(expandedConversations).filter((id) => validIds.has(id));
+		expandedConversations = new SvelteSet<string>(prunedExpanded);
+
+		const prunedDetails = Array.from(conversationDetails.entries()).filter(([id]) =>
+			validIds.has(id)
+		);
+		conversationDetails = new SvelteMap(new Map(prunedDetails));
+
+		const prunedLoadingDetails = Array.from(loadingDetails).filter((id) => validIds.has(id));
+		loadingDetails = new SvelteSet<string>(prunedLoadingDetails);
+	}
+
+	function setIndeterminate(node: HTMLInputElement, value: boolean) {
+		node.indeterminate = value;
+		return {
+			update(next: boolean) {
+				node.indeterminate = next;
+			}
+		};
 	}
 </script>
 
@@ -473,6 +593,54 @@
 				</div>
 			</div>
 		{:else}
+			<div class="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-base-100/80 p-3 shadow-sm">
+				<div class="flex items-center gap-2 text-sm">
+					<input
+						type="checkbox"
+						class="checkbox checkbox-sm"
+						checked={allVisibleSelected()}
+						onchange={(event) => handleSelectAllVisible(event.currentTarget.checked)}
+						use:setIndeterminate={hasVisibleSelection() && !allVisibleSelected()}
+						aria-label="Select all conversations on this page"
+					/>
+					<span>
+						{hasSelection()
+							? `${selectedCount()} selected`
+							: 'Select conversations'}
+					</span>
+					{#if hasSelection()}
+						<button class="btn btn-ghost btn-xs" onclick={clearSelection}>Clear</button>
+					{/if}
+				</div>
+				<div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+					{#if actionMessage}
+						<span class="text-success">{actionMessage}</span>
+					{/if}
+					{#if actionError}
+						<span class="text-error">{actionError}</span>
+					{/if}
+					<button
+						class="btn btn-error btn-sm"
+						disabled={!hasSelection() || deleting}
+						onclick={deleteSelectedConversations}
+						aria-label="Delete selected conversations"
+					>
+						{#if deleting}
+							<span class="loading loading-spinner loading-xs"></span>
+						{:else}
+							<svg class="h-4 w-4 sm:mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M9 3h6l.75 3H20a1 1 0 010 2h-1.1l-1.2 11A2 2 0 0115.71 20H8.29a2 2 0 01-1.99-1.8L5.1 8H4a1 1 0 010-2h4.25L9 3zm2 6a1 1 0 10-2 0v7a1 1 0 102 0V9zm4 0a1 1 0 10-2 0v7a1 1 0 102 0V9z"
+								/>
+							</svg>
+						{/if}
+						<span class="hidden sm:inline">Delete</span>
+					</button>
+				</div>
+			</div>
 			<ul
 				class="list rounded-box bg-base-100 shadow-md"
 				transition:fade={{ duration: 400, delay: 200 }}
@@ -484,7 +652,22 @@
 				</li>
 
 				{#each conversations as conversation, i (i)}
-					<li class="list-row" transition:slide={{ duration: 300, delay: i * 50 }}>
+					<li
+						class="list-row flex flex-wrap items-start gap-4"
+						transition:slide={{ duration: 300, delay: i * 50 }}
+					>
+						<!-- Selection Checkbox -->
+						<label class="mt-1 flex items-start">
+							<input
+								type="checkbox"
+								class="checkbox checkbox-sm"
+								checked={selectedConversations.has(conversation.id)}
+								onchange={(event) =>
+									handleConversationCheckbox(conversation.id, event.currentTarget.checked)}
+								aria-label={`Select conversation ${conversation.title}`}
+							/>
+						</label>
+
 						<!-- Language Icon/Avatar -->
 						<div class="placeholder avatar">
 							<div class="h-10 w-10 rounded-full bg-primary text-primary-content">
@@ -519,8 +702,10 @@
 
 						<!-- Conversation Preview -->
 						<p class="list-col-wrap text-xs">
-							{#if conversation.preview.firstUserMessage}
+							{#if conversation.preview?.firstUserMessage}
 								"{conversation.preview.firstUserMessage}"
+							{:else if conversation.preview?.lastMessage}
+								"{conversation.preview.lastMessage}"
 							{:else}
 								No preview available
 							{/if}
