@@ -283,6 +283,26 @@ export function sendEventViaSession(conn: SessionConnection, event: RealtimeClie
 			type: event.type,
 			timestamp: new Date().toISOString()
 		});
+	} else if (event.type === 'session.update') {
+		const sessionPayload = (
+			(event as { session?: Record<string, unknown> }).session ?? {}
+		) as Record<string, unknown>;
+		const rawInstructions = sessionPayload['instructions'];
+		const instructions = typeof rawInstructions === 'string' ? rawInstructions : undefined;
+		const preview =
+			instructions && instructions.length > 160
+				? `${instructions.slice(0, 160)}…`
+				: instructions || null;
+		const turnDetection =
+			sessionPayload['turn_detection'] ?? sessionPayload['turnDetection'] ?? null;
+
+		console.warn('📤 CLIENT: Sending session.update', {
+			type: event.type,
+			instructionsPreview: preview,
+			instructionsLength: instructions?.length ?? 0,
+			turnDetection,
+			timestamp: new Date().toISOString()
+		});
 	}
 
 	// Use the underlying transport to send a raw client event

@@ -6,7 +6,13 @@ import { realtimeService } from '$lib/services';
 import type { Message, SpeechTiming } from '$lib/server/db/types';
 import * as messageService from '$lib/services/message.service';
 import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
-import type { Voice, SessionConfig, RealtimeAudioConfig } from '$lib/types/openai.realtime.types';
+import type {
+	Voice,
+	SessionConfig,
+	RealtimeAudioConfig,
+	SDKTransportEvent,
+	RealtimeAudioFormat
+} from '$lib/types/openai.realtime.types';
 import {
 	createConnectionWithSession,
 	subscribeToSession,
@@ -16,6 +22,12 @@ import {
 } from '$lib/services/realtime-agents.service';
 import { env as publicEnv } from '$env/dynamic/public';
 import { SvelteSet } from 'svelte/reactivity';
+import {
+	captureOutputAudioConfig,
+	estimateDurationFromBase64,
+	estimateDurationFromByteLength
+} from '$lib/services/realtime-audio.helper.service';
+import { normalizeTranscript, estimateWordDuration } from '$lib/services/realtime-transcript.helper.service';
 
 type SessionData = { client_secret: { value: string; expires_at: number }; session_id?: string };
 
@@ -43,7 +55,7 @@ export class RealtimeOpenAIStore {
 	conversationContext = $state<ConversationContext | null>(null);
 
 	// Event queue for ordered processing
-	private eventQueue: Array<{ event: any; timestamp: number }> = [];
+	private eventQueue: Array<{ event: SDKTransportEvent; timestamp: number }> = [];
 	private processingEvents = false;
 
 	// Lightweight messages array for UIs that want a direct feed
@@ -69,6 +81,9 @@ export class RealtimeOpenAIStore {
 		accumulatedMs: 0,
 		totalDurationMs: null
 	};
+	private outputAudioFormat: RealtimeAudioFormat = { type: 'audio/pcm', rate: 24000 };
+	private outputSampleRate = 24000;
+	private outputAudioChannels = 1;
 	private readonly DEFAULT_WORD_DURATION_MS = 220;
 	private pendingFinalTranscripts: Record<
 		string,
@@ -82,15 +97,13 @@ export class RealtimeOpenAIStore {
 	private hasHandledSessionReady = false;
 	private sessionReadyListeners = new SvelteSet<() => void>();
 	private transcriptFilter:
-		| ((
-				meta: {
-					itemId: string;
-					role: 'assistant' | 'user';
-					text: string;
-					isFinal: boolean;
-					receivedAt: number;
-				}
-			) => boolean)
+		| ((meta: {
+				itemId: string;
+				role: 'assistant' | 'user';
+				text: string;
+				isFinal: boolean;
+				receivedAt: number;
+		  }) => boolean)
 		| null = null;
 
 	private logEvent(dir: 'server' | 'client', type: string, payload: any) {
@@ -105,7 +118,7 @@ export class RealtimeOpenAIStore {
 	}
 
 	// Queue event for ordered processing
-	private queueEvent(event: any) {
+	private queueEvent(event: SDKTransportEvent) {
 		this.eventQueue.push({ event, timestamp: Date.now() });
 		this.processEventQueue();
 	}
@@ -126,33 +139,6 @@ export class RealtimeOpenAIStore {
 		} finally {
 			this.processingEvents = false;
 		}
-	}
-
-	private estimateWordDuration(charLength: number): number {
-		const scaled = charLength * 45; // heuristically scale duration by token length
-		return Math.max(this.DEFAULT_WORD_DURATION_MS, Math.min(scaled, 850));
-	}
-
-	private filterTranscript(text: string | null | undefined): string | null {
-		const raw = (text ?? '').trim();
-		if (!raw) return null;
-		const normalized = raw.normalize('NFC');
-		// Allow unicode letters/marks/numbers plus common punctuation; flag anything unexpected (binary blobs, etc.)
-		const disallowed = normalized.replace(/[\p{L}\p{M}\p{N}\s.,!?"'()\-:;\/]+/gu, '');
-		if (disallowed.length > 0) {
-			console.warn('🚫 Ignoring transcript with unsupported characters', {
-				text: normalized,
-				disallowed
-			});
-			return null;
-		}
-
-		const hasLetters = /\p{L}/u.test(normalized);
-		if (!hasLetters) {
-			return null;
-		}
-
-		return normalized;
 	}
 
 	private ensureWordTracking(messageId: string) {
@@ -192,7 +178,7 @@ export class RealtimeOpenAIStore {
 			}
 
 			const startMs = buffer.length === 0 ? relativeNow : Math.max(relativeNow, lastEnd);
-			const endMs = startMs + this.estimateWordDuration(length);
+			const endMs = startMs + estimateWordDuration(length, this.DEFAULT_WORD_DURATION_MS);
 			buffer.push({
 				word: token,
 				startMs,
@@ -308,28 +294,60 @@ export class RealtimeOpenAIStore {
 		}
 	}
 
-	private extractAudioDurationMs(event: any): number | null {
+	private extractAudioDurationMs(event: SDKTransportEvent): number | null {
+		if (!event) return null;
+
+		// Direct audio transport event (WebSocket transport)
+		const audioBuffer = (event as any)?.data;
+		if (event.type === 'audio' && audioBuffer instanceof ArrayBuffer) {
+			return estimateDurationFromByteLength(
+				audioBuffer.byteLength,
+				this.outputAudioFormat,
+				this.outputSampleRate,
+				this.outputAudioChannels
+			);
+		}
+
+		// Official response audio delta events (base64-encoded chunks)
+		if (
+			(event.type === 'response.output_audio.delta' || event.type === 'response.audio.delta') &&
+			typeof (event as any)?.delta === 'string'
+		) {
+			const duration = estimateDurationFromBase64(
+				(event as any).delta as string,
+				this.outputAudioFormat,
+				this.outputSampleRate,
+				this.outputAudioChannels
+			);
+			if (duration) {
+				return duration;
+			}
+		}
+
+		// Legacy / fallback numeric fields for earlier transports
+		const legacy = event as unknown as Record<string, any>;
 		const candidates = [
-			event?.delta?.duration_ms,
-			event?.delta?.duration,
-			event?.delta?.seconds,
-			event?.duration_ms,
-			event?.duration,
-			event?.seconds,
-			event?.delta?.audio?.duration_ms,
-			event?.delta?.audio?.duration,
-			event?.audio?.duration_ms,
-			event?.audio?.duration
+			legacy?.delta?.duration_ms,
+			legacy?.delta?.duration,
+			legacy?.delta?.seconds,
+			legacy?.duration_ms,
+			legacy?.duration,
+			legacy?.seconds,
+			legacy?.delta?.audio?.duration_ms,
+			legacy?.delta?.audio?.duration,
+			legacy?.audio?.duration_ms,
+			legacy?.audio?.duration
 		];
 		for (const value of candidates) {
-			if (typeof value === 'number' && !Number.isNaN(value)) {
+			if (typeof value === 'number' && !Number.isNaN(value) && value > 0) {
 				return value > 10 ? value : value * 1000;
 			}
 		}
+
 		return null;
 	}
 
-	private handleAssistantAudioDelta(event: any) {
+	private handleAssistantAudioDelta(event: SDKTransportEvent) {
 		const messageId = this.currentAssistantMessageId;
 		if (!messageId) return;
 		if (!this.assistantAudioTracking.messageId) {
@@ -343,7 +361,7 @@ export class RealtimeOpenAIStore {
 		}
 	}
 
-	private handleAssistantAudioDone(event: any) {
+	private handleAssistantAudioDone(event: SDKTransportEvent) {
 		const messageId = this.assistantAudioTracking.messageId || this.currentAssistantMessageId;
 		if (!messageId) return;
 		const durationMs = this.extractAudioDurationMs(event);
@@ -367,6 +385,9 @@ export class RealtimeOpenAIStore {
 			accumulatedMs: 0,
 			totalDurationMs: null
 		};
+		this.outputAudioFormat = { type: 'audio/pcm', rate: 24000 };
+		this.outputSampleRate = 24000;
+		this.outputAudioChannels = 1;
 		this.finalizedWordTimings.clear();
 		for (const pending of Object.values(this.pendingFinalTranscripts)) {
 			if (pending.timeoutId) {
@@ -412,7 +433,7 @@ export class RealtimeOpenAIStore {
 
 	private finalizeTranscriptMessage(itemId: string, role: 'assistant' | 'user', text: string) {
 		if (!text || this.finalizedItemIds.has(itemId)) return;
-		const finalText = this.filterTranscript(text);
+		const finalText = normalizeTranscript(text);
 		if (!finalText) return;
 		const receivedAt = Date.now();
 
@@ -497,7 +518,7 @@ export class RealtimeOpenAIStore {
 	}
 
 	// Process individual server event in proper order
-	private async processServerEventOrdered(serverEvent: any) {
+	private async processServerEventOrdered(serverEvent: SDKTransportEvent) {
 		if (
 			serverEvent?.type === 'response.output_audio.delta' ||
 			serverEvent?.type === 'response.audio.delta'
@@ -615,6 +636,7 @@ export class RealtimeOpenAIStore {
 			transcriptionLanguage?: string;
 			transcriptionModel?: string;
 			conversationContext?: ConversationContext;
+			skipInitialSessionUpdate?: boolean;
 		}
 	): Promise<void> {
 		try {
@@ -710,20 +732,40 @@ export class RealtimeOpenAIStore {
 			const prefLang = userPreferencesStore.getPreference('targetLanguageId') as unknown as string;
 			const transcriptionLanguage = options?.transcriptionLanguage || prefLang || 'en';
 
-			// Send initial session.update with provided options
-			const sessionUpdateEvent = realtimeService.createSessionUpdate({
-				model: options?.model || publicEnv.PUBLIC_OPEN_AI_MODEL,
-				voice: options?.voice || 'verse',
-				input_audio_transcription: transcriptionLanguage
-					? {
-							model: options?.transcriptionModel || 'gpt-4o-transcribe',
-							language: transcriptionLanguage
-						}
-					: undefined,
-				turnDetection: null
-			});
-			this.logEvent('client', 'session.update', sessionUpdateEvent);
-			sendEventViaSession(this.connection, sessionUpdateEvent);
+			if (!options?.skipInitialSessionUpdate) {
+				let initialAudioConfig: RealtimeAudioConfig | undefined = options?.voice
+					? { output: { voice: options.voice } }
+					: undefined;
+
+				const audioCapture = captureOutputAudioConfig({
+					currentFormat: this.outputAudioFormat,
+					currentSampleRate: this.outputSampleRate,
+					currentChannels: this.outputAudioChannels,
+					audioConfig: initialAudioConfig
+				});
+				this.outputAudioFormat = audioCapture.format;
+				this.outputSampleRate = audioCapture.sampleRate;
+				this.outputAudioChannels = audioCapture.channels;
+				initialAudioConfig = audioCapture.audioConfig;
+
+				// Send initial session.update with provided options
+				const sessionUpdateEvent = realtimeService.createSessionUpdate({
+					model: options?.model || publicEnv.PUBLIC_OPEN_AI_MODEL,
+					voice: options?.voice || 'verse',
+					input_audio_transcription: transcriptionLanguage
+						? {
+								model: options?.transcriptionModel || 'gpt-4o-transcribe',
+								language: transcriptionLanguage
+							}
+						: undefined,
+					audio: initialAudioConfig,
+					turnDetection: null
+				});
+				this.logEvent('client', 'session.update', sessionUpdateEvent);
+				sendEventViaSession(this.connection, sessionUpdateEvent);
+			} else {
+				console.debug('Skipping initial session.update; waiting for explicit configuration.');
+			}
 
 			this.isConnected = true;
 		} catch (e: any) {
@@ -819,7 +861,7 @@ export class RealtimeOpenAIStore {
 		if (!this.connection) return;
 		const prefLang = userPreferencesStore.getPreference('targetLanguageId') as unknown as string;
 		const transcriptionLanguage = config.transcriptionLanguage || prefLang || 'en';
-		const audioConfig: RealtimeAudioConfig | undefined =
+		let audioConfig: RealtimeAudioConfig | undefined =
 			config.audio ||
 			(transcriptionLanguage
 				? ({
@@ -833,6 +875,16 @@ export class RealtimeOpenAIStore {
 						output: config.voice ? { voice: config.voice } : undefined
 					} as RealtimeAudioConfig)
 				: undefined);
+		const audioCapture = captureOutputAudioConfig({
+			currentFormat: this.outputAudioFormat,
+			currentSampleRate: this.outputSampleRate,
+			currentChannels: this.outputAudioChannels,
+			audioConfig
+		});
+		this.outputAudioFormat = audioCapture.format;
+		this.outputSampleRate = audioCapture.sampleRate;
+		this.outputAudioChannels = audioCapture.channels;
+		audioConfig = audioCapture.audioConfig;
 		const update = realtimeService.createSessionUpdate({
 			...config,
 			input_audio_transcription: transcriptionLanguage
@@ -876,15 +928,13 @@ export class RealtimeOpenAIStore {
 
 	setTranscriptFilter(
 		filter:
-			| ((
-					meta: {
-						itemId: string;
-						role: 'assistant' | 'user';
-						text: string;
-						isFinal: boolean;
-						receivedAt: number;
-					}
-				) => boolean)
+			| ((meta: {
+					itemId: string;
+					role: 'assistant' | 'user';
+					text: string;
+					isFinal: boolean;
+					receivedAt: number;
+			  }) => boolean)
 			| null
 	): void {
 		this.transcriptFilter = filter;
@@ -982,8 +1032,8 @@ export class RealtimeOpenAIStore {
 
 		// Compute delta chunk when streaming
 		if (delta) {
-			const sanitizedText = this.filterTranscript(fullText);
-			if (!sanitizedText) {
+			const normalizedText = normalizeTranscript(fullText);
+			if (!normalizedText) {
 				this.historyText[itemId] = '';
 				if (role === 'assistant') {
 					this.assistantDelta = '';
@@ -996,12 +1046,12 @@ export class RealtimeOpenAIStore {
 			}
 
 			let deltaText = '';
-			if (sanitizedText.startsWith(prev)) {
-				deltaText = sanitizedText.slice(prev.length);
+			if (normalizedText.startsWith(prev)) {
+				deltaText = normalizedText.slice(prev.length);
 			} else {
-				deltaText = sanitizedText;
+				deltaText = normalizedText;
 			}
-			this.historyText[itemId] = sanitizedText;
+			this.historyText[itemId] = normalizedText;
 
 			if (deltaText) {
 				this.emitMessage({ itemId, role, text: deltaText, delta: true, final: false });
@@ -1049,12 +1099,12 @@ export class RealtimeOpenAIStore {
 					}
 					// Also guard against recreating a partial if a final message with the same
 					// content already exists in our visible message list
-				const hasIdenticalFinal = this.messages.some(
-					(m) =>
-						m.role === 'user' &&
-						m.id.startsWith('msg_') &&
-						m.content.trim() === sanitizedText.trim()
-				);
+					const hasIdenticalFinal = this.messages.some(
+						(m) =>
+							m.role === 'user' &&
+							m.id.startsWith('msg_') &&
+							m.content.trim() === normalizedText.trim()
+					);
 					if (hasIdenticalFinal) {
 						return;
 					}
@@ -1072,14 +1122,17 @@ export class RealtimeOpenAIStore {
 							messageService.sortMessagesBySequence([...this.messages, ph])
 						);
 					}
-					this.messages = messageService.updatePlaceholderWithPartial(this.messages, sanitizedText);
+					this.messages = messageService.updatePlaceholderWithPartial(
+						this.messages,
+						normalizedText
+					);
 				}
 			}
 			return;
 		}
 
 		// Non-delta add: treat as final message snapshot
-		const finalText = this.filterTranscript(fullText || prev);
+		const finalText = normalizeTranscript(fullText || prev);
 		if (!finalText) {
 			if (role === 'assistant') {
 				this.assistantDelta = '';

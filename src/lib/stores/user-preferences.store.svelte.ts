@@ -6,6 +6,11 @@ import {
 	getLanguageSpecificPreferences
 } from '$lib/data/user-preferences';
 import { SvelteDate } from 'svelte/reactivity';
+import {
+	getAudioSettings as getUserAudioSettings,
+	setAudioMode as updateUserAudioMode,
+	setPressBehavior as updateUserPressBehavior
+} from '$lib/services/user-settings.service';
 
 // 🌟 User Preferences Store
 // Manages user preferences state with local storage persistence
@@ -89,24 +94,20 @@ export class UserPreferencesStore {
 	// TODO: These should move to a userSettings store
 	// For now, providing default values to maintain compatibility
 	getAudioMode(): 'toggle' | 'push_to_talk' {
-		// Default since audioSettings moved to userSettings table
-		return 'toggle';
+		return getUserAudioSettings().audioMode;
 	}
 
-	setAudioMode(_mode: 'toggle' | 'push_to_talk'): Promise<void> {
-		// TODO: Update userSettings instead of userPreferences
-		console.warn('Audio settings should be updated via userSettings service');
+	setAudioMode(mode: 'toggle' | 'push_to_talk'): Promise<void> {
+		updateUserAudioMode(mode);
 		return Promise.resolve();
 	}
 
 	getPressBehavior(): 'tap_toggle' | 'press_hold' {
-		// Default since audioSettings moved to userSettings table
-		return 'tap_toggle';
+		return getUserAudioSettings().pressBehavior;
 	}
 
-	setPressBehavior(_behavior: 'tap_toggle' | 'press_hold'): Promise<void> {
-		// TODO: Update userSettings instead of userPreferences
-		console.warn('Audio settings should be updated via userSettings service');
+	setPressBehavior(behavior: 'tap_toggle' | 'press_hold'): Promise<void> {
+		updateUserPressBehavior(behavior);
 		return Promise.resolve();
 	}
 

@@ -9,6 +9,23 @@ import {
 	generateAndStoreScriptsForMessage,
 	detectLanguage
 } from './scripts.service';
+
+export function sanitizeMessageContent(text: string | null | undefined): string | null {
+	const raw = (text ?? '').trim();
+	if (!raw) return null;
+
+	const normalized = raw.normalize('NFC');
+	const disallowed = normalized.replace(/[\p{L}\p{M}\p{N}\p{P}\s]+/gu, '');
+	if (disallowed.length > 0) {
+		console.warn('🚫 Dropping transcript with unsupported characters', {
+			text: normalized,
+			disallowed
+		});
+		return null;
+	}
+
+	return normalized;
+}
 import { translateMessage } from './translation.service';
 
 export function createUserPlaceholder(sessionId: string, speechStartTime?: number): Message {
@@ -100,6 +117,12 @@ export function replaceUserPlaceholderWithFinal(
 	finalText: string,
 	sessionId: string
 ): Message[] {
+	const sanitized = sanitizeMessageContent(finalText);
+	if (!sanitized) {
+		console.warn('replaceUserPlaceholderWithFinal: dropping message due to unsupported characters');
+		return dropUserPlaceholder(messages);
+	}
+
 	const placeholderIndex = messages.findIndex(
 		(msg) =>
 			msg.role === 'user' &&
@@ -111,14 +134,18 @@ export function replaceUserPlaceholderWithFinal(
 	if (placeholderIndex === -1) {
 		// If a final message with identical content already exists, avoid adding a duplicate
 		const existsFinalWithSameContent = messages.some(
-			(m) => m.role === 'user' && m.id.startsWith('msg_') && m.content.trim() === finalText.trim()
+			(m) => m.role === 'user' && m.id.startsWith('msg_') && m.content.trim() === sanitized.trim()
 		);
 		if (existsFinalWithSameContent) {
 			return removeDuplicateMessages(sortMessagesBySequence(messages));
 		}
 
 		// No placeholder found, add new message
-		const newMessages = [...messages, createFinalUserMessage(finalText, sessionId)];
+		const created = createFinalUserMessage(sanitized, sessionId);
+		if (!created) {
+			return messages;
+		}
+		const newMessages = [...messages, created];
 		return removeDuplicateMessages(sortMessagesBySequence(newMessages));
 	}
 
@@ -128,7 +155,7 @@ export function replaceUserPlaceholderWithFinal(
 	// Build final user message preserving original timestamp and sequence for proper ordering
 	const finalized = {
 		...placeholder,
-		content: finalText,
+		content: sanitized,
 		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
 		// Keep original timestamp and sequenceId to maintain chronological order
 		timestamp: placeholder.timestamp,
@@ -157,12 +184,18 @@ export function dropUserPlaceholder(messages: Message[]): Message[] {
 	return removeDuplicateMessages(sortMessagesBySequence(updatedMessages));
 }
 
-export function createFinalUserMessage(content: string, sessionId: string): Message {
+export function createFinalUserMessage(content: string, sessionId: string): Message | null {
+	const sanitized = sanitizeMessageContent(content);
+	if (!sanitized) {
+		console.warn('createFinalUserMessage: content dropped during sanitization');
+		return null;
+	}
+
 	const now = new SvelteDate();
 	const sequenceId = generateSequenceId();
 	return {
 		role: 'user',
-		content,
+		content: sanitized,
 		timestamp: now,
 		id: `msg_${now.getTime()}_${Math.random().toString(36).slice(2, 9)}`,
 		sequenceId,
@@ -269,16 +302,23 @@ export function updateStreamingMessage(messages: Message[], deltaText: string): 
 }
 
 export function finalizeStreamingMessage(messages: Message[], finalText: string): Message[] {
+	const sanitized = sanitizeMessageContent(finalText);
+	if (!sanitized) {
+		console.warn('finalizeStreamingMessage: dropping assistant message due to sanitization');
+		return dropStreamingMessage(messages);
+	}
+
 	const streamingMessageIndex = messages.findIndex(
 		(msg) => msg.role === 'assistant' && msg.id.startsWith('streaming_')
 	);
 
 	if (streamingMessageIndex === -1) {
 		// No streaming message found, create final message directly
-		const newMessages = [
-			...messages,
-			createFinalAssistantMessage(finalText, messages[0]?.conversationId || '')
-		];
+		const finalMessage = createFinalAssistantMessage(sanitized, messages[0]?.conversationId || '');
+		if (!finalMessage) {
+			return messages;
+		}
+		const newMessages = [...messages, finalMessage];
 		return removeDuplicateMessages(sortMessagesBySequence(newMessages));
 	}
 
@@ -286,7 +326,7 @@ export function finalizeStreamingMessage(messages: Message[], finalText: string)
 	const updatedMessages = [...messages];
 	updatedMessages[streamingMessageIndex] = {
 		...updatedMessages[streamingMessageIndex],
-		content: finalText,
+		content: sanitized,
 		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
 		timestamp: new SvelteDate(),
 		speechTimings: updatedMessages[streamingMessageIndex].speechTimings || null
@@ -306,11 +346,17 @@ export function dropStreamingMessage(messages: Message[]): Message[] {
 	return removeDuplicateMessages(sortMessagesBySequence(updatedMessages));
 }
 
-export function createFinalAssistantMessage(content: string, sessionId: string): Message {
+export function createFinalAssistantMessage(content: string, sessionId: string): Message | null {
+	const sanitized = sanitizeMessageContent(content);
+	if (!sanitized) {
+		console.warn('createFinalAssistantMessage: content dropped during sanitization');
+		return null;
+	}
+
 	const now = new SvelteDate();
 	return {
 		role: 'assistant',
-		content,
+		content: sanitized,
 		timestamp: now,
 		id: `msg_${now.getTime()}_${Math.random().toString(36).slice(2, 9)}`,
 		sequenceId: now.getTime().toString(),
@@ -557,9 +603,14 @@ export async function finalizeMessageWithFurigana(
 			? createFinalUserMessage(finalText, sessionId)
 			: createFinalAssistantMessage(finalText, sessionId);
 
+	if (!finalMessage) {
+		console.warn('finalizeMessageWithFurigana: message dropped during sanitization');
+		return messages;
+	}
+
 	// Always check if the message needs script generation
 	if (needsScriptGeneration(finalMessage)) {
-		console.log(`Generating scripts for ${role} message:`, finalText.substring(0, 50));
+		console.log(`Generating scripts for ${role} message:`, finalMessage.content.substring(0, 50));
 		try {
 			const scriptData = await generateScriptsForMessage(finalMessage, true); // Use server
 			if (scriptData && Object.keys(scriptData).length > 0) {
@@ -602,16 +653,21 @@ export async function replaceUserPlaceholderWithFinalAndFurigana(
 
 	// Create the final message
 	const finalMessage = createFinalUserMessage(finalText, sessionId);
+	if (!finalMessage) {
+		console.warn('replaceUserPlaceholderWithFinalAndFurigana: message dropped during sanitization');
+		return dropUserPlaceholder(messages);
+	}
 
 	// Determine if we should generate scripts based on conversation language or text detection
 	const shouldGenerateScripts =
 		conversationLanguage === 'ja' || needsScriptGeneration(finalMessage);
-	const scriptLanguage = conversationLanguage === 'ja' ? 'ja' : detectLanguage(finalText);
+	const scriptLanguage =
+		conversationLanguage === 'ja' ? 'ja' : detectLanguage(finalMessage.content);
 
 	if (shouldGenerateScripts && scriptLanguage !== 'other') {
 		console.log(
 			`🇯🇵 Auto-generating scripts for user message (conversation lang: ${conversationLanguage}):`,
-			finalText.substring(0, 50)
+			finalMessage.content.substring(0, 50)
 		);
 
 		try {
@@ -627,7 +683,7 @@ export async function replaceUserPlaceholderWithFinalAndFurigana(
 				generateAndStoreScriptsForMessage(
 					finalMessage.conversationId,
 					finalMessage.id,
-					finalText,
+					finalMessage.content,
 					scriptLanguage
 				)
 					.then((success) => {
@@ -657,7 +713,12 @@ export async function replaceUserPlaceholderWithFinalAndFurigana(
 	// Always trigger server-side generation for Japanese conversations or detected Japanese text
 	if (scriptLanguage !== 'other') {
 		console.log(`📝 Triggering server-side script storage (${scriptLanguage})...`);
-		generateAndStoreScriptsForMessage(finalMessage.id, finalText, scriptLanguage)
+		generateAndStoreScriptsForMessage(
+			finalMessage.conversationId,
+			finalMessage.id,
+			finalMessage.content,
+			scriptLanguage
+		)
 			.then((success) => {
 				if (success) {
 					console.log('✅ Server-side scripts generated and stored for user message (fallback)');
@@ -695,16 +756,21 @@ export async function finalizeStreamingMessageWithFurigana(
 
 	// Create the final message
 	const finalMessage = createFinalAssistantMessage(finalText, messages[0]?.conversationId || '');
+	if (!finalMessage) {
+		console.warn('finalizeStreamingMessageWithFurigana: message dropped during sanitization');
+		return dropStreamingMessage(messages);
+	}
 
 	// Determine if we should generate scripts based on conversation language or text detection
 	const shouldGenerateScripts =
 		conversationLanguage === 'ja' || needsScriptGeneration(finalMessage);
-	const scriptLanguage = conversationLanguage === 'ja' ? 'ja' : detectLanguage(finalText);
+	const scriptLanguage =
+		conversationLanguage === 'ja' ? 'ja' : detectLanguage(finalMessage.content);
 
 	if (shouldGenerateScripts && scriptLanguage !== 'other') {
 		console.log(
 			`🤖 Auto-generating scripts for assistant message (conversation lang: ${conversationLanguage}):`,
-			finalText.substring(0, 50)
+			finalMessage.content.substring(0, 50)
 		);
 
 		try {
@@ -716,7 +782,12 @@ export async function finalizeStreamingMessageWithFurigana(
 				updatedMessages[streamingMessageIndex] = updatedMessage;
 
 				// Trigger server-side generation and database storage
-				generateAndStoreScriptsForMessage(finalMessage.id, finalText, scriptLanguage)
+				generateAndStoreScriptsForMessage(
+					finalMessage.conversationId,
+					finalMessage.id,
+					finalMessage.content,
+					scriptLanguage
+				)
 					.then((success) => {
 						if (success) {
 							console.log('✅ Server-side scripts generated and stored for assistant message');
@@ -747,7 +818,12 @@ export async function finalizeStreamingMessageWithFurigana(
 	// Always trigger server-side generation for Japanese conversations or detected Japanese text
 	if (scriptLanguage !== 'other') {
 		console.log(`🤖📝 Triggering server-side script storage (${scriptLanguage})...`);
-		generateAndStoreScriptsForMessage(finalMessage.id, finalText, scriptLanguage)
+		generateAndStoreScriptsForMessage(
+			finalMessage.conversationId,
+			finalMessage.id,
+			finalMessage.content,
+			scriptLanguage
+		)
 			.then((success) => {
 				if (success) {
 					console.log(

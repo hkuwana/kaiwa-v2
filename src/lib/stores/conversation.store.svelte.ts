@@ -5,11 +5,11 @@
 // ! Need to make sure that the user preferences are properly handled
 // ! Need to ensure that when the conversation is ended, the onboarding for userPreferences runs
 
-import { browser } from '$app/environment';
+import { browser, dev } from '$app/environment';
 
 // Environment-based logging
-const isDev = browser && typeof window !== 'undefined' && window.location.hostname === 'localhost';
-const log = (...args: unknown[]) => isDev && console.log(...args);
+
+const log = (...args: unknown[]) => dev && console.log(...args);
 import { realtimeService } from '$lib/services';
 import { realtimeOpenAI } from '$lib/stores/realtime-openai.store.svelte';
 import { audioStore } from '$lib/stores/audio.store.svelte';
@@ -39,7 +39,7 @@ import type { ConversationStatus } from '$lib/services/conversation.service';
 import { userManager } from './user.store.svelte';
 import { SvelteDate, SvelteSet } from 'svelte/reactivity';
 import { conversationPersistenceService } from '$lib/services/conversation-persistence.service';
-
+import { languages as dataLanguages } from '$lib/data/languages';
 export class ConversationStore {
 	// Reactive state
 	status = $state<ConversationStatus>('idle');
@@ -47,7 +47,7 @@ export class ConversationStore {
 	messagesForAnalysis = $state<Message[]>([]);
 	userId = $state<string | null>(null);
 	sessionId = $state<string>('');
-	language = $state<Language | null>(null);
+	language = $state<Language>(dataLanguages[0]);
 	voice: Voice = DEFAULT_VOICE;
 	speaker = $state<Speaker | undefined>(undefined);
 	error = $state<string | null>(null);
@@ -324,6 +324,7 @@ export class ConversationStore {
 			await realtimeOpenAI.connect(sessionData, this.audioStream, {
 				voice: this.voice,
 				transcriptionLanguage: this.language.code,
+				skipInitialSessionUpdate: true,
 				conversationContext: {
 					sessionId: this.sessionId,
 					languageCode: this.language.code,
@@ -517,19 +518,19 @@ export class ConversationStore {
 	) => {
 		if (this.status === 'idle' || !this.language) return;
 
-	const currentConfig = sessionManagerService.createSessionUpdateConfig(
-		updates,
-		this.language,
-		this.voice
-	);
+		const currentConfig = sessionManagerService.createSessionUpdateConfig(
+			updates,
+			this.language,
+			this.voice
+		);
 
-	realtimeOpenAI.updateSessionConfig({
-		model: currentConfig.model,
-		voice: this.voice,
-		instructions: currentConfig.instructions,
-		turnDetection: null,
-		audio: currentConfig.audio
-	});
+		realtimeOpenAI.updateSessionConfig({
+			model: currentConfig.model,
+			voice: this.voice,
+			instructions: currentConfig.instructions,
+			turnDetection: null,
+			audio: currentConfig.audio
+		});
 	};
 
 	// === GETTERS ===
@@ -732,7 +733,9 @@ export class ConversationStore {
 						updatedMsg = updateMessageWithScripts(updatedMsg, scriptData);
 						const lang = detectLanguage(msg.content);
 						if (lang !== 'other' && this.sessionId) {
-							generateAndStoreScriptsForMessage(this.sessionId, msg.id, msg.content, lang).catch(() => {});
+							generateAndStoreScriptsForMessage(this.sessionId, msg.id, msg.content, lang).catch(
+								() => {}
+							);
 						}
 					}
 				}
@@ -918,7 +921,7 @@ export class ConversationStore {
 				realtimeOpenAI.sendResponse();
 			}
 		}, 1500);
-	}
+	};
 
 	private applyInstructionUpdate(delta: string) {
 		if (!this.language) return;
