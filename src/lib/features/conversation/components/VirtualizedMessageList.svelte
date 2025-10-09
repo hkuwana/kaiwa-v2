@@ -3,6 +3,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import type { Message } from '$lib/server/db/types';
 	import MessageBubble from './MessageBubble.svelte';
+	import { autoScrollToBottom } from '$lib/actions/auto-scroll-to-bottom';
 
 	type VirtualizedMessage = Message & { virtualIndex: number };
 
@@ -20,7 +21,7 @@
 		autoScroll = true
 	}: _Props = $props();
 
-	let container = $state<HTMLElement>();
+	let container = $state<HTMLDivElement | null>(null);
 	let scrollPosition = $state(0);
 	let containerHeight = $state(0);
 	let isUserScrolling = $state(false);
@@ -53,16 +54,6 @@
 	});
 
 	// Auto-scroll to bottom when new messages arrive
-	$effect(() => {
-		if (autoScroll && container && !isUserScrolling && messages.length > 0) {
-			setTimeout(() => {
-				if (container) {
-					container.scrollTop = container.scrollHeight;
-				}
-			}, 100);
-		}
-	});
-
 	function handleScroll() {
 		if (!container) return;
 
@@ -119,6 +110,11 @@
 		<div
 			bind:this={container}
 			onscroll={handleScroll}
+			use:autoScrollToBottom={{
+				enabled: autoScroll && !isUserScrolling && messages.length > 0,
+				trigger: messages[messages.length - 1]?.id,
+				delayMs: 100
+			}}
 			class="from-base-50 relative overflow-y-auto scroll-smooth rounded-lg border border-base-300 bg-gradient-to-b to-base-100"
 			style="max-height: {maxHeight};"
 		>

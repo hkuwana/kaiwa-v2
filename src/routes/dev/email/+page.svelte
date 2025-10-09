@@ -6,6 +6,8 @@
 	let isLoading = $state(false);
 	let testResult = $state<string>('');
 	let selectedEmail = $state<string>('practice_reminder');
+	let showPreview = $state(false);
+	let previewUrl = $state<string>('');
 
 	const emailTypes = [
 		{
@@ -38,6 +40,26 @@
 		console.log('📧 Email Testing Page');
 		posthogManager.trackEvent('dev_email_page_viewed');
 	});
+
+	function loadPreview() {
+		if (!userManager.isLoggedIn) {
+			testResult = '❌ Please log in first';
+			return;
+		}
+
+		const params = new URLSearchParams({
+			emailType: selectedEmail,
+			userId: userManager.user?.id || ''
+		});
+
+		previewUrl = `/dev/email?${params.toString()}`;
+		showPreview = true;
+		testResult = '';
+
+		posthogManager.trackEvent('dev_email_preview_viewed', {
+			emailType: selectedEmail
+		});
+	}
 
 	async function sendTestEmail() {
 		if (!userManager.isLoggedIn) {
@@ -126,8 +148,15 @@
 						{/each}
 					</div>
 
-					<!-- Send Button -->
-					<div class="card-actions justify-end mt-6">
+					<!-- Action Buttons -->
+					<div class="card-actions justify-end mt-6 gap-3">
+						<button
+							class="btn btn-secondary btn-lg"
+							onclick={loadPreview}
+							disabled={!userManager.isLoggedIn}
+						>
+							👁️ Preview Email
+						</button>
 						<button
 							class="btn btn-primary btn-lg"
 							onclick={sendTestEmail}
@@ -144,9 +173,40 @@
 				</div>
 			</div>
 
+			<!-- Preview Display -->
+			{#if showPreview}
+				<div class="card bg-base-100 shadow-xl mb-6">
+					<div class="card-body">
+						<div class="flex items-center justify-between mb-4">
+							<h2 class="card-title">Email Preview</h2>
+							<button
+								class="btn btn-sm btn-ghost"
+								onclick={() => showPreview = false}
+							>
+								✕ Close Preview
+							</button>
+						</div>
+						<div class="border border-base-300 rounded-lg overflow-hidden" style="height: 600px;">
+							<iframe
+								src={previewUrl}
+								title="Email Preview"
+								class="w-full h-full"
+								sandbox="allow-same-origin"
+							></iframe>
+						</div>
+						<div class="alert alert-info mt-4">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+							</svg>
+							<span>This preview shows the email with your current user data. Click "Send Test Email" to send it to <strong>weijo34@gmail.com</strong></span>
+						</div>
+					</div>
+				</div>
+			{/if}
+
 			<!-- Result Display -->
 			{#if testResult}
-				<div class="card bg-base-100 shadow-xl">
+				<div class="card bg-base-100 shadow-xl mb-6">
 					<div class="card-body">
 						<h2 class="card-title">Result</h2>
 						<pre class="whitespace-pre-wrap text-sm bg-base-200 p-4 rounded-lg overflow-x-auto">{testResult}</pre>

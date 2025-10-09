@@ -18,7 +18,7 @@
 
 	const { selectedLanguage = null }: Props = $props();
 
-	// State for tracking which messages show translations
+	// State for tracking which messages show translations (all start as visible)
 	const showTranslations = $state<{ [messageId: string]: boolean }>({});
 
 	type Analysis = {
@@ -68,11 +68,6 @@
 		messageIntent: null
 	});
 
-	// Toggle translation for a message
-	function toggleTranslation(messageId: string) {
-		showTranslations[messageId] = !showTranslations[messageId];
-	}
-
 	let showAnalysisFor = $state<Message | null>(null);
 
 	function handleRevealAnalysis(message: Message) {
@@ -103,7 +98,7 @@
 						'はじめまして、どうぞよろしくお願いいたします。',
 						'Nice to meet you, I look forward to getting to know you.',
 						'Hajimemashite, dōzo yoroshiku onegai itashimasu.',
-						'はじめまして、どうぞよろしくお願<rt>ねが</rt>いいたします。',
+						'<ruby>初<rt>はじ</rt></ruby>めまして、どうぞよろしくお<ruby>願<rt>ねが</rt></ruby>いいたします。',
 						undefined,
 						'ja'
 					),
@@ -112,7 +107,7 @@
 						'こちらこそ。どうぞ、お座りください。',
 						"It's a pleasure to meet you too. Please, have a seat.",
 						'Kochira koso. Dōzo, o-suwari kudasai.',
-						'こちらこそ。どうぞ、お座<rt>すわ</rt>りください。',
+						'こちらこそ。どうぞ、お<ruby>座<rt>すわ</rt></ruby>りください。',
 						undefined,
 						'ja'
 					),
@@ -121,7 +116,7 @@
 						'お招きいただき、ありがとうございます。',
 						'Thank you for inviting me.',
 						'O-maneki itadaki, arigatō gozaimasu.',
-						'お招<rt>まね</rt>きいただき、ありがとうございます。',
+						'お<ruby>招<rt>まね</rt></ruby>きいただき、ありがとうございます。',
 						undefined,
 						'ja',
 						{
@@ -138,46 +133,54 @@
 			});
 		}
 
-		// 2) Korean: Calling home from the platform
+		// 2) Korean: Calling home from the subway platform
 		const clinicScenario = scenariosData.find((s) => s.id === 'clinic-night-triage');
 		if (clinicScenario) {
-			const rating = clinicScenario.difficultyRating ?? 1;
+			const rating = clinicScenario.difficultyRating ?? 2;
 			const cefr = clinicScenario.cefrLevel || difficultyRatingToCefr(rating);
 			scenarios.push({
 				...clinicScenario,
-				icon: '👨‍👩‍👧‍👦',
+				icon: '🚇',
 				difficultyStars: difficultyRatingToStars(rating),
 				cefrBadge: formatCefrBadge(cefr, { withDescriptor: true }),
+				title: 'Calling Home from the Station',
+				description: 'A quick phone call to let your family know you\'re running late',
 				messages: [
 					createMessage(
 						'user',
-						'すみません、急に気分が悪くなってしまって。',
-						'Excuse me, I suddenly feel unwell.',
-						'Sumimasen, kyū ni kibun ga waruku natte shimatte.',
-						'すみません、急<rt>きゅう</rt>に気分<rt>きぶん</rt>が悪<rt>わる</rt>くなってしまって。',
+						'엄마, 나야. 지금 지하철역에 있어.',
+						'Mom, it\'s me. I\'m at the subway station now.',
+						'Eomma, naya. Jigeum jihacheol-yeoge isseo.',
 						undefined,
-						'ja'
+						undefined,
+						'ko',
+						{
+							summary: 'Natural and casual family conversation.',
+							suggestion: 'Perfect! This is exactly how Koreans speak to their parents on the phone.',
+							culturalTip:
+								'In Korean culture, it\'s common to call family members to update them on your whereabouts, especially when running late.'
+						}
 					),
 					createMessage(
 						'assistant',
-						'大丈夫ですか？どのような症状ですか？',
-						'Are you alright? What are your symptoms?',
-						'Daijōbu desu ka? Dono yō na shōjō desu ka?',
-						'大丈夫<rt>だいじょうぶ</rt>ですか？どのような症状<rt>しょうじょう</rt>ですか？',
+						'알았어. 조심해서 와. 저녁은 먹었어?',
+						'Okay. Come home safely. Did you eat dinner?',
+						'Arasseo. Josimhaeseo wa. Jeonyeog-eun meogeosseo?',
 						undefined,
-						'ja'
+						undefined,
+						'ko'
 					),
 					createMessage(
 						'user',
-						'頭痛と吐き気がします。',
-						'I have a headache and feel nauseous.',
-						'Zutsū to hakike ga shimasu.',
-						'頭痛<rt>ずつう</rt>と吐<rt>は</rt>き気<rt>け</rt>がします。',
+						'아직 안 먹었어. 집에 가서 먹을게.',
+						'Not yet. I\'ll eat when I get home.',
+						'Ajik an meogeosseo. Jibe gaseo meogeulge.',
 						undefined,
-						'ja'
+						undefined,
+						'ko'
 					)
 				],
-				color: 'from-green-400 to-teal-500',
+				color: 'from-blue-400 to-cyan-500',
 				bgPattern: 'family'
 			});
 		}
@@ -195,9 +198,9 @@
 					createMessage(
 						'user',
 						'本日の議題は、新しい市場参入戦略の承認です。',
-						'Today’s agenda is approving the new market entry plan.',
+						'Today\'s agenda is approving the new market entry plan.',
 						'Honjitsu no gidai wa, atarashii shijō sannyū senryaku no shōnin desu.',
-						'本<rt>ほん</rt>日<rt>じつ</rt>の議題<rt>ぎだい</rt>は、新<rt>あたら</rt>しい市場<rt>しじょう</rt>参<rt>さん</rt>入<rt>にゅう</rt>戦<rt>せん</rt>略<rt>りゃく</rt>の承<rt>しょう</rt>認<rt>にん</rt>です。',
+						'<ruby>本日<rt>ほんじつ</rt></ruby>の<ruby>議題<rt>ぎだい</rt></ruby>は、<ruby>新<rt>あたら</rt></ruby>しい<ruby>市場<rt>しじょう</rt></ruby><ruby>参入<rt>さんにゅう</rt></ruby><ruby>戦略<rt>せんりゃく</rt></ruby>の<ruby>承認<rt>しょうにん</rt></ruby>です。',
 						undefined,
 						'ja'
 					),
@@ -206,7 +209,7 @@
 						'まず、期待される投資回収期間を教えてください。',
 						'First, walk us through the expected payback period.',
 						'Mazu, kitai sareru tōshi kaishū kikan o oshiete kudasai.',
-						'まず、期待<rt>きたい</rt>される投資<rt>とうし</rt>回収<rt>かいしゅう</rt>期間<rt>きかん</rt>を教<rt>おし</rt>えてください。',
+						'まず、<ruby>期待<rt>きたい</rt></ruby>される<ruby>投資<rt>とうし</rt></ruby><ruby>回収<rt>かいしゅう</rt></ruby><ruby>期間<rt>きかん</rt></ruby>を<ruby>教<rt>おし</rt></ruby>えてください。',
 						undefined,
 						'ja'
 					),
@@ -215,7 +218,7 @@
 						'18か月で黒字化できますが、為替リスクへの備えを強化する必要があります。',
 						'We can hit profitability in 18 months, but we need stronger hedging against FX risk.',
 						'Jūhachi-kagetsu de kuroji-ka dekimasu ga, kawase risuku e no sonae o kyōka suru hitsuyō ga arimasu.',
-						'18<rt>じゅうはち</rt>か月<rt>げつ</rt>で黒字<rt>くろじ</rt>化<rt>か</rt>できますが、為替<rt>かわせ</rt>リスクへの備<rt>そな</rt>えを強<rt>きょう</rt>化<rt>か</rt>する必要<rt>ひつよう</rt>があります。',
+						'18か<ruby>月<rt>げつ</rt></ruby>で<ruby>黒字化<rt>くろじか</rt></ruby>できますが、<ruby>為替<rt>かわせ</rt></ruby>リスクへの<ruby>備<rt>そな</rt></ruby>えを<ruby>強化<rt>きょうか</rt></ruby>する<ruby>必要<rt>ひつよう</rt></ruby>があります。',
 						undefined,
 						'ja',
 						{
@@ -242,7 +245,6 @@
 	};
 
 	const renderStars = (count: number) => createRange(count);
-	const renderEmptyStars = (count: number) => createRange(Math.max(0, 5 - count));
 
 	const scenarioPreviewsData = $derived(getScenarioPreviewsData());
 
@@ -324,107 +326,103 @@
 	>
 		<!-- Main Scenario Card - Uniform height -->
 		{#if currentScenario}
-		<div
-			class="relative h-[520px] sm:h-[560px] md:h-[600px] flex flex-col p-6"
-		>
-			<!-- Background Pattern -->
-			<div class="absolute inset-0 opacity-10">
-				{#if currentScenario.bgPattern === 'food'}
-					<div class="absolute top-4 right-4 rotate-12 transform text-8xl">🍜</div>
-					<div class="absolute bottom-8 left-8 -rotate-12 transform text-6xl">🥢</div>
-				{:else if currentScenario.bgPattern === 'travel'}
-					<div class="absolute top-4 right-4 rotate-12 transform text-8xl">🗺️</div>
-					<div class="absolute bottom-8 left-8 -rotate-12 transform text-6xl">
-						{'languageFlag' in currentScenario ? currentScenario.languageFlag : '🎒'}
-					</div>
-				{:else if currentScenario.bgPattern === 'music'}
-					<div class="absolute top-4 right-4 rotate-12 transform text-8xl">🎵</div>
-					<div class="absolute bottom-8 left-8 -rotate-12 transform text-6xl">🎼</div>
-				{:else if currentScenario.bgPattern === 'calendar'}
-					<div class="absolute top-4 right-4 rotate-12 transform text-8xl">📊</div>
-					<div class="absolute bottom-8 left-8 -rotate-12 transform text-6xl">⏰</div>
-				{:else if currentScenario.bgPattern === 'heart'}
-					<div class="absolute top-4 right-4 rotate-12 transform text-8xl">💖</div>
-					<div class="absolute bottom-8 left-8 -rotate-12 transform text-6xl">🌹</div>
-				{:else if currentScenario.bgPattern === 'family'}
-					<div class="absolute top-4 right-4 rotate-12 transform text-8xl">🏠</div>
-					<div class="absolute bottom-8 left-8 -rotate-12 transform text-6xl">💝</div>
-				{:else if currentScenario.bgPattern === 'connection'}
-					<div class="absolute top-4 right-4 rotate-12 transform text-8xl">💫</div>
-					<div class="absolute bottom-8 left-8 -rotate-12 transform text-6xl">🌟</div>
-				{/if}
-			</div>
-
-			<!-- Scenario Header -->
-			<div class="relative z-10 mb-4 flex-shrink-0">
-				<div class="mb-3 flex items-center gap-4">
-					<div class="rounded-full bg-white/20 p-2 text-3xl backdrop-blur-sm">
-						{currentScenario.icon}
-					</div>
-					<div>
-						<h3 class="mb-1 text-xl font-bold">{currentScenario.title}</h3>
-						<div class="flex items-center gap-2">
-							<span class="badge badge-xs capitalize badge-accent">{currentScenario.category}</span>
-							<span class="badge badge-xs capitalize badge-primary"
-								>{currentScenario.difficulty}</span
-							>
+			<div class="relative flex h-[520px] flex-col p-6 sm:h-[560px] md:h-[600px]">
+				<!-- Background Pattern -->
+				<div class="absolute inset-0 opacity-10">
+					{#if currentScenario.bgPattern === 'food'}
+						<div class="absolute top-4 right-4 rotate-12 transform text-8xl">🍜</div>
+						<div class="absolute bottom-8 left-8 -rotate-12 transform text-6xl">🥢</div>
+					{:else if currentScenario.bgPattern === 'travel'}
+						<div class="absolute top-4 right-4 rotate-12 transform text-8xl">🗺️</div>
+						<div class="absolute bottom-8 left-8 -rotate-12 transform text-6xl">
+							{'languageFlag' in currentScenario ? currentScenario.languageFlag : '🎒'}
 						</div>
-						<div class="mt-2 flex items-center gap-3">
-							<div class="flex items-center gap-1 text-amber-400">
-								{#each renderStars(currentScenario.difficultyStars || 1) as _}
-									<span class="icon-[mdi--star] h-4 w-4"></span>
-								{/each}
-								{#each renderEmptyStars(currentScenario.difficultyStars || 1) as _}
-									<span class="icon-[mdi--star-outline] h-4 w-4 text-base-content/30"></span>
-								{/each}
+					{:else if currentScenario.bgPattern === 'music'}
+						<div class="absolute top-4 right-4 rotate-12 transform text-8xl">🎵</div>
+						<div class="absolute bottom-8 left-8 -rotate-12 transform text-6xl">🎼</div>
+					{:else if currentScenario.bgPattern === 'calendar'}
+						<div class="absolute top-4 right-4 rotate-12 transform text-8xl">📊</div>
+						<div class="absolute bottom-8 left-8 -rotate-12 transform text-6xl">⏰</div>
+					{:else if currentScenario.bgPattern === 'heart'}
+						<div class="absolute top-4 right-4 rotate-12 transform text-8xl">💖</div>
+						<div class="absolute bottom-8 left-8 -rotate-12 transform text-6xl">🌹</div>
+					{:else if currentScenario.bgPattern === 'family'}
+						<div class="absolute top-4 right-4 rotate-12 transform text-8xl">🏠</div>
+						<div class="absolute bottom-8 left-8 -rotate-12 transform text-6xl">💝</div>
+					{:else if currentScenario.bgPattern === 'connection'}
+						<div class="absolute top-4 right-4 rotate-12 transform text-8xl">💫</div>
+						<div class="absolute bottom-8 left-8 -rotate-12 transform text-6xl">🌟</div>
+					{/if}
+				</div>
+
+				<!-- Scenario Header -->
+				<div class="relative z-10 mb-4 flex-shrink-0">
+					<div class="mb-3 flex items-center gap-4">
+						<div class="rounded-full bg-white/20 p-2 text-3xl backdrop-blur-sm">
+							{currentScenario.icon}
+						</div>
+						<div>
+							<h3 class="mb-1 text-xl font-bold">{currentScenario.title}</h3>
+							<div class="flex items-center gap-2">
+								<span class="badge badge-xs capitalize badge-accent"
+									>{currentScenario.category}</span
+								>
+								<span class="badge badge-xs capitalize badge-primary"
+									>{currentScenario.difficulty}</span
+								>
 							</div>
-							<span class="badge badge-outline badge-sm">{currentScenario.cefrBadge}</span>
+							<div class="mt-2 flex items-center gap-3">
+								<span class="badge badge-outline badge-sm">{currentScenario.cefrBadge}</span>
+								<div class="flex items-center gap-1 text-amber-400">
+									{#each renderStars(currentScenario.difficultyStars || 1) as _}
+										<span class="icon-[mdi--star] h-4 w-4"></span>
+									{/each}
+								</div>
+							</div>
+						</div>
+					</div>
+					<p class="max-w-md text-base opacity-90">{currentScenario.description}</p>
+				</div>
+
+				<!-- Preview Conversation with MessageBubble -->
+				<div class="relative z-10 flex-1 overflow-hidden">
+					<div
+						class="space-y-1 {animatingMessages
+							? 'animate-fade-in'
+							: ''} max-h-64 overflow-y-auto sm:max-h-80 md:max-h-[420px]"
+					>
+						{#each currentScenario.messages as message, i (message.id)}
+							{@const isVisible = showTranslations[message.id] ?? true}
+							<div
+								class="scale-[0.9] opacity-95 transition-all duration-300 hover:scale-95"
+								style="animation-delay: {i * 0.2}s"
+							>
+								<MessageBubble
+									{message}
+									clickToToggle={true}
+									translation={{
+										translatedContent: isVisible ? message.translatedContent : null,
+										romanization: isVisible ? message.romanization : null,
+										hiragana: isVisible ? message.hiragana : null
+									}}
+									dispatch={(event: string, data: any) => {
+										if (event === 'toggle') {
+											showTranslations[message.id] = !isVisible;
+										}
+									}}
+								/>
+							</div>
+						{/each}
+					</div>
+
+					<!-- Preview hint -->
+					<div class="mt-2 flex-shrink-0 text-center">
+						<div class="badge badge-ghost badge-lg backdrop-blur-sm">
+							💬 Click messages to toggle translations and romanization
 						</div>
 					</div>
 				</div>
-				<p class="max-w-md text-base opacity-90">{currentScenario.description}</p>
 			</div>
-
-			<!-- Preview Conversation with MessageBubble -->
-			<div class="relative z-10 flex-1 overflow-hidden">
-				<div
-					class="space-y-1 {animatingMessages
-						? 'animate-fade-in'
-						: ''} max-h-64 overflow-y-auto sm:max-h-80 md:max-h-[420px]"
-				>
-					{#each currentScenario.messages as message, i (message.id)}
-						<div
-							class="scale-[0.9] opacity-95 transition-all duration-300 hover:scale-95"
-							style="animation-delay: {i * 0.2}s"
-						>
-							<MessageBubble
-								{message}
-								clickToToggle={true}
-								translation={{
-									translatedContent: showTranslations[message.id]
-										? message.translatedContent
-										: null,
-									romanization: showTranslations[message.id] ? message.romanization : null,
-									hiragana: showTranslations[message.id] ? message.hiragana : null
-								}}
-								dispatch={(event: string, _data: any) => {
-									if (event === 'translate' || event === 'toggle') {
-										toggleTranslation(message.id);
-									}
-								}}
-							/>
-						</div>
-					{/each}
-				</div>
-
-				<!-- Translation hint -->
-				<div class="mt-2 flex-shrink-0 text-center">
-					<div class="badge badge-ghost badge-lg backdrop-blur-sm">
-						💬 Click any message to show English translation and romanization
-					</div>
-				</div>
-			</div>
-		</div>
 		{/if}
 
 		<!-- Interaction Layer -->

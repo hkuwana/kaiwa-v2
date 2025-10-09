@@ -23,10 +23,10 @@ export { stripeService } from './stripe.service';
 // Email services
 export * as emailService from './email-service';
 export * as emailVerificationService from './email-verification.service';
-export { EmailReminderService } from './email-reminder.service';
-export { EmailReminderEnhancedService } from './email-reminder-enhanced.service';
-export { FounderEmailService } from './founder-email.service';
-export { EmailPermissionService } from './email-permission.service';
+
+
+
+
 
 // Translation service
 export * as translationService from './translation.service';

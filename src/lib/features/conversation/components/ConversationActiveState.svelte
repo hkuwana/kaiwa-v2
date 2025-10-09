@@ -11,6 +11,7 @@
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { SvelteMap } from 'svelte/reactivity';
 	import { shouldTriggerOnboarding } from '$lib/services/onboarding-manager.service';
+	import { autoScrollToBottom } from '$lib/actions/auto-scroll-to-bottom';
 
 	interface Props {
 		status: string;
@@ -51,10 +52,11 @@
 
 	let messageInput = $state('');
 	let translationData = $state<Map<string, Partial<Message>>>(new SvelteMap());
-	let messagesContainer: HTMLElement;
+	let messagesContainer: HTMLDivElement | null = null;
+	let calmMode = $state(false);
 
 	// UI state for chat visibility
-	const enableTyping = $state(false);
+	let enableTyping = $state(false);
 
 	// Audio control state
 	let hasUsedAudioControl = $state(false);
@@ -74,19 +76,6 @@
 
 	// Check if we're waiting for user to start
 	const waitingForUserToStart = $derived(conversationStore.waitingForUserToStart);
-
-	// Auto-scroll to latest message when new messages arrive
-	$effect(() => {
-		if (messages.length > 0 && messagesContainer) {
-			// Use a small delay to ensure the new message DOM is rendered
-			setTimeout(() => {
-				messagesContainer.scrollTo({
-					top: messagesContainer.scrollHeight,
-					behavior: 'smooth'
-				});
-			}, 100);
-		}
-	});
 
 	function handleSendMessage() {
 		if (messageInput.trim() && (status === 'connected' || status === 'streaming')) {
@@ -181,8 +170,21 @@
 	in:fly={{ y: 20, duration: 400 }}
 >
 	<div class="container mx-auto flex h-screen max-w-4xl flex-col px-4 py-4">
+		<div class="mb-4 flex items-center justify-end">
+			<button
+				type="button"
+				class={`btn btn-sm ${calmMode ? 'btn-primary' : 'btn-ghost'}`}
+				aria-pressed={calmMode}
+				onclick={() => {
+					calmMode = !calmMode;
+				}}
+			>
+				{calmMode ? 'Calm mode on' : 'Calm mode off'}
+			</button>
+		</div>
+
 		<!-- Live Transcription -->
-		{#if currentTranscript}
+		{#if !calmMode && currentTranscript}
 			<div class="mb-4 flex-shrink-0" in:fly={{ y: -10, duration: 200 }}>
 				<div class="card border-l-4 border-l-info bg-info/5">
 					<div class="card-body p-4">
@@ -203,49 +205,85 @@
 
 		<!-- Conversation Messages - Always visible; input may be hidden -->
 		<div class="mb-4 min-h-0 flex-1">
-			<div class="card h-full bg-base-100 shadow-lg">
-				<div class="card-body flex h-full flex-col">
-					<div class="mb-4 card-title flex-shrink-0 text-xl">
-						{isGuestUser && messages.length < 4 ? 'Getting to Know You' : 'Conversation'}
-						<span class="text-sm font-normal opacity-70">({messages.length} messages)</span>
-					</div>
-					<div class="flex-1 space-y-3 overflow-y-auto" bind:this={messagesContainer}>
-						{#if messages.length === 0}
-							<div class="flex h-full items-center justify-center">
-								<div class="text-center">
-									<div class="text-lg opacity-70">No messages yet</div>
-									<div class="text-sm opacity-50">
-										{#if status === 'connecting'}
-											Connecting to conversation...
-										{:else if status === 'connected'}
-											Start talking to begin the conversation
-										{:else if status === 'streaming'}
-											Listening for your voice...
-										{:else}
-											Status: {status}
-										{/if}
-									</div>
-								</div>
-							</div>
-						{:else}
-							{#each messages as message, index (message.id)}
-								<div in:fly={{ y: 20, duration: 300, delay: index * 50 }}>
-									<MessageBubble
-										{message}
-										{speaker}
-										translation={translationData.get(message.id)}
-										dispatch={handleTranslation}
-									/>
-								</div>
-							{/each}
-						{/if}
+			{#if calmMode}
+				<div class="card h-full bg-base-100 shadow-lg">
+					<div class="card-body flex h-full flex-col items-center justify-center gap-6 text-center">
+						<div class="calm-visual relative h-56 w-56">
+							<div class="calm-visual__wave calm-visual__wave--outer"></div>
+							<div class="calm-visual__wave calm-visual__wave--middle"></div>
+							<div class="calm-visual__wave calm-visual__wave--inner"></div>
+							<div class="calm-visual__core"></div>
+						</div>
+						<div class="space-y-2">
+							<p class="text-lg opacity-80">Calm mode active</p>
+							<p class="text-sm opacity-60">
+								Close your eyes or just listen in. Transcript and messages are hidden for now.
+							</p>
+						</div>
+						<button
+							type="button"
+							class="btn btn-outline btn-sm"
+							onclick={() => {
+								calmMode = false;
+							}}
+						>
+							Show transcript
+						</button>
 					</div>
 				</div>
-			</div>
+			{:else}
+				<div class="card h-full bg-base-100 shadow-lg">
+					<div class="card-body flex h-full flex-col">
+						<div class="mb-4 card-title flex-shrink-0 text-xl">
+							{isGuestUser && messages.length < 4 ? 'Getting to Know You' : 'Conversation'}
+							<span class="text-sm font-normal opacity-70">({messages.length} messages)</span>
+						</div>
+						<div
+							class="flex-1 space-y-3 overflow-y-auto"
+							bind:this={messagesContainer}
+							use:autoScrollToBottom={{
+								enabled: messages.length > 0,
+								trigger: messages[messages.length - 1]?.id,
+								delayMs: 100
+							}}
+						>
+							{#if messages.length === 0}
+								<div class="flex h-full items-center justify-center">
+									<div class="text-center">
+										<div class="text-lg opacity-70">No messages yet</div>
+										<div class="text-sm opacity-50">
+											{#if status === 'connecting'}
+												Connecting to conversation...
+											{:else if status === 'connected'}
+												Start talking to begin the conversation
+											{:else if status === 'streaming'}
+												Listening for your voice...
+											{:else}
+												Status: {status}
+											{/if}
+										</div>
+									</div>
+								</div>
+							{:else}
+								{#each messages as message, index (message.id)}
+									<div in:fly={{ y: 20, duration: 300, delay: index * 50 }}>
+										<MessageBubble
+											{message}
+											{speaker}
+											translation={translationData.get(message.id)}
+											dispatch={handleTranslation}
+										/>
+									</div>
+								{/each}
+							{/if}
+						</div>
+					</div>
+				</div>
+			{/if}
 		</div>
 
 		<!-- Text Input - hidden by default to promote audio; flip enableTyping to true to show -->
-		{#if enableTyping}
+		{#if enableTyping && !calmMode}
 			<div class="mb-4 flex-shrink-0" in:fade={{ duration: 120 }}>
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body p-4">
@@ -347,3 +385,63 @@
 		/>
 	</div>
 </div>
+
+<style>
+	.calm-visual {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.calm-visual__core {
+		position: relative;
+		height: 7rem;
+		width: 7rem;
+		border-radius: 9999px;
+		background: linear-gradient(135deg, rgba(99, 102, 241, 0.55), rgba(14, 165, 233, 0.4));
+		box-shadow:
+			0 0 30px rgba(99, 102, 241, 0.35),
+			0 0 60px rgba(56, 189, 248, 0.25);
+		backdrop-filter: blur(4px);
+	}
+
+	.calm-visual__wave {
+		position: absolute;
+		inset: 0;
+		border-radius: 9999px;
+		border: 2px solid rgba(99, 102, 241, 0.2);
+		animation: calmPulse 6s ease-in-out infinite;
+	}
+
+	.calm-visual__wave--middle {
+		animation-delay: 2s;
+		border-color: rgba(56, 189, 248, 0.25);
+	}
+
+	.calm-visual__wave--inner {
+		animation-delay: 4s;
+		border-color: rgba(59, 130, 246, 0.25);
+	}
+
+	.calm-visual__wave--outer {
+		transform: scale(1.1);
+	}
+
+	@keyframes calmPulse {
+		0% {
+			transform: scale(1);
+			opacity: 0.35;
+		}
+
+		50% {
+			transform: scale(1.35);
+			opacity: 0.1;
+		}
+
+		100% {
+			transform: scale(1.65);
+			opacity: 0;
+		}
+	}
+</style>
