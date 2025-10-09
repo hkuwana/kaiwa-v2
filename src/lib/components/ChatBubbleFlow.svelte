@@ -78,7 +78,7 @@
 	}
 
 	let visibleBubbles = $state<BubbleData[]>([]);
-	let translationsVisible = new SvelteSet<string>();
+	let translationsVisible = $state(new SvelteSet<string>());
 	let bubbleCounter = $state(0);
 	let animationInterval: NodeJS.Timeout | undefined = $state(undefined);
 	let numColumns = $state(3);

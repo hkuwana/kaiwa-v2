@@ -1,7 +1,7 @@
 <!-- src/lib/components/ScenarioSelector.svelte -->
 <script lang="ts">
 	import type { ScenarioWithHints } from '$lib/data/scenarios';
-import { difficultyRatingToStars } from '$lib/utils/cefr';
+	import { difficultyRatingToStars } from '$lib/utils/cefr';
 
 	// Props-based design - no direct store access
 	interface Props {
@@ -185,8 +185,9 @@ import { difficultyRatingToStars } from '$lib/utils/cefr';
 					>
 						<span
 							class="{categoryIcons[scenario.category] ||
-								'icon-[mdi--target]'} mr-3 h-5 w-5 flex-shrink-0 text-{categoryColors[scenario.category] ||
-								'primary'}"
+								'icon-[mdi--target]'} mr-3 h-5 w-5 flex-shrink-0 text-{categoryColors[
+								scenario.category
+							] || 'primary'}"
 						></span>
 						<span class="flex-1 truncate text-sm font-medium">{scenario.title}</span>
 						<span class="ml-3 flex flex-shrink-0 items-center gap-0.5 text-amber-300">

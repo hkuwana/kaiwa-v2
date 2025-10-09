@@ -20,11 +20,13 @@ All remaining errors are unrelated to realtime types (payments, analysis modules
 The following types are now imported directly from `@openai/agents-realtime`:
 
 **Classes & Utilities:**
+
 - `RealtimeAgent`
 - `RealtimeSession` (exported as `OpenAIRealtimeSession`)
 - `tool` - utility for creating function tools
 
 **Core Types:**
+
 - `RealtimeClientMessage` - client-to-server messages
 - `RealtimeAudioFormat` - audio format configuration
 - `RealtimeSessionConfig` - session configuration
@@ -33,13 +35,16 @@ The following types are now imported directly from `@openai/agents-realtime`:
 - `TransportLayerTranscriptDelta`, `TransportLayerResponseCompleted`, `TransportLayerResponseStarted`
 
 **Item Types:**
+
 - `RealtimeItem`, `RealtimeMessageItem`, `RealtimeToolCallItem`, `RealtimeBaseItem`
 
 **Connection Types:**
+
 - `RealtimeSessionOptions`, `RealtimeSessionConnectOptions`
 - `OpenAIRealtimeWebRTC`, `OpenAIRealtimeWebSocket`
 
 **Tool Types:**
+
 - `FunctionTool` (exported as `OfficialFunctionTool`)
 
 ### Still Defined Locally
@@ -47,12 +52,14 @@ The following types are now imported directly from `@openai/agents-realtime`:
 These types are **not exported** by the SDK, so we define them locally based on the SDK's internal structure:
 
 **Audio Configuration:**
+
 - `RealtimeAudioConfig` - audio input/output configuration
 - `RealtimeAudioInputConfig` - input audio settings
 - `RealtimeAudioOutputConfig` - output audio settings
 - `RealtimeAudioFormatDefinition` - detailed audio format structure
 
 **Session Configuration:**
+
 - `RealtimeTurnDetectionConfig` - VAD configuration
 - `RealtimeInputAudioTranscriptionConfig` - transcription settings
 - `RealtimeInputAudioNoiseReductionConfig` - noise reduction
@@ -60,11 +67,13 @@ These types are **not exported** by the SDK, so we define them locally based on 
 - `SessionConfig` - merged type supporting both new and deprecated SDK formats
 
 **Protocol Types:**
+
 - `RealtimeToolDefinition` - simplified function-only tool definition
 - `ServerEvent` - detailed WebSocket protocol events (union of 25+ event types)
 - All specific event interfaces (ErrorEvent, SessionCreatedEvent, etc.)
 
 **App-Specific:**
+
 - `Voice` - voice ID type with validation helpers
 - `DEFAULT_VOICE`, `VALID_OPENAI_VOICES` - constants
 - `isValidVoice()` - validation function
@@ -126,6 +135,7 @@ All realtime type issues are resolved. The conversation/audio functionality now 
 ## 🔮 Future Improvements
 
 When the SDK exports more types (like `RealtimeAudioConfig`, `RealtimeTurnDetectionConfig`), we can:
+
 1. Remove local definitions
 2. Import directly from the SDK
 3. Update the documentation guide

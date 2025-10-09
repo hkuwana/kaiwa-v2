@@ -52,7 +52,7 @@
 
 	let messageInput = $state('');
 	let translationData = $state<Map<string, Partial<Message>>>(new SvelteMap());
-	let messagesContainer: HTMLDivElement | null = null;
+	let messagesContainer = $state<HTMLDivElement | null>(null);
 	let calmMode = $state(false);
 
 	// UI state for chat visibility

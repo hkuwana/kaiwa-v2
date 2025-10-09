@@ -55,6 +55,47 @@
 	let isExpanded = $state(false);
 	let activeTab = $state<'overview' | 'messages' | 'events' | 'audio'>('overview');
 	const audioDebugInfo = $derived(conversationStore.getAudioDebugInfo());
+	const selectedInputDeviceId = $derived(audioStore.selectedDeviceId);
+	const inputDevices = $derived(
+		audioStore.availableDevices.filter((device) => device.deviceId && device.deviceId !== 'default')
+	);
+	const selectedOutputDeviceId = $derived(realtimeOpenAI.selectedOutputDeviceId);
+	const outputDevices = $derived(
+		realtimeOpenAI.availableOutputDevices.filter(
+			(device) => device.deviceId && device.deviceId !== 'default'
+		)
+	);
+	const outputDeviceError = $derived(realtimeOpenAI.outputDeviceError);
+	const canSelectOutput = realtimeOpenAI.canSelectOutputDevice();
+	const activeMicrophoneLabel = $derived(() => {
+		const device = audioStore.getDevice(selectedInputDeviceId);
+		if (device?.label) {
+			return device.label;
+		}
+		const trackLabel = audioDebugInfo.track?.label;
+		if (selectedInputDeviceId === 'default' && trackLabel) {
+			return `Default - ${trackLabel}`;
+		}
+		if (selectedInputDeviceId && selectedInputDeviceId !== 'default') {
+			return selectedInputDeviceId;
+		}
+		return 'System default';
+	});
+	const activeOutputLabel = $derived(() => {
+		if (!canSelectOutput) {
+			return 'System default';
+		}
+		const device =
+			outputDevices.find((d) => d.deviceId === selectedOutputDeviceId) ||
+			(audioDebugInfo.output?.availableDevices ?? []).find((d) => d.id === selectedOutputDeviceId);
+		if (device?.label) {
+			return selectedOutputDeviceId === 'default' ? `Default - ${device.label}` : device.label;
+		}
+		if (selectedOutputDeviceId && selectedOutputDeviceId !== 'default') {
+			return selectedOutputDeviceId;
+		}
+		return 'System default';
+	});
 
 	// Helper functions for debug functionality
 	function refreshDebugInfo() {
@@ -95,6 +136,49 @@
 
 	function logAudioDebug() {
 		console.log('Audio Debug:', audioDebugInfo);
+	}
+
+	function getDeviceLabel(device: MediaDeviceInfo | undefined, fallback: string) {
+		if (!device) return fallback;
+		if (device.label) return device.label;
+		if (device.deviceId && device.deviceId !== 'default') {
+			return `Device ${device.deviceId.slice(0, 6)}`;
+		}
+		return fallback;
+	}
+
+	async function handleInputDeviceChange(event: Event) {
+		const deviceId = (event.currentTarget as HTMLSelectElement).value;
+		try {
+			await conversationStore.selectDevice(deviceId);
+		} catch (error) {
+			console.error('Failed to switch input device:', error);
+		}
+	}
+
+	async function handleRefreshInputDevices() {
+		try {
+			await audioStore.refreshDevices();
+		} catch (error) {
+			console.error('Failed to refresh input devices:', error);
+		}
+	}
+
+	async function handleOutputDeviceChange(event: Event) {
+		const deviceId = (event.currentTarget as HTMLSelectElement).value;
+		try {
+			await realtimeOpenAI.setOutputDevice(deviceId);
+		} catch (error) {
+			console.error('Failed to switch output device:', error);
+		}
+	}
+
+	async function handleRefreshOutputDevices() {
+		try {
+			await realtimeOpenAI.refreshOutputDevices();
+		} catch (error) {
+			console.error('Failed to refresh output devices:', error);
+		}
 	}
 
 	function getMessageStatus(msg: Message): string {
@@ -367,7 +451,82 @@
 								</div>
 							{:else if activeTab === 'audio'}
 								<!-- Audio tab -->
-								<div class="space-y-2 text-xs">
+								<div class="space-y-3 text-xs">
+									<div class="space-y-2">
+										<h4 class="text-sm font-medium">Audio Controls</h4>
+										<div class="rounded bg-base-200 p-2">
+											<div class="flex items-center justify-between">
+												<span class="font-medium">Microphone</span>
+												<button class="btn btn-xs" onclick={handleRefreshInputDevices}>
+													Refresh
+												</button>
+											</div>
+											{#if inputDevices.length > 0}
+												<select
+													class="select mt-2 w-full select-xs"
+													value={selectedInputDeviceId}
+													onchange={handleInputDeviceChange}
+												>
+													<option value="default">System Default</option>
+													{#each inputDevices as device (device.deviceId)}
+														<option value={device.deviceId}>
+															{getDeviceLabel(device, 'Microphone')}
+														</option>
+													{/each}
+												</select>
+											{:else}
+												<div class="mt-2 text-[11px] opacity-70">
+													No microphones detected yet. Click refresh after granting microphone
+													access.
+												</div>
+											{/if}
+											<div class="mt-2 text-[11px] opacity-60">
+												Active: {activeMicrophoneLabel()}
+											</div>
+										</div>
+										<div class="rounded bg-base-200 p-2">
+											<div class="flex items-center justify-between">
+												<span class="font-medium">Playback</span>
+												<button
+													class="btn btn-xs"
+													onclick={handleRefreshOutputDevices}
+													disabled={!canSelectOutput}
+												>
+													Refresh
+												</button>
+											</div>
+											{#if canSelectOutput}
+												{#if outputDevices.length > 0}
+													<select
+														class="select mt-2 w-full select-xs"
+														value={selectedOutputDeviceId}
+														onchange={handleOutputDeviceChange}
+													>
+														<option value="default">System Default</option>
+														{#each outputDevices as device (device.deviceId)}
+															<option value={device.deviceId}>
+																{getDeviceLabel(device, 'Speaker')}
+															</option>
+														{/each}
+													</select>
+												{:else}
+													<div class="mt-2 text-[11px] opacity-70">
+														No playback devices enumerated yet. Try refresh or check browser
+														permissions.
+													</div>
+												{/if}
+											{:else}
+												<div class="mt-2 text-[11px] opacity-70">
+													Browser cannot select specific audio output devices. Using system default.
+												</div>
+											{/if}
+											<div class="mt-2 text-[11px] opacity-60">Active: {activeOutputLabel()}</div>
+											{#if outputDeviceError}
+												<div class="mt-1 text-[11px] text-error">{outputDeviceError}</div>
+											{/if}
+										</div>
+									</div>
+
 									<h4 class="text-sm font-medium">Audio Stream Debug</h4>
 									<div class="rounded bg-base-200 p-2">
 										<div class="font-medium">Stream</div>
@@ -375,6 +534,11 @@
 										<div>Stream ID: {audioDebugInfo.streamId || 'N/A'}</div>
 										<div>Tracks: {audioDebugInfo.trackCount}</div>
 										<div>Conversation Device: {audioDebugInfo.selectedDeviceId}</div>
+										<div>Playback Supported: {audioDebugInfo.output.supported ? 'Yes' : 'No'}</div>
+										<div>Output Device: {activeOutputLabel()}</div>
+										<div>
+											Output Device ID: {audioDebugInfo.output.selectedDeviceId || 'default'}
+										</div>
 									</div>
 									<div class="rounded bg-base-200 p-2">
 										<div class="font-medium">Track</div>

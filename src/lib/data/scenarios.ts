@@ -198,7 +198,9 @@ export const getOnboardingScenario = (): ScenarioWithHints | undefined => {
 };
 
 export const getComfortScenarios = (): ScenarioWithHints[] => {
-	return scenariosData.filter((scenario) => scenario.category !== 'onboarding').sort(sortByDifficultyRating);
+	return scenariosData
+		.filter((scenario) => scenario.category !== 'onboarding')
+		.sort(sortByDifficultyRating);
 };
 
 export const getScenarioById = (id: string): ScenarioWithHints | undefined => {

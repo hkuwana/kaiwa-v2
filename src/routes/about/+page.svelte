@@ -10,7 +10,7 @@
 	import ShareKaiwa from '$lib/components/ShareKaiwa.svelte';
 	import { fly } from 'svelte/transition';
 
-	let scrollY = 0;
+	let scrollY = $state(0);
 
 	// Page title
 	onMount(() => {

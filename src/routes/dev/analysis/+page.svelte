@@ -8,7 +8,7 @@
 	import type { AnalysisFindingDraft } from '$lib/features/analysis/types/analysis-logbook.types';
 	import { SvelteSet } from 'svelte/reactivity';
 	// Lazy load analysis store to prevent initialization issues
-	let analysisStore: any = null;
+	let analysisStore = $state<any>(null);
 
 	type ModuleMeta = {
 		id: string;

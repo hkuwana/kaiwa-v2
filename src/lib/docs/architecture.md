@@ -38,9 +38,9 @@ Kaiwa adopts a **Clean 3-Layer Architecture** to ensure a maintainable, testable
 
 ### Layer Responsibilities
 
-*   **Service Layer (Bottom)**: Pure business logic and external API integration. Services are pure TypeScript classes with no knowledge of the UI and never import other services.
-*   **Store Layer (Middle)**: State management and orchestration. Stores use Svelte 5 runes to manage application state and coordinate services to implement features.
-*   **UI Layer (Top)**: User interface and interactions. Components are thin and declarative, calling actions on stores and reacting to state changes.
+- **Service Layer (Bottom)**: Pure business logic and external API integration. Services are pure TypeScript classes with no knowledge of the UI and never import other services.
+- **Store Layer (Middle)**: State management and orchestration. Stores use Svelte 5 runes to manage application state and coordinate services to implement features.
+- **UI Layer (Top)**: User interface and interactions. Components are thin and declarative, calling actions on stores and reacting to state changes.
 
 ## 🚚 Architectural Evolution: Feature-Sliced Design
 
@@ -70,13 +70,14 @@ src/lib/
 
 ### Key Principles
 
-*   **Shared Code**: The root `src/lib/` contains shared, feature-agnostic code.
-*   **Feature Encapsulation**: `src/lib/features/` contains all client-side code for a specific feature, co-located and isolated. Features do not import from each other.
-*   **Server-Side Logic**: `src/lib/server/` contains all server-side code, including database repositories that are the only modules to interact directly with the database.
+- **Shared Code**: The root `src/lib/` contains shared, feature-agnostic code.
+- **Feature Encapsulation**: `src/lib/features/` contains all client-side code for a specific feature, co-located and isolated. Features do not import from each other.
+- **Server-Side Logic**: `src/lib/server/` contains all server-side code, including database repositories that are the only modules to interact directly with the database.
 
 ### Migration Strategy
 
 The migration is a 4-phase approach:
+
 1.  **Prepare**: Set up the `features` directory structure.
 2.  **Extract**: Incrementally move existing functionality into isolated features like `realtime-conversation` and `analysis`.
 3.  **Bridge**: Implement a `FeatureBridge` utility for any necessary cross-feature communication.

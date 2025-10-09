@@ -485,24 +485,22 @@ export class ConversationStore {
 	selectDevice = async (deviceId: string) => {
 		this.selectedDeviceId = deviceId;
 
-		if (this.status === 'streaming' || this.status === 'connected') {
-			try {
-				if (this.status === 'streaming' || this.status === 'connected') {
-					// Switch device while recording
-					await audioStore.switchToDevice(deviceId);
+		try {
+			if (this.status === 'streaming' || this.status === 'connected') {
+				// Switch live stream to the new device when actively recording
+				await audioStore.switchToDevice(deviceId);
 
-					// Update our stream reference
-					this.audioStream = audioStore.getCurrentStream();
+				// Update our reference to the active MediaStream so downstream consumers stay in sync
+				this.audioStream = audioStore.getCurrentStream();
 
-					console.log('Audio device switched successfully');
-				} else {
-					// Just update the selected device for later use
-					audioStore.selectedDeviceId = deviceId;
-				}
-			} catch (error) {
-				console.error('Failed to switch audio device:', error);
-				this.error = 'Failed to switch audio device';
+				console.log('Audio device switched successfully');
+			} else {
+				// Persist the preference for the next time recording starts
+				audioStore.selectedDeviceId = deviceId;
 			}
+		} catch (error) {
+			console.error('Failed to switch audio device:', error);
+			this.error = 'Failed to switch audio device';
 		}
 	};
 
@@ -601,7 +599,8 @@ export class ConversationStore {
 				lastLevelTimestamp: audioStore.currentLevel.timestamp,
 				selectedDeviceId: audioStore.selectedDeviceId,
 				permissionState: audioStore.permissionState
-			}
+			},
+			output: realtimeOpenAI.getAudioOutputDebugInfo()
 		};
 	};
 

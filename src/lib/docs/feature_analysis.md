@@ -8,14 +8,14 @@ The Analysis Feature provides comprehensive language learning assessment and fee
 
 ### Architecture Philosophy
 
-*   **Backend-Heavy Processing**: Complex analysis happens server-side.
-*   **Confidence-First**: The experience is designed to build learner confidence.
-*   **Modular Design**: The system is extensible with new analysis modules.
+- **Backend-Heavy Processing**: Complex analysis happens server-side.
+- **Confidence-First**: The experience is designed to build learner confidence.
+- **Modular Design**: The system is extensible with new analysis modules.
 
 ## 🧪 Analysis Modules
 
-*   **Text-Based Modules**: Quick stats, grammar and phrase suggestions, fluency analysis, and language level assessment.
-*   **Audio-Based Modules (Premium)**: Pronunciation analysis and speech rhythm.
+- **Text-Based Modules**: Quick stats, grammar and phrase suggestions, fluency analysis, and language level assessment.
+- **Audio-Based Modules (Premium)**: Pronunciation analysis and speech rhythm.
 
 ## 📈 Incremental Growth Plan
 
@@ -31,13 +31,13 @@ This feature will be shipped incrementally:
 
 The logbook tracks learner progress in a structured way:
 
-*   `linguistic_features`: A canonical dictionary of coachable skills.
-*   `linguistic_feature_aliases`: Maps raw AI model labels to canonical features.
-*   `analysis_findings`: An immutable event log for every suggestion shown to the learner.
-*   `user_feature_profiles`: Aggregated mastery stats per learner and feature.
+- `linguistic_features`: A canonical dictionary of coachable skills.
+- `linguistic_feature_aliases`: Maps raw AI model labels to canonical features.
+- `analysis_findings`: An immutable event log for every suggestion shown to the learner.
+- `user_feature_profiles`: Aggregated mastery stats per learner and feature.
 
 ## 🎨 User Experience Philosophy
 
-*   **Invisible Assessment**: Users never feel like they are being tested.
-*   **Confidence Celebration**: Progress is celebrated in practical, encouraging terms.
-*   **Quality Over Speed**: Fluency analysis focuses on communication effectiveness, not words per minute.
+- **Invisible Assessment**: Users never feel like they are being tested.
+- **Confidence Celebration**: Progress is celebrated in practical, encouraging terms.
+- **Quality Over Speed**: Fluency analysis focuses on communication effectiveness, not words per minute.

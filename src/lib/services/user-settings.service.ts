@@ -35,7 +35,8 @@ function loadFromStorage(): StoredUserSettings | null {
 		if (!parsed || typeof parsed !== 'object') return null;
 		const audioMode = parsed.audioMode ?? DEFAULT_SETTINGS.audioMode;
 		const pressBehavior = parsed.pressBehavior ?? DEFAULT_SETTINGS.pressBehavior;
-		const updatedAt = typeof parsed.updatedAt === 'string' ? parsed.updatedAt : new Date().toISOString();
+		const updatedAt =
+			typeof parsed.updatedAt === 'string' ? parsed.updatedAt : new Date().toISOString();
 		return {
 			audioMode,
 			pressBehavior,

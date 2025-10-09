@@ -53,6 +53,7 @@ export const POST = async ({ request, params, cookies }) => {
 			vocabularyAnalysis: null,
 			pronunciationScore: null,
 			audioDuration: null,
+			speechTimings: null,
 			difficultyLevel: null,
 			learningTags: null,
 			conversationContext: null,

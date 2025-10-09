@@ -1,6 +1,10 @@
 <!-- src/lib/components/UnifiedStartButton.svelte -->
 <script lang="ts">
-	import { scenariosData, sortScenariosByDifficulty, type ScenarioWithHints } from '$lib/data/scenarios';
+	import {
+		scenariosData,
+		sortScenariosByDifficulty,
+		type ScenarioWithHints
+	} from '$lib/data/scenarios';
 	import { goto } from '$app/navigation';
 	import { track } from '$lib/analytics/posthog';
 	import LanguageSelector from './LanguageSelector.svelte';

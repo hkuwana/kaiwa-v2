@@ -16,14 +16,17 @@ Visit: `http://localhost:5173/dev/email` (when running dev server)
 ## Available Email Types
 
 ### 📧 Practice Reminders
+
 - **Standard Practice Reminder**: Personalized reminder with scenarios and streak info
 
 ### 👋 Founder Email Sequence
+
 - **Day 1 - Welcome**: Warm welcome from founder
 - **Day 2 - Check-in**: Checking in with common concerns
 - **Day 3 - Personal Offer**: Cal.com link to book a call
 
 ### 🎯 Segmented Reminders
+
 - **New User**: Welcome message showing what's possible
 - **Slightly Inactive (1-3 days)**: Gentle nudge to practice
 - **Moderately Inactive (3-7 days)**: Motivation boost

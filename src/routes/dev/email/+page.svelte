@@ -7,31 +7,68 @@
 	let testResult = $state<string>('');
 	let selectedEmail = $state<string>('practice_reminder');
 	let showPreview = $state(false);
-	let previewUrl = $state<string>('');
+	let previewHtml = $state<string>('');
+	let isLoadingPreview = $state(false);
 
 	const emailTypes = [
 		{
 			category: '📧 Practice Reminders',
 			emails: [
-				{ value: 'practice_reminder', label: 'Standard Practice Reminder', description: 'Personalized reminder with scenarios and streak info' }
+				{
+					value: 'practice_reminder',
+					label: 'Standard Practice Reminder',
+					description: 'Personalized reminder with scenarios and streak info'
+				}
 			]
 		},
 		{
 			category: '👋 Founder Email Sequence',
 			emails: [
-				{ value: 'day1_welcome', label: 'Day 1 - Welcome', description: 'Warm welcome from founder' },
-				{ value: 'day2_checkin', label: 'Day 2 - Check-in', description: 'Checking in with common concerns' },
-				{ value: 'day3_offer', label: 'Day 3 - Personal Offer', description: 'Cal.com link to book a call' }
+				{
+					value: 'day1_welcome',
+					label: 'Day 1 - Welcome',
+					description: 'Warm welcome from founder'
+				},
+				{
+					value: 'day2_checkin',
+					label: 'Day 2 - Check-in',
+					description: 'Checking in with common concerns'
+				},
+				{
+					value: 'day3_offer',
+					label: 'Day 3 - Personal Offer',
+					description: 'Cal.com link to book a call'
+				}
 			]
 		},
 		{
 			category: '🎯 Segmented Reminders',
 			emails: [
-				{ value: 'segmented_new_user', label: 'New User', description: 'Welcome message showing what\'s possible' },
-				{ value: 'segmented_slightly_inactive', label: 'Slightly Inactive (1-3 days)', description: 'Gentle nudge to practice' },
-				{ value: 'segmented_moderately_inactive', label: 'Moderately Inactive (3-7 days)', description: 'Motivation boost' },
-				{ value: 'segmented_highly_inactive', label: 'Highly Inactive (7-30 days)', description: 'Re-engagement with what\'s new' },
-				{ value: 'segmented_dormant', label: 'Dormant (30+ days)', description: 'Win-back campaign' }
+				{
+					value: 'segmented_new_user',
+					label: 'New User',
+					description: "Welcome message showing what's possible"
+				},
+				{
+					value: 'segmented_slightly_inactive',
+					label: 'Slightly Inactive (1-3 days)',
+					description: 'Gentle nudge to practice'
+				},
+				{
+					value: 'segmented_moderately_inactive',
+					label: 'Moderately Inactive (3-7 days)',
+					description: 'Motivation boost'
+				},
+				{
+					value: 'segmented_highly_inactive',
+					label: 'Highly Inactive (7-30 days)',
+					description: "Re-engagement with what's new"
+				},
+				{
+					value: 'segmented_dormant',
+					label: 'Dormant (30+ days)',
+					description: 'Win-back campaign'
+				}
 			]
 		}
 	];
@@ -41,24 +78,39 @@
 		posthogManager.trackEvent('dev_email_page_viewed');
 	});
 
-	function loadPreview() {
+	async function loadPreview() {
 		if (!userManager.isLoggedIn) {
 			testResult = '❌ Please log in first';
 			return;
 		}
 
-		const params = new URLSearchParams({
-			emailType: selectedEmail,
-			userId: userManager.user?.id || ''
-		});
-
-		previewUrl = `/dev/email?${params.toString()}`;
-		showPreview = true;
+		isLoadingPreview = true;
 		testResult = '';
 
-		posthogManager.trackEvent('dev_email_preview_viewed', {
-			emailType: selectedEmail
-		});
+		try {
+			const params = new URLSearchParams({
+				emailType: selectedEmail,
+				userId: userManager.user?.id || ''
+			});
+
+			const response = await fetch(`/dev/email?${params.toString()}`);
+
+			if (response.ok) {
+				previewHtml = await response.text();
+				showPreview = true;
+
+				posthogManager.trackEvent('dev_email_preview_viewed', {
+					emailType: selectedEmail
+				});
+			} else {
+				const errorText = await response.text();
+				testResult = `❌ Failed to load preview: ${errorText}`;
+			}
+		} catch (error) {
+			testResult = `❌ Error loading preview: ${error instanceof Error ? error.message : 'Unknown error'}`;
+		} finally {
+			isLoadingPreview = false;
+		}
 	}
 
 	async function sendTestEmail() {
@@ -99,26 +151,38 @@
 </script>
 
 <div class="min-h-screen bg-base-200 p-8">
-	<div class="max-w-4xl mx-auto">
+	<div class="mx-auto max-w-4xl">
 		<!-- Header -->
 		<div class="mb-8">
-			<h1 class="text-4xl font-bold mb-2">📧 Email Testing</h1>
+			<h1 class="mb-2 text-4xl font-bold">📧 Email Testing</h1>
 			<p class="text-base-content/70">
-				Test all email templates by sending them to <strong class="text-primary">weijo34@gmail.com</strong>
+				Test all email templates by sending them to <strong class="text-primary"
+					>weijo34@gmail.com</strong
+				>
 			</p>
 		</div>
 
 		<!-- Auth Check -->
 		{#if !userManager.isLoggedIn}
-			<div class="alert alert-warning mb-6">
-				<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+			<div class="mb-6 alert alert-warning">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-6 w-6 shrink-0 stroke-current"
+					fill="none"
+					viewBox="0 0 24 24"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+					/>
 				</svg>
 				<span>Please log in to test emails</span>
 			</div>
 		{:else}
 			<!-- Main Testing Card -->
-			<div class="card bg-base-100 shadow-xl mb-6">
+			<div class="card mb-6 bg-base-100 shadow-xl">
 				<div class="card-body">
 					<h2 class="card-title">Select Email Type</h2>
 
@@ -126,16 +190,18 @@
 					<div class="space-y-6">
 						{#each emailTypes as category}
 							<div>
-								<h3 class="font-semibold text-lg mb-3">{category.category}</h3>
+								<h3 class="mb-3 text-lg font-semibold">{category.category}</h3>
 								<div class="space-y-2">
 									{#each category.emails as email}
-										<label class="flex items-start gap-3 p-4 border border-base-300 rounded-lg hover:bg-base-200 cursor-pointer transition-colors">
+										<label
+											class="flex cursor-pointer items-start gap-3 rounded-lg border border-base-300 p-4 transition-colors hover:bg-base-200"
+										>
 											<input
 												type="radio"
 												name="emailType"
 												value={email.value}
 												bind:group={selectedEmail}
-												class="radio radio-primary mt-1"
+												class="radio mt-1 radio-primary"
 											/>
 											<div class="flex-1">
 												<div class="font-medium">{email.label}</div>
@@ -149,16 +215,21 @@
 					</div>
 
 					<!-- Action Buttons -->
-					<div class="card-actions justify-end mt-6 gap-3">
+					<div class="mt-6 card-actions justify-end gap-3">
 						<button
-							class="btn btn-secondary btn-lg"
+							class="btn btn-lg btn-secondary"
 							onclick={loadPreview}
-							disabled={!userManager.isLoggedIn}
+							disabled={!userManager.isLoggedIn || isLoadingPreview}
 						>
-							👁️ Preview Email
+							{#if isLoadingPreview}
+								<span class="loading loading-spinner"></span>
+								Loading...
+							{:else}
+								👁️ Preview Email
+							{/if}
 						</button>
 						<button
-							class="btn btn-primary btn-lg"
+							class="btn btn-lg btn-primary"
 							onclick={sendTestEmail}
 							disabled={isLoading || !userManager.isLoggedIn}
 						>
@@ -175,30 +246,35 @@
 
 			<!-- Preview Display -->
 			{#if showPreview}
-				<div class="card bg-base-100 shadow-xl mb-6">
+				<div class="card mb-6 bg-base-100 shadow-xl">
 					<div class="card-body">
-						<div class="flex items-center justify-between mb-4">
+						<div class="mb-4 flex items-center justify-between">
 							<h2 class="card-title">Email Preview</h2>
-							<button
-								class="btn btn-sm btn-ghost"
-								onclick={() => showPreview = false}
-							>
+							<button class="btn btn-ghost btn-sm" onclick={() => (showPreview = false)}>
 								✕ Close Preview
 							</button>
 						</div>
-						<div class="border border-base-300 rounded-lg overflow-hidden" style="height: 600px;">
-							<iframe
-								src={previewUrl}
-								title="Email Preview"
-								class="w-full h-full"
-								sandbox="allow-same-origin"
-							></iframe>
+						<div class="overflow-hidden rounded-lg border border-base-300 bg-white">
+							{@html previewHtml}
 						</div>
-						<div class="alert alert-info mt-4">
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+						<div class="mt-4 alert alert-info">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								class="h-6 w-6 shrink-0 stroke-current"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+								></path>
 							</svg>
-							<span>This preview shows the email with your current user data. Click "Send Test Email" to send it to <strong>weijo34@gmail.com</strong></span>
+							<span
+								>This preview shows the email with your current user data. Click "Send Test Email"
+								to send it to <strong>weijo34@gmail.com</strong></span
+							>
 						</div>
 					</div>
 				</div>
@@ -206,22 +282,33 @@
 
 			<!-- Result Display -->
 			{#if testResult}
-				<div class="card bg-base-100 shadow-xl mb-6">
+				<div class="card mb-6 bg-base-100 shadow-xl">
 					<div class="card-body">
 						<h2 class="card-title">Result</h2>
-						<pre class="whitespace-pre-wrap text-sm bg-base-200 p-4 rounded-lg overflow-x-auto">{testResult}</pre>
+						<pre
+							class="overflow-x-auto rounded-lg bg-base-200 p-4 text-sm whitespace-pre-wrap">{testResult}</pre>
 					</div>
 				</div>
 			{/if}
 
 			<!-- Info Box -->
-			<div class="alert alert-info mt-6">
-				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+			<div class="mt-6 alert alert-info">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					class="h-6 w-6 shrink-0 stroke-current"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+					></path>
 				</svg>
 				<div class="text-sm">
 					<div class="font-bold">Test Email Features:</div>
-					<ul class="list-disc list-inside mt-2 space-y-1">
+					<ul class="mt-2 list-inside list-disc space-y-1">
 						<li>All test emails are sent to <strong>weijo34@gmail.com</strong></li>
 						<li>Subject lines are prefixed with <strong>[TEST]</strong></li>
 						<li>Banner at the top indicates it's a test email</li>
@@ -231,13 +318,18 @@
 			</div>
 
 			<!-- Current User Info -->
-			<div class="card bg-base-100 shadow-xl mt-6">
+			<div class="card mt-6 bg-base-100 shadow-xl">
 				<div class="card-body">
 					<h2 class="card-title">Current User</h2>
 					<div class="space-y-2">
 						<div><strong>Name:</strong> {userManager.user?.displayName || 'N/A'}</div>
 						<div><strong>Email:</strong> {userManager.user?.email || 'N/A'}</div>
-						<div><strong>User ID:</strong> <code class="text-xs bg-base-200 px-2 py-1 rounded">{userManager.user?.id || 'N/A'}</code></div>
+						<div>
+							<strong>User ID:</strong>
+							<code class="rounded bg-base-200 px-2 py-1 text-xs"
+								>{userManager.user?.id || 'N/A'}</code
+							>
+						</div>
 					</div>
 				</div>
 			</div>

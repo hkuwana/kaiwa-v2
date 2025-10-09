@@ -18,13 +18,11 @@
 		endedAt: string | null;
 		durationSeconds: number;
 		messageCount: number;
-		preview?:
-			| {
-					firstUserMessage: string | null;
-					lastMessage: string | null;
-					messageCount: number;
-			  }
-			| null;
+		preview?: {
+			firstUserMessage: string | null;
+			lastMessage: string | null;
+			messageCount: number;
+		} | null;
 	}
 
 	interface ConversationDetails {
@@ -55,23 +53,23 @@
 	}
 
 	let conversations = $state<ConversationPreview[]>([]);
-let conversationDetails = $state<
-	Map<string, { details: ConversationDetails; messages: Message[] }>
->(new SvelteMap());
-let expandedConversations = $state(new SvelteSet<string>());
-let loading = $state(true);
-let error = $state<string | null>(null);
-let searchQuery = $state('');
-let selectedLanguage = $state('');
-let currentPage = $state(0);
-let totalConversations = $state(0);
-let hasMore = $state(false);
-let loadingDetails = $state(new SvelteSet<string>());
-let showDevMode = $state(false);
-let selectedConversations = $state(new SvelteSet<string>());
-let deleting = $state(false);
-let actionMessage = $state<string | null>(null);
-let actionError = $state<string | null>(null);
+	let conversationDetails = $state<
+		Map<string, { details: ConversationDetails; messages: Message[] }>
+	>(new SvelteMap());
+	let expandedConversations = $state(new SvelteSet<string>());
+	let loading = $state(true);
+	let error = $state<string | null>(null);
+	let searchQuery = $state('');
+	let selectedLanguage = $state('');
+	let currentPage = $state(0);
+	let totalConversations = $state(0);
+	let hasMore = $state(false);
+	let loadingDetails = $state(new SvelteSet<string>());
+	let showDevMode = $state(false);
+	let selectedConversations = $state(new SvelteSet<string>());
+	let deleting = $state(false);
+	let actionMessage = $state<string | null>(null);
+	let actionError = $state<string | null>(null);
 
 	const limit = 10;
 	const languages = $derived(() => {
@@ -93,7 +91,7 @@ let actionError = $state<string | null>(null);
 		loadConversations();
 	});
 
-async function loadConversations(reset = false) {
+	async function loadConversations(reset = false) {
 		if (reset) {
 			currentPage = 0;
 			conversations = [];
@@ -274,12 +272,8 @@ async function loadConversations(reset = false) {
 				throw new Error(data.error || 'Failed to delete conversations');
 			}
 
-			const deletedIds: string[] = Array.isArray(data.data?.deletedIds)
-				? data.data.deletedIds
-				: [];
-			const skippedIds: string[] = Array.isArray(data.data?.skippedIds)
-				? data.data.skippedIds
-				: [];
+			const deletedIds: string[] = Array.isArray(data.data?.deletedIds) ? data.data.deletedIds : [];
+			const skippedIds: string[] = Array.isArray(data.data?.skippedIds) ? data.data.skippedIds : [];
 
 			selectedConversations = new SvelteSet();
 
@@ -593,7 +587,9 @@ async function loadConversations(reset = false) {
 				</div>
 			</div>
 		{:else}
-			<div class="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-base-100/80 p-3 shadow-sm">
+			<div
+				class="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-base-100/80 p-3 shadow-sm"
+			>
 				<div class="flex items-center gap-2 text-sm">
 					<input
 						type="checkbox"
@@ -604,9 +600,7 @@ async function loadConversations(reset = false) {
 						aria-label="Select all conversations on this page"
 					/>
 					<span>
-						{hasSelection()
-							? `${selectedCount()} selected`
-							: 'Select conversations'}
+						{hasSelection() ? `${selectedCount()} selected` : 'Select conversations'}
 					</span>
 					{#if hasSelection()}
 						<button class="btn btn-ghost btn-xs" onclick={clearSelection}>Clear</button>
@@ -620,13 +614,13 @@ async function loadConversations(reset = false) {
 						<span class="text-error">{actionError}</span>
 					{/if}
 					<button
-						class="btn btn-error btn-sm"
+						class="btn btn-sm btn-error"
 						disabled={!hasSelection() || deleting}
 						onclick={deleteSelectedConversations}
 						aria-label="Delete selected conversations"
 					>
 						{#if deleting}
-							<span class="loading loading-spinner loading-xs"></span>
+							<span class="loading loading-xs loading-spinner"></span>
 						{:else}
 							<svg class="h-4 w-4 sm:mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path

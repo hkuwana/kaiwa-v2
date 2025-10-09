@@ -144,21 +144,22 @@
 				difficultyStars: difficultyRatingToStars(rating),
 				cefrBadge: formatCefrBadge(cefr, { withDescriptor: true }),
 				title: 'Calling Home from the Station',
-				description: 'A quick phone call to let your family know you\'re running late',
+				description: "A quick phone call to let your family know you're running late",
 				messages: [
 					createMessage(
 						'user',
 						'엄마, 나야. 지금 지하철역에 있어.',
-						'Mom, it\'s me. I\'m at the subway station now.',
+						"Mom, it's me. I'm at the subway station now.",
 						'Eomma, naya. Jigeum jihacheol-yeoge isseo.',
 						undefined,
 						undefined,
 						'ko',
 						{
 							summary: 'Natural and casual family conversation.',
-							suggestion: 'Perfect! This is exactly how Koreans speak to their parents on the phone.',
+							suggestion:
+								'Perfect! This is exactly how Koreans speak to their parents on the phone.',
 							culturalTip:
-								'In Korean culture, it\'s common to call family members to update them on your whereabouts, especially when running late.'
+								"In Korean culture, it's common to call family members to update them on your whereabouts, especially when running late."
 						}
 					),
 					createMessage(
@@ -173,7 +174,7 @@
 					createMessage(
 						'user',
 						'아직 안 먹었어. 집에 가서 먹을게.',
-						'Not yet. I\'ll eat when I get home.',
+						"Not yet. I'll eat when I get home.",
 						'Ajik an meogeosseo. Jibe gaseo meogeulge.',
 						undefined,
 						undefined,
@@ -198,7 +199,7 @@
 					createMessage(
 						'user',
 						'本日の議題は、新しい市場参入戦略の承認です。',
-						'Today\'s agenda is approving the new market entry plan.',
+						"Today's agenda is approving the new market entry plan.",
 						'Honjitsu no gidai wa, atarashii shijō sannyū senryaku no shōnin desu.',
 						'<ruby>本日<rt>ほんじつ</rt></ruby>の<ruby>議題<rt>ぎだい</rt></ruby>は、<ruby>新<rt>あたら</rt></ruby>しい<ruby>市場<rt>しじょう</rt></ruby><ruby>参入<rt>さんにゅう</rt></ruby><ruby>戦略<rt>せんりゃく</rt></ruby>の<ruby>承認<rt>しょうにん</rt></ruby>です。',
 						undefined,

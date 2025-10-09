@@ -32,7 +32,9 @@ export class EmailReminderService {
 
 			// Check email permissions from database
 			if (!(await EmailPermissionService.canReceiveDailyReminder(userId))) {
-				console.warn(`User ${userId} not eligible for daily reminders (user not found or opted out)`);
+				console.warn(
+					`User ${userId} not eligible for daily reminders (user not found or opted out)`
+				);
 				return false;
 			}
 
@@ -119,7 +121,7 @@ export class EmailReminderService {
 	): Promise<Scenario[]> {
 		try {
 			// Get all active scenarios
-			const allScenarios = await scenarioRepository.getActiveScenarios();
+			const allScenarios = await scenarioRepository.findActiveScenarios();
 
 			// Get user's completed scenarios
 			const completedAttempts =

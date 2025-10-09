@@ -2,6 +2,7 @@
 // Thin SDK-backed realtime store used by demo pages.
 // Phase 1: wrap OpenAI Agents Realtime transport with minimal API.
 
+import { browser } from '$app/environment';
 import { realtimeService } from '$lib/services';
 import type { Message, SpeechTiming } from '$lib/server/db/types';
 import * as messageService from '$lib/services/message.service';
@@ -58,6 +59,26 @@ export class RealtimeOpenAIStore {
 	private maxEvents = 100;
 	// Conversation context for database persistence
 	conversationContext = $state<ConversationContext | null>(null);
+
+	// Audio output device management
+	availableOutputDevices = $state<MediaDeviceInfo[]>([]);
+	selectedOutputDeviceId = $state<string>('default');
+	outputDeviceError = $state<string | null>(null);
+	private outputSelectionSupported = false;
+
+	constructor() {
+		if (browser) {
+			const testAudio = document.createElement('audio');
+			try {
+				const candidate = testAudio as unknown as { setSinkId?: (id: string) => Promise<void> };
+				this.outputSelectionSupported = typeof candidate.setSinkId === 'function';
+			} catch {
+				this.outputSelectionSupported = false;
+			} finally {
+				testAudio.remove();
+			}
+		}
+	}
 
 	// Event queue for ordered processing
 	private eventQueue: Array<{ event: SDKTransportEvent; timestamp: number }> = [];
@@ -632,6 +653,88 @@ export class RealtimeOpenAIStore {
 		}
 	}
 
+	canSelectOutputDevice(): boolean {
+		return this.outputSelectionSupported;
+	}
+
+	async refreshOutputDevices(): Promise<void> {
+		if (!browser) return;
+
+		if (!navigator?.mediaDevices?.enumerateDevices) {
+			this.outputDeviceError = 'Browser cannot enumerate audio devices.';
+			return;
+		}
+
+		try {
+			const devices = await navigator.mediaDevices.enumerateDevices();
+			const outputs = devices.filter((device) => device.kind === 'audiooutput');
+			this.availableOutputDevices = [...outputs];
+			this.outputDeviceError = null;
+		} catch (error) {
+			console.error('Failed to enumerate audio output devices:', error);
+			this.outputDeviceError =
+				error instanceof Error ? error.message : 'Failed to enumerate audio output devices';
+		}
+	}
+
+	async setOutputDevice(deviceId: string): Promise<void> {
+		this.selectedOutputDeviceId = deviceId || 'default';
+
+		if (!browser) return;
+
+		if (!this.outputSelectionSupported) {
+			this.outputDeviceError = 'Audio output device selection is not supported in this browser.';
+			return;
+		}
+
+		if (!this.connection?.audioElement) {
+			// No active audio element yet; selection will be applied when connection is ready.
+			this.outputDeviceError = null;
+			return;
+		}
+
+		try {
+			await this.applySelectedOutputDevice();
+			this.outputDeviceError = null;
+		} catch (error) {
+			console.error('Failed to set audio output device:', error);
+			this.outputDeviceError =
+				error instanceof Error ? error.message : 'Failed to change audio output device';
+		}
+	}
+
+	getAudioOutputDebugInfo() {
+		return {
+			supported: this.outputSelectionSupported,
+			selectedDeviceId: this.selectedOutputDeviceId,
+			availableDevices: this.availableOutputDevices.map((device) => ({
+				id: device.deviceId,
+				label: device.label,
+				groupId: device.groupId
+			})),
+			error: this.outputDeviceError,
+			hasConnection: !!this.connection,
+			hasAudioElement: !!this.connection?.audioElement
+		};
+	}
+
+	private async applySelectedOutputDevice(): Promise<void> {
+		if (!browser || !this.outputSelectionSupported) return;
+		const audioElement = this.connection?.audioElement;
+		if (!audioElement) return;
+
+		const elementWithSink = audioElement as HTMLMediaElement & {
+			setSinkId?: (sinkId: string) => Promise<void>;
+		};
+
+		if (typeof elementWithSink.setSinkId !== 'function') {
+			throw new Error('Audio element does not support setSinkId');
+		}
+
+		const targetDeviceId = this.selectedOutputDeviceId || 'default';
+		await elementWithSink.setSinkId(targetDeviceId);
+	}
+
 	async connect(
 		sessionData: SessionData,
 		mediaStream: MediaStream,
@@ -662,6 +765,15 @@ export class RealtimeOpenAIStore {
 			this.connection = await createConnectionWithSession(sessionData, mediaStream);
 			this.sessionId = sessionData.session_id || crypto.randomUUID();
 			this.sessionStartMs = Date.now();
+
+			if (this.outputSelectionSupported) {
+				await this.refreshOutputDevices();
+				try {
+					await this.applySelectedOutputDevice();
+				} catch (error) {
+					console.warn('Failed to apply selected audio output device on connect:', error);
+				}
+			}
 
 			// Subscribe to transport events and queue them for ordered processing
 			this.unsubscribe = subscribeToSession(this.connection, {

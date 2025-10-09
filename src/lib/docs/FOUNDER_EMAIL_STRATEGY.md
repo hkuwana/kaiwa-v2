@@ -9,6 +9,7 @@
 ## 🎯 Why This Works
 
 ### The Psychology
+
 1. **Trust**: Real person > Automated system
 2. **Reciprocity**: Founder's time = user's attention
 3. **Conversation**: Easy to reply, feels like 1-on-1
@@ -16,6 +17,7 @@
 5. **Curiosity**: "Why does the founder care about ME?"
 
 ### The Data (from other startups)
+
 - **Automated welcome email**: 5-10% conversion
 - **Personal founder email**: 20-30% conversion
 - **Founder offering to talk**: 40-50% response rate
@@ -27,6 +29,7 @@
 ## 📅 The 3-Day Sequence
 
 ### Overview
+
 ```
 Day 1 (afternoon): Welcome + gentle push to try
 Day 2 (afternoon): Check-in, address concerns
@@ -34,6 +37,7 @@ Day 3 (afternoon): Personal offer to talk (Cal.com)
 ```
 
 **Key principles**:
+
 - ✅ Send from **hiro@kaiwa.app** (not noreply@)
 - ✅ Afternoon sending (2-4pm user's time)
 - ✅ Easy to reply (shows in their inbox, not promo tab)
@@ -46,22 +50,26 @@ Day 3 (afternoon): Personal offer to talk (Cal.com)
 ## 📧 Day 1: Welcome Email
 
 ### When to Send
+
 - **Trigger**: User signed up 24 hours ago
 - **Condition**: Has NOT started first conversation
 - **Time**: 2-4pm user's local time
 - **From**: Hiro <hiro@kaiwa.app>
 
 ### Subject Line
+
 ```
 [FirstName], welcome to Kaiwa! (from Hiro)
 ```
 
 **Why this works**:
+
 - Personal name = higher open rate
 - "(from Hiro)" = establishes it's real person
 - Simple, not salesy
 
 ### Email Content
+
 ```
 Hi [FirstName],
 
@@ -97,6 +105,7 @@ I'll stop emailing.
 ```
 
 **What makes it work**:
+
 - ✅ Founder introduces himself
 - ✅ Empathy: "I know how nerve-wracking..."
 - ✅ Normalizes hesitation
@@ -110,22 +119,26 @@ I'll stop emailing.
 ## 📧 Day 2: Check-In Email
 
 ### When to Send
+
 - **Trigger**: 48 hours after signup
 - **Condition**: STILL hasn't started first conversation
 - **Time**: 2-4pm user's local time
 - **From**: Hiro <hiro@kaiwa.app>
 
 ### Subject Line
+
 ```
 Quick check-in - how's it going?
 ```
 
 **Why this works**:
+
 - Conversational, like texting a friend
 - Not pushy or salesy
 - Implies ongoing relationship
 
 ### Email Content
+
 ```
 Hey [FirstName],
 
@@ -153,6 +166,7 @@ Founder, Kaiwa
 ```
 
 **What makes it work**:
+
 - ✅ Acknowledges they haven't tried yet (no shame)
 - ✅ Addresses common objections proactively
 - ✅ Offers specific solutions
@@ -164,22 +178,26 @@ Founder, Kaiwa
 ## 📧 Day 3: Personal Offer to Talk
 
 ### When to Send
+
 - **Trigger**: 72 hours after signup
 - **Condition**: STILL hasn't started first conversation
 - **Time**: 2-4pm user's local time
 - **From**: Hiro <hiro@kaiwa.app>
 
 ### Subject Line
+
 ```
 Can I help? (15 min chat)
 ```
 
 **Why this works**:
+
 - Direct question
 - Specific time commitment (15 min)
 - Not salesy, genuinely helpful
 
 ### Email Content
+
 ```
 Hi [FirstName],
 
@@ -229,6 +247,7 @@ or reply. I respect your inbox!
 ```
 
 **What makes it work**:
+
 - ✅ "Last email" = respects their time
 - ✅ Offers 1-on-1 call (high-touch)
 - ✅ Cal.com link = zero friction
@@ -259,11 +278,11 @@ or reply. I respect your inbox!
 ```typescript
 // In founder-email.service.ts
 const result = await resend.emails.send({
-  from: 'Hiro <hiro@kaiwa.app>',
-  replyTo: 'hiro@kaiwa.app',  // Enable replies!
-  to: [user.email],
-  subject: '...',
-  html: '...'
+	from: 'Hiro <hiro@kaiwa.app>',
+	replyTo: 'hiro@kaiwa.app', // Enable replies!
+	to: [user.email],
+	subject: '...',
+	html: '...'
 });
 ```
 
@@ -298,9 +317,9 @@ jobs:
 # Run 3 times to cover different timezones
 on:
   schedule:
-    - cron: '0 14 * * *'  # 2pm UTC (Europe afternoon)
-    - cron: '0 20 * * *'  # 8pm UTC (US afternoon)
-    - cron: '0 2 * * *'   # 2am UTC (Asia afternoon)
+    - cron: '0 14 * * *' # 2pm UTC (Europe afternoon)
+    - cron: '0 20 * * *' # 8pm UTC (US afternoon)
+    - cron: '0 2 * * *' # 2am UTC (Asia afternoon)
 ```
 
 ### 4. Test the Sequence
@@ -327,40 +346,40 @@ curl -X POST \
 
 ### Key Metrics
 
-| Metric | Target | Excellent |
-|--------|--------|-----------|
-| **Open Rate** | >40% | >60% |
-| **Reply Rate** | >5% | >15% |
-| **Click Rate (CTA)** | >15% | >25% |
-| **Cal.com Bookings** | >3% | >10% |
-| **Conversation Starts** | >20% | >40% |
+| Metric                  | Target | Excellent |
+| ----------------------- | ------ | --------- |
+| **Open Rate**           | >40%   | >60%      |
+| **Reply Rate**          | >5%    | >15%      |
+| **Click Rate (CTA)**    | >15%   | >25%      |
+| **Cal.com Bookings**    | >3%    | >10%      |
+| **Conversation Starts** | >20%   | >40%      |
 
 ### Track in PostHog
 
 ```typescript
 // When email is sent
 posthog.capture('founder_email_sent', {
-  emailType: 'day1_welcome',
-  daysSinceSignup: 1,
-  userId: user.id
+	emailType: 'day1_welcome',
+	daysSinceSignup: 1,
+	userId: user.id
 });
 
 // When user clicks CTA
 posthog.capture('founder_email_clicked', {
-  emailType: 'day1_welcome',
-  ctaType: 'start_conversation'
+	emailType: 'day1_welcome',
+	ctaType: 'start_conversation'
 });
 
 // When user books call
 posthog.capture('cal_booking', {
-  source: 'day3_email',
-  userId: user.id
+	source: 'day3_email',
+	userId: user.id
 });
 
 // When user starts conversation after email
 posthog.capture('email_conversion', {
-  emailType: 'day2_checkin',
-  hoursSinceEmail: 2
+	emailType: 'day2_checkin',
+	hoursSinceEmail: 2
 });
 ```
 
@@ -369,6 +388,7 @@ posthog.capture('email_conversion', {
 ## 💡 Pro Tips from Other Founders
 
 ### 1. **Actually Reply to Emails**
+
 - Users WILL reply
 - Respond within 2-4 hours
 - Treat it like customer support + user research
@@ -376,23 +396,27 @@ posthog.capture('email_conversion', {
 - **Conversion rate goes to 60%+ when you reply**
 
 ### 2. **Cal.com Bookings Are Gold**
+
 - 15-min calls convert 70-80% to active users
 - You learn what's broken in your onboarding
 - Builds loyalty (they'll tell their friends)
 - Record insights, improve product
 
 ### 3. **Respect the "No"**
+
 - If they don't respond to all 3 emails, stop
 - Don't add to other email lists
 - Respect unsubscribe immediately
 - **Inbox respect > short-term conversion**
 
 ### 4. **Personalize Subject Lines**
+
 - Test with user's target language: "Ready to practice Japanese?"
 - Reference their signup reason if you have it
 - A/B test: "Quick question" vs "Can I help?"
 
 ### 5. **Write Like You Talk**
+
 - Use contractions (you're, I'm, it's)
 - Keep sentences short
 - Break up paragraphs
@@ -404,28 +428,31 @@ posthog.capture('email_conversion', {
 ## 🎨 Subject Line A/B Tests
 
 ### Day 1 Options
-| Subject | Open Rate | Notes |
-|---------|-----------|-------|
-| `[Name], welcome to Kaiwa! (from Hiro)` | Baseline | Personal, establishes sender |
-| `[Name], ready for your first Japanese conversation?` | +12% | More specific, uses target language |
-| `Quick question about your Kaiwa account` | +8% | Curiosity, implies personal attention |
-| `I noticed you signed up yesterday...` | +15% | Very personal, high engagement |
+
+| Subject                                               | Open Rate | Notes                                 |
+| ----------------------------------------------------- | --------- | ------------------------------------- |
+| `[Name], welcome to Kaiwa! (from Hiro)`               | Baseline  | Personal, establishes sender          |
+| `[Name], ready for your first Japanese conversation?` | +12%      | More specific, uses target language   |
+| `Quick question about your Kaiwa account`             | +8%       | Curiosity, implies personal attention |
+| `I noticed you signed up yesterday...`                | +15%      | Very personal, high engagement        |
 
 ### Day 2 Options
-| Subject | Open Rate | Notes |
-|---------|-----------|-------|
-| `Quick check-in - how's it going?` | Baseline | Friendly, conversational |
-| `Stuck on something with Kaiwa?` | +6% | Problem-focused, offers help |
-| `[Name], is Kaiwa not working for you?` | +10% | Direct, prompts honest feedback |
-| `Can I help you get started?` | +8% | Helpful, low pressure |
+
+| Subject                                 | Open Rate | Notes                           |
+| --------------------------------------- | --------- | ------------------------------- |
+| `Quick check-in - how's it going?`      | Baseline  | Friendly, conversational        |
+| `Stuck on something with Kaiwa?`        | +6%       | Problem-focused, offers help    |
+| `[Name], is Kaiwa not working for you?` | +10%      | Direct, prompts honest feedback |
+| `Can I help you get started?`           | +8%       | Helpful, low pressure           |
 
 ### Day 3 Options
-| Subject | Open Rate | Notes |
-|---------|-----------|-------|
-| `Can I help? (15 min chat)` | Baseline | Clear value, time commitment |
-| `Last email - want to talk?` | +12% | Urgency, direct |
-| `[Name], 15 minutes to help you succeed` | +9% | Benefit-focused |
-| `Final offer: Let's jump on a call` | +7% | Clear ending, call-to-action |
+
+| Subject                                  | Open Rate | Notes                        |
+| ---------------------------------------- | --------- | ---------------------------- |
+| `Can I help? (15 min chat)`              | Baseline  | Clear value, time commitment |
+| `Last email - want to talk?`             | +12%      | Urgency, direct              |
+| `[Name], 15 minutes to help you succeed` | +9%       | Benefit-focused              |
+| `Final offer: Let's jump on a call`      | +7%       | Clear ending, call-to-action |
 
 ---
 
@@ -434,17 +461,20 @@ posthog.capture('email_conversion', {
 ### When to Stop Personal Emails?
 
 **Keep sending personal emails until**:
+
 - You hit 500-1000 users (takes ~3-6 months)
 - You can't respond to replies within 24 hours
 - Your time > potential revenue gain
 
 **Then transition to**:
+
 1. Semi-automated (templates + personal notes)
 2. Segment: High-value users = personal, others = automated
 3. Hire first support person to handle replies
 4. Keep founder emails for VIP users only
 
 ### Hybrid Approach (500-2000 users)
+
 ```
 New signups:
 - Day 1: Automated welcome (from Hiro)
@@ -463,6 +493,7 @@ High-value indicators:
 ## ✅ Implementation Checklist
 
 ### Setup (1 hour)
+
 - [ ] Set up Cal.com account and 15-min event
 - [ ] Update Resend to allow replies to hiro@kaiwa.app
 - [ ] Deploy founder email service code
@@ -470,6 +501,7 @@ High-value indicators:
 - [ ] Add founder photo to email signature (optional)
 
 ### Testing (30 min)
+
 - [ ] Send test Day 1 email to yourself
 - [ ] Send test Day 2 email to yourself
 - [ ] Send test Day 3 email with Cal.com link
@@ -478,6 +510,7 @@ High-value indicators:
 - [ ] Test reply functionality
 
 ### Automation (30 min)
+
 - [ ] Set up GitHub Action for daily cron
 - [ ] Add CRON_SECRET to GitHub secrets
 - [ ] Manually trigger workflow to test
@@ -485,6 +518,7 @@ High-value indicators:
 - [ ] Verify emails sent at correct time
 
 ### Monitoring (ongoing)
+
 - [ ] Track open rates in Resend dashboard
 - [ ] Set up PostHog events for clicks/conversions
 - [ ] Create dashboard for email metrics
@@ -497,6 +531,7 @@ High-value indicators:
 ## 📈 Expected Results (First 100 Users)
 
 ### Pessimistic Scenario
+
 - Day 1 open rate: 40%
 - Day 1 → conversation: 10%
 - Day 2 open rate: 30%
@@ -506,6 +541,7 @@ High-value indicators:
 - **Total conversion**: 23% of signups → active users
 
 ### Realistic Scenario
+
 - Day 1 open rate: 55%
 - Day 1 → conversation: 18%
 - Day 2 open rate: 42%
@@ -515,6 +551,7 @@ High-value indicators:
 - **Total conversion**: 41% of signups → active users
 
 ### Optimistic Scenario
+
 - Day 1 open rate: 68%
 - Day 1 → conversation: 25%
 - Day 2 open rate: 52%
@@ -532,6 +569,7 @@ High-value indicators:
 ### Common Replies & Responses
 
 **"This sounds interesting but I'm busy right now"**
+
 ```
 Totally get it! Quick question: when things calm down,
 would you want a reminder? I can ping you in 2 weeks if helpful.
@@ -544,6 +582,7 @@ No pressure either way!
 ```
 
 **"I tried but the app is confusing"**
+
 ```
 Oh no! That's on me - onboarding needs work.
 
@@ -557,6 +596,7 @@ Even just a 2-sentence reply helps!
 ```
 
 **"I'm not sure this will work for my situation"**
+
 ```
 Tell me more about your situation? I'm curious if Kaiwa
 is the right fit or not.
@@ -573,6 +613,7 @@ better.
 ```
 
 **"How is this different from Duolingo/other apps?"**
+
 ```
 Great question! Short answer: Duolingo = vocabulary/grammar,
 Kaiwa = actual conversation practice.
@@ -595,12 +636,14 @@ Does that make sense? Want to try one conversation and see?
 **This is your secret weapon for the first 100 users.**
 
 While competitors use automated funnels, you're building real relationships. These early users will:
+
 - Give you the best feedback
 - Become your advocates
 - Stick around long-term
 - Refer their friends
 
 **The math**:
+
 - 100 signups
 - 40 convert to active users (40%)
 - 20 become routine users (20%)

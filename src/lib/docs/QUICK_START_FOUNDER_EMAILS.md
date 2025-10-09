@@ -201,7 +201,7 @@ fly secrets list
 Track these numbers:
 
 | Day | Signups | Day 1 Sent | Day 2 Sent | Day 3 Sent | Replies | Conversions |
-|-----|---------|------------|------------|------------|---------|-------------|
+| --- | ------- | ---------- | ---------- | ---------- | ------- | ----------- |
 | Mon | 5       | 0          | 0          | 0          | 0       | 0           |
 | Tue | 3       | 5          | 0          | 0          | 1       | 2           |
 | Wed | 4       | 3          | 5          | 0          | 2       | 3           |
@@ -209,22 +209,25 @@ Track these numbers:
 | ... | ...     | ...        | ...        | ...        | ...     | ...         |
 
 **Good signs**:
+
 - ✅ Day 1 open rate >40%
 - ✅ At least 1 reply per 10 emails
 - ✅ 20-30% conversion to first conversation
 - ✅ 1-2 Cal.com bookings per week
 
 **Bad signs**:
-- ❌ Open rate <20% (emails in spam?)
+
+- ❌ Open rate &lt;20% (emails in spam?)
 - ❌ Zero replies after 50 emails (too impersonal?)
-- ❌ <5% conversion (onboarding broken?)
+- ❌ &lt;5% conversion (onboarding broken?)
 
 ### Resend Dashboard
 
 Check daily:
+
 - **Emails sent**: Should match number of eligible users
 - **Delivery rate**: Should be >99%
-- **Bounce rate**: Should be <2%
+- **Bounce rate**: Should be &lt;2%
 - **Open rate**: Track over time
 
 ### PostHog (optional)
@@ -234,15 +237,15 @@ Add tracking to know which emails convert:
 ```typescript
 // In +server.ts, after sending email:
 posthog.capture('founder_email_sent', {
-  emailType: 'day1_welcome',
-  userId: user.id,
-  daysSinceSignup: 1
+	emailType: 'day1_welcome',
+	userId: user.id,
+	daysSinceSignup: 1
 });
 
 // In conversation page, when user starts:
 posthog.capture('conversation_started', {
-  source: 'founder_email', // if they came from email link
-  userId: user.id
+	source: 'founder_email', // if they came from email link
+	userId: user.id
 });
 ```
 
@@ -262,6 +265,7 @@ If you want to reply from a different email:
 Keep these handy:
 
 **General help**:
+
 ```
 Hey [Name]!
 
@@ -277,6 +281,7 @@ Hiro
 ```
 
 **Feature request**:
+
 ```
 Hey [Name],
 
@@ -292,6 +297,7 @@ Hiro
 ```
 
 **Bug report**:
+
 ```
 Hey [Name],
 
@@ -323,15 +329,16 @@ Hiro
 
 **After 30 days**, you should see:
 
-| Metric | Target | Excellent |
-|--------|--------|-----------|
-| **Total emails sent** | 200+ | 500+ |
-| **Reply rate** | 5% | 15% |
-| **Conversion rate** | 25% | 40% |
-| **Cal.com bookings** | 5 | 15 |
-| **Routine users** (3+ sessions) | 30 | 60 |
+| Metric                          | Target | Excellent |
+| ------------------------------- | ------ | --------- |
+| **Total emails sent**           | 200+   | 500+      |
+| **Reply rate**                  | 5%     | 15%       |
+| **Conversion rate**             | 25%    | 40%       |
+| **Cal.com bookings**            | 5      | 15        |
+| **Routine users** (3+ sessions) | 30     | 60        |
 
 **If you hit these numbers**, you've proven:
+
 1. ✅ People want this product
 2. ✅ Personal touch works
 3. ✅ You're building real relationships

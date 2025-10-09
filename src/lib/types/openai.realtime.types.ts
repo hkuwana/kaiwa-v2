@@ -20,7 +20,11 @@
 
 // === Official OpenAI Agents Exports ===
 // Re-export official classes and utilities from the SDK
-export { RealtimeAgent, RealtimeSession as OpenAIRealtimeSession, tool } from '@openai/agents-realtime';
+export {
+	RealtimeAgent,
+	RealtimeSession as OpenAIRealtimeSession,
+	tool
+} from '@openai/agents-realtime';
 
 // Re-export official types from the @openai/agents-realtime package
 // These are the high-level transport-layer types that the SDK provides
@@ -51,14 +55,17 @@ import type { RealtimeAudioFormat } from '@openai/agents-realtime';
 
 // The following types are not exported from the package, so we'll define them locally
 // based on the package's internal definitions
-export type RealtimeAudioFormatDefinition = {
-	type: 'audio/pcm';
-	rate: number;
-} | {
-	type: 'audio/pcmu';
-} | {
-	type: 'audio/pcma';
-};
+export type RealtimeAudioFormatDefinition =
+	| {
+			type: 'audio/pcm';
+			rate: number;
+	  }
+	| {
+			type: 'audio/pcmu';
+	  }
+	| {
+			type: 'audio/pcma';
+	  };
 
 export type RealtimeInputAudioNoiseReductionConfig = {
 	type: 'near_field' | 'far_field' | (string & {});
@@ -99,11 +106,13 @@ export type RealtimeAudioConfig = {
 	output?: RealtimeAudioOutputConfig;
 };
 
-export type RealtimeTracingConfig = {
-	workflow_name?: string;
-	group_id?: string;
-	metadata?: Record<string, any>;
-} | 'auto';
+export type RealtimeTracingConfig =
+	| {
+			workflow_name?: string;
+			group_id?: string;
+			metadata?: Record<string, any>;
+	  }
+	| 'auto';
 
 export type RealtimeToolDefinition = {
 	type: 'function';

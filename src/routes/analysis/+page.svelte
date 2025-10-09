@@ -60,7 +60,9 @@
 		analysisType = urlParams.type || determineAnalysisType(userPreferencesStore);
 
 		// Check if we should show exit survey (early exit with < 5 messages)
-		const messageCount = urlParams.messageCount ? parseInt(urlParams.messageCount) : messages.length;
+		const messageCount = urlParams.messageCount
+			? parseInt(urlParams.messageCount)
+			: messages.length;
 		if (messageCount > 0 && messageCount < 5 && !data.hasExistingData) {
 			showExitSurvey = true;
 		}

@@ -111,7 +111,10 @@
 
 	// Translation visibility - button only, no hover
 	const showTranslation = $derived(
-		(clickToToggle ? manualToggle : localToggle || swipeTriggeredShow || translationStore.isTranslationVisible(message.id)) && hasTranslation
+		(clickToToggle
+			? manualToggle
+			: localToggle || swipeTriggeredShow || translationStore.isTranslationVisible(message.id)) &&
+			hasTranslation
 	);
 
 	// Check if content needs script generation - prioritize conversation language
@@ -167,10 +170,7 @@
 	}
 </script>
 
-<div
-	class="chat {chatClass}"
-	role="listitem"
->
+<div class="chat {chatClass}" role="listitem">
 	<div class="avatar chat-image">
 		<div class="w-10 rounded-full">
 			<img alt={avatarAlt} src={avatarSrc} />

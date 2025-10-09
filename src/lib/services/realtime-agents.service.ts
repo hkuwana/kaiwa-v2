@@ -284,9 +284,8 @@ export function sendEventViaSession(conn: SessionConnection, event: RealtimeClie
 			timestamp: new Date().toISOString()
 		});
 	} else if (event.type === 'session.update') {
-		const sessionPayload = (
-			(event as { session?: Record<string, unknown> }).session ?? {}
-		) as Record<string, unknown>;
+		const sessionPayload = ((event as { session?: Record<string, unknown> }).session ??
+			{}) as Record<string, unknown>;
 		const rawInstructions = sessionPayload['instructions'];
 		const instructions = typeof rawInstructions === 'string' ? rawInstructions : undefined;
 		const preview =

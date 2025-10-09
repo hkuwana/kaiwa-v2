@@ -24,10 +24,6 @@ export { stripeService } from './stripe.service';
 export * as emailService from './email-service';
 export * as emailVerificationService from './email-verification.service';
 
-
-
-
-
 // Translation service
 export * as translationService from './translation.service';
 

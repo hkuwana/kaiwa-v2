@@ -11,6 +11,7 @@ Kaiwa uses **Resend** for sending reminder emails to help users build consistent
 Your problem: **100 visitors but low routine usage**
 
 **Solution**: Smart email reminders that:
+
 1. ✅ Welcome new users and guide them to first conversation
 2. ✅ Gently nudge inactive users (1-3 days)
 3. ✅ Re-engage moderately inactive users (3-7 days)
@@ -18,6 +19,7 @@ Your problem: **100 visitors but low routine usage**
 5. ✅ Final touch for dormant users (30+ days)
 
 **Expected Impact**:
+
 - New user → First conversation: +40%
 - Inactive → Re-engagement: +25%
 - Routine usage (3+ sessions): +50%
@@ -52,7 +54,7 @@ fly secrets set PUBLIC_APP_URL=https://kaiwa.fly.dev
 1. Go to Resend dashboard → Domains
 2. Add your domain (e.g., `kaiwa.fly.dev`)
 3. Add the DNS records they provide
-4. Wait for verification (usually <5 minutes)
+4. Wait for verification (usually &lt;5 minutes)
 
 **Important**: Until verified, emails will show "via resend.dev" which looks unprofessional.
 
@@ -75,22 +77,23 @@ curl -X GET \
 ```
 
 Expected response:
+
 ```json
 {
-  "success": true,
-  "stats": {
-    "total": 10,
-    "sent": 8,
-    "skipped": 2,
-    "failed": 0,
-    "segments": {
-      "newUsers": 3,
-      "slightlyInactive": 2,
-      "moderatelyInactive": 2,
-      "highlyInactive": 1,
-      "dormant": 0
-    }
-  }
+	"success": true,
+	"stats": {
+		"total": 10,
+		"sent": 8,
+		"skipped": 2,
+		"failed": 0,
+		"segments": {
+			"newUsers": 3,
+			"slightlyInactive": 2,
+			"moderatelyInactive": 2,
+			"highlyInactive": 1,
+			"dormant": 0
+		}
+	}
 }
 ```
 
@@ -161,6 +164,7 @@ jobs:
 ```
 
 **Setup**:
+
 1. Go to GitHub repo → Settings → Secrets
 2. Add `CRON_SECRET` secret
 3. Commit the workflow file
@@ -200,59 +204,69 @@ qstash schedule create \
 
 The system automatically segments users based on their last activity:
 
-| Segment | Last Activity | Email Template | Frequency |
-|---------|--------------|----------------|-----------|
-| **New Users** | Never practiced | Welcome + Quick start guide | Once, after signup |
-| **Recent Active** | <24 hours | ❌ No email (don't annoy them!) | N/A |
-| **Slightly Inactive** | 1-3 days | Gentle reminder | Max 1/day |
-| **Moderately Inactive** | 3-7 days | Motivation boost | Max 1/day |
-| **Highly Inactive** | 7-30 days | Re-engagement | Max 1/day |
-| **Dormant** | 30+ days | Win-back campaign | Final email |
+| Segment                 | Last Activity   | Email Template                  | Frequency          |
+| ----------------------- | --------------- | ------------------------------- | ------------------ |
+| **New Users**           | Never practiced | Welcome + Quick start guide     | Once, after signup |
+| **Recent Active**       | &lt;24 hours    | ❌ No email (don't annoy them!) | N/A                |
+| **Slightly Inactive**   | 1-3 days        | Gentle reminder                 | Max 1/day          |
+| **Moderately Inactive** | 3-7 days        | Motivation boost                | Max 1/day          |
+| **Highly Inactive**     | 7-30 days       | Re-engagement                   | Max 1/day          |
+| **Dormant**             | 30+ days        | Win-back campaign               | Final email        |
 
 ---
 
 ## 🎨 Email Templates
 
 ### New User Email
+
 **Subject**: `[Name], ready for your first conversation? 🎯`
 
 **Content**:
+
 - Welcome message
 - Quick start guide
 - Featured scenarios
 - No-pressure CTA: "Start My First Conversation"
 
 ### Slightly Inactive (1-3 days)
+
 **Subject**: `Miss you already! Ready to practice today? 💪`
 
 **Content**:
+
 - Gentle nudge
 - Reminder of progress
 - Quick motivation: "Even 5 minutes helps"
 - CTA: "Continue Practicing"
 
 ### Moderately Inactive (3-7 days)
+
 **Subject**: `Don't let your progress fade! Come back? 🌟`
 
 **Content**:
+
 - Acknowledge busy life
 - Remind of invested time
 - Address common objections
 - CTA: "Let's Get Back to It"
 
 ### Highly Inactive (7-30 days)
+
 **Subject**: `We miss you! Here's what's new 🎁`
 
 **Content**:
+
 - Show what's new
 - Ask for feedback: "What would make Kaiwa better?"
 - Empathetic tone
 - CTA: "Give Kaiwa Another Try"
 
 ### Dormant (30+ days)
+
 **Subject**: `Last chance: Your Kaiwa account is still here 🌸`
 
 **Content**:
+
 - No guilt-trip, honest tone
 - "Do you still want to learn [Language]?"
 - Last chance message
@@ -310,10 +324,9 @@ Create `/profile/email-preferences` route:
 ### Unsubscribe Flow
 
 Every email must include:
+
 ```html
-<a href="https://kaiwa.fly.dev/profile/email-preferences">
-  Manage email preferences
-</a>
+<a href="https://kaiwa.fly.dev/profile/email-preferences"> Manage email preferences </a>
 ```
 
 ---
@@ -327,23 +340,23 @@ Add PostHog events:
 ```typescript
 // When email is sent
 posthog.capture('email_sent', {
-  segment: 'slightly_inactive',
-  userId: user.id,
-  emailType: 'practice_reminder'
+	segment: 'slightly_inactive',
+	userId: user.id,
+	emailType: 'practice_reminder'
 });
 
 // When user clicks email link
 posthog.capture('email_clicked', {
-  segment: 'slightly_inactive',
-  userId: user.id,
-  emailType: 'practice_reminder'
+	segment: 'slightly_inactive',
+	userId: user.id,
+	emailType: 'practice_reminder'
 });
 
 // When user starts conversation from email
 posthog.capture('email_conversion', {
-  segment: 'slightly_inactive',
-  userId: user.id,
-  emailType: 'practice_reminder'
+	segment: 'slightly_inactive',
+	userId: user.id,
+	emailType: 'practice_reminder'
 });
 ```
 
@@ -352,15 +365,16 @@ posthog.capture('email_conversion', {
 1. **Open Rate**: Target >25%
 2. **Click Rate**: Target >5%
 3. **Conversion Rate** (email → conversation): Target >15%
-4. **Unsubscribe Rate**: Keep <2%
+4. **Unsubscribe Rate**: Keep &lt;2%
 5. **Re-engagement Rate** (inactive → active): Target >20%
 
 ### Resend Dashboard
 
 Monitor in Resend:
+
 - Delivery rate (should be >99%)
-- Bounce rate (keep <2%)
-- Complaint rate (keep <0.1%)
+- Bounce rate (keep &lt;2%)
+- Complaint rate (keep &lt;0.1%)
 
 ---
 
@@ -384,15 +398,18 @@ Before going live:
 ## 🚨 Rate Limiting & Best Practices
 
 ### Resend Limits
+
 - Free tier: 100 emails/day
 - Paid tier: 50,000 emails/month ($20)
 
 ### Our Rate Limits
+
 - Max 1 reminder per user per 24 hours
 - 100ms delay between emails (to avoid spam flags)
 - Respect user preferences (check `receiveDailyReminderEmails`)
 
 ### Deliverability Best Practices
+
 1. ✅ Authenticate domain (SPF, DKIM, DMARC)
 2. ✅ Include unsubscribe link in every email
 3. ✅ Use real "from" address (noreply@kaiwa.fly.dev)
@@ -428,6 +445,7 @@ Before going live:
 ## 🆘 Troubleshooting
 
 ### Emails not sending
+
 - ✅ Check RESEND_API_KEY is set correctly
 - ✅ Verify domain is authenticated in Resend
 - ✅ Check user has `emailVerified = true`
@@ -435,18 +453,21 @@ Before going live:
 - ✅ Look for errors in Fly logs: `fly logs`
 
 ### Emails going to spam
+
 - ✅ Authenticate domain (SPF, DKIM, DMARC)
 - ✅ Check spam score: [mail-tester.com](https://mail-tester.com)
 - ✅ Warm up sending (start with 10-20 emails/day)
 - ✅ Avoid spammy words ("free", "act now", excessive emojis)
 
 ### Cron job not running
+
 - ✅ Check GitHub Actions logs (if using GH)
 - ✅ Verify CRON_SECRET matches
 - ✅ Test endpoint manually first
 - ✅ Check Fly.io machine status
 
 ### High unsubscribe rate (>5%)
+
 - ❌ Sending too frequently
 - ❌ Content not valuable enough
 - ❌ Wrong audience segmentation
