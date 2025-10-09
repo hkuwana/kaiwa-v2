@@ -4,6 +4,7 @@ import { scenarioAttemptsRepository } from '$lib/server/repositories/scenario-at
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
 import { userRepository } from '$lib/server/repositories';
 import { scenarioRepository } from '$lib/server/repositories';
+import { EmailPermissionService } from './email-permission.service';
 import type { User, Scenario } from '$lib/server/db/types';
 
 // Initialize Resend
@@ -29,10 +30,16 @@ export class EmailReminderService {
 				return true;
 			}
 
+			// Check email permissions from database
+			if (!(await EmailPermissionService.canReceiveDailyReminder(userId))) {
+				console.warn(`User ${userId} not eligible for daily reminders (user not found or opted out)`);
+				return false;
+			}
+
 			// Get user data
 			const user = await userRepository.findUserById(userId);
-			if (!user || !user.emailVerified) {
-				console.warn(`User ${userId} not found or email not verified`);
+			if (!user) {
+				console.warn(`User ${userId} not found`);
 				return false;
 			}
 
@@ -385,15 +392,14 @@ export class EmailReminderService {
 	 */
 	static async sendBulkReminders(): Promise<{ sent: number; failed: number }> {
 		try {
-			// Get all users with verified emails
-			const users = await userRepository.getAllUsers();
-			const verifiedUsers = users.filter((u: User) => u.emailVerified);
+			// Get all users eligible for daily reminders based on database preferences
+			const eligibleUserIds = await EmailPermissionService.getDailyReminderEligibleUsers();
 
 			let sent = 0;
 			let failed = 0;
 
-			for (const user of verifiedUsers) {
-				const success = await this.sendPracticeReminder(user.id);
+			for (const userId of eligibleUserIds) {
+				const success = await this.sendPracticeReminder(userId);
 				if (success) {
 					sent++;
 				} else {

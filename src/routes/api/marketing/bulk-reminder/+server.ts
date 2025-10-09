@@ -1,6 +1,13 @@
 import { json } from '@sveltejs/kit';
 import { EmailReminderService } from '$lib/server/services/email-reminder.service';
 
+/**
+ * Bulk reminder endpoint - sends reminders to all eligible users
+ *
+ * Permissions are checked in EmailReminderService.sendBulkReminders(),
+ * which uses EmailPermissionService to get only users who have opted in
+ * to daily reminders and have verified emails.
+ */
 export const POST = async ({ locals }) => {
 	// Check if user is authenticated and is admin (you can add admin check here)
 	if (!locals.user) {
@@ -8,6 +15,7 @@ export const POST = async ({ locals }) => {
 	}
 
 	try {
+		// sendBulkReminders already checks database preferences via EmailPermissionService
 		const result = await EmailReminderService.sendBulkReminders();
 
 		return json({

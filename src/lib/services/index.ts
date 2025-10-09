@@ -7,6 +7,7 @@ export * as audioService from './audio.service';
 export * as conversationService from './conversation.service';
 export * as timerService from './timer.service';
 export * as userPreferencesService from './user-preferences.service';
+export * as userSettingsService from './user-settings.service';
 export * as userMemoryService from './user-memory.service';
 export * as conversationMemoryService from './conversation-memory.service';
 export * as analysisService from './analysis.service';
