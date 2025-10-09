@@ -10,6 +10,164 @@ import { env } from '$env/dynamic/private';
 const TEST_EMAIL = 'weijo34@gmail.com';
 
 /**
+ * GET endpoint to preview email templates with user data
+ * Returns HTML preview without sending actual email
+ */
+export const GET: RequestHandler = async ({ url, locals }) => {
+	try {
+		// Check authentication
+		if (!locals.user) {
+			return new Response('Not authenticated', { status: 401 });
+		}
+
+		const emailType = url.searchParams.get('emailType');
+		const userId = url.searchParams.get('userId');
+
+		if (!emailType) {
+			return new Response('emailType parameter is required', { status: 400 });
+		}
+
+		// Use current user's ID if not provided
+		const targetUserId = userId || locals.user.id;
+
+		// Get user data
+		const user = await userRepository.findUserById(targetUserId);
+		if (!user) {
+			return new Response('User not found', { status: 404 });
+		}
+
+		let emailSubject = '';
+		let emailHtml = '';
+
+		// Generate email based on type
+		switch (emailType) {
+			case 'practice_reminder': {
+				const reminderData = await (EmailReminderService as any).getPracticeReminderData(
+					targetUserId
+				);
+				if (!reminderData) {
+					return new Response('Could not get practice reminder data', { status: 500 });
+				}
+				emailSubject = (EmailReminderService as any).getReminderSubject(reminderData);
+				emailHtml = (EmailReminderService as any).getReminderEmailTemplate(reminderData);
+				break;
+			}
+
+			case 'day1_welcome': {
+				emailSubject = `${user.displayName || 'there'}, welcome to Kaiwa! (from Hiro)`;
+				emailHtml = (FounderEmailService as any).getDay1Email(user);
+				break;
+			}
+
+			case 'day2_checkin': {
+				emailSubject = `Quick check-in - how's it going?`;
+				emailHtml = (FounderEmailService as any).getDay2Email(user);
+				break;
+			}
+
+			case 'day3_offer': {
+				emailSubject = `Can I help? (15 min chat)`;
+				emailHtml = (FounderEmailService as any).getDay3Email(user);
+				break;
+			}
+
+			case 'segmented_new_user': {
+				const emailData = await (EmailReminderEnhancedService as any).getSegmentedEmail(
+					user,
+					'new_user'
+				);
+				emailSubject = emailData.subject;
+				emailHtml = emailData.html;
+				break;
+			}
+
+			case 'segmented_slightly_inactive': {
+				const emailData = await (EmailReminderEnhancedService as any).getSegmentedEmail(
+					user,
+					'slightly_inactive'
+				);
+				emailSubject = emailData.subject;
+				emailHtml = emailData.html;
+				break;
+			}
+
+			case 'segmented_moderately_inactive': {
+				const emailData = await (EmailReminderEnhancedService as any).getSegmentedEmail(
+					user,
+					'moderately_inactive'
+				);
+				emailSubject = emailData.subject;
+				emailHtml = emailData.html;
+				break;
+			}
+
+			case 'segmented_highly_inactive': {
+				const emailData = await (EmailReminderEnhancedService as any).getSegmentedEmail(
+					user,
+					'highly_inactive'
+				);
+				emailSubject = emailData.subject;
+				emailHtml = emailData.html;
+				break;
+			}
+
+			case 'segmented_dormant': {
+				const emailData = await (EmailReminderEnhancedService as any).getSegmentedEmail(
+					user,
+					'dormant'
+				);
+				emailSubject = emailData.subject;
+				emailHtml = emailData.html;
+				break;
+			}
+
+			default:
+				return new Response(`Unknown email type: ${emailType}`, { status: 400 });
+		}
+
+		// Return HTML preview with subject header
+		const previewHtml = `
+			<!DOCTYPE html>
+			<html>
+			<head>
+				<meta charset="utf-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<title>Email Preview</title>
+			</head>
+			<body style="margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif;">
+				<div style="background: #e0f2fe; border-bottom: 3px solid #0284c7; padding: 16px; margin-bottom: 0;">
+					<div style="max-width: 600px; margin: 0 auto;">
+						<div style="color: #075985; font-size: 12px; font-weight: 600; margin-bottom: 8px;">
+							📧 EMAIL PREVIEW
+						</div>
+						<div style="color: #0c4a6e; font-size: 14px; margin-bottom: 4px;">
+							<strong>Subject:</strong> ${emailSubject}
+						</div>
+						<div style="color: #0c4a6e; font-size: 12px;">
+							<strong>User:</strong> ${user.displayName || user.email} (${user.email})
+						</div>
+					</div>
+				</div>
+				${emailHtml}
+			</body>
+			</html>
+		`;
+
+		return new Response(previewHtml, {
+			headers: {
+				'Content-Type': 'text/html; charset=utf-8'
+			}
+		});
+	} catch (error) {
+		console.error('Error generating email preview:', error);
+		return new Response(
+			`Error generating preview: ${error instanceof Error ? error.message : 'Unknown error'}`,
+			{ status: 500 }
+		);
+	}
+};
+
+/**
  * Email testing endpoint for development
  * Sends test emails to a specific test email address
  */
