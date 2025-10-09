@@ -909,8 +909,11 @@ export class ConversationStore {
 		console.log('🎵 ConversationStore: User initiated conversation, sending initial greeting...');
 		this.waitingForUserToStart = false;
 
-		// Send the initial response to get AI greeting
-		realtimeOpenAI.sendResponse();
+		// Add a small delay to ensure session update is processed before sending response
+		setTimeout(() => {
+			// Send the initial response to get AI greeting
+			realtimeOpenAI.sendResponse();
+		}, 100);
 
 		// Optional safety retry after 1.5s if no assistant message yet
 		setTimeout(() => {

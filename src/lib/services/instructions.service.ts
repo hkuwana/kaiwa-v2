@@ -1,7 +1,13 @@
 // src/lib/services/instructions.service.ts
 // Enhanced modular instruction generation with user feedback incorporated
 
-import type { UserPreferences, ScenarioOutcome, Language, User, Speaker } from '$lib/server/db/types';
+import type {
+	UserPreferences,
+	ScenarioOutcome,
+	Language,
+	User,
+	Speaker
+} from '$lib/server/db/types';
 import { getLanguageById, languages } from '$lib/types';
 import type { Voice } from '$lib/types/openai.realtime.types';
 import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
@@ -151,7 +157,22 @@ function getLearnerCefrLevel(preferences: Partial<UserPreferences>): CEFRLevel {
 
 function applyLanguagePlaceholders(text: string, language: Language): string {
 	if (!text) return text;
-	return text.replaceAll('INSERT_LANGUAGE', language.name);
+	let result = text;
+
+	// Replace INSERT_LANGUAGE placeholder
+	result = result.replaceAll('INSERT_LANGUAGE', language.name);
+
+	// Replace template literal placeholders
+	result = result.replaceAll('${language.name}', language.name);
+	result = result.replaceAll('${language.nativeName}', language.nativeName);
+
+	// Replace other common patterns that might appear in instructions
+	result = result.replaceAll('${nativeLanguageObject.name}', language.nativeName);
+	result = result.replaceAll('${nativeLanguageObject.nativeName}', language.nativeName);
+	result = result.replaceAll("${nativeLang?.name || 'English'}", language.nativeName);
+	result = result.replaceAll('${nativeLang?.name || "English"}', language.nativeName);
+
+	return result;
 }
 
 // === Utility: default voice & greeting generator (public helpers) ===
@@ -190,7 +211,8 @@ modules.register({
 		const speakerName = speaker?.voiceName || 'Hiro';
 		const learnerLevel = getLearnerCefrLevel(preferences);
 		const scenarioLevel = getScenarioCefrLevel(scenario);
-		const isAdvanced = compareCefrLevel(learnerLevel, 'B2') >= 0 || compareCefrLevel(scenarioLevel, 'B2') >= 0;
+		const isAdvanced =
+			compareCefrLevel(learnerLevel, 'B2') >= 0 || compareCefrLevel(scenarioLevel, 'B2') >= 0;
 
 		// AI-aware personality traits with authentic local knowledge
 		const aiTraits = `## AI PERSONALITY AUTHENTICITY
@@ -251,7 +273,8 @@ modules.register({
 	generate: ({ language, preferences, scenario }: ModuleContext) => {
 		const learnerLevel = getLearnerCefrLevel(preferences);
 		const scenarioLevel = getScenarioCefrLevel(scenario);
-		const isAdvanced = compareCefrLevel(learnerLevel, 'B2') >= 0 || compareCefrLevel(scenarioLevel, 'B2') >= 0;
+		const isAdvanced =
+			compareCefrLevel(learnerLevel, 'B2') >= 0 || compareCefrLevel(scenarioLevel, 'B2') >= 0;
 
 		return `## TURN-TAKING & BREVITY
 
@@ -346,9 +369,7 @@ modules.register({
 - Keep any ${nativeLanguageObject.name} aside to a single short clause
 - Translate in parentheses, then snap back to ${language.name}
 
-### ${
-			enforceImmersion ? 'Immersion Mode (B2+)' : 'Support Mode (A1–B1)'
-		}
+### ${enforceImmersion ? 'Immersion Mode (B2+)' : 'Support Mode (A1–B1)'}
 - ${
 			enforceImmersion
 				? `If they switch to ${nativeLanguageObject.name}, acknowledge with one clause, then recast in ${language.name}`
@@ -719,22 +740,22 @@ export function generateUpdateInstructions(
 - Add gestures/context clues`;
 		}
 
-			case 'frustration_detected': {
-				const level = context?.type === 'frustration_detected' ? context.level : 'mild';
-				if (level === 'severe') {
-					return `## IMMEDIATE DE-ESCALATION
+		case 'frustration_detected': {
+			const level = context?.type === 'frustration_detected' ? context.level : 'mild';
+			if (level === 'severe') {
+				return `## IMMEDIATE DE-ESCALATION
 - Switch to ${nativeLang}: "Hey, it's okay. This is hard."
 - Acknowledge: "Everyone struggles with this part"  
 - Simplify drastically: One word responses are fine
 - Rebuild confidence: Give 3 easy wins quickly`;
-				} else {
-					return `## GENTLE SUPPORT
+			} else {
+				return `## GENTLE SUPPORT
 - Mix languages briefly: "The word for 'dog' in INSERT_LANGUAGE is..., let's try it together."
 - Encourage: "You're doing better than you think"
 - Adjust down one level
 - Focus on success, not perfection`;
-				}
 			}
+		}
 
 		case 'magic_moment':
 			return `## MAGIC MOMENT DETECTED!
@@ -1143,7 +1164,8 @@ function buildScenarioPlaybook({
 	levelContrast,
 	speakerName
 }: ScenarioPlaybookOptions): string {
-	const guidance = scenarioCategoryGuidance[scenario.category || 'default'] || scenarioCategoryGuidance.default;
+	const guidance =
+		scenarioCategoryGuidance[scenario.category || 'default'] || scenarioCategoryGuidance.default;
 	const levelDescriptor = formatScenarioLevelDescriptor(level);
 	const contrastNote = describeLevelContrast(levelContrast);
 	const cityHint =
@@ -1277,7 +1299,9 @@ export function generateScenarioInstructions(
 	}
 
 	if (isFirstTime) {
-		sections.push(applyLanguagePlaceholders(buildFirstTimeCheckIn(language, user, speakerName), language));
+		sections.push(
+			applyLanguagePlaceholders(buildFirstTimeCheckIn(language, user, speakerName), language)
+		);
 	}
 
 	if (scenario) {

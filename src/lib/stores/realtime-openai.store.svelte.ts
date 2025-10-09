@@ -27,7 +27,10 @@ import {
 	estimateDurationFromBase64,
 	estimateDurationFromByteLength
 } from '$lib/services/realtime-audio.helper.service';
-import { normalizeTranscript, estimateWordDuration } from '$lib/services/realtime-transcript.helper.service';
+import {
+	normalizeTranscript,
+	estimateWordDuration
+} from '$lib/services/realtime-transcript.helper.service';
 
 type SessionData = { client_secret: { value: string; expires_at: number }; session_id?: string };
 
@@ -48,6 +51,8 @@ export class RealtimeOpenAIStore {
 	userDelta = $state('');
 	// Debug flag
 	private debug = true;
+	// Current instructions for response creation
+	private currentInstructions: string | null = null;
 	// Captured events (server/client) for dev UI
 	events = $state<Array<{ dir: 'server' | 'client'; type: string; payload: any; ts: number }>>([]);
 	private maxEvents = 100;
@@ -823,12 +828,29 @@ export class RealtimeOpenAIStore {
 		this.sessionReadyListeners.clear();
 		// Clear conversation context
 		this.conversationContext = null;
+		// Clear stored instructions
+		this.currentInstructions = null;
 	}
 
 	// High-level helpers
 	sendResponse(): void {
 		if (!this.connection) return;
-		const ev = realtimeService.createResponse();
+
+		// Create response with instructions if available
+		const responsePayload: Record<string, any> = {};
+		if (this.currentInstructions) {
+			responsePayload.instructions = this.currentInstructions;
+			console.log('📤 CLIENT: Creating response with instructions', {
+				instructionsLength: this.currentInstructions.length,
+				instructionsPreview: this.currentInstructions.substring(0, 100) + '...'
+			});
+		}
+
+		const ev = {
+			type: 'response.create' as const,
+			response: responsePayload
+		};
+
 		this.logEvent('client', String(ev.type), ev);
 		sendEventViaSession(this.connection, ev);
 	}
@@ -898,6 +920,15 @@ export class RealtimeOpenAIStore {
 		});
 		this.logEvent('client', 'session.update', update);
 		sendEventViaSession(this.connection, update);
+
+		// Store instructions for response creation
+		if (config.instructions) {
+			this.currentInstructions = config.instructions;
+			console.log('📝 Stored instructions for response creation:', {
+				length: config.instructions.length,
+				preview: config.instructions.substring(0, 200) + '...'
+			});
+		}
 	}
 
 	// UI helpers
