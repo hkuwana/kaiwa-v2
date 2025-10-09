@@ -5,6 +5,8 @@ import { conversationSessionsRepository } from '$lib/server/repositories/convers
 import { scenarioRepository } from '$lib/server/repositories';
 import { EmailPermissionService } from './email-permission.service';
 import type { Scenario, User } from '$lib/server/db/types';
+import { userPreferencesRepository } from '$lib/server/repositories/user-preferences.repository';
+import { languageRepository } from '$lib/server/repositories/language.repository';
 
 const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
 
@@ -278,6 +280,17 @@ export class EmailReminderEnhancedService {
 	private static async getDormantUserEmail(user: User): Promise<{ subject: string; html: string }> {
 		const displayName = user.displayName || 'there';
 
+		const preferences = await userPreferencesRepository.getAllUserPreferences(user.id);
+		let languageName = 'a new language'; // Default fallback
+		if (preferences && preferences.length > 0) {
+			const targetLanguage = await languageRepository.findLanguageById(
+				preferences[0].targetLanguageId
+			);
+			if (targetLanguage) {
+				languageName = targetLanguage.name;
+			}
+		}
+
 		return {
 			subject: `Last chance: Your Kaiwa account is still here 🌸`,
 			html: this.getEmailTemplate({
@@ -292,7 +305,7 @@ export class EmailReminderEnhancedService {
 
 					<div style="background: #fee2e2; border-left: 4px solid #ef4444; padding: 20px; margin: 20px 0; border-radius: 8px;">
 						<strong style="color: #dc2626;">❤️ The Real Question:</strong><br>
-						Do you still want to speak [Language]? Like, really want to?<br><br>
+						Do you still want to speak ${languageName}? Like, really want to?<br><br>
 						If yes, we're here. If no, that's totally okay too.
 					</div>
 

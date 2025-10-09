@@ -1,10 +1,11 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { EmailReminderService } from '$lib/server/services/email-reminder.service';
+import { EmailReminderService } from '$lib/server/email/email-reminder.service';
+import { EmailPermissionService } from '$lib/server/email/email-permission.service';
 import { userRepository } from '$lib/server/repositories';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
 import { userSettingsRepository } from '$lib/server/repositories/user-settings.repository';
-import { EmailPermissionService } from '$lib/server/services/email-permission.service';
+import { EmailPermissionService } from '$lib/features/email/email-permission.service';
 import { env } from '$env/dynamic/private';
 
 /**

@@ -1,10 +1,10 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { FounderEmailService } from '$lib/server/services/founder-email.service';
+import { FounderEmailService } from '$lib/server/email/founder-email.service';
 import { userRepository } from '$lib/server/repositories';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
 import { userSettingsRepository } from '$lib/server/repositories/user-settings.repository';
-import { EmailPermissionService } from '$lib/server/services/email-permission.service';
+import { EmailPermissionService } from '$lib/features/email/email-permission.service';
 import { env } from '$env/dynamic/private';
 
 /**

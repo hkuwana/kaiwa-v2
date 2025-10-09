@@ -8,7 +8,7 @@
  * 0 9 * * * cd /path/to/kaiwa && pnpm tsx scripts/send-reminders.ts
  */
 
-import { EmailReminderService } from '../src/lib/server/services/email-reminder.service';
+import { EmailReminderService } from '../src/lib/server/email/email-reminder.service';
 import { userRepository } from '../src/lib/server/repositories';
 import { scenarioAttemptsRepository } from '../src/lib/server/repositories/scenario-attempts.repository';
 import { conversationSessionsRepository } from '../src/lib/server/repositories/conversation-sessions.repository';

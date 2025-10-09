@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { EmailReminderService } from '$lib/server/services/email-reminder.service';
+import { EmailReminderService } from '$lib/server/email/email-reminder.service';
 
 export const POST = async ({ request, locals }) => {
 	// Check if user is authenticated

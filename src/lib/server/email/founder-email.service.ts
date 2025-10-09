@@ -5,6 +5,8 @@ import { conversationSessionsRepository } from '$lib/server/repositories/convers
 import { userSettingsRepository } from '$lib/server/repositories/user-settings.repository';
 import { EmailPermissionService } from './email-permission.service';
 import type { User } from '$lib/server/db/types';
+import { userPreferencesRepository } from '$lib/server/repositories/user-preferences.repository';
+import { languageRepository } from '$lib/server/repositories/language.repository';
 
 const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
 
@@ -149,12 +151,23 @@ export class FounderEmailService {
 				return false; // User practiced, don't send
 			}
 
+			const preferences = await userPreferencesRepository.getAllUserPreferences(userId);
+			let languageName = 'a new language'; // Default fallback
+			if (preferences && preferences.length > 0) {
+				const targetLanguage = await languageRepository.findLanguageById(
+					preferences[0].targetLanguageId
+				);
+				if (targetLanguage) {
+					languageName = targetLanguage.name;
+				}
+			}
+
 			const result = await resend.emails.send({
 				from: `${this.FOUNDER_NAME} <${this.FOUNDER_EMAIL}>`,
 				replyTo: this.FOUNDER_EMAIL,
 				to: [user.email],
 				subject: `Can I help? (15 min chat)`,
-				html: this.getDay3Email(user)
+				html: this.getDay3Email(user, languageName)
 			});
 
 			if (result.error) {
@@ -367,7 +380,7 @@ export class FounderEmailService {
 	/**
 	 * Day 3: Personal offer to talk
 	 */
-	private static getDay3Email(user: User): string {
+	private static getDay3Email(user: User, languageName: string): string {
 		const firstName = user.displayName?.split(' ')[0] || 'there';
 
 		return `
@@ -462,7 +475,7 @@ export class FounderEmailService {
 
 				<p>And hey, if you're not interested in talking OR trying Kaiwa, that's totally okay. I'll take you off my list after this. No hard feelings.</p>
 
-				<p>But if you <em>do</em> want to learn [target language] and just haven't found the right approach yet, I'd love to help figure it out with you.</p>
+				<p>But if you <em>do</em> want to learn ${languageName} and just haven't found the right approach yet, I'd love to help figure it out with you.</p>
 
 				<p>Thanks for giving Kaiwa a chance,</p>
 

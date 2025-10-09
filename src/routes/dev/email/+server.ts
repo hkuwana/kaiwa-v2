@@ -1,8 +1,8 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { EmailReminderService } from '$lib/server/services/email-reminder.service';
-import { EmailReminderEnhancedService } from '$lib/server/services/email-reminder-enhanced.service';
-import { FounderEmailService } from '$lib/server/services/founder-email.service';
+import { EmailReminderService } from '$lib/server/email/email-reminder.service';
+import { EmailReminderEnhancedService } from '$lib/server/email/email-reminder-enhanced.service';
+import { FounderEmailService } from '$lib/server/email/founder-email.service';
 import { userRepository } from '$lib/server/repositories';
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
