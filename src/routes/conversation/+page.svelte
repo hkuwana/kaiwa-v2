@@ -64,6 +64,14 @@
 	onMount(() => {
 		console.log('Conversation page mounted');
 
+		if (dev && isStaticView) {
+			console.log('📋 [DEV] Static view mode - showing existing conversation', {
+				sessionId,
+				messageCount: messages.length,
+				existingSession: data.existingSession
+			});
+		}
+
 		// Ensure press-to-talk is the default on this route
 		// Only override if not already set
 		if (userPreferencesStore.getAudioMode() !== 'push_to_talk') {
@@ -73,8 +81,8 @@
 			userPreferencesStore.setPressBehavior('press_hold');
 		}
 
-		// Redirect to home if no language selected
-		if (!selectedLanguage) {
+		// Redirect to home if no language selected (skip for static view)
+		if (!selectedLanguage && !isStaticView) {
 			goto(resolve('/'));
 			return;
 		}

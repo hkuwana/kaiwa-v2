@@ -3,6 +3,7 @@ import { conversationRepository } from '$lib/server/repositories/conversation.re
 import { messagesRepository } from '$lib/server/repositories/messages.repository';
 import { createErrorResponse, createSuccessResponse } from '$lib/types/api';
 import { z } from 'zod';
+import type { NewConversation, NewMessage } from '$lib/server/db/types';
 
 export const GET = async ({ locals, url }) => {
 	const user = locals.user;

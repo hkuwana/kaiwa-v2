@@ -296,11 +296,19 @@
 	});
 
 	// Timer calculations
-	const progressPercentage = $derived(
-		isTimerActive && timeRemaining && maxSessionLengthSeconds
-			? Math.round((timeRemaining / maxSessionLengthSeconds) * 100)
-			: 100
-	);
+	const progressPercentage = $derived(() => {
+		if (!isTimerActive || !timeRemaining || !maxSessionLengthSeconds) {
+			return 100;
+		}
+
+		// Keep circle at 100% until 30 seconds or less remaining
+		if (timeRemaining > 30) {
+			return 100;
+		}
+
+		// When 30 seconds or less, show progress from 100% to 0%
+		return Math.round((timeRemaining / 30) * 100);
+	});
 
 	const timerColor = $derived(() => {
 		if (!isTimerActive) return 'text-primary';
@@ -365,7 +373,7 @@
 		<div class="absolute inset-0">
 			<div
 				class="radial-progress {timerColor()}"
-				style="--value:{progressPercentage}; --size:6rem; --thickness: 4px; transition: --value 0.3s ease;"
+				style="--value:{progressPercentage()}; --size:6rem; --thickness: 4px; transition: --value 0.3s ease;"
 			></div>
 		</div>
 	{/if}

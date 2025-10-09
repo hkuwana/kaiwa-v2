@@ -15,7 +15,7 @@ import { env } from '$env/dynamic/public';
 // Prefer official types from @openai/agents-realtime where available
 import type {
 	RealtimeClientMessage as ClientEvent,
-	RealtimeSessionConfig as SessionConfig,
+	RealtimeSessionConfig as RealtimeSessionConfigDefinition,
 	TransportEvent as ServerEvent,
 	TransportLayerTranscriptDelta as ResponseAudioTranscriptDeltaEvent
 } from '@openai/agents-realtime';
@@ -199,25 +199,88 @@ export function createInputAudioBufferCommit(): ClientEvent {
  * @param config - The session config
  * @returns The session update event
  */
-export type ExtendedSessionConfig = Partial<SessionConfig> & {
-	// Allow callers to pass extra fields (ignored by this function)
-	voice?: unknown;
-	input_audio_transcription?: { model: string; language: string };
+export type ExtendedSessionConfig = Partial<RealtimeSessionConfigDefinition> & {
+	voice?: string;
+	input_audio_transcription?: { model?: string; language?: string };
+	turnDetection?: RealtimeSessionConfigDefinition['turnDetection'] | null;
+	audio?: RealtimeSessionConfigDefinition['audio'];
 };
 
 export function createSessionUpdate(config: ExtendedSessionConfig): ClientEvent {
-	// Minimum compatible payload for preview and GA models
+	const sessionPayload: Record<string, unknown> = {};
+
+	const resolvedModel = config.model || env.PUBLIC_OPEN_AI_MODEL || publicEnv.PUBLIC_OPEN_AI_MODEL;
+	if (resolvedModel) {
+		sessionPayload['model'] = resolvedModel;
+	}
+
+	if (config.instructions !== undefined) {
+		sessionPayload['instructions'] = config.instructions;
+	}
+
+	// Preserve explicit tool configuration if provided
+	if (config.toolChoice !== undefined) {
+		sessionPayload['toolChoice'] = config.toolChoice;
+	}
+	if (config.tools !== undefined) {
+		sessionPayload['tools'] = config.tools;
+	}
+
+	// Normalize audio payload while keeping existing session values if callers omit them
+	const audioConfig: Record<string, any> = {};
+	if (config.audio?.input) {
+		audioConfig.input = { ...config.audio.input };
+	}
+	if (config.audio?.output) {
+		audioConfig.output = { ...config.audio.output };
+	}
+
+	// Apply voice preference to both new and deprecated fields for compatibility
+	if (config.voice) {
+		audioConfig.output = { ...(audioConfig.output || {}), voice: config.voice };
+		// Maintain deprecated top-level voice for older transports
+		sessionPayload['voice'] = config.voice;
+	}
+
+	// Merge transcription preferences
+	if (config.input_audio_transcription) {
+		audioConfig.input = {
+			...(audioConfig.input || {}),
+			transcription: {
+				...(audioConfig.input?.transcription || {}),
+				...config.input_audio_transcription
+			}
+		};
+	}
+
+	// Explicitly control turn detection to avoid server-side VAD when undesired
+	if (config.turnDetection !== undefined) {
+		const turnDetectionValue = config.turnDetection;
+		sessionPayload['turn_detection'] = turnDetectionValue;
+		sessionPayload['turnDetection'] = turnDetectionValue;
+
+		if (turnDetectionValue === null) {
+			if (audioConfig.input) {
+				delete audioConfig.input.turnDetection;
+				delete (audioConfig.input as Record<string, any>).turn_detection;
+			}
+		}
+
+		audioConfig.input = {
+			...(audioConfig.input || {}),
+			turnDetection: turnDetectionValue
+		};
+		(audioConfig.input as Record<string, any>).turn_detection = turnDetectionValue;
+	}
+
+	if (Object.keys(audioConfig).length > 0) {
+		sessionPayload['audio'] = audioConfig;
+	}
+
 	return {
 		type: 'session.update',
-		session: {
-			type: 'realtime',
-			model: config.model || env.PUBLIC_OPEN_AI_MODEL || 'gpt-realtime',
-			instructions: config.instructions || 'You are a helpful assistant.'
-		}
+		session: sessionPayload
 	};
-
-	// Do NOT include voice, input_audio_transcription, or turn_detection here.
-	// Configure those at session creation on the server if needed.
 }
 
 // === EVENT PROCESSING ===

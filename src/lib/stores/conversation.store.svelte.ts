@@ -80,12 +80,23 @@ export class ConversationStore {
 	// Private connection state (SDK only)
 	private audioStream: MediaStream | null = null;
 	private messageUnsub: (() => void) | null = null;
+	private sessionReadyUnsub: (() => void) | null = null;
 	private timer: ConversationTimerStore = $state(createConversationTimerStore('free'));
 	private currentOptions: Partial<UserPreferences> | null = null;
 	// Mirror + sanitize tracking
 	private sanitizedMessageIds = new SvelteSet<string>();
 	private lastInstructions: string = '';
 	private nativeSwitchAnnounced: boolean = false;
+	private sessionReadyHandled = false;
+	// Browser lifecycle tracking
+	private unloadHandler: ((event: BeforeUnloadEvent) => void) | null = null;
+	private visibilityHandler: (() => void) | null = null;
+	private saveScheduled: boolean = false;
+	private saveTimeout: ReturnType<typeof setTimeout> | null = null;
+	private currentTurnStartMs: number | null = null;
+	private turnLevelMonitor: ReturnType<typeof setInterval> | null = null;
+	private turnMaxInputLevel = 0;
+	private suppressNextUserTranscript = false;
 
 	constructor(userTier: UserTier = 'free') {
 		log('🏗️ ConversationStore constructor:', {
@@ -107,6 +118,32 @@ export class ConversationStore {
 		this.timer = createConversationTimerStore(userTier);
 		this.initializeServices();
 		this.initializeUserPreferences();
+
+		realtimeOpenAI.setTranscriptFilter((meta) => {
+			if (meta.role !== 'user') {
+				return true;
+			}
+
+			const shouldSuppress = this.suppressNextUserTranscript;
+			// Reset flag regardless of decision so it only applies once
+			this.suppressNextUserTranscript = false;
+
+			if (!shouldSuppress) {
+				return true;
+			}
+
+			const tokenCount = meta.text.trim().split(/\s+/).length;
+			const isLongUtterance = tokenCount > 6 || meta.text.trim().length > 40;
+			if (isLongUtterance) {
+				return true;
+			}
+
+			console.warn('🧹 ConversationStore: Suppressing low-activity user transcript', {
+				itemId: meta.itemId,
+				text: meta.text
+			});
+			return false;
+		});
 	}
 
 	private async initializeUserPreferences(): Promise<void> {
@@ -125,6 +162,60 @@ export class ConversationStore {
 	private initializeServices(): void {
 		// Audio service will be initialized only when conversation starts
 		// This prevents unnecessary microphone access requests on non-conversation pages
+
+		// Set up browser lifecycle handlers
+		this.setupBrowserLifecycleHandlers();
+	}
+
+	/**
+	 * Set up handlers for browser lifecycle events to ensure conversations are saved
+	 */
+	private setupBrowserLifecycleHandlers(): void {
+		if (!browser || typeof window === 'undefined') return;
+
+		// Handle page unload/navigation - save conversation before leaving
+		this.unloadHandler = (event: BeforeUnloadEvent) => {
+			if (this.status !== 'idle' && this.messages.length > 0) {
+				console.log('🚪 Page unload detected - saving conversation...');
+
+				// Use sendBeacon for reliable save during unload
+				this.saveConversationViaBeacon();
+
+				// Optional: Show warning if conversation is active
+				if (this.status === 'streaming' || this.status === 'connected') {
+					event.preventDefault();
+					event.returnValue = '';
+				}
+			}
+		};
+
+		// Handle visibility changes - save when tab becomes hidden
+		this.visibilityHandler = () => {
+			if (document.hidden && this.status !== 'idle' && this.messages.length > 0) {
+				console.log('👁️ Tab hidden - queueing conversation save...');
+				this.queueConversationSave();
+			}
+		};
+
+		window.addEventListener('beforeunload', this.unloadHandler);
+		document.addEventListener('visibilitychange', this.visibilityHandler);
+	}
+
+	/**
+	 * Clean up browser lifecycle handlers
+	 */
+	private cleanupBrowserLifecycleHandlers(): void {
+		if (!browser || typeof window === 'undefined') return;
+
+		if (this.unloadHandler) {
+			window.removeEventListener('beforeunload', this.unloadHandler);
+			this.unloadHandler = null;
+		}
+
+		if (this.visibilityHandler) {
+			document.removeEventListener('visibilitychange', this.visibilityHandler);
+			this.visibilityHandler = null;
+		}
 	}
 
 	// === PUBLIC ACTIONS ===
@@ -196,6 +287,7 @@ export class ConversationStore {
 		}
 
 		try {
+			this.sessionReadyHandled = false;
 			// 1. Initialize audio store if not already initialized
 			if (!audioStore.isInitialized) {
 				console.log('🎵 ConversationStore: Initializing audio store...');
@@ -228,10 +320,15 @@ export class ConversationStore {
 			const sessionData = await this.fetchSessionFromBackend();
 			this.sessionId = sessionData.session_id;
 
-			// 4. Connect via SDK-backed store
+			// 4. Connect via SDK-backed store with conversation context
 			await realtimeOpenAI.connect(sessionData, this.audioStream, {
 				voice: this.voice,
-				transcriptionLanguage: this.language.code
+				transcriptionLanguage: this.language.code,
+				conversationContext: {
+					sessionId: this.sessionId,
+					languageCode: this.language.code,
+					userId: userManager.user?.id
+				}
 			});
 
 			// 5. Set up event handlers
@@ -242,6 +339,13 @@ export class ConversationStore {
 			const errorMessage = error instanceof Error ? error.message : 'Connection failed';
 			this.error = errorMessage;
 			this.status = 'error';
+
+			// Save conversation before cleanup on error
+			console.log('⚠️ Connection error - saving conversation before cleanup');
+			await this.saveConversationToDatabase(false).catch((saveError) => {
+				console.error('Failed to save conversation on error:', saveError);
+			});
+
 			this.cleanup();
 			throw error;
 		}
@@ -265,13 +369,43 @@ export class ConversationStore {
 			currentLevel: audioStore.currentLevel.level,
 			streamId: this.audioStream.id,
 			trackEnabled: track?.enabled,
-			timestamp: new Date().toISOString()
+			timestamp: new SvelteDate().toISOString()
 		});
 
 		realtimeOpenAI.pttStop(this.audioStream);
 		if (track) {
 			track.enabled = false;
 		}
+
+		const hadActiveTurn = this.currentTurnStartMs !== null;
+		this.stopTurnLevelMonitor();
+
+		if (hadActiveTurn) {
+			const now = Date.now();
+			const durationMs = this.currentTurnStartMs ? now - this.currentTurnStartMs : 0;
+			const hadTranscriptDelta = (realtimeOpenAI.userDelta || '').trim().length > 0;
+			const MIN_DURATION_MS = 350;
+			const MIN_LEVEL = 0.02;
+			const hadAudioEnergy = this.turnMaxInputLevel >= MIN_LEVEL || this.speechDetected;
+
+			const shouldSuppress =
+				!hadTranscriptDelta &&
+				(!hadAudioEnergy || durationMs < MIN_DURATION_MS || this.turnMaxInputLevel === 0);
+
+			if (shouldSuppress) {
+				console.warn('🧹 ConversationStore: Marking next user transcript as silence', {
+					durationMs,
+					turnMaxInputLevel: this.turnMaxInputLevel,
+					hadTranscriptDelta,
+					hadAudioEnergy
+				});
+				this.suppressNextUserTranscript = true;
+			}
+		}
+
+		this.currentTurnStartMs = null;
+		this.turnMaxInputLevel = 0;
+
 		try {
 			audioStore.currentLevel = { level: 0, timestamp: Date.now() };
 		} catch (err) {
@@ -291,8 +425,14 @@ export class ConversationStore {
 			currentLevel: audioStore.currentLevel.level,
 			streamId: this.audioStream.id,
 			trackEnabled: track?.enabled,
-			timestamp: new Date().toISOString()
+			timestamp: new SvelteDate().toISOString()
 		});
+
+		this.currentTurnStartMs = Date.now();
+		this.turnMaxInputLevel = 0;
+		this.suppressNextUserTranscript = false;
+		this.speechDetected = false;
+		this.startTurnLevelMonitor();
 
 		realtimeOpenAI.pttStart(this.audioStream);
 		if (track) {
@@ -303,6 +443,28 @@ export class ConversationStore {
 			track: this.describeAudioTrack(track)
 		});
 	};
+
+	private startTurnLevelMonitor(): void {
+		if (this.turnLevelMonitor) {
+			clearInterval(this.turnLevelMonitor);
+		}
+		this.turnLevelMonitor = setInterval(() => {
+			const level = audioStore.currentLevel.level;
+			if (level > this.turnMaxInputLevel) {
+				this.turnMaxInputLevel = level;
+			}
+			if (level > 0.02) {
+				this.speechDetected = true;
+			}
+		}, 50);
+	}
+
+	private stopTurnLevelMonitor(): void {
+		if (this.turnLevelMonitor) {
+			clearInterval(this.turnLevelMonitor);
+			this.turnLevelMonitor = null;
+		}
+	}
 
 	pauseTimer(): void {
 		// Pause when user switches tabs, etc.
@@ -355,17 +517,19 @@ export class ConversationStore {
 	) => {
 		if (this.status === 'idle' || !this.language) return;
 
-		const currentConfig = sessionManagerService.createSessionUpdateConfig(
-			updates,
-			this.language,
-			this.voice
-		);
+	const currentConfig = sessionManagerService.createSessionUpdateConfig(
+		updates,
+		this.language,
+		this.voice
+	);
 
-		realtimeOpenAI.updateSessionConfig({
-			model: currentConfig.model,
-			voice: this.voice,
-			instructions: currentConfig.instructions
-		});
+	realtimeOpenAI.updateSessionConfig({
+		model: currentConfig.model,
+		voice: this.voice,
+		instructions: currentConfig.instructions,
+		turnDetection: null,
+		audio: currentConfig.audio
+	});
 	};
 
 	// === GETTERS ===
@@ -483,6 +647,15 @@ export class ConversationStore {
 		} catch {
 			console.log('an error with conversation store. Chekc it out');
 		}
+		try {
+			this.sessionReadyUnsub?.();
+		} catch {
+			console.log('an error with session ready listener cleanup');
+		}
+		this.sessionReadyUnsub = realtimeOpenAI.onSessionReady(() => {
+			this.handleRealtimeSessionReady();
+		});
+
 		this.messageUnsub = realtimeOpenAI.onMessageStream(async (ev) => {
 			console.log('📨 ConversationStore: Message stream event:', {
 				role: ev.role,
@@ -506,10 +679,10 @@ export class ConversationStore {
 
 			if (!ev.final) return;
 
-			// Auto-save after user messages (every few user interactions)
+			// Aggressive auto-save strategy
 			if (ev.role === 'user') {
 				const userMessageCount = this.messages.filter((m) => m.role === 'user').length;
-				// Save every 3 user messages, or if it's been more than 2 minutes since last save
+				// Save every 2 user messages (more aggressive), or if it's been more than 1 minute since last save
 				const timeSinceLastSave = this.lastSaveTime
 					? Date.now() - this.lastSaveTime.getTime()
 					: Number.MAX_SAFE_INTEGER;
@@ -517,9 +690,10 @@ export class ConversationStore {
 				// Only save if no streaming messages are currently active
 				const hasStreamingMessages = messageService.hasStreamingMessage(this.messages);
 
-				if ((userMessageCount % 3 === 0 || timeSinceLastSave > 120000) && !hasStreamingMessages) {
+				// More aggressive save triggers
+				if ((userMessageCount % 2 === 0 || timeSinceLastSave > 60000) && !hasStreamingMessages) {
 					console.log('🔄 Auto-saving conversation (user message trigger)');
-					this.queueConversationSave();
+					this.debouncedSave();
 				} else if (hasStreamingMessages) {
 					console.log('⏭️ Skipping auto-save - streaming messages active');
 				}
@@ -530,10 +704,8 @@ export class ConversationStore {
 				const hasStreamingMessages = messageService.hasStreamingMessage(this.messages);
 				if (!hasStreamingMessages) {
 					console.log('🤖 Assistant message complete - scheduling save');
-					// Delay save slightly to ensure all message processing is complete
-					setTimeout(() => {
-						this.queueConversationSave();
-					}, 500);
+					// More aggressive save after assistant responses
+					this.debouncedSave();
 				}
 			}
 			// Sanitize just-finalized message: add scripts if applicable
@@ -616,28 +788,31 @@ export class ConversationStore {
 		});
 
 		// No legacy transport fallback in mirror mode
+	}
 
-		// Immediately emulate session-created logic
-		console.log('🎵 ConversationStore: Session created, sending initial setup...');
+	private handleRealtimeSessionReady(): void {
+		if (this.sessionReadyHandled) return;
+		this.sessionReadyHandled = true;
+
+		console.log('🎵 ConversationStore: Realtime session ready, applying initial setup...');
 		console.log(
 			'🎵 ConversationStore: Event handlers set up, realtime messages:',
 			realtimeOpenAI.messages.length
 		);
+
 		this.sendInitialSetup();
 		this.status = 'connected';
 		console.log('🎵 ConversationStore: Status changed to "connected"');
 
-		// Always start with streaming paused so the user explicitly taps the mic
-		// before any audio is sent. This avoids capturing audio before consent.
+		// Pause outgoing audio until the learner explicitly taps to speak
 		try {
 			if (this.audioStream) {
 				this.pauseStreaming();
 			}
-		} catch (e) {
-			console.warn('Failed to apply initial push_to_talk gating:', e);
+		} catch (error) {
+			console.warn('Failed to apply initial push_to_talk gating:', error);
 		}
 
-		// Create preferences provider for checking onboarding
 		const preferencesProvider = {
 			isGuest: () => userPreferencesStore.isGuest(),
 			getPreference: <K extends keyof import('$lib/server/db/types').UserPreferences>(key: K) =>
@@ -646,7 +821,6 @@ export class ConversationStore {
 				userPreferencesStore.updatePreferences(updates)
 		};
 
-		// Start timer with onboarding callback if needed
 		if (onboardingManagerService.shouldTriggerOnboarding(preferencesProvider)) {
 			this.timer.start(() => {
 				console.log('Conversation timer expired!');
@@ -656,7 +830,6 @@ export class ConversationStore {
 			this.timer.start();
 		}
 
-		// Set status to streaming after a brief delay
 		setTimeout(() => {
 			this.status = 'streaming';
 			console.log('🎵 ConversationStore: Status changed to "streaming"');
@@ -707,7 +880,9 @@ export class ConversationStore {
 		realtimeOpenAI.updateSessionConfig({
 			model: sessionConfig.model,
 			voice: this.voice,
-			instructions: sessionConfig.instructions
+			instructions: sessionConfig.instructions,
+			turnDetection: null,
+			transcriptionLanguage: this.language.code
 		});
 
 		this.lastInstructions = sessionConfig.instructions;
@@ -749,7 +924,10 @@ export class ConversationStore {
 		if (!this.language) return;
 		const combined = `${this.lastInstructions}\n\n${delta}`;
 		realtimeOpenAI.updateSessionConfig({
-			instructions: combined
+			instructions: combined,
+			turnDetection: null,
+			voice: this.voice,
+			transcriptionLanguage: this.language.code
 		});
 		this.lastInstructions = combined;
 	}
@@ -804,6 +982,15 @@ export class ConversationStore {
 			!!this.audioStream
 		);
 
+		// Clean up browser lifecycle handlers
+		this.cleanupBrowserLifecycleHandlers();
+
+		// Clear any pending save timeouts
+		if (this.saveTimeout) {
+			clearTimeout(this.saveTimeout);
+			this.saveTimeout = null;
+		}
+
 		// Close realtime session
 		console.log('🧹 ConversationStore: Closing SDK realtime session');
 		try {
@@ -812,6 +999,17 @@ export class ConversationStore {
 			console.log('an error with conversation store. Chekc it out');
 		}
 		this.messageUnsub = null;
+		try {
+			this.sessionReadyUnsub?.();
+		} catch {
+			console.log('an error with session ready listener cleanup');
+		}
+		this.sessionReadyUnsub = null;
+		this.sessionReadyHandled = false;
+		this.stopTurnLevelMonitor();
+		this.currentTurnStartMs = null;
+		this.turnMaxInputLevel = 0;
+		this.suppressNextUserTranscript = false;
 		try {
 			realtimeOpenAI.disconnect();
 		} catch {
@@ -1186,6 +1384,83 @@ export class ConversationStore {
 		} catch (error) {
 			console.error('❌ Error saving conversation:', error);
 		}
+	}
+
+	/**
+	 * Save conversation using sendBeacon for reliable save during page unload
+	 */
+	private saveConversationViaBeacon(): void {
+		if (!browser || !this.sessionId || !this.language || typeof navigator === 'undefined') {
+			return;
+		}
+
+		const meaningfulMessages = this.messages.filter(
+			(msg) =>
+				msg.content &&
+				msg.content.trim().length > 0 &&
+				!msg.content.includes('[Speaking...]') &&
+				!msg.content.includes('[Transcribing...]')
+		);
+
+		if (meaningfulMessages.length === 0) return;
+
+		try {
+			const now = new SvelteDate();
+			const startTime = this.conversationStartTime || now;
+			const durationSeconds = Math.round((now.getTime() - startTime.getTime()) / 1000);
+
+			const conversationData = conversationPersistenceService.createConversationSaveData(
+				this.sessionId,
+				this.language,
+				this.isGuestUser,
+				userManager.user?.id,
+				startTime,
+				now,
+				durationSeconds
+			);
+
+			const preparedMessages =
+				conversationPersistenceService.prepareMessagesForSave(meaningfulMessages);
+
+			const payload = JSON.stringify({
+				conversation: conversationData,
+				messages: preparedMessages
+			});
+
+			// Use sendBeacon for reliable delivery during page unload
+			const sent = navigator.sendBeacon('/api/conversations', payload);
+
+			if (sent) {
+				console.log('📡 Conversation sent via beacon');
+			} else {
+				console.warn('⚠️ Failed to send beacon - falling back to sync save');
+				// Fallback: try synchronous fetch
+				fetch('/api/conversations', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: payload,
+					keepalive: true
+				}).catch((error) => {
+					console.error('❌ Beacon fallback failed:', error);
+				});
+			}
+		} catch (error) {
+			console.error('❌ Error saving via beacon:', error);
+		}
+	}
+
+	/**
+	 * Debounced save - prevents too many rapid saves
+	 */
+	private debouncedSave(): void {
+		if (this.saveTimeout) {
+			clearTimeout(this.saveTimeout);
+		}
+
+		this.saveTimeout = setTimeout(() => {
+			this.queueConversationSave();
+			this.saveTimeout = null;
+		}, 500); // 500ms debounce
 	}
 
 	/**

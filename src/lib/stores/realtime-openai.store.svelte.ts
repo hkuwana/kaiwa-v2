@@ -6,7 +6,7 @@ import { realtimeService } from '$lib/services';
 import type { Message, SpeechTiming } from '$lib/server/db/types';
 import * as messageService from '$lib/services/message.service';
 import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
-import type { Voice } from '$lib/types/openai.realtime.types';
+import type { Voice, SessionConfig, RealtimeAudioConfig } from '$lib/types/openai.realtime.types';
 import {
 	createConnectionWithSession,
 	subscribeToSession,
@@ -18,6 +18,13 @@ import { env as publicEnv } from '$env/dynamic/public';
 import { SvelteSet } from 'svelte/reactivity';
 
 type SessionData = { client_secret: { value: string; expires_at: number }; session_id?: string };
+
+// Conversation context interface for linking realtime to database conversation
+export interface ConversationContext {
+	sessionId: string;
+	languageCode: string;
+	userId?: string;
+}
 
 export class RealtimeOpenAIStore {
 	// Reactive UI state
@@ -32,6 +39,8 @@ export class RealtimeOpenAIStore {
 	// Captured events (server/client) for dev UI
 	events = $state<Array<{ dir: 'server' | 'client'; type: string; payload: any; ts: number }>>([]);
 	private maxEvents = 100;
+	// Conversation context for database persistence
+	conversationContext = $state<ConversationContext | null>(null);
 
 	// Event queue for ordered processing
 	private eventQueue: Array<{ event: any; timestamp: number }> = [];
@@ -61,6 +70,28 @@ export class RealtimeOpenAIStore {
 		totalDurationMs: null
 	};
 	private readonly DEFAULT_WORD_DURATION_MS = 220;
+	private pendingFinalTranscripts: Record<
+		string,
+		{
+			role: 'assistant' | 'user';
+			text: string;
+			receivedAt: number;
+			timeoutId: ReturnType<typeof setTimeout> | null;
+		}
+	> = {};
+	private hasHandledSessionReady = false;
+	private sessionReadyListeners = new SvelteSet<() => void>();
+	private transcriptFilter:
+		| ((
+				meta: {
+					itemId: string;
+					role: 'assistant' | 'user';
+					text: string;
+					isFinal: boolean;
+					receivedAt: number;
+				}
+			) => boolean)
+		| null = null;
 
 	private logEvent(dir: 'server' | 'client', type: string, payload: any) {
 		try {
@@ -100,6 +131,28 @@ export class RealtimeOpenAIStore {
 	private estimateWordDuration(charLength: number): number {
 		const scaled = charLength * 45; // heuristically scale duration by token length
 		return Math.max(this.DEFAULT_WORD_DURATION_MS, Math.min(scaled, 850));
+	}
+
+	private filterTranscript(text: string | null | undefined): string | null {
+		const raw = (text ?? '').trim();
+		if (!raw) return null;
+		const normalized = raw.normalize('NFC');
+		// Allow unicode letters/marks/numbers plus common punctuation; flag anything unexpected (binary blobs, etc.)
+		const disallowed = normalized.replace(/[\p{L}\p{M}\p{N}\s.,!?"'()\-:;\/]+/gu, '');
+		if (disallowed.length > 0) {
+			console.warn('🚫 Ignoring transcript with unsupported characters', {
+				text: normalized,
+				disallowed
+			});
+			return null;
+		}
+
+		const hasLetters = /\p{L}/u.test(normalized);
+		if (!hasLetters) {
+			return null;
+		}
+
+		return normalized;
 	}
 
 	private ensureWordTracking(messageId: string) {
@@ -315,58 +368,136 @@ export class RealtimeOpenAIStore {
 			totalDurationMs: null
 		};
 		this.finalizedWordTimings.clear();
+		for (const pending of Object.values(this.pendingFinalTranscripts)) {
+			if (pending.timeoutId) {
+				clearTimeout(pending.timeoutId);
+			}
+		}
+		this.pendingFinalTranscripts = {};
+	}
+
+	private clearPendingTranscript(itemId: string) {
+		const pending = this.pendingFinalTranscripts[itemId];
+		if (pending?.timeoutId) {
+			clearTimeout(pending.timeoutId);
+		}
+		delete this.pendingFinalTranscripts[itemId];
+	}
+
+	private schedulePendingTranscript(
+		itemId: string | undefined,
+		role: 'assistant' | 'user',
+		text: string
+	) {
+		if (!itemId || !text) return;
+		this.clearPendingTranscript(itemId);
+		const timeoutId = setTimeout(() => {
+			this.flushPendingTranscript(itemId);
+		}, 600);
+		this.pendingFinalTranscripts[itemId] = {
+			role,
+			text,
+			receivedAt: Date.now(),
+			timeoutId
+		};
+	}
+
+	private flushPendingTranscript(itemId: string) {
+		const pending = this.pendingFinalTranscripts[itemId];
+		if (!pending) return;
+		this.clearPendingTranscript(itemId);
+		if (this.finalizedItemIds.has(itemId)) return;
+		this.finalizeTranscriptMessage(itemId, pending.role, pending.text);
+	}
+
+	private finalizeTranscriptMessage(itemId: string, role: 'assistant' | 'user', text: string) {
+		if (!text || this.finalizedItemIds.has(itemId)) return;
+		const finalText = this.filterTranscript(text);
+		if (!finalText) return;
+		const receivedAt = Date.now();
+
+		if (role === 'user' && this.transcriptFilter) {
+			const keep = this.transcriptFilter({
+				itemId,
+				role,
+				text: finalText,
+				isFinal: true,
+				receivedAt
+			});
+			if (!keep) {
+				this.finalizedItemIds.add(itemId);
+				this.historyText[itemId] = finalText;
+				this.userDelta = '';
+				this.messages = messageService.dropUserPlaceholder(this.messages);
+				this.clearPendingTranscript(itemId);
+				return;
+			}
+		}
+
+		this.historyText[itemId] = finalText;
+		this.finalizedItemIds.add(itemId);
+
+		if (role === 'assistant') {
+			const streamingIndex = this.messages.findIndex(
+				(m) => m.role === 'assistant' && m.id.startsWith('streaming_')
+			);
+			const streamingId =
+				streamingIndex !== -1 ? this.messages[streamingIndex].id : this.currentAssistantMessageId;
+			const totalDuration =
+				this.assistantAudioTracking.totalDurationMs ?? this.assistantAudioTracking.accumulatedMs;
+
+			this.aiResponse = finalText;
+			this.assistantDelta = '';
+			this.messages = messageService.finalizeStreamingMessage(this.messages, finalText);
+
+			let finalMessageId: string | null = null;
+
+			if (streamingIndex !== -1) {
+				finalMessageId = this.messages[streamingIndex].id;
+			} else {
+				for (let i = this.messages.length - 1; i >= 0; i--) {
+					const candidate = this.messages[i];
+					if (candidate.role === 'assistant' && candidate.id.startsWith('msg_')) {
+						finalMessageId = candidate.id;
+						break;
+					}
+				}
+			}
+
+			if (streamingId && finalMessageId) {
+				this.promoteWordTimingKey(streamingId, finalMessageId);
+			}
+			if (finalMessageId) {
+				this.finalizeAssistantWordTimings(finalMessageId, totalDuration);
+			}
+
+			this.currentAssistantMessageId = null;
+			this.assistantAudioTracking = {
+				messageId: null,
+				startEpochMs: null,
+				accumulatedMs: 0,
+				totalDurationMs: null
+			};
+		} else {
+			this.userDelta = finalText;
+			this.messages = messageService.replaceUserPlaceholderWithFinal(
+				this.messages,
+				finalText,
+				this.sessionId
+			);
+		}
+
+		this.emitMessage({
+			itemId,
+			role,
+			text: finalText,
+			delta: false,
+			final: true
+		});
 	}
 
 	// Process individual server event in proper order
 	private async processServerEventOrdered(serverEvent: any) {
-		// Inject a user placeholder as soon as VAD fires so ordering feels natural
-		try {
-			if (serverEvent?.type === 'input_audio_buffer.speech_started') {
-				// Only add one placeholder per utterance
-				const hasPlaceholder = this.messages.some(
-					(m) =>
-						m.role === 'user' &&
-						(m.id.startsWith('user_placeholder_') ||
-							m.id.startsWith('user_transcribing_') ||
-							m.id.startsWith('user_partial_'))
-				);
-				if (!hasPlaceholder) {
-					const ts =
-						typeof serverEvent?.audio_start_ms === 'number'
-							? Date.now() // we don't have an absolute start time; use now for ordering
-							: Date.now();
-					const ph = messageService.createUserPlaceholder(this.sessionId, ts);
-					// Immediately show an ellipsis until transcription arrives
-					const withPh = messageService.removeDuplicateMessages(
-						messageService.sortMessagesBySequence([...this.messages, ph])
-					);
-					this.messages = messageService.updatePlaceholderWithPartial(withPh, '...');
-					// Notify listeners so UI mirrors now, before assistant output arrives
-					this.emitMessage({
-						itemId: 'vad-user-placeholder',
-						role: 'user',
-						text: '',
-						delta: true,
-						final: false
-					});
-				}
-			} else if (serverEvent?.type === 'input_audio_buffer.speech_stopped') {
-				// Optionally flip the placeholder into a transcribing state while we wait
-				this.messages = messageService.updatePlaceholderToTranscribing(this.messages);
-				// Ping listeners to mirror updated state
-				this.emitMessage({
-					itemId: 'vad-user-transcribing',
-					role: 'user',
-					text: '',
-					delta: true,
-					final: false
-				});
-			}
-		} catch (err) {
-			// Non-fatal; continue normal processing
-			if (this.debug) console.debug('[realtime] placeholder hook error:', err);
-		}
-
 		if (
 			serverEvent?.type === 'response.output_audio.delta' ||
 			serverEvent?.type === 'response.audio.delta'
@@ -419,45 +550,7 @@ export class RealtimeOpenAIStore {
 
 					// Don't emit individual deltas - wait for final message
 				} else {
-					const streamingIndex = this.messages.findIndex(
-						(m) => m.role === 'assistant' && m.id.startsWith('streaming_')
-					);
-					const streamingId = streamingIndex !== -1 ? this.messages[streamingIndex].id : null;
-					const totalDuration =
-						this.assistantAudioTracking.messageId === streamingId
-							? (this.assistantAudioTracking.totalDurationMs ??
-								this.assistantAudioTracking.accumulatedMs)
-							: this.assistantAudioTracking.totalDurationMs;
-					// Finalize assistant transcript
-					this.aiResponse = processed.data.text;
-					this.assistantDelta = '';
-					this.messages = messageService.finalizeStreamingMessage(
-						this.messages,
-						processed.data.text
-					);
-					if (streamingIndex !== -1) {
-						const finalId = this.messages[streamingIndex].id;
-						if (streamingId) {
-							this.promoteWordTimingKey(streamingId, finalId);
-						}
-						this.finalizeAssistantWordTimings(finalId, totalDuration);
-						this.currentAssistantMessageId = null;
-						this.assistantAudioTracking = {
-							messageId: null,
-							startEpochMs: null,
-							accumulatedMs: 0,
-							totalDurationMs: null
-						};
-					}
-
-					// Emit final message stream event
-					this.emitMessage({
-						itemId: 'transcription-assistant',
-						role: 'assistant',
-						text: processed.data.text,
-						delta: false,
-						final: true
-					});
+					this.schedulePendingTranscript(serverEvent?.item_id, 'assistant', processed.data.text);
 				}
 			} else if (processed.data.type === 'user_transcript') {
 				if (!processed.data.isFinal) {
@@ -484,22 +577,7 @@ export class RealtimeOpenAIStore {
 
 					// Don't emit individual user deltas - wait for final message
 				} else {
-					// Keep final user transcript visible when no streaming available
-					this.userDelta = processed.data.text;
-					this.messages = messageService.replaceUserPlaceholderWithFinal(
-						this.messages,
-						processed.data.text,
-						this.sessionId
-					);
-
-					// Emit final user message event
-					this.emitMessage({
-						itemId: 'transcription-user',
-						role: 'user',
-						text: processed.data.text,
-						delta: false,
-						final: true
-					});
+					this.schedulePendingTranscript(serverEvent?.item_id, 'user', processed.data.text);
 				}
 			}
 		} else if (processed.type === 'message') {
@@ -518,6 +596,16 @@ export class RealtimeOpenAIStore {
 	private connection: SessionConnection | null = null;
 	private unsubscribe: (() => void) | null = null;
 
+	/**
+	 * Set conversation context for database persistence
+	 */
+	setConversationContext(context: ConversationContext | null): void {
+		this.conversationContext = context;
+		if (context) {
+			console.log('📝 Realtime store linked to conversation:', context.sessionId);
+		}
+	}
+
 	async connect(
 		sessionData: SessionData,
 		mediaStream: MediaStream,
@@ -526,15 +614,21 @@ export class RealtimeOpenAIStore {
 			voice?: Voice;
 			transcriptionLanguage?: string;
 			transcriptionModel?: string;
+			conversationContext?: ConversationContext;
 		}
 	): Promise<void> {
 		try {
 			this.error = null;
+			// Set conversation context if provided
+			if (options?.conversationContext) {
+				this.setConversationContext(options.conversationContext);
+			}
 			// Reset transient tracking for a fresh session
 			this.finalizedItemIds.clear();
 			this.historyText = {} as Record<string, string>;
 			this.assistantDelta = '';
 			this.userDelta = '';
+			this.hasHandledSessionReady = false;
 			this.clearWordTimingState();
 
 			// Create session + transport using existing audio stream
@@ -545,12 +639,49 @@ export class RealtimeOpenAIStore {
 			// Subscribe to transport events and queue them for ordered processing
 			this.unsubscribe = subscribeToSession(this.connection, {
 				onTransportEvent: (serverEvent) => {
-					if (this.debug) {
+					// Filter out delta events and rate limits from console logs
+					const isDeltaEvent = serverEvent?.type?.includes('.delta');
+					const isRateLimitUpdate = serverEvent?.type === 'rate_limits.updated';
+
+					if (this.debug && !isDeltaEvent && !isRateLimitUpdate) {
 						console.debug('[realtime] transport_event:', serverEvent?.type, serverEvent);
 					}
-					this.logEvent('server', serverEvent?.type || 'unknown', serverEvent);
+
+					// Highlight important transcription and VAD events as warnings
+					if (serverEvent?.type === 'conversation.item.input_audio_transcription.completed') {
+						console.warn('🎤 USER TRANSCRIPTION COMPLETED:', {
+							transcript: serverEvent.transcript,
+							item_id: serverEvent.item_id,
+							event_id: serverEvent.event_id
+						});
+					} else if (
+						serverEvent?.type === 'response.audio_transcript.done' ||
+						serverEvent?.type === 'response.output_audio_transcript.done'
+					) {
+						console.warn('🤖 ASSISTANT TRANSCRIPTION COMPLETED:', {
+							transcript: serverEvent.transcript,
+							item_id: serverEvent.item_id,
+							event_id: serverEvent.event_id
+						});
+					} else if (serverEvent?.type === 'input_audio_buffer.committed') {
+						console.warn('📤 AUDIO BUFFER COMMITTED', {
+							event_id: serverEvent.event_id,
+							item_id: serverEvent.item_id
+						});
+					}
+
+					// Don't log delta events or rate_limits.updated to event log
+					if (!isDeltaEvent && !isRateLimitUpdate) {
+						this.logEvent('server', serverEvent?.type || 'unknown', serverEvent);
+					}
 					// Queue event for ordered processing instead of immediate processing
 					this.queueEvent(serverEvent);
+					if (
+						!this.hasHandledSessionReady &&
+						(serverEvent?.type === 'session.created' || serverEvent?.type === 'session.updated')
+					) {
+						this.handleSessionReady();
+					}
 				},
 				onError: (err) => {
 					this.error = err?.message || 'Realtime error';
@@ -588,7 +719,8 @@ export class RealtimeOpenAIStore {
 							model: options?.transcriptionModel || 'gpt-4o-transcribe',
 							language: transcriptionLanguage
 						}
-					: undefined
+					: undefined,
+				turnDetection: null
 			});
 			this.logEvent('client', 'session.update', sessionUpdateEvent);
 			sendEventViaSession(this.connection, sessionUpdateEvent);
@@ -604,6 +736,20 @@ export class RealtimeOpenAIStore {
 				console.warn('something went wrong with disconnect');
 			}
 			throw e;
+		}
+	}
+
+	private handleSessionReady(): void {
+		if (this.hasHandledSessionReady) return;
+		this.hasHandledSessionReady = true;
+		this.isConnected = true;
+
+		for (const listener of this.sessionReadyListeners) {
+			try {
+				listener();
+			} catch (error) {
+				console.warn('onSessionReady listener error', error);
+			}
 		}
 	}
 
@@ -631,6 +777,10 @@ export class RealtimeOpenAIStore {
 		this.assistantDelta = '';
 		this.userDelta = '';
 		this.clearWordTimingState();
+		this.hasHandledSessionReady = false;
+		this.sessionReadyListeners.clear();
+		// Clear conversation context
+		this.conversationContext = null;
 	}
 
 	// High-level helpers
@@ -663,10 +813,26 @@ export class RealtimeOpenAIStore {
 		instructions?: string;
 		transcriptionLanguage?: string;
 		transcriptionModel?: string;
+		audio?: SessionConfig['audio'];
+		turnDetection?: SessionConfig['turnDetection'] | null;
 	}): void {
 		if (!this.connection) return;
 		const prefLang = userPreferencesStore.getPreference('targetLanguageId') as unknown as string;
 		const transcriptionLanguage = config.transcriptionLanguage || prefLang || 'en';
+		const audioConfig: RealtimeAudioConfig | undefined =
+			config.audio ||
+			(transcriptionLanguage
+				? ({
+						input: {
+							transcription: {
+								model: config.transcriptionModel || 'gpt-4o-transcribe',
+								language: transcriptionLanguage
+							},
+							turnDetection: undefined
+						},
+						output: config.voice ? { voice: config.voice } : undefined
+					} as RealtimeAudioConfig)
+				: undefined);
 		const update = realtimeService.createSessionUpdate({
 			...config,
 			input_audio_transcription: transcriptionLanguage
@@ -674,7 +840,9 @@ export class RealtimeOpenAIStore {
 						model: config.transcriptionModel || 'gpt-4o-transcribe',
 						language: transcriptionLanguage
 					}
-				: undefined
+				: undefined,
+			audio: audioConfig,
+			turnDetection: config.turnDetection ?? null
 		});
 		this.logEvent('client', 'session.update', update);
 		sendEventViaSession(this.connection, update);
@@ -704,6 +872,42 @@ export class RealtimeOpenAIStore {
 
 	clearEvents(): void {
 		this.events = [];
+	}
+
+	setTranscriptFilter(
+		filter:
+			| ((
+					meta: {
+						itemId: string;
+						role: 'assistant' | 'user';
+						text: string;
+						isFinal: boolean;
+						receivedAt: number;
+					}
+				) => boolean)
+			| null
+	): void {
+		this.transcriptFilter = filter;
+	}
+
+	onSessionReady(fn: () => void): () => void {
+		this.sessionReadyListeners.add(fn);
+		if (this.hasHandledSessionReady) {
+			setTimeout(() => {
+				try {
+					fn();
+				} catch (error) {
+					console.warn('onSessionReady listener error', error);
+				}
+			}, 0);
+		}
+		return () => {
+			try {
+				this.sessionReadyListeners.delete(fn);
+			} catch {
+				// Listener might already be removed during disconnect
+			}
+		};
 	}
 
 	// ===== Message streaming API =====
@@ -778,15 +982,26 @@ export class RealtimeOpenAIStore {
 
 		// Compute delta chunk when streaming
 		if (delta) {
-			const newText = fullText || '';
-			let deltaText = '';
-			if (newText.startsWith(prev)) {
-				deltaText = newText.slice(prev.length);
-			} else {
-				// Fallback if we missed an update; send whole text once
-				deltaText = newText;
+			const sanitizedText = this.filterTranscript(fullText);
+			if (!sanitizedText) {
+				this.historyText[itemId] = '';
+				if (role === 'assistant') {
+					this.assistantDelta = '';
+					this.messages = messageService.dropStreamingMessage(this.messages);
+				} else {
+					this.userDelta = '';
+					this.messages = messageService.dropUserPlaceholder(this.messages);
+				}
+				return;
 			}
-			this.historyText[itemId] = newText;
+
+			let deltaText = '';
+			if (sanitizedText.startsWith(prev)) {
+				deltaText = sanitizedText.slice(prev.length);
+			} else {
+				deltaText = sanitizedText;
+			}
+			this.historyText[itemId] = sanitizedText;
 
 			if (deltaText) {
 				this.emitMessage({ itemId, role, text: deltaText, delta: true, final: false });
@@ -834,10 +1049,12 @@ export class RealtimeOpenAIStore {
 					}
 					// Also guard against recreating a partial if a final message with the same
 					// content already exists in our visible message list
-					const hasIdenticalFinal = this.messages.some(
-						(m) =>
-							m.role === 'user' && m.id.startsWith('msg_') && m.content.trim() === newText.trim()
-					);
+				const hasIdenticalFinal = this.messages.some(
+					(m) =>
+						m.role === 'user' &&
+						m.id.startsWith('msg_') &&
+						m.content.trim() === sanitizedText.trim()
+				);
 					if (hasIdenticalFinal) {
 						return;
 					}
@@ -855,41 +1072,32 @@ export class RealtimeOpenAIStore {
 							messageService.sortMessagesBySequence([...this.messages, ph])
 						);
 					}
-					this.messages = messageService.updatePlaceholderWithPartial(this.messages, newText);
+					this.messages = messageService.updatePlaceholderWithPartial(this.messages, sanitizedText);
 				}
 			}
 			return;
 		}
 
 		// Non-delta add: treat as final message snapshot
-		const finalText = (fullText || prev || '').trim();
+		const finalText = this.filterTranscript(fullText || prev);
 		if (!finalText) {
-			// Ignore empty finals to avoid blank bubbles
+			if (role === 'assistant') {
+				this.assistantDelta = '';
+				this.messages = messageService.dropStreamingMessage(this.messages);
+			} else {
+				this.userDelta = '';
+				this.messages = messageService.dropUserPlaceholder(this.messages);
+			}
 			return;
 		}
-		this.historyText[itemId] = finalText;
-		// Mark this item as finalized so future deltas for this itemId are ignored
-		this.finalizedItemIds.add(itemId);
-		this.emitMessage({ itemId, role, text: finalText, delta: false, final: true });
-		if (role === 'assistant') {
-			this.aiResponse = finalText;
-			this.assistantDelta = '';
-			this.messages = messageService.finalizeStreamingMessage(this.messages, finalText);
-		} else {
-			this.userDelta = finalText; // keep visible
-			this.messages = messageService.replaceUserPlaceholderWithFinal(
-				this.messages,
-				finalText,
-				this.sessionId
-			);
-		}
+		this.clearPendingTranscript(itemId);
+		this.finalizeTranscriptMessage(itemId, role, finalText);
 	}
 
 	// High-level helper to send a user text message
 	sendTextMessage(text: string): void {
 		try {
 			// Prefer SDK high-level API when available
-			// @ts-ignore
 			this.connection?.session?.sendMessage?.(text);
 		} catch {
 			// Fallback to raw event if needed in future

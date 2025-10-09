@@ -118,9 +118,17 @@ export async function createRealtimeSession(
 /**
  * Start conversation with initial message
  */
+export interface StartConversationOptions {
+	initialMessage?: string;
+	instructions?: string;
+	voice?: string;
+	transcriptionLanguage?: string | null;
+	transcriptionModel?: string | null;
+}
+
 export async function startAgentConversation(
 	connection: RealtimeAgentConnection,
-	initialMessage?: string
+	options: StartConversationOptions = {}
 ): Promise<void> {
 	if (!connection.isConnected) {
 		throw new Error('RealtimeSession is not connected');
@@ -128,14 +136,83 @@ export async function startAgentConversation(
 
 	console.log('🎬 Starting agent conversation...');
 
-	if (initialMessage) {
-		console.log('💬 Sending initial message:', initialMessage);
-		// The official package should handle this automatically
-		// based on the agent's instructions and initial setup
+	const { session } = connection;
+	const send = (event: RealtimeClientMessage) => {
+		session.transport.sendEvent(event);
+	};
+
+	// 1) Update session configuration (instructions, voice, transcription language, disable VAD)
+	console.log('🛠️ Applying session.update for realtime conversation');
+	try {
+		const audioConfig: Record<string, any> = {
+			input: {
+				turnDetection: null
+			}
+		};
+
+		if (options.transcriptionLanguage) {
+			audioConfig.input = {
+				...audioConfig.input,
+				transcription: {
+					model: options.transcriptionModel || 'gpt-4o-transcribe',
+					language: options.transcriptionLanguage
+				}
+			};
+		}
+
+		if (options.voice) {
+			audioConfig.output = { ...(audioConfig.output || {}), voice: options.voice };
+		}
+
+		send({
+			type: 'session.update',
+			session: {
+				...(options.instructions ? { instructions: options.instructions } : {}),
+				audio: audioConfig,
+				turn_detection: null
+			}
+		});
+	} catch (error) {
+		console.error('⚠️ session.update failed:', error);
 	}
 
-	// The RealtimeSession should automatically start the conversation
-	// based on the agent configuration
+	// 2) Seed system context with latest instructions (optional but helps clarity)
+	if (options.instructions) {
+		try {
+			send({
+				type: 'conversation.item.create',
+				item: {
+					type: 'message',
+					role: 'system',
+					content: [
+						{
+							type: 'input_text',
+							text: options.instructions
+						}
+					]
+				}
+			});
+		} catch (error) {
+			console.warn('⚠️ Failed to enqueue system context item:', error);
+		}
+	}
+
+	// 3) Trigger the agent to speak (response.create)
+	try {
+		const responseCreatePayload: Record<string, any> = {};
+
+		if (options.initialMessage) {
+			console.log('💬 Seeding assistant with initial instructions.');
+			responseCreatePayload.instructions = options.initialMessage;
+		}
+
+		send({
+			type: 'response.create',
+			response: responseCreatePayload
+		});
+	} catch (error) {
+		console.error('⚠️ Failed to trigger initial response:', error);
+	}
 }
 
 // ============================================
@@ -190,6 +267,24 @@ export function subscribeToSession(
 }
 
 export function sendEventViaSession(conn: SessionConnection, event: RealtimeClientMessage) {
+	// Log important client events for debugging
+	if (event.type === 'input_audio_buffer.commit') {
+		console.warn('📤 CLIENT: Committing audio buffer', {
+			type: event.type,
+			timestamp: new Date().toISOString()
+		});
+	} else if (event.type === 'input_audio_buffer.clear') {
+		console.warn('📤 CLIENT: Clearing audio buffer', {
+			type: event.type,
+			timestamp: new Date().toISOString()
+		});
+	} else if (event.type === 'response.create') {
+		console.warn('📤 CLIENT: Creating response', {
+			type: event.type,
+			timestamp: new Date().toISOString()
+		});
+	}
+
 	// Use the underlying transport to send a raw client event
 	conn.session.transport.sendEvent(event);
 }
@@ -284,7 +379,13 @@ export class RealtimeCompatibilityService {
 				preferences,
 				speaker
 			);
-			await startAgentConversation(this.connection, scenarioConfig.initialMessage);
+			await startAgentConversation(this.connection, {
+				initialMessage: scenarioConfig.initialMessage,
+				instructions: scenarioConfig.instructions,
+				voice: scenarioConfig.voice,
+				transcriptionLanguage: language.code || null,
+				transcriptionModel: 'gpt-4o-transcribe'
+			});
 
 			return this.connection;
 		} catch (error) {

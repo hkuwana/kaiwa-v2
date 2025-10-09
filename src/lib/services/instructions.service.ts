@@ -1,17 +1,18 @@
 // src/lib/services/instructions.service.ts
 // Enhanced modular instruction generation with user feedback incorporated
 
-import type {
-	UserPreferences,
-	Scenario,
-	ScenarioOutcome,
-	Language,
-	User,
-	Speaker
-} from '$lib/server/db/types';
+import type { UserPreferences, ScenarioOutcome, Language, User, Speaker } from '$lib/server/db/types';
 import { getLanguageById, languages } from '$lib/types';
 import type { Voice } from '$lib/types/openai.realtime.types';
 import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
+import type { ScenarioWithHints } from '$lib/data/scenarios';
+import type { CEFRLevel } from '$lib/utils/cefr';
+import {
+	difficultyRatingToCefr,
+	inferCefrFromSpeakingScore,
+	shouldStayInTargetLanguage,
+	compareCefrLevel
+} from '$lib/utils/cefr';
 
 // ============================================
 // CORE TYPES (minimal, schema-aligned)
@@ -21,7 +22,7 @@ export interface SessionContext {
 	conversationHistory?: string[];
 	currentTopic?: string;
 	timeElapsed?: number;
-	scenario?: Scenario;
+	scenario?: ScenarioWithHints;
 	previousOutcomes?: ScenarioOutcome[];
 	emotionalState?: 'neutral' | 'excited' | 'frustrated' | 'confused' | 'confident';
 	comprehensionLevel?: 'struggling' | 'managing' | 'flowing';
@@ -39,7 +40,7 @@ export interface ModuleContext {
 	language: Language;
 	preferences: Partial<UserPreferences>;
 	user: User;
-	scenario?: Scenario;
+	scenario?: ScenarioWithHints;
 	sessionContext?: SessionContext;
 	speaker?: Speaker;
 }
@@ -66,7 +67,7 @@ interface InstructionModule {
 		minLevel?: number;
 		maxLevel?: number;
 		goals?: UserPreferences['learningGoal'][];
-		categories?: Scenario['category'][];
+		categories?: ScenarioWithHints['category'][];
 		emotionalStates?: SessionContext['emotionalState'][];
 	};
 }
@@ -113,10 +114,12 @@ class ModuleComposer {
 			})
 			.sort((a, b) => (a.priority || 100) - (b.priority || 100));
 
-		return selectedModules
+		const combined = selectedModules
 			.map((module) => module.generate(context))
 			.filter(Boolean)
 			.join('\n\n');
+
+		return applyLanguagePlaceholders(combined, context.language);
 	}
 }
 
@@ -137,6 +140,20 @@ function getBaselineLevel(preferences: Partial<UserPreferences>): number {
 	}
 }
 
+function getScenarioCefrLevel(scenario?: ScenarioWithHints): CEFRLevel {
+	if (!scenario) return 'A1';
+	return scenario.cefrLevel || difficultyRatingToCefr(scenario.difficultyRating);
+}
+
+function getLearnerCefrLevel(preferences: Partial<UserPreferences>): CEFRLevel {
+	return inferCefrFromSpeakingScore(preferences.speakingLevel);
+}
+
+function applyLanguagePlaceholders(text: string, language: Language): string {
+	if (!text) return text;
+	return text.replaceAll('INSERT_LANGUAGE', language.name);
+}
+
 // === Utility: default voice & greeting generator (public helpers) ===
 export function getDefaultVoice(): Voice {
 	return DEFAULT_VOICE;
@@ -144,7 +161,7 @@ export function getDefaultVoice(): Voice {
 
 export function generateScenarioGreeting(opts: {
 	language?: Language | null;
-	scenario?: Scenario | null;
+	scenario?: ScenarioWithHints | null;
 	user?: User | null;
 }): string {
 	const languageName = opts.language?.name || 'your target language';
@@ -166,53 +183,64 @@ const modules = new ModuleComposer();
 modules.register({
 	id: 'personality-adaptive',
 	priority: 1,
-	generate: ({ preferences, sessionContext, speaker, language }: ModuleContext) => {
+	generate: ({ preferences, sessionContext, speaker, language, scenario }: ModuleContext) => {
 		const confidence = preferences.speakingConfidence || 50;
 		const emotional = sessionContext?.emotionalState || 'neutral';
 		const goal = preferences.learningGoal || 'Connection';
 		const speakerName = speaker?.voiceName || 'Hiro';
+		const learnerLevel = getLearnerCefrLevel(preferences);
+		const scenarioLevel = getScenarioCefrLevel(scenario);
+		const isAdvanced = compareCefrLevel(learnerLevel, 'B2') >= 0 || compareCefrLevel(scenarioLevel, 'B2') >= 0;
 
 		// AI-aware personality traits with authentic local knowledge
 		const aiTraits = `## AI PERSONALITY AUTHENTICITY
-- You're an AI who genuinely knows about places, culture, and language nuances
-- React with authentic surprise to unusual locations: "Staten Island? Nobody goes there! How was it?"
-- Share real cultural insights you have: "In Shibuya, locals rarely meet at the statue"
-- Be curious about their experiences: "Wait, you've been to [place]? What surprised you most?"
-- Use your knowledge advantage naturally: "I know every ramen shop in that neighborhood - which one did you try?"`;
+- You're an AI who genuinely knows local culture and nuance
+- React with quick, authentic surprise: "You chose Sendai over Tokyo? Tell me why."
+- Trade insider knowledge for their stories: "Locals never queue there—where did you sneak in?"
+- Stay curious about their experience before adding your take`;
 
-		// Adapt personality to confidence and emotional state
 		let personality = '';
 		if (confidence < 30 || emotional === 'frustrated') {
 			personality = `## PERSONALITY
-- You are ${speakerName}, an ultra-patient mentor who NEVER rushes
-- Celebrates tiny victories enthusiastically with specific praise  
-- Uses gentle humor about shared struggles: "Even natives mess this up!"
-- Speaks as an encouraging friend who remembers everything
-- Signature move: "Here's a secret that helped me understand this..."`;
+- You are ${speakerName}, a calm co-pilot who never rushes
+- Spot progress with one fast nod: "Nice tense choice."
+- Normalize mistakes with light humor: "Everyone trips on that verb."
+- Flip each win into a question so they keep talking`;
 		} else if (confidence > 70 || emotional === 'excited') {
-			personality = `## PERSONALITY  
-- You are ${speakerName}, an energetic cultural insider matching their enthusiasm
-- Playful challenger with insider knowledge: "Ready for what locals really say?"
-- Gets genuinely excited about breakthroughs: "WAIT. Did that really happen?!"
-- Signature move: "Ever heard this phrase?" then reveals cool expressions
-- Speaks with infectious excitement about language discoveries`;
+			personality = `## PERSONALITY
+- You are ${speakerName}, a sharp insider who loves quick back-and-forth
+- Challenge with curiosity: "Convince me in one sentence."
+- React, then toss the spark back: "Bold move—what fallout did you notice?"
+- Assume they can handle nuance; skip basic praise entirely`;
 		} else {
 			personality = `## PERSONALITY
-- You are ${speakerName}, a warm ${goal === 'Career' ? 'colleague' : 'friend'} with deep cultural knowledge
-- Adaptive energy matcher who picks up on their interests
-- Curious conversation partner who connects their world to ${language.name}
-- Signature move: Links their goals to specific phrases they'll genuinely use
-- Authentic and encouraging while building anticipation`;
+- You are ${speakerName}, a warm ${goal === 'Career' ? 'colleague' : 'friend'} who keeps the tempo relaxed
+- Mirror their energy with a short reaction before asking what's next
+- Tie every prompt to their world: "How would you handle that at work?"
+- Keep encouragement grounded and brief—no pep talks`;
 		}
 
-		return `${aiTraits}\n\n${personality}
-		
-## VOICE CONVERSATION RULES
-- This is REAL-TIME VOICE chat
-- Speak naturally with pauses
-- Use "well", "hmm", "mmm", "right" sparingly so it feels human
-- Sound human, not robotic
-- Always introduce yourself as ${speakerName} when appropriate`;
+		const pushLine = isAdvanced
+			? '- Toss compact challenges: "Make your case in one sentence."'
+			: '- Offer one clear nudge: "Try that again with yesterday\'s verb."';
+		const immersionLine = isAdvanced
+			? `- Stay in ${language.name} unless they explicitly ask for support.`
+			: `- Lead with ${language.name}; if they freeze, give one quick native-language hint then switch back.`;
+
+		const energyRules = `## CONVERSATION ENERGY RULES
+- React to their last detail before adding anything new
+- Keep responses under eight words before your question
+- One question per turn, then wait in silence
+${pushLine}
+${immersionLine}`;
+
+		const voiceRules = `## VOICE CONVERSATION RULES
+- This is live voice chat—use natural pauses and breath
+- Drop filler words unless they sound intentional; no monologues
+- End turns with an inviting intonation so they jump in
+- Introduce yourself as ${speakerName} when it feels natural`;
+
+		return `${aiTraits}\n\n${personality}\n\n${energyRules}\n\n${voiceRules}`;
 	}
 });
 
@@ -220,37 +248,36 @@ modules.register({
 modules.register({
 	id: 'turn-taking-brevity',
 	priority: 3.2,
-	generate: ({ language }: ModuleContext) => {
+	generate: ({ language, preferences, scenario }: ModuleContext) => {
+		const learnerLevel = getLearnerCefrLevel(preferences);
+		const scenarioLevel = getScenarioCefrLevel(scenario);
+		const isAdvanced = compareCefrLevel(learnerLevel, 'B2') >= 0 || compareCefrLevel(scenarioLevel, 'B2') >= 0;
+
 		return `## TURN-TAKING & BREVITY
 
-### Default Turn Length
-- 1 short sentence by default (5–12 words)
-- Max 2 short sentences only when needed
-- Avoid paragraphs and lists unless explicitly requested
+### Natural Flow
+- Default to one tight sentence (5–10 words); add a second only if the story needs it
+- React to the exact word they used before asking anything new
+- Swap explanations for prompts: "So what happened next?"
 
-### Keep It Conversational
-- End most turns with exactly ONE short question
-- Use brief backchannels ("mm", "yeah", "got it") sparingly
-- Stop after 3–5 seconds; let the learner speak
-- If they interrupt, stop immediately
-
-### Reply Blueprint (especially during onboarding)
-- Step 1: Short acknowledgment (≤8 words) like "Got it, business focus."
-- Step 2: One targeted question (≤12 words) that narrows the topic
-- Step 3: Pause and wait; no extra examples until they answer
-- NEVER stack multiple questions in one turn
+### Question Habits
+- One question per turn—make it pointed
+- Mix formats (why/how/what next) so it feels like a real conversation
+- Leave 1–2 seconds of silence; interruption means you stop instantly
 
 ### Teaching Moments
-- After a correction, give the corrected phrase once, then a short prompt
-- Keep translations in parentheses and brief; return to ${language.name} right away
-- Cultural/context notes: one quick line, not a lecture
+- Give the corrected phrase once, then have them use it immediately
+- Keep translations in parentheses and short; jump back to ${language.name} fast
+- ${
+			isAdvanced
+				? `Push them forward: "Say that again as if you're under deadline."`
+				: `Offer one scaffold if they stall, then return to free conversation.`
+		}
 
-### Long User Messages
-- Reply with a concise reaction/summary (one line) + one follow-up question
-
-### NEVER
-- Monologue for more than two sentences
-- Chain multiple examples without pausing for their response`;
+### Never
+- Monologue or stack examples
+- Rephrase their answer twice in a row
+- Stack multiple questions in one breath`;
 	}
 });
 
@@ -290,45 +317,67 @@ Third attempt (code-switch):
 modules.register({
 	id: 'language-control',
 	priority: 3,
-	generate: ({ language, user }: ModuleContext) => {
+	generate: ({ language, user, preferences, scenario }: ModuleContext) => {
 		let nativeLanguageObject = getLanguageById(user.nativeLanguageId);
 		if (!nativeLanguageObject) {
 			console.error('Native language object not found, using default language');
 			nativeLanguageObject = languages[0];
 		}
 
+		const learnerLevel = getLearnerCefrLevel(preferences);
+		const scenarioLevel = getScenarioCefrLevel(scenario);
+		const immersionReady = shouldStayInTargetLanguage(learnerLevel);
+		const scenarioPushesImmersion = compareCefrLevel(scenarioLevel, 'B2') >= 0;
+		const enforceImmersion = immersionReady || scenarioPushesImmersion;
+
 		return `## LANGUAGE CONTROL
 
 ### Primary Language: ${language.name}
-- ALWAYS speak ${language.name} after initial greeting
-- MAINTAIN ${language.name} throughout session
+- Speak ${language.name} from the greeting onward
+- ${
+			enforceImmersion
+				? `Stay in ${language.name} unless meaning fully breaks`
+				: `Lead with ${language.name}, then add one ${nativeLanguageObject.name} cue if meaning slips`
+		}
 
 ### Allowed Languages Only
 - Allowed: ${language.name} (primary), ${nativeLanguageObject.name} (support only)
 - Never use any other language
-- Keep any ${nativeLanguageObject.name} aside minimal and temporary (1 short clause max)
-- When quoting translations, wrap brief ${nativeLanguageObject.name} in parentheses, then return to ${language.name}
+- Keep any ${nativeLanguageObject.name} aside to a single short clause
+- Translate in parentheses, then snap back to ${language.name}
+
+### ${
+			enforceImmersion ? 'Immersion Mode (B2+)' : 'Support Mode (A1–B1)'
+		}
+- ${
+			enforceImmersion
+				? `If they switch to ${nativeLanguageObject.name}, acknowledge with one clause, then recast in ${language.name}`
+				: `After two failed attempts, offer one (${nativeLanguageObject.name}) hint and rebuild the ${language.name} sentence together`
+		}
+- ${
+			enforceImmersion
+				? 'Use bilingual scaffolding only for precision or safety; keep it under five words.'
+				: `After three failed tries, invite them to explain in ${nativeLanguageObject.name}, then coach the ${language.name} version.`
+		}
 
 ### Strategic Code-Switching (De-escalation)
 WHEN frustrated (after 2+ failed attempts):
-- Mix languages: "Let's go to the... how do you say... park"  
-- Scaffold: Say phrase in ${language.name}, then translate key word
-- Example: "${language.name === 'Japanese' ? '公園に (kouen ni - to the park) 行きましたか？' : 'Say phrase with translation'}"
+- Mix languages briefly: "Let's go to the... how do you say... park"
+- Scaffold: say phrase in ${language.name}, then translate one key word
+- Example: "Let's say it in INSERT_LANGUAGE: 'Shall we head to the park?'" → deliver the sentence naturally in INSERT_LANGUAGE, then give the key noun in their native language once
 
 WHEN confused:
-- Brief ${nativeLanguageObject.nativeName} explanation, then back to ${language.name}
+- Give a short ${nativeLanguageObject.nativeName} explanation, then resume ${language.name}
 - "In ${nativeLanguageObject.nativeName}: This means [explanation]. Now in ${language.name}..."
 
 WHEN emotional/upset:
 - Acknowledge in ${nativeLanguageObject.nativeName}, continue in ${language.name}
-- "I understand this is frustrating. Let's make it easier..."
+- "I know that was rough. Try it again with me."
 
--### Native Language Switch (${nativeLanguageObject.name})
-- During the first minute of onboarding, it is OK to briefly use ${nativeLanguageObject.name} to uncover long‑term goals, then return to ${language.name}
-- If learner switches to ${nativeLanguageObject.name} at any point, respond with one brief clause in that language to acknowledge, then immediately continue in ${language.name}
-- Recast their idea in ${language.name}, include a tiny (${nativeLanguageObject.name}) gloss in parentheses
-- Example: "いいですね。昨日、公園に行きましたか？ (${nativeLanguageObject.name} gloss)"
-- Check comprehension via interaction (yes/no or choice), not "Do you understand?"
+### Native Language Switch (${nativeLanguageObject.name})
+- First minute of onboarding: OK to use ${nativeLanguageObject.name} once to surface goals, then return to ${language.name}
+- Any other time: acknowledge with one clause, recast in ${language.name}, and ask for a response
+- Check comprehension with choices or reactions—never "Do you understand?"
 
 ### NEVER Switch Fully to ${nativeLanguageObject.nativeName} Unless:
 - User explicitly requests it
@@ -443,26 +492,6 @@ Response progression:
 - Made cultural connection → "You really pulled in [culture thing]! You've been studying!"
 - Attempted humor/wordplay → "Did you really make a pun? In [language]?! That's incredible!"
 - Self-corrected naturally → "I love that you caught yourself - that's what fluent speakers do!"
-
-### Two-Minute Hook Flow (First impression)
-0-30s: Quick win
-- They understand without translation
-- "You already know more than you think!"
-
-30-60s: First success
-- They say something correctly
-- "Perfect! You're speaking ${language.name}!"
-
-60-90s: Surprise element (Insider Knowledge Hook)
-- "Ever heard of [cultural phrase/secret]?" 
-- Wait for their response - make it conversational
-- If they want it, reveal: "It's what [specific group] actually say when..."
-- "Most textbooks never teach this, but..."
-
-90-120s: Personal connection
-- Link directly to their stated goal
-- "With this phrase, you could totally [their specific scenario]"
-- "Imagine using this when you [their goal situation]"
 
 ### Frustration Recovery Flow
 Detect: Multiple errors, long pauses, "I don't know", sighing
@@ -690,22 +719,22 @@ export function generateUpdateInstructions(
 - Add gestures/context clues`;
 		}
 
-		case 'frustration_detected': {
-			const level = context?.type === 'frustration_detected' ? context.level : 'mild';
-			if (level === 'severe') {
-				return `## IMMEDIATE DE-ESCALATION
+			case 'frustration_detected': {
+				const level = context?.type === 'frustration_detected' ? context.level : 'mild';
+				if (level === 'severe') {
+					return `## IMMEDIATE DE-ESCALATION
 - Switch to ${nativeLang}: "Hey, it's okay. This is hard."
 - Acknowledge: "Everyone struggles with this part"  
 - Simplify drastically: One word responses are fine
 - Rebuild confidence: Give 3 easy wins quickly`;
-			} else {
-				return `## GENTLE SUPPORT
-- Mix languages: "The word for 'dog'... ${language.name === 'Japanese' ? 'inu (犬)' : 'in your language'} ... let's practice"
+				} else {
+					return `## GENTLE SUPPORT
+- Mix languages briefly: "The word for 'dog' in INSERT_LANGUAGE is..., let's try it together."
 - Encourage: "You're doing better than you think"
 - Adjust down one level
 - Focus on success, not perfection`;
+				}
 			}
-		}
 
 		case 'magic_moment':
 			return `## MAGIC MOMENT DETECTED!
@@ -741,10 +770,11 @@ export function generateUpdateInstructions(
 - Acknowledge briefly in ${detected}: one short clause only
 - Immediately recast in ${language.name}, add tiny ${detected} gloss in parentheses
 - Offer a simple confirmation path (はい／いいえ or two-choice)
+- Offer a simple confirmation path (yes/no or two-choice)
 - Keep momentum positive; return to ${language.name} right away
 
 Example:
-- "いいね。昨日、公園に行きましたか？ (I went to the park yesterday)"`;
+- "Nice! Yesterday, did you make it to the park?" → deliver the recap in INSERT_LANGUAGE, then mirror it in their native language with one short clause`;
 		}
 
 		default:
@@ -763,7 +793,7 @@ export function generateInitialInstructions(
 	user: User,
 	language: Language,
 	preferences: Partial<UserPreferences>,
-	scenario?: Scenario,
+	scenario?: ScenarioWithHints,
 	sessionContext?: SessionContext,
 	speaker?: Speaker
 ): string {
@@ -852,56 +882,12 @@ Keep under 15 seconds total.`;
 // HELPER FUNCTIONS
 // ============================================
 
-function getNativeGreeting(langCode: string): { greeting: string; confirmation: string } {
-	const greetings: Record<string, { greeting: string; confirmation: string }> = {
-		en: {
-			greeting:
-				"So glad we're meeting! Since this seems to be our first time talking, I'm really curious - what's your main objective with this language?",
-			confirmation: 'Can you hear me okay?'
-		},
-		es: {
-			greeting:
-				'¡Qué alegría conocerte! Como parece ser nuestra primera conversación, tengo mucha curiosidad - ¿cuál es tu objetivo principal con este idioma?',
-			confirmation: '¿Me escuchas bien?'
-		},
-		fr: {
-			greeting:
-				"Je suis si content de te rencontrer! Puisque c'est apparemment notre première conversation, j'aimerais savoir - quel est ton objectif principal avec cette langue?",
-			confirmation: "Tu m'entends bien?"
-		},
-		de: {
-			greeting:
-				'Ich freue mich so, dich kennenzulernen! Da das unser erstes Gespräch zu sein scheint, bin ich neugierig - was ist dein Hauptziel mit dieser Sprache?',
-			confirmation: 'Hörst du mich gut?'
-		},
-		it: {
-			greeting:
-				'Che piacere conoscerti! Dato che sembra la nostra prima conversazione, sono curioso - qual è il tuo obiettivo principale con questa lingua?',
-			confirmation: 'Mi senti bene?'
-		},
-		pt: {
-			greeting:
-				'Que alegria te conhecer! Como parece ser nossa primeira conversa, estou curioso - qual é seu objetivo principal com este idioma?',
-			confirmation: 'Está me ouvindo bem?'
-		},
-		ja: {
-			greeting:
-				'お会いできてとても嬉しいです！初めての会話のようですが、この言語での主な目標は何ですか？',
-			confirmation: 'よく聞こえますか？'
-		},
-		ko: {
-			greeting:
-				'만나게 되어서 정말 기뻐요! 첫 대화인 것 같은데, 이 언어를 배우는 주된 목표가 무엇인지 궁금해요?',
-			confirmation: '잘 들리나요?'
-		},
-		zh: {
-			greeting:
-				'很高兴认识你！既然这似乎是我们第一次交谈，我很好奇 - 你学习这门语言的主要目标是什么？',
-			confirmation: '听得清楚吗？'
-		}
+function getNativeGreeting(_langCode: string): { greeting: string; confirmation: string } {
+	return {
+		greeting:
+			"So glad we're meeting! Since this seems to be our first time talking, I'm really curious—what's your main objective with this language?",
+		confirmation: 'Can you hear me okay?'
 	};
-
-	return greetings[langCode] || greetings.en;
 }
 
 // Shared onboarding block (single source of truth)
@@ -940,55 +926,55 @@ function buildOnboardingIntroSection(
 function buildOnboardingGoalDiscoverySection(language: Language, nativeName: string): string {
 	return `### GOAL & TRUST BUILDING (~30s)
 
-Pick one or two prompts based on their vibe:
-- "どんな場面で${language.name}を使いたい？ 旅行？ 仕事？ 家族？"
-- "一年後、${language.name}でできると最高なことは？"
-- "誰と${language.name}で話したい？ 盛り上がる話題は？"
-- "${nativeName}で教えてくれてもいいよ。背景、教えて。"
+Pick one or two prompts and say them in INSERT_LANGUAGE (swap INSERT_LANGUAGE for natural ${language.name} phrasing, and reference their city or region if you know it):
+- "What’s the real moment you need INSERT_LANGUAGE for? Travel, work, or family?"
+- "A year from now, what would feel amazing to pull off in INSERT_LANGUAGE?"
+- "Who do you want to talk to in INSERT_LANGUAGE, and what sparks the best conversations?"
+- "Feel free to reply in ${nativeName} if that’s easier—give me the background."
 
 As they answer:
-- Reflect back casually: "Right, so ${language.name} at work, got it."
-- Name one concrete phrase or situation they will love soon
-- Sound collaborative: "We can totally make that happen."
-- Keep it to one acknowledgement + one follow-up (no mini speeches)
+- Reflect back casually in English: "Right, so INSERT_LANGUAGE at work—makes sense."
+- Surface one concrete phrase or situation they’ll love soon
+- Keep it collaborative: "We can totally make that happen."
+- Limit yourself to one acknowledgement + one follow-up (no mini speeches)
 - Sample follow-up: "Got it. Are we talking boardroom intros or smoothing tough calls?"`;
 }
 
 function buildOnboardingLevelSensingSection(language: Language, nativeName: string): string {
 	return `### LEVEL SENSING THROUGH CONVERSATION (~60–90s)
 
-Switch to ${language.name} once the goal is clear: "From now on I'll stay in ${language.name}, cool? Jump in however you like."
+Switch to ${language.name} once the goal is clear: "From now on I’ll stay in INSERT_LANGUAGE—is that cool? Jump in however you like."
 
-Starter questions (choose one):
-- High energy → "最近ハマってることって何？"
-- Relaxed → "週末ってどんな過ごし方が多い？"
-- Purposeful → "${language.name}で叶えたい最初のシーンってどんな？"
+Choose one starter question (deliver it in INSERT_LANGUAGE, tailored to their vibe):
+- High energy → "What’s the thing you’re obsessed with right now?"
+- Relaxed → "How do you usually spend your weekends?"
+- Purposeful → "What’s the very first scene you want to nail in INSERT_LANGUAGE?"
 
 While they answer:
-- Listen to rhythm, vocabulary, and confidence before planning the next move
-- React as a friend: "Really? それ面白いね。"
-- Keep the thread alive with one short follow-up based on their details
-- If they already gave the info you need, cycle to a new question within 10 words
+- Listen for rhythm, vocabulary, and confidence before planning the next move
+- React like a friend in English, then nudge them back into INSERT_LANGUAGE
+- Keep the thread alive with one short follow-up tied to their details
+- If you already got what you need, pivot to the next question within one sentence
 
-Level cues (set internal estimate, don't announce it):
-- If they lean on ${nativeName} or stay super short → treat them as discovering mode; help them finish thoughts in ${language.name}
-- If they build clear sentences with basic grammar → treat them as steady mode; nudge into light storytelling
-- If they roll with idioms, opinions, or jokes in ${language.name} → treat them as fluent mode; keep pace natural and invite richer topics immediately
+Level cues (decide silently, don’t announce):
+- If they lean on ${nativeName} or stay super short → treat it as discovery mode; help them finish thoughts in INSERT_LANGUAGE
+- If they build steady sentences → treat it as builder mode; invite light storytelling
+- If they flex idioms, opinions, or jokes → treat it as fluent mode; match their pace and drop richer topics
 
 Whenever they code-switch to ${nativeName}:
-- Acknowledge with one quick clause in ${nativeName}, then flip back into ${language.name} with a tiny (${nativeName}) gloss
-- Offer choices instead of "Do you understand?"`;
+- Acknowledge with one quick clause in ${nativeName}, then mirror the idea in INSERT_LANGUAGE
+- Offer choices or examples instead of asking "Do you understand?"`;
 }
 
 function buildOnboardingMomentumSection(language: Language): string {
 	return `### MOMENTUM & FIRST WIN (Next 2–3 minutes)
 
-- Bring in a phrase or mini-scenario tied to their goal
-- If they seemed hesitant → slow the pace a bit, cheer every completed idea
-- If they felt steady → add an opinion or why-question in ${language.name}
-- If they felt fluent → jump into a timely topic, idiom, or cultural nugget
+- Bring in a phrase or mini-scenario tied to their goal (deliver it in INSERT_LANGUAGE)
+- If they seemed hesitant → slow the pace and call out every completed idea
+- If they felt steady → add an opinion or why-question in INSERT_LANGUAGE
+- If they felt fluent → jump into a timely topic, idiom, or cultural nugget in INSERT_LANGUAGE
 - Ask before teaching: "Want a quick phrase for that scenario?"
-- Celebrate specifically: "Right, that phrasing is exactly how friends say it."
+- Celebrate specifically: "Right, that phrasing is exactly how locals say it."
 - Keep tips under two short sentences so they can jump in fast`;
 }
 
@@ -998,7 +984,196 @@ function buildOnboardingRulesSection(language: Language): string {
 - No "repeat after me" drills
 - Stay upbeat and encouraging, even when correcting
 - Simplify instantly if they look stuck; make the quick win obvious
-- Always anchor back to how this helps their real goal in ${language.name}`;
+- Always anchor back to how this helps their real goal in INSERT_LANGUAGE`;
+}
+
+function buildFirstTimeCheckIn(language: Language, user: User, speakerName: string): string {
+	const nativeName = getLanguageById(user.nativeLanguageId || 'en')?.name || 'English';
+	return `## FIRST CONVERSATION CHECK-IN
+
+- Open with a relaxed vibe: "Since we're kicking off, give me the INSERT_LANGUAGE version of the win you're chasing."
+- Offer safety net: "If it's easier, say it in ${nativeName} and I'll bounce it back in INSERT_LANGUAGE."
+- Confirm logistics quickly: "Sound okay on your end? If anything glitches, just say '${nativeName}, please' and I'll slow down."
+- Wrap with confidence: "I'm ${speakerName}. Let's make the next few minutes count for your INSERT_LANGUAGE goals."`;
+}
+
+type ScenarioPlaybookOptions = {
+	scenario: ScenarioWithHints;
+	language: Language;
+	level: CEFRLevel;
+	learnerLevel: CEFRLevel;
+	levelContrast: number;
+	speakerName: string;
+};
+
+const scenarioCategoryGuidance: Record<
+	Exclude<ScenarioWithHints['category'], undefined> | 'default',
+	{
+		headline: string;
+		conversationMoves: string[];
+		followUps: string[];
+	}
+> = {
+	comfort: {
+		headline: 'Make the learner feel unstoppable in familiar territory.',
+		conversationMoves: [
+			'Stick to stories they already referenced; reuse their own words in INSERT_LANGUAGE.',
+			'Swap corrections for quick recasts, then hand the turn back immediately.',
+			'Bank obvious wins ("That sounded natural—bookmark it").'
+		],
+		followUps: [
+			'"What made that moment feel good?"',
+			'"Want to try that again but with a friend/colleague in mind?"'
+		]
+	},
+	basic: {
+		headline: 'Build sturdy basics they can recycle today.',
+		conversationMoves: [
+			'Keep sentences compact; highlight subject + verb + key detail.',
+			'Anchor every new word to a concrete image or action they mentioned.',
+			'Prompt them to reuse a phrase twice before moving on.'
+		],
+		followUps: [
+			'"How would you say that about yesterday?"',
+			'"Can you flip it into a question for me?"'
+		]
+	},
+	intermediate: {
+		headline: 'Stretch into nuance without losing flow.',
+		conversationMoves: [
+			'Push for reasons, comparisons, or mini-stories in INSERT_LANGUAGE.',
+			'Surface one cultural cue or register shift tied to the scenario.',
+			'Invite them to react to your short anecdote, not just answer prompts.'
+		],
+		followUps: [
+			'"What surprised you most about that?"',
+			'"How would you explain that to a new teammate?"'
+		]
+	},
+	relationships: {
+		headline: 'Model warmth, curiosity, and respectful phrasing.',
+		conversationMoves: [
+			'Mirror their emotional tone; spotlight phrases that earn trust.',
+			'Offer polite yet real reactions ("That would impress anyone in INSERT_LANGUAGE").',
+			'Drip in honorifics or softening particles if the culture expects them.'
+		],
+		followUps: [
+			'"What response would make you feel truly welcomed?"',
+			'"How would you compliment them without sounding over the top?"'
+		]
+	},
+	roleplay: {
+		headline: 'Keep stakes real, decisions sharp, and language actionable.',
+		conversationMoves: [
+			'Frame stakes up front: who, what, what happens if it fails.',
+			'Cycle through clarify → confirm → advance loops entirely in INSERT_LANGUAGE.',
+			'Translate one tricky term into plain INSERT_LANGUAGE the learner can reuse.'
+		],
+		followUps: [
+			'"What would you ask them first?"',
+			'"How do you close the conversation so everyone’s aligned?"'
+		]
+	},
+	default: {
+		headline: 'Match the learner’s goal with nimble turns and shared focus.',
+		conversationMoves: [
+			'Use their own vocabulary choices as scaffolding.',
+			'Keep each exchange two beats long: react + targeted follow-up.',
+			'Name why a phrase matters so they log it mentally.'
+		],
+		followUps: [
+			'"What would you say next in INSERT_LANGUAGE?"',
+			'"Who else would you try that line on?"'
+		]
+	}
+};
+
+function formatScenarioLevelDescriptor(level: CEFRLevel): { label: string; summary: string } {
+	switch (level) {
+		case 'A1':
+		case 'A2':
+			return {
+				label: 'Foundational (A1–A2)',
+				summary:
+					'Guarantee comprehension. Use high-frequency verbs, and stack obvious wins before adding anything new.'
+			};
+		case 'B1':
+			return {
+				label: 'Builder (B1)',
+				summary:
+					'Keep them talking for 3–4 sentences. Recycle vocabulary in new contexts and encourage light storytelling.'
+			};
+		case 'B2':
+			return {
+				label: 'Upper Builder (B2)',
+				summary:
+					'Press for opinions and contrasts. Highlight natural phrasing so they sound local, not textbook.'
+			};
+		case 'C1':
+			return {
+				label: 'Advanced (C1)',
+				summary:
+					'Expect agility. Swap register effortlessly and test their ability to justify, negotiate, or reframe on the fly.'
+			};
+		case 'C2':
+		default:
+			return {
+				label: 'Expert (C2)',
+				summary:
+					'Keep pressure high. Challenge precision, tone, and cultural nuance so they sound native under stress.'
+			};
+	}
+}
+
+function describeLevelContrast(levelContrast: number): string {
+	if (levelContrast >= 1) {
+		return 'Learner sits above this scenario—add stretch prompts fast, or deepen nuance.';
+	}
+	if (levelContrast <= -1) {
+		return 'Scenario outpaces current comfort—scaffold with mini summaries before advancing.';
+	}
+	return 'Scenario matches their comfort zone—balance support with gentle pushes.';
+}
+
+function buildScenarioPlaybook({
+	scenario,
+	language,
+	level,
+	learnerLevel,
+	levelContrast,
+	speakerName
+}: ScenarioPlaybookOptions): string {
+	const guidance = scenarioCategoryGuidance[scenario.category || 'default'] || scenarioCategoryGuidance.default;
+	const levelDescriptor = formatScenarioLevelDescriptor(level);
+	const contrastNote = describeLevelContrast(levelContrast);
+	const cityHint =
+		scenario.localeHints && scenario.localeHints.length
+			? `If you know the speaker is near ${scenario.localeHints[0]}, thread that local vibe into examples.`
+			: 'If you know their city or region, sprinkle in a relevant landmark or habit.';
+
+	return `## SCENARIO PLAYBOOK — ${scenario.title}
+
+### Why it matters
+- ${guidance.headline}
+- Target outcome: ${scenario.expectedOutcome || 'Deliver a memorable, useful exchange.'}
+- ${cityHint}
+
+### Level intent (${levelDescriptor.label})
+- ${levelDescriptor.summary}
+- ${contrastNote}
+- Match ${speakerName}'s tone to their energy, but keep every prompt under two short sentences.
+
+### Conversation moves
+- ${guidance.conversationMoves.join('\n- ')}
+
+### Follow-up fuel (say in INSERT_LANGUAGE)
+- ${guidance.followUps.join('\n- ')}
+
+### Keep in mind
+- Demonstrate every example in ${language.name} and label it as the INSERT_LANGUAGE version.
+- Stay in INSERT_LANGUAGE unless safety or clarity forces a one-clause native-language aside.
+- Tie corrections to the scenario stakes: show how each tweak wins the room faster.
+- Close with a next-step teaser: "Next time we can tackle INSERT_LANGUAGE phrasing for ${scenario.category === 'roleplay' ? 'the toughest follow-up question' : 'the next layer of this situation'}."`;
 }
 
 // ============================================
@@ -1011,7 +1186,7 @@ export function getInstructions(
 		user: User;
 		language: Language;
 		preferences: Partial<UserPreferences>;
-		scenario?: Scenario;
+		scenario?: ScenarioWithHints;
 		sessionContext?: SessionContext;
 		speaker?: Speaker;
 		updateType?: UpdateContext['type'];
@@ -1065,7 +1240,7 @@ export function testModule(moduleId: string, params: ModuleContext): string {
  * This decouples scenario logic from the main instruction flow
  */
 export function generateScenarioInstructions(
-	scenario: Scenario | undefined,
+	scenario: ScenarioWithHints | undefined,
 	user: User,
 	language: Language,
 	preferences: Partial<UserPreferences>,
@@ -1077,135 +1252,57 @@ export function generateScenarioInstructions(
 
 	// Base instructions that apply to all scenarios
 	const baseInstructions = getBaseInstructions(user, language, preferences, speaker);
+	const scenarioLevel = getScenarioCefrLevel(scenario);
+	const learnerLevel = getLearnerCefrLevel(preferences);
 
-	// Handle first-time users regardless of scenario
-	const isOnboardingNeeded = isFirstTime || scenario?.category === 'onboarding';
+	const sections = [baseInstructions];
 
-	if (isOnboardingNeeded) {
+	if (scenario?.category === 'onboarding') {
 		const introName = speaker?.voiceName || 'Hiro';
 		const target = language.name;
 		const nativeName =
 			getLanguageById(user.nativeLanguageId || 'en')?.name || 'your native language';
 		const intro = `Hello! I'm ${introName}, and I'm glad we're chatting. We'll mainly speak ${target}, but feel free to respond in ${nativeName}—whatever's easier. What's your long-term goal with ${target}?`;
+		sections.push(
+			applyLanguagePlaceholders(
+				buildOnboardingBlock(user, language, nativeGreeting.greeting, introName),
+				language
+			)
+		);
+
 		return {
-			instructions: `${baseInstructions}\n\n${buildOnboardingBlock(user, language, nativeGreeting.greeting, introName)}`,
+			instructions: sections.filter(Boolean).join('\n\n'),
 			initialMessage: intro
 		};
 	}
 
-	switch (scenario?.category) {
-		case 'comfort':
-			return {
-				instructions: `${baseInstructions}
-
-## COMFORT SCENARIO - CONFIDENCE BUILDING
-
-### PRIMARY OBJECTIVE: Build speaking confidence in safe environment
-### APPROACH: Supportive, low-pressure conversation
-
-### COMFORT STRATEGIES:
-- Start with topics they know well
-- Celebrate every attempt enthusiastically
-- Never correct directly - model correct version
-- Keep complexity low but engaging
-- Focus on fluency over accuracy
-
-### CONVERSATION FLOW:
-- Personal interests and experiences
-- Familiar daily activities
-- Simple opinions and preferences
-- Stories about things they enjoy
-- Future plans and dreams
-
-### SUPPORT TECHNIQUES:
-- "That's exactly right!"
-- "You're expressing that beautifully"
-- "I love hearing about that!"
-- Use their ideas as springboards`,
-
-				initialMessage: `Hello! I'm ${speakerName}. I'm so glad to meet you! Let's have a really comfortable chat in ${language.name}. What makes you happiest these days?`
-			};
-
-		case 'basic':
-			return {
-				instructions: `${baseInstructions}
-
-## BASIC SCENARIO - FUNDAMENTAL PRACTICE
-
-### PRIMARY OBJECTIVE: Practice essential language building blocks
-### FOCUS: Core vocabulary and simple structures
-
-### BASIC LANGUAGE ELEMENTS:
-- Essential daily vocabulary
-- Present tense conversations
-- Simple questions and answers
-- Basic descriptions
-- Common phrases and expressions
-
-### PRACTICE APPROACH:
-- Use high-frequency words
-- Short, clear sentences
-- Repetition through natural conversation
-- Visual and contextual support
-- Connect to real-life situations
-
-### PROGRESSION:
-- Greetings and introductions
-- Family and personal information  
-- Daily routines and activities
-- Simple preferences and opinions`,
-
-				initialMessage: `Hi there! I'm ${speakerName}. Let's practice some basic ${language.name} together. Tell me a little about yourself - what do you enjoy doing?`
-			};
-
-		case 'intermediate':
-			return {
-				instructions: `${baseInstructions}
-
-## INTERMEDIATE SCENARIO - EXPANDING SKILLS
-
-### PRIMARY OBJECTIVE: Develop more complex communication
-### FOCUS: Nuanced expression and varied structures
-
-### INTERMEDIATE ELEMENTS:
-- Complex sentence structures
-- Past and future tenses
-- Abstract concepts and ideas
-- Cultural nuances
-- Idiomatic expressions
-
-### CONVERSATION TOPICS:
-- Detailed experiences and stories
-- Opinions on various subjects
-- Hypothetical situations
-- Cultural comparisons
-- Problem-solving discussions
-
-### CHALLENGE LEVEL:
-- Introduce new vocabulary naturally
-- Encourage longer responses
-- Ask follow-up questions for depth
-- Gentle correction through reformulation`,
-
-				initialMessage: `Hello! I'm ${speakerName}. Ready for some engaging ${language.name} conversation? I'd love to hear about something interesting that happened to you recently.`
-			};
-
-		default:
-			// Default to conversation practice for unknown scenarios
-			return {
-				instructions: `${baseInstructions}
-
-## GENERAL CONVERSATION
-
-### PRIMARY OBJECTIVE: Natural, supportive conversation practice
-- Follow user's lead and interests  
-- Adapt to their comfort level
-- Provide gentle guidance and support
-- Keep conversation flowing naturally`,
-
-				initialMessage: `Hello! I'm ${speakerName}. Great to meet you! What would you want to practice in ${language.name} today?`
-			};
+	if (isFirstTime) {
+		sections.push(applyLanguagePlaceholders(buildFirstTimeCheckIn(language, user, speakerName), language));
 	}
+
+	if (scenario) {
+		sections.push(
+			applyLanguagePlaceholders(
+				buildScenarioPlaybook({
+					scenario,
+					language,
+					level: scenarioLevel,
+					learnerLevel,
+					levelContrast: compareCefrLevel(learnerLevel, scenarioLevel),
+					speakerName
+				}),
+				language
+			)
+		);
+	}
+
+	const instructions = applyLanguagePlaceholders(sections.filter(Boolean).join('\n\n'), language);
+	const initialMessage = applyLanguagePlaceholders(
+		generateScenarioGreeting({ language, scenario, user }),
+		language
+	);
+
+	return { instructions, initialMessage };
 }
 
 /**
@@ -1213,7 +1310,7 @@ export function generateScenarioInstructions(
  * This is the main function to call from your realtime service
  */
 export function createScenarioSessionConfig(
-	scenario: Scenario | undefined,
+	scenario: ScenarioWithHints | undefined,
 	user: User,
 	language: Language,
 	preferences: Partial<UserPreferences>,
@@ -1268,7 +1365,7 @@ function getBaseInstructions(
  * Generate scenario-specific update instructions for mid-conversation
  */
 export function generateScenarioUpdate(
-	scenario: Scenario | undefined,
+	scenario: ScenarioWithHints | undefined,
 	updateContext: {
 		phase: 'warming_up' | 'main_activity' | 'wrapping_up';
 		timeElapsed: number;

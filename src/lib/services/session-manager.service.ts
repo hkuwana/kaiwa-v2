@@ -2,12 +2,13 @@
 import type { Language } from '$lib/server/db/types';
 import type { SessionConfig, Voice } from '$lib/types/openai.realtime.types';
 import { env as publicEnv } from '$env/dynamic/public';
+import type { RealtimeSessionConfig } from '@openai/agents-realtime';
 
 export function createSessionConfig(
 	language: Language,
 	voice: Voice,
 	instructions: string
-): SessionConfig {
+): RealtimeSessionConfig {
 	return {
 		model: publicEnv.PUBLIC_OPEN_AI_MODEL,
 		voice: voice,

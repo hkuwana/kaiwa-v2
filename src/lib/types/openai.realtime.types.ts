@@ -5,12 +5,85 @@
 // === Official OpenAI Agents Exports ===
 export { RealtimeAgent, RealtimeSession as OpenAIRealtimeSession } from '@openai/agents-realtime';
 
-// Re-export commonly used types from the official package
-export type {} from // Add official types as they become available
-'@openai/agents-realtime';
+// Import from the main package - only exports available
+import type {
+	RealtimeClientMessage,
+	RealtimeAudioFormat,
+	RealtimeSessionConfig
+} from '@openai/agents-realtime';
+
+export type {
+	RealtimeClientMessage,
+	RealtimeAudioFormat,
+	RealtimeSessionConfig
+} from '@openai/agents-realtime';
+
+// The following types are not exported from the package, so we'll define them locally
+// based on the package's internal definitions
+export type RealtimeAudioFormatDefinition = {
+	type: 'audio/pcm';
+	rate: number;
+} | {
+	type: 'audio/pcmu';
+} | {
+	type: 'audio/pcma';
+};
+
+export type RealtimeInputAudioNoiseReductionConfig = {
+	type: 'near_field' | 'far_field' | (string & {});
+};
+
+export type RealtimeInputAudioTranscriptionConfig = {
+	language?: string;
+	model?: 'gpt-4o-transcribe' | 'gpt-4o-mini-transcribe' | 'whisper-1' | (string & {});
+	prompt?: string;
+};
+
+export type RealtimeTurnDetectionConfig = {
+	type?: 'semantic_vad' | 'server_vad' | (string & {});
+	createResponse?: boolean;
+	eagerness?: 'auto' | 'low' | 'medium' | 'high';
+	interruptResponse?: boolean;
+	prefixPaddingMs?: number;
+	silenceDurationMs?: number;
+	threshold?: number;
+	idleTimeoutMs?: number;
+} & Record<string, any>;
+
+export type RealtimeAudioInputConfig = {
+	format?: RealtimeAudioFormat;
+	noiseReduction?: RealtimeInputAudioNoiseReductionConfig | null;
+	transcription?: RealtimeInputAudioTranscriptionConfig;
+	turnDetection?: RealtimeTurnDetectionConfig;
+};
+
+export type RealtimeAudioOutputConfig = {
+	format?: RealtimeAudioFormat;
+	voice?: string;
+	speed?: number;
+};
+
+export type RealtimeAudioConfig = {
+	input?: RealtimeAudioInputConfig;
+	output?: RealtimeAudioOutputConfig;
+};
+
+export type RealtimeTracingConfig = {
+	workflow_name?: string;
+	group_id?: string;
+	metadata?: Record<string, any>;
+} | 'auto';
+
+export type RealtimeToolDefinition = {
+	type: 'function';
+	name: string;
+	description: string;
+	parameters: any;
+	strict: boolean;
+};
 
 // === Core Types ===
-export type AudioFormat = 'pcm16' | 'g711_ulaw' | 'g711_alaw';
+export type AudioFormat = RealtimeAudioFormat;
 export type Voice = 'alloy' | 'ash' | 'ballad' | 'coral' | 'echo' | 'sage' | 'shimmer' | 'verse';
 
 // 🌟 Default voice (first in the union type)
@@ -42,31 +115,15 @@ export function isValidVoice(voice?: string): voice is Voice {
 export type Modality = 'text' | 'audio';
 export type ToolChoice = 'auto' | 'none' | 'required';
 export type VADType = 'server_vad' | 'semantic_vad';
-export type TranscriptionModel = 'whisper-1' | 'gpt-4o-transcribe';
+export type TranscriptionModel = 'whisper-1' | 'gpt-4o-transcribe' | 'gpt-4o-mini-transcribe';
 export type MessageRole = 'user' | 'assistant' | 'system';
 export type ContentType = 'input_text' | 'input_audio' | 'text' | 'audio';
 export type ItemType = 'message' | 'function_call' | 'function_call_output';
 
 // === Audio Configuration ===
-export interface InputAudioTranscription {
-	model: TranscriptionModel;
-	language: string;
-	prompt?: string;
-}
-
-export interface InputAudioNoiseReduction {
-	type: 'near_field' | 'far_field';
-}
-
-export interface TurnDetection {
-	type?: VADType;
-	threshold?: number;
-	prefix_padding_ms?: number;
-	silence_duration_ms?: number;
-	create_response?: boolean;
-	eagerness?: string;
-	interrupt_response?: boolean;
-}
+export type InputAudioTranscription = RealtimeInputAudioTranscriptionConfig;
+export type TurnDetection = RealtimeTurnDetectionConfig;
+export type InputAudioNoiseReduction = RealtimeInputAudioNoiseReductionConfig;
 
 // === Tools Configuration ===
 export interface FunctionParameter {
@@ -78,44 +135,43 @@ export interface FunctionParameter {
 	required?: string[];
 }
 
-export interface FunctionTool {
-	type: 'function';
-	name: string;
-	description: string;
-	parameters: {
-		type: 'object';
-		properties: Record<string, FunctionParameter>;
-		required?: string[];
-	};
-}
+export type FunctionTool = RealtimeToolDefinition;
 
 // === Session Configuration ===
-// Replace local definition with official SDK config for accuracy and forward compatibility
-import type { RealtimeSessionConfig as OfficialRealtimeSessionConfig } from '@openai/agents-realtime';
-export type SessionConfig = OfficialRealtimeSessionConfig;
+// Use official SDK config for accuracy and forward compatibility
+// Note: RealtimeSessionConfig is a union of new and deprecated formats
+// For our internal use, we'll use the new format with the audio config
+export type SessionConfig = {
+	model: string;
+	instructions: string;
+	toolChoice?: any;
+	tools?: RealtimeToolDefinition[];
+	outputModalities?: ('text' | 'audio')[];
+	audio?: RealtimeAudioConfig;
+	tracing?: RealtimeTracingConfig | null;
+	providerData?: Record<string, any>;
+	prompt?: any;
+	// Deprecated properties for backward compatibility
+	turnDetection?: RealtimeTurnDetectionConfig | null;
+	voice?: string;
+	inputAudioFormat?: string;
+	outputAudioFormat?: string;
+	inputAudioTranscription?: RealtimeInputAudioTranscriptionConfig;
+	inputAudioNoiseReduction?: RealtimeInputAudioNoiseReductionConfig | null;
+	speed?: number;
+	modalities?: ('text' | 'audio')[];
+};
 
 // === Simplified Session Config (for your existing code) ===
 export interface SimpleSessionConfig {
 	model: string;
 	voice: Voice;
 	instructions?: string;
-	turnDetection?: {
-		type: 'server_vad';
-		threshold: number;
-		prefix_padding_ms: number;
-		silence_duration_ms: number;
-	};
-	inputAudioTranscription?: {
-		model: TranscriptionModel;
-		language: string;
-	};
+	audio?: RealtimeAudioConfig;
+	turnDetection?: RealtimeTurnDetectionConfig | null;
 }
 
-export interface TracingConfig {
-	workflow_name: string;
-	group_id: string;
-	metadata?: Record<string, string | number | boolean>;
-}
+export type TracingConfig = RealtimeTracingConfig;
 
 // === Main Session Interface ===
 export interface RealtimeSession {

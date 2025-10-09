@@ -83,10 +83,7 @@ export const POST = async ({ request }) => {
 			}
 		};
 
-		console.log(
-			`Creating realtime session for sessionId: ${sessionId}`,
-			JSON.stringify(requestPayload, null, 2)
-		);
+		console.log(`Creating realtime session for sessionId: ${sessionId}`, requestPayload);
 
 		// GA: Create client secret for realtime API
 		const response = await fetch('https://api.openai.com/v1/realtime/client_secrets', {

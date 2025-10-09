@@ -107,14 +107,45 @@
 				throw new Error(data.error || 'Failed to load conversations');
 			}
 
+			const responseData = data.data ?? {};
+			const conversationBatch = Array.isArray(responseData)
+				? responseData
+				: Array.isArray(responseData?.conversations)
+					? responseData.conversations
+					: [];
+
 			if (reset) {
-				conversations = data.data.conversations;
+				conversations = conversationBatch;
 			} else {
-				conversations = [...conversations, ...data.data.conversations];
+				conversations = [...conversations, ...conversationBatch];
 			}
 
-			totalConversations = data.data.pagination.total;
-			hasMore = data.data.pagination.hasMore;
+			const pagination =
+				data.pagination ??
+				(!Array.isArray(responseData) && responseData?.pagination
+					? responseData.pagination
+					: undefined);
+
+			const totalFromPagination =
+				typeof pagination?.total === 'number' ? pagination.total : undefined;
+			const totalFromResponse =
+				!Array.isArray(responseData) && typeof responseData?.total === 'number'
+					? responseData.total
+					: undefined;
+
+			totalConversations = totalFromPagination ?? totalFromResponse ?? conversations.length;
+
+			if (typeof pagination?.hasMore === 'boolean') {
+				hasMore = pagination.hasMore;
+			} else if (typeof pagination?.hasNext === 'boolean') {
+				hasMore = pagination.hasNext;
+			} else if (!Array.isArray(responseData) && typeof responseData?.hasMore === 'boolean') {
+				hasMore = responseData.hasMore;
+			} else {
+				const fetchedCount = conversationBatch.length;
+				const offset = currentPage * limit;
+				hasMore = offset + fetchedCount < totalConversations;
+			}
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'An error occurred';
 			console.error('Error loading conversations:', err);

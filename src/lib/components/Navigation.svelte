@@ -33,7 +33,7 @@
 				<li><a href="/privacy" class="">Privacy</a></li>
 				{#if user && user.id !== 'guest'}
 					<li><a href="/profile" class="">Profile</a></li>
-					<li><a href="/history" class="">History</a></li>
+					<li><a href="/user/history" class="">History</a></li>
 				{/if}
 
 				{#if dev}
@@ -74,7 +74,7 @@
 				>
 					<li><a href="/conversation" class="">Start Practice</a></li>
 					<li><a href="/profile" class="">Profile</a></li>
-					<li><a href="/history" class="">History</a></li>
+					<li><a href="/user/history" class="">History</a></li>
 					<li><a href="/logout" class="">Logout</a></li>
 				</ul>
 			</div>

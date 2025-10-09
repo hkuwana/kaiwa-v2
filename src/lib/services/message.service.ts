@@ -141,6 +141,22 @@ export function replaceUserPlaceholderWithFinal(
 	return removeDuplicateMessages(sortMessagesBySequence(updatedMessages));
 }
 
+export function dropUserPlaceholder(messages: Message[]): Message[] {
+	const placeholderIndex = messages.findIndex(
+		(msg) =>
+			msg.role === 'user' &&
+			(msg.id.startsWith('user_placeholder_') ||
+				msg.id.startsWith('user_transcribing_') ||
+				msg.id.startsWith('user_partial_'))
+	);
+
+	if (placeholderIndex === -1) return messages;
+
+	const updatedMessages = [...messages];
+	updatedMessages.splice(placeholderIndex, 1);
+	return removeDuplicateMessages(sortMessagesBySequence(updatedMessages));
+}
+
 export function createFinalUserMessage(content: string, sessionId: string): Message {
 	const now = new SvelteDate();
 	const sequenceId = generateSequenceId();
@@ -275,6 +291,18 @@ export function finalizeStreamingMessage(messages: Message[], finalText: string)
 		timestamp: new SvelteDate(),
 		speechTimings: updatedMessages[streamingMessageIndex].speechTimings || null
 	};
+	return removeDuplicateMessages(sortMessagesBySequence(updatedMessages));
+}
+
+export function dropStreamingMessage(messages: Message[]): Message[] {
+	const streamingMessageIndex = messages.findIndex(
+		(msg) => msg.role === 'assistant' && msg.id.startsWith('streaming_')
+	);
+
+	if (streamingMessageIndex === -1) return messages;
+
+	const updatedMessages = [...messages];
+	updatedMessages.splice(streamingMessageIndex, 1);
 	return removeDuplicateMessages(sortMessagesBySequence(updatedMessages));
 }
 
