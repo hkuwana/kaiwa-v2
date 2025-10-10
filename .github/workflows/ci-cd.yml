@@ -65,6 +65,9 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps
 
+      - name: Build application
+        run: pnpm run build
+
       - name: Run smoke tests
         run: pnpm run smoke:test
         env:
