@@ -8,7 +8,7 @@ export const GET = async ({ locals }) => {
 
 	try {
 		const settings = await userSettingsRepository.getSettingsByUserId(locals.user.id);
-		
+
 		if (!settings) {
 			// Return default preferences if no settings exist
 			return json({
@@ -40,7 +40,7 @@ export const POST = async ({ request, locals }) => {
 
 	try {
 		const preferences = await request.json();
-		
+
 		// Validate the preferences object
 		const validPreferences = {
 			receiveMarketingEmails: Boolean(preferences.receiveMarketingEmails),

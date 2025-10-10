@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import UserPreferencesEditor from '$lib/components/UserPreferencesEditor.svelte';
+	import EmailPreferences from '$lib/components/EmailPreferences.svelte';
 	import type { UserPreferences } from '$lib/server/db/types';
 	import type { UsageStatus } from '$lib/server/tier-service';
 	import { SvelteDate } from 'svelte/reactivity';
@@ -28,6 +29,7 @@
 		{ id: 'account', label: 'Account', icon: 'user' },
 		{ id: 'billing', label: 'Billing & Payments', icon: 'credit-card' },
 		{ id: 'preferences', label: 'Learning Preferences', icon: 'settings' },
+		{ id: 'email', label: 'Email Preferences', icon: 'mail' },
 		{ id: 'danger', label: 'Danger Zone', icon: 'warning' }
 	];
 
@@ -418,6 +420,23 @@
 									<span>Error loading preferences: {error.message}</span>
 								</div>
 							{/await}
+						</div>
+					</div>
+				{/if}
+
+				<!-- Email Preferences Tab -->
+				{#if activeTab === 'email'}
+					<div class="card mb-6 bg-base-100 shadow-xl">
+						<div class="card-body">
+							<h2 class="mb-4 card-title text-xl">
+								<span class="mr-2 icon-[mdi--mail] h-6 w-6"></span>
+								Email Preferences
+							</h2>
+							<p class="mb-6 text-base-content/70">
+								Choose which types of emails you'd like to receive from Kaiwa. You can change these
+								preferences at any time.
+							</p>
+							<EmailPreferences userId={data.user.id} />
 						</div>
 					</div>
 				{/if}

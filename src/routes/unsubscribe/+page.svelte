@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 
 	let unsubscribeResult: {
 		success: boolean;
@@ -10,33 +10,42 @@
 	let loading = true;
 
 	onMount(async () => {
-		const userId = $page.url.searchParams.get('userId');
-		const type = $page.url.searchParams.get('type') || 'all';
+		const success = page.url.searchParams.get('success');
+		const error = page.url.searchParams.get('error');
+		const type = page.url.searchParams.get('type') || 'all';
 
-		if (!userId) {
+		if (success === 'true') {
+			unsubscribeResult = {
+				success: true,
+				message: 'You have been successfully unsubscribed.'
+			};
+		} else if (error) {
+			let errorMessage = 'Failed to process unsubscribe request';
+			switch (error) {
+				case 'missing_user_id':
+					errorMessage = 'Invalid unsubscribe link - missing user ID';
+					break;
+				case 'invalid_type':
+					errorMessage = 'Invalid unsubscribe type';
+					break;
+				case 'server_error':
+					errorMessage = 'Server error occurred';
+					break;
+			}
+			unsubscribeResult = {
+				success: false,
+				message: errorMessage,
+				error: error
+			};
+		} else {
 			unsubscribeResult = {
 				success: false,
 				message: 'Invalid unsubscribe link',
-				error: 'Missing user ID'
+				error: 'No parameters provided'
 			};
-			loading = false;
-			return;
 		}
 
-		try {
-			const response = await fetch(`/api/unsubscribe?userId=${userId}&type=${type}`);
-			const result = await response.json();
-			
-			unsubscribeResult = result;
-		} catch (error) {
-			unsubscribeResult = {
-				success: false,
-				message: 'Failed to process unsubscribe request',
-				error: error instanceof Error ? error.message : 'Unknown error'
-			};
-		} finally {
-			loading = false;
-		}
+		loading = false;
 	});
 
 	function getEmailTypeLabel(type: string): string {
@@ -64,35 +73,60 @@
 	<meta name="description" content="Manage your email preferences" />
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+<div class="flex min-h-screen flex-col justify-center bg-gray-50 py-12 sm:px-6 lg:px-8">
 	<div class="sm:mx-auto sm:w-full sm:max-w-md">
-		<div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+		<div class="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
 			{#if loading}
 				<div class="text-center">
-					<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+					<div class="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
 					<p class="mt-4 text-gray-600">Processing your request...</p>
 				</div>
 			{:else if unsubscribeResult}
 				{#if unsubscribeResult.success}
 					<div class="text-center">
-						<div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-							<svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+						<div
+							class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100"
+						>
+							<svg
+								class="h-6 w-6 text-green-600"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M5 13l4 4L19 7"
+								/>
 							</svg>
 						</div>
 						<h2 class="mt-6 text-2xl font-bold text-gray-900">Successfully Unsubscribed</h2>
 						<p class="mt-2 text-gray-600">
-							You have been unsubscribed from {getEmailTypeLabel($page.url.searchParams.get('type') || 'all')}.
+							You have been unsubscribed from {getEmailTypeLabel(
+								page.url.searchParams.get('type') || 'all'
+							)}.
 						</p>
 						<p class="mt-4 text-sm text-gray-500">
-							You will no longer receive these emails from Kaiwa. If you change your mind, you can always update your email preferences in your account settings.
+							You will no longer receive these emails from Kaiwa. If you change your mind, you can
+							always update your email preferences in your account settings.
 						</p>
 					</div>
 				{:else}
 					<div class="text-center">
-						<div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-							<svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+						<div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+							<svg
+								class="h-6 w-6 text-red-600"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M6 18L18 6M6 6l12 12"
+								/>
 							</svg>
 						</div>
 						<h2 class="mt-6 text-2xl font-bold text-gray-900">Unsubscribe Failed</h2>
@@ -107,7 +141,7 @@
 			<div class="mt-8 text-center">
 				<a
 					href="/"
-					class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+					class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
 				>
 					Return to Kaiwa
 				</a>
