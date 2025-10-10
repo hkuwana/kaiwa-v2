@@ -30,7 +30,7 @@ ${allPages
 	.map(
 		(page) => `
 	<url>
-		<loc>https://kaiwa.app${page.url}</loc>
+		<loc>https://trykaiwa.com${page.url}</loc>
 		<changefreq>${page.changefreq}</changefreq>
 		<priority>${page.priority}</priority>
 		<lastmod>${new Date().toISOString().split('T')[0]}</lastmod>

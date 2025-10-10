@@ -104,7 +104,7 @@
 	<meta property="og:description" content={seo.description} />
 	<meta property="og:site_name" content="Kaiwa" />
 	<meta property="og:locale" content="en_US" />
-	<meta property="og:image" content="https://kaiwa.app/og-image.png" />
+	<meta property="og:image" content="https://trykaiwa.com/og-image.png" />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
 
@@ -114,7 +114,7 @@
 	<meta name="twitter:title" content={seo.title} />
 	<meta name="twitter:description" content={seo.description} />
 	<meta name="twitter:site" content="@kaiwa_app" />
-	<meta name="twitter:image" content="https://kaiwa.app/twitter-image.png" />
+	<meta name="twitter:image" content="https://trykaiwa.com/twitter-image.png" />
 
 	<!-- Additional Meta Tags -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -147,7 +147,7 @@
 			"@type": "WebApplication",
 			"name": "Kaiwa",
 			"description": "AI-powered language learning through natural conversation",
-			"url": "https://kaiwa.app",
+			"url": "https://trykaiwa.com",
 			"applicationCategory": "EducationalApplication",
 			"operatingSystem": "Web Browser",
 			"offers": {

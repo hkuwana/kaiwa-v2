@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Home Page -->
   <url>
-    <loc>https://kaiwa.app/</loc>
+    <loc>https://trykaiwa.com/</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
@@ -10,119 +10,119 @@
   
   <!-- Language-specific conversation pages -->
   <url>
-    <loc>https://kaiwa.app/conversation?lang=en&amp;mode=traditional&amp;voice=alloy</loc>
+    <loc>https://trykaiwa.com/conversation?lang=en&amp;mode=traditional&amp;voice=alloy</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://kaiwa.app/conversation?lang=es&amp;mode=traditional&amp;voice=alloy</loc>
+    <loc>https://trykaiwa.com/conversation?lang=es&amp;mode=traditional&amp;voice=alloy</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://kaiwa.app/conversation?lang=fr&amp;mode=traditional&amp;voice=alloy</loc>
+    <loc>https://trykaiwa.com/conversation?lang=fr&amp;mode=traditional&amp;voice=alloy</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://kaiwa.app/conversation?lang=de&amp;mode=traditional&amp;voice=alloy</loc>
+    <loc>https://trykaiwa.com/conversation?lang=de&amp;mode=traditional&amp;voice=alloy</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://kaiwa.app/conversation?lang=it&amp;mode=traditional&amp;voice=alloy</loc>
+    <loc>https://trykaiwa.com/conversation?lang=it&amp;mode=traditional&amp;voice=alloy</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://kaiwa.app/conversation?lang=pt&amp;mode=traditional&amp;voice=alloy</loc>
+    <loc>https://trykaiwa.com/conversation?lang=pt&amp;mode=traditional&amp;voice=alloy</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://kaiwa.app/conversation?lang=ja&amp;mode=traditional&amp;voice=alloy</loc>
+    <loc>https://trykaiwa.com/conversation?lang=ja&amp;mode=traditional&amp;voice=alloy</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://kaiwa.app/conversation?lang=ko&amp;mode=traditional&amp;voice=alloy</loc>
+    <loc>https://trykaiwa.com/conversation?lang=ko&amp;mode=traditional&amp;voice=alloy</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://kaiwa.app/conversation?lang=zh&amp;mode=traditional&amp;voice=alloy</loc>
+    <loc>https://trykaiwa.com/conversation?lang=zh&amp;mode=traditional&amp;voice=alloy</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://kaiwa.app/conversation?lang=ar&amp;mode=traditional&amp;voice=alloy</loc>
+    <loc>https://trykaiwa.com/conversation?lang=ar&amp;mode=traditional&amp;voice=alloy</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://kaiwa.app/conversation?lang=hi&amp;mode=traditional&amp;voice=alloy</loc>
+    <loc>https://trykaiwa.com/conversation?lang=hi&amp;mode=traditional&amp;voice=alloy</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://kaiwa.app/conversation?lang=ru&amp;mode=traditional&amp;voice=alloy</loc>
+    <loc>https://trykaiwa.com/conversation?lang=ru&amp;mode=traditional&amp;voice=alloy</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://kaiwa.app/conversation?lang=vi&amp;mode=traditional&amp;voice=alloy</loc>
+    <loc>https://trykaiwa.com/conversation?lang=vi&amp;mode=traditional&amp;voice=alloy</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://kaiwa.app/conversation?lang=nl&amp;mode=traditional&amp;voice=alloy</loc>
+    <loc>https://trykaiwa.com/conversation?lang=nl&amp;mode=traditional&amp;voice=alloy</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://kaiwa.app/conversation?lang=fil&amp;mode=traditional&amp;voice=alloy</loc>
+    <loc>https://trykaiwa.com/conversation?lang=fil&amp;mode=traditional&amp;voice=alloy</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://kaiwa.app/conversation?lang=id&amp;mode=traditional&amp;voice=alloy</loc>
+    <loc>https://trykaiwa.com/conversation?lang=id&amp;mode=traditional&amp;voice=alloy</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://kaiwa.app/conversation?lang=tr&amp;mode=traditional&amp;voice=alloy</loc>
+    <loc>https://trykaiwa.com/conversation?lang=tr&amp;mode=traditional&amp;voice=alloy</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

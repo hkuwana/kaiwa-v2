@@ -8,7 +8,7 @@ Disallow: /auth/error
 Disallow: /profile
 Disallow: /conversation
 
-Sitemap: https://kaiwa.app/sitemap.xml
+Sitemap: https://trykaiwa.com/sitemap.xml
 
 # Allow specific search engines
 User-agent: Googlebot

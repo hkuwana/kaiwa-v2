@@ -8,7 +8,7 @@ export function generateShareLink(
 	dna: CulturalDNA,
 	platform: 'instagram' | 'tiktok' | 'twitter' | 'whatsapp' | 'link'
 ): string {
-	const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://kaiwa.app';
+	const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://trykaiwa.com';
 	const resultUrl = `${baseUrl}${dna.shareableData.shareUrl}`;
 
 	const shareData: ShareLinkData = {

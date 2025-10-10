@@ -13,7 +13,7 @@ const BASE_SEO = {
 	robots: 'index, follow',
 	ogType: 'website',
 	twitterCard: 'summary_large_image',
-	canonical: 'https://kaiwa.app'
+	canonical: 'https://trykaiwa.com'
 };
 
 export const load = async ({ data, url }) => {

@@ -359,7 +359,7 @@ export class EmailReminderService {
 						.join('')}
 					
 					<div style="text-align: center; margin: 30px 0;">
-						<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation" class="cta-button">Start Any Conversation</a>
+						<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation" class="cta-button" style="color: white; text-decoration: none;">Start Any Conversation</a>
 					</div>
 					
 					<p>Remember, even 5 minutes of practice can make a difference. You've got this! 💪</p>

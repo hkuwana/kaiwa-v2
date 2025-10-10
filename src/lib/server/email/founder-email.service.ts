@@ -25,9 +25,9 @@ const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
  * - Easy reply for feedback
  */
 export class FounderEmailService {
-	private static readonly FOUNDER_EMAIL = 'hiro@trykaiwa.com'; // Using verified Resend domain
-	private static readonly FOUNDER_NAME = 'Hiro';
-	private static readonly CAL_LINK = 'https://https://cal.com/hirokuwana/15min'; // Replace with your actual Cal.com link
+	public static readonly FOUNDER_EMAIL = 'hiro@trykaiwa.com'; // Using verified Resend domain
+	public static readonly FOUNDER_NAME = 'Hiro';
+	public static readonly CAL_LINK = 'https://https://cal.com/hirokuwana/15min'; // Replace with your actual Cal.com link
 
 	/**
 	 * Send Day 1 welcome email if user hasn't practiced
@@ -191,7 +191,7 @@ export class FounderEmailService {
 	/**
 	 * Day 1: Warm welcome
 	 */
-	private static getDay1Email(user: User): string {
+	public static getDay1Email(user: User): string {
 		const firstName = user.displayName?.split(' ')[0] || 'there';
 
 		return `
@@ -270,7 +270,7 @@ export class FounderEmailService {
 					<div class="signature-title">Founder, Kaiwa</div>
 					<div style="margin-top: 8px; font-size: 14px; color: #6b7280;">
 						📧 ${this.FOUNDER_EMAIL}<br>
-						🌐 <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}">kaiwa.app</a>
+						🌐 <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}">trykaiwa.com</a>
 					</div>
 				</div>
 
@@ -285,7 +285,7 @@ export class FounderEmailService {
 	/**
 	 * Day 2: Check-in
 	 */
-	private static getDay2Email(user: User): string {
+	public static getDay2Email(user: User): string {
 		const firstName = user.displayName?.split(' ')[0] || 'there';
 
 		return `
@@ -385,7 +385,7 @@ export class FounderEmailService {
 	/**
 	 * Day 3: Personal offer to talk
 	 */
-	private static getDay3Email(user: User, languageName: string): string {
+	public static getDay3Email(user: User, languageName: string): string {
 		const firstName = user.displayName?.split(' ')[0] || 'there';
 
 		return `
@@ -490,7 +490,7 @@ export class FounderEmailService {
 					<div style="margin-top: 8px; font-size: 14px; color: #6b7280;">
 						📧 ${this.FOUNDER_EMAIL}<br>
 						📅 <a href="${this.CAL_LINK}">Book a call</a><br>
-						🌐 <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}">kaiwa.app</a>
+						🌐 <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}">trykaiwa.com</a>
 					</div>
 				</div>
 

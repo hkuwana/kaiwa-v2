@@ -41,47 +41,42 @@ export const GET = async ({ url, locals }) => {
 		// Generate email based on type
 		switch (emailType) {
 			case 'practice_reminder': {
-				const reminderData = await (EmailReminderService as any).getPracticeReminderData(
-					targetUserId
-				);
+				const reminderData = await EmailReminderService.getPracticeReminderData(targetUserId);
 				if (!reminderData) {
 					return new Response('Could not get practice reminder data', { status: 500 });
 				}
-				emailSubject = (EmailReminderService as any).getReminderSubject(reminderData);
-				emailHtml = (EmailReminderService as any).getReminderEmailTemplate(reminderData);
+				emailSubject = EmailReminderService.getReminderSubject(reminderData);
+				emailHtml = EmailReminderService.getReminderEmailTemplate(reminderData);
 				break;
 			}
 
 			case 'day1_welcome': {
 				emailSubject = `${user.displayName || 'there'}, welcome to Kaiwa! (from Hiro)`;
-				emailHtml = (FounderEmailService as any).getDay1Email(user);
+				emailHtml = FounderEmailService.getDay1Email(user);
 				break;
 			}
 
 			case 'day2_checkin': {
 				emailSubject = `Quick check-in - how's it going?`;
-				emailHtml = (FounderEmailService as any).getDay2Email(user);
+				emailHtml = FounderEmailService.getDay2Email(user);
 				break;
 			}
 
 			case 'day3_offer': {
 				emailSubject = `Can I help? (15 min chat)`;
-				emailHtml = (FounderEmailService as any).getDay3Email(user);
+				emailHtml = FounderEmailService.getDay3Email(user);
 				break;
 			}
 
 			case 'segmented_new_user': {
-				const emailData = await (EmailReminderEnhancedService as any).getSegmentedEmail(
-					user,
-					'new_user'
-				);
+				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(user, 'new_user');
 				emailSubject = emailData.subject;
 				emailHtml = emailData.html;
 				break;
 			}
 
 			case 'segmented_slightly_inactive': {
-				const emailData = await (EmailReminderEnhancedService as any).getSegmentedEmail(
+				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(
 					user,
 					'slightly_inactive'
 				);
@@ -91,7 +86,7 @@ export const GET = async ({ url, locals }) => {
 			}
 
 			case 'segmented_moderately_inactive': {
-				const emailData = await (EmailReminderEnhancedService as any).getSegmentedEmail(
+				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(
 					user,
 					'moderately_inactive'
 				);
@@ -101,7 +96,7 @@ export const GET = async ({ url, locals }) => {
 			}
 
 			case 'segmented_highly_inactive': {
-				const emailData = await (EmailReminderEnhancedService as any).getSegmentedEmail(
+				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(
 					user,
 					'highly_inactive'
 				);
@@ -111,10 +106,7 @@ export const GET = async ({ url, locals }) => {
 			}
 
 			case 'segmented_dormant': {
-				const emailData = await (EmailReminderEnhancedService as any).getSegmentedEmail(
-					user,
-					'dormant'
-				);
+				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(user, 'dormant');
 				emailSubject = emailData.subject;
 				emailHtml = emailData.html;
 				break;
@@ -202,47 +194,42 @@ export const POST = async ({ request, locals }) => {
 		// Generate email based on type
 		switch (emailType) {
 			case 'practice_reminder': {
-				const reminderData = await (EmailReminderService as any).getPracticeReminderData(
-					targetUserId
-				);
+				const reminderData = await EmailReminderService.getPracticeReminderData(targetUserId);
 				if (!reminderData) {
 					return json({ error: 'Could not get practice reminder data' }, { status: 500 });
 				}
-				emailSubject = (EmailReminderService as any).getReminderSubject(reminderData);
-				emailHtml = (EmailReminderService as any).getReminderEmailTemplate(reminderData);
+				emailSubject = EmailReminderService.getReminderSubject(reminderData);
+				emailHtml = EmailReminderService.getReminderEmailTemplate(reminderData);
 				break;
 			}
 
 			case 'day1_welcome': {
 				emailSubject = `${user.displayName || 'there'}, welcome to Kaiwa! (from Hiro)`;
-				emailHtml = (FounderEmailService as any).getDay1Email(user);
+				emailHtml = FounderEmailService.getDay1Email(user);
 				break;
 			}
 
 			case 'day2_checkin': {
 				emailSubject = `Quick check-in - how's it going?`;
-				emailHtml = (FounderEmailService as any).getDay2Email(user);
+				emailHtml = FounderEmailService.getDay2Email(user);
 				break;
 			}
 
 			case 'day3_offer': {
 				emailSubject = `Can I help? (15 min chat)`;
-				emailHtml = (FounderEmailService as any).getDay3Email(user);
+				emailHtml = FounderEmailService.getDay3Email(user);
 				break;
 			}
 
 			case 'segmented_new_user': {
-				const emailData = await (EmailReminderEnhancedService as any).getSegmentedEmail(
-					user,
-					'new_user'
-				);
+				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(user, 'new_user');
 				emailSubject = emailData.subject;
 				emailHtml = emailData.html;
 				break;
 			}
 
 			case 'segmented_slightly_inactive': {
-				const emailData = await (EmailReminderEnhancedService as any).getSegmentedEmail(
+				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(
 					user,
 					'slightly_inactive'
 				);
@@ -252,7 +239,7 @@ export const POST = async ({ request, locals }) => {
 			}
 
 			case 'segmented_moderately_inactive': {
-				const emailData = await (EmailReminderEnhancedService as any).getSegmentedEmail(
+				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(
 					user,
 					'moderately_inactive'
 				);
@@ -262,7 +249,7 @@ export const POST = async ({ request, locals }) => {
 			}
 
 			case 'segmented_highly_inactive': {
-				const emailData = await (EmailReminderEnhancedService as any).getSegmentedEmail(
+				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(
 					user,
 					'highly_inactive'
 				);
@@ -272,10 +259,7 @@ export const POST = async ({ request, locals }) => {
 			}
 
 			case 'segmented_dormant': {
-				const emailData = await (EmailReminderEnhancedService as any).getSegmentedEmail(
-					user,
-					'dormant'
-				);
+				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(user, 'dormant');
 				emailSubject = emailData.subject;
 				emailHtml = emailData.html;
 				break;
@@ -287,7 +271,7 @@ export const POST = async ({ request, locals }) => {
 
 		// Send test email
 		result = await resend.emails.send({
-			from: 'Kaiwa Test <noreply@trykaiwa.com',
+			from: 'Kaiwa Test <noreply@trykaiwa.com>',
 			to: [TEST_EMAIL],
 			subject: `[TEST] ${emailSubject}`,
 			html: `

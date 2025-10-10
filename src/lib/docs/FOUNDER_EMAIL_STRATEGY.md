@@ -98,7 +98,7 @@ Looking forward to seeing you in there,
 Hiro
 Founder, Kaiwa
 📧 hiro@trykaiwa.com
-🌐 kaiwa.app
+🌐 trykaiwa.com
 
 P.S. If Kaiwa isn't for you, no worries - just let me know and
 I'll stop emailing.
@@ -240,7 +240,7 @@ Hiro
 Founder, Kaiwa
 📧 hiro@trykaiwa.com
 📅 https://cal.com/hirokuwana/15min
-🌐 kaiwa.app
+🌐 trykaiwa.com
 
 P.S. This is genuinely the last email unless you book a call
 or reply. I respect your inbox!

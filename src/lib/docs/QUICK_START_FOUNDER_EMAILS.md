@@ -380,6 +380,6 @@ Before going live:
 
 - Check full strategy: [FOUNDER_EMAIL_STRATEGY.md](FOUNDER_EMAIL_STRATEGY.md)
 - Email setup guide: [EMAIL_REMINDER_SETUP.md](EMAIL_REMINDER_SETUP.md)
-- Questions? Open an issue or email support@kaiwa.app
+- Questions? Open an issue or email support@trykaiwa.com
 
 **Now go build those relationships!** 💪

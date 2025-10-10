@@ -15,7 +15,7 @@
 
 	onMount(() => {
 		if (typeof window !== 'undefined') {
-			const origin = window.location.origin || 'https://kaiwa.app';
+			const origin = window.location.origin || 'https://trykaiwa.com';
 			shareUrl =
 				user && user.id !== 'guest' ? `${origin}/?shareId=${encodeURIComponent(user.id)}` : origin;
 			canNativeShare = !!navigator.share;

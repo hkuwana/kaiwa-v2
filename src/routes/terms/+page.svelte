@@ -23,7 +23,7 @@
 
 	<!-- Open Graph / Facebook -->
 	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://kaiwa.app/terms" />
+	<meta property="og:url" content="https://trykaiwa.com/terms" />
 	<meta property="og:title" content="Terms of Service - Kaiwa | Legal Agreement & User Rights" />
 	<meta
 		property="og:description"
@@ -33,7 +33,7 @@
 
 	<!-- Twitter -->
 	<meta property="twitter:card" content="summary_large_image" />
-	<meta property="twitter:url" content="https://kaiwa.app/terms" />
+	<meta property="twitter:url" content="https://trykaiwa.com/terms" />
 	<meta
 		property="twitter:title"
 		content="Terms of Service - Kaiwa | Legal Agreement & User Rights"
@@ -44,7 +44,7 @@
 	/>
 
 	<!-- Canonical URL -->
-	<link rel="canonical" href="https://kaiwa.app/terms" />
+	<link rel="canonical" href="https://trykaiwa.com/terms" />
 
 	<!-- Structured Data -->
 	<script type="application/ld+json">
@@ -53,11 +53,11 @@
 			"@type": "WebPage",
 			"name": "Terms of Service - Kaiwa",
 			"description": "Terms and conditions for using Kaiwa language learning platform",
-			"url": "https://kaiwa.app/terms",
+			"url": "https://trykaiwa.com/terms",
 			"publisher": {
 				"@type": "Organization",
 				"name": "Kaiwa",
-				"url": "https://kaiwa.app"
+				"url": "https://trykaiwa.com"
 			},
 			"dateModified": "2025-08-29"
 		}
@@ -325,9 +325,9 @@
 			<h2>14. Contact Information</h2>
 			<p>If you have any questions about these Terms of Service, please contact us:</p>
 			<ul>
-				<li><strong>Legal</strong>: legal@kaiwa.app</li>
-				<li><strong>Support</strong>: support@kaiwa.app</li>
-				<li><strong>General</strong>: hello@kaiwa.app</li>
+				<li><strong>Legal</strong>: legal@trykaiwa.com</li>
+				<li><strong>Support</strong>: support@trykaiwa.com</li>
+				<li><strong>General</strong>: hello@trykaiwa.com</li>
 			</ul>
 		</section>
 	</div>

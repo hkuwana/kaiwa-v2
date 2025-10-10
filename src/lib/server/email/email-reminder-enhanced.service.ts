@@ -77,7 +77,7 @@ export class EmailReminderEnhancedService {
 	/**
 	 * Get email content based on segment
 	 */
-	private static async getSegmentedEmail(
+	public static async getSegmentedEmail(
 		user: User,
 		segment: UserSegment
 	): Promise<{ subject: string; html: string }> {
@@ -128,7 +128,7 @@ export class EmailReminderEnhancedService {
 				`,
 				cta: {
 					text: 'Start My First Conversation',
-					url: `${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation`
+					url: `${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}`
 				},
 				scenarios: featured,
 				footer: `
@@ -170,7 +170,7 @@ export class EmailReminderEnhancedService {
 				`,
 				cta: {
 					text: 'Continue Practicing',
-					url: `${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation`
+					url: `${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}`
 				},
 				footer: `
 					<p style="font-size: 14px; color: #666;">
@@ -267,7 +267,7 @@ export class EmailReminderEnhancedService {
 				},
 				footer: `
 					<p style="font-size: 14px; color: #666;">
-						Not coming back? We'd love to know why. <a href="mailto:support@kaiwa.app?subject=Feedback">Send us feedback</a> or <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile/email-preferences">unsubscribe</a>.
+						Not coming back? We'd love to know why. <a href="mailto:support@trykaiwa.com?subject=Feedback">Send us feedback</a> or <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile/email-preferences">unsubscribe</a>.
 					</p>
 				`
 			})
@@ -458,14 +458,14 @@ export class EmailReminderEnhancedService {
 					}
 
 					<div style="text-align: center; margin: 30px 0;">
-						<a href="${cta.url}" class="cta-button">${cta.text}</a>
+						<a href="${cta.url}" class="cta-button" style="color: white; text-decoration: none;">${cta.text}</a>
 					</div>
 
 					${footer || ''}
 
 					<div class="footer">
 						<p>Sent with ❤️ from Kaiwa</p>
-						<p><a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile/email-preferences">Email Preferences</a> | <a href="mailto:support@kaiwa.app">Support</a></p>
+						<p><a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile/email-preferences">Email Preferences</a> | <a href="mailto:support@trykaiwa.com">Support</a></p>
 						<p>&copy; ${new Date().getFullYear()} Kaiwa. All rights reserved.</p>
 					</div>
 				</div>

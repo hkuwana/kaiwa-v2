@@ -23,7 +23,7 @@
 
 	<!-- Open Graph / Facebook -->
 	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://kaiwa.app/privacy" />
+	<meta property="og:url" content="https://trykaiwa.com/privacy" />
 	<meta property="og:title" content="Privacy Policy - Kaiwa | Data Protection & Analytics" />
 	<meta
 		property="og:description"
@@ -33,7 +33,7 @@
 
 	<!-- Twitter -->
 	<meta property="twitter:card" content="summary_large_image" />
-	<meta property="twitter:url" content="https://kaiwa.app/privacy" />
+	<meta property="twitter:url" content="https://trykaiwa.com/privacy" />
 	<meta property="twitter:title" content="Privacy Policy - Kaiwa | Data Protection & Analytics" />
 	<meta
 		property="twitter:description"
@@ -41,7 +41,7 @@
 	/>
 
 	<!-- Canonical URL -->
-	<link rel="canonical" href="https://kaiwa.app/privacy" />
+	<link rel="canonical" href="https://trykaiwa.com/privacy" />
 
 	<!-- Structured Data -->
 	<script type="application/ld+json">
@@ -50,11 +50,11 @@
 			"@type": "WebPage",
 			"name": "Privacy Policy - Kaiwa",
 			"description": "Learn how Kaiwa collects, uses, and protects your data for language learning",
-			"url": "https://kaiwa.app/privacy",
+			"url": "https://trykaiwa.com/privacy",
 			"publisher": {
 				"@type": "Organization",
 				"name": "Kaiwa",
-				"url": "https://kaiwa.app"
+				"url": "https://trykaiwa.com"
 			},
 			"dateModified": "2025-08-29"
 		}
@@ -375,9 +375,9 @@
 				us:
 			</p>
 			<ul>
-				<li><strong>Email</strong>: privacy@kaiwa.app</li>
-				<li><strong>Support</strong>: support@kaiwa.app</li>
-				<li><strong>Data requests</strong>: data@kaiwa.app</li>
+				<li><strong>Email</strong>: privacy@trykaiwa.com</li>
+				<li><strong>Support</strong>: support@trykaiwa.com</li>
+				<li><strong>Data requests</strong>: data@trykaiwa.com</li>
 			</ul>
 		</section>
 	</div>
