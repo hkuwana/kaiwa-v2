@@ -18,14 +18,14 @@ const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
  * - Day 3 (if still no practice): Personal offer to talk (Cal.com link)
  *
  * Key principles:
- * - Send from founder's email (hiro@kaiwa.app)
+ * - Send from founder's email (hiro@trykaiwa.com)
  * - Personal, conversational tone
  * - Afternoon sending (2-4pm user's local time)
  * - Include Cal.com link on Day 3
  * - Easy reply for feedback
  */
 export class FounderEmailService {
-	private static readonly FOUNDER_EMAIL = 'hiro@kaiwa.app';
+	private static readonly FOUNDER_EMAIL = 'hiro@trykaiwa.com'; // Using verified Resend domain
 	private static readonly FOUNDER_NAME = 'Hiro';
 	private static readonly CAL_LINK = 'https://https://cal.com/hirokuwana/15min'; // Replace with your actual Cal.com link
 

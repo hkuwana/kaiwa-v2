@@ -38,7 +38,7 @@ Day 3 (afternoon): Personal offer to talk (Cal.com)
 
 **Key principles**:
 
-- ✅ Send from **<hiro@kaiwa.app>** (not noreply@)
+- ✅ Send from **<hiro@trykaiwa.com>** (not noreply@)
 - ✅ Afternoon sending (2-4pm user's time)
 - ✅ Easy to reply (shows in their inbox, not promo tab)
 - ✅ Short & personal (not marketing copy)
@@ -54,7 +54,7 @@ Day 3 (afternoon): Personal offer to talk (Cal.com)
 - **Trigger**: User signed up 24 hours ago
 - **Condition**: Has NOT started first conversation
 - **Time**: 2-4pm user's local time
-- **From**: Hiro <hiro@kaiwa.app>
+- **From**: Hiro <hiro@trykaiwa.com>
 
 ### Subject Line
 
@@ -97,7 +97,7 @@ Looking forward to seeing you in there,
 
 Hiro
 Founder, Kaiwa
-📧 hiro@kaiwa.app
+📧 hiro@trykaiwa.com
 🌐 kaiwa.app
 
 P.S. If Kaiwa isn't for you, no worries - just let me know and
@@ -123,7 +123,7 @@ I'll stop emailing.
 - **Trigger**: 48 hours after signup
 - **Condition**: STILL hasn't started first conversation
 - **Time**: 2-4pm user's local time
-- **From**: Hiro <hiro@kaiwa.app>
+- **From**: Hiro <hiro@trykaiwa.com>
 
 ### Subject Line
 
@@ -162,7 +162,7 @@ Reply anytime - I'm here to help!
 
 Hiro
 Founder, Kaiwa
-📧 hiro@kaiwa.app
+📧 hiro@trykaiwa.com
 ```
 
 **What makes it work**:
@@ -182,7 +182,7 @@ Founder, Kaiwa
 - **Trigger**: 72 hours after signup
 - **Condition**: STILL hasn't started first conversation
 - **Time**: 2-4pm user's local time
-- **From**: Hiro <hiro@kaiwa.app>
+- **From**: Hiro <hiro@trykaiwa.com>
 
 ### Subject Line
 
@@ -238,7 +238,7 @@ Thanks for giving Kaiwa a chance,
 
 Hiro
 Founder, Kaiwa
-📧 hiro@kaiwa.app
+📧 hiro@trykaiwa.com
 📅 https://cal.com/hirokuwana/15min
 🌐 kaiwa.app
 
@@ -273,13 +273,13 @@ or reply. I respect your inbox!
 
 ### 2. Configure Resend with Personal Email
 
-**Important**: Use your real email (<hiro@kaiwa.app>), not noreply@
+**Important**: Use your real email (<hiro@trykaiwa.com>), not noreply@
 
 ```typescript
 // In founder-email.service.ts
 const result = await resend.emails.send({
-	from: 'Hiro <hiro@kaiwa.app>',
-	replyTo: 'hiro@kaiwa.app', // Enable replies!
+	from: 'Hiro <hiro@trykaiwa.com>',
+	replyTo: 'hiro@trykaiwa.com', // Enable replies!
 	to: [user.email],
 	subject: '...',
 	html: '...'
@@ -495,7 +495,7 @@ High-value indicators:
 ### Setup (1 hour)
 
 - [ ] Set up Cal.com account and 15-min event
-- [ ] Update Resend to allow replies to <hiro@kaiwa.app>
+- [ ] Update Resend to allow replies to <hiro@trykaiwa.com>
 - [ ] Deploy founder email service code
 - [ ] Test all 3 email templates locally
 - [ ] Add founder photo to email signature (optional)

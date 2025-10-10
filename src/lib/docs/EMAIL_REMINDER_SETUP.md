@@ -498,6 +498,6 @@ Before going live:
 
 ---
 
-**Questions?** Email hiro@kaiwa.app or open an issue on GitHub.
+**Questions?** Email hiro@trykaiwa.com or open an issue on GitHub.
 
 **Last updated**: January 2025

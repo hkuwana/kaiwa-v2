@@ -37,7 +37,7 @@ CRON_SECRET=your_random_secret
 
 # Check Resend dashboard:
 # - Domain is verified (kaiwa.fly.dev)
-# - You can send from hiro@kaiwa.app
+# - You can send from hiro@trykaiwa.com
 ```
 
 ### 3. Deploy Code (5 minutes)
@@ -139,7 +139,7 @@ curl -X POST \
 - [ ] Open email on mobile (iPhone Mail, Gmail app)
 - [ ] Click "Start Conversation" button - does it work?
 - [ ] Click Cal.com link (Day 3) - does it open?
-- [ ] Hit "Reply" - does it go to hiro@kaiwa.app?
+- [ ] Hit "Reply" - does it go to hiro@trykaiwa.com?
 - [ ] Check spam folder - if emails go there, see troubleshooting below
 
 ---
@@ -257,7 +257,7 @@ posthog.capture('conversation_started', {
 
 If you want to reply from a different email:
 
-1. In Gmail, set up "Send mail as" for hiro@kaiwa.app
+1. In Gmail, set up "Send mail as" for hiro@trykaiwa.com
 2. Or use Resend's reply-to feature (already configured)
 
 ### Reply Templates
@@ -368,7 +368,7 @@ Before going live:
 - [ ] GitHub Action deployed and tested
 - [ ] CRON_SECRET added to GitHub secrets
 - [ ] Resend domain verified (SPF, DKIM, DMARC)
-- [ ] Reply-to configured (hiro@kaiwa.app)
+- [ ] Reply-to configured (hiro@trykaiwa.com)
 - [ ] Mobile email rendering checked
 - [ ] Ready to respond to replies within 4 hours
 
