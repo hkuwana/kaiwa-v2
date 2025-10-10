@@ -1,8 +1,7 @@
 // CSP Violation Reporting Endpoint
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST = async ({ request }) => {
 	try {
 		const report = await request.json();
 

@@ -1,5 +1,4 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { analysisPipelineService } from '$lib/features/analysis/services/analysis-pipeline.service';
 
 interface AssessLevelPayload {
@@ -14,7 +13,7 @@ interface AssessLevelPayload {
 	includeRecommendations?: boolean;
 }
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST = async ({ request, locals }) => {
 	const userId = locals.user?.id ?? null;
 
 	try {

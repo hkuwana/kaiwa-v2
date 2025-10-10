@@ -1,5 +1,4 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { FounderEmailService } from '$lib/server/email/founder-email.service';
 import { userRepository } from '$lib/server/repositories';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
@@ -20,7 +19,7 @@ import { env } from '$env/dynamic/private';
  * Usage:
  * curl -H "Authorization: Bearer $CRON_SECRET" https://kaiwa.fly.dev/api/cron/founder-emails
  */
-export const GET: RequestHandler = async ({ request }) => {
+export const GET = async ({ request }) => {
 	try {
 		// Verify cron secret
 		const authHeader = request.headers.get('authorization');
@@ -138,7 +137,7 @@ export const GET: RequestHandler = async ({ request }) => {
 /**
  * POST endpoint for manual trigger (testing)
  */
-export const POST: RequestHandler = async ({ request }) => {
+export const POST = async ({ request }) => {
 	// Same logic as GET, but allows testing with specific user IDs
 	const { userId } = await request.json();
 

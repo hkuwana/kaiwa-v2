@@ -501,23 +501,4 @@ export class FounderEmailService {
 			</html>
 		`;
 	}
-
-	/**
-	 * Get user's local afternoon time (2-4pm)
-	 * This should be called by the cron job to determine when to send
-	 */
-	static getUserAfternoonTime(user: User): Date {
-		// TODO: Get user's timezone from their profile or infer from IP
-		// For now, default to 2pm UTC (which is afternoon in most timezones)
-		const now = new Date();
-		const afternoonTime = new Date(now);
-		afternoonTime.setHours(14, 0, 0, 0); // 2pm
-
-		// If it's already past 2pm today, schedule for tomorrow
-		if (now > afternoonTime) {
-			afternoonTime.setDate(afternoonTime.getDate() + 1);
-		}
-
-		return afternoonTime;
-	}
 }

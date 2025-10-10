@@ -1,8 +1,7 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { analysisPipelineService } from '$lib/features/analysis/services/analysis-pipeline.service';
 
-export const GET: RequestHandler = async () => {
+export const GET = async () => {
 	const modules = analysisPipelineService.listAvailableModules().map((module) => ({
 		id: module.id,
 		label: module.label,

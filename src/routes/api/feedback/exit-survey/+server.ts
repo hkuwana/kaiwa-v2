@@ -1,8 +1,7 @@
 import { json, error } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { analyticsEventsRepository } from '$lib/server/repositories/analytics-events.repository';
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST = async ({ request, locals }) => {
 	try {
 		const { sessionId, reason, comment } = await request.json();
 

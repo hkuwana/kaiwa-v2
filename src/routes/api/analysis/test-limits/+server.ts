@@ -1,8 +1,7 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 
 // Simple test endpoint to verify analysis limits are working
-export const POST: RequestHandler = async ({ request }) => {
+export const POST = async ({ request }) => {
 	try {
 		const { userId, analysisType = 'basic' } = await request.json();
 

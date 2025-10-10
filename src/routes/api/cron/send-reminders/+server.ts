@@ -1,5 +1,4 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { EmailReminderService } from '$lib/server/email/email-reminder.service';
 import { userRepository } from '$lib/server/repositories';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
@@ -19,7 +18,7 @@ import { env } from '$env/dynamic/private';
  * Example cron setup:
  * - Daily at 9am: curl -H "Authorization: Bearer $CRON_SECRET" https://kaiwa.fly.dev/api/cron/send-reminders
  */
-export const GET: RequestHandler = async ({ request }) => {
+export const GET = async ({ request }) => {
 	try {
 		// Verify cron secret for security
 		const authHeader = request.headers.get('authorization');

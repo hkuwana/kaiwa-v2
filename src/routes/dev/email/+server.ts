@@ -1,5 +1,4 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { EmailReminderService } from '$lib/server/email/email-reminder.service';
 import { EmailReminderEnhancedService } from '$lib/server/email/email-reminder-enhanced.service';
 import { FounderEmailService } from '$lib/server/email/founder-email.service';
@@ -13,7 +12,7 @@ const TEST_EMAIL = 'weijo34@gmail.com';
  * GET endpoint to preview email templates with user data
  * Returns HTML preview without sending actual email
  */
-export const GET: RequestHandler = async ({ url, locals }) => {
+export const GET = async ({ url, locals }) => {
 	try {
 		// Check authentication
 		if (!locals.user) {
@@ -171,7 +170,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
  * Email testing endpoint for development
  * Sends test emails to a specific test email address
  */
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST = async ({ request, locals }) => {
 	try {
 		// Check authentication
 		if (!locals.user) {

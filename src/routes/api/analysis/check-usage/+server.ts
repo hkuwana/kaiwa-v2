@@ -1,5 +1,4 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { usageService } from '$lib/server/services/usage.service';
 import { getUserCurrentTier } from '$lib/server/services/payment.service';
 
@@ -31,7 +30,7 @@ const ANALYSIS_LIMITS = {
 	}
 } as const;
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST = async ({ request }) => {
 	try {
 		const { userId, analysisType = 'basic' } = await request.json();
 

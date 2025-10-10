@@ -1,5 +1,4 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 
 // API Configuration for Analysis System
 // Provides organized access to analysis capabilities and settings
@@ -161,7 +160,7 @@ const ANALYSIS_CONFIG = {
 	}
 };
 
-export const GET: RequestHandler = async ({ url }) => {
+export const GET = async ({ url }) => {
 	const section = url.searchParams.get('section');
 
 	if (section) {

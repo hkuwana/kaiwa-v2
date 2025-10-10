@@ -1,5 +1,4 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { analysisPipelineService } from '$lib/features/analysis/services/analysis-pipeline.service';
 import { analysisSuggestionService } from '$lib/features/analysis/services/analysis-suggestion.service';
 import { analysisLogbookService } from '$lib/features/analysis/services/analysis-logbook.service';
@@ -19,7 +18,7 @@ interface RunAnalysisPayload {
 	}>;
 }
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST = async ({ request, locals }) => {
 	const userId = locals.user?.id ?? null;
 
 	const body = (await request.json()) as RunAnalysisPayload;
