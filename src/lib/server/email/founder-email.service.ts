@@ -250,14 +250,13 @@ export class FounderEmailService {
 
 				<p>Welcome to Kaiwa! I'm Hiro, and I built this app because I know how nerve-wracking it is to speak a new language, especially with your partner's family.</p>
 
-				<p>I noticed you signed up but haven't started your first conversation yet. That's totally normal - it can feel intimidating to hit that "start" button!</p>
-
+				 
 				<p><strong>Here's what helped me when I was learning:</strong></p>
 				<p>Just aim for <strong>one 5-minute conversation</strong>. That's it. Don't worry about being perfect. The AI tutor is patient and won't judge you. I promise it's way less scary than it seems.</p>
 
 				<p>Why not try it right now?</p>
 
-				<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation" class="cta" style="color: white; text-decoration: none;">
+				<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}" class="cta" style="color: white; text-decoration: none;">
 					Start My First Conversation (5 min)
 				</a>
 
@@ -364,7 +363,7 @@ export class FounderEmailService {
 
 				<p><strong>Or if you're ready, let's do this:</strong></p>
 
-				<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation" class="cta" style="color: white; text-decoration: none;">
+				<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}" class="cta" style="color: white; text-decoration: none;">
 					Just Try It Once (5 min)
 				</a>
 

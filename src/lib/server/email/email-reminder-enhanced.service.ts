@@ -102,7 +102,7 @@ export class EmailReminderEnhancedService {
 	 */
 	private static async getNewUserEmail(user: User): Promise<{ subject: string; html: string }> {
 		const displayName = user.displayName || 'there';
-		const scenarios = await scenarioRepository.getActiveScenarios();
+		const scenarios = await scenarioRepository.findActiveScenarios();
 		const featured = scenarios.slice(0, 3);
 
 		return {
@@ -213,7 +213,7 @@ export class EmailReminderEnhancedService {
 				`,
 				cta: {
 					text: "Let's Get Back to It",
-					url: `${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation`
+					url: `${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}`
 				},
 				footer: `
 					<p style="font-size: 14px; color: #666;">
@@ -263,7 +263,7 @@ export class EmailReminderEnhancedService {
 				`,
 				cta: {
 					text: 'Give Kaiwa Another Try',
-					url: `${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation`
+					url: `${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}`
 				},
 				footer: `
 					<p style="font-size: 14px; color: #666;">
@@ -320,7 +320,7 @@ export class EmailReminderEnhancedService {
 				`,
 				cta: {
 					text: 'One More Conversation',
-					url: `${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation`
+					url: `${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}`
 				},
 				footer: `
 					<p style="font-size: 14px; color: #666;">
@@ -447,7 +447,8 @@ export class EmailReminderEnhancedService {
 									(s) => `
 								<div class="scenario-card">
 									<div class="scenario-title">${s.title}</div>
-									<div style="font-size: 14px; color: #666;">${s.description}</div>
+									<div style="font-size: 14px; color: #666; margin-bottom: 10px;">${s.description}</div>
+									<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/?scenario=${s.id}" class="cta-button" style="color: white; text-decoration: none; font-size: 14px; padding: 8px 16px;">Try This Scenario</a>
 								</div>
 							`
 								)

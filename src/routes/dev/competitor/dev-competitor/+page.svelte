@@ -534,7 +534,7 @@
 									class="mockup-browser border bg-base-300 transition-colors group-hover:bg-success group-hover:text-success-content"
 								>
 									<div class="mockup-browser-toolbar">
-										<div class="input">kaiwa.app</div>
+										<div class="input">trykaiwa.com</div>
 									</div>
 									<div
 										class="flex justify-center bg-base-200 px-4 py-16 group-hover:bg-success-content"

@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
+	import { page } from '$app/state';
+	import { onMount } from 'svelte';
 	import UnifiedStartButton from '$lib/components/UnifiedStartButton.svelte';
 	import ChatBubbleFlow from '$lib/components/ChatBubbleFlow.svelte';
 	import InteractiveScenarioPreview from '$lib/features/scenarios/components/InteractiveScenarioPreview.svelte';
@@ -18,6 +20,16 @@
 	let selectedLanguage = $state<DataLanguage | null>(settingsStore.selectedLanguage);
 	let selectedSpeaker = $state<string | null>(settingsStore.selectedSpeaker);
 	let selectedScenario = $state<Scenario | null>(scenarioStore.getSelectedScenario());
+
+	// Handle scenario query parameter from URL (e.g., from email links)
+	onMount(() => {
+		const scenarioId = page.url.searchParams.get('scenario');
+		if (scenarioId && browser) {
+			// Set the scenario in the store so it's pre-selected
+			scenarioStore.setScenarioById(scenarioId);
+			selectedScenario = scenarioStore.getSelectedScenario();
+		}
+	});
 
 	// A/B Testing for headlines - Family connection & anxiety-free positioning
 	const headlineVariants = {
@@ -281,7 +293,7 @@
 		<div class="container mx-auto max-w-2xl px-4 text-center">
 			<div class="rounded-xl bg-base-200 p-6">
 				<div class="text-lg font-semibold">Stay in the loop</div>
-				<div class="mt-1 text-sm opacity-80">Questions or feedback? Email support@kaiwa.app</div>
+				<div class="mt-1 text-sm opacity-80">Questions or feedback? Email support@trykaiwa.com</div>
 			</div>
 		</div>
 	</section>
