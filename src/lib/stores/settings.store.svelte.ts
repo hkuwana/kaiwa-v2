@@ -105,8 +105,16 @@ export class SettingsStore {
 			if (storedSpeaker) {
 				this.selectedSpeaker = storedSpeaker;
 				console.log('🎭 Speaker loaded from storage:', storedSpeaker);
-			} else {
-				console.log('🎭 No stored speaker found, using default: ash');
+			} else if (this.selectedLanguage) {
+				const defaultSpeaker = getDefaultSpeakerForLanguage(this.selectedLanguage.id);
+				if (defaultSpeaker) {
+					this.selectedSpeaker = defaultSpeaker.id;
+					this.persistSpeaker(defaultSpeaker.id);
+					console.log(
+						'🎭 No stored speaker found, defaulting to female for current language:',
+						defaultSpeaker.voiceName
+					);
+				}
 			}
 
 			// Set scenario from storage
@@ -141,6 +149,19 @@ export class SettingsStore {
 					this.selectedLanguage = defaultLanguage;
 					console.log('🌍 Setting default language:', defaultLanguage.name);
 					this.persistLanguage(defaultLanguage);
+
+					// Also set the default speaker for the new default language
+					if (!this.selectedSpeaker) {
+						const defaultSpeaker = getDefaultSpeakerForLanguage(defaultLanguage.id);
+						if (defaultSpeaker) {
+							this.selectedSpeaker = defaultSpeaker.id;
+							this.persistSpeaker(defaultSpeaker.id);
+							console.log(
+								'🎙️ Setting default female speaker for new language:',
+								defaultSpeaker.voiceName
+							);
+						}
+					}
 				}
 			}
 

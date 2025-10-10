@@ -1,15 +1,17 @@
 import { pgTable, text, timestamp, json, index, boolean, pgEnum } from 'drizzle-orm/pg-core';
 
 /**
- * Scenario category enumeration for type safety
+ * Scenario role enumeration - defines the AI's role in the conversation
+ *
+ * MECE (Mutually Exclusive, Collectively Exhaustive) roles:
+ * - tutor: Language instructor who explains rules, corrects errors, drills patterns, and guides learning
+ * - character: Role-player who embodies a specific person (nurse, executive, parent, waiter, etc.)
+ * - friend: Casual conversation partner who debates, shares stories, and chats naturally
  */
-export const scenarioCategoryEnum = pgEnum('scenario_category', [
-	'onboarding',
-	'comfort',
-	'basic',
-	'intermediate',
-	'relationships',
-	'roleplay'
+export const scenarioRoleEnum = pgEnum('scenario_role', [
+	'tutor',
+	'character',
+	'friend'
 ]);
 
 /**
@@ -64,7 +66,7 @@ export const scenarios = pgTable(
 
 		description: text('description').notNull(),
 
-		category: scenarioCategoryEnum('category').default('comfort').notNull(),
+		role: scenarioRoleEnum('role').default('tutor').notNull(),
 
 		difficulty: scenarioDifficultyEnum('difficulty').default('beginner').notNull(),
 
@@ -90,11 +92,11 @@ export const scenarios = pgTable(
 	},
 	(table) => [
 		// Performance indexes for scenario queries
-		index('scenarios_category_idx').on(table.category),
+		index('scenarios_role_idx').on(table.role),
 		index('scenarios_difficulty_idx').on(table.difficulty),
 		index('scenarios_is_active_idx').on(table.isActive),
-		// Composite index for active scenarios by category
-		index('scenarios_active_category_idx').on(table.isActive, table.category),
+		// Composite index for active scenarios by role
+		index('scenarios_active_role_idx').on(table.isActive, table.role),
 		// Composite index for difficulty progression
 		index('scenarios_active_difficulty_idx').on(table.isActive, table.difficulty),
 		// Index for title searches

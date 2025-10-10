@@ -49,7 +49,8 @@
       "Bash(gh run list:*)",
       "Bash(gh run view:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(printf \"\\x1B[B\\r\")"
     ],
     "deny": [],
     "ask": []

@@ -73,7 +73,7 @@ interface InstructionModule {
 		minLevel?: number;
 		maxLevel?: number;
 		goals?: UserPreferences['learningGoal'][];
-		categories?: ScenarioWithHints['category'][];
+		roles?: ScenarioWithHints['role'][];
 		emotionalStates?: SessionContext['emotionalState'][];
 	};
 }
@@ -93,7 +93,7 @@ class ModuleComposer {
 
 				if (module.appliesTo) {
 					const level = getBaselineLevel(context.preferences);
-					const { minLevel, maxLevel, goals, categories, emotionalStates } = module.appliesTo;
+					const { minLevel, maxLevel, goals, roles, emotionalStates } = module.appliesTo;
 
 					if (minLevel && level < minLevel) return false;
 					if (maxLevel && level > maxLevel) return false;
@@ -104,9 +104,9 @@ class ModuleComposer {
 					)
 						return false;
 					if (
-						categories &&
-						context.scenario?.category &&
-						!categories.includes(context.scenario.category)
+						roles &&
+						context.scenario?.role &&
+						!roles.includes(context.scenario.role)
 					)
 						return false;
 					if (
@@ -841,7 +841,7 @@ export function generateInitialInstructions(
 	let instructions = modules.compose(baseModules, context);
 
 	// Add phase-specific instructions with better structure
-	if (isFirstTime || scenario?.category === 'onboarding') {
+	if (isFirstTime || scenario?.id === 'onboarding-welcome') {
 		instructions = `${instructions}\n\n${buildOnboardingBlock(user, language, nativeGreeting.greeting, speaker?.voiceName || 'Hiro')}`;
 	} else {
 		instructions = `${instructions}
@@ -1027,76 +1027,61 @@ type ScenarioPlaybookOptions = {
 	speakerName: string;
 };
 
-const scenarioCategoryGuidance: Record<
-	Exclude<ScenarioWithHints['category'], undefined> | 'default',
+const scenarioRoleGuidance: Record<
+	Exclude<ScenarioWithHints['role'], undefined> | 'default',
 	{
 		headline: string;
 		conversationMoves: string[];
 		followUps: string[];
 	}
 > = {
-	comfort: {
-		headline: 'Make the learner feel unstoppable in familiar territory.',
+	tutor: {
+		headline: 'Teach deliberately with clear corrections and systematic practice.',
 		conversationMoves: [
-			'Stick to stories they already referenced; reuse their own words in INSERT_LANGUAGE.',
-			'Swap corrections for quick recasts, then hand the turn back immediately.',
-			'Bank obvious wins ("That sounded natural—bookmark it").'
+			'Explain grammar rules explicitly before drilling the pattern.',
+			'Correct errors immediately and explain why it was wrong.',
+			'Use repetition drills: have them repeat correctly 2-3 times.',
+			'Break complex structures into bite-sized pieces with examples.',
+			'Track their progress and review what they have mastered.'
 		],
 		followUps: [
-			'"What made that moment feel good?"',
-			'"Want to try that again but with a friend/colleague in mind?"'
+			'"Can you say that again using the correct conjugation?"',
+			'"Let\'s practice that pattern with three different verbs."',
+			'"Why do you think we use this particle here?"'
 		]
 	},
-	basic: {
-		headline: 'Build sturdy basics they can recycle today.',
+	character: {
+		headline: 'Stay in character—you embody the person they need to talk to (LARP mode).',
 		conversationMoves: [
-			'Keep sentences compact; highlight subject + verb + key detail.',
-			'Anchor every new word to a concrete image or action they mentioned.',
-			'Prompt them to reuse a phrase twice before moving on.'
-		],
-		followUps: [
-			'"How would you say that about yesterday?"',
-			'"Can you flip it into a question for me?"'
-		]
-	},
-	intermediate: {
-		headline: 'Stretch into nuance without losing flow.',
-		conversationMoves: [
-			'Push for reasons, comparisons, or mini-stories in INSERT_LANGUAGE.',
-			'Surface one cultural cue or register shift tied to the scenario.',
-			'Invite them to react to your short anecdote, not just answer prompts.'
-		],
-		followUps: [
-			'"What surprised you most about that?"',
-			'"How would you explain that to a new teammate?"'
-		]
-	},
-	relationships: {
-		headline: 'Model warmth, curiosity, and respectful phrasing.',
-		conversationMoves: [
-			'Mirror their emotional tone; spotlight phrases that earn trust.',
-			'Offer polite yet real reactions ("That would impress anyone in INSERT_LANGUAGE").',
-			'Drip in honorifics or softening particles if the culture expects them.'
-		],
-		followUps: [
-			'"What response would make you feel truly welcomed?"',
-			'"How would you compliment them without sounding over the top?"'
-		]
-	},
-	roleplay: {
-		headline: 'Keep stakes real, decisions sharp, and language actionable.',
-		conversationMoves: [
-			'Frame stakes up front: who, what, what happens if it fails.',
+			'Frame stakes up front: who you are, what you need, what happens if it fails.',
+			'Stay in character consistently—you are the nurse/executive/parent they are talking to.',
 			'Cycle through clarify → confirm → advance loops entirely in INSERT_LANGUAGE.',
-			'Translate one tricky term into plain INSERT_LANGUAGE the learner can reuse.'
+			'Challenge them with realistic complications: "The doctor needs to know when it started."',
+			'Give scenario-specific feedback: "In this situation, you would want to sound more urgent."'
 		],
 		followUps: [
 			'"What would you ask them first?"',
-			'"How do you close the conversation so everyone’s aligned?"'
+			'"How do you close the conversation so everyone is aligned?"',
+			'"What if they push back—how would you respond?"'
+		]
+	},
+	friend: {
+		headline: 'Be a friend—debate, laugh, share stories, and build natural flow.',
+		conversationMoves: [
+			'React authentically to their opinions: "Really? I totally disagree because..."',
+			'Share your own (AI) perspectives and experiences to keep it balanced.',
+			'Let the conversation drift naturally—follow their interests and energy.',
+			'Corrections are subtle recasts, not lessons: "Right, so you mean [correct version]?"',
+			'Encourage storytelling, opinions, and back-and-forth banter.'
+		],
+		followUps: [
+			'"Wait, that is interesting—why do you think that?"',
+			'"Have you ever had an experience like that?"',
+			'"I see your point, but what about this angle..."'
 		]
 	},
 	default: {
-		headline: 'Match the learner’s goal with nimble turns and shared focus.',
+		headline: 'Match the learner\'s goal with nimble turns and shared focus.',
 		conversationMoves: [
 			'Use their own vocabulary choices as scaffolding.',
 			'Keep each exchange two beats long: react + targeted follow-up.',
@@ -1165,7 +1150,7 @@ function buildScenarioPlaybook({
 	speakerName
 }: ScenarioPlaybookOptions): string {
 	const guidance =
-		scenarioCategoryGuidance[scenario.category || 'default'] || scenarioCategoryGuidance.default;
+		scenarioRoleGuidance[scenario.role || 'default'] || scenarioRoleGuidance.default;
 	const levelDescriptor = formatScenarioLevelDescriptor(level);
 	const contrastNote = describeLevelContrast(levelContrast);
 	const cityHint =
@@ -1279,7 +1264,7 @@ export function generateScenarioInstructions(
 
 	const sections = [baseInstructions];
 
-	if (scenario?.category === 'onboarding') {
+	if (scenario?.id === 'onboarding-welcome') {
 		const introName = speaker?.voiceName || 'Hiro';
 		const target = language.name;
 		const nativeName =
@@ -1403,9 +1388,10 @@ export function generateScenarioUpdate(
 Adjust conversation flow based on current phase and user performance.`;
 	}
 
-	switch (scenario.category) {
-		case 'onboarding':
-			return `## ONBOARDING UPDATE - ${phase.toUpperCase()}
+	switch (scenario.role) {
+		case 'tutor':
+			if (scenario.id === 'onboarding-welcome') {
+				return `## ONBOARDING UPDATE - ${phase.toUpperCase()}
 ${
 	phase === 'main_activity'
 		? `Focus on building confidence. ${
@@ -1417,33 +1403,34 @@ ${
 			? 'End with enthusiasm and plant seeds for next conversation.'
 			: 'Continue establishing comfort and assessing their natural level.'
 }`;
-
-		case 'comfort':
-			return `## COMFORT UPDATE - ${phase.toUpperCase()}
+			}
+			return `## TUTOR UPDATE - ${phase.toUpperCase()}
 ${
 	userPerformance === 'struggling'
-		? 'Provide extra support and encouragement. Switch to even easier topics.'
+		? 'Break the pattern into even smaller steps. Add more examples before drilling.'
 		: userPerformance === 'excelling'
-			? 'Keep building confidence. Gradually introduce slightly more complexity.'
-			: 'Maintain supportive atmosphere and celebrate progress.'
+			? 'Introduce variations of the pattern. Test their understanding with new contexts.'
+			: 'Continue systematic practice. Reinforce corrections and check comprehension.'
 }`;
 
-		case 'basic':
-			return `## BASIC UPDATE - ${phase.toUpperCase()}
+		case 'character':
+			return `## CHARACTER UPDATE - ${phase.toUpperCase()}
 ${
 	userPerformance === 'struggling'
-		? 'Focus on most essential vocabulary only. Use lots of repetition.'
-		: 'Continue with fundamental practice. Build solid foundation.'
+		? 'Stay in character but reduce complexity. Give them language scaffolding for their next move.'
+		: userPerformance === 'excelling'
+			? 'Add realistic complications. Push them to handle unexpected turns in the scenario.'
+			: 'Maintain scenario stakes. Keep them engaged with the role and situation.'
 }`;
 
-		case 'intermediate':
-			return `## INTERMEDIATE UPDATE - ${phase.toUpperCase()}
+		case 'friend':
+			return `## FRIEND UPDATE - ${phase.toUpperCase()}
 ${
 	userPerformance === 'struggling'
-		? 'Reduce complexity slightly but maintain interesting topics.'
+		? 'Keep the topic but simplify your contributions. Ask easier opinion questions.'
 		: userPerformance === 'excelling'
-			? 'Introduce more advanced structures and cultural elements.'
-			: 'Continue current level with varied topics.'
+			? 'Deepen the debate. Challenge their views with nuanced counterpoints.'
+			: 'Keep the conversation balanced. Share, listen, and build on their ideas.'
 }`;
 
 		default:
