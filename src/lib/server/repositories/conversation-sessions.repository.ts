@@ -70,14 +70,21 @@ export class ConversationSessionsRepository {
 	async endSession(
 		id: string,
 		endTime: Date,
-		durationMinutes: number
+		durationSeconds: number,
+		secondsConsumed?: number
 	): Promise<ConversationSession | null> {
+		const updateData: Partial<NewConversationSession> = {
+			endTime,
+			durationSeconds
+		};
+
+		if (secondsConsumed !== undefined) {
+			updateData.secondsConsumed = secondsConsumed;
+		}
+
 		const [updated] = await db
 			.update(conversationSessions)
-			.set({
-				endTime,
-				durationMinutes
-			})
+			.set(updateData)
 			.where(eq(conversationSessions.id, id))
 			.returning();
 
@@ -109,8 +116,8 @@ export class ConversationSessionsRepository {
 	 */
 	async getUserSessionStats(userId: string): Promise<{
 		totalSessions: number;
-		totalMinutes: number;
-		averageSessionLength: number;
+		totalSeconds: number;
+		averageSessionLengthSeconds: number;
 		totalExtensions: number;
 		mostUsedLanguage: string | null;
 		deviceTypeBreakdown: Record<string, number>;
@@ -119,8 +126,8 @@ export class ConversationSessionsRepository {
 		const basicStats = await db
 			.select({
 				totalSessions: count(),
-				totalMinutes: sum(conversationSessions.minutesConsumed),
-				averageSessionLength: avg(conversationSessions.durationMinutes),
+				totalSeconds: sum(conversationSessions.secondsConsumed),
+				averageSessionLengthSeconds: avg(conversationSessions.durationSeconds),
 				totalExtensions: sum(conversationSessions.extensionsUsed)
 			})
 			.from(conversationSessions)
@@ -158,8 +165,8 @@ export class ConversationSessionsRepository {
 		const stats = basicStats[0];
 		return {
 			totalSessions: Number(stats.totalSessions) || 0,
-			totalMinutes: Number(stats.totalMinutes) || 0,
-			averageSessionLength: Number(stats.averageSessionLength) || 0,
+			totalSeconds: Number(stats.totalSeconds) || 0,
+			averageSessionLengthSeconds: Number(stats.averageSessionLengthSeconds) || 0,
 			totalExtensions: Number(stats.totalExtensions) || 0,
 			mostUsedLanguage: languageStats[0]?.language || null,
 			deviceTypeBreakdown
@@ -173,8 +180,8 @@ export class ConversationSessionsRepository {
 		{
 			language: string;
 			sessions: number;
-			totalMinutes: number;
-			averageSessionLength: number;
+			totalSeconds: number;
+			averageSessionLengthSeconds: number;
 			lastPracticeDate: Date | null;
 		}[]
 	> {
@@ -182,20 +189,20 @@ export class ConversationSessionsRepository {
 			.select({
 				language: conversationSessions.language,
 				sessions: count(),
-				totalMinutes: sum(conversationSessions.minutesConsumed),
-				averageSessionLength: avg(conversationSessions.durationMinutes),
+				totalSeconds: sum(conversationSessions.secondsConsumed),
+				averageSessionLengthSeconds: avg(conversationSessions.durationSeconds),
 				lastPracticeDate: sql<Date>`max(${conversationSessions.startTime})`
 			})
 			.from(conversationSessions)
 			.where(eq(conversationSessions.userId, userId))
 			.groupBy(conversationSessions.language)
-			.orderBy(desc(sum(conversationSessions.minutesConsumed)));
+			.orderBy(desc(sum(conversationSessions.secondsConsumed)));
 
 		return result.map((row) => ({
 			language: row.language,
 			sessions: Number(row.sessions),
-			totalMinutes: Number(row.totalMinutes || 0),
-			averageSessionLength: Number(row.averageSessionLength || 0),
+			totalSeconds: Number(row.totalSeconds || 0),
+			averageSessionLengthSeconds: Number(row.averageSessionLengthSeconds || 0),
 			lastPracticeDate: row.lastPracticeDate
 		}));
 	}
@@ -210,7 +217,7 @@ export class ConversationSessionsRepository {
 		{
 			date: string;
 			sessions: number;
-			minutes: number;
+			seconds: number;
 		}[]
 	> {
 		const startDate = new Date();
@@ -220,7 +227,7 @@ export class ConversationSessionsRepository {
 			.select({
 				date: sql<string>`date(${conversationSessions.startTime})`,
 				sessions: count(),
-				minutes: sum(conversationSessions.minutesConsumed)
+				seconds: sum(conversationSessions.secondsConsumed)
 			})
 			.from(conversationSessions)
 			.where(
@@ -232,7 +239,7 @@ export class ConversationSessionsRepository {
 		return result.map((row) => ({
 			date: row.date,
 			sessions: Number(row.sessions),
-			minutes: Number(row.minutes || 0)
+			seconds: Number(row.seconds || 0)
 		}));
 	}
 

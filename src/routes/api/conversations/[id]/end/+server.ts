@@ -58,9 +58,12 @@ export const POST = async ({ request, params, cookies }) => {
 		});
 
 		if (sessionId) {
-			const durationMinutes = Math.ceil(durationSeconds / 60);
-
-			await conversationSessionsRepository.endSession(sessionId, new Date(), durationMinutes);
+			await conversationSessionsRepository.endSession(
+				sessionId,
+				new Date(),
+				durationSeconds,
+				durationSeconds
+			);
 
 			if (wasExtended || extensionsUsed > 0) {
 				await conversationSessionsRepository.updateSessionExtensions(

@@ -198,7 +198,7 @@ This document provides a comprehensive overview of all database schemas in the K
 - **Primary Key**: `id` (text)
 - **Key Fields**:
   - `userId`, `language`, `startTime`, `endTime`
-  - `durationMinutes`, `minutesConsumed`
+  - `durationSeconds`, `secondsConsumed`, `inputTokens`
   - `wasExtended`, `extensionsUsed`
 - **Usage**: Legacy detailed session tracking (use v2 version for new development)
 

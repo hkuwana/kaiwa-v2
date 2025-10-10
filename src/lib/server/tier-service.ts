@@ -108,8 +108,9 @@ export class TierService {
 		language: string;
 		startTime: Date;
 		endTime?: Date;
-		durationMinutes: number;
-		minutesConsumed: number;
+		durationSeconds: number;
+		secondsConsumed?: number;
+		inputTokens?: number;
 		wasExtended?: boolean;
 		extensionsUsed?: number;
 		transcriptionMode?: boolean;
@@ -121,8 +122,9 @@ export class TierService {
 			language: sessionData.language,
 			startTime: sessionData.startTime,
 			endTime: sessionData.endTime,
-			durationMinutes: sessionData.durationMinutes,
-			minutesConsumed: sessionData.minutesConsumed,
+			durationSeconds: sessionData.durationSeconds,
+			secondsConsumed: sessionData.secondsConsumed ?? sessionData.durationSeconds,
+			inputTokens: sessionData.inputTokens ?? 0,
 			wasExtended: sessionData.wasExtended || false,
 			extensionsUsed: sessionData.extensionsUsed || 0,
 			transcriptionMode: sessionData.transcriptionMode || false,

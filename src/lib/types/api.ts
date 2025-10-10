@@ -118,8 +118,9 @@ export interface ConversationSessionResponse {
 	language: string;
 	startTime: string;
 	endTime: string | null;
-	durationMinutes: number;
-	minutesConsumed: number;
+	durationSeconds: number;
+	secondsConsumed: number;
+	inputTokens: number;
 	wasExtended: boolean;
 	extensionsUsed: number;
 	transcriptionMode: boolean;
