@@ -27,7 +27,7 @@ const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
 export class FounderEmailService {
 	public static readonly FOUNDER_EMAIL = 'hiro@trykaiwa.com'; // Using verified Resend domain
 	public static readonly FOUNDER_NAME = 'Hiro';
-	public static readonly CAL_LINK = 'https://https://cal.com/hirokuwana/15min'; // Replace with your actual Cal.com link
+	public static readonly CAL_LINK = 'https://cal.com/hirokuwana/15min'; 
 
 	/**
 	 * Send Day 1 welcome email if user hasn't practiced
@@ -58,12 +58,17 @@ export class FounderEmailService {
 				return false; // User already practiced, don't send
 			}
 
+			const languageName = await this.resolveTargetLanguageName(userId);
+			const firstName = user.displayName?.split(' ')[0] || 'there';
+
 			const result = await resend.emails.send({
 				from: `${this.FOUNDER_NAME} <${this.FOUNDER_EMAIL}>`,
 				replyTo: this.FOUNDER_EMAIL,
 				to: [user.email],
-				subject: `${user.displayName || 'there'}, welcome to Kaiwa! (from Hiro)`,
-				html: this.getDay1Email(user)
+				subject: languageName
+					? `${firstName}, ready for your first ${languageName} conversation?`
+					: `${firstName}, welcome to Kaiwa! (from Hiro)`,
+				html: this.getDay1Email(user, languageName)
 			});
 
 			if (result.error) {
@@ -107,12 +112,17 @@ export class FounderEmailService {
 				return false; // User practiced, don't send
 			}
 
+			const languageName = await this.resolveTargetLanguageName(userId);
+			const firstName = user.displayName?.split(' ')[0] || 'there';
+
 			const result = await resend.emails.send({
 				from: `${this.FOUNDER_NAME} <${this.FOUNDER_EMAIL}>`,
 				replyTo: this.FOUNDER_EMAIL,
 				to: [user.email],
-				subject: `Quick check-in - how's it going?`,
-				html: this.getDay2Email(user)
+				subject: languageName
+					? `Anything I can do to help with your ${languageName} practice?`
+					: `Quick check-in - how's it going?`,
+				html: this.getDay2Email(user, languageName)
 			});
 
 			if (result.error) {
@@ -156,16 +166,7 @@ export class FounderEmailService {
 				return false; // User practiced, don't send
 			}
 
-			const preferences = await userPreferencesRepository.getAllUserPreferences(userId);
-			let languageName = 'a new language'; // Default fallback
-			if (preferences && preferences.length > 0) {
-				const targetLanguage = await languageRepository.findLanguageById(
-					preferences[0].targetLanguageId
-				);
-				if (targetLanguage) {
-					languageName = targetLanguage.name;
-				}
-			}
+			const languageName = await this.resolveTargetLanguageName(userId);
 
 			const result = await resend.emails.send({
 				from: `${this.FOUNDER_NAME} <${this.FOUNDER_EMAIL}>`,
@@ -191,8 +192,9 @@ export class FounderEmailService {
 	/**
 	 * Day 1: Warm welcome
 	 */
-	public static getDay1Email(user: User): string {
+	public static getDay1Email(user: User, languageName: string | null): string {
 		const firstName = user.displayName?.split(' ')[0] || 'there';
+		const languageCta = languageName ? `${languageName} Conversation` : 'Conversation';
 
 		return `
 			<!DOCTYPE html>
@@ -248,21 +250,21 @@ export class FounderEmailService {
 			<body>
 				<p>Hi ${firstName},</p>
 
-				<p>Welcome to Kaiwa! I'm Hiro, and I built this app because I know how nerve-wracking it is to speak a new language, especially with your partner's family.</p>
+				<p>Thanks for joining Kaiwa! I'm Hiro, and I built this to make speaking ${languageName || 'a new language'} feel less intimidating—especially when it's for the people you care about.</p>
 
-				 
-				<p><strong>Here's what helped me when I was learning:</strong></p>
+				<p><strong>Here's the only goal for today:</strong></p>
 				<p>Just aim for <strong>one 5-minute conversation</strong>. That's it. Don't worry about being perfect. The AI tutor is patient and won't judge you. I promise it's way less scary than it seems.</p>
 
 				<p>Why not try it right now?</p>
 
 				<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}" class="cta" style="color: white; text-decoration: none;">
-					Start My First Conversation (5 min)
+					Start My First ${languageCta} (5 min)
 				</a>
 
 				<p>If something's not working or you have questions, just hit reply. I read every email and usually respond within a few hours.</p>
+				<p>If this email feels off, let me know—I'll make it right.</p>
 
-				<p>Looking forward to seeing you in there,</p>
+				<p>Looking forward to hearing how it goes,</p>
 
 				<div class="signature">
 					<div class="signature-name">${this.FOUNDER_NAME}</div>
@@ -284,8 +286,9 @@ export class FounderEmailService {
 	/**
 	 * Day 2: Check-in
 	 */
-	public static getDay2Email(user: User): string {
+	public static getDay2Email(user: User, languageName: string | null): string {
 		const firstName = user.displayName?.split(' ')[0] || 'there';
+		const languagePhrase = languageName ? `${languageName} conversation` : 'conversation';
 
 		return `
 			<!DOCTYPE html>
@@ -347,7 +350,7 @@ export class FounderEmailService {
 			<body>
 				<p>Hey ${firstName},</p>
 
-				<p>Just checking in! I see you haven't tried a conversation yet, and I'm wondering if something's getting in the way?</p>
+				<p>Just wanted to check in. Seems like you haven't had a chance to try a ${languagePhrase} yet—totally normal. Anything getting in the way that I can help with?</p>
 
 				<div class="feedback-box">
 					<strong>Common concerns I hear:</strong>
@@ -368,6 +371,7 @@ export class FounderEmailService {
 				</a>
 
 				<p>Reply anytime - I'm here to help!</p>
+				<p>If this email missed the mark, let me know so I can fix it.</p>
 
 				<div class="signature">
 					<div class="signature-name">${this.FOUNDER_NAME}</div>
@@ -384,8 +388,9 @@ export class FounderEmailService {
 	/**
 	 * Day 3: Personal offer to talk
 	 */
-	public static getDay3Email(user: User, languageName: string): string {
+	public static getDay3Email(user: User, languageName: string | null): string {
 		const firstName = user.displayName?.split(' ')[0] || 'there';
+		const languageLabel = languageName || 'a new language';
 
 		return `
 			<!DOCTYPE html>
@@ -479,7 +484,7 @@ export class FounderEmailService {
 
 				<p>And hey, if you're not interested in talking OR trying Kaiwa, that's totally okay. I'll take you off my list after this. No hard feelings.</p>
 
-				<p>But if you <em>do</em> want to learn ${languageName} and just haven't found the right approach yet, I'd love to help figure it out with you.</p>
+				<p>But if you <em>do</em> want to learn ${languageLabel} and just haven't found the right approach yet, I'd love to help figure it out with you.</p>
 
 				<p>Thanks for giving Kaiwa a chance,</p>
 
@@ -499,5 +504,19 @@ export class FounderEmailService {
 			</body>
 			</html>
 		`;
+	}
+
+	public static async resolveTargetLanguageName(userId: string): Promise<string | null> {
+		const preferences = await userPreferencesRepository.getAllUserPreferences(userId);
+
+		if (!preferences || preferences.length === 0) {
+			return null;
+		}
+
+		const targetLanguage = await languageRepository.findLanguageById(
+			preferences[0].targetLanguageId
+		);
+
+		return targetLanguage?.name ?? null;
 	}
 }

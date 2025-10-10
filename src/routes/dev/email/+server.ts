@@ -51,20 +51,28 @@ export const GET = async ({ url, locals }) => {
 			}
 
 			case 'day1_welcome': {
-				emailSubject = `${user.displayName || 'there'}, welcome to Kaiwa! (from Hiro)`;
-				emailHtml = FounderEmailService.getDay1Email(user);
+				const languageName = await FounderEmailService.resolveTargetLanguageName(targetUserId);
+				const firstName = user.displayName?.split(' ')[0] || 'there';
+				emailSubject = languageName
+					? `${firstName}, ready for your first ${languageName} conversation?`
+					: `${firstName}, welcome to Kaiwa! (from Hiro)`;
+				emailHtml = FounderEmailService.getDay1Email(user, languageName);
 				break;
 			}
 
 			case 'day2_checkin': {
-				emailSubject = `Quick check-in - how's it going?`;
-				emailHtml = FounderEmailService.getDay2Email(user);
+				const languageName = await FounderEmailService.resolveTargetLanguageName(targetUserId);
+				emailSubject = languageName
+					? `Anything I can do to help with your ${languageName} practice?`
+					: `Quick check-in - how's it going?`;
+				emailHtml = FounderEmailService.getDay2Email(user, languageName);
 				break;
 			}
 
 			case 'day3_offer': {
+				const languageName = await FounderEmailService.resolveTargetLanguageName(targetUserId);
 				emailSubject = `Can I help? (15 min chat)`;
-				emailHtml = FounderEmailService.getDay3Email(user);
+				emailHtml = FounderEmailService.getDay3Email(user, languageName);
 				break;
 			}
 
@@ -204,20 +212,28 @@ export const POST = async ({ request, locals }) => {
 			}
 
 			case 'day1_welcome': {
-				emailSubject = `${user.displayName || 'there'}, welcome to Kaiwa! (from Hiro)`;
-				emailHtml = FounderEmailService.getDay1Email(user);
+				const languageName = await FounderEmailService.resolveTargetLanguageName(targetUserId);
+				const firstName = user.displayName?.split(' ')[0] || 'there';
+				emailSubject = languageName
+					? `${firstName}, ready for your first ${languageName} conversation?`
+					: `${firstName}, welcome to Kaiwa! (from Hiro)`;
+				emailHtml = FounderEmailService.getDay1Email(user, languageName);
 				break;
 			}
 
 			case 'day2_checkin': {
-				emailSubject = `Quick check-in - how's it going?`;
-				emailHtml = FounderEmailService.getDay2Email(user);
+				const languageName = await FounderEmailService.resolveTargetLanguageName(targetUserId);
+				emailSubject = languageName
+					? `Anything I can do to help with your ${languageName} practice?`
+					: `Quick check-in - how's it going?`;
+				emailHtml = FounderEmailService.getDay2Email(user, languageName);
 				break;
 			}
 
 			case 'day3_offer': {
+				const languageName = await FounderEmailService.resolveTargetLanguageName(targetUserId);
 				emailSubject = `Can I help? (15 min chat)`;
-				emailHtml = FounderEmailService.getDay3Email(user);
+				emailHtml = FounderEmailService.getDay3Email(user, languageName);
 				break;
 			}
 

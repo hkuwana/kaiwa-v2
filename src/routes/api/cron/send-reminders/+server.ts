@@ -18,7 +18,7 @@ import { env } from '$env/dynamic/private';
  * Example cron setup:
  * - Daily at 9am: curl -H "Authorization: Bearer $CRON_SECRET" https://trykaiwa.com/api/cron/send-reminders
  */
-export const GET = async ({ request }) => {
+export const GET = async ({ request, url }) => {
 	try {
 		// Verify cron secret for security
 		const authHeader = request.headers.get('authorization');
@@ -27,6 +27,8 @@ export const GET = async ({ request }) => {
 		if (authHeader !== expectedAuth) {
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
+
+		const dryRun = url.searchParams.get('dryRun') === 'true';
 
 		// Get all users eligible for daily reminders based on database preferences
 		const eligibleUserIds = await EmailPermissionService.getDailyReminderEligibleUsers();
@@ -43,6 +45,12 @@ export const GET = async ({ request }) => {
 		let sent = 0;
 		let skipped = 0;
 		let failed = 0;
+		const dryRunPreviews: Array<{
+			userId: string;
+			email: string;
+			segment: string;
+			subject: string;
+		}> = [];
 
 		// Send appropriate emails based on user segment
 		for (const segment of Object.keys(segmented)) {
@@ -54,6 +62,22 @@ export const GET = async ({ request }) => {
 
 				if (!shouldSend) {
 					skipped++;
+					continue;
+				}
+
+				if (dryRun) {
+					const reminderData = await EmailReminderService.getPracticeReminderData(user.id);
+					const subject = reminderData
+						? EmailReminderService.getReminderSubject(reminderData)
+						: 'No reminder data';
+
+					dryRunPreviews.push({
+						userId: user.id,
+						email: user.email,
+						segment,
+						subject
+					});
+					sent++;
 					continue;
 				}
 
@@ -90,7 +114,9 @@ export const GET = async ({ request }) => {
 						[key]: segmented[key as keyof typeof segmented].length
 					}),
 					{}
-				)
+				),
+				dryRunPreviews: dryRun ? dryRunPreviews : undefined,
+				dryRun
 			}
 		});
 	} catch (error) {

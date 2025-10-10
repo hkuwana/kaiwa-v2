@@ -9,6 +9,8 @@
 	let showPreview = $state(false);
 	let previewHtml = $state<string>('');
 	let isLoadingPreview = $state(false);
+	let isCronRunning = $state(false);
+	let cronResult = $state<string>('');
 
 	const emailTypes = [
 		{
@@ -46,28 +48,28 @@
 			emails: [
 				{
 					value: 'segmented_new_user',
-					label: 'New User',
-					description: "Welcome message showing what's possible"
+					label: 'New User (legacy)',
+					description: "Legacy segmented welcome message (not currently sending)"
 				},
 				{
 					value: 'segmented_slightly_inactive',
-					label: 'Slightly Inactive (1-3 days)',
-					description: 'Gentle nudge to practice'
+					label: 'Slightly Inactive (legacy)',
+					description: 'Legacy segmented reminder'
 				},
 				{
 					value: 'segmented_moderately_inactive',
-					label: 'Moderately Inactive (3-7 days)',
-					description: 'Motivation boost'
+					label: 'Moderately Inactive (legacy)',
+					description: 'Legacy segmented reminder'
 				},
 				{
 					value: 'segmented_highly_inactive',
-					label: 'Highly Inactive (7-30 days)',
-					description: "Re-engagement with what's new"
+					label: 'Highly Inactive (legacy)',
+					description: 'Legacy segmented reminder'
 				},
 				{
 					value: 'segmented_dormant',
-					label: 'Dormant (30+ days)',
-					description: 'Win-back campaign'
+					label: 'Dormant (legacy)',
+					description: 'Legacy segmented win-back'
 				}
 			]
 		}
@@ -146,6 +148,61 @@
 			testResult = `❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`;
 		} finally {
 			isLoading = false;
+		}
+	}
+
+	async function runCronDryRun() {
+		if (!userManager.isLoggedIn) {
+			cronResult = '❌ Please log in first';
+			return;
+		}
+
+		isCronRunning = true;
+		cronResult = '⏳ Running daily reminder dry run...';
+
+		try {
+			const response = await fetch('/dev/email/cron', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({})
+			});
+
+			const data = await response.json();
+
+			if (response.ok) {
+				const stats = data.stats || {};
+				const previews = stats.dryRunPreviews || [];
+				const previewLines = previews.slice(0, 5).map(
+					(item: { email: string; segment: string; subject: string }) =>
+						`• ${item.email} [${item.segment}] → ${item.subject}`
+				);
+				if (previews.length > 5) {
+					previewLines.push(`…and ${previews.length - 5} more`);
+				}
+
+				cronResult = [
+					'✅ Dry run complete',
+					`Would send: ${previews.length}`,
+					`Skipped: ${stats.skipped ?? 0}`,
+					`Failed: ${stats.failed ?? 0}`,
+					previewLines.length ? '\nPreview:' : '',
+					previewLines.join('\n')
+				]
+					.filter(Boolean)
+					.join('\n');
+
+				posthogManager.trackEvent('dev_email_cron_dry_run', {
+					wouldSend: previews.length
+				});
+			} else {
+				cronResult = `❌ Failed: ${data.error || 'Unknown error'}${
+					data.details ? `\n${data.details}` : ''
+				}`;
+			}
+		} catch (error) {
+			cronResult = `❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`;
+		} finally {
+			isCronRunning = false;
 		}
 	}
 </script>
@@ -240,6 +297,31 @@
 								📨 Send Test Email
 							{/if}
 						</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Cron Dry Run -->
+			<div class="card mb-6 bg-base-100 shadow-lg">
+				<div class="card-body">
+					<h2 class="card-title">Daily Reminder Cron</h2>
+					<p class="text-base-content/70">
+						Run a dry run of <code>/api/cron/send-reminders</code> to see which users would receive
+						the founder reminder email.
+					</p>
+
+					<div class="mt-4 flex flex-wrap items-center gap-4">
+						<button class="btn btn-primary" on:click={runCronDryRun} disabled={isCronRunning}>
+							{#if isCronRunning}
+								<span class="loading loading-spinner loading-sm"></span>
+								<span>Running dry run...</span>
+							{:else}
+								Run Dry Run
+							{/if}
+						</button>
+						{#if cronResult}
+							<pre class="mt-2 w-full whitespace-pre-wrap rounded-lg bg-base-200 p-4 text-sm">{cronResult}</pre>
+						{/if}
 					</div>
 				</div>
 			</div>
