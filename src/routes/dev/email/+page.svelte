@@ -311,7 +311,7 @@
 					</p>
 
 					<div class="mt-4 flex flex-wrap items-center gap-4">
-						<button class="btn btn-primary" on:click={runCronDryRun} disabled={isCronRunning}>
+						<button class="btn btn-primary" onclick={runCronDryRun} disabled={isCronRunning}>
 							{#if isCronRunning}
 								<span class="loading loading-spinner loading-sm"></span>
 								<span>Running dry run...</span>
