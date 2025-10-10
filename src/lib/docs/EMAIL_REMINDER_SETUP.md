@@ -79,20 +79,20 @@ Expected response:
 
 ```json
 {
-	"success": true,
-	"stats": {
-		"total": 10,
-		"sent": 8,
-		"skipped": 2,
-		"failed": 0,
-		"segments": {
-			"newUsers": 3,
-			"slightlyInactive": 2,
-			"moderatelyInactive": 2,
-			"highlyInactive": 1,
-			"dormant": 0
-		}
-	}
+ "success": true,
+ "stats": {
+  "total": 10,
+  "sent": 8,
+  "skipped": 2,
+  "failed": 0,
+  "segments": {
+   "newUsers": 3,
+   "slightlyInactive": 2,
+   "moderatelyInactive": 2,
+   "highlyInactive": 1,
+   "dormant": 0
+  }
+ }
 }
 ```
 
@@ -339,23 +339,23 @@ Add PostHog events:
 ```typescript
 // When email is sent
 posthog.capture('email_sent', {
-	segment: 'slightly_inactive',
-	userId: user.id,
-	emailType: 'practice_reminder'
+ segment: 'slightly_inactive',
+ userId: user.id,
+ emailType: 'practice_reminder'
 });
 
 // When user clicks email link
 posthog.capture('email_clicked', {
-	segment: 'slightly_inactive',
-	userId: user.id,
-	emailType: 'practice_reminder'
+ segment: 'slightly_inactive',
+ userId: user.id,
+ emailType: 'practice_reminder'
 });
 
 // When user starts conversation from email
 posthog.capture('email_conversion', {
-	segment: 'slightly_inactive',
-	userId: user.id,
-	emailType: 'practice_reminder'
+ segment: 'slightly_inactive',
+ userId: user.id,
+ emailType: 'practice_reminder'
 });
 ```
 
@@ -411,7 +411,7 @@ Before going live:
 
 1. ✅ Authenticate domain (SPF, DKIM, DMARC)
 2. ✅ Include unsubscribe link in every email
-3. ✅ Use real "from" address (noreply@trykaiwa.com)
+3. ✅ Use real "from" address (<noreply@trykaiwa.com>)
 4. ✅ Personalize subject lines
 5. ✅ Keep HTML clean (no complex CSS)
 6. ✅ Test spam score before sending
@@ -424,19 +424,23 @@ Before going live:
 
 1. **Get Resend API key**: [resend.com](https://resend.com) → Dashboard → API Keys
 2. **Add to Fly secrets**:
+
    ```bash
    fly secrets set RESEND_API_KEY=re_...
    fly secrets set CRON_SECRET=random_secret
    ```
+
 3. **Set up GitHub Action** (easiest):
    - Copy workflow file from Option 2 above
    - Add `CRON_SECRET` to GitHub secrets
    - Done!
 4. **Test manually**:
+
    ```bash
    curl -H "Authorization: Bearer $CRON_SECRET" \
      https://trykaiwa.com/api/cron/send-reminders
    ```
+
 5. **Monitor** in Resend dashboard and PostHog
 
 ---
@@ -497,6 +501,6 @@ Before going live:
 
 ---
 
-**Questions?** Email hiro@trykaiwa.com or open an issue on GitHub.
+**Questions?** Email <hiro@trykaiwa.com> or open an issue on GitHub.
 
 **Last updated**: January 2025

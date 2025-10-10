@@ -33,10 +33,11 @@ export const conversationSessions = pgTable(
 		language: text('language').notNull(),
 		startTime: timestamp('start_time').notNull(),
 		endTime: timestamp('end_time'),
-		durationMinutes: integer('duration_minutes').notNull(),
+		durationSeconds: integer('duration_seconds').notNull(),
 
 		// Usage tracking
-		minutesConsumed: integer('minutes_consumed').notNull(),
+		secondsConsumed: integer('seconds_consumed').notNull(),
+		inputTokens: integer('input_tokens').default(0),
 		wasExtended: boolean('was_extended').default(false),
 		extensionsUsed: integer('extensions_used').default(0),
 
@@ -53,7 +54,7 @@ export const conversationSessions = pgTable(
 		// Composite index for user language analytics
 		index('conversation_sessions_user_language_idx').on(table.userId, table.language),
 		// Index for duration-based analytics
-		index('conversation_sessions_duration_idx').on(table.durationMinutes),
+		index('conversation_sessions_duration_idx').on(table.durationSeconds),
 		// Index for extension tracking
 		index('conversation_sessions_extensions_idx').on(table.wasExtended, table.extensionsUsed)
 	]

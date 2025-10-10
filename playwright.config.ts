@@ -7,10 +7,14 @@ const resolveFromRoot = (relativePath: string) =>
 
 export default defineConfig({
 	webServer: {
-		command: 'pnpm run preview -- --host 127.0.0.1 --port 4173',
+		command: 'PORT=4173 node build',
 		port: 4173,
 		reuseExistingServer: !process.env.CI,
-		timeout: 120_000
+		timeout: 120_000,
+		env: {
+			...process.env,
+			PORT: '4173'
+		}
 	},
 	testDir: resolveFromRoot('e2e/specs'),
 	fullyParallel: true,

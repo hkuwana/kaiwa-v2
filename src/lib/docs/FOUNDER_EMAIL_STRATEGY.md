@@ -278,11 +278,11 @@ or reply. I respect your inbox!
 ```typescript
 // In founder-email.service.ts
 const result = await resend.emails.send({
-	from: 'Hiro <hiro@trykaiwa.com>',
-	replyTo: 'hiro@trykaiwa.com', // Enable replies!
-	to: [user.email],
-	subject: '...',
-	html: '...'
+ from: 'Hiro <hiro@trykaiwa.com>',
+ replyTo: 'hiro@trykaiwa.com', // Enable replies!
+ to: [user.email],
+ subject: '...',
+ html: '...'
 });
 ```
 
@@ -359,27 +359,27 @@ curl -X POST \
 ```typescript
 // When email is sent
 posthog.capture('founder_email_sent', {
-	emailType: 'day1_welcome',
-	daysSinceSignup: 1,
-	userId: user.id
+ emailType: 'day1_welcome',
+ daysSinceSignup: 1,
+ userId: user.id
 });
 
 // When user clicks CTA
 posthog.capture('founder_email_clicked', {
-	emailType: 'day1_welcome',
-	ctaType: 'start_conversation'
+ emailType: 'day1_welcome',
+ ctaType: 'start_conversation'
 });
 
 // When user books call
 posthog.capture('cal_booking', {
-	source: 'day3_email',
-	userId: user.id
+ source: 'day3_email',
+ userId: user.id
 });
 
 // When user starts conversation after email
 posthog.capture('email_conversion', {
-	emailType: 'day2_checkin',
-	hoursSinceEmail: 2
+ emailType: 'day2_checkin',
+ hoursSinceEmail: 2
 });
 ```
 
