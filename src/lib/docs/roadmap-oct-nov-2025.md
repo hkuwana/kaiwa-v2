@@ -37,28 +37,28 @@ File: `src/routes/+page.svelte`
 
 ```svelte
 <section class="py-8 text-center md:py-12">
-	<div class="container mx-auto max-w-4xl">
-		<h3 class="mb-6 text-xl font-semibold">Early Access</h3>
-		<p class="mb-4 text-base opacity-90">
-			We're working with the first 100 users to build conversation scenarios that actually matter.
-		</p>
-		<div class="grid gap-4 md:grid-cols-2">
-			<div class="rounded-lg bg-base-200 p-6">
-				<div class="mb-2 text-3xl">🎯</div>
-				<div class="font-semibold">Honest Feedback Welcome</div>
-				<div class="mt-2 text-sm opacity-80">
-					Tell us what works and what doesn't. We're building this with you, not for you.
-				</div>
-			</div>
-			<div class="rounded-lg bg-base-200 p-6">
-				<div class="mb-2 text-3xl">💬</div>
-				<div class="font-semibold">Focus: Cross-Language Relationships</div>
-				<div class="mt-2 text-sm opacity-80">
-					Especially if you're preparing to talk with your partner's family in their language.
-				</div>
-			</div>
-		</div>
-	</div>
+ <div class="container mx-auto max-w-4xl">
+  <h3 class="mb-6 text-xl font-semibold">Early Access</h3>
+  <p class="mb-4 text-base opacity-90">
+   We're working with the first 100 users to build conversation scenarios that actually matter.
+  </p>
+  <div class="grid gap-4 md:grid-cols-2">
+   <div class="rounded-lg bg-base-200 p-6">
+    <div class="mb-2 text-3xl">🎯</div>
+    <div class="font-semibold">Honest Feedback Welcome</div>
+    <div class="mt-2 text-sm opacity-80">
+     Tell us what works and what doesn't. We're building this with you, not for you.
+    </div>
+   </div>
+   <div class="rounded-lg bg-base-200 p-6">
+    <div class="mb-2 text-3xl">💬</div>
+    <div class="font-semibold">Focus: Cross-Language Relationships</div>
+    <div class="mt-2 text-sm opacity-80">
+     Especially if you're preparing to talk with your partner's family in their language.
+    </div>
+   </div>
+  </div>
+ </div>
 </section>
 ```
 
@@ -75,96 +75,96 @@ File: `src/lib/features/conversation/components/ConversationReviewableState.svel
 
 ```svelte
 <script lang="ts">
-	let showExitSurvey = $state(false);
-	let exitReason = $state('');
-	let exitComment = $state('');
+ let showExitSurvey = $state(false);
+ let exitReason = $state('');
+ let exitComment = $state('');
 
-	function handleSessionEnd() {
-		if (!conversationStore.completedSuccessfully) {
-			showExitSurvey = true;
-		}
-	}
+ function handleSessionEnd() {
+  if (!conversationStore.completedSuccessfully) {
+   showExitSurvey = true;
+  }
+ }
 
-	async function submitExitSurvey() {
-		await fetch('/api/feedback/exit-survey', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				sessionId: conversationStore.sessionId,
-				reason: exitReason,
-				comment: exitComment,
-				timestamp: new Date().toISOString()
-			})
-		});
-		showExitSurvey = false;
-	}
+ async function submitExitSurvey() {
+  await fetch('/api/feedback/exit-survey', {
+   method: 'POST',
+   headers: { 'Content-Type': 'application/json' },
+   body: JSON.stringify({
+    sessionId: conversationStore.sessionId,
+    reason: exitReason,
+    comment: exitComment,
+    timestamp: new Date().toISOString()
+   })
+  });
+  showExitSurvey = false;
+ }
 </script>
 
 {#if showExitSurvey}
-	<dialog class="modal-open modal">
-		<div class="modal-box">
-			<h3 class="mb-4 text-lg font-bold">Quick Question Before You Go</h3>
-			<p class="mb-4">What conversation were you hoping to practice?</p>
+ <dialog class="modal-open modal">
+  <div class="modal-box">
+   <h3 class="mb-4 text-lg font-bold">Quick Question Before You Go</h3>
+   <p class="mb-4">What conversation were you hoping to practice?</p>
 
-			<div class="mb-4 space-y-2">
-				<label class="flex cursor-pointer items-center gap-2">
-					<input
-						type="radio"
-						name="reason"
-						value="partner_family"
-						bind:group={exitReason}
-						class="radio"
-					/>
-					<span>Meeting my partner's family</span>
-				</label>
-				<label class="flex cursor-pointer items-center gap-2">
-					<input
-						type="radio"
-						name="reason"
-						value="heritage"
-						bind:group={exitReason}
-						class="radio"
-					/>
-					<span>Talking with heritage relatives</span>
-				</label>
-				<label class="flex cursor-pointer items-center gap-2">
-					<input type="radio" name="reason" value="travel" bind:group={exitReason} class="radio" />
-					<span>Travel/survival conversations</span>
-				</label>
-				<label class="flex cursor-pointer items-center gap-2">
-					<input
-						type="radio"
-						name="reason"
-						value="business"
-						bind:group={exitReason}
-						class="radio"
-					/>
-					<span>Business/work scenarios</span>
-				</label>
-				<label class="flex cursor-pointer items-center gap-2">
-					<input type="radio" name="reason" value="general" bind:group={exitReason} class="radio" />
-					<span>General practice</span>
-				</label>
-				<label class="flex cursor-pointer items-center gap-2">
-					<input type="radio" name="reason" value="other" bind:group={exitReason} class="radio" />
-					<span>Something else</span>
-				</label>
-			</div>
+   <div class="mb-4 space-y-2">
+    <label class="flex cursor-pointer items-center gap-2">
+     <input
+      type="radio"
+      name="reason"
+      value="partner_family"
+      bind:group={exitReason}
+      class="radio"
+     />
+     <span>Meeting my partner's family</span>
+    </label>
+    <label class="flex cursor-pointer items-center gap-2">
+     <input
+      type="radio"
+      name="reason"
+      value="heritage"
+      bind:group={exitReason}
+      class="radio"
+     />
+     <span>Talking with heritage relatives</span>
+    </label>
+    <label class="flex cursor-pointer items-center gap-2">
+     <input type="radio" name="reason" value="travel" bind:group={exitReason} class="radio" />
+     <span>Travel/survival conversations</span>
+    </label>
+    <label class="flex cursor-pointer items-center gap-2">
+     <input
+      type="radio"
+      name="reason"
+      value="business"
+      bind:group={exitReason}
+      class="radio"
+     />
+     <span>Business/work scenarios</span>
+    </label>
+    <label class="flex cursor-pointer items-center gap-2">
+     <input type="radio" name="reason" value="general" bind:group={exitReason} class="radio" />
+     <span>General practice</span>
+    </label>
+    <label class="flex cursor-pointer items-center gap-2">
+     <input type="radio" name="reason" value="other" bind:group={exitReason} class="radio" />
+     <span>Something else</span>
+    </label>
+   </div>
 
-			<textarea
-				class="textarea-bordered textarea mb-4 w-full"
-				placeholder="Anything else we should know? (optional)"
-				bind:value={exitComment}
-			></textarea>
+   <textarea
+    class="textarea-bordered textarea mb-4 w-full"
+    placeholder="Anything else we should know? (optional)"
+    bind:value={exitComment}
+   ></textarea>
 
-			<div class="modal-action">
-				<button class="btn btn-ghost" onclick={() => (showExitSurvey = false)}>Skip</button>
-				<button class="btn btn-primary" onclick={submitExitSurvey} disabled={!exitReason}>
-					Submit
-				</button>
-			</div>
-		</div>
-	</dialog>
+   <div class="modal-action">
+    <button class="btn btn-ghost" onclick={() => (showExitSurvey = false)}>Skip</button>
+    <button class="btn btn-primary" onclick={submitExitSurvey} disabled={!exitReason}>
+     Submit
+    </button>
+   </div>
+  </div>
+ </dialog>
 {/if}
 ```
 
@@ -177,17 +177,17 @@ import { db } from '$lib/server/db';
 import { analyticsEvents } from '$lib/server/db/schema';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
-	const { sessionId, reason, comment, timestamp } = await request.json();
+ const { sessionId, reason, comment, timestamp } = await request.json();
 
-	await db.insert(analyticsEvents).values({
-		userId: locals.user?.id,
-		sessionId,
-		eventName: 'exit_survey_submitted',
-		properties: { reason, comment },
-		createdAt: new Date(timestamp)
-	});
+ await db.insert(analyticsEvents).values({
+  userId: locals.user?.id,
+  sessionId,
+  eventName: 'exit_survey_submitted',
+  properties: { reason, comment },
+  createdAt: new Date(timestamp)
+ });
 
-	return json({ success: true });
+ return json({ success: true });
 };
 ```
 
@@ -377,11 +377,11 @@ Based on Week 1 insights, choose THE scenario:
 
    ```svelte
    <div class="success-modal">
-   	<h2>Great Practice!</h2>
-   	<p>You've practiced this scenario {count} times.</p>
-   	<p>Ready for the real thing? Share your progress:</p>
-   	<button>"Send to [Partner Name]"</button>
-   	<button>"Share on WhatsApp"</button>
+    <h2>Great Practice!</h2>
+    <p>You've practiced this scenario {count} times.</p>
+    <p>Ready for the real thing? Share your progress:</p>
+    <button>"Send to [Partner Name]"</button>
+    <button>"Share on WhatsApp"</button>
    </div>
    ```
 
@@ -1119,7 +1119,7 @@ Product conviction: ?/10
 
 ## Final Notes: The Honest Founder Conversation
 
-### This roadmap assumes you want PMF validation, not feature building.
+### This roadmap assumes you want PMF validation, not feature building
 
 If you find yourself saying:
 
@@ -1129,20 +1129,20 @@ If you find yourself saying:
 
 **Stop. You're avoiding the hard truth: validation is scary.**
 
-### The only way to know if Kaiwa has PMF is to:
+### The only way to know if Kaiwa has PMF is to
 
 1. Talk to users (interviews)
 2. Watch them use it (dogfooding)
 3. Measure if they return (retention)
 4. See if they'll pay (monetization)
 
-### If after 30 days you don't have a clear answer, you need to:
+### If after 30 days you don't have a clear answer, you need to
 
 - Interview 20 MORE people, or
 - Pivot to a different ICP, or
 - Accept that this might not be the right problem
 
-### Building in a vacuum is comfortable. Validation is uncomfortable. Choose discomfort.
+### Building in a vacuum is comfortable. Validation is uncomfortable. Choose discomfort
 
 ---
 

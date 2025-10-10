@@ -28,7 +28,7 @@ const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
 export class FounderEmailService {
 	private static readonly FOUNDER_EMAIL = 'hiro@kaiwa.app';
 	private static readonly FOUNDER_NAME = 'Hiro';
-	private static readonly CAL_LINK = 'https://cal.com/hiro-kaiwa/15min'; // Replace with your actual Cal.com link
+	private static readonly CAL_LINK = 'https://https://cal.com/hirokuwana/15min'; // Replace with your actual Cal.com link
 
 	/**
 	 * Send Day 1 welcome email if user hasn't practiced

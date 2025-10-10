@@ -38,7 +38,7 @@ Day 3 (afternoon): Personal offer to talk (Cal.com)
 
 **Key principles**:
 
-- ✅ Send from **hiro@kaiwa.app** (not noreply@)
+- ✅ Send from **<hiro@kaiwa.app>** (not noreply@)
 - ✅ Afternoon sending (2-4pm user's time)
 - ✅ Easy to reply (shows in their inbox, not promo tab)
 - ✅ Short & personal (not marketing copy)
@@ -212,7 +212,7 @@ I'm genuinely curious what's not clicking for you with Kaiwa. Maybe it's:
 • Or maybe language learning just isn't a priority right now?
 
 Whatever it is, I'd love to hear it. Your feedback helps me build
-a better product for the next person.
+a better product for you and the next person.
 
 ┌─────────────────────────────────────┐
 │ Let's talk                          │
@@ -232,14 +232,14 @@ No hard feelings.
 
 But if you do want to learn [target language] and just haven't
 found the right approach yet, I'd love to help figure it out
-with you.
+with you. Even if your solution isn't Kaiwa.
 
 Thanks for giving Kaiwa a chance,
 
 Hiro
 Founder, Kaiwa
 📧 hiro@kaiwa.app
-📅 cal.com/hiro-kaiwa/15min
+📅 https://cal.com/hirokuwana/15min
 🌐 kaiwa.app
 
 P.S. This is genuinely the last email unless you book a call
@@ -268,21 +268,21 @@ or reply. I respect your inbox!
    - Duration: 15 minutes
    - Buffer: 10 minutes between calls
    - Questions: "What would you like to discuss?"
-3. Get your link: `cal.com/hiro-kaiwa/15min`
+3. Get your link: `https://cal.com/hirokuwana/15min`
 4. Add to founder email template
 
 ### 2. Configure Resend with Personal Email
 
-**Important**: Use your real email (hiro@kaiwa.app), not noreply@
+**Important**: Use your real email (<hiro@kaiwa.app>), not noreply@
 
 ```typescript
 // In founder-email.service.ts
 const result = await resend.emails.send({
-	from: 'Hiro <hiro@kaiwa.app>',
-	replyTo: 'hiro@kaiwa.app', // Enable replies!
-	to: [user.email],
-	subject: '...',
-	html: '...'
+ from: 'Hiro <hiro@kaiwa.app>',
+ replyTo: 'hiro@kaiwa.app', // Enable replies!
+ to: [user.email],
+ subject: '...',
+ html: '...'
 });
 ```
 
@@ -359,27 +359,27 @@ curl -X POST \
 ```typescript
 // When email is sent
 posthog.capture('founder_email_sent', {
-	emailType: 'day1_welcome',
-	daysSinceSignup: 1,
-	userId: user.id
+ emailType: 'day1_welcome',
+ daysSinceSignup: 1,
+ userId: user.id
 });
 
 // When user clicks CTA
 posthog.capture('founder_email_clicked', {
-	emailType: 'day1_welcome',
-	ctaType: 'start_conversation'
+ emailType: 'day1_welcome',
+ ctaType: 'start_conversation'
 });
 
 // When user books call
 posthog.capture('cal_booking', {
-	source: 'day3_email',
-	userId: user.id
+ source: 'day3_email',
+ userId: user.id
 });
 
 // When user starts conversation after email
 posthog.capture('email_conversion', {
-	emailType: 'day2_checkin',
-	hoursSinceEmail: 2
+ emailType: 'day2_checkin',
+ hoursSinceEmail: 2
 });
 ```
 
@@ -495,7 +495,7 @@ High-value indicators:
 ### Setup (1 hour)
 
 - [ ] Set up Cal.com account and 15-min event
-- [ ] Update Resend to allow replies to hiro@kaiwa.app
+- [ ] Update Resend to allow replies to <hiro@kaiwa.app>
 - [ ] Deploy founder email service code
 - [ ] Test all 3 email templates locally
 - [ ] Add founder photo to email signature (optional)
@@ -615,7 +615,7 @@ better.
 **"How is this different from Duolingo/other apps?"**
 
 ```
-Great question! Short answer: Duolingo = vocabulary/grammar,
+Great question! Short answer: Duolingo = gamification/lessons,
 Kaiwa = actual conversation practice.
 
 Longer answer: Most apps teach you words and grammar rules.
@@ -624,7 +624,7 @@ actually speak. It's messy, nerve-wracking, and way more
 effective.
 
 Think of it like: Duolingo = learning to swim on dry land,
-Kaiwa = jumping in the pool with a patient coach.
+Kaiwa = jumping in the deep end with a patient coach.
 
 Does that make sense? Want to try one conversation and see?
 ```

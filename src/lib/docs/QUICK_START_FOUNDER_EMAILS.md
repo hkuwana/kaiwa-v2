@@ -16,13 +16,13 @@
    - **Location**: Google Meet (or Zoom)
    - **Buffer**: 10 minutes between calls
    - **Questions**: "What would you like to discuss about Kaiwa?"
-4. Copy your link (looks like: `cal.com/hiro-kaiwa/15min`)
+4. Copy your link (looks like: `https://cal.com/hirokuwana/15min`)
 5. Update in code:
 
 ```bash
 # Edit src/lib/server/services/founder-email.service.ts
 # Find this line:
-private static readonly CAL_LINK = 'https://cal.com/hiro-kaiwa/15min';
+private static readonly CAL_LINK = 'https://https://cal.com/hirokuwana/15min';
 # Replace with your actual Cal.com link
 ```
 
