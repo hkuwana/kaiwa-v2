@@ -6,6 +6,8 @@ import { userRepository } from '$lib/server/repositories';
 import { scenarioRepository } from '$lib/server/repositories';
 import { EmailPermissionService } from './email-permission.service';
 import type { User, Scenario } from '$lib/server/db/types';
+import { userPreferencesRepository } from '$lib/server/repositories/user-preferences.repository';
+import { languageRepository } from '$lib/server/repositories/language.repository';
 
 // Initialize Resend
 const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
@@ -16,6 +18,7 @@ export interface PracticeReminderData {
 	recommendedScenarios: Scenario[];
 	lastPracticeDate?: Date;
 	streakDays: number;
+	targetLanguageName?: string | null;
 }
 
 export class EmailReminderService {
@@ -54,7 +57,8 @@ export class EmailReminderService {
 
 			// Send email
 			const result = await resend.emails.send({
-				from: 'Kaiwa <noreply@trykaiwa.com',
+				from: 'Hiro <hiro@trykaiwa.com>',
+				replyTo: 'hiro@trykaiwa.com',
 				to: [user.email],
 				subject: this.getReminderSubject(reminderData),
 				html: this.getReminderEmailTemplate(reminderData)
@@ -76,7 +80,7 @@ export class EmailReminderService {
 	/**
 	 * Get practice reminder data for a user
 	 */
-	private static async getPracticeReminderData(
+	public static async getPracticeReminderData(
 		userId: string
 	): Promise<PracticeReminderData | null> {
 		try {
@@ -98,13 +102,15 @@ export class EmailReminderService {
 			// Get last practice date and streak
 			const lastPracticeDate = lastAttempt?.completedAt || null;
 			const streakDays = await this.calculateStreakDays(userId);
+			const targetLanguageName = await this.getTargetLanguageName(userId);
 
 			return {
 				user,
 				lastScenario: lastScenario || undefined,
 				recommendedScenarios,
 				lastPracticeDate: lastPracticeDate || undefined,
-				streakDays
+				streakDays,
+				targetLanguageName
 			};
 		} catch (error) {
 			console.error('Error getting practice reminder data:', error);
@@ -193,11 +199,14 @@ export class EmailReminderService {
 	/**
 	 * Generate reminder email subject
 	 */
-	private static getReminderSubject(data: PracticeReminderData): string {
-		const { lastPracticeDate, streakDays } = data;
+	public static getReminderSubject(data: PracticeReminderData): string {
+		const { lastPracticeDate, streakDays, targetLanguageName } = data;
+		const languageLabel = targetLanguageName ?? '';
 
 		if (streakDays > 0) {
-			return `Keep your ${streakDays}-day streak going! 🎯`;
+			return languageLabel
+				? `You're ${streakDays} days in—let's keep your ${languageLabel} streak going! 🎯`
+				: `Keep your ${streakDays}-day streak going! 🎯`;
 		}
 
 		if (lastPracticeDate) {
@@ -205,30 +214,47 @@ export class EmailReminderService {
 				(Date.now() - lastPracticeDate.getTime()) / (1000 * 60 * 60 * 24)
 			);
 			if (daysSince === 1) {
-				return 'Ready for another practice session? 💪';
+				return languageLabel
+					? `Ready for another quick ${languageLabel} practice? 💪`
+					: 'Ready for another practice session? 💪';
 			} else if (daysSince <= 3) {
-				return "Don't let your progress slip away! 🌟";
+				return languageLabel
+					? `Don't let your ${languageLabel} progress slip away! 🌟`
+					: "Don't let your progress slip away! 🌟";
 			}
 		}
 
-		return 'Time to practice your language skills! 🗣️';
+		return languageLabel
+			? `Want to try a quick ${languageLabel} conversation today? 🗣️`
+			: 'Time to practice your language skills! 🗣️';
 	}
 
 	/**
 	 * Generate reminder email template
 	 */
-	private static getReminderEmailTemplate(data: PracticeReminderData): string {
-		const { user, lastScenario, recommendedScenarios, lastPracticeDate, streakDays } = data;
+	public static getReminderEmailTemplate(data: PracticeReminderData): string {
+		const {
+			user,
+			lastScenario,
+			recommendedScenarios,
+			lastPracticeDate,
+			streakDays,
+			targetLanguageName
+		} = data;
 		const displayName = user.displayName || 'there';
 
 		const lastPracticeText = lastPracticeDate
 			? `Your last practice was ${this.formatDate(lastPracticeDate)}`
-			: "You haven't practiced yet";
+			: targetLanguageName
+				? `Looks like you haven't had a chance to jump into a ${targetLanguageName} conversation yet. Want to warm up now?`
+				: `Looks like you haven't had a chance to jump into a conversation yet. Want to warm up now?`;
 
 		const streakText =
 			streakDays > 0
 				? `You're on a ${streakDays}-day streak! 🔥`
-				: 'Ready to start your practice streak?';
+				: targetLanguageName
+					? `Ready to start your ${targetLanguageName} streak?`
+					: 'Ready to start your practice streak?';
 
 		return `
 			<!DOCTYPE html>
@@ -322,7 +348,9 @@ export class EmailReminderService {
 				<div class="container">
 					<div class="header">
 						<div class="logo">Kaiwa</div>
-						<h1>Ready for another practice session?</h1>
+						<h1>Ready for another ${
+							targetLanguageName ? targetLanguageName + ' practice?' : 'practice session?'
+						}</h1>
 					</div>
 					
 					<p>Hi ${displayName},</p>
@@ -362,7 +390,9 @@ export class EmailReminderService {
 						<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}" class="cta-button" style="color: white; text-decoration: none;">Start Any Conversation</a>
 					</div>
 					
-					<p>Remember, even 5 minutes of practice can make a difference. You've got this! 💪</p>
+					<p>Even five minutes counts. Pick one small moment today and I'll cheer you on. 💪</p>
+					
+					<p style="margin-top: 24px;">– Hiro<br><span style="color: #64748b;">Founder, Kaiwa</span><br><span style="color: #64748b;">If this reminder feels off, just reply and I'll fix it.</span></p>
 					
 					<div class="footer">
 						<p>This email was sent from Kaiwa. <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile">Manage your email preferences</a></p>
@@ -417,6 +447,24 @@ export class EmailReminderService {
 		} catch (error) {
 			console.error('Error sending bulk reminders:', error);
 			return { sent: 0, failed: 0 };
+		}
+	}
+
+	private static async getTargetLanguageName(userId: string): Promise<string | null> {
+		try {
+			const preferences = await userPreferencesRepository.getAllUserPreferences(userId);
+			if (!preferences || preferences.length === 0) {
+				return null;
+			}
+
+			const targetLanguage = await languageRepository.findLanguageById(
+				preferences[0].targetLanguageId
+			);
+
+			return targetLanguage?.name ?? null;
+		} catch (error) {
+			console.error('Error fetching target language:', error);
+			return null;
 		}
 	}
 }

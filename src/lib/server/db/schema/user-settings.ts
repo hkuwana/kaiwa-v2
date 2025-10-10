@@ -81,6 +81,12 @@ export const userSettings = pgTable('user_settings', {
 
 	receiveDailyReminderEmails: pgBoolean('receive_daily_reminder_emails').default(true).notNull(),
 
+	receiveProductUpdates: pgBoolean('receive_product_updates').default(true).notNull(),
+
+	receiveWeeklyDigest: pgBoolean('receive_weekly_digest').default(true).notNull(),
+
+	receiveSecurityAlerts: pgBoolean('receive_security_alerts').default(true).notNull(),
+
 	dailyReminderSentCount: integer('daily_reminder_sent_count').default(0).notNull(),
 
 	lastReminderSentAt: timestamp('last_reminder_sent_at'),
