@@ -1,6 +1,5 @@
 import { userRepository } from '$lib/server/repositories';
 import { userSettingsRepository } from '$lib/server/repositories/user-settings.repository';
-import { db } from '$lib/server/db';
 
 /**
  * Email Permission Service
@@ -48,7 +47,7 @@ export class EmailPermissionService {
 	 * Returns users who have opted in to marketing emails (or haven't set preference yet)
 	 */
 	static async getMarketingEligibleUsers(): Promise<string[]> {
-		const allUsers = await db.query.users.findMany();
+		const allUsers = await userRepository.getAllUsers();
 		const eligible: string[] = [];
 
 		for (const user of allUsers) {
@@ -65,7 +64,7 @@ export class EmailPermissionService {
 	 * Returns users who have opted in to daily reminders (or haven't set preference yet)
 	 */
 	static async getDailyReminderEligibleUsers(): Promise<string[]> {
-		const allUsers = await db.query.users.findMany();
+		const allUsers = await userRepository.getAllUsers();
 		const eligible: string[] = [];
 
 		for (const user of allUsers) {

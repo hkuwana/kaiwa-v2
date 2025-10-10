@@ -2,7 +2,6 @@ import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 import { userRepository } from '$lib/server/repositories';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
-import { userSettingsRepository } from '$lib/server/repositories/user-settings.repository';
 import { EmailPermissionService } from './email-permission.service';
 import type { User } from '$lib/server/db/types';
 import { userPreferencesRepository } from '$lib/server/repositories/user-preferences.repository';

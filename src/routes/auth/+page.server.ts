@@ -1,10 +1,8 @@
 // routes/auth/+page.server.ts
 import { fail, redirect } from '@sveltejs/kit';
-import { and, eq } from 'drizzle-orm';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeHexLowerCase } from '@oslojs/encoding';
-import { db } from '$lib/server/db';
-import * as table from '$lib/server/db/schema';
+import { userRepository } from '$lib/server/repositories/user.repository';
 import { createSession, setSessionTokenCookie, findOrCreateUser } from '$lib/server/auth';
 import { EmailVerificationService } from '$lib/server/services/email-verification.service';
 
@@ -79,9 +77,7 @@ export const actions = {
 		const password = formData.get('password') as string;
 		const redirectUrl = event.url.searchParams.get('redirect');
 
-		const user = await db.query.users.findFirst({
-			where: and(eq(table.users.email, email))
-		});
+		const user = await userRepository.findUserByEmail(email);
 
 		if (!user || !user.hashedPassword) {
 			return fail(400, {

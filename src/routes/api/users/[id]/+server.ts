@@ -1,8 +1,17 @@
 import { json } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
 import { userRepository } from '$lib/server/repositories/user.repository';
 import { emailVerificationRepository } from '$lib/server/repositories/email-verification.repository';
 import { sessionRepository } from '$lib/server/repositories/session.repository';
+import { userPreferencesRepository } from '$lib/server/repositories/user-preferences.repository';
+import { userUsageRepository } from '$lib/server/repositories/user-usage.repository';
+import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
+import { conversationRepository } from '$lib/server/repositories/conversation.repository';
+import { analyticsEventsRepository } from '$lib/server/repositories/analytics-events.repository';
+import { scenarioAttemptsRepository } from '$lib/server/repositories/scenario-attempts.repository';
+import { scenarioOutcomesRepository } from '$lib/server/repositories/scenario-outcomes.repository';
+import { subscriptionRepository } from '$lib/server/repositories/subscription.repository';
+import { paymentRepository } from '$lib/server/repositories/payment.repository';
+import { userSettingsRepository } from '$lib/server/repositories/user-settings.repository';
 
 export const DELETE = async ({ locals, params }) => {
 	if (!locals.user) {
@@ -19,88 +28,78 @@ export const DELETE = async ({ locals, params }) => {
 		// Delete all user-related data in the correct order (respecting foreign key constraints)
 
 		// 1. Delete email verification records
-		await emailVerificationRepository.deleteEmailVerificationByUserId(userId);
+		await emailVerificationRepository.deleteVerificationByUserId(userId);
 
 		// 2. Delete user sessions
-		await sessionRepository.deleteSessionByUserId(userId);
+		await sessionRepository.deleteAllSessionsForUser(userId);
 
-		// 3. Delete user preferences (if exists)
+		// 3. Delete user preferences
 		try {
-			await db.execute(`DELETE FROM user_preferences WHERE user_id = '${userId}'`);
+			await userPreferencesRepository.deleteUserPreferences(userId);
 		} catch (error) {
-			// Table might not exist or have different structure, continue
 			console.log('User preferences deletion skipped:', error);
 		}
 
-		// 4. Delete user usage records (if exists)
+		// 4. Delete user settings
 		try {
-			await db.execute(`DELETE FROM user_usage WHERE user_id = '${userId}'`);
+			await userSettingsRepository.deleteUserSettings(userId);
 		} catch (error) {
-			// Table might not exist or have different structure, continue
+			console.log('User settings deletion skipped:', error);
+		}
+
+		// 5. Delete user usage records
+		try {
+			await userUsageRepository.deleteUserUsage(userId);
+		} catch (error) {
 			console.log('User usage deletion skipped:', error);
 		}
 
-		// 5. Delete conversation sessions (if exists)
+		// 6. Delete conversation sessions
 		try {
-			await db.execute(`DELETE FROM conversation_sessions WHERE user_id = '${userId}'`);
+			await conversationSessionsRepository.deleteUserSessions(userId);
 		} catch (error) {
-			// Table might not exist or have different structure, continue
 			console.log('Conversation sessions deletion skipped:', error);
 		}
 
-		// 6. Delete conversations (if exists)
+		// 7. Delete conversations (this also deletes messages via the repository)
 		try {
-			await db.execute(`DELETE FROM conversations WHERE user_id = '${userId}'`);
+			await conversationRepository.deleteUserConversations(userId);
 		} catch (error) {
-			// Table might not exist or have different structure, continue
 			console.log('Conversations deletion skipped:', error);
 		}
 
-		// 7. Delete messages (if exists)
+		// 8. Delete analytics events
 		try {
-			await db.execute(`DELETE FROM messages WHERE user_id = '${userId}'`);
+			await analyticsEventsRepository.deleteUserAnalyticsEvents(userId);
 		} catch (error) {
-			// Table might not exist or have different structure, continue
-			console.log('Messages deletion skipped:', error);
-		}
-
-		// 8. Delete analytics events (if exists)
-		try {
-			await db.execute(`DELETE FROM analytics_events WHERE user_id = '${userId}'`);
-		} catch (error) {
-			// Table might not exist or have different structure, continue
 			console.log('Analytics events deletion skipped:', error);
 		}
 
-		// 9. Delete scenario attempts (if exists)
+		// 9. Delete scenario attempts
 		try {
-			await db.execute(`DELETE FROM scenario_attempts WHERE user_id = '${userId}'`);
+			await scenarioAttemptsRepository.deleteUserScenarioAttempts(userId);
 		} catch (error) {
-			// Table might not exist or have different structure, continue
 			console.log('Scenario attempts deletion skipped:', error);
 		}
 
-		// 10. Delete scenario outcomes (if exists)
+		// 10. Delete scenario outcomes
 		try {
-			await db.execute(`DELETE FROM scenario_outcomes WHERE user_id = '${userId}'`);
+			await scenarioOutcomesRepository.deleteUserScenarioOutcomes(userId);
 		} catch (error) {
-			// Table might not exist or have different structure, continue
 			console.log('Scenario outcomes deletion skipped:', error);
 		}
 
-		// 11. Delete subscriptions (if exists)
+		// 11. Delete subscriptions
 		try {
-			await db.execute(`DELETE FROM subscriptions WHERE user_id = '${userId}'`);
+			await subscriptionRepository.deleteUserSubscriptions(userId);
 		} catch (error) {
-			// Table might not exist or have different structure, continue
 			console.log('Subscriptions deletion skipped:', error);
 		}
 
-		// 12. Delete payments (if exists)
+		// 12. Delete payments
 		try {
-			await db.execute(`DELETE FROM payments WHERE user_id = '${userId}'`);
+			await paymentRepository.deleteUserPayments(userId);
 		} catch (error) {
-			// Table might not exist or have different structure, continue
 			console.log('Payments deletion skipped:', error);
 		}
 

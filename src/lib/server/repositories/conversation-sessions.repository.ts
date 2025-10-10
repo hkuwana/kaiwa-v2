@@ -251,6 +251,18 @@ export class ConversationSessionsRepository {
 		return result.length;
 	}
 
+	/**
+	 * Delete all sessions for a user
+	 */
+	async deleteUserSessions(userId: string): Promise<number> {
+		const result = await db
+			.delete(conversationSessions)
+			.where(eq(conversationSessions.userId, userId))
+			.returning({ id: conversationSessions.id });
+
+		return result.length;
+	}
+
 	// Helper methods for period management
 	private getCurrentPeriod(): string {
 		const now = new Date();

@@ -212,6 +212,17 @@ export class ScenarioOutcomesRepository {
 	}
 
 	/**
+	 * Delete all scenario outcomes for a user
+	 */
+	async deleteUserScenarioOutcomes(userId: string): Promise<number> {
+		const result = await db
+			.delete(scenarioOutcomes)
+			.where(eq(scenarioOutcomes.userId, userId))
+			.returning({ id: scenarioOutcomes.id });
+		return result.length;
+	}
+
+	/**
 	 * Get scenario outcome count for a user
 	 */
 	async getScenarioOutcomeCountByUserId(userId: string): Promise<number> {

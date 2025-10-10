@@ -1,7 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { db } from '$lib/server/db';
-import { analyticsEvents } from '$lib/server/db/schema';
+import { analyticsEventsRepository } from '$lib/server/repositories/analytics-events.repository';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	try {
@@ -12,7 +11,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		}
 
 		// Save to analytics_events table
-		await db.insert(analyticsEvents).values({
+		await analyticsEventsRepository.createAnalyticsEvent({
 			userId: locals.user?.id || null,
 			sessionId,
 			eventName: 'exit_survey_submitted',

@@ -187,5 +187,30 @@ export const conversationRepository = {
 			.where(eq(messages.id, id))
 			.returning({ id: messages.id });
 		return { success: result.length > 0 };
+	},
+
+	async deleteUserConversations(userId: string): Promise<number> {
+		// First get all conversation IDs for this user
+		const userConversations = await db
+			.select({ id: conversations.id })
+			.from(conversations)
+			.where(eq(conversations.userId, userId));
+
+		const conversationIds = userConversations.map((c) => c.id);
+
+		if (conversationIds.length === 0) {
+			return 0;
+		}
+
+		// Delete all messages for these conversations
+		await db.delete(messages).where(inArray(messages.conversationId, conversationIds));
+
+		// Delete all conversations for this user
+		const result = await db
+			.delete(conversations)
+			.where(eq(conversations.userId, userId))
+			.returning({ id: conversations.id });
+
+		return result.length;
 	}
 };

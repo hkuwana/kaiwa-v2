@@ -218,6 +218,17 @@ export class AnalyticsEventsRepository {
 	}
 
 	/**
+	 * Delete all analytics events for a user
+	 */
+	async deleteUserAnalyticsEvents(userId: string): Promise<number> {
+		const result = await db
+			.delete(analyticsEvents)
+			.where(eq(analyticsEvents.userId, userId))
+			.returning({ id: analyticsEvents.id });
+		return result.length;
+	}
+
+	/**
 	 * Get analytics event count for a user
 	 */
 	async getAnalyticsEventCountByUserId(userId: string): Promise<number> {

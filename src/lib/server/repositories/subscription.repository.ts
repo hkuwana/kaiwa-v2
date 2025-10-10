@@ -108,5 +108,13 @@ export const subscriptionRepository = {
 			console.error('Error updating subscription in DB:', error);
 			return false;
 		}
+	},
+
+	async deleteUserSubscriptions(userId: string): Promise<number> {
+		const result = await db
+			.delete(subscriptions)
+			.where(eq(subscriptions.userId, userId))
+			.returning({ id: subscriptions.id });
+		return result.length;
 	}
 };

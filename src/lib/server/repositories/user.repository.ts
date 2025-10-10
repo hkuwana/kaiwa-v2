@@ -33,6 +33,10 @@ export const userRepository = {
 		return db.query.users.findFirst({ where: eq(users.stripeCustomerId, stripeCustomerId) });
 	},
 
+	async getAllUsers(): Promise<User[]> {
+		return db.query.users.findMany();
+	},
+
 	// UPDATE
 	async updateUser(id: string, data: Partial<NewUser>): Promise<User | undefined> {
 		const [updatedUser] = await db.update(users).set(data).where(eq(users.id, id)).returning();

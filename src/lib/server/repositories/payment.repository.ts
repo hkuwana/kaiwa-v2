@@ -80,7 +80,15 @@ export const paymentRepository = {
 		});
 	},
 
-	async findPaymentsByStatus(status: string): Promise<Payment[]> {
+	async findPaymentsByStatus(
+		status:
+			| 'succeeded'
+			| 'failed'
+			| 'pending'
+			| 'canceled'
+			| 'requires_payment_method'
+			| 'requires_confirmation'
+	): Promise<Payment[]> {
 		return db.query.payments.findMany({
 			where: eq(payments.status, status),
 			orderBy: [desc(payments.createdAt)]
@@ -105,7 +113,16 @@ export const paymentRepository = {
 		return updatedPayment;
 	},
 
-	async updatePaymentStatus(id: string, status: string): Promise<Payment | undefined> {
+	async updatePaymentStatus(
+		id: string,
+		status:
+			| 'succeeded'
+			| 'failed'
+			| 'pending'
+			| 'canceled'
+			| 'requires_payment_method'
+			| 'requires_confirmation'
+	): Promise<Payment | undefined> {
 		const [updatedPayment] = await db
 			.update(payments)
 			.set({ status })
@@ -123,6 +140,15 @@ export const paymentRepository = {
 			.returning({ id: payments.id });
 
 		return { success: result.length > 0 };
+	},
+
+	async deleteUserPayments(userId: string): Promise<number> {
+		const result = await db
+			.delete(payments)
+			.where(eq(payments.userId, userId))
+			.returning({ id: payments.id });
+
+		return result.length;
 	},
 
 	// UTILITY METHODS

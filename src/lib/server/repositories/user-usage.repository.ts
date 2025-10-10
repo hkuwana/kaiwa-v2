@@ -339,6 +339,17 @@ export class UserUsageRepository {
 			.orderBy(desc(userUsage.secondsUsed));
 	}
 
+	/**
+	 * Delete all usage records for a user
+	 */
+	async deleteUserUsage(userId: string): Promise<number> {
+		const result = await db
+			.delete(userUsage)
+			.where(eq(userUsage.userId, userId))
+			.returning({ id: userUsage.userId });
+		return result.length;
+	}
+
 	// Daily usage removed for MVP: rely on monthly usage and tier limits
 
 	// Helper methods for period management
