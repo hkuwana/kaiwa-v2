@@ -1,12 +1,61 @@
 import { json } from '@sveltejs/kit';
 import { EmailReminderService } from '$lib/server/email/email-reminder.service';
-import { EmailReminderEnhancedService } from '$lib/server/email/email-reminder-enhanced.service';
 import { FounderEmailService } from '$lib/server/email/founder-email.service';
+import { WeeklyUpdatesEmailService } from '$lib/server/email/weekly-updates-email.service';
 import { userRepository } from '$lib/server/repositories';
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 
 const TEST_EMAIL = 'weijo34@gmail.com';
+
+const buildSampleWeeklyDigestOptions = (userId: string) => ({
+	subject: 'Kaiwa Weekly Update – Product improvements & next steps',
+	intro:
+		`Here’s the latest from builders HQ. If something feels off or you want to see something different, just reply.`,
+	updates: [
+		{
+			title: 'Faster conversation loading',
+			summary:
+				'We removed a slow database join so dialogs start ~1.5s faster, especially for folks with older devices.',
+			linkLabel: 'Read the changelog',
+			linkUrl: `${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/changelog/faster-loading`
+		},
+		{
+			title: 'New family dinner scenario',
+			summary: 'Practice navigating cultural questions with in-laws in a low-pressure setting.',
+			linkLabel: 'Try the scenario',
+			linkUrl: `${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/?scenario=dinner_family`
+		}
+	],
+	productHighlights: [
+		{
+			title: 'Kaiwa on mobile web',
+			summary: 'We polished the mobile controls so you can squeeze in practice sessions on the train.'
+		}
+	],
+	upcoming: [
+		{
+			title: 'Custom vocabulary packs',
+			summary:
+				'We’re testing a way to load partner-specific phrases before each session so you can ask about the things that matter.'
+		}
+	],
+	feedbackFollowUps: [
+		{
+			userId,
+			items: [
+				{
+					issue: 'Microphone timeouts mid-conversation',
+					resolution:
+						'We changed the auto-mute threshold to 90 seconds and added a visual timer so you can see when the mic will pause.',
+					linkLabel: 'View the fix',
+					linkUrl: `${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/changelog/mic-timeout`
+				}
+			]
+		}
+	],
+	sentAt: new Date()
+});
 
 /**
  * GET endpoint to preview email templates with user data
@@ -75,48 +124,18 @@ export const GET = async ({ url, locals }) => {
 				emailHtml = FounderEmailService.getDay3Email(user, languageName);
 				break;
 			}
+			case 'weekly_update': {
+				const digestOptions = buildSampleWeeklyDigestOptions(targetUserId);
 
-			case 'segmented_new_user': {
-				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(user, 'new_user');
-				emailSubject = emailData.subject;
-				emailHtml = emailData.html;
+				emailSubject = digestOptions.subject || 'Kaiwa Weekly Update';
+				emailHtml = WeeklyUpdatesEmailService.buildWeeklyDigestEmail(user, digestOptions);
 				break;
 			}
+			case 'weekly_update': {
+				const digestOptions = buildSampleWeeklyDigestOptions(targetUserId);
 
-			case 'segmented_slightly_inactive': {
-				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(
-					user,
-					'slightly_inactive'
-				);
-				emailSubject = emailData.subject;
-				emailHtml = emailData.html;
-				break;
-			}
-
-			case 'segmented_moderately_inactive': {
-				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(
-					user,
-					'moderately_inactive'
-				);
-				emailSubject = emailData.subject;
-				emailHtml = emailData.html;
-				break;
-			}
-
-			case 'segmented_highly_inactive': {
-				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(
-					user,
-					'highly_inactive'
-				);
-				emailSubject = emailData.subject;
-				emailHtml = emailData.html;
-				break;
-			}
-
-			case 'segmented_dormant': {
-				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(user, 'dormant');
-				emailSubject = emailData.subject;
-				emailHtml = emailData.html;
+				emailSubject = digestOptions.subject || 'Kaiwa Weekly Update';
+				emailHtml = WeeklyUpdatesEmailService.buildWeeklyDigestEmail(user, digestOptions);
 				break;
 			}
 
@@ -234,50 +253,6 @@ export const POST = async ({ request, locals }) => {
 				const languageName = await FounderEmailService.resolveTargetLanguageName(targetUserId);
 				emailSubject = `Can I help? (15 min chat)`;
 				emailHtml = FounderEmailService.getDay3Email(user, languageName);
-				break;
-			}
-
-			case 'segmented_new_user': {
-				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(user, 'new_user');
-				emailSubject = emailData.subject;
-				emailHtml = emailData.html;
-				break;
-			}
-
-			case 'segmented_slightly_inactive': {
-				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(
-					user,
-					'slightly_inactive'
-				);
-				emailSubject = emailData.subject;
-				emailHtml = emailData.html;
-				break;
-			}
-
-			case 'segmented_moderately_inactive': {
-				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(
-					user,
-					'moderately_inactive'
-				);
-				emailSubject = emailData.subject;
-				emailHtml = emailData.html;
-				break;
-			}
-
-			case 'segmented_highly_inactive': {
-				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(
-					user,
-					'highly_inactive'
-				);
-				emailSubject = emailData.subject;
-				emailHtml = emailData.html;
-				break;
-			}
-
-			case 'segmented_dormant': {
-				const emailData = await EmailReminderEnhancedService.getSegmentedEmail(user, 'dormant');
-				emailSubject = emailData.subject;
-				emailHtml = emailData.html;
 				break;
 			}
 

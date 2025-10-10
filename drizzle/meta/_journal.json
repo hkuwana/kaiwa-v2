@@ -134,6 +134,13 @@
       "when": 1759175892694,
       "tag": "0018_fine_kree",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1760121079148,
+      "tag": "0019_peaceful_yellow_claw",
+      "breakpoints": true
     }
   ]
 }

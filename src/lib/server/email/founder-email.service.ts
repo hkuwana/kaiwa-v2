@@ -469,6 +469,8 @@ export class FounderEmailService {
 
 				<p>Whatever it is, I'd love to hear it. Your feedback helps me build a better product for the next person.</p>
 
+				<p>Each week I also send a short update with what we shipped and which learner requests we knocked out. If there's something you need, hit reply so I can include it and loop back once it's live.</p>
+
 				<div class="calendar-box">
 					<p style="margin-top: 0;"><strong>Let's talk</strong></p>
 					<p style="font-size: 14px; color: #6b7280; margin-bottom: 15px;">

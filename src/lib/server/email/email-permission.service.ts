@@ -60,15 +60,100 @@ export class EmailPermissionService {
 	}
 
 	/**
-	 * Get all users eligible for daily reminders
-	 * Returns users who have opted in to daily reminders (or haven't set preference yet)
+	 * Check if user can receive product update emails
+	 * Returns false if:
+	 * - User not found
+	 * - User opted out of product updates
 	 */
-	static async getDailyReminderEligibleUsers(): Promise<string[]> {
+	static async canReceiveProductUpdates(userId: string): Promise<boolean> {
+		const user = await userRepository.findUserById(userId);
+		if (!user) {
+			return false;
+		}
+
+		const settings = await userSettingsRepository.getSettingsByUserId(userId);
+		// Default to true if settings don't exist yet
+		return settings?.receiveProductUpdates ?? true;
+	}
+
+	/**
+	 * Check if user can receive weekly digest emails
+	 * Returns false if:
+	 * - User not found
+	 * - User opted out of weekly digests
+	 */
+	static async canReceiveWeeklyDigest(userId: string): Promise<boolean> {
+		const user = await userRepository.findUserById(userId);
+		if (!user) {
+			return false;
+		}
+
+		const settings = await userSettingsRepository.getSettingsByUserId(userId);
+		// Default to true if settings don't exist yet
+		return settings?.receiveWeeklyDigest ?? true;
+	}
+
+	/**
+	 * Check if user can receive security alert emails
+	 * Returns false if:
+	 * - User not found
+	 * - User opted out of security alerts
+	 */
+	static async canReceiveSecurityAlerts(userId: string): Promise<boolean> {
+		const user = await userRepository.findUserById(userId);
+		if (!user) {
+			return false;
+		}
+
+		const settings = await userSettingsRepository.getSettingsByUserId(userId);
+		// Default to true if settings don't exist yet
+		return settings?.receiveSecurityAlerts ?? true;
+	}
+
+	/**
+	 * Get all users eligible for product updates
+	 * Returns users who have opted in to product updates (or haven't set preference yet)
+	 */
+	static async getProductUpdateEligibleUsers(): Promise<string[]> {
 		const allUsers = await userRepository.getAllUsers();
 		const eligible: string[] = [];
 
 		for (const user of allUsers) {
-			if (await this.canReceiveDailyReminder(user.id)) {
+			if (await this.canReceiveProductUpdates(user.id)) {
+				eligible.push(user.id);
+			}
+		}
+
+		return eligible;
+	}
+
+	/**
+	 * Get all users eligible for weekly digests
+	 * Returns users who have opted in to weekly digests (or haven't set preference yet)
+	 */
+	static async getWeeklyDigestEligibleUsers(): Promise<string[]> {
+		const allUsers = await userRepository.getAllUsers();
+		const eligible: string[] = [];
+
+		for (const user of allUsers) {
+			if (await this.canReceiveWeeklyDigest(user.id)) {
+				eligible.push(user.id);
+			}
+		}
+
+		return eligible;
+	}
+
+	/**
+	 * Get all users eligible for security alerts
+	 * Returns users who have opted in to security alerts (or haven't set preference yet)
+	 */
+	static async getSecurityAlertEligibleUsers(): Promise<string[]> {
+		const allUsers = await userRepository.getAllUsers();
+		const eligible: string[] = [];
+
+		for (const user of allUsers) {
+			if (await this.canReceiveSecurityAlerts(user.id)) {
 				eligible.push(user.id);
 			}
 		}

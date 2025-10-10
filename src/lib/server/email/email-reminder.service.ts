@@ -8,6 +8,7 @@ import { EmailPermissionService } from './email-permission.service';
 import type { User, Scenario } from '$lib/server/db/types';
 import { userPreferencesRepository } from '$lib/server/repositories/user-preferences.repository';
 import { languageRepository } from '$lib/server/repositories/language.repository';
+import { survivalPhrases } from '$lib/data/survival-phrases';
 
 // Initialize Resend
 const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
@@ -18,7 +19,14 @@ export interface PracticeReminderData {
 	recommendedScenarios: Scenario[];
 	lastPracticeDate?: Date;
 	streakDays: number;
-	targetLanguageName?: string | null;
+	targetLanguage?: {
+		name: string;
+		code: string;
+	};
+	survivalPhrase?: {
+		phrase: string;
+		translation: string;
+	};
 }
 
 export class EmailReminderService {
@@ -102,7 +110,10 @@ export class EmailReminderService {
 			// Get last practice date and streak
 			const lastPracticeDate = lastAttempt?.completedAt || null;
 			const streakDays = await this.calculateStreakDays(userId);
-			const targetLanguageName = await this.getTargetLanguageName(userId);
+			const targetLanguage = await this.getTargetLanguageInfo(userId);
+			const survivalPhrase = targetLanguage
+				? this.pickSurvivalPhrase(targetLanguage.code)
+				: null;
 
 			return {
 				user,
@@ -110,7 +121,8 @@ export class EmailReminderService {
 				recommendedScenarios,
 				lastPracticeDate: lastPracticeDate || undefined,
 				streakDays,
-				targetLanguageName
+				targetLanguage,
+				survivalPhrase: survivalPhrase || undefined
 			};
 		} catch (error) {
 			console.error('Error getting practice reminder data:', error);
@@ -200,13 +212,14 @@ export class EmailReminderService {
 	 * Generate reminder email subject
 	 */
 	public static getReminderSubject(data: PracticeReminderData): string {
-		const { lastPracticeDate, streakDays, targetLanguageName } = data;
-		const languageLabel = targetLanguageName ?? '';
+		const { lastPracticeDate, streakDays, targetLanguage } = data;
+		const languageName = targetLanguage?.name;
 
 		if (streakDays > 0) {
-			return languageLabel
-				? `You're ${streakDays} days in—let's keep your ${languageLabel} streak going! 🎯`
-				: `Keep your ${streakDays}-day streak going! 🎯`;
+			const dayLabel = streakDays === 1 ? 'day' : 'days';
+			return languageName
+				? `Practiced ${streakDays} ${dayLabel} in a row—ready for another ${languageName} chat?`
+				: `Practiced ${streakDays} ${dayLabel} in a row—ready for another conversation?`;
 		}
 
 		if (lastPracticeDate) {
@@ -214,19 +227,19 @@ export class EmailReminderService {
 				(Date.now() - lastPracticeDate.getTime()) / (1000 * 60 * 60 * 24)
 			);
 			if (daysSince === 1) {
-				return languageLabel
-					? `Ready for another quick ${languageLabel} practice? 💪`
-					: 'Ready for another practice session? 💪';
+				return languageName
+					? `Want a quick ${languageName} check-in today?`
+					: 'Want a quick practice check-in today?';
 			} else if (daysSince <= 3) {
-				return languageLabel
-					? `Don't let your ${languageLabel} progress slip away! 🌟`
-					: "Don't let your progress slip away! 🌟";
+				return languageName
+					? `Let’s keep your ${languageName} conversations fresh`
+					: "Let’s keep the conversation going";
 			}
 		}
 
-		return languageLabel
-			? `Want to try a quick ${languageLabel} conversation today? 🗣️`
-			: 'Time to practice your language skills! 🗣️';
+		return languageName
+			? `Ready for a short ${languageName} session?`
+			: 'Ready for a short practice session?';
 	}
 
 	/**
@@ -239,22 +252,24 @@ export class EmailReminderService {
 			recommendedScenarios,
 			lastPracticeDate,
 			streakDays,
-			targetLanguageName
+			targetLanguage,
+			survivalPhrase
 		} = data;
 		const displayName = user.displayName || 'there';
+		const languageName = targetLanguage?.name;
 
 		const lastPracticeText = lastPracticeDate
 			? `Your last practice was ${this.formatDate(lastPracticeDate)}`
-			: targetLanguageName
-				? `Looks like you haven't had a chance to jump into a ${targetLanguageName} conversation yet. Want to warm up now?`
+			: languageName
+				? `Looks like you haven't had a chance to jump into a ${languageName} conversation yet. Want to warm up now?`
 				: `Looks like you haven't had a chance to jump into a conversation yet. Want to warm up now?`;
 
 		const streakText =
 			streakDays > 0
-				? `You're on a ${streakDays}-day streak! 🔥`
-				: targetLanguageName
-					? `Ready to start your ${targetLanguageName} streak?`
-					: 'Ready to start your practice streak?';
+				? `Practiced ${streakDays} ${streakDays === 1 ? 'day' : 'days'} in a row 🔄`
+				: languageName
+					? `Ready for a short ${languageName} check-in today?`
+					: 'Ready for a short practice check-in today?';
 
 		return `
 			<!DOCTYPE html>
@@ -342,14 +357,33 @@ export class EmailReminderService {
 						padding: 15px;
 						margin: 20px 0;
 					}
+					.language-tip {
+						background: #ecfdf5;
+						border-left: 4px solid #10b981;
+						padding: 20px;
+						margin: 30px 0;
+						border-radius: 8px;
+					}
+					.language-tip-title {
+						font-weight: 600;
+						color: #047857;
+						margin-bottom: 6px;
+					}
+					.language-tip-translation {
+						font-size: 18px;
+						font-weight: 600;
+						color: #047857;
+					}
 				</style>
 			</head>
 			<body>
 				<div class="container">
 					<div class="header">
 						<div class="logo">Kaiwa</div>
-						<h1>Ready for another ${
-							targetLanguageName ? targetLanguageName + ' practice?' : 'practice session?'
+						<h1>${
+							languageName
+								? `Make a little space for ${languageName} today?`
+								: 'Ready for another conversation practice?'
 						}</h1>
 					</div>
 					
@@ -389,6 +423,21 @@ export class EmailReminderService {
 					<div style="text-align: center; margin: 30px 0;">
 						<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}" class="cta-button" style="color: white; text-decoration: none;">Start Any Conversation</a>
 					</div>
+
+					${
+						survivalPhrase
+							? `
+					<div class="language-tip">
+						<div class="language-tip-title">Quick rescue phrase</div>
+						<div class="language-tip-translation">${survivalPhrase.translation}</div>
+						<p style="margin-top: 8px; color: #047857;">(${survivalPhrase.phrase})</p>
+						<p style="margin-top: 12px; color: #065f46;">
+							Keep this in your back pocket for your next real conversation—say it the next time things get tangled.
+						</p>
+					</div>
+					`
+							: ''
+					}
 					
 					<p>Even five minutes counts. Pick one small moment today and I'll cheer you on. 💪</p>
 					
@@ -450,7 +499,9 @@ export class EmailReminderService {
 		}
 	}
 
-	private static async getTargetLanguageName(userId: string): Promise<string | null> {
+	private static async getTargetLanguageInfo(
+		userId: string
+	): Promise<{ name: string; code: string } | null> {
 		try {
 			const preferences = await userPreferencesRepository.getAllUserPreferences(userId);
 			if (!preferences || preferences.length === 0) {
@@ -461,10 +512,37 @@ export class EmailReminderService {
 				preferences[0].targetLanguageId
 			);
 
-			return targetLanguage?.name ?? null;
+			if (!targetLanguage) {
+				return null;
+			}
+
+			return {
+				name: targetLanguage.name,
+				code: targetLanguage.code
+			};
 		} catch (error) {
 			console.error('Error fetching target language:', error);
 			return null;
 		}
+	}
+
+	private static pickSurvivalPhrase(
+		languageCode: string
+	): { phrase: string; translation: string } | null {
+		if (!languageCode) {
+			return null;
+		}
+
+		for (const phrase of survivalPhrases) {
+			const translation = phrase.translations[languageCode as keyof typeof phrase.translations];
+			if (translation) {
+				return {
+					phrase: phrase.phrase,
+					translation
+				};
+			}
+		}
+
+		return null;
 	}
 }

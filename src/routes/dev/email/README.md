@@ -25,13 +25,9 @@ Visit: `http://localhost:5173/dev/email` (when running dev server)
 - **Day 2 - Check-in**: Checking in with common concerns
 - **Day 3 - Personal Offer**: Cal.com link to book a call
 
-### 🎯 Segmented Reminders
+### 🗞️ Product Updates
 
-- **New User**: Welcome message showing what's possible
-- **Slightly Inactive (1-3 days)**: Gentle nudge to practice
-- **Moderately Inactive (3-7 days)**: Motivation boost
-- **Highly Inactive (7-30 days)**: Re-engagement with what's new
-- **Dormant (30+ days)**: Win-back campaign
+- **Weekly Update Digest**: Roundup of shipped improvements, upcoming work, and any feedback-specific shout-outs
 
 ## Usage
 
@@ -48,8 +44,8 @@ Visit: `http://localhost:5173/dev/email` (when running dev server)
 - **Test Email**: `weijo34@gmail.com` (hardcoded)
 - **Services Used**:
   - `EmailReminderService`
-  - `EmailReminderEnhancedService`
   - `FounderEmailService`
+  - `WeeklyUpdatesEmailService`
 
 ## Notes
 

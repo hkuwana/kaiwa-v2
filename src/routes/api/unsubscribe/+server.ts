@@ -25,7 +25,7 @@ export const GET = async ({ url }) => {
 		} else if (type === 'security_alerts') {
 			updateField = { receiveSecurityAlerts: false };
 		} else if (type === 'all') {
-			updateField = { 
+			updateField = {
 				receiveMarketingEmails: false,
 				receiveDailyReminderEmails: false,
 				receiveProductUpdates: false,
@@ -33,7 +33,13 @@ export const GET = async ({ url }) => {
 				receiveSecurityAlerts: false
 			};
 		} else {
-			return json({ error: 'Invalid unsubscribe type. Use: marketing, daily_reminder, product_updates, weekly_digest, security_alerts, or all' }, { status: 400 });
+			return json(
+				{
+					error:
+						'Invalid unsubscribe type. Use: marketing, daily_reminder, product_updates, weekly_digest, security_alerts, or all'
+				},
+				{ status: 400 }
+			);
 		}
 
 		await db.update(userSettings).set(updateField).where(eq(userSettings.userId, userId));
@@ -66,7 +72,7 @@ export const POST = async ({ request }) => {
 		} else if (type === 'security_alerts') {
 			updateField = { receiveSecurityAlerts: false };
 		} else if (type === 'all') {
-			updateField = { 
+			updateField = {
 				receiveMarketingEmails: false,
 				receiveDailyReminderEmails: false,
 				receiveProductUpdates: false,
@@ -74,7 +80,13 @@ export const POST = async ({ request }) => {
 				receiveSecurityAlerts: false
 			};
 		} else {
-			return json({ error: 'Invalid unsubscribe type. Use: marketing, daily_reminder, product_updates, weekly_digest, security_alerts, or all' }, { status: 400 });
+			return json(
+				{
+					error:
+						'Invalid unsubscribe type. Use: marketing, daily_reminder, product_updates, weekly_digest, security_alerts, or all'
+				},
+				{ status: 400 }
+			);
 		}
 
 		await db.update(userSettings).set(updateField).where(eq(userSettings.userId, userId));

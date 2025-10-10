@@ -2,7 +2,7 @@
 
 ## Overview
 
-Kaiwa uses **Resend** for sending reminder emails to help users build consistent practice habits. This guide covers setup, testing, and automation.
+Kaiwa uses **Resend** for sending reminder emails that come directly from Hiro. This guide covers setup, testing, and automation.
 
 ---
 
@@ -10,13 +10,12 @@ Kaiwa uses **Resend** for sending reminder emails to help users build consistent
 
 Your problem: **100 visitors but low routine usage**
 
-**Solution**: Smart email reminders that:
+**Solution**: Thoughtful founder emails that:
 
-1. ✅ Welcome new users and guide them to first conversation
-2. ✅ Gently nudge inactive users (1-3 days)
-3. ✅ Re-engage moderately inactive users (3-7 days)
-4. ✅ Win back highly inactive users (7-30 days)
-5. ✅ Final touch for dormant users (30+ days)
+1. ✅ Personally welcome new users and encourage their first five-minute conversation
+2. ✅ Gently nudge anyone who hasn’t practiced yet (tone: “seems like you haven’t had a chance”)
+3. ✅ Offer a 15-minute check-in once they’ve been quiet for a few days
+4. ✅ Send a single daily reminder (when opted in) that suggests scenarios, shares a safety phrase, and keeps the tone human—no gamified streaks
 
 **Expected Impact**:
 

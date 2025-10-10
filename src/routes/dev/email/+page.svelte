@@ -24,6 +24,16 @@
 			]
 		},
 		{
+			category: '🗞️ Product Updates',
+			emails: [
+				{
+					value: 'weekly_update',
+					label: 'Weekly Update Digest',
+					description: 'Summary of new features, fixes, and shout-outs'
+				}
+			]
+		},
+		{
 			category: '👋 Founder Email Sequence',
 			emails: [
 				{
@@ -40,36 +50,6 @@
 					value: 'day3_offer',
 					label: 'Day 3 - Personal Offer',
 					description: 'Cal.com link to book a call'
-				}
-			]
-		},
-		{
-			category: '🎯 Segmented Reminders',
-			emails: [
-				{
-					value: 'segmented_new_user',
-					label: 'New User (legacy)',
-					description: "Legacy segmented welcome message (not currently sending)"
-				},
-				{
-					value: 'segmented_slightly_inactive',
-					label: 'Slightly Inactive (legacy)',
-					description: 'Legacy segmented reminder'
-				},
-				{
-					value: 'segmented_moderately_inactive',
-					label: 'Moderately Inactive (legacy)',
-					description: 'Legacy segmented reminder'
-				},
-				{
-					value: 'segmented_highly_inactive',
-					label: 'Highly Inactive (legacy)',
-					description: 'Legacy segmented reminder'
-				},
-				{
-					value: 'segmented_dormant',
-					label: 'Dormant (legacy)',
-					description: 'Legacy segmented win-back'
 				}
 			]
 		}
