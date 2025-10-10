@@ -38,7 +38,7 @@ Your problem: **100 visitors but low routine usage**
 # .env
 RESEND_API_KEY=re_your_actual_key_here
 CRON_SECRET=your_random_secret_for_cron_jobs
-PUBLIC_APP_URL=https://kaiwa.fly.dev
+PUBLIC_APP_URL=https://trykaiwa.com
 ```
 
 4. Add to Fly.io secrets:
@@ -46,13 +46,13 @@ PUBLIC_APP_URL=https://kaiwa.fly.dev
 ```bash
 fly secrets set RESEND_API_KEY=re_your_actual_key_here
 fly secrets set CRON_SECRET=your_random_secret
-fly secrets set PUBLIC_APP_URL=https://kaiwa.fly.dev
+fly secrets set PUBLIC_APP_URL=https://trykaiwa.com
 ```
 
 ### 2. Verify Domain in Resend
 
 1. Go to Resend dashboard → Domains
-2. Add your domain (e.g., `kaiwa.fly.dev`)
+2. Add your domain (e.g., `trykaiwa.com`)
 3. Add the DNS records they provide
 4. Wait for verification (usually &lt;5 minutes)
 
@@ -73,7 +73,7 @@ Or in production:
 ```bash
 curl -X GET \
   -H "Authorization: Bearer your_cron_secret" \
-  https://kaiwa.fly.dev/api/cron/send-reminders
+  https://trykaiwa.com/api/cron/send-reminders
 ```
 
 Expected response:
@@ -134,7 +134,7 @@ Then create a machine for cron:
 # Create a cron machine that runs daily at 9am UTC
 fly machine run \
   --schedule "0 9 * * *" \
-  --entrypoint "curl -X GET -H 'Authorization: Bearer $CRON_SECRET' https://kaiwa.fly.dev/api/cron/send-reminders"
+  --entrypoint "curl -X GET -H 'Authorization: Bearer $CRON_SECRET' https://trykaiwa.com/api/cron/send-reminders"
 ```
 
 ### Option 2: GitHub Actions (Easy)
@@ -160,7 +160,7 @@ jobs:
         run: |
           curl -X GET \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            https://kaiwa.fly.dev/api/cron/send-reminders
+            https://trykaiwa.com/api/cron/send-reminders
 ```
 
 **Setup**:
@@ -177,7 +177,7 @@ jobs:
 
 1. Sign up at [cron-job.org](https://cron-job.org) (free)
 2. Create new cron job:
-   - URL: `https://kaiwa.fly.dev/api/cron/send-reminders`
+   - URL: `https://trykaiwa.com/api/cron/send-reminders`
    - Schedule: Daily at 9:00 AM
    - Headers: `Authorization: Bearer your_cron_secret`
 3. Enable notifications for failures
@@ -193,7 +193,7 @@ npm install -g @upstash/cli
 
 # Create scheduled job
 qstash schedule create \
-  --url "https://kaiwa.fly.dev/api/cron/send-reminders" \
+  --url "https://trykaiwa.com/api/cron/send-reminders" \
   --cron "0 9 * * *" \
   --header "Authorization: Bearer your_cron_secret"
 ```
@@ -326,7 +326,7 @@ Create `/profile/email-preferences` route:
 Every email must include:
 
 ```html
-<a href="https://kaiwa.fly.dev/profile/email-preferences"> Manage email preferences </a>
+<a href="https://trykaiwa.com/profile/email-preferences"> Manage email preferences </a>
 ```
 
 ---
@@ -412,7 +412,7 @@ Before going live:
 
 1. ✅ Authenticate domain (SPF, DKIM, DMARC)
 2. ✅ Include unsubscribe link in every email
-3. ✅ Use real "from" address (noreply@kaiwa.fly.dev)
+3. ✅ Use real "from" address (noreply@trykaiwa.com)
 4. ✅ Personalize subject lines
 5. ✅ Keep HTML clean (no complex CSS)
 6. ✅ Test spam score before sending
@@ -436,7 +436,7 @@ Before going live:
 4. **Test manually**:
    ```bash
    curl -H "Authorization: Bearer $CRON_SECRET" \
-     https://kaiwa.fly.dev/api/cron/send-reminders
+     https://trykaiwa.com/api/cron/send-reminders
    ```
 5. **Monitor** in Resend dashboard and PostHog
 

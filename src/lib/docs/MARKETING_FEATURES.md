@@ -188,7 +188,7 @@ Set up a cron job to send daily reminders:
 RESEND_API_KEY=re_...
 
 # Optional for enhanced features
-PUBLIC_APP_URL=https://kaiwa.fly.dev
+PUBLIC_APP_URL=https://trykaiwa.com
 ```
 
 ### Database Requirements

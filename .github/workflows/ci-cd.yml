@@ -159,7 +159,7 @@ jobs:
         if: success()
         run: |
           echo "🚀 Deployment successful!"
-          echo "App URL: https://kaiwa.fly.dev"
+          echo "App URL: https://trykaiwa.com"
 
       - name: Notify deployment failure
         if: failure()
@@ -198,11 +198,11 @@ jobs:
       - name: Run production smoke tests
         run: |
           # Set production URL for smoke tests
-          export BASE_URL=https://kaiwa.fly.dev
+          export BASE_URL=https://trykaiwa.com
           pnpm run smoke:test
         env:
           CI: true
-          BASE_URL: https://kaiwa.fly.dev
+          BASE_URL: https://trykaiwa.com
 
       - name: Upload production test results
         uses: actions/upload-artifact@v4

@@ -287,7 +287,7 @@ export const POST = async ({ request, locals }) => {
 
 		// Send test email
 		result = await resend.emails.send({
-			from: 'Kaiwa Test <noreply@kaiwa.fly.dev>',
+			from: 'Kaiwa Test <noreply@trykaiwa.com',
 			to: [TEST_EMAIL],
 			subject: `[TEST] ${emailSubject}`,
 			html: `
@@ -305,6 +305,13 @@ export const POST = async ({ request, locals }) => {
 			console.error('Failed to send test email:', result.error);
 			return json({ error: 'Failed to send test email', details: result.error }, { status: 500 });
 		}
+
+		console.log('✅ Test email sent successfully:', {
+			emailId: result.data?.id,
+			to: TEST_EMAIL,
+			emailType,
+			subject: emailSubject
+		});
 
 		return json({
 			success: true,

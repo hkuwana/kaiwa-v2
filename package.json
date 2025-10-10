@@ -28,7 +28,7 @@
 		"db:studio": "drizzle-kit studio",
 		"db:run-custom-migration": "tsx scripts/run-migration.ts",
 		"smoke:test": "playwright test --grep @smoke",
-		"smoke:test:prod": "BASE_URL=https://kaiwa.fly.dev playwright test --grep @smoke",
+		"smoke:test:prod": "BASE_URL=https://trykaiwa.com playwright test --grep @smoke",
 		"smoke:test:headed": "playwright test --grep @smoke --headed",
 		"smoke:test:all": "tsx scripts/run-smoke-tests.ts",
 		"ci": "pnpm run lint && pnpm run check && pnpm run test:unit && pnpm run test:e2e && pnpm run build",

@@ -16,7 +16,7 @@ import { env } from '$env/dynamic/private';
  * - Protected by CRON_SECRET environment variable
  *
  * Example cron setup:
- * - Daily at 9am: curl -H "Authorization: Bearer $CRON_SECRET" https://kaiwa.fly.dev/api/cron/send-reminders
+ * - Daily at 9am: curl -H "Authorization: Bearer $CRON_SECRET" https://trykaiwa.com/api/cron/send-reminders
  */
 export const GET = async ({ request }) => {
 	try {

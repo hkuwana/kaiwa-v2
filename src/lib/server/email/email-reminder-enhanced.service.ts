@@ -55,7 +55,7 @@ export class EmailReminderEnhancedService {
 			const { subject, html } = await this.getSegmentedEmail(user, segment);
 
 			const result = await resend.emails.send({
-				from: 'Kaiwa <noreply@kaiwa.fly.dev>',
+				from: 'Kaiwa <noreply@trykaiwa.com',
 				to: [user.email],
 				subject,
 				html
@@ -128,7 +128,7 @@ export class EmailReminderEnhancedService {
 				`,
 				cta: {
 					text: 'Start My First Conversation',
-					url: `${env.PUBLIC_APP_URL || 'https://kaiwa.fly.dev'}/conversation`
+					url: `${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation`
 				},
 				scenarios: featured,
 				footer: `
@@ -170,7 +170,7 @@ export class EmailReminderEnhancedService {
 				`,
 				cta: {
 					text: 'Continue Practicing',
-					url: `${env.PUBLIC_APP_URL || 'https://kaiwa.fly.dev'}/conversation`
+					url: `${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation`
 				},
 				footer: `
 					<p style="font-size: 14px; color: #666;">
@@ -213,11 +213,11 @@ export class EmailReminderEnhancedService {
 				`,
 				cta: {
 					text: "Let's Get Back to It",
-					url: `${env.PUBLIC_APP_URL || 'https://kaiwa.fly.dev'}/conversation`
+					url: `${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation`
 				},
 				footer: `
 					<p style="font-size: 14px; color: #666;">
-						Not interested anymore? <a href="${env.PUBLIC_APP_URL || 'https://kaiwa.fly.dev'}/profile/email-preferences">Update your email preferences</a>
+						Not interested anymore? <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile/email-preferences">Update your email preferences</a>
 					</p>
 				`
 			})
@@ -263,11 +263,11 @@ export class EmailReminderEnhancedService {
 				`,
 				cta: {
 					text: 'Give Kaiwa Another Try',
-					url: `${env.PUBLIC_APP_URL || 'https://kaiwa.fly.dev'}/conversation`
+					url: `${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation`
 				},
 				footer: `
 					<p style="font-size: 14px; color: #666;">
-						Not coming back? We'd love to know why. <a href="mailto:support@kaiwa.app?subject=Feedback">Send us feedback</a> or <a href="${env.PUBLIC_APP_URL || 'https://kaiwa.fly.dev'}/profile/email-preferences">unsubscribe</a>.
+						Not coming back? We'd love to know why. <a href="mailto:support@kaiwa.app?subject=Feedback">Send us feedback</a> or <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile/email-preferences">unsubscribe</a>.
 					</p>
 				`
 			})
@@ -320,11 +320,11 @@ export class EmailReminderEnhancedService {
 				`,
 				cta: {
 					text: 'One More Conversation',
-					url: `${env.PUBLIC_APP_URL || 'https://kaiwa.fly.dev'}/conversation`
+					url: `${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation`
 				},
 				footer: `
 					<p style="font-size: 14px; color: #666;">
-						<a href="${env.PUBLIC_APP_URL || 'https://kaiwa.fly.dev'}/profile/email-preferences">Unsubscribe from these emails</a> | We'll take you off our list after this.
+						<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile/email-preferences">Unsubscribe from these emails</a> | We'll take you off our list after this.
 					</p>
 				`
 			})
@@ -465,7 +465,7 @@ export class EmailReminderEnhancedService {
 
 					<div class="footer">
 						<p>Sent with ❤️ from Kaiwa</p>
-						<p><a href="${env.PUBLIC_APP_URL || 'https://kaiwa.fly.dev'}/profile/email-preferences">Email Preferences</a> | <a href="mailto:support@kaiwa.app">Support</a></p>
+						<p><a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile/email-preferences">Email Preferences</a> | <a href="mailto:support@kaiwa.app">Support</a></p>
 						<p>&copy; ${new Date().getFullYear()} Kaiwa. All rights reserved.</p>
 					</div>
 				</div>

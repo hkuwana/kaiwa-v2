@@ -23,7 +23,7 @@ export class EmailService {
 			}
 
 			const result = await resend.emails.send({
-				from: 'Kaiwa <noreply@kaiwa.fly.dev>',
+				from: 'Kaiwa <noreply@trykaiwa.com',
 				to: [data.email],
 				subject: 'Verify your email - Kaiwa',
 				html: this.getVerificationEmailTemplate(data)

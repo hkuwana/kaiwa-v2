@@ -117,7 +117,7 @@ pnpm run test
 
 ```bash
 # Set production URL
-export BASE_URL=https://kaiwa.fly.dev
+export BASE_URL=https://trykaiwa.com
 
 # Run production smoke tests
 pnpm run smoke:test:prod
@@ -180,7 +180,7 @@ pnpm install
 
 ```bash
 # Verify production URL is accessible
-curl -I https://kaiwa.fly.dev
+curl -I https://trykaiwa.com
 
 # Check environment variables
 echo $BASE_URL

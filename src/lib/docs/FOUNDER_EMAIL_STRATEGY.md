@@ -308,7 +308,7 @@ jobs:
         run: |
           curl -X GET \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            https://kaiwa.fly.dev/api/cron/founder-emails
+            https://trykaiwa.com/api/cron/founder-emails
 ```
 
 **Multiple timezones** (advanced):

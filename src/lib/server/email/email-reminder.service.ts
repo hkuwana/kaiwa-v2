@@ -54,7 +54,7 @@ export class EmailReminderService {
 
 			// Send email
 			const result = await resend.emails.send({
-				from: 'Kaiwa <noreply@kaiwa.fly.dev>',
+				from: 'Kaiwa <noreply@trykaiwa.com',
 				to: [user.email],
 				subject: this.getReminderSubject(reminderData),
 				html: this.getReminderEmailTemplate(reminderData)
@@ -340,7 +340,7 @@ export class EmailReminderService {
 							<strong>Continue with:</strong><br>
 							<span class="scenario-title">${lastScenario.title}</span><br>
 							<span class="scenario-desc">${lastScenario.description}</span>
-							<br><a href="${env.PUBLIC_APP_URL || 'https://kaiwa.fly.dev'}/conversation?scenario=${lastScenario.id}" class="cta-button">Practice Again</a>
+							<br><a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation?scenario=${lastScenario.id}" class="cta-button" style="color: white; text-decoration: none;">Practice Again</a>
 						</div>
 					`
 							: ''
@@ -352,20 +352,20 @@ export class EmailReminderService {
 						<div class="scenario-card">
 							<div class="scenario-title">${scenario.title}</div>
 							<div class="scenario-desc">${scenario.description}</div>
-							<a href="${env.PUBLIC_APP_URL || 'https://kaiwa.fly.dev'}/conversation?scenario=${scenario.id}" class="cta-button">Try This Scenario</a>
+							<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation?scenario=${scenario.id}" class="cta-button" style="color: white; text-decoration: none;">Try This Scenario</a>
 						</div>
 					`
 						)
 						.join('')}
 					
 					<div style="text-align: center; margin: 30px 0;">
-						<a href="${env.PUBLIC_APP_URL || 'https://kaiwa.fly.dev'}/conversation" class="cta-button">Start Any Conversation</a>
+						<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation" class="cta-button">Start Any Conversation</a>
 					</div>
 					
 					<p>Remember, even 5 minutes of practice can make a difference. You've got this! 💪</p>
 					
 					<div class="footer">
-						<p>This email was sent from Kaiwa. <a href="${env.PUBLIC_APP_URL || 'https://kaiwa.fly.dev'}/profile">Manage your email preferences</a></p>
+						<p>This email was sent from Kaiwa. <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile">Manage your email preferences</a></p>
 						<p>&copy; 2024 Kaiwa. All rights reserved.</p>
 					</div>
 				</div>

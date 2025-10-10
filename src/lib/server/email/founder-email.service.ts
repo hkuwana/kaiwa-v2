@@ -257,7 +257,7 @@ export class FounderEmailService {
 
 				<p>Why not try it right now?</p>
 
-				<a href="${env.PUBLIC_APP_URL || 'https://kaiwa.fly.dev'}/conversation" class="cta">
+				<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation" class="cta" style="color: white; text-decoration: none;">
 					Start My First Conversation (5 min)
 				</a>
 
@@ -270,12 +270,12 @@ export class FounderEmailService {
 					<div class="signature-title">Founder, Kaiwa</div>
 					<div style="margin-top: 8px; font-size: 14px; color: #6b7280;">
 						📧 ${this.FOUNDER_EMAIL}<br>
-						🌐 <a href="${env.PUBLIC_APP_URL || 'https://kaiwa.fly.dev'}">kaiwa.app</a>
+						🌐 <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}">kaiwa.app</a>
 					</div>
 				</div>
 
 				<p style="margin-top: 30px; font-size: 12px; color: #9ca3af;">
-					P.S. If Kaiwa isn't for you, no worries - just <a href="${env.PUBLIC_APP_URL || 'https://kaiwa.fly.dev'}/profile/email-preferences">let me know</a> and I'll stop emailing.
+					P.S. If Kaiwa isn't for you, no worries - just <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile/email-preferences">let me know</a> and I'll stop emailing.
 				</p>
 			</body>
 			</html>
@@ -364,7 +364,7 @@ export class FounderEmailService {
 
 				<p><strong>Or if you're ready, let's do this:</strong></p>
 
-				<a href="${env.PUBLIC_APP_URL || 'https://kaiwa.fly.dev'}/conversation" class="cta">
+				<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/conversation" class="cta" style="color: white; text-decoration: none;">
 					Just Try It Once (5 min)
 				</a>
 
@@ -470,7 +470,7 @@ export class FounderEmailService {
 					<p style="font-size: 14px; color: #6b7280; margin-bottom: 15px;">
 						Pick a time that works for you (no pressure, no sales pitch)
 					</p>
-					<a href="${this.CAL_LINK}" class="cta">
+					<a href="${this.CAL_LINK}" class="cta" style="color: white; text-decoration: none;">
 						📅 Book 15 Minutes with ${this.FOUNDER_NAME}
 					</a>
 					<p style="font-size: 13px; color: #9ca3af; margin-bottom: 0;">
@@ -490,7 +490,7 @@ export class FounderEmailService {
 					<div style="margin-top: 8px; font-size: 14px; color: #6b7280;">
 						📧 ${this.FOUNDER_EMAIL}<br>
 						📅 <a href="${this.CAL_LINK}">Book a call</a><br>
-						🌐 <a href="${env.PUBLIC_APP_URL || 'https://kaiwa.fly.dev'}">kaiwa.app</a>
+						🌐 <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}">kaiwa.app</a>
 					</div>
 				</div>
 

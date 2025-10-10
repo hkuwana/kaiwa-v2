@@ -17,7 +17,7 @@ import { env } from '$env/dynamic/private';
  * - Day 3 (if still no practice): Personal offer to talk (Cal.com link)
  *
  * Usage:
- * curl -H "Authorization: Bearer $CRON_SECRET" https://kaiwa.fly.dev/api/cron/founder-emails
+ * curl -H "Authorization: Bearer $CRON_SECRET" https://trykaiwa.com/api/cron/founder-emails
  */
 export const GET = async ({ request }) => {
 	try {

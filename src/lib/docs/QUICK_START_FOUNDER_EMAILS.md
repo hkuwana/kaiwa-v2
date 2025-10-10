@@ -36,7 +36,7 @@ RESEND_API_KEY=re_your_key_here
 CRON_SECRET=your_random_secret
 
 # Check Resend dashboard:
-# - Domain is verified (kaiwa.fly.dev)
+# - Domain is verified (trykaiwa.com)
 # - You can send from hiro@trykaiwa.com
 ```
 
@@ -89,7 +89,7 @@ jobs:
         run: |
           curl -X GET \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            https://kaiwa.fly.dev/api/cron/founder-emails
+            https://trykaiwa.com/api/cron/founder-emails
 ```
 
 Then:
@@ -122,7 +122,7 @@ git push
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"userId": "your-user-id"}' \
-  https://kaiwa.fly.dev/api/cron/founder-emails
+  https://trykaiwa.com/api/cron/founder-emails
 
 # Wait 10 seconds, check your email
 
@@ -130,7 +130,7 @@ curl -X POST \
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"userId": "friend-user-id"}' \
-  https://kaiwa.fly.dev/api/cron/founder-emails
+  https://trykaiwa.com/api/cron/founder-emails
 ```
 
 ### Verify Emails Look Good
@@ -169,7 +169,7 @@ fly secrets list
 
 1. **Verify domain in Resend**:
    - Go to Resend dashboard → Domains
-   - Check that kaiwa.fly.dev has green checkmark
+   - Check that trykaiwa.com has green checkmark
    - If not, add DNS records (SPF, DKIM, DMARC)
 
 2. **Test spam score**:
@@ -188,7 +188,7 @@ fly secrets list
 
 # Common issues:
 # - CRON_SECRET not set in GitHub → Add it in repo settings
-# - Wrong URL in curl command → Should be https://kaiwa.fly.dev
+# - Wrong URL in curl command → Should be https://trykaiwa.com
 # - Timezone confusion → Check cron expression at crontab.guru
 ```
 
