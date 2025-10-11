@@ -26,7 +26,13 @@ import {
 	detectLanguage,
 	generateAndStoreScriptsForMessage
 } from '$lib/services/scripts.service';
-import type { Message, Language, UserPreferences, UserTier } from '$lib/server/db/types';
+import type {
+	Message,
+	Language,
+	UserPreferences,
+	UserTier,
+	NewConversationSession
+} from '$lib/server/db/types';
 import type { Speaker } from '$lib/types';
 import type { Voice } from '$lib/types/openai.realtime.types';
 import { DEFAULT_VOICE, isValidVoice } from '$lib/types/openai.realtime.types';
@@ -1365,20 +1371,28 @@ export class ConversationStore {
 			const preparedMessages =
 				conversationPersistenceService.prepareMessagesForSave(meaningfulMessages);
 
+			const sessionMetadata = this.buildSessionMetadata(startTime, now, durationSeconds);
+
 			console.log('💾 Saving conversation to database...', {
 				sessionId: this.sessionId,
 				messagesCount: preparedMessages.length,
 				isOnDestroy,
-				durationSeconds
+				durationSeconds,
+				hasSessionMetadata: !!sessionMetadata
 			});
 
 			// Use retry logic for critical saves (onDestroy)
 			const result = isOnDestroy
 				? await conversationPersistenceService.saveConversationWithRetry(
 						conversationData,
-						preparedMessages
+						preparedMessages,
+						sessionMetadata
 					)
-				: await conversationPersistenceService.saveConversation(conversationData, preparedMessages);
+				: await conversationPersistenceService.saveConversation(
+						conversationData,
+						preparedMessages,
+						sessionMetadata
+					);
 
 			if (result.success) {
 				this.lastSaveTime = now;
@@ -1427,9 +1441,18 @@ export class ConversationStore {
 			const preparedMessages =
 				conversationPersistenceService.prepareMessagesForSave(meaningfulMessages);
 
+			const sessionMetadata = this.buildSessionMetadata(startTime, now, durationSeconds);
+
 			const payload = JSON.stringify({
 				conversation: conversationData,
-				messages: preparedMessages
+				messages: preparedMessages,
+				...(sessionMetadata && {
+					sessionMetadata: {
+						...sessionMetadata,
+						startTime: sessionMetadata.startTime?.toISOString(),
+						endTime: sessionMetadata.endTime ? sessionMetadata.endTime.toISOString() : null
+					}
+				})
 			});
 
 			// Use sendBeacon for reliable delivery during page unload
@@ -1501,7 +1524,13 @@ export class ConversationStore {
 		const preparedMessages =
 			conversationPersistenceService.prepareMessagesForSave(meaningfulMessages);
 
-		conversationPersistenceService.queueSave(conversationData, preparedMessages);
+		const sessionMetadata = this.buildSessionMetadata(startTime, now, durationSeconds);
+
+		conversationPersistenceService.queueSave(
+			conversationData,
+			preparedMessages,
+			sessionMetadata
+		);
 	}
 
 	// Modify your existing endConversation method to handle graceful shutdown
@@ -1659,6 +1688,53 @@ export class ConversationStore {
 		this.conversationStartTime = null;
 		this.lastSaveTime = null;
 		this.clearTranscriptionState();
+	}
+
+	private detectDeviceType(): 'desktop' | 'mobile' | 'tablet' | null {
+		if (!browser || typeof navigator === 'undefined') {
+			return null;
+		}
+
+		const ua = navigator.userAgent.toLowerCase();
+
+		if (/(ipad|tablet|playbook|silk)/.test(ua)) {
+			return 'tablet';
+		}
+
+		if (/(mobi|android|iphone|ipod)/.test(ua)) {
+			return 'mobile';
+		}
+
+		return 'desktop';
+	}
+
+	private buildSessionMetadata(
+		startTime: Date,
+		endTime: Date,
+		durationSeconds: number
+	): NewConversationSession | null {
+		if (!this.language) {
+			return null;
+		}
+
+		const userId = userManager.user?.id ?? null;
+		const secondsConsumed = this.timer.getTimeElapsedSeconds() || durationSeconds;
+		const timerState = this.timer.state;
+		const extensionsUsed = timerState?.extensionsUsed ?? 0;
+
+		return conversationPersistenceService.createSessionMetadata(this.sessionId, {
+			language: this.language,
+			userId,
+			startTime,
+			endTime,
+			durationSeconds,
+			secondsConsumed,
+			inputTokens: 0,
+			wasExtended: extensionsUsed > 0,
+			extensionsUsed,
+			transcriptionMode: this.transcriptionMode,
+			deviceType: this.detectDeviceType()
+		});
 	}
 }
 

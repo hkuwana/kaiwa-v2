@@ -5,8 +5,20 @@ ALTER TABLE "scenarios" RENAME COLUMN "category" TO "role";--> statement-breakpo
 DROP INDEX "scenarios_category_idx";--> statement-breakpoint
 DROP INDEX "scenarios_active_category_idx";--> statement-breakpoint
 
+-- Remove the existing default before changing types so we can drop the old enum
+ALTER TABLE "scenarios" ALTER COLUMN "role" DROP DEFAULT;--> statement-breakpoint
+
 -- Temporarily set column to text to avoid enum constraint
 ALTER TABLE "scenarios" ALTER COLUMN "role" TYPE text;--> statement-breakpoint
+
+-- Map legacy categories to the new role taxonomy
+UPDATE "scenarios"
+SET "role" = CASE
+	WHEN "role" IN ('onboarding', 'basic', 'intermediate') THEN 'tutor'
+	WHEN "role" IN ('comfort', 'relationships') THEN 'friend'
+	WHEN "role" = 'roleplay' THEN 'character'
+	ELSE 'tutor'
+END;--> statement-breakpoint
 
 -- Drop old enum
 DROP TYPE "public"."scenario_category";--> statement-breakpoint
@@ -16,6 +28,9 @@ CREATE TYPE "public"."scenario_role" AS ENUM('tutor', 'character', 'friend');-->
 
 -- Update the column to use new enum
 ALTER TABLE "scenarios" ALTER COLUMN "role" TYPE "public"."scenario_role" USING "role"::"public"."scenario_role";--> statement-breakpoint
+
+-- Restore default aligned with the new enum
+ALTER TABLE "scenarios" ALTER COLUMN "role" SET DEFAULT 'tutor';--> statement-breakpoint
 
 -- Create new indexes
 CREATE INDEX "scenarios_role_idx" ON "scenarios" USING btree ("role");--> statement-breakpoint

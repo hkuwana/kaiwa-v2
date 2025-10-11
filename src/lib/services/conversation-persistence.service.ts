@@ -1,7 +1,26 @@
 // src/lib/services/conversation-persistence.service.ts
 // Service for persisting conversation data to the database
 
-import type { Message, Language, NewConversation } from '$lib/server/db/types';
+import type {
+	Message,
+	Language,
+	NewConversation,
+	NewConversationSession
+} from '$lib/server/db/types';
+
+export type SessionMetadataOptions = {
+	userId?: string | null;
+	language: Language | null;
+	startTime?: Date;
+	endTime?: Date | null;
+	durationSeconds?: number;
+	secondsConsumed?: number;
+	inputTokens?: number;
+	wasExtended?: boolean;
+	extensionsUsed?: number;
+	transcriptionMode?: boolean;
+	deviceType?: string | null;
+};
 
 export class ConversationPersistenceService {
 	/**
@@ -9,7 +28,8 @@ export class ConversationPersistenceService {
 	 */
 	async saveConversation(
 		conversationData: NewConversation,
-		messages: Message[]
+		messages: Message[],
+		sessionMetadata?: NewConversationSession | null
 	): Promise<{ success: boolean; error?: string }> {
 		try {
 			console.log('💾 ConversationPersistenceService: Saving conversation...', {
@@ -25,7 +45,14 @@ export class ConversationPersistenceService {
 				},
 				body: JSON.stringify({
 					conversation: conversationData,
-					messages: messages
+					messages: messages,
+					...(sessionMetadata && {
+						sessionMetadata: {
+							...sessionMetadata,
+							startTime: sessionMetadata.startTime?.toISOString(),
+							endTime: sessionMetadata.endTime ? sessionMetadata.endTime.toISOString() : null
+						}
+					})
 				})
 			});
 
@@ -115,6 +142,7 @@ export class ConversationPersistenceService {
 	async saveConversationWithRetry(
 		conversationData: NewConversation,
 		messages: Message[],
+		sessionMetadata?: NewConversationSession | null,
 		maxRetries: number = 3
 	): Promise<{ success: boolean; error?: string }> {
 		let lastError: string | undefined;
@@ -124,7 +152,7 @@ export class ConversationPersistenceService {
 				`💾 Attempt ${attempt}/${maxRetries} to save conversation ${conversationData.id}`
 			);
 
-			const result = await this.saveConversation(conversationData, messages);
+			const result = await this.saveConversation(conversationData, messages, sessionMetadata);
 
 			if (result.success) {
 				return result;
@@ -152,15 +180,21 @@ export class ConversationPersistenceService {
 	private saveQueue: Array<{
 		conversationData: NewConversation;
 		messages: Message[];
+		sessionMetadata?: NewConversationSession | null;
 		timestamp: number;
 	}> = [];
 
 	private isProcessingQueue = false;
 
-	queueSave(conversationData: NewConversation, messages: Message[]): void {
+	queueSave(
+		conversationData: NewConversation,
+		messages: Message[],
+		sessionMetadata?: NewConversationSession | null
+	): void {
 		this.saveQueue.push({
 			conversationData,
 			messages,
+			sessionMetadata,
 			timestamp: Date.now()
 		});
 
@@ -187,13 +221,62 @@ export class ConversationPersistenceService {
 				continue;
 			}
 
-			await this.saveConversation(item.conversationData, item.messages);
+			await this.saveConversation(item.conversationData, item.messages, item.sessionMetadata);
 
 			// Small delay between saves to avoid overwhelming the server
 			await new Promise((resolve) => setTimeout(resolve, 100));
 		}
 
 		this.isProcessingQueue = false;
+	}
+
+	/**
+	 * Construct session metadata payload for persistence
+	 */
+	createSessionMetadata(
+		sessionId: string,
+		options: SessionMetadataOptions
+	): NewConversationSession | null {
+		const { language, userId } = options;
+		if (!language || !userId) {
+			return null;
+		}
+
+		const startTime = options.startTime ?? new Date();
+		const endTime = options.endTime ?? null;
+
+		let durationSeconds =
+			options.durationSeconds ??
+			(endTime ? Math.max(0, Math.round((endTime.getTime() - startTime.getTime()) / 1000)) : 0);
+		if (!Number.isFinite(durationSeconds) || durationSeconds < 0) {
+			durationSeconds = 0;
+		}
+		durationSeconds = Math.round(durationSeconds);
+
+		let secondsConsumed = options.secondsConsumed ?? durationSeconds;
+		if (!Number.isFinite(secondsConsumed) || secondsConsumed < 0) {
+			secondsConsumed = durationSeconds;
+		}
+		secondsConsumed = Math.round(secondsConsumed);
+
+		const inputTokens = options.inputTokens ?? 0;
+		const extensionsUsed = options.extensionsUsed ?? 0;
+		const wasExtended = options.wasExtended ?? extensionsUsed > 0;
+
+		return {
+			id: sessionId,
+			userId,
+			language: language.code || language.id,
+			startTime,
+			endTime,
+			durationSeconds,
+			secondsConsumed,
+			inputTokens,
+			wasExtended,
+			extensionsUsed,
+			transcriptionMode: options.transcriptionMode ?? false,
+			deviceType: options.deviceType ?? null
+		};
 	}
 }
 

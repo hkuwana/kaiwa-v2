@@ -71,7 +71,7 @@ export { payments, paymentStatusEnum } from './payments';
 
 // 📊 Usage tracking and analytics
 export { userUsage } from './user-usage';
-export { conversationSessions, deviceTypeEnum } from './conversation-sessions';
+export { conversationSessions } from './conversation-sessions';
 export { analyticsEvents } from './analytics-events';
 
 // 🎭 Learning scenario tracking

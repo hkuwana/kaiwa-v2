@@ -9,12 +9,7 @@ import {
 	uuid
 } from 'drizzle-orm/pg-core';
 import { users } from './users';
-
-/**
- * Device type enumeration for session tracking
- */
-export const deviceTypeEnum = pgEnum('device_type', ['desktop', 'mobile', 'tablet']);
-
+ 
 /**
  * Conversation Sessions - Enhanced session tracking for detailed analytics
  *
@@ -43,7 +38,7 @@ export const conversationSessions = pgTable(
 
 		// Metadata
 		transcriptionMode: boolean('transcription_mode').default(false),
-		deviceType: deviceTypeEnum('device_type'),
+		deviceType: text('device_type'),
 		createdAt: timestamp('created_at').defaultNow()
 	},
 	(table) => [

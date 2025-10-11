@@ -14,6 +14,34 @@ export class ConversationSessionsRepository {
 	}
 
 	/**
+	 * Create or update a conversation session
+	 */
+	async upsertSession(session: NewConversationSession): Promise<ConversationSession> {
+		const [record] = await db
+			.insert(conversationSessions)
+			.values(session)
+			.onConflictDoUpdate({
+				target: conversationSessions.id,
+				set: {
+					userId: session.userId,
+					language: session.language,
+					startTime: session.startTime,
+					endTime: session.endTime,
+					durationSeconds: session.durationSeconds,
+					secondsConsumed: session.secondsConsumed,
+					inputTokens: session.inputTokens ?? 0,
+					wasExtended: session.wasExtended ?? false,
+					extensionsUsed: session.extensionsUsed ?? 0,
+					transcriptionMode: session.transcriptionMode ?? false,
+					deviceType: session.deviceType ?? null
+				}
+			})
+			.returning();
+
+		return record;
+	}
+
+	/**
 	 * Get a session by ID
 	 */
 	async getSessionById(id: string): Promise<ConversationSession | null> {
