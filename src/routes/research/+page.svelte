@@ -10,8 +10,8 @@
 	import { fly, slide } from 'svelte/transition';
 
 	let scrollY = $state(0);
-	let isVisible = $state(false);
-	let hoveredCard = $state<string | null>(null);
+	let _isVisible = $state(false);
+	let _hoveredCard = $state<string | null>(null);
 	let animatedStats = $state({ studies: 0, universities: 0, retention: 0, anxiety: 0 });
 
 	// Page title and animations

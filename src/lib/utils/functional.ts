@@ -153,20 +153,6 @@ export const conditionalStateUpdate =
 // ============================================================================
 
 /**
- * Pure function to create service method calls
- */
-export const createServiceCall = <TInput, TOutput>(
-	serviceName: string,
-	methodName: string,
-	input: TInput
-) => ({
-	service: serviceName,
-	method: methodName,
-	input,
-	timestamp: Date.now()
-});
-
-/**
  * Higher-order function for service method decoration
  */
 export const withServiceLogging =
@@ -303,7 +289,6 @@ export default {
 	conditionalStateUpdate,
 
 	// Service utilities
-	createServiceCall,
 	withServiceLogging,
 	safeAsyncServiceCall,
 

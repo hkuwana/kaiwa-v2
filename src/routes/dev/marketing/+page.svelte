@@ -210,7 +210,7 @@ It's been a game-changer for my confidence. Has anyone else found good ways to p
 				// eslint-disable-next-line no-alert
 				alert('Failed to send test reminder: ' + data.error);
 			}
-		} catch (error) {
+		} catch {
 			// eslint-disable-next-line no-alert
 			alert('Error sending test reminder');
 		}
@@ -238,7 +238,7 @@ It's been a game-changer for my confidence. Has anyone else found good ways to p
 				// eslint-disable-next-line no-alert
 				alert('Failed to send bulk reminders: ' + data.error);
 			}
-		} catch (error) {
+		} catch {
 			// eslint-disable-next-line no-alert
 			alert('Error sending bulk reminders');
 		}

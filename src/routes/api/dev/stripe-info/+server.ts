@@ -44,7 +44,7 @@ export const GET = async () => {
 				fallback: true,
 				error: 'Server-side config failed, using client fallback'
 			});
-		} catch (fallbackError) {
+		} catch (error) {
 			return json(
 				{
 					error: 'Failed to fetch Stripe environment info',

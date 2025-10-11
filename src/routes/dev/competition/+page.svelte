@@ -162,7 +162,7 @@
 		<div class="mb-10 rounded-xl border border-base-300 bg-base-100 p-6 shadow">
 			<h2 class="mb-4 text-xl font-semibold">Kaiwa Differentiators</h2>
 			<ul class="grid gap-2 md:grid-cols-2">
-				{#each kaiwaDifferentiators as diff}
+				{#each kaiwaDifferentiators as diff (diff)}
 					<li class="flex items-start gap-2">
 						<span class="mt-1 h-2 w-2 rounded-full bg-primary"></span>
 						<span>{diff}</span>
@@ -173,19 +173,19 @@
 
 		<!-- Competitor Cards -->
 		<div class="mb-10 grid gap-6 md:grid-cols-2">
-			{#each competitors as c}
+			{#each competitors as c (c.name)}
 				<div class="rounded-xl border border-base-300 bg-base-100 p-5 shadow-sm">
 					<div class="mb-1 text-lg font-semibold">{c.name}</div>
 					<div class="mb-4 text-sm text-base-content/70">{c.segment}</div>
 
 					<div class="mb-3 text-sm font-medium">Strengths</div>
 					<ul class="mb-4 list-disc pl-5 text-sm">
-						{#each c.strengths as s}<li>{s}</li>{/each}
+						{#each c.strengths as s (s)}<li>{s}</li>{/each}
 					</ul>
 
 					<div class="mb-3 text-sm font-medium">Gaps vs Kaiwa</div>
 					<ul class="mb-2 list-disc pl-5 text-sm">
-						{#each c.gapsVsKaiwa as g}<li>{g}</li>{/each}
+						{#each c.gapsVsKaiwa as g (g)}<li>{g}</li>{/each}
 					</ul>
 
 					{#if c.notes}
@@ -209,7 +209,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#each capabilityMatrix as row}
+					{#each capabilityMatrix as row (row.key)}
 						<tr class="text-sm">
 							<td class="font-medium">{row.key}</td>
 							<td>{row.speak}</td>
@@ -230,7 +230,7 @@
 		<div class="mb-10 rounded-xl border border-base-300 bg-base-100 p-6 shadow">
 			<h2 class="mb-3 text-xl font-semibold">Messaging Angles</h2>
 			<ul class="space-y-2 text-sm">
-				{#each messaging as m}
+				{#each messaging as m (m)}
 					<li>• {m}</li>
 				{/each}
 			</ul>
@@ -240,7 +240,7 @@
 		<div class="rounded-xl border border-base-300 bg-base-100 p-6 shadow">
 			<h2 class="mb-3 text-xl font-semibold">Next Steps (0–90 days)</h2>
 			<ul class="space-y-2 text-sm">
-				{#each nextSteps as s}
+				{#each nextSteps as s (s)}
 					<li>• {s}</li>
 				{/each}
 			</ul>

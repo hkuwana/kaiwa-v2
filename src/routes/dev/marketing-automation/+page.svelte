@@ -54,7 +54,7 @@
 			} else {
 				error = data.error || 'Failed to load content types';
 			}
-		} catch (err) {
+		} catch {
 			error = 'Failed to load content types';
 		}
 	}
@@ -69,7 +69,7 @@
 			} else {
 				error = data.error || 'Failed to load Japanese phrases';
 			}
-		} catch (err) {
+		} catch {
 			error = 'Failed to load Japanese phrases';
 		}
 	}
@@ -97,7 +97,7 @@
 			} else {
 				error = data.error || 'Failed to generate content';
 			}
-		} catch (err) {
+		} catch {
 			error = 'Failed to generate content';
 		} finally {
 			isLoading = false;
