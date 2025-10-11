@@ -126,8 +126,8 @@
 						<span
 							class="{roleIcons[selectedScenario.role] ||
 								'icon-[mdi--lightbulb-on-outline]'} h-5 w-5 text-{roleColors[
-									selectedScenario.role
-								] || 'primary'}"
+								selectedScenario.role
+							] || 'primary'}"
 						></span>
 					{:else}
 						<span class="icon-[mdi--lightbulb-on-outline] h-5 w-5 text-primary"></span>
@@ -173,12 +173,12 @@
 						class:cursor-not-allowed={isLocked}
 						disabled={isLocked}
 					>
-						                        <span
-						                            class="{roleIcons[scenario.role] ||
-						                                'icon-[mdi--lightbulb-on-outline]'} mr-3 h-5 w-5 flex-shrink-0 text-{roleColors[
-						                                    scenario.role
-						                                ] || 'primary'}"
-						                        ></span>						<span class="flex-1 truncate text-sm font-medium">{scenario.title}</span>
+						<span
+							class="{roleIcons[scenario.role] ||
+								'icon-[mdi--lightbulb-on-outline]'} mr-3 h-5 w-5 flex-shrink-0 text-{roleColors[
+								scenario.role
+							] || 'primary'}"
+						></span> <span class="flex-1 truncate text-sm font-medium">{scenario.title}</span>
 						<span class="ml-3 flex flex-shrink-0 items-center gap-0.5 text-amber-300">
 							{#each createRange(meta.stars) as _}
 								<span class="icon-[mdi--star] h-3.5 w-3.5"></span>

@@ -99,9 +99,9 @@ export class InstructionComposer {
 		return { ...this.params };
 	}
 
-	// ============================================ 
+	// ============================================
 	// SECTION BUILDERS (following OpenAI template)
-	// ============================================ 
+	// ============================================
 
 	private buildRoleObjective(): string {
 		const { scenario, speaker, language, user } = this.options;
@@ -442,9 +442,9 @@ IF learner mentions self-harm:
 - Continue if learner is intoxicated or impaired`;
 	}
 
-	// ============================================ 
+	// ============================================
 	// SCENARIO-SPECIFIC PARAMETERS
-	// ============================================ 
+	// ============================================
 
 	private getScenarioParameters(
 		scenario: ScenarioWithHints,
@@ -492,9 +492,9 @@ IF learner mentions self-harm:
 	}
 }
 
-// ============================================ 
+// ============================================
 // CONVENIENCE FUNCTIONS
-// ============================================ 
+// ============================================
 
 /**
  * Quick instruction generation with sensible defaults

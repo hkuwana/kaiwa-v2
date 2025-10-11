@@ -12,28 +12,28 @@ Simple conversation with automatic CEFR-based settings:
 import { composeInstructions } from '$lib/services/instructions';
 
 const instructions = composeInstructions({
- user: {
-  id: 'user123',
-  displayName: 'Alex',
-  nativeLanguageId: 'en'
- },
- language: {
-  id: 'ja',
-  code: 'ja',
-  name: 'Japanese',
-  nativeName: '日本語'
- },
- preferences: {
-  speakingLevel: 45, // Maps to B1
-  speakingConfidence: 50,
-  learningGoal: 'Travel'
- },
- speaker: {
-  id: 'shimmer',
-  voiceName: 'Hiro',
-  gender: 'male',
-  locales: ['ja-JP']
- }
+	user: {
+		id: 'user123',
+		displayName: 'Alex',
+		nativeLanguageId: 'en'
+	},
+	language: {
+		id: 'ja',
+		code: 'ja',
+		name: 'Japanese',
+		nativeName: '日本語'
+	},
+	preferences: {
+		speakingLevel: 45, // Maps to B1
+		speakingConfidence: 50,
+		learningGoal: 'Travel'
+	},
+	speaker: {
+		id: 'shimmer',
+		voiceName: 'Hiro',
+		gender: 'male',
+		locales: ['ja-JP']
+	}
 });
 
 // Result: B1-level instructions with:
@@ -54,27 +54,27 @@ Explicit teaching with heavy scaffolding:
 import { composeWithParameters, PARAMETER_PRESETS } from '$lib/services/instructions';
 
 const instructions = composeWithParameters(
- {
-  user,
-  language,
-  preferences,
-  scenario: {
-   id: 'grammar-particles',
-   title: 'Japanese Particles Practice',
-   role: 'tutor',
-   description: 'Master は, が, を particles',
-   learningObjectives: ['particle は', 'particle が', 'particle を']
-  }
- },
- {
-  // Start with tutor preset
-  ...PARAMETER_PRESETS.tutor_explicit,
-  // Custom adjustments
-  speakingSpeed: 'slow', // Speak clearly
-  sentenceLength: 'short', // Simple sentences
-  scaffoldingLevel: 'heavy', // Lots of help
-  topicChangeFrequency: 'focused' // Stay on particles
- }
+	{
+		user,
+		language,
+		preferences,
+		scenario: {
+			id: 'grammar-particles',
+			title: 'Japanese Particles Practice',
+			role: 'tutor',
+			description: 'Master は, が, を particles',
+			learningObjectives: ['particle は', 'particle が', 'particle を']
+		}
+	},
+	{
+		// Start with tutor preset
+		...PARAMETER_PRESETS.tutor_explicit,
+		// Custom adjustments
+		speakingSpeed: 'slow', // Speak clearly
+		sentenceLength: 'short', // Simple sentences
+		scaffoldingLevel: 'heavy', // Lots of help
+		topicChangeFrequency: 'focused' // Stay on particles
+	}
 );
 
 // Result: Explicit teaching mode
@@ -94,26 +94,26 @@ Immersive character interaction:
 import { composeWithParameters } from '$lib/services/instructions';
 
 const instructions = composeWithParameters(
- {
-  user,
-  language,
-  preferences,
-  scenario: {
-   id: 'clinic-emergency',
-   title: 'Hospital Emergency Room',
-   role: 'character',
-   description: 'You are a hospital nurse',
-   context: 'Late night ER. Patient needs to describe symptoms urgently.',
-   expectedOutcome: 'Successfully communicate medical issue',
-   learningObjectives: ['symptom vocabulary', 'urgent language', 'clarifying questions']
-  }
- },
- {
-  languageMixingPolicy: 'strict_immersion', // Stay in character
-  conversationPace: 'dynamic', // Realistic urgency
-  scaffoldingLevel: 'light', // Minimal help (it's realistic)
-  correctionStyle: 'minimal' // Don't break immersion
- }
+	{
+		user,
+		language,
+		preferences,
+		scenario: {
+			id: 'clinic-emergency',
+			title: 'Hospital Emergency Room',
+			role: 'character',
+			description: 'You are a hospital nurse',
+			context: 'Late night ER. Patient needs to describe symptoms urgently.',
+			expectedOutcome: 'Successfully communicate medical issue',
+			learningObjectives: ['symptom vocabulary', 'urgent language', 'clarifying questions']
+		}
+	},
+	{
+		languageMixingPolicy: 'strict_immersion', // Stay in character
+		conversationPace: 'dynamic', // Realistic urgency
+		scaffoldingLevel: 'light', // Minimal help (it's realistic)
+		correctionStyle: 'minimal' // Don't break immersion
+	}
 );
 
 // Result: Realistic roleplay
@@ -134,10 +134,10 @@ import { createComposer } from '$lib/services/instructions';
 
 // Create composer for session
 const composer = createComposer({
- user,
- language,
- preferences,
- scenario: restaurantScenario
+	user,
+	language,
+	preferences,
+	scenario: restaurantScenario
 });
 
 let instructions = composer.compose();
@@ -149,40 +149,40 @@ let successStreak = 0;
 
 // Listen to conversation events
 session.on('transcript', (transcript) => {
- if (transcript.containsError) {
-  errorCount++;
-  successStreak = 0;
+	if (transcript.containsError) {
+		errorCount++;
+		successStreak = 0;
 
-  // After 3 errors: make it easier
-  if (errorCount >= 3) {
-   instructions = composer.updateParameters({
-    speakingSpeed: 'slow',
-    sentenceLength: 'short',
-    scaffoldingLevel: 'heavy',
-    pauseFrequency: 'frequent',
-    encouragementFrequency: 'frequent'
-   });
-   session.updateInstructions(instructions);
-   console.log('📉 Made easier - learner struggling');
-   errorCount = 0; // Reset counter
-  }
- } else {
-  successStreak++;
-  errorCount = 0;
+		// After 3 errors: make it easier
+		if (errorCount >= 3) {
+			instructions = composer.updateParameters({
+				speakingSpeed: 'slow',
+				sentenceLength: 'short',
+				scaffoldingLevel: 'heavy',
+				pauseFrequency: 'frequent',
+				encouragementFrequency: 'frequent'
+			});
+			session.updateInstructions(instructions);
+			console.log('📉 Made easier - learner struggling');
+			errorCount = 0; // Reset counter
+		}
+	} else {
+		successStreak++;
+		errorCount = 0;
 
-  // After 5 successes: increase challenge
-  if (successStreak >= 5) {
-   instructions = composer.updateParameters({
-    speakingSpeed: 'normal',
-    vocabularyComplexity: 'advanced',
-    scaffoldingLevel: 'light',
-    pauseFrequency: 'moderate'
-   });
-   session.updateInstructions(instructions);
-   console.log('📈 Increased difficulty - learner succeeding');
-   successStreak = 0; // Reset counter
-  }
- }
+		// After 5 successes: increase challenge
+		if (successStreak >= 5) {
+			instructions = composer.updateParameters({
+				speakingSpeed: 'normal',
+				vocabularyComplexity: 'advanced',
+				scaffoldingLevel: 'light',
+				pauseFrequency: 'moderate'
+			});
+			session.updateInstructions(instructions);
+			console.log('📈 Increased difficulty - learner succeeding');
+			successStreak = 0; // Reset counter
+		}
+	}
 });
 ```
 
@@ -197,15 +197,15 @@ import { composeInstructions } from '$lib/services/instructions';
 
 // Japanese lesson
 const japaneseInstructions = composeInstructions({
- user,
- language: {
-  id: 'ja',
-  code: 'ja',
-  name: 'Japanese',
-  nativeName: '日本語'
- },
- preferences,
- scenario: coffeeShopScenario
+	user,
+	language: {
+		id: 'ja',
+		code: 'ja',
+		name: 'Japanese',
+		nativeName: '日本語'
+	},
+	preferences,
+	scenario: coffeeShopScenario
 });
 
 // Includes:
@@ -215,15 +215,15 @@ const japaneseInstructions = composeInstructions({
 
 // Spanish lesson
 const spanishInstructions = composeInstructions({
- user,
- language: {
-  id: 'es',
-  code: 'es',
-  name: 'Spanish',
-  nativeName: 'Español'
- },
- preferences,
- scenario: coffeeShopScenario
+	user,
+	language: {
+		id: 'es',
+		code: 'es',
+		name: 'Spanish',
+		nativeName: 'Español'
+	},
+	preferences,
+	scenario: coffeeShopScenario
 });
 
 // Includes:
@@ -242,9 +242,9 @@ Switch between presets as learner advances:
 import { PARAMETER_PRESETS, createComposer } from '$lib/services/instructions';
 
 const composer = createComposer({
- user,
- language,
- preferences: { speakingLevel: 25 } // A2 level
+	user,
+	language,
+	preferences: { speakingLevel: 25 } // A2 level
 });
 
 // Start with beginner preset
@@ -253,18 +253,18 @@ session.updateInstructions(instructions);
 
 // After 10 successful sessions
 if (sessionsCompleted === 10) {
- // Upgrade to intermediate
- instructions = composer.updateParameters(PARAMETER_PRESETS.intermediate);
- session.updateInstructions(instructions);
- console.log('🎉 Promoted to Intermediate level!');
+	// Upgrade to intermediate
+	instructions = composer.updateParameters(PARAMETER_PRESETS.intermediate);
+	session.updateInstructions(instructions);
+	console.log('🎉 Promoted to Intermediate level!');
 }
 
 // After 50 successful sessions
 if (sessionsCompleted === 50) {
- // Upgrade to upper-intermediate
- instructions = composer.updateParameters(PARAMETER_PRESETS.upper_intermediate);
- session.updateInstructions(instructions);
- console.log('🎉 Promoted to Upper-Intermediate level!');
+	// Upgrade to upper-intermediate
+	instructions = composer.updateParameters(PARAMETER_PRESETS.upper_intermediate);
+	session.updateInstructions(instructions);
+	console.log('🎉 Promoted to Upper-Intermediate level!');
 }
 ```
 
@@ -282,10 +282,10 @@ const composer = createComposer({ user, language, preferences });
 
 // User preferences from UI
 const userSettings: Partial<InstructionParameters> = {
- speakingSpeed: userChoice.speed, // 'slow' | 'normal' | 'fast'
- correctionStyle: userChoice.corrections, // 'explicit' | 'recast' | 'none'
- scaffoldingLevel: userChoice.helpLevel, // 'heavy' | 'medium' | 'light'
- encouragementFrequency: userChoice.praise // 'frequent' | 'moderate' | 'minimal'
+	speakingSpeed: userChoice.speed, // 'slow' | 'normal' | 'fast'
+	correctionStyle: userChoice.corrections, // 'explicit' | 'recast' | 'none'
+	scaffoldingLevel: userChoice.helpLevel, // 'heavy' | 'medium' | 'light'
+	encouragementFrequency: userChoice.praise // 'frequent' | 'moderate' | 'minimal'
 };
 
 // Apply user settings
@@ -306,18 +306,18 @@ Adjust based on session context and learner history:
 import { createComposer } from '$lib/services/instructions';
 
 const composer = createComposer({
- user,
- language,
- preferences,
- sessionContext: {
-  isFirstTime: false,
-  memories: [
-   'Interested in anime and manga',
-   'Works as software engineer',
-   'Planning trip to Tokyo in June'
-  ],
-  previousTopics: ['weekend activities', 'favorite foods', 'work culture']
- }
+	user,
+	language,
+	preferences,
+	sessionContext: {
+		isFirstTime: false,
+		memories: [
+			'Interested in anime and manga',
+			'Works as software engineer',
+			'Planning trip to Tokyo in June'
+		],
+		previousTopics: ['weekend activities', 'favorite foods', 'work culture']
+	}
 });
 
 let instructions = composer.compose();
@@ -342,34 +342,34 @@ const composer = createComposer({ user, language, preferences });
 
 // Monitor audio cues for frustration
 session.on('audio', (audio) => {
- const frustrationLevel = detectFrustration(audio); // Your detection logic
+	const frustrationLevel = detectFrustration(audio); // Your detection logic
 
- if (frustrationLevel === 'high') {
-  // Emergency simplification
-  composer.updateParameters({
-   speakingSpeed: 'very_slow',
-   sentenceLength: 'very_short',
-   scaffoldingLevel: 'heavy',
-   languageMixingPolicy: 'code_switching', // Allow native language
-   encouragementFrequency: 'frequent',
-   conversationPace: 'relaxed'
-  });
+	if (frustrationLevel === 'high') {
+		// Emergency simplification
+		composer.updateParameters({
+			speakingSpeed: 'very_slow',
+			sentenceLength: 'very_short',
+			scaffoldingLevel: 'heavy',
+			languageMixingPolicy: 'code_switching', // Allow native language
+			encouragementFrequency: 'frequent',
+			conversationPace: 'relaxed'
+		});
 
-  // Also send a supportive message
-  session.sendMessage({
-   type: 'conversation.item.create',
-   item: {
-    type: 'message',
-    role: 'system',
-    content: [
-     {
-      type: 'text',
-      text: 'IMMEDIATE SUPPORT NEEDED: Learner is frustrated. Simplify drastically. Offer native language help. Provide quick win within 10 seconds.'
-     }
-    ]
-   }
-  });
- }
+		// Also send a supportive message
+		session.sendMessage({
+			type: 'conversation.item.create',
+			item: {
+				type: 'message',
+				role: 'system',
+				content: [
+					{
+						type: 'text',
+						text: 'IMMEDIATE SUPPORT NEEDED: Learner is frustrated. Simplify drastically. Offer native language help. Provide quick win within 10 seconds.'
+					}
+				]
+			}
+		});
+	}
 });
 ```
 
@@ -384,20 +384,20 @@ import { composeWithParameters, PARAMETER_PRESETS } from '$lib/services/instruct
 
 // Group A: Explicit corrections
 const groupAInstructions = composeWithParameters(
- { user, language, preferences, scenario },
- {
-  ...PARAMETER_PRESETS.intermediate,
-  correctionStyle: 'explicit' // Direct feedback
- }
+	{ user, language, preferences, scenario },
+	{
+		...PARAMETER_PRESETS.intermediate,
+		correctionStyle: 'explicit' // Direct feedback
+	}
 );
 
 // Group B: Implicit recasting
 const groupBInstructions = composeWithParameters(
- { user, language, preferences, scenario },
- {
-  ...PARAMETER_PRESETS.intermediate,
-  correctionStyle: 'recast' // Natural reformulation
- }
+	{ user, language, preferences, scenario },
+	{
+		...PARAMETER_PRESETS.intermediate,
+		correctionStyle: 'recast' // Natural reformulation
+	}
 );
 
 // Randomly assign
@@ -405,9 +405,9 @@ const instructions = Math.random() < 0.5 ? groupAInstructions : groupBInstructio
 
 // Track metrics
 await analytics.track('instruction_variant', {
- userId: user.id,
- variant: Math.random() < 0.5 ? 'explicit' : 'recast',
- sessionId: session.id
+	userId: user.id,
+	variant: Math.random() < 0.5 ? 'explicit' : 'recast',
+	sessionId: session.id
 });
 
 // Later: analyze which approach led to better outcomes
@@ -428,14 +428,14 @@ const composer = createComposer({ user, language, preferences });
 const speeds = ['very_slow', 'slow', 'normal', 'fast', 'native'] as const;
 
 for (const speed of speeds) {
- const instructions = composer.updateParameters({ speakingSpeed: speed });
+	const instructions = composer.updateParameters({ speakingSpeed: speed });
 
- console.log(`\n=== SPEAKING SPEED: ${speed} ===`);
- console.log(instructions);
+	console.log(`\n=== SPEAKING SPEED: ${speed} ===`);
+	console.log(instructions);
 
- // Look for the speaking speed section
- const speedSection = instructions.match(/## SPEAKING SPEED:.*?(?=##|$)/s);
- console.log(speedSection?.[0]);
+	// Look for the speaking speed section
+	const speedSection = instructions.match(/## SPEAKING SPEED:.*?(?=##|$)/s);
+	console.log(speedSection?.[0]);
 }
 ```
 
@@ -449,35 +449,35 @@ Combine scenario + custom params for perfect control:
 import { composeWithParameters } from '$lib/services/instructions';
 
 const instructions = composeWithParameters(
- {
-  user,
-  language,
-  preferences: { speakingLevel: 55 }, // B2 level
-  scenario: {
-   id: 'business-negotiation',
-   title: 'Salary Negotiation',
-   role: 'character',
-   description: 'Negotiating salary with Japanese HR manager',
-   context: 'Office setting, formal meeting, high stakes',
-   expectedOutcome: 'Successfully negotiate higher salary',
-   learningObjectives: [
-    'formal business language',
-    'negotiation vocabulary',
-    'polite disagreement',
-    'stating your worth'
-   ]
-  }
- },
- {
-  // Formal, business-appropriate settings
-  vocabularyComplexity: 'specialized', // Business terms
-  grammarComplexity: 'advanced', // Formal grammar
-  languageMixingPolicy: 'strict_immersion', // Stay professional
-  conversationPace: 'steady', // Not rushed
-  correctionStyle: 'recast', // Subtle corrections
-  scaffoldingLevel: 'light', // Expect proficiency
-  encouragementFrequency: 'minimal' // Professional tone
- }
+	{
+		user,
+		language,
+		preferences: { speakingLevel: 55 }, // B2 level
+		scenario: {
+			id: 'business-negotiation',
+			title: 'Salary Negotiation',
+			role: 'character',
+			description: 'Negotiating salary with Japanese HR manager',
+			context: 'Office setting, formal meeting, high stakes',
+			expectedOutcome: 'Successfully negotiate higher salary',
+			learningObjectives: [
+				'formal business language',
+				'negotiation vocabulary',
+				'polite disagreement',
+				'stating your worth'
+			]
+		}
+	},
+	{
+		// Formal, business-appropriate settings
+		vocabularyComplexity: 'specialized', // Business terms
+		grammarComplexity: 'advanced', // Formal grammar
+		languageMixingPolicy: 'strict_immersion', // Stay professional
+		conversationPace: 'steady', // Not rushed
+		correctionStyle: 'recast', // Subtle corrections
+		scaffoldingLevel: 'light', // Expect proficiency
+		encouragementFrequency: 'minimal' // Professional tone
+	}
 );
 
 // Result: Professional, high-stakes roleplay

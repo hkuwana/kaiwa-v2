@@ -365,9 +365,7 @@
 						<div>
 							<h3 class="mb-1 text-xl font-bold">{currentScenario.title}</h3>
 							<div class="flex items-center gap-2">
-								<span class="badge badge-xs capitalize badge-accent"
-									>{currentScenario.role}</span
-								>
+								<span class="badge badge-xs capitalize badge-accent">{currentScenario.role}</span>
 								<span class="badge badge-xs capitalize badge-primary"
 									>{currentScenario.difficulty}</span
 								>

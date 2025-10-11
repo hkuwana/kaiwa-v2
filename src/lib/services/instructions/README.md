@@ -33,18 +33,18 @@ Our composer generates instructions following this template:
 import { composeInstructions } from '$lib/services/instructions/composer';
 
 const instructions = composeInstructions({
- user: currentUser,
- language: targetLanguage,
- preferences: userPreferences,
- scenario: selectedScenario,
- speaker: selectedSpeaker
+	user: currentUser,
+	language: targetLanguage,
+	preferences: userPreferences,
+	scenario: selectedScenario,
+	speaker: selectedSpeaker
 });
 
 // Use instructions with OpenAI Realtime API
 const agent = new RealtimeAgent({
- name: speaker.voiceName,
- instructions: instructions,
- voice: speaker.id
+	name: speaker.voiceName,
+	instructions: instructions,
+	voice: speaker.id
 });
 ```
 
@@ -55,9 +55,9 @@ import { createComposer } from '$lib/services/instructions/composer';
 
 // Create composer instance
 const composer = createComposer({
- user: currentUser,
- language: targetLanguage,
- preferences: userPreferences
+	user: currentUser,
+	language: targetLanguage,
+	preferences: userPreferences
 });
 
 // Get initial instructions
@@ -65,9 +65,9 @@ let instructions = composer.compose();
 
 // Later: Adjust speaking speed when learner struggles
 instructions = composer.updateParameters({
- speakingSpeed: 'slow', // Slow down
- pauseFrequency: 'frequent', // Add more pauses
- scaffoldingLevel: 'heavy' // Provide more help
+	speakingSpeed: 'slow', // Slow down
+	pauseFrequency: 'frequent', // Add more pauses
+	scaffoldingLevel: 'heavy' // Provide more help
 });
 
 // Send update to session
@@ -80,20 +80,20 @@ session.updateInstructions(instructions);
 import { composeWithParameters } from '$lib/services/instructions/composer';
 
 const instructions = composeWithParameters(
- {
-  user: currentUser,
-  language: targetLanguage,
-  preferences: userPreferences,
-  scenario: grammarScenario
- },
- {
-  // Custom overrides
-  correctionStyle: 'explicit', // Tutor gives direct corrections
-  speakingSpeed: 'slow', // Speak slowly
-  sentenceLength: 'short', // Short sentences
-  scaffoldingLevel: 'heavy', // Lots of support
-  languageMixingPolicy: 'bilingual_support' // Allow native language help
- }
+	{
+		user: currentUser,
+		language: targetLanguage,
+		preferences: userPreferences,
+		scenario: grammarScenario
+	},
+	{
+		// Custom overrides
+		correctionStyle: 'explicit', // Tutor gives direct corrections
+		speakingSpeed: 'slow', // Speak slowly
+		sentenceLength: 'short', // Short sentences
+		scaffoldingLevel: 'heavy', // Lots of support
+		languageMixingPolicy: 'bilingual_support' // Allow native language help
+	}
 );
 ```
 
@@ -148,13 +148,13 @@ PARAMETER_PRESETS.conversation_partner; // For natural conversation
 ```typescript
 // Detect frustration or repeated errors
 if (errorCount >= 3) {
- instructions = composer.updateParameters({
-  speakingSpeed: 'slow',
-  scaffoldingLevel: 'heavy',
-  sentenceLength: 'very_short',
-  encouragementFrequency: 'frequent'
- });
- session.updateInstructions(instructions);
+	instructions = composer.updateParameters({
+		speakingSpeed: 'slow',
+		scaffoldingLevel: 'heavy',
+		sentenceLength: 'very_short',
+		encouragementFrequency: 'frequent'
+	});
+	session.updateInstructions(instructions);
 }
 ```
 
@@ -163,12 +163,12 @@ if (errorCount >= 3) {
 ```typescript
 // Learner is doing well - increase challenge
 if (successStreak >= 5) {
- instructions = composer.updateParameters({
-  speakingSpeed: 'normal',
-  vocabularyComplexity: 'advanced',
-  scaffoldingLevel: 'light'
- });
- session.updateInstructions(instructions);
+	instructions = composer.updateParameters({
+		speakingSpeed: 'normal',
+		vocabularyComplexity: 'advanced',
+		scaffoldingLevel: 'light'
+	});
+	session.updateInstructions(instructions);
 }
 ```
 
@@ -177,10 +177,10 @@ if (successStreak >= 5) {
 ```typescript
 // Switch from conversation to explicit teaching
 instructions = composer.updateParameters({
- correctionStyle: 'explicit', // Direct corrections
- scaffoldingLevel: 'heavy', // More support
- topicChangeFrequency: 'focused', // Stay on topic
- conversationPace: 'relaxed' // Slower pace
+	correctionStyle: 'explicit', // Direct corrections
+	scaffoldingLevel: 'heavy', // More support
+	topicChangeFrequency: 'focused', // Stay on topic
+	conversationPace: 'relaxed' // Slower pace
 });
 ```
 
@@ -191,12 +191,12 @@ instructions = composer.updateParameters({
 ```typescript
 // Hardcoded, not adjustable
 const instructions = generateInitialInstructions(
- user,
- language,
- preferences,
- scenario,
- sessionContext,
- speaker
+	user,
+	language,
+	preferences,
+	scenario,
+	sessionContext,
+	speaker
 );
 
 // Can't easily adjust speed or difficulty
@@ -207,16 +207,16 @@ const instructions = generateInitialInstructions(
 ```typescript
 // Create flexible composer
 const composer = createComposer({
- user,
- language,
- preferences,
- scenario,
- speaker,
- sessionContext: {
-  isFirstTime: !preferences.successfulExchanges,
-  memories: preferences.memories,
-  previousTopics: preferences.conversationContext?.recentTopics
- }
+	user,
+	language,
+	preferences,
+	scenario,
+	speaker,
+	sessionContext: {
+		isFirstTime: !preferences.successfulExchanges,
+		memories: preferences.memories,
+		previousTopics: preferences.conversationContext?.recentTopics
+	}
 });
 
 // Get initial instructions
@@ -224,11 +224,11 @@ let instructions = composer.compose();
 
 // Easy to adjust later
 if (learnerStruggling) {
- instructions = composer.updateParameters({
-  speakingSpeed: 'slow',
-  scaffoldingLevel: 'heavy'
- });
- session.updateInstructions(instructions);
+	instructions = composer.updateParameters({
+		speakingSpeed: 'slow',
+		scaffoldingLevel: 'heavy'
+	});
+	session.updateInstructions(instructions);
 }
 ```
 
@@ -260,19 +260,19 @@ composer.updateParameters({ speakingSpeed: 'slow' }); // One step at a time
 ```typescript
 // Track learner signals
 if (comprehensionIssues) {
- // Simplify immediately
- composer.updateParameters({
-  speakingSpeed: 'slow',
-  sentenceLength: 'short',
-  scaffoldingLevel: 'heavy'
- });
+	// Simplify immediately
+	composer.updateParameters({
+		speakingSpeed: 'slow',
+		sentenceLength: 'short',
+		scaffoldingLevel: 'heavy'
+	});
 }
 
 if (learnerEngaged && succeeding) {
- // Gradually increase challenge
- composer.updateParameters({
-  vocabularyComplexity: 'advanced'
- });
+	// Gradually increase challenge
+	composer.updateParameters({
+		vocabularyComplexity: 'advanced'
+	});
 }
 ```
 
@@ -281,21 +281,21 @@ if (learnerEngaged && succeeding) {
 ```typescript
 // Grammar lesson
 if (scenario.role === 'tutor') {
- parameters = {
-  ...parameters,
-  correctionStyle: 'explicit',
-  scaffoldingLevel: 'heavy',
-  topicChangeFrequency: 'focused'
- };
+	parameters = {
+		...parameters,
+		correctionStyle: 'explicit',
+		scaffoldingLevel: 'heavy',
+		topicChangeFrequency: 'focused'
+	};
 }
 
 // Roleplay scenario
 if (scenario.role === 'character') {
- parameters = {
-  ...parameters,
-  languageMixingPolicy: 'strict_immersion',
-  conversationPace: 'dynamic'
- };
+	parameters = {
+		...parameters,
+		languageMixingPolicy: 'strict_immersion',
+		conversationPace: 'dynamic'
+	};
 }
 ```
 
@@ -306,24 +306,24 @@ if (scenario.role === 'character') {
 ```typescript
 // Start gentle
 const composer = createComposer({
- user,
- language,
- preferences,
- parameters: PARAMETER_PRESETS.beginner
+	user,
+	language,
+	preferences,
+	parameters: PARAMETER_PRESETS.beginner
 });
 
 let instructions = composer.compose();
 
 // Learner struggles → more support
 instructions = composer.updateParameters({
- speakingSpeed: 'very_slow',
- scaffoldingLevel: 'heavy'
+	speakingSpeed: 'very_slow',
+	scaffoldingLevel: 'heavy'
 });
 
 // Learner succeeds → slight challenge increase
 instructions = composer.updateParameters({
- sentenceLength: 'short', // was 'very_short'
- vocabularyComplexity: 'everyday' // was 'basic'
+	sentenceLength: 'short', // was 'very_short'
+	vocabularyComplexity: 'everyday' // was 'basic'
 });
 ```
 
@@ -332,24 +332,24 @@ instructions = composer.updateParameters({
 ```typescript
 // Start challenging
 const composer = createComposer({
- user,
- language,
- preferences,
- parameters: PARAMETER_PRESETS.advanced
+	user,
+	language,
+	preferences,
+	parameters: PARAMETER_PRESETS.advanced
 });
 
 let instructions = composer.compose();
 
 // Topic gets complex → slow down slightly
 instructions = composer.updateParameters({
- speakingSpeed: 'normal', // was 'fast'
- pauseFrequency: 'moderate' // was 'minimal'
+	speakingSpeed: 'normal', // was 'fast'
+	pauseFrequency: 'moderate' // was 'minimal'
 });
 
 // Back to flowing → speed up
 instructions = composer.updateParameters({
- speakingSpeed: 'fast',
- pauseFrequency: 'minimal'
+	speakingSpeed: 'fast',
+	pauseFrequency: 'minimal'
 });
 ```
 
@@ -362,7 +362,7 @@ console.log('Current speaking speed:', currentParams.speakingSpeed);
 
 // Test parameter changes
 const testInstructions = composer.updateParameters({
- speakingSpeed: 'slow'
+	speakingSpeed: 'slow'
 });
 
 // Verify changes
@@ -386,16 +386,16 @@ Use the shared service wrapper when wiring up realtime sessions:
 import { createScenarioSessionConfig } from '$lib/services/instructions.service';
 
 const { instructions, initialMessage, voice } = createScenarioSessionConfig(
- scenario,
- user,
- language,
- preferences,
- speaker
+	scenario,
+	user,
+	language,
+	preferences,
+	speaker
 );
 
 realtimeSession.update({
- instructions,
- voice
+	instructions,
+	voice
 });
 ```
 

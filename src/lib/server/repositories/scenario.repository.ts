@@ -25,7 +25,11 @@ export const scenarioRepository = {
 		return db.query.scenarios.findFirst({ where: eq(scenarios.id, id) });
 	},
 
-	async findScenariosByRole(role: Scenario['role'], limit: number = 50, offset: number = 0): Promise<Scenario[]> {
+	async findScenariosByRole(
+		role: Scenario['role'],
+		limit: number = 50,
+		offset: number = 0
+	): Promise<Scenario[]> {
 		return db.query.scenarios.findMany({
 			where: and(eq(scenarios.role, role), eq(scenarios.isActive, true)),
 			orderBy: [asc(scenarios.difficulty), asc(scenarios.title)],
