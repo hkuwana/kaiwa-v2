@@ -25,9 +25,22 @@
 
 	// Get current language info
 
-	// Get available speakers for selected language
+	// Get available speakers for selected language, sorted by dialect and with females first
 	const availableSpeakers = $derived(
-		selectedLanguage ? getSpeakersByLanguage(selectedLanguage.code) : []
+		selectedLanguage
+			? getSpeakersByLanguage(selectedLanguage.code).sort((a, b) => {
+					// Primary sort: dialectName
+					const dialectCompare = (a.dialectName || '').localeCompare(b.dialectName || '');
+					if (dialectCompare !== 0) return dialectCompare;
+
+					// Secondary sort: gender (female first)
+					if (a.gender === 'female' && b.gender !== 'female') return -1;
+					if (a.gender !== 'female' && b.gender === 'female') return 1;
+
+					// Tertiary sort: voiceName (alphabetical)
+					return (a.voiceName || '').localeCompare(b.voiceName || '');
+				})
+			: []
 	);
 
 	// Get current speaker info

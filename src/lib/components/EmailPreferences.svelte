@@ -1,22 +1,26 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	export let userId: string | undefined = undefined;
-	export let showTitle = true;
-	export let compact = false;
+	interface Props {
+		userId?: string | undefined;
+		showTitle?: boolean;
+		compact?: boolean;
+	}
 
-	let preferences = {
+	let { userId = undefined, showTitle = true, compact = false }: Props = $props();
+
+	let preferences = $state({
 		receiveMarketingEmails: true,
 		receiveDailyReminderEmails: true,
 		receiveProductUpdates: true,
 		receiveWeeklyDigest: true,
 		receiveSecurityAlerts: true
-	};
+	});
 
-	let loading = true;
-	let saving = false;
-	let saveMessage = '';
-	let saveError = '';
+	let loading = $state(true);
+	let saving = $state(false);
+	let saveMessage = $state('');
+	let saveError = $state('');
 
 	const emailTypes = [
 		{
@@ -145,7 +149,7 @@
 								role="switch"
 								aria-checked={preferences[emailType.key as keyof typeof preferences]}
 								aria-label={`Toggle ${emailType.label} email notifications`}
-								on:click={() => togglePreference(emailType.key as keyof typeof preferences)}
+								onclick={() => togglePreference(emailType.key as keyof typeof preferences)}
 								disabled={saving}
 							>
 								<span

@@ -111,9 +111,7 @@ export class EmailReminderService {
 			const lastPracticeDate = lastAttempt?.completedAt || null;
 			const streakDays = await this.calculateStreakDays(userId);
 			const targetLanguage = await this.getTargetLanguageInfo(userId);
-			const survivalPhrase = targetLanguage
-				? this.pickSurvivalPhrase(targetLanguage.code)
-				: null;
+			const survivalPhrase = targetLanguage ? this.pickSurvivalPhrase(targetLanguage.code) : null;
 
 			return {
 				user,
@@ -154,8 +152,7 @@ export class EmailReminderService {
 			// If user has a last scenario, try to find similar difficulty/category
 			if (lastScenario && availableScenarios.length > 0) {
 				const similarScenarios = availableScenarios.filter(
-					(s: Scenario) =>
-						s.difficulty === lastScenario.difficulty || s.category === lastScenario.category
+					(s: Scenario) => s.difficulty === lastScenario.difficulty || s.role === lastScenario.role
 				);
 
 				// Return up to 2 similar scenarios, or random ones if not enough
@@ -233,7 +230,7 @@ export class EmailReminderService {
 			} else if (daysSince <= 3) {
 				return languageName
 					? `Let’s keep your ${languageName} conversations fresh`
-					: "Let’s keep the conversation going";
+					: 'Let’s keep the conversation going';
 			}
 		}
 
@@ -501,11 +498,11 @@ export class EmailReminderService {
 
 	private static async getTargetLanguageInfo(
 		userId: string
-	): Promise<{ name: string; code: string } | null> {
+	): Promise<{ name: string; code: string }> {
 		try {
 			const preferences = await userPreferencesRepository.getAllUserPreferences(userId);
 			if (!preferences || preferences.length === 0) {
-				return null;
+				return { name: '', code: '' };
 			}
 
 			const targetLanguage = await languageRepository.findLanguageById(
@@ -513,7 +510,7 @@ export class EmailReminderService {
 			);
 
 			if (!targetLanguage) {
-				return null;
+				return { name: '', code: '' };
 			}
 
 			return {
@@ -522,7 +519,7 @@ export class EmailReminderService {
 			};
 		} catch (error) {
 			console.error('Error fetching target language:', error);
-			return null;
+			return { name: '', code: '' };
 		}
 	}
 

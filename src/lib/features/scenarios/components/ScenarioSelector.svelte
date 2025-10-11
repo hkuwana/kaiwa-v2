@@ -60,7 +60,7 @@
 
 	function selectScenario(scenario: ScenarioWithHints) {
 		// Only allow onboarding scenario for guests
-		if (isGuest && scenario.category !== 'onboarding') {
+		if (isGuest && scenario.role !== 'tutor') {
 			return;
 		}
 		onScenarioSelect(scenario);
@@ -88,11 +88,12 @@
 						{:else if selectedScenario}
 							<span
 								class="{categoryIcons[selectedScenario.category] ||
-									'icon-[mdi--target]'} h-5 w-5 text-{categoryColors[selectedScenario.category] ||
-									'primary'}"
+									'icon-[mdi--lightbulb-on-outline]'} h-5 w-5 text-{categoryColors[
+									selectedScenario.category
+								] || 'primary'}"
 							></span>
 						{:else}
-							<span class="icon-[mdi--target] h-5 w-5 text-primary"></span>
+							<span class="icon-[mdi--lightbulb-on-outline] h-5 w-5 text-primary"></span>
 						{/if}
 					</span>
 					<div class="flex items-center gap-2">
@@ -102,20 +103,10 @@
 						{/if}
 					</div>
 				</div>
-				<svg
-					class="h-5 w-5 transition-transform duration-200"
+				<span
+					class="icon-[mdi--chevron-down] h-5 w-5 transition-transform duration-200"
 					class:rotate-180={isOpen}
-					fill="none"
-					stroke="currentColor"
-					viewBox="0 0 24 24"
-				>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M19 9l-7 7-7-7"
-					/>
-				</svg>
+				></span>
 			</button>
 		</div>
 	{:else}
@@ -133,11 +124,12 @@
 					{#if selectedScenario}
 						<span
 							class="{categoryIcons[selectedScenario.category] ||
-								'icon-[mdi--target]'} h-5 w-5 text-{categoryColors[selectedScenario.category] ||
-								'primary'}"
+								'icon-[mdi--lightbulb-on-outline]'} h-5 w-5 text-{categoryColors[
+								selectedScenario.category
+							] || 'primary'}"
 						></span>
 					{:else}
-						<span class="icon-[mdi--target] h-5 w-5 text-primary"></span>
+						<span class="icon-[mdi--lightbulb-on-outline] h-5 w-5 text-primary"></span>
 					{/if}
 				</span>
 				<div class="flex items-center gap-2">
@@ -149,15 +141,10 @@
 					{/if}
 				</div>
 			</div>
-			<svg
-				class="h-5 w-5 transition-transform duration-200"
+			<span
+				class="icon-[mdi--chevron-down] h-5 w-5 transition-transform duration-200"
 				class:rotate-180={isOpen}
-				fill="none"
-				stroke="currentColor"
-				viewBox="0 0 24 24"
-			>
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-			</svg>
+			></span>
 		</button>
 	{/if}
 
@@ -185,11 +172,10 @@
 					>
 						<span
 							class="{categoryIcons[scenario.category] ||
-								'icon-[mdi--target]'} mr-3 h-5 w-5 flex-shrink-0 text-{categoryColors[
+								'icon-[mdi--lightbulb-on-outline]'} mr-3 h-5 w-5 flex-shrink-0 text-{categoryColors[
 								scenario.category
 							] || 'primary'}"
-						></span>
-						<span class="flex-1 truncate text-sm font-medium">{scenario.title}</span>
+						></span> <span class="flex-1 truncate text-sm font-medium">{scenario.title}</span>
 						<span class="ml-3 flex flex-shrink-0 items-center gap-0.5 text-amber-300">
 							{#each createRange(meta.stars) as _}
 								<span class="icon-[mdi--star] h-3.5 w-3.5"></span>
@@ -200,19 +186,7 @@
 						{/if}
 
 						{#if selectedScenario?.id === scenario.id}
-							<svg
-								class="absolute top-3 right-3 h-5 w-5"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M5 13l4 4L19 7"
-								/>
-							</svg>
+							<span class="absolute top-3 right-3 icon-[mdi--check] h-5 w-5"></span>
 						{/if}
 					</button>
 				{/each}

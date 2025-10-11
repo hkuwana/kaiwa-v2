@@ -139,10 +139,7 @@
 			aria-label={selectedLanguage
 				? currentScenario?.category === 'onboarding'
 					? `Meet your guide in ${selectedLanguage.name}`
-					: `Start ${
-							currentScenario?.category?.charAt(0).toUpperCase() +
-								(currentScenario?.category?.slice(1) || '') || 'Learning'
-						} in ${selectedLanguage.name}`
+					: `Start Learning in ${selectedLanguage.name}`
 				: 'Choose your language to start'}
 		>
 			<span class="relative z-10 flex items-center gap-2">
@@ -153,10 +150,7 @@
 					{#if currentScenario?.category === 'onboarding'}
 						<span>Start Chat</span>
 					{:else}
-						<span
-							>Start {currentScenario?.category?.charAt(0).toUpperCase() +
-								(currentScenario?.category?.slice(1) || '')}
-						</span>
+						<span>Start Practicing</span>
 					{/if}
 				{:else}
 					<span class="sm:hidden">Choose language</span>

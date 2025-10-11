@@ -1,299 +1,137 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { getInstructions, testModule } from '$lib/services/instructions.service';
-	import type { TestInstructionParams, TestModuleParams, UpdateContext } from '$lib/data/testing';
 	import {
-		mockUserPreferences,
-		mockSessionContexts,
-		mockUpdateContexts,
-		getRandomTestScenario,
-		getRandomLanguage,
-		getRandomPreferences,
-		getRandomScenario,
-		getRandomSessionContext,
-		getRandomUpdateContext,
-		isTopicChange,
-		isDifficultyAdjust,
-		isEngagementBoost,
-		isCorrectionNeeded
-	} from '$lib/data/testing';
+		createComposer,
+		PARAMETER_PRESETS,
+		type InstructionParameters,
+		type SpeakingSpeed
+	} from '$lib/services/instructions';
 	import { languages } from '$lib/data/languages';
-	import { scenariosData, type ScenarioWithHints } from '$lib/data/scenarios';
+	import { scenariosData } from '$lib/data/scenarios';
 	import { userManager } from '$lib/stores/user.store.svelte';
-
-	const instructionFlowDiagram = String.raw`
-                 +-------------------------+
-                 |  getInstructions(phase) |
-                 +-----------+-------------+
-                             |
-        +--------------------+-----------------------+
-        |                                            |
-        v                                            v
-+---------------+                           +-----------------------------+
-| Phase: initial|                           | Phase: update / closing     |
-+-------+-------+                           +-----------+-----------------+
-        |                                               |
-        |                                               |
-        v                                               v
-+---------------------------+                +---------------------------+
-| ModuleComposer.compose()  |                | Phase specific generators  |
-| (applies to all phases)   |                | - generateUpdateInstructions|
-+-----------+---------------+                | - generateClosingInstructions|
-            |                                 +-------------+-------------+
-            |                                               |
-            v                                               v
-    +------------------+                             +-------------------+
-    | Instruction Mods |                             | Update / Closing  |
-    | (priority sorted)|                             | templates         |
-    +---------+--------+                             +-------------------+
-              |
-              v
-  +-----------------------------+
-  | Core Modules pull from      |
-  |-----------------------------|
-  | User (db.users)             |
-  | UserPreferences (db.user_*) |
-  | Scenario (db.scenarios)     |
-  | SessionContext (runtime)    |
-  | Speaker (db.speakers)       |
-  | Language (db.languages)     |
-  +-----------------------------+
-              |
-              v
-   +----------------------------+
-   | Onboarding Branch?         |
-   +-------------+--------------+
-                 |
-        +--------+---------+
-        |                  |
-        v                  v
-+---------------+   +--------------------------+
-| First-time or |   | Returning user (no       |
-| scenario=onbd |   | onboarding block)        |
-+-------+-------+   +-----------+--------------+
-        |                       |
-        v                       v
-+------------------------------+        +-------------------------------+
-| buildOnboardingBlock()       |        | RETURNING USER WELCOME block  |
-|  - intro section             |        +-------------------------------+
-|  - goal discovery            |
-|  - level sensing             |
-|  - momentum builder          |
-|  - non-negotiable vibes      |
-+---------------+--------------+
-                |
-                v
-      +--------------------+
-      | Combined output    |
-      +--------------------+
-                |
-                v
-      +--------------------+
-      | Realtime prompt    |
-      +--------------------+
-
-Supplementary Path (Scenario-first)
------------------------------------
-
-Scenario input + base data --> generateScenarioInstructions()
-    |                                  |
-    |                                  v
-    |                         +---------------------+
-    |                         | Base instructions   |
-    |                         +---------+-----------+
-    |                                   |
-    |                                   v
-    |                        +--------------------------+
-    |                        | Onboarding condition?    |
-    |                        +-----------+--------------+
-    |                                    |
-    |            yes --------------------+---------------- no
-    |             |                                          |
-    v             v                                          v
-initialMessage + onboarding block            Scenario-specific additions`;
-
-	const instructionFlowLegend = String.raw`
-Legend
-------
-User fields → db.users                Scenario → db.scenarios
-Preferences → db.user_preferences     Speaker → db.speakers
-Language → db.languages               SessionContext → runtime context`;
 
 	// ============================================
 	// STATE
 	// ============================================
 
-	let currentPhase: 'initial' | 'update' | 'closing' = $state('initial');
-	let currentInstructions = $state('');
 	let selectedLanguage = $state(languages[0]);
-	let selectedPreferences = $state(mockUserPreferences[0]);
 	let selectedScenario = $state(scenariosData[0]);
-	let selectedSessionContext = $state(mockSessionContexts[0]);
-	let selectedUpdateType:
-		| 'topic_change'
-		| 'difficulty_adjust'
-		| 'engagement_boost'
-		| 'correction_needed' = $state('topic_change');
-	let selectedUpdateContext: UpdateContext = $state(mockUpdateContexts[0]);
-	let timeRemaining = $state(30);
-	let selectedModuleId = $state('personality');
-	const defaultComparisonScenario =
-		scenariosData.find((scenario) => scenario.id !== scenariosData[0]?.id) || null;
-	let compareMode = $state(false);
-	let comparisonScenario = $state(defaultComparisonScenario);
-	let comparisonInstructions = $state('');
-	const comparisonOptions = $derived(
-		scenariosData.filter((scenario) => scenario.id !== selectedScenario?.id)
-	) as ScenarioWithHints[];
+	let currentInstructions = $state('');
+	let autoAdapt = $state(false);
+	let errorCount = $state(0);
+	let successStreak = $state(0);
+
+	// Instruction Parameters
+	let params = $state<InstructionParameters>({
+		speakingSpeed: 'slow',
+		sentenceLength: 'short',
+		pauseFrequency: 'frequent',
+		targetCEFR: 'B1',
+		vocabularyComplexity: 'everyday',
+		grammarComplexity: 'intermediate',
+		scaffoldingLevel: 'medium',
+		correctionStyle: 'recast',
+		languageMixingPolicy: 'flexible',
+		encouragementFrequency: 'moderate',
+		conversationPace: 'steady',
+		topicChangeFrequency: 'moderate'
+	});
+
+	let composer = $state<ReturnType<typeof createComposer> | null>(null);
 
 	// ============================================
 	// FUNCTIONS
 	// ============================================
 
+	function initializeComposer() {
+		composer = createComposer({
+			user: userManager.user,
+			language: selectedLanguage,
+			preferences: {
+				speakingLevel: 55, // B1 level
+				learningGoal: 'Connection'
+			},
+			scenario: selectedScenario,
+			parameters: params
+		});
+		generateInstructions();
+	}
+
 	function generateInstructions() {
-		try {
-			const params: TestInstructionParams = {
-				user: userManager.user,
-				language: selectedLanguage,
-				preferences: selectedPreferences,
-				scenario: selectedScenario,
-				sessionContext: selectedSessionContext
+		if (!composer) return;
+		currentInstructions = composer.compose();
+	}
+
+	function updateParameter<K extends keyof InstructionParameters>(
+		key: K,
+		value: InstructionParameters[K]
+	) {
+		params[key] = value;
+		if (!composer) return;
+		currentInstructions = composer.updateParameters({ [key]: value });
+	}
+
+	function loadPreset(presetName: keyof typeof PARAMETER_PRESETS) {
+		params = { ...PARAMETER_PRESETS[presetName] };
+		if (!composer) return;
+		currentInstructions = composer.updateParameters(params);
+	}
+
+	function simulateError() {
+		errorCount++;
+		successStreak = 0;
+
+		if (autoAdapt && errorCount >= 3) {
+			// Auto-adapt: make it easier
+			params = {
+				...params,
+				speakingSpeed: 'slow',
+				sentenceLength: 'short',
+				scaffoldingLevel: 'heavy',
+				pauseFrequency: 'frequent',
+				encouragementFrequency: 'frequent'
 			};
-
-			if (currentPhase === 'update') {
-				params.updateType = selectedUpdateType;
-				params.updateContext = selectedUpdateContext;
-			} else if (currentPhase === 'closing') {
-				params.timeRemaining = timeRemaining;
+			if (composer) {
+				currentInstructions = composer.updateParameters(params);
 			}
-
-			currentInstructions = getInstructions(currentPhase, params);
-		} catch (error) {
-			currentInstructions = `Error: ${error instanceof Error ? error.message : String(error)}`;
-		}
-
-		if (compareMode) {
-			ensureComparisonScenario();
-			syncComparisonInstructions();
-		} else {
-			comparisonInstructions = '';
+			errorCount = 0;
+			alert('📉 Auto-adapted to easier settings');
 		}
 	}
 
-	function testSelectedModule() {
-		try {
-			const params: TestModuleParams = {
-				user: userManager.user,
-				moduleId: selectedModuleId,
-				language: selectedLanguage,
-				preferences: selectedPreferences,
-				scenario: selectedScenario,
-				sessionContext: selectedSessionContext
+	function simulateSuccess() {
+		successStreak++;
+		errorCount = 0;
+
+		if (autoAdapt && successStreak >= 5) {
+			// Auto-adapt: make it harder
+			const currentSpeed = params.speakingSpeed;
+			const speedLevels: SpeakingSpeed[] = ['very_slow', 'slow', 'normal', 'fast', 'native'];
+			const currentIndex = speedLevels.indexOf(currentSpeed);
+			const nextSpeed = speedLevels[Math.min(currentIndex + 1, speedLevels.length - 1)];
+
+			params = {
+				...params,
+				speakingSpeed: nextSpeed,
+				vocabularyComplexity: 'advanced',
+				scaffoldingLevel: 'light'
 			};
-
-			currentInstructions = testModule(selectedModuleId, params);
-		} catch (error) {
-			currentInstructions = `Error: ${error instanceof Error ? error.message : String(error)}`;
-		}
-
-		if (compareMode) {
-			if (comparisonScenario) {
-				try {
-					const comparisonParams: TestModuleParams = {
-						user: userManager.user,
-						moduleId: selectedModuleId,
-						language: selectedLanguage,
-						preferences: selectedPreferences,
-						scenario: comparisonScenario,
-						sessionContext: selectedSessionContext
-					};
-					comparisonInstructions = testModule(selectedModuleId, comparisonParams);
-				} catch (error) {
-					comparisonInstructions = `Error: ${error instanceof Error ? error.message : String(error)}`;
-				}
-			} else {
-				comparisonInstructions = 'Select a second scenario to compare module output.';
+			if (composer) {
+				currentInstructions = composer.updateParameters(params);
 			}
-		} else {
-			comparisonInstructions = '';
+			successStreak = 0;
+			alert('📈 Auto-adapted to harder settings');
 		}
 	}
 
-	function loadRandomScenario() {
-		const random = getRandomTestScenario();
-		selectedLanguage = random.params.language;
-		selectedPreferences = random.params.preferences;
-		selectedScenario = random.params.scenario;
-		selectedSessionContext = random.params.sessionContext;
-		generateInstructions();
+	function resetCounters() {
+		errorCount = 0;
+		successStreak = 0;
 	}
 
-	function ensureComparisonScenario() {
-		if (!compareMode) return;
-		if (!comparisonScenario || comparisonScenario.id === selectedScenario.id) {
-			comparisonScenario = comparisonOptions[0] ?? null;
-		}
-	}
-
-	function syncComparisonInstructions() {
-		if (!compareMode) {
-			comparisonInstructions = '';
-			return;
-		}
-
-		ensureComparisonScenario();
-
-		if (!comparisonScenario) {
-			comparisonInstructions = 'Select a second scenario to compare.';
-			return;
-		}
-
-		try {
-			const params: TestInstructionParams = {
-				user: userManager.user,
-				language: selectedLanguage,
-				preferences: selectedPreferences,
-				scenario: comparisonScenario,
-				sessionContext: selectedSessionContext
-			};
-
-			if (currentPhase === 'update') {
-				params.updateType = selectedUpdateType;
-				params.updateContext = selectedUpdateContext;
-			} else if (currentPhase === 'closing') {
-				params.timeRemaining = timeRemaining;
-			}
-
-			comparisonInstructions = getInstructions(currentPhase, params);
-		} catch (error) {
-			comparisonInstructions = `Error: ${error instanceof Error ? error.message : String(error)}`;
-		}
-	}
-
-	function handleCompareToggle(enabled: boolean) {
-		if (enabled) {
-			ensureComparisonScenario();
-			syncComparisonInstructions();
-		} else {
-			comparisonInstructions = '';
-		}
-	}
-
-	function swapScenarios() {
-		if (!comparisonScenario) return;
-		const previousPrimary = selectedScenario;
-		selectedScenario = comparisonScenario;
-		comparisonScenario = previousPrimary;
-		generateInstructions();
-	}
-
-	function loadRandomData() {
-		selectedLanguage = getRandomLanguage();
-		selectedPreferences = getRandomPreferences();
-		selectedScenario = getRandomScenario();
-		selectedSessionContext = getRandomSessionContext();
-		selectedUpdateContext = getRandomUpdateContext();
-		generateInstructions();
+	function copyToClipboard() {
+		navigator.clipboard.writeText(currentInstructions);
+		alert('✅ Instructions copied to clipboard!');
 	}
 
 	// ============================================
@@ -301,479 +139,405 @@ Language → db.languages               SessionContext → runtime context`;
 	// ============================================
 
 	onMount(() => {
-		generateInstructions();
+		initializeComposer();
 	});
 </script>
 
 <svelte:head>
-	<title>Dev Instructions - Instructions Service Testing</title>
+	<title>Agile Instructions - Parameter Controls</title>
 </svelte:head>
 
-<div class="container mx-auto max-w-6xl p-6">
-	<h1 class="mb-6 text-center text-3xl font-bold">🧪 Instructions Service Testing</h1>
-
-	<section class="mb-8 rounded-lg bg-white p-4 shadow">
-		<h2 class="mb-4 text-2xl font-semibold">Instruction Flow Map</h2>
-		<pre class="overflow-auto font-mono text-xs leading-relaxed whitespace-pre">
-			{instructionFlowDiagram}
-		</pre>
-		<pre class="mt-4 font-mono text-xs whitespace-pre-wrap text-gray-600">
-			{instructionFlowLegend}
-		</pre>
-	</section>
-
-	<!-- Phase Selection -->
-	<div class="mb-8">
-		<h2 class="mb-4 text-xl font-semibold">Phase Selection</h2>
-		<div class="mb-4 flex gap-4">
-			<button
-				class="rounded-lg px-4 py-2 {currentPhase === 'initial'
-					? 'bg-blue-500 text-white'
-					: 'bg-gray-200'}"
-				onclick={() => (currentPhase = 'initial')}
-			>
-				Initial Instructions
-			</button>
-			<button
-				class="rounded-lg px-4 py-2 {currentPhase === 'update'
-					? 'bg-blue-500 text-white'
-					: 'bg-gray-200'}"
-				onclick={() => (currentPhase = 'update')}
-			>
-				Update Instructions
-			</button>
-			<button
-				class="rounded-lg px-4 py-2 {currentPhase === 'closing'
-					? 'bg-blue-500 text-white'
-					: 'bg-gray-200'}"
-				onclick={() => (currentPhase = 'closing')}
-			>
-				Closing Instructions
-			</button>
-		</div>
+<div class="container mx-auto max-w-7xl p-6">
+	<div class="mb-6 text-center">
+		<h1 class="text-3xl font-bold">🎛️ Agile Instruction System</h1>
+		<p class="mt-2 text-gray-600">Real-time parameter adjustments for OpenAI Realtime API</p>
 	</div>
 
-	<div class="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
-		<!-- Parameters Panel -->
-		<div class="space-y-6">
-			<!-- Language Selection -->
-			<div class="rounded-lg bg-white p-4 shadow">
-				<h3 class="mb-3 text-lg font-semibold">🌍 Language</h3>
-				<select
-					bind:value={selectedLanguage}
-					class="w-full rounded border p-2"
-					onchange={generateInstructions}
-				>
-					{#each languages as language}
-						<option value={language}>{language.flag} {language.name}</option>
-					{/each}
-				</select>
+	<!-- Auto-Adaptation Toggle -->
+	<div class="mb-6 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 p-4 shadow">
+		<div class="flex items-center justify-between">
+			<div>
+				<h3 class="text-lg font-semibold">🤖 Auto-Adaptation</h3>
+				<p class="text-sm text-gray-600">Automatically adjust difficulty based on performance</p>
 			</div>
+			<label class="flex items-center gap-3">
+				<span class="text-sm font-medium">{autoAdapt ? 'Enabled' : 'Disabled'}</span>
+				<input type="checkbox" class="toggle toggle-primary" bind:checked={autoAdapt} />
+			</label>
+		</div>
 
-			<!-- User Preferences -->
-			<div class="rounded-lg bg-white p-4 shadow">
-				<h3 class="mb-3 text-lg font-semibold">👤 User Preferences</h3>
-				<div class="space-y-3">
-					<div>
-						<label for="speaking-level" class="mb-1 block text-sm font-medium"
-							>Speaking Level (0-100)</label
-						>
-						<input
-							id="speaking-level"
-							type="range"
-							min="0"
-							max="100"
-							bind:value={selectedPreferences.speakingLevel}
-							class="w-full"
-							oninput={generateInstructions}
-						/>
-						<span class="text-sm text-gray-600">{selectedPreferences.speakingLevel}</span>
-					</div>
-					<div>
-						<label for="learning-goal" class="mb-1 block text-sm font-medium">Learning Goal</label>
-						<select
-							id="learning-goal"
-							bind:value={selectedPreferences.learningGoal}
-							class="w-full rounded border p-2"
-							onchange={generateInstructions}
-						>
-							<option value="Connection">Connection</option>
-							<option value="Career">Career</option>
-							<option value="Travel">Travel</option>
-							<option value="Academic">Academic</option>
-							<option value="Culture">Culture</option>
-							<option value="Growth">Growth</option>
-						</select>
-					</div>
-					<div>
-						<label for="correction-style" class="mb-1 block text-sm font-medium"
-							>Correction Style</label
-						>
-						<select
-							id="correction-style"
-							bind:value={selectedPreferences.correctionStyle}
-							class="w-full rounded border p-2"
-							onchange={generateInstructions}
-						>
-							<option value="immediate">Immediate</option>
-							<option value="gentle">Gentle</option>
-							<option value="end_of_session">End of Session</option>
-						</select>
-					</div>
-					<div>
-						<label for="total-conversations" class="mb-1 block text-sm font-medium"
-							>Total Conversations</label
-						>
-						<input
-							id="total-conversations"
-							type="number"
-							min="0"
-							bind:value={selectedPreferences.successfulExchanges}
-							class="w-full rounded border p-2"
-							oninput={generateInstructions}
-						/>
-					</div>
+		{#if autoAdapt}
+			<div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+				<div class="rounded bg-white p-3 shadow-sm">
+					<div class="text-2xl font-bold text-red-500">{errorCount}</div>
+					<div class="text-sm text-gray-600">Consecutive Errors</div>
+					<div class="mt-1 text-xs text-gray-500">→ Easier at 3</div>
 				</div>
-			</div>
-
-			<!-- Scenario Selection -->
-			<div class="rounded-lg bg-white p-4 shadow">
-				<h3 class="mb-3 text-lg font-semibold">🎯 Scenario</h3>
-				<select
-					bind:value={selectedScenario}
-					class="w-full rounded border p-2"
-					onchange={generateInstructions}
-				>
-					{#each scenariosData as scenario}
-						<option value={scenario}>{scenario.title} ({scenario.category})</option>
-					{/each}
-				</select>
-			</div>
-
-			<div class="rounded-lg bg-white p-4 shadow">
-				<div class="flex items-center justify-between gap-2">
-					<h3 class="text-lg font-semibold">🆚 Scenario Comparison</h3>
-					<label class="flex items-center gap-2 text-sm font-medium">
-						<span>Compare</span>
-						<input
-							type="checkbox"
-							class="toggle toggle-sm"
-							bind:checked={compareMode}
-							onchange={() => handleCompareToggle(compareMode)}
-							aria-label="Toggle scenario comparison"
-						/>
-					</label>
+				<div class="rounded bg-white p-3 shadow-sm">
+					<div class="text-2xl font-bold text-green-500">{successStreak}</div>
+					<div class="text-sm text-gray-600">Success Streak</div>
+					<div class="mt-1 text-xs text-gray-500">→ Harder at 5</div>
 				</div>
-				{#if compareMode}
-					<div class="mt-4 space-y-3">
-						{#if comparisonOptions.length > 0}
-							<select
-								bind:value={comparisonScenario}
-								class="w-full rounded border p-2"
-								onchange={() => syncComparisonInstructions()}
-							>
-								{#each comparisonOptions as scenario (scenario.id)}
-									<option value={scenario}>{scenario.title} ({scenario.category})</option>
-								{/each}
-							</select>
-							<button
-								class="w-full rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-60"
-								onclick={swapScenarios}
-								disabled={!comparisonScenario}
-							>
-								Swap with Primary Scenario
-							</button>
-						{:else}
-							<p
-								class="rounded border border-dashed border-gray-300 bg-gray-50 p-3 text-sm text-gray-600"
-							>
-								Add at least one more active scenario to enable side-by-side comparison.
-							</p>
-						{/if}
-					</div>
-				{/if}
-			</div>
-
-			<!-- Session Context -->
-			<div class="rounded-lg bg-white p-4 shadow">
-				<h3 class="mb-3 text-lg font-semibold">📝 Session Context</h3>
-				<select
-					bind:value={selectedSessionContext}
-					class="w-full rounded border p-2"
-					onchange={generateInstructions}
-				>
-					{#each mockSessionContexts as context}
-						<option value={context}>{context.currentTopic} ({context.timeElapsed}s)</option>
-					{/each}
-				</select>
-			</div>
-
-			<!-- Phase-specific Parameters -->
-			{#if currentPhase === 'update'}
-				<div class="rounded-lg bg-white p-4 shadow">
-					<h3 class="mb-3 text-lg font-semibold">🔄 Update Parameters</h3>
-					<div class="space-y-3">
-						<div>
-							<label for="update-type" class="mb-1 block text-sm font-medium">Update Type</label>
-							<select
-								id="update-type"
-								bind:value={selectedUpdateType}
-								class="w-full rounded border p-2"
-								onchange={generateInstructions}
-							>
-								<option value="topic_change">Topic Change</option>
-								<option value="difficulty_adjust">Difficulty Adjust</option>
-								<option value="engagement_boost">Engagement Boost</option>
-								<option value="correction_needed">Correction Needed</option>
-							</select>
-						</div>
-						{#if selectedUpdateType === 'topic_change' && isTopicChange(selectedUpdateContext)}
-							<div>
-								<label for="new-topic" class="mb-1 block text-sm font-medium">New Topic</label>
-								<input
-									id="new-topic"
-									type="text"
-									bind:value={selectedUpdateContext.newTopic}
-									class="w-full rounded border p-2"
-									oninput={generateInstructions}
-									placeholder="Enter new topic"
-								/>
-							</div>
-						{:else if selectedUpdateType === 'difficulty_adjust' && isDifficultyAdjust(selectedUpdateContext)}
-							<div>
-								<label for="increase-difficulty" class="mb-1 block text-sm font-medium"
-									>Increase Difficulty</label
-								>
-								<input
-									id="increase-difficulty"
-									type="checkbox"
-									bind:checked={selectedUpdateContext.increase}
-									onchange={generateInstructions}
-								/>
-							</div>
-						{:else if selectedUpdateType === 'engagement_boost' && isEngagementBoost(selectedUpdateContext)}
-							<div>
-								<label for="reason" class="mb-1 block text-sm font-medium">Reason</label>
-								<input
-									id="reason"
-									type="text"
-									bind:value={selectedUpdateContext.reason}
-									class="w-full rounded border p-2"
-									oninput={generateInstructions}
-									placeholder="Enter reason"
-								/>
-							</div>
-						{:else if selectedUpdateType === 'correction_needed' && isCorrectionNeeded(selectedUpdateContext)}
-							<div>
-								<label for="error-pattern" class="mb-1 block text-sm font-medium"
-									>Error Pattern</label
-								>
-								<input
-									id="error-pattern"
-									type="text"
-									bind:value={selectedUpdateContext.errorPattern}
-									class="w-full rounded border p-2"
-									oninput={generateInstructions}
-									placeholder="Enter error pattern"
-								/>
-							</div>
-						{/if}
-					</div>
-				</div>
-			{:else if currentPhase === 'closing'}
-				<div class="rounded-lg bg-white p-4 shadow">
-					<h3 class="mb-3 text-lg font-semibold">⏰ Closing Parameters</h3>
-					<div>
-						<label for="time-remaining" class="mb-1 block text-sm font-medium"
-							>Time Remaining (seconds)</label
-						>
-						<input
-							id="time-remaining"
-							type="number"
-							min="0"
-							max="60"
-							bind:value={timeRemaining}
-							class="w-full rounded border p-2"
-							oninput={generateInstructions}
-						/>
-					</div>
-				</div>
-			{/if}
-
-			<!-- Module Testing -->
-			<div class="rounded-lg bg-white p-4 shadow">
-				<h3 class="mb-3 text-lg font-semibold">🧩 Module Testing</h3>
-				<div class="space-y-3">
-					<div>
-						<label for="module-id" class="mb-1 block text-sm font-medium">Module ID</label>
-						<select id="module-id" bind:value={selectedModuleId} class="w-full rounded border p-2">
-							<option value="personality">personality</option>
-							<option value="pace">pace</option>
-							<option value="complexity">complexity</option>
-							<option value="corrections">corrections</option>
-							<option value="goal-focus">goal-focus</option>
-							<option value="scenario-context">scenario-context</option>
-							<option value="audio-handling">audio-handling</option>
-							<option value="anti-patterns">anti-patterns</option>
-						</select>
-					</div>
+				<div class="flex flex-col gap-2">
 					<button
-						onclick={testSelectedModule}
-						class="w-full rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+						onclick={simulateError}
+						class="rounded bg-red-500 px-3 py-2 text-sm text-white hover:bg-red-600"
 					>
-						Test Module
+						Simulate Error
+					</button>
+					<button
+						onclick={simulateSuccess}
+						class="rounded bg-green-500 px-3 py-2 text-sm text-white hover:bg-green-600"
+					>
+						Simulate Success
+					</button>
+				</div>
+			</div>
+		{/if}
+	</div>
+
+	<div class="grid grid-cols-1 gap-6 lg:grid-cols-[400px_1fr]">
+		<!-- PARAMETER CONTROLS -->
+		<div class="space-y-4">
+			<!-- Quick Presets -->
+			<div class="rounded-lg bg-white p-4 shadow">
+				<h3 class="mb-3 text-lg font-semibold">⚡ Quick Presets</h3>
+				<div class="grid grid-cols-2 gap-2">
+					<button
+						onclick={() => loadPreset('absolute_beginner')}
+						class="rounded bg-blue-100 px-3 py-2 text-sm hover:bg-blue-200"
+					>
+						Absolute Beginner
+					</button>
+					<button
+						onclick={() => loadPreset('beginner')}
+						class="rounded bg-green-100 px-3 py-2 text-sm hover:bg-green-200"
+					>
+						Beginner
+					</button>
+					<button
+						onclick={() => loadPreset('intermediate')}
+						class="rounded bg-yellow-100 px-3 py-2 text-sm hover:bg-yellow-200"
+					>
+						Intermediate
+					</button>
+					<button
+						onclick={() => loadPreset('advanced')}
+						class="rounded bg-orange-100 px-3 py-2 text-sm hover:bg-orange-200"
+					>
+						Advanced
+					</button>
+					<button
+						onclick={() => loadPreset('tutor_explicit')}
+						class="rounded bg-purple-100 px-3 py-2 text-sm hover:bg-purple-200"
+					>
+						Tutor Mode
+					</button>
+					<button
+						onclick={() => loadPreset('conversation_partner')}
+						class="rounded bg-pink-100 px-3 py-2 text-sm hover:bg-pink-200"
+					>
+						Conversation
 					</button>
 				</div>
 			</div>
 
-			<!-- Quick Actions -->
+			<!-- Speaking Dynamics -->
 			<div class="rounded-lg bg-white p-4 shadow">
-				<h3 class="mb-3 text-lg font-semibold">⚡ Quick Actions</h3>
+				<h3 class="mb-3 text-lg font-semibold">🗣️ Speaking Dynamics</h3>
+				<div class="space-y-4">
+					<!-- Speaking Speed -->
+					<div>
+						<label class="mb-2 block text-sm font-medium">
+							Speaking Speed
+							<span class="text-xs text-gray-500">({params.speakingSpeed})</span>
+						</label>
+						<select
+							bind:value={params.speakingSpeed}
+							onchange={() => updateParameter('speakingSpeed', params.speakingSpeed)}
+							class="w-full rounded border p-2 text-sm"
+						>
+							<option value="very_slow">Very Slow (40%)</option>
+							<option value="slow">Slow (60%)</option>
+							<option value="normal">Normal (70%)</option>
+							<option value="fast">Fast (80%)</option>
+							<option value="native">Native (85%)</option>
+						</select>
+					</div>
+
+					<!-- Sentence Length -->
+					<div>
+						<label class="mb-2 block text-sm font-medium">
+							Sentence Length
+							<span class="text-xs text-gray-500">({params.sentenceLength})</span>
+						</label>
+						<select
+							bind:value={params.sentenceLength}
+							onchange={() => updateParameter('sentenceLength', params.sentenceLength)}
+							class="w-full rounded border p-2 text-sm"
+						>
+							<option value="very_short">Very Short (3-5 words)</option>
+							<option value="short">Short (5-8 words)</option>
+							<option value="medium">Medium (8-12 words)</option>
+							<option value="long">Long (12-15 words)</option>
+							<option value="native">Native (variable)</option>
+						</select>
+					</div>
+
+					<!-- Pause Frequency -->
+					<div>
+						<label class="mb-2 block text-sm font-medium">
+							Pause Frequency
+							<span class="text-xs text-gray-500">({params.pauseFrequency})</span>
+						</label>
+						<select
+							bind:value={params.pauseFrequency}
+							onchange={() => updateParameter('pauseFrequency', params.pauseFrequency)}
+							class="w-full rounded border p-2 text-sm"
+						>
+							<option value="frequent">Frequent (2-3s)</option>
+							<option value="moderate">Moderate (1-2s)</option>
+							<option value="minimal">Minimal</option>
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<!-- Complexity Controls -->
+			<div class="rounded-lg bg-white p-4 shadow">
+				<h3 class="mb-3 text-lg font-semibold">📚 Complexity</h3>
+				<div class="space-y-4">
+					<!-- Target CEFR -->
+					<div>
+						<label class="mb-2 block text-sm font-medium">
+							Target CEFR Level
+							<span class="text-xs text-gray-500">({params.targetCEFR})</span>
+						</label>
+						<select
+							bind:value={params.targetCEFR}
+							onchange={() => updateParameter('targetCEFR', params.targetCEFR)}
+							class="w-full rounded border p-2 text-sm"
+						>
+							<option value="A1">A1 - Beginner</option>
+							<option value="A2">A2 - Elementary</option>
+							<option value="B1">B1 - Intermediate</option>
+							<option value="B2">B2 - Upper-Intermediate</option>
+							<option value="C1">C1 - Advanced</option>
+							<option value="C2">C2 - Expert</option>
+						</select>
+					</div>
+
+					<!-- Vocabulary -->
+					<div>
+						<label class="mb-2 block text-sm font-medium">
+							Vocabulary
+							<span class="text-xs text-gray-500">({params.vocabularyComplexity})</span>
+						</label>
+						<select
+							bind:value={params.vocabularyComplexity}
+							onchange={() => updateParameter('vocabularyComplexity', params.vocabularyComplexity)}
+							class="w-full rounded border p-2 text-sm"
+						>
+							<option value="basic">Basic (top 500)</option>
+							<option value="everyday">Everyday (top 2000)</option>
+							<option value="advanced">Advanced (top 5000)</option>
+							<option value="specialized">Specialized</option>
+						</select>
+					</div>
+
+					<!-- Grammar -->
+					<div>
+						<label class="mb-2 block text-sm font-medium">
+							Grammar
+							<span class="text-xs text-gray-500">({params.grammarComplexity})</span>
+						</label>
+						<select
+							bind:value={params.grammarComplexity}
+							onchange={() => updateParameter('grammarComplexity', params.grammarComplexity)}
+							class="w-full rounded border p-2 text-sm"
+						>
+							<option value="simple">Simple (A1-A2)</option>
+							<option value="intermediate">Intermediate (B1-B2)</option>
+							<option value="advanced">Advanced (C1)</option>
+							<option value="native">Native (C2)</option>
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<!-- Support & Corrections -->
+			<div class="rounded-lg bg-white p-4 shadow">
+				<h3 class="mb-3 text-lg font-semibold">🤝 Support & Corrections</h3>
+				<div class="space-y-4">
+					<!-- Scaffolding -->
+					<div>
+						<label class="mb-2 block text-sm font-medium">
+							Scaffolding Level
+							<span class="text-xs text-gray-500">({params.scaffoldingLevel})</span>
+						</label>
+						<select
+							bind:value={params.scaffoldingLevel}
+							onchange={() => updateParameter('scaffoldingLevel', params.scaffoldingLevel)}
+							class="w-full rounded border p-2 text-sm"
+						>
+							<option value="heavy">Heavy - Lots of Help</option>
+							<option value="medium">Medium - Some Help</option>
+							<option value="light">Light - Minimal Help</option>
+							<option value="none">None - Full Immersion</option>
+						</select>
+					</div>
+
+					<!-- Correction Style -->
+					<div>
+						<label class="mb-2 block text-sm font-medium">
+							Correction Style
+							<span class="text-xs text-gray-500">({params.correctionStyle})</span>
+						</label>
+						<select
+							bind:value={params.correctionStyle}
+							onchange={() => updateParameter('correctionStyle', params.correctionStyle)}
+							class="w-full rounded border p-2 text-sm"
+						>
+							<option value="explicit">Explicit - Direct Teaching</option>
+							<option value="recast">Recast - Natural Echo</option>
+							<option value="minimal">Minimal - Only Blocking</option>
+							<option value="none">None - Pure Conversation</option>
+						</select>
+					</div>
+
+					<!-- Language Mixing -->
+					<div>
+						<label class="mb-2 block text-sm font-medium">
+							Language Mixing
+							<span class="text-xs text-gray-500">({params.languageMixingPolicy})</span>
+						</label>
+						<select
+							bind:value={params.languageMixingPolicy}
+							onchange={() => updateParameter('languageMixingPolicy', params.languageMixingPolicy)}
+							class="w-full rounded border p-2 text-sm"
+						>
+							<option value="code_switching">Code-Switching - Mix freely</option>
+							<option value="bilingual_support">Bilingual Support</option>
+							<option value="flexible">Flexible - Some help</option>
+							<option value="strict_immersion">Strict Immersion</option>
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<!-- Context Selection -->
+			<div class="rounded-lg bg-white p-4 shadow">
+				<h3 class="mb-3 text-lg font-semibold">🎯 Context</h3>
+				<div class="space-y-3">
+					<div>
+						<label class="mb-2 block text-sm font-medium">Language</label>
+						<select
+							bind:value={selectedLanguage}
+							onchange={initializeComposer}
+							class="w-full rounded border p-2 text-sm"
+						>
+							{#each languages as lang}
+								<option value={lang}>{lang.flag} {lang.name}</option>
+							{/each}
+						</select>
+					</div>
+
+					<div>
+						<label class="mb-2 block text-sm font-medium">Scenario</label>
+						<select
+							bind:value={selectedScenario}
+							onchange={initializeComposer}
+							class="w-full rounded border p-2 text-sm"
+						>
+							{#each scenariosData as scenario}
+								<option value={scenario}>{scenario.title}</option>
+							{/each}
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<!-- Actions -->
+			<div class="rounded-lg bg-white p-4 shadow">
+				<h3 class="mb-3 text-lg font-semibold">⚙️ Actions</h3>
 				<div class="space-y-2">
-					<button
-						onclick={loadRandomScenario}
-						class="w-full rounded bg-purple-500 px-4 py-2 text-white hover:bg-purple-600"
-					>
-						Load Random Test Scenario
-					</button>
-					<button
-						onclick={loadRandomData}
-						class="w-full rounded bg-orange-500 px-4 py-2 text-white hover:bg-orange-600"
-					>
-						Load Random Data
-					</button>
 					<button
 						onclick={generateInstructions}
 						class="w-full rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
 					>
-						Generate Instructions
+						🔄 Regenerate
+					</button>
+					<button
+						onclick={copyToClipboard}
+						class="w-full rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+					>
+						📋 Copy to Clipboard
+					</button>
+					<button
+						onclick={resetCounters}
+						class="w-full rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+					>
+						🔄 Reset Counters
 					</button>
 				</div>
 			</div>
 		</div>
 
-		<div class="space-y-6">
-			<div class="rounded-lg bg-white p-4 shadow xl:sticky xl:top-6">
-				<h3 class="mb-3 text-lg font-semibold">📊 Current Parameters</h3>
-				<div class="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
+		<!-- OUTPUT -->
+		<div class="space-y-4">
+			<!-- Current Parameters Summary -->
+			<div class="rounded-lg bg-white p-4 shadow">
+				<h3 class="mb-3 text-lg font-semibold">📊 Current Settings</h3>
+				<div class="grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
 					<div>
-						<strong>Language:</strong>
-						{selectedLanguage.name} ({selectedLanguage.code})
+						<span class="font-medium">Speed:</span>
+						{params.speakingSpeed}
 					</div>
 					<div>
-						<strong>Level:</strong>
-						{selectedPreferences.speakingLevel}/100
+						<span class="font-medium">Length:</span>
+						{params.sentenceLength}
 					</div>
 					<div>
-						<strong>Goal:</strong>
-						{selectedPreferences.learningGoal}
+						<span class="font-medium">CEFR:</span>
+						{params.targetCEFR}
 					</div>
 					<div>
-						<strong>Corrections:</strong>
-						{selectedPreferences.correctionStyle}
+						<span class="font-medium">Scaffolding:</span>
+						{params.scaffoldingLevel}
 					</div>
 					<div>
-						<strong>Scenario:</strong>
-						{selectedScenario.title}
+						<span class="font-medium">Vocab:</span>
+						{params.vocabularyComplexity}
 					</div>
 					<div>
-						<strong>Topic:</strong>
-						{selectedSessionContext.currentTopic}
+						<span class="font-medium">Grammar:</span>
+						{params.grammarComplexity}
 					</div>
 					<div>
-						<strong>Time Elapsed:</strong>
-						{selectedSessionContext.timeElapsed}s
+						<span class="font-medium">Corrections:</span>
+						{params.correctionStyle}
 					</div>
 					<div>
-						<strong>Phase:</strong>
-						{currentPhase}
+						<span class="font-medium">Mixing:</span>
+						{params.languageMixingPolicy.replace('_', ' ')}
 					</div>
 				</div>
+			</div>
 
-				{#if compareMode}
-					<div class="mt-4 rounded border border-dashed border-gray-300 p-3 text-sm">
-						{#if comparisonScenario}
-							<p class="mb-1 font-semibold">Comparison Scenario</p>
-							<p>
-								<strong>Scenario:</strong>
-								{comparisonScenario.title}
-							</p>
-							<p>
-								<strong>Category:</strong>
-								{comparisonScenario.category}
-							</p>
-						{:else}
-							<p class="text-gray-500">Select another scenario to enable comparison output.</p>
-						{/if}
-					</div>
-				{/if}
+			<!-- Generated Instructions -->
+			<div class="rounded-lg bg-white p-4 shadow">
+				<h3 class="mb-3 text-lg font-semibold">📋 Generated Instructions</h3>
+				<div
+					class="max-h-[800px] overflow-y-auto rounded border bg-gray-50 p-4 font-mono text-xs whitespace-pre-wrap"
+				>
+					{currentInstructions || 'Loading instructions...'}
+				</div>
+				<div class="mt-3 text-xs text-gray-500">
+					Instructions length: {currentInstructions.length} characters
+				</div>
 			</div>
 		</div>
 	</div>
-
-	<section class="mt-10 space-y-4">
-		<div class="flex flex-wrap items-center justify-between gap-3">
-			<h2 class="text-2xl font-semibold">📋 Generated Instructions</h2>
-			<div class="text-sm text-gray-600">
-				{#if compareMode && comparisonScenario}
-					Comparing "{selectedScenario.title}" ↔ "{comparisonScenario.title}"
-				{:else if compareMode}
-					Select another scenario to compare with "{selectedScenario.title}".
-				{:else}
-					Current scenario: {selectedScenario.title}
-				{/if}
-			</div>
-		</div>
-
-		{#if compareMode && comparisonScenario}
-			<div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
-				<article class="rounded-lg bg-white p-4 shadow">
-					<header class="mb-3">
-						<h3 class="text-lg font-semibold">{selectedScenario.title}</h3>
-						<p class="text-xs tracking-wide text-gray-500 uppercase">
-							{selectedScenario.category}
-						</p>
-					</header>
-					<div
-						class="min-h-[28rem] overflow-x-auto rounded border bg-gray-50 p-4 font-mono text-sm whitespace-pre-wrap"
-					>
-						{currentInstructions || 'Click "Generate Instructions" to see output...'}
-					</div>
-				</article>
-				<article class="rounded-lg bg-white p-4 shadow">
-					<header class="mb-3">
-						<h3 class="text-lg font-semibold">{comparisonScenario.title}</h3>
-						<p class="text-xs tracking-wide text-gray-500 uppercase">
-							{comparisonScenario.category}
-						</p>
-					</header>
-					<div
-						class="min-h-[28rem] overflow-x-auto rounded border bg-gray-50 p-4 font-mono text-sm whitespace-pre-wrap"
-					>
-						{comparisonInstructions || 'Adjust parameters or regenerate to view comparison.'}
-					</div>
-				</article>
-			</div>
-		{:else}
-			<article class="rounded-lg bg-white p-4 shadow">
-				<header class="mb-3">
-					<h3 class="text-lg font-semibold">{selectedScenario.title}</h3>
-					<p class="text-xs tracking-wide text-gray-500 uppercase">{selectedScenario.category}</p>
-				</header>
-				<div
-					class="min-h-[32rem] overflow-x-auto rounded border bg-gray-50 p-4 font-mono text-sm whitespace-pre-wrap"
-				>
-					{currentInstructions || 'Click "Generate Instructions" to see output...'}
-				</div>
-			</article>
-
-			{#if compareMode && !comparisonScenario}
-				<p class="text-sm text-red-500">
-					No additional scenarios available for comparison. Add another scenario to compare outputs.
-				</p>
-			{/if}
-		{/if}
-	</section>
 </div>
 
 <style>

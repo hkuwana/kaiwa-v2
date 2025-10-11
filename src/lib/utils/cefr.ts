@@ -78,3 +78,17 @@ export function formatCefrBadge(
 
 	return `${level} - ${descriptorMap[level]}`;
 }
+
+// Helper for instruction system
+export function getLearnerCefrLevel(preferences: { speakingLevel?: number | null }): CEFRLevel {
+	return inferCefrFromSpeakingScore(preferences.speakingLevel);
+}
+
+// Helper for scenario difficulty
+export function getScenarioCefrLevel(scenario?: {
+	cefrLevel?: CEFRLevel;
+	difficultyRating?: number;
+}): CEFRLevel {
+	if (!scenario) return 'A1';
+	return scenario.cefrLevel || difficultyRatingToCefr(scenario.difficultyRating);
+}

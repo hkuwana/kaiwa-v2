@@ -178,30 +178,21 @@ export class UserSettingsRepository {
 	 * Get all users who have opted in to weekly digests / product updates
 	 */
 	async getWeeklyDigestSubscribers(): Promise<UserSettings[]> {
-		return await db
-			.select()
-			.from(userSettings)
-			.where(eq(userSettings.receiveWeeklyDigest, true));
+		return await db.select().from(userSettings).where(eq(userSettings.receiveWeeklyDigest, true));
 	}
 
 	/**
 	 * Get all users who have opted in to product updates
 	 */
 	async getProductUpdateSubscribers(): Promise<UserSettings[]> {
-		return await db
-			.select()
-			.from(userSettings)
-			.where(eq(userSettings.receiveProductUpdates, true));
+		return await db.select().from(userSettings).where(eq(userSettings.receiveProductUpdates, true));
 	}
 
 	/**
 	 * Get all users who have opted in to security alerts
 	 */
 	async getSecurityAlertSubscribers(): Promise<UserSettings[]> {
-		return await db
-			.select()
-			.from(userSettings)
-			.where(eq(userSettings.receiveSecurityAlerts, true));
+		return await db.select().from(userSettings).where(eq(userSettings.receiveSecurityAlerts, true));
 	}
 }
 

@@ -1526,11 +1526,7 @@ export class ConversationStore {
 
 		const sessionMetadata = this.buildSessionMetadata(startTime, now, durationSeconds);
 
-		conversationPersistenceService.queueSave(
-			conversationData,
-			preparedMessages,
-			sessionMetadata
-		);
+		conversationPersistenceService.queueSave(conversationData, preparedMessages, sessionMetadata);
 	}
 
 	// Modify your existing endConversation method to handle graceful shutdown

@@ -160,4 +160,21 @@ export class EmailPermissionService {
 
 		return eligible;
 	}
+
+	/**
+	 * Get all users eligible for daily reminder emails
+	 * Returns users who have opted in to daily reminders (or haven't set preference yet)
+	 */
+	static async getDailyReminderEligibleUsers(): Promise<string[]> {
+		const allUsers = await userRepository.getAllUsers();
+		const eligible: string[] = [];
+
+		for (const user of allUsers) {
+			if (await this.canReceiveDailyReminder(user.id)) {
+				eligible.push(user.id);
+			}
+		}
+
+		return eligible;
+	}
 }

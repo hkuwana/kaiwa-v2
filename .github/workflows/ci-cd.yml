@@ -30,7 +30,7 @@ jobs:
       PUBLIC_STRIPE_KEY: pk_test_dummy
       STRIPE_WEBHOOK_SECRET: whsec_dummy
       GOOGLE_CLOUD_PROJECT_ID: dummy-project
-      GOOGLE_CREDENTIALS_JSON: "{}"
+      GOOGLE_CREDENTIALS_JSON: '{}'
       RESEND_API_KEY: re_dummy_key
       RESEND_TEST_EMAIL: test@example.com
 
@@ -101,7 +101,7 @@ jobs:
       PUBLIC_STRIPE_KEY: pk_test_dummy
       STRIPE_WEBHOOK_SECRET: whsec_dummy
       GOOGLE_CLOUD_PROJECT_ID: dummy-project
-      GOOGLE_CREDENTIALS_JSON: "{}"
+      GOOGLE_CREDENTIALS_JSON: '{}'
       RESEND_API_KEY: re_dummy_key
       RESEND_TEST_EMAIL: test@example.com
 

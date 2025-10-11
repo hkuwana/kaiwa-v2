@@ -152,10 +152,12 @@
 			if (response.ok) {
 				const stats = data.stats || {};
 				const previews = stats.dryRunPreviews || [];
-				const previewLines = previews.slice(0, 5).map(
-					(item: { email: string; segment: string; subject: string }) =>
-						`• ${item.email} [${item.segment}] → ${item.subject}`
-				);
+				const previewLines = previews
+					.slice(0, 5)
+					.map(
+						(item: { email: string; segment: string; subject: string }) =>
+							`• ${item.email} [${item.segment}] → ${item.subject}`
+					);
 				if (previews.length > 5) {
 					previewLines.push(`…and ${previews.length - 5} more`);
 				}
@@ -286,21 +288,22 @@
 				<div class="card-body">
 					<h2 class="card-title">Daily Reminder Cron</h2>
 					<p class="text-base-content/70">
-						Run a dry run of <code>/api/cron/send-reminders</code> to see which users would receive
-						the founder reminder email.
+						Run a dry run of <code>/api/cron/send-reminders</code> to see which users would receive the
+						founder reminder email.
 					</p>
 
 					<div class="mt-4 flex flex-wrap items-center gap-4">
 						<button class="btn btn-primary" onclick={runCronDryRun} disabled={isCronRunning}>
 							{#if isCronRunning}
-								<span class="loading loading-spinner loading-sm"></span>
+								<span class="loading loading-sm loading-spinner"></span>
 								<span>Running dry run...</span>
 							{:else}
 								Run Dry Run
 							{/if}
 						</button>
 						{#if cronResult}
-							<pre class="mt-2 w-full whitespace-pre-wrap rounded-lg bg-base-200 p-4 text-sm">{cronResult}</pre>
+							<pre
+								class="mt-2 w-full rounded-lg bg-base-200 p-4 text-sm whitespace-pre-wrap">{cronResult}</pre>
 						{/if}
 					</div>
 				</div>

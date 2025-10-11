@@ -6,8 +6,8 @@
 		success: boolean;
 		message: string;
 		error?: string;
-	} | null = null;
-	let loading = true;
+	} | null = $state(null);
+	let loading = $state(true);
 
 	onMount(async () => {
 		const success = page.url.searchParams.get('success');

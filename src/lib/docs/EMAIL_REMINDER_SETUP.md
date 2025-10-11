@@ -79,20 +79,20 @@ Expected response:
 
 ```json
 {
- "success": true,
- "stats": {
-  "total": 10,
-  "sent": 8,
-  "skipped": 2,
-  "failed": 0,
-  "segments": {
-   "newUsers": 3,
-   "slightlyInactive": 2,
-   "moderatelyInactive": 2,
-   "highlyInactive": 1,
-   "dormant": 0
-  }
- }
+	"success": true,
+	"stats": {
+		"total": 10,
+		"sent": 8,
+		"skipped": 2,
+		"failed": 0,
+		"segments": {
+			"newUsers": 3,
+			"slightlyInactive": 2,
+			"moderatelyInactive": 2,
+			"highlyInactive": 1,
+			"dormant": 0
+		}
+	}
 }
 ```
 
@@ -339,23 +339,23 @@ Add PostHog events:
 ```typescript
 // When email is sent
 posthog.capture('email_sent', {
- segment: 'slightly_inactive',
- userId: user.id,
- emailType: 'practice_reminder'
+	segment: 'slightly_inactive',
+	userId: user.id,
+	emailType: 'practice_reminder'
 });
 
 // When user clicks email link
 posthog.capture('email_clicked', {
- segment: 'slightly_inactive',
- userId: user.id,
- emailType: 'practice_reminder'
+	segment: 'slightly_inactive',
+	userId: user.id,
+	emailType: 'practice_reminder'
 });
 
 // When user starts conversation from email
 posthog.capture('email_conversion', {
- segment: 'slightly_inactive',
- userId: user.id,
- emailType: 'practice_reminder'
+	segment: 'slightly_inactive',
+	userId: user.id,
+	emailType: 'practice_reminder'
 });
 ```
 

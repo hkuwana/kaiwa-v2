@@ -10,8 +10,7 @@ const TEST_EMAIL = 'weijo34@gmail.com';
 
 const buildSampleWeeklyDigestOptions = (userId: string) => ({
 	subject: 'Kaiwa Weekly Update – Product improvements & next steps',
-	intro:
-		`Here’s the latest from builders HQ. If something feels off or you want to see something different, just reply.`,
+	intro: `Here’s the latest from builders HQ. If something feels off or you want to see something different, just reply.`,
 	updates: [
 		{
 			title: 'Faster conversation loading',
@@ -30,7 +29,8 @@ const buildSampleWeeklyDigestOptions = (userId: string) => ({
 	productHighlights: [
 		{
 			title: 'Kaiwa on mobile web',
-			summary: 'We polished the mobile controls so you can squeeze in practice sessions on the train.'
+			summary:
+				'We polished the mobile controls so you can squeeze in practice sessions on the train.'
 		}
 	],
 	upcoming: [

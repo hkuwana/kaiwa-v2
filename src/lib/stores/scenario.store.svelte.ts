@@ -4,6 +4,7 @@
 import { browser } from '$app/environment';
 import type { ScenarioWithHints } from '$lib/data/scenarios';
 import { scenariosData } from '$lib/data/scenarios';
+import type { Scenario } from '$lib/server/db/types';
 
 // Storage keys
 const STORAGE_KEYS = {

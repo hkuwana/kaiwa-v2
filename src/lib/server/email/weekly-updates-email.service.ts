@@ -85,8 +85,7 @@ export class WeeklyUpdatesEmailService {
 			});
 
 			const subject =
-				options.subject ||
-				`Kaiwa Weekly Update – ${this.formatDate(options.sentAt ?? new Date())}`;
+				options.subject || `Kaiwa Weekly Update – ${this.formatDate(options.sentAt ?? new Date())}`;
 
 			const result = await resend.emails.send({
 				from: `Hiro <hiro@trykaiwa.com>`,
@@ -289,10 +288,7 @@ export class WeeklyUpdatesEmailService {
 		`;
 	}
 
-	private static buildFeedbackFollowUpEmail(
-		user: User,
-		followUp: FeedbackFollowUpItem
-	): string {
+	private static buildFeedbackFollowUpEmail(user: User, followUp: FeedbackFollowUpItem): string {
 		const firstName = user.displayName?.split(' ')[0] || 'there';
 		return `
 			<!DOCTYPE html>
@@ -351,11 +347,7 @@ export class WeeklyUpdatesEmailService {
 					<div class="card">
 						<strong>What changed</strong>
 						<p>${followUp.resolution}</p>
-						${
-							followUp.additionalNotes
-								? `<p style="color:#4b5563;">${followUp.additionalNotes}</p>`
-								: ''
-						}
+						${followUp.additionalNotes ? `<p style="color:#4b5563;">${followUp.additionalNotes}</p>` : ''}
 						${
 							followUp.linkUrl
 								? `<a href="${followUp.linkUrl}">${followUp.linkLabel || 'See the update'}</a>`

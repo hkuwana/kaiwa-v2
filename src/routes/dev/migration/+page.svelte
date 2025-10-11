@@ -42,7 +42,7 @@
 │   ├── user.store.svelte.ts              # User auth + profile
 │   ├── payments.store.svelte.ts          # Tier + subscription
 │   ├── settings.store.svelte.ts          # Global preferences
-│   └── scenarios.store.svelte.ts         # Scenario management
+│   └── scenario.store.svelte.ts         # Scenario management
 ├── services/                  # SHARED by default (Business logic)
 │   ├── auth.service.ts
 │   ├── payments.service.ts
@@ -543,7 +543,7 @@ export const canUseFeature = (user: User, feature: string): boolean => {
 						Shared Store with Feature Events
 					</h3>
 					<pre
-						class="rounded bg-gray-900 p-4 text-sm text-gray-300">{`// $lib/stores/scenarios.store.svelte.ts
+						class="rounded bg-gray-900 p-4 text-sm text-gray-300">{`// $lib/stores/scenario.store.svelte.ts
 export class ScenariosStore {
   selectedScenario = $state<Scenario | null>(null);
   availableScenarios = $state<Scenario[]>([]);

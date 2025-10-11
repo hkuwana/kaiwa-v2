@@ -120,7 +120,7 @@ async function seedScenarios() {
 				id: scenario.id,
 				title: scenario.title,
 				description: scenario.description,
-				category: scenario.category,
+				role: scenario.role,
 				difficulty: scenario.difficulty,
 				instructions: scenario.instructions,
 				context: scenario.context,

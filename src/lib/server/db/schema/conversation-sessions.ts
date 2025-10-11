@@ -1,15 +1,6 @@
-import {
-	pgTable,
-	text,
-	integer,
-	timestamp,
-	index,
-	boolean,
-	pgEnum,
-	uuid
-} from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, timestamp, index, boolean, uuid } from 'drizzle-orm/pg-core';
 import { users } from './users';
- 
+
 /**
  * Conversation Sessions - Enhanced session tracking for detailed analytics
  *

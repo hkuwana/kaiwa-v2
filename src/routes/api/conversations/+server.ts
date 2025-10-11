@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { conversationRepository } from '$lib/server/repositories/conversation.repository';
 import { messagesRepository } from '$lib/server/repositories/messages.repository';
+import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
 import { createErrorResponse, createSuccessResponse } from '$lib/types/api';
 import { z } from 'zod';
 import type { NewConversation, NewMessage } from '$lib/server/db/types';
@@ -13,6 +14,21 @@ const querySchema = z.object({
 const deleteSchema = z.object({
 	conversationIds: z.array(z.string().min(1)).min(1).max(50)
 });
+
+const sessionMetadataSchema = z
+	.object({
+		language: z.string().min(1).optional(),
+		startTime: z.coerce.date().optional(),
+		endTime: z.union([z.coerce.date(), z.null()]).optional(),
+		durationSeconds: z.number().int().min(0).optional(),
+		secondsConsumed: z.number().int().min(0).optional(),
+		inputTokens: z.number().int().min(0).optional(),
+		wasExtended: z.boolean().optional(),
+		extensionsUsed: z.number().int().min(0).optional(),
+		transcriptionMode: z.boolean().optional(),
+		deviceType: z.string().nullable().optional()
+	})
+	.partial();
 
 export const GET = async ({ locals, url }) => {
 	const user = locals.user;
@@ -51,7 +67,7 @@ export const GET = async ({ locals, url }) => {
 
 export const POST = async ({ request, locals }) => {
 	try {
-		const { conversation, messages } = await request.json();
+		const { conversation, messages, sessionMetadata } = await request.json();
 
 		if (!conversation) {
 			return json({ error: 'Conversation data is required' }, { status: 400 });
@@ -119,6 +135,54 @@ export const POST = async ({ request, locals }) => {
 
 				const savedMessage = await messagesRepository.createMessage(messageData);
 				savedMessages.push(savedMessage);
+			}
+		}
+
+		if (sessionMetadata && user?.id) {
+			const parsedMetadata = sessionMetadataSchema.safeParse(sessionMetadata);
+			if (!parsedMetadata.success) {
+				console.warn('Invalid session metadata received', parsedMetadata.error.flatten());
+			} else {
+				const metadata = parsedMetadata.data;
+
+				const startTime = metadata.startTime || conversationData.startedAt || new Date();
+				const endTime =
+					metadata.endTime === null ? null : metadata.endTime || conversationData.endedAt || null;
+
+				let durationSeconds =
+					metadata.durationSeconds ??
+					conversationData.durationSeconds ??
+					(endTime ? Math.max(0, Math.round((endTime.getTime() - startTime.getTime()) / 1000)) : 0);
+
+				if (!Number.isFinite(durationSeconds) || durationSeconds < 0) {
+					durationSeconds = 0;
+				}
+				durationSeconds = Math.round(durationSeconds);
+
+				let secondsConsumed = metadata.secondsConsumed ?? durationSeconds;
+				if (!Number.isFinite(secondsConsumed) || secondsConsumed < 0) {
+					secondsConsumed = durationSeconds;
+				}
+				secondsConsumed = Math.round(secondsConsumed);
+
+				try {
+					await conversationSessionsRepository.upsertSession({
+						id: conversationData.id,
+						userId: user.id,
+						language: metadata.language || conversation.targetLanguageId,
+						startTime,
+						endTime,
+						durationSeconds,
+						secondsConsumed,
+						inputTokens: metadata.inputTokens ?? 0,
+						wasExtended: metadata.wasExtended ?? false,
+						extensionsUsed: metadata.extensionsUsed ?? 0,
+						transcriptionMode: metadata.transcriptionMode ?? false,
+						deviceType: metadata.deviceType ?? null
+					});
+				} catch (sessionError) {
+					console.error('Failed to upsert conversation session metadata', sessionError);
+				}
 			}
 		}
 

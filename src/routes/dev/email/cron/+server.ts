@@ -43,4 +43,3 @@ export const POST = async ({ locals, fetch }) => {
 		);
 	}
 };
-
