@@ -32,7 +32,7 @@
 			track('share_native_share', { source });
 			bumpShareCount();
 			thank();
-		} catch (_e) {
+		} catch {
 			// user cancelled
 		}
 	}

@@ -67,35 +67,6 @@
 	);
 	const outputDeviceError = $derived(realtimeOpenAI.outputDeviceError);
 	const canSelectOutput = realtimeOpenAI.canSelectOutputDevice();
-	const activeMicrophoneLabel = $derived(() => {
-		const device = audioStore.getDevice(selectedInputDeviceId);
-		if (device?.label) {
-			return device.label;
-		}
-		const trackLabel = audioDebugInfo.track?.label;
-		if (selectedInputDeviceId === 'default' && trackLabel) {
-			return `Default - ${trackLabel}`;
-		}
-		if (selectedInputDeviceId && selectedInputDeviceId !== 'default') {
-			return selectedInputDeviceId;
-		}
-		return 'System default';
-	});
-	const activeOutputLabel = $derived(() => {
-		if (!canSelectOutput) {
-			return 'System default';
-		}
-		const device =
-			outputDevices.find((d) => d.deviceId === selectedOutputDeviceId) ||
-			(audioDebugInfo.output?.availableDevices ?? []).find((d) => d.id === selectedOutputDeviceId);
-		if (device?.label) {
-			return selectedOutputDeviceId === 'default' ? `Default - ${device.label}` : device.label;
-		}
-		if (selectedOutputDeviceId && selectedOutputDeviceId !== 'default') {
-			return selectedOutputDeviceId;
-		}
-		return 'System default';
-	});
 
 	// Helper functions for debug functionality
 	function refreshDebugInfo() {
@@ -191,7 +162,7 @@
 		return 'UNKNOWN';
 	}
 
-	function formatTimestamp(timestamp: Date | any): string {
+	function formatTimestamp(timestamp: Date | string | number): string {
 		if (!timestamp) return 'No timestamp';
 		const date = timestamp instanceof Date ? timestamp : new SvelteDate(timestamp);
 		return date.toISOString().split('T')[1].slice(0, -1);
@@ -481,7 +452,10 @@
 												</div>
 											{/if}
 											<div class="mt-2 text-[11px] opacity-60">
-												Active: {activeMicrophoneLabel()}
+												Active: {getDeviceLabel(
+													audioStore.getDevice(selectedInputDeviceId),
+													selectedInputDeviceId || 'default'
+												)}
 											</div>
 										</div>
 										<div class="rounded bg-base-200 p-2">
@@ -520,7 +494,16 @@
 													Browser cannot select specific audio output devices. Using system default.
 												</div>
 											{/if}
-											<div class="mt-2 text-[11px] opacity-60">Active: {activeOutputLabel()}</div>
+											<div class="mt-2 text-[11px] opacity-60">
+												Active: {canSelectOutput
+													? getDeviceLabel(
+															outputDevices.find(
+																(device) => device.deviceId === selectedOutputDeviceId
+															),
+															selectedOutputDeviceId || 'default'
+														)
+													: 'System default'}
+											</div>
 											{#if outputDeviceError}
 												<div class="mt-1 text-[11px] text-error">{outputDeviceError}</div>
 											{/if}
@@ -535,9 +518,9 @@
 										<div>Tracks: {audioDebugInfo.trackCount}</div>
 										<div>Conversation Device: {audioDebugInfo.selectedDeviceId}</div>
 										<div>Playback Supported: {audioDebugInfo.output.supported ? 'Yes' : 'No'}</div>
-										<div>Output Device: {activeOutputLabel()}</div>
 										<div>
-											Output Device ID: {audioDebugInfo.output.selectedDeviceId || 'default'}
+											Output Device:
+											{audioDebugInfo.output.selectedDeviceId || 'default'}
 										</div>
 									</div>
 									<div class="rounded bg-base-200 p-2">

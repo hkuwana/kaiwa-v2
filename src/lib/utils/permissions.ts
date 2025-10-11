@@ -107,7 +107,7 @@ export const canUseFeature = (
 export const getUpgradeMessage = (
 	user: DemoUser | null,
 	feature: FeatureType,
-	context?: FeatureContext
+	_context?: FeatureContext
 ): string => {
 	if (!user) return 'Please sign in to use this feature.';
 

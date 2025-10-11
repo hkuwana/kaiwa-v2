@@ -13,7 +13,7 @@ export interface BlogMetadata {
 export interface BlogPost {
 	slug: string;
 	metadata: BlogMetadata;
-	content: () => any;
+	content: () => string;
 }
 
 export function calculateReadingTime(content: string): string {

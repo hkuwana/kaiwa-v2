@@ -20,7 +20,7 @@
 	];
 
 	// Custom wiggle animation
-	const wiggleKeyframes = `
+	const _wiggleKeyframes = `
 		@keyframes wiggle {
 			0%, 7% { transform: rotateZ(0); }
 			15% { transform: rotateZ(-15deg); }
@@ -63,7 +63,7 @@
 				<div class="space-y-4">
 					<h3 class="text-lg font-semibold">🎭 Animation Type</h3>
 					<div class="flex flex-wrap gap-2">
-						{#each animations as animation}
+						{#each animations as animation (animation.id)}
 							<button
 								class="btn btn-sm {currentAnimation === animation.id
 									? 'btn-primary'

@@ -126,7 +126,7 @@
 		</div>
 	{:else}
 		<div class="space-y-4">
-			{#each emailTypes as emailType}
+			{#each emailTypes as emailType (emailType.id)}
 				<div
 					class="flex items-start space-x-3 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50"
 				>

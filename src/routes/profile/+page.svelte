@@ -84,7 +84,7 @@
 
 			// Account deleted successfully, redirect to home
 			goto(resolve('/'));
-		} catch (err) {
+		} catch {
 			deleteError = 'Network error. Please try again.';
 		} finally {
 			isDeleting = false;
@@ -122,7 +122,7 @@
 
 			const { url } = await response.json();
 			window.location.href = url;
-		} catch (err) {
+		} catch {
 			billingError = 'Network error. Please try again.';
 		} finally {
 			isManagingBilling = false;

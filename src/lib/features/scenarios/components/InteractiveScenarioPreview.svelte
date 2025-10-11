@@ -373,7 +373,7 @@
 							<div class="mt-2 flex items-center gap-3">
 								<span class="badge badge-outline badge-sm">{currentScenario.cefrBadge}</span>
 								<div class="flex items-center gap-1 text-amber-400">
-									{#each renderStars(currentScenario.difficultyStars || 1) as _}
+									{#each renderStars(currentScenario.difficultyStars || 1) as _, i (i)}
 										<span class="icon-[mdi--star] h-4 w-4"></span>
 									{/each}
 								</div>
@@ -404,7 +404,7 @@
 										romanization: isVisible ? message.romanization : null,
 										hiragana: isVisible ? message.hiragana : null
 									}}
-									dispatch={(event: string, data: any) => {
+									dispatch={(event: string, _data: any) => {
 										if (event === 'toggle') {
 											showTranslations[message.id] = !isVisible;
 										}

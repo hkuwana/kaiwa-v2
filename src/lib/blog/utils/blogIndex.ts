@@ -7,7 +7,7 @@ export async function getAllBlogPosts(): Promise<BlogPost[]> {
 	for (const [path, resolver] of Object.entries(modules)) {
 		const slug = path.split('/').pop()?.replace('.md', '') || '';
 		try {
-			const module = (await resolver()) as { default: any; metadata: BlogMetadata };
+			const module = (await resolver()) as { default: () => string; metadata: BlogMetadata };
 
 			if (module.metadata?.published !== false) {
 				posts.push({

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import TierBadge from '$lib/features/payments/components/TierBadge.svelte';
+	import type { Subscription } from '$lib/server/db/types';
 	import type { UsageStatus } from '$lib/server/tier-service';
 
 	// Props from parent component
@@ -15,7 +16,7 @@
 		subscription: _subscription,
 		usageLimits
 	}: {
-		data: any;
+		data: Record<string, unknown>;
 		usageStatus: UsageStatus | null;
 		isLoadingUsage: boolean;
 		loadUsageStatus: () => Promise<void>;
@@ -23,8 +24,8 @@
 		billingError: string;
 		isManagingBilling: boolean;
 		openBillingPortal: () => Promise<void>;
-		subscription: any;
-		usageLimits: any;
+		subscription: Subscription;
+		usageLimits: Record<string, unknown>;
 	} = $props();
 
 	// Subscription management state
@@ -90,7 +91,7 @@
 				const _error = await response.json();
 				upgradeError = _error.error || 'Failed to create checkout session';
 			}
-		} catch (_error) {
+		} catch {
 			upgradeError = 'Network error creating checkout session';
 		} finally {
 			isProcessingUpgrade = false;

@@ -159,7 +159,9 @@ export class RealtimeOpenAIStore {
 			this.eventQueue.sort((a, b) => a.timestamp - b.timestamp);
 
 			while (this.eventQueue.length > 0) {
-				const { event } = this.eventQueue.shift()!;
+				const eventData = this.eventQueue.shift();
+				if (!eventData) break;
+				const { event } = eventData;
 				await this.processServerEventOrdered(event);
 			}
 		} finally {

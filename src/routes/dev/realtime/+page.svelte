@@ -103,7 +103,7 @@
 		messageUnsub?.();
 
 		// Mirror messages from realtimeOpenAI to conversationStore
-		messageUnsub = realtimeOpenAI.onMessageStream(async (ev) => {
+		messageUnsub = realtimeOpenAI.onMessageStream(async (_ev) => {
 			// Mirror: copy realtime messages directly (simplified version)
 			conversationStore.messages = messageService.sortMessagesBySequence([
 				...realtimeOpenAI.messages

@@ -4,7 +4,6 @@ import { db } from '$lib/server/db/index';
 import { scenarios } from '$lib/server/db/schema';
 import type { NewScenario, Scenario } from '$lib/server/db/types';
 import { eq, and, asc } from 'drizzle-orm';
-import { scenarioRoleEnum } from '$lib/server/db/schema/scenarios';
 export const scenarioRepository = {
 	// CREATE
 	async createScenario(newScenario: NewScenario): Promise<Scenario> {

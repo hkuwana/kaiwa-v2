@@ -29,8 +29,8 @@
 	}: Props = $props();
 
 	// State management using Svelte 5 runes
-	let openSuggestions = $state(new SvelteSet<string>());
-	let hoveredSuggestions = $state(new SvelteMap<string, string>());
+	let openSuggestions = new SvelteSet<string>();
+	let hoveredSuggestions = new SvelteMap<string, string>();
 	let hasAutoOpened = $state(false);
 
 	// Auto-open first message with suggestions
@@ -53,7 +53,10 @@
 			if (!map.has(suggestion.messageId)) {
 				map.set(suggestion.messageId, []);
 			}
-			map.get(suggestion.messageId)!.push(suggestion);
+			const suggestions = map.get(suggestion.messageId);
+			if (suggestions) {
+				suggestions.push(suggestion);
+			}
 		}
 		return map;
 	});

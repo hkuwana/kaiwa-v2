@@ -113,7 +113,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							{#each sessions as session}
+							{#each sessions as session (session.id)}
 								<tr>
 									<td>{dateTimeFormatter.format(new Date(session.startTime))}</td>
 									<td>{formatDuration(session.durationSeconds)}</td>

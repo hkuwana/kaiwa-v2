@@ -51,7 +51,7 @@
 	});
 
 	let messageInput = $state('');
-	let translationData = $state<Map<string, Partial<Message>>>(new SvelteMap());
+	let translationData = new SvelteMap<string, Partial<Message>>();
 	let messagesContainer = $state<HTMLDivElement | null>(null);
 	let calmMode = $state(false);
 

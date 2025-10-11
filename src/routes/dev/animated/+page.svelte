@@ -63,7 +63,7 @@
 					generating: false
 				};
 			}
-		} catch (error) {
+		} catch {
 			generationResults[resultIndex] = {
 				speaker,
 				imageUrl: '',
@@ -262,7 +262,7 @@
 
 			{#if generationResults.length > 0}
 				<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-					{#each generationResults as result}
+					{#each generationResults as result (result.speaker.speakerEmoji + result.speaker.speakerName)}
 						<div class="card border border-success/20 bg-base-200 shadow-xl">
 							<div class="card-body">
 								<h3 class="card-title text-lg">
@@ -317,7 +317,7 @@
 		<section class="mb-12">
 			<h2 class="mb-6 text-3xl font-bold text-primary">About Page Illustrations</h2>
 			<div class="grid gap-6 md:grid-cols-2">
-				{#each aboutPagePrompts as item}
+				{#each aboutPagePrompts as item (item.title)}
 					<div class="card border border-primary/20 bg-base-200 shadow-xl">
 						<div class="card-body">
 							<h3 class="card-title text-lg">{item.title}</h3>
@@ -345,7 +345,7 @@
 		<section class="mb-12">
 			<h2 class="mb-6 text-3xl font-bold text-secondary">Character Designs</h2>
 			<div class="grid gap-6 md:grid-cols-2">
-				{#each characterPrompts as item}
+				{#each characterPrompts as item (item.title)}
 					<div class="card border border-secondary/20 bg-base-200 shadow-xl">
 						<div class="card-body">
 							<h3 class="card-title text-lg">{item.title}</h3>
@@ -383,7 +383,7 @@
 				</div>
 			</div>
 			<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-				{#each speakersData as speaker}
+				{#each speakersData as speaker (speaker.id)}
 					<div class="card border border-info/20 bg-base-200 shadow-xl">
 						<div class="card-body p-4">
 							<h3 class="card-title text-base">
@@ -415,7 +415,7 @@
 		<section class="mb-12">
 			<h2 class="mb-6 text-3xl font-bold text-accent">Scenario Backgrounds</h2>
 			<div class="grid gap-6 md:grid-cols-2">
-				{#each scenarioPrompts as item}
+				{#each scenarioPrompts as item (item.title)}
 					<div class="card border border-accent/20 bg-base-200 shadow-xl">
 						<div class="card-body">
 							<h3 class="card-title text-lg">{item.title}</h3>

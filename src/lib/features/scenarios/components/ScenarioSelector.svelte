@@ -180,7 +180,7 @@
 							] || 'primary'}"
 						></span> <span class="flex-1 truncate text-sm font-medium">{scenario.title}</span>
 						<span class="ml-3 flex flex-shrink-0 items-center gap-0.5 text-amber-300">
-							{#each createRange(meta.stars) as _}
+							{#each createRange(meta.stars) as _, i (i)}
 								<span class="icon-[mdi--star] h-3.5 w-3.5"></span>
 							{/each}
 						</span>

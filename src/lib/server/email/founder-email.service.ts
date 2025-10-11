@@ -113,7 +113,6 @@ export class FounderEmailService {
 			}
 
 			const languageName = await this.resolveTargetLanguageName(userId);
-			const firstName = user.displayName?.split(' ')[0] || 'there';
 
 			const result = await resend.emails.send({
 				from: `${this.FOUNDER_NAME} <${this.FOUNDER_EMAIL}>`,

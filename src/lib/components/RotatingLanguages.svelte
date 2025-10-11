@@ -13,7 +13,7 @@
 	let rotation = $state(0); // degrees of rotation
 	let transitioning = $state(false);
 	let spinnerEl = $state<HTMLDivElement | null>(null);
-	let timer: any;
+	let timer: NodeJS.Timeout | undefined;
 
 	function tick() {
 		if (transitioning || items.length < 2) return;

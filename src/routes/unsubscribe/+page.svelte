@@ -12,7 +12,7 @@
 	onMount(async () => {
 		const success = page.url.searchParams.get('success');
 		const error = page.url.searchParams.get('error');
-		const type = page.url.searchParams.get('type') || 'all';
+		const _type = page.url.searchParams.get('type') || 'all';
 
 		if (success === 'true') {
 			unsubscribeResult = {

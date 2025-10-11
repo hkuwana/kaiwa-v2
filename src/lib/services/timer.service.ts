@@ -114,7 +114,7 @@ export function createInitialTimerState(config: TimerConfig): TimerState {
  * @returns Timer result with state and notification flags
  */
 export function calculateTimerState(input: TimerInput, currentTime: number): TimerResult {
-	const { config, startTime, pauseTime, totalPausedTime, extensionsUsed } = input;
+	const { config, startTime, totalPausedTime, extensionsUsed } = input;
 
 	if (startTime === 0) {
 		return {

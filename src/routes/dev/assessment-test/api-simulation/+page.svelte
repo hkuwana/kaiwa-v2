@@ -348,7 +348,7 @@
 							<div><strong>Daily Goal:</strong> {mockResults.dailyGoalSeconds} minutes</div>
 							<div><strong>Specific Goals:</strong></div>
 							<div class="flex flex-wrap gap-1">
-								{#each mockResults.specificGoals || [] as goal}
+								{#each mockResults.specificGoals || [] as goal (goal)}
 									<span class="badge badge-outline badge-xs">{goal}</span>
 								{/each}
 							</div>

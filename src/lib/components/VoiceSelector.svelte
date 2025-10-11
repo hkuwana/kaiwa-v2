@@ -206,7 +206,7 @@
 					<button
 						class="btn ml-2 btn-circle btn-ghost btn-sm"
 						onclick={(e) => {
-							e.stopPropagation;
+							e.stopPropagation();
 							isPlaying === voice.id ? stopPreview() : previewVoice(voice);
 						}}
 						title={isPlaying === voice.id ? 'Stop preview' : 'Preview voice'}

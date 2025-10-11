@@ -19,7 +19,9 @@
 			cooldownInterval = setInterval(() => {
 				resendCooldown--;
 				if (resendCooldown <= 0) {
-					clearInterval(cooldownInterval!);
+					if (cooldownInterval) {
+						clearInterval(cooldownInterval);
+					}
 					cooldownInterval = null;
 				}
 			}, 1000);
@@ -61,7 +63,7 @@
 			setTimeout(() => {
 				goto(resolve('/'));
 			}, 2000);
-		} catch (err) {
+		} catch {
 			error = 'Network error. Please try again.';
 		} finally {
 			isSubmitting = false;
@@ -91,11 +93,13 @@
 			cooldownInterval = setInterval(() => {
 				resendCooldown--;
 				if (resendCooldown <= 0) {
-					clearInterval(cooldownInterval!);
+					if (cooldownInterval) {
+						clearInterval(cooldownInterval);
+					}
 					cooldownInterval = null;
 				}
 			}, 1000);
-		} catch (err) {
+		} catch {
 			error = 'Network error. Please try again.';
 		} finally {
 			isResending = false;

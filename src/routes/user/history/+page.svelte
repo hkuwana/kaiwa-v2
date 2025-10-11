@@ -53,10 +53,8 @@
 	}
 
 	let conversations = $state<ConversationPreview[]>([]);
-	let conversationDetails = $state<
-		Map<string, { details: ConversationDetails; messages: Message[] }>
-	>(new SvelteMap());
-	let expandedConversations = $state(new SvelteSet<string>());
+	let conversationDetails = new SvelteMap<string, { details: ConversationDetails; messages: Message[] }>();
+	let expandedConversations = new SvelteSet<string>();
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 	let searchQuery = $state('');
@@ -64,9 +62,9 @@
 	let currentPage = $state(0);
 	let totalConversations = $state(0);
 	let hasMore = $state(false);
-	let loadingDetails = $state(new SvelteSet<string>());
+	let loadingDetails = new SvelteSet<string>();
 	let showDevMode = $state(false);
-	let selectedConversations = $state(new SvelteSet<string>());
+	let selectedConversations = new SvelteSet<string>();
 	let deleting = $state(false);
 	let actionMessage = $state<string | null>(null);
 	let actionError = $state<string | null>(null);
