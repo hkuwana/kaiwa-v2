@@ -16,7 +16,7 @@
    - **Location**: Google Meet (or Zoom)
    - **Buffer**: 10 minutes between calls
    - **Questions**: "What would you like to discuss about Kaiwa?"
-4. Copy your link (looks like: `https://cal.com/hirokuwana/15min`)
+4. Copy your link (looks like: `https://cal.com/hiro-kaiwa/15min`)
 5. Update in code:
 
 ```bash

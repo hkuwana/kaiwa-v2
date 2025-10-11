@@ -239,7 +239,7 @@ Thanks for giving Kaiwa a chance,
 Hiro
 Founder, Kaiwa
 📧 hiro@trykaiwa.com
-📅 https://cal.com/hirokuwana/15min
+📅 https://cal.com/hiro-kaiwa/15min
 🌐 trykaiwa.com
 
 P.S. This is genuinely the last email unless you book a call
@@ -268,7 +268,7 @@ or reply. I respect your inbox!
    - Duration: 15 minutes
    - Buffer: 10 minutes between calls
    - Questions: "What would you like to discuss?"
-3. Get your link: `https://cal.com/hirokuwana/15min`
+3. Get your link: `https://cal.com/hiro-kaiwa/15min`
 4. Add to founder email template
 
 ### 2. Configure Resend with Personal Email
