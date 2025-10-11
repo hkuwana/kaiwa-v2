@@ -8,7 +8,7 @@ import { pgTable, text, timestamp, json, index, boolean, pgEnum } from 'drizzle-
  * - character: Role-player who embodies a specific person (nurse, executive, parent, waiter, etc.)
  * - friend: Casual conversation partner who debates, shares stories, and chats naturally
  */
-export const scenarioRoleEnum = pgEnum('scenario_role', ['tutor', 'character', 'friend']);
+export const scenarioRoleEnum = pgEnum('scenario_role', ['tutor', 'roleplay', 'friendly_chat']);
 
 /**
  * Scenario difficulty enumeration for type safety

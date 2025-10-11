@@ -131,13 +131,6 @@ export const GET = async ({ url, locals }) => {
 				emailHtml = WeeklyUpdatesEmailService.buildWeeklyDigestEmail(user, digestOptions);
 				break;
 			}
-			case 'weekly_update': {
-				const digestOptions = buildSampleWeeklyDigestOptions(targetUserId);
-
-				emailSubject = digestOptions.subject || 'Kaiwa Weekly Update';
-				emailHtml = WeeklyUpdatesEmailService.buildWeeklyDigestEmail(user, digestOptions);
-				break;
-			}
 
 			default:
 				return new Response(`Unknown email type: ${emailType}`, { status: 400 });

@@ -4,7 +4,7 @@ import { db } from '$lib/server/db/index';
 import { scenarios } from '$lib/server/db/schema';
 import type { NewScenario, Scenario } from '$lib/server/db/types';
 import { eq, and, asc } from 'drizzle-orm';
-
+import { scenarioRoleEnum } from '$lib/server/db/schema/scenarios';
 export const scenarioRepository = {
 	// CREATE
 	async createScenario(newScenario: NewScenario): Promise<Scenario> {
@@ -25,13 +25,9 @@ export const scenarioRepository = {
 		return db.query.scenarios.findFirst({ where: eq(scenarios.id, id) });
 	},
 
-	async findScenariosByCategory(
-		category: 'onboarding' | 'comfort' | 'basic' | 'intermediate',
-		limit: number = 50,
-		offset: number = 0
-	): Promise<Scenario[]> {
+	async findScenariosByRole(role: Scenario['role'], limit: number = 50, offset: number = 0): Promise<Scenario[]> {
 		return db.query.scenarios.findMany({
-			where: and(eq(scenarios.category, category), eq(scenarios.isActive, true)),
+			where: and(eq(scenarios.role, role), eq(scenarios.isActive, true)),
 			orderBy: [asc(scenarios.difficulty), asc(scenarios.title)],
 			limit,
 			offset
@@ -54,7 +50,7 @@ export const scenarioRepository = {
 	async findActiveScenarios(limit: number = 100, offset: number = 0): Promise<Scenario[]> {
 		return db.query.scenarios.findMany({
 			where: eq(scenarios.isActive, true),
-			orderBy: [asc(scenarios.category), asc(scenarios.difficulty)],
+			orderBy: [asc(scenarios.role), asc(scenarios.difficulty)],
 			limit,
 			offset
 		});

@@ -113,34 +113,24 @@
 	<header class="flex min-h-screen items-start justify-center pt-20">
 		<div class="text-center">
 			<div class="max-w-md">
-				<h4 class="mb-2 text-2xl font-semibold opacity-90 sm:mb-4 sm:text-3xl">
-					{#if useDynamicLanguage}
-						<DynamicLanguageText
-							bind:selectedLanguage
-							onLanguageSelect={handleDynamicLanguageSelect}
-							variant={dynamicVariant}
-							animationInterval={2800}
-							interactive={false}
-						/>
-					{:else}
-						{headlineText}
-					{/if}
-				</h4>
-
 				{#if user.id !== 'guest'}
 					<div class="mb-6 text-xl opacity-90">
 						Welcome back, {user ? user.displayName : 'Dev'}!
 					</div>
 				{:else}
-					<!-- Simplified guest value prop -->
-					<div class="mb-6 space-y-3">
-						<p class="text-lg opacity-90 sm:text-xl">
-							3-minute onboarding to create personalized conversation scenarios just for you.
-						</p>
-						<p class="hidden text-sm opacity-70 sm:block">
-							Free practice • No signup required • Start speaking in minutes
-						</p>
-					</div>
+					<h4 class="mb-2 text-2xl font-semibold opacity-90 sm:mb-4 sm:text-3xl">
+						{#if useDynamicLanguage}
+							<DynamicLanguageText
+								bind:selectedLanguage
+								onLanguageSelect={handleDynamicLanguageSelect}
+								variant={dynamicVariant}
+								animationInterval={2800}
+								interactive={false}
+							/>
+						{:else}
+							{headlineText}
+						{/if}
+					</h4>
 				{/if}
 
 				<UnifiedStartButton

@@ -53,7 +53,7 @@ export const scenariosData: ScenarioWithHints[] = [
 		id: 'clinic-night-triage',
 		title: 'Midnight Clinic Triage',
 		description: 'Explain a medical issue at an urgent care clinic.',
-		role: 'character',
+		role: 'roleplay',
 		difficulty: 'intermediate',
 		difficultyRating: 4,
 		cefrLevel: 'B1',
@@ -84,7 +84,7 @@ export const scenariosData: ScenarioWithHints[] = [
 		id: 'politics-cafe-debate',
 		title: 'Café Politics Discussion',
 		description: 'Debate current events with a politically engaged friend over coffee.',
-		role: 'friend',
+		role: 'friendly_chat',
 		difficulty: 'intermediate',
 		difficultyRating: 5,
 		cefrLevel: 'B2',
@@ -148,8 +148,8 @@ export const scenariosData: ScenarioWithHints[] = [
 	{
 		id: 'family-dinner-introduction',
 		title: "Partner's Parents Dinner",
-		description: 'Earn trust over a meal with your partner\'s parents.',
-		role: 'character',
+		description: "Earn trust over a meal with your partner's parents.",
+		role: 'roleplay',
 		difficulty: 'intermediate',
 		difficultyRating: 6,
 		cefrLevel: 'B2',
@@ -182,7 +182,7 @@ export const scenariosData: ScenarioWithHints[] = [
 		title: 'Executive Board Negotiation',
 		description:
 			'Defend a strategic decision in front of skeptical executives and earn their approval.',
-		role: 'character',
+		role: 'roleplay',
 		difficulty: 'advanced',
 		difficultyRating: 7,
 		cefrLevel: 'C1',
@@ -215,7 +215,7 @@ export const scenariosData: ScenarioWithHints[] = [
 		title: 'Crisis Press Briefing',
 		description:
 			'Face international reporters during a live briefing and manage follow-up questions with precision.',
-		role: 'character',
+		role: 'roleplay',
 		difficulty: 'advanced',
 		difficultyRating: 8,
 		cefrLevel: 'C2',
@@ -242,6 +242,32 @@ export const scenariosData: ScenarioWithHints[] = [
 		speakerGenderPreference: 'neutral',
 		createdAt: new Date(),
 		updatedAt: new Date()
+	},
+	{
+		id: 'first-date-drinks',
+		title: 'First Date Drinks',
+		description: 'Break the ice and get to know someone on a first date.',
+		role: 'friendly_chat',
+		difficulty: 'intermediate',
+		difficultyRating: 4,
+		cefrLevel: 'B1',
+		instructions: `You're on a first date. Ask questions, share stories, and see if there's a connection.`,
+		context: 'A cozy bar with dim lighting and a good selection of drinks.',
+		expectedOutcome: 'A fun and engaging conversation that leads to a second date.',
+		learningObjectives: [
+			'asking personal questions',
+			'sharing personal stories',
+			'flirting',
+			'active listening'
+		],
+		comfortIndicators: {
+			confidence: 3,
+			engagement: 5,
+			understanding: 4
+		},
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
 	}
 ];
 
@@ -259,7 +285,9 @@ export const sortScenariosByDifficulty = (input: ScenarioWithHints[]): ScenarioW
 };
 
 export const getOnboardingScenario = (): ScenarioWithHints | undefined => {
-	return scenariosData.find((scenario) => scenario.role === 'tutor' && scenario.id === 'onboarding-welcome');
+	return scenariosData.find(
+		(scenario) => scenario.role === 'tutor' && scenario.id === 'onboarding-welcome'
+	);
 };
 
 export const getComfortScenarios = (): ScenarioWithHints[] => {
@@ -326,10 +354,7 @@ export const getScenariosForUser = (
 /**
  * Get scenarios by role, optionally filtered by language
  */
-export const getScenariosByRole = (
-	role: string,
-	languageId?: string
-): ScenarioWithHints[] => {
+export const getScenariosByRole = (role: string, languageId?: string): ScenarioWithHints[] => {
 	let scenarios = scenariosData.filter((scenario) => scenario.role === role);
 
 	if (languageId) {

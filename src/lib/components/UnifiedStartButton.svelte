@@ -48,6 +48,40 @@
 	// Current scenario or default to onboarding
 	const currentScenario = $derived(selectedScenario || availableScenarios[0]);
 
+	type ScenarioRole = 'tutor' | 'roleplay' | 'friendly_chat';
+
+	const SCENARIO_ROLE_COPY: Record<
+		ScenarioRole,
+		{ aria: (languageName: string) => string; button: string }
+	> = {
+		tutor: {
+			aria: (languageName) => `Meet your tutor in ${languageName}`,
+			button: 'Start Chat'
+		},
+		roleplay: {
+			aria: (languageName) => `Start a roleplay in ${languageName}`,
+			button: 'Start Roleplay'
+		},
+		friendly_chat: {
+			aria: (languageName) => `Start a friendly chat in ${languageName}`,
+			button: 'Start Conversation'
+		}
+	};
+
+	const DEFAULT_SCENARIO_COPY = {
+		aria: (languageName: string) => `Start practicing in ${languageName}`,
+		button: 'Start Practicing'
+	};
+
+	function getScenarioRoleCopy(role?: ScenarioWithHints['role']) {
+		if (role && role in SCENARIO_ROLE_COPY) {
+			return SCENARIO_ROLE_COPY[role as ScenarioRole];
+		}
+		return DEFAULT_SCENARIO_COPY;
+	}
+
+	const scenarioRoleCopy = $derived(getScenarioRoleCopy(currentScenario?.role));
+
 	// Auto-pick a best-fitting speaker when language + scenario are set
 	$effect(() => {
 		if (!selectedLanguage || !currentScenario || !onSpeakerChange) return;
@@ -90,22 +124,37 @@
 	async function handleStartClick(_event: MouseEvent) {
 		if (isLoading) return;
 
-		const sessionId = crypto.randomUUID();
-		if (selectedLanguage && currentScenario) {
-			isLoading = true;
+		if (!selectedLanguage || !currentScenario) return;
 
-			// Track the click event
-			track('start_language_clicked', {
-				language: selectedLanguage.code || selectedLanguage.name,
-				scenario_id: currentScenario.id
-			});
-			if (onStartClick) {
-				onStartClick();
-			}
+		// Track the click event regardless of auth state
+		track('start_language_clicked', {
+			language: selectedLanguage.code || selectedLanguage.name,
+			scenario_id: currentScenario.id,
+			requires_login: isGuest
+		});
 
-			// Navigate with scenario parameter
-			goto(`/conversation?sessionId=${sessionId}&scenario=${currentScenario.id}&autoStart=true`);
+		if (onStartClick) {
+			onStartClick();
 		}
+
+		if (isGuest) {
+			const redirectParams = new URLSearchParams({
+				scenario: currentScenario.id,
+				autoStart: 'true'
+			});
+			const params = new URLSearchParams({
+				redirect: `/conversation?${redirectParams.toString()}`,
+				from: 'conversation-start'
+			});
+			goto(`/auth?${params.toString()}`);
+			return;
+		}
+
+		const sessionId = crypto.randomUUID();
+		isLoading = true;
+
+		// Navigate with scenario parameter
+		goto(`/conversation?sessionId=${sessionId}&scenario=${currentScenario.id}&autoStart=true`);
 	}
 </script>
 
@@ -137,9 +186,9 @@
 			onclick={handleStartClick}
 			class="group btn w-full btn-lg btn-primary"
 			aria-label={selectedLanguage
-				? currentScenario?.category === 'onboarding'
-					? `Meet your guide in ${selectedLanguage.name}`
-					: `Start Learning in ${selectedLanguage.name}`
+				? isGuest
+					? 'Sign up or log in to start your practice session'
+					: scenarioRoleCopy.aria(selectedLanguage.name)
 				: 'Choose your language to start'}
 		>
 			<span class="relative z-10 flex items-center gap-2">
@@ -147,10 +196,10 @@
 					<span class="loading loading-sm loading-spinner"></span>
 					<span>Preparing...</span>
 				{:else if selectedLanguage}
-					{#if currentScenario?.category === 'onboarding'}
-						<span>Start Chat</span>
+					{#if isGuest}
+						<span>Sign up to start</span>
 					{:else}
-						<span>Start Practicing</span>
+						<span>{scenarioRoleCopy.button}</span>
 					{/if}
 				{:else}
 					<span class="sm:hidden">Choose language</span>
@@ -163,4 +212,10 @@
 			{@render children()}
 		{/if}
 	</div>
+
+	{#if isGuest}
+		<p class="mt-3 text-center text-sm text-base-content/70">
+			Create a free account to unlock a premium analysis per day.
+		</p>
+	{/if}
 </div>

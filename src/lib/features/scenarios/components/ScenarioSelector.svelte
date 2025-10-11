@@ -22,29 +22,28 @@
 		isGuest = false
 	}: Props = $props();
 
-	// Icons and colors by scenario category (onboarding | comfort | basic | intermediate | relationships)
-	const categoryIcons: Record<
-		'onboarding' | 'comfort' | 'basic' | 'intermediate' | 'relationships' | 'roleplay',
-		string
-	> = {
-		onboarding: 'icon-[mdi--coffee]',
-		comfort: 'icon-[mdi--city]',
-		basic: 'icon-[mdi--book-open]',
-		intermediate: 'icon-[mdi--compass]',
-		relationships: 'icon-[mdi--heart-multiple]',
-		roleplay: 'icon-[mdi--account-group]'
+	type ScenarioRole = 'tutor' | 'roleplay' | 'friendly_chat' | 'expert';
+
+	// Icons and colors by scenario role
+	const roleIcons: Record<ScenarioRole, string> = {
+		tutor: 'icon-[mdi--coffee]',
+		roleplay: 'icon-[mdi--account-group]',
+		friendly_chat: 'icon-[mdi--heart-multiple]',
+		expert: 'icon-[mdi--brain]'
 	};
 
-	const categoryColors: Record<
-		'onboarding' | 'comfort' | 'basic' | 'intermediate' | 'relationships' | 'roleplay',
-		string
-	> = {
-		onboarding: 'primary',
-		comfort: 'secondary',
-		basic: 'accent',
-		intermediate: 'success',
-		relationships: 'warning',
-		roleplay: 'info'
+	const roleColors: Record<ScenarioRole, string> = {
+		tutor: 'primary',
+		roleplay: 'info',
+		friendly_chat: 'warning',
+		expert: 'accent'
+	};
+
+	const roleDisplayNames: Record<ScenarioRole, string> = {
+		tutor: 'Tutor',
+		roleplay: 'Roleplay',
+		friendly_chat: 'Friendly Chat',
+		expert: 'Expert'
 	};
 
 	let isOpen = $state(false);
@@ -60,7 +59,7 @@
 
 	function selectScenario(scenario: ScenarioWithHints) {
 		// Only allow onboarding scenario for guests
-		if (isGuest && scenario.role !== 'tutor') {
+		if (isGuest && scenario.id !== 'onboarding-welcome') {
 			return;
 		}
 		onScenarioSelect(scenario);
@@ -87,9 +86,9 @@
 							<span class="icon-[mdi--lock] h-5 w-5 text-base-content/60"></span>
 						{:else if selectedScenario}
 							<span
-								class="{categoryIcons[selectedScenario.category] ||
-									'icon-[mdi--lightbulb-on-outline]'} h-5 w-5 text-{categoryColors[
-									selectedScenario.category
+								class="{roleIcons[selectedScenario.role] ||
+									'icon-[mdi--lightbulb-on-outline]'} h-5 w-5 text-{roleColors[
+									selectedScenario.role
 								] || 'primary'}"
 							></span>
 						{:else}
@@ -99,7 +98,9 @@
 					<div class="flex items-center gap-2">
 						<span class="text-base font-medium">{disabled ? 'Meet Your Tutor' : 'Scenario'}</span>
 						{#if selectedScenario}
-							<span class="badge badge-sm capitalize">{selectedScenario.category}</span>
+							<span class="badge badge-sm capitalize">
+								{roleDisplayNames[selectedScenario.role] ?? selectedScenario.role}
+							</span>
 						{/if}
 					</div>
 				</div>
@@ -123,10 +124,10 @@
 				<span class="h-5 w-5">
 					{#if selectedScenario}
 						<span
-							class="{categoryIcons[selectedScenario.category] ||
-								'icon-[mdi--lightbulb-on-outline]'} h-5 w-5 text-{categoryColors[
-								selectedScenario.category
-							] || 'primary'}"
+							class="{roleIcons[selectedScenario.role] ||
+								'icon-[mdi--lightbulb-on-outline]'} h-5 w-5 text-{roleColors[
+									selectedScenario.role
+								] || 'primary'}"
 						></span>
 					{:else}
 						<span class="icon-[mdi--lightbulb-on-outline] h-5 w-5 text-primary"></span>
@@ -135,7 +136,9 @@
 				<div class="flex items-center gap-2">
 					{#if selectedScenario}
 						<span class="max-w-xs truncate text-base font-medium">{selectedScenario.title}</span>
-						<span class="badge badge-sm capitalize">{selectedScenario.category}</span>
+						<span class="badge badge-sm capitalize">
+							{roleDisplayNames[selectedScenario.role] ?? selectedScenario.role}
+						</span>
 					{:else}
 						<span class="animate-pulse text-sm opacity-50">Loading...</span>
 					{/if}
@@ -158,7 +161,7 @@
 			</div>
 			<div class="max-h-80 overflow-y-auto px-2">
 				{#each scenarios as scenario (scenario.id)}
-					{@const isLocked = isGuest && scenario.category !== 'onboarding'}
+					{@const isLocked = isGuest && scenario.id !== 'onboarding-welcome'}
 					{@const meta = getScenarioMeta(scenario)}
 					<button
 						onclick={() => selectScenario(scenario)}
@@ -170,12 +173,12 @@
 						class:cursor-not-allowed={isLocked}
 						disabled={isLocked}
 					>
-						<span
-							class="{categoryIcons[scenario.category] ||
-								'icon-[mdi--lightbulb-on-outline]'} mr-3 h-5 w-5 flex-shrink-0 text-{categoryColors[
-								scenario.category
-							] || 'primary'}"
-						></span> <span class="flex-1 truncate text-sm font-medium">{scenario.title}</span>
+						                        <span
+						                            class="{roleIcons[scenario.role] ||
+						                                'icon-[mdi--lightbulb-on-outline]'} mr-3 h-5 w-5 flex-shrink-0 text-{roleColors[
+						                                    scenario.role
+						                                ] || 'primary'}"
+						                        ></span>						<span class="flex-1 truncate text-sm font-medium">{scenario.title}</span>
 						<span class="ml-3 flex flex-shrink-0 items-center gap-0.5 text-amber-300">
 							{#each createRange(meta.stars) as _}
 								<span class="icon-[mdi--star] h-3.5 w-3.5"></span>

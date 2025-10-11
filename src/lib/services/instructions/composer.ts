@@ -99,9 +99,9 @@ export class InstructionComposer {
 		return { ...this.params };
 	}
 
-	// ============================================
+	// ============================================ 
 	// SECTION BUILDERS (following OpenAI template)
-	// ============================================
+	// ============================================ 
 
 	private buildRoleObjective(): string {
 		const { scenario, speaker, language, user } = this.options;
@@ -114,12 +114,15 @@ export class InstructionComposer {
 		if (scenario?.role === 'tutor') {
 			role = `You are ${speakerName}, a language tutor who teaches ${language.name}.`;
 			objective = `Your objective: Help ${user.displayName || 'the learner'} master specific ${language.name} patterns and vocabulary through systematic practice.`;
-		} else if (scenario?.role === 'character') {
+		} else if (scenario?.role === 'roleplay') {
 			role = `You are ${speakerName}, playing the role of: ${scenario.description}`;
 			objective = `Your objective: ${scenario.expectedOutcome}`;
-		} else if (scenario?.role === 'friend') {
+		} else if (scenario?.role === 'friendly_chat') {
 			role = `You are ${speakerName}, a ${language.name}-speaking friend having a natural conversation.`;
 			objective = `Your objective: Engage in authentic dialogue that helps ${user.displayName || 'the learner'} practice ${language.name} naturally.`;
+		} else if (scenario?.role === 'expert') {
+			role = `You are ${speakerName}, a leading expert in ${scenario.title}.`;
+			objective = `Your objective: Challenge ${user.displayName || 'the learner'} with a deep, nuanced discussion in your area of expertise.`;
 		} else {
 			// Default conversational role
 			role = `You are ${speakerName}, a ${language.name} conversation partner.`;
@@ -317,22 +320,29 @@ ${scenarioRules}`;
 - Check comprehension by having them use new patterns
 - Track mastery of each learning objective`,
 
-			character: `## Character Role-Play Rules
+			roleplay: `## Character Role-Play Rules
 - STAY IN CHARACTER throughout the conversation
 - Set stakes: make it clear what happens if communication fails
 - React realistically to what learner says
 - Add realistic complications to challenge them
 - Success = learner achieves the scenario objective`,
 
-			friend: `## Friend Conversation Rules
+			friendly_chat: `## Friend Conversation Rules
 - Share YOUR opinions and experiences (you're AI but have perspectives)
 - Disagree respectfully when you have different views
 - Follow topics THEY introduce, don't force your agenda
 - Let conversation drift naturally
-- Corrections are subtle recasts, never lectures`
+- Corrections are subtle recasts, never lectures`,
+
+			expert: `## Expert Conversation Rules
+- Assume the learner has foundational knowledge
+- Use domain-specific vocabulary and complex sentences
+- Challenge the learner with probing questions
+- Correct nuanced errors in terminology or phrasing
+- Your goal is to push them to a C1/C2 level discussion`
 		};
 
-		return roleRules[scenario.role || 'friend'] || '';
+		return roleRules[scenario.role || 'friendly_chat'] || '';
 	}
 
 	private buildConversationFlow(): string {
@@ -432,9 +442,9 @@ IF learner mentions self-harm:
 - Continue if learner is intoxicated or impaired`;
 	}
 
-	// ============================================
+	// ============================================ 
 	// SCENARIO-SPECIFIC PARAMETERS
-	// ============================================
+	// ============================================ 
 
 	private getScenarioParameters(
 		scenario: ScenarioWithHints,
@@ -450,7 +460,7 @@ IF learner mentions self-harm:
 		}
 
 		// Character scenarios need immersion
-		if (scenario.role === 'character') {
+		if (scenario.role === 'roleplay') {
 			return {
 				languageMixingPolicy: 'strict_immersion',
 				conversationPace: 'dynamic',
@@ -459,7 +469,7 @@ IF learner mentions self-harm:
 		}
 
 		// Friend scenarios need natural flow
-		if (scenario.role === 'friend') {
+		if (scenario.role === 'friendly_chat') {
 			return {
 				correctionStyle: 'recast',
 				scaffoldingLevel: 'light',
@@ -468,13 +478,23 @@ IF learner mentions self-harm:
 			};
 		}
 
+		// Expert scenarios are for advanced learners
+		if (scenario.role === 'expert') {
+			return {
+				correctionStyle: 'subtle',
+				scaffoldingLevel: 'none',
+				topicChangeFrequency: 'focused',
+				conversationPace: 'fast'
+			};
+		}
+
 		return {};
 	}
 }
 
-// ============================================
+// ============================================ 
 // CONVENIENCE FUNCTIONS
-// ============================================
+// ============================================ 
 
 /**
  * Quick instruction generation with sensible defaults

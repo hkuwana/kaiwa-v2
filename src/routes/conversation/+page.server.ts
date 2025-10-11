@@ -6,6 +6,16 @@ import { messagesRepository } from '$lib/server/repositories/messages.repository
 export const load = async ({ url, locals }) => {
 	// Get user data from locals (set by hooks.server.ts)
 	const user = locals.user || null;
+
+	if (!user || user.id === 'guest') {
+		const target = `${url.pathname}${url.search}` || '/conversation';
+		const params = new URLSearchParams({
+			redirect: target,
+			from: 'conversation-route'
+		});
+		throw redirect(302, `/auth?${params.toString()}`);
+	}
+
 	const sessionId = url.searchParams.get('sessionId');
 
 	// If sessionId is provided, check if this conversation exists and its state
@@ -58,7 +68,7 @@ export const load = async ({ url, locals }) => {
 
 	return {
 		user,
-		isGuest: !user,
+		isGuest: false,
 		sessionId: finalSessionId,
 		existingSession: null,
 		messages: [],

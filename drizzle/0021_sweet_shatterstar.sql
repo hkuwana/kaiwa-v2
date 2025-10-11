@@ -15,8 +15,8 @@ ALTER TABLE "scenarios" ALTER COLUMN "role" TYPE text;--> statement-breakpoint
 UPDATE "scenarios"
 SET "role" = CASE
 	WHEN "role" IN ('onboarding', 'basic', 'intermediate') THEN 'tutor'
-	WHEN "role" IN ('comfort', 'relationships') THEN 'friend'
-	WHEN "role" = 'roleplay' THEN 'character'
+	WHEN "role" IN ('comfort', 'relationships') THEN 'friendly_chat'
+	WHEN "role" = 'roleplay' THEN 'roleplay'
 	ELSE 'tutor'
 END;--> statement-breakpoint
 
@@ -24,7 +24,7 @@ END;--> statement-breakpoint
 DROP TYPE "public"."scenario_category";--> statement-breakpoint
 
 -- Create new enum with MECE roles
-CREATE TYPE "public"."scenario_role" AS ENUM('tutor', 'character', 'friend');--> statement-breakpoint
+CREATE TYPE "public"."scenario_role" AS ENUM('tutor', 'roleplay', 'friendly_chat', 'expert');--> statement-breakpoint
 
 -- Update the column to use new enum
 ALTER TABLE "scenarios" ALTER COLUMN "role" TYPE "public"."scenario_role" USING "role"::"public"."scenario_role";--> statement-breakpoint
