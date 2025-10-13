@@ -279,19 +279,7 @@
 						<!-- Country Restriction Error Actions -->
 						<div class="space-y-3">
 							<div class="alert alert-warning">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									class="h-6 w-6 shrink-0 stroke-current"
-									fill="none"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-									/>
-								</svg>
+								<span class="icon-[mdi--alert-triangle] h-6 w-6 shrink-0 stroke-current"></span>
 								<span class="font-medium">Location Restriction</span>
 							</div>
 							<div class="space-y-2 text-sm text-gray-600">
@@ -331,19 +319,7 @@
 			{#if status === 'connected'}
 				<div class="mt-6" in:scale={{ duration: 400, delay: 200 }}>
 					<div class="alert alert-success">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="h-6 w-6 shrink-0 stroke-current"
-							fill="none"
-							viewBox="0 0 24 24"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-							/>
-						</svg>
+						<span class="icon-[mdi--check-circle] h-6 w-6 shrink-0 stroke-current"></span>
 						<span class="font-medium">Voice chat is now active!</span>
 					</div>
 					<p class="mt-3 text-sm text-base-content/70">

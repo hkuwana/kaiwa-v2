@@ -153,14 +153,7 @@
 	>
 		<span class="text-lg">{getGenderIcon(currentVoice.gender)}</span>
 		<span>{currentVoice.name}</span>
-		<svg
-			class="h-4 w-4 transition-transform {isOpen ? 'rotate-180' : ''}"
-			fill="none"
-			viewBox="0 0 24 24"
-			stroke="currentColor"
-		>
-			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-		</svg>
+		<span class="icon-[mdi--chevron-down] h-4 w-4 transition-transform {isOpen ? 'rotate-180' : ''}"></span>
 	</button>
 
 	<!-- Voice dropdown -->
@@ -188,13 +181,7 @@
 							<div class="flex items-center space-x-2">
 								<span class="font-medium">{voice.name}</span>
 								{#if voice.id === selectedVoice}
-									<svg class="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
-										<path
-											fill-rule="evenodd"
-											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-											clip-rule="evenodd"
-										/>
-									</svg>
+									<span class="icon-[mdi--check] h-4 w-4 text-primary"></span>
 								{/if}
 							</div>
 							<p class="text-xs opacity-70">{voice.description}</p>
@@ -212,21 +199,9 @@
 						title={isPlaying === voice.id ? 'Stop preview' : 'Preview voice'}
 					>
 						{#if isPlaying === voice.id}
-							<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-								<path
-									fill-rule="evenodd"
-									d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"
-									clip-rule="evenodd"
-								/>
-							</svg>
+							<span class="icon-[mdi--pause] h-4 w-4"></span>
 						{:else}
-							<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-								<path
-									fill-rule="evenodd"
-									d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-									clip-rule="evenodd"
-								/>
-							</svg>
+							<span class="icon-[mdi--play] h-4 w-4"></span>
 						{/if}
 					</button>
 				</div>

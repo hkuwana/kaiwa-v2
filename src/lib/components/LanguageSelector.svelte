@@ -129,15 +129,7 @@
 				{/if}
 			</div>
 		</div>
-		<svg
-			class="h-5 w-5 transition-transform duration-200"
-			class:rotate-180={isOpen}
-			fill="none"
-			stroke="currentColor"
-			viewBox="0 0 24 24"
-		>
-			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-		</svg>
+		<span class="icon-[mdi--chevron-down] h-5 w-5 transition-transform duration-200" class:rotate-180={isOpen}></span>
 	</button>
 
 	<!-- Language dropdown -->
@@ -155,14 +147,7 @@
 						class="btn btn-circle btn-ghost btn-sm"
 						aria-label="Back to languages"
 					>
-						<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M15 19l-7-7 7-7"
-							/>
-						</svg>
+						<span class="icon-[mdi--arrow-left] h-4 w-4"></span>
 					</button>
 				{/if}
 				<h3 class="mb-2 text-sm font-semibold text-base-content/70">
@@ -192,22 +177,7 @@
 									<span class="text-sm opacity-70">{speaker.dialectName} • {speaker.region}</span>
 								</div>
 							</div>
-							{#if selectedSpeaker === speaker.id}
-								<svg
-									class="h-5 w-5 flex-shrink-0"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M5 13l4 4L19 7"
-									/>
-								</svg>
-							{/if}
-						</button>
+							                                <span class="icon-[mdi--check] h-5 w-5 flex-shrink-0"></span>						</button>
 					{/each}
 				{:else}
 					<!-- Language List -->
@@ -226,19 +196,7 @@
 								</div>
 							</div>
 							{#if selectedLanguage?.code === language.code}
-								<svg
-									class="h-5 w-5 flex-shrink-0"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M5 13l4 4L19 7"
-									/>
-								</svg>
+								<span class="icon-[mdi--check] h-5 w-5 flex-shrink-0"></span>
 							{/if}
 						</button>
 					{/each}

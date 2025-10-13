@@ -139,19 +139,7 @@
 						>
 							{textParts.languageName}
 						</span>
-						<svg
-							class="h-3 w-3 text-primary/70 transition-transform duration-200 group-focus-within:rotate-180"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="m19 9-7 7-7-7"
-							></path>
-						</svg>
+						<span class="icon-[mdi--chevron-down] h-3 w-3 text-primary/70 transition-transform duration-200 group-focus-within:rotate-180"></span>
 					</button>
 					<div
 						class="dropdown-content z-30 mt-2 max-h-80 w-80 overflow-y-auto rounded-xl border border-base-300 bg-base-100 p-4 shadow-xl"

@@ -12,20 +12,7 @@
 	<div class="navbar-start">
 		<div class="dropdown">
 			<div role="button" class="btn btn-ghost lg:hidden" tabindex="0">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					class="h-5 w-5"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke="currentColor"
-				>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M4 6h16M4 12h8m-8 6h16"
-					/>
-				</svg>
+				<span class="icon-[mdi--menu] h-5 w-5"></span>
 			</div>
 			<ul class="dropdown-content menu z-[60] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow">
 				<li><a href="/about" class="">About</a></li>
@@ -37,7 +24,10 @@
 				{/if}
 
 				{#if dev}
-					<li><a href="/dev" class="">Dev Tools</a></li>
+					<li class="menu-title">Dev</li>
+					<li><a href="/dev" class="">Dev Home</a></li>
+					<li><a href="/research" class="">Research Page</a></li>
+					<li><a href="/docs" class="">Docs Hub</a></li>
 				{/if}
 			</ul>
 		</div>
@@ -50,7 +40,16 @@
 			<li><a href="/privacy" class="">Privacy</a></li>
 
 			{#if dev}
-				<li><a href="/dev" class="">Dev Tools</a></li>
+				<li>
+					<details>
+						<summary>Dev</summary>
+						<ul class="rounded-box bg-base-100 p-2 shadow">
+							<li><a href="/dev" class="">Dev Home</a></li>
+							<li><a href="/research" class="">Research Page</a></li>
+							<li><a href="/docs" class="">Docs Hub</a></li>
+						</ul>
+					</details>
+				</li>
 			{/if}
 		</ul>
 	</div>
@@ -64,7 +63,7 @@
 							<img alt="User avatar" src={user.avatarUrl} />
 						</div>
 					{:else}
-						<div class="w-24 rounded-full bg-primary">
+						<div class="w-24 rounded-full bg-primary text-primary-content">
 							<span class="text-3xl">{user.displayName?.slice(0, 1).toUpperCase()}</span>
 						</div>
 					{/if}
