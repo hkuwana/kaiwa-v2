@@ -13,6 +13,7 @@ import {
 	payments,
 	conversations,
 	messages,
+	messageAudioAnalysis,
 	scenarios,
 	userPreferences,
 	analyticsEvents,
@@ -43,7 +44,7 @@ export type Subscription = InferSelectModel<typeof subscriptions>;
 export type Payment = InferInsertModel<typeof payments>;
 export type Conversation = InferSelectModel<typeof conversations>;
 export type Message = InferSelectModel<typeof messages>;
-export type SpeechTiming = NonNullable<Message['speechTimings']>[number];
+export type MessageAudioAnalysis = InferSelectModel<typeof messageAudioAnalysis>;
 export type Scenario = InferSelectModel<typeof scenarios>;
 export type UserPreferences = InferSelectModel<typeof userPreferences>;
 export type ScenarioAttempt = InferSelectModel<typeof scenarioAttempts>;
@@ -59,6 +60,11 @@ export type AnalysisFindingAction = (typeof analysisFindingActionEnum.enumValues
 export type AnalysisFinding = InferSelectModel<typeof analysisFindings>;
 export type UserFeatureProfile = InferSelectModel<typeof userFeatureProfiles>;
 
+// Helper types for audio analysis
+export type SpeechTiming = NonNullable<MessageAudioAnalysis['speechTimings']>[number];
+export type PhonemeAnalysis = NonNullable<MessageAudioAnalysis['phonemeAnalysis']>[number];
+export type ProblematicWord = NonNullable<MessageAudioAnalysis['problematicWords']>[number];
+
 // Insert types for creating new records
 export type NewUser = InferInsertModel<typeof users>;
 export type NewSession = InferInsertModel<typeof session>;
@@ -71,6 +77,7 @@ export type NewSubscription = InferInsertModel<typeof subscriptions>;
 export type NewPayment = InferInsertModel<typeof payments>;
 export type NewConversation = InferInsertModel<typeof conversations>;
 export type NewMessage = InferInsertModel<typeof messages>;
+export type NewMessageAudioAnalysis = InferInsertModel<typeof messageAudioAnalysis>;
 export type NewScenario = InferInsertModel<typeof scenarios>;
 export type NewUserPreferences = InferInsertModel<typeof userPreferences>;
 export type NewScenarioAttempt = InferInsertModel<typeof scenarioAttempts>;

@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, index, jsonb, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, index, jsonb, boolean, integer } from 'drizzle-orm/pg-core';
 import { conversations } from './conversations';
 
 /**
@@ -6,9 +6,15 @@ import { conversations } from './conversations';
  *
  * This table contains all the messages exchanged between users and the AI tutor during conversations.
  * It includes comprehensive language support (translations, romanization, multiple scripts),
- * audio features (speech timings, pronunciation analysis), and learning analytics
+ * basic audio metadata (links to separate audio_analysis table), and learning analytics
  * (grammar analysis, vocabulary tracking, difficulty levels). Each message can be translated
  * and provides rich context for language learning feedback.
+ *
+ * **Audio Data Separation**: Heavy audio analysis data is stored in `message_audio_analysis` table
+ * to keep this table lean and performant for text-based queries.
+ *
+ * **Audio Retention Policy**: Audio files are stored in Tigris/S3 with a configurable retention period
+ * (default: 90 days). After this period, audio is deleted to manage storage costs.
  */
 export const messages = pgTable(
 	'messages',
@@ -33,31 +39,40 @@ export const messages = pgTable(
 		hiragana: text('hiragana'), // Japanese hiragana
 		otherScripts: jsonb('other_scripts'), // For katakana, hangul, kanji, and other writing systems
 
-		// Word-level audio alignment
-		speechTimings: jsonb('speech_timings').$type<
-			Array<{
-				word: string;
-				startMs: number;
-				endMs: number;
-				charStart: number;
-				charEnd: number;
-			}>
-		>(),
-
 		// Translation metadata
 		translationConfidence: text('translation_confidence').$type<'low' | 'medium' | 'high'>(),
 		translationProvider: text('translation_provider'), // e.g., 'openai', 'google', 'manual'
 		translationNotes: text('translation_notes'), // Any special notes about the translation
 		isTranslated: boolean('is_translated').default(false), // Flag to indicate if translation exists
 
-		// Analysis and feedback
+		// Analysis and feedback (grammar/vocabulary only - see message_audio_analysis for speech)
 		grammarAnalysis: jsonb('grammar_analysis'),
 		vocabularyAnalysis: jsonb('vocabulary_analysis'),
-		pronunciationScore: text('pronunciation_score'),
 
-		// Audio features
-		audioUrl: text('audio_url'),
-		audioDuration: text('audio_duration'),
+		// Audio storage metadata (links to Tigris/S3)
+		audioUrl: text('audio_url'), // Signed URL (expires after TTL - see audio_url_expires_at)
+		audioUrlExpiresAt: timestamp('audio_url_expires_at'), // When the signed URL expires (typically 7 days)
+		audioStorageKey: text('audio_storage_key'), // Permanent S3 key for regenerating signed URLs
+		audioDurationMs: integer('audio_duration_ms'), // Duration in milliseconds
+		audioSizeBytes: integer('audio_size_bytes'), // File size for cost/storage tracking
+		audioFormat: text('audio_format').$type<'pcm16' | 'g711_ulaw' | 'g711_alaw' | 'mp3' | 'wav'>(), // Audio codec
+		audioSampleRate: integer('audio_sample_rate').default(24000), // Sample rate in Hz (OpenAI default: 24000)
+		audioChannels: integer('audio_channels').default(1), // Number of channels (1=mono, 2=stereo)
+
+		// Audio processing state (tracks async pipeline)
+		audioProcessingState: text('audio_processing_state')
+			.$type<'pending' | 'uploading' | 'uploaded' | 'analyzing' | 'analyzed' | 'failed'>()
+			.default('pending'),
+		audioProcessingError: text('audio_processing_error'), // Error message if processing failed
+
+		// Audio retention policy tracking
+		audioRetentionExpiresAt: timestamp('audio_retention_expires_at'), // When audio should be deleted from storage (e.g., +90 days)
+		audioDeletedAt: timestamp('audio_deleted_at'), // When audio was actually deleted (for audit trail)
+
+		// Quick pronunciation scores (detailed analysis in message_audio_analysis)
+		pronunciationScore: integer('pronunciation_score'), // 0-100 overall pronunciation quality
+		fluencyScore: integer('fluency_score'), // 0-100 overall fluency rating
+		speechRateWpm: integer('speech_rate_wpm'), // Words per minute (including pauses)
 
 		// Metadata for language learning
 		difficultyLevel: text('difficulty_level'),
@@ -103,6 +118,14 @@ export const messages = pgTable(
 			table.sourceLanguage,
 			table.romanization,
 			table.hiragana
-		)
+		),
+
+		// Audio-related indexes
+		index('messages_audio_storage_idx').on(table.audioStorageKey), // For looking up by storage key
+		index('messages_audio_processing_idx').on(table.audioProcessingState), // For background job processing
+		index('messages_audio_retention_idx').on(table.audioRetentionExpiresAt), // For cleanup jobs
+		index('messages_pronunciation_idx').on(table.pronunciationScore, table.fluencyScore), // For analytics
+		// Composite index for finding expired audio to clean up
+		index('messages_audio_cleanup_idx').on(table.audioRetentionExpiresAt, table.audioDeletedAt)
 	]
 );

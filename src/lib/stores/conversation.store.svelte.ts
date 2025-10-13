@@ -10,7 +10,6 @@ import { browser, dev } from '$app/environment';
 // Environment-based logging
 
 const log = (...args: unknown[]) => dev && console.log(...args);
-import { realtimeService } from '$lib/services';
 import { realtimeOpenAI } from '$lib/stores/realtime-openai.store.svelte';
 import { audioStore } from '$lib/stores/audio.store.svelte';
 import { scenarioStore } from '$lib/stores/scenario.store.svelte';
@@ -365,9 +364,23 @@ export class ConversationStore {
 	};
 
 	pauseStreaming = () => {
+		const callStack = new Error().stack?.split('\n').slice(1, 4).join('\n') || 'unknown';
+		console.warn('⏸️ ConversationStore: pauseStreaming() CALLED', {
+			hasAudioStream: !!this.audioStream,
+			callStack,
+			timestamp: new SvelteDate().toISOString()
+		});
+
 		if (!this.audioStream) {
 			console.log('🎙️ ConversationStore: pauseStreaming ignored - no active stream');
 			return;
+		}
+
+		// Cancel any pending greeting retry when user commits audio
+		if (this.greetingRetryTimeout) {
+			console.log('🎵 ConversationStore: Canceling greeting retry - user committed audio');
+			clearTimeout(this.greetingRetryTimeout);
+			this.greetingRetryTimeout = null;
 		}
 
 		const track = this.audioStream.getAudioTracks()[0];
@@ -376,6 +389,7 @@ export class ConversationStore {
 			currentLevel: audioStore.currentLevel.level,
 			streamId: this.audioStream.id,
 			trackEnabled: track?.enabled,
+			trackReadyState: track?.readyState,
 			timestamp: new SvelteDate().toISOString()
 		});
 
@@ -387,9 +401,9 @@ export class ConversationStore {
 		// Small delay to ensure track is fully stopped before committing
 		setTimeout(() => {
 			if (!this.audioStream) {
-			console.log('🎙️ ConversationStore: pauseStreaming ignored - no active stream');
-			return;
-		}
+				console.log('🎙️ ConversationStore: pauseStreaming ignored - no active stream');
+				return;
+			}
 			realtimeOpenAI.pttStop(this.audioStream);
 		}, 50);
 
@@ -430,6 +444,13 @@ export class ConversationStore {
 	};
 
 	resumeStreaming = () => {
+		const callStack = new Error().stack?.split('\n').slice(1, 4).join('\n') || 'unknown';
+		console.warn('▶️ ConversationStore: resumeStreaming() CALLED', {
+			hasAudioStream: !!this.audioStream,
+			callStack,
+			timestamp: new SvelteDate().toISOString()
+		});
+
 		if (!this.audioStream) {
 			console.log('🎙️ ConversationStore: resumeStreaming ignored - no active stream');
 			return;
@@ -441,6 +462,7 @@ export class ConversationStore {
 			currentLevel: audioStore.currentLevel.level,
 			streamId: this.audioStream.id,
 			trackEnabled: track?.enabled,
+			trackReadyState: track?.readyState,
 			timestamp: new SvelteDate().toISOString()
 		});
 
@@ -913,6 +935,8 @@ export class ConversationStore {
 		console.log('🎵 ConversationStore: Waiting for user to start conversation...');
 	}
 
+	private greetingRetryTimeout: ReturnType<typeof setTimeout> | null = null;
+
 	/**
 	 * Trigger the AI's first greeting after user interaction
 	 * This should be called when the user taps the AudioVisualizer for the first time
@@ -932,14 +956,19 @@ export class ConversationStore {
 			realtimeOpenAI.sendResponse();
 		}, 100);
 
-		// Optional safety retry after 1.5s if no assistant message yet
-		setTimeout(() => {
+		// Optional safety retry after 1.5s if no assistant message yet AND user hasn't committed audio
+		this.greetingRetryTimeout = setTimeout(() => {
 			if (!realtimeOpenAI.isConnected) return;
 			const hasAssistant = this.messages.some((m) => m.role === 'assistant');
-			if (!hasAssistant) {
+			const hasUserMessage = this.messages.some((m) => m.role === 'user');
+			// Only retry if NO assistant response AND user hasn't spoken yet
+			if (!hasAssistant && !hasUserMessage) {
 				console.log('🎵 ConversationStore: Retry sending initial greeting...');
 				realtimeOpenAI.sendResponse();
+			} else {
+				console.log('🎵 ConversationStore: Skipping retry - user already interacted or assistant responded');
 			}
+			this.greetingRetryTimeout = null;
 		}, 1500);
 	};
 
@@ -1014,6 +1043,12 @@ export class ConversationStore {
 			this.saveTimeout = null;
 		}
 
+		// Clear any pending greeting retry
+		if (this.greetingRetryTimeout) {
+			clearTimeout(this.greetingRetryTimeout);
+			this.greetingRetryTimeout = null;
+		}
+
 		// Close realtime session
 		console.log('🧹 ConversationStore: Closing SDK realtime session');
 		try {
@@ -1042,7 +1077,7 @@ export class ConversationStore {
 		// Stop audio stream
 		if (this.audioStream) {
 			console.log('🧹 ConversationStore: Stopping audio stream');
-			realtimeService.stopAudioStream(this.audioStream);
+			audioStore.stopRecording();
 			this.audioStream = null;
 		}
 

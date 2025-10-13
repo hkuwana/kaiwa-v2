@@ -34,6 +34,7 @@ export { speakers, speakerGenderEnum } from './speakers';
 export { scenarios, scenarioDifficultyEnum } from './scenarios'; // Simplified for onboarding/comfort
 export { conversations } from './conversations';
 export { messages } from './messages';
+export { messageAudioAnalysis } from './message-audio-analysis';
 export {
 	linguisticMacroSkillEnum,
 	linguisticFeatures,

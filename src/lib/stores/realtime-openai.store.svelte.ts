@@ -3,7 +3,13 @@
 // Phase 1: wrap OpenAI Agents Realtime transport with minimal API.
 
 import { browser } from '$app/environment';
-import { realtimeService } from '$lib/services';
+import {
+	createConnectionWithSession,
+	subscribeToSession,
+	sendEventViaSession,
+	closeSessionConnection,
+	type SessionConnection
+} from '$lib/services/realtime-agents.service';
 import type { Message, SpeechTiming } from '$lib/server/db/types';
 import * as messageService from '$lib/services/message.service';
 import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
@@ -12,17 +18,10 @@ import type {
 	SessionConfig,
 	RealtimeAudioConfig,
 	SDKTransportEvent,
-	RealtimeAudioFormat
+	RealtimeAudioFormatDefinition
 } from '$lib/types/openai.realtime.types';
-import {
-	createConnectionWithSession,
-	subscribeToSession,
-	sendEventViaSession,
-	closeSessionConnection,
-	type SessionConnection
-} from '$lib/services/realtime-agents.service';
 import { env as publicEnv } from '$env/dynamic/public';
-import { SvelteSet } from 'svelte/reactivity';
+import { SvelteSet, SvelteDate } from 'svelte/reactivity';
 import {
 	captureOutputAudioConfig,
 	estimateDurationFromBase64,
@@ -107,7 +106,7 @@ export class RealtimeOpenAIStore {
 		accumulatedMs: 0,
 		totalDurationMs: null
 	};
-	private outputAudioFormat: RealtimeAudioFormat = { type: 'audio/pcm', rate: 24000 };
+	private outputAudioFormat: RealtimeAudioFormatDefinition = { type: 'audio/pcm', rate: 24000 };
 	private outputSampleRate = 24000;
 	private outputAudioChannels = 1;
 	private readonly DEFAULT_WORD_DURATION_MS = 220;
@@ -545,6 +544,140 @@ export class RealtimeOpenAIStore {
 		});
 	}
 
+	// Process server event using new realtime-agents.service approach
+	private processServerEventNew(serverEvent: SDKTransportEvent): {
+		type: 'message' | 'transcription' | 'connection_state' | 'ignore';
+		data: any;
+	} {
+		switch (serverEvent.type) {
+			case 'conversation.item.input_audio_transcription.completed': {
+				return {
+					type: 'transcription',
+					data: {
+						type: 'user_transcript',
+						text: (serverEvent as any).transcript,
+						isFinal: true,
+						timestamp: new SvelteDate()
+					}
+				};
+			}
+
+			case 'response.audio_transcript.delta':
+			case 'response.output_audio_transcript.delta': {
+				return {
+					type: 'transcription',
+					data: {
+						type: 'assistant_transcript',
+						text: (serverEvent as any).delta,
+						isFinal: false,
+						timestamp: new SvelteDate()
+					}
+				};
+			}
+
+			case 'response.audio_transcript.done':
+			case 'response.output_audio_transcript.done': {
+				return {
+					type: 'transcription',
+					data: {
+						type: 'assistant_transcript',
+						text: (serverEvent as any).transcript,
+						isFinal: true,
+						timestamp: new SvelteDate()
+					}
+				};
+			}
+
+			case 'response.output_text.delta':
+			case 'response.text.delta': {
+				const delta: string | undefined = (serverEvent as any)?.delta;
+				if (delta && typeof delta === 'string') {
+					return {
+						type: 'transcription',
+						data: {
+							type: 'assistant_transcript',
+							text: delta,
+							isFinal: false,
+							timestamp: new SvelteDate()
+						}
+					};
+				}
+				return { type: 'ignore', data: null };
+			}
+
+			case 'response.output_text.done':
+			case 'response.text.done': {
+				const text: string | undefined = (serverEvent as any)?.text;
+				if (text && typeof text === 'string') {
+					return {
+						type: 'transcription',
+						data: {
+							type: 'assistant_transcript',
+							text,
+							isFinal: true,
+							timestamp: new SvelteDate()
+						}
+					};
+				}
+				return { type: 'ignore', data: null };
+			}
+
+			case 'conversation.item.created':
+			case 'conversation.item.added': {
+				const createdEvent = serverEvent as any;
+				if (createdEvent.item?.type === 'message' && createdEvent.item?.role === 'assistant') {
+					const textParts =
+						createdEvent.item.content?.filter((part: any) => part.type === 'text') || [];
+
+					const content = textParts.map((part: any) => part.text).join(' ');
+
+					if (content) {
+						return {
+							type: 'message',
+							data: {
+								role: 'assistant',
+								content,
+								timestamp: new SvelteDate()
+							}
+						};
+					}
+				}
+				return { type: 'ignore', data: null };
+			}
+
+			case 'response.content_part.done': {
+				const partEvent = serverEvent as any;
+				if (partEvent.part?.type === 'text') {
+					return {
+						type: 'message',
+						data: {
+							role: 'assistant',
+							content: partEvent.part.text,
+							timestamp: new SvelteDate()
+						}
+					};
+				}
+				return { type: 'ignore', data: null };
+			}
+
+			case 'session.created':
+			case 'session.updated':
+				return {
+					type: 'connection_state',
+					data: { state: 'session_ready' }
+				};
+
+			case 'error':
+				return {
+					type: 'connection_state',
+					data: { state: 'error' }
+				};
+
+			default:
+				return { type: 'ignore', data: null };
+		}
+	}
+
 	// Process individual server event in proper order
 	private async processServerEventOrdered(serverEvent: SDKTransportEvent) {
 		if (
@@ -559,7 +692,8 @@ export class RealtimeOpenAIStore {
 			this.handleAssistantAudioDone(serverEvent);
 		}
 
-		const processed = realtimeService.processServerEvent(serverEvent);
+		// Process server event using new realtime-agents.service approach
+		const processed = this.processServerEventNew(serverEvent);
 
 		if (serverEvent.type === 'session.created' || serverEvent.type === 'session.updated') {
 			this.isConnected = true;
@@ -599,7 +733,11 @@ export class RealtimeOpenAIStore {
 
 					// Don't emit individual deltas - wait for final message
 				} else {
-					this.schedulePendingTranscript(serverEvent?.item_id, 'assistant', processed.data.text);
+					this.schedulePendingTranscript(
+						(serverEvent as any)?.item_id,
+						'assistant',
+						processed.data.text
+					);
 				}
 			} else if (processed.data.type === 'user_transcript') {
 				if (!processed.data.isFinal) {
@@ -626,7 +764,11 @@ export class RealtimeOpenAIStore {
 
 					// Don't emit individual user deltas - wait for final message
 				} else {
-					this.schedulePendingTranscript(serverEvent?.item_id, 'user', processed.data.text);
+					this.schedulePendingTranscript(
+						(serverEvent as any)?.item_id,
+						'user',
+						processed.data.text
+					);
 				}
 			}
 		} else if (processed.type === 'message') {
@@ -635,9 +777,9 @@ export class RealtimeOpenAIStore {
 				this.aiResponse = processed.data.content;
 			}
 		} else if (processed.type === 'ignore') {
-			if (this.debug) {
-				console.debug('[realtime] ignored event:', serverEvent?.type, serverEvent);
-			}
+			// if (this.debug) {
+			// 	console.debug('[realtime] ignored event:', serverEvent?.type, serverEvent);
+			// }
 		}
 	}
 
@@ -857,29 +999,32 @@ export class RealtimeOpenAIStore {
 					: undefined;
 
 				const audioCapture = captureOutputAudioConfig({
-					currentFormat: this.outputAudioFormat,
+					currentFormat: this.outputAudioFormat as any,
 					currentSampleRate: this.outputSampleRate,
 					currentChannels: this.outputAudioChannels,
 					audioConfig: initialAudioConfig
 				});
-				this.outputAudioFormat = audioCapture.format;
+				this.outputAudioFormat = audioCapture.format as RealtimeAudioFormatDefinition;
 				this.outputSampleRate = audioCapture.sampleRate;
 				this.outputAudioChannels = audioCapture.channels;
 				initialAudioConfig = audioCapture.audioConfig;
 
 				// Send initial session.update with provided options
-				const sessionUpdateEvent = realtimeService.createSessionUpdate({
-					model: options?.model || publicEnv.PUBLIC_OPEN_AI_MODEL,
-					voice: options?.voice || 'verse',
-					input_audio_transcription: transcriptionLanguage
-						? {
-								model: options?.transcriptionModel || 'gpt-4o-transcribe',
-								language: transcriptionLanguage
-							}
-						: undefined,
-					audio: initialAudioConfig,
-					turnDetection: null
-				});
+				const sessionUpdateEvent = {
+					type: 'session.update' as const,
+					session: {
+						model: options?.model || publicEnv.PUBLIC_OPEN_AI_MODEL,
+						voice: options?.voice || 'verse',
+						input_audio_transcription: transcriptionLanguage
+							? {
+									model: options?.transcriptionModel || 'gpt-4o-transcribe',
+									language: transcriptionLanguage
+								}
+							: undefined,
+						audio: initialAudioConfig,
+						turnDetection: null
+					}
+				};
 				this.logEvent('client', 'session.update', sessionUpdateEvent);
 				sendEventViaSession(this.connection, sessionUpdateEvent);
 			} else {
@@ -971,16 +1116,18 @@ export class RealtimeOpenAIStore {
 
 	pttStart(mediaStream: MediaStream): void {
 		if (!this.connection) return;
-		const ev = realtimeService.createInputAudioBufferClear();
+		const ev = { type: 'input_audio_buffer.clear' as const };
 		this.logEvent('client', String(ev.type), ev);
 		sendEventViaSession(this.connection, ev);
-		realtimeService.resumeAudioInput(mediaStream);
+		// Resume audio input
+		mediaStream.getAudioTracks().forEach((track) => (track.enabled = true));
 	}
 
 	pttStop(mediaStream: MediaStream): void {
 		if (!this.connection) return;
-		realtimeService.pauseAudioInput(mediaStream);
-		const ev = realtimeService.createInputAudioBufferCommit();
+		// Pause audio input
+		mediaStream.getAudioTracks().forEach((track) => (track.enabled = false));
+		const ev = { type: 'input_audio_buffer.commit' as const };
 		this.logEvent('client', String(ev.type), ev);
 		sendEventViaSession(this.connection, ev);
 	}
@@ -1012,26 +1159,29 @@ export class RealtimeOpenAIStore {
 					} as RealtimeAudioConfig)
 				: undefined);
 		const audioCapture = captureOutputAudioConfig({
-			currentFormat: this.outputAudioFormat,
+			currentFormat: this.outputAudioFormat as any,
 			currentSampleRate: this.outputSampleRate,
 			currentChannels: this.outputAudioChannels,
 			audioConfig
 		});
-		this.outputAudioFormat = audioCapture.format;
+		this.outputAudioFormat = audioCapture.format as RealtimeAudioFormatDefinition;
 		this.outputSampleRate = audioCapture.sampleRate;
 		this.outputAudioChannels = audioCapture.channels;
 		audioConfig = audioCapture.audioConfig;
-		const update = realtimeService.createSessionUpdate({
-			...config,
-			input_audio_transcription: transcriptionLanguage
-				? {
-						model: config.transcriptionModel || 'gpt-4o-transcribe',
-						language: transcriptionLanguage
-					}
-				: undefined,
-			audio: audioConfig,
-			turnDetection: config.turnDetection ?? null
-		});
+		const update = {
+			type: 'session.update' as const,
+			session: {
+				...config,
+				input_audio_transcription: transcriptionLanguage
+					? {
+							model: config.transcriptionModel || 'gpt-4o-transcribe',
+							language: transcriptionLanguage
+						}
+					: undefined,
+				audio: audioConfig,
+				turnDetection: config.turnDetection ?? null
+			}
+		};
 		this.logEvent('client', 'session.update', update);
 		sendEventViaSession(this.connection, update);
 
