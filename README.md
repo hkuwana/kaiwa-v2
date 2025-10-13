@@ -55,10 +55,12 @@ For a detailed explanation, please see the [Architecture Documentation](src/lib/
 
 - **AI-Powered Conversations**: Practice speaking with an AI partner in 8+ languages.
 - **Scenario-Based Learning**: Choose from over 30 real-world scenarios like ordering coffee, meeting a partner's parents, or handling a business negotiation.
-- **Realtime Feedback**: (In development) Get instant feedback on pronunciation and grammar.
+- **Advanced Phonetics Feedback**: Get detailed pronunciation analysis with IPA transcription, word-level timing, and personalized practice recommendations.
+- **Speech Analysis**: Real-time pronunciation scoring, fluency metrics, and speech rate analysis using Echogarden.
+- **Audio Processing**: Cloud-based audio storage with automatic cleanup and retention policies.
 - **User Authentication**: Secure sign-up and login with Google or email.
 - **Subscription Tiers**: Managed with Stripe, offering different levels of access and usage.
-- **In-depth Analysis**: Post-conversation analysis of your performance.
+- **In-depth Analysis**: Post-conversation analysis of your performance with detailed speech metrics.
 
 ## 📚 Documentation
 

@@ -25,12 +25,13 @@
 
 ## Overview
 
-Implement pronunciation and speech analysis for Kaiwa using **Echogarden** for forced alignment, with audio storage on **Tigris/S3** and processing on **Fly.io**.
+Implement comprehensive pronunciation and speech analysis for Kaiwa using **Echogarden** for forced alignment, with audio storage on **Tigris/S3** and processing on **Fly.io**. This system provides detailed phonetics feedback similar to professional language learning platforms.
 
 ### What You'll Build
 
 ✅ **Audio Capture** - Save OpenAI Realtime audio to cloud storage
 ✅ **Speech Analysis** - Analyze pronunciation, fluency, speech rate
+✅ **Phonetics Analysis** - IPA transcription and phoneme-level feedback
 ✅ **Background Jobs** - Process audio asynchronously
 ✅ **Feedback UI** - Display pronunciation results to users
 ✅ **Cost Management** - Automatic cleanup based on retention policy
@@ -40,8 +41,10 @@ Implement pronunciation and speech analysis for Kaiwa using **Echogarden** for f
 - **Word-level timing** - Precise alignment of words with audio
 - **Pronunciation scores** - 0-100 accuracy ratings
 - **Fluency analysis** - Detect pauses, hesitations, speech rate
+- **Phonetics feedback** - IPA transcription and phoneme analysis
 - **Problematic words** - Identify specific issues
 - **Practice recommendations** - Personalized suggestions
+- **Multi-language support** - 8+ languages with language-specific analysis
 
 ---
 
@@ -445,7 +448,29 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 ### Step 6: Implement Speech Analysis (30 min)
 
-#### 6.1 Create Pronunciation Analysis Module
+#### 6.1 Phonetics Analysis Features
+
+**IPA Transcription Support**
+- International Phonetic Alphabet representation for each word
+- Phoneme-level timing and accuracy analysis
+- Cross-language phonetic comparison capabilities
+
+**Phoneme-Level Feedback**
+- Individual sound accuracy scores (0-100)
+- Common pronunciation errors identification
+- Targeted practice recommendations for specific sounds
+
+**Language-Specific Analysis**
+- English: Vowel/consonant analysis, stress patterns
+- Japanese: Hiragana/Katakana pronunciation, pitch accent
+- Spanish: Romance language patterns, rolled R detection
+- French: Nasal vowel analysis, liaison patterns
+- German: Consonant cluster analysis, umlaut pronunciation
+- Chinese: Tone analysis and accuracy
+- Korean: Syllable structure analysis
+- Italian, Portuguese, Russian: Language-specific phonetic patterns
+
+#### 6.2 Create Pronunciation Analysis Module
 
 **File: `src/lib/features/analysis/modules/pronunciation-analysis.module.ts`**
 
@@ -786,6 +811,33 @@ Add to `fly.toml`:
 
 ### Step 8: Build UI Components (30 min)
 
+#### 8.1 Phonetics Feedback UI Features
+
+**Pronunciation Score Display**
+- Overall accuracy and fluency scores (0-100)
+- Visual progress indicators and badges
+- Color-coded accuracy levels (green/yellow/red)
+
+**Word-Level Phonetics Display**
+- Clickable words with detailed feedback
+- IPA transcription for each word
+- Phoneme-level accuracy scores
+- Timing visualization with confidence indicators
+
+**Practice Recommendations Panel**
+- Personalized suggestions based on analysis
+- Targeted word practice lists
+- Progress tracking over time
+- Language-specific pronunciation tips
+
+**Visual Timeline Component**
+- Word-by-word timing visualization
+- Pause and hesitation markers
+- Confidence score indicators
+- Interactive playback controls
+
+#### 8.2 Pronunciation Feedback Component
+
 **File: `src/lib/components/PronunciationFeedback.svelte`**
 
 ```svelte
@@ -1049,9 +1101,12 @@ npm install echogarden --legacy-peer-deps
 
 1. **Real-time feedback** - Show pronunciation during conversation
 2. **Historical tracking** - Track improvement over time with graphs
-3. **Phoneme-level analysis** - Detailed sound-by-sound feedback
+3. **Advanced phoneme-level analysis** - Detailed sound-by-sound feedback with IPA
 4. **Azure Speech SDK** - Professional pronunciation scoring
 5. **Practice exercises** - Generate targeted exercises based on issues
+6. **Spectrogram visualization** - Visual representation of speech sounds
+7. **Formant analysis** - Vowel quality and pronunciation analysis
+8. **Accent reduction training** - Targeted accent modification exercises
 
 ### Advanced Features
 
