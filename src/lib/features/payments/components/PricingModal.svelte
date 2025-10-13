@@ -176,14 +176,7 @@
 				{#if usageStatus && source === 'limit_modal'}
 					<div class="mt-4 alert alert-warning">
 						<div>
-							<svg class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"
-								></path>
-							</svg>
+							<span class="icon-[mdi--alert-triangle] h-6 w-6 shrink-0 stroke-current"></span>
 							<div>
 								<h3 class="font-bold">Current Usage</h3>
 								<div class="text-xs">
@@ -277,13 +270,7 @@
 							<ul class="mb-6 space-y-2">
 								{#each plan.features as feature (feature)}
 									<li class="flex items-center text-sm">
-										<svg class="mr-2 h-4 w-4 text-success" fill="currentColor" viewBox="0 0 20 20">
-											<path
-												fill-rule="evenodd"
-												d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-												clip-rule="evenodd"
-											/>
-										</svg>
+										<span class="icon-[mdi--check] mr-2 h-4 w-4 text-success"></span>
 										{feature}
 									</li>
 								{/each}

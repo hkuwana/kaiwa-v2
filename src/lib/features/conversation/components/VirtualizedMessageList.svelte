@@ -154,14 +154,7 @@
 						title="Scroll to bottom"
 						aria-label="Scroll to bottom"
 					>
-						<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M19 14l-7 7m0 0l-7-7m7 7V3"
-							/>
-						</svg>
+						<span class="icon-[mdi--arrow-down] h-4 w-4"></span>
 					</button>
 				</div>
 			{/if}
@@ -170,19 +163,7 @@
 		<div
 			class="rounded-lg border border-dashed border-base-300 py-12 text-center text-base-content/50"
 		>
-			<svg
-				class="mx-auto mb-4 h-12 w-12 text-base-content/30"
-				fill="none"
-				viewBox="0 0 24 24"
-				stroke="currentColor"
-			>
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					stroke-width="2"
-					d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-				/>
-			</svg>
+			<span class="icon-[mdi--message-text-outline] mx-auto mb-4 h-12 w-12 text-base-content/30"></span>
 			<p class="text-sm">No messages to display</p>
 		</div>
 	{/if}

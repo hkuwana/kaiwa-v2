@@ -80,13 +80,7 @@
 						<div
 							class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary sm:h-12 sm:w-12"
 						>
-							<svg
-								class="h-5 w-5 text-base-100 sm:h-6 sm:w-6"
-								fill="currentColor"
-								viewBox="0 0 20 20"
-							>
-								<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-							</svg>
+							<span class="icon-[mdi--check-circle] h-5 w-5 text-base-100 sm:h-6 sm:w-6"></span>
 						</div>
 						<div>
 							<h2 class="text-lg font-bold sm:text-xl">Your Learning Profile</h2>
@@ -100,19 +94,7 @@
 						onclick={onDismiss}
 						aria-label="Close learning profile"
 					>
-						<svg
-							class="h-4 w-4 sm:h-5 sm:w-5"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M6 18L18 6M6 6l12 12"
-							/>
-						</svg>
+						<span class="icon-[mdi--close] h-4 w-4 sm:h-5 sm:w-5"></span>
 					</button>
 				</div>
 
@@ -120,15 +102,7 @@
 					<div class="space-y-3 sm:space-y-4">
 						<div class="space-y-3 sm:space-y-4">
 							<div class="flex items-center gap-2">
-								<svg
-									class="h-4 w-4 text-error sm:h-5 sm:w-5"
-									fill="currentColor"
-									viewBox="0 0 20 20"
-								>
-									<path
-										d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-									/>
-								</svg>
+								<span class="icon-[mdi--clock-outline] h-4 w-4 text-error sm:h-5 sm:w-5"></span>
 								<h3 class="text-base font-semibold sm:text-lg">
 									Your Learning Goals: {results.learningGoal}
 								</h3>
@@ -148,13 +122,7 @@
 							</div>
 						</div>
 						<div class="flex items-center gap-2">
-							<svg
-								class="h-4 w-4 text-warning sm:h-5 sm:w-5"
-								fill="currentColor"
-								viewBox="0 0 20 20"
-							>
-								<path d="M10 2L3 8v10a2 2 0 002 2h10a2 2 0 002-2V8l-7-6z" />
-							</svg>
+							<span class="icon-[mdi--home-outline] h-4 w-4 text-warning sm:h-5 sm:w-5"></span>
 							<h3 class="text-base font-semibold sm:text-lg">Current Skill Levels</h3>
 						</div>
 
@@ -210,15 +178,7 @@
 
 					<div class="space-y-3 sm:space-y-4">
 						<div class="flex items-center gap-2">
-							<svg
-								class="h-4 w-4 text-base-content/60 sm:h-5 sm:w-5"
-								fill="currentColor"
-								viewBox="0 0 20 20"
-							>
-								<path
-									d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 8a2 2 0 110 4 2 2 0 010-4zM10 14a2 2 0 110 4 2 2 0 010-4z"
-								/>
-							</svg>
+							<span class="icon-[mdi--dots-vertical] h-4 w-4 text-base-content/60 sm:h-5 sm:w-5"></span>
 							<h3 class="text-base font-semibold sm:text-lg">Learning Preferences</h3>
 						</div>
 
@@ -278,19 +238,7 @@
 						</div>
 
 						<div class="alert alert-success">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								class="h-5 w-5 shrink-0 stroke-current sm:h-6 sm:w-6"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-								/>
-							</svg>
+							<span class="icon-[mdi--check-circle] h-5 w-5 shrink-0 stroke-current sm:h-6 sm:w-6"></span>
 							<div>
 								<h4 class="text-xs font-bold sm:text-sm">Assessment saved to your account</h4>
 								<div class="text-xs">
@@ -314,9 +262,7 @@
 						<div
 							class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary"
 						>
-							<svg class="h-4 w-4 text-base-100" fill="currentColor" viewBox="0 0 20 20">
-								<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-							</svg>
+							<span class="icon-[mdi--check-circle] h-4 w-4 text-base-100"></span>
 						</div>
 						<div>
 							<h3 class="text-sm font-bold">Learning Profile Ready</h3>
@@ -328,14 +274,7 @@
 						onclick={onDismiss}
 						aria-label="Close learning profile"
 					>
-						<svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M6 18L18 6M6 6l12 12"
-							/>
-						</svg>
+						<span class="icon-[mdi--close] h-3 w-3"></span>
 					</button>
 				</div>
 
@@ -354,19 +293,7 @@
 				</div>
 
 				<div class="alert-sm alert alert-info">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						class="h-4 w-4 shrink-0 stroke-current"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-						></path>
-					</svg>
+					<span class="icon-[mdi--information] h-4 w-4 shrink-0 stroke-current"></span>
 					<span class="text-xs">End conversation to view full profile</span>
 				</div>
 			</div>

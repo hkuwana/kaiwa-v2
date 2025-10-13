@@ -97,7 +97,28 @@ This document provides a comprehensive overview of all database schemas in the K
   - Multi-language script support: `romanization`, `pinyin`, `hiragana`, `katakana`, `kanji`
   - `translationConfidence`, `translationProvider`
   - `grammarAnalysis`, `vocabularyAnalysis` (JSON)
-- **Usage**: Stores conversation content with comprehensive translation and analysis support
+  - **Audio storage**: `audioUrl`, `audioStorageKey`, `audioDurationMs`, `audioSizeBytes` (see [Audio Schema Migration Guide](./AUDIO_SCHEMA_MIGRATION_GUIDE.md))
+  - **Audio processing**: `audioProcessingState`, `audioRetentionExpiresAt`
+  - **Speech scores**: `pronunciationScore`, `fluencyScore`, `speechRateWpm`
+- **Usage**: Stores conversation content with comprehensive translation, audio storage, and speech analysis support
+- **Note**: Detailed speech analysis data is stored in separate `message_audio_analysis` table for performance
+
+#### `message_audio_analysis`
+
+**Purpose**: Detailed speech analysis results (one-to-one with messages)
+
+- **Primary Key**: `id` (uuid)
+- **Key Fields**:
+  - `messageId` (foreign key to messages, unique, cascade delete)
+  - `overallAccuracyScore`, `overallFluencyScore` (0-100)
+  - `speechRateWpm`, `articulationRateWpm`
+  - `pauseCount`, `hesitationCount`, `averagePauseDurationMs`
+  - `speechTimings` (JSON: word-level timing with confidence)
+  - `phonemeAnalysis` (JSON: phoneme-level pronunciation scores)
+  - `problematicWords`, `recommendations`, `practiceWords` (JSON)
+  - `analysisEngine`, `analysisLanguage`, `analysisVersion`
+- **Usage**: Stores heavy speech analysis data separately for performance; loaded on-demand
+- **See**: [Audio Schema Migration Guide](./AUDIO_SCHEMA_MIGRATION_GUIDE.md) for complete details
 
 ### Learning Scenarios
 

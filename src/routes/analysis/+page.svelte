@@ -274,19 +274,7 @@
 	>
 		<div class="mx-auto max-w-md p-8 text-center">
 			<div class="mb-6">
-				<svg
-					class="mx-auto mb-4 h-16 w-16 text-warning"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke="currentColor"
-				>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-					/>
-				</svg>
+				<span class="icon-[mdi--file-question-outline] mx-auto mb-4 h-16 w-16 text-warning"></span>
 				<h1 class="mb-2 text-2xl font-bold">Conversation Not Found</h1>
 				<p class="mb-6 text-base-content/70">
 					This conversation session doesn't exist or has been removed. You can start a new
@@ -295,25 +283,11 @@
 			</div>
 			<div class="flex flex-col justify-center gap-3 sm:flex-row">
 				<button class="btn btn-primary" onclick={handleStartNewConversation}>
-					<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-						/>
-					</svg>
+					<span class="icon-[mdi--plus] mr-2 h-5 w-5"></span>
 					Start New Conversation
 				</button>
 				<button class="btn btn-ghost" onclick={handleGoHome}>
-					<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-						/>
-					</svg>
+					<span class="icon-[mdi--home] mr-2 h-5 w-5"></span>
 					Go Home
 				</button>
 			</div>
@@ -332,14 +306,7 @@
 					</div>
 					<div class="flex gap-2">
 						<button class="btn btn-primary" onclick={() => (showQuickAnalysisModal = true)}>
-							<svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-								/>
-							</svg>
+							<span class="icon-[mdi--chart-bar] mr-2 h-4 w-4"></span>
 							Quick Analysis
 						</button>
 						<button
@@ -351,14 +318,7 @@
 								<span class="loading mr-2 loading-sm loading-spinner"></span>
 								Running Analysis...
 							{:else}
-								<svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M13 10V3L4 14h7v7l9-11h-7z"
-									/>
-								</svg>
+								<span class="icon-[mdi--play] mr-2 h-4 w-4"></span>
 								Run Analysis
 							{/if}
 						</button>
@@ -366,14 +326,7 @@
 							class="btn btn-outline"
 							onclick={() => (showErrorAnalysis = !showErrorAnalysis)}
 						>
-							<svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-								/>
-							</svg>
+							<span class="icon-[mdi--check-circle] mr-2 h-4 w-4"></span>
 							{showErrorAnalysis ? 'Hide' : 'Show'} Error Analysis
 						</button>
 					</div>
@@ -417,13 +370,7 @@
 									<div
 										class="mb-2 flex items-center gap-2 text-sm font-semibold text-warning-content"
 									>
-										<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-											<path
-												fill-rule="evenodd"
-												d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-												clip-rule="evenodd"
-											></path>
-										</svg>
+										<span class="icon-[mdi--alert-triangle] h-4 w-4"></span>
 										Grammar Analysis
 									</div>
 									<div class="text-sm text-base-content/70">
@@ -440,13 +387,7 @@
 			{#if errorMessage}
 				<section class="rounded-lg bg-error/10 p-6 shadow">
 					<div class="flex items-center gap-2 text-error">
-						<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-							<path
-								fill-rule="evenodd"
-								d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-								clip-rule="evenodd"
-							></path>
-						</svg>
+						<span class="icon-[mdi--close-circle] h-5 w-5"></span>
 						<h3 class="font-semibold">Analysis Error</h3>
 					</div>
 					<p class="mt-2 text-error">{errorMessage}</p>
@@ -472,13 +413,7 @@
 					<!-- Analysis Complete Status -->
 					<div class="mb-6 rounded-lg border border-success/20 bg-success p-4">
 						<div class="mb-2 flex items-center gap-2">
-							<svg class="h-5 w-5 text-success" fill="currentColor" viewBox="0 0 20 20">
-								<path
-									fill-rule="evenodd"
-									d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z"
-									clip-rule="evenodd"
-								></path>
-							</svg>
+							<span class="icon-[mdi--arrow-right-circle] h-5 w-5 text-success"></span>
 							<h3 class="font-semibold text-success-content">Analysis Complete</h3>
 						</div>
 						<div class="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
@@ -504,13 +439,7 @@
 						<div class="mb-6 rounded-lg border border-info/20 bg-info p-4">
 							<div class="mb-3 flex items-center justify-between">
 								<div class="flex items-center gap-2">
-									<svg class="h-5 w-5 text-info" fill="currentColor" viewBox="0 0 20 20">
-										<path
-											fill-rule="evenodd"
-											d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h12a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm8 6a1 1 0 100-2 1 1 0 000 2z"
-											clip-rule="evenodd"
-										></path>
-									</svg>
+									<span class="icon-[mdi--database-outline] h-5 w-5 text-info"></span>
 									<h3 class="font-semibold text-info-content">Usage Impact</h3>
 								</div>
 								<label class="flex cursor-pointer items-center gap-2">
@@ -551,9 +480,7 @@
 					<!-- Module Results -->
 					<div class="space-y-4">
 						<h3 class="flex items-center gap-2 font-semibold">
-							<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-								<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-							</svg>
+							<span class="icon-[mdi--check-circle] h-5 w-5"></span>
 							Module Results
 						</h3>
 						{#each lastRun.moduleResults as moduleResult, index (index)}
@@ -590,13 +517,7 @@
 										<h4
 											class="mb-2 flex items-center gap-1 text-sm font-medium text-base-content/80"
 										>
-											<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-												<path
-													fill-rule="evenodd"
-													d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a1 1 0 00-1 1v3a1 1 0 102 0v-3a1 1 0 00-1-1z"
-													clip-rule="evenodd"
-												></path>
-											</svg>
+											<span class="icon-[mdi--information-outline] h-4 w-4"></span>
 											Recommendations ({moduleResult.recommendations.length}):
 										</h4>
 										<ul class="space-y-2">
@@ -615,13 +536,7 @@
 										<summary
 											class="flex cursor-pointer items-center gap-1 text-sm font-medium text-base-content/60 hover:text-base-content"
 										>
-											<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-												<path
-													fill-rule="evenodd"
-													d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm8 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V8z"
-													clip-rule="evenodd"
-												></path>
-											</svg>
+											<span class="icon-[mdi--code-json] h-4 w-4"></span>
 											Module Data (Click to expand)
 										</summary>
 										<pre
@@ -640,13 +555,7 @@
 					{#if showRawAnalysis}
 						<div class="mt-6 rounded-lg bg-base-200 p-4">
 							<div class="mb-4 flex items-center gap-2">
-								<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-									<path
-										fill-rule="evenodd"
-										d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"
-										clip-rule="evenodd"
-									></path>
-								</svg>
+								<span class="icon-[mdi--code-json] h-5 w-5"></span>
 								<h4 class="font-semibold">Raw Analysis JSON</h4>
 								<button
 									class="btn ml-auto btn-outline btn-xs"
@@ -669,36 +578,15 @@
 			<section class="rounded-lg bg-base-100 p-6 shadow">
 				<div class="flex flex-col justify-center gap-3 sm:flex-row">
 					<button class="btn btn-primary" onclick={handleStartNewConversation}>
-						<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-							/>
-						</svg>
+						<span class="icon-[mdi--plus] mr-2 h-5 w-5"></span>
 						Start New Conversation
 					</button>
 					<button class="btn btn-outline" onclick={handleGoToFullAnalysis}>
-						<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-							/>
-						</svg>
+						<span class="icon-[mdi--chart-bar] mr-2 h-5 w-5"></span>
 						Get Full Analysis
 					</button>
 					<button class="btn btn-ghost" onclick={handleGoHome}>
-						<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-							/>
-						</svg>
+						<span class="icon-[mdi--home] mr-2 h-5 w-5"></span>
 						Go Home
 					</button>
 				</div>
