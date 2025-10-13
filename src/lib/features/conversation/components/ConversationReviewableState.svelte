@@ -246,14 +246,7 @@
 		<div id="section-summary" class="mb-6 text-center md:mb-8">
 			<div class="mb-4 flex justify-center">
 				<div class="badge gap-2 badge-lg badge-success">
-					<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M5 13l4 4L19 7"
-						/>
-					</svg>
+					<span class="icon-[mdi--check] h-4 w-4"></span>
 					Conversation Complete
 				</div>
 			</div>
@@ -267,14 +260,7 @@
 		{#if quotaStatus && quotaStatus.quotaExceeded}
 			<div class="mb-4 rounded-xl border border-warning/20 bg-warning/10 p-4 text-center md:mb-6">
 				<div class="mb-2 flex justify-center">
-					<svg class="h-6 w-6 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-						/>
-					</svg>
+					<span class="icon-[mdi--alert-triangle] h-6 w-6 text-warning"></span>
 				</div>
 				<h3 class="mb-1 font-semibold text-warning">Analysis Limit Reached</h3>
 				<p class="mb-3 text-sm text-base-content/70">
@@ -311,14 +297,7 @@
 				onclick={handleAnalyzeConversation}
 				disabled={quotaStatus?.quotaExceeded}
 			>
-				<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-					/>
-				</svg>
+				<span class="icon-[mdi--chart-bar] h-5 w-5"></span>
 				{quotaStatus?.quotaExceeded ? 'Analysis Limit Reached' : 'Get Learning Analysis'}
 			</button>
 
@@ -326,14 +305,7 @@
 				class="btn flex-1 gap-2 btn-outline btn-lg sm:flex-none"
 				onclick={onStartNewConversation}
 			>
-				<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-					/>
-				</svg>
+				<span class="icon-[mdi--plus] h-5 w-5"></span>
 				Practice More
 			</button>
 		</div>
@@ -377,14 +349,7 @@
 				<div class="mb-4 flex flex-col items-start justify-between sm:flex-row sm:items-center">
 					<h2 class="mb-2 text-lg font-semibold sm:mb-0 md:text-xl">Conversation Insights</h2>
 					<button class="btn btn-sm btn-secondary" onclick={handleShowDeeperAnalytics}>
-						<svg class="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-							/>
-						</svg>
+						<span class="icon-[mdi--chart-bar] mr-1 h-4 w-4"></span>
 						{showDeeperAnalytics ? 'Hide' : 'Show'} Deeper Analytics
 					</button>
 				</div>
@@ -456,19 +421,7 @@
 		<div id="section-conversation" class="mb-6 rounded-xl bg-base-100 p-4 shadow-lg md:mb-8 md:p-6">
 			<h2 class="mb-4 flex items-center justify-between text-lg font-semibold md:mb-6 md:text-xl">
 				<div class="flex items-center">
-					<svg
-						class="mr-2 h-5 w-5 text-primary"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-						/>
-					</svg>
+					<span class="icon-[mdi--message-text] mr-2 h-5 w-5 text-primary"></span>
 					Your Conversation
 				</div>
 				<button
@@ -476,14 +429,7 @@
 					onclick={() => (showShareModal = true)}
 					title="Share your progress"
 				>
-					<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
-						/>
-					</svg>
+					<span class="icon-[mdi--share-variant] h-4 w-4"></span>
 					Share
 				</button>
 			</h2>
@@ -508,19 +454,7 @@
 			{:else if showAnalysisResults && analysisResults}
 				<div class="rounded-xl bg-base-100 p-4 shadow-lg md:p-6">
 					<h2 class="mb-4 flex items-center text-lg font-semibold md:text-xl">
-						<svg
-							class="mr-2 h-5 w-5 text-success"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-							/>
-						</svg>
+						<span class="icon-[mdi--check-circle] mr-2 h-5 w-5 text-success"></span>
 						Your Learning Analysis
 					</h2>
 					<OnboardingResults

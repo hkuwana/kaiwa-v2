@@ -1,10 +1,24 @@
 <script lang="ts">
 	// Flattened dev tools list for compact display
-	const devTools = [
-		// Product Roadmap - Always first
+const devTools = [
+		// Product & reference pages worth keeping handy
 		{
-			category: '🛠️ Development & Planning',
-			name: 'Product Roadmap',
+			category: '📚 Docs & Pages',
+			name: 'Research Page',
+			href: '/research',
+			desc: 'Marketing-facing overview of the research behind Kaiwa'
+		},
+		{
+			category: '📚 Docs & Pages',
+			name: 'Documentation Hub',
+			href: '/docs',
+			desc: 'Browse internal docs, guides, and implementation plans'
+		},
+
+	// Product Roadmap - Always first
+	{
+		category: '🛠️ Development & Planning',
+		name: 'Product Roadmap',
 			href: '/dev/roadmap',
 			desc: 'View development roadmap and feature planning'
 		},

@@ -341,18 +341,7 @@
 				>
 					Tap the microphone when you're ready to begin
 				</div>
-				<svg
-					class="mx-auto mt-2 h-7 w-7 animate-bounce text-base-content"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					aria-hidden="true"
-				>
-					<path d="M6 9l6 6 6-6" />
-				</svg>
+				<span class="icon-[mdi--chevron-down] mx-auto mt-2 h-7 w-7 animate-bounce text-base-content"></span>
 			</div>
 		{:else if showOnboardingHint() && !hasUsedAudioControl}
 			<div class="pointer-events-none fixed inset-x-0 bottom-28 z-50 select-none">
@@ -361,18 +350,7 @@
 				>
 					Tap and hold to talk, then release to hear Kaiwa
 				</div>
-				<svg
-					class="mx-auto mt-2 h-7 w-7 animate-bounce text-base-content"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					aria-hidden="true"
-				>
-					<path d="M6 9l6 6 6-6" />
-				</svg>
+				<span class="icon-[mdi--chevron-down] mx-auto mt-2 h-7 w-7 animate-bounce text-base-content"></span>
 			</div>
 		{/if}
 

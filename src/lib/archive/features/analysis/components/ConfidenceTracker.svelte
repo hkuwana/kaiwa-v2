@@ -97,31 +97,13 @@
 		{#if confidenceData.previousScore !== undefined}
 			<div class="flex items-center gap-2">
 				{#if confidenceChange > 0}
-					<svg class="h-5 w-5 text-success" fill="currentColor" viewBox="0 0 20 20">
-						<path
-							fill-rule="evenodd"
-							d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z"
-							clip-rule="evenodd"
-						></path>
-					</svg>
+					<span class="icon-[mdi--arrow-up] h-5 w-5 text-success"></span>
 					<span class="font-medium text-success">+{confidenceChange}</span>
 				{:else if confidenceChange < 0}
-					<svg class="h-5 w-5 text-warning" fill="currentColor" viewBox="0 0 20 20">
-						<path
-							fill-rule="evenodd"
-							d="M14.707 12.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 14.586V3a1 1 0 112 0v11.586l2.293-2.293a1 1 0 011.414 0z"
-							clip-rule="evenodd"
-						></path>
-					</svg>
+					<span class="icon-[mdi--arrow-down] h-5 w-5 text-warning"></span>
 					<span class="font-medium text-warning">{confidenceChange}</span>
 				{:else}
-					<svg class="h-5 w-5 text-base-content/60" fill="currentColor" viewBox="0 0 20 20">
-						<path
-							fill-rule="evenodd"
-							d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-							clip-rule="evenodd"
-						></path>
-					</svg>
+					<span class="icon-[mdi--minus] h-5 w-5 text-base-content/60"></span>
 					<span class="font-medium text-base-content/60">Stable</span>
 				{/if}
 			</div>
@@ -158,18 +140,7 @@
 		onclick={() => (showDetails = !showDetails)}
 	>
 		{showDetails ? 'Hide' : 'Show'} Details
-		<svg
-			class="h-4 w-4 transition-transform"
-			class:rotate-180={showDetails}
-			fill="currentColor"
-			viewBox="0 0 20 20"
-		>
-			<path
-				fill-rule="evenodd"
-				d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-				clip-rule="evenodd"
-			></path>
-		</svg>
+		<span class="icon-[mdi--chevron-down] h-4 w-4 transition-transform" class:rotate-180={showDetails}></span>
 	</button>
 
 	{#if showDetails}
@@ -177,13 +148,7 @@
 			<!-- Confidence indicators -->
 			<div>
 				<h4 class="font-medium {colors.text} mb-2 flex items-center gap-2">
-					<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-						<path
-							fill-rule="evenodd"
-							d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a1 1 0 00-1 1v3a1 1 0 102 0v-3a1 1 0 00-1-1z"
-							clip-rule="evenodd"
-						></path>
-					</svg>
+					<span class="icon-[mdi--information] h-4 w-4"></span>
 					What we noticed about your confidence:
 				</h4>
 				<ul class="space-y-1">
@@ -199,11 +164,7 @@
 			<!-- Milestones -->
 			<div>
 				<h4 class="font-medium {colors.text} mb-2 flex items-center gap-2">
-					<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-						<path
-							d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-						></path>
-					</svg>
+					<span class="icon-[mdi--star] h-4 w-4"></span>
 					Confidence Milestones:
 				</h4>
 				<div class="grid gap-2">
@@ -215,13 +176,7 @@
 								class:bg-base-300={!milestone.achieved}
 							>
 								{#if milestone.achieved}
-									<svg class="h-3 w-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-										<path
-											fill-rule="evenodd"
-											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-											clip-rule="evenodd"
-										></path>
-									</svg>
+									<span class="icon-[mdi--check] h-3 w-3 text-white"></span>
 								{/if}
 							</div>
 							<div class="flex-1">
@@ -243,13 +198,7 @@
 			<!-- Next steps -->
 			<div>
 				<h4 class="font-medium {colors.text} mb-2 flex items-center gap-2">
-					<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-						<path
-							fill-rule="evenodd"
-							d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-							clip-rule="evenodd"
-						></path>
-					</svg>
+					<span class="icon-[mdi--arrow-right] h-4 w-4"></span>
 					Next steps to build confidence:
 				</h4>
 				<ul class="space-y-1">

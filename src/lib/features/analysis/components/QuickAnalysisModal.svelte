@@ -183,11 +183,11 @@
 	function getAnalysisTypeIcon(type: string): string {
 		switch (type) {
 			case 'onboarding':
-				return 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z';
+				return 'icon-[mdi--account]';
 			case 'scenario-generation':
-				return 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547A8.014 8.014 0 004 21h16a8.014 8.014 0 00-.244-5.572z';
+				return 'icon-[mdi--lightbulb-on-outline]';
 			default:
-				return 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z';
+				return 'icon-[mdi--chart-bar]';
 		}
 	}
 
@@ -210,26 +210,12 @@
 			<div class="mb-6 flex items-center justify-between">
 				<div class="flex items-center gap-3">
 					<div class="badge gap-2 badge-lg badge-success">
-						<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M5 13l4 4L19 7"
-							/>
-						</svg>
+						<span class="icon-[mdi--check] h-4 w-4"></span>
 						{getAnalysisTypeTitle(analysisType)} Ready
 					</div>
 					{#if isHistorical}
 						<div class="badge gap-2 badge-lg badge-info">
-							<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-								/>
-							</svg>
+							<span class="icon-[mdi--clock-outline] h-4 w-4"></span>
 							Historical Conversation
 						</div>
 					{/if}
@@ -253,19 +239,7 @@
 					transition:slide={{ duration: 400, delay: 200 }}
 				>
 					<h2 class="mb-4 flex items-center text-xl font-semibold">
-						<svg
-							class="mr-2 h-5 w-5 text-primary"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d={getAnalysisTypeIcon(analysisType)}
-							/>
-						</svg>
+						<span class="{getAnalysisTypeIcon(analysisType)} mr-2 h-5 w-5 text-primary"></span>
 						Conversation Overview
 					</h2>
 					<div class="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -295,14 +269,7 @@
 					{#if conversationStats.translationCount > 0}
 						<div class="mt-4 flex justify-center">
 							<div class="badge gap-2 badge-outline">
-								<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"
-									/>
-								</svg>
+								<span class="icon-[mdi--translate] h-4 w-4"></span>
 								{conversationStats.translationCount} translations used
 							</div>
 						</div>
@@ -359,40 +326,17 @@
 						{#if isGuestUser}
 							<!-- Guest user sees login CTA -->
 							<button class="btn btn-lg btn-primary" onclick={onGoToFullAnalysis}>
-								<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-									/>
-								</svg>
+								<span class="icon-[mdi--lock] mr-2 h-5 w-5"></span>
 								Login to Unlock Full Analysis
 							</button>
 						{:else}
 							<button class="btn btn-lg btn-primary" onclick={onGoToFullAnalysis}>
-								<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d={getAnalysisTypeIcon(analysisType)}
-									/>
-								</svg>
+								<span class="{getAnalysisTypeIcon(analysisType)} mr-2 h-5 w-5"></span>
 								{getCtaText(analysisType)}
 							</button>
 						{/if}
 						<button class="btn btn-outline btn-lg" onclick={onStartNewConversation}>
-							<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d={isHistorical
-										? 'M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z'
-										: 'M12 6v6m0 0v6m0-6h6m-6 0H6'}
-								/>
-							</svg>
+							<span class="mr-2 h-5 w-5 {isHistorical ? 'icon-[mdi--eye]' : 'icon-[mdi--plus]'}"></span>
 							{isHistorical ? 'View Conversation' : 'Practice More'}
 						</button>
 					</div>
