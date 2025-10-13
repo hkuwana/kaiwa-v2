@@ -10,8 +10,8 @@
 	import { fly, slide } from 'svelte/transition';
 
 	let scrollY = $state(0);
-	let _isVisible = $state(false);
-	let _hoveredCard = $state<string | null>(null);
+	let isVisible = $state(false);
+	let hoveredCard = $state<string | null>(null);
 	let animatedStats = $state({ studies: 0, universities: 0, retention: 0, anxiety: 0 });
 
 	// Page title and animations
@@ -107,7 +107,7 @@
 		>
 			<!-- Animated background particles -->
 			<div class="absolute inset-0 opacity-20">
-				{#each Array(20) as _, i}
+				{#each Array(20) as _ (_)}
 					<div
 						class="absolute h-2 w-2 animate-pulse rounded-full bg-primary"
 						style="
@@ -415,7 +415,7 @@
 					<div
 						class="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-30"
 					>
-						{#each Array(5) as _, i}
+						{#each Array(5) as _ (_)}
 							<div
 								class="absolute h-1 w-1 animate-ping rounded-full bg-accent"
 								style="

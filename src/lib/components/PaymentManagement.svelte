@@ -2,6 +2,7 @@
 	import TierBadge from '$lib/features/payments/components/TierBadge.svelte';
 	import type { Subscription } from '$lib/server/db/types';
 	import type { UsageStatus } from '$lib/server/tier-service';
+	import type { UsageLimits } from '$lib/stores/conversation-timer.store.svelte';
 
 	// Props from parent component
 	const {
@@ -25,7 +26,7 @@
 		isManagingBilling: boolean;
 		openBillingPortal: () => Promise<void>;
 		subscription: Subscription;
-		usageLimits: Record<string, unknown>;
+		usageLimits: UsageLimits;
 	} = $props();
 
 	// Subscription management state

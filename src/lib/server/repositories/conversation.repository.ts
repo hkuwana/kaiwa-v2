@@ -20,6 +20,74 @@ export const conversationRepository = {
 		return createdMessage;
 	},
 
+	// UPSERT
+	async upsertConversation(conversationData: NewConversation): Promise<Conversation> {
+		const [upserted] = await db
+			.insert(conversations)
+			.values(conversationData)
+			.onConflictDoUpdate({
+				target: conversations.id,
+				set: {
+					userId: conversationData.userId,
+					guestId: conversationData.guestId,
+					targetLanguageId: conversationData.targetLanguageId,
+					title: conversationData.title,
+					mode: conversationData.mode,
+					voice: conversationData.voice,
+					scenarioId: conversationData.scenarioId,
+					isOnboarding: conversationData.isOnboarding,
+					startedAt: conversationData.startedAt,
+					endedAt: conversationData.endedAt,
+					durationSeconds: conversationData.durationSeconds,
+					messageCount: conversationData.messageCount,
+					audioSeconds: conversationData.audioSeconds,
+					comfortRating: conversationData.comfortRating,
+					engagementLevel: conversationData.engagementLevel
+				}
+			})
+			.returning();
+		return upserted;
+	},
+
+	async upsertMessage(messageData: NewMessage): Promise<Message> {
+		const [upserted] = await db
+			.insert(messages)
+			.values(messageData)
+			.onConflictDoUpdate({
+				target: messages.id,
+				set: {
+					conversationId: messageData.conversationId,
+					role: messageData.role,
+					content: messageData.content,
+					timestamp: messageData.timestamp,
+					sequenceId: messageData.sequenceId,
+					translatedContent: messageData.translatedContent,
+					sourceLanguage: messageData.sourceLanguage,
+					targetLanguage: messageData.targetLanguage,
+					userNativeLanguage: messageData.userNativeLanguage,
+					romanization: messageData.romanization,
+					hiragana: messageData.hiragana,
+					otherScripts: messageData.otherScripts,
+					translationConfidence: messageData.translationConfidence,
+					translationProvider: messageData.translationProvider,
+					translationNotes: messageData.translationNotes,
+					isTranslated: messageData.isTranslated,
+					grammarAnalysis: messageData.grammarAnalysis,
+					vocabularyAnalysis: messageData.vocabularyAnalysis,
+					pronunciationScore: messageData.pronunciationScore,
+					audioUrl: messageData.audioUrl,
+					audioDuration: messageData.audioDuration,
+					speechTimings: messageData.speechTimings,
+					difficultyLevel: messageData.difficultyLevel,
+					learningTags: messageData.learningTags,
+					conversationContext: messageData.conversationContext,
+					messageIntent: messageData.messageIntent
+				}
+			})
+			.returning();
+		return upserted;
+	},
+
 	// READ
 	async findConversationById(id: string): Promise<Conversation | undefined> {
 		return db.query.conversations.findFirst({ where: eq(conversations.id, id) });

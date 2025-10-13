@@ -2,18 +2,24 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import UserPreferencesEditor from '$lib/components/UserPreferencesEditor.svelte';
-	import type { UserPreferences } from '$lib/server/db/types';
+	import type { Subscription, UserPreferences, User } from '$lib/server/db/types';
 	import type { UsageStatus } from '$lib/server/tier-service';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { onMount } from 'svelte';
 	import PaymentManagement from '$lib/components/PaymentManagement.svelte';
+	import type { UsageLimits } from '$lib/stores/conversation-timer.store.svelte.js';
 
-	const { data } = $props();
+	interface PageData {
+		user: User;
+		[key: string]: unknown;
+	}
+
+	const { data }: { data: PageData } = $props();
 
 	// Client-side data loading
 	let userPreferences = $state<UserPreferences | null>(null);
-	let subscription = $state<any>(null);
-	let usageLimits = $state<any>(null);
+	let subscription = $state<Subscription | null>(null);
+	let usageLimits = $state<UsageLimits | null>(null);
 
 	let showDeleteModal = $state(false);
 	let deleteConfirmation = $state('');
@@ -23,8 +29,15 @@
 	const requiredText = 'DELETE PROFILE';
 
 	// Tab navigation
-	let activeTab = $state('account');
-	const tabs = [
+	let activeTab = $state<'account' | 'billing' | 'preferences' | 'danger'>('account');
+
+	interface Tab {
+		id: 'account' | 'billing' | 'preferences' | 'danger';
+		label: string;
+		icon: string;
+	}
+
+	const tabs: Tab[] = [
 		{ id: 'account', label: 'Account', icon: 'user' },
 		{ id: 'billing', label: 'Billing & Payments', icon: 'credit-card' },
 		{ id: 'preferences', label: 'Learning Preferences', icon: 'settings' },
@@ -41,11 +54,11 @@
 
 	// Data loading promises
 	let userPreferencesPromise = $state<Promise<UserPreferences | null>>();
-	let subscriptionPromise = $state<Promise<any>>();
-	let usageLimitsPromise = $state<Promise<any>>();
+	let subscriptionPromise = $state<Promise<Subscription | null>>();
+	let usageLimitsPromise = $state<Promise<UsageLimits | null>>();
 
 	// Tier pricing for display
-	const tierPricing: Record<string, string> = {
+	const tierPricing: Record<'free' | 'plus' | 'premium', string> = {
 		free: '0',
 		plus: '19',
 		premium: '29'
@@ -142,7 +155,7 @@
 	};
 
 	// Load subscription data
-	const loadSubscription = async () => {
+	const loadSubscription = async (): Promise<Subscription | null> => {
 		try {
 			const response = await fetch('/api/user/subscription');
 			if (response.ok) {
@@ -156,7 +169,7 @@
 	};
 
 	// Load usage limits
-	const loadUsageLimits = async () => {
+	const loadUsageLimits = async (): Promise<UsageLimits | null> => {
 		try {
 			const response = await fetch(`/api/users/${data.user.id}/subscription`);
 			if (response.ok) {
@@ -170,7 +183,7 @@
 	};
 
 	// Load user's detailed usage status
-	const loadUsageStatus = async () => {
+	const loadUsageStatus = async (): Promise<void> => {
 		isLoadingUsage = true;
 		try {
 			const response = await fetch(`/api/users/${data.user.id}/usage?action=status`);
@@ -321,18 +334,25 @@
 
 				<!-- Billing Tab -->
 				{#if activeTab === 'billing'}
-					<PaymentManagement
-						{data}
-						{usageStatus}
-						{isLoadingUsage}
-						{loadUsageStatus}
-						{tierPricing}
-						{billingError}
-						{isManagingBilling}
-						{openBillingPortal}
-						{subscription}
-						{usageLimits}
-					/>
+					{#if subscription && usageLimits}
+						<PaymentManagement
+							{data}
+							{usageStatus}
+							{isLoadingUsage}
+							{loadUsageStatus}
+							{tierPricing}
+							{billingError}
+							{isManagingBilling}
+							{openBillingPortal}
+							{subscription}
+							{usageLimits}
+						/>
+					{:else}
+						<div class="flex items-center justify-center p-8">
+							<span class="loading loading-lg loading-spinner"></span>
+							<span class="ml-2">Loading billing information...</span>
+						</div>
+					{/if}
 				{/if}
 
 				<!-- Learning Preferences Tab -->

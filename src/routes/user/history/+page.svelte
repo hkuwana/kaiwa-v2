@@ -7,6 +7,22 @@
 	import type { Message } from '$lib/server/db/types';
 	import VirtualizedMessageList from '$lib/features/conversation/components/VirtualizedMessageList.svelte';
 	import { SvelteDate, SvelteMap, SvelteSet, SvelteURLSearchParams } from 'svelte/reactivity';
+	import type { User } from '$lib/server/db/types';
+
+	interface PageData {
+		user: { id: string };
+	}
+
+	interface ApiResponse<T> {
+		success: boolean;
+		data?: T;
+		error?: string;
+		pagination?: {
+			total?: number;
+			hasMore?: boolean;
+			hasNext?: boolean;
+		};
+	}
 
 	interface ConversationPreview {
 		id: string;
@@ -53,8 +69,10 @@
 	}
 
 	let conversations = $state<ConversationPreview[]>([]);
-	let conversationDetails = new SvelteMap<string, { details: ConversationDetails; messages: Message[] }>();
-	let expandedConversations = new SvelteSet<string>();
+	let conversationDetails = $state(
+		new SvelteMap<string, { details: ConversationDetails; messages: Message[] }>()
+	);
+	let expandedConversations = $state(new SvelteSet<string>());
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 	let searchQuery = $state('');
@@ -62,12 +80,14 @@
 	let currentPage = $state(0);
 	let totalConversations = $state(0);
 	let hasMore = $state(false);
-	let loadingDetails = new SvelteSet<string>();
+	let loadingDetails = $state(new SvelteSet<string>());
 	let showDevMode = $state(false);
-	let selectedConversations = new SvelteSet<string>();
+	let selectedConversations = $state(new SvelteSet<string>());
 	let deleting = $state(false);
 	let actionMessage = $state<string | null>(null);
 	let actionError = $state<string | null>(null);
+
+	const { data }: { data: PageData } = $props();
 
 	const limit = 10;
 	const languages = $derived(() => {
@@ -89,7 +109,7 @@
 		loadConversations();
 	});
 
-	async function loadConversations(reset = false) {
+	async function loadConversations(reset = false): Promise<void> {
 		if (reset) {
 			currentPage = 0;
 			conversations = [];
@@ -168,7 +188,7 @@
 		}
 	}
 
-	async function loadConversationDetails(conversationId: string) {
+	async function loadConversationDetails(conversationId: string): Promise<void> {
 		// Don't reload if already loaded
 		if (conversationDetails.has(conversationId)) {
 			return;
@@ -199,7 +219,7 @@
 		}
 	}
 
-	async function toggleConversation(conversationId: string) {
+	async function toggleConversation(conversationId: string): Promise<void> {
 		console.log('🔄 Toggling conversation:', conversationId);
 		console.log('📋 Current expanded:', Array.from(expandedConversations));
 
@@ -222,7 +242,7 @@
 		console.log('✅ New expanded state:', Array.from(expandedConversations));
 	}
 
-	function handleConversationCheckbox(conversationId: string, checked: boolean) {
+	function handleConversationCheckbox(conversationId: string, checked: boolean): void {
 		if (checked) {
 			selectedConversations.add(conversationId);
 		} else {
@@ -231,7 +251,7 @@
 		selectedConversations = new SvelteSet(selectedConversations);
 	}
 
-	function handleSelectAllVisible(checked: boolean) {
+	function handleSelectAllVisible(checked: boolean): void {
 		if (checked) {
 			conversations.forEach((conversation) => selectedConversations.add(conversation.id));
 		} else {
@@ -240,11 +260,11 @@
 		selectedConversations = new SvelteSet(selectedConversations);
 	}
 
-	function clearSelection() {
+	function clearSelection(): void {
 		selectedConversations = new SvelteSet();
 	}
 
-	async function deleteSelectedConversations() {
+	async function deleteSelectedConversations(): Promise<void> {
 		if (selectedConversations.size === 0 || deleting) {
 			return;
 		}
@@ -293,15 +313,15 @@
 		}
 	}
 
-	function handleSearch() {
+	function handleSearch(): void {
 		loadConversations(true);
 	}
 
-	function handleLanguageFilter() {
+	function handleLanguageFilter(): void {
 		loadConversations(true);
 	}
 
-	function loadMore() {
+	function loadMore(): void {
 		currentPage++;
 		loadConversations();
 	}
@@ -324,15 +344,15 @@
 		return `${hours}h ${minutes % 60}m`;
 	}
 
-	function goToAnalysis(conversationId: string) {
+	function goToAnalysis(conversationId: string): void {
 		goto(`/analysis?sessionId=${conversationId}`);
 	}
 
-	function startNewConversation() {
+	function startNewConversation(): void {
 		goto(resolve('/conversation'));
 	}
 
-	function syncStateWithConversations() {
+	function syncStateWithConversations(): void {
 		const validIds = new Set(conversations.map((conversation) => conversation.id));
 
 		const prunedSelection = Array.from(selectedConversations).filter((id) => validIds.has(id));
@@ -350,7 +370,10 @@
 		loadingDetails = new SvelteSet<string>(prunedLoadingDetails);
 	}
 
-	function setIndeterminate(node: HTMLInputElement, value: boolean) {
+	function setIndeterminate(
+		node: HTMLInputElement,
+		value: boolean
+	): { update: (next: boolean) => void } {
 		node.indeterminate = value;
 		return {
 			update(next: boolean) {
@@ -433,7 +456,7 @@
 							onchange={handleLanguageFilter}
 						>
 							<option value="">All Languages</option>
-							{#each languages() as language}
+							{#each languages() as language (language)}
 								<option value={language}>{language.toUpperCase()}</option>
 							{/each}
 						</select>
@@ -501,7 +524,7 @@
 					<div class="rounded-lg bg-base-100 p-3">
 						<h4 class="mb-2 text-sm font-medium">💾 Cached Details</h4>
 						<div class="space-y-1 text-xs">
-							{#each Array.from(conversationDetails.keys()) as id}
+							{#each Array.from(conversationDetails.keys()) as id (id)}
 								<div class="badge badge-xs badge-success">{id.slice(0, 8)}...</div>
 							{/each}
 							{#if conversationDetails.size === 0}

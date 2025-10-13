@@ -265,7 +265,7 @@ export class ConversationStore {
 		}
 
 		// Set up conversation parameters from user preferences
-		this.language = language || null;
+		this.language = language ?? dataLanguages[0];
 		this.speaker = typeof speaker === 'object' ? speaker : undefined;
 		this.transcriptionMode = userPreferencesStore.getTranscriptionMode();
 		this.status = 'connecting';
@@ -379,10 +379,19 @@ export class ConversationStore {
 			timestamp: new SvelteDate().toISOString()
 		});
 
-		realtimeOpenAI.pttStop(this.audioStream);
+		// CRITICAL: Disable track BEFORE committing buffer to prevent audio bleed
 		if (track) {
 			track.enabled = false;
 		}
+
+		// Small delay to ensure track is fully stopped before committing
+		setTimeout(() => {
+			if (!this.audioStream) {
+			console.log('🎙️ ConversationStore: pauseStreaming ignored - no active stream');
+			return;
+		}
+			realtimeOpenAI.pttStop(this.audioStream);
+		}, 50);
 
 		const hadActiveTurn = this.currentTurnStartMs !== null;
 		this.stopTurnLevelMonitor();
@@ -441,10 +450,13 @@ export class ConversationStore {
 		this.speechDetected = false;
 		this.startTurnLevelMonitor();
 
-		realtimeOpenAI.pttStart(this.audioStream);
+		// CRITICAL: Enable track BEFORE clearing buffer to ensure audio starts flowing
 		if (track) {
 			track.enabled = true;
 		}
+
+		// Clear buffer after track is enabled
+		realtimeOpenAI.pttStart(this.audioStream);
 
 		console.log('🎙️ ConversationStore: resumeStreaming applied', {
 			track: this.describeAudioTrack(track)

@@ -79,7 +79,6 @@ export const POST = async ({ request }) => {
 				audio: {
 					output: { voice }
 				}
-				// Note: input_audio_transcription should be configured via session.update after connection
 			}
 		};
 

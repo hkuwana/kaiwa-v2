@@ -1,6 +1,5 @@
 import { json } from '@sveltejs/kit';
 import { conversationRepository } from '$lib/server/repositories/conversation.repository';
-import { messagesRepository } from '$lib/server/repositories/messages.repository';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
 import { createErrorResponse, createSuccessResponse } from '$lib/types/api';
 import { z } from 'zod';
@@ -73,6 +72,21 @@ export const POST = async ({ request, locals }) => {
 			return json({ error: 'Conversation data is required' }, { status: 400 });
 		}
 
+		// Log incoming conversation data for debugging
+		console.log('📥 Saving conversation:', {
+			id: conversation.id,
+			targetLanguageId: conversation.targetLanguageId,
+			mode: conversation.mode,
+			isGuest: !locals.user,
+			messageCount: messages?.length || 0
+		});
+
+		// Validate required fields
+		if (!conversation.targetLanguageId) {
+			console.error('❌ Missing targetLanguageId in conversation data');
+			return json(createErrorResponse('targetLanguageId is required'), { status: 400 });
+		}
+
 		// Get user info from locals
 		const user = locals.user;
 
@@ -96,8 +110,8 @@ export const POST = async ({ request, locals }) => {
 			engagementLevel: conversation.engagementLevel || null
 		};
 
-		// Create new conversation
-		const savedConversation = await conversationRepository.createConversation(conversationData);
+		// Upsert conversation (insert or update if exists)
+		const savedConversation = await conversationRepository.upsertConversation(conversationData);
 
 		// Save messages if provided
 		const savedMessages = [];
@@ -133,7 +147,8 @@ export const POST = async ({ request, locals }) => {
 					messageIntent: message.messageIntent || null
 				};
 
-				const savedMessage = await messagesRepository.createMessage(messageData);
+				// Upsert message (insert or update if exists)
+				const savedMessage = await conversationRepository.upsertMessage(messageData);
 				savedMessages.push(savedMessage);
 			}
 		}
@@ -194,6 +209,12 @@ export const POST = async ({ request, locals }) => {
 		);
 	} catch (error) {
 		console.error('Create conversation API error:', error);
+		// Log detailed error information
+		if (error instanceof Error) {
+			console.error('Error name:', error.name);
+			console.error('Error message:', error.message);
+			console.error('Error stack:', error.stack);
+		}
 		return json(createErrorResponse('Internal server error'), { status: 500 });
 	}
 };
