@@ -101,14 +101,14 @@
 			<!-- Benefits -->
 			<div class="mb-6 space-y-3 text-left">
 				<div class="flex items-start gap-3">
-					                    <span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 flex-shrink-0 text-success"></span>						<div class="text-sm text-base-content/60">
-							Access your conversation history from any device
-						</div>
+					<span class="mt-0.5 icon-[mdi--check-circle] h-5 w-5 flex-shrink-0 text-success"></span>
+					<div class="text-sm text-base-content/60">
+						Access your conversation history from any device
 					</div>
 				</div>
 
 				<div class="flex items-start gap-3">
-					<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 flex-shrink-0 text-success"></span>
+					<span class="mt-0.5 icon-[mdi--check-circle] h-5 w-5 flex-shrink-0 text-success"></span>
 					<div>
 						<div class="font-medium">Detailed Grammar & Phrase Analysis</div>
 						<div class="text-sm text-base-content/60">
@@ -116,21 +116,19 @@
 						</div>
 					</div>
 				</div>
-
-					<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 flex-shrink-0 text-success"></span>
 			</div>
 
 			<!-- CTA Buttons -->
 			<div class="space-y-3">
 				<!-- Google Sign Up (Primary) -->
 				<button class="btn btn-block btn-lg btn-primary" onclick={handleGoogleSignUp}>
-					<span class="icon-[mdi--google] mr-2 h-5 w-5"></span>
+					<span class="mr-2 icon-[mdi--google] h-5 w-5"></span>
 					Sign Up with Google
 				</button>
 
 				<!-- Email Sign Up (Secondary) -->
 				<button class="btn btn-block btn-outline btn-lg" onclick={handleEmailSignUp}>
-					<span class="icon-[mdi--email] mr-2 h-5 w-5"></span>
+					<span class="mr-2 icon-[mdi--email] h-5 w-5"></span>
 					Sign Up with Email
 				</button>
 			</div>
