@@ -942,6 +942,14 @@ export class ConversationStore {
 	 * This should be called when the user taps the AudioVisualizer for the first time
 	 */
 	triggerInitialGreeting = () => {
+		// If a scenario is active, don't send a generic greeting.
+		// The scenario itself is responsible for the first message.
+		if (scenarioStore.getSelectedScenario()) {
+			console.log('🎵 ConversationStore: Scenario active, skipping generic initial greeting.');
+			this.waitingForUserToStart = false; // Still mark as "not waiting"
+			return;
+		}
+
 		if (!this.waitingForUserToStart) {
 			console.log('🎵 ConversationStore: Initial greeting already sent');
 			return;
