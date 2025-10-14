@@ -128,6 +128,23 @@
 	// Check if message has script data (generated after streaming completion)
 	const hasScriptDataFlag = $derived(hasScriptData(message));
 
+	// Detect which type of script content we have
+	const scriptDisplayType = $derived(() => {
+		if (message.hiragana || message.otherScripts?.furigana) return 'furigana';
+		if (message.otherScripts?.pinyinRuby) return 'pinyin';
+		if (message.romanization) return 'romanization';
+		return null;
+	});
+
+	// Get the appropriate script button label based on language
+	const scriptButtonLabel = $derived(() => {
+		const lang = detectLanguage(message.content);
+		if (lang === 'ja') return showScripts ? 'Hide Romaji' : 'Show Romaji';
+		if (lang === 'zh') return showScripts ? 'Hide Pinyin' : 'Show Pinyin';
+		if (lang === 'ko') return showScripts ? 'Hide Romanization' : 'Show Romanization';
+		return showScripts ? 'Hide' : 'Show';
+	});
+
 	async function handleTranslation() {
 		// Dispatch translation request to parent
 		if (dispatch) {
@@ -195,10 +212,10 @@
 		<!-- Main content with scripts for supported languages -->
 		{#if needsScripts && hasScriptDataFlag}
 			<div class="space-y-1">
-				<!-- Japanese text with furigana display -->
-				{#if message.hiragana}
+				<!-- Display script overlay (Furigana for Japanese, Pinyin for Chinese) -->
+				{#if scriptDisplayType() === 'furigana' && message.hiragana}
+					<!-- Japanese text with furigana display -->
 					<div class="text-base">
-						<!-- Show furigana overlaid on original text -->
 						<div class="relative" style="line-height: 2em;">
 							{@html message.hiragana}
 						</div>
@@ -209,8 +226,21 @@
 							{message.romanization}
 						</div>
 					{/if}
+				{:else if scriptDisplayType() === 'pinyin' && message.otherScripts?.pinyinRuby}
+					<!-- Chinese text with pinyin display -->
+					<div class="text-base">
+						<div class="relative" style="line-height: 2em;">
+							{@html message.otherScripts.pinyinRuby}
+						</div>
+					</div>
+					<!-- Plain romanization (only visible when showScripts is true) -->
+					{#if message.romanization && showScripts}
+						<div class="text-sm italic opacity-70">
+							{message.romanization}
+						</div>
+					{/if}
 				{:else if message.romanization}
-					<!-- Show romanization if hiragana not yet available (only when showScripts is true) -->
+					<!-- Show romanization if ruby markup not yet available (only when showScripts is true) -->
 					{#if showScripts}
 						<div class="text-sm italic opacity-70">
 							{message.romanization}
@@ -226,7 +256,7 @@
 						</div>
 					{/if}
 				{:else}
-					<!-- Korean or other text without furigana/romanization -->
+					<!-- Other text without script overlays -->
 					<div class="text-base">
 						{#if highlightedContent()}
 							{@html highlightedContent()}
@@ -270,15 +300,15 @@
 		{/if}
 	</div>
 	<div class="chat-footer flex items-center gap-2 opacity-50">
-		<!-- Scripts toggle button (for messages with scripts) -->
+		<!-- Scripts toggle button (for messages with scripts) - Dynamic label based on language -->
 		{#if needsScripts && hasScriptDataFlag && message.romanization}
 			<button
 				class="btn flex h-6 min-h-0 items-center gap-1 rounded-full px-2 btn-ghost btn-xs hover:bg-base-300/50"
 				onclick={() => (showScripts = !showScripts)}
-				title={showScripts ? 'Hide Romanization' : 'Show Romanization'}
+				title={scriptButtonLabel()}
 			>
 				<span class="text-xs">
-					{showScripts ? 'Hide' : 'Show'} Romaji
+					{scriptButtonLabel()}
 				</span>
 			</button>
 		{/if}
