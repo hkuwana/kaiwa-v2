@@ -943,12 +943,6 @@ export class ConversationStore {
 	 */
 	triggerInitialGreeting = () => {
 		// If a scenario is active, don't send a generic greeting.
-		// The scenario itself is responsible for the first message.
-		if (scenarioStore.getSelectedScenario()) {
-			console.log('🎵 ConversationStore: Scenario active, skipping generic initial greeting.');
-			this.waitingForUserToStart = false; // Still mark as "not waiting"
-			return;
-		}
 
 		if (!this.waitingForUserToStart) {
 			console.log('🎵 ConversationStore: Initial greeting already sent');
@@ -974,7 +968,9 @@ export class ConversationStore {
 				console.log('🎵 ConversationStore: Retry sending initial greeting...');
 				realtimeOpenAI.sendResponse();
 			} else {
-				console.log('🎵 ConversationStore: Skipping retry - user already interacted or assistant responded');
+				console.log(
+					'🎵 ConversationStore: Skipping retry - user already interacted or assistant responded'
+				);
 			}
 			this.greetingRetryTimeout = null;
 		}, 1500);
