@@ -10,6 +10,7 @@ import {
 	isKoreanText
 } from './romanization.service';
 import { generateFuriganaClient, generateFuriganaServer } from './furigana.service';
+import { generatePinyinClient, generatePinyinServer } from './pinyin.service';
 
 // Script generation result
 export interface ScriptResult {
@@ -49,6 +50,15 @@ export async function generateScriptsClient(message: Message): Promise<ScriptRes
 		};
 	}
 
+	// For Chinese, also generate pinyin
+	if (language === 'zh') {
+		const pinyinResult = await generatePinyinClient(message.content);
+		return {
+			...romanizationResult,
+			...pinyinResult
+		};
+	}
+
 	return romanizationResult;
 }
 
@@ -72,6 +82,15 @@ export async function generateScriptsServer(message: Message): Promise<ScriptRes
 		return {
 			...romanizationResult,
 			...furiganaResult
+		};
+	}
+
+	// For Chinese, also generate pinyin with ruby markup
+	if (language === 'zh') {
+		const pinyinResult = await generatePinyinServer(message.content, message.id);
+		return {
+			...romanizationResult,
+			...pinyinResult
 		};
 	}
 
