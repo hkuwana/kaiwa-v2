@@ -29,7 +29,7 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 		hasAnkiExport: true,
 		monthlyPriceUsd: '0',
 		annualPriceUsd: '0',
-		conversationTimeoutSeconds: 3 * 60,
+		conversationTimeoutSeconds: 5 * 60,
 		warningThresholdSeconds: 30,
 		canExtend: false,
 		maxExtensions: 0,
@@ -109,7 +109,7 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 		hasAnkiExport: true,
 		monthlyPriceUsd: '25.00', // display only; real prices fetched from backend/Stripe
 		annualPriceUsd: '240.00',
-		conversationTimeoutSeconds: 10 * 60,
+		conversationTimeoutSeconds: 15 * 60,
 		warningThresholdSeconds: 60,
 		canExtend: true,
 		maxExtensions: 5,
