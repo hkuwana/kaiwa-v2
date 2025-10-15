@@ -16,6 +16,7 @@
 		createHighlightedSegments,
 		createHighlightedHtml
 	} from '$lib/features/analysis/utils/text-highlighting.utils';
+	import { userManager } from '$lib/stores/user.store.svelte';
 
 	interface Props {
 		message: Message;
@@ -64,8 +65,9 @@
 
 	// Conditional values based on message type
 	const chatClass = $derived(isUser ? 'chat-end' : 'chat-start');
-	const avatarSrc = $derived(isUser ? kitsune : face);
-	const avatarAlt = $derived(isUser ? 'User avatar' : 'AI avatar');
+	// Use user's avatar if available, otherwise use kitsune mascot for assistant
+	const avatarSrc = $derived(isUser ? (userManager.user.avatarUrl || face) : kitsune);
+	const avatarAlt = $derived(isUser ? 'User avatar' : 'Kaiwa mascot');
 	const currentSpeaker = $derived(
 		isUser ? null : speaker || getSpeakerById(settingsStore.selectedSpeaker)
 	);
@@ -190,7 +192,17 @@
 <div class="chat {chatClass}" role="listitem">
 	<div class="avatar chat-image">
 		<div class="w-10 rounded-full">
-			<img alt={avatarAlt} src={avatarSrc} />
+			{#if isUser && userManager.user.avatarUrl}
+				<img alt={avatarAlt} src={userManager.user.avatarUrl} />
+			{:else if isUser}
+				<!-- Show user initials if no avatar -->
+				<div class="flex h-full w-full items-center justify-center rounded-full bg-primary text-primary-content">
+					<span class="text-lg font-semibold">{userManager.user.displayName?.slice(0, 1).toUpperCase() || 'U'}</span>
+				</div>
+			{:else}
+				<!-- Show Kaiwa mascot for assistant -->
+				<img alt={avatarAlt} src={kitsune} />
+			{/if}
 		</div>
 	</div>
 	<div class="chat-header">
