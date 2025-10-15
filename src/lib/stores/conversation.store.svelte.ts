@@ -363,13 +363,36 @@ export class ConversationStore {
 		realtimeOpenAI.sendTextMessage(content);
 	};
 
+	// Track last pause time to detect duplicate calls
+	private lastPauseTime: number = 0;
+	private pauseCallCounter: number = 0;
+
 	pauseStreaming = () => {
-		const callStack = new Error().stack?.split('\n').slice(1, 4).join('\n') || 'unknown';
+		this.pauseCallCounter++;
+		const now = Date.now();
+		const timeSinceLastPause = now - this.lastPauseTime;
+		const callStack = new Error().stack?.split('\n').slice(1, 5).join('\n') || 'unknown';
+
 		console.warn('⏸️ ConversationStore: pauseStreaming() CALLED', {
 			hasAudioStream: !!this.audioStream,
+			callNumber: this.pauseCallCounter,
+			timeSinceLastPause: `${timeSinceLastPause}ms`,
 			callStack,
 			timestamp: new SvelteDate().toISOString()
 		});
+
+		// Detect rapid duplicate calls (within 200ms)
+		if (timeSinceLastPause < 200 && timeSinceLastPause > 0) {
+			console.warn('⚠️ DUPLICATE pauseStreaming() DETECTED!', {
+				timeSinceLastPause: `${timeSinceLastPause}ms`,
+				callNumber: this.pauseCallCounter,
+				previousCallTime: new Date(this.lastPauseTime).toISOString(),
+				currentCallTime: new Date(now).toISOString(),
+				callStack
+			});
+		}
+
+		this.lastPauseTime = now;
 
 		if (!this.audioStream) {
 			console.log('🎙️ ConversationStore: pauseStreaming ignored - no active stream');

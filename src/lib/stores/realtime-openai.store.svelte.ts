@@ -1123,7 +1123,39 @@ export class RealtimeOpenAIStore {
 		mediaStream.getAudioTracks().forEach((track) => (track.enabled = true));
 	}
 
+	// Track PTT stop calls to detect duplicates
+	private lastPttStopTime: number = 0;
+	private pttStopCallCounter: number = 0;
+
 	pttStop(mediaStream: MediaStream): void {
+		this.pttStopCallCounter++;
+		const now = Date.now();
+		const timeSinceLastStop = now - this.lastPttStopTime;
+		const callStack = new Error().stack?.split('\n').slice(1, 5).join('\n') || 'unknown';
+
+		console.warn('🛑 RealtimeOpenAI: pttStop() CALLED', {
+			hasConnection: !!this.connection,
+			callNumber: this.pttStopCallCounter,
+			timeSinceLastStop: `${timeSinceLastStop}ms`,
+			streamId: mediaStream?.id,
+			callStack,
+			timestamp: new Date().toISOString()
+		});
+
+		// Detect rapid duplicate calls (within 200ms) - THIS IS THE PROBLEM!
+		if (timeSinceLastStop < 200 && timeSinceLastStop > 0) {
+			console.warn('⚠️⚠️⚠️ DUPLICATE pttStop() DETECTED - SECOND AUDIO BUFFER COMMIT! ⚠️⚠️⚠️', {
+				timeSinceLastStop: `${timeSinceLastStop}ms`,
+				callNumber: this.pttStopCallCounter,
+				previousCallTime: new Date(this.lastPttStopTime).toISOString(),
+				currentCallTime: new Date(now).toISOString(),
+				explanation: 'This is causing the second audio buffer commit you are seeing!',
+				callStack
+			});
+		}
+
+		this.lastPttStopTime = now;
+
 		if (!this.connection) return;
 		// Pause audio input
 		mediaStream.getAudioTracks().forEach((track) => (track.enabled = false));

@@ -490,14 +490,13 @@ export function sortMessagesBySequence(messages: Message[]): Message[] {
  * Remove duplicate messages based on content and role to prevent double entries
  */
 export function removeDuplicateMessages(messages: Message[]): Message[] {
-	const seen = new Set<string>();
-	return messages.filter((msg) => {
-		// Create a unique key based on role, content, and timestamp (within 1 second)
-		const roundedTimestamp = Math.floor(msg.timestamp.getTime() / 1000) * 1000;
-		const key = `${msg.role}:${msg.content.trim()}:${roundedTimestamp}`;
+	const seenIds = new Set<string>();
+	const seenContent = new Set<string>();
 
-		if (seen.has(key)) {
-			console.debug('Removing duplicate message:', {
+	return messages.filter((msg) => {
+		// First check: Remove duplicate IDs (most important for Svelte keyed each blocks)
+		if (seenIds.has(msg.id)) {
+			console.debug('Removing duplicate message by ID:', {
 				role: msg.role,
 				content: msg.content.substring(0, 50),
 				id: msg.id
@@ -505,7 +504,21 @@ export function removeDuplicateMessages(messages: Message[]): Message[] {
 			return false;
 		}
 
-		seen.add(key);
+		// Second check: Remove duplicate content (same role, content, timestamp within 1 second)
+		const roundedTimestamp = Math.floor(msg.timestamp.getTime() / 1000) * 1000;
+		const contentKey = `${msg.role}:${msg.content.trim()}:${roundedTimestamp}`;
+
+		if (seenContent.has(contentKey)) {
+			console.debug('Removing duplicate message by content:', {
+				role: msg.role,
+				content: msg.content.substring(0, 50),
+				id: msg.id
+			});
+			return false;
+		}
+
+		seenIds.add(msg.id);
+		seenContent.add(contentKey);
 		return true;
 	});
 }

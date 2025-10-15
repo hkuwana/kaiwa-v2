@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { generateScriptsServer, isJapaneseText } from '$lib/services/romanization.service';
+import { isJapaneseText, isChineseText } from '$lib/services/romanization.service';
 import { messagesRepository } from '$lib/server/repositories/messages.repository';
 
 // Direct Kuroshiro processing function that bypasses the disabled checks
@@ -70,6 +70,105 @@ async function processJapaneseTextDirect(text: string): Promise<{
 	}
 }
 
+// Direct Chinese processing function with pinyin-pro
+async function processChineseTextDirect(text: string): Promise<{
+	romanization?: string;
+	pinyin?: string;
+	pinyinRuby?: string;
+	otherScripts?: Record<string, string>;
+}> {
+	try {
+		console.log('[DIRECT_PINYIN] Starting Chinese text processing with pinyin-pro for:', text);
+
+		// Import pinyin-pro for robust Chinese conversion
+		const { pinyin } = await import('pinyin-pro');
+
+		// Get pinyin with tone marks (e.g., "nǐ hǎo")
+		const pinyinWithTones = pinyin(text, {
+			toneType: 'symbol', // Use tone marks (nǐ, hǎo)
+			type: 'array' // Return as array for character-by-character mapping
+		});
+
+		// Get pinyin without tone marks (e.g., "ni hao")
+		const pinyinPlain = pinyin(text, {
+			toneType: 'none', // No tone marks
+			type: 'array'
+		});
+
+		// Join arrays into strings with spaces
+		const pinyinWithTonesStr = Array.isArray(pinyinWithTones)
+			? pinyinWithTones.join(' ')
+			: String(pinyinWithTones);
+		const pinyinPlainStr = Array.isArray(pinyinPlain)
+			? pinyinPlain.join(' ')
+			: String(pinyinPlain);
+
+		// Generate ruby HTML markup for display (character-by-character)
+		const characters = text.split('');
+		let pinyinRubyHTML = '';
+
+		for (let i = 0; i < characters.length; i++) {
+			const char = characters[i];
+			const pinyinForChar = Array.isArray(pinyinWithTones) ? pinyinWithTones[i] : '';
+
+			// Skip non-Chinese characters (punctuation, spaces, etc.)
+			if (!/[\u4E00-\u9FAF]/.test(char)) {
+				pinyinRubyHTML += char;
+				continue;
+			}
+
+			// Create ruby markup for Chinese characters
+			pinyinRubyHTML += `<ruby>${char}<rt>${pinyinForChar}</rt></ruby>`;
+		}
+
+		console.log('[DIRECT_PINYIN] Pinyin-pro result:', {
+			withTones: pinyinWithTonesStr,
+			plain: pinyinPlainStr,
+			ruby: pinyinRubyHTML.substring(0, 100) + '...'
+		});
+
+		return {
+			romanization: pinyinPlainStr.charAt(0).toUpperCase() + pinyinPlainStr.slice(1),
+			pinyin: pinyinWithTonesStr,
+			pinyinRuby: pinyinRubyHTML,
+			otherScripts: {
+				pinyin: pinyinWithTonesStr,
+				pinyinPlain: pinyinPlainStr,
+				pinyinRuby: pinyinRubyHTML
+			}
+		};
+	} catch (error) {
+		console.error('[DIRECT_PINYIN] Pinyin-pro processing failed:', error);
+
+		// Fallback to lightweight implementation
+		try {
+			const { pinyinize, pinyinWithTones } = await import('$lib/utils/chinese-pinyin');
+			const pinyinPlainStr = pinyinize(text);
+			const pinyinWithTonesStr = pinyinWithTones(text);
+
+			console.log('[DIRECT_PINYIN] Using lightweight fallback:', {
+				withTones: pinyinWithTonesStr,
+				plain: pinyinPlainStr
+			});
+
+			return {
+				romanization: pinyinPlainStr.charAt(0).toUpperCase() + pinyinPlainStr.slice(1),
+				pinyin: pinyinWithTonesStr,
+				otherScripts: {
+					pinyin: pinyinWithTonesStr,
+					pinyinPlain: pinyinPlainStr
+				}
+			};
+		} catch (fallbackError) {
+			console.error('[DIRECT_PINYIN] Fallback also failed:', fallbackError);
+			return {
+				romanization: text,
+				pinyin: text
+			};
+		}
+	}
+}
+
 export const POST = async ({ request, params }) => {
 	try {
 		const messageId = params.messageId;
@@ -90,6 +189,8 @@ export const POST = async ({ request, params }) => {
 			romanization?: string;
 			katakana?: string;
 			furigana?: string;
+			pinyin?: string;
+			pinyinRuby?: string;
 			otherScripts?: Record<string, string>;
 		} = {};
 
@@ -100,11 +201,16 @@ export const POST = async ({ request, params }) => {
 			scriptResults = await processJapaneseTextDirect(text);
 
 			console.log('Direct Kuroshiro results:', scriptResults);
-		} else if (language && language !== 'en') {
-			console.log(`Generating scripts for ${language}...`);
+		} else if (language === 'zh' || isChineseText(text)) {
+			console.log('Generating Chinese scripts directly with pinyin-pro...');
 
-			// Generate scripts for other languages
-			scriptResults = await generateScriptsServer(text, language);
+			// Use our direct pinyin processing for Chinese text
+			scriptResults = await processChineseTextDirect(text);
+
+			console.log('Direct Pinyin results:', scriptResults);
+		} else if (language && language !== 'en') {
+			console.log(`No script generation implemented for language: ${language}`);
+			return json({ success: true, message: `No script generation implemented for ${language}` });
 		} else {
 			console.log('No script generation needed for English text');
 			return json({ success: true, message: 'No script generation needed for English text' });
@@ -127,8 +233,14 @@ export const POST = async ({ request, params }) => {
 			updateData.romanization = scriptResults.romanization;
 		}
 
-		// Handle otherScripts (katakana, furigana, etc.)
-		if (scriptResults.katakana || scriptResults.furigana || scriptResults.otherScripts) {
+		// Handle otherScripts (katakana, furigana, pinyin, pinyinRuby, etc.)
+		if (
+			scriptResults.katakana ||
+			scriptResults.furigana ||
+			scriptResults.pinyin ||
+			scriptResults.pinyinRuby ||
+			scriptResults.otherScripts
+		) {
 			const otherScripts: Record<string, string> = {};
 
 			if (scriptResults.katakana) {
@@ -137,6 +249,14 @@ export const POST = async ({ request, params }) => {
 
 			if (scriptResults.furigana) {
 				otherScripts.furigana = scriptResults.furigana;
+			}
+
+			if (scriptResults.pinyin) {
+				otherScripts.pinyin = scriptResults.pinyin;
+			}
+
+			if (scriptResults.pinyinRuby) {
+				otherScripts.pinyinRuby = scriptResults.pinyinRuby;
 			}
 
 			// Merge any existing otherScripts
