@@ -169,6 +169,13 @@
       "when": 1760395258334,
       "tag": "0023_round_gateway",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1760667984136,
+      "tag": "0024_cynical_dreaming_celestial",
+      "breakpoints": true
     }
   ]
 }

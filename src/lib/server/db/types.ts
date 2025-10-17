@@ -33,6 +33,9 @@ import type { scenarioOutcomes } from './schema/scenario-outcomes';
 // Tier type definitions
 export type UserTier = 'free' | 'plus' | 'premium';
 
+// Audio input mode type
+export type AudioInputMode = 'vad' | 'ptt';
+
 export type User = InferSelectModel<typeof users>;
 export type Session = InferSelectModel<typeof session>;
 export type Language = InferSelectModel<typeof languages>;

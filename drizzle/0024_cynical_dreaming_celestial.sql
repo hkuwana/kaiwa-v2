@@ -1,0 +1,1 @@
+ALTER TABLE "user_preferences" ADD COLUMN "audio_input_mode" "audio_input_mode_enum" DEFAULT 'vad' NOT NULL;

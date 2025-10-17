@@ -44,6 +44,14 @@ export const correctionStyleEnum = pgEnum('correction_style_enum', [
 ]);
 
 /**
+ * Audio input mode enumeration for microphone control
+ */
+export const audioInputModeEnum = pgEnum('audio_input_mode_enum', [
+	'vad', // Voice Activity Detection (automatic)
+	'ptt' // Push-to-Talk (manual)
+]);
+
+/**
  * 🎯 User Preferences table - Stores individual user learning preferences and progress
  *
  * This table contains detailed learning preferences for each user-language combination.
@@ -148,6 +156,8 @@ export const userPreferences = pgTable(
 			.notNull(),
 
 		correctionStyle: correctionStyleEnum('correction_style').default('gentle').notNull(),
+
+		audioInputMode: audioInputModeEnum('audio_input_mode').default('vad').notNull(),
 
 		memories: jsonb('memories').$type<string[]>().default([]),
 
