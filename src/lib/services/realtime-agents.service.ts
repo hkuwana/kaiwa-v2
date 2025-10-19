@@ -69,7 +69,7 @@ export function createRealtimeAgent(
 	);
 
 	console.log('🤖 Creating RealtimeAgent with config:', {
-		scenario: scenario?.category || 'default',
+		scenarioRole: scenario?.role || 'default',
 		language: language.name,
 		voice: scenarioConfig.voice
 	});

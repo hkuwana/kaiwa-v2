@@ -45,6 +45,7 @@ export const scenariosData: ScenarioWithHints[] = [
 			engagement: 5,
 			understanding: 4
 		},
+		persona: null,
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date()
@@ -53,7 +54,7 @@ export const scenariosData: ScenarioWithHints[] = [
 		id: 'clinic-night-triage',
 		title: 'Midnight Clinic Triage',
 		description: 'Explain a medical issue at an urgent care clinic.',
-		role: 'roleplay',
+		role: 'character',
 		difficulty: 'intermediate',
 		difficultyRating: 4,
 		cefrLevel: 'B1',
@@ -73,6 +74,14 @@ export const scenariosData: ScenarioWithHints[] = [
 			confidence: 2,
 			engagement: 4,
 			understanding: 3
+		},
+		persona: {
+			title: 'Night-Shift Triage Nurse',
+			nameTemplate: 'Nurse {SPEAKER_NAME}',
+			setting: 'Urgent care exam room just after midnight.',
+			introPrompt:
+				'Introduce yourself as the triage nurse on duty, verify the patient name, and begin calmly collecting symptoms and vital details.',
+			stakes: 'If you miss critical information, the patient may not receive the right treatment in time.'
 		},
 		isActive: true,
 		localeHints: ['ja-JP'],
@@ -106,6 +115,7 @@ export const scenariosData: ScenarioWithHints[] = [
 			engagement: 5,
 			understanding: 4
 		},
+		persona: null,
 		isActive: true,
 		localeHints: ['ja-JP'],
 		preferredLanguages: ['ja'],
@@ -138,6 +148,7 @@ export const scenariosData: ScenarioWithHints[] = [
 			engagement: 3,
 			understanding: 5
 		},
+		persona: null,
 		isActive: true,
 		localeHints: ['ja-JP'],
 		preferredLanguages: ['ja'],
@@ -149,7 +160,7 @@ export const scenariosData: ScenarioWithHints[] = [
 		id: 'family-dinner-introduction',
 		title: "Partner's Parents Dinner",
 		description: "Earn trust over a meal with your partner's parents.",
-		role: 'roleplay',
+		role: 'character',
 		difficulty: 'intermediate',
 		difficultyRating: 6,
 		cefrLevel: 'B2',
@@ -170,6 +181,14 @@ export const scenariosData: ScenarioWithHints[] = [
 			engagement: 5,
 			understanding: 4
 		},
+		persona: {
+			title: "Protective Parent Hosting Dinner",
+			nameTemplate: '{SPEAKER_NAME}-san',
+			setting: 'Tatami dining room with seasonal dishes and attentive family members.',
+			introPrompt:
+				'Greet your child’s partner warmly but with cautious curiosity, ask respectful questions about their background, and notice small etiquette cues.',
+			stakes: 'You want to decide whether to welcome them into the family and trust them with your child’s future.'
+		},
 		isActive: true,
 		localeHints: ['ja-JP'],
 		preferredLanguages: ['ja'],
@@ -182,7 +201,7 @@ export const scenariosData: ScenarioWithHints[] = [
 		title: 'Executive Board Negotiation',
 		description:
 			'Defend a strategic decision in front of skeptical executives and earn their approval.',
-		role: 'roleplay',
+		role: 'character',
 		difficulty: 'advanced',
 		difficultyRating: 7,
 		cefrLevel: 'C1',
@@ -203,6 +222,14 @@ export const scenariosData: ScenarioWithHints[] = [
 			engagement: 4,
 			understanding: 4
 		},
+		persona: {
+			title: 'Chief Financial Officer',
+			nameTemplate: 'CFO {SPEAKER_NAME}',
+			setting: 'Executive boardroom filled with tired but sharp senior leaders.',
+			introPrompt:
+				'Open the meeting as the CFO, ask for concise updates, and challenge the presenter on financial risks and trade-offs.',
+			stakes: 'If you approve a weak plan, the company could miss critical targets and you will answer to the board.'
+		},
 		isActive: true,
 		localeHints: ['ja-JP'],
 		preferredLanguages: ['ja'],
@@ -215,7 +242,7 @@ export const scenariosData: ScenarioWithHints[] = [
 		title: 'Crisis Press Briefing',
 		description:
 			'Face international reporters during a live briefing and manage follow-up questions with precision.',
-		role: 'roleplay',
+		role: 'character',
 		difficulty: 'advanced',
 		difficultyRating: 8,
 		cefrLevel: 'C2',
@@ -235,6 +262,14 @@ export const scenariosData: ScenarioWithHints[] = [
 			confidence: 2,
 			engagement: 5,
 			understanding: 5
+		},
+		persona: {
+			title: 'Government Crisis Spokesperson',
+			nameTemplate: '{SPEAKER_NAME}',
+			setting: 'Standing at a podium facing international reporters and live cameras.',
+			introPrompt:
+				'Deliver a controlled opening statement, enforce briefing rules, and field aggressive questions while protecting sensitive information.',
+			stakes: 'A careless statement could trigger public panic or international fallout.'
 		},
 		isActive: true,
 		localeHints: ['ja-JP'],
@@ -265,6 +300,7 @@ export const scenariosData: ScenarioWithHints[] = [
 			engagement: 5,
 			understanding: 4
 		},
+		persona: null,
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date()

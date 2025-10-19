@@ -212,7 +212,92 @@
 			</select>
 		</div>
 
+		<!-- Preferred Voice -->
+		<div class="form-control {compact ? 'mb-2' : ''}">
+			<label class="label {compact ? 'py-1' : ''}" for="pref-preferred-voice">
+				<span class="label-text {compact ? 'text-sm' : ''}">Preferred Voice</span>
+			</label>
+			<input
+				type="text"
+				class="input-bordered input w-full"
+				id="pref-preferred-voice"
+				bind:value={localPreferences.preferredVoice}
+				oninput={(e) =>
+					handleInputChange('preferredVoice', (e.target as HTMLInputElement).value)}
+			/>
+		</div>
+
+		<!-- Audio Input Mode -->
+		<div class="form-control {compact ? 'mb-2' : ''}">
+			<label class="label {compact ? 'py-1' : ''}" for="pref-audio-input-mode">
+				<span class="label-text {compact ? 'text-sm' : ''}">Audio Input Mode</span>
+			</label>
+			<select
+				class="select-bordered select w-full"
+				id="pref-audio-input-mode"
+				bind:value={localPreferences.audioInputMode}
+				onchange={(e) =>
+					handleInputChange(
+						'audioInputMode',
+						(e.target as HTMLSelectElement).value as UserPreferences['audioInputMode']
+					)}
+			>
+				<option value="vad">Voice Activity Detection</option>
+				<option value="ptt">Push-to-Talk</option>
+			</select>
+		</div>
+
 		{#if !compact}
+			<!-- Current Language Level -->
+			<div class="form-control {compact ? 'mb-2' : ''}">
+				<label class="label {compact ? 'py-1' : ''}" for="pref-current-language-level">
+					<span class="label-text {compact ? 'text-sm' : ''}">Current Language Level</span>
+				</label>
+				<input
+					type="text"
+					class="input-bordered input w-full"
+					id="pref-current-language-level"
+					bind:value={localPreferences.currentLanguageLevel}
+					oninput={(e) =>
+						handleInputChange('currentLanguageLevel', (e.target as HTMLInputElement).value)}
+				/>
+			</div>
+
+			<!-- Practical Level -->
+			<div class="form-control {compact ? 'mb-2' : ''}">
+				<label class="label {compact ? 'py-1' : ''}" for="pref-practical-level">
+					<span class="label-text {compact ? 'text-sm' : ''}">Practical Level</span>
+				</label>
+				<input
+					type="text"
+					class="input-bordered input w-full"
+					id="pref-practical-level"
+					bind:value={localPreferences.practicalLevel}
+					oninput={(e) =>
+						handleInputChange('practicalLevel', (e.target as HTMLInputElement).value)}
+				/>
+			</div>
+
+			<!-- Confidence Score -->
+			<div class="form-control {compact ? 'mb-2' : ''}">
+				<label class="label {compact ? 'py-1' : ''}" for="pref-confidence-score">
+					<span class="label-text {compact ? 'text-sm' : ''}">Confidence Score</span>
+					<span class="label-text-alt {compact ? 'text-sm' : ''}"
+						>{localPreferences.confidenceScore}/100</span
+					>
+				</label>
+				<input
+					type="range"
+					min="1"
+					max="100"
+					class="range range-primary"
+					id="pref-confidence-score"
+					bind:value={localPreferences.confidenceScore}
+					oninput={(e) =>
+						handleInputChange('confidenceScore', parseInt((e.target as HTMLInputElement).value))}
+				/>
+			</div>
+
 			<!-- Speaking Level -->
 			<div class="form-control {compact ? 'mb-2' : ''}">
 				<label class="label {compact ? 'py-1' : ''}" for="pref-speaking-level">
@@ -309,7 +394,10 @@
 					id="pref-speaking-confidence"
 					bind:value={localPreferences.speakingConfidence}
 					oninput={(e) =>
-						handleInputChange('speakingConfidence', parseInt((e.target as HTMLInputElement).value))}
+						handleInputChange(
+							'speakingConfidence',
+							parseInt((e.target as HTMLInputElement).value)
+						)}
 				/>
 			</div>
 

@@ -124,6 +124,7 @@ async function seedScenarios() {
 				difficulty: scenario.difficulty,
 				instructions: scenario.instructions,
 				context: scenario.context,
+				persona: scenario.persona,
 				expectedOutcome: scenario.expectedOutcome,
 				learningObjectives: scenario.learningObjectives,
 				comfortIndicators: scenario.comfortIndicators,

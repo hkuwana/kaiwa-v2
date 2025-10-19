@@ -588,7 +588,7 @@
 								{scenario.description} - {scenario.context}
 							</p>
 							<div class="mt-3 flex flex-wrap gap-2">
-								<span class="badge badge-outline">{scenario.category}</span>
+								<span class="badge badge-outline">{scenario.role}</span>
 								<span class="badge badge-outline">{scenario.difficulty}</span>
 							</div>
 						{/if}

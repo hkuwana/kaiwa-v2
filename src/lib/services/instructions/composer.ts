@@ -111,21 +111,32 @@ export class InstructionComposer {
 		let role = '';
 		let objective = '';
 
+		const personaName = scenario?.persona?.nameTemplate
+			? scenario.persona.nameTemplate.replace('{SPEAKER_NAME}', speakerName)
+			: speakerName;
+
 		if (scenario?.role === 'tutor') {
 			role = `You are ${speakerName}, a language tutor who teaches ${language.name}.`;
 			objective = `Your objective: Help ${user.displayName || 'the learner'} master specific ${language.name} patterns and vocabulary through systematic practice.`;
-		} else if (scenario?.role === 'roleplay') {
-			role = `You are ${speakerName}, playing the role of: ${scenario.description}`;
-			objective = `Your objective: ${scenario.expectedOutcome}`;
+		} else if (scenario?.role === 'character') {
+			const personaTitle = scenario.persona?.title ?? scenario.title;
+			const personaIntro = scenario.persona?.introPrompt ?? scenario.description;
+			const personaStakes = scenario.persona?.stakes
+				? `Stakes: ${scenario.persona.stakes}`
+				: '';
+			role = `You are ${personaName}, ${personaTitle}.`;
+			objective = [personaIntro, personaStakes, `Your objective: ${scenario.expectedOutcome}`]
+				.filter(Boolean)
+				.join('\n');
 		} else if (scenario?.role === 'friendly_chat') {
 			role = `You are ${speakerName}, a ${language.name}-speaking friend having a natural conversation.`;
 			objective = `Your objective: Engage in authentic dialogue that helps ${user.displayName || 'the learner'} practice ${language.name} naturally.`;
 		} else if (scenario?.role === 'expert') {
-			role = `You are ${speakerName}, a leading expert in ${scenario.title}.`;
+			role = `You are ${personaName}, a leading expert in ${scenario.title}.`;
 			objective = `Your objective: Challenge ${user.displayName || 'the learner'} with a deep, nuanced discussion in your area of expertise.`;
 		} else {
 			// Default conversational role
-			role = `You are ${speakerName}, a ${language.name} conversation partner.`;
+			role = `You are ${personaName}, a ${language.name} conversation partner.`;
 			objective = `Your objective: Help ${user.displayName || 'the learner'} practice ${language.name} through engaging conversation.`;
 		}
 
@@ -320,7 +331,7 @@ ${scenarioRules}`;
 - Check comprehension by having them use new patterns
 - Track mastery of each learning objective`,
 
-			roleplay: `## Character Role-Play Rules
+			character: `## Character Role-Play Rules
 - STAY IN CHARACTER throughout the conversation
 - Set stakes: make it clear what happens if communication fails
 - React realistically to what learner says
@@ -460,7 +471,7 @@ IF learner mentions self-harm:
 		}
 
 		// Character scenarios need immersion
-		if (scenario.role === 'roleplay') {
+		if (scenario.role === 'character') {
 			return {
 				languageMixingPolicy: 'strict_immersion',
 				conversationPace: 'dynamic',
@@ -481,10 +492,10 @@ IF learner mentions self-harm:
 		// Expert scenarios are for advanced learners
 		if (scenario.role === 'expert') {
 			return {
-				correctionStyle: 'subtle',
+				correctionStyle: 'minimal',
 				scaffoldingLevel: 'none',
 				topicChangeFrequency: 'focused',
-				conversationPace: 'fast'
+				conversationPace: 'dynamic'
 			};
 		}
 

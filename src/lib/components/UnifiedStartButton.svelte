@@ -50,7 +50,7 @@
 	// Current scenario or default to onboarding
 	const currentScenario = $derived(selectedScenario || availableScenarios[0]);
 
-	type ScenarioRole = 'tutor' | 'roleplay' | 'friendly_chat';
+	type ScenarioRole = 'tutor' | 'character' | 'friendly_chat' | 'expert';
 
 	const SCENARIO_ROLE_COPY: Record<
 		ScenarioRole,
@@ -60,13 +60,17 @@
 			aria: (languageName) => `Meet your tutor in ${languageName}`,
 			button: 'Start Chat'
 		},
-		roleplay: {
+		character: {
 			aria: (languageName) => `Start a roleplay in ${languageName}`,
 			button: 'Start Roleplay'
 		},
 		friendly_chat: {
 			aria: (languageName) => `Start a friendly chat in ${languageName}`,
 			button: 'Start Conversation'
+		},
+		expert: {
+			aria: (languageName) => `Start an expert conversation in ${languageName}`,
+			button: 'Start Expert Chat'
 		}
 	};
 

@@ -22,26 +22,26 @@
 		isGuest = false
 	}: Props = $props();
 
-	type ScenarioRole = 'tutor' | 'roleplay' | 'friendly_chat' | 'expert';
+	type ScenarioRole = 'tutor' | 'character' | 'friendly_chat' | 'expert';
 
 	// Icons and colors by scenario role
 	const roleIcons: Record<ScenarioRole, string> = {
 		tutor: 'icon-[mdi--coffee]',
-		roleplay: 'icon-[mdi--account-group]',
+		character: 'icon-[mdi--account-group]',
 		friendly_chat: 'icon-[mdi--heart-multiple]',
 		expert: 'icon-[mdi--brain]'
 	};
 
 	const roleColors: Record<ScenarioRole, string> = {
 		tutor: 'primary',
-		roleplay: 'info',
+		character: 'info',
 		friendly_chat: 'warning',
 		expert: 'accent'
 	};
 
 	const roleDisplayNames: Record<ScenarioRole, string> = {
 		tutor: 'Tutor',
-		roleplay: 'Roleplay',
+		character: 'Roleplay',
 		friendly_chat: 'Friendly Chat',
 		expert: 'Expert'
 	};

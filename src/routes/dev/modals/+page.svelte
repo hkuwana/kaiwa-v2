@@ -103,7 +103,7 @@
 		id: 'test-scenario',
 		title: 'Ordering Coffee in Tokyo',
 		description: 'Practice ordering coffee in a bustling Tokyo cafe.',
-		category: 'intermediate',
+		role: 'friendly_chat',
 		difficulty: 'intermediate',
 		instructions: 'Order a latte, ask about the Wi-Fi password, and find out what time they close.',
 		context: 'You are in a busy coffee shop in Shibuya, Tokyo. The barista speaks limited English.',
@@ -115,6 +115,7 @@
 			engagement: 4,
 			understanding: 3
 		},
+		persona: null,
 		isActive: true,
 		createdAt: new SvelteDate(),
 		updatedAt: new SvelteDate()

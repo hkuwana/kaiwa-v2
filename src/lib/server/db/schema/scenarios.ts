@@ -5,10 +5,16 @@ import { pgTable, text, timestamp, json, index, boolean, pgEnum } from 'drizzle-
  *
  * MECE (Mutually Exclusive, Collectively Exhaustive) roles:
  * - tutor: Language instructor who explains rules, corrects errors, drills patterns, and guides learning
- * - character: Role-player who embodies a specific person (nurse, executive, parent, waiter, etc.)
+ * - character: Role-player who embodies a specific persona (nurse, executive, parent, waiter, etc.)
  * - friend: Casual conversation partner who debates, shares stories, and chats naturally
+ * - expert: Specialist who pushes into advanced, domain-heavy discussions
  */
-export const scenarioRoleEnum = pgEnum('scenario_role', ['tutor', 'roleplay', 'friendly_chat']);
+export const scenarioRoleEnum = pgEnum('scenario_role', [
+	'tutor',
+	'character',
+	'friendly_chat',
+	'expert'
+]);
 
 /**
  * Scenario difficulty enumeration for type safety
@@ -69,6 +75,14 @@ export const scenarios = pgTable(
 		instructions: text('instructions').notNull(),
 
 		context: text('context').notNull(),
+
+		persona: json('persona').$type<{
+			title?: string;
+			nameTemplate?: string;
+			setting?: string;
+			introPrompt?: string;
+			stakes?: string;
+		}>(),
 
 		expectedOutcome: text('expected_outcome'),
 
