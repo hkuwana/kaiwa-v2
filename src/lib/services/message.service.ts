@@ -43,7 +43,6 @@ export function createUserPlaceholder(sessionId: string, speechStartTime?: numbe
 		sequenceId,
 		conversationId: sessionId,
 		audioUrl: null,
-		speechTimings: null,
 
 		// Translation and language fields
 		translatedContent: null,
@@ -160,7 +159,6 @@ export function replaceUserPlaceholderWithFinal(
 		// Keep original timestamp and sequenceId to maintain chronological order
 		timestamp: placeholder.timestamp,
 		sequenceId: placeholder.sequenceId || generateSequenceId(),
-		speechTimings: null
 	};
 
 	// Replace placeholder in-place to maintain chronological order
@@ -201,7 +199,6 @@ export function createFinalUserMessage(content: string, sessionId: string): Mess
 		sequenceId,
 		conversationId: sessionId,
 		audioUrl: null,
-		speechTimings: null,
 
 		// Translation and language fields
 		translatedContent: null,
@@ -245,7 +242,6 @@ export function createStreamingMessage(content: string, sessionId: string): Mess
 		sequenceId,
 		conversationId: sessionId,
 		audioUrl: null,
-		speechTimings: null,
 
 		// Translation and language fields
 		translatedContent: null,
@@ -329,7 +325,6 @@ export function finalizeStreamingMessage(messages: Message[], finalText: string)
 		content: sanitized,
 		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
 		timestamp: new SvelteDate(),
-		speechTimings: updatedMessages[streamingMessageIndex].speechTimings || null
 	};
 	return removeDuplicateMessages(sortMessagesBySequence(updatedMessages));
 }
@@ -362,7 +357,6 @@ export function createFinalAssistantMessage(content: string, sessionId: string):
 		sequenceId: now.getTime().toString(),
 		conversationId: sessionId,
 		audioUrl: null,
-		speechTimings: null,
 
 		// Translation and language fields
 		translatedContent: null,
@@ -422,7 +416,6 @@ export function createMessageFromEventData(
 		sequenceId: now.getTime().toString(),
 		conversationId: sessionId,
 		audioUrl: null,
-		speechTimings: null,
 
 		// Translation and language fields
 		translatedContent: null,

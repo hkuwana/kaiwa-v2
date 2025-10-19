@@ -86,6 +86,8 @@
 		"vitest-browser-svelte": "^0.1.0"
 	},
 	"dependencies": {
+		"@aws-sdk/client-s3": "^3.913.0",
+		"@aws-sdk/s3-request-presigner": "^3.913.0",
 		"@google-cloud/translate": "^9.2.0",
 		"@inlang/paraglide-js": "^2.0.0",
 		"@maxmind/geoip2-node": "^6.1.0",
@@ -100,6 +102,7 @@
 		"arctic": "^3.7.0",
 		"date-fns": "^4.1.0",
 		"drizzle-orm": "^0.40.0",
+		"echogarden": "^2.10.1",
 		"glob": "^11.0.3",
 		"google-auth-library": "^10.3.0",
 		"highlight.js": "^11.11.1",

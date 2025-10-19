@@ -583,10 +583,27 @@ export class StripeService {
 			stripePaymentIntentId: paymentIntent.id,
 			amount: (paymentIntent.amount / 100).toString(), // Convert from cents
 			currency: paymentIntent.currency,
-			status: paymentIntent.status
+			status: this.mapStripeStatusToDbStatus(paymentIntent.status)
 		});
 
 		console.log(`✅ Payment recorded: ${paymentIntent.id}, amount: ${paymentIntent.amount / 100}`);
+	}
+
+	private mapStripeStatusToDbStatus(status: Stripe.PaymentIntent.Status): 'succeeded' | 'failed' | 'pending' | 'canceled' | 'requires_payment_method' | 'requires_confirmation' {
+		switch (status) {
+			case 'succeeded':
+				return 'succeeded';
+			case 'processing':
+				return 'pending';
+			case 'requires_payment_method':
+				return 'requires_payment_method';
+			case 'requires_confirmation':
+				return 'requires_confirmation';
+			case 'canceled':
+				return 'canceled';
+			default:
+				return 'failed';
+		}
 	}
 
 	/**

@@ -105,7 +105,13 @@
 			tierWhenUsed: 'free',
 			lastConversationAt: new SvelteDate(),
 			lastRealtimeAt: new SvelteDate(Date.now() - 2 * 86400000),
-			firstActivityAt: new SvelteDate(Date.now() - 20 * 86400000)
+			firstActivityAt: new SvelteDate(Date.now() - 20 * 86400000),
+			quickStatsUsed: null,
+			grammarSuggestionsUsed: null,
+			phraseSuggestionsUsed: null,
+			audioSuggestionUsed: null,
+			dailyUsage: null,
+			lastAnalysisAt: null
 		},
 		canStartConversation: true,
 		canUseRealtime: true,

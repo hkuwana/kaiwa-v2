@@ -434,7 +434,7 @@
 					<div class="stat">
 						<div class="stat-title">Seconds Remaining</div>
 						<div class="stat-value">
-							{Math.floor(usageStore.secondsRemaining / 60)}m {usageStore.secondsRemaining % 60}s
+							{Math.floor(usageStore.secondsRemaining() / 60)}m {usageStore.secondsRemaining % 60}s
 						</div>
 						<div class="stat-desc">
 							{#if usageStore.willIncurOverage()}
@@ -442,7 +442,7 @@
 									Overage rate: ${usageStore.overageRate()}/min
 								</span>
 							{:else}
-								{usageStore.percentageUsed.toFixed(0)}% used this month
+								{usageStore.percentageUsed().toFixed(0)}% used this month
 							{/if}
 						</div>
 					</div>

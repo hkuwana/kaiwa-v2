@@ -169,7 +169,7 @@
 
 		try {
 			const messageId = `test-message-${Date.now()}`;
-			const testMessage = {
+			const testMessage: Message = {
 				id: messageId,
 				content: testText,
 				sequenceId: null,
@@ -190,13 +190,7 @@
 				grammarAnalysis: null,
 				vocabularyAnalysis: null,
 				pronunciationScore: null,
-				audioUrl: null,
-				audioDuration: null,
-				speechTimings: null,
-				difficultyLevel: null,
-				learningTags: null,
-				conversationContext: null,
-				messageIntent: null
+				audioUrl: null
 			};
 
 			// Test server-side script generation
@@ -467,7 +461,7 @@
 					<div class="card-body">
 						<h3 class="card-title">Sample Messages</h3>
 						<div class="grid grid-cols-1 gap-2">
-							{#each sampleMessages as sample (sample.id)}
+							{#each sampleMessages as sample (sample.desc)}
 								<button
 									class="btn justify-start btn-outline btn-sm"
 									onclick={() => loadSampleMessage(sample)}

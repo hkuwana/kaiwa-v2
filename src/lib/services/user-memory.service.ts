@@ -26,9 +26,39 @@ export interface RecentConversationSummary {
 export async function getMemories(userId: string): Promise<MemorySummary> {
 	const res = await fetch(`/api/users/${userId}/preferences`, { method: 'GET' });
 	if (!res.ok) throw new Error('Failed to fetch memories');
-	const data = await res.json();
-	// Expected shape from createSuccessResponse({ ... })
-	return data.data.memories as MemorySummary;
+	const payload = await res.json();
+	const data = (payload?.success ?? false) ? payload?.data : payload;
+	const summary = data?.memorySummary;
+
+	if (summary && Array.isArray(summary.memories)) {
+		return {
+			memories: summary.memories,
+			count: summary.count ?? summary.memories.length,
+			maxCount: summary.maxCount ?? summary.memories.length,
+			withinLimit:
+				summary.withinLimit ??
+				summary.memories.length <= (summary.maxCount ?? summary.memories.length)
+		};
+	}
+
+	const memories = data?.memories;
+	if (Array.isArray(memories)) {
+		const maxCount =
+			typeof summary?.maxCount === 'number'
+				? summary.maxCount
+				: typeof data?.maxCount === 'number'
+					? data.maxCount
+					: memories.length;
+
+		return {
+			memories,
+			count: memories.length,
+			maxCount,
+			withinLimit: memories.length <= maxCount
+		};
+	}
+
+	return { memories: [], count: 0, maxCount: 0, withinLimit: true };
 }
 
 // Replace memories (validates against tier limits server-side)
@@ -42,8 +72,39 @@ export async function updateMemories(userId: string, memories: string[]): Promis
 		const err = await res.json().catch(() => ({}));
 		throw new Error(err?.error || 'Failed to update memories');
 	}
-	const data = await res.json();
-	return data.data as MemorySummary;
+	const payload = await res.json();
+	const data = (payload?.success ?? false) ? payload?.data : payload;
+	const summary = data?.memorySummary;
+
+	if (summary && Array.isArray(summary.memories)) {
+		return {
+			memories: summary.memories,
+			count: summary.count ?? summary.memories.length,
+			maxCount: summary.maxCount ?? summary.memories.length,
+			withinLimit:
+				summary.withinLimit ??
+				summary.memories.length <= (summary.maxCount ?? summary.memories.length)
+		};
+	}
+
+	const updatedMemories = data?.memories;
+	if (Array.isArray(updatedMemories)) {
+		const maxCount =
+			typeof summary?.maxCount === 'number'
+				? summary.maxCount
+				: typeof data?.maxCount === 'number'
+					? data.maxCount
+					: updatedMemories.length;
+
+		return {
+			memories: updatedMemories,
+			count: updatedMemories.length,
+			maxCount,
+			withinLimit: updatedMemories.length <= maxCount
+		};
+	}
+
+	return { memories: [], count: 0, maxCount: 0, withinLimit: true };
 }
 
 // Get recent conversations for the authenticated user
