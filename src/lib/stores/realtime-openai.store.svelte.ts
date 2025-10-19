@@ -994,6 +994,25 @@ export class RealtimeOpenAIStore {
 							itemIndex: `${itemCount} of ?`,
 							note: 'This item_id will appear in the next conversation.item.input_audio_transcription.completed event'
 						});
+
+						// CRITICAL: Send response.create ONLY after first item is committed
+						// This prevents race conditions and ensures proper sequencing
+						if (this.pendingResponseCreate && itemCount === 1) {
+							console.warn('✅ FIRST ITEM COMMITTED - NOW SENDING response.create', {
+								commitNumber: this.pttStopCallCounter,
+								item_id: commitEvent.item_id,
+								timestamp: new SvelteDate().toISOString()
+							});
+							this.pendingResponseCreate = false;
+							this.sendResponse();
+						} else if (this.pendingResponseCreate && itemCount > 1) {
+							console.warn('⚠️ SKIPPING response.create - MULTIPLE ITEMS DETECTED', {
+								commitNumber: this.pttStopCallCounter,
+								itemCount,
+								itemIds: currentCommitItems,
+								explanation: 'Only sending response.create once for the first item to avoid duplicates'
+							});
+						}
 					}
 
 					// Don't log delta events or rate_limits.updated to event log
@@ -1065,6 +1084,7 @@ export class RealtimeOpenAIStore {
 								}
 							: undefined,
 						audio: initialAudioConfig,
+						// Disable turn detection by default - will be set per mode in updateSessionConfig
 						turnDetection: null
 					}
 				};
@@ -1103,6 +1123,13 @@ export class RealtimeOpenAIStore {
 	}
 
 	async disconnect(): Promise<void> {
+		// Cancel any pending PTT stop timeout
+		if (this.pendingPttStopTimeout) {
+			clearTimeout(this.pendingPttStopTimeout);
+			this.pendingPttStopTimeout = null;
+			console.log('🧹 Cleared pending PTT stop timeout during disconnect');
+		}
+
 		if (this.unsubscribe) {
 			try {
 				this.unsubscribe();
@@ -1200,6 +1227,14 @@ export class RealtimeOpenAIStore {
 	private lastPttStopTime: number = 0;
 	private pttStopCallCounter: number = 0;
 	private commitToItemIds: SvelteMap<number, string[]> = new SvelteMap(); // Track which item_ids came from which commit
+	private pendingResponseCreate: boolean = false; // Flag to send response.create after buffer committed
+	private pttStopDelayMs: number = 500; // Configurable delay before committing audio buffer
+	private pendingPttStopTimeout: ReturnType<typeof setTimeout> | null = null; // Track pending stop timeout
+
+	setPttStopDelay(delayMs: number): void {
+		this.pttStopDelayMs = delayMs;
+		console.log(`⏱️ PTT stop delay set to ${delayMs}ms`);
+	}
 
 	pttStop(mediaStream: MediaStream): void {
 		this.pttStopCallCounter++;
@@ -1212,20 +1247,31 @@ export class RealtimeOpenAIStore {
 			callNumber: this.pttStopCallCounter,
 			timeSinceLastStop: `${timeSinceLastStop}ms`,
 			streamId: mediaStream?.id,
+			delayMs: this.pttStopDelayMs,
 			callStack,
 			timestamp: new SvelteDate().toISOString()
 		});
 
 		// Detect rapid duplicate calls (within 200ms) - THIS IS THE PROBLEM!
 		if (timeSinceLastStop < 200 && timeSinceLastStop > 0) {
-			console.warn('⚠️⚠️⚠️ DUPLICATE pttStop() DETECTED - SECOND AUDIO BUFFER COMMIT! ⚠️⚠️⚠️', {
+			console.warn('⚠️⚠️⚠️ DUPLICATE pttStop() DETECTED - IGNORING! ⚠️⚠️⚠️', {
 				timeSinceLastStop: `${timeSinceLastStop}ms`,
 				callNumber: this.pttStopCallCounter,
 				previousCallTime: new SvelteDate(this.lastPttStopTime).toISOString(),
 				currentCallTime: new SvelteDate(now).toISOString(),
-				explanation: 'This is causing the second audio buffer commit you are seeing!',
+				explanation: 'Ignoring duplicate call to prevent multiple commits',
 				callStack
 			});
+			return; // Exit early to prevent duplicate commits
+		}
+
+		// Cancel any pending stop timeout from previous calls
+		if (this.pendingPttStopTimeout) {
+			console.warn('⏱️ Canceling previous pending pttStop timeout', {
+				callNumber: this.pttStopCallCounter
+			});
+			clearTimeout(this.pendingPttStopTimeout);
+			this.pendingPttStopTimeout = null;
 		}
 
 		this.lastPttStopTime = now;
@@ -1235,23 +1281,53 @@ export class RealtimeOpenAIStore {
 			return;
 		}
 
-		// Pause audio input
-		console.log('🔇 Disabling audio tracks before commit');
-		mediaStream.getAudioTracks().forEach((track) => {
-			console.log(`🔇 Track ${track.id} enabled: ${track.enabled} -> false`);
-			track.enabled = false;
-		});
-
-		const ev = { type: 'input_audio_buffer.commit' as const };
-		console.warn('📤 SENDING input_audio_buffer.commit EVENT NOW', {
+		// Schedule the actual stop after a delay to allow final audio chunks to be transmitted
+		console.warn(`⏱️ DELAYING audio buffer commit by ${this.pttStopDelayMs}ms to allow final chunks`, {
 			commitNumber: this.pttStopCallCounter,
 			timestamp: new SvelteDate().toISOString()
 		});
-		this.logEvent('client', String(ev.type), ev);
-		sendEventViaSession(this.connection, ev);
-		console.warn('✅ input_audio_buffer.commit EVENT SENT', {
-			commitNumber: this.pttStopCallCounter
-		});
+
+		this.pendingPttStopTimeout = setTimeout(() => {
+			console.warn('⏰ PTT stop delay complete - now committing buffer', {
+				commitNumber: this.pttStopCallCounter,
+				delayedBy: this.pttStopDelayMs,
+				timestamp: new SvelteDate().toISOString()
+			});
+
+			if (!this.connection) {
+				console.warn('⚠️ Connection lost during pttStop delay - aborting commit');
+				this.pendingPttStopTimeout = null;
+				return;
+			}
+
+			// Pause audio input
+			console.log('🔇 Disabling audio tracks before commit');
+			mediaStream.getAudioTracks().forEach((track) => {
+				console.log(`🔇 Track ${track.id} enabled: ${track.enabled} -> false`);
+				track.enabled = false;
+			});
+
+			const ev = { type: 'input_audio_buffer.commit' as const };
+			console.warn('📤 SENDING input_audio_buffer.commit EVENT NOW', {
+				commitNumber: this.pttStopCallCounter,
+				timestamp: new SvelteDate().toISOString()
+			});
+			this.logEvent('client', String(ev.type), ev);
+			sendEventViaSession(this.connection, ev);
+			console.warn('✅ input_audio_buffer.commit EVENT SENT', {
+				commitNumber: this.pttStopCallCounter
+			});
+
+			// CRITICAL: Set flag to send response.create AFTER receiving input_audio_buffer.committed
+			// This ensures proper sequencing and prevents race conditions
+			this.pendingResponseCreate = true;
+			console.warn('⏳ WAITING FOR input_audio_buffer.committed BEFORE SENDING response.create', {
+				commitNumber: this.pttStopCallCounter,
+				timestamp: new SvelteDate().toISOString()
+			});
+
+			this.pendingPttStopTimeout = null;
+		}, this.pttStopDelayMs);
 	}
 
 	updateSessionConfig(config: {

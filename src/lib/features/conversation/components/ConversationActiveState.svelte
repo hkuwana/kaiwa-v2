@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onDestroy } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
 	import AudioVisualizer from '$lib/features/audio/components/AudioVisualizer.svelte';
 	import MessageBubble from '$lib/features/conversation/components/MessageBubble.svelte';
@@ -45,6 +46,9 @@
 		maxSessionLengthSeconds = 180
 	}: Props = $props();
 
+	// Get audio input mode from conversation store
+	const audioInputMode = $derived(conversationStore.audioInputMode);
+
 	const pressBehavior = $derived(() => {
 		const pref = userPreferencesStore.getPressBehavior();
 		return pref === 'tap_toggle' ? 'press_hold' : pref;
@@ -62,6 +66,9 @@
 	let hasUsedAudioControl = $state(false);
 	let isEnding = $state(false);
 	let hasTriggeredInitialGreeting = $state(false);
+
+	// AudioVisualizer positioning state
+	let audioVisualizerCentered = $state(true);
 
 	// Determine if we are in an onboarding-like session for hinting
 	const showOnboardingHint = $derived(() => {
@@ -163,6 +170,22 @@
 			translationStore.setTranslating(messageId, false);
 		}
 	}
+
+	// Cleanup on component destroy
+	onDestroy(async () => {
+		console.log('🧹 ConversationActiveState: Component being destroyed, cleaning up...');
+
+		// Save and destroy the conversation properly
+		// This will:
+		// 1. Save conversation to database
+		// 2. Stop the timer
+		// 3. Disconnect realtime connection (realtimeOpenAI.disconnect())
+		// 4. Clean up audio streams
+		// 5. Reset all state
+		await conversationStore.destroyConversation();
+
+		console.log('✅ ConversationActiveState: Cleanup complete');
+	});
 </script>
 
 <div
@@ -317,40 +340,51 @@
 				{maxSessionLengthSeconds}
 				controlMode="external"
 				pressBehavior={pressBehavior()}
+				audioInputMode={audioInputMode}
 				onRecordStart={() => {
 					hasUsedAudioControl = true;
-					// Trigger initial greeting if this is the first interaction
-					if (waitingForUserToStart && !hasTriggeredInitialGreeting) {
-						console.log('👤 User tapped AudioVisualizer for first time, triggering greeting');
-						hasTriggeredInitialGreeting = true;
-						conversationStore.triggerInitialGreeting();
+
+					// In PTT mode, resume streaming when user presses button
+					if (audioInputMode === 'ptt') {
+						console.log('▶️ PTT: User pressed button - resuming streaming');
+						conversationStore.resumeStreaming();
+						// Mark that we've triggered greeting (it's auto-triggered in PTT mode)
+						if (waitingForUserToStart) {
+							hasTriggeredInitialGreeting = true;
+						}
+					} else {
+						// In VAD mode, just trigger greeting on first tap (visualizer tap is optional in VAD)
+						if (waitingForUserToStart && !hasTriggeredInitialGreeting) {
+							console.log('👤 VAD: User tapped visualizer for first time, triggering greeting');
+							hasTriggeredInitialGreeting = true;
+							conversationStore.triggerInitialGreeting();
+						}
 					}
-					conversationStore.resumeStreaming();
 				}}
 				onRecordStop={() => {
-					conversationStore.pauseStreaming();
+					// Only pause streaming in PTT mode - VAD mode always streams
+					if (audioInputMode === 'ptt') {
+						console.log('⏸️ PTT: User released button - pausing streaming');
+						conversationStore.pauseStreaming();
+					}
 				}}
 			/>
 		</div>
 
-		<!-- Centered Hint - Show waiting message or onboarding hint -->
-		{#if waitingForUserToStart && !hasTriggeredInitialGreeting}
-			<div class="pointer-events-none fixed inset-x-0 bottom-28 z-50 select-none sm:pb-8">
-				<div
-					class="mx-auto w-auto max-w-[60vw] rounded-md bg-accent px-4 py-2 text-center text-sm text-accent-content shadow-lg md:max-w-[40vw]"
-				>
-					Tap the microphone when you're ready to begin
-				</div>
-				<span class="icon-[mdi--chevron-down] mx-auto mt-2 h-7 w-7 animate-bounce text-base-content"></span>
-			</div>
-		{:else if showOnboardingHint() && !hasUsedAudioControl}
+		<!-- Centered Hint - Only show when AudioVisualizer is at bottom -->
+		{#if !audioVisualizerCentered && showOnboardingHint() && !hasUsedAudioControl}
 			<div class="pointer-events-none fixed inset-x-0 bottom-28 z-50 select-none">
 				<div
 					class="mx-auto w-auto max-w-[80vw] rounded-md bg-base-200 px-4 py-2 text-center text-sm text-base-content shadow-lg md:max-w-[40vw]"
 				>
-					Tap and hold to talk, then release to hear Kaiwa
+					{#if audioInputMode === 'ptt'}
+						Tap and hold to talk, then release to hear Kaiwa
+					{:else}
+						Just start talking - Kaiwa will respond automatically
+					{/if}
 				</div>
-				<span class="icon-[mdi--chevron-down] mx-auto mt-2 h-7 w-7 animate-bounce text-base-content"></span>
+				<span class="mx-auto mt-2 icon-[mdi--chevron-down] h-7 w-7 animate-bounce text-base-content"
+				></span>
 			</div>
 		{/if}
 

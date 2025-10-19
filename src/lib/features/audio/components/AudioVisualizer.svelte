@@ -7,6 +7,7 @@
 
 	import { onMount, onDestroy } from 'svelte';
 	import { audioService } from '$lib/services/audio.service';
+	import type { AudioInputMode } from '$lib/server/db/types';
 
 	interface Props {
 		audioLevel?: number;
@@ -18,6 +19,7 @@
 		deviceId?: string;
 		controlMode?: 'internal' | 'external';
 		pressBehavior?: 'press_hold' | 'tap_toggle';
+		audioInputMode?: AudioInputMode; // 'vad' or 'ptt'
 		// Visuals
 		// Timer props
 		timeRemaining?: number; // in seconds
@@ -38,11 +40,16 @@
 		deviceId = undefined,
 		controlMode = 'internal',
 		pressBehavior = 'press_hold',
+		audioInputMode = 'ptt', // Default to Push-to-Talk
 		timeRemaining = 180,
 		isTimerActive = false,
 		maxSessionLengthSeconds = 180,
 		children
 	}: Props = $props();
+
+	// Determine if PTT controls should be active
+	const isPTTMode = $derived(audioInputMode === 'ptt');
+	const isVADMode = $derived(audioInputMode === 'vad');
 
 	// --- REACTIVE VALUES (SVELTE 5 RUNES) ---
 
@@ -141,6 +148,12 @@
 
 	// --- PRESS HANDLING ---
 	function handlePointerDown() {
+		// In VAD mode, pointer events are disabled - do nothing
+		if (isVADMode) {
+			console.log('🎙️ AudioVisualizer: Ignoring pointer down in VAD mode');
+			return;
+		}
+
 		if (isRecording || isListening) return;
 		// Latching tap-to-toggle when externally controlled
 		if (controlMode === 'external' && pressBehavior === 'tap_toggle') {
@@ -154,7 +167,7 @@
 			return;
 		}
 
-		// Default press-and-hold behavior
+		// Default press-and-hold behavior (PTT mode)
 		isPressed = true;
 		pressTimeout = window.setTimeout(() => {
 			startRecording();
@@ -162,6 +175,11 @@
 	}
 
 	function handlePointerUp() {
+		// In VAD mode, pointer events are disabled - do nothing
+		if (isVADMode) {
+			return;
+		}
+
 		if (!isPressed) return;
 
 		isPressed = false;

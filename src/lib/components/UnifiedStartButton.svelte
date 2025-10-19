@@ -20,6 +20,7 @@
 		selectedLanguage?: DataLanguage | null;
 		selectedSpeaker?: string | null;
 		selectedScenario?: ScenarioWithHints | null;
+		selectedAudioMode?: 'vad' | 'ptt';
 		onLanguageChange?: (language: DataLanguage) => void;
 		onSpeakerChange?: (speakerId: string) => void;
 		onScenarioChange?: (scenario: ScenarioWithHints) => void;
@@ -33,6 +34,7 @@
 		children,
 		selectedSpeaker = null,
 		selectedScenario = null,
+		selectedAudioMode = 'ptt', // Default to Push-to-Talk
 		onLanguageChange,
 		onSpeakerChange,
 		onScenarioChange,
@@ -140,7 +142,8 @@
 		if (isGuest) {
 			const redirectParams = new URLSearchParams({
 				scenario: currentScenario.id,
-				autoStart: 'true'
+				autoStart: 'true',
+				audioMode: selectedAudioMode
 			});
 			const params = new URLSearchParams({
 				redirect: `/conversation?${redirectParams.toString()}`,
@@ -153,8 +156,8 @@
 		const sessionId = crypto.randomUUID();
 		isLoading = true;
 
-		// Navigate with scenario parameter
-		goto(`/conversation?sessionId=${sessionId}&scenario=${currentScenario.id}&autoStart=true`);
+		// Navigate with scenario and audio mode parameters
+		goto(`/conversation?sessionId=${sessionId}&scenario=${currentScenario.id}&autoStart=true&audioMode=${selectedAudioMode}`);
 	}
 </script>
 

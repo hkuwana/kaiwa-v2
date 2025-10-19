@@ -6,12 +6,13 @@
 	import ChatBubbleFlow from '$lib/components/ChatBubbleFlow.svelte';
 	import InteractiveScenarioPreview from '$lib/features/scenarios/components/InteractiveScenarioPreview.svelte';
 	import DynamicLanguageText from '$lib/components/DynamicLanguageText.svelte';
+	import AdvancedAudioOptions from '$lib/components/AdvancedAudioOptions.svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
 	import { trackABTest } from '$lib/analytics/posthog';
 	import type { Language as DataLanguage } from '$lib/data/languages';
-	import type { Scenario } from '$lib/server/db/types';
+	import type { Scenario, AudioInputMode } from '$lib/server/db/types';
 	import WhyDifferent from '$lib/components/WhyDifferent.svelte';
 
 	const user = userManager.user;
@@ -20,6 +21,7 @@
 	let selectedLanguage = $state<DataLanguage | null>(settingsStore.selectedLanguage);
 	let selectedSpeaker = $state<string | null>(settingsStore.selectedSpeaker);
 	let selectedScenario = $state<Scenario | null>(scenarioStore.getSelectedScenario());
+	let selectedAudioMode = $state<AudioInputMode>('ptt'); // Audio input mode preference - default to Push-to-Talk
 
 	// Handle scenario query parameter from URL (e.g., from email links)
 	onMount(() => {
@@ -133,11 +135,17 @@
 					</h4>
 				{/if}
 
+				<!-- Advanced Audio Options -->
+				<div class="mb-4 flex justify-center">
+					<AdvancedAudioOptions onModeChange={(mode) => (selectedAudioMode = mode)} />
+				</div>
+
 				<UnifiedStartButton
 					{user}
 					{selectedLanguage}
 					{selectedSpeaker}
 					{selectedScenario}
+					{selectedAudioMode}
 					onLanguageChange={handleLanguageChange}
 					onSpeakerChange={handleSpeakerChange}
 					onScenarioChange={handleScenarioChange}

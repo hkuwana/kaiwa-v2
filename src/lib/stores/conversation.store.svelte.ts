@@ -30,7 +30,8 @@ import type {
 	Language,
 	UserPreferences,
 	UserTier,
-	NewConversationSession
+	NewConversationSession,
+	AudioInputMode
 } from '$lib/server/db/types';
 import type { Speaker } from '$lib/types';
 import type { Voice } from '$lib/types/openai.realtime.types';
@@ -57,6 +58,7 @@ export class ConversationStore {
 	speaker = $state<Speaker | undefined>(undefined);
 	error = $state<string | null>(null);
 	waitingForUserToStart = $state<boolean>(false);
+	audioInputMode = $state<AudioInputMode>('ptt'); // Default to Push-to-Talk
 
 	availableDevices = $state<MediaDeviceInfo[]>([]);
 	selectedDeviceId = $state<string>('default');
@@ -129,17 +131,43 @@ export class ConversationStore {
 				return true;
 			}
 
+			console.warn('🔍 TRANSCRIPT FILTER CHECK', {
+				itemId: meta.itemId,
+				text: meta.text,
+				textLength: meta.text.length,
+				suppressFlag: this.suppressNextUserTranscript,
+				timestamp: new SvelteDate().toISOString()
+			});
+
 			const shouldSuppress = this.suppressNextUserTranscript;
 			// Reset flag regardless of decision so it only applies once
 			this.suppressNextUserTranscript = false;
 
+			console.warn('🔍 SUPPRESSION FLAG AFTER CHECK', {
+				itemId: meta.itemId,
+				wasSuppressFlag: shouldSuppress,
+				nowSuppressFlag: this.suppressNextUserTranscript,
+				willContinueCheck: shouldSuppress,
+				timestamp: new SvelteDate().toISOString()
+			});
+
 			if (!shouldSuppress) {
+				console.warn('✅ TRANSCRIPT ALLOWED (suppression flag was false)', {
+					itemId: meta.itemId,
+					text: meta.text.substring(0, 50)
+				});
 				return true;
 			}
 
 			const tokenCount = meta.text.trim().split(/\s+/).length;
 			const isLongUtterance = tokenCount > 6 || meta.text.trim().length > 40;
 			if (isLongUtterance) {
+				console.warn('✅ TRANSCRIPT ALLOWED (long utterance override)', {
+					itemId: meta.itemId,
+					tokenCount,
+					textLength: meta.text.trim().length,
+					text: meta.text.substring(0, 50)
+				});
 				return true;
 			}
 
@@ -267,6 +295,15 @@ export class ConversationStore {
 		this.language = language ?? dataLanguages[0];
 		this.speaker = typeof speaker === 'object' ? speaker : undefined;
 		this.transcriptionMode = userPreferencesStore.getTranscriptionMode();
+
+		// Set audio input mode from options or user preferences
+		this.audioInputMode =
+			options?.audioInputMode ||
+			(userPreferencesStore.getPreference('audioInputMode') as AudioInputMode | undefined) ||
+			'ptt'; // Default to Push-to-Talk
+
+		console.log('🎙️ ConversationStore: Audio input mode:', this.audioInputMode);
+
 		this.status = 'connecting';
 		this.error = null;
 		this.clearTranscriptionState();
@@ -319,6 +356,16 @@ export class ConversationStore {
 			);
 			if (this.audioStream === null) {
 				throw new Error('No audio stream available after successful permission request');
+			}
+
+			// IMPORTANT: Disable audio track BEFORE connecting to prevent initial buffer accumulation
+			// This prevents the "weird audio clip" issue where audio captured during setup gets committed
+			const track = this.audioStream.getAudioTracks()[0];
+			if (track) {
+				track.enabled = false;
+				console.log(
+					'🎵 ConversationStore: Disabled audio track before connection to prevent initial buffer'
+				);
 			}
 
 			// 3. Get session from backend
@@ -386,8 +433,8 @@ export class ConversationStore {
 			console.warn('⚠️ DUPLICATE pauseStreaming() DETECTED!', {
 				timeSinceLastPause: `${timeSinceLastPause}ms`,
 				callNumber: this.pauseCallCounter,
-				previousCallTime: new Date(this.lastPauseTime).toISOString(),
-				currentCallTime: new Date(now).toISOString(),
+				previousCallTime: new SvelteDate(this.lastPauseTime).toISOString(),
+				currentCallTime: new SvelteDate(now).toISOString(),
 				callStack
 			});
 		}
@@ -421,14 +468,15 @@ export class ConversationStore {
 			track.enabled = false;
 		}
 
-		// Small delay to ensure track is fully stopped before committing
-		setTimeout(() => {
-			if (!this.audioStream) {
-				console.log('🎙️ ConversationStore: pauseStreaming ignored - no active stream');
-				return;
-			}
-			realtimeOpenAI.pttStop(this.audioStream);
-		}, 50);
+		console.warn('⚠️ COMMITTING AUDIO BUFFER - This should result in exactly ONE commit!', {
+			streamId: this.audioStream.id,
+			trackEnabled: track?.enabled,
+			timestamp: new SvelteDate().toISOString()
+		});
+
+		// Immediately commit without delay to prevent second buffer accumulation
+		// The 50ms delay was allowing a second buffer to accumulate, causing duplicate commits
+		realtimeOpenAI.pttStop(this.audioStream);
 
 		const hadActiveTurn = this.currentTurnStartMs !== null;
 		this.stopTurnLevelMonitor();
@@ -445,14 +493,38 @@ export class ConversationStore {
 				!hadTranscriptDelta &&
 				(!hadAudioEnergy || durationMs < MIN_DURATION_MS || this.turnMaxInputLevel === 0);
 
+			console.warn('🎯 SILENCE DETECTION LOGIC', {
+				durationMs,
+				turnMaxInputLevel: this.turnMaxInputLevel,
+				hadTranscriptDelta,
+				hadAudioEnergy,
+				speechDetected: this.speechDetected,
+				shouldSuppress,
+				currentSuppressFlag: this.suppressNextUserTranscript,
+				timestamp: new SvelteDate().toISOString()
+			});
+
 			if (shouldSuppress) {
-				console.warn('🧹 ConversationStore: Marking next user transcript as silence', {
+				console.warn('🧹 ConversationStore: SETTING suppressNextUserTranscript = TRUE', {
 					durationMs,
 					turnMaxInputLevel: this.turnMaxInputLevel,
 					hadTranscriptDelta,
-					hadAudioEnergy
+					hadAudioEnergy,
+					beforeFlag: this.suppressNextUserTranscript,
+					timestamp: new SvelteDate().toISOString()
 				});
 				this.suppressNextUserTranscript = true;
+				console.warn('🧹 ConversationStore: suppressNextUserTranscript is now TRUE', {
+					afterFlag: this.suppressNextUserTranscript
+				});
+			} else {
+				console.warn('✅ NOT SUPPRESSING - turn had activity', {
+					durationMs,
+					turnMaxInputLevel: this.turnMaxInputLevel,
+					hadTranscriptDelta,
+					hadAudioEnergy,
+					suppressFlag: this.suppressNextUserTranscript
+				});
 			}
 		}
 
@@ -489,10 +561,22 @@ export class ConversationStore {
 			timestamp: new SvelteDate().toISOString()
 		});
 
+		console.warn('🔄 RESETTING SUPPRESSION FLAG IN resumeStreaming()', {
+			beforeFlag: this.suppressNextUserTranscript,
+			timestamp: new SvelteDate().toISOString()
+		});
+
 		this.currentTurnStartMs = Date.now();
 		this.turnMaxInputLevel = 0;
 		this.suppressNextUserTranscript = false;
 		this.speechDetected = false;
+
+		console.warn('🔄 SUPPRESSION FLAG RESET TO FALSE', {
+			afterFlag: this.suppressNextUserTranscript,
+			currentTurnStartMs: this.currentTurnStartMs,
+			timestamp: new SvelteDate().toISOString()
+		});
+
 		this.startTurnLevelMonitor();
 
 		// CRITICAL: Enable track BEFORE clearing buffer to ensure audio starts flowing
@@ -869,13 +953,22 @@ export class ConversationStore {
 		this.status = 'connected';
 		console.log('🎵 ConversationStore: Status changed to "connected"');
 
-		// Pause outgoing audio until the learner explicitly taps to speak
-		try {
-			if (this.audioStream) {
-				this.pauseStreaming();
+		// Handle audio track based on mode
+		if (this.audioStream) {
+			const track = this.audioStream.getAudioTracks()[0];
+			if (track) {
+				if (this.audioInputMode === 'vad') {
+					// VAD mode: Enable audio track immediately - server handles turn detection
+					track.enabled = true;
+					console.log('🎵 ConversationStore: Enabled audio track for VAD mode');
+				} else {
+					// PTT mode: Keep track disabled until user presses button
+					track.enabled = false;
+					console.log(
+						'🎵 ConversationStore: Audio track disabled for PTT mode - waiting for user press'
+					);
+				}
 			}
-		} catch (error) {
-			console.warn('Failed to apply initial push_to_talk gating:', error);
 		}
 
 		const preferencesProvider = {
@@ -932,30 +1025,52 @@ export class ConversationStore {
 			combinedInstructions
 		);
 
-		console.log('Sending session configuration with complete instructions:', {
+		// Configure turn detection based on audio input mode
+		const turnDetectionConfig =
+			this.audioInputMode === 'vad'
+				? {
+						type: 'server_vad' as const,
+						threshold: 0.5, // Sensitivity (0.0 to 1.0)
+						prefixPaddingMs: 300, // Audio before speech starts (camelCase for SDK)
+						silenceDurationMs: 500 // Silence duration to detect end of speech (camelCase for SDK)
+					}
+				: null; // null for PTT mode - disables server-side turn detection
+
+		console.log('Sending session configuration:', {
 			language: this.language.name,
 			voice: this.voice,
 			model: sessionConfig.model,
 			isFirstTime,
 			isGuest: this.isGuestUser,
-			instructionType: isFirstTime ? 'complete-onboarding' : 'complete-session'
+			instructionType: isFirstTime ? 'complete-onboarding' : 'complete-session',
+			audioInputMode: this.audioInputMode,
+			turnDetection: turnDetectionConfig ? 'server_vad' : 'manual (PTT)'
 		});
 
-		// Send the combined configuration
+		// Send the combined configuration with mode-specific turn detection
 		realtimeOpenAI.updateSessionConfig({
 			model: sessionConfig.model,
 			voice: this.voice,
 			instructions: sessionConfig.instructions,
-			turnDetection: null,
+			turnDetection: turnDetectionConfig,
 			transcriptionLanguage: this.language.code
 		});
 
 		this.lastInstructions = sessionConfig.instructions;
 
-		// Set flag to wait for user to manually start
-		// Don't auto-greet - let the user tap to begin
-		this.waitingForUserToStart = true;
-		console.log('🎵 ConversationStore: Waiting for user to start conversation...');
+		// With VAD enabled, audio is always flowing - no need for manual start
+		// With PTT, user must press button to start
+		this.waitingForUserToStart = this.audioInputMode === 'ptt';
+		console.log(
+			`🎵 ConversationStore: ${this.audioInputMode === 'vad' ? 'VAD mode enabled - ready for conversation' : 'PTT mode enabled - press to speak'}`
+		);
+
+		// In PTT mode, trigger initial greeting immediately since user needs to press to speak
+		// In VAD mode, wait for user to start speaking (greeting triggered by first user input)
+		if (this.audioInputMode === 'ptt' && this.waitingForUserToStart) {
+			console.log('🎵 ConversationStore: PTT mode - triggering initial greeting automatically');
+			this.triggerInitialGreeting();
+		}
 	}
 
 	private greetingRetryTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -981,22 +1096,47 @@ export class ConversationStore {
 			realtimeOpenAI.sendResponse();
 		}, 100);
 
-		// Optional safety retry after 1.5s if no assistant message yet AND user hasn't committed audio
+		// Optional safety retry after 3s if no assistant message yet AND user hasn't committed audio
+		// Increased from 1.5s to 3s to give more time for async processing
 		this.greetingRetryTimeout = setTimeout(() => {
 			if (!realtimeOpenAI.isConnected) return;
 			const hasAssistant = this.messages.some((m) => m.role === 'assistant');
 			const hasUserMessage = this.messages.some((m) => m.role === 'user');
-			// Only retry if NO assistant response AND user hasn't spoken yet
-			if (!hasAssistant && !hasUserMessage) {
+			const hasAssistantDelta = realtimeOpenAI.assistantDelta.trim().length > 0;
+			// Only retry if NO assistant response AND user hasn't spoken yet AND no assistant delta
+			if (!hasAssistant && !hasUserMessage && !hasAssistantDelta) {
 				console.log('🎵 ConversationStore: Retry sending initial greeting...');
 				realtimeOpenAI.sendResponse();
 			} else {
 				console.log(
-					'🎵 ConversationStore: Skipping retry - user already interacted or assistant responded'
+					'🎵 ConversationStore: Skipping retry - user already interacted or assistant responded',
+					{
+						hasAssistant,
+						hasUserMessage,
+						hasAssistantDelta
+					}
 				);
 			}
 			this.greetingRetryTimeout = null;
-		}, 1500);
+		}, 3000);
+	};
+
+	/**
+	 * Enable the microphone audio tracks
+	 * This should be called after the user clicks the start button and animation completes
+	 */
+	enableMicrophone = () => {
+		if (!this.audioStream) {
+			console.warn('🎵 ConversationStore: No audio stream available to enable');
+			return;
+		}
+
+		console.log('🎵 ConversationStore: Enabling microphone audio tracks...');
+		this.audioStream.getAudioTracks().forEach((track) => {
+			console.log(`🔊 Track ${track.id} enabled: ${track.enabled} -> true`);
+			track.enabled = true;
+		});
+		console.log('✅ ConversationStore: Microphone enabled');
 	};
 
 	private applyInstructionUpdate(delta: string) {
