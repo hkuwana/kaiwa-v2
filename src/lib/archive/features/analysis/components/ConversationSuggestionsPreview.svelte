@@ -4,7 +4,7 @@
 	import type { AnalysisSuggestion } from '../types/analysis-suggestion.types';
 	import type { AnalysisMessage } from '../services/analysis.service';
 	import { slide } from 'svelte/transition';
-	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
+	import { SvelteDate, SvelteMap, SvelteSet } from 'svelte/reactivity';
 
 	interface Props {
 		messages: AnalysisMessage[];
@@ -76,8 +76,8 @@
 			message.timestamp instanceof Date
 				? message.timestamp
 				: message.timestamp
-					? new Date(message.timestamp)
-					: new Date(),
+					? new SvelteDate(message.timestamp)
+					: new SvelteDate(),
 		sequenceId: '1',
 		translatedContent: null,
 		sourceLanguage: null,

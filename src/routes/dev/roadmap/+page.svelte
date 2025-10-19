@@ -292,8 +292,8 @@
 
 	function daysRemaining() {
 		if (!shareGoal.deadlineISO) return null;
-		const now = new Date();
-		const deadline = new Date(shareGoal.deadlineISO);
+		const now = new SvelteDate();
+		const deadline = new SvelteDate(shareGoal.deadlineISO);
 		const diff = deadline.getTime() - now.getTime();
 		return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 	}

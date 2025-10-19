@@ -2,6 +2,7 @@
 	import UnifiedConversationBubble from '$lib/features/analysis/components/UnifiedConversationBubble.svelte';
 	import type { AnalysisMessage } from '$lib/features/analysis/services/analysis.service';
 	import type { AnalysisSuggestion } from '$lib/features/analysis/types/analysis-suggestion.types';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	// Test Scenario 1: Grammar and hint suggestions
 	const scenario1Messages: AnalysisMessage[] = [
@@ -9,13 +10,13 @@
 			id: 'msg-1',
 			role: 'user',
 			content: 'I goes to the store yesterday and buy some foods.',
-			timestamp: new Date()
+			timestamp: new SvelteDate()
 		},
 		{
 			id: 'msg-2',
 			role: 'assistant',
 			content: 'That sounds great! What kind of food did you buy?',
-			timestamp: new Date()
+			timestamp: new SvelteDate()
 		}
 	];
 
@@ -61,13 +62,13 @@
 			id: 'msg-3',
 			role: 'user',
 			content: '¿Cómo estás? Me llamo María y soy de México.',
-			timestamp: new Date()
+			timestamp: new SvelteDate()
 		},
 		{
 			id: 'msg-4',
 			role: 'assistant',
 			content: '¡Hola María! Mucho gusto. Yo soy tu asistente de español.',
-			timestamp: new Date()
+			timestamp: new SvelteDate()
 		}
 	];
 
@@ -102,19 +103,19 @@
 			id: 'msg-5',
 			role: 'user',
 			content: 'Could you helping me with this problem? It are very difficult.',
-			timestamp: new Date()
+			timestamp: new SvelteDate()
 		},
 		{
 			id: 'msg-6',
 			role: 'assistant',
 			content: "Of course! I'd be happy to help you with that.",
-			timestamp: new Date()
+			timestamp: new SvelteDate()
 		},
 		{
 			id: 'msg-7',
 			role: 'user',
 			content: 'Thanks! You is very kind person.',
-			timestamp: new Date()
+			timestamp: new SvelteDate()
 		}
 	];
 

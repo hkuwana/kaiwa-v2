@@ -181,22 +181,24 @@
 				// Convert date strings back to Date objects
 				usageStatus = {
 					...data,
-					resetDate: new Date(data.resetDate),
+					resetDate: new SvelteDate(data.resetDate),
 					tier: {
 						...data.tier,
-						createdAt: new Date(data.tier.createdAt),
-						updatedAt: new Date(data.tier.updatedAt)
+						createdAt: new SvelteDate(data.tier.createdAt),
+						updatedAt: new SvelteDate(data.tier.updatedAt)
 					},
 					usage: {
 						...data.usage,
-						createdAt: new Date(data.usage.createdAt),
-						updatedAt: new Date(data.usage.updatedAt),
+						createdAt: new SvelteDate(data.usage.createdAt),
+						updatedAt: new SvelteDate(data.usage.updatedAt),
 						lastConversationAt: data.usage.lastConversationAt
-							? new Date(data.usage.lastConversationAt)
+							? new SvelteDate(data.usage.lastConversationAt)
 							: null,
-						lastRealtimeAt: data.usage.lastRealtimeAt ? new Date(data.usage.lastRealtimeAt) : null,
+						lastRealtimeAt: data.usage.lastRealtimeAt
+							? new SvelteDate(data.usage.lastRealtimeAt)
+							: null,
 						firstActivityAt: data.usage.firstActivityAt
-							? new Date(data.usage.firstActivityAt)
+							? new SvelteDate(data.usage.firstActivityAt)
 							: null
 					}
 				};

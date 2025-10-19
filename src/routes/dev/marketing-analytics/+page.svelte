@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	interface MarketingMetric {
 		name: string;
@@ -482,7 +483,7 @@
 													{content.seoScore}/100
 												</span>
 											</td>
-											<td>{new Date(content.lastUpdated).toLocaleDateString()}</td>
+											<td>{new SvelteDate(content.lastUpdated).toLocaleDateString()}</td>
 										</tr>
 									{/each}
 								</tbody>

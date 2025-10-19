@@ -9,6 +9,7 @@ import type {
 	ViralScenario
 } from '../types/cultural-dna.types';
 import { viralScenarios } from '../data/viral-scenarios';
+import { SvelteDate } from 'svelte/reactivity';
 
 class CulturalDNAStore {
 	// Current assessment session
@@ -32,7 +33,7 @@ class CulturalDNAStore {
 			totalScenarios: viralScenarios.length,
 			selectedLanguage,
 			responses: [],
-			startTime: new Date(),
+			startTime: new SvelteDate(),
 			isComplete: false
 		};
 

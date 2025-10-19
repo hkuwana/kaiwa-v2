@@ -44,12 +44,12 @@
 
 	// Mock usage data for testing
 	function getCurrentPeriod(): string {
-		const now = new Date();
+		const now = new SvelteDate();
 		return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 	}
 
 	function createMockUsage(overrides: Partial<UserUsage> = {}): UserUsage {
-		const now = new Date();
+		const now = new SvelteDate();
 		return {
 			userId: mockUserId,
 			period: getCurrentPeriod(),

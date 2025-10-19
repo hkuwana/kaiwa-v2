@@ -2,6 +2,7 @@
 	import ConversationFab from '$lib/features/conversation/components/ConversationFab.svelte';
 	import { GUEST_USER } from '$lib/data/user';
 	import type { User } from '$lib/server/db/types';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	const demoUser: User = {
 		...GUEST_USER,
@@ -9,7 +10,7 @@
 		displayName: 'Aria Learner',
 		email: 'learner@example.com',
 		username: 'aria',
-		emailVerified: new Date()
+		emailVerified: new SvelteDate()
 	};
 
 	let isLoggedIn = $state(true);
@@ -21,7 +22,7 @@
 	const sliderLabel = $derived(formatDemoTime(timeRemaining));
 
 	const logAction = (label: string) => {
-		const now = new Date().toLocaleTimeString();
+		const now = new SvelteDate().toLocaleTimeString();
 		lastAction = `${now} — ${label}`;
 		console.info('[Conversation FAB demo]', label);
 	};

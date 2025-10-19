@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	interface ABTest {
 		id: string;
@@ -161,7 +162,7 @@
 						conversionRate: 0
 					}
 				],
-				startDate: new Date().toISOString().split('T')[0]
+				startDate: new SvelteDate().toISOString().split('T')[0]
 			};
 
 			abTests = [...abTests, newTest];
@@ -417,9 +418,9 @@
 										<div
 											class="mt-4 flex items-center justify-between text-sm text-base-content/60"
 										>
-											<span>Started: {new Date(test.startDate).toLocaleDateString()}</span>
+											<span>Started: {new SvelteDate(test.startDate).toLocaleDateString()}</span>
 											{#if test.endDate}
-												<span>Ended: {new Date(test.endDate).toLocaleDateString()}</span>
+												<span>Ended: {new SvelteDate(test.endDate).toLocaleDateString()}</span>
 											{/if}
 										</div>
 									</div>

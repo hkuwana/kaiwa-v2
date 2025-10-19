@@ -5,7 +5,7 @@
 	import type { AnalysisSuggestion } from '../types/analysis-suggestion.types';
 	import type { AnalysisMessage } from '../services/analysis.service';
 	import { findTextOffsets } from '../utils/text-highlighting.utils';
-	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
+	import { SvelteDate, SvelteMap, SvelteSet } from 'svelte/reactivity';
 
 	interface Props {
 		messages: AnalysisMessage[];
@@ -60,8 +60,8 @@
 			message.timestamp instanceof Date
 				? message.timestamp
 				: message.timestamp
-					? new Date(message.timestamp)
-					: new Date(),
+					? new SvelteDate(message.timestamp)
+					: new SvelteDate(),
 		sequenceId: '1',
 		translatedContent: null,
 		sourceLanguage: null,
@@ -70,20 +70,32 @@
 		romanization: null,
 		hiragana: null,
 		otherScripts: null,
-		speechTimings: null,
-		translationConfidence: null,
-		translationProvider: null,
-		translationNotes: null,
 		isTranslated: false,
 		grammarAnalysis: null,
 		vocabularyAnalysis: null,
 		pronunciationScore: null,
 		audioUrl: audioUrls.get(message.id) || null,
-		audioDuration: null,
+		translationConfidence: null,
+		translationProvider: null,
+		translationNotes: null,
+		audioUrlExpiresAt: null,
+		audioStorageKey: null,
+		audioDurationMs: null,
+		audioSizeBytes: null,
+		audioFormat: null,
+		audioSampleRate: null,
+		audioChannels: null,
+		audioProcessingState: null,
+		audioProcessingError: null,
+		audioRetentionExpiresAt: null,
+
+		fluencyScore: null,
+		speechRateWpm: null,
 		difficultyLevel: null,
 		learningTags: null,
 		conversationContext: null,
-		messageIntent: null
+		messageIntent: null,
+		audioDeletedAt: null
 	});
 
 	// State for suggestion highlighting

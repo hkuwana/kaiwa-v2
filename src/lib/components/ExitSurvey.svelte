@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { track } from '$lib/analytics/posthog';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	interface Props {
 		sessionId: string;
@@ -23,7 +24,7 @@
 				sessionId,
 				reason,
 				comment,
-				timestamp: new Date().toISOString()
+				timestamp: new SvelteDate().toISOString()
 			});
 
 			// Save to database

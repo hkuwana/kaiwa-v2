@@ -21,7 +21,7 @@ import type {
 	RealtimeAudioFormatDefinition
 } from '$lib/types/openai.realtime.types';
 import { env as publicEnv } from '$env/dynamic/public';
-import { SvelteSet, SvelteDate } from 'svelte/reactivity';
+import { SvelteSet, SvelteDate, SvelteMap } from 'svelte/reactivity';
 import {
 	captureOutputAudioConfig,
 	estimateDurationFromBase64,
@@ -935,7 +935,13 @@ export class RealtimeOpenAIStore {
 						console.warn('🎤 USER TRANSCRIPTION COMPLETED:', {
 							transcript: serverEvent.transcript,
 							item_id: serverEvent.item_id,
-							event_id: serverEvent.event_id
+							event_id: serverEvent.event_id,
+							timestamp: new SvelteDate().toISOString()
+						});
+						console.warn('🔍 TRANSCRIPT WILL NOW GO THROUGH FILTER', {
+							item_id: serverEvent.item_id,
+							transcript: serverEvent.transcript,
+							note: 'Check logs above for TRANSCRIPT FILTER CHECK with this item_id'
 						});
 					} else if (
 						serverEvent?.type === 'response.audio_transcript.done' ||
@@ -947,9 +953,46 @@ export class RealtimeOpenAIStore {
 							event_id: serverEvent.event_id
 						});
 					} else if (serverEvent?.type === 'input_audio_buffer.committed') {
-						console.warn('📤 AUDIO BUFFER COMMITTED', {
-							event_id: serverEvent.event_id,
-							item_id: serverEvent.item_id
+						const commitEvent = serverEvent as unknown as {
+							event_id?: string;
+							item_id?: string;
+						};
+						const callStack = new Error().stack?.split('\n').slice(1, 5).join('\n') || 'unknown';
+
+						// Track which item_ids are associated with this commit
+						const currentCommitItems = this.commitToItemIds.get(this.pttStopCallCounter) || [];
+						if (commitEvent.item_id) {
+							currentCommitItems.push(commitEvent.item_id);
+							this.commitToItemIds.set(this.pttStopCallCounter, currentCommitItems);
+						}
+
+						const itemCount = currentCommitItems.length;
+						const isMultipleItems = itemCount > 1;
+
+						console.warn('📤 AUDIO BUFFER COMMITTED (SERVER RESPONSE)', {
+							event_id: commitEvent.event_id,
+							item_id: commitEvent.item_id,
+							timestamp: new SvelteDate().toISOString(),
+							callStack,
+							explanation: 'This is the server confirming our input_audio_buffer.commit event',
+							commitNumber: this.pttStopCallCounter,
+							itemCountForThisCommit: itemCount,
+							allItemIdsForThisCommit: currentCommitItems
+						});
+
+						if (isMultipleItems) {
+							console.warn('⚠️⚠️⚠️ MULTIPLE ITEMS FROM SINGLE COMMIT! ⚠️⚠️⚠️', {
+								commitNumber: this.pttStopCallCounter,
+								itemIds: currentCommitItems,
+								explanation: 'Server created multiple conversation items from ONE commit - this causes duplicate transcripts!'
+							});
+						}
+
+						console.warn('📋 ITEM_ID TO WATCH FOR TRANSCRIPT', {
+							item_id: commitEvent.item_id,
+							commitNumber: this.pttStopCallCounter,
+							itemIndex: `${itemCount} of ?`,
+							note: 'This item_id will appear in the next conversation.item.input_audio_transcription.completed event'
 						});
 					}
 
@@ -1114,18 +1157,49 @@ export class RealtimeOpenAIStore {
 		sendEventViaSession(this.connection, ev);
 	}
 
+	// Track PTT start calls
+	private pttStartCallCounter: number = 0;
+
 	pttStart(mediaStream: MediaStream): void {
-		if (!this.connection) return;
+		this.pttStartCallCounter++;
+		const callStack = new Error().stack?.split('\n').slice(1, 5).join('\n') || 'unknown';
+
+		console.warn('▶️ RealtimeOpenAI: pttStart() CALLED', {
+			hasConnection: !!this.connection,
+			callNumber: this.pttStartCallCounter,
+			streamId: mediaStream?.id,
+			callStack,
+			timestamp: new SvelteDate().toISOString()
+		});
+
+		if (!this.connection) {
+			console.warn('⚠️ pttStart() called but no connection - returning early');
+			return;
+		}
+
 		const ev = { type: 'input_audio_buffer.clear' as const };
+		console.warn('🗑️ SENDING input_audio_buffer.clear EVENT NOW', {
+			startNumber: this.pttStartCallCounter,
+			timestamp: new SvelteDate().toISOString()
+		});
 		this.logEvent('client', String(ev.type), ev);
 		sendEventViaSession(this.connection, ev);
+		console.warn('✅ input_audio_buffer.clear EVENT SENT', {
+			startNumber: this.pttStartCallCounter
+		});
+
 		// Resume audio input
-		mediaStream.getAudioTracks().forEach((track) => (track.enabled = true));
+		console.log('🔊 Enabling audio tracks after clear');
+		mediaStream.getAudioTracks().forEach((track) => {
+			console.log(`🔊 Track ${track.id} enabled: ${track.enabled} -> true`);
+			track.enabled = true;
+		});
 	}
 
 	// Track PTT stop calls to detect duplicates
 	private lastPttStopTime: number = 0;
 	private pttStopCallCounter: number = 0;
+	private commitToItemIds: SvelteMap<number, string[]> = new SvelteMap(); // Track which item_ids came from which commit
 
 	pttStop(mediaStream: MediaStream): void {
 		this.pttStopCallCounter++;
@@ -1139,7 +1213,7 @@ export class RealtimeOpenAIStore {
 			timeSinceLastStop: `${timeSinceLastStop}ms`,
 			streamId: mediaStream?.id,
 			callStack,
-			timestamp: new Date().toISOString()
+			timestamp: new SvelteDate().toISOString()
 		});
 
 		// Detect rapid duplicate calls (within 200ms) - THIS IS THE PROBLEM!
@@ -1147,8 +1221,8 @@ export class RealtimeOpenAIStore {
 			console.warn('⚠️⚠️⚠️ DUPLICATE pttStop() DETECTED - SECOND AUDIO BUFFER COMMIT! ⚠️⚠️⚠️', {
 				timeSinceLastStop: `${timeSinceLastStop}ms`,
 				callNumber: this.pttStopCallCounter,
-				previousCallTime: new Date(this.lastPttStopTime).toISOString(),
-				currentCallTime: new Date(now).toISOString(),
+				previousCallTime: new SvelteDate(this.lastPttStopTime).toISOString(),
+				currentCallTime: new SvelteDate(now).toISOString(),
 				explanation: 'This is causing the second audio buffer commit you are seeing!',
 				callStack
 			});
@@ -1156,12 +1230,28 @@ export class RealtimeOpenAIStore {
 
 		this.lastPttStopTime = now;
 
-		if (!this.connection) return;
+		if (!this.connection) {
+			console.warn('⚠️ pttStop() called but no connection - returning early');
+			return;
+		}
+
 		// Pause audio input
-		mediaStream.getAudioTracks().forEach((track) => (track.enabled = false));
+		console.log('🔇 Disabling audio tracks before commit');
+		mediaStream.getAudioTracks().forEach((track) => {
+			console.log(`🔇 Track ${track.id} enabled: ${track.enabled} -> false`);
+			track.enabled = false;
+		});
+
 		const ev = { type: 'input_audio_buffer.commit' as const };
+		console.warn('📤 SENDING input_audio_buffer.commit EVENT NOW', {
+			commitNumber: this.pttStopCallCounter,
+			timestamp: new SvelteDate().toISOString()
+		});
 		this.logEvent('client', String(ev.type), ev);
 		sendEventViaSession(this.connection, ev);
+		console.warn('✅ input_audio_buffer.commit EVENT SENT', {
+			commitNumber: this.pttStopCallCounter
+		});
 	}
 
 	updateSessionConfig(config: {

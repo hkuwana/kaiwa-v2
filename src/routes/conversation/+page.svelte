@@ -140,7 +140,17 @@
 		if (autoConnectAttempted || !selectedLanguage) return;
 
 		autoConnectAttempted = true;
-		console.log('Starting auto-connection with:', selectedLanguage.name, 'sessionId:', sessionId);
+
+		// Read audioMode from URL search params, default to Push-to-Talk
+		const audioMode = (page.url.searchParams.get('audioMode') as 'vad' | 'ptt') || 'ptt';
+		console.log(
+			'Starting auto-connection with:',
+			selectedLanguage.name,
+			'sessionId:',
+			sessionId,
+			'audioMode:',
+			audioMode
+		);
 
 		try {
 			// Set sessionId in conversation store before starting
@@ -150,7 +160,9 @@
 			const speaker = settingsStore.selectedSpeaker
 				? getSpeakerById(settingsStore.selectedSpeaker)
 				: undefined;
-			await conversationStore.startConversation(selectedLanguage, speaker);
+			await conversationStore.startConversation(selectedLanguage, speaker, {
+				audioInputMode: audioMode
+			});
 			console.log('Auto-connection successful');
 		} catch (err) {
 			console.error('Auto-connection failed:', err);
@@ -507,8 +519,19 @@
 										vocabularyAnalysis: undefined,
 										pronunciationScore: null,
 										audioUrl: null,
-										audioDuration: null,
-										speechTimings: null,
+										audioUrlExpiresAt: null,
+										audioStorageKey: null,
+										audioDurationMs: null,
+										audioSizeBytes: null,
+										audioFormat: null,
+										audioSampleRate: null,
+										audioChannels: null,
+										audioProcessingState: null,
+										audioProcessingError: null,
+										audioRetentionExpiresAt: null,
+										audioDeletedAt: null,
+										fluencyScore: null,
+										speechRateWpm: null,
 										difficultyLevel: null,
 										learningTags: undefined,
 										conversationContext: null,
@@ -546,8 +569,19 @@
 										grammarAnalysis: undefined,
 										vocabularyAnalysis: undefined,
 										pronunciationScore: null,
-										audioDuration: null,
-										speechTimings: null,
+										audioUrlExpiresAt: null,
+										audioStorageKey: null,
+										audioDurationMs: null,
+										audioSizeBytes: null,
+										audioFormat: null,
+										audioSampleRate: null,
+										audioChannels: null,
+										audioProcessingState: null,
+										audioProcessingError: null,
+										audioRetentionExpiresAt: null,
+										audioDeletedAt: null,
+										fluencyScore: null,
+										speechRateWpm: null,
 										difficultyLevel: null,
 										learningTags: undefined,
 										conversationContext: null,

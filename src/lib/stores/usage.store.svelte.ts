@@ -1,6 +1,7 @@
 // usage.store.svelte.ts
 // Combined store for MVP - handles both usage tracking and timer functionality
 import type { Tier, UserUsage } from '$lib/server/db/types';
+import { SvelteDate } from 'svelte/reactivity';
 export interface TimerState {
 	isRunning: boolean;
 	isPaused: boolean;
@@ -284,7 +285,7 @@ class UsageStore {
 	updateUsageAfterSession(secondsUsed: number, overageSeconds: number = 0) {
 		if (!this.usage) return;
 
-		const now = new Date();
+		const now = new SvelteDate();
 		const updatedOverage = (this.usage.overageSeconds ?? 0) + overageSeconds;
 
 		this.usage = {

@@ -2,7 +2,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
-	import { SvelteSet } from 'svelte/reactivity';
+	import { SvelteDate, SvelteSet } from 'svelte/reactivity';
 
 	// Sample conversation data showcasing different languages and scenarios
 	const conversations = [
@@ -84,7 +84,7 @@
 	let numColumns = $state(3);
 
 	// Derived reactive values
-	const _currentTime = $derived(new Date().toLocaleTimeString());
+	const _currentTime = $derived(new SvelteDate().toLocaleTimeString());
 
 	function toggleTranslation(bubbleId: string) {
 		const newSet = new SvelteSet(translationsVisible);

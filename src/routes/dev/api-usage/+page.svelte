@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { SvelteDate } from 'svelte/reactivity';
+
 	let { data } = $props();
 
 	const { userId, stats, summary, sessions } = data;
@@ -115,7 +117,7 @@
 						<tbody>
 							{#each sessions as session (session.id)}
 								<tr>
-									<td>{dateTimeFormatter.format(new Date(session.startTime))}</td>
+									<td>{dateTimeFormatter.format(new SvelteDate(session.startTime))}</td>
 									<td>{formatDuration(session.durationSeconds)}</td>
 									<td>{formatAudioSeconds(session.secondsConsumed)}</td>
 									<td>{numberFormatter.format(session.inputTokens ?? 0)}</td>
