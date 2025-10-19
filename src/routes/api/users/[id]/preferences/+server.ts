@@ -47,10 +47,20 @@ export const GET = async ({ locals, params }) => {
 
 		const userTier = await userService.getUserTier(userId);
 		const maxCount = userTier ? getMaxMemories(userTier) : 10;
+		const memories = preferences.memories ?? [];
 
 		return json(
 			createSuccessResponse(
-				{ ...preferences, memories: { count: preferences.memories?.length || 0, maxCount } },
+				{
+					...preferences,
+					memories,
+					memorySummary: {
+						memories,
+						count: memories.length,
+						maxCount,
+						withinLimit: memories.length <= maxCount
+					}
+				},
 				'User preferences retrieved successfully'
 			)
 		);
@@ -141,8 +151,9 @@ export const PUT = async ({ request, locals, params }) => {
 			return json(createErrorResponse('All memories must be strings'), { status: 400 });
 		}
 
+		let userTier = await userService.getUserTier(userId);
+
 		if (memories) {
-			const userTier = await userService.getUserTier(userId);
 			if (!userTier) {
 				return json(createErrorResponse('Unable to determine user tier'), { status: 500 });
 			}
@@ -183,7 +194,27 @@ export const PUT = async ({ request, locals, params }) => {
 			return json(createErrorResponse('Failed to update preferences'), { status: 500 });
 		}
 
-		return json(createSuccessResponse(updatedPreferences, 'User preferences updated successfully'));
+		if (!userTier) {
+			userTier = await userService.getUserTier(userId);
+		}
+		const maxCount = userTier ? getMaxMemories(userTier) : 10;
+		const updatedMemories = updatedPreferences.memories ?? [];
+
+		return json(
+			createSuccessResponse(
+				{
+					...updatedPreferences,
+					memories: updatedMemories,
+					memorySummary: {
+						memories: updatedMemories,
+						count: updatedMemories.length,
+						maxCount,
+						withinLimit: updatedMemories.length <= maxCount
+					}
+				},
+				'User preferences updated successfully'
+			)
+		);
 	} catch (error) {
 		console.error('Error updating user preferences:', error);
 		return json(createErrorResponse('Failed to update user preferences'), { status: 500 });

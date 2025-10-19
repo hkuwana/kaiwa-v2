@@ -1,21 +1,72 @@
 <script lang="ts">
 	import type { UserPreferences } from '$lib/server/db/types';
+	import type { MemorySummary } from '$lib/services/user-memory.service';
 	import { languages } from '$lib/data/languages';
 	import { SvelteDate } from 'svelte/reactivity';
 
 	interface Props {
 		userPreferences: UserPreferences;
-		onSave?: (preferences: Partial<UserPreferences>) => void;
+		memorySummary?: MemorySummary | null;
+		onSave?: (preferences: Partial<UserPreferences> & { memorySummary?: MemorySummary }) => void;
 		compact?: boolean;
 	}
 
-	const { userPreferences, onSave, compact = false }: Props = $props();
+	const {
+		userPreferences,
+		memorySummary: initialMemorySummary = null,
+		onSave,
+		compact = false
+	}: Props = $props();
 
 	// Local state for form inputs
-	const localPreferences: UserPreferences = $state({ ...userPreferences });
+	const initialMemories = Array.isArray(userPreferences.memories)
+		? [...userPreferences.memories]
+		: [];
+	const localPreferences: UserPreferences = $state({
+		...userPreferences,
+		memories: initialMemories
+	});
 	let saveTimeout: NodeJS.Timeout | null = null;
 	let isSaving = $state(false);
 	let lastSaved = $state<SvelteDate | null>(null);
+	let memoryWarning = $state<string | null>(null);
+
+	let currentMemorySummary = $state<MemorySummary | null>(
+		initialMemorySummary
+			? {
+					memories: [...initialMemorySummary.memories],
+					count: initialMemorySummary.count ?? initialMemorySummary.memories.length,
+					maxCount: initialMemorySummary.maxCount ?? initialMemorySummary.memories.length,
+					withinLimit:
+						initialMemorySummary.withinLimit ??
+						initialMemorySummary.memories.length <=
+							(initialMemorySummary.maxCount ?? initialMemorySummary.memories.length)
+				}
+			: {
+					memories: [...initialMemories],
+					count: initialMemories.length,
+					maxCount: initialMemorySummary?.maxCount ?? Math.max(initialMemories.length, 10),
+					withinLimit: true
+				}
+	);
+
+	$effect(() => {
+		if (!initialMemorySummary) return;
+		currentMemorySummary = {
+			memories: [...initialMemorySummary.memories],
+			count: initialMemorySummary.count ?? initialMemorySummary.memories.length,
+			maxCount: initialMemorySummary.maxCount ?? initialMemorySummary.memories.length,
+			withinLimit:
+				initialMemorySummary.withinLimit ??
+				initialMemorySummary.memories.length <=
+					(initialMemorySummary.maxCount ?? initialMemorySummary.memories.length)
+		};
+		if (Array.isArray(initialMemorySummary.memories)) {
+			localPreferences.memories = [...initialMemorySummary.memories];
+		}
+	});
+
+	const getMemoryLimit = () => currentMemorySummary?.maxCount ?? Infinity;
 
 	// Debounced save function
 	const debouncedSave = (updates: Partial<UserPreferences>) => {
@@ -44,8 +95,51 @@
 				throw new Error('Failed to save preferences');
 			}
 
+			const payload = await response.json();
+			const data = (payload?.success ?? false) ? payload?.data : payload;
+
+			const serverPreferences =
+				data as (UserPreferences & { memorySummary?: MemorySummary }) | undefined;
+
+			const resultUpdates: Partial<UserPreferences> & { memorySummary?: MemorySummary } = {};
+
+			if (serverPreferences) {
+				const { memorySummary: summaryFromServer, ...rest } = serverPreferences;
+
+				if (summaryFromServer && Array.isArray(summaryFromServer.memories)) {
+					const normalizedSummary: MemorySummary = {
+						memories: [...summaryFromServer.memories],
+						count: summaryFromServer.count ?? summaryFromServer.memories.length,
+						maxCount: summaryFromServer.maxCount ?? summaryFromServer.memories.length,
+						withinLimit:
+							summaryFromServer.withinLimit ??
+							summaryFromServer.memories.length <=
+								(summaryFromServer.maxCount ?? summaryFromServer.memories.length)
+					};
+					currentMemorySummary = normalizedSummary;
+					localPreferences.memories = [...normalizedSummary.memories];
+					memoryWarning = null;
+					resultUpdates.memories = [...normalizedSummary.memories];
+					resultUpdates.memorySummary = normalizedSummary;
+				} else if (updates.memories) {
+					resultUpdates.memories = [...updates.memories];
+				}
+
+				for (const key of Object.keys(updates) as Array<keyof UserPreferences>) {
+					if (key === 'memories') continue;
+					if (rest[key] !== undefined) {
+						localPreferences[key] = rest[key] as UserPreferences[typeof key];
+						resultUpdates[key] = rest[key] as UserPreferences[typeof key];
+					} else if (updates[key] !== undefined) {
+						resultUpdates[key] = updates[key];
+					}
+				}
+			} else {
+				Object.assign(resultUpdates, updates);
+			}
+
 			lastSaved = new SvelteDate();
-			onSave?.(updates);
+			onSave?.(Object.keys(resultUpdates).length > 0 ? resultUpdates : updates);
 		} catch (error) {
 			console.error('Error saving preferences:', error);
 		} finally {
@@ -61,6 +155,25 @@
 		localPreferences[field] = value as UserPreferences[K];
 		const updates = { [field]: value } as { [P in K]: UserPreferences[P] };
 		debouncedSave(updates as Partial<UserPreferences>);
+	};
+
+	const handleMemoriesInput = (event: Event) => {
+		const value = (event.target as HTMLTextAreaElement).value;
+		const entries = value
+			.split('\n')
+			.map((entry) => entry.trim())
+			.filter((entry) => entry.length > 0);
+
+		localPreferences.memories = entries;
+
+		const limit = getMemoryLimit();
+		if (limit !== Infinity && entries.length > limit) {
+			memoryWarning = `You can store up to ${limit} memories. Remove ${entries.length - limit} to save.`;
+			return;
+		}
+
+		memoryWarning = null;
+		debouncedSave({ memories: entries });
 	};
 
 	// Learning goal options
@@ -399,6 +512,45 @@
 							parseInt((e.target as HTMLInputElement).value)
 						)}
 				/>
+			</div>
+
+			<!-- Learner Memories -->
+			<div class="form-control md:col-span-2 {compact ? 'mb-2' : ''}">
+				<label class="label {compact ? 'py-1' : ''} justify-between" for="pref-memories">
+					<span class="label-text {compact ? 'text-sm' : ''}">Learner Memories</span>
+					<span class="label-text-alt {compact ? 'text-xs' : 'text-sm'}">
+						{localPreferences.memories?.length ?? 0}/
+						{#if currentMemorySummary && currentMemorySummary.maxCount !== Infinity}
+							{currentMemorySummary.maxCount}
+						{:else}
+							∞
+						{/if}
+					</span>
+				</label>
+				<textarea
+					class="textarea-bordered textarea h-32"
+					id="pref-memories"
+					placeholder="Add short facts you'd like Kaiwa to remember (one per line)"
+					value={Array.isArray(localPreferences.memories)
+						? localPreferences.memories.join('\n')
+						: ''}
+					oninput={handleMemoriesInput}
+				></textarea>
+				{#if memoryWarning}
+					<p class="mt-1 text-sm text-error">{memoryWarning}</p>
+				{:else if currentMemorySummary && currentMemorySummary.maxCount !== Infinity}
+					<p class="mt-1 text-xs text-base-content/70">
+						{Math.max(
+							0,
+							currentMemorySummary.maxCount - (localPreferences.memories?.length ?? 0)
+						)}{' '}
+						memories remaining for your current plan.
+					</p>
+				{:else}
+					<p class="mt-1 text-xs text-base-content/70">
+						Use one short sentence per memory to keep future sessions personalised.
+					</p>
+				{/if}
 			</div>
 
 			<!-- Specific Goals -->

@@ -4,6 +4,7 @@
 	import UserPreferencesEditor from '$lib/components/UserPreferencesEditor.svelte';
 	import EmailPreferences from '$lib/components/EmailPreferences.svelte';
 	import type { UserPreferences } from '$lib/server/db/types';
+	import type { MemorySummary } from '$lib/services/user-memory.service';
 	import type { UsageStatus } from '$lib/server/tier-service';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { onMount } from 'svelte';
@@ -15,6 +16,7 @@
 	let userPreferences = $state<UserPreferences | null>(null);
 	let subscription = $state<any>(null);
 	let usageLimits = $state<any>(null);
+	let memorySummary = $state<MemorySummary | null>(null);
 
 	let showDeleteModal = $state(false);
 	let deleteConfirmation = $state('');
@@ -97,9 +99,23 @@
 		deleteError = '';
 	};
 
-	const handlePreferencesSave = (updates: Partial<UserPreferences>) => {
+	const handlePreferencesSave = (
+		updates: Partial<UserPreferences> & { memorySummary?: MemorySummary }
+	) => {
 		if (userPreferences) {
 			userPreferences = { ...userPreferences, ...updates };
+		}
+
+		if (updates.memorySummary) {
+			memorySummary = updates.memorySummary;
+		} else if (updates.memories) {
+			const maxCount = memorySummary?.maxCount ?? updates.memories.length;
+			memorySummary = {
+				memories: updates.memories,
+				count: updates.memories.length,
+				maxCount,
+				withinLimit: updates.memories.length <= maxCount
+			};
 		}
 	};
 
@@ -133,9 +149,42 @@
 	const loadUserPreferences = async (): Promise<UserPreferences | null> => {
 		try {
 			const response = await fetch(`/api/users/${data.user.id}/preferences`);
-			if (response.ok) {
-				return await response.json();
+			if (!response.ok) {
+				console.error('Failed to load user preferences:', response.statusText);
+				return null;
 			}
+
+			const payload = await response.json();
+			const payloadData = (payload?.success ?? false) ? payload?.data : payload;
+
+			if (payloadData?.userId) {
+				const { memorySummary: summary, ...rest } = payloadData as {
+					memorySummary?: MemorySummary;
+				} & UserPreferences;
+
+				const fallbackMemories = Array.isArray(rest.memories) ? rest.memories : [];
+				memorySummary =
+					summary && Array.isArray(summary.memories)
+						? {
+								memories: summary.memories,
+								count: summary.count ?? summary.memories.length,
+								maxCount: summary.maxCount ?? summary.memories.length,
+								withinLimit:
+									summary.withinLimit ??
+									summary.memories.length <= (summary.maxCount ?? summary.memories.length)
+							}
+						: {
+								memories: fallbackMemories,
+								count: fallbackMemories.length,
+								maxCount: summary?.maxCount ?? fallbackMemories.length,
+								withinLimit:
+									fallbackMemories.length <= (summary?.maxCount ?? fallbackMemories.length)
+							};
+
+				return rest as UserPreferences;
+			}
+
+			console.warn('Unexpected user preferences response shape:', payload);
 			return null;
 		} catch (error) {
 			console.error('Error loading user preferences:', error);
@@ -146,11 +195,12 @@
 	// Load subscription data
 	const loadSubscription = async () => {
 		try {
-			const response = await fetch('/api/user/subscription');
-			if (response.ok) {
-				return await response.json();
+			const response = await fetch(`/api/users/${data.user.id}/subscription?simple=true`);
+			if (!response.ok) {
+				console.error('Failed to load subscription:', response.statusText);
+				return null;
 			}
-			return null;
+			return await response.json();
 		} catch (error) {
 			console.error('Error loading subscription:', error);
 			return null;
@@ -308,11 +358,15 @@
 										<span class="label-text font-medium">Email Verified</span>
 									</div>
 									<div class="flex items-center gap-2">
-										{#if data.user.emailVerified}
+										{#if data.user.emailVerified || data.user.googleId}
 											<span class="badge badge-success">Verified</span>
-											<span class="text-sm text-base-content/70">
-												{new SvelteDate(data.user.emailVerified).toLocaleDateString()}
-											</span>
+											{#if data.user.emailVerified}
+												<span class="text-sm text-base-content/70">
+													{new SvelteDate(data.user.emailVerified).toLocaleDateString()}
+												</span>
+											{:else if data.user.googleId}
+												<span class="text-sm text-base-content/70">Verified via Google</span>
+											{/if}
 										{:else}
 											<span class="badge badge-error">Not Verified</span>
 										{/if}
@@ -393,6 +447,7 @@
 								{#if userPrefs}
 									<UserPreferencesEditor
 										userPreferences={userPrefs}
+										{memorySummary}
 										onSave={handlePreferencesSave}
 										compact={false}
 									/>
