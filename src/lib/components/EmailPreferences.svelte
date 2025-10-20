@@ -27,31 +27,31 @@
 			key: 'receiveMarketingEmails',
 			label: 'Marketing Emails',
 			description: 'Promotional content, special offers, and product announcements',
-			icon: '📢'
+			icon: 'icon-[mdi--bullhorn-outline]'
 		},
 		{
 			key: 'receiveDailyReminderEmails',
 			label: 'Daily Reminders',
 			description: 'Gentle reminders to practice your language learning',
-			icon: '📅'
+			icon: 'icon-[mdi--calendar-clock]'
 		},
 		{
 			key: 'receiveProductUpdates',
 			label: 'Product Updates',
 			description: 'New features, improvements, and important changes to Kaiwa',
-			icon: '🚀'
+			icon: 'icon-[mdi--rocket-launch-outline]'
 		},
 		{
 			key: 'receiveWeeklyDigest',
 			label: 'Weekly Digest',
 			description: 'Weekly summary of your progress and learning insights',
-			icon: '📊'
+			icon: 'icon-[mdi--chart-bar]'
 		},
 		{
 			key: 'receiveSecurityAlerts',
 			label: 'Security Alerts',
 			description: 'Important security notifications and account updates',
-			icon: '🔒'
+			icon: 'icon-[mdi--lock-outline]'
 		}
 	];
 
