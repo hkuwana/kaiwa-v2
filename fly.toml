@@ -2,12 +2,21 @@
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
+# Architecture:
+# - Process "web": Main SvelteKit application (auto-scaled)
+# - Separate scheduled machines: Cron jobs (deployed via scripts/deploy-cron-jobs.sh)
+#
+# Note: Cron jobs are NOT defined in this file. They are deployed as separate
+# scheduled machines to keep them isolated from the main app. See:
+# - scripts/deploy-cron-jobs.sh for deployment
+# - src/lib/docs/architecture-cron-jobs.md for documentation
 
 app = 'kaiwa'
 primary_region = 'den'
 
 [build]
 
+# Main web application process
 [http_service]
   internal_port = 3000
   force_https = true
@@ -15,7 +24,11 @@ primary_region = 'den'
   auto_start_machines = true
   min_machines_running = 0
 
+# VM configuration for web process
 [[vm]]
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
+
+# Cron jobs are deployed as separate scheduled machines
+# See scripts/deploy-cron-jobs.sh for deployment instructions

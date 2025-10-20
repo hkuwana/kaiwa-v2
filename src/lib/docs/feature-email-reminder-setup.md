@@ -100,46 +100,35 @@ Expected response:
 
 ## ⚙️ Automation Options
 
-### Option 1: Fly.io Machines (Recommended)
+### Option 1: Fly.io Scheduled Machines (✅ Recommended - Our Current Architecture)
 
-**Pros**: Built-in, no external dependencies, free tier
-**Cons**: Requires Fly.io setup
+**Pros**:
+- Built-in, no external dependencies
+- Most reliable (exact timing, not "approximately")
+- Better isolation and debugging
+- No public HTTP exposure needed
+- Free tier includes scheduled machines
 
-Create `fly.toml` entry:
+**Cons**:
+- Requires Fly.io setup (but you're already using it!)
 
-```toml
-[experimental]
-  auto_rollback = true
-
-[[services]]
-  internal_port = 8080
-  protocol = "tcp"
-
-# Add this section for scheduled tasks
-[[vm]]
-  size = "shared-cpu-1x"
-
-[deploy]
-  strategy = "rolling"
-
-[metrics]
-  port = 9091
-  path = "/metrics"
-```
-
-Then create a machine for cron:
+**How it works**: Cron jobs run as **separate processes** (not HTTP endpoints) using the same codebase.
 
 ```bash
-# Create a cron machine that runs daily at 9am UTC
-fly machine run \
-  --schedule "0 9 * * *" \
-  --entrypoint "curl -X GET -H 'Authorization: Bearer $CRON_SECRET' https://trykaiwa.com/api/cron/send-reminders"
+# Deploy all cron jobs (daily reminders + founder emails)
+./scripts/deploy-cron-jobs.sh
 ```
 
-### Option 2: GitHub Actions (Easy)
+This creates two scheduled machines:
+- `cron-daily-reminders`: Runs `tsx scripts/send-reminders.ts` daily at 9am UTC
+- `cron-founder-emails`: Runs `tsx scripts/send-founder-emails.ts` daily at 2pm UTC
 
-**Pros**: Free, easy to set up, reliable
-**Cons**: Requires GitHub repo
+**See detailed architecture**: [architecture-cron-jobs.md](./architecture-cron-jobs.md)
+
+### Option 2: GitHub Actions (Alternative)
+
+**Pros**: Free, easy to set up, quick to get started
+**Cons**: Timing not guaranteed (can be delayed 10-30 minutes), requires HTTP endpoints
 
 Create `.github/workflows/daily-reminders.yml`:
 

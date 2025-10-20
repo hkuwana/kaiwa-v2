@@ -43,7 +43,11 @@
 		"db:nuke:dev": "dotenv -e .env.development -- tsx ./src/lib/server/db/nuke.ts",
 		"db:nuke:prod": "dotenv -e .env.production  -- tsx ./src/lib/server/db/nuke.ts",
 		"db:clear:dev": "dotenv -e .env.development tsx ./src/lib/server/db/nuke.ts clear",
-		"db:health": "tsx scripts/db-health.ts"
+		"db:health": "tsx scripts/db-health.ts",
+		"cron:reminders": "tsx scripts/send-reminders.ts",
+		"cron:founder-emails": "tsx scripts/send-founder-emails.ts",
+		"cron:weekly-digest": "tsx scripts/send-weekly-digest.ts",
+		"cron:deploy": "./scripts/deploy-cron-jobs.sh"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
