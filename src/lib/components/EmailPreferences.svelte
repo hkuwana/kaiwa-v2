@@ -116,51 +116,39 @@
 
 <div class="email-preferences {compact ? 'compact' : ''}">
 	{#if showTitle}
-		<h3 class="mb-4 text-lg font-semibold text-gray-900">Email Preferences</h3>
+		<h3 class="mb-4 text-lg font-semibold">Email Preferences</h3>
 	{/if}
 
 	{#if loading}
 		<div class="flex items-center justify-center py-8">
-			<div class="h-6 w-6 animate-spin rounded-full border-b-2 border-blue-600"></div>
-			<span class="ml-2 text-gray-600">Loading preferences...</span>
+			<div class="h-6 w-6 animate-spin rounded-full border-b-2 border-primary"></div>
+			<span class="ml-2">Loading preferences...</span>
 		</div>
 	{:else}
 		<div class="space-y-4">
 			{#each emailTypes as emailType (emailType.key)}
 				<div
-					class="flex items-start space-x-3 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50"
+					class="flex items-start space-x-3 rounded-lg border border-base-200 bg-base-100 p-4 transition-colors hover:bg-base-200"
 				>
-					<div class="flex-shrink-0 text-2xl">{emailType.icon}</div>
+					<div class="flex-shrink-0 text-2xl">
+						<span class="{emailType.icon} h-6 w-6"></span>
+					</div>
 					<div class="min-w-0 flex-1">
 						<div class="flex items-center justify-between">
 							<div>
-								<h4 class="text-sm font-medium text-gray-900">{emailType.label}</h4>
+								<h4 class="text-sm font-medium">{emailType.label}</h4>
 								{#if !compact}
-									<p class="mt-1 text-sm text-gray-500">{emailType.description}</p>
+									<p class="mt-1 text-sm text-base-content/70">{emailType.description}</p>
 								{/if}
 							</div>
-							<button
-								type="button"
-								class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none {preferences[
-									emailType.key as keyof typeof preferences
-								]
-									? 'bg-blue-600'
-									: 'bg-gray-200'}"
-								role="switch"
-								aria-checked={preferences[emailType.key as keyof typeof preferences]}
+							<input
+								type="checkbox"
+								class="toggle toggle-primary"
+								bind:checked={preferences[emailType.key as keyof typeof preferences]}
 								aria-label={`Toggle ${emailType.label} email notifications`}
-								onclick={() => togglePreference(emailType.key as keyof typeof preferences)}
+								on:change={() => togglePreference(emailType.key as keyof typeof preferences)}
 								disabled={saving}
-							>
-								<span
-									class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {preferences[
-										emailType.key as keyof typeof preferences
-									]
-										? 'translate-x-5'
-										: 'translate-x-0'}"
-									aria-hidden="true"
-								></span>
-							</button>
+							/>
 						</div>
 					</div>
 				</div>
@@ -168,45 +156,27 @@
 		</div>
 
 		{#if saveMessage}
-			<div class="mt-4 rounded-md border border-green-200 bg-green-50 p-3">
-				<div class="flex">
-					<div class="flex-shrink-0">
-						<span class="icon-[mdi--check-circle] h-5 w-5 text-green-400"></span>
-					</div>
-					<div class="ml-3">
-						<p class="text-sm font-medium text-green-800">{saveMessage}</p>
-					</div>
-				</div>
+			<div role="alert" class="alert alert-success mt-4">
+				<span class="icon-[mdi--check-circle] h-6 w-6"></span>
+				<span>{saveMessage}</span>
 			</div>
 		{/if}
 
 		{#if saveError}
-			<div class="mt-4 rounded-md border border-red-200 bg-red-50 p-3">
-				<div class="flex">
-					<div class="flex-shrink-0">
-						<span class="icon-[mdi--close-circle] h-5 w-5 text-red-400"></span>
-					</div>
-					<div class="ml-3">
-						<p class="text-sm font-medium text-red-800">{saveError}</p>
-					</div>
-				</div>
+			<div role="alert" class="alert alert-error mt-4">
+				<span class="icon-[mdi--close-circle] h-6 w-6"></span>
+				<span>{saveError}</span>
 			</div>
 		{/if}
 
 		{#if !compact}
-			<div class="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
-				<div class="flex">
-					<div class="flex-shrink-0">
-						<span class="icon-[mdi--information] h-5 w-5 text-blue-400"></span>
-					</div>
-					<div class="ml-3">
-						<h3 class="text-sm font-medium text-blue-800">About Email Preferences</h3>
-						<div class="mt-2 text-sm text-blue-700">
-							<p>
-								You can change these preferences at any time. We respect your choices and will only
-								send you the types of emails you've opted into.
-							</p>
-						</div>
+			<div role="alert" class="alert alert-info mt-6">
+				<span class="icon-[mdi--information] h-5 w-5"></span>
+				<div>
+					<h3 class="font-bold">About Email Preferences</h3>
+					<div class="text-xs">
+						You can change these preferences at any time. We respect your choices and will only send
+						you the types of emails you've opted into.
 					</div>
 				</div>
 			</div>
