@@ -6,24 +6,23 @@
 
 ## ✅ Step-by-Step Setup
 
-### 1. Set Up Cal.com (5 minutes)
+### 1. Set Up Your Booking Link (5 minutes)
 
-1. Go to [cal.com](https://cal.com) and sign up (free)
-2. Click "Event Types" → "New Event Type"
+1. Open your booking provider (e.g. [Google Calendar appointments](https://calendar.google.com))
+2. Create a 15-minute event type named "Quick Chat with Hiro"
 3. Configure:
-   - **Name**: Quick Chat with Hiro
    - **Duration**: 15 minutes
    - **Location**: Google Meet (or Zoom)
    - **Buffer**: 10 minutes between calls
    - **Questions**: "What would you like to discuss about Kaiwa?"
-4. Copy your link (looks like: `https://cal.com/hiro-kaiwa/15min`)
+4. Copy your link (looks like: `https://calendar.app.google/XESCmxmKpNrhzN5d7`)
 5. Update in code:
 
 ```bash
 # Edit src/lib/server/services/founder-email.service.ts
 # Find this line:
-private static readonly CAL_LINK = 'https://https://cal.com/hirokuwana/15min';
-# Replace with your actual Cal.com link
+private static readonly CAL_LINK = 'https://calendar.app.google/XESCmxmKpNrhzN5d7';
+# Replace with your actual calendar link
 ```
 
 ### 2. Configure Resend (5 minutes)
@@ -138,7 +137,7 @@ curl -X POST \
 - [ ] Open email on desktop (Gmail, Outlook)
 - [ ] Open email on mobile (iPhone Mail, Gmail app)
 - [ ] Click "Start Conversation" button - does it work?
-- [ ] Click Cal.com link (Day 3) - does it open?
+- [ ] Click calendar link (Day 3) - does it open?
 - [ ] Hit "Reply" - does it go to hiro@trykaiwa.com?
 - [ ] Check spam folder - if emails go there, see troubleshooting below
 
@@ -213,7 +212,7 @@ Track these numbers:
 - ✅ Day 1 open rate >40%
 - ✅ At least 1 reply per 10 emails
 - ✅ 20-30% conversion to first conversation
-- ✅ 1-2 Cal.com bookings per week
+- ✅ 1-2 calendar bookings per week
 
 **Bad signs**:
 
@@ -272,7 +271,7 @@ Hey [Name]!
 Thanks for reaching out. [Answer their specific question]
 
 If you're still stuck, want to hop on a quick call? Here's my
-calendar: [cal.com link]
+calendar: https://calendar.app.google/XESCmxmKpNrhzN5d7
 
 Or if you prefer, I can send you a quick video walkthrough.
 Just let me know!
@@ -320,7 +319,7 @@ Hiro
 - [ ] Send Day 1 email to all users who signed up 24h ago
 - [ ] Get at least 3 replies
 - [ ] Convert 10+ signups → first conversation
-- [ ] Book 1 Cal.com call
+- [ ] Book 1 calendar call
 - [ ] Fix any onboarding issues discovered from replies
 
 ---
@@ -334,7 +333,7 @@ Hiro
 | **Total emails sent**           | 200+   | 500+      |
 | **Reply rate**                  | 5%     | 15%       |
 | **Conversion rate**             | 25%    | 40%       |
-| **Cal.com bookings**            | 5      | 15        |
+| **Calendar bookings**           | 5      | 15        |
 | **Routine users** (3+ sessions) | 30     | 60        |
 
 **If you hit these numbers**, you've proven:
@@ -362,8 +361,8 @@ Once you have 50+ active users from personal emails:
 
 Before going live:
 
-- [ ] Cal.com account set up with 15-min event
-- [ ] Cal.com link added to Day 3 email template
+- [ ] Calendar booking link set up with 15-min event
+- [ ] Calendar link added to Day 3 email template
 - [ ] Tested all 3 emails with your own account
 - [ ] GitHub Action deployed and tested
 - [ ] CRON_SECRET added to GitHub secrets

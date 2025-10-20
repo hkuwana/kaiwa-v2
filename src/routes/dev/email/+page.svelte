@@ -46,11 +46,11 @@
 					label: 'Day 2 - Check-in',
 					description: 'Checking in with common concerns'
 				},
-				{
-					value: 'day3_offer',
-					label: 'Day 3 - Personal Offer',
-					description: 'Cal.com link to book a call'
-				}
+					{
+						value: 'day3_offer',
+						label: 'Day 3 - Personal Offer',
+						description: 'Calendar link to book a call'
+					}
 			]
 		}
 	];

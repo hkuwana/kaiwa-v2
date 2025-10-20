@@ -33,7 +33,7 @@
 ```
 Day 1 (afternoon): Welcome + gentle push to try
 Day 2 (afternoon): Check-in, address concerns
-Day 3 (afternoon): Personal offer to talk (Cal.com)
+Day 3 (afternoon): Personal offer to talk (calendar link)
 ```
 
 **Key principles**:
@@ -42,7 +42,7 @@ Day 3 (afternoon): Personal offer to talk (Cal.com)
 - ✅ Afternoon sending (2-4pm user's time)
 - ✅ Easy to reply (shows in their inbox, not promo tab)
 - ✅ Short & personal (not marketing copy)
-- ✅ Cal.com link on Day 3 (removes friction)
+- ✅ Calendar link on Day 3 (removes friction)
 - ✅ Only 3 days (respect their inbox)
 
 ---
@@ -239,7 +239,7 @@ Thanks for giving Kaiwa a chance,
 Hiro
 Founder, Kaiwa
 📧 hiro@trykaiwa.com
-📅 https://cal.com/hiro-kaiwa/15min
+📅 https://calendar.app.google/XESCmxmKpNrhzN5d7
 🌐 trykaiwa.com
 
 P.S. This is genuinely the last email unless you book a call
@@ -250,7 +250,7 @@ or reply. I respect your inbox!
 
 - ✅ "Last email" = respects their time
 - ✅ Offers 1-on-1 call (high-touch)
-- ✅ Cal.com link = zero friction
+- ✅ Calendar booking link = zero friction
 - ✅ Lists possible concerns
 - ✅ "Your feedback helps" = reciprocity
 - ✅ No guilt, easy out
@@ -260,15 +260,15 @@ or reply. I respect your inbox!
 
 ## 🔧 Technical Implementation
 
-### 1. Set Up Cal.com
+### 1. Set Up Your Booking Link
 
-1. Create free account: [cal.com](https://cal.com)
+1. Create a booking page (e.g. Google Calendar appointments)
 2. Create 15-minute event type:
    - Name: "Quick Chat with Hiro"
    - Duration: 15 minutes
    - Buffer: 10 minutes between calls
    - Questions: "What would you like to discuss?"
-3. Get your link: `https://cal.com/hiro-kaiwa/15min`
+3. Get your link: `https://calendar.app.google/XESCmxmKpNrhzN5d7`
 4. Add to founder email template
 
 ### 2. Configure Resend with Personal Email
@@ -351,7 +351,7 @@ curl -X POST \
 | **Open Rate**           | >40%   | >60%      |
 | **Reply Rate**          | >5%    | >15%      |
 | **Click Rate (CTA)**    | >15%   | >25%      |
-| **Cal.com Bookings**    | >3%    | >10%      |
+| **Calendar Bookings**   | >3%    | >10%      |
 | **Conversation Starts** | >20%   | >40%      |
 
 ### Track in PostHog
@@ -371,7 +371,7 @@ posthog.capture('founder_email_clicked', {
 });
 
 // When user books call
-posthog.capture('cal_booking', {
+posthog.capture('calendar_booking', {
 	source: 'day3_email',
 	userId: user.id
 });
@@ -395,7 +395,7 @@ posthog.capture('email_conversion', {
 - Ask follow-up questions
 - **Conversion rate goes to 60%+ when you reply**
 
-### 2. **Cal.com Bookings Are Gold**
+### 2. **Calendar Bookings Are Gold**
 
 - 15-min calls convert 70-80% to active users
 - You learn what's broken in your onboarding
@@ -479,7 +479,7 @@ posthog.capture('email_conversion', {
 New signups:
 - Day 1: Automated welcome (from Hiro)
 - Day 2: Automated check-in (from Hiro)
-- Day 3: Automated with Cal.com link
+- Day 3: Automated with calendar link
 
 High-value indicators:
 - Paid user: Personal email from founder
@@ -494,7 +494,7 @@ High-value indicators:
 
 ### Setup (1 hour)
 
-- [ ] Set up Cal.com account and 15-min event
+- [ ] Set up calendar booking link and 15-min event
 - [ ] Update Resend to allow replies to <hiro@trykaiwa.com>
 - [ ] Deploy founder email service code
 - [ ] Test all 3 email templates locally
@@ -504,7 +504,7 @@ High-value indicators:
 
 - [ ] Send test Day 1 email to yourself
 - [ ] Send test Day 2 email to yourself
-- [ ] Send test Day 3 email with Cal.com link
+- [ ] Send test Day 3 email with calendar link
 - [ ] Verify all links work
 - [ ] Check mobile rendering (Gmail, Apple Mail)
 - [ ] Test reply functionality
@@ -522,7 +522,7 @@ High-value indicators:
 - [ ] Track open rates in Resend dashboard
 - [ ] Set up PostHog events for clicks/conversions
 - [ ] Create dashboard for email metrics
-- [ ] Monitor Cal.com bookings
+- [ ] Monitor calendar bookings
 - [ ] Respond to user replies within 4 hours
 - [ ] Weekly review: What's working? What's not?
 
@@ -537,7 +537,7 @@ High-value indicators:
 - Day 2 open rate: 30%
 - Day 2 → conversation: 8%
 - Day 3 open rate: 25%
-- Day 3 → Cal.com booking: 5%
+- Day 3 → calendar booking: 5%
 - **Total conversion**: 23% of signups → active users
 
 ### Realistic Scenario
@@ -547,7 +547,7 @@ High-value indicators:
 - Day 2 open rate: 42%
 - Day 2 → conversation: 15%
 - Day 3 open rate: 35%
-- Day 3 → Cal.com booking: 8%
+- Day 3 → calendar booking: 8%
 - **Total conversion**: 41% of signups → active users
 
 ### Optimistic Scenario
@@ -557,7 +557,7 @@ High-value indicators:
 - Day 2 open rate: 52%
 - Day 2 → conversation: 22%
 - Day 3 open rate: 45%
-- Day 3 → Cal.com booking: 12%
+- Day 3 → calendar booking: 12%
 - **Total conversion**: 59% of signups → active users
 
 **Reality**: You'll probably hit 30-40% conversion with consistent effort and replies to users.
@@ -590,7 +590,7 @@ Can you tell me where you got stuck? I'll fix it for
 the next person.
 
 And if you're willing, I'd love to jump on a quick call
-and walk you through it: [Cal.com link]
+and walk you through it: https://calendar.app.google/XESCmxmKpNrhzN5d7
 
 Even just a 2-sentence reply helps!
 ```
@@ -656,4 +656,4 @@ That's how you grow from 100 to 1000 users. Not with ads. With care.
 
 ---
 
-**Questions?** Reply to any email or book a call: [cal.com/hiro-kaiwa](https://cal.com/hiro-kaiwa)
+**Questions?** Reply to any email or book a call: https://calendar.app.google/XESCmxmKpNrhzN5d7

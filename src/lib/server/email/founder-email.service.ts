@@ -6,6 +6,7 @@ import { EmailPermissionService } from './email-permission.service';
 import type { User } from '$lib/server/db/types';
 import { userPreferencesRepository } from '$lib/server/repositories/user-preferences.repository';
 import { languageRepository } from '$lib/server/repositories/language.repository';
+import { CALENDAR_LINK } from '$lib/data/calendar';
 
 const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
 
@@ -15,19 +16,19 @@ const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
  * Personal touch approach for early users:
  * - Day 1 (if no practice): Warm welcome from founder
  * - Day 2 (if still no practice): Check-in, offer help
- * - Day 3 (if still no practice): Personal offer to talk (Cal.com link)
+ * - Day 3 (if still no practice): Personal offer to talk (calendar link)
  *
  * Key principles:
  * - Send from founder's email (hiro@trykaiwa.com)
  * - Personal, conversational tone
  * - Afternoon sending (2-4pm user's local time)
- * - Include Cal.com link on Day 3
+ * - Include calendar link on Day 3
  * - Easy reply for feedback
  */
 export class FounderEmailService {
 	public static readonly FOUNDER_EMAIL = 'hiro@trykaiwa.com'; // Using verified Resend domain
 	public static readonly FOUNDER_NAME = 'Hiro';
-	public static readonly CAL_LINK = 'https://cal.com/hiro-kaiwa/15min';
+	public static readonly CAL_LINK = CALENDAR_LINK;
 
 	/**
 	 * Send Day 1 welcome email if user hasn't practiced

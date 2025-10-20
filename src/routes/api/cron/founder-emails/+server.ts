@@ -14,7 +14,7 @@ import { env } from '$env/dynamic/private';
  * Sequence:
  * - Day 1 (after signup, if no practice): Warm welcome
  * - Day 2 (if still no practice): Check-in, offer help
- * - Day 3 (if still no practice): Personal offer to talk (Cal.com link)
+ * - Day 3 (if still no practice): Personal offer to talk (calendar link)
  *
  * Usage:
  * curl -H "Authorization: Bearer $CRON_SECRET" https://trykaiwa.com/api/cron/founder-emails

@@ -23,7 +23,7 @@ Visit: `http://localhost:5173/dev/email` (when running dev server)
 
 - **Day 1 - Welcome**: Warm welcome from founder
 - **Day 2 - Check-in**: Checking in with common concerns
-- **Day 3 - Personal Offer**: Cal.com link to book a call
+- **Day 3 - Personal Offer**: Calendar link to book a call
 
 ### 🗞️ Product Updates
 
