@@ -50,7 +50,7 @@ Cron jobs run as **separate Fly.io machines**, not HTTP endpoints. This provides
 - ✅ Easier debugging
 - ✅ No public HTTP exposure
 
-See [../src/lib/docs/architecture-cron-jobs.md](../src/lib/docs/architecture-cron-jobs.md) for details.
+See the unified operator guide at [../src/lib/docs/cron-architecture-unified.md](../src/lib/docs/cron-architecture-unified.md) for the full architecture and runbook.
 
 ---
 

@@ -1,0 +1,8 @@
+# Kaiwa Scheduled Jobs
+# Format: minute hour day month weekday command
+#
+# Send daily reminder emails at 9 AM UTC every day
+0 9 * * * curl -H "Authorization: Bearer $CRON_SECRET" "https://trykaiwa.com/api/cron/send-reminders"
+
+# Example: Run at 9 AM Pacific (5 PM UTC) every day
+# 0 17 * * * curl -H "Authorization: Bearer $CRON_SECRET" "https://trykaiwa.com/api/cron/send-reminders"

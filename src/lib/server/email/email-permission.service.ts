@@ -164,16 +164,29 @@ export class EmailPermissionService {
 	/**
 	 * Get all users eligible for daily reminder emails
 	 * Returns users who have opted in to daily reminders (or haven't set preference yet)
+	 *
+	 * OPTIMIZED: Uses efficient database queries instead of N+1 pattern
+	 * - Gets users who explicitly opted in (settings = true)
+	 * - Gets users who have no settings (default = true)
 	 */
 	static async getDailyReminderEligibleUsers(): Promise<string[]> {
-		const allUsers = await userRepository.getAllUsers();
-		const eligible: string[] = [];
+		// Get all users who have explicitly opted in
+		const optedInSettings = await userSettingsRepository.getDailyReminderSubscribers();
+		const optedInUserIds = new Set(optedInSettings.map(s => s.userId));
 
-		for (const user of allUsers) {
-			if (await this.canReceiveDailyReminder(user.id)) {
-				eligible.push(user.id);
-			}
-		}
+		// Get all users who have explicitly opted OUT
+		const allUsers = await userRepository.getAllUsers();
+		const allUserIds = new Set(allUsers.map(u => u.id));
+
+		// Get all settings (including those who opted out)
+		const allSettings = await userSettingsRepository.getAllSettings();
+		const usersWithSettings = new Set(allSettings.map(s => s.userId));
+
+		// Users without settings should be included (default opt-in)
+		const usersWithoutSettings = [...allUserIds].filter(id => !usersWithSettings.has(id));
+
+		// Combine opted-in users and users without settings
+		const eligible = [...optedInUserIds, ...usersWithoutSettings];
 
 		return eligible;
 	}

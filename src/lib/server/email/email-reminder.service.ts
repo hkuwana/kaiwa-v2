@@ -207,36 +207,41 @@ export class EmailReminderService {
 
 	/**
 	 * Generate reminder email subject
+	 * Personal subjects with user's name that feel like a real 1-on-1 email
 	 */
 	public static getReminderSubject(data: PracticeReminderData): string {
-		const { lastPracticeDate, streakDays, targetLanguage } = data;
+		const { user, lastPracticeDate, streakDays, targetLanguage } = data;
+		const firstName = user.displayName?.split(' ')[0] || user.email.split('@')[0];
 		const languageName = targetLanguage?.name;
 
+		// For users with active streaks
 		if (streakDays > 0) {
 			const dayLabel = streakDays === 1 ? 'day' : 'days';
-			return languageName
-				? `Practiced ${streakDays} ${dayLabel} in a row—ready for another ${languageName} chat?`
-				: `Practiced ${streakDays} ${dayLabel} in a row—ready for another conversation?`;
+			return `${firstName} - ${streakDays} ${dayLabel} in a row 🔥`;
 		}
 
+		// For users who practiced recently but streak broke
 		if (lastPracticeDate) {
 			const daysSince = Math.floor(
 				(Date.now() - lastPracticeDate.getTime()) / (1000 * 60 * 60 * 24)
 			);
 			if (daysSince === 1) {
 				return languageName
-					? `Want a quick ${languageName} check-in today?`
-					: 'Want a quick practice check-in today?';
+					? `${firstName}, quick ${languageName} session?`
+					: `${firstName}, quick session?`;
 			} else if (daysSince <= 3) {
 				return languageName
-					? `Let’s keep your ${languageName} conversations fresh`
-					: 'Let’s keep the conversation going';
+					? `${firstName} - missing your ${languageName} practice?`
+					: `${firstName} - missing practice?`;
+			} else if (daysSince <= 7) {
+				return `${firstName}, want to jump back in?`;
 			}
 		}
 
+		// For new users or dormant users (never practiced or long time)
 		return languageName
-			? `Ready for a short ${languageName} session?`
-			: 'Ready for a short practice session?';
+			? `${firstName}, got 5 min for ${languageName}?`
+			: `${firstName}, got 5 min?`;
 	}
 
 	/**
@@ -256,17 +261,17 @@ export class EmailReminderService {
 		const languageName = targetLanguage?.name;
 
 		const lastPracticeText = lastPracticeDate
-			? `Your last practice was ${this.formatDate(lastPracticeDate)}`
+			? `I noticed you practiced ${this.formatDate(lastPracticeDate)}`
 			: languageName
-				? `Looks like you haven't had a chance to jump into a ${languageName} conversation yet. Want to warm up now?`
-				: `Looks like you haven't had a chance to jump into a conversation yet. Want to warm up now?`;
+				? `I see you signed up but haven't had a chance to try a ${languageName} conversation yet`
+				: `I see you signed up but haven't had a chance to try a conversation yet`;
 
 		const streakText =
 			streakDays > 0
-				? `Practiced ${streakDays} ${streakDays === 1 ? 'day' : 'days'} in a row 🔄`
+				? `${streakDays} ${streakDays === 1 ? 'day' : 'days'} in a row 🔥`
 				: languageName
-					? `Ready for a short ${languageName} check-in today?`
-					: 'Ready for a short practice check-in today?';
+					? `Got 5 minutes for ${languageName}?`
+					: 'Got 5 minutes to practice?';
 
 		return `
 			<!DOCTYPE html>
@@ -274,171 +279,83 @@ export class EmailReminderService {
 			<head>
 				<meta charset="utf-8">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<title>Practice Reminder - Kaiwa</title>
 				<style>
 					body {
-						font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-						line-height: 1.6;
-						color: #333;
+						font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+						line-height: 1.5;
+						color: #000;
 						max-width: 600px;
-						margin: 0 auto;
+						margin: 0;
 						padding: 20px;
-						background-color: #f8f9fa;
+						background-color: #fff;
 					}
-					.container {
-						background: white;
-						border-radius: 8px;
-						padding: 40px;
-						box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+					p {
+						margin: 12px 0;
 					}
-					.header {
-						text-align: center;
-						margin-bottom: 30px;
-					}
-					.logo {
-						font-size: 28px;
-						font-weight: bold;
+					a {
 						color: #2563eb;
-						margin-bottom: 10px;
-					}
-					.streak-badge {
-						background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-						color: white;
-						padding: 10px 20px;
-						border-radius: 20px;
-						display: inline-block;
-						font-weight: bold;
-						margin: 20px 0;
-					}
-					.scenario-card {
-						background: #f8f9fa;
-						border: 1px solid #e9ecef;
-						border-radius: 8px;
-						padding: 20px;
-						margin: 15px 0;
-					}
-					.scenario-title {
-						font-weight: bold;
-						color: #2563eb;
-						margin-bottom: 8px;
-					}
-					.scenario-desc {
-						color: #666;
-						font-size: 14px;
-						margin-bottom: 12px;
-					}
-					.cta-button {
-						background: #2563eb;
-						color: white;
-						padding: 12px 24px;
 						text-decoration: none;
-						border-radius: 6px;
-						display: inline-block;
-						font-weight: bold;
-						margin: 10px 5px;
 					}
-					.cta-button:hover {
-						background: #1d4ed8;
+					a:hover {
+						text-decoration: underline;
+					}
+					.scenario {
+						margin: 20px 0;
+						padding-left: 8px;
 					}
 					.footer {
 						margin-top: 30px;
 						padding-top: 20px;
-						border-top: 1px solid #e2e8f0;
-						font-size: 14px;
-						color: #64748b;
-						text-align: center;
-					}
-					.last-scenario {
-						background: #e0f2fe;
-						border-left: 4px solid #0288d1;
-						padding: 15px;
-						margin: 20px 0;
-					}
-					.language-tip {
-						background: #ecfdf5;
-						border-left: 4px solid #10b981;
-						padding: 20px;
-						margin: 30px 0;
-						border-radius: 8px;
-					}
-					.language-tip-title {
-						font-weight: 600;
-						color: #047857;
-						margin-bottom: 6px;
-					}
-					.language-tip-translation {
-						font-size: 18px;
-						font-weight: 600;
-						color: #047857;
+						border-top: 1px solid #e5e5e5;
+						font-size: 12px;
+						color: #666;
 					}
 				</style>
 			</head>
 			<body>
-				<div class="container">
-					<div class="header">
-						<div class="logo">Kaiwa</div>
-						<h1>${
-							languageName
-								? `Make a little space for ${languageName} today?`
-								: 'Ready for another conversation practice?'
-						}</h1>
-					</div>
-					
-					<p>Hi ${displayName},</p>
-					
-					<div class="streak-badge">
-						${streakText}
-					</div>
-					
-					<p>${lastPracticeText}. Here are some scenarios to keep your language learning momentum going:</p>
-					
+				<p>Hey ${displayName},</p>
+
+				<p>${streakText}</p>
+
+				<p>${lastPracticeText}. ${streakDays > 0 ? "You're building a great habit—thought" : "Thought"} I'd share a couple scenarios:</p>
+
 					${
 						lastScenario
 							? `
-						<div class="last-scenario">
-							<strong>Continue with:</strong><br>
-							<span class="scenario-title">${lastScenario.title}</span><br>
-							<span class="scenario-desc">${lastScenario.description}</span>
-							<br><a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/?scenario=${lastScenario.id}" class="cta-button" style="color: white; text-decoration: none;">Practice Again</a>
+						<div class="scenario">
+							<strong>Continue with: ${lastScenario.title}</strong><br>
+							${lastScenario.description}<br>
+							<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/?scenario=${lastScenario.id}">→ Try it</a>
 						</div>
 					`
 							: ''
 					}
-					
+
 					${recommendedScenarios
 						.map(
 							(scenario) => `
-						<div class="scenario-card">
-							<div class="scenario-title">${scenario.title}</div>
-							<div class="scenario-desc">${scenario.description}</div>
-							<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/?scenario=${scenario.id}" class="cta-button" style="color: white; text-decoration: none;">Try This Scenario</a>
+						<div class="scenario">
+							<strong>${scenario.title}</strong><br>
+							${scenario.description}<br>
+							<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/?scenario=${scenario.id}">→ Try it</a>
 						</div>
 					`
 						)
 						.join('')}
-					
-					<div style="text-align: center; margin: 30px 0;">
-						<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}" class="cta-button" style="color: white; text-decoration: none;">Start Any Conversation</a>
-					</div>
+
+					<p><a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}">Or start any conversation →</a></p>
 
 					${
 						survivalPhrase
 							? `
-					<div class="language-tip">
-						<div class="language-tip-title">Quick rescue phrase</div>
-						<div class="language-tip-translation">${survivalPhrase.translation}</div>
-						<p style="margin-top: 8px; color: #047857;">(${survivalPhrase.phrase})</p>
-						<p style="margin-top: 12px; color: #065f46;">
-							Keep this in your back pocket for your next real conversation—say it the next time things get tangled.
-						</p>
-					</div>
+					<p style="margin-top: 20px;"><strong>Quick tip:</strong> ${survivalPhrase.translation} (${survivalPhrase.phrase})</p>
 					`
 							: ''
 					}
-					
-					<p>Even five minutes counts. Pick one small moment today and I'll cheer you on. 💪</p>
-					
-					<p style="margin-top: 24px;">– Hiro<br><span style="color: #64748b;">Founder, Kaiwa</span><br><span style="color: #64748b;">If this reminder feels off, just reply and I'll fix it.</span></p>
+
+					<p>Even just 5 minutes helps. No pressure—whenever you're ready.</p>
+
+					<p style="margin-top: 24px;">– Hiro<br><span style="color: #666;">P.S. If these reminders aren't helpful, just reply and I'll adjust them.</span></p>
 					
 					<div class="footer">
 						<p>This email was sent from Kaiwa. <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile">Manage your email preferences</a></p>

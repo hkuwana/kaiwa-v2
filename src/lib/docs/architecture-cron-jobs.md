@@ -1,5 +1,7 @@
 # 🏗️ Cron Job Architecture for Kaiwa
 
+> For the latest unified operations guide (current state, known gaps, recommended changes), see [cron-architecture-unified.md](./cron-architecture-unified.md).
+
 ## Overview
 
 Kaiwa uses **Fly.io scheduled machines** to run cron jobs as **separate processes** from the main application. This architecture provides better isolation, reliability, and debugging capabilities compared to traditional HTTP-based cron endpoints.

@@ -194,6 +194,13 @@ export class UserSettingsRepository {
 	async getSecurityAlertSubscribers(): Promise<UserSettings[]> {
 		return await db.select().from(userSettings).where(eq(userSettings.receiveSecurityAlerts, true));
 	}
+
+	/**
+	 * Get all user settings
+	 */
+	async getAllSettings(): Promise<UserSettings[]> {
+		return await db.select().from(userSettings);
+	}
 }
 
 // Export singleton instance
