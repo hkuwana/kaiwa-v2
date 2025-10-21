@@ -20,27 +20,41 @@ import { env } from '$env/dynamic/private';
  */
 export const GET = async ({ request, url }) => {
 	try {
+		console.log('🔍 Cron endpoint called - send-reminders');
+
 		// Verify cron secret for security
 		const authHeader = request.headers.get('authorization');
 		const expectedAuth = `Bearer ${env.CRON_SECRET || 'development_secret'}`;
 
+		console.log('🔐 Auth check:', { hasAuth: !!authHeader, hasSecret: !!env.CRON_SECRET });
+
 		if (authHeader !== expectedAuth) {
+			console.log('❌ Unauthorized access attempt');
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
 		const dryRun = url.searchParams.get('dryRun') === 'true';
+		console.log('✅ Authorized, dryRun:', dryRun);
 
 		// Get all users eligible for daily reminders based on database preferences
+		console.log('📊 Fetching eligible users...');
 		const eligibleUserIds = await EmailPermissionService.getDailyReminderEligibleUsers();
+		console.log(`📊 Found ${eligibleUserIds.length} eligible user IDs`);
 		const usersToRemind = await Promise.all(
 			eligibleUserIds.map(async (userId) => {
 				const user = await userRepository.findUserById(userId);
 				return user;
 			})
 		).then((users) => users.filter((u) => u !== null));
+		console.log(`👥 Found ${usersToRemind.length} users to process`);
 
 		// Segment users by activity level
+		console.log('🔄 Segmenting users...');
 		const segmented = await segmentUsers(usersToRemind);
+		console.log('✅ Users segmented:', Object.keys(segmented).reduce((acc, key) => ({
+			...acc,
+			[key]: segmented[key as keyof typeof segmented].length
+		}), {}));
 
 		let sent = 0;
 		let skipped = 0;
@@ -53,8 +67,10 @@ export const GET = async ({ request, url }) => {
 		}> = [];
 
 		// Send appropriate emails based on user segment
+		console.log('📧 Starting to process users for reminders...');
 		for (const segment of Object.keys(segmented)) {
 			const users = segmented[segment as keyof typeof segmented];
+			console.log(`Processing segment: ${segment} (${users.length} users)`);
 
 			for (const user of users) {
 				// Check if we should send reminder (rate limiting)
@@ -100,6 +116,8 @@ export const GET = async ({ request, url }) => {
 				await new Promise((resolve) => setTimeout(resolve, 100));
 			}
 		}
+
+		console.log(`✅ Processing complete! Sent: ${sent}, Skipped: ${skipped}, Failed: ${failed}`);
 
 		return json({
 			success: true,
