@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onDestroy } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
 	import AudioVisualizer from '$lib/features/audio/components/AudioVisualizer.svelte';
 	import MessageBubble from '$lib/features/conversation/components/MessageBubble.svelte';
@@ -170,22 +169,6 @@
 			translationStore.setTranslating(messageId, false);
 		}
 	}
-
-	// Cleanup on component destroy
-	onDestroy(async () => {
-		console.log('🧹 ConversationActiveState: Component being destroyed, cleaning up...');
-
-		// Save and destroy the conversation properly
-		// This will:
-		// 1. Save conversation to database
-		// 2. Stop the timer
-		// 3. Disconnect realtime connection (realtimeOpenAI.disconnect())
-		// 4. Clean up audio streams
-		// 5. Reset all state
-		await conversationStore.destroyConversation();
-
-		console.log('✅ ConversationActiveState: Cleanup complete');
-	});
 </script>
 
 <div
@@ -340,7 +323,7 @@
 				{maxSessionLengthSeconds}
 				controlMode="external"
 				pressBehavior={pressBehavior()}
-				audioInputMode={audioInputMode}
+				{audioInputMode}
 				onRecordStart={() => {
 					hasUsedAudioControl = true;
 
@@ -362,11 +345,7 @@
 					}
 				}}
 				onRecordStop={() => {
-					// Only pause streaming in PTT mode - VAD mode always streams
-					if (audioInputMode === 'ptt') {
-						console.log('⏸️ PTT: User released button - pausing streaming');
-						conversationStore.pauseStreaming();
-					}
+					conversationStore.pauseStreaming();
 				}}
 			/>
 		</div>

@@ -1,24 +1,24 @@
 # Friend Outreach Playbook
 
-Purpose: guide friends and early supporters through a 30-minute Kaiwa session, surface actionable feedback, and keep them engaged with product updates.
+Purpose: guide friends and early supporters through a 25-30 minute Kaiwa session, surface actionable feedback, and keep them engaged with product updates.
 
 ---
 
 ## 1. Before You Reach Out
 
 - Pick 3–5 friends who match your ideal learner profile (need real conversation practice, upcoming stakes, willing to be honest).
-- DM or text them personally; let them know you want to hop on a 30-minute call so they can try Kaiwa while you listen.
+- DM or text them personally; let them know you want to hop on a 25-30 minute call so they can try Kaiwa while you listen.
 - Ask them to come ready to share screens, narrate their thoughts out loud, and ask you questions the moment they feel confused.
 
 **Quick message template**
 
 ```
-Hey <Name>! Can I borrow 30 minutes this week to watch you try Kaiwa? I’m trying to understand where people get stuck before the in-app analysis screen. I’ll stay on the call, answer questions in real time, and use your feedback to shape the roadmap. When works for you?
+Hey <Name>! Can I ask you for a huge favor? Would you be down to hop on a quick 25-30 min call this week or next and let me watch you try Kaiwa? I'm trying to figure out where people get stuck.  
 ```
 
 ---
 
-## 2. 30-Minute Call Flow
+## 2. 25-30 Minute Call Flow
 
 1. **Set context (3 min)**  
    Thank them, explain you’re not looking for compliments — you want friction. Confirm they’ll narrate every thought and ask questions immediately.
@@ -63,6 +63,7 @@ If time allows, end with: “Is there anything missing that you expected to see?
 ## 5. After Each Session
 
 - Send a short thank-you message with one thing you learned from them.
+- Ask for their address to send them a thank you postcard.
 - Log the three critical question answers in a central tracker so you can spot patterns quickly.
 - Invite them to the feedback circle and promise to share how their input influenced the next release.
 
