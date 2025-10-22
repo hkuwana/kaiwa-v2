@@ -211,7 +211,12 @@ export class EmailReminderService {
 	 */
 	public static getReminderSubject(data: PracticeReminderData): string {
 		const { user, lastPracticeDate, streakDays, targetLanguage } = data;
-		const firstName = user.displayName?.split(' ')[0] || user.email.split('@')[0];
+		// Extract first name from display name or email
+		let firstName = user.displayName?.trim().split(/\s+/)[0] || user.email.split('@')[0];
+		// If first name looks like an email prefix, capitalize it
+		if (!user.displayName && firstName) {
+			firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+		}
 		const languageName = targetLanguage?.name;
 
 		// For users with active streaks
@@ -257,7 +262,11 @@ export class EmailReminderService {
 			targetLanguage,
 			survivalPhrase
 		} = data;
-		const displayName = user.displayName || 'there';
+		// Extract first name consistently
+		let firstName = user.displayName?.trim().split(/\s+/)[0] || user.email.split('@')[0];
+		if (!user.displayName && firstName) {
+			firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+		}
 		const languageName = targetLanguage?.name;
 
 		const lastPracticeText = lastPracticeDate
@@ -313,7 +322,7 @@ export class EmailReminderService {
 				</style>
 			</head>
 			<body>
-				<p>Hey ${displayName},</p>
+				<p>Hey ${firstName},</p>
 
 				<p>${streakText}</p>
 
@@ -355,7 +364,9 @@ export class EmailReminderService {
 
 					<p>Even just 5 minutes helps. No pressure—whenever you're ready.</p>
 
-					<p style="margin-top: 24px;">– Hiro<br><span style="color: #666;">P.S. If these reminders aren't helpful, just reply and I'll adjust them.</span></p>
+					<p style="margin-top: 20px;">Want to chat about your language goals? <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2xfiCKe9x6L4f5RLBBUdNrFKd-9cqiHxZyQ2L48KPVc-X4pXuApUm2tVy3QNJQqZC43N0mh-pr">Grab 15 min on my calendar</a>.</p>
+
+					<p style="margin-top: 24px;">– Hiro<br><span style="color: #666;">P.S. This is my personal email—just reply if you have questions or feedback. I read everything.</span></p>
 					
 					<div class="footer">
 						<p>This email was sent from Kaiwa. <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile">Manage your email preferences</a></p>
