@@ -9,6 +9,7 @@ import type { User, Scenario } from '$lib/server/db/types';
 import { userPreferencesRepository } from '$lib/server/repositories/user-preferences.repository';
 import { languageRepository } from '$lib/server/repositories/language.repository';
 import { survivalPhrases } from '$lib/data/survival-phrases';
+import { CALENDAR_LINK } from '$lib/data/calendar';
 
 // Initialize Resend
 const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
@@ -364,7 +365,7 @@ export class EmailReminderService {
 
 					<p>Even just 5 minutes helps. No pressure—whenever you're ready.</p>
 
-					<p style="margin-top: 20px;">Want to chat about your language goals? <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2xfiCKe9x6L4f5RLBBUdNrFKd-9cqiHxZyQ2L48KPVc-X4pXuApUm2tVy3QNJQqZC43N0mh-pr">Grab 15 min on my calendar</a>.</p>
+					<p style="margin-top: 20px;">Want to chat about your language goals? <a href="${CALENDAR_LINK}">Grab 15 min on my calendar</a>.</p>
 
 					<p style="margin-top: 24px;">– Hiro<br><span style="color: #666;">P.S. This is my personal email—just reply if you have questions or feedback. I read everything.</span></p>
 					
