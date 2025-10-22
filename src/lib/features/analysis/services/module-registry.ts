@@ -27,7 +27,7 @@ const registry: Record<AnalysisModuleId, AnalysisModuleDefinition> = {
 	'grammar-suggestions': {
 		id: 'grammar-suggestions',
 		label: 'Grammar & Language Suggestions',
-		description: 'Comprehensive grammar corrections, advanced patterns, and phrase suggestions',
+		description: 'POST-SESSION analysis: grammar corrections, advanced patterns, and phrase suggestions',
 		modality: 'text',
 		run: async ({ messages, languageCode }: AnalysisModuleContext) => {
 			const userMessages = messages.filter((m) => m.role === 'user');
@@ -83,15 +83,33 @@ const registry: Record<AnalysisModuleId, AnalysisModuleDefinition> = {
   ]
 }`;
 
-			const systemPrompt = `You are a comprehensive language coach. Analyze user turns in ${languageCode} conversations and provide:
-1. Grammar corrections (errors, tense, agreement, etc.)
+			const systemPrompt = `You are a comprehensive language coach analyzing a POST-SESSION conversation.
+
+IMPORTANT CONTEXT:
+- This is POST-SESSION analysis, NOT real-time teaching
+- During the conversation, the AI was a casual conversation partner (NOT a teacher)
+- Focus on helping learner improve for FUTURE conversations
+
+Analyze user turns in ${languageCode} conversations and provide:
+1. Grammar corrections (errors, tense, agreement, etc.) - for study after the session
 2. Advanced grammar patterns (complex structures, subjunctive, etc.)
 3. Phrase suggestions (more natural, idiomatic expressions)
 4. Pragmatic improvements (politeness, formality, cultural appropriateness)
+5. Cultural context (what would native speakers naturally say in this situation?)
 
 Respond ONLY with valid JSON.`;
 
-			const userPrompt = `Full conversation transcript (user and assistant):\n${conversationDigest}\n\nFocus suggestions only on user messages:\n${userMessageDigest}\n\nReturn JSON matching this schema:\n${schemaExample}\n\nGuidelines:\n- Provide concrete corrections for actual errors\n- Suggest more natural/idiomatic phrasing when appropriate\n- Include advanced grammar pattern improvements\n- Consider cultural and pragmatic appropriateness\n- "severity" options: "warning" (blocking error), "hint" (improvement), "info" (positive reinforcement)\n- macroSkill options: grammar, lexis, pragmatics, discourse, pronunciation, fluency, sociolinguistic\n- subSkill and microRule should be short, kebab-case identifiers\n- Include ruleId for categorization\n- Never suggest changes to assistant messages or already correct messages`;
+			const userPrompt = `Full conversation transcript (user and assistant):\n${conversationDigest}\n\nFocus suggestions only on user messages:\n${userMessageDigest}\n\nReturn JSON matching this schema:\n${schemaExample}\n\nGuidelines:\n- Provide concrete corrections for actual errors\n- Suggest more natural/idiomatic phrasing when appropriate
+- EMPHASIZE: What would native speakers actually say in this situation?
+- Include cultural context for more natural expressions
+- Include advanced grammar pattern improvements
+- Consider cultural and pragmatic appropriateness
+- "severity" options: "warning" (blocking error), "hint" (improvement), "info" (positive reinforcement)
+- macroSkill options: grammar, lexis, pragmatics, discourse, pronunciation, fluency, sociolinguistic
+- subSkill and microRule should be short, kebab-case identifiers
+- Include ruleId for categorization
+- Never suggest changes to assistant messages or already correct messages
+- Focus on helping learner sound more natural and culturally appropriate`;
 
 			try {
 				const response = await createCompletion(

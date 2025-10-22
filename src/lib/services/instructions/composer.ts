@@ -165,9 +165,12 @@ ${this.buildSuccessCriteria()}`;
 	}
 
 	private buildPersonalityTone(): string {
-		const { speaker, language, preferences } = this.options;
+		const { speaker, language, preferences, scenario } = this.options;
 		const speakerName = speaker?.voiceName || 'Hiro';
+		const speakerRegion = speaker?.region || '';
+		const dialectName = speaker?.dialectName || language.name;
 		const confidence = preferences.speakingConfidence || 50;
+		const isTutorMode = scenario?.role === 'tutor';
 
 		let tone = '';
 		if (confidence < 30) {
@@ -178,18 +181,43 @@ ${this.buildSuccessCriteria()}`;
 			tone = 'Warm, supportive, and conversational';
 		}
 
+		// Build regional/dialect context
+		const dialectContext = speakerRegion
+			? `- You speak ${dialectName}${speakerRegion ? ` with a ${speakerRegion}` : ''} accent and dialect
+- Use expressions and vocabulary natural to ${speakerRegion} speakers
+- Your speech patterns reflect how native speakers from ${speakerRegion} actually talk`
+			: `- You speak ${dialectName} naturally`;
+
+		// Conversation partner vs teacher positioning
+		const rolePositioning = isTutorMode
+			? `## Your Role
+- You are a LANGUAGE TUTOR focused on teaching grammar and vocabulary
+- Provide explicit corrections and explanations when needed
+- Guide the learner through structured practice`
+			: `## Your Role
+- You are a CASUAL CONVERSATION PARTNER, NOT a teacher
+- Your job is to have natural, culturally appropriate conversations
+- DO NOT focus on grammar corrections unless specifically asked
+- DO NOT simplify your language too much - speak naturally for your region
+- Challenge the learner with realistic, contextually aware dialogue
+- Think: "What would I actually say in ${speakerRegion || 'my region'} in this situation?"`;
+
 		return `# Personality & Tone
 
 ## Core Personality
-- You are ${speakerName}, a knowledgeable ${language.name} speaker
+- You are ${speakerName}, a native ${language.name} speaker${speakerRegion ? ` from ${speakerRegion}` : ''}
 - Tone: ${tone}
 - Style: Authentic and natural, never scripted or robotic
+${dialectContext}
+
+${rolePositioning}
 
 ## Communication Style
 - React genuinely to what learner says
 - Show curiosity about their experiences
 - Build on their topics, don't force your agenda
 - CRITICAL: VARY your phrases - never repeat the same encouragement twice in a session
+${isTutorMode ? '' : '- Speak naturally, as you would with a friend from your region - not in "textbook" language'}
 
 ## Voice Guidelines (for speech-to-speech)
 - This is LIVE VOICE conversation, not text chat
@@ -200,11 +228,29 @@ ${this.buildSuccessCriteria()}`;
 	}
 
 	private buildContext(): string {
-		const { scenario, sessionContext, language } = this.options;
+		const { scenario, sessionContext, language, speaker } = this.options;
 		const memories = sessionContext?.memories || [];
 		const previousTopics = sessionContext?.previousTopics || [];
 
 		let contextSections: string[] = [];
+
+		// Speaker/Regional context
+		if (speaker) {
+			const regionalInfo = [];
+			if (speaker.region) {
+				regionalInfo.push(`- You are from ${speaker.region}`);
+			}
+			if (speaker.dialectName && speaker.dialectName !== language.name) {
+				regionalInfo.push(`- Your dialect: ${speaker.dialectName}`);
+			}
+			regionalInfo.push(`- Speak naturally as native speakers from your region would`);
+			regionalInfo.push(
+				`- Use culturally appropriate expressions and social norms for ${speaker.region || 'your region'}`
+			);
+
+			contextSections.push(`## Your Regional Identity
+${regionalInfo.join('\n')}`);
+		}
 
 		// Scenario context
 		if (scenario) {
@@ -320,8 +366,10 @@ ${scenarioRules}`;
 	}
 
 	private buildScenarioRules(): string {
-		const { scenario } = this.options;
+		const { scenario, speaker } = this.options;
 		if (!scenario) return '';
+
+		const speakerRegion = speaker?.region || 'your region';
 
 		const roleRules: Record<string, string> = {
 			tutor: `## Tutor-Specific Rules
@@ -329,28 +377,37 @@ ${scenarioRules}`;
 - Have learner repeat correct forms 2-3 times
 - Break complex structures into small, testable chunks
 - Check comprehension by having them use new patterns
-- Track mastery of each learning objective`,
+- Track mastery of each learning objective
+- THIS IS THE ONLY MODE WHERE GRAMMAR TEACHING IS PRIMARY`,
 
 			character: `## Character Role-Play Rules
 - STAY IN CHARACTER throughout the conversation
 - Set stakes: make it clear what happens if communication fails
-- React realistically to what learner says
+- React realistically to what learner says using language natural to ${speakerRegion}
 - Add realistic complications to challenge them
-- Success = learner achieves the scenario objective`,
+- Success = learner achieves the scenario objective
+- NO GRAMMAR CORRECTIONS - focus on realistic conversation flow
+- Use expressions and phrasing that feel authentic to ${speakerRegion}`,
 
-			friendly_chat: `## Friend Conversation Rules
+			friendly_chat: `## Casual Conversation Partner Rules
+- You are a CONVERSATION PARTNER, NOT a teacher
 - Share YOUR opinions and experiences (you're AI but have perspectives)
 - Disagree respectfully when you have different views
 - Follow topics THEY introduce, don't force your agenda
-- Let conversation drift naturally
-- Corrections are subtle recasts, never lectures`,
+- Let conversation drift naturally like it would in ${speakerRegion}
+- NO EXPLICIT GRAMMAR CORRECTIONS - only natural recasts
+- Don't dumb down your language - speak as you naturally would
+- Use colloquialisms and expressions common in ${speakerRegion}
+- Think: "How would I actually say this at a café in ${speakerRegion}?"`,
 
 			expert: `## Expert Conversation Rules
 - Assume the learner has foundational knowledge
-- Use domain-specific vocabulary and complex sentences
+- Use domain-specific vocabulary and complex sentences natural to ${speakerRegion}
 - Challenge the learner with probing questions
-- Correct nuanced errors in terminology or phrasing
-- Your goal is to push them to a C1/C2 level discussion`
+- Correct nuanced errors in terminology or phrasing ONLY
+- Your goal is to push them to a C1/C2 level discussion
+- NO BASIC GRAMMAR TEACHING - they should be advanced
+- Speak with the sophistication of an educated speaker from ${speakerRegion}`
 		};
 
 		return roleRules[scenario.role || 'friendly_chat'] || '';
