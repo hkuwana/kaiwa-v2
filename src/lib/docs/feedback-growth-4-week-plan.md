@@ -36,6 +36,97 @@ Maintain a rolling list of **12 prospects** (friends, community leads, alpha can
 
 ---
 
+## Daily 2-Hour Sprint Rhythm
+
+- **Monday — Systems & Prep (2 hrs)**
+  - 45 min: Review Master Tracker, update statuses, refresh Next Touch Date formulas.
+  - 30 min: Groom Kanban (`ship/test/story`), assign this week’s high-impact tasks.
+  - 30 min: Queue outreach messages (friend invites, founder-email follow-ups).
+  - 15 min: Update Wins & Fixes changelog draft for Friday post.
+  - Extra credit: skim Pattern Tracker for emerging themes to prioritize.
+
+- **Tuesday — Live Conversations (2 hrs)**
+  - 15 min: Prep agenda + call links; confirm screen-share instructions.
+  - 60 min: Run or observe 1–2 Kaiwa sessions (stack back-to-back if possible).
+  - 30 min: Immediately log tagged notes, push action items to Kanban, send thank-you summary.
+  - 15 min: Queue next touch dates + any follow-up materials (scenario links, docs).
+
+- **Wednesday — Founder Email Engine (2 hrs)**
+  - 30 min: Pull new signups without sessions; enroll them in Day 1/2/3 emails.
+  - 30 min: Reply to responses, capture objections with tags (`#objection:time`, etc.).
+  - 30 min: Craft warm lead follow-ups or book calls for Saturday slots.
+  - 30 min: Draft one “Before/After” insight snippet for upcoming posts or newsletter.
+
+- **Thursday — Narrative & Content (2 hrs)**
+  - 30 min: Review week’s insights; pick one moment of value + friction to spotlight.
+  - 45 min: Write/publish build-in-public update and community prompt using real quotes.
+  - 15 min: Clip or script short video/audio based on Practice Lab material.
+  - 30 min: Schedule cross-posting (LinkedIn, Twitter, Reddit) with tailored CTA.
+
+- **Friday — Follow-Through & Community (2 hrs)**
+  - 30 min: Update Pattern Tracker counts; highlight top themes in changelog.
+  - 30 min: Send two-bullet update to VIP circle/friends and queue weekend reminders.
+  - 30 min: Prep Saturday Practice Lab agenda + promotional post.
+  - 30 min: Review metrics dashboard; note experiments to run next week.
+
+- **Saturday — Practice Lab / Outreach (2 hrs)**
+  - 30 min: Host Practice Lab or AMA (prep questions and call-to-action).
+  - 45 min: Capture quotes, timestamps, and participant interest levels.
+  - 30 min: DM attendees personalized thank-you + invite to 1:1 sessions.
+  - 15 min: Update tracker with new leads or referrals surfaced during the session.
+
+- **Sunday — Reset & Strategize (2 hrs)**
+  - 30 min: Review analytics (sessions, bookings, email metrics, content performance).
+  - 45 min: Draft hooks/topics for next week’s posts and Practice Lab theme.
+  - 30 min: Refresh rolling list of 12 prospects; note gaps by segment.
+  - 15 min: Quick retro (What worked? What needs change?) in changelog.
+
+Stick to the same two-hour window daily to build habit; use leftover time for deep dives if a day wraps early.
+
+---
+
+## Creative Experiments to Spark Early FOMO
+
+- **Relationship Scenario Premieres**: Host a live, half-finished scenario walkthrough with commentary on what remains to build; let attendees vote on the next line or reaction so they feel ownership before it ships.
+- **Love Letter Lab**: Offer short workshops where couples co-write bilingual voice notes; record the transformation and turn it into micro case studies and teaser clips.
+- **“Fix My Conversation” Hotline**: Open a weekly Google Form where people submit an upcoming tricky dialogue; select one to prototype during Practice Lab and send them the draft script the same day.
+- **Backstage Build Streams**: Twitch/YouTube mini-sprints narrating UX decisions (“Here’s why we reworked the apology flow”); drop Calendly link in chat for anyone who wants the finished version.
+- **Alpha Circle Drops**: Release “relationship translator packs” (scripts, cultural notes, voice practice loops) exclusively to alpha members each Friday; encourage them to invite one couple to unlock the next pack.
+- **Origin Story Interviews**: Record 10-minute conversations with bicultural couples or counselors about “the hardest conversation we ever had”; ship the highlights as community content and convert insights into new Kaiwa scenes.
+- **Scenario Draft Club**: DM small communities and offer to build their unique scenario live if they bring five participants; gamify with a leaderboard of shipped scenes credited to each group.
+- **Pocket Demo Moments**: Keep the mobile app or a lightweight prototype ready for spontaneous “show, don’t tell” demos in social settings; hand off the phone and narrate like a commentator instead of selling.
+
+---
+
+## In-Person Evangelism Without the Hard Sell
+
+- **Set the Context Casually**: Share a quick anecdote (“A couple rehearsed meeting the parents in Kyoto last week and nailed it”) and pause—let curiosity pull the other person in before mentioning the product.
+- **Use Permission Slips**: Ask, “Want to see the practice script they used?” rather than “Can I show you my app?”; framing it as sharing something helpful keeps their agency intact.
+- **Let Them Drive**: If they say yes, hand over the device immediately with a single-step entry point (e.g., “Tap play and try the first line”). Stand beside them as a guide, not across as a seller.
+- **Narrate Outcomes, Not Features**: While they interact, mention how another person used the same scenario to avoid a misunderstanding or impress the family—keep attention on results.
+- **Invite Micro Commitments**: After the demo, offer an optional takeaway (“I can text you the script template if you want to tweak it for your situation”) instead of pushing for sign-up.
+- **Plant Social Proof Seeds**: If at a gathering, mention others who tried it earlier (“Sara just ran through the apology script and tweaked it for her parents”) to spark organic interest.
+- **Follow-Up as a Favor**: Message later with a quick “Here’s that script I mentioned” and a link to the Practice Lab—frame it as fulfilling their curiosity, not chasing a conversion.
+- **Body Language Matters**: Stay relaxed, angle your body towards the screen with them, and keep statements exploratory (“Notice how the AI pauses to let you breathe”) so it feels collaborative.
+
+---
+
+## Reflection Questions to Keep the Cohort Engaged
+
+Ask these at the end of the Sunday reset (and jot answers in the changelog):
+
+- Who felt most seen or helped this week, and how can I amplify their story publicly?
+- Which unfinished piece pulled people closer instead of pushing them away, and why?
+- What did someone actually say (exact words) that proves the relationship wedge matters?
+- Where did momentum drop, and what artifact (video, script, update) would reignite it?
+- Which collaborator or alpha member surprised me, and how can I spotlight them next week?
+- What promise did I make implicitly or explicitly; did I deliver or need to reframe it?
+- If I announced a “relationship fluency summit” tomorrow, who are the first five invites and what’s the hook?
+
+Use the answers to tweak next week’s content, Practice Lab theme, and referral prompts.
+
+---
+
 ## Week 1 — Establish the Pipeline
 
 **Feedback Ops**
@@ -173,6 +264,19 @@ Document performance each Sunday: impressions, saves, replies, DMs, conversions.
 
 ---
 
+## Reddit & Unique Value Proposition Plays
+
+- **Lead with stakes, not vocab**: Position Kaiwa as the tool for handling high-stakes relationship conversations (meeting parents, resolving conflict, celebrating milestones) instead of generic language drills.
+- **Share “Practice Lab Case Files”**: Post anonymized session snapshots (situation, friction, fix) that show real emotional stakes; invite Redditors to submit their own scenarios for live practice.
+- **Offer “Relationship Translator” tips**: Weekly thread where you break down a cultural nuance, apology script, or family-dinner survival phrase — include emotional context and when to use it.
+- **AMA & Interview Series**: Reach out to YouTube/TikTok language tutors and bilingual couples for 20-minute AMAs or co-hosted Practice Labs; publish recap clips and tag collaborators so they share with their audience.
+- **Community-built scenario bank**: Let Redditors vote on the next Kaiwa scenario (e.g., “meeting future in-laws”) and stream the build process; deliver the finished scenario back to the subreddit.
+- **Proof through changelog**: After every Reddit-driven improvement, post the update link + credit the thread that inspired it to create a feedback loop and encourage sharing.
+- **Teach “Human Filters”**: Contrast Kaiwa’s human-centered coaching with AI-polished apps by breaking down real mistakes, how Kaiwa corrects them mid-dialogue, and how users feel safer practicing sensitive conversations.
+- **Referral storytelling**: Encourage alpha users to share their practice wins; provide them with a short narrative template (“Before/After/What changed”) plus a personal invite link.
+
+---
+
 ## Alpha User Acquisition & Word-of-Mouth
 
 - **Positioning**: Frame alpha as “inner circle” helping save relationships from “slow death by Google Translate.” Offer perks: priority practice slots, custom study plan, shout-out in changelog.
@@ -200,4 +304,3 @@ Document performance each Sunday: impressions, saves, replies, DMs, conversions.
   - Which campaigns drove alpha signups?
   - What do we double down on vs. drop next month?
 - Archive all notes + changelog snapshots for compounding evidence when talking to users, investors, or community leaders.
-
