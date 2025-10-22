@@ -131,6 +131,7 @@ export class EmailReminderService {
 
 	/**
 	 * Get recommended scenarios for user
+	 * Prioritizes high-stakes, relationship-focused scenarios that resonate emotionally
 	 */
 	private static async getRecommendedScenarios(
 		userId: string,
@@ -145,25 +146,39 @@ export class EmailReminderService {
 				await scenarioAttemptsRepository.getCompletedScenarioAttemptsByUserId(userId);
 			const completedScenarioIds = new Set(completedAttempts.map((a) => a.scenarioId));
 
-			// Filter out completed scenarios and get 2 recommendations
+			// Filter out completed scenarios and onboarding
 			const availableScenarios = allScenarios.filter(
-				(s: Scenario) => !completedScenarioIds.has(s.id)
+				(s: Scenario) => !completedScenarioIds.has(s.id) && s.id !== 'onboarding-welcome'
 			);
 
-			// If user has a last scenario, try to find similar difficulty/category
-			if (lastScenario && availableScenarios.length > 0) {
-				const similarScenarios = availableScenarios.filter(
-					(s: Scenario) => s.difficulty === lastScenario.difficulty || s.role === lastScenario.role
-				);
+			// Priority order: relationship repair > family acceptance > vulnerable sharing > life transitions > medical > dating
+			const priorityScenarios = [
+				'family-dinner-introduction',  // Partner's parents - highest emotional stakes, aligns with "Meet the Parents" Practice Lab
+				'relationship-apology',        // Relationship repair - "Relationship Decay" narrative, micro-betrayal prevention
+				'vulnerable-heart-to-heart',   // Emotional intimacy - "Love Letter Lab", "70% Campaign" narrative
+				'clinic-night-triage',         // Medical urgency - taking care of loved ones, immediate need
+				'family-milestone-toast',      // Cultural celebration - "Grandparent Clock", family connection
+				'breaking-important-news',     // Life transitions - relationship stakes, family dynamics
+				'first-date-drinks'            // Dating entry point - relatable, lower pressure practice
+			];
 
-				// Return up to 2 similar scenarios, or random ones if not enough
-				return similarScenarios.slice(0, 2).length >= 2
-					? similarScenarios.slice(0, 2)
-					: availableScenarios.slice(0, 2);
-			}
+			// Sort available scenarios by priority order
+			const sortedScenarios = availableScenarios.sort((a, b) => {
+				const aIndex = priorityScenarios.indexOf(a.id);
+				const bIndex = priorityScenarios.indexOf(b.id);
 
-			// Return first 2 available scenarios
-			return availableScenarios.slice(0, 2);
+				// If both in priority list, sort by priority
+				if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+				// Priority scenarios come first
+				if (aIndex !== -1) return -1;
+				if (bIndex !== -1) return 1;
+				// Otherwise sort by difficulty (easier first)
+				return (a.difficulty === 'beginner' ? 1 : a.difficulty === 'intermediate' ? 2 : 3) -
+				       (b.difficulty === 'beginner' ? 1 : b.difficulty === 'intermediate' ? 2 : 3);
+			});
+
+			// Return top 2 recommendations
+			return sortedScenarios.slice(0, 2);
 		} catch (error) {
 			console.error('Error getting recommended scenarios:', error);
 			return [];

@@ -90,73 +90,6 @@ export const scenariosData: ScenarioWithHints[] = [
 		updatedAt: new Date()
 	},
 	{
-		id: 'politics-cafe-debate',
-		title: 'Café Politics Discussion',
-		description: 'Debate current events with a politically engaged friend over coffee.',
-		role: 'friendly_chat',
-		difficulty: 'intermediate',
-		difficultyRating: 5,
-		cefrLevel: 'B2',
-		instructions: `Share your opinions on recent news, ask what they think, and practice agreeing, disagreeing, and finding common ground. Focus on natural back-and-forth like friends debating ideas.`,
-		context:
-			'A busy café, afternoon light streaming through windows, your friend leaning in with strong opinions about the latest headlines.',
-		expectedOutcome:
-			'Express nuanced political views and engage in respectful debate like a native speaker',
-		learningObjectives: [
-			'opinion vocabulary',
-			'debate expressions',
-			'polite disagreement',
-			'supporting arguments',
-			'conversational flow',
-			'cultural sensitivity'
-		],
-		comfortIndicators: {
-			confidence: 3,
-			engagement: 5,
-			understanding: 4
-		},
-		persona: null,
-		isActive: true,
-		localeHints: ['ja-JP'],
-		preferredLanguages: ['ja'],
-		speakerGenderPreference: 'neutral',
-		createdAt: new Date(),
-		updatedAt: new Date()
-	},
-	{
-		id: 'grammar-tutor-session',
-		title: 'Grammar Fundamentals Session',
-		description: 'Practice verb conjugations and sentence structure with clear explanations.',
-		role: 'tutor',
-		difficulty: 'beginner',
-		difficultyRating: 2,
-		cefrLevel: 'A2',
-		instructions: `Focus on mastering specific grammar patterns. Your tutor will explain rules, provide examples, correct your mistakes, and drill until you get it right.`,
-		context:
-			'A quiet study room with whiteboard space, your patient tutor ready to break down complex grammar into simple steps.',
-		expectedOutcome: 'Understand and correctly use target grammar patterns with confidence',
-		learningObjectives: [
-			'verb conjugation',
-			'sentence structure',
-			'grammar pattern recognition',
-			'error correction',
-			'systematic practice',
-			'rule comprehension'
-		],
-		comfortIndicators: {
-			confidence: 3,
-			engagement: 3,
-			understanding: 5
-		},
-		persona: null,
-		isActive: true,
-		localeHints: ['ja-JP'],
-		preferredLanguages: ['ja'],
-		speakerGenderPreference: 'neutral',
-		createdAt: new Date(),
-		updatedAt: new Date()
-	},
-	{
 		id: 'family-dinner-introduction',
 		title: "Partner's Parents Dinner",
 		description: "Earn trust over a meal with your partner's parents.",
@@ -197,88 +130,6 @@ export const scenariosData: ScenarioWithHints[] = [
 		updatedAt: new Date()
 	},
 	{
-		id: 'executive-board-negotiation',
-		title: 'Executive Board Negotiation',
-		description:
-			'Defend a strategic decision in front of skeptical executives and earn their approval.',
-		role: 'character',
-		difficulty: 'advanced',
-		difficultyRating: 7,
-		cefrLevel: 'C1',
-		instructions: `Lay out your recommendation in two concise points, anticipate objections, and clarify trade-offs with precise language. Push for a decision by summarizing consensus in the target language.`,
-		context:
-			'A glass-walled boardroom late at night. Revenue dashboards glow on the wall while senior leaders wait for your proposal.',
-		expectedOutcome:
-			'Secure stakeholder alignment on a high-stakes initiative with confident, nuanced language',
-		learningObjectives: [
-			'strategic framing',
-			'objection handling',
-			'persuasive summaries',
-			'executive tone control',
-			'high-register vocabulary'
-		],
-		comfortIndicators: {
-			confidence: 4,
-			engagement: 4,
-			understanding: 4
-		},
-		persona: {
-			title: 'Chief Financial Officer',
-			nameTemplate: 'CFO {SPEAKER_NAME}',
-			setting: 'Executive boardroom filled with tired but sharp senior leaders.',
-			introPrompt:
-				'Open the meeting as the CFO, ask for concise updates, and challenge the presenter on financial risks and trade-offs.',
-			stakes: 'If you approve a weak plan, the company could miss critical targets and you will answer to the board.'
-		},
-		isActive: true,
-		localeHints: ['ja-JP'],
-		preferredLanguages: ['ja'],
-		speakerGenderPreference: 'neutral',
-		createdAt: new Date(),
-		updatedAt: new Date()
-	},
-	{
-		id: 'crisis-press-briefing',
-		title: 'Crisis Press Briefing',
-		description:
-			'Face international reporters during a live briefing and manage follow-up questions with precision.',
-		role: 'character',
-		difficulty: 'advanced',
-		difficultyRating: 8,
-		cefrLevel: 'C2',
-		instructions: `Deliver a crisp opening statement, field fast-paced questions without losing composure, and close with a controlled call to action. Keep your language exact, diplomatic, and adaptive.`,
-		context:
-			'Bright lights, cameras blinking red, microphones thrust forward from every angle. Broadcasters are live in multiple languages.',
-		expectedOutcome:
-			'Demonstrate native-level fluency while handling probing questions under public pressure',
-		learningObjectives: [
-			'diplomatic phrasing',
-			'rapid response control',
-			'register shifting',
-			'press conference etiquette',
-			'precision under pressure'
-		],
-		comfortIndicators: {
-			confidence: 2,
-			engagement: 5,
-			understanding: 5
-		},
-		persona: {
-			title: 'Government Crisis Spokesperson',
-			nameTemplate: '{SPEAKER_NAME}',
-			setting: 'Standing at a podium facing international reporters and live cameras.',
-			introPrompt:
-				'Deliver a controlled opening statement, enforce briefing rules, and field aggressive questions while protecting sensitive information.',
-			stakes: 'A careless statement could trigger public panic or international fallout.'
-		},
-		isActive: true,
-		localeHints: ['ja-JP'],
-		preferredLanguages: ['ja'],
-		speakerGenderPreference: 'neutral',
-		createdAt: new Date(),
-		updatedAt: new Date()
-	},
-	{
 		id: 'first-date-drinks',
 		title: 'First Date Drinks',
 		description: 'Break the ice and get to know someone on a first date.',
@@ -302,6 +153,173 @@ export const scenariosData: ScenarioWithHints[] = [
 		},
 		persona: null,
 		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'relationship-apology',
+		title: 'Relationship Apology',
+		description: 'Repair trust after a misunderstanding with your partner.',
+		role: 'character',
+		difficulty: 'intermediate',
+		difficultyRating: 5,
+		cefrLevel: 'B2',
+		instructions: `Acknowledge what hurt them, explain what you meant without deflecting, and rebuild trust by asking what they need from you. Practice the vulnerability that turns "sorry" into real repair.`,
+		context:
+			'A quiet moment after the argument has cooled. Your partner is willing to listen, but trust needs rebuilding.',
+		expectedOutcome:
+			'Restore emotional connection and leave with a shared plan to prevent the same friction',
+		learningObjectives: [
+			'apology language',
+			'taking responsibility',
+			'expressing regret',
+			'active listening',
+			'emotional repair',
+			'cultural nuance in apologies',
+			'rebuilding trust'
+		],
+		comfortIndicators: {
+			confidence: 2,
+			engagement: 5,
+			understanding: 4
+		},
+		persona: {
+			title: 'Partner After Conflict',
+			nameTemplate: '{SPEAKER_NAME}',
+			setting: 'A quiet space where your partner is ready to talk but still hurt.',
+			introPrompt:
+				'Express that you are willing to listen but need to hear genuine acknowledgment. Share how the situation made you feel and wait to see if your partner truly understands.',
+			stakes:
+				'If the apology feels shallow or defensive, the relationship loses another layer of trust.'
+		},
+		isActive: true,
+		localeHints: ['ja-JP'],
+		preferredLanguages: ['ja'],
+		speakerGenderPreference: 'neutral',
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'vulnerable-heart-to-heart',
+		title: 'Sharing What You Really Feel',
+		description: 'Express your fears, hopes, or needs to someone you love.',
+		role: 'character',
+		difficulty: 'intermediate',
+		difficultyRating: 4,
+		cefrLevel: 'B1',
+		instructions: `Name the feeling, explain why it matters, and ask for what you need. Practice moving past "I'm fine" to say what's actually true.`,
+		context:
+			'Late evening, safe space with someone who cares. The moment when surface talk could go deeper.',
+		expectedOutcome: 'Feel heard and understood; strengthen emotional intimacy through honesty',
+		learningObjectives: [
+			'emotion vocabulary',
+			'vulnerability expression',
+			'asking for support',
+			'sharing inner thoughts',
+			'cultural emotional norms',
+			'opening up gradually'
+		],
+		comfortIndicators: {
+			confidence: 2,
+			engagement: 5,
+			understanding: 4
+		},
+		persona: {
+			title: 'Trusted Loved One',
+			nameTemplate: '{SPEAKER_NAME}',
+			setting: 'A safe, quiet moment where someone is ready to really listen.',
+			introPrompt:
+				'Notice that something feels important. Ask gentle questions, create space for honesty, and respond with empathy when they share.',
+			stakes: 'If you rush or minimize their feelings, they may close off and stop sharing.'
+		},
+		isActive: true,
+		localeHints: ['ja-JP'],
+		preferredLanguages: ['ja'],
+		speakerGenderPreference: 'neutral',
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'family-milestone-toast',
+		title: 'Family Celebration Speech',
+		description: 'Deliver a heartfelt toast at a wedding, birthday, or reunion.',
+		role: 'character',
+		difficulty: 'intermediate',
+		difficultyRating: 5,
+		cefrLevel: 'B2',
+		instructions: `Share a personal story, honor the people being celebrated, and close with a wish for the future. Practice the cadence, warmth, and cultural touches that make a toast memorable.`,
+		context:
+			'A room full of relatives and friends. Glasses raised, cameras ready, and everyone waiting to hear your words.',
+		expectedOutcome:
+			'Deliver a toast that feels authentic, honors tradition, and earns genuine applause',
+		learningObjectives: [
+			'celebratory language',
+			'storytelling in public',
+			'cultural toast customs',
+			'honoring family',
+			'expressing gratitude',
+			'public speaking confidence'
+		],
+		comfortIndicators: {
+			confidence: 3,
+			engagement: 5,
+			understanding: 4
+		},
+		persona: {
+			title: 'Family Gathering Audience',
+			nameTemplate: 'Family & Friends',
+			setting: 'A celebration with relatives of all ages listening and recording the moment.',
+			introPrompt:
+				'Listen warmly as someone you care about gives a toast. React to personal stories, laugh at gentle humor, and raise your glass when they finish.',
+			stakes:
+				'If the toast feels flat or culturally off, the moment loses its emotional weight and becomes awkward.'
+		},
+		isActive: true,
+		localeHints: ['ja-JP'],
+		preferredLanguages: ['ja'],
+		speakerGenderPreference: 'neutral',
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'breaking-important-news',
+		title: 'Sharing Life Changes',
+		description: 'Tell your family about a major decision: moving, career change, or relationship.',
+		role: 'character',
+		difficulty: 'intermediate',
+		difficultyRating: 5,
+		cefrLevel: 'B2',
+		instructions: `Lead with the decision, explain your reasoning, acknowledge their concerns, and reassure them that the relationship stays strong. Practice handling reactions from surprise to resistance.`,
+		context:
+			'A serious family conversation. You have news that will change things, and they deserve to hear it from you directly.',
+		expectedOutcome:
+			'Share your decision clearly, handle emotional reactions with care, and maintain family trust',
+		learningObjectives: [
+			'delivering important news',
+			'explaining decisions',
+			'handling emotional reactions',
+			'reassuring loved ones',
+			'navigating family dynamics',
+			'respectful assertiveness'
+		],
+		comfortIndicators: {
+			confidence: 3,
+			engagement: 5,
+			understanding: 4
+		},
+		persona: {
+			title: 'Family Member Receiving News',
+			nameTemplate: '{SPEAKER_NAME}',
+			setting: 'A family setting where important news is about to be shared.',
+			introPrompt:
+				'Listen as your family member shares an important life decision. React with genuine emotion—surprise, concern, or questions—and try to understand their reasoning.',
+			stakes:
+				'If they cannot explain clearly or handle your concerns, you may feel excluded from their life or worried about their future.'
+		},
+		isActive: true,
+		localeHints: ['ja-JP'],
+		preferredLanguages: ['ja'],
+		speakerGenderPreference: 'neutral',
 		createdAt: new Date(),
 		updatedAt: new Date()
 	}
