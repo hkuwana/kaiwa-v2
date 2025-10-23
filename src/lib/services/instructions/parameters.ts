@@ -3,6 +3,7 @@
 // Following OpenAI Realtime API best practices
 
 import type { CEFRLevel } from '$lib/utils/cefr';
+import type { SpeechSpeed } from '$lib/server/db/types';
 
 /**
  * AGILE INSTRUCTION PARAMETERS
@@ -560,4 +561,106 @@ export function parametersToInstructions(params: InstructionParameters): string[
 		CONVERSATION_PACE_RULES[params.conversationPace],
 		TOPIC_CHANGE_RULES[params.topicChangeFrequency]
 	];
+}
+
+// ============================================
+// SPEECH SPEED RESOLUTION
+// ============================================
+
+/**
+ * Language-specific speed adjustments
+ * Negative number = slower, Positive number = faster
+ *
+ * Rationale:
+ * - Tonal languages (Chinese, Vietnamese) need slower pace for tone clarity
+ * - Character-based scripts (Japanese, Chinese) need time for visual processing
+ * - Particle-heavy languages (Japanese, Korean) benefit from clear pauses
+ */
+const LANGUAGE_SPEED_ADJUSTMENTS: Record<string, number> = {
+	'zh': -1,  // Chinese: Tones + characters need slower pace
+	'ja': -1,  // Japanese: Kanji + particles need slower pace
+	'vi': -1,  // Vietnamese: Tones need slower pace
+	'ko': 0,   // Korean: Normal pace works well
+	'es': 0,   // Spanish: Normal pace
+	'fr': 0,   // French: Normal pace
+	'de': 0,   // German: Normal pace
+	'it': 0,   // Italian: Normal pace
+	'pt': 0,   // Portuguese: Normal pace
+	'ru': 0,   // Russian: Normal pace
+	'ar': -1,  // Arabic: Script + morphology benefits from slower pace
+	'th': -1,  // Thai: Tones + script need slower pace
+};
+
+/**
+ * Map CEFR levels to default speech speeds
+ */
+const CEFR_TO_SPEED_MAP: Record<string, SpeakingSpeed> = {
+	'A1': 'very_slow',
+	'A2': 'slow',
+	'B1': 'normal',
+	'B2': 'fast',
+	'C1': 'fast',
+	'C2': 'native'
+};
+
+/**
+ * Resolve user's speech speed preference into a SpeakingSpeed parameter
+ *
+ * Priority:
+ * 1. User's manual choice (if not 'auto')
+ * 2. CEFR-based default (if 'auto')
+ * 3. Language-specific adjustment applied
+ *
+ * @param userSpeechSpeed - User's preference from database
+ * @param cefrLevel - User's proficiency level
+ * @param languageCode - Target language code (e.g., 'zh', 'ja', 'es')
+ * @returns Resolved speaking speed parameter
+ *
+ * @example
+ * resolveUserSpeechSpeed('auto', 'A2', 'zh')
+ * // Returns 'very_slow' (A2 maps to 'slow', Chinese adjustment -1 = 'very_slow')
+ *
+ * resolveUserSpeechSpeed('fast', 'A1', 'zh')
+ * // Returns 'fast' (user's manual choice always wins)
+ */
+export function resolveUserSpeechSpeed(
+	userSpeechSpeed: SpeechSpeed,
+	cefrLevel: string,
+	languageCode?: string
+): SpeakingSpeed {
+	// 1. Manual preference overrides everything
+	if (userSpeechSpeed !== 'auto') {
+		console.log(`🎚️ Speech speed: User manually selected "${userSpeechSpeed}"`);
+		return userSpeechSpeed as SpeakingSpeed;
+	}
+
+	// 2. Auto mode: start with CEFR-based default
+	const baseSpeed = CEFR_TO_SPEED_MAP[cefrLevel] || 'slow';
+	console.log(`🎚️ Speech speed: CEFR ${cefrLevel} maps to "${baseSpeed}"`);
+
+	// 3. Apply language-specific adjustment if available
+	if (!languageCode) {
+		console.log(`🎚️ Speech speed: No language code, using "${baseSpeed}"`);
+		return baseSpeed;
+	}
+
+	const adjustment = LANGUAGE_SPEED_ADJUSTMENTS[languageCode] || 0;
+
+	if (adjustment === 0) {
+		console.log(`🎚️ Speech speed: Language ${languageCode} has no adjustment, using "${baseSpeed}"`);
+		return baseSpeed;
+	}
+
+	// Apply adjustment
+	const speedLevels: SpeakingSpeed[] = ['very_slow', 'slow', 'normal', 'fast', 'native'];
+	const currentIndex = speedLevels.indexOf(baseSpeed);
+	const newIndex = Math.max(0, Math.min(speedLevels.length - 1, currentIndex + adjustment));
+	const finalSpeed = speedLevels[newIndex];
+
+	console.log(
+		`🎚️ Speech speed: Language ${languageCode} adjustment ${adjustment > 0 ? '+' : ''}${adjustment} ` +
+		`=> "${baseSpeed}" → "${finalSpeed}"`
+	);
+
+	return finalSpeed;
 }

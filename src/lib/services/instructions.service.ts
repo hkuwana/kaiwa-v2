@@ -2,10 +2,13 @@
 // Lightweight wrapper around the agile instruction composer
 
 import type { User, UserPreferences, Language, Speaker, Scenario } from '$lib/server/db/types';
+import type { SpeechSpeed } from '$lib/server/db/types';
 import type { ScenarioWithHints } from '$lib/data/scenarios';
 import { InstructionComposer, type InstructionComposerOptions } from '$lib/services/instructions';
 import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 import { getLanguageById } from '$lib/types';
+import { resolveUserSpeechSpeed, type InstructionParameters } from './instructions/parameters';
+import { getLearnerCefrLevel } from '$lib/utils/cefr';
 
 export type InstructionPhase = 'initial' | 'update' | 'closing';
 
@@ -65,6 +68,23 @@ export function createScenarioSessionConfig(
 	initialMessage?: string;
 	voice: string;
 } {
+	// 🆕 Resolve speech speed from user preferences
+	const userSpeechSpeed: SpeechSpeed = preferences.speechSpeed || 'slow';
+	const learnerLevel = getLearnerCefrLevel(preferences);
+	const resolvedSpeed = resolveUserSpeechSpeed(
+		userSpeechSpeed,
+		learnerLevel,
+		language.code
+	);
+
+	console.log('📋 Creating scenario session config:', {
+		scenario: scenario?.title || 'general',
+		userLevel: learnerLevel,
+		language: language.code,
+		userSpeedPref: userSpeechSpeed,
+		resolvedSpeed: resolvedSpeed
+	});
+
 	const baseParams: InstructionRequest = {
 		user,
 		language,
@@ -73,7 +93,9 @@ export function createScenarioSessionConfig(
 		speaker
 	};
 
-	const instructions = composeInitialInstructions(baseParams);
+	const instructions = composeInitialInstructions(baseParams, {
+		speakingSpeed: resolvedSpeed
+	});
 	const initialMessage = generateScenarioGreeting({ language, scenario, user });
 
 	const preferredVoice = speaker?.voiceName || preferences.preferredVoice || DEFAULT_VOICE;
@@ -105,14 +127,18 @@ export function generateScenarioGreeting(opts: {
 // Internal helpers
 // ============================================
 
-function composeInitialInstructions(params: InstructionRequest): string {
+function composeInitialInstructions(
+	params: InstructionRequest,
+	parameterOverrides?: Partial<InstructionParameters>
+): string {
 	const composer = new InstructionComposer({
 		user: params.user,
 		language: params.language,
 		preferences: params.preferences,
 		scenario: params.scenario as ScenarioWithHints | undefined,
 		speaker: params.speaker,
-		sessionContext: normalizeSessionContext(params.sessionContext)
+		sessionContext: normalizeSessionContext(params.sessionContext),
+		parameters: parameterOverrides
 	});
 
 	return composer.compose();
