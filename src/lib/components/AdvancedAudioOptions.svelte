@@ -3,6 +3,7 @@
 	import { realtimeOpenAI } from '$lib/stores/realtime-openai.store.svelte';
 	import type { AudioInputMode } from '$lib/server/db/types';
 	import { slide } from 'svelte/transition';
+	import SpeechSpeedSelector from './SpeechSpeedSelector.svelte';
 	// Component props
 	interface Props {
 		onModeChange?: (mode: AudioInputMode) => void;
@@ -224,6 +225,11 @@
 					</div>
 				</div>
 			{/if}
+
+			<!-- Speech Speed Section -->
+			<div class="divider"></div>
+
+			<SpeechSpeedSelector compact={true} />
 
 			<!-- Info Banner -->
 			<div class="mt-4 alert py-2 text-xs">

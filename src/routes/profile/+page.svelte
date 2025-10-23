@@ -3,6 +3,7 @@
 	import { resolve } from '$app/paths';
 	import UserPreferencesEditor from '$lib/components/UserPreferencesEditor.svelte';
 	import EmailPreferences from '$lib/components/EmailPreferences.svelte';
+	import SpeechSpeedSelector from '$lib/components/SpeechSpeedSelector.svelte';
 	import type { UserPreferences } from '$lib/server/db/types';
 	import type { MemorySummary } from '$lib/services/user-memory.service';
 	import type { UsageStatus } from '$lib/server/tier-service';
@@ -477,6 +478,21 @@
 									<span>Error loading preferences: {error.message}</span>
 								</div>
 							{/await}
+						</div>
+					</div>
+
+					<!-- Speech Speed Settings -->
+					<div class="card bg-base-100 shadow-xl">
+						<div class="card-body">
+							<h2 class="card-title">
+								<span class="mr-2 icon-[mdi--speedometer] h-6 w-6"></span>
+								Speech Speed
+							</h2>
+							<p class="mb-4 text-sm text-base-content/70">
+								Control how fast the AI speaks during conversations. This helps you practice at a
+								comfortable pace for your level.
+							</p>
+							<SpeechSpeedSelector />
 						</div>
 					</div>
 				{/if}
