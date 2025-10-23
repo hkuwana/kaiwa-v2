@@ -52,6 +52,18 @@ export const audioInputModeEnum = pgEnum('audio_input_mode_enum', [
 ]);
 
 /**
+ * Speech speed enumeration for AI pacing control
+ */
+export const speechSpeedEnum = pgEnum('speech_speed_enum', [
+	'auto',
+	'very_slow',
+	'slow',
+	'normal',
+	'fast',
+	'native'
+]);
+
+/**
  * 🎯 User Preferences table - Stores individual user learning preferences and progress
  *
  * This table contains detailed learning preferences for each user-language combination.
@@ -158,6 +170,8 @@ export const userPreferences = pgTable(
 		correctionStyle: correctionStyleEnum('correction_style').default('gentle').notNull(),
 
 		audioInputMode: audioInputModeEnum('audio_input_mode').default('vad').notNull(),
+
+		speechSpeed: speechSpeedEnum('speech_speed').default('slow').notNull(),
 
 		memories: jsonb('memories').$type<string[]>().default([]),
 

@@ -40,21 +40,18 @@
 	const preparationSteps = [
 		{
 			icon: '🎯',
-			title: 'Getting ready',
-			message: `Connecting to your ${settingsStore.selectedLanguage?.name || 'language'} tutor...`,
-			tip: 'This may take a few moments'
+			title: 'Connecting',
+			message: 'Finding your tutor... (just a moment)'
 		},
 		{
 			icon: '🤫',
-			title: 'Environment check',
-			message: 'Optimizing for your speaking session...',
-			tip: 'Find a quiet place to practice'
+			title: 'Optimizing',
+			message: 'Checking your setup... (find a quiet spot)'
 		},
 		{
 			icon: '🗣️',
-			title: 'Almost ready',
-			message: 'Preparing your conversation partner...',
-			tip: 'Speak naturally and take your time'
+			title: 'Ready!',
+			message: "Let's begin! (speak naturally)"
 		}
 	];
 
@@ -85,7 +82,6 @@
 				return {
 					title: currentStep.title,
 					message: currentStep.message,
-					tip: currentStep.tip,
 					color: 'text-info',
 					bgColor: 'bg-info/10',
 					borderColor: 'border-info/20'
@@ -93,8 +89,7 @@
 			case 'connected':
 				return {
 					title: 'Connected!',
-					message: `Ready to practice ${settingsStore.selectedLanguage?.name || 'your language'}!`,
-					tip: "Start speaking when you're ready",
+					message: 'Ready to practice! (start speaking)',
 					color: 'text-success',
 					bgColor: 'bg-success/10',
 					borderColor: 'border-success/20'
@@ -103,17 +98,15 @@
 				if (isCountryRestrictionError()) {
 					return {
 						title: 'Service Not Available',
-						message: 'Not available in your location',
-						tip: 'OpenAI services are restricted in your country/region',
+						message: 'Not available in your location (OpenAI services are restricted in your country/region)',
 						color: 'text-error',
 						bgColor: 'bg-error/10',
 						borderColor: 'border-error/20'
 					};
 				}
 				return {
-					title: 'Connection Error',
-					message: 'Failed to connect',
-					tip: 'Check your internet connection and try again',
+					title: 'Error',
+					message: 'Connection failed (check your connection and retry)',
 					color: 'text-error',
 					bgColor: 'bg-error/10',
 					borderColor: 'border-error/20'
@@ -122,7 +115,6 @@
 				return {
 					title: 'Preparing...',
 					message: 'Setting up your session...',
-					tip: '',
 					color: 'text-base-content',
 					bgColor: 'bg-base-200',
 					borderColor: 'border-base-300'
@@ -240,37 +232,6 @@
 					{/if}
 				</div>
 			{/if}
-
-			<!-- Tips Section -->
-			<div class="mt-6">
-				<div class="rounded-lg bg-base-100/50 p-4 backdrop-blur-sm">
-					<div class="text-center">
-						<div class="mb-3">
-							{#if status === 'error' && isCountryRestrictionError()}
-								<span class="text-2xl">⚠️</span>
-							{:else}
-								<span class="text-2xl">💡</span>
-							{/if}
-						</div>
-						<h4 class="mb-2 font-medium text-base-content/90">
-							{#if status === 'error' && isCountryRestrictionError()}
-								Why is this happening?
-							{:else}
-								Pro Tip
-							{/if}
-						</h4>
-						{#if showContent}
-							<p
-								class="text-sm text-base-content/70"
-								in:fade={{ duration: 300, delay: 150 }}
-								out:fade={{ duration: 150 }}
-							>
-								{statusConfig.tip}
-							</p>
-						{/if}
-					</div>
-				</div>
-			</div>
 
 			<!-- Error Actions -->
 			{#if status === 'error'}

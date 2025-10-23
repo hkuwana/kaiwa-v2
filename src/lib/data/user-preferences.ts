@@ -29,6 +29,8 @@ export const defaultUserPreference: Omit<
 	// Adaptive learning preferences
 	challengePreference: 'moderate',
 	correctionStyle: 'gentle',
+	audioInputMode: 'vad',
+	speechSpeed: 'slow',
 	conversationContext: null,
 	successfulExchanges: 0,
 	comfortZone: null,
