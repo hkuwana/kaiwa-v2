@@ -71,7 +71,9 @@ export const AUDIO_RETENTION_CONFIG = {
 /**
  * Get retention period for a user tier
  */
-export function getRetentionPeriodDays(tier: 'free' | 'plus' | 'premium' | 'system' | 'guest'): number {
+export function getRetentionPeriodDays(
+	tier: 'free' | 'plus' | 'premium' | 'system' | 'guest'
+): number {
 	return AUDIO_RETENTION_CONFIG.retentionPeriods[tier];
 }
 
@@ -128,7 +130,6 @@ export function shouldDeleteAudio(retentionExpiresAt: Date | null): boolean {
  */
 export function estimateStorageCost(totalSizeBytes: number, retentionDays: number): number {
 	const sizeGb = totalSizeBytes / (1024 * 1024 * 1024);
-	const costPerDay =
-		(sizeGb * AUDIO_RETENTION_CONFIG.costMonitoring.storageCostPerGbMonth) / 30;
+	const costPerDay = (sizeGb * AUDIO_RETENTION_CONFIG.costMonitoring.storageCostPerGbMonth) / 30;
 	return costPerDay * retentionDays;
 }

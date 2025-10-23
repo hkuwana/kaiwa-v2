@@ -16,20 +16,23 @@
 		subject?: string;
 	}
 
-	let content: DigestContent = {
+	let content: DigestContent = $state({
 		updates: [{ title: '', summary: '', linkLabel: '', linkUrl: '' }],
 		productHighlights: [],
 		upcoming: [],
 		intro: '',
 		subject: ''
-	};
+	});
 
-	let sendStatus: 'idle' | 'sending' | 'success' | 'error' = 'idle';
-	let statusMessage = '';
-	let previewHtml = '';
+	let sendStatus: 'idle' | 'sending' | 'success' | 'error' = $state('idle');
+	let statusMessage = $state('');
+	let previewHtml = $state('');
 
 	function addUpdate(section: 'updates' | 'productHighlights' | 'upcoming') {
-		content[section] = [...content[section], { title: '', summary: '', linkLabel: '', linkUrl: '' }];
+		content[section] = [
+			...content[section],
+			{ title: '', summary: '', linkLabel: '', linkUrl: '' }
+		];
 	}
 
 	function removeUpdate(section: 'updates' | 'productHighlights' | 'upcoming', index: number) {
@@ -102,9 +105,7 @@
 <div class="container mx-auto max-w-6xl p-8">
 	<div class="mb-8">
 		<h1 class="text-4xl font-bold">Weekly Digest Admin</h1>
-		<p class="mt-2 text-base-content/70">
-			Compose and send weekly updates to all subscribed users
-		</p>
+		<p class="mt-2 text-base-content/70">Compose and send weekly updates to all subscribed users</p>
 	</div>
 
 	<div class="grid gap-8 lg:grid-cols-2">
@@ -123,7 +124,7 @@
 							type="text"
 							bind:value={content.subject}
 							placeholder="Kaiwa Weekly Update – Jan 20, 2025"
-							class="input input-bordered"
+							class="input-bordered input"
 						/>
 					</div>
 
@@ -134,7 +135,7 @@
 						<textarea
 							bind:value={content.intro}
 							placeholder="Here's what we shipped this week..."
-							class="textarea textarea-bordered"
+							class="textarea-bordered textarea"
 							rows="3"
 						></textarea>
 					</div>
@@ -146,7 +147,7 @@
 				<div class="card-body">
 					<div class="flex items-center justify-between">
 						<h2 class="card-title">What Shipped (Required)</h2>
-						<button class="btn btn-primary btn-sm" onclick={() => addUpdate('updates')}>
+						<button class="btn btn-sm btn-primary" onclick={() => addUpdate('updates')}>
 							+ Add Update
 						</button>
 					</div>
@@ -156,10 +157,7 @@
 							<div class="flex items-center justify-between">
 								<span class="font-medium">Update {i + 1}</span>
 								{#if content.updates.length > 1}
-									<button
-										class="btn btn-error btn-xs"
-										onclick={() => removeUpdate('updates', i)}
-									>
+									<button class="btn btn-xs btn-error" onclick={() => removeUpdate('updates', i)}>
 										Remove
 									</button>
 								{/if}
@@ -169,12 +167,12 @@
 								type="text"
 								bind:value={update.title}
 								placeholder="Feature title"
-								class="input input-bordered input-sm w-full"
+								class="input-bordered input input-sm w-full"
 							/>
 							<textarea
 								bind:value={update.summary}
 								placeholder="Brief summary (1-2 sentences)"
-								class="textarea textarea-bordered textarea-sm w-full"
+								class="textarea-bordered textarea w-full textarea-sm"
 								rows="2"
 							></textarea>
 							<div class="grid grid-cols-2 gap-2">
@@ -182,13 +180,13 @@
 									type="text"
 									bind:value={update.linkLabel}
 									placeholder="Link text (optional)"
-									class="input input-bordered input-sm"
+									class="input-bordered input input-sm"
 								/>
 								<input
 									type="text"
 									bind:value={update.linkUrl}
 									placeholder="URL (optional)"
-									class="input input-bordered input-sm"
+									class="input-bordered input input-sm"
 								/>
 							</div>
 						</div>
@@ -201,10 +199,7 @@
 				<div class="card-body">
 					<div class="flex items-center justify-between">
 						<h2 class="card-title">Product Highlights (Optional)</h2>
-						<button
-							class="btn btn-secondary btn-sm"
-							onclick={() => addUpdate('productHighlights')}
-						>
+						<button class="btn btn-sm btn-secondary" onclick={() => addUpdate('productHighlights')}>
 							+ Add Highlight
 						</button>
 					</div>
@@ -214,7 +209,7 @@
 							<div class="flex items-center justify-between">
 								<span class="font-medium">Highlight {i + 1}</span>
 								<button
-									class="btn btn-error btn-xs"
+									class="btn btn-xs btn-error"
 									onclick={() => removeUpdate('productHighlights', i)}
 								>
 									Remove
@@ -225,12 +220,12 @@
 								type="text"
 								bind:value={highlight.title}
 								placeholder="Highlight title"
-								class="input input-bordered input-sm w-full"
+								class="input-bordered input input-sm w-full"
 							/>
 							<textarea
 								bind:value={highlight.summary}
 								placeholder="Brief summary"
-								class="textarea textarea-bordered textarea-sm w-full"
+								class="textarea-bordered textarea w-full textarea-sm"
 								rows="2"
 							></textarea>
 						</div>
@@ -243,7 +238,7 @@
 				<div class="card-body">
 					<div class="flex items-center justify-between">
 						<h2 class="card-title">Coming Up Next (Optional)</h2>
-						<button class="btn btn-accent btn-sm" onclick={() => addUpdate('upcoming')}>
+						<button class="btn btn-sm btn-accent" onclick={() => addUpdate('upcoming')}>
 							+ Add Upcoming
 						</button>
 					</div>
@@ -252,10 +247,7 @@
 						<div class="space-y-2 rounded-lg border border-base-300 p-4">
 							<div class="flex items-center justify-between">
 								<span class="font-medium">Item {i + 1}</span>
-								<button
-									class="btn btn-error btn-xs"
-									onclick={() => removeUpdate('upcoming', i)}
-								>
+								<button class="btn btn-xs btn-error" onclick={() => removeUpdate('upcoming', i)}>
 									Remove
 								</button>
 							</div>
@@ -264,12 +256,12 @@
 								type="text"
 								bind:value={item.title}
 								placeholder="What's coming"
-								class="input input-bordered input-sm w-full"
+								class="input-bordered input input-sm w-full"
 							/>
 							<textarea
 								bind:value={item.summary}
 								placeholder="Brief teaser"
-								class="textarea textarea-bordered textarea-sm w-full"
+								class="textarea-bordered textarea w-full textarea-sm"
 								rows="2"
 							></textarea>
 						</div>
@@ -285,14 +277,13 @@
 					<div class="flex flex-wrap gap-2">
 						<button class="btn btn-info" onclick={generatePreview}> 👁️ Preview Email </button>
 
-						<button class="btn btn-neutral" onclick={copyScriptContent}>
-							📋 Copy to Script
-						</button>
+						<button class="btn btn-neutral" onclick={copyScriptContent}> 📋 Copy to Script </button>
 
 						<button
 							class="btn btn-success"
 							onclick={sendDigest}
-							disabled={sendStatus === 'sending' || content.updates.length === 0 ||
+							disabled={sendStatus === 'sending' ||
+								content.updates.length === 0 ||
 								!content.updates[0].title}
 						>
 							{#if sendStatus === 'sending'}

@@ -42,10 +42,7 @@ export async function generatePinyinClient(text: string): Promise<PinyinResult> 
 }
 
 // Server-side pinyin (accurate, complete with ruby markup)
-export async function generatePinyinServer(
-	text: string,
-	messageId: string
-): Promise<PinyinResult> {
+export async function generatePinyinServer(text: string, messageId: string): Promise<PinyinResult> {
 	if (!isChineseText(text)) {
 		return {};
 	}

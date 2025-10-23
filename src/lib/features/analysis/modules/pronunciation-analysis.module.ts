@@ -224,7 +224,9 @@ function generateRecommendations(
 
 	// Fluency recommendations
 	if (fluency.overallScore < 70) {
-		recommendations.push('Focus on speaking more fluently by practicing full sentences without stopping');
+		recommendations.push(
+			'Focus on speaking more fluently by practicing full sentences without stopping'
+		);
 	}
 
 	if (fluency.hesitationCount > 3) {
@@ -232,7 +234,9 @@ function generateRecommendations(
 	}
 
 	if (fluency.fillerWordCount > 2) {
-		recommendations.push('Try to eliminate filler words like "um" and "uh" - pause silently instead');
+		recommendations.push(
+			'Try to eliminate filler words like "um" and "uh" - pause silently instead'
+		);
 	}
 
 	// Speech rate recommendations
@@ -249,7 +253,9 @@ function generateRecommendations(
 
 	// General recommendation if everything is good
 	if (issues.length === 0 && fluency.overallScore > 80) {
-		recommendations.push('Great job! Your pronunciation and fluency are excellent. Keep practicing!');
+		recommendations.push(
+			'Great job! Your pronunciation and fluency are excellent. Keep practicing!'
+		);
 	}
 
 	return recommendations;
@@ -393,7 +399,8 @@ async function analyzePronunciationWithEchogarden(
 export const pronunciationAnalysisModule: AnalysisModuleDefinition = {
 	id: 'pronunciation-analysis',
 	name: 'Pronunciation Analysis',
-	description: 'Analyzes speech pronunciation, timing, fluency, and provides personalized recommendations',
+	description:
+		'Analyzes speech pronunciation, timing, fluency, and provides personalized recommendations',
 	version: '1.0.0',
 	modality: 'speech',
 
@@ -496,7 +503,9 @@ export const pronunciationAnalysisModule: AnalysisModuleDefinition = {
 
 		// Collect all unique recommended practice words
 		const allPracticeWords = new Set<string>();
-		analysisResults.forEach((r) => r.recommendedPracticeWords.forEach((w) => allPracticeWords.add(w)));
+		analysisResults.forEach((r) =>
+			r.recommendedPracticeWords.forEach((w) => allPracticeWords.add(w))
+		);
 
 		return {
 			moduleId: 'pronunciation-analysis',

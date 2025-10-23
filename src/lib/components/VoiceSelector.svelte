@@ -153,7 +153,8 @@
 	>
 		<span class="text-lg">{getGenderIcon(currentVoice.gender)}</span>
 		<span>{currentVoice.name}</span>
-		<span class="icon-[mdi--chevron-down] h-4 w-4 transition-transform {isOpen ? 'rotate-180' : ''}"></span>
+		<span class="icon-[mdi--chevron-down] h-4 w-4 transition-transform {isOpen ? 'rotate-180' : ''}"
+		></span>
 	</button>
 
 	<!-- Voice dropdown -->

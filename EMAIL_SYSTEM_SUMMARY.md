@@ -2,13 +2,13 @@
 
 ## Email Types Overview
 
-| Email Type | Frequency | Automation | Your Time | Status |
-|------------|-----------|------------|-----------|--------|
-| **Daily Reminders** | Daily 9am UTC | ✅ Fully Automated | 0 min/week | ✅ Live |
-| **Founder Emails** | Daily 2pm UTC | ✅ Fully Automated | 0 min/week | ✅ Live |
-| **Weekly Digest** | Mon 10am UTC | 🔄 Semi-Automated | 5-10 min/week | ✅ Live |
-| **Product Updates** | Ad-hoc | 📝 Manual | 15-30 min/event | ⏳ Future |
-| **Security Alerts** | Event-triggered | ✅ Fully Automated | 0 min/week | ⏳ Future |
+| Email Type          | Frequency       | Automation         | Your Time       | Status    |
+| ------------------- | --------------- | ------------------ | --------------- | --------- |
+| **Daily Reminders** | Daily 9am UTC   | ✅ Fully Automated | 0 min/week      | ✅ Live   |
+| **Founder Emails**  | Daily 2pm UTC   | ✅ Fully Automated | 0 min/week      | ✅ Live   |
+| **Weekly Digest**   | Mon 10am UTC    | 🔄 Semi-Automated  | 5-10 min/week   | ✅ Live   |
+| **Product Updates** | Ad-hoc          | 📝 Manual          | 15-30 min/event | ⏳ Future |
+| **Security Alerts** | Event-triggered | ✅ Fully Automated | 0 min/week      | ⏳ Future |
 
 ---
 

@@ -1,4 +1,3 @@
-
 # TypeScript and Svelte Check Error Triage
 
 This document lists the errors and warnings found by `pnpm check` and prioritizes them for fixing.

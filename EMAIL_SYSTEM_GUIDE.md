@@ -224,7 +224,7 @@ open https://resend.com/emails
 // Process 50 users at a time in parallel
 const batches = chunk(users, 50);
 for (const batch of batches) {
-  await Promise.all(batch.map(user => sendEmail(user)));
+	await Promise.all(batch.map((user) => sendEmail(user)));
 }
 ```
 
@@ -233,10 +233,10 @@ for (const batch of batches) {
 ```typescript
 // Offload to queue for massive scale
 for (const user of users) {
-  await qstash.publishJSON({
-    url: 'https://trykaiwa.com/api/email/send',
-    body: { userId: user.id }
-  });
+	await qstash.publishJSON({
+		url: 'https://trykaiwa.com/api/email/send',
+		body: { userId: user.id }
+	});
 }
 ```
 

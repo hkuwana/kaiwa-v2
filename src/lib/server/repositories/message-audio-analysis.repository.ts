@@ -14,10 +14,7 @@ export class MessageAudioAnalysisRepository {
 	 * Create a new audio analysis record
 	 */
 	async createAnalysis(analysis: NewMessageAudioAnalysis): Promise<MessageAudioAnalysis> {
-		const [created] = await db
-			.insert(messageAudioAnalysis)
-			.values(analysis)
-			.returning();
+		const [created] = await db.insert(messageAudioAnalysis).values(analysis).returning();
 		return created;
 	}
 
@@ -116,14 +113,16 @@ export class MessageAudioAnalysisRepository {
 	/**
 	 * Get problematic words from analysis
 	 */
-	async getProblematicWords(messageId: string): Promise<Array<{
-		word: string;
-		issue: string;
-		severity: 'low' | 'medium' | 'high';
-		startMs: number;
-		endMs: number;
-		suggestion?: string;
-	}>> {
+	async getProblematicWords(messageId: string): Promise<
+		Array<{
+			word: string;
+			issue: string;
+			severity: 'low' | 'medium' | 'high';
+			startMs: number;
+			endMs: number;
+			suggestion?: string;
+		}>
+	> {
 		const analysis = await this.getByMessageId(messageId);
 		return (analysis?.problematicWords as any) || [];
 	}
@@ -150,13 +149,10 @@ export class MessageAudioAnalysisRepository {
 
 		// Note: Drizzle doesn't support batch upsert yet, so we do one at a time
 		for (const analysis of analyses) {
-			await db
-				.insert(messageAudioAnalysis)
-				.values(analysis)
-				.onConflictDoUpdate({
-					target: messageAudioAnalysis.messageId,
-					set: analysis
-				});
+			await db.insert(messageAudioAnalysis).values(analysis).onConflictDoUpdate({
+				target: messageAudioAnalysis.messageId,
+				set: analysis
+			});
 		}
 	}
 }

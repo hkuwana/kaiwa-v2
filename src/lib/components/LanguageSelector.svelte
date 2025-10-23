@@ -129,7 +129,10 @@
 				{/if}
 			</div>
 		</div>
-		<span class="icon-[mdi--chevron-down] h-5 w-5 transition-transform duration-200" class:rotate-180={isOpen}></span>
+		<span
+			class="icon-[mdi--chevron-down] h-5 w-5 transition-transform duration-200"
+			class:rotate-180={isOpen}
+		></span>
 	</button>
 
 	<!-- Language dropdown -->
@@ -177,7 +180,8 @@
 									<span class="text-sm opacity-70">{speaker.dialectName} • {speaker.region}</span>
 								</div>
 							</div>
-							                                <span class="icon-[mdi--check] h-5 w-5 flex-shrink-0"></span>						</button>
+							<span class="icon-[mdi--check] h-5 w-5 flex-shrink-0"></span>
+						</button>
 					{/each}
 				{:else}
 					<!-- Language List -->

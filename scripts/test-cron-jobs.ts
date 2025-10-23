@@ -61,7 +61,7 @@ async function testLocalReminders() {
 
 		if (stats.errors.length > 0) {
 			log('\n⚠️  Errors encountered:', 'yellow');
-			stats.errors.forEach(error => console.log(`   - ${error}`));
+			stats.errors.forEach((error) => console.log(`   - ${error}`));
 		}
 
 		return stats.remindersFailed === 0;
@@ -89,7 +89,7 @@ async function testLocalFounderEmails() {
 
 		if (stats.errors.length > 0) {
 			log('\n⚠️  Errors encountered:', 'yellow');
-			stats.errors.forEach(error => console.log(`   - ${error}`));
+			stats.errors.forEach((error) => console.log(`   - ${error}`));
 		}
 
 		return stats.failed === 0;
@@ -117,7 +117,7 @@ async function testRemoteEndpoint(endpoint: string, name: string) {
 	try {
 		const response = await fetch(url, {
 			headers: {
-				'Authorization': `Bearer ${cronSecret}`
+				Authorization: `Bearer ${cronSecret}`
 			}
 		});
 
@@ -196,7 +196,7 @@ async function checkFlyLogs() {
 		if (output.trim() === '') {
 			log('⚠️  No cron-related logs found', 'yellow');
 			log('\nPossible reasons:', 'bright');
-			console.log('   1. Cron jobs haven\'t run yet (check schedule)');
+			console.log("   1. Cron jobs haven't run yet (check schedule)");
 			console.log('   2. Cron machines not deployed');
 			console.log('   3. Logs have rotated out (>24 hours old)');
 		} else {
@@ -220,49 +220,67 @@ async function deploymentCheck() {
 	section('🔍 Deployment Readiness Check');
 
 	const checks = [
-		{ name: 'Scripts exist', check: async () => {
-			const fs = await import('fs');
-			const scriptsExist =
-				fs.existsSync('./scripts/send-reminders.ts') &&
-				fs.existsSync('./scripts/send-founder-emails.ts') &&
-				fs.existsSync('./scripts/deploy-cron-jobs.sh');
-			return scriptsExist;
-		}},
-		{ name: 'Deploy script is executable', check: async () => {
-			const fs = await import('fs');
-			const { mode } = fs.statSync('./scripts/deploy-cron-jobs.sh');
-			return (mode & 0o111) !== 0; // Check if executable bit is set
-		}},
-		{ name: 'Database connection', check: async () => {
-			try {
-				const { userRepository } = await import('../src/lib/server/repositories');
-				await userRepository.getAllUsers();
-				return true;
-			} catch {
-				return false;
+		{
+			name: 'Scripts exist',
+			check: async () => {
+				const fs = await import('fs');
+				const scriptsExist =
+					fs.existsSync('./scripts/send-reminders.ts') &&
+					fs.existsSync('./scripts/send-founder-emails.ts') &&
+					fs.existsSync('./scripts/deploy-cron-jobs.sh');
+				return scriptsExist;
 			}
-		}},
-		{ name: 'Resend API configured', check: async () => {
-			return !!process.env.RESEND_API_KEY;
-		}},
-		{ name: 'Fly CLI available', check: async () => {
-			try {
-				const { execSync } = await import('child_process');
-				execSync('fly --version', { stdio: 'ignore' });
-				return true;
-			} catch {
-				return false;
+		},
+		{
+			name: 'Deploy script is executable',
+			check: async () => {
+				const fs = await import('fs');
+				const { mode } = fs.statSync('./scripts/deploy-cron-jobs.sh');
+				return (mode & 0o111) !== 0; // Check if executable bit is set
 			}
-		}},
-		{ name: 'Fly authenticated', check: async () => {
-			try {
-				const { execSync } = await import('child_process');
-				execSync('fly auth whoami', { stdio: 'ignore' });
-				return true;
-			} catch {
-				return false;
+		},
+		{
+			name: 'Database connection',
+			check: async () => {
+				try {
+					const { userRepository } = await import('../src/lib/server/repositories');
+					await userRepository.getAllUsers();
+					return true;
+				} catch {
+					return false;
+				}
 			}
-		}}
+		},
+		{
+			name: 'Resend API configured',
+			check: async () => {
+				return !!process.env.RESEND_API_KEY;
+			}
+		},
+		{
+			name: 'Fly CLI available',
+			check: async () => {
+				try {
+					const { execSync } = await import('child_process');
+					execSync('fly --version', { stdio: 'ignore' });
+					return true;
+				} catch {
+					return false;
+				}
+			}
+		},
+		{
+			name: 'Fly authenticated',
+			check: async () => {
+				try {
+					const { execSync } = await import('child_process');
+					execSync('fly auth whoami', { stdio: 'ignore' });
+					return true;
+				} catch {
+					return false;
+				}
+			}
+		}
 	];
 
 	let allPassed = true;
@@ -302,7 +320,7 @@ async function showHelp() {
 
 	log('Available Commands:', 'bright');
 	console.log('');
-	console.log('  🧪 LOCAL TESTING (Safe - Won\'t Send Real Emails)');
+	console.log("  🧪 LOCAL TESTING (Safe - Won't Send Real Emails)");
 	console.log('     local-reminders      Test daily reminders locally');
 	console.log('     local-founder        Test founder emails locally');
 	console.log('     local-all            Test all cron jobs locally');
@@ -367,7 +385,7 @@ const command = process.argv[2];
 			await showHelp();
 			break;
 	}
-})().catch(error => {
+})().catch((error) => {
 	log(`\n💥 Fatal error: ${error}`, 'red');
 	console.error(error);
 	process.exit(1);

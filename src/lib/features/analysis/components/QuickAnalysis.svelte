@@ -317,7 +317,7 @@
 							onclick={() => (showGuestCta = true)}
 							aria-label="Unlock full insights"
 						>
-							<span class="icon-[mdi--lock] mr-2 h-4 w-4"></span>
+							<span class="mr-2 icon-[mdi--lock] h-4 w-4"></span>
 							Unlock {quickInsights.length - 2} More Insights
 						</button>
 					</div>
@@ -350,7 +350,7 @@
 						{#if isGuestUser}
 							<!-- Guest user sees login CTA -->
 							<button class="btn btn-lg btn-primary" onclick={() => (showGuestCta = true)}>
-								<span class="icon-[mdi--lock] mr-2 h-5 w-5"></span>
+								<span class="mr-2 icon-[mdi--lock] h-5 w-5"></span>
 								Login to Unlock Full Analysis
 							</button>
 						{:else if expandable}
@@ -365,12 +365,13 @@
 							</div>
 						{/if}
 						<button class="btn btn-outline btn-lg" onclick={onStartNewConversation}>
-							<span class="mr-2 h-5 w-5 {isHistorical ? 'icon-[mdi--eye]' : 'icon-[mdi--plus]'}"></span>
+							<span class="mr-2 h-5 w-5 {isHistorical ? 'icon-[mdi--eye]' : 'icon-[mdi--plus]'}"
+							></span>
 							{isHistorical ? 'View Conversation' : 'Practice More'}
 						</button>
 						{#if !isGuestUser}
 							<button class="btn btn-ghost btn-lg" onclick={() => (showShareModal = true)}>
-								<span class="icon-[mdi--share-variant] mr-2 h-5 w-5"></span>
+								<span class="mr-2 icon-[mdi--share-variant] h-5 w-5"></span>
 								Share
 							</button>
 						{/if}

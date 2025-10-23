@@ -63,8 +63,7 @@ const THIS_WEEKS_CONTENT: WeeklyDigestOptions = {
 	upcoming: [
 		{
 			title: 'Example: Vocabulary tracking',
-			summary:
-				"We're building a system to track words you've learned and suggest review sessions."
+			summary: "We're building a system to track words you've learned and suggest review sessions."
 		}
 	],
 

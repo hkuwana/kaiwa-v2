@@ -589,7 +589,15 @@ export class StripeService {
 		console.log(`✅ Payment recorded: ${paymentIntent.id}, amount: ${paymentIntent.amount / 100}`);
 	}
 
-	private mapStripeStatusToDbStatus(status: Stripe.PaymentIntent.Status): 'succeeded' | 'failed' | 'pending' | 'canceled' | 'requires_payment_method' | 'requires_confirmation' {
+	private mapStripeStatusToDbStatus(
+		status: Stripe.PaymentIntent.Status
+	):
+		| 'succeeded'
+		| 'failed'
+		| 'pending'
+		| 'canceled'
+		| 'requires_payment_method'
+		| 'requires_confirmation' {
 		switch (status) {
 			case 'succeeded':
 				return 'succeeded';

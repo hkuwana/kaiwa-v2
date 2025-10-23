@@ -10,8 +10,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		// Get a sample user for preview (you, the founder)
 		// You can change this to use your own user ID or email
 		const users = await userRepository.getAllUsers();
-		const sampleUser =
-			users.find((u) => u.email?.includes('hiro')) || users[0] || {
+		const sampleUser = users.find((u) => u.email?.includes('hiro')) ||
+			users[0] || {
 				id: 'preview-user',
 				email: 'preview@example.com',
 				displayName: 'Preview User',

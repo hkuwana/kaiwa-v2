@@ -7,6 +7,7 @@ When you reproduce the issue with the enhanced logging, you should see a clear s
 ### Expected Flow for Two PTT Presses
 
 #### First PTT Press (Silent/Short)
+
 1. `▶️ ConversationStore: resumeStreaming() CALLED` - User presses button
 2. `🔄 RESETTING SUPPRESSION FLAG IN resumeStreaming()` - Flag is reset to FALSE
 3. `🔄 SUPPRESSION FLAG RESET TO FALSE` - Confirms flag is now FALSE
@@ -18,6 +19,7 @@ When you reproduce the issue with the enhanced logging, you should see a clear s
 9. `📋 ITEM_ID TO WATCH FOR TRANSCRIPT` - Note the item_id (e.g., `item_ABC123`)
 
 #### Second PTT Press (With Speech)
+
 10. `▶️ ConversationStore: resumeStreaming() CALLED` - User presses button AGAIN
 11. `🔄 RESETTING SUPPRESSION FLAG IN resumeStreaming()` - **⚠️ THE BUG: Flag reset from TRUE to FALSE**
 12. `🔄 SUPPRESSION FLAG RESET TO FALSE` - Flag is now FALSE (lost the suppression!)
@@ -30,6 +32,7 @@ When you reproduce the issue with the enhanced logging, you should see a clear s
 19. `📤 AUDIO BUFFER COMMITTED (SERVER RESPONSE)` - Server confirms commit with item_id #2
 
 #### The Problem - Transcripts Arrive
+
 20. `🎤 USER TRANSCRIPTION COMPLETED` - Transcript for item_id #1 arrives (the SILENT one)
 21. `🔍 TRANSCRIPT WILL NOW GO THROUGH FILTER` - Going to filter
 22. `🔍 TRANSCRIPT FILTER CHECK` - **Check the suppressFlag value here** (should be FALSE because it was reset!)
@@ -40,7 +43,9 @@ When you reproduce the issue with the enhanced logging, you should see a clear s
 ## Key Debug Points
 
 ### 1. Flag Reset Timing
+
 Look for this sequence:
+
 ```
 🧹 ConversationStore: suppressNextUserTranscript is now TRUE (after pauseStreaming)
 ...
@@ -51,12 +56,16 @@ Look for this sequence:
 The time between these shows how long we held the suppression flag before it was incorrectly reset.
 
 ### 2. Item ID Tracking
+
 Track the item_ids:
+
 - First commit → `item_ABC123` (should be suppressed)
 - Second commit → `item_XYZ789` (should be shown)
 
 ### 3. Filter Check vs Flag Setting
+
 Compare:
+
 - When was `suppressNextUserTranscript = TRUE` set? (timestamp)
 - When was `suppressNextUserTranscript = FALSE` reset? (timestamp)
 - When did the transcript arrive and check the flag? (timestamp)
@@ -77,6 +86,7 @@ This confirms the race condition: the boolean flag gets reset before the server 
 ## Solution Needed
 
 Instead of a boolean flag, we need to track item_ids:
+
 - When we detect silence, wait for the `input_audio_buffer.committed` event to get the item_id
 - Add that item_id to a Set of IDs to suppress
 - When transcripts arrive, check if their item_id is in the suppression Set

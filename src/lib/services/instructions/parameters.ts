@@ -418,7 +418,7 @@ export const PARAMETER_PRESETS: Record<string, InstructionParameters> = {
 
 	intermediate: {
 		speakingSpeed: 'normal',
-		sentenceLength: 'short',  // Changed from 'medium' for more natural flow
+		sentenceLength: 'short', // Changed from 'medium' for more natural flow
 		pauseFrequency: 'moderate',
 		targetCEFR: 'B1',
 		vocabularyComplexity: 'everyday',
@@ -426,14 +426,14 @@ export const PARAMETER_PRESETS: Record<string, InstructionParameters> = {
 		scaffoldingLevel: 'medium',
 		correctionStyle: 'recast',
 		languageMixingPolicy: 'flexible',
-		encouragementFrequency: 'minimal',  // Changed from 'moderate' - less cheerleading
-		conversationPace: 'dynamic',  // Changed from 'steady' for more natural rhythm
+		encouragementFrequency: 'minimal', // Changed from 'moderate' - less cheerleading
+		conversationPace: 'dynamic', // Changed from 'steady' for more natural rhythm
 		topicChangeFrequency: 'moderate'
 	},
 
 	upper_intermediate: {
 		speakingSpeed: 'normal',
-		sentenceLength: 'medium',  // Changed from 'long' for more conversational feel
+		sentenceLength: 'medium', // Changed from 'long' for more conversational feel
 		pauseFrequency: 'moderate',
 		targetCEFR: 'B2',
 		vocabularyComplexity: 'advanced',
@@ -441,14 +441,14 @@ export const PARAMETER_PRESETS: Record<string, InstructionParameters> = {
 		scaffoldingLevel: 'light',
 		correctionStyle: 'recast',
 		languageMixingPolicy: 'flexible',
-		encouragementFrequency: 'minimal',  // Changed from 'moderate'
-		conversationPace: 'dynamic',  // Changed from 'steady'
+		encouragementFrequency: 'minimal', // Changed from 'moderate'
+		conversationPace: 'dynamic', // Changed from 'steady'
 		topicChangeFrequency: 'moderate'
 	},
 
 	advanced: {
 		speakingSpeed: 'fast',
-		sentenceLength: 'medium',  // Changed from 'native' to encourage brevity
+		sentenceLength: 'medium', // Changed from 'native' to encourage brevity
 		pauseFrequency: 'minimal',
 		targetCEFR: 'C1',
 		vocabularyComplexity: 'advanced',
@@ -479,7 +479,7 @@ export const PARAMETER_PRESETS: Record<string, InstructionParameters> = {
 	// Special presets for specific scenarios
 	tutor_explicit: {
 		speakingSpeed: 'slow',
-		sentenceLength: 'short',  // Keep short for teaching clarity
+		sentenceLength: 'short', // Keep short for teaching clarity
 		pauseFrequency: 'frequent',
 		targetCEFR: 'B1',
 		vocabularyComplexity: 'everyday',
@@ -487,14 +487,14 @@ export const PARAMETER_PRESETS: Record<string, InstructionParameters> = {
 		scaffoldingLevel: 'heavy',
 		correctionStyle: 'explicit', // Key difference
 		languageMixingPolicy: 'bilingual_support',
-		encouragementFrequency: 'moderate',  // Changed from 'frequent' - less cheerleading
+		encouragementFrequency: 'moderate', // Changed from 'frequent' - less cheerleading
 		conversationPace: 'relaxed',
 		topicChangeFrequency: 'focused'
 	},
 
 	conversation_partner: {
 		speakingSpeed: 'normal',
-		sentenceLength: 'short',  // Changed from 'native' for more conversational feel
+		sentenceLength: 'short', // Changed from 'native' for more conversational feel
 		pauseFrequency: 'minimal',
 		targetCEFR: 'B2',
 		vocabularyComplexity: 'advanced',
@@ -577,30 +577,30 @@ export function parametersToInstructions(params: InstructionParameters): string[
  * - Particle-heavy languages (Japanese, Korean) benefit from clear pauses
  */
 const LANGUAGE_SPEED_ADJUSTMENTS: Record<string, number> = {
-	'zh': -1,  // Chinese: Tones + characters need slower pace
-	'ja': -1,  // Japanese: Kanji + particles need slower pace
-	'vi': -1,  // Vietnamese: Tones need slower pace
-	'ko': 0,   // Korean: Normal pace works well
-	'es': 0,   // Spanish: Normal pace
-	'fr': 0,   // French: Normal pace
-	'de': 0,   // German: Normal pace
-	'it': 0,   // Italian: Normal pace
-	'pt': 0,   // Portuguese: Normal pace
-	'ru': 0,   // Russian: Normal pace
-	'ar': -1,  // Arabic: Script + morphology benefits from slower pace
-	'th': -1,  // Thai: Tones + script need slower pace
+	zh: -1, // Chinese: Tones + characters need slower pace
+	ja: -1, // Japanese: Kanji + particles need slower pace
+	vi: -1, // Vietnamese: Tones need slower pace
+	ko: 0, // Korean: Normal pace works well
+	es: 0, // Spanish: Normal pace
+	fr: 0, // French: Normal pace
+	de: 0, // German: Normal pace
+	it: 0, // Italian: Normal pace
+	pt: 0, // Portuguese: Normal pace
+	ru: 0, // Russian: Normal pace
+	ar: -1, // Arabic: Script + morphology benefits from slower pace
+	th: -1 // Thai: Tones + script need slower pace
 };
 
 /**
  * Map CEFR levels to default speech speeds
  */
 const CEFR_TO_SPEED_MAP: Record<string, SpeakingSpeed> = {
-	'A1': 'very_slow',
-	'A2': 'slow',
-	'B1': 'normal',
-	'B2': 'fast',
-	'C1': 'fast',
-	'C2': 'native'
+	A1: 'very_slow',
+	A2: 'slow',
+	B1: 'normal',
+	B2: 'fast',
+	C1: 'fast',
+	C2: 'native'
 };
 
 /**
@@ -647,7 +647,9 @@ export function resolveUserSpeechSpeed(
 	const adjustment = LANGUAGE_SPEED_ADJUSTMENTS[languageCode] || 0;
 
 	if (adjustment === 0) {
-		console.log(`🎚️ Speech speed: Language ${languageCode} has no adjustment, using "${baseSpeed}"`);
+		console.log(
+			`🎚️ Speech speed: Language ${languageCode} has no adjustment, using "${baseSpeed}"`
+		);
 		return baseSpeed;
 	}
 
@@ -659,7 +661,7 @@ export function resolveUserSpeechSpeed(
 
 	console.log(
 		`🎚️ Speech speed: Language ${languageCode} adjustment ${adjustment > 0 ? '+' : ''}${adjustment} ` +
-		`=> "${baseSpeed}" → "${finalSpeed}"`
+			`=> "${baseSpeed}" → "${finalSpeed}"`
 	);
 
 	return finalSpeed;

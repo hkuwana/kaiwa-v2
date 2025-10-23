@@ -146,7 +146,7 @@
 								class="toggle toggle-primary"
 								bind:checked={preferences[emailType.key as keyof typeof preferences]}
 								aria-label={`Toggle ${emailType.label} email notifications`}
-								on:change={() => togglePreference(emailType.key as keyof typeof preferences)}
+								onchange={() => togglePreference(emailType.key as keyof typeof preferences)}
 								disabled={saving}
 							/>
 						</div>
@@ -156,21 +156,21 @@
 		</div>
 
 		{#if saveMessage}
-			<div role="alert" class="alert alert-success mt-4">
+			<div role="alert" class="mt-4 alert alert-success">
 				<span class="icon-[mdi--check-circle] h-6 w-6"></span>
 				<span>{saveMessage}</span>
 			</div>
 		{/if}
 
 		{#if saveError}
-			<div role="alert" class="alert alert-error mt-4">
+			<div role="alert" class="mt-4 alert alert-error">
 				<span class="icon-[mdi--close-circle] h-6 w-6"></span>
 				<span>{saveError}</span>
 			</div>
 		{/if}
 
 		{#if !compact}
-			<div role="alert" class="alert alert-info mt-6">
+			<div role="alert" class="mt-6 alert alert-info">
 				<span class="icon-[mdi--information] h-5 w-5"></span>
 				<div>
 					<h3 class="font-bold">About Email Preferences</h3>

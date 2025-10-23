@@ -176,7 +176,7 @@
 				{#if usageStatus && source === 'limit_modal'}
 					<div class="mt-4 alert alert-warning">
 						<div>
-							<span class="icon-[mdi--alert-triangle] h-6 w-6 shrink-0 stroke-current"></span>
+							<span class="h-6 w-6 shrink-0 stroke-current icon-[mdi--alert-triangle]"></span>
 							<div>
 								<h3 class="font-bold">Current Usage</h3>
 								<div class="text-xs">
@@ -270,7 +270,7 @@
 							<ul class="mb-6 space-y-2">
 								{#each plan.features as feature (feature)}
 									<li class="flex items-center text-sm">
-										<span class="icon-[mdi--check] mr-2 h-4 w-4 text-success"></span>
+										<span class="mr-2 icon-[mdi--check] h-4 w-4 text-success"></span>
 										{feature}
 									</li>
 								{/each}

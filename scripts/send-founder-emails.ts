@@ -135,7 +135,9 @@ async function sendFounderEmails(): Promise<FounderEmailStats> {
 		}
 
 		console.log('🎉 Founder email sequence completed!');
-		console.log(`📊 Stats: Day1=${stats.day1Sent}, Day2=${stats.day2Sent}, Day3=${stats.day3Sent}, Skipped=${stats.skipped}, Failed=${stats.failed}`);
+		console.log(
+			`📊 Stats: Day1=${stats.day1Sent}, Day2=${stats.day2Sent}, Day3=${stats.day3Sent}, Skipped=${stats.skipped}, Failed=${stats.failed}`
+		);
 	} catch (error) {
 		console.error('💥 Fatal error in founder email process:', error);
 		stats.errors.push(`Fatal error: ${error}`);

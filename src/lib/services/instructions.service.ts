@@ -71,11 +71,7 @@ export function createScenarioSessionConfig(
 	// 🆕 Resolve speech speed from user preferences
 	const userSpeechSpeed: SpeechSpeed = preferences.speechSpeed || 'slow';
 	const learnerLevel = getLearnerCefrLevel(preferences);
-	const resolvedSpeed = resolveUserSpeechSpeed(
-		userSpeechSpeed,
-		learnerLevel,
-		language.code
-	);
+	const resolvedSpeed = resolveUserSpeechSpeed(userSpeechSpeed, learnerLevel, language.code);
 
 	console.log('📋 Creating scenario session config:', {
 		scenario: scenario?.title || 'general',

@@ -12,6 +12,7 @@
 A comprehensive speech speed control system that allows users to adjust AI speaking pace during language learning conversations.
 
 ### Key Features
+
 - **6 Speed Options**: Auto, Very Slow (40%), Slow (60%), Normal (70%), Fast (80%), Native (85%)
 - **Smart Auto Mode**: Automatically adjusts based on user's CEFR level
 - **Language-Aware**: Tonal languages (Chinese, Japanese) automatically get slower pacing
@@ -22,12 +23,14 @@ A comprehensive speech speed control system that allows users to adjust AI speak
 ## Implementation Details
 
 ### Database Schema
+
 - Added `speech_speed_enum` type
 - Added `speechSpeed` column to `user_preferences` table
 - Default: `'slow'` for all users
 - Migration: `drizzle/0026_keen_dazzler.sql`
 
 ### Service Layer
+
 - **File**: `src/lib/services/instructions/parameters.ts`
 - **Function**: `resolveUserSpeechSpeed()`
 - **Logic**:
@@ -36,6 +39,7 @@ A comprehensive speech speed control system that allows users to adjust AI speak
   3. Language adjustment (Chinese/Japanese -1 level)
 
 ### UI Components
+
 - **SpeechSpeedSelector.svelte**: Reusable component with compact/full modes
 - **AdvancedAudioOptions.svelte**: In-conversation quick access
 - **Profile Page**: Detailed settings in Learning Preferences tab
@@ -65,16 +69,19 @@ A comprehensive speech speed control system that allows users to adjust AI speak
 ## Files Modified
 
 **Database & Types:**
+
 - `src/lib/server/db/schema/user-preferences.ts`
 - `src/lib/server/db/types.ts`
 - `src/lib/data/user-preferences.ts`
 - `drizzle/0026_keen_dazzler.sql`
 
 **Service Layer:**
+
 - `src/lib/services/instructions/parameters.ts`
 - `src/lib/services/instructions.service.ts`
 
 **UI Components:**
+
 - `src/lib/components/SpeechSpeedSelector.svelte` (NEW)
 - `src/lib/components/AdvancedAudioOptions.svelte`
 - `src/routes/profile/+page.svelte`
@@ -84,6 +91,7 @@ A comprehensive speech speed control system that allows users to adjust AI speak
 ## Reference Documents
 
 The detailed planning documents are in this folder:
+
 - `IMPLEMENTATION_GUIDE.md` - Step-by-step implementation guide (followed exactly)
 - `universal-speech-speed-solution.md` - Dual-layer approach (instruction + playback)
 - `speech-speed-implementation-steps.md` - Original implementation steps
@@ -95,6 +103,7 @@ The detailed planning documents are in this folder:
 ## Future Enhancements (v2)
 
 From `universal-speech-speed-solution.md`:
+
 - Audio playback rate control (0.5-1.0x)
 - Fine-grained slider (0-100 custom speed)
 - Real-time speed adjustment during conversation

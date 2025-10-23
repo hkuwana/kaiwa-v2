@@ -12,11 +12,11 @@ Kaiwa uses **Fly.io scheduled machines** to run cron jobs as **separate processe
 
 ### Why Separate Processes (Not HTTP Endpoints)?
 
-| Approach | Our Choice | Why |
-|----------|-----------|-----|
-| **HTTP Endpoints** | ❌ Not used | Requires main app running, external caller, public exposure, auth overhead |
-| **Separate Fly.io Machines** | ✅ **Our approach** | Isolated, more reliable, better logs, no HTTP layer, more secure |
-| **GitHub Actions** | ⚠️ Fallback option | Good for quick setup, but less reliable (timing not guaranteed) |
+| Approach                     | Our Choice          | Why                                                                        |
+| ---------------------------- | ------------------- | -------------------------------------------------------------------------- |
+| **HTTP Endpoints**           | ❌ Not used         | Requires main app running, external caller, public exposure, auth overhead |
+| **Separate Fly.io Machines** | ✅ **Our approach** | Isolated, more reliable, better logs, no HTTP layer, more secure           |
+| **GitHub Actions**           | ⚠️ Fallback option  | Good for quick setup, but less reliable (timing not guaranteed)            |
 
 ### Benefits of Our Architecture
 
@@ -93,6 +93,7 @@ kaiwa/
 ### Key Principle: **Shared Business Logic**
 
 Both HTTP endpoints and cron scripts use the **same email services**. This means:
+
 - ✅ Can test via HTTP endpoint before deploying cron
 - ✅ Can manually trigger via HTTP if needed
 - ✅ Single source of truth for business logic
@@ -118,6 +119,7 @@ This deploys the main web application. Cron jobs are **separate**.
 ```
 
 This creates two scheduled machines:
+
 1. `cron-daily-reminders` - Runs at 9am UTC daily
 2. `cron-founder-emails` - Runs at 2pm UTC daily
 
@@ -156,6 +158,7 @@ fly logs -f
 ### Manually Trigger a Cron Job (Testing)
 
 **Option 1: Run script locally**
+
 ```bash
 # Test with local environment
 tsx scripts/send-reminders.ts
@@ -163,6 +166,7 @@ tsx scripts/send-founder-emails.ts
 ```
 
 **Option 2: Run via HTTP endpoint**
+
 ```bash
 # Test against production
 curl -H "Authorization: Bearer $CRON_SECRET" \
@@ -170,6 +174,7 @@ curl -H "Authorization: Bearer $CRON_SECRET" \
 ```
 
 **Option 3: SSH into Fly.io machine**
+
 ```bash
 # SSH into any machine and run script
 fly ssh console
@@ -216,6 +221,7 @@ fly secrets set OPENAI_API_KEY="sk-..."
 ### No Public Exposure
 
 Unlike HTTP-based cron endpoints:
+
 - ❌ No public URLs to protect
 - ❌ No authentication headers to manage
 - ❌ No risk of unauthorized access
@@ -228,12 +234,12 @@ We keep HTTP endpoints at `/api/cron/*` for **testing only**:
 ```typescript
 // src/routes/api/cron/send-reminders/+server.ts
 export const GET = async ({ request }) => {
-  // Still protected by CRON_SECRET for manual testing
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
-    return json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  // ... send reminders
+	// Still protected by CRON_SECRET for manual testing
+	const authHeader = request.headers.get('authorization');
+	if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
+		return json({ error: 'Unauthorized' }, { status: 401 });
+	}
+	// ... send reminders
 };
 ```
 
@@ -266,17 +272,19 @@ fly logs | grep "cron-"
 ### Alerting (Optional)
 
 For production monitoring, integrate with:
+
 - **Sentry**: Error tracking
 - **PostHog**: Success/failure events
 - **Fly.io notifications**: Machine failure alerts
 
 Example PostHog event:
+
 ```typescript
 // In scripts/send-reminders.ts
 posthog.capture('cron_job_completed', {
-  job: 'daily_reminders',
-  stats: { sent: 8, failed: 0 },
-  duration_ms: 1200
+	job: 'daily_reminders',
+	stats: { sent: 8, failed: 0 },
+	duration_ms: 1200
 });
 ```
 
@@ -287,6 +295,7 @@ posthog.capture('cron_job_completed', {
 ### Job Not Running
 
 **Check 1: Is machine created?**
+
 ```bash
 fly machines list | grep cron
 ```
@@ -294,11 +303,13 @@ fly machines list | grep cron
 If not found → Run `./scripts/deploy-cron-jobs.sh`
 
 **Check 2: Is schedule correct?**
+
 ```bash
 fly machine status <machine-id>
 ```
 
 **Check 3: Check logs for errors**
+
 ```bash
 fly logs | grep "cron-daily-reminders"
 ```
@@ -306,18 +317,21 @@ fly logs | grep "cron-daily-reminders"
 ### Job Running But Failing
 
 **Step 1: Check exit code**
+
 ```bash
 fly logs | grep "exit"
 # Look for "exit code 1" (failure) vs "exit code 0" (success)
 ```
 
 **Step 2: Run locally to reproduce**
+
 ```bash
 # Use same environment variables as production
 tsx scripts/send-reminders.ts
 ```
 
 **Step 3: Check database connection**
+
 ```bash
 # SSH into machine and test DB
 fly ssh console
@@ -327,11 +341,13 @@ psql $DATABASE_URL -c "SELECT 1"
 ### Emails Not Sending
 
 **Check 1: RESEND_API_KEY set?**
+
 ```bash
 fly secrets list | grep RESEND
 ```
 
 **Check 2: Test email service locally**
+
 ```typescript
 // Test in isolation
 import { EmailReminderService } from './src/lib/server/email/email-reminder.service';
@@ -339,6 +355,7 @@ await EmailReminderService.sendPracticeReminder('user-id');
 ```
 
 **Check 3: Check Resend dashboard**
+
 - Go to [resend.com/emails](https://resend.com/emails)
 - Check delivery status, bounces, errors
 
@@ -356,26 +373,29 @@ await EmailReminderService.sendPracticeReminder('user-id');
 ### When to Optimize (10,000+ users)
 
 **Option 1: Batch processing**
+
 ```typescript
 // Process users in batches of 50
 const batches = chunk(users, 50);
 for (const batch of batches) {
-  await Promise.all(batch.map(user => sendEmail(user)));
+	await Promise.all(batch.map((user) => sendEmail(user)));
 }
 ```
 
 **Option 2: Queue-based (Upstash QStash)**
+
 ```typescript
 // Send each email as separate job
 for (const user of users) {
-  await qstash.publishJSON({
-    url: 'https://trykaiwa.com/api/email/send',
-    body: { userId: user.id }
-  });
+	await qstash.publishJSON({
+		url: 'https://trykaiwa.com/api/email/send',
+		body: { userId: user.id }
+	});
 }
 ```
 
 **Option 3: Multiple cron machines**
+
 ```bash
 # Create separate machines for different user segments
 fly machine run --name "cron-reminders-segment-a" ...
@@ -386,19 +406,20 @@ fly machine run --name "cron-reminders-segment-b" ...
 
 ## 🆚 Comparison: HTTP Endpoints vs Scheduled Machines
 
-| Feature | HTTP Endpoints (`/api/cron/*`) | Scheduled Machines (`scripts/*`) |
-|---------|-------------------------------|----------------------------------|
-| **Reliability** | Depends on external caller | Guaranteed by Fly.io |
-| **Timing** | Variable (GitHub Actions ±30min) | Exact (within seconds) |
-| **Security** | Requires auth header | No public exposure |
-| **Debugging** | Harder (separate systems) | Easier (same environment) |
-| **Cost** | Free | Free (Fly.io tier) |
-| **Isolation** | Shares main app resources | Separate VM |
-| **Logs** | Mixed with app logs | Can filter by machine |
-| **Setup** | Easier (just YAML) | Slightly more setup |
-| **Best for** | Quick testing, manual triggers | Production reliability |
+| Feature         | HTTP Endpoints (`/api/cron/*`)   | Scheduled Machines (`scripts/*`) |
+| --------------- | -------------------------------- | -------------------------------- |
+| **Reliability** | Depends on external caller       | Guaranteed by Fly.io             |
+| **Timing**      | Variable (GitHub Actions ±30min) | Exact (within seconds)           |
+| **Security**    | Requires auth header             | No public exposure               |
+| **Debugging**   | Harder (separate systems)        | Easier (same environment)        |
+| **Cost**        | Free                             | Free (Fly.io tier)               |
+| **Isolation**   | Shares main app resources        | Separate VM                      |
+| **Logs**        | Mixed with app logs              | Can filter by machine            |
+| **Setup**       | Easier (just YAML)               | Slightly more setup              |
+| **Best for**    | Quick testing, manual triggers   | Production reliability           |
 
 **Our approach**: Use **both**!
+
 - Scheduled machines for automated, reliable cron jobs
 - HTTP endpoints for manual testing and debugging
 
@@ -436,31 +457,37 @@ Already done! This is our current architecture.
 ## ✅ Quick Reference
 
 ### Deploy cron jobs
+
 ```bash
 ./scripts/deploy-cron-jobs.sh
 ```
 
 ### View cron job status
+
 ```bash
 fly machines list | grep cron
 ```
 
 ### View cron job logs
+
 ```bash
 fly logs | grep "cron-"
 ```
 
 ### Manually test a cron job
+
 ```bash
 tsx scripts/send-reminders.ts
 ```
 
 ### Update cron schedule
+
 ```bash
 fly machine update <machine-id> --schedule-time "10:00"
 ```
 
 ### Delete a cron job
+
 ```bash
 fly machine destroy <machine-id>
 ```
@@ -470,12 +497,14 @@ fly machine destroy <machine-id>
 ## 🆘 Getting Help
 
 **Cron job not running?**
+
 1. Check `fly machines list` - Is machine created?
 2. Check `fly logs` - Any errors?
 3. Test locally: `tsx scripts/send-reminders.ts`
 4. Check secrets: `fly secrets list`
 
 **Still stuck?**
+
 - Fly.io community: [community.fly.io](https://community.fly.io)
 - Fly.io docs: [fly.io/docs/machines](https://fly.io/docs/machines/)
 - GitHub issues: Open an issue in your repo

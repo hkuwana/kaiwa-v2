@@ -19,7 +19,7 @@
 				<div
 					class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-error/10"
 				>
-					<span class="icon-[mdi--alert-triangle] h-8 w-8 text-error"></span>
+					<span class="h-8 w-8 text-error icon-[mdi--alert-triangle]"></span>
 				</div>
 
 				<h2 class="card-title justify-center text-2xl text-error">Connection Error</h2>

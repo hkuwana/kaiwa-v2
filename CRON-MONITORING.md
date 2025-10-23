@@ -31,6 +31,7 @@ chmod +x scripts/check-cron-health.sh
 ```
 
 This script will show you:
+
 - All scheduled cron machines on Fly.io
 - Recent cron execution logs
 - Machine status and details
@@ -166,6 +167,7 @@ curl -H "Authorization: Bearer ymTO1zoqAW8FMQKjyJU165EPG4vtJNwNFEelpRkQGJw=" \
 ## 📝 Logs to Look For
 
 **Successful execution:**
+
 ```
 🔍 Cron endpoint called - send-reminders
 ✅ Authorized, dryRun: false
@@ -176,11 +178,13 @@ curl -H "Authorization: Bearer ymTO1zoqAW8FMQKjyJU165EPG4vtJNwNFEelpRkQGJw=" \
 ```
 
 **Rate limiting (expected if run multiple times):**
+
 ```
 ✅ Processing complete! Sent: 0, Skipped: 73, Failed: 0
 ```
 
 **Errors (need attention):**
+
 ```
 ❌ Error sending reminder to user@example.com
 Failed to send cron summary email
@@ -191,11 +195,13 @@ Failed to send cron summary email
 ## 🎯 Next Steps
 
 1. **Deploy the updated code:**
+
    ```bash
    fly deploy --app kaiwa
    ```
 
 2. **Test with your emails:**
+
    ```bash
    ./send-test-emails.sh
    ```
@@ -205,6 +211,7 @@ Failed to send cron summary email
    - The summary notification email
 
 4. **If tests look good, deploy automated cron:**
+
    ```bash
    ./scripts/deploy-cron-jobs.sh
    ```

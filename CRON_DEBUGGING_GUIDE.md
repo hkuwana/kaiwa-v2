@@ -21,6 +21,7 @@ fly apps list
 ```
 
 If you see an app with a different name, update [fly.toml](fly.toml) line 14:
+
 ```toml
 app = 'your-actual-app-name'
 ```
@@ -69,6 +70,7 @@ pnpm cron:deploy
 ```
 
 This creates separate Fly.io machines for each cron job:
+
 - `cron-daily-reminders` (runs at 9:00 AM UTC)
 - `cron-founder-emails` (runs at 2:00 PM UTC)
 - `cron-weekly-digest` (runs at 10:00 AM UTC on Mondays)
@@ -87,6 +89,7 @@ fly logs -f
 ```
 
 Expected output:
+
 ```
 ID        NAME                   STATE    REGION
 abc123    kaiwa                  started  den      (main web app)
@@ -144,9 +147,11 @@ pnpm tsx scripts/test-cron-jobs.ts local-all
 **Symptom**: `fly machines list` returns "unauthorized"
 
 **Solution**:
+
 ```bash
 fly auth login
 ```
+
 Then re-run your command.
 
 ---
@@ -156,13 +161,16 @@ Then re-run your command.
 **Symptom**: Machines exist but logs show no activity
 
 **Checklist**:
+
 1. Check machine schedule:
+
    ```bash
    fly machines list
    fly machine status <machine-id>
    ```
 
 2. Manually trigger a cron job:
+
    ```bash
    fly ssh console
    pnpm tsx scripts/send-reminders.ts
@@ -170,6 +178,7 @@ Then re-run your command.
    ```
 
 3. Check for errors in logs:
+
    ```bash
    fly logs | grep -i error
    ```
@@ -188,6 +197,7 @@ Then re-run your command.
 **Solution**: This is a SvelteKit-specific issue. The scripts import SvelteKit environment modules that don't work outside the dev server.
 
 **Temporary workaround**: Use the HTTP endpoints for testing:
+
 ```bash
 # Set CRON_SECRET locally
 export CRON_SECRET=your_secret
@@ -201,6 +211,7 @@ curl -H "Authorization: Bearer $CRON_SECRET" \
 ```
 
 **Proper fix**: Update scripts to load environment variables directly instead of using `$env`:
+
 ```typescript
 // Instead of:
 import { env } from '$env/dynamic/private';
@@ -218,6 +229,7 @@ const env = process.env;
 **Symptom**: You deployed to a different account/organization
 
 **Solution**:
+
 ```bash
 # Check current account
 fly auth whoami

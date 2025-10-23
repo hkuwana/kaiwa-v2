@@ -52,6 +52,7 @@ I've set up a complete weekly digest email system for you! Here's what's new:
 ### Your Weekly Workflow (5-10 minutes)
 
 **Sunday Evening** (or whenever you have time):
+
 1. Visit https://trykaiwa.com/dev/weekly-digest
 2. Fill in what you shipped this week (2-4 items)
 3. Add any product highlights or upcoming features
@@ -60,11 +61,13 @@ I've set up a complete weekly digest email system for you! Here's what's new:
 6. Commit and push
 
 **Monday 10am UTC**:
+
 - Cron job automatically sends to all subscribed users
 - System pulls user stats (practice time, streak, etc.)
 - Respects user email preferences
 
 **Monday 11am UTC**:
+
 - Check logs to verify it sent successfully
 - Check Resend dashboard for delivery stats
 
@@ -73,6 +76,7 @@ I've set up a complete weekly digest email system for you! Here's what's new:
 ## Quick Start (Do This Now!)
 
 ### Step 1: Import Calendar Reminders
+
 ```bash
 # Open the calendar file
 open kaiwa-founder-reminders.ics
@@ -84,6 +88,7 @@ open kaiwa-founder-reminders.ics
 ```
 
 ### Step 2: Test Locally
+
 ```bash
 # Test the weekly digest script
 pnpm cron:weekly-digest
@@ -94,6 +99,7 @@ pnpm cron:weekly-digest
 ```
 
 ### Step 3: Visit Admin UI
+
 ```bash
 # Start your dev server
 pnpm dev
@@ -103,6 +109,7 @@ pnpm dev
 ```
 
 ### Step 4: Deploy Cron Job
+
 ```bash
 # Deploy all cron jobs (including new weekly digest)
 pnpm cron:deploy
@@ -115,13 +122,13 @@ fly machines list | grep weekly-digest
 
 ## Email Types - Complete Overview
 
-| Email Type | Status | Your Time | When |
-|------------|--------|-----------|------|
-| Daily Reminders | ✅ Live | 0 min | Daily 9am UTC |
-| Founder Emails | ✅ Live | 0 min | Daily 2pm UTC |
-| **Weekly Digest** | ✅ **NEW** | 5-10 min/week | Mon 10am UTC |
-| Product Updates | ⏳ Future | 15-30 min/event | Ad-hoc |
-| Security Alerts | ⏳ Future | 0 min | Event-triggered |
+| Email Type        | Status     | Your Time       | When            |
+| ----------------- | ---------- | --------------- | --------------- |
+| Daily Reminders   | ✅ Live    | 0 min           | Daily 9am UTC   |
+| Founder Emails    | ✅ Live    | 0 min           | Daily 2pm UTC   |
+| **Weekly Digest** | ✅ **NEW** | 5-10 min/week   | Mon 10am UTC    |
+| Product Updates   | ⏳ Future  | 15-30 min/event | Ad-hoc          |
+| Security Alerts   | ⏳ Future  | 0 min           | Event-triggered |
 
 ---
 
@@ -142,30 +149,32 @@ fly machines list | grep weekly-digest
 
 ```typescript
 const THIS_WEEKS_CONTENT = {
-  updates: [
-    {
-      title: 'New audio mode',
-      summary: 'Push-to-talk is live. Press and hold to speak, release to get feedback. Perfect for rapid-fire practice.',
-      linkLabel: 'Try it out',
-      linkUrl: 'https://trykaiwa.com/practice'
-    },
-    {
-      title: 'Faster AI responses',
-      summary: 'Responses are now 2x faster thanks to streaming. You\'ll notice the difference immediately.',
-    }
-  ],
-  productHighlights: [
-    {
-      title: 'Mobile improvements',
-      summary: 'Better touch targets, smoother animations, and clearer error messages on mobile.'
-    }
-  ],
-  upcoming: [
-    {
-      title: 'Vocabulary tracking',
-      summary: 'Building a system to track words you\'ve learned and suggest review sessions.'
-    }
-  ]
+	updates: [
+		{
+			title: 'New audio mode',
+			summary:
+				'Push-to-talk is live. Press and hold to speak, release to get feedback. Perfect for rapid-fire practice.',
+			linkLabel: 'Try it out',
+			linkUrl: 'https://trykaiwa.com/practice'
+		},
+		{
+			title: 'Faster AI responses',
+			summary:
+				"Responses are now 2x faster thanks to streaming. You'll notice the difference immediately."
+		}
+	],
+	productHighlights: [
+		{
+			title: 'Mobile improvements',
+			summary: 'Better touch targets, smoother animations, and clearer error messages on mobile.'
+		}
+	],
+	upcoming: [
+		{
+			title: 'Vocabulary tracking',
+			summary: "Building a system to track words you've learned and suggest review sessions."
+		}
+	]
 };
 ```
 
@@ -174,6 +183,7 @@ const THIS_WEEKS_CONTENT = {
 ## Monitoring
 
 ### Check It Sent (2 minutes)
+
 ```bash
 # View logs
 fly logs | grep "weekly-digest"
@@ -186,6 +196,7 @@ fly logs | grep "weekly-digest"
 ```
 
 ### Check Delivery (1 minute)
+
 ```bash
 # Open Resend dashboard
 open https://resend.com/emails
@@ -214,6 +225,7 @@ Users control what they receive at `/profile` → Email Preferences:
 ## Next Steps
 
 ### This Week
+
 1. [ ] Import calendar: `kaiwa-founder-reminders.ics`
 2. [ ] Test locally: `pnpm cron:weekly-digest`
 3. [ ] Visit admin UI: `/dev/weekly-digest`
@@ -221,11 +233,13 @@ Users control what they receive at `/profile` → Email Preferences:
 5. [ ] Update first digest content this Sunday
 
 ### Next Week
+
 1. [ ] Monitor Monday logs for successful send
 2. [ ] Check Resend dashboard for delivery stats
 3. [ ] Adjust content based on what you shipped
 
 ### Next Month
+
 1. [ ] Review open rates and engagement
 2. [ ] Consider adding product update script
 3. [ ] Consider adding security alert triggers
@@ -235,15 +249,18 @@ Users control what they receive at `/profile` → Email Preferences:
 ## Resources
 
 📚 **Documentation**:
+
 - [EMAIL_SYSTEM_GUIDE.md](./EMAIL_SYSTEM_GUIDE.md) - Complete guide
 - [EMAIL_SYSTEM_SUMMARY.md](./EMAIL_SYSTEM_SUMMARY.md) - Quick reference
 - [WEEKLY_DIGEST_QUICKSTART.md](./WEEKLY_DIGEST_QUICKSTART.md) - Sunday routine
 - [CRON_SETUP_SUMMARY.md](./CRON_SETUP_SUMMARY.md) - Cron architecture
 
 🗓️ **Calendar**:
+
 - [kaiwa-founder-reminders.ics](./kaiwa-founder-reminders.ics) - Import into your calendar
 
 🛠️ **Admin Tools**:
+
 - Admin UI: https://trykaiwa.com/dev/weekly-digest
 - Resend Dashboard: https://resend.com/emails
 - Fly Logs: `fly logs | grep "cron-"`
@@ -253,6 +270,7 @@ Users control what they receive at `/profile` → Email Preferences:
 ## Questions?
 
 **How do I test without sending to users?**
+
 ```bash
 pnpm cron:weekly-digest  # Runs locally with your .env
 ```

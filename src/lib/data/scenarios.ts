@@ -81,7 +81,8 @@ export const scenariosData: ScenarioWithHints[] = [
 			setting: 'Urgent care exam room just after midnight.',
 			introPrompt:
 				'Introduce yourself as the triage nurse on duty, verify the patient name, and begin calmly collecting symptoms and vital details.',
-			stakes: 'If you miss critical information, the patient may not receive the right treatment in time.'
+			stakes:
+				'If you miss critical information, the patient may not receive the right treatment in time.'
 		},
 		isActive: true,
 		localeHints: ['ja-JP'],
@@ -115,12 +116,13 @@ export const scenariosData: ScenarioWithHints[] = [
 			understanding: 4
 		},
 		persona: {
-			title: "Protective Parent Hosting Dinner",
+			title: 'Protective Parent Hosting Dinner',
 			nameTemplate: '{SPEAKER_NAME}-san',
 			setting: 'Tatami dining room with seasonal dishes and attentive family members.',
 			introPrompt:
 				'Greet your child’s partner warmly but with cautious curiosity, ask respectful questions about their background, and notice small etiquette cues.',
-			stakes: 'You want to decide whether to welcome them into the family and trust them with your child’s future.'
+			stakes:
+				'You want to decide whether to welcome them into the family and trust them with your child’s future.'
 		},
 		isActive: true,
 		localeHints: ['ja-JP'],

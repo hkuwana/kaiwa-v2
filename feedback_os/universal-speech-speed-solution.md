@@ -1,7 +1,9 @@
 # Universal Speech Speed Solution - Design Document
 
 ## Problem Statement
+
 **User Feedback:** Speech is too fast across ALL languages, not just Chinese
+
 - Affects beginners in Japanese, Korean, Chinese, Spanish, etc.
 - Different users need different speeds based on proficiency
 - Current system has no user control over speech speed
@@ -14,17 +16,20 @@
 We implement **BOTH** instruction-based AND playback-based speed control:
 
 ### Layer 1: AI Instructions (What we have)
+
 - Tell AI to speak slower through text prompts
 - Adjusts pacing, pauses, and articulation
 - Natural-sounding slower speech
 
 ### Layer 2: Audio Playback Rate (What we need to add) ✨
+
 - Browser's native `audioElement.playbackRate` API
 - Range: 0.5 (50% speed) to 1.0 (100% speed)
 - No quality loss, preserves pitch
 - User has fine-grained control (0-100 slider)
 
 **Why Both?**
+
 1. **Instructions alone**: AI may not always comply perfectly
 2. **Playback alone**: Can sound unnatural if too slow
 3. **Combined**: Best of both worlds - natural pacing + precise control
@@ -34,6 +39,7 @@ We implement **BOTH** instruction-based AND playback-based speed control:
 ## Technical Discovery
 
 ### ✅ We Have Access to Audio Element!
+
 ```typescript
 // src/lib/services/realtime-agents.service.ts:232
 const audioElement = document.createElement('audio');
@@ -41,6 +47,7 @@ audioElement.autoplay = true;
 ```
 
 ### ✅ Playback Rate API Available
+
 ```typescript
 // Browser native API - no library needed
 audioElement.playbackRate = 0.75; // 75% speed
@@ -68,6 +75,7 @@ Service Layer (audioPlayback service, instructions service)
 ### Phase 1: Add Speech Speed Preference (1.5 hours)
 
 #### 1.1 Database Schema Update
+
 ```typescript
 // src/lib/server/db/schema/user-preferences.ts
 
@@ -86,13 +94,14 @@ playbackSpeedOverride: integer('playback_speed_override'), // 0-100, null = use 
 ```
 
 #### 1.2 User Preferences Store
+
 ```typescript
 // src/lib/stores/user-preferences.store.svelte.ts
 
 interface UserPreferences {
-  // ... existing fields
-  speechSpeed: 'auto' | 'very_slow' | 'slow' | 'normal' | 'fast' | 'native';
-  playbackSpeedOverride?: number; // 0-100, fine-grained control
+	// ... existing fields
+	speechSpeed: 'auto' | 'very_slow' | 'slow' | 'normal' | 'fast' | 'native';
+	playbackSpeedOverride?: number; // 0-100, fine-grained control
 }
 ```
 
@@ -112,78 +121,75 @@ export type SpeechSpeedPreset = 'very_slow' | 'slow' | 'normal' | 'fast' | 'nati
 
 // Playback rate mappings (0.5 = 50%, 1.0 = 100%)
 const PRESET_PLAYBACK_RATES: Record<SpeechSpeedPreset, number> = {
-  very_slow: 0.60,  // 60% playback
-  slow: 0.75,       // 75% playback
-  normal: 0.85,     // 85% playback
-  fast: 0.95,       // 95% playback
-  native: 1.0       // 100% playback
+	very_slow: 0.6, // 60% playback
+	slow: 0.75, // 75% playback
+	normal: 0.85, // 85% playback
+	fast: 0.95, // 95% playback
+	native: 1.0 // 100% playback
 };
 
 /**
  * Convert 0-100 slider value to playback rate
  */
 export function sliderToPlaybackRate(sliderValue: number): number {
-  // Slider 0 = 50% speed (0.5 playback rate)
-  // Slider 100 = 100% speed (1.0 playback rate)
-  return 0.5 + (sliderValue / 100) * 0.5;
+	// Slider 0 = 50% speed (0.5 playback rate)
+	// Slider 100 = 100% speed (1.0 playback rate)
+	return 0.5 + (sliderValue / 100) * 0.5;
 }
 
 /**
  * Convert playback rate to 0-100 slider value
  */
 export function playbackRateToSlider(rate: number): number {
-  return Math.round((rate - 0.5) * 200);
+	return Math.round((rate - 0.5) * 200);
 }
 
 /**
  * Get playback rate for user preferences
  */
 export function resolvePlaybackRate(
-  speechSpeed: SpeechSpeedPreset | 'auto',
-  playbackSpeedOverride: number | null,
-  cefrLevel: string
+	speechSpeed: SpeechSpeedPreset | 'auto',
+	playbackSpeedOverride: number | null,
+	cefrLevel: string
 ): number {
-  // 1. Manual override takes precedence
-  if (playbackSpeedOverride !== null) {
-    return sliderToPlaybackRate(playbackSpeedOverride);
-  }
+	// 1. Manual override takes precedence
+	if (playbackSpeedOverride !== null) {
+		return sliderToPlaybackRate(playbackSpeedOverride);
+	}
 
-  // 2. Preset-based
-  if (speechSpeed !== 'auto') {
-    return PRESET_PLAYBACK_RATES[speechSpeed];
-  }
+	// 2. Preset-based
+	if (speechSpeed !== 'auto') {
+		return PRESET_PLAYBACK_RATES[speechSpeed];
+	}
 
-  // 3. Auto mode - map CEFR to preset
-  const autoPreset = CEFR_TO_PRESET_MAP[cefrLevel] || 'slow';
-  return PRESET_PLAYBACK_RATES[autoPreset];
+	// 3. Auto mode - map CEFR to preset
+	const autoPreset = CEFR_TO_PRESET_MAP[cefrLevel] || 'slow';
+	return PRESET_PLAYBACK_RATES[autoPreset];
 }
 
 const CEFR_TO_PRESET_MAP: Record<string, SpeechSpeedPreset> = {
-  'A1': 'very_slow',
-  'A2': 'slow',
-  'B1': 'normal',
-  'B2': 'fast',
-  'C1': 'fast',
-  'C2': 'native'
+	A1: 'very_slow',
+	A2: 'slow',
+	B1: 'normal',
+	B2: 'fast',
+	C1: 'fast',
+	C2: 'native'
 };
 
 /**
  * Apply playback rate to audio element
  */
-export function setAudioPlaybackRate(
-  audioElement: HTMLAudioElement,
-  rate: number
-): void {
-  if (!audioElement) {
-    console.warn('Audio element not available for playback rate control');
-    return;
-  }
+export function setAudioPlaybackRate(audioElement: HTMLAudioElement, rate: number): void {
+	if (!audioElement) {
+		console.warn('Audio element not available for playback rate control');
+		return;
+	}
 
-  // Clamp to safe range (0.5 to 1.0 for language learning)
-  const clampedRate = Math.max(0.5, Math.min(1.0, rate));
+	// Clamp to safe range (0.5 to 1.0 for language learning)
+	const clampedRate = Math.max(0.5, Math.min(1.0, rate));
 
-  audioElement.playbackRate = clampedRate;
-  console.log(`🎚️ Audio playback rate set to: ${clampedRate} (${Math.round(clampedRate * 100)}%)`);
+	audioElement.playbackRate = clampedRate;
+	console.log(`🎚️ Audio playback rate set to: ${clampedRate} (${Math.round(clampedRate * 100)}%)`);
 }
 ```
 
@@ -198,47 +204,47 @@ import { resolvePlaybackRate, setAudioPlaybackRate } from '$lib/services/audio-p
 import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
 
 class RealtimeOpenAIStore {
-  // ... existing properties
+	// ... existing properties
 
-  private audioElement: HTMLAudioElement | null = null;
-  private currentPlaybackRate = $state(1.0);
+	private audioElement: HTMLAudioElement | null = null;
+	private currentPlaybackRate = $state(1.0);
 
-  /**
-   * Set audio element reference (called after connection)
-   */
-  setAudioElement(element: HTMLAudioElement) {
-    this.audioElement = element;
-    this.applyPlaybackRate(); // Apply user's preferred rate
-  }
+	/**
+	 * Set audio element reference (called after connection)
+	 */
+	setAudioElement(element: HTMLAudioElement) {
+		this.audioElement = element;
+		this.applyPlaybackRate(); // Apply user's preferred rate
+	}
 
-  /**
-   * Apply user's playback rate preference
-   */
-  private applyPlaybackRate() {
-    if (!this.audioElement) return;
+	/**
+	 * Apply user's playback rate preference
+	 */
+	private applyPlaybackRate() {
+		if (!this.audioElement) return;
 
-    const prefs = userPreferencesStore.preferences;
-    const user = userManager.user;
+		const prefs = userPreferencesStore.preferences;
+		const user = userManager.user;
 
-    const rate = resolvePlaybackRate(
-      prefs.speechSpeed || 'auto',
-      prefs.playbackSpeedOverride || null,
-      user.cefrLevel || 'A2'
-    );
+		const rate = resolvePlaybackRate(
+			prefs.speechSpeed || 'auto',
+			prefs.playbackSpeedOverride || null,
+			user.cefrLevel || 'A2'
+		);
 
-    setAudioPlaybackRate(this.audioElement, rate);
-    this.currentPlaybackRate = rate;
-  }
+		setAudioPlaybackRate(this.audioElement, rate);
+		this.currentPlaybackRate = rate;
+	}
 
-  /**
-   * Update playback rate (called when user changes setting)
-   */
-  updatePlaybackRate(newRate: number) {
-    if (!this.audioElement) return;
+	/**
+	 * Update playback rate (called when user changes setting)
+	 */
+	updatePlaybackRate(newRate: number) {
+		if (!this.audioElement) return;
 
-    setAudioPlaybackRate(this.audioElement, newRate);
-    this.currentPlaybackRate = newRate;
-  }
+		setAudioPlaybackRate(this.audioElement, newRate);
+		this.currentPlaybackRate = newRate;
+	}
 }
 ```
 
@@ -273,6 +279,7 @@ User gets **both** preset buttons AND fine-grained slider:
 ## Dual-Layer Speed Calculation
 
 ### Combined Effect Example:
+
 ```
 User selects: "Slow"
 
@@ -295,6 +302,7 @@ Total Effect:
 ## Migration Strategy
 
 ### Database Migration:
+
 ```sql
 -- Add columns to user_preferences
 ALTER TABLE user_preferences
@@ -312,10 +320,12 @@ WHERE speech_speed IS NULL;
 ## Files to Create/Modify
 
 ### New Files:
+
 1. `src/lib/services/audio-playback.service.ts` - Playback logic
 2. `src/lib/components/SpeechSpeedSelector.svelte` - UI component
 
 ### Modified Files:
+
 1. `src/lib/server/db/schema/user-preferences.ts` - Add fields
 2. `src/lib/stores/user-preferences.store.svelte.ts` - Add types
 3. `src/lib/stores/realtime-openai.store.svelte.ts` - Integrate playback
@@ -351,6 +361,7 @@ WHERE speech_speed IS NULL;
 ---
 
 **Key Advantage:** By using BOTH instruction-based AND playback-based control, we get:
+
 - Natural-sounding speech from AI (instruction layer)
 - Precise user control (playback layer)
 - Best user experience possible within API constraints

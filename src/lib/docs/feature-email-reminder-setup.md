@@ -103,6 +103,7 @@ Expected response:
 ### Option 1: Fly.io Scheduled Machines (✅ Recommended - Our Current Architecture)
 
 **Pros**:
+
 - Built-in, no external dependencies
 - Most reliable (exact timing, not "approximately")
 - Better isolation and debugging
@@ -110,6 +111,7 @@ Expected response:
 - Free tier includes scheduled machines
 
 **Cons**:
+
 - Requires Fly.io setup (but you're already using it!)
 
 **How it works**: Cron jobs run as **separate processes** (not HTTP endpoints) using the same codebase.
@@ -120,6 +122,7 @@ Expected response:
 ```
 
 This creates two scheduled machines:
+
 - `cron-daily-reminders`: Runs `tsx scripts/send-reminders.ts` daily at 9am UTC
 - `cron-founder-emails`: Runs `tsx scripts/send-founder-emails.ts` daily at 2pm UTC
 

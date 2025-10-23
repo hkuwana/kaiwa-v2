@@ -5,6 +5,7 @@
 > **Estimated Time:** 2-3 hours for basic implementation
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Architecture](#architecture)
 - [Implementation Steps](#implementation-steps)
@@ -123,6 +124,7 @@ npm install --save-dev @types/node
 ```
 
 **Verify installation:**
+
 ```bash
 npm list echogarden @aws-sdk/client-s3
 ```
@@ -180,65 +182,66 @@ Create a test script to verify storage works:
 import { audioStorageService } from '$lib/server/services/audio-storage.service';
 
 async function testAudioStorage() {
-  console.log('🧪 Testing audio storage...\n');
+	console.log('🧪 Testing audio storage...\n');
 
-  // Check configuration
-  console.log('Config:', audioStorageService.getConfig());
-  console.log('Is configured:', audioStorageService.isConfigured());
+	// Check configuration
+	console.log('Config:', audioStorageService.getConfig());
+	console.log('Is configured:', audioStorageService.isConfigured());
 
-  if (!audioStorageService.isConfigured()) {
-    console.error('❌ Tigris not configured. Set environment variables.');
-    process.exit(1);
-  }
+	if (!audioStorageService.isConfigured()) {
+		console.error('❌ Tigris not configured. Set environment variables.');
+		process.exit(1);
+	}
 
-  // Create test audio buffer
-  const testAudioBuffer = Buffer.from('fake audio data for testing');
+	// Create test audio buffer
+	const testAudioBuffer = Buffer.from('fake audio data for testing');
 
-  try {
-    // Upload
-    console.log('\n📤 Uploading test audio...');
-    const result = await audioStorageService.uploadAudio({
-      userId: 'test-user',
-      conversationId: 'test-convo',
-      messageId: 'test-msg',
-      audioBuffer: testAudioBuffer,
-      mimeType: 'audio/wav'
-    });
+	try {
+		// Upload
+		console.log('\n📤 Uploading test audio...');
+		const result = await audioStorageService.uploadAudio({
+			userId: 'test-user',
+			conversationId: 'test-convo',
+			messageId: 'test-msg',
+			audioBuffer: testAudioBuffer,
+			mimeType: 'audio/wav'
+		});
 
-    console.log('✅ Upload successful!');
-    console.log('  Storage key:', result.storageKey);
-    console.log('  Signed URL:', result.signedUrl.substring(0, 50) + '...');
-    console.log('  Size:', result.sizeBytes, 'bytes');
+		console.log('✅ Upload successful!');
+		console.log('  Storage key:', result.storageKey);
+		console.log('  Signed URL:', result.signedUrl.substring(0, 50) + '...');
+		console.log('  Size:', result.sizeBytes, 'bytes');
 
-    // Download
-    console.log('\n📥 Downloading audio...');
-    const downloaded = await audioStorageService.downloadAudio(result.storageKey);
-    console.log('✅ Download successful!');
-    console.log('  Size:', downloaded.length, 'bytes');
+		// Download
+		console.log('\n📥 Downloading audio...');
+		const downloaded = await audioStorageService.downloadAudio(result.storageKey);
+		console.log('✅ Download successful!');
+		console.log('  Size:', downloaded.length, 'bytes');
 
-    // Verify content matches
-    if (downloaded.equals(testAudioBuffer)) {
-      console.log('  ✅ Content matches original');
-    } else {
-      console.error('  ❌ Content mismatch!');
-    }
+		// Verify content matches
+		if (downloaded.equals(testAudioBuffer)) {
+			console.log('  ✅ Content matches original');
+		} else {
+			console.error('  ❌ Content mismatch!');
+		}
 
-    // Cleanup
-    console.log('\n🗑️  Cleaning up...');
-    await audioStorageService.deleteAudio(result.storageKey);
-    console.log('✅ Cleanup complete!');
+		// Cleanup
+		console.log('\n🗑️  Cleaning up...');
+		await audioStorageService.deleteAudio(result.storageKey);
+		console.log('✅ Cleanup complete!');
 
-    console.log('\n🎉 All tests passed!');
-  } catch (error) {
-    console.error('\n❌ Test failed:', error);
-    process.exit(1);
-  }
+		console.log('\n🎉 All tests passed!');
+	} catch (error) {
+		console.error('\n❌ Test failed:', error);
+		process.exit(1);
+	}
 }
 
 testAudioStorage();
 ```
 
 **Run test:**
+
 ```bash
 npx tsx scripts/test-audio-storage.ts
 ```
@@ -373,74 +376,74 @@ import type { RequestHandler } from './$types';
 import { audioStorageService } from '$lib/server/services/audio-storage.service';
 import { messagesRepository } from '$lib/server/repositories/messages.repository';
 import {
-  calculateAudioRetentionExpiry,
-  calculateSignedUrlExpiry
+	calculateAudioRetentionExpiry,
+	calculateSignedUrlExpiry
 } from '$lib/server/config/audio-retention.config';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
-  try {
-    const {
-      messageId,
-      conversationId,
-      audioBase64,
-      format = 'pcm16',
-      sampleRate = 24000,
-      channels = 1
-    } = await request.json();
+	try {
+		const {
+			messageId,
+			conversationId,
+			audioBase64,
+			format = 'pcm16',
+			sampleRate = 24000,
+			channels = 1
+		} = await request.json();
 
-    if (!messageId || !audioBase64) {
-      return json({ error: 'Missing required fields' }, { status: 400 });
-    }
+		if (!messageId || !audioBase64) {
+			return json({ error: 'Missing required fields' }, { status: 400 });
+		}
 
-    // Get user tier for retention policy
-    const user = locals.user;
-    const userTier = user?.tier || 'free';
+		// Get user tier for retention policy
+		const user = locals.user;
+		const userTier = user?.tier || 'free';
 
-    // Convert base64 to buffer
-    const audioBuffer = Buffer.from(audioBase64, 'base64');
-    console.log(`📥 Received audio for message ${messageId}: ${audioBuffer.length} bytes`);
+		// Convert base64 to buffer
+		const audioBuffer = Buffer.from(audioBase64, 'base64');
+		console.log(`📥 Received audio for message ${messageId}: ${audioBuffer.length} bytes`);
 
-    // Upload to Tigris/S3
-    const uploadResult = await audioStorageService.uploadAudio({
-      userId: user?.id || 'anonymous',
-      conversationId,
-      messageId,
-      audioBuffer,
-      mimeType: `audio/${format}`
-    });
+		// Upload to Tigris/S3
+		const uploadResult = await audioStorageService.uploadAudio({
+			userId: user?.id || 'anonymous',
+			conversationId,
+			messageId,
+			audioBuffer,
+			mimeType: `audio/${format}`
+		});
 
-    console.log(`✅ Uploaded to storage: ${uploadResult.storageKey}`);
+		console.log(`✅ Uploaded to storage: ${uploadResult.storageKey}`);
 
-    // Update message with audio metadata
-    await messagesRepository.updateMessage(messageId, {
-      audioUrl: uploadResult.signedUrl,
-      audioUrlExpiresAt: calculateSignedUrlExpiry(),
-      audioStorageKey: uploadResult.storageKey,
-      audioDurationMs: Math.round((audioBuffer.length / (sampleRate * channels * 2)) * 1000), // Rough estimate
-      audioSizeBytes: uploadResult.sizeBytes,
-      audioFormat: format,
-      audioSampleRate: sampleRate,
-      audioChannels: channels,
-      audioProcessingState: 'uploaded',
-      audioRetentionExpiresAt: calculateAudioRetentionExpiry(userTier)
-    });
+		// Update message with audio metadata
+		await messagesRepository.updateMessage(messageId, {
+			audioUrl: uploadResult.signedUrl,
+			audioUrlExpiresAt: calculateSignedUrlExpiry(),
+			audioStorageKey: uploadResult.storageKey,
+			audioDurationMs: Math.round((audioBuffer.length / (sampleRate * channels * 2)) * 1000), // Rough estimate
+			audioSizeBytes: uploadResult.sizeBytes,
+			audioFormat: format,
+			audioSampleRate: sampleRate,
+			audioChannels: channels,
+			audioProcessingState: 'uploaded',
+			audioRetentionExpiresAt: calculateAudioRetentionExpiry(userTier)
+		});
 
-    console.log(`✅ Updated message ${messageId} with audio metadata`);
+		console.log(`✅ Updated message ${messageId} with audio metadata`);
 
-    return json({
-      success: true,
-      messageId,
-      audioUrl: uploadResult.signedUrl,
-      storageKey: uploadResult.storageKey,
-      sizeBytes: uploadResult.sizeBytes
-    });
-  } catch (error) {
-    console.error('Audio upload failed:', error);
-    return json(
-      { error: error instanceof Error ? error.message : 'Upload failed' },
-      { status: 500 }
-    );
-  }
+		return json({
+			success: true,
+			messageId,
+			audioUrl: uploadResult.signedUrl,
+			storageKey: uploadResult.storageKey,
+			sizeBytes: uploadResult.sizeBytes
+		});
+	} catch (error) {
+		console.error('Audio upload failed:', error);
+		return json(
+			{ error: error instanceof Error ? error.message : 'Upload failed' },
+			{ status: 500 }
+		);
+	}
 };
 ```
 
@@ -451,16 +454,19 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 #### 6.1 Phonetics Analysis Features
 
 **IPA Transcription Support**
+
 - International Phonetic Alphabet representation for each word
 - Phoneme-level timing and accuracy analysis
 - Cross-language phonetic comparison capabilities
 
 **Phoneme-Level Feedback**
+
 - Individual sound accuracy scores (0-100)
 - Common pronunciation errors identification
 - Targeted practice recommendations for specific sounds
 
 **Language-Specific Analysis**
+
 - English: Vowel/consonant analysis, stress patterns
 - Japanese: Hiragana/Katakana pronunciation, pitch accent
 - Spanish: Romance language patterns, rolled R detection
@@ -481,198 +487,195 @@ import { audioStorageService } from '$lib/server/services/audio-storage.service'
 import { messageAudioAnalysisRepository } from '$lib/server/repositories/message-audio-analysis.repository';
 
 export interface PronunciationAnalysisInput {
-  message: Message;
-  languageCode: string;
+	message: Message;
+	languageCode: string;
 }
 
 export interface PronunciationAnalysisResult {
-  overallAccuracyScore: number;
-  overallFluencyScore: number;
-  speechRateWpm: number;
-  articulationRateWpm: number;
-  pauseCount: number;
-  hesitationCount: number;
-  speechTimings: Array<{
-    word: string;
-    startMs: number;
-    endMs: number;
-    charStart: number;
-    charEnd: number;
-    confidence?: number;
-  }>;
-  problematicWords: Array<{
-    word: string;
-    issue: string;
-    severity: 'low' | 'medium' | 'high';
-    startMs: number;
-    endMs: number;
-  }>;
-  recommendations: string[];
-  practiceWords: string[];
+	overallAccuracyScore: number;
+	overallFluencyScore: number;
+	speechRateWpm: number;
+	articulationRateWpm: number;
+	pauseCount: number;
+	hesitationCount: number;
+	speechTimings: Array<{
+		word: string;
+		startMs: number;
+		endMs: number;
+		charStart: number;
+		charEnd: number;
+		confidence?: number;
+	}>;
+	problematicWords: Array<{
+		word: string;
+		issue: string;
+		severity: 'low' | 'medium' | 'high';
+		startMs: number;
+		endMs: number;
+	}>;
+	recommendations: string[];
+	practiceWords: string[];
 }
 
 export class PronunciationAnalysisModule {
-  async analyze(input: PronunciationAnalysisInput): Promise<PronunciationAnalysisResult> {
-    const { message, languageCode } = input;
+	async analyze(input: PronunciationAnalysisInput): Promise<PronunciationAnalysisResult> {
+		const { message, languageCode } = input;
 
-    console.log(`🔍 Analyzing pronunciation for message ${message.id}`);
+		console.log(`🔍 Analyzing pronunciation for message ${message.id}`);
 
-    // Download audio from storage
-    if (!message.audioStorageKey) {
-      throw new Error('No audio storage key found');
-    }
+		// Download audio from storage
+		if (!message.audioStorageKey) {
+			throw new Error('No audio storage key found');
+		}
 
-    const audioBuffer = await audioStorageService.downloadAudio(message.audioStorageKey);
-    console.log(`📥 Downloaded ${audioBuffer.length} bytes`);
+		const audioBuffer = await audioStorageService.downloadAudio(message.audioStorageKey);
+		console.log(`📥 Downloaded ${audioBuffer.length} bytes`);
 
-    // Run Echogarden alignment
-    const alignmentResult = await align(audioBuffer, {
-      text: message.content,
-      language: languageCode,
-      options: {
-        engine: 'whisper',
-        model: 'tiny' // Start with tiny model, can upgrade to base/small
-      }
-    });
+		// Run Echogarden alignment
+		const alignmentResult = await align(audioBuffer, {
+			text: message.content,
+			language: languageCode,
+			options: {
+				engine: 'whisper',
+				model: 'tiny' // Start with tiny model, can upgrade to base/small
+			}
+		});
 
-    console.log(`✅ Alignment complete: ${alignmentResult.timeline.length} segments`);
+		console.log(`✅ Alignment complete: ${alignmentResult.timeline.length} segments`);
 
-    // Process alignment results
-    const speechTimings: PronunciationAnalysisResult['speechTimings'] = [];
-    const pauses: number[] = [];
-    let totalSpeechMs = 0;
-    let totalPauseMs = 0;
+		// Process alignment results
+		const speechTimings: PronunciationAnalysisResult['speechTimings'] = [];
+		const pauses: number[] = [];
+		let totalSpeechMs = 0;
+		let totalPauseMs = 0;
 
-    for (let i = 0; i < alignmentResult.timeline.length; i++) {
-      const segment = alignmentResult.timeline[i];
-      const startMs = Math.round(segment.startTime * 1000);
-      const endMs = Math.round(segment.endTime * 1000);
+		for (let i = 0; i < alignmentResult.timeline.length; i++) {
+			const segment = alignmentResult.timeline[i];
+			const startMs = Math.round(segment.startTime * 1000);
+			const endMs = Math.round(segment.endTime * 1000);
 
-      speechTimings.push({
-        word: segment.text,
-        startMs,
-        endMs,
-        charStart: segment.startOffset || 0,
-        charEnd: segment.endOffset || segment.text.length,
-        confidence: segment.confidence
-      });
+			speechTimings.push({
+				word: segment.text,
+				startMs,
+				endMs,
+				charStart: segment.startOffset || 0,
+				charEnd: segment.endOffset || segment.text.length,
+				confidence: segment.confidence
+			});
 
-      totalSpeechMs += endMs - startMs;
+			totalSpeechMs += endMs - startMs;
 
-      // Detect pauses (gaps between words)
-      if (i > 0) {
-        const prevSegment = alignmentResult.timeline[i - 1];
-        const prevEndMs = Math.round(prevSegment.endTime * 1000);
-        const pauseMs = startMs - prevEndMs;
+			// Detect pauses (gaps between words)
+			if (i > 0) {
+				const prevSegment = alignmentResult.timeline[i - 1];
+				const prevEndMs = Math.round(prevSegment.endTime * 1000);
+				const pauseMs = startMs - prevEndMs;
 
-        if (pauseMs > 150) {
-          // 150ms threshold
-          pauses.push(pauseMs);
-          totalPauseMs += pauseMs;
-        }
-      }
-    }
+				if (pauseMs > 150) {
+					// 150ms threshold
+					pauses.push(pauseMs);
+					totalPauseMs += pauseMs;
+				}
+			}
+		}
 
-    // Calculate metrics
-    const wordCount = speechTimings.length;
-    const totalDurationMs = message.audioDurationMs || totalSpeechMs + totalPauseMs;
-    const speechRateWpm = (wordCount / (totalDurationMs / 1000)) * 60;
-    const articulationRateWpm = (wordCount / (totalSpeechMs / 1000)) * 60;
+		// Calculate metrics
+		const wordCount = speechTimings.length;
+		const totalDurationMs = message.audioDurationMs || totalSpeechMs + totalPauseMs;
+		const speechRateWpm = (wordCount / (totalDurationMs / 1000)) * 60;
+		const articulationRateWpm = (wordCount / (totalSpeechMs / 1000)) * 60;
 
-    // Detect hesitations (um, uh, er, etc.)
-    const hesitationWords = ['um', 'uh', 'er', 'ah', 'hmm'];
-    const hesitationCount = speechTimings.filter((timing) =>
-      hesitationWords.includes(timing.word.toLowerCase())
-    ).length;
+		// Detect hesitations (um, uh, er, etc.)
+		const hesitationWords = ['um', 'uh', 'er', 'ah', 'hmm'];
+		const hesitationCount = speechTimings.filter((timing) =>
+			hesitationWords.includes(timing.word.toLowerCase())
+		).length;
 
-    // Calculate scores (simplified - can be enhanced)
-    const avgConfidence =
-      speechTimings.reduce((sum, t) => sum + (t.confidence || 0), 0) / speechTimings.length;
-    const overallAccuracyScore = Math.round(avgConfidence * 100);
+		// Calculate scores (simplified - can be enhanced)
+		const avgConfidence =
+			speechTimings.reduce((sum, t) => sum + (t.confidence || 0), 0) / speechTimings.length;
+		const overallAccuracyScore = Math.round(avgConfidence * 100);
 
-    // Fluency score based on pauses and hesitations
-    const pausePenalty = Math.min(pauses.length * 5, 30);
-    const hesitationPenalty = Math.min(hesitationCount * 10, 30);
-    const overallFluencyScore = Math.max(
-      0,
-      Math.min(100, 100 - pausePenalty - hesitationPenalty)
-    );
+		// Fluency score based on pauses and hesitations
+		const pausePenalty = Math.min(pauses.length * 5, 30);
+		const hesitationPenalty = Math.min(hesitationCount * 10, 30);
+		const overallFluencyScore = Math.max(0, Math.min(100, 100 - pausePenalty - hesitationPenalty));
 
-    // Identify problematic words (low confidence)
-    const problematicWords = speechTimings
-      .filter((t) => t.confidence && t.confidence < 0.7)
-      .map((t) => ({
-        word: t.word,
-        issue: `Low confidence pronunciation (${Math.round((t.confidence || 0) * 100)}%)`,
-        severity: (t.confidence || 0) < 0.5 ? ('high' as const) : ('medium' as const),
-        startMs: t.startMs,
-        endMs: t.endMs
-      }))
-      .slice(0, 10); // Limit to top 10
+		// Identify problematic words (low confidence)
+		const problematicWords = speechTimings
+			.filter((t) => t.confidence && t.confidence < 0.7)
+			.map((t) => ({
+				word: t.word,
+				issue: `Low confidence pronunciation (${Math.round((t.confidence || 0) * 100)}%)`,
+				severity: (t.confidence || 0) < 0.5 ? ('high' as const) : ('medium' as const),
+				startMs: t.startMs,
+				endMs: t.endMs
+			}))
+			.slice(0, 10); // Limit to top 10
 
-    // Generate recommendations
-    const recommendations: string[] = [];
-    if (overallAccuracyScore < 70) {
-      recommendations.push('Focus on clear pronunciation of each word');
-    }
-    if (pauses.length > 5) {
-      recommendations.push('Try to reduce pauses between words');
-    }
-    if (hesitationCount > 2) {
-      recommendations.push('Practice speaking without filler words (um, uh)');
-    }
-    if (speechRateWpm < 100) {
-      recommendations.push('Try to speak a bit faster');
-    } else if (speechRateWpm > 180) {
-      recommendations.push('Slow down for better clarity');
-    }
-    if (recommendations.length === 0) {
-      recommendations.push('Great job! Keep practicing to maintain your skills.');
-    }
+		// Generate recommendations
+		const recommendations: string[] = [];
+		if (overallAccuracyScore < 70) {
+			recommendations.push('Focus on clear pronunciation of each word');
+		}
+		if (pauses.length > 5) {
+			recommendations.push('Try to reduce pauses between words');
+		}
+		if (hesitationCount > 2) {
+			recommendations.push('Practice speaking without filler words (um, uh)');
+		}
+		if (speechRateWpm < 100) {
+			recommendations.push('Try to speak a bit faster');
+		} else if (speechRateWpm > 180) {
+			recommendations.push('Slow down for better clarity');
+		}
+		if (recommendations.length === 0) {
+			recommendations.push('Great job! Keep practicing to maintain your skills.');
+		}
 
-    const practiceWords = problematicWords.map((pw) => pw.word).slice(0, 5);
+		const practiceWords = problematicWords.map((pw) => pw.word).slice(0, 5);
 
-    return {
-      overallAccuracyScore,
-      overallFluencyScore,
-      speechRateWpm: Math.round(speechRateWpm),
-      articulationRateWpm: Math.round(articulationRateWpm),
-      pauseCount: pauses.length,
-      hesitationCount,
-      speechTimings,
-      problematicWords,
-      recommendations,
-      practiceWords
-    };
-  }
+		return {
+			overallAccuracyScore,
+			overallFluencyScore,
+			speechRateWpm: Math.round(speechRateWpm),
+			articulationRateWpm: Math.round(articulationRateWpm),
+			pauseCount: pauses.length,
+			hesitationCount,
+			speechTimings,
+			problematicWords,
+			recommendations,
+			practiceWords
+		};
+	}
 
-  async saveResults(
-    messageId: string,
-    result: PronunciationAnalysisResult,
-    languageCode: string
-  ): Promise<void> {
-    await messageAudioAnalysisRepository.createAnalysis({
-      messageId,
-      overallAccuracyScore: result.overallAccuracyScore,
-      overallFluencyScore: result.overallFluencyScore,
-      speechRateWpm: result.speechRateWpm,
-      articulationRateWpm: result.articulationRateWpm,
-      pauseCount: result.pauseCount,
-      hesitationCount: result.hesitationCount,
-      totalSpeechDurationMs: result.speechTimings.reduce(
-        (sum, t) => sum + (t.endMs - t.startMs),
-        0
-      ),
-      speechTimings: result.speechTimings as any,
-      problematicWords: result.problematicWords as any,
-      recommendations: result.recommendations,
-      practiceWords: result.practiceWords,
-      analysisEngine: 'echogarden',
-      analysisLanguage: languageCode
-    });
+	async saveResults(
+		messageId: string,
+		result: PronunciationAnalysisResult,
+		languageCode: string
+	): Promise<void> {
+		await messageAudioAnalysisRepository.createAnalysis({
+			messageId,
+			overallAccuracyScore: result.overallAccuracyScore,
+			overallFluencyScore: result.overallFluencyScore,
+			speechRateWpm: result.speechRateWpm,
+			articulationRateWpm: result.articulationRateWpm,
+			pauseCount: result.pauseCount,
+			hesitationCount: result.hesitationCount,
+			totalSpeechDurationMs: result.speechTimings.reduce(
+				(sum, t) => sum + (t.endMs - t.startMs),
+				0
+			),
+			speechTimings: result.speechTimings as any,
+			problematicWords: result.problematicWords as any,
+			recommendations: result.recommendations,
+			practiceWords: result.practiceWords,
+			analysisEngine: 'echogarden',
+			analysisLanguage: languageCode
+		});
 
-    console.log(`✅ Saved analysis for message ${messageId}`);
-  }
+		console.log(`✅ Saved analysis for message ${messageId}`);
+	}
 }
 
 export const pronunciationAnalysisModule = new PronunciationAnalysisModule();
@@ -694,65 +697,69 @@ import { pronunciationAnalysisModule } from '$lib/features/analysis/modules/pron
 import { messagesRepository } from '$lib/server/repositories/messages.repository';
 
 export async function processAudioAnalysis(batchSize = 10) {
-  console.log('🔄 Starting audio analysis job...');
+	console.log('🔄 Starting audio analysis job...');
 
-  // Find messages that need analysis
-  const messagesToAnalyze = await db
-    .select()
-    .from(messages)
-    .where(eq(messages.audioProcessingState, 'uploaded'))
-    .limit(batchSize);
+	// Find messages that need analysis
+	const messagesToAnalyze = await db
+		.select()
+		.from(messages)
+		.where(eq(messages.audioProcessingState, 'uploaded'))
+		.limit(batchSize);
 
-  if (messagesToAnalyze.length === 0) {
-    console.log('✅ No messages to analyze');
-    return 0;
-  }
+	if (messagesToAnalyze.length === 0) {
+		console.log('✅ No messages to analyze');
+		return 0;
+	}
 
-  console.log(`📊 Found ${messagesToAnalyze.length} messages to analyze`);
+	console.log(`📊 Found ${messagesToAnalyze.length} messages to analyze`);
 
-  let successCount = 0;
-  let failureCount = 0;
+	let successCount = 0;
+	let failureCount = 0;
 
-  for (const message of messagesToAnalyze) {
-    try {
-      // Mark as analyzing
-      await messagesRepository.updateMessage(message.id, {
-        audioProcessingState: 'analyzing'
-      });
+	for (const message of messagesToAnalyze) {
+		try {
+			// Mark as analyzing
+			await messagesRepository.updateMessage(message.id, {
+				audioProcessingState: 'analyzing'
+			});
 
-      // Run analysis
-      const result = await pronunciationAnalysisModule.analyze({
-        message,
-        languageCode: message.sourceLanguage || 'en'
-      });
+			// Run analysis
+			const result = await pronunciationAnalysisModule.analyze({
+				message,
+				languageCode: message.sourceLanguage || 'en'
+			});
 
-      // Save results
-      await pronunciationAnalysisModule.saveResults(message.id, result, message.sourceLanguage || 'en');
+			// Save results
+			await pronunciationAnalysisModule.saveResults(
+				message.id,
+				result,
+				message.sourceLanguage || 'en'
+			);
 
-      // Update message with scores and mark as analyzed
-      await messagesRepository.updateMessage(message.id, {
-        pronunciationScore: result.overallAccuracyScore,
-        fluencyScore: result.overallFluencyScore,
-        speechRateWpm: result.speechRateWpm,
-        audioProcessingState: 'analyzed'
-      });
+			// Update message with scores and mark as analyzed
+			await messagesRepository.updateMessage(message.id, {
+				pronunciationScore: result.overallAccuracyScore,
+				fluencyScore: result.overallFluencyScore,
+				speechRateWpm: result.speechRateWpm,
+				audioProcessingState: 'analyzed'
+			});
 
-      successCount++;
-      console.log(`✅ Analyzed message ${message.id}`);
-    } catch (error) {
-      failureCount++;
-      console.error(`❌ Failed to analyze message ${message.id}:`, error);
+			successCount++;
+			console.log(`✅ Analyzed message ${message.id}`);
+		} catch (error) {
+			failureCount++;
+			console.error(`❌ Failed to analyze message ${message.id}:`, error);
 
-      // Mark as failed
-      await messagesRepository.updateMessage(message.id, {
-        audioProcessingState: 'failed',
-        audioProcessingError: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  }
+			// Mark as failed
+			await messagesRepository.updateMessage(message.id, {
+				audioProcessingState: 'failed',
+				audioProcessingError: error instanceof Error ? error.message : 'Unknown error'
+			});
+		}
+	}
 
-  console.log(`🎉 Analysis complete: ${successCount} success, ${failureCount} failed`);
-  return successCount;
+	console.log(`🎉 Analysis complete: ${successCount} success, ${failureCount} failed`);
+	return successCount;
 }
 ```
 
@@ -766,28 +773,26 @@ import type { RequestHandler } from './$types';
 import { processAudioAnalysis } from '$lib/server/jobs/process-audio-analysis';
 
 export const POST: RequestHandler = async ({ request }) => {
-  try {
-    const { batchSize = 10 } = await request.json().catch(() => ({}));
+	try {
+		const { batchSize = 10 } = await request.json().catch(() => ({}));
 
-    const processedCount = await processAudioAnalysis(batchSize);
+		const processedCount = await processAudioAnalysis(batchSize);
 
-    return json({
-      success: true,
-      processedCount
-    });
-  } catch (error) {
-    console.error('Job failed:', error);
-    return json(
-      { error: error instanceof Error ? error.message : 'Job failed' },
-      { status: 500 }
-    );
-  }
+		return json({
+			success: true,
+			processedCount
+		});
+	} catch (error) {
+		console.error('Job failed:', error);
+		return json({ error: error instanceof Error ? error.message : 'Job failed' }, { status: 500 });
+	}
 };
 ```
 
 **Optional: Set up cron job on Fly.io:**
 
 Add to `fly.toml`:
+
 ```toml
 [http_service.checks]
   grace_period = "10s"
@@ -814,23 +819,27 @@ Add to `fly.toml`:
 #### 8.1 Phonetics Feedback UI Features
 
 **Pronunciation Score Display**
+
 - Overall accuracy and fluency scores (0-100)
 - Visual progress indicators and badges
 - Color-coded accuracy levels (green/yellow/red)
 
 **Word-Level Phonetics Display**
+
 - Clickable words with detailed feedback
 - IPA transcription for each word
 - Phoneme-level accuracy scores
 - Timing visualization with confidence indicators
 
 **Practice Recommendations Panel**
+
 - Personalized suggestions based on analysis
 - Targeted word practice lists
 - Progress tracking over time
 - Language-specific pronunciation tips
 
 **Visual Timeline Component**
+
 - Word-by-word timing visualization
 - Pause and hesitation markers
 - Confidence score indicators
@@ -842,113 +851,113 @@ Add to `fly.toml`:
 
 ```svelte
 <script lang="ts">
-  import type { MessageAudioAnalysis } from '$lib/server/db/types';
+	import type { MessageAudioAnalysis } from '$lib/server/db/types';
 
-  let { messageId }: { messageId: string } = $props();
+	let { messageId }: { messageId: string } = $props();
 
-  let analysis = $state<MessageAudioAnalysis | null>(null);
-  let loading = $state(true);
-  let error = $state<string | null>(null);
+	let analysis = $state<MessageAudioAnalysis | null>(null);
+	let loading = $state(true);
+	let error = $state<string | null>(null);
 
-  async function loadAnalysis() {
-    try {
-      const response = await fetch(`/api/analysis/pronunciation/${messageId}`);
-      if (!response.ok) throw new Error('Failed to load analysis');
-      analysis = await response.json();
-    } catch (err) {
-      error = err instanceof Error ? err.message : 'Unknown error';
-    } finally {
-      loading = false;
-    }
-  }
+	async function loadAnalysis() {
+		try {
+			const response = await fetch(`/api/analysis/pronunciation/${messageId}`);
+			if (!response.ok) throw new Error('Failed to load analysis');
+			analysis = await response.json();
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'Unknown error';
+		} finally {
+			loading = false;
+		}
+	}
 
-  $effect(() => {
-    loadAnalysis();
-  });
+	$effect(() => {
+		loadAnalysis();
+	});
 </script>
 
 {#if loading}
-  <div class="flex items-center gap-2">
-    <span class="loading loading-spinner loading-sm"></span>
-    <span class="text-sm">Analyzing pronunciation...</span>
-  </div>
+	<div class="flex items-center gap-2">
+		<span class="loading loading-sm loading-spinner"></span>
+		<span class="text-sm">Analyzing pronunciation...</span>
+	</div>
 {:else if error}
-  <div class="alert alert-error">
-    <span>Failed to load analysis: {error}</span>
-  </div>
+	<div class="alert alert-error">
+		<span>Failed to load analysis: {error}</span>
+	</div>
 {:else if analysis}
-  <div class="card bg-base-200 p-4 space-y-4">
-    <!-- Overall Scores -->
-    <div class="grid grid-cols-2 gap-4">
-      <div class="stat bg-base-100 rounded-lg p-3">
-        <div class="stat-title text-xs">Accuracy</div>
-        <div class="stat-value text-2xl">{analysis.overallAccuracyScore}%</div>
-        <div class="stat-desc">
-          {#if analysis.overallAccuracyScore >= 80}
-            Great pronunciation!
-          {:else if analysis.overallAccuracyScore >= 60}
-            Good effort, keep practicing
-          {:else}
-            Needs improvement
-          {/if}
-        </div>
-      </div>
+	<div class="card space-y-4 bg-base-200 p-4">
+		<!-- Overall Scores -->
+		<div class="grid grid-cols-2 gap-4">
+			<div class="stat rounded-lg bg-base-100 p-3">
+				<div class="stat-title text-xs">Accuracy</div>
+				<div class="stat-value text-2xl">{analysis.overallAccuracyScore}%</div>
+				<div class="stat-desc">
+					{#if analysis.overallAccuracyScore >= 80}
+						Great pronunciation!
+					{:else if analysis.overallAccuracyScore >= 60}
+						Good effort, keep practicing
+					{:else}
+						Needs improvement
+					{/if}
+				</div>
+			</div>
 
-      <div class="stat bg-base-100 rounded-lg p-3">
-        <div class="stat-title text-xs">Fluency</div>
-        <div class="stat-value text-2xl">{analysis.overallFluencyScore}%</div>
-        <div class="stat-desc">
-          {analysis.pauseCount} pauses, {analysis.hesitationCount} hesitations
-        </div>
-      </div>
-    </div>
+			<div class="stat rounded-lg bg-base-100 p-3">
+				<div class="stat-title text-xs">Fluency</div>
+				<div class="stat-value text-2xl">{analysis.overallFluencyScore}%</div>
+				<div class="stat-desc">
+					{analysis.pauseCount} pauses, {analysis.hesitationCount} hesitations
+				</div>
+			</div>
+		</div>
 
-    <!-- Speech Rate -->
-    <div class="bg-base-100 rounded-lg p-3">
-      <h4 class="font-semibold text-sm mb-2">Speech Rate</h4>
-      <p class="text-xs mb-1">{analysis.speechRateWpm} words/minute</p>
-      <progress
-        class="progress progress-primary w-full h-2"
-        value={analysis.speechRateWpm}
-        max="200"
-      ></progress>
-      <p class="text-xs text-base-content/60 mt-1">
-        {#if analysis.speechRateWpm < 100}
-          Try speaking a bit faster
-        {:else if analysis.speechRateWpm > 180}
-          Slow down for better clarity
-        {:else}
-          Good pace!
-        {/if}
-      </p>
-    </div>
+		<!-- Speech Rate -->
+		<div class="rounded-lg bg-base-100 p-3">
+			<h4 class="mb-2 text-sm font-semibold">Speech Rate</h4>
+			<p class="mb-1 text-xs">{analysis.speechRateWpm} words/minute</p>
+			<progress
+				class="progress h-2 w-full progress-primary"
+				value={analysis.speechRateWpm}
+				max="200"
+			></progress>
+			<p class="mt-1 text-xs text-base-content/60">
+				{#if analysis.speechRateWpm < 100}
+					Try speaking a bit faster
+				{:else if analysis.speechRateWpm > 180}
+					Slow down for better clarity
+				{:else}
+					Good pace!
+				{/if}
+			</p>
+		</div>
 
-    <!-- Problematic Words -->
-    {#if analysis.problematicWords && (analysis.problematicWords as any).length > 0}
-      <div class="bg-base-100 rounded-lg p-3">
-        <h4 class="font-semibold text-sm mb-2">
-          Words to Practice ({(analysis.problematicWords as any).length})
-        </h4>
-        <div class="flex flex-wrap gap-2">
-          {#each (analysis.problematicWords as any) as word}
-            <span class="badge badge-warning badge-sm">{word.word}</span>
-          {/each}
-        </div>
-      </div>
-    {/if}
+		<!-- Problematic Words -->
+		{#if analysis.problematicWords && (analysis.problematicWords as any).length > 0}
+			<div class="rounded-lg bg-base-100 p-3">
+				<h4 class="mb-2 text-sm font-semibold">
+					Words to Practice ({(analysis.problematicWords as any).length})
+				</h4>
+				<div class="flex flex-wrap gap-2">
+					{#each analysis.problematicWords as any as word}
+						<span class="badge badge-sm badge-warning">{word.word}</span>
+					{/each}
+				</div>
+			</div>
+		{/if}
 
-    <!-- Recommendations -->
-    {#if analysis.recommendations && (analysis.recommendations as any).length > 0}
-      <div class="bg-base-100 rounded-lg p-3">
-        <h4 class="font-semibold text-sm mb-2">Recommendations</h4>
-        <ul class="list-disc list-inside space-y-1 text-xs">
-          {#each (analysis.recommendations as any) as rec}
-            <li>{rec}</li>
-          {/each}
-        </ul>
-      </div>
-    {/if}
-  </div>
+		<!-- Recommendations -->
+		{#if analysis.recommendations && (analysis.recommendations as any).length > 0}
+			<div class="rounded-lg bg-base-100 p-3">
+				<h4 class="mb-2 text-sm font-semibold">Recommendations</h4>
+				<ul class="list-inside list-disc space-y-1 text-xs">
+					{#each analysis.recommendations as any as rec}
+						<li>{rec}</li>
+					{/each}
+				</ul>
+			</div>
+		{/if}
+	</div>
 {/if}
 ```
 
@@ -962,21 +971,21 @@ import type { RequestHandler } from './$types';
 import { messageAudioAnalysisRepository } from '$lib/server/repositories/message-audio-analysis.repository';
 
 export const GET: RequestHandler = async ({ params }) => {
-  try {
-    const analysis = await messageAudioAnalysisRepository.getByMessageId(params.messageId);
+	try {
+		const analysis = await messageAudioAnalysisRepository.getByMessageId(params.messageId);
 
-    if (!analysis) {
-      return json({ error: 'Analysis not found' }, { status: 404 });
-    }
+		if (!analysis) {
+			return json({ error: 'Analysis not found' }, { status: 404 });
+		}
 
-    return json(analysis);
-  } catch (error) {
-    console.error('Failed to fetch analysis:', error);
-    return json(
-      { error: error instanceof Error ? error.message : 'Failed to fetch analysis' },
-      { status: 500 }
-    );
-  }
+		return json(analysis);
+	} catch (error) {
+		console.error('Failed to fetch analysis:', error);
+		return json(
+			{ error: error instanceof Error ? error.message : 'Failed to fetch analysis' },
+			{ status: 500 }
+		);
+	}
 };
 ```
 
@@ -1024,10 +1033,12 @@ psql "$DATABASE_URL" -c "SELECT message_id, overall_accuracy_score, overall_flue
 ### Memory Requirements
 
 Echogarden requires significant memory:
+
 - **Minimum:** 1GB RAM
 - **Recommended:** 2GB RAM for better performance
 
 Update `fly.toml`:
+
 ```toml
 [[vm]]
   memory_mb = 2048
@@ -1042,11 +1053,13 @@ Update `fly.toml`:
 ### Cost Management
 
 **Storage (Tigris):**
+
 - ~$0.02/GB storage
 - ~$0.09/GB transfer
 - Average: ~1-5MB per minute of audio
 
 **Compute (Fly.io):**
+
 - ~$0.02/hour for 2GB VM
 - Analysis is CPU-intensive
 
@@ -1067,6 +1080,7 @@ Update `fly.toml`:
 ### Common Issues
 
 #### 1. "Echogarden not found"
+
 ```bash
 npm install echogarden
 # If fails:
@@ -1074,21 +1088,25 @@ npm install echogarden --legacy-peer-deps
 ```
 
 #### 2. "Out of memory" during analysis
+
 - Upgrade VM memory: `fly scale memory 2048`
 - Use smaller Echogarden model: `model: 'tiny'`
 - Process fewer messages at once
 
 #### 3. "Audio download fails"
+
 - Check Tigris credentials: `fly secrets list`
 - Verify bucket exists: `fly storage list`
 - Check signed URL hasn't expired
 
 #### 4. "Analysis takes too long"
+
 - Process smaller audio chunks
 - Use simpler alignment engine
 - Increase timeout limits
 
 #### 5. "UI doesn't show results"
+
 - Check `audio_processing_state = 'analyzed'` in database
 - Verify `message_audio_analysis` record exists
 - Check browser console for errors

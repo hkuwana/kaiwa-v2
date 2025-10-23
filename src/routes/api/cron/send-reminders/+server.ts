@@ -35,7 +35,11 @@ export const GET = async ({ request, url }) => {
 		}
 
 		const dryRun = url.searchParams.get('dryRun') === 'true';
-		const testEmails = url.searchParams.get('testEmails')?.split(',').map(e => e.trim()) || null;
+		const testEmails =
+			url.searchParams
+				.get('testEmails')
+				?.split(',')
+				.map((e) => e.trim()) || null;
 		console.log('✅ Authorized, dryRun:', dryRun, 'testEmails:', testEmails);
 
 		// Get all users eligible for daily reminders based on database preferences
@@ -52,7 +56,7 @@ export const GET = async ({ request, url }) => {
 		// Filter to test emails only if provided
 		if (testEmails && testEmails.length > 0) {
 			console.log(`🧪 TEST MODE: Filtering to only emails: ${testEmails.join(', ')}`);
-			usersToRemind = usersToRemind.filter(u => testEmails.includes(u.email));
+			usersToRemind = usersToRemind.filter((u) => testEmails.includes(u.email));
 			console.log(`🧪 Filtered to ${usersToRemind.length} test users`);
 		}
 
@@ -61,10 +65,16 @@ export const GET = async ({ request, url }) => {
 		// Segment users by activity level
 		console.log('🔄 Segmenting users...');
 		const segmented = await segmentUsers(usersToRemind);
-		console.log('✅ Users segmented:', Object.keys(segmented).reduce((acc, key) => ({
-			...acc,
-			[key]: segmented[key as keyof typeof segmented].length
-		}), {}));
+		console.log(
+			'✅ Users segmented:',
+			Object.keys(segmented).reduce(
+				(acc, key) => ({
+					...acc,
+					[key]: segmented[key as keyof typeof segmented].length
+				}),
+				{}
+			)
+		);
 
 		let sent = 0;
 		let skipped = 0;
@@ -309,11 +319,16 @@ async function sendCronSummaryEmail(stats: any): Promise<void> {
 									? `
 							<h3>Inactive Users Sent (First 50):</h3>
 							<div class="stat" style="max-height: 300px; overflow-y: auto; font-size: 13px;">
-								${stats.emailsSent
-									.filter((e: any) => e.segment !== 'recentActive' && e.segment !== 'newUsers')
-									.slice(0, 50)
-									.map((e: any) => `<div style="padding: 4px 0;">${e.email} <span style="color: #666;">(${e.segment})</span></div>`)
-									.join('') || '<em>No inactive users</em>'}
+								${
+									stats.emailsSent
+										.filter((e: any) => e.segment !== 'recentActive' && e.segment !== 'newUsers')
+										.slice(0, 50)
+										.map(
+											(e: any) =>
+												`<div style="padding: 4px 0;">${e.email} <span style="color: #666;">(${e.segment})</span></div>`
+										)
+										.join('') || '<em>No inactive users</em>'
+								}
 							</div>
 							`
 									: ''

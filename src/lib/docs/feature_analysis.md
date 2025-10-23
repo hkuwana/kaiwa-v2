@@ -49,18 +49,21 @@ The logbook tracks learner progress in a structured way:
 ### Core Capabilities
 
 **Pronunciation Analysis**
+
 - Word-level accuracy scoring (0-100)
 - Phoneme-level feedback with IPA transcription
 - Language-specific pronunciation patterns
 - Real-time confidence indicators
 
 **Advanced Features**
+
 - Multi-language support (8+ languages)
 - Spectrogram visualization (future)
 - Formant analysis for vowel quality
 - Accent reduction training modules
 
 **User Experience**
+
 - Clickable words with detailed feedback
 - Visual timeline with timing indicators
 - Personalized practice recommendations
@@ -74,6 +77,7 @@ The logbook tracks learner progress in a structured way:
 **Database**: Optimized schemas for performance
 
 For detailed technical implementation, see:
+
 - [Phonetics Feedback Features](./PHONETICS_FEEDBACK_FEATURES.md)
 - [Speech Analysis Guide](./SPEECH_ANALYSIS_GUIDE.md)
 - [Audio Schema Migration](./AUDIO_SCHEMA_MIGRATION_GUIDE.md)

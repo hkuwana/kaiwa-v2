@@ -158,7 +158,7 @@ export function replaceUserPlaceholderWithFinal(
 		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
 		// Keep original timestamp and sequenceId to maintain chronological order
 		timestamp: placeholder.timestamp,
-		sequenceId: placeholder.sequenceId || generateSequenceId(),
+		sequenceId: placeholder.sequenceId || generateSequenceId()
 	};
 
 	// Replace placeholder in-place to maintain chronological order
@@ -324,7 +324,7 @@ export function finalizeStreamingMessage(messages: Message[], finalText: string)
 		...updatedMessages[streamingMessageIndex],
 		content: sanitized,
 		id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-		timestamp: new SvelteDate(),
+		timestamp: new SvelteDate()
 	};
 	return removeDuplicateMessages(sortMessagesBySequence(updatedMessages));
 }

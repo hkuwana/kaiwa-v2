@@ -163,7 +163,8 @@
 		<div
 			class="rounded-lg border border-dashed border-base-300 py-12 text-center text-base-content/50"
 		>
-			<span class="icon-[mdi--message-text-outline] mx-auto mb-4 h-12 w-12 text-base-content/30"></span>
+			<span class="mx-auto mb-4 icon-[mdi--message-text-outline] h-12 w-12 text-base-content/30"
+			></span>
 			<p class="text-sm">No messages to display</p>
 		</div>
 	{/if}

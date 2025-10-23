@@ -98,7 +98,8 @@
 				if (isCountryRestrictionError()) {
 					return {
 						title: 'Service Not Available',
-						message: 'Not available in your location (OpenAI services are restricted in your country/region)',
+						message:
+							'Not available in your location (OpenAI services are restricted in your country/region)',
 						color: 'text-error',
 						bgColor: 'bg-error/10',
 						borderColor: 'border-error/20'
@@ -240,7 +241,7 @@
 						<!-- Country Restriction Error Actions -->
 						<div class="space-y-3">
 							<div class="alert alert-warning">
-								<span class="icon-[mdi--alert-triangle] h-6 w-6 shrink-0 stroke-current"></span>
+								<span class="h-6 w-6 shrink-0 stroke-current icon-[mdi--alert-triangle]"></span>
 								<span class="font-medium">Location Restriction</span>
 							</div>
 							<div class="space-y-2 text-sm text-gray-600">

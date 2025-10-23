@@ -27,7 +27,8 @@ const registry: Record<AnalysisModuleId, AnalysisModuleDefinition> = {
 	'grammar-suggestions': {
 		id: 'grammar-suggestions',
 		label: 'Grammar & Language Suggestions',
-		description: 'POST-SESSION analysis: grammar corrections, advanced patterns, and phrase suggestions',
+		description:
+			'POST-SESSION analysis: grammar corrections, advanced patterns, and phrase suggestions',
 		modality: 'text',
 		run: async ({ messages, languageCode }: AnalysisModuleContext) => {
 			const userMessages = messages.filter((m) => m.role === 'user');

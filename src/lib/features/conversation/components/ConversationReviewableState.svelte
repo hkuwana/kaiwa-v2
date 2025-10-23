@@ -260,7 +260,7 @@
 		{#if quotaStatus && quotaStatus.quotaExceeded}
 			<div class="mb-4 rounded-xl border border-warning/20 bg-warning/10 p-4 text-center md:mb-6">
 				<div class="mb-2 flex justify-center">
-					<span class="icon-[mdi--alert-triangle] h-6 w-6 text-warning"></span>
+					<span class="h-6 w-6 text-warning icon-[mdi--alert-triangle]"></span>
 				</div>
 				<h3 class="mb-1 font-semibold text-warning">Analysis Limit Reached</h3>
 				<p class="mb-3 text-sm text-base-content/70">
@@ -349,7 +349,7 @@
 				<div class="mb-4 flex flex-col items-start justify-between sm:flex-row sm:items-center">
 					<h2 class="mb-2 text-lg font-semibold sm:mb-0 md:text-xl">Conversation Insights</h2>
 					<button class="btn btn-sm btn-secondary" onclick={handleShowDeeperAnalytics}>
-						<span class="icon-[mdi--chart-bar] mr-1 h-4 w-4"></span>
+						<span class="mr-1 icon-[mdi--chart-bar] h-4 w-4"></span>
 						{showDeeperAnalytics ? 'Hide' : 'Show'} Deeper Analytics
 					</button>
 				</div>
@@ -421,7 +421,7 @@
 		<div id="section-conversation" class="mb-6 rounded-xl bg-base-100 p-4 shadow-lg md:mb-8 md:p-6">
 			<h2 class="mb-4 flex items-center justify-between text-lg font-semibold md:mb-6 md:text-xl">
 				<div class="flex items-center">
-					<span class="icon-[mdi--message-text] mr-2 h-5 w-5 text-primary"></span>
+					<span class="mr-2 icon-[mdi--message-text] h-5 w-5 text-primary"></span>
 					Your Conversation
 				</div>
 				<button
@@ -454,7 +454,7 @@
 			{:else if showAnalysisResults && analysisResults}
 				<div class="rounded-xl bg-base-100 p-4 shadow-lg md:p-6">
 					<h2 class="mb-4 flex items-center text-lg font-semibold md:text-xl">
-						<span class="icon-[mdi--check-circle] mr-2 h-5 w-5 text-success"></span>
+						<span class="mr-2 icon-[mdi--check-circle] h-5 w-5 text-success"></span>
 						Your Learning Analysis
 					</h2>
 					<OnboardingResults

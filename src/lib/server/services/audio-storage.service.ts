@@ -5,7 +5,12 @@
  * Supports both Tigris (Fly.io native) and AWS S3.
  */
 
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import {
+	S3Client,
+	PutObjectCommand,
+	GetObjectCommand,
+	DeleteObjectCommand
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { env } from '$env/dynamic/private';
 
@@ -65,7 +70,14 @@ class AudioStorageService {
 	 * Upload audio file to object storage
 	 */
 	async uploadAudio(options: AudioUploadOptions): Promise<AudioUploadResult> {
-		const { userId, conversationId, messageId, audioBuffer, mimeType = 'audio/wav', metadata = {} } = options;
+		const {
+			userId,
+			conversationId,
+			messageId,
+			audioBuffer,
+			mimeType = 'audio/wav',
+			metadata = {}
+		} = options;
 
 		// Generate storage key with organized path structure
 		const timestamp = Date.now();
@@ -104,7 +116,9 @@ class AudioStorageService {
 			};
 		} catch (error) {
 			console.error('Failed to upload audio to storage:', error);
-			throw new Error(`Audio upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			throw new Error(
+				`Audio upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		}
 	}
 
@@ -124,7 +138,9 @@ class AudioStorageService {
 			return signedUrl;
 		} catch (error) {
 			console.error('Failed to generate signed URL:', error);
-			throw new Error(`Signed URL generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			throw new Error(
+				`Signed URL generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		}
 	}
 
@@ -155,7 +171,9 @@ class AudioStorageService {
 			return Buffer.concat(chunks);
 		} catch (error) {
 			console.error('Failed to download audio from storage:', error);
-			throw new Error(`Audio download failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			throw new Error(
+				`Audio download failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		}
 	}
 
@@ -173,7 +191,9 @@ class AudioStorageService {
 			console.log(`✅ Deleted audio file: ${storageKey}`);
 		} catch (error) {
 			console.error('Failed to delete audio from storage:', error);
-			throw new Error(`Audio deletion failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			throw new Error(
+				`Audio deletion failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		}
 	}
 

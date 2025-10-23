@@ -11,6 +11,7 @@ Your cron setup was missing the `CRON_SECRET` environment variable, which is req
 ### 1. Generated Secure CRON_SECRET
 
 Created a cryptographically secure secret:
+
 ```
 ymTO1zoqAW8FMQKjyJU165EPG4vtJNwNFEelpRkQGJw=
 ```
@@ -29,6 +30,7 @@ Fixed the [test-cron-remote.sh](scripts/test-cron-remote.sh) script to work on m
 ### 4. Verified Cron Endpoints
 
 Confirmed both cron endpoints use consistent authentication:
+
 - [/api/cron/send-reminders](src/routes/api/cron/send-reminders/+server.ts)
 - [/api/cron/founder-emails](src/routes/api/cron/founder-emails/+server.ts)
 
@@ -41,6 +43,7 @@ Confirmed both cron endpoints use consistent authentication:
 Your production app needs the same `CRON_SECRET`. You have two options:
 
 #### Option A: Use Fly.io Dashboard (Recommended)
+
 1. Go to https://fly.io/dashboard
 2. Find your app (likely named "kaiwa")
 3. Navigate to "Secrets" tab
@@ -51,6 +54,7 @@ Your production app needs the same `CRON_SECRET`. You have two options:
 5. Save the secret
 
 #### Option B: Use Fly CLI (If you have access)
+
 ```bash
 fly secrets set CRON_SECRET='ymTO1zoqAW8FMQKjyJU165EPG4vtJNwNFEelpRkQGJw='
 ```
@@ -65,6 +69,7 @@ pnpm cron:test:remote
 ```
 
 **Expected Result:**
+
 ```
 ✅ Status: 200 OK
 ```
@@ -76,6 +81,7 @@ If you still get 401, the Fly.io secret wasn't updated correctly.
 If you want to test locally during development:
 
 1. Start your dev server:
+
    ```bash
    pnpm dev
    ```
@@ -100,7 +106,7 @@ const authHeader = request.headers.get('authorization');
 const expectedAuth = `Bearer ${env.CRON_SECRET || 'development_secret'}`;
 
 if (authHeader !== expectedAuth) {
-  return json({ error: 'Unauthorized' }, { status: 401 });
+	return json({ error: 'Unauthorized' }, { status: 401 });
 }
 ```
 
@@ -151,12 +157,14 @@ fly apps list
 ## Quick Reference
 
 ### Test Remote Endpoints
+
 ```bash
 export CRON_SECRET='ymTO1zoqAW8FMQKjyJU165EPG4vtJNwNFEelpRkQGJw='
 pnpm cron:test:remote
 ```
 
 ### Test Local Endpoints
+
 ```bash
 # Start dev server first
 pnpm dev
@@ -168,11 +176,13 @@ curl -H "Authorization: Bearer $CRON_SECRET" \
 ```
 
 ### View Fly.io Secrets
+
 ```bash
 fly secrets list
 ```
 
 ### Set Fly.io Secret
+
 ```bash
 fly secrets set CRON_SECRET='ymTO1zoqAW8FMQKjyJU165EPG4vtJNwNFEelpRkQGJw='
 ```

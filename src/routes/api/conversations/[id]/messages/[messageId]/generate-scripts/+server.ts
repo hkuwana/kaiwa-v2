@@ -99,9 +99,7 @@ async function processChineseTextDirect(text: string): Promise<{
 		const pinyinWithTonesStr = Array.isArray(pinyinWithTones)
 			? pinyinWithTones.join(' ')
 			: String(pinyinWithTones);
-		const pinyinPlainStr = Array.isArray(pinyinPlain)
-			? pinyinPlain.join(' ')
-			: String(pinyinPlain);
+		const pinyinPlainStr = Array.isArray(pinyinPlain) ? pinyinPlain.join(' ') : String(pinyinPlain);
 
 		// Generate ruby HTML markup for display (character-by-character)
 		const characters = text.split('');

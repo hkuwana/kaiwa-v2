@@ -8,14 +8,15 @@ Automated tasks that run on a schedule via Fly.io scheduled machines.
 
 ### Available Cron Jobs
 
-| Script | Purpose | Schedule | Command |
-|--------|---------|----------|---------|
-| `send-reminders.ts` | Daily practice reminder emails | 9am UTC daily | `pnpm cron:reminders` |
+| Script                   | Purpose                        | Schedule      | Command                    |
+| ------------------------ | ------------------------------ | ------------- | -------------------------- |
+| `send-reminders.ts`      | Daily practice reminder emails | 9am UTC daily | `pnpm cron:reminders`      |
 | `send-founder-emails.ts` | Founder email sequence (3-day) | 2pm UTC daily | `pnpm cron:founder-emails` |
 
 ### Quick Start
 
 **1. Test locally**
+
 ```bash
 # Test daily reminders
 pnpm cron:reminders
@@ -25,6 +26,7 @@ pnpm cron:founder-emails
 ```
 
 **2. Deploy to production**
+
 ```bash
 # Deploy all cron jobs to Fly.io
 pnpm cron:deploy
@@ -34,6 +36,7 @@ pnpm cron:deploy
 ```
 
 **3. Verify deployment**
+
 ```bash
 # List all machines (including cron jobs)
 fly machines list
@@ -45,6 +48,7 @@ fly logs | grep "cron-"
 ### Architecture
 
 Cron jobs run as **separate Fly.io machines**, not HTTP endpoints. This provides:
+
 - ✅ Better isolation
 - ✅ More reliable scheduling
 - ✅ Easier debugging
@@ -56,11 +60,11 @@ See the unified operator guide at [../src/lib/docs/cron-architecture-unified.md]
 
 ## 🗄️ Database Scripts
 
-| Script | Purpose | Command |
-|--------|---------|---------|
-| `db-health.ts` | Check database connection | `pnpm db:health` |
-| `run-migration.ts` | Run custom migrations | `pnpm db:run-custom-migration` |
-| `run-smoke-tests.ts` | Run smoke tests | `pnpm smoke:test:all` |
+| Script               | Purpose                   | Command                        |
+| -------------------- | ------------------------- | ------------------------------ |
+| `db-health.ts`       | Check database connection | `pnpm db:health`               |
+| `run-migration.ts`   | Run custom migrations     | `pnpm db:run-custom-migration` |
+| `run-smoke-tests.ts` | Run smoke tests           | `pnpm smoke:test:all`          |
 
 ---
 
@@ -113,6 +117,7 @@ pnpm cron:reminders
 ## 🔐 Security Notes
 
 All cron jobs:
+
 - ✅ Run in isolated Fly.io machines
 - ✅ Access same environment variables as main app
 - ✅ No public HTTP exposure

@@ -5,6 +5,7 @@
 > **Date:** 2025-10-13
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Schema Changes](#schema-changes)
 - [Migration Status](#migration-status)
@@ -27,6 +28,7 @@ Successfully enhanced the messages schema to support comprehensive audio storage
 ✅ **Analytics** - Rich speech metrics and progress tracking
 
 ### Cost Estimate
+
 ~$0.99-$1.65/month for 100 active users with retention policies
 
 ---
@@ -36,40 +38,46 @@ Successfully enhanced the messages schema to support comprehensive audio storage
 ### 1. Messages Table - New Fields (14 total)
 
 #### Audio Storage Metadata
-| Field | Type | Description |
-|-------|------|-------------|
-| `audio_url` | text | Signed URL for audio access (expires) |
-| `audio_url_expires_at` | timestamp | When signed URL expires (7 days TTL) |
-| `audio_storage_key` | text | Permanent S3/Tigris key |
-| `audio_duration_ms` | **integer** | Duration in milliseconds (was text) |
-| `audio_size_bytes` | integer | File size for cost tracking |
-| `audio_format` | text | Audio codec (pcm16, wav, mp3, etc.) |
-| `audio_sample_rate` | integer | Sample rate in Hz (default: 24000) |
-| `audio_channels` | integer | Mono/stereo (default: 1) |
+
+| Field                  | Type        | Description                           |
+| ---------------------- | ----------- | ------------------------------------- |
+| `audio_url`            | text        | Signed URL for audio access (expires) |
+| `audio_url_expires_at` | timestamp   | When signed URL expires (7 days TTL)  |
+| `audio_storage_key`    | text        | Permanent S3/Tigris key               |
+| `audio_duration_ms`    | **integer** | Duration in milliseconds (was text)   |
+| `audio_size_bytes`     | integer     | File size for cost tracking           |
+| `audio_format`         | text        | Audio codec (pcm16, wav, mp3, etc.)   |
+| `audio_sample_rate`    | integer     | Sample rate in Hz (default: 24000)    |
+| `audio_channels`       | integer     | Mono/stereo (default: 1)              |
 
 #### Audio Processing State
-| Field | Type | Description |
-|-------|------|-------------|
+
+| Field                    | Type | Description                                                                                 |
+| ------------------------ | ---- | ------------------------------------------------------------------------------------------- |
 | `audio_processing_state` | text | Pipeline state: `pending` → `uploading` → `uploaded` → `analyzing` → `analyzed` \| `failed` |
-| `audio_processing_error` | text | Error details if processing fails |
+| `audio_processing_error` | text | Error details if processing fails                                                           |
 
 #### Audio Retention Policy
-| Field | Type | Description |
-|-------|------|-------------|
+
+| Field                        | Type      | Description                                |
+| ---------------------------- | --------- | ------------------------------------------ |
 | `audio_retention_expires_at` | timestamp | When to delete audio (30-365 days by tier) |
-| `audio_deleted_at` | timestamp | Audit trail of deletion |
+| `audio_deleted_at`           | timestamp | Audit trail of deletion                    |
 
 #### Speech Analysis Scores
-| Field | Type | Description |
-|-------|------|-------------|
+
+| Field                 | Type        | Description                            |
+| --------------------- | ----------- | -------------------------------------- |
 | `pronunciation_score` | **integer** | 0-100 pronunciation quality (was text) |
-| `fluency_score` | integer | 0-100 fluency rating |
-| `speech_rate_wpm` | integer | Words per minute |
+| `fluency_score`       | integer     | 0-100 fluency rating                   |
+| `speech_rate_wpm`     | integer     | Words per minute                       |
 
 #### Removed Fields
+
 - ❌ `speech_timings` (jsonb) - Moved to `message_audio_analysis` table
 
 #### New Indexes
+
 ```sql
 CREATE INDEX messages_audio_storage_idx ON messages (audio_storage_key);
 CREATE INDEX messages_audio_processing_idx ON messages (audio_processing_state);
@@ -83,6 +91,7 @@ CREATE INDEX messages_audio_cleanup_idx ON messages (audio_retention_expires_at,
 **Purpose:** Stores detailed speech analysis results separately for performance
 
 **Design Rationale:**
+
 - One-to-one relationship with messages
 - Loaded on-demand (not with every message query)
 - Can be re-analyzed without modifying core message data
@@ -92,31 +101,31 @@ CREATE INDEX messages_audio_cleanup_idx ON messages (audio_retention_expires_at,
 
 ```typescript
 {
-  // Identity
-  id: uuid                     // Primary key
-  message_id: text             // Foreign key to messages.id (unique, cascade delete)
-  analyzed_at: timestamp       // When analysis was performed
-  analysis_version: text       // Algorithm version (default: '1.0')
+	// Identity
+	id: uuid; // Primary key
+	message_id: text; // Foreign key to messages.id (unique, cascade delete)
+	analyzed_at: timestamp; // When analysis was performed
+	analysis_version: text; // Algorithm version (default: '1.0')
 
-  // Overall Scores
-  overall_accuracy_score: integer      // 0-100 pronunciation accuracy
-  overall_fluency_score: integer       // 0-100 fluency rating
+	// Overall Scores
+	overall_accuracy_score: integer; // 0-100 pronunciation accuracy
+	overall_fluency_score: integer; // 0-100 fluency rating
 
-  // Speech Rate Metrics
-  speech_rate_wpm: integer             // Words per minute (including pauses)
-  articulation_rate_wpm: integer       // Words per minute (excluding pauses)
-  total_speech_duration_ms: integer    // Total speaking time
-  total_pause_duration_ms: integer     // Total pause time
+	// Speech Rate Metrics
+	speech_rate_wpm: integer; // Words per minute (including pauses)
+	articulation_rate_wpm: integer; // Words per minute (excluding pauses)
+	total_speech_duration_ms: integer; // Total speaking time
+	total_pause_duration_ms: integer; // Total pause time
 
-  // Pause/Hesitation Analysis
-  pause_count: integer                 // Number of pauses detected
-  hesitation_count: integer            // Number of hesitations (um, uh, etc.)
-  average_pause_duration_ms: integer   // Average pause length
-  longest_pause_duration_ms: integer   // Longest pause
+	// Pause/Hesitation Analysis
+	pause_count: integer; // Number of pauses detected
+	hesitation_count: integer; // Number of hesitations (um, uh, etc.)
+	average_pause_duration_ms: integer; // Average pause length
+	longest_pause_duration_ms: integer; // Longest pause
 
-  // Detailed Timing Data (JSONB)
-  speech_timings: jsonb                // Word-level timings with confidence
-  /*
+	// Detailed Timing Data (JSONB)
+	speech_timings: jsonb; // Word-level timings with confidence
+	/*
     Array<{
       word: string
       startMs: number
@@ -129,8 +138,8 @@ CREATE INDEX messages_audio_cleanup_idx ON messages (audio_retention_expires_at,
     }>
   */
 
-  phoneme_analysis: jsonb              // Phoneme-level pronunciation scores
-  /*
+	phoneme_analysis: jsonb; // Phoneme-level pronunciation scores
+	/*
     Array<{
       phoneme: string            // IPA phoneme
       word: string
@@ -142,8 +151,8 @@ CREATE INDEX messages_audio_cleanup_idx ON messages (audio_retention_expires_at,
     }>
   */
 
-  problematic_words: jsonb             // Words needing practice
-  /*
+	problematic_words: jsonb; // Words needing practice
+	/*
     Array<{
       word: string
       issue: string
@@ -154,24 +163,25 @@ CREATE INDEX messages_audio_cleanup_idx ON messages (audio_retention_expires_at,
     }>
   */
 
-  recommendations: jsonb               // Actionable suggestions (string[])
-  practice_words: jsonb                // Words to focus on (string[])
+	recommendations: jsonb; // Actionable suggestions (string[])
+	practice_words: jsonb; // Words to focus on (string[])
 
-  // Raw Data (debugging/reprocessing)
-  raw_alignment: jsonb                 // Raw Echogarden alignment output
-  raw_features: jsonb                  // Additional features from analysis
+	// Raw Data (debugging/reprocessing)
+	raw_alignment: jsonb; // Raw Echogarden alignment output
+	raw_features: jsonb; // Additional features from analysis
 
-  // Analysis Metadata
-  analysis_engine: text                // Engine used (default: 'echogarden')
-  analysis_model_version: text         // Model version
-  analysis_language: text              // Language code
-  analysis_duration_ms: integer        // Processing time (performance monitoring)
-  analysis_error: text                 // Error message if failed
-  analysis_warnings: jsonb             // Non-fatal warnings (string[])
+	// Analysis Metadata
+	analysis_engine: text; // Engine used (default: 'echogarden')
+	analysis_model_version: text; // Model version
+	analysis_language: text; // Language code
+	analysis_duration_ms: integer; // Processing time (performance monitoring)
+	analysis_error: text; // Error message if failed
+	analysis_warnings: jsonb; // Non-fatal warnings (string[])
 }
 ```
 
 **Indexes:**
+
 ```sql
 CREATE INDEX message_audio_analysis_message_id_idx ON message_audio_analysis (message_id);
 CREATE INDEX message_audio_analysis_analyzed_at_idx ON message_audio_analysis (analyzed_at);
@@ -182,6 +192,7 @@ CREATE INDEX message_audio_analysis_language_idx ON message_audio_analysis (anal
 ```
 
 **Constraints:**
+
 - Primary key: `id` (uuid)
 - Unique: `message_id`
 - Foreign key: `message_id` → `messages.id` (CASCADE DELETE)
@@ -191,6 +202,7 @@ CREATE INDEX message_audio_analysis_language_idx ON message_audio_analysis (anal
 **File:** `src/lib/server/config/audio-retention.config.ts`
 
 #### Retention Periods by Tier
+
 ```typescript
 {
   free: 30,      // 1 month
@@ -202,10 +214,12 @@ CREATE INDEX message_audio_analysis_language_idx ON message_audio_analysis (anal
 ```
 
 #### Signed URL TTL
+
 - **All tiers:** 7 days
 - Automatically regenerated on-demand when expired
 
 #### Cleanup Configuration
+
 ```typescript
 {
   schedule: '0 3 * * *',    // Daily at 3 AM UTC
@@ -217,6 +231,7 @@ CREATE INDEX message_audio_analysis_language_idx ON message_audio_analysis (anal
 ```
 
 #### Cost Monitoring
+
 ```typescript
 {
   storageAlertThresholdGb: 50,       // Alert at 50 GB
@@ -227,6 +242,7 @@ CREATE INDEX message_audio_analysis_language_idx ON message_audio_analysis (anal
 ```
 
 #### Helper Functions
+
 ```typescript
 getRetentionPeriodDays(tier: UserTier): number
 calculateAudioRetentionExpiry(tier: UserTier, createdAt?: Date): Date
@@ -243,21 +259,25 @@ estimateStorageCost(totalSizeBytes: number, retentionDays: number): number
 ### ✅ Verification Results
 
 #### Database Schema
+
 - ✅ **messages** table: 14 new audio fields (all correct types)
 - ✅ **message_audio_analysis** table: 27 columns created
 - ✅ All indexes created (10 total: 4 on messages, 6 on analysis)
 - ✅ Foreign key constraint with CASCADE DELETE working
 
 #### Type Safety
+
 - ✅ TypeScript types generated and exported
 - ✅ `MessageAudioAnalysis` type available
 - ✅ Helper types: `SpeechTiming`, `PhonemeAnalysis`, `ProblematicWord`
 
 #### Repositories
+
 - ✅ `message-audio-analysis.repository.ts` created with CRUD operations
 - ✅ Type-safe database operations ready
 
 #### Migration Tracking
+
 ```sql
 -- Migration 0023_round_gateway is properly tracked
 SELECT id, hash, created_at FROM drizzle.__drizzle_migrations WHERE id = 47;
@@ -272,21 +292,26 @@ SELECT id, hash, created_at FROM drizzle.__drizzle_migrations WHERE id = 47;
 ### Files Created/Modified
 
 **Schema:**
+
 - ✏️ `src/lib/server/db/schema/messages.ts` - Enhanced with audio fields
 - ✨ `src/lib/server/db/schema/message-audio-analysis.ts` - New table
 - ✏️ `src/lib/server/db/schema/index.ts` - Exports updated
 - ✏️ `src/lib/server/db/types.ts` - Types added
 
 **Repositories:**
+
 - ✨ `src/lib/server/repositories/message-audio-analysis.repository.ts`
 
 **Configuration:**
+
 - ✨ `src/lib/server/config/audio-retention.config.ts`
 
 **Scripts:**
+
 - ✨ `scripts/fix-migration-tracking.ts` - Migration tracking helper
 
 **Migration:**
+
 - ✅ `drizzle/0023_round_gateway.sql` - Applied successfully
 
 ---
@@ -298,31 +323,31 @@ SELECT id, hash, created_at FROM drizzle.__drizzle_migrations WHERE id = 47;
 ```typescript
 import { messagesRepository } from '$lib/server/repositories/messages.repository';
 import {
-  calculateAudioRetentionExpiry,
-  calculateSignedUrlExpiry
+	calculateAudioRetentionExpiry,
+	calculateSignedUrlExpiry
 } from '$lib/server/config/audio-retention.config';
 
 const message = await messagesRepository.createMessage({
-  id: messageId,
-  conversationId,
-  role: 'user',
-  content: "Hello world",
+	id: messageId,
+	conversationId,
+	role: 'user',
+	content: 'Hello world',
 
-  // Audio storage
-  audioUrl: signedUrl,
-  audioUrlExpiresAt: calculateSignedUrlExpiry(),
-  audioStorageKey: `audio/${userId}/${conversationId}/${messageId}.wav`,
-  audioDurationMs: 5000,              // 5 seconds
-  audioSizeBytes: 240000,             // ~240KB
-  audioFormat: 'pcm16',
-  audioSampleRate: 24000,
-  audioChannels: 1,
+	// Audio storage
+	audioUrl: signedUrl,
+	audioUrlExpiresAt: calculateSignedUrlExpiry(),
+	audioStorageKey: `audio/${userId}/${conversationId}/${messageId}.wav`,
+	audioDurationMs: 5000, // 5 seconds
+	audioSizeBytes: 240000, // ~240KB
+	audioFormat: 'pcm16',
+	audioSampleRate: 24000,
+	audioChannels: 1,
 
-  // Processing state
-  audioProcessingState: 'uploaded',
+	// Processing state
+	audioProcessingState: 'uploaded',
 
-  // Retention policy
-  audioRetentionExpiresAt: calculateAudioRetentionExpiry(userTier)
+	// Retention policy
+	audioRetentionExpiresAt: calculateAudioRetentionExpiry(userTier)
 });
 ```
 
@@ -332,64 +357,61 @@ const message = await messagesRepository.createMessage({
 import { messageAudioAnalysisRepository } from '$lib/server/repositories/message-audio-analysis.repository';
 
 const analysis = await messageAudioAnalysisRepository.createAnalysis({
-  messageId: message.id,
+	messageId: message.id,
 
-  // Overall scores
-  overallAccuracyScore: 85,
-  overallFluencyScore: 78,
+	// Overall scores
+	overallAccuracyScore: 85,
+	overallFluencyScore: 78,
 
-  // Speech rate
-  speechRateWpm: 145,
-  articulationRateWpm: 162,
+	// Speech rate
+	speechRateWpm: 145,
+	articulationRateWpm: 162,
 
-  // Pauses
-  pauseCount: 3,
-  hesitationCount: 1,
-  averagePauseDurationMs: 800,
+	// Pauses
+	pauseCount: 3,
+	hesitationCount: 1,
+	averagePauseDurationMs: 800,
 
-  // Detailed timings
-  speechTimings: [
-    {
-      word: "hello",
-      startMs: 0,
-      endMs: 500,
-      charStart: 0,
-      charEnd: 5,
-      confidence: 0.98
-    },
-    {
-      word: "world",
-      startMs: 600,
-      endMs: 1100,
-      charStart: 6,
-      charEnd: 11,
-      confidence: 0.95
-    }
-  ],
+	// Detailed timings
+	speechTimings: [
+		{
+			word: 'hello',
+			startMs: 0,
+			endMs: 500,
+			charStart: 0,
+			charEnd: 5,
+			confidence: 0.98
+		},
+		{
+			word: 'world',
+			startMs: 600,
+			endMs: 1100,
+			charStart: 6,
+			charEnd: 11,
+			confidence: 0.95
+		}
+	],
 
-  // Issues & recommendations
-  problematicWords: [
-    {
-      word: "world",
-      issue: "Slight mispronunciation of 'r' sound",
-      severity: "low",
-      startMs: 600,
-      endMs: 1100,
-      suggestion: "Practice the 'r' sound in isolation"
-    }
-  ],
+	// Issues & recommendations
+	problematicWords: [
+		{
+			word: 'world',
+			issue: "Slight mispronunciation of 'r' sound",
+			severity: 'low',
+			startMs: 600,
+			endMs: 1100,
+			suggestion: "Practice the 'r' sound in isolation"
+		}
+	],
 
-  recommendations: [
-    "Great overall fluency!",
-    "Practice the 'r' sound in 'world'"
-  ],
+	recommendations: ['Great overall fluency!', "Practice the 'r' sound in 'world'"],
 
-  practiceWords: ["world"],
+	practiceWords: ['world'],
 
-  // Metadata
-  analysisEngine: 'echogarden',
-  analysisLanguage: 'en',
-  analysisDurationMs: 2340
+	// Metadata
+	analysisEngine: 'echogarden',
+	analysisLanguage: 'en',
+	analysisDurationMs: 2340
 });
 ```
 
@@ -410,19 +432,22 @@ const summary = await messageAudioAnalysisRepository.getAnalysisSummary(messageI
 ### 4. Checking/Refreshing Signed URLs
 
 ```typescript
-import { needsSignedUrlRefresh, calculateSignedUrlExpiry } from '$lib/server/config/audio-retention.config';
+import {
+	needsSignedUrlRefresh,
+	calculateSignedUrlExpiry
+} from '$lib/server/config/audio-retention.config';
 import { audioStorageService } from '$lib/server/services/audio-storage.service';
 
 const message = await messagesRepository.getMessageById(messageId);
 
 if (needsSignedUrlRefresh(message.audioUrlExpiresAt)) {
-  // Regenerate signed URL from storage key
-  const newUrl = await audioStorageService.getSignedUrl(message.audioStorageKey);
+	// Regenerate signed URL from storage key
+	const newUrl = await audioStorageService.getSignedUrl(message.audioStorageKey);
 
-  await messagesRepository.updateMessage(messageId, {
-    audioUrl: newUrl,
-    audioUrlExpiresAt: calculateSignedUrlExpiry()
-  });
+	await messagesRepository.updateMessage(messageId, {
+		audioUrl: newUrl,
+		audioUrlExpiresAt: calculateSignedUrlExpiry()
+	});
 }
 ```
 
@@ -436,48 +461,48 @@ import { messages } from '$lib/server/db/schema';
 import { and, isNotNull, isNull, lte } from 'drizzle-orm';
 
 export async function cleanupExpiredAudio() {
-  console.log('🧹 Starting audio cleanup job...');
+	console.log('🧹 Starting audio cleanup job...');
 
-  // Find messages with expired audio
-  const expiredMessages = await db
-    .select()
-    .from(messages)
-    .where(
-      and(
-        isNotNull(messages.audioStorageKey),
-        isNull(messages.audioDeletedAt),
-        lte(messages.audioRetentionExpiresAt, new Date())
-      )
-    )
-    .limit(100); // Process in batches
+	// Find messages with expired audio
+	const expiredMessages = await db
+		.select()
+		.from(messages)
+		.where(
+			and(
+				isNotNull(messages.audioStorageKey),
+				isNull(messages.audioDeletedAt),
+				lte(messages.audioRetentionExpiresAt, new Date())
+			)
+		)
+		.limit(100); // Process in batches
 
-  let deletedCount = 0;
+	let deletedCount = 0;
 
-  for (const message of expiredMessages) {
-    if (shouldDeleteAudio(message.audioRetentionExpiresAt)) {
-      try {
-        // Delete from Tigris/S3
-        await audioStorageService.deleteAudio(message.audioStorageKey);
+	for (const message of expiredMessages) {
+		if (shouldDeleteAudio(message.audioRetentionExpiresAt)) {
+			try {
+				// Delete from Tigris/S3
+				await audioStorageService.deleteAudio(message.audioStorageKey);
 
-        // Mark as deleted in database
-        await db
-          .update(messages)
-          .set({
-            audioDeletedAt: new Date(),
-            audioUrl: null,
-            audioStorageKey: null // Optional: remove key after deletion
-          })
-          .where(eq(messages.id, message.id));
+				// Mark as deleted in database
+				await db
+					.update(messages)
+					.set({
+						audioDeletedAt: new Date(),
+						audioUrl: null,
+						audioStorageKey: null // Optional: remove key after deletion
+					})
+					.where(eq(messages.id, message.id));
 
-        deletedCount++;
-      } catch (error) {
-        console.error(`Failed to delete audio for message ${message.id}:`, error);
-      }
-    }
-  }
+				deletedCount++;
+			} catch (error) {
+				console.error(`Failed to delete audio for message ${message.id}:`, error);
+			}
+		}
+	}
 
-  console.log(`✅ Cleaned up ${deletedCount} expired audio files`);
-  return deletedCount;
+	console.log(`✅ Cleaned up ${deletedCount} expired audio files`);
+	return deletedCount;
 }
 ```
 
@@ -525,6 +550,7 @@ SELECT COUNT(*) FROM message_audio_analysis WHERE message_id = 'test-msg-1';
 ### Audio Retention Policy
 
 **Retention Periods:**
+
 - Free: 30 days (saves 92% vs. permanent storage)
 - Plus: 90 days (saves 75% vs. permanent storage)
 - Premium: 365 days (full year retention)
@@ -532,22 +558,26 @@ SELECT COUNT(*) FROM message_audio_analysis WHERE message_id = 'test-msg-1';
 - System: 7 days (for system messages)
 
 **Signed URL TTL:**
+
 - All tiers: 7 days
 - Regenerated automatically when needed
 
 ### Cost Estimates (Tigris)
 
 **Pricing:**
+
 - Storage: $0.02/GB/month
 - Transfer: $0.09/GB
 
 **Example (100 active users):**
+
 - Usage: 30 min/month/user × 3 MB/min = 9 GB/month
 - Storage: 9 GB × $0.02 = $0.18/month
 - Transfer: 9 GB × $0.09 = $0.81/month
 - **Total: ~$0.99/month**
 
 **With mixed tiers (realistic):**
+
 - 70 free (30 days) + 20 plus (90 days) + 10 premium (365 days)
 - Average storage: ~12 GB/month
 - **Total: ~$1.65/month**
@@ -559,19 +589,25 @@ SELECT COUNT(*) FROM message_audio_analysis WHERE message_id = 'test-msg-1';
 ### Migration Issues
 
 #### Problem: "relation message_audio_analysis already exists"
+
 **Solution:** Migration was partially applied. Mark as complete:
+
 ```typescript
 // Run: npx tsx scripts/fix-migration-tracking.ts
 ```
 
 #### Problem: Types not updating
+
 **Solution:** Regenerate Drizzle types:
+
 ```bash
 pnpm db:generate
 ```
 
 #### Problem: drizzle-kit migrate fails
+
 **Solution:** Check migration tracking:
+
 ```sql
 SELECT id, LEFT(hash, 12) as hash, created_at
 FROM drizzle.__drizzle_migrations
@@ -581,7 +617,9 @@ ORDER BY id DESC LIMIT 5;
 ### Performance Issues
 
 #### Slow message queries
+
 **Check:** Are you loading audio analysis unnecessarily?
+
 ```typescript
 // ❌ Bad: Always loads analysis
 const messages = await getMessagesWithAnalysis();
@@ -592,6 +630,7 @@ const analysis = await getAnalysis(selectedMessageId); // On-demand
 ```
 
 #### Check index usage
+
 ```sql
 SELECT schemaname, tablename, indexname, idx_scan
 FROM pg_stat_user_indexes
@@ -602,7 +641,9 @@ ORDER BY idx_scan DESC;
 ### Data Issues
 
 #### Missing audio files
+
 **Check retention expiry:**
+
 ```sql
 SELECT id, audio_storage_key, audio_retention_expires_at, audio_deleted_at
 FROM messages
@@ -613,17 +654,19 @@ LIMIT 10;
 ```
 
 #### Expired signed URLs
+
 **Regenerate URLs:**
+
 ```typescript
 import { needsSignedUrlRefresh } from '$lib/server/config/audio-retention.config';
 
 if (needsSignedUrlRefresh(message.audioUrlExpiresAt)) {
-  // Regenerate from storage key
-  const newUrl = await audioStorageService.getSignedUrl(message.audioStorageKey);
-  await messagesRepository.updateMessage(messageId, {
-    audioUrl: newUrl,
-    audioUrlExpiresAt: calculateSignedUrlExpiry()
-  });
+	// Regenerate from storage key
+	const newUrl = await audioStorageService.getSignedUrl(message.audioStorageKey);
+	await messagesRepository.updateMessage(messageId, {
+		audioUrl: newUrl,
+		audioUrlExpiresAt: calculateSignedUrlExpiry()
+	});
 }
 ```
 
@@ -636,11 +679,13 @@ if (needsSignedUrlRefresh(message.audioUrlExpiresAt)) {
 Follow [SPEECH_ANALYSIS_SETUP_GUIDE.md](./SPEECH_ANALYSIS_SETUP_GUIDE.md) starting with:
 
 **1. Install Dependencies (5 min)**
+
 ```bash
 npm install @aws-sdk/client-s3 @aws-sdk/s3-request-presigner echogarden
 ```
 
 **2. Set Up Tigris Storage (10 min)**
+
 ```bash
 fly storage create
 fly secrets set \
@@ -651,26 +696,31 @@ fly secrets set \
 ```
 
 **3. Implement Audio Upload (20 min)**
+
 - Create/update `audio-storage.service.ts`
 - Implement upload/download/delete operations
 - Generate signed URLs with 7-day TTL
 
 **4. Capture Audio in Realtime (20 min)**
+
 - Modify `realtime-openai.store.svelte.ts`
 - Accumulate audio deltas from OpenAI
 - Upload when message is finalized
 
 **5. Create Audio Upload API (10 min)**
+
 - Create `src/routes/api/audio/upload/+server.ts`
 - Accept audio buffer, upload to Tigris
 - Update message with metadata
 
 **6. Implement Speech Analysis (30 min)**
+
 - Use Echogarden for forced alignment
 - Calculate pronunciation scores
 - Store results in `message_audio_analysis`
 
 **7. Build UI Components (30 min)**
+
 - Pronunciation feedback display
 - Word-level highlighting
 - Practice recommendations
@@ -738,5 +788,6 @@ WHERE hash = '0a4a1906e48b087481a627971b11d0a0401979c47edde2bd022700d9024846da';
 **You're ready to build speech analysis features!** 🎤
 
 For questions or issues, refer to:
+
 - Setup guide: [SPEECH_ANALYSIS_SETUP_GUIDE.md](./SPEECH_ANALYSIS_SETUP_GUIDE.md)
 - Database schema: [infra_database_schema.md](./infra_database_schema.md)

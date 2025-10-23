@@ -66,7 +66,7 @@
 	// Conditional values based on message type
 	const chatClass = $derived(isUser ? 'chat-end' : 'chat-start');
 	// Use user's avatar if available, otherwise use kitsune mascot for assistant
-	const avatarSrc = $derived(isUser ? (userManager.user.avatarUrl || face) : kitsune);
+	const avatarSrc = $derived(isUser ? userManager.user.avatarUrl || face : kitsune);
 	const avatarAlt = $derived(isUser ? 'User avatar' : 'Kaiwa mascot');
 	const currentSpeaker = $derived(
 		isUser ? null : speaker || getSpeakerById(settingsStore.selectedSpeaker)
@@ -206,8 +206,12 @@
 				<img alt={avatarAlt} src={userManager.user.avatarUrl} />
 			{:else if isUser}
 				<!-- Show user initials if no avatar -->
-				<div class="flex h-full w-full items-center justify-center rounded-full bg-primary text-primary-content">
-					<span class="text-lg font-semibold">{userManager.user.displayName?.slice(0, 1).toUpperCase() || 'U'}</span>
+				<div
+					class="flex h-full w-full items-center justify-center rounded-full bg-primary text-primary-content"
+				>
+					<span class="text-lg font-semibold"
+						>{userManager.user.displayName?.slice(0, 1).toUpperCase() || 'U'}</span
+					>
 				</div>
 			{:else}
 				<!-- Show Kaiwa mascot for assistant -->

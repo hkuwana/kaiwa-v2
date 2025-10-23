@@ -213,7 +213,7 @@ export const speakersData: Speaker[] = [
 		isActive: false,
 		createdAt: null
 	},
-    {
+	{
 		id: 'es-co-male',
 		languageId: 'es',
 		region: 'Bogotá',
@@ -329,7 +329,7 @@ export const speakersData: Speaker[] = [
 		isActive: false,
 		createdAt: null
 	},
-    {
+	{
 		id: 'fr-ca-male',
 		languageId: 'fr',
 		region: 'Quebec',
@@ -387,7 +387,7 @@ export const speakersData: Speaker[] = [
 		isActive: false,
 		createdAt: null
 	},
-    {
+	{
 		id: 'ko-kr-busan-male',
 		languageId: 'ko',
 		region: 'Busan',
@@ -675,7 +675,7 @@ export const speakersData: Speaker[] = [
 		isActive: false,
 		createdAt: null
 	},
-    {
+	{
 		id: 'vi-vn-hcmc-male',
 		languageId: 'vi',
 		region: 'Ho Chi Minh City',
@@ -819,7 +819,7 @@ export const speakersData: Speaker[] = [
 		isActive: false,
 		createdAt: null
 	},
-    {
+	{
 		id: 'fil-ph-manila-male',
 		languageId: 'fil',
 		region: 'Manila',
@@ -877,7 +877,7 @@ export const speakersData: Speaker[] = [
 		isActive: false,
 		createdAt: null
 	},
-    {
+	{
 		id: 'hi-in-mumbai-male',
 		languageId: 'hi',
 		region: 'Mumbai',
@@ -935,7 +935,7 @@ export const speakersData: Speaker[] = [
 		isActive: false,
 		createdAt: null
 	},
-    {
+	{
 		id: 'ru-ru-stpetersburg-male',
 		languageId: 'ru',
 		region: 'Saint Petersburg',
@@ -993,7 +993,7 @@ export const speakersData: Speaker[] = [
 		isActive: false,
 		createdAt: null
 	},
-    {
+	{
 		id: 'id-id-surabaya-male',
 		languageId: 'id',
 		region: 'Surabaya',

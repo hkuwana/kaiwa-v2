@@ -7,11 +7,13 @@ Your cron jobs have been reorganized using the **industry-standard separated pro
 ### Architecture Change
 
 **Before (Not Working)**:
+
 - HTTP endpoints existed (`/api/cron/*`) but nothing was calling them
 - No scheduled tasks configured
 - Documentation showed multiple conflicting options
 
 **After (Production-Ready)**:
+
 - ✅ Cron jobs run as **separate Fly.io machines** (isolated processes)
 - ✅ Clear deployment script: `./scripts/deploy-cron-jobs.sh`
 - ✅ Organized file structure with dedicated `scripts/` directory
@@ -23,11 +25,13 @@ Your cron jobs have been reorganized using the **industry-standard separated pro
 ## 📁 Files Created
 
 ### New Scripts
+
 1. **`scripts/send-founder-emails.ts`** - Founder email sequence cron job
 2. **`scripts/deploy-cron-jobs.sh`** - Deploy script for all cron jobs
 3. **`scripts/README.md`** - Quick reference for scripts
 
 ### New Documentation
+
 1. **`src/lib/docs/architecture-cron-jobs.md`** - Comprehensive architecture guide
    - Why separate processes vs HTTP endpoints
    - System architecture diagrams
@@ -36,6 +40,7 @@ Your cron jobs have been reorganized using the **industry-standard separated pro
    - Scaling considerations
 
 ### Updated Files
+
 1. **`fly.toml`** - Added architecture comments
 2. **`package.json`** - Added npm scripts:
    - `pnpm cron:reminders` - Test reminders locally
@@ -68,6 +73,7 @@ Your cron jobs have been reorganized using the **industry-standard separated pro
 ```
 
 **Key Benefits**:
+
 - ✅ **Isolation**: Cron failures don't affect main app
 - ✅ **Reliability**: Exact timing (not "approximately")
 - ✅ **Security**: No public HTTP endpoints to protect
@@ -95,6 +101,7 @@ pnpm cron:deploy
 ```
 
 This creates two scheduled machines:
+
 1. `cron-daily-reminders` - Runs at 9am UTC daily
 2. `cron-founder-emails` - Runs at 2pm UTC daily
 
@@ -230,17 +237,21 @@ fly machine destroy <machine-id>
 ### Cron Jobs Not Running
 
 **Check 1: Are machines created?**
+
 ```bash
 fly machines list | grep cron
 ```
+
 If empty → Run `pnpm cron:deploy`
 
 **Check 2: Check logs for errors**
+
 ```bash
 fly logs | grep "cron-"
 ```
 
 **Check 3: Test locally first**
+
 ```bash
 pnpm cron:reminders
 ```
@@ -248,18 +259,21 @@ pnpm cron:reminders
 ### Emails Not Sending
 
 **Check 1: Environment variables set?**
+
 ```bash
 fly secrets list
 # Ensure RESEND_API_KEY, DATABASE_URL are set
 ```
 
 **Check 2: Test email service**
+
 ```bash
 # Run locally to see detailed error messages
 pnpm cron:reminders
 ```
 
 **Check 3: Resend dashboard**
+
 - Go to [resend.com/emails](https://resend.com/emails)
 - Check for delivery errors, bounces
 
@@ -292,17 +306,20 @@ kaiwa/
 1. **Review architecture**: Read [architecture-cron-jobs.md](src/lib/docs/architecture-cron-jobs.md)
 
 2. **Test locally** (recommended):
+
    ```bash
    pnpm cron:reminders
    pnpm cron:founder-emails
    ```
 
 3. **Deploy to production**:
+
    ```bash
    pnpm cron:deploy
    ```
 
 4. **Verify deployment**:
+
    ```bash
    fly machines list
    fly logs | grep "cron-"
@@ -318,13 +335,14 @@ kaiwa/
 
 ### Industry Standard Comparison
 
-| Approach | Reliability | Debugging | Security | Our Choice |
-|----------|-------------|-----------|----------|------------|
-| **Fly.io Machines** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ✅ **YES** |
-| GitHub Actions | ⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐ | ❌ No |
-| HTTP + External | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ | ❌ No |
+| Approach            | Reliability | Debugging  | Security   | Our Choice |
+| ------------------- | ----------- | ---------- | ---------- | ---------- |
+| **Fly.io Machines** | ⭐⭐⭐⭐⭐  | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ✅ **YES** |
+| GitHub Actions      | ⭐⭐⭐      | ⭐⭐       | ⭐⭐⭐     | ❌ No      |
+| HTTP + External     | ⭐⭐⭐⭐    | ⭐⭐⭐     | ⭐⭐       | ❌ No      |
 
 **Why Fly.io Machines?**
+
 - ✅ You're already on Fly.io (no new service needed)
 - ✅ Most reliable (exact scheduling, not "approximately")
 - ✅ Best debugging (same environment, same logs)
@@ -359,12 +377,15 @@ kaiwa/
 ## 📞 Support
 
 **Questions about the architecture?**
+
 - Read: [architecture-cron-jobs.md](src/lib/docs/architecture-cron-jobs.md)
 
 **Cron jobs not working?**
+
 - Check: [Troubleshooting](#-troubleshooting) section above
 
 **Want to change the approach?**
+
 - See: [Migration Path](src/lib/docs/architecture-cron-jobs.md#-migration-path-if-you-change-your-mind) in architecture docs
 
 ---

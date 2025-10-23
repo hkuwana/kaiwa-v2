@@ -984,7 +984,8 @@ export class RealtimeOpenAIStore {
 							console.warn('⚠️⚠️⚠️ MULTIPLE ITEMS FROM SINGLE COMMIT! ⚠️⚠️⚠️', {
 								commitNumber: this.pttStopCallCounter,
 								itemIds: currentCommitItems,
-								explanation: 'Server created multiple conversation items from ONE commit - this causes duplicate transcripts!'
+								explanation:
+									'Server created multiple conversation items from ONE commit - this causes duplicate transcripts!'
 							});
 						}
 
@@ -1010,7 +1011,8 @@ export class RealtimeOpenAIStore {
 								commitNumber: this.pttStopCallCounter,
 								itemCount,
 								itemIds: currentCommitItems,
-								explanation: 'Only sending response.create once for the first item to avoid duplicates'
+								explanation:
+									'Only sending response.create once for the first item to avoid duplicates'
 							});
 						}
 					}
@@ -1282,10 +1284,13 @@ export class RealtimeOpenAIStore {
 		}
 
 		// Schedule the actual stop after a delay to allow final audio chunks to be transmitted
-		console.warn(`⏱️ DELAYING audio buffer commit by ${this.pttStopDelayMs}ms to allow final chunks`, {
-			commitNumber: this.pttStopCallCounter,
-			timestamp: new SvelteDate().toISOString()
-		});
+		console.warn(
+			`⏱️ DELAYING audio buffer commit by ${this.pttStopDelayMs}ms to allow final chunks`,
+			{
+				commitNumber: this.pttStopCallCounter,
+				timestamp: new SvelteDate().toISOString()
+			}
+		);
 
 		this.pendingPttStopTimeout = setTimeout(() => {
 			console.warn('⏰ PTT stop delay complete - now committing buffer', {

@@ -6,8 +6,8 @@ To keep the documentation organized and easy to navigate, all files in this dire
 
 All filenames should follow the format: `category-topic.md`
 
-*   **`category`**: A prefix that identifies the type of document.
-*   **`topic`**: A short, descriptive name for the document content, using kebab-case (all lowercase with hyphens).
+- **`category`**: A prefix that identifies the type of document.
+- **`topic`**: A short, descriptive name for the document content, using kebab-case (all lowercase with hyphens).
 
 ---
 
@@ -16,30 +16,37 @@ All filenames should follow the format: `category-topic.md`
 Please use one of the following established categories for the prefix:
 
 ### `core`
+
 For fundamental technical architecture and design documents that are long-lasting.
-*Example: `core-server-architecture.md`*
+_Example: `core-server-architecture.md`_
 
 ### `guide`
+
 For "how-to" documents and developer guides.
-*Example: `guide-dev-setup.md`*
+_Example: `guide-dev-setup.md`_
 
 ### `feature`
+
 For documentation related to specific product features. For complex features, you can add a sub-topic.
-*Example: `feature-realtime.md`*
-*Example: `feature-audio-speech-analysis.md`*
+_Example: `feature-realtime.md`_
+_Example: `feature-audio-speech-analysis.md`_
 
 ### `strategy`
+
 For business, marketing, and product strategy documents.
-*Example: `strategy-marketing.md`*
+_Example: `strategy-marketing.md`_
 
 ### `process`
+
 For development processes, checklists, and templates.
-*Example: `process-demo-checklist.md`*
+_Example: `process-demo-checklist.md`_
 
 ### `archive`
+
 For point-in-time documents like meeting notes, analyses, and summaries that are not actively maintained. For dated files, please use the `YYYY-MM-DD` format.
-*Example: `archive-2025-10-06-analysis.md`*
+_Example: `archive-2025-10-06-analysis.md`_
 
 ### `external`
+
 For notes and guides related to external services and integrations.
-*Example: `external-claude-notes.md`*
+_Example: `external-claude-notes.md`_

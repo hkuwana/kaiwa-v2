@@ -139,7 +139,9 @@
 						>
 							{textParts.languageName}
 						</span>
-						<span class="icon-[mdi--chevron-down] h-3 w-3 text-primary/70 transition-transform duration-200 group-focus-within:rotate-180"></span>
+						<span
+							class="icon-[mdi--chevron-down] h-3 w-3 text-primary/70 transition-transform duration-200 group-focus-within:rotate-180"
+						></span>
 					</button>
 					<div
 						class="dropdown-content z-30 mt-2 max-h-80 w-80 overflow-y-auto rounded-xl border border-base-300 bg-base-100 p-4 shadow-xl"

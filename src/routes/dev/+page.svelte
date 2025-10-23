@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Flattened dev tools list for compact display
-const devTools = [
+	const devTools = [
 		// Product & reference pages worth keeping handy
 		{
 			category: '📚 Docs & Pages',
@@ -15,10 +15,10 @@ const devTools = [
 			desc: 'Browse internal docs, guides, and implementation plans'
 		},
 
-	// Product Roadmap - Always first
-	{
-		category: '🛠️ Development & Planning',
-		name: 'Product Roadmap',
+		// Product Roadmap - Always first
+		{
+			category: '🛠️ Development & Planning',
+			name: 'Product Roadmap',
 			href: '/dev/roadmap',
 			desc: 'View development roadmap and feature planning'
 		},

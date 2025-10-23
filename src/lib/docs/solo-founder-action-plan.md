@@ -11,28 +11,33 @@
 
 ### Interview Doc Template
 
-````markdown
+```markdown
 # Participant Name — Kaiwa Feedback Session
-- **Date:**  
-- **Context:**  
-- **Segment / Role:**  
-- **Current Practice Method:**  
-- **Why They’re Testing Kaiwa:**  
+
+- **Date:**
+- **Context:**
+- **Segment / Role:**
+- **Current Practice Method:**
+- **Why They’re Testing Kaiwa:**
 
 ## Three Critical Questions
-- **Moment of Value:**  
-- **Point of Friction:**  
-- **Return Trigger:**  
+
+- **Moment of Value:**
+- **Point of Friction:**
+- **Return Trigger:**
 
 ## Raw Observations
+
 - Bullet observations with inline tags
 
 ## Verbatim Quotes
+
 > “Quote”
 
 ## Action Items
+
 - [ ] Action linked to Kanban card
-````
+```
 
 ## 2. Solo Founder Cadence
 
@@ -67,4 +72,3 @@
 - [ ] Set up a Kanban for action items with `ship`, `test`, `story` labels.
 - [ ] Draft a two-week social calendar covering breakthroughs, build updates, and community prompts.
 - [ ] Schedule the first Practice Lab session on the subreddit and announce the format + incentive.
-

@@ -98,8 +98,9 @@
 			const payload = await response.json();
 			const data = (payload?.success ?? false) ? payload?.data : payload;
 
-			const serverPreferences =
-				data as (UserPreferences & { memorySummary?: MemorySummary }) | undefined;
+			const serverPreferences = data as
+				| (UserPreferences & { memorySummary?: MemorySummary })
+				| undefined;
 
 			const resultUpdates: Partial<UserPreferences> & { memorySummary?: MemorySummary } = {};
 
@@ -335,8 +336,7 @@
 				class="input-bordered input w-full"
 				id="pref-preferred-voice"
 				bind:value={localPreferences.preferredVoice}
-				oninput={(e) =>
-					handleInputChange('preferredVoice', (e.target as HTMLInputElement).value)}
+				oninput={(e) => handleInputChange('preferredVoice', (e.target as HTMLInputElement).value)}
 			/>
 		</div>
 
@@ -386,8 +386,7 @@
 					class="input-bordered input w-full"
 					id="pref-practical-level"
 					bind:value={localPreferences.practicalLevel}
-					oninput={(e) =>
-						handleInputChange('practicalLevel', (e.target as HTMLInputElement).value)}
+					oninput={(e) => handleInputChange('practicalLevel', (e.target as HTMLInputElement).value)}
 				/>
 			</div>
 
@@ -507,10 +506,7 @@
 					id="pref-speaking-confidence"
 					bind:value={localPreferences.speakingConfidence}
 					oninput={(e) =>
-						handleInputChange(
-							'speakingConfidence',
-							parseInt((e.target as HTMLInputElement).value)
-						)}
+						handleInputChange('speakingConfidence', parseInt((e.target as HTMLInputElement).value))}
 				/>
 			</div>
 

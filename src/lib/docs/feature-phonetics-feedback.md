@@ -35,11 +35,13 @@ graph TD
 ### 1. Pronunciation Accuracy Scoring
 
 **Overall Accuracy Score (0-100)**
+
 - Based on word-level confidence from Echogarden
 - Considers phoneme-level accuracy
 - Weighted by word importance and frequency
 
 **Word-Level Analysis**
+
 - Individual pronunciation scores per word
 - Confidence ratings from speech recognition
 - Timing accuracy vs. expected pronunciation
@@ -47,16 +49,19 @@ graph TD
 ### 2. Fluency Metrics
 
 **Speech Rate Analysis**
+
 - Words per minute (WPM) calculation
 - Articulation rate (excluding pauses)
 - Syllables per second analysis
 
 **Pause Detection**
+
 - Natural pauses vs. hesitations
 - Pause duration and frequency
 - Context-aware pause classification
 
 **Hesitation Analysis**
+
 - Filler word detection (um, uh, like, etc.)
 - False start identification
 - Flow disruption patterns
@@ -64,16 +69,19 @@ graph TD
 ### 3. Phonetic Analysis
 
 **IPA Transcription Support**
+
 - International Phonetic Alphabet representation
 - Phoneme-level timing and accuracy
 - Cross-language phonetic comparison
 
 **Phoneme-Level Feedback**
+
 - Individual sound accuracy scores
 - Common pronunciation errors identification
 - Targeted practice recommendations
 
 **Stress and Intonation**
+
 - Word stress pattern analysis
 - Sentence intonation contours
 - Rhythm and timing patterns
@@ -83,22 +91,25 @@ graph TD
 ### Real-time Feedback Display
 
 **Pronunciation Score Badge**
+
 ```typescript
 interface PronunciationFeedback {
-  overallAccuracyScore: number;    // 0-100
-  overallFluencyScore: number;     // 0-100
-  speechRateWpm: number;          // Words per minute
-  pauseCount: number;             // Number of pauses
-  hesitationCount: number;        // Filler words
+	overallAccuracyScore: number; // 0-100
+	overallFluencyScore: number; // 0-100
+	speechRateWpm: number; // Words per minute
+	pauseCount: number; // Number of pauses
+	hesitationCount: number; // Filler words
 }
 ```
 
 **Word-Level Highlighting**
+
 - Clickable words with detailed feedback
 - Color-coded accuracy levels
 - Timing visualization
 
 **Practice Recommendations**
+
 - Personalized suggestions based on analysis
 - Targeted word practice lists
 - Progress tracking over time
@@ -106,16 +117,19 @@ interface PronunciationFeedback {
 ### Visual Feedback Components
 
 **Pronunciation Timeline**
+
 - Word-by-word timing visualization
 - Pause and hesitation markers
 - Confidence score indicators
 
 **Phonetics Display**
+
 - IPA transcription for each word
 - Phoneme-level accuracy scores
 - Common error patterns
 
 **Progress Tracking**
+
 - Historical accuracy trends
 - Improvement over time graphs
 - Practice word mastery tracking
@@ -125,6 +139,7 @@ interface PronunciationFeedback {
 ### 1. Multi-Language Support
 
 **Supported Languages**
+
 - English (en) - Primary focus
 - Japanese (ja) - Hiragana/Katakana analysis
 - Spanish (es) - Romance language patterns
@@ -135,6 +150,7 @@ interface PronunciationFeedback {
 - Italian (it), Portuguese (pt), Russian (ru)
 
 **Language-Specific Features**
+
 - Tone analysis for tonal languages
 - Syllable structure analysis
 - Language-specific phonetic patterns
@@ -142,11 +158,13 @@ interface PronunciationFeedback {
 ### 2. Comparative Analysis
 
 **Native Speaker Comparison**
+
 - Compare against native pronunciation patterns
 - Identify accent-specific issues
 - Cultural pronunciation considerations
 
 **Historical Progress**
+
 - Track improvement over time
 - Identify persistent problem areas
 - Celebrate pronunciation milestones
@@ -154,11 +172,13 @@ interface PronunciationFeedback {
 ### 3. Personalized Learning
 
 **Adaptive Recommendations**
+
 - Focus on individual problem areas
 - Progressive difficulty adjustment
 - Context-aware practice suggestions
 
 **Practice Word Selection**
+
 - Most problematic words identification
 - High-frequency word prioritization
 - Scenario-specific vocabulary focus
@@ -168,11 +188,13 @@ interface PronunciationFeedback {
 ### Analysis Accuracy
 
 **Echogarden Performance**
+
 - ~95% word-level accuracy
 - ~2-5 seconds processing time per 10 seconds of audio
 - Memory usage: ~1-2GB per analysis
 
 **Confidence Scoring**
+
 - Word-level confidence: 0.0-1.0
 - Phoneme-level confidence: 0.0-1.0
 - Overall accuracy: 0-100 scale
@@ -180,11 +202,13 @@ interface PronunciationFeedback {
 ### Cost Optimization
 
 **Storage Costs (Tigris)**
+
 - ~$0.02/GB/month storage
 - ~$0.09/GB transfer
 - Average: 1-5MB per minute of audio
 
 **Processing Costs**
+
 - Background job processing
 - Tier-based retention policies
 - Automatic cleanup after retention period
@@ -194,6 +218,7 @@ interface PronunciationFeedback {
 ### Database Schema
 
 **Messages Table Enhancements**
+
 ```sql
 -- Audio metadata
 audio_url TEXT,
@@ -208,6 +233,7 @@ speech_rate_wpm INTEGER
 ```
 
 **Message Audio Analysis Table**
+
 ```sql
 -- Detailed analysis results
 overall_accuracy_score INTEGER,
@@ -221,6 +247,7 @@ recommendations JSONB
 ### API Endpoints
 
 **Audio Upload**
+
 ```typescript
 POST /api/audio/upload
 {
@@ -232,16 +259,18 @@ POST /api/audio/upload
 ```
 
 **Analysis Retrieval**
+
 ```typescript
-GET /api/analysis/pronunciation/{messageId}
+GET / api / analysis / pronunciation / { messageId };
 // Returns detailed pronunciation analysis
 ```
 
 **Background Processing**
+
 ```typescript
-POST /api/jobs/process-audio
+POST / api / jobs / process - audio;
 {
-  batchSize: number
+	batchSize: number;
 }
 ```
 
@@ -250,16 +279,19 @@ POST /api/jobs/process-audio
 ### For Language Learners
 
 **Immediate Feedback**
+
 - Real-time pronunciation scoring
 - Instant identification of problem areas
 - Clear, actionable recommendations
 
 **Progress Tracking**
+
 - Visual progress indicators
 - Historical improvement data
 - Achievement milestones
 
 **Personalized Learning**
+
 - Customized practice recommendations
 - Focus on individual weaknesses
 - Adaptive difficulty progression
@@ -267,11 +299,13 @@ POST /api/jobs/process-audio
 ### For Educators
 
 **Detailed Analytics**
+
 - Student progress tracking
 - Common error pattern identification
 - Class-wide performance insights
 
 **Assessment Tools**
+
 - Objective pronunciation scoring
 - Comparative analysis capabilities
 - Progress report generation

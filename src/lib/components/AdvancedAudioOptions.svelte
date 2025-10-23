@@ -118,7 +118,7 @@
 				<!-- Mode Labels with Toggle -->
 				<div class="flex items-center justify-between gap-4">
 					<div class="flex-1 text-left">
-						<div class="font-medium text-sm" class:text-primary={selectedMode === 'vad'}>
+						<div class="text-sm font-medium" class:text-primary={selectedMode === 'vad'}>
 							Auto-Detect Mode
 						</div>
 						<div class="text-xs text-base-content/60">Hands-free speaking</div>
@@ -171,7 +171,7 @@
 					</label>
 
 					<div class="flex-1 text-right">
-						<div class="font-medium text-sm" class:text-primary={selectedMode === 'ptt'}>
+						<div class="text-sm font-medium" class:text-primary={selectedMode === 'ptt'}>
 							Push-to-Talk
 						</div>
 						<div class="text-xs text-base-content/60">Press to speak</div>
@@ -187,9 +187,9 @@
 						</div>
 					{:else}
 						<div class="text-xs text-base-content/70">
-							<strong>Push-to-Talk Mode:</strong> Press and hold the microphone button to speak.
-							Release to stop. Best for noisy backgrounds or when you want precise control over when
-							your audio is transmitted.
+							<strong>Push-to-Talk Mode:</strong> Press and hold the microphone button to speak. Release
+							to stop. Best for noisy backgrounds or when you want precise control over when your audio
+							is transmitted.
 						</div>
 					{/if}
 				</div>

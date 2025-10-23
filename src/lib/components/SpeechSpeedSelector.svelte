@@ -11,9 +11,7 @@
 	const { compact = false } = $props<Props>();
 
 	// Current selection from store
-	let selectedSpeed = $state<SpeechSpeed>(
-		userPreferencesStore.preferences?.speechSpeed || 'slow'
-	);
+	let selectedSpeed = $state<SpeechSpeed>(userPreferencesStore.preferences?.speechSpeed || 'slow');
 
 	// Sync with store changes
 	$effect(() => {
@@ -68,11 +66,9 @@
 
 <div class="speech-speed-selector space-y-2">
 	<div class="flex items-center justify-between">
-		<label for="speech-speed-select" class="text-sm font-semibold">
-			Speech Speed
-		</label>
+		<label for="speech-speed-select" class="text-sm font-semibold"> Speech Speed </label>
 		{#if selectedSpeed === 'auto'}
-			<span class="badge badge-sm badge-outline">
+			<span class="badge badge-outline badge-sm">
 				Currently: {autoSpeedDisplay()}
 			</span>
 		{/if}
@@ -81,7 +77,7 @@
 	<!-- Compact Dropdown -->
 	<select
 		id="speech-speed-select"
-		class="select select-bordered select-sm w-full"
+		class="select-bordered select w-full select-sm"
 		bind:value={selectedSpeed}
 		onchange={handleSpeedChange}
 	>
@@ -97,7 +93,8 @@
 		<div class="rounded-lg bg-base-200 p-3 text-xs text-base-content/70">
 			{#if selectedSpeed === 'auto'}
 				<strong>Auto Mode:</strong> Speed automatically adjusts based on your
-				{getLearnerCefrLevel(userPreferencesStore.preferences || {})} level. Currently using: <strong>{autoSpeedDisplay()}</strong>.
+				{getLearnerCefrLevel(userPreferencesStore.preferences || {})} level. Currently using:
+				<strong>{autoSpeedDisplay()}</strong>.
 				{#if userPreferencesStore.preferences?.targetLanguageId}
 					Some languages may be slightly slower for better clarity.
 				{/if}

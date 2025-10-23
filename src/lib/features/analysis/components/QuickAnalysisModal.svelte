@@ -326,7 +326,7 @@
 						{#if isGuestUser}
 							<!-- Guest user sees login CTA -->
 							<button class="btn btn-lg btn-primary" onclick={onGoToFullAnalysis}>
-								<span class="icon-[mdi--lock] mr-2 h-5 w-5"></span>
+								<span class="mr-2 icon-[mdi--lock] h-5 w-5"></span>
 								Login to Unlock Full Analysis
 							</button>
 						{:else}
@@ -336,7 +336,8 @@
 							</button>
 						{/if}
 						<button class="btn btn-outline btn-lg" onclick={onStartNewConversation}>
-							<span class="mr-2 h-5 w-5 {isHistorical ? 'icon-[mdi--eye]' : 'icon-[mdi--plus]'}"></span>
+							<span class="mr-2 h-5 w-5 {isHistorical ? 'icon-[mdi--eye]' : 'icon-[mdi--plus]'}"
+							></span>
 							{isHistorical ? 'View Conversation' : 'Practice More'}
 						</button>
 					</div>

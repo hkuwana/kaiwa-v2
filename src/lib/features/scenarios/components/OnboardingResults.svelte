@@ -178,7 +178,8 @@
 
 					<div class="space-y-3 sm:space-y-4">
 						<div class="flex items-center gap-2">
-							<span class="icon-[mdi--dots-vertical] h-4 w-4 text-base-content/60 sm:h-5 sm:w-5"></span>
+							<span class="icon-[mdi--dots-vertical] h-4 w-4 text-base-content/60 sm:h-5 sm:w-5"
+							></span>
 							<h3 class="text-base font-semibold sm:text-lg">Learning Preferences</h3>
 						</div>
 
@@ -238,7 +239,8 @@
 						</div>
 
 						<div class="alert alert-success">
-							<span class="icon-[mdi--check-circle] h-5 w-5 shrink-0 stroke-current sm:h-6 sm:w-6"></span>
+							<span class="icon-[mdi--check-circle] h-5 w-5 shrink-0 stroke-current sm:h-6 sm:w-6"
+							></span>
 							<div>
 								<h4 class="text-xs font-bold sm:text-sm">Assessment saved to your account</h4>
 								<div class="text-xs">

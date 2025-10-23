@@ -274,7 +274,7 @@
 	>
 		<div class="mx-auto max-w-md p-8 text-center">
 			<div class="mb-6">
-				<span class="icon-[mdi--file-question-outline] mx-auto mb-4 h-16 w-16 text-warning"></span>
+				<span class="mx-auto mb-4 icon-[mdi--file-question-outline] h-16 w-16 text-warning"></span>
 				<h1 class="mb-2 text-2xl font-bold">Conversation Not Found</h1>
 				<p class="mb-6 text-base-content/70">
 					This conversation session doesn't exist or has been removed. You can start a new
@@ -283,11 +283,11 @@
 			</div>
 			<div class="flex flex-col justify-center gap-3 sm:flex-row">
 				<button class="btn btn-primary" onclick={handleStartNewConversation}>
-					<span class="icon-[mdi--plus] mr-2 h-5 w-5"></span>
+					<span class="mr-2 icon-[mdi--plus] h-5 w-5"></span>
 					Start New Conversation
 				</button>
 				<button class="btn btn-ghost" onclick={handleGoHome}>
-					<span class="icon-[mdi--home] mr-2 h-5 w-5"></span>
+					<span class="mr-2 icon-[mdi--home] h-5 w-5"></span>
 					Go Home
 				</button>
 			</div>
@@ -306,7 +306,7 @@
 					</div>
 					<div class="flex gap-2">
 						<button class="btn btn-primary" onclick={() => (showQuickAnalysisModal = true)}>
-							<span class="icon-[mdi--chart-bar] mr-2 h-4 w-4"></span>
+							<span class="mr-2 icon-[mdi--chart-bar] h-4 w-4"></span>
 							Quick Analysis
 						</button>
 						<button
@@ -318,7 +318,7 @@
 								<span class="loading mr-2 loading-sm loading-spinner"></span>
 								Running Analysis...
 							{:else}
-								<span class="icon-[mdi--play] mr-2 h-4 w-4"></span>
+								<span class="mr-2 icon-[mdi--play] h-4 w-4"></span>
 								Run Analysis
 							{/if}
 						</button>
@@ -326,7 +326,7 @@
 							class="btn btn-outline"
 							onclick={() => (showErrorAnalysis = !showErrorAnalysis)}
 						>
-							<span class="icon-[mdi--check-circle] mr-2 h-4 w-4"></span>
+							<span class="mr-2 icon-[mdi--check-circle] h-4 w-4"></span>
 							{showErrorAnalysis ? 'Hide' : 'Show'} Error Analysis
 						</button>
 					</div>
@@ -370,7 +370,7 @@
 									<div
 										class="mb-2 flex items-center gap-2 text-sm font-semibold text-warning-content"
 									>
-										<span class="icon-[mdi--alert-triangle] h-4 w-4"></span>
+										<span class="h-4 w-4 icon-[mdi--alert-triangle]"></span>
 										Grammar Analysis
 									</div>
 									<div class="text-sm text-base-content/70">
@@ -578,15 +578,15 @@
 			<section class="rounded-lg bg-base-100 p-6 shadow">
 				<div class="flex flex-col justify-center gap-3 sm:flex-row">
 					<button class="btn btn-primary" onclick={handleStartNewConversation}>
-						<span class="icon-[mdi--plus] mr-2 h-5 w-5"></span>
+						<span class="mr-2 icon-[mdi--plus] h-5 w-5"></span>
 						Start New Conversation
 					</button>
 					<button class="btn btn-outline" onclick={handleGoToFullAnalysis}>
-						<span class="icon-[mdi--chart-bar] mr-2 h-5 w-5"></span>
+						<span class="mr-2 icon-[mdi--chart-bar] h-5 w-5"></span>
 						Get Full Analysis
 					</button>
 					<button class="btn btn-ghost" onclick={handleGoHome}>
-						<span class="icon-[mdi--home] mr-2 h-5 w-5"></span>
+						<span class="mr-2 icon-[mdi--home] h-5 w-5"></span>
 						Go Home
 					</button>
 				</div>

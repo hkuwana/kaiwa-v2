@@ -127,9 +127,7 @@ export class InstructionComposer {
 		} else if (scenario?.role === 'character') {
 			const personaTitle = scenario.persona?.title ?? scenario.title;
 			const personaIntro = scenario.persona?.introPrompt ?? scenario.description;
-			const personaStakes = scenario.persona?.stakes
-				? `Stakes: ${scenario.persona.stakes}`
-				: '';
+			const personaStakes = scenario.persona?.stakes ? `Stakes: ${scenario.persona.stakes}` : '';
 			role = `You are ${personaName}, ${personaTitle}.`;
 			objective = [personaIntro, personaStakes, `Your objective: ${scenario.expectedOutcome}`]
 				.filter(Boolean)
@@ -319,10 +317,7 @@ ${previousTopics
 			'Nice!';
 		const followUp = expressions.questions[0] || 'Which one?';
 		const alternateReaction =
-			expressions.surprise[0] ||
-			expressions.positive[1] ||
-			expressions.excitement[1] ||
-			reaction;
+			expressions.surprise[0] || expressions.positive[1] || expressions.excitement[1] || reaction;
 		const alternateFollowUp = expressions.questions[1] || expressions.questions[0] || 'Where?';
 
 		const hobbyExample = [reaction.trim(), followUp.trim()].filter(Boolean).join(' ');

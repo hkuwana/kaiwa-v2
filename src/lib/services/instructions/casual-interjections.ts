@@ -431,17 +431,17 @@ export const CASUAL_EXPRESSIONS: RegionalCasualExpressions[] = [
 			surprise: [
 				'Vraiment ?', // Really?
 				'Sérieux ?', // Seriously?
-				'C\'est vrai ?', // Is that true?
+				"C'est vrai ?", // Is that true?
 				'Sans blague !', // No kidding!
 				'Oh là là !', // Oh my!
 				'Ah bon ?' // Really?/Is that so?
 			],
 			understanding: [
 				'Je vois', // I see
-				'D\'accord', // OK/Agreed
+				"D'accord", // OK/Agreed
 				'Ah oui', // Ah yes
 				'Compris', // Understood
-				'C\'est ça', // That's it
+				"C'est ça", // That's it
 				'Exactement' // Exactly
 			],
 			sympathy: [
@@ -449,14 +449,14 @@ export const CASUAL_EXPRESSIONS: RegionalCasualExpressions[] = [
 				'Désolé', // Sorry
 				'Dommage', // That's a shame
 				'Quelle galère', // What a hassle (slang)
-				'C\'est nul' // That sucks (casual)
+				"C'est nul" // That sucks (casual)
 			],
 			excitement: [
 				'Génial !', // Great!
 				'Trop bien !', // Too good!/So cool!
 				'Incroyable !', // Incredible!
 				'Trop cool !', // So cool!
-				'J\'adore !' // I love it!
+				"J'adore !" // I love it!
 			],
 			questions: [
 				'Comment ?', // How?/What?
@@ -464,7 +464,7 @@ export const CASUAL_EXPRESSIONS: RegionalCasualExpressions[] = [
 				'Lequel ?', // Which one?
 				'Quand ?', // When?
 				'Genre quoi ?', // Like what? (casual)
-				'C\'est vrai ?' // Really?
+				"C'est vrai ?" // Really?
 			],
 			fillers: [
 				'Euh', // Umm
@@ -547,46 +547,11 @@ export const CASUAL_EXPRESSIONS: RegionalCasualExpressions[] = [
 		languageCode: 'en',
 		displayName: 'English',
 		interjections: {
-			positive: [
-				'Nice!',
-				'Cool!',
-				'Awesome!',
-				'Great!',
-				'Sweet!',
-				'Perfect!'
-			],
-			surprise: [
-				'Really?',
-				'Seriously?',
-				'No way!',
-				'What?!',
-				'For real?',
-				'Wow!'
-			],
-			understanding: [
-				'I see',
-				'Got it',
-				'Right',
-				'OK',
-				'Makes sense',
-				'Fair enough'
-			],
-			sympathy: [
-				'Oh no',
-				'That sucks',
-				'I\'m sorry',
-				'That\'s tough',
-				'Bummer',
-				'Aw man'
-			],
-			excitement: [
-				'Wow!',
-				'Amazing!',
-				'That\'s great!',
-				'So cool!',
-				'Love it!',
-				'Incredible!'
-			],
+			positive: ['Nice!', 'Cool!', 'Awesome!', 'Great!', 'Sweet!', 'Perfect!'],
+			surprise: ['Really?', 'Seriously?', 'No way!', 'What?!', 'For real?', 'Wow!'],
+			understanding: ['I see', 'Got it', 'Right', 'OK', 'Makes sense', 'Fair enough'],
+			sympathy: ['Oh no', 'That sucks', "I'm sorry", "That's tough", 'Bummer', 'Aw man'],
+			excitement: ['Wow!', 'Amazing!', "That's great!", 'So cool!', 'Love it!', 'Incredible!'],
 			questions: [
 				'Like what?',
 				'How come?',
@@ -595,13 +560,7 @@ export const CASUAL_EXPRESSIONS: RegionalCasualExpressions[] = [
 				'Really?',
 				'What do you think?'
 			],
-			fillers: [
-				'Umm',
-				'Well',
-				'Let\'s see',
-				'So',
-				'I mean'
-			]
+			fillers: ['Umm', 'Well', "Let's see", 'So', 'I mean']
 		},
 		naturalFillers: ['you know', 'right', 'like', 'yeah']
 	}
@@ -610,16 +569,12 @@ export const CASUAL_EXPRESSIONS: RegionalCasualExpressions[] = [
 /**
  * Get casual expressions for a specific language and region
  */
-export function getCasualExpressions(
-	languageCode: string,
-	region?: string
-): CasualInterjections {
+export function getCasualExpressions(languageCode: string, region?: string): CasualInterjections {
 	// Try to find exact match with region
 	if (region) {
 		const exactMatch = CASUAL_EXPRESSIONS.find(
 			(expr) =>
-				expr.languageCode === languageCode &&
-				expr.region?.toLowerCase() === region.toLowerCase()
+				expr.languageCode === languageCode && expr.region?.toLowerCase() === region.toLowerCase()
 		);
 		if (exactMatch) {
 			return exactMatch.interjections;
@@ -644,8 +599,7 @@ export function getNaturalFillers(languageCode: string, region?: string): string
 	if (region) {
 		const exactMatch = CASUAL_EXPRESSIONS.find(
 			(expr) =>
-				expr.languageCode === languageCode &&
-				expr.region?.toLowerCase() === region.toLowerCase()
+				expr.languageCode === languageCode && expr.region?.toLowerCase() === region.toLowerCase()
 		);
 		if (exactMatch?.naturalFillers) {
 			return exactMatch.naturalFillers;
@@ -690,13 +644,12 @@ export function formatCasualExpressionsForPrompt(
 			(!region || expr.region?.toLowerCase() === region.toLowerCase())
 	);
 
-	const regionDisplay =
-		hasCustomData && regionalInfo?.region ? ` (${regionalInfo.region})` : '';
+	const regionDisplay = hasCustomData && regionalInfo?.region ? ` (${regionalInfo.region})` : '';
 	const headerTitle = hasCustomData
 		? `## CASUAL EXPRESSIONS IN ${languageName.toUpperCase()}${regionDisplay}`
 		: '## CASUAL EXPRESSIONS (GENERAL GUIDANCE)';
 	const introLine = hasCustomData
-		? 'USE THESE NATURAL INTERJECTIONS - Don\'t always use formal textbook language!'
+		? "USE THESE NATURAL INTERJECTIONS - Don't always use formal textbook language!"
 		: `We don't have language-specific examples for ${languageName} yet. Translate these short reactions into natural ${languageName} when you speak.`;
 
 	let prompt = `${headerTitle}

@@ -153,13 +153,13 @@ export class EmailReminderService {
 
 			// Priority order: relationship repair > family acceptance > vulnerable sharing > life transitions > medical > dating
 			const priorityScenarios = [
-				'family-dinner-introduction',  // Partner's parents - highest emotional stakes, aligns with "Meet the Parents" Practice Lab
-				'relationship-apology',        // Relationship repair - "Relationship Decay" narrative, micro-betrayal prevention
-				'vulnerable-heart-to-heart',   // Emotional intimacy - "Love Letter Lab", "70% Campaign" narrative
-				'clinic-night-triage',         // Medical urgency - taking care of loved ones, immediate need
-				'family-milestone-toast',      // Cultural celebration - "Grandparent Clock", family connection
-				'breaking-important-news',     // Life transitions - relationship stakes, family dynamics
-				'first-date-drinks'            // Dating entry point - relatable, lower pressure practice
+				'family-dinner-introduction', // Partner's parents - highest emotional stakes, aligns with "Meet the Parents" Practice Lab
+				'relationship-apology', // Relationship repair - "Relationship Decay" narrative, micro-betrayal prevention
+				'vulnerable-heart-to-heart', // Emotional intimacy - "Love Letter Lab", "70% Campaign" narrative
+				'clinic-night-triage', // Medical urgency - taking care of loved ones, immediate need
+				'family-milestone-toast', // Cultural celebration - "Grandparent Clock", family connection
+				'breaking-important-news', // Life transitions - relationship stakes, family dynamics
+				'first-date-drinks' // Dating entry point - relatable, lower pressure practice
 			];
 
 			// Sort available scenarios by priority order
@@ -173,8 +173,10 @@ export class EmailReminderService {
 				if (aIndex !== -1) return -1;
 				if (bIndex !== -1) return 1;
 				// Otherwise sort by difficulty (easier first)
-				return (a.difficulty === 'beginner' ? 1 : a.difficulty === 'intermediate' ? 2 : 3) -
-				       (b.difficulty === 'beginner' ? 1 : b.difficulty === 'intermediate' ? 2 : 3);
+				return (
+					(a.difficulty === 'beginner' ? 1 : a.difficulty === 'intermediate' ? 2 : 3) -
+					(b.difficulty === 'beginner' ? 1 : b.difficulty === 'intermediate' ? 2 : 3)
+				);
 			});
 
 			// Return top 2 recommendations
@@ -342,7 +344,7 @@ export class EmailReminderService {
 
 				<p>${streakText}</p>
 
-				<p>${lastPracticeText}. ${streakDays > 0 ? "You're building a great habit—thought" : "Thought"} I'd share a couple scenarios:</p>
+				<p>${lastPracticeText}. ${streakDays > 0 ? "You're building a great habit—thought" : 'Thought'} I'd share a couple scenarios:</p>
 
 					${
 						lastScenario

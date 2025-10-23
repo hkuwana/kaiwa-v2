@@ -161,7 +161,9 @@
 		isLoading = true;
 
 		// Navigate with scenario and audio mode parameters
-		goto(`/conversation?sessionId=${sessionId}&scenario=${currentScenario.id}&autoStart=true&audioMode=${selectedAudioMode}`);
+		goto(
+			`/conversation?sessionId=${sessionId}&scenario=${currentScenario.id}&autoStart=true&audioMode=${selectedAudioMode}`
+		);
 	}
 </script>
 

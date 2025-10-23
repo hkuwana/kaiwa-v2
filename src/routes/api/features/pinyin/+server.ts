@@ -53,9 +53,7 @@ async function processChineseTextWithPinyinPro(text: string): Promise<{
 		const pinyinWithTonesStr = Array.isArray(pinyinWithTones)
 			? pinyinWithTones.join(' ')
 			: String(pinyinWithTones);
-		const pinyinPlainStr = Array.isArray(pinyinPlain)
-			? pinyinPlain.join(' ')
-			: String(pinyinPlain);
+		const pinyinPlainStr = Array.isArray(pinyinPlain) ? pinyinPlain.join(' ') : String(pinyinPlain);
 
 		// Generate ruby HTML markup for display (word-boundary aware)
 		const pinyinRubyHTML = generatePinyinRuby(

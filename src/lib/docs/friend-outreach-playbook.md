@@ -13,7 +13,7 @@ Purpose: guide friends and early supporters through a 25-30 minute Kaiwa session
 **Quick message template**
 
 ```
-Hey <Name>! Can I ask you for a huge favor? Would you be down to hop on a quick 25-30 min call this week or next and let me watch you try Kaiwa? I'm trying to figure out where people get stuck.  
+Hey <Name>! Can I ask you for a huge favor? Would you be down to hop on a quick 25-30 min call this week or next and let me watch you try Kaiwa? I'm trying to figure out where people get stuck.
 ```
 
 ---
@@ -40,11 +40,11 @@ Take notes in a running doc or spreadsheet immediately after the call while deta
 Ask these right after they finish the scenario so the experience is vivid:
 
 1. **Moment of value:** “What, if anything, felt genuinely useful or different about Kaiwa during that run?”  
-   *You’re validating the core promise and identifying the strongest pull.*
+   _You’re validating the core promise and identifying the strongest pull._
 2. **Point of friction:** “Where did you feel confused, stuck, or tempted to quit?”  
-   *Pinpoints UX gaps that stop people before analysis.*
+   _Pinpoints UX gaps that stop people before analysis._
 3. **Return trigger:** “What would have to happen for you to come back tomorrow and keep practicing here?”  
-   *Signals the next feature or improvement that matters most.*
+   _Signals the next feature or improvement that matters most._
 
 If time allows, end with: “Is there anything missing that you expected to see?” for bonus insights.
 

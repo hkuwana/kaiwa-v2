@@ -9,6 +9,7 @@ Since you can see the app on fly.io but the CLI gives authorization errors, here
 ## Step 1: Get Your CRON_SECRET
 
 **Option A - From Fly.io Dashboard:**
+
 1. Go to https://fly.io/dashboard
 2. Find your app (probably "kaiwa")
 3. Click "Secrets" tab
@@ -32,6 +33,7 @@ pnpm cron:test:remote
 ### What You Should See
 
 **✅ If Working:**
+
 ```
 1. Testing Daily Reminders Endpoint
    ✅ Status: 200 OK
@@ -49,6 +51,7 @@ pnpm cron:test:remote
 ```
 
 **❌ If Not Working:**
+
 ```
    ❌ Status: 401
 
@@ -63,6 +66,7 @@ pnpm cron:test:remote
 ## Step 3: Check If Cron Machines Exist
 
 **Via Fly.io Dashboard:**
+
 1. Go to https://fly.io/dashboard
 2. Find your app
 3. Click "Machines" tab
@@ -72,6 +76,7 @@ pnpm cron:test:remote
    - `cron-weekly-digest` (should show "stopped" when not running)
 
 **Via CLI (if you can get access):**
+
 ```bash
 fly machines list --app kaiwa
 ```
@@ -81,34 +86,40 @@ fly machines list --app kaiwa
 ## 📊 Results
 
 ### ✅ Endpoints Work (200 OK) + Cron Machines Exist
+
 **Great!** Your cron jobs are set up and should be running on schedule:
+
 - Daily reminders: 9:00 AM UTC
 - Founder emails: 2:00 PM UTC
 - Weekly digest: 10:00 AM UTC on Mondays
 
 **Next:** Monitor logs to confirm they run:
+
 - Fly.io dashboard → Logs tab
 - Or: https://resend.com/emails to see sent emails
 
 ---
 
 ### ✅ Endpoints Work (200 OK) + Cron Machines DON'T Exist
+
 **Partial setup!** The code works but automatic scheduling isn't configured.
 
 **Fix Options:**
 
 **Option A - Deploy Cron Machines (need CLI access):**
+
 ```bash
 pnpm cron:deploy
 ```
 
 **Option B - Use GitHub Actions (no CLI needed):**
 Create `.github/workflows/cron.yml`:
+
 ```yaml
 name: Cron Jobs
 on:
   schedule:
-    - cron: '0 9 * * *'  # 9 AM UTC daily
+    - cron: '0 9 * * *' # 9 AM UTC daily
     - cron: '0 14 * * *' # 2 PM UTC daily
 
 jobs:
@@ -122,24 +133,29 @@ jobs:
 
 **Option C - Use External Service:**
 Use cron-job.org or similar to call:
+
 - https://trykaiwa.com/api/cron/send-reminders
 - https://trykaiwa.com/api/cron/founder-emails
 
 ---
 
 ### ❌ Endpoints Don't Work (401 or 404)
+
 **Fix needed!**
 
 **If 401 Unauthorized:**
+
 - Check CRON_SECRET is correct
 - Get it from Fly.io dashboard → Secrets
 
 **If 404 Not Found:**
+
 - App might not be deployed
 - Check https://trykaiwa.com loads in browser
 - Check Fly.io dashboard → Status
 
 **If Connection Error:**
+
 - App is down or wrong URL
 - Verify URL in Fly.io dashboard
 

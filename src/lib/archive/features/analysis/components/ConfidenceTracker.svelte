@@ -140,7 +140,10 @@
 		onclick={() => (showDetails = !showDetails)}
 	>
 		{showDetails ? 'Hide' : 'Show'} Details
-		<span class="icon-[mdi--chevron-down] h-4 w-4 transition-transform" class:rotate-180={showDetails}></span>
+		<span
+			class="icon-[mdi--chevron-down] h-4 w-4 transition-transform"
+			class:rotate-180={showDetails}
+		></span>
 	</button>
 
 	{#if showDetails}
