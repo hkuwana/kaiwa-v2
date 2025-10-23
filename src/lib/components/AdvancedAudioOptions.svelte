@@ -118,9 +118,9 @@
 				<div class="flex items-center justify-between gap-4">
 					<div class="flex-1 text-left">
 						<div class="font-medium text-sm" class:text-primary={selectedMode === 'vad'}>
-							Conversation Mode
+							Auto-Detect Mode
 						</div>
-						<div class="text-xs text-base-content/60">Voice detection enabled</div>
+						<div class="text-xs text-base-content/60">Hands-free speaking</div>
 					</div>
 
 					<!-- Toggle Switch -->
@@ -129,7 +129,7 @@
 							type="checkbox"
 							checked={selectedMode === 'ptt'}
 							onchange={() => handleModeChange(selectedMode === 'vad' ? 'ptt' : 'vad')}
-							aria-label="Toggle between Conversation Mode and Push-to-Talk"
+							aria-label="Toggle between Auto-Detect Mode and Push-to-Talk"
 						/>
 						<div class="swap-on">
 							<div class="flex h-12 w-12 items-center justify-center rounded-full bg-primary">
@@ -181,7 +181,7 @@
 				<div class="rounded-lg bg-base-200 p-3">
 					{#if selectedMode === 'vad'}
 						<div class="text-xs text-base-content/70">
-							<strong>Conversation Mode (Voice Activity Detection):</strong> Automatically detects when
+							<strong>Auto-Detect Mode (Voice Activity Detection):</strong> Automatically detects when
 							you're speaking. Just talk naturally without pressing any buttons. Best for quiet environments.
 						</div>
 					{:else}
