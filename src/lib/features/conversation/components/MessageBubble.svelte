@@ -131,9 +131,19 @@
 	const hasScriptDataFlag = $derived(hasScriptData(message));
 
 	// Detect which type of script content we have
+	// Prioritize language-specific detection to prevent Japanese/Chinese confusion
 	const scriptDisplayType = $derived(() => {
-		if (message.hiragana || message.otherScripts?.furigana) return 'furigana';
+		const lang = detectLanguage(message.content);
+
+		// For Chinese text, prioritize pinyin even if hiragana exists
+		if (lang === 'zh' && message.otherScripts?.pinyinRuby) return 'pinyin';
+
+		// For Japanese text, show furigana
+		if (lang === 'ja' && (message.hiragana || message.otherScripts?.furigana)) return 'furigana';
+
+		// Fallback to checking what data exists
 		if (message.otherScripts?.pinyinRuby) return 'pinyin';
+		if (message.hiragana || message.otherScripts?.furigana) return 'furigana';
 		if (message.romanization) return 'romanization';
 		return null;
 	});
