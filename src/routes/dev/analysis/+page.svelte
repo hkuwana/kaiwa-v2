@@ -34,7 +34,7 @@
 	};
 
 	let modules = $state<ModuleMeta[]>([]);
-	let selectedModuleIds = $state<Set<string>>(new SvelteSet());
+	let selectedModuleIds = <Set<string>>new SvelteSet();
 	let conversationId = $state('dev-conversation');
 	let languageCode = $state('en');
 	let selectedScenario = $state('spanish-restaurant');

@@ -25,7 +25,7 @@
 		billingError: string;
 		isManagingBilling: boolean;
 		openBillingPortal: () => Promise<void>;
-		subscription: Subscription;
+		subscription: Subscription | null;
 		usageLimits: UsageLimits;
 	} = $props();
 

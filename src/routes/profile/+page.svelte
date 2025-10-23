@@ -4,7 +4,7 @@
 	import UserPreferencesEditor from '$lib/components/UserPreferencesEditor.svelte';
 	import EmailPreferences from '$lib/components/EmailPreferences.svelte';
 	import SpeechSpeedSelector from '$lib/components/SpeechSpeedSelector.svelte';
-	import type { UserPreferences } from '$lib/server/db/types';
+	import type { Subscription, UserPreferences } from '$lib/server/db/types';
 	import type { MemorySummary } from '$lib/services/user-memory.service';
 	import type { UsageStatus } from '$lib/server/tier-service';
 	import { SvelteDate } from 'svelte/reactivity';
@@ -15,7 +15,7 @@
 
 	// Client-side data loading
 	let userPreferences = $state<UserPreferences | null>(null);
-	let subscription = $state<any>(null);
+	let subscription = $state<Subscription | null>(null);
 	let usageLimits = $state<any>(null);
 	let memorySummary = $state<MemorySummary | null>(null);
 

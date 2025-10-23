@@ -39,7 +39,7 @@
 
 			{#if data.metadata?.tags && data.metadata.tags.length > 0}
 				<div class="flex flex-wrap gap-2">
-					{#each data.metadata.tags as tag}
+					{#each data.metadata.tags as tag (tag)}
 						<span class="badge badge-outline badge-sm">{tag}</span>
 					{/each}
 				</div>

@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-
 	interface UpdateItem {
 		title: string;
 		summary: string;
@@ -243,7 +241,7 @@
 						</button>
 					</div>
 
-					{#each content.upcoming as item, i}
+					{#each content.upcoming as item, i (i)}
 						<div class="space-y-2 rounded-lg border border-base-300 p-4">
 							<div class="flex items-center justify-between">
 								<span class="font-medium">Item {i + 1}</span>

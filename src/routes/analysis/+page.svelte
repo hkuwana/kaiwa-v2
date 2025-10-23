@@ -42,7 +42,7 @@
 	// Analysis pipeline state
 	let analysisStore = $state<any>(null);
 	let modules = $state<any[]>([]);
-	let selectedModuleIds = $state<Set<string>>(new SvelteSet());
+	let selectedModuleIds = <Set<string>>new SvelteSet();
 	let isLoading = $state(false);
 	let lastRun: any = $state(null);
 	let errorMessage = $state<string | null>(null);

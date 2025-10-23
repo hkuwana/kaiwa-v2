@@ -48,7 +48,6 @@
 	}: Props = $props();
 
 	// Determine if PTT controls should be active
-	const isPTTMode = $derived(audioInputMode === 'ptt');
 	const isVADMode = $derived(audioInputMode === 'vad');
 
 	// --- REACTIVE VALUES (SVELTE 5 RUNES) ---

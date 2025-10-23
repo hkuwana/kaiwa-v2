@@ -1,7 +1,7 @@
 <!-- src/lib/components/LoadingScreen.svelte -->
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { fade, fly, scale } from 'svelte/transition';
+	import { fly, scale } from 'svelte/transition';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import type { ConversationStatus } from '$lib/services/conversation.service';
 	import AnimatedHeadphones from '$lib/features/audio/components/AnimatedHeadphones.svelte';

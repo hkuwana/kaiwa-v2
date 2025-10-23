@@ -7,23 +7,10 @@
 	import type { Message } from '$lib/server/db/types';
 	import VirtualizedMessageList from '$lib/features/conversation/components/VirtualizedMessageList.svelte';
 	import { SvelteDate, SvelteMap, SvelteSet, SvelteURLSearchParams } from 'svelte/reactivity';
-	import type { User } from '$lib/server/db/types';
 
 	interface PageData {
 		user: { id: string };
 	}
-
-	interface ApiResponse<T> {
-		success: boolean;
-		data?: T;
-		error?: string;
-		pagination?: {
-			total?: number;
-			hasMore?: boolean;
-			hasNext?: boolean;
-		};
-	}
-
 	interface ConversationPreview {
 		id: string;
 		title: string;
@@ -69,10 +56,11 @@
 	}
 
 	let conversations = $state<ConversationPreview[]>([]);
-	let conversationDetails = $state(
-		new SvelteMap<string, { details: ConversationDetails; messages: Message[] }>()
-	);
-	let expandedConversations = $state(new SvelteSet<string>());
+	let conversationDetails = new SvelteMap<
+		string,
+		{ details: ConversationDetails; messages: Message[] }
+	>();
+	let expandedConversations = new SvelteSet<string>();
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 	let searchQuery = $state('');
@@ -80,14 +68,12 @@
 	let currentPage = $state(0);
 	let totalConversations = $state(0);
 	let hasMore = $state(false);
-	let loadingDetails = $state(new SvelteSet<string>());
+	let loadingDetails = new SvelteSet<string>();
 	let showDevMode = $state(false);
-	let selectedConversations = $state(new SvelteSet<string>());
+	let selectedConversations = new SvelteSet<string>();
 	let deleting = $state(false);
 	let actionMessage = $state<string | null>(null);
 	let actionError = $state<string | null>(null);
-
-	const { data }: { data: PageData } = $props();
 
 	const limit = 10;
 	const languages = $derived(() => {

@@ -135,7 +135,7 @@ export class EmailReminderService {
 	 */
 	private static async getRecommendedScenarios(
 		userId: string,
-		lastScenario?: Scenario | null
+		_lastScenario?: Scenario | null
 	): Promise<Scenario[]> {
 		try {
 			// Get all active scenarios

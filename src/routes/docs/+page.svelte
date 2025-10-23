@@ -17,7 +17,7 @@
 	</header>
 
 	<div class="docs-grid">
-		{#each data.docs as doc}
+		{#each data.docs as doc (doc.slug)}
 			<a href={doc.path} class="doc-card">
 				<div class="doc-icon">📚</div>
 				<div class="doc-content">

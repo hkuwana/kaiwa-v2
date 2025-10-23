@@ -229,7 +229,7 @@
 									</div>
 									<p class="mb-2 text-xs text-base-content/70">{descriptor.communicationStyle}</p>
 									<div class="flex flex-wrap gap-1">
-										{#each descriptor.keywords.slice(0, 3) as keyword}
+										{#each descriptor.keywords.slice(0, 3) as keyword, i (i)}
 											<span class="badge badge-ghost badge-xs">{keyword}</span>
 										{/each}
 									</div>

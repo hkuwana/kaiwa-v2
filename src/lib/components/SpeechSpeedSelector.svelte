@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
-	import { userManager } from '$lib/stores/user.store.svelte';
 	import { getLearnerCefrLevel } from '$lib/utils/cefr';
 	import type { SpeechSpeed } from '$lib/server/db/types';
 
@@ -81,7 +80,7 @@
 		bind:value={selectedSpeed}
 		onchange={handleSpeedChange}
 	>
-		{#each speedOptions as option}
+		{#each speedOptions as option, i (i)}
 			<option value={option.value}>
 				{option.label}
 			</option>
