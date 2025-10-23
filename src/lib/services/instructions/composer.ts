@@ -12,6 +12,11 @@ import {
 	parametersToInstructions
 } from './parameters';
 import { getLearnerCefrLevel, getScenarioCefrLevel } from '$lib/utils/cefr';
+import {
+	formatCasualExpressionsForPrompt,
+	getCasualExpressions,
+	hasCasualExpressionsForLanguage
+} from './casual-interjections';
 
 /**
  * OPENAI RECOMMENDED STRUCTURE:
@@ -75,6 +80,7 @@ export class InstructionComposer {
 			this.buildPersonalityTone(),
 			this.buildContext(),
 			this.buildReferencePronunciations(),
+			this.buildCasualExpressions(),
 			// Tools section omitted for now (no function calling yet)
 			this.buildInstructionsRules(),
 			this.buildConversationFlow(),
@@ -213,10 +219,13 @@ ${dialectContext}
 ${rolePositioning}
 
 ## Communication Style
-- React genuinely to what learner says
-- Show curiosity about their experiences
+- React genuinely to what learner says (1-2 words often enough!)
+- Show curiosity with SHORT questions: "Like what?" "Which one?" "How come?" "Really?"
 - Build on their topics, don't force your agenda
 - CRITICAL: VARY your phrases - never repeat the same encouragement twice in a session
+- BREVITY RULE: After 1-2 short sentences MAX, ask a question and STOP
+- Think "volley" not "lecture" - keep the conversation bouncing back and forth
+- Your turn should feel like a quick text message, not a paragraph
 ${isTutorMode ? '' : '- Speak naturally, as you would with a friend from your region - not in "textbook" language'}
 
 ## Voice Guidelines (for speech-to-speech)
@@ -224,7 +233,8 @@ ${isTutorMode ? '' : '- Speak naturally, as you would with a friend from your re
 - Use natural pauses and breathing
 - Let silence breathe - don't rush to fill every gap
 - Intonation should invite response, not lecture
-- End turns with inviting tone so learner knows it's their turn`;
+- End turns with inviting tone so learner knows it's their turn
+${this.buildConversationalPatternGuidance()}`;
 	}
 
 	private buildContext(): string {
@@ -287,6 +297,51 @@ ${previousTopics
 - Grammar complexity: ${this.params.grammarComplexity}`);
 
 		return contextSections.length > 0 ? `# Context\n\n${contextSections.join('\n\n')}` : '';
+	}
+
+	private buildCasualExpressions(): string {
+		const { language, speaker } = this.options;
+		const region = speaker?.region;
+
+		// Generate casual expression guide for this language/region
+		return formatCasualExpressionsForPrompt(language.code, language.name, region);
+	}
+
+	private buildConversationalPatternGuidance(): string {
+		const { language, speaker } = this.options;
+		const expressions = getCasualExpressions(language.code, speaker?.region);
+		const hasCustomData = hasCasualExpressionsForLanguage(language.code);
+
+		const reaction =
+			expressions.positive[0] ||
+			expressions.excitement[0] ||
+			expressions.understanding[0] ||
+			'Nice!';
+		const followUp = expressions.questions[0] || 'Which one?';
+		const alternateReaction =
+			expressions.surprise[0] ||
+			expressions.positive[1] ||
+			expressions.excitement[1] ||
+			reaction;
+		const alternateFollowUp = expressions.questions[1] || expressions.questions[0] || 'Where?';
+
+		const hobbyExample = [reaction.trim(), followUp.trim()].filter(Boolean).join(' ');
+		const tripExample = [alternateReaction.trim(), alternateFollowUp.trim()]
+			.filter(Boolean)
+			.join(' ');
+
+		const exampleLines = hasCustomData
+			? `- Example when learner shares a hobby: "${hobbyExample}"
+- Example when learner mentions a trip: "${tripExample}"`
+			: `- Example when learner shares a hobby: "Nice! What kind?"
+- Example when learner mentions a trip: "Oh wow! Where to?"`;
+
+		return `## CONVERSATIONAL RESPONSE PATTERNS (CRITICAL - FOLLOW THESE!)
+- Use a quick ${hasCustomData ? language.name : 'target-language'} reaction (1-3 words), then a short follow-up question (2-5 words)
+- After the question, stop and wait—let the learner take their turn
+${exampleLines}
+- Mix and rotate casual expressions from the list above to stay natural
+- Conversation should feel like ping-pong: react, ask, listen, repeat`;
 	}
 
 	private buildReferencePronunciations(): string {
@@ -373,21 +428,25 @@ ${scenarioRules}`;
 
 		const roleRules: Record<string, string> = {
 			tutor: `## Tutor-Specific Rules
-- Explain grammar patterns explicitly when requested
+- Keep explanations SHORT and conversational - avoid lectures
+- Even when teaching, use 1-2 sentence explanations max
 - Have learner repeat correct forms 2-3 times
 - Break complex structures into small, testable chunks
-- Check comprehension by having them use new patterns
+- Check comprehension with quick questions: "Got it?" "Make sense?" "Want to try?"
 - Track mastery of each learning objective
-- THIS IS THE ONLY MODE WHERE GRAMMAR TEACHING IS PRIMARY`,
+- THIS IS THE ONLY MODE WHERE GRAMMAR TEACHING IS PRIMARY
+- BUT still maintain natural, friendly conversation flow - not textbook tone`,
 
 			character: `## Character Role-Play Rules
 - STAY IN CHARACTER throughout the conversation
-- Set stakes: make it clear what happens if communication fails
-- React realistically to what learner says using language natural to ${speakerRegion}
-- Add realistic complications to challenge them
-- Success = learner achieves the scenario objective
+- Keep responses SHORT and natural - real people don't give speeches
+- React realistically with brief, authentic responses (not long explanations)
+- Set stakes with 1-2 sentences max: "We close in 10 minutes!"
+- Add realistic complications through quick, punchy dialogue
+- Success = learner achieves the scenario objective through natural back-and-forth
 - NO GRAMMAR CORRECTIONS - focus on realistic conversation flow
-- Use expressions and phrasing that feel authentic to ${speakerRegion}`,
+- Use expressions and phrasing that feel authentic to ${speakerRegion}
+- Think: How would a real shop clerk/friend/colleague actually respond? (Usually 3-8 words!)`,
 
 			friendly_chat: `## Casual Conversation Partner Rules
 - You are a CONVERSATION PARTNER, NOT a teacher

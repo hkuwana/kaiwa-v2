@@ -36,6 +36,9 @@ export type UserTier = 'free' | 'plus' | 'premium';
 // Audio input mode type
 export type AudioInputMode = 'vad' | 'ptt';
 
+// Speech speed type
+export type SpeechSpeed = 'auto' | 'very_slow' | 'slow' | 'normal' | 'fast' | 'native';
+
 export type User = InferSelectModel<typeof users>;
 export type Session = InferSelectModel<typeof session>;
 export type Language = InferSelectModel<typeof languages>;

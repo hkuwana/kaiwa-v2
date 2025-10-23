@@ -90,29 +90,29 @@ export const SENTENCE_LENGTH_RULES: Record<SentenceLength, string> = {
 - Use basic subject-verb-object structure
 - Example: "How are you?" "What did you eat?"`,
 
-	short: `## SENTENCE LENGTH: SHORT (5-8 words)
-- Responses typically 5-8 words
-- One clause per sentence
-- Avoid complex subordination
-- Example: "Tell me about your weekend plans."`,
+	short: `## SENTENCE LENGTH: SHORT (3-5 words typical, max 8)
+- Most responses just 3-5 words
+- Occasional full sentence okay (max 8 words)
+- Think: How would a friend text you?
+- Examples: "Nice!" "What book?" "Oh cool, which one?"`,
 
-	medium: `## SENTENCE LENGTH: MEDIUM (8-12 words)
-- Responses typically 8-12 words
-- One to two clauses allowed
-- Simple conjunctions (and, but, so)
-- Example: "What did you do yesterday, and how did it go?"`,
+	medium: `## SENTENCE LENGTH: MEDIUM (5-10 words max)
+- Responses typically 5-10 words
+- One simple idea or question
+- Natural conversation rhythm, not essays
+- Example: "Oh awesome! What are you reading?"`,
 
-	long: `## SENTENCE LENGTH: LONG (12-15 words)
+	long: `## SENTENCE LENGTH: LONG (8-15 words)
 - Responses up to 15 words
-- Multiple clauses with natural flow
-- Use varied sentence structures
-- Example: "When you visited Tokyo, which neighborhoods did you explore, and what surprised you most?"`,
+- One to two short clauses max
+- Still conversational, not formal
+- Example: "Oh nice! Which neighborhoods did you visit?"`,
 
 	native: `## SENTENCE LENGTH: NATIVE (variable, natural)
 - Use natural sentence variety
-- Mix short punchy sentences with longer explanations
-- Follow conversational rhythm
-- No artificial length constraints`
+- Mix short punchy sentences (3-5 words) with longer ones (up to 15)
+- Favor brevity - most turns should be under 10 words
+- Follow conversational rhythm: quick volleys, not monologues`
 };
 
 // ============================================
@@ -418,7 +418,7 @@ export const PARAMETER_PRESETS: Record<string, InstructionParameters> = {
 
 	intermediate: {
 		speakingSpeed: 'normal',
-		sentenceLength: 'medium',
+		sentenceLength: 'short',  // Changed from 'medium' for more natural flow
 		pauseFrequency: 'moderate',
 		targetCEFR: 'B1',
 		vocabularyComplexity: 'everyday',
@@ -426,14 +426,14 @@ export const PARAMETER_PRESETS: Record<string, InstructionParameters> = {
 		scaffoldingLevel: 'medium',
 		correctionStyle: 'recast',
 		languageMixingPolicy: 'flexible',
-		encouragementFrequency: 'moderate',
-		conversationPace: 'steady',
+		encouragementFrequency: 'minimal',  // Changed from 'moderate' - less cheerleading
+		conversationPace: 'dynamic',  // Changed from 'steady' for more natural rhythm
 		topicChangeFrequency: 'moderate'
 	},
 
 	upper_intermediate: {
 		speakingSpeed: 'normal',
-		sentenceLength: 'long',
+		sentenceLength: 'medium',  // Changed from 'long' for more conversational feel
 		pauseFrequency: 'moderate',
 		targetCEFR: 'B2',
 		vocabularyComplexity: 'advanced',
@@ -441,14 +441,14 @@ export const PARAMETER_PRESETS: Record<string, InstructionParameters> = {
 		scaffoldingLevel: 'light',
 		correctionStyle: 'recast',
 		languageMixingPolicy: 'flexible',
-		encouragementFrequency: 'moderate',
-		conversationPace: 'steady',
+		encouragementFrequency: 'minimal',  // Changed from 'moderate'
+		conversationPace: 'dynamic',  // Changed from 'steady'
 		topicChangeFrequency: 'moderate'
 	},
 
 	advanced: {
 		speakingSpeed: 'fast',
-		sentenceLength: 'native',
+		sentenceLength: 'medium',  // Changed from 'native' to encourage brevity
 		pauseFrequency: 'minimal',
 		targetCEFR: 'C1',
 		vocabularyComplexity: 'advanced',
@@ -479,7 +479,7 @@ export const PARAMETER_PRESETS: Record<string, InstructionParameters> = {
 	// Special presets for specific scenarios
 	tutor_explicit: {
 		speakingSpeed: 'slow',
-		sentenceLength: 'short',
+		sentenceLength: 'short',  // Keep short for teaching clarity
 		pauseFrequency: 'frequent',
 		targetCEFR: 'B1',
 		vocabularyComplexity: 'everyday',
@@ -487,14 +487,14 @@ export const PARAMETER_PRESETS: Record<string, InstructionParameters> = {
 		scaffoldingLevel: 'heavy',
 		correctionStyle: 'explicit', // Key difference
 		languageMixingPolicy: 'bilingual_support',
-		encouragementFrequency: 'frequent',
+		encouragementFrequency: 'moderate',  // Changed from 'frequent' - less cheerleading
 		conversationPace: 'relaxed',
 		topicChangeFrequency: 'focused'
 	},
 
 	conversation_partner: {
 		speakingSpeed: 'normal',
-		sentenceLength: 'native',
+		sentenceLength: 'short',  // Changed from 'native' for more conversational feel
 		pauseFrequency: 'minimal',
 		targetCEFR: 'B2',
 		vocabularyComplexity: 'advanced',
