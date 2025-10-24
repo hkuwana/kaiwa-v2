@@ -8,9 +8,6 @@
 	import VirtualizedMessageList from '$lib/features/conversation/components/VirtualizedMessageList.svelte';
 	import { SvelteDate, SvelteMap, SvelteSet, SvelteURLSearchParams } from 'svelte/reactivity';
 
-	interface PageData {
-		user: { id: string };
-	}
 	interface ConversationPreview {
 		id: string;
 		title: string;

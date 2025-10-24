@@ -150,7 +150,7 @@
 						</button>
 					</div>
 
-					{#each content.updates as update, i}
+					{#each content.updates as update, i (update.linkUrl)}
 						<div class="space-y-2 rounded-lg border border-base-300 p-4">
 							<div class="flex items-center justify-between">
 								<span class="font-medium">Update {i + 1}</span>

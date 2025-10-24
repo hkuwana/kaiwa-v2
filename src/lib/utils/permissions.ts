@@ -168,21 +168,23 @@ export const getUsageWarning = (
 	const limits = getTierLimits(user.tier);
 
 	switch (feature) {
-		case 'start-conversation':
-			{ if (limits.maxConversationsPerDay === -1) return null;
+		case 'start-conversation': {
+			if (limits.maxConversationsPerDay === -1) return null;
 			const remaining = limits.maxConversationsPerDay - (context?.conversationsToday || 0);
 			if (remaining <= 1) {
 				return `Only ${remaining} conversation${remaining === 1 ? '' : 's'} remaining today.`;
 			}
-			return null; }
+			return null;
+		}
 
-		case 'run-analysis':
-			{ if (limits.maxAnalysisPerMonth === -1) return null;
+		case 'run-analysis': {
+			if (limits.maxAnalysisPerMonth === -1) return null;
 			const monthlyRemaining = limits.maxAnalysisPerMonth - (context?.analysisThisMonth || 0);
 			if (monthlyRemaining <= 2) {
 				return `Only ${monthlyRemaining} analysis${monthlyRemaining === 1 ? '' : 'es'} remaining this month.`;
 			}
-			return null; }
+			return null;
+		}
 
 		default:
 			return null;

@@ -519,7 +519,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#each competitorAnalysis as competitor}
+						{#each competitorAnalysis as competitor (competitor.name)}
 							<tr class="border-t">
 								<td class="px-4 py-2 font-medium">{competitor.name}</td>
 								<td
@@ -550,7 +550,7 @@
 					<div class="border-l-4 border-blue-500 pl-4">
 						<h3 class="text-lg font-semibold text-gray-800">{details.title}</h3>
 						<ul class="mt-2 space-y-1">
-							{#each details.tasks as task}
+							{#each details.tasks as task, i (i)}
 								<li class="text-sm text-gray-600">
 									<span class="mr-2">•</span>
 									{task}

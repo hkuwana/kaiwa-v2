@@ -2,9 +2,12 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeHexLowerCase } from '@oslojs/encoding';
+import { dev } from '$app/environment';
 import { userRepository } from '$lib/server/repositories/user.repository';
 import { createSession, setSessionTokenCookie, findOrCreateUser } from '$lib/server/auth';
 import { EmailVerificationService } from '$lib/server/services/email-verification.service';
+
+const emailAuthEnabled = dev;
 
 export async function load(event) {
 	if (event.locals.session !== null && event.locals.user !== null) {
@@ -27,6 +30,12 @@ export async function load(event) {
 
 export const actions = {
 	signup: async (event) => {
+		if (!emailAuthEnabled) {
+			return fail(400, {
+				message: 'Email & password sign-in is temporarily unavailable. Please continue with Google.'
+			});
+		}
+
 		const formData = await event.request.formData();
 		const email = formData.get('email') as string;
 		const password = formData.get('password') as string;
@@ -72,6 +81,12 @@ export const actions = {
 	},
 
 	login: async (event) => {
+		if (!emailAuthEnabled) {
+			return fail(400, {
+				message: 'Email & password sign-in is temporarily unavailable. Please continue with Google.'
+			});
+		}
+
 		const formData = await event.request.formData();
 		const email = formData.get('email') as string;
 		const password = formData.get('password') as string;

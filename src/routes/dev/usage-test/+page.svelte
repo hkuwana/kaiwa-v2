@@ -390,7 +390,7 @@
 			<h2 class="card-title">Tier Configuration</h2>
 
 			<div class="mb-4 flex gap-4">
-				{#each Object.keys(defaultTierConfigs) as tier}
+				{#each Object.keys(defaultTierConfigs) as tier (tier)}
 					<button
 						class="btn {selectedTier === tier ? 'btn-primary' : 'btn-outline'}"
 						onclick={() => handleTierChange(tier as UserTier)}

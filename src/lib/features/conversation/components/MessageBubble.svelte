@@ -9,7 +9,6 @@
 	import { getSpeakerById } from '$lib/data/speakers';
 	import { getLanguageEmoji } from '$lib/data/languages';
 	import kitsune from '$lib/assets/kitsune.webp';
-	import face from '$lib/assets/Face.webp';
 	import { SvelteDate } from 'svelte/reactivity';
 	import WordSyncedText from '$lib/components/WordSyncedText.svelte';
 	import {

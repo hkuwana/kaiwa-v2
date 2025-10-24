@@ -263,7 +263,7 @@
 					<div class="stat">
 						<div class="stat-title">Suggestion Types</div>
 						<div class="stat-value text-sm">
-							{#each [...new Set(currentSuggestions().map((s) => s.severity))] as severity}
+							{#each [...new Set(currentSuggestions().map((s) => s.severity))] as severity, i (i)}
 								<div
 									class="badge badge-xs {severity === 'warning'
 										? 'badge-warning'

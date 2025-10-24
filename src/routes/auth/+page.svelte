@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import posthog from 'posthog-js';
-	import { browser } from '$app/environment';
+	import { browser, dev } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
@@ -11,6 +11,7 @@
 	// Get query parameters from server data
 	const from = $derived(data.from);
 	const newsletter = $derived(data.newsletter);
+	const emailAuthEnabled = dev;
 
 	let isLogin = $state(userManager.isLoggedIn ? true : false);
 	let email = $state('');
@@ -154,106 +155,116 @@
 			Continue with Google
 		</button>
 
-		<div class="divider">or</div>
+		{#if emailAuthEnabled}
+			<div class="divider">or</div>
 
-		<!-- Form -->
-		<form
-			method="POST"
-			action="?/{isLogin ? 'login' : 'signup'}"
-			use:enhance={() => {
-				if (browser) {
-					posthog.capture('auth_form_submit', {
-						method: isLogin ? 'login' : 'signup'
-					});
-				}
-				return async ({ result, update }) => {
-					if (result.type === 'error') {
-						error = result.error.message;
-						if (browser) {
-							posthog.capture('auth_form_error', {
-								method: isLogin ? 'login' : 'signup',
-								error: result.error.message
-							});
-						}
-					} else {
-						if (browser) {
-							// Pull attribution from localStorage/cookie
-							let shareId: string | null = null;
-							try {
-								const stored = localStorage.getItem('kaiwa_attribution');
-								if (stored) {
-									shareId = JSON.parse(stored).shareId || null;
-								}
-								if (!shareId) {
-									const m = document.cookie.match(/(?:^|; )kaiwa_share_id=([^;]*)/);
-									shareId = m ? decodeURIComponent(m[1]) : null;
-								}
-							} catch {
-								// Intentionally empty - attribution data is optional
-							}
-							let utm: any = {};
-							try {
-								const stored = localStorage.getItem('kaiwa_attribution');
-								if (stored) utm = JSON.parse(stored).utm || {};
-							} catch {
-								// Intentionally empty - UTM data is optional
-							}
-							posthog.capture('auth_form_success', {
-								method: isLogin ? 'login' : 'signup',
-								share_id: shareId,
-								...utm
-							});
-						}
-						await update();
+			<!-- Form -->
+			<form
+				method="POST"
+				action="?/{isLogin ? 'login' : 'signup'}"
+				use:enhance={() => {
+					if (browser) {
+						posthog.capture('auth_form_submit', {
+							method: isLogin ? 'login' : 'signup'
+						});
 					}
-				};
-			}}
-			class="mt-8 space-y-2"
-		>
-			{#if showEmailForm}
-				<div class="space-y-2">
-					<!-- Email -->
-					<div class="form-control">
-						<label class="floating-label">
-							<span>Your Email</span>
-							<input
-								id="email"
-								name="email"
-								type="email"
-								required
-								bind:value={email}
-								placeholder="example@yourmail.com"
-								class="input input-md w-full"
-							/>
-						</label>
+					return async ({ result, update }) => {
+						if (result.type === 'error') {
+							error = result.error.message;
+							if (browser) {
+								posthog.capture('auth_form_error', {
+									method: isLogin ? 'login' : 'signup',
+									error: result.error.message
+								});
+							}
+						} else {
+							if (browser) {
+								// Pull attribution from localStorage/cookie
+								let shareId: string | null = null;
+								try {
+									const stored = localStorage.getItem('kaiwa_attribution');
+									if (stored) {
+										shareId = JSON.parse(stored).shareId || null;
+									}
+									if (!shareId) {
+										const m = document.cookie.match(/(?:^|; )kaiwa_share_id=([^;]*)/);
+										shareId = m ? decodeURIComponent(m[1]) : null;
+									}
+								} catch {
+									// Intentionally empty - attribution data is optional
+								}
+								let utm: any = {};
+								try {
+									const stored = localStorage.getItem('kaiwa_attribution');
+									if (stored) utm = JSON.parse(stored).utm || {};
+								} catch {
+									// Intentionally empty - UTM data is optional
+								}
+								posthog.capture('auth_form_success', {
+									method: isLogin ? 'login' : 'signup',
+									share_id: shareId,
+									...utm
+								});
+							}
+							await update();
+						}
+					};
+				}}
+				class="mt-8 space-y-2"
+			>
+				{#if showEmailForm}
+					<div class="space-y-2">
+						<!-- Email -->
+						<div class="form-control">
+							<label class="floating-label">
+								<span>Your Email</span>
+								<input
+									id="email"
+									name="email"
+									type="email"
+									required
+									bind:value={email}
+									placeholder="example@yourmail.com"
+									class="input input-md w-full"
+								/>
+							</label>
+						</div>
+						<!-- Password -->
+						<div class="form-control">
+							<label class="floating-label">
+								<span>Password</span>
+								<input
+									id="password"
+									name="password"
+									type="password"
+									required
+									bind:value={password}
+									placeholder="Enter your password"
+									class="input input-md w-full"
+								/>
+							</label>
+						</div>
 					</div>
-					<!-- Password -->
-					<div class="form-control">
-						<label class="floating-label">
-							<span>Password</span>
-							<input
-								id="password"
-								name="password"
-								type="password"
-								required
-								bind:value={password}
-								placeholder="Enter your password"
-								class="input input-md w-full"
-							/>
-						</label>
-					</div>
-				</div>
 
-				<!-- Submit Button -->
-				<button type="submit" class="btn w-full btn-primary" disabled={!isLogin && !agreedToTerms}>
-					{isLogin ? 'Sign in' : 'Create account'}
-				</button>
-			{:else}
-				<button type="button" onclick={() => (showEmailForm = true)} class="btn w-full">
-					Sign up with Email
-				</button>
-			{/if}
-		</form>
+					<!-- Submit Button -->
+					<button
+						type="submit"
+						class="btn w-full btn-primary"
+						disabled={!isLogin && !agreedToTerms}
+					>
+						{isLogin ? 'Sign in' : 'Create account'}
+					</button>
+				{:else}
+					<button type="button" onclick={() => (showEmailForm = true)} class="btn w-full">
+						Sign up with Email (dev)
+					</button>
+				{/if}
+			</form>
+		{:else}
+			<div class="mt-8 rounded-lg bg-base-200 p-4 text-sm text-base-content/80">
+				Email & password sign-in is temporarily unavailable. Please continue with Google.
+			</div>
+		{/if}
 
 		<!-- Pending Assessment Data -->
 		{#if pendingAssessment}
