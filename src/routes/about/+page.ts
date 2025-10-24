@@ -5,11 +5,11 @@ export const load = async ({ parent }) => {
 		...data,
 		seo: {
 			...seo,
-			title: 'About Kaiwa - The Anti-Language-Learning App Philosophy',
+			title: 'About Kaiwa - Your AI Language Partner for Confident Speaking',
 			description:
-				'Discover the story behind Kaiwa and our mission to help language learners build real connections through conversation. Learn why we focus on heart-to-heart communication over test scores.',
+				'Learn about Kaiwa\'s mission to build a world where everyone can speak confidently in any language. Discover how our AI language partner and coach helps you practice real conversations and connect with the world.',
 			keywords:
-				'about kaiwa, language learning philosophy, conversation-focused learning, AI language tutor story, natural language acquisition, language learning mission',
+				'about kaiwa, AI language partner, AI language coach, language learning mission, conversation practice, speaking confidence, language education technology',
 			ogType: 'article'
 		}
 	};

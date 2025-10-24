@@ -5,11 +5,11 @@ export const load = async ({ parent }) => {
 		...data,
 		seo: {
 			...seo,
-			title: 'Kaiwa Pricing - Choose Your Language Learning Plan | Free Trial Available',
+			title: 'Kaiwa Pricing - Plans for Your AI Language Partner & Coach',
 			description:
-				'Choose the perfect Kaiwa plan for your language learning goals. Start free, then unlock more practice time with Plus or Premium plans. AI conversation practice for Japanese, Spanish, French and more.',
+				'Find the right plan for your language learning journey. Get started with our free AI language partner, or upgrade to unlock advanced features and unlimited practice with your AI language coach.',
 			keywords:
-				'kaiwa pricing, language learning plans, AI conversation cost, japanese learning subscription, spanish practice pricing, french tutor cost, language app pricing, conversation practice plans',
+				'kaiwa pricing, AI language partner pricing, AI language coach cost, language learning plans, conversation practice pricing, speaking practice plans, language app subscription',
 			ogType: 'product'
 		}
 	};

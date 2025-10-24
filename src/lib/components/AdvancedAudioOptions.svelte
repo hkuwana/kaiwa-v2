@@ -239,8 +239,4 @@
 		width: 100%;
 		max-width: 500px;
 	}
-
-	.radio:checked {
-		--tw-radio-color: oklch(var(--p));
-	}
 </style>
