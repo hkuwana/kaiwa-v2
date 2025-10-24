@@ -25,6 +25,7 @@ import {
 	detectLanguage,
 	generateAndStoreScriptsForMessage
 } from '$lib/services/scripts.service';
+import { usageTracker, type UsageContext } from '$lib/services/usage-tracker.service';
 import type {
 	Message,
 	Language,
@@ -43,9 +44,12 @@ import {
 import { userPreferencesStore } from './user-preferences.store.svelte';
 import type { ConversationStatus } from '$lib/services/conversation.service';
 import { userManager } from './user.store.svelte';
+import { usageStore } from '$lib/stores/usage.store.svelte';
 import { SvelteDate, SvelteSet } from 'svelte/reactivity';
 import { conversationPersistenceService } from '$lib/services/conversation-persistence.service';
 import { languages as dataLanguages } from '$lib/data/languages';
+
+const KNOWN_USER_TIERS: UserTier[] = ['free', 'plus', 'premium'];
 export class ConversationStore {
 	// Reactive state
 	status = $state<ConversationStatus>('idle');
@@ -104,6 +108,7 @@ export class ConversationStore {
 	private turnLevelMonitor: ReturnType<typeof setInterval> | null = null;
 	private turnMaxInputLevel = 0;
 	private suppressNextUserTranscript = false;
+	private usageRecorded = false;
 
 	constructor(userTier: UserTier = 'free') {
 		log('🏗️ ConversationStore constructor:', {
@@ -283,6 +288,8 @@ export class ConversationStore {
 			return;
 		}
 
+		this.usageRecorded = false;
+
 		// Store options for later use and merge with existing preferences if provided
 		this.currentOptions = options || null;
 
@@ -303,6 +310,14 @@ export class ConversationStore {
 			'ptt'; // Default to Push-to-Talk
 
 		console.log('🎙️ ConversationStore: Audio input mode:', this.audioInputMode);
+
+		this.timer.configureForUserTier(userManager.effectiveTier);
+
+		const hasUsageBudget = await this.ensureUsageBudget();
+		if (!hasUsageBudget) {
+			this.status = 'idle';
+			return;
+		}
 
 		this.status = 'connecting';
 		this.error = null;
@@ -775,6 +790,58 @@ export class ConversationStore {
 			settings,
 			constraints
 		};
+	}
+
+	private async ensureUsageBudget(): Promise<boolean> {
+		const userId = userManager.user?.id;
+		if (!userId || userId === 'guest') {
+			return true;
+		}
+
+		const usageContext = await usageTracker.refreshUsageContext(userId);
+
+		if (usageContext) {
+			this.applyUsageContext(userId, usageContext);
+		}
+
+		if (!usageContext) {
+			// Fail open if we cannot load usage; treat as warning rather than a blocker.
+			return true;
+		}
+
+		if (!usageContext.canUseRealtime) {
+			this.error = 'Realtime conversations are not available on your current plan.';
+			return false;
+		}
+
+		if (!usageContext.canStartConversation) {
+			this.error = 'You have reached your conversation limit for this billing cycle.';
+			return false;
+		}
+
+		if (usageContext.timerLimits.remainingSeconds <= 0) {
+			this.error = 'You have used all available conversation time for this period.';
+			return false;
+		}
+
+		return true;
+	}
+
+	private applyUsageContext(userId: string, context: UsageContext): void {
+		try {
+			usageStore.setUser(userId, context.tier);
+			usageStore.usage = context.usage;
+		} catch (error) {
+			console.error('Failed to apply usage context to usageStore', error);
+		}
+
+		const tierId = context.tier?.id;
+
+		if (tierId && KNOWN_USER_TIERS.includes(tierId as UserTier)) {
+			this.timer.configureForUserTier(tierId as UserTier);
+		}
+
+		this.timer.syncUsageLimits(context.timerLimits);
 	}
 
 	// === PRIVATE METHODS ===
@@ -1691,6 +1758,49 @@ export class ConversationStore {
 		}
 	}
 
+	private async completeSessionUsage(reason: 'manual-end' | 'destroy'): Promise<void> {
+		if (this.usageRecorded) return;
+
+		const elapsedSeconds = this.timer.getTimeElapsedSeconds();
+
+		if (elapsedSeconds <= 0) {
+			this.usageRecorded = true;
+			return;
+		}
+
+		const timerState = this.timer.state;
+		const extensionsUsed = timerState?.extensionsUsed ?? 0;
+
+		// Update local usage snapshot immediately so UI reflects the session we just finished.
+		this.timer.updateUsage();
+
+		const userId = userManager.user?.id;
+		if (!userId || userId === 'guest' || !this.sessionId) {
+			this.usageRecorded = true;
+			return;
+		}
+
+		try {
+			const usageSnapshot = await usageTracker.recordConversationUsage({
+				userId,
+				conversationId: this.sessionId,
+				sessionId: this.sessionId,
+				durationSeconds: elapsedSeconds,
+				audioSeconds: elapsedSeconds,
+				wasExtended: extensionsUsed > 0,
+				extensionsUsed
+			});
+
+			if (usageSnapshot) {
+				this.applyUsageContext(userId, usageSnapshot);
+			}
+		} catch (error) {
+			console.error('Failed to record conversation usage', { reason, error });
+		} finally {
+			this.usageRecorded = true;
+		}
+	}
+
 	/**
 	 * Debounced save - prevents too many rapid saves
 	 */
@@ -1744,7 +1854,7 @@ export class ConversationStore {
 	}
 
 	// Modify your existing endConversation method to handle graceful shutdown
-	endConversation = () => {
+	endConversation = async () => {
 		if (!browser) return;
 
 		console.log('Ending conversation...', {
@@ -1760,9 +1870,13 @@ export class ConversationStore {
 		}
 
 		// Save conversation to database before ending
-		this.saveConversationToDatabase(false).catch((error) => {
+		try {
+			await this.saveConversationToDatabase(false);
+		} catch (error) {
 			console.warn('Failed to save conversation on end:', error);
-		});
+		}
+
+		await this.completeSessionUsage('manual-end');
 
 		// Stop timer
 		this.timer.stop();
@@ -1866,9 +1980,13 @@ export class ConversationStore {
 		console.log('Destroying conversation completely...');
 
 		// Save conversation to database before destroying (critical save with retry)
-		await this.saveConversationToDatabase(true).catch((error) => {
+		try {
+			await this.saveConversationToDatabase(true);
+		} catch (error) {
 			console.error('Failed to save conversation on destroy:', error);
-		});
+		}
+
+		await this.completeSessionUsage('destroy');
 
 		// Stop timer completely
 		this.timer.stop();
@@ -1898,6 +2016,7 @@ export class ConversationStore {
 		this.conversationStartTime = null;
 		this.lastSaveTime = null;
 		this.clearTranscriptionState();
+		this.usageRecorded = false;
 	}
 
 	private detectDeviceType(): 'desktop' | 'mobile' | 'tablet' | null {

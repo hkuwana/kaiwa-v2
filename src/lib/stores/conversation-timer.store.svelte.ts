@@ -283,6 +283,36 @@ export class ConversationTimerStore {
 		);
 	}
 
+	// Replace usage snapshot with authoritative values from the server
+	syncUsageLimits(limits: Partial<UsageLimits>): void {
+		const monthlySeconds =
+			limits.monthlySeconds !== undefined
+				? Math.max(0, limits.monthlySeconds)
+				: this._usageLimits.monthlySeconds;
+
+		const maxSessionLengthSeconds =
+			limits.maxSessionLengthSeconds !== undefined
+				? Math.max(0, limits.maxSessionLengthSeconds)
+				: this._usageLimits.maxSessionLengthSeconds;
+
+		const usedSeconds =
+			limits.usedSeconds !== undefined
+				? Math.max(0, limits.usedSeconds)
+				: this._usageLimits.usedSeconds;
+
+		const remainingSeconds =
+			limits.remainingSeconds !== undefined
+				? Math.max(0, limits.remainingSeconds)
+				: Math.max(0, monthlySeconds - usedSeconds);
+
+		this._usageLimits = {
+			monthlySeconds,
+			maxSessionLengthSeconds,
+			usedSeconds,
+			remainingSeconds
+		};
+	}
+
 	// Cleanup
 	cleanup(): void {
 		console.log('🧹 Cleaning up conversation timer');
