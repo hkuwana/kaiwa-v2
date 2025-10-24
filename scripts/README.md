@@ -4,14 +4,16 @@ This directory contains executable scripts for cron jobs, database operations, a
 
 ## 🔄 Cron Jobs
 
-Automated tasks that run on a schedule via Fly.io scheduled machines.
+Automated tasks that run on a schedule.
 
 ### Available Cron Jobs
 
-| Script                   | Purpose                        | Schedule      | Command                    |
-| ------------------------ | ------------------------------ | ------------- | -------------------------- |
-| `send-reminders.ts`      | Daily practice reminder emails | 9am UTC daily | `pnpm cron:reminders`      |
-| `send-founder-emails.ts` | Founder email sequence (3-day) | 2pm UTC daily | `pnpm cron:founder-emails` |
+| Script                   | Purpose                            | Schedule              | Command                    |
+| ------------------------ | ---------------------------------- | --------------------- | -------------------------- |
+| `send-reminders.ts`      | Daily practice reminder emails     | 9am UTC daily         | `pnpm cron:reminders`      |
+| `send-founder-emails.ts` | Founder email sequence (3-day)     | 2pm UTC daily         | `pnpm cron:founder-emails` |
+| `send-weekly-digest.ts`  | Weekly product updates digest      | 10am UTC Mon          | `pnpm cron:weekly-digest`  |
+| `send-weekly-stats.ts`   | Weekly user practice stats         | 11am UTC Mon          | `pnpm cron:weekly-stats`   |
 
 ### Quick Start
 
@@ -23,38 +25,103 @@ pnpm cron:reminders
 
 # Test founder emails
 pnpm cron:founder-emails
+
+# Test weekly digest
+pnpm cron:weekly-digest
+
+# Test weekly stats
+pnpm cron:weekly-stats
 ```
 
 **2. Deploy to production**
 
+**⚠️ Limitation:** Fly.io Machines don't support granular cron schedules (specific times like "9:00 AM").
+
+**Choose one approach:**
+
+### Option A: External Cron Service (Recommended - FREE)
+
+Use [cron-job.org](https://cron-job.org) or [EasyCron](https://www.easycron.com/) to call your HTTP endpoints:
+
+1. **Set your CRON_SECRET:**
+
+   ```bash
+   fly secrets set CRON_SECRET=your-random-secret-here
+   ```
+
+2. **Create HTTP cron jobs** on cron-job.org:
+   - Daily reminders: `https://trykaiwa.com/api/cron/send-reminders?secret=YOUR_SECRET` at 9:00 AM UTC
+   - Founder emails: `https://trykaiwa.com/api/cron/founder-emails?secret=YOUR_SECRET` at 2:00 PM UTC
+   - Weekly digest: Create endpoint at `/api/cron/weekly-digest` and schedule for Mon 10:00 AM UTC
+   - Weekly stats: Create endpoint at `/api/cron/weekly-stats` and schedule for Mon 11:00 AM UTC
+
+**Cost:** $0/month
+
+### Option B: GitHub Actions (FREE - 2000 minutes/month)
+
+Create `.github/workflows/cron.yml`:
+
+```yaml
+name: Cron Jobs
+on:
+  schedule:
+    - cron: '0 9 * * *'    # Daily at 9 AM UTC
+    - cron: '0 14 * * *'   # Daily at 2 PM UTC
+    - cron: '0 10 * * 1'   # Monday at 10 AM UTC
+    - cron: '0 11 * * 1'   # Monday at 11 AM UTC
+
+jobs:
+  daily-reminders:
+    if: github.event.schedule == '0 9 * * *'
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl "https://trykaiwa.com/api/cron/send-reminders?secret=${{ secrets.CRON_SECRET }}"
+
+  founder-emails:
+    if: github.event.schedule == '0 14 * * *'
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl "https://trykaiwa.com/api/cron/founder-emails?secret=${{ secrets.CRON_SECRET }}"
+
+  # Add similar jobs for weekly-digest and weekly-stats
+```
+
+**Cost:** $0/month
+
+### Option C: Fly Machines (Limited)
+
+Fly Machines only support simple schedules without specific times:
+
 ```bash
-# Deploy all cron jobs to Fly.io
+# NOT RECOMMENDED: Cannot specify exact times like 9 AM or 2 PM
 pnpm cron:deploy
-
-# Or manually
-./scripts/deploy-cron-jobs.sh
 ```
 
-**3. Verify deployment**
+**Cost:** ~$0.69/month (storage costs for stopped machines)
 
-```bash
-# List all machines (including cron jobs)
-fly machines list
+---
 
-# View cron job logs
-fly logs | grep "cron-"
+### Step 3: Create missing HTTP endpoints
+
+You'll need to create these endpoints for weekly jobs:
+
+```typescript
+// src/routes/api/cron/weekly-digest/+server.ts
+import { sendWeeklyDigest } from '../../../../scripts/send-weekly-digest';
+import { json } from '@sveltejs/kit';
+
+export async function GET({ url }) {
+    const secret = url.searchParams.get('secret');
+    if (secret !== process.env.CRON_SECRET) {
+        return json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    await sendWeeklyDigest();
+    return json({ success: true });
+}
+
+// Similar for weekly-stats
 ```
-
-### Architecture
-
-Cron jobs run as **separate Fly.io machines**, not HTTP endpoints. This provides:
-
-- ✅ Better isolation
-- ✅ More reliable scheduling
-- ✅ Easier debugging
-- ✅ No public HTTP exposure
-
-See the unified operator guide at [../src/lib/docs/cron-architecture-unified.md](../src/lib/docs/cron-architecture-unified.md) for the full architecture and runbook.
 
 ---
 
@@ -73,25 +140,18 @@ See the unified operator guide at [../src/lib/docs/cron-architecture-unified.md]
 ### Problem: Cron job not running
 
 ```bash
-# Check if machines exist
-fly machines list | grep cron
-
-# If not found, deploy them
-pnpm cron:deploy
+# If using cron-job.org: Check execution history on their dashboard
+# If using GitHub Actions: Check workflow runs in GitHub Actions tab
 ```
 
 ### Problem: Cron job failing
 
 ```bash
-# 1. Check logs
-fly logs | grep "cron-daily-reminders"
+# Check application logs
+fly logs
 
-# 2. Test locally with same environment
+# Test locally with same environment
 pnpm cron:reminders
-
-# 3. Check exit code in logs
-fly logs | grep "exit"
-# Look for "exit code 0" (success) or "exit code 1" (failure)
 ```
 
 ### Problem: Emails not sending
@@ -118,12 +178,10 @@ pnpm cron:reminders
 
 All cron jobs:
 
-- ✅ Run in isolated Fly.io machines
+- ✅ Protected by `CRON_SECRET` environment variable
 - ✅ Access same environment variables as main app
-- ✅ No public HTTP exposure
-- ✅ Exit after completion (ephemeral)
-
-Legacy HTTP endpoints (`/api/cron/*`) are kept for **manual testing only** and are protected by `CRON_SECRET`.
+- ✅ Can be triggered via HTTP endpoints
+- ✅ No sensitive data in URLs (secret via query param or header)
 
 ---
 

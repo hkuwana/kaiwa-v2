@@ -47,6 +47,7 @@
 		"cron:reminders": "tsx scripts/send-reminders.ts",
 		"cron:founder-emails": "tsx scripts/send-founder-emails.ts",
 		"cron:weekly-digest": "tsx scripts/send-weekly-digest.ts",
+		"cron:weekly-stats": "tsx scripts/send-weekly-stats.ts",
 		"cron:deploy": "./scripts/deploy-cron-jobs.sh",
 		"cron:test": "tsx scripts/test-cron-jobs.ts",
 		"cron:test:local": "tsx scripts/test-cron-jobs.ts local-all",

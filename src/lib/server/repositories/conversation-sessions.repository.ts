@@ -1,6 +1,6 @@
-import { eq, and, gte, lte, desc, sql, count, avg, sum } from 'drizzle-orm';
+import { eq, and, gte, lte, desc, sql, count, avg, sum, inArray } from 'drizzle-orm';
 import { db } from '$lib/server/db/index';
-import { conversationSessions } from '$lib/server/db/schema';
+import { conversationSessions, messages } from '$lib/server/db/schema';
 import type { NewConversationSession, ConversationSession } from '$lib/server/db/types';
 
 export class ConversationSessionsRepository {
@@ -296,6 +296,272 @@ export class ConversationSessionsRepository {
 			.returning({ id: conversationSessions.id });
 
 		return result.length;
+	}
+
+	/**
+	 * Get all sessions within a date range (for admin/analytics)
+	 */
+	async getAllSessionsInRange(startDate: Date, endDate: Date): Promise<ConversationSession[]> {
+		return await db
+			.select()
+			.from(conversationSessions)
+			.where(
+				and(
+					gte(conversationSessions.startTime, startDate),
+					lte(conversationSessions.startTime, endDate)
+				)
+			)
+			.orderBy(desc(conversationSessions.startTime));
+	}
+
+	/**
+	 * Get user message stats for conversation sessions
+	 */
+	async getUserMessageStats(sessionIds: string[]): Promise<
+		Map<
+			string,
+			{
+				totalWords: number;
+				totalCharacters: number;
+				messageCount: number;
+			}
+		>
+	> {
+		if (sessionIds.length === 0) {
+			return new Map();
+		}
+
+		// Get all user messages for these sessions
+		const userMessages = await db
+			.select({
+				conversationId: messages.conversationId,
+				content: messages.content
+			})
+			.from(messages)
+			.where(and(inArray(messages.conversationId, sessionIds), eq(messages.role, 'user')));
+
+		// Calculate stats per session
+		const statsMap = new Map<
+			string,
+			{
+				totalWords: number;
+				totalCharacters: number;
+				messageCount: number;
+			}
+		>();
+
+		userMessages.forEach((msg) => {
+			const stats = statsMap.get(msg.conversationId) || {
+				totalWords: 0,
+				totalCharacters: 0,
+				messageCount: 0
+			};
+
+			const content = msg.content || '';
+			const words = content.trim().split(/\s+/).filter((w) => w.length > 0).length;
+			const characters = content.length;
+
+			stats.totalWords += words;
+			stats.totalCharacters += characters;
+			stats.messageCount += 1;
+
+			statsMap.set(msg.conversationId, stats);
+		});
+
+		return statsMap;
+	}
+
+	/**
+	 * Get user rankings by activity for a given time period
+	 */
+	async getUserRankings(
+		startDate: Date,
+		endDate: Date,
+		limit: number = 50
+	): Promise<
+		{
+			userId: string;
+			totalSessions: number;
+			totalMinutes: number;
+			totalSeconds: number;
+			activeDays: number;
+			mostUsedLanguage: string | null;
+			totalWordsSpoken: number;
+			totalCharactersSpoken: number;
+			averageSessionMinutes: number;
+		}[]
+	> {
+		// Get all sessions in the range
+		const sessions = await this.getAllSessionsInRange(startDate, endDate);
+
+		// Get message stats for all sessions
+		const sessionIds = sessions.map((s) => s.id);
+		const messageStatsMap = await this.getUserMessageStats(sessionIds);
+
+		// Group by user and calculate stats
+		const userStatsMap = new Map<
+			string,
+			{
+				sessions: number;
+				totalSeconds: number;
+				languages: Map<string, number>;
+				dates: Set<string>;
+				totalWords: number;
+				totalCharacters: number;
+			}
+		>();
+
+		sessions.forEach((session) => {
+			const stats = userStatsMap.get(session.userId) || {
+				sessions: 0,
+				totalSeconds: 0,
+				languages: new Map(),
+				dates: new Set(),
+				totalWords: 0,
+				totalCharacters: 0
+			};
+
+			stats.sessions++;
+			stats.totalSeconds += session.secondsConsumed || 0;
+
+			// Track language usage
+			const langCount = stats.languages.get(session.language) || 0;
+			stats.languages.set(session.language, langCount + 1);
+
+			// Track unique active days
+			const dateStr = session.startTime.toISOString().split('T')[0];
+			stats.dates.add(dateStr);
+
+			// Add message stats
+			const messageStats = messageStatsMap.get(session.id);
+			if (messageStats) {
+				stats.totalWords += messageStats.totalWords;
+				stats.totalCharacters += messageStats.totalCharacters;
+			}
+
+			userStatsMap.set(session.userId, stats);
+		});
+
+		// Convert to array and calculate derived stats
+		const rankings = Array.from(userStatsMap.entries())
+			.map(([userId, stats]) => {
+				// Find most used language
+				let mostUsedLanguage: string | null = null;
+				let maxCount = 0;
+				stats.languages.forEach((count, language) => {
+					if (count > maxCount) {
+						maxCount = count;
+						mostUsedLanguage = language;
+					}
+				});
+
+				const totalMinutes = Math.round(stats.totalSeconds / 60);
+				const averageSessionMinutes =
+					stats.sessions > 0 ? Math.round(totalMinutes / stats.sessions) : 0;
+
+				return {
+					userId,
+					totalSessions: stats.sessions,
+					totalMinutes,
+					totalSeconds: stats.totalSeconds,
+					activeDays: stats.dates.size,
+					mostUsedLanguage,
+					totalWordsSpoken: stats.totalWords,
+					totalCharactersSpoken: stats.totalCharacters,
+					averageSessionMinutes
+				};
+			})
+			// Sort by total minutes (primary) and sessions (secondary)
+			.sort((a, b) => {
+				if (b.totalMinutes !== a.totalMinutes) {
+					return b.totalMinutes - a.totalMinutes;
+				}
+				return b.totalSessions - a.totalSessions;
+			})
+			.slice(0, limit);
+
+		return rankings;
+	}
+
+	/**
+	 * Get weekly rankings (past 7 days)
+	 */
+	async getWeeklyUserRankings(limit: number = 50): Promise<
+		{
+			userId: string;
+			totalSessions: number;
+			totalMinutes: number;
+			totalSeconds: number;
+			activeDays: number;
+			mostUsedLanguage: string | null;
+			totalWordsSpoken: number;
+			totalCharactersSpoken: number;
+			averageSessionMinutes: number;
+		}[]
+	> {
+		const now = new Date();
+		const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+		return this.getUserRankings(oneWeekAgo, now, limit);
+	}
+
+	/**
+	 * Get global platform statistics for a time range
+	 */
+	async getPlatformStats(startDate: Date, endDate: Date): Promise<{
+		totalSessions: number;
+		totalUsers: number;
+		totalMinutes: number;
+		totalSeconds: number;
+		averageSessionMinutes: number;
+		languageBreakdown: { language: string; sessions: number; percentage: number }[];
+		deviceBreakdown: { deviceType: string; sessions: number; percentage: number }[];
+	}> {
+		const sessions = await this.getAllSessionsInRange(startDate, endDate);
+
+		const uniqueUsers = new Set(sessions.map((s) => s.userId));
+		const totalSeconds = sessions.reduce((sum, s) => sum + (s.secondsConsumed || 0), 0);
+		const totalMinutes = Math.round(totalSeconds / 60);
+		const averageSessionMinutes = sessions.length > 0 ? Math.round(totalMinutes / sessions.length) : 0;
+
+		// Language breakdown
+		const languageMap = new Map<string, number>();
+		sessions.forEach((s) => {
+			languageMap.set(s.language, (languageMap.get(s.language) || 0) + 1);
+		});
+
+		const languageBreakdown = Array.from(languageMap.entries())
+			.map(([language, count]) => ({
+				language,
+				sessions: count,
+				percentage: Math.round((count / sessions.length) * 100)
+			}))
+			.sort((a, b) => b.sessions - a.sessions);
+
+		// Device breakdown
+		const deviceMap = new Map<string, number>();
+		sessions.forEach((s) => {
+			if (s.deviceType) {
+				deviceMap.set(s.deviceType, (deviceMap.get(s.deviceType) || 0) + 1);
+			}
+		});
+
+		const deviceBreakdown = Array.from(deviceMap.entries())
+			.map(([deviceType, count]) => ({
+				deviceType,
+				sessions: count,
+				percentage: Math.round((count / sessions.length) * 100)
+			}))
+			.sort((a, b) => b.sessions - a.sessions);
+
+		return {
+			totalSessions: sessions.length,
+			totalUsers: uniqueUsers.size,
+			totalMinutes,
+			totalSeconds,
+			averageSessionMinutes,
+			languageBreakdown,
+			deviceBreakdown
+		};
 	}
 
 	// Helper methods for period management
