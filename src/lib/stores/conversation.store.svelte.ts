@@ -2000,6 +2000,30 @@ export class ConversationStore {
 		console.log('Conversation completely destroyed');
 	};
 
+	// Add method to force clear all conversation state without saving
+	forceClearConversation = () => {
+		if (!browser) return;
+
+		console.log('🧹 Force clearing conversation state...');
+
+		// Stop timer
+		this.timer.stop();
+
+		// Clean up all resources
+		this.cleanup();
+
+		// Reset all state
+		this.resetState();
+
+		// Clear any pending saves
+		if (this.saveTimeout) {
+			clearTimeout(this.saveTimeout);
+			this.saveTimeout = null;
+		}
+
+		console.log('✅ Conversation state force cleared');
+	};
+
 	// Modify resetState to include new flags
 	private resetState(): void {
 		this.status = 'idle';

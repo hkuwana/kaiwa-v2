@@ -6,6 +6,7 @@
 	import ChatBubbleFlow from '$lib/components/ChatBubbleFlow.svelte';
 	import InteractiveScenarioPreview from '$lib/features/scenarios/components/InteractiveScenarioPreview.svelte';
 	import DynamicLanguageText from '$lib/components/DynamicLanguageText.svelte';
+	import { clearAllConversationData, clearConversationDataOnly, getConversationDataSummary } from '$lib/utils/conversation-cleanup';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
@@ -101,6 +102,31 @@
 		selectedLanguage = language;
 		settingsStore.setLanguageObject(language);
 	}
+
+	// Clear conversation data functions
+	function handleClearAllData() {
+		if (confirm('This will clear ALL your stored data including preferences, settings, and conversation history. Are you sure?')) {
+			clearAllConversationData();
+			alert('All data cleared! The page will reload.');
+			window.location.reload();
+		}
+	}
+
+	function handleClearConversationData() {
+		if (confirm('This will clear only conversation-related data, keeping your preferences and settings. Continue?')) {
+			clearConversationDataOnly();
+			alert('Conversation data cleared!');
+		}
+	}
+
+	function handleShowDataSummary() {
+		const summary = getConversationDataSummary();
+		const localStorageCount = Object.keys(summary.localStorage).length;
+		const cookiesCount = Object.keys(summary.cookies).length;
+		
+		alert(`Stored Data Summary:\n\nlocalStorage: ${localStorageCount} items\nCookies: ${cookiesCount} items\n\nCheck console for details.`);
+		console.log('📊 Conversation Data Summary:', summary);
+	}
 </script>
 
 <svelte:head>
@@ -146,6 +172,36 @@
 					onStartClick={trackStartSpeakingClick}
 					onModeChange={(mode) => (selectedAudioMode = mode)}
 				/>
+
+				<!-- Debug/Development Tools -->
+				{#if browser && (user.id === 'guest' || user.id === 'dev')}
+					<div class="mt-8 rounded-lg bg-base-200 p-4">
+						<h3 class="mb-3 text-sm font-semibold text-base-content/70">🧹 Clear Conversation Data</h3>
+						<div class="flex flex-wrap gap-2">
+							<button
+								onclick={handleShowDataSummary}
+								class="btn btn-sm btn-outline"
+							>
+								📊 Show Data Summary
+							</button>
+							<button
+								onclick={handleClearConversationData}
+								class="btn btn-sm btn-warning"
+							>
+								🧹 Clear Conversation Data
+							</button>
+							<button
+								onclick={handleClearAllData}
+								class="btn btn-sm btn-error"
+							>
+								🗑️ Clear ALL Data
+							</button>
+						</div>
+						<p class="mt-2 text-xs text-base-content/60">
+							Use these tools to clear stored conversation data if you're experiencing issues with previous sessions.
+						</p>
+					</div>
+				{/if}
 			</div>
 		</div>
 	</header>
