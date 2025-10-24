@@ -241,7 +241,7 @@
 						<!-- Country Restriction Error Actions -->
 						<div class="space-y-3">
 							<div class="alert alert-warning">
-								<span class="h-6 w-6 shrink-0 stroke-current icon-[mdi--alert-triangle]"></span>
+								<span class="icon-[mdi--alert] h-6 w-6 shrink-0 stroke-current"></span>
 								<span class="font-medium">Location Restriction</span>
 							</div>
 							<div class="space-y-2 text-sm text-gray-600">

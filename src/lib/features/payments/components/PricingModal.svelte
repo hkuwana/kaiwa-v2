@@ -176,7 +176,7 @@
 				{#if usageStatus && source === 'limit_modal'}
 					<div class="mt-4 alert alert-warning">
 						<div>
-							<span class="h-6 w-6 shrink-0 stroke-current icon-[mdi--alert-triangle]"></span>
+							<span class="icon-[mdi--alert] h-6 w-6 shrink-0 stroke-current"></span>
 							<div>
 								<h3 class="font-bold">Current Usage</h3>
 								<div class="text-xs">

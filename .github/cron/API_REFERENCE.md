@@ -327,14 +327,14 @@ Each user receives personalized stats:
 ### Success Indicators
 
 - Endpoint returns `"success": true`
-- `sent` count is > 0
+- `sent` count is &gt; 0
 - `failed` or `errors` count is 0 or low
 - Admin receives summary email
 
 ### Warning Signs
 
 - High `skipped` count might indicate permission/rate-limiting issues
-- `failed` > 0 means some emails weren't sent
+- `failed` &gt; 0 means some emails weren't sent
 - Missing `emailsSent` data suggests selective sending
 
 ### Debugging Tips

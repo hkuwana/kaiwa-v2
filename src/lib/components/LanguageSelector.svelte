@@ -3,7 +3,7 @@
 	// Clean UI component for selecting conversation language and speaker
 
 	import { languages as allLanguages } from '$lib/data/languages';
-	import { getSpeakersByLanguage } from '$lib/data/speakers';
+	import { getSpeakersByLanguage, getDefaultSpeakerForLanguage } from '$lib/data/speakers';
 	import type { Language as DataLanguage } from '$lib/data/languages';
 	import { onMount } from 'svelte';
 
@@ -71,25 +71,30 @@
 	let componentRef: HTMLDivElement;
 	let searchQuery = $state('');
 
-	// Auto-select first speaker if language is selected but no speaker is set
+	// Keep viewingSpeakersFor in sync with selectedLanguage
 	$effect(() => {
-		if (selectedLanguage && !selectedSpeaker && availableSpeakers.length > 0 && onSpeakerChange) {
-			onSpeakerChange(availableSpeakers[0].id);
+		if (selectedLanguage && viewingSpeakersFor?.code !== selectedLanguage.code) {
+			// If language changed but we're not yet viewing speakers for it, stay on speakers view
+			if (viewingSpeakersFor && selectedLanguage.code !== viewingSpeakersFor.code) {
+				viewingSpeakersFor = selectedLanguage;
+			}
 		}
 	});
 
-	// Click outside to close dropdown
+	// Click outside to close dropdown or auto-select speaker
 	onMount(() => {
-		function handleClickOutside(event: MouseEvent) {
-			if (componentRef && !componentRef.contains(event.target as Node)) {
-				closeMenu();
-			}
-		}
-
 		// Add a small delay to prevent immediate closing when opening
 		function handleClickOutsideDelayed(event: MouseEvent) {
 			setTimeout(() => {
 				if (componentRef && !componentRef.contains(event.target as Node)) {
+					// If user has selected a language but no speaker, auto-select default female speaker
+					if (selectedLanguage && !selectedSpeaker && onSpeakerChange) {
+						const defaultSpeaker = getDefaultSpeakerForLanguage(selectedLanguage.id);
+						if (defaultSpeaker) {
+							onSpeakerChange(defaultSpeaker.id);
+						}
+					}
+					// Always close the menu when clicking outside
 					closeMenu();
 				}
 			}, 10);
@@ -104,15 +109,18 @@
 	function selectLanguage(language: DataLanguage) {
 		onLanguageChange(language);
 
-		// Show speaker selection if there are multiple speakers
+		// Auto-select the default female speaker for this language
+		const defaultSpeaker = getDefaultSpeakerForLanguage(language.id);
+		if (defaultSpeaker && onSpeakerChange) {
+			onSpeakerChange(defaultSpeaker.id);
+		}
+
+		// Always show speaker selection so user can change if they want
 		const speakersForLang = getSpeakersByLanguage(language.code);
-		if (speakersForLang.length > 1) {
+		if (speakersForLang.length > 0) {
 			viewingSpeakersFor = language;
 		} else {
-			// Set the first available speaker if only one exists
-			if (speakersForLang.length === 1 && onSpeakerChange) {
-				onSpeakerChange(speakersForLang[0].id);
-			}
+			// No speakers available (shouldn't happen in practice)
 			closeMenu();
 		}
 	}
@@ -189,6 +197,10 @@
 				{#if viewingSpeakersFor}
 					<button
 						onclick={() => {
+							// Auto-select first speaker if none selected when going back
+							if (availableSpeakers.length > 0 && !selectedSpeaker && onSpeakerChange) {
+								onSpeakerChange(availableSpeakers[0].id);
+							}
 							viewingSpeakersFor = null;
 						}}
 						class="btn btn-circle btn-ghost btn-sm"
@@ -229,7 +241,10 @@
 					<!-- Speaker List -->
 					{#each availableSpeakers as speaker (speaker.id)}
 						<button
-							onclick={() => selectSpeaker(speaker.id)}
+							onclick={(e) => {
+								e.stopPropagation();
+								selectSpeaker(speaker.id);
+							}}
 							class="group btn my-1 flex w-full items-center justify-between rounded-xl px-4 py-3 text-left btn-ghost transition-colors duration-150 hover:bg-base-200/50"
 							class:bg-primary={selectedSpeaker === speaker.id}
 							class:text-primary-content={selectedSpeaker === speaker.id}
@@ -255,7 +270,10 @@
 					{:else}
 						{#each filteredLanguages as language (language.id)}
 							<button
-								onclick={() => selectLanguage(language)}
+								onclick={(e) => {
+									e.stopPropagation();
+									selectLanguage(language);
+								}}
 								class="group btn my-1 flex w-full items-center justify-between rounded-xl px-4 py-3 text-left btn-ghost transition-colors duration-150 hover:bg-base-200/50"
 								class:bg-primary={selectedLanguage?.code === language.code}
 								class:text-primary-content={selectedLanguage?.code === language.code}

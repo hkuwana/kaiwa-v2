@@ -7,14 +7,17 @@
 ## 🚀 The Daily Writing Process (5-Day Per Article Cycle)
 
 ### Day 1: Outline + Research (2-3 hours)
+
 **Goal**: Create a solid outline and gather source material
 
 #### Step 1: Choose Your Article
+
 - [ ] Pick from Content Calendar (content-calendar-2025.md)
 - [ ] Check pillar rotation (Week 1: Confidence, Week 2: AI Coaching, etc.)
 - [ ] Note: Primary keyword, target word count (1,500-2,500)
 
 #### Step 2: SEO Research
+
 - [ ] Open Google & search primary keyword
 - [ ] Note top 3 competitors' articles:
   - What's their angle?
@@ -23,6 +26,7 @@
 - [ ] Identify 3-4 secondary keywords to include naturally
 
 #### Step 3: Create Article Outline
+
 ```
 # Article Title: [Primary Keyword] | [Benefit/Angle]
 
@@ -61,6 +65,7 @@
 ```
 
 #### Step 4: Gather Resources
+
 - [ ] Find 2-3 credible sources/studies to cite
 - [ ] Collect relevant statistics or data
 - [ ] Note any quotes you want to use
@@ -73,6 +78,7 @@
 ### Day 2-3: First Draft with Gemini (2-3 hours)
 
 #### Step 1: Prompt Gemini
+
 Use this prompt structure:
 
 ```
@@ -102,19 +108,23 @@ Please write the full blog post now:
 ```
 
 #### Step 2: Review Gemini Output
+
 - [ ] Copy entire response into Google Doc
 - [ ] Mark sections that need human refinement with [EDIT]
 - [ ] Flag any areas that feel too promotional
 - [ ] Verify primary keyword appears in opening
 
 #### Step 3: Human Refinement (You!)
+
 Focus on:
+
 1. **Authenticity**: Does it sound like Kaiwa's voice?
 2. **Accuracy**: Are claims backed up?
 3. **Flow**: Does it read naturally section to section?
 4. **Engagement**: Would YOU read this?
 
 Add your human touches:
+
 - Personal anecdotes or insights
 - Kaiwa-specific examples
 - Real-world context
@@ -124,6 +134,7 @@ Add your human touches:
 ### Day 4: SEO Optimization (1-2 hours)
 
 #### Step 1: Optimize for Keywords
+
 - [ ] Primary keyword appears in:
   - [x] Title
   - [x] First 100 words (H2 introduction)
@@ -144,11 +155,13 @@ Add your human touches:
 ## Front Matter (Copy this to your blog post)
 
 ---
+
 title: "[Title including primary keyword] | Kaiwa"
 description: "[Action word] [benefit] with [primary keyword]. Learn [key promise] in [timeframe or context]."
 date: "YYYY-MM-DD"
 author: "Kaiwa Team"
 tags: ["conversation practice", "language confidence", "AI language learning"]
+
 ---
 
 ### Meta Tag Examples:
@@ -164,6 +177,7 @@ language confidence, speaking practice, language anxiety, AI language coach, con
 ```
 
 #### Step 3: Internal Linking
+
 - [ ] Find 2-3 related blog posts or product pages
 - [ ] Add contextual links (not forced)
 - [ ] Example phrasing:
@@ -172,8 +186,9 @@ language confidence, speaking practice, language anxiety, AI language coach, con
   - "Try this in [your first conversation practice session]..."
 
 #### Step 4: Add Images
+
 - [ ] Find 1-2 relevant images (Unsplash.com, Pexels.com)
-- [ ] Optimize file size: < 500KB each
+- [ ] Optimize file size: &lt; 500KB each
 - [ ] Create alt text with keywords:
   - ✅ "Woman practicing Spanish conversation with AI language partner"
   - ❌ "image1.jpg"
@@ -187,6 +202,7 @@ language confidence, speaking practice, language anxiety, AI language coach, con
 ### Day 5: Publishing + Distribution (1 hour)
 
 #### Step 1: Final Review
+
 - [ ] Proofread (read aloud!)
 - [ ] Check grammar with Grammarly
 - [ ] Verify all links work
@@ -194,6 +210,7 @@ language confidence, speaking practice, language anxiety, AI language coach, con
 - [ ] Preview meta tags in browser
 
 #### Step 2: Create Blog Post File
+
 ```bash
 # File naming: src/lib/blog/posts/[topic]-guide.md
 # Example: conversation-confidence-building-guide.md
@@ -213,6 +230,7 @@ draft: false
 ```
 
 #### Step 3: Publish to Blog
+
 - [ ] Copy content into your blog system
 - [ ] Paste meta tags
 - [ ] Upload images
@@ -220,6 +238,7 @@ draft: false
 - [ ] Publish!
 
 #### Step 4: Distribute
+
 - [ ] **LinkedIn**: Share with professional angle
 - [ ] **Twitter/X**: Tweet key insight + link
 - [ ] **Reddit**: Post in relevant subreddits (r/languagelearning, etc.)
@@ -234,12 +253,14 @@ draft: false
 Use this before each post:
 
 ### Pre-Writing
+
 - [ ] Article selected from content calendar
 - [ ] Primary keyword identified
 - [ ] Outline created (with outline template)
 - [ ] Resources gathered (studies, quotes, examples)
 
 ### During Writing
+
 - [ ] Title includes primary keyword
 - [ ] Primary keyword in first 100 words
 - [ ] H2 section headings used (not H1)
@@ -251,14 +272,16 @@ Use this before each post:
 - [ ] Include practical examples
 
 ### SEO Optimization
+
 - [ ] Meta title finalized (60 chars)
 - [ ] Meta description written (155 chars, includes keyword)
 - [ ] Keywords list created (5-7 terms)
 - [ ] Internal links added (2-3 minimum)
-- [ ] Images optimized (< 500KB each)
+- [ ] Images optimized (&lt; 500KB each)
 - [ ] Alt text includes keywords
 
 ### Pre-Publishing
+
 - [ ] Proofread completely
 - [ ] Grammar checked
 - [ ] All links verified
@@ -268,6 +291,7 @@ Use this before each post:
 - [ ] Author set to "Kaiwa Team"
 
 ### Post-Publishing
+
 - [ ] Content live and accessible
 - [ ] Share on LinkedIn
 - [ ] Share on Twitter
@@ -280,6 +304,7 @@ Use this before each post:
 ## 🎯 Writing Tips for Better SEO Content
 
 ### Engagement Tips
+
 1. **Start with a hook**: Why should they care?
    - ✅ "Speaking anxiety keeps 73% of language learners from practicing with natives"
    - ❌ "Speaking anxiety is common"
@@ -297,6 +322,7 @@ Use this before each post:
    - "According to [Study], X% of learners..."
 
 ### SEO Tips
+
 1. **Keyword placement** (natural, not forced):
    - Title, first paragraph, one section heading, conclusion
    - 3-4 mentions of primary keyword throughout
@@ -346,23 +372,27 @@ Examples:
 After publishing, monitor weekly:
 
 ### Google Search Console
+
 - [ ] Is article indexed?
 - [ ] How many impressions?
 - [ ] Average position in search results?
 - [ ] Click-through rate (CTR)?
 
 ### Google Analytics
+
 - [ ] How many pageviews?
 - [ ] What's the bounce rate?
-- [ ] Average time on page (goal: > 2 min)?
+- [ ] Average time on page (goal: &gt; 2 min)?
 - [ ] Did it convert visitors to app signups?
 
 ### Keyword Tracking
+
 - [ ] Where does it rank for primary keyword?
 - [ ] (Goal: Within top 10 after 2 weeks, page 1 after 1 month)
 - [ ] Which secondary keywords are getting traffic?
 
 ### Benchmark Goals (Per Article)
+
 - **Week 1**: 30-50 pageviews, indexing check
 - **Week 2-4**: 50-100+ pageviews, keyword ranking appears
 - **Month 2**: 100-200+ pageviews, visible in SERP
@@ -373,6 +403,7 @@ After publishing, monitor weekly:
 ## 🔄 Repurposing Strategy
 
 **One blog post can become:**
+
 1. **LinkedIn post** - Key insight + link
 2. **Twitter thread** - Breaking down main points
 3. **Reddit post** - Answer-focused version
@@ -385,6 +416,7 @@ After publishing, monitor weekly:
 ## 📅 Weekly Writing Schedule
 
 ### Example Weekly Plan (5 posts/week pace)
+
 - **Monday**: Outline + Research
 - **Tuesday-Wednesday**: Writing (Gemini + human)
 - **Thursday**: SEO optimization + meta tags
@@ -392,6 +424,7 @@ After publishing, monitor weekly:
 - **Saturday-Sunday**: Monitoring + planning next week
 
 ### Or 3x/Week Plan
+
 - **Monday**: Outline + Research
 - **Tuesday-Wednesday**: Writing + Optimization
 - **Thursday**: Publishing + Distribution
@@ -409,11 +442,13 @@ After publishing, monitor weekly:
 **Pillar**: Language Confidence Builder
 
 **Meta Tags**:
+
 - Title: "Build Language Confidence: 7 Proven Strategies | Kaiwa"
 - Description: "Master speaking confidence with tested strategies. Overcome anxiety, practice authentic conversations, and speak without fear. Start learning free."
 - Keywords: language confidence, speaking confidence, anxiety-free learning, language anxiety, confidence building
 
 **Outline**:
+
 1. Why Confidence Matters (200 words)
 2. Strategy 1: Scenario Practice (250 words)
 3. Strategy 2: Real-Time Feedback (250 words)

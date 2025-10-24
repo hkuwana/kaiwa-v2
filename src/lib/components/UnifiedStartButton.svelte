@@ -12,7 +12,6 @@
 	import AdvancedAudioOptions from './AdvancedAudioOptions.svelte';
 	import type { Language as DataLanguage } from '$lib/data/languages';
 	import type { User } from '$lib/server/db/types';
-	import { getTopSpeakerForScenario, getSpeakersByLanguage } from '$lib/data/speakers';
 	import { GUEST_USER } from '$lib/data/user';
 
 	// Props
@@ -90,23 +89,6 @@
 	}
 
 	const scenarioRoleCopy = $derived(getScenarioRoleCopy(currentScenario?.role));
-
-	// Auto-pick a best-fitting speaker when language + scenario are set
-	$effect(() => {
-		if (!selectedLanguage || !currentScenario || !onSpeakerChange) return;
-
-		// If current selectedSpeaker is not from the chosen language, or not set, choose best
-		const speakersForLang = getSpeakersByLanguage(selectedLanguage.code);
-		const speakerIsValid =
-			!!selectedSpeaker && speakersForLang.some((s) => s.id === selectedSpeaker);
-
-		if (!speakerIsValid) {
-			const best = getTopSpeakerForScenario(currentScenario, selectedLanguage.code);
-			if (best && best.id !== selectedSpeaker) {
-				onSpeakerChange(best.id);
-			}
-		}
-	});
 
 	// State for button loading
 	let isLoading = $state(false);

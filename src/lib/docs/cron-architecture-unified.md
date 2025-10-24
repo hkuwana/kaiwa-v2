@@ -45,7 +45,7 @@ This document summarizes the current cron-job setup, highlights the gaps observe
 
 - Replace the `fly machine run ... || echo "already exists"` pattern with an idempotent flow:
   1. `fly machine list --app kaiwa --json` to check for the machine name.
-  2. If present, `fly machine update <id> ...`.
+  2. If present, `fly machine update &lt;id&gt; ...`.
   3. Otherwise, create it.
 - Alternatively, adopt Fly’s [Cron Manager](https://fly.io/docs/blueprints/task-scheduling-guide/) as a companion app:
   - Deploy Cron Manager once (tiny Fly app).
@@ -72,7 +72,7 @@ This document summarizes the current cron-job setup, highlights the gaps observe
 
 ### 3.4 Verify main app boot
 
-- Use `fly logs --app kaiwa --instance <id>` after each deploy to confirm the Node server starts and binds to `0.0.0.0:3000`.
+- Use `fly logs --app kaiwa --instance &lt;id&gt;` after each deploy to confirm the Node server starts and binds to `0.0.0.0:3000`.
 - Add health checks in `fly.toml` once the server is stable:
   ```toml
   [http_service.checks]
@@ -123,10 +123,10 @@ pnpm cron:deploy
 
 # Inspect machines
 fly machines list --app kaiwa
-fly machine status <machine-id>
+fly machine status &lt;machine-id&gt;
 
-# View logs (replace <machine-id> as needed)
-fly logs --app kaiwa --instance <machine-id>
+# View logs (replace &lt;machine-id&gt; as needed)
+fly logs --app kaiwa --instance &lt;machine-id&gt;
 
 # Manual dry run
 pnpm cron:reminders -- --dryRun

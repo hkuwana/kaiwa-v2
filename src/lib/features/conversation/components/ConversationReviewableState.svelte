@@ -260,7 +260,7 @@
 		{#if quotaStatus && quotaStatus.quotaExceeded}
 			<div class="mb-4 rounded-xl border border-warning/20 bg-warning/10 p-4 text-center md:mb-6">
 				<div class="mb-2 flex justify-center">
-					<span class="h-6 w-6 text-warning icon-[mdi--alert-triangle]"></span>
+					<span class="icon-[mdi--alert] h-6 w-6 text-warning"></span>
 				</div>
 				<h3 class="mb-1 font-semibold text-warning">Analysis Limit Reached</h3>
 				<p class="mb-3 text-sm text-base-content/70">

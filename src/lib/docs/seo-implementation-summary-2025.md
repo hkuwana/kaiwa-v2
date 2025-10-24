@@ -9,6 +9,7 @@
 You wanted to improve SEO for broader keywords like "AI language partner," "AI language coach," and "language confidence creator." Here's what we've implemented:
 
 ### What's Done ✅
+
 1. **Updated Core Metatags** - Homepage and root layout now target broader keywords
 2. **Created Content Calendar** - 4 content pillars with 16+ article ideas
 3. **Built Interview Template** - Ready-to-use format for linguist interviews
@@ -20,6 +21,7 @@ You wanted to improve SEO for broader keywords like "AI language partner," "AI l
 ## 🎯 Strategic Shifts Made
 
 ### Before (Japanese-Focused)
+
 ```
 Title: "Connect with Family in Japanese | Anxiety-Free AI Practice"
 Keywords: Japanese conversation, family conversations, Japanese learning
@@ -30,6 +32,7 @@ Positioning: Niche play on family connection + language
 ```
 
 ### After (AI Coach/Partner Focused)
+
 ```
 Title: "AI Language Partner & Coach - Build Speaking Confidence with Real Conversation Practice"
 Keywords: AI language partner, AI language coach, language confidence, conversation practice
@@ -44,15 +47,17 @@ Keywords: AI language partner, AI language coach, language confidence, conversat
 ## 📊 Keyword Strategy Breakdown
 
 ### Primary Keywords (Monthly Search Volume)
-| Keyword | Volume | Competition | Status |
-|---------|--------|-------------|--------|
-| AI language partner | 2,900 | Medium | 🎯 Primary |
-| AI language coach | 1,200 | Low | 🎯 Primary |
-| language confidence builder | 320 | Low | 🎯 Long-tail |
-| conversation practice | 1,400 | Medium | 🎯 Primary |
-| **Total Addressable Market** | **~5,820+** | Varied | **🟢 Good** |
+
+| Keyword                      | Volume      | Competition | Status       |
+| ---------------------------- | ----------- | ----------- | ------------ |
+| AI language partner          | 2,900       | Medium      | 🎯 Primary   |
+| AI language coach            | 1,200       | Low         | 🎯 Primary   |
+| language confidence builder  | 320         | Low         | 🎯 Long-tail |
+| conversation practice        | 1,400       | Medium      | 🎯 Primary   |
+| **Total Addressable Market** | **~5,820+** | Varied      | **🟢 Good**  |
 
 ### Content Pillar Distribution
+
 1. **Language Confidence** (4 articles) - Keywords: confidence, anxiety, readiness
 2. **AI Coaching Methodology** (4 articles) - Keywords: coach, feedback, real-time
 3. **Conversation Practice** (4 articles) - Keywords: scenario, authentic, fluency
@@ -65,15 +70,18 @@ Keywords: AI language partner, AI language coach, language confidence, conversat
 ## 📁 Files Created & Locations
 
 ### 1. Content Calendar
+
 📄 **File**: `src/lib/docs/content-calendar-2025.md`
 
 **Contains**:
+
 - 6 content pillars with 24+ article ideas
 - Week-by-week publishing schedule
 - Performance metrics to track
 - 3-month and 6-month goals
 
 **Key Features**:
+
 - Grouped by keyword themes
 - Includes blog posts, interviews, and case studies
 - Competitor comparison outlines
@@ -82,9 +90,11 @@ Keywords: AI language partner, AI language coach, language confidence, conversat
 ---
 
 ### 2. Interview Template
+
 📄 **File**: `src/lib/docs/blog-template-interview.md`
 
 **Contains**:
+
 - Complete interview article structure
 - Front matter template
 - 7-question interview format
@@ -92,12 +102,14 @@ Keywords: AI language partner, AI language coach, language confidence, conversat
 - Publishing checklist
 
 **Why It Matters**:
+
 - Ready to use for linguist interviews
 - Builds authority and backlinks
 - Provides diverse content format
 - Easy for guests to share
 
 **How to Use**:
+
 ```
 1. Choose guest (linguist, speech scientist, etc.)
 2. Submit 7 prepared questions
@@ -110,9 +122,11 @@ Keywords: AI language partner, AI language coach, language confidence, conversat
 ---
 
 ### 3. Daily Writing Guide
+
 📄 **File**: `src/lib/docs/daily-content-creation-guide.md`
 
 **Contains**:
+
 - 5-day per-article writing process
 - Gemini prompts for AI collaboration
 - SEO optimization checklist
@@ -122,6 +136,7 @@ Keywords: AI language partner, AI language coach, language confidence, conversat
 - Performance tracking metrics
 
 **Daily Process**:
+
 - **Day 1** (2-3 hrs): Outline + Research
 - **Day 2-3** (2-3 hrs): Writing with Gemini + human review
 - **Day 4** (1-2 hrs): SEO optimization
@@ -132,14 +147,18 @@ Keywords: AI language partner, AI language coach, language confidence, conversat
 ### 4. Updated Metatags (In Code)
 
 #### Root Layout: `src/routes/+layout.ts`
+
 ✅ Updated with:
+
 - Title: "AI Language Partner & Coach for Confident Conversation Practice"
 - Description includes: real-world conversations, feedback, confidence, 8+ languages
 - Keywords: AI language partner, coach, confidence builder, conversation practice
 - Benefits: Broader appeal, higher search volume
 
 #### Homepage: `src/routes/+page.server.ts`
+
 ✅ Updated with:
+
 - Title: "AI Language Partner & Coach - Build Speaking Confidence"
 - Description includes: real-time coaching, 30+ scenarios, free trial
 - Keywords: confidence builder, authentic conversation, real-time feedback
@@ -150,6 +169,7 @@ Keywords: AI language partner, AI language coach, language confidence, conversat
 ## 🎬 How to Get Started Tomorrow
 
 ### Week 1: Launch First Content Pillar
+
 ```
 Monday: Choose first article from content calendar
 Tuesday-Wednesday: Write with Gemini (use prompt in daily guide)
@@ -158,17 +178,20 @@ Friday: Publish + share on LinkedIn, Twitter, Reddit
 ```
 
 ### Week 2-4: Content Momentum
+
 - Publish 1 article every 3-5 days (or daily if possible)
 - Rotate between pillars (Confidence → Coaching → Scenarios → Partner)
 - Track rankings weekly in Google Search Console
 
 ### Month 2: Interviews Begin
+
 - Identify 4-6 linguists/experts to interview
 - Send interview invitation + 7 prepared questions
 - Use template format for quick turnaround
 - Each interview gets multiple repurposing opportunities
 
 ### Month 3: Comparisons + Outreach
+
 - Launch competitor comparison content
 - Reach out to language learning communities
 - Guest post opportunities on other blogs
@@ -179,24 +202,28 @@ Friday: Publish + share on LinkedIn, Twitter, Reddit
 ## 📈 Expected Results Timeline
 
 ### Month 1 (Oct-Nov)
+
 - **Goal**: 10+ blog posts published
 - **Expected Traffic**: 200-300 monthly visitors
 - **Rankings**: Some articles in top 20 for primary keywords
 - **Metrics**: Blog index improvement, topical authority emerging
 
 ### Month 2 (Nov-Dec)
+
 - **Goal**: 20+ total articles, 4 interviews published
 - **Expected Traffic**: 500-800 monthly visitors
 - **Rankings**: Some articles page 1 for long-tail keywords
 - **Metrics**: Increased backlinks from shared content, expert positioning
 
 ### Month 3 (Jan-Feb)
+
 - **Goal**: 25+ articles, 8 interviews, comparisons live
 - **Expected Traffic**: 1,500-2,500 monthly visitors
 - **Rankings**: Page 1 for 2-3 secondary keywords
 - **Metrics**: Notable improvement in "AI language coach" rankings
 
 ### Month 6 (April 2026)
+
 - **Goal**: 40+ articles, ongoing interviews, established authority
 - **Expected Traffic**: 5,000-10,000 monthly visitors
 - **Rankings**: Top 3 for "AI language coach," page 1 for multiple variations
@@ -207,26 +234,32 @@ Friday: Publish + share on LinkedIn, Twitter, Reddit
 ## 🔗 Content Collaboration Strategy
 
 ### With Gemini (AI)
+
 **Best for**:
+
 - Initial drafts and structure
 - Research synthesis
 - Multiple angles on same topic
 - Quick turnaround
 
 **Process**:
+
 1. Provide outline + prompt
 2. Review and edit
 3. Add your voice/expertise
 4. Human approval before publishing
 
 ### With Linguists/Experts (Interviews)
+
 **Best for**:
+
 - Building credibility
 - Unique insights
 - Backlink generation
 - Expert positioning
 
 **Process**:
+
 1. Identify expert
 2. Email with interview invitation + 7 questions
 3. Conduct interview (Zoom/email)
@@ -235,13 +268,16 @@ Friday: Publish + share on LinkedIn, Twitter, Reddit
 6. Publish + guest shares
 
 ### With Communities (Outreach)
+
 **Best for**:
+
 - Distribution
 - Engagement
 - Building authority
 - Driving traffic
 
 **Communities to Reach**:
+
 - r/languagelearning
 - r/learnJapanese, r/learnSpanish, etc.
 - Language learning forums (WordReference, etc.)
@@ -253,6 +289,7 @@ Friday: Publish + share on LinkedIn, Twitter, Reddit
 ## 🎯 Success Metrics & KPIs
 
 ### Track These Weekly
+
 ```
 Google Search Console:
 - ✅ Impressions (are articles being found?)
@@ -272,6 +309,7 @@ Keyword Ranking:
 ```
 
 ### Long-Term Goals
+
 - **6 months**: Rank page 1 for "AI language coach"
 - **6 months**: 10K+ monthly organic visitors
 - **6 months**: 5% visitor-to-signup conversion
@@ -282,25 +320,30 @@ Keyword Ranking:
 ## 💡 Pro Tips for Success
 
 ### 1. Consistency > Perfection
+
 - One article per week beats perfect articles once a month
 - SEO rewards consistency and fresh content
 
 ### 2. Leverage Guest Amplification
+
 - When linguists are interviewed, they'll share
 - Their audience becomes your audience
 - This is a natural backlink source
 
 ### 3. Internal Linking = Topical Authority
+
 - Link new articles to old ones
 - Create "clusters" around themes
 - Google sees this as subject matter expertise
 
 ### 4. Monitor & Iterate
+
 - Track what's working (high views? good rankings?)
 - Create more of that content
 - Kill what's not working after 2-3 months
 
 ### 5. Repurpose Aggressively
+
 - One blog post → LinkedIn post → Twitter thread → Reddit post → Email
 - Minimize effort, maximize reach
 
@@ -309,6 +352,7 @@ Keyword Ranking:
 ## 🚀 Next Steps (This Week)
 
 ### Immediate Actions
+
 1. ✅ **Review** this summary + all created documents
 2. ⬜ **Identify** 4-6 linguists for interviews
 3. ⬜ **Choose** your first 3 articles to write
@@ -316,6 +360,7 @@ Keyword Ranking:
 5. ⬜ **Test** the daily writing guide with first article
 
 ### Optional Enhancements (Future)
+
 - [ ] Create "listicle" articles for higher CTR (e.g., "7 ways...")
 - [ ] Add videos to blog (explain concepts visually)
 - [ ] Create downloadable resources (guides, checklists) to build email list
@@ -327,6 +372,7 @@ Keyword Ranking:
 ## 📞 Resources & Tools Recommended
 
 ### Free Tools
+
 - **Google Search Console** - Keyword tracking + indexing
 - **Google Analytics 4** - Traffic analysis
 - **Keyword Surfer** - Keyword research (Chrome extension)
@@ -334,11 +380,13 @@ Keyword Ranking:
 - **Unsplash/Pexels** - Free stock images
 
 ### Paid Tools (Optional)
+
 - **SEMrush** - Rank tracking + competitive analysis
 - **Ahrefs** - Backlink analysis
 - **Surfer SEO** - Content optimization
 
 ### AI Tools
+
 - **Gemini** (free tier) - Article drafting
 - **ChatGPT** (if preferred) - Alternative drafting
 - Both work with the workflow
@@ -378,6 +426,7 @@ src/lib/docs/
 ## 🎉 Summary
 
 You now have:
+
 - ✅ Broader keyword positioning (AI partner/coach/confidence)
 - ✅ Updated metatags for higher search visibility
 - ✅ 24+ article ideas organized by pillar

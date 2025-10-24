@@ -7,6 +7,7 @@
 ## 📝 Meta Tag Templates
 
 ### Blog Post Title (60 chars max)
+
 ```
 [Keyword/Topic]: [Benefit/Angle] | Kaiwa
 
@@ -17,6 +18,7 @@ Examples:
 ```
 
 ### Meta Description (155 chars max)
+
 ```
 [Verb + benefit] [keyword]. [Key promise] in [timeframe/context]. [CTA].
 
@@ -26,6 +28,7 @@ Examples:
 ```
 
 ### Keywords (5-7 terms)
+
 ```
 [Primary keyword], [secondary 1], [secondary 2], [secondary 3], [secondary 4]
 
@@ -38,31 +41,37 @@ language confidence, speaking confidence, anxiety-free learning, conversation pr
 ## 🔑 Keyword Targets by Pillar
 
 ### Pillar 1: Language Confidence
+
 - **Primary**: language confidence, speaking confidence
 - **Secondary**: anxiety-free learning, speaking anxiety, confidence building
 - **Long-tail**: build confidence speaking language, overcome speaking fear
 
 ### Pillar 2: AI Coaching
+
 - **Primary**: AI language coach, real-time feedback
 - **Secondary**: coaching methods, pronunciation feedback, speech analysis
 - **Long-tail**: AI tutor vs human, language coaching effectiveness
 
 ### Pillar 3: Conversation Practice
+
 - **Primary**: conversation practice, speaking practice
 - **Secondary**: authentic conversation, scenario-based learning, fluency
 - **Long-tail**: conversation scenarios real life, practice speaking naturally
 
 ### Pillar 4: AI Language Partner
+
 - **Primary**: AI language partner, conversation partner
 - **Secondary**: language partner benefits, 24/7 learning, accessible language learning
 - **Long-tail**: always-on language partner, AI conversation practice partner
 
 ### Pillar 5: Comparisons
+
 - **Primary**: AI language coach vs human tutor, Kaiwa vs iTalki
 - **Secondary**: language app comparison, tutor comparison, app reviews
 - **Long-tail**: best language learning apps 2025, which language app is best
 
 ### Pillar 6: Interviews & Expertise
+
 - **Primary**: linguist interview, language learning research, expert insights
 - **Secondary**: science of language learning, speech analysis, phonetics
 - **Long-tail**: what linguists say about language learning, AI language education
@@ -112,7 +121,7 @@ language confidence, speaking confidence, anxiety-free learning, conversation pr
 ---
 
 **Target Word Count**: 1,500-2,500 words
-**Images**: 1-2 optimized (< 500KB each)
+**Images**: 1-2 optimized (&lt; 500KB each)
 **Links**: 2-3 internal links minimum
 **Time to Read**: 6-8 minutes
 ```
@@ -122,21 +131,23 @@ language confidence, speaking confidence, anxiety-free learning, conversation pr
 ## 🎬 Daily Writing Schedule
 
 ### Compressed Timeline (1 article/week)
-| Day | Task | Time | Focus |
-|-----|------|------|-------|
-| Mon | Outline + Research | 2 hrs | Pick article, create outline |
-| Tue-Wed | Draft with Gemini + Edit | 2-3 hrs | AI draft + human polish |
-| Thu | SEO Optimize | 1-2 hrs | Keywords, meta tags, links |
-| Fri | Publish + Share | 1 hr | Publish, LinkedIn, Twitter |
-| Sat | Monitor | 30 min | Check indexing, early traffic |
+
+| Day     | Task                     | Time    | Focus                         |
+| ------- | ------------------------ | ------- | ----------------------------- |
+| Mon     | Outline + Research       | 2 hrs   | Pick article, create outline  |
+| Tue-Wed | Draft with Gemini + Edit | 2-3 hrs | AI draft + human polish       |
+| Thu     | SEO Optimize             | 1-2 hrs | Keywords, meta tags, links    |
+| Fri     | Publish + Share          | 1 hr    | Publish, LinkedIn, Twitter    |
+| Sat     | Monitor                  | 30 min  | Check indexing, early traffic |
 
 ### Extended Timeline (1 article/2 weeks)
-| Day | Task | Time | Focus |
-|-----|------|------|-------|
-| Mon-Tue | Outline + Research | 2 hrs | Deeper research |
-| Wed-Thu | Draft + Edit | 3 hrs | More thorough refinement |
-| Fri | SEO + Publish | 2 hrs | Full optimization |
-| Sat-Sun | Distribution + Monitor | 1 hr | Reddit, communities, tracking |
+
+| Day     | Task                   | Time  | Focus                         |
+| ------- | ---------------------- | ----- | ----------------------------- |
+| Mon-Tue | Outline + Research     | 2 hrs | Deeper research               |
+| Wed-Thu | Draft + Edit           | 3 hrs | More thorough refinement      |
+| Fri     | SEO + Publish          | 2 hrs | Full optimization             |
+| Sat-Sun | Distribution + Monitor | 1 hr  | Reddit, communities, tracking |
 
 ---
 
@@ -189,6 +200,7 @@ Examples:
 ## 📱 Social Media Share Templates
 
 ### LinkedIn (Professional Angle)
+
 ```
 I just published an article on [topic].
 
@@ -204,6 +216,7 @@ Read the full article → [Link]
 ```
 
 ### Twitter/X (Quick Insight)
+
 ```
 📝 New post: [Title]
 
@@ -215,6 +228,7 @@ Learn why [topic] matters for language learners → [Link]
 ```
 
 ### Reddit (Community-Focused)
+
 ```
 [Relevant subreddit: r/languagelearning, r/learnJapanese, etc.]
 
@@ -250,18 +264,22 @@ Feel free to ask questions in the comments!
 ## 🎯 Keyword Placement Checklist (Per Article)
 
 **Primary Keyword** [Must have 3-4 mentions, natural]
+
 - [ ] In title (required)
 - [ ] In first 100 words (required)
 - [ ] In one section heading (H2/H3)
 - [ ] In conclusion
 
 **Secondary Keyword 1** [1-2 mentions]
+
 - [ ] In section heading or first paragraph of that section
 
 **Secondary Keyword 2** [1-2 mentions]
+
 - [ ] Naturally woven in mid-article
 
 **Secondary Keyword 3** [1-2 mentions]
+
 - [ ] In conclusion or summary section
 
 ---
@@ -277,7 +295,7 @@ Google Search Console:
 Google Analytics:
 - Blog views this week: ____
 - Avg time on page (target >2min): ____
-- Bounce rate (target <60%): ____
+- Bounce rate (target &lt;60%): ____
 - Organic conversions: ____
 
 Keyword Rankings (Every 2 weeks):
@@ -296,6 +314,7 @@ Next Week Priority:
 ## 🔗 Internal Linking Quick Reference
 
 ### Natural Link Phrases
+
 - "As we discuss in [article name]..."
 - "Read our [guide/comparison] on..."
 - "Learn more about [topic] in..."
@@ -303,6 +322,7 @@ Next Week Priority:
 - "Here's our deep dive into..."
 
 ### Linking Strategy
+
 - **From Pillar 1** → Pillar 2, 3 (confidence → coaching → practice)
 - **From Pillar 2** → Pillar 4, 5 (coaching → partner → comparisons)
 - **From Pillar 5** → Pillar 1, 2 (comparisons → confidence/coaching)

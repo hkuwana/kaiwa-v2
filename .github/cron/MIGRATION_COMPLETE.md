@@ -190,7 +190,7 @@ GitHub Actions Workflow → curl → https://trykaiwa.com/api/cron/*
 
    ```bash
    fly machines list --app kaiwa | grep cron
-   # Then remove with: fly machines delete <machine-id>
+   # Then remove with: fly machines delete &lt;machine-id&gt;
    ```
 
 2. ✅ Verify GitHub Actions workflow is running
