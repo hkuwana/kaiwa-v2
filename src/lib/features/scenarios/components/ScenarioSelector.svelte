@@ -49,14 +49,33 @@
 
 	let isOpen = $state(false);
 	let componentRef: HTMLDivElement;
+	let searchQuery = $state('');
 
 	const createRange = (count: number) => Array.from({ length: Math.max(0, count) });
+
+	// Filtered scenarios based on search query
+	let filteredScenarios = $state<ScenarioWithHints[]>([]);
+
+	$effect(() => {
+		if (!searchQuery.trim()) {
+			filteredScenarios = scenarios;
+		} else {
+			const query = searchQuery.toLowerCase();
+			filteredScenarios = scenarios.filter(
+				(scenario) =>
+					scenario.title.toLowerCase().includes(query) ||
+					scenario.description?.toLowerCase().includes(query) ||
+					scenario.role.toLowerCase().includes(query)
+			);
+		}
+	});
 
 	// Click outside to close dropdown
 	onMount(() => {
 		function handleClickOutside(event: MouseEvent) {
 			if (componentRef && !componentRef.contains(event.target as Node)) {
 				isOpen = false;
+				searchQuery = '';
 			}
 		}
 
@@ -175,40 +194,64 @@
 			<div class="mb-3 px-4 text-center">
 				<h3 class="mb-2 text-sm font-semibold text-base-content/70">Choose Learning Scenario</h3>
 			</div>
-			<div class="max-h-80 overflow-y-auto px-2">
-				{#each scenarios as scenario (scenario.id)}
-					{@const isLocked = isGuest && scenario.id !== 'onboarding-welcome'}
-					{@const meta = getScenarioMeta(scenario)}
-					<button
-						onclick={() => selectScenario(scenario)}
-						class="group btn relative my-1 flex w-full items-center justify-start rounded-xl px-4 py-3 text-left btn-ghost transition-colors duration-150"
-						class:bg-primary={selectedScenario?.id === scenario.id}
-						class:text-primary-content={selectedScenario?.id === scenario.id}
-						class:hover:bg-primary={selectedScenario?.id === scenario.id}
-						class:opacity-50={isLocked}
-						class:cursor-not-allowed={isLocked}
-						disabled={isLocked}
-					>
-						<span
-							class="{roleIcons[scenario.role] ||
-								'icon-[mdi--lightbulb-on-outline]'} mr-3 h-5 w-5 flex-shrink-0 text-{roleColors[
-								scenario.role
-							] || 'primary'}"
-						></span> <span class="flex-1 truncate text-sm font-medium">{scenario.title}</span>
-						<span class="ml-3 flex flex-shrink-0 items-center gap-0.5 text-amber-300">
-							{#each createRange(meta.stars) as _, i (i)}
-								<span class="icon-[mdi--star] h-3.5 w-3.5"></span>
-							{/each}
-						</span>
-						{#if isLocked}
-							<span class="ml-2 icon-[mdi--lock] h-4 w-4 text-base-content/40"></span>
-						{/if}
 
-						{#if selectedScenario?.id === scenario.id}
-							<span class="absolute top-3 right-3 icon-[mdi--check] h-5 w-5"></span>
-						{/if}
-					</button>
-				{/each}
+			<!-- Search Input -->
+			<div class="px-4 pb-3">
+				<div class="relative">
+					<input
+						type="text"
+						bind:value={searchQuery}
+						placeholder="Search scenarios..."
+						class="input-bordered input input-sm w-full pl-8"
+					/>
+					<span
+						class="absolute top-1/2 left-3 icon-[mdi--magnify] h-4 w-4 -translate-y-1/2 text-base-content/50"
+					></span>
+				</div>
+			</div>
+
+			<div class="max-h-80 overflow-y-auto px-2">
+				{#if filteredScenarios.length === 0}
+					<div class="py-8 text-center text-base-content/60">
+						<span class="mx-auto mb-2 icon-[mdi--magnify] block h-8 w-8"></span>
+						<p>No scenarios found</p>
+						<p class="text-sm">Try a different search term</p>
+					</div>
+				{:else}
+					{#each filteredScenarios as scenario (scenario.id)}
+						{@const isLocked = isGuest && scenario.id !== 'onboarding-welcome'}
+						{@const meta = getScenarioMeta(scenario)}
+						<button
+							onclick={() => selectScenario(scenario)}
+							class="group btn relative my-1 flex w-full items-center justify-start rounded-xl px-4 py-3 text-left btn-ghost transition-colors duration-150"
+							class:bg-primary={selectedScenario?.id === scenario.id}
+							class:text-primary-content={selectedScenario?.id === scenario.id}
+							class:hover:bg-primary={selectedScenario?.id === scenario.id}
+							class:opacity-50={isLocked}
+							class:cursor-not-allowed={isLocked}
+							disabled={isLocked}
+						>
+							<span
+								class="{roleIcons[scenario.role] ||
+									'icon-[mdi--lightbulb-on-outline]'} mr-3 h-5 w-5 flex-shrink-0 text-{roleColors[
+									scenario.role
+								] || 'primary'}"
+							></span> <span class="flex-1 truncate text-sm font-medium">{scenario.title}</span>
+							<span class="ml-3 flex flex-shrink-0 items-center gap-0.5 text-amber-300">
+								{#each createRange(meta.stars) as _, i (i)}
+									<span class="icon-[mdi--star] h-3.5 w-3.5"></span>
+								{/each}
+							</span>
+							{#if isLocked}
+								<span class="ml-2 icon-[mdi--lock] h-4 w-4 text-base-content/40"></span>
+							{/if}
+
+							{#if selectedScenario?.id === scenario.id}
+								<span class="absolute top-3 right-3 icon-[mdi--check] h-5 w-5"></span>
+							{/if}
+						</button>
+					{/each}
+				{/if}
 			</div>
 		</div>
 	{/if}

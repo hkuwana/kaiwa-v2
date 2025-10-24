@@ -309,7 +309,8 @@
 	const buttonLabel = $derived(() => {
 		if (isRecording) return 'Recording - Release to stop';
 		if (isListening) return 'Listening to AI';
-		return '';
+		if (isVADMode) return 'Voice detection active - just start talking';
+		return 'Press and hold to talk';
 	});
 
 	// Timer calculations
@@ -405,7 +406,15 @@
 
 	<!-- Center Microphone Icon (Larger) -->
 	<div class="pointer-events-none relative z-10 flex items-center justify-center">
-		<span class="icon-[mdi--microphone] h-10 w-10 {timerColor()}"></span>
+		{#if isVADMode}
+			<span class="icon-[mdi--microphone] h-10 w-10 {timerColor()}"></span>
+		{:else if isRecording}
+			<span class="icon-[mdi--microphone] h-10 w-10 text-error"></span>
+		{:else if isPressed}
+			<span class="icon-[mdi--microphone] h-10 w-10 text-warning"></span>
+		{:else}
+			<span class="icon-[mdi--microphone] h-10 w-10 {timerColor()}"></span>
+		{/if}
 	</div>
 
 	<!-- Children Content (e.g., additional info) in Center -->
@@ -431,12 +440,18 @@
 		></div>
 	{/if}
 
-	<!-- Audio Level Indicator Text (for debugging) -->
-	{#if displayAudioLevel > 0}
-		<div class="absolute -bottom-8 text-xs text-base-content/60">
-			{Math.round(displayAudioLevel * 100)}%
-		</div>
-	{/if}
+	<!-- Status Text -->
+	<div class="absolute -bottom-8 text-xs whitespace-nowrap text-base-content/60">
+		{#if isRecording}
+			<span class="text-error">Recording...</span>
+		{:else if isListening}
+			<span class="text-info">Listening to AI...</span>
+		{:else if isVADMode}
+			<span class="text-success">Voice detection active</span>
+		{:else}
+			<span>Press and hold to talk</span>
+		{/if}
+	</div>
 </div>
 
 <style>

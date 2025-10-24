@@ -24,6 +24,23 @@
 	// Available languages for conversation practice (supported only)
 	const languages = $derived(allLanguages.filter((l) => l.isSupported));
 
+	// Filtered languages based on search query
+	let filteredLanguages = $state<DataLanguage[]>([]);
+
+	$effect(() => {
+		if (!searchQuery.trim()) {
+			filteredLanguages = languages;
+		} else {
+			const query = searchQuery.toLowerCase();
+			filteredLanguages = languages.filter(
+				(lang) =>
+					lang.name.toLowerCase().includes(query) ||
+					lang.nativeName.toLowerCase().includes(query) ||
+					lang.code.toLowerCase().includes(query)
+			);
+		}
+	});
+
 	// Get current language info
 
 	// Get available speakers for selected language, sorted by dialect and with females first
@@ -52,6 +69,7 @@
 	let isOpen = $state(false);
 	let viewingSpeakersFor = $state<DataLanguage | null>(null);
 	let componentRef: HTMLDivElement;
+	let searchQuery = $state('');
 
 	// Auto-select first speaker if language is selected but no speaker is set
 	$effect(() => {
@@ -68,9 +86,18 @@
 			}
 		}
 
-		document.addEventListener('click', handleClickOutside);
+		// Add a small delay to prevent immediate closing when opening
+		function handleClickOutsideDelayed(event: MouseEvent) {
+			setTimeout(() => {
+				if (componentRef && !componentRef.contains(event.target as Node)) {
+					closeMenu();
+				}
+			}, 10);
+		}
+
+		document.addEventListener('click', handleClickOutsideDelayed);
 		return () => {
-			document.removeEventListener('click', handleClickOutside);
+			document.removeEventListener('click', handleClickOutsideDelayed);
 		};
 	});
 
@@ -100,6 +127,7 @@
 	function closeMenu() {
 		isOpen = false;
 		viewingSpeakersFor = null;
+		searchQuery = '';
 	}
 
 	function getGenderIcon(gender: 'male' | 'female' | 'neutral') {
@@ -178,6 +206,23 @@
 				</h3>
 			</div>
 
+			<!-- Search Input (only for languages) -->
+			{#if !viewingSpeakersFor}
+				<div class="px-4 pb-3">
+					<div class="relative">
+						<input
+							type="text"
+							bind:value={searchQuery}
+							placeholder="Search languages..."
+							class="input-bordered input input-sm w-full pl-8"
+						/>
+						<span
+							class="absolute top-1/2 left-3 icon-[mdi--magnify] h-4 w-4 -translate-y-1/2 text-base-content/50"
+						></span>
+					</div>
+				</div>
+			{/if}
+
 			<!-- Content -->
 			<div class="max-h-80 overflow-y-auto px-2">
 				{#if viewingSpeakersFor}
@@ -201,25 +246,33 @@
 					{/each}
 				{:else}
 					<!-- Language List -->
-					{#each languages as language (language.id)}
-						<button
-							onclick={() => selectLanguage(language)}
-							class="group btn my-1 flex w-full items-center justify-between rounded-xl px-4 py-3 text-left btn-ghost transition-colors duration-150 hover:bg-base-200/50"
-							class:bg-primary={selectedLanguage?.code === language.code}
-							class:text-primary-content={selectedLanguage?.code === language.code}
-						>
-							<div class="flex items-center gap-3">
-								<span class="text-xl">{language.flag || '🌍'}</span>
-								<div class="flex flex-col">
-									<span class="font-medium">{language.name}</span>
-									<span class="text-sm opacity-70">{language.nativeName}</span>
+					{#if filteredLanguages.length === 0}
+						<div class="py-8 text-center text-base-content/60">
+							<span class="mx-auto mb-2 icon-[mdi--magnify] block h-8 w-8"></span>
+							<p>No languages found</p>
+							<p class="text-sm">Try a different search term</p>
+						</div>
+					{:else}
+						{#each filteredLanguages as language (language.id)}
+							<button
+								onclick={() => selectLanguage(language)}
+								class="group btn my-1 flex w-full items-center justify-between rounded-xl px-4 py-3 text-left btn-ghost transition-colors duration-150 hover:bg-base-200/50"
+								class:bg-primary={selectedLanguage?.code === language.code}
+								class:text-primary-content={selectedLanguage?.code === language.code}
+							>
+								<div class="flex items-center gap-3">
+									<span class="text-xl">{language.flag || '🌍'}</span>
+									<div class="flex flex-col">
+										<span class="font-medium">{language.name}</span>
+										<span class="text-sm opacity-70">{language.nativeName}</span>
+									</div>
 								</div>
-							</div>
-							{#if selectedLanguage?.code === language.code}
-								<span class="icon-[mdi--check] h-5 w-5 flex-shrink-0"></span>
-							{/if}
-						</button>
-					{/each}
+								{#if selectedLanguage?.code === language.code}
+									<span class="icon-[mdi--check] h-5 w-5 flex-shrink-0"></span>
+								{/if}
+							</button>
+						{/each}
+					{/if}
 				{/if}
 			</div>
 		</div>

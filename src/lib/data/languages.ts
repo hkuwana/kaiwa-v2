@@ -103,13 +103,25 @@ export const languages: Language[] = [
 	{
 		id: 'zh',
 		code: 'zh',
-		name: 'Chinese',
-		nativeName: '中文',
+		name: 'Chinese (Simplified)',
+		nativeName: '简体中文',
 		flag: '🇨🇳',
 		isRTL: false,
 		hasRomanization: true,
 		writingSystem: 'chinese',
-		supportedScripts: ['chinese'],
+		supportedScripts: ['simplified'],
+		isSupported: true
+	},
+	{
+		id: 'zh-tw',
+		code: 'zh-tw',
+		name: 'Chinese (Traditional)',
+		nativeName: '繁體中文',
+		flag: '🇹🇼',
+		isRTL: false,
+		hasRomanization: true,
+		writingSystem: 'chinese',
+		supportedScripts: ['traditional'],
 		isSupported: true
 	},
 	{

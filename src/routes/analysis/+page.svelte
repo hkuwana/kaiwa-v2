@@ -42,7 +42,7 @@
 	// Analysis pipeline state
 	let analysisStore = $state<any>(null);
 	let modules = $state<any[]>([]);
-	let selectedModuleIds = <Set<string>>new SvelteSet();
+	let selectedModuleIds = $state<Set<string>>(new SvelteSet());
 	let isLoading = $state(false);
 	let lastRun: any = $state(null);
 	let errorMessage = $state<string | null>(null);
@@ -134,16 +134,12 @@
 	});
 
 	function handleStartNewConversation() {
-		// For historical conversations, navigate back to the same conversation
-		if (data.hasExistingData && data.sessionId && !sessionNotFound) {
-			goto(`/conversation?sessionId=${data.sessionId}`);
-		} else {
-			// Clear current conversation and start new one
-			conversationStore.destroyConversation();
-			// Generate new sessionId for the new conversation
-			const newSessionId = crypto.randomUUID();
-			goto(`/conversation?sessionId=${newSessionId}`);
-		}
+		// Clear current conversation and start new one
+		conversationStore.destroyConversation();
+		// Generate new sessionId for the new conversation
+		const newSessionId = crypto.randomUUID();
+		// Always go to home page first, then to conversation
+		goto(`/?newSession=true&sessionId=${newSessionId}`);
 	}
 
 	function handleGoHome() {

@@ -54,7 +54,7 @@
 	});
 
 	let messageInput = $state('');
-	let translationData = new SvelteMap<string, Partial<Message>>();
+	let translationData = $state(new SvelteMap<string, Partial<Message>>());
 	let messagesContainer = $state<HTMLDivElement | null>(null);
 	let conversationMode = $state(false);
 
@@ -176,7 +176,20 @@
 	in:fly={{ y: 20, duration: 400 }}
 >
 	<div class="container mx-auto flex h-screen max-w-4xl flex-col px-4 py-4">
-		<div class="mb-4 flex items-center justify-end">
+		<div class="mb-4 flex items-center justify-between">
+			<div class="text-sm text-base-content/70">
+				{#if conversationMode}
+					<span class="flex items-center gap-2">
+						<span class="icon-[mdi--eye-off] h-4 w-4"></span>
+						Focus mode - Transcript hidden
+					</span>
+				{:else}
+					<span class="flex items-center gap-2">
+						<span class="icon-[mdi--eye] h-4 w-4"></span>
+						Full view - See transcript
+					</span>
+				{/if}
+			</div>
 			<button
 				type="button"
 				class={`btn btn-sm ${conversationMode ? 'btn-primary' : 'btn-ghost'}`}
@@ -185,7 +198,13 @@
 					conversationMode = !conversationMode;
 				}}
 			>
-				{conversationMode ? 'Conversation mode on' : 'Conversation mode off'}
+				{#if conversationMode}
+					<span class="mr-1 icon-[mdi--eye] h-4 w-4"></span>
+					Show Transcript
+				{:else}
+					<span class="mr-1 icon-[mdi--eye-off] h-4 w-4"></span>
+					Focus Mode
+				{/if}
 			</button>
 		</div>
 
@@ -243,6 +262,17 @@
 						<div class="mb-4 card-title flex-shrink-0 text-xl">
 							{isGuestUser && messages.length < 4 ? 'Getting to Know You' : 'Conversation'}
 							<span class="text-sm font-normal opacity-70">({messages.length} messages)</span>
+							{#if status === 'streaming'}
+								<div class="ml-2 badge badge-sm badge-info">
+									<span class="loading mr-1 loading-xs loading-spinner"></span>
+									AI is responding...
+								</div>
+							{:else if isTranscribing}
+								<div class="ml-2 badge badge-sm badge-warning">
+									<span class="loading mr-1 loading-xs loading-dots"></span>
+									Processing your speech...
+								</div>
+							{/if}
 						</div>
 						<div
 							class="flex-1 space-y-3 overflow-y-auto"
@@ -357,9 +387,16 @@
 					class="mx-auto w-auto max-w-[80vw] rounded-md bg-base-200 px-4 py-2 text-center text-sm text-base-content shadow-lg md:max-w-[40vw]"
 				>
 					{#if audioInputMode === 'ptt'}
-						Tap and hold to talk, then release to hear Kaiwa
+						<div class="flex items-center justify-center gap-2">
+							<span class="icon-[mdi--microphone] h-4 w-4"></span>
+							<span>Press and hold the microphone to talk</span>
+						</div>
+						<div class="mt-1 text-xs opacity-70">Release to hear Kaiwa's response</div>
 					{:else}
-						Just start talking - Kaiwa will respond automatically
+						<div class="flex items-center justify-center gap-2">
+							<span class="icon-[mdi--microphone] h-4 w-4"></span>
+							<span>Just start talking - Kaiwa will respond automatically</span>
+						</div>
 					{/if}
 				</div>
 				<span class="mx-auto mt-2 icon-[mdi--chevron-down] h-7 w-7 animate-bounce text-base-content"

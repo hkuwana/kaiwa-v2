@@ -4,9 +4,9 @@
 	let currentTestimonial = $state(0);
 	const testimonials = [
 		{
-			name: 'David T.',
-			text: 'Being able to practice realistic conversations has helped me gain confidence in speaking Japanese. The feedback is so helpful!',
-			language: 'Japanese'
+			name: 'Tim J.',
+			text: 'Duolingo… was busy work. Kaiwa is just dynamic.',
+			language: 'Chinese'
 		},
 		{
 			name: 'Scott H.',
