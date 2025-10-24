@@ -195,7 +195,7 @@
 
 	<!-- Advanced Audio Options -->
 	<div class="w-full max-w-md">
-		<AdvancedAudioOptions onModeChange={onModeChange} />
+		<AdvancedAudioOptions {onModeChange} />
 	</div>
 
 	<div class="w-full max-w-md">
