@@ -1,4 +1,4 @@
-import { json } from '@sveltejs/kit'; 
+import { json } from '@sveltejs/kit';
 import { userRepository } from '$lib/server/repositories';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
 

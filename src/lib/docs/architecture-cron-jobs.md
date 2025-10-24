@@ -12,11 +12,11 @@ Kaiwa uses **GitHub Actions** to run cron jobs by triggering **HTTP endpoints** 
 
 ### Why GitHub Actions + HTTP Endpoints?
 
-| Approach                         | Our Choice          | Why                                                                                    |
-| -------------------------------- | ------------------- | -------------------------------------------------------------------------------------- |
-| **Fly.io Scheduled Machines**    | ❌ Not supported    | Cannot specify exact times (9 AM, 2 PM) - only supports "daily"/"weekly"              |
-| **GitHub Actions + HTTP**        | ✅ **Our approach** | Free, precise timing, easy testing, built-in monitoring, no extra infrastructure       |
-| **External Cron Services**       | ⚠️ Alternative      | Similar to GitHub Actions but requires external account                                |
+| Approach                      | Our Choice          | Why                                                                              |
+| ----------------------------- | ------------------- | -------------------------------------------------------------------------------- |
+| **Fly.io Scheduled Machines** | ❌ Not supported    | Cannot specify exact times (9 AM, 2 PM) - only supports "daily"/"weekly"         |
+| **GitHub Actions + HTTP**     | ✅ **Our approach** | Free, precise timing, easy testing, built-in monitoring, no extra infrastructure |
+| **External Cron Services**    | ⚠️ Alternative      | Similar to GitHub Actions but requires external account                          |
 
 ### Benefits of Our Architecture
 
@@ -201,7 +201,7 @@ Edit `.github/workflows/cron-jobs.yml`:
 ```yaml
 on:
   schedule:
-    - cron: '0 10 * * *'  # Change to 10:00 AM UTC
+    - cron: '0 10 * * *' # Change to 10:00 AM UTC
 ```
 
 Then push to GitHub:
@@ -246,14 +246,14 @@ Each HTTP endpoint verifies the `CRON_SECRET`:
 ```typescript
 // src/routes/api/cron/send-reminders/+server.ts
 export const GET: RequestHandler = async ({ url }) => {
-    const secret = url.searchParams.get('secret');
-    const cronSecret = process.env.CRON_SECRET;
+	const secret = url.searchParams.get('secret');
+	const cronSecret = process.env.CRON_SECRET;
 
-    if (!cronSecret || secret !== cronSecret) {
-        return json({ error: 'Unauthorized' }, { status: 401 });
-    }
+	if (!cronSecret || secret !== cronSecret) {
+		return json({ error: 'Unauthorized' }, { status: 401 });
+	}
 
-    // Execute cron job...
+	// Execute cron job...
 };
 ```
 
@@ -428,7 +428,7 @@ pnpm cron:reminders
 ```typescript
 const batches = chunk(users, 50);
 for (const batch of batches) {
-    await Promise.all(batch.map(user => sendEmail(user)));
+	await Promise.all(batch.map((user) => sendEmail(user)));
 }
 ```
 
@@ -436,10 +436,10 @@ for (const batch of batches) {
 
 ```yaml
 # .github/workflows/cron-reminders-batch-1.yml
-- cron: '0 9 * * *'  # First half of users
+- cron: '0 9 * * *' # First half of users
 
 # .github/workflows/cron-reminders-batch-2.yml
-- cron: '5 9 * * *'  # Second half of users (5 min later)
+- cron: '5 9 * * *' # Second half of users (5 min later)
 ```
 
 **Option 3: Move to dedicated queue (Upstash QStash)**
@@ -476,17 +476,17 @@ Breakdown:
 
 ## 🆚 Comparison: Previous vs Current Architecture
 
-| Feature             | Fly.io Machines (Attempted)          | GitHub Actions (Current)              |
-| ------------------- | ------------------------------------ | ------------------------------------- |
-| **Scheduling**      | ❌ No specific times                 | ✅ Exact times (9:00 AM, etc.)        |
-| **Cost**            | ~$0.69/month                         | $0/month                              |
-| **Setup**           | Complex (machine configs)            | Simple (YAML workflow)                |
-| **Testing**         | SSH into machine                     | Click button in GitHub UI             |
-| **Monitoring**      | Fly.io logs                          | GitHub Actions UI + Fly.io logs       |
-| **Reliability**     | Very reliable                        | Very reliable (99.9% uptime)          |
-| **Logs**            | Fly.io only                          | Both GitHub Actions and Fly.io        |
-| **Manual Trigger**  | SSH required                         | Button in GitHub UI                   |
-| **Deployment**      | Separate deploy script               | Automatic on git push                 |
+| Feature            | Fly.io Machines (Attempted) | GitHub Actions (Current)        |
+| ------------------ | --------------------------- | ------------------------------- |
+| **Scheduling**     | ❌ No specific times        | ✅ Exact times (9:00 AM, etc.)  |
+| **Cost**           | ~$0.69/month                | $0/month                        |
+| **Setup**          | Complex (machine configs)   | Simple (YAML workflow)          |
+| **Testing**        | SSH into machine            | Click button in GitHub UI       |
+| **Monitoring**     | Fly.io logs                 | GitHub Actions UI + Fly.io logs |
+| **Reliability**    | Very reliable               | Very reliable (99.9% uptime)    |
+| **Logs**           | Fly.io only                 | Both GitHub Actions and Fly.io  |
+| **Manual Trigger** | SSH required                | Button in GitHub UI             |
+| **Deployment**     | Separate deploy script      | Automatic on git push           |
 
 ---
 

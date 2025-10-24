@@ -1,5 +1,8 @@
 <script lang="ts">
-	import { getLanguageMetric, formatLanguageName as formatLangName } from '$lib/utils/language-stats';
+	import {
+		getLanguageMetric,
+		formatLanguageName as formatLangName
+	} from '$lib/utils/language-stats';
 
 	let selectedUserId = $state('');
 	let availableUsers = $state<Array<{ id: string; email: string; displayName: string }>>([]);
@@ -142,7 +145,9 @@
 	async function loadPlatformStats() {
 		loadingPlatformStats = true;
 		try {
-			const response = await fetch(`/api/admin/weekly-stats/platform-stats?period=${selectedPeriod}`);
+			const response = await fetch(
+				`/api/admin/weekly-stats/platform-stats?period=${selectedPeriod}`
+			);
 			if (!response.ok) throw new Error('Failed to load platform stats');
 			const data = await response.json();
 			platformStats = data.stats;
@@ -222,11 +227,11 @@
 
 	<!-- Platform Stats Overview -->
 	{#if platformStats}
-		<div class="mb-8 card bg-base-200">
+		<div class="card mb-8 bg-base-200">
 			<div class="card-body">
 				<h2 class="card-title">Platform Statistics</h2>
 
-				<div class="stats stats-vertical sm:stats-horizontal shadow">
+				<div class="stats stats-vertical shadow sm:stats-horizontal">
 					<div class="stat">
 						<div class="stat-title">Total Sessions</div>
 						<div class="stat-value text-primary">{platformStats.totalSessions}</div>
@@ -251,10 +256,10 @@
 				<!-- Language Breakdown -->
 				{#if platformStats.languageBreakdown && platformStats.languageBreakdown.length > 0}
 					<div class="mt-6">
-						<h3 class="font-semibold mb-3">Language Distribution</h3>
-						<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+						<h3 class="mb-3 font-semibold">Language Distribution</h3>
+						<div class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
 							{#each platformStats.languageBreakdown as lang}
-								<div class="badge badge-lg gap-2 p-4">
+								<div class="badge gap-2 p-4 badge-lg">
 									<span class="font-medium">{formatLanguageName(lang.language)}</span>
 									<span class="text-xs opacity-70">{lang.percentage}%</span>
 								</div>
@@ -266,10 +271,10 @@
 				<!-- Device Breakdown -->
 				{#if platformStats.deviceBreakdown && platformStats.deviceBreakdown.length > 0}
 					<div class="mt-6">
-						<h3 class="font-semibold mb-3">Device Types</h3>
+						<h3 class="mb-3 font-semibold">Device Types</h3>
 						<div class="flex flex-wrap gap-2">
 							{#each platformStats.deviceBreakdown as device}
-								<div class="badge badge-outline gap-2 p-3">
+								<div class="badge gap-2 badge-outline p-3">
 									<span class="capitalize">{device.deviceType}</span>
 									<span class="text-xs opacity-70">{device.percentage}%</span>
 								</div>
@@ -282,16 +287,16 @@
 	{/if}
 
 	<!-- User Rankings -->
-	<div class="mb-8 card bg-base-200">
+	<div class="card mb-8 bg-base-200">
 		<div class="card-body">
 			<h2 class="card-title">User Activity Rankings</h2>
-			<p class="text-sm text-base-content/70 mb-4">
+			<p class="mb-4 text-sm text-base-content/70">
 				Users ranked by total conversation time in the selected period
 			</p>
 
 			{#if loadingRankings}
 				<div class="flex justify-center py-8">
-					<span class="loading loading-spinner loading-lg"></span>
+					<span class="loading loading-lg loading-spinner"></span>
 				</div>
 			{:else if rankings.length === 0}
 				<div class="alert alert-info">
@@ -375,7 +380,11 @@
 						<label class="label">
 							<span class="label-text">Choose a user to preview their stats</span>
 						</label>
-						<select bind:value={selectedUserId} class="select-bordered select" onchange={generatePreview}>
+						<select
+							bind:value={selectedUserId}
+							class="select-bordered select"
+							onchange={generatePreview}
+						>
 							<option value="">-- Select a user --</option>
 							{#each availableUsers as user (user.id)}
 								<option value={user.id}>
@@ -429,7 +438,9 @@
 										class:text-success={statsData.improvementVsPreviousWeek > 0}
 										class:text-warning={statsData.improvementVsPreviousWeek < 0}
 									>
-										{statsData.improvementVsPreviousWeek > 0 ? '+' : ''}{statsData.improvementVsPreviousWeek}%
+										{statsData.improvementVsPreviousWeek > 0
+											? '+'
+											: ''}{statsData.improvementVsPreviousWeek}%
 									</div>
 								</div>
 							{/if}
@@ -452,18 +463,16 @@
 					<h2 class="card-title">Actions</h2>
 
 					<div class="flex flex-col gap-2">
-						<button
-							class="btn btn-info"
-							onclick={generatePreview}
-							disabled={!selectedUserId}
-						>
+						<button class="btn btn-info" onclick={generatePreview} disabled={!selectedUserId}>
 							👁️ Preview Email
 						</button>
 
 						<button
 							class="btn btn-success"
 							onclick={sendTestEmail}
-							disabled={!selectedUserId || sendStatus === 'sending' || statsData?.totalSessions === 0}
+							disabled={!selectedUserId ||
+								sendStatus === 'sending' ||
+								statsData?.totalSessions === 0}
 						>
 							{#if sendStatus === 'sending'}
 								<span class="loading loading-spinner"></span>

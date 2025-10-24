@@ -358,7 +358,10 @@ export class ConversationSessionsRepository {
 			};
 
 			const content = msg.content || '';
-			const words = content.trim().split(/\s+/).filter((w) => w.length > 0).length;
+			const words = content
+				.trim()
+				.split(/\s+/)
+				.filter((w) => w.length > 0).length;
 			const characters = content.length;
 
 			stats.totalWords += words;
@@ -507,7 +510,10 @@ export class ConversationSessionsRepository {
 	/**
 	 * Get global platform statistics for a time range
 	 */
-	async getPlatformStats(startDate: Date, endDate: Date): Promise<{
+	async getPlatformStats(
+		startDate: Date,
+		endDate: Date
+	): Promise<{
 		totalSessions: number;
 		totalUsers: number;
 		totalMinutes: number;
@@ -521,7 +527,8 @@ export class ConversationSessionsRepository {
 		const uniqueUsers = new Set(sessions.map((s) => s.userId));
 		const totalSeconds = sessions.reduce((sum, s) => sum + (s.secondsConsumed || 0), 0);
 		const totalMinutes = Math.round(totalSeconds / 60);
-		const averageSessionMinutes = sessions.length > 0 ? Math.round(totalMinutes / sessions.length) : 0;
+		const averageSessionMinutes =
+			sessions.length > 0 ? Math.round(totalMinutes / sessions.length) : 0;
 
 		// Language breakdown
 		const languageMap = new Map<string, number>();

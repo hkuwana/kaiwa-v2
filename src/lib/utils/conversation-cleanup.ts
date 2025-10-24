@@ -22,20 +22,20 @@ export function clearAllConversationData(): void {
 		'kaiwa_user_preferences',
 		'kaiwa_settings',
 		'kaiwa_scenario_store',
-		
+
 		// Attribution data (might affect conversation flow)
 		'kaiwa_attribution',
-		
+
 		// Assessment data
 		'pendingAssessment',
-		
+
 		// Any other conversation-related keys
 		'kaiwa_conversation_state',
 		'kaiwa_messages',
 		'kaiwa_session_data',
 		'kaiwa_audio_settings',
 		'kaiwa_speech_settings',
-		
+
 		// Development/debug data
 		'kaiwa_roadmap_state',
 		'kaiwa_marketing_state',
@@ -44,7 +44,7 @@ export function clearAllConversationData(): void {
 	];
 
 	let clearedLocalStorage = 0;
-	localStorageKeys.forEach(key => {
+	localStorageKeys.forEach((key) => {
 		try {
 			if (localStorage.getItem(key)) {
 				localStorage.removeItem(key);
@@ -69,7 +69,7 @@ export function clearAllConversationData(): void {
 	];
 
 	let clearedCookies = 0;
-	cookieKeys.forEach(key => {
+	cookieKeys.forEach((key) => {
 		try {
 			// Clear cookie for current path
 			document.cookie = `${key}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; samesite=lax`;
@@ -85,9 +85,9 @@ export function clearAllConversationData(): void {
 	// Clear any remaining localStorage items that start with 'kaiwa_'
 	try {
 		const allKeys = Object.keys(localStorage);
-		const kaiwaKeys = allKeys.filter(key => key.startsWith('kaiwa_'));
-		
-		kaiwaKeys.forEach(key => {
+		const kaiwaKeys = allKeys.filter((key) => key.startsWith('kaiwa_'));
+
+		kaiwaKeys.forEach((key) => {
 			try {
 				localStorage.removeItem(key);
 				clearedLocalStorage++;
@@ -108,7 +108,9 @@ export function clearAllConversationData(): void {
 		console.warn('⚠️ Failed to clear conversation store:', error);
 	}
 
-	console.log(`🧹 Cleanup complete: ${clearedLocalStorage} localStorage items, ${clearedCookies} cookies cleared`);
+	console.log(
+		`🧹 Cleanup complete: ${clearedLocalStorage} localStorage items, ${clearedCookies} cookies cleared`
+	);
 }
 
 /**
@@ -131,7 +133,7 @@ export function clearConversationDataOnly(): void {
 	];
 
 	let cleared = 0;
-	conversationKeys.forEach(key => {
+	conversationKeys.forEach((key) => {
 		try {
 			if (localStorage.getItem(key)) {
 				localStorage.removeItem(key);
@@ -165,14 +167,15 @@ export function getConversationDataSummary(): {
 	// Check localStorage
 	try {
 		const allKeys = Object.keys(localStorage);
-		const kaiwaKeys = allKeys.filter(key => 
-			key.startsWith('kaiwa_') || 
-			key.includes('conversation') || 
-			key.includes('assessment') ||
-			key.includes('pending')
+		const kaiwaKeys = allKeys.filter(
+			(key) =>
+				key.startsWith('kaiwa_') ||
+				key.includes('conversation') ||
+				key.includes('assessment') ||
+				key.includes('pending')
 		);
-		
-		kaiwaKeys.forEach(key => {
+
+		kaiwaKeys.forEach((key) => {
 			try {
 				const value = localStorage.getItem(key);
 				if (value) {
@@ -190,7 +193,7 @@ export function getConversationDataSummary(): {
 	try {
 		const cookieString = document.cookie;
 		if (cookieString) {
-			cookieString.split(';').forEach(cookie => {
+			cookieString.split(';').forEach((cookie) => {
 				const [key, value] = cookie.trim().split('=');
 				if (key && (key.startsWith('kaiwa_') || key.includes('conversation'))) {
 					summary.cookies[key] = value || '';
