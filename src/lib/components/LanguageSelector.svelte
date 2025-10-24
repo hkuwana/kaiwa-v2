@@ -5,6 +5,7 @@
 	import { languages as allLanguages } from '$lib/data/languages';
 	import { getSpeakersByLanguage } from '$lib/data/speakers';
 	import type { Language as DataLanguage } from '$lib/data/languages';
+	import { onMount } from 'svelte';
 
 	const {
 		selectedLanguage = null,
@@ -50,12 +51,27 @@
 
 	let isOpen = $state(false);
 	let viewingSpeakersFor = $state<DataLanguage | null>(null);
+	let componentRef: HTMLDivElement;
 
 	// Auto-select first speaker if language is selected but no speaker is set
 	$effect(() => {
 		if (selectedLanguage && !selectedSpeaker && availableSpeakers.length > 0 && onSpeakerChange) {
 			onSpeakerChange(availableSpeakers[0].id);
 		}
+	});
+
+	// Click outside to close dropdown
+	onMount(() => {
+		function handleClickOutside(event: MouseEvent) {
+			if (componentRef && !componentRef.contains(event.target as Node)) {
+				closeMenu();
+			}
+		}
+
+		document.addEventListener('click', handleClickOutside);
+		return () => {
+			document.removeEventListener('click', handleClickOutside);
+		};
 	});
 
 	function selectLanguage(language: DataLanguage) {
@@ -100,7 +116,7 @@
 	}
 </script>
 
-<div class="relative w-full">
+<div class="relative w-full" bind:this={componentRef}>
 	<!-- Language selector button -->
 	<button
 		class="group btn flex w-full items-center justify-center border-2 px-6 py-4 text-base-content transition-all duration-200 btn-outline btn-lg hover:border-primary hover:bg-primary hover:text-primary-content"

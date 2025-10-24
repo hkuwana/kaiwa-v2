@@ -2,6 +2,7 @@
 <script lang="ts">
 	import type { ScenarioWithHints } from '$lib/data/scenarios';
 	import { difficultyRatingToStars } from '$lib/utils/cefr';
+	import { onMount } from 'svelte';
 
 	// Props-based design - no direct store access
 	interface Props {
@@ -47,8 +48,23 @@
 	};
 
 	let isOpen = $state(false);
+	let componentRef: HTMLDivElement;
 
 	const createRange = (count: number) => Array.from({ length: Math.max(0, count) });
+
+	// Click outside to close dropdown
+	onMount(() => {
+		function handleClickOutside(event: MouseEvent) {
+			if (componentRef && !componentRef.contains(event.target as Node)) {
+				isOpen = false;
+			}
+		}
+
+		document.addEventListener('click', handleClickOutside);
+		return () => {
+			document.removeEventListener('click', handleClickOutside);
+		};
+	});
 
 	function getScenarioMeta(scenario: ScenarioWithHints) {
 		const rating = scenario.difficultyRating ?? 1;
@@ -67,7 +83,7 @@
 	}
 </script>
 
-<div class="relative w-full">
+<div class="relative w-full" bind:this={componentRef}>
 	<!-- Scenario selector button -->
 	{#if disabled && tooltipMessage}
 		<div class="tooltip tooltip-top w-full" data-tip={tooltipMessage}>

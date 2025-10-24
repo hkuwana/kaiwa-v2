@@ -6,7 +6,6 @@
 	import ChatBubbleFlow from '$lib/components/ChatBubbleFlow.svelte';
 	import InteractiveScenarioPreview from '$lib/features/scenarios/components/InteractiveScenarioPreview.svelte';
 	import DynamicLanguageText from '$lib/components/DynamicLanguageText.svelte';
-	import AdvancedAudioOptions from '$lib/components/AdvancedAudioOptions.svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
@@ -135,11 +134,6 @@
 					</h4>
 				{/if}
 
-				<!-- Advanced Audio Options -->
-				<div class="mb-4 flex justify-center">
-					<AdvancedAudioOptions onModeChange={(mode) => (selectedAudioMode = mode)} />
-				</div>
-
 				<UnifiedStartButton
 					{user}
 					{selectedLanguage}
@@ -150,6 +144,7 @@
 					onSpeakerChange={handleSpeakerChange}
 					onScenarioChange={handleScenarioChange}
 					onStartClick={trackStartSpeakingClick}
+					onModeChange={(mode) => (selectedAudioMode = mode)}
 				/>
 			</div>
 		</div>

@@ -7,7 +7,7 @@
 		compact?: boolean;
 	}
 
-	const { compact = false } = $props<Props>();
+	const { compact = false } = $props();
 
 	// Current selection from store
 	let selectedSpeed = $state<SpeechSpeed>(userPreferencesStore.preferences?.speechSpeed || 'slow');
@@ -23,11 +23,11 @@
 	// Speed options for dropdown
 	const speedOptions = [
 		{ value: 'auto', label: '🤖 Auto (Recommended)', description: 'Based on your level' },
-		{ value: 'very_slow', label: '🐌 Very Slow (40%)', description: 'Absolute beginners' },
-		{ value: 'slow', label: '🐢 Slow (60%)', description: 'Early learners' },
-		{ value: 'normal', label: '🚶 Normal (70%)', description: 'Intermediate' },
-		{ value: 'fast', label: '🏃 Fast (80%)', description: 'Advanced' },
-		{ value: 'native', label: '🚀 Native (85%)', description: 'Near fluent' }
+		{ value: 'very_slow', label: '🐌 Very Slow', description: 'Slow and deliberate' },
+		{ value: 'slow', label: '🐢 Slow', description: 'Normal pace' },
+		{ value: 'normal', label: '🚶 Normal', description: 'Faster pace' },
+		{ value: 'fast', label: '🏃 Fast', description: 'Quick pace' },
+		{ value: 'native', label: '🚀 Native', description: 'Slow and deliberate' }
 	] as const;
 
 	// Calculate auto mode display

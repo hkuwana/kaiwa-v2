@@ -9,6 +9,7 @@
 	import { track } from '$lib/analytics/posthog';
 	import LanguageSelector from './LanguageSelector.svelte';
 	import ScenarioSelector from '$lib/features/scenarios/components/ScenarioSelector.svelte';
+	import AdvancedAudioOptions from './AdvancedAudioOptions.svelte';
 	import type { Language as DataLanguage } from '$lib/data/languages';
 	import type { User } from '$lib/server/db/types';
 	import { getTopSpeakerForScenario, getSpeakersByLanguage } from '$lib/data/speakers';
@@ -25,6 +26,7 @@
 		onSpeakerChange?: (speakerId: string) => void;
 		onScenarioChange?: (scenario: ScenarioWithHints) => void;
 		onStartClick?: () => void;
+		onModeChange?: (mode: 'vad' | 'ptt') => void;
 		children?: import('svelte').Snippet;
 	}
 
@@ -38,7 +40,8 @@
 		onLanguageChange,
 		onSpeakerChange,
 		onScenarioChange,
-		onStartClick
+		onStartClick,
+		onModeChange
 	}: Props = $props();
 
 	// Determine if user is a guest
@@ -188,6 +191,11 @@
 			tooltipMessage={!selectedLanguage ? 'Choose your language first' : ''}
 			{isGuest}
 		/>
+	</div>
+
+	<!-- Advanced Audio Options -->
+	<div class="w-full max-w-md">
+		<AdvancedAudioOptions onModeChange={onModeChange} />
 	</div>
 
 	<div class="w-full max-w-md">
