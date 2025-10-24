@@ -8,7 +8,7 @@
 		messages: Message[];
 		language: Language | null;
 		onStartNewConversation: () => void;
-		onGoToFullAnalysis: () => void;
+		onDetailedAnalysis: () => void;
 		onGoHome: () => void;
 		onClose: () => void;
 		analysisType?: 'onboarding' | 'regular' | 'scenario-generation';
@@ -21,7 +21,7 @@
 		messages,
 		language,
 		onStartNewConversation,
-		onGoToFullAnalysis,
+		onDetailedAnalysis,
 		onGoHome,
 		onClose,
 		analysisType = 'regular',
@@ -198,7 +198,7 @@
 			case 'scenario-generation':
 				return 'Generate Custom Scenarios';
 			default:
-				return 'Get Full Analysis';
+				return 'Get Detailed Analysis';
 		}
 	}
 </script>
@@ -325,12 +325,12 @@
 					<div class="flex flex-col justify-center gap-3 sm:flex-row">
 						{#if isGuestUser}
 							<!-- Guest user sees login CTA -->
-							<button class="btn btn-lg btn-primary" onclick={onGoToFullAnalysis}>
+							<button class="btn btn-lg btn-primary" onclick={onDetailedAnalysis}>
 								<span class="mr-2 icon-[mdi--lock] h-5 w-5"></span>
-								Login to Unlock Full Analysis
+								Login to Unlock Detailed Analysis
 							</button>
 						{:else}
-							<button class="btn btn-lg btn-primary" onclick={onGoToFullAnalysis}>
+							<button class="btn btn-lg btn-primary" onclick={onDetailedAnalysis}>
 								<span class="{getAnalysisTypeIcon(analysisType)} mr-2 h-5 w-5"></span>
 								{getCtaText(analysisType)}
 							</button>

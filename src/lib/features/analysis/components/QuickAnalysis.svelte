@@ -9,7 +9,7 @@
 		messages: Message[];
 		language: Language;
 		onStartNewConversation: () => void;
-		onGoToFullAnalysis: () => void;
+		onDetailedAnalysis: () => void;
 		onGoHome: () => void;
 		analysisType?: 'onboarding' | 'regular' | 'scenario-generation';
 		isGuestUser?: boolean;
@@ -22,7 +22,7 @@
 		messages,
 		language,
 		onStartNewConversation,
-		onGoToFullAnalysis,
+		onDetailedAnalysis,
 		onGoHome,
 		analysisType = 'regular',
 		isGuestUser = false,
@@ -351,10 +351,10 @@
 							<!-- Guest user sees login CTA -->
 							<button class="btn btn-lg btn-primary" onclick={() => (showGuestCta = true)}>
 								<span class="mr-2 icon-[mdi--lock] h-5 w-5"></span>
-								Login to Unlock Full Analysis
+								Login to Unlock Detailed Analysis
 							</button>
 						{:else if expandable}
-							<button class="btn btn-lg btn-primary" onclick={onGoToFullAnalysis}>
+							<button class="btn btn-lg btn-primary" onclick={onDetailedAnalysis}>
 								<span class="{getAnalysisTypeIcon(analysisType)} mr-2 h-5 w-5"></span>
 								{getCtaText(analysisType)}
 							</button>

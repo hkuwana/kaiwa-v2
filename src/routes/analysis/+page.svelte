@@ -37,7 +37,6 @@
 	let sessionNotFound = $state(false);
 	let showExitSurvey = $state(false);
 	let showQuickAnalysisModal = $state(false);
-	let showErrorAnalysis = $state(false);
 
 	// Analysis pipeline state
 	let analysisStore = $state<any>(null);
@@ -142,18 +141,6 @@
 		goto(`/?newSession=true&sessionId=${newSessionId}`);
 	}
 
-	function handleGoHome() {
-		goto(resolve('/'));
-	}
-
-	function handleGoToFullAnalysis() {
-		// Update URL to show full analysis
-		const url = new URL(window.location.href);
-		url.searchParams.set('mode', 'full');
-		url.searchParams.set('type', analysisType);
-		goto(url.toString());
-	}
-
 	function handleExitSurveyClose() {
 		showExitSurvey = false;
 	}
@@ -170,7 +157,7 @@
 			const data = await response.json();
 			modules = data.modules;
 
-			// Auto-select text-based modules
+			// Auto-select text-based modules including grammar analysis
 			selectedModuleIds = new SvelteSet(
 				modules.filter((module: any) => module.modality === 'text').map((module) => module.id)
 			);
@@ -282,10 +269,6 @@
 					<span class="mr-2 icon-[mdi--plus] h-5 w-5"></span>
 					Start New Conversation
 				</button>
-				<button class="btn btn-ghost" onclick={handleGoHome}>
-					<span class="mr-2 icon-[mdi--home] h-5 w-5"></span>
-					Go Home
-				</button>
 			</div>
 		</div>
 	</div>
@@ -300,13 +283,13 @@
 							Review your {selectedLanguage.name} conversation and get detailed insights.
 						</p>
 					</div>
-					<div class="flex gap-2">
+					<div class="flex flex-wrap gap-2">
 						<button class="btn btn-primary" onclick={() => (showQuickAnalysisModal = true)}>
 							<span class="mr-2 icon-[mdi--chart-bar] h-4 w-4"></span>
-							Quick Analysis
+							Quick Insights
 						</button>
 						<button
-							class="btn btn-secondary"
+							class="btn btn-outline"
 							onclick={runAnalysis}
 							disabled={isLoading || selectedModuleIds.size === 0}
 						>
@@ -314,16 +297,13 @@
 								<span class="loading mr-2 loading-sm loading-spinner"></span>
 								Running Analysis...
 							{:else}
-								<span class="mr-2 icon-[mdi--play] h-4 w-4"></span>
-								Run Analysis
+								<span class="mr-2 icon-[mdi--chart-line] h-4 w-4"></span>
+								Detailed Analysis
 							{/if}
 						</button>
-						<button
-							class="btn btn-outline"
-							onclick={() => (showErrorAnalysis = !showErrorAnalysis)}
-						>
-							<span class="mr-2 icon-[mdi--check-circle] h-4 w-4"></span>
-							{showErrorAnalysis ? 'Hide' : 'Show'} Error Analysis
+						<button class="btn btn-ghost" onclick={handleStartNewConversation}>
+							<span class="mr-2 icon-[mdi--plus] h-4 w-4"></span>
+							Start New Conversation
 						</button>
 					</div>
 				</div>
@@ -359,21 +339,6 @@
 								} as any}
 								clickToToggle={false}
 							/>
-
-							<!-- Error analysis (placeholder for now) -->
-							{#if showErrorAnalysis && message.role === 'user'}
-								<div class="bg-base ml-14 rounded-lg border border-warning/20 p-4">
-									<div
-										class="mb-2 flex items-center gap-2 text-sm font-semibold text-warning-content"
-									>
-										<span class="h-4 w-4 icon-[mdi--alert-triangle]"></span>
-										Grammar Analysis
-									</div>
-									<div class="text-sm text-base-content/70">
-										Error analysis would appear here in a full implementation.
-									</div>
-								</div>
-							{/if}
 						</div>
 					{/each}
 				</div>
@@ -569,24 +534,6 @@
 					{/if}
 				</section>
 			{/if}
-
-			<!-- Action Buttons -->
-			<section class="rounded-lg bg-base-100 p-6 shadow">
-				<div class="flex flex-col justify-center gap-3 sm:flex-row">
-					<button class="btn btn-primary" onclick={handleStartNewConversation}>
-						<span class="mr-2 icon-[mdi--plus] h-5 w-5"></span>
-						Start New Conversation
-					</button>
-					<button class="btn btn-outline" onclick={handleGoToFullAnalysis}>
-						<span class="mr-2 icon-[mdi--chart-bar] h-5 w-5"></span>
-						Get Full Analysis
-					</button>
-					<button class="btn btn-ghost" onclick={handleGoHome}>
-						<span class="mr-2 icon-[mdi--home] h-5 w-5"></span>
-						Go Home
-					</button>
-				</div>
-			</section>
 		</div>
 	</div>
 {:else}
@@ -594,7 +541,9 @@
 		<div class="text-center">
 			<h1 class="mb-4 text-2xl font-bold">No Language Selected</h1>
 			<p class="mb-6 text-base-content/70">Please select a language to continue.</p>
-			<button class="btn btn-primary" onclick={handleGoHome}> Go Home </button>
+			<button class="btn btn-primary" onclick={handleStartNewConversation}>
+				Start New Conversation
+			</button>
 		</div>
 	</div>
 {/if}
@@ -605,8 +554,8 @@
 		{messages}
 		language={selectedLanguage}
 		onStartNewConversation={handleStartNewConversation}
-		onGoToFullAnalysis={handleGoToFullAnalysis}
-		onGoHome={handleGoHome}
+		onDetailedAnalysis={runAnalysis}
+		onGoHome={handleStartNewConversation}
 		onClose={handleCloseQuickAnalysisModal}
 		{analysisType}
 		isGuestUser={data.isGuest}
