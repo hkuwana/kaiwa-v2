@@ -3,11 +3,8 @@ import { userRepository } from '$lib/server/repositories';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
 import { EmailPermissionService } from './email-permission.service';
 import type { User } from '$lib/server/db/types';
-import {
-	getLanguageMetric,
-	getTangibleComparisons,
-	formatLanguageName as formatLangName
-} from '$lib/utils/language-stats';
+
+
 
 // Use process.env for compatibility with both SvelteKit and standalone scripts
 const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_dummy_resend_key';
