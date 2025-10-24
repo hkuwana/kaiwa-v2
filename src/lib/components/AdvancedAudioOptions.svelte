@@ -113,68 +113,81 @@
 		>
 			<h3 class="mb-4 text-sm font-semibold">Audio Input Mode</h3>
 
-			<!-- Toggle Switch -->
+			<!-- Audio Mode Slider -->
 			<div class="flex flex-col gap-4">
-				<!-- Mode Labels with Toggle -->
-				<div class="flex items-center justify-between gap-4">
-					<div class="flex-1 text-left">
+				<!-- Mode Labels -->
+				<div class="flex items-center justify-between">
+					<div class="text-left">
 						<div class="text-sm font-medium" class:text-primary={selectedMode === 'vad'}>
 							Auto-Detect Mode
 						</div>
 						<div class="text-xs text-base-content/60">Hands-free speaking</div>
 					</div>
-
-					<!-- Toggle Switch -->
-					<label class="swap swap-flip">
-						<input
-							type="checkbox"
-							checked={selectedMode === 'ptt'}
-							onchange={() => handleModeChange(selectedMode === 'vad' ? 'ptt' : 'vad')}
-							aria-label="Toggle between Auto-Detect Mode and Push-to-Talk"
-						/>
-						<div class="swap-on">
-							<div class="flex h-12 w-12 items-center justify-center rounded-full bg-primary">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke-width="2"
-									stroke="currentColor"
-									class="h-6 w-6 text-primary-content"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										d="M15.75 5.25v13.5m-7.5-13.5v13.5"
-									/>
-								</svg>
-							</div>
-						</div>
-						<div class="swap-off">
-							<div class="flex h-12 w-12 items-center justify-center rounded-full bg-base-300">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke-width="2"
-									stroke="currentColor"
-									class="h-6 w-6"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"
-									/>
-								</svg>
-							</div>
-						</div>
-					</label>
-
-					<div class="flex-1 text-right">
+					<div class="text-right">
 						<div class="text-sm font-medium" class:text-primary={selectedMode === 'ptt'}>
 							Push-to-Talk
 						</div>
 						<div class="text-xs text-base-content/60">Press to speak</div>
+					</div>
+				</div>
+
+				<!-- Slider Container -->
+				<div class="relative px-2">
+					<!-- Slider Track -->
+					<div class="relative h-2 w-full rounded-full bg-base-300">
+						<!-- Active Track -->
+						<div
+							class="absolute top-0 h-2 rounded-full bg-primary transition-all duration-300 ease-in-out"
+							style="width: {selectedMode === 'ptt' ? '100%' : '0%'}"
+						></div>
+
+						<!-- Slider Handle -->
+						<div
+							class="absolute top-1/2 h-6 w-6 -translate-y-1/2 transform cursor-pointer rounded-full bg-primary shadow-lg transition-all duration-300 ease-in-out"
+							style="left: {selectedMode === 'ptt' ? 'calc(100% - 12px)' : '0px'}"
+							onclick={() => handleModeChange(selectedMode === 'vad' ? 'ptt' : 'vad')}
+						>
+							<!-- Handle Icon -->
+							<div class="flex h-full w-full items-center justify-center">
+								{#if selectedMode === 'ptt'}
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke-width="2"
+										stroke="currentColor"
+										class="h-4 w-4 text-primary-content"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="M15.75 5.25v13.5m-7.5-13.5v13.5"
+										/>
+									</svg>
+								{:else}
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke-width="2"
+										stroke="currentColor"
+										class="h-4 w-4 text-primary-content"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"
+										/>
+									</svg>
+								{/if}
+							</div>
+						</div>
+					</div>
+
+					<!-- Clickable Areas -->
+					<div class="absolute inset-0 flex">
+						<div class="flex-1 cursor-pointer" onclick={() => handleModeChange('vad')}></div>
+						<div class="flex-1 cursor-pointer" onclick={() => handleModeChange('ptt')}></div>
 					</div>
 				</div>
 
@@ -194,37 +207,6 @@
 					{/if}
 				</div>
 			</div>
-
-			<!-- PTT Stop Delay Slider (only show in PTT mode) -->
-			{#if selectedMode === 'ptt'}
-				<div class="mt-6 space-y-3">
-					<h3 class="text-sm font-semibold">Push-to-Talk Settings</h3>
-
-					<div class="rounded-lg bg-base-200 p-3">
-						<label for="ptt-delay-slider" class="mb-2 block text-xs font-medium">
-							Stop Delay: {pttStopDelay}ms
-						</label>
-						<input
-							id="ptt-delay-slider"
-							type="range"
-							min="0"
-							max="1000"
-							step="100"
-							bind:value={pttStopDelay}
-							oninput={handlePttDelayChange}
-							class="range range-primary range-sm"
-						/>
-						<div class="mt-2 flex justify-between text-xs text-base-content/60">
-							<span>Instant (0ms)</span>
-							<span>1 second</span>
-						</div>
-						<p class="mt-2 text-xs text-base-content/70">
-							Adds a small delay after releasing the button before sending audio. This helps ensure
-							the end of your speech is captured. Try 500ms if you're experiencing cut-off audio.
-						</p>
-					</div>
-				</div>
-			{/if}
 
 			<!-- Speech Speed Section -->
 			<div class="divider"></div>

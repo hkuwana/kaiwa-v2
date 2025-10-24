@@ -56,7 +56,7 @@
 	let messageInput = $state('');
 	let translationData = new SvelteMap<string, Partial<Message>>();
 	let messagesContainer = $state<HTMLDivElement | null>(null);
-	let calmMode = $state(false);
+	let conversationMode = $state(false);
 
 	// UI state for chat visibility
 	let enableTyping = $state(false);
@@ -179,18 +179,18 @@
 		<div class="mb-4 flex items-center justify-end">
 			<button
 				type="button"
-				class={`btn btn-sm ${calmMode ? 'btn-primary' : 'btn-ghost'}`}
-				aria-pressed={calmMode}
+				class={`btn btn-sm ${conversationMode ? 'btn-primary' : 'btn-ghost'}`}
+				aria-pressed={conversationMode}
 				onclick={() => {
-					calmMode = !calmMode;
+					conversationMode = !conversationMode;
 				}}
 			>
-				{calmMode ? 'Calm mode on' : 'Calm mode off'}
+				{conversationMode ? 'Conversation mode on' : 'Conversation mode off'}
 			</button>
 		</div>
 
 		<!-- Live Transcription -->
-		{#if !calmMode && currentTranscript}
+		{#if !conversationMode && currentTranscript}
 			<div class="mb-4 flex-shrink-0" in:fly={{ y: -10, duration: 200 }}>
 				<div class="card border-l-4 border-l-info bg-info/5">
 					<div class="card-body p-4">
@@ -211,26 +211,26 @@
 
 		<!-- Conversation Messages - Always visible; input may be hidden -->
 		<div class="mb-4 min-h-0 flex-1">
-			{#if calmMode}
+			{#if conversationMode}
 				<div class="card h-full bg-base-100 shadow-lg">
 					<div class="card-body flex h-full flex-col items-center justify-center gap-6 text-center">
-						<div class="calm-visual relative h-56 w-56">
-							<div class="calm-visual__wave calm-visual__wave--outer"></div>
-							<div class="calm-visual__wave calm-visual__wave--middle"></div>
-							<div class="calm-visual__wave calm-visual__wave--inner"></div>
-							<div class="calm-visual__core"></div>
+						<div class="conversation-visual relative h-56 w-56">
+							<div class="conversation-visual__wave conversation-visual__wave--outer"></div>
+							<div class="conversation-visual__wave conversation-visual__wave--middle"></div>
+							<div class="conversation-visual__wave conversation-visual__wave--inner"></div>
+							<div class="conversation-visual__core"></div>
 						</div>
 						<div class="space-y-2">
-							<p class="text-lg opacity-80">Calm mode active</p>
+							<p class="text-lg opacity-80">Conversation mode active</p>
 							<p class="text-sm opacity-60">
-								Close your eyes or just listen in. Transcript and messages are hidden for now.
+								Focus on listening and speaking. Transcript and messages are hidden for now.
 							</p>
 						</div>
 						<button
 							type="button"
 							class="btn btn-outline btn-sm"
 							onclick={() => {
-								calmMode = false;
+								conversationMode = false;
 							}}
 						>
 							Show transcript
@@ -289,7 +289,7 @@
 		</div>
 
 		<!-- Text Input - hidden by default to promote audio; flip enableTyping to true to show -->
-		{#if enableTyping && !calmMode}
+		{#if enableTyping && !conversationMode}
 			<div class="mb-4 flex-shrink-0" in:fade={{ duration: 120 }}>
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body p-4">
@@ -378,14 +378,14 @@
 </div>
 
 <style>
-	.calm-visual {
+	.conversation-visual {
 		position: relative;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 	}
 
-	.calm-visual__core {
+	.conversation-visual__core {
 		position: relative;
 		height: 7rem;
 		width: 7rem;
@@ -397,29 +397,29 @@
 		backdrop-filter: blur(4px);
 	}
 
-	.calm-visual__wave {
+	.conversation-visual__wave {
 		position: absolute;
 		inset: 0;
 		border-radius: 9999px;
 		border: 2px solid rgba(99, 102, 241, 0.2);
-		animation: calmPulse 6s ease-in-out infinite;
+		animation: conversationPulse 6s ease-in-out infinite;
 	}
 
-	.calm-visual__wave--middle {
+	.conversation-visual__wave--middle {
 		animation-delay: 2s;
 		border-color: rgba(56, 189, 248, 0.25);
 	}
 
-	.calm-visual__wave--inner {
+	.conversation-visual__wave--inner {
 		animation-delay: 4s;
 		border-color: rgba(59, 130, 246, 0.25);
 	}
 
-	.calm-visual__wave--outer {
+	.conversation-visual__wave--outer {
 		transform: scale(1.1);
 	}
 
-	@keyframes calmPulse {
+	@keyframes conversationPulse {
 		0% {
 			transform: scale(1);
 			opacity: 0.35;
