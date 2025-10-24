@@ -3,27 +3,34 @@
 This document summarizes what was removed and changed during the complete migration from Fly.io scheduled machines to GitHub Actions cron jobs.
 
 ## Migration Date
+
 October 24, 2025
 
 ## What Was Removed
 
 ### Fly.io Deployment Scripts
+
 These scripts are no longer needed:
+
 - ✅ Deleted: `scripts/deploy-cron-jobs.sh` - Fly.io machine deployment
 - ✅ Deleted: `scripts/diagnose-cron.sh` - Fly.io diagnostic tool
 - ✅ Deleted: `scripts/check-cron-health.sh` - Fly.io health monitoring
 - ✅ Deleted: `scripts/test-cron-remote.sh` - Old endpoint testing script
 
 ### Fly.io Testing & Monitoring Scripts (in root)
+
 - ✅ Deleted: `test-cron-endpoint.sh` - Old test script
 - ✅ Deleted: `check-cron-status.sh` - Fly.io status checker
 
 ### Docker/Container Configuration (Fly.io-specific)
+
 - ✅ Deleted: `crontab` - Supercronic crontab file
 - ✅ Modified: `Dockerfile` - Removed Supercronic installation and crontab copying
 
 ### Old Fly.io Documentation Files
+
 The following Fly.io-focused documentation has been removed and replaced with GitHub Actions docs:
+
 - ✅ Deleted: `CRON_SETUP_SUMMARY.md`
 - ✅ Deleted: `CRON_DEBUGGING_GUIDE.md`
 - ✅ Deleted: `CRON_DEBUG_SUMMARY.md`
@@ -38,6 +45,7 @@ The following Fly.io-focused documentation has been removed and replaced with Gi
 ## What Was Updated
 
 ### Configuration Files
+
 1. **`fly.toml`**
    - Updated comments to reflect cron jobs are now in GitHub Actions
    - Removed references to `scripts/deploy-cron-jobs.sh`
@@ -49,6 +57,7 @@ The following Fly.io-focused documentation has been removed and replaced with Gi
    - Kept rest of Docker config for Fly.io web app deployment
 
 ### Scripts (Updated with Deprecation Notices)
+
 These scripts are no longer called by the automated cron system, but kept for manual testing:
 
 1. **`scripts/send-reminders.ts`**
@@ -74,6 +83,7 @@ These scripts are no longer called by the automated cron system, but kept for ma
 ## What Was Created (New GitHub Actions Setup)
 
 ### New API Endpoints (Fully Functional)
+
 All endpoints authenticate with Bearer token and trigger email services:
 
 1. **`src/routes/api/cron/send-reminders/+server.ts`** ✅
@@ -97,13 +107,16 @@ All endpoints authenticate with Bearer token and trigger email services:
    - Personalized stats generation
 
 ### New GitHub Actions Workflow
+
 **`.github/workflows/cron-jobs.yml`** ✅
+
 - 4 scheduled jobs (send-reminders, founder-emails, weekly-digest, weekly-stats)
 - Manual trigger support for testing
 - Proper curl error handling
 - Each job runs independently
 
 ### New Documentation
+
 All in `.github/cron/`:
 
 1. **`README.md`** - Complete overview and setup guide
@@ -115,6 +128,7 @@ All in `.github/cron/`:
 ## Architecture Comparison
 
 ### Old: Fly.io Scheduled Machines
+
 ```
 GitHub/GitOps → fly.toml → Fly.io Machines
                         ↓
@@ -124,6 +138,7 @@ GitHub/GitOps → fly.toml → Fly.io Machines
 ```
 
 ### New: GitHub Actions with HTTP Endpoints
+
 ```
 GitHub Actions Workflow → curl → https://trykaiwa.com/api/cron/*
                                ↓
@@ -145,22 +160,26 @@ GitHub Actions Workflow → curl → https://trykaiwa.com/api/cron/*
 ## Files Status Summary
 
 ### Completely Removed (16 files)
+
 - 4 Fly.io scripts
 - 2 test scripts
 - 1 crontab
 - 9 documentation files
 
 ### Modified (2 files)
+
 - fly.toml (updated comments)
 - Dockerfile (removed Supercronic)
 
 ### Updated with Deprecation (4 files)
+
 - scripts/send-reminders.ts
 - scripts/send-founder-emails.ts
 - scripts/send-weekly-digest.ts
 - scripts/send-weekly-stats.ts
 
 ### Newly Created (9 files)
+
 - 4 API endpoints
 - 1 GitHub Actions workflow
 - 4 documentation files
@@ -168,6 +187,7 @@ GitHub Actions Workflow → curl → https://trykaiwa.com/api/cron/*
 ## Next Steps
 
 1. ✅ Delete Fly.io scheduled machines (if still running)
+
    ```bash
    fly machines list --app kaiwa | grep cron
    # Then remove with: fly machines delete <machine-id>
@@ -188,6 +208,7 @@ GitHub Actions Workflow → curl → https://trykaiwa.com/api/cron/*
 ## Rollback (if needed)
 
 If you need to revert:
+
 1. This git commit includes all migration changes
 2. Revert the commit to restore old files
 3. Re-enable Fly.io scheduled machines
@@ -195,6 +216,7 @@ If you need to revert:
 ## Questions?
 
 See `.github/cron/` documentation:
+
 - **Quick questions?** → `QUICK_START.md`
 - **Need API details?** → `API_REFERENCE.md`
 - **Why was this done?** → `MIGRATION_GUIDE.md`

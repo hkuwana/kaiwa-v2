@@ -53,7 +53,8 @@ export const GET: RequestHandler = async ({ request }) => {
 			upcoming: [
 				{
 					title: 'Example: Vocabulary tracking',
-					summary: "We're building a system to track words you've learned and suggest review sessions."
+					summary:
+						"We're building a system to track words you've learned and suggest review sessions."
 				}
 			]
 		};

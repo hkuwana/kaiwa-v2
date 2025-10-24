@@ -4,8 +4,6 @@ import { conversationSessionsRepository } from '$lib/server/repositories/convers
 import { EmailPermissionService } from './email-permission.service';
 import type { User } from '$lib/server/db/types';
 
-
-
 // Use process.env for compatibility with both SvelteKit and standalone scripts
 const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_dummy_resend_key';
 const PUBLIC_APP_URL = process.env.PUBLIC_APP_URL || 'https://trykaiwa.com';

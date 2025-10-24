@@ -32,7 +32,8 @@ export const load = async ({ locals, url }) => {
 
 	// SEO data optimized for AI language partner/coach positioning
 	const seo = {
-		title: 'AI Language Partner & Coach - Build Speaking Confidence with Real Conversation Practice',
+		title:
+			'AI Language Partner & Coach - Build Speaking Confidence with Real Conversation Practice',
 		description:
 			'Master confident conversations with your AI language partner. Get real-time coaching feedback, practice 30+ authentic scenarios, and build speaking confidence in 8+ languages. Practice for free, no scheduling required.',
 		keywords:

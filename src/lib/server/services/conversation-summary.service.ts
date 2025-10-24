@@ -26,7 +26,9 @@ function normalizeMemoriesResponse(raw: unknown): string[] | null {
 	}
 
 	if (Array.isArray(raw)) {
-		return raw.filter((value): value is string => typeof value === 'string' && value.trim().length > 0);
+		return raw.filter(
+			(value): value is string => typeof value === 'string' && value.trim().length > 0
+		);
 	}
 
 	if (typeof raw === 'object') {

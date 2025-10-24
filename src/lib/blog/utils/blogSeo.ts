@@ -42,9 +42,9 @@ export function createBlogSeo(
 
 export function createBlogListSeo(baseUrl: string = 'https://trykaiwa.com'): BlogSeoData {
 	return {
-		title: 'Blog | Kaiwa - Conversation Practice & Language Learning',
+		title: 'Kaiwa Blog - AI Language Partner & Coach Insights',
 		description:
-			'Discover insights on conversation practice, language learning techniques, and AI-powered education from the Kaiwa team.',
+			'Explore articles on building speaking confidence, mastering conversation practice, and learning with an AI language partner. Get tips and insights from the Kaiwa team.',
 		ogType: 'website',
 		ogImage: `${baseUrl}/og-image.png`,
 		twitterCard: 'summary_large_image',

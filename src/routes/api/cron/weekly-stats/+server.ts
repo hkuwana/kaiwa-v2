@@ -28,7 +28,9 @@ export const GET: RequestHandler = async ({ request }) => {
 		const stats = await WeeklyStatsEmailService.sendWeeklyStats();
 
 		console.log('✅ Weekly stats cron job completed!');
-		console.log(`📊 Stats: ${stats.sent} sent, ${stats.skipped} skipped, ${stats.errors.length} errors`);
+		console.log(
+			`📊 Stats: ${stats.sent} sent, ${stats.skipped} skipped, ${stats.errors.length} errors`
+		);
 
 		return json({
 			success: true,

@@ -9,6 +9,7 @@ All cron jobs trigger HTTP endpoints on the deployed application. The endpoints 
 **Base URL:** `https://trykaiwa.com/api/cron`
 
 **Authentication:** All requests require the header:
+
 ```
 Authorization: Bearer {CRON_SECRET}
 ```
@@ -16,6 +17,7 @@ Authorization: Bearer {CRON_SECRET}
 ## Scheduled Jobs
 
 ### 1. Daily Reminders
+
 - **Schedule:** Every day at 9:00 AM UTC
 - **Endpoint:** `GET /api/cron/send-reminders`
 - **Purpose:** Send practice reminders to users who haven't practiced in 1-30+ days
@@ -28,6 +30,7 @@ Authorization: Bearer {CRON_SECRET}
 - **Implementation:** [src/routes/api/cron/send-reminders/+server.ts](../../src/routes/api/cron/send-reminders/+server.ts)
 
 ### 2. Founder Emails
+
 - **Schedule:** Every day at 2:00 PM UTC
 - **Endpoint:** `GET /api/cron/founder-emails`
 - **Purpose:** Send personalized email sequence from founder to new users
@@ -38,6 +41,7 @@ Authorization: Bearer {CRON_SECRET}
 - **Implementation:** [src/routes/api/cron/founder-emails/+server.ts](../../src/routes/api/cron/founder-emails/+server.ts)
 
 ### 3. Weekly Digest
+
 - **Schedule:** Every Monday at 10:00 AM UTC
 - **Endpoint:** `GET /api/cron/weekly-digest`
 - **Purpose:** Send weekly product updates to all opted-in users
@@ -49,6 +53,7 @@ Authorization: Bearer {CRON_SECRET}
 - **Note:** Update the content in the endpoint file before each Monday send
 
 ### 4. Weekly Stats
+
 - **Schedule:** Every Monday at 11:00 AM UTC
 - **Endpoint:** `GET /api/cron/weekly-stats`
 - **Purpose:** Send personalized weekly practice statistics
@@ -72,6 +77,7 @@ curl -H "Authorization: Bearer YOUR_CRON_SECRET" \
 ```
 
 For example:
+
 ```bash
 # Test daily reminders in dry-run mode
 curl -H "Authorization: Bearer YOUR_CRON_SECRET" \
@@ -85,10 +91,12 @@ curl -H "Authorization: Bearer YOUR_CRON_SECRET" \
 ### Query Parameters
 
 **send-reminders endpoint:**
+
 - `dryRun=true` - Preview what would be sent without sending
 - `testEmails=email1,email2` - Only send to specific emails (for testing)
 
 **Other endpoints:**
+
 - No special query parameters (configuration is in the endpoint file)
 
 ## GitHub Actions Workflow
@@ -114,6 +122,7 @@ You can manually trigger any cron job from GitHub:
 ### API Endpoints
 
 All endpoints are SvelteKit server endpoints that:
+
 1. Verify the CRON_SECRET via Authorization header
 2. Execute the corresponding email service
 3. Return JSON response with stats (sent, skipped, errors)
@@ -144,17 +153,20 @@ Required in `.env` or GitHub secrets:
 ## Troubleshooting
 
 ### Endpoints returning 401 Unauthorized
+
 - Check that `CRON_SECRET` is set in GitHub secrets
 - Verify the Authorization header is in format: `Bearer {CRON_SECRET}`
 - Note: The old query param method (`?secret=`) is deprecated
 
 ### No emails being sent
+
 - Check email preferences in user_settings table (email_permissions)
 - Use `dryRun=true` to see who would receive emails
 - Check admin emails for detailed error logs
 - Verify the email service (Resend) is configured correctly
 
 ### Jobs not running on schedule
+
 - Check GitHub Actions workflow is enabled
 - Verify the schedule in cron-jobs.yml uses correct cron syntax
 - GitHub uses UTC only - times must be in UTC
@@ -186,6 +198,7 @@ This setup replaces the previous Fly.io scheduled machines with GitHub Actions:
 **New:** GitHub Actions scheduled workflows triggering HTTP endpoints
 
 **Benefits:**
+
 - ✅ No extra infrastructure costs
 - ✅ Same reliability as before
 - ✅ Easier to test and debug
