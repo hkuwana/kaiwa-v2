@@ -335,10 +335,9 @@
 								{getCtaText(analysisType)}
 							</button>
 						{/if}
-						<button class="btn btn-outline btn-lg" onclick={onStartNewConversation}>
-							<span class="mr-2 h-5 w-5 {isHistorical ? 'icon-[mdi--eye]' : 'icon-[mdi--plus]'}"
-							></span>
-							{isHistorical ? 'View Conversation' : 'Practice More'}
+						<button class="btn btn-outline btn-lg" onclick={onGoHome}>
+							<span class="mr-2 icon-[mdi--home] h-5 w-5"></span>
+							Go Home
 						</button>
 					</div>
 				</div>
