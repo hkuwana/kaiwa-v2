@@ -30,13 +30,13 @@ export const load = async ({ locals, url }) => {
 		};
 	}
 
-	// SEO data optimized for family conversations and anxiety-free learning
+	// SEO data optimized for AI language partner/coach positioning
 	const seo = {
-		title: 'Connect with Family in Japanese | Anxiety-Free AI Practice - Kaiwa',
+		title: 'AI Language Partner & Coach - Build Speaking Confidence with Real Conversation Practice',
 		description:
-			'Practice Japanese conversations with AI in a safe, judgment-free space. Connect with your family in their native language.',
+			'Master confident conversations with your AI language partner. Get real-time coaching feedback, practice 30+ authentic scenarios, and build speaking confidence in 8+ languages. Practice for free, no scheduling required.',
 		keywords:
-			'Japanese conversation practice, family conversations Japanese, anxiety-free Japanese learning, AI Japanese tutor, speak Japanese confidently',
+			'AI language partner, AI language coach, language confidence builder, conversation practice, speaking practice, authentic conversation, language learning app, real-time feedback, pronunciation coaching, language fluency',
 		author: 'Kaiwa',
 		robots: 'index, follow',
 		canonical: url.href,
