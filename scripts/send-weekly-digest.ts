@@ -1,17 +1,21 @@
 #!/usr/bin/env tsx
 
 /**
- * Weekly Digest Email Script
+ * Weekly Digest Email Script (Legacy)
  *
- * Sends weekly summary emails to users who opted into weekly digests.
- * This includes user progress stats + what shipped at Kaiwa this week.
+ * DEPRECATED: This script is no longer used for scheduled runs.
+ * Cron jobs have been migrated to GitHub Actions with HTTP endpoints.
  *
- * Run manually:
+ * The HTTP endpoint version runs via:
+ *   GET /api/cron/weekly-digest (Every Monday at 10:00 AM UTC)
+ *
+ * This script can still be run manually for testing:
  *   tsx scripts/send-weekly-digest.ts
  *
- * Run via Fly.io scheduled machine:
- *   fly machine run --schedule "0 10 * * 1" --entrypoint "pnpm" --cmd "tsx" --cmd "scripts/send-weekly-digest.ts"
- *   (Runs every Monday at 10:00 AM UTC)
+ * To update weekly digest content, edit:
+ *   src/routes/api/cron/weekly-digest/+server.ts
+ *
+ * See .github/cron/ for documentation on the new GitHub Actions setup.
  */
 
 import { WeeklyUpdatesEmailService } from '../src/lib/server/email/weekly-updates-email.service';

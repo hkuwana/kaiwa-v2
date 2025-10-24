@@ -1,11 +1,18 @@
 #!/usr/bin/env tsx
 
 /**
- * Automated Email Reminder Script
+ * Automated Email Reminder Script (Legacy)
  *
- * This script sends practice reminders to users who haven't practiced recently.
- * Run this as a cron job (e.g., daily at 9 AM):
- * 0 9 * * * cd /path/to/kaiwa && pnpm tsx scripts/send-reminders.ts
+ * DEPRECATED: This script is no longer used for scheduled runs.
+ * Cron jobs have been migrated to GitHub Actions with HTTP endpoints.
+ *
+ * The HTTP endpoint version runs via:
+ *   GET /api/cron/send-reminders (Daily at 9:00 AM UTC)
+ *
+ * This script can still be run manually for testing:
+ *   tsx scripts/send-reminders.ts
+ *
+ * See .github/cron/ for documentation on the new GitHub Actions setup.
  */
 
 import { EmailReminderService } from '../src/lib/server/email/email-reminder.service';

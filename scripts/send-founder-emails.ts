@@ -1,16 +1,18 @@
 #!/usr/bin/env tsx
 
 /**
- * Founder Email Sequence Script
+ * Founder Email Sequence Script (Legacy)
  *
- * Sends personalized emails from the founder to users who haven't started practicing.
- * This script runs as a separate process, not an HTTP endpoint.
+ * DEPRECATED: This script is no longer used for scheduled runs.
+ * Cron jobs have been migrated to GitHub Actions with HTTP endpoints.
  *
- * Run manually:
+ * The HTTP endpoint version runs via:
+ *   GET /api/cron/founder-emails (Monday at 2:00 PM UTC)
+ *
+ * This script can still be run manually for testing:
  *   tsx scripts/send-founder-emails.ts
  *
- * Run via Fly.io scheduled machine:
- *   fly machine run --schedule "0 14 * * *" --entrypoint "pnpm" --cmd "tsx" --cmd "scripts/send-founder-emails.ts"
+ * See .github/cron/ for documentation on the new GitHub Actions setup.
  */
 
 import { FounderEmailService } from '../src/lib/server/email/founder-email.service';

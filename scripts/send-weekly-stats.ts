@@ -1,18 +1,18 @@
 #!/usr/bin/env tsx
 
 /**
- * Weekly Stats Email Script
+ * Weekly Stats Email Script (Legacy)
  *
- * Sends personalized weekly practice statistics to users who opted into weekly emails.
- * Includes: practice minutes, sessions, days active, most practiced language, and comparison to previous week.
+ * DEPRECATED: This script is no longer used for scheduled runs.
+ * Cron jobs have been migrated to GitHub Actions with HTTP endpoints.
  *
- * Run manually:
+ * The HTTP endpoint version runs via:
+ *   GET /api/cron/weekly-stats (Every Monday at 11:00 AM UTC)
+ *
+ * This script can still be run manually for testing:
  *   tsx scripts/send-weekly-stats.ts
  *
- * Run via Fly.io scheduled machine:
- *   fly machine run --schedule weekly --schedule-weekday monday --schedule-time "11:00" \
- *     --entrypoint "pnpm" --cmd "tsx" --cmd "scripts/send-weekly-stats.ts"
- *   (Runs every Monday at 11:00 AM UTC)
+ * See .github/cron/ for documentation on the new GitHub Actions setup.
  */
 
 import { config } from 'dotenv';

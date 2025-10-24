@@ -4,12 +4,11 @@
 #
 # Architecture:
 # - Process "web": Main SvelteKit application (auto-scaled)
-# - Separate scheduled machines: Cron jobs (deployed via scripts/deploy-cron-jobs.sh)
+# - Cron jobs: Now handled by GitHub Actions with HTTP endpoints
 #
-# Note: Cron jobs are NOT defined in this file. They are deployed as separate
-# scheduled machines to keep them isolated from the main app. See:
-# - scripts/deploy-cron-jobs.sh for deployment
-# - src/lib/docs/architecture-cron-jobs.md for documentation
+# Note: Cron jobs have been migrated from Fly.io to GitHub Actions.
+# The main app hosts HTTP endpoints that GitHub Actions calls on schedule.
+# See .github/cron/README.md for documentation on the cron job setup.
 
 app = 'kaiwa'
 primary_region = 'den'
@@ -30,5 +29,3 @@ primary_region = 'den'
   cpu_kind = 'shared'
   cpus = 1
 
-# Cron jobs are deployed as separate scheduled machines
-# See scripts/deploy-cron-jobs.sh for deployment instructions
