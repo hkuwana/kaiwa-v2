@@ -4,7 +4,7 @@ This directory contains executable scripts for cron jobs, database operations, a
 
 ## 🔄 Cron Jobs
 
-Automated tasks that run on a schedule.
+Automated tasks that run on a schedule via **GitHub Actions**.
 
 ### Available Cron Jobs
 
@@ -15,9 +15,23 @@ Automated tasks that run on a schedule.
 | `send-weekly-digest.ts`  | Weekly product updates digest      | 10am UTC Mon          | `pnpm cron:weekly-digest`  |
 | `send-weekly-stats.ts`   | Weekly user practice stats         | 11am UTC Mon          | `pnpm cron:weekly-stats`   |
 
-### Quick Start
+### Architecture
 
-**1. Test locally**
+Cron jobs run via **GitHub Actions** that trigger HTTP endpoints on your app:
+
+- ✅ Free (2000 minutes/month on GitHub)
+- ✅ Supports precise scheduling (specific times like 9:00 AM)
+- ✅ Easy to test via manual workflow dispatch
+- ✅ Built-in monitoring via GitHub Actions UI
+- ✅ Protected by `CRON_SECRET` environment variable
+
+See [`.github/workflows/cron-jobs.yml`](../.github/workflows/cron-jobs.yml) for the workflow configuration.
+
+---
+
+## Quick Start
+
+### 1. Test locally
 
 ```bash
 # Test daily reminders
@@ -33,94 +47,70 @@ pnpm cron:weekly-digest
 pnpm cron:weekly-stats
 ```
 
-**2. Deploy to production**
+### 2. Deploy to production
 
-**⚠️ Limitation:** Fly.io Machines don't support granular cron schedules (specific times like "9:00 AM").
-
-**Choose one approach:**
-
-### Option A: External Cron Service (Recommended - FREE)
-
-Use [cron-job.org](https://cron-job.org) or [EasyCron](https://www.easycron.com/) to call your HTTP endpoints:
-
-1. **Set your CRON_SECRET:**
-
-   ```bash
-   fly secrets set CRON_SECRET=your-random-secret-here
-   ```
-
-2. **Create HTTP cron jobs** on cron-job.org:
-   - Daily reminders: `https://trykaiwa.com/api/cron/send-reminders?secret=YOUR_SECRET` at 9:00 AM UTC
-   - Founder emails: `https://trykaiwa.com/api/cron/founder-emails?secret=YOUR_SECRET` at 2:00 PM UTC
-   - Weekly digest: Create endpoint at `/api/cron/weekly-digest` and schedule for Mon 10:00 AM UTC
-   - Weekly stats: Create endpoint at `/api/cron/weekly-stats` and schedule for Mon 11:00 AM UTC
-
-**Cost:** $0/month
-
-### Option B: GitHub Actions (FREE - 2000 minutes/month)
-
-Create `.github/workflows/cron.yml`:
-
-```yaml
-name: Cron Jobs
-on:
-  schedule:
-    - cron: '0 9 * * *'    # Daily at 9 AM UTC
-    - cron: '0 14 * * *'   # Daily at 2 PM UTC
-    - cron: '0 10 * * 1'   # Monday at 10 AM UTC
-    - cron: '0 11 * * 1'   # Monday at 11 AM UTC
-
-jobs:
-  daily-reminders:
-    if: github.event.schedule == '0 9 * * *'
-    runs-on: ubuntu-latest
-    steps:
-      - run: curl "https://trykaiwa.com/api/cron/send-reminders?secret=${{ secrets.CRON_SECRET }}"
-
-  founder-emails:
-    if: github.event.schedule == '0 14 * * *'
-    runs-on: ubuntu-latest
-    steps:
-      - run: curl "https://trykaiwa.com/api/cron/founder-emails?secret=${{ secrets.CRON_SECRET }}"
-
-  # Add similar jobs for weekly-digest and weekly-stats
-```
-
-**Cost:** $0/month
-
-### Option C: Fly Machines (Limited)
-
-Fly Machines only support simple schedules without specific times:
+#### Step 1: Set up the CRON_SECRET
 
 ```bash
-# NOT RECOMMENDED: Cannot specify exact times like 9 AM or 2 PM
-pnpm cron:deploy
+# Set secret in Fly.io (for app endpoints)
+fly secrets set CRON_SECRET=your-random-secret-here
 ```
 
-**Cost:** ~$0.69/month (storage costs for stopped machines)
+#### Step 2: Add secret to GitHub
 
----
+1. Go to your GitHub repository
+2. Settings → Secrets and variables → Actions
+3. Click "New repository secret"
+4. Name: `CRON_SECRET`
+5. Value: (same secret as above)
+6. Click "Add secret"
 
-### Step 3: Create missing HTTP endpoints
+#### Step 3: Push to enable workflows
 
-You'll need to create these endpoints for weekly jobs:
+```bash
+git push origin main
+```
 
-```typescript
-// src/routes/api/cron/weekly-digest/+server.ts
-import { sendWeeklyDigest } from '../../../../scripts/send-weekly-digest';
-import { json } from '@sveltejs/kit';
+That's it! GitHub Actions will automatically run the cron jobs on schedule.
 
-export async function GET({ url }) {
-    const secret = url.searchParams.get('secret');
-    if (secret !== process.env.CRON_SECRET) {
-        return json({ error: 'Unauthorized' }, { status: 401 });
-    }
+### 3. Verify deployment
 
-    await sendWeeklyDigest();
-    return json({ success: true });
-}
+```bash
+# Check GitHub Actions runs
+# Go to: https://github.com/YOUR_USERNAME/kaiwa/actions
 
-// Similar for weekly-stats
+# Or view app logs when cron runs
+fly logs
+
+# Manually trigger a test run (in GitHub)
+# Go to: Actions → Scheduled Cron Jobs → Run workflow
+```
+
+### 4. Manual testing
+
+You can manually trigger any cron job:
+
+**Via GitHub Actions UI:**
+
+1. Go to Actions → Scheduled Cron Jobs
+2. Click "Run workflow"
+3. Select which job to run
+4. Click "Run workflow"
+
+**Via curl (for testing):**
+
+```bash
+# Test daily reminders
+curl "https://trykaiwa.com/api/cron/send-reminders?secret=YOUR_SECRET"
+
+# Test founder emails
+curl "https://trykaiwa.com/api/cron/founder-emails?secret=YOUR_SECRET"
+
+# Test weekly digest
+curl "https://trykaiwa.com/api/cron/weekly-digest?secret=YOUR_SECRET"
+
+# Test weekly stats
+curl "https://trykaiwa.com/api/cron/weekly-stats?secret=YOUR_SECRET"
 ```
 
 ---
@@ -140,18 +130,41 @@ export async function GET({ url }) {
 ### Problem: Cron job not running
 
 ```bash
-# If using cron-job.org: Check execution history on their dashboard
-# If using GitHub Actions: Check workflow runs in GitHub Actions tab
+# Check GitHub Actions workflow runs
+# Go to: https://github.com/YOUR_USERNAME/kaiwa/actions
+
+# Check if workflow is enabled
+# Go to: Actions → Scheduled Cron Jobs → Enable if disabled
 ```
 
 ### Problem: Cron job failing
 
 ```bash
-# Check application logs
+# 1. Check GitHub Actions logs
+# Go to: Actions → Select the failed run → View logs
+
+# 2. Check application logs
 fly logs
 
-# Test locally with same environment
+# 3. Test locally with same environment
 pnpm cron:reminders
+
+# 4. Test the HTTP endpoint directly
+curl "https://trykaiwa.com/api/cron/send-reminders?secret=YOUR_SECRET"
+```
+
+### Problem: Unauthorized error
+
+```bash
+# Verify CRON_SECRET is set correctly in both places:
+
+# 1. In Fly.io
+fly secrets list | grep CRON
+
+# 2. In GitHub (Settings → Secrets → Actions)
+# Check that CRON_SECRET exists
+
+# 3. Make sure the secrets match!
 ```
 
 ### Problem: Emails not sending
@@ -168,6 +181,7 @@ pnpm cron:reminders
 
 ## 📚 Related Documentation
 
+- [GitHub Actions Workflow](../.github/workflows/cron-jobs.yml) - Cron job scheduler
 - [Architecture: Cron Jobs](../src/lib/docs/architecture-cron-jobs.md) - Detailed architecture
 - [Email Reminder Setup](../src/lib/docs/feature-email-reminder-setup.md) - Email configuration
 - [Founder Email Strategy](../src/lib/docs/strategy-founder-email.md) - Email content strategy
@@ -179,9 +193,21 @@ pnpm cron:reminders
 All cron jobs:
 
 - ✅ Protected by `CRON_SECRET` environment variable
+- ✅ Triggered via GitHub Actions (trusted environment)
+- ✅ HTTP endpoints verify secret before execution
 - ✅ Access same environment variables as main app
-- ✅ Can be triggered via HTTP endpoints
-- ✅ No sensitive data in URLs (secret via query param or header)
+- ✅ Logs available in both GitHub Actions and Fly.io
+
+---
+
+## 💰 Cost
+
+**GitHub Actions:** FREE (2000 minutes/month included)
+
+Each cron job takes ~10 seconds to run:
+
+- 4 jobs × 30 days × 10 seconds = 1200 seconds/month (~20 minutes)
+- Well within the free tier!
 
 ---
 
