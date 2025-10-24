@@ -260,6 +260,14 @@ ${this.buildConversationalPatternGuidance()}`;
 ${regionalInfo.join('\n')}`);
 		}
 
+		// User context
+		if (this.options.user.displayName) {
+			contextSections.push(`## User Information
+- The learner's name is ${this.options.user.displayName}
+- Always use their actual name instead of placeholders like [naam], [name], or [user]
+- Personalize your responses by addressing them by name when appropriate`);
+		}
+
 		// Scenario context
 		if (scenario) {
 			contextSections.push(`## Scenario Context
@@ -409,6 +417,7 @@ ${exampleLines}
 - Stay in ${this.options.language.name} unless policy allows code-switching
 - ONE question per turn, then WAIT for response
 - VARY your phrases - track what you've said and never repeat
+- NEVER use placeholder text like [naam], [name], [user], or [word] - use actual names and words
 
 ${parameterInstructions.join('\n\n')}
 

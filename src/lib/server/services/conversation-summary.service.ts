@@ -20,6 +20,47 @@ export interface ConversationMemoriesResult {
 	truncated?: boolean;
 }
 
+function normalizeMemoriesResponse(raw: unknown): string[] | null {
+	if (!raw) {
+		return null;
+	}
+
+	if (Array.isArray(raw)) {
+		return raw.filter((value): value is string => typeof value === 'string' && value.trim().length > 0);
+	}
+
+	if (typeof raw === 'object') {
+		const record = raw as Record<string, unknown>;
+		const preferredKeys = ['memories', 'items', 'data', 'results'];
+
+		for (const key of preferredKeys) {
+			const candidate = record[key];
+			if (Array.isArray(candidate)) {
+				return candidate.filter(
+					(value): value is string => typeof value === 'string' && value.trim().length > 0
+				);
+			}
+		}
+
+		const firstArray = Object.values(record).find(Array.isArray);
+		if (Array.isArray(firstArray)) {
+			return firstArray.filter(
+				(value): value is string => typeof value === 'string' && value.trim().length > 0
+			);
+		}
+
+		const stringValues = Object.values(record).filter(
+			(value): value is string => typeof value === 'string' && value.trim().length > 0
+		);
+
+		if (stringValues.length > 0) {
+			return stringValues;
+		}
+	}
+
+	return null;
+}
+
 /**
  * Generate conversation memories and update user preferences
  */
@@ -155,8 +196,8 @@ Return a JSON array of memory strings.`;
 		);
 
 		// Parse the JSON response
-		const parsed = openaiService.parseAndValidateJSON<string[]>(response.content);
-		return parsed;
+		const parsed = openaiService.parseAndValidateJSON<unknown>(response.content);
+		return normalizeMemoriesResponse(parsed);
 	} catch (error) {
 		console.error('OpenAI memory generation failed:', error);
 		return null;

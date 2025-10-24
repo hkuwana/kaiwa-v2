@@ -324,7 +324,7 @@ export const ENCOURAGEMENT_RULES: Record<EncouragementFrequency, string> = {
 
 	frequent: `## ENCOURAGEMENT: FREQUENT
 - Celebrate every success, no matter how small
-- Use specific praise: "Great pronunciation of [word]!"
+- Use specific praise: "Great pronunciation of [specific word they said]!"
 - Build confidence with regular positive feedback
 - Use this for beginners or low-confidence learners`
 };

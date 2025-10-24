@@ -262,7 +262,7 @@
 						<div class="mb-4 card-title flex-shrink-0 text-xl">
 							{isGuestUser && messages.length < 4 ? 'Getting to Know You' : 'Conversation'}
 							<span class="text-sm font-normal opacity-70">({messages.length} messages)</span>
-							{#if status === 'streaming'}
+							{#if status === 'streaming' && !isTranscribing}
 								<div class="ml-2 badge badge-sm badge-info">
 									<span class="loading mr-1 loading-xs loading-spinner"></span>
 									AI is responding...
