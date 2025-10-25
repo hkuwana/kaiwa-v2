@@ -1,0 +1,42 @@
+# Week of [DATE]
+
+## What Shipped
+
+- **[Feature Name]**: Brief description of what was built with [optional link](https://example.com)
+- **[Another Feature]**: Description of another feature or improvement
+- **[Bug Fix]**: Description of any bugs that were fixed
+
+## Highlights
+
+- **[Performance Improvement]**: Any performance improvements or optimizations
+- **[User Experience]**: UX improvements or enhancements
+- **[Technical Achievement]**: Any technical accomplishments worth highlighting
+
+## Coming Up Next
+
+- **[Next Feature]**: What's being worked on for next week
+- **[Planned Improvement]**: Future enhancements or features
+- **[Research/Exploration]**: Any experimental work or research
+
+## Notes
+
+Any additional context, challenges faced, lessons learned, or other notes about the week.
+
+---
+
+## Template Usage Tips
+
+1. **Replace [DATE]** with the actual date (e.g., "January 25, 2025")
+2. **Replace bracketed placeholders** with actual content
+3. **Use descriptive titles** that clearly explain what was done
+4. **Include links** where relevant using markdown format: `[link text](URL)`
+5. **Keep descriptions concise** but informative
+6. **Use consistent formatting** for better parsing
+7. **Add emojis sparingly** for visual appeal if desired
+
+## Section Guidelines
+
+- **What Shipped**: Focus on user-facing features and improvements
+- **Highlights**: Technical achievements, performance improvements, UX enhancements
+- **Coming Up Next**: Planned work, research, or experimental features
+- **Notes**: Additional context, challenges, lessons learned, or team updates

@@ -6,8 +6,6 @@ on:
     - cron: '0 9 * * *'
     # Founder emails at 2:00 PM UTC
     - cron: '0 14 * * *'
-    # Weekly digest on Monday at 10:00 AM UTC
-    - cron: '0 10 * * 1'
     # Weekly stats on Monday at 11:00 AM UTC
     - cron: '0 11 * * 1'
 
@@ -21,7 +19,6 @@ on:
         options:
           - daily-reminders
           - founder-emails
-          - weekly-digest
           - weekly-stats
           - all
 
@@ -52,24 +49,6 @@ jobs:
       - name: Trigger founder emails endpoint
         run: |
           response=$(curl -s -w "\n%{http_code}" "https://trykaiwa.com/api/cron/founder-emails?secret=${{ secrets.CRON_SECRET }}")
-          http_code=$(echo "$response" | tail -n1)
-          body=$(echo "$response" | sed '$d')
-
-          echo "Response: $body"
-
-          if [ "$http_code" -ne 200 ]; then
-            echo "Error: HTTP $http_code"
-            exit 1
-          fi
-
-  weekly-digest:
-    name: Send Weekly Product Digest
-    runs-on: ubuntu-latest
-    if: github.event.schedule == '0 10 * * 1' || github.event.inputs.job == 'weekly-digest' || github.event.inputs.job == 'all'
-    steps:
-      - name: Trigger weekly digest endpoint
-        run: |
-          response=$(curl -s -w "\n%{http_code}" "https://trykaiwa.com/api/cron/weekly-digest?secret=${{ secrets.CRON_SECRET }}")
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | sed '$d')
 

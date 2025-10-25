@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { WeeklyUpdatesEmailService } from '$lib/server/email/weekly-updates-email.service';
 import type { WeeklyDigestOptions } from '$lib/server/email/weekly-updates-email.service';
+import { WeeklyUpdatesParserService } from '$lib/server/services/weekly-updates-parser.service';
 import { env } from '$env/dynamic/private';
 
 /**
@@ -25,39 +26,49 @@ export const GET: RequestHandler = async ({ request }) => {
 
 		console.log('📊 Starting weekly digest cron job...');
 
-		// Define this week's content (UPDATE THIS EVERY WEEK)
-		const thisWeeksContent: WeeklyDigestOptions = {
-			updates: [
-				{
-					title: 'Example: New audio mode',
-					summary:
-						'Push-to-talk mode is live. Press and hold to speak, release to get feedback. Perfect for rapid-fire practice sessions.',
-					linkLabel: 'Try it out',
-					linkUrl: 'https://trykaiwa.com/practice'
-				},
-				{
-					title: 'Example: Faster responses',
-					summary:
-						"AI responses are now 2x faster thanks to streaming. You'll notice the difference immediately.",
-					linkLabel: 'Learn more',
-					linkUrl: 'https://trykaiwa.com/updates'
-				}
-			],
-			productHighlights: [
-				{
-					title: 'Example: Mobile experience improvements',
-					summary:
-						'Better touch targets, smoother animations, and clearer error messages on mobile devices.'
-				}
-			],
-			upcoming: [
-				{
-					title: 'Example: Vocabulary tracking',
-					summary:
-						"We're building a system to track words you've learned and suggest review sessions."
-				}
-			]
-		};
+		// Load this week's content from markdown files
+		const weeklyUpdate = WeeklyUpdatesParserService.getLatestWeeklyUpdate();
+
+		let thisWeeksContent: WeeklyDigestOptions;
+
+		if (!weeklyUpdate) {
+			console.warn('No weekly update file found, using fallback content');
+			// Fallback to example content if no markdown file is found
+			thisWeeksContent = {
+				updates: [
+					{
+						title: 'Weekly Update System',
+						summary:
+							'Built an automated system to organize and send weekly newsletters with your code updates.',
+						linkLabel: 'Learn more',
+						linkUrl: 'https://trykaiwa.com/updates'
+					}
+				],
+				productHighlights: [
+					{
+						title: 'Markdown Integration',
+						summary:
+							'Created a system to parse markdown files and automatically include them in the weekly digest.'
+					}
+				],
+				upcoming: [
+					{
+						title: 'Enhanced Features',
+						summary: 'More sophisticated parsing and template system coming soon.'
+					}
+				]
+			};
+		} else {
+			// Use content from markdown file
+			thisWeeksContent = {
+				updates: weeklyUpdate.updates,
+				productHighlights: weeklyUpdate.highlights,
+				upcoming: weeklyUpdate.upcoming,
+				intro: weeklyUpdate.notes
+					? `Here's what we shipped at Kaiwa this week, and what we're working on next. ${weeklyUpdate.notes}`
+					: undefined
+			};
+		}
 
 		// Send the digest using the service
 		const result = await WeeklyUpdatesEmailService.sendWeeklyDigest(thisWeeksContent);

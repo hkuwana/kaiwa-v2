@@ -41,7 +41,7 @@ export class FounderEmailService {
 			}
 
 			// Check email permissions from database
-			if (!(await EmailPermissionService.canReceiveMarketingEmail(userId))) {
+			if (!(await EmailPermissionService.canReceiveFounderEmails(userId))) {
 				console.warn(
 					`User ${userId} not eligible for marketing emails (user not found or opted out)`
 				);
@@ -95,7 +95,7 @@ export class FounderEmailService {
 			}
 
 			// Check email permissions from database
-			if (!(await EmailPermissionService.canReceiveMarketingEmail(userId))) {
+			if (!(await EmailPermissionService.canReceiveFounderEmails(userId))) {
 				console.warn(
 					`User ${userId} not eligible for marketing emails (user not found or opted out)`
 				);
@@ -148,7 +148,7 @@ export class FounderEmailService {
 			}
 
 			// Check email permissions from database
-			if (!(await EmailPermissionService.canReceiveMarketingEmail(userId))) {
+			if (!(await EmailPermissionService.canReceiveFounderEmails(userId))) {
 				console.warn(
 					`User ${userId} not eligible for marketing emails (user not found or opted out)`
 				);

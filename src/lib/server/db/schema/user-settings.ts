@@ -77,14 +77,17 @@ export const userSettings = pgTable('user_settings', {
 		greetingMode?: 'scenario' | 'generic';
 	}>(),
 
-	receiveMarketingEmails: pgBoolean('receive_marketing_emails').default(true).notNull(),
+	// Core engagement emails
+	receivePracticeReminders: pgBoolean('receive_practice_reminders').default(true).notNull(),
 
-	receiveDailyReminderEmails: pgBoolean('receive_daily_reminder_emails').default(true).notNull(),
+	receiveFounderEmails: pgBoolean('receive_founder_emails').default(true).notNull(),
 
+	// Product communication
 	receiveProductUpdates: pgBoolean('receive_product_updates').default(true).notNull(),
 
-	receiveWeeklyDigest: pgBoolean('receive_weekly_digest').default(true).notNull(),
+	receiveProgressReports: pgBoolean('receive_progress_reports').default(true).notNull(),
 
+	// Administrative
 	receiveSecurityAlerts: pgBoolean('receive_security_alerts').default(true).notNull(),
 
 	dailyReminderSentCount: integer('daily_reminder_sent_count').default(0).notNull(),

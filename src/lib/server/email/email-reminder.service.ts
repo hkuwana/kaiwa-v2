@@ -43,7 +43,7 @@ export class EmailReminderService {
 			}
 
 			// Check email permissions from database
-			if (!(await EmailPermissionService.canReceiveDailyReminder(userId))) {
+			if (!(await EmailPermissionService.canReceivePracticeReminders(userId))) {
 				console.warn(
 					`User ${userId} not eligible for daily reminders (user not found or opted out)`
 				);
@@ -417,7 +417,7 @@ export class EmailReminderService {
 	static async sendBulkReminders(): Promise<{ sent: number; failed: number }> {
 		try {
 			// Get all users eligible for daily reminders based on database preferences
-			const eligibleUserIds = await EmailPermissionService.getDailyReminderEligibleUsers();
+			const eligibleUserIds = await EmailPermissionService.getPracticeReminderEligibleUsers();
 
 			let sent = 0;
 			let failed = 0;

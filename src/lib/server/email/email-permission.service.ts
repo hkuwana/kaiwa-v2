@@ -9,12 +9,12 @@ import { userSettingsRepository } from '$lib/server/repositories/user-settings.r
  */
 export class EmailPermissionService {
 	/**
-	 * Check if user can receive marketing/founder emails
+	 * Check if user can receive founder emails (Day 1-3 welcome sequence)
 	 * Returns false if:
 	 * - User not found
-	 * - User opted out of marketing emails
+	 * - User opted out of founder emails
 	 */
-	static async canReceiveMarketingEmail(userId: string): Promise<boolean> {
+	static async canReceiveFounderEmails(userId: string): Promise<boolean> {
 		const user = await userRepository.findUserById(userId);
 		if (!user) {
 			return false;
@@ -22,16 +22,16 @@ export class EmailPermissionService {
 
 		const settings = await userSettingsRepository.getSettingsByUserId(userId);
 		// Default to true if settings don't exist yet
-		return settings?.receiveMarketingEmails ?? true;
+		return settings?.receiveFounderEmails ?? true;
 	}
 
 	/**
-	 * Check if user can receive daily reminder emails
+	 * Check if user can receive practice reminder emails (daily reminders to inactive users)
 	 * Returns false if:
 	 * - User not found
-	 * - User opted out of daily reminders
+	 * - User opted out of practice reminders
 	 */
-	static async canReceiveDailyReminder(userId: string): Promise<boolean> {
+	static async canReceivePracticeReminders(userId: string): Promise<boolean> {
 		const user = await userRepository.findUserById(userId);
 		if (!user) {
 			return false;
@@ -39,19 +39,19 @@ export class EmailPermissionService {
 
 		const settings = await userSettingsRepository.getSettingsByUserId(userId);
 		// Default to true if settings don't exist yet
-		return settings?.receiveDailyReminderEmails ?? true;
+		return settings?.receivePracticeReminders ?? true;
 	}
 
 	/**
-	 * Get all users eligible for marketing emails
-	 * Returns users who have opted in to marketing emails (or haven't set preference yet)
+	 * Get all users eligible for founder emails
+	 * Returns users who have opted in to founder emails (or haven't set preference yet)
 	 */
-	static async getMarketingEligibleUsers(): Promise<string[]> {
+	static async getFounderEmailEligibleUsers(): Promise<string[]> {
 		const allUsers = await userRepository.getAllUsers();
 		const eligible: string[] = [];
 
 		for (const user of allUsers) {
-			if (await this.canReceiveMarketingEmail(user.id)) {
+			if (await this.canReceiveFounderEmails(user.id)) {
 				eligible.push(user.id);
 			}
 		}
@@ -77,12 +77,12 @@ export class EmailPermissionService {
 	}
 
 	/**
-	 * Check if user can receive weekly digest emails
+	 * Check if user can receive progress report emails (weekly stats)
 	 * Returns false if:
 	 * - User not found
-	 * - User opted out of weekly digests
+	 * - User opted out of progress reports
 	 */
-	static async canReceiveWeeklyDigest(userId: string): Promise<boolean> {
+	static async canReceiveProgressReports(userId: string): Promise<boolean> {
 		const user = await userRepository.findUserById(userId);
 		if (!user) {
 			return false;
@@ -90,7 +90,7 @@ export class EmailPermissionService {
 
 		const settings = await userSettingsRepository.getSettingsByUserId(userId);
 		// Default to true if settings don't exist yet
-		return settings?.receiveWeeklyDigest ?? true;
+		return settings?.receiveProgressReports ?? true;
 	}
 
 	/**
@@ -128,15 +128,15 @@ export class EmailPermissionService {
 	}
 
 	/**
-	 * Get all users eligible for weekly digests
-	 * Returns users who have opted in to weekly digests (or haven't set preference yet)
+	 * Get all users eligible for progress reports
+	 * Returns users who have opted in to progress reports (or haven't set preference yet)
 	 */
-	static async getWeeklyDigestEligibleUsers(): Promise<string[]> {
+	static async getProgressReportEligibleUsers(): Promise<string[]> {
 		const allUsers = await userRepository.getAllUsers();
 		const eligible: string[] = [];
 
 		for (const user of allUsers) {
-			if (await this.canReceiveWeeklyDigest(user.id)) {
+			if (await this.canReceiveProgressReports(user.id)) {
 				eligible.push(user.id);
 			}
 		}
@@ -162,16 +162,16 @@ export class EmailPermissionService {
 	}
 
 	/**
-	 * Get all users eligible for daily reminder emails
-	 * Returns users who have opted in to daily reminders (or haven't set preference yet)
+	 * Get all users eligible for practice reminder emails
+	 * Returns users who have opted in to practice reminders (or haven't set preference yet)
 	 *
 	 * OPTIMIZED: Uses efficient database queries instead of N+1 pattern
 	 * - Gets users who explicitly opted in (settings = true)
 	 * - Gets users who have no settings (default = true)
 	 */
-	static async getDailyReminderEligibleUsers(): Promise<string[]> {
+	static async getPracticeReminderEligibleUsers(): Promise<string[]> {
 		// Get all users who have explicitly opted in
-		const optedInSettings = await userSettingsRepository.getDailyReminderSubscribers();
+		const optedInSettings = await userSettingsRepository.getPracticeReminderSubscribers();
 		const optedInUserIds = new Set(optedInSettings.map((s) => s.userId));
 
 		// Get all users who have explicitly opted OUT

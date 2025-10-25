@@ -38,7 +38,7 @@ export const GET = async ({ request }) => {
 		};
 
 		// Get all users eligible for marketing emails based on database preferences
-		const eligibleUserIds = await EmailPermissionService.getMarketingEligibleUsers();
+		const eligibleUserIds = await EmailPermissionService.getFounderEmailEligibleUsers();
 		const usersToEmail = await Promise.all(
 			eligibleUserIds.map(async (userId) => {
 				const user = await userRepository.findUserById(userId);

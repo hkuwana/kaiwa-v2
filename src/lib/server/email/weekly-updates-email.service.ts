@@ -48,7 +48,7 @@ export class WeeklyUpdatesEmailService {
 			return { sent: 0, skipped: 0 };
 		}
 
-		const subscribers = await userSettingsRepository.getWeeklyDigestSubscribers();
+		const subscribers = await userSettingsRepository.getProductUpdateSubscribers();
 		if (subscribers.length === 0) {
 			console.log('No weekly digest subscribers found.');
 			return { sent: 0, skipped: 0 };

@@ -44,7 +44,7 @@ export const GET = async ({ request, url }) => {
 
 		// Get all users eligible for daily reminders based on database preferences
 		console.log('📊 Fetching eligible users...');
-		const eligibleUserIds = await EmailPermissionService.getDailyReminderEligibleUsers();
+		const eligibleUserIds = await EmailPermissionService.getPracticeReminderEligibleUsers();
 		console.log(`📊 Found ${eligibleUserIds.length} eligible user IDs`);
 		let usersToRemind = await Promise.all(
 			eligibleUserIds.map(async (userId) => {

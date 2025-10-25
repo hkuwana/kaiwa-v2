@@ -12,19 +12,19 @@ export const GET = async ({ locals }) => {
 		if (!settings) {
 			// Return default preferences if no settings exist
 			return json({
-				receiveMarketingEmails: true,
-				receiveDailyReminderEmails: true,
+				receivePracticeReminders: true,
+				receiveFounderEmails: true,
 				receiveProductUpdates: true,
-				receiveWeeklyDigest: true,
+				receiveProgressReports: true,
 				receiveSecurityAlerts: true
 			});
 		}
 
 		return json({
-			receiveMarketingEmails: settings.receiveMarketingEmails,
-			receiveDailyReminderEmails: settings.receiveDailyReminderEmails,
+			receivePracticeReminders: settings.receivePracticeReminders,
+			receiveFounderEmails: settings.receiveFounderEmails,
 			receiveProductUpdates: settings.receiveProductUpdates,
-			receiveWeeklyDigest: settings.receiveWeeklyDigest,
+			receiveProgressReports: settings.receiveProgressReports,
 			receiveSecurityAlerts: settings.receiveSecurityAlerts
 		});
 	} catch (err) {
@@ -43,10 +43,10 @@ export const POST = async ({ request, locals }) => {
 
 		// Validate the preferences object
 		const validPreferences = {
-			receiveMarketingEmails: Boolean(preferences.receiveMarketingEmails),
-			receiveDailyReminderEmails: Boolean(preferences.receiveDailyReminderEmails),
+			receivePracticeReminders: Boolean(preferences.receivePracticeReminders),
+			receiveFounderEmails: Boolean(preferences.receiveFounderEmails),
 			receiveProductUpdates: Boolean(preferences.receiveProductUpdates),
-			receiveWeeklyDigest: Boolean(preferences.receiveWeeklyDigest),
+			receiveProgressReports: Boolean(preferences.receiveProgressReports),
 			receiveSecurityAlerts: Boolean(preferences.receiveSecurityAlerts)
 		};
 
@@ -63,10 +63,10 @@ export const POST = async ({ request, locals }) => {
 			success: true,
 			message: 'Email preferences updated successfully',
 			preferences: {
-				receiveMarketingEmails: updatedSettings.receiveMarketingEmails,
-				receiveDailyReminderEmails: updatedSettings.receiveDailyReminderEmails,
+				receivePracticeReminders: updatedSettings.receivePracticeReminders,
+				receiveFounderEmails: updatedSettings.receiveFounderEmails,
 				receiveProductUpdates: updatedSettings.receiveProductUpdates,
-				receiveWeeklyDigest: updatedSettings.receiveWeeklyDigest,
+				receiveProgressReports: updatedSettings.receiveProgressReports,
 				receiveSecurityAlerts: updatedSettings.receiveSecurityAlerts
 			}
 		});

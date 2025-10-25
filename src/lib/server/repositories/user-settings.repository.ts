@@ -165,20 +165,13 @@ export class UserSettingsRepository {
 	}
 
 	/**
-	 * Get all users who have opted in to daily reminder emails
+	 * Get all users who have opted in to practice reminder emails
 	 */
-	async getDailyReminderSubscribers(): Promise<UserSettings[]> {
+	async getPracticeReminderSubscribers(): Promise<UserSettings[]> {
 		return await db
 			.select()
 			.from(userSettings)
-			.where(eq(userSettings.receiveDailyReminderEmails, true));
-	}
-
-	/**
-	 * Get all users who have opted in to weekly digests / product updates
-	 */
-	async getWeeklyDigestSubscribers(): Promise<UserSettings[]> {
-		return await db.select().from(userSettings).where(eq(userSettings.receiveWeeklyDigest, true));
+			.where(eq(userSettings.receivePracticeReminders, true));
 	}
 
 	/**
@@ -186,6 +179,16 @@ export class UserSettingsRepository {
 	 */
 	async getProductUpdateSubscribers(): Promise<UserSettings[]> {
 		return await db.select().from(userSettings).where(eq(userSettings.receiveProductUpdates, true));
+	}
+
+	/**
+	 * Get all users who have opted in to progress reports
+	 */
+	async getProgressReportSubscribers(): Promise<UserSettings[]> {
+		return await db
+			.select()
+			.from(userSettings)
+			.where(eq(userSettings.receiveProgressReports, true));
 	}
 
 	/**

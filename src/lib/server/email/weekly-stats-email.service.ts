@@ -42,7 +42,7 @@ export class WeeklyStatsEmailService {
 		};
 
 		// Get all users who opted into weekly digest emails
-		const eligibleUsers = await EmailPermissionService.getWeeklyDigestSubscribers();
+		const eligibleUsers = await EmailPermissionService.getProgressReportEligibleUsers();
 
 		if (eligibleUsers.length === 0) {
 			console.log('No eligible users for weekly stats.');
