@@ -113,7 +113,7 @@
 		>
 			<h3 class="mb-4 text-sm font-semibold">Audio Input Mode</h3>
 
-			<!-- Audio Mode Slider -->
+			<!-- Audio Mode Swap Toggle -->
 			<div class="flex flex-col gap-4">
 				<!-- Mode Labels -->
 				<div class="flex items-center justify-between">
@@ -131,64 +131,26 @@
 					</div>
 				</div>
 
-				<!-- Slider Container -->
-				<div class="relative px-2">
-					<!-- Slider Track -->
-					<div class="relative h-2 w-full rounded-full bg-base-300">
-						<!-- Active Track -->
-						<div
-							class="absolute top-0 h-2 rounded-full bg-primary transition-all duration-300 ease-in-out"
-							style="width: {selectedMode === 'ptt' ? '100%' : '0%'}"
-						></div>
+				<!-- Swap Toggle Container -->
+				<div class="flex justify-center">
+					<label class="swap swap-rotate">
+						<!-- Hidden checkbox controls the state -->
+						<input
+							type="checkbox"
+							checked={selectedMode === 'ptt'}
+							onchange={() => handleModeChange(selectedMode === 'vad' ? 'ptt' : 'vad')}
+						/>
 
-						<!-- Slider Handle -->
-						<div
-							class="absolute top-1/2 h-6 w-6 -translate-y-1/2 transform cursor-pointer rounded-full bg-primary shadow-lg transition-all duration-300 ease-in-out"
-							style="left: {selectedMode === 'ptt' ? 'calc(100% - 12px)' : '0px'}"
-							onclick={() => handleModeChange(selectedMode === 'vad' ? 'ptt' : 'vad')}
-						>
-							<!-- Handle Icon -->
-							<div class="flex h-full w-full items-center justify-center">
-								{#if selectedMode === 'ptt'}
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke-width="2"
-										stroke="currentColor"
-										class="h-4 w-4 text-primary-content"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											d="M15.75 5.25v13.5m-7.5-13.5v13.5"
-										/>
-									</svg>
-								{:else}
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke-width="2"
-										stroke="currentColor"
-										class="h-4 w-4 text-primary-content"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"
-										/>
-									</svg>
-								{/if}
-							</div>
+						<!-- Auto-Detect icon (swap-off) -->
+						<div class="swap-off flex items-center justify-center">
+							<span class="icon-[mdi--microphone] h-8 w-8 text-base-content/70"></span>
 						</div>
-					</div>
 
-					<!-- Clickable Areas -->
-					<div class="absolute inset-0 flex">
-						<div class="flex-1 cursor-pointer" onclick={() => handleModeChange('vad')}></div>
-						<div class="flex-1 cursor-pointer" onclick={() => handleModeChange('ptt')}></div>
-					</div>
+						<!-- Push-to-Talk icon (swap-on) -->
+						<div class="swap-on flex items-center justify-center">
+							<span class="icon-[mdi--gesture-tap] h-8 w-8 text-primary"></span>
+						</div>
+					</label>
 				</div>
 
 				<!-- Description based on selected mode -->

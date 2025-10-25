@@ -288,6 +288,9 @@ export class ConversationStore {
 			return;
 		}
 
+		// Clear any leftover data from previous conversation sessions
+		this.messages = [];
+		this.messagesForAnalysis = [];
 		this.usageRecorded = false;
 
 		// Store options for later use and merge with existing preferences if provided
