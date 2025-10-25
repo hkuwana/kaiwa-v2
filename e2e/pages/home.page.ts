@@ -8,7 +8,7 @@ export class HomePage {
 
 	constructor(page: Page) {
 		this.page = page;
-		this.startButton = page.getByRole('button', { name: /Start (Chat|Roleplay|Conversation|Expert|Practicing)/i });
+		this.startButton = page.getByRole('button', { name: /(Start (Chat|Roleplay|Conversation|Expert|Practicing)|Sign up to start)/i });
 		this.navBar = page.locator('nav');
 		this.languageDropdown = page.locator(
 			'[data-testid="language-selector"], [class*="language"], [class*="dropdown"]'
