@@ -10,7 +10,7 @@
 
 ### The Psychology
 
-1. **Trust**: Real person > Automated system
+1. **Trust**: Real person &gt; Automated system
 2. **Reciprocity**: Founder's time = user's attention
 3. **Conversation**: Easy to reply, feels like 1-on-1
 4. **Urgency**: Limited-time personal attention (first 100 users)
@@ -38,7 +38,7 @@ Day 3 (afternoon): Personal offer to talk (calendar link)
 
 **Key principles**:
 
-- ✅ Send from **<hiro@trykaiwa.com>** (not noreply@)
+- ✅ Send from **&lt;hiro@trykaiwa.com&gt;** (not noreply@)
 - ✅ Afternoon sending (2-4pm user's time)
 - ✅ Easy to reply (shows in their inbox, not promo tab)
 - ✅ Short & personal (not marketing copy)
@@ -54,7 +54,7 @@ Day 3 (afternoon): Personal offer to talk (calendar link)
 - **Trigger**: User signed up 24 hours ago
 - **Condition**: Has NOT started first conversation
 - **Time**: 2-4pm user's local time
-- **From**: Hiro <hiro@trykaiwa.com>
+- **From**: Hiro &lt;hiro@trykaiwa.com&gt;
 
 ### Subject Line
 
@@ -123,7 +123,7 @@ I'll stop emailing.
 - **Trigger**: 48 hours after signup
 - **Condition**: STILL hasn't started first conversation
 - **Time**: 2-4pm user's local time
-- **From**: Hiro <hiro@trykaiwa.com>
+- **From**: Hiro &lt;hiro@trykaiwa.com&gt;
 
 ### Subject Line
 
@@ -182,7 +182,7 @@ Founder, Kaiwa
 - **Trigger**: 72 hours after signup
 - **Condition**: STILL hasn't started first conversation
 - **Time**: 2-4pm user's local time
-- **From**: Hiro <hiro@trykaiwa.com>
+- **From**: Hiro &lt;hiro@trykaiwa.com&gt;
 
 ### Subject Line
 
@@ -273,12 +273,12 @@ or reply. I respect your inbox!
 
 ### 2. Configure Resend with Personal Email
 
-**Important**: Use your real email (<hiro@trykaiwa.com>), not noreply@
+**Important**: Use your real email (&lt;hiro@trykaiwa.com&gt;), not noreply@
 
 ```typescript
 // In founder-email.service.ts
 const result = await resend.emails.send({
-	from: 'Hiro <hiro@trykaiwa.com>',
+	from: 'Hiro &lt;hiro@trykaiwa.com&gt;',
 	replyTo: 'hiro@trykaiwa.com', // Enable replies!
 	to: [user.email],
 	subject: '...',
@@ -348,11 +348,11 @@ curl -X POST \
 
 | Metric                  | Target | Excellent |
 | ----------------------- | ------ | --------- |
-| **Open Rate**           | >40%   | >60%      |
-| **Reply Rate**          | >5%    | >15%      |
-| **Click Rate (CTA)**    | >15%   | >25%      |
-| **Calendar Bookings**   | >3%    | >10%      |
-| **Conversation Starts** | >20%   | >40%      |
+| **Open Rate**           | &gt;40%   | &gt;60%      |
+| **Reply Rate**          | &gt;5%    | &gt;15%      |
+| **Click Rate (CTA)**    | &gt;15%   | &gt;25%      |
+| **Calendar Bookings**   | &gt;3%    | &gt;10%      |
+| **Conversation Starts** | &gt;20%   | &gt;40%      |
 
 ### Track in PostHog
 
@@ -407,7 +407,7 @@ posthog.capture('email_conversion', {
 - If they don't respond to all 3 emails, stop
 - Don't add to other email lists
 - Respect unsubscribe immediately
-- **Inbox respect > short-term conversion**
+- **Inbox respect &gt; short-term conversion**
 
 ### 4. **Personalize Subject Lines**
 
@@ -464,7 +464,7 @@ posthog.capture('email_conversion', {
 
 - You hit 500-1000 users (takes ~3-6 months)
 - You can't respond to replies within 24 hours
-- Your time > potential revenue gain
+- Your time &gt; potential revenue gain
 
 **Then transition to**:
 
@@ -495,7 +495,7 @@ High-value indicators:
 ### Setup (1 hour)
 
 - [ ] Set up calendar booking link and 15-min event
-- [ ] Update Resend to allow replies to <hiro@trykaiwa.com>
+- [ ] Update Resend to allow replies to &lt;hiro@trykaiwa.com&gt;
 - [ ] Deploy founder email service code
 - [ ] Test all 3 email templates locally
 - [ ] Add founder photo to email signature (optional)

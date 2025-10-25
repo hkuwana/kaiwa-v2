@@ -209,7 +209,7 @@ Track these numbers:
 
 **Good signs**:
 
-- ✅ Day 1 open rate >40%
+- ✅ Day 1 open rate &gt;40%
 - ✅ At least 1 reply per 10 emails
 - ✅ 20-30% conversion to first conversation
 - ✅ 1-2 calendar bookings per week
@@ -225,7 +225,7 @@ Track these numbers:
 Check daily:
 
 - **Emails sent**: Should match number of eligible users
-- **Delivery rate**: Should be >99%
+- **Delivery rate**: Should be &gt;99%
 - **Bounce rate**: Should be &lt;2%
 - **Open rate**: Track over time
 

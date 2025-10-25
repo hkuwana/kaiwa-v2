@@ -348,10 +348,10 @@ POST / api / jobs / process - audio;
 
 ## 📚 Related Documentation
 
-- [Speech Analysis Guide](./SPEECH_ANALYSIS_GUIDE.md) - Technical implementation details
-- [Audio Schema Migration](./AUDIO_SCHEMA_MIGRATION_GUIDE.md) - Database schema changes
-- [Feature Analysis](./feature_analysis.md) - Overall analysis feature overview
-- [Architecture Documentation](./architecture.md) - System architecture overview
+- [Speech Analysis Guide](./feature-audio-speech-analysis.md) - Technical implementation details
+- [Audio Schema Migration](./feature-audio-schema-migration.md) - Database schema changes
+- [Feature Analysis](./feature-analysis.md) - Overall analysis feature overview
+- [Architecture Documentation](./core-architecture.md) - System architecture overview
 
 ## 🔗 External References
 

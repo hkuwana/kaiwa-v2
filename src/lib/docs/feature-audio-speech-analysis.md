@@ -1,6 +1,6 @@
 # Speech Analysis - Complete Implementation Guide
 
-> **Prerequisites:** ✅ [Audio Schema Migration](./AUDIO_SCHEMA_MIGRATION_GUIDE.md) must be completed first
+> **Prerequisites:** ✅ [Audio Schema Migration](./feature-audio-schema-migration.md) must be completed first
 > **Status:** 📋 Ready to implement
 > **Estimated Time:** 2-3 hours for basic implementation
 
@@ -1156,4 +1156,4 @@ You now have a complete speech analysis pipeline:
 
 **Next:** Test the full flow end-to-end and iterate on the analysis algorithms!
 
-For schema details, see: [Audio Schema Migration Guide](./AUDIO_SCHEMA_MIGRATION_GUIDE.md)
+For schema details, see: [Audio Schema Migration Guide](./feature-audio-schema-migration.md)

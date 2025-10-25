@@ -353,17 +353,17 @@ posthog.capture('email_conversion', {
 
 ### Key Metrics to Track
 
-1. **Open Rate**: Target >25%
-2. **Click Rate**: Target >5%
-3. **Conversion Rate** (email → conversation): Target >15%
+1. **Open Rate**: Target &gt;25%
+2. **Click Rate**: Target &gt;5%
+3. **Conversion Rate** (email → conversation): Target &gt;15%
 4. **Unsubscribe Rate**: Keep &lt;2%
-5. **Re-engagement Rate** (inactive → active): Target >20%
+5. **Re-engagement Rate** (inactive → active): Target &gt;20%
 
 ### Resend Dashboard
 
 Monitor in Resend:
 
-- Delivery rate (should be >99%)
+- Delivery rate (should be &gt;99%)
 - Bounce rate (keep &lt;2%)
 - Complaint rate (keep &lt;0.1%)
 
@@ -403,7 +403,7 @@ Before going live:
 
 1. ✅ Authenticate domain (SPF, DKIM, DMARC)
 2. ✅ Include unsubscribe link in every email
-3. ✅ Use real "from" address (<noreply@trykaiwa.com>)
+3. ✅ Use real "from" address (&lt;noreply@trykaiwa.com&gt;)
 4. ✅ Personalize subject lines
 5. ✅ Keep HTML clean (no complex CSS)
 6. ✅ Test spam score before sending
@@ -461,7 +461,7 @@ Before going live:
 - ✅ Test endpoint manually first
 - ✅ Check Fly.io machine status
 
-### High unsubscribe rate (>5%)
+### High unsubscribe rate (&gt;5%)
 
 - ❌ Sending too frequently
 - ❌ Content not valuable enough
@@ -493,6 +493,6 @@ Before going live:
 
 ---
 
-**Questions?** Email <hiro@trykaiwa.com> or open an issue on GitHub.
+**Questions?** Email &lt;hiro@trykaiwa.com&gt; or open an issue on GitHub.
 
 **Last updated**: January 2025

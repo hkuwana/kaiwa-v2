@@ -97,7 +97,7 @@ This document provides a comprehensive overview of all database schemas in the K
   - Multi-language script support: `romanization`, `pinyin`, `hiragana`, `katakana`, `kanji`
   - `translationConfidence`, `translationProvider`
   - `grammarAnalysis`, `vocabularyAnalysis` (JSON)
-  - **Audio storage**: `audioUrl`, `audioStorageKey`, `audioDurationMs`, `audioSizeBytes` (see [Audio Schema Migration Guide](./AUDIO_SCHEMA_MIGRATION_GUIDE.md))
+  - **Audio storage**: `audioUrl`, `audioStorageKey`, `audioDurationMs`, `audioSizeBytes` (see [Audio Schema Migration Guide](./feature-audio-schema-migration.md))
   - **Audio processing**: `audioProcessingState`, `audioRetentionExpiresAt`
   - **Speech scores**: `pronunciationScore`, `fluencyScore`, `speechRateWpm`
 - **Usage**: Stores conversation content with comprehensive translation, audio storage, and speech analysis support
@@ -118,7 +118,7 @@ This document provides a comprehensive overview of all database schemas in the K
   - `problematicWords`, `recommendations`, `practiceWords` (JSON)
   - `analysisEngine`, `analysisLanguage`, `analysisVersion`
 - **Usage**: Stores heavy speech analysis data separately for performance; loaded on-demand
-- **See**: [Audio Schema Migration Guide](./AUDIO_SCHEMA_MIGRATION_GUIDE.md) for complete details
+- **See**: [Audio Schema Migration Guide](./feature-audio-schema-migration.md) for complete details
 
 ### Learning Scenarios
 

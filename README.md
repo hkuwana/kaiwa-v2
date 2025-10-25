@@ -66,10 +66,10 @@ For a detailed explanation, please see the [Architecture Documentation](src/lib/
 
 All project documentation has been consolidated in the `src/lib/docs` directory.
 
-- **[Architecture](src/lib/docs/architecture.md)**: An overview of the project's philosophy and technical architecture.
-- **[Marketing Strategy](src/lib/docs/marketing_strategy.md)**: The go-to-market and user acquisition strategy.
-- **[Analysis Feature](src/lib/docs/feature_analysis.md)**: A guide to the conversation analysis feature.
-- **[Database Schema](src/lib/docs/infra_database_schema.md)**: A detailed look at the database structure.
+- **[Architecture](src/lib/docs/core-architecture.md)**: An overview of the project's philosophy and technical architecture.
+- **[Marketing Strategy](src/lib/docs/strategy-marketing.md)**: The go-to-market and user acquisition strategy.
+- **[Analysis Feature](src/lib/docs/feature-analysis.md)**: A guide to the conversation analysis feature.
+- **[Database Schema](src/lib/docs/core-database-schema.md)**: A detailed look at the database structure.
 
 ## 🧪 Testing
 

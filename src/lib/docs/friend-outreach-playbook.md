@@ -13,7 +13,7 @@ Purpose: guide friends and early supporters through a 25-30 minute Kaiwa session
 **Quick message template**
 
 ```
-Hey <Name>! Can I ask you for a huge favor? Would you be down to hop on a quick 25-30 min call this week or next and let me watch you try Kaiwa? I'm trying to figure out where people get stuck.
+Hey &lt;Name&gt;! Can I ask you for a huge favor? Would you be down to hop on a quick 25-30 min call this week or next and let me watch you try Kaiwa? I'm trying to figure out where people get stuck.
 ```
 
 ---

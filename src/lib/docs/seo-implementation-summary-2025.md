@@ -299,8 +299,8 @@ Google Search Console:
 
 Google Analytics:
 - ✅ Blog pageviews
-- ✅ Average time on page (goal: > 2 min)
-- ✅ Bounce rate (goal: < 60%)
+- ✅ Average time on page (goal: &gt; 2 min)
+- ✅ Bounce rate (goal: &lt; 60%)
 - ✅ Conversion (signups from blog)
 
 Keyword Ranking:
