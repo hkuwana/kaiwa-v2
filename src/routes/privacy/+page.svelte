@@ -61,14 +61,14 @@
 	</script>
 </svelte:head>
 
-<div class="privacy-container">
-	<header class="privacy-header">
-		<h1>Privacy Policy</h1>
-		<p class="last-updated">Last updated: {new SvelteDate().toLocaleDateString()}</p>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+	<header class="text-center mb-12 pb-8 border-b border-base-200">
+		<h1 class="text-4xl font-bold mb-2">Privacy Policy</h1>
+		<p class="text-base-content/70 text-sm">Last updated: {new SvelteDate().toLocaleDateString()}</p>
 	</header>
 
-	<div class="privacy-content">
-		<section class="privacy-section">
+	<div class="prose max-w-none">
+		<section class="mb-12">
 			<h2>Introduction</h2>
 			<p>
 				Kaiwa ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy
@@ -81,7 +81,7 @@
 			</p>
 		</section>
 
-		<section class="privacy-section">
+		<section class="mb-12">
 			<h2>Information We Collect</h2>
 
 			<h3>Account Information</h3>
@@ -133,7 +133,7 @@
 			</ul>
 		</section>
 
-		<section class="privacy-section">
+		<section class="mb-12">
 			<h2>How We Use Your Information</h2>
 
 			<h3>Core Language Learning Features</h3>
@@ -168,7 +168,7 @@
 			</ul>
 		</section>
 
-		<section class="privacy-section">
+		<section class="mb-12">
 			<h2>Analytics and Tracking</h2>
 
 			<h3>PostHog Analytics</h3>
@@ -220,7 +220,7 @@
 			</ul>
 		</section>
 
-		<section class="privacy-section">
+		<section class="mb-12">
 			<h2>Data Storage and Security</h2>
 
 			<h3>Storage Locations</h3>
@@ -257,7 +257,7 @@
 			</ul>
 		</section>
 
-		<section class="privacy-section">
+		<section class="mb-12">
 			<h2>Data Sharing and Third Parties</h2>
 
 			<h3>Service Providers</h3>
@@ -302,7 +302,7 @@
 			</ul>
 		</section>
 
-		<section class="privacy-section">
+		<section class="mb-12">
 			<h2>Your Rights and Choices</h2>
 
 			<h3>Access and Control</h3>
@@ -341,7 +341,7 @@
 			</ul>
 		</section>
 
-		<section class="privacy-section">
+		<section class="mb-12">
 			<h2>Children's Privacy</h2>
 			<p>
 				Kaiwa is not intended for children under 13 years of age. We do not knowingly collect
@@ -350,7 +350,7 @@
 			</p>
 		</section>
 
-		<section class="privacy-section">
+		<section class="mb-12">
 			<h2>International Data Transfers</h2>
 			<p>
 				Your data may be transferred to and processed in countries other than your own. We ensure
@@ -359,7 +359,7 @@
 			</p>
 		</section>
 
-		<section class="privacy-section">
+		<section class="mb-12">
 			<h2>Changes to This Policy</h2>
 			<p>
 				We may update this Privacy Policy from time to time. We will notify you of any changes by
@@ -368,7 +368,7 @@
 			</p>
 		</section>
 
-		<section class="privacy-section">
+		<section class="mb-12">
 			<h2>Contact Us</h2>
 			<p>
 				If you have any questions about this Privacy Policy or our data practices, please contact
@@ -382,91 +382,3 @@
 		</section>
 	</div>
 </div>
-
-<style>
-	.privacy-container {
-		max-width: 800px;
-		margin: 0 auto;
-		padding: 2rem 1rem;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-		line-height: 1.6;
-		color: #333;
-	}
-
-	.privacy-header {
-		text-align: center;
-		margin-bottom: 3rem;
-		border-bottom: 2px solid #e5e7eb;
-		padding-bottom: 2rem;
-	}
-
-	.privacy-header h1 {
-		font-size: 2.5rem;
-		font-weight: 700;
-		color: #1f2937;
-		margin-bottom: 0.5rem;
-	}
-
-	.last-updated {
-		color: #6b7280;
-		font-size: 0.9rem;
-	}
-
-	.privacy-section {
-		margin-bottom: 3rem;
-	}
-
-	.privacy-section h2 {
-		font-size: 1.8rem;
-		font-weight: 600;
-		color: #1f2937;
-		margin-bottom: 1rem;
-		border-left: 4px solid #3b82f6;
-		padding-left: 1rem;
-	}
-
-	.privacy-section h3 {
-		font-size: 1.3rem;
-		font-weight: 600;
-		color: #374151;
-		margin: 1.5rem 0 0.75rem 0;
-	}
-
-	.privacy-section p {
-		margin-bottom: 1rem;
-		color: #4b5563;
-	}
-
-	.privacy-section ul {
-		margin: 1rem 0;
-		padding-left: 1.5rem;
-	}
-
-	.privacy-section li {
-		margin-bottom: 0.5rem;
-		color: #4b5563;
-	}
-
-	.privacy-section strong {
-		color: #1f2937;
-		font-weight: 600;
-	}
-
-	@media (max-width: 768px) {
-		.privacy-container {
-			padding: 1rem;
-		}
-
-		.privacy-header h1 {
-			font-size: 2rem;
-		}
-
-		.privacy-section h2 {
-			font-size: 1.5rem;
-		}
-
-		.privacy-section h3 {
-			font-size: 1.2rem;
-		}
-	}
-</style>
