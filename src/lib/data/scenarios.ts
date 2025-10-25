@@ -3,6 +3,7 @@
 
 import type { Scenario } from '$lib/server/db/types';
 import type { CEFRLevel } from '$lib/utils/cefr';
+import type { InstructionParameters } from '$lib/services/instructions/parameters';
 
 // Extended scenario type with optional speaker selection hints
 export type ScenarioWithHints = Scenario & {
@@ -16,6 +17,10 @@ export type ScenarioWithHints = Scenario & {
 	difficultyRating?: number;
 	// Cached CEFR level label
 	cefrLevel?: CEFRLevel;
+	// Freeform guidance for UI copy (e.g., recommended CEFR levels)
+	cefrRecommendation?: string;
+	// Optional instruction parameter overrides to seed the session
+	parameterHints?: Partial<InstructionParameters>;
 };
 
 export const scenariosData: ScenarioWithHints[] = [
@@ -46,6 +51,51 @@ export const scenariosData: ScenarioWithHints[] = [
 			understanding: 4
 		},
 		persona: null,
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'beginner-confidence-bridge',
+		title: 'First Conversation Bridge',
+		description:
+			'Start from zero in the target language, blending native-language support into your first phrases.',
+		role: 'tutor',
+		difficulty: 'beginner',
+		difficultyRating: 1,
+		cefrLevel: 'A1',
+		cefrRecommendation: 'Ideal if you are A0–A1 and need native-language scaffolding.',
+		instructions: `You and your coach build a shared phrase bank. First, explain (in your native language) who you need to talk to and why. Then practice 3–5 anchor phrases where the coach says it in the target language, gives the native translation, and has you repeat. Finish by assembling those phrases into a short introduction.`,
+		context:
+			'A quiet table with notebooks open. Your coach is patient, mixing your native language with slow target-language modeling.',
+		expectedOutcome:
+			'Leave with a personal intro script that you can say once in the target language without translation.',
+		learningObjectives: [
+			'confidence priming',
+			'core phrase acquisition',
+			'pronunciation modeling',
+			'native-to-target scaffolding',
+			'personal mission articulation'
+		],
+		comfortIndicators: {
+			confidence: 1,
+			engagement: 4,
+			understanding: 2
+		},
+		persona: null,
+		parameterHints: {
+			speakingSpeed: 'very_slow',
+			sentenceLength: 'very_short',
+			scaffoldingLevel: 'heavy',
+			languageMixingPolicy: 'code_switching',
+			encouragementFrequency: 'frequent',
+			topicChangeFrequency: 'focused',
+			conversationPace: 'relaxed',
+			pauseFrequency: 'frequent',
+			vocabularyComplexity: 'basic',
+			grammarComplexity: 'simple',
+			correctionStyle: 'explicit'
+		},
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date()

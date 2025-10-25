@@ -581,9 +581,11 @@ IF learner mentions self-harm:
 		scenario: ScenarioWithHints,
 		scenarioLevel: CEFRLevel
 	): Partial<InstructionParameters> {
+		let parameters: Partial<InstructionParameters> = {};
+
 		// Tutor scenarios need explicit corrections
 		if (scenario.role === 'tutor') {
-			return {
+			parameters = {
 				correctionStyle: 'explicit',
 				scaffoldingLevel: 'heavy',
 				topicChangeFrequency: 'focused'
@@ -591,8 +593,8 @@ IF learner mentions self-harm:
 		}
 
 		// Character scenarios need immersion
-		if (scenario.role === 'character') {
-			return {
+		else if (scenario.role === 'character') {
+			parameters = {
 				languageMixingPolicy: 'strict_immersion',
 				conversationPace: 'dynamic',
 				topicChangeFrequency: 'focused'
@@ -600,8 +602,8 @@ IF learner mentions self-harm:
 		}
 
 		// Friend scenarios need natural flow
-		if (scenario.role === 'friendly_chat') {
-			return {
+		else if (scenario.role === 'friendly_chat') {
+			parameters = {
 				correctionStyle: 'recast',
 				scaffoldingLevel: 'light',
 				topicChangeFrequency: 'exploratory',
@@ -610,8 +612,8 @@ IF learner mentions self-harm:
 		}
 
 		// Expert scenarios are for advanced learners
-		if (scenario.role === 'expert') {
-			return {
+		else if (scenario.role === 'expert') {
+			parameters = {
 				correctionStyle: 'minimal',
 				scaffoldingLevel: 'none',
 				topicChangeFrequency: 'focused',
@@ -619,7 +621,14 @@ IF learner mentions self-harm:
 			};
 		}
 
-		return {};
+		if (scenario.parameterHints) {
+			parameters = {
+				...parameters,
+				...scenario.parameterHints
+			};
+		}
+
+		return parameters;
 	}
 }
 

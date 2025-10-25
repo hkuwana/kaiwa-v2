@@ -222,7 +222,7 @@
 		</div>
 
 		<div class="grid gap-8 lg:grid-cols-3">
-			{#each Array.from({ length: 3 }) as _ (_)}
+			{#each Array.from({ length: 3 }) as _, i (i)}
 				<div
 					class="flex flex-col items-center rounded-2xl border bg-base-100 p-8 text-center shadow-sm"
 				>
@@ -238,7 +238,7 @@
 		<div class="rounded-2xl border bg-base-100 p-6">
 			<div class="h-6 w-1/4 skeleton"></div>
 			<div class="mt-6 grid gap-4 lg:grid-cols-4">
-				{#each Array.from({ length: 8 }) as _ (_)}
+				{#each Array.from({ length: 8 }) as _, i (i)}
 					<div class="h-4 w-full skeleton"></div>
 				{/each}
 			</div>

@@ -46,6 +46,13 @@
 			user_type: user && user.id !== 'guest' ? 'logged_in' : 'guest'
 		});
 	}
+
+	// Helper function to determine if element should show based on scroll
+	function getItemYOffset(threshold: number) {
+		const difference = scrollY - threshold;
+		if (difference < 0) return 20;
+		return Math.max(0, 20 - difference * 0.05);
+	}
 </script>
 
 <svelte:head>
@@ -74,7 +81,7 @@
 		<div class="mb-16 text-center" in:fly={{ y: -20, duration: 500, delay: 200 }}>
 			<h1 class="mb-4 text-5xl font-bold md:text-7xl">Your personality is not a translation.</h1>
 			<p class="mx-auto max-w-4xl text-xl leading-relaxed md:text-2xl">
-				Language tools have become robotic. We're making them human again.
+				Language tools have become too rigid. We're making them dynamic.
 			</p>
 		</div>
 
@@ -82,16 +89,16 @@
 		<div class="mx-auto mb-16 max-w-4xl">
 			<ul class="steps steps-vertical">
 				<li class="step step-primary">
-					<div class="p-4 text-left" in:fly={{ y: 20, duration: 500, delay: 400 }}>
-						<h3 class="text-lg font-bold">The Dream</h3>
+					<div class="p-4 text-left rounded-lg bg-primary/10 ml-4" in:fly={{ y: 20, duration: 500, delay: 400 }}>
+						<h3 class="text-lg font-bold text-primary">The Dream</h3>
 						<p>
 							To connect with the people we love, in their language. To make their family laugh.
 						</p>
 					</div>
 				</li>
-				<li class="step step-primary">
-					<div class="p-4 text-left" in:fly={{ y: 20, duration: 500, delay: 600 }}>
-						<h3 class="text-lg font-bold">The Wall</h3>
+				<li class="step step-secondary">
+					<div class="p-4 text-left rounded-lg bg-secondary/10 ml-4" in:fly={{ y: 20, duration: 500, delay: 600 }}>
+						<h3 class="text-lg font-bold text-secondary">The Wall</h3>
 						<p>
 							Language apps felt disconnected with practical needs and too gamified or uncreative.
 							Robotic voices, points, streaks.
@@ -99,9 +106,9 @@
 					</div>
 				</li>
 
-				<li class="step">
-					<div class="p-4 text-left" in:fly={{ y: 20, duration: 500, delay: 1000 }}>
-						<h3 class="text-lg font-bold">The Solution: Kaiwa</h3>
+				<li class="step step-accent">
+					<div class="p-4 text-left rounded-lg bg-accent/10 ml-4" in:fly={{ y: 20, duration: 500, delay: 1000 }}>
+						<h3 class="text-lg font-bold text-accent">The Solution: Kaiwa</h3>
 						<p>
 							So we built a conversation partner. A place for the messy, real talks that build
 							relationships.
@@ -111,75 +118,76 @@
 			</ul>
 		</div>
 
-		<!-- Visual Comparison Section -->
-		<div class="mb-16" in:fly={{ y: 20, duration: 500, delay: 1200 }}>
-			<h2 class="mb-8 text-center text-3xl font-bold">What Went Wrong With Language Apps?</h2>
+		<!-- The Kaiwa Way Section -->
+		<div class="mb-16" in:fly={{ y: -20, duration: 500, delay: 200 }}>
+			<h2 class="mb-8 text-center text-3xl font-bold">The Old Way vs. The Kaiwa Way</h2>
 			<div class="flex justify-center">
 				<div class="grid w-full max-w-4xl gap-8 md:grid-cols-2">
+					<!-- Robotic Card -->
 					<div
-						class="card bg-base-300/50 shadow-lg transition-transform duration-200 ease-out"
-						style="transform: translateY({scrollY * 0.03}px);"
+						class="card bg-gradient-to-br from-error/20 to-error/10 shadow-lg border border-error/30"
+						style="transform: translateY({getItemYOffset(1000)}px);"
 					>
 						<div class="card-body">
-							<h3 class="card-title text-error">The "Old Way"</h3>
-							<ul class="space-y-3 opacity-70">
-								<li class="flex items-center">
-									<span class="mr-2 icon-[mdi--robot-outline] text-xl"></span><span
-										>Robotic voices</span
+							<h3 class="card-title text-error" in:fly={{ y: 10, duration: 500, delay: 100 }}>The Old Way</h3>
+							<ul class="space-y-3">
+								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 200 }}>
+									<span class="mr-2 icon-[mdi--robot-outline] text-xl text-error"></span><span
+										>Teaches you lessons</span
 									>
 								</li>
-								<li class="flex items-center">
-									<span class="mr-2 icon-[mdi--gamepad-variant-outline] text-xl"></span><span
-										>Points, streaks, and games</span
+								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 300 }}>
+									<span class="mr-2 icon-[mdi--book-outline] text-xl text-error"></span><span
+										>Lectures about grammar</span
 									>
 								</li>
-								<li class="flex items-center">
-									<span class="mr-2 icon-[mdi--file-document-outline] text-xl"></span><span
-										>Sterile translations</span
+								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 400 }}>
+									<span class="mr-2 icon-[mdi--gamepad-variant-outline] text-xl text-error"></span><span
+										>Gamifies learning</span
 									>
 								</li>
-								<li class="flex items-center">
-									<span class="mr-2 icon-[mdi--format-list-bulleted] text-xl"></span><span
-										>Memorizing lists</span
+								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 500 }}>
+									<span class="mr-2 icon-[mdi--format-list-bulleted] text-xl text-error"></span><span
+										>Expects you to memorize</span
 									>
 								</li>
 							</ul>
-							<div
-								class="mt-3 border-t border-base-content/10 pt-3 font-bold text-error-content/80"
-							>
-								Result: You sound like a textbook.
+							<div class="mt-3 border-t border-error/20 pt-3 font-bold text-error" in:fly={{ y: 10, duration: 500, delay: 600 }}>
+								Result: You talk like a machine.
 							</div>
 						</div>
 					</div>
+
+					<!-- Kaiwa Card -->
 					<div
-						class="card bg-primary text-primary-content shadow-xl transition-transform duration-200 ease-out"
-						style="transform: translateY({scrollY * -0.03}px);"
+						class="card bg-gradient-to-br from-accent to-accent/70 text-accent-content shadow-2xl border border-accent/20"
+						style="transform: translateY({getItemYOffset(1000)}px);"
 					>
 						<div class="card-body">
-							<h3 class="card-title">The Kaiwa Way</h3>
+							<h3 class="card-title" in:fly={{ y: 10, duration: 500, delay: 100 }}>The Kaiwa Way</h3>
 							<ul class="space-y-3">
-								<li class="flex items-center">
+								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 200 }}>
+									<span class="mr-2 icon-[mdi--forum-outline] text-xl"></span><span
+										>Meets you where you are</span
+									>
+								</li>
+								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 300 }}>
+									<span class="mr-2 icon-[mdi--chat-outline] text-xl"></span><span
+										>Responds to what you need</span
+									>
+								</li>
+								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 400 }}>
 									<span class="mr-2 icon-[mdi--human-greeting-variant] text-xl"></span><span
 										>Natural, human-like voices</span
 									>
 								</li>
-								<li class="flex items-center">
-									<span class="mr-2 icon-[mdi--forum-outline] text-xl"></span><span
-										>Real conversations</span
-									>
-								</li>
-								<li class="flex items-center">
-									<span class="mr-2 icon-[mdi--heart-outline] text-xl"></span><span
-										>Emotional connection</span
-									>
-								</li>
-								<li class="flex items-center">
+								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 500 }}>
 									<span class="mr-2 icon-[mdi--emoticon-happy-outline] text-xl"></span><span
-										>Sharing your actual personality</span
+										>Let your personality show</span
 									>
 								</li>
 							</ul>
-							<div class="mt-3 border-t border-primary-content/20 pt-3 font-bold">
+							<div class="mt-3 border-t border-accent-content/20 pt-3 font-bold" in:fly={{ y: 10, duration: 500, delay: 600 }}>
 								Result: You sound like you.
 							</div>
 						</div>
@@ -190,10 +198,10 @@
 
 		<!-- Call to Action -->
 		<div class="text-center" in:fly={{ y: 20, duration: 500, delay: 1400 }}>
-			<div class="mx-auto max-w-2xl rounded-2xl border p-4 sm:p-8">
-				<h2 class="mb-4 text-2xl font-bold">Ready to Connect?</h2>
+			<div class="mx-auto max-w-2xl rounded-2xl bg-gradient-to-br from-primary/15 to-accent/15 border border-primary/30 p-4 sm:p-8 shadow-lg">
+				<h2 class="mb-4 text-2xl font-bold text-primary">Ready to Connect?</h2>
 				<p class="mb-6">Practice the conversations that will define your relationships.</p>
-				<div class="mb-4 text-sm">Get your speaking level assessed in 3 minutes</div>
+				<div class="mb-4 text-sm text-secondary">Get your speaking level assessed in 3 minutes</div>
 				<UnifiedStartButton
 					{user}
 					{selectedLanguage}
