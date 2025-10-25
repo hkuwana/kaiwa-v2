@@ -57,7 +57,7 @@ export const scenariosData: ScenarioWithHints[] = [
 	},
 	{
 		id: 'beginner-confidence-bridge',
-		title: 'First Conversation Bridge',
+		title: 'Starting from Zero',
 		description:
 			'Start from zero in the target language, blending native-language support into your first phrases.',
 		role: 'tutor',
