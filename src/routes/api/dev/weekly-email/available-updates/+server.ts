@@ -11,7 +11,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 
 		// Get all available weekly updates
 		const allUpdates = WeeklyUpdatesParserService.getAllWeeklyUpdates();
-		
+
 		// Sort by date (most recent first)
 		const sortedUpdates = allUpdates.sort((a, b) => {
 			return new Date(b.date).getTime() - new Date(a.date).getTime();
@@ -23,9 +23,12 @@ export const GET: RequestHandler = async ({ locals }) => {
 		});
 	} catch (error) {
 		console.error('Error getting available updates:', error);
-		return json({ 
-			success: false, 
-			error: error instanceof Error ? error.message : 'Unknown error' 
-		}, { status: 500 });
+		return json(
+			{
+				success: false,
+				error: error instanceof Error ? error.message : 'Unknown error'
+			},
+			{ status: 500 }
+		);
 	}
 };

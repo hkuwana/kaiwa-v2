@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { HomePage } from '../../pages/home.page';
 
-test.describe('Navigation Smoke', () => {
+test.describe('@smoke Navigation Smoke', () => {
 	test('primary navigation exposes accessible links', async ({ page }) => {
 		const home = new HomePage(page);
 		await home.goto();

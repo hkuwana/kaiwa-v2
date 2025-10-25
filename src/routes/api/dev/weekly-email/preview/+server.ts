@@ -18,8 +18,8 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 
 		// Get all available updates and find the one for the specified date
 		const allUpdates = WeeklyUpdatesParserService.getAllWeeklyUpdates();
-		const weeklyUpdate = allUpdates.find(update => update.date === date);
-		
+		const weeklyUpdate = allUpdates.find((update) => update.date === date);
+
 		if (!weeklyUpdate) {
 			return json({ error: 'Weekly update not found for the specified date' }, { status: 404 });
 		}
@@ -29,7 +29,9 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 			updates: weeklyUpdate.updates,
 			productHighlights: weeklyUpdate.highlights,
 			upcoming: weeklyUpdate.upcoming,
-			intro: weeklyUpdate.notes ? `Here's what we shipped at Kaiwa this week, and what we're working on next. ${weeklyUpdate.notes}` : undefined
+			intro: weeklyUpdate.notes
+				? `Here's what we shipped at Kaiwa this week, and what we're working on next. ${weeklyUpdate.notes}`
+				: undefined
 		};
 
 		// Generate the HTML email
@@ -47,9 +49,12 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 		});
 	} catch (error) {
 		console.error('Error generating preview:', error);
-		return json({ 
-			success: false, 
-			error: error instanceof Error ? error.message : 'Unknown error' 
-		}, { status: 500 });
+		return json(
+			{
+				success: false,
+				error: error instanceof Error ? error.message : 'Unknown error'
+			},
+			{ status: 500 }
+		);
 	}
 };

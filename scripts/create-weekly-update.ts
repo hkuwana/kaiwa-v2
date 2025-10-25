@@ -91,8 +91,12 @@ function createWeeklyUpdateFile(options: CreateWeeklyUpdateOptions): void {
 		// Check if file already exists
 		if (existsSync(filePath)) {
 			console.log(`⚠️  File already exists: ${filename}`);
-			console.log('   Use a different date or delete the existing file first.');
-			process.exit(1);
+			console.log('   Opening existing file for editing...');
+			console.log(`📁 Location: ${filePath}`);
+			console.log(
+				'\n📝 You can now edit the existing file and use the dev interface to preview and send.'
+			);
+			return;
 		}
 
 		// Write the file

@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { HomePage } from '../../pages/home.page';
 
-test.describe('Home Smoke', () => {
+test.describe('@smoke Home Smoke', () => {
 	test('loads hero CTA and navigation', async ({ page }) => {
 		const home = new HomePage(page);
 		await home.goto();

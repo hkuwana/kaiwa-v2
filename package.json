@@ -49,6 +49,8 @@
 		"cron:weekly-stats": "tsx scripts/send-weekly-stats.ts",
 		"send-weekly-product-updates": "tsx scripts/send-weekly-product-updates.ts",
 		"create-weekly-update": "tsx scripts/create-weekly-update.ts",
+		"generate-weekly-update-from-git": "tsx scripts/generate-weekly-update-from-git.ts",
+		"update-current-weekly-update": "tsx scripts/update-current-weekly-update.ts",
 		"test-weekly-updates-parser": "tsx scripts/test-weekly-updates-parser.ts",
 		"cron:deploy": "./scripts/deploy-cron-jobs.sh",
 		"cron:test": "tsx scripts/test-cron-jobs.ts",

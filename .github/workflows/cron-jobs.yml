@@ -6,6 +6,8 @@ on:
     - cron: '0 9 * * *'
     # Founder emails at 2:00 PM UTC
     - cron: '0 14 * * *'
+    # Weekly product updates on Monday at 10:00 AM UTC (auto-generated from git)
+    - cron: '0 10 * * 1'
     # Weekly stats on Monday at 11:00 AM UTC
     - cron: '0 11 * * 1'
 
@@ -19,6 +21,7 @@ on:
         options:
           - daily-reminders
           - founder-emails
+          - weekly-product-updates
           - weekly-stats
           - all
 
@@ -49,6 +52,42 @@ jobs:
       - name: Trigger founder emails endpoint
         run: |
           response=$(curl -s -w "\n%{http_code}" "https://trykaiwa.com/api/cron/founder-emails?secret=${{ secrets.CRON_SECRET }}")
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+
+          echo "Response: $body"
+
+          if [ "$http_code" -ne 200 ]; then
+            echo "Error: HTTP $http_code"
+            exit 1
+          fi
+
+  weekly-product-updates:
+    name: Send Weekly Product Updates (Auto-generated from Git)
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 10 * * 1' || github.event.inputs.job == 'weekly-product-updates' || github.event.inputs.job == 'all'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch full git history
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate weekly update from git commits
+        run: |
+          npm run generate-weekly-update-from-git
+
+      - name: Send weekly product updates
+        run: |
+          response=$(curl -s -w "\n%{http_code}" "https://trykaiwa.com/api/cron/weekly-digest?secret=${{ secrets.CRON_SECRET }}")
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | sed '$d')
 
