@@ -25,6 +25,66 @@ export type ScenarioWithHints = Scenario & {
 
 export const scenariosData: ScenarioWithHints[] = [
 	{
+		id: 'beginner-confidence-bridge',
+		title: 'Zero to Hero',
+		description:
+			'Start in your native language, then build confidence with 4–5 key phrases you can actually use in your first real conversation.',
+		role: 'tutor',
+		difficulty: 'beginner',
+		difficultyRating: 1,
+		cefrLevel: 'A1',
+		cefrRecommendation: 'Perfect if you\'ve just started your learning journey (A0–A1) and need native-language support.',
+		instructions: `This is your confidence bootcamp. Start by chatting in the user's native language to understand who they want to talk to and why—this is their "mission." Then follow this rhythm:
+
+1. **Mission Statement** (native language): Ask them to describe the real situation they'll face: "Who do you want to talk to? What do you want to say to them? What matters most about this conversation?"
+
+2. **Build Anchor Phrases** (mixed language): Work together to identify 3–5 core phrases they'll actually need. For each phrase:
+   - You say it slowly in the target language
+   - You give them the native translation
+   - You have them repeat it 2–3 times until it feels natural
+   - Celebrate each win with real warmth
+
+3. **Assemble the Conversation** (guided target language): String those phrases together into a mini-script they can actually use. Keep it to 30 seconds max.
+
+4. **Final Run-Through** (target language): Have them say their full introduction once—in the target language, without translation. If they freeze, offer the first word only.
+
+Your tone is coach + cheerleader. This is NOT about grammar rules. This IS about building real confidence in 5 minutes.`,
+		context:
+			'A comfortable, pressure-free space. You\'re sitting with someone who has never spoken this language before. You are warm, patient, and genuinely excited about their goal. The goal is trust, clarity, and one tiny win they can feel.',
+		expectedOutcome:
+			'Learner leaves with a personal 30-second introduction in the target language they can say without translation, plus clarity on why they\'re learning.',
+		learningObjectives: [
+			'confidence priming through quick wins',
+			'core phrase acquisition (3-5 phrases only)',
+			'pronunciation modeling with repetition',
+			'native-to-target code switching',
+			'personal mission articulation and relevance',
+			'psychological safety and emotional buy-in'
+		],
+		comfortIndicators: {
+			confidence: 1,
+			engagement: 4,
+			understanding: 2
+		},
+		persona: null,
+		parameterHints: {
+			speakingSpeed: 'very_slow',
+			sentenceLength: 'very_short',
+			scaffoldingLevel: 'heavy',
+			languageMixingPolicy: 'code_switching',
+			encouragementFrequency: 'frequent',
+			topicChangeFrequency: 'focused',
+			conversationPace: 'relaxed',
+			pauseFrequency: 'frequent',
+			vocabularyComplexity: 'basic',
+			grammarComplexity: 'simple',
+			correctionStyle: 'explicit'
+		},
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
 		id: 'onboarding-welcome',
 		title: 'Mission Kickoff Briefing',
 		description: 'Map the real conversations you need next.',
@@ -51,51 +111,6 @@ export const scenariosData: ScenarioWithHints[] = [
 			understanding: 4
 		},
 		persona: null,
-		isActive: true,
-		createdAt: new Date(),
-		updatedAt: new Date()
-	},
-	{
-		id: 'beginner-confidence-bridge',
-		title: 'Starting from Zero',
-		description:
-			'Start from zero in the target language, blending native-language support into your first phrases.',
-		role: 'tutor',
-		difficulty: 'beginner',
-		difficultyRating: 1,
-		cefrLevel: 'A1',
-		cefrRecommendation: 'Ideal if you are A0–A1 and need native-language scaffolding.',
-		instructions: `You and your coach build a shared phrase bank. First, explain (in your native language) who you need to talk to and why. Then practice 3–5 anchor phrases where the coach says it in the target language, gives the native translation, and has you repeat. Finish by assembling those phrases into a short introduction.`,
-		context:
-			'A quiet table with notebooks open. Your coach is patient, mixing your native language with slow target-language modeling.',
-		expectedOutcome:
-			'Leave with a personal intro script that you can say once in the target language without translation.',
-		learningObjectives: [
-			'confidence priming',
-			'core phrase acquisition',
-			'pronunciation modeling',
-			'native-to-target scaffolding',
-			'personal mission articulation'
-		],
-		comfortIndicators: {
-			confidence: 1,
-			engagement: 4,
-			understanding: 2
-		},
-		persona: null,
-		parameterHints: {
-			speakingSpeed: 'very_slow',
-			sentenceLength: 'very_short',
-			scaffoldingLevel: 'heavy',
-			languageMixingPolicy: 'code_switching',
-			encouragementFrequency: 'frequent',
-			topicChangeFrequency: 'focused',
-			conversationPace: 'relaxed',
-			pauseFrequency: 'frequent',
-			vocabularyComplexity: 'basic',
-			grammarComplexity: 'simple',
-			correctionStyle: 'explicit'
-		},
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date()

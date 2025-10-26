@@ -134,14 +134,7 @@
 
 		{#if success}
 			<div class="alert alert-success">
-				<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M5 13l4 4L19 7"
-					/>
-				</svg>
+				<span class="icon-[mdi--check] h-6 w-6"></span>
 				<span>Email verified successfully! Redirecting...</span>
 			</div>
 		{:else}
@@ -149,14 +142,7 @@
 				<div class="card-body">
 					{#if error}
 						<div class="mb-4 alert alert-error">
-							<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M6 18L18 6M6 6l12 12"
-								/>
-							</svg>
+							<span class="icon-[mdi--close] h-6 w-6"></span>
 							<span>{error}</span>
 						</div>
 					{/if}

@@ -109,14 +109,18 @@ export function generateScenarioGreeting(opts: {
 	user?: User | null;
 }): string {
 	const languageName = opts.language?.name || 'your target language';
-	const who = opts.user?.displayName ? ` for ${opts.user.displayName}` : '';
 	const scenarioTitle = opts.scenario?.title;
 
-	if (scenarioTitle) {
-		return `Start with a warm one-sentence greeting in ${languageName}${who}. Make it clear you're their AI practice partner setting up the "${scenarioTitle}" role-play, then ask one short question to get them speaking.`;
+	// For "Starting from Zero" scenario, keep greeting simple - detailed instructions are in composer
+	if (opts.scenario?.id === 'beginner-confidence-bridge') {
+		return `Begin with warmth and enthusiasm.`;
 	}
 
-	return `Start with a warm one-sentence greeting in ${languageName}${who}. Mention that you're their AI practice partner and ask one short question to begin.`;
+	if (scenarioTitle) {
+		return `Start with a warm one-sentence greeting in ${languageName}. Make it clear you're their AI practice partner setting up the "${scenarioTitle}" role-play, then ask one short question to get them speaking.`;
+	}
+
+	return `Start with a warm one-sentence greeting in ${languageName}. Mention that you're their AI practice partner and ask one short question to begin.`;
 }
 
 // ============================================

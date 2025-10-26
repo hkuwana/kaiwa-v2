@@ -4,30 +4,52 @@
 
 ## 🎯 The Core Insight
 
-People don't have a language problem. They have a **connection emergency**. Every day they wait, they drift further from the people they love. The urgency isn't about language—it's about relationship decay happening RIGHT NOW.
+The real pain isn’t grammar — it’s relying on subtitles and translation apps as a crutch to connect. When your partner or their family becomes your interpreter, the conversation stops being yours. Kaiwa helps you move from subtitles to speaking, so connection is direct, not mediated by technology.
 
-## 📊 90-Day Distribution Plan
+## 🧿 Positioning: Relationship‑Only Beachhead
 
-### Phase 1: Crisis Creation (Days 1-30)
+- Category: Practical language for relationships (partner + family). Not generic study; not test prep.
+- Promise: Rehearse the moments that define trust — meet the parents, apologize well, share life changes, give a toast — and be understood by the people you love.
+- Who we’re for: Bilingual couples, new in‑laws, expats integrating into a partner’s family.
+- Who we’re not for (for now): Exams, broad vocab drills, travel small talk without relationship stakes.
 
-_Goal: Make people feel the pain of their inadequacy RIGHT NOW._
+### Scenario Priorities (live in app)
 
-- **The "70% Campaign"**: Your partner/family only knows 30% of who you are. The funny you. The thoughtful you. The real you. It's all trapped behind language.
-- **The "Relationship Decay" Campaign**: Every mistranslation is a small betrayal. Every family gathering where you can't participate is a reminder you don't belong.
+- Partner’s Parents Dinner
+- Relationship Apology
+- Family Celebration Speech (toast)
+- Sharing Life Changes (moving, career)
+- First Date Drinks (lightweight rapport)
 
-### Phase 2: Community Infiltration (Days 31-60)
+### Copy Principles (site, emails, posts)
 
-_Goal: Become the go-to solution in relationship/language communities._
+- Lead with stakes (“Love shouldn’t need subtitles”).
+- Show pasteable scripts; end with soft CTA (invite to Practice Lab/DM).
+- Credit real feedback: “Shipped X based on Y’s rehearsal.”
 
-- **Target Communities**: r/relationships, r/movingtojapan, r/LongDistance, Expat Facebook groups.
-- **Strategy**: Provide value first, then soft-sell by sharing your own success stories with Kaiwa.
+## 📊 90‑Day Go‑To‑Market (Marketing × Distribution)
 
-### Phase 3: Viral Moments (Days 61-90)
+### Phase 1: Subtitles → Speaking (Days 1–30)
 
-_Goal: Create shareable content that spreads organically._
+Goal: Prove the “ditch the subtitles” wedge with relationship scenarios.
 
-- **"The Tokyo Test"**: A free 5-minute assessment showing people which real-life situations they'd fail at.
-- **User-Generated Content**: Encourage "7 Days to Connection" challenge videos and before/after stories.
+- Anchor scenario: “Meet the Parents” (JP) + Apology + Sharing News.
+- Produce 8–10 Case Files (before/after scripts) and run weekly Practice Lab.
+- Founder 3‑day emails to convert hesitant signups to their first 3‑minute session.
+
+### Phase 2: Community Lift (Days 31–60)
+
+Goal: Embed where couples/expats ask for help; share pasteable scripts.
+
+- Channels: r/movingtojapan, r/LearnJapanese, r/relationships; IG/TikTok Reels; expat FB/Discord.
+- Distribution rhythm: 1 Case File crosspost/week + daily helpful comments + 3 Reels/week.
+
+### Phase 3: Compounding Proof (Days 61–90)
+
+Goal: Turn proofs into lightweight virality and referrals.
+
+- Release “Tokyo Test” v1 (5‑min readiness check) and showcase anonymized results.
+- Publish monthly Wins & Fixes; add referral perk for couples who bring a friend.
 
 ## 💔 Creating Urgency for Key Personas
 
@@ -45,15 +67,26 @@ _Goal: Create shareable content that spreads organically._
 
 ## 🎬 Campaign Lines & Tactics
 
-- **"Love Shouldn't Need Subtitles"**: But it does. And every subtitle is killing the intimacy.
-- **"The Midnight Test"**: It's 2am. They're crying. Can you comfort them without Google Translate?
-- **"The 70% Campaign"**: Your partner/family only knows 30% of who you are. Show them the other 70%.
-- **WhatsApp "Daily Family Phrase"**: Share culturally relevant phrases, not just "hello."
-- **Dating App Profile Badge**: A verifiable "Actually speaks [language]" badge.
+- “Love shouldn’t need subtitles.”
+- “From subtitles to speaking.”
+- “Turn off the interpreter; have your own conversation.”
+- WhatsApp “Daily Family Phrase” (relationship contexts only).
+- Dating profile badge: “Actually speaks [language] (family-approved).”
 
-## 🔥 The Brutal Truth
+## ✅ The Simple Truth
 
-We're not teaching language. We're **saving relationships from slow death by Google Translate**. The urgency is real: Every day they wait, they drift further from the people they love. That's not philosophy. That's fact. And that's what we sell.
+We’re not chasing points or streaks. We’re replacing a tech crutch (subtitles/auto‑translate) with real speech in the moments that matter. Less drama, more practice — so you’re understood by the people you love.
+
+---
+
+## 🔁 Marketing ↔ Distribution Operating Loop
+
+1) Source insight: Live sessions + community threads reveal a stuck moment.
+2) Ship the fix: Improve scenario or guidance and note what changed.
+3) Publish proof: Case File (pasteable script) + 30–45s Reel.
+4) Distribute: Crosspost to 1–2 subs; share Reel to IG/TikTok/Shorts; reply to every comment with tailored lines.
+5) Convert: Founder emails to nudge first session; Practice Lab invites in‑thread.
+6) Measure: Posts → DMs → sessions → shipped fixes. Repeat weekly.
 
 ---
 
@@ -112,17 +145,21 @@ Hi mods — founder here. I’m running a weekly free Practice Lab to help peopl
 ## 🎯 Hyper‑Locate Relationship Learners
 
 ### Saved Searches (Reddit)
+
 - "meet (her|his|their) parents" AND (Japanese|Japan)
 - "Japanese girlfriend/boyfriend parents" "language barrier"
 - "apologize in Japanese" OR "keigo apology"
 
 ### Twitter/X Advanced Search
+
 - (girlfriend OR boyfriend OR partner) (Japanese OR Japan) (parents OR in‑laws OR dinner OR apology) lang:en -rt
 
 ### Hashtags (TikTok/IG)
+
 - #BilingualCouple #JapaneseGirlfriend #MeetingParents #LifeInJapan #JapaneseEtiquette
 
 ### Facebook/Discord Groups
+
 - Tokyo Expat Network, Bilingual Couples EN–JP, Life in Japan, Moving to Japan (check rules; post resources in‑thread).
 
 ### Outreach Comment Template

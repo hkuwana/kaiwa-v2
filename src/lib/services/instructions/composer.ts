@@ -477,13 +477,31 @@ ${scenarioRules}`;
 	}
 
 	private buildConversationFlow(): string {
-		const { scenario, sessionContext } = this.options;
+		const { scenario, sessionContext, user } = this.options;
 		const isFirstTime = sessionContext?.isFirstTime ?? false;
 
 		let flowSections: string[] = [];
 
 		// Opening
-		if (isFirstTime || scenario?.id === 'onboarding-welcome') {
+		// Special case: "Starting from Zero" scenario starts in native language
+		if (scenario?.id === 'beginner-confidence-bridge') {
+			const nativeLang = user.nativeLanguageId
+				? this.getNativeLanguageName(user.nativeLanguageId)
+				: 'English';
+			flowSections.push(`## Opening (Native Language Warmup - 1-2 minutes)
+CRITICAL: Start in ${nativeLang} (NOT ${this.options.language.name})
+- Greet warmly and enthusiastically: "Hey ${user.displayName || 'there'}, I'm so excited to chat with you in ${this.options.language.name}!"
+- Explain the 4-5 minute game plan in ${nativeLang}: "You've just started your learning journey, which is awesome. Here's what we're going to do: you tell me who you want to talk to and why, then we'll practice 3-5 key phrases together, and by the end you'll have your first conversation ready to go in ${this.options.language.name}. Sound good?"
+- Ask ONE simple question in ${nativeLang}: "Who do you most want to talk to in ${this.options.language.name}? Like, a friend? Family? Coworker? What matters most to you about this?"
+- Listen and affirm their answer warmly
+
+## Transition to Target Language (after they answer)
+- Acknowledge their goal: "That's great. Here's what we'll do..."
+- Introduce first phrase in ${this.options.language.name}: "In ${this.options.language.name}, people say [PHRASE]. It sounds like [pronunciation guide]."
+- Have them repeat 2-3 times, celebrate small wins
+- Build the mini-script phrase by phrase
+- Final run-through: "Now let's say your whole introduction once in ${this.options.language.name}, no English this time. You've got this!"`);
+		} else if (isFirstTime || scenario?.id === 'onboarding-welcome') {
 			flowSections.push(`## Opening (First 30 seconds)
 - Start with warm greeting in ${this.options.language.name}
 - Introduce yourself naturally
@@ -629,6 +647,39 @@ IF learner mentions self-harm:
 		}
 
 		return parameters;
+	}
+
+	/**
+	 * Helper to get native language name from language ID
+	 */
+	private getNativeLanguageName(languageId: string | null): string {
+		if (!languageId) return 'English';
+		// Import the getLanguageById function from types
+		const langMap: Record<string, string> = {
+			en: 'English',
+			es: 'Spanish',
+			fr: 'French',
+			de: 'German',
+			ja: 'Japanese',
+			zh: 'Chinese',
+			ko: 'Korean',
+			it: 'Italian',
+			pt: 'Portuguese',
+			ru: 'Russian',
+			ar: 'Arabic',
+			hi: 'Hindi',
+			tr: 'Turkish',
+			pl: 'Polish',
+			nl: 'Dutch',
+			sv: 'Swedish',
+			da: 'Danish',
+			fi: 'Finnish',
+			no: 'Norwegian',
+			vi: 'Vietnamese',
+			th: 'Thai',
+			id: 'Indonesian'
+		};
+		return langMap[languageId] || languageId.toUpperCase();
 	}
 }
 

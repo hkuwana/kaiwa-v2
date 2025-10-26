@@ -56,19 +56,19 @@
 </script>
 
 <svelte:head>
-	<title>About - Kaiwa</title>
+	<title>About Kaiwa — Learn to connect with the people you love</title>
 	<meta
 		name="description"
-		content="About Kaiwa and the philosophy behind the anti-language-learning app."
+		content="Kaiwa is the practical language app for relationships. Rehearse high‑stakes moments like meeting your partner’s parents, apologizing well, and sharing life changes — in their language."
 	/>
 	<meta
 		name="keywords"
-		content="Kaiwa story, about Kaiwa, language learning philosophy, conversation-first language learning, AI voice practice"
+		content="learn language for partner, bilingual couples, meet the parents Japanese, relationship apology Japanese, family dinner etiquette, conversation-first language learning"
 	/>
-	<meta property="og:title" content="About Kaiwa" />
+	<meta property="og:title" content="About Kaiwa — Language for relationships" />
 	<meta
 		property="og:description"
-		content="Why we built Kaiwa: a conversation-first approach focused on meaningful human connection."
+		content="The only practical app focused on learning a language for your partner and family. Practice the real conversations that build trust."
 	/>
 	<meta property="og:type" content="website" />
 </svelte:head>
@@ -79,9 +79,10 @@
 	<div class="container mx-auto px-4 py-16">
 		<!-- Hero Section -->
 		<div class="mb-16 text-center" in:fly={{ y: -20, duration: 500, delay: 200 }}>
-			<h1 class="mb-4 text-5xl font-bold md:text-7xl">Your personality is not a translation.</h1>
+			<h1 class="mb-4 text-5xl font-bold md:text-7xl">Connect without subtitles.</h1>
 			<p class="mx-auto max-w-4xl text-xl leading-relaxed md:text-2xl">
-				Language tools have become too rigid. We're making them dynamic.
+				Kaiwa helps you practice the conversations that matter in your relationship — meeting
+				parents, sharing stories, celebrating milestones — in your partner’s language.
 			</p>
 		</div>
 
@@ -89,29 +90,39 @@
 		<div class="mx-auto mb-16 max-w-4xl">
 			<ul class="steps steps-vertical">
 				<li class="step step-primary">
-					<div class="p-4 text-left rounded-lg bg-primary/10 ml-4" in:fly={{ y: 20, duration: 500, delay: 400 }}>
+					<div
+						class="ml-4 rounded-lg bg-primary/10 p-4 text-left"
+						in:fly={{ y: 20, duration: 500, delay: 400 }}
+					>
 						<h3 class="text-lg font-bold text-primary">The Dream</h3>
 						<p>
-							To connect with the people we love, in their language. To make their family laugh.
+							To communicate with the people you love — their parents, grandparents, and friends —
+							in their language.
 						</p>
 					</div>
 				</li>
 				<li class="step step-secondary">
-					<div class="p-4 text-left rounded-lg bg-secondary/10 ml-4" in:fly={{ y: 20, duration: 500, delay: 600 }}>
+					<div
+						class="ml-4 rounded-lg bg-secondary/10 p-4 text-left"
+						in:fly={{ y: 20, duration: 500, delay: 600 }}
+					>
 						<h3 class="text-lg font-bold text-secondary">The Wall</h3>
 						<p>
-							Language apps felt disconnected with practical needs and too gamified or uncreative.
-							Robotic voices, points, streaks.
+							Generic apps drill vocab, not moments. They don’t prepare you for dinner with your
+							partner’s parents, real apologies, or sharing big news.
 						</p>
 					</div>
 				</li>
 
 				<li class="step step-accent">
-					<div class="p-4 text-left rounded-lg bg-accent/10 ml-4" in:fly={{ y: 20, duration: 500, delay: 1000 }}>
+					<div
+						class="ml-4 rounded-lg bg-accent/10 p-4 text-left"
+						in:fly={{ y: 20, duration: 500, delay: 1000 }}
+					>
 						<h3 class="text-lg font-bold text-accent">The Solution: Kaiwa</h3>
 						<p>
-							So we built a conversation partner. A place for the messy, real talks that build
-							relationships.
+							A practice space for high‑stakes relationship conversations. Rehearse, get feedback,
+							and walk into real life ready.
 						</p>
 					</div>
 				</li>
@@ -125,15 +136,17 @@
 				<div class="grid w-full max-w-4xl gap-8 md:grid-cols-2">
 					<!-- Robotic Card -->
 					<div
-						class="card bg-gradient-to-br from-error/20 to-error/10 shadow-lg border border-error/30"
+						class="card border border-error/30 bg-gradient-to-br from-error/20 to-error/10 shadow-lg"
 						style="transform: translateY({getItemYOffset(1000)}px);"
 					>
 						<div class="card-body">
-							<h3 class="card-title text-error" in:fly={{ y: 10, duration: 500, delay: 100 }}>The Old Way</h3>
+							<h3 class="card-title text-error" in:fly={{ y: 10, duration: 500, delay: 100 }}>
+								The Old Way
+							</h3>
 							<ul class="space-y-3">
 								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 200 }}>
 									<span class="mr-2 icon-[mdi--robot-outline] text-xl text-error"></span><span
-										>Teaches you lessons</span
+										>Teaches you isolated lessons</span
 									>
 								</li>
 								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 300 }}>
@@ -142,38 +155,41 @@
 									>
 								</li>
 								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 400 }}>
-									<span class="mr-2 icon-[mdi--gamepad-variant-outline] text-xl text-error"></span><span
-										>Gamifies learning</span
-									>
+									<span class="mr-2 icon-[mdi--gamepad-variant-outline] text-xl text-error"
+									></span><span>Gamifies learning</span>
 								</li>
 								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 500 }}>
-									<span class="mr-2 icon-[mdi--format-list-bulleted] text-xl text-error"></span><span
-										>Expects you to memorize</span
-									>
+									<span class="mr-2 icon-[mdi--format-list-bulleted] text-xl text-error"
+									></span><span>Expects you to memorize</span>
 								</li>
 							</ul>
-							<div class="mt-3 border-t border-error/20 pt-3 font-bold text-error" in:fly={{ y: 10, duration: 500, delay: 600 }}>
-								Result: You talk like a machine.
+							<div
+								class="mt-3 border-t border-error/20 pt-3 font-bold text-error"
+								in:fly={{ y: 10, duration: 500, delay: 600 }}
+							>
+								Result: You’re still outside the family.
 							</div>
 						</div>
 					</div>
 
 					<!-- Kaiwa Card -->
 					<div
-						class="card bg-gradient-to-br from-accent to-accent/70 text-accent-content shadow-2xl border border-accent/20"
+						class="card border border-accent/20 bg-gradient-to-br from-accent to-accent/70 text-accent-content shadow-2xl"
 						style="transform: translateY({getItemYOffset(1000)}px);"
 					>
 						<div class="card-body">
-							<h3 class="card-title" in:fly={{ y: 10, duration: 500, delay: 100 }}>The Kaiwa Way</h3>
+							<h3 class="card-title" in:fly={{ y: 10, duration: 500, delay: 100 }}>
+								The Kaiwa Way
+							</h3>
 							<ul class="space-y-3">
 								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 200 }}>
 									<span class="mr-2 icon-[mdi--forum-outline] text-xl"></span><span
-										>Meets you where you are</span
+										>Rehearses real moments (parents dinner, apology, sharing news)</span
 									>
 								</li>
 								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 300 }}>
 									<span class="mr-2 icon-[mdi--chat-outline] text-xl"></span><span
-										>Responds to what you need</span
+										>Gives feedback you can use tonight</span
 									>
 								</li>
 								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 400 }}>
@@ -183,12 +199,15 @@
 								</li>
 								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 500 }}>
 									<span class="mr-2 icon-[mdi--emoticon-happy-outline] text-xl"></span><span
-										>Let your personality show</span
+										>Helps your real personality come through</span
 									>
 								</li>
 							</ul>
-							<div class="mt-3 border-t border-accent-content/20 pt-3 font-bold" in:fly={{ y: 10, duration: 500, delay: 600 }}>
-								Result: You sound like you.
+							<div
+								class="mt-3 border-t border-accent-content/20 pt-3 font-bold"
+								in:fly={{ y: 10, duration: 500, delay: 600 }}
+							>
+								Result: You’re understood by the people you love.
 							</div>
 						</div>
 					</div>
@@ -198,9 +217,13 @@
 
 		<!-- Call to Action -->
 		<div class="text-center" in:fly={{ y: 20, duration: 500, delay: 1400 }}>
-			<div class="mx-auto max-w-2xl rounded-2xl bg-gradient-to-br from-primary/15 to-accent/15 border border-primary/30 p-4 sm:p-8 shadow-lg">
+			<div
+				class="mx-auto max-w-2xl rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 to-accent/15 p-4 shadow-lg sm:p-8"
+			>
 				<h2 class="mb-4 text-2xl font-bold text-primary">Ready to Connect?</h2>
-				<p class="mb-6">Practice the conversations that will define your relationships.</p>
+				<p class="mb-6">
+					Practice the conversations that build trust with your partner and their family.
+				</p>
 				<div class="mb-4 text-sm text-secondary">Get your speaking level assessed in 3 minutes</div>
 				<UnifiedStartButton
 					{user}
