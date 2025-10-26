@@ -176,23 +176,10 @@
 	in:fly={{ y: 20, duration: 400 }}
 >
 	<div class="container mx-auto flex h-screen max-w-4xl flex-col px-4 py-4">
-		<div class="mb-4 flex items-center justify-between">
-			<div class="text-sm text-base-content/70">
-				{#if conversationMode}
-					<span class="flex items-center gap-2">
-						<span class="icon-[mdi--eye-off] h-4 w-4"></span>
-						Focus mode - Transcript hidden
-					</span>
-				{:else}
-					<span class="flex items-center gap-2">
-						<span class="icon-[mdi--eye] h-4 w-4"></span>
-						Full view - See transcript
-					</span>
-				{/if}
-			</div>
+		<div class="mb-4 flex items-center justify-center">
 			<button
 				type="button"
-				class={`btn btn-sm ${conversationMode ? 'btn-primary' : 'btn-ghost'}`}
+				class={`btn btn-sm ${conversationMode ? 'btn-primary' : 'btn-secondary'}`}
 				aria-pressed={conversationMode}
 				onclick={() => {
 					conversationMode = !conversationMode;
@@ -262,17 +249,6 @@
 						<div class="mb-4 card-title flex-shrink-0 text-xl">
 							{isGuestUser && messages.length < 4 ? 'Getting to Know You' : 'Conversation'}
 							<span class="text-sm font-normal opacity-70">({messages.length} messages)</span>
-							{#if status === 'streaming' && !isTranscribing}
-								<div class="ml-2 badge badge-sm badge-info">
-									<span class="loading mr-1 loading-xs loading-spinner"></span>
-									AI is responding...
-								</div>
-							{:else if isTranscribing}
-								<div class="ml-2 badge badge-sm badge-warning">
-									<span class="loading mr-1 loading-xs loading-dots"></span>
-									Processing your speech...
-								</div>
-							{/if}
 						</div>
 						<div
 							class="flex-1 space-y-3 overflow-y-auto"

@@ -18,10 +18,6 @@
 				<li><a href="/about" class="">About</a></li>
 				<li><a href="/pricing" class="">Pricing</a></li>
 				<li><a href="/privacy" class="">Privacy</a></li>
-				{#if user && user.id !== 'guest'}
-					<li><a href="/profile" class="">Profile</a></li>
-					<li><a href="/user/history" class="">History</a></li>
-				{/if}
 
 				{#if dev}
 					<li class="menu-title">Dev</li>

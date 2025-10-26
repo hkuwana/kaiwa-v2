@@ -286,9 +286,9 @@
 	</div>
 {:else if status === 'connecting'}
 	<!-- Use new ConnectingState component -->
-	<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 px-4 py-8">
+	<div class="bg-gradient-to-br from-base-100 to-base-200 px-4 pt-0">
 		<!-- Stage Indicator -->
-		<div class="mb-8">
+		<div class="mb-3 sm:mb-8">
 			<StageIndicator currentStage="chat" />
 		</div>
 
@@ -303,7 +303,7 @@
 	<!-- Use new ErrorState component -->
 	<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 px-4 py-8">
 		<!-- Stage Indicator -->
-		<div class="mb-8">
+		<div class="mb-3 sm:mb-8">
 			<StageIndicator currentStage="chat" />
 		</div>
 
@@ -317,7 +317,7 @@
 	<!-- Show loading state while redirecting to analysis -->
 	<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 px-4 py-8">
 		<!-- Stage Indicator -->
-		<div class="mb-8">
+		<div class="mb-3 sm:mb-8">
 			<StageIndicator currentStage="chat" />
 		</div>
 

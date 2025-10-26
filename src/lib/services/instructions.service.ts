@@ -110,6 +110,7 @@ export function generateScenarioGreeting(opts: {
 }): string {
 	const languageName = opts.language?.name || 'your target language';
 	const scenarioTitle = opts.scenario?.title;
+	const isTutorMode = opts.scenario?.role === 'tutor';
 
 	// For "Starting from Zero" scenario, begin in the user's native language
 	if (opts.scenario?.id === 'beginner-confidence-bridge') {
@@ -120,6 +121,23 @@ export function generateScenarioGreeting(opts: {
 
 		// Start with native language greeting, then transition to target language
 		return `Begin in ${nativeName} with warmth and enthusiasm. Greet the user by name, express excitement about helping them learn ${languageName}, and explain the game plan: "You'll tell me who you want to speak with and why, then we'll practice 3-5 key phrases together, and by the end you'll have your first conversation ready to go in ${languageName}. Sound good?" Ask ONE simple question in ${nativeName}: "Who do you most want to talk to in ${languageName}? Like a friend, family, coworker? What matters most to you?" After they answer, transition to speaking entirely in ${languageName} for the rest of the session.`;
+	}
+
+	// For other tutor modes (not zero-to-hero), start with target language + language mixing message
+	if (isTutorMode && opts.scenario?.id !== 'beginner-confidence-bridge') {
+		const nativeLanguage = opts.user?.nativeLanguageId
+			? getLanguageById(opts.user.nativeLanguageId)
+			: null;
+		const nativeName = nativeLanguage?.name || 'your native language';
+
+		// Check if user has practiced this language before (from memories/history)
+		const hasPracticedBefore = opts.user?.id ? true : false; // This would need actual history data
+
+		const previousPracticeMessage = hasPracticedBefore
+			? `Happy to practice ${languageName} again! `
+			: `Happy to practice ${languageName}! `;
+
+		return `${previousPracticeMessage}I'll be speaking in ${languageName} (your target language), but feel free to respond in ${languageName} if you can, or in ${nativeName} if you want me to translate it. Ready to practice?`;
 	}
 
 	if (scenarioTitle) {

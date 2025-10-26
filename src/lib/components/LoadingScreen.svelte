@@ -142,7 +142,7 @@
 	}
 </script>
 
-<div class="flex min-h-screen items-center justify-center p-4">
+<div class="flex justify-center p-4 pt-20">
 	<div
 		class="card w-full max-w-lg animate-[slideInScale_0.6s_cubic-bezier(0.34,1.56,0.64,1)] border shadow-2xl backdrop-blur-sm {statusConfig.bgColor} {statusConfig.borderColor}"
 	>

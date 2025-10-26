@@ -19,6 +19,8 @@ export type ScenarioWithHints = Scenario & {
 	cefrLevel?: CEFRLevel;
 	// Freeform guidance for UI copy (e.g., recommended CEFR levels)
 	cefrRecommendation?: string;
+	// Clear statement of what the learner will be able to do after completing this scenario
+	learningGoal?: string;
 	// Optional instruction parameter overrides to seed the session
 	parameterHints?: Partial<InstructionParameters>;
 };
@@ -34,6 +36,7 @@ export const scenariosData: ScenarioWithHints[] = [
 		difficultyRating: 1,
 		cefrLevel: 'A1',
 		cefrRecommendation: 'Perfect if you\'ve just started your learning journey (A0–A1) and need native-language support.',
+		learningGoal: 'From zero knowledge, confidently introduce yourself in your target language using real phrases you can use today',
 		instructions: `This is your confidence bootcamp. Start by chatting in the user's native language to understand who they want to talk to and why—this is their "mission." Then follow this rhythm:
 
 1. **Mission Statement** (native language): Ask them to describe the real situation they'll face: "Who do you want to talk to? What do you want to say to them? What matters most about this conversation?"
@@ -86,31 +89,68 @@ Your tone is coach + cheerleader. This is NOT about grammar rules. This IS about
 	},
 	{
 		id: 'onboarding-welcome',
-		title: 'Mission Kickoff Briefing',
-		description: 'Map the real conversations you need next.',
+		title: 'Phrase Sandbox Practice',
+		description: 'Practice any phrases you want in your target language in a safe, judgment-free space.',
 		role: 'tutor',
 		difficulty: 'beginner',
 		difficultyRating: 1,
 		cefrLevel: 'A1',
-		instructions: `Name the three situations you dread most, how they currently go, and what "ready" would feel like. Your guide is listening for stakes, vocabulary gaps, and the people who matter to you.`,
+		learningGoal: 'Build confidence by practicing specific phrases in your target language and getting instant feedback in a low-pressure sandbox',
+		instructions: `You are a friendly native speaker in a safe practice sandbox. Speak entirely in the learner's target language throughout this session. Your role is to:
+
+1. **Greet warmly** and set the tone, asking what they'd like to practice today in their target language.
+
+2. **Listen for their phrase requests** and help them practice:
+   - If they ask "How do I say X?", give them the target language phrase with natural pronunciation guidance
+   - Have them repeat it 2-3 times naturally
+   - Use it in a mini-conversation so they hear it in context
+   - Give warm, specific feedback
+
+3. **Keep it conversational, not formal**:
+   - Use natural expressions and interjections from your region
+   - Celebrate small wins genuinely
+   - If they get stuck, offer the phrase, never make them feel bad
+
+4. **Correct explicitly when needed**:
+   - If they mispronounce or get grammar wrong, say the correct version
+   - Have them repeat it 2-3 times
+   - Move on with warmth and encouragement
+
+5. **Only speak the target language**:
+   - Respond entirely in the target language throughout the session
+   - If learner switches to their native language, respond back in the target language
+   - Only provide native-language translations when explicitly helping with a difficult word
+
+This is a judgment-free zone. No pressure, just practice.`,
 		context:
-			'You and your coach sit in a quiet studio, whiteboard ready to capture the missions that actually matter.',
+			'A cozy, relaxed virtual space. No stakes, no formal lesson—just a native speaker who is genuinely happy to help you practice whatever phrases you want to work on.',
 		expectedOutcome:
-			'A ranked mission plan that defines success criteria for your next conversations',
+			'Leave with 3-5 new phrases in your target language you feel confident saying, and a sense that you can ask for help anytime',
 		learningObjectives: [
-			'needs discovery',
-			'scenario prioritization',
-			'motivation priming',
-			'comfort calibration',
-			'language background',
-			'goal setting'
+			'phrase acquisition on demand',
+			'conversational target language exposure',
+			'pronunciation confidence',
+			'safe practice environment',
+			'autonomy in learning requests',
+			'reduction of language anxiety'
 		],
 		comfortIndicators: {
-			confidence: 3,
-			engagement: 5,
-			understanding: 4
+			confidence: 2,
+			engagement: 4,
+			understanding: 3
 		},
 		persona: null,
+		parameterHints: {
+			speakingSpeed: 'slow',
+			sentenceLength: 'short', 
+			languageMixingPolicy: 'strict_immersion',
+			encouragementFrequency: 'frequent',
+			 
+			pauseFrequency: 'frequent',
+			vocabularyComplexity: 'basic',
+			grammarComplexity: 'simple',
+			correctionStyle: 'explicit'
+		},
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date()
@@ -123,6 +163,7 @@ Your tone is coach + cheerleader. This is NOT about grammar rules. This IS about
 		difficulty: 'intermediate',
 		difficultyRating: 4,
 		cefrLevel: 'B1',
+		learningGoal: 'Confidently explain medical symptoms and understand treatment instructions in a healthcare setting',
 		instructions: `Describe your symptoms, when they started, and what makes them better or worse. Ask the nurse to repeat the plan until you can say it back confidently.`,
 		context:
 			'Fluorescent lights, rain still on your jacket, a calm nurse ushering you into a small exam room.',
@@ -163,6 +204,7 @@ Your tone is coach + cheerleader. This is NOT about grammar rules. This IS about
 		difficulty: 'intermediate',
 		difficultyRating: 6,
 		cefrLevel: 'B2',
+		learningGoal: 'Build genuine trust and connection with your partner\'s family through respectful, culturally-aware conversation',
 		instructions: `Share who you are, ask questions that show respect, and respond to advice with warmth. Practice toasts, compliments, and the small cultural cues that matter.`,
 		context:
 			'A low table, seasonal dishes, and parents who are curious but cautious about welcoming you in.',
@@ -204,6 +246,7 @@ Your tone is coach + cheerleader. This is NOT about grammar rules. This IS about
 		difficulty: 'intermediate',
 		difficultyRating: 4,
 		cefrLevel: 'B1',
+		learningGoal: 'Create genuine connection by asking thoughtful questions and sharing your story naturally',
 		instructions: `You're on a first date. Ask questions, share stories, and see if there's a connection.`,
 		context: 'A cozy bar with dim lighting and a good selection of drinks.',
 		expectedOutcome: 'A fun and engaging conversation that leads to a second date.',
@@ -231,6 +274,7 @@ Your tone is coach + cheerleader. This is NOT about grammar rules. This IS about
 		difficulty: 'intermediate',
 		difficultyRating: 5,
 		cefrLevel: 'B2',
+		learningGoal: 'Repair trust in relationships by apologizing authentically and rebuilding emotional connection',
 		instructions: `Acknowledge what hurt them, explain what you meant without deflecting, and rebuild trust by asking what they need from you. Practice the vulnerability that turns "sorry" into real repair.`,
 		context:
 			'A quiet moment after the argument has cooled. Your partner is willing to listen, but trust needs rebuilding.',
@@ -274,6 +318,7 @@ Your tone is coach + cheerleader. This is NOT about grammar rules. This IS about
 		difficulty: 'intermediate',
 		difficultyRating: 4,
 		cefrLevel: 'B1',
+		learningGoal: 'Express emotions vulnerably and deepen emotional intimacy by sharing what\'s truly important to you',
 		instructions: `Name the feeling, explain why it matters, and ask for what you need. Practice moving past "I'm fine" to say what's actually true.`,
 		context:
 			'Late evening, safe space with someone who cares. The moment when surface talk could go deeper.',
@@ -314,6 +359,7 @@ Your tone is coach + cheerleader. This is NOT about grammar rules. This IS about
 		difficulty: 'intermediate',
 		difficultyRating: 5,
 		cefrLevel: 'B2',
+		learningGoal: 'Deliver a heartfelt, memorable toast that celebrates loved ones with genuine warmth and cultural grace',
 		instructions: `Share a personal story, honor the people being celebrated, and close with a wish for the future. Practice the cadence, warmth, and cultural touches that make a toast memorable.`,
 		context:
 			'A room full of relatives and friends. Glasses raised, cameras ready, and everyone waiting to hear your words.',
@@ -356,6 +402,7 @@ Your tone is coach + cheerleader. This is NOT about grammar rules. This IS about
 		difficulty: 'intermediate',
 		difficultyRating: 5,
 		cefrLevel: 'B2',
+		learningGoal: 'Announce major life decisions with clarity and confidence while maintaining family trust and understanding',
 		instructions: `Lead with the decision, explain your reasoning, acknowledge their concerns, and reassure them that the relationship stays strong. Practice handling reactions from surprise to resistance.`,
 		context:
 			'A serious family conversation. You have news that will change things, and they deserve to hear it from you directly.',
