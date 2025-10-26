@@ -111,9 +111,15 @@ export function generateScenarioGreeting(opts: {
 	const languageName = opts.language?.name || 'your target language';
 	const scenarioTitle = opts.scenario?.title;
 
-	// For "Starting from Zero" scenario, keep greeting simple - detailed instructions are in composer
+	// For "Starting from Zero" scenario, begin in the user's native language
 	if (opts.scenario?.id === 'beginner-confidence-bridge') {
-		return `Begin with warmth and enthusiasm.`;
+		const nativeLanguage = opts.user?.nativeLanguageId
+			? getLanguageById(opts.user.nativeLanguageId)
+			: null;
+		const nativeName = nativeLanguage?.name || 'your native language';
+
+		// Start with native language greeting, then transition to target language
+		return `Begin in ${nativeName} with warmth and enthusiasm. Greet the user by name, express excitement about helping them learn ${languageName}, and explain the game plan: "You'll tell me who you want to speak with and why, then we'll practice 3-5 key phrases together, and by the end you'll have your first conversation ready to go in ${languageName}. Sound good?" Ask ONE simple question in ${nativeName}: "Who do you most want to talk to in ${languageName}? Like a friend, family, coworker? What matters most to you?" After they answer, transition to speaking entirely in ${languageName} for the rest of the session.`;
 	}
 
 	if (scenarioTitle) {

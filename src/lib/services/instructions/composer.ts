@@ -111,7 +111,7 @@ export class InstructionComposer {
 
 	private buildRoleObjective(): string {
 		const { scenario, speaker, language, user } = this.options;
-		const speakerName = speaker?.voiceName || 'Hiro';
+		const speakerName = speaker?.voiceName || 'Your Language Tutor';
 
 		// Role varies by scenario type
 		let role = '';
@@ -169,12 +169,16 @@ ${this.buildSuccessCriteria()}`;
 	}
 
 	private buildPersonalityTone(): string {
-		const { speaker, language, preferences, scenario } = this.options;
-		const speakerName = speaker?.voiceName || 'Hiro';
+		const { speaker, language, preferences, scenario, user } = this.options;
+		const speakerName = speaker?.voiceName || 'Your Dutch Tutor';
 		const speakerRegion = speaker?.region || '';
 		const dialectName = speaker?.dialectName || language.name;
 		const confidence = preferences.speakingConfidence || 50;
 		const isTutorMode = scenario?.role === 'tutor';
+		const isZeroToHero = scenario?.id === 'beginner-confidence-bridge';
+		const nativeLanguage = user.nativeLanguageId
+			? this.getNativeLanguageName(user.nativeLanguageId)
+			: 'English';
 
 		let tone = '';
 		if (confidence < 30) {
@@ -185,12 +189,29 @@ ${this.buildSuccessCriteria()}`;
 			tone = 'Warm, supportive, and conversational';
 		}
 
-		// Build regional/dialect context
-		const dialectContext = speakerRegion
-			? `- You speak ${dialectName}${speakerRegion ? ` with a ${speakerRegion}` : ''} accent and dialect
+		// For zero-to-hero, provide special personality guidance
+		let corePersonality = '';
+		if (isZeroToHero) {
+			corePersonality = `- You are ${speakerName}, fluent in both ${nativeLanguage} and ${language.name}
+- You are a warmhearted language tutor
+- Tone: ${tone}
+- Style: Authentic and natural, never scripted or robotic
+- CRITICAL: You will BEGIN this session entirely in ${nativeLanguage} (NOT ${language.name})
+- Only transition to ${language.name} after the learner's initial answers
+- You speak both languages naturally depending on context`;
+		} else {
+			// Build regional/dialect context for non-zero-to-hero scenarios
+			const dialectContext = speakerRegion
+				? `- You speak ${dialectName}${speakerRegion ? ` with a ${speakerRegion}` : ''} accent and dialect
 - Use expressions and vocabulary natural to ${speakerRegion} speakers
 - Your speech patterns reflect how native speakers from ${speakerRegion} actually talk`
-			: `- You speak ${dialectName} naturally`;
+				: `- You speak ${dialectName} naturally`;
+
+			corePersonality = `- You are ${speakerName}, a native ${language.name} speaker${speakerRegion ? ` from ${speakerRegion}` : ''}
+- Tone: ${tone}
+- Style: Authentic and natural, never scripted or robotic
+${dialectContext}`;
+		}
 
 		// Conversation partner vs teacher positioning
 		const rolePositioning = isTutorMode
@@ -209,10 +230,7 @@ ${this.buildSuccessCriteria()}`;
 		return `# Personality & Tone
 
 ## Core Personality
-- You are ${speakerName}, a native ${language.name} speaker${speakerRegion ? ` from ${speakerRegion}` : ''}
-- Tone: ${tone}
-- Style: Authentic and natural, never scripted or robotic
-${dialectContext}
+${corePersonality}
 
 ${rolePositioning}
 

@@ -1155,6 +1155,10 @@ export class RealtimeOpenAIStore {
 		this.assistantDelta = '';
 		this.userDelta = '';
 		this.clearWordTimingState();
+
+		// Important: clear any accumulated messages so a new session
+		// does not mirror history from a previous session
+		this.messages = [];
 		this.hasHandledSessionReady = false;
 		this.sessionReadyListeners.clear();
 		// Clear conversation context
