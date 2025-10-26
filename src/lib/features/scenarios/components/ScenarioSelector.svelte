@@ -1,7 +1,7 @@
 <!-- src/lib/components/ScenarioSelector.svelte -->
 <script lang="ts">
 	import type { ScenarioWithHints } from '$lib/data/scenarios';
-	import { difficultyRatingToStars } from '$lib/utils/cefr';
+	import { getDifficultyLevel } from '$lib/utils/cefr';
 	import { onMount } from 'svelte';
 
 	// Props-based design - no direct store access
@@ -87,9 +87,7 @@
 
 	function getScenarioMeta(scenario: ScenarioWithHints) {
 		const rating = scenario.difficultyRating ?? 1;
-		return {
-			stars: difficultyRatingToStars(rating)
-		};
+		return getDifficultyLevel(rating);
 	}
 
 	function selectScenario(scenario: ScenarioWithHints) {
@@ -125,6 +123,12 @@
 									'icon-[mdi--lightbulb-on-outline]'} h-5 w-5 text-{roleColors[
 									selectedScenario.role
 								] || 'primary'}"
+								class:text-success={selectedScenario &&
+									getScenarioMeta(selectedScenario).color === 'success'}
+								class:text-warning={selectedScenario &&
+									getScenarioMeta(selectedScenario).color === 'warning'}
+								class:text-error={selectedScenario &&
+									getScenarioMeta(selectedScenario).color === 'error'}
 							></span>
 						{:else}
 							<span class="icon-[mdi--lightbulb-on-outline] h-5 w-5 text-primary"></span>
@@ -146,44 +150,55 @@
 			</button>
 		</div>
 	{:else}
-		<button
-			class="group btn flex w-full items-center justify-center border-2 px-6 py-4 text-base-content transition-all duration-200 btn-outline btn-lg hover:border-primary hover:bg-primary hover:text-primary-content"
-			class:opacity-50={disabled}
-			class:cursor-not-allowed={disabled}
-			onclick={() => !disabled && (isOpen = !isOpen)}
-			aria-haspopup="listbox"
-			aria-expanded={isOpen}
-			{disabled}
-		>
-			<div class="flex w-full items-center justify-center gap-3 text-center">
-				<span class="h-5 w-5">
-					{#if selectedScenario}
-						<span
-							class="{roleIcons[selectedScenario.role] ||
-								'icon-[mdi--lightbulb-on-outline]'} h-5 w-5 text-{roleColors[
-								selectedScenario.role
-							] || 'primary'}"
-						></span>
-					{:else}
-						<span class="icon-[mdi--lightbulb-on-outline] h-5 w-5 text-primary"></span>
-					{/if}
-				</span>
-				<div class="flex items-center gap-2">
-					{#if selectedScenario}
-						<span class="max-w-xs truncate text-base font-medium">{selectedScenario.title}</span>
-						<span class="badge badge-sm capitalize">
-							{roleDisplayNames[selectedScenario.role] ?? selectedScenario.role}
+		<div class="flex w-full gap-2">
+			<div class="tooltip flex-1" data-tip={getScenarioMeta(selectedScenario).description}>
+				<button
+					class="group btn flex w-full items-center justify-center border-2 px-6 py-4 text-base-content transition-all duration-200 btn-outline btn-lg hover:border-primary hover:bg-primary hover:text-primary-content"
+					class:opacity-50={disabled}
+					class:cursor-not-allowed={disabled}
+					onclick={() => !disabled && (isOpen = !isOpen)}
+					aria-haspopup="listbox"
+					aria-expanded={isOpen}
+					{disabled}
+				>
+					<div class="flex w-full items-center justify-center gap-3 text-center">
+						<span class="h-5 w-5">
+							{#if selectedScenario}
+								<span
+									class="{roleIcons[selectedScenario.role] ||
+										'icon-[mdi--lightbulb-on-outline]'} h-5 w-5 text-{roleColors[
+										selectedScenario.role
+									] || 'primary'}"
+									class:text-success={selectedScenario &&
+										getScenarioMeta(selectedScenario).color === 'success'}
+									class:text-warning={selectedScenario &&
+										getScenarioMeta(selectedScenario).color === 'warning'}
+									class:text-error={selectedScenario &&
+										getScenarioMeta(selectedScenario).color === 'error'}
+								></span>
+							{:else}
+								<span class="icon-[mdi--lightbulb-on-outline] h-5 w-5 text-primary"></span>
+							{/if}
 						</span>
-					{:else}
-						<span class="animate-pulse text-sm opacity-50">Loading...</span>
-					{/if}
-				</div>
+						<div class="flex items-center gap-2">
+							{#if selectedScenario}
+								<span class="max-w-xs truncate text-base font-medium">{selectedScenario.title}</span
+								>
+								<span class="badge badge-sm capitalize">
+									{roleDisplayNames[selectedScenario.role] ?? selectedScenario.role}
+								</span>
+							{:else}
+								<span class="animate-pulse text-sm opacity-50">Loading...</span>
+							{/if}
+						</div>
+					</div>
+					<span
+						class="icon-[mdi--chevron-down] h-5 w-5 transition-transform duration-200"
+						class:rotate-180={isOpen}
+					></span>
+				</button>
 			</div>
-			<span
-				class="icon-[mdi--chevron-down] h-5 w-5 transition-transform duration-200"
-				class:rotate-180={isOpen}
-			></span>
-		</button>
+		</div>
 	{/if}
 
 	<!-- Scenario dropdown -->
@@ -236,12 +251,12 @@
 									'icon-[mdi--lightbulb-on-outline]'} mr-3 h-5 w-5 flex-shrink-0 text-{roleColors[
 									scenario.role
 								] || 'primary'}"
-							></span> <span class="flex-1 truncate text-sm font-medium">{scenario.title}</span>
-							<span class="ml-3 flex flex-shrink-0 items-center gap-0.5 text-amber-300">
-								{#each createRange(meta.stars) as _, i (i)}
-									<span class="icon-[mdi--star] h-3.5 w-3.5"></span>
-								{/each}
-							</span>
+								class:text-success={meta.color === 'success'}
+								class:text-warning={meta.color === 'warning'}
+								class:text-error={meta.color === 'error'}
+							></span>
+							<span class="flex-1 truncate text-sm font-medium">{scenario.title}</span>
+
 							{#if isLocked}
 								<span class="ml-2 icon-[mdi--lock] h-4 w-4 text-base-content/40"></span>
 							{/if}

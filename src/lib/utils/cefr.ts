@@ -61,6 +61,34 @@ export function difficultyRatingToStars(rating?: number | null): number {
 	return Math.min(5, Math.max(1, Math.ceil(rating / 2)));
 }
 
+export function getDifficultyLevel(rating?: number | null): {
+	label: string;
+	color: 'success' | 'warning' | 'error';
+	description: string;
+} {
+	if (!rating) rating = 1;
+
+	if (rating <= 2) {
+		return {
+			label: 'Easy',
+			color: 'success',
+			description: 'Perfect for beginners. Simple vocabulary and grammar.'
+		};
+	} else if (rating <= 4) {
+		return {
+			label: 'Intermediate',
+			color: 'warning',
+			description: 'Moderate challenge. Introduces more complex topics and vocabulary.'
+		};
+	} else {
+		return {
+			label: 'Hard',
+			color: 'error',
+			description: 'Advanced content. Requires good language proficiency.'
+		};
+	}
+}
+
 export function formatCefrBadge(
 	level: CEFRLevel,
 	options: { withDescriptor?: boolean } = {}
