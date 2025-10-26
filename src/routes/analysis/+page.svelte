@@ -13,6 +13,7 @@
 	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
 	import { analysisSuggestionService } from '$lib/features/analysis/services/analysis-suggestion.service';
 	import { SvelteSet } from 'svelte/reactivity';
+	import StageIndicator from '$lib/components/StageIndicator.svelte';
 
 	const { data } = $props();
 
@@ -252,29 +253,42 @@
 </svelte:head>
 
 {#if sessionNotFound}
-	<div
-		class="flex min-h-screen items-center justify-center bg-gradient-to-br from-base-100 to-base-200"
-	>
-		<div class="mx-auto max-w-md p-8 text-center">
-			<div class="mb-6">
-				<span class="mx-auto mb-4 icon-[mdi--file-question-outline] h-16 w-16 text-warning"></span>
-				<h1 class="mb-2 text-2xl font-bold">Conversation Not Found</h1>
-				<p class="mb-6 text-base-content/70">
-					This conversation session doesn't exist or has been removed. You can start a new
-					conversation to practice your language skills.
-				</p>
+	<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 py-10">
+		<div class="mx-auto max-w-5xl px-4">
+			<!-- Stage Indicator -->
+			<div class="mb-8 flex justify-center">
+				<StageIndicator currentStage="review" />
 			</div>
-			<div class="flex flex-col justify-center gap-3 sm:flex-row">
-				<button class="btn btn-primary" onclick={handleStartNewConversation}>
-					<span class="mr-2 icon-[mdi--plus] h-5 w-5"></span>
-					Start New Conversation
-				</button>
+
+			<div class="flex min-h-[60vh] items-center justify-center">
+				<div class="mx-auto max-w-md p-8 text-center">
+					<div class="mb-6">
+						<span class="mx-auto mb-4 icon-[mdi--file-question-outline] h-16 w-16 text-warning"
+						></span>
+						<h1 class="mb-2 text-2xl font-bold">Conversation Not Found</h1>
+						<p class="mb-6 text-base-content/70">
+							This conversation session doesn't exist or has been removed. You can start a new
+							conversation to practice your language skills.
+						</p>
+					</div>
+					<div class="flex flex-col justify-center gap-3 sm:flex-row">
+						<button class="btn btn-primary" onclick={handleStartNewConversation}>
+							<span class="mr-2 icon-[mdi--plus] h-5 w-5"></span>
+							Start New Conversation
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
 {:else if selectedLanguage}
 	<div class="min-h-screen bg-base-200 py-10">
 		<div class="mx-auto max-w-5xl space-y-8 px-4">
+			<!-- Stage Indicator -->
+			<div class="flex justify-center">
+				<StageIndicator currentStage="review" />
+			</div>
+
 			<header class="rounded-lg bg-base-100 p-6 shadow">
 				<div class="flex items-center justify-between">
 					<div>

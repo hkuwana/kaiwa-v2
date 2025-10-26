@@ -18,6 +18,7 @@
 	import type { Language as DataLanguage } from '$lib/data/languages';
 	import type { Scenario, AudioInputMode } from '$lib/server/db/types';
 	import WhyDifferent from '$lib/components/WhyDifferent.svelte';
+	import StageIndicator from '$lib/components/StageIndicator.svelte';
 
 	const user = userManager.user;
 
@@ -153,6 +154,11 @@
 >
 	<header class="flex min-h-screen items-start justify-center pt-20">
 		<div class="text-center">
+			<!-- Stage Indicator -->
+			<div class="mb-8">
+				<StageIndicator currentStage="selection" />
+			</div>
+
 			<div class="max-w-md">
 				{#if user.id !== 'guest'}
 					<div class="mb-6 text-xl opacity-90">

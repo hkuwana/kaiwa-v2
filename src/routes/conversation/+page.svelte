@@ -21,6 +21,7 @@
 	import DevPanel from '$lib/components/DevPanel.svelte';
 	import MessageBubble from '$lib/features/conversation/components/MessageBubble.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
+	import StageIndicator from '$lib/components/StageIndicator.svelte';
 
 	// Keep existing components for analysis temporarily
 	import OnboardingResults from '$lib/features/scenarios/components/OnboardingResults.svelte';
@@ -285,28 +286,47 @@
 	</div>
 {:else if status === 'connecting'}
 	<!-- Use new ConnectingState component -->
-	<ConnectingState
-		{error}
-		onRetry={handleRetryConnection}
-		onPermissionGranted={handlePermissionGranted}
-		onSkipAudio={handleSkipAudio}
-	/>
+	<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 px-4 py-8">
+		<!-- Stage Indicator -->
+		<div class="mb-8">
+			<StageIndicator currentStage="chat" />
+		</div>
+
+		<ConnectingState
+			{error}
+			onRetry={handleRetryConnection}
+			onPermissionGranted={handlePermissionGranted}
+			onSkipAudio={handleSkipAudio}
+		/>
+	</div>
 {:else if status === 'error'}
 	<!-- Use new ErrorState component -->
-	<ErrorState
-		error={error || 'Unknown error'}
-		onRetry={handleRetryConnection}
-		onGoHome={() => goto(resolve('/'))}
-	/>
+	<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 px-4 py-8">
+		<!-- Stage Indicator -->
+		<div class="mb-8">
+			<StageIndicator currentStage="chat" />
+		</div>
+
+		<ErrorState
+			error={error || 'Unknown error'}
+			onRetry={handleRetryConnection}
+			onGoHome={() => goto(resolve('/'))}
+		/>
+	</div>
 {:else if status === 'analyzing'}
 	<!-- Show loading state while redirecting to analysis -->
-	<div
-		class="flex min-h-screen items-center justify-center bg-gradient-to-br from-base-100 to-base-200"
-	>
-		<div class="text-center">
-			<div class="loading mb-4 loading-lg loading-spinner text-primary"></div>
-			<h2 class="mb-2 text-2xl font-bold">Analyzing Your Conversation</h2>
-			<p class="text-base-content/70">Preparing your personalized insights...</p>
+	<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 px-4 py-8">
+		<!-- Stage Indicator -->
+		<div class="mb-8">
+			<StageIndicator currentStage="chat" />
+		</div>
+
+		<div class="flex min-h-[60vh] items-center justify-center">
+			<div class="text-center">
+				<div class="loading mb-4 loading-lg loading-spinner text-primary"></div>
+				<h2 class="mb-2 text-2xl font-bold">Analyzing Your Conversation</h2>
+				<p class="text-base-content/70">Preparing your personalized insights...</p>
+			</div>
 		</div>
 	</div>
 	{#if selectedLanguage}
