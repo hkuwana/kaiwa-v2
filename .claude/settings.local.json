@@ -54,7 +54,10 @@
       "Bash(fly machines list:*)",
       "Bash(fly auth:*)",
       "Bash(playwright test:*)",
-      "Bash(pnpm exec playwright test:*)"
+      "Bash(pnpm exec playwright test:*)",
+      "Bash(node -e:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node --check:*)"
     ],
     "deny": [],
     "ask": []
