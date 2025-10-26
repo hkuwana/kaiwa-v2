@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-
+ import TemplateCard from './TemplateCard.svelte';
+ 
   type ChecklistItem = {
     id: string;
     label: string;
@@ -332,7 +333,4 @@
     </div>
   </div>
 </div>
-
-<script lang="ts">
-  import TemplateCard from './TemplateCard.svelte';
-</script>
+ 
