@@ -1,0 +1,44 @@
+name: Send Weekly Product Updates
+
+on:
+  schedule:
+    # Weekly product updates on Monday at 10:00 AM UTC (auto-generated from git)
+    - cron: '0 10 * * 1'
+  # Allow manual triggering for testing
+  workflow_dispatch:
+
+jobs:
+  send-weekly-product-updates:
+    name: Send Weekly Product Updates (Auto-generated from Git)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch full git history
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate weekly update from git commits
+        run: |
+          npm run generate-weekly-update-from-git
+
+      - name: Send weekly product updates
+        run: |
+          response=$(curl -s -w "\n%{http_code}" "https://trykaiwa.com/api/cron/weekly-digest?secret=${{ secrets.CRON_SECRET }}")
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+
+          echo "Response: $body"
+
+          if [ "$http_code" -ne 200 ]; then
+            echo "Error: HTTP $http_code"
+            exit 1
+          fi

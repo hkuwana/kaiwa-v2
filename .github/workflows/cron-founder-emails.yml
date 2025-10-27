@@ -1,0 +1,26 @@
+name: Send Founder Email Sequence
+
+on:
+  schedule:
+    # Founder emails at 2:00 PM UTC
+    - cron: '0 14 * * *'
+  # Allow manual triggering for testing
+  workflow_dispatch:
+
+jobs:
+  send-founder-emails:
+    name: Send Founder Email Sequence
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger founder emails endpoint
+        run: |
+          response=$(curl -s -w "\n%{http_code}" "https://trykaiwa.com/api/cron/founder-emails?secret=${{ secrets.CRON_SECRET }}")
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+
+          echo "Response: $body"
+
+          if [ "$http_code" -ne 200 ]; then
+            echo "Error: HTTP $http_code"
+            exit 1
+          fi
