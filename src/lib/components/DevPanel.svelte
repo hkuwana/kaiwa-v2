@@ -53,7 +53,12 @@
 
 	// Local state for expanded view
 	let isExpanded = $state(false);
-	let activeTab = $state<'overview' | 'messages' | 'events' | 'audio'>('overview');
+	let activeTab = $state<'overview' | 'messages' | 'events' | 'audio' | 'post-run'>('overview');
+
+	// Post-run testing state
+	let postRunTesting = $state(false);
+	let postRunResponse = $state<any>(null);
+	let postRunError = $state<string | null>(null);
 	const audioDebugInfo = $derived(conversationStore.getAudioDebugInfo());
 	const selectedInputDeviceId = $derived(audioStore.selectedDeviceId);
 	const inputDevices = $derived(
@@ -107,6 +112,56 @@
 
 	function logAudioDebug() {
 		console.log('Audio Debug:', audioDebugInfo);
+	}
+
+	async function testPostRun() {
+		const userMessageCount = messages.filter(
+			(msg) => msg.role === 'user' && msg.content?.trim().length > 0
+		).length;
+
+		postRunTesting = true;
+		postRunError = null;
+		postRunResponse = null;
+
+		try {
+			const payload = {
+				userId: null, // Will be set by server
+				messageCount: userMessageCount,
+				durationSeconds: Math.floor(timeInSeconds)
+			};
+
+			console.log('📨 Testing post-run endpoint with:', payload);
+
+			const response = await fetch(
+				`/api/conversations/${conversationStore.sessionId}/post-run`,
+				{
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(payload)
+				}
+			);
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				postRunError = data.error || 'Unknown error';
+			}
+
+			postRunResponse = {
+				status: response.status,
+				statusText: response.statusText,
+				body: data,
+				timestamp: new SvelteDate().toISOString(),
+				payload
+			};
+
+			console.log('✅ Post-run test response:', data);
+		} catch (error) {
+			postRunError = error instanceof Error ? error.message : 'Network error';
+			console.error('❌ Post-run test failed:', error);
+		} finally {
+			postRunTesting = false;
+		}
 	}
 
 	function getDeviceLabel(device: MediaDeviceInfo | undefined, fallback: string) {
@@ -260,7 +315,7 @@
 						</div>
 
 						<!-- Tab navigation -->
-						<div class="flex border-b">
+						<div class="flex border-b flex-wrap">
 							<button
 								class="flex-1 py-2 text-xs transition-colors {activeTab === 'overview'
 									? 'bg-primary text-primary-content'
@@ -292,6 +347,14 @@
 								onclick={() => (activeTab = 'events')}
 							>
 								Events
+							</button>
+							<button
+								class="flex-1 py-2 text-xs transition-colors {activeTab === 'post-run'
+									? 'bg-primary text-primary-content'
+									: 'hover:bg-base-200'}"
+								onclick={() => (activeTab = 'post-run')}
+							>
+								Post-Run Test
 							</button>
 						</div>
 
@@ -591,6 +654,98 @@
 												{/if}
 											</div>
 										{/each}
+									</div>
+								</div>
+							{:else if activeTab === 'post-run'}
+								<div class="space-y-3 text-xs">
+									<!-- Payload section -->
+									<div class="rounded bg-base-200 p-2">
+										<div class="flex items-center justify-between">
+											<h4 class="text-sm font-medium">Test Payload</h4>
+										</div>
+										<div class="mt-2 text-[10px] rounded bg-base-300 p-2 overflow-x-auto">
+											{#if postRunResponse}
+												<pre>{JSON.stringify(postRunResponse.payload, null, 2)}</pre>
+											{:else}
+												<p class="opacity-50">Payload will appear after test</p>
+											{/if}
+										</div>
+									</div>
+
+									<!-- Processing status -->
+									<div class="rounded bg-base-200 p-2">
+										<h4 class="text-sm font-medium">Server Processing</h4>
+										<div class="mt-2 space-y-1">
+											{#if postRunTesting}
+												<div class="flex items-center gap-2">
+													<span class="loading loading-spinner loading-xs"></span>
+													<span>Processing...</span>
+												</div>
+											{:else if postRunResponse}
+												<div class="flex items-center gap-2">
+													{#if postRunResponse.body.skipped}
+														<span class="badge badge-warning">⏭️ Skipped</span>
+														<span>Reason: {postRunResponse.body.reason}</span>
+													{:else if postRunResponse.status === 200}
+														<span class="badge badge-success">✅ Success</span>
+													{:else}
+														<span class="badge badge-error">❌ Failed</span>
+													{/if}
+												</div>
+												{#if postRunResponse.body.skipped}
+													<div class="mt-2 rounded bg-warning/20 p-2 text-xs">
+														<strong>Skipped Reason:</strong> {postRunResponse.body.reason}
+													</div>
+												{/if}
+											{:else}
+												<p class="opacity-50">Status will appear after test</p>
+											{/if}
+										</div>
+									</div>
+
+									<!-- Response section -->
+									{#if postRunResponse && postRunResponse.body.memory}
+										<div class="rounded bg-base-200 p-2">
+											<h4 class="text-sm font-medium">Extracted Memory</h4>
+											<pre class="mt-2 bg-base-300 p-2 break-all whitespace-pre-wrap text-[10px] overflow-x-auto">{JSON.stringify(postRunResponse.body.memory, null, 2)}</pre>
+										</div>
+									{/if}
+
+									{#if postRunError}
+										<div class="rounded bg-error/20 p-2 text-error text-xs">
+											<strong>Error:</strong> {postRunError}
+										</div>
+									{/if}
+
+									<!-- Action buttons -->
+									<div class="flex gap-1">
+										<button
+											class="btn btn-xs btn-primary flex-1"
+											onclick={testPostRun}
+											disabled={postRunTesting || messages.length === 0}
+										>
+											{postRunTesting ? 'Testing...' : 'Test Post-Run'}
+										</button>
+										<button
+											class="btn btn-xs"
+											onclick={() => {
+												postRunResponse = null;
+												postRunError = null;
+											}}
+											disabled={!postRunResponse && !postRunError}
+										>
+											Clear
+										</button>
+										{#if postRunResponse}
+											<button
+												class="btn btn-xs"
+												onclick={() => {
+													navigator.clipboard.writeText(JSON.stringify(postRunResponse.body, null, 2));
+												}}
+											>
+												Copy
+											</button>
+										{/if}
 									</div>
 								</div>
 							{/if}
