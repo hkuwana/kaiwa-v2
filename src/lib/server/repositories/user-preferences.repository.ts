@@ -220,6 +220,64 @@ export class UserPreferencesRepository {
 		return result.map((row) => row.userId);
 	}
 
+	/**
+	 * Add memory to user's memories array
+	 * Maintains max memory limit based on user tier (if applicable)
+	 */
+	async addMemory(userId: string, memory: unknown): Promise<UserPreferences | null> {
+		const currentPreferences = await this.getPreferencesByUserId(userId);
+		if (!currentPreferences) {
+			return null;
+		}
+
+		const currentMemories = (currentPreferences.memories as unknown[]) || [];
+		const updatedMemories = [...currentMemories, memory];
+
+		return await this.updatePreferences(userId, {
+			memories: updatedMemories as never
+		});
+	}
+
+	/**
+	 * Increment successful exchanges counter
+	 */
+	async incrementSuccessfulExchanges(userId: string, count: number = 1): Promise<UserPreferences | null> {
+		const currentPreferences = await this.getPreferencesByUserId(userId);
+		if (!currentPreferences) {
+			return null;
+		}
+
+		const currentCount = (currentPreferences.successfulExchanges as number) || 0;
+		const updatedCount = currentCount + count;
+
+		return await this.updatePreferences(userId, {
+			successfulExchanges: updatedCount as never
+		});
+	}
+
+	/**
+	 * Atomically update multiple preference fields at once
+	 * Used by post-run endpoint to update memory and metrics in one operation
+	 */
+	async updateMultiplePreferences(
+		userId: string,
+		updates: Partial<NewUserPreferences>
+	): Promise<UserPreferences | null> {
+		const currentPreferences = await this.getPreferencesByUserId(userId);
+		if (!currentPreferences) {
+			return null;
+		}
+
+		// Merge updates with current values
+		const merged = {
+			...currentPreferences,
+			...updates,
+			updatedAt: new Date()
+		};
+
+		return await this.updatePreferences(userId, merged);
+	}
+
 	// Note: Email marketing methods moved to userSettingsRepository
 }
 
