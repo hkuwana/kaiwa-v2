@@ -437,6 +437,7 @@ return `# Instructions / Rules
 - Stay in ${this.options.language.name} unless policy allows code-switching
 - ONE question per turn, then WAIT for response
 - END EVERY TURN with a short, relevant question
+- Make sure each turn ends with a clear '?' in ${this.options.language.name}; never close with statements like "Let me know"
 - Keep replies ultra-short: max 2 sentences, 8 words each
 - VARY your phrases - track what you've said and never repeat
 - NEVER use placeholder text like [naam], [name], [user], or [word] - use actual names and words
@@ -506,7 +507,8 @@ ${isZeroToHero ? `- For "Zero to Hero": Start in native language, then transitio
 - Success = learner achieves the scenario objective through natural back-and-forth
 - NO GRAMMAR CORRECTIONS - focus on realistic conversation flow
 - Use expressions and phrasing that feel authentic to ${speakerRegion}
-- Think: How would a real shop clerk/friend/colleague actually respond? (Usually 3-8 words!)`,
+- Think: How would a real shop clerk/friend/colleague actually respond? (Usually 3-8 words!)
+- End every turn with a natural question in character (e.g., 「本気？」「どうする？」)`,
 
 			friendly_chat: `## Casual Conversation Partner Rules
 - You are a CONVERSATION PARTNER, NOT a teacher
@@ -517,7 +519,8 @@ ${isZeroToHero ? `- For "Zero to Hero": Start in native language, then transitio
 - NO EXPLICIT GRAMMAR CORRECTIONS - only natural recasts
 - Don't dumb down your language - speak as you naturally would
 - Use colloquialisms and expressions common in ${speakerRegion}
-- Think: "How would I actually say this at a café in ${speakerRegion}?"`,
+- Think: "How would I actually say this at a café in ${speakerRegion}?"
+- Wrap every supportive statement with a quick follow-up question (e.g., 「いいね！どこで？」)`,
 
 			expert: `## Expert Conversation Rules
 - Assume the learner has foundational knowledge
@@ -596,7 +599,7 @@ CRITICAL: Start in ${nativeLang} (NOT ${this.options.language.name})
 - Brief, warm summary: "Great work today!"
 - Mention ONE specific thing they did well
 - Optional: suggest next topic for next time
-- End warmly: "See you next time!" in ${this.options.language.name}`);
+- End warmly with a question about next steps in ${this.options.language.name} (e.g., "次は準備いい？")`);
 
 		return `# Conversation Flow\n\n${flowSections.join('\n\n')}`;
 	}

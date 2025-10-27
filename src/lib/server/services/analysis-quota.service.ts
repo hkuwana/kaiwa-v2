@@ -1,7 +1,7 @@
 import type { UserTier } from '../db/types';
 import { userUsageRepository } from '../repositories/user-usage.repository';
 import { tierRepository } from '../repositories/tier.repository';
-import { TierService } from '../tier-service';
+import { TierService } from '../tier.service';
 
 export interface AnalysisQuotaStatus {
 	canAnalyze: boolean;

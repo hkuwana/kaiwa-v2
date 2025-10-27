@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import {
-		createComposer,
-		PARAMETER_PRESETS,
-		type InstructionParameters,
-		type SpeakingSpeed
-	} from '$lib/services/instructions';
+    import {
+        createComposer,
+        PARAMETER_PRESETS,
+        mergeParameters,
+        type InstructionParameters,
+        type SpeakingSpeed
+    } from '$lib/services/instructions';
 	import { languages } from '$lib/data/languages';
 	import { scenariosData } from '$lib/data/scenarios';
 	import { userManager } from '$lib/stores/user.store.svelte';
@@ -22,19 +23,13 @@
 	let successStreak = $state(0);
 
 	// Instruction Parameters
+	// Default to a tutor-friendly preset when the default scenario is a tutor
 	let params = $state<InstructionParameters>({
-		speakingSpeed: 'slow',
-		sentenceLength: 'short',
-		pauseFrequency: 'frequent',
-		targetCEFR: 'B1',
-		vocabularyComplexity: 'everyday',
-		grammarComplexity: 'intermediate',
-		scaffoldingLevel: 'medium',
-		correctionStyle: 'recast',
-		languageMixingPolicy: 'flexible',
-		encouragementFrequency: 'moderate',
-		conversationPace: 'steady',
-		topicChangeFrequency: 'moderate'
+		...PARAMETER_PRESETS.tutor_explicit,
+		// Respect scenario hints for mixing policy if present (e.g., code_switching for Zero-to-Hero)
+		languageMixingPolicy:
+			(selectedScenario?.parameterHints?.languageMixingPolicy as any) ||
+			PARAMETER_PRESETS.tutor_explicit.languageMixingPolicy
 	});
 
 	let composer = $state<ReturnType<typeof createComposer> | null>(null);
@@ -43,19 +38,38 @@
 	// FUNCTIONS
 	// ============================================
 
-	function initializeComposer() {
-		composer = createComposer({
-			user: userManager.user,
-			language: selectedLanguage,
-			preferences: {
-				speakingLevel: 55, // B1 level
-				learningGoal: 'Connection'
-			},
-			scenario: selectedScenario,
-			parameters: params
-		});
-		generateInstructions();
-	}
+    function presetForScenario() {
+        // Choose a sensible default preset by role
+        const role = selectedScenario?.role || 'friendly_chat';
+        let base = PARAMETER_PRESETS.intermediate;
+        if (role === 'tutor') base = PARAMETER_PRESETS.tutor_explicit;
+        else if (role === 'friendly_chat') base = PARAMETER_PRESETS.conversation_partner;
+        else if (role === 'character') base = PARAMETER_PRESETS.conversation_partner;
+        else if (role === 'expert') base = PARAMETER_PRESETS.advanced;
+
+        // Merge any scenario parameter hints to keep coherence (e.g., code_switching)
+        if (selectedScenario?.parameterHints) {
+            return mergeParameters(base, selectedScenario.parameterHints as Partial<InstructionParameters>);
+        }
+        return base;
+    }
+
+    function initializeComposer() {
+        // Auto-apply defaults when scenario changes for coherent behavior
+        params = presetForScenario();
+
+        composer = createComposer({
+            user: userManager.user,
+            language: selectedLanguage,
+            preferences: {
+                speakingLevel: 55, // B1 level
+                learningGoal: 'Connection'
+            },
+            scenario: selectedScenario,
+            parameters: params
+        });
+        generateInstructions();
+    }
 
 	function generateInstructions() {
 		if (!composer) return;

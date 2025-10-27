@@ -4,7 +4,7 @@
 	import UserPreferencesEditor from '$lib/components/UserPreferencesEditor.svelte';
 	import EmailPreferences from '$lib/components/EmailPreferences.svelte';
 	import SpeechSpeedSelector from '$lib/components/SpeechSpeedSelector.svelte';
-	import type { Subscription, UserPreferences } from '$lib/server/db/types';
+	import type { Subscription, User, UserPreferences } from '$lib/server/db/types';
 	import type { MemorySummary } from '$lib/services/user-memory.service';
 	import type { UsageStatus } from '$lib/server/tier-service';
 	import { SvelteDate } from 'svelte/reactivity';
@@ -12,6 +12,9 @@
 	import PaymentManagement from '$lib/components/PaymentManagement.svelte';
 
 	const { data } = $props();
+
+	// Create a local user object to handle form inputs
+	let localUser = $state<Partial<User>>({ ...data.user });
 
 	// Client-side data loading
 	let userPreferences = $state<UserPreferences | null>(null);
@@ -54,6 +57,47 @@
 		free: '0',
 		plus: '19',
 		premium: '29'
+	};
+
+	let saveTimeout: NodeJS.Timeout | null = null;
+	let isSaving = $state(false);
+	let lastSaved = $state<Date | null>(null);
+
+	const debouncedSave = (updates: Partial<User>) => {
+		if (saveTimeout) {
+			clearTimeout(saveTimeout);
+		}
+
+		saveTimeout = setTimeout(async () => {
+			await saveUser(updates);
+		}, 500); // 500ms delay
+	};
+
+	const saveUser = async (updates: Partial<User>) => {
+		isSaving = true;
+		try {
+			const response = await fetch(`/api/users/${data.user.id}`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(updates)
+			});
+
+			if (!response.ok) {
+				throw new Error('Failed to save user data');
+			}
+			lastSaved = new Date();
+		} catch (error) {
+			console.error('Error saving user data:', error);
+		} finally {
+			isSaving = false;
+		}
+	};
+
+	const handleInputChange = (field: keyof User, value: any) => {
+		(localUser as any)[field] = value;
+		debouncedSave({ [field]: value });
 	};
 
 	const handleDeleteClick = () => {

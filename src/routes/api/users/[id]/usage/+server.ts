@@ -3,7 +3,7 @@
 
 import { json, error } from '@sveltejs/kit';
 import { usageService } from '$lib/server/services/usage.service';
-import { tierService } from '$lib/server/tier-service';
+import { tierService } from '$lib/server/tier.service';
 
 export const GET = async ({ locals, params, url }) => {
 	const requestedUserId = params.id;
