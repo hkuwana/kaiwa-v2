@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { UsageStatus } from '$lib/server/tier-service';
+	import type { UsageStatus } from '$lib/server/tier.service';
 
 	interface Props {
 		usageStatus: UsageStatus | null;

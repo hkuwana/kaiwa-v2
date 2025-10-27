@@ -6,7 +6,7 @@
 	import SpeechSpeedSelector from '$lib/components/SpeechSpeedSelector.svelte';
 	import type { Subscription, User, UserPreferences } from '$lib/server/db/types';
 	import type { MemorySummary } from '$lib/services/user-memory.service';
-	import type { UsageStatus } from '$lib/server/tier-service';
+	import type { UsageStatus } from '$lib/server/tier.service';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { onMount } from 'svelte';
 	import PaymentManagement from '$lib/components/PaymentManagement.svelte';

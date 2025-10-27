@@ -3,7 +3,7 @@
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 	import TierBadge from '$lib/features/payments/components/TierBadge.svelte';
-	import type { UsageStatus } from '$lib/server/tier-service';
+	import type { UsageStatus } from '$lib/server/tier.service';
 	import { defaultTierConfigs, type UserTier } from '$lib/data/tiers';
 
 	// Use real tier configurations from data/tiers.ts

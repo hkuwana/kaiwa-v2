@@ -5,7 +5,7 @@
 	import TierBadge from '$lib/features/payments/components/TierBadge.svelte';
 	import VoiceSelector from '$lib/components/VoiceSelector.svelte';
 
-	import type { UsageStatus } from '$lib/server/tier-service';
+	import type { UsageStatus } from '$lib/server/tier.service';
 	import type {
 		Scenario,
 		ScenarioOutcome as ScenarioOutcomeType,
