@@ -119,8 +119,8 @@ export function generateScenarioGreeting(opts: {
 			: null;
 		const nativeName = nativeLanguage?.name || 'your native language';
 
-		// Start with native language greeting, then transition to target language
-		return `Begin in ${nativeName} with warmth and enthusiasm. Greet the user by name, express excitement about helping them learn ${languageName}, and explain the game plan: "You'll tell me who you want to speak with and why, then we'll practice 3-5 key phrases together, and by the end you'll have your first conversation ready to go in ${languageName}. Sound good?" Ask ONE simple question in ${nativeName}: "Who do you most want to talk to in ${languageName}? Like a friend, family, coworker? What matters most to you?" After they answer, transition to speaking entirely in ${languageName} for the rest of the session.`;
+		// Start with a very short native-language greeting + one short question
+		return `In ${nativeName}, say one short greeting to ${opts.user?.displayName || 'the learner'} (≤7 words). Then ask exactly one simple question about who they most want to talk to in ${languageName} (≤7 words). Keep it warm and brief. Example: "Hey Hiro Kuwana! Excited to help." + "Friend, family, or coworker?"`;
 	}
 
 	// For other tutor modes (not zero-to-hero), start with target language + language mixing message
@@ -133,11 +133,12 @@ export function generateScenarioGreeting(opts: {
 		// Check if user has practiced this language before (from memories/history)
 		const hasPracticedBefore = opts.user?.id ? true : false; // This would need actual history data
 
-		const previousPracticeMessage = hasPracticedBefore
-			? `Happy to practice ${languageName} again! `
-			: `Happy to practice ${languageName}! `;
+		const learnerName = opts.user?.displayName || 'there';
+		const example = opts.language?.code === 'ja'
+			? `例: 「こんにちは、${learnerName}さん！」+「今日は何を練習する？」`
+			: `Example: "Hi ${learnerName}!" + "What should we practice?"`;
 
-		return `${previousPracticeMessage}I'll be speaking in ${languageName} (your target language), but feel free to respond in ${languageName} if you can, or in ${nativeName} if you want me to translate it. Ready to practice?`;
+		return `In ${languageName}, say one short greeting to ${learnerName} (≤7 words). Then ask exactly one short question (≤7 words) about what to practice. Keep it natural and end with a question. ${example}`;
 	}
 
 	if (scenarioTitle) {

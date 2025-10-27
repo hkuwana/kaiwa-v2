@@ -30,35 +30,35 @@ export const scenariosData: ScenarioWithHints[] = [
 		id: 'beginner-confidence-bridge',
 		title: 'Zero to Hero',
 		description:
-			'Start in your native language, then build confidence with 4–5 key phrases you can actually use in your first real conversation.',
+			'Start in your native language, then build confidence with 2–3 key phrases inside a real micro‑interaction you can use today.',
 		role: 'tutor',
 		difficulty: 'beginner',
 		difficultyRating: 1,
 		cefrLevel: 'A1',
 		cefrRecommendation: 'Perfect if you\'ve just started your learning journey (A0–A1) and need native-language support.',
 		learningGoal: 'From zero knowledge, confidently introduce yourself in your target language using real phrases you can use today',
-		instructions: `This is your confidence bootcamp. Start by chatting in the user's native language to understand who they want to talk to and why—this is their "mission." Then follow this rhythm:
+		instructions: `This is your confidence bootcamp. Start in the user's native language to learn who they want to talk to and why—this is their mission. Then move fast with an interaction-first plan:
 
-1. **Mission Statement** (native language): Ask them to describe the real situation they'll face: "Who do you want to talk to? What do you want to say to them? What matters most about this conversation?"
+1. **Mission Statement** (native language): Get a concrete situation: "Who do you want to talk to? What do you want to say? Why does it matter?"
 
-2. **Build Anchor Phrases** (mixed language): Work together to identify 3–5 core phrases they'll actually need. For each phrase:
-   - You say it slowly in the target language
-   - You give them the native translation
-   - You have them repeat it 2–3 times until it feels natural
-   - Celebrate each win with real warmth
+2. **Pick ONE Micro-Interaction** (be opinionated): Choose a realistic scene (e.g., introduce yourself to a coworker). Teach just 2–3 anchor lines inside the scene:
+   - Model slowly in the target language
+   - Give a quick native translation if needed
+   - Have them repeat 2–3 times
+   - Celebrate each small win
 
-3. **Assemble the Conversation** (guided target language): String those phrases together into a mini-script they can actually use. Keep it to 30 seconds max.
+3. **Mini-Scene Drill** (target language): Use those lines immediately in a 20–30s mini-scene. Keep turns short and end with a question.
 
-4. **Final Run-Through** (target language): Have them say their full introduction once—in the target language, without translation. If they freeze, offer the first word only.
+4. **Final Run-Through** (target language): Have them say their full introduction once without translation. If they freeze, give the first word.
 
-Your tone is coach + cheerleader. This is NOT about grammar rules. This IS about building real confidence in 5 minutes.`,
+Coach warmly. Avoid lists. Build confidence in ~5 minutes.`,
 		context:
 			'A comfortable, pressure-free space. You\'re sitting with someone who has never spoken this language before. You are warm, patient, and genuinely excited about their goal. The goal is trust, clarity, and one tiny win they can feel.',
 		expectedOutcome:
 			'Learner leaves with a personal 30-second introduction in the target language they can say without translation, plus clarity on why they\'re learning.',
 		learningObjectives: [
 			'confidence priming through quick wins',
-			'core phrase acquisition (3-5 phrases only)',
+			'core phrase acquisition (2-3 phrases)',
 			'pronunciation modeling with repetition',
 			'native-to-target code switching',
 			'personal mission articulation and relevance',
@@ -111,6 +111,10 @@ Your tone is coach + cheerleader. This is NOT about grammar rules. This IS about
    - Celebrate small wins genuinely
    - If they get stuck, offer the phrase, never make them feel bad
 
+3.5 **Be Opinionated if Needed** (micro-scene):
+   - If they aren't sure what to practice, propose ONE realistic micro-interaction (e.g., self-intro, order coffee)
+   - Teach 2–3 anchor lines inside that scene and use them immediately in a 20–30s mini-chat
+
 4. **Correct explicitly when needed**:
    - If they mispronounce or get grammar wrong, say the correct version
    - Have them repeat it 2-3 times
@@ -125,7 +129,7 @@ This is a judgment-free zone. No pressure, just practice.`,
 		context:
 			'A cozy, relaxed virtual space. No stakes, no formal lesson—just a native speaker who is genuinely happy to help you practice whatever phrases you want to work on.',
 		expectedOutcome:
-			'Leave with 3-5 new phrases in your target language you feel confident saying, and a sense that you can ask for help anytime',
+			'Leave with 2–3 new phrases in your target language you feel confident saying, and a sense that you can ask for help anytime',
 		learningObjectives: [
 			'phrase acquisition on demand',
 			'conversational target language exposure',

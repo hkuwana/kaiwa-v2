@@ -170,7 +170,7 @@ ${this.buildSuccessCriteria()}`;
 
 	private buildPersonalityTone(): string {
 		const { speaker, language, preferences, scenario, user } = this.options;
-		const speakerName = speaker?.voiceName || 'Your Dutch Tutor';
+		const speakerName = speaker?.voiceName || 'Your Language Tutor';
 		const speakerRegion = speaker?.region || '';
 		const dialectName = speaker?.dialectName || language.name;
 		const confidence = preferences.speakingConfidence || 50;
@@ -428,7 +428,7 @@ ${exampleLines}
 			scenarioRules = this.buildScenarioRules();
 		}
 
-		return `# Instructions / Rules
+return `# Instructions / Rules
 
 ## CRITICAL RULES (ALWAYS FOLLOW)
 - ONLY respond to CLEAR audio input
@@ -436,6 +436,8 @@ ${exampleLines}
 - NEVER guess what learner said
 - Stay in ${this.options.language.name} unless policy allows code-switching
 - ONE question per turn, then WAIT for response
+- END EVERY TURN with a short, relevant question
+- Keep replies ultra-short: max 2 sentences, 8 words each
 - VARY your phrases - track what you've said and never repeat
 - NEVER use placeholder text like [naam], [name], [user], or [word] - use actual names and words
 
@@ -463,6 +465,17 @@ ${scenarioRules}`;
 - THIS IS THE ONLY MODE WHERE GRAMMAR TEACHING IS PRIMARY
 - BUT still maintain natural, friendly conversation flow - not textbook tone
 
+### Interaction-First (be opinionated)
+- Propose ONE concrete micro-scene (e.g., introduce yourself, order coffee)
+- Teach 2–3 anchor lines inside the scene, not a list
+- Start the scene quickly; avoid long explanations
+
+### Micro-Dialogue Drill (after phrases)
+- After teaching 2–3 phrases, run a 20–30s mini chat using ONLY those phrases
+- Start with a warm compliment: "いい感じ！今、日本語で話したね。"
+- Ask 1 light question that forces recall (e.g., "例えば？" / "どっち？")
+- Keep turns short (3–5 words), volley quickly, end each turn with a question
+
 ## LANGUAGE POLICY FOR TUTOR MODE (CRITICAL)
 ${isZeroToHero ? `- For "Zero to Hero": Start in native language, then transition entirely to ${targetLang} after initial goal-setting` : `- SPEAK ONLY IN ${targetLang} during this entire session
 - Even if learner switches to native language, respond back in ${targetLang}
@@ -476,7 +489,13 @@ ${isZeroToHero ? `- For "Zero to Hero": Start in native language, then transitio
   4. Celebrate the correction warmly: "Perfect! Well done!"
   5. Continue with the practice or move to the next phrase
 - Focus on one error at a time - don't overwhelm with multiple corrections
-- After correction, rebuild their confidence with an easy follow-up question`,
+- After correction, rebuild their confidence with an easy follow-up question
+
+### Pronunciation Coaching (live voice)
+- If vowels/length/R–L sound off, gently recast mid-flow: "発音、少し違うかも。こう言ってみて："
+- Model slowly with syllables spaced: "す・み・ま・せ・ん（最後の『u』は弱く）"
+- Give 1 phonetic tip max (vowel length, R/L flap, silent 'u' in -ます/-です)
+- Have Hiro repeat 2–3 times, then resume with a short question`,
 
 			character: `## Character Role-Play Rules
 - STAY IN CHARACTER throughout the conversation
@@ -527,17 +546,17 @@ ${isZeroToHero ? `- For "Zero to Hero": Start in native language, then transitio
 				: 'English';
 			flowSections.push(`## Opening (Native Language Warmup - 1-2 minutes)
 CRITICAL: Start in ${nativeLang} (NOT ${this.options.language.name})
-- Greet warmly and enthusiastically: "Hey ${user.displayName || 'there'}, I'm so excited to chat with you in ${this.options.language.name}!"
-- Explain the 4-5 minute game plan in ${nativeLang}: "You've just started your learning journey, which is awesome. Here's what we're going to do: you tell me who you want to talk to and why, then we'll practice 3-5 key phrases together, and by the end you'll have your first conversation ready to go in ${this.options.language.name}. Sound good?"
-- Ask ONE simple question in ${nativeLang}: "Who do you most want to talk to in ${this.options.language.name}? Like, a friend? Family? Coworker? What matters most to you about this?"
+- Greet warmly and briefly: "Hey ${user.displayName || 'there'}!"
+- Explain the quick plan in ${nativeLang}: "We'll pick one real situation you care about, then practice 2–3 lines for it."
+- Ask ONE simple question in ${nativeLang}: "Who do you most want to talk to in ${this.options.language.name}? Friend, family, or coworker?"
 - Listen and affirm their answer warmly
 
 ## Transition to Target Language (after they answer)
-- Acknowledge their goal: "That's great. Here's what we'll do..."
-- Introduce first phrase in ${this.options.language.name}: "In ${this.options.language.name}, people say [PHRASE]. It sounds like [pronunciation guide]."
-- Have them repeat 2-3 times, celebrate small wins
-- Build the mini-script phrase by phrase
-- Final run-through: "Now let's say your whole introduction once in ${this.options.language.name}, no English this time. You've got this!"`);
+- Acknowledge their goal briefly and pick ONE micro-interaction
+- Introduce 2–3 anchor lines in ${this.options.language.name} with quick modeling
+- Have them repeat 2–3 times, celebrate small wins
+- Use the lines immediately in a 20–30s mini-scene
+- Final run-through: have them say their full intro once in ${this.options.language.name}`);
 		} else if (isFirstTime || scenario?.id === 'onboarding-welcome') {
 			flowSections.push(`## Opening (First 30 seconds)
 - Start with warm greeting in ${this.options.language.name}
