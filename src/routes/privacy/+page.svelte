@@ -62,9 +62,13 @@
 </svelte:head>
 
 <div style="padding: 2rem; max-width: 800px; margin: auto;">
-	<header style="text-align: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
+	<header
+		style="text-align: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #eee;"
+	>
 		<h1 style="font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem;">Privacy Policy</h1>
-		<p style="color: #555; font-size: 0.9rem;">Last updated: {new SvelteDate().toLocaleDateString()}</p>
+		<p style="color: #555; font-size: 0.9rem;">
+			Last updated: {new SvelteDate().toLocaleDateString()}
+		</p>
 	</header>
 
 	<section style="margin-bottom: 2rem;">
@@ -75,13 +79,15 @@
 			learning application.
 		</p>
 		<p>
-			By using Kaiwa, you agree to the collection and use of information in accordance with
-			this policy.
+			By using Kaiwa, you agree to the collection and use of information in accordance with this
+			policy.
 		</p>
 	</section>
 
 	<section style="margin-bottom: 2rem;">
-		<h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">Information We Collect</h2>
+		<h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">
+			Information We Collect
+		</h2>
 
 		<h3>Account Information</h3>
 		<ul>
@@ -97,8 +103,8 @@
 			<li><strong>Target language</strong> - The language you're learning</li>
 			<li><strong>Learning goals</strong> - Your motivation (career, travel, culture, etc.)</li>
 			<li>
-				<strong>Skill levels</strong> - Speaking, listening, reading, and writing proficiency
-				(1-100 scale)
+				<strong>Skill levels</strong> - Speaking, listening, reading, and writing proficiency (1-100
+				scale)
 			</li>
 			<li><strong>Challenge preferences</strong> - How difficult you want lessons to be</li>
 			<li><strong>Correction style</strong> - How you prefer to receive feedback</li>
@@ -133,13 +139,14 @@
 	</section>
 
 	<section style="margin-bottom: 2rem;">
-		<h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">How We Use Your Information</h2>
+		<h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">
+			How We Use Your Information
+		</h2>
 
 		<h3>Core Language Learning Features</h3>
 		<ul>
 			<li>
-				<strong>Personalized lessons</strong> - Adapt content to your skill level and
-				preferences
+				<strong>Personalized lessons</strong> - Adapt content to your skill level and preferences
 			</li>
 			<li><strong>Progress tracking</strong> - Monitor your learning journey and achievements</li>
 			<li><strong>AI tutoring</strong> - Provide contextual language assistance</li>
@@ -169,28 +176,27 @@
 	</section>
 
 	<section style="margin-bottom: 2rem;">
-		<h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">Analytics and Tracking</h2>
+		<h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">
+			Analytics and Tracking
+		</h2>
 
 		<h3>PostHog Analytics</h3>
 		<p>
-			We use PostHog to understand how you interact with our application and improve your
-			learning experience. PostHog helps us:
+			We use PostHog to understand how you interact with our application and improve your learning
+			experience. PostHog helps us:
 		</p>
 		<ul>
 			<li>
-				<strong>Track learning patterns</strong> - See which features help users progress
-				fastest
+				<strong>Track learning patterns</strong> - See which features help users progress fastest
 			</li>
 			<li>
-				<strong>Optimize conversion flows</strong> - Improve the upgrade experience for premium
-				features
+				<strong>Optimize conversion flows</strong> - Improve the upgrade experience for premium features
 			</li>
 			<li>
 				<strong>Identify user needs</strong> - Understand what drives engagement and retention
 			</li>
 			<li>
-				<strong>Test new features</strong> - A/B test improvements to ensure they help users
-				learn better
+				<strong>Test new features</strong> - A/B test improvements to ensure they help users learn better
 			</li>
 		</ul>
 
@@ -200,38 +206,37 @@
 			<li><strong>Feature usage</strong> - How you interact with learning tools</li>
 			<li><strong>Conversion events</strong> - When you upgrade or hit usage limits</li>
 			<li>
-				<strong>Session recordings</strong> - Anonymous recordings of app interactions (with
-				sensitive data masked)
+				<strong>Session recordings</strong> - Anonymous recordings of app interactions (with sensitive
+				data masked)
 			</li>
 			<li>
-				<strong>User properties</strong> - Learning preferences, skill levels, subscription
-				status
+				<strong>User properties</strong> - Learning preferences, skill levels, subscription status
 			</li>
 		</ul>
 
 		<h3>Privacy Protections in PostHog</h3>
 		<ul>
 			<li>
-				<strong>Input masking</strong> - All form inputs are automatically masked to protect
-				sensitive data
+				<strong>Input masking</strong> - All form inputs are automatically masked to protect sensitive
+				data
 			</li>
 			<li><strong>Respects DNT</strong> - Honors "Do Not Track" browser settings</li>
 			<li><strong>Guest user protection</strong> - Only creates profiles for logged-in users</li>
 			<li>
-				<strong>Data retention</strong> - Analytics data is automatically deleted after 12
-				months
+				<strong>Data retention</strong> - Analytics data is automatically deleted after 12 months
 			</li>
 		</ul>
 	</section>
 
 	<section style="margin-bottom: 2rem;">
-		<h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">Data Storage and Security</h2>
+		<h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">
+			Data Storage and Security
+		</h2>
 
 		<h3>Storage Locations</h3>
 		<ul>
 			<li>
-				<strong>Primary database</strong> - PostgreSQL database hosted on secure cloud
-				infrastructure
+				<strong>Primary database</strong> - PostgreSQL database hosted on secure cloud infrastructure
 			</li>
 			<li><strong>Audio files</strong> - Temporarily stored for processing, then deleted</li>
 			<li><strong>Analytics data</strong> - PostHog servers (with privacy protections)</li>
@@ -241,12 +246,10 @@
 		<h3>Security Measures</h3>
 		<ul>
 			<li>
-				<strong>Encryption</strong> - All data transmitted and stored using industry-standard
-				encryption
+				<strong>Encryption</strong> - All data transmitted and stored using industry-standard encryption
 			</li>
 			<li>
-				<strong>Access controls</strong> - Strict authentication and authorization for database
-				access
+				<strong>Access controls</strong> - Strict authentication and authorization for database access
 			</li>
 			<li><strong>Regular audits</strong> - Security assessments and penetration testing</li>
 			<li><strong>Data backup</strong> - Regular backups with encryption and access controls</li>
@@ -257,8 +260,7 @@
 			<li><strong>Account data</strong> - Retained while your account is active</li>
 			<li><strong>Conversation history</strong> - Kept for learning progress tracking</li>
 			<li>
-				<strong>Audio recordings</strong> - Deleted after processing (typically within 24
-				hours)
+				<strong>Audio recordings</strong> - Deleted after processing (typically within 24 hours)
 			</li>
 			<li><strong>Analytics data</strong> - Automatically deleted after 12 months</li>
 			<li><strong>Payment records</strong> - Retained as required by financial regulations</li>
@@ -266,7 +268,9 @@
 	</section>
 
 	<section style="margin-bottom: 2rem;">
-		<h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">Data Sharing and Third Parties</h2>
+		<h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">
+			Data Sharing and Third Parties
+		</h2>
 
 		<h3>Service Providers</h3>
 		<p>We work with trusted third-party services to provide our language learning platform:</p>
@@ -279,10 +283,9 @@
 
 		<h3>OpenAI Data Sharing for Free Users</h3>
 		<p>
-			<strong>Free Tier Users:</strong> To operate and sustain our free tier, we may share
-			certain data with OpenAI in accordance with OpenAI's privacy policy and data usage
-			terms. This data sharing helps us maintain the free service while managing
-			operational costs. The shared data may include:
+			<strong>Free Tier Users:</strong> To operate and sustain our free tier, we may share certain data
+			with OpenAI in accordance with OpenAI's privacy policy and data usage terms. This data sharing
+			helps us maintain the free service while managing operational costs. The shared data may include:
 		</p>
 		<ul>
 			<li>Conversation content and messages exchanged with AI tutors</li>
@@ -290,15 +293,13 @@
 			<li>Language practice sessions and AI-generated feedback</li>
 		</ul>
 		<p>
-			<strong>Premium Users:</strong> Premium subscription users have enhanced data
-			protection, and their data is not shared with OpenAI beyond the minimum necessary
-			for service operation.
+			<strong>Premium Users:</strong> Premium subscription users have enhanced data protection, and their
+			data is not shared with OpenAI beyond the minimum necessary for service operation.
 		</p>
 		<p>
-			<strong>Opt-Out Option:</strong> Free users can opt out of this data sharing by
-			enabling the "Enhanced Data Privacy" option in their User Preferences settings.
-			However, opting out may result in reduced service quality or feature limitations as
-			we may need to limit usage to maintain operational sustainability.
+			<strong>Opt-Out Option:</strong> Free users can opt out of this data sharing by enabling the "Enhanced
+			Data Privacy" option in their User Preferences settings. However, opting out may result in reduced
+			service quality or feature limitations as we may need to limit usage to maintain operational sustainability.
 		</p>
 
 		<h3>Data Protection</h3>
@@ -313,14 +314,15 @@
 	</section>
 
 	<section style="margin-bottom: 2rem;">
-		<h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">Your Rights and Choices</h2>
+		<h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">
+			Your Rights and Choices
+		</h2>
 
 		<h3>Access and Control</h3>
 		<ul>
 			<li><strong>View your data</strong> - Access all information we have about you</li>
 			<li>
-				<strong>Update preferences</strong> - Modify learning goals, skill levels, and
-				settings
+				<strong>Update preferences</strong> - Modify learning goals, skill levels, and settings
 			</li>
 			<li><strong>Delete conversations</strong> - Remove specific conversation history</li>
 			<li><strong>Export data</strong> - Download your learning data in standard formats</li>
@@ -329,26 +331,21 @@
 		<h3>Privacy Settings</h3>
 		<ul>
 			<li>
-				<strong>Enhanced Data Privacy</strong> - Free users can opt out of OpenAI data
-				sharing through this setting in User Preferences (may result in feature
-				limitations)
+				<strong>Enhanced Data Privacy</strong> - Free users can opt out of OpenAI data sharing through
+				this setting in User Preferences (may result in feature limitations)
 			</li>
 			<li>
-				<strong>Analytics opt-out</strong> - Disable PostHog tracking in your account
-				settings
+				<strong>Analytics opt-out</strong> - Disable PostHog tracking in your account settings
 			</li>
 			<li>
-				<strong>Session recording control</strong> - Choose whether to allow session
-				recordings
+				<strong>Session recording control</strong> - Choose whether to allow session recordings
 			</li>
 			<li><strong>Communication preferences</strong> - Control email frequency and types</li>
 			<li><strong>Data deletion</strong> - Request complete account deletion</li>
 		</ul>
 
 		<h3>Account Deletion</h3>
-		<p>
-			You can request complete deletion of your account and all associated data. This will:
-		</p>
+		<p>You can request complete deletion of your account and all associated data. This will:</p>
 		<ul>
 			<li>Permanently delete your profile and preferences</li>
 			<li>Remove all conversation history and learning progress</li>
@@ -360,37 +357,38 @@
 	<section style="margin-bottom: 2rem;">
 		<h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">Children's Privacy</h2>
 		<p>
-			Kaiwa is not intended for children under 13 years of age. We do not knowingly
-			collect personal information from children under 13. If you are a parent or guardian
-			and believe your child has provided us with personal information, please contact us
-			immediately.
+			Kaiwa is not intended for children under 13 years of age. We do not knowingly collect personal
+			information from children under 13. If you are a parent or guardian and believe your child has
+			provided us with personal information, please contact us immediately.
 		</p>
 	</section>
 
 	<section style="margin-bottom: 2rem;">
-		<h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">International Data Transfers</h2>
+		<h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">
+			International Data Transfers
+		</h2>
 		<p>
-			Your data may be transferred to and processed in countries other than your own. We
-			ensure that all data transfers comply with applicable data protection laws and
-			implement appropriate safeguards to protect your information.
+			Your data may be transferred to and processed in countries other than your own. We ensure that
+			all data transfers comply with applicable data protection laws and implement appropriate
+			safeguards to protect your information.
 		</p>
 	</section>
 
 	<section style="margin-bottom: 2rem;">
-		<h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">Changes to This Policy</h2>
+		<h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">
+			Changes to This Policy
+		</h2>
 		<p>
-			We may update this Privacy Policy from time to time. We will notify you of any
-			changes by posting the new Privacy Policy on this page and updating the "Last
-			updated" date. Significant changes will be communicated via email or in-app
-			notifications.
+			We may update this Privacy Policy from time to time. We will notify you of any changes by
+			posting the new Privacy Policy on this page and updating the "Last updated" date. Significant
+			changes will be communicated via email or in-app notifications.
 		</p>
 	</section>
 
 	<section style="margin-bottom: 2rem;">
 		<h2 style="font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">Contact Us</h2>
 		<p>
-			If you have any questions about this Privacy Policy or our data practices, please
-			contact us:
+			If you have any questions about this Privacy Policy or our data practices, please contact us:
 		</p>
 		<ul>
 			<li><strong>Email</strong>: privacy@trykaiwa.com</li>

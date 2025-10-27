@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-    import {
-        createComposer,
-        PARAMETER_PRESETS,
-        mergeParameters,
-        type InstructionParameters,
-        type SpeakingSpeed
-    } from '$lib/services/instructions';
+	import {
+		createComposer,
+		PARAMETER_PRESETS,
+		mergeParameters,
+		type InstructionParameters,
+		type SpeakingSpeed
+	} from '$lib/services/instructions';
 	import { languages } from '$lib/data/languages';
 	import { scenariosData } from '$lib/data/scenarios';
 	import { userManager } from '$lib/stores/user.store.svelte';
@@ -38,38 +38,41 @@
 	// FUNCTIONS
 	// ============================================
 
-    function presetForScenario() {
-        // Choose a sensible default preset by role
-        const role = selectedScenario?.role || 'friendly_chat';
-        let base = PARAMETER_PRESETS.intermediate;
-        if (role === 'tutor') base = PARAMETER_PRESETS.tutor_explicit;
-        else if (role === 'friendly_chat') base = PARAMETER_PRESETS.conversation_partner;
-        else if (role === 'character') base = PARAMETER_PRESETS.conversation_partner;
-        else if (role === 'expert') base = PARAMETER_PRESETS.advanced;
+	function presetForScenario() {
+		// Choose a sensible default preset by role
+		const role = selectedScenario?.role || 'friendly_chat';
+		let base = PARAMETER_PRESETS.intermediate;
+		if (role === 'tutor') base = PARAMETER_PRESETS.tutor_explicit;
+		else if (role === 'friendly_chat') base = PARAMETER_PRESETS.conversation_partner;
+		else if (role === 'character') base = PARAMETER_PRESETS.conversation_partner;
+		else if (role === 'expert') base = PARAMETER_PRESETS.advanced;
 
-        // Merge any scenario parameter hints to keep coherence (e.g., code_switching)
-        if (selectedScenario?.parameterHints) {
-            return mergeParameters(base, selectedScenario.parameterHints as Partial<InstructionParameters>);
-        }
-        return base;
-    }
+		// Merge any scenario parameter hints to keep coherence (e.g., code_switching)
+		if (selectedScenario?.parameterHints) {
+			return mergeParameters(
+				base,
+				selectedScenario.parameterHints as Partial<InstructionParameters>
+			);
+		}
+		return base;
+	}
 
-    function initializeComposer() {
-        // Auto-apply defaults when scenario changes for coherent behavior
-        params = presetForScenario();
+	function initializeComposer() {
+		// Auto-apply defaults when scenario changes for coherent behavior
+		params = presetForScenario();
 
-        composer = createComposer({
-            user: userManager.user,
-            language: selectedLanguage,
-            preferences: {
-                speakingLevel: 55, // B1 level
-                learningGoal: 'Connection'
-            },
-            scenario: selectedScenario,
-            parameters: params
-        });
-        generateInstructions();
-    }
+		composer = createComposer({
+			user: userManager.user,
+			language: selectedLanguage,
+			preferences: {
+				speakingLevel: 55, // B1 level
+				learningGoal: 'Connection'
+			},
+			scenario: selectedScenario,
+			parameters: params
+		});
+		generateInstructions();
+	}
 
 	function generateInstructions() {
 		if (!composer) return;

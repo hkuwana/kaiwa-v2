@@ -151,7 +151,10 @@
 		</div>
 	{:else}
 		<div class="flex w-full gap-2">
-			<div class="tooltip flex-1" data-tip={selectedScenario?.learningGoal || getScenarioMeta(selectedScenario).description}>
+			<div
+				class="tooltip flex-1"
+				data-tip={selectedScenario?.learningGoal || getScenarioMeta(selectedScenario).description}
+			>
 				<button
 					class="group btn flex w-full items-center justify-center border-2 px-6 py-4 text-base-content transition-all duration-200 btn-outline btn-lg hover:border-primary hover:bg-primary hover:text-primary-content"
 					class:opacity-50={disabled}

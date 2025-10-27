@@ -241,7 +241,10 @@ export class UserPreferencesRepository {
 	/**
 	 * Increment successful exchanges counter
 	 */
-	async incrementSuccessfulExchanges(userId: string, count: number = 1): Promise<UserPreferences | null> {
+	async incrementSuccessfulExchanges(
+		userId: string,
+		count: number = 1
+	): Promise<UserPreferences | null> {
 		const currentPreferences = await this.getPreferencesByUserId(userId);
 		if (!currentPreferences) {
 			return null;

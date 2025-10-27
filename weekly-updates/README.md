@@ -7,6 +7,7 @@ This directory contains weekly update files that are automatically included in t
 Create files with the format: `Updates-MM-DD-YYYY.md`
 
 Examples:
+
 - `Updates-01-25-2025.md` for January 25, 2025
 - `Updates-02-01-2025.md` for February 1, 2025
 
@@ -18,18 +19,22 @@ Each weekly update file should follow this markdown structure:
 # Week of [Date]
 
 ## What Shipped
+
 - **Feature Name**: Description of what was built
 - **Another Feature**: Description with [optional link](https://example.com)
 
 ## Highlights
+
 - **Improvement**: What got better this week
 - **Performance**: Any performance improvements
 
 ## Coming Up Next
+
 - **Next Feature**: What's being worked on
 - **Planned Improvement**: Future enhancements
 
 ## Notes
+
 Any additional notes or context for the week.
 ```
 

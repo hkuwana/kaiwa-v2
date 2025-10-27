@@ -30,18 +30,22 @@ Each markdown file should have these sections:
 # Week of [Date]
 
 ## What Shipped
+
 - **Feature Name**: Description with [optional link](URL)
 - **Another Feature**: Description of what was built
 
-## Highlights  
+## Highlights
+
 - **Improvement**: What got better this week
 - **Performance**: Any performance improvements
 
 ## Coming Up Next
+
 - **Next Feature**: What's being worked on
 - **Planned Improvement**: Future enhancements
 
 ## Notes
+
 Any additional context or notes about the week.
 ```
 
@@ -87,7 +91,7 @@ pnpm run create-weekly-update -- --template custom-template
 **Section Guidelines:**
 
 - **What Shipped**: Focus on user-facing features and improvements
-- **Highlights**: Technical achievements, performance improvements, UX enhancements  
+- **Highlights**: Technical achievements, performance improvements, UX enhancements
 - **Coming Up Next**: Planned work, research, or experimental features
 - **Notes**: Additional context, challenges, lessons learned, or team updates
 

@@ -346,13 +346,13 @@ curl -X POST \
 
 ### Key Metrics
 
-| Metric                  | Target | Excellent |
-| ----------------------- | ------ | --------- |
-| **Open Rate**           | &gt;40%   | &gt;60%      |
-| **Reply Rate**          | &gt;5%    | &gt;15%      |
-| **Click Rate (CTA)**    | &gt;15%   | &gt;25%      |
-| **Calendar Bookings**   | &gt;3%    | &gt;10%      |
-| **Conversation Starts** | &gt;20%   | &gt;40%      |
+| Metric                  | Target  | Excellent |
+| ----------------------- | ------- | --------- |
+| **Open Rate**           | &gt;40% | &gt;60%   |
+| **Reply Rate**          | &gt;5%  | &gt;15%   |
+| **Click Rate (CTA)**    | &gt;15% | &gt;25%   |
+| **Calendar Bookings**   | &gt;3%  | &gt;10%   |
+| **Conversation Starts** | &gt;20% | &gt;40%   |
 
 ### Track in PostHog
 

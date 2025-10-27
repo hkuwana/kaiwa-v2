@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
-	import { realtimeOpenAI } from '$lib/stores/realtime-openai.store.svelte';
 	import type { AudioInputMode } from '$lib/server/db/types';
 	import { slide } from 'svelte/transition';
 	import SpeechSpeedSelector from './SpeechSpeedSelector.svelte';

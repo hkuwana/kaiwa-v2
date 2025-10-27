@@ -23,7 +23,7 @@
 			const response = await fetch('/api/dev/weekly-email/available-updates');
 			const data = await response.json();
 			availableUpdates = data.updates || [];
-			
+
 			if (availableUpdates.length > 0) {
 				selectedUpdateDate = availableUpdates[0].date;
 				await loadPreview();
@@ -36,12 +36,12 @@
 
 	async function loadPreview() {
 		if (!selectedUpdateDate) return;
-		
+
 		isLoadingPreview = true;
 		try {
 			const response = await fetch(`/api/dev/weekly-email/preview?date=${selectedUpdateDate}`);
 			const data = await response.json();
-			
+
 			if (data.success) {
 				previewHtml = data.html;
 				weeklyUpdate = data.weeklyUpdate;
@@ -58,7 +58,7 @@
 
 	async function sendTestEmail() {
 		if (!selectedUpdateDate) return;
-		
+
 		isSending = true;
 		try {
 			const response = await fetch('/api/dev/weekly-email/send-test', {
@@ -66,9 +66,9 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ date: selectedUpdateDate })
 			});
-			
+
 			const data = await response.json();
-			
+
 			if (data.success) {
 				result = `✅ Test email sent successfully!\n\nSubject: ${data.subject}\nSent to: ${data.sentTo}\n\nPreview available in your inbox.`;
 			} else {
@@ -84,11 +84,11 @@
 
 	async function sendToAllSubscribers() {
 		if (!selectedUpdateDate) return;
-		
+
 		if (!confirm('Are you sure you want to send this to ALL subscribers? This cannot be undone.')) {
 			return;
 		}
-		
+
 		isSending = true;
 		try {
 			const response = await fetch('/api/dev/weekly-email/send-all', {
@@ -96,9 +96,9 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ date: selectedUpdateDate })
 			});
-			
+
 			const data = await response.json();
-			
+
 			if (data.success) {
 				result = `🎉 Weekly product updates sent successfully!\n\n📊 Stats:\n- Sent: ${data.sent}\n- Skipped: ${data.skipped}\n- Errors: ${data.errors?.length || 0}\n\nDate: ${data.weeklyUpdateDate}`;
 			} else {
@@ -118,9 +118,9 @@
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' }
 			});
-			
+
 			const data = await response.json();
-			
+
 			if (data.success) {
 				result = `✅ New weekly update file created!\n\nFile: ${data.filename}\nLocation: ${data.filePath}\n\nYou can now edit the file and refresh this page to see it.`;
 				await loadAvailableUpdates();
@@ -148,7 +148,9 @@
 				<label for="update-select">Select Weekly Update:</label>
 				<select id="update-select" bind:value={selectedUpdateDate} on:change={loadPreview}>
 					{#each availableUpdates as update}
-						<option value={update.date}>{update.date} - {update.updates?.length || 0} updates</option>
+						<option value={update.date}
+							>{update.date} - {update.updates?.length || 0} updates</option
+						>
 					{/each}
 				</select>
 				<button on:click={loadPreview} disabled={isLoadingPreview}>
@@ -157,9 +159,7 @@
 			</div>
 
 			<div class="control-group">
-				<button on:click={createNewUpdate} class="create-btn">
-					📝 Create New Weekly Update
-				</button>
+				<button on:click={createNewUpdate} class="create-btn"> 📝 Create New Weekly Update </button>
 			</div>
 		</div>
 
@@ -188,7 +188,11 @@
 			<button on:click={sendTestEmail} disabled={isSending || !selectedUpdateDate} class="test-btn">
 				{isSending ? 'Sending...' : '📨 Send Test Email'}
 			</button>
-			<button on:click={sendToAllSubscribers} disabled={isSending || !selectedUpdateDate} class="send-btn">
+			<button
+				on:click={sendToAllSubscribers}
+				disabled={isSending || !selectedUpdateDate}
+				class="send-btn"
+			>
 				{isSending ? 'Sending...' : '🚀 Send to All Subscribers'}
 			</button>
 		</div>
@@ -359,7 +363,8 @@
 	.result pre {
 		margin: 0;
 		white-space: pre-wrap;
-		font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+		font-family:
+			'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 		font-size: 14px;
 		line-height: 1.5;
 	}

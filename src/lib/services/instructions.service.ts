@@ -134,9 +134,10 @@ export function generateScenarioGreeting(opts: {
 		const hasPracticedBefore = opts.user?.id ? true : false; // This would need actual history data
 
 		const learnerName = opts.user?.displayName || 'there';
-		const example = opts.language?.code === 'ja'
-			? `例: 「こんにちは、${learnerName}さん！」+「今日は何を練習する？」`
-			: `Example: "Hi ${learnerName}!" + "What should we practice?"`;
+		const example =
+			opts.language?.code === 'ja'
+				? `例: 「こんにちは、${learnerName}さん！」+「今日は何を練習する？」`
+				: `Example: "Hi ${learnerName}!" + "What should we practice?"`;
 
 		return `In ${languageName}, say one short greeting to ${learnerName} (≤7 words). Then ask exactly one short question (≤7 words) about what to practice. Keep it natural and end with a question. ${example}`;
 	}

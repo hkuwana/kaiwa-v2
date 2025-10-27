@@ -74,10 +74,9 @@ export const POST = async ({ params, cookies, request }) => {
 		const rateLimit = checkRateLimit(userId);
 		if (!rateLimit.allowed) {
 			console.warn('⏱️ Rate limit exceeded for user:', userId);
-			return json(
-				createErrorResponse('Rate limit exceeded. Maximum 10 requests per hour.'),
-				{ status: 429 }
-			);
+			return json(createErrorResponse('Rate limit exceeded. Maximum 10 requests per hour.'), {
+				status: 429
+			});
 		}
 
 		// 3. Check idempotency key
@@ -166,7 +165,9 @@ export const POST = async ({ params, cookies, request }) => {
 				conversationId,
 				userId,
 				messages,
-				conversation.targetLanguageId ? { id: conversation.targetLanguageId } : ({ id: 'unknown' } as any),
+				conversation.targetLanguageId
+					? { id: conversation.targetLanguageId }
+					: ({ id: 'unknown' } as any),
 				durationSeconds || 0
 			);
 			console.log('✅ Memory extracted successfully:', { topic: memory.topic });
@@ -186,7 +187,8 @@ export const POST = async ({ params, cookies, request }) => {
 				difficulties: [],
 				successfulPatterns: [],
 				duration: durationSeconds || 0,
-				engagement: actualUserMessageCount > 5 ? 'high' : actualUserMessageCount > 2 ? 'medium' : 'low'
+				engagement:
+					actualUserMessageCount > 5 ? 'high' : actualUserMessageCount > 2 ? 'medium' : 'low'
 			};
 		}
 
@@ -209,14 +211,11 @@ export const POST = async ({ params, cookies, request }) => {
 			}
 
 			// Atomically update preferences
-			const updatedPreferences = await userPreferencesRepository.updateMultiplePreferences(
-				userId,
-				{
-					memories: [...((currentPreferences.memories as unknown[]) || []), memory],
-					successfulExchanges: ((currentPreferences.successfulExchanges as number) || 0) + 1,
-					updatedAt: new Date()
-				}
-			);
+			const updatedPreferences = await userPreferencesRepository.updateMultiplePreferences(userId, {
+				memories: [...((currentPreferences.memories as unknown[]) || []), memory],
+				successfulExchanges: ((currentPreferences.successfulExchanges as number) || 0) + 1,
+				updatedAt: new Date()
+			});
 
 			console.log('✅ User preferences updated:', {
 				newMemoryCount: (updatedPreferences?.memories as unknown[] | undefined)?.length,
@@ -248,9 +247,8 @@ export const POST = async ({ params, cookies, request }) => {
 	} catch (error) {
 		console.error('❌ Post-run endpoint error:', error);
 		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-		return json(
-			createErrorResponse(`Post-run processing failed: ${errorMessage}`),
-			{ status: 500 }
-		);
+		return json(createErrorResponse(`Post-run processing failed: ${errorMessage}`), {
+			status: 500
+		});
 	}
 };

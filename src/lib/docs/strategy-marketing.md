@@ -81,12 +81,12 @@ We’re not chasing points or streaks. We’re replacing a tech crutch (subtitle
 
 ## 🔁 Marketing ↔ Distribution Operating Loop
 
-1) Source insight: Live sessions + community threads reveal a stuck moment.
-2) Ship the fix: Improve scenario or guidance and note what changed.
-3) Publish proof: Case File (pasteable script) + 30–45s Reel.
-4) Distribute: Crosspost to 1–2 subs; share Reel to IG/TikTok/Shorts; reply to every comment with tailored lines.
-5) Convert: Founder emails to nudge first session; Practice Lab invites in‑thread.
-6) Measure: Posts → DMs → sessions → shipped fixes. Repeat weekly.
+1. Source insight: Live sessions + community threads reveal a stuck moment.
+2. Ship the fix: Improve scenario or guidance and note what changed.
+3. Publish proof: Case File (pasteable script) + 30–45s Reel.
+4. Distribute: Crosspost to 1–2 subs; share Reel to IG/TikTok/Shorts; reply to every comment with tailored lines.
+5. Convert: Founder emails to nudge first session; Practice Lab invites in‑thread.
+6. Measure: Posts → DMs → sessions → shipped fixes. Repeat weekly.
 
 ---
 

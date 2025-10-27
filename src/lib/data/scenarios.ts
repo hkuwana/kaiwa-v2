@@ -35,8 +35,10 @@ export const scenariosData: ScenarioWithHints[] = [
 		difficulty: 'beginner',
 		difficultyRating: 1,
 		cefrLevel: 'A1',
-		cefrRecommendation: 'Perfect if you\'ve just started your learning journey (A0–A1) and need native-language support.',
-		learningGoal: 'From zero knowledge, confidently introduce yourself in your target language using real phrases you can use today',
+		cefrRecommendation:
+			"Perfect if you've just started your learning journey (A0–A1) and need native-language support.",
+		learningGoal:
+			'From zero knowledge, confidently introduce yourself in your target language using real phrases you can use today',
 		instructions: `This is your confidence bootcamp. Start in the user's native language to learn who they want to talk to and why—this is their mission. Then move fast with an interaction-first plan:
 
 1. **Mission Statement** (native language): Get a concrete situation: "Who do you want to talk to? What do you want to say? Why does it matter?"
@@ -53,9 +55,9 @@ export const scenariosData: ScenarioWithHints[] = [
 
 Coach warmly. Avoid lists. Build confidence in ~5 minutes.`,
 		context:
-			'A comfortable, pressure-free space. You\'re sitting with someone who has never spoken this language before. You are warm, patient, and genuinely excited about their goal. The goal is trust, clarity, and one tiny win they can feel.',
+			"A comfortable, pressure-free space. You're sitting with someone who has never spoken this language before. You are warm, patient, and genuinely excited about their goal. The goal is trust, clarity, and one tiny win they can feel.",
 		expectedOutcome:
-			'Learner leaves with a personal 30-second introduction in the target language they can say without translation, plus clarity on why they\'re learning.',
+			"Learner leaves with a personal 30-second introduction in the target language they can say without translation, plus clarity on why they're learning.",
 		learningObjectives: [
 			'confidence priming through quick wins',
 			'core phrase acquisition (2-3 phrases)',
@@ -90,12 +92,14 @@ Coach warmly. Avoid lists. Build confidence in ~5 minutes.`,
 	{
 		id: 'onboarding-welcome',
 		title: 'Phrase Sandbox Practice',
-		description: 'Practice any phrases you want in your target language in a safe, judgment-free space.',
+		description:
+			'Practice any phrases you want in your target language in a safe, judgment-free space.',
 		role: 'tutor',
 		difficulty: 'beginner',
 		difficultyRating: 1,
 		cefrLevel: 'A1',
-		learningGoal: 'Build confidence by practicing specific phrases in your target language and getting instant feedback in a low-pressure sandbox',
+		learningGoal:
+			'Build confidence by practicing specific phrases in your target language and getting instant feedback in a low-pressure sandbox',
 		instructions: `You are a friendly native speaker in a safe practice sandbox. Speak entirely in the learner's target language throughout this session. Your role is to:
 
 1. **Greet warmly** and set the tone, asking what they'd like to practice today in their target language.
@@ -146,10 +150,10 @@ This is a judgment-free zone. No pressure, just practice.`,
 		persona: null,
 		parameterHints: {
 			speakingSpeed: 'slow',
-			sentenceLength: 'short', 
+			sentenceLength: 'short',
 			languageMixingPolicy: 'strict_immersion',
 			encouragementFrequency: 'frequent',
-			 
+
 			pauseFrequency: 'frequent',
 			vocabularyComplexity: 'basic',
 			grammarComplexity: 'simple',
@@ -167,7 +171,8 @@ This is a judgment-free zone. No pressure, just practice.`,
 		difficulty: 'intermediate',
 		difficultyRating: 4,
 		cefrLevel: 'B1',
-		learningGoal: 'Confidently explain medical symptoms and understand treatment instructions in a healthcare setting',
+		learningGoal:
+			'Confidently explain medical symptoms and understand treatment instructions in a healthcare setting',
 		instructions: `Describe your symptoms, when they started, and what makes them better or worse. Ask the nurse to repeat the plan until you can say it back confidently.`,
 		context:
 			'Fluorescent lights, rain still on your jacket, a calm nurse ushering you into a small exam room.',
@@ -208,7 +213,8 @@ This is a judgment-free zone. No pressure, just practice.`,
 		difficulty: 'intermediate',
 		difficultyRating: 6,
 		cefrLevel: 'B2',
-		learningGoal: 'Build genuine trust and connection with your partner\'s family through respectful, culturally-aware conversation',
+		learningGoal:
+			"Build genuine trust and connection with your partner's family through respectful, culturally-aware conversation",
 		instructions: `Share who you are, ask questions that show respect, and respond to advice with warmth. Practice toasts, compliments, and the small cultural cues that matter.`,
 		context:
 			'A low table, seasonal dishes, and parents who are curious but cautious about welcoming you in.',
@@ -250,7 +256,8 @@ This is a judgment-free zone. No pressure, just practice.`,
 		difficulty: 'intermediate',
 		difficultyRating: 4,
 		cefrLevel: 'B1',
-		learningGoal: 'Create genuine connection by asking thoughtful questions and sharing your story naturally',
+		learningGoal:
+			'Create genuine connection by asking thoughtful questions and sharing your story naturally',
 		instructions: `You're on a first date. Ask questions, share stories, and see if there's a connection.`,
 		context: 'A cozy bar with dim lighting and a good selection of drinks.',
 		expectedOutcome: 'A fun and engaging conversation that leads to a second date.',
@@ -278,7 +285,8 @@ This is a judgment-free zone. No pressure, just practice.`,
 		difficulty: 'intermediate',
 		difficultyRating: 5,
 		cefrLevel: 'B2',
-		learningGoal: 'Repair trust in relationships by apologizing authentically and rebuilding emotional connection',
+		learningGoal:
+			'Repair trust in relationships by apologizing authentically and rebuilding emotional connection',
 		instructions: `Acknowledge what hurt them, explain what you meant without deflecting, and rebuild trust by asking what they need from you. Practice the vulnerability that turns "sorry" into real repair.`,
 		context:
 			'A quiet moment after the argument has cooled. Your partner is willing to listen, but trust needs rebuilding.',
@@ -322,7 +330,8 @@ This is a judgment-free zone. No pressure, just practice.`,
 		difficulty: 'intermediate',
 		difficultyRating: 4,
 		cefrLevel: 'B1',
-		learningGoal: 'Express emotions vulnerably and deepen emotional intimacy by sharing what\'s truly important to you',
+		learningGoal:
+			"Express emotions vulnerably and deepen emotional intimacy by sharing what's truly important to you",
 		instructions: `Name the feeling, explain why it matters, and ask for what you need. Practice moving past "I'm fine" to say what's actually true.`,
 		context:
 			'Late evening, safe space with someone who cares. The moment when surface talk could go deeper.',
@@ -363,7 +372,8 @@ This is a judgment-free zone. No pressure, just practice.`,
 		difficulty: 'intermediate',
 		difficultyRating: 5,
 		cefrLevel: 'B2',
-		learningGoal: 'Deliver a heartfelt, memorable toast that celebrates loved ones with genuine warmth and cultural grace',
+		learningGoal:
+			'Deliver a heartfelt, memorable toast that celebrates loved ones with genuine warmth and cultural grace',
 		instructions: `Share a personal story, honor the people being celebrated, and close with a wish for the future. Practice the cadence, warmth, and cultural touches that make a toast memorable.`,
 		context:
 			'A room full of relatives and friends. Glasses raised, cameras ready, and everyone waiting to hear your words.',
@@ -406,7 +416,8 @@ This is a judgment-free zone. No pressure, just practice.`,
 		difficulty: 'intermediate',
 		difficultyRating: 5,
 		cefrLevel: 'B2',
-		learningGoal: 'Announce major life decisions with clarity and confidence while maintaining family trust and understanding',
+		learningGoal:
+			'Announce major life decisions with clarity and confidence while maintaining family trust and understanding',
 		instructions: `Lead with the decision, explain your reasoning, acknowledge their concerns, and reassure them that the relationship stays strong. Practice handling reactions from surprise to resistance.`,
 		context:
 			'A serious family conversation. You have news that will change things, and they deserve to hear it from you directly.',

@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { fade, fly } from 'svelte/transition';
-
-	export let currentStage: 'selection' | 'chat' | 'review' = 'selection';
+	
+export let currentStage: 'selection' | 'chat' | 'review' = 'selection';
 	export let showLabels = true;
 	export let compact = false;
 

@@ -428,7 +428,7 @@ ${exampleLines}
 			scenarioRules = this.buildScenarioRules();
 		}
 
-return `# Instructions / Rules
+		return `# Instructions / Rules
 
 ## CRITICAL RULES (ALWAYS FOLLOW)
 - ONLY respond to CLEAR audio input
@@ -478,9 +478,13 @@ ${scenarioRules}`;
 - Keep turns short (3–5 words), volley quickly, end each turn with a question
 
 ## LANGUAGE POLICY FOR TUTOR MODE (CRITICAL)
-${isZeroToHero ? `- For "Zero to Hero": Start in native language, then transition entirely to ${targetLang} after initial goal-setting` : `- SPEAK ONLY IN ${targetLang} during this entire session
+${
+	isZeroToHero
+		? `- For "Zero to Hero": Start in native language, then transition entirely to ${targetLang} after initial goal-setting`
+		: `- SPEAK ONLY IN ${targetLang} during this entire session
 - Even if learner switches to native language, respond back in ${targetLang}
-- Only provide brief native-language translations when explicitly helping with a difficult word`}
+- Only provide brief native-language translations when explicitly helping with a difficult word`
+}
 
 ## ERROR CORRECTION & REPETITION (TUTOR MODE)
 - When learner makes an error (grammar, pronunciation, vocabulary):
