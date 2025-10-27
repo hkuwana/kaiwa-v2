@@ -104,10 +104,18 @@
 	<!-- Header with current plan overview -->
 	<div class="card bg-base-100 shadow-xl">
 		<div class="card-body">
-			<h2 class="mb-4 card-title text-xl">
-				<span class="mr-2 icon-[mdi--credit-card] h-6 w-6"></span>
-				Billing & Payments
-			</h2>
+			<div class="flex items-center justify-between">
+				<h2 class="card-title text-xl">
+					<span class="mr-2 icon-[mdi--credit-card] h-6 w-6"></span>
+					Billing & Payments
+				</h2>
+				<div
+					class="tooltip tooltip-left"
+					data-tip="We use Stripe to securely manage all billing, payment methods, and invoices. We never store your payment information directly."
+				>
+					<span class="icon-[mdi--shield-check] h-6 w-6 text-info"></span>
+				</div>
+			</div>
 
 			{#if billingError}
 				<div class="mb-4 alert alert-error">
@@ -163,78 +171,37 @@
 			</div>
 
 			<!-- Quick Actions -->
-			<div class="flex flex-wrap gap-2 pt-4">
+			<div class="flex flex-wrap items-center gap-2 pt-4">
 				{#if usageLimits?.currentTier === 'free'}
 					<button class="btn btn-primary" onclick={() => (showUpgradeModal = true)}>
 						<span class="icon-[mdi--arrow-up] h-4 w-4"></span>
 						Upgrade Plan
 					</button>
 				{:else}
-					<button class="btn btn-outline" onclick={openBillingPortal} disabled={isManagingBilling}>
+					<button class="btn btn-primary" onclick={openBillingPortal} disabled={isManagingBilling}>
 						{#if isManagingBilling}
 							<span class="loading loading-sm loading-spinner"></span>
 						{:else}
 							<span class="icon-[mdi--external-link] h-4 w-4"></span>
 						{/if}
-						Manage Billing in Stripe
+						Manage Billing
 					</button>
 					<button class="btn btn-outline" onclick={() => (showUpgradeModal = true)}>
 						<span class="icon-[mdi--arrow-up] h-4 w-4"></span>
 						Change Plan
 					</button>
 				{/if}
+				<p class="text-sm text-base-content/70">
+					Use the Stripe billing portal to update your payment method, download invoices, or cancel
+					your subscription.
+				</p>
 			</div>
-		</div>
-	</div>
-
-	<!-- Billing Management Info -->
-	<div class="card bg-base-100 shadow-xl">
-		<div class="card-body">
-			<h3 class="mb-4 text-lg font-semibold">
-				<span class="mr-2 icon-[mdi--information-outline] h-5 w-5"></span>
-				Billing Management
-			</h3>
-
-			<div class="space-y-4">
-				<div class="rounded-lg bg-base-200/50 p-4">
-					<div class="flex items-start gap-3">
-						<span class="mt-0.5 icon-[mdi--credit-card-outline] h-6 w-6 text-primary"></span>
-						<div class="flex-1">
-							<h4 class="mb-2 font-medium">Payment Methods & Invoices</h4>
-							<p class="mb-3 text-sm text-base-content/70">
-								We use Stripe to securely manage all billing, payment methods, and invoices. Click
-								"Manage Billing in Stripe" above to:
-							</p>
-							<ul class="list-inside list-disc space-y-1 text-sm text-base-content/70">
-								<li>Add or update payment methods</li>
-								<li>View and download invoices</li>
-								<li>Update billing information</li>
-								<li>Cancel or modify your subscription</li>
-							</ul>
-						</div>
-					</div>
+			{#if usageStatus && usageLimits?.currentTier !== 'free'}
+				<div class="mt-4 rounded-lg bg-base-200 p-4">
+					<h4 class="mb-3 font-medium">Current Usage</h4>
+					<TierBadge tierStatus={usageStatus} showDetails={true} />
 				</div>
-
-				<div class="rounded-lg border border-info/20 bg-info/10 p-4">
-					<div class="flex items-start gap-3">
-						<span class="mt-0.5 icon-[mdi--shield-check] h-6 w-6 text-info"></span>
-						<div class="flex-1">
-							<h4 class="mb-1 font-medium text-info">Secure & Trusted</h4>
-							<p class="text-sm text-base-content/70">
-								You'll be redirected to Stripe's secure portal where you can safely manage all
-								aspects of your billing. We never store your payment information directly.
-							</p>
-						</div>
-					</div>
-				</div>
-
-				{#if usageStatus && usageLimits?.currentTier !== 'free'}
-					<div class="rounded-lg bg-base-200 p-4">
-						<h4 class="mb-3 font-medium">Current Usage</h4>
-						<TierBadge tierStatus={usageStatus} showDetails={true} />
-					</div>
-				{/if}
-			</div>
+			{/if}
 		</div>
 	</div>
 </div>

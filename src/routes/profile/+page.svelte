@@ -368,7 +368,7 @@
 								Account Information
 							</h2>
 
-							<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+							<div class="space-y-6">
 								<div class="form-control">
 									<div class="label">
 										<span class="label-text font-medium">Email</span>
@@ -382,39 +382,23 @@
 									<div class="label">
 										<span class="label-text font-medium">Display Name</span>
 									</div>
-									<div class="input-bordered input bg-base-200">
-										{data.user.displayName || 'Not set'}
-									</div>
+									<input
+										type="text"
+										class="input-bordered input"
+										value={localUser.displayName || ''}
+										onchange={(e) => handleInputChange('displayName', e.currentTarget.value)}
+										placeholder="Enter your display name"
+									/>
 								</div>
 
 								<div class="form-control">
 									<div class="label">
 										<span class="label-text font-medium">Account Created</span>
 									</div>
-									<div class="input-bordered input bg-base-200">
+									<div class="text-sm text-base-content">
 										{data.user.createdAt
 											? new SvelteDate(data.user.createdAt).toLocaleDateString()
 											: 'Unknown'}
-									</div>
-								</div>
-
-								<div class="form-control">
-									<div class="label">
-										<span class="label-text font-medium">Email Verified</span>
-									</div>
-									<div class="flex items-center gap-2">
-										{#if data.user.emailVerified || data.user.googleId}
-											<span class="badge badge-success">Verified</span>
-											{#if data.user.emailVerified}
-												<span class="text-sm text-base-content/70">
-													{new SvelteDate(data.user.emailVerified).toLocaleDateString()}
-												</span>
-											{:else if data.user.googleId}
-												<span class="text-sm text-base-content/70">Verified via Google</span>
-											{/if}
-										{:else}
-											<span class="badge badge-error">Not Verified</span>
-										{/if}
 									</div>
 								</div>
 							</div>

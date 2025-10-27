@@ -1,6 +1,5 @@
 <script lang="ts">
-	
-export let currentStage: 'selection' | 'chat' | 'review' = 'selection';
+	export let currentStage: 'selection' | 'chat' | 'review' = 'selection';
 	export let showLabels = true;
 	export let compact = false;
 
