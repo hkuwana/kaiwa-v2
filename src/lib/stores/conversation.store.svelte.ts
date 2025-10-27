@@ -1775,6 +1775,7 @@ export class ConversationStore {
 
 	/**
 	 * Call post-run endpoint for conversation analysis
+	 * Includes idempotency key to prevent duplicate processing
 	 */
 	private async callPostRunEndpoint(
 		userId: string,
@@ -1782,9 +1783,15 @@ export class ConversationStore {
 		durationSeconds: number
 	): Promise<void> {
 		try {
+			// Generate unique idempotency key for this post-run
+			const idempotencyKey = `post-run_${this.sessionId}_${Date.now()}`;
+
 			const response = await fetch(`/api/conversations/${this.sessionId}/post-run`, {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'Idempotency-Key': idempotencyKey
+				},
 				body: JSON.stringify({
 					userId,
 					messageCount: userMessageCount,
