@@ -1761,6 +1761,50 @@ export class ConversationStore {
 		}
 	}
 
+	/**
+	 * Count user messages (excluding empty messages and [Speaking...] placeholders)
+	 */
+	private countUserMessages(): number {
+		return this.messages.filter(
+			(msg) =>
+				msg.role === 'user' &&
+				msg.content?.trim().length > 0 &&
+				!msg.content.includes('[Speaking...]')
+		).length;
+	}
+
+	/**
+	 * Call post-run endpoint for conversation analysis
+	 */
+	private async callPostRunEndpoint(
+		userId: string,
+		userMessageCount: number,
+		durationSeconds: number
+	): Promise<void> {
+		try {
+			const response = await fetch(`/api/conversations/${this.sessionId}/post-run`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					userId,
+					messageCount: userMessageCount,
+					durationSeconds
+				})
+			});
+
+			const data = await response.json();
+
+			if (response.ok) {
+				console.log('✅ Post-run processing complete:', data);
+			} else {
+				console.warn('⚠️ Post-run processing failed:', data);
+			}
+		} catch (error) {
+			console.warn('⚠️ Post-run endpoint call failed:', error);
+			// Don't throw - conversation is already saved, this is just enhancement
+		}
+	}
+
 	private async completeSessionUsage(reason: 'manual-end' | 'destroy'): Promise<void> {
 		if (this.usageRecorded) return;
 
@@ -1796,6 +1840,23 @@ export class ConversationStore {
 
 			if (usageSnapshot) {
 				this.applyUsageContext(userId, usageSnapshot);
+			}
+
+			// NEW: Call post-run endpoint for memory extraction and preference updates
+			const userMessageCount = this.countUserMessages();
+			if (userMessageCount >= 2) {
+				console.log('📨 Calling post-run endpoint:', {
+					conversationId: this.sessionId,
+					userId,
+					messageCount: userMessageCount,
+					durationSeconds: elapsedSeconds
+				});
+				await this.callPostRunEndpoint(userId, userMessageCount, elapsedSeconds);
+			} else {
+				console.log('⏭️ Skipping post-run: fewer than 2 user messages', {
+					conversationId: this.sessionId,
+					messageCount: userMessageCount
+				});
 			}
 		} catch (error) {
 			console.error('Failed to record conversation usage', { reason, error });
