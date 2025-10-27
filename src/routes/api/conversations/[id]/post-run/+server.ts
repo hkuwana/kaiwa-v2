@@ -2,6 +2,8 @@ import { json } from '@sveltejs/kit';
 import { getUserFromSession } from '$lib/server/auth';
 import { conversationRepository } from '$lib/server/repositories/conversation.repository';
 import { messagesRepository } from '$lib/server/repositories/messages.repository';
+import { userPreferencesRepository } from '$lib/server/repositories/user-preferences.repository';
+import { conversationMemoryService } from '$lib/server/services/conversation-memory.service';
 import { createErrorResponse, createSuccessResponse } from '$lib/types/api';
 
 export const POST = async ({ params, cookies, request }) => {
@@ -57,7 +59,7 @@ export const POST = async ({ params, cookies, request }) => {
 		const actualUserMessageCount = userMessages.length;
 
 		if (actualUserMessageCount < 2) {
-			console.warn('Message count mismatch:', {
+			console.warn('⚠️ Message count mismatch:', {
 				conversationId,
 				claimed: messageCount,
 				actual: actualUserMessageCount
@@ -71,7 +73,6 @@ export const POST = async ({ params, cookies, request }) => {
 			);
 		}
 
-		// 6. Success - pass validation
 		console.log('✅ Post-run validation passed:', {
 			conversationId,
 			userId,
@@ -79,20 +80,102 @@ export const POST = async ({ params, cookies, request }) => {
 			durationSeconds
 		});
 
-		return json(
-			createSuccessResponse({
-				success: true,
-				message: 'Post-run validation successful. Ready for memory extraction.',
-				data: {
-					conversationId,
-					userMessageCount: actualUserMessageCount,
-					totalMessages: messages.length,
-					durationSeconds
+		// 6. Try to extract memory via GPT (graceful degradation if fails)
+		let memory = null;
+		let gptFailed = false;
+
+		try {
+			console.log('🧠 Extracting conversation memory via GPT...');
+			memory = await conversationMemoryService.extractConversationMemory(
+				conversationId,
+				userId,
+				messages,
+				conversation.targetLanguageId ? { id: conversation.targetLanguageId } : ({ id: 'unknown' } as any),
+				durationSeconds || 0
+			);
+			console.log('✅ Memory extracted successfully:', { topic: memory.topic });
+		} catch (gptError) {
+			console.warn('⚠️ GPT extraction failed, using fallback memory:', gptError);
+			gptFailed = true;
+
+			// Create minimal memory object with just basic metrics
+			memory = {
+				id: `mem_fallback_${Date.now()}`,
+				conversationId,
+				userId,
+				languageId: conversation.targetLanguageId || 'unknown',
+				createdAt: new Date(),
+				topic: 'Conversation',
+				keyPhrases: [],
+				difficulties: [],
+				successfulPatterns: [],
+				duration: durationSeconds || 0,
+				engagement: actualUserMessageCount > 5 ? 'high' : actualUserMessageCount > 2 ? 'medium' : 'low'
+			};
+		}
+
+		// 7. Update user preferences with memory and metrics
+		try {
+			console.log('📝 Updating user preferences with memory and metrics...');
+			const currentPreferences = await userPreferencesRepository.getPreferencesByUserId(userId);
+
+			if (!currentPreferences) {
+				console.warn('⚠️ User preferences not found, skipping update');
+				return json(
+					createSuccessResponse({
+						success: true,
+						memory,
+						preferences: null,
+						gptFailed,
+						note: 'Memory extracted but user preferences not found'
+					})
+				);
+			}
+
+			// Atomically update preferences
+			const updatedPreferences = await userPreferencesRepository.updateMultiplePreferences(
+				userId,
+				{
+					memories: [...((currentPreferences.memories as unknown[]) || []), memory],
+					successfulExchanges: ((currentPreferences.successfulExchanges as number) || 0) + 1,
+					updatedAt: new Date()
 				}
-			})
-		);
+			);
+
+			console.log('✅ User preferences updated:', {
+				newMemoryCount: (updatedPreferences?.memories as unknown[] | undefined)?.length,
+				successfulExchanges: updatedPreferences?.successfulExchanges
+			});
+
+			return json(
+				createSuccessResponse({
+					success: true,
+					memory,
+					preferences: updatedPreferences,
+					gptFailed: gptFailed ? true : undefined,
+					note: gptFailed ? 'Memory extracted with fallback due to GPT error' : undefined
+				})
+			);
+		} catch (prefError) {
+			console.error('❌ Failed to update preferences:', prefError);
+			// Still return success because memory extraction worked
+			return json(
+				createSuccessResponse({
+					success: true,
+					memory,
+					preferences: null,
+					gptFailed,
+					note: 'Memory extracted successfully but preference update failed'
+				}),
+				{ status: 200 }
+			);
+		}
 	} catch (error) {
 		console.error('❌ Post-run endpoint error:', error);
-		return json(createErrorResponse('Internal server error'), { status: 500 });
+		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+		return json(
+			createErrorResponse(`Post-run processing failed: ${errorMessage}`),
+			{ status: 500 }
+		);
 	}
 };
