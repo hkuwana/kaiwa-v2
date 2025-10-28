@@ -11,9 +11,9 @@
 	<div class="container mx-auto px-4 py-16">
 		<!-- Hero Section -->
 		<div class="mb-16 text-center">
-			<h1 class="mb-6 text-5xl font-bold text-white md:text-7xl">The Anti-Language-Learning App</h1>
+			<h1 class="mb-6 text-5xl font-bold text-white md:text-7xl">Have the conversation you're afraid of.</h1>
 			<p class="mx-auto max-w-4xl text-xl leading-relaxed text-gray-300 md:text-2xl">
-				For people who need to actually use the language, not pass a test
+				For people who need to connect with the ones they love, in the language of their heart
 			</p>
 		</div>
 
@@ -21,36 +21,40 @@
 		<div class="mx-auto mb-16 max-w-4xl">
 			<div class="rounded-2xl border border-purple-500/20 bg-black/30 p-8 backdrop-blur-sm">
 				<p class="text-lg leading-relaxed text-gray-200">
-					Kaiwa is the anti-language-learning app. We're not here to help you achieve B2 proficiency
-					or master 2000 vocabulary words. We're here to help you survive real situations, connect
-					with loved ones, and handle the conversations that actually matter in your life.
+					Kaiwa's Signal: Give you the specific, practiced skills to have a single, successful, high-stakes conversation with a loved one. Not test prep. Not vocab lists. Real connection with the people you love, in their language.
+				</p>
+				<p class="mt-4 text-gray-300">
+					Our emotional outcome is simple: <strong>connecting without fear with the people who matter most.</strong> Every feature, every scenario, every piece of feedback exists to move you closer to that moment when they understand you—truly, deeply—in their language.
 				</p>
 			</div>
 		</div>
 
-		<!-- Brand Positioning Matrix -->
+		<!-- Signal Positioning -->
 		<div class="mx-auto mb-16 max-w-6xl">
-			<h2 class="mb-8 text-center text-3xl font-bold text-white">Brand Positioning Matrix</h2>
+			<h2 class="mb-8 text-center text-3xl font-bold text-white">The Signal: Emotional Outcomes</h2>
 			<div class="rounded-2xl border border-purple-500/20 bg-black/30 p-8 backdrop-blur-sm">
+				<p class="mb-6 text-lg text-gray-200">
+					Kaiwa is built around one clear Signal: the specific conversations that connect you with the people you love. Not test scores. Not vocabulary counts. The moments where they understand you—and you understand them.
+				</p>
 				<div class="grid gap-8 md:grid-cols-2">
 					<div>
-						<h3 class="mb-4 text-xl font-semibold text-red-400">Traditional Apps</h3>
+						<h3 class="mb-4 text-xl font-semibold text-red-400">Noise (What We Ignore)</h3>
 						<ul class="space-y-3 text-gray-300">
-							<li>"Achieve B2 proficiency"</li>
-							<li>"Master 2000 vocabulary words"</li>
-							<li>"Perfect grammar structures"</li>
-							<li>"JLPT certification prep"</li>
-							<li>"Business Japanese"</li>
+							<li>Gamification for its own sake (badges, leaderboards)</li>
+							<li>Generic "soft skills" training</li>
+							<li>Metrics like "time in app" or "days streak"</li>
+							<li>Test prep and certifications</li>
+							<li>Isolated vocabulary drills</li>
 						</ul>
 					</div>
 					<div>
-						<h3 class="mb-4 text-xl font-semibold text-green-400">Kaiwa</h3>
+						<h3 class="mb-4 text-xl font-semibold text-green-400">Signal (Our Focus)</h3>
 						<ul class="space-y-3 text-gray-300">
-							<li>"Survive a night in Kabukicho"</li>
-							<li>"Talk your way out of missing the last train"</li>
-							<li>"Flirt without Google Translate"</li>
-							<li>"Argue about politics at an izakaya"</li>
-							<li>"Convince the landlord you're not destroying the apartment"</li>
+							<li>Tell your parents you're changing careers—and have them be proud</li>
+							<li>Practice the 5-minute conversation that can save your relationship</li>
+							<li>Meet your partner's family without a translator</li>
+							<li>Apologize genuinely, in their language</li>
+							<li>Share big news and feel understood</li>
 						</ul>
 					</div>
 				</div>
@@ -72,25 +76,25 @@
 					</ul>
 				</div>
 
-				<!-- Relationship Navigator -->
+				<!-- Connection Seeker -->
 				<div class="rounded-2xl border border-purple-500/20 bg-black/30 p-6 backdrop-blur-sm">
-					<h3 class="mb-2 text-xl font-semibold text-white">The Relationship Navigator</h3>
-					<p class="mb-4 text-sm text-purple-400">"Because love shouldn't need subtitles"</p>
+					<h3 class="mb-2 text-xl font-semibold text-white">The Connection Seeker</h3>
+					<p class="mb-4 text-sm text-purple-400">"I want them to know the real me"</p>
 					<ul class="space-y-2 text-sm text-gray-300">
-						<li><strong>Profile:</strong> Dating someone Japanese</li>
-						<li><strong>Needs:</strong> Impress the parents, fight fairly</li>
-						<li><strong>Current solution:</strong> Partner translates everything (awkward)</li>
+						<li><strong>Fear:</strong> They won't understand my real thoughts without a translator</li>
+						<li><strong>Signal Moment:</strong> Having an honest argument, laughing at jokes, sharing a difficult feeling—all without help</li>
+						<li><strong>Win:</strong> "They finally understood me without me translating"</li>
 					</ul>
 				</div>
 
-				<!-- Family Connector -->
+				<!-- Legacy Builder -->
 				<div class="rounded-2xl border border-purple-500/20 bg-black/30 p-6 backdrop-blur-sm">
-					<h3 class="mb-2 text-xl font-semibold text-white">The Family Connector</h3>
-					<p class="mb-4 text-sm text-purple-400">"Because family shouldn't need subtitles"</p>
+					<h3 class="mb-2 text-xl font-semibold text-white">The Legacy Builder</h3>
+					<p class="mb-4 text-sm text-purple-400">"I want to honor where I come from"</p>
 					<ul class="space-y-2 text-sm text-gray-300">
-						<li><strong>Profile:</strong> Has family members who speak the language</li>
-						<li><strong>Needs:</strong> Connect with relatives, understand family stories</li>
-						<li><strong>Current solution:</strong> Missing out on family conversations</li>
+						<li><strong>Fear:</strong> Missing out on family stories, grandparents' wisdom, real connection</li>
+						<li><strong>Signal Moment:</strong> Having a real conversation with grandparents or extended family—not just hellos</li>
+						<li><strong>Win:</strong> "They shared something vulnerable with me. In their language"</li>
 					</ul>
 				</div>
 			</div>
@@ -148,33 +152,37 @@
 			</div>
 		</div>
 
-		<!-- The Manifesto -->
+		<!-- The Manifesto: The Signal Plan -->
 		<div class="mx-auto max-w-4xl">
-			<h2 class="mb-8 text-center text-3xl font-bold text-white">The Manifesto</h2>
+			<h2 class="mb-8 text-center text-3xl font-bold text-white">The Manifesto: Our Signal</h2>
 			<div class="rounded-2xl border border-purple-500/20 bg-black/30 p-8 backdrop-blur-sm">
 				<div class="space-y-4 leading-relaxed text-gray-200">
-					<p>
-						We built Kaiwa because we were tired of 'knowing' a language but being unable to connect
-						with the people we love.
+					<p class="text-lg font-semibold text-purple-400">
+						Core Principle: Signal vs. Noise
 					</p>
 					<p>
-						Tired of watching family conversations happen without us. Tired of our partners having
-						to translate our feelings.
+						Our Signal is simple: giving users the specific, practiced skills to have a single, successful, high-stakes conversation with a loved one.
 					</p>
 					<p>
-						Tired of apps that teach you to say 'the pen is on the table' but not 'I love you' or
-						'I'm sorry.'
+						We ignore the noise: gamification for its own sake, generic "soft skills" training, metrics like "time in app."
+					</p>
+					<p class="mt-6 font-semibold text-white">
+						We built Kaiwa by working backwards from the user's real-world emotional goal.
 					</p>
 					<p>
-						Tired of perfect grammar exercises but inability to express what's really in your heart.
+						The user does not want to "practice AI conversations." The user wants their parents to be proud. Wants their partner to understand them. Wants to be in the room, fully present, without translating.
 					</p>
-					<p class="font-semibold text-purple-400">
-						Real relationships are messy. Real conversations are emotional. And you need to be
-						ready.
+					<p>
+						So we built four phases:
 					</p>
-					<p>No courses. No evaluations. Just the conversations that actually matter.</p>
-					<p class="text-lg font-bold text-white">
-						Welcome to Kaiwa. The app for people who need to connect, not just communicate.
+					<ul class="mt-4 space-y-2 text-gray-300">
+						<li><strong>Phase 1: User Acquisition</strong> — We market the solution to emotional problems, not features</li>
+						<li><strong>Phase 2: User Onboarding</strong> — We prove value instantly by helping with their specific conversation fear</li>
+						<li><strong>Phase 3: User Retention</strong> — We use engagement only to encourage deeper practice of what matters</li>
+						<li><strong>Phase 4: Real-World Bridge</strong> — We celebrate the real conversation outcomes that prove this works</li>
+					</ul>
+					<p class="mt-6 text-lg font-bold text-white">
+						Welcome to Kaiwa. The app for people who need to connect, not just pass a test.
 					</p>
 				</div>
 			</div>

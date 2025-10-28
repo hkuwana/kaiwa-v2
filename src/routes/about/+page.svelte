@@ -56,19 +56,19 @@
 </script>
 
 <svelte:head>
-	<title>About Kaiwa — Learn to connect with the people you love</title>
+	<title>About Kaiwa — Have the conversations you're afraid of</title>
 	<meta
 		name="description"
-		content="Kaiwa is the practical language app for relationships. Rehearse high‑stakes moments like meeting your partner’s parents, apologizing well, and sharing life changes — in their language."
+		content="Kaiwa helps you practice the high-stakes conversations that matter: telling your parents you're changing careers, apologizing to your partner, meeting their family — in their language. Get ready, not just prepared."
 	/>
 	<meta
 		name="keywords"
-		content="learn language for partner, bilingual couples, meet the parents Japanese, relationship apology Japanese, family dinner etiquette, conversation-first language learning"
+		content="practice difficult conversations, have hard talks, connecting with family in their language, bilingual relationships, conversation practice app"
 	/>
-	<meta property="og:title" content="About Kaiwa — Language for relationships" />
+	<meta property="og:title" content="About Kaiwa — Have the conversation you're afraid of" />
 	<meta
 		property="og:description"
-		content="The only practical app focused on learning a language for your partner and family. Practice the real conversations that build trust."
+		content="Practice the conversations that connect you with the people you love. No grammar drills. Just real moments that matter."
 	/>
 	<meta property="og:type" content="website" />
 </svelte:head>
@@ -79,10 +79,9 @@
 	<div class="container mx-auto px-4 py-16">
 		<!-- Hero Section -->
 		<div class="mb-16 text-center" in:fly={{ y: -20, duration: 500, delay: 200 }}>
-			<h1 class="mb-4 text-5xl font-bold md:text-7xl">Connect without subtitles.</h1>
+			<h1 class="mb-4 text-5xl font-bold md:text-7xl">Have the conversations you're afraid of.</h1>
 			<p class="mx-auto max-w-4xl text-xl leading-relaxed md:text-2xl">
-				Kaiwa helps you practice the conversations that matter in your relationship — meeting
-				parents, sharing stories, celebrating milestones — in your partner’s language.
+				Practice the conversations that connect you with the people you love. No grammar drills, no test prep. Just real moments that matter — in their language.
 			</p>
 		</div>
 
@@ -131,7 +130,7 @@
 
 		<!-- The Kaiwa Way Section -->
 		<div class="mb-16" in:fly={{ y: -20, duration: 500, delay: 200 }}>
-			<h2 class="mb-8 text-center text-3xl font-bold">The Old Way vs. The Kaiwa Way</h2>
+			<h2 class="mb-8 text-center text-3xl font-bold">What Actually Gets You Ready</h2>
 			<div class="flex justify-center">
 				<div class="grid w-full max-w-4xl gap-8 md:grid-cols-2">
 					<!-- Robotic Card -->
@@ -220,11 +219,11 @@
 			<div
 				class="mx-auto max-w-2xl rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 to-accent/15 p-4 shadow-lg sm:p-8"
 			>
-				<h2 class="mb-4 text-2xl font-bold text-primary">Ready to Connect?</h2>
+				<h2 class="mb-4 text-2xl font-bold text-primary">Ready to Have That Conversation?</h2>
 				<p class="mb-6">
-					Practice the conversations that build trust with your partner and their family.
+					Start by telling us: What's the one conversation you're dreading? We'll help you practice it until you're ready.
 				</p>
-				<div class="mb-4 text-sm text-secondary">Get your speaking level assessed in 3 minutes</div>
+				<div class="mb-4 text-sm text-secondary">3 minutes to get started</div>
 				<UnifiedStartButton
 					{user}
 					{selectedLanguage}

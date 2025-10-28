@@ -165,24 +165,31 @@ This is a judgment-free zone. No pressure, just practice.`,
 	},
 	{
 		id: 'clinic-night-triage',
-		title: 'Midnight Clinic Triage',
-		description: 'Explain a medical issue at an urgent care clinic.',
+		title: 'Midnight Pain Triage Visit',
+		description: 'Describe sudden pain symptoms during a late-night urgent care visit.',
 		role: 'character',
 		difficulty: 'intermediate',
 		difficultyRating: 4,
 		cefrLevel: 'B1',
 		learningGoal:
-			'Confidently explain medical symptoms and understand treatment instructions in a healthcare setting',
-		instructions: `Describe your symptoms, when they started, and what makes them better or worse. Ask the nurse to repeat the plan until you can say it back confidently.`,
+			'Explain acute pain clearly, answer follow-up medical questions, and confirm the treatment plan you receive',
+		instructions: `You woke up with intense pain and came straight to urgent care. Communicate clearly under stress:
+
+1. **Lead with the pain** – location, intensity (0-10), when it began, and what you were doing.
+2. **Answer triage follow-ups** – medication history, recent changes, what makes it better or worse, related symptoms.
+3. **Clarify the plan** – repeat back next steps (tests, medication, rest), ask for spelling or dosage if needed.
+4. **Stay calm but urgent** – breathe, advocate for yourself, and keep answers concise so the nurse captures everything.`,
 		context:
-			'Fluorescent lights, rain still on your jacket, a calm nurse ushering you into a small exam room.',
-		expectedOutcome: 'Communicate symptoms clearly and leave with a treatment plan you understand',
+			'Fluorescent lights, rain still on your jacket, and a calm nurse ushering you into a small exam room.',
+		expectedOutcome: 'Leave with a clear explanation of what happens next and pain instructions you can repeat back',
 		learningObjectives: [
 			'symptom vocabulary',
+			'pain scale language',
 			'timeline narration',
 			'medication discussion',
 			'clarifying instructions',
 			'anxiety regulation',
+			'advocating for care',
 			'urgent escalation language'
 		],
 		comfortIndicators: {
@@ -240,6 +247,57 @@ This is a judgment-free zone. No pressure, just practice.`,
 				'Greet your child’s partner warmly but with cautious curiosity, ask respectful questions about their background, and notice small etiquette cues.',
 			stakes:
 				'You want to decide whether to welcome them into the family and trust them with your child’s future.'
+		},
+		isActive: true,
+		localeHints: ['ja-JP'],
+		preferredLanguages: ['ja'],
+		speakerGenderPreference: 'neutral',
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
+		id: 'inlaws-family-friends-intro',
+		title: "Sibling's Family Friends Mixer",
+		description:
+			'Meet family friends for the first time as your partner’s sibling explains the web of relationships.',
+		role: 'character',
+		difficulty: 'intermediate',
+		difficultyRating: 5,
+		cefrLevel: 'B2',
+		learningGoal:
+			'Navigate layered family introductions gracefully, remember connections, and respond with culturally aware warmth',
+		instructions: `You are meeting long-time family friends alongside your partner’s sibling. Show respect, track relationships, and respond warmly:
+
+1. **Listen for connection clues** – note who is related to whom, shared histories, and key milestones.
+2. **Mirror and clarify** – repeat names with the right honorifics, confirm how people are connected, and ask gentle follow-ups.
+3. **Offer thoughtful details** – share short stories about yourself or your partner that reinforce trust.
+4. **Close each mini-introduction** – express gratitude, offer a compliment, or suggest a future touchpoint.`,
+		context:
+			'A lively weekend gathering in the family living room. Laughter, framed photos, and curious family friends eager to size you up.',
+		expectedOutcome:
+			'Leave knowing each person’s relationship to the family and having made a warm impression as a respectful new addition',
+		learningObjectives: [
+			'relationship vocabulary',
+			'polite introductions',
+			'active listening cues',
+			'cultural etiquette',
+			'confirming understanding',
+			'gracious small talk'
+		],
+		comfortIndicators: {
+			confidence: 3,
+			engagement: 5,
+			understanding: 4
+		},
+		persona: {
+			title: 'Protective Older Sibling Host',
+			nameTemplate: '{SPEAKER_NAME}-san',
+			setting:
+				'A weekend gathering where your sibling is walking you through the family’s closest friends.',
+			introPrompt:
+				'Welcome your sibling’s partner, explain each guest’s connection to the family, and gently test how well they’re following along.',
+			stakes:
+				'You want to be sure they understand the family network and can represent your sibling well in future gatherings.'
 		},
 		isActive: true,
 		localeHints: ['ja-JP'],

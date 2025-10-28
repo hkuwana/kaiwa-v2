@@ -2,6 +2,16 @@
 
 > **Mission**: For people who need to actually use the language, not pass a test.
 
+## 🎯 The Signal Plan: Our North Star
+
+Kaiwa follows the **Signal Plan** — a go-to-market strategy centered on one core principle: giving users the **specific, practiced skills to have a single, successful, high-stakes conversation with a loved one**.
+
+Our "Signal" is this emotional outcome: **connecting without fear with the people you love**. Every feature, every interaction, and every technical choice exists to support this journey through four phases:
+1. **User Acquisition** — Marketing the solution to emotional problems, not features
+2. **User Onboarding** — Proving value instantly by focusing on the user's specific conversation need
+3. **User Retention** — Using engagement features only to encourage deeper practice of high-stakes conversations
+4. **Real-World Bridge** — Tracking and celebrating real-world conversation success through prep plans, warm-ups, and reflection journaling
+
 ## 🎯 Core Philosophy
 
 Kaiwa is the anti-language-learning app. We're not here to help you achieve B2 proficiency or master 2000 vocabulary words. We're here to help you connect with loved ones, express your real feelings, and handle the conversations that actually matter in your life.
