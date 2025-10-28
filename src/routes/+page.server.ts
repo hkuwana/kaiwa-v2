@@ -30,14 +30,14 @@ export const load = async ({ locals, url }) => {
 		};
 	}
 
-	// SEO data optimized for AI language partner/coach positioning
+	// SEO data optimized for daily speaking practice positioning
 	const seo = {
 		title:
-			'AI Language Partner & Coach - Build Speaking Confidence with Real Conversation Practice',
+			'Speak Any Language in 5 Minutes a Day - AI Conversation Practice',
 		description:
-			'Master confident conversations with your AI language partner. Get real-time coaching feedback, practice 30+ authentic scenarios, and build speaking confidence in 8+ languages. Practice for free, no scheduling required.',
+			'Build real speaking confidence in 5 minutes a day. Practice 30+ authentic scenarios with your AI language partner in 8+ languages. Get instant feedback and master conversations before talking with real people. Free to start, no scheduling required.',
 		keywords:
-			'AI language partner, AI language coach, language confidence builder, conversation practice, speaking practice, authentic conversation, language learning app, real-time feedback, pronunciation coaching, language fluency',
+			'5 minute daily language practice, speaking practice, scenario-based conversation, AI language partner, language confidence, speaking skills, authentic practice, daily habit, language immersion, conversation practice app, learn languages fast',
 		author: 'Kaiwa',
 		robots: 'index, follow',
 		canonical: url.href,

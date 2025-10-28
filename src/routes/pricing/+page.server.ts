@@ -7,11 +7,11 @@ export const load = async () => {
 	return {
 		tiers,
 		meta: {
-			title: 'Kaiwa | Pricing Plans',
+			title: 'Kaiwa Pricing — 5 Minutes a Day, Real Speaking Results',
 			description:
-				'Choose a Kaiwa plan that fits your language learning goals. Basic, Plus, and Premium options available.',
+				'Affordable plans for daily language practice. Start free and practice 5 minutes a day to build speaking confidence. Flexible pricing for your language learning journey.',
 			keywords:
-				'language learning, conversation practice, pricing, subscription, basic, plus, premium'
+				'5 minute language practice, affordable language learning, daily practice pricing, conversation practice plans, speaking confidence subscription'
 		}
 	};
 };

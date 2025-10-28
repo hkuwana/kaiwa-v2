@@ -4,11 +4,11 @@ import { env } from '$env/dynamic/public';
 import { userManager } from '$lib/stores/user.store.svelte';
 
 const BASE_SEO = {
-	title: 'Kaiwa - AI Language Partner & Coach for Confident Conversation Practice',
+	title: 'Kaiwa - Speak the Language You Want in 5 Minutes a Day',
 	description:
-		'Practice real-world conversations with your AI language partner. Get instant feedback like a language coach. Build speaking confidence in 8+ languages without anxiety. Master authentic conversations before speaking with real people.',
+		'Practice real conversations in 5 minutes a day with your AI language partner. Master 8+ languages through scenario-based speaking practice with instant feedback. Build speaking confidence before talking with real people.',
 	keywords:
-		'AI language partner, AI language coach, language confidence builder, conversation practice app, speaking confidence, language learning app, AI conversation tutor, authentic conversation practice, language fluency, learn languages online, practice speaking, language immersion, anxiety-free language learning',
+		'5 minute language practice, daily speaking practice, scenario-based learning, AI language partner, conversation practice app, speaking confidence, language immersion, learn languages fast, practice speaking daily, language fluency, real conversation practice, AI language coach',
 	author: 'Kaiwa',
 	robots: 'index, follow',
 	ogType: 'website',

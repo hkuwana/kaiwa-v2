@@ -56,19 +56,19 @@
 </script>
 
 <svelte:head>
-	<title>About Kaiwa — Have the conversations you're afraid of</title>
+	<title>About Kaiwa — Build Speaking Confidence in 5 Minutes a Day</title>
 	<meta
 		name="description"
-		content="Kaiwa helps you practice the high-stakes conversations that matter: telling your parents you're changing careers, apologizing to your partner, meeting their family — in their language. Get ready, not just prepared."
+		content="Master real conversations with your AI language partner in just 5 minutes a day. Practice authentic scenarios for high-stakes moments that matter: meeting your partner's family, important conversations in their language. Get ready, not just prepared."
 	/>
 	<meta
 		name="keywords"
-		content="practice difficult conversations, have hard talks, connecting with family in their language, bilingual relationships, conversation practice app"
+		content="5 minute daily practice, speaking confidence, conversation practice, family connections, bilingual relationships, scenario-based learning, real conversation practice"
 	/>
-	<meta property="og:title" content="About Kaiwa — Have the conversation you're afraid of" />
+	<meta property="og:title" content="About Kaiwa — Build Speaking Confidence in 5 Minutes a Day" />
 	<meta
 		property="og:description"
-		content="Practice the conversations that connect you with the people you love. No grammar drills. Just real moments that matter."
+		content="Practice real conversations in 5 minutes a day that connect you with the people you love. Scenario-based learning for the moments that matter."
 	/>
 	<meta property="og:type" content="website" />
 </svelte:head>

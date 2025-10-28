@@ -15,10 +15,10 @@
 </script>
 
 <svelte:head>
-	<title>Kaiwa Blog</title>
+	<title>Kaiwa Blog — Daily Language Practice Tips & Conversation Insights</title>
 	<meta
 		name="description"
-		content="Insights on conversation practice, language learning, and AI-powered education"
+		content="Learn how to master language conversation in 5 minutes a day. Expert insights on daily practice habits, scenario-based learning, and building speaking confidence with your AI language partner."
 	/>
 </svelte:head>
 

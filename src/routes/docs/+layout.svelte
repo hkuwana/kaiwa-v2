@@ -15,8 +15,8 @@
 </script>
 
 <svelte:head>
-	<title>Kaiwa Documentation</title>
-	<meta name="description" content="Comprehensive documentation for Kaiwa v2" />
+	<title>Kaiwa Documentation — How to Practice Speaking in 5 Minutes a Day</title>
+	<meta name="description" content="Complete guide to using Kaiwa for daily language practice. Learn how to build speaking confidence in 5 minutes a day through scenario-based conversation practice." />
 </svelte:head>
 
 <div class="min-h-screen bg-base-100">
