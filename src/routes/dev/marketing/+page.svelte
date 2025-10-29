@@ -388,8 +388,8 @@
 				<p class="text-sm opacity-70">Based on strategy + 4-week operating plan</p>
 			</div>
 			<div class="flex gap-2">
-				<button class="btn btn-ghost btn-sm" on:click={copyScheduleToClipboard}>Copy</button>
-				<button class="btn btn-sm btn-error" on:click={resetWeek}>Reset</button>
+				<button class="btn btn-ghost btn-sm" onclick={copyScheduleToClipboard}>Copy</button>
+				<button class="btn btn-sm btn-error" onclick={resetWeek}>Reset</button>
 			</div>
 		</div>
 		<div class="grid grid-cols-1 gap-4 p-4 md:grid-cols-2">
