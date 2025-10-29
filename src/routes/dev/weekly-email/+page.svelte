@@ -3,7 +3,6 @@
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { posthogManager } from '$lib/client/posthog';
 
-	let isLoading = $state(false);
 	let isSending = $state(false);
 	let result = $state<string>('');
 	let previewHtml = $state<string>('');

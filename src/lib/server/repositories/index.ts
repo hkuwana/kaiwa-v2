@@ -11,6 +11,7 @@ export { emailVerificationRepository } from './email-verification.repository';
 
 // Content and learning repositories
 export { scenarioRepository } from './scenario.repository';
+export { scenarioMetadataRepository } from './scenario-metadata.repository';
 export { userScenarioProgressRepository } from './user-scenario-progress.repository';
 export { conversationRepository } from './conversation.repository';
 export { messagesRepository } from './messages.repository';

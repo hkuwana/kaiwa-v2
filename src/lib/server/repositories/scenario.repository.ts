@@ -4,6 +4,7 @@ import { db } from '$lib/server/db/index';
 import { scenarios } from '$lib/server/db/schema';
 import type { NewScenario, Scenario, ScenarioVisibility } from '$lib/server/db/types';
 import { eq, and, asc, desc, count, sql } from 'drizzle-orm';
+import { scenarioMetadataRepository } from './scenario-metadata.repository';
 export const scenarioRepository = {
 	// CREATE
 	async createScenario(newScenario: NewScenario): Promise<Scenario> {
@@ -15,6 +16,14 @@ export const scenarioRepository = {
 				updatedAt: new Date()
 			})
 			.returning();
+
+		// Initialize metadata for the new scenario
+		try {
+			await scenarioMetadataRepository.initializeMetadata(createdScenario.id);
+		} catch (error) {
+			console.error(`Failed to initialize metadata for scenario ${createdScenario.id}:`, error);
+			// Don't fail the scenario creation if metadata initialization fails
+		}
 
 		return createdScenario;
 	},

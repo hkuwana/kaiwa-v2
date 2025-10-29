@@ -95,8 +95,7 @@
 				if (isCountryRestrictionError()) {
 					return {
 						title: 'Service Not Available',
-						message:
-							'This service is not available in your region',
+						message: 'This service is not available in your region',
 						color: 'text-error',
 						bgColor: 'bg-error/10',
 						borderColor: 'border-error/20'
@@ -253,9 +252,7 @@
 			<!-- Ready State Action -->
 			{#if status === 'connected'}
 				<div class="mt-4 pt-2" in:scale={{ duration: 400, delay: 200 }}>
-					<p class="text-xs text-base-content/60">
-						Speak naturally. Pause to get a response.
-					</p>
+					<p class="text-xs text-base-content/60">Speak naturally. Pause to get a response.</p>
 				</div>
 			{/if}
 		</div>

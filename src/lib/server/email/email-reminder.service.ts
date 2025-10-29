@@ -155,9 +155,7 @@ export class EmailReminderService {
 				userId,
 				{ limit: 1000 }
 			);
-			const completedScenarioIds = new Set(
-				completedProgress.map((p) => p.scenarioId)
-			);
+			const completedScenarioIds = new Set(completedProgress.map((p) => p.scenarioId));
 
 			// Filter out onboarding and already-completed scenarios
 			const availableScenarios = allScenarios.filter(

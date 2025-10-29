@@ -290,7 +290,7 @@
 			</div>
 
 			<header class="rounded-lg bg-base-100 p-6 shadow">
-				<div class="flex items-center justify-between">
+				<div class="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
 					<div>
 						<h1 class="text-2xl font-semibold">Conversation Analysis</h1>
 						<p class="mt-2 text-base-content">

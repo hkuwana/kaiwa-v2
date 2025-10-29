@@ -276,10 +276,7 @@ export async function updateUserScenario(options: {
 	scenario?: Scenario;
 	visibility?: ScenarioVisibility;
 }): Promise<UserScenarioSummary> {
-	const record = await scenarioRepository.findOwnedScenario(
-		options.userId,
-		options.scenarioId
-	);
+	const record = await scenarioRepository.findOwnedScenario(options.userId, options.scenarioId);
 
 	if (!record) {
 		throw new ScenarioNotFoundError('Scenario not found or no longer active.');
@@ -379,10 +376,7 @@ export async function getUserScenarioDetail(options: {
 	userId: string;
 	scenarioId: string;
 }): Promise<Scenario> {
-	const record = await scenarioRepository.findOwnedScenario(
-		options.userId,
-		options.scenarioId
-	);
+	const record = await scenarioRepository.findOwnedScenario(options.userId, options.scenarioId);
 
 	if (!record) {
 		throw new ScenarioNotFoundError('Scenario not found or inactive.');

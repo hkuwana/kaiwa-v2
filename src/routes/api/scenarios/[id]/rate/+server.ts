@@ -29,10 +29,9 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 		}
 
 		if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
-			return json(
-				createErrorResponse('Rating must be an integer between 1 and 5'),
-				{ status: 400 }
-			);
+			return json(createErrorResponse('Rating must be an integer between 1 and 5'), {
+				status: 400
+			});
 		}
 
 		const result = await userScenarioProgressRepository.rateScenario(userId, scenarioId, rating);

@@ -8,6 +8,15 @@ const POSTHOG_KEY = publicEnv.PUBLIC_POSTHOG_KEY || 'phc_your_key_here';
 const POSTHOG_HOST = 'https://us.i.posthog.com';
 
 export const load = async ({ url, request, locals }) => {
+	// Skip analytics during build process
+	if (process.env.BUILDING === 'true') {
+		return {
+			posthogInitialized: false,
+			user: locals.user || null,
+			currentTier: 'free'
+		};
+	}
+
 	// Initialize PostHog for server-side tracking
 	const posthog = new PostHog(POSTHOG_KEY, {
 		host: POSTHOG_HOST,
@@ -24,7 +33,7 @@ export const load = async ({ url, request, locals }) => {
 	// If user exists, get their current tier using simplified service
 	// During build, skip Stripe API calls to avoid 404 errors
 	let currentTier = 'free';
-	if (user && env.NODE_ENV !== 'build') {
+	if (user) {
 		try {
 			currentTier = await getUserCurrentTier(user.id);
 		} catch (error) {

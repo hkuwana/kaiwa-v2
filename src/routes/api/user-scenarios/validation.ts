@@ -38,7 +38,7 @@ export const scenarioSchema = z
 		learningObjectives: z.array(z.string().max(200)).max(12).optional(),
 		learningGoal: z.string().optional(),
 		persona: personaSchema,
-	comfortIndicators: comfortIndicatorsSchema,
+		comfortIndicators: comfortIndicatorsSchema,
 		createdAt: z.union([z.string(), z.date()]).optional(),
 		updatedAt: z.union([z.string(), z.date()]).optional(),
 		isActive: z.boolean().optional()

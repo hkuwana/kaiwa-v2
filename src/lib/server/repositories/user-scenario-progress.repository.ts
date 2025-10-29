@@ -3,14 +3,12 @@
 import { db } from '$lib/server/db/index';
 import { userScenarioProgress } from '$lib/server/db/schema';
 import type { NewUserScenarioProgress, UserScenarioProgress } from '$lib/server/db/types';
-import { eq, and, desc, asc, sql } from 'drizzle-orm';
+import { eq, and, desc, sql } from 'drizzle-orm';
+import { scenarioMetadataRepository } from './scenario-metadata.repository';
 
 export const userScenarioProgressRepository = {
 	// CREATE / UPSERT
-	async saveScenario(
-		userId: string,
-		scenarioId: string
-	): Promise<UserScenarioProgress> {
+	async saveScenario(userId: string, scenarioId: string): Promise<UserScenarioProgress> {
 		const now = new Date();
 		const [saved] = await db
 			.insert(userScenarioProgress)
@@ -32,6 +30,14 @@ export const userScenarioProgressRepository = {
 			})
 			.returning();
 
+		// Update scenario metadata to increment save count
+		try {
+			await scenarioMetadataRepository.incrementSaveCount(scenarioId);
+		} catch (error) {
+			console.error(`Failed to update metadata for scenario ${scenarioId}:`, error);
+			// Don't fail the save if metadata update fails
+		}
+
 		return saved;
 	},
 
@@ -52,6 +58,14 @@ export const userScenarioProgressRepository = {
 				)
 			)
 			.returning();
+
+		// Update scenario metadata to decrement save count
+		try {
+			await scenarioMetadataRepository.decrementSaveCount(scenarioId);
+		} catch (error) {
+			console.error(`Failed to update metadata for scenario ${scenarioId}:`, error);
+			// Don't fail the unsave if metadata update fails
+		}
 
 		return updated;
 	},
@@ -77,10 +91,7 @@ export const userScenarioProgressRepository = {
 		} = {}
 	): Promise<UserScenarioProgress[]> {
 		return db.query.userScenarioProgress.findMany({
-			where: and(
-				eq(userScenarioProgress.userId, userId),
-				eq(userScenarioProgress.isSaved, true)
-			),
+			where: and(eq(userScenarioProgress.userId, userId), eq(userScenarioProgress.isSaved, true)),
 			orderBy: [desc(userScenarioProgress.savedAt)],
 			limit: options.limit || 100,
 			offset: options.offset || 0
@@ -134,10 +145,7 @@ export const userScenarioProgressRepository = {
 			})
 			.from(userScenarioProgress)
 			.where(
-				and(
-					eq(userScenarioProgress.scenarioId, scenarioId),
-					eq(userScenarioProgress.isSaved, true)
-				)
+				and(eq(userScenarioProgress.scenarioId, scenarioId), eq(userScenarioProgress.isSaved, true))
 			);
 
 		return result?.count || 0;
@@ -192,6 +200,17 @@ export const userScenarioProgressRepository = {
 			})
 			.returning();
 
+		// Update scenario metadata
+		try {
+			await scenarioMetadataRepository.incrementAttemptCount(scenarioId);
+			if (timeSpentSeconds > 0) {
+				await scenarioMetadataRepository.recordTimeSpent(scenarioId, timeSpentSeconds);
+			}
+		} catch (error) {
+			console.error(`Failed to update metadata for scenario ${scenarioId}:`, error);
+			// Don't fail the attempt recording if metadata update fails
+		}
+
 		return result;
 	},
 
@@ -227,6 +246,17 @@ export const userScenarioProgressRepository = {
 			})
 			.returning();
 
+		// Update scenario metadata
+		try {
+			await scenarioMetadataRepository.incrementCompletionCount(scenarioId);
+			if (timeSpentSeconds > 0) {
+				await scenarioMetadataRepository.recordTimeSpent(scenarioId, timeSpentSeconds);
+			}
+		} catch (error) {
+			console.error(`Failed to update metadata for scenario ${scenarioId}:`, error);
+			// Don't fail the completion recording if metadata update fails
+		}
+
 		return result;
 	},
 
@@ -238,6 +268,10 @@ export const userScenarioProgressRepository = {
 		if (rating < 1 || rating > 5 || !Number.isInteger(rating)) {
 			throw new Error('Rating must be an integer between 1 and 5');
 		}
+
+		// Check if user has already rated this scenario
+		const existing = await this.getUserScenarioProgress(userId, scenarioId);
+		const hadPreviousRating = existing?.userRating !== null && existing?.userRating !== undefined;
 
 		const [updated] = await db
 			.insert(userScenarioProgress)
@@ -255,6 +289,24 @@ export const userScenarioProgressRepository = {
 				}
 			})
 			.returning();
+
+		// Update scenario metadata with the new rating
+		try {
+			if (hadPreviousRating) {
+				// User is updating their rating - use update method
+				await scenarioMetadataRepository.updateRating(
+					scenarioId,
+					existing?.userRating || 0,
+					rating
+				);
+			} else {
+				// User is rating for the first time
+				await scenarioMetadataRepository.recordRating(scenarioId, rating);
+			}
+		} catch (error) {
+			console.error(`Failed to update metadata for scenario ${scenarioId}:`, error);
+			// Don't fail the rating if metadata update fails
+		}
 
 		return updated;
 	},

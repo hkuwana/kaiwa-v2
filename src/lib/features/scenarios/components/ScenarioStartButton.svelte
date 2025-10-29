@@ -2,7 +2,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import type { User } from '$lib/server/db/types';
-import { scenariosData, sortScenariosByDifficulty, type Scenario } from '$lib/data/scenarios';
+	import { scenariosData, sortScenariosByDifficulty, type Scenario } from '$lib/data/scenarios';
 	import { difficultyRatingToCefr, formatCefrBadge } from '$lib/utils/cefr';
 	import { resolve } from '$app/paths';
 

@@ -15,9 +15,6 @@
 	import Testimonials from '$lib/features/payments/components/Testimonials.svelte';
 	import { resolve } from '$app/paths';
 
-	// Get page data from server using runes
-	const {} = $props();
-
 	// Plan selection
 	let selectedPlan = $state('annual');
 

@@ -62,10 +62,10 @@ async function sendReminders(): Promise<ReminderStats> {
 				);
 
 				// Also check user_scenario_progress for recent scenario attempts
-				const recentActivity = await userScenarioProgressRepository.getUserRecentActivity(
-					user.id,
-					{ daysBack: 3, limit: 1 }
-				);
+				const recentActivity = await userScenarioProgressRepository.getUserRecentActivity(user.id, {
+					daysBack: 3,
+					limit: 1
+				});
 
 				// If no recent activity in either conversation sessions or scenarios, they're eligible for a reminder
 				if (recentSessions.length === 0 && recentActivity.length === 0) {

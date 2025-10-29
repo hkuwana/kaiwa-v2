@@ -77,7 +77,7 @@
 		button: 'Start Practicing'
 	};
 
-function getScenarioRoleCopy(role?: Scenario['role']) {
+	function getScenarioRoleCopy(role?: Scenario['role']) {
 		if (role && role in SCENARIO_ROLE_COPY) {
 			return SCENARIO_ROLE_COPY[role as ScenarioRole];
 		}
@@ -102,7 +102,7 @@ function getScenarioRoleCopy(role?: Scenario['role']) {
 		}
 	}
 
-function handleScenarioChange(scenario: Scenario) {
+	function handleScenarioChange(scenario: Scenario) {
 		if (onScenarioChange) {
 			onScenarioChange(scenario);
 		}

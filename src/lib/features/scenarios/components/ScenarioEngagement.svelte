@@ -150,10 +150,14 @@
 	</button>
 
 	<!-- Rating Stars -->
-	<div class="flex gap-0.5" onmouseenter={() => (isHovering = true)} onmouseleave={() => (isHovering = false)}>
+	<div
+		class="flex gap-0.5"
+		onmouseenter={() => (isHovering = true)}
+		onmouseleave={() => (isHovering = false)}
+	>
 		{#each [1, 2, 3, 4, 5] as starRating (starRating)}
 			<button
-				class="btn btn-ghost {buttonSizeClasses[size]} px-1 hover:scale-110 transition-transform"
+				class="btn btn-ghost {buttonSizeClasses[size]} px-1 transition-transform hover:scale-110"
 				onclick={() => rateScenario(starRating)}
 				onmouseenter={() => (hoverRating = starRating)}
 				onmouseleave={() => (hoverRating = null)}
@@ -185,7 +189,7 @@
 
 	<!-- Loading State -->
 	{#if isSaving}
-		<span class="text-xs opacity-50 animate-pulse">Saving...</span>
+		<span class="animate-pulse text-xs opacity-50">Saving...</span>
 	{/if}
 </div>
 

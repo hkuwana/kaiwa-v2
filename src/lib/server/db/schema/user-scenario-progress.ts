@@ -1,4 +1,13 @@
-import { pgTable, uuid, text, integer, boolean, timestamp, index, primaryKey } from 'drizzle-orm/pg-core';
+import {
+	pgTable,
+	uuid,
+	text,
+	integer,
+	boolean,
+	timestamp,
+	index,
+	primaryKey
+} from 'drizzle-orm/pg-core';
 import { users } from './users';
 import { scenarios } from './scenarios';
 

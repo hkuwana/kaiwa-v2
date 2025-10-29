@@ -47,7 +47,7 @@
 
 	<!-- Progress Bar -->
 	<div class="mb-6">
-		<div class="flex items-center justify-between text-sm mb-2">
+		<div class="mb-2 flex items-center justify-between text-sm">
 			<span class="text-gray-600">Progress</span>
 			<span class="font-medium text-gray-800">{Math.round(goalProgress * 100)}%</span>
 		</div>
@@ -78,7 +78,7 @@
 	<!-- Used Vocabulary (if any) -->
 	{#if usedVocabulary.length > 0}
 		<div class="mb-6">
-			<div class="text-xs font-medium text-gray-600 mb-2">Used:</div>
+			<div class="mb-2 text-xs font-medium text-gray-600">Used:</div>
 			<div class="flex flex-wrap gap-2">
 				{#each usedVocabulary as word (word)}
 					<span class="rounded-full bg-green-100 px-2 py-1 text-xs text-green-800">

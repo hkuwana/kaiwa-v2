@@ -1,13 +1,13 @@
 <script lang="ts">
 	import ScenarioSelector from '$lib/features/scenarios/components/ScenarioSelector.svelte';
 	import ScenarioEngagement from '$lib/features/scenarios/components/ScenarioEngagement.svelte';
-import { scenariosData, type Scenario } from '$lib/data/scenarios';
+	import { scenariosData, type Scenario } from '$lib/data/scenarios';
 	import { customScenarioStore } from '$lib/stores/custom-scenarios.store.svelte';
 
 	const baseScenarios = scenariosData;
 	const scenarios = baseScenarios;
 
-let currentScenario = $state<Scenario | null>(baseScenarios[0]);
+	let currentScenario = $state<Scenario | null>(baseScenarios[0]);
 	let isSaved = $state(false);
 	let userRating = $state<number | null>(null);
 	let engagementIsLoading = $state(false);
@@ -16,7 +16,7 @@ let currentScenario = $state<Scenario | null>(baseScenarios[0]);
 	const savedSummaries = $derived(customScenarioStore.scenarios);
 	const customScenarios = $derived(customScenarioStore.customScenarios);
 
-function handleScenarioSelect(scenario: Scenario) {
+	function handleScenarioSelect(scenario: Scenario) {
 		currentScenario = scenario;
 		// Reset engagement state when switching scenarios
 		isSaved = false;
@@ -60,7 +60,7 @@ function handleScenarioSelect(scenario: Scenario) {
 				{#if currentScenario}
 					<div class="mt-4 space-y-4">
 						<div class="rounded-lg bg-base-200/50 p-3">
-							<p class="text-xs font-semibold uppercase tracking-wide opacity-70 mb-3">
+							<p class="mb-3 text-xs font-semibold tracking-wide uppercase opacity-70">
 								Engagement Controls (Demo)
 							</p>
 							<ScenarioEngagement
@@ -72,9 +72,11 @@ function handleScenarioSelect(scenario: Scenario) {
 								isLoading={engagementIsLoading}
 								size="md"
 							/>
-							<div class="mt-3 text-xs text-base-content/60 space-y-1">
+							<div class="mt-3 space-y-1 text-xs text-base-content/60">
 								<p>💾 Saved: <span class="font-mono font-semibold">{isSaved}</span></p>
-								<p>⭐ Rating: <span class="font-mono font-semibold">{userRating ?? 'null'}</span></p>
+								<p>
+									⭐ Rating: <span class="font-mono font-semibold">{userRating ?? 'null'}</span>
+								</p>
 							</div>
 						</div>
 					</div>

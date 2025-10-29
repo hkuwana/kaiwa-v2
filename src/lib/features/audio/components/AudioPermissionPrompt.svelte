@@ -107,9 +107,7 @@
 				{/if}
 
 				{#if showSkipOption}
-					<button class="btn w-full btn-ghost btn-sm" onclick={onSkip}>
-						Skip for now
-					</button>
+					<button class="btn w-full btn-ghost btn-sm" onclick={onSkip}> Skip for now </button>
 				{/if}
 			</div>
 
