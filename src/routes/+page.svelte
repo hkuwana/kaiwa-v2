@@ -192,30 +192,6 @@
 					onStartClick={trackStartSpeakingClick}
 					onModeChange={(mode) => (selectedAudioMode = mode)}
 				/>
-
-				<!-- Debug/Development Tools -->
-				{#if browser && (user.id === 'guest' || user.id === 'dev')}
-					<div class="mt-8 rounded-lg bg-base-200 p-4">
-						<h3 class="mb-3 text-sm font-semibold text-base-content/70">
-							🧹 Clear Conversation Data
-						</h3>
-						<div class="flex flex-wrap gap-2">
-							<button onclick={handleShowDataSummary} class="btn btn-outline btn-sm">
-								📊 Show Data Summary
-							</button>
-							<button onclick={handleClearConversationData} class="btn btn-sm btn-warning">
-								🧹 Clear Conversation Data
-							</button>
-							<button onclick={handleClearAllData} class="btn btn-sm btn-error">
-								🗑️ Clear ALL Data
-							</button>
-						</div>
-						<p class="mt-2 text-xs text-base-content/60">
-							Use these tools to clear stored conversation data if you're experiencing issues with
-							previous sessions.
-						</p>
-					</div>
-				{/if}
 			</div>
 		</div>
 	</header>
