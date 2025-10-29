@@ -25,10 +25,11 @@ import {
 	analysisSuggestionSeverityEnum,
 	analysisFindingActionEnum,
 	analysisFindings,
-	userFeatureProfiles
+	userFeatureProfiles,
+	scenarioVisibilityEnum,
+	scenarioMetadata,
+	userScenarioProgress
 } from './schema';
-import type { scenarioAttempts } from './schema/scenario-attempts';
-import type { scenarioOutcomes } from './schema/scenario-outcomes';
 
 // Tier type definitions
 export type UserTier = 'free' | 'plus' | 'premium';
@@ -53,8 +54,8 @@ export type Message = InferSelectModel<typeof messages>;
 export type MessageAudioAnalysis = InferSelectModel<typeof messageAudioAnalysis>;
 export type Scenario = InferSelectModel<typeof scenarios>;
 export type UserPreferences = InferSelectModel<typeof userPreferences>;
-export type ScenarioAttempt = InferSelectModel<typeof scenarioAttempts>;
-export type ScenarioOutcome = InferSelectModel<typeof scenarioOutcomes>;
+export type ScenarioMetadata = InferSelectModel<typeof scenarioMetadata>;
+export type UserScenarioProgress = InferSelectModel<typeof userScenarioProgress>;
 export type AnalyticsEvent = InferSelectModel<typeof analyticsEvents>;
 export type EmailVerification = InferSelectModel<typeof emailVerification>;
 export type UserSettings = InferSelectModel<typeof userSettings>;
@@ -86,8 +87,8 @@ export type NewMessage = InferInsertModel<typeof messages>;
 export type NewMessageAudioAnalysis = InferInsertModel<typeof messageAudioAnalysis>;
 export type NewScenario = InferInsertModel<typeof scenarios>;
 export type NewUserPreferences = InferInsertModel<typeof userPreferences>;
-export type NewScenarioAttempt = InferInsertModel<typeof scenarioAttempts>;
-export type NewScenarioOutcome = InferInsertModel<typeof scenarioOutcomes>;
+export type NewScenarioMetadata = InferInsertModel<typeof scenarioMetadata>;
+export type NewUserScenarioProgress = InferInsertModel<typeof userScenarioProgress>;
 export type NewAnalyticsEvent = InferInsertModel<typeof analyticsEvents>;
 export type NewEmailVerification = InferInsertModel<typeof emailVerification>;
 export type NewUserSettings = InferInsertModel<typeof userSettings>;
@@ -95,3 +96,4 @@ export type NewLinguisticFeature = InferInsertModel<typeof linguisticFeatures>;
 export type NewLinguisticFeatureAlias = InferInsertModel<typeof linguisticFeatureAliases>;
 export type NewAnalysisFinding = InferInsertModel<typeof analysisFindings>;
 export type NewUserFeatureProfile = InferInsertModel<typeof userFeatureProfiles>;
+export type ScenarioVisibility = (typeof scenarioVisibilityEnum.enumValues)[number];

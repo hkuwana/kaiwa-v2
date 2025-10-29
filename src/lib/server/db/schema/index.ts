@@ -31,7 +31,7 @@ export { emailVerification } from './email-verification';
 // 🌍 Content and learning (MVP focused) - order matters for dependencies
 export { languages } from './languages';
 export { speakers, speakerGenderEnum } from './speakers';
-export { scenarios, scenarioDifficultyEnum } from './scenarios'; // Simplified for onboarding/comfort
+export { scenarios, scenarioDifficultyEnum, scenarioVisibilityEnum } from './scenarios'; // Simplified for onboarding/comfort
 export { conversations } from './conversations';
 export { messages } from './messages';
 export { messageAudioAnalysis } from './message-audio-analysis';
@@ -75,9 +75,9 @@ export { userUsage } from './user-usage';
 export { conversationSessions } from './conversation-sessions';
 export { analyticsEvents } from './analytics-events';
 
-// 🎭 Learning scenario tracking
-export { scenarioAttempts } from './scenario-attempts';
-export { scenarioOutcomes } from './scenario-outcomes';
+// 🎭 Learning scenario tracking (replaced scenario-attempts & scenario-outcomes)
+export { scenarioMetadata } from './scenario-metadata';
+export { userScenarioProgress } from './user-scenario-progress';
 
 // 📝 Note: Newsletter removed; preferences live on userPreferences
 

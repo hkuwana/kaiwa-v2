@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ScenarioSelector from '$lib/features/scenarios/components/ScenarioSelector.svelte';
+	import ScenarioEngagement from '$lib/features/scenarios/components/ScenarioEngagement.svelte';
 	import { scenariosData, type ScenarioWithHints } from '$lib/data/scenarios';
 	import { customScenarioStore } from '$lib/stores/custom-scenarios.store.svelte';
 
@@ -7,6 +8,9 @@
 	const scenarios = baseScenarios;
 
 	let currentScenario = $state<ScenarioWithHints | null>(baseScenarios[0]);
+	let isSaved = $state(false);
+	let userRating = $state<number | null>(null);
+	let engagementIsLoading = $state(false);
 
 	const draft = $derived(customScenarioStore.draft);
 	const savedSummaries = $derived(customScenarioStore.scenarios);
@@ -14,6 +18,19 @@
 
 	function handleScenarioSelect(scenario: ScenarioWithHints) {
 		currentScenario = scenario;
+		// Reset engagement state when switching scenarios
+		isSaved = false;
+		userRating = null;
+	}
+
+	function handleSaveChange(newSavedState: boolean) {
+		isSaved = newSavedState;
+		console.log('✅ Scenario save status changed:', newSavedState);
+	}
+
+	function handleRatingChange(newRating: number) {
+		userRating = newRating;
+		console.log('⭐ Scenario rating changed:', newRating);
 	}
 </script>
 
@@ -21,8 +38,8 @@
 	<section class="space-y-4">
 		<h1 class="text-2xl font-bold">Scenario Selector Playground</h1>
 		<p class="text-base-content/70">
-			Use the selector button below to pick a scenario or create your own. This page displays the raw
-			JSON output so you can verify the generated data.
+			Use the selector button below to pick a scenario or create your own. This page displays the
+			raw JSON output so you can verify the generated data.
 		</p>
 		<div class="max-w-xl">
 			<ScenarioSelector
@@ -36,12 +53,35 @@
 	<section class="grid gap-6 md:grid-cols-2">
 		<div class="card bg-base-100 shadow">
 			<div class="card-body">
-				<h2 class="card-title text-lg">Selected Scenario</h2>
+				<div class="flex items-center justify-between">
+					<h2 class="card-title text-lg">Selected Scenario</h2>
+					<span class="badge badge-info">TEST</span>
+				</div>
 				{#if currentScenario}
+					<div class="mt-4 space-y-4">
+						<div class="rounded-lg bg-base-200/50 p-3">
+							<p class="text-xs font-semibold uppercase tracking-wide opacity-70 mb-3">
+								Engagement Controls (Demo)
+							</p>
+							<ScenarioEngagement
+								scenario={currentScenario}
+								{isSaved}
+								{userRating}
+								onSaveChange={handleSaveChange}
+								onRatingChange={handleRatingChange}
+								isLoading={engagementIsLoading}
+								size="md"
+							/>
+							<div class="mt-3 text-xs text-base-content/60 space-y-1">
+								<p>💾 Saved: <span class="font-mono font-semibold">{isSaved}</span></p>
+								<p>⭐ Rating: <span class="font-mono font-semibold">{userRating ?? 'null'}</span></p>
+							</div>
+						</div>
+					</div>
+
 					<pre class="mt-3 max-h-72 overflow-auto rounded bg-base-200/80 p-4 text-xs">
 {JSON.stringify(currentScenario, null, 2)}
-</pre
-					>
+</pre>
 				{:else}
 					<p class="text-sm text-base-content/60">No scenario selected.</p>
 				{/if}
@@ -54,8 +94,7 @@
 				{#if draft.result}
 					<pre class="mt-3 max-h-72 overflow-auto rounded bg-base-200/80 p-4 text-xs">
 {JSON.stringify(draft.result, null, 2)}
-</pre
-					>
+</pre>
 				{:else}
 					<p class="text-sm text-base-content/60">
 						No draft yet — open the creator and describe a scenario to generate JSON.
@@ -80,8 +119,7 @@
 							<p class="mt-1 text-xs text-base-content/60">{scenario.description}</p>
 							<pre class="mt-3 max-h-48 overflow-auto rounded bg-base-200/80 p-3 text-[11px]">
 {JSON.stringify(scenario, null, 2)}
-</pre
-							>
+</pre>
 						</div>
 					{/each}
 				</div>
@@ -89,7 +127,7 @@
 
 			{#if savedSummaries.length > 0}
 				<div class="divider"></div>
-				<h3 class="text-sm font-semibold uppercase tracking-wide">Summary Metadata</h3>
+				<h3 class="text-sm font-semibold tracking-wide uppercase">Summary Metadata</h3>
 				<ul class="space-y-2 text-xs">
 					{#each savedSummaries as summary (summary.id)}
 						<li class="rounded border border-base-300 p-3">

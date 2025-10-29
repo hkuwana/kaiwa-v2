@@ -7,6 +7,7 @@
 Kaiwa follows the **Signal Plan** — a go-to-market strategy centered on one core principle: giving users the **specific, practiced skills to have a single, successful, high-stakes conversation with a loved one**.
 
 Our "Signal" is this emotional outcome: **connecting without fear with the people you love**. Every feature, every interaction, and every technical choice exists to support this journey through four phases:
+
 1. **User Acquisition** — Marketing the solution to emotional problems, not features
 2. **User Onboarding** — Proving value instantly by focusing on the user's specific conversation need
 3. **User Retention** — Using engagement features only to encourage deeper practice of high-stakes conversations

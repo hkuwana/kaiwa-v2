@@ -1,9 +1,9 @@
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
-import { scenarioAttemptsRepository } from '$lib/server/repositories/scenario-attempts.repository';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
 import { userRepository } from '$lib/server/repositories';
 import { scenarioRepository } from '$lib/server/repositories';
+import { userScenarioProgressRepository } from '$lib/server/repositories';
 import { EmailPermissionService } from './email-permission.service';
 import type { User, Scenario } from '$lib/server/db/types';
 import { userPreferencesRepository } from '$lib/server/repositories/user-preferences.repository';
@@ -97,28 +97,37 @@ export class EmailReminderService {
 			const user = await userRepository.findUserById(userId);
 			if (!user) return null;
 
-			// Get last completed scenario attempt
-			const completedAttempts =
-				await scenarioAttemptsRepository.getCompletedScenarioAttemptsByUserId(userId);
-			const lastAttempt = completedAttempts[0];
-			const lastScenario = lastAttempt
-				? await scenarioRepository.findScenarioById(lastAttempt.scenarioId)
-				: null;
+			// Query user_scenario_progress to get last completed scenario
+			const completedScenarios = await userScenarioProgressRepository.getUserCompletedScenarios(
+				userId,
+				{ limit: 1 }
+			);
+			let lastScenario: Scenario | undefined;
+			let lastPracticeDate: Date | undefined;
 
-			// Get recommended scenarios
+			if (completedScenarios.length > 0) {
+				const lastCompletion = completedScenarios[0];
+				lastPracticeDate = lastCompletion.lastCompletedAt || undefined;
+				if (lastCompletion.scenarioId) {
+					const scenario = await scenarioRepository.findScenarioById(lastCompletion.scenarioId);
+					if (scenario) {
+						lastScenario = scenario;
+					}
+				}
+			}
+
 			const recommendedScenarios = await this.getRecommendedScenarios(userId, lastScenario);
 
-			// Get last practice date and streak
-			const lastPracticeDate = lastAttempt?.completedAt || null;
+			// Get streak and target language
 			const streakDays = await this.calculateStreakDays(userId);
 			const targetLanguage = await this.getTargetLanguageInfo(userId);
 			const survivalPhrase = targetLanguage ? this.pickSurvivalPhrase(targetLanguage.code) : null;
 
 			return {
 				user,
-				lastScenario: lastScenario || undefined,
+				lastScenario,
 				recommendedScenarios,
-				lastPracticeDate: lastPracticeDate || undefined,
+				lastPracticeDate,
 				streakDays,
 				targetLanguage,
 				survivalPhrase: survivalPhrase || undefined
@@ -142,13 +151,17 @@ export class EmailReminderService {
 			const allScenarios = await scenarioRepository.findActiveScenarios();
 
 			// Get user's completed scenarios
-			const completedAttempts =
-				await scenarioAttemptsRepository.getCompletedScenarioAttemptsByUserId(userId);
-			const completedScenarioIds = new Set(completedAttempts.map((a) => a.scenarioId));
+			const completedProgress = await userScenarioProgressRepository.getUserCompletedScenarios(
+				userId,
+				{ limit: 1000 }
+			);
+			const completedScenarioIds = new Set(
+				completedProgress.map((p) => p.scenarioId)
+			);
 
-			// Filter out completed scenarios and onboarding
+			// Filter out onboarding and already-completed scenarios
 			const availableScenarios = allScenarios.filter(
-				(s: Scenario) => !completedScenarioIds.has(s.id) && s.id !== 'onboarding-welcome'
+				(s: Scenario) => s.id !== 'onboarding-welcome' && !completedScenarioIds.has(s.id)
 			);
 
 			// Priority order: relationship repair > family acceptance > vulnerable sharing > life transitions > medical > dating

@@ -11,7 +11,9 @@
 	<div class="container mx-auto px-4 py-16">
 		<!-- Hero Section -->
 		<div class="mb-16 text-center">
-			<h1 class="mb-6 text-5xl font-bold text-white md:text-7xl">Have the conversation you're afraid of.</h1>
+			<h1 class="mb-6 text-5xl font-bold text-white md:text-7xl">
+				Have the conversation you're afraid of.
+			</h1>
 			<p class="mx-auto max-w-4xl text-xl leading-relaxed text-gray-300 md:text-2xl">
 				For people who need to connect with the ones they love, in the language of their heart
 			</p>
@@ -21,10 +23,15 @@
 		<div class="mx-auto mb-16 max-w-4xl">
 			<div class="rounded-2xl border border-purple-500/20 bg-black/30 p-8 backdrop-blur-sm">
 				<p class="text-lg leading-relaxed text-gray-200">
-					Kaiwa's Signal: Give you the specific, practiced skills to have a single, successful, high-stakes conversation with a loved one. Not test prep. Not vocab lists. Real connection with the people you love, in their language.
+					Kaiwa's Signal: Give you the specific, practiced skills to have a single, successful,
+					high-stakes conversation with a loved one. Not test prep. Not vocab lists. Real connection
+					with the people you love, in their language.
 				</p>
 				<p class="mt-4 text-gray-300">
-					Our emotional outcome is simple: <strong>connecting without fear with the people who matter most.</strong> Every feature, every scenario, every piece of feedback exists to move you closer to that moment when they understand you—truly, deeply—in their language.
+					Our emotional outcome is simple: <strong
+						>connecting without fear with the people who matter most.</strong
+					> Every feature, every scenario, every piece of feedback exists to move you closer to that
+					moment when they understand you—truly, deeply—in their language.
 				</p>
 			</div>
 		</div>
@@ -34,7 +41,9 @@
 			<h2 class="mb-8 text-center text-3xl font-bold text-white">The Signal: Emotional Outcomes</h2>
 			<div class="rounded-2xl border border-purple-500/20 bg-black/30 p-8 backdrop-blur-sm">
 				<p class="mb-6 text-lg text-gray-200">
-					Kaiwa is built around one clear Signal: the specific conversations that connect you with the people you love. Not test scores. Not vocabulary counts. The moments where they understand you—and you understand them.
+					Kaiwa is built around one clear Signal: the specific conversations that connect you with
+					the people you love. Not test scores. Not vocabulary counts. The moments where they
+					understand you—and you understand them.
 				</p>
 				<div class="grid gap-8 md:grid-cols-2">
 					<div>
@@ -81,8 +90,13 @@
 					<h3 class="mb-2 text-xl font-semibold text-white">The Connection Seeker</h3>
 					<p class="mb-4 text-sm text-purple-400">"I want them to know the real me"</p>
 					<ul class="space-y-2 text-sm text-gray-300">
-						<li><strong>Fear:</strong> They won't understand my real thoughts without a translator</li>
-						<li><strong>Signal Moment:</strong> Having an honest argument, laughing at jokes, sharing a difficult feeling—all without help</li>
+						<li>
+							<strong>Fear:</strong> They won't understand my real thoughts without a translator
+						</li>
+						<li>
+							<strong>Signal Moment:</strong> Having an honest argument, laughing at jokes, sharing a
+							difficult feeling—all without help
+						</li>
 						<li><strong>Win:</strong> "They finally understood me without me translating"</li>
 					</ul>
 				</div>
@@ -92,9 +106,16 @@
 					<h3 class="mb-2 text-xl font-semibold text-white">The Legacy Builder</h3>
 					<p class="mb-4 text-sm text-purple-400">"I want to honor where I come from"</p>
 					<ul class="space-y-2 text-sm text-gray-300">
-						<li><strong>Fear:</strong> Missing out on family stories, grandparents' wisdom, real connection</li>
-						<li><strong>Signal Moment:</strong> Having a real conversation with grandparents or extended family—not just hellos</li>
-						<li><strong>Win:</strong> "They shared something vulnerable with me. In their language"</li>
+						<li>
+							<strong>Fear:</strong> Missing out on family stories, grandparents' wisdom, real connection
+						</li>
+						<li>
+							<strong>Signal Moment:</strong> Having a real conversation with grandparents or extended
+							family—not just hellos
+						</li>
+						<li>
+							<strong>Win:</strong> "They shared something vulnerable with me. In their language"
+						</li>
 					</ul>
 				</div>
 			</div>
@@ -157,29 +178,41 @@
 			<h2 class="mb-8 text-center text-3xl font-bold text-white">The Manifesto: Our Signal</h2>
 			<div class="rounded-2xl border border-purple-500/20 bg-black/30 p-8 backdrop-blur-sm">
 				<div class="space-y-4 leading-relaxed text-gray-200">
-					<p class="text-lg font-semibold text-purple-400">
-						Core Principle: Signal vs. Noise
+					<p class="text-lg font-semibold text-purple-400">Core Principle: Signal vs. Noise</p>
+					<p>
+						Our Signal is simple: giving users the specific, practiced skills to have a single,
+						successful, high-stakes conversation with a loved one.
 					</p>
 					<p>
-						Our Signal is simple: giving users the specific, practiced skills to have a single, successful, high-stakes conversation with a loved one.
-					</p>
-					<p>
-						We ignore the noise: gamification for its own sake, generic "soft skills" training, metrics like "time in app."
+						We ignore the noise: gamification for its own sake, generic "soft skills" training,
+						metrics like "time in app."
 					</p>
 					<p class="mt-6 font-semibold text-white">
 						We built Kaiwa by working backwards from the user's real-world emotional goal.
 					</p>
 					<p>
-						The user does not want to "practice AI conversations." The user wants their parents to be proud. Wants their partner to understand them. Wants to be in the room, fully present, without translating.
+						The user does not want to "practice AI conversations." The user wants their parents to
+						be proud. Wants their partner to understand them. Wants to be in the room, fully
+						present, without translating.
 					</p>
-					<p>
-						So we built four phases:
-					</p>
+					<p>So we built four phases:</p>
 					<ul class="mt-4 space-y-2 text-gray-300">
-						<li><strong>Phase 1: User Acquisition</strong> — We market the solution to emotional problems, not features</li>
-						<li><strong>Phase 2: User Onboarding</strong> — We prove value instantly by helping with their specific conversation fear</li>
-						<li><strong>Phase 3: User Retention</strong> — We use engagement only to encourage deeper practice of what matters</li>
-						<li><strong>Phase 4: Real-World Bridge</strong> — We celebrate the real conversation outcomes that prove this works</li>
+						<li>
+							<strong>Phase 1: User Acquisition</strong> — We market the solution to emotional problems,
+							not features
+						</li>
+						<li>
+							<strong>Phase 2: User Onboarding</strong> — We prove value instantly by helping with their
+							specific conversation fear
+						</li>
+						<li>
+							<strong>Phase 3: User Retention</strong> — We use engagement only to encourage deeper practice
+							of what matters
+						</li>
+						<li>
+							<strong>Phase 4: Real-World Bridge</strong> — We celebrate the real conversation outcomes
+							that prove this works
+						</li>
 					</ul>
 					<p class="mt-6 text-lg font-bold text-white">
 						Welcome to Kaiwa. The app for people who need to connect, not just pass a test.

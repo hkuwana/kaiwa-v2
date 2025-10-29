@@ -2,30 +2,9 @@
 // Focused scenario set for the MVP
 
 import type { Scenario } from '$lib/server/db/types';
-import type { CEFRLevel } from '$lib/utils/cefr';
-import type { InstructionParameters } from '$lib/services/instructions/parameters';
+export type { Scenario };
 
-// Extended scenario type with optional speaker selection hints
-export type ScenarioWithHints = Scenario & {
-	// Preferred locales for the conversation partner's voice (BCP-47 codes)
-	localeHints?: string[]; // e.g., ['en-GB', 'en-US']
-	// Soft preference for speaker gender (used as tie-breaker only)
-	speakerGenderPreference?: 'male' | 'female' | 'neutral';
-	// Preferred target languages for this scenario (language IDs from languages table)
-	preferredLanguages?: string[]; // e.g., ['japanese', 'spanish', 'chinese']
-	// Numeric difficulty rating mapped to CEFR (1-8 scale)
-	difficultyRating?: number;
-	// Cached CEFR level label
-	cefrLevel?: CEFRLevel;
-	// Freeform guidance for UI copy (e.g., recommended CEFR levels)
-	cefrRecommendation?: string;
-	// Clear statement of what the learner will be able to do after completing this scenario
-	learningGoal?: string;
-	// Optional instruction parameter overrides to seed the session
-	parameterHints?: Partial<InstructionParameters>;
-};
-
-export const scenariosData: ScenarioWithHints[] = [
+export const scenariosData: Scenario[] = [
 	{
 		id: 'beginner-confidence-bridge',
 		title: 'Zero to Hero',
@@ -72,19 +51,9 @@ Coach warmly. Avoid lists. Build confidence in ~5 minutes.`,
 			understanding: 2
 		},
 		persona: null,
-		parameterHints: {
-			speakingSpeed: 'very_slow',
-			sentenceLength: 'very_short',
-			scaffoldingLevel: 'heavy',
-			languageMixingPolicy: 'code_switching',
-			encouragementFrequency: 'frequent',
-			topicChangeFrequency: 'focused',
-			conversationPace: 'relaxed',
-			pauseFrequency: 'frequent',
-			vocabularyComplexity: 'basic',
-			grammarComplexity: 'simple',
-			correctionStyle: 'explicit'
-		},
+		createdByUserId: null,
+		visibility: 'public' as const,
+		usageCount: 0,
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date()
@@ -148,17 +117,9 @@ This is a judgment-free zone. No pressure, just practice.`,
 			understanding: 3
 		},
 		persona: null,
-		parameterHints: {
-			speakingSpeed: 'slow',
-			sentenceLength: 'short',
-			languageMixingPolicy: 'strict_immersion',
-			encouragementFrequency: 'frequent',
-
-			pauseFrequency: 'frequent',
-			vocabularyComplexity: 'basic',
-			grammarComplexity: 'simple',
-			correctionStyle: 'explicit'
-		},
+		createdByUserId: null,
+		visibility: 'public' as const,
+		usageCount: 0,
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date()
@@ -171,6 +132,8 @@ This is a judgment-free zone. No pressure, just practice.`,
 		difficulty: 'intermediate',
 		difficultyRating: 4,
 		cefrLevel: 'B1',
+		cefrRecommendation:
+			'Perfect for intermediate learners (B1) who want to practice medical vocabulary and emergency communication',
 		learningGoal:
 			'Explain acute pain clearly, answer follow-up medical questions, and confirm the treatment plan you receive',
 		instructions: `You woke up with intense pain and came straight to urgent care. Communicate clearly under stress:
@@ -181,7 +144,8 @@ This is a judgment-free zone. No pressure, just practice.`,
 4. **Stay calm but urgent** – breathe, advocate for yourself, and keep answers concise so the nurse captures everything.`,
 		context:
 			'Fluorescent lights, rain still on your jacket, and a calm nurse ushering you into a small exam room.',
-		expectedOutcome: 'Leave with a clear explanation of what happens next and pain instructions you can repeat back',
+		expectedOutcome:
+			'Leave with a clear explanation of what happens next and pain instructions you can repeat back',
 		learningObjectives: [
 			'symptom vocabulary',
 			'pain scale language',
@@ -206,9 +170,10 @@ This is a judgment-free zone. No pressure, just practice.`,
 			stakes:
 				'If you miss critical information, the patient may not receive the right treatment in time.'
 		},
+		createdByUserId: null,
+		visibility: 'public' as const,
+		usageCount: 0,
 		isActive: true,
-		localeHints: ['ja-JP'],
-		preferredLanguages: ['ja'],
 		createdAt: new Date(),
 		updatedAt: new Date()
 	},
@@ -220,6 +185,8 @@ This is a judgment-free zone. No pressure, just practice.`,
 		difficulty: 'intermediate',
 		difficultyRating: 6,
 		cefrLevel: 'B2',
+		cefrRecommendation:
+			'Ideal for advanced intermediate learners (B2) who want to navigate family introductions with cultural sensitivity',
 		learningGoal:
 			"Build genuine trust and connection with your partner's family through respectful, culturally-aware conversation",
 		instructions: `Share who you are, ask questions that show respect, and respond to advice with warmth. Practice toasts, compliments, and the small cultural cues that matter.`,
@@ -244,14 +211,14 @@ This is a judgment-free zone. No pressure, just practice.`,
 			nameTemplate: '{SPEAKER_NAME}-san',
 			setting: 'Tatami dining room with seasonal dishes and attentive family members.',
 			introPrompt:
-				'Greet your child’s partner warmly but with cautious curiosity, ask respectful questions about their background, and notice small etiquette cues.',
+				"Greet your child's partner warmly but with cautious curiosity, ask respectful questions about their background, and notice small etiquette cues.",
 			stakes:
-				'You want to decide whether to welcome them into the family and trust them with your child’s future.'
+				"You want to decide whether to welcome them into the family and trust them with your child's future."
 		},
+		createdByUserId: null,
+		visibility: 'public' as const,
+		usageCount: 0,
 		isActive: true,
-		localeHints: ['ja-JP'],
-		preferredLanguages: ['ja'],
-		speakerGenderPreference: 'neutral',
 		createdAt: new Date(),
 		updatedAt: new Date()
 	},
@@ -259,14 +226,16 @@ This is a judgment-free zone. No pressure, just practice.`,
 		id: 'inlaws-family-friends-intro',
 		title: "Sibling's Family Friends Mixer",
 		description:
-			'Meet family friends for the first time as your partner’s sibling explains the web of relationships.',
+			"Meet family friends for the first time as your partner's sibling explains the web of relationships.",
 		role: 'character',
 		difficulty: 'intermediate',
 		difficultyRating: 5,
 		cefrLevel: 'B2',
+		cefrRecommendation:
+			'Great for advanced intermediate learners (B2) who want to practice relationship vocabulary and social navigation',
 		learningGoal:
 			'Navigate layered family introductions gracefully, remember connections, and respond with culturally aware warmth',
-		instructions: `You are meeting long-time family friends alongside your partner’s sibling. Show respect, track relationships, and respond warmly:
+		instructions: `You are meeting long-time family friends alongside your partner's sibling. Show respect, track relationships, and respond warmly:
 
 1. **Listen for connection clues** – note who is related to whom, shared histories, and key milestones.
 2. **Mirror and clarify** – repeat names with the right honorifics, confirm how people are connected, and ask gentle follow-ups.
@@ -293,16 +262,16 @@ This is a judgment-free zone. No pressure, just practice.`,
 			title: 'Protective Older Sibling Host',
 			nameTemplate: '{SPEAKER_NAME}-san',
 			setting:
-				'A weekend gathering where your sibling is walking you through the family’s closest friends.',
+				"A weekend gathering where your sibling is walking you through the family's closest friends.",
 			introPrompt:
-				'Welcome your sibling’s partner, explain each guest’s connection to the family, and gently test how well they’re following along.',
+				"Welcome your sibling's partner, explain each guest's connection to the family, and gently test how well they're following along.",
 			stakes:
 				'You want to be sure they understand the family network and can represent your sibling well in future gatherings.'
 		},
+		createdByUserId: null,
+		visibility: 'public' as const,
+		usageCount: 0,
 		isActive: true,
-		localeHints: ['ja-JP'],
-		preferredLanguages: ['ja'],
-		speakerGenderPreference: 'neutral',
 		createdAt: new Date(),
 		updatedAt: new Date()
 	},
@@ -314,6 +283,8 @@ This is a judgment-free zone. No pressure, just practice.`,
 		difficulty: 'intermediate',
 		difficultyRating: 4,
 		cefrLevel: 'B1',
+		cefrRecommendation:
+			'Perfect for intermediate learners (B1) who want to practice casual conversation and personal storytelling',
 		learningGoal:
 			'Create genuine connection by asking thoughtful questions and sharing your story naturally',
 		instructions: `You're on a first date. Ask questions, share stories, and see if there's a connection.`,
@@ -331,6 +302,9 @@ This is a judgment-free zone. No pressure, just practice.`,
 			understanding: 4
 		},
 		persona: null,
+		createdByUserId: null,
+		visibility: 'public' as const,
+		usageCount: 0,
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date()
@@ -343,6 +317,8 @@ This is a judgment-free zone. No pressure, just practice.`,
 		difficulty: 'intermediate',
 		difficultyRating: 5,
 		cefrLevel: 'B2',
+		cefrRecommendation:
+			'Excellent for advanced intermediate learners (B2) who want to practice emotional communication and relationship repair',
 		learningGoal:
 			'Repair trust in relationships by apologizing authentically and rebuilding emotional connection',
 		instructions: `Acknowledge what hurt them, explain what you meant without deflecting, and rebuild trust by asking what they need from you. Practice the vulnerability that turns "sorry" into real repair.`,
@@ -373,10 +349,10 @@ This is a judgment-free zone. No pressure, just practice.`,
 			stakes:
 				'If the apology feels shallow or defensive, the relationship loses another layer of trust.'
 		},
+		createdByUserId: null,
+		visibility: 'public' as const,
+		usageCount: 0,
 		isActive: true,
-		localeHints: ['ja-JP'],
-		preferredLanguages: ['ja'],
-		speakerGenderPreference: 'neutral',
 		createdAt: new Date(),
 		updatedAt: new Date()
 	},
@@ -388,6 +364,8 @@ This is a judgment-free zone. No pressure, just practice.`,
 		difficulty: 'intermediate',
 		difficultyRating: 4,
 		cefrLevel: 'B1',
+		cefrRecommendation:
+			'Great for intermediate learners (B1) who want to practice emotional vocabulary and vulnerability in relationships',
 		learningGoal:
 			"Express emotions vulnerably and deepen emotional intimacy by sharing what's truly important to you",
 		instructions: `Name the feeling, explain why it matters, and ask for what you need. Practice moving past "I'm fine" to say what's actually true.`,
@@ -415,10 +393,10 @@ This is a judgment-free zone. No pressure, just practice.`,
 				'Notice that something feels important. Ask gentle questions, create space for honesty, and respond with empathy when they share.',
 			stakes: 'If you rush or minimize their feelings, they may close off and stop sharing.'
 		},
+		createdByUserId: null,
+		visibility: 'public' as const,
+		usageCount: 0,
 		isActive: true,
-		localeHints: ['ja-JP'],
-		preferredLanguages: ['ja'],
-		speakerGenderPreference: 'neutral',
 		createdAt: new Date(),
 		updatedAt: new Date()
 	},
@@ -430,6 +408,8 @@ This is a judgment-free zone. No pressure, just practice.`,
 		difficulty: 'intermediate',
 		difficultyRating: 5,
 		cefrLevel: 'B2',
+		cefrRecommendation:
+			'Perfect for advanced intermediate learners (B2) who want to practice public speaking and cultural expression',
 		learningGoal:
 			'Deliver a heartfelt, memorable toast that celebrates loved ones with genuine warmth and cultural grace',
 		instructions: `Share a personal story, honor the people being celebrated, and close with a wish for the future. Practice the cadence, warmth, and cultural touches that make a toast memorable.`,
@@ -459,10 +439,10 @@ This is a judgment-free zone. No pressure, just practice.`,
 			stakes:
 				'If the toast feels flat or culturally off, the moment loses its emotional weight and becomes awkward.'
 		},
+		createdByUserId: null,
+		visibility: 'public' as const,
+		usageCount: 0,
 		isActive: true,
-		localeHints: ['ja-JP'],
-		preferredLanguages: ['ja'],
-		speakerGenderPreference: 'neutral',
 		createdAt: new Date(),
 		updatedAt: new Date()
 	},
@@ -474,6 +454,8 @@ This is a judgment-free zone. No pressure, just practice.`,
 		difficulty: 'intermediate',
 		difficultyRating: 5,
 		cefrLevel: 'B2',
+		cefrRecommendation:
+			'Excellent for advanced intermediate learners (B2) who want to practice assertiveness and handling emotional family conversations',
 		learningGoal:
 			'Announce major life decisions with clarity and confidence while maintaining family trust and understanding',
 		instructions: `Lead with the decision, explain your reasoning, acknowledge their concerns, and reassure them that the relationship stays strong. Practice handling reactions from surprise to resistance.`,
@@ -503,10 +485,10 @@ This is a judgment-free zone. No pressure, just practice.`,
 			stakes:
 				'If they cannot explain clearly or handle your concerns, you may feel excluded from their life or worried about their future.'
 		},
+		createdByUserId: null,
+		visibility: 'public' as const,
+		usageCount: 0,
 		isActive: true,
-		localeHints: ['ja-JP'],
-		preferredLanguages: ['ja'],
-		speakerGenderPreference: 'neutral',
 		createdAt: new Date(),
 		updatedAt: new Date()
 	}
@@ -514,104 +496,36 @@ This is a judgment-free zone. No pressure, just practice.`,
 
 const DEFAULT_RATING = 99;
 
-const sortByDifficultyRating = (a: ScenarioWithHints, b: ScenarioWithHints) => {
+const sortByDifficultyRating = (a: Scenario, b: Scenario) => {
 	const ratingA = a.difficultyRating ?? DEFAULT_RATING;
 	const ratingB = b.difficultyRating ?? DEFAULT_RATING;
 	if (ratingA === ratingB) return a.title.localeCompare(b.title);
 	return ratingA - ratingB;
 };
 
-export const sortScenariosByDifficulty = (input: ScenarioWithHints[]): ScenarioWithHints[] => {
+export const sortScenariosByDifficulty = (input: Scenario[]): Scenario[] => {
 	return [...input].sort(sortByDifficultyRating);
 };
 
-export const getOnboardingScenario = (): ScenarioWithHints | undefined => {
+export const getOnboardingScenario = (): Scenario | undefined => {
 	return scenariosData.find(
 		(scenario) => scenario.role === 'tutor' && scenario.id === 'onboarding-welcome'
 	);
 };
 
-export const getComfortScenarios = (): ScenarioWithHints[] => {
+export const getComfortScenarios = (): Scenario[] => {
 	return scenariosData
 		.filter((scenario) => scenario.id !== 'onboarding-welcome')
 		.sort(sortByDifficultyRating);
 };
 
-export const getScenarioById = (id: string): ScenarioWithHints | undefined => {
+export const getScenarioById = (id: string): Scenario | undefined => {
 	return scenariosData.find((scenario) => scenario.id === id);
-};
-
-/**
- * Get scenarios filtered by language preference
- * Prioritizes scenarios that prefer the given language, then returns all others
- */
-export const getScenariosByLanguage = (languageId: string): ScenarioWithHints[] => {
-	const preferred = scenariosData.filter((scenario) =>
-		scenario.preferredLanguages?.includes(languageId)
-	);
-	const general = scenariosData.filter(
-		(scenario) => !scenario.preferredLanguages || !scenario.preferredLanguages.includes(languageId)
-	);
-
-	return [...preferred.sort(sortByDifficultyRating), ...general.sort(sortByDifficultyRating)];
-};
-
-/**
- * Get scenarios for a user based on their language preferences
- * If user has preferences for the language, exclude onboarding scenarios
- * If user has no preferences, only show onboarding scenario
- */
-export const getScenariosForUser = (
-	hasPreferences: boolean,
-	languageId?: string
-): ScenarioWithHints[] => {
-	if (!hasPreferences) {
-		// User has no preferences - show only onboarding scenario
-		const onboarding = getOnboardingScenario();
-		return onboarding ? [onboarding] : [];
-	}
-
-	// User has preferences - exclude onboarding, filter by language if specified
-	let scenarios = scenariosData.filter((scenario) => scenario.id !== 'onboarding-welcome');
-
-	if (languageId) {
-		// Prioritize scenarios for the user's language
-		const preferred = scenarios.filter((scenario) =>
-			scenario.preferredLanguages?.includes(languageId)
-		);
-		const general = scenarios.filter(
-			(scenario) =>
-				!scenario.preferredLanguages || !scenario.preferredLanguages.includes(languageId)
-		);
-		scenarios = [
-			...preferred.sort(sortByDifficultyRating),
-			...general.sort(sortByDifficultyRating)
-		];
-	}
-
-	return scenarios.sort(sortByDifficultyRating);
 };
 
 /**
  * Get scenarios by role, optionally filtered by language
  */
-export const getScenariosByRole = (role: string, languageId?: string): ScenarioWithHints[] => {
-	let scenarios = scenariosData.filter((scenario) => scenario.role === role);
-
-	if (languageId) {
-		// Prioritize scenarios for the specified language
-		const preferred = scenarios.filter((scenario) =>
-			scenario.preferredLanguages?.includes(languageId)
-		);
-		const general = scenarios.filter(
-			(scenario) =>
-				!scenario.preferredLanguages || !scenario.preferredLanguages.includes(languageId)
-		);
-		scenarios = [
-			...preferred.sort(sortByDifficultyRating),
-			...general.sort(sortByDifficultyRating)
-		];
-	}
-
-	return scenarios.sort(sortByDifficultyRating);
+export const getScenariosByRole = (role: string): Scenario[] => {
+	return scenariosData.filter((scenario) => scenario.role === role).sort(sortByDifficultyRating);
 };

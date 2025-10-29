@@ -7,8 +7,6 @@ import { userUsageRepository } from '$lib/server/repositories/user-usage.reposit
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
 import { conversationRepository } from '$lib/server/repositories/conversation.repository';
 import { analyticsEventsRepository } from '$lib/server/repositories/analytics-events.repository';
-import { scenarioAttemptsRepository } from '$lib/server/repositories/scenario-attempts.repository';
-import { scenarioOutcomesRepository } from '$lib/server/repositories/scenario-outcomes.repository';
 import { subscriptionRepository } from '$lib/server/repositories/subscription.repository';
 import { paymentRepository } from '$lib/server/repositories/payment.repository';
 import { userSettingsRepository } from '$lib/server/repositories/user-settings.repository';
@@ -75,35 +73,25 @@ export const DELETE = async ({ locals, params }) => {
 			console.log('Analytics events deletion skipped:', error);
 		}
 
-		// 9. Delete scenario attempts
-		try {
-			await scenarioAttemptsRepository.deleteUserScenarioAttempts(userId);
-		} catch (error) {
-			console.log('Scenario attempts deletion skipped:', error);
-		}
+		// 9. Delete scenario progress (user_scenario_progress & scenario_metadata via CASCADE)
+		// This is automatically handled by CASCADE foreign keys on user_scenario_progress
+		// No explicit deletion needed - will be cascade deleted when user is deleted
 
-		// 10. Delete scenario outcomes
-		try {
-			await scenarioOutcomesRepository.deleteUserScenarioOutcomes(userId);
-		} catch (error) {
-			console.log('Scenario outcomes deletion skipped:', error);
-		}
-
-		// 11. Delete subscriptions
+		// 10. Delete subscriptions
 		try {
 			await subscriptionRepository.deleteUserSubscriptions(userId);
 		} catch (error) {
 			console.log('Subscriptions deletion skipped:', error);
 		}
 
-		// 12. Delete payments
+		// 11. Delete payments
 		try {
 			await paymentRepository.deleteUserPayments(userId);
 		} catch (error) {
 			console.log('Payments deletion skipped:', error);
 		}
 
-		// 13. Finally, delete the user record
+		// 12. Finally, delete the user record
 		await userRepository.deleteUser(userId);
 
 		console.log(`Account permanently deleted for user: ${userId}`);

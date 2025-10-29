@@ -17,8 +17,8 @@
 
 import { EmailReminderService } from '../src/lib/server/email/email-reminder.service';
 import { userRepository } from '../src/lib/server/repositories';
-import { scenarioAttemptsRepository } from '../src/lib/server/repositories/scenario-attempts.repository';
 import { conversationSessionsRepository } from '../src/lib/server/repositories/conversation-sessions.repository';
+import { userScenarioProgressRepository } from '../src/lib/server/repositories/user-scenario-progress.repository';
 
 interface ReminderStats {
 	totalUsers: number;
@@ -54,21 +54,21 @@ async function sendReminders(): Promise<ReminderStats> {
 
 		for (const user of verifiedUsers) {
 			try {
-				// Check if user has practiced recently
+				// Check if user has practiced recently via conversation sessions
 				const recentSessions = await conversationSessionsRepository.getUserSessionsInRange(
 					user.id,
 					cutoffDate,
 					new Date()
 				);
 
-				const recentAttempts = await scenarioAttemptsRepository.getScenarioAttemptsInDateRange(
+				// Also check user_scenario_progress for recent scenario attempts
+				const recentActivity = await userScenarioProgressRepository.getUserRecentActivity(
 					user.id,
-					cutoffDate,
-					new Date()
+					{ daysBack: 3, limit: 1 }
 				);
 
-				// If no recent activity, they're eligible for a reminder
-				if (recentSessions.length === 0 && recentAttempts.length === 0) {
+				// If no recent activity in either conversation sessions or scenarios, they're eligible for a reminder
+				if (recentSessions.length === 0 && recentActivity.length === 0) {
 					eligibleUsers.push(user);
 				}
 			} catch (error) {

@@ -11,9 +11,11 @@
 These pillars map directly to the four phases of user journey:
 
 ### Pillar 1: "The Conversation You're Afraid Of" (Acquisition)
+
 **Goal**: Stop scrolling, start resonating. Make people recognize their deepest conversation fear.
 
 **Content Examples**:
+
 - "Why You Freeze When Talking to Your Partner's Parents"
 - "The 3 Conversations Every Bilingual Couple Fears"
 - "Telling Your Family You're Changing Careers — In Their Language"
@@ -25,9 +27,11 @@ These pillars map directly to the four phases of user journey:
 ---
 
 ### Pillar 2: "How to Actually Practice It" (Onboarding)
+
 **Goal**: Show the user they can do this. Make practice feel safe and real.
 
 **Content Examples**:
+
 - "3 Scenarios to Practice Before Meeting Your Partner's Family"
 - "How to Practice an Apology (So It Actually Works)"
 - "The Warm-Up Exercise That Gets You Ready in Minutes"
@@ -39,9 +43,11 @@ These pillars map directly to the four phases of user journey:
 ---
 
 ### Pillar 3: "Real People, Real Moments" (Retention & Social Proof)
+
 **Goal**: Celebrate user wins. Show that this works.
 
 **Content Examples**:
+
 - "Sarah Finally Talked to Her Parents Without Translating — Here's How"
 - "The Conversation That Changed Their Relationship (And How Kaiwa Helped)"
 - "Before/After: From Anxiety to Confidence in 2 Weeks"
@@ -53,9 +59,11 @@ These pillars map directly to the four phases of user journey:
 ---
 
 ### Pillar 4: "Why This Works Differently" (Authority & Differentiation)
+
 **Goal**: Explain the philosophy. Show you understand something others don't.
 
 **Content Examples**:
+
 - "Why Flashcards Will Never Help You Talk to Your Grandma"
 - "Conversation-First Learning: Why Kaiwa Ditched Vocab Lists"
 - "The Prep Plan + Reflection Framework: How Real Change Happens"
@@ -72,82 +80,88 @@ These pillars map directly to the four phases of user journey:
 Each 6-week cycle repeats. Customize scenarios and users as you go, but the rhythm stays consistent.
 
 ### Week 1: Proof of Habit
+
 **Theme**: Build-in-public daily practice + kickoff narrative
 
-| Day | Content Type | Example | Format | Distribution |
-|-----|--------------|---------|--------|--------------|
-| Mon | Weekly Wins & Fixes | "Shipped: Better onboarding. User feedback: 'I felt less nervous.'" | LinkedIn post | LinkedIn, Twitter |
-| Tue | Founder's Voice | "I practiced 'telling my parents news' 5 times this week. Here's what I learned." | Twitter/Threads | Twitter, LinkedIn |
-| Wed | Build-in-Public Clip | 30s video of you practicing a conversation (stumbling + all) | Reel/Short | Instagram, TikTok |
-| Thu | Micro-narrative | "The moment I realized I wasn't translating in my head anymore" | Reddit post | r/languagelearning |
-| Fri | Scenario Guide | "5 Things to Practice Before You See Your Partner's Family" | Blog post | Blog, email, LinkedIn |
-| Sat | Community Lift | Share Practice Lab highlights; celebrate attendee breakthroughs | Story/Thread | Email, community |
-| Sun | Reflection & Planning | Document what people asked about most; plan next week's angles | Internal memo | N/A (prep for next week) |
+| Day | Content Type          | Example                                                                           | Format          | Distribution             |
+| --- | --------------------- | --------------------------------------------------------------------------------- | --------------- | ------------------------ |
+| Mon | Weekly Wins & Fixes   | "Shipped: Better onboarding. User feedback: 'I felt less nervous.'"               | LinkedIn post   | LinkedIn, Twitter        |
+| Tue | Founder's Voice       | "I practiced 'telling my parents news' 5 times this week. Here's what I learned." | Twitter/Threads | Twitter, LinkedIn        |
+| Wed | Build-in-Public Clip  | 30s video of you practicing a conversation (stumbling + all)                      | Reel/Short      | Instagram, TikTok        |
+| Thu | Micro-narrative       | "The moment I realized I wasn't translating in my head anymore"                   | Reddit post     | r/languagelearning       |
+| Fri | Scenario Guide        | "5 Things to Practice Before You See Your Partner's Family"                       | Blog post       | Blog, email, LinkedIn    |
+| Sat | Community Lift        | Share Practice Lab highlights; celebrate attendee breakthroughs                   | Story/Thread    | Email, community         |
+| Sun | Reflection & Planning | Document what people asked about most; plan next week's angles                    | Internal memo   | N/A (prep for next week) |
 
 ### Week 2: Community Lift
+
 **Theme**: Testimonials + user breakthroughs + build momentum
 
-| Day | Content Type | Example | Format | Distribution |
-|-----|--------------|---------|--------|--------------|
-| Mon | Wins & Fixes | "User requested 'apology prep' → Shipped in 2 days → 8 people tried it" | LinkedIn post | LinkedIn, Twitter |
-| Tue | Case Study Launch | "Alex's Story: From Silence to Confidence (No Translation Needed)" | Blog post | Blog, email, LinkedIn |
-| Wed | Testimonial Reel | 15s video: real user talking about their real breakthrough | Reel | Instagram, TikTok |
-| Thu | Decision Journal | "We almost didn't build scenario feedback. Here's why we did." | Blog/Medium | Blog, LinkedIn, Medium |
-| Fri | How-To Deep Dive | "The Exact 3-Step Practice Formula We Use (And You Can Too)" | Blog post | Blog, email |
-| Sat | Practice Lab Recap | Host session + gather testimonial snippets from attendees | Video + quotes | Email, LinkedIn, community |
-| Sun | Pattern Tracker Review | Analyze feedback tags; identify top 3 emerging user needs | Internal doc | N/A (inform product + next week) |
+| Day | Content Type           | Example                                                                 | Format         | Distribution                     |
+| --- | ---------------------- | ----------------------------------------------------------------------- | -------------- | -------------------------------- |
+| Mon | Wins & Fixes           | "User requested 'apology prep' → Shipped in 2 days → 8 people tried it" | LinkedIn post  | LinkedIn, Twitter                |
+| Tue | Case Study Launch      | "Alex's Story: From Silence to Confidence (No Translation Needed)"      | Blog post      | Blog, email, LinkedIn            |
+| Wed | Testimonial Reel       | 15s video: real user talking about their real breakthrough              | Reel           | Instagram, TikTok                |
+| Thu | Decision Journal       | "We almost didn't build scenario feedback. Here's why we did."          | Blog/Medium    | Blog, LinkedIn, Medium           |
+| Fri | How-To Deep Dive       | "The Exact 3-Step Practice Formula We Use (And You Can Too)"            | Blog post      | Blog, email                      |
+| Sat | Practice Lab Recap     | Host session + gather testimonial snippets from attendees               | Video + quotes | Email, LinkedIn, community       |
+| Sun | Pattern Tracker Review | Analyze feedback tags; identify top 3 emerging user needs               | Internal doc   | N/A (inform product + next week) |
 
 ### Week 3: Conversion Push
+
 **Theme**: Social proof + direct outreach + offer clarity
 
-| Day | Content Type | Example | Format | Distribution |
-|-----|--------------|---------|--------|--------------|
-| Mon | Wins & Fixes | "This week: 3 users said 'I finally had the talk.' Shipping [tweak] in response." | LinkedIn post | LinkedIn, Twitter |
-| Tue | Founder Vulnerability | "I thought users wanted drills. I was wrong. Here's the humbling moment that changed everything." | Blog essay | Blog, LinkedIn, email |
-| Wed | Conversion-Focused Reel | "The warmup that makes the difference: 2 minutes before the real conversation" | Reel | Instagram, TikTok |
-| Thu | Build-in-Public Deep Dive | "Why we chose reflection journaling over achievement badges" | Blog post/Medium | Blog, LinkedIn, Medium |
-| Fri | Offer Announcement | "Referral bonus live: Bring a friend, get $X off" | Thread + direct DMs | Email, Twitter, LinkedIn |
-| Sat | Community AMA | Host live Q&A about practicing difficult conversations | Live video | YouTube, Instagram, LinkedIn |
-| Sun | Conversion Audit | Track: warm leads → bookings. Update forecast for next week. | Internal dashboard | N/A (strategy) |
+| Day | Content Type              | Example                                                                                           | Format              | Distribution                 |
+| --- | ------------------------- | ------------------------------------------------------------------------------------------------- | ------------------- | ---------------------------- |
+| Mon | Wins & Fixes              | "This week: 3 users said 'I finally had the talk.' Shipping [tweak] in response."                 | LinkedIn post       | LinkedIn, Twitter            |
+| Tue | Founder Vulnerability     | "I thought users wanted drills. I was wrong. Here's the humbling moment that changed everything." | Blog essay          | Blog, LinkedIn, email        |
+| Wed | Conversion-Focused Reel   | "The warmup that makes the difference: 2 minutes before the real conversation"                    | Reel                | Instagram, TikTok            |
+| Thu | Build-in-Public Deep Dive | "Why we chose reflection journaling over achievement badges"                                      | Blog post/Medium    | Blog, LinkedIn, Medium       |
+| Fri | Offer Announcement        | "Referral bonus live: Bring a friend, get $X off"                                                 | Thread + direct DMs | Email, Twitter, LinkedIn     |
+| Sat | Community AMA             | Host live Q&A about practicing difficult conversations                                            | Live video          | YouTube, Instagram, LinkedIn |
+| Sun | Conversion Audit          | Track: warm leads → bookings. Update forecast for next week.                                      | Internal dashboard  | N/A (strategy)               |
 
 ### Week 4: Systems Tightening
+
 **Theme**: Operations, education, product updates
 
-| Day | Content Type | Example | Format | Distribution |
-|-----|--------------|---------|--------|--------------|
-| Mon | Wins & Fixes | "Shipped: Smarter scenario recommendations. Early data: 40% higher completion." | LinkedIn post | LinkedIn |
-| Tue | Feature Explanation | "What 'The Prep Plan' Actually Does (And Why It Matters)" | Blog post | Blog, email |
-| Wed | Build-in-Public Iteration | "We tested 3 ways to ask 'what are you nervous about?' Here's what users preferred." | Twitter thread | Twitter, LinkedIn |
-| Thu | Technical Essay | "How We Built Real-Time Feedback (Without Sounding Like a Robot)" | Blog/Medium | Blog, Medium, LinkedIn |
-| Fri | Educational Content | "7 Conversation Scenarios That Actually Prepare You for Real Life" | Blog post | Blog, email, Pinterest |
-| Sat | Audit & Retrospective | Review: product usage, content performance, what's working | Internal doc | N/A (team alignment) |
-| Sun | Next Week Strategy | Plan content angles based on upcoming product launches or seasonal moments | Internal planning | N/A |
+| Day | Content Type              | Example                                                                              | Format            | Distribution           |
+| --- | ------------------------- | ------------------------------------------------------------------------------------ | ----------------- | ---------------------- |
+| Mon | Wins & Fixes              | "Shipped: Smarter scenario recommendations. Early data: 40% higher completion."      | LinkedIn post     | LinkedIn               |
+| Tue | Feature Explanation       | "What 'The Prep Plan' Actually Does (And Why It Matters)"                            | Blog post         | Blog, email            |
+| Wed | Build-in-Public Iteration | "We tested 3 ways to ask 'what are you nervous about?' Here's what users preferred." | Twitter thread    | Twitter, LinkedIn      |
+| Thu | Technical Essay           | "How We Built Real-Time Feedback (Without Sounding Like a Robot)"                    | Blog/Medium       | Blog, Medium, LinkedIn |
+| Fri | Educational Content       | "7 Conversation Scenarios That Actually Prepare You for Real Life"                   | Blog post         | Blog, email, Pinterest |
+| Sat | Audit & Retrospective     | Review: product usage, content performance, what's working                           | Internal doc      | N/A (team alignment)   |
+| Sun | Next Week Strategy        | Plan content angles based on upcoming product launches or seasonal moments           | Internal planning | N/A                    |
 
 ### Week 5: Social Proof
+
 **Theme**: Amplification + external validation + before/after
 
-| Day | Content Type | Example | Format | Distribution |
-|-----|--------------|---------|--------|--------------|
-| Mon | Wins & Fixes | "This week: 5 users reported 'they understood me' conversations. Publishing their stories." | LinkedIn post | LinkedIn, Twitter |
-| Tue | Before/After Blog | "From Translator-Dependent to Independent Speaker: A 4-Week Journey" | Long-form blog | Blog, email |
-| Wed | Video Testimonial | Longer-form (2-3 min) video: user explaining their breakthrough | YouTube/Vimeo | YouTube, LinkedIn, blog |
-| Thu | Podcast Pitch | Record 20-min guest spot on a language learning podcast | Audio | Spotify, podcast platforms |
-| Fri | External Collaboration | Guest post on a popular language learning blog or newsletter | Blog post | External site + your email |
-| Sat | Newsletter Feature | Recap: which testimonials resonated most? Which content drove conversions? | Email recap | Email list |
-| Sun | Metrics Review | Analyze: which content drove most traffic, engagement, signups? | Dashboard review | N/A (strategy) |
+| Day | Content Type           | Example                                                                                     | Format           | Distribution               |
+| --- | ---------------------- | ------------------------------------------------------------------------------------------- | ---------------- | -------------------------- |
+| Mon | Wins & Fixes           | "This week: 5 users reported 'they understood me' conversations. Publishing their stories." | LinkedIn post    | LinkedIn, Twitter          |
+| Tue | Before/After Blog      | "From Translator-Dependent to Independent Speaker: A 4-Week Journey"                        | Long-form blog   | Blog, email                |
+| Wed | Video Testimonial      | Longer-form (2-3 min) video: user explaining their breakthrough                             | YouTube/Vimeo    | YouTube, LinkedIn, blog    |
+| Thu | Podcast Pitch          | Record 20-min guest spot on a language learning podcast                                     | Audio            | Spotify, podcast platforms |
+| Fri | External Collaboration | Guest post on a popular language learning blog or newsletter                                | Blog post        | External site + your email |
+| Sat | Newsletter Feature     | Recap: which testimonials resonated most? Which content drove conversions?                  | Email recap      | Email list                 |
+| Sun | Metrics Review         | Analyze: which content drove most traffic, engagement, signups?                             | Dashboard review | N/A (strategy)             |
 
 ### Week 6: Referral Engine
+
 **Theme**: Closing the loop + celebrating wins + launching next cycle
 
-| Day | Content Type | Example | Format | Distribution |
-|-----|--------------|---------|--------|--------------|
-| Mon | Wins & Fixes | "Biggest wins this cycle: [numbers]. Thank you to [users who referred others]." | LinkedIn post | LinkedIn, Twitter |
-| Tue | Metrics & Recap Blog | "6 Weeks of Building in Public: What We Learned (By the Numbers)" | Blog post | Blog, email |
-| Wed | Referral Campaign Launch | "Bring a Friend Campaign: Share Your Story, Get $X Off" | Email + socials | Email, LinkedIn, Twitter |
-| Thu | Community AMA Recap | "You Asked, We Answered: The Top 10 Questions About Practicing Hard Conversations" | Blog/Q&A post | Blog, LinkedIn |
-| Fri | Founder Reflection | "What This Cycle Taught Me About Real Language Learning" | Personal essay | LinkedIn, email, blog |
-| Sat | Celebration Post | Host big Practice Lab; celebrate all user wins from the cycle | Event + video | LinkedIn, email, community |
-| Sun | Next Cycle Planning | Review all content; plan Week 1 themes for Cycle 2; update content tracker | Internal doc | N/A (strategy) |
+| Day | Content Type             | Example                                                                            | Format          | Distribution               |
+| --- | ------------------------ | ---------------------------------------------------------------------------------- | --------------- | -------------------------- |
+| Mon | Wins & Fixes             | "Biggest wins this cycle: [numbers]. Thank you to [users who referred others]."    | LinkedIn post   | LinkedIn, Twitter          |
+| Tue | Metrics & Recap Blog     | "6 Weeks of Building in Public: What We Learned (By the Numbers)"                  | Blog post       | Blog, email                |
+| Wed | Referral Campaign Launch | "Bring a Friend Campaign: Share Your Story, Get $X Off"                            | Email + socials | Email, LinkedIn, Twitter   |
+| Thu | Community AMA Recap      | "You Asked, We Answered: The Top 10 Questions About Practicing Hard Conversations" | Blog/Q&A post   | Blog, LinkedIn             |
+| Fri | Founder Reflection       | "What This Cycle Taught Me About Real Language Learning"                           | Personal essay  | LinkedIn, email, blog      |
+| Sat | Celebration Post         | Host big Practice Lab; celebrate all user wins from the cycle                      | Event + video   | LinkedIn, email, community |
+| Sun | Next Cycle Planning      | Review all content; plan Week 1 themes for Cycle 2; update content tracker         | Internal doc    | N/A (strategy)             |
 
 ---
 
@@ -185,10 +199,10 @@ Before publishing, ask yourself:
 
 Track in a simple spreadsheet:
 
-| Week | Content Piece | Views | Clicks to App | New Signups | Sentiment |
-|------|---------------|-------|---------------|-------------|-----------|
-| W1   | Founder's Voice Post | 450 | 32 | 8 | Positive |
-| W2   | Case Study: Alex | 1,200 | 87 | 23 | Very Positive |
+| Week | Content Piece        | Views | Clicks to App | New Signups | Sentiment     |
+| ---- | -------------------- | ----- | ------------- | ----------- | ------------- |
+| W1   | Founder's Voice Post | 450   | 32            | 8           | Positive      |
+| W2   | Case Study: Alex     | 1,200 | 87            | 23          | Very Positive |
 
 ### Monthly Goals (per 6-week cycle)
 
@@ -239,6 +253,7 @@ Track in a simple spreadsheet:
 ### Data-Driven Ideas (From Tracker)
 
 As your Feedback OS fills up, pull content from real patterns:
+
 - "The #1 Friction Point When Learning a Language (And How We're Fixing It)"
 - "Users Asked: Can I Really Use This in Real Life? (Spoiler: Yes)"
 - "The Feature We Built Because Users Demanded It"
@@ -263,6 +278,7 @@ As your Feedback OS fills up, pull content from real patterns:
 ## 📌 Integration Notes
 
 This calendar is **tightly integrated** with:
+
 - **Solo Founder Daily Execution Plan** — Block 2 (Content & Narrative) executes this calendar daily
 - **Feedback OS** — All user stories and testimonials come from your tracker
 - **Weekly Sprint Themes** — Each of the 6 weeks has a content theme that drives messaging

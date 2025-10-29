@@ -32,8 +32,7 @@ export const load = async ({ locals, url }) => {
 
 	// SEO data optimized for daily speaking practice positioning
 	const seo = {
-		title:
-			'Speak Any Language in 5 Minutes a Day - AI Conversation Practice',
+		title: 'Speak Any Language in 5 Minutes a Day - AI Conversation Practice',
 		description:
 			'Build real speaking confidence in 5 minutes a day. Practice 30+ authentic scenarios with your AI language partner in 8+ languages. Get instant feedback and master conversations before talking with real people. Free to start, no scheduling required.',
 		keywords:

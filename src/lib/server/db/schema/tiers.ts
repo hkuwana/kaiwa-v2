@@ -134,6 +134,10 @@ export const tiers = pgTable(
 
 		maxMemories: integer('max_memories').default(10).notNull(),
 
+		maxCustomScenarios: integer('max_custom_scenarios').default(3).notNull(),
+
+		maxPrivateCustomScenarios: integer('max_private_custom_scenarios').default(0).notNull(),
+
 		isActive: boolean('is_active').default(true).notNull(),
 
 		createdAt: timestamp('created_at').defaultNow().notNull(),

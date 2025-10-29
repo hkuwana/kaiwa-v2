@@ -1,7 +1,7 @@
 // src/lib/services/scenarios/user-scenarios.service.ts
 // Client-side helper for custom user-authored conversation scenarios
 
-import type { ScenarioWithHints } from '$lib/data/scenarios';
+import type { Scenario } from '$lib/data/scenarios';
 
 export type ScenarioVisibility = 'public' | 'private';
 export type ScenarioMode = 'tutor' | 'character';
@@ -13,13 +13,13 @@ export interface AuthorScenarioRequest {
 }
 
 export interface AuthorScenarioResponse {
-	draft: ScenarioWithHints;
+	draft: Scenario;
 	tokensUsed?: number;
 	sourceModel?: string;
 }
 
 export interface CreateScenarioRequest {
-	scenario: ScenarioWithHints;
+	scenario: Scenario;
 	visibility?: ScenarioVisibility;
 }
 

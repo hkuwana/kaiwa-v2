@@ -56,6 +56,8 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		ankiExportLimit: 100,
 		feedbackSessionsPerMonth: '100',
 		maxMemories: 10, // 10 memory items for basic tier
+		maxCustomScenarios: 3,
+		maxPrivateCustomScenarios: 0,
 		isActive: false,
 		createdAt: new Date(),
 		updatedAt: new Date(),
@@ -115,6 +117,8 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		conversationMemoryLevel: 'human-like',
 		ankiExportLimit: -1,
 		maxMemories: 50, // 50 memory items for plus tier
+		maxCustomScenarios: -1,
+		maxPrivateCustomScenarios: -1,
 		isActive: false,
 		createdAt: new Date(),
 		updatedAt: new Date(),
@@ -173,6 +177,8 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		conversationMemoryLevel: 'elephant-like',
 		ankiExportLimit: -1,
 		maxMemories: 200, // 200 memory items for premium tier
+		maxCustomScenarios: -1,
+		maxPrivateCustomScenarios: -1,
 		isActive: false,
 		createdAt: new Date(),
 		updatedAt: new Date(),

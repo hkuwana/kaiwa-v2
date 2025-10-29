@@ -195,11 +195,16 @@
 {#if isVisible && language}
 	<div class="modal-open modal" transition:fade={{ duration: 300 }}>
 		<div
-			class="modal-box relative max-w-2xl px-4 py-5 sm:max-w-4xl sm:px-6 sm:py-8"
+			class="relative modal-box max-w-2xl px-4 py-5 sm:max-w-4xl sm:px-6 sm:py-8"
 			transition:slide={{ duration: 400, delay: 100 }}
 		>
 			<!-- Close Button - Absolutely Positioned -->
-			<button class="btn btn-circle btn-ghost btn-md sm:btn-lg absolute right-4 top-5 sm:right-6 sm:top-8" onclick={onClose}> ✕ </button>
+			<button
+				class="btn absolute top-5 right-4 btn-circle btn-ghost btn-md sm:top-8 sm:right-6 sm:btn-lg"
+				onclick={onClose}
+			>
+				✕
+			</button>
 
 			<!-- Header -->
 			<div class="mb-3 flex items-center gap-2 sm:mb-6 sm:gap-3">

@@ -81,7 +81,8 @@
 		<div class="mb-16 text-center" in:fly={{ y: -20, duration: 500, delay: 200 }}>
 			<h1 class="mb-4 text-5xl font-bold md:text-7xl">Have the conversations you're afraid of.</h1>
 			<p class="mx-auto max-w-4xl text-xl leading-relaxed md:text-2xl">
-				Practice the conversations that connect you with the people you love. No grammar drills, no test prep. Just real moments that matter — in their language.
+				Practice the conversations that connect you with the people you love. No grammar drills, no
+				test prep. Just real moments that matter — in their language.
 			</p>
 		</div>
 
@@ -221,7 +222,8 @@
 			>
 				<h2 class="mb-4 text-2xl font-bold text-primary">Ready to Have That Conversation?</h2>
 				<p class="mb-6">
-					Start by telling us: What's the one conversation you're dreading? We'll help you practice it until you're ready.
+					Start by telling us: What's the one conversation you're dreading? We'll help you practice
+					it until you're ready.
 				</p>
 				<div class="mb-4 text-sm text-secondary">3 minutes to get started</div>
 				<UnifiedStartButton

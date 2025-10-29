@@ -29,6 +29,7 @@ export * as emailVerificationService from './email-verification.service';
 
 // Translation service
 export * as translationService from './translation.service';
+export * as userScenariosService from './scenarios/user-scenarios.server';
 
 // Note: Additional services can be added here as they are created:
 // - analyticsService (for analytics and reporting)

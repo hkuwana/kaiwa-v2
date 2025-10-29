@@ -221,6 +221,7 @@ export class CustomScenarioStore {
 			difficulty: 'intermediate',
 			difficultyRating: 4,
 			cefrLevel: 'B1',
+			cefrRecommendation: 'B1',
 			instructions: `You are practicing a custom scenario: ${description}. Respond naturally and help the learner reach their goal.`,
 			context,
 			persona: null,

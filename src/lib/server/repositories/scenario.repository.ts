@@ -2,8 +2,8 @@
 
 import { db } from '$lib/server/db/index';
 import { scenarios } from '$lib/server/db/schema';
-import type { NewScenario, Scenario } from '$lib/server/db/types';
-import { eq, and, asc } from 'drizzle-orm';
+import type { NewScenario, Scenario, ScenarioVisibility } from '$lib/server/db/types';
+import { eq, and, asc, desc, count, sql } from 'drizzle-orm';
 export const scenarioRepository = {
 	// CREATE
 	async createScenario(newScenario: NewScenario): Promise<Scenario> {
@@ -22,6 +22,61 @@ export const scenarioRepository = {
 	// READ
 	async findScenarioById(id: string): Promise<Scenario | undefined> {
 		return db.query.scenarios.findFirst({ where: eq(scenarios.id, id) });
+	},
+
+	async listUserScenarios(options: {
+		userId: string;
+		visibility?: ScenarioVisibility;
+		includeInactive?: boolean;
+	}): Promise<Scenario[]> {
+		const conditions = [eq(scenarios.createdByUserId, options.userId)];
+
+		if (!options.includeInactive) {
+			conditions.push(eq(scenarios.isActive, true));
+		}
+
+		if (options.visibility) {
+			conditions.push(eq(scenarios.visibility, options.visibility));
+		}
+
+		return db.query.scenarios.findMany({
+			where: and(...conditions),
+			orderBy: [desc(scenarios.updatedAt)]
+		});
+	},
+
+	async countUserScenarios(userId: string): Promise<number> {
+		const [result] = await db
+			.select({ value: count() })
+			.from(scenarios)
+			.where(and(eq(scenarios.createdByUserId, userId), eq(scenarios.isActive, true)));
+
+		return Number(result?.value) || 0;
+	},
+
+	async countPrivateUserScenarios(userId: string): Promise<number> {
+		const [result] = await db
+			.select({ value: count() })
+			.from(scenarios)
+			.where(
+				and(
+					eq(scenarios.createdByUserId, userId),
+					eq(scenarios.isActive, true),
+					eq(scenarios.visibility, 'private')
+				)
+			);
+
+		return Number(result?.value) || 0;
+	},
+
+	async findOwnedScenario(userId: string, scenarioId: string): Promise<Scenario | undefined> {
+		return db.query.scenarios.findFirst({
+			where: and(
+				eq(scenarios.id, scenarioId),
+				eq(scenarios.createdByUserId, userId),
+				eq(scenarios.isActive, true)
+			)
+		});
 	},
 
 	async findScenariosByRole(
@@ -92,5 +147,45 @@ export const scenarioRepository = {
 			.returning({ id: scenarios.id });
 
 		return { success: result.length > 0 };
+	},
+
+	async softDeleteScenarioForUser(scenarioId: string, userId: string): Promise<boolean> {
+		const [record] = await db
+			.update(scenarios)
+			.set({
+				isActive: false,
+				updatedAt: new Date()
+			})
+			.where(and(eq(scenarios.id, scenarioId), eq(scenarios.createdByUserId, userId)))
+			.returning({ id: scenarios.id });
+
+		return Boolean(record?.id);
+	},
+
+	async updateScenarioForUser(
+		scenarioId: string,
+		userId: string,
+		data: Partial<NewScenario>
+	): Promise<Scenario | undefined> {
+		const [record] = await db
+			.update(scenarios)
+			.set({
+				...data,
+				updatedAt: new Date()
+			})
+			.where(and(eq(scenarios.id, scenarioId), eq(scenarios.createdByUserId, userId)))
+			.returning();
+
+		return record;
+	},
+
+	async incrementUsage(scenarioId: string): Promise<void> {
+		await db
+			.update(scenarios)
+			.set({
+				usageCount: sql`${scenarios.usageCount} + 1`,
+				updatedAt: new Date()
+			})
+			.where(eq(scenarios.id, scenarioId));
 	}
 };

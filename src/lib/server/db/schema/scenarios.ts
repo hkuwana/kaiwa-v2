@@ -1,4 +1,15 @@
-import { pgTable, text, timestamp, json, index, boolean, pgEnum } from 'drizzle-orm/pg-core';
+import {
+	pgTable,
+	text,
+	timestamp,
+	json,
+	index,
+	boolean,
+	pgEnum,
+	integer,
+	uuid
+} from 'drizzle-orm/pg-core';
+import { users } from './users';
 
 /**
  * Scenario role enumeration - defines the AI's role in the conversation
@@ -24,6 +35,8 @@ export const scenarioDifficultyEnum = pgEnum('scenario_difficulty', [
 	'intermediate',
 	'advanced'
 ]);
+
+export const scenarioVisibilityEnum = pgEnum('scenario_visibility', ['public', 'private']);
 
 /**
  * 🎭 Scenarios table - Defines structured learning situations and contexts
@@ -72,9 +85,17 @@ export const scenarios = pgTable(
 
 		difficulty: scenarioDifficultyEnum('difficulty').default('beginner').notNull(),
 
+		difficultyRating: integer('difficulty_rating'),
+
+		cefrLevel: text('cefr_level'),
+
 		instructions: text('instructions').notNull(),
 
 		context: text('context').notNull(),
+
+		learningGoal: text('learning_goal'),
+
+		cefrRecommendation: text('cefr_recommendation'),
 
 		persona: json('persona').$type<{
 			title?: string;
@@ -94,6 +115,14 @@ export const scenarios = pgTable(
 			understanding: number; // 1-5 scale
 		}>(),
 
+		createdByUserId: uuid('created_by_user_id').references(() => users.id, {
+			onDelete: 'cascade'
+		}),
+
+		visibility: scenarioVisibilityEnum('visibility').default('public').notNull(),
+
+		usageCount: integer('usage_count').default(0).notNull(),
+
 		isActive: boolean('is_active').default(true).notNull(),
 
 		createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -109,6 +138,9 @@ export const scenarios = pgTable(
 		index('scenarios_active_role_idx').on(table.isActive, table.role),
 		// Composite index for difficulty progression
 		index('scenarios_active_difficulty_idx').on(table.isActive, table.difficulty),
+		// Index for user-owned scenarios
+		index('scenarios_user_visibility_idx').on(table.createdByUserId, table.visibility),
+		index('scenarios_user_active_idx').on(table.createdByUserId, table.isActive),
 		// Index for title searches
 		index('scenarios_title_idx').on(table.title)
 	]

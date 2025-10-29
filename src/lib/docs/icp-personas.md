@@ -6,12 +6,12 @@
 
 ## Quick Comparison Matrix
 
-| Persona | Primary Driver | Trigger Event | Recurring Need | LTV Potential | Acquisition Signal |
-|---------|---|---|---|---|---|
-| **Bilingual Spouse** | Love + Commitment | Moving in, engagement, moving abroad | 2-3x/month (evolving life milestones) | 5-10 years | "Meeting my partner's family in [language]" |
-| **Expat (New Country)** | Belonging + Survival | Job relocation, visa granted | 2-3x/week (daily integration) | 2-5 years | "How to make friends in [country]" |
-| **Heritage Speaker** | Shame + Reconnection | Family reunions, moving back | 1-2x/month (relationship maintenance) | 10+ years (cyclical) | "I can't talk to my abuela" |
-| **Immigrant (Permanent Move)** | Identity + Opportunity | Permanent relocation | 2-3x/week (building new life) | 5-10+ years | "How to belong here" |
+| Persona                        | Primary Driver         | Trigger Event                        | Recurring Need                        | LTV Potential        | Acquisition Signal                          |
+| ------------------------------ | ---------------------- | ------------------------------------ | ------------------------------------- | -------------------- | ------------------------------------------- |
+| **Bilingual Spouse**           | Love + Commitment      | Moving in, engagement, moving abroad | 2-3x/month (evolving life milestones) | 5-10 years           | "Meeting my partner's family in [language]" |
+| **Expat (New Country)**        | Belonging + Survival   | Job relocation, visa granted         | 2-3x/week (daily integration)         | 2-5 years            | "How to make friends in [country]"          |
+| **Heritage Speaker**           | Shame + Reconnection   | Family reunions, moving back         | 1-2x/month (relationship maintenance) | 10+ years (cyclical) | "I can't talk to my abuela"                 |
+| **Immigrant (Permanent Move)** | Identity + Opportunity | Permanent relocation                 | 2-3x/week (building new life)         | 5-10+ years          | "How to belong here"                        |
 
 ---
 
@@ -79,7 +79,7 @@ Yuto has invited her to Tokyo to meet his parents for the first time. This is no
 
 ### Messaging Angle
 
-*"You've got grammar down. Now let's make sure he knows you love him."*
+_"You've got grammar down. Now let's make sure he knows you love him."_
 
 ---
 
@@ -110,7 +110,7 @@ He's attending a family reunion (wedding, funeral, or just reconnecting with aun
 ### Why Kaiwa is His Only Solution
 
 1. **Emotional Vocabulary**: He doesn't need "el gato." He needs to apologize (for his bad Spanish), express grief, share memories, ask for forgiveness
-2. **Relational Repair**: Kaiwa acknowledges his job-to-be-done is *relational*, not grammatical
+2. **Relational Repair**: Kaiwa acknowledges his job-to-be-done is _relational_, not grammatical
 3. **Safety Space**: He can practice without judgment before facing his family
 
 ### Lifetime Arc (Cyclical Engagement)
@@ -142,7 +142,7 @@ He's attending a family reunion (wedding, funeral, or just reconnecting with aun
 
 ### Messaging Angle
 
-*"You're not starting from zero. You just need permission to sound like yourself again."*
+_"You're not starting from zero. You just need permission to sound like yourself again."_
 
 ---
 
@@ -197,7 +197,7 @@ They arrive in Berlin in 6 weeks. They know no one. They want to build a life th
 ### Churn Risk & Retention Lever
 
 **Risk**: After 18 months, they may feel confident enough to drop off.
-**Lever**: "You're fluent enough to get by. Ready to actually *belong*?" Introduce community features (practice with other expats, group scenarios).
+**Lever**: "You're fluent enough to get by. Ready to actually _belong_?" Introduce community features (practice with other expats, group scenarios).
 
 ### Pricing Sensitivity
 
@@ -205,7 +205,7 @@ They arrive in Berlin in 6 weeks. They know no one. They want to build a life th
 
 ### Messaging Angle
 
-*"You know the rules of the language. Now let's help you understand the soul of the culture."*
+_"You know the rules of the language. Now let's help you understand the soul of the culture."_
 
 ---
 
@@ -268,7 +268,7 @@ She wants to advance to a senior nursing role. She needs to pass professional ex
 
 ### Messaging Angle
 
-*"You're qualified. You belong. Let's make sure they know it."*
+_"You're qualified. You belong. Let's make sure they know it."_
 
 ---
 
@@ -348,12 +348,12 @@ All four personas share a **commitment-based pricing model**:
 
 ### Why This Works for Each Persona
 
-| Persona | Skin in the Game | Real Conversation Proof |
-|---------|---|---|
-| Sofia | $19 upfront commits her to prep | "Conversation with Yuto" = validates Kaiwa works |
-| David | $19 upfront is his accountability | "Call with abuela" = healing proof |
-| Jamie | $19 is affordable; monthly reset keeps them engaged | "Dinner with friends" = friend made |
-| Rosa | $19 is reasonable; aligns with exam prep intensity | "Patient interaction documented" = professional growth |
+| Persona | Skin in the Game                                    | Real Conversation Proof                                |
+| ------- | --------------------------------------------------- | ------------------------------------------------------ |
+| Sofia   | $19 upfront commits her to prep                     | "Conversation with Yuto" = validates Kaiwa works       |
+| David   | $19 upfront is his accountability                   | "Call with abuela" = healing proof                     |
+| Jamie   | $19 is affordable; monthly reset keeps them engaged | "Dinner with friends" = friend made                    |
+| Rosa    | $19 is reasonable; aligns with exam prep intensity  | "Patient interaction documented" = professional growth |
 
 ### Lifecycle Re-Engagement
 
