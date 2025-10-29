@@ -1,156 +1,56 @@
 <script lang="ts">
 	import { page } from '$app/state';
 
-	// Props - simplified for v1
-	interface Props {
-		variant?: 'mobile' | 'desktop' | 'compact';
-	}
-
-	let { variant = 'mobile' }: Props = $props();
-
 	// Get current path from page store
 	const currentPath = $derived(page.url.pathname);
 
-	// Hardcoded props for v1
-	const showOnlyOnRoutes = ['/'];
-
-	// Define the onboarding lifecycle steps with symbols and one-word labels
-	const lifecycleSteps = $derived(() => {
-		const baseSteps = [
-			{
-				id: 'select',
-				title: 'Select',
-				symbol: '🎯',
-				isCompleted: currentPath !== '/',
-				isCurrent: currentPath === '/'
-			},
-			{
-				id: 'conversation',
-				title: 'Conversation',
-				symbol: '💬',
-				isCompleted: currentPath.startsWith('/analysis'),
-				isCurrent: currentPath.startsWith('/conversation')
-			},
-			{
-				id: 'analysis',
-				title: 'Analysis',
-				symbol: '📊',
-				isCompleted: false,
-				isCurrent: currentPath.startsWith('/analysis')
-			}
+	// Simple step tracking
+	const steps = $derived(() => {
+		const s = [
+			{ id: 'select', label: 'Select', done: currentPath !== '/', active: currentPath === '/' },
+			{ id: 'practice', label: 'Practice', done: currentPath.startsWith('/analysis'), active: currentPath.startsWith('/conversation') },
+			{ id: 'review', label: 'Review', done: false, active: currentPath.startsWith('/analysis') }
 		];
 
-		// Add sign up step when on analysis route
+		// Add sign up when on analysis
 		if (currentPath.startsWith('/analysis')) {
-			baseSteps.push({
-				id: 'signup',
-				title: 'Sign Up',
-				symbol: '🔐',
-				isCompleted: false,
-				isCurrent: false
-			});
+			s.push({ id: 'signup', label: 'Sign Up', done: false, active: false });
 		}
 
-		return baseSteps;
+		return s;
 	});
 
-	const progressPercentage = $derived(
-		(() => {
-			const steps = lifecycleSteps();
-			const completedCount = steps.filter((step) => step.isCompleted).length;
-			return (completedCount / steps.length) * 100;
-		})()
-	);
-
-	// Route-based visibility logic
-	const shouldShow = $derived(() => {
-		if (showOnlyOnRoutes.length > 0) {
-			return showOnlyOnRoutes.some((route) => currentPath.startsWith(route));
-		}
-		return true;
-	});
+	const activeStep = $derived(steps().findIndex(s => s.active) + 1);
+	const totalSteps = $derived(steps().length);
 </script>
 
-{#if shouldShow()}
-	{#if variant === 'mobile'}
-		<!-- Mobile Variant - Vertical Steps with Symbols -->
-		<div class="mx-auto w-full max-w-sm">
-			<ul class="steps steps-vertical w-full">
-				{#each lifecycleSteps() as step (step.id)}
-					<li
-						class="step {step.isCompleted
-							? 'step-success'
-							: step.isCurrent
-								? 'step-primary'
-								: 'step-neutral'}"
-					>
-						<div class="flex items-center gap-3">
-							<span class="text-xl">{step.symbol}</span>
-							<div class="text-left">
-								<div class="text-sm font-medium">{step.title}</div>
-								{#if step.id === 'signup'}
-									<a href="/auth" class="text-xs text-primary hover:underline">Get started</a>
-								{/if}
-							</div>
-						</div>
-					</li>
-				{/each}
-			</ul>
-		</div>
-	{:else if variant === 'desktop'}
-		<!-- Desktop Variant - Horizontal Steps with Progress Bar -->
-		<div class="mx-auto w-full max-w-2xl">
-			<!-- Progress Bar -->
-			<div class="mb-4">
-				<div class="h-2 w-full rounded-full bg-base-200">
-					<div
-						class="h-2 rounded-full bg-success transition-all duration-500"
-						style="width: {progressPercentage}%"
-					></div>
-				</div>
-			</div>
-
-			<!-- Horizontal Steps -->
-			<ul class="steps steps-horizontal w-full">
-				{#each lifecycleSteps() as step (step.id)}
-					<li
-						class="step {step.isCompleted
-							? 'step-success'
-							: step.isCurrent
-								? 'step-primary'
-								: 'step-neutral'}"
-					>
-						<div class="flex flex-col items-center gap-2">
-							<span class="text-2xl">{step.symbol}</span>
-							<div class="text-center">
-								<div class="text-sm font-medium">{step.title}</div>
-								{#if step.id === 'signup'}
-									<a href="/auth" class="text-xs text-primary hover:underline">Get started</a>
-								{/if}
-							</div>
-						</div>
-					</li>
-				{/each}
-			</ul>
-		</div>
-	{:else if variant === 'compact'}
-		<!-- Compact Variant - Minimal Icons Only -->
-		<div class="flex items-center justify-center gap-4">
-			{#each lifecycleSteps() as step (step.id)}
+{#if currentPath.startsWith('/')}
+	<div class="flex items-center justify-center gap-2">
+		{#each steps() as step, i (step.id)}
+			<div class="flex items-center gap-2">
+				<!-- Step Circle -->
 				<div
-					class="flex flex-col items-center gap-1 {step.isCompleted
-						? 'text-success'
-						: step.isCurrent
-							? 'text-primary'
-							: 'text-base-content/40'}"
+					class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium {step.done
+						? 'bg-success text-white'
+						: step.active
+							? 'bg-primary text-white'
+							: 'bg-base-200 text-base-content/60'}"
 				>
-					<span class="text-lg">{step.symbol}</span>
-					<div class="text-xs font-medium">{step.title}</div>
-					{#if step.id === 'signup'}
-						<a href="/auth" class="text-xs text-primary hover:underline">Sign up</a>
-					{/if}
+					{i + 1}
 				</div>
-			{/each}
-		</div>
-	{/if}
+
+				<!-- Divider (except after last step) -->
+				{#if i < steps().length - 1}
+					<div class="w-6 h-0.5 {step.done ? 'bg-success' : 'bg-base-200'}"></div>
+				{/if}
+			</div>
+		{/each}
+
+		<!-- Sign Up Link -->
+		{#if currentPath.startsWith('/analysis')}
+			<a href="/auth" class="ml-3 text-xs font-medium text-primary hover:underline">
+				Sign Up
+			</a>
+		{/if}
+	</div>
 {/if}

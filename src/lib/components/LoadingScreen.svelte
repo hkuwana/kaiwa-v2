@@ -39,19 +39,16 @@
 	// Preparation steps that cycle through during connection
 	const preparationSteps = [
 		{
-			icon: '🎯',
 			title: 'Connecting',
-			message: 'Finding your tutor... (just a moment)'
+			message: 'Setting up'
 		},
 		{
-			icon: '🤫',
 			title: 'Optimizing',
-			message: 'Checking your setup... (find a quiet spot)'
+			message: 'Almost ready'
 		},
 		{
-			icon: '🗣️',
-			title: 'Ready!',
-			message: "Let's begin! (speak naturally)"
+			title: 'Ready',
+			message: 'Go ahead'
 		}
 	];
 
@@ -88,8 +85,8 @@
 				};
 			case 'connected':
 				return {
-					title: 'Connected!',
-					message: 'Ready to practice! (start speaking)',
+					title: 'Ready',
+					message: 'You can start speaking',
 					color: 'text-success',
 					bgColor: 'bg-success/10',
 					borderColor: 'border-success/20'
@@ -99,23 +96,23 @@
 					return {
 						title: 'Service Not Available',
 						message:
-							'Not available in your location (OpenAI services are restricted in your country/region)',
+							'This service is not available in your region',
 						color: 'text-error',
 						bgColor: 'bg-error/10',
 						borderColor: 'border-error/20'
 					};
 				}
 				return {
-					title: 'Error',
-					message: 'Connection failed (check your connection and retry)',
+					title: 'Connection Failed',
+					message: 'Please try again',
 					color: 'text-error',
 					bgColor: 'bg-error/10',
 					borderColor: 'border-error/20'
 				};
 			default:
 				return {
-					title: 'Preparing...',
-					message: 'Setting up your session...',
+					title: 'Preparing',
+					message: 'Setting up',
 					color: 'text-base-content',
 					bgColor: 'bg-base-200',
 					borderColor: 'border-base-300'
@@ -193,42 +190,26 @@
 					in:fly={{ y: 20, duration: 300 }}
 					out:fly={{ y: -20, duration: 150 }}
 				>
-					<!-- Status Icon and Title -->
-					<div class="space-y-3 text-center">
-						{#if status === 'connecting'}
-							<div class="text-4xl" in:scale={{ duration: 300 }}>
-								{currentStep.icon}
-							</div>
-						{/if}
-
+					<!-- Status Title and Message -->
+					<div class="space-y-2 text-center">
 						<h3 class="text-xl font-semibold {statusConfig.color}">
 							{statusConfig.title}
 						</h3>
 
-						<!-- Status Message as Badge -->
-						{#if status === 'error'}
-							<div class="badge badge-lg text-sm badge-error">
-								{statusConfig.message}
-							</div>
-						{:else}
-							<p class="text-base-content/70">
-								{statusConfig.message}
-							</p>
-						{/if}
+						<p class="text-sm text-base-content/70">
+							{statusConfig.message}
+						</p>
 					</div>
 
 					<!-- Loading Progress (for connecting state) -->
 					{#if status === 'connecting'}
-						<div class="w-full">
+						<div class="w-full pt-2">
 							<progress
 								class="progress w-full progress-info"
 								value={(currentStepIndex + 1) * 25}
 								max="100"
 								in:scale={{ duration: 300 }}
 							></progress>
-							<div class="mt-2 text-xs text-base-content/50">
-								Step {currentStepIndex + 1} of {preparationSteps.length}
-							</div>
 						</div>
 					{/if}
 				</div>
@@ -240,15 +221,7 @@
 					{#if isCountryRestrictionError()}
 						<!-- Country Restriction Error Actions -->
 						<div class="space-y-3">
-							<div class="alert alert-warning">
-								<span class="icon-[mdi--alert] h-6 w-6 shrink-0 stroke-current"></span>
-								<span class="font-medium">Location Restriction</span>
-							</div>
-							<div class="space-y-2 text-sm text-gray-600">
-								<p>• Use a VPN to access from a supported location</p>
-								<p>• Contact us for enterprise solutions</p>
-								<p>• Check back later for availability updates</p>
-							</div>
+							<p class="text-sm text-gray-600">Try using a VPN</p>
 							<button
 								onclick={() => (window.location.href = '/')}
 								class="btn btn-ghost btn-sm sm:btn-md"
@@ -258,7 +231,7 @@
 						</div>
 					{:else}
 						<!-- Regular Error Actions -->
-						<div class="space-y-3 sm:space-y-0">
+						<div class="space-y-2 sm:space-y-0">
 							<button
 								onclick={onRetry}
 								class="btn btn-outline btn-sm btn-error sm:btn-md"
@@ -279,13 +252,9 @@
 
 			<!-- Ready State Action -->
 			{#if status === 'connected'}
-				<div class="mt-6" in:scale={{ duration: 400, delay: 200 }}>
-					<div class="alert alert-success">
-						<span class="icon-[mdi--check-circle] h-6 w-6 shrink-0 stroke-current"></span>
-						<span class="font-medium">Voice chat is now active!</span>
-					</div>
-					<p class="mt-3 text-sm text-base-content/70">
-						The AI will respond when you finish speaking
+				<div class="mt-4 pt-2" in:scale={{ duration: 400, delay: 200 }}>
+					<p class="text-xs text-base-content/60">
+						Speak naturally. Pause to get a response.
 					</p>
 				</div>
 			{/if}
