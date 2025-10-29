@@ -2,9 +2,7 @@
 // Enhanced scenario store with persistent storage using cookies + localStorage
 
 import { browser } from '$app/environment';
-import type { ScenarioWithHints } from '$lib/data/scenarios';
-import { scenariosData } from '$lib/data/scenarios';
-import type { Scenario } from '$lib/server/db/types';
+import { scenariosData, type Scenario } from '$lib/data/scenarios';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -54,10 +52,10 @@ export const scenarioCookieUtils = {
 
 export class ScenarioStore {
 	// Currently selected scenario
-	private selectedScenario = $state<ScenarioWithHints>(scenariosData[0]);
+	private selectedScenario = $state<Scenario>(scenariosData[0]);
 
 	// Scenario history for tracking user progress
-	private scenarioHistory = $state<ScenarioWithHints[]>([]);
+	private scenarioHistory = $state<Scenario[]>([]);
 
 	// Flag to track if persistence is set up
 	private persistenceInitialized = false;
@@ -67,8 +65,8 @@ export class ScenarioStore {
 	}
 
 	// Public getter methods for components to access data
-	getSelectedScenario = (): ScenarioWithHints => this.selectedScenario;
-	getScenarioHistory = (): ScenarioWithHints[] => [...this.scenarioHistory]; // Return copy to prevent mutation
+	getSelectedScenario = (): Scenario => this.selectedScenario;
+	getScenarioHistory = (): Scenario[] => [...this.scenarioHistory]; // Return copy to prevent mutation
 
 	// Initialize scenario from persistent storage
 	private initializeFromStorage = () => {
@@ -147,7 +145,7 @@ export class ScenarioStore {
 	};
 
 	// Persist scenario to both localStorage and cookies
-	private persistScenario = (scenario: ScenarioWithHints) => {
+	private persistScenario = (scenario: Scenario) => {
 		if (!browser) return;
 
 		try {
@@ -164,7 +162,7 @@ export class ScenarioStore {
 	};
 
 	// Persist history to localStorage
-	private persistHistory = (history: ScenarioWithHints[]) => {
+	private persistHistory = (history: Scenario[]) => {
 		if (!browser) return;
 
 		try {
@@ -197,7 +195,7 @@ export class ScenarioStore {
 	};
 
 	// Set scenario with full scenario object
-	setScenario = (scenario: ScenarioWithHints) => {
+	setScenario = (scenario: Scenario) => {
 		this.selectedScenario = scenario;
 
 		// Add to history

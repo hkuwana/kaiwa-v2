@@ -2,8 +2,7 @@
 // Smart instruction composer following OpenAI Realtime API structure
 // https://github.com/openai/openai-cookbook/blob/main/examples/Realtime_prompting_guide.ipynb
 
-import type { Language, User, UserPreferences, Speaker } from '$lib/server/db/types';
-import type { ScenarioWithHints } from '$lib/data/scenarios';
+import type { Language, User, UserPreferences, Speaker, Scenario } from '$lib/server/db/types';
 import type { CEFRLevel } from '$lib/utils/cefr';
 import {
 	type InstructionParameters,
@@ -35,7 +34,7 @@ export interface InstructionComposerOptions {
 	user: User;
 	language: Language;
 	preferences: Partial<UserPreferences>;
-	scenario?: ScenarioWithHints;
+	scenario?: Scenario;
 	speaker?: Speaker;
 	parameters?: Partial<InstructionParameters>;
 	sessionContext?: {
@@ -770,7 +769,7 @@ IF learner mentions self-harm:
 	// ============================================
 
 	private getScenarioParameters(
-		scenario: ScenarioWithHints,
+		scenario: Scenario,
 		scenarioLevel: CEFRLevel
 	): Partial<InstructionParameters> {
 		let parameters: Partial<InstructionParameters> = {};
@@ -810,13 +809,6 @@ IF learner mentions self-harm:
 				scaffoldingLevel: 'none',
 				topicChangeFrequency: 'focused',
 				conversationPace: 'dynamic'
-			};
-		}
-
-		if (scenario.parameterHints) {
-			parameters = {
-				...parameters,
-				...scenario.parameterHints
 			};
 		}
 

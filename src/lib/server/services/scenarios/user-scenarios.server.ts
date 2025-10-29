@@ -4,7 +4,6 @@ import type {
 	ScenarioVisibility,
 	ScenarioMode
 } from '$lib/services/scenarios/user-scenarios.service';
-import type { ScenarioWithHints } from '$lib/data/scenarios';
 import { randomUUID } from 'crypto';
 import {
 	type NewScenario,
@@ -19,7 +18,7 @@ import { serverTierConfigs } from '$lib/server/tiers';
 export interface UserScenarioSummary {
 	id: string;
 	title: string;
-	role: ScenarioWithHints['role'];
+	role: Scenario['role'];
 	visibility: ScenarioVisibility;
 	createdAt: string;
 	updatedAt: string;
@@ -72,7 +71,7 @@ function sanitizeText(input: string | null | undefined, fallback = ''): string {
 		.trim();
 }
 
-function ensureScenarioId(scenario: ScenarioWithHints): ScenarioWithHints {
+function ensureScenarioId(scenario: Scenario): Scenario {
 	if (scenario.id) return scenario;
 	return {
 		...scenario,
@@ -110,9 +109,7 @@ function difficultyFromCefr(cefr: string | null): Scenario['difficulty'] {
 	return 'intermediate';
 }
 
-function cefrFromDifficulty(
-	difficulty?: ScenarioWithHints['difficulty'] | Scenario['difficulty']
-): string {
+function cefrFromDifficulty(difficulty?: Scenario['difficulty']): string {
 	switch (difficulty) {
 		case 'beginner':
 			return 'A2';
@@ -124,7 +121,7 @@ function cefrFromDifficulty(
 }
 
 function resolveDifficultyAndCefr(options: {
-	difficulty?: ScenarioWithHints['difficulty'];
+	difficulty?: Scenario['difficulty'];
 	existingDifficulty?: Scenario['difficulty'];
 	cefr?: string | null;
 }): { difficulty: Scenario['difficulty']; cefr: string } {
@@ -144,19 +141,6 @@ function resolveDifficultyAndCefr(options: {
 	return {
 		difficulty,
 		cefr: cefrFromDifficulty(difficulty)
-	};
-}
-
-function mapScenarioRecord(record: Scenario): ScenarioWithHints {
-	return {
-		...record,
-		learningObjectives: record.learningObjectives ?? [],
-		comfortIndicators: record.comfortIndicators ?? undefined,
-		persona: record.persona ?? undefined,
-		difficultyRating: record.difficultyRating ?? undefined,
-		cefrLevel: record.cefrLevel ?? undefined,
-		learningGoal: record.learningGoal ?? undefined,
-		cefrRecommendation: record.cefrRecommendation ?? undefined
 	};
 }
 
@@ -180,7 +164,7 @@ function validateScenarioLimit(limit: number, used: number, message: string) {
 
 function buildInsertPayload(input: {
 	userId: string;
-	scenario: ScenarioWithHints;
+	scenario: Scenario;
 	visibility: ScenarioVisibilityEnum;
 }): NewScenario {
 	const scenarioWithId = ensureScenarioId(input.scenario);
@@ -251,7 +235,7 @@ export async function listUserScenariosForUser(options: {
 
 export async function createUserScenario(options: {
 	userId: string;
-	scenario: ScenarioWithHints;
+	scenario: Scenario;
 	visibility?: ScenarioVisibility;
 }): Promise<UserScenarioSummary> {
 	const visibility = (options.visibility ?? 'public') as ScenarioVisibilityEnum;
@@ -289,7 +273,7 @@ export async function createUserScenario(options: {
 export async function updateUserScenario(options: {
 	userId: string;
 	scenarioId: string;
-	scenario?: ScenarioWithHints;
+	scenario?: Scenario;
 	visibility?: ScenarioVisibility;
 }): Promise<UserScenarioSummary> {
 	const record = await scenarioRepository.findOwnedScenario(
@@ -301,7 +285,7 @@ export async function updateUserScenario(options: {
 		throw new ScenarioNotFoundError('Scenario not found or no longer active.');
 	}
 
-	const existingScenario = record as ScenarioWithHints;
+	const existingScenario = record;
 	const mergedScenario = options.scenario
 		? ensureScenarioId({
 				...existingScenario,
@@ -394,7 +378,7 @@ export async function deleteUserScenario(options: {
 export async function getUserScenarioDetail(options: {
 	userId: string;
 	scenarioId: string;
-}): Promise<ScenarioWithHints> {
+}): Promise<Scenario> {
 	const record = await scenarioRepository.findOwnedScenario(
 		options.userId,
 		options.scenarioId
@@ -404,7 +388,7 @@ export async function getUserScenarioDetail(options: {
 		throw new ScenarioNotFoundError('Scenario not found or inactive.');
 	}
 
-	return mapScenarioRecord(record);
+	return record;
 }
 
 export async function generateScenarioDraft(
@@ -420,7 +404,7 @@ export async function generateScenarioDraft(
 			? `${sanitizedDescription.slice(0, 57)}...`
 			: sanitizedDescription || 'Custom Scenario';
 
-	const baseScenario: ScenarioWithHints = {
+	const baseScenario: Scenario = {
 		id,
 		title,
 		description: sanitizedDescription,
@@ -456,6 +440,9 @@ export async function generateScenarioDraft(
 			mode === 'tutor'
 				? 'Build confidence with the specific language needed for this scenario'
 				: 'Handle the scenario naturally and reach a successful outcome',
+		visibility: 'public',
+		createdByUserId: null,
+		usageCount: 0,
 		isActive: true,
 		createdAt: now,
 		updatedAt: now

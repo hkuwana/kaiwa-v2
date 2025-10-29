@@ -1,6 +1,6 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { createErrorResponse } from '$lib/types/api';
-import type { ScenarioWithHints } from '$lib/data/scenarios';
+import type { Scenario } from '$lib/data/scenarios';
 import type { ScenarioVisibility } from '$lib/services/scenarios/user-scenarios.service';
 import {
 	createUserScenario,
@@ -58,7 +58,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	try {
 		const summary = await createUserScenario({
 			userId: user.id,
-			scenario: body.data.scenario as ScenarioWithHints,
+			scenario: body.data.scenario as Scenario,
 			visibility: body.data.visibility as ScenarioVisibility | undefined
 		});
 

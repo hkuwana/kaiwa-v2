@@ -27,7 +27,7 @@
 - **Service layer**:
   - Client: new `user-scenarios.service.ts` under `src/lib/services/scenarios/` handling REST calls, GPT authoring request, and schema validation.
   - Server: extend `scenario.repository.ts` plus a coordinating `user-scenarios.server.ts` service that owns CRUD logic and tier enforcement.
-- **Instruction pipeline**: `composer.ts` already accepts `ScenarioWithHints`; ensure GPT output conforms so existing composition logic continues to work without branching.
+- **Instruction pipeline**: `composer.ts` already accepts full `Scenario` records; ensure GPT output conforms so existing composition logic continues to work without branching.
 - **Data access**: Reuse Drizzle patterns from `_lib/server/db/schema/scenarios.ts`; extend the existing table with ownership + visibility fields and wire new enums/types in `db/types.ts`.
 
 ## Data Model

@@ -1,6 +1,6 @@
 <!-- src/lib/components/ScenarioSelector.svelte -->
 <script lang="ts">
-	import { scenariosData, type ScenarioWithHints } from '$lib/data/scenarios';
+	import { scenariosData, type Scenario } from '$lib/data/scenarios';
 	import { getDifficultyLevel } from '$lib/utils/cefr';
 	import { onMount } from 'svelte';
 	import ScenarioCreatorModal from './ScenarioCreatorModal.svelte';
@@ -10,9 +10,9 @@
 	} from '$lib/stores/custom-scenarios.store.svelte';
 
 	interface Props {
-		scenarios: ScenarioWithHints[];
-		selectedScenario: ScenarioWithHints | null;
-		onScenarioSelect: (scenario: ScenarioWithHints) => void;
+		scenarios: Scenario[];
+		selectedScenario: Scenario | null;
+		onScenarioSelect: (scenario: Scenario) => void;
 		disabled?: boolean;
 		tooltipMessage?: string;
 		isGuest?: boolean;
@@ -60,7 +60,7 @@
 	const customScenarios = $derived(customScenarioStore.customScenarios);
 
 	const curatedScenarios = $derived(() => {
-		const map = new Map<string, ScenarioWithHints>();
+		const map = new Map<string, Scenario>();
 		for (const scenario of scenariosData) {
 			map.set(scenario.id, scenario);
 		}
@@ -71,7 +71,7 @@
 	});
 
 	const combinedScenarios = $derived(() => {
-		const map = new Map<string, ScenarioWithHints>();
+		const map = new Map<string, Scenario>();
 		for (const scenario of curatedScenarios) {
 			map.set(scenario.id, scenario);
 		}
@@ -81,7 +81,7 @@
 		return Array.from(map.values());
 	});
 
-	let filteredScenarios = $state<ScenarioWithHints[]>([]);
+	let filteredScenarios = $state<Scenario[]>([]);
 
 	$effect(() => {
 		const source = combinedScenarios;
@@ -116,12 +116,12 @@
 		};
 	});
 
-	function getScenarioMeta(scenario: ScenarioWithHints) {
+function getScenarioMeta(scenario: Scenario) {
 		const rating = scenario.difficultyRating ?? 1;
 		return getDifficultyLevel(rating);
 	}
 
-	function selectScenario(scenario: ScenarioWithHints) {
+function selectScenario(scenario: Scenario) {
 		if (isGuest && scenario.id !== 'onboarding-welcome') {
 			return;
 		}
@@ -137,7 +137,7 @@
 	}
 
 	function handleScenarioCreated(result: SaveScenarioResult) {
-		const scenario: ScenarioWithHints = {
+	const scenario: Scenario = {
 			...result.scenario,
 			id: result.summary.id
 		};

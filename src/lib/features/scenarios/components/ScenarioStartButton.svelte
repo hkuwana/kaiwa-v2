@@ -2,20 +2,16 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import type { User } from '$lib/server/db/types';
-	import {
-		scenariosData,
-		sortScenariosByDifficulty,
-		type ScenarioWithHints
-	} from '$lib/data/scenarios';
+import { scenariosData, sortScenariosByDifficulty, type Scenario } from '$lib/data/scenarios';
 	import { difficultyRatingToCefr, formatCefrBadge } from '$lib/utils/cefr';
 	import { resolve } from '$app/paths';
 
 	// Props-based design - no direct store access
 	interface Props {
 		user: User;
-		selectedScenario?: ScenarioWithHints | null;
+		selectedScenario?: Scenario | null;
 		onScenarioChange?: (scenarioId: string) => void;
-		onScenarioStart?: (scenario: ScenarioWithHints) => void;
+		onScenarioStart?: (scenario: Scenario) => void;
 		forceOnboarding?: boolean; // Force onboarding for guests
 	}
 

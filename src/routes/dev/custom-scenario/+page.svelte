@@ -1,13 +1,13 @@
 <script lang="ts">
 	import ScenarioSelector from '$lib/features/scenarios/components/ScenarioSelector.svelte';
 	import ScenarioEngagement from '$lib/features/scenarios/components/ScenarioEngagement.svelte';
-	import { scenariosData, type ScenarioWithHints } from '$lib/data/scenarios';
+import { scenariosData, type Scenario } from '$lib/data/scenarios';
 	import { customScenarioStore } from '$lib/stores/custom-scenarios.store.svelte';
 
 	const baseScenarios = scenariosData;
 	const scenarios = baseScenarios;
 
-	let currentScenario = $state<ScenarioWithHints | null>(baseScenarios[0]);
+let currentScenario = $state<Scenario | null>(baseScenarios[0]);
 	let isSaved = $state(false);
 	let userRating = $state<number | null>(null);
 	let engagementIsLoading = $state(false);
@@ -16,7 +16,7 @@
 	const savedSummaries = $derived(customScenarioStore.scenarios);
 	const customScenarios = $derived(customScenarioStore.customScenarios);
 
-	function handleScenarioSelect(scenario: ScenarioWithHints) {
+function handleScenarioSelect(scenario: Scenario) {
 		currentScenario = scenario;
 		// Reset engagement state when switching scenarios
 		isSaved = false;

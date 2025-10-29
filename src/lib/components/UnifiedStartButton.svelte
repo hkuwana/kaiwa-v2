@@ -1,10 +1,6 @@
 <!-- src/lib/components/UnifiedStartButton.svelte -->
 <script lang="ts">
-	import {
-		scenariosData,
-		sortScenariosByDifficulty,
-		type ScenarioWithHints
-	} from '$lib/data/scenarios';
+	import { scenariosData, sortScenariosByDifficulty, type Scenario } from '$lib/data/scenarios';
 	import { goto } from '$app/navigation';
 	import { track } from '$lib/analytics/posthog';
 	import LanguageSelector from './LanguageSelector.svelte';
@@ -19,11 +15,11 @@
 		user: User;
 		selectedLanguage?: DataLanguage | null;
 		selectedSpeaker?: string | null;
-		selectedScenario?: ScenarioWithHints | null;
+		selectedScenario?: Scenario | null;
 		selectedAudioMode?: 'vad' | 'ptt';
 		onLanguageChange?: (language: DataLanguage) => void;
 		onSpeakerChange?: (speakerId: string) => void;
-		onScenarioChange?: (scenario: ScenarioWithHints) => void;
+		onScenarioChange?: (scenario: Scenario) => void;
 		onStartClick?: () => void;
 		onModeChange?: (mode: 'vad' | 'ptt') => void;
 		children?: import('svelte').Snippet;
@@ -81,7 +77,7 @@
 		button: 'Start Practicing'
 	};
 
-	function getScenarioRoleCopy(role?: ScenarioWithHints['role']) {
+function getScenarioRoleCopy(role?: Scenario['role']) {
 		if (role && role in SCENARIO_ROLE_COPY) {
 			return SCENARIO_ROLE_COPY[role as ScenarioRole];
 		}
@@ -106,7 +102,7 @@
 		}
 	}
 
-	function handleScenarioChange(scenario: ScenarioWithHints) {
+function handleScenarioChange(scenario: Scenario) {
 		if (onScenarioChange) {
 			onScenarioChange(scenario);
 		}

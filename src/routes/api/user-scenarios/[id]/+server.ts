@@ -1,6 +1,6 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { createErrorResponse } from '$lib/types/api';
-import type { ScenarioWithHints } from '$lib/data/scenarios';
+import type { Scenario } from '$lib/data/scenarios';
 import {
 	deleteUserScenario,
 	getUserScenarioDetail,
@@ -82,7 +82,7 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 		const summary = await updateUserScenario({
 			userId: user.id,
 			scenarioId: params.id,
-			scenario: parsed.data.scenario as ScenarioWithHints | undefined,
+			scenario: parsed.data.scenario as Scenario | undefined,
 			visibility: parsed.data.visibility
 		});
 

@@ -8,9 +8,7 @@
 // They are only available in OpenAI TTS API
 
 import type { Speaker } from '$lib/server/db/types';
-import type { Scenario } from '$lib/server/db/types';
-// Type-only import to avoid runtime cycles
-import type { ScenarioWithHints } from '$lib/data/scenarios';
+import type { Scenario } from '$lib/data/scenarios';
 
 export const speakersData: Speaker[] = [
 	// --- Japanese Speakers ---
@@ -1106,25 +1104,8 @@ export function getDefaultSpeakerForLanguage(languageId: string): Speaker | unde
 }
 
 // Helper: rank speakers for a scenario and language
-function scoreSpeakerForScenario(speaker: Speaker, scenario: Scenario | ScenarioWithHints): number {
+function scoreSpeakerForScenario(speaker: Speaker, _scenario: Scenario): number {
 	let score = 0;
-
-	const hints = (scenario as ScenarioWithHints).localeHints || [];
-	const genderPref = (scenario as ScenarioWithHints).speakerGenderPreference;
-
-	// Strong boost for exact BCP‑47 matches listed first in hints
-	if (hints.length > 0) {
-		const idx = hints.findIndex((h) => h.toLowerCase() === (speaker.bcp47Code || '').toLowerCase());
-		if (idx >= 0) {
-			// Earlier hints are stronger
-			score += 100 - idx * 5;
-		}
-	}
-
-	// Gentle nudge for gender preference (tie-breaker only)
-	if (genderPref && speaker.gender === genderPref) {
-		score += 5;
-	}
 
 	// Small bonus if this is an OpenAI voice we list as common defaults
 	const openaiPreferred = ['alloy', 'ash', 'sage', 'coral', 'verse', 'ballad', 'echo'];
@@ -1137,7 +1118,7 @@ function scoreSpeakerForScenario(speaker: Speaker, scenario: Scenario | Scenario
 
 // Get best-fitting speakers for a given scenario and language
 export function getBestSpeakersForScenario(
-	scenario: Scenario | ScenarioWithHints,
+	scenario: Scenario,
 	languageId: string,
 	limit = 3
 ): Speaker[] {
@@ -1158,7 +1139,7 @@ export function getBestSpeakersForScenario(
 
 // Convenience: get a single top speaker for scenario + language
 export function getTopSpeakerForScenario(
-	scenario: Scenario | ScenarioWithHints,
+	scenario: Scenario,
 	languageId: string
 ): Speaker | undefined {
 	const best = getBestSpeakersForScenario(scenario, languageId, 1);

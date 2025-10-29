@@ -3,7 +3,6 @@
 
 import type { User, UserPreferences, Language, Speaker, Scenario } from '$lib/server/db/types';
 import type { SpeechSpeed } from '$lib/server/db/types';
-import type { ScenarioWithHints } from '$lib/data/scenarios';
 import { InstructionComposer, type InstructionComposerOptions } from '$lib/services/instructions';
 import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 import { getLanguageById } from '$lib/types';
@@ -33,7 +32,7 @@ export interface InstructionRequest {
 	user: User;
 	language: Language;
 	preferences: Partial<UserPreferences>;
-	scenario?: Scenario | ScenarioWithHints;
+	scenario?: Scenario;
 	sessionContext?: SessionContext;
 	speaker?: Speaker;
 	updateType?: UpdateContext['type'];
@@ -58,7 +57,7 @@ export function getInstructions(phase: InstructionPhase, params: InstructionRequ
 }
 
 export function createScenarioSessionConfig(
-	scenario: Scenario | ScenarioWithHints | undefined,
+	scenario: Scenario | undefined,
 	user: User,
 	language: Language,
 	preferences: Partial<UserPreferences>,
@@ -105,7 +104,7 @@ export function createScenarioSessionConfig(
 
 export function generateScenarioGreeting(opts: {
 	language?: Language | null;
-	scenario?: Scenario | ScenarioWithHints | null;
+	scenario?: Scenario | null;
 	user?: User | null;
 }): string {
 	const languageName = opts.language?.name || 'your target language';
@@ -161,7 +160,7 @@ function composeInitialInstructions(
 		user: params.user,
 		language: params.language,
 		preferences: params.preferences,
-		scenario: params.scenario as ScenarioWithHints | undefined,
+		scenario: params.scenario,
 		speaker: params.speaker,
 		sessionContext: normalizeSessionContext(params.sessionContext),
 		parameters: parameterOverrides

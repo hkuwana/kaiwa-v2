@@ -2,7 +2,7 @@
 // Reactive store coordinating user-authored scenario workflow
 
 import { browser } from '$app/environment';
-import type { ScenarioWithHints } from '$lib/data/scenarios';
+import type { Scenario } from '$lib/data/scenarios';
 import {
 	authorScenario,
 	createScenario,
@@ -21,7 +21,7 @@ import { SvelteDate } from 'svelte/reactivity';
 interface DraftState {
 	status: 'idle' | 'authoring' | 'ready' | 'error';
 	input: AuthorScenarioRequest;
-	result: ScenarioWithHints | null;
+	result: Scenario | null;
 	error: string | null;
 }
 
@@ -41,7 +41,7 @@ const DEFAULT_LIMITS: LimitState = {
 
 export interface SaveScenarioResult {
 	summary: UserScenarioSummary;
-	scenario: ScenarioWithHints;
+	scenario: Scenario;
 }
 
 const generateId = (prefix = 'scenario'): string => {
@@ -53,7 +53,7 @@ const generateId = (prefix = 'scenario'): string => {
 
 export class CustomScenarioStore {
 	scenarios = $state<UserScenarioSummary[]>([]);
-	customScenarios = $state<ScenarioWithHints[]>([]);
+	customScenarios = $state<Scenario[]>([]);
 	limits = $state<LimitState>(DEFAULT_LIMITS);
 	draft = $state<DraftState>({
 		status: 'idle',
@@ -85,7 +85,7 @@ export class CustomScenarioStore {
 		}
 	};
 
-	getCustomScenarios = (): ScenarioWithHints[] => [...this.customScenarios];
+	getCustomScenarios = (): Scenario[] => [...this.customScenarios];
 
 	authorDraft = async (input: AuthorScenarioRequest): Promise<AuthorScenarioResponse | null> => {
 		this.draft = {
@@ -130,7 +130,7 @@ export class CustomScenarioStore {
 		};
 	};
 
-	updateDraftResult = (result: ScenarioWithHints) => {
+	updateDraftResult = (result: Scenario) => {
 		this.draft = {
 			...this.draft,
 			result,
@@ -205,7 +205,7 @@ export class CustomScenarioStore {
 		};
 	};
 
-	private createLocalDraft = (input: AuthorScenarioRequest): ScenarioWithHints => {
+	private createLocalDraft = (input: AuthorScenarioRequest): Scenario => {
 		const id = generateId('draft');
 		const createdAt = new SvelteDate();
 		const role: ScenarioMode = input.mode ?? 'character';
@@ -232,6 +232,9 @@ export class CustomScenarioStore {
 				engagement: 4,
 				understanding: 3
 			},
+			visibility: 'public',
+			createdByUserId: null,
+			usageCount: 0,
 			isActive: true,
 			createdAt,
 			updatedAt: createdAt
@@ -257,10 +260,7 @@ export class CustomScenarioStore {
 		};
 	};
 
-	private buildScenarioRecord = (
-		summary: UserScenarioSummary,
-		scenario: ScenarioWithHints
-	): ScenarioWithHints => {
+	private buildScenarioRecord = (summary: UserScenarioSummary, scenario: Scenario): Scenario => {
 		const now = new SvelteDate();
 		return {
 			...scenario,
