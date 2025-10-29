@@ -1,10 +1,14 @@
 <!-- src/lib/components/ScenarioSelector.svelte -->
 <script lang="ts">
-	import type { ScenarioWithHints } from '$lib/data/scenarios';
+	import { scenariosData, type ScenarioWithHints } from '$lib/data/scenarios';
 	import { getDifficultyLevel } from '$lib/utils/cefr';
 	import { onMount } from 'svelte';
+	import ScenarioCreatorModal from './ScenarioCreatorModal.svelte';
+	import {
+		customScenarioStore,
+		type SaveScenarioResult
+	} from '$lib/stores/custom-scenarios.store.svelte';
 
-	// Props-based design - no direct store access
 	interface Props {
 		scenarios: ScenarioWithHints[];
 		selectedScenario: ScenarioWithHints | null;
@@ -25,7 +29,6 @@
 
 	type ScenarioRole = 'tutor' | 'character' | 'friendly_chat' | 'expert';
 
-	// Icons and colors by scenario role
 	const roleIcons: Record<ScenarioRole, string> = {
 		tutor: 'icon-[mdi--coffee]',
 		character: 'icon-[mdi--account-group]',
@@ -48,20 +51,45 @@
 	};
 
 	let isOpen = $state(false);
+	let isCreatorOpen = $state(false);
 	let componentRef: HTMLDivElement;
 	let searchQuery = $state('');
 
-	const createRange = (count: number) => Array.from({ length: Math.max(0, count) });
+	const limits = $derived(customScenarioStore.limits);
+	const limitReached = $derived(() => limits.totalUsed >= limits.total && limits.total > 0);
+	const customScenarios = $derived(customScenarioStore.customScenarios);
 
-	// Filtered scenarios based on search query
+	const curatedScenarios = $derived(() => {
+		const map = new Map<string, ScenarioWithHints>();
+		for (const scenario of scenariosData) {
+			map.set(scenario.id, scenario);
+		}
+		for (const scenario of scenarios) {
+			map.set(scenario.id, scenario);
+		}
+		return Array.from(map.values());
+	});
+
+	const combinedScenarios = $derived(() => {
+		const map = new Map<string, ScenarioWithHints>();
+		for (const scenario of curatedScenarios) {
+			map.set(scenario.id, scenario);
+		}
+		for (const scenario of customScenarios) {
+			map.set(scenario.id, scenario);
+		}
+		return Array.from(map.values());
+	});
+
 	let filteredScenarios = $state<ScenarioWithHints[]>([]);
 
 	$effect(() => {
+		const source = combinedScenarios;
 		if (!searchQuery.trim()) {
-			filteredScenarios = scenarios;
+			filteredScenarios = source;
 		} else {
 			const query = searchQuery.toLowerCase();
-			filteredScenarios = scenarios.filter(
+			filteredScenarios = source.filter(
 				(scenario) =>
 					scenario.title.toLowerCase().includes(query) ||
 					scenario.description?.toLowerCase().includes(query) ||
@@ -70,8 +98,11 @@
 		}
 	});
 
-	// Click outside to close dropdown
 	onMount(() => {
+		customScenarioStore.loadScenarios().catch((error) => {
+			console.warn('Unable to load custom scenarios', error);
+		});
+
 		function handleClickOutside(event: MouseEvent) {
 			if (componentRef && !componentRef.contains(event.target as Node)) {
 				isOpen = false;
@@ -91,17 +122,32 @@
 	}
 
 	function selectScenario(scenario: ScenarioWithHints) {
-		// Only allow onboarding scenario for guests
 		if (isGuest && scenario.id !== 'onboarding-welcome') {
 			return;
 		}
+
 		onScenarioSelect(scenario);
+		isOpen = false;
+		searchQuery = '';
+	}
+
+	function openCreator() {
+		isCreatorOpen = true;
+		isOpen = false;
+	}
+
+	function handleScenarioCreated(result: SaveScenarioResult) {
+		const scenario: ScenarioWithHints = {
+			...result.scenario,
+			id: result.summary.id
+		};
+		onScenarioSelect(scenario);
+		isCreatorOpen = false;
 		isOpen = false;
 	}
 </script>
 
 <div class="relative w-full" bind:this={componentRef}>
-	<!-- Scenario selector button -->
 	{#if disabled && tooltipMessage}
 		<div class="tooltip tooltip-top w-full" data-tip={tooltipMessage}>
 			<button
@@ -204,7 +250,6 @@
 		</div>
 	{/if}
 
-	<!-- Scenario dropdown -->
 	{#if isOpen}
 		<div
 			class="absolute top-full left-1/2 z-50 mt-3 w-96 -translate-x-1/2 transform rounded-2xl border border-base-200 bg-base-100 py-4 shadow-2xl backdrop-blur-md"
@@ -213,7 +258,6 @@
 				<h3 class="mb-2 text-sm font-semibold text-base-content/70">Choose Learning Scenario</h3>
 			</div>
 
-			<!-- Search Input -->
 			<div class="px-4 pb-3">
 				<div class="relative">
 					<input
@@ -270,7 +314,24 @@
 						</button>
 					{/each}
 				{/if}
+
+				<div class="my-3 px-2">
+					<button
+						class="btn flex w-full items-center justify-center gap-2 rounded-xl border-dashed btn-outline btn-primary"
+						onclick={openCreator}
+						disabled={limitReached()}
+					>
+						<span class="icon-[mdi--plus-circle] h-5 w-5"></span>
+						<span>{limitReached() ? 'Upgrade to add more' : 'Create your own scenario'}</span>
+					</button>
+				</div>
 			</div>
 		</div>
 	{/if}
+
+	<ScenarioCreatorModal
+		open={isCreatorOpen}
+		onClose={() => (isCreatorOpen = false)}
+		onScenarioCreated={handleScenarioCreated}
+	/>
 </div>

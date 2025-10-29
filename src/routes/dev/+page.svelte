@@ -15,7 +15,15 @@
 			desc: 'Browse internal docs, guides, and implementation plans'
 		},
 
-		// Product Roadmap - Always first
+		// Product Strategy
+		{
+			category: '🎯 Strategy & ICPs',
+			name: 'ICP Personas',
+			href: '/dev/icp',
+			desc: 'Interactive guide to Ideal Customer Profiles and go-to-market strategy'
+		},
+
+		// Product Roadmap
 		{
 			category: '🛠️ Development & Planning',
 			name: 'Product Roadmap',
