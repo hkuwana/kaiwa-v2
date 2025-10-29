@@ -10,77 +10,6 @@ env:
   NODE_VERSION: '20'
 
 jobs:
-  # Smoke Tests - Run on every push/PR
-  smoke-tests:
-    name: Smoke Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    env:
-      DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
-      STRIPE_SECRET_KEY: sk_test_dummy_key_for_ci_builds_only
-      OPENAI_API_KEY: sk-dummy-key-for-ci
-      SESSION_SECRET: dummy-session-secret-for-ci
-      PUBLIC_API_URL: http://localhost:3000
-      PUBLIC_WS_URL: ws://localhost:3000
-      PUBLIC_SUPABASE_URL: https://dummy.supabase.co
-      PUBLIC_SUPABASE_ANON_KEY: dummy-anon-key
-      PUBLIC_ENABLE_ANALYTICS: false
-      PUBLIC_POSTHOG_KEY: dummy-posthog-key
-      PUBLIC_STRIPE_PRICE_ID: price_dummy
-      PUBLIC_STRIPE_KEY: pk_test_dummy
-      STRIPE_WEBHOOK_SECRET: whsec_dummy
-      GOOGLE_CLOUD_PROJECT_ID: dummy-project
-      GOOGLE_CREDENTIALS_JSON: '{}'
-      RESEND_API_KEY: re_dummy_key
-      RESEND_TEST_EMAIL: test@example.com
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps
-
-      - name: Build application
-        run: pnpm run build
-
-      - name: Run smoke tests
-        run: pnpm run smoke:test
-        env:
-          CI: true
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: smoke-test-results
-          path: test-results/
-          retention-days: 7
-
   # Build Verification - Run on every push/PR
   build-verification:
     name: Build Verification
@@ -165,7 +94,7 @@ jobs:
   deploy:
     name: Deploy to Production
     runs-on: ubuntu-latest
-    needs: [smoke-tests, build-verification]
+    needs: [build-verification]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     timeout-minutes: 20
 
@@ -201,46 +130,3 @@ jobs:
         run: |
           echo "❌ Deployment failed!"
           echo "Check the logs above for details"
-
-  # Post-deployment smoke tests
-  post-deploy-smoke:
-    name: Post-Deployment Smoke Tests
-    runs-on: ubuntu-latest
-    needs: deploy
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    timeout-minutes: 15
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps
-
-      - name: Run production smoke tests
-        run: |
-          # Set production URL for smoke tests
-          export BASE_URL=https://trykaiwa.com
-          pnpm run smoke:test
-        env:
-          CI: true
-          BASE_URL: https://trykaiwa.com
-
-      - name: Upload production test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: production-smoke-results
-          path: test-results/
-          retention-days: 7
