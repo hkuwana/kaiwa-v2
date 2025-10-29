@@ -3,7 +3,10 @@ import { chromium, FullConfig } from '@playwright/test';
 async function globalSetup(config: FullConfig) {
 	const { baseURL } = config.projects[0].use;
 
-	if (baseURL && baseURL !== 'http://localhost:4173') {
+	// Check if running against production (not localhost)
+	const isLocalhost = baseURL && (baseURL.includes('localhost') || baseURL.includes('127.0.0.1'));
+
+	if (baseURL && !isLocalhost) {
 		console.log(`🌐 Running smoke tests against: ${baseURL}`);
 
 		// Health check for production

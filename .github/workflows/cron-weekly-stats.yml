@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Trigger weekly stats endpoint
         run: |
-          response=$(curl -s -w "\n%{http_code}" "https://trykaiwa.com/api/cron/weekly-stats?secret=${{ secrets.CRON_SECRET }}")
+          response=$(curl -s -w "\n%{http_code}" -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" "https://trykaiwa.com/api/cron/weekly-stats")
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | sed '$d')
 

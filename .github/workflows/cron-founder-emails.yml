@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Trigger founder emails endpoint
         run: |
-          response=$(curl -s -w "\n%{http_code}" "https://trykaiwa.com/api/cron/founder-emails?secret=${{ secrets.CRON_SECRET }}")
+          response=$(curl -s -w "\n%{http_code}" -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" "https://trykaiwa.com/api/cron/founder-emails")
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | sed '$d')
 

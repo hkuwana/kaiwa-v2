@@ -32,7 +32,7 @@ jobs:
 
       - name: Send weekly product updates
         run: |
-          response=$(curl -s -w "\n%{http_code}" "https://trykaiwa.com/api/cron/weekly-digest?secret=${{ secrets.CRON_SECRET }}")
+          response=$(curl -s -w "\n%{http_code}" -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" "https://trykaiwa.com/api/cron/weekly-digest")
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | sed '$d')
 
