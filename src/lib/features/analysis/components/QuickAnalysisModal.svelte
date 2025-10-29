@@ -190,42 +190,30 @@
 				return 'icon-[mdi--chart-bar]';
 		}
 	}
-
-	function getCtaText(type: string): string {
-		switch (type) {
-			case 'onboarding':
-				return isGuestUser ? 'Create Account to Save Profile' : 'Get Your Learning Profile';
-			case 'scenario-generation':
-				return 'Generate Custom Scenarios';
-			default:
-				return 'Get Detailed Analysis';
-		}
-	}
 </script>
 
 {#if isVisible && language}
 	<div class="modal-open modal" transition:fade={{ duration: 300 }}>
-		<div class="modal-box max-w-4xl" transition:slide={{ duration: 400, delay: 100 }}>
+		<div
+			class="modal-box relative max-w-2xl px-4 py-5 sm:max-w-4xl sm:px-6 sm:py-8"
+			transition:slide={{ duration: 400, delay: 100 }}
+		>
+			<!-- Close Button - Absolutely Positioned -->
+			<button class="btn btn-circle btn-ghost btn-md sm:btn-lg absolute right-4 top-5 sm:right-6 sm:top-8" onclick={onClose}> ✕ </button>
+
 			<!-- Header -->
-			<div class="mb-6 flex items-center justify-between">
-				<div class="flex items-center gap-3">
-					<div class="badge gap-2 badge-lg badge-success">
-						<span class="icon-[mdi--check] h-4 w-4"></span>
-						{getAnalysisTypeTitle(analysisType)} Ready
-					</div>
-					{#if isHistorical}
-						<div class="badge gap-2 badge-lg badge-info">
-							<span class="icon-[mdi--clock-outline] h-4 w-4"></span>
-							Historical Conversation
-						</div>
-					{/if}
+			<div class="mb-3 flex items-center gap-2 sm:mb-6 sm:gap-3">
+				<div class="badge gap-1 badge-sm badge-success sm:gap-2 sm:badge-lg">
+					<span class="icon-[mdi--check] h-3 w-3 sm:h-4 sm:w-4"></span>
+					<span class="text-xs sm:text-sm">{getAnalysisTypeTitle(analysisType)} Ready</span>
 				</div>
-				<button class="btn btn-circle btn-ghost btn-sm" onclick={onClose}> ✕ </button>
 			</div>
 
-			<div class="mb-6 text-center">
-				<h1 class="mb-2 text-3xl font-bold">{getAnalysisTypeTitle(analysisType)}</h1>
-				<p class="text-lg text-base-content/70">
+			<div class="mb-4 text-center sm:mb-6">
+				<h1 class="mb-1 text-2xl font-bold sm:mb-2 sm:text-3xl">
+					{getAnalysisTypeTitle(analysisType)}
+				</h1>
+				<p class="text-xs text-base-content/70 sm:text-base">
 					Your {language.name} conversation {isHistorical
 						? 'from a previous session'
 						: 'has been reviewed'}
@@ -235,31 +223,39 @@
 			<!-- Quick Stats -->
 			{#if conversationStats}
 				<div
-					class="mb-6 rounded-xl bg-base-100 p-6 shadow-lg"
+					class="mb-4 rounded-lg bg-base-100 p-3 shadow sm:mb-6 sm:rounded-xl sm:p-6"
 					transition:slide={{ duration: 400, delay: 200 }}
 				>
-					<h2 class="mb-4 flex items-center text-xl font-semibold">
-						<span class="{getAnalysisTypeIcon(analysisType)} mr-2 h-5 w-5 text-primary"></span>
-						Conversation Overview
+					<h2 class="mb-2 flex items-center text-base font-semibold sm:mb-4 sm:text-xl">
+						<span
+							class="{getAnalysisTypeIcon(analysisType)} mr-2 h-4 w-4 text-primary sm:h-5 sm:w-5"
+						></span>
+						<span class="truncate">Overview</span>
 					</h2>
-					<div class="grid grid-cols-2 gap-4 md:grid-cols-4">
-						<div class="stat p-2">
-							<div class="stat-title text-sm">Messages</div>
-							<div class="stat-value text-2xl text-primary">{conversationStats.totalMessages}</div>
-						</div>
-						<div class="stat p-2">
-							<div class="stat-title text-sm">Your Input</div>
-							<div class="stat-value text-2xl text-secondary">{conversationStats.userMessages}</div>
-						</div>
-						<div class="stat p-2">
-							<div class="stat-title text-sm">Duration</div>
-							<div class="stat-value text-2xl text-info">{conversationStats.practiceTime}m</div>
-						</div>
-						<div class="stat p-2">
-							<div class="stat-title text-sm">
-								{['ja', 'ko', 'zh'].includes(language?.code || '') ? 'Characters' : 'Words'}
+					<div class="grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-4">
+						<div class="stat p-1 sm:p-2">
+							<div class="stat-title text-xs sm:text-sm">Messages</div>
+							<div class="stat-value text-lg text-primary sm:text-2xl">
+								{conversationStats.totalMessages}
 							</div>
-							<div class="stat-value text-2xl text-accent">
+						</div>
+						<div class="stat p-1 sm:p-2">
+							<div class="stat-title text-xs sm:text-sm">Your Input</div>
+							<div class="stat-value text-lg text-secondary sm:text-2xl">
+								{conversationStats.userMessages}
+							</div>
+						</div>
+						<div class="stat p-1 sm:p-2">
+							<div class="stat-title text-xs sm:text-sm">Duration</div>
+							<div class="stat-value text-lg text-info sm:text-2xl">
+								{conversationStats.practiceTime}m
+							</div>
+						</div>
+						<div class="stat p-1 sm:p-2">
+							<div class="stat-title text-xs sm:text-sm">
+								{['ja', 'ko', 'zh'].includes(language?.code || '') ? 'Chars' : 'Words'}
+							</div>
+							<div class="stat-value text-lg text-accent sm:text-2xl">
 								{['ja', 'ko', 'zh'].includes(language?.code || '')
 									? conversationStats.characterCount
 									: conversationStats.wordCount}
@@ -267,85 +263,37 @@
 						</div>
 					</div>
 					{#if conversationStats.translationCount > 0}
-						<div class="mt-4 flex justify-center">
-							<div class="badge gap-2 badge-outline">
-								<span class="icon-[mdi--translate] h-4 w-4"></span>
-								{conversationStats.translationCount} translations used
+						<div class="mt-2 flex justify-center sm:mt-4">
+							<div class="badge gap-1 badge-outline badge-sm sm:gap-2 sm:badge-md">
+								<span class="icon-[mdi--translate] h-3 w-3 sm:h-4 sm:w-4"></span>
+								<span class="text-xs sm:text-sm"
+									>{conversationStats.translationCount} translations</span
+								>
 							</div>
 						</div>
 					{/if}
 				</div>
 			{/if}
 
-			<!-- Quick Insights -->
+			<!-- Action Buttons -->
 			<div
-				class="mb-6 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5 p-6 shadow-lg"
+				class="flex flex-col justify-center gap-2 sm:gap-3"
 				transition:slide={{ duration: 400, delay: 300 }}
 			>
-				<h2 class="mb-4 text-xl font-semibold">Quick Insights</h2>
-				<div class="space-y-3">
-					{#each quickInsights as insight, i (i)}
-						<div
-							class="flex items-start gap-3"
-							transition:slide={{ duration: 300, delay: 400 + i * 100 }}
-						>
-							<div
-								class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-primary/20"
-							>
-								<span class="text-xs font-bold text-primary">{i + 1}</span>
-							</div>
-							<p class="text-sm text-base-content/80">{insight}</p>
-						</div>
-					{/each}
-				</div>
-			</div>
-
-			<!-- Call to Action -->
-			<div class="mb-6 text-center" transition:slide={{ duration: 400, delay: 600 }}>
-				<div class="rounded-xl bg-base-100 p-6 shadow-lg">
-					<h3 class="mb-3 text-lg font-semibold">Ready for More?</h3>
-					<p class="mb-4 text-base-content/70">
-						{#if analysisType === 'onboarding'}
-							{#if isGuestUser}
-								Create an account to save your learning profile with personalized recommendations
-								and goals.
-							{:else}
-								Get your complete learning profile with personalized recommendations and goals.
-							{/if}
-						{:else if analysisType === 'scenario-generation'}
-							Generate custom practice scenarios based on your conversation topics and interests.
-						{:else if isGuestUser}
-							Sign up to get detailed feedback on grammar, vocabulary, and personalized
-							recommendations.
-						{:else}
-							Get detailed feedback on grammar, vocabulary, pronunciation, and personalized
-							recommendations.
-						{/if}
-					</p>
-					<div class="flex flex-col justify-center gap-3 sm:flex-row">
-						{#if isGuestUser}
-							<!-- Guest user sees login CTA -->
-							<button class="btn btn-lg btn-primary" onclick={onDetailedAnalysis}>
-								<span class="mr-2 icon-[mdi--lock] h-5 w-5"></span>
-								Login to Unlock Detailed Analysis
-							</button>
-						{:else}
-							<button class="btn btn-lg btn-primary" onclick={onDetailedAnalysis}>
-								<span class="{getAnalysisTypeIcon(analysisType)} mr-2 h-5 w-5"></span>
-								{getCtaText(analysisType)}
-							</button>
-						{/if}
-						<button class="btn btn-outline btn-lg" onclick={onGoHome}>
-							<span class="mr-2 icon-[mdi--home] h-5 w-5"></span>
-							Go Home
-						</button>
-					</div>
-				</div>
-			</div>
-
-			<!-- Secondary Actions -->
-			<div class="flex justify-center">
-				<button class="btn btn-ghost" onclick={onGoHome}> ← Back to Home </button>
+				<button
+					class="btn btn-sm btn-primary sm:btn-lg"
+					onclick={() => {
+						onDetailedAnalysis();
+						onClose();
+					}}
+				>
+					<span class="icon-[mdi--chart-box-outline] h-4 w-4 sm:h-5 sm:w-5"></span>
+					Get Further Analysis
+				</button>
+				<button class="btn btn-outline btn-sm sm:btn-lg" onclick={onGoHome}>
+					<span class="icon-[mdi--chat-plus] h-4 w-4 sm:h-5 sm:w-5"></span>
+					Try new chat
+				</button>
 			</div>
 		</div>
 		<div
