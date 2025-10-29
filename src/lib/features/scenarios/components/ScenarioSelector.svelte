@@ -11,7 +11,7 @@
 
 	interface Props {
 		scenarios: Scenario[];
-		selectedScenario: Scenario | null;
+		selectedScenario: Scenario;
 		onScenarioSelect: (scenario: Scenario) => void;
 		disabled?: boolean;
 		tooltipMessage?: string;
@@ -56,10 +56,10 @@
 	let searchQuery = $state('');
 
 	const limits = $derived(customScenarioStore.limits);
-	const limitReached = $derived(() => limits.totalUsed >= limits.total && limits.total > 0);
+	const limitReached = $derived(limits.totalUsed >= limits.total && limits.total > 0);
 	const customScenarios = $derived(customScenarioStore.customScenarios);
 
-	const curatedScenarios = $derived(() => {
+	const curatedScenarios = $derived.by(() => {
 		const map = new Map<string, Scenario>();
 		for (const scenario of scenariosData) {
 			map.set(scenario.id, scenario);
@@ -70,7 +70,7 @@
 		return Array.from(map.values());
 	});
 
-	const combinedScenarios = $derived(() => {
+	const combinedScenarios = $derived.by(() => {
 		const map = new Map<string, Scenario>();
 		for (const scenario of curatedScenarios) {
 			map.set(scenario.id, scenario);
@@ -116,12 +116,12 @@
 		};
 	});
 
-function getScenarioMeta(scenario: Scenario) {
+	function getScenarioMeta(scenario: Scenario) {
 		const rating = scenario.difficultyRating ?? 1;
 		return getDifficultyLevel(rating);
 	}
 
-function selectScenario(scenario: Scenario) {
+	function selectScenario(scenario: Scenario) {
 		if (isGuest && scenario.id !== 'onboarding-welcome') {
 			return;
 		}
@@ -137,7 +137,7 @@ function selectScenario(scenario: Scenario) {
 	}
 
 	function handleScenarioCreated(result: SaveScenarioResult) {
-	const scenario: Scenario = {
+		const scenario: Scenario = {
 			...result.scenario,
 			id: result.summary.id
 		};
@@ -319,10 +319,10 @@ function selectScenario(scenario: Scenario) {
 					<button
 						class="btn flex w-full items-center justify-center gap-2 rounded-xl border-dashed btn-outline btn-primary"
 						onclick={openCreator}
-						disabled={limitReached()}
+						disabled={limitReached}
 					>
 						<span class="icon-[mdi--plus-circle] h-5 w-5"></span>
-						<span>{limitReached() ? 'Upgrade to add more' : 'Create your own scenario'}</span>
+						<span>{limitReached ? 'Upgrade to add more' : 'Create your own scenario'}</span>
 					</button>
 				</div>
 			</div>
