@@ -943,7 +943,7 @@ These are the metrics that matter:
 
 ---
 
-## 📊 **Monthly Success Metrics**
+## Monthly Success Metrics
 
 **Week 1:**
 - [ ] 5 customer conversations completed
@@ -977,7 +977,7 @@ These are the metrics that matter:
 
 ---
 
-## 🚨 **Non-Negotiable Rules**
+## Non-Negotiable Rules
 
 1. **Talk to 1 human per day, minimum** — Even if it's just a 10-min DM conversation
 2. **Watch them use Kaiwa** — You need to see confusion in real time
@@ -989,7 +989,7 @@ These are the metrics that matter:
 
 ---
 
-## 🗑️ **Archive These Docs** (You Don't Need Them Anymore)
+## Archive These Docs (You Don't Need Them Anymore)
 
 Delete or archive to a folder:
 - strategy-marketing.md (the long version)
@@ -1005,7 +1005,7 @@ Delete or archive to a folder:
 
 ---
 
-## 📌 **The TL;DR**
+## The TL;DR
 
 **Every single day:**
 1. Talk to 1 person (30 min) → Reach out via Reddit/Email/Text/Meetup
