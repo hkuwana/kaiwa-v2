@@ -12,6 +12,7 @@
 
 app = 'kaiwa'
 primary_region = 'den'
+org = 'flybyrd-867'
 
 [build]
 
