@@ -145,20 +145,20 @@
 		<div class="controls">
 			<div class="control-group">
 				<label for="update-select">Select Weekly Update:</label>
-				<select id="update-select" bind:value={selectedUpdateDate} on:change={loadPreview}>
+				<select id="update-select" bind:value={selectedUpdateDate} onchange={loadPreview}>
 					{#each availableUpdates as update}
 						<option value={update.date}
 							>{update.date} - {update.updates?.length || 0} updates</option
 						>
 					{/each}
 				</select>
-				<button on:click={loadPreview} disabled={isLoadingPreview}>
+				<button onclick={loadPreview} disabled={isLoadingPreview}>
 					{isLoadingPreview ? 'Loading...' : '🔄 Refresh Preview'}
 				</button>
 			</div>
 
 			<div class="control-group">
-				<button on:click={createNewUpdate} class="create-btn"> 📝 Create New Weekly Update </button>
+				<button onclick={createNewUpdate} class="create-btn"> 📝 Create New Weekly Update </button>
 			</div>
 		</div>
 
@@ -184,11 +184,11 @@
 		{/if}
 
 		<div class="actions">
-			<button on:click={sendTestEmail} disabled={isSending || !selectedUpdateDate} class="test-btn">
+			<button onclick={sendTestEmail} disabled={isSending || !selectedUpdateDate} class="test-btn">
 				{isSending ? 'Sending...' : '📨 Send Test Email'}
 			</button>
 			<button
-				on:click={sendToAllSubscribers}
+				onclick={sendToAllSubscribers}
 				disabled={isSending || !selectedUpdateDate}
 				class="send-btn"
 			>

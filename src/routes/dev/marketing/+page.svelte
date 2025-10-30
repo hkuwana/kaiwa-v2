@@ -409,7 +409,7 @@
 										class="checkbox mt-1 checkbox-sm"
 										type="checkbox"
 										checked={item.done}
-										on:change={() => toggleItem(day.id, item.id)}
+										onchange={() => toggleItem(day.id, item.id)}
 									/>
 									<div class="flex-1">
 										<div class="flex items-center gap-2">
@@ -451,7 +451,7 @@
 									class="checkbox mt-1 checkbox-sm"
 									type="checkbox"
 									bind:checked={b.done}
-									on:change={saveState}
+									onchange={saveState}
 								/>
 								<div>
 									<div class="flex items-center gap-2">
@@ -463,7 +463,7 @@
 									{/if}
 								</div>
 							</div>
-							<button class="btn btn-ghost btn-xs" on:click={() => removeBacklog(b.id)}
+							<button class="btn btn-ghost btn-xs" onclick={() => removeBacklog(b.id)}
 								>Remove</button
 							>
 						</div>
@@ -492,7 +492,7 @@
 							placeholder="Notes (optional)"
 							bind:value={newBacklogNote}
 						></textarea>
-						<button class="btn btn-sm btn-primary" on:click={addBacklog}>Add</button>
+						<button class="btn btn-sm btn-primary" onclick={addBacklog}>Add</button>
 					</div>
 				</div>
 			</div>

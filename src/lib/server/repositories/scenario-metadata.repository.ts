@@ -121,8 +121,7 @@ export const scenarioMetadataRepository = {
 
 		const newCompletions = (metadata.totalTimesUsed || 0) + 1;
 		const newAttempts = metadata.totalAttempts || 0;
-		const newCompletionRate =
-			newAttempts > 0 ? (newCompletions / newAttempts) * 100 : 0;
+		const newCompletionRate = newAttempts > 0 ? (newCompletions / newAttempts) * 100 : 0;
 
 		const [result] = await db
 			.update(scenarioMetadata)
@@ -142,10 +141,7 @@ export const scenarioMetadataRepository = {
 	 * Record a new rating for a scenario (user rating for the first time)
 	 * Recalculates the average rating based on the new rating
 	 */
-	async recordRating(
-		scenarioId: string,
-		newRating: number
-	): Promise<ScenarioMetadata | undefined> {
+	async recordRating(scenarioId: string, newRating: number): Promise<ScenarioMetadata | undefined> {
 		const metadata = await this.getMetadata(scenarioId);
 		if (!metadata) {
 			return undefined;
@@ -189,7 +185,8 @@ export const scenarioMetadataRepository = {
 		const count = metadata.ratingsCount || 1;
 
 		// Remove old rating contribution and add new rating
-		const newAverageRating = count > 0 ? (currentAverage * count - oldRating + newRating) / count : newRating;
+		const newAverageRating =
+			count > 0 ? (currentAverage * count - oldRating + newRating) / count : newRating;
 
 		const [result] = await db
 			.update(scenarioMetadata)

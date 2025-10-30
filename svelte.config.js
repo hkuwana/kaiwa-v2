@@ -20,6 +20,8 @@ const config = {
 	onwarn: (warning, handler) => {
 		// Suppress accessibility warnings during build
 		if (warning.code.startsWith('a11y_')) return;
+		// Suppress non_reactive_update warnings for SvelteMap/SvelteSet (they're inherently reactive)
+		if (warning.code === 'non_reactive_update') return;
 		handler(warning);
 	},
 	kit: {

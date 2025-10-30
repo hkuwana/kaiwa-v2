@@ -1,7 +1,11 @@
 <script lang="ts">
-	export let currentStage: 'selection' | 'chat' | 'review' = 'selection';
-	export let showLabels = true;
-	export let compact = false;
+	interface Props {
+		currentStage?: 'selection' | 'chat' | 'review';
+		showLabels?: boolean;
+		compact?: boolean;
+	}
+
+	let { currentStage = 'selection', showLabels = true, compact = false }: Props = $props();
 
 	const stages = [
 		{
