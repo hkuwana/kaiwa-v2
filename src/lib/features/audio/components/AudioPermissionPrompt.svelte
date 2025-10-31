@@ -56,12 +56,29 @@
 		}
 	}
 
-	// Simple instruction based on permission state
+	// Detect browser for specific instructions
+	function getBrowserName() {
+		const ua = navigator.userAgent;
+		if (ua.includes('Chrome') && !ua.includes('Edge')) return 'Chrome';
+		if (ua.includes('Safari') && !ua.includes('Chrome')) return 'Safari';
+		if (ua.includes('Edge')) return 'Edge';
+		if (ua.includes('Firefox')) return 'Firefox';
+		return 'browser';
+	}
+
+	// Browser-specific instruction based on permission state
 	function getInstruction() {
+		const browserName = getBrowserName();
 		if (permissionState?.state === 'denied') {
-			return 'Enable microphone in your browser settings and refresh.';
+			return `Microphone is blocked. Check your browser settings to enable it and refresh.`;
 		}
-		return 'Your browser will ask for microphone access.';
+		if (browserName === 'Safari') {
+			return 'Safari requires microphone access. You\'ll be asked to enable it in System Preferences.';
+		}
+		if (browserName === 'Firefox') {
+			return 'Firefox will ask for microphone permission. Please allow it to continue.';
+		}
+		return 'Your browser will ask for microphone access. Please allow it.';
 	}
 
 	const instruction = $derived(getInstruction());
@@ -109,6 +126,14 @@
 				{#if showSkipOption}
 					<button class="btn w-full btn-ghost btn-sm" onclick={onSkip}> Skip for now </button>
 				{/if}
+			</div>
+
+			<!-- Browser Compatibility Note -->
+			<div class="mt-4 rounded-lg bg-info/10 p-3 text-sm text-info">
+				<p class="font-semibold">💡 Tip: Use Chrome, Firefox, or Edge for best audio performance</p>
+				<p class="mt-1 text-xs opacity-80">
+					Some browsers or extensions may restrict microphone access. If you're still having issues, try a different browser or check your extension settings.
+				</p>
 			</div>
 
 			<!-- Error Display -->

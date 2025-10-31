@@ -256,6 +256,20 @@
 		>
 			<div class="mb-3 px-4 text-center">
 				<h3 class="mb-2 text-sm font-semibold text-base-content/70">Choose Learning Scenario</h3>
+				<div class="flex justify-center gap-4 text-xs text-base-content/60">
+					<div class="flex items-center gap-1">
+						<span class="icon-[mdi--circle] h-3 w-3 text-success"></span>
+						<span>Beginner</span>
+					</div>
+					<div class="flex items-center gap-1">
+						<span class="icon-[mdi--circle] h-3 w-3 text-warning"></span>
+						<span>Intermediate</span>
+					</div>
+					<div class="flex items-center gap-1">
+						<span class="icon-[mdi--circle] h-3 w-3 text-error"></span>
+						<span>Advanced</span>
+					</div>
+				</div>
 			</div>
 
 			<div class="px-4 pb-3">

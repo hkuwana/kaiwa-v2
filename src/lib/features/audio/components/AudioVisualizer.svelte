@@ -440,8 +440,8 @@
 		></div>
 	{/if}
 
-	<!-- Status Text -->
-	<div class="absolute -bottom-8 text-xs whitespace-nowrap text-base-content/60">
+	<!-- Status Text - Positioned above visualizer -->
+	<div class="absolute -top-12 text-xs whitespace-nowrap text-base-content/60">
 		{#if isRecording}
 			<span class="text-error">Recording...</span>
 		{:else if isListening}

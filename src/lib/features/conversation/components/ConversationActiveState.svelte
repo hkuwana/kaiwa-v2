@@ -56,7 +56,7 @@
 	let messageInput = $state('');
 	let translationData = $state(new SvelteMap<string, Partial<Message>>());
 	let messagesContainer = $state<HTMLDivElement | null>(null);
-	let conversationMode = $state(false);
+	let conversationMode = $state(true); // Default to calm mode (transcript hidden)
 
 	// UI state for chat visibility
 	let enableTyping = $state(false);
