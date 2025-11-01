@@ -4,6 +4,23 @@ This system allows you to create weekly newsletters by writing markdown files in
 
 ## Quick Start
 
+### Option 1: Auto-Generate from Git (Recommended)
+
+1. **Generate from your git commits:**
+
+   ```bash
+   pnpm run generate-weekly-update-from-git
+   ```
+
+2. **Review and edit** the generated file in `weekly-updates/Updates-MM-DD-YYYY.md`
+   - Add personal touches
+   - Include any manual items you want to highlight
+   - Edit descriptions to make them more casual/friendly
+
+3. **The system automatically sends it** on Sunday at 10:00 AM UTC
+
+### Option 2: Manual Creation
+
 1. **Create a new weekly update:**
 
    ```bash
@@ -13,6 +30,12 @@ This system allows you to create weekly newsletters by writing markdown files in
 2. **Edit the generated file** in `weekly-updates/Updates-MM-DD-YYYY.md`
 
 3. **The system automatically includes it** in the next weekly digest email
+
+### Automated Workflow
+
+- **Saturday 8:00 PM UTC**: Workflow auto-generates the weekly update file from git commits
+- **Sunday morning**: Review and edit the file if needed
+- **Sunday 10:00 AM UTC**: Update automatically sends to all subscribed users
 
 ## How It Works
 
@@ -59,7 +82,28 @@ Any additional context or notes about the week.
 
 ### Creating Weekly Updates
 
-**Option 1: Use the script (recommended)**
+**Option 1: Auto-generate from Git (easiest)**
+
+```bash
+# Generate from past 7 days of commits
+pnpm run generate-weekly-update-from-git
+
+# Generate from specific date
+pnpm run generate-weekly-update-from-git -- --since 2025-01-20
+
+# Preview without creating file
+pnpm run generate-weekly-update-from-git -- --dry-run
+```
+
+The script will:
+- ✅ Analyze your git commits from the past week
+- ✅ Group related commits into features
+- ✅ Filter out internal/technical changes
+- ✅ Generate user-friendly descriptions
+- ✅ Auto-detect and add links to relevant pages
+- ✅ Focus on major changes (up to 4 main features, 2 highlights)
+
+**Option 2: Manual creation**
 
 ```bash
 # Create for current week
@@ -72,8 +116,7 @@ pnpm run create-weekly-update -- --date 2025-01-25
 pnpm run create-weekly-update -- --template custom-template
 ```
 
-**Option 2: Manual creation**
-
+Or manually:
 1. Copy `weekly-updates/templates/weekly-update-template.md`
 2. Rename to `Updates-MM-DD-YYYY.md`
 3. Edit the content
@@ -114,7 +157,9 @@ The `WeeklyUpdatesParserService` handles:
 
 - **Weekly Digest Endpoint**: `/api/cron/weekly-digest` loads content from markdown files
 - **Email Service**: Content is passed to `WeeklyUpdatesEmailService`
-- **Cron Schedule**: Runs every Sunday at 10:00 AM UTC
+- **GitHub Actions**: 
+  - **Saturday 8:00 PM UTC**: Auto-generates weekly update from git (`prepare-weekly-update.yml`)
+  - **Sunday 10:00 AM UTC**: Sends weekly digest email (`cron-weekly-product-updates.yml`)
 
 ### Fallback Behavior
 

@@ -10,6 +10,13 @@
 	let weeklyUpdate = $state<any>(null);
 	let availableUpdates = $state<any[]>([]);
 	let selectedUpdateDate = $state<string>('');
+	
+	// Markdown editing
+	let markdownContent = $state<string>('');
+	let isLoadingMarkdown = $state(false);
+	let isSaving = $state(false);
+	let showEditor = $state(true);
+	let isGenerating = $state(false);
 
 	onMount(() => {
 		console.log('📧 Weekly Email Dev Page');
@@ -25,11 +32,33 @@
 
 			if (availableUpdates.length > 0) {
 				selectedUpdateDate = availableUpdates[0].date;
-				await loadPreview();
+				await loadMarkdown();
 			}
 		} catch (error) {
 			console.error('Error loading available updates:', error);
 			result = `Error loading updates: ${error}`;
+		}
+	}
+
+	async function loadMarkdown() {
+		if (!selectedUpdateDate) return;
+
+		isLoadingMarkdown = true;
+		try {
+			const response = await fetch(`/api/dev/weekly-email/get-markdown?date=${selectedUpdateDate}`);
+			const data = await response.json();
+
+			if (data.success) {
+				markdownContent = data.markdown;
+				await loadPreview(); // Refresh preview after loading markdown
+			} else {
+				result = `Error loading markdown: ${data.error}`;
+			}
+		} catch (error) {
+			console.error('Error loading markdown:', error);
+			result = `Error loading markdown: ${error}`;
+		} finally {
+			isLoadingMarkdown = false;
 		}
 	}
 
@@ -52,6 +81,40 @@
 			result = `Preview error: ${error}`;
 		} finally {
 			isLoadingPreview = false;
+		}
+	}
+
+	async function saveMarkdown() {
+		if (!selectedUpdateDate || !markdownContent.trim()) return;
+
+		isSaving = true;
+		result = '';
+		try {
+			const response = await fetch('/api/dev/weekly-email/save-markdown', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					date: selectedUpdateDate,
+					markdown: markdownContent
+				})
+			});
+
+			const data = await response.json();
+
+			if (data.success) {
+				result = `✅ Markdown saved successfully!\n\nFile: ${data.filename}`;
+				// Refresh preview after saving
+				await loadPreview();
+				// Refresh available updates in case we created a new one
+				await loadAvailableUpdates();
+			} else {
+				result = `❌ Error saving: ${data.error}`;
+			}
+		} catch (error) {
+			console.error('Error saving markdown:', error);
+			result = `❌ Error saving: ${error}`;
+		} finally {
+			isSaving = false;
 		}
 	}
 
@@ -121,14 +184,48 @@
 			const data = await response.json();
 
 			if (data.success) {
-				result = `✅ New weekly update file created!\n\nFile: ${data.filename}\nLocation: ${data.filePath}\n\nYou can now edit the file and refresh this page to see it.`;
+				result = `✅ New weekly update file created!\n\nFile: ${data.filename}\nLocation: ${data.filePath}`;
 				await loadAvailableUpdates();
+				// Reload markdown if we now have a selected date
+				if (selectedUpdateDate) {
+					await loadMarkdown();
+				}
 			} else {
 				result = `❌ Error: ${data.error}`;
 			}
 		} catch (error) {
 			console.error('Error creating new update:', error);
 			result = `❌ Error: ${error}`;
+		}
+	}
+
+	async function generateFromGit() {
+		isGenerating = true;
+		result = '';
+		try {
+			const response = await fetch('/api/dev/weekly-email/generate-from-git', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' }
+			});
+
+			const data = await response.json();
+
+			if (data.success) {
+				result = `✅ Weekly update generated from git!\n\nFile: ${data.filename}\n📊 Found ${data.commits} commits\n✨ Major: ${data.majorFeatures}\n🔧 Minor: ${data.minorFeatures}`;
+				await loadAvailableUpdates();
+				// Load the newly generated file
+				if (data.date) {
+					selectedUpdateDate = data.date;
+					await loadMarkdown();
+				}
+			} else {
+				result = `❌ Error: ${data.error || 'Failed to generate'}`;
+			}
+		} catch (error) {
+			console.error('Error generating from git:', error);
+			result = `❌ Error: ${error}`;
+		} finally {
+			isGenerating = false;
 		}
 	}
 </script>
@@ -145,22 +242,52 @@
 		<div class="controls">
 			<div class="control-group">
 				<label for="update-select">Select Weekly Update:</label>
-				<select id="update-select" bind:value={selectedUpdateDate} onchange={loadPreview}>
+				<select id="update-select" bind:value={selectedUpdateDate} onchange={loadMarkdown}>
 					{#each availableUpdates as update}
 						<option value={update.date}
 							>{update.date} - {update.updates?.length || 0} updates</option
 						>
 					{/each}
 				</select>
-				<button onclick={loadPreview} disabled={isLoadingPreview}>
-					{isLoadingPreview ? 'Loading...' : '🔄 Refresh Preview'}
+				<button onclick={loadMarkdown} disabled={isLoadingMarkdown}>
+					{isLoadingMarkdown ? 'Loading...' : '🔄 Load'}
+				</button>
+				<button onclick={() => (showEditor = !showEditor)} class="toggle-btn">
+					{showEditor ? '👁️ Hide Editor' : '✏️ Show Editor'}
 				</button>
 			</div>
 
 			<div class="control-group">
 				<button onclick={createNewUpdate} class="create-btn"> 📝 Create New Weekly Update </button>
+				<button onclick={generateFromGit} disabled={isGenerating} class="generate-btn">
+					{isGenerating ? '⏳ Generating...' : '🤖 Generate from Git'}
+				</button>
 			</div>
 		</div>
+
+		{#if showEditor && selectedUpdateDate}
+			<div class="editor-section">
+				<div class="editor-header">
+					<h3>✏️ Edit Markdown</h3>
+					<button onclick={saveMarkdown} disabled={isSaving || !markdownContent.trim()} class="save-btn">
+						{isSaving ? '💾 Saving...' : '💾 Save Changes'}
+					</button>
+				</div>
+				{#if isLoadingMarkdown}
+					<div class="loading-state">Loading markdown...</div>
+				{:else}
+					<textarea
+						bind:value={markdownContent}
+						class="markdown-editor"
+						placeholder="Markdown content will appear here..."
+						spellcheck="false"
+					></textarea>
+					<div class="editor-footer">
+						<p class="hint">💡 Edit the markdown above and click "Save Changes" to update the preview</p>
+					</div>
+				{/if}
+			</div>
+		{/if}
 
 		{#if weeklyUpdate}
 			<div class="update-info">
@@ -284,6 +411,90 @@
 
 	.create-btn:hover:not(:disabled) {
 		background: #2563eb;
+	}
+
+	.generate-btn {
+		background: #8b5cf6;
+		color: white;
+	}
+
+	.generate-btn:hover:not(:disabled) {
+		background: #7c3aed;
+	}
+
+	.toggle-btn {
+		background: #6b7280;
+		color: white;
+	}
+
+	.toggle-btn:hover:not(:disabled) {
+		background: #4b5563;
+	}
+
+	.editor-section {
+		background: #f9fafb;
+		border: 1px solid #e5e7eb;
+		border-radius: 12px;
+		padding: 1.5rem;
+		margin-bottom: 2rem;
+	}
+
+	.editor-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 1rem;
+	}
+
+	.editor-header h3 {
+		margin: 0;
+		color: #1f2937;
+	}
+
+	.save-btn {
+		background: #10b981;
+		color: white;
+		padding: 0.5rem 1.5rem;
+		font-weight: 600;
+	}
+
+	.save-btn:hover:not(:disabled) {
+		background: #059669;
+	}
+
+	.markdown-editor {
+		width: 100%;
+		min-height: 400px;
+		padding: 1rem;
+		border: 1px solid #d1d5db;
+		border-radius: 8px;
+		font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+		font-size: 14px;
+		line-height: 1.6;
+		resize: vertical;
+		background: white;
+	}
+
+	.markdown-editor:focus {
+		outline: 2px solid #3b82f6;
+		outline-offset: -2px;
+		border-color: #3b82f6;
+	}
+
+	.loading-state {
+		padding: 2rem;
+		text-align: center;
+		color: #6b7280;
+	}
+
+	.editor-footer {
+		margin-top: 0.5rem;
+	}
+
+	.hint {
+		font-size: 13px;
+		color: #6b7280;
+		margin: 0;
 	}
 
 	.update-info {

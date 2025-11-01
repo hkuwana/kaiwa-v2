@@ -1,0 +1,70 @@
+name: Prepare Weekly Update (Saturday)
+
+on:
+  schedule:
+    # Generate weekly update draft on Saturday at 8:00 PM UTC
+    # This gives you Sunday morning to review and edit before sending
+    - cron: '0 20 * * 6'
+  # Allow manual triggering for testing
+  workflow_dispatch:
+
+jobs:
+  prepare-weekly-update:
+    name: Generate Weekly Update Draft
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch full git history
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate weekly update from git commits
+        id: generate
+        run: |
+          pnpm run generate-weekly-update-from-git
+          echo "status=success" >> $GITHUB_OUTPUT
+
+      - name: Commit generated file (if new)
+        if: steps.generate.outputs.status == 'success'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Check if there are changes to commit
+          if [ -n "$(git status --porcelain weekly-updates/)" ]; then
+            git add weekly-updates/*.md
+            git commit -m "chore: auto-generate weekly update for Sunday send"
+            git push
+            echo "✅ Weekly update file generated and committed"
+          else
+            echo "ℹ️  No new weekly update file generated (may already exist)"
+          fi
+
+      - name: Create summary comment
+        if: always()
+        run: |
+          echo "## Weekly Update Generated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Weekly update file has been generated for this week." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next steps:**" >> $GITHUB_STEP_SUMMARY
+          echo "1. Review the generated file in \`weekly-updates/\` directory" >> $GITHUB_STEP_SUMMARY
+          echo "2. Edit it to add personal touches and any manual items" >> $GITHUB_STEP_SUMMARY
+          echo "3. The update will automatically send on Sunday at 10:00 AM UTC" >> $GITHUB_STEP_SUMMARY
+
