@@ -20,10 +20,17 @@ export class EmailSendGuardService {
 		return user.createdAt.getTime() > cutoff;
 	}
 
-	static async hasRecentPractice(userId: string, hours: number = DEFAULT_ACTIVITY_WINDOW_HOURS): Promise<boolean> {
+	static async hasRecentPractice(
+		userId: string,
+		hours: number = DEFAULT_ACTIVITY_WINDOW_HOURS
+	): Promise<boolean> {
 		const now = new Date();
 		const since = new Date(now.getTime() - hours * 60 * 60 * 1000);
-		const sessions = await conversationSessionsRepository.getUserSessionsInRange(userId, since, now);
+		const sessions = await conversationSessionsRepository.getUserSessionsInRange(
+			userId,
+			since,
+			now
+		);
 		return sessions.length > 0;
 	}
 
@@ -38,7 +45,11 @@ export class EmailSendGuardService {
 	static async getEmailSendCount(userId: string, days: number): Promise<number> {
 		const now = new Date();
 		const start = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
-		const events = await analyticsEventsRepository.getAnalyticsEventsInDateRange(start, now, userId);
+		const events = await analyticsEventsRepository.getAnalyticsEventsInDateRange(
+			start,
+			now,
+			userId
+		);
 		return events.filter((event) => TRACKED_EMAIL_EVENTS.has(event.eventName)).length;
 	}
 }

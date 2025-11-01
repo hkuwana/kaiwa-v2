@@ -45,7 +45,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          
+
           # Check if there are changes to commit
           if [ -n "$(git status --porcelain weekly-updates/)" ]; then
             git add weekly-updates/*.md
@@ -67,4 +67,3 @@ jobs:
           echo "1. Review the generated file in \`weekly-updates/\` directory" >> $GITHUB_STEP_SUMMARY
           echo "2. Edit it to add personal touches and any manual items" >> $GITHUB_STEP_SUMMARY
           echo "3. The update will automatically send on Sunday at 10:00 AM UTC" >> $GITHUB_STEP_SUMMARY
-

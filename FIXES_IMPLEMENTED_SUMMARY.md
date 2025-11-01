@@ -11,12 +11,12 @@
 
 Three critical bugs were identified, fixed, and deployed to production:
 
-| Bug | Issue | Status |
-|-----|-------|--------|
-| **#4** | Multiple duplicate responses generated | ✅ FIXED |
+| Bug    | Issue                                        | Status   |
+| ------ | -------------------------------------------- | -------- |
+| **#4** | Multiple duplicate responses generated       | ✅ FIXED |
 | **#1** | Language/scenario persistence lost on reload | ✅ FIXED |
-| **#2** | Language switch race condition | ✅ FIXED |
-| **#3** | Scenario lost when language changed | ✅ FIXED |
+| **#2** | Language switch race condition               | ✅ FIXED |
+| **#3** | Scenario lost when language changed          | ✅ FIXED |
 
 ---
 
@@ -58,6 +58,7 @@ this.messageHandlersSetup = false;
 ```
 
 **How It Works**:
+
 - Prevents `setupRealtimeEventHandlers()` from being called multiple times
 - First call sets flag to true → setup happens
 - Subsequent calls see flag is true → return early → no duplicate registration
@@ -101,6 +102,7 @@ function handleLanguageChange(language: DataLanguage) {
 ```
 
 **How It Works**:
+
 - `$derived` creates reactive binding to store
 - When store updates, component automatically re-renders
 - No stale state copies
@@ -124,46 +126,46 @@ function handleLanguageChange(language: DataLanguage) {
 ```ts
 // Lines 54-76: Enhanced effect with detailed logging
 $effect(() => {
-  if (browser) {
-    console.log('🌍 Conversation page effect triggered:', {
-      selectedLanguage: selectedLanguage?.code || null,
-      status,
-      autoConnectAttempted,
-      isStaticView,
-      storeLanguage: settingsStore.selectedLanguage?.code || null,
-      timestamp: new Date().toISOString()
-    });
-  }
+	if (browser) {
+		console.log('🌍 Conversation page effect triggered:', {
+			selectedLanguage: selectedLanguage?.code || null,
+			status,
+			autoConnectAttempted,
+			isStaticView,
+			storeLanguage: settingsStore.selectedLanguage?.code || null,
+			timestamp: new Date().toISOString()
+		});
+	}
 
-  if (browser && !autoConnectAttempted && !isStaticView &&
-      status === 'idle' && selectedLanguage) {
-    console.log('🚀 Auto-connection condition met');
-    attemptAutoConnection();
-  }
+	if (browser && !autoConnectAttempted && !isStaticView && status === 'idle' && selectedLanguage) {
+		console.log('🚀 Auto-connection condition met');
+		attemptAutoConnection();
+	}
 });
 
 // Lines 161-172: Language mismatch detection
 const storeLanguage = settingsStore.selectedLanguage;
 if (storeLanguage?.code !== selectedLanguage.code) {
-  console.warn('⚠️ Language mismatch detected!', {
-    derived: selectedLanguage.code,
-    store: storeLanguage?.code
-  });
+	console.warn('⚠️ Language mismatch detected!', {
+		derived: selectedLanguage.code,
+		store: storeLanguage?.code
+	});
 }
 
 // Lines 174-199: Enhanced logging
 console.log('📞 Starting auto-connection with:', {
-  language: selectedLanguage.name,
-  code: selectedLanguage.code,
-  sessionId,
-  audioMode,
-  speaker: settingsStore.selectedSpeaker
+	language: selectedLanguage.name,
+	code: selectedLanguage.code,
+	sessionId,
+	audioMode,
+	speaker: settingsStore.selectedSpeaker
 });
 // ... on success
 console.log('✅ Auto-connection successful with language:', selectedLanguage.code);
 ```
 
 **How It Works**:
+
 - Enhanced logging tracks all state changes
 - Detects language mismatches if they occur
 - Helps diagnose race conditions post-deployment
@@ -187,18 +189,18 @@ console.log('✅ Auto-connection successful with language:', selectedLanguage.co
 ```ts
 // Lines 280-296: New resetToDefault method
 resetToDefault = () => {
-  console.log('🎯 Resetting scenario to onboarding (language change detected)');
-  this.selectedScenario = scenariosData[0];
+	console.log('🎯 Resetting scenario to onboarding (language change detected)');
+	this.selectedScenario = scenariosData[0];
 
-  if (browser) {
-    try {
-      localStorage.removeItem(STORAGE_KEYS.SCENARIO);
-      scenarioCookieUtils.deleteCookie(STORAGE_KEYS.SCENARIO);
-      console.log('💾 Scenario cleared from storage due to language change');
-    } catch (error) {
-      console.warn('Failed to clear scenario storage on language change');
-    }
-  }
+	if (browser) {
+		try {
+			localStorage.removeItem(STORAGE_KEYS.SCENARIO);
+			scenarioCookieUtils.deleteCookie(STORAGE_KEYS.SCENARIO);
+			console.log('💾 Scenario cleared from storage due to language change');
+		} catch (error) {
+			console.warn('Failed to clear scenario storage on language change');
+		}
+	}
 };
 ```
 
@@ -207,20 +209,21 @@ resetToDefault = () => {
 ```ts
 // Lines 93-99: Updated handleLanguageChange
 function handleLanguageChange(language: DataLanguage) {
-  settingsStore.setLanguageObject(language);
-  scenarioStore.resetToDefault();  // NEW
-  console.log('Language changed - Scenario reset to default');
+	settingsStore.setLanguageObject(language);
+	scenarioStore.resetToDefault(); // NEW
+	console.log('Language changed - Scenario reset to default');
 }
 
 // Lines 111-117: Updated handleDynamicLanguageSelect
 function handleDynamicLanguageSelect(language: DataLanguage) {
-  settingsStore.setLanguageObject(language);
-  scenarioStore.resetToDefault();  // NEW
-  console.log('Language changed - Scenario reset to default');
+	settingsStore.setLanguageObject(language);
+	scenarioStore.resetToDefault(); // NEW
+	console.log('Language changed - Scenario reset to default');
 }
 ```
 
 **How It Works**:
+
 - When language changes, scenario resets to default (Onboarding)
 - Prevents invalid scenario/language combinations
 - Clears scenario from localStorage
@@ -233,12 +236,14 @@ function handleDynamicLanguageSelect(language: DataLanguage) {
 ## Testing Results
 
 ### Build Verification
+
 - ✅ All builds successful
 - ✅ No TypeScript errors
 - ✅ No Svelte compilation errors
 - ✅ All changes syntactically correct
 
 ### Commit Log
+
 ```
 32592be fix(bug-3): Reset scenario when language changes
 f92d8cc fix(bug-2): Prevent language switch race condition with enhanced logging
@@ -247,6 +252,7 @@ c03997c fix(bug-1): Fix language/scenario persistence by using reactive store bi
 ```
 
 ### Deployment Status
+
 - ✅ All commits pushed to origin/main
 - ✅ Auto-deployed to production via CI/CD
 - ✅ No blocking errors or vulnerabilities introduced
@@ -256,12 +262,14 @@ c03997c fix(bug-1): Fix language/scenario persistence by using reactive store bi
 ## Code Quality Changes
 
 ### Improvements Made
+
 1. **Reactive Bindings**: Changed from stale state copies to `$derived` bindings
 2. **Guard Clauses**: Added protection against duplicate handler registration
 3. **Logging**: Enhanced logging throughout for better debugging
 4. **Store Coordination**: Added method to coordinate between Scenario and Settings stores
 
 ### Lines of Code
+
 - Added: ~110 lines
 - Removed: ~9 lines
 - Net Change: +101 lines
@@ -273,12 +281,14 @@ c03997c fix(bug-1): Fix language/scenario persistence by using reactive store bi
 ### Manual Testing Checklist
 
 **Bug #4 (Multiple Responses)**:
+
 - [ ] Start conversation
 - [ ] Check browser console for emitMessage calls
 - [ ] Verify only 1 response appears per turn
 - [ ] Monitor for "duplicate listener" warnings (should not appear)
 
 **Bug #1 (Persistence)**:
+
 - [ ] Select language on home page
 - [ ] Reload page
 - [ ] Verify language still selected
@@ -286,12 +296,14 @@ c03997c fix(bug-1): Fix language/scenario persistence by using reactive store bi
 - [ ] Repeat for speaker and scenario
 
 **Bug #2 (Language Switch)**:
+
 - [ ] Select language A quickly, click "Start Speaking"
 - [ ] Check browser console for effect triggers
 - [ ] Verify conversation uses Language A (not B or null)
 - [ ] Try again with different languages
 
 **Bug #3 (Scenario Loss)**:
+
 - [ ] Select Japanese language
 - [ ] Select "Meeting Parent" scenario
 - [ ] Switch to Spanish
@@ -303,11 +315,13 @@ c03997c fix(bug-1): Fix language/scenario persistence by using reactive store bi
 ## Known Limitations
 
 ### Not Yet Fixed
+
 - Bug #5: Create scenario editing (needs form validation)
 - Bug #6: Role-play analysis leakage (needs state coordination)
 - Bug #7: UI reset on glitch (needs investigation)
 
 ### Future Improvements
+
 - Add language-aware scenario filtering (validate scenario for language)
 - Implement prompt to let user choose scenario after language change
 - Add more granular error handling for edge cases
@@ -316,12 +330,12 @@ c03997c fix(bug-1): Fix language/scenario persistence by using reactive store bi
 
 ## Files Modified Summary
 
-| File | Bug | Lines Changed | Type |
-|------|-----|---------------|------|
-| `src/lib/stores/conversation.store.svelte.ts` | #4 | +20 | Guard clause, logging |
-| `src/routes/+page.svelte` | #1, #3 | +8, +6 | Reactivity, handler updates |
-| `src/lib/stores/scenario.store.svelte.ts` | #3 | +17 | New method |
-| `src/routes/conversation/+page.svelte` | #2 | +40 | Enhanced logging |
+| File                                          | Bug    | Lines Changed | Type                        |
+| --------------------------------------------- | ------ | ------------- | --------------------------- |
+| `src/lib/stores/conversation.store.svelte.ts` | #4     | +20           | Guard clause, logging       |
+| `src/routes/+page.svelte`                     | #1, #3 | +8, +6        | Reactivity, handler updates |
+| `src/lib/stores/scenario.store.svelte.ts`     | #3     | +17           | New method                  |
+| `src/routes/conversation/+page.svelte`        | #2     | +40           | Enhanced logging            |
 
 ---
 

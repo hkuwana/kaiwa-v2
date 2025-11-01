@@ -50,7 +50,7 @@ Authorization: Bearer {CRON_SECRET}
   - Product highlights (0-2 items)
   - Upcoming (0-3 items coming next)
 - **Implementation:** [src/routes/api/cron/weekly-digest/+server.ts](../../src/routes/api/cron/weekly-digest/+server.ts)
-- **Preparation:** 
+- **Preparation:**
   - **Saturday 8:00 PM UTC**: Auto-generates weekly update from git commits (`prepare-weekly-update.yml`)
   - Content is stored in `weekly-updates/Updates-MM-DD-YYYY.md` markdown files
   - You can review and edit the file before Sunday send
@@ -206,12 +206,14 @@ Required in `.env` or GitHub secrets:
 ### Weekly Digest Content Updates
 
 **Automated (Recommended):**
+
 - The system auto-generates weekly updates from git commits every Saturday at 8:00 PM UTC
 - Review the generated file in `weekly-updates/Updates-MM-DD-YYYY.md`
 - Edit if needed to add personal touches or manual items
 - The update automatically sends on Sunday at 10:00 AM UTC
 
 **Manual:**
+
 1. Generate update: `pnpm run generate-weekly-update-from-git`
 2. Or create manually: `pnpm run create-weekly-update`
 3. Edit the file in `weekly-updates/Updates-MM-DD-YYYY.md`

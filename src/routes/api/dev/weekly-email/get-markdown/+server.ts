@@ -2,7 +2,6 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { WeeklyUpdatesParserService } from '$lib/server/services/weekly-updates-parser.service';
 
 /**
  * GET endpoint to fetch raw markdown content of a weekly update file
@@ -51,4 +50,3 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 		);
 	}
 };
-

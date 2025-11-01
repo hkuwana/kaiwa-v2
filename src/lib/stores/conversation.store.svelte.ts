@@ -861,7 +861,9 @@ export class ConversationStore {
 	private setupRealtimeEventHandlers(): void {
 		// Guard against duplicate handler registration (Bug #4 fix)
 		if (this.messageHandlersSetup) {
-			console.warn('⚠️ ConversationStore: setupRealtimeEventHandlers called multiple times, skipping duplicate setup');
+			console.warn(
+				'⚠️ ConversationStore: setupRealtimeEventHandlers called multiple times, skipping duplicate setup'
+			);
 			return;
 		}
 

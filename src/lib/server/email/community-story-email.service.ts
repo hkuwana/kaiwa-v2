@@ -1,7 +1,11 @@
 import { Resend } from 'resend';
 import { formatDistanceToNow } from 'date-fns';
 import { env } from '$env/dynamic/private';
-import { communityStories, type CommunityStory, type LearningGoal } from '$lib/data/community-stories';
+import {
+	communityStories,
+	type CommunityStory,
+	type LearningGoal
+} from '$lib/data/community-stories';
 import { EmailPermissionService } from '$lib/server/email/email-permission.service';
 import { analyticsEventsRepository } from '$lib/server/repositories/analytics-events.repository';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
@@ -44,9 +48,7 @@ function lookupStory(goal?: string | null): CommunityStory {
 	}
 
 	const normalized = goal.toLowerCase() as LearningGoal;
-	const match = communityStories.find(
-		(story) => story.learningGoal.toLowerCase() === normalized
-	);
+	const match = communityStories.find((story) => story.learningGoal.toLowerCase() === normalized);
 
 	return match ?? communityStories[0];
 }
@@ -167,7 +169,7 @@ export class CommunityStoryEmailService {
 
 		const targetLanguageId = preferences?.targetLanguageId ?? null;
 		const languageName = targetLanguageId
-			? (await languageRepository.findLanguageById(targetLanguageId))?.name ?? undefined
+			? ((await languageRepository.findLanguageById(targetLanguageId))?.name ?? undefined)
 			: undefined;
 
 		const weeklySummary = await this.computeWeeklySummary(userId);
@@ -203,7 +205,11 @@ export class CommunityStoryEmailService {
 	private static async computeWeeklySummary(userId: string): Promise<WeeklyPracticeSummary> {
 		const now = new Date();
 		const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-		const sessions = await conversationSessionsRepository.getUserSessionsInRange(userId, weekAgo, now);
+		const sessions = await conversationSessionsRepository.getUserSessionsInRange(
+			userId,
+			weekAgo,
+			now
+		);
 
 		let totalMinutes = 0;
 		for (const session of sessions) {
@@ -224,10 +230,13 @@ export class CommunityStoryEmailService {
 	}
 
 	private static renderEmail(context: CommunityStoryContext, subject: string): string {
-		const firstName = context.user.displayName?.split(' ')[0] || context.user.email?.split('@')[0] || 'there';
+		const firstName =
+			context.user.displayName?.split(' ')[0] || context.user.email?.split('@')[0] || 'there';
 		const weeklySummaryText = describeWeeklySummary(context.weeklySummary, context.languageName);
 		const lastPracticeText = context.weeklySummary.lastSession
-			? formatDistanceToNow(new Date(context.weeklySummary.lastSession.startTime), { addSuffix: true })
+			? formatDistanceToNow(new Date(context.weeklySummary.lastSession.startTime), {
+					addSuffix: true
+				})
 			: null;
 		const actionUrl = `${context.appUrl}${context.story.action.urlPath}`;
 

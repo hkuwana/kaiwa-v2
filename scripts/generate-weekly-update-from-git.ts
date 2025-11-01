@@ -206,14 +206,18 @@ function makeUserFriendly(commit: GitCommit): { title: string; description: stri
  */
 function detectLink(commits: GitCommit[]): { url: string; label: string } | undefined {
 	const allFiles = commits.flatMap((c) => c.files);
-	const message = commits.map((c) => c.message).join(' ').toLowerCase();
+	const message = commits
+		.map((c) => c.message)
+		.join(' ')
+		.toLowerCase();
 
 	// Check for scenario-related changes
 	if (message.includes('scenario') || allFiles.some((f) => f.includes('scenario'))) {
 		// Try to extract scenario ID from commits
-		const scenarioMatch = message.match(/scenario[:\s]+(\w+)/i) ||
+		const scenarioMatch =
+			message.match(/scenario[:\s]+(\w+)/i) ||
 			allFiles.find((f) => f.match(/scenario[/-]?(\w+)\./i));
-		
+
 		if (scenarioMatch) {
 			const scenarioId = scenarioMatch[1];
 			return {
@@ -228,10 +232,7 @@ function detectLink(commits: GitCommit[]): { url: string; label: string } | unde
 	}
 
 	// Check for conversation-related changes
-	if (
-		message.includes('conversation') ||
-		allFiles.some((f) => f.includes('conversation'))
-	) {
+	if (message.includes('conversation') || allFiles.some((f) => f.includes('conversation'))) {
 		return {
 			url: 'https://trykaiwa.com/conversation',
 			label: 'Start a conversation'

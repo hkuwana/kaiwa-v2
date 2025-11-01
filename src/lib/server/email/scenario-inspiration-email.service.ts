@@ -9,12 +9,7 @@ import { userPreferencesRepository } from '$lib/server/repositories/user-prefere
 import { scenarioRepository } from '$lib/server/repositories/scenario.repository';
 import { userRepository } from '$lib/server/repositories';
 import { EmailSendGuardService } from '$lib/server/email/email-send-guard.service';
-import type {
-	User,
-	UserPreferences,
-	ConversationSession,
-	Scenario
-} from '$lib/server/db/types';
+import type { User, UserPreferences, ConversationSession, Scenario } from '$lib/server/db/types';
 
 interface ScenarioRecommendation {
 	scenario: Scenario;
@@ -237,11 +232,13 @@ export class ScenarioInspirationEmailService {
 
 		const targetLanguageId = preferences?.targetLanguageId ?? null;
 		const languageName = targetLanguageId
-			? (await languageRepository.findLanguageById(targetLanguageId))?.name ?? undefined
+			? ((await languageRepository.findLanguageById(targetLanguageId))?.name ?? undefined)
 			: undefined;
 
-		const lastSession = (await conversationSessionsRepository.getUserSessions(userId, 1))[0] || null;
-		const activeScenarios = options?.activeScenarios ?? (await scenarioRepository.findActiveScenarios(200));
+		const lastSession =
+			(await conversationSessionsRepository.getUserSessions(userId, 1))[0] || null;
+		const activeScenarios =
+			options?.activeScenarios ?? (await scenarioRepository.findActiveScenarios(200));
 
 		const recommendations = this.pickRecommendations(activeScenarios, {
 			learningGoal,
@@ -311,9 +308,8 @@ export class ScenarioInspirationEmailService {
 			? activeScenarios
 					.filter(
 						(scenario) =>
-							(scenario.learningGoal ?? '')
-								.toLowerCase()
-								.includes(normalizedGoal as string) && scenario.isActive
+							(scenario.learningGoal ?? '').toLowerCase().includes(normalizedGoal as string) &&
+							scenario.isActive
 					)
 					.sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0))
 			: [];
@@ -330,7 +326,11 @@ export class ScenarioInspirationEmailService {
 			.filter((scenario) => scenario.isActive)
 			.sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0));
 
-		const push = (scenario: Scenario | undefined, tone: ScenarioRecommendation['tone'], reason: string) => {
+		const push = (
+			scenario: Scenario | undefined,
+			tone: ScenarioRecommendation['tone'],
+			reason: string
+		) => {
 			if (!scenario) return;
 			if (seen.has(scenario.id)) return;
 
@@ -347,7 +347,11 @@ export class ScenarioInspirationEmailService {
 		}
 
 		if (recommendations.length === 0 && difficultyMatches.length > 0) {
-			push(difficultyMatches[0], 'primary', `${formatDifficulty(desiredDifficulty)} set for this week`);
+			push(
+				difficultyMatches[0],
+				'primary',
+				`${formatDifficulty(desiredDifficulty)} set for this week`
+			);
 		}
 
 		// Add stretch recommendation
@@ -356,7 +360,11 @@ export class ScenarioInspirationEmailService {
 			difficultyMatches.find((scenario) => !seen.has(scenario.id)) ||
 			fallbackMatches.find((scenario) => !seen.has(scenario.id));
 
-		push(stretchCandidate, 'stretch', `Stretch into ${formatDifficulty(stretchDifficulty).toLowerCase()}`);
+		push(
+			stretchCandidate,
+			'stretch',
+			`Stretch into ${formatDifficulty(stretchDifficulty).toLowerCase()}`
+		);
 
 		// Add one extra option as fallback for variety
 		const extraCandidate = fallbackMatches.find((scenario) => !seen.has(scenario.id));
@@ -374,8 +382,8 @@ export class ScenarioInspirationEmailService {
 			input.challengePreference === 'comfortable'
 				? 'confidence reps'
 				: input.challengePreference === 'moderate'
-				? 'momentum sprints'
-				: 'next-level pushes';
+					? 'momentum sprints'
+					: 'next-level pushes';
 
 		if (input.languageName) {
 			return `${input.languageName} ${learningGoalSubjectFragment(input.learningGoal)} for your ${challengeLabel}`;
@@ -385,7 +393,8 @@ export class ScenarioInspirationEmailService {
 	}
 
 	private static renderEmail(context: ScenarioInspirationContext, subject: string): string {
-		const firstName = context.user.displayName?.split(' ')[0] || context.user.email?.split('@')[0] || 'there';
+		const firstName =
+			context.user.displayName?.split(' ')[0] || context.user.email?.split('@')[0] || 'there';
 		const lastPractice = context.lastSession?.startTime
 			? formatDistanceToNow(new Date(context.lastSession.startTime), { addSuffix: true })
 			: 'No sessions yet (let’s change that)';
@@ -477,7 +486,7 @@ export class ScenarioInspirationEmailService {
 														dailyGoalText
 															? `<div style="font-size:13px; color:#475569; margin-top:6px;">Daily rhythm: ${escapeHtml(
 																	dailyGoalText
-															  )}</div>`
+																)}</div>`
 															: ''
 													}
 												</td>

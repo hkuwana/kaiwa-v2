@@ -10,7 +10,7 @@
 	let weeklyUpdate = $state<any>(null);
 	let availableUpdates = $state<any[]>([]);
 	let selectedUpdateDate = $state<string>('');
-	
+
 	// Markdown editing
 	let markdownContent = $state<string>('');
 	let isLoadingMarkdown = $state(false);
@@ -269,7 +269,11 @@
 			<div class="editor-section">
 				<div class="editor-header">
 					<h3>✏️ Edit Markdown</h3>
-					<button onclick={saveMarkdown} disabled={isSaving || !markdownContent.trim()} class="save-btn">
+					<button
+						onclick={saveMarkdown}
+						disabled={isSaving || !markdownContent.trim()}
+						class="save-btn"
+					>
 						{isSaving ? '💾 Saving...' : '💾 Save Changes'}
 					</button>
 				</div>
@@ -283,7 +287,9 @@
 						spellcheck="false"
 					></textarea>
 					<div class="editor-footer">
-						<p class="hint">💡 Edit the markdown above and click "Save Changes" to update the preview</p>
+						<p class="hint">
+							💡 Edit the markdown above and click "Save Changes" to update the preview
+						</p>
 					</div>
 				{/if}
 			</div>
@@ -468,7 +474,8 @@
 		padding: 1rem;
 		border: 1px solid #d1d5db;
 		border-radius: 8px;
-		font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+		font-family:
+			'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 		font-size: 14px;
 		line-height: 1.6;
 		resize: vertical;

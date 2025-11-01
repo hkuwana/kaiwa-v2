@@ -23,14 +23,17 @@ export const POST: RequestHandler = async ({ locals }) => {
 		}
 
 		// Extract filename from stdout
-		const filenameMatch = stdout.match(/Generated weekly update file: (Updates-\d{2}-\d{2}-\d{4}\.md)/);
+		const filenameMatch = stdout.match(
+			/Generated weekly update file: (Updates-\d{2}-\d{2}-\d{4}\.md)/
+		);
 		if (!filenameMatch) {
 			// Check if it says file already exists
 			const existsMatch = stdout.match(/File already exists: (Updates-\d{2}-\d{2}-\d{4}\.md)/);
 			if (existsMatch) {
 				return json({
 					success: false,
-					error: 'Weekly update file already exists for this week. Please edit the existing file instead.',
+					error:
+						'Weekly update file already exists for this week. Please edit the existing file instead.',
 					filename: existsMatch[1]
 				});
 			}
@@ -43,7 +46,7 @@ export const POST: RequestHandler = async ({ locals }) => {
 		}
 
 		const filename = filenameMatch[1];
-		
+
 		// Extract stats from stdout
 		const commitsMatch = stdout.match(/Found (\d+) commits/);
 		const majorMatch = stdout.match(/Major: (\d+)/);
@@ -68,7 +71,7 @@ export const POST: RequestHandler = async ({ locals }) => {
 		});
 	} catch (error) {
 		console.error('Error generating from git:', error);
-		
+
 		// Check if it's because no commits found
 		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 		if (errorMessage.includes('No commits found')) {
@@ -88,4 +91,3 @@ export const POST: RequestHandler = async ({ locals }) => {
 		);
 	}
 };
-

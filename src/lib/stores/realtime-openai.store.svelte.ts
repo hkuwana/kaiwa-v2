@@ -132,7 +132,8 @@ export class RealtimeOpenAIStore {
 		| null = null;
 
 	// Conversation context preservation
-	private conversationItems: Array<{ itemId: string; role: 'user' | 'assistant'; text: string }> = [];
+	private conversationItems: Array<{ itemId: string; role: 'user' | 'assistant'; text: string }> =
+		[];
 	private lastSessionUpdateInstructions: string | null = null;
 	private lastSessionUpdateTime: number = 0;
 	private readonly SESSION_UPDATE_COOLDOWN_MS = 1000; // Prevent rapid updates

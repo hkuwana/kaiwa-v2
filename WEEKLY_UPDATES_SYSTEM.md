@@ -96,6 +96,7 @@ pnpm run generate-weekly-update-from-git -- --dry-run
 ```
 
 The script will:
+
 - ✅ Analyze your git commits from the past week
 - ✅ Group related commits into features
 - ✅ Filter out internal/technical changes
@@ -117,6 +118,7 @@ pnpm run create-weekly-update -- --template custom-template
 ```
 
 Or manually:
+
 1. Copy `weekly-updates/templates/weekly-update-template.md`
 2. Rename to `Updates-MM-DD-YYYY.md`
 3. Edit the content
@@ -157,7 +159,7 @@ The `WeeklyUpdatesParserService` handles:
 
 - **Weekly Digest Endpoint**: `/api/cron/weekly-digest` loads content from markdown files
 - **Email Service**: Content is passed to `WeeklyUpdatesEmailService`
-- **GitHub Actions**: 
+- **GitHub Actions**:
   - **Saturday 8:00 PM UTC**: Auto-generates weekly update from git (`prepare-weekly-update.yml`)
   - **Sunday 10:00 AM UTC**: Sends weekly digest email (`cron-weekly-product-updates.yml`)
 

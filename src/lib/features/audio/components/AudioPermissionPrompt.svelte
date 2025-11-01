@@ -73,7 +73,7 @@
 			return `Microphone is blocked. Check your browser settings to enable it and refresh.`;
 		}
 		if (browserName === 'Safari') {
-			return 'Safari requires microphone access. You\'ll be asked to enable it in System Preferences.';
+			return "Safari requires microphone access. You'll be asked to enable it in System Preferences.";
 		}
 		if (browserName === 'Firefox') {
 			return 'Firefox will ask for microphone permission. Please allow it to continue.';
@@ -132,7 +132,8 @@
 			<div class="mt-4 rounded-lg bg-info/10 p-3 text-sm text-info">
 				<p class="font-semibold">💡 Tip: Use Chrome, Firefox, or Edge for best audio performance</p>
 				<p class="mt-1 text-xs opacity-80">
-					Some browsers or extensions may restrict microphone access. If you're still having issues, try a different browser or check your extension settings.
+					Some browsers or extensions may restrict microphone access. If you're still having issues,
+					try a different browser or check your extension settings.
 				</p>
 			</div>
 

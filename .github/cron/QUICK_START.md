@@ -10,14 +10,14 @@ All scheduled jobs trigger HTTP endpoints on your deployed app via GitHub Action
 
 ## Current Jobs
 
-| Time                  | Job            | What It Does                                   |
-| --------------------- | -------------- | ---------------------------------------------- |
-| **9 AM UTC** Mon & Thu | Practice Check-ins | Email practice reminders to inactive users     |
-| **2 PM UTC** Daily    | Founder Emails | Personal emails to new users (days 1-3 signup) |
-| **10 AM UTC** Sundays | Weekly Digest  | Product updates to all opted-in users          |
-| **11 AM UTC** Saturdays | Weekly Stats   | Personal stats to all opted-in users           |
-| **10 AM UTC** Tuesdays | Scenario Inspiration | Two scenarios matched to learner preferences |
-| **10 AM UTC** Fridays | Community Story | Authentic learner win + playbook CTA           |
+| Time                    | Job                  | What It Does                                   |
+| ----------------------- | -------------------- | ---------------------------------------------- |
+| **9 AM UTC** Mon & Thu  | Practice Check-ins   | Email practice reminders to inactive users     |
+| **2 PM UTC** Daily      | Founder Emails       | Personal emails to new users (days 1-3 signup) |
+| **10 AM UTC** Sundays   | Weekly Digest        | Product updates to all opted-in users          |
+| **11 AM UTC** Saturdays | Weekly Stats         | Personal stats to all opted-in users           |
+| **10 AM UTC** Tuesdays  | Scenario Inspiration | Two scenarios matched to learner preferences   |
+| **10 AM UTC** Fridays   | Community Story      | Authentic learner win + playbook CTA           |
 
 ## Quick Tasks
 

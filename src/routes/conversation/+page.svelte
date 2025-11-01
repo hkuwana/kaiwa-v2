@@ -70,7 +70,10 @@
 			status === 'idle' &&
 			selectedLanguage
 		) {
-			console.log('🚀 Auto-connection condition met, attempting connection with language:', selectedLanguage.code);
+			console.log(
+				'🚀 Auto-connection condition met, attempting connection with language:',
+				selectedLanguage.code
+			);
 			attemptAutoConnection();
 		}
 	});
@@ -152,7 +155,13 @@
 
 	async function attemptAutoConnection() {
 		if (autoConnectAttempted || !selectedLanguage) {
-			console.log('⏭️ attemptAutoConnection: Skipping (autoConnectAttempted=' + autoConnectAttempted + ', hasLanguage=' + !!selectedLanguage + ')');
+			console.log(
+				'⏭️ attemptAutoConnection: Skipping (autoConnectAttempted=' +
+					autoConnectAttempted +
+					', hasLanguage=' +
+					!!selectedLanguage +
+					')'
+			);
 			return;
 		}
 
@@ -161,29 +170,23 @@
 		// Bug #2 fix: Double-check language matches store (detect race conditions)
 		const storeLanguage = settingsStore.selectedLanguage;
 		if (storeLanguage?.code !== selectedLanguage.code) {
-			console.warn(
-				'⚠️ Language mismatch detected in attemptAutoConnection! Using derived value.',
-				{
-					derived: selectedLanguage.code,
-					store: storeLanguage?.code,
-					match: storeLanguage?.code === selectedLanguage.code
-				}
-			);
+			console.warn('⚠️ Language mismatch detected in attemptAutoConnection! Using derived value.', {
+				derived: selectedLanguage.code,
+				store: storeLanguage?.code,
+				match: storeLanguage?.code === selectedLanguage.code
+			});
 		}
 
 		// Read audioMode from URL search params, default to Push-to-Talk
 		const audioMode = (page.url.searchParams.get('audioMode') as 'vad' | 'ptt') || 'ptt';
-		console.log(
-			'📞 Starting auto-connection with:',
-			{
-				language: selectedLanguage.name,
-				code: selectedLanguage.code,
-				sessionId,
-				audioMode,
-				speaker: settingsStore.selectedSpeaker,
-				timestamp: new Date().toISOString()
-			}
-		);
+		console.log('📞 Starting auto-connection with:', {
+			language: selectedLanguage.name,
+			code: selectedLanguage.code,
+			sessionId,
+			audioMode,
+			speaker: settingsStore.selectedSpeaker,
+			timestamp: new Date().toISOString()
+		});
 
 		try {
 			// Set sessionId in conversation store before starting
