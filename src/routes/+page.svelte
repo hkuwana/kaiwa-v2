@@ -92,6 +92,9 @@
 	// Note: $derived handles local state sync, so we only need to update stores
 	function handleLanguageChange(language: DataLanguage) {
 		settingsStore.setLanguageObject(language);
+		// Bug #3 fix: Reset scenario when language changes to prevent invalid combinations
+		scenarioStore.resetToDefault();
+		console.log('🌍 Language changed to:', language.code, '- Scenario reset to default');
 		// selectedLanguage updates automatically via $derived
 	}
 
@@ -107,6 +110,9 @@
 
 	function handleDynamicLanguageSelect(language: DataLanguage) {
 		settingsStore.setLanguageObject(language);
+		// Bug #3 fix: Reset scenario when language changes to prevent invalid combinations
+		scenarioStore.resetToDefault();
+		console.log('🌍 Language changed to:', language.code, '- Scenario reset to default');
 		// selectedLanguage updates automatically via $derived
 	}
 

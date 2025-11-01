@@ -277,6 +277,24 @@ export class ScenarioStore {
 		}
 	};
 
+	// Bug #3 fix: Reset scenario when language changes
+	// This prevents invalid scenario/language combinations
+	resetToDefault = () => {
+		console.log('🎯 Resetting scenario to onboarding (language change detected)');
+		this.selectedScenario = scenariosData[0];
+
+		// Clear scenario from storage
+		if (browser) {
+			try {
+				localStorage.removeItem(STORAGE_KEYS.SCENARIO);
+				scenarioCookieUtils.deleteCookie(STORAGE_KEYS.SCENARIO);
+				console.log('💾 Scenario cleared from storage due to language change');
+			} catch (error) {
+				console.warn('⚠️ Failed to clear scenario storage on language change:', error);
+			}
+		}
+	};
+
 	// Get current scenario state for debugging
 	getCurrentState = () => {
 		return {
