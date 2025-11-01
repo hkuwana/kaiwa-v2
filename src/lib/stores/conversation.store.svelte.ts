@@ -109,6 +109,7 @@ export class ConversationStore {
 	private turnMaxInputLevel = 0;
 	private suppressNextUserTranscript = false;
 	private usageRecorded = false;
+	private messageHandlersSetup = false;
 
 	constructor(userTier: UserTier = 'free') {
 		log('🏗️ ConversationStore constructor:', {
@@ -858,6 +859,15 @@ export class ConversationStore {
 	}
 
 	private setupRealtimeEventHandlers(): void {
+		// Guard against duplicate handler registration (Bug #4 fix)
+		if (this.messageHandlersSetup) {
+			console.warn('⚠️ ConversationStore: setupRealtimeEventHandlers called multiple times, skipping duplicate setup');
+			return;
+		}
+
+		console.log('📋 ConversationStore: Setting up realtime event handlers');
+		this.messageHandlersSetup = true;
+
 		// Subscribe to SDK history stream through the new store
 		try {
 			this.messageUnsub?.();
@@ -889,8 +899,21 @@ export class ConversationStore {
 			console.log('🔄 ConversationStore: Message mirroring:', {
 				before: this.messages.length,
 				after: newMessages.length,
-				change: newMessages.length - this.messages.length
+				change: newMessages.length - this.messages.length,
+				sampleNewMessage: newMessages[newMessages.length - 1]?.id || 'none'
 			});
+
+			// Guard against unexpected message count growth (Bug #4 detection)
+			if (this.messages.length > 0 && newMessages.length > this.messages.length + 2) {
+				console.warn(
+					'⚠️ ConversationStore: Unexpected message growth detected! This may indicate duplicate responses.',
+					{
+						previousLength: this.messages.length,
+						newLength: newMessages.length,
+						growth: newMessages.length - this.messages.length
+					}
+				);
+			}
 
 			this.messages = newMessages;
 
@@ -1301,6 +1324,7 @@ export class ConversationStore {
 		}
 		this.sessionReadyUnsub = null;
 		this.sessionReadyHandled = false;
+		this.messageHandlersSetup = false;
 		this.stopTurnLevelMonitor();
 		this.currentTurnStartMs = null;
 		this.turnMaxInputLevel = 0;
