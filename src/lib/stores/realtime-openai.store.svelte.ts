@@ -131,6 +131,12 @@ export class RealtimeOpenAIStore {
 		  }) => boolean)
 		| null = null;
 
+	// Conversation context preservation
+	private conversationItems: Array<{ itemId: string; role: 'user' | 'assistant'; text: string }> = [];
+	private lastSessionUpdateInstructions: string | null = null;
+	private lastSessionUpdateTime: number = 0;
+	private readonly SESSION_UPDATE_COOLDOWN_MS = 1000; // Prevent rapid updates
+
 	private logEvent(dir: 'server' | 'client', type: string, payload: any) {
 		try {
 			this.events = [{ dir, type, payload, ts: Date.now() }, ...this.events].slice(
@@ -484,6 +490,9 @@ export class RealtimeOpenAIStore {
 
 		this.historyText[itemId] = finalText;
 		this.finalizedItemIds.add(itemId);
+
+		// Track this item in conversation history for context preservation
+		this.trackConversationItem(itemId, role, finalText);
 
 		if (role === 'assistant') {
 			const streamingIndex = this.messages.findIndex(
@@ -1165,21 +1174,46 @@ export class RealtimeOpenAIStore {
 		this.conversationContext = null;
 		// Clear stored instructions
 		this.currentInstructions = null;
+		// Clear conversation items
+		this.conversationItems = [];
+		this.lastSessionUpdateInstructions = null;
+		this.lastSessionUpdateTime = 0;
 	}
 
 	// High-level helpers
+	private getConversationContextSummary(): string {
+		if (this.conversationItems.length === 0) {
+			return '[No conversation items tracked]';
+		}
+		return this.conversationItems
+			.map(
+				(item) =>
+					`[${item.role.toUpperCase()}]: ${item.text.substring(0, 50)}${item.text.length > 50 ? '...' : ''}`
+			)
+			.join('\n');
+	}
+
 	sendResponse(): void {
 		if (!this.connection) return;
 
-		// Create response with instructions if available
+		// Per OpenAI Realtime API docs: response.create automatically uses all conversation
+		// items accumulated in the session. The response will have access to:
+		// - All previous user input items
+		// - All previous assistant response items
+		// - Current session-level instructions (set via session.update)
 		const responsePayload: Record<string, any> = {};
 		if (this.currentInstructions) {
 			responsePayload.instructions = this.currentInstructions;
-			console.log('📤 CLIENT: Creating response with instructions', {
-				instructionsLength: this.currentInstructions.length,
-				instructionsPreview: this.currentInstructions.substring(0, 100) + '...'
-			});
 		}
+
+		console.log('📤 CLIENT: Creating response (API will use accumulated conversation items)', {
+			hasSessionInstructions: !!this.currentInstructions,
+			instructionsLength: this.currentInstructions?.length ?? 0,
+			instructionsPreview: this.currentInstructions?.substring(0, 100) + '...',
+			conversationContextItems: this.conversationItems.length,
+			conversationSummary: this.getConversationContextSummary(),
+			note: 'API maintains conversation state automatically through server events'
+		});
 
 		const ev = {
 			type: 'response.create' as const,
@@ -1339,6 +1373,46 @@ export class RealtimeOpenAIStore {
 		}, this.pttStopDelayMs);
 	}
 
+	private trackConversationItem(itemId: string, role: 'user' | 'assistant', text: string): void {
+		// Remove duplicates and keep only recent items
+		this.conversationItems = this.conversationItems.filter((item) => item.itemId !== itemId);
+		this.conversationItems.push({ itemId, role, text });
+
+		// Keep only last 20 items to avoid memory bloat
+		if (this.conversationItems.length > 20) {
+			this.conversationItems = this.conversationItems.slice(-20);
+		}
+
+		console.log('📍 Tracked conversation item:', {
+			itemId,
+			role,
+			textLength: text.length,
+			totalItems: this.conversationItems.length
+		});
+	}
+
+	private shouldSendSessionUpdate(newInstructions: string | null): boolean {
+		const now = Date.now();
+		const timeSinceLastUpdate = now - this.lastSessionUpdateTime;
+
+		// Check if instructions have actually changed
+		if (newInstructions && newInstructions === this.lastSessionUpdateInstructions) {
+			console.log('ℹ️ Skipping session.update - instructions unchanged');
+			return false;
+		}
+
+		// Enforce cooldown to prevent rapid successive updates
+		if (timeSinceLastUpdate < this.SESSION_UPDATE_COOLDOWN_MS) {
+			console.log('⏱️ Skipping session.update - cooldown active', {
+				timeSinceLastUpdate,
+				cooldownMs: this.SESSION_UPDATE_COOLDOWN_MS
+			});
+			return false;
+		}
+
+		return true;
+	}
+
 	updateSessionConfig(config: {
 		model?: string;
 		voice?: Voice;
@@ -1349,6 +1423,20 @@ export class RealtimeOpenAIStore {
 		turnDetection?: SessionConfig['turnDetection'] | null;
 	}): void {
 		if (!this.connection) return;
+
+		// Per OpenAI Realtime API documentation: session.update is for configuration only
+		// (instructions, voice, audio format, VAD settings). The API automatically maintains
+		// conversation state separately through server events (conversation.item.added, etc).
+		// Excessive session.update calls should not affect conversation context, but we throttle
+		// them to avoid disrupting session state and to be efficient.
+		if (!this.shouldSendSessionUpdate(config.instructions)) {
+			// Still store instructions locally for response creation even if we skip sending
+			if (config.instructions) {
+				this.currentInstructions = config.instructions;
+			}
+			return;
+		}
+
 		const prefLang = userPreferencesStore.getPreference('targetLanguageId') as unknown as string;
 		const transcriptionLanguage = config.transcriptionLanguage || prefLang || 'en';
 		let audioConfig: RealtimeAudioConfig | undefined =
@@ -1389,8 +1477,21 @@ export class RealtimeOpenAIStore {
 				turnDetection: config.turnDetection ?? null
 			}
 		};
+
+		console.log('📤 SENDING session.update (passed cooldown check)', {
+			hasInstructions: !!config.instructions,
+			instructionsLength: config.instructions?.length ?? 0,
+			timeSinceLastUpdate: Date.now() - this.lastSessionUpdateTime
+		});
+
 		this.logEvent('client', 'session.update', update);
 		sendEventViaSession(this.connection, update);
+
+		// Update tracking variables
+		this.lastSessionUpdateTime = Date.now();
+		if (config.instructions) {
+			this.lastSessionUpdateInstructions = config.instructions;
+		}
 
 		// Store instructions for response creation
 		if (config.instructions) {
