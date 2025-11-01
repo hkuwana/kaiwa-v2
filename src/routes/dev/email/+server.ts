@@ -2,6 +2,8 @@ import { json } from '@sveltejs/kit';
 import { EmailReminderService } from '$lib/server/email/email-reminder.service';
 import { FounderEmailService } from '$lib/server/email/founder-email.service';
 import { WeeklyUpdatesEmailService } from '$lib/server/email/weekly-updates-email.service';
+import { ScenarioInspirationEmailService } from '$lib/server/email/scenario-inspiration-email.service';
+import { CommunityStoryEmailService } from '$lib/server/email/community-story-email.service';
 import { userRepository } from '$lib/server/repositories';
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
@@ -131,6 +133,28 @@ export const GET = async ({ url, locals }) => {
 				emailHtml = WeeklyUpdatesEmailService.buildWeeklyDigestEmail(user, digestOptions);
 				break;
 			}
+			case 'scenario_inspiration': {
+				const payload = await ScenarioInspirationEmailService.buildEmailPayload(targetUserId);
+				if (!payload) {
+					return new Response('Unable to build scenario inspiration email (check preferences)', {
+						status: 400
+					});
+				}
+				emailSubject = payload.subject;
+				emailHtml = payload.html;
+				break;
+			}
+			case 'community_story': {
+				const payload = await CommunityStoryEmailService.buildEmailPayload(targetUserId);
+				if (!payload) {
+					return new Response('Unable to build community story email (check preferences)', {
+						status: 400
+					});
+				}
+				emailSubject = payload.subject;
+				emailHtml = payload.html;
+				break;
+			}
 
 			default:
 				return new Response(`Unknown email type: ${emailType}`, { status: 400 });
@@ -246,6 +270,36 @@ export const POST = async ({ request, locals }) => {
 				const languageName = await FounderEmailService.resolveTargetLanguageName(targetUserId);
 				emailSubject = `Can I help? (15 min chat)`;
 				emailHtml = FounderEmailService.getDay3Email(user, languageName);
+				break;
+			}
+			case 'weekly_update': {
+				const digestOptions = buildSampleWeeklyDigestOptions(targetUserId);
+				emailSubject = digestOptions.subject || 'Kaiwa Weekly Update';
+				emailHtml = WeeklyUpdatesEmailService.buildWeeklyDigestEmail(user, digestOptions);
+				break;
+			}
+			case 'scenario_inspiration': {
+				const payload = await ScenarioInspirationEmailService.buildEmailPayload(targetUserId);
+				if (!payload) {
+					return json(
+						{ error: 'Unable to build scenario inspiration email (check preferences)' },
+						{ status: 400 }
+					);
+				}
+				emailSubject = payload.subject;
+				emailHtml = payload.html;
+				break;
+			}
+			case 'community_story': {
+				const payload = await CommunityStoryEmailService.buildEmailPayload(targetUserId);
+				if (!payload) {
+					return json(
+						{ error: 'Unable to build community story email (check preferences)' },
+						{ status: 400 }
+					);
+				}
+				emailSubject = payload.subject;
+				emailHtml = payload.html;
 				break;
 			}
 

@@ -4,7 +4,7 @@
 
 All scheduled jobs trigger HTTP endpoints on your deployed app via GitHub Actions.
 
-**When:** Jobs run on schedule (see `.github/workflows/cron-jobs.yml`)
+**When:** Jobs run on schedule (see `.github/workflows/cron-*.yml`)
 **How:** GitHub Actions makes authenticated HTTP requests
 **Where:** `https://trykaiwa.com/api/cron/{endpoint-name}`
 
@@ -16,6 +16,8 @@ All scheduled jobs trigger HTTP endpoints on your deployed app via GitHub Action
 | **2 PM UTC** Daily    | Founder Emails | Personal emails to new users (days 1-3 signup) |
 | **10 AM UTC** Sundays | Weekly Digest  | Product updates to all opted-in users          |
 | **11 AM UTC** Saturdays | Weekly Stats   | Personal stats to all opted-in users           |
+| **10 AM UTC** Tuesdays | Scenario Inspiration | Two scenarios matched to learner preferences |
+| **10 AM UTC** Fridays | Community Story | Authentic learner win + playbook CTA           |
 
 ## Quick Tasks
 

@@ -34,6 +34,21 @@
 			]
 		},
 		{
+			category: '🎯 Coaching Nudges',
+			emails: [
+				{
+					value: 'scenario_inspiration',
+					label: 'Scenario Inspiration Pairing',
+					description: 'Two scenarios matched to learning goal & challenge preference'
+				},
+				{
+					value: 'community_story',
+					label: 'Community Story Spotlight',
+					description: 'A real learner win aligned to the user motivation'
+				}
+			]
+		},
+		{
 			category: '👋 Founder Email Sequence',
 			emails: [
 				{

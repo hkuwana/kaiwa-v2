@@ -65,6 +65,28 @@ Authorization: Bearer {CRON_SECRET}
   - Comparison to previous week
 - **Implementation:** [src/routes/api/cron/weekly-stats/+server.ts](../../src/routes/api/cron/weekly-stats/+server.ts)
 
+### 5. Scenario Inspiration Pairing
+
+- **Schedule:** Every Tuesday at 10:00 AM UTC
+- **Endpoint:** `GET /api/cron/scenario-inspiration`
+- **Purpose:** Send two curated scenarios matched to each learner's motivation, challenge preference, and recent activity
+- **Highlights:**
+  - Pulls data from user preferences + recent sessions
+  - Recommends a primary scenario and a stretch option
+  - Logs analytics event `scenario_inspiration_sent`
+- **Implementation:** [src/routes/api/cron/scenario-inspiration/+server.ts](../../src/routes/api/cron/scenario-inspiration/+server.ts)
+
+### 6. Community Story Spotlight
+
+- **Schedule:** Every Friday at 10:00 AM UTC
+- **Endpoint:** `GET /api/cron/community-stories`
+- **Purpose:** Share authentic learner wins tailored to the recipient's learning goal with an actionable playbook
+- **Highlights:**
+  - Pulls stories from curated data set by motivation
+  - Summarizes the learner's weekly progress
+  - Logs analytics event `community_story_sent`
+- **Implementation:** [src/routes/api/cron/community-stories/+server.ts](../../src/routes/api/cron/community-stories/+server.ts)
+
 ## Testing
 
 ### Manual Endpoint Testing
@@ -97,16 +119,20 @@ curl -H "Authorization: Bearer YOUR_CRON_SECRET" \
 
 **Other endpoints:**
 
-- No special query parameters (configuration is in the endpoint file)
+- Currently no special query parameters (configuration is in the endpoint file)
 
 ## GitHub Actions Workflow
 
-The cron jobs are defined in [cron-jobs.yml](./cron-jobs.yml):
+Each cron job has its own workflow file under `.github/workflows/`:
 
-- 4 scheduled jobs that run at specified times
-- Manual trigger option via `workflow_dispatch` for testing
-- Each job has its own condition to run only at the specified schedule or when manually triggered
-- Jobs are independent and can fail without affecting others
+- `cron-daily-reminders.yml`
+- `cron-founder-emails.yml`
+- `cron-weekly-product-updates.yml`
+- `cron-weekly-stats.yml`
+- `cron-scenario-inspiration.yml`
+- `cron-community-stories.yml`
+
+All workflows support manual triggers via `workflow_dispatch` and call the corresponding HTTP endpoint.
 
 ### Manual Trigger
 
@@ -114,7 +140,7 @@ You can manually trigger any cron job from GitHub:
 
 1. Go to Actions → Scheduled Cron Jobs
 2. Click "Run workflow"
-3. Select which job to run: daily-reminders, founder-emails, weekly-digest, weekly-stats, or all
+3. Select which job to run: reminders, founder-emails, weekly digests/stats, scenario inspiration, or community stories
 4. Click "Run workflow"
 
 ## Implementation Details

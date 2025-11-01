@@ -94,6 +94,20 @@ export class EmailPermissionService {
 	}
 
 	/**
+	 * Scenario inspiration emails reuse the product update preference
+	 */
+	static async canReceiveScenarioInspiration(userId: string): Promise<boolean> {
+		return this.canReceiveProductUpdates(userId);
+	}
+
+	/**
+	 * Community story spotlights reuse the product update preference
+	 */
+	static async canReceiveCommunityStories(userId: string): Promise<boolean> {
+		return this.canReceiveProductUpdates(userId);
+	}
+
+	/**
 	 * Check if user can receive security alert emails
 	 * Returns false if:
 	 * - User not found
@@ -125,6 +139,20 @@ export class EmailPermissionService {
 		}
 
 		return eligible;
+	}
+
+	/**
+	 * Scenario inspiration emails share the product update preference
+	 */
+	static async getScenarioInspirationEligibleUsers(): Promise<string[]> {
+		return this.getProductUpdateEligibleUsers();
+	}
+
+	/**
+	 * Community story emails share the product update preference
+	 */
+	static async getCommunityStoryEligibleUsers(): Promise<string[]> {
+		return this.getProductUpdateEligibleUsers();
 	}
 
 	/**

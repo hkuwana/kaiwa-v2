@@ -3,6 +3,7 @@ import { userRepository } from '$lib/server/repositories';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
 import { EmailPermissionService } from './email-permission.service';
 import type { User } from '$lib/server/db/types';
+import { analyticsEventsRepository } from '$lib/server/repositories/analytics-events.repository';
 
 // Use process.env for compatibility with both SvelteKit and standalone scripts
 const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_dummy_resend_key';
@@ -90,6 +91,18 @@ export class WeeklyStatsEmailService {
 
 				stats.sent++;
 				console.log(`  ✅ Sent to ${user.email} (${weeklyStats.totalMinutes} min)`);
+
+				await analyticsEventsRepository.createAnalyticsEvent({
+					userId: user.id,
+					sessionId: null,
+					eventName: 'weekly_stats_sent',
+					properties: {
+						totalMinutes: weeklyStats.totalMinutes,
+						totalSessions: weeklyStats.totalSessions,
+						totalDaysActive: weeklyStats.totalDaysActive
+					},
+					createdAt: new Date()
+				});
 
 				// Rate limit to avoid hitting email provider limits
 				await new Promise((resolve) => setTimeout(resolve, 100));
