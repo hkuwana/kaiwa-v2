@@ -23,9 +23,10 @@
 	const user = userManager.user;
 
 	// State management for language, speaker, and scenario selection
-	let selectedLanguage = $state<DataLanguage | null>(settingsStore.selectedLanguage);
-	let selectedSpeaker = $state<string | null>(settingsStore.selectedSpeaker);
-	let selectedScenario = $state<Scenario | null>(scenarioStore.getSelectedScenario());
+	// Use $derived for reactive binding to store (Bug #1 fix: persistence)
+	const selectedLanguage = $derived(settingsStore.selectedLanguage);
+	const selectedSpeaker = $derived(settingsStore.selectedSpeaker);
+	const selectedScenario = $derived(scenarioStore.getSelectedScenario());
 	let selectedAudioMode = $state<AudioInputMode>('ptt'); // Audio input mode preference - default to Push-to-Talk
 
 	// Handle scenario query parameter from URL (e.g., from email links)
@@ -34,7 +35,7 @@
 		if (scenarioId && browser) {
 			// Set the scenario in the store so it's pre-selected
 			scenarioStore.setScenarioById(scenarioId);
-			selectedScenario = scenarioStore.getSelectedScenario();
+			// Note: selectedScenario will automatically update via $derived
 		}
 	});
 
@@ -88,24 +89,25 @@
 	}
 
 	// Event handlers for component callbacks
+	// Note: $derived handles local state sync, so we only need to update stores
 	function handleLanguageChange(language: DataLanguage) {
-		selectedLanguage = language;
 		settingsStore.setLanguageObject(language);
+		// selectedLanguage updates automatically via $derived
 	}
 
 	function handleSpeakerChange(speakerId: string) {
-		selectedSpeaker = speakerId;
 		settingsStore.setSpeaker(speakerId);
+		// selectedSpeaker updates automatically via $derived
 	}
 
 	function handleScenarioChange(scenario: Scenario) {
 		scenarioStore.setScenarioById(scenario.id);
-		selectedScenario = scenario;
+		// selectedScenario updates automatically via $derived
 	}
 
 	function handleDynamicLanguageSelect(language: DataLanguage) {
-		selectedLanguage = language;
 		settingsStore.setLanguageObject(language);
+		// selectedLanguage updates automatically via $derived
 	}
 
 	// Clear conversation data functions
@@ -168,7 +170,7 @@
 					<h4 class="mb-2 text-2xl font-semibold opacity-90 sm:mb-4 sm:text-3xl">
 						{#if useDynamicLanguage}
 							<DynamicLanguageText
-								bind:selectedLanguage
+								{selectedLanguage}
 								onLanguageSelect={handleDynamicLanguageSelect}
 								variant={dynamicVariant}
 								animationInterval={2800}
