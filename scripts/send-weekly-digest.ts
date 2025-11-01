@@ -7,7 +7,7 @@
  * Cron jobs have been migrated to GitHub Actions with HTTP endpoints.
  *
  * The HTTP endpoint version runs via:
- *   GET /api/cron/weekly-digest (Every Monday at 10:00 AM UTC)
+ *   GET /api/cron/weekly-digest (Every Sunday at 10:00 AM UTC)
  *
  * This script can still be run manually for testing:
  *   tsx scripts/send-weekly-digest.ts
@@ -30,7 +30,7 @@ interface WeeklyDigestStats {
 /**
  * 📝 UPDATE THIS SECTION EVERY WEEK
  *
- * Every Monday morning (or Sunday night), update the content below
+ * Each weekend before the Sunday morning send, update the content below
  * with what shipped this week and what's coming up next.
  *
  * Keep it conversational, brief, and focused on the "why" not the "what".
@@ -102,7 +102,7 @@ async function sendWeeklyDigest(): Promise<WeeklyDigestStats> {
 
 		// Log a reminder to update next week's content
 		console.log('\n📝 REMINDER: Update THIS_WEEKS_CONTENT in scripts/send-weekly-digest.ts');
-		console.log('   Next run: Next Monday at 10:00 AM UTC');
+		console.log('   Next run: Next Sunday at 10:00 AM UTC');
 	} catch (error) {
 		console.error('💥 Fatal error in weekly digest process:', error);
 		stats.errors.push(`Fatal error: ${error}`);

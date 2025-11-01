@@ -16,9 +16,9 @@ Authorization: Bearer {CRON_SECRET}
 
 ## Scheduled Jobs
 
-### 1. Daily Reminders
+### 1. Practice Reminder Check-ins
 
-- **Schedule:** Every day at 9:00 AM UTC
+- **Schedule:** Mondays & Thursdays at 9:00 AM UTC
 - **Endpoint:** `GET /api/cron/send-reminders`
 - **Purpose:** Send practice reminders to users who haven't practiced in 1-30+ days
 - **User Segmentation:**
@@ -42,7 +42,7 @@ Authorization: Bearer {CRON_SECRET}
 
 ### 3. Weekly Digest
 
-- **Schedule:** Every Monday at 10:00 AM UTC
+- **Schedule:** Every Sunday at 10:00 AM UTC
 - **Endpoint:** `GET /api/cron/weekly-digest`
 - **Purpose:** Send weekly product updates to all opted-in users
 - **Content Sections:**
@@ -50,11 +50,11 @@ Authorization: Bearer {CRON_SECRET}
   - Product highlights (0-2 items)
   - Upcoming (0-3 items coming next)
 - **Implementation:** [src/routes/api/cron/weekly-digest/+server.ts](../../src/routes/api/cron/weekly-digest/+server.ts)
-- **Note:** Update the content in the endpoint file before each Monday send
+- **Note:** Update the content in the endpoint file before each Sunday send
 
 ### 4. Weekly Stats
 
-- **Schedule:** Every Monday at 11:00 AM UTC
+- **Schedule:** Every Saturday at 11:00 AM UTC
 - **Endpoint:** `GET /api/cron/weekly-stats`
 - **Purpose:** Send personalized weekly practice statistics
 - **Stats Included:**
@@ -175,7 +175,7 @@ Required in `.env` or GitHub secrets:
 
 ### Weekly Digest Content Updates
 
-Before each Monday 10 AM UTC send:
+Before each Sunday 10 AM UTC send:
 
 1. Update the content in [src/routes/api/cron/weekly-digest/+server.ts](../../src/routes/api/cron/weekly-digest/+server.ts)
 2. Update the `thisWeeksContent` variable with:

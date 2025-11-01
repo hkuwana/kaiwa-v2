@@ -12,10 +12,10 @@ All scheduled jobs trigger HTTP endpoints on your deployed app via GitHub Action
 
 | Time                  | Job            | What It Does                                   |
 | --------------------- | -------------- | ---------------------------------------------- |
-| **9 AM UTC** Daily    | Send Reminders | Email practice reminders to inactive users     |
+| **9 AM UTC** Mon & Thu | Practice Check-ins | Email practice reminders to inactive users     |
 | **2 PM UTC** Daily    | Founder Emails | Personal emails to new users (days 1-3 signup) |
-| **10 AM UTC** Mondays | Weekly Digest  | Product updates to all opted-in users          |
-| **11 AM UTC** Mondays | Weekly Stats   | Personal stats to all opted-in users           |
+| **10 AM UTC** Sundays | Weekly Digest  | Product updates to all opted-in users          |
+| **11 AM UTC** Saturdays | Weekly Stats   | Personal stats to all opted-in users           |
 
 ## Quick Tasks
 
@@ -37,7 +37,7 @@ All scheduled jobs trigger HTTP endpoints on your deployed app via GitHub Action
 1. Edit `src/routes/api/cron/weekly-digest/+server.ts`
 2. Update the `thisWeeksContent` variable
 3. Deploy or push to main
-4. Content takes effect at next scheduled run (10 AM Monday UTC)
+4. Content takes effect at next scheduled run (10 AM Sunday UTC)
 
 ### Test an Endpoint
 

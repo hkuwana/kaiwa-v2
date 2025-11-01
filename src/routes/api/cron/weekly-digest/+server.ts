@@ -11,7 +11,7 @@ import { env } from '$env/dynamic/private';
  * Usage:
  *   curl -H "Authorization: Bearer $CRON_SECRET" https://trykaiwa.com/api/cron/weekly-digest
  *
- * Schedule: Every Monday at 10:00 AM UTC
+ * Schedule: Every Sunday at 10:00 AM UTC
  */
 export const GET: RequestHandler = async ({ request }) => {
 	try {

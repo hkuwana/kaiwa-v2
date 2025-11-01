@@ -7,7 +7,7 @@
  * Cron jobs have been migrated to GitHub Actions with HTTP endpoints.
  *
  * The HTTP endpoint version runs via:
- *   GET /api/cron/weekly-stats (Every Monday at 11:00 AM UTC)
+ *   GET /api/cron/weekly-stats (Every Saturday at 11:00 AM UTC)
  *
  * This script can still be run manually for testing:
  *   tsx scripts/send-weekly-stats.ts

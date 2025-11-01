@@ -2,8 +2,8 @@ name: Send Weekly Product Updates
 
 on:
   schedule:
-    # Weekly product updates on Monday at 10:00 AM UTC (auto-generated from git)
-    - cron: '0 10 * * 1'
+    # Weekly product updates on Sunday at 10:00 AM UTC (auto-generated from git)
+    - cron: '0 10 * * 0'
   # Allow manual triggering for testing
   workflow_dispatch:
 

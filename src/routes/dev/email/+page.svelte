@@ -138,7 +138,7 @@
 		}
 
 		isCronRunning = true;
-		cronResult = '⏳ Running daily reminder dry run...';
+		cronResult = '⏳ Running reminder check-in dry run...';
 
 		try {
 			const response = await fetch('/dev/email/cron', {
@@ -286,7 +286,7 @@
 			<!-- Cron Dry Run -->
 			<div class="card mb-6 bg-base-100 shadow-lg">
 				<div class="card-body">
-					<h2 class="card-title">Daily Reminder Cron</h2>
+					<h2 class="card-title">Practice Reminder Cron</h2>
 					<p class="text-base-content/70">
 						Run a dry run of <code>/api/cron/send-reminders</code> to see which users would receive the
 						founder reminder email.

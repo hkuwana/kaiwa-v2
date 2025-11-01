@@ -309,7 +309,7 @@
 							<li>Fill in this week's updates</li>
 							<li>Click "Preview Email" to see how it looks</li>
 							<li>Click "Copy to Script" and paste into scripts/send-weekly-digest.ts</li>
-							<li>Commit the script changes so cron picks it up Monday</li>
+							<li>Commit the script changes so cron picks it up Sunday</li>
 						</ol>
 					</div>
 				</div>

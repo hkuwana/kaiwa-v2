@@ -223,14 +223,14 @@ The endpoint sends emails with these sections:
 The content is configured directly in the endpoint file:
 
 - [src/routes/api/cron/weekly-digest/+server.ts](../../src/routes/api/cron/weekly-digest/+server.ts)
-- Update the `thisWeeksContent` variable before each Monday 10 AM send
+- Update the `thisWeeksContent` variable before each Sunday 10 AM send
 - Changes require a new deployment or code update
 
 ### Behavior
 
 - Sends to all users with weekly email preference enabled
-- Runs every Monday at 10 AM UTC
-- Typically followed by Weekly Stats at 11 AM UTC
+- Runs every Sunday at 10 AM UTC
+- Complements the Weekly Stats send on Saturdays at 11 AM UTC
 - No per-user rate limiting (sends once per week maximum by design)
 
 ---
@@ -272,7 +272,7 @@ Each user receives personalized stats:
 
 - Sends to all users with weekly email preference enabled
 - Personalizes content for each user
-- Runs every Monday at 11 AM UTC (after Weekly Digest)
+- Runs every Saturday at 11 AM UTC (ahead of the Sunday Weekly Digest)
 - Only sends if user has practice data to show
 - Skips users with no activity in the past week
 
@@ -383,7 +383,7 @@ curl -H "Authorization: Bearer {CRON_SECRET}" \
 1. Edit [src/routes/api/cron/weekly-digest/+server.ts](../../src/routes/api/cron/weekly-digest/+server.ts)
 2. Update `thisWeeksContent` variable with new content
 3. Deploy or wait for auto-deployment
-4. Verify with test call before 10 AM Monday
+4. Verify with test call before 10 AM Sunday
 
 ### Test an Endpoint
 

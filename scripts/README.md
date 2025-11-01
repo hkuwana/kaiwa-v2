@@ -10,10 +10,10 @@ Automated tasks that run on a schedule via **GitHub Actions**.
 
 | Script                   | Purpose                        | Schedule      | Command                    |
 | ------------------------ | ------------------------------ | ------------- | -------------------------- |
-| `send-reminders.ts`      | Daily practice reminder emails | 9am UTC daily | `pnpm cron:reminders`      |
+| `send-reminders.ts`      | Practice reminder emails       | 9am UTC Mon & Thu | `pnpm cron:reminders`      |
 | `send-founder-emails.ts` | Founder email sequence (3-day) | 2pm UTC daily | `pnpm cron:founder-emails` |
-| `send-weekly-digest.ts`  | Weekly product updates digest  | 10am UTC Mon  | `pnpm cron:weekly-digest`  |
-| `send-weekly-stats.ts`   | Weekly user practice stats     | 11am UTC Mon  | `pnpm cron:weekly-stats`   |
+| `send-weekly-digest.ts`  | Weekly product updates digest  | 10am UTC Sun  | `pnpm cron:weekly-digest`  |
+| `send-weekly-stats.ts`   | Weekly user practice stats     | 11am UTC Sat  | `pnpm cron:weekly-stats`   |
 
 ### Architecture
 

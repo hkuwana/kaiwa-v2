@@ -506,7 +506,7 @@
 							<li>Select a user who practiced in the past week</li>
 							<li>Preview their stats and email</li>
 							<li>Test send to verify everything looks good</li>
-							<li>The cron job runs automatically every Monday at 11 AM UTC</li>
+							<li>The cron job runs automatically every Saturday at 11 AM UTC</li>
 						</ol>
 					</div>
 				</div>

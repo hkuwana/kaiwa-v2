@@ -7,7 +7,7 @@
  * Cron jobs have been migrated to GitHub Actions with HTTP endpoints.
  *
  * The HTTP endpoint version runs via:
- *   GET /api/cron/send-reminders (Daily at 9:00 AM UTC)
+ *   GET /api/cron/send-reminders (Mondays & Thursdays at 9:00 AM UTC)
  *
  * This script can still be run manually for testing:
  *   tsx scripts/send-reminders.ts

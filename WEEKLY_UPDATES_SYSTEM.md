@@ -114,7 +114,7 @@ The `WeeklyUpdatesParserService` handles:
 
 - **Weekly Digest Endpoint**: `/api/cron/weekly-digest` loads content from markdown files
 - **Email Service**: Content is passed to `WeeklyUpdatesEmailService`
-- **Cron Schedule**: Runs every Monday at 10:00 AM UTC
+- **Cron Schedule**: Runs every Sunday at 10:00 AM UTC
 
 ### Fallback Behavior
 

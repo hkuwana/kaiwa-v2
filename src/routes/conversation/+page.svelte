@@ -50,7 +50,19 @@
 	const sessionId = $derived(page.url.searchParams.get('sessionId') || crypto.randomUUID());
 
 	// Auto-connection effect (skip for static views)
+	// Bug #2 fix: Track language changes and prevent race conditions
 	$effect(() => {
+		if (browser) {
+			console.log('🌍 Conversation page effect triggered:', {
+				selectedLanguage: selectedLanguage?.code || null,
+				status,
+				autoConnectAttempted,
+				isStaticView,
+				storeLanguage: settingsStore.selectedLanguage?.code || null,
+				timestamp: new Date().toISOString()
+			});
+		}
+
 		if (
 			browser &&
 			!autoConnectAttempted &&
@@ -58,6 +70,7 @@
 			status === 'idle' &&
 			selectedLanguage
 		) {
+			console.log('🚀 Auto-connection condition met, attempting connection with language:', selectedLanguage.code);
 			attemptAutoConnection();
 		}
 	});
@@ -138,19 +151,38 @@
 	}
 
 	async function attemptAutoConnection() {
-		if (autoConnectAttempted || !selectedLanguage) return;
+		if (autoConnectAttempted || !selectedLanguage) {
+			console.log('⏭️ attemptAutoConnection: Skipping (autoConnectAttempted=' + autoConnectAttempted + ', hasLanguage=' + !!selectedLanguage + ')');
+			return;
+		}
 
 		autoConnectAttempted = true;
+
+		// Bug #2 fix: Double-check language matches store (detect race conditions)
+		const storeLanguage = settingsStore.selectedLanguage;
+		if (storeLanguage?.code !== selectedLanguage.code) {
+			console.warn(
+				'⚠️ Language mismatch detected in attemptAutoConnection! Using derived value.',
+				{
+					derived: selectedLanguage.code,
+					store: storeLanguage?.code,
+					match: storeLanguage?.code === selectedLanguage.code
+				}
+			);
+		}
 
 		// Read audioMode from URL search params, default to Push-to-Talk
 		const audioMode = (page.url.searchParams.get('audioMode') as 'vad' | 'ptt') || 'ptt';
 		console.log(
-			'Starting auto-connection with:',
-			selectedLanguage.name,
-			'sessionId:',
-			sessionId,
-			'audioMode:',
-			audioMode
+			'📞 Starting auto-connection with:',
+			{
+				language: selectedLanguage.name,
+				code: selectedLanguage.code,
+				sessionId,
+				audioMode,
+				speaker: settingsStore.selectedSpeaker,
+				timestamp: new Date().toISOString()
+			}
 		);
 
 		try {
@@ -164,9 +196,9 @@
 			await conversationStore.startConversation(selectedLanguage, speaker, {
 				audioInputMode: audioMode
 			});
-			console.log('Auto-connection successful');
+			console.log('✅ Auto-connection successful with language:', selectedLanguage.code);
 		} catch (err) {
-			console.error('Auto-connection failed:', err);
+			console.error('❌ Auto-connection failed:', err);
 		}
 	}
 

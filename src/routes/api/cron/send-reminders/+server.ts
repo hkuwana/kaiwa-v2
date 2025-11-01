@@ -10,14 +10,14 @@ import { Resend } from 'resend';
 /**
  * API endpoint for sending reminder emails
  *
- * Should be called daily by a cron job (e.g., via Fly.io machines, GitHub Actions, or external service)
+ * Should be called on scheduled reminder days (currently Mondays & Thursdays at 9:00 AM UTC)
  *
  * Usage:
  * - Call with GET to send reminders to eligible users
  * - Protected by CRON_SECRET environment variable
  *
  * Example cron setup:
- * - Daily at 9am: curl -H "Authorization: Bearer $CRON_SECRET" https://trykaiwa.com/api/cron/send-reminders
+ * - Mondays & Thursdays at 9am UTC: curl -H "Authorization: Bearer $CRON_SECRET" https://trykaiwa.com/api/cron/send-reminders
  */
 export const GET = async ({ request, url }) => {
 	try {
