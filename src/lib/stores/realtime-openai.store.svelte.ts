@@ -21,7 +21,7 @@ import type {
 	RealtimeAudioFormatDefinition
 } from '$lib/types/openai.realtime.types';
 import { env as publicEnv } from '$env/dynamic/public';
-import { SvelteSet, SvelteDate, SvelteMap } from 'svelte/reactivity';
+import { SvelteSet, SvelteDate } from 'svelte/reactivity';
 import {
 	captureOutputAudioConfig,
 	estimateDurationFromBase64,
@@ -33,6 +33,18 @@ import {
 } from '$lib/services/realtime-transcript.helper.service';
 
 type SessionData = { client_secret: { value: string; expires_at: number }; session_id?: string };
+
+type PendingCommitEntry = {
+	commitNumber: number;
+	createdAt: number;
+	itemIds: Set<string>;
+	resolvedItemIds: Set<string>;
+	pendingResolvedItemIds: Set<string>;
+	awaitingResponseCreate: boolean;
+	hasReceivedCommitAck: boolean;
+	hasReceivedUserTranscript: boolean;
+	hasSentResponse: boolean;
+};
 
 // Conversation context interface for linking realtime to database conversation
 export interface ConversationContext {
@@ -137,6 +149,7 @@ export class RealtimeOpenAIStore {
 	private lastSessionUpdateInstructions: string | null = null;
 	private lastSessionUpdateTime: number = 0;
 	private readonly SESSION_UPDATE_COOLDOWN_MS = 1000; // Prevent rapid updates
+	private pendingCommits: PendingCommitEntry[] = [];
 
 	private logEvent(dir: 'server' | 'client', type: string, payload: any) {
 		try {
@@ -466,12 +479,28 @@ export class RealtimeOpenAIStore {
 	}
 
 	private finalizeTranscriptMessage(itemId: string, role: 'assistant' | 'user', text: string) {
-		if (!text || this.finalizedItemIds.has(itemId)) return;
+		const isUserTranscript = role === 'user';
+		if (!text || this.finalizedItemIds.has(itemId)) {
+			if (isUserTranscript) {
+				this.resolveCommitItem(itemId);
+			}
+			return;
+		}
 		const finalText = normalizeTranscript(text);
-		if (!finalText) return;
+		if (!finalText) {
+			if (isUserTranscript) {
+				const commit = this.getOrAssignCommitForTranscript(itemId, 'user');
+				if (commit) {
+					commit.awaitingResponseCreate = false;
+					commit.hasSentResponse = true;
+				}
+				this.resolveCommitItem(itemId);
+			}
+			return;
+		}
 		const receivedAt = Date.now();
 
-		if (role === 'user' && this.transcriptFilter) {
+		if (isUserTranscript && this.transcriptFilter) {
 			const keep = this.transcriptFilter({
 				itemId,
 				role,
@@ -485,6 +514,12 @@ export class RealtimeOpenAIStore {
 				this.userDelta = '';
 				this.messages = messageService.dropUserPlaceholder(this.messages);
 				this.clearPendingTranscript(itemId);
+				const commit = this.getOrAssignCommitForTranscript(itemId, 'user');
+				if (commit) {
+					commit.awaitingResponseCreate = false;
+					commit.hasSentResponse = true;
+				}
+				this.resolveCommitItem(itemId);
 				return;
 			}
 		}
@@ -494,6 +529,14 @@ export class RealtimeOpenAIStore {
 
 		// Track this item in conversation history for context preservation
 		this.trackConversationItem(itemId, role, finalText);
+
+		if (isUserTranscript) {
+			const commit = this.getOrAssignCommitForTranscript(itemId, 'user');
+			if (commit) {
+				commit.hasReceivedUserTranscript = true;
+				this.maybeSendResponseForCommit(commit, 'user_transcript', { item_id: itemId });
+			}
+		}
 
 		if (role === 'assistant') {
 			const streamingIndex = this.messages.findIndex(
@@ -545,6 +588,10 @@ export class RealtimeOpenAIStore {
 			);
 		}
 
+		if (isUserTranscript) {
+			this.resolveCommitItem(itemId);
+		}
+
 		this.emitMessage({
 			itemId,
 			role,
@@ -565,7 +612,7 @@ export class RealtimeOpenAIStore {
 					type: 'transcription',
 					data: {
 						type: 'user_transcript',
-						text: (serverEvent as any).transcript,
+						text: serverEvent.transcript,
 						isFinal: true,
 						timestamp: new SvelteDate()
 					}
@@ -578,7 +625,7 @@ export class RealtimeOpenAIStore {
 					type: 'transcription',
 					data: {
 						type: 'assistant_transcript',
-						text: (serverEvent as any).delta,
+						text: serverEvent.delta,
 						isFinal: false,
 						timestamp: new SvelteDate()
 					}
@@ -591,7 +638,7 @@ export class RealtimeOpenAIStore {
 					type: 'transcription',
 					data: {
 						type: 'assistant_transcript',
-						text: (serverEvent as any).transcript,
+						text: serverEvent.transcript,
 						isFinal: true,
 						timestamp: new SvelteDate()
 					}
@@ -600,7 +647,7 @@ export class RealtimeOpenAIStore {
 
 			case 'response.output_text.delta':
 			case 'response.text.delta': {
-				const delta: string | undefined = (serverEvent as any)?.delta;
+				const delta: string | undefined = serverEvent?.delta;
 				if (delta && typeof delta === 'string') {
 					return {
 						type: 'transcription',
@@ -743,11 +790,10 @@ export class RealtimeOpenAIStore {
 
 					// Don't emit individual deltas - wait for final message
 				} else {
-					this.schedulePendingTranscript(
-						(serverEvent as any)?.item_id,
-						'assistant',
-						processed.data.text
-					);
+					// Assistant transcripts may not have item_id in the event itself
+					// They get item_ids from conversation.item.created/added events
+					const itemId = (serverEvent as any)?.item_id;
+					this.schedulePendingTranscript(itemId, 'assistant', processed.data.text);
 				}
 			} else if (processed.data.type === 'user_transcript') {
 				if (!processed.data.isFinal) {
@@ -914,6 +960,7 @@ export class RealtimeOpenAIStore {
 			this.userDelta = '';
 			this.hasHandledSessionReady = false;
 			this.clearWordTimingState();
+			this.pendingCommits = [];
 
 			// Create session + transport using existing audio stream
 			this.connection = await createConnectionWithSession(sessionData, mediaStream);
@@ -969,61 +1016,73 @@ export class RealtimeOpenAIStore {
 						};
 						const callStack = new Error().stack?.split('\n').slice(1, 5).join('\n') || 'unknown';
 
-						// Track which item_ids are associated with this commit
-						const currentCommitItems = this.commitToItemIds.get(this.pttStopCallCounter) || [];
-						if (commitEvent.item_id) {
-							currentCommitItems.push(commitEvent.item_id);
-							this.commitToItemIds.set(this.pttStopCallCounter, currentCommitItems);
-						}
+						const activeCommit =
+							this.findCommitByItemId(commitEvent.item_id) ??
+							this.pendingCommits.find((commit) => !commit.hasReceivedCommitAck) ??
+							this.pendingCommits[0];
 
-						const itemCount = currentCommitItems.length;
-						const isMultipleItems = itemCount > 1;
-
-						console.warn('📤 AUDIO BUFFER COMMITTED (SERVER RESPONSE)', {
-							event_id: commitEvent.event_id,
-							item_id: commitEvent.item_id,
-							timestamp: new SvelteDate().toISOString(),
-							callStack,
-							explanation: 'This is the server confirming our input_audio_buffer.commit event',
-							commitNumber: this.pttStopCallCounter,
-							itemCountForThisCommit: itemCount,
-							allItemIdsForThisCommit: currentCommitItems
-						});
-
-						if (isMultipleItems) {
-							console.warn('⚠️⚠️⚠️ MULTIPLE ITEMS FROM SINGLE COMMIT! ⚠️⚠️⚠️', {
-								commitNumber: this.pttStopCallCounter,
-								itemIds: currentCommitItems,
-								explanation:
-									'Server created multiple conversation items from ONE commit - this causes duplicate transcripts!'
-							});
-						}
-
-						console.warn('📋 ITEM_ID TO WATCH FOR TRANSCRIPT', {
-							item_id: commitEvent.item_id,
-							commitNumber: this.pttStopCallCounter,
-							itemIndex: `${itemCount} of ?`,
-							note: 'This item_id will appear in the next conversation.item.input_audio_transcription.completed event'
-						});
-
-						// CRITICAL: Send response.create ONLY after first item is committed
-						// This prevents race conditions and ensures proper sequencing
-						if (this.pendingResponseCreate && itemCount === 1) {
-							console.warn('✅ FIRST ITEM COMMITTED - NOW SENDING response.create', {
-								commitNumber: this.pttStopCallCounter,
+						if (!activeCommit) {
+							console.warn('⚠️ Received input_audio_buffer.committed with no pending commit', {
+								event_id: commitEvent.event_id,
 								item_id: commitEvent.item_id,
-								timestamp: new SvelteDate().toISOString()
+								callStack
 							});
-							this.pendingResponseCreate = false;
-							this.sendResponse();
-						} else if (this.pendingResponseCreate && itemCount > 1) {
-							console.warn('⚠️ SKIPPING response.create - MULTIPLE ITEMS DETECTED', {
-								commitNumber: this.pttStopCallCounter,
-								itemCount,
-								itemIds: currentCommitItems,
-								explanation:
-									'Only sending response.create once for the first item to avoid duplicates'
+						} else {
+							if (commitEvent.item_id) {
+								activeCommit.itemIds.add(commitEvent.item_id);
+								if (activeCommit.pendingResolvedItemIds.has(commitEvent.item_id)) {
+									activeCommit.pendingResolvedItemIds.delete(commitEvent.item_id);
+									activeCommit.resolvedItemIds.add(commitEvent.item_id);
+								}
+							}
+
+							const allItemIdsForCommit = Array.from(activeCommit.itemIds);
+							const itemCount = allItemIdsForCommit.length;
+							const isMultipleItems = itemCount > 1;
+
+							console.warn('📤 AUDIO BUFFER COMMITTED (SERVER RESPONSE)', {
+								event_id: commitEvent.event_id,
+								item_id: commitEvent.item_id,
+								timestamp: new SvelteDate().toISOString(),
+								callStack,
+								explanation: 'This is the server confirming our input_audio_buffer.commit event',
+								commitNumber: activeCommit.commitNumber,
+								itemCountForThisCommit: itemCount,
+								allItemIdsForThisCommit: allItemIdsForCommit
 							});
+
+							if (isMultipleItems) {
+								console.warn('⚠️⚠️⚠️ MULTIPLE ITEMS FROM SINGLE COMMIT! ⚠️⚠️⚠️', {
+									commitNumber: activeCommit.commitNumber,
+									itemIds: allItemIdsForCommit,
+									explanation:
+										'Server created multiple conversation items from ONE commit - this causes duplicate transcripts!'
+								});
+							}
+
+							if (commitEvent.item_id) {
+								console.warn('📋 ITEM_ID TO WATCH FOR TRANSCRIPT', {
+									item_id: commitEvent.item_id,
+									commitNumber: activeCommit.commitNumber,
+									itemIndex: `${itemCount} of ?`,
+									note: 'This item_id will appear in the next conversation.item.input_audio_transcription.completed event'
+								});
+							}
+
+							activeCommit.hasReceivedCommitAck = true;
+
+							this.maybeSendResponseForCommit(activeCommit, 'commit_ack', {
+								item_id: commitEvent.item_id,
+								itemCount
+							});
+
+							if (
+								activeCommit.hasReceivedCommitAck &&
+								activeCommit.itemIds.size > 0 &&
+								activeCommit.itemIds.size === activeCommit.resolvedItemIds.size
+							) {
+								this.pendingCommits = this.pendingCommits.filter((entry) => entry !== activeCommit);
+							}
 						}
 					}
 
@@ -1048,15 +1107,15 @@ export class RealtimeOpenAIStore {
 
 			// Additional high-level session signals
 			try {
-				this.connection.session.on('history_added', (item: any) => {
+				this.connection.session.on('history_added', (item) => {
 					if (this.debug) console.debug('[realtime] history_added:', item);
 					this.handleHistoryItem(item, false);
 				});
-				this.connection.session.on('history_updated', (items: any[]) => {
+				this.connection.session.on('history_updated', (items) => {
 					if (this.debug) console.debug('[realtime] history_updated:', items);
 					for (const it of items) this.handleHistoryItem(it, true);
 				});
-				this.connection.session.on('guardrail_tripped', (...args: any[]) => {
+				this.connection.session.on('guardrail_tripped', (...args) => {
 					if (this.debug) console.debug('[realtime] guardrail_tripped:', ...args);
 				});
 			} catch {
@@ -1073,7 +1132,7 @@ export class RealtimeOpenAIStore {
 					: undefined;
 
 				const audioCapture = captureOutputAudioConfig({
-					currentFormat: this.outputAudioFormat as any,
+					currentFormat: this.outputAudioFormat,
 					currentSampleRate: this.outputSampleRate,
 					currentChannels: this.outputAudioChannels,
 					audioConfig: initialAudioConfig
@@ -1107,7 +1166,7 @@ export class RealtimeOpenAIStore {
 			}
 
 			this.isConnected = true;
-		} catch (e: any) {
+		} catch (e) {
 			this.error = e?.message || 'Failed to connect to realtime';
 			this.isConnected = false;
 			// Best-effort cleanup
@@ -1178,6 +1237,7 @@ export class RealtimeOpenAIStore {
 		// Clear conversation items
 		this.conversationItems = [];
 		this.lastSessionUpdateInstructions = null;
+		this.pendingCommits = [];
 		this.lastSessionUpdateTime = 0;
 	}
 
@@ -1267,8 +1327,6 @@ export class RealtimeOpenAIStore {
 	// Track PTT stop calls to detect duplicates
 	private lastPttStopTime: number = 0;
 	private pttStopCallCounter: number = 0;
-	private commitToItemIds: SvelteMap<number, string[]> = new SvelteMap(); // Track which item_ids came from which commit
-	private pendingResponseCreate: boolean = false; // Flag to send response.create after buffer committed
 	private pttStopDelayMs: number = 500; // Configurable delay before committing audio buffer
 	private pendingPttStopTimeout: ReturnType<typeof setTimeout> | null = null; // Track pending stop timeout
 
@@ -1279,13 +1337,14 @@ export class RealtimeOpenAIStore {
 
 	pttStop(mediaStream: MediaStream): void {
 		this.pttStopCallCounter++;
+		const commitNumber = this.pttStopCallCounter;
 		const now = Date.now();
 		const timeSinceLastStop = now - this.lastPttStopTime;
 		const callStack = new Error().stack?.split('\n').slice(1, 5).join('\n') || 'unknown';
 
 		console.warn('🛑 RealtimeOpenAI: pttStop() CALLED', {
 			hasConnection: !!this.connection,
-			callNumber: this.pttStopCallCounter,
+			callNumber: commitNumber,
 			timeSinceLastStop: `${timeSinceLastStop}ms`,
 			streamId: mediaStream?.id,
 			delayMs: this.pttStopDelayMs,
@@ -1297,7 +1356,7 @@ export class RealtimeOpenAIStore {
 		if (timeSinceLastStop < 200 && timeSinceLastStop > 0) {
 			console.warn('⚠️⚠️⚠️ DUPLICATE pttStop() DETECTED - IGNORING! ⚠️⚠️⚠️', {
 				timeSinceLastStop: `${timeSinceLastStop}ms`,
-				callNumber: this.pttStopCallCounter,
+				callNumber: commitNumber,
 				previousCallTime: new SvelteDate(this.lastPttStopTime).toISOString(),
 				currentCallTime: new SvelteDate(now).toISOString(),
 				explanation: 'Ignoring duplicate call to prevent multiple commits',
@@ -1309,7 +1368,7 @@ export class RealtimeOpenAIStore {
 		// Cancel any pending stop timeout from previous calls
 		if (this.pendingPttStopTimeout) {
 			console.warn('⏱️ Canceling previous pending pttStop timeout', {
-				callNumber: this.pttStopCallCounter
+				callNumber: commitNumber
 			});
 			clearTimeout(this.pendingPttStopTimeout);
 			this.pendingPttStopTimeout = null;
@@ -1326,14 +1385,14 @@ export class RealtimeOpenAIStore {
 		console.warn(
 			`⏱️ DELAYING audio buffer commit by ${this.pttStopDelayMs}ms to allow final chunks`,
 			{
-				commitNumber: this.pttStopCallCounter,
+				commitNumber,
 				timestamp: new SvelteDate().toISOString()
 			}
 		);
 
 		this.pendingPttStopTimeout = setTimeout(() => {
 			console.warn('⏰ PTT stop delay complete - now committing buffer', {
-				commitNumber: this.pttStopCallCounter,
+				commitNumber,
 				delayedBy: this.pttStopDelayMs,
 				timestamp: new SvelteDate().toISOString()
 			});
@@ -1353,20 +1412,31 @@ export class RealtimeOpenAIStore {
 
 			const ev = { type: 'input_audio_buffer.commit' as const };
 			console.warn('📤 SENDING input_audio_buffer.commit EVENT NOW', {
-				commitNumber: this.pttStopCallCounter,
+				commitNumber,
 				timestamp: new SvelteDate().toISOString()
 			});
 			this.logEvent('client', String(ev.type), ev);
 			sendEventViaSession(this.connection, ev);
 			console.warn('✅ input_audio_buffer.commit EVENT SENT', {
-				commitNumber: this.pttStopCallCounter
+				commitNumber
 			});
 
-			// CRITICAL: Set flag to send response.create AFTER receiving input_audio_buffer.committed
-			// This ensures proper sequencing and prevents race conditions
-			this.pendingResponseCreate = true;
+			// Track this commit so acknowledgements can be matched in arrival order
+			const commitEntry: PendingCommitEntry = {
+				commitNumber,
+				createdAt: Date.now(),
+				itemIds: new SvelteSet(),
+				resolvedItemIds: new SvelteSet(),
+				pendingResolvedItemIds: new SvelteSet(),
+				awaitingResponseCreate: true,
+				hasReceivedCommitAck: false,
+				hasReceivedUserTranscript: false,
+				hasSentResponse: false
+			};
+			this.pendingCommits.push(commitEntry);
+
 			console.warn('⏳ WAITING FOR input_audio_buffer.committed BEFORE SENDING response.create', {
-				commitNumber: this.pttStopCallCounter,
+				commitNumber,
 				timestamp: new SvelteDate().toISOString()
 			});
 
@@ -1392,7 +1462,89 @@ export class RealtimeOpenAIStore {
 		});
 	}
 
-	private shouldSendSessionUpdate(newInstructions: string | null): boolean {
+	private findCommitByItemId(itemId: string | undefined): PendingCommitEntry | undefined {
+		if (!itemId) return undefined;
+		return this.pendingCommits.find((entry) => entry.itemIds.has(itemId));
+	}
+
+	private getOrAssignCommitForTranscript(
+		itemId: string | undefined,
+		role?: 'user' | 'assistant'
+	): PendingCommitEntry | undefined {
+		if (!itemId) return undefined;
+
+		// Safety check: only process user transcripts for commits
+		// Assistant transcripts should never trigger commit logic
+		if (role === 'assistant') {
+			console.warn('⚠️ getOrAssignCommitForTranscript called with assistant role - ignoring', {
+				itemId,
+				note: 'Assistant transcripts should not trigger commit logic'
+			});
+			return undefined;
+		}
+
+		let commit = this.findCommitByItemId(itemId);
+		if (commit) return commit;
+
+		// Fallback: assume transcript belongs to the oldest awaiting commit
+		// Only for user transcripts (role check above ensures this)
+		commit = this.pendingCommits.find(
+			(entry) => entry.awaitingResponseCreate && !entry.hasReceivedUserTranscript
+		);
+		if (commit) {
+			commit.itemIds.add(itemId);
+		}
+		return commit;
+	}
+
+	private maybeSendResponseForCommit(
+		commit: PendingCommitEntry,
+		reason: string,
+		metadata: Record<string, unknown> = {}
+	): void {
+		if (!commit.awaitingResponseCreate || commit.hasSentResponse) {
+			return;
+		}
+		if (!commit.hasReceivedCommitAck || !commit.hasReceivedUserTranscript) {
+			return;
+		}
+
+		console.warn('✅ CONDITIONS MET - SENDING response.create', {
+			commitNumber: commit.commitNumber,
+			reason,
+			...metadata
+		});
+		commit.hasSentResponse = true;
+		commit.awaitingResponseCreate = false;
+		this.sendResponse();
+	}
+
+	private resolveCommitItem(itemId: string): void {
+		if (!itemId) return;
+		const commit =
+			this.findCommitByItemId(itemId) ??
+			this.pendingCommits.find((entry) => entry.awaitingResponseCreate) ??
+			null;
+
+		if (!commit) return;
+
+		if (!commit.hasReceivedCommitAck || !commit.itemIds.has(itemId)) {
+			commit.pendingResolvedItemIds.add(itemId);
+			return;
+		}
+
+		commit.resolvedItemIds.add(itemId);
+
+		if (
+			commit.hasReceivedCommitAck &&
+			commit.itemIds.size > 0 &&
+			commit.itemIds.size === commit.resolvedItemIds.size
+		) {
+			this.pendingCommits = this.pendingCommits.filter((entry) => entry !== commit);
+		}
+	}
+
+	private shouldSendSessionUpdate(newInstructions: string | undefined): boolean {
 		const now = Date.now();
 		const timeSinceLastUpdate = now - this.lastSessionUpdateTime;
 
@@ -1611,7 +1763,7 @@ export class RealtimeOpenAIStore {
 		}
 	}
 
-	private extractMessageText(content: any[] = []): string {
+	private extractMessageText(content = []): string {
 		if (!Array.isArray(content)) return '';
 		const texts = content
 			.map((c) => {
