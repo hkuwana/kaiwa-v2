@@ -226,21 +226,12 @@
 							<div class="conversation-visual__wave conversation-visual__wave--inner"></div>
 							<div class="conversation-visual__core"></div>
 						</div>
-						<div class="space-y-2">
+						<div class="hidden space-y-2 md:block">
 							<p class="text-lg opacity-80">Conversation mode active</p>
 							<p class="text-sm opacity-60">
 								Focus on listening and speaking. Transcript and messages are hidden for now.
 							</p>
 						</div>
-						<button
-							type="button"
-							class="btn btn-outline btn-sm"
-							onclick={() => {
-								conversationMode = false;
-							}}
-						>
-							Show transcript
-						</button>
 					</div>
 				</div>
 			{:else}
