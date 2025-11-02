@@ -5,7 +5,7 @@
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { defaultTierConfigs } from '$lib/data/tiers';
 	import type { UserTier } from '$lib/data/tiers';
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 
 	// Calculate display values
 	const remainingSeconds = $derived(usageStore.secondsRemaining());
@@ -76,10 +76,10 @@
 
 	onMount(() => {
 		document.addEventListener('click', handleClickOutside);
-	});
-
-	onDestroy(() => {
-		document.removeEventListener('click', handleClickOutside);
+		
+		return () => {
+			document.removeEventListener('click', handleClickOutside);
+		};
 	});
 </script>
 
