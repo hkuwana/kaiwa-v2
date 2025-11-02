@@ -107,6 +107,7 @@ export class InstructionComposer {
 			this.buildInstructionsRules(), // TIER SYSTEM FIRST - most critical constraint
 			this.buildRoleObjective(),
 			this.buildPersonalityTone(),
+			this.buildContext(), // REGIONAL SPEAKER DIALECT & CONTEXT
 			this.buildConversationFlow(),
 			this.buildReferencePronunciations(),
 			// Removed: buildCasualExpressions (verbose, see casual-interjections file)
@@ -277,8 +278,10 @@ ${rolePositioning}
 	}
 
 	private buildContext(): string {
-		const { scenario, sessionContext, language, speaker } = this.options;
-		const memories = sessionContext?.memories || [];
+		const { scenario, sessionContext, language, speaker, preferences } = this.options;
+
+		// Use persistent database memories first, fall back to session context
+		const memories = (preferences?.memories as string[]) || sessionContext?.memories || [];
 		const previousTopics = sessionContext?.previousTopics || [];
 
 		let contextSections: string[] = [];
@@ -309,6 +312,12 @@ ${regionalInfo.join('\n')}`);
 - Personalize your responses by addressing them by name when appropriate`);
 		}
 
+		// Learner background with database memories + preferences
+		const learnerBackgroundSection = this.buildLearnerBackgroundSection(preferences, memories);
+		if (learnerBackgroundSection) {
+			contextSections.push(learnerBackgroundSection);
+		}
+
 		// Scenario context
 		if (scenario) {
 			contextSections.push(`## Scenario Context
@@ -316,15 +325,6 @@ ${scenario.context}
 
 ### Learning Focus
 ${scenario.learningObjectives?.map((obj) => `- ${obj}`).join('\n')}`);
-		}
-
-		// User memory context
-		if (memories.length > 0) {
-			contextSections.push(`## Learner Background (use naturally, don't recite)
-${memories
-	.slice(0, 5)
-	.map((m) => `- ${m}`)
-	.join('\n')}`);
 		}
 
 		// Previous topics
@@ -344,6 +344,84 @@ ${previousTopics
 - Grammar complexity: ${this.params.grammarComplexity}`);
 
 		return contextSections.length > 0 ? `# Context\n\n${contextSections.join('\n\n')}` : '';
+	}
+
+	/**
+	 * Build comprehensive learner background section from database preferences & memories
+	 * IMPORTANT: Instruction tells agent to weave naturally, not recite
+	 */
+	private buildLearnerBackgroundSection(
+		preferences: Partial<UserPreferences> | undefined,
+		memories: string[]
+	): string {
+		if (!preferences && memories.length === 0) return '';
+
+		const sections: string[] = [];
+
+		// Core learner facts (database memories)
+		if (memories.length > 0) {
+			sections.push(`### Learner Facts (weave naturally into conversation)
+${memories
+	.slice(0, 5)
+	.map((m) => `- ${m}`)
+	.join('\n')}`);
+		}
+
+		// Conversation context from preferences
+		const conversationContext = preferences?.conversationContext as {
+			occupation?: string;
+			learningReason?: string;
+			recentTopics?: string[];
+		};
+		if (conversationContext && Object.keys(conversationContext).length > 0) {
+			const contextLines = [];
+			if (conversationContext.occupation) {
+				contextLines.push(`- Occupation: ${conversationContext.occupation}`);
+			}
+			if (conversationContext.learningReason) {
+				contextLines.push(`- Learning reason: ${conversationContext.learningReason}`);
+			}
+			if (
+				conversationContext.recentTopics &&
+				Array.isArray(conversationContext.recentTopics) &&
+				conversationContext.recentTopics.length > 0
+			) {
+				contextLines.push(`- Recent interests: ${conversationContext.recentTopics.slice(0, 3).join(', ')}`);
+			}
+
+			if (contextLines.length > 0) {
+				sections.push(`### Personal Context
+${contextLines.join('\n')}`);
+			}
+		}
+
+		// Learning goals and preferences
+		const specificGoals = preferences?.specificGoals as string[];
+		const comfortZone = preferences?.comfortZone as string[];
+		const learningGoal = preferences?.learningGoal;
+
+		if (learningGoal || (specificGoals && specificGoals.length > 0) || (comfortZone && comfortZone.length > 0)) {
+			const goalLines = [];
+			if (learningGoal) {
+				goalLines.push(`- Primary learning goal: ${learningGoal}`);
+			}
+			if (specificGoals && specificGoals.length > 0) {
+				goalLines.push(`- Specific objectives: ${specificGoals.slice(0, 3).join(', ')}`);
+			}
+			if (comfortZone && comfortZone.length > 0) {
+				goalLines.push(`- Comfortable topics: ${comfortZone.slice(0, 3).join(', ')}`);
+			}
+
+			if (goalLines.length > 0) {
+				sections.push(`### Learning Preferences
+${goalLines.join('\n')}`);
+			}
+		}
+
+		if (sections.length === 0) return '';
+
+		return `## Learner Background (reference naturally, don't recite verbatim)
+${sections.join('\n\n')}`;
 	}
 
 	private buildCasualExpressions(): string {
