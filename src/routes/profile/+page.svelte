@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import UserPreferencesEditor from '$lib/components/UserPreferencesEditor.svelte';
 	import EmailPreferences from '$lib/components/EmailPreferences.svelte';
 	import SpeechSpeedSelector from '$lib/components/SpeechSpeedSelector.svelte';
@@ -29,8 +30,10 @@
 
 	const requiredText = 'DELETE PROFILE';
 
-	// Tab navigation
-	let activeTab = $state('account');
+	// Tab navigation - read from URL query param, default to 'account'
+	const tabFromUrl = page.url.searchParams.get('tab');
+	const validTabs = ['account', 'billing', 'preferences', 'email', 'danger'];
+	let activeTab = $state(tabFromUrl && validTabs.includes(tabFromUrl) ? tabFromUrl : 'account');
 	const tabs = [
 		{ id: 'account', label: 'Account', icon: 'user' },
 		{ id: 'billing', label: 'Billing & Payments', icon: 'credit-card' },

@@ -6,12 +6,14 @@
 	import ChatBubbleFlow from '$lib/components/ChatBubbleFlow.svelte';
 	import InteractiveScenarioPreview from '$lib/features/scenarios/components/InteractiveScenarioPreview.svelte';
 	import DynamicLanguageText from '$lib/components/DynamicLanguageText.svelte';
+	import MonthlyUsageDisplay from '$lib/components/MonthlyUsageDisplay.svelte';
 	import {
 		clearAllConversationData,
 		clearConversationDataOnly,
 		getConversationDataSummary
 	} from '$lib/utils/conversation-cleanup';
 	import { userManager } from '$lib/stores/user.store.svelte';
+	import { usageStore } from '$lib/stores/usage.store.svelte';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
 	import { trackABTest } from '$lib/analytics/posthog';
@@ -19,23 +21,35 @@
 	import type { Scenario, AudioInputMode } from '$lib/server/db/types';
 	import WhyDifferent from '$lib/components/WhyDifferent.svelte';
 	import StageIndicator from '$lib/components/StageIndicator.svelte';
+	import { defaultTierConfigs } from '$lib/data/tiers';
+	import type { UserTier } from '$lib/data/tiers';
+
+	const { data } = $props();
 
 	const user = userManager.user;
 
 	// State management for language, speaker, and scenario selection
-	// Use $derived for reactive binding to store (Bug #1 fix: persistence)
-	const selectedLanguage = $derived(settingsStore.selectedLanguage);
-	const selectedSpeaker = $derived(settingsStore.selectedSpeaker);
-	const selectedScenario = $derived(scenarioStore.getSelectedScenario());
+	let selectedLanguage = $state<DataLanguage | null>(settingsStore.selectedLanguage);
+	let selectedSpeaker = $state<string | null>(settingsStore.selectedSpeaker);
+	let selectedScenario = $state<Scenario | null>(scenarioStore.getSelectedScenario());
 	let selectedAudioMode = $state<AudioInputMode>('ptt'); // Audio input mode preference - default to Push-to-Talk
 
 	// Handle scenario query parameter from URL (e.g., from email links)
-	onMount(() => {
+	onMount(async () => {
 		const scenarioId = page.url.searchParams.get('scenario');
 		if (scenarioId && browser) {
 			// Set the scenario in the store so it's pre-selected
 			scenarioStore.setScenarioById(scenarioId);
-			// Note: selectedScenario will automatically update via $derived
+			selectedScenario = scenarioStore.getSelectedScenario();
+		}
+
+		// Initialize usage store for logged-in users
+		if (userManager.isLoggedIn && user.id !== 'guest') {
+			const tierId = (userManager.effectiveTier || 'free') as UserTier;
+			const tierConfig = defaultTierConfigs[tierId] || defaultTierConfigs.free;
+			
+			usageStore.setUser(user.id, tierConfig);
+			await usageStore.loadUsage();
 		}
 	});
 
@@ -89,31 +103,24 @@
 	}
 
 	// Event handlers for component callbacks
-	// Note: $derived handles local state sync, so we only need to update stores
 	function handleLanguageChange(language: DataLanguage) {
+		selectedLanguage = language;
 		settingsStore.setLanguageObject(language);
-		// Bug #3 fix: Reset scenario when language changes to prevent invalid combinations
-		scenarioStore.resetToDefault();
-		console.log('🌍 Language changed to:', language.code, '- Scenario reset to default');
-		// selectedLanguage updates automatically via $derived
 	}
 
 	function handleSpeakerChange(speakerId: string) {
+		selectedSpeaker = speakerId;
 		settingsStore.setSpeaker(speakerId);
-		// selectedSpeaker updates automatically via $derived
 	}
 
 	function handleScenarioChange(scenario: Scenario) {
 		scenarioStore.setScenarioById(scenario.id);
-		// selectedScenario updates automatically via $derived
+		selectedScenario = scenario;
 	}
 
 	function handleDynamicLanguageSelect(language: DataLanguage) {
+		selectedLanguage = language;
 		settingsStore.setLanguageObject(language);
-		// Bug #3 fix: Reset scenario when language changes to prevent invalid combinations
-		scenarioStore.resetToDefault();
-		console.log('🌍 Language changed to:', language.code, '- Scenario reset to default');
-		// selectedLanguage updates automatically via $derived
 	}
 
 	// Clear conversation data functions
@@ -169,14 +176,18 @@
 
 			<div class="max-w-md">
 				{#if user.id !== 'guest'}
-					<div class="mb-6 text-xl opacity-90">
+					<div class="mb-4 text-xl opacity-90">
 						Welcome back, {user ? user.displayName : 'Dev'}!
+					</div>
+					<!-- Monthly Usage Display -->
+					<div class="mb-6">
+						<MonthlyUsageDisplay />
 					</div>
 				{:else}
 					<h4 class="mb-2 text-2xl font-semibold opacity-90 sm:mb-4 sm:text-3xl">
 						{#if useDynamicLanguage}
 							<DynamicLanguageText
-								{selectedLanguage}
+								bind:selectedLanguage
 								onLanguageSelect={handleDynamicLanguageSelect}
 								variant={dynamicVariant}
 								animationInterval={2800}
@@ -200,6 +211,30 @@
 					onStartClick={trackStartSpeakingClick}
 					onModeChange={(mode) => (selectedAudioMode = mode)}
 				/>
+
+				<!-- Debug/Development Tools -->
+				{#if browser && user.id === 'dev'}
+					<div class="mt-8 rounded-lg bg-base-200 p-4">
+						<h3 class="mb-3 text-sm font-semibold text-base-content/70">
+							🧹 Clear Conversation Data
+						</h3>
+						<div class="flex flex-wrap gap-2">
+							<button onclick={handleShowDataSummary} class="btn btn-outline btn-sm">
+								📊 Show Data Summary
+							</button>
+							<button onclick={handleClearConversationData} class="btn btn-sm btn-warning">
+								🧹 Clear Conversation Data
+							</button>
+							<button onclick={handleClearAllData} class="btn btn-sm btn-error">
+								🗑️ Clear ALL Data
+							</button>
+						</div>
+						<p class="mt-2 text-xs text-base-content/60">
+							Use these tools to clear stored conversation data if you're experiencing issues with
+							previous sessions.
+						</p>
+					</div>
+				{/if}
 			</div>
 		</div>
 	</header>
