@@ -546,11 +546,15 @@ export function mergeParameters(
 
 /**
  * Convert parameters to instruction strings
+ *
+ *
+ * All other parameters represent unique constraints (speaking speed, vocabulary,
+ * grammar complexity, correction style, scaffolding, etc.)
  */
 export function parametersToInstructions(params: InstructionParameters): string[] {
 	return [
 		SPEAKING_SPEED_RULES[params.speakingSpeed],
-		SENTENCE_LENGTH_RULES[params.sentenceLength],
+
 		PAUSE_FREQUENCY_RULES[params.pauseFrequency],
 		VOCABULARY_COMPLEXITY_RULES[params.vocabularyComplexity],
 		GRAMMAR_COMPLEXITY_RULES[params.grammarComplexity],

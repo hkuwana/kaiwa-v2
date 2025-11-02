@@ -92,7 +92,7 @@ export const speakersData: Speaker[] = [
 		gender: 'female',
 		voiceName: 'Hina',
 		voiceProviderId: 'openai-hina',
-		openaiVoiceId: 'echo',
+		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null
 	},
