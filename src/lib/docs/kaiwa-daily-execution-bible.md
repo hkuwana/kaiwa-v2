@@ -71,7 +71,7 @@ What is Block 1 today? Choose ONE:
 - [ ] **ITERATION**: Fix things based on yesterday's observations (product tweaks, copy, timing)
 - [ ] **OBSERVATION**: Watch free users, watch paid users, collect feedback, run user calls
 
-**Your Block 1 Primary Task**: ******\_\_\_******
+**Your Block 1 Primary Task**: **\*\***\_\_\_**\*\***
 
 **8:45-9:45am**: Deep work on your primary task
 
@@ -110,7 +110,7 @@ What is Block 1 today? Choose ONE:
 **12:45-1:00pm: Block 2 Decision**
 
 - What's Block 2 today? (Choose from Building, Outreach, Iteration, Observation)
-- Your Block 2 Primary Task: ******\_\_\_******
+- Your Block 2 Primary Task: **\*\***\_\_\_**\*\***
 - Any prep needed? (Have links ready, open files, etc.)
 
 ---
@@ -151,7 +151,7 @@ What is Block 1 today? Choose ONE:
 **4:15-4:30pm: Block 3 Decision**
 
 - What's Block 3 today? (Choose from Building, Outreach, Iteration, Observation)
-- Your Block 3 Primary Task: ******\_\_\_******
+- Your Block 3 Primary Task: **\*\***\_\_\_**\*\***
 
 ---
 
@@ -301,15 +301,15 @@ What is Block 1 today? Choose ONE:
 ```markdown
 # TODAY'S BLOCK PLAN
 
-## Block 1 (8:45-11:45am): ******\_\_\_******
+## Block 1 (8:45-11:45am): **\*\***\_\_\_**\*\***
 
 Primary task: [Building/Outreach/Iteration/Observation]
 
-## Block 2 (1:00-4:00pm): ******\_\_\_******
+## Block 2 (1:00-4:00pm): **\*\***\_\_\_**\*\***
 
 Primary task: [Building/Outreach/Iteration/Observation]
 
-## Block 3 (4:30-7:30pm): ******\_\_\_******
+## Block 3 (4:30-7:30pm): **\*\***\_\_\_**\*\***
 
 Primary task: [Building/Outreach/Iteration/Observation]
 

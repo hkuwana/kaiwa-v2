@@ -104,14 +104,12 @@ export class InstructionComposer {
 	 */
 	compose(): string {
 		const sections = [
-			this.buildInstructionsRules(), // TIER SYSTEM FIRST - most critical constraint
+			this.buildInstructionsRules(),
 			this.buildRoleObjective(),
 			this.buildPersonalityTone(),
-			this.buildContext(), // REGIONAL SPEAKER DIALECT & CONTEXT
+			this.buildContext(),
 			this.buildConversationFlow(),
-			this.buildReferencePronunciations(),
-			// Removed: buildCasualExpressions (verbose, see casual-interjections file)
-			// Removed: buildSafetyEscalation (reference external Safety Protocols)
+			this.buildReferencePronunciations()
 		];
 
 		return sections.filter(Boolean).join('\n\n');
@@ -211,13 +209,16 @@ ${this.buildSuccessCriteria()}`;
 		let personalityDescriptor = '';
 		if (confidence < 30) {
 			tone = 'Patient, encouraging, and reassuring';
-			personalityDescriptor = 'You\'re the supportive friend who builds people up and makes them feel safe taking risks';
+			personalityDescriptor =
+				"You're the supportive friend who builds people up and makes them feel safe taking risks";
 		} else if (confidence > 70) {
 			tone = 'Energetic, challenging, and engaging';
-			personalityDescriptor = 'You\'re the friend who gets excited about learning and isn\'t afraid to push people to do better';
+			personalityDescriptor =
+				"You're the friend who gets excited about learning and isn't afraid to push people to do better";
 		} else {
 			tone = 'Warm, supportive, and conversational';
-			personalityDescriptor = 'You\'re the friend who\'s genuinely interested in what people have to say and makes them feel heard';
+			personalityDescriptor =
+				"You're the friend who's genuinely interested in what people have to say and makes them feel heard";
 		}
 
 		// For zero-to-hero, provide special personality guidance
@@ -386,7 +387,9 @@ ${memories
 				Array.isArray(conversationContext.recentTopics) &&
 				conversationContext.recentTopics.length > 0
 			) {
-				contextLines.push(`- Recent interests: ${conversationContext.recentTopics.slice(0, 3).join(', ')}`);
+				contextLines.push(
+					`- Recent interests: ${conversationContext.recentTopics.slice(0, 3).join(', ')}`
+				);
 			}
 
 			if (contextLines.length > 0) {
@@ -400,7 +403,11 @@ ${contextLines.join('\n')}`);
 		const comfortZone = preferences?.comfortZone as string[];
 		const learningGoal = preferences?.learningGoal;
 
-		if (learningGoal || (specificGoals && specificGoals.length > 0) || (comfortZone && comfortZone.length > 0)) {
+		if (
+			learningGoal ||
+			(specificGoals && specificGoals.length > 0) ||
+			(comfortZone && comfortZone.length > 0)
+		) {
 			const goalLines = [];
 			if (learningGoal) {
 				goalLines.push(`- Primary learning goal: ${learningGoal}`);
@@ -768,9 +775,7 @@ ${personalityExamples}`;
 
 		// Return language-specific examples, fall back to English if language not defined
 		return (
-			examples[languageCode] ||
-			examples['en'] ||
-			examples['ja'] // Ultimate fallback to Japanese if somehow English isn't available
+			examples[languageCode] || examples['en'] || examples['ja'] // Ultimate fallback to Japanese if somehow English isn't available
 		);
 	}
 
@@ -1015,7 +1020,7 @@ IF learner mentions self-harm:
 
 	private getScenarioParameters(
 		scenario: Scenario,
-		scenarioLevel: CEFRLevel
+		_scenarioLevel: CEFRLevel
 	): Partial<InstructionParameters> {
 		let parameters: Partial<InstructionParameters> = {};
 

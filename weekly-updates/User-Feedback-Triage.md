@@ -12,6 +12,7 @@
 ## 🔴 Critical Issues (3+ Mentions OR High Signal Plan Impact)
 
 ### Agent Verbosity / Conversation Flow
+
 - **Mentions**: 3 (Timothy Jones, Martin, akuwana3@gmail.com)
 - **Signal Plan Phase**: Onboarding → Critical (determines if user feels ready for real conversation)
 - **Primary Personas Affected**: Sofia (beginner confidence), David (naturalness), Jamie (relationship feel)
@@ -25,6 +26,7 @@
   - akuwana3: Reduce Chinese beginner response length to be more conversational
 
 ### Language/Scenario Persistence Issues
+
 - **Mentions**: 2 (Timothy Jones, akuwana3@gmail.com)
 - **Signal Plan Phase**: Onboarding → Critical (smooth setup = faster to "Moment of Value")
 - **Primary Personas Affected**: Sofia (needs seamless language switch), David (heritage language memory), Jamie (language consistency)
@@ -37,6 +39,7 @@
   - Timothy Jones: "Make sure that the cookie resets and that we don't show the previous conversations messages"
 
 ### UX for Push-to-Talk Feature
+
 - **Mentions**: 2 (Scott Huson, Timothy Jones)
 - **Signal Plan Phase**: Onboarding → Critical (first friction point in actual practice)
 - **Primary Personas Affected**: Sofia (anxiety about speaking), David (self-conscious about voice), Jamie (tech comfort)
@@ -50,6 +53,7 @@
   - Martin: Friend suggests press once to start, press again to stop (instead of holding)
 
 ### Agent Stays in Scenario / Drift Prevention
+
 - **Mentions**: 2 (Timothy Jones, Martin)
 - **Signal Plan Phase**: Onboarding → Retention → Critical (scenario immersion = belief that skills transfer to real life)
 - **Primary Personas Affected**: Sofia (family dynamics), David (cultural scenarios), Jamie (integration scenarios)
@@ -228,21 +232,21 @@
 
 ## 📊 Issue Priority Matrix: Mentions × Signal Plan Impact
 
-| Issue | Mentions | Signal Phase | Impact on North Star | Priority | Status |
-|-------|----------|--------------|----------------------|----------|--------|
-| Agent verbosity | 3 | Onboarding | Blocks belief in realistic practice | 🔴 Critical | Open |
-| Push-to-talk UX | 2 | Onboarding | First friction to practice | 🔴 Critical | Open |
-| Scenario drift | 2 | Retention | Breaks "specific conversation" promise | 🔴 Critical | Open |
-| Language/scenario persistence | 2 | Onboarding | Kills momentum mid-setup | 🔴 Critical | Open |
-| Chinese pinyin errors | 3 | Onboarding | Language-specific blocker | 🔴 Critical | Partial fix |
-| Audio playback features | 2 | Retention | Blocks improvement feedback loop | 🟡 High | Open |
-| Account creation | 2 | Acquisition | Loses users before trying | 🟡 High | Open |
-| Analysis/feedback depth | 3 | Real-World Bridge | Monetization blocker + confidence | 🟡 High | Open |
-| Conversation continuity | 2 | Retention | Kills long-term engagement + LTV | 🟡 High | Open |
-| Language/dialect support | 6+ | PMF | New segment expansion + trust | 🟠 Medium | Open |
-| UI polish issues | 7+ | Onboarding | Erodes professionalism signal | 🟠 Medium | Open |
-| AI agent quality (adaptive) | 4+ | Onboarding/Retention | Difficulty mismatch breaks confidence | 🟠 Medium | Open |
-| Missing content/scenarios | 4 | Retention | Generic scenarios don't serve personas | 🟠 Medium | Open |
+| Issue                         | Mentions | Signal Phase         | Impact on North Star                   | Priority    | Status      |
+| ----------------------------- | -------- | -------------------- | -------------------------------------- | ----------- | ----------- |
+| Agent verbosity               | 3        | Onboarding           | Blocks belief in realistic practice    | 🔴 Critical | Open        |
+| Push-to-talk UX               | 2        | Onboarding           | First friction to practice             | 🔴 Critical | Open        |
+| Scenario drift                | 2        | Retention            | Breaks "specific conversation" promise | 🔴 Critical | Open        |
+| Language/scenario persistence | 2        | Onboarding           | Kills momentum mid-setup               | 🔴 Critical | Open        |
+| Chinese pinyin errors         | 3        | Onboarding           | Language-specific blocker              | 🔴 Critical | Partial fix |
+| Audio playback features       | 2        | Retention            | Blocks improvement feedback loop       | 🟡 High     | Open        |
+| Account creation              | 2        | Acquisition          | Loses users before trying              | 🟡 High     | Open        |
+| Analysis/feedback depth       | 3        | Real-World Bridge    | Monetization blocker + confidence      | 🟡 High     | Open        |
+| Conversation continuity       | 2        | Retention            | Kills long-term engagement + LTV       | 🟡 High     | Open        |
+| Language/dialect support      | 6+       | PMF                  | New segment expansion + trust          | 🟠 Medium   | Open        |
+| UI polish issues              | 7+       | Onboarding           | Erodes professionalism signal          | 🟠 Medium   | Open        |
+| AI agent quality (adaptive)   | 4+       | Onboarding/Retention | Difficulty mismatch breaks confidence  | 🟠 Medium   | Open        |
+| Missing content/scenarios     | 4        | Retention            | Generic scenarios don't serve personas | 🟠 Medium   | Open        |
 
 **Key Insight**: Issues with 3+ mentions AND high Signal Plan impact (Onboarding/Real-World Bridge) = **Do First**. Language/dialect support is scattered (6+ mentions) but lower Signal phase = **Do Second**.
 
@@ -251,8 +255,10 @@
 ## 📝 Individual Feedback Sessions
 
 ### Scott Huson - Oct 21, 2025
+
 **Status**: Paid user
 **Key Problems**:
+
 - [ ] Stars system confusing
 - [ ] Push to talk unclear; needs prompts/slider
 - [ ] Need thinking time before response
@@ -269,8 +275,10 @@
 ---
 
 ### Mark Natividad - Oct 21, 2025
+
 **Status**: Multilingual user (Spanish, French, Japanese, Bulgarian)
 **Key Problems**:
+
 - [ ] UX created false confidence
 - [ ] Portuguese too easy (one-worded questions)
 - [ ] Rough transitions in conversation
@@ -286,8 +294,10 @@
 ---
 
 ### akuwana3@gmail.com - Oct 21, 2025
+
 **Status**: Chinese learner
 **Key Problems**:
+
 - [ ] Chinese responses too long for beginners
 - [ ] Need vocabulary word feature
 - [ ] Pinyin display incorrect (showing Japanese)
@@ -297,8 +307,10 @@
 ---
 
 ### Timothy Jones - Oct 21, 2025
+
 **Status**: Paid user
 **Key Problems**:
+
 - [ ] Need email/password removal
 - [ ] Lack of transparency
 - [ ] Hover takes away person (UX issue)
@@ -322,14 +334,18 @@
 ---
 
 ### Kazu - Oct 21, 2025
+
 **Status**: Chinese learner
+
 - ✅ Chinese issue marked as fixed
 
 ---
 
 ### Brie - Oct 21, 2025
+
 **Status**: Active user (Japanese)
 **Key Problems**:
+
 - [ ] Email account creation failed (Google sign-in works)
 - [ ] Overwhelming to start conversation with new partner
 - [ ] Wants to continue previous conversations with Lily
@@ -344,8 +360,10 @@
 ---
 
 ### Martin - Oct 21, 2025
+
 **Status**: Multilingual user (Spanish, French, Russian) + App Demo
 **Key Problems**:
+
 - [ ] Agent too verbose (one-sided conversation)
 - [ ] Agent "spazzes out" with multiple responses
 - [ ] Scenario drift (shifts to generic questions)
@@ -359,6 +377,7 @@
 - [ ] Need vocabulary alternatives feature
 
 **Positive**:
+
 - ✅ Voice quality very clear
 - ✅ Pace really good
 - ✅ Agent intelligence high
@@ -581,11 +600,13 @@ This triage document informs your **four daily execution blocks**:
 ## 🎯 Next Steps for Triage
 
 ### Immediate (This Week)
+
 - [ ] Contact Scott Huson for conversation logs (memory issue)
 - [ ] Review agent verbosity in prompt engineering
 - [ ] Test push-to-talk feature usability
 
 ### This Sprint
+
 - [ ] Fix language/scenario persistence (if not already done)
 - [ ] Implement audio playback/slow-down feature
 - [ ] Add scenario adherence guardrails to agent
@@ -593,6 +614,7 @@ This triage document informs your **four daily execution blocks**:
 - [ ] Implement search for languages/scenarios
 
 ### Next Sprint
+
 - [ ] Improve analysis feature depth (grammar, vocabulary, pronunciation)
 - [ ] Add conversation continuity features
 - [ ] Implement scenario-specific content library
