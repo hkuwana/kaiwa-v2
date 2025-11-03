@@ -130,16 +130,16 @@
 					<div class="stat-title">Current Plan</div>
 					<div class="stat-value text-lg capitalize">
 						<span
-							class="badge badge-lg capitalize {usageLimits?.currentTier === 'free'
+							class="badge badge-lg capitalize {usageStatus?.tier.id === 'free'
 								? 'badge-neutral'
 								: 'badge-primary'}"
 						>
-							{usageLimits?.currentTier || 'free'}
+							{usageStatus?.tier.id || 'free'}
 						</span>
 					</div>
 					<div class="stat-desc">
-						{#if usageLimits?.currentTier !== 'free'}
-							${tierPricing[usageLimits?.currentTier || 'free']}/month
+						{#if usageStatus?.tier.id !== 'free'}
+							${tierPricing[usageStatus?.tier.id || 'free']}/month
 						{:else}
 							Limited features
 						{/if}
@@ -172,7 +172,7 @@
 
 			<!-- Quick Actions -->
 			<div class="flex flex-wrap items-center gap-2 pt-4">
-				{#if usageLimits?.currentTier === 'free'}
+				{#if usageStatus?.tier.id === 'free'}
 					<button class="btn btn-primary" onclick={() => (showUpgradeModal = true)}>
 						<span class="icon-[mdi--arrow-up] h-4 w-4"></span>
 						Upgrade Plan
@@ -196,10 +196,159 @@
 					your subscription.
 				</p>
 			</div>
-			{#if usageStatus && usageLimits?.currentTier !== 'free'}
+			{#if usageStatus}
 				<div class="mt-4 rounded-lg bg-base-200 p-4">
 					<h4 class="mb-3 font-medium">Current Usage</h4>
 					<TierBadge tierStatus={usageStatus} showDetails={true} />
+				</div>
+
+				<!-- Detailed Usage Breakdown -->
+				<div class="mt-4 rounded-lg bg-base-200 p-4">
+					<h4 class="mb-4 font-medium">Usage Breakdown</h4>
+					<div class="space-y-4">
+						<!-- Main Features -->
+						<div>
+							<h5 class="mb-2 text-sm font-semibold opacity-70">Main Features</h5>
+							<div class="grid grid-cols-2 gap-3 text-sm md:grid-cols-3">
+								<div class="flex items-center justify-between">
+									<span>Conversations:</span>
+									<span class="font-medium">{usageStatus.usage.conversationsUsed || 0}</span>
+								</div>
+								<div class="flex items-center justify-between">
+									<span>Realtime Sessions:</span>
+									<span class="font-medium">{usageStatus.usage.realtimeSessionsUsed || 0}</span>
+								</div>
+								<div class="flex items-center justify-between">
+									<span>Session Extensions:</span>
+									<span class="font-medium">{usageStatus.usage.sessionExtensionsUsed || 0}</span>
+								</div>
+								{#if (usageStatus.usage.bankedSeconds || 0) > 0}
+									<div class="flex items-center justify-between">
+										<span>Banked Seconds:</span>
+										<span class="font-medium text-success">{Math.floor((usageStatus.usage.bankedSeconds || 0) / 60)} min</span>
+									</div>
+								{/if}
+								{#if (usageStatus.usage.bankedSecondsUsed || 0) > 0}
+									<div class="flex items-center justify-between">
+										<span>Banked Used:</span>
+										<span class="font-medium">{Math.floor((usageStatus.usage.bankedSecondsUsed || 0) / 60)} min</span>
+									</div>
+								{/if}
+							</div>
+						</div>
+
+						<!-- Session Quality Metrics -->
+						<div class="border-t border-base-300 pt-3">
+							<h5 class="mb-2 text-sm font-semibold opacity-70">Session Quality</h5>
+							<div class="grid grid-cols-2 gap-3 text-sm md:grid-cols-3">
+								<div class="flex items-center justify-between">
+									<span>Completed Sessions:</span>
+									<span class="font-medium">{usageStatus.usage.completedSessions || 0}</span>
+								</div>
+								<div class="flex items-center justify-between">
+									<span>Longest Session:</span>
+									<span class="font-medium">{Math.floor((usageStatus.usage.longestSessionSeconds || 0) / 60)} min</span>
+								</div>
+								{#if (usageStatus.usage.averageSessionSeconds || 0) > 0}
+									<div class="flex items-center justify-between">
+										<span>Avg Session:</span>
+										<span class="font-medium">{Math.floor((usageStatus.usage.averageSessionSeconds || 0) / 60)} min</span>
+									</div>
+								{/if}
+							</div>
+						</div>
+
+						<!-- Analysis Usage -->
+						<div class="border-t border-base-300 pt-3">
+							<h5 class="mb-2 text-sm font-semibold opacity-70">Analyses</h5>
+							<div class="grid grid-cols-2 gap-3 text-sm md:grid-cols-3">
+								<div class="flex items-center justify-between">
+									<span>Total Analyses:</span>
+									<span class="font-medium">{usageStatus.usage.analysesUsed || 0}</span>
+								</div>
+								{#if (usageStatus.usage.basicAnalysesUsed || 0) > 0}
+									<div class="flex items-center justify-between">
+										<span>Basic:</span>
+										<span class="font-medium">{usageStatus.usage.basicAnalysesUsed || 0}</span>
+									</div>
+								{/if}
+								{#if (usageStatus.usage.advancedGrammarUsed || 0) > 0}
+									<div class="flex items-center justify-between">
+										<span>Grammar:</span>
+										<span class="font-medium">{usageStatus.usage.advancedGrammarUsed || 0}</span>
+									</div>
+								{/if}
+								{#if (usageStatus.usage.fluencyAnalysisUsed || 0) > 0}
+									<div class="flex items-center justify-between">
+										<span>Fluency:</span>
+										<span class="font-medium">{usageStatus.usage.fluencyAnalysisUsed || 0}</span>
+									</div>
+								{/if}
+								{#if (usageStatus.usage.pronunciationAnalysisUsed || 0) > 0}
+									<div class="flex items-center justify-between">
+										<span>Pronunciation:</span>
+										<span class="font-medium">{usageStatus.usage.pronunciationAnalysisUsed || 0}</span>
+									</div>
+								{/if}
+								{#if (usageStatus.usage.speechRhythmUsed || 0) > 0}
+									<div class="flex items-center justify-between">
+										<span>Speech Rhythm:</span>
+										<span class="font-medium">{usageStatus.usage.speechRhythmUsed || 0}</span>
+									</div>
+								{/if}
+							</div>
+						</div>
+
+						<!-- Other Features -->
+						{#if (usageStatus.usage.ankiExportsUsed || 0) > 0 || (usageStatus.usage.advancedVoiceSeconds || 0) > 0 || (usageStatus.usage.overageSeconds || 0) > 0}
+							<div class="border-t border-base-300 pt-3">
+								<h5 class="mb-2 text-sm font-semibold opacity-70">Additional Features</h5>
+								<div class="grid grid-cols-2 gap-3 text-sm md:grid-cols-3">
+									{#if (usageStatus.usage.ankiExportsUsed || 0) > 0}
+										<div class="flex items-center justify-between">
+											<span>Anki Exports:</span>
+											<span class="font-medium">{usageStatus.usage.ankiExportsUsed || 0}</span>
+										</div>
+									{/if}
+									{#if (usageStatus.usage.advancedVoiceSeconds || 0) > 0}
+										<div class="flex items-center justify-between">
+											<span>Advanced Voice:</span>
+											<span class="font-medium">{Math.floor((usageStatus.usage.advancedVoiceSeconds || 0) / 60)} min</span>
+										</div>
+									{/if}
+									{#if (usageStatus.usage.overageSeconds || 0) > 0}
+										<div class="flex items-center justify-between">
+											<span class="text-warning">Overage Seconds:</span>
+											<span class="font-medium text-warning">{Math.floor((usageStatus.usage.overageSeconds || 0) / 60)} min</span>
+										</div>
+									{/if}
+								</div>
+							</div>
+						{/if}
+
+						<!-- Activity Dates -->
+						{#if usageStatus.usage.lastConversationAt || usageStatus.usage.lastRealtimeAt}
+							<div class="border-t border-base-300 pt-3 text-xs opacity-60">
+								<div class="space-y-1">
+									{#if usageStatus.usage.lastConversationAt}
+										<div>
+											Last conversation: {new Date(usageStatus.usage.lastConversationAt).toLocaleDateString()}
+										</div>
+									{/if}
+									{#if usageStatus.usage.lastRealtimeAt}
+										<div>
+											Last realtime: {new Date(usageStatus.usage.lastRealtimeAt).toLocaleDateString()}
+										</div>
+									{/if}
+									{#if usageStatus.usage.firstActivityAt}
+										<div>
+											First activity: {new Date(usageStatus.usage.firstActivityAt).toLocaleDateString()}
+										</div>
+									{/if}
+								</div>
+							</div>
+						{/if}
+					</div>
 				</div>
 			{/if}
 		</div>

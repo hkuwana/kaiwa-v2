@@ -1,6 +1,6 @@
 import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 import { db } from '$lib/server/db/index';
-import { userUsage } from '$lib/server/db/schema';
+import { userUsage, subscriptions } from '$lib/server/db/schema';
 import type { NewUserUsage, UserUsage } from '$lib/server/db/types';
 
 function cleanUpdate<T extends Record<string, unknown>>(data: T, omit: (keyof T)[] = []) {
@@ -14,9 +14,28 @@ function cleanUpdate<T extends Record<string, unknown>>(data: T, omit: (keyof T)
 export class UserUsageRepository {
 	/**
 	 * Get current month usage for a user
+	 * @param userId The user ID
+	 * @param subscriptionStartDate Optional subscription start date to align period with billing cycle
 	 */
-	async getCurrentMonthUsage(userId: string): Promise<UserUsage | null> {
-		const currentPeriod = this.getCurrentPeriod();
+	async getCurrentMonthUsage(userId: string, subscriptionStartDate?: Date): Promise<UserUsage | null> {
+		let currentPeriod: string;
+
+		if (subscriptionStartDate) {
+			currentPeriod = this.getSubscriptionAlignedPeriod(subscriptionStartDate);
+		} else {
+			// Look up subscription if not provided
+			const sub = await db
+				.select()
+				.from(subscriptions)
+				.where(eq(subscriptions.userId, userId))
+				.limit(1);
+
+			if (sub[0]?.createdAt) {
+				currentPeriod = this.getSubscriptionAlignedPeriod(sub[0].createdAt);
+			} else {
+				currentPeriod = this.getCurrentPeriod();
+			}
+		}
 
 		const result = await db
 			.select()
@@ -56,12 +75,33 @@ export class UserUsageRepository {
 
 	/**
 	 * Create or update current month usage
+	 * @param userId The user ID
+	 * @param updates Partial usage updates
+	 * @param subscriptionStartDate Optional subscription start date to align period with billing cycle
 	 */
 	async upsertCurrentMonthUsage(
 		userId: string,
-		updates: Partial<NewUserUsage>
+		updates: Partial<NewUserUsage>,
+		subscriptionStartDate?: Date
 	): Promise<UserUsage> {
-		const currentPeriod = this.getCurrentPeriod();
+		let currentPeriod: string;
+
+		if (subscriptionStartDate) {
+			currentPeriod = this.getSubscriptionAlignedPeriod(subscriptionStartDate);
+		} else {
+			// Look up subscription if not provided
+			const sub = await db
+				.select()
+				.from(subscriptions)
+				.where(eq(subscriptions.userId, userId))
+				.limit(1);
+
+			if (sub[0]?.createdAt) {
+				currentPeriod = this.getSubscriptionAlignedPeriod(sub[0].createdAt);
+			} else {
+				currentPeriod = this.getCurrentPeriod();
+			}
+		}
 
 		const insertPayload = {
 			userId,
@@ -91,6 +131,9 @@ export class UserUsageRepository {
 
 	/**
 	 * Increment usage for current month
+	 * @param userId The user ID
+	 * @param updates Partial usage updates to increment
+	 * @param subscriptionStartDate Optional subscription start date to align period with billing cycle
 	 */
 	async incrementUsage(
 		userId: string,
@@ -118,13 +161,14 @@ export class UserUsageRepository {
 			lastConversationAt?: Date;
 			lastRealtimeAt?: Date;
 			firstActivityAt?: Date;
-		}
+		},
+		subscriptionStartDate?: Date
 	): Promise<UserUsage | null> {
-		const current = await this.getCurrentMonthUsage(userId);
+		const current = await this.getCurrentMonthUsage(userId, subscriptionStartDate);
 
 		if (!current) {
 			// Create new record if none exists
-			return await this.upsertCurrentMonthUsage(userId, updates);
+			return await this.upsertCurrentMonthUsage(userId, updates, subscriptionStartDate);
 		}
 
 		// Build the update object dynamically
@@ -225,20 +269,29 @@ export class UserUsageRepository {
 
 	/**
 	 * Update banking information
+	 * @param userId The user ID
+	 * @param bankedSeconds Amount of banked seconds
+	 * @param bankedSecondsUsed Amount of banked seconds used
+	 * @param subscriptionStartDate Optional subscription start date to align period with billing cycle
 	 */
 	async updateBanking(
 		userId: string,
 		bankedSeconds: number,
-		bankedSecondsUsed: number = 0
+		bankedSecondsUsed: number = 0,
+		subscriptionStartDate?: Date
 	): Promise<UserUsage | null> {
-		const current = await this.getCurrentMonthUsage(userId);
+		const current = await this.getCurrentMonthUsage(userId, subscriptionStartDate);
 
 		if (!current) {
 			// Create new record if none exists
-			return await this.upsertCurrentMonthUsage(userId, {
-				bankedSeconds,
-				bankedSecondsUsed
-			});
+			return await this.upsertCurrentMonthUsage(
+				userId,
+				{
+					bankedSeconds,
+					bankedSecondsUsed
+				},
+				subscriptionStartDate
+			);
 		}
 
 		// Update existing record
@@ -297,12 +350,31 @@ export class UserUsageRepository {
 
 	/**
 	 * Reset monthly usage (for new month)
+	 * @param userId The user ID
+	 * @param subscriptionStartDate Optional subscription start date to align period with billing cycle
 	 */
-	async resetMonthlyUsage(userId: string): Promise<UserUsage | null> {
-		const currentPeriod = this.getCurrentPeriod();
+	async resetMonthlyUsage(userId: string, subscriptionStartDate?: Date): Promise<UserUsage | null> {
+		let currentPeriod: string;
+
+		if (subscriptionStartDate) {
+			currentPeriod = this.getSubscriptionAlignedPeriod(subscriptionStartDate);
+		} else {
+			// Look up subscription if not provided
+			const sub = await db
+				.select()
+				.from(subscriptions)
+				.where(eq(subscriptions.userId, userId))
+				.limit(1);
+
+			if (sub[0]?.createdAt) {
+				currentPeriod = this.getSubscriptionAlignedPeriod(sub[0].createdAt);
+			} else {
+				currentPeriod = this.getCurrentPeriod();
+			}
+		}
 
 		// Check if record already exists for current month
-		const existing = await this.getCurrentMonthUsage(userId);
+		const existing = await this.getCurrentMonthUsage(userId, subscriptionStartDate);
 		if (existing) {
 			return existing; // Already reset
 		}
@@ -353,9 +425,80 @@ export class UserUsageRepository {
 	// Daily usage removed for MVP: rely on monthly usage and tier limits
 
 	// Helper methods for period management
-	private getCurrentPeriod(): string {
+
+	/**
+	 * Get current period in YYYY-MM format (falls back to calendar month if subscription date not provided)
+	 * Period format: YYYY-MM where the month resets on the user's subscription anniversary day (if provided)
+	 * @param subscriptionStartDate Optional - the date the user's subscription was created
+	 * @returns The current period in YYYY-MM format
+	 */
+	getCurrentPeriod(subscriptionStartDate?: Date): string {
+		if (subscriptionStartDate) {
+			return this.getSubscriptionAlignedPeriod(subscriptionStartDate);
+		}
+
+		// Fallback to calendar month
 		const now = new Date();
 		return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+	}
+
+	/**
+	 * Calculate the subscription-aligned period for a user
+	 * Period format: YYYY-MM where the month resets on the user's subscription anniversary day
+	 * @param subscriptionStartDate The date the user's subscription was created
+	 * @returns The current period in YYYY-MM format based on subscription anniversary
+	 */
+	private getSubscriptionAlignedPeriod(subscriptionStartDate: Date): string {
+		const now = new Date();
+		const startDate = new Date(subscriptionStartDate);
+
+		// Calculate the anniversary date in the current year
+		let anniversaryThisYear = new Date(now.getFullYear(), startDate.getMonth(), startDate.getDate());
+
+		// If the anniversary hasn't happened yet this year, we're still in the previous period
+		if (now < anniversaryThisYear) {
+			anniversaryThisYear = new Date(now.getFullYear() - 1, startDate.getMonth(), startDate.getDate());
+		}
+
+		// Return the period based on the anniversary year and month
+		const year = anniversaryThisYear.getFullYear();
+		const month = String(anniversaryThisYear.getMonth() + 1).padStart(2, '0');
+		return `${year}-${month}`;
+	}
+
+	/**
+	 * Get the next reset date (anniversary date if subscription exists, otherwise first day of next month)
+	 * @param subscriptionStartDate Optional - the date the user's subscription was created
+	 * @returns The next period reset date
+	 */
+	getNextResetDate(subscriptionStartDate?: Date): Date {
+		if (subscriptionStartDate) {
+			return this.getNextResetDateForSubscription(subscriptionStartDate);
+		}
+
+		// Fallback to first day of next month
+		const now = new Date();
+		return new Date(now.getFullYear(), now.getMonth() + 1, 1);
+	}
+
+	/**
+	 * Get the next reset date based on subscription anniversary
+	 * @param subscriptionStartDate The date the user's subscription was created
+	 * @returns The next period reset date
+	 */
+	private getNextResetDateForSubscription(subscriptionStartDate: Date): Date {
+		const now = new Date();
+		const startDate = new Date(subscriptionStartDate);
+
+		// Calculate the next anniversary date
+		let nextAnniversary = new Date(now.getFullYear(), startDate.getMonth(), startDate.getDate());
+
+		// If the anniversary has already passed this year, set it for next year
+		if (now >= nextAnniversary) {
+			nextAnniversary = new Date(now.getFullYear() + 1, startDate.getMonth(), startDate.getDate());
+		}
+
+		return nextAnniversary;
 	}
 
 	private getLastPeriod(): string {

@@ -183,11 +183,14 @@ class UsageStore {
 		this.error = null;
 
 		try {
-			const response = await fetch(`/api/users/${this.userId}/usage`);
+			const response = await fetch(`/api/users/${this.userId}/usage?action=status`);
 			if (!response.ok) throw new Error('Failed to load usage');
 
 			const data = await response.json();
-			const usage = data as UserUsage & { sessionsToday?: number };
+			// The endpoint returns { tier, usage, canStartConversation, canUseRealtime, resetDate }
+			// We extract tier and usage to populate the store
+			this.tier = data.tier;
+			const usage = data.usage as UserUsage & { sessionsToday?: number };
 			this.usage = usage;
 			this.sessionsToday = usage.sessionsToday ?? 0;
 		} catch (err) {

@@ -15,23 +15,6 @@ export interface UsageStatus {
 	resetDate: Date;
 }
 
-/**
- * Get current period in YYYY-MM format
- */
-function getCurrentPeriod(): string {
-	const now = new Date();
-	const year = now.getFullYear();
-	const month = String(now.getMonth() + 1).padStart(2, '0');
-	return `${year}-${month}`;
-}
-
-/**
- * Get next reset date (first day of next month)
- */
-function getNextResetDate(): Date {
-	const now = new Date();
-	return new Date(now.getFullYear(), now.getMonth() + 1, 1);
-}
 
 /**
  * Get user's current tier from their active subscription
@@ -46,7 +29,12 @@ export async function getUserTier(userId: string): Promise<UserTier> {
 export async function getUsageStatus(userId: string): Promise<UsageStatus> {
 	const tierId = await getUserTier(userId);
 	const tierConfig = getServerTierConfig(tierId);
-	const currentPeriod = getCurrentPeriod();
+
+	// Get subscription to align period with billing cycle
+	const subscription = await subscriptionRepository.findSubscriptionByUserId(userId);
+	const subscriptionStartDate = subscription?.createdAt || undefined;
+
+	const currentPeriod = userUsageRepository.getCurrentPeriod(subscriptionStartDate);
 
 	// Get current month's usage
 	const usage = await userUsageRepository.getCurrentMonthUsage(userId);
@@ -63,6 +51,17 @@ export async function getUsageStatus(userId: string): Promise<UsageStatus> {
 		sessionExtensionsUsed: 0,
 		advancedVoiceSeconds: 0,
 		analysesUsed: 0,
+		basicAnalysesUsed: 0,
+		quickStatsUsed: 0,
+		grammarSuggestionsUsed: 0,
+		advancedGrammarUsed: 0,
+		fluencyAnalysisUsed: 0,
+		phraseSuggestionsUsed: 0,
+		onboardingProfileUsed: 0,
+		pronunciationAnalysisUsed: 0,
+		speechRhythmUsed: 0,
+		audioSuggestionUsed: 0,
+		dailyUsage: {},
 		completedSessions: 0,
 		longestSessionSeconds: 0,
 		averageSessionSeconds: 0,
@@ -70,6 +69,7 @@ export async function getUsageStatus(userId: string): Promise<UsageStatus> {
 		tierWhenUsed: 'free',
 		lastConversationAt: null,
 		lastRealtimeAt: null,
+		lastAnalysisAt: null,
 		firstActivityAt: null,
 		createdAt: new Date(),
 		updatedAt: new Date()
@@ -92,7 +92,7 @@ export async function getUsageStatus(userId: string): Promise<UsageStatus> {
 		usage: currentUsage,
 		canStartConversation,
 		canUseRealtime,
-		resetDate: getNextResetDate()
+		resetDate: userUsageRepository.getNextResetDate(subscriptionStartDate)
 	};
 }
 

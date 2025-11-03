@@ -47,7 +47,7 @@
 		if (userManager.isLoggedIn && user.id !== 'guest') {
 			const tierId = (userManager.effectiveTier || 'free') as UserTier;
 			const tierConfig = defaultTierConfigs[tierId] || defaultTierConfigs.free;
-			
+
 			usageStore.setUser(user.id, tierConfig);
 			await usageStore.loadUsage();
 		}
@@ -179,10 +179,6 @@
 					<div class="mb-4 text-xl opacity-90">
 						Welcome back, {user ? user.displayName : 'Dev'}!
 					</div>
-					<!-- Monthly Usage Display -->
-					<div class="mb-6">
-						<MonthlyUsageDisplay />
-					</div>
 				{:else}
 					<h4 class="mb-2 text-2xl font-semibold opacity-90 sm:mb-4 sm:text-3xl">
 						{#if useDynamicLanguage}
@@ -211,7 +207,33 @@
 					onStartClick={trackStartSpeakingClick}
 					onModeChange={(mode) => (selectedAudioMode = mode)}
 				/>
-
+				<!-- Monthly Usage Display -->
+				<div class="mb-6">
+					{#if usageStore.tier && usageStore.usage}
+						<MonthlyUsageDisplay
+							remainingSeconds={usageStore.secondsRemaining()}
+							monthlySeconds={usageStore.tier.monthlySeconds}
+							usedSeconds={usageStore.usage.secondsUsed || 0}
+							bankedSeconds={usageStore.usage.bankedSeconds || 0}
+							tierName={usageStore.tier.name}
+							showUpgradeOption={userManager.effectiveTier === 'free'}
+							isLoading={usageStore.loading}
+							conversationsUsed={usageStore.usage.conversationsUsed || 0}
+							realtimeSessionsUsed={usageStore.usage.realtimeSessionsUsed || 0}
+							analysesUsed={usageStore.usage.analysesUsed || 0}
+							overageSeconds={usageStore.usage.overageSeconds || 0}
+						/>
+					{:else}
+						<MonthlyUsageDisplay
+							remainingSeconds={0}
+							monthlySeconds={0}
+							usedSeconds={0}
+							tierName="Free"
+							showUpgradeOption={true}
+							isLoading={usageStore.loading}
+						/>
+					{/if}
+				</div>
 				<!-- Debug/Development Tools -->
 				{#if browser && user.id === 'dev'}
 					<div class="mt-8 rounded-lg bg-base-200 p-4">

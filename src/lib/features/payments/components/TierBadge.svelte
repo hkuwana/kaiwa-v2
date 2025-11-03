@@ -3,6 +3,9 @@
 	// Shows user's current tier and usage status
 
 	import type { UsageStatus } from '$lib/server/tier.service';
+	import {
+		calculateSecondsRemaining
+		} from '$lib/utils/usage-calculations';
 
 	const { tierStatus, showDetails = false } = $props<{
 		tierStatus?: UsageStatus | null;
@@ -56,11 +59,16 @@
 		return `${remaining} left`;
 	}
 
-	function formatRemainingSeconds(used: number, limit: number | null): string {
+	function formatRemainingSeconds(
+		used: number,
+		bankedUsed: number,
+		limit: number | null,
+		banked: number | null = 0
+	): string {
 		if (limit === null) {
 			return 'Unlimited';
 		}
-		const remaining = Math.max(limit - used, 0);
+		const remaining = calculateSecondsRemaining(limit, used, banked, bankedUsed);
 		return `${formatSecondsReadable(remaining)} left`;
 	}
 
@@ -144,21 +152,20 @@
 					<div class="flex flex-col items-end gap-1 text-right">
 						<div class="flex items-center gap-2">
 							<span class="font-medium">
-								{formatUsage(tierStatus.usage.secondsUsed || 0, tierStatus.tier.monthlySeconds)}
+								{formatSecondsReadable(tierStatus.usage.secondsUsed || 0)}/
+								{tierStatus.tier.monthlySeconds
+									? formatSecondsReadable(tierStatus.tier.monthlySeconds)
+									: 'Unlimited'}
 								used
 							</span>
 							{#if tierStatus.tier.monthlySeconds !== null}
+								{@const totalAvailable = (tierStatus.tier.monthlySeconds || 0) + (tierStatus.usage.bankedSeconds || 0)}
+								{@const totalUsed = (tierStatus.usage.secondsUsed || 0) + (tierStatus.usage.bankedSecondsUsed || 0)}
 								<progress
 									class="progress {getProgressBarColor(
-										getUsagePercentage(
-											tierStatus.usage.secondsUsed || 0,
-											tierStatus.tier.monthlySeconds
-										)
+										getUsagePercentage(totalUsed, totalAvailable)
 									)} h-2 w-16"
-									value={getUsagePercentage(
-										tierStatus.usage.secondsUsed || 0,
-										tierStatus.tier.monthlySeconds
-									)}
+									value={getUsagePercentage(totalUsed, totalAvailable)}
 									max="100"
 								></progress>
 							{/if}
@@ -166,9 +173,16 @@
 						<span class="text-xs opacity-60">
 							{formatRemainingSeconds(
 								tierStatus.usage.secondsUsed || 0,
-								tierStatus.tier.monthlySeconds
+								tierStatus.usage.bankedSecondsUsed || 0,
+								tierStatus.tier.monthlySeconds,
+								tierStatus.usage.bankedSeconds || 0
 							)}
 						</span>
+						{#if (tierStatus.usage.bankedSeconds || 0) > 0}
+							<span class="text-xs opacity-60">
+								({formatSecondsReadable(tierStatus.usage.bankedSeconds || 0)} banked)
+							</span>
+						{/if}
 					</div>
 				</div>
 

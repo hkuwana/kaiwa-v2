@@ -11,6 +11,7 @@
 	import { SvelteDate } from 'svelte/reactivity';
 	import { onMount } from 'svelte';
 	import PaymentManagement from '$lib/components/PaymentManagement.svelte';
+	import { usageStore } from '$lib/stores/usage.store.svelte';
 
 	const { data } = $props();
 
@@ -46,9 +47,22 @@
 	let isManagingBilling = $state(false);
 	let billingError = $state('');
 
-	// Usage status state
-	let usageStatus = $state<UsageStatus | null>(null);
-	let isLoadingUsage = $state(false);
+	// Derived usage status from store
+	const usageStatus = $derived.by(() => {
+		if (usageStore.tier && usageStore.usage) {
+			return {
+				tier: usageStore.tier,
+				usage: usageStore.usage,
+				canStartConversation: true,
+				canUseRealtime: true,
+				resetDate: new SvelteDate()
+			} as UsageStatus;
+		}
+		return null;
+	});
+
+	// Usage loading state derived from store
+	const isLoadingUsage = $derived(usageStore.loading);
 
 	// Data loading promises
 	let userPreferencesPromise = $state<Promise<UserPreferences | null>>();
@@ -269,55 +283,22 @@
 		}
 	};
 
-	// Load user's detailed usage status
+	// Load usage status using the shared store
 	const loadUsageStatus = async () => {
-		isLoadingUsage = true;
-		try {
-			const response = await fetch(`/api/users/${data.user.id}/usage?action=status`);
-			if (response.ok) {
-				const data = await response.json();
-				// Convert date strings back to Date objects
-				usageStatus = {
-					...data,
-					resetDate: new SvelteDate(data.resetDate),
-					tier: {
-						...data.tier,
-						createdAt: new SvelteDate(data.tier.createdAt),
-						updatedAt: new SvelteDate(data.tier.updatedAt)
-					},
-					usage: {
-						...data.usage,
-						createdAt: new SvelteDate(data.usage.createdAt),
-						updatedAt: new SvelteDate(data.usage.updatedAt),
-						lastConversationAt: data.usage.lastConversationAt
-							? new SvelteDate(data.usage.lastConversationAt)
-							: null,
-						lastRealtimeAt: data.usage.lastRealtimeAt
-							? new SvelteDate(data.usage.lastRealtimeAt)
-							: null,
-						firstActivityAt: data.usage.firstActivityAt
-							? new SvelteDate(data.usage.firstActivityAt)
-							: null
-					}
-				};
-			} else {
-				console.error('Failed to load usage status:', response.statusText);
-			}
-		} catch (error) {
-			console.error('Error loading usage status:', error);
-		} finally {
-			isLoadingUsage = false;
-		}
+		await usageStore.loadUsage();
 	};
 
 	// Load all data when component mounts
 	onMount(() => {
+		// Initialize user in store
+		usageStore.userId = data.user.id;
+
 		// Initialize data loading promises
 		userPreferencesPromise = loadUserPreferences();
 		subscriptionPromise = loadSubscription();
 		usageLimitsPromise = loadUsageLimits();
 
-		// Load usage status
+		// Load usage status through shared store
 		loadUsageStatus();
 
 		// Update reactive state when promises resolve

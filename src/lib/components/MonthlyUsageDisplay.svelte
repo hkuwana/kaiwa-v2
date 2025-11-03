@@ -1,52 +1,107 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { usageStore } from '$lib/stores/usage.store.svelte';
-	import { userManager } from '$lib/stores/user.store.svelte';
-	import { defaultTierConfigs } from '$lib/data/tiers';
-	import type { UserTier } from '$lib/data/tiers';
 	import { onMount } from 'svelte';
 
-	// Calculate display values
-	const remainingSeconds = $derived(usageStore.secondsRemaining());
+	// Props - all data passed in from parent
+	interface Props {
+		remainingSeconds: number;
+		monthlySeconds: number;
+		usedSeconds: number;
+		bankedSeconds?: number;
+		tierName: string;
+		showUpgradeOption: boolean;
+		isLoading?: boolean;
+		conversationsUsed?: number;
+		realtimeSessionsUsed?: number;
+		analysesUsed?: number;
+		overageSeconds?: number;
+	}
+
+	let {
+		remainingSeconds,
+		monthlySeconds,
+		usedSeconds,
+		bankedSeconds = 0,
+		tierName,
+		showUpgradeOption,
+		isLoading = false,
+		conversationsUsed = 0,
+		realtimeSessionsUsed = 0,
+		analysesUsed = 0,
+		overageSeconds = 0
+	}: Props = $props();
+
+	// Derived calculations (pure presentation logic)
 	const remainingMinutes = $derived(Math.floor(remainingSeconds / 60));
 	const remainingSecondsDisplay = $derived(remainingSeconds % 60);
-	const percentageUsed = $derived(usageStore.percentageUsed());
-	const currentTier = $derived(userManager.effectiveTier);
-	const tierConfig = $derived(
-		currentTier ? defaultTierConfigs[currentTier as UserTier] : defaultTierConfigs.free
+	const remainingHours = $derived(Math.floor(remainingMinutes / 60));
+	const remainingMinutesDisplay = $derived(remainingMinutes % 60);
+	
+	const monthlyMinutes = $derived(Math.floor(monthlySeconds / 60));
+	const usedMinutes = $derived(Math.floor(usedSeconds / 60));
+	const bankedMinutes = $derived(Math.floor(bankedSeconds / 60));
+	
+	const totalAvailableSeconds = $derived(monthlySeconds + bankedSeconds);
+	const percentageUsed = $derived(
+		totalAvailableSeconds > 0 ? ((usedSeconds / totalAvailableSeconds) * 100) : 0
 	);
-	const monthlyMinutes = $derived(Math.floor((tierConfig?.monthlySeconds || 0) / 60));
-	const usedMinutes = $derived(Math.floor((usageStore.usage?.secondsUsed || 0) / 60));
-	const bankedMinutes = $derived(Math.floor((usageStore.usage?.bankedSeconds || 0) / 60));
-
-	// Only show if we have usage data loaded
-	const hasUsageData = $derived(usageStore.usage !== null && usageStore.tier !== null);
-
-	// Determine display state
-	const isLowTime = $derived(remainingMinutes <= 5 && remainingMinutes > 0);
+	const percentageRemaining = $derived(Math.max(0, 100 - percentageUsed));
+	
+	// Display state
+	const isLowTime = $derived(percentageRemaining < 15 && remainingMinutes > 0);
+	const isCriticalTime = $derived(percentageRemaining < 5 && remainingMinutes > 0);
 	const isOutOfTime = $derived(remainingMinutes <= 0);
-	const showUpgrade = $derived(currentTier === 'free');
 
 	// Dropdown state
 	let isDropdownOpen = $state(false);
 	let showAdvanced = $state(false);
 
-	function formatTimeRemaining(): string {
+	// Format time in the most appropriate unit
+	function formatTimeDisplay(): { value: string; unit: string; subtext: string } {
 		if (isOutOfTime) {
-			return '0 minutes remaining';
+			return { value: '0', unit: 'min', subtext: 'out of time' };
 		}
-		if (remainingMinutes === 0 && remainingSecondsDisplay === 0) {
-			return '0 minutes remaining';
+		
+		// Show hours if >= 60 minutes
+		if (remainingMinutes >= 60) {
+			return {
+				value: remainingHours.toString(),
+				unit: remainingHours === 1 ? 'hour' : 'hours',
+				subtext: remainingMinutesDisplay > 0 ? `${remainingMinutesDisplay}m remaining` : 'remaining'
+			};
 		}
-		if (remainingMinutes === 0) {
-			return `${remainingSecondsDisplay} second${remainingSecondsDisplay !== 1 ? 's' : ''} remaining`;
+		
+		// Show minutes if >= 1 minute
+		if (remainingMinutes >= 1) {
+			return {
+				value: remainingMinutes.toString(),
+				unit: remainingMinutes === 1 ? 'min' : 'mins',
+				subtext: 'remaining'
+			};
 		}
-		if (remainingSecondsDisplay === 0) {
-			return `${remainingMinutes} minute${remainingMinutes !== 1 ? 's' : ''} remaining`;
-		}
-		return `${remainingMinutes} minute${remainingMinutes !== 1 ? 's' : ''} remaining`;
+		
+		// Show seconds if < 1 minute
+		return {
+			value: remainingSecondsDisplay.toString(),
+			unit: remainingSecondsDisplay === 1 ? 'sec' : 'secs',
+			subtext: 'remaining'
+		};
 	}
+
+	const timeDisplay = $derived(formatTimeDisplay());
+
+	// SVG circle calculations for progress ring
+	const circleRadius = 58;
+	const circleCircumference = 2 * Math.PI * circleRadius;
+	const strokeDashoffset = $derived(
+		circleCircumference - (percentageRemaining / 100) * circleCircumference
+	);
+
+	// Determine color based on state
+	const ringColor = $derived(
+		isOutOfTime ? '#ef4444' : isCriticalTime ? '#f97316' : isLowTime ? '#f59e0b' : '#3b82f6'
+	);
 
 	function handleUpgrade() {
 		isDropdownOpen = false;
@@ -83,145 +138,209 @@
 	});
 </script>
 
-{#if userManager.isLoggedIn && hasUsageData}
-	<div class="dropdown dropdown-end mb-6" bind:this={dropdownElement}>
+<div class="relative mb-6" bind:this={dropdownElement}>
+	{#if isLoading}
+		<!-- Loading state -->
+		<div class="relative mx-auto flex flex-col items-center">
+			<div class="relative h-36 w-36">
+				<!-- Outer ring skeleton -->
+				<div class="absolute inset-0 rounded-full border-8 border-base-200"></div>
+				
+				<!-- Spinning gradient indicator -->
+				<div class="absolute inset-0 flex items-center justify-center">
+					<span class="loading loading-spinner loading-lg text-primary"></span>
+				</div>
+			</div>
+			<div class="mt-2 flex flex-col items-center gap-1">
+				<div class="skeleton h-4 w-20"></div>
+				<div class="skeleton h-3 w-16"></div>
+			</div>
+		</div>
+	{:else}
+		<!-- Main circular display -->
 		<button
-			class="btn {isOutOfTime
-				? 'btn-error'
-				: isLowTime
-					? 'btn-warning'
-					: 'btn-outline'} w-full sm:w-auto"
 			onclick={toggleDropdown}
+			class="group relative mx-auto flex flex-col items-center transition-transform hover:scale-[1.02] active:scale-[0.98]"
 			aria-expanded={isDropdownOpen}
 			aria-haspopup="true"
+			aria-label="View usage details"
 		>
-			<span class="icon-[mdi--clock-outline] h-5 w-5"></span>
-			{formatTimeRemaining()}
-			<span class="icon-[mdi--chevron-down] h-4 w-4 transition-transform {isDropdownOpen
-				? 'rotate-180'
-				: ''}"></span>
+			<!-- Circular progress ring -->
+			<div class="relative h-36 w-36">
+				<!-- Background circle -->
+				<svg class="absolute inset-0 h-full w-full -rotate-90 transform">
+					<circle
+						cx="72"
+						cy="72"
+						r={circleRadius}
+						stroke="currentColor"
+						stroke-width="8"
+						fill="none"
+						class="text-base-200"
+					/>
+					<!-- Progress circle -->
+					<circle
+						cx="72"
+						cy="72"
+						r={circleRadius}
+						stroke={ringColor}
+						stroke-width="8"
+						fill="none"
+						stroke-linecap="round"
+						stroke-dasharray={circleCircumference}
+						stroke-dashoffset={strokeDashoffset}
+						class="transition-all duration-700 ease-in-out"
+						style="filter: drop-shadow(0 0 6px {ringColor}40)"
+					/>
+				</svg>
+
+				<!-- Center content -->
+				<div class="absolute inset-0 flex flex-col items-center justify-center">
+					<div class="text-5xl font-extralight tracking-tight" style="color: {ringColor}">
+						{timeDisplay.value}
+					</div>
+					<div class="text-sm font-medium tracking-wide opacity-60">
+						{timeDisplay.unit}
+					</div>
+				</div>
+			</div>
+
+			<!-- Subtext -->
+			<div class="mt-2 text-sm font-medium opacity-50 transition-opacity group-hover:opacity-70">
+				{timeDisplay.subtext}
+			</div>
+
+			<!-- Subtle indicator -->
+			<div class="mt-1 flex items-center gap-1 text-xs opacity-40">
+				<span>details</span>
+				<span class="icon-[mdi--chevron-down] h-3 w-3 transition-transform {isDropdownOpen ? 'rotate-180' : ''}"></span>
+			</div>
 		</button>
 
+		<!-- Dropdown details panel -->
 		{#if isDropdownOpen}
-			<ul
-				class="dropdown-content menu z-[1] mt-2 w-80 rounded-box bg-base-100 p-2 shadow-lg"
+			<div
+				class="absolute left-1/2 z-[100] mt-2 w-80 -translate-x-1/2 rounded-2xl bg-base-100 shadow-2xl ring-1 ring-base-300"
 				role="menu"
 			>
-				<!-- Summary Section -->
-				<li class="menu-title">
-					<span>Monthly Practice Time</span>
-				</li>
-				<li>
-					<div class="p-3">
-						{#if isOutOfTime}
-							<div class="text-base font-bold text-error">
-								You've used all {monthlyMinutes} minutes this month
-							</div>
-							<div class="mt-1 text-xs text-base-content/60">
-								Time resets at the start of next month
-							</div>
-						{:else}
-							<div class="text-base font-bold text-base-content">
-								{remainingMinutes} minute{remainingMinutes !== 1 ? 's' : ''} {remainingSecondsDisplay > 0
-									? `and ${remainingSecondsDisplay} second${remainingSecondsDisplay !== 1 ? 's' : ''}`
-									: ''} remaining
-							</div>
-							<div class="mt-1 text-xs text-base-content/60">
-								{percentageUsed.toFixed(0)}% of {monthlyMinutes} minutes used this month
-							</div>
-						{/if}
-						<!-- Progress bar -->
-						<div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-base-200">
-							<div
-								class="h-full transition-all duration-300 {isOutOfTime
-									? 'bg-error'
-									: isLowTime
-										? 'bg-warning'
-										: 'bg-primary'}"
-								style="width: {Math.min(100, percentageUsed)}%"
-							></div>
+				<div class="p-6">
+					<!-- Summary -->
+					<div class="mb-4">
+						<div class="text-xs font-semibold uppercase tracking-wider opacity-50">
+							Monthly Practice
+						</div>
+						<div class="mt-2 text-base-content/80">
+							{#if isOutOfTime}
+								<div class="text-sm leading-relaxed">
+									You've used all <span class="font-semibold">{monthlyMinutes} minutes</span> this month.
+									Time resets at the start of next month.
+								</div>
+							{:else}
+								<div class="text-sm leading-relaxed">
+									<span class="font-semibold">{usedMinutes}</span> of <span class="font-semibold">{monthlyMinutes} minutes</span> used
+									{#if bankedMinutes > 0}
+										<span class="text-success"> (+{bankedMinutes} banked)</span>
+									{/if}
+								</div>
+							{/if}
 						</div>
 					</div>
-				</li>
 
-				<!-- Action buttons -->
-				<li>
-					<div class="flex gap-2 p-2">
-						{#if showUpgrade}
-							<button class="btn btn-sm btn-primary flex-1" onclick={handleUpgrade}>
-								<span class="icon-[mdi--arrow-up-circle] h-4 w-4"></span>
-								Upgrade
-							</button>
-						{/if}
-						<button class="btn btn-sm btn-outline flex-1" onclick={handleViewBilling}>
-							<span class="icon-[mdi--credit-card] h-4 w-4"></span>
+					<!-- Action buttons -->
+					<div class="flex gap-2">
+					{#if showUpgradeOption}
+						<button 
+							class="flex-1 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-content transition-all hover:brightness-110 active:scale-95" 
+							onclick={handleUpgrade}
+						>
+							Upgrade
+						</button>
+					{/if}
+						<button 
+							class="flex-1 rounded-xl border border-base-300 px-4 py-2.5 text-sm font-medium transition-all hover:bg-base-200 active:scale-95" 
+							onclick={handleViewBilling}
+						>
 							Manage
 						</button>
 					</div>
-				</li>
 
-				{#if isOutOfTime && showUpgrade}
-					<li>
-						<div class="rounded bg-base-200 p-2 text-xs text-base-content/70">
-							<span class="icon-[mdi--information] h-4 w-4 inline-block mr-1"></span>
-							Upgrade to Plus for 300 minutes/month or Premium for 600 minutes/month
+					{#if isOutOfTime && showUpgradeOption}
+						<div class="mt-4 rounded-lg bg-base-200/50 p-3 text-xs leading-relaxed text-base-content/70">
+							Upgrade for more time: <span class="font-medium">Plus 300 min/mo</span> or <span class="font-medium">Premium 600 min/mo</span>
 						</div>
-					</li>
-				{/if}
+					{/if}
 
-				<!-- Advanced Details Toggle -->
-				<li>
+					<!-- Advanced toggle -->
 					<button
-						class="flex w-full items-center justify-between"
+						class="mt-4 flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm font-medium transition-colors hover:bg-base-200"
 						onclick={toggleAdvanced}
 					>
-						<span>Advanced</span>
-						{#if showAdvanced}
-							<span class="icon-[mdi--chevron-up] h-4 w-4"></span>
-						{:else}
-							<span class="icon-[mdi--chevron-down] h-4 w-4"></span>
-						{/if}
+						<span class="opacity-60">Details</span>
+						<span class="icon-[mdi--chevron-{showAdvanced ? 'up' : 'down'}] h-4 w-4 opacity-40"></span>
 					</button>
-				</li>
 
-				{#if showAdvanced}
-					<li>
-						<div class="space-y-2 p-3 text-xs">
-							<div class="flex justify-between">
-								<span class="text-base-content/70">Plan:</span>
-								<span class="font-medium">{tierConfig?.name || 'Free'}</span>
-							</div>
-							<div class="flex justify-between">
-								<span class="text-base-content/70">Total monthly allowance:</span>
-								<span class="font-medium">{monthlyMinutes} minutes</span>
-							</div>
-							<div class="flex justify-between">
-								<span class="text-base-content/70">Used this month:</span>
-								<span class="font-medium">{usedMinutes} minutes</span>
-							</div>
-							{#if bankedMinutes > 0}
+					{#if showAdvanced}
+						<div class="mt-3 space-y-3 border-t border-base-300 pt-4 text-xs">
+							<!-- Plan info -->
+							<div class="space-y-1.5">
 								<div class="flex justify-between">
-									<span class="text-base-content/70">Banked time:</span>
-									<span class="font-medium text-success">{bankedMinutes} minutes</span>
+									<span class="opacity-60">Plan</span>
+									<span class="font-medium capitalize">{tierName}</span>
+								</div>
+								<div class="flex justify-between">
+									<span class="opacity-60">Monthly allowance</span>
+									<span class="font-medium">{monthlyMinutes} min</span>
+								</div>
+								<div class="flex justify-between">
+									<span class="opacity-60">Used this month</span>
+									<span class="font-medium">{usedMinutes} min</span>
+								</div>
+								{#if bankedMinutes > 0}
+									<div class="flex justify-between">
+										<span class="opacity-60">Banked time</span>
+										<span class="font-medium text-success">{bankedMinutes} min</span>
+									</div>
+								{/if}
+								<div class="flex justify-between">
+									<span class="opacity-60">Remaining</span>
+									<span class="font-medium" style="color: {ringColor}">{remainingMinutes} min</span>
+								</div>
+							</div>
+
+							<!-- Usage stats -->
+							{#if conversationsUsed > 0 || realtimeSessionsUsed > 0 || analysesUsed > 0}
+								<div class="space-y-1.5 border-t border-base-300 pt-3">
+									<div class="mb-2 text-xs font-medium uppercase tracking-wider opacity-50">Usage Stats</div>
+									{#if realtimeSessionsUsed > 0}
+										<div class="flex justify-between">
+											<span class="opacity-60">Sessions</span>
+											<span class="font-medium">{realtimeSessionsUsed}</span>
+										</div>
+									{/if}
+									{#if conversationsUsed > 0}
+										<div class="flex justify-between">
+											<span class="opacity-60">Conversations</span>
+											<span class="font-medium">{conversationsUsed}</span>
+										</div>
+									{/if}
+									{#if analysesUsed > 0}
+										<div class="flex justify-between">
+											<span class="opacity-60">Analyses</span>
+											<span class="font-medium">{analysesUsed}</span>
+										</div>
+									{/if}
+									{#if overageSeconds > 0}
+										<div class="flex justify-between">
+											<span class="opacity-60">Overage</span>
+											<span class="font-medium text-warning">{Math.floor(overageSeconds / 60)} min</span>
+										</div>
+									{/if}
 								</div>
 							{/if}
-							<div class="flex justify-between">
-								<span class="text-base-content/70">Remaining:</span>
-								<span class="font-medium {isOutOfTime ? 'text-error' : isLowTime ? 'text-warning' : 'text-success'}">
-									{remainingMinutes} minutes
-								</span>
-							</div>
-							<div class="mt-2 border-t border-base-300 pt-2">
-								<div class="flex justify-between">
-									<span class="text-base-content/70">Usage percentage:</span>
-									<span class="font-medium">{percentageUsed.toFixed(1)}%</span>
-								</div>
-							</div>
 						</div>
-					</li>
-				{/if}
-			</ul>
+					{/if}
+				</div>
+			</div>
 		{/if}
-	</div>
-{/if}
-
+	{/if}
+</div>
