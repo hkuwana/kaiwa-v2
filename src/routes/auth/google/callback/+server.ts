@@ -1,6 +1,8 @@
 import { google, isGoogleOAuthEnabled } from '$lib/services/auth-oauth.service';
 import { createSession, setSessionTokenCookie, findOrCreateUser } from '$lib/server/auth';
 import { OAuth2RequestError, decodeIdToken } from 'arctic';
+import { FounderEmailService } from '$lib/server/email/founder-email.service';
+import { userSettingsRepository } from '$lib/server/repositories';
 
 interface IdTokenClaims {
 	sub: string;
@@ -59,6 +61,23 @@ export async function GET(event): Promise<Response> {
 		});
 
 		console.log(isNew ? 'New user created' : 'Existing user found', { userId: user.id });
+
+		// Send founder welcome email to new users immediately
+		if (isNew) {
+			try {
+				const emailSent = await FounderEmailService.sendDay1Welcome(user.id);
+				if (emailSent) {
+					// Mark that founder email was sent on signup
+					await userSettingsRepository.updateSettings(user.id, {
+						receivedFounderEmail: true
+					});
+					console.log('✉️ Founder welcome email sent on signup', { userId: user.id });
+				}
+			} catch (emailError) {
+				console.error('⚠️ Failed to send founder welcome email on signup:', emailError);
+				// Don't fail the signup if email fails
+			}
+		}
 
 		const { session, token } = await createSession(user.id);
 		setSessionTokenCookie(event, token, session.expiresAt);

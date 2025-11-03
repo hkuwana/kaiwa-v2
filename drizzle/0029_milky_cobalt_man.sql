@@ -1,0 +1,1 @@
+ALTER TABLE "user_settings" ADD COLUMN "received_founder_email" boolean DEFAULT false NOT NULL;

@@ -1,5 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { EmailVerificationService } from '$lib/server/services/email-verification.service';
+import { FounderEmailService } from '$lib/server/email/founder-email.service';
+import { userSettingsRepository } from '$lib/server/repositories';
 
 export const POST = async ({ request, locals }) => {
 	if (!locals.user) {
@@ -17,6 +19,21 @@ export const POST = async ({ request, locals }) => {
 
 		if (!result.success) {
 			return json({ error: result.error }, { status: 400 });
+		}
+
+		// Send founder welcome email after email verification (fire and forget)
+		try {
+			const emailSent = await FounderEmailService.sendDay1Welcome(locals.user.id);
+			if (emailSent) {
+				// Mark that founder email was sent on signup
+				await userSettingsRepository.updateSettings(locals.user.id, {
+					receivedFounderEmail: true
+				});
+				console.log('✉️ Founder welcome email sent after email verification', { userId: locals.user.id });
+			}
+		} catch (emailError) {
+			console.error('⚠️ Failed to send founder welcome email:', emailError);
+			// Don't fail the verification if email fails
 		}
 
 		return json({ success: true, message: 'Email verified successfully' });

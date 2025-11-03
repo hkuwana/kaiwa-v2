@@ -82,6 +82,9 @@ export const userSettings = pgTable('user_settings', {
 
 	receiveFounderEmails: pgBoolean('receive_founder_emails').default(true).notNull(),
 
+	// Track if founder email was sent on signup (sent once, immediately)
+	receivedFounderEmail: pgBoolean('received_founder_email').default(false).notNull(),
+
 	// Product communication
 	receiveProductUpdates: pgBoolean('receive_product_updates').default(true).notNull(),
 
