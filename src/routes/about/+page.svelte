@@ -7,15 +7,8 @@
 	import type { Language as DataLanguage } from '$lib/data/languages';
 	import type { Scenario } from '$lib/server/db/types';
 	import { track } from '$lib/analytics/posthog';
-	import ShareKaiwa from '$lib/components/ShareKaiwa.svelte';
-	import { fly } from 'svelte/transition';
-
-	let scrollY = $state(0);
-
-	// Page title
-	onMount(() => {
-		document.title = 'About - Kaiwa';
-	});
+	import InteractiveScenarioPreview from '$lib/features/scenarios/components/InteractiveScenarioPreview.svelte';
+	import { fade } from 'svelte/transition';
 
 	// Current user
 	const user = userManager.user;
@@ -47,185 +40,180 @@
 		});
 	}
 
-	// Helper function to determine if element should show based on scroll
-	function getItemYOffset(threshold: number) {
-		const difference = scrollY - threshold;
-		if (difference < 0) return 20;
-		return Math.max(0, 20 - difference * 0.05);
-	}
+	onMount(() => {
+		document.title = 'About - Kaiwa';
+	});
 </script>
 
 <svelte:head>
-	<title>About Kaiwa — Build Speaking Confidence in 5 Minutes a Day</title>
+	<title>About Kaiwa</title>
 	<meta
 		name="description"
-		content="Master real conversations with your AI language partner in just 5 minutes a day. Practice authentic scenarios for high-stakes moments that matter: meeting your partner's family, important conversations in their language. Get ready, not just prepared."
+		content="Practice real conversations. Build genuine confidence. Connect with the people who matter."
 	/>
-	<meta
-		name="keywords"
-		content="5 minute daily practice, speaking confidence, conversation practice, family connections, bilingual relationships, scenario-based learning, real conversation practice"
-	/>
-	<meta property="og:title" content="About Kaiwa — Build Speaking Confidence in 5 Minutes a Day" />
-	<meta
-		property="og:description"
-		content="Practice real conversations in 5 minutes a day that connect you with the people you love. Scenario-based learning for the moments that matter."
-	/>
-	<meta property="og:type" content="website" />
 </svelte:head>
 
-<svelte:window bind:scrollY />
+<div class="bg-base-100">
+	<!-- Hero -->
+	<section class="mx-auto max-w-5xl px-6 pt-32 pb-32 text-center md:pt-40 md:pb-48">
+		<h1
+			class="mb-8 text-5xl leading-tight font-light tracking-tight md:text-7xl"
+			in:fade={{ duration: 800 }}
+		>
+			Real conversations.<br />Real confidence.
+		</h1>
+		<p
+			class="mx-auto max-w-2xl text-xl leading-relaxed font-light tracking-wide opacity-70 md:text-2xl"
+			in:fade={{ duration: 800, delay: 200 }}
+		>
+			Practice the moments that matter with someone who listens without judgment.
+		</p>
+	</section>
 
-<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">
-	<div class="container mx-auto px-4 py-16">
-		<!-- Hero Section -->
-		<div class="mb-16 text-center" in:fly={{ y: -20, duration: 500, delay: 200 }}>
-			<h1 class="mb-4 text-5xl font-bold md:text-7xl">Have the conversations you're afraid of.</h1>
-			<p class="mx-auto max-w-4xl text-xl leading-relaxed md:text-2xl">
-				Practice the conversations that connect you with the people you love. No grammar drills, no
-				test prep. Just real moments that matter — in their language.
-			</p>
+	<!-- The Why -->
+	<section class="bg-base-200/30 py-24 md:py-32">
+		<div class="mx-auto max-w-4xl px-6">
+			<div class="space-y-20">
+				<!-- Problem -->
+				<div class="text-center">
+					<h2 class="mb-6 text-3xl font-light tracking-tight md:text-4xl">
+						Most apps teach vocabulary.
+					</h2>
+					<p class="mx-auto max-w-2xl text-lg leading-relaxed font-light opacity-70 md:text-xl">
+						But knowing words doesn't prepare you for the conversation with your partner's parents.
+						For the apology you need to make. For the moment that matters.
+					</p>
+				</div>
+
+				<!-- Solution -->
+				<div class="text-center">
+					<h2 class="mb-6 text-3xl font-light tracking-tight md:text-4xl">
+						Kaiwa teaches conversations.
+					</h2>
+					<p class="mx-auto max-w-2xl text-lg leading-relaxed font-light opacity-70 md:text-xl">
+						Practice real scenarios. Get immediate feedback. Build the confidence to show up as
+						yourself, in their language.
+					</p>
+				</div>
+			</div>
 		</div>
+	</section>
 
-		<!-- The Story -->
-		<div class="mx-auto mb-16 max-w-4xl">
-			<ul class="steps steps-vertical">
-				<li class="step step-primary">
-					<div
-						class="ml-4 rounded-lg bg-primary/10 p-4 text-left"
-						in:fly={{ y: 20, duration: 500, delay: 400 }}
-					>
-						<h3 class="text-lg font-bold text-primary">The Dream</h3>
-						<p>
-							To communicate with the people you love — their parents, grandparents, and friends —
-							in their language.
-						</p>
-					</div>
-				</li>
-				<li class="step step-secondary">
-					<div
-						class="ml-4 rounded-lg bg-secondary/10 p-4 text-left"
-						in:fly={{ y: 20, duration: 500, delay: 600 }}
-					>
-						<h3 class="text-lg font-bold text-secondary">The Wall</h3>
-						<p>
-							Generic apps drill vocab, not moments. They don’t prepare you for dinner with your
-							partner’s parents, real apologies, or sharing big news.
-						</p>
-					</div>
-				</li>
-
-				<li class="step step-accent">
-					<div
-						class="ml-4 rounded-lg bg-accent/10 p-4 text-left"
-						in:fly={{ y: 20, duration: 500, delay: 1000 }}
-					>
-						<h3 class="text-lg font-bold text-accent">The Solution: Kaiwa</h3>
-						<p>
-							A practice space for high‑stakes relationship conversations. Rehearse, get feedback,
-							and walk into real life ready.
-						</p>
-					</div>
-				</li>
-			</ul>
+	<!-- Craft Your Adventure -->
+	<section class="py-24 md:py-32">
+		<div class="mx-auto max-w-6xl px-6">
+			<div class="mb-16 text-center">
+				<h2 class="mb-4 text-3xl font-light tracking-tight md:text-4xl">Craft your practice</h2>
+				<p class="mx-auto max-w-2xl text-lg leading-relaxed font-light opacity-70">
+					Every conversation is unique. Choose the place, the mood, the moment.
+				</p>
+			</div>
+			<InteractiveScenarioPreview {selectedLanguage} />
 		</div>
+	</section>
 
-		<!-- The Kaiwa Way Section -->
-		<div class="mb-16" in:fly={{ y: -20, duration: 500, delay: 200 }}>
-			<h2 class="mb-8 text-center text-3xl font-bold">What Actually Gets You Ready</h2>
-			<div class="flex justify-center">
-				<div class="grid w-full max-w-4xl gap-8 md:grid-cols-2">
-					<!-- Robotic Card -->
-					<div
-						class="card border border-error/30 bg-gradient-to-br from-error/20 to-error/10 shadow-lg"
-						style="transform: translateY({getItemYOffset(1000)}px);"
-					>
-						<div class="card-body">
-							<h3 class="card-title text-error" in:fly={{ y: 10, duration: 500, delay: 100 }}>
-								The Old Way
-							</h3>
-							<ul class="space-y-3">
-								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 200 }}>
-									<span class="mr-2 icon-[mdi--robot-outline] text-xl text-error"></span><span
-										>Teaches you isolated lessons</span
-									>
-								</li>
-								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 300 }}>
-									<span class="mr-2 icon-[mdi--book-outline] text-xl text-error"></span><span
-										>Lectures about grammar</span
-									>
-								</li>
-								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 400 }}>
-									<span class="mr-2 icon-[mdi--gamepad-variant-outline] text-xl text-error"
-									></span><span>Gamifies learning</span>
-								</li>
-								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 500 }}>
-									<span class="mr-2 icon-[mdi--format-list-bulleted] text-xl text-error"
-									></span><span>Expects you to memorize</span>
-								</li>
-							</ul>
-							<div
-								class="mt-3 border-t border-error/20 pt-3 font-bold text-error"
-								in:fly={{ y: 10, duration: 500, delay: 600 }}
-							>
-								Result: You’re still outside the family.
-							</div>
-						</div>
+	<!-- Principles -->
+	<section class="bg-base-200/30 py-24 md:py-32">
+		<div class="mx-auto max-w-5xl px-6">
+			<div class="mb-20 text-center">
+				<h2 class="text-3xl font-light tracking-tight md:text-4xl">Designed for connection</h2>
+			</div>
+
+			<div class="grid gap-16 md:grid-cols-2 md:gap-20">
+				<!-- Principle 1 -->
+				<div class="text-center md:text-left">
+					<div class="mb-4 text-6xl font-thin opacity-20">01</div>
+					<h3 class="mb-4 text-2xl font-light tracking-tight">Conversation-first</h3>
+					<p class="leading-relaxed font-light opacity-70">
+						No flashcards. No drills. Just natural dialogue that teaches you how language is
+						actually spoken.
+					</p>
+				</div>
+
+				<!-- Principle 2 -->
+				<div class="text-center md:text-left">
+					<div class="mb-4 text-6xl font-thin opacity-20">02</div>
+					<h3 class="mb-4 text-2xl font-light tracking-tight">Judgment-free</h3>
+					<p class="leading-relaxed font-light opacity-70">
+						Practice without fear. Your AI partner listens with patience, offering feedback that
+						builds confidence.
+					</p>
+				</div>
+
+				<!-- Principle 3 -->
+				<div class="text-center md:text-left">
+					<div class="mb-4 text-6xl font-thin opacity-20">03</div>
+					<h3 class="mb-4 text-2xl font-light tracking-tight">Scenario-based</h3>
+					<p class="leading-relaxed font-light opacity-70">
+						From dinner conversations to deep apologies, practice moments that reflect your real
+						life.
+					</p>
+				</div>
+
+				<!-- Principle 4 -->
+				<div class="text-center md:text-left">
+					<div class="mb-4 text-6xl font-thin opacity-20">04</div>
+					<h3 class="mb-4 text-2xl font-light tracking-tight">Always available</h3>
+					<p class="leading-relaxed font-light opacity-70">
+						Practice anywhere, anytime. Five minutes on your commute. Twenty minutes before dinner.
+						When you're ready.
+					</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- The Difference -->
+	<section class="py-24 md:py-32">
+		<div class="mx-auto max-w-3xl px-6">
+			<div class="mb-16 text-center">
+				<h2 class="mb-4 text-3xl font-light tracking-tight md:text-4xl">A different approach</h2>
+			</div>
+
+			<div class="space-y-8">
+				<!-- Row 1 -->
+				<div class="grid gap-8 md:grid-cols-2">
+					<div class="rounded-2xl bg-base-200/50 p-8 text-center">
+						<h3 class="mb-2 font-light opacity-50">Traditional apps</h3>
+						<p class="text-lg font-light">Teach you lessons</p>
 					</div>
+					<div class="rounded-2xl bg-base-content/5 p-8 text-center">
+						<h3 class="mb-2 font-light opacity-50">Kaiwa</h3>
+						<p class="text-lg font-light">Rehearses real moments</p>
+					</div>
+				</div>
 
-					<!-- Kaiwa Card -->
-					<div
-						class="card border border-accent/20 bg-gradient-to-br from-accent to-accent/70 text-accent-content shadow-2xl"
-						style="transform: translateY({getItemYOffset(1000)}px);"
-					>
-						<div class="card-body">
-							<h3 class="card-title" in:fly={{ y: 10, duration: 500, delay: 100 }}>
-								The Kaiwa Way
-							</h3>
-							<ul class="space-y-3">
-								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 200 }}>
-									<span class="mr-2 icon-[mdi--forum-outline] text-xl"></span><span
-										>Rehearses real moments (parents dinner, apology, sharing news)</span
-									>
-								</li>
-								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 300 }}>
-									<span class="mr-2 icon-[mdi--chat-outline] text-xl"></span><span
-										>Gives feedback you can use tonight</span
-									>
-								</li>
-								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 400 }}>
-									<span class="mr-2 icon-[mdi--human-greeting-variant] text-xl"></span><span
-										>Natural, human-like voices</span
-									>
-								</li>
-								<li class="flex items-center" in:fly={{ y: 10, duration: 500, delay: 500 }}>
-									<span class="mr-2 icon-[mdi--emoticon-happy-outline] text-xl"></span><span
-										>Helps your real personality come through</span
-									>
-								</li>
-							</ul>
-							<div
-								class="mt-3 border-t border-accent-content/20 pt-3 font-bold"
-								in:fly={{ y: 10, duration: 500, delay: 600 }}
-							>
-								Result: You’re understood by the people you love.
-							</div>
-						</div>
+				<!-- Row 2 -->
+				<div class="grid gap-8 md:grid-cols-2">
+					<div class="rounded-2xl bg-base-200/50 p-8 text-center">
+						<p class="text-lg font-light">Focus on memorization</p>
+					</div>
+					<div class="rounded-2xl bg-base-content/5 p-8 text-center">
+						<p class="text-lg font-light">Focus on understanding</p>
+					</div>
+				</div>
+
+				<!-- Row 3 -->
+				<div class="grid gap-8 md:grid-cols-2">
+					<div class="rounded-2xl bg-base-200/50 p-8 text-center">
+						<p class="text-lg font-light">Generic scenarios</p>
+					</div>
+					<div class="rounded-2xl bg-base-content/5 p-8 text-center">
+						<p class="text-lg font-light">Your life, your moments</p>
 					</div>
 				</div>
 			</div>
 		</div>
+	</section>
 
-		<!-- Call to Action -->
-		<div class="text-center" in:fly={{ y: 20, duration: 500, delay: 1400 }}>
-			<div
-				class="mx-auto max-w-2xl rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 to-accent/15 p-4 shadow-lg sm:p-8"
-			>
-				<h2 class="mb-4 text-2xl font-bold text-primary">Ready to Have That Conversation?</h2>
-				<p class="mb-6">
-					Start by telling us: What's the one conversation you're dreading? We'll help you practice
-					it until you're ready.
-				</p>
-				<div class="mb-4 text-sm text-secondary">3 minutes to get started</div>
+	<!-- CTA -->
+	<section class="bg-base-200/30 py-24 md:py-32">
+		<div class="mx-auto max-w-3xl px-6 text-center">
+			<h2 class="mb-6 text-3xl font-light tracking-tight md:text-4xl">Begin your practice</h2>
+			<p class="mb-12 text-lg leading-relaxed font-light opacity-70">
+				Three minutes to your first conversation.
+			</p>
+			<div class="mx-auto max-w-md">
 				<UnifiedStartButton
 					{user}
 					{selectedLanguage}
@@ -238,12 +226,37 @@
 				/>
 			</div>
 		</div>
+	</section>
 
-		<!-- Share Block -->
-		<div class="mt-8 text-center">
-			<div class="mx-auto max-w-2xl">
-				<ShareKaiwa source="about_page" />
+	<!-- Early Access -->
+	<section class="py-24 md:py-32">
+		<div class="mx-auto max-w-4xl px-6 text-center">
+			<h2 class="mb-12 text-2xl font-light tracking-tight md:text-3xl">
+				Built with early learners
+			</h2>
+			<div class="grid gap-12 md:grid-cols-2">
+				<div>
+					<div class="mb-6 text-5xl font-thin opacity-30">🎯</div>
+					<h3 class="mb-3 text-xl font-light">Your feedback shapes this</h3>
+					<p class="leading-relaxed font-light opacity-70">
+						We're building with the first 100 users. What matters to you matters to us.
+					</p>
+				</div>
+				<div>
+					<div class="mb-6 text-5xl font-thin opacity-30">💬</div>
+					<h3 class="mb-3 text-xl font-light">Focus on relationships</h3>
+					<p class="leading-relaxed font-light opacity-70">
+						Especially conversations with your partner's family. We understand that anxiety.
+					</p>
+				</div>
 			</div>
 		</div>
-	</div>
+	</section>
+
+	<!-- Footer -->
+	<section class="border-t border-base-content/10 py-16">
+		<div class="mx-auto max-w-4xl px-6 text-center">
+			<p class="font-light opacity-50">Questions? Email support@trykaiwa.com</p>
+		</div>
+	</section>
 </div>
