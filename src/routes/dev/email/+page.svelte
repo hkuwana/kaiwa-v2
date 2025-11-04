@@ -24,12 +24,27 @@
 			]
 		},
 		{
+			category: '📊 Weekly Reports',
+			emails: [
+				{
+					value: 'progress_report',
+					label: 'Weekly Progress Report',
+					description: 'Shows conversation count, minutes practiced, languages worked on'
+				}
+			]
+		},
+		{
 			category: '🗞️ Product Updates',
 			emails: [
 				{
 					value: 'weekly_update',
 					label: 'Weekly Update Digest',
 					description: 'Summary of new features, fixes, and shout-outs'
+				},
+				{
+					value: 'product_update',
+					label: 'Product Feature Announcement',
+					description: 'Direct announcement of new features (AI Lesson Plans example)'
 				}
 			]
 		},
@@ -301,11 +316,24 @@
 			<!-- Cron Dry Run -->
 			<div class="card mb-6 bg-base-100 shadow-lg">
 				<div class="card-body">
-					<h2 class="card-title">Practice Reminder Cron</h2>
-					<p class="text-base-content/70">
-						Run a dry run of <code>/api/cron/send-reminders</code> to see which users would receive the
-						founder reminder email.
-					</p>
+					<h2 class="card-title">Cron Jobs</h2>
+					<div class="space-y-4">
+						<div>
+							<h3 class="font-semibold">Available Cron Endpoints:</h3>
+							<ul class="mt-2 list-inside list-disc space-y-1 text-sm text-base-content/70">
+								<li><code class="rounded bg-base-200 px-2 py-1">/api/cron/send-reminders</code> - Practice reminders (Mon/Thu 9 AM UTC)</li>
+								<li><code class="rounded bg-base-200 px-2 py-1">/api/cron/progress-reports</code> - Weekly reports (Saturdays 9 AM UTC)</li>
+								<li><code class="rounded bg-base-200 px-2 py-1">/api/cron/product-updates</code> - Product announcements (on-demand POST)</li>
+								<li><code class="rounded bg-base-200 px-2 py-1">/api/cron/founder-emails</code> - Day 1-3 founder sequence (daily)</li>
+							</ul>
+						</div>
+						<div class="divider my-0"></div>
+						<div>
+							<p class="text-base-content/70 mb-2">
+								Run a dry run of <code>/api/cron/send-reminders</code> to see which users would receive practice reminder emails.
+							</p>
+						</div>
+					</div>
 
 					<div class="mt-4 flex flex-wrap items-center gap-4">
 						<button class="btn btn-primary" onclick={runCronDryRun} disabled={isCronRunning}>
@@ -387,12 +415,15 @@
 					></path>
 				</svg>
 				<div class="text-sm">
-					<div class="font-bold">Test Email Features:</div>
+					<div class="font-bold">Email System Overview:</div>
 					<ul class="mt-2 list-inside list-disc space-y-1">
 						<li>All test emails are sent to <strong>weijo34@gmail.com</strong></li>
-						<li>Subject lines are prefixed with <strong>[TEST]</strong></li>
-						<li>Banner at the top indicates it's a test email</li>
+						<li><strong>Founder email (Day 1):</strong> Sent immediately on signup (Google or email/password)</li>
+						<li><strong>Progress reports:</strong> Weekly summary sent Saturdays (only if user practiced that week)</li>
+						<li><strong>Product updates:</strong> Feature announcements sent on-demand via POST to <code>/api/cron/product-updates</code></li>
+						<li>Subject lines are prefixed with <strong>[TEST]</strong> when using this interface</li>
 						<li>Uses your current user data for personalization</li>
+						<li>All emails respect user preferences (receiveFounderEmails, receiveProgressReports, receiveProductUpdates)</li>
 					</ul>
 				</div>
 			</div>

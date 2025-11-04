@@ -4,6 +4,8 @@ import { FounderEmailService } from '$lib/server/email/founder-email.service';
 import { WeeklyUpdatesEmailService } from '$lib/server/email/weekly-updates-email.service';
 import { ScenarioInspirationEmailService } from '$lib/server/email/scenario-inspiration-email.service';
 import { CommunityStoryEmailService } from '$lib/server/email/community-story-email.service';
+import { ProductUpdatesEmailService } from '$lib/server/email/product-updates-email.service';
+import { ProgressReportsEmailService } from '$lib/server/email/progress-reports-email.service';
 import { userRepository } from '$lib/server/repositories';
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
@@ -155,6 +157,36 @@ export const GET = async ({ url, locals }) => {
 				emailHtml = payload.html;
 				break;
 			}
+			case 'product_update': {
+				emailSubject = 'New Feature: AI-Powered Lesson Plans';
+				emailHtml = ProductUpdatesEmailService['buildProductUpdateEmail'](user, {
+					subject: 'New Feature: AI-Powered Lesson Plans',
+					title: 'We just launched AI Lesson Plans',
+					summary: 'Customize your learning path with AI-generated lesson plans tailored to your goals.',
+					details: `
+						<p>We've been listening to your feedback, and the most common request was: "I want a personalized learning path."</p>
+						<p>Today, we're excited to announce <strong>AI Lesson Plans</strong> – a feature that creates custom lesson plans based on your language level, learning goals, and available time.</p>
+						<ul>
+							<li><strong>Personalized:</strong> Each plan adapts to your pace and proficiency</li>
+							<li><strong>Goal-focused:</strong> Whether you're preparing for a trip or impressing your in-laws, we've got a plan for it</li>
+							<li><strong>Flexible:</strong> Adjust your plan anytime based on how you're progressing</li>
+						</ul>
+						<p>This is just the beginning. We're already working on more features based on your feedback.</p>
+					`,
+					ctaText: 'Try AI Lesson Plans',
+					ctaUrl: env.PUBLIC_APP_URL || 'https://trykaiwa.com'
+				});
+				break;
+			}
+			case 'progress_report': {
+				emailSubject = 'Your Kaiwa Weekly Report – 3 conversations this week!';
+				emailHtml = ProgressReportsEmailService['buildProgressReportEmail'](user, {
+					sessionCount: 3,
+					totalMinutes: 18,
+					languages: ['Spanish', 'French']
+				});
+				break;
+			}
 
 			default:
 				return new Response(`Unknown email type: ${emailType}`, { status: 400 });
@@ -300,6 +332,36 @@ export const POST = async ({ request, locals }) => {
 				}
 				emailSubject = payload.subject;
 				emailHtml = payload.html;
+				break;
+			}
+			case 'product_update': {
+				emailSubject = 'New Feature: AI-Powered Lesson Plans';
+				emailHtml = ProductUpdatesEmailService['buildProductUpdateEmail'](user, {
+					subject: 'New Feature: AI-Powered Lesson Plans',
+					title: 'We just launched AI Lesson Plans',
+					summary: 'Customize your learning path with AI-generated lesson plans tailored to your goals.',
+					details: `
+						<p>We've been listening to your feedback, and the most common request was: "I want a personalized learning path."</p>
+						<p>Today, we're excited to announce <strong>AI Lesson Plans</strong> – a feature that creates custom lesson plans based on your language level, learning goals, and available time.</p>
+						<ul>
+							<li><strong>Personalized:</strong> Each plan adapts to your pace and proficiency</li>
+							<li><strong>Goal-focused:</strong> Whether you're preparing for a trip or impressing your in-laws, we've got a plan for it</li>
+							<li><strong>Flexible:</strong> Adjust your plan anytime based on how you're progressing</li>
+						</ul>
+						<p>This is just the beginning. We're already working on more features based on your feedback.</p>
+					`,
+					ctaText: 'Try AI Lesson Plans',
+					ctaUrl: env.PUBLIC_APP_URL || 'https://trykaiwa.com'
+				});
+				break;
+			}
+			case 'progress_report': {
+				emailSubject = 'Your Kaiwa Weekly Report – 3 conversations this week!';
+				emailHtml = ProgressReportsEmailService['buildProgressReportEmail'](user, {
+					sessionCount: 3,
+					totalMinutes: 18,
+					languages: ['Spanish', 'French']
+				});
 				break;
 			}
 
