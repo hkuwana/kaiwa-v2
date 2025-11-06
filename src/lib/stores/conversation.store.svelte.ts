@@ -1127,7 +1127,7 @@ export class ConversationStore {
 						type: 'server_vad' as const,
 						threshold: 0.5, // Sensitivity (0.0 to 1.0)
 						prefixPaddingMs: 300, // Audio before speech starts (camelCase for SDK)
-						silenceDurationMs: 500 // Silence duration to detect end of speech (camelCase for SDK)
+						silenceDurationMs: 1200 // Silence duration to detect end of speech (increased from 500ms to 1200ms to prevent interruptions)
 					}
 				: null; // null for PTT mode - disables server-side turn detection
 

@@ -313,6 +313,18 @@
 		return 'Press and hold to talk';
 	});
 
+	// Mode badge text and styling
+	const modeBadgeText = $derived(() => {
+		if (isVADMode) return 'AUTO-DETECT';
+		return 'PUSH-TO-TALK';
+	});
+
+	const modeBadgeClass = $derived(() => {
+		const base = 'badge badge-sm font-semibold';
+		if (isVADMode) return `${base} badge-success`;
+		return `${base} badge-primary`;
+	});
+
 	// Timer calculations
 	const progressPercentage = $derived(() => {
 		if (!isTimerActive || !timeRemaining || !maxSessionLengthSeconds) {
@@ -336,8 +348,9 @@
 	});
 
 	const buttonClass = $derived(() => {
-		const base =
-			'relative flex h-24 w-24 items-center justify-center cursor-pointer select-none transition-all duration-300 active:cursor-grabbing';
+		// In VAD mode, reduce cursor interactivity since user doesn't need to press
+		const cursor = isVADMode ? 'cursor-default' : 'cursor-pointer active:cursor-grabbing';
+		const base = `relative flex h-24 w-24 items-center justify-center select-none transition-all duration-300 ${cursor}`;
 
 		if (isRecording) {
 			return `${base} scale-110`;
@@ -345,8 +358,12 @@
 			return `${base} opacity-75`;
 		} else if (isPressed) {
 			return `${base} scale-105`;
+		} else if (isVADMode) {
+			// VAD mode: subtle pulse to indicate always-listening
+			return `${base} animate-pulse-slow`;
 		}
 
+		// PTT mode: interactive hover states
 		return `${base} hover:scale-105 active:scale-95`;
 	});
 </script>
@@ -398,22 +415,23 @@
 
 	<!-- Audio Activity Pulse -->
 	<div
-		class="absolute inset-4 rounded-full bg-primary/10 transition-all duration-300"
-		style="opacity: {audioLevel *
-			0.8}; background: radial-gradient(circle, currentColor 0%, transparent 70%);"
+		class="absolute inset-4 rounded-full transition-all duration-300 {isVADMode ? 'bg-success/10' : 'bg-primary/10'}"
+		style="opacity: {audioLevel * 0.8};"
 		style:transform="translateY({verticalOffset}px) scale({1 + audioLevel * 0.2})"
 	></div>
 
 	<!-- Center Microphone Icon (Larger) -->
 	<div class="pointer-events-none relative z-10 flex items-center justify-center">
-		{#if isVADMode}
-			<span class="icon-[mdi--microphone] h-10 w-10 {timerColor()}"></span>
-		{:else if isRecording}
+		{#if isRecording}
 			<span class="icon-[mdi--microphone] h-10 w-10 text-error"></span>
 		{:else if isPressed}
 			<span class="icon-[mdi--microphone] h-10 w-10 text-warning"></span>
+		{:else if isVADMode}
+			<!-- VAD mode: Green/success color to indicate always-on listening -->
+			<span class="icon-[mdi--microphone] h-10 w-10 text-success"></span>
 		{:else}
-			<span class="icon-[mdi--microphone] h-10 w-10 {timerColor()}"></span>
+			<!-- PTT mode: Primary blue color when ready to press -->
+			<span class="icon-[mdi--microphone] h-10 w-10 text-primary"></span>
 		{/if}
 	</div>
 
@@ -440,16 +458,23 @@
 		></div>
 	{/if}
 
-	<!-- Status Text - Positioned above visualizer -->
-	<div class="absolute -top-12 text-xs whitespace-nowrap text-base-content/60">
+	<!-- Mode Badge - Positioned above visualizer -->
+	<div class="absolute -top-16 left-1/2 -translate-x-1/2 transform">
+		<div class={modeBadgeClass()}>
+			{modeBadgeText()}
+		</div>
+	</div>
+
+	<!-- Status Text - Positioned above mode badge -->
+	<div class="absolute -top-10 left-1/2 -translate-x-1/2 transform whitespace-nowrap text-center">
 		{#if isRecording}
-			<span class="text-error">Recording...</span>
+			<span class="text-sm font-semibold text-error">🔴 Recording...</span>
 		{:else if isListening}
-			<span class="text-info">Listening to AI...</span>
+			<span class="text-sm font-medium text-info">Listening to AI...</span>
 		{:else if isVADMode}
-			<span class="text-success">Voice detection active</span>
+			<span class="text-sm font-medium text-success">Just start talking</span>
 		{:else}
-			<span>Press and hold to talk</span>
+			<span class="text-sm font-medium text-base-content/80">Press & hold to talk</span>
 		{/if}
 	</div>
 </div>
@@ -459,5 +484,20 @@
 	* {
 		transform-style: preserve-3d;
 		backface-visibility: hidden;
+	}
+
+	/* Subtle pulse animation for VAD mode */
+	@keyframes pulse-slow {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.85;
+		}
+	}
+
+	.animate-pulse-slow {
+		animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 	}
 </style>
