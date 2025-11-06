@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { dev } from '$app/environment';
 
 	interface Props {
 		userId?: string | undefined;
@@ -10,10 +11,10 @@
 	let { userId = undefined, showTitle = true, compact = false }: Props = $props();
 
 	let preferences = $state({
-		receiveMarketingEmails: true,
-		receiveDailyReminderEmails: true,
+		receiveFounderEmails: true,
+		receivePracticeReminders: true,
 		receiveProductUpdates: true,
-		receiveWeeklyDigest: true,
+		receiveProgressReports: true,
 		receiveSecurityAlerts: true
 	});
 
@@ -24,14 +25,14 @@
 
 	const emailTypes = [
 		{
-			key: 'receiveMarketingEmails',
-			label: 'Marketing Emails',
-			description: 'Promotional content, special offers, and product announcements',
+			key: 'receiveFounderEmails',
+			label: 'Founder Emails',
+			description: 'Updates from Hiro on Kaiwa',
 			icon: 'icon-[mdi--bullhorn-outline]'
 		},
 		{
-			key: 'receiveDailyReminderEmails',
-			label: 'Daily Reminders',
+			key: 'receivePracticeReminders',
+			label: 'Practice Reminders',
 			description: 'Gentle reminders to practice your language learning',
 			icon: 'icon-[mdi--calendar-clock]'
 		},
@@ -42,8 +43,8 @@
 			icon: 'icon-[mdi--rocket-launch-outline]'
 		},
 		{
-			key: 'receiveWeeklyDigest',
-			label: 'Weekly Digest',
+			key: 'receiveProgressReports',
+			label: 'Progress Reports',
 			description: 'Weekly summary of your progress and learning insights',
 			icon: 'icon-[mdi--chart-bar]'
 		},
@@ -83,6 +84,7 @@
 		saveError = '';
 
 		try {
+			console.log('Saving preferences:', preferences);
 			const response = await fetch('/api/user/email-preferences', {
 				method: 'POST',
 				headers: {
@@ -92,24 +94,40 @@
 			});
 
 			if (response.ok) {
+				const data = await response.json();
+				console.log('Save successful, server returned:', data);
 				saveMessage = 'Email preferences saved successfully!';
+
 				setTimeout(() => {
 					saveMessage = '';
 				}, 3000);
+
+				// Verify preferences in background (don't block UI)
+				// This ensures we catch any server-side validation issues
+				loadPreferences().catch((err) => {
+					console.error('Failed to verify preferences:', err);
+					saveError = 'Saved but failed to verify. Please refresh if issues persist.';
+				});
 			} else {
 				const error = await response.json();
 				saveError = error.message || 'Failed to save preferences';
+				console.error('Save failed:', error);
+
+				// Revert local state to match server on error
+				await loadPreferences();
 			}
 		} catch (error) {
 			saveError = 'Failed to save preferences';
 			console.error('Error saving preferences:', error);
+
+			// Revert local state to match server on error
+			await loadPreferences();
 		} finally {
 			saving = false;
 		}
 	}
 
-	function togglePreference(key: keyof typeof preferences) {
-		preferences[key] = !preferences[key];
+	function handlePreferenceChange() {
 		savePreferences();
 	}
 </script>
@@ -125,6 +143,15 @@
 			<span class="ml-2">Loading preferences...</span>
 		</div>
 	{:else}
+		{#if dev}
+			<!-- Debug info showing current state (dev only) -->
+			<div class="mb-6 rounded-lg bg-blue-50 p-3 text-sm text-blue-700">
+				<p class="font-mono text-xs">
+					Current state: {JSON.stringify(preferences, null, 2)}
+				</p>
+			</div>
+		{/if}
+
 		<div class="space-y-4">
 			{#each emailTypes as emailType (emailType.key)}
 				<div
@@ -146,7 +173,7 @@
 								class="toggle toggle-primary"
 								bind:checked={preferences[emailType.key as keyof typeof preferences]}
 								aria-label={`Toggle ${emailType.label} email notifications`}
-								onchange={() => togglePreference(emailType.key as keyof typeof preferences)}
+								onchange={handlePreferenceChange}
 								disabled={saving}
 							/>
 						</div>

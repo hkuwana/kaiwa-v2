@@ -112,14 +112,19 @@ export class UserSettingsRepository {
 	async updateEmailPreferences(
 		userId: string,
 		emailPreferences: {
-			receiveMarketingEmails?: boolean;
-			receiveDailyReminderEmails?: boolean;
+			receivePracticeReminders?: boolean;
+			receiveFounderEmails?: boolean;
 			receiveProductUpdates?: boolean;
-			receiveWeeklyDigest?: boolean;
+			receiveProgressReports?: boolean;
 			receiveSecurityAlerts?: boolean;
 		}
 	): Promise<UserSettings | null> {
-		return await this.updateSettings(userId, emailPreferences);
+		// Use upsert to handle cases where user settings don't exist yet
+		const result = await this.upsertSettings({
+			userId,
+			...emailPreferences
+		});
+		return result;
 	}
 
 	/**
@@ -155,13 +160,13 @@ export class UserSettingsRepository {
 	}
 
 	/**
-	 * Get all users who have opted in to marketing emails
+	 * Get all users who have opted in to founder emails
 	 */
-	async getMarketingEmailSubscribers(): Promise<UserSettings[]> {
+	async getFounderEmailSubscribers(): Promise<UserSettings[]> {
 		return await db
 			.select()
 			.from(userSettings)
-			.where(eq(userSettings.receiveMarketingEmails, true));
+			.where(eq(userSettings.receiveFounderEmails, true));
 	}
 
 	/**
