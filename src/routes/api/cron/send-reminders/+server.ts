@@ -92,11 +92,31 @@ export const GET = async ({ request, url }) => {
 
 		// Send appropriate emails based on user segment
 		console.log('📧 Starting to process users for reminders...');
+		const today = new Date();
+		const dayOfWeek = today.toLocaleDateString('en-US', { weekday: 'lowercase' });
+
 		for (const segment of Object.keys(segmented)) {
 			const users = segmented[segment as keyof typeof segmented];
 			console.log(`Processing segment: ${segment} (${users.length} users)`);
 
 			for (const user of users) {
+				// Check user's frequency preference
+				const settings = await userSettingsRepository.getSettingsByUserId(user.id);
+				const frequency = settings?.practiceReminderFrequency || 'weekly';
+				const preferredDay = settings?.preferredReminderDay || 'friday';
+
+				// Skip if user has set frequency to 'never'
+				if (frequency === 'never') {
+					skipped++;
+					continue;
+				}
+
+				// For weekly reminders, only send on the preferred day
+				if (frequency === 'weekly' && dayOfWeek !== preferredDay) {
+					skipped++;
+					continue;
+				}
+
 				// Check if we should send reminder (rate limiting)
 				const shouldSend = await shouldSendReminder(user.id);
 
@@ -234,7 +254,9 @@ async function segmentUsers(users: any[]) {
 
 /**
  * Determine if we should send a reminder to this user
- * Rate limiting: max 1 reminder per 24 hours
+ * Rate limiting:
+ * - Daily frequency: max 1 reminder per 24 hours
+ * - Weekly frequency: max 1 reminder per 7 days
  */
 async function shouldSendReminder(userId: string): Promise<boolean> {
 	const settings = await userSettingsRepository.getSettingsByUserId(userId);
@@ -243,11 +265,22 @@ async function shouldSendReminder(userId: string): Promise<boolean> {
 		return true;
 	}
 
+	const frequency = settings.practiceReminderFrequency || 'weekly';
 	const hoursSinceLastReminder =
 		(Date.now() - settings.lastReminderSentAt.getTime()) / (1000 * 60 * 60);
 
-	// Don't send more than once per 24 hours
-	return hoursSinceLastReminder >= 24;
+	// Daily: Don't send more than once per 24 hours
+	if (frequency === 'daily') {
+		return hoursSinceLastReminder >= 24;
+	}
+
+	// Weekly: Don't send more than once per 7 days (168 hours)
+	if (frequency === 'weekly') {
+		return hoursSinceLastReminder >= 168;
+	}
+
+	// Never: Should never get here as we filter these out earlier
+	return false;
 }
 
 /**

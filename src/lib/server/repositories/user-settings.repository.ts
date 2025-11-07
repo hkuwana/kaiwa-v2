@@ -113,6 +113,15 @@ export class UserSettingsRepository {
 		userId: string,
 		emailPreferences: {
 			receivePracticeReminders?: boolean;
+			practiceReminderFrequency?: 'never' | 'daily' | 'weekly';
+			preferredReminderDay?:
+				| 'monday'
+				| 'tuesday'
+				| 'wednesday'
+				| 'thursday'
+				| 'friday'
+				| 'saturday'
+				| 'sunday';
 			receiveFounderEmails?: boolean;
 			receiveProductUpdates?: boolean;
 			receiveProgressReports?: boolean;

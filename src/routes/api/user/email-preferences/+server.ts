@@ -13,6 +13,8 @@ export const GET = async ({ locals }) => {
 			// Return default preferences if no settings exist
 			return json({
 				receivePracticeReminders: true,
+				practiceReminderFrequency: 'weekly',
+				preferredReminderDay: 'friday',
 				receiveFounderEmails: true,
 				receiveProductUpdates: true,
 				receiveProgressReports: true,
@@ -22,6 +24,8 @@ export const GET = async ({ locals }) => {
 
 		return json({
 			receivePracticeReminders: settings.receivePracticeReminders,
+			practiceReminderFrequency: settings.practiceReminderFrequency || 'weekly',
+			preferredReminderDay: settings.preferredReminderDay || 'friday',
 			receiveFounderEmails: settings.receiveFounderEmails,
 			receiveProductUpdates: settings.receiveProductUpdates,
 			receiveProgressReports: settings.receiveProgressReports,
@@ -41,9 +45,23 @@ export const POST = async ({ request, locals }) => {
 	try {
 		const preferences = await request.json();
 
+		// Validate frequency enum
+		const validFrequencies = ['never', 'daily', 'weekly'];
+		const frequency = validFrequencies.includes(preferences.practiceReminderFrequency)
+			? preferences.practiceReminderFrequency
+			: 'weekly';
+
+		// Validate day enum
+		const validDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+		const day = validDays.includes(preferences.preferredReminderDay)
+			? preferences.preferredReminderDay
+			: 'friday';
+
 		// Validate the preferences object
 		const validPreferences = {
 			receivePracticeReminders: Boolean(preferences.receivePracticeReminders),
+			practiceReminderFrequency: frequency,
+			preferredReminderDay: day,
 			receiveFounderEmails: Boolean(preferences.receiveFounderEmails),
 			receiveProductUpdates: Boolean(preferences.receiveProductUpdates),
 			receiveProgressReports: Boolean(preferences.receiveProgressReports),
@@ -64,6 +82,8 @@ export const POST = async ({ request, locals }) => {
 			message: 'Email preferences updated successfully',
 			preferences: {
 				receivePracticeReminders: updatedSettings.receivePracticeReminders,
+				practiceReminderFrequency: updatedSettings.practiceReminderFrequency || 'weekly',
+				preferredReminderDay: updatedSettings.preferredReminderDay || 'friday',
 				receiveFounderEmails: updatedSettings.receiveFounderEmails,
 				receiveProductUpdates: updatedSettings.receiveProductUpdates,
 				receiveProgressReports: updatedSettings.receiveProgressReports,

@@ -1,0 +1,2 @@
+ALTER TABLE "user_settings" ADD COLUMN "practice_reminder_frequency" "practice_reminder_frequency" DEFAULT 'weekly' NOT NULL;--> statement-breakpoint
+ALTER TABLE "user_settings" ADD COLUMN "preferred_reminder_day" "day_of_week" DEFAULT 'friday' NOT NULL;

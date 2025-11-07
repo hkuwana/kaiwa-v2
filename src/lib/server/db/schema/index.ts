@@ -62,7 +62,9 @@ export {
 	audioModeEnum,
 	pressBehaviorEnum,
 	greetingModeEnum,
-	themeEnum
+	themeEnum,
+	practiceReminderFrequencyEnum,
+	dayOfWeekEnum
 } from './user-settings';
 
 // 💳 Subscription and billing (simplified)

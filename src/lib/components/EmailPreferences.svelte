@@ -13,6 +13,15 @@
 	let preferences = $state({
 		receiveFounderEmails: true,
 		receivePracticeReminders: true,
+		practiceReminderFrequency: 'weekly' as 'never' | 'daily' | 'weekly',
+		preferredReminderDay: 'friday' as
+			| 'monday'
+			| 'tuesday'
+			| 'wednesday'
+			| 'thursday'
+			| 'friday'
+			| 'saturday'
+			| 'sunday',
 		receiveProductUpdates: true,
 		receiveProgressReports: true,
 		receiveSecurityAlerts: true
@@ -29,12 +38,6 @@
 			label: 'Founder Emails',
 			description: 'Updates from Hiro on Kaiwa',
 			icon: 'icon-[mdi--bullhorn-outline]'
-		},
-		{
-			key: 'receivePracticeReminders',
-			label: 'Practice Reminders',
-			description: 'Gentle reminders to practice your language learning',
-			icon: 'icon-[mdi--calendar-clock]'
 		},
 		{
 			key: 'receiveProductUpdates',
@@ -54,6 +57,22 @@
 			description: 'Important security notifications and account updates',
 			icon: 'icon-[mdi--lock-outline]'
 		}
+	];
+
+	const frequencyOptions = [
+		{ value: 'never', label: 'Never' },
+		{ value: 'daily', label: 'Daily' },
+		{ value: 'weekly', label: 'Weekly' }
+	];
+
+	const dayOptions = [
+		{ value: 'monday', label: 'Monday' },
+		{ value: 'tuesday', label: 'Tuesday' },
+		{ value: 'wednesday', label: 'Wednesday' },
+		{ value: 'thursday', label: 'Thursday' },
+		{ value: 'friday', label: 'Friday' },
+		{ value: 'saturday', label: 'Saturday' },
+		{ value: 'sunday', label: 'Sunday' }
 	];
 
 	onMount(async () => {
@@ -153,6 +172,79 @@
 		{/if}
 
 		<div class="space-y-4">
+			<!-- Practice Reminders Section with Frequency Control -->
+			<div
+				class="rounded-lg border-2 border-primary/20 bg-base-100 p-4 transition-colors hover:bg-base-200"
+			>
+				<div class="mb-3 flex items-start space-x-3">
+					<div class="flex-shrink-0 text-2xl">
+						<span class="icon-[mdi--calendar-clock] h-6 w-6"></span>
+					</div>
+					<div class="flex-1">
+						<h4 class="text-sm font-medium">Practice Reminders</h4>
+						{#if !compact}
+							<p class="mt-1 text-sm text-base-content/70">
+								Choose when you'd like gentle reminders to practice your language learning
+							</p>
+						{/if}
+					</div>
+				</div>
+
+				<div class="ml-9 space-y-3">
+					<!-- Frequency Selector -->
+					<div>
+						<label for="reminder-frequency" class="mb-1 block text-xs font-medium text-base-content/70">
+							Frequency
+						</label>
+						<select
+							id="reminder-frequency"
+							class="select select-bordered w-full max-w-xs"
+							bind:value={preferences.practiceReminderFrequency}
+							onchange={handlePreferenceChange}
+							disabled={saving}
+						>
+							{#each frequencyOptions as option}
+								<option value={option.value}>{option.label}</option>
+							{/each}
+						</select>
+					</div>
+
+					<!-- Day Selector (only show if weekly is selected) -->
+					{#if preferences.practiceReminderFrequency === 'weekly'}
+						<div>
+							<label for="reminder-day" class="mb-1 block text-xs font-medium text-base-content/70">
+								Preferred Day
+							</label>
+							<select
+								id="reminder-day"
+								class="select select-bordered w-full max-w-xs"
+								bind:value={preferences.preferredReminderDay}
+								onchange={handlePreferenceChange}
+								disabled={saving}
+							>
+								{#each dayOptions as option}
+									<option value={option.value}>{option.label}</option>
+								{/each}
+							</select>
+						</div>
+					{/if}
+
+					<!-- Helpful hint based on selection -->
+					<div class="rounded-lg bg-base-200 p-3 text-xs text-base-content/70">
+						{#if preferences.practiceReminderFrequency === 'never'}
+							<span class="icon-[mdi--information] mr-1 inline-block h-4 w-4"></span>
+							You won't receive any practice reminders
+						{:else if preferences.practiceReminderFrequency === 'daily'}
+							<span class="icon-[mdi--fire] mr-1 inline-block h-4 w-4"></span>
+							You'll receive daily reminders with scenario recommendations
+						{:else if preferences.practiceReminderFrequency === 'weekly'}
+							<span class="icon-[mdi--calendar-check] mr-1 inline-block h-4 w-4"></span>
+							You'll receive a reminder every {preferences.preferredReminderDay} with personalized scenarios
+						{/if}
+					</div>
+				</div>
+			</div>
+
 			{#each emailTypes as emailType (emailType.key)}
 				<div
 					class="flex items-start space-x-3 rounded-lg border border-base-200 bg-base-100 p-4 transition-colors hover:bg-base-200"
