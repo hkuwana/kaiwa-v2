@@ -100,18 +100,19 @@ export const GET = async ({ request, url }) => {
 			console.log(`Processing segment: ${segment} (${users.length} users)`);
 
 			for (const user of users) {
-				// Check user's frequency preference
+				// TODO: After DB migration, uncomment this to use user preferences
+				// For now, use default: weekly on Friday
 				const settings = await userSettingsRepository.getSettingsByUserId(user.id);
-				const frequency = settings?.practiceReminderFrequency || 'weekly';
-				const preferredDay = settings?.preferredReminderDay || 'friday';
+				const frequency = (settings as any)?.practiceReminderFrequency || 'weekly';
+				const preferredDay = (settings as any)?.preferredReminderDay || 'friday';
 
-				// Skip if user has set frequency to 'never'
+				// Skip if user has set frequency to 'never' (when DB migration is complete)
 				if (frequency === 'never') {
 					skipped++;
 					continue;
 				}
 
-				// For weekly reminders, only send on the preferred day
+				// For weekly reminders, only send on the preferred day (default: Friday)
 				if (frequency === 'weekly' && dayOfWeek !== preferredDay) {
 					skipped++;
 					continue;
@@ -256,7 +257,7 @@ async function segmentUsers(users: any[]) {
  * Determine if we should send a reminder to this user
  * Rate limiting:
  * - Daily frequency: max 1 reminder per 24 hours
- * - Weekly frequency: max 1 reminder per 7 days
+ * - Weekly frequency: max 1 reminder per 7 days (default until DB migration)
  */
 async function shouldSendReminder(userId: string): Promise<boolean> {
 	const settings = await userSettingsRepository.getSettingsByUserId(userId);
@@ -265,7 +266,9 @@ async function shouldSendReminder(userId: string): Promise<boolean> {
 		return true;
 	}
 
-	const frequency = settings.practiceReminderFrequency || 'weekly';
+	// TODO: After DB migration, use actual frequency from DB
+	// For now, default to weekly (7 days)
+	const frequency = (settings as any)?.practiceReminderFrequency || 'weekly';
 	const hoursSinceLastReminder =
 		(Date.now() - settings.lastReminderSentAt.getTime()) / (1000 * 60 * 60);
 

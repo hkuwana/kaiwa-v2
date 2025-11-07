@@ -62,9 +62,9 @@ export {
 	audioModeEnum,
 	pressBehaviorEnum,
 	greetingModeEnum,
-	themeEnum,
-	practiceReminderFrequencyEnum,
-	dayOfWeekEnum
+	themeEnum
+	// practiceReminderFrequencyEnum, // TODO: Uncomment when DB migration is ready
+	// dayOfWeekEnum // TODO: Uncomment when DB migration is ready
 } from './user-settings';
 
 // 💳 Subscription and billing (simplified)

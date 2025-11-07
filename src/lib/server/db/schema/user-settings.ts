@@ -31,25 +31,27 @@ export const themeEnum = pgEnum('theme', ['light', 'dark', 'system']);
 
 /**
  * Practice reminder frequency enumeration
+ * TODO: Uncomment when ready to run database migration
  */
-export const practiceReminderFrequencyEnum = pgEnum('practice_reminder_frequency', [
-	'never',
-	'daily',
-	'weekly'
-]);
+// export const practiceReminderFrequencyEnum = pgEnum('practice_reminder_frequency', [
+// 	'never',
+// 	'daily',
+// 	'weekly'
+// ]);
 
 /**
  * Day of week enumeration for weekly reminders
+ * TODO: Uncomment when ready to run database migration
  */
-export const dayOfWeekEnum = pgEnum('day_of_week', [
-	'monday',
-	'tuesday',
-	'wednesday',
-	'thursday',
-	'friday',
-	'saturday',
-	'sunday'
-]);
+// export const dayOfWeekEnum = pgEnum('day_of_week', [
+// 	'monday',
+// 	'tuesday',
+// 	'wednesday',
+// 	'thursday',
+// 	'friday',
+// 	'saturday',
+// 	'sunday'
+// ]);
 
 /**
  * ⚙️ User Settings table - Stores global user interface and communication preferences
@@ -103,12 +105,14 @@ export const userSettings = pgTable('user_settings', {
 	receivePracticeReminders: pgBoolean('receive_practice_reminders').default(true).notNull(),
 
 	// Practice reminder frequency preference
-	practiceReminderFrequency: practiceReminderFrequencyEnum('practice_reminder_frequency')
-		.default('weekly')
-		.notNull(),
+	// TODO: Uncomment when ready to run database migration
+	// practiceReminderFrequency: practiceReminderFrequencyEnum('practice_reminder_frequency')
+	// 	.default('weekly')
+	// 	.notNull(),
 
 	// Preferred day for weekly reminders (defaults to Friday)
-	preferredReminderDay: dayOfWeekEnum('preferred_reminder_day').default('friday').notNull(),
+	// TODO: Uncomment when ready to run database migration
+	// preferredReminderDay: dayOfWeekEnum('preferred_reminder_day').default('friday').notNull(),
 
 	receiveFounderEmails: pgBoolean('receive_founder_emails').default(true).notNull(),
 
