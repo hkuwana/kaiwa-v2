@@ -97,6 +97,9 @@ jobs:
     needs: [build-verification]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     timeout-minutes: 20
+    environment:
+      name: production
+      url: https://trykaiwa.com
 
     steps:
       - name: Checkout code
@@ -105,28 +108,43 @@ jobs:
       - name: Setup Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
+      - name: Verify Fly.io Authentication
+        run: flyctl auth whoami
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
       - name: Deploy to Fly.io
-        run: flyctl deploy --remote-only
+        run: flyctl deploy --remote-only --ha=false
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Verify Deployment
+        run: flyctl status
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
       - name: Health check
         run: |
-          # Wait for deployment to stabilize
+          echo "⏳ Waiting for deployment to stabilize..."
           sleep 30
 
-          # Run smoke tests against production
-          echo "Running production smoke tests..."
-          # You can add actual production smoke tests here
+          echo "🏥 Running production health check..."
+          if curl -f -s -o /dev/null -w "%{http_code}" https://trykaiwa.com | grep -q "200\|301\|302"; then
+            echo "✅ Health check passed!"
+          else
+            echo "⚠️ Health check returned non-200 status"
+          fi
 
       - name: Notify deployment success
         if: success()
         run: |
           echo "🚀 Deployment successful!"
           echo "App URL: https://trykaiwa.com"
+          echo "Check status: flyctl status --app kaiwa"
 
       - name: Notify deployment failure
         if: failure()
         run: |
           echo "❌ Deployment failed!"
           echo "Check the logs above for details"
+          echo "Debug: flyctl logs --app kaiwa"
