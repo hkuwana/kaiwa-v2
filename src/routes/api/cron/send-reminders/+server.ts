@@ -34,12 +34,21 @@ export const GET = async ({ request, url }) => {
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const dryRun = url.searchParams.get('dryRun') === 'true';
+		// SAFETY: Force dry run mode until manually reviewed
+		// Set ENABLE_AUTOMATED_EMAILS=true in environment to allow actual sending
+		const enableAutomatedEmails = env.ENABLE_AUTOMATED_EMAILS === 'true';
+		const dryRun = url.searchParams.get('dryRun') === 'true' || !enableAutomatedEmails;
 		const testEmails =
 			url.searchParams
 				.get('testEmails')
 				?.split(',')
 				.map((e) => e.trim()) || null;
+
+		if (!enableAutomatedEmails) {
+			console.log(
+				'⚠️  SAFETY MODE: Automated emails disabled. Set ENABLE_AUTOMATED_EMAILS=true to enable.'
+			);
+		}
 		console.log('✅ Authorized, dryRun:', dryRun, 'testEmails:', testEmails);
 
 		// Get all users eligible for daily reminders based on database preferences

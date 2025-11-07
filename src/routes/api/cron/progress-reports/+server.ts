@@ -29,6 +29,19 @@ export const GET = async ({ request, url }) => {
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
+		// SAFETY: Prevent automatic email sending until manually reviewed
+		const enableAutomatedEmails = env.ENABLE_AUTOMATED_EMAILS === 'true';
+		if (!enableAutomatedEmails) {
+			console.log('⚠️  SAFETY MODE: Automated emails disabled. Set ENABLE_AUTOMATED_EMAILS=true to enable.');
+			return json({
+				success: false,
+				message: 'Automated emails are disabled for safety. Set ENABLE_AUTOMATED_EMAILS=true to enable.',
+				sent: 0,
+				failed: 0,
+				skipped: 0
+			});
+		}
+
 		const dryRun = url.searchParams.get('dryRun') === 'true';
 
 		console.log('✅ Authorized, dryRun:', dryRun);

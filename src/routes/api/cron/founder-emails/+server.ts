@@ -29,6 +29,20 @@ export const GET = async ({ request }) => {
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
+		// SAFETY: Prevent automatic email sending until manually reviewed
+		// Set ENABLE_AUTOMATED_EMAILS=true in environment to allow actual sending
+		const enableAutomatedEmails = env.ENABLE_AUTOMATED_EMAILS === 'true';
+		if (!enableAutomatedEmails) {
+			console.log(
+				'⚠️  SAFETY MODE: Founder emails disabled. Set ENABLE_AUTOMATED_EMAILS=true to enable.'
+			);
+			return json({
+				success: false,
+				message: 'Automated emails are disabled for safety. Set ENABLE_AUTOMATED_EMAILS=true to enable.',
+				stats: { total_eligible: 0, day1_sent: 0, day2_sent: 0, day3_sent: 0, skipped: 0, failed: 0 }
+			});
+		}
+
 		const stats = {
 			day1_sent: 0,
 			day2_sent: 0,

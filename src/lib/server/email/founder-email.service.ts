@@ -276,7 +276,7 @@ export class FounderEmailService {
 				</div>
 
 				<p style="margin-top: 30px; font-size: 12px; color: #9ca3af;">
-					P.S. If Kaiwa isn't for you, no worries - just <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile/email-preferences">let me know</a> and I'll stop emailing.
+					P.S. If Kaiwa isn't for you, no worries - just <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile">manage your email preferences →</a> and I'll stop emailing.
 				</p>
 			</body>
 			</html>
@@ -380,6 +380,10 @@ export class FounderEmailService {
 						📧 ${this.FOUNDER_EMAIL}
 					</div>
 				</div>
+
+				<p style="margin-top: 30px; font-size: 12px; color: #9ca3af; text-align: center;">
+					<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile">Manage your email preferences →</a>
+				</p>
 			</body>
 			</html>
 		`;
@@ -502,6 +506,10 @@ export class FounderEmailService {
 
 				<p style="margin-top: 30px; font-size: 12px; color: #9ca3af;">
 					P.S. This is genuinely the last email unless you book a call or reply. I respect your inbox!
+				</p>
+
+				<p style="margin-top: 20px; font-size: 12px; color: #9ca3af; text-align: center;">
+					<a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile">Manage your email preferences →</a>
 				</p>
 			</body>
 			</html>

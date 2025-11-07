@@ -456,10 +456,10 @@ export class EmailReminderService {
 					<p style="margin-top: 20px;">Want to chat about your language goals? <a href="${CALENDAR_LINK}">Grab 15 min on my calendar</a>.</p>
 
 					<p style="margin-top: 24px;">– Hiro<br><span style="color: #666;">P.S. This is my personal email—just reply if you have questions or feedback. I read everything.</span></p>
-					
+
 					<div class="footer">
-						<p>This email was sent from Kaiwa. <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile">Manage your email preferences</a></p>
-						<p>&copy; 2024 Kaiwa. All rights reserved.</p>
+						<p>This email was sent from Kaiwa. <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile">Manage your email preferences →</a></p>
+						<p>&copy; 2025 Kaiwa. All rights reserved.</p>
 					</div>
 				</div>
 			</body>
