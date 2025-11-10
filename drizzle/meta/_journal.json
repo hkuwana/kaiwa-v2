@@ -225,6 +225,13 @@
       "when": 1762481237564,
       "tag": "0031_classy_whirlwind",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1762778354560,
+      "tag": "0032_productive_steel_serpent",
+      "breakpoints": true
     }
   ]
 }
