@@ -211,6 +211,20 @@
       "when": 1762176145401,
       "tag": "0029_milky_cobalt_man",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1762481187101,
+      "tag": "0030_little_reptil",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1762481237564,
+      "tag": "0031_classy_whirlwind",
+      "breakpoints": true
     }
   ]
 }

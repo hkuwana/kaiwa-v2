@@ -33,6 +33,16 @@ export const POST = async ({ request }) => {
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
+		// SAFETY: Prevent automatic email sending until manually reviewed
+		const enableAutomatedEmails = env.ENABLE_AUTOMATED_EMAILS === 'true';
+		if (!enableAutomatedEmails) {
+			console.log('⚠️  SAFETY MODE: Automated emails disabled. Set ENABLE_AUTOMATED_EMAILS=true to enable.');
+			return json({
+				success: false,
+				message: 'Automated emails are disabled for safety. Set ENABLE_AUTOMATED_EMAILS=true to enable.'
+			});
+		}
+
 		const body = await request.json();
 
 		const { subject, title, summary, details, ctaText, ctaUrl } = body;

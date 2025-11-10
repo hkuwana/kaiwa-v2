@@ -34,12 +34,21 @@ export const GET = async ({ request, url }) => {
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const dryRun = url.searchParams.get('dryRun') === 'true';
+		// SAFETY: Force dry run mode until manually reviewed
+		// Set ENABLE_AUTOMATED_EMAILS=true in environment to allow actual sending
+		const enableAutomatedEmails = env.ENABLE_AUTOMATED_EMAILS === 'true';
+		const dryRun = url.searchParams.get('dryRun') === 'true' || !enableAutomatedEmails;
 		const testEmails =
 			url.searchParams
 				.get('testEmails')
 				?.split(',')
 				.map((e) => e.trim()) || null;
+
+		if (!enableAutomatedEmails) {
+			console.log(
+				'⚠️  SAFETY MODE: Automated emails disabled. Set ENABLE_AUTOMATED_EMAILS=true to enable.'
+			);
+		}
 		console.log('✅ Authorized, dryRun:', dryRun, 'testEmails:', testEmails);
 
 		// Get all users eligible for daily reminders based on database preferences
@@ -92,11 +101,32 @@ export const GET = async ({ request, url }) => {
 
 		// Send appropriate emails based on user segment
 		console.log('📧 Starting to process users for reminders...');
+		const today = new Date();
+		const dayOfWeek = today.toLocaleDateString('en-US', { weekday: 'lowercase' });
+
 		for (const segment of Object.keys(segmented)) {
 			const users = segmented[segment as keyof typeof segmented];
 			console.log(`Processing segment: ${segment} (${users.length} users)`);
 
 			for (const user of users) {
+				// TODO: After DB migration, uncomment this to use user preferences
+				// For now, use default: weekly on Friday
+				const settings = await userSettingsRepository.getSettingsByUserId(user.id);
+				const frequency = (settings as any)?.practiceReminderFrequency || 'weekly';
+				const preferredDay = (settings as any)?.preferredReminderDay || 'friday';
+
+				// Skip if user has set frequency to 'never' (when DB migration is complete)
+				if (frequency === 'never') {
+					skipped++;
+					continue;
+				}
+
+				// For weekly reminders, only send on the preferred day (default: Friday)
+				if (frequency === 'weekly' && dayOfWeek !== preferredDay) {
+					skipped++;
+					continue;
+				}
+
 				// Check if we should send reminder (rate limiting)
 				const shouldSend = await shouldSendReminder(user.id);
 
@@ -234,7 +264,9 @@ async function segmentUsers(users: any[]) {
 
 /**
  * Determine if we should send a reminder to this user
- * Rate limiting: max 1 reminder per 24 hours
+ * Rate limiting:
+ * - Daily frequency: max 1 reminder per 24 hours
+ * - Weekly frequency: max 1 reminder per 7 days (default until DB migration)
  */
 async function shouldSendReminder(userId: string): Promise<boolean> {
 	const settings = await userSettingsRepository.getSettingsByUserId(userId);
@@ -243,11 +275,24 @@ async function shouldSendReminder(userId: string): Promise<boolean> {
 		return true;
 	}
 
+	// TODO: After DB migration, use actual frequency from DB
+	// For now, default to weekly (7 days)
+	const frequency = (settings as any)?.practiceReminderFrequency || 'weekly';
 	const hoursSinceLastReminder =
 		(Date.now() - settings.lastReminderSentAt.getTime()) / (1000 * 60 * 60);
 
-	// Don't send more than once per 24 hours
-	return hoursSinceLastReminder >= 24;
+	// Daily: Don't send more than once per 24 hours
+	if (frequency === 'daily') {
+		return hoursSinceLastReminder >= 24;
+	}
+
+	// Weekly: Don't send more than once per 7 days (168 hours)
+	if (frequency === 'weekly') {
+		return hoursSinceLastReminder >= 168;
+	}
+
+	// Never: Should never get here as we filter these out earlier
+	return false;
 }
 
 /**

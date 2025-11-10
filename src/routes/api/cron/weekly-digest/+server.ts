@@ -24,6 +24,16 @@ export const GET: RequestHandler = async ({ request }) => {
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
+		// SAFETY: Prevent automatic email sending until manually reviewed
+		const enableAutomatedEmails = env.ENABLE_AUTOMATED_EMAILS === 'true';
+		if (!enableAutomatedEmails) {
+			console.log('⚠️  SAFETY MODE: Automated emails disabled. Set ENABLE_AUTOMATED_EMAILS=true to enable.');
+			return json({
+				success: false,
+				message: 'Automated emails are disabled for safety. Set ENABLE_AUTOMATED_EMAILS=true to enable.'
+			});
+		}
+
 		console.log('📊 Starting weekly digest cron job...');
 
 		// Load this week's content from markdown files

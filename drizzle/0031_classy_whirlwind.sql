@@ -1,0 +1,2 @@
+CREATE TYPE "public"."day_of_week" AS ENUM('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday');--> statement-breakpoint
+CREATE TYPE "public"."practice_reminder_frequency" AS ENUM('never', 'daily', 'weekly');

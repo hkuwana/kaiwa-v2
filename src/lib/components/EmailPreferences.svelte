@@ -11,11 +11,10 @@
 	let { userId = undefined, showTitle = true, compact = false }: Props = $props();
 
 	let preferences = $state({
-		receiveFounderEmails: true,
-		receivePracticeReminders: true,
-		receiveProductUpdates: true,
-		receiveProgressReports: true,
-		receiveSecurityAlerts: true
+		receiveFounderEmails: true, // Founder Updates
+		receiveProductUpdates: true, // Product Updates
+		receiveProgressReports: true, // Statistics & Progress
+		receiveSecurityAlerts: true // Always on for security
 	});
 
 	let loading = $state(true);
@@ -26,33 +25,27 @@
 	const emailTypes = [
 		{
 			key: 'receiveFounderEmails',
-			label: 'Founder Emails',
-			description: 'Updates from Hiro on Kaiwa',
-			icon: 'icon-[mdi--bullhorn-outline]'
-		},
-		{
-			key: 'receivePracticeReminders',
-			label: 'Practice Reminders',
-			description: 'Gentle reminders to practice your language learning',
-			icon: 'icon-[mdi--calendar-clock]'
+			label: 'Founder Updates',
+			description: 'Personal updates from Hiro about Kaiwa, learning tips, and user stories',
+			icon: 'icon-[mdi--account-heart]'
 		},
 		{
 			key: 'receiveProductUpdates',
 			label: 'Product Updates',
-			description: 'New features, improvements, and important changes to Kaiwa',
+			description: 'New features, improvements, and changes to the platform',
 			icon: 'icon-[mdi--rocket-launch-outline]'
 		},
 		{
 			key: 'receiveProgressReports',
-			label: 'Progress Reports',
-			description: 'Weekly summary of your progress and learning insights',
-			icon: 'icon-[mdi--chart-bar]'
+			label: 'Your Statistics',
+			description: 'Weekly stats about your practice, progress, and learning insights',
+			icon: 'icon-[mdi--chart-line]'
 		},
 		{
 			key: 'receiveSecurityAlerts',
 			label: 'Security Alerts',
-			description: 'Important security notifications and account updates',
-			icon: 'icon-[mdi--lock-outline]'
+			description: 'Critical account and security notifications (cannot be disabled)',
+			icon: 'icon-[mdi--shield-check]'
 		}
 	];
 
@@ -174,7 +167,7 @@
 								bind:checked={preferences[emailType.key as keyof typeof preferences]}
 								aria-label={`Toggle ${emailType.label} email notifications`}
 								onchange={handlePreferenceChange}
-								disabled={saving}
+								disabled={saving || emailType.key === 'receiveSecurityAlerts'}
 							/>
 						</div>
 					</div>

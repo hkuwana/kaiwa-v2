@@ -12,16 +12,15 @@ export const GET = async ({ locals }) => {
 		if (!settings) {
 			// Return default preferences if no settings exist
 			return json({
-				receivePracticeReminders: true,
-				receiveFounderEmails: true,
-				receiveProductUpdates: true,
-				receiveProgressReports: true,
-				receiveSecurityAlerts: true
+				receiveFounderEmails: true, // Founder Updates
+				receiveProductUpdates: true, // Product Updates
+				receiveProgressReports: true, // Your Statistics
+				receiveSecurityAlerts: true // Security (always on)
 			});
 		}
 
+		// Simplified to 3 email types + security
 		return json({
-			receivePracticeReminders: settings.receivePracticeReminders,
 			receiveFounderEmails: settings.receiveFounderEmails,
 			receiveProductUpdates: settings.receiveProductUpdates,
 			receiveProgressReports: settings.receiveProgressReports,
@@ -41,13 +40,13 @@ export const POST = async ({ request, locals }) => {
 	try {
 		const preferences = await request.json();
 
-		// Validate the preferences object
+		// Simplified to 3 email types + security
+		// Security alerts cannot be disabled for account safety
 		const validPreferences = {
-			receivePracticeReminders: Boolean(preferences.receivePracticeReminders),
 			receiveFounderEmails: Boolean(preferences.receiveFounderEmails),
 			receiveProductUpdates: Boolean(preferences.receiveProductUpdates),
 			receiveProgressReports: Boolean(preferences.receiveProgressReports),
-			receiveSecurityAlerts: Boolean(preferences.receiveSecurityAlerts)
+			receiveSecurityAlerts: true // Always true for security
 		};
 
 		const updatedSettings = await userSettingsRepository.updateEmailPreferences(
@@ -59,11 +58,11 @@ export const POST = async ({ request, locals }) => {
 			throw error(500, 'Failed to update email preferences');
 		}
 
+		// Return the updated preferences
 		return json({
 			success: true,
 			message: 'Email preferences updated successfully',
 			preferences: {
-				receivePracticeReminders: updatedSettings.receivePracticeReminders,
 				receiveFounderEmails: updatedSettings.receiveFounderEmails,
 				receiveProductUpdates: updatedSettings.receiveProductUpdates,
 				receiveProgressReports: updatedSettings.receiveProgressReports,

@@ -140,13 +140,17 @@ export class EmailReminderService {
 
 	/**
 	 * Get recommended scenarios for user
-	 * Prioritizes high-stakes, relationship-focused scenarios that resonate emotionally
+	 * Prioritizes scenarios based on user's learning motivation and goals
 	 */
 	private static async getRecommendedScenarios(
 		userId: string,
 		_lastScenario?: Scenario | null
 	): Promise<Scenario[]> {
 		try {
+			// Get user's learning motivation
+			const userPrefs = await userPreferencesRepository.getAllUserPreferences(userId);
+			const learningMotivation = userPrefs?.[0]?.learningGoal || null;
+
 			// Get all active scenarios
 			const allScenarios = await scenarioRepository.findActiveScenarios();
 
@@ -162,32 +166,88 @@ export class EmailReminderService {
 				(s: Scenario) => s.id !== 'onboarding-welcome' && !completedScenarioIds.has(s.id)
 			);
 
-			// Priority order: relationship repair > family acceptance > vulnerable sharing > life transitions > medical > dating
-			const priorityScenarios = [
-				'family-dinner-introduction', // Partner's parents - highest emotional stakes, aligns with "Meet the Parents" Practice Lab
-				'relationship-apology', // Relationship repair - "Relationship Decay" narrative, micro-betrayal prevention
-				'vulnerable-heart-to-heart', // Emotional intimacy - "Love Letter Lab", "70% Campaign" narrative
-				'clinic-night-triage', // Medical urgency - taking care of loved ones, immediate need
-				'family-milestone-toast', // Cultural celebration - "Grandparent Clock", family connection
-				'breaking-important-news', // Life transitions - relationship stakes, family dynamics
-				'first-date-drinks' // Dating entry point - relatable, lower pressure practice
-			];
+			// Define scenario categories by learning motivation
+			const scenariosByMotivation: Record<string, string[]> = {
+				Connection: [
+					'family-dinner-introduction', // Meeting partner's family
+					'relationship-apology', // Relationship repair
+					'vulnerable-heart-to-heart', // Emotional intimacy
+					'family-milestone-toast', // Family celebrations
+					'breaking-important-news', // Important conversations
+					'first-date-drinks' // Building connections
+				],
+				Career: [
+					'job-interview', // Professional setting
+					'business-meeting', // Work scenarios
+					'presentation', // Professional communication
+					'networking-event', // Career building
+					'salary-negotiation', // Professional advancement
+					'client-pitch' // Business communication
+				],
+				Travel: [
+					'airport-check-in', // Travel basics
+					'hotel-reservation', // Accommodation
+					'restaurant-ordering', // Dining out
+					'asking-directions', // Navigation
+					'taxi-ride', // Transportation
+					'shopping-market' // Local interactions
+				],
+				Academic: [
+					'classroom-discussion', // Academic setting
+					'professor-office-hours', // Educational support
+					'group-study-session', // Collaborative learning
+					'library-research', // Academic resources
+					'thesis-defense', // Academic milestones
+					'seminar-presentation' // Academic communication
+				],
+				Culture: [
+					'family-milestone-toast', // Cultural celebrations
+					'traditional-ceremony', // Cultural events
+					'cultural-festival', // Cultural immersion
+					'cooking-class', // Cultural activities
+					'art-exhibition', // Cultural appreciation
+					'temple-visit' // Cultural exploration
+				],
+				Growth: [
+					'challenging-debate', // Personal development
+					'learning-new-skill', // Skill building
+					'mentorship-session', // Growth through guidance
+					'self-reflection', // Personal insight
+					'goal-setting', // Life planning
+					'overcoming-fear' // Personal challenges
+				]
+			};
 
-			// Sort available scenarios by priority order
+			// Get scenarios that match the user's learning motivation
+			let priorityScenarioIds: string[] = [];
+			if (learningMotivation && scenariosByMotivation[learningMotivation]) {
+				priorityScenarioIds = scenariosByMotivation[learningMotivation];
+			} else {
+				// Default to Connection-focused scenarios (most universally relatable)
+				priorityScenarioIds = scenariosByMotivation.Connection;
+			}
+
+			// Sort available scenarios by:
+			// 1. Match with user's learning motivation
+			// 2. Difficulty level (easier first for beginners)
 			const sortedScenarios = availableScenarios.sort((a, b) => {
-				const aIndex = priorityScenarios.indexOf(a.id);
-				const bIndex = priorityScenarios.indexOf(b.id);
+				const aMatchesMotivation = priorityScenarioIds.includes(a.id);
+				const bMatchesMotivation = priorityScenarioIds.includes(b.id);
 
-				// If both in priority list, sort by priority
-				if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-				// Priority scenarios come first
-				if (aIndex !== -1) return -1;
-				if (bIndex !== -1) return 1;
+				// Prioritize scenarios matching user's motivation
+				if (aMatchesMotivation && !bMatchesMotivation) return -1;
+				if (!aMatchesMotivation && bMatchesMotivation) return 1;
+
+				// If both match, sort by priority order within that motivation
+				if (aMatchesMotivation && bMatchesMotivation) {
+					const aIndex = priorityScenarioIds.indexOf(a.id);
+					const bIndex = priorityScenarioIds.indexOf(b.id);
+					return aIndex - bIndex;
+				}
+
 				// Otherwise sort by difficulty (easier first)
-				return (
-					(a.difficulty === 'beginner' ? 1 : a.difficulty === 'intermediate' ? 2 : 3) -
-					(b.difficulty === 'beginner' ? 1 : b.difficulty === 'intermediate' ? 2 : 3)
-				);
+				const difficultyOrder = { beginner: 1, intermediate: 2, advanced: 3 };
+				return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
 			});
 
 			// Return top 2 recommendations
@@ -396,10 +456,10 @@ export class EmailReminderService {
 					<p style="margin-top: 20px;">Want to chat about your language goals? <a href="${CALENDAR_LINK}">Grab 15 min on my calendar</a>.</p>
 
 					<p style="margin-top: 24px;">– Hiro<br><span style="color: #666;">P.S. This is my personal email—just reply if you have questions or feedback. I read everything.</span></p>
-					
+
 					<div class="footer">
-						<p>This email was sent from Kaiwa. <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile">Manage your email preferences</a></p>
-						<p>&copy; 2024 Kaiwa. All rights reserved.</p>
+						<p>This email was sent from Kaiwa. <a href="${env.PUBLIC_APP_URL || 'https://trykaiwa.com'}/profile">Manage your email preferences →</a></p>
+						<p>&copy; 2025 Kaiwa. All rights reserved.</p>
 					</div>
 				</div>
 			</body>

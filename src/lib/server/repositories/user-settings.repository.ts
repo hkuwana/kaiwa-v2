@@ -113,16 +113,24 @@ export class UserSettingsRepository {
 		userId: string,
 		emailPreferences: {
 			receivePracticeReminders?: boolean;
+			// Note: practiceReminderFrequency and preferredReminderDay are temporarily
+			// excluded until database migration is complete
+			// practiceReminderFrequency?: 'never' | 'daily' | 'weekly';
+			// preferredReminderDay?: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
 			receiveFounderEmails?: boolean;
 			receiveProductUpdates?: boolean;
 			receiveProgressReports?: boolean;
 			receiveSecurityAlerts?: boolean;
 		}
 	): Promise<UserSettings | null> {
+		// Filter out the frequency/day fields until DB migration is complete
+		const { practiceReminderFrequency, preferredReminderDay, ...dbPreferences } =
+			emailPreferences as any;
+
 		// Use upsert to handle cases where user settings don't exist yet
 		const result = await this.upsertSettings({
 			userId,
-			...emailPreferences
+			...dbPreferences
 		});
 		return result;
 	}
