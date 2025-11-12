@@ -16,6 +16,7 @@
 			</div>
 			<ul class="dropdown-content menu z-[60] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow">
 				<li><a href="/about" class="">About</a></li>
+				<li><a href="/scenarios" class="">Scenarios</a></li>
 				<li><a href="/pricing" class="">Pricing</a></li>
 				<li><a href="/privacy" class="">Privacy</a></li>
 
@@ -32,6 +33,7 @@
 	<div class="navbar-center hidden items-center lg:flex">
 		<ul class="menu menu-horizontal px-1">
 			<li><a href="/about" class="">About</a></li>
+			<li><a href="/scenarios" class="">Scenarios</a></li>
 			<li><a href="/pricing" class="">Pricing</a></li>
 			<li><a href="/privacy" class="">Privacy</a></li>
 
