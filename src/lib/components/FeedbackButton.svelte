@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { notificationStore } from '$lib/stores/notification.store.svelte';
+	import { track } from '$lib/analytics/posthog';
 
 	let isOpen = $state(false);
 	let feedbackType = $state<'bug' | 'suggestion' | 'debug'>('bug');
@@ -21,19 +22,21 @@
 		isSubmitting = true;
 
 		try {
-			const response = await fetch('/api/feedback', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					type: feedbackType,
-					message: message.trim(),
-					timestamp: new Date().toISOString(),
-					url: typeof window !== 'undefined' ? window.location.href : '',
-					userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : ''
-				})
+			// Send feedback to PostHog as an event
+			// This will automatically include user context, session recordings, and other metadata
+			track('user_feedback_submitted', {
+				feedback_type: feedbackType,
+				feedback_message: message.trim(),
+				page_url: typeof window !== 'undefined' ? window.location.href : '',
+				page_pathname: typeof window !== 'undefined' ? window.location.pathname : '',
+				user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
+				timestamp: new Date().toISOString(),
+				// PostHog will automatically attach:
+				// - User ID (if identified)
+				// - Session recording
+				// - User properties
+				// - Previous events
 			});
-
-			if (!response.ok) throw new Error('Failed to submit feedback');
 
 			notificationStore.success('Thanks for the feedback! 🙏');
 			isOpen = false;
