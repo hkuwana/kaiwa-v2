@@ -465,12 +465,7 @@ export class ConversationStore {
 			return;
 		}
 
-		// Cancel any pending greeting retry when user commits audio
-		if (this.greetingRetryTimeout) {
-			console.log('🎵 ConversationStore: Canceling greeting retry - user committed audio');
-			clearTimeout(this.greetingRetryTimeout);
-			this.greetingRetryTimeout = null;
-		}
+		// Note: greetingRetryTimeout removed - no longer needed as retry mechanism was removed
 
 		const track = this.audioStream.getAudioTracks()[0];
 		console.warn('⏸️ PAUSE STREAMING (PTT STOP)', {
@@ -1168,8 +1163,6 @@ export class ConversationStore {
 		}
 	}
 
-	private greetingRetryTimeout: ReturnType<typeof setTimeout> | null = null;
-
 	/**
 	 * Trigger the AI's first greeting after user interaction
 	 * This should be called when the user taps the AudioVisualizer for the first time
@@ -1287,11 +1280,7 @@ export class ConversationStore {
 			this.saveTimeout = null;
 		}
 
-		// Clear any pending greeting retry
-		if (this.greetingRetryTimeout) {
-			clearTimeout(this.greetingRetryTimeout);
-			this.greetingRetryTimeout = null;
-		}
+		// Note: greetingRetryTimeout cleanup removed - no longer needed as retry mechanism was removed
 
 		// Close realtime session
 		console.log('🧹 ConversationStore: Closing SDK realtime session');
