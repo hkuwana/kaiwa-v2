@@ -1,9 +1,12 @@
 # Kaiwa Distribution Strategy: The Brutally Honest Guide
 
-**Last Updated:** November 6, 2025
+**Last Updated:** November 12, 2025
 **Current MRR:** $15
+**Paid Conversion:** 1% (target: 8-10%)
 **Goal:** $1,000 MRR in 30 days
 **Status:** STOP CODING. START DISTRIBUTING.
+
+⚠️ **STRATEGIC CONFLICT**: Justin Kim (Nov 10) recommends TikTok/Instagram-first approach, contradicting Reddit-first strategy below. See bottom of doc for comparison.
 
 ---
 
@@ -630,6 +633,199 @@ Because you understand her pain.
 
 *This is your playbook. Reference it daily. Update it as you learn. But whatever you do: don't go back to coding until you hit $300 MRR.*
 
-*Now go. Make that first Reddit comment. Post it in #general when you're done.*
+---
 
-*Let's get to $1,000 MRR. Together.*
+## ⚠️ ALTERNATIVE STRATEGY: Justin Kim's TikTok-First Approach (Nov 10, 2025)
+
+**Context**: Justin Kim (founder of Cali app, medical student) provided contrary distribution advice after reviewing Kaiwa.
+
+### Justin's Core Argument
+
+**DON'T do Reddit:**
+- "Low-yield"
+- "Too anonymized for effective user engagement"
+- Can't build relationships with anonymous usernames
+- Email outreach doesn't work ("people rarely respond")
+
+**DO TikTok/Instagram instead:**
+- Visual/emotional connection stronger for relationship-focused product
+- Hiro should be the face: "You're a good-looking dude, use yourself"
+- Low-quality UGC (user-generated content) style ads perform best
+- His best Cali creative: simple walking video talking about AI therapist
+
+### Justin's Full Strategy
+
+#### 1. Content Creation
+- **Format**: TikTok/Instagram Reels
+- **Style**: Low-quality, authentic (NOT polished)
+- **Star**: Hiro + girlfriend discussing long-distance language barrier
+- **Hook**: "What if your partner's parents think you're stupid?"
+- **CTA**: Link in bio to sign up
+
+**Example Content Ideas:**
+- Walking video: "I built this because I couldn't talk to my Japanese grandparents"
+- Couple video: "She's Japanese, I'm American, here's how we're fixing the language gap"
+- Before/after: "Me trying to order at her parents' house vs after practicing"
+
+#### 2. Paid Ads
+- Put $50-200/month behind high-performing organic content
+- Use Meta/TikTok Pixel to track signups
+- Scale what converts
+
+#### 3. Phone-Based Outreach (CRITICAL DIFFERENCE)
+- **Switch to phone number sign-ups** (not just email)
+- Text every new user personally: "Hey, saw you signed up! What are you trying to practice?"
+- Response rate: High (vs email which "people rarely respond to")
+- Build relationship through texts, not anonymous forums
+
+#### 4. Product Advisor Program
+- Convert engaged users to "product advisors"
+- Incentive: Lifetime free access
+- Community: WhatsApp group (NOT Discord - too gamer-focused)
+- Ask for feedback, referrals, testimonials
+
+#### 5. Target Market
+- **Primary**: Women learning Korean or Japanese for relationships
+- **Why**: More consistent users, emotionally invested
+- **Secondary**: Men (will pay, but less active)
+- **Beach head**: Women interested in K-pop, anime, Kdramas
+
+#### 6. Product Enhancements (Per Justin)
+- [ ] Ghibli-style character avatars (make Lily memorable)
+- [ ] Image backgrounds that change per conversation
+- [ ] Make AI persona less formal, more flirtatious/fun
+- [ ] Deeper, raspy male voice for dating scenarios
+- [ ] Kdrama-inspired roleplay scenarios
+- [ ] Native app (iOS first) for stickiness
+
+### Implementation Requirements
+
+**Technical:**
+- [ ] Add phone number field to sign-up
+- [ ] Set up US phone number for Hiro (messaging service)
+- [ ] Install Meta/TikTok Pixel
+- [ ] Create ad account (Meta or TikTok Business)
+
+**Content:**
+- [ ] Film 5-10 simple UGC-style videos (Hiro walking/talking)
+- [ ] Get girlfriend to co-create couple content
+- [ ] Test hooks: language barrier, meeting parents, long-distance
+
+**Outreach:**
+- [ ] Create text messaging script for new users
+- [ ] Set up product advisor program (Notion/Airtable)
+- [ ] Create WhatsApp community group
+
+### Why Justin's Approach Might Be Right
+
+1. **Emotional vs Informational**: Relationship learning is emotional (fear, love, connection). Video conveys emotion better than text.
+2. **Target Market**: Women 25-35 are heavy TikTok/Instagram users, not Reddit users.
+3. **Relationship Building**: Phone texts create real relationships; Reddit comments don't.
+4. **Proven Model**: Justin's Cali app uses this exact strategy successfully.
+5. **Personal Brand**: Hiro's story ("couldn't talk to Japanese grandparents") is powerful on video.
+
+### Why Reddit Approach Might Still Be Right
+
+1. **High Intent**: People searching "meeting boyfriend's parents Japanese" want solutions NOW.
+2. **SEO Compound**: Reddit posts rank in Google forever.
+3. **Lower Barrier**: Writing comments easier than filming videos.
+4. **Cheaper**: No ad spend required.
+5. **Text-Based Product**: Kaiwa is conversation practice; text comments demonstrate value better.
+
+---
+
+## 🧪 RECOMMENDATION: A/B Test Both Strategies (2 Weeks)
+
+### Week 1-2 Parallel Test
+
+**Track A: Reddit Strategy**
+- 45 min/day: Reddit comments (r/LongDistance, r/LearnJapanese, r/relationships)
+- Measure: Profile visits, email signups, conversions
+- Cost: $0 (time only)
+
+**Track B: TikTok Strategy**
+- Film 3 simple UGC videos (5-10 min total)
+- Post organically to TikTok + Instagram
+- Put $100 behind best-performing video
+- Implement phone number signup
+- Text every new user
+- Measure: Video views, link clicks, signups, conversion
+- Cost: $100 ad spend + phone service setup
+
+### Decision Criteria (After 2 Weeks)
+
+Compare both tracks on:
+1. **Signups**: Which channel drives more signups?
+2. **Quality**: Which users convert to paid better?
+3. **Engagement**: Which users respond more (Reddit DMs vs phone texts)?
+4. **Cost per Acquisition**: $/signup for each channel
+5. **Enjoyment**: Which approach energizes Hiro more?
+
+**If Reddit wins**: Double down on Reddit, scale Quora
+**If TikTok wins**: Scale TikTok ads, implement full phone-based outreach
+**If both work**: Allocate budget proportionally (e.g., 60/40)
+
+---
+
+## 📊 Updated Weekly Cadence (A/B Test Mode)
+
+**Monday (1 hour):**
+- Reddit: 45 min comments
+- TikTok: Film 1 simple video (15 min)
+
+**Tuesday (1 hour):**
+- Reddit: 45 min comments
+- TikTok: Post video, respond to comments (15 min)
+
+**Wednesday (1 hour):**
+- Reddit: 45 min comments
+- Phone: Text 5-10 new users (15 min)
+
+**Thursday (1 hour):**
+- Reddit: 45 min comments
+- TikTok: Film 1 simple video (15 min)
+
+**Friday (1 hour):**
+- Reddit: 45 min comments
+- TikTok: Post video, respond (15 min)
+
+**Saturday (2 hours):**
+- Write 1 Quora answer (repurpose Reddit comments)
+- Review metrics: Reddit vs TikTok performance
+
+**Sunday (3 hours):**
+- Write newsletter
+- Analyze week's data
+- Decide: Continue both or focus on winner?
+
+**Total: 9 hours/week (same as before, split between strategies)**
+
+---
+
+## 🎯 Success Looks Like (After 2 Weeks)
+
+**Minimum Viable Signal:**
+- 50+ new signups (from either channel)
+- 5+ convert to paid ($70+ MRR added)
+- Clear data on which channel performs better
+- Phone-based outreach tested (if TikTok route)
+
+**Decision Point:**
+- If TikTok wins decisively → Abandon Reddit, go all-in on video + phone outreach
+- If Reddit wins decisively → Continue Reddit-first plan, ignore TikTok
+- If both work → Keep hybrid approach, optimize split
+
+---
+
+## 🤝 Justin's Ongoing Support
+
+- Will show Kaiwa to women in med school
+- Wants weekly email updates on metrics
+- Meeting in Asia (Jan-Feb 2026) for in-person strategy session
+- Available for product feedback
+
+---
+
+**Final Note**: This strategic conflict is healthy. Test both. Let data decide. Don't let ego or fear choose—let conversions choose.
+
+*Now go. Make your first Reddit comment AND film your first TikTok. Let's see which one wins.*

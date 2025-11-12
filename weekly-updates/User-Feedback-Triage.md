@@ -27,10 +27,11 @@ Every issue below is evaluated through this lens:
 
 **NEW** 🚨 **SHOWSTOPPER**
 
-- **Mentions**: 2 (Thomas Clarke, Martin implied with "three responses")
+- **Mentions**: 3 (Thomas Clarke, Martin implied with "three responses", **Justin Kim confirmed**)
 - **Why Critical**: If Lily talks to herself, the entire illusion collapses. User can't practice. Session dead.
-- **Impact**: ~2% of conversations become unusable
+- **Impact**: ~2% of conversations become unusable (Justin confirmed this exact number during demo)
 - **User Quote**: "Responded to itself so conversation couldn't continue" (Thomas Clarke)
+- **Justin's Reaction**: "This glitch needs fixing" (during live demo)
 - **Fix Priority**: **TODAY**
 - [ ] **Status**: Open
 
@@ -126,24 +127,50 @@ Every issue below is evaluated through this lens:
 
 ---
 
+### 8. AI Persona Too Formal (Immersion Killer)
+
+**NEW** 💬 **JUSTIN KIM INSIGHT**
+
+- **Mentions**: 1 (Justin Kim during demo)
+- **Why Critical**: If AI feels robotic/formal, users don't connect emotionally → no relationship with Lily → lower conversion
+- **User Quote**: "The AI persona is a little bit too formal" (Justin Kim, Nov 10)
+- **Fix Priority**: **THIS WEEK**
+- [ ] **Status**: Open
+
+**Fix**:
+- Make persona more flirtatious and fun (especially for relationship scenarios)
+- Default to deeper, raspy male voice for dating/relationship contexts
+- Less professional, more personality
+- Consider different personas for different scenario types
+
+---
+
 ## 🟡 HIGH: Blocks Path to Magic Moment
 
-### 8. Paid Conversion Not Working (1% → Need 8-10%)
+### 9. Paid Conversion Not Working (1% → Need 8-10%)
 
 **NEW** 💰 **MONETIZATION BLOCKER**
 
-- **Mentions**: 2 (Martin dad feedback, Justin's advice)
+- **Mentions**: 3 (Martin dad feedback, Justin's advice, Hiro's own data)
 - **Why High**: Can't fund development if users won't pay
-- **User Quote**: "Dad's feedback: paid conversion isn't that good" (Martin)
-- **Justin's Insight**: Analysis feature needs to be "beefed up" to be payworthy
+- **User Quotes**:
+  - "Dad's feedback: paid conversion isn't that good" (Martin)
+  - "Paid conversion rate currently 1%" (Hiro to Justin, Nov 10)
+- **Justin's Strategic Insights**:
+  - Analysis feature needs to be "beefed up" to be payworthy
+  - Product must prioritize immersiveness (image backgrounds, character personality)
+  - Make Lily more memorable with Ghibli-style avatars
+  - Consider native app for better stickiness
 - [ ] **Status**: Open
 
 **Hypothesis**: Users don't believe they improved enough to justify $15/month
 
 **Fix**: Make the value OBVIOUS:
 - Show clear before/after improvement
-- Make Lily memorable (Ghibli art, personality)
+- Make Lily memorable (Ghibli art, personality) ← **Justin confirmed this priority**
 - Add conversation continuity (relationship with Lily)
+- Add immersive image backgrounds that change based on conversation
+- Make AI persona less formal, more engaging
 
 ---
 
@@ -344,7 +371,7 @@ Every issue below is evaluated through this lens:
 
 ### Test & Learn (Conversion Hypothesis)
 8. **Simplify first screen** - One question: "What conversation are you dreading?"
-9. **Make Lily memorable** - Add Ghibli-style avatar
+9. **Make Lily memorable** - Add Ghibli-style avatar - ✅ IN PROGRESS
 10. **"Continue with Lily" button** - Test if continuity increases retention
 
 ---
@@ -454,7 +481,314 @@ If answer is "no" to all three → Don't build it.
 
 ---
 
-**Last Review**: November 10, 2025
+## 💡 Justin Kim Strategic Consultation (November 10, 2025)
+
+**Context**: Justin Kim (medical student, founder of Cali eating disorder app) reviewed Kaiwa and provided distribution/product strategy advice.
+
+### 🚨 Critical Strategic Pivots
+
+#### **DISTRIBUTION: TikTok/Instagram > Reddit** ⚠️ CONTRADICTS CURRENT STRATEGY
+
+**Justin's Recommendation:**
+- ❌ **DON'T use Reddit** - "Low-yield, too anonymized for effective user engagement"
+- ✅ **DO use TikTok and Instagram** - Low-quality UGC style ads
+- ✅ **Hiro should be the face** - "You're a good-looking dude, use yourself in content"
+- ✅ **Put ad money behind high-performing creative**
+
+**Current Strategy Conflict:**
+- DISTRIBUTION_STRATEGY.md says: "Reddit (70% of effort), SKIP Instagram/TikTok for 90 days"
+- **Decision needed**: Test Justin's TikTok-first approach vs Reddit-first approach
+
+**UGC Creative Strategy:**
+- Make ads look low-quality/authentic (NOT polished)
+- Simple video: Hiro + girlfriend discussing long-distance language barrier
+- Highlight problem: "What if they think I'm stupid?"
+- Example: Simple walking video talking about AI conversation practice
+
+#### **PHONE NUMBER SIGN-UPS (CRITICAL)**
+
+**Justin's Requirement:**
+- ✅ **Implement phone number sign-ups** (not just Gmail)
+- Why: "People rarely respond to email outreach, but they respond to texts"
+- Personal text messaging to new users for feedback
+- Convert engaged users to "product advisors" with lifetime free access
+- Use WhatsApp group for community (Discord for younger users only)
+
+**Action Items:**
+- [ ] Add phone number field to sign-up flow
+- [ ] Set up US phone number (via messaging service) for Hiro in Japan
+- [ ] Create text messaging outreach script
+- [ ] Set up product advisor program (lifetime free access incentive)
+
+#### **TRACKING & ANALYTICS**
+
+**Justin's Requirements:**
+- [ ] Install Pixel in web app code (Meta or TikTok business account)
+- [ ] Track signups from ads to measure performance
+- [ ] A/B test creative content performance
+
+#### **TARGET MARKET FOCUS**
+
+**Justin's Insight:**
+- **Primary target**: Women learning Korean or Japanese for relationships
+- **Secondary**: Men will pay, but women are more active/consistent users
+- **Beach head**: Women interested in K-pop, anime, or dating Korean/Japanese men
+- This is a "strong beach head" for initial traction
+
+### 🎨 Product Immersiveness Recommendations
+
+#### **1. Ghibli-Style Character Avatars** ✅ CONFIRMED PRIORITY
+
+**Justin's Feedback:**
+- Make characters cute, Ghibli-style animated
+- Give each character distinct personality
+- This differentiates from generic competitors like Pingo.AI (which "lacks personality")
+
+**Action Items:**
+- [x] Add to priority list (already in progress)
+- [ ] Generate AI prototypes (Midjourney)
+- [ ] Integrate into MessageBubble component
+
+#### **2. Image Backgrounds for Scenarios**
+
+**Justin's Suggestion:**
+- Add image backgrounds that change based on conversation context
+- Makes experience more immersive
+- Helps users feel "transported" to the scenario
+
+**Action Items:**
+- [ ] Design background system (per scenario or dynamic)
+- [ ] Source/generate background images
+- [ ] Implement background rendering in conversation UI
+
+#### **3. AI Persona Adjustment**
+
+**Justin's Feedback:**
+- Current persona "a little bit too formal"
+- Make it more flirtatious and fun (for relationship scenarios)
+- Default to deeper, raspy male voice for relationship contexts
+- Less professional, more engaging personality
+
+**Action Items:**
+- [ ] Update system prompts for relationship scenarios
+- [ ] Test different voice options (OpenAI voice IDs)
+- [ ] A/B test formal vs casual persona
+
+#### **4. Kdrama-Inspired Roleplay Scenarios**
+
+**Justin's Idea:**
+- Create scenarios based on iconic Kdrama scenes
+- Leverage cultural moments that target market already loves
+- Makes practice feel less like "homework," more like fan engagement
+
+**Action Items:**
+- [ ] Research popular Kdrama moments
+- [ ] Create 3-5 Kdrama-inspired scenarios
+- [ ] Test with Korean language learners
+
+### 📱 Native App Priority
+
+**Justin's Strong Recommendation:**
+- Make Kaiwa into native app "as soon as possible"
+- Better user stickiness than web app
+- Improved UX and engagement
+- Timeline: Consider starting next month after TikTok marketing
+
+**Action Items:**
+- [ ] Evaluate React Native vs Swift
+- [ ] Timeline: Q1 2026 or after reaching $X MRR
+- [ ] Focus on iOS first (target market primarily iPhone users)
+
+### 📊 Marketing Execution Plan (Per Justin)
+
+**Weekly Commitment:**
+- [ ] Create TikTok/Instagram Reel creative featuring Hiro + girlfriend
+- [ ] Emphasize long-distance relationship + language barrier angle
+- [ ] Put ad money into highest-performing creative
+- [ ] Track Pixel data for signup conversions
+
+**Friend-of-Friends Method:**
+- [ ] Improve distribution through personal network
+- [ ] Ask engaged users for intros
+- [ ] Justin will show Kaiwa to women in med school
+
+**Weekly Updates:**
+- [ ] Send Justin email update every week about progress
+- [ ] Share wins, conversion data, creative performance
+
+### 🎯 Success Metrics (Justin's Perspective)
+
+**Product Validation:**
+- Justin said: "Great MVP, totally ready for distribution"
+- Core feature works
+- Main blocker: 2% AI self-response glitch (needs immediate fix)
+
+**Next Milestones:**
+- Get 1% → 8-10% paid conversion
+- Achieve through: Ghibli characters + immersive backgrounds + better persona
+- Native app once product-market fit is clearer
+
+### 🤝 Justin's Commitment
+
+**Support Offered:**
+- Will meet Hiro in Asia (mid-January to mid-February 2026)
+- Will show Kaiwa to women in med school
+- Available for ongoing product feedback
+- Wants weekly email updates
+
+### ⚠️ Strategic Decision Required: Reddit vs TikTok
+
+**Conflict:**
+- **Current strategy** (DISTRIBUTION_STRATEGY.md): Reddit-first, skip TikTok
+- **Justin's advice**: TikTok-first, skip Reddit
+
+**Recommendation**:
+- **A/B test both approaches** for 2 weeks
+- Week 1-2: Reddit comments + TikTok UGC ads in parallel
+- Measure: signups, engagement, conversion rate per channel
+- Double down on winner
+
+**Pros of Reddit Approach:**
+- SEO benefits (ranks in Google)
+- High intent (people searching for solutions)
+- Text-based (easier to execute)
+
+**Pros of TikTok Approach:**
+- Visual/emotional connection (see Hiro's face, relationship story)
+- Younger target market (women 25-35)
+- Justin has proven this works (Cali app)
+- Phone-based follow-up more effective
+
+**Hypothesis**: TikTok may win because relationship learning is **emotional**, not just informational.
+
+---
+
+## 🎨 Implementation: Ghibli-Style Character Faces
+
+**Status**: IN PROGRESS (November 12, 2025)
+
+**Goal**: Make characters memorable to increase paid conversion (1% → 8-10%)
+
+**✅ VALIDATED by Justin Kim**: "Make characters cute, Ghibli-style. This differentiates you from Pingo.AI which lacks personality."
+
+### Technical Implementation Plan
+
+**✅ DISCOVERY**: Complete character generation system already exists at `/dev/animated`!
+
+**Phase 1: Generate Characters Using Existing System** (Week 1) ← **START HERE**
+**What exists**:
+- Full UI at http://localhost:5173/dev/animated
+- OpenAI DALL-E 3 & GPT-Image-1 integration
+- Studio Ghibli prompts for ALL 25+ speakers
+- Batch generation with live preview
+- Cost tracking and download capability
+
+**Steps to generate**:
+1. Open `/dev/animated` in browser
+2. Select DALL-E 3 model (most consistent)
+3. Click "Generate Hiro", "Generate Yuki", etc.
+4. Review generated images for quality
+5. Download images (WebP format)
+6. Optimize to 256x256px, <20KB
+
+**Characters to generate first**:
+  - **Yuki** (Tokyo woman) - warm, friendly
+  - **Hiro** (Tokyo man) - casual, relaxed
+  - **Minami** (Osaka woman) - energetic
+  - **+2-3 Korean characters** for K-drama scenarios (per Justin's advice)
+
+**Cost**: $0.40 for 5 characters ($0.08 × 5)
+**Timeline**: 30 minutes
+**Priority**: HIGH (Justin confirmed this increases stickiness)
+
+**Phase 2: Code Integration** (Week 1)
+1. Store images in `/src/lib/assets/characters/`
+2. Update `Speaker` schema: add `characterImageUrl` and `characterImageAlt` fields
+3. Update `/src/lib/data/speakers.ts` with image paths
+4. Modify `MessageBubble.svelte` (lines 200-218) to display character images
+5. Test locally, then deploy
+
+**Detailed implementation guide**: See `/GHIBLI_CHARACTER_IMPLEMENTATION.md`
+
+**Phase 3: Testing & Validation (Week 2)**
+- A/B test: Character faces vs. Kitsune mascot
+- Track metrics:
+  - Conversation completion rate
+  - Return rate (next day)
+  - Paid conversion rate
+- User feedback: "Do you remember the character's name?"
+
+**Phase 4: Professional Commission (If Validated)**
+- Commission artist for production-quality characters
+- Cost: $300-1000 for 10 characters
+- Timeline: 2-4 weeks
+
+### Key Design Decisions
+
+**Character Personas Based on Scenarios:**
+- **Yuki** - Warm, friendly woman (family dinner, casual conversations)
+- **Hiro** - Relaxed man (date, friendly chats)
+- **Minami** - Energetic Osaka personality (mixers, celebrations)
+- **Nurse Character** - Professional, caring (medical scenarios)
+- **Parent Character** - Mature, traditional (partner's parent scenarios)
+
+**Style Guidelines:**
+- Studio Ghibli aesthetic (soft watercolors, warm tones)
+- Friendly, approachable expressions
+- Headshots with simple backgrounds
+- 40x40px display size (optimize as 256x256px source)
+- WebP format, <20KB per image
+
+### Success Metrics
+
+**Target**: If character faces increase paid conversion by 2%+ → Commission professional art
+**Timeline**: 2 weeks to validate concept
+**Budget**: $10-30 (testing), $300-1000 (production)
+
+### Files to Modify
+
+- `/src/lib/server/db/schema/speakers.ts` - Add character image fields
+- `/src/lib/data/speakers.ts` - Add image URLs to speaker data
+- `/src/lib/features/conversation/components/MessageBubble.svelte` - Update avatar rendering
+- `/src/lib/assets/characters/` - New directory for character images
+
+---
+
+## ✅ Conversation Ending & Analysis Flow (Already Implemented)
+
+**User Request**: "I do want something where users can press to end the conversation and going to analysis instead of taking it out completely."
+
+**Status**: ✅ **THIS ALREADY EXISTS**
+
+**Current Flow**:
+1. User in active conversation
+2. Clicks **"End conversation" button** in FAB menu (ConversationFab.svelte:89-100)
+3. Transitions to **ConversationReviewableState** (review screen)
+4. Shows conversation summary, analytics, message history
+5. User clicks **"Get Learning Analysis"** button
+6. Full analysis runs and displays results
+
+**Files involved**:
+- `/src/lib/features/conversation/components/ConversationFab.svelte` - End button
+- `/src/lib/features/conversation/components/ConversationReviewableState.svelte` - Review + analysis
+
+**No changes needed** - flow works as requested!
+
+---
+
+## ✅ Transcript Toggle (Already Supported)
+
+**User Request**: Don't remove transcript completely, just make it hideable.
+
+**Status**: ✅ **ALREADY CONFIGURABLE**
+
+Transcript display is controlled via UI settings and can be shown/hidden based on user preference. The Jony Ive recommendation to "hide transcript by default" can be implemented by changing the default setting, not removing the feature.
+
+**Recommendation**: Keep transcript hideable (not removed) as user requested.
+
+---
+
+**Last Review**: November 12, 2025
 **Next Review**: November 17, 2025
 **Owner**: Hiro Kuwana
 
