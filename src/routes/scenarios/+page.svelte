@@ -99,26 +99,22 @@
 		<div class="container mx-auto max-w-6xl px-6 py-16">
 			<div class="text-center">
 				<h1 class="mb-4 text-4xl font-light tracking-tight md:text-5xl">Practice Scenarios</h1>
-				<p class="mx-auto mb-8 max-w-2xl text-lg font-light opacity-70">
-					A flight simulator for the conversations your heart needs to have. Practice difficult
-					conversations in a safe, judgment-free space.
-				</p>
 
 				<!-- Search bar -->
 				<div class="mx-auto max-w-md">
 					<div class="relative">
 						<span
-							class="icon-[mdi--magnify] pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 opacity-50"
+							class="pointer-events-none absolute top-1/2 left-4 icon-[mdi--magnify] h-5 w-5 -translate-y-1/2 opacity-50"
 						></span>
 						<input
 							type="text"
 							placeholder="Search scenarios..."
-							class="input input-bordered w-full pl-12 pr-4"
+							class="input-bordered input w-full pr-4 pl-12"
 							bind:value={searchQuery}
 						/>
 						{#if searchQuery}
 							<button
-								class="btn btn-ghost btn-sm absolute right-2 top-1/2 -translate-y-1/2"
+								class="btn absolute top-1/2 right-2 -translate-y-1/2 btn-ghost btn-sm"
 								onclick={() => (searchQuery = '')}
 							>
 								<span class="icon-[mdi--close] h-4 w-4"></span>
@@ -143,7 +139,7 @@
 					{#each filteredScenarios.featured as scenario (scenario.id)}
 						{@const meta = getScenarioMeta(scenario)}
 						<button
-							class="card group cursor-pointer border-2 border-base-300 bg-base-100 text-left transition-all hover:border-primary hover:shadow-lg"
+							class="group card cursor-pointer border-2 border-base-300 bg-base-100 text-left transition-all hover:border-primary hover:shadow-lg"
 							onclick={() => handleScenarioClick(scenario)}
 						>
 							<div class="card-body p-6">
@@ -159,7 +155,7 @@
 								</div>
 
 								<!-- Title -->
-								<h3 class="card-title mb-2 text-xl font-medium">{scenario.title}</h3>
+								<h3 class="mb-2 card-title text-xl font-medium">{scenario.title}</h3>
 
 								<!-- Description -->
 								<p class="mb-4 line-clamp-3 text-sm opacity-70">
@@ -196,7 +192,7 @@
 					{#each filteredScenarios.other as scenario (scenario.id)}
 						{@const meta = getScenarioMeta(scenario)}
 						<button
-							class="card group cursor-pointer border-2 border-base-300 bg-base-100 text-left transition-all hover:border-primary hover:shadow-lg"
+							class="group card cursor-pointer border-2 border-base-300 bg-base-100 text-left transition-all hover:border-primary hover:shadow-lg"
 							onclick={() => handleScenarioClick(scenario)}
 						>
 							<div class="card-body p-6">
@@ -238,9 +234,9 @@
 		<!-- No results message -->
 		{#if filteredScenarios.featured.length === 0 && filteredScenarios.other.length === 0}
 			<div class="py-16 text-center">
-				<span class="icon-[mdi--magnify-close] mb-4 inline-block h-16 w-16 opacity-30"></span>
+				<span class="mb-4 icon-[mdi--magnify-close] inline-block h-16 w-16 opacity-30"></span>
 				<p class="text-lg opacity-50">No scenarios found matching "{searchQuery}"</p>
-				<button class="btn btn-primary btn-sm mt-4" onclick={() => (searchQuery = '')}>
+				<button class="btn mt-4 btn-sm btn-primary" onclick={() => (searchQuery = '')}>
 					Clear search
 				</button>
 			</div>
@@ -255,9 +251,9 @@
 				Choose a scenario and start practicing the conversations that matter most to you.
 			</p>
 			{#if !user || user.id === 'guest'}
-				<a href="/auth" class="btn btn-primary btn-lg">Sign Up to Start</a>
+				<a href="/auth" class="btn btn-lg btn-primary">Sign Up to Start</a>
 			{:else}
-				<a href="/conversation" class="btn btn-primary btn-lg">Go to Practice</a>
+				<a href="/conversation" class="btn btn-lg btn-primary">Go to Practice</a>
 			{/if}
 		</div>
 	</section>
