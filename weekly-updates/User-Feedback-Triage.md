@@ -673,29 +673,42 @@ If answer is "no" to all three → Don't build it.
 
 ### Technical Implementation Plan
 
-**Phase 1: AI-Generated Prototypes (Week 1)** ← **START HERE**
-- Tool: Midjourney or DALL-E 3
-- Generate 5-10 character portraits in Ghibli style
-- Characters needed:
+**✅ DISCOVERY**: Complete character generation system already exists at `/dev/animated`!
+
+**Phase 1: Generate Characters Using Existing System** (Week 1) ← **START HERE**
+**What exists**:
+- Full UI at http://localhost:5173/dev/animated
+- OpenAI DALL-E 3 & GPT-Image-1 integration
+- Studio Ghibli prompts for ALL 25+ speakers
+- Batch generation with live preview
+- Cost tracking and download capability
+
+**Steps to generate**:
+1. Open `/dev/animated` in browser
+2. Select DALL-E 3 model (most consistent)
+3. Click "Generate Hiro", "Generate Yuki", etc.
+4. Review generated images for quality
+5. Download images (WebP format)
+6. Optimize to 256x256px, <20KB
+
+**Characters to generate first**:
   - **Yuki** (Tokyo woman) - warm, friendly
   - **Hiro** (Tokyo man) - casual, relaxed
   - **Minami** (Osaka woman) - energetic
-  - **Nurse** - caring professional
-  - **Parent** - traditional, mature
   - **+2-3 Korean characters** for K-drama scenarios (per Justin's advice)
-- Cost: $10-30
-- Timeline: 2-3 days
-- **Priority**: HIGH (Justin confirmed this increases stickiness)
 
-**Phase 2: Code Integration (Week 1)**
-1. Update `Speaker` interface in `/src/lib/server/db/schema/speakers.ts`:
-   ```typescript
-   characterImageUrl?: string;
-   characterImageAlt?: string;
-   ```
-2. Modify `MessageBubble.svelte` (lines 200-218) to display character images
-3. Add images to `/src/lib/assets/characters/`
-4. Update `speakers.ts` data with image paths
+**Cost**: $0.40 for 5 characters ($0.08 × 5)
+**Timeline**: 30 minutes
+**Priority**: HIGH (Justin confirmed this increases stickiness)
+
+**Phase 2: Code Integration** (Week 1)
+1. Store images in `/src/lib/assets/characters/`
+2. Update `Speaker` schema: add `characterImageUrl` and `characterImageAlt` fields
+3. Update `/src/lib/data/speakers.ts` with image paths
+4. Modify `MessageBubble.svelte` (lines 200-218) to display character images
+5. Test locally, then deploy
+
+**Detailed implementation guide**: See `/GHIBLI_CHARACTER_IMPLEMENTATION.md`
 
 **Phase 3: Testing & Validation (Week 2)**
 - A/B test: Character faces vs. Kitsune mascot
@@ -738,6 +751,40 @@ If answer is "no" to all three → Don't build it.
 - `/src/lib/data/speakers.ts` - Add image URLs to speaker data
 - `/src/lib/features/conversation/components/MessageBubble.svelte` - Update avatar rendering
 - `/src/lib/assets/characters/` - New directory for character images
+
+---
+
+## ✅ Conversation Ending & Analysis Flow (Already Implemented)
+
+**User Request**: "I do want something where users can press to end the conversation and going to analysis instead of taking it out completely."
+
+**Status**: ✅ **THIS ALREADY EXISTS**
+
+**Current Flow**:
+1. User in active conversation
+2. Clicks **"End conversation" button** in FAB menu (ConversationFab.svelte:89-100)
+3. Transitions to **ConversationReviewableState** (review screen)
+4. Shows conversation summary, analytics, message history
+5. User clicks **"Get Learning Analysis"** button
+6. Full analysis runs and displays results
+
+**Files involved**:
+- `/src/lib/features/conversation/components/ConversationFab.svelte` - End button
+- `/src/lib/features/conversation/components/ConversationReviewableState.svelte` - Review + analysis
+
+**No changes needed** - flow works as requested!
+
+---
+
+## ✅ Transcript Toggle (Already Supported)
+
+**User Request**: Don't remove transcript completely, just make it hideable.
+
+**Status**: ✅ **ALREADY CONFIGURABLE**
+
+Transcript display is controlled via UI settings and can be shown/hidden based on user preference. The Jony Ive recommendation to "hide transcript by default" can be implemented by changing the default setting, not removing the feature.
+
+**Recommendation**: Keep transcript hideable (not removed) as user requested.
 
 ---
 
