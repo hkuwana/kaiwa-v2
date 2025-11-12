@@ -76,6 +76,7 @@ export { payments, paymentStatusEnum } from './payments';
 export { userUsage } from './user-usage';
 export { conversationSessions } from './conversation-sessions';
 export { analyticsEvents } from './analytics-events';
+export { feedback } from './feedback';
 
 // 🎭 Learning scenario tracking (replaced scenario-attempts & scenario-outcomes)
 export { scenarioMetadata } from './scenario-metadata';

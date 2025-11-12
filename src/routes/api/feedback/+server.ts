@@ -1,5 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
+import { db } from '$lib/server/db';
+import { feedback } from '$lib/server/db/schema';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	try {
@@ -14,29 +16,35 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			);
 		}
 
-		// In production, you might want to:
-		// 1. Save to database
-		// 2. Send email notification
-		// 3. Post to Slack/Discord webhook
-		// 4. Log to external service
+		// Get user ID from session if available
+		const userId = locals.user?.id ?? null;
 
-		// For now, log to console in development
-		console.log('📝 Feedback Received:', {
+		// Save feedback to database
+		const [savedFeedback] = await db
+			.insert(feedback)
+			.values({
+				userId,
+				type,
+				message,
+				timestamp,
+				url,
+				userAgent
+			})
+			.returning();
+
+		// Log to console for development visibility
+		console.log('📝 Feedback Saved:', {
+			id: savedFeedback.id,
 			type,
-			message,
-			timestamp,
+			userId: userId || 'anonymous',
 			url,
-			userAgent,
 			receivedAt: new Date().toISOString()
 		});
-
-		// TODO: Implement actual feedback storage
-		// Example: await saveFeedbackToDatabase({ type, message, timestamp, url, userAgent })
 
 		return json({
 			success: true,
 			message: 'Feedback received. Thank you!',
-			id: `feedback-${Date.now()}`
+			id: savedFeedback.id
 		});
 	} catch (error) {
 		console.error('Feedback API error:', error);
