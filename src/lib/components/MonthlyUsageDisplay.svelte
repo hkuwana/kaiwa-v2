@@ -160,20 +160,20 @@
 			aria-haspopup="true"
 			aria-label="View usage details"
 		>
-			<!-- DaisyUI Radial Progress Bar -->
+			<!-- DaisyUI Radial Progress Bar (responsive size) -->
 			<div
 				class="radial-progress"
-				style="--value:{percentageRemaining}; --size:9rem; --thickness:8px; --color:{ringColor};"
+				style="--value:{percentageRemaining}; --size:clamp(7rem, 80vw, 9rem); --thickness:8px; --color:{ringColor};"
 				role="progressbar"
 				aria-valuenow={Math.round(percentageRemaining)}
 				aria-valuemin="0"
 				aria-valuemax="100"
 			>
 				<div class="flex flex-col items-center justify-center">
-					<div class="text-5xl font-extralight tracking-tight" style="color: {ringColor}">
+					<div class="text-3xl sm:text-4xl md:text-5xl font-extralight tracking-tight" style="color: {ringColor}">
 						{timeDisplay.value}
 					</div>
-					<div class="text-sm font-medium tracking-wide opacity-60">
+					<div class="text-xs sm:text-sm font-medium tracking-wide opacity-60">
 						{timeDisplay.unit}
 					</div>
 				</div>
@@ -194,10 +194,10 @@
 		<!-- Dropdown details panel -->
 		{#if isDropdownOpen}
 			<div
-				class="absolute left-1/2 z-[100] mt-2 w-80 -translate-x-1/2 rounded-2xl bg-base-100 shadow-2xl ring-1 ring-base-300"
+				class="absolute left-1/2 z-[100] mt-2 w-80 max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-2xl bg-base-100 shadow-2xl ring-1 ring-base-300"
 				role="menu"
 			>
-				<div class="p-6">
+				<div class="p-4 sm:p-6">
 					<!-- Summary -->
 					<div class="mb-4">
 						<div class="text-xs font-semibold uppercase tracking-wider opacity-50">

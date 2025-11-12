@@ -70,7 +70,7 @@
 		<div class="modal-box w-full max-w-md">
 			<!-- Header -->
 			<div class="flex items-center justify-between mb-4">
-				<h2 class="text-2xl font-bold">Send Feedback</h2>
+				<h2 class="text-xl sm:text-2xl font-bold">Send Feedback</h2>
 				<button
 					class="btn btn-circle btn-ghost btn-sm"
 					onclick={handleClose}
@@ -117,7 +117,7 @@
 						<span class="label-text font-semibold">Your feedback</span>
 					</label>
 					<textarea
-						class="textarea textarea-bordered h-32 resize-none"
+						class="textarea textarea-bordered h-24 sm:h-32 resize-none"
 						placeholder="Tell us what you're thinking..."
 						bind:value={message}
 						disabled={isSubmitting}
