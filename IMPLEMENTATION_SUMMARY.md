@@ -5,6 +5,7 @@
 ### 1. Four New Service Files ✅
 
 #### [src/lib/services/realtime-message.helpers.ts](src/lib/services/realtime-message.helpers.ts)
+
 - Pure utility functions (no state)
 - `extractMessageText()` - Get text from message content blocks
 - `classifyServerEvent()` - Route events by type
@@ -13,6 +14,7 @@
 - `findMessageById()`, `findMessageIndexById()` - Lookup helpers
 
 #### [src/lib/services/realtime-connection.service.ts](src/lib/services/realtime-connection.service.ts)
+
 - Session lifecycle management
 - Audio output device handling
 - Public state: `isConnected`, `selectedOutputDeviceId`, `availableOutputDevices`
@@ -20,6 +22,7 @@
 - **Does NOT hold messages**
 
 #### [src/lib/services/realtime-word-timing.service.ts](src/lib/services/realtime-word-timing.service.ts)
+
 - Word-level timing computation
 - Audio duration tracking
 - Public state: `messageWordTimings`, `activeWordByMessage`
@@ -27,6 +30,7 @@
 - **Returns timing data, doesn't update messages**
 
 #### [src/lib/services/realtime-event-coordinator.service.ts](src/lib/services/realtime-event-coordinator.service.ts)
+
 - Event processing and queueing
 - Transcript finalization with debounce
 - Commit tracking
@@ -38,6 +42,7 @@
 ### 2. Two Architecture Guides ✅
 
 #### [ARCHITECTURE_INTEGRATION_GUIDE.md](ARCHITECTURE_INTEGRATION_GUIDE.md)
+
 - Explains the core problem and solution
 - Shows the unidirectional data flow pattern
 - Provides integration steps
@@ -45,6 +50,7 @@
 - Lists common pitfalls and solutions
 
 #### [STORE_INTEGRATION_EXAMPLE.md](STORE_INTEGRATION_EXAMPLE.md)
+
 - Step-by-step code examples
 - Shows constructor setup
 - Demonstrates event processing
@@ -57,6 +63,7 @@
 ### Why You Were Losing Instant Connection
 
 When you extract message handling to services, you break the reactive connection because:
+
 1. Services can't hold reactive state (Svelte reactivity is in store)
 2. You can't import services into stores (circular dependency)
 3. State updates happen in services but don't reflect in store's reactive messages array
@@ -71,12 +78,12 @@ const newTimings = this.wordTiming.recordAssistantWordDelta(messageId, deltaText
 
 // Store updates its OWN reactive state with the result
 if (newTimings) {
-  const idx = this.messages.findIndex(m => m.id === messageId);
-  if (idx !== -1) {
-    const updated = [...this.messages];
-    updated[idx] = { ...updated[idx], speechTimings: newTimings };
-    this.messages = updated;  // ← REACTIVITY PRESERVED
-  }
+	const idx = this.messages.findIndex((m) => m.id === messageId);
+	if (idx !== -1) {
+		const updated = [...this.messages];
+		updated[idx] = { ...updated[idx], speechTimings: newTimings };
+		this.messages = updated; // ← REACTIVITY PRESERVED
+	}
 }
 ```
 
@@ -91,6 +98,7 @@ if (newTimings) {
 ## How to Apply This
 
 ### Step 1: Update Constructor
+
 ```typescript
 this.connection = new RealtimeConnectionService();
 this.coordinator = new RealtimeEventCoordinator();
@@ -98,6 +106,7 @@ this.wordTiming = new RealtimeWordTimingService();
 ```
 
 ### Step 2: Delegate Connection Methods
+
 ```typescript
 async connect(sessionData, mediaStream) {
   const connection = await createConnectionWithSession(sessionData);
@@ -107,6 +116,7 @@ async connect(sessionData, mediaStream) {
 ```
 
 ### Step 3: Process Events with Services
+
 ```typescript
 async onServerEvent(event: SDKTransportEvent) {
   // Queue in coordinator
@@ -122,6 +132,7 @@ async onServerEvent(event: SDKTransportEvent) {
 ```
 
 ### Step 4: Update Messages in Store
+
 ```typescript
 private recordAssistantWordDelta(messageId: string, deltaText: string) {
   // Service calculates timings
@@ -179,16 +190,17 @@ event → coordinator.queueServerEvent()
 
 ## What Each Service Does
 
-| Service | Owns | Does NOT Own | Entry Points |
-|---------|------|------|--------------|
-| **ConnectionService** | Session lifecycle, audio devices | Messages, events | `connect()`, `disconnect()`, `setOutputDevice()` |
-| **EventCoordinator** | Event queue, transcripts, commits | Messages | `queueServerEvent()`, `processQueuedEvents()` |
-| **WordTimingService** | Word-level timing, audio tracking | Messages | `recordAssistantWordDelta()`, `finalizeAssistantWordTimings()` |
-| **Store** | **MESSAGES** (reactive), coordination | Internal service logic | All public methods delegate to services |
+| Service               | Owns                                  | Does NOT Own           | Entry Points                                                   |
+| --------------------- | ------------------------------------- | ---------------------- | -------------------------------------------------------------- |
+| **ConnectionService** | Session lifecycle, audio devices      | Messages, events       | `connect()`, `disconnect()`, `setOutputDevice()`               |
+| **EventCoordinator**  | Event queue, transcripts, commits     | Messages               | `queueServerEvent()`, `processQueuedEvents()`                  |
+| **WordTimingService** | Word-level timing, audio tracking     | Messages               | `recordAssistantWordDelta()`, `finalizeAssistantWordTimings()` |
+| **Store**             | **MESSAGES** (reactive), coordination | Internal service logic | All public methods delegate to services                        |
 
 ## Testing Strategy
 
 ### Service Tests (Unit)
+
 ```typescript
 // Each service is independently testable
 const service = new RealtimeWordTimingService();
@@ -197,6 +209,7 @@ expect(result).toBeDefined();
 ```
 
 ### Store Tests (Integration)
+
 ```typescript
 // Test messages stay reactive
 const store = new RealtimeOpenAIStore();
@@ -229,17 +242,18 @@ expect(store.messageWordTimings['msg1']).toBeDefined();
 
 ## Potential Issues & Solutions
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Messages don't update | Forgetting to assign `this.messages` | Always use `this.messages = newArray` |
-| Service state is stale | No sync call | Add `updateReactiveStateFromServices()` |
-| Service has wrong data | Not passing current state | Pass `this.messages` or other state when needed |
-| UI doesn't react | Mutating instead of reassigning | Use spread operator or `[...array]` |
-| Circular imports | Services importing stores | Services can't import stores ever |
+| Issue                  | Cause                                | Solution                                        |
+| ---------------------- | ------------------------------------ | ----------------------------------------------- |
+| Messages don't update  | Forgetting to assign `this.messages` | Always use `this.messages = newArray`           |
+| Service state is stale | No sync call                         | Add `updateReactiveStateFromServices()`         |
+| Service has wrong data | Not passing current state            | Pass `this.messages` or other state when needed |
+| UI doesn't react       | Mutating instead of reassigning      | Use spread operator or `[...array]`             |
+| Circular imports       | Services importing stores            | Services can't import stores ever               |
 
 ## Summary
 
 You now have:
+
 1. ✅ Four clean, focused services
 2. ✅ Clear architectural patterns
 3. ✅ Detailed integration guides

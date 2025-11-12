@@ -297,7 +297,7 @@ ${rolePositioning}
 - Do not repeat the same sentence twice in a session
 - Vary your responses so it doesn't sound robotic
 - Alternate between different conversation starters
-- Track what you've already said and use different phrases`
+- Track what you've already said and use different phrases`;
 	}
 
 	private buildContext(): string {

@@ -8,10 +8,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 		// Validate input
 		if (!type || !message || !timestamp) {
-			return json(
-				{ error: 'Missing required fields' },
-				{ status: 400 }
-			);
+			return json({ error: 'Missing required fields' }, { status: 400 });
 		}
 
 		// In production, you might want to:
@@ -40,9 +37,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		});
 	} catch (error) {
 		console.error('Feedback API error:', error);
-		return json(
-			{ error: 'Failed to process feedback' },
-			{ status: 500 }
-		);
+		return json({ error: 'Failed to process feedback' }, { status: 500 });
 	}
 };

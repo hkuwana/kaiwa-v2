@@ -86,7 +86,9 @@ async function previewEmails() {
 	console.log('\n1. Start your dev server: pnpm dev');
 	console.log('\n2. Send a test email to your address:');
 	console.log('   curl -H "Authorization: Bearer development_secret" \\');
-	console.log('     "http://localhost:5173/api/cron/send-reminders?dryRun=false&testEmails=YOUR_EMAIL@example.com"');
+	console.log(
+		'     "http://localhost:5173/api/cron/send-reminders?dryRun=false&testEmails=YOUR_EMAIL@example.com"'
+	);
 	console.log('\n3. Or view in browser:');
 	console.log('   - Open /tmp/reminder-email-preview.html');
 	console.log('   - Open /tmp/founder-day1-preview.html');

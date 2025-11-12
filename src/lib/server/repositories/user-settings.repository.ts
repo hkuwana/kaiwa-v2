@@ -171,10 +171,7 @@ export class UserSettingsRepository {
 	 * Get all users who have opted in to founder emails
 	 */
 	async getFounderEmailSubscribers(): Promise<UserSettings[]> {
-		return await db
-			.select()
-			.from(userSettings)
-			.where(eq(userSettings.receiveFounderEmails, true));
+		return await db.select().from(userSettings).where(eq(userSettings.receiveFounderEmails, true));
 	}
 
 	/**

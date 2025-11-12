@@ -38,8 +38,16 @@ export const GET = async ({ request }) => {
 			);
 			return json({
 				success: false,
-				message: 'Automated emails are disabled for safety. Set ENABLE_AUTOMATED_EMAILS=true to enable.',
-				stats: { total_eligible: 0, day1_sent: 0, day2_sent: 0, day3_sent: 0, skipped: 0, failed: 0 }
+				message:
+					'Automated emails are disabled for safety. Set ENABLE_AUTOMATED_EMAILS=true to enable.',
+				stats: {
+					total_eligible: 0,
+					day1_sent: 0,
+					day2_sent: 0,
+					day3_sent: 0,
+					skipped: 0,
+					failed: 0
+				}
 			});
 		}
 

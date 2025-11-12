@@ -17,7 +17,10 @@ export class UserUsageRepository {
 	 * @param userId The user ID
 	 * @param subscriptionStartDate Optional subscription start date to align period with billing cycle
 	 */
-	async getCurrentMonthUsage(userId: string, subscriptionStartDate?: Date): Promise<UserUsage | null> {
+	async getCurrentMonthUsage(
+		userId: string,
+		subscriptionStartDate?: Date
+	): Promise<UserUsage | null> {
 		let currentPeriod: string;
 
 		if (subscriptionStartDate) {
@@ -453,11 +456,19 @@ export class UserUsageRepository {
 		const startDate = new Date(subscriptionStartDate);
 
 		// Calculate the anniversary date in the current year
-		let anniversaryThisYear = new Date(now.getFullYear(), startDate.getMonth(), startDate.getDate());
+		let anniversaryThisYear = new Date(
+			now.getFullYear(),
+			startDate.getMonth(),
+			startDate.getDate()
+		);
 
 		// If the anniversary hasn't happened yet this year, we're still in the previous period
 		if (now < anniversaryThisYear) {
-			anniversaryThisYear = new Date(now.getFullYear() - 1, startDate.getMonth(), startDate.getDate());
+			anniversaryThisYear = new Date(
+				now.getFullYear() - 1,
+				startDate.getMonth(),
+				startDate.getDate()
+			);
 		}
 
 		// Return the period based on the anniversary year and month

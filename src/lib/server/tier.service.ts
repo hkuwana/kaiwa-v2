@@ -15,7 +15,6 @@ export interface UsageStatus {
 	resetDate: Date;
 }
 
-
 /**
  * Get user's current tier from their active subscription
  */

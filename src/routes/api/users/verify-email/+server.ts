@@ -29,7 +29,9 @@ export const POST = async ({ request, locals }) => {
 				await userSettingsRepository.updateSettings(locals.user.id, {
 					receivedFounderEmail: true
 				});
-				console.log('✉️ Founder welcome email sent after email verification', { userId: locals.user.id });
+				console.log('✉️ Founder welcome email sent after email verification', {
+					userId: locals.user.id
+				});
 			}
 		} catch (emailError) {
 			console.error('⚠️ Failed to send founder welcome email:', emailError);

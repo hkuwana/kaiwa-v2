@@ -225,13 +225,17 @@
 								{#if (usageStatus.usage.bankedSeconds || 0) > 0}
 									<div class="flex items-center justify-between">
 										<span>Banked Seconds:</span>
-										<span class="font-medium text-success">{Math.floor((usageStatus.usage.bankedSeconds || 0) / 60)} min</span>
+										<span class="font-medium text-success"
+											>{Math.floor((usageStatus.usage.bankedSeconds || 0) / 60)} min</span
+										>
 									</div>
 								{/if}
 								{#if (usageStatus.usage.bankedSecondsUsed || 0) > 0}
 									<div class="flex items-center justify-between">
 										<span>Banked Used:</span>
-										<span class="font-medium">{Math.floor((usageStatus.usage.bankedSecondsUsed || 0) / 60)} min</span>
+										<span class="font-medium"
+											>{Math.floor((usageStatus.usage.bankedSecondsUsed || 0) / 60)} min</span
+										>
 									</div>
 								{/if}
 							</div>
@@ -247,12 +251,16 @@
 								</div>
 								<div class="flex items-center justify-between">
 									<span>Longest Session:</span>
-									<span class="font-medium">{Math.floor((usageStatus.usage.longestSessionSeconds || 0) / 60)} min</span>
+									<span class="font-medium"
+										>{Math.floor((usageStatus.usage.longestSessionSeconds || 0) / 60)} min</span
+									>
 								</div>
 								{#if (usageStatus.usage.averageSessionSeconds || 0) > 0}
 									<div class="flex items-center justify-between">
 										<span>Avg Session:</span>
-										<span class="font-medium">{Math.floor((usageStatus.usage.averageSessionSeconds || 0) / 60)} min</span>
+										<span class="font-medium"
+											>{Math.floor((usageStatus.usage.averageSessionSeconds || 0) / 60)} min</span
+										>
 									</div>
 								{/if}
 							</div>
@@ -287,7 +295,9 @@
 								{#if (usageStatus.usage.pronunciationAnalysisUsed || 0) > 0}
 									<div class="flex items-center justify-between">
 										<span>Pronunciation:</span>
-										<span class="font-medium">{usageStatus.usage.pronunciationAnalysisUsed || 0}</span>
+										<span class="font-medium"
+											>{usageStatus.usage.pronunciationAnalysisUsed || 0}</span
+										>
 									</div>
 								{/if}
 								{#if (usageStatus.usage.speechRhythmUsed || 0) > 0}
@@ -313,13 +323,17 @@
 									{#if (usageStatus.usage.advancedVoiceSeconds || 0) > 0}
 										<div class="flex items-center justify-between">
 											<span>Advanced Voice:</span>
-											<span class="font-medium">{Math.floor((usageStatus.usage.advancedVoiceSeconds || 0) / 60)} min</span>
+											<span class="font-medium"
+												>{Math.floor((usageStatus.usage.advancedVoiceSeconds || 0) / 60)} min</span
+											>
 										</div>
 									{/if}
 									{#if (usageStatus.usage.overageSeconds || 0) > 0}
 										<div class="flex items-center justify-between">
 											<span class="text-warning">Overage Seconds:</span>
-											<span class="font-medium text-warning">{Math.floor((usageStatus.usage.overageSeconds || 0) / 60)} min</span>
+											<span class="font-medium text-warning"
+												>{Math.floor((usageStatus.usage.overageSeconds || 0) / 60)} min</span
+											>
 										</div>
 									{/if}
 								</div>
@@ -332,17 +346,23 @@
 								<div class="space-y-1">
 									{#if usageStatus.usage.lastConversationAt}
 										<div>
-											Last conversation: {new Date(usageStatus.usage.lastConversationAt).toLocaleDateString()}
+											Last conversation: {new Date(
+												usageStatus.usage.lastConversationAt
+											).toLocaleDateString()}
 										</div>
 									{/if}
 									{#if usageStatus.usage.lastRealtimeAt}
 										<div>
-											Last realtime: {new Date(usageStatus.usage.lastRealtimeAt).toLocaleDateString()}
+											Last realtime: {new Date(
+												usageStatus.usage.lastRealtimeAt
+											).toLocaleDateString()}
 										</div>
 									{/if}
 									{#if usageStatus.usage.firstActivityAt}
 										<div>
-											First activity: {new Date(usageStatus.usage.firstActivityAt).toLocaleDateString()}
+											First activity: {new Date(
+												usageStatus.usage.firstActivityAt
+											).toLocaleDateString()}
 										</div>
 									{/if}
 								</div>

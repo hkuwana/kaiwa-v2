@@ -2,7 +2,10 @@
 // Responsibility: Word-level timing computation and audio duration tracking
 // ~250 lines
 
-import type { RealtimeAudioFormatDefinition, SDKTransportEvent } from '$lib/types/openai.realtime.types';
+import type {
+	RealtimeAudioFormatDefinition,
+	SDKTransportEvent
+} from '$lib/types/openai.realtime.types';
 import type { SpeechTiming } from '$lib/server/db/types';
 import { SvelteSet } from 'svelte/reactivity';
 import { estimateWordDuration } from '$lib/services/realtime-transcript.helper.service';
@@ -117,7 +120,10 @@ export class RealtimeWordTimingService {
 	 * Finalize word timings for a message (called when audio is complete)
 	 * Returns the finalized timing data
 	 */
-	finalizeAssistantWordTimings(messageId: string, totalDurationMs?: number | null): SpeechTiming[] | null {
+	finalizeAssistantWordTimings(
+		messageId: string,
+		totalDurationMs?: number | null
+	): SpeechTiming[] | null {
 		if (this.finalizedWordTimings.has(messageId)) {
 			return null;
 		}
@@ -181,7 +187,8 @@ export class RealtimeWordTimingService {
 		);
 
 		if (durationMs) {
-			this.assistantAudioTracking.totalDurationMs = this.assistantAudioTracking.accumulatedMs + durationMs;
+			this.assistantAudioTracking.totalDurationMs =
+				this.assistantAudioTracking.accumulatedMs + durationMs;
 		}
 	}
 

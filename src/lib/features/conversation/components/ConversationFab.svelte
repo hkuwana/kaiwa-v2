@@ -79,12 +79,17 @@
 	</div>
 {:else}
 	<div class="fab fab-flower">
-		<div tabindex="0" role="button" class="btn btn-circle btn-primary btn-sm md:btn-lg" data-tip="Next Options">
+		<div
+			tabindex="0"
+			role="button"
+			class="btn btn-circle btn-sm btn-primary md:btn-lg"
+			data-tip="Next Options"
+		>
 			<span class="icon-[mdi--arrow-right] h-5 w-5 md:h-6 md:w-6"></span>
 		</div>
 
 		<!-- Main Action button replaces the original button when FAB is open -->
-		<button class="fab-main-action btn btn-circle btn-primary btn-sm md:btn-lg">
+		<button class="fab-main-action btn btn-circle btn-sm btn-primary md:btn-lg">
 			<span class="sr-only">{timerTooltip()}: {displayTime}</span>
 			<span class="text-sm md:text-base">{displayTime}</span>
 		</button>
@@ -92,7 +97,7 @@
 		<!-- buttons that show up when FAB is open -->
 		<div class="tooltip tooltip-left" data-tip="End conversation">
 			<button
-				class="btn btn-circle btn-primary btn-sm md:btn-lg"
+				class="btn btn-circle btn-sm btn-primary md:btn-lg"
 				aria-label="End conversation"
 				onclick={(event) => {
 					event.stopPropagation();
@@ -104,7 +109,7 @@
 		</div>
 		<div class="tooltip tooltip-left" data-tip="Retry conversation">
 			<button
-				class="btn btn-circle btn-primary btn-sm md:btn-lg"
+				class="btn btn-circle btn-sm btn-primary md:btn-lg"
 				aria-label="Retry conversation"
 				onclick={(event) => {
 					if (!onRestartConversation) return;

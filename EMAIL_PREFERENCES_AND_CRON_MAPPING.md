@@ -2,22 +2,23 @@
 
 ## Current Email Preference Columns in `user_settings` Table
 
-| Column Name | DB Column | Default | Purpose |
-|---|---|---|---|
-| `receivePracticeReminders` | `receive_practice_reminders` | `true` | Daily reminders to inactive users |
-| `receiveFounderEmails` | `receive_founder_emails` | `true` | 3-day founder welcome sequence |
-| `receiveProductUpdates` | `receive_product_updates` | `true` | Product announcements & features |
-| `receiveProgressReports` | `receive_progress_reports` | `true` | Weekly practice statistics |
-| `receiveSecurityAlerts` | `receive_security_alerts` | `true` | Security & account notifications |
-| `receivedFounderEmail` | `received_founder_email` | `false` | Flag: founder email was already sent |
-| `dailyReminderSentCount` | `daily_reminder_sent_count` | `0` | Counter for rate-limiting reminders |
-| `lastReminderSentAt` | `last_reminder_sent_at` | `null` | Timestamp of last reminder sent |
+| Column Name                | DB Column                    | Default | Purpose                              |
+| -------------------------- | ---------------------------- | ------- | ------------------------------------ |
+| `receivePracticeReminders` | `receive_practice_reminders` | `true`  | Daily reminders to inactive users    |
+| `receiveFounderEmails`     | `receive_founder_emails`     | `true`  | 3-day founder welcome sequence       |
+| `receiveProductUpdates`    | `receive_product_updates`    | `true`  | Product announcements & features     |
+| `receiveProgressReports`   | `receive_progress_reports`   | `true`  | Weekly practice statistics           |
+| `receiveSecurityAlerts`    | `receive_security_alerts`    | `true`  | Security & account notifications     |
+| `receivedFounderEmail`     | `received_founder_email`     | `false` | Flag: founder email was already sent |
+| `dailyReminderSentCount`   | `daily_reminder_sent_count`  | `0`     | Counter for rate-limiting reminders  |
+| `lastReminderSentAt`       | `last_reminder_sent_at`      | `null`  | Timestamp of last reminder sent      |
 
 ---
 
 ## Cron Jobs & Their Email Preference Dependencies
 
 ### 1. Practice Reminders Cron
+
 - **File**: `src/routes/api/cron/send-reminders/+server.ts`
 - **Schedule**: Mondays & Thursdays at 9:00 AM UTC
 - **Preference Used**: `receivePracticeReminders`
@@ -32,6 +33,7 @@
 ---
 
 ### 2. Founder Emails Cron
+
 - **File**: `src/routes/api/cron/founder-emails/+server.ts`
 - **Schedule**: Every afternoon (2-4 PM local time) - Daily
 - **Preference Used**: `receiveFounderEmails`
@@ -49,6 +51,7 @@
 ---
 
 ### 3. Weekly Stats/Progress Reports Cron
+
 - **File**: `src/routes/api/cron/weekly-stats/+server.ts`
 - **Schedule**: Every Saturday at 11:00 AM UTC
 - **Preference Used**: `receiveProgressReports`
@@ -61,6 +64,7 @@
 ---
 
 ### 4. Weekly Digest/Product Updates Cron
+
 - **File**: `src/routes/api/cron/weekly-digest/+server.ts`
 - **Schedule**: Every Sunday at 10:00 AM UTC
 - **Preference Used**: `receiveProductUpdates`
@@ -72,6 +76,7 @@
 ---
 
 ### 5. Community Stories Cron
+
 - **File**: `src/routes/api/cron/community-stories/+server.ts`
 - **Schedule**: Every Friday at 10:00 AM UTC
 - **Preference Used**: `receiveProductUpdates`
@@ -84,6 +89,7 @@
 ---
 
 ### 6. Scenario Inspiration Cron
+
 - **File**: `src/routes/api/cron/scenario-inspiration/+server.ts`
 - **Schedule**: Every Tuesday at 10:00 AM UTC
 - **Preference Used**: `receiveProductUpdates`
@@ -96,6 +102,7 @@
 ---
 
 ### 7. Progress Reports Cron (Alternative)
+
 - **File**: `src/routes/api/cron/progress-reports/+server.ts`
 - **Schedule**: Saturdays at 9:00 AM UTC
 - **Preference Used**: `receiveProgressReports`
@@ -106,6 +113,7 @@
 ---
 
 ### 8. Product Updates Cron (Manual)
+
 - **File**: `src/routes/api/cron/product-updates/+server.ts`
 - **Schedule**: Manual (POST request to trigger)
 - **Preference Used**: `receiveProductUpdates`
@@ -119,22 +127,27 @@
 ## Preference-to-Cron Cross-Reference
 
 ### `receivePracticeReminders`
+
 - ✅ Send Reminders Cron (Mon & Thu)
 
 ### `receiveFounderEmails`
+
 - ✅ Founder Emails Cron (Daily)
 
 ### `receiveProductUpdates`
+
 - ✅ Weekly Digest (Sunday)
 - ✅ Community Stories (Friday)
 - ✅ Scenario Inspiration (Tuesday)
 - ✅ Product Updates Manual (On-demand)
 
 ### `receiveProgressReports`
+
 - ✅ Weekly Stats (Saturday 11 AM)
 - ✅ Progress Reports (Saturday 9 AM) - **Possible duplicate?**
 
 ### `receiveSecurityAlerts`
+
 - ❌ **NOT USED BY ANY CRON JOB YET**
 - Reserved for future security notifications
 
@@ -143,12 +156,16 @@
 ## Recommended Changes for Future Consideration
 
 ### 1. **Consolidate Progress Report Crons**
+
 If both `weekly-stats` and `progress-reports` do similar things, consolidate into one job.
+
 - Current: Two jobs run on Saturday (9 AM and 11 AM)
 - Suggested: Merge into single cron job
 
 ### 2. **Add Separate Preference for Community/Inspiration Content**
+
 Currently uses `receiveProductUpdates`, which means users get:
+
 - Weekly Digest (Sundays)
 - Community Stories (Fridays)
 - Scenario Inspiration (Tuesdays)
@@ -156,18 +173,24 @@ Currently uses `receiveProductUpdates`, which means users get:
 Consider splitting into separate preferences if users should be able to opt out of community content while keeping product updates.
 
 ### 3. **Implement Security Alerts**
+
 The `receiveSecurityAlerts` preference exists but isn't used.
+
 - Create cron job for security notifications
 - Examples: suspicious login attempts, password changes, new device access
 
 ### 4. **Reduce Email Fatigue**
+
 Current weekly schedule sends emails 3 days per week (Fri, Sat, Sun). Consider:
+
 - Consolidating community stories + product updates into one weekly email
 - Moving to bi-weekly digest model
 - Implementing frequency preferences (weekly, bi-weekly, monthly)
 
 ### 5. **Track Security Alerts Separately**
+
 Consider adding to user_settings:
+
 ```sql
 -- New optional columns
 receiveCommunityStories: boolean (default: true) -- separate from product updates
@@ -180,6 +203,7 @@ emailFrequency: 'weekly' | 'bi-weekly' | 'monthly' (default: 'weekly')
 ## Current Issues Fixed
 
 ✅ **Fixed on 2025-11-06**:
+
 - Repository method `updateEmailPreferences()` - Corrected field names and switched to `upsertSettings()`
 - Frontend component `EmailPreferences.svelte` - Updated to use correct field names
 - Frontend labels - Now show "Founder Emails" instead of "Marketing Emails", "Practice Reminders" instead of "Daily Reminders"
@@ -189,6 +213,7 @@ emailFrequency: 'weekly' | 'bi-weekly' | 'monthly' (default: 'weekly')
 ## Testing Email Preferences
 
 ### Manual Testing
+
 1. Go to `/profile?tab=email`
 2. Toggle each preference
 3. Check browser console (F12) for logs:
@@ -197,6 +222,7 @@ emailFrequency: 'weekly' | 'bi-weekly' | 'monthly' (default: 'weekly')
 4. Verify debug box shows updated state
 
 ### Database Verification
+
 ```sql
 -- Check user's email preferences
 SELECT userId, receivePracticeReminders, receiveFounderEmails,

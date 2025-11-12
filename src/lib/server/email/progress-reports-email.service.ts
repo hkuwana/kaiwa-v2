@@ -56,9 +56,7 @@ export class ProgressReportsEmailService {
 			// Get this week's sessions
 			const thisWeekStart = this.getWeekStart(new Date());
 			const allSessions = await conversationSessionsRepository.getUserSessions(userId, 100);
-			const thisWeekSessions = allSessions.filter(
-				(s) => new Date(s.startTime) >= thisWeekStart
-			);
+			const thisWeekSessions = allSessions.filter((s) => new Date(s.startTime) >= thisWeekStart);
 
 			// Skip if no practice this week
 			if (thisWeekSessions.length === 0) {
@@ -163,12 +161,10 @@ export class ProgressReportsEmailService {
 		} else if (stats.sessionCount >= 3) {
 			encouragement = "Nice work! You're building a solid habit.";
 		} else {
-			encouragement = "Great start! Every conversation gets you closer to fluency.";
+			encouragement = 'Great start! Every conversation gets you closer to fluency.';
 		}
 
-		const languageList = stats.languages
-			.map((lang) => `<li>${lang}</li>`)
-			.join('');
+		const languageList = stats.languages.map((lang) => `<li>${lang}</li>`).join('');
 
 		return `
 			<!DOCTYPE html>
@@ -330,9 +326,7 @@ export class ProgressReportsEmailService {
 		`;
 	}
 
-	private static calculateStats(
-		sessions: any[]
-	): {
+	private static calculateStats(sessions: any[]): {
 		sessionCount: number;
 		totalMinutes: number;
 		languages: string[];
@@ -348,8 +342,7 @@ export class ProgressReportsEmailService {
 			// Calculate duration from startTime and endTime
 			if (session.startTime && session.endTime) {
 				const duration =
-					(new Date(session.endTime).getTime() - new Date(session.startTime).getTime()) /
-					1000;
+					(new Date(session.endTime).getTime() - new Date(session.startTime).getTime()) / 1000;
 				totalSeconds += duration;
 			}
 		}

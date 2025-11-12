@@ -1,4 +1,5 @@
 # Kaiwa Marketing Whiteboard Exercise
+
 **Date:** November 6, 2025
 **Current State:** $15 MRR, 7-10 beta users, 2K Quora followers
 **Context:** Applying Jim Tang's decision framework to marketing
@@ -10,6 +11,7 @@
 > "Write EVERYTHING down. Every possible option. Even the stupid ones. Especially the stupid ones."
 
 ### Distribution Channels (30 options)
+
 1. Reddit comments (organic, value-first)
 2. Reddit ads (paid)
 3. Quora answers (organic, leveraging 2K followers)
@@ -42,6 +44,7 @@
 30. Product Hunt launch
 
 ### Content Types (20 options)
+
 31. Customer story emails (weekly newsletter)
 32. "How I built Kaiwa" founder journey posts
 33. Personal story: "I couldn't talk to my Japanese grandparents"
@@ -64,6 +67,7 @@
 50. Challenge posts (30-day speaking challenges)
 
 ### Offers/Products (20 options)
+
 51. $14/month Kaiwa Plus (current)
 52. $49 practice bootcamp (5-day group)
 53. $99 one-on-one coaching (3 sessions)
@@ -86,6 +90,7 @@
 70. White-label for language schools
 
 ### Partnerships/Collabs (10 options)
+
 71. Partner with dating apps (Hinge, Bumble)
 72. Partner with expat relocation services
 73. Partner with language teachers (they recommend you)
@@ -98,6 +103,7 @@
 80. Therapy platforms (intercultural relationship support)
 
 ### Unconventional/Wild Ideas (20 options)
+
 81. Street interviews ("What language do you wish you could speak?")
 82. Guerrilla marketing at international airports
 83. Sponsor small language learning podcasts ($100-500)
@@ -117,7 +123,7 @@
 97. Speed dating events (for bilingual couples)
 98. Pop-up booths at cultural festivals
 99. College campus ambassadors
-100. "Rent a grandparent" service (elderlies help you practice)
+100.  "Rent a grandparent" service (elderlies help you practice)
 
 ---
 
@@ -130,22 +136,28 @@
 Rate each option on a scale of 1-10 for each criterion:
 
 #### 1. **Enjoyment**
-*Will I actually enjoy doing this? Or will it drain me?*
+
+_Will I actually enjoy doing this? Or will it drain me?_
 
 #### 2. **Operational Load**
-*How much time/energy does this require to maintain?*
+
+_How much time/energy does this require to maintain?_
 
 #### 3. **What I Want to Be Known For**
-*Does this align with "helping people connect with loved ones without subtitles"?*
+
+_Does this align with "helping people connect with loved ones without subtitles"?_
 
 #### 4. **Speed to Cash**
-*How quickly can this generate revenue? (Days? Weeks? Months?)*
+
+_How quickly can this generate revenue? (Days? Weeks? Months?)_
 
 #### 5. **Leverage/Compounding**
-*Does this work keep paying off over time? (e.g., SEO posts rank forever)*
+
+_Does this work keep paying off over time? (e.g., SEO posts rank forever)_
 
 #### 6. **Personal Story Alignment**
-*Can I tell the "I couldn't talk to my Japanese grandparents" story here?*
+
+_Can I tell the "I couldn't talk to my Japanese grandparents" story here?_
 
 ---
 
@@ -153,18 +165,18 @@ Rate each option on a scale of 1-10 for each criterion:
 
 Fill this out after scoring everything above:
 
-| Rank | Marketing Approach | Why It Matters to You | Total Score |
-|------|-------------------|----------------------|-------------|
-| 1    | _________________ | ____________________ | ___/60      |
-| 2    | _________________ | ____________________ | ___/60      |
-| 3    | _________________ | ____________________ | ___/60      |
-| 4    | _________________ | ____________________ | ___/60      |
-| 5    | _________________ | ____________________ | ___/60      |
-| 6    | _________________ | ____________________ | ___/60      |
-| 7    | _________________ | ____________________ | ___/60      |
-| 8    | _________________ | ____________________ | ___/60      |
-| 9    | _________________ | ____________________ | ___/60      |
-| 10   | _________________ | ____________________ | ___/60      |
+| Rank | Marketing Approach | Why It Matters to You    | Total Score |
+| ---- | ------------------ | ------------------------ | ----------- |
+| 1    | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
+| 2    | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
+| 3    | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
+| 4    | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
+| 5    | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
+| 6    | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
+| 7    | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
+| 8    | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
+| 9    | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
+| 10   | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
 
 ---
 
@@ -175,42 +187,52 @@ Fill this out after scoring everything above:
 ### Assumptions to Challenge
 
 **Rule:** "I MUST post on Instagram/TikTok to succeed"
+
 - **Reality:** Your customers are on Reddit/Quora searching for solutions, not scrolling for entertainment
 - **What if:** You skip social media entirely for 90 days?
 
 **Rule:** "I MUST build features before marketing"
+
 - **Reality:** You have $15 MRR not because of missing features, but missing distribution
 - **What if:** You completely stop coding for 30 days?
 
 **Rule:** "I MUST take sales calls to sell high-ticket"
+
 - **Reality:** You sold coaching with just a sales page + email (you already proved this wrong!)
 - **What if:** You sell $49 bootcamps entirely via Reddit comments → email sequence?
 
 **Rule:** "I MUST have a big audience before launching paid offers"
+
 - **Reality:** You could pre-sell a bootcamp to 5 people you interviewed
 - **What if:** You DM your 10 beta users today and ask if they'd pay $49 for group practice?
 
 **Rule:** "I MUST write perfect, long-form content"
+
 - **Reality:** 300-word helpful Reddit comments can drive signups
 - **What if:** You only write comments, never articles?
 
 **Rule:** "I MUST scale to everyone learning languages"
+
 - **Reality:** Sofia (bilingual spouse meeting parents) is a tighter, more emotional niche
 - **What if:** You ONLY market to people meeting their partner's family for the next 90 days?
 
 **Rule:** "I MUST be professional and polished"
+
 - **Reality:** Vulnerability and founder journey content builds trust faster
 - **What if:** You post your revenue numbers publicly every week? ($15 MRR → $50 → $200...)
 
 **Rule:** "I MUST give away value for free first"
+
 - **Reality:** People pay for solutions to painful problems immediately
 - **What if:** Your first Reddit comment ends with "I'm running a bootcamp for this, $49, starts Monday"?
 
 **Rule:** "I MUST focus on acquisition before retention"
+
 - **Reality:** Your 7-10 beta users are your best marketing channel
 - **What if:** You turn them into raving fans who refer 2-3 friends each?
 
 **Rule:** "I MUST follow the 30-day sprint plan exactly as written"
+
 - **Reality:** Plans are hypotheses; only you know what feels right
 - **What if:** You modify it based on what gives you energy vs drains you?
 
@@ -226,37 +248,37 @@ After filling out Parts 1-4, close your laptop. Go for a walk. Then come back an
 
 1. **Which approach made your eyes light up when you wrote it down?**
 
-   _______________________________________________
+   ***
 
 2. **Which approach made your stomach clench with dread?**
 
-   _______________________________________________
+   ***
 
 3. **If you could only do ONE marketing activity for the next 30 days, which would you choose?**
 
-   _______________________________________________
+   ***
 
 4. **What marketing activity have you been avoiding because it's "not professional enough" or "too vulnerable"?**
 
-   _______________________________________________
+   ***
 
 5. **If you had to hit $1,000 MRR in 30 days and failure meant shutting down Kaiwa forever, what would you do FIRST tomorrow morning?**
 
-   _______________________________________________
+   ***
 
 6. **What would you do if you couldn't code for 30 days? (Seriously, what would you do?)**
 
-   _______________________________________________
+   ***
 
 7. **What does your gut say about the Reddit-first strategy in DISTRIBUTION_STRATEGY.md?**
    - [ ] Hell yes, this feels right
    - [ ] Intellectually I agree, but I'm scared
    - [ ] I don't believe this will work
-   - [ ] I want to modify it because _______________
+   - [ ] I want to modify it because ******\_\_\_******
 
-8. **Complete this sentence: "I'm avoiding _____________ because I'm afraid of _____________"**
+8. **Complete this sentence: "I'm avoiding ******\_****** because I'm afraid of ******\_******"**
 
-   _______________________________________________
+   ***
 
 ---
 
@@ -265,33 +287,39 @@ After filling out Parts 1-4, close your laptop. Go for a walk. Then come back an
 Based on this whiteboard exercise, I commit to:
 
 ### My Top 3 Marketing Channels:
-1. _______________________________
-2. _______________________________
-3. _______________________________
+
+1. ***
+2. ***
+3. ***
 
 ### My Signature Offer:
-- **Product/Service:** _______________
-- **Price:** $___________
-- **Launch Date:** _______________
+
+- **Product/Service:** ******\_\_\_******
+- **Price:** $****\_\_\_****
+- **Launch Date:** ******\_\_\_******
 
 ### The "Rule" I'm Breaking:
-_______________________________
+
+---
 
 ### My First Action (Within 24 Hours):
-_______________________________
+
+---
 
 ### How I'll Know If It's Working (30 Days):
-- **Metric 1:** _______________
-- **Metric 2:** _______________
-- **Metric 3:** _______________
+
+- **Metric 1:** ******\_\_\_******
+- **Metric 2:** ******\_\_\_******
+- **Metric 3:** ******\_\_\_******
 
 ### What I'm Saying NO To (For 30 Days):
-- ❌ _______________________________
-- ❌ _______________________________
-- ❌ _______________________________
 
-**Signed:** _______________________
-**Date:** _______________________
+- ❌ **************\_\_\_**************
+- ❌ **************\_\_\_**************
+- ❌ **************\_\_\_**************
+
+**Signed:** **********\_\_\_**********
+**Date:** **********\_\_\_**********
 
 ---
 
@@ -304,25 +332,29 @@ Print this document. Put it on your wall. Review it every morning.
 ### Weekly Check-In Questions:
 
 **Week 1:**
+
 - Did I actually do my "First Action"? Yes / No
-- If no, what was I doing instead? _______________
+- If no, what was I doing instead? ******\_\_\_******
 - Was I coding when I should have been marketing? Yes / No
 
 **Week 2:**
+
 - Am I following my Top 3 channels? Yes / No
 - Did I break my "rule"? Yes / No
-- What surprised me? _______________
+- What surprised me? ******\_\_\_******
 
 **Week 3:**
+
 - Did I create and launch my signature offer? Yes / No
-- If no, what's blocking me? _______________
-- Have I made any revenue from marketing? $___________
+- If no, what's blocking me? ******\_\_\_******
+- Have I made any revenue from marketing? $****\_\_\_****
 
 **Week 4:**
+
 - Did I hit my 30-day metrics? Yes / No
-- What worked better than expected? _______________
-- What should I do more of? _______________
-- What should I stop doing? _______________
+- What worked better than expected? ******\_\_\_******
+- What should I do more of? ******\_\_\_******
+- What should I stop doing? ******\_\_\_******
 
 ---
 
@@ -337,21 +369,22 @@ If you catch yourself thinking "I just need to build this one feature first..." 
    - No → It's procrastination
 
 2. **Am I coding because talking to strangers feels uncomfortable?**
-   - Be honest: _______________
+   - Be honest: ******\_\_\_******
 
 3. **What am I avoiding right now?**
    - [ ] Posting on Reddit (fear of rejection)
    - [ ] Asking for money (fear of hearing "no")
    - [ ] DMing potential customers (fear of being "salesy")
    - [ ] Sharing my grandparents story (fear of being vulnerable)
-   - [ ] Other: _______________
+   - [ ] Other: ******\_\_\_******
 
 4. **What would happen if I did that scary thing RIGHT NOW?**
-   - Worst case: _______________
-   - Best case: _______________
-   - Most likely case: _______________
+   - Worst case: ******\_\_\_******
+   - Best case: ******\_\_\_******
+   - Most likely case: ******\_\_\_******
 
 ### The 5-Minute Rule:
+
 Set a timer. Do the scary marketing thing for 5 minutes. If you hate it after 5 minutes, you can go back to coding.
 
 **Spoiler:** You won't hate it. And you'll realize coding was the hiding place all along.

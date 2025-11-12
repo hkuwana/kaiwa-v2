@@ -37,17 +37,17 @@
 	const remainingSecondsDisplay = $derived(remainingSeconds % 60);
 	const remainingHours = $derived(Math.floor(remainingMinutes / 60));
 	const remainingMinutesDisplay = $derived(remainingMinutes % 60);
-	
+
 	const monthlyMinutes = $derived(Math.floor(monthlySeconds / 60));
 	const usedMinutes = $derived(Math.floor(usedSeconds / 60));
 	const bankedMinutes = $derived(Math.floor(bankedSeconds / 60));
-	
+
 	const totalAvailableSeconds = $derived(monthlySeconds + bankedSeconds);
 	const percentageUsed = $derived(
-		totalAvailableSeconds > 0 ? ((usedSeconds / totalAvailableSeconds) * 100) : 0
+		totalAvailableSeconds > 0 ? (usedSeconds / totalAvailableSeconds) * 100 : 0
 	);
 	const percentageRemaining = $derived(Math.max(0, 100 - percentageUsed));
-	
+
 	// Display state
 	const isLowTime = $derived(percentageRemaining < 15 && remainingMinutes > 0);
 	const isCriticalTime = $derived(percentageRemaining < 5 && remainingMinutes > 0);
@@ -92,7 +92,6 @@
 
 	const timeDisplay = $derived(formatTimeDisplay());
 
-
 	// Determine color based on state
 	const ringColor = $derived(
 		isOutOfTime ? '#ef4444' : isCriticalTime ? '#f97316' : isLowTime ? '#f59e0b' : '#3b82f6'
@@ -126,7 +125,7 @@
 
 	onMount(() => {
 		document.addEventListener('click', handleClickOutside);
-		
+
 		return () => {
 			document.removeEventListener('click', handleClickOutside);
 		};
@@ -140,15 +139,15 @@
 			<div class="relative h-36 w-36">
 				<!-- Outer ring skeleton -->
 				<div class="absolute inset-0 rounded-full border-8 border-base-200"></div>
-				
+
 				<!-- Spinning gradient indicator -->
 				<div class="absolute inset-0 flex items-center justify-center">
-					<span class="loading loading-spinner loading-lg text-primary"></span>
+					<span class="loading loading-lg loading-spinner text-primary"></span>
 				</div>
 			</div>
 			<div class="mt-2 flex flex-col items-center gap-1">
-				<div class="skeleton h-4 w-20"></div>
-				<div class="skeleton h-3 w-16"></div>
+				<div class="h-4 w-20 skeleton"></div>
+				<div class="h-3 w-16 skeleton"></div>
 			</div>
 		</div>
 	{:else}
@@ -170,24 +169,25 @@
 				aria-valuemax="100"
 			>
 				<div class="flex flex-col items-center justify-center">
-					<div class="text-3xl sm:text-4xl md:text-5xl font-extralight tracking-tight" style="color: {ringColor}">
-						{timeDisplay.value}
-					</div>
-					<div class="text-xs sm:text-sm font-medium tracking-wide opacity-60">
-						{timeDisplay.unit}
+					<div class="flex items-baseline" style="color: {ringColor}">
+						<span class="text-3xl font-extralight tracking-tight sm:text-4xl md:text-5xl">
+							{timeDisplay.value}
+						</span>
+						<span class="ml-1 text-lg font-normal tracking-wide opacity-70 sm:text-xl">
+							{timeDisplay.unit}
+						</span>
 					</div>
 				</div>
 			</div>
 
-			<!-- Subtext -->
-			<div class="mt-2 text-sm font-medium opacity-50 transition-opacity group-hover:opacity-70">
-				{timeDisplay.subtext}
-			</div>
-
 			<!-- Subtle indicator -->
-			<div class="mt-1 flex items-center gap-1 text-xs opacity-40">
-				<span>details</span>
-				<span class="icon-[mdi--chevron-down] h-3 w-3 transition-transform {isDropdownOpen ? 'rotate-180' : ''}"></span>
+			<div class="mt-2 flex items-center gap-1 text-xs opacity-40">
+				<span>Details</span>
+				<span
+					class="icon-[mdi--chevron-down] h-3 w-3 transition-transform {isDropdownOpen
+						? 'rotate-180'
+						: ''}"
+				></span>
 			</div>
 		</button>
 
@@ -200,7 +200,7 @@
 				<div class="p-4 sm:p-6">
 					<!-- Summary -->
 					<div class="mb-4">
-						<div class="text-xs font-semibold uppercase tracking-wider opacity-50">
+						<div class="text-xs font-semibold tracking-wider uppercase opacity-50">
 							Monthly Practice
 						</div>
 						<div class="mt-2 text-base-content/80">
@@ -211,7 +211,9 @@
 								</div>
 							{:else}
 								<div class="text-sm leading-relaxed">
-									<span class="font-semibold">{usedMinutes}</span> of <span class="font-semibold">{monthlyMinutes} minutes</span> used
+									<span class="font-semibold">{usedMinutes}</span> of
+									<span class="font-semibold">{monthlyMinutes} minutes</span>
+									used
 									{#if bankedMinutes > 0}
 										<span class="text-success"> (+{bankedMinutes} banked)</span>
 									{/if}
@@ -222,16 +224,16 @@
 
 					<!-- Action buttons -->
 					<div class="flex gap-2">
-					{#if showUpgradeOption}
-						<button 
-							class="flex-1 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-content transition-all hover:brightness-110 active:scale-95" 
-							onclick={handleUpgrade}
-						>
-							Upgrade
-						</button>
-					{/if}
-						<button 
-							class="flex-1 rounded-xl border border-base-300 px-4 py-2.5 text-sm font-medium transition-all hover:bg-base-200 active:scale-95" 
+						{#if showUpgradeOption}
+							<button
+								class="flex-1 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-content transition-all hover:brightness-110 active:scale-95"
+								onclick={handleUpgrade}
+							>
+								Upgrade
+							</button>
+						{/if}
+						<button
+							class="flex-1 rounded-xl border border-base-300 px-4 py-2.5 text-sm font-medium transition-all hover:bg-base-200 active:scale-95"
 							onclick={handleViewBilling}
 						>
 							Manage
@@ -239,8 +241,11 @@
 					</div>
 
 					{#if isOutOfTime && showUpgradeOption}
-						<div class="mt-4 rounded-lg bg-base-200/50 p-3 text-xs leading-relaxed text-base-content/70">
-							Upgrade for more time: <span class="font-medium">Plus 300 min/mo</span> or <span class="font-medium">Premium 600 min/mo</span>
+						<div
+							class="mt-4 rounded-lg bg-base-200/50 p-3 text-xs leading-relaxed text-base-content/70"
+						>
+							Upgrade for more time: <span class="font-medium">Plus 300 min/mo</span> or
+							<span class="font-medium">Premium 600 min/mo</span>
 						</div>
 					{/if}
 
@@ -250,7 +255,8 @@
 						onclick={toggleAdvanced}
 					>
 						<span class="opacity-60">Details</span>
-						<span class="icon-[mdi--chevron-{showAdvanced ? 'up' : 'down'}] h-4 w-4 opacity-40"></span>
+						<span class="icon-[mdi--chevron-{showAdvanced ? 'up' : 'down'}] h-4 w-4 opacity-40"
+						></span>
 					</button>
 
 					{#if showAdvanced}
@@ -284,7 +290,9 @@
 							<!-- Usage stats -->
 							{#if conversationsUsed > 0 || realtimeSessionsUsed > 0 || analysesUsed > 0}
 								<div class="space-y-1.5 border-t border-base-300 pt-3">
-									<div class="mb-2 text-xs font-medium uppercase tracking-wider opacity-50">Usage Stats</div>
+									<div class="mb-2 text-xs font-medium tracking-wider uppercase opacity-50">
+										Usage Stats
+									</div>
 									{#if realtimeSessionsUsed > 0}
 										<div class="flex justify-between">
 											<span class="opacity-60">Sessions</span>
@@ -306,7 +314,9 @@
 									{#if overageSeconds > 0}
 										<div class="flex justify-between">
 											<span class="opacity-60">Overage</span>
-											<span class="font-medium text-warning">{Math.floor(overageSeconds / 60)} min</span>
+											<span class="font-medium text-warning"
+												>{Math.floor(overageSeconds / 60)} min</span
+											>
 										</div>
 									{/if}
 								</div>

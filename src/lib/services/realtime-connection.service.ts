@@ -75,7 +75,7 @@ export class RealtimeConnectionService {
 	async refreshOutputDevices(): Promise<void> {
 		try {
 			const devices = await navigator.mediaDevices.enumerateDevices();
-			this.availableOutputDevices = devices.filter(d => d.kind === 'audiooutput');
+			this.availableOutputDevices = devices.filter((d) => d.kind === 'audiooutput');
 			this.outputDeviceError = null;
 		} catch (error) {
 			this.outputDeviceError = `Failed to enumerate audio devices: ${error instanceof Error ? error.message : String(error)}`;
@@ -113,7 +113,7 @@ export class RealtimeConnectionService {
 		return {
 			isSupported: this.outputSelectionSupported,
 			selectedDeviceId: this.selectedOutputDeviceId,
-			availableDevices: this.availableOutputDevices.map(d => `${d.deviceId}: ${d.label}`),
+			availableDevices: this.availableOutputDevices.map((d) => `${d.deviceId}: ${d.label}`),
 			error: this.outputDeviceError
 		};
 	}

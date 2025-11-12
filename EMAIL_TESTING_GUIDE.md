@@ -11,6 +11,7 @@ npx tsx scripts/preview-emails.ts
 ```
 
 This generates HTML files you can open in a browser:
+
 - `/tmp/reminder-email-preview.html` - Practice reminder email
 - `/tmp/founder-day1-preview.html` - Day 1 founder email
 - `/tmp/founder-day2-preview.html` - Day 2 founder email
@@ -32,6 +33,7 @@ curl -H "Authorization: Bearer development_secret" \
 ```
 
 This shows you:
+
 - How many users would receive emails
 - Which segments they're in (new users, inactive, etc.)
 - Preview of subject lines
@@ -64,21 +66,25 @@ curl -H "Authorization: Bearer development_secret" \
 All endpoints support `?dryRun=true` and `?testEmails=email@example.com`:
 
 1. **Practice Reminders** (Weekly on Fridays by default)
+
    ```bash
    /api/cron/send-reminders
    ```
 
 2. **Founder Emails** (Day 1-3 onboarding sequence)
+
    ```bash
    /api/cron/founder-emails
    ```
 
 3. **Weekly Statistics**
+
    ```bash
    /api/cron/weekly-stats
    ```
 
 4. **Progress Reports**
+
    ```bash
    /api/cron/progress-reports
    ```
@@ -148,6 +154,7 @@ This prevents accidental email sends while you're testing.
 ### Emails not sending in test mode?
 
 Check that:
+
 1. `RESEND_API_KEY` is set in `.env`
 2. You're using `dryRun=false` for actual sending
 3. The test email address exists as a user in your database
@@ -156,6 +163,7 @@ Check that:
 ### Want to see what would be sent?
 
 Use `?dryRun=true` to see:
+
 - Number of eligible users
 - User segments
 - Email subjects

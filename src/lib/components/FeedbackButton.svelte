@@ -56,7 +56,7 @@
 
 <!-- Floating Feedback Button (left side, responsive size) -->
 <button
-	class="btn btn-circle btn-primary shadow-lg fixed left-4 bottom-6 z-40 md:left-8 md:bottom-8 btn-sm md:btn-lg transition-all hover:scale-110"
+	class="btn fixed bottom-6 left-4 z-40 btn-circle shadow-lg transition-all btn-sm btn-primary hover:scale-110 md:bottom-8 md:left-8 md:btn-lg"
 	title="Send feedback or ask for help"
 	onclick={() => (isOpen = true)}
 	aria-label="Open feedback form"
@@ -66,11 +66,11 @@
 
 <!-- Feedback Modal -->
 {#if isOpen}
-	<dialog class="modal modal-open">
+	<dialog class="modal-open modal">
 		<div class="modal-box w-full max-w-md">
 			<!-- Header -->
-			<div class="flex items-center justify-between mb-4">
-				<h2 class="text-xl sm:text-2xl font-bold">Send Feedback</h2>
+			<div class="mb-4 flex items-center justify-between">
+				<h2 class="text-xl font-bold sm:text-2xl">Send Feedback</h2>
 				<button
 					class="btn btn-circle btn-ghost btn-sm"
 					onclick={handleClose}
@@ -81,12 +81,17 @@
 			</div>
 
 			<!-- Description -->
-			<p class="text-sm opacity-70 mb-4">
+			<p class="mb-4 text-sm opacity-70">
 				Help us improve. Early stage feedback is super valuable! 🌱
 			</p>
 
 			<!-- Form -->
-			<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+			<form
+				onsubmit={(e) => {
+					e.preventDefault();
+					handleSubmit();
+				}}
+			>
 				<!-- Feedback Type Selector -->
 				<div class="form-control mb-4">
 					<label class="label">
@@ -94,7 +99,9 @@
 					</label>
 					<div class="space-y-2">
 						{#each feedbackTypes as type (type.value)}
-							<label class="label cursor-pointer rounded-lg border border-base-300 p-3 hover:border-primary">
+							<label
+								class="label cursor-pointer rounded-lg border border-base-300 p-3 hover:border-primary"
+							>
 								<span class="label-text">
 									<span class="font-medium">{type.label}</span>
 									<span class="block text-xs opacity-60">{type.description}</span>
@@ -117,7 +124,7 @@
 						<span class="label-text font-semibold">Your feedback</span>
 					</label>
 					<textarea
-						class="textarea textarea-bordered h-24 sm:h-32 resize-none"
+						class="textarea-bordered textarea h-24 resize-none sm:h-32"
 						placeholder="Tell us what you're thinking..."
 						bind:value={message}
 						disabled={isSubmitting}
@@ -133,7 +140,7 @@
 				<div class="flex gap-2">
 					<button
 						type="button"
-						class="btn btn-ghost flex-1"
+						class="btn flex-1 btn-ghost"
 						onclick={handleClose}
 						disabled={isSubmitting}
 					>
@@ -141,11 +148,11 @@
 					</button>
 					<button
 						type="submit"
-						class="btn btn-primary flex-1"
+						class="btn flex-1 btn-primary"
 						disabled={isSubmitting || !message.trim()}
 					>
 						{#if isSubmitting}
-							<span class="loading loading-spinner loading-sm"></span>
+							<span class="loading loading-sm loading-spinner"></span>
 						{:else}
 							Send
 						{/if}

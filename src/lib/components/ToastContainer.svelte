@@ -27,17 +27,14 @@
 
 <!-- Toast Container - Fixed position, responsive placement -->
 <div
-	class="pointer-events-none fixed inset-0 z-50 flex flex-col gap-3 p-4 md:right-4 md:top-4 md:w-96"
+	class="pointer-events-none fixed inset-0 z-50 flex flex-col gap-3 p-4 md:top-4 md:right-4 md:w-96"
 >
 	{#each toasts as toast (toast.id)}
-		<div
-			transition:slide={{ duration: 200, axis: 'y' }}
-			class="pointer-events-auto"
-		>
+		<div transition:slide={{ duration: 200, axis: 'y' }} class="pointer-events-auto">
 			<div class={`alert ${typeConfig[toast.type].class} rounded-lg shadow-lg`}>
 				{#if toast.isToolbar && toast.actions}
 					<!-- Toolbar style: multiple action buttons -->
-					<div class="flex items-center justify-between w-full gap-3">
+					<div class="flex w-full items-center justify-between gap-3">
 						<div class="flex items-center gap-2">
 							<!-- Icon -->
 							<span class="flex-shrink-0 text-lg font-bold">
@@ -51,7 +48,7 @@
 						</div>
 
 						<!-- Action buttons (toolbar) -->
-						<div class="flex gap-2 flex-shrink-0">
+						<div class="flex flex-shrink-0 gap-2">
 							{#each toast.actions as action (action.label)}
 								<button
 									class="btn btn-outline btn-sm"
@@ -66,7 +63,7 @@
 
 							<!-- Close button -->
 							<button
-								class="btn btn-ghost btn-circle btn-xs"
+								class="btn btn-circle btn-ghost btn-xs"
 								onclick={() => notificationStore.removeToast(toast.id)}
 								aria-label="Close notification"
 							>
@@ -90,7 +87,7 @@
 						<!-- Action button (if provided) -->
 						{#if toast.action}
 							<button
-								class="btn btn-ghost btn-sm flex-shrink-0"
+								class="btn flex-shrink-0 btn-ghost btn-sm"
 								onclick={() => {
 									toast.action?.callback();
 									notificationStore.removeToast(toast.id);
@@ -102,7 +99,7 @@
 
 						<!-- Close button -->
 						<button
-							class="btn btn-ghost btn-circle btn-xs flex-shrink-0"
+							class="btn btn-circle flex-shrink-0 btn-ghost btn-xs"
 							onclick={() => notificationStore.removeToast(toast.id)}
 							aria-label="Close notification"
 						>

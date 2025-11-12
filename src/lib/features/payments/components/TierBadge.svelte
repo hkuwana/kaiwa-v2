@@ -3,9 +3,7 @@
 	// Shows user's current tier and usage status
 
 	import type { UsageStatus } from '$lib/server/tier.service';
-	import {
-		calculateSecondsRemaining
-		} from '$lib/utils/usage-calculations';
+	import { calculateSecondsRemaining } from '$lib/utils/usage-calculations';
 
 	const { tierStatus, showDetails = false } = $props<{
 		tierStatus?: UsageStatus | null;
@@ -159,8 +157,10 @@
 								used
 							</span>
 							{#if tierStatus.tier.monthlySeconds !== null}
-								{@const totalAvailable = (tierStatus.tier.monthlySeconds || 0) + (tierStatus.usage.bankedSeconds || 0)}
-								{@const totalUsed = (tierStatus.usage.secondsUsed || 0) + (tierStatus.usage.bankedSecondsUsed || 0)}
+								{@const totalAvailable =
+									(tierStatus.tier.monthlySeconds || 0) + (tierStatus.usage.bankedSeconds || 0)}
+								{@const totalUsed =
+									(tierStatus.usage.secondsUsed || 0) + (tierStatus.usage.bankedSecondsUsed || 0)}
 								<progress
 									class="progress {getProgressBarColor(
 										getUsagePercentage(totalUsed, totalAvailable)

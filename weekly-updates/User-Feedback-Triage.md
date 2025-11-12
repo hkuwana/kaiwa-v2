@@ -11,9 +11,10 @@
 
 ## 🎯 Design Principle: "Does This Serve The Magic Moment?"
 
-**The Magic Moment**: When Sofia finishes practicing "Meeting partner's family" and thinks: *"I can actually do this."*
+**The Magic Moment**: When Sofia finishes practicing "Meeting partner's family" and thinks: _"I can actually do this."_
 
 Every issue below is evaluated through this lens:
+
 - **🔴 Critical** = Breaks the magic moment entirely
 - **🟡 High** = Blocks users from reaching the magic moment
 - **🟠 Medium** = Dilutes the magic moment
@@ -52,6 +53,7 @@ Every issue below is evaluated through this lens:
 - [ ] **Status**: Open
 
 **Fix**:
+
 - Hard limit: 2-3 sentences max per agent turn
 - If beginner responds with 5 words, agent responds with 7-10 words (not 50)
 - NEVER send 3 responses in one turn
@@ -69,6 +71,7 @@ Every issue below is evaluated through this lens:
 - [ ] **Status**: Open
 
 **Fix**: Add natural disfluencies based on conversation context:
+
 - "Hmm, that's interesting..."
 - "Oh, let me think..."
 - "Uh, well..."
@@ -138,6 +141,7 @@ Every issue below is evaluated through this lens:
 - [ ] **Status**: Open
 
 **Fix**:
+
 - Make persona more flirtatious and fun (especially for relationship scenarios)
 - Default to deeper, raspy male voice for dating/relationship contexts
 - Less professional, more personality
@@ -166,6 +170,7 @@ Every issue below is evaluated through this lens:
 **Hypothesis**: Users don't believe they improved enough to justify $15/month
 
 **Fix**: Make the value OBVIOUS:
+
 - Show clear before/after improvement
 - Make Lily memorable (Ghibli art, personality) ← **Justin confirmed this priority**
 - Add conversation continuity (relationship with Lily)
@@ -198,6 +203,7 @@ Every issue below is evaluated through this lens:
 - [ ] **Status**: Open
 
 **Steve Jobs Fix**: Start with ONE question:
+
 - "What conversation are you dreading?"
 - Three buttons: Family | Partner | Work
 - Done. Pick language second.
@@ -327,17 +333,20 @@ Every issue below is evaluated through this lens:
 ## ⚪ LOW: Polish (Don't Do Until PMF)
 
 ### Dialect Support
+
 - Austrian German, Swiss German (Austrian user)
 - Egyptian Arabic, Moroccan Arabic (Martin)
 - Colombian vs Spain Spanish (Martin)
 - [ ] **Status**: Backlog (do AFTER core magic works)
 
 ### Language-Specific Issues
+
 - Portuguese too easy (Mark)
 - Taiwan flag wrong (Timothy)
 - Chinese pinyin (partially fixed)
 
 ### UI Polish
+
 - Stars system confusing (Scott)
 - Hover functionality (Timothy)
 - Scenario difficulty legend (Martin)
@@ -359,17 +368,20 @@ Every issue below is evaluated through this lens:
 ## 🎯 This Week's Ruthless Priorities
 
 ### Must Fix (Breaks Magic)
+
 1. **AI responding to itself** - Debug TODAY
 2. **Agent verbosity** - Hard limit 2-3 sentences
 3. **Natural speech patterns** - Add "uhms" and hesitations
 4. **Analysis freezing on mobile** - Test and fix
 
 ### Should Fix (Blocks Conversion)
+
 5. **Transcript default OFF** - Hide by default, show button
 6. **Scenario + Language persistence** - Lock together
 7. **Push-to-talk positioning** - Make it OBVIOUS
 
 ### Test & Learn (Conversion Hypothesis)
+
 8. **Simplify first screen** - One question: "What conversation are you dreading?"
 9. **Make Lily memorable** - Add Ghibli-style avatar - ✅ IN PROGRESS
 10. **"Continue with Lily" button** - Test if continuity increases retention
@@ -389,17 +401,20 @@ Every issue below is evaluated through this lens:
 ## 💭 Strategic Questions to Answer
 
 ### Billing Metric Decision
+
 - **Current**: Minutes spoken
 - **Proposed**: Words spoken (or hybrid)
 - **User Insight**: "People prefer evaluating based on how much THEY talk" (Thomas Clarke)
 - **Recommendation**: Test "words YOU spoke" vs "minutes of practice"
 
 ### First Page Simplification
+
 - **Current**: Full landing page with features
 - **Proposed**: Move to about page, simplify entry
 - **Recommendation**: A/B test minimal entry point vs full explainer
 
 ### Native App Timing
+
 - **Justin's Advice**: Eventually, but not now
 - **Your Instinct**: After PMF or fundraising
 - **Recommendation**: Improve PWA first (push notifications, home screen presence)
@@ -409,19 +424,23 @@ Every issue below is evaluated through this lens:
 ## 📝 Individual User Snapshot Updates
 
 ### Austrian User (NEW)
+
 **Language**: German
 **Key Insight**: Real-world immersion (3 weeks in Germany) taught more than app
 **Implication**: App should feel like immersion, not lessons
 
 ### Thomas Clarke (NEW)
+
 **Status**: Active tester
 **Key Problems**:
+
 - AI responds to itself (blocker)
 - Agent talks too long (verbosity)
 - No natural speech patterns (uhms/uhhs)
 - Screen scrolling issue
 
 ### Martin Munoz (NEW - Expanded)
+
 **Status**: Multilingual power user
 **Key Problems**: (See critical issues above)
 **Key Insight**: Dad says paid conversion not working
@@ -431,14 +450,17 @@ Every issue below is evaluated through this lens:
 ## 🔗 How to Use This Doc
 
 ### Daily
+
 - Check 🔴 Critical section. If any are open, prioritize fixing.
 - Test one fix per day with real scenario.
 
 ### Weekly
+
 - Review 🟡 High section. Pick 1-2 to fix.
 - Update conversion rate metric.
 
 ### Monthly
+
 - Review 🟠 Medium section. Pick polish items if PMF trending up.
 - Ignore ⚪ Low section until you hit $5K MRR.
 
@@ -459,21 +481,25 @@ If answer is "no" to all three → Don't build it.
 ## 📌 Action Items
 
 ### Immediate
+
 - [ ] Debug AI responding to itself
 - [ ] Test agent verbosity fix (2-3 sentence limit)
 - [ ] Add natural speech patterns to agent prompt
 
 ### This Week
+
 - [ ] Hide transcript by default
 - [ ] Fix analysis freezing on mobile
 - [ ] Make push-to-talk more obvious
 
 ### This Sprint
+
 - [ ] Test simplified first screen (one question entry)
 - [ ] Add "Continue with Lily" feature
 - [ ] Commission Ghibli-style avatar for Lily
 
 ### Backlog (Post-PMF)
+
 - [ ] Dialect support
 - [ ] Audio playback features
 - [ ] Advanced analysis depth
@@ -490,16 +516,19 @@ If answer is "no" to all three → Don't build it.
 #### **DISTRIBUTION: TikTok/Instagram > Reddit** ⚠️ CONTRADICTS CURRENT STRATEGY
 
 **Justin's Recommendation:**
+
 - ❌ **DON'T use Reddit** - "Low-yield, too anonymized for effective user engagement"
 - ✅ **DO use TikTok and Instagram** - Low-quality UGC style ads
 - ✅ **Hiro should be the face** - "You're a good-looking dude, use yourself in content"
 - ✅ **Put ad money behind high-performing creative**
 
 **Current Strategy Conflict:**
+
 - DISTRIBUTION_STRATEGY.md says: "Reddit (70% of effort), SKIP Instagram/TikTok for 90 days"
 - **Decision needed**: Test Justin's TikTok-first approach vs Reddit-first approach
 
 **UGC Creative Strategy:**
+
 - Make ads look low-quality/authentic (NOT polished)
 - Simple video: Hiro + girlfriend discussing long-distance language barrier
 - Highlight problem: "What if they think I'm stupid?"
@@ -508,6 +537,7 @@ If answer is "no" to all three → Don't build it.
 #### **PHONE NUMBER SIGN-UPS (CRITICAL)**
 
 **Justin's Requirement:**
+
 - ✅ **Implement phone number sign-ups** (not just Gmail)
 - Why: "People rarely respond to email outreach, but they respond to texts"
 - Personal text messaging to new users for feedback
@@ -515,6 +545,7 @@ If answer is "no" to all three → Don't build it.
 - Use WhatsApp group for community (Discord for younger users only)
 
 **Action Items:**
+
 - [ ] Add phone number field to sign-up flow
 - [ ] Set up US phone number (via messaging service) for Hiro in Japan
 - [ ] Create text messaging outreach script
@@ -523,6 +554,7 @@ If answer is "no" to all three → Don't build it.
 #### **TRACKING & ANALYTICS**
 
 **Justin's Requirements:**
+
 - [ ] Install Pixel in web app code (Meta or TikTok business account)
 - [ ] Track signups from ads to measure performance
 - [ ] A/B test creative content performance
@@ -530,6 +562,7 @@ If answer is "no" to all three → Don't build it.
 #### **TARGET MARKET FOCUS**
 
 **Justin's Insight:**
+
 - **Primary target**: Women learning Korean or Japanese for relationships
 - **Secondary**: Men will pay, but women are more active/consistent users
 - **Beach head**: Women interested in K-pop, anime, or dating Korean/Japanese men
@@ -540,11 +573,13 @@ If answer is "no" to all three → Don't build it.
 #### **1. Ghibli-Style Character Avatars** ✅ CONFIRMED PRIORITY
 
 **Justin's Feedback:**
+
 - Make characters cute, Ghibli-style animated
 - Give each character distinct personality
 - This differentiates from generic competitors like Pingo.AI (which "lacks personality")
 
 **Action Items:**
+
 - [x] Add to priority list (already in progress)
 - [ ] Generate AI prototypes (Midjourney)
 - [ ] Integrate into MessageBubble component
@@ -552,11 +587,13 @@ If answer is "no" to all three → Don't build it.
 #### **2. Image Backgrounds for Scenarios**
 
 **Justin's Suggestion:**
+
 - Add image backgrounds that change based on conversation context
 - Makes experience more immersive
 - Helps users feel "transported" to the scenario
 
 **Action Items:**
+
 - [ ] Design background system (per scenario or dynamic)
 - [ ] Source/generate background images
 - [ ] Implement background rendering in conversation UI
@@ -564,12 +601,14 @@ If answer is "no" to all three → Don't build it.
 #### **3. AI Persona Adjustment**
 
 **Justin's Feedback:**
+
 - Current persona "a little bit too formal"
 - Make it more flirtatious and fun (for relationship scenarios)
 - Default to deeper, raspy male voice for relationship contexts
 - Less professional, more engaging personality
 
 **Action Items:**
+
 - [ ] Update system prompts for relationship scenarios
 - [ ] Test different voice options (OpenAI voice IDs)
 - [ ] A/B test formal vs casual persona
@@ -577,11 +616,13 @@ If answer is "no" to all three → Don't build it.
 #### **4. Kdrama-Inspired Roleplay Scenarios**
 
 **Justin's Idea:**
+
 - Create scenarios based on iconic Kdrama scenes
 - Leverage cultural moments that target market already loves
 - Makes practice feel less like "homework," more like fan engagement
 
 **Action Items:**
+
 - [ ] Research popular Kdrama moments
 - [ ] Create 3-5 Kdrama-inspired scenarios
 - [ ] Test with Korean language learners
@@ -589,12 +630,14 @@ If answer is "no" to all three → Don't build it.
 ### 📱 Native App Priority
 
 **Justin's Strong Recommendation:**
+
 - Make Kaiwa into native app "as soon as possible"
 - Better user stickiness than web app
 - Improved UX and engagement
 - Timeline: Consider starting next month after TikTok marketing
 
 **Action Items:**
+
 - [ ] Evaluate React Native vs Swift
 - [ ] Timeline: Q1 2026 or after reaching $X MRR
 - [ ] Focus on iOS first (target market primarily iPhone users)
@@ -602,28 +645,33 @@ If answer is "no" to all three → Don't build it.
 ### 📊 Marketing Execution Plan (Per Justin)
 
 **Weekly Commitment:**
+
 - [ ] Create TikTok/Instagram Reel creative featuring Hiro + girlfriend
 - [ ] Emphasize long-distance relationship + language barrier angle
 - [ ] Put ad money into highest-performing creative
 - [ ] Track Pixel data for signup conversions
 
 **Friend-of-Friends Method:**
+
 - [ ] Improve distribution through personal network
 - [ ] Ask engaged users for intros
 - [ ] Justin will show Kaiwa to women in med school
 
 **Weekly Updates:**
+
 - [ ] Send Justin email update every week about progress
 - [ ] Share wins, conversion data, creative performance
 
 ### 🎯 Success Metrics (Justin's Perspective)
 
 **Product Validation:**
+
 - Justin said: "Great MVP, totally ready for distribution"
 - Core feature works
 - Main blocker: 2% AI self-response glitch (needs immediate fix)
 
 **Next Milestones:**
+
 - Get 1% → 8-10% paid conversion
 - Achieve through: Ghibli characters + immersive backgrounds + better persona
 - Native app once product-market fit is clearer
@@ -631,6 +679,7 @@ If answer is "no" to all three → Don't build it.
 ### 🤝 Justin's Commitment
 
 **Support Offered:**
+
 - Will meet Hiro in Asia (mid-January to mid-February 2026)
 - Will show Kaiwa to women in med school
 - Available for ongoing product feedback
@@ -639,21 +688,25 @@ If answer is "no" to all three → Don't build it.
 ### ⚠️ Strategic Decision Required: Reddit vs TikTok
 
 **Conflict:**
+
 - **Current strategy** (DISTRIBUTION_STRATEGY.md): Reddit-first, skip TikTok
 - **Justin's advice**: TikTok-first, skip Reddit
 
 **Recommendation**:
+
 - **A/B test both approaches** for 2 weeks
 - Week 1-2: Reddit comments + TikTok UGC ads in parallel
 - Measure: signups, engagement, conversion rate per channel
 - Double down on winner
 
 **Pros of Reddit Approach:**
+
 - SEO benefits (ranks in Google)
 - High intent (people searching for solutions)
 - Text-based (easier to execute)
 
 **Pros of TikTok Approach:**
+
 - Visual/emotional connection (see Hiro's face, relationship story)
 - Younger target market (women 25-35)
 - Justin has proven this works (Cali app)
@@ -677,6 +730,7 @@ If answer is "no" to all three → Don't build it.
 
 **Phase 1: Generate Characters Using Existing System** (Week 1) ← **START HERE**
 **What exists**:
+
 - Full UI at http://localhost:5173/dev/animated
 - OpenAI DALL-E 3 & GPT-Image-1 integration
 - Studio Ghibli prompts for ALL 25+ speakers
@@ -684,6 +738,7 @@ If answer is "no" to all three → Don't build it.
 - Cost tracking and download capability
 
 **Steps to generate**:
+
 1. Open `/dev/animated` in browser
 2. Select DALL-E 3 model (most consistent)
 3. Click "Generate Hiro", "Generate Yuki", etc.
@@ -692,16 +747,18 @@ If answer is "no" to all three → Don't build it.
 6. Optimize to 256x256px, <20KB
 
 **Characters to generate first**:
-  - **Yuki** (Tokyo woman) - warm, friendly
-  - **Hiro** (Tokyo man) - casual, relaxed
-  - **Minami** (Osaka woman) - energetic
-  - **+2-3 Korean characters** for K-drama scenarios (per Justin's advice)
+
+- **Yuki** (Tokyo woman) - warm, friendly
+- **Hiro** (Tokyo man) - casual, relaxed
+- **Minami** (Osaka woman) - energetic
+- **+2-3 Korean characters** for K-drama scenarios (per Justin's advice)
 
 **Cost**: $0.40 for 5 characters ($0.08 × 5)
 **Timeline**: 30 minutes
 **Priority**: HIGH (Justin confirmed this increases stickiness)
 
 **Phase 2: Code Integration** (Week 1)
+
 1. Store images in `/src/lib/assets/characters/`
 2. Update `Speaker` schema: add `characterImageUrl` and `characterImageAlt` fields
 3. Update `/src/lib/data/speakers.ts` with image paths
@@ -711,6 +768,7 @@ If answer is "no" to all three → Don't build it.
 **Detailed implementation guide**: See `/GHIBLI_CHARACTER_IMPLEMENTATION.md`
 
 **Phase 3: Testing & Validation (Week 2)**
+
 - A/B test: Character faces vs. Kitsune mascot
 - Track metrics:
   - Conversation completion rate
@@ -719,6 +777,7 @@ If answer is "no" to all three → Don't build it.
 - User feedback: "Do you remember the character's name?"
 
 **Phase 4: Professional Commission (If Validated)**
+
 - Commission artist for production-quality characters
 - Cost: $300-1000 for 10 characters
 - Timeline: 2-4 weeks
@@ -726,6 +785,7 @@ If answer is "no" to all three → Don't build it.
 ### Key Design Decisions
 
 **Character Personas Based on Scenarios:**
+
 - **Yuki** - Warm, friendly woman (family dinner, casual conversations)
 - **Hiro** - Relaxed man (date, friendly chats)
 - **Minami** - Energetic Osaka personality (mixers, celebrations)
@@ -733,6 +793,7 @@ If answer is "no" to all three → Don't build it.
 - **Parent Character** - Mature, traditional (partner's parent scenarios)
 
 **Style Guidelines:**
+
 - Studio Ghibli aesthetic (soft watercolors, warm tones)
 - Friendly, approachable expressions
 - Headshots with simple backgrounds
@@ -761,6 +822,7 @@ If answer is "no" to all three → Don't build it.
 **Status**: ✅ **THIS ALREADY EXISTS**
 
 **Current Flow**:
+
 1. User in active conversation
 2. Clicks **"End conversation" button** in FAB menu (ConversationFab.svelte:89-100)
 3. Transitions to **ConversationReviewableState** (review screen)
@@ -769,6 +831,7 @@ If answer is "no" to all three → Don't build it.
 6. Full analysis runs and displays results
 
 **Files involved**:
+
 - `/src/lib/features/conversation/components/ConversationFab.svelte` - End button
 - `/src/lib/features/conversation/components/ConversationReviewableState.svelte` - Review + analysis
 
@@ -791,4 +854,3 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 **Last Review**: November 12, 2025
 **Next Review**: November 17, 2025
 **Owner**: Hiro Kuwana
-

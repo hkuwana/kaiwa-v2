@@ -1,7 +1,11 @@
 // Pure utility functions for message and event handling
 // These have NO state and are fully testable
 
-import type { ContentBlock, SDKTransportEvent, RealtimeAudioFormatDefinition } from '$lib/types/openai.realtime.types';
+import type {
+	ContentBlock,
+	SDKTransportEvent,
+	RealtimeAudioFormatDefinition
+} from '$lib/types/openai.realtime.types';
 import type { Message } from '$lib/server/db/types';
 
 /**
@@ -21,29 +25,33 @@ export function extractMessageText(content: ContentBlock[]): string | null {
 /**
  * Classify server events into categories for routing
  */
-export function classifyServerEvent(event: SDKTransportEvent): 'transcription' | 'message' | 'connection_state' | 'ignore' {
+export function classifyServerEvent(
+	event: SDKTransportEvent
+): 'transcription' | 'message' | 'connection_state' | 'ignore' {
 	const type = event.type;
 
-	if (type === 'conversation.item.input_audio_transcription.started' ||
-	    type === 'conversation.item.input_audio_transcription.delta' ||
-	    type === 'conversation.item.input_audio_transcription.completed') {
+	if (
+		type === 'conversation.item.input_audio_transcription.started' ||
+		type === 'conversation.item.input_audio_transcription.delta' ||
+		type === 'conversation.item.input_audio_transcription.completed'
+	) {
 		return 'transcription';
 	}
 
-	if (type === 'response.text.delta' ||
-	    type === 'response.text.done' ||
-	    type === 'response.audio.delta' ||
-	    type === 'response.audio.done' ||
-	    type === 'response.audio_transcript.delta' ||
-	    type === 'response.audio_transcript.done' ||
-	    type === 'response.created' ||
-	    type === 'response.done') {
+	if (
+		type === 'response.text.delta' ||
+		type === 'response.text.done' ||
+		type === 'response.audio.delta' ||
+		type === 'response.audio.done' ||
+		type === 'response.audio_transcript.delta' ||
+		type === 'response.audio_transcript.done' ||
+		type === 'response.created' ||
+		type === 'response.done'
+	) {
 		return 'message';
 	}
 
-	if (type === 'session.created' ||
-	    type === 'session.updated' ||
-	    type === 'session.ready') {
+	if (type === 'session.created' || type === 'session.updated' || type === 'session.ready') {
 		return 'connection_state';
 	}
 
@@ -98,12 +106,12 @@ export function logEvent(
  * Find message by ID
  */
 export function findMessageById(messages: Message[], messageId: string): Message | undefined {
-	return messages.find(m => m.id === messageId);
+	return messages.find((m) => m.id === messageId);
 }
 
 /**
  * Find message index by ID
  */
 export function findMessageIndexById(messages: Message[], messageId: string): number {
-	return messages.findIndex(m => m.id === messageId);
+	return messages.findIndex((m) => m.id === messageId);
 }

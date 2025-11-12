@@ -162,7 +162,8 @@ export const GET = async ({ url, locals }) => {
 				emailHtml = ProductUpdatesEmailService['buildProductUpdateEmail'](user, {
 					subject: 'New Feature: AI-Powered Lesson Plans',
 					title: 'We just launched AI Lesson Plans',
-					summary: 'Customize your learning path with AI-generated lesson plans tailored to your goals.',
+					summary:
+						'Customize your learning path with AI-generated lesson plans tailored to your goals.',
 					details: `
 						<p>We've been listening to your feedback, and the most common request was: "I want a personalized learning path."</p>
 						<p>Today, we're excited to announce <strong>AI Lesson Plans</strong> – a feature that creates custom lesson plans based on your language level, learning goals, and available time.</p>
@@ -339,7 +340,8 @@ export const POST = async ({ request, locals }) => {
 				emailHtml = ProductUpdatesEmailService['buildProductUpdateEmail'](user, {
 					subject: 'New Feature: AI-Powered Lesson Plans',
 					title: 'We just launched AI Lesson Plans',
-					summary: 'Customize your learning path with AI-generated lesson plans tailored to your goals.',
+					summary:
+						'Customize your learning path with AI-generated lesson plans tailored to your goals.',
 					details: `
 						<p>We've been listening to your feedback, and the most common request was: "I want a personalized learning path."</p>
 						<p>Today, we're excited to announce <strong>AI Lesson Plans</strong> – a feature that creates custom lesson plans based on your language level, learning goals, and available time.</p>

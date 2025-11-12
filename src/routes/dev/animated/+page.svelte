@@ -34,7 +34,8 @@
 			'Friendly & Spontaneous 🎉',
 			'Kind & Adventurous 🌸'
 		];
-		const index = speakerId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % personalities.length;
+		const index =
+			speakerId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % personalities.length;
 		return personalities[index];
 	}
 
@@ -109,7 +110,11 @@
 
 	// Generate ALL speakers (use with caution - ~73 images, ~$6-8 total)
 	async function generateAllSpeakers() {
-		if (!confirm(`This will generate ~${speakersData.length} images at ~$0.08 each (Total: ~$${(speakersData.length * 0.08).toFixed(2)}). Continue?`)) {
+		if (
+			!confirm(
+				`This will generate ~${speakersData.length} images at ~$0.08 each (Total: ~$${(speakersData.length * 0.08).toFixed(2)}). Continue?`
+			)
+		) {
 			return;
 		}
 
@@ -148,7 +153,10 @@
 		};
 
 		speakersData.forEach((s) => {
-			const current = languageMap.get(s.languageId) || { name: languageNames[s.languageId] || s.languageId, count: 0 };
+			const current = languageMap.get(s.languageId) || {
+				name: languageNames[s.languageId] || s.languageId,
+				count: 0
+			};
 			current.count++;
 			languageMap.set(s.languageId, current);
 		});
@@ -174,11 +182,12 @@
 			{
 				trait: 'open and playful',
 				expression: 'a bright, welcoming smile with playful eyes that suggest they love adventure',
-				vibe: 'someone who\'s up for anything and makes everything feel like fun'
+				vibe: "someone who's up for anything and makes everything feel like fun"
 			},
 			{
 				trait: 'warm and curious',
-				expression: 'a genuine smile with engaged, curious eyes - someone actively interested in you',
+				expression:
+					'a genuine smile with engaged, curious eyes - someone actively interested in you',
 				vibe: 'someone who listens well and makes you feel heard and interesting'
 			},
 			{
@@ -189,7 +198,7 @@
 			{
 				trait: 'confident and easygoing',
 				expression: 'a relaxed, natural smile with comfortable confidence - no pretense',
-				vibe: 'someone who\'s comfortable in their own skin and makes others feel at ease'
+				vibe: "someone who's comfortable in their own skin and makes others feel at ease"
 			},
 			{
 				trait: 'friendly and spontaneous',
@@ -204,7 +213,9 @@
 		];
 
 		// Assign personality based on speaker name hash for consistency
-		const personalityIndex = speaker.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) % personalities.length;
+		const personalityIndex =
+			speaker.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) %
+			personalities.length;
 		const personality = personalities[personalityIndex];
 
 		let culturalElements = '';
@@ -215,23 +226,25 @@
 		switch (speaker.languageId) {
 			case 'ja':
 				culturalElements = 'casual Japanese style with clean lines and natural elegance';
-				styleContext = 'like someone you\'d meet while exploring a park or getting coffee';
+				styleContext = "like someone you'd meet while exploring a park or getting coffee";
 				break;
 			case 'es':
-				culturalElements = speaker.region === 'Spain'
-					? 'relaxed Mediterranean style with natural warmth'
-					: 'casual Latin American style with vibrant, open energy';
+				culturalElements =
+					speaker.region === 'Spain'
+						? 'relaxed Mediterranean style with natural warmth'
+						: 'casual Latin American style with vibrant, open energy';
 				styleContext = 'like someone who loves good conversation over a meal or walk';
 				break;
 			case 'zh':
-				culturalElements = speaker.region === 'Taiwan'
-					? 'comfortable Taiwanese casual style'
-					: 'contemporary Chinese everyday fashion';
+				culturalElements =
+					speaker.region === 'Taiwan'
+						? 'comfortable Taiwanese casual style'
+						: 'contemporary Chinese everyday fashion';
 				styleContext = 'like someone friendly and easy to talk to';
 				break;
 			case 'fr':
 				culturalElements = 'effortlessly casual French style, simple and timeless';
-				styleContext = 'like someone you\'d enjoy a long walk or conversation with';
+				styleContext = "like someone you'd enjoy a long walk or conversation with";
 				break;
 			case 'ko':
 				culturalElements = 'modern Korean casual style with natural charm';
@@ -242,9 +255,10 @@
 				styleContext = 'like someone straightforward and genuine';
 				break;
 			case 'pt':
-				culturalElements = speaker.region === 'Brazil'
-					? 'relaxed Brazilian style with natural, joyful energy'
-					: 'comfortable Portuguese style with warm authenticity';
+				culturalElements =
+					speaker.region === 'Brazil'
+						? 'relaxed Brazilian style with natural, joyful energy'
+						: 'comfortable Portuguese style with warm authenticity';
 				styleContext = 'like someone who knows how to enjoy life';
 				break;
 			case 'it':
@@ -253,7 +267,7 @@
 				break;
 			default:
 				culturalElements = 'comfortable international style';
-				styleContext = 'like someone you\'d meet while traveling and want to keep in touch with';
+				styleContext = "like someone you'd meet while traveling and want to keep in touch with";
 		}
 
 		// Timeless, open, upbeat, and fun character prompt
@@ -352,19 +366,36 @@ CRITICAL REQUIREMENTS:
 		<div class="mb-8">
 			<h1 class="mb-4 text-4xl font-bold">Kaiwa Character Generation System</h1>
 			<p class="mb-2 text-lg opacity-75">
-				Enhanced Studio Ghibli-style prompts for all {speakersData.length} speakers. Generate character portraits
-				with specific art direction for consistency and emotional warmth.
+				Enhanced Studio Ghibli-style prompts for all {speakersData.length} speakers. Generate character
+				portraits with specific art direction for consistency and emotional warmth.
 			</p>
 			<div class="alert alert-info">
 				<div>
 					<p class="font-bold">✨ Timeless, Open, Upbeat & Fun Characters:</p>
 					<ul class="mt-2 list-disc space-y-1 pl-5 text-sm">
-						<li><strong>6 Personality Types:</strong> Open & Playful, Warm & Curious, Upbeat & Energetic, Confident & Easygoing, Friendly & Spontaneous, Kind & Adventurous</li>
-						<li><strong>Timeless Appeal:</strong> Not trendy or dated - these characters will feel fresh for years</li>
-						<li><strong>Natural & Genuine:</strong> Real-person pretty (not model-pretty), comfortable and approachable</li>
-						<li><strong>Fun & Engaging:</strong> People you'd actually want to practice conversations with</li>
-						<li><strong>Classic Ghibli:</strong> References "Whisper of the Heart", "Kiki's Delivery Service", "Only Yesterday"</li>
-						<li><strong>Universal Context:</strong> Meeting at a park, getting coffee, enjoying a walk - timeless scenarios</li>
+						<li>
+							<strong>6 Personality Types:</strong> Open & Playful, Warm & Curious, Upbeat & Energetic,
+							Confident & Easygoing, Friendly & Spontaneous, Kind & Adventurous
+						</li>
+						<li>
+							<strong>Timeless Appeal:</strong> Not trendy or dated - these characters will feel fresh
+							for years
+						</li>
+						<li>
+							<strong>Natural & Genuine:</strong> Real-person pretty (not model-pretty), comfortable
+							and approachable
+						</li>
+						<li>
+							<strong>Fun & Engaging:</strong> People you'd actually want to practice conversations with
+						</li>
+						<li>
+							<strong>Classic Ghibli:</strong> References "Whisper of the Heart", "Kiki's Delivery Service",
+							"Only Yesterday"
+						</li>
+						<li>
+							<strong>Universal Context:</strong> Meeting at a park, getting coffee, enjoying a walk
+							- timeless scenarios
+						</li>
 					</ul>
 				</div>
 			</div>
@@ -483,7 +514,7 @@ CRITICAL REQUIREMENTS:
 						? `Generating... (${generationResults.length}/${speakersData.length})`
 						: `Generate ALL ${speakersData.length} Speakers (~$${(speakersData.length * 0.08).toFixed(2)})`}
 				</button>
-				<button class="btn btn-outline ml-2" onclick={clearResults} disabled={isGenerating}>
+				<button class="btn ml-2 btn-outline" onclick={clearResults} disabled={isGenerating}>
 					Clear Results
 				</button>
 			</div>
@@ -496,9 +527,9 @@ CRITICAL REQUIREMENTS:
 							<div>
 								<p class="font-bold">Generation Stats</p>
 								<p class="text-sm">
-									Success: {generationResults.filter((r) => r.imageUrl).length} | 
-									Errors: {generationResults.filter((r) => r.error).length} | 
-									In Progress: {generationResults.filter((r) => r.generating).length}
+									Success: {generationResults.filter((r) => r.imageUrl).length} | Errors: {generationResults.filter(
+										(r) => r.error
+									).length} | In Progress: {generationResults.filter((r) => r.generating).length}
 								</p>
 								<p class="text-sm">
 									<strong>Estimated Cost:</strong> ${totalCost.toFixed(2)}
@@ -634,9 +665,10 @@ CRITICAL REQUIREMENTS:
 			<div class="mb-4 alert alert-info">
 				<div>
 					<p>
-						<strong>Timeless, fun conversation partner prompts</strong> for each speaker. Each character has a unique personality
-						archetype (open, upbeat, warm, etc.) assigned consistently based on their speaker ID. This creates varied, 
-						engaging characters that feel natural and fun to practice with - not generic or trendy, but timelessly appealing.
+						<strong>Timeless, fun conversation partner prompts</strong> for each speaker. Each character
+						has a unique personality archetype (open, upbeat, warm, etc.) assigned consistently based
+						on their speaker ID. This creates varied, engaging characters that feel natural and fun to
+						practice with - not generic or trendy, but timelessly appealing.
 					</p>
 				</div>
 			</div>
@@ -652,7 +684,7 @@ CRITICAL REQUIREMENTS:
 							<p class="text-xs opacity-75">
 								{speaker.dialectName} • {speaker.gender}
 							</p>
-							<p class="text-xs font-semibold text-primary mt-1">
+							<p class="mt-1 text-xs font-semibold text-primary">
 								{getPersonalityForSpeaker(speaker.id)}
 							</p>
 							<div class="mt-3">

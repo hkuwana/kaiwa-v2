@@ -321,16 +321,29 @@
 						<div>
 							<h3 class="font-semibold">Available Cron Endpoints:</h3>
 							<ul class="mt-2 list-inside list-disc space-y-1 text-sm text-base-content/70">
-								<li><code class="rounded bg-base-200 px-2 py-1">/api/cron/send-reminders</code> - Practice reminders (Mon/Thu 9 AM UTC)</li>
-								<li><code class="rounded bg-base-200 px-2 py-1">/api/cron/progress-reports</code> - Weekly reports (Saturdays 9 AM UTC)</li>
-								<li><code class="rounded bg-base-200 px-2 py-1">/api/cron/product-updates</code> - Product announcements (on-demand POST)</li>
-								<li><code class="rounded bg-base-200 px-2 py-1">/api/cron/founder-emails</code> - Day 1-3 founder sequence (daily)</li>
+								<li>
+									<code class="rounded bg-base-200 px-2 py-1">/api/cron/send-reminders</code> - Practice
+									reminders (Mon/Thu 9 AM UTC)
+								</li>
+								<li>
+									<code class="rounded bg-base-200 px-2 py-1">/api/cron/progress-reports</code> - Weekly
+									reports (Saturdays 9 AM UTC)
+								</li>
+								<li>
+									<code class="rounded bg-base-200 px-2 py-1">/api/cron/product-updates</code> - Product
+									announcements (on-demand POST)
+								</li>
+								<li>
+									<code class="rounded bg-base-200 px-2 py-1">/api/cron/founder-emails</code> - Day 1-3
+									founder sequence (daily)
+								</li>
 							</ul>
 						</div>
 						<div class="divider my-0"></div>
 						<div>
-							<p class="text-base-content/70 mb-2">
-								Run a dry run of <code>/api/cron/send-reminders</code> to see which users would receive practice reminder emails.
+							<p class="mb-2 text-base-content/70">
+								Run a dry run of <code>/api/cron/send-reminders</code> to see which users would receive
+								practice reminder emails.
 							</p>
 						</div>
 					</div>
@@ -418,12 +431,25 @@
 					<div class="font-bold">Email System Overview:</div>
 					<ul class="mt-2 list-inside list-disc space-y-1">
 						<li>All test emails are sent to <strong>weijo34@gmail.com</strong></li>
-						<li><strong>Founder email (Day 1):</strong> Sent immediately on signup (Google or email/password)</li>
-						<li><strong>Progress reports:</strong> Weekly summary sent Saturdays (only if user practiced that week)</li>
-						<li><strong>Product updates:</strong> Feature announcements sent on-demand via POST to <code>/api/cron/product-updates</code></li>
-						<li>Subject lines are prefixed with <strong>[TEST]</strong> when using this interface</li>
+						<li>
+							<strong>Founder email (Day 1):</strong> Sent immediately on signup (Google or email/password)
+						</li>
+						<li>
+							<strong>Progress reports:</strong> Weekly summary sent Saturdays (only if user practiced
+							that week)
+						</li>
+						<li>
+							<strong>Product updates:</strong> Feature announcements sent on-demand via POST to
+							<code>/api/cron/product-updates</code>
+						</li>
+						<li>
+							Subject lines are prefixed with <strong>[TEST]</strong> when using this interface
+						</li>
 						<li>Uses your current user data for personalization</li>
-						<li>All emails respect user preferences (receiveFounderEmails, receiveProgressReports, receiveProductUpdates)</li>
+						<li>
+							All emails respect user preferences (receiveFounderEmails, receiveProgressReports,
+							receiveProductUpdates)
+						</li>
 					</ul>
 				</div>
 			</div>
