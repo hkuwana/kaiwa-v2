@@ -205,7 +205,7 @@
 					onModeChange={(mode) => (selectedAudioMode = mode)}
 				/>
 				<!-- Monthly Usage Display -->
-				<div class="mb-6">
+				<div class="mb-6 pt-10">
 					{#if usageStore.tier && usageStore.usage}
 						<MonthlyUsageDisplay
 							remainingSeconds={usageStore.secondsRemaining()}
