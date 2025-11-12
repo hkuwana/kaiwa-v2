@@ -344,7 +344,7 @@ Every issue below is evaluated through this lens:
 
 ### Test & Learn (Conversion Hypothesis)
 8. **Simplify first screen** - One question: "What conversation are you dreading?"
-9. **Make Lily memorable** - Add Ghibli-style avatar
+9. **Make Lily memorable** - Add Ghibli-style avatar - ✅ IN PROGRESS
 10. **"Continue with Lily" button** - Test if continuity increases retention
 
 ---
@@ -454,7 +454,76 @@ If answer is "no" to all three → Don't build it.
 
 ---
 
-**Last Review**: November 10, 2025
+## 🎨 Implementation: Ghibli-Style Character Faces
+
+**Status**: IN PROGRESS (November 12, 2025)
+
+**Goal**: Make characters memorable to increase paid conversion (1% → 8-10%)
+
+### Technical Implementation Plan
+
+**Phase 1: AI-Generated Prototypes (Week 1)**
+- Tool: Midjourney or DALL-E 3
+- Generate 5-10 character portraits in Ghibli style
+- Characters needed: Yuki (Tokyo woman), Hiro (Tokyo man), Minami (Osaka woman), Nurse, Parent
+- Cost: $10-30
+- Timeline: 2-3 days
+
+**Phase 2: Code Integration (Week 1)**
+1. Update `Speaker` interface in `/src/lib/server/db/schema/speakers.ts`:
+   ```typescript
+   characterImageUrl?: string;
+   characterImageAlt?: string;
+   ```
+2. Modify `MessageBubble.svelte` (lines 200-218) to display character images
+3. Add images to `/src/lib/assets/characters/`
+4. Update `speakers.ts` data with image paths
+
+**Phase 3: Testing & Validation (Week 2)**
+- A/B test: Character faces vs. Kitsune mascot
+- Track metrics:
+  - Conversation completion rate
+  - Return rate (next day)
+  - Paid conversion rate
+- User feedback: "Do you remember the character's name?"
+
+**Phase 4: Professional Commission (If Validated)**
+- Commission artist for production-quality characters
+- Cost: $300-1000 for 10 characters
+- Timeline: 2-4 weeks
+
+### Key Design Decisions
+
+**Character Personas Based on Scenarios:**
+- **Yuki** - Warm, friendly woman (family dinner, casual conversations)
+- **Hiro** - Relaxed man (date, friendly chats)
+- **Minami** - Energetic Osaka personality (mixers, celebrations)
+- **Nurse Character** - Professional, caring (medical scenarios)
+- **Parent Character** - Mature, traditional (partner's parent scenarios)
+
+**Style Guidelines:**
+- Studio Ghibli aesthetic (soft watercolors, warm tones)
+- Friendly, approachable expressions
+- Headshots with simple backgrounds
+- 40x40px display size (optimize as 256x256px source)
+- WebP format, <20KB per image
+
+### Success Metrics
+
+**Target**: If character faces increase paid conversion by 2%+ → Commission professional art
+**Timeline**: 2 weeks to validate concept
+**Budget**: $10-30 (testing), $300-1000 (production)
+
+### Files to Modify
+
+- `/src/lib/server/db/schema/speakers.ts` - Add character image fields
+- `/src/lib/data/speakers.ts` - Add image URLs to speaker data
+- `/src/lib/features/conversation/components/MessageBubble.svelte` - Update avatar rendering
+- `/src/lib/assets/characters/` - New directory for character images
+
+---
+
+**Last Review**: November 12, 2025
 **Next Review**: November 17, 2025
 **Owner**: Hiro Kuwana
 
