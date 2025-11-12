@@ -1191,29 +1191,11 @@ export class ConversationStore {
 			realtimeOpenAI.sendResponse();
 		}, 100);
 
-		// Optional safety retry after 3s if no assistant message yet AND user hasn't committed audio
-		// Increased from 1.5s to 3s to give more time for async processing
-		this.greetingRetryTimeout = setTimeout(() => {
-			if (!realtimeOpenAI.isConnected) return;
-			const hasAssistant = this.messages.some((m) => m.role === 'assistant');
-			const hasUserMessage = this.messages.some((m) => m.role === 'user');
-			const hasAssistantDelta = realtimeOpenAI.assistantDelta.trim().length > 0;
-			// Only retry if NO assistant response AND user hasn't spoken yet AND no assistant delta
-			if (!hasAssistant && !hasUserMessage && !hasAssistantDelta) {
-				console.log('🎵 ConversationStore: Retry sending initial greeting...');
-				realtimeOpenAI.sendResponse();
-			} else {
-				console.log(
-					'🎵 ConversationStore: Skipping retry - user already interacted or assistant responded',
-					{
-						hasAssistant,
-						hasUserMessage,
-						hasAssistantDelta
-					}
-				);
-			}
-			this.greetingRetryTimeout = null;
-		}, 3000);
+		// REMOVED: Retry mechanism that was causing duplicate responses
+		// The retry was sending a second response.create while the first was still processing,
+		// causing the AI to respond to itself. The initial sendResponse() is sufficient.
+		// If users report issues with the initial greeting not appearing, we can add a more
+		// robust check that properly detects streaming responses in progress.
 	};
 
 	/**
