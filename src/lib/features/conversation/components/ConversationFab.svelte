@@ -48,6 +48,10 @@
 	}
 
 	function formatDisplay(seconds: number) {
+		if (seconds > 3600) {
+			const hours = seconds / 3600;
+			return `${hours.toFixed(1)}h`;
+		}
 		if (seconds > 60) {
 			return `${Math.ceil(seconds / 60)}m`;
 		}
