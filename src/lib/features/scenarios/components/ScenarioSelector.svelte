@@ -8,6 +8,7 @@
 		customScenarioStore,
 		type SaveScenarioResult
 	} from '$lib/stores/custom-scenarios.store.svelte';
+	import { userManager } from '$lib/stores/user.store.svelte';
 
 	interface Props {
 		scenarios: Scenario[];
@@ -54,6 +55,7 @@
 	let isCreatorOpen = $state(false);
 	let componentRef: HTMLDivElement;
 	let searchQuery = $state('');
+	let userMemories = $state<string[]>([]);
 
 	const limits = $derived(customScenarioStore.limits);
 	const limitReached = $derived(limits.totalUsed >= limits.total && limits.total > 0);
@@ -103,6 +105,9 @@
 			console.warn('Unable to load custom scenarios', error);
 		});
 
+		// Load user memories for generating scenarios
+		loadUserMemories();
+
 		function handleClickOutside(event: MouseEvent) {
 			if (componentRef && !componentRef.contains(event.target as Node)) {
 				isOpen = false;
@@ -115,6 +120,26 @@
 			document.removeEventListener('click', handleClickOutside);
 		};
 	});
+
+	async function loadUserMemories() {
+		try {
+			const user = userManager.user;
+			// Only load memories if user is logged in
+			if (!user || user.id === 'guest') return;
+
+			// Fetch user preferences which includes memories
+			const response = await fetch(`/api/users/${user.id}/preferences`);
+			if (response.ok) {
+				const data = await response.json();
+				const preferences = data?.success ? data?.data : data;
+				if (preferences?.memories && Array.isArray(preferences.memories)) {
+					userMemories = preferences.memories;
+				}
+			}
+		} catch (error) {
+			console.warn('Unable to load user memories', error);
+		}
+	}
 
 	function getScenarioMeta(scenario: Scenario) {
 		const rating = scenario.difficultyRating ?? 1;
@@ -347,5 +372,6 @@
 		open={isCreatorOpen}
 		onClose={() => (isCreatorOpen = false)}
 		onScenarioCreated={handleScenarioCreated}
+		{userMemories}
 	/>
 </div>

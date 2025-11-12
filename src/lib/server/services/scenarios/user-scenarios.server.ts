@@ -448,3 +448,85 @@ export async function generateScenarioDraft(
 		tokensUsed: 0
 	};
 }
+
+export interface GenerateFromMemoriesRequest {
+	memories: string[];
+	mode?: ScenarioMode;
+	languageId?: string;
+}
+
+/**
+ * Generate a scenario based on user's learner memories and conversation history
+ * This helps create personalized learning scenarios tailored to what the user has shared about themselves
+ */
+export async function generateScenarioFromMemories(
+	request: GenerateFromMemoriesRequest
+): Promise<AuthorScenarioResponse> {
+	const { memories = [], mode = 'character', languageId } = request;
+
+	// Create a description based on memories
+	const memoriesText = memories.slice(0, 5).join(' ');
+	const description =
+		memoriesText.length > 0
+			? `Based on: ${memoriesText}`
+			: 'A personalized scenario created from learner memories';
+
+	const sanitizedDescription = sanitizeText(description, 'Custom conversation practice');
+
+	const now = new Date();
+	const id = randomUUID();
+	const title =
+		memories.length > 0
+			? `Custom Scenario: ${memories[0].slice(0, 40)}${memories[0].length > 40 ? '...' : ''}`
+			: 'Memory-Based Scenario';
+
+	const baseScenario: Scenario = {
+		id,
+		title,
+		description: sanitizedDescription,
+		role: mode === 'tutor' ? 'tutor' : 'character',
+		difficulty: 'intermediate',
+		difficultyRating: mode === 'tutor' ? 3 : 4,
+		cefrLevel: 'B1',
+		cefrRecommendation: 'B1',
+		instructions:
+			mode === 'tutor'
+				? `You are a supportive language tutor helping the learner practice about: ${sanitizedDescription}. Based on what you know about them (${memoriesText}), tailor your guidance to their interests and level. Guide them step by step, correct gently, and make sure they can express themselves clearly.`
+				: `You are roleplaying a conversation partner in a scenario the learner has expressed interest in: ${sanitizedDescription}. Based on their interests (${memoriesText}), make the conversation relevant and engaging. Stay in character, keep the conversation realistic, and help the learner reach a successful outcome.`,
+		context: sanitizedDescription,
+		expectedOutcome:
+			mode === 'tutor'
+				? 'The learner practices language relevant to their interests and feels more confident.'
+				: 'The learner successfully navigates a scenario aligned with their learning goals.',
+		learningObjectives: [
+			'practice vocabulary relevant to learner interests',
+			'apply language in personally meaningful contexts',
+			'build confidence through personalized scenarios'
+		],
+		comfortIndicators: {
+			confidence: 3,
+			engagement: 4,
+			understanding: 3
+		},
+		persona:
+			mode === 'character'
+				? { title: 'Conversation Partner', introPrompt: sanitizedDescription }
+				: null,
+		learningGoal:
+			mode === 'tutor'
+				? 'Practice language relevant to personal interests and goals'
+				: 'Navigate a personally meaningful scenario naturally',
+		visibility: 'private',
+		createdByUserId: null,
+		usageCount: 0,
+		isActive: true,
+		createdAt: now,
+		updatedAt: now
+	};
+
+	return {
+		draft: baseScenario,
+		sourceModel: 'memories-based',
+		tokensUsed: 0
+	};
+}

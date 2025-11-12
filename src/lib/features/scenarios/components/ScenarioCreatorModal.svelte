@@ -8,20 +8,24 @@
 		ScenarioMode,
 		ScenarioVisibility
 	} from '$lib/services/scenarios/user-scenarios.service';
+	import { onMount } from 'svelte';
 
 	interface Props {
 		open: boolean;
 		onClose: () => void;
 		onScenarioCreated?: (result: SaveScenarioResult) => void;
+		userMemories?: string[];
 	}
 
-	const { open, onClose, onScenarioCreated }: Props = $props();
+	const { open, onClose, onScenarioCreated, userMemories = [] }: Props = $props();
 
 	const mode: ScenarioMode = 'character';
 	let description = $state('');
 	let visibility = $state<ScenarioVisibility>('public');
 	let isSaving = $state(false);
 	let draftText = $state('');
+	let creationMode = $state<'description' | 'memories'>('description');
+	let selectedMemories = $state<Set<number>>(new Set());
 
 	const draft = $derived(customScenarioStore.draft);
 	const limits = $derived(customScenarioStore.limits);
@@ -53,6 +57,8 @@
 		description = '';
 		visibility = 'public';
 		isSaving = false;
+		creationMode = 'description';
+		selectedMemories = new Set();
 		customScenarioStore.resetDraft();
 		draftText = '';
 	}
@@ -67,6 +73,46 @@
 		if (response?.draft) {
 			draftText = JSON.stringify(response.draft, null, 2);
 		}
+	}
+
+	async function generateDraftFromMemories() {
+		const selectedMemoriesList = Array.from(selectedMemories).map((i) => userMemories[i]);
+		if (selectedMemoriesList.length === 0) return;
+
+		try {
+			const response = await fetch('/api/user-scenarios/author-from-memories', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					memories: selectedMemoriesList,
+					mode
+				})
+			});
+
+			if (!response.ok) {
+				throw new Error('Failed to generate scenario from memories');
+			}
+
+			const data = await response.json();
+			if (data?.draft) {
+				customScenarioStore.updateDraftResult(data.draft);
+				draftText = JSON.stringify(data.draft, null, 2);
+			}
+		} catch (error) {
+			console.error('Error generating scenario from memories:', error);
+		}
+	}
+
+	function toggleMemorySelection(index: number) {
+		const newSelection = new Set(selectedMemories);
+		if (newSelection.has(index)) {
+			newSelection.delete(index);
+		} else {
+			newSelection.add(index);
+		}
+		selectedMemories = newSelection;
 	}
 
 	async function saveScenario() {
@@ -115,7 +161,28 @@
 					</button>
 				</header>
 
+				<!-- Mode Tabs -->
+				{#if userMemories.length > 0}
+					<div class="tabs tabs-bordered">
+						<button
+							class="tab {creationMode === 'description' ? 'tab-active' : ''}"
+							onclick={() => (creationMode = 'description')}
+						>
+							<span class="icon-[mdi--pencil] mr-2 h-4 w-4"></span>
+							Describe it
+						</button>
+						<button
+							class="tab {creationMode === 'memories' ? 'tab-active' : ''}"
+							onclick={() => (creationMode = 'memories')}
+						>
+							<span class="icon-[mdi--lightbulb] mr-2 h-4 w-4"></span>
+							From my memories
+						</button>
+					</div>
+				{/if}
+
 				<section class="space-y-4">
+					{#if creationMode === 'description'}
 					<div class="form-control">
 						<label class="label">
 							<span class="label-text font-medium">Describe the moment</span>
@@ -180,9 +247,36 @@
 							{/if}
 						</div>
 					</div>
+				{:else if creationMode === 'memories'}
+					<div class="space-y-4">
+						<div class="text-sm text-base-content/70">
+							<p class="mb-2">Select memories to create a personalized scenario:</p>
+						</div>
+						{#if userMemories.length === 0}
+							<div class="rounded-lg border border-dashed border-base-300 p-4 text-center text-sm text-base-content/60">
+								No memories saved yet. Add some to your learner profile first.
+							</div>
+						{:else}
+							<div class="space-y-2 max-h-60 overflow-y-auto rounded-lg border border-base-300 p-3">
+								{#each userMemories as memory, index (index)}
+									<label class="flex cursor-pointer items-center gap-3 rounded-lg p-2 hover:bg-base-200/50">
+										<input
+											type="checkbox"
+											class="checkbox checkbox-sm"
+											checked={selectedMemories.has(index)}
+											onchange={() => toggleMemorySelection(index)}
+										/>
+										<span class="text-sm">{memory}</span>
+									</label>
+								{/each}
+							</div>
+						{/if}
+					</div>
+				{/if}
 				</section>
 
 				<section class="space-y-3">
+					{#if creationMode === 'description'}
 					<button
 						class="btn w-full btn-primary"
 						onclick={generateDraft}
@@ -196,6 +290,21 @@
 							<span>Generate JSON</span>
 						{/if}
 					</button>
+					{:else if creationMode === 'memories'}
+					<button
+						class="btn w-full btn-primary"
+						onclick={generateDraftFromMemories}
+						disabled={selectedMemories.size === 0 || draft.status === 'authoring' || userMemories.length === 0}
+					>
+						{#if draft.status === 'authoring'}
+							<span class="loading loading-sm loading-spinner"></span>
+							<span>Generating...</span>
+						{:else}
+							<span class="icon-[mdi--lightbulb-on] h-5 w-5"></span>
+							<span>Generate from memories</span>
+						{/if}
+					</button>
+					{/if}
 
 					{#if draft.error}
 						<div class="alert alert-error">
