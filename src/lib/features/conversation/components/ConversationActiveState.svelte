@@ -371,13 +371,16 @@
 			</div>
 		{/if}
 
-		<ConversationFab
-			user={userManager.user}
-			{timeRemaining}
-			timerActive={isTimerActive}
-			onEndConversation={handleEndRequest}
-			onRestartConversation={handleRestartConversation}
-		/>
+		<!-- FAB Flower - uses fixed positioning viewport-relative wrapper -->
+		<div class="fab-container">
+			<ConversationFab
+				user={userManager.user}
+				{timeRemaining}
+				timerActive={isTimerActive}
+				onEndConversation={handleEndRequest}
+				onRestartConversation={handleRestartConversation}
+			/>
+		</div>
 	</div>
 </div>
 
@@ -437,6 +440,22 @@
 		100% {
 			transform: scale(1.65);
 			opacity: 0;
+		}
+	}
+
+	/* FAB Container - breaks out of parent's position context */
+	/* Aligned with FeedbackButton (left-4 bottom-6) at button baseline */
+	:global(.fab-container) {
+		position: fixed;
+		bottom: 1.5rem; /* Matches FeedbackButton's bottom-6 */
+		right: 1rem; /* Matches FeedbackButton's left-4 */
+		z-index: 40;
+	}
+
+	@media (min-width: 768px) {
+		:global(.fab-container) {
+			bottom: 2rem; /* Matches FeedbackButton's md:bottom-8 */
+			right: 2rem; /* Matches FeedbackButton's md:left-8 */
 		}
 	}
 </style>

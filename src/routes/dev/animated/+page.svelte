@@ -21,11 +21,28 @@
 	// Selected model
 	let selectedModel = $state<'dall-e-3' | 'gpt-image-1'>('dall-e-3');
 
+	// Cost tracking
+	let totalCost = $derived(generationResults.filter((r) => r.imageUrl).length * 0.08);
+
+	// Get personality for preview
+	function getPersonalityForSpeaker(speakerId: string): string {
+		const personalities = [
+			'Open & Playful 😊',
+			'Warm & Curious 🌟',
+			'Upbeat & Energetic ⚡',
+			'Confident & Easygoing 😌',
+			'Friendly & Spontaneous 🎉',
+			'Kind & Adventurous 🌸'
+		];
+		const index = speakerId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % personalities.length;
+		return personalities[index];
+	}
+
 	// Generate image for a specific speaker
 	async function generateSpeakerImage(
 		speaker: any,
 		model: 'dall-e-3' | 'gpt-image-1' = selectedModel
-	) {
+	): Promise<boolean> {
 		const prompt = generateSpeakerPrompt(speaker);
 
 		// Add to results with generating state
@@ -55,6 +72,7 @@
 					imageUrl: result.imageUrl,
 					generating: false
 				};
+				return true;
 			} else {
 				generationResults[resultIndex] = {
 					speaker,
@@ -62,6 +80,7 @@
 					error: result.error,
 					generating: false
 				};
+				return false;
 			}
 		} catch {
 			generationResults[resultIndex] = {
@@ -70,21 +89,75 @@
 				error: 'Network error',
 				generating: false
 			};
+			return false;
 		}
 	}
 
-	// Generate all Japanese speakers
-	async function generateJapaneseSpeakers() {
-		const japaneseSpeakers = speakersData.filter((s) => s.languageId === 'ja');
+	// Generate all speakers for a specific language
+	async function generateLanguageSpeakers(languageId: string) {
+		const languageSpeakers = speakersData.filter((s) => s.languageId === languageId);
 		isGenerating = true;
 
-		for (const speaker of japaneseSpeakers) {
+		for (const speaker of languageSpeakers) {
 			await generateSpeakerImage(speaker);
-			// Add delay between requests
-			await new Promise((resolve) => setTimeout(resolve, 2000));
+			// Add delay between requests to respect rate limits
+			await new Promise((resolve) => setTimeout(resolve, 3000));
 		}
 
 		isGenerating = false;
+	}
+
+	// Generate ALL speakers (use with caution - ~73 images, ~$6-8 total)
+	async function generateAllSpeakers() {
+		if (!confirm(`This will generate ~${speakersData.length} images at ~$0.08 each (Total: ~$${(speakersData.length * 0.08).toFixed(2)}). Continue?`)) {
+			return;
+		}
+
+		isGenerating = true;
+		let successCount = 0;
+		let errorCount = 0;
+
+		for (const speaker of speakersData) {
+			const result = await generateSpeakerImage(speaker);
+			if (result) successCount++;
+			else errorCount++;
+
+			// Add delay between requests (3 seconds to be safe)
+			await new Promise((resolve) => setTimeout(resolve, 3000));
+		}
+
+		alert(`Batch complete! Success: ${successCount}, Errors: ${errorCount}`);
+		isGenerating = false;
+	}
+
+	// Get unique languages from speakers
+	function getUniqueLanguages(): Array<{ id: string; name: string; count: number }> {
+		const languageMap = new Map<string, { name: string; count: number }>();
+		const languageNames: Record<string, string> = {
+			ja: 'Japanese',
+			ko: 'Korean',
+			es: 'Spanish',
+			zh: 'Chinese',
+			fr: 'French',
+			de: 'German',
+			pt: 'Portuguese',
+			it: 'Italian',
+			ar: 'Arabic',
+			ru: 'Russian',
+			hi: 'Hindi'
+		};
+
+		speakersData.forEach((s) => {
+			const current = languageMap.get(s.languageId) || { name: languageNames[s.languageId] || s.languageId, count: 0 };
+			current.count++;
+			languageMap.set(s.languageId, current);
+		});
+
+		return Array.from(languageMap.entries()).map(([id, data]) => ({
+			id,
+			name: data.name,
+			count: data.count
+		}));
 	}
 
 	// Clear results
@@ -96,76 +169,177 @@
 	function generateSpeakerPrompt(speaker: any): string {
 		const genderDescriptor = speaker.gender === 'male' ? 'man' : 'woman';
 
-		let culturalElements = '';
-		let personalityTraits = '';
+		// Personality archetypes - timeless, open, upbeat, and fun
+		const personalities = [
+			{
+				trait: 'open and playful',
+				expression: 'a bright, welcoming smile with playful eyes that suggest they love adventure',
+				vibe: 'someone who\'s up for anything and makes everything feel like fun'
+			},
+			{
+				trait: 'warm and curious',
+				expression: 'a genuine smile with engaged, curious eyes - someone actively interested in you',
+				vibe: 'someone who listens well and makes you feel heard and interesting'
+			},
+			{
+				trait: 'upbeat and energetic',
+				expression: 'an animated, enthusiastic expression with eyes that light up when talking',
+				vibe: 'someone whose energy is contagious and lifts your mood instantly'
+			},
+			{
+				trait: 'confident and easygoing',
+				expression: 'a relaxed, natural smile with comfortable confidence - no pretense',
+				vibe: 'someone who\'s comfortable in their own skin and makes others feel at ease'
+			},
+			{
+				trait: 'friendly and spontaneous',
+				expression: 'a spontaneous, genuine laugh captured mid-moment, eyes crinkling with joy',
+				vibe: 'someone who lives in the moment and knows how to have a good time'
+			},
+			{
+				trait: 'kind and adventurous',
+				expression: 'a warm smile with an adventurous glint in their eyes, ready to explore',
+				vibe: 'someone who balances kindness with a sense of adventure and fun'
+			}
+		];
 
-		// Add subtle cultural context without stereotypes
+		// Assign personality based on speaker name hash for consistency
+		const personalityIndex = speaker.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) % personalities.length;
+		const personality = personalities[personalityIndex];
+
+		let culturalElements = '';
+		let styleContext = '';
+		let ageRange = '23-28 years old';
+
+		// Timeless cultural context - focused on universal appeal
 		switch (speaker.languageId) {
 			case 'ja':
-				culturalElements =
-					'subtle Japanese aesthetic in their clothing choice, reflecting a clean and thoughtful presentation';
-				personalityTraits = 'a gentle, attentive, and quietly confident personality';
+				culturalElements = 'casual Japanese style with clean lines and natural elegance';
+				styleContext = 'like someone you\'d meet while exploring a park or getting coffee';
 				break;
 			case 'es':
-				culturalElements =
-					speaker.region === 'Spain'
-						? 'a European Spanish style with warm, Mediterranean colors'
-						: 'a style that reflects Latin American warmth in their expression';
-				personalityTraits = 'an expressive, warm-hearted, and naturally welcoming personality';
+				culturalElements = speaker.region === 'Spain'
+					? 'relaxed Mediterranean style with natural warmth'
+					: 'casual Latin American style with vibrant, open energy';
+				styleContext = 'like someone who loves good conversation over a meal or walk';
 				break;
 			case 'zh':
-				culturalElements =
-					speaker.region === 'Taiwan'
-						? 'a modern Taiwanese casual style'
-						: 'a contemporary Chinese aesthetic';
-				personalityTraits = 'a thoughtful, patient, and encouraging demeanor';
+				culturalElements = speaker.region === 'Taiwan'
+					? 'comfortable Taiwanese casual style'
+					: 'contemporary Chinese everyday fashion';
+				styleContext = 'like someone friendly and easy to talk to';
 				break;
 			case 'fr':
-				culturalElements = 'a classic French style that is simple and elegant';
-				personalityTraits = 'a sophisticated yet approachable and naturally expressive personality';
+				culturalElements = 'effortlessly casual French style, simple and timeless';
+				styleContext = 'like someone you\'d enjoy a long walk or conversation with';
 				break;
 			case 'ko':
-				culturalElements = 'a modern Korean fashion sense with a clean, contemporary style';
-				personalityTraits = 'a friendly, considerate, and quietly supportive personality';
+				culturalElements = 'modern Korean casual style with natural charm';
+				styleContext = 'like someone comfortable and fun to be around';
 				break;
 			case 'de':
-				culturalElements = 'a German practicality in their style, with understated elegance';
-				personalityTraits = 'a direct but kind and genuinely helpful personality';
+				culturalElements = 'practical German style with natural elegance';
+				styleContext = 'like someone straightforward and genuine';
 				break;
 			case 'pt':
-				culturalElements =
-					speaker.region === 'Brazil'
-						? 'a style with Brazilian warmth and vibrancy'
-						: 'a classic Portuguese style';
-				personalityTraits = 'a naturally joyful, inclusive, and life-loving personality';
+				culturalElements = speaker.region === 'Brazil'
+					? 'relaxed Brazilian style with natural, joyful energy'
+					: 'comfortable Portuguese style with warm authenticity';
+				styleContext = 'like someone who knows how to enjoy life';
 				break;
 			case 'it':
-				culturalElements = 'an Italian sense of style and natural elegance';
-				personalityTraits = 'a passionate, expressive, and naturally charming personality';
+				culturalElements = 'casual Italian style with natural confidence';
+				styleContext = 'like someone warm and expressive in the best way';
 				break;
 			default:
-				culturalElements = 'an international modern style';
-				personalityTraits = 'a warm, approachable, and genuinely interested personality';
+				culturalElements = 'comfortable international style';
+				styleContext = 'like someone you\'d meet while traveling and want to keep in touch with';
 		}
 
-		const prompt = `
-			A heartwarming and gentle character portrait in the nostalgic, hand-drawn animation style of Studio Ghibli, reminiscent of films like "Whisper of the Heart" or "Kiki's Delivery Service".
+		// Timeless, open, upbeat, and fun character prompt
+		const prompt = `Create a character portrait illustration in the timeless Studio Ghibli animation style, specifically referencing the warm, genuine character designs from "Whisper of the Heart" (1995), "Kiki's Delivery Service" (1989), and "Only Yesterday" (1991).
 
-			**Subject:** A young ${genderDescriptor} named ${speaker.voiceName}. The character has ${personalityTraits} and wears clothing with ${culturalElements}.
+CHARACTER CONCEPT:
+- A ${ageRange} ${genderDescriptor} named ${speaker.voiceName}
+- Personality: ${personality.trait}
+- Cultural style: ${culturalElements}
+- Feeling: ${styleContext}
+- Energy: ${personality.vibe}
 
-			**Composition:** Close-up headshot from the shoulders up, with the character facing forward and looking directly at the camera.
+EXPRESSION & EMOTION (Critical - Open, Upbeat, Fun):
+- ${personality.expression}
+- OPEN and APPROACHABLE - someone easy to talk to
+- UPBEAT and POSITIVE - brings good energy without being over-the-top
+- FUN and ENGAGING - someone you'd enjoy spending time with
+- Natural, unforced happiness - not a stock photo smile
+- Genuine human warmth that feels timeless
 
-			**Action:** A warm, gentle expression with kind eyes that show readiness to help. The mouth is slightly open, as if in the middle of a friendly conversation.
+VISUAL STYLE (Timeless Ghibli):
+- Hand-drawn cel animation aesthetic with visible, confident line art
+- Soft watercolor textures with gentle, natural gradients
+- Warm, inviting color palette with natural lighting
+- Expressive eyes that show ${personality.trait} - full of life and personality
+- Soft, approachable facial features
+- Natural, flowing hair with organic movement
+- Casual, comfortable clothing that feels timeless (not trendy)
 
-			**Location:** A simple, clean, neutral background that keeps the focus entirely on the character.
+COMPOSITION:
+- Portrait from shoulders up, natural angle (3/4 view or straight-on)
+- Character making friendly eye contact, mid-conversation
+- Relaxed, natural posture - no stiffness
+- Simple, soft background (warm cream, soft beige, natural light blue)
+- Should feel like talking to a friend you're comfortable with
 
-			**Editing Instructions:** Portrait orientation. The lighting should be soft and natural. The art should have clean line art, subtle watercolor-like shading, and highly expressive facial features. Ensure authentic and respectful cultural representation. IMPORTANT: Only one person in the image.
-		`;
+RELATIONSHIP/CONVERSATION CONTEXT:
+- This is someone you'd want to practice conversations with - comfortable but engaging
+- Attractive in a natural, timeless way (not model-pretty, real-person pretty)
+- The kind of person who makes conversation feel easy and fun
+- A conversation partner who's genuinely interested in connecting
+- Balance between being attractive and being approachable
+- Strong but warm - confident in who they are
+
+TECHNICAL DETAILS:
+- Clean line art with natural confidence (black or dark brown outlines)
+- Subtle watercolor shading with soft transitions
+- Bright, lively eye highlights that show personality
+- Natural skin tones with appropriate, respectful cultural representation
+- Simple clothing details - focus on the character's face and expression
+
+CRITICAL REQUIREMENTS:
+- ONLY ONE PERSON in the image
+- No photorealistic elements - pure Ghibli hand-drawn animation style
+- No digital painting style - must look traditionally animated
+- No multiple characters, no background figures
+- Character should have TIMELESS appeal - not dated by trends
+- Should feel FUN, OPEN, and UPBEAT - someone you'd love to chat with`;
+
 		return prompt.trim();
 	}
 
 	function copyToClipboard(text: string) {
 		navigator.clipboard.writeText(text);
+	}
+
+	// Download all generated images as a JSON manifest
+	function downloadManifest() {
+		const manifest = generationResults
+			.filter((r) => r.imageUrl)
+			.map((r) => ({
+				speakerId: r.speaker.id,
+				voiceName: r.speaker.voiceName,
+				region: r.speaker.region,
+				language: r.speaker.languageId,
+				gender: r.speaker.gender,
+				imageUrl: r.imageUrl
+			}));
+
+		const blob = new Blob([JSON.stringify(manifest, null, 2)], { type: 'application/json' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `kaiwa-characters-manifest-${Date.now()}.json`;
+		a.click();
+		URL.revokeObjectURL(url);
 	}
 </script>
 
@@ -176,11 +350,24 @@
 <div class="min-h-screen bg-base-100 p-8">
 	<div class="container mx-auto max-w-6xl">
 		<div class="mb-8">
-			<h1 class="mb-4 text-4xl font-bold">Kaiwa Animation Prompts</h1>
-			<p class="text-lg opacity-75">
-				Studio Ghibli-style prompts optimized for DALL-E, Midjourney, or Stable Diffusion. Click any
-				prompt to copy to clipboard.
+			<h1 class="mb-4 text-4xl font-bold">Kaiwa Character Generation System</h1>
+			<p class="mb-2 text-lg opacity-75">
+				Enhanced Studio Ghibli-style prompts for all {speakersData.length} speakers. Generate character portraits
+				with specific art direction for consistency and emotional warmth.
 			</p>
+			<div class="alert alert-info">
+				<div>
+					<p class="font-bold">✨ Timeless, Open, Upbeat & Fun Characters:</p>
+					<ul class="mt-2 list-disc space-y-1 pl-5 text-sm">
+						<li><strong>6 Personality Types:</strong> Open & Playful, Warm & Curious, Upbeat & Energetic, Confident & Easygoing, Friendly & Spontaneous, Kind & Adventurous</li>
+						<li><strong>Timeless Appeal:</strong> Not trendy or dated - these characters will feel fresh for years</li>
+						<li><strong>Natural & Genuine:</strong> Real-person pretty (not model-pretty), comfortable and approachable</li>
+						<li><strong>Fun & Engaging:</strong> People you'd actually want to practice conversations with</li>
+						<li><strong>Classic Ghibli:</strong> References "Whisper of the Heart", "Kiki's Delivery Service", "Only Yesterday"</li>
+						<li><strong>Universal Context:</strong> Meeting at a park, getting coffee, enjoying a walk - timeless scenarios</li>
+					</ul>
+				</div>
+			</div>
 		</div>
 
 		<!-- Live Image Generation -->
@@ -232,35 +419,102 @@
 				</div>
 			</div>
 
-			<div class="mb-6 flex flex-wrap gap-4">
+			<!-- Quick test buttons -->
+			<div class="mb-4">
+				<h3 class="mb-2 font-bold">Quick Test (Individual)</h3>
+				<div class="flex flex-wrap gap-2">
+					<button
+						class="btn btn-sm btn-success"
+						disabled={isGenerating}
+						onclick={() => generateSpeakerImage(speakersData.find((s) => s.id === 'ja-jp-male'))}
+					>
+						Generate Hiro 🇯🇵 (Male)
+					</button>
+					<button
+						class="btn btn-sm btn-success"
+						disabled={isGenerating}
+						onclick={() => generateSpeakerImage(speakersData.find((s) => s.id === 'ja-jp-female'))}
+					>
+						Generate Yuki 🇯🇵 (Female)
+					</button>
+					<button
+						class="btn btn-sm btn-success"
+						disabled={isGenerating}
+						onclick={() => generateSpeakerImage(speakersData.find((s) => s.id === 'ko-kr-female'))}
+					>
+						Generate Korean Female 🇰🇷
+					</button>
+					<button
+						class="btn btn-sm btn-success"
+						disabled={isGenerating}
+						onclick={() => generateSpeakerImage(speakersData.find((s) => s.id === 'ko-kr-male'))}
+					>
+						Generate Korean Male 🇰🇷
+					</button>
+				</div>
+			</div>
+
+			<!-- Batch generation by language -->
+			<div class="mb-4">
+				<h3 class="mb-2 font-bold">Batch Generate by Language</h3>
+				<div class="flex flex-wrap gap-2">
+					{#each getUniqueLanguages() as lang}
+						<button
+							class="btn btn-sm btn-primary"
+							disabled={isGenerating}
+							onclick={() => generateLanguageSpeakers(lang.id)}
+						>
+							{lang.name} ({lang.count} speakers) ~${(lang.count * 0.08).toFixed(2)}
+						</button>
+					{/each}
+				</div>
+			</div>
+
+			<!-- Generate ALL (danger zone) -->
+			<div class="mb-6">
+				<h3 class="mb-2 font-bold text-warning">⚠️ Batch Generate ALL Speakers</h3>
 				<button
-					class="btn btn-success"
-					disabled={isGenerating}
-					onclick={() => generateSpeakerImage(speakersData.find((s) => s.id === 'ja-jp-male'))}
-				>
-					Generate Hiro 🇯🇵 (Male)
-				</button>
-				<button
-					class="btn btn-success"
-					disabled={isGenerating}
-					onclick={() => generateSpeakerImage(speakersData.find((s) => s.id === 'ja-jp-female'))}
-				>
-					Generate Yuki 🇯🇵 (Female)
-				</button>
-				<button
-					class="btn btn-success"
+					class="btn btn-warning"
 					class:loading={isGenerating}
 					disabled={isGenerating}
-					onclick={generateJapaneseSpeakers}
+					onclick={generateAllSpeakers}
 				>
-					{isGenerating ? 'Generating...' : 'Generate All 3 Japanese Speakers'}
+					{isGenerating
+						? `Generating... (${generationResults.length}/${speakersData.length})`
+						: `Generate ALL ${speakersData.length} Speakers (~$${(speakersData.length * 0.08).toFixed(2)})`}
 				</button>
-				<button class="btn btn-outline" onclick={clearResults} disabled={isGenerating}>
+				<button class="btn btn-outline ml-2" onclick={clearResults} disabled={isGenerating}>
 					Clear Results
 				</button>
 			</div>
 
 			{#if generationResults.length > 0}
+				<!-- Stats and Download -->
+				<div class="mb-6 alert alert-success">
+					<div class="w-full">
+						<div class="flex items-center justify-between">
+							<div>
+								<p class="font-bold">Generation Stats</p>
+								<p class="text-sm">
+									Success: {generationResults.filter((r) => r.imageUrl).length} | 
+									Errors: {generationResults.filter((r) => r.error).length} | 
+									In Progress: {generationResults.filter((r) => r.generating).length}
+								</p>
+								<p class="text-sm">
+									<strong>Estimated Cost:</strong> ${totalCost.toFixed(2)}
+								</p>
+							</div>
+							<button
+								class="btn btn-sm btn-primary"
+								onclick={downloadManifest}
+								disabled={generationResults.filter((r) => r.imageUrl).length === 0}
+							>
+								📥 Download Manifest JSON
+							</button>
+						</div>
+					</div>
+				</div>
+
 				<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 					{#each generationResults as result (result.speaker.speakerEmoji + result.speaker.speakerName)}
 						<div class="card border border-success/20 bg-base-200 shadow-xl">
@@ -272,6 +526,9 @@
 								</h3>
 								<p class="text-sm opacity-75">
 									{result.speaker.dialectName} • {result.speaker.gender}
+								</p>
+								<p class="text-xs font-semibold text-primary">
+									{getPersonalityForSpeaker(result.speaker.id)}
 								</p>
 
 								{#if result.generating}
@@ -377,8 +634,9 @@
 			<div class="mb-4 alert alert-info">
 				<div>
 					<p>
-						<strong>Auto-generated prompts</strong> for each speaker in your database. Each prompt includes
-						their name, cultural context, and personality traits while avoiding stereotypes.
+						<strong>Timeless, fun conversation partner prompts</strong> for each speaker. Each character has a unique personality
+						archetype (open, upbeat, warm, etc.) assigned consistently based on their speaker ID. This creates varied, 
+						engaging characters that feel natural and fun to practice with - not generic or trendy, but timelessly appealing.
 					</p>
 				</div>
 			</div>
@@ -391,7 +649,12 @@
 								{speaker.voiceName}
 								<div class="badge badge-sm">{speaker.region}</div>
 							</h3>
-							<p class="text-xs opacity-75">{speaker.dialectName} • {speaker.gender}</p>
+							<p class="text-xs opacity-75">
+								{speaker.dialectName} • {speaker.gender}
+							</p>
+							<p class="text-xs font-semibold text-primary mt-1">
+								{getPersonalityForSpeaker(speaker.id)}
+							</p>
 							<div class="mt-3">
 								<textarea
 									class="textarea-bordered textarea h-48 w-full text-xs"
@@ -450,9 +713,11 @@
 						<div class="space-y-2 text-sm">
 							<p><strong>Endpoint:</strong> https://api.openai.com/v1/images/generations</p>
 							<p><strong>Model:</strong> dall-e-3</p>
-							<p><strong>Size:</strong> 1024x1024 (square) or 1792x1024 (landscape)</p>
-							<p><strong>Cost:</strong> ~$0.04 per image</p>
+							<p><strong>Size:</strong> 1024x1024 (square)</p>
+							<p><strong>Quality:</strong> HD (higher fidelity for character portraits)</p>
+							<p><strong>Cost:</strong> ~$0.08 per HD image ($0.04 standard)</p>
 							<p><strong>Batch Size:</strong> 1 image per request</p>
+							<p class="text-warning"><strong>Total for all 73 speakers:</strong> ~$5.84</p>
 						</div>
 						<div class="mt-4">
 							<button

@@ -4,6 +4,8 @@
 	import { ConversationStore } from '$lib/stores/conversation.store.svelte';
 	import { setContext, onMount, onDestroy } from 'svelte';
 	import Navigation from '$lib/components/Navigation.svelte';
+	import ToastContainer from '$lib/components/ToastContainer.svelte';
+	import FeedbackButton from '$lib/components/FeedbackButton.svelte';
 	import { initializePostHog, trackPageView, posthog, track } from '$lib/analytics/posthog';
 
 	const conversationStore = new ConversationStore();
@@ -169,6 +171,12 @@
 		}
 	</script>
 </svelte:head>
+
+<!-- Toast Notification System (Global) -->
+<ToastContainer />
+
+<!-- Feedback Button (Global) -->
+<FeedbackButton />
 
 {#if !shouldHideNavigation}
 	<Navigation {user} />
