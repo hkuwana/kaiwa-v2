@@ -62,16 +62,17 @@
 		if (isOutOfTime) {
 			return { value: '0', unit: 'min', subtext: 'out of time' };
 		}
-		
-		// Show hours if >= 60 minutes
+
+		// Show hours with decimal if >= 60 minutes
 		if (remainingMinutes >= 60) {
+			const hoursDecimal = (remainingMinutes / 60).toFixed(1);
 			return {
-				value: remainingHours.toString(),
-				unit: remainingHours === 1 ? 'hour' : 'hours',
-				subtext: remainingMinutesDisplay > 0 ? `${remainingMinutesDisplay}m remaining` : 'remaining'
+				value: hoursDecimal,
+				unit: 'h',
+				subtext: 'remaining'
 			};
 		}
-		
+
 		// Show minutes if >= 1 minute
 		if (remainingMinutes >= 1) {
 			return {
@@ -80,7 +81,7 @@
 				subtext: 'remaining'
 			};
 		}
-		
+
 		// Show seconds if < 1 minute
 		return {
 			value: remainingSecondsDisplay.toString(),
