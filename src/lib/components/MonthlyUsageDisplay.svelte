@@ -92,12 +92,6 @@
 
 	const timeDisplay = $derived(formatTimeDisplay());
 
-	// SVG circle calculations for progress ring
-	const circleRadius = 58;
-	const circleCircumference = 2 * Math.PI * circleRadius;
-	const strokeDashoffset = $derived(
-		circleCircumference - (percentageRemaining / 100) * circleCircumference
-	);
 
 	// Determine color based on state
 	const ringColor = $derived(
@@ -166,37 +160,16 @@
 			aria-haspopup="true"
 			aria-label="View usage details"
 		>
-			<!-- Circular progress ring -->
-			<div class="relative h-36 w-36">
-				<!-- Background circle -->
-				<svg class="absolute inset-0 h-full w-full -rotate-90 transform">
-					<circle
-						cx="72"
-						cy="72"
-						r={circleRadius}
-						stroke="currentColor"
-						stroke-width="8"
-						fill="none"
-						class="text-base-200"
-					/>
-					<!-- Progress circle -->
-					<circle
-						cx="72"
-						cy="72"
-						r={circleRadius}
-						stroke={ringColor}
-						stroke-width="8"
-						fill="none"
-						stroke-linecap="round"
-						stroke-dasharray={circleCircumference}
-						stroke-dashoffset={strokeDashoffset}
-						class="transition-all duration-700 ease-in-out"
-						style="filter: drop-shadow(0 0 6px {ringColor}40)"
-					/>
-				</svg>
-
-				<!-- Center content -->
-				<div class="absolute inset-0 flex flex-col items-center justify-center">
+			<!-- DaisyUI Radial Progress Bar -->
+			<div
+				class="radial-progress"
+				style="--value:{percentageRemaining}; --size:9rem; --thickness:8px; --color:{ringColor};"
+				role="progressbar"
+				aria-valuenow={Math.round(percentageRemaining)}
+				aria-valuemin="0"
+				aria-valuemax="100"
+			>
+				<div class="flex flex-col items-center justify-center">
 					<div class="text-5xl font-extralight tracking-tight" style="color: {ringColor}">
 						{timeDisplay.value}
 					</div>
