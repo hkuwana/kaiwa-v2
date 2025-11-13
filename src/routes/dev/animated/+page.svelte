@@ -21,6 +21,14 @@
 	// Selected model
 	let selectedModel = $state<'dall-e-3' | 'gpt-image-1'>('dall-e-3');
 
+	// Prompt style selector
+	let promptStyle = $state<'original' | 'refined-ghibli' | 'abstract' | 'illustrated'>(
+		'refined-ghibli'
+	);
+
+	// Individual speaker testing
+	let selectedTestSpeaker = $state<string | null>(null);
+
 	// Cost tracking
 	let totalCost = $derived(generationResults.filter((r) => r.imageUrl).length * 0.08);
 
@@ -42,9 +50,10 @@
 	// Generate image for a specific speaker
 	async function generateSpeakerImage(
 		speaker: any,
-		model: 'dall-e-3' | 'gpt-image-1' = selectedModel
+		model: 'dall-e-3' | 'gpt-image-1' = selectedModel,
+		style: string = promptStyle
 	): Promise<boolean> {
-		const prompt = generateSpeakerPrompt(speaker);
+		const prompt = generateSpeakerPrompt(speaker, style);
 
 		// Add to results with generating state
 		const resultIndex = generationResults.length;
@@ -174,7 +183,23 @@
 	}
 
 	// Generate character prompt for each speaker
-	function generateSpeakerPrompt(speaker: any): string {
+	function generateSpeakerPrompt(speaker: any, style: string = 'original'): string {
+		// Route to appropriate prompt generator based on style
+		switch (style) {
+			case 'refined-ghibli':
+				return generateRefinedGhibliPrompt(speaker);
+			case 'abstract':
+				return generateAbstractPrompt(speaker);
+			case 'illustrated':
+				return generateIllustratedPrompt(speaker);
+			case 'original':
+			default:
+				return generateOriginalPrompt(speaker);
+		}
+	}
+
+	// ORIGINAL PROMPT (your current version)
+	function generateOriginalPrompt(speaker: any): string {
 		const genderDescriptor = speaker.gender === 'male' ? 'man' : 'woman';
 
 		// Personality archetypes - timeless, open, upbeat, and fun
@@ -330,8 +355,282 @@ CRITICAL REQUIREMENTS:
 		return prompt.trim();
 	}
 
+	// REFINED GHIBLI PROMPT (Step-by-step, better for AI)
+	function generateRefinedGhibliPrompt(speaker: any): string {
+		const genderDescriptor = speaker.gender === 'male' ? 'man' : 'woman';
+		const personalities = [
+			{
+				trait: 'open and playful',
+				expression: 'a bright, welcoming smile with playful eyes that suggest they love adventure',
+				vibe: "someone who's up for anything and makes everything feel like fun"
+			},
+			{
+				trait: 'warm and curious',
+				expression:
+					'a genuine smile with engaged, curious eyes - someone actively interested in you',
+				vibe: 'someone who listens well and makes you feel heard and interesting'
+			},
+			{
+				trait: 'upbeat and energetic',
+				expression: 'an animated, enthusiastic expression with eyes that light up when talking',
+				vibe: 'someone whose energy is contagious and lifts your mood instantly'
+			},
+			{
+				trait: 'confident and easygoing',
+				expression: 'a relaxed, natural smile with comfortable confidence - no pretense',
+				vibe: "someone who's comfortable in their own skin and makes others feel at ease"
+			},
+			{
+				trait: 'friendly and spontaneous',
+				expression: 'a spontaneous, genuine laugh captured mid-moment, eyes crinkling with joy',
+				vibe: 'someone who lives in the moment and knows how to have a good time'
+			},
+			{
+				trait: 'kind and adventurous',
+				expression: 'a warm smile with an adventurous glint in their eyes, ready to explore',
+				vibe: 'someone who balances kindness with a sense of adventure and fun'
+			}
+		];
+
+		const personalityIndex =
+			speaker.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) %
+			personalities.length;
+		const personality = personalities[personalityIndex];
+
+		let culturalElements = '';
+		let ageRange = '23-28 years old';
+
+		switch (speaker.languageId) {
+			case 'ja':
+				culturalElements = 'casual Japanese style with clean lines and natural elegance';
+				break;
+			case 'ko':
+				culturalElements = 'modern Korean casual style with natural charm';
+				break;
+			case 'es':
+				culturalElements =
+					speaker.region === 'Spain'
+						? 'relaxed Mediterranean style with natural warmth'
+						: 'casual Latin American style with vibrant, open energy';
+				break;
+			case 'zh':
+				culturalElements =
+					speaker.region === 'Taiwan'
+						? 'comfortable Taiwanese casual style'
+						: 'contemporary Chinese everyday fashion';
+				break;
+			default:
+				culturalElements = 'comfortable international style';
+		}
+
+		return `Create a character portrait in the style of 1990s Japanese hand-drawn animation, with soft watercolor aesthetics.
+
+STEP 1 - ANALYZE COMPOSITION:
+- Portrait from shoulders up, 3/4 view or straight-on
+- ${ageRange} ${genderDescriptor} named ${speaker.voiceName}
+- Personality: ${personality.trait}
+- Natural, conversational expression: ${personality.expression}
+- Cultural styling: ${culturalElements}
+- Energy: ${personality.vibe}
+
+STEP 2 - APPLY VISUAL STYLE:
+- Soft, vibrant color palette (warm peachy skin tones, natural hair colors)
+- Detailed but gentle line work (confident black outlines, 2-3px weight)
+- Large, expressive eyes with multiple highlights showing ${personality.trait}
+- Watercolor-style shading with visible brush texture
+- Soft edges and natural color bleeding between sections
+- Hand-drawn cel animation aesthetic
+
+STEP 3 - REFINE CHARACTER DETAILS:
+- Hair: Natural flow with individual strand detail, organic movement
+- Eyes: Large and emotive, with 2-3 white highlights per eye showing life
+- Expression: Mid-conversation warmth - mouth slightly open or gentle smile
+- Clothing: Simple, casual, timeless (soft colors, minimal patterns)
+- Background: Soft gradient (cream to pale blue) with subtle texture
+
+STEP 4 - LIGHTING & ATMOSPHERE:
+- Soft, diffused natural lighting from upper left
+- Gentle shadows under chin and around nose
+- Warm highlights on cheekbones and nose tip
+- Overall mood: Approachable, friendly, upbeat
+- Golden hour warmth without being too saturated
+
+STEP 5 - EMOTIONAL TONE:
+- OPEN and APPROACHABLE - someone easy to talk to
+- UPBEAT and POSITIVE - brings good energy without being over-the-top
+- FUN and ENGAGING - someone you'd enjoy spending time with
+- Natural, unforced happiness - not a stock photo smile
+- Genuine human warmth that feels timeless
+
+TECHNICAL REQUIREMENTS:
+- Hand-drawn animation aesthetic (NOT digital painting, NOT photorealistic)
+- Visible line art with watercolor fills
+- Whimsical but authentic character design reminiscent of Whisper of the Heart, Kiki's Delivery Service
+- Only ONE person in frame
+- Focus on expressive, friendly face that invites conversation
+- Character should look like someone you'd want to practice speaking with`;
+	}
+
+	// ABSTRACT PROMPT (Amorphous, like "Her")
+	function generateAbstractPrompt(speaker: any): string {
+		const personalities = [
+			{ trait: 'open and playful', colors: 'warm coral and soft peach gradients' },
+			{ trait: 'warm and curious', colors: 'golden yellow and soft amber gradients' },
+			{ trait: 'upbeat and energetic', colors: 'vibrant orange and sunny yellow gradients' },
+			{ trait: 'confident and easygoing', colors: 'soft teal and gentle blue gradients' },
+			{ trait: 'friendly and spontaneous', colors: 'warm pink and soft rose gradients' },
+			{ trait: 'kind and adventurous', colors: 'sage green and soft mint gradients' }
+		];
+
+		const personalityIndex =
+			speaker.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) %
+			personalities.length;
+		const personality = personalities[personalityIndex];
+
+		return `Create an abstract, minimalist visual representation of a friendly conversation partner.
+
+CONCEPT:
+- Amorphous, flowing organic shapes that suggest a warm presence
+- ${personality.colors}
+- Soft, inviting forms that convey ${personality.trait} through shape and color
+- No facial features, but personality expressed through form and movement
+
+VISUAL STYLE:
+- Smooth gradients with soft, diffused edges
+- Gentle, organic forms that feel warm and alive
+- Layered transparency creating depth
+- Soft glow or subtle halo effect around edges
+- Modern, clean aesthetic
+
+COMPOSITION:
+- Centered organic shape, roughly portrait-oriented
+- Flowing, natural movement implied in the form
+- Minimal background (neutral gradient, light to slightly darker)
+- Should feel present but not intrusive
+- Balance between abstract and approachable
+
+MOOD & ATMOSPHERE:
+- Friendly, warm, non-threatening
+- Inviting without being demanding
+- Conveys ${personality.trait} through color temperature and form
+- Universal appeal, no cultural assumptions
+- Modern but timeless
+
+TECHNICAL DETAILS:
+- Clean, professional execution
+- Soft shadows and highlights for depth
+- Subtle texture (optional, very light grain)
+- Should work well at small sizes (40x40px avatar)
+- Format: Portrait orientation, simple background`;
+	}
+
+	// ILLUSTRATED PROMPT (Semi-realistic, editorial style)
+	function generateIllustratedPrompt(speaker: any): string {
+		const genderDescriptor = speaker.gender === 'male' ? 'man' : 'woman';
+		const personalities = [
+			{
+				trait: 'open and playful',
+				expression: 'a bright, welcoming smile with playful eyes'
+			},
+			{
+				trait: 'warm and curious',
+				expression: 'a genuine smile with engaged, curious eyes'
+			},
+			{
+				trait: 'upbeat and energetic',
+				expression: 'an animated, enthusiastic expression with bright eyes'
+			},
+			{
+				trait: 'confident and easygoing',
+				expression: 'a relaxed, natural smile with comfortable confidence'
+			},
+			{
+				trait: 'friendly and spontaneous',
+				expression: 'a spontaneous, genuine laugh with joyful eyes'
+			},
+			{
+				trait: 'kind and adventurous',
+				expression: 'a warm smile with an adventurous glint'
+			}
+		];
+
+		const personalityIndex =
+			speaker.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) %
+			personalities.length;
+		const personality = personalities[personalityIndex];
+
+		let culturalElements = '';
+		let ageRange = '23-28 years old';
+
+		switch (speaker.languageId) {
+			case 'ja':
+				culturalElements = 'subtle Japanese aesthetic with clean, elegant lines';
+				break;
+			case 'ko':
+				culturalElements = 'modern Korean style with natural charm';
+				break;
+			case 'es':
+				culturalElements = 'warm Mediterranean or Latin American style';
+				break;
+			case 'zh':
+				culturalElements = 'contemporary East Asian aesthetic';
+				break;
+			default:
+				culturalElements = 'international contemporary style';
+		}
+
+		return `Create a warm, illustrated portrait in the style of contemporary editorial illustration.
+
+CHARACTER:
+- ${ageRange} ${genderDescriptor} named ${speaker.voiceName}
+- Personality: ${personality.trait}
+- Expression: ${personality.expression}
+- Cultural context: ${culturalElements}
+
+VISUAL STYLE:
+- Digital illustration with natural, painterly textures
+- Realistic proportions but slightly stylized, approachable features
+- Soft, painterly brushwork (NOT photorealistic, clearly illustrated)
+- Warm, saturated colors with good contrast
+- Professional editorial quality
+
+ART DIRECTION:
+- Portrait from shoulders up
+- Friendly, conversational expression that feels genuine
+- Simple background (solid color with subtle texture or soft gradient)
+- Natural skin tones with appropriate, respectful cultural representation
+- Clothing that suggests ${culturalElements}
+
+REFERENCE STYLE:
+- Contemporary editorial illustration (The New Yorker, The Atlantic)
+- Warm children's book illustration aesthetic
+- Clean but expressive - focus on personality
+- Professional and trustworthy but approachable
+- Clearly hand-illustrated, not a photograph
+
+MOOD:
+- Warm, inviting, friendly
+- Professional but not corporate
+- Approachable and human
+- Someone you'd enjoy talking to
+
+TECHNICAL DETAILS:
+- Clear it's an illustration, not a photo
+- Focus on expressive face and eyes
+- Simple, uncluttered composition
+- Should work well at various sizes
+- Portrait orientation`;
+	}
+
+	// State for copy feedback
+	let copiedUrl = $state<string | null>(null);
+
 	function copyToClipboard(text: string) {
 		navigator.clipboard.writeText(text);
+		copiedUrl = text;
+		setTimeout(() => {
+			copiedUrl = null;
+		}, 2000);
 	}
 
 	// Download all generated images as a JSON manifest
@@ -450,38 +749,205 @@ CRITICAL REQUIREMENTS:
 				</div>
 			</div>
 
-			<!-- Quick test buttons -->
-			<div class="mb-4">
-				<h3 class="mb-2 font-bold">Quick Test (Individual)</h3>
-				<div class="flex flex-wrap gap-2">
+			<!-- Prompt Style Selector -->
+			<div class="card mb-6 border border-success/20 bg-base-200 p-4">
+				<h3 class="mb-3 font-bold">🎨 Prompt Style (A/B Testing)</h3>
+				<p class="mb-4 text-sm opacity-75">
+					Test different approaches to see which produces the best character art
+				</p>
+				
+				<div class="form-control">
+					<label class="label cursor-pointer">
+						<span class="label-text">
+							<strong>Refined Ghibli</strong> - Step-by-step instructions, better AI understanding
+							<span class="badge badge-success badge-sm ml-2">RECOMMENDED</span>
+						</span>
+						<input
+							type="radio"
+							name="promptStyle"
+							class="radio checked:bg-success"
+							bind:group={promptStyle}
+							value="refined-ghibli"
+						/>
+					</label>
+				</div>
+
+				<div class="form-control">
+					<label class="label cursor-pointer">
+						<span class="label-text">
+							<strong>Original</strong> - Your current Ghibli-style prompt (baseline)
+						</span>
+						<input
+							type="radio"
+							name="promptStyle"
+							class="radio checked:bg-blue-500"
+							bind:group={promptStyle}
+							value="original"
+						/>
+					</label>
+				</div>
+
+				<div class="form-control">
+					<label class="label cursor-pointer">
+						<span class="label-text">
+							<strong>Abstract</strong> - Amorphous shapes (like "Her"), no faces
+						</span>
+						<input
+							type="radio"
+							name="promptStyle"
+							class="radio checked:bg-purple-500"
+							bind:group={promptStyle}
+							value="abstract"
+						/>
+					</label>
+				</div>
+
+				<div class="form-control">
+					<label class="label cursor-pointer">
+						<span class="label-text">
+							<strong>Illustrated</strong> - Editorial style, semi-realistic portraits
+						</span>
+						<input
+							type="radio"
+							name="promptStyle"
+							class="radio checked:bg-orange-500"
+							bind:group={promptStyle}
+							value="illustrated"
+						/>
+					</label>
+				</div>
+				
+				<div class="mt-3 text-sm opacity-70">
+					Current style: <strong>{promptStyle}</strong>
+				</div>
+
+				<!-- Prompt Preview -->
+				<details class="collapse collapse-arrow mt-4 border border-base-300 bg-base-100">
+					<summary class="collapse-title text-sm font-medium">
+						Preview Current Prompt (for Yuki example)
+					</summary>
+					<div class="collapse-content">
+						<pre class="mt-2 overflow-x-auto rounded bg-base-300 p-4 text-xs">{generateSpeakerPrompt(
+								speakersData.find((s) => s.id === 'ja-jp-female'),
+								promptStyle
+							)}</pre>
+					</div>
+				</details>
+			</div>
+
+			<!-- Individual Speaker Testing (Style Comparison) -->
+			<div class="card mb-6 border border-success/20 bg-base-200 p-4">
+				<h3 class="mb-3 font-bold">🎨 Test Individual Speaker (Compare Styles)</h3>
+				<p class="mb-4 text-sm opacity-75">
+					Select a speaker and generate with different prompt styles to compare results
+				</p>
+
+				<div class="grid gap-4 md:grid-cols-2">
+					<!-- Speaker Selector -->
+					<div class="form-control">
+						<label class="label">
+							<span class="label-text font-semibold">Select Speaker</span>
+						</label>
+						<select class="select select-bordered" bind:value={selectedTestSpeaker}>
+							<option value={null}>Choose a speaker...</option>
+							<optgroup label="Japanese">
+								{#each speakersData.filter((s) => s.languageId === 'ja') as speaker}
+									<option value={speaker.id}>
+										{speaker.speakerEmoji} {speaker.voiceName} ({speaker.gender}, {speaker.region})
+									</option>
+								{/each}
+							</optgroup>
+							<optgroup label="Korean">
+								{#each speakersData.filter((s) => s.languageId === 'ko') as speaker}
+									<option value={speaker.id}>
+										{speaker.speakerEmoji} {speaker.voiceName} ({speaker.gender}, {speaker.region})
+									</option>
+								{/each}
+							</optgroup>
+							<optgroup label="Spanish">
+								{#each speakersData.filter((s) => s.languageId === 'es') as speaker}
+									<option value={speaker.id}>
+										{speaker.speakerEmoji} {speaker.voiceName} ({speaker.gender}, {speaker.region})
+									</option>
+								{/each}
+							</optgroup>
+							<optgroup label="Other Languages">
+								{#each speakersData.filter((s) => !['ja', 'ko', 'es'].includes(s.languageId)) as speaker}
+									<option value={speaker.id}>
+										{speaker.speakerEmoji} {speaker.voiceName} ({speaker.languageId}, {speaker.gender})
+									</option>
+								{/each}
+							</optgroup>
+						</select>
+					</div>
+
+					<!-- Generate Button -->
+					<div class="form-control">
+						<label class="label">
+							<span class="label-text font-semibold">Action</span>
+						</label>
+						<button
+							class="btn btn-success"
+							disabled={isGenerating || !selectedTestSpeaker}
+							onclick={() => {
+								const speaker = speakersData.find((s) => s.id === selectedTestSpeaker);
+								if (speaker) generateSpeakerImage(speaker);
+							}}
+						>
+							{isGenerating ? 'Generating...' : '✨ Generate Image ($0.08)'}
+						</button>
+					</div>
+				</div>
+
+				{#if selectedTestSpeaker}
+					<div class="mt-4 alert alert-info">
+						<div class="text-sm">
+							<p class="font-semibold">
+								Testing: {speakersData.find((s) => s.id === selectedTestSpeaker)?.voiceName}
+							</p>
+							<p>Style: <strong>{promptStyle}</strong></p>
+							<p class="mt-1 opacity-75">
+								💡 Tip: Generate once, then change the prompt style above and generate again to
+								compare results
+							</p>
+						</div>
+					</div>
+				{/if}
+			</div>
+
+			<!-- Priority Characters Test -->
+			<div class="alert alert-warning mb-6">
+				<div>
+					<h3 class="font-bold">🎯 Priority Characters Test</h3>
+					<p class="mb-3 text-sm">
+						Generate the 5 most important characters for validation. Total cost: ~$0.40
+					</p>
 					<button
-						class="btn btn-sm btn-success"
+						class="btn btn-warning btn-sm"
 						disabled={isGenerating}
-						onclick={() => generateSpeakerImage(speakersData.find((s) => s.id === 'ja-jp-male'))}
+						onclick={async () => {
+							const prioritySpeakers = [
+								speakersData.find((s) => s.id === 'ja-jp-female'), // Yuki
+								speakersData.find((s) => s.id === 'ja-jp-male'), // Hiro
+								speakersData.find((s) => s.id === 'ja-jp-osaka-female'), // Minami
+								speakersData.find((s) => s.id === 'ko-kr-female'), // Korean Female
+								speakersData.find((s) => s.id === 'ko-kr-male') // Korean Male
+							].filter(Boolean);
+
+							isGenerating = true;
+							for (const speaker of prioritySpeakers) {
+								await generateSpeakerImage(speaker);
+								// 3 second delay between requests
+								await new Promise((resolve) => setTimeout(resolve, 3000));
+							}
+							isGenerating = false;
+						}}
 					>
-						Generate Hiro 🇯🇵 (Male)
+						{isGenerating ? 'Generating...' : 'Generate Priority 5 Characters'}
 					</button>
-					<button
-						class="btn btn-sm btn-success"
-						disabled={isGenerating}
-						onclick={() => generateSpeakerImage(speakersData.find((s) => s.id === 'ja-jp-female'))}
-					>
-						Generate Yuki 🇯🇵 (Female)
-					</button>
-					<button
-						class="btn btn-sm btn-success"
-						disabled={isGenerating}
-						onclick={() => generateSpeakerImage(speakersData.find((s) => s.id === 'ko-kr-female'))}
-					>
-						Generate Korean Female 🇰🇷
-					</button>
-					<button
-						class="btn btn-sm btn-success"
-						disabled={isGenerating}
-						onclick={() => generateSpeakerImage(speakersData.find((s) => s.id === 'ko-kr-male'))}
-					>
-						Generate Korean Male 🇰🇷
-					</button>
+					<span class="ml-2 text-xs opacity-75">
+						(Yuki, Hiro, Minami, Korean F/M • ~15 seconds with delays)
+					</span>
 				</div>
 			</div>
 
@@ -523,7 +989,7 @@ CRITICAL REQUIREMENTS:
 				<!-- Stats and Download -->
 				<div class="mb-6 alert alert-success">
 					<div class="w-full">
-						<div class="flex items-center justify-between">
+						<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 							<div>
 								<p class="font-bold">Generation Stats</p>
 								<p class="text-sm">
@@ -535,13 +1001,28 @@ CRITICAL REQUIREMENTS:
 									<strong>Estimated Cost:</strong> ${totalCost.toFixed(2)}
 								</p>
 							</div>
-							<button
-								class="btn btn-sm btn-primary"
-								onclick={downloadManifest}
-								disabled={generationResults.filter((r) => r.imageUrl).length === 0}
-							>
-								📥 Download Manifest JSON
-							</button>
+							<div class="flex gap-2">
+								<button
+									class="btn btn-sm btn-primary"
+									onclick={() => {
+										const urls = generationResults
+											.filter((r) => r.imageUrl)
+											.map((r) => `${r.speaker.voiceName}: ${r.imageUrl}`)
+											.join('\n\n');
+										copyToClipboard(urls);
+									}}
+									disabled={generationResults.filter((r) => r.imageUrl).length === 0}
+								>
+									📋 Copy All URLs
+								</button>
+								<button
+									class="btn btn-sm btn-primary"
+									onclick={downloadManifest}
+									disabled={generationResults.filter((r) => r.imageUrl).length === 0}
+								>
+									📥 Download JSON
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -578,18 +1059,20 @@ CRITICAL REQUIREMENTS:
 											class="w-full rounded-lg"
 											loading="lazy"
 										/>
-										<div class="mt-2 flex gap-2">
+										<div class="mt-2 flex flex-wrap gap-2">
 											<button
 												class="btn btn-xs btn-primary"
 												onclick={() => window.open(result.imageUrl, '_blank')}
 											>
-												Open Full Size
+												📂 Open Full Size
 											</button>
 											<button
-												class="btn btn-outline btn-xs"
+												class="btn btn-xs"
+												class:btn-success={copiedUrl === result.imageUrl}
+												class:btn-outline={copiedUrl !== result.imageUrl}
 												onclick={() => copyToClipboard(result.imageUrl)}
 											>
-												Copy URL
+												{copiedUrl === result.imageUrl ? '✅ Copied!' : '📋 Copy URL'}
 											</button>
 										</div>
 									</div>

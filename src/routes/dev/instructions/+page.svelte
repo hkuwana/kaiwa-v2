@@ -28,8 +28,9 @@
 		...PARAMETER_PRESETS.tutor_explicit,
 		// Respect scenario hints for mixing policy if present (e.g., code_switching for Zero-to-Hero)
 		languageMixingPolicy:
-			(selectedScenario?.parameterHints?.languageMixingPolicy as any) ||
-			PARAMETER_PRESETS.tutor_explicit.languageMixingPolicy
+			selectedScenario?.id === 'beginner-confidence-bridge'
+				? 'code_switching'
+				: PARAMETER_PRESETS.tutor_explicit.languageMixingPolicy
 	});
 
 	let composer = $state<ReturnType<typeof createComposer> | null>(null);
@@ -48,11 +49,8 @@
 		else if (role === 'expert') base = PARAMETER_PRESETS.advanced;
 
 		// Merge any scenario parameter hints to keep coherence (e.g., code_switching)
-		if (selectedScenario?.parameterHints) {
-			return mergeParameters(
-				base,
-				selectedScenario.parameterHints as Partial<InstructionParameters>
-			);
+		if (selectedScenario?.id === 'beginner-confidence-bridge') {
+			return mergeParameters(base, { languageMixingPolicy: 'code_switching' });
 		}
 		return base;
 	}
@@ -149,6 +147,18 @@
 	function copyToClipboard() {
 		navigator.clipboard.writeText(currentInstructions);
 		alert('✅ Instructions copied to clipboard!');
+	}
+
+	function copyForChatGPT() {
+		const wrapped = `You are an AI conversation partner. Follow the instructions below exactly. Do not explain the rules; just behave accordingly.\n\n${currentInstructions}`;
+		navigator.clipboard.writeText(wrapped);
+		alert('✅ ChatGPT-formatted prompt copied!');
+	}
+
+	function copyForGemini() {
+		const wrapped = `System prompt for role behavior:\n\n${currentInstructions}\n\nBehavioral note: Keep responses concise as specified.`;
+		navigator.clipboard.writeText(wrapped);
+		alert('✅ Gemini-formatted prompt copied!');
 	}
 
 	// ============================================
@@ -543,7 +553,29 @@
 
 			<!-- Generated Instructions -->
 			<div class="rounded-lg bg-white p-4 shadow">
-				<h3 class="mb-3 text-lg font-semibold">📋 Generated Instructions</h3>
+				<div class="mb-3 flex items-center justify-between">
+					<h3 class="text-lg font-semibold">📋 Generated Instructions</h3>
+					<div class="flex gap-2">
+						<button class="btn btn-xs btn-ghost" title="Copy plain"
+							onclick={copyToClipboard}
+						>
+							<span class="icon-[mdi--content-copy] h-3 w-3"></span>
+							<span class="ml-1">Copy</span>
+						</button>
+						<button class="btn btn-xs btn-ghost" title="Copy for ChatGPT"
+							onclick={copyForChatGPT}
+						>
+							<span class="icon-[mdi--robot] h-3 w-3"></span>
+							<span class="ml-1">ChatGPT</span>
+						</button>
+						<button class="btn btn-xs btn-ghost" title="Copy for Gemini"
+							onclick={copyForGemini}
+						>
+							<span class="icon-[mdi--star-four-points] h-3 w-3"></span>
+							<span class="ml-1">Gemini</span>
+						</button>
+					</div>
+				</div>
 				<div
 					class="max-h-[800px] overflow-y-auto rounded border bg-gray-50 p-4 font-mono text-xs whitespace-pre-wrap"
 				>
