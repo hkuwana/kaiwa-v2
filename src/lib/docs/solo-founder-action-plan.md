@@ -101,6 +101,12 @@ This is where you translate your morning practice into something shareable and r
 
 **Daily core tasks:**
 
+- **WhatsApp Founding Member Group** (10-15 min):
+  - Check group messages (respond within 2-4 hours)
+  - Post one check-in or motivational message
+  - Celebrate any wins members share
+  - Answer questions
+  - **See full strategy**: [whatsapp-founding-member-strategy.md](whatsapp-founding-member-strategy.md)
 - Update the **Feedback OS** (your tracker of contacts, segments, next touch dates, persona type)
 - Send **3 personalized messages** to warm leads, prioritizing your ICP:
   - 1 new person from your ICP's natural networks (see channels below)
@@ -142,13 +148,20 @@ This is where you translate your morning practice into something shareable and r
 
 **Weekly outreach themes** (rotate these):
 
+- **Monday**: WhatsApp motivation post + Confidence reminder — Post "Monday check-in! Who's practicing today?" in WhatsApp group; send a personal email to past users matching your ICP; link to this week's persona-specific content
 - **Tuesday**: Acquisition focus — Use persona-specific hook; "What's the one conversation you're dreading?"
-- **Wednesday**: Friend walk-throughs — Host a 20-min session with someone matching your target persona; capture their 3 critical questions
+- **Wednesday**: WhatsApp mid-week check-in + Friend walk-throughs — Post check-in in WhatsApp; host a 20-min session with someone matching your target persona; capture their 3 critical questions
 - **Thursday**: Community outreach — Post your Build-in-Public content on persona-specific Reddit/Facebook communities
-- **Friday**: Warm leads follow-up — Check in with people in your ICP who've shown interest; share one new insight
+- **Friday**: WhatsApp wins celebration + Warm leads follow-up — Post "Friday reflection! Drop one win from this week" in WhatsApp; check in with people in your ICP who've shown interest; share one new insight
 - **Saturday**: Practice Lab or Group Session — Host 1–2 people matching your ICP; collect testimonials and real conversation examples
 - **Sunday**: Network refresh — Audit your ICP prospect list (aim for 12 warm leads per persona); decide next week's outreach targets
-- **Monday**: Confidence reminder — Send a personal email to past users matching your ICP; link to this week's persona-specific content
+
+**WhatsApp-Specific Weekly Rhythms:**
+- **Monday**: Motivation post ("Who's practicing today?")
+- **Wednesday**: Mid-week check-in prompt
+- **Friday**: Wins celebration ("Drop one win from this week")
+- **Bi-weekly**: Feature voting poll
+- **Monthly**: Personal 1-on-1 DM check-ins with each founding member (outside of group)
 
 **Output**: Outreach completed, new ICP-aligned warm leads captured, feedback loop active, higher-quality conversions.
 
@@ -382,11 +395,20 @@ User submits one of these (pick one):
 
 ## Immediate Setup Checklist
 
+**Phase 0: Friends First (Week 1)**
+
+- [ ] **List 5 friends** who might actually benefit from Kaiwa (language learners, bilingual relationships, expats)
+- [ ] **DM 3-5 friends** using templates from [whatsapp-founding-member-strategy.md](whatsapp-founding-member-strategy.md)
+- [ ] **Create WhatsApp group** when 2-3 friends say yes: `Kaiwa Founding Members 🗣️`
+- [ ] **Post welcome message** in WhatsApp group (template in strategy doc)
+- [ ] **Get friends using Kaiwa** this week (2x practice minimum)
+- [ ] **Establish daily WhatsApp rhythm**: Morning check-in (5 min) + Evening wins celebration (5 min)
+
 **Phase 1: Core Foundation**
 
 - [ ] **Read & choose your primary ICP** (See [icp-personas.md](icp-personas.md); recommend: Sofia)
 - [ ] **Duplicate the feedback session template** in Google Docs; link each participant row to their doc
-- [ ] **Set up the master tracker** with columns: `Name`, `Persona`, `Signal`, `Segment`, `Use Case`, `Acquisition Source`, `Priority`, `Last Contacted`, `Next Touch Date`, `Status`, `Tier`, `Sessions/Month`, `Real Conversations`
+- [ ] **Set up the master tracker** with columns: `Name`, `Persona`, `Signal`, `Segment`, `Use Case`, `Acquisition Source`, `Priority`, `Last Contacted`, `Next Touch Date`, `Status`, `Tier`, `Sessions/Month`, `Real Conversations`, `WhatsApp Member?`
 - [ ] **Add formula columns**: `Next Touch Date` = `Last Contacted + cadence` (adjust cadence per segment/persona)
 - [ ] **Create Pattern Tracker tab** with auto-counting COUNTIF rules for tagged insights (tag by persona)
 - [ ] **Stand up a Kanban** (Trello, Linear, or GitHub Projects) with `ship`, `test`, `story` labels (filter by persona)

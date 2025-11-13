@@ -22,7 +22,7 @@ After 3 weeks of Practice Labs and working with 20+ people preparing for high-st
 • Unlimited practice scenarios (Meeting parents, apologies, difficult conversations, etc.)
 • Weekly group Practice Labs (with feedback)
 • 1 personalized 1-on-1 session per month
-• Direct access to me for questions
+• Private WhatsApp group with direct founder access
 • Lifetime founding member pricing (price locked forever)
 
 **Founding Member Pricing**: $19/month
@@ -61,7 +61,7 @@ Founding member details:
 • Unlimited practice
 • Weekly Practice Labs
 • 1 personal session per month
-• Direct access to me
+• Private WhatsApp group with direct access to me
 
 In exchange: 2x/week usage + monthly feedback.
 
@@ -119,8 +119,50 @@ Either way, thanks for being part of this journey.
 
 **Evening** (30 min):
 - Send welcome email to new members
-- Add them to private Slack/Discord (if you have one) or WhatsApp group
+- **Add them to WhatsApp group** (recommended - see detailed strategy below)
 - Update tracker with payment status
+
+### WhatsApp Group Setup (Recommended)
+
+> **Full strategy**: See [whatsapp-founding-member-strategy.md](../src/lib/docs/whatsapp-founding-member-strategy.md)
+
+**Why WhatsApp > Discord/Slack:**
+- ✅ Zero friction (everyone already has it)
+- ✅ International-friendly (your users are global)
+- ✅ High engagement (people check it constantly)
+- ✅ Personal feel (not corporate)
+
+**How to set up:**
+
+1. **Create group**: `Kaiwa Founding Members 🗣️`
+2. **Get their WhatsApp number**: In the onboarding call or welcome email
+3. **Send personal DM first** (before adding to group):
+   ```
+   Hey [Name]! Welcome to Kaiwa as a founding member 🎉
+
+   Quick logistics:
+   • I'm adding you to our private WhatsApp group (10 founding members only)
+   • We use it for quick feedback, sharing wins, and supporting each other
+   • I'm active in there daily - ask me anything
+
+   What's your WhatsApp number?
+
+   Also - when is your conversation happening? Want to make sure we're prepped!
+   ```
+
+4. **Add to group with intro**:
+   ```
+   Everyone, meet [Name]! 👋
+
+   [Name] is preparing for [their specific situation]
+
+   [Name], welcome! This group is your direct line to me + support from other founding members.
+   Feel free to ask questions, share practice updates, or just lurk - whatever helps!
+   ```
+
+5. **Daily WhatsApp rhythm** (10-15 min/day):
+   - Morning: Check messages, respond, post motivational check-in
+   - Evening: Celebrate wins, answer questions
 
 **Welcome Email Template**:
 ```
@@ -134,20 +176,22 @@ You're one of 10 people shaping what this becomes. Thank you for believing in th
 
 **Here's what happens now**:
 
-1. **Your first practice session**: [Link to schedule or instructions]
-2. **This week's Practice Lab**: Saturday at [time] - [Zoom link]
-3. **Your 1-on-1 session**: Reply to this email with 3 times that work for you
+1. **Join the WhatsApp group**: What's your WhatsApp number? I'll add you to our private founding members group (direct access to me + other members)
+2. **Your first practice session**: [Link to schedule or instructions]
+3. **This week's Practice Lab**: Saturday at [time] - [Zoom link]
+4. **Your 1-on-1 session**: Reply to this email with 3 times that work for you
 
 **How to get the most out of Kaiwa**:
 • Practice 2x per week minimum (even just 10 minutes)
 • Come to weekly Practice Labs
-• Share your wins (they inspire others!)
+• Join the WhatsApp group (daily support + community)
+• Share your wins in the group (they inspire others!)
 • Tell me what's broken (I fix fast)
 
 **Your feedback matters**:
-I'll check in with you monthly. But anytime you have thoughts, just reply to this email.
+I'll check in with you monthly. But anytime you have thoughts, just reply to this email or drop it in the WhatsApp group.
 
-Questions? I'm here.
+Questions? I'm here (email or WhatsApp once you're added).
 
 Let's help you have that conversation you're preparing for.
 
