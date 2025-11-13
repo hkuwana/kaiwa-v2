@@ -50,17 +50,90 @@ If time allows, end with: “Is there anything missing that you expected to see?
 
 ---
 
-## 4. Keeping Friends in the Loop
+## 4. WhatsApp Founding Member Strategy
 
+> **See full strategy**: [whatsapp-founding-member-strategy.md](whatsapp-founding-member-strategy.md)
+
+### Why WhatsApp > Other Channels
+
+For Kaiwa's founding members, WhatsApp is the best choice because:
+- **International-friendly**: Your users are dating internationally, expats, heritage speakers
+- **Zero friction**: Everyone already has it and checks it 50x per day
+- **High engagement**: Messages feel personal, not corporate
+- **Age appropriate**: 25-35+ users prefer WhatsApp over Discord
+
+### The Friend → WhatsApp → Founding Member Flow
+
+**Step 1 - Initial DM** (before adding to WhatsApp):
+```
+Hey! Quick ask:
+
+I'm launching Kaiwa with 10 founding members and want you in it.
+
+What you'd get:
+• Unlimited practice ($29/mo value) for $14/month forever
+• Weekly practice labs + monthly 1-on-1 session
+• Private WhatsApp group with direct access to me
+• Direct line to tell me what's broken/working
+
+What I need:
+• Use it 2x/week
+• 15-min monthly feedback call
+• Honest feedback
+
+No pressure if busy, but if you're down it'd be huge + you might find it useful for [their situation].
+
+First 10 spots only. Let me know!
+```
+
+**Step 2 - Create WhatsApp Group** (when 2-3 friends say yes):
+- Group name: `Kaiwa Founding Members 🗣️`
+- Add your first 3-5 friends
+- Post welcome message (see full strategy doc)
+
+**Step 3 - Daily WhatsApp Rhythm**:
+- **Morning (5 min)**: Check group, respond to messages, post motivational check-in
+- **Evening (5 min)**: Celebrate wins, answer questions
+- **Weekly**: Monday motivation, Friday reflection, bi-weekly feature voting
+
+**Step 4 - Add Strangers** (Week 2+):
+- Once you have 3-5 friends active, add strangers from Practice Lab/Reddit
+- Friends set the tone, strangers join an already-active group
+- This creates social proof and community feel
+
+### WhatsApp Group Rules (Pin This)
+
+```
+Kaiwa Founding Members 🗣️
+
+This is our private group for:
+• Sharing wins (had your conversation? Tell us!)
+• Quick feedback (bug? Feature idea? Drop it here)
+• Practice support (need help prepping? Ask!)
+• Community vibes (we're in this together)
+
+Please:
+✅ Share your wins (anonymously if you want)
+✅ Ask questions anytime
+✅ Support each other
+
+Try to avoid:
+❌ Off-topic conversations
+❌ Spamming
+```
+
+## 5. Keeping Friends in the Loop
+
+- **Daily WhatsApp engagement:** Check group 2x per day (morning + evening), respond within 2-4 hours, post 1 motivational message per day
+- **Weekly WhatsApp prompts:** Monday motivation, Friday wins celebration, bi-weekly feature voting
+- **Monthly personal DM check-ins:** Outside of group, DM each friend monthly: "Did you use it? What's confusing? What would make you use it more?"
 - **Weekly two-bullet update:** Every Friday text or email a quick note: shipped this / learning this. Low effort, builds habit.
-- **VIP feedback circle:** Create a private Signal/WhatsApp group or Slack channel with these testers; drop Loom clips or screenshots of upcoming changes and ask for gut reactions.
-- **Public changelog or Notion page:** Share a lightweight “What’s new” link they can check anytime; update it after each release.
-- **Calendar check-ins:** Offer a recurring 15-minute “founder office hours” slot so they can drop in with questions.
-- **Progress celebration pings:** When someone’s feedback ships, tag them in the group with a thank-you. It reminds them their input matters.
+- **Public changelog or Notion page:** Share a lightweight "What's new" link they can check anytime; update it after each release.
+- **Progress celebration pings:** When someone's feedback ships, tag them in the WhatsApp group with a thank-you. It reminds them their input matters.
 
 ---
 
-## 5. After Each Session
+## 6. After Each Session
 
 - Send a short thank-you message with one thing you learned from them.
 - Ask for their address to send them a thank you postcard.
