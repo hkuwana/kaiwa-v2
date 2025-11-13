@@ -7,6 +7,62 @@
 
 ---
 
+## 🎯 Important: Friends First Strategy
+
+> **Before you start Day 1**, consider starting with 3-5 friends as your founding members. This creates social proof and community before adding strangers.
+
+**Why Friends First:**
+- They set the tone (active group > empty group)
+- They give honest feedback
+- They help onboard strangers later
+- Social proof for new members
+
+**The Friends-First Flow:**
+
+### Week 1: DM 3-5 Friends
+
+**Template to DM your friends:**
+```
+Hey! Quick ask:
+
+I'm launching Kaiwa with 10 founding members and want you in it.
+
+What you'd get:
+• Unlimited practice ($29/mo value) for $14/month forever
+• Weekly practice labs + monthly 1-on-1 session
+• Private WhatsApp group with direct access to me
+• Direct line to tell me what's broken/working
+
+What I need:
+• Use it 2x/week
+• 15-min monthly feedback call
+• Honest feedback
+
+No pressure if busy, but if you're down it'd be huge + you might find it useful for [their situation].
+
+First 10 spots only. Let me know!
+```
+
+**When 2-3 friends say yes:**
+1. Create WhatsApp group: `Kaiwa Founding Members 🗣️`
+2. Add your friends
+3. Post welcome message (see [whatsapp-founding-member-strategy.md](../src/lib/docs/whatsapp-founding-member-strategy.md))
+
+### Week 2+: Add Strangers to Active Group
+
+Once you have 3-5 friends active:
+- Add strangers from Practice Lab, Reddit, etc.
+- They join an already-active community
+- Friends help welcome and onboard them
+
+**Full strategy:** See [whatsapp-founding-member-strategy.md](../src/lib/docs/whatsapp-founding-member-strategy.md)
+
+---
+
+**Decision Point:** Do you want to start with friends first, or jump straight into public marketing? Both work, but friends-first gives you better early momentum.
+
+---
+
 ## Morning Block (60 min): Setup & Research
 
 ### Task 1: Set Up Your Feedback Tracker (20 min)
@@ -14,10 +70,15 @@
 Create a simple spreadsheet with these columns:
 
 ```
-Name | Persona | Signal | Acquisition Source | Last Contacted | Next Touch | Status | Notes
+Name | Persona | Signal | Acquisition Source | Last Contacted | Next Touch | Status | WhatsApp Member? | Notes
 ```
 
 **Action**: Open Google Sheets and create this tracker now. You'll use it daily.
+
+**New column: WhatsApp Member?**
+- Track who's in your founding member WhatsApp group
+- This helps you know who to engage with via WhatsApp vs other channels
+- Mark "Yes" when you add them to the group
 
 ---
 
