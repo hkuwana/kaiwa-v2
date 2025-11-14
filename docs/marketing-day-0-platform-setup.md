@@ -327,139 +327,181 @@ Set up once:
 - [ ] Phone on tripod or stack of books
 - [ ] Same outfit for all 5
 
-**Film these 5 scripts** (10 min each):
+**Film these 5 videos** (30-45 seconds each):
 
-**Video 1: Hook + 3 Phrases**
+> **NEW APPROACH (Based on proven strategy):** Simple walking videos with AI voiceover or text overlay. No need to speak to camera. Just authentic footage of you walking in Japan with text/voiceover about your app.
+>
+> **Why this works:** Cali's best performing creative was "just like a f****** half second reel of me or Sunny walking down the street saying like my life changed when I started talking to my AI therapist with like Bad Bunny's song over it."
+
+**Setup:**
+- Walk in an interesting location in Japan (street, park, train station)
+- Film yourself from behind or side angle (authentic, not staged)
+- Add text overlay OR AI voiceover
+- Use trending/popular music in background
+- Keep it 30-45 seconds max
+
+---
+
+**Video 1: The Core Problem**
 ```
-[Look at camera, conversational tone]
+[Walking footage: You walking down a Tokyo street]
 
-"If you're meeting your Japanese partner's parents tomorrow, here are the 3 phrases that matter most:
+TEXT OVERLAY or AI VOICEOVER:
+"My life changed when I started practicing real conversations
 
-[Show on screen as you say them]
+Not textbook Japanese
 
-1. はじめまして、[name]と申します
-   "Nice to meet you" (humble form)
-   Shows respect ✓
+The kind you need when meeting your girlfriend's parents for the first time
 
-2. いつも[partner]にお世話になっています
-   "Thank you for raising [partner]"
-   Shows gratitude ✓
+And you're terrified
 
-3. まだ勉強中ですが、頑張ります
-   "Still learning but doing my best"
-   Shows humility ✓
+Because you know they're judging whether you're good enough
 
-You don't need perfect Japanese.
-You need sincere Japanese.
+But you can barely say 'nice to meet you' without sweating
 
-Want the full guide? Link in bio 👆"
+Kaiwa helps you practice those moments
+
+Free practice lab this Saturday"
 ```
+Music: Something moody/emotional (trending sound)
 
-**Video 2: What NOT to Say**
+---
+
+**Video 2: The Relatable Moment**
 ```
-"3 things NOT to say when meeting your partner's parents:
+[Walking footage: You walking through Shibuya crossing or busy area]
 
-❌ "日本語が上手" (My Japanese is good)
-→ Sounds arrogant
-✅ Instead: "まだ勉強中です"
+TEXT OVERLAY or AI VOICEOVER:
+"That moment when your partner becomes your translator
 
-❌ Over-apologizing every 5 seconds
-→ Sounds insecure
-✅ Instead: Use すみません once, thoughtfully
+And the conversation stops being yours
 
-❌ "I don't understand" without trying
-→ Sounds like you didn't prepare
-✅ Instead: "もう一度お願いします"
+You just sit there
 
-They're watching HOW you try, not IF you're perfect.
+Nodding
 
-Free Practice Lab this Saturday - link in bio 👆"
+Smiling
+
+But completely disconnected
+
+Love shouldn't need subtitles
+
+Practice the conversations that matter
+
+Link in bio"
 ```
+Music: Something that builds tension
 
-**Video 3: Gift Tips**
+---
+
+**Video 3: The Transformation**
 ```
-"The gift (お土産) matters more than your Japanese level.
+[Walking footage: You walking in a quieter neighborhood]
 
-Here's what to bring:
+TEXT OVERLAY or AI VOICEOVER:
+"Started using Kaiwa 2 weeks ago
 
-✅ Something from YOUR hometown
-   (Shows thoughtfulness)
+Today I apologized to my girlfriend in Japanese
 
-✅ Something they can share
-   (Tea, cookies, local snack)
+Actually apologized
 
-✅ Wrapped nicely
-   (Presentation = respect)
+Not Google Translate
 
-❌ Avoid: Alcohol (unless you know they drink)
-❌ Avoid: Super expensive (creates obligation)
-❌ Avoid: Nothing (big miss)
+Not asking her to translate
 
-The gift is your opening move.
+My words
 
-Want more tips? Link in bio 👆"
+She cried
+
+The good kind
+
+This is what I built it for"
 ```
+Music: Emotional/uplifting
 
-**Video 4: Handling "I Don't Understand"**
+---
+
+**Video 4: The Reality**
 ```
-"What to do when you completely freeze mid-conversation:
+[Walking footage: You walking past a restaurant or family setting]
 
-1. Don't panic (they expect you to struggle sometimes)
+TEXT OVERLAY or AI VOICEOVER:
+"You don't need perfect Japanese
 
-2. Use: "もう一度お願いします"
-   ("Could you say that again?")
+You need sincere Japanese
 
-3. If still confused: "ゆっくり話していただけますか"
-   ("Could you speak slower?")
+The kind where they know you tried
 
-4. Nuclear option: Smile + "日本語がまだ難しいです"
-   ("Japanese is still hard for me")
+Where effort matters more than grammar
 
-Then: Your partner can help translate
+Where showing up matters more than fluency
 
-It's okay to not understand everything.
-What matters is that you TRIED.
+Kaiwa: practice the moments that matter
 
-Practice this with us Saturday - link in bio 👆"
+Saturday free practice lab"
 ```
+Music: Chill/authentic vibe
 
-**Video 5: Biggest Mistake**
+---
+
+**Video 5: The Invitation**
 ```
-"The biggest mistake people make?
+[Walking footage: You walking toward camera then past it]
 
-Treating it like a grammar test.
+TEXT OVERLAY or AI VOICEOVER:
+"Building Kaiwa for people who are tired of subtitles
 
-Your partner's parents aren't judging your:
-❌ Verb conjugation
-❌ Particle usage
-❌ Accent
+Tired of translation apps
 
-They're judging your:
-✅ Sincerity
-✅ Effort
-✅ Respect for their family
+Tired of their partner being the interpreter
 
-Perfect grammar with no heart = cold
-Broken Japanese with genuine warmth = connection
+If you need to have ONE conversation that matters
 
-Which do you think matters more?
+Meeting parents. Apologizing. Sharing news.
 
-Free practice this Saturday - link in bio 👆"
+We practice that
+
+Not 'the cat is on the table'
+
+Real life
+
+Join us Saturday - link in bio"
 ```
+Music: Confident/inviting
 
-**Film all 5 back-to-back.** Don't overthink it. Multiple takes are fine.
+---
+
+**Filming tips:**
+- Film all 5 in ONE session (30-45 min total)
+- Just walk naturally - no need to perform
+- Get 2-3 takes of each location
+- Film in 9:16 vertical format
+- Don't worry about perfect framing - authenticity > production value
 
 ---
 
 ### Quick Edit (30 min)
 
-Use CapCut (free, easy):
+Use CapCut (free, easy) - **Two options:**
 
-1. Import video
-2. Auto-captions (tap "Text" → "Auto captions")
-3. Add text overlays for key phrases (make them BIG)
-4. Trim to 30-45 seconds
-5. Export in 9:16 format
+**Option A: Text Overlay (Easier)**
+1. Import walking footage
+2. Trim to 30-45 seconds (keep most engaging part)
+3. Add trending music from CapCut library
+4. Add text overlay - one line at a time, synced to music beats
+5. Use large, readable font (white text with black outline works best)
+6. Export in 9:16 format
+
+**Option B: AI Voiceover (More engaging)**
+1. Import walking footage
+2. Trim to 30-45 seconds
+3. Add text-to-speech (CapCut has AI voices): Tap "Text" → "Text to speech"
+4. Paste your script, choose natural-sounding voice
+5. Add subtle background music (lower volume than voice)
+6. Optional: Add text captions for accessibility
+7. Export in 9:16 format
+
+**Pro tip:** Test both styles. Justin said their best performer was simple with music. Start with text overlay + music, try AI voiceover later.
 
 Do this for all 5 videos.
 
