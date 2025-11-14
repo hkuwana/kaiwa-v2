@@ -1076,6 +1076,36 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'coral',
 		isActive: false,
 		createdAt: null
+	},
+
+	// --- Arabic Speakers ---
+	{
+		id: 'ar-levant-male',
+		languageId: 'ar',
+		region: 'Levant',
+		dialectName: 'Levantine Arabic',
+		bcp47Code: 'ar',
+		speakerEmoji: '🌍',
+		gender: 'male',
+		voiceName: 'Omar',
+		voiceProviderId: 'openai-omar',
+		openaiVoiceId: 'alloy',
+		isActive: false,
+		createdAt: null
+	},
+	{
+		id: 'ar-levant-female',
+		languageId: 'ar',
+		region: 'Levant',
+		dialectName: 'Levantine Arabic',
+		bcp47Code: 'ar',
+		speakerEmoji: '🌍',
+		gender: 'female',
+		voiceName: 'Layla',
+		voiceProviderId: 'openai-layla',
+		openaiVoiceId: 'sage',
+		isActive: false,
+		createdAt: null
 	}
 ];
 
