@@ -1570,14 +1570,24 @@ export class RealtimeOpenAIStore {
 			console.log('✅ User items found in conversation:', foundUserItems);
 		}
 
-		console.warn('✅ CONDITIONS MET - SENDING response.create', {
+		console.warn('✅ CONDITIONS MET - SENDING response.create (with 200ms delay)', {
 			commitNumber: commit.commitNumber,
 			reason,
 			...metadata
 		});
 		commit.hasSentResponse = true;
 		commit.awaitingResponseCreate = false;
-		this.sendResponse();
+
+		// 🔧 FIX: Add 200ms delay to allow server to fully commit user conversation item
+		// This prevents race condition where response.create is sent before the server
+		// has finished creating the user's conversation.item.created event
+		setTimeout(() => {
+			console.warn('⏱️ DELAYED RESPONSE - Sending response.create NOW', {
+				commitNumber: commit.commitNumber,
+				delayMs: 200
+			});
+			this.sendResponse();
+		}, 200);
 	}
 
 	private resolveCommitItem(itemId: string): void {
