@@ -2016,17 +2016,28 @@ export class ConversationStore {
 	};
 
 	// Add method to start new conversation from reviewable state
+	// Preserves language, speaker, and scenario for a seamless restart
 	startNewConversationFromReview = () => {
 		if (!browser) return;
 
 		console.log('Starting new conversation from review state...');
 
+		// Preserve current conversation context before reset
+		const preservedLanguage = this.language;
+		const preservedSpeaker = this.speaker;
+		const preservedOptions = this.currentOptions;
+
 		// Clear messages and reset state
 		this.resetState();
 
-		// Start fresh conversation
-		if (this.language) {
-			this.startConversation(this.language);
+		// Start fresh conversation with preserved context
+		if (preservedLanguage) {
+			console.log('Restarting conversation with:', {
+				language: preservedLanguage.name,
+				speaker: preservedSpeaker?.voiceName,
+				hasOptions: !!preservedOptions
+			});
+			this.startConversation(preservedLanguage, preservedSpeaker, preservedOptions);
 		}
 	};
 

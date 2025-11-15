@@ -233,7 +233,7 @@
 							</button>
 						{/if}
 						<button
-							class="flex-1 rounded-xl border border-base-300 px-4 py-2.5 text-sm font-medium transition-all hover:bg-base-200 active:scale-95"
+							class="flex-1 rounded-xl border border-secondary px-4 py-2.5 text-sm font-medium transition-all hover:bg-primary active:scale-95"
 							onclick={handleViewBilling}
 						>
 							Manage
