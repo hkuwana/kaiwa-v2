@@ -44,6 +44,9 @@ type PendingCommitEntry = {
 	hasReceivedCommitAck: boolean;
 	hasReceivedUserTranscript: boolean;
 	hasSentResponse: boolean;
+	// 🔍 DEBUGGING: Track timestamps for timing analysis
+	commitAckTimestamp?: number;
+	transcriptTimestamp?: number;
 };
 
 // Conversation context interface for linking realtime to database conversation
@@ -143,9 +146,7 @@ export class RealtimeOpenAIStore {
 		  }) => boolean)
 		| null = null;
 
-	// Conversation context preservation
-	private conversationItems: Array<{ itemId: string; role: 'user' | 'assistant'; text: string }> =
-		[];
+	// Session configuration
 	private lastSessionUpdateInstructions: string | null = null;
 	private lastSessionUpdateTime: number = 0;
 	private readonly SESSION_UPDATE_COOLDOWN_MS = 1000; // Prevent rapid updates
@@ -527,13 +528,11 @@ export class RealtimeOpenAIStore {
 		this.historyText[itemId] = finalText;
 		this.finalizedItemIds.add(itemId);
 
-		// Track this item in conversation history for context preservation
-		this.trackConversationItem(itemId, role, finalText);
-
 		if (isUserTranscript) {
 			const commit = this.getOrAssignCommitForTranscript(itemId, 'user');
 			if (commit) {
 				commit.hasReceivedUserTranscript = true;
+			commit.transcriptTimestamp = Date.now(); // 🔍 DEBUGGING: Track timing
 				this.maybeSendResponseForCommit(commit, 'user_transcript', { item_id: itemId });
 			}
 		}
@@ -665,6 +664,7 @@ export class RealtimeOpenAIStore {
 			case 'response.output_text.done':
 			case 'response.text.done': {
 				const text: string | undefined = (serverEvent as any)?.text;
+
 				if (text && typeof text === 'string') {
 					return {
 						type: 'transcription',
@@ -682,17 +682,31 @@ export class RealtimeOpenAIStore {
 			case 'conversation.item.created':
 			case 'conversation.item.added': {
 				const createdEvent = serverEvent as any;
-				if (createdEvent.item?.type === 'message' && createdEvent.item?.role === 'assistant') {
+
+				// 🔍 DEBUGGING: Log ALL conversation items (user + assistant)
+				console.log('🔍 CONVERSATION ITEM CREATED/ADDED:', {
+					eventType: serverEvent.type,
+					itemId: createdEvent.item?.id,
+					role: createdEvent.item?.role,
+					type: createdEvent.item?.type,
+					hasContent: !!createdEvent.item?.content,
+					contentLength: createdEvent.item?.content?.length || 0,
+					timestamp: new Date().toISOString()
+				});
+
+				if (createdEvent.item?.type === 'message') {
+					const role = createdEvent.item?.role;
 					const textParts =
 						createdEvent.item.content?.filter((part: any) => part.type === 'text') || [];
-
 					const content = textParts.map((part: any) => part.text).join(' ');
 
-					if (content) {
+					// Return message events for both user and assistant
+					// (no manual tracking - OpenAI server maintains conversation state)
+					if (content && (role === 'user' || role === 'assistant')) {
 						return {
 							type: 'message',
 							data: {
-								role: 'assistant',
+								role,
 								content,
 								timestamp: new SvelteDate()
 							}
@@ -1070,6 +1084,7 @@ export class RealtimeOpenAIStore {
 							}
 
 							activeCommit.hasReceivedCommitAck = true;
+						activeCommit.commitAckTimestamp = Date.now(); // 🔍 DEBUGGING: Track timing
 
 							this.maybeSendResponseForCommit(activeCommit, 'commit_ack', {
 								item_id: commitEvent.item_id,
@@ -1234,24 +1249,9 @@ export class RealtimeOpenAIStore {
 		this.conversationContext = null;
 		// Clear stored instructions
 		this.currentInstructions = null;
-		// Clear conversation items
-		this.conversationItems = [];
 		this.lastSessionUpdateInstructions = null;
 		this.pendingCommits = [];
 		this.lastSessionUpdateTime = 0;
-	}
-
-	// High-level helpers
-	private getConversationContextSummary(): string {
-		if (this.conversationItems.length === 0) {
-			return '[No conversation items tracked]';
-		}
-		return this.conversationItems
-			.map(
-				(item) =>
-					`[${item.role.toUpperCase()}]: ${item.text.substring(0, 50)}${item.text.length > 50 ? '...' : ''}`
-			)
-			.join('\n');
 	}
 
 	sendResponse(): void {
@@ -1267,13 +1267,10 @@ export class RealtimeOpenAIStore {
 			responsePayload.instructions = this.currentInstructions;
 		}
 
-		console.log('📤 CLIENT: Creating response (API will use accumulated conversation items)', {
+		console.log('📤 CLIENT: Creating response (API maintains conversation automatically)', {
 			hasSessionInstructions: !!this.currentInstructions,
 			instructionsLength: this.currentInstructions?.length ?? 0,
-			instructionsPreview: this.currentInstructions?.substring(0, 100) + '...',
-			conversationContextItems: this.conversationItems.length,
-			conversationSummary: this.getConversationContextSummary(),
-			note: 'API maintains conversation state automatically through server events'
+			instructionsPreview: this.currentInstructions?.substring(0, 100) + '...'
 		});
 
 		const ev = {
@@ -1435,31 +1432,25 @@ export class RealtimeOpenAIStore {
 			};
 			this.pendingCommits.push(commitEntry);
 
+			// 🔧 FIX: Limit pending commits to prevent accumulation of old commits
+			if (this.pendingCommits.length > 3) {
+				const removed = this.pendingCommits.shift();
+				console.error('🧹 REMOVED OLDEST COMMIT due to limit (>3)', {
+					removedCommitNumber: removed?.commitNumber,
+					removedItemIds: removed ? Array.from(removed.itemIds) : [],
+					remainingCommits: this.pendingCommits.length,
+					warning: 'Old commits are not being cleaned up properly!'
+				});
+			}
+
 			console.warn('⏳ WAITING FOR input_audio_buffer.committed BEFORE SENDING response.create', {
 				commitNumber,
-				timestamp: new SvelteDate().toISOString()
+				timestamp: new SvelteDate().toISOString(),
+				totalPendingCommits: this.pendingCommits.length
 			});
 
 			this.pendingPttStopTimeout = null;
 		}, this.pttStopDelayMs);
-	}
-
-	private trackConversationItem(itemId: string, role: 'user' | 'assistant', text: string): void {
-		// Remove duplicates and keep only recent items
-		this.conversationItems = this.conversationItems.filter((item) => item.itemId !== itemId);
-		this.conversationItems.push({ itemId, role, text });
-
-		// Keep only last 20 items to avoid memory bloat
-		if (this.conversationItems.length > 20) {
-			this.conversationItems = this.conversationItems.slice(-20);
-		}
-
-		console.log('📍 Tracked conversation item:', {
-			itemId,
-			role,
-			textLength: text.length,
-			totalItems: this.conversationItems.length
-		});
 	}
 
 	private findCommitByItemId(itemId: string | undefined): PendingCommitEntry | undefined {
@@ -1509,14 +1500,45 @@ export class RealtimeOpenAIStore {
 			return;
 		}
 
-		console.warn('✅ CONDITIONS MET - SENDING response.create', {
+		// Log timing before sending response
+		const now = Date.now();
+		const timeSinceCommitAck = commit.commitAckTimestamp ? now - commit.commitAckTimestamp : 'N/A';
+		const timeSinceTranscript = commit.transcriptTimestamp ? now - commit.transcriptTimestamp : 'N/A';
+
+		console.warn('✅ SENDING response.create (with 200ms delay)', {
 			commitNumber: commit.commitNumber,
 			reason,
 			...metadata
 		});
 		commit.hasSentResponse = true;
 		commit.awaitingResponseCreate = false;
-		this.sendResponse();
+
+		// 🔧 FIX: Add 200ms delay to allow server to fully commit user conversation item
+		// This prevents race condition where response.create is sent before the server
+		// has finished creating the user's conversation.item.created event
+		setTimeout(() => {
+			console.warn('⏱️ DELAYED RESPONSE - Sending response.create NOW', {
+				commitNumber: commit.commitNumber,
+				delayMs: 200
+			});
+			this.sendResponse();
+
+			// 🔧 FIX: Clean up IMMEDIATELY after sending response (no nested setTimeout)
+			const commitIndex = this.pendingCommits.indexOf(commit);
+			if (commitIndex !== -1) {
+				this.pendingCommits.splice(commitIndex, 1);
+				console.warn('🧹 CLEANED UP COMMIT immediately after response', {
+					commitNumber: commit.commitNumber,
+					itemIds: Array.from(commit.itemIds),
+					remainingPendingCommits: this.pendingCommits.length
+				});
+			} else {
+				console.log('ℹ️ Commit already cleaned up (likely by resolveCommitItem)', {
+					commitNumber: commit.commitNumber,
+					note: 'This is normal - commits are cleaned up when all items are resolved'
+				});
+			}
+		}, 200);
 	}
 
 	private resolveCommitItem(itemId: string): void {
