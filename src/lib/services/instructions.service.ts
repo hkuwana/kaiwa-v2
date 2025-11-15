@@ -153,20 +153,21 @@ export function generateScenarioGreeting(opts: {
 // ============================================
 
 function composeInitialInstructions(
-	params: InstructionRequest,
-	parameterOverrides?: Partial<InstructionParameters>
+    params: InstructionRequest,
+    parameterOverrides?: Partial<InstructionParameters>
 ): string {
-	const composer = new InstructionComposer({
-		user: params.user,
-		language: params.language,
-		preferences: params.preferences,
-		scenario: params.scenario,
-		speaker: params.speaker,
-		sessionContext: normalizeSessionContext(params.sessionContext),
-		parameters: parameterOverrides
-	});
+    const composer = new InstructionComposer({
+        user: params.user,
+        language: params.language,
+        preferences: params.preferences,
+        scenario: params.scenario,
+        speaker: params.speaker,
+        sessionContext: normalizeSessionContext(params.sessionContext),
+        parameters: parameterOverrides,
+        compact: true
+    });
 
-	return composer.compose();
+    return composer.compose();
 }
 
 function normalizeSessionContext(

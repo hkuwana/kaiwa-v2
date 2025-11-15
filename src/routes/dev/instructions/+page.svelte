@@ -1,26 +1,37 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import {
-		createComposer,
-		PARAMETER_PRESETS,
-		mergeParameters,
-		type InstructionParameters,
-		type SpeakingSpeed
-	} from '$lib/services/instructions';
-	import { languages } from '$lib/data/languages';
-	import { scenariosData } from '$lib/data/scenarios';
-	import { userManager } from '$lib/stores/user.store.svelte';
+import { onMount } from 'svelte';
+import {
+	createComposer,
+	PARAMETER_PRESETS,
+	mergeParameters,
+	type InstructionParameters,
+	type SpeakingSpeed
+} from '$lib/services/instructions';
+import { languages } from '$lib/data/languages';
+import { scenariosData } from '$lib/data/scenarios';
+import { speakersData } from '$lib/data/speakers';
+import type { Speaker } from '$lib/server/db/types';
+import { userManager } from '$lib/stores/user.store.svelte';
 
 	// ============================================
 	// STATE
 	// ============================================
 
-	let selectedLanguage = $state(languages[0]);
-	let selectedScenario = $state(scenariosData[0]);
-	let currentInstructions = $state('');
-	let autoAdapt = $state(false);
-	let errorCount = $state(0);
-	let successStreak = $state(0);
+let selectedLanguage = $state(languages[0]);
+let selectedScenario = $state(scenariosData[0]);
+let currentInstructions = $state('');
+let autoAdapt = $state(false);
+let errorCount = $state(0);
+let successStreak = $state(0);
+
+const getSpeakersForLanguage = (languageId: string) =>
+	speakersData.filter((speaker) => speaker.languageId === languageId);
+
+let availableSpeakers = $state<Speaker[]>(getSpeakersForLanguage(selectedLanguage.id));
+let selectedSpeakerId = $state(availableSpeakers[0]?.id || '');
+let selectedSpeaker = $state<Speaker | null>(
+	availableSpeakers.find((speaker) => speaker.id === selectedSpeakerId) || null
+);
 
 	// Instruction Parameters
 	// Default to a tutor-friendly preset when the default scenario is a tutor
@@ -39,11 +50,11 @@
 	// FUNCTIONS
 	// ============================================
 
-	function presetForScenario() {
-		// Choose a sensible default preset by role
-		const role = selectedScenario?.role || 'friendly_chat';
-		let base = PARAMETER_PRESETS.intermediate;
-		if (role === 'tutor') base = PARAMETER_PRESETS.tutor_explicit;
+function presetForScenario() {
+	// Choose a sensible default preset by role
+	const role = selectedScenario?.role || 'friendly_chat';
+	let base = PARAMETER_PRESETS.intermediate;
+	if (role === 'tutor') base = PARAMETER_PRESETS.tutor_explicit;
 		else if (role === 'friendly_chat') base = PARAMETER_PRESETS.conversation_partner;
 		else if (role === 'character') base = PARAMETER_PRESETS.conversation_partner;
 		else if (role === 'expert') base = PARAMETER_PRESETS.advanced;
@@ -52,25 +63,51 @@
 		if (selectedScenario?.id === 'beginner-confidence-bridge') {
 			return mergeParameters(base, { languageMixingPolicy: 'code_switching' });
 		}
-		return base;
+	return base;
+}
+
+function buildComposer() {
+	composer = createComposer({
+		user: userManager.user,
+		language: selectedLanguage,
+		preferences: {
+			speakingLevel: 55, // B1 level
+			learningGoal: 'Connection'
+		},
+		scenario: selectedScenario,
+		parameters: params,
+		speaker: selectedSpeaker ?? undefined,
+		compact: true
+	});
+}
+
+function initializeComposer() {
+	// Auto-apply defaults when scenario changes for coherent behavior
+	params = presetForScenario();
+
+	const newSpeakers = getSpeakersForLanguage(selectedLanguage.id);
+	availableSpeakers = newSpeakers;
+
+	if (selectedSpeaker && newSpeakers.some((speaker) => speaker.id === selectedSpeaker?.id)) {
+		selectedSpeakerId = selectedSpeaker.id;
+	} else if (newSpeakers.length > 0) {
+		selectedSpeakerId = newSpeakers[0].id;
+	} else {
+		selectedSpeakerId = '';
 	}
 
-	function initializeComposer() {
-		// Auto-apply defaults when scenario changes for coherent behavior
-		params = presetForScenario();
+	selectedSpeaker = newSpeakers.find((speaker) => speaker.id === selectedSpeakerId) || null;
 
-		composer = createComposer({
-			user: userManager.user,
-			language: selectedLanguage,
-			preferences: {
-				speakingLevel: 55, // B1 level
-				learningGoal: 'Connection'
-			},
-			scenario: selectedScenario,
-			parameters: params
-		});
-		generateInstructions();
-	}
+	buildComposer();
+	generateInstructions();
+}
+
+function handleSpeakerChange(id: string) {
+	selectedSpeakerId = id;
+	selectedSpeaker = availableSpeakers.find((speaker) => speaker.id === id) || null;
+	buildComposer();
+	generateInstructions();
+}
 
 	function generateInstructions() {
 		if (!composer) return;
@@ -453,36 +490,62 @@
 			</div>
 
 			<!-- Context Selection -->
-			<div class="rounded-lg bg-white p-4 shadow">
-				<h3 class="mb-3 text-lg font-semibold">🎯 Context</h3>
-				<div class="space-y-3">
-					<div>
-						<label class="mb-2 block text-sm font-medium">Language</label>
-						<select
-							bind:value={selectedLanguage}
-							onchange={initializeComposer}
-							class="w-full rounded border p-2 text-sm"
-						>
-							{#each languages as lang}
-								<option value={lang}>{lang.flag} {lang.name}</option>
-							{/each}
-						</select>
-					</div>
+		<div class="rounded-lg bg-white p-4 shadow">
+			<h3 class="mb-3 text-lg font-semibold">🎯 Context</h3>
+			<div class="space-y-3">
+				<div>
+					<label class="mb-2 block text-sm font-medium">Language</label>
+					<select
+						bind:value={selectedLanguage}
+						onchange={initializeComposer}
+						class="w-full rounded border p-2 text-sm"
+					>
+						{#each languages as lang}
+							<option value={lang}>{lang.flag} {lang.name}</option>
+						{/each}
+					</select>
+				</div>
 
-					<div>
-						<label class="mb-2 block text-sm font-medium">Scenario</label>
+				<div>
+					<label class="mb-2 block text-sm font-medium">Scenario</label>
+					<select
+						bind:value={selectedScenario}
+						onchange={initializeComposer}
+						class="w-full rounded border p-2 text-sm"
+					>
+						{#each scenariosData as scenario}
+							<option value={scenario}>{scenario.title}</option>
+						{/each}
+					</select>
+				</div>
+
+				<div>
+					<label class="mb-2 block text-sm font-medium">Speaker / Dialect</label>
+					{#if availableSpeakers.length > 0}
 						<select
-							bind:value={selectedScenario}
-							onchange={initializeComposer}
+							bind:value={selectedSpeakerId}
+							onchange={(event) =>
+								handleSpeakerChange((event.currentTarget as HTMLSelectElement).value)}
 							class="w-full rounded border p-2 text-sm"
 						>
-							{#each scenariosData as scenario}
-								<option value={scenario}>{scenario.title}</option>
+							{#each availableSpeakers as speaker}
+								<option value={speaker.id}>
+									{speaker.speakerEmoji} {speaker.voiceName} — {speaker.region}
+									({speaker.dialectName})
+								</option>
 							{/each}
 						</select>
-					</div>
+						<p class="mt-1 text-xs text-gray-500">
+							Regional cues and dialect info are injected into the prompt automatically.
+						</p>
+					{:else}
+						<div class="rounded bg-gray-100 p-2 text-sm text-gray-500">
+							No speaker data yet for {selectedLanguage.name}. Using a generic voice profile.
+						</div>
+					{/if}
 				</div>
 			</div>
+		</div>
 
 			<!-- Actions -->
 			<div class="rounded-lg bg-white p-4 shadow">
@@ -516,6 +579,12 @@
 			<div class="rounded-lg bg-white p-4 shadow">
 				<h3 class="mb-3 text-lg font-semibold">📊 Current Settings</h3>
 				<div class="grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
+					<div>
+						<span class="font-medium">Speaker:</span>
+						{selectedSpeaker
+							? `${selectedSpeaker.voiceName} (${selectedSpeaker.region ?? 'Standard'})`
+							: 'Generic voice'}
+					</div>
 					<div>
 						<span class="font-medium">Speed:</span>
 						{params.speakingSpeed}

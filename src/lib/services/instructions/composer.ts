@@ -35,6 +35,7 @@ import type { Language, User, UserPreferences, Speaker, Scenario } from '$lib/se
 import type { CEFRLevel } from '$lib/utils/cefr';
 import {
 	type InstructionParameters,
+	type LanguageMixingPolicy,
 	getParametersForCEFR,
 	mergeParameters,
 	parametersToInstructions
@@ -60,17 +61,22 @@ import {
  */
 
 export interface InstructionComposerOptions {
-	user: User;
-	language: Language;
-	preferences: Partial<UserPreferences>;
-	scenario?: Scenario;
-	speaker?: Speaker;
-	parameters?: Partial<InstructionParameters>;
-	sessionContext?: {
-		isFirstTime?: boolean;
-		previousTopics?: string[];
-		memories?: string[];
-	};
+    user: User;
+    language: Language;
+    preferences: Partial<UserPreferences>;
+    scenario?: Scenario;
+    speaker?: Speaker;
+    parameters?: Partial<InstructionParameters>;
+    sessionContext?: {
+        isFirstTime?: boolean;
+        previousTopics?: string[];
+        memories?: string[];
+    };
+    /**
+     * When true, generate a compact (~500 words) instruction set that
+     * preserves critical constraints without verbose examples.
+     */
+    compact?: boolean;
 }
 
 export class InstructionComposer {
@@ -99,20 +105,167 @@ export class InstructionComposer {
 		}
 	}
 
-	/**
-	 * Compose full instruction following OpenAI template
-	 */
-	compose(): string {
-		const sections = [
-			this.buildInstructionsRules(),
-			this.buildRoleObjective(),
-			this.buildPersonalityTone(),
-			this.buildContext(),
-			this.buildConversationFlow(),
-			this.buildReferencePronunciations()
-		];
+    /**
+     * Compose full instruction following OpenAI template
+     */
+    compose(): string {
+        if (this.options.compact) {
+            return this.composeCompact();
+        }
 
-		return sections.filter(Boolean).join('\n\n');
+        const sections = [
+            this.buildInstructionsRules(),
+            this.buildRoleObjective(),
+            this.buildPersonalityTone(),
+            this.buildContext(),
+            this.buildConversationFlow(),
+            this.buildReferencePronunciations()
+        ];
+
+        return sections.filter(Boolean).join('\n\n');
+    }
+
+    /**
+     * Compose a compact version (~500 words) of the instructions.
+     * Focus on critical constraints, brief flow, and active parameters.
+     */
+	private composeCompact(): string {
+		const { scenario, user } = this.options;
+		const isZeroToHero = scenario?.id === 'beginner-confidence-bridge';
+		const nativeLang = isZeroToHero
+			? user.nativeLanguageId
+				? this.getNativeLanguageName(user.nativeLanguageId)
+				: 'English'
+			: '';
+
+		const scenarioContext = scenario?.context || 'the scenario focus';
+		const header = this.buildCompactRoleObjective();
+		const tone = this.buildCompactPersonalityTone();
+		const rules = this.buildCompactRules();
+		const params = this.buildCompactParametersSummary();
+		const flow = this.buildCompactFlow(isZeroToHero, nativeLang);
+
+		const scenarioAdherence = scenario
+			? `# Scenario Adherence
+- Stay within "${scenario.title}" context (${scenarioContext}).
+- If drifting, use Tier 4 to acknowledge then gently redirect.
+- Never break character or leave the setting.`
+			: '';
+
+		return [header, tone, rules, params, flow, scenarioAdherence].filter(Boolean).join('\n\n');
+	}
+
+    private buildCompactRoleObjective(): string {
+        const { scenario, speaker, language, user } = this.options;
+        const speakerName = speaker?.voiceName || 'Your Language Tutor';
+        let roleLine = '';
+        let goalLine = '';
+
+        if (scenario?.role === 'tutor') {
+            roleLine = `You are ${speakerName}, a ${language.name} tutor.`;
+            goalLine = `Goal: Help ${user.displayName || 'the learner'} master patterns and vocabulary through short, natural turns.`;
+        } else if (scenario?.role === 'friendly_chat') {
+            roleLine = `You are ${speakerName}, a ${language.name} conversation partner.`;
+            goalLine = `Goal: Keep dialogue natural and brief so the learner speaks more.`;
+        } else if (scenario?.role === 'character') {
+            const personaTitle = scenario.persona?.title ?? scenario.title;
+            roleLine = `You are ${speakerName}, acting as ${personaTitle}.`;
+            goalLine = `Goal: Stay in character while keeping turns short and engaging.`;
+        } else if (scenario?.role === 'expert') {
+            roleLine = `You are ${speakerName}, an expert in ${scenario.title}.`;
+            goalLine = `Goal: Challenge the learner with concise, high-level prompts.`;
+        } else {
+            roleLine = `You are ${speakerName}, a ${language.name} conversation partner.`;
+            goalLine = `Goal: Practice ${language.name} through brief, natural exchanges.`;
+        }
+
+        return `# Role & Objective
+
+${roleLine}
+${goalLine}`;
+    }
+
+	private buildCompactPersonalityTone(): string {
+		const { scenario, language, preferences } = this.options;
+		const confidence = preferences.speakingConfidence || 50;
+		const toneDescriptor = confidence < 30 ? 'gentle and confidence-building' : confidence > 70 ? 'energetic and playful' : 'warm, curious, and steady';
+		const zeroToHeroLine =
+			scenario?.id === 'beginner-confidence-bridge'
+				? `- Start in the learner's native language until they answer once, then glide into ${language.name} with encouragement.
+`
+				: '';
+
+		return `# Personality & Tone
+
+- Keep replies ${toneDescriptor}. React to what they share before offering new info.
+- Use natural contractions and light fillers (“hmm”, “oh wow”, “えっとね”) sparingly so it feels like a friend, not a script.
+- Mirror their emotional tone; if they sound anxious, slow down and reassure. If excited, match their pace and energy.
+- Default to 3–8 words: reaction (1–2) + question (2–5). When you need a sentence, keep it ≤15 words.
+- Rotate encouragement (“いいね”, “なるほどね”, “そっかー”) so nothing repeats twice in a row.
+${zeroToHeroLine}- When correcting, acknowledge first (“うん、でも…”) then model the better phrasing once.`;
+	}
+
+	private buildCompactRules(): string {
+		const target = this.options.language.name;
+		return `# Rules (Critical)
+
+- Respond only to clear input; ignore silence, noise, and your own echo.
+- One question max per turn; after asking, stop and wait.
+- Never speak twice in a row. Vary phrasing; avoid repeated openers.
+- Default to ${target}; code-switch only if policy allows.
+
+Audio
+- If unintelligible: ask to repeat; if still unclear, ask once more.
+- If silence > 3s: prompt gently (“Take your time.”). Do not continue.
+- Never pretend you understood.
+
+Tiers
+- Tier 1 (80%): 3–8 words total → quick reaction (1–2) + short question (2–5). Example: “いいね！何を？”
+- Tier 2 (clarify): ≤15 words → brief explanation + simple example → return to Tier 1.
+- Tier 3 (correction): ≤20 words → acknowledge → correct → one tip → try again → return to Tier 1.
+- Tier 4 (redirect): ≤20 words → acknowledge → steer back to scenario.
+- Keep it conversational: react with feeling, then ask. Example: Learner “I like ramen.” → You “おいしいよね。どこで？”`;
+	}
+
+	private buildCompactParametersSummary(): string {
+		const p = this.params;
+		return `# Active Parameters
+
+- Speed: ${p.speakingSpeed}; Pauses: ${p.pauseFrequency}; Sentences: ${p.sentenceLength}.
+- Vocab: ${p.vocabularyComplexity}; Grammar: ${p.grammarComplexity}.
+- Scaffolding: ${p.scaffoldingLevel}; Corrections: ${p.correctionStyle}.
+- Mixing: ${p.languageMixingPolicy} (${this.describeMixingPolicy(p.languageMixingPolicy)}); Encouragement: ${p.encouragementFrequency}.
+- Pace: ${p.conversationPace}; Topic changes: ${p.topicChangeFrequency}.`;
+	}
+
+	private describeMixingPolicy(policy: LanguageMixingPolicy): string {
+		switch (policy) {
+			case 'code_switching':
+				return 'mix freely—full native explanations allowed when helpful';
+			case 'bilingual_support':
+				return 'target first, but add native glosses for key words';
+			case 'flexible':
+				return 'stay in target; offer one native hint after repeated confusion';
+			case 'strict_immersion':
+			default:
+				return 'target language only, even if learner switches';
+		}
+	}
+
+	private buildCompactFlow(isZeroToHero: boolean, nativeLang: string): string {
+		const { language, scenario } = this.options;
+		const context = scenario?.context || 'today\'s focus';
+		const opening = isZeroToHero
+			? `- Opening: In ${nativeLang}, greet (≤7 words) and ask who they most want to talk to. After they answer once, switch to ${language.name} with a short encouragement.`
+			: `- Opening: Greet in ${language.name}, anchor the scene (“${context}”) in one clause, then ask a 2–5 word question.`;
+
+		return `# Conversation Flow
+
+${opening}
+- Turn-taking: Tier 1 by default. Reaction first, then question, then silence so they speak. Use Tier 2–4 only when their confusion, errors, or off-topic turns trigger them.
+- Keep continuity: every few turns, reference something they said (“さっき言った旅行の話だけど…”) so it feels like a real chat.
+- Mid-scenario nudges: if energy drops, share a quick personal aside (fictional is fine) before asking the next question.
+- Closing: End with a one-line recap (“今日は挨拶ばっちりだったね”) plus a short choice (“もう一回？ / これでOK?”) so they decide whether to continue.`;
 	}
 
 	/**
