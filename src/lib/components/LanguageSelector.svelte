@@ -69,6 +69,8 @@
 	let isOpen = $state(false);
 	let viewingSpeakersFor = $state<DataLanguage | null>(null);
 	let componentRef: HTMLDivElement;
+	let languageListRef: HTMLDivElement | null = null;
+	let speakerListRef: HTMLDivElement | null = null;
 	let searchQuery = $state('');
 
 	// Keep viewingSpeakersFor in sync with selectedLanguage
@@ -78,6 +80,36 @@
 			if (viewingSpeakersFor && selectedLanguage.code !== viewingSpeakersFor.code) {
 				viewingSpeakersFor = selectedLanguage;
 			}
+		}
+	});
+
+	// Scroll to selected language when dropdown opens
+	$effect(() => {
+		if (isOpen && selectedLanguage && languageListRef && !viewingSpeakersFor) {
+			// Give the DOM a moment to render
+			setTimeout(() => {
+				const selectedButton = languageListRef?.querySelector(
+					`[data-language-code="${selectedLanguage.code}"]`
+				);
+				if (selectedButton) {
+					selectedButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				}
+			}, 50);
+		}
+	});
+
+	// Scroll to selected speaker when viewing speakers
+	$effect(() => {
+		if (isOpen && viewingSpeakersFor && selectedSpeaker && speakerListRef) {
+			// Give the DOM a moment to render
+			setTimeout(() => {
+				const selectedButton = speakerListRef?.querySelector(
+					`[data-speaker-id="${selectedSpeaker}"]`
+				);
+				if (selectedButton) {
+					selectedButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				}
+			}, 50);
 		}
 	});
 
@@ -236,11 +268,12 @@
 			{/if}
 
 			<!-- Content -->
-			<div class="max-h-80 overflow-y-auto px-2">
+			<div class="max-h-80 overflow-y-auto px-2" bind:this={viewingSpeakersFor ? speakerListRef : languageListRef}>
 				{#if viewingSpeakersFor}
 					<!-- Speaker List -->
 					{#each availableSpeakers as speaker (speaker.id)}
 						<button
+							data-speaker-id={speaker.id}
 							onclick={(e) => {
 								e.stopPropagation();
 								selectSpeaker(speaker.id);
@@ -256,7 +289,9 @@
 									<span class="text-sm opacity-70">{speaker.dialectName} • {speaker.region}</span>
 								</div>
 							</div>
-							<span class="icon-[mdi--check] h-5 w-5 flex-shrink-0"></span>
+							{#if selectedSpeaker === speaker.id}
+								<span class="icon-[mdi--check] h-5 w-5 flex-shrink-0"></span>
+							{/if}
 						</button>
 					{/each}
 				{:else}
@@ -270,6 +305,7 @@
 					{:else}
 						{#each filteredLanguages as language (language.id)}
 							<button
+								data-language-code={language.code}
 								onclick={(e) => {
 									e.stopPropagation();
 									selectLanguage(language);

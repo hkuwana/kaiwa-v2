@@ -216,7 +216,8 @@
 		{/if}
 
 		<!-- Conversation Messages - Always visible; input may be hidden -->
-		<div class="mb-4 min-h-0 flex-1">
+		<!-- Added bottom padding (pb-32) to prevent messages from hiding behind the fixed AudioVisualizer -->
+		<div class="mb-4 min-h-0 flex-1 pb-32">
 			{#if conversationMode}
 				<div class="card h-full bg-base-100 shadow-lg">
 					<div class="card-body flex h-full flex-col items-center justify-center gap-6 text-center">
@@ -236,13 +237,13 @@
 				</div>
 			{:else}
 				<div class="card h-full bg-base-100 shadow-lg">
-					<div class="card-body flex h-full flex-col">
+					<div class="card-body flex h-full flex-col pb-8">
 						<div class="mb-4 card-title flex-shrink-0 text-xl">
 							{isGuestUser && messages.length < 4 ? 'Getting to Know You' : 'Conversation'}
 							<span class="text-sm font-normal opacity-70">({messages.length} messages)</span>
 						</div>
 						<div
-							class="flex-1 space-y-3 overflow-y-auto"
+							class="flex-1 space-y-3 overflow-y-auto pb-4"
 							bind:this={messagesContainer}
 							use:autoScrollToBottom={{
 								enabled: messages.length > 0,
