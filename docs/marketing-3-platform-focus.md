@@ -91,16 +91,18 @@ This adapts the full 30-day plan to focus exclusively on Reddit, Instagram, and 
 
 **Wednesday (Week 2)**: Film your second batch
 
-**Use these topics** (from your strategy docs):
+**Use these topics** (walking video style with text/AI voiceover):
 
 **Batch 2 Videos** (7 videos):
-1. "The question everyone dreads" (What are your plans together?)
-2. "How to introduce yourself" (Extended version)
-3. "Reading the room" (Cultural cues to watch for)
-4. "The biggest compliment you can give"
-5. "When to speak vs when to listen"
-6. "What parents are ACTUALLY testing"
-7. Practice Lab recap (filmed Saturday)
+1. Walking through Tokyo: "They stopped translating for me..." (relationship communication breakdown)
+2. Walking past families: "Your grandparents have maybe 2 years left..." (heritage language urgency)
+3. Walking in busy area: "That moment your partner becomes the interpreter..." (loss of direct connection)
+4. Walking alone: "I passed every test but couldn't say I love you..." (textbook vs real life)
+5. Walking at sunset: "Love shouldn't need subtitles" (core message)
+6. Walking through neighborhood: User success story quote with text overlay
+7. Practice Lab recap (filmed Saturday) - behind the scenes walking to the session
+
+**Format:** All shot as walking footage, add text overlay or AI voiceover with trending music
 
 **Daily routine** (Days 8-14):
 - ✅ Check auto-posted video
@@ -119,16 +121,18 @@ This adapts the full 30-day plan to focus exclusively on Reddit, Instagram, and 
 
 ### Week 3: Social Proof Engine
 
-**Wednesday (Week 3)**: Film batch 3 (testimonial-focused)
+**Wednesday (Week 3)**: Film batch 3 (testimonial-focused walking videos)
 
-**Batch 3 Videos** (7 videos):
-1. Testimonial quote #1 (text on screen)
-2. "What changed for [Name]" (case file summary)
-3. Testimonial quote #2
-4. "Before vs After" (confidence shift)
-5. "Common mistakes" (compilation)
-6. Testimonial quote #3
-7. Practice Lab highlights
+**Batch 3 Videos** (7 videos - all walking footage with text/voiceover):
+1. Walking: Testimonial quote overlaid on screen with emotional music
+2. Walking through relationship context: "2 weeks ago, [Name] couldn't apologize in Japanese..."
+3. Walking past coffee shop: Different testimonial quote with uplifting music
+4. Walking: "Before: relied on subtitles. After: had their first real conversation."
+5. Walking: "The mistake? Treating it like a test instead of a conversation"
+6. Walking at night: Another powerful user quote with ambient music
+7. Walking to Practice Lab location with behind-the-scenes narrative
+
+**Key:** Emotional authenticity > production quality. Justin said female-leaning audience will "make TikToks organically about your product"
 
 **Daily routine** (Days 15-21):
 - Same as Week 2
@@ -147,16 +151,18 @@ This adapts the full 30-day plan to focus exclusively on Reddit, Instagram, and 
 
 ### Week 4: Conversion
 
-**Wednesday (Week 4)**: Film batch 4 (beta launch focused)
+**Wednesday (Week 4)**: Film batch 4 (beta launch walking videos)
 
-**Batch 4 Videos** (7 videos):
-1. "We're launching beta" (announcement)
-2. "What you get as a founding member"
-3. User success story #1
-4. "Why now is the time to join"
-5. User success story #2
-6. "Last chance: 3 founding spots left"
-7. Practice Lab #4 recap + celebration
+**Batch 4 Videos** (7 videos - walking footage, conversion focused):
+1. Walking confidently: "Opening 10 founding member spots" with text overlay
+2. Walking: "Unlimited practice. Forever. $14/month locked in. Direct access to me."
+3. Walking: User testimonial with their quote + before/after their situation
+4. Walking: "Your partner's parents. Next month. You ready?" (urgency)
+5. Walking: Different user success story quote overlaid
+6. Walking faster/urgently: "3 spots left. Link in bio. Saturday deadline."
+7. Walking into Practice Lab #4 with celebration energy
+
+**All videos:** Keep the authentic walking style but add urgency through music, pacing, and text
 
 **Daily routine** (Days 22-28):
 - Same engagement
@@ -203,13 +209,18 @@ This adapts the full 30-day plan to focus exclusively on Reddit, Instagram, and 
 
 ### Instagram Reels Strategy (30% of your time)
 
-**Why IG**: Best for storytelling + building personal brand
+**Why IG**: Best for storytelling + building personal brand. Female-leaning platform (60-70% women per Justin) who are willing to pay and tell friends.
 
-**Content types**:
-- **Week 1**: Educational (3 phrases, tips, what not to say)
-- **Week 2**: Stories (case files, behind-the-scenes)
-- **Week 3**: Testimonials (social proof)
-- **Week 4**: Conversion (beta launch, founding member benefits)
+**NEW CONTENT APPROACH - Walking Videos:**
+- **Week 1**: Emotional problem/solution (walking in Japan with text overlay about relationship language struggles)
+- **Week 2**: Deeper storytelling (more walking footage, user stories with AI voiceover)
+- **Week 3**: Social proof (walking with testimonial quotes overlaid)
+- **Week 4**: Conversion (walking videos with urgency messaging)
+
+**Why this works (from Justin's experience with Cali):**
+- "My best downloading creative was just... walking down the street saying like my life changed when I started talking to my AI therapist with Bad Bunny's song over it"
+- Simple, authentic, relatable
+- Girls "are going to practice every day. They're going to tell their friends. They're going to make TikToks organically about your product"
 
 **Engagement strategy**:
 - Respond to EVERY comment in first hour
@@ -231,14 +242,16 @@ This adapts the full 30-day plan to focus exclusively on Reddit, Instagram, and 
 
 ### TikTok Strategy (30% of your time)
 
-**Why TikTok**: Fastest organic reach, best for going viral
+**Why TikTok**: Fastest organic reach, best for going viral. Justin's "Asian feed audience" is 60-70% female, exactly your target.
 
 **Content approach**:
-- **Same videos as Instagram** (just cross-post)
-- But TikTok favors:
-  - Faster pace (30-45 seconds max)
-  - More casual/authentic
-  - Trends and sounds
+- **Same walking videos as Instagram** (cross-post)
+- TikTok LOVES this format:
+  - Walking POV content performs incredibly well
+  - Faster pace (30-45 seconds max) ✓
+  - Casual/authentic (no fancy setup) ✓
+  - Trending sounds with emotional text overlay ✓
+  - Relationship-focused content = high engagement from female audience
 
 **Engagement strategy**:
 - Reply to comments with videos (huge for algorithm)
@@ -265,24 +278,28 @@ Then actually DM everyone who comments "GUIDE" with your prep guide PDF.
 
 ### Wednesday Filming Checklist
 
-**Setup** (15 min):
-- [ ] Phone on tripod/stack of books
-- [ ] Ring light or natural window light
-- [ ] Neutral background
-- [ ] Wear solid color (no patterns)
-- [ ] Test audio
+> **NEW SIMPLIFIED APPROACH**: Walking videos in Japan with AI voiceover/text overlay (based on Justin's recommendation and Cali's proven success)
 
-**Filming** (90 min):
-- [ ] Film 5-7 videos back-to-back
-- [ ] Do 2-3 takes per video (pick best later)
-- [ ] Use script prompts (print them out)
+**Setup** (5 min):
+- [ ] Phone ready (hold in hand or use gimbal - no tripod needed!)
+- [ ] Scout 2-3 interesting walking locations in Japan
+- [ ] Wear something casual and authentic
+- [ ] No need for perfect lighting - natural outdoor light works
+
+**Filming** (30-45 min):
+- [ ] Walk naturally in 5-7 different locations (streets, parks, stations, neighborhoods)
+- [ ] Film yourself from behind/side angle (more authentic than facing camera)
+- [ ] Get 1-2 min of footage per location
 - [ ] Film vertical (9:16 format)
+- [ ] Don't perform - just walk like you normally would
 
-**Editing** (60 min):
+**Editing** (45 min - faster than before!):
 - [ ] Import to CapCut
-- [ ] Auto-captions on all
-- [ ] Add text overlays for key phrases
-- [ ] Keep 30-45 seconds each
+- [ ] Trim each clip to 30-45 seconds (keep best walking parts)
+- [ ] Add trending music from CapCut library
+- [ ] Choose your style:
+  - **Text overlay**: Add text line by line, synced to music (easier, tested by Cali)
+  - **AI voiceover**: Use CapCut text-to-speech + subtle music (more engaging)
 - [ ] Export all
 
 **Scheduling** (30 min):
@@ -292,7 +309,14 @@ Then actually DM everyone who comments "GUIDE" with your prep guide PDF.
 - [ ] Add hashtag groups
 - [ ] Set to post to both IG + TikTok
 
-**Total**: 2.5 hours once per week = 7 days of content
+**Total**: 2 hours once per week = 7 days of content (30 min faster than before!)
+
+**Why this works better:**
+- More authentic (not "performing")
+- Faster to film (just walk!)
+- Matches platform native content
+- Proven by Cali's best performing creative
+- Female-leaning audience responds to emotional storytelling
 
 ---
 
