@@ -1600,18 +1600,21 @@ export class RealtimeOpenAIStore {
 			});
 			this.sendResponse();
 
-			// 🔧 FIX: Clean up this commit after response sent to prevent it from accumulating more items
-			setTimeout(() => {
-				const commitIndex = this.pendingCommits.indexOf(commit);
-				if (commitIndex !== -1) {
-					this.pendingCommits.splice(commitIndex, 1);
-					console.warn('🧹 CLEANED UP COMMIT after response sent', {
-						commitNumber: commit.commitNumber,
-						itemIds: Array.from(commit.itemIds),
-						remainingPendingCommits: this.pendingCommits.length
-					});
-				}
-			}, 1000); // Clean up 1 second after response sent
+			// 🔧 FIX: Clean up IMMEDIATELY after sending response (no nested setTimeout)
+			const commitIndex = this.pendingCommits.indexOf(commit);
+			if (commitIndex !== -1) {
+				this.pendingCommits.splice(commitIndex, 1);
+				console.warn('🧹 CLEANED UP COMMIT immediately after response', {
+					commitNumber: commit.commitNumber,
+					itemIds: Array.from(commit.itemIds),
+					remainingPendingCommits: this.pendingCommits.length
+				});
+			} else {
+				console.error('❌ Could not find commit to clean up', {
+					commitNumber: commit.commitNumber,
+					allCommitNumbers: this.pendingCommits.map(c => c.commitNumber)
+				});
+			}
 		}, 200);
 	}
 
