@@ -146,9 +146,7 @@ export class RealtimeOpenAIStore {
 		  }) => boolean)
 		| null = null;
 
-	// Conversation context preservation
-	private conversationItems: Array<{ itemId: string; role: 'user' | 'assistant'; text: string }> =
-		[];
+	// Session configuration
 	private lastSessionUpdateInstructions: string | null = null;
 	private lastSessionUpdateTime: number = 0;
 	private readonly SESSION_UPDATE_COOLDOWN_MS = 1000; // Prevent rapid updates
@@ -530,9 +528,6 @@ export class RealtimeOpenAIStore {
 		this.historyText[itemId] = finalText;
 		this.finalizedItemIds.add(itemId);
 
-		// Track this item in conversation history for context preservation
-		this.trackConversationItem(itemId, role, finalText);
-
 		if (isUserTranscript) {
 			const commit = this.getOrAssignCommitForTranscript(itemId, 'user');
 			if (commit) {
@@ -638,19 +633,6 @@ export class RealtimeOpenAIStore {
 
 			case 'response.audio_transcript.done':
 			case 'response.output_audio_transcript.done': {
-				// 🔧 FIX: Track assistant audio transcripts for conversation history
-				const transcript = serverEvent.transcript;
-				const itemId = (serverEvent as any).item_id;
-
-				if (transcript && itemId) {
-					console.log('📝 Tracking ASSISTANT audio transcript:', {
-						itemId,
-						transcriptPreview: transcript.substring(0, 100) + (transcript.length > 100 ? '...' : ''),
-						transcriptLength: transcript.length
-					});
-					this.trackConversationItem(itemId, 'assistant', transcript);
-				}
-
 				return {
 					type: 'transcription',
 					data: {
@@ -682,19 +664,8 @@ export class RealtimeOpenAIStore {
 			case 'response.output_text.done':
 			case 'response.text.done': {
 				const text: string | undefined = (serverEvent as any)?.text;
-				const itemId = (serverEvent as any)?.item_id;
 
 				if (text && typeof text === 'string') {
-					// 🔧 FIX: Track assistant text responses for conversation history
-					if (itemId) {
-						console.log('📝 Tracking ASSISTANT text response:', {
-							itemId,
-							textPreview: text.substring(0, 100) + (text.length > 100 ? '...' : ''),
-							textLength: text.length
-						});
-						this.trackConversationItem(itemId, 'assistant', text);
-					}
-
 					return {
 						type: 'transcription',
 						data: {
@@ -729,34 +700,9 @@ export class RealtimeOpenAIStore {
 						createdEvent.item.content?.filter((part: any) => part.type === 'text') || [];
 					const content = textParts.map((part: any) => part.text).join(' ');
 
-					// Track ONLY user conversation items here
-					// (assistant items are tracked from transcript events to avoid duplicates)
-					if (content && role === 'user') {
-						console.log('📝 Tracking USER conversation item:', {
-							itemId: createdEvent.item.id,
-							role,
-							contentPreview: content.substring(0, 100) + (content.length > 100 ? '...' : '')
-						});
-
-						this.trackConversationItem(createdEvent.item.id, role, content);
-
-						return {
-							type: 'message',
-							data: {
-								role,
-								content,
-								timestamp: new SvelteDate()
-							}
-						};
-					}
-
-					// For assistant messages with text content, still return the message event
-					// but don't track (already tracked from transcript events)
-					if (content && role === 'assistant') {
-						console.log('ℹ️ Assistant message created (already tracked from transcript):', {
-							itemId: createdEvent.item.id
-						});
-
+					// Return message events for both user and assistant
+					// (no manual tracking - OpenAI server maintains conversation state)
+					if (content && (role === 'user' || role === 'assistant')) {
 						return {
 							type: 'message',
 							data: {
@@ -1303,24 +1249,9 @@ export class RealtimeOpenAIStore {
 		this.conversationContext = null;
 		// Clear stored instructions
 		this.currentInstructions = null;
-		// Clear conversation items
-		this.conversationItems = [];
 		this.lastSessionUpdateInstructions = null;
 		this.pendingCommits = [];
 		this.lastSessionUpdateTime = 0;
-	}
-
-	// High-level helpers
-	private getConversationContextSummary(): string {
-		if (this.conversationItems.length === 0) {
-			return '[No conversation items tracked]';
-		}
-		return this.conversationItems
-			.map(
-				(item) =>
-					`[${item.role.toUpperCase()}]: ${item.text.substring(0, 50)}${item.text.length > 50 ? '...' : ''}`
-			)
-			.join('\n');
 	}
 
 	sendResponse(): void {
@@ -1336,13 +1267,10 @@ export class RealtimeOpenAIStore {
 			responsePayload.instructions = this.currentInstructions;
 		}
 
-		console.log('📤 CLIENT: Creating response (API will use accumulated conversation items)', {
+		console.log('📤 CLIENT: Creating response (API maintains conversation automatically)', {
 			hasSessionInstructions: !!this.currentInstructions,
 			instructionsLength: this.currentInstructions?.length ?? 0,
-			instructionsPreview: this.currentInstructions?.substring(0, 100) + '...',
-			conversationContextItems: this.conversationItems.length,
-			conversationSummary: this.getConversationContextSummary(),
-			note: 'API maintains conversation state automatically through server events'
+			instructionsPreview: this.currentInstructions?.substring(0, 100) + '...'
 		});
 
 		const ev = {
@@ -1525,24 +1453,6 @@ export class RealtimeOpenAIStore {
 		}, this.pttStopDelayMs);
 	}
 
-	private trackConversationItem(itemId: string, role: 'user' | 'assistant', text: string): void {
-		// Remove duplicates and keep only recent items
-		this.conversationItems = this.conversationItems.filter((item) => item.itemId !== itemId);
-		this.conversationItems.push({ itemId, role, text });
-
-		// Keep only last 20 items to avoid memory bloat
-		if (this.conversationItems.length > 20) {
-			this.conversationItems = this.conversationItems.slice(-20);
-		}
-
-		console.log('📍 Tracked conversation item:', {
-			itemId,
-			role,
-			textLength: text.length,
-			totalItems: this.conversationItems.length
-		});
-	}
-
 	private findCommitByItemId(itemId: string | undefined): PendingCommitEntry | undefined {
 		if (!itemId) return undefined;
 		return this.pendingCommits.find((entry) => entry.itemIds.has(itemId));
@@ -1590,42 +1500,12 @@ export class RealtimeOpenAIStore {
 			return;
 		}
 
-		// 🔍 DEBUGGING: Log timing and conversation state before sending response
+		// Log timing before sending response
 		const now = Date.now();
 		const timeSinceCommitAck = commit.commitAckTimestamp ? now - commit.commitAckTimestamp : 'N/A';
 		const timeSinceTranscript = commit.transcriptTimestamp ? now - commit.transcriptTimestamp : 'N/A';
 
-		console.warn('⏰ ABOUT TO SEND response.create:', {
-			commitNumber: commit.commitNumber,
-			reason,
-			expectedUserItemIds: Array.from(commit.itemIds),
-			timeSinceCommitAck,
-			timeSinceTranscript,
-			currentConversationItems: this.conversationItems.map((item) => ({
-				id: item.itemId,
-				role: item.role,
-				textPreview: item.text.substring(0, 50) + (item.text.length > 50 ? '...' : '')
-			})),
-			...metadata
-		});
-
-		// 🔍 DEBUGGING: Check if expected user item is in conversation
-		const expectedUserItemIds = Array.from(commit.itemIds);
-		const foundUserItems = expectedUserItemIds.filter((id) =>
-			this.conversationItems.some((item) => item.itemId === id && item.role === 'user')
-		);
-
-		if (foundUserItems.length === 0 && expectedUserItemIds.length > 0) {
-			console.error('❌ WARNING: Expected user items NOT found in conversation!', {
-				expectedUserItemIds,
-				foundUserItems,
-				allConversationItemIds: this.conversationItems.map((item) => item.itemId)
-			});
-		} else {
-			console.log('✅ User items found in conversation:', foundUserItems);
-		}
-
-		console.warn('✅ CONDITIONS MET - SENDING response.create (with 200ms delay)', {
+		console.warn('✅ SENDING response.create (with 200ms delay)', {
 			commitNumber: commit.commitNumber,
 			reason,
 			...metadata
