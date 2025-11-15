@@ -44,6 +44,9 @@ type PendingCommitEntry = {
 	hasReceivedCommitAck: boolean;
 	hasReceivedUserTranscript: boolean;
 	hasSentResponse: boolean;
+	// 🔍 DEBUGGING: Track timestamps for timing analysis
+	commitAckTimestamp?: number;
+	transcriptTimestamp?: number;
 };
 
 // Conversation context interface for linking realtime to database conversation
@@ -534,6 +537,7 @@ export class RealtimeOpenAIStore {
 			const commit = this.getOrAssignCommitForTranscript(itemId, 'user');
 			if (commit) {
 				commit.hasReceivedUserTranscript = true;
+			commit.transcriptTimestamp = Date.now(); // 🔍 DEBUGGING: Track timing
 				this.maybeSendResponseForCommit(commit, 'user_transcript', { item_id: itemId });
 			}
 		}
@@ -682,17 +686,38 @@ export class RealtimeOpenAIStore {
 			case 'conversation.item.created':
 			case 'conversation.item.added': {
 				const createdEvent = serverEvent as any;
-				if (createdEvent.item?.type === 'message' && createdEvent.item?.role === 'assistant') {
+
+				// 🔍 DEBUGGING: Log ALL conversation items (user + assistant)
+				console.log('🔍 CONVERSATION ITEM CREATED/ADDED:', {
+					eventType: serverEvent.type,
+					itemId: createdEvent.item?.id,
+					role: createdEvent.item?.role,
+					type: createdEvent.item?.type,
+					hasContent: !!createdEvent.item?.content,
+					contentLength: createdEvent.item?.content?.length || 0,
+					timestamp: new Date().toISOString()
+				});
+
+				if (createdEvent.item?.type === 'message') {
+					const role = createdEvent.item?.role;
 					const textParts =
 						createdEvent.item.content?.filter((part: any) => part.type === 'text') || [];
-
 					const content = textParts.map((part: any) => part.text).join(' ');
 
-					if (content) {
+					// Track BOTH user and assistant conversation items
+					if (content && (role === 'user' || role === 'assistant')) {
+						console.log('📝 Tracking conversation item:', {
+							itemId: createdEvent.item.id,
+							role,
+							contentPreview: content.substring(0, 100) + (content.length > 100 ? '...' : '')
+						});
+
+						this.trackConversationItem(createdEvent.item.id, role, content);
+
 						return {
 							type: 'message',
 							data: {
-								role: 'assistant',
+								role,
 								content,
 								timestamp: new SvelteDate()
 							}
@@ -1070,6 +1095,7 @@ export class RealtimeOpenAIStore {
 							}
 
 							activeCommit.hasReceivedCommitAck = true;
+						activeCommit.commitAckTimestamp = Date.now(); // 🔍 DEBUGGING: Track timing
 
 							this.maybeSendResponseForCommit(activeCommit, 'commit_ack', {
 								item_id: commitEvent.item_id,
@@ -1507,6 +1533,41 @@ export class RealtimeOpenAIStore {
 		}
 		if (!commit.hasReceivedCommitAck || !commit.hasReceivedUserTranscript) {
 			return;
+		}
+
+		// 🔍 DEBUGGING: Log timing and conversation state before sending response
+		const now = Date.now();
+		const timeSinceCommitAck = commit.commitAckTimestamp ? now - commit.commitAckTimestamp : 'N/A';
+		const timeSinceTranscript = commit.transcriptTimestamp ? now - commit.transcriptTimestamp : 'N/A';
+
+		console.warn('⏰ ABOUT TO SEND response.create:', {
+			commitNumber: commit.commitNumber,
+			reason,
+			expectedUserItemIds: Array.from(commit.itemIds),
+			timeSinceCommitAck,
+			timeSinceTranscript,
+			currentConversationItems: this.conversationItems.map((item) => ({
+				id: item.itemId,
+				role: item.role,
+				textPreview: item.text.substring(0, 50) + (item.text.length > 50 ? '...' : '')
+			})),
+			...metadata
+		});
+
+		// 🔍 DEBUGGING: Check if expected user item is in conversation
+		const expectedUserItemIds = Array.from(commit.itemIds);
+		const foundUserItems = expectedUserItemIds.filter((id) =>
+			this.conversationItems.some((item) => item.itemId === id && item.role === 'user')
+		);
+
+		if (foundUserItems.length === 0 && expectedUserItemIds.length > 0) {
+			console.error('❌ WARNING: Expected user items NOT found in conversation!', {
+				expectedUserItemIds,
+				foundUserItems,
+				allConversationItemIds: this.conversationItems.map((item) => item.itemId)
+			});
+		} else {
+			console.log('✅ User items found in conversation:', foundUserItems);
 		}
 
 		console.warn('✅ CONDITIONS MET - SENDING response.create', {
