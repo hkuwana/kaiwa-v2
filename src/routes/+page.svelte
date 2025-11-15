@@ -162,9 +162,9 @@
 </svelte:head>
 
 <div
-	class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 px-2 text-base-content sm:px-4"
+	class="min-h-[100dvh] bg-gradient-to-br from-base-100 to-base-200 px-2 text-base-content sm:px-4"
 >
-	<header class="flex min-h-screen items-start justify-center pt-8 sm:pt-20">
+	<header class="flex min-h-[100dvh] box-border items-start justify-center pt-8 sm:pt-20">
 		<div class="text-center">
 			<!-- Stage Indicator -->
 			<div class="mb-3 sm:mb-8">
@@ -259,13 +259,4 @@
 			</div>
 		</div>
 	</header>
-
-	<!-- Simple footer CTA -->
-	<section class="pb-16 text-center">
-		<div class="container mx-auto max-w-2xl px-4">
-			<p class="text-lg opacity-80">
-				<a href="/about" class="link link-primary">Learn more about Kaiwa</a>
-			</p>
-		</div>
-	</section>
 </div>

@@ -4,7 +4,7 @@
 
 ## 🎯 Core Philosophy
 
-**Mission**: For people who need to actually use the language, not pass a test.
+**Mission**: For learners conversing with people they love
 
 ### The Anti-Language-Learning App
 

@@ -69,8 +69,7 @@
 	let isOpen = $state(false);
 	let viewingSpeakersFor = $state<DataLanguage | null>(null);
 	let componentRef: HTMLDivElement;
-	let languageListRef: HTMLDivElement | null = null;
-	let speakerListRef: HTMLDivElement | null = null;
+	let listRef: HTMLDivElement | null = null;
 	let searchQuery = $state('');
 
 	// Keep viewingSpeakersFor in sync with selectedLanguage
@@ -85,10 +84,10 @@
 
 	// Scroll to selected language when dropdown opens
 	$effect(() => {
-		if (isOpen && selectedLanguage && languageListRef && !viewingSpeakersFor) {
+		if (isOpen && selectedLanguage && listRef && !viewingSpeakersFor) {
 			// Give the DOM a moment to render
 			setTimeout(() => {
-				const selectedButton = languageListRef?.querySelector(
+				const selectedButton = listRef?.querySelector(
 					`[data-language-code="${selectedLanguage.code}"]`
 				);
 				if (selectedButton) {
@@ -100,10 +99,10 @@
 
 	// Scroll to selected speaker when viewing speakers
 	$effect(() => {
-		if (isOpen && viewingSpeakersFor && selectedSpeaker && speakerListRef) {
+		if (isOpen && viewingSpeakersFor && selectedSpeaker && listRef) {
 			// Give the DOM a moment to render
 			setTimeout(() => {
-				const selectedButton = speakerListRef?.querySelector(
+				const selectedButton = listRef?.querySelector(
 					`[data-speaker-id="${selectedSpeaker}"]`
 				);
 				if (selectedButton) {
@@ -268,7 +267,7 @@
 			{/if}
 
 			<!-- Content -->
-			<div class="max-h-80 overflow-y-auto px-2" bind:this={viewingSpeakersFor ? speakerListRef : languageListRef}>
+			<div class="max-h-80 overflow-y-auto px-2" bind:this={listRef}>
 				{#if viewingSpeakersFor}
 					<!-- Speaker List -->
 					{#each availableSpeakers as speaker (speaker.id)}

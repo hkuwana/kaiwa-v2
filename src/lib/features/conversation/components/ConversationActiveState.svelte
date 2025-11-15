@@ -171,11 +171,12 @@
 	}
 </script>
 
+
 <div
-	class="min-h-screen bg-gradient-to-br from-base-100 to-base-200"
+	class="min-h-[100dvh] bg-gradient-to-br from-base-100 to-base-200"
 	in:fly={{ y: 20, duration: 400 }}
 >
-	<div class="container mx-auto flex h-screen max-w-4xl flex-col px-4 py-4">
+	<div class="container mx-auto flex h-[100dvh] box-border max-w-4xl flex-col px-4 py-4">
 		<div class="mb-4 flex items-center justify-center">
 			<button
 				type="button"
