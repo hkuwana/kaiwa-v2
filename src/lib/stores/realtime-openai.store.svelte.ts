@@ -1461,9 +1461,21 @@ export class RealtimeOpenAIStore {
 			};
 			this.pendingCommits.push(commitEntry);
 
+			// 🔧 FIX: Limit pending commits to prevent accumulation of old commits
+			if (this.pendingCommits.length > 3) {
+				const removed = this.pendingCommits.shift();
+				console.error('🧹 REMOVED OLDEST COMMIT due to limit (>3)', {
+					removedCommitNumber: removed?.commitNumber,
+					removedItemIds: removed ? Array.from(removed.itemIds) : [],
+					remainingCommits: this.pendingCommits.length,
+					warning: 'Old commits are not being cleaned up properly!'
+				});
+			}
+
 			console.warn('⏳ WAITING FOR input_audio_buffer.committed BEFORE SENDING response.create', {
 				commitNumber,
-				timestamp: new SvelteDate().toISOString()
+				timestamp: new SvelteDate().toISOString(),
+				totalPendingCommits: this.pendingCommits.length
 			});
 
 			this.pendingPttStopTimeout = null;
@@ -1587,6 +1599,19 @@ export class RealtimeOpenAIStore {
 				delayMs: 200
 			});
 			this.sendResponse();
+
+			// 🔧 FIX: Clean up this commit after response sent to prevent it from accumulating more items
+			setTimeout(() => {
+				const commitIndex = this.pendingCommits.indexOf(commit);
+				if (commitIndex !== -1) {
+					this.pendingCommits.splice(commitIndex, 1);
+					console.warn('🧹 CLEANED UP COMMIT after response sent', {
+						commitNumber: commit.commitNumber,
+						itemIds: Array.from(commit.itemIds),
+						remainingPendingCommits: this.pendingCommits.length
+					});
+				}
+			}, 1000); // Clean up 1 second after response sent
 		}, 200);
 	}
 
