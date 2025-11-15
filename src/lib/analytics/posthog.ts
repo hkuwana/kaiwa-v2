@@ -10,10 +10,25 @@ import posthog from 'posthog-js';
 const POSTHOG_HOST = 'https://us.i.posthog.com'; // or your self-hosted instance
 
 /**
+ * Check if we're running on localhost
+ */
+function isLocalhost(): boolean {
+	if (!browser) return false;
+	const host = window.location.hostname;
+	return host === 'localhost' || host === '127.0.0.1' || host.startsWith('127.');
+}
+
+/**
  * Initialize PostHog (call this in app.html or root layout)
  */
 export function initializePostHog(): void {
 	if (!browser) return;
+
+	// Skip PostHog initialization on localhost
+	if (isLocalhost()) {
+		console.log('📊 PostHog disabled for localhost development');
+		return;
+	}
 
 	// Dynamic import to avoid SSR issues
 	import('posthog-js').then(({ default: posthog }) => {
@@ -47,6 +62,7 @@ export function initializePostHog(): void {
  */
 export function identifyUser(userId: string, properties?: Record<string, unknown>): void {
 	if (!posthog) return;
+	if (isLocalhost()) return; // Skip tracking on localhost
 
 	posthog.identify(userId, {
 		...properties,
@@ -273,6 +289,7 @@ function getVariantCategory(variant: string): string {
  */
 export function track(eventName: string, properties?: Record<string, unknown>): void {
 	if (!posthog) return;
+	if (isLocalhost()) return; // Skip tracking on localhost
 
 	// Add context from current page
 
@@ -289,6 +306,7 @@ export function track(eventName: string, properties?: Record<string, unknown>): 
  */
 export function trackPageView(path?: string): void {
 	if (!posthog) return;
+	if (isLocalhost()) return; // Skip tracking on localhost
 
 	posthog.capture('$pageview', {
 		$current_url: path || page.url.href,
@@ -301,6 +319,7 @@ export function trackPageView(path?: string): void {
  */
 export function setUserProperties(properties: Record<string, unknown>): void {
 	if (!posthog) return;
+	if (isLocalhost()) return; // Skip tracking on localhost
 
 	posthog.setPersonProperties(properties);
 }
@@ -310,6 +329,7 @@ export function setUserProperties(properties: Record<string, unknown>): void {
  */
 export function resetUser(): void {
 	if (!posthog) return;
+	if (isLocalhost()) return; // Skip tracking on localhost
 
 	posthog.reset();
 }

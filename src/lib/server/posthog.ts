@@ -8,6 +8,9 @@ import { env } from '$env/dynamic/private';
 const POSTHOG_KEY = env.POSTHOG_API_KEY || 'phc_your_key_here';
 const POSTHOG_HOST = env.POSTHOG_HOST || 'https://us.i.posthog.com';
 
+// Check if we should skip tracking (development/localhost)
+const shouldSkipTracking = env.NODE_ENV !== 'production';
+
 // Create server-side PostHog instance
 export const posthog = new PostHog(POSTHOG_KEY, {
 	host: POSTHOG_HOST,
@@ -23,6 +26,8 @@ export function trackSSRPageView(
 	userId?: string,
 	properties?: Record<string, unknown>
 ): void {
+	if (shouldSkipTracking) return; // Skip tracking in development
+
 	posthog.capture({
 		distinctId: userId || 'anonymous',
 		event: '$pageview',
@@ -52,6 +57,8 @@ export function trackServerEvent(
 	userId?: string,
 	properties?: Record<string, unknown>
 ): void {
+	if (shouldSkipTracking) return; // Skip tracking in development
+
 	posthog.capture({
 		distinctId: userId || 'anonymous',
 		event: eventName,
@@ -71,6 +78,8 @@ export function trackServerEvent(
  * Track user identification on server-side
  */
 export function identifyServerUser(userId: string, properties?: Record<string, unknown>): void {
+	if (shouldSkipTracking) return; // Skip tracking in development
+
 	posthog.identify({
 		distinctId: userId,
 		properties: {
