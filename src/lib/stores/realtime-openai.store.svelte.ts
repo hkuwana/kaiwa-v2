@@ -729,15 +729,33 @@ export class RealtimeOpenAIStore {
 						createdEvent.item.content?.filter((part: any) => part.type === 'text') || [];
 					const content = textParts.map((part: any) => part.text).join(' ');
 
-					// Track BOTH user and assistant conversation items
-					if (content && (role === 'user' || role === 'assistant')) {
-						console.log('📝 Tracking conversation item:', {
+					// Track ONLY user conversation items here
+					// (assistant items are tracked from transcript events to avoid duplicates)
+					if (content && role === 'user') {
+						console.log('📝 Tracking USER conversation item:', {
 							itemId: createdEvent.item.id,
 							role,
 							contentPreview: content.substring(0, 100) + (content.length > 100 ? '...' : '')
 						});
 
 						this.trackConversationItem(createdEvent.item.id, role, content);
+
+						return {
+							type: 'message',
+							data: {
+								role,
+								content,
+								timestamp: new SvelteDate()
+							}
+						};
+					}
+
+					// For assistant messages with text content, still return the message event
+					// but don't track (already tracked from transcript events)
+					if (content && role === 'assistant') {
+						console.log('ℹ️ Assistant message created (already tracked from transcript):', {
+							itemId: createdEvent.item.id
+						});
 
 						return {
 							type: 'message',
