@@ -638,6 +638,19 @@ export class RealtimeOpenAIStore {
 
 			case 'response.audio_transcript.done':
 			case 'response.output_audio_transcript.done': {
+				// 🔧 FIX: Track assistant audio transcripts for conversation history
+				const transcript = serverEvent.transcript;
+				const itemId = (serverEvent as any).item_id;
+
+				if (transcript && itemId) {
+					console.log('📝 Tracking ASSISTANT audio transcript:', {
+						itemId,
+						transcriptPreview: transcript.substring(0, 100) + (transcript.length > 100 ? '...' : ''),
+						transcriptLength: transcript.length
+					});
+					this.trackConversationItem(itemId, 'assistant', transcript);
+				}
+
 				return {
 					type: 'transcription',
 					data: {
@@ -669,7 +682,19 @@ export class RealtimeOpenAIStore {
 			case 'response.output_text.done':
 			case 'response.text.done': {
 				const text: string | undefined = (serverEvent as any)?.text;
+				const itemId = (serverEvent as any)?.item_id;
+
 				if (text && typeof text === 'string') {
+					// 🔧 FIX: Track assistant text responses for conversation history
+					if (itemId) {
+						console.log('📝 Tracking ASSISTANT text response:', {
+							itemId,
+							textPreview: text.substring(0, 100) + (text.length > 100 ? '...' : ''),
+							textLength: text.length
+						});
+						this.trackConversationItem(itemId, 'assistant', text);
+					}
+
 					return {
 						type: 'transcription',
 						data: {
@@ -1610,9 +1635,9 @@ export class RealtimeOpenAIStore {
 					remainingPendingCommits: this.pendingCommits.length
 				});
 			} else {
-				console.error('❌ Could not find commit to clean up', {
+				console.log('ℹ️ Commit already cleaned up (likely by resolveCommitItem)', {
 					commitNumber: commit.commitNumber,
-					allCommitNumbers: this.pendingCommits.map(c => c.commitNumber)
+					note: 'This is normal - commits are cleaned up when all items are resolved'
 				});
 			}
 		}, 200);
