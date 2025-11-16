@@ -6,6 +6,7 @@
 	import { getSpeakersByLanguage, getDefaultSpeakerForLanguage } from '$lib/data/speakers';
 	import type { Language as DataLanguage } from '$lib/data/languages';
 	import { onMount } from 'svelte';
+	import { setSelectedLanguageIdCookie, setSelectedSpeakerIdCookie } from '$lib/utils/cookies';
 
 	const {
 		selectedLanguage = null,
@@ -138,11 +139,15 @@
 	});
 
 	function selectLanguage(language: DataLanguage) {
+		// Save language selection to cookie for quick recall
+		setSelectedLanguageIdCookie(language.id);
 		onLanguageChange(language);
 
 		// Auto-select the default female speaker for this language
 		const defaultSpeaker = getDefaultSpeakerForLanguage(language.id);
 		if (defaultSpeaker && onSpeakerChange) {
+			// Save speaker selection to cookie for quick recall
+			setSelectedSpeakerIdCookie(defaultSpeaker.id);
 			onSpeakerChange(defaultSpeaker.id);
 		}
 
@@ -157,6 +162,8 @@
 	}
 
 	function selectSpeaker(speakerId: string) {
+		// Save speaker selection to cookie for quick recall
+		setSelectedSpeakerIdCookie(speakerId);
 		if (onSpeakerChange) {
 			onSpeakerChange(speakerId);
 		}

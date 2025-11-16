@@ -89,10 +89,11 @@ const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 	<div class="grid gap-4 md:grid-cols-3">
 		{#each topScenarios as scenario (scenario.id)}
 			{@const meta = getScenarioMeta(scenario)}
+			{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
 			<button
 				class="group card cursor-pointer border-2 border-base-300 bg-base-100 text-left transition-all hover:border-primary hover:shadow-lg"
 				class:border-primary={selectedScenario?.id === scenario.id}
-				class:bg-primary/5={selectedScenario?.id === scenario.id}
+				class:bg-primary={selectedScenario?.id === scenario.id}
 				onclick={() => handleScenarioClick(scenario)}
 			>
 				<div class="card-body p-4">
@@ -115,7 +116,6 @@ const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 						{scenario.description}
 					</p>
 
-					{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
 					<!-- Difficulty -->
 					<div class="flex flex-wrap items-center gap-2 text-xs font-medium text-base-content/80">
 						<div

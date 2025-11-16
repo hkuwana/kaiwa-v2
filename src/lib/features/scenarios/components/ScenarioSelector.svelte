@@ -9,6 +9,7 @@ import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
 		type SaveScenarioResult
 	} from '$lib/stores/custom-scenarios.store.svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
+	import { setSelectedScenarioIdCookie } from '$lib/utils/cookies';
 
 	interface Props {
 		scenarios: Scenario[];
@@ -152,6 +153,8 @@ const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 			return;
 		}
 
+		// Save selected scenario to cookie for quick recall
+		setSelectedScenarioIdCookie(scenario.id);
 		onScenarioSelect(scenario);
 		isOpen = false;
 		searchQuery = '';
@@ -323,6 +326,7 @@ const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 					{#each filteredScenarios as scenario (scenario.id)}
 						{@const isLocked = isGuest && scenario.id !== 'onboarding-welcome'}
 						{@const meta = getScenarioMeta(scenario)}
+						{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
 						<button
 							onclick={() => selectScenario(scenario)}
 							class="group btn relative my-1 flex w-full items-center justify-start rounded-xl px-4 py-3 text-left btn-ghost transition-colors duration-150"
@@ -344,7 +348,6 @@ const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 							></span>
 							<div class="flex flex-1 flex-col">
 								<span class="truncate text-sm font-medium">{scenario.title}</span>
-								{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
 								<div class="mt-0.5 flex items-center gap-1 text-[11px] opacity-70">
 									<div
 										class="flex items-center gap-0.5"

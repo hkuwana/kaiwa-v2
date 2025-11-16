@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
 	import type { AudioInputMode } from '$lib/server/db/types';
+	import { getAudioInputModeFromCookie, setAudioInputModeCookie } from '$lib/utils/cookies';
 	import { slide } from 'svelte/transition';
 	import SpeechSpeedSelector from './SpeechSpeedSelector.svelte';
 	// Component props
@@ -12,41 +13,39 @@
 
 	// Local state
 	let isExpanded = $state(false);
-	let selectedMode = $state<AudioInputMode>('ptt'); // Default to Push-to-Talk
+	let selectedMode = $state<AudioInputMode>('vad'); // Default to Auto-Detect (VAD)
 	let isInitialized = $state(false);
 	let pttStopDelay = $state(500); // Default 500ms delay
 
-	// Initialize from user preferences OR use PTT default
+	// Initialize from cookies, user preferences, or use VAD default
 	$effect(() => {
 		if (isInitialized) return; // Only run once
 
-		const savedMode = userPreferencesStore.getPreference('audioInputMode') as
-			| AudioInputMode
-			| undefined;
-
-		// One-time migration: If saved mode is 'vad', reset to 'ptt' default
-		// This ensures everyone starts with PTT as the new default
-		let initialMode: AudioInputMode;
-		if (savedMode === 'vad') {
-			console.log('🎙️ AdvancedAudioOptions: Migrating from VAD to PTT default');
-			initialMode = 'ptt';
-			userPreferencesStore.updatePreferences({ audioInputMode: 'ptt' });
+		// Check cookies first (user's last preference)
+		const cookieMode = getAudioInputModeFromCookie();
+		if (cookieMode) {
+			selectedMode = cookieMode;
+			console.log('🎙️ AdvancedAudioOptions: Restored from cookie:', cookieMode);
 		} else {
-			initialMode = savedMode || 'ptt';
+			// Always use 'vad' (Conversation Mode) as the new default
+			// This ensures all users get the new natural conversation experience
+			selectedMode = 'vad';
+			console.log('🎙️ AdvancedAudioOptions: Using Conversation Mode (vad) as default');
 		}
 
-		selectedMode = initialMode;
 		isInitialized = true;
 
 		// Notify parent of initial mode
-		onModeChange?.(initialMode);
-		console.log('🎙️ AdvancedAudioOptions: Initialized with mode:', initialMode);
+		onModeChange?.(selectedMode);
+		console.log('🎙️ AdvancedAudioOptions: Initialized with mode:', selectedMode);
 	});
 
 	// Handle mode change
 	function handleModeChange(mode: AudioInputMode) {
 		selectedMode = mode;
-		// Save to preferences
+		// Save to cookie for quick recall
+		setAudioInputModeCookie(mode);
+		// Save to preferences for persistence across devices
 		userPreferencesStore.updatePreferences({ audioInputMode: mode });
 		// Notify parent
 		onModeChange?.(mode);
@@ -90,15 +89,15 @@
 				<div class="flex items-center justify-between">
 					<div class="text-left">
 						<div class="text-sm font-medium" class:text-primary={selectedMode === 'vad'}>
-							Auto-Detect Mode
+							Conversation Mode
 						</div>
-						<div class="text-xs text-base-content/60">Hands-free speaking</div>
+						<div class="text-xs text-base-content/60">Natural hands-free speaking</div>
 					</div>
 					<div class="text-right">
 						<div class="text-sm font-medium" class:text-primary={selectedMode === 'ptt'}>
-							Push-to-Talk
+							Manual Control
 						</div>
-						<div class="text-xs text-base-content/60">Press to speak</div>
+						<div class="text-xs text-base-content/60">Press & hold to speak</div>
 					</div>
 				</div>
 
@@ -128,12 +127,13 @@
 				<div class="rounded-lg bg-base-200 p-3">
 					{#if selectedMode === 'vad'}
 						<div class="text-xs text-base-content/70">
-							<strong>Auto-Detect Mode (Voice Activity Detection):</strong> Automatically detects when
-							you're speaking. Just talk naturally without pressing any buttons. Best for quiet environments.
+							<strong>Conversation Mode:</strong> Automatically detects when you're speaking and captures
+							your voice naturally. No buttons to press—just talk! Perfect for natural conversation flow
+							in quiet environments.
 						</div>
 					{:else}
 						<div class="text-xs text-base-content/70">
-							<strong>Push-to-Talk Mode:</strong> Press and hold the microphone button to speak. Release
+							<strong>Manual Control:</strong> Press and hold the microphone button to speak. Release
 							to stop. Best for noisy backgrounds or when you want precise control over when your audio
 							is transmitted.
 						</div>
@@ -144,7 +144,7 @@
 			<!-- Speech Speed Section -->
 			<div class="divider"></div>
 
-			<SpeechSpeedSelector compact={true} />
+			<SpeechSpeedSelector />
 
 			<!-- Info Banner -->
 			<div class="mt-4 alert py-2 text-xs">

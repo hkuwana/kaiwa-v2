@@ -139,6 +139,7 @@ const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 				<div class="grid gap-6 md:grid-cols-3">
 					{#each filteredScenarios.featured as scenario (scenario.id)}
 						{@const meta = getScenarioMeta(scenario)}
+						{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
 						<button
 							class="group card cursor-pointer border-2 border-base-300 bg-base-100 text-left transition-all hover:border-primary hover:shadow-lg"
 							onclick={() => handleScenarioClick(scenario)}
@@ -163,7 +164,6 @@ const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 									{scenario.description}
 								</p>
 
-								{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
 								<!-- Difficulty indicator -->
 								<div class="flex flex-wrap items-center gap-2 text-xs font-medium text-base-content/80">
 									<div
@@ -209,6 +209,7 @@ const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 				<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 					{#each filteredScenarios.other as scenario (scenario.id)}
 						{@const meta = getScenarioMeta(scenario)}
+						{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
 						<button
 							class="group card cursor-pointer border-2 border-base-300 bg-base-100 text-left transition-all hover:border-primary hover:shadow-lg"
 							onclick={() => handleScenarioClick(scenario)}
@@ -233,7 +234,6 @@ const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 									{scenario.description}
 								</p>
 
-								{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
 								<!-- Difficulty indicator -->
 								<div class="flex flex-wrap items-center gap-2 text-xs font-medium text-base-content/80">
 									<div
