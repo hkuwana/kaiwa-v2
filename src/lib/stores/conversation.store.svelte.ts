@@ -580,21 +580,12 @@ export class ConversationStore {
 			timestamp: new SvelteDate().toISOString()
 		});
 
-		console.warn('🔄 RESETTING SUPPRESSION FLAG IN resumeStreaming()', {
-			beforeFlag: this.suppressNextUserTranscript,
-			timestamp: new SvelteDate().toISOString()
-		});
-
+		// Reset turn state for new PTT session
 		this.currentTurnStartMs = Date.now();
 		this.turnMaxInputLevel = 0;
-		this.suppressNextUserTranscript = false;
 		this.speechDetected = false;
-
-		console.warn('🔄 SUPPRESSION FLAG RESET TO FALSE', {
-			afterFlag: this.suppressNextUserTranscript,
-			currentTurnStartMs: this.currentTurnStartMs,
-			timestamp: new SvelteDate().toISOString()
-		});
+		// NOTE: suppressNextUserTranscript is NOT reset here - it's managed by the transcript filter
+		// to avoid race conditions with async transcript arrival
 
 		this.startTurnLevelMonitor();
 
