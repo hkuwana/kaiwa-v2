@@ -113,6 +113,30 @@
 
 		// Listen for clear events from debug panel (dev mode only)
 		if (dev) {
+			// 🔍 DEV: Expose stores and utilities on window for debugging
+			if (typeof window !== 'undefined') {
+				(window as any).dev = {
+					...(window as any).dev,
+					realtimeOpenAI,
+					conversationStore,
+					getInstructions: () => realtimeOpenAI.getCurrentInstructions(),
+					logInstructions: () => {
+						const instructions = realtimeOpenAI.getCurrentInstructions();
+						if (instructions) {
+							console.info('📋 Current Instructions:', instructions);
+						} else {
+							console.warn('⚠️ No instructions set yet');
+						}
+					}
+				};
+				console.info('🔍 [DEV] Debug utilities available on window.dev:', {
+					realtimeOpenAI: 'Full realtime store instance',
+					conversationStore: 'Full conversation store instance',
+					getInstructions: 'Function to get current instructions',
+					logInstructions: 'Function to log instructions to console'
+				});
+			}
+
 			const handleClearEvents = () => {
 				realtimeOpenAI.clearEvents();
 			};
