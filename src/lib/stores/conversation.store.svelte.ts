@@ -1127,9 +1127,15 @@ export class ConversationStore {
 			const track = this.audioStream.getAudioTracks()[0];
 			if (track) {
 				if (this.audioInputMode === 'vad') {
-					// VAD mode: Enable audio track immediately - server handles turn detection
-					track.enabled = true;
-					logger.info('🎵 ConversationStore: Enabled audio track for VAD mode');
+					// VAD mode: Add delay to ensure session.update with instructions is processed before enabling audio
+					// This prevents race condition where user speaks before instructions are applied
+					logger.info('🎵 ConversationStore: Waiting 500ms for instructions to be processed before enabling VAD audio');
+					setTimeout(() => {
+						if (track && this.audioStream) {
+							track.enabled = true;
+							logger.info('🎵 ConversationStore: Enabled audio track for VAD mode (after instruction delay)');
+						}
+					}, 500);
 				} else {
 					// PTT mode: Keep track disabled until user presses button
 					track.enabled = false;
