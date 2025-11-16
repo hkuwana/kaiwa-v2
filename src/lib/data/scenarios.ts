@@ -7,7 +7,7 @@ export type { Scenario };
 export const scenariosData: Scenario[] = [
 	{
 		id: 'beginner-confidence-bridge',
-		title: 'Zero to Hero',
+		title: 'Your First Words',
 		description:
 			'Start in your native language, then build confidence with 2–3 key phrases inside a real micro‑interaction you can use today.',
 		role: 'tutor',
