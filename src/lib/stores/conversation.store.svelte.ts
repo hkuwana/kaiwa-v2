@@ -670,6 +670,56 @@ export class ConversationStore {
 		}
 	};
 
+	/**
+	 * Update audio input mode during an active conversation
+	 * This will send a session.update to OpenAI with the new turn detection config
+	 */
+	updateAudioInputMode = (mode: AudioInputMode) => {
+		if (this.status === 'idle' || !this.language) {
+			console.warn('⚠️ Cannot update audio mode - conversation not active');
+			return;
+		}
+
+		const previousMode = this.audioInputMode;
+		this.audioInputMode = mode;
+
+		console.log('🎙️ ConversationStore: Audio input mode changing', {
+			from: previousMode,
+			to: mode,
+			status: this.status
+		});
+
+		// Send session update with new turn detection config
+		const turnDetectionConfig = this.getTurnDetectionConfig();
+		realtimeOpenAI.updateSessionConfig({
+			turnDetection: turnDetectionConfig,
+			voice: this.voice,
+			transcriptionLanguage: this.language.code
+		});
+
+		// Handle audio track state based on mode
+		const track = this.audioStream?.getAudioTracks()[0];
+		if (track) {
+			if (mode === 'vad') {
+				// In VAD mode, audio track should be enabled for continuous listening
+				track.enabled = true;
+				this.waitingForUserToStart = false;
+				console.log('🎙️ ConversationStore: VAD mode - audio track enabled for continuous listening');
+			} else {
+				// In PTT mode, disable track until user presses button
+				track.enabled = false;
+				this.waitingForUserToStart = true;
+				console.log('🎙️ ConversationStore: PTT mode - audio track disabled until button press');
+			}
+		}
+
+		console.log('✅ ConversationStore: Audio input mode updated successfully', {
+			mode,
+			turnDetection: turnDetectionConfig ? 'server_vad' : 'manual (PTT)',
+			trackEnabled: track?.enabled
+		});
+	};
+
 	updateSessionConfig = (
 		updates: Partial<{
 			instructions: string;
@@ -692,12 +742,27 @@ export class ConversationStore {
 			model: currentConfig.model,
 			voice: this.voice,
 			instructions: currentConfig.instructions,
-			turnDetection: null,
+			turnDetection: this.getTurnDetectionConfig(),
 			audio: currentConfig.audio
 		});
 	};
 
 	// === GETTERS ===
+
+	/**
+	 * Calculate turn detection config based on current audio input mode
+	 * @returns Turn detection config for VAD mode, or null for PTT mode
+	 */
+	private getTurnDetectionConfig() {
+		return this.audioInputMode === 'vad'
+			? {
+					type: 'server_vad' as const,
+					threshold: 0.5, // Sensitivity (0.0 to 1.0)
+					prefixPaddingMs: 300, // Audio before speech starts
+					silenceDurationMs: 500 // Silence duration to detect end of speech
+				}
+			: null; // null for PTT mode - disables server-side turn detection
+	}
 
 	isConnected = () => {
 		if (!browser) return false;
@@ -1121,15 +1186,7 @@ export class ConversationStore {
 		);
 
 		// Configure turn detection based on audio input mode
-		const turnDetectionConfig =
-			this.audioInputMode === 'vad'
-				? {
-						type: 'server_vad' as const,
-						threshold: 0.5, // Sensitivity (0.0 to 1.0)
-						prefixPaddingMs: 300, // Audio before speech starts (camelCase for SDK)
-						silenceDurationMs: 500 // Silence duration to detect end of speech (camelCase for SDK)
-					}
-				: null; // null for PTT mode - disables server-side turn detection
+		const turnDetectionConfig = this.getTurnDetectionConfig();
 
 		console.log('Sending session configuration:', {
 			language: this.language.name,
@@ -1221,7 +1278,7 @@ export class ConversationStore {
 		const combined = `${this.lastInstructions}\n\n${delta}`;
 		realtimeOpenAI.updateSessionConfig({
 			instructions: combined,
-			turnDetection: null,
+			turnDetection: this.getTurnDetectionConfig(),
 			voice: this.voice,
 			transcriptionLanguage: this.language.code
 		});
