@@ -69,6 +69,7 @@ export class ConversationStore {
 	selectedDeviceId = $state<string>('default');
 	speechDetected = $state<boolean>(false);
 	userSpeechStartTime = $state<number | null>(null);
+	isMicMuted = $state<boolean>(true); // Track mic mute state for PTT mode
 	// Transcription state
 	transcriptionMode = $state<boolean>(false);
 	currentTranscript = $state<string>('');
@@ -449,15 +450,16 @@ export class ConversationStore {
 			timestamp: new SvelteDate().toISOString()
 		});
 
-		// Detect rapid duplicate calls (within 200ms)
+		// Detect rapid duplicate calls (within 200ms) and prevent them
 		if (timeSinceLastPause < 200 && timeSinceLastPause > 0) {
-			logger.warn('⚠️ DUPLICATE pauseStreaming() DETECTED!', {
+			logger.warn('⚠️ DUPLICATE pauseStreaming() DETECTED - IGNORING!', {
 				timeSinceLastPause: `${timeSinceLastPause}ms`,
 				callNumber: this.pauseCallCounter,
 				previousCallTime: new SvelteDate(this.lastPauseTime).toISOString(),
 				currentCallTime: new SvelteDate(now).toISOString(),
 				callStack
 			});
+			return; // Prevent duplicate commits
 		}
 
 		this.lastPauseTime = now;
@@ -487,11 +489,13 @@ export class ConversationStore {
 		// CRITICAL: Disable track BEFORE committing buffer to prevent audio bleed
 		if (track) {
 			track.enabled = false;
+			this.isMicMuted = true; // Track that mic is now muted
 		}
 
 		logger.warn('⚠️ COMMITTING AUDIO BUFFER - This should result in exactly ONE commit!', {
 			streamId: this.audioStream.id,
 			trackEnabled: track?.enabled,
+			isMicMuted: this.isMicMuted,
 			timestamp: new SvelteDate().toISOString()
 		});
 
@@ -603,13 +607,15 @@ export class ConversationStore {
 		// CRITICAL: Enable track BEFORE clearing buffer to ensure audio starts flowing
 		if (track) {
 			track.enabled = true;
+			this.isMicMuted = false; // Track that mic is now unmuted
 		}
 
 		// Clear buffer after track is enabled
 		realtimeOpenAI.pttStart(this.audioStream);
 
 		logger.info('🎙️ ConversationStore: resumeStreaming applied', {
-			track: this.describeAudioTrack(track)
+			track: this.describeAudioTrack(track),
+			isMicMuted: this.isMicMuted
 		});
 	};
 
@@ -756,14 +762,28 @@ export class ConversationStore {
 	 * @returns Turn detection config for VAD mode, or null for PTT mode
 	 */
 	private getTurnDetectionConfig() {
-		return this.audioInputMode === 'vad'
-			? {
-					type: 'server_vad' as const,
-					threshold: 0.5, // Sensitivity (0.0 to 1.0)
-					prefixPaddingMs: 300, // Audio before speech starts
-					silenceDurationMs: 500 // Silence duration to detect end of speech
-				}
-			: null; // null for PTT mode - disables server-side turn detection
+		if (this.audioInputMode === 'vad') {
+			// Pure VAD mode: Full automatic turn detection and responses
+			return {
+				type: 'server_vad' as const,
+				threshold: 0.5, // Sensitivity (0.0 to 1.0)
+				prefixPaddingMs: 300, // Audio before speech starts
+				silenceDurationMs: 500, // Silence duration to detect end of speech
+				createResponse: true, // Auto-create responses
+				interruptResponse: true // Allow interruptions
+			};
+		} else {
+			// PTT/Toggle-to-Talk mode: Keep VAD for speech detection (visual feedback)
+			// but disable automatic responses (manual control via track enable/disable)
+			return {
+				type: 'server_vad' as const,
+				threshold: 0.5,
+				prefixPaddingMs: 300,
+				silenceDurationMs: 500,
+				createResponse: false, // No auto-responses - manual control
+				interruptResponse: false // No auto-interrupts - manual control
+			};
+		}
 	}
 
 	isConnected = () => {
@@ -1146,10 +1166,12 @@ export class ConversationStore {
 				if (this.audioInputMode === 'vad') {
 					// VAD mode: Enable audio track immediately - server handles turn detection
 					track.enabled = true;
+					this.isMicMuted = false; // VAD mode: mic always unmuted
 					logger.info('🎵 ConversationStore: Enabled audio track for VAD mode');
 				} else {
 					// PTT mode: Keep track disabled until user presses button
 					track.enabled = false;
+					this.isMicMuted = true; // PTT mode: starts muted
 					logger.info(
 						'🎵 ConversationStore: Audio track disabled for PTT mode - waiting for user press'
 					);

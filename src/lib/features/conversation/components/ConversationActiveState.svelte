@@ -120,7 +120,7 @@
 	// Auto-mute in toggle-to-talk mode when AI starts responding
 	$effect(() => {
 		// Only auto-mute in PTT (toggle-to-talk) mode, not in pure VAD mode
-		if (audioInputMode === 'ptt' && status === 'streaming') {
+		if (audioInputMode === 'ptt' && status === 'streaming' && !conversationStore.isMicMuted) {
 			// Check if there's an active assistant message (AI is responding)
 			const hasActiveAssistantMessage = messages.some(
 				(m) => m.role === 'assistant' && (m.id.startsWith('streaming_') || !m.content)
