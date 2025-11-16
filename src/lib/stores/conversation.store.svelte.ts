@@ -692,10 +692,18 @@ export class ConversationStore {
 
 		// Send session update with new turn detection config
 		const turnDetectionConfig = this.getTurnDetectionConfig();
+
+		logger.info('🔄 Updating session config for audio mode change:', {
+			mode,
+			hasInstructions: !!this.lastInstructions,
+			instructionsLength: this.lastInstructions?.length ?? 0
+		});
+
 		realtimeOpenAI.updateSessionConfig({
 			turnDetection: turnDetectionConfig,
 			voice: this.voice,
-			transcriptionLanguage: this.language.code
+			transcriptionLanguage: this.language.code,
+			instructions: this.lastInstructions // Include instructions to prevent them from being lost
 		});
 
 		// Handle audio track state based on mode
