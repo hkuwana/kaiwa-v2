@@ -189,7 +189,7 @@ Every issue below is evaluated through this lens:
   - "Advanced users find transcript distracting while speaking" (Austrian)
   - "Falls back on transcript instead of listening practice" (Brie)
   - "Hide show transcript under conversation mode active" (Martin)
-- [ ] **Status**: Open
+- [x] **Status**: ✅ Completed (November 16, 2025)
 
 **Jony Ive Fix**: DEFAULT = no transcript. Add tiny "show text" button for anxious beginners.
 
@@ -259,7 +259,7 @@ Every issue below is evaluated through this lens:
 - **Mentions**: 1 (Martin)
 - **Why Medium**: "Midnight pain triage visit" → user thinks "what?" Naming matters.
 - **User Quote**: "Midnight pain triage visit is confusing (maybe Doctor's visit)" (Martin)
-- [ ] **Status**: Open
+- [x] **Status**: ✅ Completed (November 16, 2025)
 
 **Fix**: Rename to human-understandable labels: "Emergency Room Visit"
 
