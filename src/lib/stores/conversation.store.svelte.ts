@@ -1258,19 +1258,19 @@ export class ConversationStore {
 
 		this.lastInstructions = sessionConfig.instructions;
 
-		// With VAD enabled, audio is always flowing - no need for manual start
-		// With PTT, user must press button to start
-		this.waitingForUserToStart = this.audioInputMode === 'ptt';
+		// Set flag to enable initial greeting trigger
+		// This flag will be set to false after greeting is sent
+		this.waitingForUserToStart = true;
+
 		logger.info(
 			`🎵 ConversationStore: ${this.audioInputMode === 'vad' ? 'VAD mode enabled - ready for conversation' : 'PTT mode enabled - press to speak'}`
 		);
 
-		// In PTT mode, trigger initial greeting immediately since user needs to press to speak
-		// In VAD mode, wait for user to start speaking (greeting triggered by first user input)
-		if (this.audioInputMode === 'ptt' && this.waitingForUserToStart) {
-			logger.info('🎵 ConversationStore: PTT mode - triggering initial greeting automatically');
-			this.triggerInitialGreeting();
-		}
+		// Always trigger initial greeting to activate scenario instructions
+		// PTT: Greeting sent immediately (user presses button to respond)
+		// VAD: Greeting activates scenario context (e.g., AI plays waiter role in restaurant)
+		logger.info('🎵 ConversationStore: Triggering initial greeting to activate instructions');
+		this.triggerInitialGreeting();
 	}
 
 	private greetingRetryTimeout: ReturnType<typeof setTimeout> | null = null;
