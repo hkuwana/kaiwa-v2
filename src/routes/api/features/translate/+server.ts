@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 import { json } from '@sveltejs/kit';
 import { translateTextWithScripts } from '$lib/server/services/translation.service';
 
@@ -16,7 +17,7 @@ export const POST = async ({ request }) => {
 
 		return json(result);
 	} catch (error) {
-		console.error('Translation API error:', error);
+		logger.error('Translation API error:', error);
 		return json(
 			{ error: error instanceof Error ? error.message : 'Translation failed' },
 			{ status: 500 }

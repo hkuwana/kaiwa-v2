@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 import { json } from '@sveltejs/kit';
 import { analysisPipelineService } from '$lib/features/analysis/services/analysis-pipeline.service';
 import { analysisSuggestionService } from '$lib/features/analysis/services/analysis-suggestion.service';
@@ -76,7 +77,7 @@ export const POST = async ({ request, locals }) => {
 			findingsError
 		});
 	} catch (error) {
-		console.error('Failed to run analysis', error);
+		logger.error('Failed to run analysis', error);
 		return json(
 			{ error: error instanceof Error ? error.message : 'Analysis failed' },
 			{ status: 500 }
@@ -122,6 +123,6 @@ async function recordAnalysisUsage(userId: string, moduleIds: AnalysisModuleId[]
 
 		await userUsageRepository.incrementUsage(userId, updates);
 	} catch (error) {
-		console.warn('Failed to record analysis usage', error);
+		logger.warn('Failed to record analysis usage', error);
 	}
 }

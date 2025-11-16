@@ -1,3 +1,4 @@
+import { logger } from '$lib/logger';
 // src/lib/stores/scenario.store.svelte.ts
 // Enhanced scenario store with persistent storage using cookies + localStorage
 
@@ -71,13 +72,13 @@ export class ScenarioStore {
 	// Initialize scenario from persistent storage
 	private initializeFromStorage = () => {
 		if (browser) {
-			console.log('🔄 Initializing scenario from persistent storage...');
+			logger.info('🔄 Initializing scenario from persistent storage...');
 
 			// Try localStorage first (faster)
 			const storedScenarioId = localStorage.getItem(STORAGE_KEYS.SCENARIO);
 			const storedHistory = localStorage.getItem(STORAGE_KEYS.SCENARIO_HISTORY);
 
-			console.log('📦 Found stored values:', {
+			logger.info('📦 Found stored values:', {
 				scenario: storedScenarioId,
 				history: storedHistory ? 'exists' : 'none'
 			});
@@ -87,28 +88,28 @@ export class ScenarioStore {
 				// For now, we'll use the default onboarding scenario
 				// In a real app, you'd fetch the actual scenario from the database
 				this.selectedScenario = scenariosData[0];
-				console.log('🎯 Scenario loaded from storage:', storedScenarioId);
+				logger.debug('🎯 Scenario loaded from storage:', storedScenarioId);
 			} else {
 				// Default to onboarding scenario for non-logged-in users
 				this.selectedScenario = scenariosData[0];
-				console.log('🎯 No stored scenario found, using default onboarding');
+				logger.debug('🎯 No stored scenario found, using default onboarding');
 			}
 
 			// Set history from storage
 			if (storedHistory) {
 				try {
 					this.scenarioHistory = JSON.parse(storedHistory);
-					console.log(
+					logger.info(
 						'📚 Scenario history loaded from storage:',
 						this.scenarioHistory.length,
 						'items'
 					);
 				} catch (error) {
-					console.warn('⚠️ Failed to parse scenario history:', error);
+					logger.warn('⚠️ Failed to parse scenario history:', error);
 					this.scenarioHistory = [];
 				}
 			} else {
-				console.log('📚 No stored scenario history found');
+				logger.info('📚 No stored scenario history found');
 			}
 
 			// Set up watchers to persist changes (deferred to avoid $effect issues)
@@ -116,11 +117,11 @@ export class ScenarioStore {
 				this.setupPersistence();
 			}, 0);
 
-			console.log('✅ Scenario initialization complete');
+			logger.info('✅ Scenario initialization complete');
 		} else {
 			// Server-side: set default onboarding scenario
 			this.selectedScenario = scenariosData[0];
-			console.log('🖥️ Server-side scenario initialized with default onboarding');
+			logger.info('🖥️ Server-side scenario initialized with default onboarding');
 		}
 	};
 
@@ -128,7 +129,7 @@ export class ScenarioStore {
 	private setupPersistence = () => {
 		if (this.persistenceInitialized || !browser) return;
 
-		console.log('🔗 Setting up automatic scenario persistence...');
+		logger.info('🔗 Setting up automatic scenario persistence...');
 
 		try {
 			// Since we can't use $effect in stores outside component context,
@@ -136,9 +137,9 @@ export class ScenarioStore {
 			// This is actually more predictable and avoids the component lifecycle issues
 
 			this.persistenceInitialized = true;
-			console.log('✅ Scenario persistence setup complete (manual mode)');
+			logger.info('✅ Scenario persistence setup complete (manual mode)');
 		} catch (error) {
-			console.warn('⚠️ Failed to setup scenario persistence, will retry later:', error);
+			logger.warn('⚠️ Failed to setup scenario persistence, will retry later:', error);
 			// Reset flag so we can try again
 			this.persistenceInitialized = false;
 		}
@@ -155,9 +156,9 @@ export class ScenarioStore {
 			// Store in cookies (for SSR compatibility)
 			scenarioCookieUtils.setCookie(STORAGE_KEYS.SCENARIO, scenario.id);
 
-			console.log('💾 Scenario persisted:', scenario.id);
+			logger.info('💾 Scenario persisted:', scenario.id);
 		} catch (error) {
-			console.warn('⚠️ Failed to persist scenario:', error);
+			logger.warn('⚠️ Failed to persist scenario:', error);
 		}
 	};
 
@@ -168,9 +169,9 @@ export class ScenarioStore {
 		try {
 			// Store in localStorage
 			localStorage.setItem(STORAGE_KEYS.SCENARIO_HISTORY, JSON.stringify(history));
-			console.log('💾 Scenario history persisted:', history.length, 'items');
+			logger.info('💾 Scenario history persisted:', history.length, 'items');
 		} catch (error) {
-			console.warn('⚠️ Failed to persist scenario history:', error);
+			logger.warn('⚠️ Failed to persist scenario history:', error);
 		}
 	};
 
@@ -270,9 +271,9 @@ export class ScenarioStore {
 				// Clear cookies
 				scenarioCookieUtils.deleteCookie(STORAGE_KEYS.SCENARIO);
 
-				console.log('🗑️ Scenario storage cleared');
+				logger.info('🗑️ Scenario storage cleared');
 			} catch (error) {
-				console.warn('⚠️ Failed to clear scenario storage:', error);
+				logger.warn('⚠️ Failed to clear scenario storage:', error);
 			}
 		}
 	};
@@ -280,7 +281,7 @@ export class ScenarioStore {
 	// Bug #3 fix: Reset scenario when language changes
 	// This prevents invalid scenario/language combinations
 	resetToDefault = () => {
-		console.log('🎯 Resetting scenario to onboarding (language change detected)');
+		logger.debug('🎯 Resetting scenario to onboarding (language change detected)');
 		this.selectedScenario = scenariosData[0];
 
 		// Clear scenario from storage
@@ -288,9 +289,9 @@ export class ScenarioStore {
 			try {
 				localStorage.removeItem(STORAGE_KEYS.SCENARIO);
 				scenarioCookieUtils.deleteCookie(STORAGE_KEYS.SCENARIO);
-				console.log('💾 Scenario cleared from storage due to language change');
+				logger.info('💾 Scenario cleared from storage due to language change');
 			} catch (error) {
-				console.warn('⚠️ Failed to clear scenario storage on language change:', error);
+				logger.warn('⚠️ Failed to clear scenario storage on language change:', error);
 			}
 		}
 	};
@@ -318,7 +319,7 @@ export class ScenarioStore {
 	reloadFromStorage = () => {
 		if (browser) {
 			this.initializeFromStorage();
-			console.log('🔄 Scenario reloaded from storage');
+			logger.info('🔄 Scenario reloaded from storage');
 		}
 	};
 
@@ -363,7 +364,7 @@ export const usePersistentScenarios = () => {
 		// Debug storage state
 		debug: () => {
 			const state = scenarioStore.getCurrentState();
-			console.log('🔍 Current Scenario State:', state);
+			logger.debug('🔍 Current Scenario State:', state);
 			return state;
 		}
 	};

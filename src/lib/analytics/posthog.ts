@@ -1,3 +1,4 @@
+import { logger } from '$lib/logger';
 // 📊 PostHog Analytics Integration
 // Client-side analytics for user behavior and conversion tracking
 
@@ -26,7 +27,7 @@ export function initializePostHog(): void {
 
 	// Skip PostHog initialization on localhost
 	if (isLocalhost()) {
-		console.log('📊 PostHog disabled for localhost development');
+		logger.info('📊 PostHog disabled for localhost development');
 		return;
 	}
 
@@ -53,7 +54,7 @@ export function initializePostHog(): void {
 			}
 		});
 
-		console.log('📊 PostHog initialized');
+		logger.info('📊 PostHog initialized');
 	});
 }
 

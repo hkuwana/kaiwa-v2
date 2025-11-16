@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 import { userRepository } from '$lib/server/repositories';
@@ -36,13 +37,13 @@ export class FounderEmailService {
 	static async sendDay1Welcome(userId: string): Promise<boolean> {
 		try {
 			if (!env.RESEND_API_KEY || env.RESEND_API_KEY === 're_dummy_resend_key') {
-				console.warn('RESEND_API_KEY not configured, skipping email send');
+				logger.warn('RESEND_API_KEY not configured, skipping email send');
 				return true;
 			}
 
 			// Check email permissions from database
 			if (!(await EmailPermissionService.canReceiveFounderEmails(userId))) {
-				console.warn(
+				logger.warn(
 					`User ${userId} not eligible for marketing emails (user not found or opted out)`
 				);
 				return false;
@@ -73,14 +74,14 @@ export class FounderEmailService {
 			});
 
 			if (result.error) {
-				console.error('Failed to send Day 1 email:', result.error);
+				logger.error('Failed to send Day 1 email:', result.error);
 				return false;
 			}
 
-			console.log('Day 1 founder email sent:', result.data?.id);
+			logger.info('Day 1 founder email sent:', result.data?.id);
 			return true;
 		} catch (error) {
-			console.error('Error sending Day 1 email:', error);
+			logger.error('Error sending Day 1 email:', error);
 			return false;
 		}
 	}
@@ -96,7 +97,7 @@ export class FounderEmailService {
 
 			// Check email permissions from database
 			if (!(await EmailPermissionService.canReceiveFounderEmails(userId))) {
-				console.warn(
+				logger.warn(
 					`User ${userId} not eligible for marketing emails (user not found or opted out)`
 				);
 				return false;
@@ -126,14 +127,14 @@ export class FounderEmailService {
 			});
 
 			if (result.error) {
-				console.error('Failed to send Day 2 email:', result.error);
+				logger.error('Failed to send Day 2 email:', result.error);
 				return false;
 			}
 
-			console.log('Day 2 founder email sent:', result.data?.id);
+			logger.info('Day 2 founder email sent:', result.data?.id);
 			return true;
 		} catch (error) {
-			console.error('Error sending Day 2 email:', error);
+			logger.error('Error sending Day 2 email:', error);
 			return false;
 		}
 	}
@@ -149,7 +150,7 @@ export class FounderEmailService {
 
 			// Check email permissions from database
 			if (!(await EmailPermissionService.canReceiveFounderEmails(userId))) {
-				console.warn(
+				logger.warn(
 					`User ${userId} not eligible for marketing emails (user not found or opted out)`
 				);
 				return false;
@@ -177,14 +178,14 @@ export class FounderEmailService {
 			});
 
 			if (result.error) {
-				console.error('Failed to send Day 3 email:', result.error);
+				logger.error('Failed to send Day 3 email:', result.error);
 				return false;
 			}
 
-			console.log('Day 3 founder email sent:', result.data?.id);
+			logger.info('Day 3 founder email sent:', result.data?.id);
 			return true;
 		} catch (error) {
-			console.error('Error sending Day 3 email:', error);
+			logger.error('Error sending Day 3 email:', error);
 			return false;
 		}
 	}

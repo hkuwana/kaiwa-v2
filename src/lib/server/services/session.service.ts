@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 // src/lib/server/services/session.service.ts
 
 import { dev } from '$app/environment';
@@ -51,7 +52,7 @@ export function createAnonymousSession(
 	};
 
 	cookies.set(COOKIE_NAME, JSON.stringify(sessionData), COOKIE_OPTIONS);
-	console.log('Created new anonymous session:', sessionId);
+	logger.info('Created new anonymous session:', sessionId);
 	return sessionId;
 }
 
@@ -74,7 +75,7 @@ export function getAnonymousSessionData(cookies: Cookies): AnonymousSessionData 
 
 		return sessionData;
 	} catch (error) {
-		console.error('Failed to parse session cookie:', error);
+		logger.error('Failed to parse session cookie:', error);
 		return null;
 	}
 }
@@ -89,7 +90,7 @@ export function updateAnonymousSessionPreferences(
 	const currentSession = getAnonymousSessionData(cookies);
 
 	if (!currentSession) {
-		console.warn('No anonymous session found to update');
+		logger.warn('No anonymous session found to update');
 		return null;
 	}
 
@@ -103,7 +104,7 @@ export function updateAnonymousSessionPreferences(
 	};
 
 	cookies.set(COOKIE_NAME, JSON.stringify(updatedSession), COOKIE_OPTIONS);
-	console.log('Updated anonymous session:', currentSession.sessionId);
+	logger.info('Updated anonymous session:', currentSession.sessionId);
 	return updatedSession;
 }
 
@@ -134,9 +135,9 @@ export async function persistAnonymousSessionToDatabase(
 
 		// Note: Cookie clearing should be done by the caller after successful persistence
 
-		console.log('Anonymous session data persisted to database for user:', userId);
+		logger.info('Anonymous session data persisted to database for user:', userId);
 	} catch (error) {
-		console.error('Failed to persist anonymous session to database:', error);
+		logger.error('Failed to persist anonymous session to database:', error);
 		throw error;
 	}
 }
@@ -148,7 +149,7 @@ export async function loadUserPreferences(userId: string): Promise<UserPreferenc
 	try {
 		return await userPreferencesRepository.getPreferencesByUserId(userId);
 	} catch (error) {
-		console.error('Failed to load user preferences:', error);
+		logger.error('Failed to load user preferences:', error);
 		throw error;
 	}
 }
@@ -158,7 +159,7 @@ export async function loadUserPreferences(userId: string): Promise<UserPreferenc
  */
 export function clearAnonymousSession(cookies: Cookies): void {
 	cookies.delete(COOKIE_NAME, { path: '/' });
-	console.log('Anonymous session cleared');
+	logger.info('Anonymous session cleared');
 }
 
 /**

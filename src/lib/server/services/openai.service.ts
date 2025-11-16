@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 // src/lib/server/services/openai.service.ts
 
 import OpenAI from 'openai';
@@ -56,7 +57,7 @@ export async function createCompletion(
 		})
 	};
 
-	console.log('🤖 [OpenAI Service] Raw Request to OpenAI:', {
+	logger.info('🤖 [OpenAI Service] Raw Request to OpenAI:', {
 		timestamp: new Date().toISOString(),
 		requestPayload: JSON.stringify(requestPayload, null, 2),
 		messagesCount: messages.length,
@@ -68,7 +69,7 @@ export async function createCompletion(
 
 		const content = completion.choices[0]?.message?.content || '';
 
-		console.log('🤖 [OpenAI Service] Raw Response from OpenAI:', {
+		logger.info('🤖 [OpenAI Service] Raw Response from OpenAI:', {
 			timestamp: new Date().toISOString(),
 			fullResponse: JSON.stringify(completion, null, 2),
 			extractedContent: content,
@@ -88,7 +89,7 @@ export async function createCompletion(
 				: undefined
 		};
 	} catch (error) {
-		console.error('🚨 [OpenAI Service] API Error:', {
+		logger.error('🚨 [OpenAI Service] API Error:', {
 			timestamp: new Date().toISOString(),
 			error: error,
 			requestPayload: requestPayload,
@@ -126,7 +127,7 @@ export async function analyzeOnboardingConversation(
 		responseFormat: 'json'
 	});
 
-	console.log('🧠 [OpenAI Service] Onboarding analysis response received', {
+	logger.info('🧠 [OpenAI Service] Onboarding analysis response received', {
 		scenarioCategory: instructions.scenarioCategory,
 		focusAreas: instructions.focusAreas,
 		content: response.content
@@ -225,7 +226,7 @@ export function parseAndValidateJSON<T>(jsonString: string): T | null {
 
 		return JSON.parse(cleanJson);
 	} catch (error) {
-		console.error('Failed to parse JSON from OpenAI response:', error);
+		logger.error('Failed to parse JSON from OpenAI response:', error);
 		return null;
 	}
 }

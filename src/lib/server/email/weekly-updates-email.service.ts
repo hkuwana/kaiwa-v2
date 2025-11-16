@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 import { userSettingsRepository } from '$lib/server/repositories/user-settings.repository';
@@ -44,13 +45,13 @@ export class WeeklyUpdatesEmailService {
 		skipped: number;
 	}> {
 		if (!env.RESEND_API_KEY || env.RESEND_API_KEY === 're_dummy_resend_key') {
-			console.warn('RESEND_API_KEY not configured, skipping weekly digest send');
+			logger.warn('RESEND_API_KEY not configured, skipping weekly digest send');
 			return { sent: 0, skipped: 0 };
 		}
 
 		const subscribers = await userSettingsRepository.getProductUpdateSubscribers();
 		if (subscribers.length === 0) {
-			console.log('No weekly digest subscribers found.');
+			logger.info('No weekly digest subscribers found.');
 			return { sent: 0, skipped: 0 };
 		}
 
@@ -96,7 +97,7 @@ export class WeeklyUpdatesEmailService {
 			});
 
 			if (result.error) {
-				console.error('Failed to send weekly digest to user', user.id, result.error);
+				logger.error('Failed to send weekly digest to user', user.id, result.error);
 				skipped++;
 				continue;
 			}
@@ -141,13 +142,13 @@ export class WeeklyUpdatesEmailService {
 		followUp: FeedbackFollowUpItem
 	): Promise<boolean> {
 		if (!env.RESEND_API_KEY || env.RESEND_API_KEY === 're_dummy_resend_key') {
-			console.warn('RESEND_API_KEY not configured, skipping direct follow-up send');
+			logger.warn('RESEND_API_KEY not configured, skipping direct follow-up send');
 			return true;
 		}
 
 		const user = await userRepository.findUserById(userId);
 		if (!user || !user.email) {
-			console.warn(`User ${userId} not found for feedback follow-up.`);
+			logger.warn(`User ${userId} not found for feedback follow-up.`);
 			return false;
 		}
 
@@ -163,7 +164,7 @@ export class WeeklyUpdatesEmailService {
 		});
 
 		if (result.error) {
-			console.error('Failed to send feedback follow-up:', result.error);
+			logger.error('Failed to send feedback follow-up:', result.error);
 			return false;
 		}
 

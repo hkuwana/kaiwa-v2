@@ -1,3 +1,4 @@
+import { logger } from '$lib/logger';
 // src/lib/stores/custom-scenarios.store.svelte.ts
 // Reactive store coordinating user-authored scenario workflow
 
@@ -79,7 +80,7 @@ export class CustomScenarioStore {
 			const response = await listUserScenarios(visibility);
 			this.applyListResponse(response);
 		} catch (error) {
-			console.error('Failed to load user scenarios', error);
+			logger.error('Failed to load user scenarios', error);
 		} finally {
 			this.isLoading = false;
 		}
@@ -105,7 +106,7 @@ export class CustomScenarioStore {
 			};
 			return response;
 		} catch (error) {
-			console.warn('Author draft failed, falling back to local generator', error);
+			logger.warn('Author draft failed, falling back to local generator', error);
 			const draft = this.createLocalDraft(input);
 			this.draft = {
 				status: 'ready',
@@ -145,7 +146,7 @@ export class CustomScenarioStore {
 		try {
 			summary = await createScenario(payload);
 		} catch (error) {
-			console.warn('Failed to save custom scenario remotely, storing locally instead', error);
+			logger.warn('Failed to save custom scenario remotely, storing locally instead', error);
 			summary = this.createLocalSummary(payload);
 		}
 
@@ -171,7 +172,7 @@ export class CustomScenarioStore {
 				this.decrementUsage(scenario.visibility);
 			}
 		} catch (error) {
-			console.error('Failed to delete custom scenario', error);
+			logger.error('Failed to delete custom scenario', error);
 			throw error;
 		}
 	};

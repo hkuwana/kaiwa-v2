@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 
@@ -18,7 +19,7 @@ export class EmailService {
 		try {
 			// Check if we have a valid API key
 			if (!env.RESEND_API_KEY || env.RESEND_API_KEY === 're_dummy_resend_key') {
-				console.warn('RESEND_API_KEY not configured, skipping email send');
+				logger.warn('RESEND_API_KEY not configured, skipping email send');
 				return true; // Return true to not block user flow in development
 			}
 
@@ -30,14 +31,14 @@ export class EmailService {
 			});
 
 			if (result.error) {
-				console.error('Failed to send verification email:', result.error);
+				logger.error('Failed to send verification email:', result.error);
 				return false;
 			}
 
-			console.log('Verification email sent successfully:', result.data?.id);
+			logger.info('Verification email sent successfully:', result.data?.id);
 			return true;
 		} catch (error) {
-			console.error('Error sending verification email:', error);
+			logger.error('Error sending verification email:', error);
 			return false;
 		}
 	}

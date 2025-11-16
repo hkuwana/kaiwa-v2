@@ -1,3 +1,4 @@
+import { logger } from '$lib/logger';
 import { browser } from '$app/environment';
 import type { UserPreferences } from '$lib/server/db/types';
 import {
@@ -216,7 +217,7 @@ export class UserPreferencesStore {
 				}
 			}
 		} catch (error) {
-			console.warn('Failed to load preferences from storage:', error);
+			logger.warn('Failed to load preferences from storage:', error);
 		}
 
 		// Fallback to dummy preferences
@@ -230,7 +231,7 @@ export class UserPreferencesStore {
 		try {
 			localStorage.setItem(STORAGE_KEY, JSON.stringify(this.preferences));
 		} catch (error) {
-			console.warn('Failed to save preferences to storage:', error);
+			logger.warn('Failed to save preferences to storage:', error);
 		}
 	}
 

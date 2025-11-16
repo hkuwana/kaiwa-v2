@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 import { json } from '@sveltejs/kit';
 import { analysisQuotaService } from '$lib/server/services/analysis-quota.service';
 import { userUsageRepository } from '$lib/server/repositories/user-usage.repository';
@@ -64,7 +65,7 @@ export const POST = async ({ request, locals }) => {
 			}
 		});
 	} catch (error) {
-		console.error('Failed to record analysis usage:', error);
+		logger.error('Failed to record analysis usage:', error);
 		return json({ error: 'Failed to record analysis usage' }, { status: 500 });
 	}
 };

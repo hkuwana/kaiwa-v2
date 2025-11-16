@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
@@ -38,13 +39,13 @@ export class EmailReminderService {
 		try {
 			// Check if we have a valid API key
 			if (!env.RESEND_API_KEY || env.RESEND_API_KEY === 're_dummy_resend_key') {
-				console.warn('RESEND_API_KEY not configured, skipping email send');
+				logger.warn('RESEND_API_KEY not configured, skipping email send');
 				return true;
 			}
 
 			// Check email permissions from database
 			if (!(await EmailPermissionService.canReceivePracticeReminders(userId))) {
-				console.warn(
+				logger.warn(
 					`User ${userId} not eligible for daily reminders (user not found or opted out)`
 				);
 				return false;
@@ -53,14 +54,14 @@ export class EmailReminderService {
 			// Get user data
 			const user = await userRepository.findUserById(userId);
 			if (!user) {
-				console.warn(`User ${userId} not found`);
+				logger.warn(`User ${userId} not found`);
 				return false;
 			}
 
 			// Get practice data
 			const reminderData = await this.getPracticeReminderData(userId);
 			if (!reminderData) {
-				console.warn(`No practice data found for user ${userId}`);
+				logger.warn(`No practice data found for user ${userId}`);
 				return false;
 			}
 
@@ -74,14 +75,14 @@ export class EmailReminderService {
 			});
 
 			if (result.error) {
-				console.error('Failed to send practice reminder:', result.error);
+				logger.error('Failed to send practice reminder:', result.error);
 				return false;
 			}
 
-			console.log('Practice reminder sent successfully:', result.data?.id);
+			logger.info('Practice reminder sent successfully:', result.data?.id);
 			return true;
 		} catch (error) {
-			console.error('Error sending practice reminder:', error);
+			logger.error('Error sending practice reminder:', error);
 			return false;
 		}
 	}
@@ -133,7 +134,7 @@ export class EmailReminderService {
 				survivalPhrase: survivalPhrase || undefined
 			};
 		} catch (error) {
-			console.error('Error getting practice reminder data:', error);
+			logger.error('Error getting practice reminder data:', error);
 			return null;
 		}
 	}
@@ -253,7 +254,7 @@ export class EmailReminderService {
 			// Return top 2 recommendations
 			return sortedScenarios.slice(0, 2);
 		} catch (error) {
-			console.error('Error getting recommended scenarios:', error);
+			logger.error('Error getting recommended scenarios:', error);
 			return [];
 		}
 	}
@@ -289,7 +290,7 @@ export class EmailReminderService {
 
 			return streak;
 		} catch (error) {
-			console.error('Error calculating streak:', error);
+			logger.error('Error calculating streak:', error);
 			return 0;
 		}
 	}
@@ -505,10 +506,10 @@ export class EmailReminderService {
 				await new Promise((resolve) => setTimeout(resolve, 100));
 			}
 
-			console.log(`Bulk reminders sent: ${sent} successful, ${failed} failed`);
+			logger.info(`Bulk reminders sent: ${sent} successful, ${failed} failed`);
 			return { sent, failed };
 		} catch (error) {
-			console.error('Error sending bulk reminders:', error);
+			logger.error('Error sending bulk reminders:', error);
 			return { sent: 0, failed: 0 };
 		}
 	}
@@ -535,7 +536,7 @@ export class EmailReminderService {
 				code: targetLanguage.code
 			};
 		} catch (error) {
-			console.error('Error fetching target language:', error);
+			logger.error('Error fetching target language:', error);
 			return { name: '', code: '' };
 		}
 	}

@@ -851,6 +851,46 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 
 ---
 
-**Last Review**: November 12, 2025
+## 🔧 Technical Infrastructure Improvements
+
+### ✅ Structured Logging Implementation (Completed: November 16, 2025)
+
+**Problem**:
+- 100+ console.log statements in production code exposing sensitive data
+- No structured logging for production debugging
+- Performance impact from excessive logging
+- Difficult to debug production issues without proper log levels
+
+**Solution Implemented**:
+- Created server-side logger (`src/lib/server/logger.ts`)
+  - JSON structured logging in production
+  - Pretty console output in development
+  - Configurable log levels (debug, info, warn, error)
+  - Context support for additional metadata
+- Created client-side logger (`src/lib/logger.ts`)
+  - Suppresses debug/info logs in production
+  - Only warns/errors shown to users in production
+- Replaced console statements across:
+  - All server services (stripe, email, payment, usage, etc.)
+  - All repositories
+  - All API routes (/api/analysis/*, /api/features/*, /api/cron/*)
+  - Server hooks
+  - Database utilities
+  - All stores (audio, conversation, user, settings, etc.)
+
+**Benefits**:
+- Reduced production noise (client only shows warnings/errors)
+- Structured logs ready for log aggregation tools
+- Better debugging with context metadata
+- Consistent logging API across codebase
+- Improved security (no sensitive data in client logs)
+
+**Files Modified**: 64 files, 999 insertions, 723 deletions
+
+**Commit**: `bb9520b` - Replace production console.log with structured logging
+
+---
+
+**Last Review**: November 16, 2025
 **Next Review**: November 17, 2025
 **Owner**: Hiro Kuwana

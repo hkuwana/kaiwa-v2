@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 import { emailVerificationRepository, userRepository } from '$lib/server/repositories';
 import { EmailService } from './email-service';
 
@@ -53,7 +54,7 @@ export class EmailVerificationService {
 
 			return { success: true, code };
 		} catch (error) {
-			console.error('Error creating verification code:', error);
+			logger.error('Error creating verification code:', error);
 			return {
 				success: false,
 				error: 'Failed to create verification code'
@@ -98,7 +99,7 @@ export class EmailVerificationService {
 
 			return { success: true };
 		} catch (error) {
-			console.error('Error verifying code:', error);
+			logger.error('Error verifying code:', error);
 			return {
 				success: false,
 				error: 'Failed to verify code'
@@ -115,7 +116,7 @@ export class EmailVerificationService {
 				await emailVerificationRepository.findPendingVerificationByUserId(userId);
 			return !!verification;
 		} catch (error) {
-			console.error('Error checking pending verification:', error);
+			logger.error('Error checking pending verification:', error);
 			return false;
 		}
 	}
@@ -146,7 +147,7 @@ export class EmailVerificationService {
 
 			return await this.createAndSendVerificationCode(userId, email, displayName);
 		} catch (error) {
-			console.error('Error resending verification code:', error);
+			logger.error('Error resending verification code:', error);
 			return {
 				success: false,
 				error: 'Failed to resend verification code'

@@ -1,3 +1,4 @@
+import { logger } from './logger';
 // 📊 PostHog Server-Side Analytics
 // Server-side analytics for SSR page views and API usage tracking
 
@@ -102,7 +103,7 @@ export async function getServerFeatureFlag(
 	try {
 		return await posthog.getFeatureFlag(flag, userId);
 	} catch (error) {
-		console.error('Error getting feature flag:', error);
+		logger.error('Error getting feature flag:', error);
 		return undefined;
 	}
 }
@@ -177,7 +178,7 @@ export async function flushPostHog(): Promise<void> {
 	try {
 		await posthog.shutdown();
 	} catch (error) {
-		console.error('Error flushing PostHog:', error);
+		logger.error('Error flushing PostHog:', error);
 	}
 }
 

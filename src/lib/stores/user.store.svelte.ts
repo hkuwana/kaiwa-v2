@@ -1,3 +1,4 @@
+import { logger } from '$lib/logger';
 import { GUEST_USER } from '$lib/data/user';
 import type { User, UserTier } from '$lib/server/db/types';
 import { SvelteDate } from 'svelte/reactivity';
@@ -5,7 +6,7 @@ import { browser } from '$app/environment';
 
 // Environment-based logging
 const isDev = browser && typeof window !== 'undefined' && window.location.hostname === 'localhost';
-const log = (...args: unknown[]) => isDev && console.log(...args);
+const log = (...args: unknown[]) => isDev && logger.info(...args);
 
 // Infer the User type from the database schema
 
@@ -108,18 +109,18 @@ export class UserManagerStore {
 				const tier = subscription.effectiveTier as UserTier;
 				if (['free', 'plus', 'premium'].includes(tier)) {
 					this._state.effectiveTier = tier;
-					console.log(
+					logger.info(
 						`👤 Store synced: User ${user.displayName || user.username} with tier ${tier}`
 					);
 				} else {
 					this._state.effectiveTier = 'free';
-					console.log(
+					logger.info(
 						`👤 Store synced: User ${user.displayName || user.username} with invalid tier "${subscription.effectiveTier}", defaulting to free`
 					);
 				}
 			} else {
 				this._state.effectiveTier = 'free';
-				console.log(
+				logger.info(
 					`👤 Store synced: User ${user.displayName || user.username} with free tier (no subscription)`
 				);
 			}
