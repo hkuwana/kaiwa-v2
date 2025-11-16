@@ -1220,15 +1220,14 @@ export class ConversationStore {
 
 		this.lastInstructions = sessionConfig.instructions;
 
-		// With VAD enabled, audio is always flowing - no need for manual start
-		// With PTT, user must press button to start
-		this.waitingForUserToStart = this.audioInputMode === 'ptt';
+		// Both VAD and PTT modes need initial greeting to ensure instructions are in response payload
+		this.waitingForUserToStart = true;
 		logger.info(
 			`🎵 ConversationStore: ${this.audioInputMode === 'vad' ? 'VAD mode enabled - ready for conversation' : 'PTT mode enabled - press to speak'}`
 		);
 
 		// In PTT mode, trigger initial greeting immediately since user needs to press to speak
-		// In VAD mode, wait for user to start speaking (greeting triggered by first user input)
+		// In VAD mode, greeting is triggered after session.updated confirmation in enableVadAudioWhenReady()
 		if (this.audioInputMode === 'ptt' && this.waitingForUserToStart) {
 			logger.info('🎵 ConversationStore: PTT mode - triggering initial greeting automatically');
 			this.triggerInitialGreeting();
@@ -1304,6 +1303,13 @@ export class ConversationStore {
 			if (track && this.audioStream) {
 				track.enabled = true;
 				logger.info('🎵 ConversationStore: Enabled audio track for VAD mode (after session.updated)');
+
+				// Trigger initial greeting in VAD mode (same as PTT mode)
+				// This ensures the first response includes instructions in the response payload
+				if (this.waitingForUserToStart) {
+					logger.info('🎵 ConversationStore: VAD mode - triggering initial greeting with instructions');
+					this.triggerInitialGreeting();
+				}
 			}
 		};
 
