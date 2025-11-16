@@ -1,7 +1,7 @@
 <!-- src/lib/features/scenarios/components/TopScenariosQuickPicker.svelte -->
 <script lang="ts">
 	import { scenariosData, type Scenario } from '$lib/data/scenarios';
-	import { getDifficultyLevel } from '$lib/utils/cefr';
+import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
 	import { goto } from '$app/navigation';
 
 	interface Props {
@@ -44,12 +44,13 @@
 		expert: 'accent'
 	};
 
-	const roleDisplayNames: Record<string, string> = {
-		tutor: 'Guided Practice',
-		character: 'Roleplay',
-		friendly_chat: 'Casual Chat',
-		expert: 'Expert Advice'
-	};
+const roleDisplayNames: Record<string, string> = {
+	tutor: 'Guided Practice',
+	character: 'Roleplay',
+	friendly_chat: 'Casual Chat',
+	expert: 'Expert Advice'
+};
+const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 
 	function getScenarioMeta(scenario: Scenario) {
 		const rating = scenario.difficultyRating ?? 1;
@@ -114,13 +115,30 @@
 						{scenario.description}
 					</p>
 
+					{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
 					<!-- Difficulty -->
-					<div class="flex items-center gap-2">
-						<span class="badge badge-{meta.color} badge-xs">
-							{meta.label}
-						</span>
+					<div class="flex flex-wrap items-center gap-2 text-xs font-medium text-base-content/80">
+						<div
+							class="flex items-center gap-1"
+							aria-label={`${meta.label} difficulty`}
+						>
+							{#each DIFFICULTY_SEGMENTS as segment}
+								<span
+									class="h-1.5 w-4 rounded-full bg-base-200 transition-colors"
+									class:bg-success={segment <= difficultyTier && meta.color === 'success'}
+									class:bg-warning={segment <= difficultyTier && meta.color === 'warning'}
+									class:bg-error={segment <= difficultyTier && meta.color === 'error'}
+								></span>
+							{/each}
+						</div>
+						<span>{meta.label}</span>
 						{#if scenario.cefrLevel}
-							<span class="badge badge-outline badge-xs">{scenario.cefrLevel}</span>
+							<span class="text-base-content/40">·</span>
+							<span
+								class="rounded-full border border-base-content/20 px-2 py-0.5 text-[11px] font-semibold tracking-tight"
+							>
+								{scenario.cefrLevel}
+							</span>
 						{/if}
 					</div>
 
