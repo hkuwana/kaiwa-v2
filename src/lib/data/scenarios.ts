@@ -7,7 +7,7 @@ export type { Scenario };
 export const scenariosData: Scenario[] = [
 	{
 		id: 'beginner-confidence-bridge',
-		title: 'Zero to Hero',
+		title: 'Your First Conversation',
 		description:
 			'Start in your native language, then build confidence with 2–3 key phrases inside a real micro‑interaction you can use today.',
 		role: 'tutor',
@@ -60,7 +60,7 @@ Coach warmly. Avoid lists. Build confidence in ~5 minutes.`,
 	},
 	{
 		id: 'onboarding-welcome',
-		title: 'Phrase Sandbox Practice',
+		title: 'Open Practice Space',
 		description: 'Practice any phrases you want in your target language in a safe, judgment-free space.',
 		role: 'tutor',
 		difficulty: 'beginner',
@@ -122,61 +122,8 @@ This is a judgment-free zone. No pressure, just practice.`,
 		cefrRecommendation: null
 	},
 	{
-		id: 'clinic-night-triage',
-		title: 'Midnight Pain Triage Visit',
-		description: 'Describe sudden pain symptoms during a late-night urgent care visit.',
-		role: 'character',
-		difficulty: 'intermediate',
-		difficultyRating: 4,
-		cefrLevel: 'B1',
-		cefrRecommendation:
-			'Perfect for intermediate learners (B1) who want to practice medical vocabulary and emergency communication',
-		learningGoal:
-			'Explain acute pain clearly, answer follow-up medical questions, and confirm the treatment plan you receive',
-		instructions: `You woke up with intense pain and came straight to urgent care. Communicate clearly under stress:
-
-1. **Lead with the pain** – location, intensity (0-10), when it began, and what you were doing.
-2. **Answer triage follow-ups** – medication history, recent changes, what makes it better or worse, related symptoms.
-3. **Clarify the plan** – repeat back next steps (tests, medication, rest), ask for spelling or dosage if needed.
-4. **Stay calm but urgent** – breathe, advocate for yourself, and keep answers concise so the nurse captures everything.`,
-		context:
-			'Fluorescent lights, rain still on your jacket, and a calm nurse ushering you into a small exam room.',
-		expectedOutcome:
-			'Leave with a clear explanation of what happens next and pain instructions you can repeat back',
-		learningObjectives: [
-			'symptom vocabulary',
-			'pain scale language',
-			'timeline narration',
-			'medication discussion',
-			'clarifying instructions',
-			'anxiety regulation',
-			'advocating for care',
-			'urgent escalation language'
-		],
-		comfortIndicators: {
-			confidence: 2,
-			engagement: 4,
-			understanding: 3
-		},
-		persona: {
-			title: 'Night-Shift Triage Nurse',
-			nameTemplate: 'Nurse {SPEAKER_NAME}',
-			setting: 'Urgent care exam room just after midnight.',
-			introPrompt:
-				'Introduce yourself as the triage nurse on duty, verify the patient name, and begin calmly collecting symptoms and vital details.',
-			stakes:
-				'If you miss critical information, the patient may not receive the right treatment in time.'
-		},
-		createdByUserId: null,
-		visibility: 'public' as const,
-		usageCount: 0,
-		isActive: true,
-		createdAt: new Date(),
-		updatedAt: new Date()
-	},
-	{
 		id: 'family-dinner-introduction',
-		title: "Partner's Parents Dinner",
+		title: "Meeting Your Partner's Parents",
 		description: "Earn trust over a meal with your partner's parents.",
 		role: 'character',
 		difficulty: 'intermediate',
@@ -221,7 +168,7 @@ This is a judgment-free zone. No pressure, just practice.`,
 	},
 	{
 		id: 'inlaws-family-friends-intro',
-		title: "Sibling's Family Friends Mixer",
+		title: 'Meeting the Family Friends',
 		description:
 			"Meet family friends for the first time as your partner's sibling explains the web of relationships.",
 		role: 'character',
@@ -273,8 +220,62 @@ This is a judgment-free zone. No pressure, just practice.`,
 		updatedAt: new Date()
 	},
 	{
+		id: 'clinic-night-triage',
+		title: 'Emergency Room Visit',
+		description: 'Explain urgent symptoms to a triage nurse during a late-night hospital visit.',
+		role: 'character',
+		difficulty: 'intermediate',
+		difficultyRating: 5,
+		cefrLevel: 'B1',
+		cefrRecommendation:
+			'Ideal for strong A2–B1 learners who need to describe urgent medical issues calmly under stress',
+		learningGoal:
+			'Describe symptoms, severity, and timelines clearly enough for triage staff to prioritize care while staying composed',
+		instructions: `You are the triage nurse on the night shift. Keep things calm and clear:
+
+1. **Establish control quickly** – ask for name, symptoms, onset, and current pain level. Paraphrase back what you heard.
+2. **Probe with short follow-ups** – "When did it begin?", "Does it get worse when you move?", "Any medication?" Focus on severity, duration, and triggers.
+3. **Model clarity** – speak in the target language with short, clear sentences. If the learner asks, slow down or repeat without sounding annoyed.
+4. **Teach the repair phrases** – prompt them to use lines like "Could you repeat that slowly?" or "It's a seven out of ten when I breathe deeply."
+5. **Close the loop** – once you have enough info, explain the next step (vitals, tests, waiting area) so they feel taken care of.
+
+Stay warm but efficient. The learner should feel heard, understood, and guided even if their language breaks down.`,
+		context:
+			"A fluorescent emergency room triage desk just after midnight. You're balancing urgency with calm focus as the learner explains what's wrong.",
+		expectedOutcome:
+			'The nurse captures symptom, duration, and pain scale details and the learner feels confident they communicated clearly enough to get help',
+		learningObjectives: [
+			'urgent symptom vocabulary',
+			'describing onset and duration',
+			'using a pain scale',
+			'requesting repetition or slower speech',
+			'handling rapid-fire medical questions',
+			'staying calm while advocating for care'
+		],
+		comfortIndicators: {
+			confidence: 2,
+			engagement: 4,
+			understanding: 3
+		},
+		persona: {
+			title: 'Emergency Room Triage Nurse',
+			nameTemplate: 'Nurse {SPEAKER_NAME}',
+			setting: 'Hospital intake counter with vitals monitors humming behind you.',
+			introPrompt:
+				'Greet the patient, gather symptoms, duration, and severity, and ask concise follow-ups. Slow down or repeat when they struggle, then confirm the next step for care.',
+			stakes:
+				'If you miss key details, the patient could be mis-prioritized and care would be delayed.'
+		},
+		createdByUserId: null,
+		visibility: 'public' as const,
+		usageCount: 0,
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date()
+	},
+	{
 		id: 'first-date-drinks',
-		title: 'First Date Drinks',
+		title: 'Dinner & Drinks Date',
 		description: 'Break the ice and get to know someone on a first date.',
 		role: 'friendly_chat',
 		difficulty: 'intermediate',
@@ -308,7 +309,7 @@ This is a judgment-free zone. No pressure, just practice.`,
 	},
 	{
 		id: 'relationship-apology',
-		title: 'Relationship Apology',
+		title: 'Repairing the Relationship',
 		description: 'Repair trust after a misunderstanding with your partner.',
 		role: 'character',
 		difficulty: 'intermediate',
@@ -355,7 +356,7 @@ This is a judgment-free zone. No pressure, just practice.`,
 	},
 	{
 		id: 'vulnerable-heart-to-heart',
-		title: 'Sharing What You Really Feel',
+		title: 'Opening Up About Feelings',
 		description: 'Express your fears, hopes, or needs to someone you love.',
 		role: 'character',
 		difficulty: 'intermediate',
@@ -399,7 +400,7 @@ This is a judgment-free zone. No pressure, just practice.`,
 	},
 	{
 		id: 'family-milestone-toast',
-		title: 'Family Celebration Speech',
+		title: 'Family Celebration Toast',
 		description: 'Deliver a heartfelt toast at a wedding, birthday, or reunion.',
 		role: 'character',
 		difficulty: 'intermediate',
@@ -445,7 +446,7 @@ This is a judgment-free zone. No pressure, just practice.`,
 	},
 	{
 		id: 'breaking-important-news',
-		title: 'Sharing Life Changes',
+		title: 'Sharing Big Life News',
 		description: 'Tell your family about a major decision: moving, career change, or relationship.',
 		role: 'character',
 		difficulty: 'intermediate',

@@ -1,7 +1,7 @@
 <!-- src/lib/components/ScenarioSelector.svelte -->
 <script lang="ts">
 	import { scenariosData, type Scenario } from '$lib/data/scenarios';
-	import { getDifficultyLevel } from '$lib/utils/cefr';
+import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
 	import { onMount } from 'svelte';
 	import ScenarioCreatorModal from './ScenarioCreatorModal.svelte';
 	import {
@@ -44,12 +44,13 @@
 		expert: 'accent'
 	};
 
-	const roleDisplayNames: Record<ScenarioRole, string> = {
-		tutor: 'Tutor',
-		character: 'Roleplay',
-		friendly_chat: 'Friendly Chat',
-		expert: 'Expert'
-	};
+const roleDisplayNames: Record<ScenarioRole, string> = {
+	tutor: 'Tutor',
+	character: 'Roleplay',
+	friendly_chat: 'Friendly Chat',
+	expert: 'Expert'
+};
+const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 
 	let isOpen = $state(false);
 	let isCreatorOpen = $state(false);
@@ -341,7 +342,34 @@
 								class:text-warning={meta.color === 'warning'}
 								class:text-error={meta.color === 'error'}
 							></span>
-							<span class="flex-1 truncate text-sm font-medium">{scenario.title}</span>
+							<div class="flex flex-1 flex-col">
+								<span class="truncate text-sm font-medium">{scenario.title}</span>
+								{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
+								<div class="mt-0.5 flex items-center gap-1 text-[11px] opacity-70">
+									<div
+										class="flex items-center gap-0.5"
+										aria-label={`${meta.label} difficulty`}
+									>
+										{#each DIFFICULTY_SEGMENTS as segment}
+											<span
+												class="h-1 w-4 rounded-full bg-base-200 transition-colors"
+												class:bg-success={segment <= difficultyTier && meta.color === 'success'}
+												class:bg-warning={segment <= difficultyTier && meta.color === 'warning'}
+												class:bg-error={segment <= difficultyTier && meta.color === 'error'}
+											></span>
+										{/each}
+									</div>
+									<span>{meta.label}</span>
+									{#if scenario.cefrLevel}
+										<span>·</span>
+										<span
+											class="rounded-full border border-base-content/30 px-1.5 py-px text-[10px] font-semibold"
+										>
+											{scenario.cefrLevel}
+										</span>
+									{/if}
+								</div>
+							</div>
 
 							{#if isLocked}
 								<span class="ml-2 icon-[mdi--lock] h-4 w-4 text-base-content/40"></span>

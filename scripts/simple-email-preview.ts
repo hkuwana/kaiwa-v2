@@ -115,13 +115,13 @@ function getPracticeReminderEmail() {
 	<p>I see you signed up but haven't had a chance to try a conversation yet. Thought I'd share a couple scenarios:</p>
 
 	<div class="scenario">
-		<strong>Partner's Parents Dinner</strong><br>
+		<strong>Meeting Your Partner's Parents</strong><br>
 		Earn trust over a meal with your partner's parents.<br>
 		<a href="${appUrl}/?scenario=family-dinner-introduction">→ Try it</a>
 	</div>
 
 	<div class="scenario">
-		<strong>Relationship Apology</strong><br>
+		<strong>Repairing the Relationship</strong><br>
 		Repair trust after a misunderstanding with your partner.<br>
 		<a href="${appUrl}/?scenario=relationship-apology">→ Try it</a>
 	</div>

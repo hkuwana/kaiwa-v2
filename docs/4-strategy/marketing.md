@@ -15,11 +15,11 @@ The real pain isn’t grammar — it’s relying on subtitles and translation ap
 
 ### Scenario Priorities (live in app)
 
-- Partner’s Parents Dinner
-- Relationship Apology
-- Family Celebration Speech (toast)
-- Sharing Life Changes (moving, career)
-- First Date Drinks (lightweight rapport)
+- Meeting Your Partner’s Parents
+- Repairing the Relationship
+- Family Celebration Toast (toast)
+- Sharing Big Life News (moving, career)
+- Dinner & Drinks Date (lightweight rapport)
 
 ### Copy Principles (site, emails, posts)
 

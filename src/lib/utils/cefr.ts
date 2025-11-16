@@ -89,6 +89,12 @@ export function getDifficultyLevel(rating?: number | null): {
 	}
 }
 
+export function getDifficultyTier(rating?: number | null): 1 | 2 | 3 {
+	if (!rating || rating <= 2) return 1;
+	if (rating <= 4) return 2;
+	return 3;
+}
+
 export function formatCefrBadge(
 	level: CEFRLevel,
 	options: { withDescriptor?: boolean } = {}

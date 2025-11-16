@@ -1,19 +1,20 @@
 <script lang="ts">
 	import { scenariosData, type Scenario } from '$lib/data/scenarios';
-	import { getDifficultyLevel } from '$lib/utils/cefr';
+import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
 	import { goto } from '$app/navigation';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
 	import { track } from '$lib/analytics/posthog';
 
-	const user = userManager.user;
+const user = userManager.user;
 
-	// Top 3 featured scenarios
-	const TOP_SCENARIOS = [
-		'beginner-confidence-bridge', // Zero to Hero
-		'first-date-drinks', // First Date Drinks
-		'family-dinner-introduction' // Partner's Parents Dinner
-	];
+// Top 3 featured scenarios
+const TOP_SCENARIOS = [
+	'beginner-confidence-bridge', // Your First Conversation
+	'first-date-drinks', // Dinner & Drinks Date
+	'family-dinner-introduction' // Meeting Your Partner's Parents
+];
+const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 
 	// Filter to only show public scenarios
 	const publicScenarios = scenariosData.filter(
@@ -162,13 +163,30 @@
 									{scenario.description}
 								</p>
 
-								<!-- Difficulty badge -->
-								<div class="flex items-center gap-2">
-									<span class="badge badge-{meta.color} badge-sm">
-										{meta.label}
-									</span>
+								{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
+								<!-- Difficulty indicator -->
+								<div class="flex flex-wrap items-center gap-2 text-xs font-medium text-base-content/80">
+									<div
+										class="flex items-center gap-1"
+										aria-label={`${meta.label} difficulty`}
+									>
+										{#each DIFFICULTY_SEGMENTS as segment}
+											<span
+												class="h-1.5 w-5 rounded-full bg-base-200 transition-colors"
+												class:bg-success={segment <= difficultyTier && meta.color === 'success'}
+												class:bg-warning={segment <= difficultyTier && meta.color === 'warning'}
+												class:bg-error={segment <= difficultyTier && meta.color === 'error'}
+											></span>
+										{/each}
+									</div>
+									<span>{meta.label}</span>
 									{#if scenario.cefrLevel}
-										<span class="badge badge-outline badge-sm">{scenario.cefrLevel}</span>
+										<span class="text-base-content/40">·</span>
+										<span
+											class="rounded-full border border-base-content/20 px-2 py-0.5 text-[11px] font-semibold tracking-tight"
+										>
+											{scenario.cefrLevel}
+										</span>
 									{/if}
 								</div>
 
@@ -215,13 +233,30 @@
 									{scenario.description}
 								</p>
 
-								<!-- Difficulty badge -->
-								<div class="flex items-center gap-2">
-									<span class="badge badge-{meta.color} badge-sm">
-										{meta.label}
-									</span>
+								{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
+								<!-- Difficulty indicator -->
+								<div class="flex flex-wrap items-center gap-2 text-xs font-medium text-base-content/80">
+									<div
+										class="flex items-center gap-1"
+										aria-label={`${meta.label} difficulty`}
+									>
+										{#each DIFFICULTY_SEGMENTS as segment}
+											<span
+												class="h-1.5 w-5 rounded-full bg-base-200 transition-colors"
+												class:bg-success={segment <= difficultyTier && meta.color === 'success'}
+												class:bg-warning={segment <= difficultyTier && meta.color === 'warning'}
+												class:bg-error={segment <= difficultyTier && meta.color === 'error'}
+											></span>
+										{/each}
+									</div>
+									<span>{meta.label}</span>
 									{#if scenario.cefrLevel}
-										<span class="badge badge-outline badge-sm">{scenario.cefrLevel}</span>
+										<span class="text-base-content/40">·</span>
+										<span
+											class="rounded-full border border-base-content/20 px-2 py-0.5 text-[11px] font-semibold tracking-tight"
+										>
+											{scenario.cefrLevel}
+										</span>
 									{/if}
 								</div>
 							</div>
