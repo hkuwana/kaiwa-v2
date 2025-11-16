@@ -93,6 +93,7 @@ export class ConversationStore {
 	private audioStream: MediaStream | null = null;
 	private messageUnsub: (() => void) | null = null;
 	private sessionReadyUnsub: (() => void) | null = null;
+	private vadUnsub: (() => void) | null = null;
 	private timer: ConversationTimerStore = $state(createConversationTimerStore('free'));
 	private currentOptions: Partial<UserPreferences> | null = null;
 	// Mirror + sanitize tracking
@@ -951,6 +952,30 @@ export class ConversationStore {
 			this.handleRealtimeSessionReady();
 		});
 
+		// Subscribe to VAD speech detection events
+		try {
+			this.vadUnsub?.();
+		} catch {
+			logger.info('an error with VAD listener cleanup');
+		}
+		this.vadUnsub = realtimeOpenAI.onVADEvent((ev) => {
+			if (ev.type === 'speech_started') {
+				this.speechDetected = true;
+				this.userSpeechStartTime = ev.audioStartMs || Date.now();
+				logger.info('🎙️ VAD: User started speaking', {
+					audioStartMs: ev.audioStartMs,
+					itemId: ev.itemId
+				});
+			} else if (ev.type === 'speech_stopped') {
+				this.speechDetected = false;
+				this.userSpeechStartTime = null;
+				logger.info('🎙️ VAD: User stopped speaking', {
+					audioEndMs: ev.audioEndMs,
+					itemId: ev.itemId
+				});
+			}
+		});
+
 		this.messageUnsub = realtimeOpenAI.onMessageStream(async (ev) => {
 			logger.info('📨 ConversationStore: Message stream event:', {
 				role: ev.role,
@@ -1365,6 +1390,12 @@ export class ConversationStore {
 			logger.info('an error with session ready listener cleanup');
 		}
 		this.sessionReadyUnsub = null;
+		try {
+			this.vadUnsub?.();
+		} catch {
+			logger.info('an error with VAD listener cleanup');
+		}
+		this.vadUnsub = null;
 		this.sessionReadyHandled = false;
 		this.messageHandlersSetup = false;
 		this.stopTurnLevelMonitor();

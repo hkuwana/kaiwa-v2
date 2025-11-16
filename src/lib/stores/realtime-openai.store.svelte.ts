@@ -769,6 +769,23 @@ export class RealtimeOpenAIStore {
 			this.handleAssistantAudioDone(serverEvent);
 		}
 
+		// Handle VAD speech detection events
+		if (serverEvent?.type === 'input_audio_buffer.speech_started') {
+			const event = serverEvent as any;
+			this.emitVADEvent({
+				type: 'speech_started',
+				audioStartMs: event.audio_start_ms,
+				itemId: event.item_id
+			});
+		} else if (serverEvent?.type === 'input_audio_buffer.speech_stopped') {
+			const event = serverEvent as any;
+			this.emitVADEvent({
+				type: 'speech_stopped',
+				audioEndMs: event.audio_end_ms,
+				itemId: event.item_id
+			});
+		}
+
 		// Process server event using new realtime-agents.service approach
 		const processed = this.processServerEventNew(serverEvent);
 
@@ -1785,6 +1802,16 @@ export class RealtimeOpenAIStore {
 	>();
 	private historyText: Record<string, string> = {};
 
+	// ===== VAD speech detection API =====
+	private vadListeners = new SvelteSet<
+		(ev: {
+			type: 'speech_started' | 'speech_stopped';
+			audioStartMs?: number;
+			audioEndMs?: number;
+			itemId?: string;
+		}) => void
+	>();
+
 	onMessageStream(
 		fn: (ev: {
 			itemId: string;
@@ -1816,6 +1843,39 @@ export class RealtimeOpenAIStore {
 				fn(ev);
 			} catch (e) {
 				logger.warn('onMessageStream listener error', e);
+			}
+		}
+	}
+
+	onVADEvent(
+		fn: (ev: {
+			type: 'speech_started' | 'speech_stopped';
+			audioStartMs?: number;
+			audioEndMs?: number;
+			itemId?: string;
+		}) => void
+	): () => void {
+		this.vadListeners.add(fn);
+		return () => {
+			try {
+				this.vadListeners.delete(fn);
+			} catch {
+				// Intentionally empty - listener might already be removed
+			}
+		};
+	}
+
+	private emitVADEvent(ev: {
+		type: 'speech_started' | 'speech_stopped';
+		audioStartMs?: number;
+		audioEndMs?: number;
+		itemId?: string;
+	}) {
+		for (const fn of this.vadListeners) {
+			try {
+				fn(ev);
+			} catch (e) {
+				logger.warn('onVADEvent listener error', e);
 			}
 		}
 	}

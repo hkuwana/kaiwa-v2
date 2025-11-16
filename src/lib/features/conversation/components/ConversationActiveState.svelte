@@ -48,6 +48,9 @@
 	// Get audio input mode from conversation store
 	const audioInputMode = $derived(conversationStore.audioInputMode);
 
+	// Get speech detection state for VAD visualization
+	const speechDetected = $derived(conversationStore.speechDetected);
+
 	const pressBehavior = $derived(() => {
 		const pref = userPreferencesStore.getPressBehavior();
 		return pref === 'tap_toggle' ? 'press_hold' : pref;
@@ -111,6 +114,22 @@
 	$effect(() => {
 		if (status !== 'connected' && status !== 'streaming') {
 			isEnding = false;
+		}
+	});
+
+	// Auto-mute in toggle-to-talk mode when AI starts responding
+	$effect(() => {
+		// Only auto-mute in PTT (toggle-to-talk) mode, not in pure VAD mode
+		if (audioInputMode === 'ptt' && status === 'streaming') {
+			// Check if there's an active assistant message (AI is responding)
+			const hasActiveAssistantMessage = messages.some(
+				(m) => m.role === 'assistant' && (m.id.startsWith('streaming_') || !m.content)
+			);
+
+			if (hasActiveAssistantMessage) {
+				console.log('🤖 AI started responding in toggle-to-talk mode - auto-muting mic');
+				conversationStore.pauseStreaming();
+			}
 		}
 	});
 
@@ -222,11 +241,24 @@
 			{#if conversationMode}
 				<div class="card h-full bg-base-100 shadow-lg">
 					<div class="card-body flex h-full flex-col items-center justify-center gap-6 text-center">
-						<div class="conversation-visual relative h-56 w-56">
-							<div class="conversation-visual__wave conversation-visual__wave--outer"></div>
-							<div class="conversation-visual__wave conversation-visual__wave--middle"></div>
-							<div class="conversation-visual__wave conversation-visual__wave--inner"></div>
-							<div class="conversation-visual__core"></div>
+						<div class="conversation-visual relative h-56 w-56" data-speech-active={speechDetected}>
+							<div
+								class="conversation-visual__wave conversation-visual__wave--outer"
+								class:conversation-visual__wave--active={speechDetected}
+							></div>
+							<div
+								class="conversation-visual__wave conversation-visual__wave--middle"
+								class:conversation-visual__wave--active={speechDetected}
+							></div>
+							<div
+								class="conversation-visual__wave conversation-visual__wave--inner"
+								class:conversation-visual__wave--active={speechDetected}
+							></div>
+							<div
+								class="conversation-visual__core"
+								class:conversation-visual__core--active={speechDetected}
+								style="transform: scale({speechDetected ? 1 + audioLevel * 0.3 : 1})"
+							></div>
 						</div>
 						<div class="hidden space-y-2 md:block">
 							<p class="text-lg opacity-80">Conversation mode active</p>
@@ -313,41 +345,36 @@
 			</div>
 		{/if}
 
-		<!-- AudioVisualizer - Fixed at bottom center -->
-		<div class="fixed bottom-8 left-1/2 z-30 -translate-x-1/2 transform">
-			<AudioVisualizer
-				{audioLevel}
-				{timeRemaining}
-				{isTimerActive}
-				{maxSessionLengthSeconds}
-				controlMode="external"
-				pressBehavior={pressBehavior()}
-				{audioInputMode}
-				onRecordStart={() => {
-					hasUsedAudioControl = true;
+		<!-- AudioVisualizer - Only shown in PTT (toggle-to-talk) mode, hidden in pure VAD mode -->
+		{#if audioInputMode === 'ptt'}
+			<div class="fixed bottom-8 left-1/2 z-30 -translate-x-1/2 transform">
+				<AudioVisualizer
+					{audioLevel}
+					{timeRemaining}
+					{isTimerActive}
+					{maxSessionLengthSeconds}
+					controlMode="external"
+					pressBehavior="tap_toggle"
+					{audioInputMode}
+					onRecordStart={() => {
+						hasUsedAudioControl = true;
 
-					// In PTT mode, resume streaming when user presses button
-					if (audioInputMode === 'ptt') {
-						console.log('▶️ PTT: User pressed button - resuming streaming');
+						// In PTT mode, resume streaming when user presses button (unmute)
+						console.log('▶️ Toggle-to-Talk: User toggled mic ON - resuming streaming');
 						conversationStore.resumeStreaming();
-						// Mark that we've triggered greeting (it's auto-triggered in PTT mode)
+						// Mark that we've triggered greeting
 						if (waitingForUserToStart) {
 							hasTriggeredInitialGreeting = true;
 						}
-					} else {
-						// In VAD mode, just trigger greeting on first tap (visualizer tap is optional in VAD)
-						if (waitingForUserToStart && !hasTriggeredInitialGreeting) {
-							console.log('👤 VAD: User tapped visualizer for first time, triggering greeting');
-							hasTriggeredInitialGreeting = true;
-							conversationStore.triggerInitialGreeting();
-						}
-					}
-				}}
-				onRecordStop={() => {
-					conversationStore.pauseStreaming();
-				}}
-			/>
-		</div>
+					}}
+					onRecordStop={() => {
+						// In PTT toggle mode, this mutes the mic
+						console.log('⏸️ Toggle-to-Talk: User toggled mic OFF - pausing streaming');
+						conversationStore.pauseStreaming();
+					}}
+				/>
+			</div>
+		{/if}
 
 		<!-- Centered Hint - Only show when AudioVisualizer is at bottom -->
 		{#if !audioVisualizerCentered && showOnboardingHint() && !hasUsedAudioControl}
@@ -404,6 +431,15 @@
 			0 0 30px rgba(99, 102, 241, 0.35),
 			0 0 60px rgba(56, 189, 248, 0.25);
 		backdrop-filter: blur(4px);
+		transition: transform 0.1s ease-out;
+	}
+
+	/* Active state: increased glow and warmer colors when speaking */
+	.conversation-visual__core--active {
+		background: linear-gradient(135deg, rgba(16, 185, 129, 0.65), rgba(14, 165, 233, 0.5));
+		box-shadow:
+			0 0 40px rgba(16, 185, 129, 0.5),
+			0 0 80px rgba(56, 189, 248, 0.35);
 	}
 
 	.conversation-visual__wave {
@@ -414,14 +450,28 @@
 		animation: conversationPulse 6s ease-in-out infinite;
 	}
 
+	/* Active state: faster pulse animation when speaking */
+	.conversation-visual__wave--active {
+		animation: conversationPulseActive 2s ease-in-out infinite;
+		border-color: rgba(16, 185, 129, 0.3);
+	}
+
 	.conversation-visual__wave--middle {
 		animation-delay: 2s;
 		border-color: rgba(56, 189, 248, 0.25);
 	}
 
+	.conversation-visual__wave--middle.conversation-visual__wave--active {
+		animation-delay: 0.66s;
+	}
+
 	.conversation-visual__wave--inner {
 		animation-delay: 4s;
 		border-color: rgba(59, 130, 246, 0.25);
+	}
+
+	.conversation-visual__wave--inner.conversation-visual__wave--active {
+		animation-delay: 1.33s;
 	}
 
 	.conversation-visual__wave--outer {
@@ -441,6 +491,24 @@
 
 		100% {
 			transform: scale(1.65);
+			opacity: 0;
+		}
+	}
+
+	/* Faster pulse animation for active speech detection */
+	@keyframes conversationPulseActive {
+		0% {
+			transform: scale(1);
+			opacity: 0.5;
+		}
+
+		50% {
+			transform: scale(1.25);
+			opacity: 0.2;
+		}
+
+		100% {
+			transform: scale(1.5);
 			opacity: 0;
 		}
 	}
