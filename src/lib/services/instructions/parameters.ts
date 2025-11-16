@@ -41,40 +41,40 @@ export interface InstructionParameters {
 export type SpeakingSpeed = 'very_slow' | 'slow' | 'normal' | 'fast' | 'native';
 
 export const SPEAKING_SPEED_RULES: Record<SpeakingSpeed, string> = {
-	very_slow: `## SPEAKING SPEED: VERY SLOW (Slow and deliberate)
-- Speak VERY deliberately and slowly
-- Add clear pauses between sentences (3-4 seconds)
+	very_slow: `## SPEAKING SPEED: VERY SLOW (Extremely slow and deliberate)
+- Speak EXTREMELY deliberately and slowly
+- Add very clear pauses between sentences (4-5 seconds)
 - Emphasize each syllable boundary distinctly
-- Enunciate every sound carefully
+- Enunciate every sound carefully with maximum clarity
 - Use this for absolute beginners or high frustration`,
 
-	slow: `## SPEAKING SPEED: SLOW (Normal pace - deliberately slow)
+	slow: `## SPEAKING SPEED: SLOW (Very deliberate)
+- Speak VERY deliberately and slowly
+- Pause 3-4 seconds between sentences
+- Emphasize each syllable boundary distinctly
+- Enunciate every sound carefully
+- This is the DEFAULT "normal" pace for language learning`,
+
+	normal: `## SPEAKING SPEED: NORMAL (Deliberately slow)
 - Speak at a deliberately slow, measured pace
 - Pause 2-3 seconds between sentences
 - Articulate clearly and deliberately
 - NEVER rush - clarity is more important than speed
-- This is the DEFAULT "normal" pace for language learning`,
+- Use this for intermediate learners`,
 
-	normal: `## SPEAKING SPEED: NORMAL (Faster pace)
+	fast: `## SPEAKING SPEED: FAST (Moderate pace)
 - Speak at a slightly faster but still clear pace
 - Pause 1-2 seconds between sentences
 - Maintain crystal-clear articulation
 - Still slower than native speakers to ensure comprehension
-- Use this for intermediate learners`,
+- Use this for advanced learners`,
 
-	fast: `## SPEAKING SPEED: FAST (Quick pace)
+	native: `## SPEAKING SPEED: NATIVE (Quicker but clear)
 - Speak at a quicker pace but maintain clarity
 - Brief pauses between thoughts
 - Clear articulation with natural rhythm
-- Still slower than native speakers to ensure clarity
-- Use this for advanced learners`,
-
-	native: `## SPEAKING SPEED: NATIVE (Slow and deliberate)
-- Speak at a slow and deliberate pace
-- Even at "native" speed, speak much slower than actual native speakers
-- CRITICAL: Clear articulation is MORE important than sounding native
-- Natural cadence but never sacrifice comprehension for speed
-- Use this for advanced learners who want deliberate pacing`
+- Still slower than actual native speakers to ensure clarity
+- Use this for advanced learners who want near-native pacing`
 };
 
 // ============================================
