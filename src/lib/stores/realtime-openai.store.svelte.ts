@@ -1302,6 +1302,26 @@ export class RealtimeOpenAIStore {
 			return;
 		}
 
+		// IMPORTANT: Cancel any in-progress response before starting new input
+		// This prevents duplicate responses when PTT is pressed during assistant speech
+		console.warn('🛑 CANCELING any in-progress response', {
+			startNumber: this.pttStartCallCounter,
+			timestamp: new SvelteDate().toISOString()
+		});
+		const cancelEvent = { type: 'response.cancel' as const };
+		this.logEvent('client', String(cancelEvent.type), cancelEvent);
+		sendEventViaSession(this.connection, cancelEvent);
+
+		// Clear output audio buffer to stop any ongoing playback and truncate conversation
+		console.warn('🗑️ CLEARING output audio buffer', {
+			startNumber: this.pttStartCallCounter,
+			timestamp: new SvelteDate().toISOString()
+		});
+		const clearOutputEvent = { type: 'output_audio_buffer.clear' as const };
+		this.logEvent('client', String(clearOutputEvent.type), clearOutputEvent);
+		sendEventViaSession(this.connection, clearOutputEvent);
+
+		// Clear input audio buffer to remove any previous audio input
 		const ev = { type: 'input_audio_buffer.clear' as const };
 		console.warn('🗑️ SENDING input_audio_buffer.clear EVENT NOW', {
 			startNumber: this.pttStartCallCounter,
