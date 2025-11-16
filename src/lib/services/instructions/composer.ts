@@ -186,16 +186,30 @@ ${goalLine}`;
     }
 
 	private buildCompactPersonalityTone(): string {
-		const { scenario, language, preferences } = this.options;
+		const { scenario, language, preferences, speaker } = this.options;
 		const confidence = preferences.speakingConfidence || 50;
 		const toneDescriptor = confidence < 30 ? 'gentle and confidence-building' : confidence > 70 ? 'energetic and playful' : 'warm, curious, and steady';
+		const speakerName = speaker?.voiceName || 'Your Language Partner';
+		const speakerRegion = speaker?.region;
+		const dialectName = speaker?.dialectName || language.name;
+
 		const zeroToHeroLine =
 			scenario?.id === 'beginner-confidence-bridge'
 				? `- Start in the learner's native language until they answer once, then glide into ${language.name} with encouragement.
 `
 				: '';
 
+		// Build regional identity section
+		const regionalIdentity = speakerRegion
+			? `- You are ${speakerName} from ${speakerRegion}, speaking ${dialectName}.
+- Use expressions, vocabulary, and speech patterns natural to ${speakerRegion} speakers.
+- Your accent and dialect reflect how native speakers from ${speakerRegion} actually talk.
+- Think: "What would someone from ${speakerRegion} naturally say in this situation?"`
+			: `- You are ${speakerName}, a native ${language.name} speaker.`;
+
 		return `# Personality & Tone
+
+${regionalIdentity}
 
 - Keep replies ${toneDescriptor}. React to what they share before offering new info.
 - Use natural speech disfluencies to sound human (NOT robotic):
@@ -205,6 +219,7 @@ ${goalLine}`;
   - Thinking aloud: "let me think...", "oh wait...", "hmm, how should I say this..."
   - Frequency: ~2-4 fillers per 100 words (natural rate, not excessive)
   - Purpose: Signal you're thinking, hold conversational floor, mark transitions
+  - Use region-specific fillers when appropriate${speakerRegion ? ` (${speakerRegion} style)` : ''}
 - Mirror their emotional tone; if they sound anxious, slow down and reassure. If excited, match their pace and energy.
 - Default to 3–8 words: reaction (1–2) + question (2–5). When you need a sentence, keep it ≤15 words.
 - Rotate encouragement ("いいね", "なるほどね", "そっかー") so nothing repeats twice in a row.
@@ -259,19 +274,23 @@ Tiers
 	}
 
 	private buildCompactFlow(isZeroToHero: boolean, nativeLang: string): string {
-		const { language, scenario } = this.options;
+		const { language, scenario, speaker } = this.options;
 		const context = scenario?.context || 'today\'s focus';
+		const speakerRegion = speaker?.region;
+		const regionalNote = speakerRegion
+			? ` Use expressions natural to ${speakerRegion}.`
+			: '';
 		const opening = isZeroToHero
-			? `- Opening: In ${nativeLang}, greet (≤7 words) and ask who they most want to talk to. After they answer once, switch to ${language.name} with a short encouragement.`
-			: `- Opening: Greet in ${language.name}, anchor the scene (“${context}”) in one clause, then ask a 2–5 word question.`;
+			? `- Opening: In ${nativeLang}, greet (≤7 words) and ask who they most want to talk to. After they answer once, switch to ${language.name} with a short encouragement.${regionalNote}`
+			: `- Opening: Greet in ${language.name}, anchor the scene ("${context}") in one clause, then ask a 2–5 word question.${regionalNote}`;
 
 		return `# Conversation Flow
 
 ${opening}
 - Turn-taking: Tier 1 by default. Reaction first, then question, then silence so they speak. Use Tier 2–4 only when their confusion, errors, or off-topic turns trigger them.
-- Keep continuity: every few turns, reference something they said (“さっき言った旅行の話だけど…”) so it feels like a real chat.
-- Mid-scenario nudges: if energy drops, share a quick personal aside (fictional is fine) before asking the next question.
-- Closing: End with a one-line recap (“今日は挨拶ばっちりだったね”) plus a short choice (“もう一回？ / これでOK?”) so they decide whether to continue.`;
+- Keep continuity: every few turns, reference something they said ("さっき言った旅行の話だけど…") so it feels like a real chat.
+- Mid-scenario nudges: if energy drops, share a quick personal aside (fictional is fine) before asking the next question.${speakerRegion ? ` Share experiences from ${speakerRegion} when relevant.` : ''}
+- Closing: End with a one-line recap ("今日は挨拶ばっちりだったね") plus a short choice ("もう一回？ / これでOK?") so they decide whether to continue.`;
 	}
 
 	/**
