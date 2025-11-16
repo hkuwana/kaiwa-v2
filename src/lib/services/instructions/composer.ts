@@ -202,10 +202,15 @@ ${goalLine}`;
 		// Build regional identity section
 		const regionalIdentity = speakerRegion
 			? `- You are ${speakerName} from ${speakerRegion}, speaking ${dialectName}.
+- ALWAYS speak with a ${speakerRegion} accent - this is part of your identity.
 - Use expressions, vocabulary, and speech patterns natural to ${speakerRegion} speakers.
 - Your accent and dialect reflect how native speakers from ${speakerRegion} actually talk.
-- Think: "What would someone from ${speakerRegion} naturally say in this situation?"`
+- Think: "What would someone from ${speakerRegion} naturally say in this situation?"
+- Example phrases from ${speakerRegion}: ${this.getRegionalPhraseExamples(speakerRegion, language.code)}`
 			: `- You are ${speakerName}, a native ${language.name} speaker.`;
+
+		// Determine if this is a casual social scenario
+		const isCasualSocial = scenario?.role === 'friendly_chat' || scenario?.role === 'character';
 
 		return `# Personality & Tone
 
@@ -223,11 +228,41 @@ ${regionalIdentity}
 - Mirror their emotional tone; if they sound anxious, slow down and reassure. If excited, match their pace and energy.
 - Default to 3–8 words: reaction (1–2) + question (2–5). When you need a sentence, keep it ≤15 words.
 - Rotate encouragement ("いいね", "なるほどね", "そっかー") so nothing repeats twice in a row.
-${zeroToHeroLine}- When correcting, acknowledge first ("うん、でも…") then model the better phrasing once.`;
-	}
+${zeroToHeroLine}- When correcting, acknowledge first ("うん、でも…") then model the better phrasing once.
+
+## CRITICAL TONE RULES (NON-NEGOTIABLE)
+${isCasualSocial ? `- YOU ARE NOT A TEXTBOOK OR BUTLER. Talk like a real person having a casual chat.
+- Use contractions naturally: "you're" not "you are", "thinking" not "are you thinking"
+- Drop formal words: NEVER say "delightful", "lovely", "refreshing blend", "a touch of"
+- Keep it simple: Don't describe things (no ingredient lists, no elaborate explanations)
+- Sound natural: "Yeah, cool" not "That sounds wonderful"
+- Be casual: "You thinking X or Y?" not "Would you prefer X or perhaps Y?"` : '- Keep tone professional but warm. Avoid being overly formal or robotic.'}`	}
 
 	private buildCompactRules(): string {
 		const target = this.options.language.name;
+		const { scenario } = this.options;
+		const isCasualSocial = scenario?.role === 'friendly_chat' || scenario?.role === 'character';
+
+		const casualExamples = isCasualSocial ? `
+
+## CASUAL CONVERSATION EXAMPLES (Learn from these!)
+
+✅ GOOD (Natural, brief, casual):
+- User: "Maybe a cocktail?"
+  You: "Nice! You thinking Mojito or something fruity like pina colada?"
+- User: "I love traveling"
+  You: "Oh yeah? Where'd you go last?"
+- User: "I work in tech"
+  You: "Cool, what kind? Like coding or...?"
+
+❌ BAD (Too formal, too long, too descriptive):
+- User: "Maybe a cocktail?"
+  You: "A cocktail sounds delightful! How about a classic Mojito with its refreshing blend of lime, mint, and a touch of sweetness? Or if you prefer something a bit more fruity, a Pina Colada could be a lovely choice as well. What do you think?" [TOO LONG, TOO FORMAL, TOO DESCRIPTIVE]
+- User: "I love traveling"
+  You: "That's wonderful! Traveling is such an enriching experience. Where have you had the pleasure of visiting?" [TOO FORMAL]
+- User: "I work in tech"
+  You: "How fascinating! The technology sector is so dynamic and innovative these days. What aspect of technology do you specialize in?" [TOO WORDY]` : '';
+
 		return `# Rules (Critical)
 
 - Respond only to clear input; ignore silence, noise, and your own echo.
@@ -237,15 +272,15 @@ ${zeroToHeroLine}- When correcting, acknowledge first ("うん、でも…") the
 
 Audio
 - If unintelligible: ask to repeat; if still unclear, ask once more.
-- If silence > 3s: prompt gently (“Take your time.”). Do not continue.
+- If silence > 3s: prompt gently ("Take your time."). Do not continue.
 - Never pretend you understood.
 
 Tiers
-- Tier 1 (80%): 3–8 words total → quick reaction (1–2) + short question (2–5). Example: “いいね！何を？”
+- Tier 1 (80%): 3–8 words total → quick reaction (1–2) + short question (2–5). Example: "いいね！何を？"
 - Tier 2 (clarify): ≤15 words → brief explanation + simple example → return to Tier 1.
 - Tier 3 (correction): ≤20 words → acknowledge → correct → one tip → try again → return to Tier 1.
 - Tier 4 (redirect): ≤20 words → acknowledge → steer back to scenario.
-- Keep it conversational: react with feeling, then ask. Example: Learner “I like ramen.” → You “おいしいよね。どこで？”`;
+- Keep it conversational: react with feeling, then ask. Example: Learner "I like ramen." → You "おいしいよね。どこで？"${casualExamples}`;
 	}
 
 	private buildCompactParametersSummary(): string {
@@ -1397,6 +1432,54 @@ IF learner mentions self-harm:
 			id: 'Indonesian'
 		};
 		return langMap[languageId] || languageId.toUpperCase();
+	}
+
+	/**
+	 * Get regional phrase examples for specific regions
+	 */
+	private getRegionalPhraseExamples(region: string, languageCode: string): string {
+		const regionalPhrases: Record<string, Record<string, string>> = {
+			en: {
+				'Great Britain': '"Lovely", "brilliant", "reckon", "proper", "cheers", "innit"',
+				'London': '"Blimey", "bloody", "loo", "mate", "fancy", "quite"',
+				'Scotland': '"Aye", "wee", "bonnie", "ken", "dinnae"',
+				'Ireland': '"Grand", "craic", "lad", "yoke", "sound"',
+				'Australia': '"G\'day", "mate", "arvo", "reckon", "heaps", "no worries"',
+				'New Zealand': '"Sweet as", "yeah nah", "choice", "mean"',
+				'United States': '"Yeah", "totally", "awesome", "cool", "like", "for sure"',
+				'Canada': '"Eh", "buddy", "sorry", "toque"',
+				'South Africa': '"Howzit", "lekker", "braai", "now now", "just now"'
+			},
+			es: {
+				'Spain': '"Vale", "tío/tía", "guay", "qué fuerte", "venga"',
+				'Madrid': '"Mogollón", "molar", "chungo", "flipar"',
+				'Barcelona': '"Noi/noia", "petar", "col·lons"',
+				'Mexico': '"¿Qué onda?", "chido", "no manches", "órale", "wey"',
+				'Argentina': '"Che", "boludo", "dale", "posta", "re-"',
+				'Colombia': '"Parcero", "bacano", "chimba", "llave"',
+				'Chile': '"Cachai", "weon", "po", "bacán"'
+			},
+			ja: {
+				'Tokyo': '"まじ", "やばい", "超", "めっちゃ", "って感じ"',
+				'Osaka': '"めっちゃ", "ほんま", "なんや", "あかん", "せや", "～やん"',
+				'Kansai': '"ほんま", "あかん", "なんでやねん", "せやろ"',
+				'Okinawa': '"なんくるないさー", "ちむどんどん", "はいさい/はいたい"',
+				'Kyoto': '"おこしやす", "おいでやす", "どす"',
+				'Hokkaido': '"なまら", "したっけ", "~べ"'
+			},
+			fr: {
+				'France': '"Bah", "quoi", "carrément", "grave", "stylé"',
+				'Paris': '"Chanmé", "ouf", "relou", "chelou", "trop"',
+				'Quebec': '"Là", "mettons", "pantoute", "pis", "toé"',
+				'Belgium': '"Allez", "une fois", "savoir", "chouette"',
+				'Switzerland': '"Natel", "poutzer", "huitante"'
+			}
+		};
+
+		const langPhrases = regionalPhrases[languageCode];
+		if (!langPhrases) return '"Use natural, casual expressions"';
+
+		return langPhrases[region] || Object.values(langPhrases)[0] || '"Use natural, casual expressions"';
 	}
 }
 

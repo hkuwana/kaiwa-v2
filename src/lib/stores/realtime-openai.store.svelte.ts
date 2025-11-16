@@ -72,6 +72,11 @@ export class RealtimeOpenAIStore {
 	// Captured events (server/client) for dev UI
 	events = $state<Array<{ dir: 'server' | 'client'; type: string; payload: any; ts: number }>>([]);
 	private maxEvents = 100;
+
+	// 🔍 DEV: Expose current instructions for debugging
+	getCurrentInstructions(): string | null {
+		return this.currentInstructions;
+	}
 	// Conversation context for database persistence
 	conversationContext = $state<ConversationContext | null>(null);
 
@@ -1619,6 +1624,15 @@ export class RealtimeOpenAIStore {
 		turnDetection?: SessionConfig['turnDetection'] | null;
 	}): void {
 		if (!this.connection) return;
+
+		// 📋 LOG INSTRUCTIONS FOR DEBUGGING
+		if (config.instructions) {
+			console.info('🎯 [Realtime] Instructions being set:', {
+				length: config.instructions.length,
+				preview: config.instructions.substring(0, 200) + '...',
+				fullInstructions: config.instructions
+			});
+		}
 
 		// Per OpenAI Realtime API documentation: session.update is for configuration only
 		// (instructions, voice, audio format, VAD settings). The API automatically maintains

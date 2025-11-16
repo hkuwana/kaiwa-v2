@@ -60,7 +60,7 @@ Coach warmly. Avoid lists. Build confidence in ~5 minutes.`,
 	},
 	{
 		id: 'onboarding-welcome',
-		title: 'Open Practice Space',
+		title: 'Free Practice Mode',
 		description: 'Practice any phrases you want in your target language in a safe, judgment-free space.',
 		role: 'tutor',
 		difficulty: 'beginner',
@@ -168,7 +168,7 @@ This is a judgment-free zone. No pressure, just practice.`,
 	},
 	{
 		id: 'inlaws-family-friends-intro',
-		title: 'Meeting the Family Friends',
+		title: "Meeting Family Friends",
 		description:
 			"Meet family friends for the first time as your partner's sibling explains the web of relationships.",
 		role: 'character',
@@ -356,7 +356,7 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 	},
 	{
 		id: 'vulnerable-heart-to-heart',
-		title: 'Opening Up About Feelings',
+		title: 'Heart-to-Heart Talk',
 		description: 'Express your fears, hopes, or needs to someone you love.',
 		role: 'character',
 		difficulty: 'intermediate',
