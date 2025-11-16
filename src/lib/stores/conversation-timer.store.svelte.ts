@@ -1,3 +1,4 @@
+import { logger } from '$lib/logger';
 import { getTimerSettings, getMaxSessionLength, getMonthlySeconds } from '$lib/data/tiers';
 import type { UserTier } from '$lib/server/db/types';
 import { track } from '$lib/analytics/posthog';
@@ -111,7 +112,7 @@ export class ConversationTimerStore {
 		const monthlySeconds = getMonthlySeconds(tier);
 
 		if (!settings) {
-			console.warn(`No timer settings found for tier: ${tier}`);
+			logger.warn(`No timer settings found for tier: ${tier}`);
 			return;
 		}
 
@@ -140,7 +141,7 @@ export class ConversationTimerStore {
 
 	// Start the timer
 	start(onExpired?: () => void): void {
-		console.log('⏰ Starting conversation timer');
+		logger.info('⏰ Starting conversation timer');
 
 		this.onExpired = onExpired;
 		this.startTime = Date.now();
@@ -169,7 +170,7 @@ export class ConversationTimerStore {
 
 	// Stop the timer
 	stop(): void {
-		console.log('⏰ Stopping conversation timer');
+		logger.info('⏰ Stopping conversation timer');
 		// Capture duration before reset
 		const durationSeconds = this.getTimeElapsedSeconds();
 		try {
@@ -190,7 +191,7 @@ export class ConversationTimerStore {
 	pause(): void {
 		if (this._state.timer.status !== 'running') return;
 
-		console.log('⏰ Pausing timer');
+		logger.info('⏰ Pausing timer');
 		this.pauseStartTime = Date.now();
 		this._state.timer.status = 'paused';
 	}
@@ -199,7 +200,7 @@ export class ConversationTimerStore {
 	resume(): void {
 		if (this._state.timer.status !== 'paused') return;
 
-		console.log('⏰ Resuming timer');
+		logger.info('⏰ Resuming timer');
 		if (this.pauseStartTime > 0) {
 			this.totalPausedTime += Date.now() - this.pauseStartTime;
 			this.pauseStartTime = 0;
@@ -315,7 +316,7 @@ export class ConversationTimerStore {
 
 	// Cleanup
 	cleanup(): void {
-		console.log('🧹 Cleaning up conversation timer');
+		logger.info('🧹 Cleaning up conversation timer');
 		this._stopUpdateLoop();
 		this.onExpired = undefined;
 	}
@@ -347,7 +348,7 @@ export class ConversationTimerStore {
 
 		// Debug logging every 5 seconds
 		if (elapsed % 5000 < 100) {
-			console.log('⏰ Timer update:', {
+			logger.info('⏰ Timer update:', {
 				elapsed,
 				remaining,
 				startTime: this.startTime,
@@ -368,7 +369,7 @@ export class ConversationTimerStore {
 			this._state.showExtensionPrompt = true;
 			this._stopUpdateLoop();
 
-			console.log('⏰ Timer expired!');
+			logger.info('⏰ Timer expired!');
 			// Track expiry with duration
 			try {
 				track('conversation_session_ended', {
@@ -383,7 +384,7 @@ export class ConversationTimerStore {
 				try {
 					this.onExpired();
 				} catch (error) {
-					console.error('Error in timer expiration callback:', error);
+					logger.error('Error in timer expiration callback:', error);
 				}
 			}
 		} else if (remaining <= this.warningThresholdMs) {
@@ -391,7 +392,7 @@ export class ConversationTimerStore {
 			if (this._state.timer.status !== 'warning') {
 				this._state.timer.status = 'warning';
 				this._state.showWarning = true;
-				console.log('⚠️ Timer warning state');
+				logger.info('⚠️ Timer warning state');
 			}
 		}
 	}

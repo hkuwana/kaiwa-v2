@@ -2,6 +2,7 @@
 // 🌱 Database Seeding Script
 // Seeds essential data for development and production
 
+import { logger } from '../logger';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { languages, tiers, speakers, scenarios } from './schema/index';
@@ -22,10 +23,10 @@ if (!DATABASE_URL) {
 const sql = postgres(DATABASE_URL);
 const db = drizzle(sql);
 
-console.log('🌱 Starting database seeding...');
+logger.info('🌱 Starting database seeding...');
 
 async function seedLanguages() {
-	console.log('📚 Seeding languages...');
+	logger.info('📚 Seeding languages...');
 
 	for (const language of languageData) {
 		try {
@@ -37,7 +38,7 @@ async function seedLanguages() {
 				.limit(1);
 
 			if (existing.length > 0) {
-				console.log(`  ✓ Language ${language.name} (${language.id}) already exists`);
+				logger.info(`  ✓ Language ${language.name} (${language.id}) already exists`);
 				continue;
 			}
 
@@ -55,15 +56,15 @@ async function seedLanguages() {
 				isSupported: language.isSupported
 			});
 
-			console.log(`  ✅ Inserted language: ${language.name} (${language.id})`);
+			logger.info(`  ✅ Inserted language: ${language.name} (${language.id})`);
 		} catch (error) {
-			console.error(`  ❌ Error inserting language ${language.name}:`, error);
+			logger.error(`  ❌ Error inserting language ${language.name}:`, error);
 		}
 	}
 }
 
 async function seedSpeakers() {
-	console.log('🗣️ Seeding speakers...');
+	logger.info('🗣️ Seeding speakers...');
 
 	for (const speaker of speakersData) {
 		try {
@@ -71,7 +72,7 @@ async function seedSpeakers() {
 			const existing = await db.select().from(speakers).where(eq(speakers.id, speaker.id)).limit(1);
 
 			if (existing.length > 0) {
-				console.log(`  ✓ Speaker ${speaker.voiceName} (${speaker.id}) already exists`);
+				logger.info(`  ✓ Speaker ${speaker.voiceName} (${speaker.id}) already exists`);
 				continue;
 			}
 
@@ -91,15 +92,15 @@ async function seedSpeakers() {
 				createdAt: new Date()
 			});
 
-			console.log(`  ✅ Inserted speaker: ${speaker.voiceName} (${speaker.id})`);
+			logger.info(`  ✅ Inserted speaker: ${speaker.voiceName} (${speaker.id})`);
 		} catch (error) {
-			console.error(`  ❌ Error inserting speaker ${speaker.voiceName}:`, error);
+			logger.error(`  ❌ Error inserting speaker ${speaker.voiceName}:`, error);
 		}
 	}
 }
 
 async function seedScenarios() {
-	console.log('🎯 Seeding scenarios...');
+	logger.debug('🎯 Seeding scenarios...');
 
 	for (const scenario of scenariosData) {
 		try {
@@ -111,7 +112,7 @@ async function seedScenarios() {
 				.limit(1);
 
 			if (existing.length > 0) {
-				console.log(`  ✓ Scenario ${scenario.title} (${scenario.id}) already exists`);
+				logger.info(`  ✓ Scenario ${scenario.title} (${scenario.id}) already exists`);
 				continue;
 			}
 
@@ -133,15 +134,15 @@ async function seedScenarios() {
 				updatedAt: new Date()
 			});
 
-			console.log(`  ✅ Inserted scenario: ${scenario.title} (${scenario.id})`);
+			logger.info(`  ✅ Inserted scenario: ${scenario.title} (${scenario.id})`);
 		} catch (error) {
-			console.error(`  ❌ Error inserting scenario ${scenario.title}:`, error);
+			logger.error(`  ❌ Error inserting scenario ${scenario.title}:`, error);
 		}
 	}
 }
 
 async function seedTiers() {
-	console.log('🏆 Seeding tiers...');
+	logger.info('🏆 Seeding tiers...');
 
 	const tierValues = Object.values(defaultTierConfigs);
 
@@ -151,7 +152,7 @@ async function seedTiers() {
 			const existing = await db.select().from(tiers).where(eq(tiers.id, tier.id)).limit(1);
 
 			if (existing.length > 0) {
-				console.log(`  ✓ Tier ${tier.name} (${tier.id}) already exists`);
+				logger.info(`  ✓ Tier ${tier.name} (${tier.id}) already exists`);
 				continue;
 			}
 
@@ -193,9 +194,9 @@ async function seedTiers() {
 				updatedAt: new Date()
 			});
 
-			console.log(`  ✅ Inserted tier: ${tier.name} (${tier.id})`);
+			logger.info(`  ✅ Inserted tier: ${tier.name} (${tier.id})`);
 		} catch (error) {
-			console.error(`  ❌ Error inserting tier ${tier.name}:`, error);
+			logger.error(`  ❌ Error inserting tier ${tier.name}:`, error);
 		}
 	}
 }
@@ -207,11 +208,11 @@ async function main() {
 		await seedScenarios();
 		await seedTiers();
 
-		console.log('🎉 Database seeding completed successfully!');
+		logger.info('🎉 Database seeding completed successfully!');
 		await sql.end();
 		process.exit(0);
 	} catch (error) {
-		console.error('💥 Error during seeding:', error);
+		logger.error('💥 Error during seeding:', error);
 		await sql.end();
 		process.exit(1);
 	}
@@ -219,6 +220,6 @@ async function main() {
 
 // Run the seeding
 main().catch((error) => {
-	console.error('💥 Unexpected error:', error);
+	logger.error('💥 Unexpected error:', error);
 	process.exit(1);
 });

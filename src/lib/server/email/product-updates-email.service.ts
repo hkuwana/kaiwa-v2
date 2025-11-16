@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 import { userSettingsRepository } from '$lib/server/repositories/user-settings.repository';
@@ -33,13 +34,13 @@ export class ProductUpdatesEmailService {
 		ctaUrl?: string;
 	}): Promise<{ sent: number; skipped: number; failed: number }> {
 		if (!env.RESEND_API_KEY || env.RESEND_API_KEY === 're_dummy_resend_key') {
-			console.warn('RESEND_API_KEY not configured, skipping product update send');
+			logger.warn('RESEND_API_KEY not configured, skipping product update send');
 			return { sent: 0, skipped: 0, failed: 0 };
 		}
 
 		const eligibleUserIds = await EmailPermissionService.getProductUpdateEligibleUsers();
 		if (eligibleUserIds.length === 0) {
-			console.log('No product update subscribers found.');
+			logger.info('No product update subscribers found.');
 			return { sent: 0, skipped: 0, failed: 0 };
 		}
 
@@ -65,7 +66,7 @@ export class ProductUpdatesEmailService {
 			});
 
 			if (result.error) {
-				console.error('Failed to send product update to user', user.id, result.error);
+				logger.error('Failed to send product update to user', user.id, result.error);
 				failed++;
 				continue;
 			}
@@ -76,7 +77,7 @@ export class ProductUpdatesEmailService {
 			await new Promise((resolve) => setTimeout(resolve, 100));
 		}
 
-		console.log(`Product update sent: ${sent} emails, skipped: ${skipped}, failed: ${failed}`);
+		logger.info(`Product update sent: ${sent} emails, skipped: ${skipped}, failed: ${failed}`);
 		return { sent, skipped, failed };
 	}
 
@@ -95,19 +96,19 @@ export class ProductUpdatesEmailService {
 		}
 	): Promise<boolean> {
 		if (!env.RESEND_API_KEY || env.RESEND_API_KEY === 're_dummy_resend_key') {
-			console.warn('RESEND_API_KEY not configured, skipping product update send');
+			logger.warn('RESEND_API_KEY not configured, skipping product update send');
 			return true;
 		}
 
 		// Check email permissions
 		if (!(await EmailPermissionService.canReceiveProductUpdates(userId))) {
-			console.warn(`User ${userId} not eligible for product updates`);
+			logger.warn(`User ${userId} not eligible for product updates`);
 			return false;
 		}
 
 		const user = await userRepository.findUserById(userId);
 		if (!user || !user.email) {
-			console.warn(`User ${userId} not found or has no email`);
+			logger.warn(`User ${userId} not found or has no email`);
 			return false;
 		}
 
@@ -122,11 +123,11 @@ export class ProductUpdatesEmailService {
 		});
 
 		if (result.error) {
-			console.error('Failed to send product update to user', user.id, result.error);
+			logger.error('Failed to send product update to user', user.id, result.error);
 			return false;
 		}
 
-		console.log('Product update sent to user:', user.id);
+		logger.info('Product update sent to user:', user.id);
 		return true;
 	}
 

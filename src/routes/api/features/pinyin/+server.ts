@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 import { json } from '@sveltejs/kit';
 import { isChineseText } from '$lib/services/romanization.service';
 import { SecuritySanitizer } from '$lib/utils/security';
@@ -32,7 +33,7 @@ async function processChineseTextWithPinyinPro(text: string): Promise<{
 	otherScripts?: Record<string, string>;
 }> {
 	try {
-		console.log('[PINYIN_API] Starting Chinese text processing with pinyin-pro for:', text);
+		logger.info('[PINYIN_API] Starting Chinese text processing with pinyin-pro for:', text);
 
 		// Import pinyin-pro for robust Chinese conversion
 		const { pinyin } = await import('pinyin-pro');
@@ -61,7 +62,7 @@ async function processChineseTextWithPinyinPro(text: string): Promise<{
 			Array.isArray(pinyinWithTones) ? pinyinWithTones : [String(pinyinWithTones)]
 		);
 
-		console.log('[PINYIN_API] Pinyin-pro result:', {
+		logger.info('[PINYIN_API] Pinyin-pro result:', {
 			withTones: pinyinWithTonesStr,
 			plain: pinyinPlainStr,
 			ruby: pinyinRubyHTML.substring(0, 100) + '...'
@@ -80,7 +81,7 @@ async function processChineseTextWithPinyinPro(text: string): Promise<{
 
 		// Validate and sanitize before returning
 		if (!SecuritySanitizer.validateScriptContent(result as Record<string, unknown>)) {
-			console.warn('[PINYIN_API] ⚠️ Generated content failed security validation');
+			logger.warn('[PINYIN_API] ⚠️ Generated content failed security validation');
 			throw new Error('Generated content contains potentially unsafe data');
 		}
 
@@ -95,14 +96,14 @@ async function processChineseTextWithPinyinPro(text: string): Promise<{
 			}
 		};
 	} catch (error) {
-		console.error('[PINYIN_API] Pinyin-pro processing failed:', error);
+		logger.error('[PINYIN_API] Pinyin-pro processing failed:', error);
 
 		// Fallback to lightweight implementation
 		const { pinyinize, pinyinWithTones } = await import('$lib/utils/chinese-pinyin');
 		const pinyinPlainStr = pinyinize(text);
 		const pinyinWithTonesStr = pinyinWithTones(text);
 
-		console.log('[PINYIN_API] Using lightweight fallback:', {
+		logger.info('[PINYIN_API] Using lightweight fallback:', {
 			withTones: pinyinWithTonesStr,
 			plain: pinyinPlainStr
 		});
@@ -126,11 +127,11 @@ export const POST = async ({ request }) => {
 			return json({ error: 'Missing required parameters: text, messageId' }, { status: 400 });
 		}
 
-		console.log('[PINYIN_API] Processing request for:', text.substring(0, 50));
+		logger.info('[PINYIN_API] Processing request for:', text.substring(0, 50));
 
 		// Only generate pinyin for Chinese text
 		if (!isChineseText(text)) {
-			console.log('[PINYIN_API] Text is not Chinese, returning empty result');
+			logger.info('[PINYIN_API] Text is not Chinese, returning empty result');
 			return json({});
 		}
 
@@ -145,7 +146,7 @@ export const POST = async ({ request }) => {
 			otherScripts: result.otherScripts
 		});
 	} catch (error) {
-		console.error('Pinyin API error:', error);
+		logger.error('Pinyin API error:', error);
 		return json(
 			{ error: error instanceof Error ? error.message : 'Pinyin generation failed' },
 			{ status: 500 }

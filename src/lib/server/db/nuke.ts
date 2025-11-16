@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 // 🔥 Database Reset Utility
 // Enhanced with safety checks and environment awareness
 
@@ -37,9 +38,9 @@ function confirmEnvironment(): void {
 	}
 
 	if (!isDev && !isTest) {
-		console.log('⚠️  Environment not set to development or test');
-		console.log('Current NODE_ENV:', process.env.NODE_ENV);
-		console.log('Are you sure you want to continue? (This is irreversible)');
+		logger.info('⚠️  Environment not set to development or test');
+		logger.info('Current NODE_ENV:', process.env.NODE_ENV);
+		logger.info('Are you sure you want to continue? (This is irreversible)');
 	}
 }
 
@@ -49,7 +50,7 @@ function confirmEnvironment(): void {
 export async function dropAllTables(): Promise<void> {
 	confirmEnvironment();
 
-	console.log('🔥 Dropping all database objects...');
+	logger.info('🔥 Dropping all database objects...');
 
 	const db = createDbConnection();
 
@@ -107,9 +108,9 @@ export async function dropAllTables(): Promise<void> {
 			END $$;
 		`);
 
-		console.log('✅ All database objects dropped successfully');
+		logger.info('✅ All database objects dropped successfully');
 	} catch (error) {
-		console.error('❌ Error during database reset:', error);
+		logger.error('❌ Error during database reset:', error);
 		throw error;
 	}
 }
@@ -118,16 +119,16 @@ export async function dropAllTables(): Promise<void> {
  * Reset database to clean state
  */
 export async function resetDatabase(): Promise<void> {
-	console.log('🚀 Starting complete database reset...');
-	console.log(`Environment: ${process.env.NODE_ENV}`);
+	logger.info('🚀 Starting complete database reset...');
+	logger.info(`Environment: ${process.env.NODE_ENV}`);
 
 	await dropAllTables();
 
-	console.log('✅ Database reset complete!');
-	console.log('');
-	console.log('Next steps:');
-	console.log('1. Run: pnpm db:push        # Recreate schema');
-	console.log('2. Run: pnpm db:seed:dev    # Seed with initial data');
+	logger.info('✅ Database reset complete!');
+	logger.info('');
+	logger.info('Next steps:');
+	logger.info('1. Run: pnpm db:push        # Recreate schema');
+	logger.info('2. Run: pnpm db:seed:dev    # Seed with initial data');
 }
 
 /**
@@ -136,7 +137,7 @@ export async function resetDatabase(): Promise<void> {
 export async function clearDataOnly(): Promise<void> {
 	confirmEnvironment();
 
-	console.log('🧹 Clearing all data (keeping schema)...');
+	logger.info('🧹 Clearing all data (keeping schema)...');
 
 	const db = createDbConnection();
 
@@ -150,7 +151,7 @@ export async function clearDataOnly(): Promise<void> {
 		`);
 
 		if (tables.length === 0) {
-			console.log('ℹ️  No tables found to clear');
+			logger.info('ℹ️  No tables found to clear');
 			return;
 		}
 
@@ -160,16 +161,16 @@ export async function clearDataOnly(): Promise<void> {
 			if (tableName && !tableName.startsWith('drizzle_')) {
 				try {
 					await db.execute(sql`TRUNCATE TABLE ${sql.identifier(tableName)} CASCADE`);
-					console.log(`🧹 Cleared table: ${tableName}`);
+					logger.info(`🧹 Cleared table: ${tableName}`);
 				} catch (error) {
-					console.warn(`⚠️  Could not clear table ${tableName}:`, error);
+					logger.warn(`⚠️  Could not clear table ${tableName}:`, error);
 				}
 			}
 		}
 
-		console.log('✅ Data cleared successfully');
+		logger.info('✅ Data cleared successfully');
 	} catch (error) {
-		console.error('❌ Error clearing data:', error);
+		logger.error('❌ Error clearing data:', error);
 		throw error;
 	}
 }
@@ -189,11 +190,11 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 				await clearDataOnly();
 				break;
 			default:
-				console.log('Available commands:');
-				console.log('  reset/nuke    - Drop all tables and recreate');
-				console.log('  clear/truncate - Clear data but keep schema');
-				console.log('');
-				console.log('Usage: node nuke.ts [command]');
+				logger.info('Available commands:');
+				logger.info('  reset/nuke    - Drop all tables and recreate');
+				logger.info('  clear/truncate - Clear data but keep schema');
+				logger.info('');
+				logger.info('Usage: node nuke.ts [command]');
 				process.exit(1);
 		}
 	};
@@ -201,7 +202,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 	runCommand()
 		.then(() => process.exit(0))
 		.catch((error) => {
-			console.error('💥 Command failed:', error);
+			logger.error('💥 Command failed:', error);
 			process.exit(1);
 		});
 }

@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 /**
  * Audio Storage Service
  *
@@ -52,7 +53,7 @@ class AudioStorageService {
 		const secretAccessKey = env.TIGRIS_SECRET_ACCESS_KEY || env.AWS_SECRET_ACCESS_KEY;
 
 		if (!accessKeyId || !secretAccessKey) {
-			console.warn('⚠️ Audio storage credentials not configured. Audio upload will fail.');
+			logger.warn('⚠️ Audio storage credentials not configured. Audio upload will fail.');
 		}
 
 		this.s3Client = new S3Client({
@@ -115,7 +116,7 @@ class AudioStorageService {
 				mimeType
 			};
 		} catch (error) {
-			console.error('Failed to upload audio to storage:', error);
+			logger.error('Failed to upload audio to storage:', error);
 			throw new Error(
 				`Audio upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -137,7 +138,7 @@ class AudioStorageService {
 			const signedUrl = await getSignedUrl(this.s3Client, command, { expiresIn });
 			return signedUrl;
 		} catch (error) {
-			console.error('Failed to generate signed URL:', error);
+			logger.error('Failed to generate signed URL:', error);
 			throw new Error(
 				`Signed URL generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -170,7 +171,7 @@ class AudioStorageService {
 
 			return Buffer.concat(chunks);
 		} catch (error) {
-			console.error('Failed to download audio from storage:', error);
+			logger.error('Failed to download audio from storage:', error);
 			throw new Error(
 				`Audio download failed: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -188,9 +189,9 @@ class AudioStorageService {
 					Key: storageKey
 				})
 			);
-			console.log(`✅ Deleted audio file: ${storageKey}`);
+			logger.info(`✅ Deleted audio file: ${storageKey}`);
 		} catch (error) {
-			console.error('Failed to delete audio from storage:', error);
+			logger.error('Failed to delete audio from storage:', error);
 			throw new Error(
 				`Audio deletion failed: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);

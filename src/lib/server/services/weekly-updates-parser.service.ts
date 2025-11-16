@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import type { WeeklyUpdateItem } from '$lib/server/email/weekly-updates-email.service';
@@ -20,7 +21,7 @@ export class WeeklyUpdatesParserService {
 		try {
 			const files = this.getWeeklyUpdateFiles();
 			if (files.length === 0) {
-				console.log('No weekly update files found');
+				logger.info('No weekly update files found');
 				return null;
 			}
 
@@ -34,7 +35,7 @@ export class WeeklyUpdatesParserService {
 			const latestFile = sortedFiles[0];
 			return this.parseWeeklyUpdateFile(latestFile);
 		} catch (error) {
-			console.error('Error getting latest weekly update:', error);
+			logger.error('Error getting latest weekly update:', error);
 			return null;
 		}
 	}
@@ -49,7 +50,7 @@ export class WeeklyUpdatesParserService {
 				.map((file) => this.parseWeeklyUpdateFile(file))
 				.filter((update) => update !== null) as ParsedWeeklyUpdate[];
 		} catch (error) {
-			console.error('Error getting all weekly updates:', error);
+			logger.error('Error getting all weekly updates:', error);
 			return [];
 		}
 	}
@@ -64,7 +65,7 @@ export class WeeklyUpdatesParserService {
 				.filter((file) => file.startsWith('Updates-') && file.endsWith('.md'))
 				.map((file) => join(this.UPDATES_DIR, file));
 		} catch (error) {
-			console.error('Error reading weekly updates directory:', error);
+			logger.error('Error reading weekly updates directory:', error);
 			return [];
 		}
 	}
@@ -89,7 +90,7 @@ export class WeeklyUpdatesParserService {
 				notes: sections.notes
 			};
 		} catch (error) {
-			console.error(`Error parsing weekly update file ${filePath}:`, error);
+			logger.error(`Error parsing weekly update file ${filePath}:`, error);
 			return null;
 		}
 	}

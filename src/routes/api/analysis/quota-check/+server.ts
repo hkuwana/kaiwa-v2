@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 import { json } from '@sveltejs/kit';
 import { analysisQuotaService } from '$lib/server/services/analysis-quota.service';
 
@@ -29,7 +30,7 @@ export const GET = async ({ locals }) => {
 				: null
 		});
 	} catch (error) {
-		console.error('Error checking analysis quota:', error);
+		logger.error('Error checking analysis quota:', error);
 
 		return json(
 			{

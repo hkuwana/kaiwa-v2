@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 import { json } from '@sveltejs/kit';
 import { ProductUpdatesEmailService } from '$lib/server/email/product-updates-email.service';
 import { env } from '$env/dynamic/private';
@@ -29,14 +30,14 @@ export const POST = async ({ request }) => {
 		const expectedAuth = `Bearer ${env.CRON_SECRET || 'development_secret'}`;
 
 		if (authHeader !== expectedAuth) {
-			console.log('❌ Unauthorized access attempt to product-updates endpoint');
+			logger.info('❌ Unauthorized access attempt to product-updates endpoint');
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
 		// SAFETY: Prevent automatic email sending until manually reviewed
 		const enableAutomatedEmails = env.ENABLE_AUTOMATED_EMAILS === 'true';
 		if (!enableAutomatedEmails) {
-			console.log(
+			logger.info(
 				'⚠️  SAFETY MODE: Automated emails disabled. Set ENABLE_AUTOMATED_EMAILS=true to enable.'
 			);
 			return json({
@@ -60,7 +61,7 @@ export const POST = async ({ request }) => {
 			);
 		}
 
-		console.log('📧 Sending product update emails...');
+		logger.info('📧 Sending product update emails...');
 
 		const result = await ProductUpdatesEmailService.sendProductUpdate({
 			subject,
@@ -71,7 +72,7 @@ export const POST = async ({ request }) => {
 			ctaUrl
 		});
 
-		console.log(
+		logger.info(
 			`✅ Product update sent: ${result.sent} emails, ${result.failed} failed, ${result.skipped} skipped`
 		);
 
@@ -81,7 +82,7 @@ export const POST = async ({ request }) => {
 			stats: result
 		});
 	} catch (error) {
-		console.error('Error in product-updates cron:', error);
+		logger.error('Error in product-updates cron:', error);
 		return json(
 			{
 				success: false,
@@ -135,7 +136,7 @@ export const GET = async ({ request, url }) => {
 			}
 		});
 	} catch (error) {
-		console.error('Error in product-updates cron GET:', error);
+		logger.error('Error in product-updates cron GET:', error);
 		return json(
 			{
 				success: false,

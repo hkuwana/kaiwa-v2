@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 import { json } from '@sveltejs/kit';
 import { generateScriptsServer } from '$lib/services/romanization.service';
 
@@ -25,7 +26,7 @@ export const POST = async ({ request }) => {
 			otherScripts: result.otherScripts
 		});
 	} catch (error) {
-		console.error('Romanization API error:', error);
+		logger.error('Romanization API error:', error);
 		return json(
 			{ error: error instanceof Error ? error.message : 'Romanization failed' },
 			{ status: 500 }

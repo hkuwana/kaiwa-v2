@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 // 🎣 Stripe Webhook Handler
 // Processes Stripe events for subscription management
 
@@ -20,7 +21,7 @@ export const POST = async ({ request }) => {
 		// Verify webhook signature
 		const event = stripeService.verifyWebhook(body, signature);
 
-		console.log(`🎣 Stripe webhook received: ${event.type}`);
+		logger.info(`🎣 Stripe webhook received: ${event.type}`);
 
 		// Track webhook event for dev dashboard
 		addWebhookEvent(event);
@@ -117,35 +118,35 @@ export const POST = async ({ request }) => {
 				const session = event.data.object;
 
 				// 🎯 COMPREHENSIVE LOGGING - See everything Stripe sends back!
-				console.log('🎣 ===== CHECKOUT SESSION COMPLETED =====');
-				console.log('📋 Session ID:', session.id);
-				console.log('💰 Amount Total:', session.amount_total, 'cents');
-				console.log('💳 Payment Status:', session.payment_status);
-				console.log('👤 Customer ID:', session.customer);
-				console.log('📅 Created:', new Date(session.created * 1000).toISOString());
-				console.log('🔗 Success URL:', session.success_url);
-				console.log('❌ Cancel URL:', session.cancel_url);
-				console.log('📝 Mode:', session.mode);
-				console.log('🎯 Subscription ID:', session.subscription);
-				console.log('💳 Payment Intent ID:', session.payment_intent);
-				console.log('🏷️ Currency:', session.currency);
-				console.log('📊 Line Items:', JSON.stringify(session.line_items, null, 2));
+				logger.debug('🎣 ===== CHECKOUT SESSION COMPLETED =====');
+				logger.info('📋 Session ID:', session.id);
+				logger.info('💰 Amount Total:', session.amount_total, 'cents');
+				logger.info('💳 Payment Status:', session.payment_status);
+				logger.info('👤 Customer ID:', session.customer);
+				logger.info('📅 Created:', new Date(session.created * 1000).toISOString());
+				logger.info('🔗 Success URL:', session.success_url);
+				logger.info('❌ Cancel URL:', session.cancel_url);
+				logger.info('📝 Mode:', session.mode);
+				logger.debug('🎯 Subscription ID:', session.subscription);
+				logger.info('💳 Payment Intent ID:', session.payment_intent);
+				logger.info('🏷️ Currency:', session.currency);
+				logger.info('📊 Line Items:', JSON.stringify(session.line_items, null, 2));
 
 				// 🔍 Metadata (your custom data)
-				console.log('🏷️ Metadata:', session.metadata);
-				console.log('👤 User ID from metadata:', session.metadata?.userId);
+				logger.info('🏷️ Metadata:', session.metadata);
+				logger.info('👤 User ID from metadata:', session.metadata?.userId);
 
 				// 🔍 Customer Details (simplified to avoid type issues)
 				if (session.customer) {
-					console.log('👤 Customer ID:', session.customer);
+					logger.info('👤 Customer ID:', session.customer);
 				}
 
 				// 🔍 Subscription Details (simplified to avoid type issues)
 				if (session.subscription) {
-					console.log('📅 Subscription ID:', session.subscription);
+					logger.info('📅 Subscription ID:', session.subscription);
 				}
 
-				console.log('🎣 ===== END CHECKOUT SESSION LOG =====');
+				logger.debug('🎣 ===== END CHECKOUT SESSION LOG =====');
 
 				// Handle the checkout success to update user tier
 				await stripeService.handleCheckoutSuccess(session);
@@ -167,12 +168,12 @@ export const POST = async ({ request }) => {
 			}
 
 			default:
-				console.log(`Unhandled webhook event type: ${event.type}`);
+				logger.info(`Unhandled webhook event type: ${event.type}`);
 		}
 
 		return json({ received: true });
 	} catch (error) {
-		console.error('Webhook error:', error);
+		logger.error('Webhook error:', error);
 		return json({ error: 'Webhook handler failed' }, { status: 400 });
 	}
 };

@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 import { json } from '@sveltejs/kit';
 
 // Simple test endpoint to verify analysis limits are working
@@ -40,7 +41,7 @@ export const POST = async ({ request }) => {
 			testStatus: 'completed'
 		});
 	} catch (error) {
-		console.error('Test error:', error);
+		logger.error('Test error:', error);
 		return json(
 			{ error: 'Test failed', details: error instanceof Error ? error.message : 'Unknown error' },
 			{ status: 500 }

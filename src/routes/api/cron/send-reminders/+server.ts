@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 import { json } from '@sveltejs/kit';
 import { EmailReminderService } from '$lib/server/email/email-reminder.service';
 import { userRepository } from '$lib/server/repositories';
@@ -21,16 +22,16 @@ import { Resend } from 'resend';
  */
 export const GET = async ({ request, url }) => {
 	try {
-		console.log('🔍 Cron endpoint called - send-reminders');
+		logger.debug('🔍 Cron endpoint called - send-reminders');
 
 		// Verify cron secret for security
 		const authHeader = request.headers.get('authorization');
 		const expectedAuth = `Bearer ${env.CRON_SECRET || 'development_secret'}`;
 
-		console.log('🔐 Auth check:', { hasAuth: !!authHeader, hasSecret: !!env.CRON_SECRET });
+		logger.info('🔐 Auth check:', { hasAuth: !!authHeader, hasSecret: !!env.CRON_SECRET });
 
 		if (authHeader !== expectedAuth) {
-			console.log('❌ Unauthorized access attempt');
+			logger.info('❌ Unauthorized access attempt');
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
@@ -45,16 +46,16 @@ export const GET = async ({ request, url }) => {
 				.map((e) => e.trim()) || null;
 
 		if (!enableAutomatedEmails) {
-			console.log(
+			logger.info(
 				'⚠️  SAFETY MODE: Automated emails disabled. Set ENABLE_AUTOMATED_EMAILS=true to enable.'
 			);
 		}
-		console.log('✅ Authorized, dryRun:', dryRun, 'testEmails:', testEmails);
+		logger.info('✅ Authorized, dryRun:', dryRun, 'testEmails:', testEmails);
 
 		// Get all users eligible for daily reminders based on database preferences
-		console.log('📊 Fetching eligible users...');
+		logger.info('📊 Fetching eligible users...');
 		const eligibleUserIds = await EmailPermissionService.getPracticeReminderEligibleUsers();
-		console.log(`📊 Found ${eligibleUserIds.length} eligible user IDs`);
+		logger.info(`📊 Found ${eligibleUserIds.length} eligible user IDs`);
 		let usersToRemind = await Promise.all(
 			eligibleUserIds.map(async (userId) => {
 				const user = await userRepository.findUserById(userId);
@@ -64,17 +65,17 @@ export const GET = async ({ request, url }) => {
 
 		// Filter to test emails only if provided
 		if (testEmails && testEmails.length > 0) {
-			console.log(`🧪 TEST MODE: Filtering to only emails: ${testEmails.join(', ')}`);
+			logger.info(`🧪 TEST MODE: Filtering to only emails: ${testEmails.join(', ')}`);
 			usersToRemind = usersToRemind.filter((u) => testEmails.includes(u.email));
-			console.log(`🧪 Filtered to ${usersToRemind.length} test users`);
+			logger.info(`🧪 Filtered to ${usersToRemind.length} test users`);
 		}
 
-		console.log(`👥 Found ${usersToRemind.length} users to process`);
+		logger.info(`👥 Found ${usersToRemind.length} users to process`);
 
 		// Segment users by activity level
-		console.log('🔄 Segmenting users...');
+		logger.info('🔄 Segmenting users...');
 		const segmented = await segmentUsers(usersToRemind);
-		console.log(
+		logger.info(
 			'✅ Users segmented:',
 			Object.keys(segmented).reduce(
 				(acc, key) => ({
@@ -100,13 +101,13 @@ export const GET = async ({ request, url }) => {
 		}> = [];
 
 		// Send appropriate emails based on user segment
-		console.log('📧 Starting to process users for reminders...');
+		logger.info('📧 Starting to process users for reminders...');
 		const today = new Date();
 		const dayOfWeek = today.toLocaleDateString('en-US', { weekday: 'lowercase' });
 
 		for (const segment of Object.keys(segmented)) {
 			const users = segmented[segment as keyof typeof segmented];
-			console.log(`Processing segment: ${segment} (${users.length} users)`);
+			logger.info(`Processing segment: ${segment} (${users.length} users)`);
 
 			for (const user of users) {
 				// TODO: After DB migration, uncomment this to use user preferences
@@ -175,7 +176,7 @@ export const GET = async ({ request, url }) => {
 			}
 		}
 
-		console.log(`✅ Processing complete! Sent: ${sent}, Skipped: ${skipped}, Failed: ${failed}`);
+		logger.info(`✅ Processing complete! Sent: ${sent}, Skipped: ${skipped}, Failed: ${failed}`);
 
 		const stats = {
 			total: usersToRemind.length,
@@ -205,7 +206,7 @@ export const GET = async ({ request, url }) => {
 			stats
 		});
 	} catch (error) {
-		console.error('Error in send-reminders cron:', error);
+		logger.error('Error in send-reminders cron:', error);
 		return json(
 			{
 				success: false,
@@ -390,9 +391,9 @@ async function sendCronSummaryEmail(stats: any): Promise<void> {
 			`
 		});
 
-		console.log('📧 Cron summary email sent to admin');
+		logger.info('📧 Cron summary email sent to admin');
 	} catch (error) {
-		console.error('Failed to send cron summary email:', error);
+		logger.error('Failed to send cron summary email:', error);
 		// Don't throw - we don't want to fail the cron job if email fails
 	}
 }

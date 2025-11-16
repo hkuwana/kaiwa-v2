@@ -1,3 +1,4 @@
+import { logger } from '$lib/logger';
 // src/lib/stores/conversation.store.svelte.ts
 // Simplified conversation store using functional realtime service
 // ! Need to make sure that onboarding update in the beginning of the conversation is handled
@@ -9,7 +10,7 @@ import { browser, dev } from '$app/environment';
 
 // Environment-based logging
 
-const log = (...args: unknown[]) => dev && console.log(...args);
+const log = (...args: unknown[]) => dev && logger.info(...args);
 import { realtimeOpenAI } from '$lib/stores/realtime-openai.store.svelte';
 import { audioStore } from '$lib/stores/audio.store.svelte';
 import { scenarioStore } from '$lib/stores/scenario.store.svelte';
@@ -137,7 +138,7 @@ export class ConversationStore {
 				return true;
 			}
 
-			console.warn('🔍 TRANSCRIPT FILTER CHECK', {
+			logger.warn('🔍 TRANSCRIPT FILTER CHECK', {
 				itemId: meta.itemId,
 				text: meta.text,
 				textLength: meta.text.length,
@@ -149,7 +150,7 @@ export class ConversationStore {
 			// Reset flag regardless of decision so it only applies once
 			this.suppressNextUserTranscript = false;
 
-			console.warn('🔍 SUPPRESSION FLAG AFTER CHECK', {
+			logger.warn('🔍 SUPPRESSION FLAG AFTER CHECK', {
 				itemId: meta.itemId,
 				wasSuppressFlag: shouldSuppress,
 				nowSuppressFlag: this.suppressNextUserTranscript,
@@ -158,7 +159,7 @@ export class ConversationStore {
 			});
 
 			if (!shouldSuppress) {
-				console.warn('✅ TRANSCRIPT ALLOWED (suppression flag was false)', {
+				logger.warn('✅ TRANSCRIPT ALLOWED (suppression flag was false)', {
 					itemId: meta.itemId,
 					text: meta.text.substring(0, 50)
 				});
@@ -168,7 +169,7 @@ export class ConversationStore {
 			const tokenCount = meta.text.trim().split(/\s+/).length;
 			const isLongUtterance = tokenCount > 6 || meta.text.trim().length > 40;
 			if (isLongUtterance) {
-				console.warn('✅ TRANSCRIPT ALLOWED (long utterance override)', {
+				logger.warn('✅ TRANSCRIPT ALLOWED (long utterance override)', {
 					itemId: meta.itemId,
 					tokenCount,
 					textLength: meta.text.trim().length,
@@ -177,7 +178,7 @@ export class ConversationStore {
 				return true;
 			}
 
-			console.warn('🧹 ConversationStore: Suppressing low-activity user transcript', {
+			logger.warn('🧹 ConversationStore: Suppressing low-activity user transcript', {
 				itemId: meta.itemId,
 				text: meta.text
 			});
@@ -215,7 +216,7 @@ export class ConversationStore {
 		// Handle page unload/navigation - save conversation before leaving
 		this.unloadHandler = (event: BeforeUnloadEvent) => {
 			if (this.status !== 'idle' && this.messages.length > 0) {
-				console.log('🚪 Page unload detected - saving conversation...');
+				logger.info('🚪 Page unload detected - saving conversation...');
 
 				// Use sendBeacon for reliable save during unload
 				this.saveConversationViaBeacon();
@@ -231,7 +232,7 @@ export class ConversationStore {
 		// Handle visibility changes - save when tab becomes hidden
 		this.visibilityHandler = () => {
 			if (document.hidden && this.status !== 'idle' && this.messages.length > 0) {
-				console.log('👁️ Tab hidden - queueing conversation save...');
+				logger.info('👁️ Tab hidden - queueing conversation save...');
 				this.queueConversationSave();
 			}
 		};
@@ -271,7 +272,7 @@ export class ConversationStore {
 		speaker?: Speaker | string,
 		options?: Partial<UserPreferences>
 	) => {
-		console.log('🚀 ConversationStore: Starting conversation:', {
+		logger.info('🚀 ConversationStore: Starting conversation:', {
 			browser,
 			isBrowser: typeof window !== 'undefined',
 			status: this.status,
@@ -280,12 +281,12 @@ export class ConversationStore {
 		});
 
 		if (!browser) {
-			console.warn('Cannot start conversation on server');
+			logger.warn('Cannot start conversation on server');
 			return;
 		}
 
 		if (this.status !== 'idle') {
-			console.warn('Conversation already in progress');
+			logger.warn('Conversation already in progress');
 			return;
 		}
 
@@ -313,7 +314,7 @@ export class ConversationStore {
 			(userPreferencesStore.getPreference('audioInputMode') as AudioInputMode | undefined) ||
 			'ptt'; // Default to Push-to-Talk
 
-		console.log('🎙️ ConversationStore: Audio input mode:', this.audioInputMode);
+		logger.info('🎙️ ConversationStore: Audio input mode:', this.audioInputMode);
 
 		this.timer.configureForUserTier(userManager.effectiveTier);
 
@@ -351,23 +352,23 @@ export class ConversationStore {
 			this.sessionReadyHandled = false;
 			// 1. Initialize audio store if not already initialized
 			if (!audioStore.isInitialized) {
-				console.log('🎵 ConversationStore: Initializing audio store...');
+				logger.info('🎵 ConversationStore: Initializing audio store...');
 				await audioStore.initialize();
 			}
 
 			// 2. Request audio permission and start recording
-			console.log('🎵 ConversationStore: Requesting audio permission and starting recording...');
+			logger.info('🎵 ConversationStore: Requesting audio permission and starting recording...');
 			const audioResult = await audioStore.requestPermissionGracefully();
 
 			if (!audioResult.success) {
 				const errorMessage = audioResult.error?.message || 'Failed to get microphone access';
-				console.error('❌ ConversationStore: Audio permission denied:', errorMessage);
+				logger.error('❌ ConversationStore: Audio permission denied:', errorMessage);
 				throw new Error(`Audio setup failed: ${errorMessage}`);
 			}
 
 			// Get the stream from the audio store
 			this.audioStream = audioStore.getCurrentStream();
-			console.log(
+			logger.info(
 				'🎵 ConversationStore: After starting recording - stream exists:',
 				!!this.audioStream,
 				'audioStore.isRecording:',
@@ -382,7 +383,7 @@ export class ConversationStore {
 			const track = this.audioStream.getAudioTracks()[0];
 			if (track) {
 				track.enabled = false;
-				console.log(
+				logger.info(
 					'🎵 ConversationStore: Disabled audio track before connection to prevent initial buffer'
 				);
 			}
@@ -406,16 +407,16 @@ export class ConversationStore {
 			// 5. Set up event handlers
 			this.setupRealtimeEventHandlers();
 
-			console.log('Connection established, waiting for session creation...');
+			logger.info('Connection established, waiting for session creation...');
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Connection failed';
 			this.error = errorMessage;
 			this.status = 'error';
 
 			// Save conversation before cleanup on error
-			console.log('⚠️ Connection error - saving conversation before cleanup');
+			logger.info('⚠️ Connection error - saving conversation before cleanup');
 			await this.saveConversationToDatabase(false).catch((saveError) => {
-				console.error('Failed to save conversation on error:', saveError);
+				logger.error('Failed to save conversation on error:', saveError);
 			});
 
 			this.cleanup();
@@ -439,7 +440,7 @@ export class ConversationStore {
 		const timeSinceLastPause = now - this.lastPauseTime;
 		const callStack = new Error().stack?.split('\n').slice(1, 5).join('\n') || 'unknown';
 
-		console.warn('⏸️ ConversationStore: pauseStreaming() CALLED', {
+		logger.warn('⏸️ ConversationStore: pauseStreaming() CALLED', {
 			hasAudioStream: !!this.audioStream,
 			callNumber: this.pauseCallCounter,
 			timeSinceLastPause: `${timeSinceLastPause}ms`,
@@ -449,7 +450,7 @@ export class ConversationStore {
 
 		// Detect rapid duplicate calls (within 200ms)
 		if (timeSinceLastPause < 200 && timeSinceLastPause > 0) {
-			console.warn('⚠️ DUPLICATE pauseStreaming() DETECTED!', {
+			logger.warn('⚠️ DUPLICATE pauseStreaming() DETECTED!', {
 				timeSinceLastPause: `${timeSinceLastPause}ms`,
 				callNumber: this.pauseCallCounter,
 				previousCallTime: new SvelteDate(this.lastPauseTime).toISOString(),
@@ -461,19 +462,19 @@ export class ConversationStore {
 		this.lastPauseTime = now;
 
 		if (!this.audioStream) {
-			console.log('🎙️ ConversationStore: pauseStreaming ignored - no active stream');
+			logger.info('🎙️ ConversationStore: pauseStreaming ignored - no active stream');
 			return;
 		}
 
 		// Cancel any pending greeting retry when user commits audio
 		if (this.greetingRetryTimeout) {
-			console.log('🎵 ConversationStore: Canceling greeting retry - user committed audio');
+			logger.info('🎵 ConversationStore: Canceling greeting retry - user committed audio');
 			clearTimeout(this.greetingRetryTimeout);
 			this.greetingRetryTimeout = null;
 		}
 
 		const track = this.audioStream.getAudioTracks()[0];
-		console.warn('⏸️ PAUSE STREAMING (PTT STOP)', {
+		logger.warn('⏸️ PAUSE STREAMING (PTT STOP)', {
 			audioStoreRecording: audioStore.isRecording,
 			currentLevel: audioStore.currentLevel.level,
 			streamId: this.audioStream.id,
@@ -487,7 +488,7 @@ export class ConversationStore {
 			track.enabled = false;
 		}
 
-		console.warn('⚠️ COMMITTING AUDIO BUFFER - This should result in exactly ONE commit!', {
+		logger.warn('⚠️ COMMITTING AUDIO BUFFER - This should result in exactly ONE commit!', {
 			streamId: this.audioStream.id,
 			trackEnabled: track?.enabled,
 			timestamp: new SvelteDate().toISOString()
@@ -512,7 +513,7 @@ export class ConversationStore {
 				!hadTranscriptDelta &&
 				(!hadAudioEnergy || durationMs < MIN_DURATION_MS || this.turnMaxInputLevel === 0);
 
-			console.warn('🎯 SILENCE DETECTION LOGIC', {
+			logger.warn('🎯 SILENCE DETECTION LOGIC', {
 				durationMs,
 				turnMaxInputLevel: this.turnMaxInputLevel,
 				hadTranscriptDelta,
@@ -524,7 +525,7 @@ export class ConversationStore {
 			});
 
 			if (shouldSuppress) {
-				console.warn('🧹 ConversationStore: SETTING suppressNextUserTranscript = TRUE', {
+				logger.warn('🧹 ConversationStore: SETTING suppressNextUserTranscript = TRUE', {
 					durationMs,
 					turnMaxInputLevel: this.turnMaxInputLevel,
 					hadTranscriptDelta,
@@ -533,11 +534,11 @@ export class ConversationStore {
 					timestamp: new SvelteDate().toISOString()
 				});
 				this.suppressNextUserTranscript = true;
-				console.warn('🧹 ConversationStore: suppressNextUserTranscript is now TRUE', {
+				logger.warn('🧹 ConversationStore: suppressNextUserTranscript is now TRUE', {
 					afterFlag: this.suppressNextUserTranscript
 				});
 			} else {
-				console.warn('✅ NOT SUPPRESSING - turn had activity', {
+				logger.warn('✅ NOT SUPPRESSING - turn had activity', {
 					durationMs,
 					turnMaxInputLevel: this.turnMaxInputLevel,
 					hadTranscriptDelta,
@@ -553,25 +554,25 @@ export class ConversationStore {
 		try {
 			audioStore.currentLevel = { level: 0, timestamp: Date.now() };
 		} catch (err) {
-			console.warn('🎙️ ConversationStore: Failed to reset audio level on pause', err);
+			logger.warn('🎙️ ConversationStore: Failed to reset audio level on pause', err);
 		}
 	};
 
 	resumeStreaming = () => {
 		const callStack = new Error().stack?.split('\n').slice(1, 4).join('\n') || 'unknown';
-		console.warn('▶️ ConversationStore: resumeStreaming() CALLED', {
+		logger.warn('▶️ ConversationStore: resumeStreaming() CALLED', {
 			hasAudioStream: !!this.audioStream,
 			callStack,
 			timestamp: new SvelteDate().toISOString()
 		});
 
 		if (!this.audioStream) {
-			console.log('🎙️ ConversationStore: resumeStreaming ignored - no active stream');
+			logger.info('🎙️ ConversationStore: resumeStreaming ignored - no active stream');
 			return;
 		}
 
 		const track = this.audioStream.getAudioTracks()[0];
-		console.warn('▶️ RESUME STREAMING (PTT START)', {
+		logger.warn('▶️ RESUME STREAMING (PTT START)', {
 			audioStoreRecording: audioStore.isRecording,
 			currentLevel: audioStore.currentLevel.level,
 			streamId: this.audioStream.id,
@@ -580,7 +581,7 @@ export class ConversationStore {
 			timestamp: new SvelteDate().toISOString()
 		});
 
-		console.warn('🔄 RESETTING SUPPRESSION FLAG IN resumeStreaming()', {
+		logger.warn('🔄 RESETTING SUPPRESSION FLAG IN resumeStreaming()', {
 			beforeFlag: this.suppressNextUserTranscript,
 			timestamp: new SvelteDate().toISOString()
 		});
@@ -590,7 +591,7 @@ export class ConversationStore {
 		this.suppressNextUserTranscript = false;
 		this.speechDetected = false;
 
-		console.warn('🔄 SUPPRESSION FLAG RESET TO FALSE', {
+		logger.warn('🔄 SUPPRESSION FLAG RESET TO FALSE', {
 			afterFlag: this.suppressNextUserTranscript,
 			currentTurnStartMs: this.currentTurnStartMs,
 			timestamp: new SvelteDate().toISOString()
@@ -606,7 +607,7 @@ export class ConversationStore {
 		// Clear buffer after track is enabled
 		realtimeOpenAI.pttStart(this.audioStream);
 
-		console.log('🎙️ ConversationStore: resumeStreaming applied', {
+		logger.info('🎙️ ConversationStore: resumeStreaming applied', {
 			track: this.describeAudioTrack(track)
 		});
 	};
@@ -659,13 +660,13 @@ export class ConversationStore {
 				// Update our reference to the active MediaStream so downstream consumers stay in sync
 				this.audioStream = audioStore.getCurrentStream();
 
-				console.log('Audio device switched successfully');
+				logger.info('Audio device switched successfully');
 			} else {
 				// Persist the preference for the next time recording starts
 				audioStore.selectedDeviceId = deviceId;
 			}
 		} catch (error) {
-			console.error('Failed to switch audio device:', error);
+			logger.error('Failed to switch audio device:', error);
 			this.error = 'Failed to switch audio device';
 		}
 	};
@@ -676,14 +677,14 @@ export class ConversationStore {
 	 */
 	updateAudioInputMode = (mode: AudioInputMode) => {
 		if (this.status === 'idle' || !this.language) {
-			console.warn('⚠️ Cannot update audio mode - conversation not active');
+			logger.warn('⚠️ Cannot update audio mode - conversation not active');
 			return;
 		}
 
 		const previousMode = this.audioInputMode;
 		this.audioInputMode = mode;
 
-		console.log('🎙️ ConversationStore: Audio input mode changing', {
+		logger.info('🎙️ ConversationStore: Audio input mode changing', {
 			from: previousMode,
 			to: mode,
 			status: this.status
@@ -704,16 +705,16 @@ export class ConversationStore {
 				// In VAD mode, audio track should be enabled for continuous listening
 				track.enabled = true;
 				this.waitingForUserToStart = false;
-				console.log('🎙️ ConversationStore: VAD mode - audio track enabled for continuous listening');
+				logger.info('🎙️ ConversationStore: VAD mode - audio track enabled for continuous listening');
 			} else {
 				// In PTT mode, disable track until user presses button
 				track.enabled = false;
 				this.waitingForUserToStart = true;
-				console.log('🎙️ ConversationStore: PTT mode - audio track disabled until button press');
+				logger.info('🎙️ ConversationStore: PTT mode - audio track disabled until button press');
 			}
 		}
 
-		console.log('✅ ConversationStore: Audio input mode updated successfully', {
+		logger.info('✅ ConversationStore: Audio input mode updated successfully', {
 			mode,
 			turnDetection: turnDetectionConfig ? 'server_vad' : 'manual (PTT)',
 			trackEnabled: track?.enabled
@@ -842,12 +843,12 @@ export class ConversationStore {
 		try {
 			settings = track.getSettings();
 		} catch (error) {
-			console.warn('🎙️ ConversationStore: Failed to read track settings', error);
+			logger.warn('🎙️ ConversationStore: Failed to read track settings', error);
 		}
 		try {
 			constraints = track.getConstraints();
 		} catch (error) {
-			console.warn('🎙️ ConversationStore: Failed to read track constraints', error);
+			logger.warn('🎙️ ConversationStore: Failed to read track constraints', error);
 		}
 		return {
 			id: track.id,
@@ -901,7 +902,7 @@ export class ConversationStore {
 			usageStore.setUser(userId, context.tier);
 			usageStore.usage = context.usage;
 		} catch (error) {
-			console.error('Failed to apply usage context to usageStore', error);
+			logger.error('Failed to apply usage context to usageStore', error);
 		}
 
 		const tierId = context.tier?.id;
@@ -926,32 +927,32 @@ export class ConversationStore {
 	private setupRealtimeEventHandlers(): void {
 		// Guard against duplicate handler registration (Bug #4 fix)
 		if (this.messageHandlersSetup) {
-			console.warn(
+			logger.warn(
 				'⚠️ ConversationStore: setupRealtimeEventHandlers called multiple times, skipping duplicate setup'
 			);
 			return;
 		}
 
-		console.log('📋 ConversationStore: Setting up realtime event handlers');
+		logger.info('📋 ConversationStore: Setting up realtime event handlers');
 		this.messageHandlersSetup = true;
 
 		// Subscribe to SDK history stream through the new store
 		try {
 			this.messageUnsub?.();
 		} catch {
-			console.log('an error with conversation store. Chekc it out');
+			logger.info('an error with conversation store. Chekc it out');
 		}
 		try {
 			this.sessionReadyUnsub?.();
 		} catch {
-			console.log('an error with session ready listener cleanup');
+			logger.info('an error with session ready listener cleanup');
 		}
 		this.sessionReadyUnsub = realtimeOpenAI.onSessionReady(() => {
 			this.handleRealtimeSessionReady();
 		});
 
 		this.messageUnsub = realtimeOpenAI.onMessageStream(async (ev) => {
-			console.log('📨 ConversationStore: Message stream event:', {
+			logger.info('📨 ConversationStore: Message stream event:', {
 				role: ev.role,
 				final: ev.final,
 				realtimeMessagesCount: realtimeOpenAI.messages.length,
@@ -963,7 +964,7 @@ export class ConversationStore {
 				messageService.sortMessagesBySequence([...realtimeOpenAI.messages])
 			);
 
-			console.log('🔄 ConversationStore: Message mirroring:', {
+			logger.info('🔄 ConversationStore: Message mirroring:', {
 				before: this.messages.length,
 				after: newMessages.length,
 				change: newMessages.length - this.messages.length,
@@ -972,7 +973,7 @@ export class ConversationStore {
 
 			// Guard against unexpected message count growth (Bug #4 detection)
 			if (this.messages.length > 0 && newMessages.length > this.messages.length + 2) {
-				console.warn(
+				logger.warn(
 					'⚠️ ConversationStore: Unexpected message growth detected! This may indicate duplicate responses.',
 					{
 						previousLength: this.messages.length,
@@ -999,10 +1000,10 @@ export class ConversationStore {
 
 				// More aggressive save triggers
 				if ((userMessageCount % 2 === 0 || timeSinceLastSave > 60000) && !hasStreamingMessages) {
-					console.log('🔄 Auto-saving conversation (user message trigger)');
+					logger.info('🔄 Auto-saving conversation (user message trigger)');
 					this.debouncedSave();
 				} else if (hasStreamingMessages) {
-					console.log('⏭️ Skipping auto-save - streaming messages active');
+					logger.info('⏭️ Skipping auto-save - streaming messages active');
 				}
 			}
 
@@ -1010,7 +1011,7 @@ export class ConversationStore {
 			if (ev.role === 'assistant') {
 				const hasStreamingMessages = messageService.hasStreamingMessage(this.messages);
 				if (!hasStreamingMessages) {
-					console.log('🤖 Assistant message complete - scheduling save');
+					logger.info('🤖 Assistant message complete - scheduling save');
 					// More aggressive save after assistant responses
 					this.debouncedSave();
 				}
@@ -1051,7 +1052,7 @@ export class ConversationStore {
 				const userNativeLanguage = userManager.user.nativeLanguageId || 'en';
 
 				if (messageService.needsTranslation(updatedMsg, userNativeLanguage)) {
-					console.log(
+					logger.info(
 						`🌐 Adding translation for ${updatedMsg.role} message: "${updatedMsg.content.substring(0, 50)}..." from auto-detected to ${userNativeLanguage}`
 					);
 					updatedMsg = await messageService.addTranslationToMessage(updatedMsg, userNativeLanguage);
@@ -1103,15 +1104,15 @@ export class ConversationStore {
 		if (this.sessionReadyHandled) return;
 		this.sessionReadyHandled = true;
 
-		console.log('🎵 ConversationStore: Realtime session ready, applying initial setup...');
-		console.log(
+		logger.info('🎵 ConversationStore: Realtime session ready, applying initial setup...');
+		logger.info(
 			'🎵 ConversationStore: Event handlers set up, realtime messages:',
 			realtimeOpenAI.messages.length
 		);
 
 		this.sendInitialSetup();
 		this.status = 'connected';
-		console.log('🎵 ConversationStore: Status changed to "connected"');
+		logger.info('🎵 ConversationStore: Status changed to "connected"');
 
 		// Handle audio track based on mode
 		if (this.audioStream) {
@@ -1120,11 +1121,11 @@ export class ConversationStore {
 				if (this.audioInputMode === 'vad') {
 					// VAD mode: Enable audio track immediately - server handles turn detection
 					track.enabled = true;
-					console.log('🎵 ConversationStore: Enabled audio track for VAD mode');
+					logger.info('🎵 ConversationStore: Enabled audio track for VAD mode');
 				} else {
 					// PTT mode: Keep track disabled until user presses button
 					track.enabled = false;
-					console.log(
+					logger.info(
 						'🎵 ConversationStore: Audio track disabled for PTT mode - waiting for user press'
 					);
 				}
@@ -1141,7 +1142,7 @@ export class ConversationStore {
 
 		if (onboardingManagerService.shouldTriggerOnboarding(preferencesProvider)) {
 			this.timer.start(() => {
-				console.log('Conversation timer expired!');
+				logger.info('Conversation timer expired!');
 				this.handleTimerExpiration();
 			});
 		} else {
@@ -1150,7 +1151,7 @@ export class ConversationStore {
 
 		setTimeout(() => {
 			this.status = 'streaming';
-			console.log('🎵 ConversationStore: Status changed to "streaming"');
+			logger.info('🎵 ConversationStore: Status changed to "streaming"');
 		}, 500);
 	}
 
@@ -1188,7 +1189,7 @@ export class ConversationStore {
 		// Configure turn detection based on audio input mode
 		const turnDetectionConfig = this.getTurnDetectionConfig();
 
-		console.log('Sending session configuration:', {
+		logger.info('Sending session configuration:', {
 			language: this.language.name,
 			voice: this.voice,
 			model: sessionConfig.model,
@@ -1213,14 +1214,14 @@ export class ConversationStore {
 		// With VAD enabled, audio is always flowing - no need for manual start
 		// With PTT, user must press button to start
 		this.waitingForUserToStart = this.audioInputMode === 'ptt';
-		console.log(
+		logger.info(
 			`🎵 ConversationStore: ${this.audioInputMode === 'vad' ? 'VAD mode enabled - ready for conversation' : 'PTT mode enabled - press to speak'}`
 		);
 
 		// In PTT mode, trigger initial greeting immediately since user needs to press to speak
 		// In VAD mode, wait for user to start speaking (greeting triggered by first user input)
 		if (this.audioInputMode === 'ptt' && this.waitingForUserToStart) {
-			console.log('🎵 ConversationStore: PTT mode - triggering initial greeting automatically');
+			logger.info('🎵 ConversationStore: PTT mode - triggering initial greeting automatically');
 			this.triggerInitialGreeting();
 		}
 	}
@@ -1235,11 +1236,11 @@ export class ConversationStore {
 		// If a scenario is active, don't send a generic greeting.
 
 		if (!this.waitingForUserToStart) {
-			console.log('🎵 ConversationStore: Initial greeting already sent');
+			logger.info('🎵 ConversationStore: Initial greeting already sent');
 			return;
 		}
 
-		console.log('🎵 ConversationStore: User initiated conversation, sending initial greeting...');
+		logger.info('🎵 ConversationStore: User initiated conversation, sending initial greeting...');
 		this.waitingForUserToStart = false;
 
 		// Add a small delay to ensure session update is processed before sending response
@@ -1261,16 +1262,16 @@ export class ConversationStore {
 	 */
 	enableMicrophone = () => {
 		if (!this.audioStream) {
-			console.warn('🎵 ConversationStore: No audio stream available to enable');
+			logger.warn('🎵 ConversationStore: No audio stream available to enable');
 			return;
 		}
 
-		console.log('🎵 ConversationStore: Enabling microphone audio tracks...');
+		logger.info('🎵 ConversationStore: Enabling microphone audio tracks...');
 		this.audioStream.getAudioTracks().forEach((track) => {
-			console.log(`🔊 Track ${track.id} enabled: ${track.enabled} -> true`);
+			logger.info(`🔊 Track ${track.id} enabled: ${track.enabled} -> true`);
 			track.enabled = true;
 		});
-		console.log('✅ ConversationStore: Microphone enabled');
+		logger.info('✅ ConversationStore: Microphone enabled');
 	};
 
 	private applyInstructionUpdate(delta: string) {
@@ -1327,8 +1328,8 @@ export class ConversationStore {
 	}
 
 	private cleanup(): void {
-		console.log('🧹 ConversationStore: Cleaning up conversation resources...');
-		console.log(
+		logger.info('🧹 ConversationStore: Cleaning up conversation resources...');
+		logger.info(
 			'🧹 ConversationStore: Before cleanup - audioStore.isRecording:',
 			audioStore.isRecording,
 			'audioStream exists:',
@@ -1351,17 +1352,17 @@ export class ConversationStore {
 		}
 
 		// Close realtime session
-		console.log('🧹 ConversationStore: Closing SDK realtime session');
+		logger.info('🧹 ConversationStore: Closing SDK realtime session');
 		try {
 			this.messageUnsub?.();
 		} catch {
-			console.log('an error with conversation store. Chekc it out');
+			logger.info('an error with conversation store. Chekc it out');
 		}
 		this.messageUnsub = null;
 		try {
 			this.sessionReadyUnsub?.();
 		} catch {
-			console.log('an error with session ready listener cleanup');
+			logger.info('an error with session ready listener cleanup');
 		}
 		this.sessionReadyUnsub = null;
 		this.sessionReadyHandled = false;
@@ -1373,12 +1374,12 @@ export class ConversationStore {
 		try {
 			realtimeOpenAI.disconnect();
 		} catch {
-			console.log('an error with conversation store. Chekc it out');
+			logger.info('an error with conversation store. Chekc it out');
 		}
 
 		// Stop audio stream
 		if (this.audioStream) {
-			console.log('🧹 ConversationStore: Stopping audio stream');
+			logger.info('🧹 ConversationStore: Stopping audio stream');
 			audioStore.stopRecording();
 			this.audioStream = null;
 		}
@@ -1387,7 +1388,7 @@ export class ConversationStore {
 
 		// Note: Don't stop audio recording here - it should continue for UI audio level display
 		// The audio store will handle its own cleanup when needed
-		console.log(
+		logger.info(
 			'🧹 ConversationStore: After cleanup - audioStore.isRecording:',
 			audioStore.isRecording
 		);
@@ -1433,23 +1434,23 @@ export class ConversationStore {
 	};
 
 	forceCleanup = () => {
-		console.log('Force cleaning up conversation store...');
+		logger.info('Force cleaning up conversation store...');
 		try {
 			this.cleanup();
 		} catch (error) {
-			console.warn('Error during cleanup:', error);
+			logger.warn('Error during cleanup:', error);
 		}
 		try {
 			this.timer.cleanup();
 		} catch (error) {
-			console.warn('Error during timer cleanup:', error);
+			logger.warn('Error during timer cleanup:', error);
 		}
 		this.resetState();
-		console.log('Force cleanup complete');
+		logger.info('Force cleanup complete');
 	};
 
 	private handleTimerExpiration(): void {
-		console.log('Timer expired - initiating graceful shutdown');
+		logger.info('Timer expired - initiating graceful shutdown');
 
 		// Set graceful ending state
 		this.isGracefullyEnding = true;
@@ -1458,7 +1459,7 @@ export class ConversationStore {
 		const needsGracefulWait = this.shouldWaitBeforeEnding();
 
 		if (needsGracefulWait) {
-			console.log('Waiting for audio/AI completion before ending conversation');
+			logger.info('Waiting for audio/AI completion before ending conversation');
 			this.initiateGracefulShutdown();
 		} else {
 			// Can end immediately
@@ -1476,7 +1477,7 @@ export class ConversationStore {
 		// Check if audio is actively playing
 		const audioIsPlaying = false;
 
-		console.log('Graceful shutdown check:', {
+		logger.info('Graceful shutdown check:', {
 			userIsSpeaking,
 			aiIsResponding,
 			audioIsPlaying,
@@ -1498,7 +1499,7 @@ export class ConversationStore {
 		// Set a maximum wait time (e.g., 10 seconds)
 		setTimeout(() => {
 			if (this.isGracefullyEnding) {
-				console.log('Graceful shutdown timeout - proceeding with analysis');
+				logger.info('Graceful shutdown timeout - proceeding with analysis');
 				this.proceedWithAnalysisAndEnd();
 			}
 		}, 10000); // 10 second timeout
@@ -1510,17 +1511,17 @@ export class ConversationStore {
 		const audioElement = undefined as unknown as HTMLAudioElement | undefined;
 
 		const onAudioEnd = () => {
-			console.log('Audio playback completed');
+			logger.info('Audio playback completed');
 			this.waitingForAudioCompletion = false;
 			try {
 				audioElement?.removeEventListener('ended', onAudioEnd);
 			} catch {
-				console.log('an error with conversation store. Chekc it out');
+				logger.info('an error with conversation store. Chekc it out');
 			}
 			try {
 				audioElement?.removeEventListener('pause', onAudioEnd);
 			} catch {
-				console.log('an error with conversation store. Chekc it out');
+				logger.info('an error with conversation store. Chekc it out');
 			}
 			this.checkIfReadyToEnd();
 		};
@@ -1528,12 +1529,12 @@ export class ConversationStore {
 		try {
 			audioElement?.addEventListener('ended', onAudioEnd);
 		} catch {
-			console.log('an error with conversation store. Chekc it out');
+			logger.info('an error with conversation store. Chekc it out');
 		}
 		try {
 			audioElement?.addEventListener('pause', onAudioEnd);
 		} catch {
-			console.log('an error with conversation store. Chekc it out');
+			logger.info('an error with conversation store. Chekc it out');
 		}
 
 		// The AI response completion will be handled in your existing message handling
@@ -1550,7 +1551,7 @@ export class ConversationStore {
 			this.isTranscribing ||
 			messageService.hasStreamingMessage(this.messages);
 
-		console.log('Checking if ready to end:', {
+		logger.info('Checking if ready to end:', {
 			stillWaiting,
 			waitingForAudioCompletion: this.waitingForAudioCompletion,
 			waitingForAIResponse: this.waitingForAIResponse,
@@ -1560,21 +1561,21 @@ export class ConversationStore {
 		});
 
 		if (!stillWaiting) {
-			console.log('All conditions met - proceeding with analysis and end');
+			logger.info('All conditions met - proceeding with analysis and end');
 			this.proceedWithAnalysisAndEnd();
 		}
 	}
 
 	private async proceedWithAnalysisAndEnd(): Promise<void> {
 		if (this.analysisTriggered) {
-			console.log('Analysis already triggered, skipping');
+			logger.info('Analysis already triggered, skipping');
 			return;
 		}
 
 		this.analysisTriggered = true;
 
 		try {
-			console.log('Starting conversation analysis...');
+			logger.info('Starting conversation analysis...');
 
 			// Ensure realtime session and audio are fully torn down before analysis
 			// so the connection does not linger after the timer expires.
@@ -1582,7 +1583,7 @@ export class ConversationStore {
 			try {
 				this.cleanup();
 			} catch (e) {
-				console.warn('Cleanup before analysis failed (continuing):', e);
+				logger.warn('Cleanup before analysis failed (continuing):', e);
 			}
 
 			// Trigger analysis if we have messages and language
@@ -1591,14 +1592,14 @@ export class ConversationStore {
 				await this.triggerOnboardingAnalysis();
 				this.status = 'analyzed';
 
-				console.log('Analysis completed successfully');
+				logger.info('Analysis completed successfully');
 			} else {
-				console.log('Skipping analysis - no messages or language');
+				logger.info('Skipping analysis - no messages or language');
 				// End conversation normally without analysis
 				this.endConversation();
 			}
 		} catch (error) {
-			console.error('Error during analysis:', error);
+			logger.error('Error during analysis:', error);
 			// Even if analysis fails, we should still end the conversation
 			this.endConversation();
 		}
@@ -1607,7 +1608,7 @@ export class ConversationStore {
 	// Modify your existing triggerOnboardingAnalysis method to be more robust
 	public async triggerOnboardingAnalysis(messagesToAnalyze?: Message[]): Promise<void> {
 		if (!this.language) {
-			console.warn('Cannot trigger onboarding analysis: missing language');
+			logger.warn('Cannot trigger onboarding analysis: missing language');
 			return;
 		}
 
@@ -1624,11 +1625,11 @@ export class ConversationStore {
 		);
 
 		if (completeMessages.length === 0) {
-			console.log('No complete messages for analysis');
+			logger.info('No complete messages for analysis');
 			return;
 		}
 
-		console.log(`Analyzing ${completeMessages.length} complete messages`);
+		logger.info(`Analyzing ${completeMessages.length} complete messages`);
 
 		// Start analysis state
 		userPreferencesStore.constructAnalysis();
@@ -1653,9 +1654,9 @@ export class ConversationStore {
 			// Get the analysis results from the updated preferences
 			const currentPrefs = userPreferencesStore.getPreferences();
 			userPreferencesStore.setAnalysisResults(currentPrefs);
-			console.log('Analysis results saved to user preferences');
+			logger.info('Analysis results saved to user preferences');
 		} else {
-			console.error('Onboarding analysis failed:', result.error);
+			logger.error('Onboarding analysis failed:', result.error);
 			userPreferencesStore.clearAnalysisResults();
 			throw new Error(`Analysis failed: ${result.error}`);
 		}
@@ -1684,7 +1685,7 @@ export class ConversationStore {
 	 */
 	private async saveConversationToDatabase(isOnDestroy = false): Promise<void> {
 		if (!browser || !this.sessionId || !this.language) {
-			console.log('⏭️ Skipping save - no session or language');
+			logger.info('⏭️ Skipping save - no session or language');
 			return;
 		}
 
@@ -1698,7 +1699,7 @@ export class ConversationStore {
 		);
 
 		if (meaningfulMessages.length === 0) {
-			console.log('⏭️ Skipping save - no meaningful messages');
+			logger.info('⏭️ Skipping save - no meaningful messages');
 			return;
 		}
 
@@ -1722,7 +1723,7 @@ export class ConversationStore {
 
 			const sessionMetadata = this.buildSessionMetadata(startTime, now, durationSeconds);
 
-			console.log('💾 Saving conversation to database...', {
+			logger.info('💾 Saving conversation to database...', {
 				sessionId: this.sessionId,
 				messagesCount: preparedMessages.length,
 				isOnDestroy,
@@ -1745,12 +1746,12 @@ export class ConversationStore {
 
 			if (result.success) {
 				this.lastSaveTime = now;
-				console.log('✅ Conversation saved successfully');
+				logger.info('✅ Conversation saved successfully');
 			} else {
-				console.error('❌ Failed to save conversation:', result.error);
+				logger.error('❌ Failed to save conversation:', result.error);
 			}
 		} catch (error) {
-			console.error('❌ Error saving conversation:', error);
+			logger.error('❌ Error saving conversation:', error);
 		}
 	}
 
@@ -1808,9 +1809,9 @@ export class ConversationStore {
 			const sent = navigator.sendBeacon('/api/conversations', payload);
 
 			if (sent) {
-				console.log('📡 Conversation sent via beacon');
+				logger.info('📡 Conversation sent via beacon');
 			} else {
-				console.warn('⚠️ Failed to send beacon - falling back to sync save');
+				logger.warn('⚠️ Failed to send beacon - falling back to sync save');
 				// Fallback: try synchronous fetch
 				fetch('/api/conversations', {
 					method: 'POST',
@@ -1818,11 +1819,11 @@ export class ConversationStore {
 					body: payload,
 					keepalive: true
 				}).catch((error) => {
-					console.error('❌ Beacon fallback failed:', error);
+					logger.error('❌ Beacon fallback failed:', error);
 				});
 			}
 		} catch (error) {
-			console.error('❌ Error saving via beacon:', error);
+			logger.error('❌ Error saving via beacon:', error);
 		}
 	}
 
@@ -1867,12 +1868,12 @@ export class ConversationStore {
 			const data = await response.json();
 
 			if (response.ok) {
-				console.log('✅ Post-run processing complete:', data);
+				logger.info('✅ Post-run processing complete:', data);
 			} else {
-				console.warn('⚠️ Post-run processing failed:', data);
+				logger.warn('⚠️ Post-run processing failed:', data);
 			}
 		} catch (error) {
-			console.warn('⚠️ Post-run endpoint call failed:', error);
+			logger.warn('⚠️ Post-run endpoint call failed:', error);
 			// Don't throw - conversation is already saved, this is just enhancement
 		}
 	}
@@ -1917,7 +1918,7 @@ export class ConversationStore {
 			// NEW: Call post-run endpoint for memory extraction and preference updates
 			const userMessageCount = this.countUserMessages();
 			if (userMessageCount >= 2) {
-				console.log('📨 Calling post-run endpoint:', {
+				logger.info('📨 Calling post-run endpoint:', {
 					conversationId: this.sessionId,
 					userId,
 					messageCount: userMessageCount,
@@ -1925,13 +1926,13 @@ export class ConversationStore {
 				});
 				await this.callPostRunEndpoint(userId, userMessageCount, elapsedSeconds);
 			} else {
-				console.log('⏭️ Skipping post-run: fewer than 2 user messages', {
+				logger.info('⏭️ Skipping post-run: fewer than 2 user messages', {
 					conversationId: this.sessionId,
 					messageCount: userMessageCount
 				});
 			}
 		} catch (error) {
-			console.error('Failed to record conversation usage', { reason, error });
+			logger.error('Failed to record conversation usage', { reason, error });
 		} finally {
 			this.usageRecorded = true;
 		}
@@ -1993,7 +1994,7 @@ export class ConversationStore {
 	endConversation = async () => {
 		if (!browser) return;
 
-		console.log('Ending conversation...', {
+		logger.info('Ending conversation...', {
 			isGracefullyEnding: this.isGracefullyEnding,
 			analysisTriggered: this.analysisTriggered,
 			status: this.status,
@@ -2009,7 +2010,7 @@ export class ConversationStore {
 		try {
 			await this.saveConversationToDatabase(false);
 		} catch (error) {
-			console.warn('Failed to save conversation on end:', error);
+			logger.warn('Failed to save conversation on end:', error);
 		}
 
 		await this.completeSessionUsage('manual-end');
@@ -2022,10 +2023,10 @@ export class ConversationStore {
 
 		// Trigger analysis if we have messages and haven't already analyzed
 		if (this.messages.length > 0 && this.language && !this.analysisTriggered) {
-			console.log('Manually ending conversation - triggering analysis');
-			console.log('Messages count:', this.messages.length);
-			console.log('Language:', this.language);
-			console.log('Analysis triggered:', this.analysisTriggered);
+			logger.info('Manually ending conversation - triggering analysis');
+			logger.info('Messages count:', this.messages.length);
+			logger.info('Language:', this.language);
+			logger.info('Analysis triggered:', this.analysisTriggered);
 
 			// Store messages for analysis display before clearing them
 			this.messagesForAnalysis = [...this.messages];
@@ -2039,22 +2040,22 @@ export class ConversationStore {
 			this.triggerOnboardingAnalysis(messagesForAnalysis)
 				.then(() => {
 					this.status = 'analyzed';
-					console.log('Analysis completed after manual end');
+					logger.info('Analysis completed after manual end');
 				})
 				.catch((error) => {
-					console.error('Error during analysis after manual end:', error);
+					logger.error('Error during analysis after manual end:', error);
 					this.status = 'idle';
 				});
 		} else {
-			console.log('No analysis needed - resetting state');
-			console.log('Messages count:', this.messages.length);
-			console.log('Language:', this.language);
-			console.log('Analysis triggered:', this.analysisTriggered);
+			logger.info('No analysis needed - resetting state');
+			logger.info('Messages count:', this.messages.length);
+			logger.info('Language:', this.language);
+			logger.info('Analysis triggered:', this.analysisTriggered);
 			// Reset state if no analysis needed
 			this.resetState();
 		}
 
-		console.log('Conversation ended');
+		logger.info('Conversation ended');
 	};
 
 	// Add getter for graceful ending state for UI
@@ -2064,7 +2065,7 @@ export class ConversationStore {
 
 	// Add method to force end if needed
 	forceEndConversation = () => {
-		console.log('Force ending conversation...');
+		logger.info('Force ending conversation...');
 		this.isGracefullyEnding = false;
 		this.analysisTriggered = false;
 		this.waitingForAudioCompletion = false;
@@ -2077,7 +2078,7 @@ export class ConversationStore {
 	startNewConversationFromReview = () => {
 		if (!browser) return;
 
-		console.log('Starting new conversation from review state...');
+		logger.info('Starting new conversation from review state...');
 
 		// Preserve current conversation context before reset
 		const preservedLanguage = this.language;
@@ -2089,7 +2090,7 @@ export class ConversationStore {
 
 		// Start fresh conversation with preserved context
 		if (preservedLanguage) {
-			console.log('Restarting conversation with:', {
+			logger.info('Restarting conversation with:', {
 				language: preservedLanguage.name,
 				speaker: preservedSpeaker?.voiceName,
 				hasOptions: !!preservedOptions
@@ -2102,7 +2103,7 @@ export class ConversationStore {
 	preserveForAnalysis = () => {
 		if (!browser) return;
 
-		console.log('Preserving conversation for analysis...');
+		logger.info('Preserving conversation for analysis...');
 
 		// Keep messages and session info for analysis page
 		this.messagesForAnalysis = [...this.messages];
@@ -2113,7 +2114,7 @@ export class ConversationStore {
 		// Clean up realtime connections but preserve state
 		this.cleanup();
 
-		console.log(
+		logger.info(
 			'Conversation preserved for analysis with',
 			this.messagesForAnalysis.length,
 			'messages'
@@ -2124,13 +2125,13 @@ export class ConversationStore {
 	destroyConversation = async () => {
 		if (!browser) return;
 
-		console.log('Destroying conversation completely...');
+		logger.info('Destroying conversation completely...');
 
 		// Save conversation to database before destroying (critical save with retry)
 		try {
 			await this.saveConversationToDatabase(true);
 		} catch (error) {
-			console.error('Failed to save conversation on destroy:', error);
+			logger.error('Failed to save conversation on destroy:', error);
 		}
 
 		await this.completeSessionUsage('destroy');
@@ -2144,14 +2145,14 @@ export class ConversationStore {
 		// Reset all state
 		this.resetState();
 
-		console.log('Conversation completely destroyed');
+		logger.info('Conversation completely destroyed');
 	};
 
 	// Add method to force clear all conversation state without saving
 	forceClearConversation = () => {
 		if (!browser) return;
 
-		console.log('🧹 Force clearing conversation state...');
+		logger.info('🧹 Force clearing conversation state...');
 
 		// Stop timer
 		this.timer.stop();
@@ -2168,7 +2169,7 @@ export class ConversationStore {
 			this.saveTimeout = null;
 		}
 
-		console.log('✅ Conversation state force cleared');
+		logger.info('✅ Conversation state force cleared');
 	};
 
 	// Modify resetState to include new flags

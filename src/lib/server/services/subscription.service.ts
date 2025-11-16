@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 // src/lib/server/services/subscription.service.ts
 // Subscription business logic service
 
@@ -29,7 +30,7 @@ export async function getOrCreateUserSubscription(userId: string): Promise<Subsc
 
 		return subscription;
 	} catch (error) {
-		console.error('Error getting or creating user subscription:', error);
+		logger.error('Error getting or creating user subscription:', error);
 		throw error;
 	}
 }
@@ -58,7 +59,7 @@ export async function getUserTier(userId: string): Promise<UserTier> {
 
 				// Update our database if there's a mismatch
 				if (stripeTier !== subscription.currentTier) {
-					console.log(
+					logger.info(
 						`🔄 [TIER SYNC] Updating tier from ${subscription.currentTier} to ${stripeTier} (from Stripe)`
 					);
 					await subscriptionRepository.updateSubscription(subscription.id, {
@@ -69,7 +70,7 @@ export async function getUserTier(userId: string): Promise<UserTier> {
 				return stripeTier;
 			} else {
 				// Stripe subscription is not active, user should be on free tier
-				console.log(
+				logger.info(
 					`⚠️ [TIER SYNC] Stripe subscription ${subscription.stripeSubscriptionId} is not active, setting to free`
 				);
 				if (subscription.currentTier !== 'free') {
@@ -84,7 +85,7 @@ export async function getUserTier(userId: string): Promise<UserTier> {
 		// For free tier or local subscriptions, use database value
 		return subscription.currentTier as UserTier;
 	} catch (error) {
-		console.error('Error getting user tier:', error);
+		logger.error('Error getting user tier:', error);
 		return 'free';
 	}
 }
@@ -149,7 +150,7 @@ export async function getUsageLimits(userId: string) {
 			canUseAdvancedAnalytics: tierConfig?.hasAnalytics || false
 		};
 	} catch (error) {
-		console.error('Error getting usage limits:', error);
+		logger.error('Error getting usage limits:', error);
 		return {
 			conversationsPerMonth: 10,
 			messagesPerConversation: 50,
@@ -186,7 +187,7 @@ export async function hasFeatureAccess(userId: string, feature: string): Promise
 				return false;
 		}
 	} catch (error) {
-		console.error('Error checking feature access:', error);
+		logger.error('Error checking feature access:', error);
 		return false;
 	}
 }
@@ -225,7 +226,7 @@ export async function updateSubscriptionFromStripe(
 			return (await subscriptionRepository.updateSubscription(subscription.id, updates)) || null;
 		}
 	} catch (error) {
-		console.error('Error updating subscription from Stripe:', error);
+		logger.error('Error updating subscription from Stripe:', error);
 		return null;
 	}
 }
@@ -261,7 +262,7 @@ export async function getDetailedSubscriptionData(userId: string) {
 			try {
 				stripeData = await stripeService.getStripeSubscription(subscription.stripeSubscriptionId);
 			} catch (error) {
-				console.error('Error fetching Stripe subscription:', error);
+				logger.error('Error fetching Stripe subscription:', error);
 			}
 		}
 
@@ -301,7 +302,7 @@ export async function getDetailedSubscriptionData(userId: string) {
 			}
 		};
 	} catch (error) {
-		console.error('Error getting detailed subscription data:', error);
+		logger.error('Error getting detailed subscription data:', error);
 		throw error;
 	}
 }

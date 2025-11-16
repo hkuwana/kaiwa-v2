@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 import { Resend } from 'resend';
 import { formatDistanceToNow } from 'date-fns';
 import { env } from '$env/dynamic/private';
@@ -70,13 +71,13 @@ export class CommunityStoryEmailService {
 		errors: string[];
 	}> {
 		if (!env.RESEND_API_KEY || env.RESEND_API_KEY === 're_dummy_resend_key') {
-			console.warn('RESEND_API_KEY not configured, skipping community story send');
+			logger.warn('RESEND_API_KEY not configured, skipping community story send');
 			return { sent: 0, skipped: 0, errors: [] };
 		}
 
 		const eligibleUserIds = await EmailPermissionService.getCommunityStoryEligibleUsers();
 		if (eligibleUserIds.length === 0) {
-			console.log('No community story subscribers found.');
+			logger.info('No community story subscribers found.');
 			return { sent: 0, skipped: 0, errors: [] };
 		}
 
@@ -102,7 +103,7 @@ export class CommunityStoryEmailService {
 				});
 
 				if (result.error) {
-					console.error('Failed to send community story email:', result.error);
+					logger.error('Failed to send community story email:', result.error);
 					errors.push(`User ${userId}: ${result.error.message || 'Unknown Resend error'}`);
 					skipped++;
 					continue;
@@ -128,7 +129,7 @@ export class CommunityStoryEmailService {
 			} catch (error) {
 				const message = error instanceof Error ? error.message : 'Unknown community story error';
 				errors.push(`User ${userId}: ${message}`);
-				console.error('Community story send failed for user', userId, error);
+				logger.error('Community story send failed for user', userId, error);
 				skipped++;
 			}
 		}

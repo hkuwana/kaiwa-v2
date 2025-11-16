@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 import { json } from '@sveltejs/kit';
 import { isJapaneseText } from '$lib/services/romanization.service';
 import { SecuritySanitizer } from '$lib/utils/security';
@@ -9,7 +10,7 @@ async function processJapaneseTextDirect(text: string): Promise<{
 	otherScripts?: Record<string, string>;
 }> {
 	try {
-		console.log('[FURIGANA_API] Starting Japanese text processing for:', text);
+		logger.info('[FURIGANA_API] Starting Japanese text processing for:', text);
 
 		// Import Kuroshiro modules directly
 		const KuroshiroModule = await import('kuroshiro');
@@ -21,10 +22,10 @@ async function processJapaneseTextDirect(text: string): Promise<{
 		const kuroshiro = new Kuroshiro();
 		const analyzer = new KuromojiAnalyzer();
 
-		console.log('[FURIGANA_API] Initializing kuroshiro...');
+		logger.info('[FURIGANA_API] Initializing kuroshiro...');
 		await kuroshiro.init(analyzer);
 
-		console.log('[FURIGANA_API] Converting to different scripts...');
+		logger.info('[FURIGANA_API] Converting to different scripts...');
 
 		// Generate all scripts in parallel
 		const [hiraganaResult, romajiResult, katakanaResult] = await Promise.all([
@@ -33,7 +34,7 @@ async function processJapaneseTextDirect(text: string): Promise<{
 			kuroshiro.convert(text, { to: 'katakana', mode: 'furigana' })
 		]);
 
-		console.log('[FURIGANA_API] Processing complete:', {
+		logger.info('[FURIGANA_API] Processing complete:', {
 			hiragana: hiraganaResult,
 			romaji: romajiResult,
 			katakana: katakanaResult
@@ -50,7 +51,7 @@ async function processJapaneseTextDirect(text: string): Promise<{
 
 		// 🔒 Validate and sanitize all generated content before returning
 		if (!SecuritySanitizer.validateScriptContent(result)) {
-			console.warn('[FURIGANA_API] ⚠️ Generated content failed security validation');
+			logger.warn('[FURIGANA_API] ⚠️ Generated content failed security validation');
 			throw new Error('Generated content contains potentially unsafe data');
 		}
 
@@ -63,7 +64,7 @@ async function processJapaneseTextDirect(text: string): Promise<{
 			}
 		};
 	} catch (error) {
-		console.error('[FURIGANA_API] Error processing Japanese text:', error);
+		logger.error('[FURIGANA_API] Error processing Japanese text:', error);
 		return {
 			hiragana: text,
 			romanization: text,
@@ -83,11 +84,11 @@ export const POST = async ({ request }) => {
 			return json({ error: 'Missing required parameters: text, messageId' }, { status: 400 });
 		}
 
-		console.log('[FURIGANA_API] Processing request for:', text.substring(0, 50));
+		logger.info('[FURIGANA_API] Processing request for:', text.substring(0, 50));
 
 		// Only generate scripts, NO TRANSLATION
 		if (!isJapaneseText(text)) {
-			console.log('[FURIGANA_API] Text is not Japanese, returning empty result');
+			logger.info('[FURIGANA_API] Text is not Japanese, returning empty result');
 			return json({});
 		}
 
@@ -102,7 +103,7 @@ export const POST = async ({ request }) => {
 			furigana: result.otherScripts?.furigana
 		});
 	} catch (error) {
-		console.error('Furigana API error:', error);
+		logger.error('Furigana API error:', error);
 		return json(
 			{ error: error instanceof Error ? error.message : 'Furigana generation failed' },
 			{ status: 500 }

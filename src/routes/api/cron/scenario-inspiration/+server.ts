@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { env } from '$env/dynamic/private';
@@ -17,14 +18,14 @@ export const GET: RequestHandler = async ({ request }) => {
 		const expectedAuth = `Bearer ${env.CRON_SECRET || 'development_secret'}`;
 
 		if (authHeader !== expectedAuth) {
-			console.error('Unauthorized cron request - invalid secret');
+			logger.error('Unauthorized cron request - invalid secret');
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
 		// SAFETY: Prevent automatic email sending until manually reviewed
 		const enableAutomatedEmails = env.ENABLE_AUTOMATED_EMAILS === 'true';
 		if (!enableAutomatedEmails) {
-			console.log(
+			logger.info(
 				'⚠️  SAFETY MODE: Automated emails disabled. Set ENABLE_AUTOMATED_EMAILS=true to enable.'
 			);
 			return json({
@@ -37,11 +38,11 @@ export const GET: RequestHandler = async ({ request }) => {
 			});
 		}
 
-		console.log('🎯 Starting scenario inspiration cron job...');
+		logger.debug('🎯 Starting scenario inspiration cron job...');
 
 		const result = await ScenarioInspirationEmailService.sendScenarioInspiration();
 
-		console.log(
+		logger.info(
 			`✅ Scenario inspiration cron job completed! Sent: ${result.sent}, Skipped: ${result.skipped}, Errors: ${result.errors.length}`
 		);
 
@@ -54,7 +55,7 @@ export const GET: RequestHandler = async ({ request }) => {
 			message: 'Scenario inspiration emails sent successfully'
 		});
 	} catch (error) {
-		console.error('❌ Scenario inspiration cron job failed:', error);
+		logger.error('❌ Scenario inspiration cron job failed:', error);
 
 		return json(
 			{

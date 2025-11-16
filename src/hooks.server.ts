@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 // src/hooks.server.ts
 
 import { sequence } from '@sveltejs/kit/hooks';
@@ -110,17 +111,17 @@ const userSetup: Handle = async ({ event, resolve }) => {
 
 			// Ensure user has Stripe customer ID (auto-create if missing)
 			if (fullUser && !fullUser.stripeCustomerId) {
-				console.log(`🔧 Auto-creating Stripe customer for user ${fullUser.id}`);
+				logger.info(`🔧 Auto-creating Stripe customer for user ${fullUser.id}`);
 				const stripeCustomerId = await ensureStripeCustomer(fullUser.id, fullUser.email);
 				if (stripeCustomerId) {
 					// Update the user object with the new Stripe customer ID
 					const updatedUser = await userRepository.findUserById(fullUser.id);
 					event.locals.user = updatedUser || fullUser;
-					console.log(`✅ Created Stripe customer ${stripeCustomerId} for user ${fullUser.id}`);
+					logger.info(`✅ Created Stripe customer ${stripeCustomerId} for user ${fullUser.id}`);
 				}
 			}
 		} catch (error) {
-			console.error('Error in userSetup:', error);
+			logger.error('Error in userSetup:', error);
 			event.locals.user = null;
 		}
 	}

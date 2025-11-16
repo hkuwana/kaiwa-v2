@@ -1,3 +1,4 @@
+import { logger } from '$lib/logger';
 // audio.store.svelte.ts - Audio store using Svelte 5 runes in a class
 import {
 	audioService,
@@ -65,12 +66,12 @@ export class AudioStore {
 		if (!browser) return;
 
 		try {
-			console.log('🎵 AudioStore: Initializing...');
+			logger.info('🎵 AudioStore: Initializing...');
 			await audioService.initialize();
 
 			// Check permissions first
 			const permission = await audioService.checkPermissions();
-			console.log('🔒 AudioStore: Permission state:', permission);
+			logger.info('🔒 AudioStore: Permission state:', permission);
 
 			// Get available devices
 			const devices = await audioService.getAvailableDevices();
@@ -79,11 +80,11 @@ export class AudioStore {
 			this.audioError = null;
 			this.userFriendlyError = null;
 
-			console.log('✅ AudioStore: Initialized with', devices.length, 'devices');
+			logger.info('✅ AudioStore: Initialized with', devices.length, 'devices');
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Audio initialization failed';
 			this.audioError = message;
-			console.error('❌ AudioStore: Initialization failed:', error);
+			logger.error('❌ AudioStore: Initialization failed:', error);
 		}
 	}
 
@@ -91,7 +92,7 @@ export class AudioStore {
 		if (!browser) return;
 
 		try {
-			console.log('🎵 AudioStore: Starting recording with device:', deviceId || 'default');
+			logger.info('🎵 AudioStore: Starting recording with device:', deviceId || 'default');
 			this.audioError = null;
 
 			await audioService.getStream(deviceId);
@@ -104,45 +105,45 @@ export class AudioStore {
 			audioService.onStreamReady(() => {
 				this.isRecording = true;
 				this.audioError = null;
-				console.log('✅ AudioStore: Stream ready, isRecording =', this.isRecording);
+				logger.info('✅ AudioStore: Stream ready, isRecording =', this.isRecording);
 			});
 
 			audioService.onStreamError((error: string) => {
 				this.audioError = error;
 				this.isRecording = false;
-				console.log('❌ AudioStore: Stream error, isRecording =', this.isRecording);
+				logger.info('❌ AudioStore: Stream error, isRecording =', this.isRecording);
 			});
 
 			if (deviceId) {
 				this.selectedDeviceId = deviceId;
 			}
 
-			console.log('✅ AudioStore: Recording started');
+			logger.info('✅ AudioStore: Recording started');
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Failed to start recording';
 			this.audioError = message;
-			console.error('❌ AudioStore: Failed to start recording:', error);
+			logger.error('❌ AudioStore: Failed to start recording:', error);
 		}
 	}
 
 	stopRecording() {
-		console.log('🔇 AudioStore: Stopping recording, isRecording was:', this.isRecording);
+		logger.info('🔇 AudioStore: Stopping recording, isRecording was:', this.isRecording);
 		audioService.cleanup();
 		this.isRecording = false;
 		this.currentLevel = { level: 0, timestamp: Date.now() };
-		console.log('🔇 AudioStore: Recording stopped, isRecording now:', this.isRecording);
+		logger.info('🔇 AudioStore: Recording stopped, isRecording now:', this.isRecording);
 	}
 
 	async refreshDevices() {
 		if (!browser) return;
 
 		try {
-			console.log('🔄 AudioStore: Refreshing devices');
+			logger.info('🔄 AudioStore: Refreshing devices');
 			const devices = await audioService.getAvailableDevices();
 			this.availableDevices = [...devices];
-			console.log('✅ AudioStore: Refreshed devices:', devices.length);
+			logger.info('✅ AudioStore: Refreshed devices:', devices.length);
 		} catch (error) {
-			console.error('❌ AudioStore: Failed to refresh devices:', error);
+			logger.error('❌ AudioStore: Failed to refresh devices:', error);
 		}
 	}
 
