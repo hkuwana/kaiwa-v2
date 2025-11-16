@@ -246,7 +246,7 @@ If they say "That's interesting" or "Cool idea" - your pitch failed.
 
 ## ✨ The Signature Move: The Grandmother Story
 
-When you have 60+ seconds and want to create emotional resonance:
+When you have 60+ seconds and want tocreate emotional resonance:
 
 **"I built Kaiwa because my Japanese grandmother passed away before I could have a real conversation with her. I grew up hearing Japanese, but I never learned to speak it. Every family gathering, I was on the outside. She'd tell these amazing stories about growing up during the war, and I'd get the 30-second translated summary from my mom. When she died, I realized I never heard her real voice - I only heard the translated version. That's why we don't teach grammar or vocabulary. We help people practice the ONE conversation they've been avoiding: talking to grandma, apologizing to your in-laws, giving a toast at your partner's family wedding. Life is too short for subtitles."**
 

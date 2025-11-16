@@ -797,7 +797,7 @@ _This is your playbook. Reference it daily. Update it as you learn. But whatever
 2. **Target Market**: Women 25-35 are heavy TikTok/Instagram users, not Reddit users.
 3. **Relationship Building**: Phone texts create real relationships; Reddit comments don't.
 4. **Proven Model**: Justin's Cali app uses this exact strategy successfully.
-5. **Personal Brand**: Hiro's story ("couldn't talk to Japanese grandparents") is powerful on video.
+5. **Personal Brand**: Hiro's story ("couldn't talk to my Japanese grandparents") is powerful on video.
 
 ### Why Reddit Approach Might Still Be Right
 

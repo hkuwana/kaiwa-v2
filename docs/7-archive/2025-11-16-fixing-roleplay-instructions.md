@@ -228,7 +228,9 @@ The AI is being too formal, analytical, and explanatory instead of having natura
 1. **Open file:** `src/lib/services/instructions/composer.ts`
 
 2. **Make Change #1** (AI name awareness):
-   - Find line 156: `role = \`You are ${personaName}, ${personaTitle}.\`;`
+   - Find line 156: `role = 
+You are ${personaName}, ${personaTitle}.
+`;`
    - Replace with the suggested fix above
 
 3. **Make Change #2** (reduce analytical responses):

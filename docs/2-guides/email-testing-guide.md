@@ -12,10 +12,10 @@ npx tsx scripts/preview-emails.ts
 
 This generates HTML files you can open in a browser:
 
-- `/tmp/reminder-email-preview.html` - Practice reminder email
-- `/tmp/founder-day1-preview.html` - Day 1 founder email
-- `/tmp/founder-day2-preview.html` - Day 2 founder email
-- `/tmp/founder-day3-preview.html` - Day 3 founder email
+- /tmp/reminder-email-preview.html - Practice reminder email
+- /tmp/founder-day1-preview.html - Day 1 founder email
+- /tmp/founder-day2-preview.html - Day 2 founder email
+- /tmp/founder-day3-preview.html - Day 3 founder email
 
 ## Test with Your Email Address
 
@@ -94,14 +94,14 @@ All endpoints support `?dryRun=true` and `?testEmails=email@example.com`:
    curl -X POST \
      -H "Authorization: Bearer development_secret" \
      -H "Content-Type: application/json" \
-     -d '{
+     -d {
        "subject": "Test Subject",
        "title": "Test Title",
        "summary": "Test summary",
        "details": "<p>Test details</p>",
        "ctaText": "Try it",
        "ctaUrl": "https://trykaiwa.com"
-     }' \
+     } \
      http://localhost:5173/api/cron/product-updates
    ```
 
