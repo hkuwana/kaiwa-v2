@@ -1127,15 +1127,10 @@ export class ConversationStore {
 			const track = this.audioStream.getAudioTracks()[0];
 			if (track) {
 				if (this.audioInputMode === 'vad') {
-					// VAD mode: Add delay to ensure session.update with instructions is processed before enabling audio
+					// VAD mode: Wait for session.updated confirmation before enabling audio
 					// This prevents race condition where user speaks before instructions are applied
-					logger.info('🎵 ConversationStore: Waiting 500ms for instructions to be processed before enabling VAD audio');
-					setTimeout(() => {
-						if (track && this.audioStream) {
-							track.enabled = true;
-							logger.info('🎵 ConversationStore: Enabled audio track for VAD mode (after instruction delay)');
-						}
-					}, 500);
+					logger.info('🎵 ConversationStore: Waiting for session.updated confirmation before enabling VAD audio');
+					this.enableVadAudioWhenReady(track);
 				} else {
 					// PTT mode: Keep track disabled until user presses button
 					track.enabled = false;
@@ -1287,6 +1282,43 @@ export class ConversationStore {
 		});
 		logger.info('✅ ConversationStore: Microphone enabled');
 	};
+
+	/**
+	 * Enable VAD audio after waiting for session.updated confirmation
+	 * This prevents race condition where user speaks before instructions are applied
+	 */
+	private enableVadAudioWhenReady(track: MediaStreamTrack): void {
+		let unsubscribe: (() => void) | null = null;
+		let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+		const enableAudio = () => {
+			if (unsubscribe) {
+				unsubscribe();
+				unsubscribe = null;
+			}
+			if (timeoutId) {
+				clearTimeout(timeoutId);
+				timeoutId = null;
+			}
+
+			if (track && this.audioStream) {
+				track.enabled = true;
+				logger.info('🎵 ConversationStore: Enabled audio track for VAD mode (after session.updated)');
+			}
+		};
+
+		// Listen for session.updated event
+		unsubscribe = realtimeOpenAI.onSessionUpdated(() => {
+			logger.info('✅ session.updated received - enabling VAD audio now');
+			enableAudio();
+		});
+
+		// Fallback timeout in case event is missed (network issue, etc.)
+		timeoutId = setTimeout(() => {
+			logger.warn('⚠️ session.updated timeout (3s) - enabling VAD audio anyway');
+			enableAudio();
+		}, 3000);
+	}
 
 	private applyInstructionUpdate(delta: string) {
 		if (!this.language) return;
