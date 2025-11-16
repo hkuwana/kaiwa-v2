@@ -692,10 +692,18 @@ export class ConversationStore {
 
 		// Send session update with new turn detection config
 		const turnDetectionConfig = this.getTurnDetectionConfig();
+
+		logger.info('🔄 Updating session config for audio mode change:', {
+			mode,
+			hasInstructions: !!this.lastInstructions,
+			instructionsLength: this.lastInstructions?.length ?? 0
+		});
+
 		realtimeOpenAI.updateSessionConfig({
 			turnDetection: turnDetectionConfig,
 			voice: this.voice,
-			transcriptionLanguage: this.language.code
+			transcriptionLanguage: this.language.code,
+			instructions: this.lastInstructions // Include instructions to prevent them from being lost
 		});
 
 		// Handle audio track state based on mode
@@ -1119,9 +1127,10 @@ export class ConversationStore {
 			const track = this.audioStream.getAudioTracks()[0];
 			if (track) {
 				if (this.audioInputMode === 'vad') {
-					// VAD mode: Enable audio track immediately - server handles turn detection
-					track.enabled = true;
-					logger.info('🎵 ConversationStore: Enabled audio track for VAD mode');
+					// VAD mode: Wait for session.updated confirmation before enabling audio
+					// This prevents race condition where user speaks before instructions are applied
+					logger.info('🎵 ConversationStore: Waiting for session.updated confirmation before enabling VAD audio');
+					this.enableVadAudioWhenReady(track);
 				} else {
 					// PTT mode: Keep track disabled until user presses button
 					track.enabled = false;
@@ -1211,15 +1220,14 @@ export class ConversationStore {
 
 		this.lastInstructions = sessionConfig.instructions;
 
-		// With VAD enabled, audio is always flowing - no need for manual start
-		// With PTT, user must press button to start
-		this.waitingForUserToStart = this.audioInputMode === 'ptt';
+		// Both VAD and PTT modes need initial greeting to ensure instructions are in response payload
+		this.waitingForUserToStart = true;
 		logger.info(
 			`🎵 ConversationStore: ${this.audioInputMode === 'vad' ? 'VAD mode enabled - ready for conversation' : 'PTT mode enabled - press to speak'}`
 		);
 
 		// In PTT mode, trigger initial greeting immediately since user needs to press to speak
-		// In VAD mode, wait for user to start speaking (greeting triggered by first user input)
+		// In VAD mode, greeting is triggered after session.updated confirmation in enableVadAudioWhenReady()
 		if (this.audioInputMode === 'ptt' && this.waitingForUserToStart) {
 			logger.info('🎵 ConversationStore: PTT mode - triggering initial greeting automatically');
 			this.triggerInitialGreeting();
@@ -1273,6 +1281,50 @@ export class ConversationStore {
 		});
 		logger.info('✅ ConversationStore: Microphone enabled');
 	};
+
+	/**
+	 * Enable VAD audio after waiting for session.updated confirmation
+	 * This prevents race condition where user speaks before instructions are applied
+	 */
+	private enableVadAudioWhenReady(track: MediaStreamTrack): void {
+		let unsubscribe: (() => void) | null = null;
+		let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+		const enableAudio = () => {
+			if (unsubscribe) {
+				unsubscribe();
+				unsubscribe = null;
+			}
+			if (timeoutId) {
+				clearTimeout(timeoutId);
+				timeoutId = null;
+			}
+
+			if (track && this.audioStream) {
+				track.enabled = true;
+				logger.info('🎵 ConversationStore: Enabled audio track for VAD mode (after session.updated)');
+
+				// Trigger initial greeting in VAD mode (same as PTT mode)
+				// This ensures the first response includes instructions in the response payload
+				if (this.waitingForUserToStart) {
+					logger.info('🎵 ConversationStore: VAD mode - triggering initial greeting with instructions');
+					this.triggerInitialGreeting();
+				}
+			}
+		};
+
+		// Listen for session.updated event
+		unsubscribe = realtimeOpenAI.onSessionUpdated(() => {
+			logger.info('✅ session.updated received - enabling VAD audio now');
+			enableAudio();
+		});
+
+		// Fallback timeout in case event is missed (network issue, etc.)
+		timeoutId = setTimeout(() => {
+			logger.warn('⚠️ session.updated timeout (3s) - enabling VAD audio anyway');
+			enableAudio();
+		}, 3000);
+	}
 
 	private applyInstructionUpdate(delta: string) {
 		if (!this.language) return;

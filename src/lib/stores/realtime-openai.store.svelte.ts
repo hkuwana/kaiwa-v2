@@ -142,6 +142,7 @@ export class RealtimeOpenAIStore {
 	> = {};
 	private hasHandledSessionReady = false;
 	private sessionReadyListeners = new SvelteSet<() => void>();
+	private sessionUpdatedListeners = new SvelteSet<() => void>();
 	private transcriptFilter:
 		| ((meta: {
 				itemId: string;
@@ -774,6 +775,11 @@ export class RealtimeOpenAIStore {
 
 		if (serverEvent.type === 'session.created' || serverEvent.type === 'session.updated') {
 			this.isConnected = true;
+
+			// Trigger session.updated listeners (but not for session.created)
+			if (serverEvent.type === 'session.updated') {
+				this.handleSessionUpdated();
+			}
 		}
 
 		if (processed.type === 'transcription') {
@@ -1214,6 +1220,18 @@ export class RealtimeOpenAIStore {
 		}
 	}
 
+	private handleSessionUpdated(): void {
+		logger.info('📥 session.updated received - config applied by OpenAI');
+
+		for (const listener of this.sessionUpdatedListeners) {
+			try {
+				listener();
+			} catch (error) {
+				logger.warn('onSessionUpdated listener error', error);
+			}
+		}
+	}
+
 	async disconnect(): Promise<void> {
 		// Cancel any pending PTT stop timeout
 		if (this.pendingPttStopTimeout) {
@@ -1251,6 +1269,7 @@ export class RealtimeOpenAIStore {
 		this.messages = [];
 		this.hasHandledSessionReady = false;
 		this.sessionReadyListeners.clear();
+		this.sessionUpdatedListeners.clear();
 		// Clear conversation context
 		this.conversationContext = null;
 		// Clear stored instructions
@@ -1767,6 +1786,17 @@ export class RealtimeOpenAIStore {
 		return () => {
 			try {
 				this.sessionReadyListeners.delete(fn);
+			} catch {
+				// Listener might already be removed during disconnect
+			}
+		};
+	}
+
+	onSessionUpdated(fn: () => void): () => void {
+		this.sessionUpdatedListeners.add(fn);
+		return () => {
+			try {
+				this.sessionUpdatedListeners.delete(fn);
 			} catch {
 				// Listener might already be removed during disconnect
 			}
