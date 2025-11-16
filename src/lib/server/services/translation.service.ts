@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 // 🌐 Translation Service
 // Simplified translation service using Google Translate for translation and Kuroshiro for Japanese text processing
 
@@ -44,7 +45,7 @@ let translationClient: unknown = null;
 async function initializeTranslationClient() {
 	// Check if we're in a browser environment
 	if (typeof window !== 'undefined') {
-		console.warn('Google Translation client is not available in browser environment');
+		logger.warn('Google Translation client is not available in browser environment');
 		return null;
 	}
 
@@ -64,7 +65,7 @@ async function initializeTranslationClient() {
 
 		return translationClient;
 	} catch (error) {
-		console.error('Failed to initialize Google Translation client:', error);
+		logger.error('Failed to initialize Google Translation client:', error);
 		return null;
 	}
 }
@@ -91,14 +92,14 @@ async function translateText(params: TranslateParams): Promise<GoogleTranslateRe
 	}
 
 	try {
-		console.log('Calling translateText with request:', request);
+		logger.info('Calling translateText with request:', request);
 		const response = await (
 			client as { translateText: (request: unknown) => Promise<GoogleTranslateResponse> }
 		).translateText(request);
-		console.log('Translation response:', response);
+		logger.info('Translation response:', response);
 		return response;
 	} catch (error) {
-		console.error('Translation API error:', error);
+		logger.error('Translation API error:', error);
 		throw error;
 	}
 }
@@ -112,15 +113,15 @@ export async function translateMessage(
 	sourceLanguage: string = 'en'
 ): Promise<TranslationResult> {
 	try {
-		console.log(`Translating message ${message.id} to ${targetLanguage} from ${sourceLanguage}`);
+		logger.info(`Translating message ${message.id} to ${targetLanguage} from ${sourceLanguage}`);
 
 		// Check if we have Google credentials
 		if (!env.GOOGLE_CREDENTIALS_JSON || !env.GOOGLE_CLOUD_PROJECT_ID) {
-			console.warn('Google Translate credentials not configured, using fallback translation');
+			logger.warn('Google Translate credentials not configured, using fallback translation');
 			return createFallbackTranslation(message, targetLanguage, sourceLanguage);
 		}
 
-		console.log('Google credentials found, proceeding with translation');
+		logger.info('Google credentials found, proceeding with translation');
 
 		// Translate the text
 		const translationResponse = await translateText({
@@ -131,26 +132,26 @@ export async function translateMessage(
 		});
 
 		// Get the translated content
-		console.log('Raw translation response:', JSON.stringify(translationResponse, null, 2));
+		logger.info('Raw translation response:', JSON.stringify(translationResponse, null, 2));
 
 		// The response is an array, get the first element
 		const responseData = Array.isArray(translationResponse)
 			? translationResponse[0]
 			: translationResponse;
-		console.log('Response data:', responseData);
+		logger.info('Response data:', responseData);
 
 		// Check if the response has the expected structure
 		if (!responseData?.translations || responseData.translations.length === 0) {
-			console.warn('No translations found in response, using original content');
+			logger.warn('No translations found in response, using original content');
 			return createFallbackTranslation(message, targetLanguage, sourceLanguage);
 		}
 
 		const translatedContent = responseData?.translations?.[0]?.translatedText || message.content;
-		console.log('Extracted translated content:', translatedContent);
+		logger.info('Extracted translated content:', translatedContent);
 
 		// If the translated content is the same as the original, something went wrong
 		if (translatedContent === message.content) {
-			console.warn('Translation returned original content, this might indicate an API issue');
+			logger.warn('Translation returned original content, this might indicate an API issue');
 		}
 
 		// Don't automatically generate scripts in translation - let message service handle that
@@ -169,10 +170,10 @@ export async function translateMessage(
 			// ...scriptData // Remove automatic script generation from translation
 		};
 
-		console.log('Translation completed:', result);
+		logger.info('Translation completed:', result);
 		return result;
 	} catch (error) {
-		console.error('Translation failed:', error);
+		logger.error('Translation failed:', error);
 		// Return fallback translation instead of throwing
 		return createFallbackTranslation(message, targetLanguage, sourceLanguage);
 	}

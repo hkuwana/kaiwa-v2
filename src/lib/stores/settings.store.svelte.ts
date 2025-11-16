@@ -1,3 +1,4 @@
+import { logger } from '$lib/logger';
 // src/lib/stores/settings.store.svelte.ts
 // Enhanced settings store with persistent storage using cookies + localStorage
 
@@ -89,13 +90,13 @@ export class SettingsStore {
 	// Initialize settings from persistent storage
 	private initializeFromStorage = () => {
 		if (browser) {
-			console.log('🔄 Initializing settings from persistent storage...');
+			logger.info('🔄 Initializing settings from persistent storage...');
 
 			// Try localStorage first (faster)
 			const storedLanguageCode = localStorage.getItem(STORAGE_KEYS.LANGUAGE_CODE);
 			const storedSpeaker = localStorage.getItem(STORAGE_KEYS.SPEAKER);
 
-			console.log('📦 Found stored values:', {
+			logger.info('📦 Found stored values:', {
 				language: storedLanguageCode,
 				speaker: storedSpeaker
 			});
@@ -103,16 +104,16 @@ export class SettingsStore {
 			// Set speaker from storage if it exists
 			if (storedSpeaker) {
 				this.selectedSpeaker = storedSpeaker;
-				console.log('🎭 Speaker loaded from storage:', storedSpeaker);
+				logger.info('🎭 Speaker loaded from storage:', storedSpeaker);
 			}
 
 			// Set scenario from storage
 			const storedScenario = localStorage.getItem(STORAGE_KEYS.SCENARIO);
 			if (storedScenario) {
 				this.selectedScenario = storedScenario;
-				console.log('🎯 Scenario loaded from storage:', storedScenario);
+				logger.debug('🎯 Scenario loaded from storage:', storedScenario);
 			} else {
-				console.log('🎯 No stored scenario found');
+				logger.debug('🎯 No stored scenario found');
 			}
 
 			// Set language from storage or default
@@ -120,15 +121,15 @@ export class SettingsStore {
 				const language = allLanguages.find((lang) => lang.code === storedLanguageCode);
 				if (language) {
 					this.selectedLanguage = language;
-					console.log('🌍 Language loaded from storage:', language.name, `(${language.code})`);
+					logger.info('🌍 Language loaded from storage:', language.name, `(${language.code})`);
 				} else {
-					console.warn(
+					logger.warn(
 						'⚠️ Stored language code not found in available languages:',
 						storedLanguageCode
 					);
 				}
 			} else {
-				console.log('🌍 No stored language found');
+				logger.info('🌍 No stored language found');
 			}
 
 			// If no stored language, set default (Japanese-first for launch)
@@ -136,7 +137,7 @@ export class SettingsStore {
 				const defaultLanguage = allLanguages.find((lang) => lang.code === 'ja');
 				if (defaultLanguage) {
 					this.selectedLanguage = defaultLanguage;
-					console.log('🌍 Setting default language:', defaultLanguage.name);
+					logger.info('🌍 Setting default language:', defaultLanguage.name);
 					this.persistLanguage(defaultLanguage);
 				}
 			}
@@ -146,14 +147,14 @@ export class SettingsStore {
 				this.setupPersistence();
 			}, 0);
 
-			console.log('✅ Settings initialization complete');
+			logger.info('✅ Settings initialization complete');
 		} else {
 			// Server-side: set default language
 			const defaultLanguage = allLanguages.find((lang) => lang.code === 'ja');
 			if (defaultLanguage) {
 				this.selectedLanguage = defaultLanguage;
 			}
-			console.log('🖥️ Server-side settings initialized with default language');
+			logger.info('🖥️ Server-side settings initialized with default language');
 		}
 	};
 
@@ -161,7 +162,7 @@ export class SettingsStore {
 	private setupPersistence = () => {
 		if (this.persistenceInitialized || !browser) return;
 
-		console.log('🔗 Setting up automatic persistence...');
+		logger.info('🔗 Setting up automatic persistence...');
 
 		try {
 			// Since we can't use $effect in stores outside component context,
@@ -169,9 +170,9 @@ export class SettingsStore {
 			// This is actually more predictable and avoids the component lifecycle issues
 
 			this.persistenceInitialized = true;
-			console.log('✅ Persistence setup complete (manual mode)');
+			logger.info('✅ Persistence setup complete (manual mode)');
 		} catch (error) {
-			console.warn('⚠️ Failed to setup persistence, will retry later:', error);
+			logger.warn('⚠️ Failed to setup persistence, will retry later:', error);
 			// Reset flag so we can try again
 			this.persistenceInitialized = false;
 		}
@@ -188,9 +189,9 @@ export class SettingsStore {
 			// Store in cookies (for SSR compatibility)
 			cookieUtils.setCookie(STORAGE_KEYS.LANGUAGE_CODE, language.code);
 
-			console.log('💾 Language persisted:', language.code);
+			logger.info('💾 Language persisted:', language.code);
 		} catch (error) {
-			console.warn('⚠️ Failed to persist language:', error);
+			logger.warn('⚠️ Failed to persist language:', error);
 		}
 	};
 
@@ -205,9 +206,9 @@ export class SettingsStore {
 			// Store in cookies (for SSR compatibility)
 			cookieUtils.setCookie(STORAGE_KEYS.SPEAKER, speakerId);
 
-			console.log('💾 Speaker persisted:', speakerId);
+			logger.info('💾 Speaker persisted:', speakerId);
 		} catch (error) {
-			console.warn('⚠️ Failed to persist speaker:', error);
+			logger.warn('⚠️ Failed to persist speaker:', error);
 		}
 	};
 
@@ -222,9 +223,9 @@ export class SettingsStore {
 			// Store in cookies (for SSR compatibility)
 			cookieUtils.setCookie(STORAGE_KEYS.SCENARIO, scenarioId);
 
-			console.log('💾 Scenario persisted:', scenarioId);
+			logger.info('💾 Scenario persisted:', scenarioId);
 		} catch (error) {
-			console.warn('⚠️ Failed to persist scenario:', error);
+			logger.warn('⚠️ Failed to persist scenario:', error);
 		}
 	};
 
@@ -293,9 +294,9 @@ export class SettingsStore {
 				cookieUtils.deleteCookie(STORAGE_KEYS.SPEAKER);
 				cookieUtils.deleteCookie(STORAGE_KEYS.SCENARIO);
 
-				console.log('🗑️ Settings storage cleared');
+				logger.info('🗑️ Settings storage cleared');
 			} catch (error) {
-				console.warn('⚠️ Failed to clear storage:', error);
+				logger.warn('⚠️ Failed to clear storage:', error);
 			}
 		}
 	};
@@ -328,7 +329,7 @@ export class SettingsStore {
 	reloadFromStorage = () => {
 		if (browser) {
 			this.initializeFromStorage();
-			console.log('🔄 Settings reloaded from storage');
+			logger.info('🔄 Settings reloaded from storage');
 		}
 	};
 
@@ -358,7 +359,7 @@ export const usePersistentSettings = () => {
 		// Debug storage state
 		debug: () => {
 			const settings = settingsStore.getCurrentSettings();
-			console.log('🔍 Current Settings:', settings);
+			logger.debug('🔍 Current Settings:', settings);
 			return settings;
 		},
 
@@ -388,10 +389,10 @@ export const usePersistentSettings = () => {
 					retrievedCookie
 				};
 
-				console.log('🧪 Persistence Test Results:', results);
+				logger.info('🧪 Persistence Test Results:', results);
 				return results;
 			} catch (error) {
-				console.error('❌ Persistence test failed:', error);
+				logger.error('❌ Persistence test failed:', error);
 				return { error: error instanceof Error ? error.message : 'Unknown error' };
 			}
 		}

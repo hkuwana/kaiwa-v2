@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 import { json } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
@@ -12,7 +13,7 @@ const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const MAX_REQUESTS = dev ? 100 : 3; // Max 3 requests per minute in production
 
 export const POST = async ({ request }) => {
-	console.log('🔄 Realtime session creation request received');
+	logger.info('🔄 Realtime session creation request received');
 
 	try {
 		// Get client IP for rate limiting
@@ -82,7 +83,7 @@ export const POST = async ({ request }) => {
 			}
 		};
 
-		console.log(`Creating realtime session for sessionId: ${sessionId}`, requestPayload);
+		logger.info(`Creating realtime session for sessionId: ${sessionId}`, requestPayload);
 
 		// GA: Create client secret for realtime API
 		const response = await fetch('https://api.openai.com/v1/realtime/client_secrets', {
@@ -96,7 +97,7 @@ export const POST = async ({ request }) => {
 
 		if (!response.ok) {
 			const errorText = await response.text();
-			console.error('OpenAI Realtime API error:', {
+			logger.error('OpenAI Realtime API error:', {
 				status: response.status,
 				statusText: response.statusText,
 				response: errorText,
@@ -106,7 +107,7 @@ export const POST = async ({ request }) => {
 
 			// Provide fallback for development
 			if (dev) {
-				console.log('Using development fallback token');
+				logger.info('Using development fallback token');
 				return json({
 					client_secret: {
 						value: 'dev-fallback-token',
@@ -141,14 +142,14 @@ export const POST = async ({ request }) => {
 
 		const sessionData = await response.json();
 
-		console.log('Realtime session created successfully:', sessionData);
+		logger.info('Realtime session created successfully:', sessionData);
 
 		// Log the ephemeral key details (GA returns { value, ... })
 		const clientSecret =
 			sessionData.value || sessionData.client_secret?.value || sessionData.client_secret;
 		const openaiSessionId = sessionData.id || sessionId;
 
-		console.log('🔑 Ephemeral key details:', {
+		logger.info('🔑 Ephemeral key details:', {
 			sessionId: openaiSessionId,
 			clientSecretLength: clientSecret?.length || 0,
 			clientSecretPrefix: clientSecret?.substring(0, 8) || 'none',
@@ -165,7 +166,7 @@ export const POST = async ({ request }) => {
 			}
 		});
 	} catch (error) {
-		console.error('Realtime session creation error:', error);
+		logger.error('Realtime session creation error:', error);
 		return json({ error: 'Internal server error' }, { status: 500 });
 	}
 };

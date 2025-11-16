@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 // src/lib/server/repositories/user-scenario-progress.repository.ts
 
 import { db } from '$lib/server/db/index';
@@ -34,7 +35,7 @@ export const userScenarioProgressRepository = {
 		try {
 			await scenarioMetadataRepository.incrementSaveCount(scenarioId);
 		} catch (error) {
-			console.error(`Failed to update metadata for scenario ${scenarioId}:`, error);
+			logger.error(`Failed to update metadata for scenario ${scenarioId}:`, error);
 			// Don't fail the save if metadata update fails
 		}
 
@@ -63,7 +64,7 @@ export const userScenarioProgressRepository = {
 		try {
 			await scenarioMetadataRepository.decrementSaveCount(scenarioId);
 		} catch (error) {
-			console.error(`Failed to update metadata for scenario ${scenarioId}:`, error);
+			logger.error(`Failed to update metadata for scenario ${scenarioId}:`, error);
 			// Don't fail the unsave if metadata update fails
 		}
 
@@ -207,7 +208,7 @@ export const userScenarioProgressRepository = {
 				await scenarioMetadataRepository.recordTimeSpent(scenarioId, timeSpentSeconds);
 			}
 		} catch (error) {
-			console.error(`Failed to update metadata for scenario ${scenarioId}:`, error);
+			logger.error(`Failed to update metadata for scenario ${scenarioId}:`, error);
 			// Don't fail the attempt recording if metadata update fails
 		}
 
@@ -253,7 +254,7 @@ export const userScenarioProgressRepository = {
 				await scenarioMetadataRepository.recordTimeSpent(scenarioId, timeSpentSeconds);
 			}
 		} catch (error) {
-			console.error(`Failed to update metadata for scenario ${scenarioId}:`, error);
+			logger.error(`Failed to update metadata for scenario ${scenarioId}:`, error);
 			// Don't fail the completion recording if metadata update fails
 		}
 
@@ -304,7 +305,7 @@ export const userScenarioProgressRepository = {
 				await scenarioMetadataRepository.recordRating(scenarioId, rating);
 			}
 		} catch (error) {
-			console.error(`Failed to update metadata for scenario ${scenarioId}:`, error);
+			logger.error(`Failed to update metadata for scenario ${scenarioId}:`, error);
 			// Don't fail the rating if metadata update fails
 		}
 

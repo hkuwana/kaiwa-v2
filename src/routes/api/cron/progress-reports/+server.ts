@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 import { json } from '@sveltejs/kit';
 import { ProgressReportsEmailService } from '$lib/server/email/progress-reports-email.service';
 import { env } from '$env/dynamic/private';
@@ -16,23 +17,23 @@ import { env } from '$env/dynamic/private';
  */
 export const GET = async ({ request, url }) => {
 	try {
-		console.log('🔍 Cron endpoint called - progress-reports');
+		logger.debug('🔍 Cron endpoint called - progress-reports');
 
 		// Verify cron secret for security
 		const authHeader = request.headers.get('authorization');
 		const expectedAuth = `Bearer ${env.CRON_SECRET || 'development_secret'}`;
 
-		console.log('🔐 Auth check:', { hasAuth: !!authHeader, hasSecret: !!env.CRON_SECRET });
+		logger.info('🔐 Auth check:', { hasAuth: !!authHeader, hasSecret: !!env.CRON_SECRET });
 
 		if (authHeader !== expectedAuth) {
-			console.log('❌ Unauthorized access attempt');
+			logger.info('❌ Unauthorized access attempt');
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
 		// SAFETY: Prevent automatic email sending until manually reviewed
 		const enableAutomatedEmails = env.ENABLE_AUTOMATED_EMAILS === 'true';
 		if (!enableAutomatedEmails) {
-			console.log(
+			logger.info(
 				'⚠️  SAFETY MODE: Automated emails disabled. Set ENABLE_AUTOMATED_EMAILS=true to enable.'
 			);
 			return json({
@@ -47,10 +48,10 @@ export const GET = async ({ request, url }) => {
 
 		const dryRun = url.searchParams.get('dryRun') === 'true';
 
-		console.log('✅ Authorized, dryRun:', dryRun);
+		logger.info('✅ Authorized, dryRun:', dryRun);
 
 		if (dryRun) {
-			console.log('📧 DRY RUN: Would send progress reports to all eligible users');
+			logger.info('📧 DRY RUN: Would send progress reports to all eligible users');
 			return json({
 				success: true,
 				dryRun: true,
@@ -58,11 +59,11 @@ export const GET = async ({ request, url }) => {
 			});
 		}
 
-		console.log('📧 Sending progress reports to users who practiced this week...');
+		logger.info('📧 Sending progress reports to users who practiced this week...');
 
 		const stats = await ProgressReportsEmailService.sendProgressReports();
 
-		console.log(
+		logger.info(
 			`✅ Progress reports sent: ${stats.sent} emails, ${stats.failed} failed, ${stats.skipped} skipped`
 		);
 
@@ -77,7 +78,7 @@ export const GET = async ({ request, url }) => {
 			}
 		});
 	} catch (error) {
-		console.error('Error in progress-reports cron:', error);
+		logger.error('Error in progress-reports cron:', error);
 		return json(
 			{
 				success: false,
@@ -107,7 +108,7 @@ export const POST = async ({ request }) => {
 			userId
 		});
 	} catch (error) {
-		console.error('Error sending test progress report:', error);
+		logger.error('Error sending test progress report:', error);
 		return json(
 			{
 				success: false,

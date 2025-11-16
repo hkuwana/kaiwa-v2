@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 // src/lib/server/repositories/payment.repository.ts
 
 import { db } from '$lib/server/db/index';
@@ -227,7 +228,7 @@ export const paymentRepository = {
 
 			const current = revenueByCurrency.get(currency);
 			if (!current) {
-				console.error('Currency not found in revenueByCurrency', currency);
+				logger.error('Currency not found in revenueByCurrency', currency);
 				return;
 			}
 

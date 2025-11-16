@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { WeeklyUpdatesEmailService } from '$lib/server/email/weekly-updates-email.service';
@@ -20,14 +21,14 @@ export const GET: RequestHandler = async ({ request }) => {
 		const expectedAuth = `Bearer ${env.CRON_SECRET || 'development_secret'}`;
 
 		if (authHeader !== expectedAuth) {
-			console.error('Unauthorized cron request - invalid secret');
+			logger.error('Unauthorized cron request - invalid secret');
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
 		// SAFETY: Prevent automatic email sending until manually reviewed
 		const enableAutomatedEmails = env.ENABLE_AUTOMATED_EMAILS === 'true';
 		if (!enableAutomatedEmails) {
-			console.log(
+			logger.info(
 				'⚠️  SAFETY MODE: Automated emails disabled. Set ENABLE_AUTOMATED_EMAILS=true to enable.'
 			);
 			return json({
@@ -37,7 +38,7 @@ export const GET: RequestHandler = async ({ request }) => {
 			});
 		}
 
-		console.log('📊 Starting weekly digest cron job...');
+		logger.info('📊 Starting weekly digest cron job...');
 
 		// Load this week's content from markdown files
 		const weeklyUpdate = WeeklyUpdatesParserService.getLatestWeeklyUpdate();
@@ -45,7 +46,7 @@ export const GET: RequestHandler = async ({ request }) => {
 		let thisWeeksContent: WeeklyDigestOptions;
 
 		if (!weeklyUpdate) {
-			console.warn('No weekly update file found, using fallback content');
+			logger.warn('No weekly update file found, using fallback content');
 			// Fallback to example content if no markdown file is found
 			thisWeeksContent = {
 				updates: [
@@ -86,8 +87,8 @@ export const GET: RequestHandler = async ({ request }) => {
 		// Send the digest using the service
 		const result = await WeeklyUpdatesEmailService.sendWeeklyDigest(thisWeeksContent);
 
-		console.log('✅ Weekly digest cron job completed!');
-		console.log(`📊 Stats: ${result.sent} sent, ${result.skipped} skipped`);
+		logger.info('✅ Weekly digest cron job completed!');
+		logger.info(`📊 Stats: ${result.sent} sent, ${result.skipped} skipped`);
 
 		return json({
 			success: true,
@@ -97,7 +98,7 @@ export const GET: RequestHandler = async ({ request }) => {
 			message: 'Weekly digest emails sent successfully'
 		});
 	} catch (error) {
-		console.error('❌ Weekly digest cron job failed:', error);
+		logger.error('❌ Weekly digest cron job failed:', error);
 
 		return json(
 			{

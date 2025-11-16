@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 // src/lib/server/services/conversationSummary.service.ts
 
 import * as openaiService from './openai.service';
@@ -123,7 +124,7 @@ export async function generateConversationMemories(
 			truncated
 		};
 	} catch (error) {
-		console.error('Error generating conversation memories:', error);
+		logger.error('Error generating conversation memories:', error);
 		return {
 			success: false,
 			error: error instanceof Error ? error.message : 'Unknown error'
@@ -201,7 +202,7 @@ Return a JSON array of memory strings.`;
 		const parsed = openaiService.parseAndValidateJSON<unknown>(response.content);
 		return normalizeMemoriesResponse(parsed);
 	} catch (error) {
-		console.error('OpenAI memory generation failed:', error);
+		logger.error('OpenAI memory generation failed:', error);
 		return null;
 	}
 }

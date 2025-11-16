@@ -1,3 +1,4 @@
+import { logger } from './logger';
 // 📈 Server-Side Analytics Service
 // Tracks events to database and PostHog for comprehensive analytics
 
@@ -130,7 +131,7 @@ export class AnalyticsService {
 				referrer: context?.referrer || null
 			});
 		} catch (error) {
-			console.error('Failed to track event to database:', error);
+			logger.error('Failed to track event to database:', error);
 		}
 	}
 	*/
@@ -168,10 +169,10 @@ export class AnalyticsService {
 			});
 
 			if (!response.ok) {
-				console.error('PostHog tracking failed:', response.statusText);
+				logger.error('PostHog tracking failed:', response.statusText);
 			}
 		} catch (error) {
-			console.error('Failed to track event to PostHog:', error);
+			logger.error('Failed to track event to PostHog:', error);
 		}
 	}
 

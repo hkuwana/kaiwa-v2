@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 // 📊 Clean Usage Service (Pure Functions)
 // Wraps UserUsageRepository with tier-aware business logic
 
@@ -515,7 +516,7 @@ export async function getUsageHistory(userId: string, months: number = 3) {
 	try {
 		return await userUsageRepository.getUsageHistory(userId, months);
 	} catch (error) {
-		console.error('Error getting usage history:', error);
+		logger.error('Error getting usage history:', error);
 		return []; // Return empty array on error
 	}
 }

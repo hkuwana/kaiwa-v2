@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 import { userRepository } from '$lib/server/repositories';
@@ -32,13 +33,13 @@ export class ProgressReportsEmailService {
 		failed: number;
 	}> {
 		if (!env.RESEND_API_KEY || env.RESEND_API_KEY === 're_dummy_resend_key') {
-			console.warn('RESEND_API_KEY not configured, skipping progress reports send');
+			logger.warn('RESEND_API_KEY not configured, skipping progress reports send');
 			return { sent: 0, skipped: 0, failed: 0 };
 		}
 
 		const eligibleUserIds = await EmailPermissionService.getProgressReportEligibleUsers();
 		if (eligibleUserIds.length === 0) {
-			console.log('No progress report subscribers found.');
+			logger.info('No progress report subscribers found.');
 			return { sent: 0, skipped: 0, failed: 0 };
 		}
 
@@ -76,7 +77,7 @@ export class ProgressReportsEmailService {
 			});
 
 			if (result.error) {
-				console.error('Failed to send progress report to user', user.id, result.error);
+				logger.error('Failed to send progress report to user', user.id, result.error);
 				failed++;
 				continue;
 			}
@@ -87,7 +88,7 @@ export class ProgressReportsEmailService {
 			await new Promise((resolve) => setTimeout(resolve, 100));
 		}
 
-		console.log(`Progress reports sent: ${sent} emails, skipped: ${skipped}, failed: ${failed}`);
+		logger.info(`Progress reports sent: ${sent} emails, skipped: ${skipped}, failed: ${failed}`);
 		return { sent, skipped, failed };
 	}
 
@@ -96,19 +97,19 @@ export class ProgressReportsEmailService {
 	 */
 	static async sendProgressReportToUser(userId: string): Promise<boolean> {
 		if (!env.RESEND_API_KEY || env.RESEND_API_KEY === 're_dummy_resend_key') {
-			console.warn('RESEND_API_KEY not configured, skipping progress report send');
+			logger.warn('RESEND_API_KEY not configured, skipping progress report send');
 			return true;
 		}
 
 		// Check email permissions
 		if (!(await EmailPermissionService.canReceiveProgressReports(userId))) {
-			console.warn(`User ${userId} not eligible for progress reports`);
+			logger.warn(`User ${userId} not eligible for progress reports`);
 			return false;
 		}
 
 		const user = await userRepository.findUserById(userId);
 		if (!user || !user.email) {
-			console.warn(`User ${userId} not found or has no email`);
+			logger.warn(`User ${userId} not found or has no email`);
 			return false;
 		}
 
@@ -119,7 +120,7 @@ export class ProgressReportsEmailService {
 
 		// Skip if no practice this week
 		if (thisWeekSessions.length === 0) {
-			console.log(`No sessions this week for user ${userId}, skipping report`);
+			logger.info(`No sessions this week for user ${userId}, skipping report`);
 			return false;
 		}
 
@@ -135,11 +136,11 @@ export class ProgressReportsEmailService {
 		});
 
 		if (result.error) {
-			console.error('Failed to send progress report to user', user.id, result.error);
+			logger.error('Failed to send progress report to user', user.id, result.error);
 			return false;
 		}
 
-		console.log('Progress report sent to user:', user.id);
+		logger.info('Progress report sent to user:', user.id);
 		return true;
 	}
 

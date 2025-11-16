@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 // src/lib/server/repositories/subscription.repository.ts
 
 import { db } from '$lib/server/db/index';
@@ -28,7 +29,7 @@ export const subscriptionRepository = {
 
 			return subscriptionList[0] || null;
 		} catch (error) {
-			console.error('Error fetching subscription from DB:', error);
+			logger.error('Error fetching subscription from DB:', error);
 			return null;
 		}
 	},
@@ -42,7 +43,7 @@ export const subscriptionRepository = {
 				.orderBy(desc(subscriptions.createdAt));
 			return subscriptionList;
 		} catch (error) {
-			console.error('Error fetching subscriptions from DB:', error);
+			logger.error('Error fetching subscriptions from DB:', error);
 			return [];
 		}
 	},
@@ -54,7 +55,7 @@ export const subscriptionRepository = {
 			});
 			return subscription || null;
 		} catch (error) {
-			console.error('Error fetching subscription from DB:', error);
+			logger.error('Error fetching subscription from DB:', error);
 			return null;
 		}
 	},
@@ -105,7 +106,7 @@ export const subscriptionRepository = {
 				});
 			return true;
 		} catch (error) {
-			console.error('Error updating subscription in DB:', error);
+			logger.error('Error updating subscription in DB:', error);
 			return false;
 		}
 	},

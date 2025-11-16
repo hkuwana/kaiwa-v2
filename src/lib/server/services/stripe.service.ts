@@ -8,6 +8,7 @@ import type { Subscription as DbSubscription, UserTier } from '../db/types';
 // Note: Using simplified payment.service.ts instead of subscription repository
 import { getAllStripePriceIds, getStripePriceId } from '../tiers';
 import { SvelteDate } from 'svelte/reactivity';
+import { logger } from '../logger';
 
 // Environment variables
 const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;
@@ -52,13 +53,15 @@ export class StripeService {
 						return userProfile.stripeCustomerId;
 					}
 					const customerEmail = 'email' in stripeCustomer ? stripeCustomer.email : 'unknown';
-					console.warn(
-						`Stripe customer ${userProfile.stripeCustomerId} email mismatch or deleted. Expected: ${email}, Got: ${customerEmail}`
-					);
+					logger.warn('Stripe customer email mismatch or deleted', {
+						stripeCustomerId: userProfile.stripeCustomerId,
+						expectedEmail: email,
+						actualEmail: customerEmail
+					});
 				} catch {
-					console.warn(
-						`Stripe customer ${userProfile.stripeCustomerId} not found in Stripe, will create/link new one`
-					);
+					logger.warn('Stripe customer not found, will create/link new one', {
+						stripeCustomerId: userProfile.stripeCustomerId
+					});
 				}
 			}
 
@@ -69,7 +72,7 @@ export class StripeService {
 				existingUserWithEmail.id !== userId &&
 				existingUserWithEmail.stripeCustomerId
 			) {
-				console.log(
+				logger.info(
 					`Found existing user with same email ${email} and Stripe customer ID: ${existingUserWithEmail.stripeCustomerId}`
 				);
 
@@ -88,7 +91,7 @@ export class StripeService {
 
 			if (existingCustomers.data.length > 0) {
 				const existingCustomer = existingCustomers.data[0];
-				console.log(`Found existing Stripe customer for email ${email}: ${existingCustomer.id}`);
+				logger.info(`Found existing Stripe customer for email ${email}: ${existingCustomer.id}`);
 
 				// Update user with existing Stripe customer ID
 				await userRepository.updateUser(userId, { stripeCustomerId: existingCustomer.id });
@@ -116,7 +119,7 @@ export class StripeService {
 
 			return customer.id;
 		} catch (error) {
-			console.error(`Error creating Stripe customer for user ${userId}:`, error);
+			logger.error(`Error creating Stripe customer for user ${userId}:`, error);
 			return null;
 		}
 	}
@@ -186,7 +189,7 @@ export class StripeService {
 	 * Uses Stripe metadata and dynamic pricing instead of hardcoded mappings
 	 */
 	private async extractSubscriptionData(stripeSubscription: Stripe.Subscription) {
-		console.log('🔍 [EXTRACT DATA] Starting subscription data extraction...');
+		logger.debug('🔍 [EXTRACT DATA] Starting subscription data extraction...');
 
 		const primaryItem = stripeSubscription.items.data[0];
 		if (!primaryItem) {
@@ -195,26 +198,26 @@ export class StripeService {
 
 		const price = primaryItem.price;
 
-		console.log('🔍 [EXTRACT DATA] Primary subscription item:');
-		console.log('  - price.id:', price.id);
-		console.log('  - price.metadata:', price.metadata);
-		console.log(
+		logger.debug('🔍 [EXTRACT DATA] Primary subscription item:');
+		logger.info('  - price.id:', price.id);
+		logger.info('  - price.metadata:', price.metadata);
+		logger.info(
 			'  - price.product:',
 			typeof price.product === 'string' ? price.product : price.product?.id
 		);
-		console.log('  - price.unit_amount:', price.unit_amount);
-		console.log('  - price.currency:', price.currency);
-		console.log('  - price.recurring:', price.recurring);
+		logger.info('  - price.unit_amount:', price.unit_amount);
+		logger.info('  - price.currency:', price.currency);
+		logger.info('  - price.recurring:', price.recurring);
 
 		// Get tier from price metadata or fallback to price ID analysis
 		let tierId = price.metadata?.tier;
-		console.log('🔍 [EXTRACT DATA] Tier from price metadata:', tierId);
+		logger.debug('🔍 [EXTRACT DATA] Tier from price metadata:', tierId);
 
 		if (!tierId) {
-			console.log('🔍 [EXTRACT DATA] No tier in metadata, inferring from price...');
+			logger.debug('🔍 [EXTRACT DATA] No tier in metadata, inferring from price...');
 			// Fallback: analyze price ID or description for tier info
 			tierId = this.inferTierFromPrice(price);
-			console.log('🔍 [EXTRACT DATA] Inferred tier:', tierId);
+			logger.debug('🔍 [EXTRACT DATA] Inferred tier:', tierId);
 		}
 
 		const extractedData = {
@@ -232,7 +235,7 @@ export class StripeService {
 			metadata: stripeSubscription.metadata
 		};
 
-		console.log('🔍 [EXTRACT DATA] Final extracted data:', extractedData);
+		logger.debug('🔍 [EXTRACT DATA] Final extracted data:', extractedData);
 		return extractedData;
 	}
 
@@ -240,30 +243,30 @@ export class StripeService {
 	 * Infer tier from price information when metadata is not available
 	 */
 	private inferTierFromPrice(price: Stripe.Price): string {
-		console.log('🔍 [INFER TIER] Starting tier inference...');
-		console.log('  - price.id:', price.id);
-		console.log('  - price.metadata:', price.metadata);
-		console.log('  - env.STRIPE_EARLY_BACKER_PRICE_ID:', env.STRIPE_EARLY_BACKER_PRICE_ID);
+		logger.debug('🔍 [INFER TIER] Starting tier inference...');
+		logger.info('  - price.id:', price.id);
+		logger.info('  - price.metadata:', price.metadata);
+		logger.info('  - env.STRIPE_EARLY_BACKER_PRICE_ID:', env.STRIPE_EARLY_BACKER_PRICE_ID);
 
 		// Check price metadata first
 		if (price.metadata?.tier) {
-			console.log('🔍 [INFER TIER] Found tier in metadata:', price.metadata.tier);
+			logger.debug('🔍 [INFER TIER] Found tier in metadata:', price.metadata.tier);
 			return price.metadata.tier;
 		}
 
 		// Check price ID pattern
 		if (env.STRIPE_EARLY_BACKER_PRICE_ID && price.id === env.STRIPE_EARLY_BACKER_PRICE_ID) {
-			console.log('🔍 [INFER TIER] Matched early backer price ID → plus');
+			logger.debug('🔍 [INFER TIER] Matched early backer price ID → plus');
 			return 'plus';
 		}
 
 		if (price.id.includes('premium')) {
-			console.log('🔍 [INFER TIER] Price ID contains "premium" → premium');
+			logger.debug('🔍 [INFER TIER] Price ID contains "premium" → premium');
 			return 'premium';
 		}
 
 		if (price.id.includes('plus')) {
-			console.log('🔍 [INFER TIER] Price ID contains "plus" → plus');
+			logger.debug('🔍 [INFER TIER] Price ID contains "plus" → plus');
 			return 'plus';
 		}
 
@@ -274,20 +277,20 @@ export class StripeService {
 			'name' in price.product &&
 			price.product.name
 		) {
-			console.log('🔍 [INFER TIER] Checking product name:', price.product.name);
+			logger.debug('🔍 [INFER TIER] Checking product name:', price.product.name);
 			const productName = price.product.name.toLowerCase();
 			if (productName.includes('premium')) {
-				console.log('🔍 [INFER TIER] Product name contains "premium" → premium');
+				logger.debug('🔍 [INFER TIER] Product name contains "premium" → premium');
 				return 'premium';
 			}
 			if (productName.includes('plus')) {
-				console.log('🔍 [INFER TIER] Product name contains "plus" → plus');
+				logger.debug('🔍 [INFER TIER] Product name contains "plus" → plus');
 				return 'plus';
 			}
 		}
 
 		// Default fallback
-		console.log('🔍 [INFER TIER] No match found, using default fallback → plus');
+		logger.debug('🔍 [INFER TIER] No match found, using default fallback → plus');
 		return 'plus';
 	}
 
@@ -304,30 +307,30 @@ export class StripeService {
 	 * to the dedicated subscriptionRepository.
 	 */
 	async handleCheckoutSuccess(session: Stripe.Checkout.Session): Promise<void> {
-		console.log('🎣 [CHECKOUT SUCCESS] Starting handleCheckoutSuccess...');
+		logger.debug('🎣 [CHECKOUT SUCCESS] Starting handleCheckoutSuccess...');
 
 		// Get userId from metadata (we set this in createCheckoutSession)
 		const userId = session.metadata?.userId;
 
-		console.log('🎣 [CHECKOUT SUCCESS] Extracted data from session:');
-		console.log('  - userId:', userId);
-		console.log('  - session.subscription:', session.subscription);
-		console.log('  - session.customer:', session.customer);
-		console.log('  - session.payment_status:', session.payment_status);
+		logger.debug('🎣 [CHECKOUT SUCCESS] Extracted data from session:');
+		logger.info('  - userId:', userId);
+		logger.info('  - session.subscription:', session.subscription);
+		logger.info('  - session.customer:', session.customer);
+		logger.info('  - session.payment_status:', session.payment_status);
 
 		if (!userId || !session.subscription || !session.customer) {
-			console.error('🎣 [CHECKOUT SUCCESS] ❌ Missing required data in session:');
-			console.error('  - Session ID:', session.id);
-			console.error('  - userId:', userId);
-			console.error('  - subscription:', session.subscription);
-			console.error('  - customer:', session.customer);
+			logger.error('🎣 [CHECKOUT SUCCESS] ❌ Missing required data in session:');
+			logger.error('  - Session ID:', session.id);
+			logger.error('  - userId:', userId);
+			logger.error('  - subscription:', session.subscription);
+			logger.error('  - customer:', session.customer);
 			return;
 		}
 
 		const subscriptionId =
 			typeof session.subscription === 'string' ? session.subscription : session.subscription.id;
 
-		console.log(
+		logger.info(
 			'🎣 [CHECKOUT SUCCESS] Processing for user:',
 			userId,
 			'subscription:',
@@ -336,56 +339,56 @@ export class StripeService {
 
 		try {
 			// Retrieve the full subscription object to get all details
-			console.log('🎣 [CHECKOUT SUCCESS] Retrieving full subscription from Stripe...');
+			logger.debug('🎣 [CHECKOUT SUCCESS] Retrieving full subscription from Stripe...');
 			const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
-			console.log('🎣 [CHECKOUT SUCCESS] Full subscription data:');
-			console.log('  - id:', subscription.id);
-			console.log('  - status:', subscription.status);
-			console.log('  - customer:', subscription.customer);
-			console.log(
+			logger.debug('🎣 [CHECKOUT SUCCESS] Full subscription data:');
+			logger.info('  - id:', subscription.id);
+			logger.info('  - status:', subscription.status);
+			logger.info('  - customer:', subscription.customer);
+			logger.info(
 				'  - created:',
 				subscription.created ? new SvelteDate(subscription.created * 1000).toISOString() : 'null'
 			);
-			console.log(
+			logger.info(
 				'  - start_date:',
 				subscription.start_date
 					? new SvelteDate(subscription.start_date * 1000).toISOString()
 					: 'null'
 			);
-			console.log(
+			logger.info(
 				'  - cancel_at_period_end:',
 				subscription.cancel_at
 					? new SvelteDate(subscription.cancel_at * 1000).toISOString()
 					: 'null'
 			);
-			console.log('  - items count:', subscription.items?.data?.length || 0);
-			console.log('  - metadata:', subscription.metadata);
+			logger.info('  - items count:', subscription.items?.data?.length || 0);
+			logger.info('  - metadata:', subscription.metadata);
 
 			// Extract subscription data to determine tier
-			console.log('🎣 [CHECKOUT SUCCESS] Extracting subscription data...');
+			logger.debug('🎣 [CHECKOUT SUCCESS] Extracting subscription data...');
 			const subscriptionData = await this.extractSubscriptionData(subscription);
 			const normalizedTier =
 				subscriptionData.tierId != null ? this.normalizeTier(subscriptionData.tierId) : null;
 
-			console.log('🎣 [CHECKOUT SUCCESS] Extracted subscription data:');
-			console.log('  - priceId:', subscriptionData.priceId);
-			console.log('  - tier:', normalizedTier ?? 'inherit');
-			console.log('  - currency:', subscriptionData.currency);
+			logger.debug('🎣 [CHECKOUT SUCCESS] Extracted subscription data:');
+			logger.info('  - priceId:', subscriptionData.priceId);
+			logger.info('  - tier:', normalizedTier ?? 'inherit');
+			logger.info('  - currency:', subscriptionData.currency);
 
 			// Check if subscription already exists
-			console.log('🎣 [CHECKOUT SUCCESS] Checking for existing subscription...');
+			logger.debug('🎣 [CHECKOUT SUCCESS] Checking for existing subscription...');
 			// Check for existing record in minimal subscriptions table
 			const existingSubscription =
 				await subscriptionRepository.findSubscriptionByStripeId(subscriptionId);
 
 			if (existingSubscription) {
 				const tier = normalizedTier ?? existingSubscription.currentTier;
-				console.log(
+				logger.info(
 					'🎣 [CHECKOUT SUCCESS] ⚠️ Subscription already exists:',
 					existingSubscription.id
 				);
-				console.log('  - Current tier:', existingSubscription.currentTier);
+				logger.info('  - Current tier:', existingSubscription.currentTier);
 
 				// Update existing subscription
 				await subscriptionRepository.updateSubscription(existingSubscription.id, {
@@ -394,14 +397,14 @@ export class StripeService {
 					updatedAt: new SvelteDate()
 				});
 
-				console.log(
+				logger.info(
 					'🎣 [CHECKOUT SUCCESS] ✅ Updated existing subscription:',
 					existingSubscription.id
 				);
 			} else {
 				const tier = normalizedTier ?? 'free';
 				// Create subscription record using repository
-				console.log('🎣 [CHECKOUT SUCCESS] Creating new subscription record...');
+				logger.debug('🎣 [CHECKOUT SUCCESS] Creating new subscription record...');
 				const inserted = await subscriptionRepository.createSubscription({
 					userId,
 					stripeSubscriptionId: subscriptionId,
@@ -409,30 +412,30 @@ export class StripeService {
 					currentTier: tier
 				});
 
-				console.log('🎣 [CHECKOUT SUCCESS] ✅ Created new subscription:', inserted.id);
+				logger.debug('🎣 [CHECKOUT SUCCESS] ✅ Created new subscription:', inserted.id);
 			}
 
 			// Verify the subscription was created/updated properly
-			console.log('🎣 [CHECKOUT SUCCESS] Verifying subscription in database...');
+			logger.debug('🎣 [CHECKOUT SUCCESS] Verifying subscription in database...');
 			const finalSubscription = await subscriptionRepository.findSubscriptionByUserId(userId);
 
 			if (finalSubscription) {
-				console.log('🎣 [CHECKOUT SUCCESS] ✅ Final verification successful:');
-				console.log('  - Subscription ID:', finalSubscription.id);
-				console.log('  - User ID:', finalSubscription.userId);
-				console.log('  - Current Tier:', finalSubscription.currentTier);
+				logger.debug('🎣 [CHECKOUT SUCCESS] ✅ Final verification successful:');
+				logger.info('  - Subscription ID:', finalSubscription.id);
+				logger.info('  - User ID:', finalSubscription.userId);
+				logger.info('  - Current Tier:', finalSubscription.currentTier);
 			} else {
-				console.error(
+				logger.error(
 					'🎣 [CHECKOUT SUCCESS] ❌ No active subscription found after creation/update!'
 				);
 			}
 
 			const finalTier = normalizedTier ?? finalSubscription?.currentTier ?? 'free';
-			console.log(
+			logger.info(
 				`🎣 [CHECKOUT SUCCESS] ✅ Checkout success processed for user ${userId}, tier updated to: ${finalTier}`
 			);
 		} catch (error) {
-			console.error('🎣 [CHECKOUT SUCCESS] ❌ Error processing checkout success:', error);
+			logger.error('🎣 [CHECKOUT SUCCESS] ❌ Error processing checkout success:', error);
 			throw error;
 		}
 	}
@@ -443,7 +446,7 @@ export class StripeService {
 	async handleSubscriptionCreated(stripeSubscription: Stripe.Subscription): Promise<void> {
 		const userId = stripeSubscription.metadata?.userId;
 		if (!userId) {
-			console.error('No userId in subscription metadata');
+			logger.error('No userId in subscription metadata');
 			return;
 		}
 
@@ -459,14 +462,14 @@ export class StripeService {
 			);
 
 			if (!success) {
-				console.error(`Failed to persist subscription ${stripeSubscription.id} for user ${userId}`);
+				logger.error(`Failed to persist subscription ${stripeSubscription.id} for user ${userId}`);
 				return;
 			}
 
-			console.log(`User ${userId} tier updated to ${tier} via subscription`);
-			console.log(`✅ Subscription recorded for user ${userId}, tier: ${tier}`);
+			logger.info(`User ${userId} tier updated to ${tier} via subscription`);
+			logger.info(`✅ Subscription recorded for user ${userId}, tier: ${tier}`);
 		} catch (error) {
-			console.error('Error handling subscription creation:', error);
+			logger.error('Error handling subscription creation:', error);
 			throw error;
 		}
 	}
@@ -480,7 +483,7 @@ export class StripeService {
 		);
 
 		if (!existingSubscription) {
-			console.error('Subscription not found:', stripeSubscription.id);
+			logger.error('Subscription not found:', stripeSubscription.id);
 			return;
 		}
 
@@ -496,7 +499,7 @@ export class StripeService {
 
 			// Update user tier if changed
 			if (tier !== existingSubscription.currentTier) {
-				console.log(`User ${existingSubscription.userId} tier updated to ${tier} via subscription`);
+				logger.info(`User ${existingSubscription.userId} tier updated to ${tier} via subscription`);
 			}
 
 			// Handle different subscription statuses
@@ -506,11 +509,11 @@ export class StripeService {
 				tier
 			);
 
-			console.log(
+			logger.info(
 				`✅ Subscription updated: ${stripeSubscription.id}, status: ${stripeSubscription.status}`
 			);
 		} catch (error) {
-			console.error('Error handling subscription update:', error);
+			logger.error('Error handling subscription update:', error);
 			throw error;
 		}
 	}
@@ -528,22 +531,22 @@ export class StripeService {
 			case 'unpaid':
 			case 'incomplete_expired':
 				// Downgrade to free tier
-				console.log(`User ${userId} tier downgraded to free due to subscription status: ${status}`);
+				logger.info(`User ${userId} tier downgraded to free due to subscription status: ${status}`);
 				break;
 			case 'past_due':
 				// Keep current tier but log warning
-				console.warn(`Subscription past due for user ${userId}`);
+				logger.warn(`Subscription past due for user ${userId}`);
 				break;
 			case 'trialing':
 				// Apply tier benefits during trial
 				if (tier !== 'free') {
-					console.log(`User ${userId} tier set to ${tier} during trial`);
+					logger.info(`User ${userId} tier set to ${tier} during trial`);
 				}
 				break;
 			case 'active':
 				// Ensure user has correct tier
 				if (tier !== 'free') {
-					console.log(`User ${userId} tier confirmed as ${tier} for active subscription`);
+					logger.info(`User ${userId} tier confirmed as ${tier} for active subscription`);
 				}
 				break;
 		}
@@ -557,14 +560,14 @@ export class StripeService {
 		let SubscriptionId: string | null = null;
 		const userId = paymentIntent.metadata?.userId;
 
-		console.log(`🎯 [PAYMENT SUCCESS] Processing payment intent: ${paymentIntent.id}`);
-		console.log(`  - Amount: ${paymentIntent.amount / 100} ${paymentIntent.currency}`);
-		console.log(`  - User ID from metadata: ${userId}`);
-		console.log(`  - Subscription ID from metadata: ${subscriptionId}`);
+		logger.info(`🎯 [PAYMENT SUCCESS] Processing payment intent: ${paymentIntent.id}`);
+		logger.info(`  - Amount: ${paymentIntent.amount / 100} ${paymentIntent.currency}`);
+		logger.info(`  - User ID from metadata: ${userId}`);
+		logger.info(`  - Subscription ID from metadata: ${subscriptionId}`);
 
 		// Skip recording payment if no userId is provided
 		if (!userId) {
-			console.log(
+			logger.info(
 				`⚠️ [PAYMENT SUCCESS] No userId in payment metadata, skipping payment record creation`
 			);
 			return;
@@ -586,7 +589,7 @@ export class StripeService {
 			status: this.mapStripeStatusToDbStatus(paymentIntent.status)
 		});
 
-		console.log(`✅ Payment recorded: ${paymentIntent.id}, amount: ${paymentIntent.amount / 100}`);
+		logger.info(`✅ Payment recorded: ${paymentIntent.id}, amount: ${paymentIntent.amount / 100}`);
 	}
 
 	private mapStripeStatusToDbStatus(
@@ -630,7 +633,7 @@ export class StripeService {
 	): Promise<DbSubscription | null> {
 		// Minimal schema does not track status; return latest if any
 		// NOTE: Status parameter is currently unused due to simplified schema
-		console.log(`Requested subscription for user ${userId} with status ${status}`);
+		logger.info(`Requested subscription for user ${userId} with status ${status}`);
 		return await this.getUserSubscription(userId);
 	}
 
@@ -661,7 +664,7 @@ export class StripeService {
 			updatedAt: new SvelteDate()
 		});
 
-		console.log(`✅ Subscription cancelled for user ${userId}`);
+		logger.info(`✅ Subscription cancelled for user ${userId}`);
 	}
 
 	/**
@@ -685,11 +688,11 @@ export class StripeService {
 		});
 
 		// Restore user tier
-		console.log(
+		logger.info(
 			`User ${userId} tier restored to ${subscription.currentTier} via subscription reactivation`
 		);
 
-		console.log(`✅ Subscription reactivated for user ${userId}`);
+		logger.info(`✅ Subscription reactivated for user ${userId}`);
 	}
 
 	/**
@@ -708,7 +711,7 @@ export class StripeService {
 			}
 		});
 
-		console.log(`✅ Subscription collection paused for user ${userId}`);
+		logger.info(`✅ Subscription collection paused for user ${userId}`);
 	}
 
 	/**
@@ -724,7 +727,7 @@ export class StripeService {
 			pause_collection: null
 		});
 
-		console.log(`✅ Subscription collection resumed for user ${userId}`);
+		logger.info(`✅ Subscription collection resumed for user ${userId}`);
 	}
 
 	/**
@@ -732,11 +735,11 @@ export class StripeService {
 	 */
 	private async ensurePortalConfiguration(): Promise<string | undefined> {
 		try {
-			console.log('🔧 [PORTAL CONFIG] Checking for existing portal configurations...');
+			logger.debug('🔧 [PORTAL CONFIG] Checking for existing portal configurations...');
 
 			// First, try to list existing configurations
 			const configurations = await stripe.billingPortal.configurations.list({ limit: 10 });
-			console.log(`🔧 [PORTAL CONFIG] Found ${configurations.data.length} existing configurations`);
+			logger.info(`🔧 [PORTAL CONFIG] Found ${configurations.data.length} existing configurations`);
 
 			// TODO: Temporarily forcing new config creation for payment method updates
 			// Uncomment the block below after testing to use existing configs
@@ -744,17 +747,17 @@ export class StripeService {
 			if (configurations.data.length > 0) {
 				const defaultConfig = configurations.data.find((config) => config.is_default);
 				if (defaultConfig) {
-					console.log(`🔧 [PORTAL CONFIG] Using existing default configuration: ${defaultConfig.id}`);
+					logger.info(`🔧 [PORTAL CONFIG] Using existing default configuration: ${defaultConfig.id}`);
 					return defaultConfig.id;
 				}
 				// If no default, use the first one
-				console.log(`🔧 [PORTAL CONFIG] Using first available configuration: ${configurations.data[0].id}`);
+				logger.info(`🔧 [PORTAL CONFIG] Using first available configuration: ${configurations.data[0].id}`);
 				return configurations.data[0].id;
 			}
 			*/
 
 			// If no configurations exist, create a basic one
-			console.log('🔧 [PORTAL CONFIG] No configurations found, creating new one...');
+			logger.debug('🔧 [PORTAL CONFIG] No configurations found, creating new one...');
 			const configuration = await stripe.billingPortal.configurations.create({
 				business_profile: {
 					headline: 'Manage your subscription and payment methods'
@@ -773,10 +776,10 @@ export class StripeService {
 				}
 			});
 
-			console.log(`🔧 [PORTAL CONFIG] ✅ Created new configuration: ${configuration.id}`);
+			logger.info(`🔧 [PORTAL CONFIG] ✅ Created new configuration: ${configuration.id}`);
 			return configuration.id;
 		} catch (error) {
-			console.error('🔧 [PORTAL CONFIG] ❌ Error ensuring portal configuration:', error);
+			logger.error('🔧 [PORTAL CONFIG] ❌ Error ensuring portal configuration:', error);
 			// Instead of returning undefined, let's throw the error to see what's happening
 			throw error;
 		}
@@ -786,13 +789,13 @@ export class StripeService {
 	 * Create customer portal session
 	 */
 	async createPortalSession(userId: string, returnUrl: string): Promise<string> {
-		console.log(`🏪 [PORTAL SESSION] Creating portal session for user: ${userId}`);
+		logger.info(`🏪 [PORTAL SESSION] Creating portal session for user: ${userId}`);
 
 		const subscription = await this.getUserSubscription(userId);
 		if (!subscription) {
 			throw new Error('No active subscription found');
 		}
-		console.log(`🏪 [PORTAL SESSION] Found subscription: ${subscription.id}`);
+		logger.info(`🏪 [PORTAL SESSION] Found subscription: ${subscription.id}`);
 
 		// Get customer ID from user
 		const user = await userRepository.findUserById(userId);
@@ -800,12 +803,12 @@ export class StripeService {
 			throw new Error('No customer ID found for user');
 		}
 		const customerId = user.stripeCustomerId;
-		console.log(`🏪 [PORTAL SESSION] Using customer ID: ${customerId}`);
+		logger.info(`🏪 [PORTAL SESSION] Using customer ID: ${customerId}`);
 
 		// Ensure portal configuration exists
-		console.log(`🏪 [PORTAL SESSION] Ensuring portal configuration...`);
+		logger.info(`🏪 [PORTAL SESSION] Ensuring portal configuration...`);
 		const configurationId = await this.ensurePortalConfiguration();
-		console.log(`🏪 [PORTAL SESSION] Configuration ID: ${configurationId || 'none'}`);
+		logger.info(`🏪 [PORTAL SESSION] Configuration ID: ${configurationId || 'none'}`);
 
 		const sessionParams: Stripe.BillingPortal.SessionCreateParams = {
 			customer: customerId,
@@ -815,12 +818,12 @@ export class StripeService {
 		// Only add configuration if we have one
 		if (configurationId) {
 			sessionParams.configuration = configurationId;
-			console.log(`🏪 [PORTAL SESSION] Added configuration to session params`);
+			logger.info(`🏪 [PORTAL SESSION] Added configuration to session params`);
 		} else {
-			console.log(`🏪 [PORTAL SESSION] No configuration - using Stripe default`);
+			logger.info(`🏪 [PORTAL SESSION] No configuration - using Stripe default`);
 		}
 
-		console.log(`🏪 [PORTAL SESSION] Creating session with params:`, {
+		logger.info(`🏪 [PORTAL SESSION] Creating session with params:`, {
 			customer: customerId,
 			return_url: returnUrl,
 			configuration: configurationId || 'default'
@@ -828,7 +831,7 @@ export class StripeService {
 
 		const session = await stripe.billingPortal.sessions.create(sessionParams);
 
-		console.log(`🏪 [PORTAL SESSION] ✅ Session created successfully: ${session.id}`);
+		logger.info(`🏪 [PORTAL SESSION] ✅ Session created successfully: ${session.id}`);
 		return session.url;
 	}
 
@@ -854,7 +857,7 @@ export class StripeService {
 
 			return null;
 		} catch (error) {
-			console.error(`Error fetching subscription for customer ${stripeCustomerId}:`, error);
+			logger.error(`Error fetching subscription for customer ${stripeCustomerId}:`, error);
 			return null;
 		}
 	}
@@ -866,7 +869,7 @@ export class StripeService {
 		try {
 			return await stripe.subscriptions.retrieve(subscriptionId);
 		} catch (error) {
-			console.error('Error retrieving Stripe subscription:', error);
+			logger.error('Error retrieving Stripe subscription:', error);
 			return null;
 		}
 	}
@@ -911,7 +914,7 @@ export class StripeService {
 		try {
 			return await stripe.prices.retrieve(priceId);
 		} catch (error) {
-			console.error(`Error retrieving price ${priceId}:`, error);
+			logger.error(`Error retrieving price ${priceId}:`, error);
 			return null;
 		}
 	}

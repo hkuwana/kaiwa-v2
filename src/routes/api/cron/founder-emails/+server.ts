@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 import { json } from '@sveltejs/kit';
 import { FounderEmailService } from '$lib/server/email/founder-email.service';
 import { userRepository } from '$lib/server/repositories';
@@ -33,7 +34,7 @@ export const GET = async ({ request }) => {
 		// Set ENABLE_AUTOMATED_EMAILS=true in environment to allow actual sending
 		const enableAutomatedEmails = env.ENABLE_AUTOMATED_EMAILS === 'true';
 		if (!enableAutomatedEmails) {
-			console.log(
+			logger.info(
 				'⚠️  SAFETY MODE: Founder emails disabled. Set ENABLE_AUTOMATED_EMAILS=true to enable.'
 			);
 			return json({
@@ -131,7 +132,7 @@ export const GET = async ({ request }) => {
 				// Small delay to avoid rate limiting
 				await new Promise((resolve) => setTimeout(resolve, 100));
 			} catch (error) {
-				console.error(`Error sending founder email to ${user.id}:`, error);
+				logger.error(`Error sending founder email to ${user.id}:`, error);
 				stats.failed++;
 			}
 		}
@@ -145,7 +146,7 @@ export const GET = async ({ request }) => {
 			message: 'Founder emails sent successfully'
 		});
 	} catch (error) {
-		console.error('Error in founder-emails cron:', error);
+		logger.error('Error in founder-emails cron:', error);
 		return json(
 			{
 				success: false,
@@ -198,7 +199,7 @@ export const POST = async ({ request }) => {
 			sentTo: user.email
 		});
 	} catch (error) {
-		console.error('Error sending test email:', error);
+		logger.error('Error sending test email:', error);
 		return json(
 			{
 				success: false,

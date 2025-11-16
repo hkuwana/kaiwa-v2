@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 // 💳 Simple Payment Service (MVP)
 // Pure functions for Stripe operations and DB backup
 // Stripe is the source of truth, DB is for backup/performance
@@ -31,7 +32,7 @@ export async function getStripeSubscription(stripeCustomerId: string) {
 
 		return activeSubscription || null;
 	} catch (error) {
-		console.error('Error fetching Stripe subscription:', error);
+		logger.error('Error fetching Stripe subscription:', error);
 		return null;
 	}
 }
@@ -115,7 +116,7 @@ export async function createStripeCustomer(userId: string, email: string): Promi
 
 		if (existingCustomers.data.length > 0) {
 			const existingCustomer = existingCustomers.data[0];
-			console.log(`Found existing Stripe customer for email ${email}: ${existingCustomer.id}`);
+			logger.info(`Found existing Stripe customer for email ${email}: ${existingCustomer.id}`);
 
 			// Update user with existing Stripe customer ID
 			await userRepository.updateUser(userId, { stripeCustomerId: existingCustomer.id });
@@ -140,7 +141,7 @@ export async function createStripeCustomer(userId: string, email: string): Promi
 
 		return customer.id;
 	} catch (error) {
-		console.error('Error creating Stripe customer:', error);
+		logger.error('Error creating Stripe customer:', error);
 		return null;
 	}
 }
@@ -184,7 +185,7 @@ export async function createStripeCheckout(
 			url: session.url
 		};
 	} catch (error) {
-		console.error('Error creating Stripe checkout session:', error);
+		logger.error('Error creating Stripe checkout session:', error);
 		throw error;
 	}
 }
@@ -270,7 +271,7 @@ export async function getUserCurrentTier(userId: string): Promise<UserTier> {
 		const dbSubscription = await getUserSubscriptionFromDB(userId);
 		return (dbSubscription?.currentTier as UserTier) || 'free';
 	} catch (error) {
-		console.error('Error getting user tier:', error);
+		logger.error('Error getting user tier:', error);
 
 		// Final fallback to DB
 		try {
@@ -305,11 +306,11 @@ export async function ensureStripeCustomer(userId: string, email: string): Promi
 				}
 				// Customer exists but email doesn't match - need to handle this edge case
 				const customerEmail = 'email' in stripeCustomer ? stripeCustomer.email : 'unknown';
-				console.warn(
+				logger.warn(
 					`Stripe customer ${user.stripeCustomerId} email mismatch. Expected: ${email}, Got: ${customerEmail}`
 				);
 			} catch {
-				console.warn(
+				logger.warn(
 					`Stripe customer ${user.stripeCustomerId} not found in Stripe, will create/link new one`
 				);
 			}
@@ -322,7 +323,7 @@ export async function ensureStripeCustomer(userId: string, email: string): Promi
 			existingUserWithEmail.id !== userId &&
 			existingUserWithEmail.stripeCustomerId
 		) {
-			console.log(
+			logger.info(
 				`Found existing user with same email ${email} and Stripe customer ID: ${existingUserWithEmail.stripeCustomerId}`
 			);
 
@@ -336,7 +337,7 @@ export async function ensureStripeCustomer(userId: string, email: string): Promi
 		// Create new Stripe customer or link to existing one
 		return await createStripeCustomer(userId, email);
 	} catch (error) {
-		console.error('Error ensuring Stripe customer:', error);
+		logger.error('Error ensuring Stripe customer:', error);
 		return null;
 	}
 }

@@ -1,3 +1,4 @@
+import { logger } from '$lib/logger';
 // usage.store.svelte.ts
 // Combined store for MVP - handles both usage tracking and timer functionality
 import type { Tier, UserUsage } from '$lib/server/db/types';
@@ -240,7 +241,7 @@ class UsageStore {
 				monthlyRemaining: result.monthlyRemaining
 			};
 		} catch (error) {
-			console.error('Error checking analysis usage:', error);
+			logger.error('Error checking analysis usage:', error);
 			return {
 				allowed: false,
 				reason: 'Error checking usage limits',
@@ -271,7 +272,7 @@ class UsageStore {
 				await this.loadUsage();
 			}
 		} catch (error) {
-			console.error('Error recording analysis usage:', error);
+			logger.error('Error recording analysis usage:', error);
 		}
 	}
 

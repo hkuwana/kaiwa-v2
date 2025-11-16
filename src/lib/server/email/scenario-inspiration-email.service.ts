@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 import { Resend } from 'resend';
 import { formatDistanceToNow } from 'date-fns';
 import { env } from '$env/dynamic/private';
@@ -110,13 +111,13 @@ export class ScenarioInspirationEmailService {
 		errors: string[];
 	}> {
 		if (!env.RESEND_API_KEY || env.RESEND_API_KEY === 're_dummy_resend_key') {
-			console.warn('RESEND_API_KEY not configured, skipping scenario inspiration send');
+			logger.warn('RESEND_API_KEY not configured, skipping scenario inspiration send');
 			return { sent: 0, skipped: 0, errors: [] };
 		}
 
 		const eligibleUserIds = await EmailPermissionService.getScenarioInspirationEligibleUsers();
 		if (eligibleUserIds.length === 0) {
-			console.log('No scenario inspiration subscribers found.');
+			logger.info('No scenario inspiration subscribers found.');
 			return { sent: 0, skipped: 0, errors: [] };
 		}
 
@@ -148,7 +149,7 @@ export class ScenarioInspirationEmailService {
 				});
 
 				if (result.error) {
-					console.error('Failed to send scenario inspiration email:', result.error);
+					logger.error('Failed to send scenario inspiration email:', result.error);
 					errors.push(`User ${userId}: ${result.error.message || 'Unknown Resend error'}`);
 					skipped++;
 					continue;
@@ -177,7 +178,7 @@ export class ScenarioInspirationEmailService {
 				const message =
 					error instanceof Error ? error.message : 'Unknown scenario inspiration error';
 				errors.push(`User ${userId}: ${message}`);
-				console.error('Scenario inspiration send failed for user', userId, error);
+				logger.error('Scenario inspiration send failed for user', userId, error);
 				skipped++;
 			}
 		}

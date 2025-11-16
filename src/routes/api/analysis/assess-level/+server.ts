@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 import { json } from '@sveltejs/kit';
 import { analysisPipelineService } from '$lib/features/analysis/services/analysis-pipeline.service';
 
@@ -71,7 +72,7 @@ export const POST = async ({ request, locals }) => {
 
 		return json(response);
 	} catch (error) {
-		console.error('Failed to assess language level', error);
+		logger.error('Failed to assess language level', error);
 		return json(
 			{
 				error: error instanceof Error ? error.message : 'Assessment failed',

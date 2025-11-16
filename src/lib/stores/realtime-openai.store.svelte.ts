@@ -1,3 +1,4 @@
+import { logger } from '$lib/logger';
 // src/lib/stores/realtime-openai.store.svelte.ts
 // Thin SDK-backed realtime store used by demo pages.
 // Phase 1: wrap OpenAI Agents Realtime transport with minimal API.
@@ -159,7 +160,7 @@ export class RealtimeOpenAIStore {
 				this.maxEvents
 			);
 		} catch (error) {
-			console.log('something went wrong with the log event of server', error);
+			logger.info('something went wrong with the log event of server', error);
 		}
 	}
 
@@ -684,7 +685,7 @@ export class RealtimeOpenAIStore {
 				const createdEvent = serverEvent as any;
 
 				// 🔍 DEBUGGING: Log ALL conversation items (user + assistant)
-				console.log('🔍 CONVERSATION ITEM CREATED/ADDED:', {
+				logger.debug('🔍 CONVERSATION ITEM CREATED/ADDED:', {
 					eventType: serverEvent.type,
 					itemId: createdEvent.item?.id,
 					role: createdEvent.item?.role,
@@ -863,7 +864,7 @@ export class RealtimeOpenAIStore {
 	setConversationContext(context: ConversationContext | null): void {
 		this.conversationContext = context;
 		if (context) {
-			console.log('📝 Realtime store linked to conversation:', context.sessionId);
+			logger.info('📝 Realtime store linked to conversation:', context.sessionId);
 		}
 	}
 
@@ -885,7 +886,7 @@ export class RealtimeOpenAIStore {
 			this.availableOutputDevices = [...outputs];
 			this.outputDeviceError = null;
 		} catch (error) {
-			console.error('Failed to enumerate audio output devices:', error);
+			logger.error('Failed to enumerate audio output devices:', error);
 			this.outputDeviceError =
 				error instanceof Error ? error.message : 'Failed to enumerate audio output devices';
 		}
@@ -911,7 +912,7 @@ export class RealtimeOpenAIStore {
 			await this.applySelectedOutputDevice();
 			this.outputDeviceError = null;
 		} catch (error) {
-			console.error('Failed to set audio output device:', error);
+			logger.error('Failed to set audio output device:', error);
 			this.outputDeviceError =
 				error instanceof Error ? error.message : 'Failed to change audio output device';
 		}
@@ -986,7 +987,7 @@ export class RealtimeOpenAIStore {
 				try {
 					await this.applySelectedOutputDevice();
 				} catch (error) {
-					console.warn('Failed to apply selected audio output device on connect:', error);
+					logger.warn('Failed to apply selected audio output device on connect:', error);
 				}
 			}
 
@@ -1003,13 +1004,13 @@ export class RealtimeOpenAIStore {
 
 					// Highlight important transcription and VAD events as warnings
 					if (serverEvent?.type === 'conversation.item.input_audio_transcription.completed') {
-						console.warn('🎤 USER TRANSCRIPTION COMPLETED:', {
+						logger.warn('🎤 USER TRANSCRIPTION COMPLETED:', {
 							transcript: serverEvent.transcript,
 							item_id: serverEvent.item_id,
 							event_id: serverEvent.event_id,
 							timestamp: new SvelteDate().toISOString()
 						});
-						console.warn('🔍 TRANSCRIPT WILL NOW GO THROUGH FILTER', {
+						logger.warn('🔍 TRANSCRIPT WILL NOW GO THROUGH FILTER', {
 							item_id: serverEvent.item_id,
 							transcript: serverEvent.transcript,
 							note: 'Check logs above for TRANSCRIPT FILTER CHECK with this item_id'
@@ -1018,7 +1019,7 @@ export class RealtimeOpenAIStore {
 						serverEvent?.type === 'response.audio_transcript.done' ||
 						serverEvent?.type === 'response.output_audio_transcript.done'
 					) {
-						console.warn('🤖 ASSISTANT TRANSCRIPTION COMPLETED:', {
+						logger.warn('🤖 ASSISTANT TRANSCRIPTION COMPLETED:', {
 							transcript: serverEvent.transcript,
 							item_id: serverEvent.item_id,
 							event_id: serverEvent.event_id
@@ -1036,7 +1037,7 @@ export class RealtimeOpenAIStore {
 							this.pendingCommits[0];
 
 						if (!activeCommit) {
-							console.warn('⚠️ Received input_audio_buffer.committed with no pending commit', {
+							logger.warn('⚠️ Received input_audio_buffer.committed with no pending commit', {
 								event_id: commitEvent.event_id,
 								item_id: commitEvent.item_id,
 								callStack
@@ -1054,7 +1055,7 @@ export class RealtimeOpenAIStore {
 							const itemCount = allItemIdsForCommit.length;
 							const isMultipleItems = itemCount > 1;
 
-							console.warn('📤 AUDIO BUFFER COMMITTED (SERVER RESPONSE)', {
+							logger.warn('📤 AUDIO BUFFER COMMITTED (SERVER RESPONSE)', {
 								event_id: commitEvent.event_id,
 								item_id: commitEvent.item_id,
 								timestamp: new SvelteDate().toISOString(),
@@ -1066,7 +1067,7 @@ export class RealtimeOpenAIStore {
 							});
 
 							if (isMultipleItems) {
-								console.warn('⚠️⚠️⚠️ MULTIPLE ITEMS FROM SINGLE COMMIT! ⚠️⚠️⚠️', {
+								logger.warn('⚠️⚠️⚠️ MULTIPLE ITEMS FROM SINGLE COMMIT! ⚠️⚠️⚠️', {
 									commitNumber: activeCommit.commitNumber,
 									itemIds: allItemIdsForCommit,
 									explanation:
@@ -1075,7 +1076,7 @@ export class RealtimeOpenAIStore {
 							}
 
 							if (commitEvent.item_id) {
-								console.warn('📋 ITEM_ID TO WATCH FOR TRANSCRIPT', {
+								logger.warn('📋 ITEM_ID TO WATCH FOR TRANSCRIPT', {
 									item_id: commitEvent.item_id,
 									commitNumber: activeCommit.commitNumber,
 									itemIndex: `${itemCount} of ?`,
@@ -1188,7 +1189,7 @@ export class RealtimeOpenAIStore {
 			try {
 				await this.disconnect();
 			} catch {
-				console.warn('something went wrong with disconnect');
+				logger.warn('something went wrong with disconnect');
 			}
 			throw e;
 		}
@@ -1203,7 +1204,7 @@ export class RealtimeOpenAIStore {
 			try {
 				listener();
 			} catch (error) {
-				console.warn('onSessionReady listener error', error);
+				logger.warn('onSessionReady listener error', error);
 			}
 		}
 	}
@@ -1213,7 +1214,7 @@ export class RealtimeOpenAIStore {
 		if (this.pendingPttStopTimeout) {
 			clearTimeout(this.pendingPttStopTimeout);
 			this.pendingPttStopTimeout = null;
-			console.log('🧹 Cleared pending PTT stop timeout during disconnect');
+			logger.info('🧹 Cleared pending PTT stop timeout during disconnect');
 		}
 
 		if (this.unsubscribe) {
@@ -1267,7 +1268,7 @@ export class RealtimeOpenAIStore {
 			responsePayload.instructions = this.currentInstructions;
 		}
 
-		console.log('📤 CLIENT: Creating response (API maintains conversation automatically)', {
+		logger.info('📤 CLIENT: Creating response (API maintains conversation automatically)', {
 			hasSessionInstructions: !!this.currentInstructions,
 			instructionsLength: this.currentInstructions?.length ?? 0,
 			instructionsPreview: this.currentInstructions?.substring(0, 100) + '...'
@@ -1289,7 +1290,7 @@ export class RealtimeOpenAIStore {
 		this.pttStartCallCounter++;
 		const callStack = new Error().stack?.split('\n').slice(1, 5).join('\n') || 'unknown';
 
-		console.warn('▶️ RealtimeOpenAI: pttStart() CALLED', {
+		logger.warn('▶️ RealtimeOpenAI: pttStart() CALLED', {
 			hasConnection: !!this.connection,
 			callNumber: this.pttStartCallCounter,
 			streamId: mediaStream?.id,
@@ -1298,25 +1299,45 @@ export class RealtimeOpenAIStore {
 		});
 
 		if (!this.connection) {
-			console.warn('⚠️ pttStart() called but no connection - returning early');
+			logger.warn('⚠️ pttStart() called but no connection - returning early');
 			return;
 		}
 
+		// IMPORTANT: Cancel any in-progress response before starting new input
+		// This prevents duplicate responses when PTT is pressed during assistant speech
+		logger.warn('🛑 CANCELING any in-progress response', {
+			startNumber: this.pttStartCallCounter,
+			timestamp: new SvelteDate().toISOString()
+		});
+		const cancelEvent = { type: 'response.cancel' as const };
+		this.logEvent('client', String(cancelEvent.type), cancelEvent);
+		sendEventViaSession(this.connection, cancelEvent);
+
+		// Clear output audio buffer to stop any ongoing playback and truncate conversation
+		logger.warn('🗑️ CLEARING output audio buffer', {
+			startNumber: this.pttStartCallCounter,
+			timestamp: new SvelteDate().toISOString()
+		});
+		const clearOutputEvent = { type: 'output_audio_buffer.clear' as const };
+		this.logEvent('client', String(clearOutputEvent.type), clearOutputEvent);
+		sendEventViaSession(this.connection, clearOutputEvent);
+
+		// Clear input audio buffer to remove any previous audio input
 		const ev = { type: 'input_audio_buffer.clear' as const };
-		console.warn('🗑️ SENDING input_audio_buffer.clear EVENT NOW', {
+		logger.warn('🗑️ SENDING input_audio_buffer.clear EVENT NOW', {
 			startNumber: this.pttStartCallCounter,
 			timestamp: new SvelteDate().toISOString()
 		});
 		this.logEvent('client', String(ev.type), ev);
 		sendEventViaSession(this.connection, ev);
-		console.warn('✅ input_audio_buffer.clear EVENT SENT', {
+		logger.warn('✅ input_audio_buffer.clear EVENT SENT', {
 			startNumber: this.pttStartCallCounter
 		});
 
 		// Resume audio input
-		console.log('🔊 Enabling audio tracks after clear');
+		logger.info('🔊 Enabling audio tracks after clear');
 		mediaStream.getAudioTracks().forEach((track) => {
-			console.log(`🔊 Track ${track.id} enabled: ${track.enabled} -> true`);
+			logger.info(`🔊 Track ${track.id} enabled: ${track.enabled} -> true`);
 			track.enabled = true;
 		});
 	}
@@ -1329,7 +1350,7 @@ export class RealtimeOpenAIStore {
 
 	setPttStopDelay(delayMs: number): void {
 		this.pttStopDelayMs = delayMs;
-		console.log(`⏱️ PTT stop delay set to ${delayMs}ms`);
+		logger.info(`⏱️ PTT stop delay set to ${delayMs}ms`);
 	}
 
 	pttStop(mediaStream: MediaStream): void {
@@ -1339,7 +1360,7 @@ export class RealtimeOpenAIStore {
 		const timeSinceLastStop = now - this.lastPttStopTime;
 		const callStack = new Error().stack?.split('\n').slice(1, 5).join('\n') || 'unknown';
 
-		console.warn('🛑 RealtimeOpenAI: pttStop() CALLED', {
+		logger.warn('🛑 RealtimeOpenAI: pttStop() CALLED', {
 			hasConnection: !!this.connection,
 			callNumber: commitNumber,
 			timeSinceLastStop: `${timeSinceLastStop}ms`,
@@ -1351,7 +1372,7 @@ export class RealtimeOpenAIStore {
 
 		// Detect rapid duplicate calls (within 200ms) - THIS IS THE PROBLEM!
 		if (timeSinceLastStop < 200 && timeSinceLastStop > 0) {
-			console.warn('⚠️⚠️⚠️ DUPLICATE pttStop() DETECTED - IGNORING! ⚠️⚠️⚠️', {
+			logger.warn('⚠️⚠️⚠️ DUPLICATE pttStop() DETECTED - IGNORING! ⚠️⚠️⚠️', {
 				timeSinceLastStop: `${timeSinceLastStop}ms`,
 				callNumber: commitNumber,
 				previousCallTime: new SvelteDate(this.lastPttStopTime).toISOString(),
@@ -1364,7 +1385,7 @@ export class RealtimeOpenAIStore {
 
 		// Cancel any pending stop timeout from previous calls
 		if (this.pendingPttStopTimeout) {
-			console.warn('⏱️ Canceling previous pending pttStop timeout', {
+			logger.warn('⏱️ Canceling previous pending pttStop timeout', {
 				callNumber: commitNumber
 			});
 			clearTimeout(this.pendingPttStopTimeout);
@@ -1374,12 +1395,12 @@ export class RealtimeOpenAIStore {
 		this.lastPttStopTime = now;
 
 		if (!this.connection) {
-			console.warn('⚠️ pttStop() called but no connection - returning early');
+			logger.warn('⚠️ pttStop() called but no connection - returning early');
 			return;
 		}
 
 		// Schedule the actual stop after a delay to allow final audio chunks to be transmitted
-		console.warn(
+		logger.warn(
 			`⏱️ DELAYING audio buffer commit by ${this.pttStopDelayMs}ms to allow final chunks`,
 			{
 				commitNumber,
@@ -1388,33 +1409,33 @@ export class RealtimeOpenAIStore {
 		);
 
 		this.pendingPttStopTimeout = setTimeout(() => {
-			console.warn('⏰ PTT stop delay complete - now committing buffer', {
+			logger.warn('⏰ PTT stop delay complete - now committing buffer', {
 				commitNumber,
 				delayedBy: this.pttStopDelayMs,
 				timestamp: new SvelteDate().toISOString()
 			});
 
 			if (!this.connection) {
-				console.warn('⚠️ Connection lost during pttStop delay - aborting commit');
+				logger.warn('⚠️ Connection lost during pttStop delay - aborting commit');
 				this.pendingPttStopTimeout = null;
 				return;
 			}
 
 			// Pause audio input
-			console.log('🔇 Disabling audio tracks before commit');
+			logger.info('🔇 Disabling audio tracks before commit');
 			mediaStream.getAudioTracks().forEach((track) => {
-				console.log(`🔇 Track ${track.id} enabled: ${track.enabled} -> false`);
+				logger.info(`🔇 Track ${track.id} enabled: ${track.enabled} -> false`);
 				track.enabled = false;
 			});
 
 			const ev = { type: 'input_audio_buffer.commit' as const };
-			console.warn('📤 SENDING input_audio_buffer.commit EVENT NOW', {
+			logger.warn('📤 SENDING input_audio_buffer.commit EVENT NOW', {
 				commitNumber,
 				timestamp: new SvelteDate().toISOString()
 			});
 			this.logEvent('client', String(ev.type), ev);
 			sendEventViaSession(this.connection, ev);
-			console.warn('✅ input_audio_buffer.commit EVENT SENT', {
+			logger.warn('✅ input_audio_buffer.commit EVENT SENT', {
 				commitNumber
 			});
 
@@ -1435,7 +1456,7 @@ export class RealtimeOpenAIStore {
 			// 🔧 FIX: Limit pending commits to prevent accumulation of old commits
 			if (this.pendingCommits.length > 3) {
 				const removed = this.pendingCommits.shift();
-				console.error('🧹 REMOVED OLDEST COMMIT due to limit (>3)', {
+				logger.error('🧹 REMOVED OLDEST COMMIT due to limit (>3)', {
 					removedCommitNumber: removed?.commitNumber,
 					removedItemIds: removed ? Array.from(removed.itemIds) : [],
 					remainingCommits: this.pendingCommits.length,
@@ -1443,7 +1464,7 @@ export class RealtimeOpenAIStore {
 				});
 			}
 
-			console.warn('⏳ WAITING FOR input_audio_buffer.committed BEFORE SENDING response.create', {
+			logger.warn('⏳ WAITING FOR input_audio_buffer.committed BEFORE SENDING response.create', {
 				commitNumber,
 				timestamp: new SvelteDate().toISOString(),
 				totalPendingCommits: this.pendingCommits.length
@@ -1467,7 +1488,7 @@ export class RealtimeOpenAIStore {
 		// Safety check: only process user transcripts for commits
 		// Assistant transcripts should never trigger commit logic
 		if (role === 'assistant') {
-			console.warn('⚠️ getOrAssignCommitForTranscript called with assistant role - ignoring', {
+			logger.warn('⚠️ getOrAssignCommitForTranscript called with assistant role - ignoring', {
 				itemId,
 				note: 'Assistant transcripts should not trigger commit logic'
 			});
@@ -1505,7 +1526,7 @@ export class RealtimeOpenAIStore {
 		const timeSinceCommitAck = commit.commitAckTimestamp ? now - commit.commitAckTimestamp : 'N/A';
 		const timeSinceTranscript = commit.transcriptTimestamp ? now - commit.transcriptTimestamp : 'N/A';
 
-		console.warn('✅ SENDING response.create (with 200ms delay)', {
+		logger.warn('✅ SENDING response.create (with 200ms delay)', {
 			commitNumber: commit.commitNumber,
 			reason,
 			...metadata
@@ -1517,7 +1538,7 @@ export class RealtimeOpenAIStore {
 		// This prevents race condition where response.create is sent before the server
 		// has finished creating the user's conversation.item.created event
 		setTimeout(() => {
-			console.warn('⏱️ DELAYED RESPONSE - Sending response.create NOW', {
+			logger.warn('⏱️ DELAYED RESPONSE - Sending response.create NOW', {
 				commitNumber: commit.commitNumber,
 				delayMs: 200
 			});
@@ -1527,13 +1548,13 @@ export class RealtimeOpenAIStore {
 			const commitIndex = this.pendingCommits.indexOf(commit);
 			if (commitIndex !== -1) {
 				this.pendingCommits.splice(commitIndex, 1);
-				console.warn('🧹 CLEANED UP COMMIT immediately after response', {
+				logger.warn('🧹 CLEANED UP COMMIT immediately after response', {
 					commitNumber: commit.commitNumber,
 					itemIds: Array.from(commit.itemIds),
 					remainingPendingCommits: this.pendingCommits.length
 				});
 			} else {
-				console.log('ℹ️ Commit already cleaned up (likely by resolveCommitItem)', {
+				logger.info('ℹ️ Commit already cleaned up (likely by resolveCommitItem)', {
 					commitNumber: commit.commitNumber,
 					note: 'This is normal - commits are cleaned up when all items are resolved'
 				});
@@ -1572,13 +1593,13 @@ export class RealtimeOpenAIStore {
 
 		// Check if instructions have actually changed
 		if (newInstructions && newInstructions === this.lastSessionUpdateInstructions) {
-			console.log('ℹ️ Skipping session.update - instructions unchanged');
+			logger.info('ℹ️ Skipping session.update - instructions unchanged');
 			return false;
 		}
 
 		// Enforce cooldown to prevent rapid successive updates
 		if (timeSinceLastUpdate < this.SESSION_UPDATE_COOLDOWN_MS) {
-			console.log('⏱️ Skipping session.update - cooldown active', {
+			logger.info('⏱️ Skipping session.update - cooldown active', {
 				timeSinceLastUpdate,
 				cooldownMs: this.SESSION_UPDATE_COOLDOWN_MS
 			});
@@ -1653,7 +1674,7 @@ export class RealtimeOpenAIStore {
 			}
 		};
 
-		console.log('📤 SENDING session.update (passed cooldown check)', {
+		logger.info('📤 SENDING session.update (passed cooldown check)', {
 			hasInstructions: !!config.instructions,
 			instructionsLength: config.instructions?.length ?? 0,
 			timeSinceLastUpdate: Date.now() - this.lastSessionUpdateTime
@@ -1671,7 +1692,7 @@ export class RealtimeOpenAIStore {
 		// Store instructions for response creation
 		if (config.instructions) {
 			this.currentInstructions = config.instructions;
-			console.log('📝 Stored instructions for response creation:', {
+			logger.info('📝 Stored instructions for response creation:', {
 				length: config.instructions.length,
 				preview: config.instructions.substring(0, 200) + '...'
 			});
@@ -1725,7 +1746,7 @@ export class RealtimeOpenAIStore {
 				try {
 					fn();
 				} catch (error) {
-					console.warn('onSessionReady listener error', error);
+					logger.warn('onSessionReady listener error', error);
 				}
 			}, 0);
 		}
@@ -1780,7 +1801,7 @@ export class RealtimeOpenAIStore {
 			try {
 				fn(ev);
 			} catch (e) {
-				console.warn('onMessageStream listener error', e);
+				logger.warn('onMessageStream listener error', e);
 			}
 		}
 	}

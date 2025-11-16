@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 import { json } from '@sveltejs/kit';
 import { usageService } from '$lib/server/services/usage.service';
 import { getUserCurrentTier } from '$lib/server/services/payment.service';
@@ -101,7 +102,7 @@ export const POST = async ({ request }) => {
 			upgradeRecommendations
 		});
 	} catch (error) {
-		console.error('Error checking analysis usage:', error);
+		logger.error('Error checking analysis usage:', error);
 		return json({ error: 'Failed to check analysis usage' }, { status: 500 });
 	}
 };

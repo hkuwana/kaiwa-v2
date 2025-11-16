@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 // src/lib/server/repositories/scenario.repository.ts
 
 import { db } from '$lib/server/db/index';
@@ -21,7 +22,7 @@ export const scenarioRepository = {
 		try {
 			await scenarioMetadataRepository.initializeMetadata(createdScenario.id);
 		} catch (error) {
-			console.error(`Failed to initialize metadata for scenario ${createdScenario.id}:`, error);
+			logger.error(`Failed to initialize metadata for scenario ${createdScenario.id}:`, error);
 			// Don't fail the scenario creation if metadata initialization fails
 		}
 

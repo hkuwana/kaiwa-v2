@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 // src/lib/server/services/user.service.ts
 
 import * as userPreferencesService from './user-preferences.service';
@@ -15,7 +16,7 @@ export async function getUserTier(userId: string): Promise<UserTier> {
 		const subscription = await subscriptionService.getOrCreateUserSubscription(userId);
 		return subscription.currentTier as UserTier;
 	} catch (error) {
-		console.error('Error getting user tier:', error);
+		logger.error('Error getting user tier:', error);
 		return 'free'; // Default to free tier
 	}
 }
@@ -33,7 +34,7 @@ export async function createUser(userData: NewUser): Promise<User> {
 
 		return user;
 	} catch (error) {
-		console.error('Error creating user:', error);
+		logger.error('Error creating user:', error);
 		throw error;
 	}
 }
@@ -50,7 +51,7 @@ export async function getUserById(userId: string): Promise<User | undefined> {
 		}
 		return user;
 	} catch (error) {
-		console.error('Error getting user by ID:', error);
+		logger.error('Error getting user by ID:', error);
 		return undefined;
 	}
 }
@@ -65,7 +66,7 @@ export async function updateUser(
 	try {
 		return await userRepository.updateUser(userId, updates);
 	} catch (error) {
-		console.error('Error updating user:', error);
+		logger.error('Error updating user:', error);
 		return undefined;
 	}
 }

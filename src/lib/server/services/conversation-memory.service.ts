@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 import { randomUUID } from 'crypto';
 import * as openaiService from './openai.service';
 import type { Message, Language } from '$lib/server/db/types';
@@ -133,7 +134,7 @@ Focus on:
 
 		const parsed = parseMemoryResponse(response.content);
 
-		console.log('✅ Memory extracted via GPT:', {
+		logger.info('✅ Memory extracted via GPT:', {
 			topic: parsed.topic,
 			phraseCount: parsed.keyPhrases?.length || 0,
 			difficultyCount: parsed.difficulties?.length || 0
@@ -141,7 +142,7 @@ Focus on:
 
 		return parsed;
 	} catch (error) {
-		console.error('❌ GPT extraction failed:', error);
+		logger.error('❌ GPT extraction failed:', error);
 		throw error;
 	}
 }
@@ -202,7 +203,7 @@ export const conversationMemoryService = {
 				engagement
 			};
 
-			console.log('✅ Conversation memory created:', {
+			logger.info('✅ Conversation memory created:', {
 				conversationId,
 				topic: memory.topic,
 				engagement,
@@ -211,7 +212,7 @@ export const conversationMemoryService = {
 
 			return memory;
 		} catch (error) {
-			console.error('❌ Memory extraction error:', error);
+			logger.error('❌ Memory extraction error:', error);
 			throw error;
 		}
 	},

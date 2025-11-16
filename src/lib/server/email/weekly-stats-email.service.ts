@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 import { Resend } from 'resend';
 import { userRepository } from '$lib/server/repositories';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
@@ -32,7 +33,7 @@ export class WeeklyStatsEmailService {
 		errors: string[];
 	}> {
 		if (!RESEND_API_KEY || RESEND_API_KEY === 're_dummy_resend_key') {
-			console.warn('RESEND_API_KEY not configured, skipping weekly stats send');
+			logger.warn('RESEND_API_KEY not configured, skipping weekly stats send');
 			return { sent: 0, skipped: 0, errors: [] };
 		}
 
@@ -46,11 +47,11 @@ export class WeeklyStatsEmailService {
 		const eligibleUsers = await EmailPermissionService.getProgressReportEligibleUsers();
 
 		if (eligibleUsers.length === 0) {
-			console.log('No eligible users for weekly stats.');
+			logger.info('No eligible users for weekly stats.');
 			return stats;
 		}
 
-		console.log(`📊 Processing weekly stats for ${eligibleUsers.length} users...`);
+		logger.info(`📊 Processing weekly stats for ${eligibleUsers.length} users...`);
 
 		for (const userSettings of eligibleUsers) {
 			try {
@@ -66,7 +67,7 @@ export class WeeklyStatsEmailService {
 				// Skip users with no activity this week
 				if (weeklyStats.totalSessions === 0) {
 					stats.skipped++;
-					console.log(`  ⏭️  Skipping ${user.email} (no activity this week)`);
+					logger.info(`  ⏭️  Skipping ${user.email} (no activity this week)`);
 					continue;
 				}
 
@@ -83,14 +84,14 @@ export class WeeklyStatsEmailService {
 				});
 
 				if (result.error) {
-					console.error(`  ❌ Failed to send to ${user.email}:`, result.error);
+					logger.error(`  ❌ Failed to send to ${user.email}:`, result.error);
 					stats.errors.push(`${user.email}: ${result.error.message}`);
 					stats.skipped++;
 					continue;
 				}
 
 				stats.sent++;
-				console.log(`  ✅ Sent to ${user.email} (${weeklyStats.totalMinutes} min)`);
+				logger.info(`  ✅ Sent to ${user.email} (${weeklyStats.totalMinutes} min)`);
 
 				await analyticsEventsRepository.createAnalyticsEvent({
 					userId: user.id,
@@ -107,7 +108,7 @@ export class WeeklyStatsEmailService {
 				// Rate limit to avoid hitting email provider limits
 				await new Promise((resolve) => setTimeout(resolve, 100));
 			} catch (error) {
-				console.error(`  ❌ Error processing user ${userSettings.userId}:`, error);
+				logger.error(`  ❌ Error processing user ${userSettings.userId}:`, error);
 				stats.errors.push(`User ${userSettings.userId}: ${error}`);
 				stats.skipped++;
 			}

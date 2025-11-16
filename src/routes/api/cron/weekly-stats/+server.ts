@@ -1,3 +1,4 @@
+import { logger } from '$lib/server/logger';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { WeeklyStatsEmailService } from '$lib/server/email/weekly-stats-email.service';
@@ -18,14 +19,14 @@ export const GET: RequestHandler = async ({ request }) => {
 		const expectedAuth = `Bearer ${env.CRON_SECRET || 'development_secret'}`;
 
 		if (authHeader !== expectedAuth) {
-			console.error('Unauthorized cron request - invalid secret');
+			logger.error('Unauthorized cron request - invalid secret');
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
 		// SAFETY: Prevent automatic email sending until manually reviewed
 		const enableAutomatedEmails = env.ENABLE_AUTOMATED_EMAILS === 'true';
 		if (!enableAutomatedEmails) {
-			console.log(
+			logger.info(
 				'⚠️  SAFETY MODE: Automated emails disabled. Set ENABLE_AUTOMATED_EMAILS=true to enable.'
 			);
 			return json({
@@ -38,13 +39,13 @@ export const GET: RequestHandler = async ({ request }) => {
 			});
 		}
 
-		console.log('📈 Starting weekly stats cron job...');
+		logger.info('📈 Starting weekly stats cron job...');
 
 		// Send weekly stats to all eligible users
 		const stats = await WeeklyStatsEmailService.sendWeeklyStats();
 
-		console.log('✅ Weekly stats cron job completed!');
-		console.log(
+		logger.info('✅ Weekly stats cron job completed!');
+		logger.info(
 			`📊 Stats: ${stats.sent} sent, ${stats.skipped} skipped, ${stats.errors.length} errors`
 		);
 
@@ -57,7 +58,7 @@ export const GET: RequestHandler = async ({ request }) => {
 			message: 'Weekly stats emails sent successfully'
 		});
 	} catch (error) {
-		console.error('❌ Weekly stats cron job failed:', error);
+		logger.error('❌ Weekly stats cron job failed:', error);
 
 		return json(
 			{
