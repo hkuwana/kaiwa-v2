@@ -51,6 +51,13 @@ import { conversationPersistenceService } from '$lib/services/conversation-persi
 import { languages as dataLanguages } from '$lib/data/languages';
 
 const KNOWN_USER_TIERS: UserTier[] = ['free', 'plus', 'premium'];
+
+// Store phantom audio filter state outside reactive system for closure access
+// This persists across reactive updates and is directly accessible by filter callback
+const phantomAudioState = {
+	lastAssistantFinishTime: 0
+};
+
 export class ConversationStore {
 	// Reactive state
 	status = $state<ConversationStatus>('idle');
@@ -63,9 +70,8 @@ export class ConversationStore {
 	speaker = $state<Speaker | undefined>(undefined);
 	error = $state<string | null>(null);
 
-	// Track when assistant last spoke to prevent phantom audio detection
-	// MUST be $state for reactive tracking in filter closure
-	private lastAssistantFinishTime = $state<number>(0);
+	// Note: lastAssistantFinishTime moved to module-level phantomAudioState
+	// for reliable closure access (Svelte $state doesn't work in callbacks)
 	waitingForUserToStart = $state<boolean>(false);
 	audioInputMode = $state<AudioInputMode>('ptt'); // Default to Push-to-Talk
 
@@ -143,14 +149,14 @@ export class ConversationStore {
 			}
 
 			const now = Date.now();
-			const timeSinceAssistantFinished = now - this.lastAssistantFinishTime;
+			const timeSinceAssistantFinished = now - phantomAudioState.lastAssistantFinishTime;
 
 			logger.warn('🔍 TRANSCRIPT FILTER CHECK', {
 				itemId: meta.itemId,
 				text: meta.text,
 				textLength: meta.text.length,
 				suppressFlag: this.suppressNextUserTranscript,
-				lastAssistantFinishTime: this.lastAssistantFinishTime,
+				lastAssistantFinishTime: phantomAudioState.lastAssistantFinishTime,
 				now: now,
 				timeSinceAssistantFinished,
 				timestamp: new SvelteDate().toISOString()
@@ -162,7 +168,7 @@ export class ConversationStore {
 			const MIN_LENGTH_DURING_COOLDOWN = 20; // Require longer transcripts during cooldown (increased from 15)
 
 			if (
-				this.lastAssistantFinishTime > 0 &&
+				phantomAudioState.lastAssistantFinishTime > 0 &&
 				timeSinceAssistantFinished < COOLDOWN_MS &&
 				meta.text.trim().length < MIN_LENGTH_DURING_COOLDOWN
 			) {
@@ -1057,11 +1063,11 @@ export class ConversationStore {
 				const hasStreamingMessages = messageService.hasStreamingMessage(this.messages);
 				if (!hasStreamingMessages) {
 					const timestamp = Date.now();
-					this.lastAssistantFinishTime = timestamp;
+					phantomAudioState.lastAssistantFinishTime = timestamp;
 					logger.info('🤖 Assistant message complete - scheduling save', {
-						lastAssistantFinishTime: this.lastAssistantFinishTime,
+						lastAssistantFinishTime: phantomAudioState.lastAssistantFinishTime,
 						timestampSet: timestamp,
-						isEqual: this.lastAssistantFinishTime === timestamp
+						isEqual: phantomAudioState.lastAssistantFinishTime === timestamp
 					});
 					// More aggressive save after assistant responses
 					this.debouncedSave();
