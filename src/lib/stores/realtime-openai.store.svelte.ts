@@ -1337,14 +1337,9 @@ export class RealtimeOpenAIStore {
 		this.logEvent('client', String(cancelEvent.type), cancelEvent);
 		sendEventViaSession(this.connection, cancelEvent);
 
-		// Clear output audio buffer to stop any ongoing playback and truncate conversation
-		logger.warn('🗑️ CLEARING output audio buffer', {
-			startNumber: this.pttStartCallCounter,
-			timestamp: new SvelteDate().toISOString()
-		});
-		const clearOutputEvent = { type: 'output_audio_buffer.clear' as const };
-		this.logEvent('client', String(clearOutputEvent.type), clearOutputEvent);
-		sendEventViaSession(this.connection, clearOutputEvent);
+		// NOTE: We do NOT send output_audio_buffer.clear here because it truncates
+		// the conversation history on the server side, causing the conversation to reset.
+		// response.cancel is sufficient to stop the current response.
 
 		// Clear input audio buffer to remove any previous audio input
 		const ev = { type: 'input_audio_buffer.clear' as const };
