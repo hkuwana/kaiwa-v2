@@ -27,7 +27,7 @@
 		speakersData.filter((speaker) => speaker.languageId === languageId);
 
 	let availableSpeakers = $derived(getSpeakersForLanguage(selectedLanguage.id));
-	let selectedSpeakerId = $state(availableSpeakers[0]?.id || '');
+	let selectedSpeakerId = $state('');
 	let selectedSpeaker = $derived(
 		availableSpeakers.find((speaker) => speaker.id === selectedSpeakerId) || null
 	);
@@ -36,12 +36,7 @@
 	// Default to a tutor-friendly preset when the default scenario is a tutor
 	// Note: Initial value only - params is mutated later via bind:value and function calls
 	let params = $state<InstructionParameters>({
-		...PARAMETER_PRESETS.tutor_explicit,
-		// Respect scenario hints for mixing policy if present (e.g., code_switching for Zero-to-Hero)
-		languageMixingPolicy:
-			selectedScenario?.id === 'beginner-confidence-bridge'
-				? 'code_switching'
-				: PARAMETER_PRESETS.tutor_explicit.languageMixingPolicy
+		...PARAMETER_PRESETS.tutor_explicit
 	});
 
 	let composer = $state<ReturnType<typeof createComposer> | null>(null);
