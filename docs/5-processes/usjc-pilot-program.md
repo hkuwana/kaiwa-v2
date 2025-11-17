@@ -559,10 +559,10 @@ Send every 3 months with questions like:
    - [ ] Daily life conversations
    - [ ] Travel preparation
    - [ ] Professional/business
-   - [ ] Other: ****\_\_\_****
+   - [ ] Other: \***\*\_\_\_\*\***
 
 3. Did you have any real conversations in your target language during the pilot?
-   - [ ] Yes (please describe briefly): ****\_\_\_****
+   - [ ] Yes (please describe briefly): \***\*\_\_\_\*\***
    - [ ] No
 
 4. How confident do you feel speaking your target language now vs. 3 months ago?

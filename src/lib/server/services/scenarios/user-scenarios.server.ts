@@ -462,7 +462,7 @@ export interface GenerateFromMemoriesRequest {
 export async function generateScenarioFromMemories(
 	request: GenerateFromMemoriesRequest
 ): Promise<AuthorScenarioResponse> {
-	const { memories = [], mode = 'character', languageId } = request;
+	const { memories = [], mode = 'character', languageId: _languageId } = request;
 
 	// Create a description based on memories
 	const memoriesText = memories.slice(0, 5).join(' ');

@@ -9,7 +9,7 @@ declare module 'kuroshiro' {
 	}
 
 	class Kuroshiro {
-		static default: any;
+		static default: typeof Kuroshiro;
 		constructor(options?: KuroshiroOptions);
 		init(analyzer: KuromojiAnalyzer): Promise<void>;
 		convert(text: string, options: KuroshiroOptions): Promise<string>;

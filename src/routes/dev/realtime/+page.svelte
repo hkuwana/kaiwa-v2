@@ -41,6 +41,9 @@
 		try {
 			realtimeOpenAI.clearError();
 			stream = await audioService.getStream(deviceId);
+			if (!stream) {
+				throw new Error('Failed to get audio stream');
+			}
 			const sessionId = crypto.randomUUID();
 			const res = await fetch('/api/features/transcribe', {
 				method: 'POST',
@@ -49,7 +52,7 @@
 			});
 			if (!res.ok) throw new Error(`Failed to create session: ${res.status}`);
 			const sessionData = await res.json();
-			await realtimeOpenAI.connect(sessionData, stream!, {
+			await realtimeOpenAI.connect(sessionData, stream, {
 				model: 'gpt-realtime',
 				voice,
 				transcriptionLanguage: lang
@@ -118,7 +121,7 @@
 	<div class="flex items-center gap-2">
 		<select class="select-bordered select" bind:value={deviceId}>
 			<option value="default">Default Mic</option>
-			{#each devices as d}
+			{#each devices as d (d.deviceId)}
 				<option value={d.deviceId}>{d.label || d.deviceId}</option>
 			{/each}
 		</select>

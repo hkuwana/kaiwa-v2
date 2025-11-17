@@ -19,6 +19,7 @@
 		showDetails?: boolean;
 	}
 
+	 
 	let { confidenceData, showDetails = $bindable(false) }: Props = $props();
 
 	// Calculate confidence change

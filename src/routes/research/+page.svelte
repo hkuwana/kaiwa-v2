@@ -10,14 +10,11 @@
 	import { fly, slide } from 'svelte/transition';
 
 	let scrollY = $state(0);
-	let isVisible = $state(false);
-	let hoveredCard = $state<string | null>(null);
 	let animatedStats = $state({ studies: 0, universities: 0, retention: 0, anxiety: 0 });
 
 	// Page title and animations
 	onMount(() => {
 		document.title = 'Research - Kaiwa';
-		isVisible = true;
 
 		// Animate stats
 		const animateStats = () => {
@@ -154,8 +151,6 @@
 					role="button"
 					tabindex="0"
 					in:fly={{ x: -20, duration: 500, delay: 400 }}
-					onmouseenter={() => (hoveredCard = 'science')}
-					onmouseleave={() => (hoveredCard = null)}
 				>
 					<div class="card-body">
 						<div class="mb-4 flex items-center">
@@ -202,8 +197,6 @@
 					role="button"
 					tabindex="0"
 					in:fly={{ x: 20, duration: 500, delay: 600 }}
-					onmouseenter={() => (hoveredCard = 'matters')}
-					onmouseleave={() => (hoveredCard = null)}
 				>
 					<!-- Animated background pattern -->
 					<div class="absolute inset-0 opacity-10">
@@ -273,8 +266,6 @@
 					role="button"
 					tabindex="0"
 					in:fly={{ y: 20, duration: 500, delay: 800 }}
-					onmouseenter={() => (hoveredCard = 'conversational')}
-					onmouseleave={() => (hoveredCard = null)}
 				>
 					<!-- Animated background -->
 					<div
@@ -337,8 +328,6 @@
 					role="button"
 					tabindex="0"
 					in:fly={{ y: 20, duration: 500, delay: 1000 }}
-					onmouseenter={() => (hoveredCard = 'anxiety')}
-					onmouseleave={() => (hoveredCard = null)}
 				>
 					<!-- Animated background -->
 					<div
@@ -403,8 +392,6 @@
 					role="button"
 					tabindex="0"
 					in:fly={{ y: 20, duration: 500, delay: 1200 }}
-					onmouseenter={() => (hoveredCard = 'ai')}
-					onmouseleave={() => (hoveredCard = null)}
 				>
 					<!-- Animated background -->
 					<div

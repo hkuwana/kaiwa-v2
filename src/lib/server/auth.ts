@@ -1,7 +1,7 @@
 import type { RequestEvent } from '@sveltejs/kit';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
-import type { Session } from './db/types';
+import type { Session, User } from './db/types';
 import { sessionRepository, type SessionRepository } from './repositories/session.repository';
 import { userRepository } from './repositories/user.repository';
 import { subscriptionService } from './services/subscription.service';
@@ -135,7 +135,7 @@ export async function findOrCreateUser({
 
 	if (existingUserByEmail) {
 		// Link the missing authentication method to existing user
-		const updateData: Partial<any> = {};
+		const updateData: Partial<User> = {};
 
 		if (googleId && !existingUserByEmail.googleId) {
 			updateData.googleId = googleId;

@@ -104,19 +104,21 @@ export function filterScenarios(
 
 	// Filter by categories
 	if (filters.categories && filters.categories.length > 0) {
+		const categories = filters.categories;
 		filtered = filtered.filter((scenario) => {
 			const scenarioCategories = scenario.categories as string[] | null;
 			if (!scenarioCategories) return false;
-			return filters.categories!.some((cat) => scenarioCategories.includes(cat));
+			return categories.some((cat) => scenarioCategories.includes(cat));
 		});
 	}
 
 	// Filter by tags
 	if (filters.tags && filters.tags.length > 0) {
+		const tags = filters.tags;
 		filtered = filtered.filter((scenario) => {
 			const scenarioTags = scenario.tags as string[] | null;
 			if (!scenarioTags) return false;
-			return filters.tags!.some((tag) =>
+			return tags.some((tag) =>
 				scenarioTags.some((st) => st.toLowerCase().includes(tag.toLowerCase()))
 			);
 		});
@@ -124,41 +126,50 @@ export function filterScenarios(
 
 	// Filter by difficulty
 	if (filters.difficulty && filters.difficulty.length > 0) {
-		filtered = filtered.filter((scenario) => filters.difficulty!.includes(scenario.difficulty));
+		const difficulty = filters.difficulty;
+		filtered = filtered.filter((scenario) => difficulty.includes(scenario.difficulty));
 	}
 
 	// Filter by role
 	if (filters.role && filters.role.length > 0) {
-		filtered = filtered.filter((scenario) => filters.role!.includes(scenario.role));
+		const role = filters.role;
+		filtered = filtered.filter((scenario) => role.includes(scenario.role));
 	}
 
 	// Filter by primary skill
 	if (filters.primarySkill && filters.primarySkill.length > 0) {
+		const primarySkill = filters.primarySkill;
 		filtered = filtered.filter((scenario) => {
 			const skill = scenario.primarySkill as string | null;
-			return skill && filters.primarySkill!.includes(skill as any);
+			return (
+				skill &&
+				primarySkill.includes(skill as 'conversation' | 'listening' | 'vocabulary' | 'grammar')
+			);
 		});
 	}
 
 	// Filter by duration range
 	if (filters.minDuration !== undefined) {
+		const minDuration = filters.minDuration;
 		filtered = filtered.filter((scenario) => {
 			const duration = scenario.estimatedDurationSeconds || 600;
-			return duration >= filters.minDuration!;
+			return duration >= minDuration;
 		});
 	}
 
 	if (filters.maxDuration !== undefined) {
+		const maxDuration = filters.maxDuration;
 		filtered = filtered.filter((scenario) => {
 			const duration = scenario.estimatedDurationSeconds || 600;
-			return duration <= filters.maxDuration!;
+			return duration <= maxDuration;
 		});
 	}
 
 	// Filter by CEFR level
 	if (filters.cefrLevel && filters.cefrLevel.length > 0) {
+		const cefrLevel = filters.cefrLevel;
 		filtered = filtered.filter(
-			(scenario) => scenario.cefrLevel && filters.cefrLevel!.includes(scenario.cefrLevel)
+			(scenario) => scenario.cefrLevel && cefrLevel.includes(scenario.cefrLevel)
 		);
 	}
 
@@ -191,9 +202,10 @@ export function sortScenarios(scenarios: Scenario[], sortBy: ScenarioSortBy = 't
 		case 'title':
 			return sorted.sort((a, b) => a.title.localeCompare(b.title));
 
-		case 'difficulty':
+		case 'difficulty': {
 			const difficultyOrder = { beginner: 1, intermediate: 2, advanced: 3 };
 			return sorted.sort((a, b) => difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty]);
+		}
 
 		case 'duration':
 			return sorted.sort((a, b) => {
@@ -263,7 +275,10 @@ export function groupScenariosByCategory(scenarios: Scenario[]): Map<string, Sce
 			if (!grouped.has(category)) {
 				grouped.set(category, []);
 			}
-			grouped.get(category)!.push(scenario);
+			const categoryScenarios = grouped.get(category);
+			if (categoryScenarios) {
+				categoryScenarios.push(scenario);
+			}
 		});
 	});
 

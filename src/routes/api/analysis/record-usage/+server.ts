@@ -18,7 +18,7 @@ export const POST = async ({ request, locals }) => {
 		await analysisQuotaService.recordAnalysisUsage(userId);
 
 		// Map analysis type to schema field and increment
-		const updates: any = { analysesUsed: 1 };
+		const updates: Record<string, number> = { analysesUsed: 1 };
 
 		switch (analysisType) {
 			case 'basic':

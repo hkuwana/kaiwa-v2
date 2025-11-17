@@ -3,6 +3,7 @@
 // ~150 lines
 
 import { browser } from '$app/environment';
+// eslint-disable-next-line no-restricted-imports
 import type { SessionConnection } from '$lib/services/realtime-agents.service';
 import { SvelteSet } from 'svelte/reactivity';
 
@@ -49,7 +50,7 @@ export class RealtimeConnectionService {
 	async connect(
 		connection: SessionConnection,
 		sessionId: string,
-		mediaStream: MediaStream
+		_mediaStream: MediaStream
 	): Promise<void> {
 		this.connection = connection;
 		this.sessionId = sessionId;
@@ -150,8 +151,11 @@ export class RealtimeConnectionService {
 			// Get the audio element from the connection if available
 			const audioElements = document.querySelectorAll('audio');
 			for (const audio of audioElements) {
-				if ('setSinkId' in audio) {
-					await (audio as any).setSinkId(this.selectedOutputDeviceId);
+				const audioWithSink = audio as HTMLAudioElement & {
+					setSinkId?: (deviceId: string) => Promise<void>;
+				};
+				if ('setSinkId' in audio && typeof audioWithSink.setSinkId === 'function') {
+					await audioWithSink.setSinkId(this.selectedOutputDeviceId);
 				}
 			}
 			this.outputDeviceError = null;

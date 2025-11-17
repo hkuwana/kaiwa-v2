@@ -77,7 +77,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#each conversations as c}
+					{#each conversations as c (c.startedAt)}
 						<tr class="border-t">
 							<td class="p-2 whitespace-nowrap">{c.startedAt}</td>
 							<td class="p-2">{c.title || '—'}</td>

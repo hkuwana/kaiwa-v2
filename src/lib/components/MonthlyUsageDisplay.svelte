@@ -35,8 +35,8 @@
 	// Derived calculations (pure presentation logic)
 	const remainingMinutes = $derived(Math.floor(remainingSeconds / 60));
 	const remainingSecondsDisplay = $derived(remainingSeconds % 60);
-	const remainingHours = $derived(Math.floor(remainingMinutes / 60));
-	const remainingMinutesDisplay = $derived(remainingMinutes % 60);
+	const _remainingHours = $derived(Math.floor(remainingMinutes / 60));
+	const _remainingMinutesDisplay = $derived(remainingMinutes % 60);
 
 	const monthlyMinutes = $derived(Math.floor(monthlySeconds / 60));
 	const usedMinutes = $derived(Math.floor(usedSeconds / 60));

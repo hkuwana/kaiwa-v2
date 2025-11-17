@@ -205,7 +205,7 @@
 							bind:value={selectedPlatform}
 							onchange={onPlatformChange}
 						>
-							{#each platforms as platform}
+							{#each platforms as platform (platform.value)}
 								<option value={platform.value}>
 									{platform.icon}
 									{platform.label}
@@ -219,7 +219,7 @@
 							<span class="label-text">Content Type</span>
 						</label>
 						<select id="type-select" class="select-bordered select" bind:value={selectedType}>
-							{#each availableTypes as type}
+							{#each availableTypes as type (type)}
 								<option value={type}>
 									{type.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
 								</option>
@@ -308,7 +308,7 @@
 				</p>
 
 				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-					{#each japanesePhrases as phrase}
+					{#each japanesePhrases as phrase (phrase.english)}
 						<div class="card bg-base-200 shadow">
 							<div class="card-body p-4">
 								<div class="mb-2 flex items-start justify-between">

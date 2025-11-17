@@ -298,7 +298,7 @@
 						<h4 class="mb-6 text-lg font-medium">{quizQuestions[currentQuestion].question}</h4>
 
 						<div class="grid gap-3">
-							{#each quizQuestions[currentQuestion].options as option}
+							{#each quizQuestions[currentQuestion].options as option (option.id)}
 								<div
 									class="card-compact card cursor-pointer bg-base-200 transition-colors hover:bg-base-300"
 									role="button"
@@ -328,7 +328,7 @@
 								<span class="text-lg">🎯 Kaiwa directly addresses your pain points!</span>
 							</div>
 
-							{#each getPersonalizedResults() as painPoint}
+							{#each getPersonalizedResults() as painPoint, index (index)}
 								<div class="card border border-primary/20 bg-primary/10">
 									<div class="card-body py-4">
 										{#if painPoint === 'setup'}
@@ -403,7 +403,7 @@
 			</div>
 
 			<div class="grid gap-8">
-				{#each timelineComparison as period}
+				{#each timelineComparison as period (period.period)}
 					<div class="diff mx-auto aspect-[16/9] max-w-4xl">
 						<div class="diff-item-1">
 							<div
@@ -521,7 +521,7 @@
 			</div>
 
 			<div class="grid gap-6 md:grid-cols-3">
-				{#each scenarioGallery as scenario}
+				{#each scenarioGallery as scenario (scenario.title)}
 					<div
 						class="group card bg-base-100 shadow-xl transition-all duration-300 hover:shadow-2xl"
 					>
@@ -595,13 +595,13 @@
 						<h3 class="mb-4 text-xl font-bold">{userType.title}</h3>
 
 						<div class="space-y-4">
-							{#each userType.comparisons as comparison}
+							{#each userType.comparisons as comparison (comparison.feature)}
 								<div class="bg-base-50 card border border-base-300">
 									<div class="card-body py-4">
 										<div class="mb-2 flex items-center justify-between">
 											<h4 class="font-medium">{comparison.feature}</h4>
 											<div class="rating-sm rating">
-												{#each Array(5) as _, i}
+												{#each Array(5) as _, i (i)}
 													<input
 														type="radio"
 														class="mask bg-orange-400 mask-star-2"

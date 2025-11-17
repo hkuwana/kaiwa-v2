@@ -22,7 +22,7 @@
 		size = 'md'
 	}: Props = $props();
 
-	let isHovering = $state(false);
+	let _isHovering = $state(false);
 	let hoverRating = $state<number | null>(null);
 	let isSaving = $state(false);
 
@@ -69,7 +69,7 @@
 			}
 		} catch (error) {
 			console.error('Error saving scenario:', error);
-			alert('Failed to save scenario. Please try again.');
+			console.error('Failed to save scenario. Please try again.');
 		} finally {
 			isSaving = false;
 		}
@@ -100,7 +100,7 @@
 			}
 		} catch (error) {
 			console.error('Error rating scenario:', error);
-			alert('Failed to rate scenario. Please try again.');
+			console.error('Failed to rate scenario. Please try again.');
 		} finally {
 			isSaving = false;
 		}
@@ -152,8 +152,8 @@
 	<!-- Rating Stars -->
 	<div
 		class="flex gap-0.5"
-		onmouseenter={() => (isHovering = true)}
-		onmouseleave={() => (isHovering = false)}
+		onmouseenter={() => (_isHovering = true)}
+		onmouseleave={() => (_isHovering = false)}
 	>
 		{#each [1, 2, 3, 4, 5] as starRating (starRating)}
 			<button

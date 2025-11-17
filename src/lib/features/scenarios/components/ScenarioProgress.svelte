@@ -18,20 +18,20 @@
 	const vocabularyProgress = $derived(scenarioSession?.vocabularyProgress || 0);
 	const grammarProgress = $derived(scenarioSession?.grammarProgress || 0);
 	const usedVocabulary = $derived(scenarioSession?.usedVocabulary || []);
-	const hintsUsed = $derived(scenarioSession?.hintsUsed || 0);
-	const translationsUsed = $derived(scenarioSession?.translationsUsed || 0);
-	const exampleResponsesViewed = $derived(scenarioSession?.exampleResponsesViewed || 0);
+	const _hintsUsed = $derived(scenarioSession?.hintsUsed || 0);
+	const _translationsUsed = $derived(scenarioSession?.translationsUsed || 0);
+	const _exampleResponsesViewed = $derived(scenarioSession?.exampleResponsesViewed || 0);
 
 	// Functions
 
-	function getProgressText(progress: number): string {
+	function _getProgressText(progress: number): string {
 		if (progress >= 0.8) return 'Excellent';
 		if (progress >= 0.6) return 'Good';
 		if (progress >= 0.4) return 'Fair';
 		return 'Needs Work';
 	}
 
-	function getUnusedVocabulary(): string[] {
+	function _getUnusedVocabulary(): string[] {
 		return (scenario.learningObjectives || []).filter(
 			(word: string) => !usedVocabulary.includes(word)
 		);

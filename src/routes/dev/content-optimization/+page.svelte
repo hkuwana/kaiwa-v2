@@ -338,7 +338,7 @@
 					<div class="card-body">
 						<h2 class="card-title">A/B Tests</h2>
 						<div class="space-y-4">
-							{#each abTests as test}
+							{#each abTests as test (test.id)}
 								<div class="card bg-base-200 shadow">
 									<div class="card-body p-4">
 										<div class="mb-4 flex items-start justify-between">
@@ -370,7 +370,7 @@
 													</tr>
 												</thead>
 												<tbody>
-													{#each test.variants as variant, index}
+													{#each test.variants as variant, index (variant.name)}
 														{@const control = test.variants[0]}
 														{@const stats = calculateStatisticalSignificance(
 															control.conversions,
@@ -439,7 +439,7 @@
 					<div class="card-body">
 						<h2 class="card-title">AI-Generated Content Suggestions</h2>
 						<div class="space-y-4">
-							{#each contentSuggestions as suggestion}
+							{#each contentSuggestions as suggestion (suggestion.title)}
 								<div class="card bg-base-200 shadow">
 									<div class="card-body p-4">
 										<div class="mb-3 flex items-start justify-between">
@@ -461,7 +461,7 @@
 											<div>
 												<span class="text-sm font-medium">Target Keywords:</span>
 												<div class="mt-1 flex flex-wrap gap-1">
-													{#each suggestion.keywords as keyword}
+													{#each suggestion.keywords as keyword (keyword)}
 														<span class="badge badge-outline badge-sm">{keyword}</span>
 													{/each}
 												</div>

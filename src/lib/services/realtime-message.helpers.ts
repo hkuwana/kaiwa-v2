@@ -92,8 +92,8 @@ export function extractAudioDurationMs(
 export function logEvent(
 	dir: 'server' | 'client',
 	type: string,
-	payload: any
-): { dir: 'server' | 'client'; type: string; payload: any; ts: number } {
+	payload: SDKTransportEvent | unknown
+): { dir: 'server' | 'client'; type: string; payload: SDKTransportEvent | unknown; ts: number } {
 	return {
 		dir,
 		type,

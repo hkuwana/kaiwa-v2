@@ -54,7 +54,7 @@
 	});
 
 	let messageInput = $state('');
-	let translationData = $state(new SvelteMap<string, Partial<Message>>());
+	let translationData = new SvelteMap<string, Partial<Message>>();
 	let messagesContainer = $state<HTMLDivElement | null>(null);
 	let conversationMode = $state(true); // Default to calm mode (transcript hidden)
 
@@ -73,7 +73,7 @@
 	const showOnboardingHint = $derived(() => {
 		const provider = {
 			isGuest: () => userPreferencesStore.isGuest(),
-			getPreference: (key: any) => userPreferencesStore.getPreference(key),
+			getPreference: (key: string) => userPreferencesStore.getPreference(key),
 			updatePreferences: (updates: UserPreferences) =>
 				userPreferencesStore.updatePreferences(updates)
 		};

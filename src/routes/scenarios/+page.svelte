@@ -169,7 +169,7 @@
 									class="flex flex-wrap items-center gap-2 text-xs font-medium text-base-content/80"
 								>
 									<div class="flex items-center gap-1" aria-label={`${meta.label} difficulty`}>
-										{#each DIFFICULTY_SEGMENTS as segment}
+										{#each DIFFICULTY_SEGMENTS as segment (segment)}
 											<span
 												class="h-1.5 w-5 rounded-full bg-base-200 transition-colors"
 												class:bg-success={segment <= difficultyTier && meta.color === 'success'}
@@ -238,7 +238,7 @@
 									class="flex flex-wrap items-center gap-2 text-xs font-medium text-base-content/80"
 								>
 									<div class="flex items-center gap-1" aria-label={`${meta.label} difficulty`}>
-										{#each DIFFICULTY_SEGMENTS as segment}
+										{#each DIFFICULTY_SEGMENTS as segment (segment)}
 											<span
 												class="h-1.5 w-5 rounded-full bg-base-200 transition-colors"
 												class:bg-success={segment <= difficultyTier && meta.color === 'success'}

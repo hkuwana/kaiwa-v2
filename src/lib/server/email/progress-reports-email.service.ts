@@ -4,7 +4,7 @@ import { env } from '$env/dynamic/private';
 import { userRepository } from '$lib/server/repositories';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
 import { EmailPermissionService } from './email-permission.service';
-import type { User } from '$lib/server/db/types';
+import type { User, ConversationSession } from '$lib/server/db/types';
 
 const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
 
@@ -327,7 +327,7 @@ export class ProgressReportsEmailService {
 		`;
 	}
 
-	private static calculateStats(sessions: any[]): {
+	private static calculateStats(sessions: ConversationSession[]): {
 		sessionCount: number;
 		totalMinutes: number;
 		languages: string[];

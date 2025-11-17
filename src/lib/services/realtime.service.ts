@@ -227,7 +227,7 @@ export function createSessionUpdate(config: ExtendedSessionConfig): ClientEvent 
 	}
 
 	// Normalize audio payload while keeping existing session values if callers omit them
-	const audioConfig: Record<string, any> = {};
+	const audioConfig: Record<string, unknown> = {};
 	if (config.audio?.input) {
 		audioConfig.input = { ...config.audio.input };
 	}
@@ -262,7 +262,8 @@ export function createSessionUpdate(config: ExtendedSessionConfig): ClientEvent 
 		if (turnDetectionValue === null) {
 			if (audioConfig.input) {
 				delete audioConfig.input.turnDetection;
-				delete (audioConfig.input as Record<string, any>).turn_detection;
+				const inputWithSnakeCase = audioConfig.input as Record<string, unknown>;
+				delete inputWithSnakeCase.turn_detection;
 			}
 		}
 
@@ -270,7 +271,8 @@ export function createSessionUpdate(config: ExtendedSessionConfig): ClientEvent 
 			...(audioConfig.input || {}),
 			turnDetection: turnDetectionValue
 		};
-		(audioConfig.input as Record<string, any>).turn_detection = turnDetectionValue;
+		const inputWithSnakeCase = audioConfig.input as Record<string, unknown>;
+		inputWithSnakeCase.turn_detection = turnDetectionValue;
 	}
 
 	if (Object.keys(audioConfig).length > 0) {

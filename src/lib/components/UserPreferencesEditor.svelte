@@ -536,11 +536,8 @@
 					<p class="mt-1 text-sm text-error">{memoryWarning}</p>
 				{:else if currentMemorySummary && currentMemorySummary.maxCount !== Infinity}
 					<p class="mt-1 text-xs text-base-content/70">
-						{Math.max(
-							0,
-							currentMemorySummary.maxCount - (localPreferences.memories?.length ?? 0)
-						)}{' '}
-						memories remaining for your current plan.
+						{Math.max(0, currentMemorySummary.maxCount - (localPreferences.memories?.length ?? 0))} memories
+						remaining for your current plan.
 					</p>
 				{:else}
 					<p class="mt-1 text-xs text-base-content/70">

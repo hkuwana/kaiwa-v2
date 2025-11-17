@@ -290,7 +290,7 @@
 
 		<!-- Persona Selector -->
 		<div class="mb-12 grid grid-cols-1 gap-4 md:grid-cols-4">
-			{#each personaList as persona_id}
+			{#each personaList as persona_id (persona_id)}
 				{@const p = personas[persona_id]}
 				<button
 					onclick={() => {
@@ -339,7 +339,7 @@
 				<section>
 					<h3 class="mb-4 card-title text-2xl">Core Fears</h3>
 					<ul class="space-y-2">
-						{#each current.fears as fear}
+						{#each current.fears as fear, i (i)}
 							<li class="flex gap-3">
 								<span class="text-xl">😰</span>
 								<span>{fear}</span>
@@ -377,7 +377,7 @@
 				<section>
 					<h3 class="mb-4 card-title text-2xl">Lifetime Arc</h3>
 					<div class="space-y-4">
-						{#each current.lifecycle_stages as stage}
+						{#each current.lifecycle_stages as stage (stage.stage)}
 							<div class="rounded-r-lg border-l-4 border-primary bg-base-300 p-4">
 								<div class="mb-3 text-lg font-bold">{stage.stage}</div>
 								<div class="grid grid-cols-3 gap-4 text-sm">
@@ -405,7 +405,7 @@
 				<section>
 					<h3 class="mb-4 card-title text-2xl">Acquisition Channels</h3>
 					<ul class="mb-6 space-y-2">
-						{#each current.acquisition_channels as channel}
+						{#each current.acquisition_channels as channel, i (i)}
 							<li class="flex gap-3">
 								<span class="text-lg">🎯</span>
 								<span>{channel}</span>
@@ -452,7 +452,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#each personaList as persona_id}
+						{#each personaList as persona_id (persona_id)}
 							{@const p = personas[persona_id]}
 							<tr>
 								<td>

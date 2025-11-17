@@ -8,7 +8,7 @@
 
 	async function copy() {
 		await navigator.clipboard.writeText(content);
-		alert('Template copied');
+		console.log('Template copied');
 	}
 </script>
 

@@ -23,9 +23,9 @@
 	let targetLanguage = $state('en');
 
 	let translationResult = $state<Partial<Message> | null>(null);
-	let scriptResult = $state<any>(null);
-	let furiganaResult = $state<any>(null);
-	let romanizationResult = $state<any>(null);
+	let scriptResult = $state<Record<string, unknown> | null>(null);
+	let furiganaResult = $state<Record<string, unknown> | null>(null);
+	let romanizationResult = $state<Record<string, unknown> | null>(null);
 	let isLoading = $state(false);
 	let error = $state<string | null>(null);
 	let lastUpdateTime = $state<Date | null>(null);

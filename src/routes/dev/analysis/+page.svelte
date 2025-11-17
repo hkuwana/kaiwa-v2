@@ -8,7 +8,9 @@
 	import type { AnalysisFindingDraft } from '$lib/features/analysis/types/analysis-logbook.types';
 	import { SvelteDate, SvelteSet } from 'svelte/reactivity';
 	// Lazy load analysis store to prevent initialization issues
-	let analysisStore = $state<any>(null);
+	let analysisStore = $state<{
+		unifiedConversation?: { suggestions?: AnalysisSuggestion[] };
+	} | null>(null);
 
 	type ModuleMeta = {
 		id: string;
@@ -41,7 +43,7 @@
 	let showComparison = $state(false);
 	let showModulesJson = $state(false);
 	let showRawAnalysis = $state(false);
-	let usageInfo = $state<any>(null);
+	let usageInfo = $state<Record<string, unknown> | null>(null);
 	let showUsageDetails = $state(false);
 	let showDebugInput = $state(false);
 	let showReviewableDemo = $state(false);
@@ -408,7 +410,7 @@
 	let messages = $derived(conversationSamples[selectedScenario]?.messages || []);
 
 	let isLoading = $state(false);
-	let lastRun: any = $state(null);
+	let lastRun = $state<Record<string, unknown> | null>(null);
 	let errorMessage = $state<string | null>(null);
 	let suggestions = $state<AnalysisSuggestion[]>([]);
 
@@ -621,7 +623,7 @@
 									promptTokens: null,
 									completionTokens: null,
 									messageIntent: null
-								} as any}
+								}}
 								clickToToggle={false}
 							/>
 
@@ -1485,8 +1487,7 @@
 							<button
 								class="btn btn-sm btn-primary"
 								onclick={() => {
-									// eslint-disable-next-line no-alert
-									alert('Analysis would run here');
+									console.log('Analysis would run here');
 								}}
 							>
 								Get Learning Analysis
@@ -1494,8 +1495,7 @@
 							<button
 								class="btn btn-outline btn-sm"
 								onclick={() => {
-									// eslint-disable-next-line no-alert
-									alert('New conversation');
+									console.log('New conversation');
 								}}
 							>
 								Practice More

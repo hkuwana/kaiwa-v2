@@ -49,7 +49,10 @@ async function previewEmails() {
 	console.log('\n📨 PREVIEW: Founder Day 1 Email');
 	console.log('-'.repeat(80));
 
-	const day1Html = FounderEmailService.getDay1Email(mockUser as any, 'Japanese');
+	const day1Html = FounderEmailService.getDay1Email(
+		mockUser as { id: string; email: string; displayName: string; createdAt: Date },
+		'Japanese'
+	);
 	console.log(`Subject: Alex, ready for your first Japanese conversation?`);
 	console.log(`To: ${mockUser.email}`);
 	console.log('\nHTML Preview (first 500 chars):');
@@ -62,7 +65,10 @@ async function previewEmails() {
 	console.log('\n📨 PREVIEW: Founder Day 2 Email');
 	console.log('-'.repeat(80));
 
-	const day2Html = FounderEmailService.getDay2Email(mockUser as any, 'Japanese');
+	const day2Html = FounderEmailService.getDay2Email(
+		mockUser as { id: string; email: string; displayName: string; createdAt: Date },
+		'Japanese'
+	);
 	console.log(`Subject: Anything I can do to help with your Japanese practice?`);
 	console.log('\nHTML Preview (first 500 chars):');
 	console.log(day2Html.substring(0, 500) + '...\n');
@@ -73,7 +79,10 @@ async function previewEmails() {
 	console.log('\n📨 PREVIEW: Founder Day 3 Email');
 	console.log('-'.repeat(80));
 
-	const day3Html = FounderEmailService.getDay3Email(mockUser as any, 'Japanese');
+	const day3Html = FounderEmailService.getDay3Email(
+		mockUser as { id: string; email: string; displayName: string; createdAt: Date },
+		'Japanese'
+	);
 	console.log(`Subject: Can I help? (15 min chat)`);
 	console.log('\nHTML Preview (first 500 chars):');
 	console.log(day3Html.substring(0, 500) + '...\n');

@@ -8,8 +8,9 @@
 		ScenarioMode,
 		ScenarioVisibility
 	} from '$lib/services/scenarios/user-scenarios.service';
-	
-interface Props {
+	import { SvelteSet } from 'svelte/reactivity';
+
+	interface Props {
 		open: boolean;
 		onClose: () => void;
 		onScenarioCreated?: (result: SaveScenarioResult) => void;
@@ -24,12 +25,12 @@ interface Props {
 	let isSaving = $state(false);
 	let draftText = $state('');
 	let creationMode = $state<'description' | 'memories'>('description');
-	let selectedMemories = $state<Set<number>>(new Set());
+	let selectedMemories = $state<SvelteSet<number>>(new SvelteSet());
 
 	const draft = $derived(customScenarioStore.draft);
 	const limits = $derived(customScenarioStore.limits);
 
-	const totalSlots = $derived(() => (limits.total > 0 ? limits.total : 3));
+	const _totalSlots = $derived(() => (limits.total > 0 ? limits.total : 3));
 
 	const limitReached = $derived(limits.total > 0 && limits.totalUsed >= limits.total);
 
@@ -57,7 +58,7 @@ interface Props {
 		visibility = 'public';
 		isSaving = false;
 		creationMode = 'description';
-		selectedMemories = new Set();
+		selectedMemories = new SvelteSet();
 		customScenarioStore.resetDraft();
 		draftText = '';
 	}
@@ -105,7 +106,7 @@ interface Props {
 	}
 
 	function toggleMemorySelection(index: number) {
-		const newSelection = new Set(selectedMemories);
+		const newSelection = new SvelteSet(selectedMemories);
 		if (newSelection.has(index)) {
 			newSelection.delete(index);
 		} else {

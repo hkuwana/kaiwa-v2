@@ -46,7 +46,7 @@
 		return 'UNKNOWN';
 	}
 
-	function formatTimestamp(timestamp: Date | any): string {
+	function formatTimestamp(timestamp: Date | string | number | null | undefined): string {
 		if (!timestamp) return 'No timestamp';
 		const date = timestamp instanceof Date ? timestamp : new SvelteDate(timestamp);
 		return date.toISOString().split('T')[1].slice(0, -1);

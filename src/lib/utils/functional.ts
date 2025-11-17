@@ -49,7 +49,7 @@ export const withDefault =
 // ============================================================================
 
 export type EventHandler<T = unknown> = (payload: T) => void;
-export type EventPredicate<T = any> = (payload: T) => boolean;
+export type EventPredicate<T = unknown> = (payload: T) => boolean;
 export type EventTransformer<T, U> = (payload: T) => U;
 
 /**
@@ -58,7 +58,7 @@ export type EventTransformer<T, U> = (payload: T) => U;
 export const createEventPayload = <T>(
 	type: string,
 	data: T,
-	metadata: Record<string, any> = {}
+	metadata: Record<string, unknown> = {}
 ) => ({
 	type,
 	payload: data,
@@ -156,7 +156,7 @@ export const conditionalStateUpdate =
  * Higher-order function for service method decoration
  */
 export const withServiceLogging =
-	<TArgs extends any[], TReturn>(
+	<TArgs extends unknown[], TReturn>(
 		serviceName: string,
 		methodName: string,
 		fn: (...args: TArgs) => TReturn

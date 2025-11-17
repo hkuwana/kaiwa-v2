@@ -32,7 +32,8 @@ export const POST = async ({ request }) => {
 		// Send email using the service (we need to add a method for single user)
 		// For now, we'll import Resend directly
 		const { Resend } = await import('resend');
-		const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_resend_key');
+		 
+		const _resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_resend_key');
 
 		// We'll need to expose the buildWeeklyStatsEmail method or duplicate it
 		// For now, let's just send a success message

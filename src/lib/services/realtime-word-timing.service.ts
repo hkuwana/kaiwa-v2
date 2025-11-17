@@ -8,6 +8,7 @@ import type {
 } from '$lib/types/openai.realtime.types';
 import type { SpeechTiming } from '$lib/server/db/types';
 import { SvelteSet } from 'svelte/reactivity';
+// eslint-disable-next-line no-restricted-imports
 import { estimateWordDuration } from '$lib/services/realtime-transcript.helper.service';
 import { extractAudioDurationMs } from './realtime-message.helpers';
 

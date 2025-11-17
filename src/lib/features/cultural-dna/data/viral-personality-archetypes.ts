@@ -299,10 +299,9 @@ export function getArchetypeByCulturalMatch(
 ): DNAPersonalityType {
 	// Find best match based on cultural composition
 	const matches = viralPersonalityArchetypes.filter((archetype) => {
-		const cultures = archetype.culturalMix.map((mix) => mix.culture);
+		const cultures = archetype.culturalMix.map((mix) => mix.culture as string);
 		return (
-			cultures.includes(primaryCulture as any) ||
-			(secondaryCulture && cultures.includes(secondaryCulture as any))
+			cultures.includes(primaryCulture) || (secondaryCulture && cultures.includes(secondaryCulture))
 		);
 	});
 

@@ -21,7 +21,7 @@
 	// Client-side data loading
 	let userPreferences = $state<UserPreferences | null>(null);
 	let subscription = $state<Subscription | null>(null);
-	let usageLimits = $state<any>(null);
+	let usageLimits = $state<Record<string, unknown> | null>(null);
 	let memorySummary = $state<MemorySummary | null>(null);
 
 	let showDeleteModal = $state(false);
@@ -66,8 +66,8 @@
 
 	// Data loading promises
 	let userPreferencesPromise = $state<Promise<UserPreferences | null>>();
-	let subscriptionPromise = $state<Promise<any>>();
-	let usageLimitsPromise = $state<Promise<any>>();
+	let subscriptionPromise = $state<Promise<Record<string, unknown> | null>>();
+	let usageLimitsPromise = $state<Promise<Record<string, unknown> | null>>();
 
 	// Tier pricing for display
 	const tierPricing: Record<string, string> = {
@@ -112,8 +112,8 @@
 		}
 	};
 
-	const handleInputChange = (field: keyof User, value: any) => {
-		(localUser as any)[field] = value;
+	const handleInputChange = (field: keyof User, value: unknown) => {
+		(localUser as Record<string, unknown>)[field] = value;
 		debouncedSave({ [field]: value });
 	};
 

@@ -589,7 +589,19 @@ export function getCasualExpressions(languageCode: string, region?: string): Cas
 
 	// Default to English if not found
 	const english = CASUAL_EXPRESSIONS.find((expr) => expr.languageCode === 'en');
-	return english!.interjections;
+	if (!english) {
+		// Fallback to basic English expressions if somehow not found
+		return {
+			positive: ['Nice!', 'Cool!', 'Awesome!', 'Great!'],
+			surprise: ['Really?', 'Seriously?', 'No way!', 'What?!'],
+			understanding: ['I see', 'Got it', 'Right', 'OK'],
+			sympathy: ['Oh no', 'That sucks', "I'm sorry", "That's tough"],
+			excitement: ['Wow!', 'Amazing!', "That's great!", 'So cool!'],
+			questions: ['Like what?', 'How come?', 'Which one?', 'When?'],
+			fillers: ['Umm', 'Well', "Let's see", 'So']
+		};
+	}
+	return english.interjections;
 }
 
 /**

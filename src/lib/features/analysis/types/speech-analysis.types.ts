@@ -175,7 +175,7 @@ export interface SpeechAnalysisDisplayData {
 		startMs: number;
 		endMs: number;
 		content: string;
-		metadata?: any;
+		metadata?: Record<string, unknown>;
 	}>;
 	recommendations: Array<{
 		priority: 'high' | 'medium' | 'low';

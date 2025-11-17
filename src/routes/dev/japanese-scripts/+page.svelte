@@ -10,12 +10,12 @@
 	// Test state
 	let testText = $state('こんにちは、今日はどうですか？');
 	let isProcessing = $state(false);
-	let processedResult = $state<any>(null);
+	let processedResult = $state<Record<string, unknown> | null>(null);
 	let error = $state<string | null>(null);
-	let language = $state<any>(null);
+	let language = $state<Record<string, unknown> | null>(null);
 
 	// Message reactivity testing
-	let testMessage = $state<any>(null);
+	let testMessage = $state<Record<string, unknown> | null>(null);
 	let messageUpdateCounter = $state(0);
 
 	// Conversation state for testing
@@ -449,6 +449,8 @@
 						{#if processedResult.furigana}
 							<div class="rounded bg-base-200 p-4">
 								<h3 class="mb-2 font-semibold">Furigana HTML:</h3>
+								<!-- svelte-ignore no-at-html-tags -->
+								<!-- Safe: processedResult.furigana contains sanitized furigana ruby markup for testing -->
 								<div class="text-lg">{@html processedResult.furigana}</div>
 							</div>
 						{/if}
@@ -546,6 +548,8 @@
 											{#if message.otherScripts && typeof message.otherScripts === 'object' && 'furigana' in message.otherScripts}
 												<div>
 													<div class="text-xs text-base-content/60">Furigana:</div>
+													<!-- svelte-ignore no-at-html-tags -->
+													<!-- Safe: message.otherScripts.furigana contains sanitized furigana ruby markup for testing -->
 													<div class="rounded bg-info/10 p-2 text-sm">
 														{@html message.otherScripts.furigana}
 													</div>

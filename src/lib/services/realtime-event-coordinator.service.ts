@@ -40,7 +40,12 @@ export class RealtimeEventCoordinator {
 	// Private state
 	private eventQueue: Array<{ event: SDKTransportEvent; timestamp: number }> = [];
 	private processingEvents = false;
-	private events: Array<{ dir: 'server' | 'client'; type: string; payload: any; ts: number }> = [];
+	private events: Array<{
+		dir: 'server' | 'client';
+		type: string;
+		payload: SDKTransportEvent | unknown;
+		ts: number;
+	}> = [];
 	private debug = false;
 
 	private finalizedItemIds = new SvelteSet<string>();
@@ -143,7 +148,12 @@ export class RealtimeEventCoordinator {
 	/**
 	 * Get logged events for debugging
 	 */
-	getEvents(): Array<{ dir: 'server' | 'client'; type: string; payload: any; ts: number }> {
+	getEvents(): Array<{
+		dir: 'server' | 'client';
+		type: string;
+		payload: SDKTransportEvent | unknown;
+		ts: number;
+	}> {
 		return this.events;
 	}
 
@@ -213,9 +223,15 @@ export class RealtimeEventCoordinator {
 
 	private handleTranscriptionEvent(event: SDKTransportEvent) {
 		const eventType = event.type;
-		const itemId = (event as any)?.item_id || (event as any)?.transcript_item_id;
-		const delta = (event as any)?.delta;
-		const transcript = (event as any)?.transcript;
+		const eventWithItemId = event as SDKTransportEvent & {
+			item_id?: string;
+			transcript_item_id?: string;
+			delta?: string;
+			transcript?: string;
+		};
+		const itemId = eventWithItemId.item_id || eventWithItemId.transcript_item_id;
+		const delta = eventWithItemId.delta;
+		const transcript = eventWithItemId.transcript;
 
 		if (eventType === 'conversation.item.input_audio_transcription.delta' && delta && itemId) {
 			this.schedulePendingTranscript(itemId, 'user', delta);
@@ -259,7 +275,8 @@ export class RealtimeEventCoordinator {
 		this.historyText[itemId] = text;
 	}
 
-	private maybeSendResponseForCommit(commit: PendingCommitEntry, reason: string) {
+	 
+	private maybeSendResponseForCommit(_commit: PendingCommitEntry, _reason: string) {
 		// This would be called to determine if a response should be created
 		// Implementation depends on response.created event handling
 	}

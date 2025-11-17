@@ -110,7 +110,7 @@ Thank you,
 - [ ] German
 - [ ] French
 - [ ] Korean
-- [ ] Other: ****\_\_\_****
+- [ ] Other: \***\*\_\_\_\*\***
 
 **Q2: What's your current proficiency level?**
 
@@ -127,13 +127,13 @@ Thank you,
 - [ ] Building a permanent life in a new country
 - [ ] Professional advancement/career
 - [ ] Just interested/curious
-- [ ] Other: ****\_\_\_****
+- [ ] Other: \***\*\_\_\_\*\***
 
 **Q4: Do you have a specific "deadline" or upcoming event?**
 
-- [ ] Yes, within 3 months (please describe): ****\_\_\_****
-- [ ] Yes, within 6 months (please describe): ****\_\_\_****
-- [ ] Yes, within a year (please describe): ****\_\_\_****
+- [ ] Yes, within 3 months (please describe): \***\*\_\_\_\*\***
+- [ ] Yes, within 6 months (please describe): \***\*\_\_\_\*\***
+- [ ] Yes, within a year (please describe): \***\*\_\_\_\*\***
 - [ ] No specific deadline, ongoing need
 
 **Section 2: Your Relationship to Language**
@@ -171,7 +171,7 @@ Thank you,
 - [ ] Sharing my language learning journey/pain points
 - [ ] Connecting with other learners
 - [ ] Helping shape scenarios for my language
-- [ ] Other: ****\_\_\_****
+- [ ] Other: \***\*\_\_\_\*\***
 
 **Section 4: Background**
 
@@ -186,7 +186,7 @@ Thank you,
 - [ ] Through USJC
 - [ ] Friend referral
 - [ ] Social media
-- [ ] Other: ****\_\_\_****
+- [ ] Other: \***\*\_\_\_\*\***
 
 ---
 

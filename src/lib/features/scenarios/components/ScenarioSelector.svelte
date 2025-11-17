@@ -10,6 +10,7 @@
 	} from '$lib/stores/custom-scenarios.store.svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { setSelectedScenarioIdCookie } from '$lib/utils/cookies';
+	import { SvelteMap } from 'svelte/reactivity';
 
 	interface Props {
 		scenarios: Scenario[];
@@ -64,7 +65,7 @@
 	const customScenarios = $derived(customScenarioStore.customScenarios);
 
 	const curatedScenarios = $derived.by(() => {
-		const map = new Map<string, Scenario>();
+		const map = new SvelteMap<string, Scenario>();
 		for (const scenario of scenariosData) {
 			map.set(scenario.id, scenario);
 		}
@@ -75,7 +76,7 @@
 	});
 
 	const combinedScenarios = $derived.by(() => {
-		const map = new Map<string, Scenario>();
+		const map = new SvelteMap<string, Scenario>();
 		for (const scenario of curatedScenarios) {
 			map.set(scenario.id, scenario);
 		}
@@ -350,7 +351,7 @@
 								<span class="truncate text-sm font-medium">{scenario.title}</span>
 								<div class="mt-0.5 flex items-center gap-1 text-[11px] opacity-70">
 									<div class="flex items-center gap-0.5" aria-label={`${meta.label} difficulty`}>
-										{#each DIFFICULTY_SEGMENTS as segment}
+										{#each DIFFICULTY_SEGMENTS as segment (segment)}
 											<span
 												class="h-1 w-4 rounded-full bg-base-200 transition-colors"
 												class:bg-success={segment <= difficultyTier && meta.color === 'success'}

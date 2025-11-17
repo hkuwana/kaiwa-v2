@@ -18,10 +18,12 @@
 
 	// Listen for PostHog events
 	if (typeof window !== 'undefined') {
-		const originalPostHog = (window as any).posthog;
+		const originalPostHog = (window as Record<string, unknown>).posthog as
+			| Record<string, unknown>
+			| undefined;
 		if (originalPostHog) {
 			const originalCapture = originalPostHog.capture;
-			originalPostHog.capture = function (...args: any[]) {
+			originalPostHog.capture = function (...args: unknown[]) {
 				if (args[0] === 'exit_survey_submitted') {
 					surveyResults = {
 						reason: args[1].reason || 'unknown',

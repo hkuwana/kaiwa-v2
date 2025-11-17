@@ -132,7 +132,7 @@
 	let seoScore = $state(0);
 	let seoIssues = $state<string[]>([]);
 	let loadTime = $state(0);
-	let currentPageSEO = $state<any>({});
+	let currentPageSEO = $state<Record<string, unknown>>({});
 
 	// Competitor Analysis
 	const competitorAnalysis = [
@@ -397,7 +397,7 @@
 						<p class="text-green-600">🎉 No major SEO issues detected!</p>
 					{:else}
 						<ul class="space-y-1 text-sm">
-							{#each seoIssues as issue}
+							{#each seoIssues as issue (issue)}
 								<li class="text-red-600">❌ {issue}</li>
 							{/each}
 						</ul>
@@ -425,7 +425,7 @@
 								</tr>
 							</thead>
 							<tbody>
-								{#each targetKeywords.primary as keyword}
+								{#each targetKeywords.primary as keyword (keyword.keyword)}
 									<tr class="border-t">
 										<td class="px-4 py-2 font-medium">{keyword.keyword}</td>
 										<td class="px-4 py-2 text-center">{keyword.volume.toLocaleString()}</td>
@@ -448,7 +448,7 @@
 						Secondary Keywords (Medium Priority)
 					</h3>
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-						{#each targetKeywords.secondary as keyword}
+						{#each targetKeywords.secondary as keyword (keyword.keyword)}
 							<div class="rounded border p-3">
 								<div class="font-medium">{keyword.keyword}</div>
 								<div class="mt-1 text-sm text-gray-600">
@@ -466,7 +466,7 @@
 				<div>
 					<h3 class="mb-3 text-lg font-semibold text-gray-800">Long-tail Keywords (Quick Wins)</h3>
 					<div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-						{#each targetKeywords.longTail as keyword}
+						{#each targetKeywords.longTail as keyword (keyword.keyword)}
 							<div class="rounded border bg-green-50 p-3">
 								<div class="text-sm font-medium">{keyword.keyword}</div>
 								<div class="mt-1 text-xs text-gray-600">
@@ -484,7 +484,7 @@
 		<div class="mb-8 rounded-lg bg-white p-6 shadow">
 			<h2 class="mb-4 text-2xl font-bold text-gray-900">🔍 Content Gap Analysis</h2>
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-				{#each contentGaps as gap}
+				{#each contentGaps as gap (gap.topic)}
 					<div class="rounded-lg border p-4">
 						<div class="mb-2 flex items-center justify-between">
 							<h3 class="font-semibold text-gray-800">{gap.topic}</h3>

@@ -15,7 +15,7 @@
 		isManagingBilling,
 		openBillingPortal,
 		subscription: _subscription,
-		usageLimits
+		usageLimits: _usageLimits
 	}: {
 		data: Record<string, unknown>;
 		usageStatus: UsageStatus | null;
