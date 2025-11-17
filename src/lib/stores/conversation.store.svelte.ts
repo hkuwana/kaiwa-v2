@@ -155,8 +155,8 @@ export class ConversationStore {
 
 			// PHANTOM AUDIO DETECTION: Block very short transcripts that come too soon after assistant
 			// This prevents the "AI responding to itself" bug where VAD detects phantom audio
-			const COOLDOWN_MS = 1500; // 1.5 seconds after assistant finishes
-			const MIN_LENGTH_DURING_COOLDOWN = 15; // Require longer transcripts during cooldown period
+			const COOLDOWN_MS = 2500; // 2.5 seconds after assistant finishes (increased from 1.5s)
+			const MIN_LENGTH_DURING_COOLDOWN = 20; // Require longer transcripts during cooldown (increased from 15)
 
 			if (
 				this.lastAssistantFinishTime > 0 &&
@@ -793,17 +793,16 @@ export class ConversationStore {
 	private getTurnDetectionConfig() {
 		return this.audioInputMode === 'vad'
 			? {
-					// SERVER_VAD: Uses silence detection to chunk audio
-					type: 'server_vad' as const,
-					threshold: 0.7, // Sensitivity (0.0 to 1.0) - Higher = less sensitive to background noise
-					prefixPaddingMs: 300, // Audio before speech starts
-					silenceDurationMs: 800 // Silence duration to detect end of speech - longer to avoid phantom triggers
+					// SEMANTIC_VAD: Uses AI to detect when user finished speaking
+					// More reliable than server_vad - won't respond to phantom audio
+					type: 'semantic_vad' as const,
+					eagerness: 'low' as const // 'low' = patient, waits for user to finish
 
-					// ALTERNATIVE: SEMANTIC_VAD - Uses AI to detect when user finished speaking
-					// Less likely to interrupt mid-sentence, better context awareness
-					// To use: uncomment below and comment out the server_vad config above
-					// type: 'semantic_vad' as const,
-					// eagerness: 'low' // 'low' | 'medium' | 'high' - how eager to interrupt
+					// OLD: SERVER_VAD (had phantom audio detection issues)
+					// type: 'server_vad' as const,
+					// threshold: 0.7,
+					// prefixPaddingMs: 300,
+					// silenceDurationMs: 800
 				}
 			: null; // null for PTT mode - disables server-side turn detection
 	}
