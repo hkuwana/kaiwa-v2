@@ -31,7 +31,13 @@ export { emailVerification } from './email-verification';
 // 🌍 Content and learning (MVP focused) - order matters for dependencies
 export { languages } from './languages';
 export { speakers, speakerGenderEnum } from './speakers';
-export { scenarios, scenarioDifficultyEnum, scenarioVisibilityEnum } from './scenarios'; // Simplified for onboarding/comfort
+export {
+	scenarios,
+	scenarioDifficultyEnum,
+	scenarioVisibilityEnum,
+	scenarioCategoryEnum,
+	scenarioRoleEnum
+} from './scenarios'; // Simplified for onboarding/comfort
 export { conversations } from './conversations';
 export { messages } from './messages';
 export { messageAudioAnalysis } from './message-audio-analysis';

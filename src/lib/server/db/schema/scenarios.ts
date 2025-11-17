@@ -39,6 +39,22 @@ export const scenarioDifficultyEnum = pgEnum('scenario_difficulty', [
 export const scenarioVisibilityEnum = pgEnum('scenario_visibility', ['public', 'private']);
 
 /**
+ * Scenario category enumeration for browsing and filtering
+ */
+export const scenarioCategoryEnum = pgEnum('scenario_category', [
+	'relationships', // Dating, family, friends
+	'professional', // Work, business, networking
+	'travel', // Tourism, navigation, accommodation
+	'education', // School, university, tutoring
+	'health', // Medical, wellness, emergency
+	'daily_life', // Shopping, errands, household
+	'entertainment', // Hobbies, culture, media
+	'food_drink', // Restaurants, cooking, bars
+	'services', // Banking, government, utilities
+	'emergency' // Crisis, urgent situations
+]);
+
+/**
  * 🎭 Scenarios table - Defines structured learning situations and contexts
  *
  * This table stores predefined conversation scenarios that guide users through
@@ -50,10 +66,15 @@ export const scenarioVisibilityEnum = pgEnum('scenario_visibility', ['public', '
  * **Key Features:**
  * - 🎯 Structured learning situations for realistic practice
  * - 📊 Difficulty progression (beginner → intermediate → advanced)
- * - 🎨 Multiple categories (onboarding, comfort, roleplay, etc.)
+ * - 🎨 Multiple categories (relationships, professional, travel, etc.)
  * - 📝 Clear learning objectives and success criteria
  * - 😊 Comfort indicators for user confidence tracking
  * - 🔄 Active/inactive status for content management
+ * - 🏷️ Tags and searchable keywords for discovery
+ * - 🖼️ Visual thumbnails for browsing
+ * - ⏱️ Duration tracking in seconds for session planning
+ * - 👤 Author attribution for UGC
+ * - 🔗 Shareable links for viral growth
  *
  * @example
  * ```typescript
@@ -62,8 +83,10 @@ export const scenarioVisibilityEnum = pgEnum('scenario_visibility', ['public', '
  *   id: 'restaurant-ordering',
  *   title: 'Ordering Food at a Restaurant',
  *   description: 'Practice ordering food and drinks at a Japanese restaurant',
- *   category: 'basic',
+ *   categories: ['food_drink', 'daily_life'],
+ *   tags: ['restaurant', 'ordering', 'food'],
  *   difficulty: 'beginner',
+ *   estimatedDurationSeconds: 600, // 10 minutes
  *   instructions: 'Order a meal and ask about ingredients',
  *   context: 'You are at a Japanese restaurant for lunch...',
  *   expectedOutcome: 'Successfully order a meal and ask questions',
@@ -115,6 +138,38 @@ export const scenarios = pgTable(
 			understanding: number; // 1-5 scale
 		}>(),
 
+		// ===== PHASE 1: Discovery & Sharing Fields =====
+
+		// Categories for browsing (e.g., ['relationships', 'family'])
+		categories: json('categories').$type<string[]>(),
+
+		// User-defined tags (e.g., ['parents', 'first impression', 'dinner'])
+		tags: json('tags').$type<string[]>(),
+
+		// Primary skill focus: conversation, listening, vocabulary, grammar
+		primarySkill: text('primary_skill'),
+
+		// Search keywords for discovery (e.g., ['meet parents', 'earn trust'])
+		searchKeywords: json('search_keywords').$type<string[]>(),
+
+		// Visual thumbnail URL (watercolor/artistic style preferred)
+		thumbnailUrl: text('thumbnail_url'),
+
+		// Estimated duration in SECONDS (e.g., 600 = 10 minutes, 210 = 3.5 minutes)
+		// Stored in seconds for precision and tier-based limits
+		estimatedDurationSeconds: integer('estimated_duration_seconds').default(600), // Default 10 min
+
+		// Author attribution for user-generated content
+		authorDisplayName: text('author_display_name').default('Kaiwa Team'),
+
+		// Shareable URL slug (e.g., 'meeting-parents-jb2k')
+		shareSlug: text('share_slug'),
+
+		// Full shareable URL (generated)
+		shareUrl: text('share_url'),
+
+		// ===== End Phase 1 Fields =====
+
 		createdByUserId: uuid('created_by_user_id').references(() => users.id, {
 			onDelete: 'cascade'
 		}),
@@ -142,6 +197,10 @@ export const scenarios = pgTable(
 		index('scenarios_user_visibility_idx').on(table.createdByUserId, table.visibility),
 		index('scenarios_user_active_idx').on(table.createdByUserId, table.isActive),
 		// Index for title searches
-		index('scenarios_title_idx').on(table.title)
+		index('scenarios_title_idx').on(table.title),
+		// Phase 1: Discovery & browsing indexes
+		index('scenarios_primary_skill_idx').on(table.primarySkill),
+		index('scenarios_duration_idx').on(table.estimatedDurationSeconds),
+		index('scenarios_share_slug_idx').on(table.shareSlug)
 	]
 );
