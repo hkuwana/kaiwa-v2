@@ -62,6 +62,9 @@ export class ConversationStore {
 	voice: Voice = DEFAULT_VOICE;
 	speaker = $state<Speaker | undefined>(undefined);
 	error = $state<string | null>(null);
+
+	// Track when assistant last spoke to prevent phantom audio detection
+	private lastAssistantFinishTime: number = 0;
 	waitingForUserToStart = $state<boolean>(false);
 	audioInputMode = $state<AudioInputMode>('ptt'); // Default to Push-to-Talk
 
@@ -138,13 +141,38 @@ export class ConversationStore {
 				return true;
 			}
 
+			const now = Date.now();
+			const timeSinceAssistantFinished = now - this.lastAssistantFinishTime;
+
 			logger.warn('🔍 TRANSCRIPT FILTER CHECK', {
 				itemId: meta.itemId,
 				text: meta.text,
 				textLength: meta.text.length,
 				suppressFlag: this.suppressNextUserTranscript,
+				timeSinceAssistantFinished,
 				timestamp: new SvelteDate().toISOString()
 			});
+
+			// PHANTOM AUDIO DETECTION: Block very short transcripts that come too soon after assistant
+			// This prevents the "AI responding to itself" bug where VAD detects phantom audio
+			const COOLDOWN_MS = 1500; // 1.5 seconds after assistant finishes
+			const MIN_LENGTH_DURING_COOLDOWN = 15; // Require longer transcripts during cooldown period
+
+			if (
+				this.lastAssistantFinishTime > 0 &&
+				timeSinceAssistantFinished < COOLDOWN_MS &&
+				meta.text.trim().length < MIN_LENGTH_DURING_COOLDOWN
+			) {
+				logger.warn('🚫 PHANTOM AUDIO BLOCKED: Short transcript too soon after assistant', {
+					itemId: meta.itemId,
+					text: meta.text,
+					textLength: meta.text.trim().length,
+					timeSinceAssistantFinished,
+					cooldownMs: COOLDOWN_MS,
+					minLength: MIN_LENGTH_DURING_COOLDOWN
+				});
+				return false;
+			}
 
 			const shouldSuppress = this.suppressNextUserTranscript;
 			// Reset flag regardless of decision so it only applies once
@@ -1027,6 +1055,8 @@ export class ConversationStore {
 				const hasStreamingMessages = messageService.hasStreamingMessage(this.messages);
 				if (!hasStreamingMessages) {
 					logger.info('🤖 Assistant message complete - scheduling save');
+					// Track when assistant finished speaking to prevent phantom audio detection
+					this.lastAssistantFinishTime = Date.now();
 					// More aggressive save after assistant responses
 					this.debouncedSave();
 				}
