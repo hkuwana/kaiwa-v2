@@ -1,18 +1,22 @@
 # Debugging: Agent Replying to Itself Issue
 
 ## Problem Statement
+
 The agent (Minami) appears to be replying to its own messages instead of responding to user input.
 
 **Example:**
+
 - Minami: "それなら、ちょっと特別とくべつなカクテルを選えらんでみようか..."
 - Minami: "いいね！モヒートにしよう！..." ← **Should be from Hiro (user), not Minami**
 
 ## Current Hypotheses (Ordered by Likelihood)
 
 ### Hypothesis 1: Race Condition - Response Created Before User Item Committed ⭐ MOST LIKELY
+
 **Theory:** The `response.create` event is sent before the server has fully committed the user's conversation item to its internal conversation history.
 
 **Evidence from Code:**
+
 - `maybeSendResponseForCommit()` sends `response.create` immediately when BOTH conditions are met:
   - `hasReceivedCommitAck` (from `input_audio_buffer.committed`)
   - `hasReceivedUserTranscript` (from `conversation.item.input_audio_transcription.completed`)
@@ -20,32 +24,39 @@ The agent (Minami) appears to be replying to its own messages instead of respond
 - The server might still be processing the item when `response.create` arrives
 
 **How to Test:**
+
 1. Add 150-300ms delay between receiving transcript and sending `response.create`
 2. Check if delay fixes the issue
 3. Monitor server event timing in logs
 
 **Log Evidence to Look For:**
+
 ```
 ✅ SENDING response.create at: [timestamp1]
 📨 conversation.item.created (role=user) at: [timestamp2]
 ```
+
 If timestamp1 < timestamp2, this confirms the race condition.
 
 ---
 
 ### Hypothesis 2: User Conversation Items Not Being Created
+
 **Theory:** The server is not creating conversation items for user audio inputs, so the conversation history only contains assistant messages.
 
 **Evidence from Code:**
+
 - Client IGNORES `conversation.item.created` events with `role='user'` (realtime-openai.store.svelte.ts:682-703)
 - Local `conversationItems` array might not match server state
 
 **How to Test:**
+
 1. Add logging for ALL `conversation.item.created` events (including user role)
 2. Verify server is sending these events after `input_audio_buffer.commit`
 3. Check event sequence: commit → committed → item.created → transcript.completed
 
 **Log Evidence to Look For:**
+
 ```
 📤 CLIENT: input_audio_buffer.commit sent
 📥 SERVER: input_audio_buffer.committed received
@@ -56,20 +67,24 @@ If timestamp1 < timestamp2, this confirms the race condition.
 ---
 
 ### Hypothesis 3: Multiple Response.create Calls
+
 **Theory:** Multiple `response.create` events are being sent, causing the assistant to generate multiple responses in quick succession.
 
 **Evidence from Code:**
+
 - `maybeSendResponseForCommit()` is called from TWO places:
   - When `input_audio_buffer.committed` is received (line 1074)
   - When user transcript is finalized (line 537)
 - Guards should prevent duplicates, but might have edge cases
 
 **How to Test:**
+
 1. Count `response.create` events sent per user input
 2. Add unique IDs to each commit to track duplicates
 3. Check if `hasSentResponse` flag is working correctly
 
 **Log Evidence to Look For:**
+
 ```
 ⚠️ ✅ CONDITIONS MET - SENDING response.create (commitNumber: 1)
 ⚠️ ✅ CONDITIONS MET - SENDING response.create (commitNumber: 1) ← DUPLICATE!
@@ -78,13 +93,16 @@ If timestamp1 < timestamp2, this confirms the race condition.
 ---
 
 ### Hypothesis 4: Session Instructions Incorrect
+
 **Theory:** The session instructions or agent configuration is causing role confusion.
 
 **Evidence:**
+
 - Less likely based on code review
 - Would need to review agent persona/instructions
 
 **How to Test:**
+
 1. Review session instructions sent in `session.update`
 2. Check if instructions mention responding to own messages
 3. Verify agent persona configuration
@@ -92,35 +110,43 @@ If timestamp1 < timestamp2, this confirms the race condition.
 ---
 
 ### Hypothesis 5: Suppress Transcript Logic Interfering
+
 **Theory:** The `suppressNextUserTranscript` flag is preventing user messages from being added to conversation.
 
 **Evidence from Logs:**
+
 ```
 🧹 ConversationStore: SETTING suppressNextUserTranscript = TRUE
 {durationMs: 1171, turnMaxInputLevel: 0, hadTranscriptDelta: false, hadAudioEnergy: false}
 ```
 
 **How to Test:**
+
 1. Temporarily disable silence detection logic
 2. Check if issue persists with real user speech
 3. Verify suppression only affects UI, not server-side conversation
 
 **Log Evidence to Look For:**
+
 ```
 🧹 suppressNextUserTranscript is TRUE → Transcript was: "何でもなんでもいいよ。"
 ```
+
 If transcript is suppressed but still committed to server, this might not be the issue.
 
 ---
 
 ### Hypothesis 6: Conversation Item Role Attribution Bug
+
 **Theory:** User conversation items are being created with `role='assistant'` instead of `role='user'`.
 
 **Evidence:**
+
 - Would be a server-side bug
 - Less likely but possible
 
 **How to Test:**
+
 1. Log the `role` field from ALL `conversation.item.created` events
 2. Verify user audio commits create items with `role='user'`
 
@@ -129,9 +155,11 @@ If transcript is suppressed but still committed to server, this might not be the
 ## Debugging Logging Plan
 
 ### Phase 1: Add Comprehensive Conversation Item Logging ✅
+
 **File:** `src/lib/stores/realtime-openai.store.svelte.ts`
 
 Add logging for ALL conversation items (user + assistant):
+
 ```typescript
 case 'conversation.item.created':
 case 'conversation.item.added': {
@@ -149,9 +177,11 @@ case 'conversation.item.added': {
 ```
 
 ### Phase 2: Add Response Timing Validation ✅
+
 **File:** `src/lib/stores/realtime-openai.store.svelte.ts`
 
 Before sending `response.create`, log conversation state:
+
 ```typescript
 private maybeSendResponseForCommit(commit: PendingCommitEntry, reason: string) {
     // ... existing guards ...
@@ -174,6 +204,7 @@ private maybeSendResponseForCommit(commit: PendingCommitEntry, reason: string) {
 ```
 
 ### Phase 3: Track Full Event Sequence ✅
+
 Create a sequence tracker that logs all events in order:
 
 ```typescript
@@ -197,6 +228,7 @@ private logSequence(event: string, data: any) {
 ```
 
 ### Phase 4: Add Conversation State Snapshot ✅
+
 Before each `response.create`, dump the FULL server conversation state:
 
 ```typescript
@@ -215,6 +247,7 @@ private dumpConversationState() {
 ## Testing Protocol
 
 ### Test 1: Verify Event Sequence
+
 1. Start a conversation
 2. User speaks: "Hello"
 3. Check logs for sequence:
@@ -227,11 +260,13 @@ private dumpConversationState() {
    ```
 
 ### Test 2: Check Conversation State Before Response
+
 1. Before each `response.create`, check conversation snapshot
 2. Verify LAST item has `role=user`
 3. Verify user's actual message is present
 
 ### Test 3: Timing Analysis
+
 1. Record timestamps for:
    - `input_audio_buffer.committed` received
    - `conversation.item.created` received
@@ -245,18 +280,20 @@ private dumpConversationState() {
 ## Quick Fixes to Try
 
 ### Fix 1: Add Delay Before Response (Hypothesis 1)
+
 ```typescript
 // In maybeSendResponseForCommit()
 commit.hasSentResponse = true;
 commit.awaitingResponseCreate = false;
 
 setTimeout(() => {
-    console.log('⏱️ DELAYED RESPONSE - Sending response.create now');
-    this.sendResponse();
+	console.log('⏱️ DELAYED RESPONSE - Sending response.create now');
+	this.sendResponse();
 }, 200); // 200ms delay
 ```
 
 ### Fix 2: Track User Items (Hypothesis 2)
+
 ```typescript
 case 'conversation.item.created':
 case 'conversation.item.added': {
@@ -277,6 +314,7 @@ case 'conversation.item.added': {
 ```
 
 ### Fix 3: Explicit Response Context (Hypothesis 4)
+
 ```typescript
 sendResponse(): void {
     // Instead of relying on implicit conversation state,
@@ -296,6 +334,7 @@ sendResponse(): void {
 ---
 
 ## Success Criteria
+
 - [ ] User speaks → Agent responds to user's message (not its own)
 - [ ] Logs show conversation.item.created (role=user) BEFORE response.create
 - [ ] Conversation state snapshot shows alternating user/assistant messages
@@ -304,6 +343,7 @@ sendResponse(): void {
 ---
 
 ## Next Steps
+
 1. Implement Phase 1 logging (conversation items)
 2. Test with real conversation
 3. Analyze logs to confirm/reject hypotheses

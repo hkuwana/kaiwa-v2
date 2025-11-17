@@ -12,6 +12,7 @@
 ### Task 1: Check & Respond to Yesterday's Posts (30 min)
 
 **Check these places**:
+
 - Your Reddit comment from Day 1
 - Your LinkedIn post from Day 1
 - Any DMs you might have received
@@ -19,6 +20,7 @@
 **Response Template for Reddit**:
 
 If someone thanks you:
+
 ```
 You're welcome! Happy to help. If you want me to tailor this more specifically to your situation, just let me know:
 - How long have you been together?
@@ -29,6 +31,7 @@ I can put together a one-page prep sheet that's more personalized.
 ```
 
 If someone asks questions:
+
 ```
 Great question! [Answer their specific question]
 
@@ -45,6 +48,7 @@ If you want to practice this conversation before it happens, I run free practice
 ### Task 2: Find 3 More Reddit Threads (30 min)
 
 **New search terms to try**:
+
 - "nervous meeting boyfriend's parents Japanese"
 - "apologize in Japanese relationship"
 - "language barrier with in-laws"
@@ -157,6 +161,7 @@ I want to hear your story.
 ### Task 5: Join Relevant Communities (15 min)
 
 **Join these subreddits** (if you haven't already):
+
 - r/LearnJapanese
 - r/movingtojapan
 - r/japanlife

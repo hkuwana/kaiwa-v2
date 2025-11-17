@@ -17,6 +17,7 @@
 - Any DMs you received
 
 **For TikTok comments**: If someone commented "SCRIPT":
+
 ```
 Sending you a DM now! 📨
 
@@ -34,16 +35,19 @@ Then actually DM them a simple Google Doc with the script.
 **Create this simple landing page**:
 
 **Headline**:
+
 ```
 The One-Page Guide to Meeting Your Partner's Parents (Without the Anxiety)
 ```
 
 **Subheading**:
+
 ```
 Get the exact phrases, cultural tips, and practice framework I've used with 20+ people preparing for this exact moment.
 ```
 
 **What they'll get**:
+
 - One-page conversation script (with romaji)
 - Cultural do's and don'ts
 - Gift suggestions
@@ -145,6 +149,7 @@ Want help preparing for your own high-stakes conversation? Comment below or DM m
 ### Task 5: Post One Long-Form Value Comment (30 min)
 
 Find a thread where someone is asking for advice about:
+
 - Meeting partner's parents
 - Language anxiety
 - Preparing for a big conversation

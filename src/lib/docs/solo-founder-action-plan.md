@@ -157,6 +157,7 @@ This is where you translate your morning practice into something shareable and r
 - **Sunday**: Network refresh — Audit your ICP prospect list (aim for 12 warm leads per persona); decide next week's outreach targets
 
 **WhatsApp-Specific Weekly Rhythms:**
+
 - **Monday**: Motivation post ("Who's practicing today?")
 - **Wednesday**: Mid-week check-in prompt
 - **Friday**: Wins celebration ("Drop one win from this week")

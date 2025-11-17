@@ -266,6 +266,7 @@ Building in public continues.
 Send personal thank you notes:
 
 **To founding members**:
+
 ```
 Subject: Thank you for being here
 
@@ -288,6 +289,7 @@ Let me know if you need anything.
 ```
 
 **To Practice Lab participants who haven't converted yet**:
+
 ```
 Subject: Thank you for being part of this
 
@@ -441,6 +443,7 @@ Plan your content themes by week:
 Build reusable systems:
 
 **Content Template Library**:
+
 - TikTok scripts (5 templates)
 - Case file outline (1 master template)
 - Reddit comment frameworks (3 templates)
@@ -448,6 +451,7 @@ Build reusable systems:
 - Testimonial request flows
 
 **Weekly Operations Checklist**:
+
 ```
 # Weekly Marketing Checklist
 
@@ -498,17 +502,20 @@ Save this checklist. Use it every week.
 Set up automation:
 
 **Email Automation**:
+
 - Welcome sequence (3 emails, automated)
 - Practice Lab reminder sequence
 - Testimonial request follow-up
 - Monthly check-in with founding members
 
 **Social Media Scheduling**:
+
 - Schedule testimonial posts (1 per day)
 - Schedule videos in advance
 - Repurpose old top-performing content
 
 **Tools to Use**:
+
 - Buffer/Later for social scheduling
 - ConvertKit/Mailchimp for email automation
 - Zapier for connecting tools
@@ -537,6 +544,7 @@ This was intense. Take care of yourself:
 - Celebrate: You did something hard!
 
 **Journaling prompts**:
+
 1. What am I most proud of from Month 1?
 2. What was harder than I expected?
 3. What do I need to let go of for Month 2?
@@ -548,6 +556,7 @@ This was intense. Take care of yourself:
 **Task 7: Final Prep for Month 2** (30 min)
 
 **Monday Morning (Day 31) Prep**:
+
 - First post drafted and scheduled
 - Week 5 content planned
 - Practice Lab #5 announced
@@ -555,6 +564,7 @@ This was intense. Take care of yourself:
 - One big goal written down and visible
 
 **Write this down and put it where you'll see it every day**:
+
 ```
 Month 2 Focus: [ONE THING]
 
@@ -570,6 +580,7 @@ Example: "Turn founding members into advocates (referrals)"
 ### You've Built Something Real
 
 Look at what you created in 30 days:
+
 - A community of people who trust you
 - Content that provides real value
 - Customers willing to pay for what you're building
@@ -583,6 +594,7 @@ This is just the beginning.
 ## Month 1 Complete: Metrics Summary
 
 **Before you started**:
+
 - Warm leads: 0
 - Customers: 0
 - Content pieces: 0
@@ -591,6 +603,7 @@ This is just the beginning.
 - MRR: $0
 
 **After Month 1**:
+
 - Warm leads: [Your number]
 - Founding members: [Your number]
 - Content pieces: [Your number]
@@ -605,6 +618,7 @@ This is just the beginning.
 ## What's Next?
 
 Month 2 is about:
+
 1. **Retention**: Keep customers happy
 2. **Referrals**: Turn customers into advocates
 3. **Product**: Build what they're asking for
@@ -621,6 +635,7 @@ Now it's time to grow.
 ## Final Task: Celebrate
 
 Seriously, celebrate:
+
 - Take yourself out to dinner
 - Tell someone who supported you
 - Buy yourself something nice

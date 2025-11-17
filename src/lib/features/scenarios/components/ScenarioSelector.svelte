@@ -1,7 +1,7 @@
 <!-- src/lib/components/ScenarioSelector.svelte -->
 <script lang="ts">
 	import { scenariosData, type Scenario } from '$lib/data/scenarios';
-import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
+	import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
 	import { onMount } from 'svelte';
 	import ScenarioCreatorModal from './ScenarioCreatorModal.svelte';
 	import {
@@ -45,13 +45,13 @@ import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
 		expert: 'accent'
 	};
 
-const roleDisplayNames: Record<ScenarioRole, string> = {
-	tutor: 'Tutor',
-	character: 'Roleplay',
-	friendly_chat: 'Friendly Chat',
-	expert: 'Expert'
-};
-const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
+	const roleDisplayNames: Record<ScenarioRole, string> = {
+		tutor: 'Tutor',
+		character: 'Roleplay',
+		friendly_chat: 'Friendly Chat',
+		expert: 'Expert'
+	};
+	const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 
 	let isOpen = $state(false);
 	let isCreatorOpen = $state(false);
@@ -349,10 +349,7 @@ const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 							<div class="flex flex-1 flex-col">
 								<span class="truncate text-sm font-medium">{scenario.title}</span>
 								<div class="mt-0.5 flex items-center gap-1 text-[11px] opacity-70">
-									<div
-										class="flex items-center gap-0.5"
-										aria-label={`${meta.label} difficulty`}
-									>
+									<div class="flex items-center gap-0.5" aria-label={`${meta.label} difficulty`}>
 										{#each DIFFICULTY_SEGMENTS as segment}
 											<span
 												class="h-1 w-4 rounded-full bg-base-200 transition-colors"

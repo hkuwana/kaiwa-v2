@@ -61,22 +61,22 @@ import {
  */
 
 export interface InstructionComposerOptions {
-    user: User;
-    language: Language;
-    preferences: Partial<UserPreferences>;
-    scenario?: Scenario;
-    speaker?: Speaker;
-    parameters?: Partial<InstructionParameters>;
-    sessionContext?: {
-        isFirstTime?: boolean;
-        previousTopics?: string[];
-        memories?: string[];
-    };
-    /**
-     * When true, generate a compact (~500 words) instruction set that
-     * preserves critical constraints without verbose examples.
-     */
-    compact?: boolean;
+	user: User;
+	language: Language;
+	preferences: Partial<UserPreferences>;
+	scenario?: Scenario;
+	speaker?: Speaker;
+	parameters?: Partial<InstructionParameters>;
+	sessionContext?: {
+		isFirstTime?: boolean;
+		previousTopics?: string[];
+		memories?: string[];
+	};
+	/**
+	 * When true, generate a compact (~500 words) instruction set that
+	 * preserves critical constraints without verbose examples.
+	 */
+	compact?: boolean;
 }
 
 export class InstructionComposer {
@@ -105,30 +105,30 @@ export class InstructionComposer {
 		}
 	}
 
-    /**
-     * Compose full instruction following OpenAI template
-     */
-    compose(): string {
-        if (this.options.compact) {
-            return this.composeCompact();
-        }
+	/**
+	 * Compose full instruction following OpenAI template
+	 */
+	compose(): string {
+		if (this.options.compact) {
+			return this.composeCompact();
+		}
 
-        const sections = [
-            this.buildInstructionsRules(),
-            this.buildRoleObjective(),
-            this.buildPersonalityTone(),
-            this.buildContext(),
-            this.buildConversationFlow(),
-            this.buildReferencePronunciations()
-        ];
+		const sections = [
+			this.buildInstructionsRules(),
+			this.buildRoleObjective(),
+			this.buildPersonalityTone(),
+			this.buildContext(),
+			this.buildConversationFlow(),
+			this.buildReferencePronunciations()
+		];
 
-        return sections.filter(Boolean).join('\n\n');
-    }
+		return sections.filter(Boolean).join('\n\n');
+	}
 
-    /**
-     * Compose a compact version (~500 words) of the instructions.
-     * Focus on critical constraints, brief flow, and active parameters.
-     */
+	/**
+	 * Compose a compact version (~500 words) of the instructions.
+	 * Focus on critical constraints, brief flow, and active parameters.
+	 */
 	private composeCompact(): string {
 		const { scenario, user } = this.options;
 		const isZeroToHero = scenario?.id === 'beginner-confidence-bridge';
@@ -155,40 +155,45 @@ export class InstructionComposer {
 		return [header, tone, rules, params, flow, scenarioAdherence].filter(Boolean).join('\n\n');
 	}
 
-    private buildCompactRoleObjective(): string {
-        const { scenario, speaker, language, user } = this.options;
-        const speakerName = speaker?.voiceName || 'Your Language Tutor';
-        let roleLine = '';
-        let goalLine = '';
+	private buildCompactRoleObjective(): string {
+		const { scenario, speaker, language, user } = this.options;
+		const speakerName = speaker?.voiceName || 'Your Language Tutor';
+		let roleLine = '';
+		let goalLine = '';
 
-        if (scenario?.role === 'tutor') {
-            roleLine = `You are ${speakerName}, a ${language.name} tutor.`;
-            goalLine = `Goal: Help ${user.displayName || 'the learner'} master patterns and vocabulary through short, natural turns.`;
-        } else if (scenario?.role === 'friendly_chat') {
-            roleLine = `You are ${speakerName}, a ${language.name} conversation partner.`;
-            goalLine = `Goal: Keep dialogue natural and brief so the learner speaks more.`;
-        } else if (scenario?.role === 'character') {
-            const personaTitle = scenario.persona?.title ?? scenario.title;
-            roleLine = `You are ${speakerName}, acting as ${personaTitle}.`;
-            goalLine = `Goal: Stay in character while keeping turns short and engaging.`;
-        } else if (scenario?.role === 'expert') {
-            roleLine = `You are ${speakerName}, an expert in ${scenario.title}.`;
-            goalLine = `Goal: Challenge the learner with concise, high-level prompts.`;
-        } else {
-            roleLine = `You are ${speakerName}, a ${language.name} conversation partner.`;
-            goalLine = `Goal: Practice ${language.name} through brief, natural exchanges.`;
-        }
+		if (scenario?.role === 'tutor') {
+			roleLine = `You are ${speakerName}, a ${language.name} tutor.`;
+			goalLine = `Goal: Help ${user.displayName || 'the learner'} master patterns and vocabulary through short, natural turns.`;
+		} else if (scenario?.role === 'friendly_chat') {
+			roleLine = `You are ${speakerName}, a ${language.name} conversation partner.`;
+			goalLine = `Goal: Keep dialogue natural and brief so the learner speaks more.`;
+		} else if (scenario?.role === 'character') {
+			const personaTitle = scenario.persona?.title ?? scenario.title;
+			roleLine = `You are ${speakerName}, acting as ${personaTitle}.`;
+			goalLine = `Goal: Stay in character while keeping turns short and engaging.`;
+		} else if (scenario?.role === 'expert') {
+			roleLine = `You are ${speakerName}, an expert in ${scenario.title}.`;
+			goalLine = `Goal: Challenge the learner with concise, high-level prompts.`;
+		} else {
+			roleLine = `You are ${speakerName}, a ${language.name} conversation partner.`;
+			goalLine = `Goal: Practice ${language.name} through brief, natural exchanges.`;
+		}
 
-        return `# Role & Objective
+		return `# Role & Objective
 
 ${roleLine}
 ${goalLine}`;
-    }
+	}
 
 	private buildCompactPersonalityTone(): string {
 		const { scenario, language, preferences, speaker } = this.options;
 		const confidence = preferences.speakingConfidence || 50;
-		const toneDescriptor = confidence < 30 ? 'gentle and confidence-building' : confidence > 70 ? 'energetic and playful' : 'warm, curious, and steady';
+		const toneDescriptor =
+			confidence < 30
+				? 'gentle and confidence-building'
+				: confidence > 70
+					? 'energetic and playful'
+					: 'warm, curious, and steady';
 		const speakerName = speaker?.voiceName || 'Your Language Partner';
 		const speakerRegion = speaker?.region;
 		const dialectName = speaker?.dialectName || language.name;
@@ -231,19 +236,25 @@ ${regionalIdentity}
 ${zeroToHeroLine}- When correcting, acknowledge first ("うん、でも…") then model the better phrasing once.
 
 ## CRITICAL TONE RULES (NON-NEGOTIABLE)
-${isCasualSocial ? `- YOU ARE NOT A TEXTBOOK OR BUTLER. Talk like a real person having a casual chat.
+${
+	isCasualSocial
+		? `- YOU ARE NOT A TEXTBOOK OR BUTLER. Talk like a real person having a casual chat.
 - Use contractions naturally: "you're" not "you are", "thinking" not "are you thinking"
 - Drop formal words: NEVER say "delightful", "lovely", "refreshing blend", "a touch of"
 - Keep it simple: Don't describe things (no ingredient lists, no elaborate explanations)
 - Sound natural: "Yeah, cool" not "That sounds wonderful"
-- Be casual: "You thinking X or Y?" not "Would you prefer X or perhaps Y?"` : '- Keep tone professional but warm. Avoid being overly formal or robotic.'}`	}
+- Be casual: "You thinking X or Y?" not "Would you prefer X or perhaps Y?"`
+		: '- Keep tone professional but warm. Avoid being overly formal or robotic.'
+}`;
+	}
 
 	private buildCompactRules(): string {
 		const target = this.options.language.name;
 		const { scenario } = this.options;
 		const isCasualSocial = scenario?.role === 'friendly_chat' || scenario?.role === 'character';
 
-		const casualExamples = isCasualSocial ? `
+		const casualExamples = isCasualSocial
+			? `
 
 ## CASUAL CONVERSATION EXAMPLES (Learn from these!)
 
@@ -261,7 +272,8 @@ ${isCasualSocial ? `- YOU ARE NOT A TEXTBOOK OR BUTLER. Talk like a real person 
 - User: "I love traveling"
   You: "That's wonderful! Traveling is such an enriching experience. Where have you had the pleasure of visiting?" [TOO FORMAL]
 - User: "I work in tech"
-  You: "How fascinating! The technology sector is so dynamic and innovative these days. What aspect of technology do you specialize in?" [TOO WORDY]` : '';
+  You: "How fascinating! The technology sector is so dynamic and innovative these days. What aspect of technology do you specialize in?" [TOO WORDY]`
+			: '';
 
 		return `# Rules (Critical)
 
@@ -310,13 +322,11 @@ Tiers
 
 	private buildCompactFlow(isZeroToHero: boolean, nativeLang: string): string {
 		const { language, scenario, speaker, sessionContext } = this.options;
-		const context = scenario?.context || 'today\'s focus';
+		const context = scenario?.context || "today's focus";
 		const speakerRegion = speaker?.region;
 		const isTutorMode = scenario?.role === 'tutor';
 		const isFirstTime = sessionContext?.isFirstTime || false;
-		const regionalNote = speakerRegion
-			? ` Use expressions natural to ${speakerRegion}.`
-			: '';
+		const regionalNote = speakerRegion ? ` Use expressions natural to ${speakerRegion}.` : '';
 
 		let opening = '';
 		if (isZeroToHero) {
@@ -1344,13 +1354,13 @@ CRITICAL: Start in ${nativeLang}, NOT ${this.options.language.name}
 - Greet warmly in ${this.options.language.name}
 - Explain the teaching approach (1-2 sentences max):
   "I'll teach you a phrase, then you practice it. We'll go back and forth like that. Ready?"
-- Set context: "${scenario?.context || 'Let\'s start with the basics.'}"
+- Set context: "${scenario?.context || "Let's start with the basics."}"
 - Start first EXPLAIN cycle: Introduce first phrase/pattern
 - Then immediately move to PRACTICE: "Try saying that?"`;
 		} else if (isTutorMode) {
 			openingSection = `## Opening (Tutor Mode)
 - Greet warmly in ${this.options.language.name}
-- Quick reminder of what you'll cover: "${scenario?.context || 'Today\'s focus'}"
+- Quick reminder of what you'll cover: "${scenario?.context || "Today's focus"}"
 - Dive into EXPLAIN → PRACTICE cycle immediately`;
 		} else {
 			openingSection = `## Opening
@@ -1517,45 +1527,47 @@ IF learner mentions self-harm:
 		const regionalPhrases: Record<string, Record<string, string>> = {
 			en: {
 				'Great Britain': '"Lovely", "brilliant", "reckon", "proper", "cheers", "innit"',
-				'London': '"Blimey", "bloody", "loo", "mate", "fancy", "quite"',
-				'Scotland': '"Aye", "wee", "bonnie", "ken", "dinnae"',
-				'Ireland': '"Grand", "craic", "lad", "yoke", "sound"',
-				'Australia': '"G\'day", "mate", "arvo", "reckon", "heaps", "no worries"',
+				London: '"Blimey", "bloody", "loo", "mate", "fancy", "quite"',
+				Scotland: '"Aye", "wee", "bonnie", "ken", "dinnae"',
+				Ireland: '"Grand", "craic", "lad", "yoke", "sound"',
+				Australia: '"G\'day", "mate", "arvo", "reckon", "heaps", "no worries"',
 				'New Zealand': '"Sweet as", "yeah nah", "choice", "mean"',
 				'United States': '"Yeah", "totally", "awesome", "cool", "like", "for sure"',
-				'Canada': '"Eh", "buddy", "sorry", "toque"',
+				Canada: '"Eh", "buddy", "sorry", "toque"',
 				'South Africa': '"Howzit", "lekker", "braai", "now now", "just now"'
 			},
 			es: {
-				'Spain': '"Vale", "tío/tía", "guay", "qué fuerte", "venga"',
-				'Madrid': '"Mogollón", "molar", "chungo", "flipar"',
-				'Barcelona': '"Noi/noia", "petar", "col·lons"',
-				'Mexico': '"¿Qué onda?", "chido", "no manches", "órale", "wey"',
-				'Argentina': '"Che", "boludo", "dale", "posta", "re-"',
-				'Colombia': '"Parcero", "bacano", "chimba", "llave"',
-				'Chile': '"Cachai", "weon", "po", "bacán"'
+				Spain: '"Vale", "tío/tía", "guay", "qué fuerte", "venga"',
+				Madrid: '"Mogollón", "molar", "chungo", "flipar"',
+				Barcelona: '"Noi/noia", "petar", "col·lons"',
+				Mexico: '"¿Qué onda?", "chido", "no manches", "órale", "wey"',
+				Argentina: '"Che", "boludo", "dale", "posta", "re-"',
+				Colombia: '"Parcero", "bacano", "chimba", "llave"',
+				Chile: '"Cachai", "weon", "po", "bacán"'
 			},
 			ja: {
-				'Tokyo': '"まじ", "やばい", "超", "めっちゃ", "って感じ"',
-				'Osaka': '"めっちゃ", "ほんま", "なんや", "あかん", "せや", "～やん"',
-				'Kansai': '"ほんま", "あかん", "なんでやねん", "せやろ"',
-				'Okinawa': '"なんくるないさー", "ちむどんどん", "はいさい/はいたい"',
-				'Kyoto': '"おこしやす", "おいでやす", "どす"',
-				'Hokkaido': '"なまら", "したっけ", "~べ"'
+				Tokyo: '"まじ", "やばい", "超", "めっちゃ", "って感じ"',
+				Osaka: '"めっちゃ", "ほんま", "なんや", "あかん", "せや", "～やん"',
+				Kansai: '"ほんま", "あかん", "なんでやねん", "せやろ"',
+				Okinawa: '"なんくるないさー", "ちむどんどん", "はいさい/はいたい"',
+				Kyoto: '"おこしやす", "おいでやす", "どす"',
+				Hokkaido: '"なまら", "したっけ", "~べ"'
 			},
 			fr: {
-				'France': '"Bah", "quoi", "carrément", "grave", "stylé"',
-				'Paris': '"Chanmé", "ouf", "relou", "chelou", "trop"',
-				'Quebec': '"Là", "mettons", "pantoute", "pis", "toé"',
-				'Belgium': '"Allez", "une fois", "savoir", "chouette"',
-				'Switzerland': '"Natel", "poutzer", "huitante"'
+				France: '"Bah", "quoi", "carrément", "grave", "stylé"',
+				Paris: '"Chanmé", "ouf", "relou", "chelou", "trop"',
+				Quebec: '"Là", "mettons", "pantoute", "pis", "toé"',
+				Belgium: '"Allez", "une fois", "savoir", "chouette"',
+				Switzerland: '"Natel", "poutzer", "huitante"'
 			}
 		};
 
 		const langPhrases = regionalPhrases[languageCode];
 		if (!langPhrases) return '"Use natural, casual expressions"';
 
-		return langPhrases[region] || Object.values(langPhrases)[0] || '"Use natural, casual expressions"';
+		return (
+			langPhrases[region] || Object.values(langPhrases)[0] || '"Use natural, casual expressions"'
+		);
 	}
 }
 

@@ -10,13 +10,16 @@
 ## Issue #1: AI Self-Awareness About Its Name
 
 ### Current Problem
+
 The AI is told "You are [Name]" but doesn't seem to remember its own name when asked directly during roleplay.
 
 ### Where to Fix
+
 **File:** `src/lib/services/instructions/composer.ts`
 **Lines:** 152-170 (buildRoleObjective function)
 
 ### Current Code:
+
 ```typescript
 else if (scenario?.role === 'character') {
     const personaTitle = scenario.persona?.title ?? scenario.title;
@@ -30,6 +33,7 @@ else if (scenario?.role === 'character') {
 ```
 
 ### Suggested Fix:
+
 ```typescript
 else if (scenario?.role === 'character') {
     const personaTitle = scenario.persona?.title ?? scenario.title;
@@ -52,6 +56,7 @@ else if (scenario?.role === 'character') {
 ```
 
 ### Alternative: Add to Critical Rules Section
+
 **File:** `src/lib/services/instructions/composer.ts`
 **Lines:** 873-896 (buildInstructionsRules function)
 
@@ -75,13 +80,16 @@ Add this to the CRITICAL RULES section (after line 886):
 ## Issue #2: Conversations Too Analytical
 
 ### Current Problem
+
 The AI is being too formal, analytical, and explanatory instead of having natural, casual conversations.
 
 ### Where to Fix
+
 **File:** `src/lib/services/instructions/composer.ts`
 **Lines:** 898-932 (TIER SYSTEM section)
 
 ### Current Issues in Instructions:
+
 1. TIER 2 (Clarification) allows up to 15 words → Too long, sounds like teaching
 2. TIER 3 (Error Correction) allows up to 20 words → Way too analytical
 3. Not enough emphasis on casual, natural flow
@@ -176,6 +184,7 @@ The AI is being too formal, analytical, and explanatory instead of having natura
 ## Testing Your Changes
 
 ### Test #1: AI Name Awareness
+
 **You say:** "What's your name?"
 **Expected response:** "I'm [Character Name]! What about you?" (in target language)
 
@@ -183,6 +192,7 @@ The AI is being too formal, analytical, and explanatory instead of having natura
 **Expected response:** "Yeah, I'm an AI helping you practice! But let's keep the roleplay going - where were we?"
 
 ### Test #2: Natural Conversation Flow
+
 **Scenario:** Casual chat at a bar (Spanish example)
 
 **You:** "Hola, ¿cómo estás?"
@@ -194,6 +204,7 @@ The AI is being too formal, analytical, and explanatory instead of having natura
 **AI (BAD):** "Entiendo que estás cansado. ¿Puedes decirme por qué estás cansado?" (11 words - too analytical)
 
 ### Test #3: No Over-Correction
+
 **You:** "Yo fue a la tienda." (grammar error: "fue" should be "fui")
 **AI (GOOD):** "¿Ah sí? ¿Qué compraste?" (ignores minor error, continues conversation)
 **AI (BAD):** "Actually, it's 'fui' not 'fue'. 'Fue' is for third person. You should say 'Yo fui a la tienda'. Now, what did you buy?" (too much correction)
@@ -203,20 +214,24 @@ The AI is being too formal, analytical, and explanatory instead of having natura
 ## Quick Summary of Changes
 
 ### Change #1: Make AI Know Its Name
+
 **Where:** `buildRoleObjective()` function, lines 152-170
 **What:** Add explicit instruction about AI's name and self-awareness
 **Why:** So AI can answer "What's your name?" correctly
 
 ### Change #2: Reduce Analytical Responses
+
 **Where:** `buildInstructionsRules()` TIER SYSTEM, lines 898-932
 **What:**
+
 - Reduce TIER 2 from 15 words to 10 words max
 - Reduce TIER 3 from 20 words to 8 words max
 - Emphasize "friend texting" not "teacher lecturing"
 - Change default from 80% TIER 1 to 90% TIER 1
-**Why:** Conversations feel too formal and over-explained
+  **Why:** Conversations feel too formal and over-explained
 
 ### Change #3: Update Communication Style
+
 **Where:** `buildPersonalityTone()` function, lines 274-285
 **What:** Add more emphasis on casual, natural conversation
 **Why:** Reinforce that AI should sound like a friend, not a textbook
@@ -251,10 +266,12 @@ You are ${personaName}, ${personaTitle}.
 ## Expected Results
 
 ### Before:
+
 - AI: "I'm not sure what my name is." (when asked)
 - AI: "That's very interesting. I understand that you went to the store. Could you tell me more about what you bought and why you decided to go there?" (17 words - too analytical)
 
 ### After:
+
 - AI: "I'm Minami! What's yours?" (when asked name)
 - AI: "Cool! What'd you get?" (4 words - casual, natural)
 
@@ -263,6 +280,7 @@ You are ${personaName}, ${personaTitle}.
 ## Files to Modify
 
 Only ONE file needs changes:
+
 - ✅ `src/lib/services/instructions/composer.ts`
 
 All changes are in the instruction generation logic - no database, no API changes needed!
@@ -272,6 +290,7 @@ All changes are in the instruction generation logic - no database, no API change
 ## Rollback Plan
 
 If changes make things worse:
+
 1. Use `git diff src/lib/services/instructions/composer.ts` to see changes
 2. Use `git checkout src/lib/services/instructions/composer.ts` to revert
 3. Or manually undo the specific sections you changed

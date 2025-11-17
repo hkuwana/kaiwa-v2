@@ -8,11 +8,13 @@
 ## Day 15: Testimonial Video Creation
 
 **Morning** (60 min):
+
 - Compile all testimonials collected so far
 - Identify best quotes for visual content
 - Reach out to 2-3 participants for video testimonials
 
 **Video Testimonial Request Template**:
+
 ```
 Hey [Name]!
 
@@ -33,10 +35,12 @@ Let me know!
 ```
 
 **Afternoon** (90 min):
+
 - Create testimonial compilation video (if you got any videos)
 - OR create text-based testimonial graphics (Canva)
 
 **Testimonial Graphic Template** (Create 5-7 of these):
+
 ```
 [Background: Soft gradient or solid color]
 
@@ -48,6 +52,7 @@ Let me know!
 ```
 
 **Evening** (30 min):
+
 - Post testimonials across Instagram, LinkedIn, Twitter
 - Schedule 1 testimonial per day for next week
 
@@ -56,10 +61,12 @@ Let me know!
 ## Day 16: Case File #2 - Different Persona
 
 **Morning** (60 min):
+
 - Engage with comments from yesterday
 - Find 3 new Reddit threads to contribute value
 
 **Afternoon** (90 min):
+
 - Write Case File #2: Heritage Speaker Story
 
 **Template Focus**: David Persona (Reconnecting with Family)
@@ -185,6 +192,7 @@ _Building Kaiwa in public, Day 16._
 ```
 
 **Evening** (30 min):
+
 - Post Case File #2 across all platforms
 - Share in r/Spanish, r/heritage_speakers, relevant Facebook groups
 
@@ -193,13 +201,16 @@ _Building Kaiwa in public, Day 16._
 ## Day 17: Reddit Growth Sprint
 
 **Morning** (60 min):
+
 - Respond to all Case File #2 comments
 - Check Practice Lab signups for this week
 
 **Afternoon** (90 min):
+
 - Participate in 15 Reddit threads today (3x normal volume)
 
 **Target subreddits**:
+
 - r/LearnJapanese
 - r/Spanish
 - r/LanguageLearning
@@ -208,6 +219,7 @@ _Building Kaiwa in public, Day 16._
 - r/heritage_speakers
 
 **Value-Add Comment Strategy**:
+
 ```
 [Reference their specific situation]
 
@@ -221,6 +233,7 @@ The key insight: [Deeper "why" behind the advice]
 ```
 
 **Evening** (30 min):
+
 - Track which comments got best response
 - Document patterns in questions
 
@@ -231,13 +244,16 @@ The key insight: [Deeper "why" behind the advice]
 ## Day 18: Email Nurture Sequence
 
 **Morning** (60 min):
+
 - Check DMs from yesterday's Reddit sprint
 - Respond to everyone who reached out
 
 **Afternoon** (90 min):
+
 - Set up 3-email welcome sequence for new subscribers
 
 **Email 1** (sent immediately):
+
 ```
 Subject: Your prep guide + the one thing that matters most
 
@@ -247,6 +263,7 @@ P.S. What conversation are you preparing for? Hit reply and tell me - I read eve
 ```
 
 **Email 2** (sent 2 days later):
+
 ```
 Subject: The mistake everyone makes (and how to avoid it)
 
@@ -264,6 +281,7 @@ Reply if you want in!
 ```
 
 **Email 3** (sent 5 days later):
+
 ```
 Subject: Your situation - need help?
 
@@ -288,6 +306,7 @@ You've got this!
 ```
 
 **Evening** (30 min):
+
 - Set up automation for email sequence
 - Send personal email to 10 people who haven't engaged recently
 
@@ -296,9 +315,11 @@ You've got this!
 ## Day 19: TikTok Series Week
 
 **Morning** (60 min):
+
 - Batch film 5 TikToks/Reels (Film all at once, post throughout week)
 
 **Video Topics**:
+
 1. "Red flags your partner's parents are looking for (and how to avoid them)"
 2. "How to recover when you completely freeze mid-conversation"
 3. "The phrase that saved my user's first dinner"
@@ -306,16 +327,19 @@ You've got this!
 5. "How to handle the one question everyone dreads"
 
 **Batch Filming Tips**:
+
 - Wear the same outfit (looks like one session)
 - Film all 5 back-to-back (30 min total)
 - Edit later (10 min per video)
 
 **Afternoon** (90 min):
+
 - Edit and schedule all 5 videos
 - Write captions for each
 - Prepare pinned comments
 
 **Pinned Comment Template**:
+
 ```
 Want the full conversation guide?
 
@@ -327,6 +351,7 @@ Link in bio!
 ```
 
 **Evening** (30 min):
+
 - Post first video
 - Engage with 10 other language learning videos
 - Update tracker with engagement
@@ -336,6 +361,7 @@ Link in bio!
 ## Day 20: Partnership Outreach
 
 **Morning** (60 min):
+
 - Identify 10 complementary creators/businesses
   - Language tutors
   - Study abroad programs
@@ -344,6 +370,7 @@ Link in bio!
   - Expat relocation services
 
 **Outreach Template**:
+
 ```
 Subject: Collaboration idea for [their audience]
 
@@ -370,11 +397,13 @@ P.S. Here's a recent case file I wrote that might interest your audience: [link]
 ```
 
 **Afternoon** (90 min):
+
 - Send 10 outreach emails
 - Follow 10 potential partners on social media
 - Engage with their content genuinely
 
 **Evening** (30 min):
+
 - Prepare for tomorrow's Practice Lab
 - Update session materials based on this week's insights
 
@@ -383,11 +412,13 @@ P.S. Here's a recent case file I wrote that might interest your audience: [link]
 ## Day 21: Practice Lab #3 + Week 3 Review
 
 **Morning** (90 min):
+
 - Final prep for Practice Lab #3
 - Try new format based on feedback (maybe split into beginner/advanced track)
 - Send materials to participants
 
 **Afternoon** (60-90 min):
+
 - Host Practice Lab #3
 - Focus on gathering specific product insights:
   - What feature would make this 10x better?
@@ -395,6 +426,7 @@ P.S. Here's a recent case file I wrote that might interest your audience: [link]
   - Would you use this weekly?
 
 **Evening** (90 min):
+
 - Send follow-up email
 - Request specific testimonials: "What changed for you in 3 weeks?"
 - Document everything
@@ -402,6 +434,7 @@ P.S. Here's a recent case file I wrote that might interest your audience: [link]
 **Week 3 Review** (30 min):
 
 Review these metrics:
+
 - Email list size (growth rate?)
 - Total video views across platforms
 - Reddit karma/engagement trend
@@ -412,6 +445,7 @@ Review these metrics:
 - Most engaged platform
 
 **Reflection Questions**:
+
 1. Are you seeing repeat participants in Practice Labs?
 2. What questions come up EVERY session?
 3. Is there a feature request you hear repeatedly?
@@ -423,6 +457,7 @@ Review these metrics:
 ## Week 3 Success Metrics
 
 By end of Week 3, you should have:
+
 - [ ] 20+ warm leads in tracker
 - [ ] 3 Practice Labs completed
 - [ ] 3-5 video testimonials collected
@@ -439,18 +474,21 @@ By end of Week 3, you should have:
 ## Key Insights to Track This Week
 
 **User Feedback Themes**:
+
 - What do people wish existed that doesn't?
 - What's the #1 blocker to them practicing more?
 - What outcome would make them pay?
 - What channels are they already using (and failing with)?
 
 **Content Performance**:
+
 - Case files vs videos: which drives more signups?
 - Which platform has highest engagement?
 - Which CTA gets most clicks?
 - Which testimonial resonates most?
 
 **Business Model Validation**:
+
 - Are people willing to pay? (Ask directly)
 - Is $19/month the right price point?
 - Should you offer 1-on-1 sessions separately?

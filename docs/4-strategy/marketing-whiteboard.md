@@ -165,18 +165,18 @@ _Can I tell the "I couldn't talk to my Japanese grandparents" story here?_
 
 Fill this out after scoring everything above:
 
-| Rank | Marketing Approach | Why It Matters to You    | Total Score |
-| ---- | ------------------ | ------------------------ | ----------- |
-| 1    | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
-| 2    | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
-| 3    | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
-| 4    | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
-| 5    | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
-| 6    | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
-| 7    | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
-| 8    | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
-| 9    | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
-| 10   | ********\_******** | ********\_\_\_\_******** | \_\_\_/60   |
+| Rank | Marketing Approach         | Why It Matters to You            | Total Score |
+| ---- | -------------------------- | -------------------------------- | ----------- |
+| 1    | **\*\*\*\***\_**\*\*\*\*** | **\*\*\*\***\_\_\_\_**\*\*\*\*** | \_\_\_/60   |
+| 2    | **\*\*\*\***\_**\*\*\*\*** | **\*\*\*\***\_\_\_\_**\*\*\*\*** | \_\_\_/60   |
+| 3    | **\*\*\*\***\_**\*\*\*\*** | **\*\*\*\***\_\_\_\_**\*\*\*\*** | \_\_\_/60   |
+| 4    | **\*\*\*\***\_**\*\*\*\*** | **\*\*\*\***\_\_\_\_**\*\*\*\*** | \_\_\_/60   |
+| 5    | **\*\*\*\***\_**\*\*\*\*** | **\*\*\*\***\_\_\_\_**\*\*\*\*** | \_\_\_/60   |
+| 6    | **\*\*\*\***\_**\*\*\*\*** | **\*\*\*\***\_\_\_\_**\*\*\*\*** | \_\_\_/60   |
+| 7    | **\*\*\*\***\_**\*\*\*\*** | **\*\*\*\***\_\_\_\_**\*\*\*\*** | \_\_\_/60   |
+| 8    | **\*\*\*\***\_**\*\*\*\*** | **\*\*\*\***\_\_\_\_**\*\*\*\*** | \_\_\_/60   |
+| 9    | **\*\*\*\***\_**\*\*\*\*** | **\*\*\*\***\_\_\_\_**\*\*\*\*** | \_\_\_/60   |
+| 10   | **\*\*\*\***\_**\*\*\*\*** | **\*\*\*\***\_\_\_\_**\*\*\*\*** | \_\_\_/60   |
 
 ---
 
@@ -274,9 +274,9 @@ After filling out Parts 1-4, close your laptop. Go for a walk. Then come back an
    - [ ] Hell yes, this feels right
    - [ ] Intellectually I agree, but I'm scared
    - [ ] I don't believe this will work
-   - [ ] I want to modify it because ******\_\_\_******
+   - [ ] I want to modify it because **\*\***\_\_\_**\*\***
 
-8. **Complete this sentence: "I'm avoiding ******\_****** because I'm afraid of ******\_******"**
+8. **Complete this sentence: "I'm avoiding \*\*\*\***\_**\*\*** because I'm afraid of **\*\***\_**\*\***"\*\*
 
    ***
 
@@ -294,9 +294,9 @@ Based on this whiteboard exercise, I commit to:
 
 ### My Signature Offer:
 
-- **Product/Service:** ******\_\_\_******
-- **Price:** $****\_\_\_****
-- **Launch Date:** ******\_\_\_******
+- **Product/Service:** **\*\***\_\_\_**\*\***
+- **Price:** $\***\*\_\_\_\*\***
+- **Launch Date:** **\*\***\_\_\_**\*\***
 
 ### The "Rule" I'm Breaking:
 
@@ -308,18 +308,18 @@ Based on this whiteboard exercise, I commit to:
 
 ### How I'll Know If It's Working (30 Days):
 
-- **Metric 1:** ******\_\_\_******
-- **Metric 2:** ******\_\_\_******
-- **Metric 3:** ******\_\_\_******
+- **Metric 1:** **\*\***\_\_\_**\*\***
+- **Metric 2:** **\*\***\_\_\_**\*\***
+- **Metric 3:** **\*\***\_\_\_**\*\***
 
 ### What I'm Saying NO To (For 30 Days):
 
-- ❌ **************\_\_\_**************
-- ❌ **************\_\_\_**************
-- ❌ **************\_\_\_**************
+- ❌ ******\*\*******\_\_\_******\*\*******
+- ❌ ******\*\*******\_\_\_******\*\*******
+- ❌ ******\*\*******\_\_\_******\*\*******
 
-**Signed:** **********\_\_\_**********
-**Date:** **********\_\_\_**********
+**Signed:** ****\*\*****\_\_\_****\*\*****
+**Date:** ****\*\*****\_\_\_****\*\*****
 
 ---
 
@@ -334,27 +334,27 @@ Print this document. Put it on your wall. Review it every morning.
 **Week 1:**
 
 - Did I actually do my "First Action"? Yes / No
-- If no, what was I doing instead? ******\_\_\_******
+- If no, what was I doing instead? **\*\***\_\_\_**\*\***
 - Was I coding when I should have been marketing? Yes / No
 
 **Week 2:**
 
 - Am I following my Top 3 channels? Yes / No
 - Did I break my "rule"? Yes / No
-- What surprised me? ******\_\_\_******
+- What surprised me? **\*\***\_\_\_**\*\***
 
 **Week 3:**
 
 - Did I create and launch my signature offer? Yes / No
-- If no, what's blocking me? ******\_\_\_******
-- Have I made any revenue from marketing? $****\_\_\_****
+- If no, what's blocking me? **\*\***\_\_\_**\*\***
+- Have I made any revenue from marketing? $\***\*\_\_\_\*\***
 
 **Week 4:**
 
 - Did I hit my 30-day metrics? Yes / No
-- What worked better than expected? ******\_\_\_******
-- What should I do more of? ******\_\_\_******
-- What should I stop doing? ******\_\_\_******
+- What worked better than expected? **\*\***\_\_\_**\*\***
+- What should I do more of? **\*\***\_\_\_**\*\***
+- What should I stop doing? **\*\***\_\_\_**\*\***
 
 ---
 
@@ -369,19 +369,19 @@ If you catch yourself thinking "I just need to build this one feature first..." 
    - No → It's procrastination
 
 2. **Am I coding because talking to strangers feels uncomfortable?**
-   - Be honest: ******\_\_\_******
+   - Be honest: **\*\***\_\_\_**\*\***
 
 3. **What am I avoiding right now?**
    - [ ] Posting on Reddit (fear of rejection)
    - [ ] Asking for money (fear of hearing "no")
    - [ ] DMing potential customers (fear of being "salesy")
    - [ ] Sharing my grandparents story (fear of being vulnerable)
-   - [ ] Other: ******\_\_\_******
+   - [ ] Other: **\*\***\_\_\_**\*\***
 
 4. **What would happen if I did that scary thing RIGHT NOW?**
-   - Worst case: ******\_\_\_******
-   - Best case: ******\_\_\_******
-   - Most likely case: ******\_\_\_******
+   - Worst case: **\*\***\_\_\_**\*\***
+   - Best case: **\*\***\_\_\_**\*\***
+   - Most likely case: **\*\***\_\_\_**\*\***
 
 ### The 5-Minute Rule:
 

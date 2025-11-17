@@ -1,7 +1,7 @@
 <!-- src/lib/features/scenarios/components/TopScenariosQuickPicker.svelte -->
 <script lang="ts">
 	import { scenariosData, type Scenario } from '$lib/data/scenarios';
-import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
+	import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
 	import { goto } from '$app/navigation';
 
 	interface Props {
@@ -44,13 +44,13 @@ import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
 		expert: 'accent'
 	};
 
-const roleDisplayNames: Record<string, string> = {
-	tutor: 'Guided Practice',
-	character: 'Roleplay',
-	friendly_chat: 'Casual Chat',
-	expert: 'Expert Advice'
-};
-const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
+	const roleDisplayNames: Record<string, string> = {
+		tutor: 'Guided Practice',
+		character: 'Roleplay',
+		friendly_chat: 'Casual Chat',
+		expert: 'Expert Advice'
+	};
+	const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 
 	function getScenarioMeta(scenario: Scenario) {
 		const rating = scenario.difficultyRating ?? 1;
@@ -101,7 +101,8 @@ const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 					<div class="mb-3 flex items-center justify-between">
 						<span
 							class="{roleIcons[scenario.role] ||
-								'icon-[mdi--lightbulb-on-outline]'} h-6 w-6 text-{roleColors[scenario.role] || 'primary'}"
+								'icon-[mdi--lightbulb-on-outline]'} h-6 w-6 text-{roleColors[scenario.role] ||
+								'primary'}"
 						></span>
 						<span class="badge badge-sm capitalize">
 							{roleDisplayNames[scenario.role] || scenario.role}
@@ -118,10 +119,7 @@ const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 
 					<!-- Difficulty -->
 					<div class="flex flex-wrap items-center gap-2 text-xs font-medium text-base-content/80">
-						<div
-							class="flex items-center gap-1"
-							aria-label={`${meta.label} difficulty`}
-						>
+						<div class="flex items-center gap-1" aria-label={`${meta.label} difficulty`}>
 							{#each DIFFICULTY_SEGMENTS as segment}
 								<span
 									class="h-1.5 w-4 rounded-full bg-base-200 transition-colors"
@@ -156,18 +154,12 @@ const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 
 	<!-- Action Buttons -->
 	<div class="flex flex-col gap-3 sm:flex-row">
-		<button
-			onclick={handleExploreMore}
-			class="btn btn-outline flex-1"
-		>
+		<button onclick={handleExploreMore} class="btn flex-1 btn-outline">
 			<span class="icon-[mdi--magnify] h-4 w-4"></span>
 			Explore All Scenarios
 		</button>
 
-		<button
-			onclick={handleCreateCustom}
-			class="btn btn-outline flex-1"
-		>
+		<button onclick={handleCreateCustom} class="btn flex-1 btn-outline">
 			<span class="icon-[mdi--plus-circle] h-4 w-4"></span>
 			Create Custom Scenario
 		</button>

@@ -5,6 +5,7 @@
 ## 📚 Documents in This Section
 
 ### [realtime.md](realtime.md)
+
 **Realtime conversation implementation**
 
 - 🎙️ WebSocket connection to OpenAI Realtime API
@@ -17,6 +18,7 @@
 ---
 
 ### [analysis.md](analysis.md)
+
 **Conversation analysis and feedback system**
 
 - 📊 Speech analysis metrics
@@ -29,6 +31,7 @@
 ---
 
 ### [seo.md](seo.md)
+
 **SEO strategy and implementation**
 
 - 🔍 SEO architecture
@@ -41,6 +44,7 @@
 ---
 
 ### [usage-service.md](usage-service.md)
+
 **Usage tracking and limits**
 
 - 📊 Usage tracking implementation
@@ -53,6 +57,7 @@
 ---
 
 ### [phonetics-feedback.md](phonetics-feedback.md)
+
 **Speech analysis and pronunciation feedback**
 
 - 🗣️ Phonetic analysis
@@ -65,6 +70,7 @@
 ---
 
 ### [email-reminder-setup.md](email-reminder-setup.md)
+
 **Email reminder system**
 
 - 📧 Reminder scheduling
@@ -77,6 +83,7 @@
 ---
 
 ### [audio-speech-analysis.md](audio-speech-analysis.md)
+
 **Audio processing and speech analysis**
 
 - 🎵 Audio capture and processing
@@ -89,6 +96,7 @@
 ---
 
 ### [audio-schema-migration.md](audio-schema-migration.md)
+
 **Audio data schema migration**
 
 - 🗄️ Schema changes
@@ -103,6 +111,7 @@
 ## 🎯 When to Use This Section
 
 **Use feature docs when:**
+
 - Working on a specific feature
 - Understanding feature architecture
 - Debugging feature issues
@@ -110,6 +119,7 @@
 - Documenting feature changes
 
 **Don't use for:**
+
 - System-wide architecture → See [../1-core/](../1-core/)
 - General how-tos → See [../2-guides/](../2-guides/)
 - Business strategy → See [../4-strategy/](../4-strategy/)
@@ -127,6 +137,7 @@
 ## ✍️ Contributing
 
 When adding feature docs:
+
 1. **Be specific**: Focus on one feature per doc
 2. **Include examples**: Show code and usage
 3. **Document gotchas**: Common issues and solutions
@@ -141,22 +152,27 @@ When adding feature docs:
 > **Quick Summary**: One-sentence description
 
 ## 🎯 Purpose
+
 - What problem does this solve?
 - Who uses this feature?
 
 ## 🏗️ Architecture
+
 - How is it implemented?
 - What are the key components?
 
 ## 💻 Usage
+
 - Code examples
 - API reference
 
 ## 🐛 Common Issues
+
 - Known bugs
 - Debugging tips
 
 ## 🔗 Related
+
 - Link to related docs
 ```
 

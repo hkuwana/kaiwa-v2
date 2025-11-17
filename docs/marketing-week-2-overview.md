@@ -8,20 +8,24 @@
 ## Day 9: Video Testimonials & TikTok Series
 
 **Morning** (60 min):
+
 - Respond to all case file comments/shares
 - Reach out to 3 Practice Lab participants for video testimonials
 
 **Afternoon** (90 min):
+
 - Create TikTok series: "Things nobody tells you about meeting partner's parents"
   - Video 1: "The gift matters more than you think"
   - Video 2: "They're testing your sincerity, not your grammar"
   - Video 3: "What to do when you don't understand"
 
 **Evening** (30 min):
+
 - Post on 3-5 Reddit threads
 - Update tracker with video performance
 
 **Copy-Paste Video Script** (Video 1):
+
 ```
 Things nobody tells you about meeting your Japanese partner's parents #1:
 
@@ -50,13 +54,16 @@ Want the full preparation guide? Link in bio.
 ## Day 10: LinkedIn Thought Leadership
 
 **Morning** (60 min):
+
 - Engage with 10 other founders' content
 - Respond to all comments from yesterday
 
 **Afternoon** (90 min):
+
 - Write LinkedIn thought piece: "Why I'm Building Kaiwa Instead of Another Duolingo Clone"
 
 **Article Outline**:
+
 ```
 1. The Problem: The gap between "knowing words" and "saying what matters"
 2. Why Gamification Fails: Real conversations aren't games
@@ -67,6 +74,7 @@ Want the full preparation guide? Link in bio.
 ```
 
 **Evening** (30 min):
+
 - Share article to Twitter, email list
 - DM article to 10 warm leads
 
@@ -75,13 +83,16 @@ Want the full preparation guide? Link in bio.
 ## Day 11: Reddit Deep Engagement Day
 
 **Morning** (60 min):
+
 - Find 10 threads related to bilingual relationships
 - Post thoughtful 200-300 word comments on each
 
 **Afternoon** (90 min):
+
 - Create "Ask Me Anything" style post:
 
 **Reddit AMA Post Template**:
+
 ```
 Title: I've helped 20+ people prepare to meet their partner's parents in another language - AMA
 
@@ -108,6 +119,7 @@ I'll answer every question!
 ```
 
 **Evening** (30 min):
+
 - Respond to EVERY comment on your AMA
 - Document common questions for future content
 
@@ -116,10 +128,12 @@ I'll answer every question!
 ## Day 12: User Research & Product Insight
 
 **Morning** (60 min):
+
 - Schedule 3 one-on-one calls with users for next week
 - Send research interview questions in advance
 
 **Research Questions to Ask**:
+
 1. Walk me through your situation - what conversation are you preparing for?
 2. What have you tried so far? What worked? What didn't?
 3. On a scale of 1-10, how confident do you feel right now?
@@ -128,9 +142,11 @@ I'll answer every question!
 6. How much would you pay for something that solved this completely?
 
 **Afternoon** (90 min):
+
 - Create detailed comparison content: "Kaiwa vs Duolingo vs Human Tutor vs Language Exchange"
 
 **Comparison Framework**:
+
 ```
 | Feature | Duolingo | Human Tutor | Language Exchange | Kaiwa |
 |---------|----------|-------------|-------------------|-------|
@@ -143,6 +159,7 @@ I'll answer every question!
 ```
 
 **Evening** (30 min):
+
 - Share comparison post on LinkedIn, Reddit, Twitter
 - Engage with responses
 
@@ -151,14 +168,17 @@ I'll answer every question!
 ## Day 13: Practice Lab Prep & Announcement
 
 **Morning** (60 min):
+
 - Review last week's Practice Lab notes
 - Update session materials based on feedback
 - Prepare 2-3 new scenarios based on user requests
 
 **Afternoon** (90 min):
+
 - Announce Practice Lab #2 across all platforms
 
 **Announcement Template** (LinkedIn):
+
 ```
 Practice Lab #2 this Saturday.
 
@@ -187,6 +207,7 @@ Building Kaiwa in public, Day 13.
 ```
 
 **Evening** (30 min):
+
 - Send personalized invites to 10 warm leads
 - Email last week's participants: "Want to come back for round 2?"
 
@@ -195,21 +216,25 @@ Building Kaiwa in public, Day 13.
 ## Day 14: Practice Lab #2 + Weekly Review
 
 **Morning** (90 min):
+
 - Final prep for Practice Lab #2
 - Send materials to registered participants
 - Review what you learned from last session
 
 **Afternoon** (60-90 min):
+
 - Host Practice Lab #2
 - Take detailed notes during session
 - Ask for feedback at the end
 
 **Evening** (90 min):
+
 - Send follow-up email to participants
 - Request testimonials
 - Document insights
 
 **Weekly Review** (30 min):
+
 - Review Week 2 metrics:
   - How many people engaged with case file?
   - Video performance vs Week 1?
@@ -220,6 +245,7 @@ Building Kaiwa in public, Day 13.
   - Best performing platform?
 
 **Weekly Reflection Questions**:
+
 1. What content format is working best?
 2. What platform drives the most engagement?
 3. What questions are people asking repeatedly?
@@ -231,6 +257,7 @@ Building Kaiwa in public, Day 13.
 ## Week 2 Success Metrics
 
 By end of Week 2, you should have:
+
 - [ ] 10+ warm leads in tracker
 - [ ] 2 Practice Labs completed
 - [ ] 1-2 testimonials collected
@@ -245,6 +272,7 @@ By end of Week 2, you should have:
 ## Key Copy-Paste Templates for Week 2
 
 ### For Practice Lab Follow-Up:
+
 ```
 Hi [Name],
 
@@ -265,6 +293,7 @@ Let me know!
 ```
 
 ### For Video Comments:
+
 ```
 Yes! This is exactly what I'm trying to solve with Kaiwa.
 
@@ -276,6 +305,7 @@ DM me if you're interested!
 ```
 
 ### For "How much does this cost?" Questions:
+
 ```
 Right now I'm offering free practice sessions while I build Kaiwa (in exchange for feedback).
 

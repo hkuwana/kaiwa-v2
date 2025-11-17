@@ -856,12 +856,14 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 ### ✅ Structured Logging Implementation (Completed: November 16, 2025)
 
 **Problem**:
+
 - 100+ console.log statements in production code exposing sensitive data
 - No structured logging for production debugging
 - Performance impact from excessive logging
 - Difficult to debug production issues without proper log levels
 
 **Solution Implemented**:
+
 - Created server-side logger (`src/lib/server/logger.ts`)
   - JSON structured logging in production
   - Pretty console output in development
@@ -873,12 +875,13 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 - Replaced console statements across:
   - All server services (stripe, email, payment, usage, etc.)
   - All repositories
-  - All API routes (/api/analysis/*, /api/features/*, /api/cron/*)
+  - All API routes (/api/analysis/_, /api/features/_, /api/cron/\*)
   - Server hooks
   - Database utilities
   - All stores (audio, conversation, user, settings, etc.)
 
 **Benefits**:
+
 - Reduced production noise (client only shows warnings/errors)
 - Structured logs ready for log aggregation tools
 - Better debugging with context metadata

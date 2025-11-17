@@ -18,27 +18,27 @@ logger.debug('Processing user request', { userId: user.id, action: 'checkout' })
 
 // Info - general information
 logger.info('Payment processed successfully', {
-  paymentId: payment.id,
-  amount: payment.amount
+	paymentId: payment.id,
+	amount: payment.amount
 });
 
 // Warning - something unexpected but not critical
 logger.warn('Rate limit approaching', {
-  userId: user.id,
-  requestCount: 95,
-  limit: 100
+	userId: user.id,
+	requestCount: 95,
+	limit: 100
 });
 
 // Error - something went wrong
 logger.error('Failed to create subscription', {
-  userId: user.id,
-  error: error.message
+	userId: user.id,
+	error: error.message
 });
 
 // Error with full exception details
 logger.logError(error, 'Stripe API call failed', {
-  operation: 'createCustomer',
-  userId: user.id
+	operation: 'createCustomer',
+	userId: user.id
 });
 ```
 
@@ -59,6 +59,7 @@ logger.error('WebSocket connection failed');
 ## Log Levels
 
 ### Development Mode
+
 - **Debug**: All verbose logs for debugging
 - **Info**: General information
 - **Warn**: Warnings
@@ -69,12 +70,14 @@ All logs are displayed in a pretty, colored format with timestamps.
 ### Production Mode
 
 **Server (Node.js)**:
+
 - **Debug**: Hidden
 - **Info**: JSON structured logs
 - **Warn**: JSON structured logs
 - **Error**: JSON structured logs with stack traces
 
 **Client (Browser)**:
+
 - **Debug**: Hidden
 - **Info**: Hidden
 - **Warn**: JSON structured logs
@@ -85,20 +88,36 @@ This reduces console noise for end users while preserving error visibility.
 ## Output Format
 
 ### Development
+
 ```
 🔍 [10:30:45] DEBUG: Processing payment
    Context: { userId: '123', amount: 1500 }
 ```
 
 ### Production (Server)
+
 ```json
-{"timestamp":"2025-11-16T10:30:45.123Z","level":"info","message":"Payment processed","context":{"userId":"123","amount":1500},"environment":"production"}
+{
+	"timestamp": "2025-11-16T10:30:45.123Z",
+	"level": "info",
+	"message": "Payment processed",
+	"context": { "userId": "123", "amount": 1500 },
+	"environment": "production"
+}
 ```
 
 ### Production (Client)
+
 Only warnings and errors are shown:
+
 ```json
-{"timestamp":"2025-11-16T10:30:45.123Z","level":"error","message":"Payment failed","context":{"error":"Insufficient funds"},"environment":"production"}
+{
+	"timestamp": "2025-11-16T10:30:45.123Z",
+	"level": "error",
+	"message": "Payment failed",
+	"context": { "error": "Insufficient funds" },
+	"environment": "production"
+}
 ```
 
 ## Best Practices
@@ -147,9 +166,9 @@ logger.logError(error, 'Failed to save user', { userId, operation: 'update' });
 
 ```typescript
 // ❌ Bad - logging in a loop
-users.forEach(user => {
-  logger.debug('Processing user', { userId: user.id }); // Called 1000 times!
-  processUser(user);
+users.forEach((user) => {
+	logger.debug('Processing user', { userId: user.id }); // Called 1000 times!
+	processUser(user);
 });
 
 // ✅ Good - log summary instead
@@ -189,10 +208,10 @@ import { logger } from '$lib/server/logger';
 
 // Logs automatically include context for filtering
 logger.info('Payment processed', {
-  userId: user.id,
-  tier: user.tier,
-  amount: payment.amount,
-  currency: 'USD'
+	userId: user.id,
+	tier: user.tier,
+	amount: payment.amount,
+	currency: 'USD'
 });
 ```
 

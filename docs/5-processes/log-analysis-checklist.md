@@ -18,20 +18,24 @@
 These logs use `console.warn()` or `console.error()` so they'll have **yellow/red** backgrounds in your browser console:
 
 ### 🔍 Log Pattern 1: Conversation Item Created
+
 **Search for:** `🔍 CONVERSATION ITEM CREATED/ADDED`
 **Color:** Standard (white/gray)
 **What to check:** Look for items with `role: "user"`
 
 ### ⏰ Log Pattern 2: About to Send Response
+
 **Search for:** `⏰ ABOUT TO SEND response.create`
 **Color:** ⚠️ **YELLOW** (console.warn)
 **What to check:** The `currentConversationItems` array and timing values
 
 ### ✅ Log Pattern 3: Conditions Met
+
 **Search for:** `✅ CONDITIONS MET - SENDING response.create`
 **Color:** ⚠️ **YELLOW** (console.warn)
 
 ### ❌ Log Pattern 4: User Items NOT Found
+
 **Search for:** `❌ WARNING: Expected user items NOT found`
 **Color:** 🔴 **RED** (console.error)
 **What this means:** **BUG CONFIRMED** - User message not in conversation!
@@ -41,6 +45,7 @@ These logs use `console.warn()` or `console.error()` so they'll have **yellow/re
 ## 📋 PASTE YOUR LOGS HERE
 
 ### Section 1: Input Audio Buffer Events
+
 **Paste all logs containing:** `input_audio_buffer`
 
 ```
@@ -53,13 +58,15 @@ These logs use `console.warn()` or `console.error()` so they'll have **yellow/re
 ```
 
 **Quick check:**
+
 - [ ] Found `input_audio_buffer.commit`
 - [ ] Found `input_audio_buffer.committed` with `item_id`
-- [ ] Note the `item_id`: ________________
+- [ ] Note the `item_id`: ******\_\_\_\_******
 
 ---
 
 ### Section 2: Conversation Item Created Events
+
 **Paste all logs containing:** `🔍 CONVERSATION ITEM CREATED/ADDED`
 
 ```
@@ -72,14 +79,16 @@ These logs use `console.warn()` or `console.error()` so they'll have **yellow/re
 ```
 
 **Quick check:**
+
 - [ ] Found item with `role: "user"`
 - [ ] Found item with `role: "assistant"`
 - [ ] User item `item_id` matches from Section 1: Yes / No
-- [ ] Note timestamp of user item: ________________
+- [ ] Note timestamp of user item: ******\_\_\_\_******
 
 ---
 
 ### Section 3: Transcript Events
+
 **Paste all logs containing:** `TRANSCRIPTION COMPLETED`
 
 ```
@@ -92,14 +101,16 @@ These logs use `console.warn()` or `console.error()` so they'll have **yellow/re
 ```
 
 **Quick check:**
+
 - [ ] Found `🎤 USER TRANSCRIPTION COMPLETED`
 - [ ] Found `🤖 ASSISTANT TRANSCRIPTION COMPLETED`
-- [ ] User transcript text: ________________
-- [ ] Note timestamp: ________________
+- [ ] User transcript text: ******\_\_\_\_******
+- [ ] Note timestamp: ******\_\_\_\_******
 
 ---
 
 ### Section 4: Response Creation Events (⚠️ CRITICAL)
+
 **Paste all logs containing:** `⏰ ABOUT TO SEND response.create`
 
 ```
@@ -112,14 +123,16 @@ These logs use `console.warn()` or `console.error()` so they'll have **yellow/re
 ```
 
 **Quick check:**
+
 - [ ] Found the log (should be YELLOW in console)
-- [ ] Note `timeSinceCommitAck`: ________ ms
-- [ ] Note `timeSinceTranscript`: ________ ms
-- [ ] Note `currentConversationItems` array length: ________
+- [ ] Note `timeSinceCommitAck`: **\_\_\_\_** ms
+- [ ] Note `timeSinceTranscript`: **\_\_\_\_** ms
+- [ ] Note `currentConversationItems` array length: **\_\_\_\_**
 - [ ] Last item in array has `role: "user"`: Yes / No
 - [ ] Last item in array has `role: "assistant"`: Yes / No (BAD if yes!)
 
 **Copy the `currentConversationItems` array here:**
+
 ```json
 // PASTE JUST THE currentConversationItems ARRAY:
 
@@ -131,6 +144,7 @@ These logs use `console.warn()` or `console.error()` so they'll have **yellow/re
 ---
 
 ### Section 5: User Item Validation (🔴 CRITICAL ERROR CHECK)
+
 **Paste all logs containing:** `User items found` OR `Expected user items NOT found`
 
 ```
@@ -143,6 +157,7 @@ These logs use `console.warn()` or `console.error()` so they'll have **yellow/re
 ```
 
 **Quick check:**
+
 - [ ] Found `✅ User items found in conversation`
 - [ ] Found `❌ WARNING: Expected user items NOT found` (RED - this means BUG!)
 
@@ -153,7 +168,9 @@ These logs use `console.warn()` or `console.error()` so they'll have **yellow/re
 Based on your pasted logs, check which hypothesis matches:
 
 ### ✅ Hypothesis 1: Race Condition (MOST LIKELY)
+
 **Symptoms:**
+
 - [ ] `❌ WARNING: Expected user items NOT found` appears (RED log)
 - [ ] `timeSinceCommitAck` is very small (<100ms)
 - [ ] `timeSinceTranscript` is very small (<100ms)
@@ -161,6 +178,7 @@ Based on your pasted logs, check which hypothesis matches:
 - [ ] `currentConversationItems` does NOT include the user's message
 
 **Evidence from logs:**
+
 ```
 Response sent at: [timestamp from Section 4]
 User item created at: [timestamp from Section 2]
@@ -174,7 +192,9 @@ Difference: ________ ms (negative = BUG!)
 ---
 
 ### ✅ Hypothesis 2: User Items Not Created At All
+
 **Symptoms:**
+
 - [ ] NO logs with `role: "user"` in Section 2
 - [ ] Only `role: "assistant"` items found
 - [ ] `currentConversationItems` array only has assistant messages
@@ -185,11 +205,14 @@ Difference: ________ ms (negative = BUG!)
 ---
 
 ### ✅ Hypothesis 3: Multiple Response Creates
+
 **Symptoms:**
+
 - [ ] See MULTIPLE `✅ CONDITIONS MET - SENDING response.create` logs
 - [ ] Same `commitNumber` appears more than once
 
 **Paste duplicate logs here:**
+
 ```
 // If you see duplicates, paste them here:
 
@@ -203,12 +226,15 @@ Difference: ________ ms (negative = BUG!)
 ---
 
 ### ✅ Hypothesis 4: Conversation Items in Wrong Order
+
 **Symptoms:**
+
 - [ ] User item IS in `currentConversationItems`
 - [ ] But LAST item is `role: "assistant"` (not user)
 - [ ] Items are out of order
 
 **Copy the conversation items array from Section 4:**
+
 ```
 Expected order: [assistant, user, assistant, user, ...]
 Actual order: [paste your array here]
@@ -220,12 +246,15 @@ Actual order: [paste your array here]
 ---
 
 ### ✅ Hypothesis 5: Suppress Transcript Interfering
+
 **Symptoms:**
+
 - [ ] See `🧹 ConversationStore: SETTING suppressNextUserTranscript = TRUE`
 - [ ] User transcript is suppressed
 - [ ] `hadAudioEnergy: false` in silence detection logs
 
 **Search for:** `suppressNextUserTranscript`
+
 ```
 // PASTE LOGS HERE:
 
@@ -255,6 +284,7 @@ Create a timeline from your logs:
 ```
 
 **Critical check:**
+
 - Is the `🔍 conversation.item.created (role=user)` timestamp **BEFORE** the `⏰ ABOUT TO SEND response.create` timestamp?
   - ✅ Yes = Good! (delay should help)
   - ❌ No = **RACE CONDITION CONFIRMED!**
@@ -318,21 +348,25 @@ Here's what you SHOULD see if everything is working:
 ## 🔧 NEXT STEPS BASED ON FINDINGS
 
 ### If Race Condition Confirmed:
+
 1. ✅ The 200ms delay fix is already applied
 2. Test again and see if issue is resolved
 3. If still having issues, increase delay to 300-500ms
 
 ### If User Items Not Created:
+
 1. Check session configuration
 2. Review OpenAI Realtime API settings
 3. Check if `conversation: "none"` is being used somewhere
 
 ### If Multiple Responses:
+
 1. Check the deduplication flags
 2. Review `hasSentResponse` logic
 3. May need to add stronger guards
 
 ### If Ordering Issue:
+
 1. Check conversation item timestamps
 2. Review server event processing order
 3. May need to sort items by timestamp
@@ -345,24 +379,21 @@ After analyzing logs, fill this out:
 
 **Issue Confirmed:** Yes / No
 
-**Primary Hypothesis:** #_____ (1-5 from above)
+**Primary Hypothesis:** #**\_** (1-5 from above)
 
-**Evidence:**
+## **Evidence:**
+
 -
--
--
+- **Recommended Fix:**
 
-**Recommended Fix:**
--
+- **Additional Notes:**
 
-**Additional Notes:**
-
-
----
+  ***
 
 ## 🆘 STILL STUCK?
 
 If you've filled out this checklist and still aren't sure, share:
+
 1. The completed sections above
 2. Your raw console logs
 3. Which hypothesis checkboxes you checked

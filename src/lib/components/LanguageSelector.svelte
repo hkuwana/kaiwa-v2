@@ -103,9 +103,7 @@
 		if (isOpen && viewingSpeakersFor && selectedSpeaker && listRef) {
 			// Give the DOM a moment to render
 			setTimeout(() => {
-				const selectedButton = listRef?.querySelector(
-					`[data-speaker-id="${selectedSpeaker}"]`
-				);
+				const selectedButton = listRef?.querySelector(`[data-speaker-id="${selectedSpeaker}"]`);
 				if (selectedButton) {
 					selectedButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
 				}

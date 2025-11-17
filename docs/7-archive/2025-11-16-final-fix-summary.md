@@ -5,6 +5,7 @@
 After analyzing your logs, the **real issue** was NOT a race condition!
 
 ### The Real Problem:
+
 ```
 ⚠️⚠️⚠️ MULTIPLE ITEMS FROM SINGLE COMMIT!
 {commitNumber: 1, itemIds: Array(3)...}
@@ -15,6 +16,7 @@ After analyzing your logs, the **real issue** was NOT a race condition!
 ## 🔍 What Was Happening
 
 ### Timeline of the Bug:
+
 ```
 1. You speak: "Hello"
    → Commit #1 created
@@ -44,37 +46,41 @@ After analyzing your logs, the **real issue** was NOT a race condition!
 ## 🔧 Fixes Applied
 
 ### Fix #1: Auto-Cleanup Commits After Response
+
 **File:** `src/lib/stores/realtime-openai.store.svelte.ts:1591-1602`
 
 ```typescript
 // After sending response.create, wait 1 second then remove commit
 setTimeout(() => {
-    const commitIndex = this.pendingCommits.indexOf(commit);
-    if (commitIndex !== -1) {
-        this.pendingCommits.splice(commitIndex, 1);
-        console.warn('🧹 CLEANED UP COMMIT...');
-    }
+	const commitIndex = this.pendingCommits.indexOf(commit);
+	if (commitIndex !== -1) {
+		this.pendingCommits.splice(commitIndex, 1);
+		console.warn('🧹 CLEANED UP COMMIT...');
+	}
 }, 1000);
 ```
 
 **What this does:**
+
 - Waits 1 second after response sent
 - Removes the commit from `pendingCommits` array
 - Prevents old commits from accumulating more item_ids
 - Logs when cleanup happens
 
 ### Fix #2: Limit Pending Commits to Max 3
+
 **File:** `src/lib/stores/realtime-openai.store.svelte.ts:1464-1473`
 
 ```typescript
 // If more than 3 pending commits, remove oldest
 if (this.pendingCommits.length > 3) {
-    const removed = this.pendingCommits.shift();
-    console.error('🧹 REMOVED OLDEST COMMIT due to limit...');
+	const removed = this.pendingCommits.shift();
+	console.error('🧹 REMOVED OLDEST COMMIT due to limit...');
 }
 ```
 
 **What this does:**
+
 - Caps `pendingCommits` array at 3 max
 - Removes oldest commit if limit exceeded
 - Safety net if auto-cleanup fails
@@ -89,6 +95,7 @@ if (this.pendingCommits.length > 3) {
 3. **Check browser console** for these logs:
 
 #### ✅ GOOD SIGNS (Bug Fixed):
+
 ```javascript
 // After each response:
 🧹 CLEANED UP COMMIT after response sent {
@@ -107,6 +114,7 @@ if (this.pendingCommits.length > 3) {
 ```
 
 #### 🔴 BAD SIGNS (Bug Still Present):
+
 ```javascript
 // Still seeing multiple items:
 ⚠️⚠️⚠️ MULTIPLE ITEMS FROM SINGLE COMMIT! {commitNumber: 1, itemIds: Array(3)}
@@ -168,10 +176,12 @@ if (this.pendingCommits.length > 3) {
 ### Scenario 1: Still Seeing "MULTIPLE ITEMS"
 
 **Symptoms:**
+
 - `⚠️⚠️⚠️ MULTIPLE ITEMS FROM SINGLE COMMIT!`
 - `itemCountForThisCommit: 3` (or >1)
 
 **Solution:**
+
 1. Check if `🧹 CLEANED UP COMMIT` logs are appearing
 2. If YES → Increase cleanup delay from 1000ms to 2000ms
 3. If NO → There's a different issue, see below
@@ -179,10 +189,12 @@ if (this.pendingCommits.length > 3) {
 ### Scenario 2: Cleanup Logs Not Appearing
 
 **Symptoms:**
+
 - No `🧹 CLEANED UP COMMIT` logs
 - `remainingPendingCommits` keeps growing
 
 **Solution:**
+
 1. Check if responses are completing successfully
 2. Verify setTimeout is working
 3. May need to cleanup in different location
@@ -190,10 +202,12 @@ if (this.pendingCommits.length > 3) {
 ### Scenario 3: Seeing RED Error "REMOVED OLDEST COMMIT"
 
 **Symptoms:**
+
 - 🔴 `🧹 REMOVED OLDEST COMMIT due to limit (>3)`
 - `remainingPendingCommits: 3` stays at 3
 
 **Solution:**
+
 - This means auto-cleanup (Fix #1) is NOT working
 - Increase cleanup delay from 1000ms to 3000ms
 - Or cleanup immediately after response.create sent
@@ -201,6 +215,7 @@ if (this.pendingCommits.length > 3) {
 ## 📝 Summary of Changes
 
 ### Before (Buggy):
+
 - Commits never cleaned up
 - `pendingCommits` array grows unbounded
 - Old commits accumulate new item_ids
@@ -208,6 +223,7 @@ if (this.pendingCommits.length > 3) {
 - AI responds to itself
 
 ### After (Fixed):
+
 - Commits auto-cleanup 1 sec after response
 - Max 3 pending commits enforced
 - Each commit has 1 item (user input only)
@@ -219,6 +235,7 @@ if (this.pendingCommits.length > 3) {
 ### Why 1 second delay for cleanup?
 
 We need to wait for the response to fully complete before cleaning up:
+
 ```
 response.create sent → Response starts → Response completes → Wait 1s → Cleanup
 ```
@@ -228,6 +245,7 @@ If we cleanup too early, the commit might still be needed.
 ### Why limit to 3 pending commits?
 
 Normal flow should be:
+
 - 1 pending commit at a time
 - Maybe 2 if user speaks while agent responding
 - 3 is already unusual

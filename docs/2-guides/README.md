@@ -5,6 +5,7 @@
 ## 📚 Documents in This Section
 
 ### [dev-setup.md](dev-setup.md)
+
 **Local development environment setup**
 
 - 🚀 Quick start installation
@@ -17,6 +18,7 @@
 ---
 
 ### [testing-strategy.md](testing-strategy.md)
+
 **Testing approach, tools, and best practices**
 
 - 🧪 Testing philosophy
@@ -29,6 +31,7 @@
 ---
 
 ### [stripe-setup.md](stripe-setup.md)
+
 **Payment integration setup and configuration**
 
 - 💳 Stripe account setup
@@ -41,6 +44,7 @@
 ---
 
 ### [api-reference.md](api-reference.md)
+
 **API documentation and endpoint reference**
 
 - 🔌 Available endpoints
@@ -53,6 +57,7 @@
 ---
 
 ### [documentation-convention.md](documentation-convention.md)
+
 **How to write and organize documentation**
 
 - 📝 Naming conventions
@@ -67,6 +72,7 @@
 ## 🎯 When to Use This Section
 
 **Use guides when:**
+
 - Setting up your development environment
 - Learning how to test
 - Integrating with external services
@@ -74,6 +80,7 @@
 - Following step-by-step processes
 
 **Don't use for:**
+
 - System architecture → See [../1-core/](../1-core/)
 - Feature specifications → See [../3-features/](../3-features/)
 - Business strategy → See [../4-strategy/](../4-strategy/)
@@ -91,6 +98,7 @@
 ## ✍️ Contributing
 
 When adding guide docs:
+
 1. **Be practical**: Focus on "how-to" steps
 2. **Use examples**: Show, don't just tell
 3. **Keep updated**: Guides get outdated quickly

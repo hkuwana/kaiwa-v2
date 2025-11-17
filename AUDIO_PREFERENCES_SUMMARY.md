@@ -1,14 +1,17 @@
 # Audio & Preference Settings Summary
 
 ## Overview
+
 This document summarizes the implementation of cookie-based persistence for user preferences including audio input mode, scenario selection, and language/speaker selection.
 
 ## Changes Made
 
 ### 1. **Cookie Utility Module** ✅
+
 **File**: `src/lib/utils/cookies.ts` (NEW)
 
 Created a comprehensive cookie utility module with the following features:
+
 - Cookie management functions (get, set, delete)
 - Preference-specific helpers for:
   - Audio input mode (VAD/PTT)
@@ -20,15 +23,18 @@ Created a comprehensive cookie utility module with the following features:
 - Browser environment safety checks
 
 **Key Functions**:
+
 - `getAudioInputModeFromCookie()` / `setAudioInputModeCookie()`
 - `getSelectedScenarioIdFromCookie()` / `setSelectedScenarioIdCookie()`
 - `getSelectedLanguageIdFromCookie()` / `setSelectedLanguageIdCookie()`
 - `getSelectedSpeakerIdFromCookie()` / `setSelectedSpeakerIdCookie()`
 
 ### 2. **Advanced Audio Options Component** ✅
+
 **File**: `src/lib/components/AdvancedAudioOptions.svelte`
 
 **Changes**:
+
 - ✅ Changed default audio input mode from 'ptt' to 'vad' (auto-detect)
 - ✅ Removed VAD→PTT migration that was forcing all users to push-to-talk
 - ✅ Added cookie support for quick recall of user's last audio mode choice
@@ -38,6 +44,7 @@ Created a comprehensive cookie utility module with the following features:
   3. Default to 'vad' (auto-detect mode)
 
 **Behavior**:
+
 ```
 User visits app
   ↓
@@ -52,17 +59,21 @@ Save any changes to BOTH cookie and preferences
 ```
 
 ### 3. **Scenario Selector Component** ✅
+
 **File**: `src/lib/features/scenarios/components/ScenarioSelector.svelte`
 
 **Changes**:
+
 - ✅ Added cookie persistence for selected scenario
 - ✅ When user selects a scenario, the scenario ID is saved to a cookie
 - ✅ This allows the app to remember and restore the user's last selected scenario
 
 ### 4. **Language Selector Component** ✅
+
 **File**: `src/lib/components/LanguageSelector.svelte`
 
 **Changes**:
+
 - ✅ Added cookie persistence for selected language
 - ✅ Added cookie persistence for selected speaker
 - ✅ When user selects a language, both language ID and default speaker are saved to cookies
@@ -72,11 +83,11 @@ Save any changes to BOTH cookie and preferences
 
 ```typescript
 COOKIE_NAMES = {
-  AUDIO_INPUT_MODE: 'kaiwa_audio_input_mode',        // 'vad' | 'ptt'
-  SELECTED_SCENARIO_ID: 'kaiwa_selected_scenario_id', // scenario ID string
-  SELECTED_LANGUAGE_ID: 'kaiwa_selected_language_id', // language code string
-  SELECTED_SPEAKER_ID: 'kaiwa_selected_speaker_id'    // speaker ID string
-}
+	AUDIO_INPUT_MODE: 'kaiwa_audio_input_mode', // 'vad' | 'ptt'
+	SELECTED_SCENARIO_ID: 'kaiwa_selected_scenario_id', // scenario ID string
+	SELECTED_LANGUAGE_ID: 'kaiwa_selected_language_id', // language code string
+	SELECTED_SPEAKER_ID: 'kaiwa_selected_speaker_id' // speaker ID string
+};
 ```
 
 ## Storage Strategy
@@ -100,6 +111,7 @@ The app now uses a **dual persistence strategy**:
 **Before**: Push-to-Talk (ptt) - Required user to manually press/hold microphone button
 
 **After**: Auto-Detect Mode (vad) - Automatically detects when user is speaking
+
 - Better for quiet environments
 - More natural conversation flow
 - Users can still switch to Push-to-Talk if they prefer
@@ -107,20 +119,24 @@ The app now uses a **dual persistence strategy**:
 ## User Experience
 
 ### First Visit
+
 1. App defaults to auto-detect mode
 2. User can switch to push-to-talk in Advanced Options if preferred
 3. Choice is saved to cookie immediately
 
 ### Subsequent Visits
+
 1. **Same browser**: Cookie is read → User's last preference is restored
 2. **Different browser**: Preferences store is checked → User's account preference is restored
 3. **Logged out**: Cookie is used → Guest preference is restored
 
 ### Scenario Selection
+
 - When user selects a scenario, the ID is saved to cookie
 - App can use this to restore their last scenario on next visit
 
 ### Language/Speaker Selection
+
 - When user selects a language, both language and default speaker are saved
 - When user manually selects a different speaker, that choice is saved
 - This ensures consistency across sessions
@@ -128,17 +144,20 @@ The app now uses a **dual persistence strategy**:
 ## Technical Details
 
 ### Cookie Attributes
+
 - **Path**: `/` (accessible site-wide)
 - **SameSite**: `Lax` (security - CSRF protection)
 - **Expiration**: 365 days
 - **Encoding**: URL-encoded values for safety
 
 ### Browser Support
+
 - Works in all modern browsers (IE 11+)
 - Gracefully degrades if cookies are disabled
 - Server-side rendering safe (checks `browser` environment)
 
 ### TypeScript Safety
+
 - Fully typed with TypeScript
 - Type-safe cookie getters/setters
 - Audio mode types validated at compile time
@@ -146,6 +165,7 @@ The app now uses a **dual persistence strategy**:
 ## Migration Notes
 
 If users had the old VAD→PTT migration in place:
+
 - ✅ Migration code removed
 - ✅ Users will see auto-detect mode by default on next visit
 - ✅ Their previous push-to-talk preference (if forced) will be overridden
@@ -165,6 +185,7 @@ If users had the old VAD→PTT migration in place:
 ## Future Enhancements
 
 Potential improvements:
+
 1. Add cookie consent banner (GDPR compliance)
 2. Add preference sync UI to show what's stored
 3. Add "Reset to Defaults" button
@@ -181,8 +202,8 @@ Potential improvements:
 ## Backward Compatibility
 
 ✅ Fully backward compatible
+
 - Existing user preferences are preserved
 - Guests without cookies will get defaults
 - No breaking changes to component APIs
 - All changes are additive (no removals)
-

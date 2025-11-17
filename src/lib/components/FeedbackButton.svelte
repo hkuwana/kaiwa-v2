@@ -30,7 +30,7 @@
 				page_url: typeof window !== 'undefined' ? window.location.href : '',
 				page_pathname: typeof window !== 'undefined' ? window.location.pathname : '',
 				user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
-				timestamp: new Date().toISOString(),
+				timestamp: new Date().toISOString()
 				// PostHog will automatically attach:
 				// - User ID (if identified)
 				// - Session recording

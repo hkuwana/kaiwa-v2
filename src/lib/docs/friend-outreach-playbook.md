@@ -57,6 +57,7 @@ If time allows, end with: “Is there anything missing that you expected to see?
 ### Why WhatsApp > Other Channels
 
 For Kaiwa's founding members, WhatsApp is the best choice because:
+
 - **International-friendly**: Your users are dating internationally, expats, heritage speakers
 - **Zero friction**: Everyone already has it and checks it 50x per day
 - **High engagement**: Messages feel personal, not corporate
@@ -65,6 +66,7 @@ For Kaiwa's founding members, WhatsApp is the best choice because:
 ### The Friend → WhatsApp → Founding Member Flow
 
 **Step 1 - Initial DM** (before adding to WhatsApp):
+
 ```
 Hey! Quick ask:
 
@@ -87,16 +89,19 @@ First 10 spots only. Let me know!
 ```
 
 **Step 2 - Create WhatsApp Group** (when 2-3 friends say yes):
+
 - Group name: `Kaiwa Founding Members 🗣️`
 - Add your first 3-5 friends
 - Post welcome message (see full strategy doc)
 
 **Step 3 - Daily WhatsApp Rhythm**:
+
 - **Morning (5 min)**: Check group, respond to messages, post motivational check-in
 - **Evening (5 min)**: Celebrate wins, answer questions
 - **Weekly**: Monday motivation, Friday reflection, bi-weekly feature voting
 
 **Step 4 - Add Strangers** (Week 2+):
+
 - Once you have 3-5 friends active, add strangers from Practice Lab/Reddit
 - Friends set the tone, strangers join an already-active group
 - This creates social proof and community feel

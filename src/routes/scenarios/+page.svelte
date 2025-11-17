@@ -1,20 +1,20 @@
 <script lang="ts">
 	import { scenariosData, type Scenario } from '$lib/data/scenarios';
-import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
+	import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
 	import { goto } from '$app/navigation';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
 	import { track } from '$lib/analytics/posthog';
 
-const user = userManager.user;
+	const user = userManager.user;
 
-// Top 3 featured scenarios
-const TOP_SCENARIOS = [
-	'beginner-confidence-bridge', // Your First Conversation
-	'first-date-drinks', // Dinner & Drinks Date
-	'family-dinner-introduction' // Meeting Your Partner's Parents
-];
-const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
+	// Top 3 featured scenarios
+	const TOP_SCENARIOS = [
+		'beginner-confidence-bridge', // Your First Conversation
+		'first-date-drinks', // Dinner & Drinks Date
+		'family-dinner-introduction' // Meeting Your Partner's Parents
+	];
+	const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 
 	// Filter to only show public scenarios
 	const publicScenarios = scenariosData.filter(
@@ -165,11 +165,10 @@ const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 								</p>
 
 								<!-- Difficulty indicator -->
-								<div class="flex flex-wrap items-center gap-2 text-xs font-medium text-base-content/80">
-									<div
-										class="flex items-center gap-1"
-										aria-label={`${meta.label} difficulty`}
-									>
+								<div
+									class="flex flex-wrap items-center gap-2 text-xs font-medium text-base-content/80"
+								>
+									<div class="flex items-center gap-1" aria-label={`${meta.label} difficulty`}>
 										{#each DIFFICULTY_SEGMENTS as segment}
 											<span
 												class="h-1.5 w-5 rounded-full bg-base-200 transition-colors"
@@ -235,11 +234,10 @@ const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 								</p>
 
 								<!-- Difficulty indicator -->
-								<div class="flex flex-wrap items-center gap-2 text-xs font-medium text-base-content/80">
-									<div
-										class="flex items-center gap-1"
-										aria-label={`${meta.label} difficulty`}
-									>
+								<div
+									class="flex flex-wrap items-center gap-2 text-xs font-medium text-base-content/80"
+								>
+									<div class="flex items-center gap-1" aria-label={`${meta.label} difficulty`}>
 										{#each DIFFICULTY_SEGMENTS as segment}
 											<span
 												class="h-1.5 w-5 rounded-full bg-base-200 transition-colors"

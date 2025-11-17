@@ -57,11 +57,11 @@ Four-phase strategy centered on **emotional outcomes**:
 
 ### Layer Responsibilities
 
-| Layer | Purpose | Rules |
-|-------|---------|-------|
-| **Service** | Pure business logic & API calls | No UI imports, no service dependencies |
-| **Store** | State management & orchestration | Uses runes, coordinates services |
-| **UI** | User interface | Thin & declarative, calls stores only |
+| Layer       | Purpose                          | Rules                                  |
+| ----------- | -------------------------------- | -------------------------------------- |
+| **Service** | Pure business logic & API calls  | No UI imports, no service dependencies |
+| **Store**   | State management & orchestration | Uses runes, coordinates services       |
+| **UI**      | User interface                   | Thin & declarative, calls stores only  |
 
 ---
 
@@ -122,18 +122,22 @@ src/lib/
 ### Migration Strategy
 
 **Phase 1**: Prepare
+
 - ✅ Create `features/` directory
 - ✅ Define feature boundaries
 
 **Phase 2**: Extract
+
 - 🚧 Move `realtime-conversation` feature
 - 🚧 Move `analysis` feature
 - 🚧 Move remaining features
 
 **Phase 3**: Bridge
+
 - Implement `FeatureBridge` for necessary cross-feature communication
 
 **Phase 4**: API Reorganization
+
 - Restructure to resource-oriented APIs (`api/users`, `api/conversations`)
 
 ---
@@ -267,6 +271,7 @@ const conversation = await db.query.conversations.findFirst(...);
 ### Common Patterns
 
 **Service → Store → UI**:
+
 ```typescript
 // Service (pure logic)
 export class ConversationService {
@@ -333,15 +338,15 @@ export function createConversationStore() {
 
 ### Finding Code
 
-| I need to... | Look in |
-|--------------|---------|
-| Add UI component | `src/lib/components/` or `features/[name]/components/` |
-| Add business logic | `src/lib/services/` or `features/[name]/services/` |
-| Add state management | `src/lib/stores/` or `features/[name]/stores/` |
-| Query database | `src/lib/server/repositories/` |
-| Define schema | `src/lib/server/db/schema/` |
-| Add API endpoint | `src/routes/api/` |
-| Add page | `src/routes/` |
+| I need to...         | Look in                                                |
+| -------------------- | ------------------------------------------------------ |
+| Add UI component     | `src/lib/components/` or `features/[name]/components/` |
+| Add business logic   | `src/lib/services/` or `features/[name]/services/`     |
+| Add state management | `src/lib/stores/` or `features/[name]/stores/`         |
+| Query database       | `src/lib/server/repositories/`                         |
+| Define schema        | `src/lib/server/db/schema/`                            |
+| Add API endpoint     | `src/routes/api/`                                      |
+| Add page             | `src/routes/`                                          |
 
 ### Related Docs
 
@@ -366,17 +371,20 @@ export function createConversationStore() {
 ### Scaling Strategies
 
 **Current (0-10k users)**:
+
 - Single Fly.io machine
 - PostgreSQL on Fly
 - GitHub Actions cron
 
 **Next (10k-100k users)**:
+
 - Multiple Fly.io machines
 - Read replicas for database
 - Redis caching
 - Background job queue
 
 **Future (100k+ users)**:
+
 - Dedicated database cluster
 - CDN for static assets
 - Microservices for heavy features

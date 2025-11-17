@@ -1,6 +1,7 @@
 # PAB Messaging Templates
 
 ## Overview
+
 Templates for communicating with Product Advisory Board candidates throughout the selection and onboarding process.
 
 ---
@@ -20,12 +21,14 @@ Here's the situation: I've had over 10 people express interest (which is incredi
 So I'm creating **two different ways to be involved**:
 
 ### Option 1: Core Product Advisory Board (8-10 people)
+
 - Monthly 1-hour video meetings
 - Hands-on feature testing and detailed feedback
 - Direct influence on product roadmap
 - High involvement, high impact
 
 ### Option 2: Early Access Pilot Program (larger group)
+
 - Quarterly check-ins (mostly async)
 - Early access to new features
 - Lighter time commitment
@@ -58,6 +61,7 @@ Hi [Name],
 I'm excited to officially invite you to join **Kaiwa's Core Product Advisory Board**!
 
 Based on your survey responses, you're an ideal fit for this group:
+
 - [Personalize based on their response: "You're about to meet your partner's family in Japanese, which is exactly the high-stakes scenario Kaiwa is built for" OR "Your journey reconnecting with your family in Spanish is what Kaiwa is all about"]
 - You have the availability and interest to give in-depth feedback
 - Your perspective will add important diversity to the group
@@ -65,11 +69,13 @@ Based on your survey responses, you're an ideal fit for this group:
 ### What to Expect
 
 **Time Commitment**:
+
 - 1-hour monthly video meetings (we'll find a time that works for everyone)
 - 2-3 hours/month of hands-on testing (as you use Kaiwa for your own learning)
 - Async feedback via quick surveys (5-10 min)
 
 **What You Get**:
+
 - Free unlimited access to Kaiwa (launching [date])
 - Early access to new features before anyone else
 - Direct influence on what we build
@@ -87,6 +93,7 @@ Based on your survey responses, you're an ideal fit for this group:
 ### Our First Meeting
 
 We'll use our first meeting to:
+
 - Introduce ourselves and share our language learning journeys
 - Talk through what you're hoping to get out of Kaiwa
 - Walk through the current product and get your initial reactions
@@ -119,6 +126,7 @@ Based on your survey and the overwhelming response from the USJC community (seri
 Rather than a traditional Product Advisory Board (which requires monthly meetings and high time commitment), I'm creating a **USJC organizational partnership** that gives you:
 
 **What You Get**:
+
 - Free access to Kaiwa during the pilot period (3 months)
 - Early access to new features before the public
 - Quarterly check-ins where we gather feedback (mostly async, super lightweight)
@@ -127,6 +135,7 @@ Rather than a traditional Product Advisory Board (which requires monthly meeting
 - [Optional: discounted pricing if you continue after pilot]
 
 **What We're Looking For**:
+
 - Use Kaiwa as part of your language learning journey
 - Share honest feedback via quick quarterly surveys (10-15 min)
 - Optional: Join quarterly group calls if you're interested
@@ -157,6 +166,7 @@ If this sounds good to you:
 ### Honestly...
 
 I'm really excited about this USJC partnership. You all are coming from a shared community, which means:
+
 - You might practice together and keep each other accountable
 - You can give feedback on how Kaiwa works for group/cohort learning
 - We can explore organizational partnerships down the line (USJC chapters, etc.)
@@ -202,8 +212,8 @@ Thank you so much for filling out the Kaiwa Product Advisory Board survey and fo
 
 Based on your responses, I think Kaiwa might be a better fit for you **once we officially launch** rather than during the advisory/pilot phase. Here's why:
 
-[Personalize based on their situation]:
-- "Since you're still exploring which language to learn, you might benefit more from trying Kaiwa when we have more scenarios and languages available"
+[Personalize based on their situation]: - "Since you're still exploring which language to learn, you might benefit more from trying Kaiwa when we have more scenarios and languages available"
+
 - "Since you're focused on test prep (JLPT/TOEFL), Kaiwa is more focused on conversational/relational fluency, so traditional test prep tools might serve you better right now"
 - "Since you don't have availability for regular meetings, it might be better to join after launch when there's no commitment required"
 
@@ -212,6 +222,7 @@ I don't want to waste your time or energy on something that's not the right fit 
 **But I'd love to stay in touch!**
 
 I'll keep you on our early launch list, and I'll reach out when:
+
 - We officially launch (expected: [date])
 - We add scenarios/features that match your needs (like [specific area])
 - We have special founding member pricing available
@@ -237,6 +248,7 @@ Hi everyone,
 Excited for our first Kaiwa Product Advisory Board meeting!
 
 **Details**:
+
 - **Date/Time**: [Date] at [Time] [Timezone]
 - **Duration**: 1 hour
 - **Video Link**: [Zoom/Google Meet link]
@@ -265,6 +277,7 @@ Excited for our first Kaiwa Product Advisory Board meeting!
 **Pre-Work** (Optional but helpful):
 
 If you have 5 minutes before the meeting, think about:
+
 - One specific conversation you're nervous about having in your target language
 - What would make you feel "ready" for that conversation?
 
@@ -293,28 +306,33 @@ You're part of the first group to use Kaiwa before it officially launches, and I
 ### What Happens Next
 
 **This Week**:
+
 - You'll get login credentials by [date]
 - I'll add you to our private USJC cohort group [Slack/Discord/WhatsApp]
 - You can start exploring scenarios and practicing!
 
 **Your First 2 Weeks**:
+
 - Try at least 2-3 different scenarios
 - Test the Prep Plan feature (helps you prepare for real conversations)
 - See how the AI coach feedback feels
 
 **First Check-In** (Week 3):
+
 - I'll send a quick survey (10 min) to hear:
   - What's working?
   - What's confusing?
   - What scenarios are you wishing we had?
 
 **Quarterly Cadence**:
+
 - Every 3 months, I'll send a survey and invite you to an optional group call
 - You can engage as much or as little as you want
 
 ### How to Get the Most Out of This
 
 **Use Kaiwa for YOUR real goals**:
+
 - Meeting your partner's family?
 - Reconnecting with relatives?
 - Preparing for a trip?
@@ -323,6 +341,7 @@ You're part of the first group to use Kaiwa before it officially launches, and I
 Tell Kaiwa what you're working toward, and it'll help you practice those specific scenarios.
 
 **Connect with the cohort**:
+
 - Some of you might be learning the same language
 - Practice together, share wins, ask questions
 - This is YOUR community
@@ -348,6 +367,7 @@ Hi everyone,
 Quick reminder that we have our monthly Kaiwa PAB meeting **tomorrow**!
 
 **Details**:
+
 - **Date/Time**: [Date] at [Time] [Timezone]
 - **Video Link**: [Link]
 
@@ -442,24 +462,28 @@ Thanks again for being part of this from the beginning. I wish you the best with
 ## Communication Best Practices
 
 ### Tone Guidelines
+
 - **Warm but not desperate**: You're grateful, but this is a partnership
 - **Clear about value exchange**: They help you, you give them free access + influence
 - **Respectful of time**: Always estimate time commitments accurately
 - **Honest about fit**: Better to redirect someone than have them churn
 
 ### Timing
+
 - **Survey deadline**: Give 3-4 days, send one reminder
 - **Meeting reminders**: 1 week before + 24 hours before
 - **Check-ins**: Quarterly for pilot, monthly for core PAB
 - **Response time**: Try to reply to questions within 24 hours
 
 ### Personalization Tips
+
 - Reference their specific language and goal in every email
 - Call out specific contributions they've made
 - Use their name (obviously)
 - Match their communication style (formal vs. casual)
 
 ### USJC Friendship Dynamics
+
 - **Acknowledge the relationship**: "I know many of you are friends, which is great!"
 - **Normalize different tracks**: "Some of you are in Core PAB, some in Pilot—both are valuable"
 - **Avoid favoritism language**: Don't say "Core PAB is better"
@@ -499,13 +523,14 @@ A: "We're planning to launch publicly in [timeframe]. As a PAB/Pilot member, you
 
 ### Create a Simple Spreadsheet
 
-| Name | Email | Organization | Persona Type | Language | Track (Core/Pilot/Declined) | Survey Completed? | Invitation Sent? | Onboarded? | Last Contact |
-|------|-------|--------------|--------------|----------|----------------------------|-------------------|------------------|------------|--------------|
-| Sarah | sarah@example.com | USJC | Bilingual Spouse | Japanese | Core PAB | Yes | Yes | Yes | 2025-11-10 |
+| Name  | Email             | Organization | Persona Type     | Language | Track (Core/Pilot/Declined) | Survey Completed? | Invitation Sent? | Onboarded? | Last Contact |
+| ----- | ----------------- | ------------ | ---------------- | -------- | --------------------------- | ----------------- | ---------------- | ---------- | ------------ |
+| Sarah | sarah@example.com | USJC         | Bilingual Spouse | Japanese | Core PAB                    | Yes               | Yes              | Yes        | 2025-11-10   |
 
 ### Automated Reminders (Optional)
 
 Set calendar reminders for:
+
 - Survey deadline (send follow-up)
 - Meeting reminders (24 hours before)
 - Quarterly check-ins (USJC Pilot)
@@ -516,12 +541,14 @@ Set calendar reminders for:
 ## Key Success Metrics
 
 **Core PAB**:
+
 - Meeting attendance rate >80%
 - Survey response rate >90%
 - Feature testing participation >70%
 - Retention after 6 months >75%
 
 **USJC Pilot**:
+
 - Quarterly survey response rate >50%
 - Active users (using Kaiwa 2+ times/month) >40%
 - Referral rate (bringing friends) >20%

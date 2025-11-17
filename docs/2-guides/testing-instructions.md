@@ -3,6 +3,7 @@
 ## ✅ What I Did
 
 ### 1. Added 200ms Delay Fix
+
 **File:** `src/lib/stores/realtime-openai.store.svelte.ts`
 
 The agent was replying to itself because it was sending `response.create` too fast, before the server finished creating the user's conversation item.
@@ -10,12 +11,15 @@ The agent was replying to itself because it was sending `response.create` too fa
 **The fix:** Added a 200ms delay before sending the response, giving the server time to commit the user's message.
 
 ### 2. Enhanced Logging
+
 All critical logs now use color-coded console methods:
+
 - 🔴 **RED** (console.error) = Critical errors
 - ⚠️ **YELLOW** (console.warn) = Important checkpoints
 - 📘 **WHITE/BLUE** (console.log) = Informational
 
 ### 3. Created Documentation
+
 - **LOG_ANALYSIS_CHECKLIST.md** - Full analysis guide where you paste logs
 - **CONSOLE_LOG_QUICK_REFERENCE.md** - Quick reference for what logs mean
 
@@ -37,12 +41,14 @@ All critical logs now use color-coded console methods:
 ### What to Check in Console
 
 #### ✅ GOOD SIGNS (Bug is Fixed):
+
 - See ⏱️ `DELAYED RESPONSE - Sending response.create NOW` (YELLOW)
 - See ✅ `User items found in conversation` (not RED error)
 - Agent responds **to your message**, not to itself
 - No 🔴 RED error logs
 
 #### ❌ BAD SIGNS (Bug Still Present):
+
 - See 🔴 `❌ WARNING: Expected user items NOT found in conversation!` (RED)
 - Agent still replies to itself
 - Agent doesn't acknowledge what you said
@@ -69,11 +75,14 @@ Look for the YELLOW logs (⏰, ✅, ⏱️) - these indicate the system is worki
 ## 🔍 If Bug Still Happens
 
 ### Step 1: Check Console for RED Error
+
 **Filter console to show only Errors:**
+
 - Chrome/Edge: Click "Errors" in console filter
 - Firefox: Click "Errors" filter
 
 **Do you see this?**
+
 ```
 ❌ WARNING: Expected user items NOT found in conversation!
 ```
@@ -82,6 +91,7 @@ Look for the YELLOW logs (⏰, ✅, ⏱️) - these indicate the system is worki
 - **NO** → Different issue, proceed to Step 3
 
 ### Step 2: Increase Delay
+
 If 200ms isn't enough, increase it:
 
 1. Open `src/lib/stores/realtime-openai.store.svelte.ts`
@@ -90,6 +100,7 @@ If 200ms isn't enough, increase it:
 4. Save and test again
 
 ### Step 3: Full Log Analysis
+
 If increasing delay doesn't help:
 
 1. **Copy ALL console logs** after reproducing the issue
@@ -104,16 +115,19 @@ If increasing delay doesn't help:
 After testing, check off what you observed:
 
 **Console Logs:**
+
 - [ ] Saw ⏱️ DELAYED RESPONSE log (YELLOW)
 - [ ] Saw ✅ User items found log
 - [ ] Did NOT see ❌ Expected user items NOT found (RED)
 
 **Agent Behavior:**
+
 - [ ] Agent responds to what I said
 - [ ] Agent does NOT reply to its own message
 - [ ] Conversation flows naturally
 
 **Timing:**
+
 - [ ] ~200ms delay between ✅ CONDITIONS MET and ⏱️ DELAYED RESPONSE
 - [ ] Total response time feels acceptable
 
@@ -137,14 +151,17 @@ The fix is successful when:
 ## 📞 Files to Reference
 
 **Quick start:**
+
 - This file (TESTING_INSTRUCTIONS.md)
 - CONSOLE_LOG_QUICK_REFERENCE.md
 
 **Deeper analysis:**
+
 - LOG_ANALYSIS_CHECKLIST.md
 - DEBUGGING_SELF_REPLY_ISSUE.md
 
 **Code changes:**
+
 - src/lib/stores/realtime-openai.store.svelte.ts
 
 ---
@@ -152,6 +169,7 @@ The fix is successful when:
 ## 💡 Understanding the Fix
 
 ### Before (Bug):
+
 ```
 You speak → Server creates user item (slow)
      ↓
@@ -161,6 +179,7 @@ AI responds to previous assistant message (itself)
 ```
 
 ### After (Fixed):
+
 ```
 You speak → Server creates user item
      ↓

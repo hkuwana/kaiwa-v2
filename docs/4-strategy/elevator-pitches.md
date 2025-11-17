@@ -10,19 +10,19 @@
 
 **"Ever notice how your partner becomes your translator with their family? You stop having your own conversation. We help you rehearse the moments that matter - meeting parents, apologizing, giving a toast - so connection is direct, not through subtitles."**
 
-*Why it works*: Immediate pain point (being left out), visual metaphor (subtitles), clear transformation (direct connection)
+_Why it works_: Immediate pain point (being left out), visual metaphor (subtitles), clear transformation (direct connection)
 
 ### Version 2: The High-Stakes Moment
 
 **"Meeting your partner's parents next month? We're like a flight simulator for that one dinner that changes everything. You practice the actual conversation - not vocab lists - until you're confident."**
 
-*Why it works*: Time pressure (next month), high stakes (changes everything), concrete outcome (confidence)
+_Why it works_: Time pressure (next month), high stakes (changes everything), concrete outcome (confidence)
 
 ### Version 3: The Heritage Loss (for diaspora/heritage learners)
 
 **"My Japanese grandmother passed away before I could have a real conversation with her. We help people connect with family before it's too late - practicing the conversations that matter, not textbook exercises."**
 
-*Why it works*: Personal story, urgency (before it's too late), emotional weight (family)
+_Why it works_: Personal story, urgency (before it's too late), emotional weight (family)
 
 ---
 
@@ -32,19 +32,19 @@
 
 **"Duolingo teaches you how to order coffee. We teach you how to apologize to your Japanese in-laws. We're a conversation simulator for high-stakes relationship moments - think flight simulator but for the one dinner that determines whether her parents approve of you. $1.5B language learning market, but we own the 'don't screw up with the in-laws' wedge."**
 
-*Why it works*: Clear differentiation from Duolingo, narrow beachhead strategy, huge TAM with focused wedge
+_Why it works_: Clear differentiation from Duolingo, narrow beachhead strategy, huge TAM with focused wedge
 
 ### Version 2: The Jobs-to-be-Done Frame
 
 **"No one wakes up wanting to 'learn Japanese.' They wake up dreading the dinner with their girlfriend's parents next week. We sell rehearsal for that specific panic - not courses, not lessons, just the 20 phrases you need for that one night. We're Hired when the calendar shows a high-stakes conversation."**
 
-*Why it works*: JTBD language, clear hiring moment, outcome-focused
+_Why it works_: JTBD language, clear hiring moment, outcome-focused
 
 ### Version 3: The Build-in-Public Story
 
 **"I'm at $15 MRR with 7 users, but I know exactly who we're for: the guy on Reddit asking 'meeting girlfriend's Japanese parents - what do I say?' 500 posts a month, zero good solutions. We're building the 'rehearse that exact moment' app and proving it with Reddit comments before we scale."**
 
-*Why it works*: Honesty (low MRR), clear distribution channel, proof of demand, founder authenticity
+_Why it works_: Honesty (low MRR), clear distribution channel, proof of demand, founder authenticity
 
 ---
 
@@ -54,19 +54,19 @@
 
 **"The $15B language learning market is actually a job market. People don't want to 'learn Japanese' - they want to pass a job interview, close a deal, or get their in-laws' approval. We're verticalizing language learning by outcome: relationship success. Our beachhead is 2M+ annual Google searches for 'meeting partner's parents' + 'language barrier.' We're the first to own rehearsal for high-stakes relationship conversations. Think Duolingo met The Knot."**
 
-*Why it works*: Market reframe (outcomes not courses), quantified demand (2M searches), clear comp (Duolingo x The Knot), category creation
+_Why it works_: Market reframe (outcomes not courses), quantified demand (2M searches), clear comp (Duolingo x The Knot), category creation
 
 ### Version 2: The Retention Story
 
 **"Language apps have a 95% annual churn problem because motivation dies after the streak ends. Our churn is zero because we're not selling a habit - we're solving a deadline. 'Meeting her parents in 3 weeks' creates natural urgency. We capture panicked Google searches, convert with scenario rehearsals, and expand to heritage language recovery and immigrant integration. Retention through life milestones, not gamification."**
 
-*Why it works*: Solves industry's biggest problem (churn), urgency-driven (deadlines), expansion story (milestones)
+_Why it works_: Solves industry's biggest problem (churn), urgency-driven (deadlines), expansion story (milestones)
 
 ### Version 3: The AI Differentiation
 
 **"Voice AI made tutors scalable but didn't solve the motivation problem. We're the first to combine voice AI with life event urgency: meet the parents, deliver a wedding toast, handle a medical emergency in-country. We're a pre-IPO pipeline for intercultural life moments. Series A use case: relationship conversations. Series B: expand to job interviews, citizenship tests, medical scenarios."**
 
-*Why it works*: Clear AI use case, milestone-based expansion, pre-IPO = long-term vision
+_Why it works_: Clear AI use case, milestone-based expansion, pre-IPO = long-term vision
 
 ---
 
@@ -76,19 +76,19 @@
 
 **"If you're meeting your partner's Japanese parents soon, you're probably Googling phrases right now and hoping you don't mess up. Here's the problem: you can't rehearse with your partner because they'll just say 'you'll be fine' - but you won't be fine, you'll freeze. We simulate that exact dinner: her mom asks about your job, dad asks about your plans, you need to compliment the food without sounding fake. You practice until it's muscle memory. Want me to send you the 'parents dinner' scenario? Takes 15 minutes."**
 
-*Why it works*: Calls out current behavior (Googling), names the exact fear (freezing), specific scenario (dinner questions), low-friction CTA (15 min)
+_Why it works_: Calls out current behavior (Googling), names the exact fear (freezing), specific scenario (dinner questions), low-friction CTA (15 min)
 
 ### For Heritage Language Learners
 
 **"If you grew up hearing Japanese but never speaking it, and your grandparents keep asking when you'll talk to them in Japanese - that shame never goes away, right? Every family gathering, you're on the outside. We don't teach textbook Japanese. We help you practice ONE conversation: 'Grandma, tell me about when you were young.' Or 'Dad, I want to understand your childhood stories.' You start with that. Not N5, not JLPT - just the one conversation you've been avoiding. We've helped 50+ heritage learners have their first real talk. Want to try the 'grandparent connection' scenario?"**
 
-*Why it works*: Names the shame, specific use case (one conversation), proof (50+ learners), clear CTA
+_Why it works_: Names the shame, specific use case (one conversation), proof (50+ learners), clear CTA
 
 ### For The Relationship Under Strain
 
 **"If your partner has started translating less because it's exhausting - if you notice they're not including you in big family conversations anymore - you're not losing language access, you're losing the relationship. We help you rehearse the conversations that rebuild trust: 'I want to talk to your mom myself' or 'Teach me how to apologize properly.' Not fluency - just enough to show you're trying. That effort matters more than perfect grammar."**
 
-*Why it works*: Names the decay (relationship strain), reframes the goal (effort not fluency), emotional stakes (trust)
+_Why it works_: Names the decay (relationship strain), reframes the goal (effort not fluency), emotional stakes (trust)
 
 ---
 
@@ -224,13 +224,13 @@ If they say "That's interesting" or "Cool idea" - your pitch failed.
 
 ## 📝 Quick Decision Matrix
 
-| Audience | Time | Use This Version | Goal |
-|----------|------|------------------|------|
-| Consumer at party | 10 sec | Consumer V1 or V2 | Head nod + "how do I try it?" |
-| Entrepreneur | 15 sec | Entrepreneur V2 (JTBD) | "What's your traction?" |
-| Investor (cold) | 20 sec | Investor V2 (retention) | Meeting request |
-| Targeted user | 30 sec | Targeted (matching persona) | Sign-up or demo request |
-| Random person | 3 sec | 3-Second V2 (flight sim) | Memorable metaphor |
+| Audience          | Time   | Use This Version            | Goal                          |
+| ----------------- | ------ | --------------------------- | ----------------------------- |
+| Consumer at party | 10 sec | Consumer V1 or V2           | Head nod + "how do I try it?" |
+| Entrepreneur      | 15 sec | Entrepreneur V2 (JTBD)      | "What's your traction?"       |
+| Investor (cold)   | 20 sec | Investor V2 (retention)     | Meeting request               |
+| Targeted user     | 30 sec | Targeted (matching persona) | Sign-up or demo request       |
+| Random person     | 3 sec  | 3-Second V2 (flight sim)    | Memorable metaphor            |
 
 ---
 

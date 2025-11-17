@@ -208,6 +208,7 @@ _This is part of building Kaiwa - a platform for practicing the conversations yo
 **Turn key quotes into Instagram graphics**:
 
 **Graphic 1**:
+
 ```
 "I just FELT the words instead of thinking about them."
 
@@ -215,12 +216,14 @@ _This is part of building Kaiwa - a platform for practicing the conversations yo
 ```
 
 **Graphic 2**:
+
 ```
 You don't need 1000 words.
 You need the RIGHT 10 words.
 ```
 
 **Graphic 3**:
+
 ```
 Perfect grammar doesn't build bridges.
 Sincere effort does.
@@ -237,6 +240,7 @@ Sincere effort does.
 ### Task 5: Share Case File Everywhere (30 min)
 
 **Reddit** (r/LearnJapanese, r/relationships):
+
 ```
 I've been helping people prepare to meet their partner's parents in Japanese. Here's what happened with one person I worked with.
 
@@ -248,6 +252,7 @@ If you're in a similar situation, I run free practice sessions. Happy to help.
 ```
 
 **LinkedIn**:
+
 ```
 Case File #1: How Maria prepared to meet her partner's parents in Japanese.
 
@@ -266,6 +271,7 @@ Read the full story 👇
 ```
 
 **Twitter Thread**:
+
 ```
 Case File #1: Maria was terrified to meet her Japanese boyfriend's parents.
 
@@ -277,6 +283,7 @@ Here's what happened: 🧵
 ```
 
 **Email List**:
+
 ```
 Subject: Case File #1 - "I just felt the words"
 

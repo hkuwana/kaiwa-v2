@@ -22,10 +22,12 @@
 ### Reddit Setup
 
 **Create accounts** (if you don't have them):
+
 - Personal account (your main account)
 - DO NOT create multiple accounts (against Reddit TOS)
 
 **Join these subreddits**:
+
 ```
 Essential (Japanese focus):
 - r/LearnJapanese
@@ -43,11 +45,13 @@ Language learning:
 ```
 
 **Read the rules** of each subreddit:
+
 - [ ] r/LearnJapanese - check self-promotion rules
 - [ ] r/movingtojapan - check posting frequency limits
 - [ ] r/relationships - check if you can mention external resources
 
 **Create a simple Reddit bio**:
+
 ```
 Building Kaiwa - helping people practice conversations they're afraid of (like meeting your partner's parents in their language).
 
@@ -65,6 +69,7 @@ Free Practice Labs every Saturday.
 **Username**: `@trykaiwa` or `@kaiwa_app` or `@kaiwa.practice`
 
 **Bio** (150 characters):
+
 ```
 Practice the conversations you're afraid of 🗣️
 Meeting partner's parents? We got you.
@@ -73,6 +78,7 @@ Free Practice Lab every Saturday 👇
 ```
 
 **Profile Setup**:
+
 - [ ] Profile picture: Kaiwa logo or simple brand color
 - [ ] Highlights: Create 3-4 highlights
   - "About" - What is Kaiwa
@@ -82,11 +88,13 @@ Free Practice Lab every Saturday 👇
 
 **Link in bio**:
 Use Linktree or Beacons (free) to include:
+
 - Practice Lab signup
 - Email signup (for prep guide)
 - Kaiwa website
 
 **Content Prep**:
+
 - [ ] Create 5 saved caption templates (more on this below)
 - [ ] Create 5 saved hashtag groups (more on this below)
 
@@ -99,6 +107,7 @@ Use Linktree or Beacons (free) to include:
 **Username**: `@trykaiwa` (match Instagram if possible)
 
 **Bio** (80 characters):
+
 ```
 Practice scary conversations 🗣️
 Meeting partner's parents in their language?
@@ -106,10 +115,12 @@ Link 👇
 ```
 
 **Profile Setup**:
+
 - [ ] Profile picture: Same as Instagram
 - [ ] Link: Same Linktree/Beacons link
 
 **Settings to adjust**:
+
 - [ ] Turn on comments
 - [ ] Turn on duets/stitches (for engagement)
 - [ ] Add "Business Account" (gives you analytics)
@@ -123,6 +134,7 @@ Link 👇
 **Best for**: Instagram + TikTok scheduling + basic analytics
 
 **Setup** (20 min):
+
 1. Go to later.com
 2. Sign up for free plan
 3. Connect Instagram account (authorize)
@@ -130,6 +142,7 @@ Link 👇
 5. Set your posting timezone
 
 **Features you'll use**:
+
 - Schedule Reels/TikToks 1 week ahead
 - Auto-publish to Instagram (Reels may need manual approval)
 - TikTok requires push notification to publish (Later reminds you)
@@ -147,12 +160,14 @@ Link 👇
 **Best for**: If you want Reddit post reminders + IG/TikTok scheduling
 
 **Setup** (20 min):
+
 1. Go to metricool.com
 2. Sign up for free plan
 3. Connect Instagram + TikTok
 4. Add Reddit (manual reminders only - Reddit doesn't allow auto-posting)
 
 **Features you'll use**:
+
 - Schedule IG + TikTok
 - Reddit "reminder" feature (tells you when to post, but you do it manually)
 - Better analytics than Later
@@ -167,11 +182,13 @@ Link 👇
 **Best for**: If you want more control and customization
 
 **Setup** (20 min):
+
 1. Go to publer.io
 2. Free plan: 3 social accounts, 10 posts/month
 3. Connect Instagram + TikTok (save Reddit for manual posting)
 
 **Features**:
+
 - Schedule + auto-publish
 - Preview exactly how posts will look
 - Hashtag manager
@@ -182,6 +199,7 @@ Link 👇
 ### My Recommendation: Start with Later
 
 **Why**:
+
 - Cleanest interface
 - Instagram-focused (where you'll get best engagement)
 - TikTok integration is solid
@@ -236,6 +254,7 @@ Link 👇
 
 **Template 1 - Problem Hook**:
 ```
+
 POV: Meeting your [language] partner's parents tomorrow and you're terrified 😰
 
 Here's what actually matters:
@@ -246,10 +265,12 @@ Save this for when you need it 💾
 What's YOUR situation? Comment below 👇
 
 #languagelearning #[language] #bilingualcouple
+
 ```
 
 **Template 2 - Value First**:
 ```
+
 3 phrases that matter more than perfect grammar when meeting your partner's parents:
 
 [Content]
@@ -259,10 +280,12 @@ Which one do you need help with?
 Practice Lab this Saturday - link in bio 🔗
 
 #languagelearning #meetingtheparents
+
 ```
 
 **Template 3 - Story Hook**:
 ```
+
 Last week, someone told me: "[Quote from user]"
 
 Here's what we worked on:
@@ -273,7 +296,9 @@ The result: [Outcome]
 If you're in this situation, [CTA]
 
 #buildinginpublic #languagelearning
+
 ```
+
 ```
 
 **Save this document** - you'll reference it daily.
@@ -287,27 +312,32 @@ If you're in this situation, [CTA]
 Instead of creating content daily, batch it:
 
 **Wednesday (2 hours) - Filming Day**:
+
 - Film 5-7 TikToks/Reels at once (same outfit, same location)
 - Use the same setup each time (faster)
 - Film more than you need (you'll have backup)
 
 **Thursday (1 hour) - Editing Day**:
+
 - Edit all videos
 - Add captions/text overlays
 - Export in correct formats
 
 **Friday (30 min) - Scheduling Day**:
+
 - Upload to Later/Metricool
 - Schedule for next week (Mon-Sun)
 - Write captions using your templates
 - Add hashtag groups
 
 **Daily (15-30 min) - Reddit Engagement**:
+
 - Find 1-2 relevant threads
 - Leave thoughtful comments
 - Respond to any replies from previous comments
 
 **Saturday (2 hours) - Practice Lab**:
+
 - Host session
 - Film testimonials or recap
 
@@ -322,6 +352,7 @@ Let's create your first week of content RIGHT NOW.
 ### Film 5 Videos (60 min)
 
 Set up once:
+
 - [ ] Find good lighting (near window)
 - [ ] Neutral background
 - [ ] Phone on tripod or stack of books
@@ -331,9 +362,10 @@ Set up once:
 
 > **NEW APPROACH (Based on proven strategy):** Simple walking videos with AI voiceover or text overlay. No need to speak to camera. Just authentic footage of you walking in Japan with text/voiceover about your app.
 >
-> **Why this works:** Cali's best performing creative was "just like a f****** half second reel of me or Sunny walking down the street saying like my life changed when I started talking to my AI therapist with like Bad Bunny's song over it."
+> **Why this works:** Cali's best performing creative was "just like a f**\*\*** half second reel of me or Sunny walking down the street saying like my life changed when I started talking to my AI therapist with like Bad Bunny's song over it."
 
 **Setup:**
+
 - Walk in an interesting location in Japan (street, park, train station)
 - Film yourself from behind or side angle (authentic, not staged)
 - Add text overlay OR AI voiceover
@@ -343,6 +375,7 @@ Set up once:
 ---
 
 **Video 1: The Core Problem**
+
 ```
 [Walking footage: You walking down a Tokyo street]
 
@@ -363,11 +396,13 @@ Kaiwa helps you practice those moments
 
 Free practice lab this Saturday"
 ```
+
 Music: Something moody/emotional (trending sound)
 
 ---
 
 **Video 2: The Relatable Moment**
+
 ```
 [Walking footage: You walking through Shibuya crossing or busy area]
 
@@ -390,11 +425,13 @@ Practice the conversations that matter
 
 Link in bio"
 ```
+
 Music: Something that builds tension
 
 ---
 
 **Video 3: The Transformation**
+
 ```
 [Walking footage: You walking in a quieter neighborhood]
 
@@ -417,11 +454,13 @@ The good kind
 
 This is what I built it for"
 ```
+
 Music: Emotional/uplifting
 
 ---
 
 **Video 4: The Reality**
+
 ```
 [Walking footage: You walking past a restaurant or family setting]
 
@@ -440,11 +479,13 @@ Kaiwa: practice the moments that matter
 
 Saturday free practice lab"
 ```
+
 Music: Chill/authentic vibe
 
 ---
 
 **Video 5: The Invitation**
+
 ```
 [Walking footage: You walking toward camera then past it]
 
@@ -467,11 +508,13 @@ Real life
 
 Join us Saturday - link in bio"
 ```
+
 Music: Confident/inviting
 
 ---
 
 **Filming tips:**
+
 - Film all 5 in ONE session (30-45 min total)
 - Just walk naturally - no need to perform
 - Get 2-3 takes of each location
@@ -485,6 +528,7 @@ Music: Confident/inviting
 Use CapCut (free, easy) - **Two options:**
 
 **Option A: Text Overlay (Easier)**
+
 1. Import walking footage
 2. Trim to 30-45 seconds (keep most engaging part)
 3. Add trending music from CapCut library
@@ -493,6 +537,7 @@ Use CapCut (free, easy) - **Two options:**
 6. Export in 9:16 format
 
 **Option B: AI Voiceover (More engaging)**
+
 1. Import walking footage
 2. Trim to 30-45 seconds
 3. Add text-to-speech (CapCut has AI voices): Tap "Text" → "Text to speech"
@@ -529,6 +574,7 @@ Do this for all 5 videos.
 ## Part 6: Reddit Strategy (Manual, Not Automated)
 
 Reddit CANNOT and SHOULD NOT be automated. Here's why:
+
 - Auto-posting = instant ban
 - Reddit rewards genuine engagement
 - Your customers are ACTIVELY asking for help
@@ -536,6 +582,7 @@ Reddit CANNOT and SHOULD NOT be automated. Here's why:
 **Instead: Daily Reddit Ritual** (20 min/day)
 
 ### Morning Routine (10 min):
+
 1. Check your saved subreddits
 2. Sort by "New" (catch threads early)
 3. Find 1-2 threads where someone asks about:
@@ -545,6 +592,7 @@ Reddit CANNOT and SHOULD NOT be automated. Here's why:
 4. Bookmark them
 
 ### Evening Routine (10 min):
+
 1. Write thoughtful 200-300 word responses
 2. Use your templates (from Day 1-7 plans)
 3. Post
@@ -559,22 +607,26 @@ Reddit CANNOT and SHOULD NOT be automated. Here's why:
 ### Instagram Reels
 
 **Best times to post** (test these):
+
 - Mon-Fri: 6-9am, 12-2pm, 7-9pm
 - Sat-Sun: 10am-12pm
 
 **Hashtags**: 5-10 relevant (don't stuff 30)
 
 **First 3 seconds**: Hook or they'll scroll
+
 - "POV: Meeting partner's parents tomorrow..."
 - "3 things NOT to say when..."
 - "The mistake everyone makes..."
 
 **Captions**:
+
 - First line must hook (shows in feed)
 - Use line breaks for readability
 - End with question (drives comments)
 
 **Engagement hack**:
+
 - Respond to EVERY comment in first hour
 - Ask questions back
 - Pin best comments
@@ -584,14 +636,17 @@ Reddit CANNOT and SHOULD NOT be automated. Here's why:
 ### TikTok
 
 **Best times to post** (test these):
+
 - 6-9am, 11am-1pm, 7-11pm (when people scroll)
 
 **Hashtags**: 3-5 max
+
 - 1 big hashtag (#languagelearning - 1M+ views)
 - 2 medium (#learnJapanese - 100K views)
 - 2 niche (#meetingtheparents - 10K views)
 
 **Algorithm tips**:
+
 - First 3 hours = critical (engage with everyone)
 - Reply to comments with videos (boosts engagement)
 - Watch time matters (hook in 2 seconds)
@@ -599,6 +654,7 @@ Reddit CANNOT and SHOULD NOT be automated. Here's why:
 
 **Pinned Comment**:
 Always pin this comment first:
+
 ```
 Want the full script + practice guide? Comment "GUIDE" 👇
 
@@ -610,21 +666,25 @@ Or join free Practice Lab this Saturday - link in bio!
 ### Reddit
 
 **Best times to post**:
+
 - 7-9am EST (catch morning browsers)
 - 12-2pm EST (lunch scroll)
 - 8-11pm EST (evening scroll)
 
 **Comment strategy**:
+
 - Be FIRST (sort by New)
 - Be HELPFUL (don't pitch)
 - Be SPECIFIC (give exact phrases, not vague advice)
 
 **Karma building**:
+
 - Give more than you take (10:1 ratio helpful:promotional)
 - Crosspost carefully (read rules first)
 - Never link to Kaiwa in original post (only if asked)
 
 **Red flags to avoid**:
+
 - Multiple posts in same day = spam
 - Same comment copy-pasted = ban
 - Link-dropping without value = downvoted
@@ -636,15 +696,18 @@ Or join free Practice Lab this Saturday - link in bio!
 Now that automation is SET UP, here's your actual Day 1:
 
 **Morning** (30 min):
+
 - [ ] Check Later - confirm first video posts today
 - [ ] Find 2 Reddit threads
 - [ ] Bookmark them
 
 **Afternoon** (30 min):
+
 - [ ] Write 2 Reddit comments (post them)
 - [ ] Respond to any IG/TikTok comments from today's video
 
 **Evening** (30 min):
+
 - [ ] Engage with 10 videos on TikTok (comment genuinely)
 - [ ] Check video performance
 - [ ] Update your tracker
@@ -668,6 +731,7 @@ Now that automation is SET UP, here's your actual Day 1:
 ## Tools Summary & Costs
 
 **Free Tools** (Start with these):
+
 - Later.com (free tier: 10 posts/month per platform)
 - CapCut (free video editor)
 - Canva (free - for text overlays if needed)
@@ -675,6 +739,7 @@ Now that automation is SET UP, here's your actual Day 1:
 - Google Sheets or Notion (free content hub)
 
 **Paid (When you scale)**:
+
 - Later Social $18/mo (30 posts/platform)
 - Metricool $12/mo (unlimited posts, better analytics)
 
@@ -690,6 +755,7 @@ Now that automation is SET UP, here's your actual Day 1:
 4. **Going forward**: Use weekly rhythm above
 
 You'll have:
+
 - ✅ 1 week of content scheduled
 - ✅ Automation set up
 - ✅ Simple daily routine (30-60 min)
@@ -700,17 +766,20 @@ You'll have:
 ## Quick Reference: Your Daily Routine
 
 **15-minute version** (minimum viable):
+
 - Check scheduled post (auto-posts)
 - Respond to comments
 - 1 Reddit comment
 
 **30-minute version** (recommended):
+
 - Check scheduled posts
 - Respond to ALL comments
 - 2 Reddit comments
 - Engage with 5-10 other creators
 
 **60-minute version** (if you have time):
+
 - All of the above
 - Plus: Extra Reddit thread engagement
 - Plus: Story posts on IG

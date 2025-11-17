@@ -24,12 +24,13 @@ Check the `.md` files in this directory for archived documentation. Common archi
 
 - **archive-YYYY-MM-DD-analysis.md** - Past analyses
 - **archive-YYYY-MM-roadmap.md** - Old roadmaps
-- **archive-documentation-*.md** - Documentation status snapshots
-- **archive-proposed-*.md** - Proposals that were replaced
+- **archive-documentation-\*.md** - Documentation status snapshots
+- **archive-proposed-\*.md** - Proposals that were replaced
 
 ## 🔍 Finding What You Need
 
 If you're looking for **current** documentation:
+
 - **Architecture** → [../1-core/](../1-core/)
 - **Guides** → [../2-guides/](../2-guides/)
 - **Features** → [../3-features/](../3-features/)

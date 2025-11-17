@@ -5,6 +5,7 @@
 ## 📚 Documents in This Section
 
 ### [marketing.md](marketing.md)
+
 **Overall marketing strategy and execution**
 
 - 📣 Marketing channels and tactics
@@ -17,6 +18,7 @@
 ---
 
 ### [corporate-identity.md](corporate-identity.md)
+
 **Brand, messaging, and positioning**
 
 - 🎨 Brand identity and voice
@@ -29,6 +31,7 @@
 ---
 
 ### [founder-emails.md](founder-emails.md)
+
 **Founder email outreach strategy**
 
 - 📧 Email sequence design
@@ -41,6 +44,7 @@
 ---
 
 ### [icp-personas.md](icp-personas.md)
+
 **Ideal customer profiles and targeting**
 
 - 👥 Customer personas
@@ -55,6 +59,7 @@
 ## 🎯 When to Use This Section
 
 **Use strategy docs when:**
+
 - Planning marketing campaigns
 - Creating content
 - Defining positioning
@@ -62,6 +67,7 @@
 - Making business decisions
 
 **Don't use for:**
+
 - Technical implementation → See [../1-core/](../1-core/)
 - Development guides → See [../2-guides/](../2-guides/)
 - Feature specs → See [../3-features/](../3-features/)
@@ -79,6 +85,7 @@
 ## ✍️ Contributing
 
 When adding strategy docs:
+
 1. **Be actionable**: Strategy should guide decisions
 2. **Stay aligned**: Connect to product philosophy
 3. **Update regularly**: Strategy evolves with the market

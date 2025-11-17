@@ -17,6 +17,7 @@
 - Respond to everyone who engaged
 
 **Quick Response Template**:
+
 ```
 Thanks for sharing this! [Reference their specific point]
 
@@ -30,6 +31,7 @@ Let me know if you want more specific help with your situation.
 ### Task 2: Post 2 More Reddit Comments (40 min)
 
 Find 2 new threads about:
+
 - Meeting partner's family
 - Language anxiety in relationships
 - Bilingual relationship challenges
@@ -87,6 +89,7 @@ You need sincere Japanese.
 ```
 
 **Filming Tips**:
+
 - Record on your phone in vertical format
 - Use good lighting (natural light near window is best)
 - Text overlay with the Japanese phrases
@@ -100,17 +103,20 @@ You need sincere Japanese.
 ### Task 4: Edit & Post Video (30 min)
 
 **Editing** (use CapCut or TikTok built-in editor):
+
 - Add text overlays for each phrase
 - Add captions/subtitles
 - Add gentle background music (search "calm instrumental" in TikTok)
 - Use these hashtags:
 
 **Hashtags to Use**:
+
 ```
 #languagelearning #japanese #bilingualcouple #meetingtheparents #japaneselearning #relationshipgoals #languageanxiety #learnontiktok
 ```
 
 **Caption**:
+
 ```
 Meeting your partner's parents in their language is terrifying.
 
@@ -130,6 +136,7 @@ Which one resonates most with you? 👇
 ### Task 5: Share Your Video Across Platforms (15 min)
 
 **LinkedIn Post**:
+
 ```
 Just posted my first short-form video about preparing to meet your partner's parents in their language.
 
@@ -143,6 +150,7 @@ What's the ONE phrase you wish you knew how to say?
 ```
 
 **Twitter Post**:
+
 ```
 Made my first TikTok about meeting your partner's Japanese parents.
 
@@ -159,12 +167,14 @@ What language conversation are YOU preparing for?
 ### Task 6: Engage with 5 Similar Videos (15 min)
 
 **Action**: Find 5 videos on TikTok about:
+
 - Language learning
 - Bilingual relationships
 - Japanese learning
 - Meeting the parents
 
 **Leave thoughtful comments**:
+
 ```
 This is so accurate! The [specific thing they mentioned] is exactly what I experienced.
 

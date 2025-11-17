@@ -17,6 +17,7 @@ This documentation follows a **category-based hierarchy** inspired by PostHog an
 ## 📂 Directory Structure
 
 ### **1-core/** → Architecture & Fundamentals
+
 **Purpose**: Long-lasting technical architecture documents
 **When to use**: Foundational system design, database schemas, core patterns
 
@@ -30,6 +31,7 @@ This documentation follows a **category-based hierarchy** inspired by PostHog an
 ```
 
 **Key docs**:
+
 - Start with `architecture.md` for system overview
 - Check `database-schema.md` for data model
 - Read `repositories.md` for data access patterns
@@ -37,6 +39,7 @@ This documentation follows a **category-based hierarchy** inspired by PostHog an
 ---
 
 ### **2-guides/** → How-To Guides
+
 **Purpose**: Step-by-step instructions for developers
 **When to use**: Setting up environments, testing, integrations
 
@@ -51,6 +54,7 @@ This documentation follows a **category-based hierarchy** inspired by PostHog an
 ```
 
 **Key docs**:
+
 - New devs start with `dev-setup.md`
 - Writing docs? Read `documentation-convention.md`
 - API integration? Check `api-reference.md`
@@ -58,6 +62,7 @@ This documentation follows a **category-based hierarchy** inspired by PostHog an
 ---
 
 ### **3-features/** → Feature Documentation
+
 **Purpose**: Specific product features and implementations
 **When to use**: Understanding or working on a specific feature
 
@@ -72,12 +77,14 @@ This documentation follows a **category-based hierarchy** inspired by PostHog an
 ```
 
 **Key docs**:
+
 - Each feature has its own doc with architecture, examples, and gotchas
 - Check the README.md index to find your feature quickly
 
 ---
 
 ### **4-strategy/** → Business & Marketing
+
 **Purpose**: Business strategy, marketing plans, positioning
 **When to use**: Marketing decisions, content creation, business planning
 
@@ -91,6 +98,7 @@ This documentation follows a **category-based hierarchy** inspired by PostHog an
 ```
 
 **Key docs**:
+
 - Creating content? Start with `marketing.md`
 - Defining messaging? Read `corporate-identity.md`
 - Targeting users? Check `icp-personas.md`
@@ -98,6 +106,7 @@ This documentation follows a **category-based hierarchy** inspired by PostHog an
 ---
 
 ### **5-processes/** → Workflows & Checklists
+
 **Purpose**: Repeatable processes and templates
 **When to use**: Running demos, testing, interviews, experiments
 
@@ -111,6 +120,7 @@ This documentation follows a **category-based hierarchy** inspired by PostHog an
 ```
 
 **Key docs**:
+
 - Running a demo? Use `demo-checklist.md`
 - User interview? Follow `user-interview-template.md`
 - Quick validation? Run `smoke-testing.md`
@@ -118,6 +128,7 @@ This documentation follows a **category-based hierarchy** inspired by PostHog an
 ---
 
 ### **6-logs/** → Time-Based Tracking
+
 **Purpose**: Chronological logs, migrations, feedback tracking
 **When to use**: Tracking progress, migration history, weekly updates
 
@@ -135,6 +146,7 @@ This documentation follows a **category-based hierarchy** inspired by PostHog an
 ```
 
 **Key docs**:
+
 - Recent progress? Check `weekly-updates/`
 - Migration history? See `migrations/`
 - User feedback? Go to `feedback/`
@@ -142,6 +154,7 @@ This documentation follows a **category-based hierarchy** inspired by PostHog an
 ---
 
 ### **7-archive/** → Historical Documents
+
 **Purpose**: Point-in-time documents that are no longer actively maintained
 **When to use**: Historical context, past analyses, deprecated docs
 
@@ -154,6 +167,7 @@ This documentation follows a **category-based hierarchy** inspired by PostHog an
 ```
 
 **Key docs**:
+
 - These are **read-only** historical records
 - Dated format: `YYYY-MM-DD-description.md`
 - Not for active reference
@@ -164,13 +178,13 @@ This documentation follows a **category-based hierarchy** inspired by PostHog an
 
 ### **Quick Reference by Role**
 
-| Role | Start Here | Then Read |
-|------|-----------|-----------|
-| **New Developer** | `2-guides/dev-setup.md` | `1-core/architecture.md` |
-| **Feature Work** | `3-features/[feature].md` | `1-core/repositories.md` |
-| **Marketing/Content** | `4-strategy/marketing.md` | `4-strategy/corporate-identity.md` |
-| **Product Decisions** | `1-core/philosophy.md` | `4-strategy/icp-personas.md` |
-| **Testing/QA** | `5-processes/smoke-testing.md` | `2-guides/testing-strategy.md` |
+| Role                  | Start Here                     | Then Read                          |
+| --------------------- | ------------------------------ | ---------------------------------- |
+| **New Developer**     | `2-guides/dev-setup.md`        | `1-core/architecture.md`           |
+| **Feature Work**      | `3-features/[feature].md`      | `1-core/repositories.md`           |
+| **Marketing/Content** | `4-strategy/marketing.md`      | `4-strategy/corporate-identity.md` |
+| **Product Decisions** | `1-core/philosophy.md`         | `4-strategy/icp-personas.md`       |
+| **Testing/QA**        | `5-processes/smoke-testing.md` | `2-guides/testing-strategy.md`     |
 
 ### **Search Tips**
 
@@ -194,6 +208,7 @@ ls docs/1-core/
 Format: `category-topic.md` (all lowercase, kebab-case)
 
 **Examples**:
+
 - ✅ `feature-realtime-conversation.md`
 - ✅ `guide-stripe-setup.md`
 - ✅ `process-demo-checklist.md`
@@ -210,25 +225,30 @@ Every doc should have:
 > **Quick Summary**: One-sentence description of what this doc covers
 
 ## 🎯 Purpose
+
 - Bullet point 1
 - Bullet point 2
 
 ## 📋 Contents
+
 [Table of contents for longer docs]
 
 ## Main Sections
+
 - Use clear headers
 - Include code examples
 - Add visual aids (diagrams, tables)
 - Keep it skimmable
 
 ## See Also
+
 - Link to related docs
 ```
 
 ### **Formatting for Skimmability**
 
 ✅ **DO**:
+
 - Use bullet points for lists
 - Add emoji section markers (📌 🎯 ⚠️ ✅ ❌)
 - Include code examples
@@ -236,6 +256,7 @@ Every doc should have:
 - Add "See Also" links
 
 ❌ **DON'T**:
+
 - Write long paragraphs
 - Bury key info
 - Skip examples
@@ -256,6 +277,7 @@ Every doc should have:
 ### **When to Archive**
 
 Move to `7-archive/` when:
+
 - Document is no longer actively used
 - Information is outdated but has historical value
 - Replacing with newer version
@@ -264,6 +286,7 @@ Move to `7-archive/` when:
 ### **Migration Checklist**
 
 When adding new docs:
+
 1. ✅ Determine correct category (1-7)
 2. ✅ Follow naming convention
 3. ✅ Add to folder's README.md index
@@ -277,13 +300,13 @@ When adding new docs:
 
 ### **I need to...**
 
-| Action | Command/Location |
-|--------|------------------|
-| **Find all docs** | `ls -R docs/` |
-| **Search for topic** | `grep -r "topic" docs/` |
-| **See recent changes** | `git log --oneline docs/` |
-| **Add new doc** | Follow naming convention, update folder README |
-| **Archive old doc** | Move to `7-archive/`, update indexes |
+| Action                 | Command/Location                               |
+| ---------------------- | ---------------------------------------------- |
+| **Find all docs**      | `ls -R docs/`                                  |
+| **Search for topic**   | `grep -r "topic" docs/`                        |
+| **See recent changes** | `git log --oneline docs/`                      |
+| **Add new doc**        | Follow naming convention, update folder README |
+| **Archive old doc**    | Move to `7-archive/`, update indexes           |
 
 ---
 

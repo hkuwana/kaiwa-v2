@@ -137,5 +137,5 @@ export function setSelectedSpeakerIdCookie(speakerId: string): void {
  * Clear all preference cookies
  */
 export function clearPreferenceCookies(): void {
-	Object.values(COOKIE_NAMES).forEach(name => deleteCookie(name));
+	Object.values(COOKIE_NAMES).forEach((name) => deleteCookie(name));
 }

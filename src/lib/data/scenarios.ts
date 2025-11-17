@@ -61,12 +61,14 @@ Coach warmly. Avoid lists. Build confidence in ~5 minutes.`,
 	{
 		id: 'onboarding-welcome',
 		title: 'Free Practice Mode',
-		description: 'Practice any phrases you want in your target language in a safe, judgment-free space.',
+		description:
+			'Practice any phrases you want in your target language in a safe, judgment-free space.',
 		role: 'tutor',
 		difficulty: 'beginner',
 		difficultyRating: 1,
 		cefrLevel: 'A1',
-		learningGoal: 'Build confidence by practicing specific phrases in your target language and getting instant feedback in a low-pressure sandbox',
+		learningGoal:
+			'Build confidence by practicing specific phrases in your target language and getting instant feedback in a low-pressure sandbox',
 		instructions: `You are a friendly native speaker in a safe practice sandbox. Speak entirely in the learner's target language throughout this session. Your role is to:
 
 1. **Greet warmly** and set the tone, asking what they'd like to practice today in their target language.
@@ -97,8 +99,10 @@ Coach warmly. Avoid lists. Build confidence in ~5 minutes.`,
    - Only provide native-language translations when explicitly helping with a difficult word
 
 This is a judgment-free zone. No pressure, just practice.`,
-		context: 'A cozy, relaxed virtual space. No stakes, no formal lesson—just a native speaker who is genuinely happy to help you practice whatever phrases you want to work on.',
-		expectedOutcome: 'Leave with 2–3 new phrases in your target language you feel confident saying, and a sense that you can ask for help anytime',
+		context:
+			'A cozy, relaxed virtual space. No stakes, no formal lesson—just a native speaker who is genuinely happy to help you practice whatever phrases you want to work on.',
+		expectedOutcome:
+			'Leave with 2–3 new phrases in your target language you feel confident saying, and a sense that you can ask for help anytime',
 		learningObjectives: [
 			'phrase acquisition on demand',
 			'conversational target language exposure',
@@ -168,7 +172,7 @@ This is a judgment-free zone. No pressure, just practice.`,
 	},
 	{
 		id: 'inlaws-family-friends-intro',
-		title: "Meeting Family Friends",
+		title: 'Meeting Family Friends',
 		description:
 			"Meet family friends for the first time as your partner's sibling explains the web of relationships.",
 		role: 'character',

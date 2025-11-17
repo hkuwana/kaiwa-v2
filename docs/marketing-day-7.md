@@ -56,6 +56,7 @@ P.S. If you can't make it last minute, no worries - just let me know and I'll in
 ### Task 2: Set Up Your Space (15 min)
 
 **Technical setup**:
+
 - [ ] Test Zoom audio and video
 - [ ] Close unnecessary tabs/apps
 - [ ] Have water nearby
@@ -63,6 +64,7 @@ P.S. If you can't make it last minute, no worries - just let me know and I'll in
 - [ ] Have your prep materials open in another tab
 
 **Environment**:
+
 - [ ] Good lighting (face a window if possible)
 - [ ] Quiet space
 - [ ] Neutral background (or use Zoom virtual background)
@@ -144,6 +146,7 @@ Sound good? Let's start with quick intros..."
 ### Task 5: Mental Prep (15 min)
 
 **Reminder to yourself**:
+
 - You don't need to be perfect
 - You're facilitating, not lecturing
 - Their success is your success
@@ -161,22 +164,26 @@ Sound good? Let's start with quick intros..."
 **1. Start on time** (don't wait for latecomers)
 
 **2. Make it conversational**, not a lecture
+
 - Ask questions: "Has anyone experienced this?"
 - Get people talking to each other
 - Share stories and examples
 
 **3. Read the room**
+
 - If people are quiet, that's okay - don't force participation
 - If someone is dominating, gently redirect: "Great question! Let's hear from others too."
 - If energy is low, take a 2-minute break
 
 **4. Take notes during the session**
+
 - What questions came up multiple times?
 - What advice resonated most?
 - What was confusing?
 - Any testimonial-worthy moments?
 
 **5. End with gratitude**
+
 - Thank them for trusting you with their time
 - Remind them: "You've got this. You're more prepared than you think."
 
@@ -392,6 +399,7 @@ Just let me know what's helpful!
 ## Week 1 Complete! 🎉
 
 **What you accomplished this week**:
+
 - Built your feedback tracker
 - Posted helpful content on Reddit, LinkedIn, Twitter
 - Created 2 videos
@@ -400,6 +408,7 @@ Just let me know what's helpful!
 - Gathered invaluable product insights
 
 **Week 1 Metrics to Review**:
+
 - How many people engaged with your content?
 - How many warm leads in your tracker?
 - How many Practice Lab attendees?

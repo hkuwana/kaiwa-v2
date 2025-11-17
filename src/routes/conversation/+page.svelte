@@ -281,11 +281,10 @@
 	}
 </script>
 
-
 {#if status === 'static'}
 	<!-- Static view of existing conversation -->
 	<div class="min-h-[100dvh] bg-gradient-to-br from-base-100 to-base-200">
-		<div class="container mx-auto flex h-[100dvh] box-border max-w-4xl flex-col px-4 py-4">
+		<div class="container mx-auto box-border flex h-[100dvh] max-w-4xl flex-col px-4 py-4">
 			<!-- Header for static view -->
 			<div class="mb-4 flex-shrink-0">
 				<div class="card bg-base-100 shadow-lg">
@@ -361,7 +360,7 @@
 	</div>
 {:else if status === 'error'}
 	<!-- Use new ErrorState component -->
-	<div class="min-h-[100dvh] box-border bg-gradient-to-br from-base-100 to-base-200 px-4 py-8">
+	<div class="box-border min-h-[100dvh] bg-gradient-to-br from-base-100 to-base-200 px-4 py-8">
 		<!-- Stage Indicator -->
 		<div class="mb-3 sm:mb-8">
 			<StageIndicator currentStage="chat" />
@@ -375,7 +374,7 @@
 	</div>
 {:else if status === 'analyzing'}
 	<!-- Show loading state while redirecting to analysis -->
-	<div class="min-h-[100dvh] box-border bg-gradient-to-br from-base-100 to-base-200 px-4 py-8">
+	<div class="box-border min-h-[100dvh] bg-gradient-to-br from-base-100 to-base-200 px-4 py-8">
 		<!-- Stage Indicator -->
 		<div class="mb-3 sm:mb-8">
 			<StageIndicator currentStage="chat" />

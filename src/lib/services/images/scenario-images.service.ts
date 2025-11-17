@@ -56,19 +56,14 @@ const CATEGORY_SEARCH_TERMS: Record<ScenarioCategory, string[]> = {
  * Watercolor-inspired gradient palettes by category
  */
 const WATERCOLOR_GRADIENTS: Record<ScenarioCategory, string> = {
-	relationships:
-		'linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #ff9a9e 100%)', // Warm pinks/peach
-	professional:
-		'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 50%, #fddb92 100%)', // Cool blues to gold
+	relationships: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #ff9a9e 100%)', // Warm pinks/peach
+	professional: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 50%, #fddb92 100%)', // Cool blues to gold
 	travel: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #a1c4fd 100%)', // Sunrise colors
-	education:
-		'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 50%, #fdcbf1 100%)', // Soft purples/blues
+	education: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 50%, #fdcbf1 100%)', // Soft purples/blues
 	health: 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 50%, #a8edea 100%)', // Fresh greens/aqua
 	daily_life: 'linear-gradient(135deg, #fff1eb 0%, #ace0f9 50%, #ffeaa7 100%)', // Neutral pastels
-	entertainment:
-		'linear-gradient(135deg, #fa709a 0%, #fee140 50%, #30cfd0 100%)', // Vibrant multi-color
-	food_drink:
-		'linear-gradient(135deg, #fddb92 0%, #d1913c 50%, #ffeaa7 100%)', // Warm yellows/golds
+	entertainment: 'linear-gradient(135deg, #fa709a 0%, #fee140 50%, #30cfd0 100%)', // Vibrant multi-color
+	food_drink: 'linear-gradient(135deg, #fddb92 0%, #d1913c 50%, #ffeaa7 100%)', // Warm yellows/golds
 	services: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 50%, #96deda 100%)', // Calm teals
 	emergency: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #ffecd2 100%)' // Soft alert colors
 };
@@ -85,9 +80,7 @@ export function getWatercolorGradient(category: ScenarioCategory): string {
  * Fetch watercolor-style image from Unsplash API
  * Requires UNSPLASH_ACCESS_KEY in environment
  */
-async function fetchUnsplashImage(
-	searchTerms: string[]
-): Promise<ImageSearchResult | null> {
+async function fetchUnsplashImage(searchTerms: string[]): Promise<ImageSearchResult | null> {
 	const accessKey = env.UNSPLASH_ACCESS_KEY;
 	if (!accessKey) {
 		console.warn('UNSPLASH_ACCESS_KEY not configured, skipping Unsplash');

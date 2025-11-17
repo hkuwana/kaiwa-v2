@@ -12,6 +12,7 @@
 > **Before you start Day 1**, consider starting with 3-5 friends as your founding members. This creates social proof and community before adding strangers.
 
 **Why Friends First:**
+
 - They set the tone (active group > empty group)
 - They give honest feedback
 - They help onboard strangers later
@@ -22,6 +23,7 @@
 ### Week 1: DM 3-5 Friends
 
 **Template to DM your friends:**
+
 ```
 Hey! Quick ask:
 
@@ -44,6 +46,7 @@ First 10 spots only. Let me know!
 ```
 
 **When 2-3 friends say yes:**
+
 1. Create WhatsApp group: `Kaiwa Founding Members 🗣️`
 2. Add your friends
 3. Post welcome message (see [whatsapp-founding-member-strategy.md](../src/lib/docs/whatsapp-founding-member-strategy.md))
@@ -51,6 +54,7 @@ First 10 spots only. Let me know!
 ### Week 2+: Add Strangers to Active Group
 
 Once you have 3-5 friends active:
+
 - Add strangers from Practice Lab, Reddit, etc.
 - They join an already-active community
 - Friends help welcome and onboard them
@@ -76,6 +80,7 @@ Name | Persona | Signal | Acquisition Source | Last Contacted | Next Touch | Sta
 **Action**: Open Google Sheets and create this tracker now. You'll use it daily.
 
 **New column: WhatsApp Member?**
+
 - Track who's in your founding member WhatsApp group
 - This helps you know who to engage with via WhatsApp vs other channels
 - Mark "Yes" when you add them to the group
@@ -85,12 +90,14 @@ Name | Persona | Signal | Acquisition Source | Last Contacted | Next Touch | Sta
 ### Task 2: Find Your First 5 Reddit Threads (40 min)
 
 **Search Terms to Use**:
+
 - "meet (her|his|their) parents" AND (Japanese|Japan)
 - "Japanese girlfriend parents"
 - "language barrier relationship"
 - "meeting Japanese family"
 
 **Subreddits to Check**:
+
 - r/LearnJapanese
 - r/movingtojapan
 - r/relationships
@@ -171,6 +178,7 @@ If you've ever felt stuck between languages and the people you love, I'd love to
 ### Task 5: Update Your Tracker
 
 Add any responses you got:
+
 - Did anyone reply to your Reddit comment?
 - Did anyone comment on LinkedIn?
 - Add them to your tracker with "warm lead" status
@@ -178,6 +186,7 @@ Add any responses you got:
 ### Task 6: Plan Tomorrow
 
 **Tomorrow you'll**:
+
 - Reply to any comments from today
 - Find 3 more Reddit threads
 - Create your first TikTok/Reel outline

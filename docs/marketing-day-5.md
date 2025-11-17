@@ -12,6 +12,7 @@
 ### Task 1: Morning Engagement Routine (30 min)
 
 Check and respond to:
+
 - Email replies from yesterday
 - Reddit comments
 - TikTok/Reel comments
@@ -57,10 +58,12 @@ Remember: They're watching HOW you try, not IF you're perfect.
 ### Task 3: Reddit Announcement Post (30 min)
 
 **Choose the best subreddit** (check rules first):
+
 - r/LearnJapanese
 - r/movingtojapan
 
 **Post Title**:
+
 ```
 Free Practice Lab This Saturday: "Meeting Your Partner's Japanese Parents" - Rehearsal + Scripts + Cultural Tips
 ```
@@ -220,6 +223,7 @@ Building Kaiwa in public, Day 5.
 ### Task 7: Engage with 5 People (15 min)
 
 Find 5 people who:
+
 - Liked/commented on your video from this morning
 - Engaged with yesterday's content
 - Are in similar spaces (language learning, bilingual relationships)
@@ -292,6 +296,7 @@ No credit card, no catch. Just show up and practice.
 ## Preparation for Saturday's Session
 
 **To-do before Saturday**:
+
 1. Create a simple Google Doc agenda
 2. Prepare the 3-phrase framework
 3. Write out 5 common questions parents ask

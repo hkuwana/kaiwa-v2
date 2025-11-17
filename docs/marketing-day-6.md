@@ -36,6 +36,7 @@ Looking forward to it!
 ### Task 2: Reddit Value Bombing (30 min)
 
 Find 5 threads related to:
+
 - Language learning anxiety
 - Meeting partner's family
 - Bilingual relationships
@@ -68,6 +69,7 @@ Good luck - you've got this!
 **Carousel Structure** (8 slides):
 
 **Slide 1 (Cover)**:
+
 ```
 The 3-Phrase Framework for Meeting Your Partner's Japanese Parents
 
@@ -75,6 +77,7 @@ The 3-Phrase Framework for Meeting Your Partner's Japanese Parents
 ```
 
 **Slide 2**:
+
 ```
 The fear is real:
 
@@ -86,6 +89,7 @@ Here's what actually matters →
 ```
 
 **Slide 3**:
+
 ```
 Phrase 1:
 はじめまして、[name]と申します
@@ -96,6 +100,7 @@ Why it works: Shows respect from the first moment
 ```
 
 **Slide 4**:
+
 ```
 Phrase 2:
 いつも[partner]にお世話になっています
@@ -106,6 +111,7 @@ Why it works: Acknowledges their role in your partner's life
 ```
 
 **Slide 5**:
+
 ```
 Phrase 3:
 まだ勉強中ですが、頑張ります
@@ -116,6 +122,7 @@ Why it works: Shows humility and commitment
 ```
 
 **Slide 6**:
+
 ```
 3 Things NOT to Say:
 
@@ -127,6 +134,7 @@ Remember: They're watching how you try, not if you're perfect
 ```
 
 **Slide 7**:
+
 ```
 The Truth:
 
@@ -138,6 +146,7 @@ They're judging your sincerity.
 ```
 
 **Slide 8 (CTA)**:
+
 ```
 Want to practice this conversation before the real thing?
 
@@ -149,6 +158,7 @@ Or DM me "PRACTICE" for details
 ```
 
 **Tools to use**:
+
 - Canva (free templates)
 - Simple white background with black text works great
 - Use a consistent color for highlights (maybe blue or red)
@@ -162,6 +172,7 @@ Or DM me "PRACTICE" for details
 **Take everything you've learned this week** and turn it into a 1000-word article.
 
 **Title Options**:
+
 - "What I Learned Helping 20 People Meet Their Partner's Parents in Another Language"
 - "The 3-Phrase Framework for High-Stakes Conversations (That No App Teaches)"
 - "Why Language Apps Fail at Teaching What Actually Matters"
@@ -201,6 +212,7 @@ Or DM me "PRACTICE" for details
 **Bonus**: Add your personal story about your grandparents in the introduction.
 
 **Action**: Write this now and publish on:
+
 - Medium (with canonical link to your blog later)
 - Your own blog if you have one
 - LinkedIn as an article
@@ -232,6 +244,7 @@ Let me know!
 ```
 
 **Action**: Send this to 10 people. Target:
+
 - People who liked your videos
 - People who commented on Reddit
 - People who opened your email but didn't reply
@@ -289,6 +302,7 @@ What conversation are YOU preparing for?
 ## Content Performance Check
 
 **Review this week's metrics**:
+
 - Which video got more views?
 - Which post got more engagement?
 - Which platform is performing best for you?

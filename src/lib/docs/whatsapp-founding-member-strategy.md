@@ -5,12 +5,15 @@
 ## Why WhatsApp for Kaiwa (Not Discord)
 
 ### Your Users Are Older (25-35+)
+
 - **ICPs (Sofia, David, Jamie)**: 25-35 years old, not Gen Z
 - **Discord** = younger, gaming-oriented, tech-savvy crowd
 - **WhatsApp** = universal, everyone has it, especially international users
 
 ### International User Base
+
 Your users are literally:
+
 - Dating someone from another country
 - Living abroad as expats
 - Reconnecting with family internationally
@@ -18,18 +21,22 @@ Your users are literally:
 **WhatsApp is THE international messaging app.** Everyone outside the US uses it daily.
 
 ### Lower Friction
+
 **Discord requires:**
+
 - Download app
 - Create account
 - Learn the interface
 - Remember to check it
 
 **WhatsApp requires:**
+
 - Nothing. They already have it.
 - They check it 50x per day
 - Your messages appear with their normal texts
 
 ### High Engagement
+
 - People check WhatsApp constantly
 - Messages feel personal, not "corporate"
 - Notifications are always on
@@ -40,7 +47,9 @@ Your users are literally:
 ## The Strategy: Friends First → Strangers Join Active Group
 
 ### Phase 1 (Week 1): 3-5 Friends
+
 **Who to DM:**
+
 - Friends learning a language (any language)
 - Friends in bilingual relationships
 - Friends who've expressed interest in what you're building
@@ -79,6 +88,7 @@ Let me know! First 10 people only.
 **If They Ask "Do I Have to Pay?"**
 
 **Option 1** (If they're close friends who'll definitely give good feedback):
+
 ```
 For you? Free as a founding member. Just need you to actually use it and give me real feedback monthly.
 
@@ -86,6 +96,7 @@ Everyone else pays $14/month, but you're helping me build this so it's on me.
 ```
 
 **Option 2** (If you want to validate willingness to pay):
+
 ```
 Normally yeah, $14/month. But honestly if that's a barrier right now, we can figure it out.
 
@@ -99,11 +110,13 @@ The feedback is more valuable to me than $14, so if you're down to really use it
 ### Phase 2 (Week 2-3): Add 5-7 Strangers to Active Group
 
 Once you have 3-5 friends active in the WhatsApp group, add strangers from:
+
 - Practice Lab attendees
 - Reddit warm leads
 - Email subscribers who engaged
 
 **Why this works**: When strangers join, they see:
+
 - Active conversation already happening
 - People sharing practice wins
 - Supportive community vibes
@@ -172,6 +185,7 @@ Let's help each other succeed!
 ### When You Add First Stranger (Week 2+)
 
 **Step 1 - Prep the Friends** (message just to your friends first, in a separate DM or in the group):
+
 ```
 Quick heads up: Adding our first non-friend founding member tomorrow (Sarah - she's preparing to meet her boyfriend's Japanese parents).
 
@@ -181,6 +195,7 @@ You all are literally helping me prove this works before I launch publicly. Appr
 ```
 
 **Step 2 - Personal DM to New Member** (before adding to group):
+
 ```
 Hey [Name]! Welcome to Kaiwa as a founding member 🎉
 
@@ -195,6 +210,7 @@ Also - when is your conversation happening? Want to make sure we're prepped!
 ```
 
 **Step 3 - Add to Group with Intro**:
+
 ```
 Everyone, meet [Name]! 👋
 
@@ -213,16 +229,19 @@ Feel free to ask questions, share practice updates, or just lurk - whatever help
 ## Daily WhatsApp Rhythm
 
 ### Morning (5-10 min)
+
 - Check WhatsApp group
 - Respond to any overnight messages
 - Post motivational check-in: `"Happy Monday! Who's practicing today? 💪"`
 
 ### Evening (5-10 min)
+
 - Check group again
 - Celebrate any wins shared: `"🎉 CONGRATS [Name]! That's huge!"`
 - Answer any questions posted
 
 ### When Someone Shares a Win
+
 ```
 [Name]! This is AMAZING! 🎉
 
@@ -239,6 +258,7 @@ Can I ask you to share more details?
 ## Regular Group Touchpoints
 
 ### Every 2 Weeks - Group Check-In
+
 ```
 Quick check-in! Drop a 🙋 if you:
 • Practiced this week
@@ -250,6 +270,7 @@ Let's support each other!
 ```
 
 ### Monthly - Feature Voting
+
 ```
 Hey team! Working on next month's features.
 
@@ -263,6 +284,7 @@ Top vote = we build it first
 ```
 
 ### Weekly - Monday Motivation
+
 ```
 Monday check-in! 💪
 
@@ -282,11 +304,13 @@ Remember: 2x/week practice = you stay on track for your goal
 ### Keep It Active (But Not Spammy)
 
 **Good frequency:**
+
 - 1 post from you per day (check-in, question, or celebration)
 - Respond to all member messages within 2-4 hours
 - Weekly prompt (Monday motivation, Friday reflection)
 
 **Avoid:**
+
 - 10 messages per day from you (annoying)
 - Letting it go silent for 3+ days (people forget it exists)
 - Long paragraphs (keep messages short)
@@ -294,6 +318,7 @@ Remember: 2x/week practice = you stay on track for your goal
 ### Use WhatsApp Features
 
 **Polls** (great for feature voting):
+
 ```
 Next feature to build?
 
@@ -301,18 +326,22 @@ Next feature to build?
 ```
 
 **Voice Notes** (when written feedback isn't enough):
+
 ```
 "Hey, just recorded a quick update on the new feature..."
 ```
+
 Feels personal, saves typing time.
 
 **Reactions** (acknowledge without cluttering):
+
 - Someone shares a win → ❤️ or 🎉 reaction
 - No need to always reply with text
 
 ### Set Boundaries
 
 **Set expectations early:**
+
 ```
 Quick note on response times:
 
@@ -351,6 +380,7 @@ Weekends = I check once per day.
 ## Example WhatsApp Messages to Use
 
 ### First Group Message (Day 1)
+
 ```
 Welcome to Kaiwa Founding Members! 🗣️
 
@@ -373,6 +403,7 @@ First question: What conversation are YOU preparing for? Drop it below 👇
 ```
 
 ### Weekly Check-in (Every Monday)
+
 ```
 Monday check-in! 💪
 
@@ -386,6 +417,7 @@ Remember: 2x/week practice = you stay on track for your goal
 ```
 
 ### When Someone Has Their Conversation
+
 ```
 [Name] just had their conversation with [partner's parents / abuela / etc.]!
 
@@ -395,6 +427,7 @@ Everyone send good vibes while we wait for the update 🤞
 ```
 
 ### Friday Reflection
+
 ```
 Friday reflection! 🎉
 
@@ -447,22 +480,26 @@ Takes 2 min - your feedback literally decides what I build next.
 ## Timeline
 
 ### Week 1 (Now)
+
 - DM 3-5 friends TODAY
 - Create WhatsApp group when 2-3 confirm
 - Post welcome message
 - Get them actually using Kaiwa
 
 ### Week 2
+
 - Add 2-3 strangers from Practice Lab or Reddit
 - Now group has mix (5 friends + 3 strangers)
 - Watch how strangers engage
 
 ### Week 3-4
+
 - Add more strangers as they sign up
 - Aim for 50/50 mix (5 friends, 5 strangers)
 - Friends help onboard new people
 
 ### Month 2
+
 - Create second group if you hit 20+ people
 - Or keep everyone together if engagement is good
 
@@ -471,6 +508,7 @@ Takes 2 min - your feedback literally decides what I build next.
 ## When to Switch to Discord (Later)
 
 Add Discord in **Month 3-4** when:
+
 - You have 50+ users (too big for WhatsApp)
 - You want organized channels (#wins, #feedback, #feature-requests)
 - You have younger users who prefer it
@@ -488,6 +526,7 @@ Add Discord in **Month 3-4** when:
 ## WhatsApp vs iMessage
 
 **Use WhatsApp, not iMessage because:**
+
 - iMessage = iOS only (excludes Android users)
 - WhatsApp = works on any phone
 - WhatsApp = international standard
@@ -500,10 +539,12 @@ Add Discord in **Month 3-4** when:
 **From Solo Founder Action Plan - Add to Block 3 (Outreach):**
 
 ### Daily WhatsApp Tasks (10-15 min)
+
 - **Morning**: Check group, respond to overnight messages, post check-in
 - **Evening**: Celebrate wins, answer questions, engage with members
 
 ### Weekly WhatsApp Tasks
+
 - **Monday**: Motivation post
 - **Wednesday**: Mid-week check-in prompt
 - **Friday**: Reflection + wins celebration
@@ -515,23 +556,27 @@ Add Discord in **Month 3-4** when:
 ## Success Metrics
 
 ### Week 1
+
 - [ ] WhatsApp group created
 - [ ] 3-5 friends confirmed and added
 - [ ] Welcome message posted
 - [ ] At least 1 member has shared what conversation they're preparing for
 
 ### Week 2
+
 - [ ] 2-3 strangers added to group
 - [ ] Group is active (3+ messages per day from members, not just you)
 - [ ] At least 1 win has been shared
 
 ### Week 3-4
+
 - [ ] 10 founding members total (5 friends, 5 strangers)
 - [ ] Daily engagement (members posting without prompting)
 - [ ] 2+ testimonials collected from group members
 - [ ] Members are helping each other (not just talking to you)
 
 ### Month 2+
+
 - [ ] Group is self-sustaining (members start conversations)
 - [ ] Referrals happening (members inviting friends)
 - [ ] Community feel established (inside jokes, shared wins)

@@ -755,12 +755,12 @@ TECHNICAL DETAILS:
 				<p class="mb-4 text-sm opacity-75">
 					Test different approaches to see which produces the best character art
 				</p>
-				
+
 				<div class="form-control">
 					<label class="label cursor-pointer">
 						<span class="label-text">
 							<strong>Refined Ghibli</strong> - Step-by-step instructions, better AI understanding
-							<span class="badge badge-success badge-sm ml-2">RECOMMENDED</span>
+							<span class="ml-2 badge badge-sm badge-success">RECOMMENDED</span>
 						</span>
 						<input
 							type="radio"
@@ -816,18 +816,19 @@ TECHNICAL DETAILS:
 						/>
 					</label>
 				</div>
-				
+
 				<div class="mt-3 text-sm opacity-70">
 					Current style: <strong>{promptStyle}</strong>
 				</div>
 
 				<!-- Prompt Preview -->
-				<details class="collapse collapse-arrow mt-4 border border-base-300 bg-base-100">
+				<details class="collapse-arrow collapse mt-4 border border-base-300 bg-base-100">
 					<summary class="collapse-title text-sm font-medium">
 						Preview Current Prompt (for Yuki example)
 					</summary>
 					<div class="collapse-content">
-						<pre class="mt-2 overflow-x-auto rounded bg-base-300 p-4 text-xs">{generateSpeakerPrompt(
+						<pre
+							class="mt-2 overflow-x-auto rounded bg-base-300 p-4 text-xs">{generateSpeakerPrompt(
 								speakersData.find((s) => s.id === 'ja-jp-female'),
 								promptStyle
 							)}</pre>
@@ -848,33 +849,37 @@ TECHNICAL DETAILS:
 						<label class="label">
 							<span class="label-text font-semibold">Select Speaker</span>
 						</label>
-						<select class="select select-bordered" bind:value={selectedTestSpeaker}>
+						<select class="select-bordered select" bind:value={selectedTestSpeaker}>
 							<option value={null}>Choose a speaker...</option>
 							<optgroup label="Japanese">
 								{#each speakersData.filter((s) => s.languageId === 'ja') as speaker}
 									<option value={speaker.id}>
-										{speaker.speakerEmoji} {speaker.voiceName} ({speaker.gender}, {speaker.region})
+										{speaker.speakerEmoji}
+										{speaker.voiceName} ({speaker.gender}, {speaker.region})
 									</option>
 								{/each}
 							</optgroup>
 							<optgroup label="Korean">
 								{#each speakersData.filter((s) => s.languageId === 'ko') as speaker}
 									<option value={speaker.id}>
-										{speaker.speakerEmoji} {speaker.voiceName} ({speaker.gender}, {speaker.region})
+										{speaker.speakerEmoji}
+										{speaker.voiceName} ({speaker.gender}, {speaker.region})
 									</option>
 								{/each}
 							</optgroup>
 							<optgroup label="Spanish">
 								{#each speakersData.filter((s) => s.languageId === 'es') as speaker}
 									<option value={speaker.id}>
-										{speaker.speakerEmoji} {speaker.voiceName} ({speaker.gender}, {speaker.region})
+										{speaker.speakerEmoji}
+										{speaker.voiceName} ({speaker.gender}, {speaker.region})
 									</option>
 								{/each}
 							</optgroup>
 							<optgroup label="Other Languages">
 								{#each speakersData.filter((s) => !['ja', 'ko', 'es'].includes(s.languageId)) as speaker}
 									<option value={speaker.id}>
-										{speaker.speakerEmoji} {speaker.voiceName} ({speaker.languageId}, {speaker.gender})
+										{speaker.speakerEmoji}
+										{speaker.voiceName} ({speaker.languageId}, {speaker.gender})
 									</option>
 								{/each}
 							</optgroup>
@@ -916,14 +921,14 @@ TECHNICAL DETAILS:
 			</div>
 
 			<!-- Priority Characters Test -->
-			<div class="alert alert-warning mb-6">
+			<div class="mb-6 alert alert-warning">
 				<div>
 					<h3 class="font-bold">🎯 Priority Characters Test</h3>
 					<p class="mb-3 text-sm">
 						Generate the 5 most important characters for validation. Total cost: ~$0.40
 					</p>
 					<button
-						class="btn btn-warning btn-sm"
+						class="btn btn-sm btn-warning"
 						disabled={isGenerating}
 						onclick={async () => {
 							const prioritySpeakers = [

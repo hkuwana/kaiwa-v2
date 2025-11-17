@@ -539,7 +539,7 @@ export class RealtimeOpenAIStore {
 			const commit = this.getOrAssignCommitForTranscript(itemId, 'user');
 			if (commit) {
 				commit.hasReceivedUserTranscript = true;
-			commit.transcriptTimestamp = Date.now(); // 🔍 DEBUGGING: Track timing
+				commit.transcriptTimestamp = Date.now(); // 🔍 DEBUGGING: Track timing
 				this.maybeSendResponseForCommit(commit, 'user_transcript', { item_id: itemId });
 			}
 		}
@@ -1096,7 +1096,7 @@ export class RealtimeOpenAIStore {
 							}
 
 							activeCommit.hasReceivedCommitAck = true;
-						activeCommit.commitAckTimestamp = Date.now(); // 🔍 DEBUGGING: Track timing
+							activeCommit.commitAckTimestamp = Date.now(); // 🔍 DEBUGGING: Track timing
 
 							this.maybeSendResponseForCommit(activeCommit, 'commit_ack', {
 								item_id: commitEvent.item_id,
@@ -1566,7 +1566,9 @@ export class RealtimeOpenAIStore {
 		// Log timing before sending response
 		const now = Date.now();
 		const timeSinceCommitAck = commit.commitAckTimestamp ? now - commit.commitAckTimestamp : 'N/A';
-		const timeSinceTranscript = commit.transcriptTimestamp ? now - commit.transcriptTimestamp : 'N/A';
+		const timeSinceTranscript = commit.transcriptTimestamp
+			? now - commit.transcriptTimestamp
+			: 'N/A';
 
 		logger.warn('✅ SENDING response.create (with 200ms delay)', {
 			commitNumber: commit.commitNumber,

@@ -32,19 +32,21 @@ Get actual watercolor-style photos from Unsplash or Pexels.
    - **Pexels**: https://www.pexels.com/api/ (unlimited free)
 
 2. Add to your `.env`:
+
    ```bash
    UNSPLASH_ACCESS_KEY=your_unsplash_access_key_here
    PEXELS_API_KEY=your_pexels_api_key_here
    ```
 
 3. Use in your code:
+
    ```typescript
    import { getScenarioImage } from '$lib/services/images/scenario-images.service';
 
    const result = await getScenarioImage(
-     'family-dinner',
-     ['family', 'dinner', 'parents'],
-     'relationships'
+   	'family-dinner',
+   	['family', 'dinner', 'parents'],
+   	'relationships'
    );
 
    // result.imageUrl will be:
@@ -72,6 +74,7 @@ Each category has a custom watercolor gradient palette:
 ### Automatic Fallback
 
 The service automatically falls back in this order:
+
 1. **Unsplash** (best quality watercolor images)
 2. **Pexels** (good variety)
 3. **Gradients** (instant, always works)
@@ -84,17 +87,17 @@ Fetch images for multiple scenarios at once with rate limiting:
 import { batchGetScenarioImages } from '$lib/services/images/scenario-images.service';
 
 const scenarios = [
-  { id: 'family-dinner', tags: ['family', 'dinner'], categories: ['relationships'] },
-  { id: 'first-date', tags: ['date', 'romance'], categories: ['relationships'] }
+	{ id: 'family-dinner', tags: ['family', 'dinner'], categories: ['relationships'] },
+	{ id: 'first-date', tags: ['date', 'romance'], categories: ['relationships'] }
 ];
 
 const images = await batchGetScenarioImages(scenarios);
 
 images.forEach((result, scenarioId) => {
-  console.log(`${scenarioId}: ${result.imageUrl}`);
-  if (result.attribution) {
-    console.log(`Attribution: ${result.attribution}`);
-  }
+	console.log(`${scenarioId}: ${result.imageUrl}`);
+	if (result.attribution) {
+		console.log(`Attribution: ${result.attribution}`);
+	}
 });
 ```
 
@@ -104,9 +107,9 @@ images.forEach((result, scenarioId) => {
 import { SCENARIO_IMAGE_DIMENSIONS } from '$lib/services/images/scenario-images.service';
 
 // Use these for consistent sizing:
-SCENARIO_IMAGE_DIMENSIONS.thumbnail // { width: 400, height: 250 }
-SCENARIO_IMAGE_DIMENSIONS.card      // { width: 800, height: 500 }
-SCENARIO_IMAGE_DIMENSIONS.hero      // { width: 1200, height: 600 }
+SCENARIO_IMAGE_DIMENSIONS.thumbnail; // { width: 400, height: 250 }
+SCENARIO_IMAGE_DIMENSIONS.card; // { width: 800, height: 500 }
+SCENARIO_IMAGE_DIMENSIONS.hero; // { width: 1200, height: 600 }
 ```
 
 ## Attribution
@@ -117,8 +120,8 @@ When using Unsplash or Pexels images, **always display attribution**:
 const result = await getScenarioImage('scenario-id', tags, category);
 
 if (result.attribution) {
-  // Display: "Photo by John Doe on Unsplash"
-  console.log(result.attribution);
+	// Display: "Photo by John Doe on Unsplash"
+	console.log(result.attribution);
 }
 ```
 
@@ -142,16 +145,16 @@ if (result.attribution) {
 
 ```svelte
 <script>
-  import { getWatercolorGradient } from '$lib/services/images/scenario-images.service';
+	import { getWatercolorGradient } from '$lib/services/images/scenario-images.service';
 
-  export let scenario;
+	export let scenario;
 
-  const gradient = getWatercolorGradient(scenario.categories[0]);
+	const gradient = getWatercolorGradient(scenario.categories[0]);
 </script>
 
 <div class="card" style="background: {gradient}">
-  <h3>{scenario.title}</h3>
-  <p>{scenario.description}</p>
+	<h3>{scenario.title}</h3>
+	<p>{scenario.description}</p>
 </div>
 ```
 
@@ -159,37 +162,33 @@ if (result.attribution) {
 
 ```svelte
 <script>
-  import { getScenarioImage } from '$lib/services/images/scenario-images.service';
-  import { onMount } from 'svelte';
+	import { getScenarioImage } from '$lib/services/images/scenario-images.service';
+	import { onMount } from 'svelte';
 
-  export let scenario;
+	export let scenario;
 
-  let imageUrl = '';
-  let isGradient = true;
-  let attribution = '';
+	let imageUrl = '';
+	let isGradient = true;
+	let attribution = '';
 
-  onMount(async () => {
-    const result = await getScenarioImage(
-      scenario.id,
-      scenario.tags,
-      scenario.categories[0]
-    );
+	onMount(async () => {
+		const result = await getScenarioImage(scenario.id, scenario.tags, scenario.categories[0]);
 
-    imageUrl = result.imageUrl;
-    isGradient = result.isGradient;
-    attribution = result.attribution || '';
-  });
+		imageUrl = result.imageUrl;
+		isGradient = result.isGradient;
+		attribution = result.attribution || '';
+	});
 </script>
 
 <div class="card" style={isGradient ? `background: ${imageUrl}` : ''}>
-  {#if !isGradient}
-    <img src={imageUrl} alt={scenario.title} />
-    {#if attribution}
-      <small class="attribution">{attribution}</small>
-    {/if}
-  {/if}
-  <h3>{scenario.title}</h3>
-  <p>{scenario.description}</p>
+	{#if !isGradient}
+		<img src={imageUrl} alt={scenario.title} />
+		{#if attribution}
+			<small class="attribution">{attribution}</small>
+		{/if}
+	{/if}
+	<h3>{scenario.title}</h3>
+	<p>{scenario.description}</p>
 </div>
 ```
 
@@ -206,6 +205,7 @@ Why watercolor/artistic style instead of stock photos?
 ---
 
 **Next Steps:**
+
 - Add Pexels API key to `.env` for unlimited free images
 - Consider adding Unsplash for premium scenarios
 - Cache fetched URLs in database to avoid repeat API calls

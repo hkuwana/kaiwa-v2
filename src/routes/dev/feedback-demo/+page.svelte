@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { notificationStore } from '$lib/stores/notification.store.svelte';
 
-	let selectedType: 'success' | 'error' | 'warning' | 'info' = 'success';
-	let customMessage = 'This is a notification!';
+	let selectedType: 'success' | 'error' | 'warning' | 'info' = $state('success');
+	let customMessage = $state('This is a notification!');
 
 	function showNotification() {
 		switch (selectedType) {

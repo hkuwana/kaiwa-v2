@@ -169,8 +169,8 @@ export function filterScenarios(
 			const searchableFields = [
 				scenario.title,
 				scenario.description,
-				...(scenario.tags as string[] | null || []),
-				...(scenario.searchKeywords as string[] | null || []),
+				...((scenario.tags as string[] | null) || []),
+				...((scenario.searchKeywords as string[] | null) || []),
 				scenario.learningGoal || ''
 			];
 
@@ -307,7 +307,10 @@ export function getCategoryDisplayName(category: string): string {
 /**
  * Generate shareable URL for a scenario
  */
-export function generateScenarioShareUrl(shareSlug: string, baseUrl: string = 'https://kaiwa.app'): string {
+export function generateScenarioShareUrl(
+	shareSlug: string,
+	baseUrl: string = 'https://kaiwa.app'
+): string {
 	return `${baseUrl}/s/${shareSlug}`;
 }
 

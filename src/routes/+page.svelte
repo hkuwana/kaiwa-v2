@@ -164,7 +164,7 @@
 <div
 	class="min-h-[100dvh] bg-gradient-to-br from-base-100 to-base-200 px-2 text-base-content sm:px-4"
 >
-	<header class="flex min-h-[100dvh] box-border items-start justify-center pt-8 sm:pt-20">
+	<header class="box-border flex min-h-[100dvh] items-start justify-center pt-8 sm:pt-20">
 		<div class="text-center">
 			<!-- Stage Indicator -->
 			<div class="mb-3 sm:mb-8">

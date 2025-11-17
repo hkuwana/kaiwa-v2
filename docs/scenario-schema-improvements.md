@@ -3,12 +3,14 @@
 ## Current State Analysis
 
 **Strengths:**
+
 - ✅ Clear role-based structure (tutor/character/friendly_chat/expert)
 - ✅ Rich persona system for character scenarios
 - ✅ Good metadata tracking (usage, ratings, progress)
 - ✅ Solid CEFR alignment and difficulty indicators
 
 **Gaps for UGC & Sharing:**
+
 - ❌ No tagging/categorization system
 - ❌ No "remix" or "fork" functionality
 - ❌ Limited discoverability (can't browse by topic/skill)
@@ -87,22 +89,22 @@ estimatedDuration: integer('estimated_duration'), // Minutes (for planning)
 ```
 
 **New table: scenario_collections**
+
 ```typescript
 export const scenarioCollections = pgTable('scenario_collections', {
-  id: text('id').primaryKey(),
-  title: text('title').notNull(),
-  description: text('description').notNull(),
-  createdByUserId: uuid('created_by_user_id')
-    .references(() => users.id),
-  scenarioIds: json('scenario_ids').$type<string[]>(), // Ordered list
-  category: text('category'),
-  difficulty: scenarioDifficultyEnum('difficulty'),
-  totalEstimatedDuration: integer('total_estimated_duration'),
-  coverImageUrl: text('cover_image_url'),
-  isPublic: boolean('is_public').default(true),
-  usageCount: integer('usage_count').default(0),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+	id: text('id').primaryKey(),
+	title: text('title').notNull(),
+	description: text('description').notNull(),
+	createdByUserId: uuid('created_by_user_id').references(() => users.id),
+	scenarioIds: json('scenario_ids').$type<string[]>(), // Ordered list
+	category: text('category'),
+	difficulty: scenarioDifficultyEnum('difficulty'),
+	totalEstimatedDuration: integer('total_estimated_duration'),
+	coverImageUrl: text('cover_image_url'),
+	isPublic: boolean('is_public').default(true),
+	usageCount: integer('usage_count').default(0),
+	createdAt: timestamp('created_at').defaultNow(),
+	updatedAt: timestamp('updated_at').defaultNow()
 });
 ```
 
@@ -170,26 +172,26 @@ reflectionPrompts: json('reflection_prompts').$type<string[]>(),
 
 ```typescript
 // New table: scenario_language_variants
-export const scenarioLanguageVariants = pgTable('scenario_language_variants', {
-  scenarioId: text('scenario_id')
-    .references(() => scenarios.id, { onDelete: 'cascade' }),
-  languageId: text('language_id')
-    .references(() => languages.id),
+export const scenarioLanguageVariants = pgTable(
+	'scenario_language_variants',
+	{
+		scenarioId: text('scenario_id').references(() => scenarios.id, { onDelete: 'cascade' }),
+		languageId: text('language_id').references(() => languages.id),
 
-  // Language-specific overrides:
-  localizedTitle: text('localized_title'),
-  localizedDescription: text('localized_description'),
-  localizedContext: text('localized_context'),
-  culturalAdaptations: json('cultural_adaptations').$type<{
-    notes: string[];
-    regionalVariations?: Record<string, string>;
-  }>(),
+		// Language-specific overrides:
+		localizedTitle: text('localized_title'),
+		localizedDescription: text('localized_description'),
+		localizedContext: text('localized_context'),
+		culturalAdaptations: json('cultural_adaptations').$type<{
+			notes: string[];
+			regionalVariations?: Record<string, string>;
+		}>(),
 
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
-}, (table) => [
-  primaryKey({ columns: [table.scenarioId, table.languageId] })
-]);
+		createdAt: timestamp('created_at').defaultNow(),
+		updatedAt: timestamp('updated_at').defaultNow()
+	},
+	(table) => [primaryKey({ columns: [table.scenarioId, table.languageId] })]
+);
 ```
 
 **Why:** "Meeting parents" plays out very differently in Japanese vs. Spanish culture.
@@ -200,66 +202,66 @@ export const scenarioLanguageVariants = pgTable('scenario_language_variants', {
 
 ```typescript
 interface EnhancedScenario extends Scenario {
-  // Identity & Discovery
-  categories: string[];
-  tags: string[];
-  primarySkill: 'conversation' | 'listening' | 'vocabulary' | 'grammar';
-  searchKeywords: string[];
-  thumbnailUrl: string;
-  shareSlug: string;
-  shareUrl: string;
+	// Identity & Discovery
+	categories: string[];
+	tags: string[];
+	primarySkill: 'conversation' | 'listening' | 'vocabulary' | 'grammar';
+	searchKeywords: string[];
+	thumbnailUrl: string;
+	shareSlug: string;
+	shareUrl: string;
 
-  // Author & Provenance
-  authorDisplayName: string;
-  authorBio?: string;
-  sourceScenarioId?: string;     // If remixed
-  remixCount: number;
-  isRemixable: boolean;
-  licenseType: string;
-  publishedAt?: Date;
-  featuredAt?: Date;
-  curatedByStaff: boolean;
+	// Author & Provenance
+	authorDisplayName: string;
+	authorBio?: string;
+	sourceScenarioId?: string; // If remixed
+	remixCount: number;
+	isRemixable: boolean;
+	licenseType: string;
+	publishedAt?: Date;
+	featuredAt?: Date;
+	curatedByStaff: boolean;
 
-  // Progression & Structure
-  prerequisiteScenarios: string[];
-  followUpScenarios: string[];
-  partOfCollection?: string;
-  sequencePosition?: number;
-  estimatedDuration: number;     // minutes
+	// Progression & Structure
+	prerequisiteScenarios: string[];
+	followUpScenarios: string[];
+	partOfCollection?: string;
+	sequencePosition?: number;
+	estimatedDuration: number; // minutes
 
-  // Rich Context
-  culturalNotes: {
-    traditions?: string[];
-    etiquette?: string[];
-    commonPitfalls?: string[];
-    powerDynamics?: string;
-  };
-  situationalContext: {
-    physicalSetting: string;
-    emotionalStakes: string;
-    socialDynamics: string;
-    timeOfDay?: string;
-    seasonalContext?: string;
-  };
-  motivationalFrame: {
-    why: string;
-    reward: string;
-    challenge: string;
-  };
+	// Rich Context
+	culturalNotes: {
+		traditions?: string[];
+		etiquette?: string[];
+		commonPitfalls?: string[];
+		powerDynamics?: string;
+	};
+	situationalContext: {
+		physicalSetting: string;
+		emotionalStakes: string;
+		socialDynamics: string;
+		timeOfDay?: string;
+		seasonalContext?: string;
+	};
+	motivationalFrame: {
+		why: string;
+		reward: string;
+		challenge: string;
+	};
 
-  // Learning Scaffolding
-  warmUpPrompts: string[];
-  reflectionPrompts: string[];
-  previewDialogue: {
-    turn1: string;
-    turn2: string;
-    turn3: string;
-  };
+	// Learning Scaffolding
+	warmUpPrompts: string[];
+	reflectionPrompts: string[];
+	previewDialogue: {
+		turn1: string;
+		turn2: string;
+		turn3: string;
+	};
 
-  // Quality Metrics
-  averageSuccessRate?: number;
-  frustrationScore?: number;
-  recommendationScore?: number;
+	// Quality Metrics
+	averageSuccessRate?: number;
+	frustrationScore?: number;
+	recommendationScore?: number;
 }
 ```
 
@@ -268,6 +270,7 @@ interface EnhancedScenario extends Scenario {
 ## Migration Strategy
 
 ### Phase 1: Non-Breaking Additions (Week 1-2)
+
 ```sql
 -- Add nullable columns to existing scenarios table
 ALTER TABLE scenarios
@@ -289,6 +292,7 @@ SET
 ```
 
 ### Phase 2: New Tables (Week 3)
+
 ```sql
 -- Create scenario collections table
 CREATE TABLE scenario_collections (
@@ -311,6 +315,7 @@ CREATE TABLE scenario_language_variants (
 ```
 
 ### Phase 3: Enhanced Features (Week 4+)
+
 - Build collection editor UI
 - Add "Remix this scenario" button
 - Create author profile pages
@@ -321,6 +326,7 @@ CREATE TABLE scenario_language_variants (
 ## UI/UX Improvements for Discovery
 
 ### Scenario Card (List View)
+
 ```
 ┌─────────────────────────────────────┐
 │ [Thumbnail]  Meeting Your Partner's│
@@ -336,6 +342,7 @@ CREATE TABLE scenario_language_variants (
 ```
 
 ### Scenario Detail Page Additions
+
 ```
 ┌─────────────────────────────────────────┐
 │ 🎯 What You'll Practice                 │
@@ -367,6 +374,7 @@ CREATE TABLE scenario_language_variants (
 ```
 
 ### Browse/Filter Interface
+
 ```
 Categories:        Tags:             Difficulty:
 ☑ Relationships    ☑ family          ○ Beginner
@@ -386,6 +394,7 @@ Duration:          CEFR Level:       Sort By:
 ## Sharing Flow Examples
 
 ### 1. Share Link Generation
+
 ```typescript
 // When user clicks "Share"
 const shareSlug = generateShareSlug(scenario.id); // "meeting-parents-jb2k"
@@ -397,16 +406,17 @@ const shareUrl = `https://kaiwa.app/s/${shareSlug}`;
 ```
 
 ### 2. Remix/Fork Flow
+
 ```typescript
 // When user clicks "Remix"
 const newScenario = {
-  ...originalScenario,
-  id: generateNewId(),
-  sourceScenarioId: originalScenario.id,
-  createdByUserId: currentUser.id,
-  authorDisplayName: currentUser.displayName,
-  visibility: 'private', // Starts as draft
-  publishedAt: null,
+	...originalScenario,
+	id: generateNewId(),
+	sourceScenarioId: originalScenario.id,
+	createdByUserId: currentUser.id,
+	authorDisplayName: currentUser.displayName,
+	visibility: 'private', // Starts as draft
+	publishedAt: null
 };
 
 // Update original scenario
@@ -414,21 +424,22 @@ await incrementRemixCount(originalScenario.id);
 ```
 
 ### 3. Collection Creation
+
 ```typescript
 // User creates "My Japan Trip Prep" collection
 const collection = {
-  id: 'collection-xyz',
-  title: 'My Japan Trip Prep',
-  description: 'Essential scenarios for my upcoming trip',
-  scenarioIds: [
-    'airport-checkin',
-    'taxi-directions',
-    'restaurant-ordering',
-    'hotel-checkin',
-    'asking-directions'
-  ],
-  totalEstimatedDuration: 75, // sum of scenarios
-  isPublic: true,
+	id: 'collection-xyz',
+	title: 'My Japan Trip Prep',
+	description: 'Essential scenarios for my upcoming trip',
+	scenarioIds: [
+		'airport-checkin',
+		'taxi-directions',
+		'restaurant-ordering',
+		'hotel-checkin',
+		'asking-directions'
+	],
+	totalEstimatedDuration: 75, // sum of scenarios
+	isPublic: true
 };
 ```
 
@@ -437,6 +448,7 @@ const collection = {
 ## Key Implementation Priorities
 
 ### Must-Have (MVP)
+
 1. ✅ Categories & tags (browsing essential)
 2. ✅ Author attribution (UGC needs credit)
 3. ✅ Share links (growth mechanism)
@@ -444,6 +456,7 @@ const collection = {
 5. ✅ Collections (learning paths)
 
 ### Should-Have (V2)
+
 1. Remix/fork functionality
 2. Cultural notes expansion
 3. Prerequisite tracking
@@ -451,6 +464,7 @@ const collection = {
 5. Language variants
 
 ### Nice-to-Have (V3)
+
 1. Motivational framing
 2. Warm-up/reflection prompts
 3. Advanced search filters
@@ -546,6 +560,7 @@ const collection = {
 ## Summary: What This Enables
 
 ### For Learners
+
 - ✅ Browse scenarios by topic ("show me all family scenarios")
 - ✅ Follow learning paths ("complete these 5 in order")
 - ✅ See what others recommend (ratings, saves)
@@ -553,6 +568,7 @@ const collection = {
 - ✅ Create personal collections ("My Trip Prep")
 
 ### For Creators
+
 - ✅ Get credit for their scenarios
 - ✅ See usage stats and ratings
 - ✅ Build following/reputation
@@ -560,6 +576,7 @@ const collection = {
 - ✅ Monetize premium scenarios (future)
 
 ### For Platform
+
 - ✅ Viral growth (sharing)
 - ✅ Network effects (UGC)
 - ✅ Better recommendations
@@ -569,6 +586,7 @@ const collection = {
 ---
 
 **Next Steps:**
+
 1. Review & approve enhanced schema
 2. Create migration scripts
 3. Build collection UI

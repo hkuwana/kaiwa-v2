@@ -5,6 +5,7 @@
 ## 📂 Subdirectories
 
 ### [weekly-updates/](weekly-updates/)
+
 **Weekly progress updates and accomplishments**
 
 - 📅 Weekly summaries of work done
@@ -17,6 +18,7 @@
 ---
 
 ### [migrations/](migrations/)
+
 **Migration logs, guides, and histories**
 
 - 🔄 System migrations (database, architecture, etc.)
@@ -29,6 +31,7 @@
 ---
 
 ### [feedback/](feedback/)
+
 **User feedback tracking and triage**
 
 - 💬 User feedback collection
@@ -43,6 +46,7 @@
 ## 🎯 When to Use This Section
 
 **Use logs when:**
+
 - Tracking weekly progress
 - Reviewing migration history
 - Analyzing user feedback
@@ -50,6 +54,7 @@
 - Understanding past decisions
 
 **Don't use for:**
+
 - Active documentation → See [../1-core/](../1-core/), [../2-guides/](../2-guides/)
 - Current processes → See [../5-processes/](../5-processes/)
 - Strategy planning → See [../4-strategy/](../4-strategy/)
@@ -59,6 +64,7 @@
 ## ✍️ Contributing
 
 When adding to logs:
+
 1. **Be chronological**: Use date-based naming (YYYY-MM-DD)
 2. **Don't modify old entries**: Logs are historical records
 3. **Include context**: Why was this decision made?
