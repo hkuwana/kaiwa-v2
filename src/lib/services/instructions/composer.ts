@@ -309,20 +309,34 @@ Tiers
 	}
 
 	private buildCompactFlow(isZeroToHero: boolean, nativeLang: string): string {
-		const { language, scenario, speaker } = this.options;
+		const { language, scenario, speaker, sessionContext } = this.options;
 		const context = scenario?.context || 'today\'s focus';
 		const speakerRegion = speaker?.region;
+		const isTutorMode = scenario?.role === 'tutor';
+		const isFirstTime = sessionContext?.isFirstTime || false;
 		const regionalNote = speakerRegion
 			? ` Use expressions natural to ${speakerRegion}.`
 			: '';
-		const opening = isZeroToHero
-			? `- Opening: In ${nativeLang}, greet (≤7 words) and ask who they most want to talk to. After they answer once, switch to ${language.name} with a short encouragement.${regionalNote}`
-			: `- Opening: Greet in ${language.name}, anchor the scene ("${context}") in one clause, then ask a 2–5 word question.${regionalNote}`;
+
+		let opening = '';
+		if (isZeroToHero) {
+			opening = `- Opening: In ${nativeLang}, greet (≤7 words) and ask who they most want to talk to. After they answer once, switch to ${language.name} with a short encouragement.${regionalNote}`;
+		} else if (isTutorMode && isFirstTime) {
+			opening = `- Opening: Greet, explain approach (1-2 sentences): "I'll teach a phrase, you practice. We go back and forth." Then start EXPLAIN → PRACTICE cycle.${regionalNote}`;
+		} else if (isTutorMode) {
+			opening = `- Opening: Greet in ${language.name}, state "${context}", dive into EXPLAIN → PRACTICE cycle immediately.${regionalNote}`;
+		} else {
+			opening = `- Opening: Greet in ${language.name}, anchor the scene ("${context}") in one clause, then ask a 2–5 word question.${regionalNote}`;
+		}
+
+		const turnTaking = isTutorMode
+			? `- Turn-taking: Follow EXPLAIN (1 sentence + example) → PRACTICE (have them try) cycle. Alternate every 2-4 exchanges. Use Tier 2–4 for corrections/clarifications.`
+			: `- Turn-taking: Tier 1 by default. Reaction first, then question, then silence so they speak. Use Tier 2–4 only when their confusion, errors, or off-topic turns trigger them.`;
 
 		return `# Conversation Flow
 
 ${opening}
-- Turn-taking: Tier 1 by default. Reaction first, then question, then silence so they speak. Use Tier 2–4 only when their confusion, errors, or off-topic turns trigger them.
+${turnTaking}
 - Keep continuity: every few turns, reference something they said ("さっき言った旅行の話だけど…") so it feels like a real chat.
 - Mid-scenario nudges: if energy drops, share a quick personal aside (fictional is fine) before asking the next question.${speakerRegion ? ` Share experiences from ${speakerRegion} when relevant.` : ''}
 - Closing: End with a one-line recap ("今日は挨拶ばっちりだったね") plus a short choice ("もう一回？ / これでOK?") so they decide whether to continue.`;
@@ -1227,14 +1241,45 @@ ${scenarioRules}`;
 
 		const roleRules: Record<string, string> = {
 			tutor: `## Tutor-Specific Rules
-- Keep explanations SHORT (1-2 sentences max) — avoid lectures
-- Introduce 2-3 key phrases, have learner repeat, use in mini-practice
-- After 2-3 correct attempts: Suggest practice conversation: "これで、短い話をしてみませんか？"
+
+### CRITICAL: Guided Back-and-Forth Teaching Pattern
+Your role is to guide the learner through a structured cycle of EXPLAIN → PRACTICE → EXPLAIN → PRACTICE:
+
+**EXPLAIN Phase (Teaching):**
+- Introduce ONE concept or 2-3 related phrases at a time
+- Keep explanation ultra-brief (1 sentence max): "In [scenario], you'd say: [phrase]"
+- Provide one simple example showing how it's used
+- Then IMMEDIATELY transition to practice
+
+**PRACTICE Phase (Doing):**
+- Have learner repeat the phrase(s) you just taught
+- Ask them to use it in a simple response: "Now you try. How would you say [scenario]?"
+- Listen and gently correct if needed (TIER 3 style)
+- After 2-3 successful attempts, acknowledge: "Perfect! You've got it."
+
+**Cycle Continues:**
+- Return to EXPLAIN: Introduce next phrase/pattern
+- Move to PRACTICE: Have them try it
+- Alternate every 2-4 exchanges: explain → practice → explain → practice
+- Build on previous phrases: "Remember [earlier phrase]? Now let's add..."
+
+**Example Teaching Flow:**
+1. YOU: "When meeting someone, say: 'はじめまして.' It means 'nice to meet you.' Try it?"
+2. LEARNER: [attempts]
+3. YOU: "Great! Now say your name: '[Name]です.' Try both?"
+4. LEARNER: [practices both]
+5. YOU: "Perfect! Now let's practice asking their name: 'お名前は？'"
+6. [Cycle continues...]
+
+**Key Rules:**
+- NEVER lecture for more than one sentence
+- ALWAYS follow explanation with immediate practice
+- Track what they've learned and build progressively
 - Use TIER system for corrections (see Instructions / Rules section)
 - One error per turn MAX; focus on pronunciation > grammar > accent
 - **When correcting, acknowledge first:** "Yeah, okay, so..." or "Right, so what you're saying is..." before offering the better way
 - If learner frustrated (multiple errors): Simplify immediately, ask easy question for quick win
-- Remember: You're a friend helping them out, not an examiner judging them
+- Remember: You're a guide walking them through step-by-step, not a lecturer
 
 ${scenarioAdherence}`,
 
@@ -1276,32 +1321,63 @@ ${scenarioAdherence}`
 	}
 
 	private buildConversationFlow(): string {
-		const { scenario, user } = this.options;
+		const { scenario, user, sessionContext } = this.options;
 		const isZeroToHero = scenario?.id === 'beginner-confidence-bridge';
+		const isTutorMode = scenario?.role === 'tutor';
+		const isFirstTime = sessionContext?.isFirstTime || false;
 		const nativeLang = isZeroToHero
 			? user.nativeLanguageId
 				? this.getNativeLanguageName(user.nativeLanguageId)
 				: 'English'
 			: '';
 
-		const openingSection = isZeroToHero
-			? `## Opening
+		let openingSection = '';
+
+		if (isZeroToHero) {
+			openingSection = `## Opening
 CRITICAL: Start in ${nativeLang}, NOT ${this.options.language.name}
 - Greet and introduce: "We'll practice 2–3 lines in a real situation"
 - Ask: "Who do you want to talk to in ${this.options.language.name}?"
-- Introduce 2–3 anchor lines, have them repeat`
-			: `## Opening
+- Introduce 2–3 anchor lines, have them repeat`;
+		} else if (isTutorMode && isFirstTime) {
+			openingSection = `## Opening (First Conversation - Set Expectations)
+- Greet warmly in ${this.options.language.name}
+- Explain the teaching approach (1-2 sentences max):
+  "I'll teach you a phrase, then you practice it. We'll go back and forth like that. Ready?"
+- Set context: "${scenario?.context || 'Let\'s start with the basics.'}"
+- Start first EXPLAIN cycle: Introduce first phrase/pattern
+- Then immediately move to PRACTICE: "Try saying that?"`;
+		} else if (isTutorMode) {
+			openingSection = `## Opening (Tutor Mode)
+- Greet warmly in ${this.options.language.name}
+- Quick reminder of what you'll cover: "${scenario?.context || 'Today\'s focus'}"
+- Dive into EXPLAIN → PRACTICE cycle immediately`;
+		} else {
+			openingSection = `## Opening
 - Greet warmly in ${this.options.language.name}
 - Set context: "${scenario?.context || 'What would you like to practice?'}"`;
+		}
+
+		const turnTakingSection = isTutorMode
+			? `## Turn-Taking (Tutor Mode)
+- Follow EXPLAIN → PRACTICE → EXPLAIN → PRACTICE cycle
+- During EXPLAIN: Keep it to 1 sentence + example
+- During PRACTICE: Ask them to try, listen, correct if needed
+- Alternate phases every 2-4 exchanges
+- After 3-4 successful practice rounds, do a mini conversation combining what they learned
+- Use TIER rules for corrections and clarifications
+- PAUSE and WAIT for response after every prompt
+- Brief summary at end: "Today you learned: [phrase 1], [phrase 2], [phrase 3]. Great work!"`
+			: `## Turn-Taking
+- Follow TIER rules
+- PAUSE and WAIT for response
+- Brief summary at end`;
 
 		return `# Conversation Flow
 
 ${openingSection}
 
-## Turn-Taking
-- Follow TIER rules
-- PAUSE and WAIT for response
-- Brief summary at end`;
+${turnTakingSection}`;
 	}
 
 	private buildSafetyEscalation(): string {
