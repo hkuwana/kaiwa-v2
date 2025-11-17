@@ -1,4 +1,4 @@
-import { logger } from '../logger';
+import { logger } from '$lib/logger';
 // 💳 Simple Payment Service (MVP)
 // Pure functions for Stripe operations and DB backup
 // Stripe is the source of truth, DB is for backup/performance

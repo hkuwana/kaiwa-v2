@@ -1,4 +1,4 @@
-import { logger } from '../logger';
+import { logger } from '$lib/logger';
 // src/lib/server/services/openai.service.ts
 
 import OpenAI from 'openai';

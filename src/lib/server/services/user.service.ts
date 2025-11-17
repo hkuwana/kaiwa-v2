@@ -1,4 +1,4 @@
-import { logger } from '../logger';
+import { logger } from '$lib/logger';
 // src/lib/server/services/user.service.ts
 
 import * as userPreferencesService from './user-preferences.service';

@@ -1,4 +1,4 @@
-import { logger } from './logger';
+import { logger } from '$lib/logger';
 // 📊 PostHog Server-Side Analytics
 // Server-side analytics for SSR page views and API usage tracking
 

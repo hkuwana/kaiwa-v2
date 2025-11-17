@@ -1,4 +1,4 @@
-import { logger } from '../logger';
+import { logger } from '$lib/logger';
 // 🔥 Database Reset Utility
 // Enhanced with safety checks and environment awareness
 

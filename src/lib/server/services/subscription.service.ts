@@ -1,4 +1,4 @@
-import { logger } from '../logger';
+import { logger } from '$lib/logger';
 // src/lib/server/services/subscription.service.ts
 // Subscription business logic service
 

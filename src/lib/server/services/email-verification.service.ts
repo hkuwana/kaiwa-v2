@@ -1,4 +1,4 @@
-import { logger } from '../logger';
+import { logger } from '$lib/logger';
 import { emailVerificationRepository, userRepository } from '$lib/server/repositories';
 import { EmailService } from './email-service';
 

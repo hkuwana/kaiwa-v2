@@ -1,4 +1,4 @@
-import { logger } from '../logger';
+import { logger } from '$lib/logger';
 import { Resend } from 'resend';
 import { formatDistanceToNow } from 'date-fns';
 import { env } from '$env/dynamic/private';

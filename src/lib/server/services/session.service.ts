@@ -1,4 +1,4 @@
-import { logger } from '../logger';
+import { logger } from '$lib/logger';
 // src/lib/server/services/session.service.ts
 
 import { dev } from '$app/environment';

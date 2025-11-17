@@ -1,4 +1,4 @@
-import { logger } from './logger';
+import { logger } from '$lib/logger';
 // 📈 Server-Side Analytics Service
 // Tracks events to database and PostHog for comprehensive analytics
 

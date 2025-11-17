@@ -1,4 +1,4 @@
-import { logger } from '../logger';
+import { logger } from '$lib/logger';
 // src/lib/server/services/conversationSummary.service.ts
 
 import * as openaiService from './openai.service';

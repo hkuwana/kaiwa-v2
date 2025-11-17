@@ -1,4 +1,4 @@
-import { logger } from '../logger';
+import { logger } from '$lib/logger';
 // 🌐 Translation Service
 // Simplified translation service using Google Translate for translation and Kuroshiro for Japanese text processing
 

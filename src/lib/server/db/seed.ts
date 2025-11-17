@@ -2,7 +2,7 @@
 // 🌱 Database Seeding Script
 // Seeds essential data for development and production
 
-import { logger } from '../logger';
+import { logger } from '$lib/logger';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { languages, tiers, speakers, scenarios } from './schema/index';

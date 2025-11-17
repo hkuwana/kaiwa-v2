@@ -1,4 +1,4 @@
-import { logger } from '../logger';
+import { logger } from '$lib/logger';
 // src/lib/server/repositories/user-scenario-progress.repository.ts
 
 import { db } from '$lib/server/db/index';

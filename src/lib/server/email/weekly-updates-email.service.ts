@@ -1,4 +1,4 @@
-import { logger } from '../logger';
+import { logger } from '$lib/logger';
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 import { userSettingsRepository } from '$lib/server/repositories/user-settings.repository';

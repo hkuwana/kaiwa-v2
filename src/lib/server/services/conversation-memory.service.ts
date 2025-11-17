@@ -1,4 +1,4 @@
-import { logger } from '../logger';
+import { logger } from '$lib/logger';
 import { randomUUID } from 'crypto';
 import * as openaiService from './openai.service';
 import type { Message, Language } from '$lib/server/db/types';

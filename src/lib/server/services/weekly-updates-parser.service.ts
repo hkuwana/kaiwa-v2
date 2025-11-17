@@ -1,4 +1,4 @@
-import { logger } from '../logger';
+import { logger } from '$lib/logger';
 import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import type { WeeklyUpdateItem } from '$lib/server/email/weekly-updates-email.service';

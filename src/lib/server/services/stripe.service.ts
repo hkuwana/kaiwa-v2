@@ -8,7 +8,7 @@ import type { Subscription as DbSubscription, UserTier } from '../db/types';
 // Note: Using simplified payment.service.ts instead of subscription repository
 import { getAllStripePriceIds, getStripePriceId } from '../tiers';
 import { SvelteDate } from 'svelte/reactivity';
-import { logger } from '../logger';
+import { logger } from '$lib/logger';
 
 // Environment variables
 const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;
