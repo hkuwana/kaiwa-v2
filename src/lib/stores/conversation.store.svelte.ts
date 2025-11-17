@@ -765,10 +765,17 @@ export class ConversationStore {
 	private getTurnDetectionConfig() {
 		return this.audioInputMode === 'vad'
 			? {
+					// SERVER_VAD: Uses silence detection to chunk audio
 					type: 'server_vad' as const,
-					threshold: 0.5, // Sensitivity (0.0 to 1.0)
+					threshold: 0.7, // Sensitivity (0.0 to 1.0) - Higher = less sensitive to background noise
 					prefixPaddingMs: 300, // Audio before speech starts
-					silenceDurationMs: 500 // Silence duration to detect end of speech
+					silenceDurationMs: 800 // Silence duration to detect end of speech - longer to avoid phantom triggers
+
+					// ALTERNATIVE: SEMANTIC_VAD - Uses AI to detect when user finished speaking
+					// Less likely to interrupt mid-sentence, better context awareness
+					// To use: uncomment below and comment out the server_vad config above
+					// type: 'semantic_vad' as const,
+					// eagerness: 'low' // 'low' | 'medium' | 'high' - how eager to interrupt
 				}
 			: null; // null for PTT mode - disables server-side turn detection
 	}
