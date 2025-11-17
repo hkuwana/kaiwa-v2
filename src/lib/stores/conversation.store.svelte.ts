@@ -64,7 +64,8 @@ export class ConversationStore {
 	error = $state<string | null>(null);
 
 	// Track when assistant last spoke to prevent phantom audio detection
-	private lastAssistantFinishTime: number = 0;
+	// MUST be $state for reactive tracking in filter closure
+	private lastAssistantFinishTime = $state<number>(0);
 	waitingForUserToStart = $state<boolean>(false);
 	audioInputMode = $state<AudioInputMode>('ptt'); // Default to Push-to-Talk
 
