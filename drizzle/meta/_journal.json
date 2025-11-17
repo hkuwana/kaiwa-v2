@@ -232,6 +232,13 @@
       "when": 1762778354560,
       "tag": "0032_productive_steel_serpent",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1763362472558,
+      "tag": "0033_light_daredevil",
+      "breakpoints": true
     }
   ]
 }
