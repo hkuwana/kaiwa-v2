@@ -215,7 +215,12 @@
 				})
 			});
 
-			const analysisData = await response.json() as { success: boolean; error?: string; run?: AnalysisRun; suggestions?: unknown[] };
+			const analysisData = (await response.json()) as {
+				success: boolean;
+				error?: string;
+				run?: AnalysisRun;
+				suggestions?: unknown[];
+			};
 
 			if (!response.ok || !analysisData.success) {
 				throw new Error(analysisData?.error || 'Analysis failed');

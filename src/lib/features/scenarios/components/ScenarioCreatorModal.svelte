@@ -9,8 +9,8 @@
 		ScenarioVisibility
 	} from '$lib/services/scenarios/user-scenarios.service';
 	import { SvelteSet } from 'svelte/reactivity';
-	
-interface Props {
+
+	interface Props {
 		open: boolean;
 		onClose: () => void;
 		onScenarioCreated?: (result: SaveScenarioResult) => void;

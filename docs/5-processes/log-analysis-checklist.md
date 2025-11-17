@@ -61,7 +61,7 @@ These logs use `console.warn()` or `console.error()` so they'll have **yellow/re
 
 - [ ] Found `input_audio_buffer.commit`
 - [ ] Found `input_audio_buffer.committed` with `item_id`
-- [ ] Note the `item_id`: ******\_\_\_\_******
+- [ ] Note the `item_id`: **\*\***\_\_\_\_**\*\***
 
 ---
 
@@ -83,7 +83,7 @@ These logs use `console.warn()` or `console.error()` so they'll have **yellow/re
 - [ ] Found item with `role: "user"`
 - [ ] Found item with `role: "assistant"`
 - [ ] User item `item_id` matches from Section 1: Yes / No
-- [ ] Note timestamp of user item: ******\_\_\_\_******
+- [ ] Note timestamp of user item: **\*\***\_\_\_\_**\*\***
 
 ---
 
@@ -104,8 +104,8 @@ These logs use `console.warn()` or `console.error()` so they'll have **yellow/re
 
 - [ ] Found `🎤 USER TRANSCRIPTION COMPLETED`
 - [ ] Found `🤖 ASSISTANT TRANSCRIPTION COMPLETED`
-- [ ] User transcript text: ******\_\_\_\_******
-- [ ] Note timestamp: ******\_\_\_\_******
+- [ ] User transcript text: **\*\***\_\_\_\_**\*\***
+- [ ] Note timestamp: **\*\***\_\_\_\_**\*\***
 
 ---
 

@@ -9,7 +9,9 @@
 	let devices = $state<MediaDeviceInfo[]>([]);
 	let stream = $state<MediaStream | null>(null);
 	let audioLevel = $state(0);
-	let events = $state<Array<{ type: string; data: Record<string, unknown>; timestamp: string }>>([]);
+	let events = $state<Array<{ type: string; data: Record<string, unknown>; timestamp: string }>>(
+		[]
+	);
 	let eventCount = $state(0);
 	let isTesting = $state(false);
 

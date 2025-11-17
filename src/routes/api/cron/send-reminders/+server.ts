@@ -7,7 +7,7 @@ import { userSettingsRepository } from '$lib/server/repositories/user-settings.r
 import { EmailPermissionService } from '$lib/server/email/email-permission.service';
 import { env } from '$env/dynamic/private';
 import { Resend } from 'resend';
-import type { User, UserSettings } from '$lib/server/db/types';
+import type { User } from '$lib/server/db/types';
 
 interface UserSegments {
 	newUsers: User[];
@@ -143,7 +143,8 @@ export const GET = async ({ request, url }) => {
 				// TODO: After DB migration, uncomment this to use user preferences
 				// For now, use default: weekly on Friday
 				const settings = await userSettingsRepository.getSettingsByUserId(user.id);
-				const frequency = (settings?.practiceReminderFrequency as 'daily' | 'weekly' | 'never' | null) || 'weekly';
+				const frequency =
+					(settings?.practiceReminderFrequency as 'daily' | 'weekly' | 'never' | null) || 'weekly';
 				const preferredDay = (settings?.preferredReminderDay as string | null) || 'friday';
 
 				// Skip if user has set frequency to 'never' (when DB migration is complete)
@@ -308,7 +309,8 @@ async function shouldSendReminder(userId: string): Promise<boolean> {
 
 	// TODO: After DB migration, use actual frequency from DB
 	// For now, default to weekly (7 days)
-	const frequency = (settings?.practiceReminderFrequency as 'daily' | 'weekly' | 'never' | null) || 'weekly';
+	const frequency =
+		(settings?.practiceReminderFrequency as 'daily' | 'weekly' | 'never' | null) || 'weekly';
 	const hoursSinceLastReminder =
 		(Date.now() - settings.lastReminderSentAt.getTime()) / (1000 * 60 * 60);
 

@@ -275,7 +275,7 @@ export class RealtimeEventCoordinator {
 		this.historyText[itemId] = text;
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	 
 	private maybeSendResponseForCommit(_commit: PendingCommitEntry, _reason: string) {
 		// This would be called to determine if a response should be created
 		// Implementation depends on response.created event handling

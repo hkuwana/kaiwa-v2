@@ -523,7 +523,7 @@
 			/>
 			<TemplateCard
 				title="Devlog – Universal Speech Speed"
-				content="We heard: \"Speech too fast.\"\nWe shipped: Dual-layer (AI pacing + playback slider).\nDemo: Toggle + immediate effect.\nHow to try: Advanced Audio → Speech Speed."
+				content="We heard: 'Speech too fast.'\nWe shipped: Dual-layer (AI pacing + playback slider).\nDemo: Toggle + immediate effect.\nHow to try: Advanced Audio → Speech Speed."
 			/>
 			<TemplateCard
 				title="Pinned Comment"

@@ -19,7 +19,7 @@
 		showDetails?: boolean;
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	 
 	let { confidenceData, showDetails = $bindable(false) }: Props = $props();
 
 	// Calculate confidence change

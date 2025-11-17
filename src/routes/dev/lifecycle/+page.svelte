@@ -253,16 +253,16 @@
 
 &lt;!-- Smart variant (recommended) --&gt;
 &lt;OnboardingLifecycle
-  completedSteps={`["setup"]`}
-  showRetentionHints={`true`}
+  completedSteps=["setup"]
+  showRetentionHints=true
   variant="smart"
 /&gt;
 
 &lt;!-- Manual control --&gt;
 &lt;OnboardingLifecycle
-  completedSteps={`["setup"]`}
+  completedSteps=["setup"]
   variant="floating"
-  hideOnRoutes={`["/conversation"]`}
+  hideOnRoutes=["/conversation"]
 /&gt;</code
 								></pre>
 						</div>

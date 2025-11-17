@@ -146,7 +146,9 @@
 	async function sendToAllSubscribers() {
 		if (!selectedUpdateDate) return;
 
-		const confirmed = window.confirm('Are you sure you want to send this to ALL subscribers? This cannot be undone.');
+		const confirmed = window.confirm(
+			'Are you sure you want to send this to ALL subscribers? This cannot be undone.'
+		);
 		if (!confirmed) {
 			return;
 		}

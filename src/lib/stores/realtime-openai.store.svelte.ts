@@ -71,7 +71,12 @@ export class RealtimeOpenAIStore {
 	private currentInstructions: string | null = null;
 	// Captured events (server/client) for dev UI
 	events = $state<
-		Array<{ dir: 'server' | 'client'; type: string; payload: SDKTransportEvent | unknown; ts: number }>
+		Array<{
+			dir: 'server' | 'client';
+			type: string;
+			payload: SDKTransportEvent | unknown;
+			ts: number;
+		}>
 	>([]);
 	private maxEvents = 100;
 
@@ -724,8 +729,7 @@ export class RealtimeOpenAIStore {
 
 				if (createdEvent.item?.type === 'message') {
 					const role = createdEvent.item?.role;
-					const textParts =
-						createdEvent.item.content?.filter((part) => part.type === 'text') || [];
+					const textParts = createdEvent.item.content?.filter((part) => part.type === 'text') || [];
 					const content = textParts.map((part) => part.text).join(' ');
 
 					// Return message events for both user and assistant

@@ -8,7 +8,9 @@
 	import type { AnalysisFindingDraft } from '$lib/features/analysis/types/analysis-logbook.types';
 	import { SvelteDate, SvelteSet } from 'svelte/reactivity';
 	// Lazy load analysis store to prevent initialization issues
-	let analysisStore = $state<{ unifiedConversation?: { suggestions?: AnalysisSuggestion[] } } | null>(null);
+	let analysisStore = $state<{
+		unifiedConversation?: { suggestions?: AnalysisSuggestion[] };
+	} | null>(null);
 
 	type ModuleMeta = {
 		id: string;

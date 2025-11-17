@@ -301,8 +301,7 @@ export function getArchetypeByCulturalMatch(
 	const matches = viralPersonalityArchetypes.filter((archetype) => {
 		const cultures = archetype.culturalMix.map((mix) => mix.culture as string);
 		return (
-			cultures.includes(primaryCulture) ||
-			(secondaryCulture && cultures.includes(secondaryCulture))
+			cultures.includes(primaryCulture) || (secondaryCulture && cultures.includes(secondaryCulture))
 		);
 	});
 
