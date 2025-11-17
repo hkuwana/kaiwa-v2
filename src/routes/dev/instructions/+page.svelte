@@ -10,7 +10,6 @@
 	import { languages } from '$lib/data/languages';
 	import { scenariosData } from '$lib/data/scenarios';
 	import { speakersData } from '$lib/data/speakers';
-	import type { Speaker } from '$lib/server/db/types';
 	import { userManager } from '$lib/stores/user.store.svelte';
 
 	// ============================================

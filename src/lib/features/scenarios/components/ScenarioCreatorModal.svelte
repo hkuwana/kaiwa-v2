@@ -8,9 +8,8 @@
 		ScenarioMode,
 		ScenarioVisibility
 	} from '$lib/services/scenarios/user-scenarios.service';
-	import { onMount } from 'svelte';
-
-	interface Props {
+	
+interface Props {
 		open: boolean;
 		onClose: () => void;
 		onScenarioCreated?: (result: SaveScenarioResult) => void;

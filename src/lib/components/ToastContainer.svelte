@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { notificationStore } from '$lib/stores/notification.store.svelte';
-	import { fade, slide } from 'svelte/transition';
+	import { slide } from 'svelte/transition';
 
 	const toasts = $derived(notificationStore.toasts);
 
