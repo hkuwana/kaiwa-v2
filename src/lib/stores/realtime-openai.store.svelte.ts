@@ -1327,6 +1327,29 @@ export class RealtimeOpenAIStore {
 			return;
 		}
 
+		// 🔧 FIX: Cancel all old pending commits before starting new PTT session
+		// This prevents duplicate responses when PTT is pressed multiple times
+		if (this.pendingCommits.length > 0) {
+			logger.warn('🧹 CANCELING OLD PENDING COMMITS on new PTT start', {
+				oldCommitsCount: this.pendingCommits.length,
+				oldCommitNumbers: this.pendingCommits.map((c) => c.commitNumber),
+				reason: 'User started new PTT session - old commits should not trigger responses'
+			});
+
+			// Mark all old commits as no longer awaiting response
+			for (const commit of this.pendingCommits) {
+				commit.awaitingResponseCreate = false;
+				commit.hasSentResponse = true;
+			}
+
+			// Clear the pending commits array
+			this.pendingCommits = [];
+
+			logger.warn('✅ CLEARED all pending commits', {
+				remainingCommits: this.pendingCommits.length
+			});
+		}
+
 		// IMPORTANT: Cancel any in-progress response before starting new input
 		// This prevents duplicate responses when PTT is pressed during assistant speech
 		logger.warn('🛑 CANCELING any in-progress response', {

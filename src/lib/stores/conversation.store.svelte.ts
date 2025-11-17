@@ -51,6 +51,13 @@ import { conversationPersistenceService } from '$lib/services/conversation-persi
 import { languages as dataLanguages } from '$lib/data/languages';
 
 const KNOWN_USER_TIERS: UserTier[] = ['free', 'plus', 'premium'];
+
+// Store phantom audio filter state outside reactive system for closure access
+// This persists across reactive updates and is directly accessible by filter callback
+const phantomAudioState = {
+	lastAssistantFinishTime: 0
+};
+
 export class ConversationStore {
 	// Reactive state
 	status = $state<ConversationStatus>('idle');
@@ -62,6 +69,9 @@ export class ConversationStore {
 	voice: Voice = DEFAULT_VOICE;
 	speaker = $state<Speaker | undefined>(undefined);
 	error = $state<string | null>(null);
+
+	// Note: lastAssistantFinishTime moved to module-level phantomAudioState
+	// for reliable closure access (Svelte $state doesn't work in callbacks)
 	waitingForUserToStart = $state<boolean>(false);
 	audioInputMode = $state<AudioInputMode>('ptt'); // Default to Push-to-Talk
 
@@ -138,13 +148,40 @@ export class ConversationStore {
 				return true;
 			}
 
+			const now = Date.now();
+			const timeSinceAssistantFinished = now - phantomAudioState.lastAssistantFinishTime;
+
 			logger.warn('🔍 TRANSCRIPT FILTER CHECK', {
 				itemId: meta.itemId,
 				text: meta.text,
 				textLength: meta.text.length,
 				suppressFlag: this.suppressNextUserTranscript,
+				lastAssistantFinishTime: phantomAudioState.lastAssistantFinishTime,
+				now: now,
+				timeSinceAssistantFinished,
 				timestamp: new SvelteDate().toISOString()
 			});
+
+			// PHANTOM AUDIO DETECTION: Block very short transcripts that come too soon after assistant
+			// This prevents the "AI responding to itself" bug where VAD detects phantom audio
+			const COOLDOWN_MS = 2500; // 2.5 seconds after assistant finishes (increased from 1.5s)
+			const MIN_LENGTH_DURING_COOLDOWN = 20; // Require longer transcripts during cooldown (increased from 15)
+
+			if (
+				phantomAudioState.lastAssistantFinishTime > 0 &&
+				timeSinceAssistantFinished < COOLDOWN_MS &&
+				meta.text.trim().length < MIN_LENGTH_DURING_COOLDOWN
+			) {
+				logger.warn('🚫 PHANTOM AUDIO BLOCKED: Short transcript too soon after assistant', {
+					itemId: meta.itemId,
+					text: meta.text,
+					textLength: meta.text.trim().length,
+					timeSinceAssistantFinished,
+					cooldownMs: COOLDOWN_MS,
+					minLength: MIN_LENGTH_DURING_COOLDOWN
+				});
+				return false;
+			}
 
 			const shouldSuppress = this.suppressNextUserTranscript;
 			// Reset flag regardless of decision so it only applies once
@@ -765,10 +802,16 @@ export class ConversationStore {
 	private getTurnDetectionConfig() {
 		return this.audioInputMode === 'vad'
 			? {
-					type: 'server_vad' as const,
-					threshold: 0.5, // Sensitivity (0.0 to 1.0)
-					prefixPaddingMs: 300, // Audio before speech starts
-					silenceDurationMs: 500 // Silence duration to detect end of speech
+					// SEMANTIC_VAD: Uses AI to detect when user finished speaking
+					// More reliable than server_vad - won't respond to phantom audio
+					type: 'semantic_vad' as const,
+					eagerness: 'low' as const // 'low' = patient, waits for user to finish
+
+					// OLD: SERVER_VAD (had phantom audio detection issues)
+					// type: 'server_vad' as const,
+					// threshold: 0.7,
+					// prefixPaddingMs: 300,
+					// silenceDurationMs: 800
 				}
 			: null; // null for PTT mode - disables server-side turn detection
 	}
@@ -1019,7 +1062,13 @@ export class ConversationStore {
 			if (ev.role === 'assistant') {
 				const hasStreamingMessages = messageService.hasStreamingMessage(this.messages);
 				if (!hasStreamingMessages) {
-					logger.info('🤖 Assistant message complete - scheduling save');
+					const timestamp = Date.now();
+					phantomAudioState.lastAssistantFinishTime = timestamp;
+					logger.info('🤖 Assistant message complete - scheduling save', {
+						lastAssistantFinishTime: phantomAudioState.lastAssistantFinishTime,
+						timestampSet: timestamp,
+						isEqual: phantomAudioState.lastAssistantFinishTime === timestamp
+					});
 					// More aggressive save after assistant responses
 					this.debouncedSave();
 				}
