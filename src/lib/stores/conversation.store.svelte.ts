@@ -149,6 +149,8 @@ export class ConversationStore {
 				text: meta.text,
 				textLength: meta.text.length,
 				suppressFlag: this.suppressNextUserTranscript,
+				lastAssistantFinishTime: this.lastAssistantFinishTime,
+				now: now,
 				timeSinceAssistantFinished,
 				timestamp: new SvelteDate().toISOString()
 			});
@@ -1053,9 +1055,13 @@ export class ConversationStore {
 			if (ev.role === 'assistant') {
 				const hasStreamingMessages = messageService.hasStreamingMessage(this.messages);
 				if (!hasStreamingMessages) {
-					logger.info('🤖 Assistant message complete - scheduling save');
-					// Track when assistant finished speaking to prevent phantom audio detection
-					this.lastAssistantFinishTime = Date.now();
+					const timestamp = Date.now();
+					this.lastAssistantFinishTime = timestamp;
+					logger.info('🤖 Assistant message complete - scheduling save', {
+						lastAssistantFinishTime: this.lastAssistantFinishTime,
+						timestampSet: timestamp,
+						isEqual: this.lastAssistantFinishTime === timestamp
+					});
 					// More aggressive save after assistant responses
 					this.debouncedSave();
 				}
