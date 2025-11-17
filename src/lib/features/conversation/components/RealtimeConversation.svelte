@@ -1,7 +1,9 @@
 <script lang="ts">
+	import type { Language } from '$lib/server/db/types';
+
 	interface Props {
-		language: any;
-		voice: any;
+		language: Language | null;
+		voice: string | null;
 		autoStart?: boolean;
 	}
 

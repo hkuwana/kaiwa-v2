@@ -514,7 +514,7 @@ const createAudioServiceCore = () => {
 			stream?: MediaStream;
 			error?: ReturnType<typeof createUserFriendlyError>;
 		}> {
-			const core = this;
+			const _core = this;
 			try {
 				const stream = await this.getStream();
 				return { success: true, stream };

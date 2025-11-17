@@ -115,8 +115,14 @@
 		if (dev) {
 			// 🔍 DEV: Expose stores and utilities on window for debugging
 			if (typeof window !== 'undefined') {
-				(window as any).dev = {
-					...(window as any).dev,
+				interface WindowDev {
+					realtimeOpenAI: typeof realtimeOpenAI;
+					conversationStore: typeof conversationStore;
+					getInstructions: () => string | null;
+					logInstructions: () => void;
+				}
+				(window as Window & { dev?: WindowDev }).dev = {
+					...(window as Window & { dev?: WindowDev }).dev,
 					realtimeOpenAI,
 					conversationStore,
 					getInstructions: () => realtimeOpenAI.getCurrentInstructions(),

@@ -322,7 +322,7 @@
 										</tr>
 									</thead>
 									<tbody>
-										{#each keywordResults as keyword}
+										{#each keywordResults as keyword (keyword.keyword)}
 											<tr>
 												<td class="font-semibold">{keyword.keyword}</td>
 												<td>{keyword.volume.toLocaleString()}</td>
@@ -345,7 +345,7 @@
 												</td>
 												<td>
 													<div class="flex flex-wrap gap-1">
-														{#each keyword.relatedKeywords.slice(0, 2) as related}
+														{#each keyword.relatedKeywords.slice(0, 2) as related (related)}
 															<span class="badge badge-outline badge-sm">{related}</span>
 														{/each}
 													</div>
@@ -364,7 +364,7 @@
 					<div class="card-body">
 						<h3 class="card-title">Recommended Keywords for Kaiwa</h3>
 						<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-							{#each mockKeywords as keyword}
+							{#each mockKeywords as keyword (keyword.keyword)}
 								<div class="card bg-base-200 shadow">
 									<div class="card-body p-4">
 										<div class="mb-2 flex items-center justify-between">
@@ -413,7 +413,7 @@
 
 						{#if contentSuggestions.length > 0}
 							<div class="space-y-4">
-								{#each contentSuggestions as suggestion}
+								{#each contentSuggestions as suggestion (suggestion.title)}
 									<div class="card bg-base-200 shadow">
 										<div class="card-body p-4">
 											<div class="mb-2 flex items-start justify-between">
@@ -427,7 +427,7 @@
 												<div>
 													<span class="font-medium">Target Keywords:</span>
 													<div class="mt-1 flex flex-wrap gap-1">
-														{#each suggestion.keywords as keyword}
+														{#each suggestion.keywords as keyword (keyword)}
 															<span class="badge badge-outline badge-sm">{keyword}</span>
 														{/each}
 													</div>
@@ -611,7 +611,7 @@
 									<p class="text-green-600">🎉 No technical issues found!</p>
 								{:else}
 									<ul class="space-y-2">
-										{#each technicalIssues as issue}
+										{#each technicalIssues as issue (issue)}
 											<li class="flex items-center gap-2 text-sm">
 												<span class="text-red-500">❌</span>
 												<span>{issue}</span>

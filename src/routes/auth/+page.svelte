@@ -13,11 +13,18 @@
 	const newsletter = $derived(data.newsletter);
 	const emailAuthEnabled = dev;
 
+	interface PendingAssessment {
+		targetLanguageId?: string;
+		learningGoal?: string;
+		speakingLevel?: number;
+		dailyGoalSeconds?: number;
+	}
+
 	let isLogin = $state(userManager.isLoggedIn ? true : false);
 	let email = $state('');
 	let password = $state('');
 	let error = $state('');
-	let pendingAssessment: any = $state(null);
+	let pendingAssessment = $state<PendingAssessment | null>(null);
 	let agreedToTerms = $state(false);
 	let showEmailForm = $state(false);
 
@@ -152,7 +159,7 @@
 								} catch {
 									// Intentionally empty - attribution data is optional
 								}
-								let utm: any = {};
+								let utm: Record<string, unknown> = {};
 								try {
 									const stored = localStorage.getItem('kaiwa_attribution');
 									if (stored) utm = JSON.parse(stored).utm || {};

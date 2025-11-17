@@ -135,7 +135,11 @@ Respond ONLY with valid JSON.`;
 						? `Found ${suggestions.length} language suggestions (grammar, phrases, patterns)`
 						: 'Language analysis complete – no actionable suggestions',
 					recommendations: suggestions.map(
-						(s: any) => `${s.macroSkill || 'grammar'}: ${s.explanation ?? s.suggestedText}`
+						(s: {
+							macroSkill?: string;
+							explanation?: string;
+							suggestedText: string;
+						}) => `${s.macroSkill || 'grammar'}: ${s.explanation ?? s.suggestedText}`
 					),
 					details: { suggestions }
 				};

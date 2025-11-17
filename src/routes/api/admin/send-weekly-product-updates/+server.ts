@@ -14,7 +14,7 @@ import type { WeeklyDigestOptions } from '$lib/server/email/weekly-updates-email
  *   POST /api/admin/send-weekly-product-updates
  *   Authorization: Bearer {ADMIN_TOKEN}
  */
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST: RequestHandler = async ({ locals }) => {
 	try {
 		// Check if user is admin (you can add proper admin auth later)
 		if (!locals.user) {

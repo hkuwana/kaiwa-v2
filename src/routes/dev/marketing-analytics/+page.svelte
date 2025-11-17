@@ -342,7 +342,7 @@
 			<div class="space-y-6">
 				<!-- Key Metrics -->
 				<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-					{#each mockMetrics as metric}
+					{#each mockMetrics as metric (metric.name)}
 						<div class="card bg-base-100 shadow-lg">
 							<div class="card-body p-4">
 								<div class="flex items-center justify-between">
@@ -399,7 +399,7 @@
 									</tr>
 								</thead>
 								<tbody>
-									{#each mockTrafficSources as source}
+									{#each mockTrafficSources as source (source.source)}
 										<tr>
 											<td class="font-semibold">{source.source}</td>
 											<td>{formatNumber(source.visitors)}</td>
@@ -461,7 +461,7 @@
 									</tr>
 								</thead>
 								<tbody>
-									{#each mockContentPerformance as content}
+									{#each mockContentPerformance as content (content.url)}
 										<tr>
 											<td>
 												<div>
@@ -498,7 +498,7 @@
 						<div class="card-body">
 							<h3 class="card-title">Top Performing Content</h3>
 							<div class="space-y-3">
-								{#each mockContentPerformance.slice(0, 3) as content, index}
+								{#each mockContentPerformance.slice(0, 3) as content, index (content.url)}
 									<div class="flex items-center justify-between">
 										<div class="flex items-center gap-3">
 											<div class="text-lg font-bold text-primary">#{index + 1}</div>
@@ -566,7 +566,7 @@
 									</tr>
 								</thead>
 								<tbody>
-									{#each mockCampaigns as campaign}
+									{#each mockCampaigns as campaign (campaign.name)}
 										<tr>
 											<td class="font-semibold">{campaign.name}</td>
 											<td>{campaign.platform}</td>

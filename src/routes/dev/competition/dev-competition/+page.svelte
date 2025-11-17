@@ -209,7 +209,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#each capabilityMatrix as row}
+					{#each capabilityMatrix as row (row.key)}
 						<tr class="text-sm">
 							<td class="font-medium">{row.key}</td>
 							<td>{row.speak}</td>
@@ -230,7 +230,7 @@
 		<div class="mb-10 rounded-xl border border-base-300 bg-base-100 p-6 shadow">
 			<h2 class="mb-3 text-xl font-semibold">Messaging Angles</h2>
 			<ul class="space-y-2 text-sm">
-				{#each messaging as m}
+				{#each messaging as m, index (index)}
 					<li>• {m}</li>
 				{/each}
 			</ul>
@@ -240,7 +240,7 @@
 		<div class="rounded-xl border border-base-300 bg-base-100 p-6 shadow">
 			<h2 class="mb-3 text-xl font-semibold">Next Steps (0–90 days)</h2>
 			<ul class="space-y-2 text-sm">
-				{#each nextSteps as s}
+				{#each nextSteps as s, index (index)}
 					<li>• {s}</li>
 				{/each}
 			</ul>

@@ -241,6 +241,8 @@
 					<!-- Japanese text with furigana display -->
 					<div class="text-base">
 						<div class="relative" style="line-height: 2em;">
+							<!-- svelte-ignore svelte/no-at-html-tags -->
+							<!-- Safe: message.hiragana contains sanitized furigana ruby markup generated server-side -->
 							{@html message.hiragana}
 						</div>
 					</div>
@@ -254,6 +256,8 @@
 					<!-- Chinese text with pinyin display -->
 					<div class="text-base">
 						<div class="relative" style="line-height: 2em;">
+							<!-- svelte-ignore svelte/no-at-html-tags -->
+							<!-- Safe: pinyinRuby contains sanitized pinyin ruby markup generated server-side -->
 							{@html message.otherScripts.pinyinRuby}
 						</div>
 					</div>
@@ -273,6 +277,8 @@
 						<!-- Show original content when scripts not visible -->
 						<div class="text-base">
 							{#if highlightedContent()}
+								<!-- svelte-ignore svelte/no-at-html-tags -->
+								<!-- Safe: highlightedContent() returns sanitized HTML for text highlighting -->
 								{@html highlightedContent()}
 							{:else}
 								{message.content}
@@ -283,6 +289,8 @@
 					<!-- Other text without script overlays -->
 					<div class="text-base">
 						{#if highlightedContent()}
+							<!-- svelte-ignore svelte/no-at-html-tags -->
+							<!-- Safe: highlightedContent() returns sanitized HTML for text highlighting -->
 							{@html highlightedContent()}
 						{:else}
 							{message.content}
@@ -305,6 +313,8 @@
 						activeIndex={normalizedActiveWordIndex}
 					/>
 				{:else if highlightedContent()}
+					<!-- svelte-ignore svelte/no-at-html-tags -->
+					<!-- Safe: highlightedContent() returns sanitized HTML for text highlighting -->
 					{@html highlightedContent()}
 				{:else}
 					{message.content}

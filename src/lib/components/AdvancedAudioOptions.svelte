@@ -15,7 +15,7 @@
 	let isExpanded = $state(false);
 	let selectedMode = $state<AudioInputMode>('vad'); // Default to Auto-Detect (VAD)
 	let isInitialized = $state(false);
-	let pttStopDelay = $state(500); // Default 500ms delay
+	let _pttStopDelay = $state(500); // Default 500ms delay
 
 	// Initialize from cookies, user preferences, or use VAD default
 	$effect(() => {

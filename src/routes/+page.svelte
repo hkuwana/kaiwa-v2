@@ -122,25 +122,23 @@
 
 	// Clear conversation data functions
 	function handleClearAllData() {
-		if (
-			confirm(
-				'This will clear ALL your stored data including preferences, settings, and conversation history. Are you sure?'
-			)
-		) {
+		const confirmed = window.confirm(
+			'This will clear ALL your stored data including preferences, settings, and conversation history. Are you sure?'
+		);
+		if (confirmed) {
 			clearAllConversationData();
-			alert('All data cleared! The page will reload.');
+			console.log('All data cleared! The page will reload.');
 			window.location.reload();
 		}
 	}
 
 	function handleClearConversationData() {
-		if (
-			confirm(
-				'This will clear only conversation-related data, keeping your preferences and settings. Continue?'
-			)
-		) {
+		const confirmed = window.confirm(
+			'This will clear only conversation-related data, keeping your preferences and settings. Continue?'
+		);
+		if (confirmed) {
 			clearConversationDataOnly();
-			alert('Conversation data cleared!');
+			console.log('Conversation data cleared!');
 		}
 	}
 
@@ -149,10 +147,10 @@
 		const localStorageCount = Object.keys(summary.localStorage).length;
 		const cookiesCount = Object.keys(summary.cookies).length;
 
-		alert(
-			`Stored Data Summary:\n\nlocalStorage: ${localStorageCount} items\nCookies: ${cookiesCount} items\n\nCheck console for details.`
-		);
 		console.log('📊 Conversation Data Summary:', summary);
+		console.log(
+			`Stored Data Summary:\n\nlocalStorage: ${localStorageCount} items\nCookies: ${cookiesCount} items`
+		);
 	}
 </script>
 

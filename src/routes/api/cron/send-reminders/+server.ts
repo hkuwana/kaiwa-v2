@@ -7,6 +7,36 @@ import { userSettingsRepository } from '$lib/server/repositories/user-settings.r
 import { EmailPermissionService } from '$lib/server/email/email-permission.service';
 import { env } from '$env/dynamic/private';
 import { Resend } from 'resend';
+import type { User, UserSettings } from '$lib/server/db/types';
+
+interface UserSegments {
+	newUsers: User[];
+	recentActive: User[];
+	slightlyInactive: User[];
+	moderatelyInactive: User[];
+	highlyInactive: User[];
+	dormant: User[];
+}
+
+interface CronStats {
+	total: number;
+	sent: number;
+	skipped: number;
+	failed: number;
+	segments: Record<string, number>;
+	dryRunPreviews?: Array<{
+		userId: string;
+		email: string;
+		segment: string;
+		subject: string;
+	}>;
+	dryRun: boolean;
+	testMode?: { emails: string[] };
+	emailsSent?: Array<{
+		email: string;
+		segment: string;
+	}>;
+}
 
 /**
  * API endpoint for sending reminder emails
@@ -113,8 +143,8 @@ export const GET = async ({ request, url }) => {
 				// TODO: After DB migration, uncomment this to use user preferences
 				// For now, use default: weekly on Friday
 				const settings = await userSettingsRepository.getSettingsByUserId(user.id);
-				const frequency = (settings as any)?.practiceReminderFrequency || 'weekly';
-				const preferredDay = (settings as any)?.preferredReminderDay || 'friday';
+				const frequency = (settings?.practiceReminderFrequency as 'daily' | 'weekly' | 'never' | null) || 'weekly';
+				const preferredDay = (settings?.preferredReminderDay as string | null) || 'friday';
 
 				// Skip if user has set frequency to 'never' (when DB migration is complete)
 				if (frequency === 'never') {
@@ -220,20 +250,20 @@ export const GET = async ({ request, url }) => {
 /**
  * Segment users by activity level
  */
-async function segmentUsers(users: any[]) {
+async function segmentUsers(users: User[]): Promise<UserSegments> {
 	const now = new Date();
 	const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 	const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
 	const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 	const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-	const segmented = {
-		newUsers: [] as any[], // Signed up but never practiced
-		recentActive: [] as any[], // Practiced in last 24h (don't remind)
-		slightlyInactive: [] as any[], // Last practice 1-3 days ago
-		moderatelyInactive: [] as any[], // Last practice 3-7 days ago
-		highlyInactive: [] as any[], // Last practice 7-30 days ago
-		dormant: [] as any[] // Last practice 30+ days ago
+	const segmented: UserSegments = {
+		newUsers: [], // Signed up but never practiced
+		recentActive: [], // Practiced in last 24h (don't remind)
+		slightlyInactive: [], // Last practice 1-3 days ago
+		moderatelyInactive: [], // Last practice 3-7 days ago
+		highlyInactive: [], // Last practice 7-30 days ago
+		dormant: [] // Last practice 30+ days ago
 	};
 
 	for (const user of users) {
@@ -278,7 +308,7 @@ async function shouldSendReminder(userId: string): Promise<boolean> {
 
 	// TODO: After DB migration, use actual frequency from DB
 	// For now, default to weekly (7 days)
-	const frequency = (settings as any)?.practiceReminderFrequency || 'weekly';
+	const frequency = (settings?.practiceReminderFrequency as 'daily' | 'weekly' | 'never' | null) || 'weekly';
 	const hoursSinceLastReminder =
 		(Date.now() - settings.lastReminderSentAt.getTime()) / (1000 * 60 * 60);
 
@@ -299,7 +329,7 @@ async function shouldSendReminder(userId: string): Promise<boolean> {
 /**
  * Send summary email to admin after cron job completes
  */
-async function sendCronSummaryEmail(stats: any): Promise<void> {
+async function sendCronSummaryEmail(stats: CronStats): Promise<void> {
 	try {
 		const resend = new Resend(env.RESEND_API_KEY);
 
@@ -367,10 +397,10 @@ async function sendCronSummaryEmail(stats: any): Promise<void> {
 							<div class="stat" style="max-height: 300px; overflow-y: auto; font-size: 13px;">
 								${
 									stats.emailsSent
-										.filter((e: any) => e.segment !== 'recentActive' && e.segment !== 'newUsers')
+										.filter((e) => e.segment !== 'recentActive' && e.segment !== 'newUsers')
 										.slice(0, 50)
 										.map(
-											(e: any) =>
+											(e) =>
 												`<div style="padding: 4px 0;">${e.email} <span style="color: #666;">(${e.segment})</span></div>`
 										)
 										.join('') || '<em>No inactive users</em>'

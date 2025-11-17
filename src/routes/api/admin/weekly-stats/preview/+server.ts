@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { userRepository } from '$lib/server/repositories';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
+import type { User } from '$lib/server/db/types';
 
 // Import the email building function (we'll make it public)
 // For now, we'll duplicate the logic here
@@ -108,7 +109,7 @@ async function calculateWeeklyStats(userId: string): Promise<WeeklyStatsData> {
 	};
 }
 
-function buildWeeklyStatsEmail(user: any, stats: WeeklyStatsData): string {
+function buildWeeklyStatsEmail(user: User, stats: WeeklyStatsData): string {
 	const firstName = user.displayName?.split(' ')[0] || 'there';
 	const languageName = stats.mostPracticedLanguage || 'N/A';
 

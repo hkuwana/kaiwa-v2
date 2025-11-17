@@ -5,7 +5,7 @@
 	import { posthogManager } from '$lib/client/posthog';
 
 	// Simple state
-	let debugData = $state<any>(null);
+	let debugData = $state<Record<string, unknown> | null>(null);
 	let isLoading = $state(false);
 	let testResult = $state<string>('');
 
@@ -246,7 +246,7 @@
 			</p>
 
 			<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-				{#each tiers as tier}
+				{#each tiers as tier (tier.id)}
 					<div class="rounded-lg border border-base-300 p-4">
 						<h3 class="mb-2 text-lg font-semibold">{tier.name}</h3>
 						<div class="mb-4 text-sm text-base-content/70">
@@ -282,7 +282,7 @@
 				<h2 class="mb-4 card-title text-xl">Available Tiers</h2>
 
 				<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-					{#each debugData.availableTiers as tier}
+					{#each debugData.availableTiers as tier (tier.tier)}
 						<div class="rounded-lg bg-base-200 p-3">
 							<h3 class="font-semibold capitalize">{tier.tier}</h3>
 							<div class="text-sm">

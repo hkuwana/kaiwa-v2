@@ -275,14 +275,14 @@
 		}
 	});
 
-	let displayAudioLevel = $state(audioLevel);
+	let _displayAudioLevel = $state(audioLevel);
 
 	// Use audio level from service if not provided as prop
 	$effect(() => {
 		if (audioLevel === 0 && currentAudioLevel > 0) {
-			displayAudioLevel = currentAudioLevel;
+			_displayAudioLevel = currentAudioLevel;
 		} else {
-			displayAudioLevel = audioLevel;
+			_displayAudioLevel = audioLevel;
 		}
 	});
 

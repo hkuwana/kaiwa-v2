@@ -124,7 +124,14 @@ export class MessageAudioAnalysisRepository {
 		}>
 	> {
 		const analysis = await this.getByMessageId(messageId);
-		return (analysis?.problematicWords as any) || [];
+		return (analysis?.problematicWords as Array<{
+			word: string;
+			issue: string;
+			severity: 'low' | 'medium' | 'high';
+			startMs: number;
+			endMs: number;
+			suggestion?: string;
+		}>) || [];
 	}
 
 	/**

@@ -25,8 +25,8 @@
 		return s;
 	});
 
-	const activeStep = $derived(steps().findIndex((s) => s.active) + 1);
-	const totalSteps = $derived(steps().length);
+	const _activeStep = $derived(steps().findIndex((s) => s.active) + 1);
+	const _totalSteps = $derived(steps().length);
 </script>
 
 {#if currentPath.startsWith('/')}

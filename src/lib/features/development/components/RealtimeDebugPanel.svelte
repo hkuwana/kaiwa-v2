@@ -13,7 +13,7 @@
 	}: {
 		messages: Message[];
 		realtimeMessages: Message[];
-		events: Array<{ dir: 'server' | 'client'; type: string; payload: any; ts: number }>;
+		events: Array<{ dir: 'server' | 'client'; type: string; payload: unknown; ts: number }>;
 		connectionStatus: string;
 		isCollapsed?: boolean;
 		onToggleCollapse?: () => void;
@@ -36,7 +36,7 @@
 		return 'UNKNOWN';
 	}
 
-	function formatTimestamp(timestamp: Date | any): string {
+	function formatTimestamp(timestamp: Date | string | number): string {
 		if (!timestamp) return 'No timestamp';
 		const date = timestamp instanceof Date ? timestamp : new SvelteDate(timestamp);
 		return date.toISOString().split('T')[1].slice(0, -1);

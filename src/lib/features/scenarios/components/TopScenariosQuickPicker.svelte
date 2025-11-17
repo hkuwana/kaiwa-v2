@@ -3,6 +3,7 @@
 	import { scenariosData, type Scenario } from '$lib/data/scenarios';
 	import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
 	import { goto } from '$app/navigation';
+	import { SvelteMap } from 'svelte/reactivity';
 
 	interface Props {
 		onScenarioSelect?: (scenario: Scenario) => void;
@@ -21,7 +22,7 @@
 	];
 
 	const topScenarios = $derived.by(() => {
-		const map = new Map<string, Scenario>();
+		const map = new SvelteMap<string, Scenario>();
 		for (const scenario of scenariosData) {
 			if (scenario.visibility === 'public' && scenario.isActive) {
 				map.set(scenario.id, scenario);
@@ -120,7 +121,7 @@
 					<!-- Difficulty -->
 					<div class="flex flex-wrap items-center gap-2 text-xs font-medium text-base-content/80">
 						<div class="flex items-center gap-1" aria-label={`${meta.label} difficulty`}>
-							{#each DIFFICULTY_SEGMENTS as segment}
+							{#each DIFFICULTY_SEGMENTS as segment (segment)}
 								<span
 									class="h-1.5 w-4 rounded-full bg-base-200 transition-colors"
 									class:bg-success={segment <= difficultyTier && meta.color === 'success'}

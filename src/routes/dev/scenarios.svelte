@@ -5,7 +5,7 @@
 <h1>Scenarios</h1>
 
 <ul>
-	{#each scenariosData as scenario}
+	{#each scenariosData as scenario (scenario.title)}
 		<li>
 			<h2>{scenario.title}</h2>
 			<p>{scenario.description}</p>

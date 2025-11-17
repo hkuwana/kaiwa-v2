@@ -576,15 +576,15 @@ I'm building tools to address these challenges and would love to hear your persp
 	static generateContent(platform: string, type: string): MarketingContent {
 		switch (platform.toLowerCase()) {
 			case 'reddit':
-				return this.generateRedditPost(type as any);
+				return this.generateRedditPost(type as 'founder-story' | 'practical-guide' | 'progress-update' | 'question');
 			case 'instagram':
-				return this.generateInstagramPost(type as any);
+				return this.generateInstagramPost(type as 'scenario-demo' | 'motivation' | 'tips' | 'behind-scenes');
 			case 'twitter':
-				return this.generateTwitterPost(type as any);
+				return this.generateTwitterPost(type as 'quick-tip' | 'question' | 'update' | 'thread-starter');
 			case 'linkedin':
-				return this.generateLinkedInPost(type as any);
+				return this.generateLinkedInPost(type as 'professional' | 'insight' | 'story' | 'question');
 			case 'tiktok':
-				return this.generateTikTokScript(type as any);
+				return this.generateTikTokScript(type as 'scenario-demo' | 'quick-tip' | 'story' | 'challenge');
 			default:
 				throw new Error(`Unsupported platform: ${platform}`);
 		}

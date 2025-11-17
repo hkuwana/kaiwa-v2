@@ -70,7 +70,9 @@ export class RealtimeOpenAIStore {
 	// Current instructions for response creation
 	private currentInstructions: string | null = null;
 	// Captured events (server/client) for dev UI
-	events = $state<Array<{ dir: 'server' | 'client'; type: string; payload: any; ts: number }>>([]);
+	events = $state<
+		Array<{ dir: 'server' | 'client'; type: string; payload: SDKTransportEvent | unknown; ts: number }>
+	>([]);
 	private maxEvents = 100;
 
 	// 🔍 DEV: Expose current instructions for debugging
@@ -159,7 +161,7 @@ export class RealtimeOpenAIStore {
 	private readonly SESSION_UPDATE_COOLDOWN_MS = 1000; // Prevent rapid updates
 	private pendingCommits: PendingCommitEntry[] = [];
 
-	private logEvent(dir: 'server' | 'client', type: string, payload: any) {
+	private logEvent(dir: 'server' | 'client', type: string, payload: SDKTransportEvent | unknown) {
 		try {
 			this.events = [{ dir, type, payload, ts: Date.now() }, ...this.events].slice(
 				0,
@@ -353,7 +355,8 @@ export class RealtimeOpenAIStore {
 		if (!event) return null;
 
 		// Direct audio transport event (WebSocket transport)
-		const audioBuffer = (event as any)?.data;
+		const eventWithData = event as SDKTransportEvent & { data?: ArrayBuffer };
+		const audioBuffer = eventWithData.data;
 		if (event.type === 'audio' && audioBuffer instanceof ArrayBuffer) {
 			return estimateDurationFromByteLength(
 				audioBuffer.byteLength,
@@ -364,12 +367,13 @@ export class RealtimeOpenAIStore {
 		}
 
 		// Official response audio delta events (base64-encoded chunks)
+		const eventWithDelta = event as SDKTransportEvent & { delta?: string };
 		if (
 			(event.type === 'response.output_audio.delta' || event.type === 'response.audio.delta') &&
-			typeof (event as any)?.delta === 'string'
+			typeof eventWithDelta.delta === 'string'
 		) {
 			const duration = estimateDurationFromBase64(
-				(event as any).delta as string,
+				eventWithDelta.delta,
 				this.outputAudioFormat,
 				this.outputSampleRate,
 				this.outputAudioChannels
@@ -380,7 +384,7 @@ export class RealtimeOpenAIStore {
 		}
 
 		// Legacy / fallback numeric fields for earlier transports
-		const legacy = event as unknown as Record<string, any>;
+		const legacy = event as unknown as Record<string, unknown>;
 		const candidates = [
 			legacy?.delta?.duration_ms,
 			legacy?.delta?.duration,
@@ -610,7 +614,16 @@ export class RealtimeOpenAIStore {
 	// Process server event using new realtime-agents.service approach
 	private processServerEventNew(serverEvent: SDKTransportEvent): {
 		type: 'message' | 'transcription' | 'connection_state' | 'ignore';
-		data: any;
+		data:
+			| {
+					type: 'user_transcript' | 'assistant_transcript';
+					text: string;
+					isFinal: boolean;
+					timestamp: Date;
+			  }
+			| { role: 'user' | 'assistant'; content: string; timestamp: Date }
+			| { state: string }
+			| null;
 	} {
 		switch (serverEvent.type) {
 			case 'conversation.item.input_audio_transcription.completed': {
@@ -670,7 +683,8 @@ export class RealtimeOpenAIStore {
 
 			case 'response.output_text.done':
 			case 'response.text.done': {
-				const text: string | undefined = (serverEvent as any)?.text;
+				const eventWithText = serverEvent as SDKTransportEvent & { text?: string };
+				const text: string | undefined = eventWithText.text;
 
 				if (text && typeof text === 'string') {
 					return {
@@ -688,7 +702,14 @@ export class RealtimeOpenAIStore {
 
 			case 'conversation.item.created':
 			case 'conversation.item.added': {
-				const createdEvent = serverEvent as any;
+				const createdEvent = serverEvent as SDKTransportEvent & {
+					item?: {
+						id?: string;
+						role?: 'user' | 'assistant';
+						type?: string;
+						content?: Array<{ type: string; text?: string }>;
+					};
+				};
 
 				// 🔍 DEBUGGING: Log ALL conversation items (user + assistant)
 				logger.debug('🔍 CONVERSATION ITEM CREATED/ADDED:', {
@@ -698,14 +719,14 @@ export class RealtimeOpenAIStore {
 					type: createdEvent.item?.type,
 					hasContent: !!createdEvent.item?.content,
 					contentLength: createdEvent.item?.content?.length || 0,
-					timestamp: new Date().toISOString()
+					timestamp: new SvelteDate().toISOString()
 				});
 
 				if (createdEvent.item?.type === 'message') {
 					const role = createdEvent.item?.role;
 					const textParts =
-						createdEvent.item.content?.filter((part: any) => part.type === 'text') || [];
-					const content = textParts.map((part: any) => part.text).join(' ');
+						createdEvent.item.content?.filter((part) => part.type === 'text') || [];
+					const content = textParts.map((part) => part.text).join(' ');
 
 					// Return message events for both user and assistant
 					// (no manual tracking - OpenAI server maintains conversation state)
@@ -724,7 +745,9 @@ export class RealtimeOpenAIStore {
 			}
 
 			case 'response.content_part.done': {
-				const partEvent = serverEvent as any;
+				const partEvent = serverEvent as SDKTransportEvent & {
+					part?: { type: string; text?: string };
+				};
 				if (partEvent.part?.type === 'text') {
 					return {
 						type: 'message',
@@ -818,7 +841,8 @@ export class RealtimeOpenAIStore {
 				} else {
 					// Assistant transcripts may not have item_id in the event itself
 					// They get item_ids from conversation.item.created/added events
-					const itemId = (serverEvent as any)?.item_id;
+					const eventWithItemId = serverEvent as SDKTransportEvent & { item_id?: string };
+					const itemId = eventWithItemId.item_id;
 					this.schedulePendingTranscript(itemId, 'assistant', processed.data.text);
 				}
 			} else if (processed.data.type === 'user_transcript') {
@@ -846,11 +870,8 @@ export class RealtimeOpenAIStore {
 
 					// Don't emit individual user deltas - wait for final message
 				} else {
-					this.schedulePendingTranscript(
-						(serverEvent as any)?.item_id,
-						'user',
-						processed.data.text
-					);
+					const eventWithItemId = serverEvent as SDKTransportEvent & { item_id?: string };
+					this.schedulePendingTranscript(eventWithItemId.item_id, 'user', processed.data.text);
 				}
 			}
 		} else if (processed.type === 'message') {
@@ -1036,7 +1057,7 @@ export class RealtimeOpenAIStore {
 							event_id: serverEvent.event_id
 						});
 					} else if (serverEvent?.type === 'input_audio_buffer.committed') {
-						const commitEvent = serverEvent as unknown as {
+						const commitEvent = serverEvent as SDKTransportEvent & {
 							event_id?: string;
 							item_id?: string;
 						};
@@ -1287,7 +1308,7 @@ export class RealtimeOpenAIStore {
 		// - All previous user input items
 		// - All previous assistant response items
 		// - Current session-level instructions (set via session.update)
-		const responsePayload: Record<string, any> = {};
+		const responsePayload: Record<string, unknown> = {};
 		if (this.currentInstructions) {
 			responsePayload.instructions = this.currentInstructions;
 		}
@@ -1703,7 +1724,7 @@ export class RealtimeOpenAIStore {
 					} as RealtimeAudioConfig)
 				: undefined);
 		const audioCapture = captureOutputAudioConfig({
-			currentFormat: this.outputAudioFormat as any,
+			currentFormat: this.outputAudioFormat,
 			currentSampleRate: this.outputSampleRate,
 			currentChannels: this.outputAudioChannels,
 			audioConfig
@@ -1870,7 +1891,9 @@ export class RealtimeOpenAIStore {
 		}
 	}
 
-	private extractMessageText(content = []): string {
+	private extractMessageText(
+		content: Array<{ type: string; text?: string; transcript?: string }> = []
+	): string {
 		if (!Array.isArray(content)) return '';
 		const texts = content
 			.map((c) => {
@@ -1885,7 +1908,16 @@ export class RealtimeOpenAIStore {
 		return texts.join('\n');
 	}
 
-	private handleHistoryItem(item: any, delta: boolean) {
+	private handleHistoryItem(
+		item: {
+			type?: string;
+			itemId?: string;
+			id?: string;
+			role?: string;
+			content?: Array<{ type: string; text?: string; transcript?: string }>;
+		},
+		delta: boolean
+	) {
 		if (!item || item.type !== 'message') return;
 		const itemId = item.itemId || item.id || '';
 		if (!itemId) return;

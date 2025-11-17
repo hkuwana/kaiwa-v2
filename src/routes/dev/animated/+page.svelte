@@ -2,6 +2,9 @@
 	import { onMount } from 'svelte';
 	import { speakersData } from '$lib/data/speakers';
 	import { aboutPagePrompts, characterPrompts, scenarioPrompts } from '$lib/prompts/dev-animated';
+	import { SvelteMap } from 'svelte/reactivity';
+
+	type Speaker = Record<string, unknown>;
 
 	onMount(() => {
 		document.title = 'Animation Prompts - Kaiwa Dev';
@@ -11,7 +14,7 @@
 	let isGenerating = $state(false);
 	let generationResults = $state<
 		Array<{
-			speaker: any;
+			speaker: Speaker;
 			imageUrl: string;
 			error?: string;
 			generating?: boolean;
@@ -49,7 +52,7 @@
 
 	// Generate image for a specific speaker
 	async function generateSpeakerImage(
-		speaker: any,
+		speaker: Speaker,
 		model: 'dall-e-3' | 'gpt-image-1' = selectedModel,
 		style: string = promptStyle
 	): Promise<boolean> {
@@ -119,11 +122,10 @@
 
 	// Generate ALL speakers (use with caution - ~73 images, ~$6-8 total)
 	async function generateAllSpeakers() {
-		if (
-			!confirm(
-				`This will generate ~${speakersData.length} images at ~$0.08 each (Total: ~$${(speakersData.length * 0.08).toFixed(2)}). Continue?`
-			)
-		) {
+		const confirmed = window.confirm(
+			`This will generate ~${speakersData.length} images at ~$0.08 each (Total: ~$${(speakersData.length * 0.08).toFixed(2)}). Continue?`
+		);
+		if (!confirmed) {
 			return;
 		}
 
@@ -140,13 +142,13 @@
 			await new Promise((resolve) => setTimeout(resolve, 3000));
 		}
 
-		alert(`Batch complete! Success: ${successCount}, Errors: ${errorCount}`);
+		console.log(`Batch complete! Success: ${successCount}, Errors: ${errorCount}`);
 		isGenerating = false;
 	}
 
 	// Get unique languages from speakers
 	function getUniqueLanguages(): Array<{ id: string; name: string; count: number }> {
-		const languageMap = new Map<string, { name: string; count: number }>();
+		const languageMap = new SvelteMap<string, { name: string; count: number }>();
 		const languageNames: Record<string, string> = {
 			ja: 'Japanese',
 			ko: 'Korean',
@@ -183,7 +185,7 @@
 	}
 
 	// Generate character prompt for each speaker
-	function generateSpeakerPrompt(speaker: any, style: string = 'original'): string {
+	function generateSpeakerPrompt(speaker: Speaker, style: string = 'original'): string {
 		// Route to appropriate prompt generator based on style
 		switch (style) {
 			case 'refined-ghibli':
@@ -199,7 +201,7 @@
 	}
 
 	// ORIGINAL PROMPT (your current version)
-	function generateOriginalPrompt(speaker: any): string {
+	function generateOriginalPrompt(speaker: Speaker): string {
 		const genderDescriptor = speaker.gender === 'male' ? 'man' : 'woman';
 
 		// Personality archetypes - timeless, open, upbeat, and fun
@@ -356,7 +358,7 @@ CRITICAL REQUIREMENTS:
 	}
 
 	// REFINED GHIBLI PROMPT (Step-by-step, better for AI)
-	function generateRefinedGhibliPrompt(speaker: any): string {
+	function generateRefinedGhibliPrompt(speaker: Speaker): string {
 		const genderDescriptor = speaker.gender === 'male' ? 'man' : 'woman';
 		const personalities = [
 			{
@@ -472,7 +474,7 @@ TECHNICAL REQUIREMENTS:
 	}
 
 	// ABSTRACT PROMPT (Amorphous, like "Her")
-	function generateAbstractPrompt(speaker: any): string {
+	function generateAbstractPrompt(speaker: Speaker): string {
 		const personalities = [
 			{ trait: 'open and playful', colors: 'warm coral and soft peach gradients' },
 			{ trait: 'warm and curious', colors: 'golden yellow and soft amber gradients' },
@@ -525,7 +527,7 @@ TECHNICAL DETAILS:
 	}
 
 	// ILLUSTRATED PROMPT (Semi-realistic, editorial style)
-	function generateIllustratedPrompt(speaker: any): string {
+	function generateIllustratedPrompt(speaker: Speaker): string {
 		const genderDescriptor = speaker.gender === 'male' ? 'man' : 'woman';
 		const personalities = [
 			{
@@ -852,7 +854,7 @@ TECHNICAL DETAILS:
 						<select class="select-bordered select" bind:value={selectedTestSpeaker}>
 							<option value={null}>Choose a speaker...</option>
 							<optgroup label="Japanese">
-								{#each speakersData.filter((s) => s.languageId === 'ja') as speaker}
+								{#each speakersData.filter((s) => s.languageId === 'ja') as speaker (speaker.id)}
 									<option value={speaker.id}>
 										{speaker.speakerEmoji}
 										{speaker.voiceName} ({speaker.gender}, {speaker.region})
@@ -860,7 +862,7 @@ TECHNICAL DETAILS:
 								{/each}
 							</optgroup>
 							<optgroup label="Korean">
-								{#each speakersData.filter((s) => s.languageId === 'ko') as speaker}
+								{#each speakersData.filter((s) => s.languageId === 'ko') as speaker (speaker.id)}
 									<option value={speaker.id}>
 										{speaker.speakerEmoji}
 										{speaker.voiceName} ({speaker.gender}, {speaker.region})
@@ -868,7 +870,7 @@ TECHNICAL DETAILS:
 								{/each}
 							</optgroup>
 							<optgroup label="Spanish">
-								{#each speakersData.filter((s) => s.languageId === 'es') as speaker}
+								{#each speakersData.filter((s) => s.languageId === 'es') as speaker (speaker.id)}
 									<option value={speaker.id}>
 										{speaker.speakerEmoji}
 										{speaker.voiceName} ({speaker.gender}, {speaker.region})
@@ -876,7 +878,7 @@ TECHNICAL DETAILS:
 								{/each}
 							</optgroup>
 							<optgroup label="Other Languages">
-								{#each speakersData.filter((s) => !['ja', 'ko', 'es'].includes(s.languageId)) as speaker}
+								{#each speakersData.filter((s) => !['ja', 'ko', 'es'].includes(s.languageId)) as speaker (speaker.id)}
 									<option value={speaker.id}>
 										{speaker.speakerEmoji}
 										{speaker.voiceName} ({speaker.languageId}, {speaker.gender})
@@ -960,7 +962,7 @@ TECHNICAL DETAILS:
 			<div class="mb-4">
 				<h3 class="mb-2 font-bold">Batch Generate by Language</h3>
 				<div class="flex flex-wrap gap-2">
-					{#each getUniqueLanguages() as lang}
+					{#each getUniqueLanguages() as lang (lang.id)}
 						<button
 							class="btn btn-sm btn-primary"
 							disabled={isGenerating}

@@ -152,7 +152,7 @@ export function clearConversationDataOnly(): void {
  * Get a summary of stored conversation-related data
  */
 export function getConversationDataSummary(): {
-	localStorage: Record<string, any>;
+	localStorage: Record<string, string>;
 	cookies: Record<string, string>;
 } {
 	if (!browser) {
@@ -160,7 +160,7 @@ export function getConversationDataSummary(): {
 	}
 
 	const summary = {
-		localStorage: {} as Record<string, any>,
+		localStorage: {} as Record<string, string>,
 		cookies: {} as Record<string, string>
 	};
 

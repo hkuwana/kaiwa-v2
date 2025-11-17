@@ -70,7 +70,7 @@
 			<div class="card-body">
 				<h3 class="card-title text-lg">🎭 Test Scenarios</h3>
 				<div class="space-y-2">
-					{#each testScenarios as scenario}
+					{#each testScenarios as scenario (scenario.name)}
 						<button
 							class="btn btn-block justify-start text-left btn-sm"
 							class:btn-primary={JSON.stringify(completedSteps) ===
@@ -108,7 +108,7 @@
 						<span class="label-text">Completed Steps</span>
 					</div>
 					<div class="space-y-1">
-						{#each ['setup', 'conversation', 'analysis'] as stepId}
+						{#each ['setup', 'conversation', 'analysis'] as stepId (stepId)}
 							<label class="label cursor-pointer justify-start">
 								<input
 									type="checkbox"
@@ -137,7 +137,7 @@
 			<div class="card-body">
 				<h3 class="card-title text-lg">🎨 Variants</h3>
 				<div class="space-y-2">
-					{#each ['desktop', 'mobile', 'compact'] as variant}
+					{#each ['desktop', 'mobile', 'compact'] as variant (variant)}
 						<label class="label cursor-pointer justify-start">
 							<input
 								type="radio"
@@ -253,16 +253,16 @@
 
 &lt;!-- Smart variant (recommended) --&gt;
 &lt;OnboardingLifecycle
-  completedSteps={['setup']}
-  showRetentionHints={true}
+  completedSteps={`["setup"]`}
+  showRetentionHints={`true`}
   variant="smart"
 /&gt;
 
 &lt;!-- Manual control --&gt;
 &lt;OnboardingLifecycle
-  completedSteps={['setup']}
+  completedSteps={`["setup"]`}
   variant="floating"
-  hideOnRoutes={['/conversation']}
+  hideOnRoutes={`["/conversation"]`}
 /&gt;</code
 								></pre>
 						</div>

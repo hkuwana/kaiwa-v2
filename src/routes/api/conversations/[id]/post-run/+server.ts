@@ -167,7 +167,7 @@ export const POST = async ({ params, cookies, request }) => {
 				messages,
 				conversation.targetLanguageId
 					? { id: conversation.targetLanguageId }
-					: ({ id: 'unknown' } as any),
+					: { id: 'unknown' },
 				durationSeconds || 0
 			);
 			console.log('✅ Memory extracted successfully:', { topic: memory.topic });

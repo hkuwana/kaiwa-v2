@@ -267,15 +267,15 @@
 	let sessionId = $state('test-session-123');
 
 	function handleStartNewConversation() {
-		alert('Starting new conversation (demo)');
+		console.log('Starting new conversation (demo)');
 	}
 
 	function handleGoToFullAnalysis() {
-		alert('Going to full analysis (demo)');
+		console.log('Going to full analysis (demo)');
 	}
 
 	function handleGoHome() {
-		alert('Going home (demo)');
+		console.log('Going home (demo)');
 	}
 </script>
 

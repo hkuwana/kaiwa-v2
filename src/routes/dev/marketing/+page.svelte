@@ -272,7 +272,8 @@
 	}
 
 	function resetWeek() {
-		if (!confirm('Reset all weekly checkboxes?')) return;
+		const confirmed = window.confirm('Reset all weekly checkboxes?');
+		if (!confirmed) return;
 		week = DEFAULT_WEEK.map((d) => ({
 			...d,
 			items: d.items.map((i) => ({ ...i, done: false }))
@@ -321,7 +322,7 @@
 			}
 		}
 		navigator.clipboard.writeText(lines.join('\n'));
-		alert('Schedule copied to clipboard');
+		console.log('Schedule copied to clipboard');
 	}
 
 	function getSeedBacklog(): BacklogItem[] {
@@ -373,7 +374,7 @@
 
 	<!-- Quick Docs Links -->
 	<div class="mb-8 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-		{#each DOCS as d}
+		{#each DOCS as d (d.path)}
 			<a class="btn justify-start btn-outline btn-sm" href={d.path}>
 				📄 {d.label}
 			</a>
@@ -393,7 +394,7 @@
 			</div>
 		</div>
 		<div class="grid grid-cols-1 gap-4 p-4 md:grid-cols-2">
-			{#each week as day}
+			{#each week as day (day.id)}
 				<div class="card bg-base-100">
 					<div class="card-body">
 						<div class="flex items-center justify-between">
@@ -403,7 +404,7 @@
 							{/if}
 						</div>
 						<ul class="mt-2 space-y-2">
-							{#each day.items as item}
+							{#each day.items as item (item.id)}
 								<li class="flex items-start gap-3">
 									<input
 										class="checkbox mt-1 checkbox-sm"
@@ -510,23 +511,23 @@
 		<div class="grid grid-cols-1 gap-4 p-4 md:grid-cols-2">
 			<TemplateCard
 				title="Short – Try This Line (30–45s)"
-				content={`Hook: Meeting parents in 7 days?\nLine 1 (JP+EN)\nLine 2 (JP+EN)\nRepair phrase (JP+EN)\nCTA: Comment your situation; I’ll tailor a script.`}
+				content="Hook: Meeting parents in 7 days?\nLine 1 (JP+EN)\nLine 2 (JP+EN)\nRepair phrase (JP+EN)\nCTA: Comment your situation; I'll tailor a script."
 			/>
 			<TemplateCard
 				title="Scenario Breakdown (5–8 min)"
-				content={`Cold open stakes + 2-line demo\nWhen to use\n3 lines + repair phrase (bilingual)\nShort-serve demo (short turns)\nCTA: Try the rehearsal now + reply if stuck.`}
+				content="Cold open stakes + 2-line demo\nWhen to use\n3 lines + repair phrase (bilingual)\nShort-serve demo (short turns)\nCTA: Try the rehearsal now + reply if stuck."
 			/>
 			<TemplateCard
 				title="Case File (60–120s)"
-				content={`Situation → Friction → Script → Outcome\nCTA: Get the template + Practice Lab invite.`}
+				content="Situation → Friction → Script → Outcome\nCTA: Get the template + Practice Lab invite."
 			/>
 			<TemplateCard
 				title="Devlog – Universal Speech Speed"
-				content={`We heard: “Speech too fast.”\nWe shipped: Dual-layer (AI pacing + playback slider).\nDemo: Toggle + immediate effect.\nHow to try: Advanced Audio → Speech Speed.`}
+				content="We heard: "Speech too fast."\nWe shipped: Dual-layer (AI pacing + playback slider).\nDemo: Toggle + immediate effect.\nHow to try: Advanced Audio → Speech Speed."
 			/>
 			<TemplateCard
 				title="Pinned Comment"
-				content={`Get the exact script (Google Doc) + free Practice Lab on Saturday.\nTell me your situation; I’ll tailor a one-pager for you.`}
+				content="Get the exact script (Google Doc) + free Practice Lab on Saturday.\nTell me your situation; I'll tailor a one-pager for you."
 			/>
 			<TemplateCard
 				title="Moderator Outreach"

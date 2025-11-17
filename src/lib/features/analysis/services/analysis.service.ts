@@ -75,13 +75,21 @@ export class AnalysisService {
 		return {
 			runId: data.run.runId,
 			conversationId: data.run.conversationId,
-			results: data.run.moduleResults.map((result: any) => ({
-				moduleId: result.moduleId,
-				summary: result.summary,
-				confidence: result.score,
-				recommendations: result.recommendations,
-				data: result.details
-			})),
+			moduleResults: data.run.moduleResults.map(
+				(result: {
+					moduleId: string;
+					summary: string;
+					score: number;
+					recommendations: string[];
+					details: unknown;
+				}) => ({
+					moduleId: result.moduleId,
+					summary: result.summary,
+					confidence: result.score,
+					recommendations: result.recommendations,
+					data: result.details
+				})
+			),
 			startedAt: new Date(data.run.startedAt),
 			completedAt: new Date(data.run.completedAt),
 			languageCode: data.run.languageCode
@@ -155,7 +163,7 @@ export class AnalysisService {
 	/**
 	 * Get analysis configuration
 	 */
-	async getConfig(section?: string): Promise<any> {
+	async getConfig(section?: string): Promise<Record<string, unknown>> {
 		const url = section ? `${this.baseUrl}/config?section=${section}` : `${this.baseUrl}/config`;
 		const response = await fetch(url);
 

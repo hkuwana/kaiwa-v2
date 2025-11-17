@@ -347,7 +347,7 @@
 							<div class="mb-6">
 								<h3 class="mb-3 font-semibold">Your Cultural Composition</h3>
 								<div class="space-y-2">
-									{#each dnaResults.culturalMix as mix}
+									{#each dnaResults.culturalMix as mix (mix.culture)}
 										<div class="flex items-center justify-between">
 											<div class="flex items-center gap-2">
 												<span class="font-medium">{mix.culture}</span>
@@ -391,7 +391,7 @@
 									<p><strong>Summary:</strong> {dnaResults.shareableData.oneLineSummary}</p>
 									<div>
 										<strong>Hashtags:</strong>
-										{#each dnaResults.shareableData.hashtags as hashtag}
+										{#each dnaResults.shareableData.hashtags as hashtag, i (i)}
 											<span class="mr-1 badge badge-ghost badge-sm">#{hashtag}</span>
 										{/each}
 									</div>

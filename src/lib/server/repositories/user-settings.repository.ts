@@ -125,7 +125,15 @@ export class UserSettingsRepository {
 	): Promise<UserSettings | null> {
 		// Filter out the frequency/day fields until DB migration is complete
 		const { practiceReminderFrequency, preferredReminderDay, ...dbPreferences } =
-			emailPreferences as any;
+			emailPreferences as {
+				practiceReminderFrequency?: unknown;
+				preferredReminderDay?: unknown;
+				receivePracticeReminders?: boolean;
+				receiveFounderEmails?: boolean;
+				receiveProductUpdates?: boolean;
+				receiveProgressReports?: boolean;
+				receiveSecurityAlerts?: boolean;
+			};
 
 		// Use upsert to handle cases where user settings don't exist yet
 		const result = await this.upsertSettings({

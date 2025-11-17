@@ -86,7 +86,7 @@ export type RealtimeTurnDetectionConfig = {
 	silenceDurationMs?: number;
 	threshold?: number;
 	idleTimeoutMs?: number;
-} & Record<string, any>;
+} & Record<string, unknown>;
 
 export type RealtimeAudioInputConfig = {
 	format?: RealtimeAudioFormat;
@@ -110,7 +110,7 @@ export type RealtimeTracingConfig =
 	| {
 			workflow_name?: string;
 			group_id?: string;
-			metadata?: Record<string, any>;
+			metadata?: Record<string, unknown>;
 	  }
 	| 'auto';
 
@@ -118,7 +118,7 @@ export type RealtimeToolDefinition = {
 	type: 'function';
 	name: string;
 	description: string;
-	parameters: any;
+	parameters: Record<string, unknown>;
 	strict: boolean;
 };
 
@@ -184,13 +184,13 @@ export type FunctionTool = RealtimeToolDefinition;
 export type SessionConfig = {
 	model: string;
 	instructions: string;
-	toolChoice?: any;
+	toolChoice?: 'auto' | 'none' | 'required' | { type: 'function'; name: string };
 	tools?: RealtimeToolDefinition[];
 	outputModalities?: ('text' | 'audio')[];
 	audio?: RealtimeAudioConfig;
 	tracing?: RealtimeTracingConfig | null;
-	providerData?: Record<string, any>;
-	prompt?: any;
+	providerData?: Record<string, unknown>;
+	prompt?: string | { type: string; text: string };
 	// Deprecated properties for backward compatibility
 	turnDetection?: RealtimeTurnDetectionConfig | null;
 	voice?: string;

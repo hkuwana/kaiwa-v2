@@ -1,4 +1,5 @@
 import type { Tier, UserUsage } from '$lib/server/db/types';
+// eslint-disable-next-line no-restricted-imports
 import type { UsageLimits } from '$lib/stores/conversation-timer.store.svelte';
 
 type UsageStatusResponse = {

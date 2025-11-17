@@ -144,7 +144,7 @@ export async function startAgentConversation(
 	// 1) Update session configuration (instructions, voice, transcription language, disable VAD)
 	console.log('🛠️ Applying session.update for realtime conversation');
 	try {
-		const audioConfig: Record<string, any> = {
+		const audioConfig: Record<string, unknown> = {
 			input: {
 				turnDetection: null
 			}
@@ -199,7 +199,7 @@ export async function startAgentConversation(
 
 	// 3) Trigger the agent to speak (response.create)
 	try {
-		const responseCreatePayload: Record<string, any> = {};
+		const responseCreatePayload: Record<string, unknown> = {};
 
 		if (options.initialMessage) {
 			console.log('💬 Seeding assistant with initial instructions.');
@@ -254,8 +254,8 @@ export async function createConnectionWithSession(
 export function subscribeToSession(
 	conn: SessionConnection,
 	handlers: {
-		onTransportEvent?: (ev: any) => void;
-		onError?: (err: any) => void;
+		onTransportEvent?: (ev: unknown) => void;
+		onError?: (err: unknown) => void;
 	}
 ): () => void {
 	conn.session.on('transport_event', (ev) => handlers.onTransportEvent?.(ev));

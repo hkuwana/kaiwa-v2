@@ -5,7 +5,7 @@
 	import { posthogManager } from '$lib/client/posthog';
 
 	// State
-	let debugData = $state<any>(null);
+	let debugData = $state<Record<string, unknown> | null>(null);
 	let isLoading = $state(false);
 	let testResult = $state<string>('');
 
@@ -37,7 +37,7 @@
 	}
 
 	// Record usage
-	async function recordUsage(action: string, data?: any) {
+	async function recordUsage(action: string, data?: Record<string, unknown>) {
 		if (!userManager.isLoggedIn) {
 			testResult = '❌ Please log in first';
 			return;
@@ -415,7 +415,7 @@
 								</tr>
 							</thead>
 							<tbody>
-								{#each debugData.history as period}
+								{#each debugData.history as period (period.period)}
 									<tr>
 										<td class="font-mono">{period.period}</td>
 										<td>{period.conversationsUsed}</td>

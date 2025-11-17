@@ -3,6 +3,7 @@
 
 import type { User, UserPreferences, Language, Speaker, Scenario } from '$lib/server/db/types';
 import type { SpeechSpeed } from '$lib/server/db/types';
+// eslint-disable-next-line no-restricted-imports
 import { InstructionComposer, type InstructionComposerOptions } from '$lib/services/instructions';
 import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 import { getLanguageById } from '$lib/types';
@@ -127,10 +128,10 @@ export function generateScenarioGreeting(opts: {
 		const nativeLanguage = opts.user?.nativeLanguageId
 			? getLanguageById(opts.user.nativeLanguageId)
 			: null;
-		const nativeName = nativeLanguage?.name || 'your native language';
+		const _nativeName = nativeLanguage?.name || 'your native language';
 
 		// Check if user has practiced this language before (from memories/history)
-		const hasPracticedBefore = opts.user?.id ? true : false; // This would need actual history data
+		const _hasPracticedBefore = opts.user?.id ? true : false; // This would need actual history data
 
 		const learnerName = opts.user?.displayName || 'there';
 		const example =

@@ -309,7 +309,7 @@ function calculateCulturalMix(
 		}
 
 		return {
-			culture: culture as any,
+			culture,
 			percentage: Math.round((score / totalScore) * 100),
 			dominantTraits
 		};
@@ -375,11 +375,11 @@ function calculateCompatibility(
 	const primaryCulture = culturalMix[0]?.culture || 'american';
 
 	return {
-		perfectMatches: [primaryCulture as any],
+		perfectMatches: [primaryCulture],
 		goodMatches: ['scandinavian', 'canadian'],
 		growthAreas: ['italian', 'brazilian'],
 		travelCompatibility: [
-			{ culture: primaryCulture as any, compatibilityScore: 95, reason: 'Perfect cultural match' },
+			{ culture: primaryCulture, compatibilityScore: 95, reason: 'Perfect cultural match' },
 			{ culture: 'canadian', compatibilityScore: 85, reason: 'Similar communication values' }
 		],
 		relationshipStyle: {

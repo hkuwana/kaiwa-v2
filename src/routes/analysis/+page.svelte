@@ -14,6 +14,21 @@
 	import { analysisSuggestionService } from '$lib/features/analysis/services/analysis-suggestion.service';
 	import { SvelteSet } from 'svelte/reactivity';
 	import StageIndicator from '$lib/components/StageIndicator.svelte';
+	import type { AnalysisRun } from '$lib/features/analysis/types/analysis.types';
+	import type { AnalysisModuleDefinition } from '$lib/features/analysis/types/analysis-module.types';
+
+	interface UsageInfo {
+		current?: {
+			analysesUsed?: number;
+			basicAnalysesUsed?: number;
+			advancedGrammarUsed?: number;
+			fluencyAnalysisUsed?: number;
+		};
+	}
+
+	interface AnalysisStoreType {
+		setAnalysisResults: (run: AnalysisRun, suggestions: unknown[], messages: unknown[]) => void;
+	}
 
 	const { data } = $props();
 
@@ -40,15 +55,15 @@
 	let showQuickAnalysisModal = $state(false);
 
 	// Analysis pipeline state
-	let analysisStore = $state<any>(null);
-	let modules = $state<any[]>([]);
-	let selectedModuleIds = $state<Set<string>>(new SvelteSet());
+	let analysisStore = $state<AnalysisStoreType | null>(null);
+	let modules = $state<AnalysisModuleDefinition[]>([]);
+	let selectedModuleIds = new SvelteSet<string>();
 	let isLoading = $state(false);
-	let lastRun: any = $state(null);
+	let lastRun = $state<AnalysisRun | null>(null);
 	let errorMessage = $state<string | null>(null);
 	let showRawAnalysis = $state(false);
 	let showFindingsJson = $state(false);
-	let usageInfo = $state<any>(null);
+	let usageInfo = $state<UsageInfo | null>(null);
 	let showUsageDetails = $state(false);
 
 	// URL parameters
@@ -160,7 +175,7 @@
 
 			// Auto-select text-based modules including grammar analysis
 			selectedModuleIds = new SvelteSet(
-				modules.filter((module: any) => module.modality === 'text').map((module) => module.id)
+				modules.filter((module) => module.modality === 'text').map((module) => module.id)
 			);
 		} catch (error) {
 			errorMessage = error instanceof Error ? error.message : 'Failed to load modules';
@@ -200,7 +215,7 @@
 				})
 			});
 
-			const analysisData: any = await response.json();
+			const analysisData = await response.json() as { success: boolean; error?: string; run?: AnalysisRun; suggestions?: unknown[] };
 
 			if (!response.ok || !analysisData.success) {
 				throw new Error(analysisData?.error || 'Analysis failed');
@@ -350,7 +365,7 @@
 									promptTokens: null,
 									completionTokens: null,
 									messageIntent: null
-								} as any}
+								}}
 								clickToToggle={false}
 							/>
 						</div>

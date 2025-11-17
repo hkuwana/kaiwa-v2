@@ -16,7 +16,7 @@ export const GET = async ({ locals, url }) => {
 	const action = url.searchParams.get('action') || 'summary';
 
 	try {
-		const result: Record<string, any> = {
+		const result: Record<string, unknown> = {
 			timestamp: new Date().toISOString(),
 			userId,
 			action,
@@ -144,7 +144,7 @@ export const POST = async ({ request, locals }) => {
 	try {
 		const { action, data } = await request.json();
 
-		const result: Record<string, any> = {
+		const result: Record<string, unknown> = {
 			timestamp: new Date().toISOString(),
 			userId,
 			action,

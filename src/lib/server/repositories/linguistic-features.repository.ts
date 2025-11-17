@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, type SQL } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import {
 	linguisticFeatures,
@@ -33,7 +33,7 @@ export class LinguisticFeaturesRepository {
 		macroSkill?: LinguisticMacroSkill;
 		onlyActive?: boolean;
 	}): Promise<LinguisticFeature[]> {
-		const conditions = [] as any[];
+		const conditions: SQL[] = [];
 		if (filter?.languageId) {
 			conditions.push(eq(linguisticFeatures.languageId, filter.languageId));
 		}

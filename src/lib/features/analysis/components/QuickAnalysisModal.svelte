@@ -20,18 +20,18 @@
 	const {
 		messages,
 		language,
-		onStartNewConversation,
+		onStartNewConversation: _onStartNewConversation,
 		onDetailedAnalysis,
 		onGoHome,
 		onClose,
 		analysisType = 'regular',
-		isGuestUser = false,
+		isGuestUser: _isGuestUser = false,
 		isHistorical = false,
-		sessionId
+		sessionId: _sessionId
 	}: Props = $props();
 
 	let isVisible = $state(false);
-	let quickInsights = $state<string[]>([]);
+	let _quickInsights = $state<string[]>([]);
 	let conversationStats = $state<{
 		totalMessages: number;
 		userMessages: number;

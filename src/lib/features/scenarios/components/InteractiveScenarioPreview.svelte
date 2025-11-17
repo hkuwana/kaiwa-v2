@@ -404,7 +404,7 @@
 										romanization: isVisible ? message.romanization : null,
 										hiragana: isVisible ? message.hiragana : null
 									}}
-									dispatch={(event: string, _data: any) => {
+									dispatch={(event: string, _data: unknown) => {
 										if (event === 'toggle') {
 											showTranslations[message.id] = !isVisible;
 										}

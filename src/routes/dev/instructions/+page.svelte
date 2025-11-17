@@ -147,7 +147,7 @@
 				currentInstructions = composer.updateParameters(params);
 			}
 			errorCount = 0;
-			alert('📉 Auto-adapted to easier settings');
+			console.log('📉 Auto-adapted to easier settings');
 		}
 	}
 
@@ -172,7 +172,7 @@
 				currentInstructions = composer.updateParameters(params);
 			}
 			successStreak = 0;
-			alert('📈 Auto-adapted to harder settings');
+			console.log('📈 Auto-adapted to harder settings');
 		}
 	}
 
@@ -183,19 +183,19 @@
 
 	function copyToClipboard() {
 		navigator.clipboard.writeText(currentInstructions);
-		alert('✅ Instructions copied to clipboard!');
+		console.log('✅ Instructions copied to clipboard!');
 	}
 
 	function copyForChatGPT() {
 		const wrapped = `You are an AI conversation partner. Follow the instructions below exactly. Do not explain the rules; just behave accordingly.\n\n${currentInstructions}`;
 		navigator.clipboard.writeText(wrapped);
-		alert('✅ ChatGPT-formatted prompt copied!');
+		console.log('✅ ChatGPT-formatted prompt copied!');
 	}
 
 	function copyForGemini() {
 		const wrapped = `System prompt for role behavior:\n\n${currentInstructions}\n\nBehavioral note: Keep responses concise as specified.`;
 		navigator.clipboard.writeText(wrapped);
-		alert('✅ Gemini-formatted prompt copied!');
+		console.log('✅ Gemini-formatted prompt copied!');
 	}
 
 	// ============================================
@@ -500,7 +500,7 @@
 							onchange={initializeComposer}
 							class="w-full rounded border p-2 text-sm"
 						>
-							{#each languages as lang}
+							{#each languages as lang (lang.id)}
 								<option value={lang}>{lang.flag} {lang.name}</option>
 							{/each}
 						</select>
@@ -513,7 +513,7 @@
 							onchange={initializeComposer}
 							class="w-full rounded border p-2 text-sm"
 						>
-							{#each scenariosData as scenario}
+							{#each scenariosData as scenario (scenario.id)}
 								<option value={scenario}>{scenario.title}</option>
 							{/each}
 						</select>
@@ -528,7 +528,7 @@
 									handleSpeakerChange((event.currentTarget as HTMLSelectElement).value)}
 								class="w-full rounded border p-2 text-sm"
 							>
-								{#each availableSpeakers as speaker}
+								{#each availableSpeakers as speaker (speaker.id)}
 									<option value={speaker.id}>
 										{speaker.speakerEmoji}
 										{speaker.voiceName} — {speaker.region}

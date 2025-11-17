@@ -162,19 +162,20 @@ async function checkFlyMachines() {
 		log('   They automatically start at their scheduled time.', 'yellow');
 
 		return true;
-	} catch (error: any) {
-		if (error.message?.includes('unauthorized')) {
+	} catch (error: unknown) {
+		const errorMessage = error instanceof Error ? error.message : String(error);
+		if (errorMessage?.includes('unauthorized')) {
 			log('❌ Not authenticated with Fly.io', 'red');
 			log('\n💡 To authenticate:', 'bright');
 			console.log('   1. Run: fly auth login');
 			console.log('   2. Follow the browser authentication flow');
 			console.log('   3. Try this command again');
-		} else if (error.message?.includes('not found')) {
+		} else if (errorMessage?.includes('not found')) {
 			log('❌ Fly CLI not installed', 'red');
 			log('\n💡 To install:', 'bright');
 			console.log('   Visit: https://fly.io/docs/hands-on/install-flyctl/');
 		} else {
-			log(`❌ Error: ${error.message}`, 'red');
+			log(`❌ Error: ${errorMessage}`, 'red');
 		}
 		return false;
 	}
@@ -205,12 +206,13 @@ async function checkFlyLogs() {
 		}
 
 		return true;
-	} catch (error: any) {
-		if (error.message?.includes('unauthorized')) {
+	} catch (error: unknown) {
+		const errorMessage = error instanceof Error ? error.message : String(error);
+		if (errorMessage?.includes('unauthorized')) {
 			log('❌ Not authenticated with Fly.io', 'red');
 			log('\n💡 Run: fly auth login', 'yellow');
 		} else {
-			log(`❌ Error: ${error.message}`, 'red');
+			log(`❌ Error: ${errorMessage}`, 'red');
 		}
 		return false;
 	}
