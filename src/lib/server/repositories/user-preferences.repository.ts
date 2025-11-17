@@ -6,6 +6,7 @@ import type {
 	challengePreferenceEnum,
 	learningMotivationEnum
 } from '../db/schema/user-preferences';
+import { normalizeMemoriesList, formatMemoryEntry } from '$lib/utils/memory-format';
 
 function cleanUpdate<T extends Record<string, unknown>>(data: T, omit: (keyof T)[] = []) {
 	return Object.fromEntries(
@@ -230,11 +231,18 @@ export class UserPreferencesRepository {
 			return null;
 		}
 
-		const currentMemories = (currentPreferences.memories as unknown[]) || [];
-		const updatedMemories = [...currentMemories, memory];
+		const formattedMemory = formatMemoryEntry(memory);
+		if (!formattedMemory) {
+			return currentPreferences;
+		}
+
+		const currentMemories = normalizeMemoriesList(currentPreferences.memories as unknown);
+		if (!currentMemories.includes(formattedMemory)) {
+			currentMemories.unshift(formattedMemory);
+		}
 
 		return await this.updatePreferences(userId, {
-			memories: updatedMemories as never
+			memories: currentMemories as never
 		});
 	}
 

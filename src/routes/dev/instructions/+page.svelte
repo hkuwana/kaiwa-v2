@@ -11,6 +11,8 @@
 	import { scenariosData } from '$lib/data/scenarios';
 	import { speakersData } from '$lib/data/speakers';
 	import { userManager } from '$lib/stores/user.store.svelte';
+	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
+	import type { UserPreferences } from '$lib/server/db/types';
 
 	// ============================================
 	// STATE
@@ -18,13 +20,15 @@
 
 	let selectedLanguage = $state(languages[0]);
 	let selectedScenario = $state(scenariosData[0]);
-	let currentInstructions = $state('');
-	let autoAdapt = $state(false);
-	let errorCount = $state(0);
-	let successStreak = $state(0);
+let currentInstructions = $state('');
+let autoAdapt = $state(false);
+let errorCount = $state(0);
+let successStreak = $state(0);
+let userPreferences = $state<UserPreferences | null>(null);
+let isLoadingPreferences = $state(true);
 
-	const getSpeakersForLanguage = (languageId: string) =>
-		speakersData.filter((speaker) => speaker.languageId === languageId);
+const getSpeakersForLanguage = (languageId: string) =>
+	speakersData.filter((speaker) => speaker.languageId === languageId);
 
 	let availableSpeakers = $derived(getSpeakersForLanguage(selectedLanguage.id));
 	let selectedSpeakerId = $state('');
@@ -61,14 +65,41 @@
 		return base;
 	}
 
+	async function hydratePreferences() {
+		try {
+			await userPreferencesStore.initialize();
+			const currentUserId = userManager.user?.id;
+			if (currentUserId && currentUserId !== 'guest') {
+				await userPreferencesStore.syncFromServer(currentUserId);
+			}
+
+			userPreferences = userPreferencesStore.getPreferences();
+			if (userPreferences?.targetLanguageId) {
+				const preferredLanguage =
+					languages.find((lang) => lang.id === userPreferences?.targetLanguageId) ||
+					selectedLanguage;
+				selectedLanguage = preferredLanguage;
+			}
+
+			initializeComposer();
+		} catch (error) {
+			console.warn('Failed to load user preferences for instruction composer', error);
+		} finally {
+			isLoadingPreferences = false;
+		}
+	}
+
 	function buildComposer() {
+		if (!userPreferences) return;
+		const mergedPreferences: Partial<UserPreferences> = {
+			...userPreferences,
+			targetLanguageId: selectedLanguage.id
+		};
+
 		composer = createComposer({
 			user: userManager.user,
 			language: selectedLanguage,
-			preferences: {
-				speakingLevel: 55, // B1 level
-				learningGoal: 'Connection'
-			},
+			preferences: mergedPreferences,
 			scenario: selectedScenario,
 			parameters: params,
 			speaker: selectedSpeaker ?? undefined,
@@ -77,6 +108,7 @@
 	}
 
 	function initializeComposer() {
+		if (!userPreferences) return;
 		// Auto-apply defaults when scenario changes for coherent behavior
 		params = presetForScenario();
 
@@ -98,6 +130,7 @@
 	}
 
 	function handleSpeakerChange(id: string) {
+		if (!userPreferences) return;
 		selectedSpeakerId = id;
 		selectedSpeaker = availableSpeakers.find((speaker) => speaker.id === id) || null;
 		buildComposer();
@@ -198,7 +231,7 @@
 	// ============================================
 
 	onMount(() => {
-		initializeComposer();
+		hydratePreferences();
 	});
 </script>
 
@@ -635,6 +668,11 @@
 						</button>
 					</div>
 				</div>
+				{#if isLoadingPreferences}
+					<div class="mb-2 text-xs text-gray-500">
+						Loading your saved preferences and memories…
+					</div>
+				{/if}
 				<div
 					class="max-h-[800px] overflow-y-auto rounded border bg-gray-50 p-4 font-mono text-xs whitespace-pre-wrap"
 				>

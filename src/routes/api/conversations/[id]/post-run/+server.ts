@@ -5,6 +5,7 @@ import { messagesRepository } from '$lib/server/repositories/messages.repository
 import { userPreferencesRepository } from '$lib/server/repositories/user-preferences.repository';
 import { conversationMemoryService } from '$lib/server/services/conversation-memory.service';
 import { createErrorResponse, createSuccessResponse } from '$lib/types/api';
+import { normalizeMemoriesList, formatMemoryEntry } from '$lib/utils/memory-format';
 
 // In-memory cache for idempotency (in production, use Redis)
 const idempotencyCache = new Map<string, { result: unknown; timestamp: number }>();
@@ -208,9 +209,18 @@ export const POST = async ({ params, cookies, request }) => {
 				return json(createSuccessResponse(result));
 			}
 
+			const existingMemories = normalizeMemoriesList(
+				currentPreferences.memories as unknown
+			);
+			const formattedMemory = formatMemoryEntry(memory);
+			const mergedMemories =
+				formattedMemory && !existingMemories.includes(formattedMemory)
+					? [formattedMemory, ...existingMemories]
+					: existingMemories;
+
 			// Atomically update preferences
 			const updatedPreferences = await userPreferencesRepository.updateMultiplePreferences(userId, {
-				memories: [...((currentPreferences.memories as unknown[]) || []), memory],
+				memories: mergedMemories,
 				successfulExchanges: ((currentPreferences.successfulExchanges as number) || 0) + 1,
 				updatedAt: new Date()
 			});

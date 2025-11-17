@@ -112,6 +112,7 @@ export class ConversationStore {
 	private suppressNextUserTranscript = false;
 	private usageRecorded = false;
 	private messageHandlersSetup = false;
+	private preferencesReadyPromise: Promise<void> | null = null;
 
 	constructor(userTier: UserTier = 'free') {
 		logger.debug('🏗️ ConversationStore constructor:', {
@@ -132,7 +133,7 @@ export class ConversationStore {
 		logger.debug('🚀 ConversationStore: Browser mode, initializing services');
 		this.timer = createConversationTimerStore(userTier);
 		this.initializeServices();
-		this.initializeUserPreferences();
+		this.preferencesReadyPromise = this.initializeUserPreferences();
 
 		realtimeOpenAI.setTranscriptFilter((meta) => {
 			if (meta.role !== 'user') {
@@ -216,6 +217,15 @@ export class ConversationStore {
 
 	private async initializeUserPreferences(): Promise<void> {
 		await userPreferencesStore.initialize();
+
+		const currentUserId = userManager.user?.id;
+		if (browser && currentUserId && currentUserId !== 'guest') {
+			try {
+				await userPreferencesStore.syncFromServer(currentUserId);
+			} catch (error) {
+				logger.warn('Failed to sync user preferences from server before session start', error);
+			}
+		}
 
 		// Set initial transcription mode based on user preferences
 		this.transcriptionMode = userPreferencesStore.getTranscriptionMode();
@@ -989,8 +999,8 @@ export class ConversationStore {
 		} catch {
 			logger.info('an error with session ready listener cleanup');
 		}
-		this.sessionReadyUnsub = realtimeOpenAI.onSessionReady(() => {
-			this.handleRealtimeSessionReady();
+		this.sessionReadyUnsub = realtimeOpenAI.onSessionReady(async () => {
+			await this.handleRealtimeSessionReady();
 		});
 
 		this.messageUnsub = realtimeOpenAI.onMessageStream(async (ev) => {
@@ -1148,7 +1158,7 @@ export class ConversationStore {
 		// No legacy transport fallback in mirror mode
 	}
 
-	private handleRealtimeSessionReady(): void {
+	private async handleRealtimeSessionReady(): Promise<void> {
 		if (this.sessionReadyHandled) return;
 		this.sessionReadyHandled = true;
 
@@ -1158,7 +1168,7 @@ export class ConversationStore {
 			realtimeOpenAI.messages.length
 		);
 
-		this.sendInitialSetup();
+		await this.sendInitialSetup();
 		this.status = 'connected';
 		logger.info('🎵 ConversationStore: Status changed to "connected"');
 
@@ -1206,8 +1216,21 @@ export class ConversationStore {
 		}, 500);
 	}
 
-	private sendInitialSetup(): void {
+	private async ensurePreferencesReady(): Promise<void> {
+		if (!this.preferencesReadyPromise) return;
+		try {
+			await this.preferencesReadyPromise;
+		} catch (error) {
+			logger.warn('Failed while waiting for preferences initialization', error);
+		} finally {
+			this.preferencesReadyPromise = null;
+		}
+	}
+
+	private async sendInitialSetup(): Promise<void> {
 		if (!this.language) return;
+
+		await this.ensurePreferencesReady();
 
 		// Get user preferences for instructions
 		const userPrefs = userPreferencesStore.getPreferences();

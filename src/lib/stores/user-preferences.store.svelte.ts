@@ -12,6 +12,8 @@ import {
 	setAudioMode as updateUserAudioMode,
 	setPressBehavior as updateUserPressBehavior
 } from '$lib/services/user-settings.service';
+import type { MemorySummary } from '$lib/services/user-memory.service';
+import { normalizeMemoriesList } from '$lib/utils/memory-format';
 
 // 🌟 User Preferences Store
 // Manages user preferences state with local storage persistence
@@ -24,11 +26,15 @@ export class UserPreferencesStore {
 	// Reactive state
 	preferences = $state<UserPreferences | null>(null);
 	isInitialized = $state<boolean>(false);
+	memorySummary = $state<MemorySummary | null>(null);
 
 	// Analysis results state
 	analysisResults = $state<Partial<UserPreferences>>(defaultUserPreference);
 	isAnalyzing = $state<boolean>(false);
 	hasAnalysisResults = $state<boolean>(false);
+
+	private lastServerSyncUserId: string | null = null;
+	private serverSyncPromise: Promise<void> | null = null;
 
 	// 🌟 Initialize the store
 	async initialize(): Promise<void> {
@@ -193,6 +199,95 @@ export class UserPreferencesStore {
 		}
 	}
 
+	// 🌟 Fetch latest preferences (including memories) from server
+	async syncFromServer(userId?: string, options?: { force?: boolean }): Promise<void> {
+		if (!browser) return;
+
+		const resolvedUserId = userId || this.preferences?.userId;
+		if (!resolvedUserId || resolvedUserId === GUEST_ID) {
+			return;
+		}
+
+		if (
+			this.serverSyncPromise &&
+			(!options || options.force !== true) &&
+			this.lastServerSyncUserId === resolvedUserId
+		) {
+			return this.serverSyncPromise;
+		}
+
+		if (
+			!options?.force &&
+			this.lastServerSyncUserId === resolvedUserId &&
+			Array.isArray(this.preferences?.memories) &&
+			(this.preferences?.memories as unknown[]).length > 0
+		) {
+			return;
+		}
+
+		this.serverSyncPromise = (async () => {
+			try {
+				const response = await fetch(`/api/users/${resolvedUserId}/preferences`);
+				if (!response.ok) {
+					throw new Error('Failed to fetch user preferences');
+				}
+
+				const payload = await response.json();
+				const data = (payload?.success ?? false) ? payload?.data : payload;
+
+				if (!data) return;
+
+				const { memorySummary: summaryFromServer, ...rest } = data as {
+					memorySummary?: MemorySummary;
+				} & Partial<UserPreferences>;
+
+				const normalizedMemories = summaryFromServer?.memories
+					? normalizeMemoriesList(summaryFromServer.memories)
+					: normalizeMemoriesList(rest.memories as unknown);
+
+				this.preferences = {
+					...(this.preferences ?? createGuestUserPreferences()),
+					...rest,
+					memories: normalizedMemories,
+					userId: resolvedUserId,
+					createdAt: rest.createdAt
+						? new SvelteDate(new Date(rest.createdAt as Date | string))
+						: this.preferences?.createdAt ?? new SvelteDate(),
+					updatedAt: rest.updatedAt
+						? new SvelteDate(new Date(rest.updatedAt as Date | string))
+						: new SvelteDate()
+				};
+
+				this.memorySummary = summaryFromServer
+					? {
+							memories: normalizedMemories,
+							count: summaryFromServer.count ?? normalizedMemories.length,
+							maxCount: summaryFromServer.maxCount ?? normalizedMemories.length,
+							withinLimit:
+								summaryFromServer.withinLimit ??
+								normalizedMemories.length <=
+									(summaryFromServer.maxCount ?? normalizedMemories.length)
+						}
+					: {
+							memories: normalizedMemories,
+							count: normalizedMemories.length,
+							maxCount: normalizedMemories.length,
+							withinLimit: true
+						};
+
+				this.lastServerSyncUserId = resolvedUserId;
+
+				await this.saveToStorage();
+			} catch (error) {
+				logger.warn('Failed to sync user preferences from server:', error);
+			} finally {
+				this.serverSyncPromise = null;
+			}
+		})();
+
+		return this.serverSyncPromise;
+	}
+
 	// 🌟 Clear all stored preferences
 	async clearStorage(): Promise<void> {
 		if (browser) {
@@ -200,6 +295,9 @@ export class UserPreferencesStore {
 		}
 		this.preferences = null;
 		this.isInitialized = false;
+		this.memorySummary = null;
+		this.lastServerSyncUserId = null;
+		this.serverSyncPromise = null;
 	}
 
 	// 🌟 Private: Load from local storage
@@ -323,6 +421,7 @@ export const {
 	getContextType,
 	getTranscriptionMode,
 	mergeWithServerPreferences,
+	syncFromServer,
 	clearStorage,
 	setAnalysisResults,
 	getAnalysisResults,

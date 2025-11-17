@@ -9,6 +9,7 @@ import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 import { getLanguageById } from '$lib/types';
 import { resolveUserSpeechSpeed, type InstructionParameters } from './instructions/parameters';
 import { getLearnerCefrLevel } from '$lib/utils/cefr';
+import { normalizeMemoriesList } from '$lib/utils/memory-format';
 
 export type InstructionPhase = 'initial' | 'update' | 'closing';
 
@@ -163,7 +164,7 @@ function composeInitialInstructions(
 		preferences: params.preferences,
 		scenario: params.scenario,
 		speaker: params.speaker,
-		sessionContext: normalizeSessionContext(params.sessionContext),
+		sessionContext: normalizeSessionContext(params.sessionContext, params.preferences),
 		parameters: parameterOverrides,
 		compact: false
 	});
@@ -172,13 +173,18 @@ function composeInitialInstructions(
 }
 
 function normalizeSessionContext(
-	context: SessionContext | undefined
+	context: SessionContext | undefined,
+	preferences?: Partial<UserPreferences>
 ): InstructionComposerOptions['sessionContext'] {
-	if (!context) return undefined;
+	const preferenceMemories = normalizeMemoriesList(preferences?.memories as unknown);
+	const contextMemories = normalizeMemoriesList(context?.memories as unknown);
+	const normalizedMemories = contextMemories.length ? contextMemories : preferenceMemories;
+
+	if (!context && normalizedMemories.length === 0) return undefined;
 	return {
-		isFirstTime: context.isFirstTime,
-		memories: context.memories,
-		previousTopics: context.previousTopics
+		isFirstTime: context?.isFirstTime,
+		memories: normalizedMemories,
+		previousTopics: context?.previousTopics
 	};
 }
 

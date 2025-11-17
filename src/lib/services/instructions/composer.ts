@@ -46,6 +46,7 @@ import {
 	getCasualExpressions,
 	hasCasualExpressionsForLanguage
 } from './casual-interjections';
+import { normalizeMemoriesList } from '$lib/utils/memory-format';
 
 /**
  * OPENAI RECOMMENDED STRUCTURE:
@@ -143,6 +144,7 @@ export class InstructionComposer {
 		const tone = this.buildCompactPersonalityTone();
 		const rules = this.buildCompactRules();
 		const params = this.buildCompactParametersSummary();
+		const context = this.buildCompactContext();
 		const flow = this.buildCompactFlow(isZeroToHero, nativeLang);
 
 		const scenarioAdherence = scenario
@@ -152,7 +154,9 @@ export class InstructionComposer {
 - Never break character or leave the setting.`
 			: '';
 
-		return [header, tone, rules, params, flow, scenarioAdherence].filter(Boolean).join('\n\n');
+		return [header, tone, rules, params, context, flow, scenarioAdherence]
+			.filter(Boolean)
+			.join('\n\n');
 	}
 
 	private buildCompactRoleObjective(): string {
@@ -318,6 +322,78 @@ Tiers
 			default:
 				return 'target language only, even if learner switches';
 		}
+	}
+
+	private buildCompactContext(): string {
+		const { preferences, sessionContext, language, scenario } = this.options;
+		const preferredMemories = normalizeMemoriesList(preferences?.memories as unknown);
+		const contextMemories = normalizeMemoriesList(sessionContext?.memories as unknown);
+		const memories = preferredMemories.length ? preferredMemories : contextMemories;
+
+		const learnerContext = preferences?.conversationContext as {
+			occupation?: string;
+			learningReason?: string;
+			recentTopics?: string[];
+		};
+
+		const contextSections: string[] = [];
+
+		if (memories.length > 0) {
+			const top = memories.slice(0, 4).map((memory) => `  - ${memory}`).join('\n');
+			contextSections.push(`- Learner facts (weave naturally):\n${top}`);
+		}
+
+		const personalLines: string[] = [];
+		if (learnerContext?.occupation) {
+			personalLines.push(`  - Occupation: ${learnerContext.occupation}`);
+		}
+		if (learnerContext?.learningReason) {
+			personalLines.push(`  - Motivation: ${learnerContext.learningReason}`);
+		}
+		if (Array.isArray(learnerContext?.recentTopics) && learnerContext.recentTopics.length > 0) {
+			const topics = learnerContext.recentTopics.slice(0, 3).join(', ');
+			personalLines.push(`  - Recent interests: ${topics}`);
+		}
+		if (personalLines.length > 0) {
+			contextSections.push(`- Personal context:\n${personalLines.join('\n')}`);
+		}
+
+		const preferencesLines: string[] = [];
+		if (preferences?.learningGoal) {
+			preferencesLines.push(`  - Goal: ${preferences.learningGoal}`);
+		}
+		const specificGoals = preferences?.specificGoals as string[];
+		if (Array.isArray(specificGoals) && specificGoals.length > 0) {
+			preferencesLines.push(
+				`  - Focus targets: ${specificGoals.slice(0, 3).join(', ')}`
+			);
+		}
+		const comfortZone = preferences?.comfortZone as string[];
+		if (Array.isArray(comfortZone) && comfortZone.length > 0) {
+			preferencesLines.push(`  - Comfortable topics: ${comfortZone.slice(0, 3).join(', ')}`);
+		}
+		if (preferencesLines.length > 0) {
+			contextSections.push(`- Learning preferences:\n${preferencesLines.join('\n')}`);
+		}
+
+		const previousTopics = sessionContext?.previousTopics;
+		if (Array.isArray(previousTopics) && previousTopics.length > 0) {
+			contextSections.push(
+				`- Recent conversation threads: ${previousTopics.slice(0, 3).join(', ')}`
+			);
+		}
+
+		const learningObjectives = scenario?.learningObjectives;
+		if (Array.isArray(learningObjectives) && learningObjectives.length > 0) {
+			const objectives = learningObjectives.slice(0, 3).map((obj) => `  - ${obj}`).join('\n');
+			contextSections.push(`- Scenario focus:\n${objectives}`);
+		}
+
+		if (contextSections.length === 0) {
+			return '';
+		}
+
+		return `# Context\n\n${contextSections.join('\n\n')}\n- Use this info to personalize turns, not to narrate it verbatim.\n- Reference one detail every few turns so it feels remembered.`;
 	}
 
 	private buildCompactFlow(isZeroToHero: boolean, nativeLang: string): string {
@@ -574,7 +650,9 @@ CRITICAL: Real humans use disfluencies ~2-6 times per 100 words. You should too.
 		const { scenario, sessionContext, language, speaker, preferences } = this.options;
 
 		// Use persistent database memories first, fall back to session context
-		const memories = (preferences?.memories as string[]) || sessionContext?.memories || [];
+		const preferenceMemories = normalizeMemoriesList(preferences?.memories as unknown);
+		const sessionMemories = normalizeMemoriesList(sessionContext?.memories as unknown);
+		const finalMemories = preferenceMemories.length ? preferenceMemories : sessionMemories;
 		const previousTopics = sessionContext?.previousTopics || [];
 
 		let contextSections: string[] = [];
@@ -606,7 +684,10 @@ ${regionalInfo.join('\n')}`);
 		}
 
 		// Learner background with database memories + preferences
-		const learnerBackgroundSection = this.buildLearnerBackgroundSection(preferences, memories);
+		const learnerBackgroundSection = this.buildLearnerBackgroundSection(
+			preferences,
+			finalMemories
+		);
 		if (learnerBackgroundSection) {
 			contextSections.push(learnerBackgroundSection);
 		}
