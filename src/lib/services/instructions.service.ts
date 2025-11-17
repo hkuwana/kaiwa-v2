@@ -165,7 +165,7 @@ function composeInitialInstructions(
 		speaker: params.speaker,
 		sessionContext: normalizeSessionContext(params.sessionContext),
 		parameters: parameterOverrides,
-		compact: true
+		compact: false
 	});
 
 	return composer.compose();

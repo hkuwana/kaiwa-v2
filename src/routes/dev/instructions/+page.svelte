@@ -72,7 +72,7 @@
 			scenario: selectedScenario,
 			parameters: params,
 			speaker: selectedSpeaker ?? undefined,
-			compact: true
+			compact: false
 		});
 	}
 
