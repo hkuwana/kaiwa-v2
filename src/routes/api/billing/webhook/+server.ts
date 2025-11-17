@@ -1,4 +1,4 @@
-import { logger } from '$lib/server/logger';
+import { logger } from '$lib/logger';
 // 🎣 Stripe Webhook Handler
 // Processes Stripe events for subscription management
 

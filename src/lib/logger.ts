@@ -2,26 +2,35 @@ import { dev } from '$app/environment';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
-export interface LogContext {
-	[key: string]: unknown;
-}
+// Accept both objects and primitive values for flexible logging
+export type LogContext =
+	| Record<string, unknown>
+	| string
+	| number
+	| boolean
+	| null
+	| undefined
+	| unknown
+	| Error;
 
 interface LogEntry {
 	timestamp: string;
 	level: LogLevel;
 	message: string;
-	context?: LogContext;
+	context?: Record<string, unknown>;
 	environment: string;
 }
 
-class ClientLogger {
+class Logger {
 	private isDevelopment: boolean;
+	private isServer: boolean;
 	private minLevel: LogLevel;
 
 	constructor() {
 		this.isDevelopment = dev;
-		// In production, only log warnings and errors from client
-		this.minLevel = this.isDevelopment ? 'debug' : 'warn';
+		this.isServer = typeof window === 'undefined';
+		// Server: show info+ in prod, Client: show warn+ in prod
+		this.minLevel = this.isDevelopment ? 'debug' : this.isServer ? 'info' : 'warn';
 	}
 
 	private shouldLog(level: LogLevel): boolean {
@@ -36,11 +45,19 @@ class ClientLogger {
 			return;
 		}
 
+		// Normalize context to always be an object for LogEntry
+		const normalizedContext: Record<string, unknown> | undefined =
+			context !== undefined && context !== null
+				? typeof context === 'object' && !Array.isArray(context) && !(context instanceof Error)
+					? (context as Record<string, unknown>)
+					: { value: context }
+				: undefined;
+
 		const entry: LogEntry = {
 			timestamp: new Date().toISOString(),
 			level,
 			message,
-			context,
+			context: normalizedContext,
 			environment: this.isDevelopment ? 'development' : 'production'
 		};
 
@@ -53,24 +70,38 @@ class ClientLogger {
 				error: '❌'
 			}[level];
 
-			const color = {
-				debug: 'color: #00CED1', // Cyan
-				info: 'color: #1E90FF', // Blue
-				warn: 'color: #FFA500', // Orange
-				error: 'color: #DC143C' // Crimson
-			}[level];
-
 			const timestamp = new Date().toLocaleTimeString();
 
-			console.log(
-				`%c${emoji} [${timestamp}] ${level.toUpperCase()}: ${message}`,
-				color
-			);
-			if (context && Object.keys(context).length > 0) {
-				console.log('   Context:', context);
+			if (this.isServer) {
+				// ANSI color codes for server/terminal
+				const color = {
+					debug: '\x1b[36m', // Cyan
+					info: '\x1b[34m', // Blue
+					warn: '\x1b[33m', // Yellow
+					error: '\x1b[31m' // Red
+				}[level];
+				const reset = '\x1b[0m';
+
+				console.log(`${color}${emoji} [${timestamp}] ${level.toUpperCase()}${reset}: ${message}`);
+				if (context !== undefined && context !== null) {
+					console.log(`${color}   Context:${reset}`, context);
+				}
+			} else {
+				// CSS colors for browser console
+				const color = {
+					debug: 'color: #00CED1', // Cyan
+					info: 'color: #1E90FF', // Blue
+					warn: 'color: #FFA500', // Orange
+					error: 'color: #DC143C' // Crimson
+				}[level];
+
+				console.log(`%c${emoji} [${timestamp}] ${level.toUpperCase()}: ${message}`, color);
+				if (context !== undefined && context !== null) {
+					console.log('   Context:', context);
+				}
 			}
 		} else {
-			// Structured logging for production (could be sent to a logging service)
+			// Structured JSON logging for production
 			console.log(JSON.stringify(entry));
 		}
 	}
@@ -94,8 +125,18 @@ class ClientLogger {
 	// Convenience method for logging errors with stack traces
 	logError(error: Error | unknown, message?: string, context?: LogContext): void {
 		const errorMessage = message || 'An error occurred';
-		const errorContext: LogContext = {
-			...context,
+		// Normalize context to object before spreading
+		const contextObj =
+			context &&
+			typeof context === 'object' &&
+			!Array.isArray(context) &&
+			!(context instanceof Error)
+				? context
+				: context !== undefined && context !== null
+					? { originalContext: context }
+					: {};
+		const errorContext: Record<string, unknown> = {
+			...contextObj,
 			error: error instanceof Error ? error.message : String(error),
 			stack: error instanceof Error ? error.stack : undefined
 		};
@@ -104,4 +145,4 @@ class ClientLogger {
 }
 
 // Export a singleton instance
-export const logger = new ClientLogger();
+export const logger = new Logger();

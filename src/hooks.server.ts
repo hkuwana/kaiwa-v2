@@ -1,4 +1,4 @@
-import { logger } from '$lib/server/logger';
+import { logger } from '$lib/logger';
 // src/hooks.server.ts
 
 import { sequence } from '@sveltejs/kit/hooks';

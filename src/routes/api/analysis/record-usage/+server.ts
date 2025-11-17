@@ -1,4 +1,4 @@
-import { logger } from '$lib/server/logger';
+import { logger } from '$lib/logger';
 import { json } from '@sveltejs/kit';
 import { analysisQuotaService } from '$lib/server/services/analysis-quota.service';
 import { userUsageRepository } from '$lib/server/repositories/user-usage.repository';

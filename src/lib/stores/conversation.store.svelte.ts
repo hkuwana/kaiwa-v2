@@ -1,16 +1,7 @@
 import { logger } from '$lib/logger';
-// src/lib/stores/conversation.store.svelte.ts
-// Simplified conversation store using functional realtime service
-// ! Need to make sure that onboarding update in the beginning of the conversation is handled
-// ! Need to make sure that the conversation is properly handled
-// ! Need to make sure that the user preferences are properly handled
-// ! Need to ensure that when the conversation is ended, the onboarding for userPreferences runs
 
-import { browser, dev } from '$app/environment';
+import { browser } from '$app/environment';
 
-// Environment-based logging
-
-const log = (...args: unknown[]) => dev && logger.info(...args);
 import { realtimeOpenAI } from '$lib/stores/realtime-openai.store.svelte';
 import { audioStore } from '$lib/stores/audio.store.svelte';
 import { scenarioStore } from '$lib/stores/scenario.store.svelte';
@@ -123,7 +114,7 @@ export class ConversationStore {
 	private messageHandlersSetup = false;
 
 	constructor(userTier: UserTier = 'free') {
-		log('🏗️ ConversationStore constructor:', {
+		logger.debug('🏗️ ConversationStore constructor:', {
 			browser,
 			isBrowser: typeof window !== 'undefined',
 			userAgent: typeof window !== 'undefined' ? window.navigator?.userAgent : 'SSR',
@@ -132,13 +123,13 @@ export class ConversationStore {
 
 		// Only initialize services in browser
 		if (!browser) {
-			log('ConversationStore: SSR mode, skipping service initialization');
+			logger.debug('ConversationStore: SSR mode, skipping service initialization');
 			// Create a dummy timer store for SSR
 			return;
 		}
 
 		// Browser initialization
-		log('🚀 ConversationStore: Browser mode, initializing services');
+		logger.debug('🚀 ConversationStore: Browser mode, initializing services');
 		this.timer = createConversationTimerStore(userTier);
 		this.initializeServices();
 		this.initializeUserPreferences();
@@ -405,12 +396,10 @@ export class ConversationStore {
 
 			// Get the stream from the audio store
 			this.audioStream = audioStore.getCurrentStream();
-			logger.info(
-				'🎵 ConversationStore: After starting recording - stream exists:',
-				!!this.audioStream,
-				'audioStore.isRecording:',
-				audioStore.isRecording
-			);
+			logger.info('🎵 ConversationStore: After starting recording', {
+				streamExists: !!this.audioStream,
+				isRecording: audioStore.isRecording
+			});
 			if (this.audioStream === null) {
 				throw new Error('No audio stream available after successful permission request');
 			}
@@ -750,7 +739,9 @@ export class ConversationStore {
 				// In VAD mode, audio track should be enabled for continuous listening
 				track.enabled = true;
 				this.waitingForUserToStart = false;
-				logger.info('🎙️ ConversationStore: VAD mode - audio track enabled for continuous listening');
+				logger.info(
+					'🎙️ ConversationStore: VAD mode - audio track enabled for continuous listening'
+				);
 			} else {
 				// In PTT mode, disable track until user presses button
 				track.enabled = false;
@@ -1178,7 +1169,9 @@ export class ConversationStore {
 				if (this.audioInputMode === 'vad') {
 					// VAD mode: Wait for session.updated confirmation before enabling audio
 					// This prevents race condition where user speaks before instructions are applied
-					logger.info('🎵 ConversationStore: Waiting for session.updated confirmation before enabling VAD audio');
+					logger.info(
+						'🎵 ConversationStore: Waiting for session.updated confirmation before enabling VAD audio'
+					);
 					this.enableVadAudioWhenReady(track);
 				} else {
 					// PTT mode: Keep track disabled until user presses button
@@ -1351,12 +1344,16 @@ export class ConversationStore {
 
 			if (track && this.audioStream) {
 				track.enabled = true;
-				logger.info('🎵 ConversationStore: Enabled audio track for VAD mode (after session.updated)');
+				logger.info(
+					'🎵 ConversationStore: Enabled audio track for VAD mode (after session.updated)'
+				);
 
 				// Trigger initial greeting in VAD mode (same as PTT mode)
 				// This ensures the first response includes instructions in the response payload
 				if (this.waitingForUserToStart) {
-					logger.info('🎵 ConversationStore: VAD mode - triggering initial greeting with instructions');
+					logger.info(
+						'🎵 ConversationStore: VAD mode - triggering initial greeting with instructions'
+					);
 					this.triggerInitialGreeting();
 				}
 			}
@@ -1430,12 +1427,10 @@ export class ConversationStore {
 
 	private cleanup(): void {
 		logger.info('🧹 ConversationStore: Cleaning up conversation resources...');
-		logger.info(
-			'🧹 ConversationStore: Before cleanup - audioStore.isRecording:',
-			audioStore.isRecording,
-			'audioStream exists:',
-			!!this.audioStream
-		);
+		logger.info('🧹 ConversationStore: Before cleanup', {
+			isRecording: audioStore.isRecording,
+			audioStreamExists: !!this.audioStream
+		});
 
 		// Clean up browser lifecycle handlers
 		this.cleanupBrowserLifecycleHandlers();
@@ -1531,7 +1526,7 @@ export class ConversationStore {
 		this.resetState();
 		this.timer.reset();
 		this.currentOptions = null;
-		log('Conversation store reset');
+		logger.debug('Conversation store reset');
 	};
 
 	forceCleanup = () => {
@@ -2196,7 +2191,11 @@ export class ConversationStore {
 				speaker: preservedSpeaker?.voiceName,
 				hasOptions: !!preservedOptions
 			});
-			this.startConversation(preservedLanguage, preservedSpeaker, preservedOptions);
+			this.startConversation(
+				preservedLanguage,
+				preservedSpeaker ?? undefined,
+				preservedOptions ?? undefined
+			);
 		}
 	};
 
@@ -2215,11 +2214,9 @@ export class ConversationStore {
 		// Clean up realtime connections but preserve state
 		this.cleanup();
 
-		logger.info(
-			'Conversation preserved for analysis with',
-			this.messagesForAnalysis.length,
-			'messages'
-		);
+		logger.info('Conversation preserved for analysis', {
+			messageCount: this.messagesForAnalysis.length
+		});
 	};
 
 	// Add method to completely destroy conversation (for page changes, etc.)

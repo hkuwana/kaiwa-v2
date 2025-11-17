@@ -1,4 +1,4 @@
-import { logger } from '$lib/server/logger';
+import { logger } from '$lib/logger';
 import { json } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import { env } from '$env/dynamic/private';

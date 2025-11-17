@@ -1,4 +1,4 @@
-import { logger } from '$lib/server/logger';
+import { logger } from '$lib/logger';
 import { json } from '@sveltejs/kit';
 
 // Simple test endpoint to verify analysis limits are working

@@ -1,4 +1,4 @@
-import { logger } from '$lib/server/logger';
+import { logger } from '$lib/logger';
 import { json } from '@sveltejs/kit';
 import { isChineseText } from '$lib/services/romanization.service';
 import { SecuritySanitizer } from '$lib/utils/security';

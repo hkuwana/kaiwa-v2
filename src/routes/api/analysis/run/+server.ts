@@ -1,4 +1,4 @@
-import { logger } from '$lib/server/logger';
+import { logger } from '$lib/logger';
 import { json } from '@sveltejs/kit';
 import { analysisPipelineService } from '$lib/features/analysis/services/analysis-pipeline.service';
 import { analysisSuggestionService } from '$lib/features/analysis/services/analysis-suggestion.service';

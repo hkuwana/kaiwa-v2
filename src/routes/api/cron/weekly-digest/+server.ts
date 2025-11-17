@@ -1,4 +1,4 @@
-import { logger } from '$lib/server/logger';
+import { logger } from '$lib/logger';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { WeeklyUpdatesEmailService } from '$lib/server/email/weekly-updates-email.service';

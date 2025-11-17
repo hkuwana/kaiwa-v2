@@ -1,4 +1,4 @@
-import { logger } from '$lib/server/logger';
+import { logger } from '$lib/logger';
 import { json } from '@sveltejs/kit';
 import { FounderEmailService } from '$lib/server/email/founder-email.service';
 import { userRepository } from '$lib/server/repositories';

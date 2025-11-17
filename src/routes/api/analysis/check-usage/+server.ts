@@ -1,4 +1,4 @@
-import { logger } from '$lib/server/logger';
+import { logger } from '$lib/logger';
 import { json } from '@sveltejs/kit';
 import { usageService } from '$lib/server/services/usage.service';
 import { getUserCurrentTier } from '$lib/server/services/payment.service';

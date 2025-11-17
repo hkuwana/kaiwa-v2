@@ -2,11 +2,6 @@ import { logger } from '$lib/logger';
 import { GUEST_USER } from '$lib/data/user';
 import type { User, UserTier } from '$lib/server/db/types';
 import { SvelteDate } from 'svelte/reactivity';
-import { browser } from '$app/environment';
-
-// Environment-based logging
-const isDev = browser && typeof window !== 'undefined' && window.location.hostname === 'localhost';
-const log = (...args: unknown[]) => isDev && logger.info(...args);
 
 // Infer the User type from the database schema
 
@@ -27,7 +22,7 @@ export class UserManagerStore {
 			this.setUser(initialUser);
 		}
 
-		log('👤 User manager store initialized');
+		logger.debug('👤 User manager store initialized');
 	}
 
 	// Public getters
@@ -81,21 +76,24 @@ export class UserManagerStore {
 		// Note: effectiveTier is now managed separately through subscription data
 		// Default to 'free' until subscription data is loaded
 		this._state.effectiveTier = 'free';
-		log(`👤 User logged in: ${user.displayName || user.username}`);
+		logger.debug('👤 User logged in', {
+			displayName: user.displayName,
+			username: user.username
+		});
 	}
 
 	// Update user data (partial update)
 	updateUser(updates: Partial<User>): void {
 		if (this._state.user) {
 			this._state.user = { ...this._state.user, ...updates };
-			log('👤 User data updated:', updates);
+			logger.debug('👤 User data updated', updates);
 		}
 	}
 
 	// Override effective tier (e.g., from active subscription)
 	setEffectiveTier(tier: UserTier): void {
 		this._state.effectiveTier = tier;
-		log(`👤 Effective tier updated to: ${tier}`);
+		logger.debug('👤 Effective tier updated', { tier });
 	}
 
 	// Sync entire store state from page data (user + subscription)
@@ -127,7 +125,7 @@ export class UserManagerStore {
 		} else {
 			this._state.user = GUEST_USER;
 			this._state.effectiveTier = 'free';
-			log('👤 Store synced: User logged out');
+			logger.debug('👤 Store synced: User logged out');
 		}
 	}
 
@@ -135,14 +133,14 @@ export class UserManagerStore {
 	logout(): void {
 		this._state.user = GUEST_USER;
 		this._state.effectiveTier = 'free';
-		log('👤 User logged out');
+		logger.debug('👤 User logged out');
 	}
 
 	// Reset to initial state
 	reset(): void {
 		this._state.user = GUEST_USER;
 		this._state.effectiveTier = 'free';
-		log('👤 User manager reset to initial state');
+		logger.debug('👤 User manager reset to initial state');
 	}
 
 	// Get debug information
