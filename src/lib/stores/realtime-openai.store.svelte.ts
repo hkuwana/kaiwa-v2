@@ -1691,11 +1691,14 @@ export class RealtimeOpenAIStore {
 		audio?: SessionConfig['audio'];
 		turnDetection?: SessionConfig['turnDetection'] | null;
 	}): void {
-		if (!this.connection) return;
+		if (!this.connection) {
+			logger.warn('⚠️ updateSessionConfig called but no connection!');
+			return;
+		}
 
 		// 📋 LOG INSTRUCTIONS FOR DEBUGGING
 		if (config.instructions) {
-			console.info('🎯 [Realtime] Instructions being set:', {
+			console.info('🎯 [Realtime] updateSessionConfig called with instructions:', {
 				length: config.instructions.length,
 				preview: config.instructions.substring(0, 200) + '...',
 				fullInstructions: config.instructions
@@ -1708,6 +1711,13 @@ export class RealtimeOpenAIStore {
 		// Excessive session.update calls should not affect conversation context, but we throttle
 		// them to avoid disrupting session state and to be efficient.
 		if (!this.shouldSendSessionUpdate(config.instructions)) {
+			// ⚠️ WARNING: If we skip sending session.update, the instructions are NOT sent to OpenAI!
+			// This will cause the model to not follow the instructions.
+			logger.warn('⚠️ SKIPPING session.update - instructions NOT sent to OpenAI!', {
+				reason: 'Cooldown active or instructions unchanged',
+				instructionsStored: !!config.instructions,
+				instructionsLength: config.instructions?.length ?? 0
+			});
 			// Still store instructions locally for response creation even if we skip sending
 			if (config.instructions) {
 				this.currentInstructions = config.instructions;
@@ -1756,11 +1766,26 @@ export class RealtimeOpenAIStore {
 			}
 		};
 
+		// 🔍 DEBUGGING: Verify instructions are actually in the session object
+		const sessionHasInstructions = 'instructions' in update.session && !!update.session.instructions;
+		const sessionInstructionsLength = update.session.instructions?.length ?? 0;
+
 		logger.info('📤 SENDING session.update (passed cooldown check)', {
 			hasInstructions: !!config.instructions,
 			instructionsLength: config.instructions?.length ?? 0,
-			timeSinceLastUpdate: Date.now() - this.lastSessionUpdateTime
+			timeSinceLastUpdate: Date.now() - this.lastSessionUpdateTime,
+			// Verify instructions are in the actual update object being sent
+			sessionObjectHasInstructions: sessionHasInstructions,
+			sessionObjectInstructionsLength: sessionInstructionsLength,
+			instructionsPreview: update.session.instructions?.substring(0, 100) + '...'
 		});
+
+		if (config.instructions && !sessionHasInstructions) {
+			logger.error('❌ CRITICAL: Instructions were provided but NOT included in session.update!', {
+				configInstructionsLength: config.instructions.length,
+				sessionKeys: Object.keys(update.session)
+			});
+		}
 
 		this.logEvent('client', 'session.update', update);
 		sendEventViaSession(this.connection, update);
