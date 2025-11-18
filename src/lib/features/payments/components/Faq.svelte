@@ -14,6 +14,12 @@
 			question: 'Can I upgrade or downgrade my plan?',
 			answer:
 				'Absolutely! You can change your plan at any time from your account settings. The new plan will be prorated and take effect immediately.'
+		},
+		{
+			question: 'What if I have subscription or billing issues?',
+			answer:
+				'If you experience any problems with your subscription or billing, please email us at hiro@trykaiwa.com and we\'ll help you resolve it as quickly as possible.',
+			isContact: true
 		}
 	];
 	let expandedFaq = $state(-1);
@@ -32,7 +38,17 @@
 				/>
 				<div class="collapse-title text-xl font-medium">{faq.question}</div>
 				<div class="collapse-content">
-					<p class="pt-2 text-base-content/90">{faq.answer}</p>
+					<p class="pt-2 text-base-content/90">
+						{#if faq.isContact}
+							If you experience any problems with your subscription or billing, please email us at
+							<a href="mailto:hiro@trykaiwa.com" class="link link-primary font-semibold"
+								>hiro@trykaiwa.com</a
+							>
+							and we'll help you resolve it as quickly as possible.
+						{:else}
+							{faq.answer}
+						{/if}
+					</p>
 				</div>
 			</div>
 		{/each}

@@ -36,6 +36,58 @@
 	let isProcessingUpgrade = $state(false);
 	let upgradeError = $state('');
 
+	// Subscription status state
+	let subscriptionStatus = $state<{
+		currentPeriodEnd: string | null;
+		cancelAt: string | null;
+		willCancelAtPeriodEnd: boolean;
+		billingCycle: string;
+	} | null>(null);
+	let isLoadingStatus = $state(false);
+
+	// Fetch subscription status
+	async function fetchSubscriptionStatus() {
+		if (usageStatus?.tier.id === 'free') return;
+
+		isLoadingStatus = true;
+		try {
+			const response = await fetch('/api/billing/subscription-status');
+			if (response.ok) {
+				const data = await response.json();
+				if (data.hasActiveSubscription) {
+					subscriptionStatus = {
+						currentPeriodEnd: data.currentPeriodEnd,
+						cancelAt: data.cancelAt,
+						willCancelAtPeriodEnd: data.willCancelAtPeriodEnd,
+						billingCycle: data.billingCycle
+					};
+				}
+			}
+		} catch (error) {
+			console.error('Failed to fetch subscription status:', error);
+		} finally {
+			isLoadingStatus = false;
+		}
+	}
+
+	// Load subscription status when tier changes
+	$effect(() => {
+		if (usageStatus?.tier.id && usageStatus.tier.id !== 'free') {
+			fetchSubscriptionStatus();
+		}
+	});
+
+	// Format date for display
+	function formatDate(dateString: string | null): string {
+		if (!dateString) return '';
+		const date = new Date(dateString);
+		return date.toLocaleDateString('en-US', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric'
+		});
+	}
+
 	// Available tiers for upgrade
 	const availableTiers: Array<{
 		id: 'plus' | 'premium';
@@ -74,7 +126,7 @@
 		upgradeError = '';
 
 		try {
-			const response = await fetch('/api/stripe/checkout', {
+			const response = await fetch('/api/billing/checkout', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -169,6 +221,37 @@
 					</div>
 				</div>
 			</div>
+
+			<!-- Subscription Renewal/End Date -->
+			{#if usageStatus?.tier.id !== 'free' && (subscriptionStatus || isLoadingStatus)}
+				<div class="mt-4 alert {subscriptionStatus?.willCancelAtPeriodEnd ? 'alert-warning' : 'alert-info'}">
+					{#if isLoadingStatus}
+						<span class="loading loading-sm loading-spinner"></span>
+						<span>Loading subscription details...</span>
+					{:else if subscriptionStatus}
+						{#if subscriptionStatus.willCancelAtPeriodEnd}
+							<span class="icon-[mdi--information] h-6 w-6"></span>
+							<div>
+								<h3 class="font-bold">Subscription Ending</h3>
+								<div class="text-sm">
+									Your subscription will end on <strong>{formatDate(subscriptionStatus.currentPeriodEnd)}</strong>.
+									You'll continue to have access to {usageStatus?.tier.id} features until then.
+									You can reactivate anytime before this date.
+								</div>
+							</div>
+						{:else if subscriptionStatus.currentPeriodEnd}
+							<span class="icon-[mdi--calendar-check] h-6 w-6"></span>
+							<div>
+								<h3 class="font-bold">Next Billing Date</h3>
+								<div class="text-sm">
+									Your subscription will renew on <strong>{formatDate(subscriptionStatus.currentPeriodEnd)}</strong>
+									({subscriptionStatus.billingCycle === 'year' ? 'annual' : 'monthly'} billing).
+								</div>
+							</div>
+						{/if}
+					{/if}
+				</div>
+			{/if}
 
 			<!-- Quick Actions -->
 			<div class="flex flex-wrap items-center gap-2 pt-4">

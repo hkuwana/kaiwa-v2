@@ -95,15 +95,16 @@
 			// Track conversion intent
 			trackConversion.checkoutStarted(planId as 'plus' | 'premium', selectedBilling);
 
-			// Determine price ID based on plan and billing
-			const priceId = `price_${planId}_${selectedBilling}`;
+			// Map 'yearly' to 'annual' for API
+			const billing = selectedBilling === 'yearly' ? 'annual' : 'monthly';
 
-			// Call checkout API
-			const response = await fetch('/api/stripe/checkout', {
+			// Call checkout API with correct parameters
+			const response = await fetch('/api/billing/checkout', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					priceId,
+					tier: planId,
+					billing,
 					successPath: '/dashboard?upgraded=true',
 					cancelPath: '/pricing?cancelled=true'
 				})
@@ -120,7 +121,7 @@
 		} catch (error) {
 			console.error('Checkout error:', error);
 			// TODO: Replace with toast notification when available
-			console.error('Something went wrong. Please try again.');
+			alert('Something went wrong. Please try again.');
 		} finally {
 			isLoading = false;
 		}
