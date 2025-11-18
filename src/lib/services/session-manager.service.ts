@@ -22,7 +22,8 @@ export function createSessionConfig(
 	}
 
 	// 📝 Log the session config being sent
-	console.log('📝 Session config being created:', {
+	console.log('%c📝 SESSION CONFIG BEING SENT TO OPENAI', 'color: green; font-weight: bold; font-size: 14px;');
+	console.log({
 		language: language.code,
 		voice: validatedVoice,
 		instructionsLength: instructions.length,
@@ -105,7 +106,8 @@ export function createSessionUpdateConfig(
 		updates.instructions || `You are a helpful language tutor for ${language.name || 'English'}.`;
 
 	// 📝 Log the session update config
-	console.log('📝 Session update config being created:', {
+	console.log('%c📝 SESSION UPDATE CONFIG BEING SENT TO OPENAI', 'color: orange; font-weight: bold; font-size: 14px;');
+	console.log({
 		language: language.code,
 		voice: validatedVoice,
 		instructionsLength: instructions.length,

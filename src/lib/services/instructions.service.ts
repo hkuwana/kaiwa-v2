@@ -95,7 +95,8 @@ export function createScenarioSessionConfig(
 	});
 	const initialMessage = generateScenarioGreeting({ language, scenario, user });
 
-	console.log('📝 Full instructions being sent to OpenAI:', {
+	console.log('%c📝 FULL INSTRUCTIONS BEING SENT TO OPENAI', 'color: blue; font-weight: bold; font-size: 14px;');
+	console.log({
 		speaker: speaker?.voiceName || 'default',
 		language: language.code,
 		instructionsLength: instructions.length,
@@ -111,8 +112,8 @@ export function createScenarioSessionConfig(
 	if (!isValidVoice(preferredVoice)) {
 		console.warn(
 			`⚠️ Invalid voice "${preferredVoice}" for speaker "${speaker?.voiceName || 'unknown'}". ` +
-			`Falling back to default voice "${DEFAULT_VOICE}". ` +
-			`Valid voices are: alloy, ash, ballad, coral, echo, sage, shimmer, verse`
+				`Falling back to default voice "${DEFAULT_VOICE}". ` +
+				`Valid voices are: alloy, ash, ballad, coral, echo, sage, shimmer, verse`
 		);
 		preferredVoice = DEFAULT_VOICE;
 	}
