@@ -18,7 +18,6 @@
 	import ConnectingState from '$lib/features/conversation/components/ConversationConnectingState.svelte';
 	import ErrorState from '$lib/features/conversation/components/ConversationErrorState.svelte';
 	import ActiveConversationState from '$lib/features/conversation/components/ConversationActiveState.svelte';
-	import DevPanel from '$lib/components/DevPanel.svelte';
 	import MessageBubble from '$lib/features/conversation/components/MessageBubble.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 	import StageIndicator from '$lib/components/StageIndicator.svelte';
@@ -717,14 +716,3 @@
 		expandable={false}
 	/>
 {/if}
-
-<!-- Dev Panel -->
-<DevPanel
-	{status}
-	messagesCount={messages.length}
-	{audioLevel}
-	{isGuestUser}
-	{hasAnalysisResults}
-	{isAnalyzing}
-	timeInSeconds={Math.ceil(conversationStore.timerState.timer.timeRemaining / 1000)}
-/>

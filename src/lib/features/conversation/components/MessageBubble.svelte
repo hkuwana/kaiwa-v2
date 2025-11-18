@@ -61,14 +61,16 @@
 
 	// Determine if message is from user or AI
 	const isUser = $derived(message.role === 'user');
-
-	// Conditional values based on message type
-	const chatClass = $derived(isUser ? 'chat-end' : 'chat-start');
-	// Use user's avatar if available, otherwise use kitsune mascot for assistant
-	const avatarAlt = $derived(isUser ? 'User avatar' : 'Kaiwa mascot');
 	const currentSpeaker = $derived(
 		isUser ? null : speaker || getSpeakerById(settingsStore.selectedSpeaker)
 	);
+	// Conditional values based on message type
+	const chatClass = $derived(isUser ? 'chat-end' : 'chat-start');
+	const avatarAlt = $derived(
+		isUser ? 'User avatar' : currentSpeaker?.characterImageAlt || 'Kaiwa mascot'
+	);
+
+	const assistantAvatarSrc = $derived(currentSpeaker?.characterImageUrl || kitsune);
 
 	const speakerName = $derived(isUser ? 'You' : currentSpeaker?.voiceName || 'AI');
 
@@ -200,20 +202,21 @@
 <div class="chat {chatClass}" role="listitem">
 	<div class="avatar chat-image">
 		<div class="w-10 rounded-full">
-			{#if isUser && userManager.user.avatarUrl}
-				<img alt={avatarAlt} src={userManager.user.avatarUrl} loading="lazy" />
-			{:else if isUser}
-				<!-- Show user initials if no avatar -->
-				<div
-					class="flex h-full w-full items-center justify-center rounded-full bg-primary text-primary-content"
-				>
-					<span class="text-lg font-semibold"
-						>{userManager.user.displayName?.slice(0, 1).toUpperCase() || 'U'}</span
+			{#if isUser}
+				{#if userManager.user.avatarUrl}
+					<img alt={avatarAlt} src={userManager.user.avatarUrl} loading="lazy" />
+				{:else}
+					<!-- Show user initials if no avatar -->
+					<div
+						class="flex h-full w-full items-center justify-center rounded-full bg-primary text-primary-content"
 					>
-				</div>
+						<span class="text-lg font-semibold"
+							>{userManager.user.displayName?.slice(0, 1).toUpperCase() || 'U'}</span
+						>
+					</div>
+				{/if}
 			{:else}
-				<!-- Show Kaiwa mascot for assistant -->
-				<img alt={avatarAlt} src={kitsune} loading="lazy" />
+				<img alt={avatarAlt} src={assistantAvatarSrc} loading="lazy" />
 			{/if}
 		</div>
 	</div>
