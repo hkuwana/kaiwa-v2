@@ -13,9 +13,11 @@
 
 	// Local state
 	let isExpanded = $state(false);
-	let selectedMode = $state<AudioInputMode>('vad'); // Default to Auto-Detect (VAD)
+	let selectedMode = $state<AudioInputMode>('ptt'); // Default to Push-to-Talk (PTT)
 	let isInitialized = $state(false);
 	let _pttStopDelay = $state(500); // Default 500ms delay
+	let showHeadphoneWarning = $state(false);
+	let pendingMode = $state<AudioInputMode | null>(null);
 
 	// Initialize from cookies, user preferences, or use VAD default
 	$effect(() => {
@@ -27,10 +29,10 @@
 			selectedMode = cookieMode;
 			console.log('🎙️ AdvancedAudioOptions: Restored from cookie:', cookieMode);
 		} else {
-			// Always use 'vad' (Conversation Mode) as the new default
-			// This ensures all users get the new natural conversation experience
-			selectedMode = 'vad';
-			console.log('🎙️ AdvancedAudioOptions: Using Conversation Mode (vad) as default');
+			// Default to 'ptt' (Push-to-Talk) for best audio quality
+			// Conversation Mode (VAD) requires headphones to prevent feedback
+			selectedMode = 'ptt';
+			console.log('🎙️ AdvancedAudioOptions: Using Push-to-Talk (ptt) as default');
 		}
 
 		isInitialized = true;
@@ -42,6 +44,17 @@
 
 	// Handle mode change
 	function handleModeChange(mode: AudioInputMode) {
+		// Show warning when switching to conversation mode (VAD)
+		if (mode === 'vad' && selectedMode === 'ptt') {
+			pendingMode = mode;
+			showHeadphoneWarning = true;
+			return;
+		}
+
+		applyModeChange(mode);
+	}
+
+	function applyModeChange(mode: AudioInputMode) {
 		selectedMode = mode;
 		// Save to cookie for quick recall
 		setAudioInputModeCookie(mode);
@@ -50,6 +63,19 @@
 		// Notify parent
 		onModeChange?.(mode);
 		console.log('🎙️ AdvancedAudioOptions: Mode changed to:', mode);
+	}
+
+	function confirmModeChange() {
+		if (pendingMode) {
+			applyModeChange(pendingMode);
+			pendingMode = null;
+		}
+		showHeadphoneWarning = false;
+	}
+
+	function cancelModeChange() {
+		pendingMode = null;
+		showHeadphoneWarning = false;
 	}
 
 	function toggleExpanded() {
@@ -152,6 +178,42 @@
 				<span>You can change this setting anytime in your profile settings.</span>
 			</div>
 		</div>
+	{/if}
+
+	<!-- Headphone Warning Modal -->
+	{#if showHeadphoneWarning}
+		<dialog class="modal modal-open">
+			<div class="modal-box">
+				<h3 class="text-lg font-bold flex items-center gap-2">
+					<span class="icon-[mdi--alert-circle-outline] h-6 w-6 text-warning"></span>
+					Headphones Required
+				</h3>
+				<div class="py-4 space-y-3">
+					<p class="text-sm">
+						<strong>Conversation Mode</strong> works best with headphones or earbuds to prevent audio
+						feedback loops.
+					</p>
+					<div class="alert alert-warning py-2">
+						<span class="icon-[mdi--headphones] h-5 w-5 shrink-0"></span>
+						<span class="text-xs"
+							>Without headphones, the assistant's voice may be picked up by your microphone, creating
+							an echo effect and poor audio quality.</span
+						>
+					</div>
+					<p class="text-sm">Do you have headphones or earbuds connected?</p>
+				</div>
+				<div class="modal-action">
+					<button class="btn btn-ghost" onclick={cancelModeChange}>Cancel</button>
+					<button class="btn btn-primary" onclick={confirmModeChange}>
+						<span class="icon-[mdi--check] h-5 w-5"></span>
+						Yes, Continue
+					</button>
+				</div>
+			</div>
+			<form method="dialog" class="modal-backdrop" onclick={cancelModeChange}>
+				<button>close</button>
+			</form>
+		</dialog>
 	{/if}
 </div>
 

@@ -458,7 +458,7 @@ export class ConversationStore {
 				logger.error('Failed to save conversation on error:', saveError);
 			});
 
-			this.cleanup();
+			await this.cleanup();
 			throw error;
 		}
 	};
@@ -1497,7 +1497,7 @@ export class ConversationStore {
 		this.isTranscribing = newState.isTranscribing;
 	}
 
-	private cleanup(): void {
+	private async cleanup(): Promise<void> {
 		logger.info('🧹 ConversationStore: Cleaning up conversation resources...');
 		logger.info('🧹 ConversationStore: Before cleanup', {
 			isRecording: audioStore.isRecording,
@@ -1540,9 +1540,12 @@ export class ConversationStore {
 		this.turnMaxInputLevel = 0;
 		this.suppressNextUserTranscript = false;
 		try {
-			realtimeOpenAI.disconnect();
-		} catch {
-			logger.info('an error with conversation store. Chekc it out');
+			// IMPORTANT: Await the disconnect to ensure it completes before continuing
+			logger.info('🧹 ConversationStore: Awaiting realtime disconnect...');
+			await realtimeOpenAI.disconnect();
+			logger.info('🧹 ConversationStore: Realtime disconnect complete');
+		} catch (error) {
+			logger.error('🧹 ConversationStore: Error during realtime disconnect:', error);
 		}
 
 		// Stop audio stream
@@ -1591,9 +1594,9 @@ export class ConversationStore {
 		// Don't reset conversation state - keep messages and continue conversation
 	};
 
-	reset = () => {
+	reset = async () => {
 		if (browser) {
-			this.cleanup();
+			await this.cleanup();
 		}
 		this.resetState();
 		this.timer.reset();
@@ -1601,10 +1604,10 @@ export class ConversationStore {
 		logger.debug('Conversation store reset');
 	};
 
-	forceCleanup = () => {
+	forceCleanup = async () => {
 		logger.info('Force cleaning up conversation store...');
 		try {
-			this.cleanup();
+			await this.cleanup();
 		} catch (error) {
 			logger.warn('Error during cleanup:', error);
 		}
@@ -1749,7 +1752,7 @@ export class ConversationStore {
 			// so the connection does not linger after the timer expires.
 			// This preserves messages for analysis while cutting the transport.
 			try {
-				this.cleanup();
+				await this.cleanup();
 			} catch (e) {
 				logger.warn('Cleanup before analysis failed (continuing):', e);
 			}
@@ -2187,7 +2190,7 @@ export class ConversationStore {
 		this.timer.stop();
 
 		// Clean up connections but preserve messages for analysis
-		this.cleanup();
+		await this.cleanup();
 
 		// Trigger analysis if we have messages and haven't already analyzed
 		if (this.messages.length > 0 && this.language && !this.analysisTriggered) {
@@ -2284,7 +2287,7 @@ export class ConversationStore {
 		this.timer.stop();
 
 		// Clean up realtime connections but preserve state
-		this.cleanup();
+		await this.cleanup();
 
 		logger.info('Conversation preserved for analysis', {
 			messageCount: this.messagesForAnalysis.length
@@ -2310,7 +2313,7 @@ export class ConversationStore {
 		this.timer.stop();
 
 		// Clean up all resources
-		this.cleanup();
+		await this.cleanup();
 
 		// Reset all state
 		this.resetState();
@@ -2319,7 +2322,7 @@ export class ConversationStore {
 	};
 
 	// Add method to force clear all conversation state without saving
-	forceClearConversation = () => {
+	forceClearConversation = async () => {
 		if (!browser) return;
 
 		logger.info('🧹 Force clearing conversation state...');
@@ -2328,7 +2331,7 @@ export class ConversationStore {
 		this.timer.stop();
 
 		// Clean up all resources
-		this.cleanup();
+		await this.cleanup();
 
 		// Reset all state
 		this.resetState();
