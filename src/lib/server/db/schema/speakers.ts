@@ -23,20 +23,26 @@ export const speakerGenderEnum = pgEnum('speaker_gender', ['male', 'female']);
  * - 🎨 Rich UI representation with emojis and flags
  * - ✅ Active/inactive status for content management
  *
+ * **⚠️ IMPORTANT: voiceName vs openaiVoiceId**
+ * - `voiceName`: Display name for the speaker in instructions (e.g., "Minami")
+ * - `openaiVoiceId`: Actual OpenAI Realtime API voice ID (e.g., "coral", "alloy", "sage")
+ * - When sending to OpenAI, ALWAYS use `openaiVoiceId`, NOT `voiceName`
+ * - Bug risk: Using `voiceName` when calling OpenAI APIs causes the API to not recognize the voice
+ *
  * @example
  * ```typescript
- * // Create a Japanese male speaker
+ * // Create a Japanese female speaker from Osaka (Kansai dialect)
  * await db.insert(speakers).values({
- *   id: 'ja-jp-male',
+ *   id: 'ja-jp-osaka-female',
  *   languageId: 'ja',
- *   region: 'Japan',
- *   dialectName: 'Tokyo Japanese',
+ *   region: 'Osaka',
+ *   dialectName: 'Kansai',
  *   bcp47Code: 'ja-JP',
- *   speakerEmoji: '🇯🇵',
- *   gender: 'male',
- *   voiceName: 'Hiro',
- *   voiceProviderId: 'openai-hiro',
- *   openaiVoiceId: 'alloy'
+ *   speakerEmoji: '🏯',
+ *   gender: 'female',
+ *   voiceName: 'Minami',  // Display name for instructions
+ *   voiceProviderId: 'openai-osaka',
+ *   openaiVoiceId: 'coral'  // Use this when calling OpenAI APIs!
  * });
  * ```
  */
