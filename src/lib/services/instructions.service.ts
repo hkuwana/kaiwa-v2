@@ -5,7 +5,7 @@ import type { User, UserPreferences, Language, Speaker, Scenario } from '$lib/se
 import type { SpeechSpeed } from '$lib/server/db/types';
 // eslint-disable-next-line no-restricted-imports
 import { InstructionComposer, type InstructionComposerOptions } from '$lib/services/instructions';
-import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
+import { DEFAULT_VOICE, isValidVoice } from '$lib/types/openai.realtime.types';
 import { getLanguageById } from '$lib/types';
 import { resolveUserSpeechSpeed, type InstructionParameters } from './instructions/parameters';
 import { getLearnerCefrLevel } from '$lib/utils/cefr';
@@ -98,7 +98,17 @@ export function createScenarioSessionConfig(
 	// ⚠️ CRITICAL: Use openaiVoiceId (e.g., 'coral'), NOT voiceName (e.g., 'Minami')
 	// OpenAI Realtime API requires valid voice IDs from: alloy, ash, ballad, coral, echo, sage, verse
 	// Using voiceName will cause OpenAI to not recognize the voice and default to an unexpected voice
-	const preferredVoice = speaker?.openaiVoiceId || preferences.preferredVoice || DEFAULT_VOICE;
+	let preferredVoice = speaker?.openaiVoiceId || preferences.preferredVoice || DEFAULT_VOICE;
+
+	// 🛡️ Validate voice against allowed OpenAI voices
+	if (!isValidVoice(preferredVoice)) {
+		console.warn(
+			`⚠️ Invalid voice "${preferredVoice}" for speaker "${speaker?.voiceName || 'unknown'}". ` +
+			`Falling back to default voice "${DEFAULT_VOICE}". ` +
+			`Valid voices are: alloy, ash, ballad, coral, echo, sage, shimmer, verse`
+		);
+		preferredVoice = DEFAULT_VOICE;
+	}
 
 	return {
 		instructions,
