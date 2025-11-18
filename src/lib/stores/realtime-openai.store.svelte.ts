@@ -1691,43 +1691,48 @@ export class RealtimeOpenAIStore {
 		audio?: SessionConfig['audio'];
 		turnDetection?: SessionConfig['turnDetection'] | null;
 	}): void {
-		logger.info('🔧 updateSessionConfig CALLED', {
-			hasConnection: !!this.connection,
-			hasInstructions: !!config.instructions,
-			instructionsLength: config.instructions?.length ?? 0
-		});
-
-		if (!this.connection) {
-			logger.warn('⚠️ updateSessionConfig called but no connection!');
-			return;
-		}
-
-		// 📋 LOG INSTRUCTIONS FOR DEBUGGING
-		if (config.instructions) {
-			logger.info('🎯 [Realtime] updateSessionConfig called with instructions:', {
-				length: config.instructions.length,
-				preview: config.instructions.substring(0, 200) + '...'
-			});
-		}
-
-		// Per OpenAI Realtime API documentation: session.update is for configuration only
-		// (instructions, voice, audio format, VAD settings). The API automatically maintains
-		// conversation state separately through server events (conversation.item.added, etc).
-		// Excessive session.update calls should not affect conversation context, but we throttle
-		// them to avoid disrupting session state and to be efficient.
-		if (!this.shouldSendSessionUpdate(config.instructions)) {
-			// ⚠️ WARNING: If we skip sending session.update, the instructions are NOT sent to OpenAI!
-			// This will cause the model to not follow the instructions.
-			logger.warn('⚠️ SKIPPING session.update - instructions NOT sent to OpenAI!', {
-				reason: 'Cooldown active or instructions unchanged',
-				instructionsStored: !!config.instructions,
+		try {
+			logger.info('🔧 updateSessionConfig CALLED', {
+				hasConnection: !!this.connection,
+				hasInstructions: !!config.instructions,
 				instructionsLength: config.instructions?.length ?? 0
 			});
-			// Still store instructions locally for response creation even if we skip sending
-			if (config.instructions) {
-				this.currentInstructions = config.instructions;
+
+			if (!this.connection) {
+				logger.warn('⚠️ updateSessionConfig called but no connection!');
+				return;
 			}
-			return;
+
+			// 📋 LOG INSTRUCTIONS FOR DEBUGGING
+			if (config.instructions) {
+				logger.info('🎯 [Realtime] updateSessionConfig called with instructions:', {
+					length: config.instructions.length,
+					preview: config.instructions.substring(0, 200) + '...'
+				});
+			}
+
+			// Per OpenAI Realtime API documentation: session.update is for configuration only
+			// (instructions, voice, audio format, VAD settings). The API automatically maintains
+			// conversation state separately through server events (conversation.item.added, etc).
+			// Excessive session.update calls should not affect conversation context, but we throttle
+			// them to avoid disrupting session state and to be efficient.
+			if (!this.shouldSendSessionUpdate(config.instructions)) {
+				// ⚠️ WARNING: If we skip sending session.update, the instructions are NOT sent to OpenAI!
+				// This will cause the model to not follow the instructions.
+				logger.warn('⚠️ SKIPPING session.update - instructions NOT sent to OpenAI!', {
+					reason: 'Cooldown active or instructions unchanged',
+					instructionsStored: !!config.instructions,
+					instructionsLength: config.instructions?.length ?? 0
+				});
+				// Still store instructions locally for response creation even if we skip sending
+				if (config.instructions) {
+					this.currentInstructions = config.instructions;
+				}
+				return;
+			}
+		} catch (error) {
+			logger.error('❌ Error in updateSessionConfig logging:', error);
+			// Don't return - continue with the session update even if logging fails
 		}
 
 		const prefLang = userPreferencesStore.getPreference('targetLanguageId') as unknown as string;
