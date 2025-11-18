@@ -177,7 +177,8 @@ export async function createStripeCheckout(
 			metadata: {
 				tier,
 				billing
-			}
+			},
+			allow_promotion_codes: true
 		});
 
 		return {

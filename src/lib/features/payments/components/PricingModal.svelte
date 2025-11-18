@@ -105,7 +105,7 @@
 				body: JSON.stringify({
 					tier: planId,
 					billing,
-					successPath: '/dashboard?upgraded=true',
+					successPath: '/profile?upgraded=true',
 					cancelPath: '/pricing?cancelled=true'
 				})
 			});
@@ -222,13 +222,15 @@
 				</div>
 			</div>
 
-			<!-- Pricing cards -->
-			<div class="grid gap-6 md:grid-cols-3">
-				{#each plans as plan (plan.id)}
-					{@const savings = getYearlySavings(plan)}
-					<div
-						class="card {plan.popular ? 'card-primary' : 'bg-base-100'} shadow-xl {plan.id ===
-						currentTier
+
+
+		<!-- Pricing cards -->
+		<div class="grid gap-6 md:grid-cols-3">
+			{#each plans as plan (plan.id)}
+				{@const savings = getYearlySavings(plan)}
+				<div
+					class="card {plan.popular ? 'card-primary' : 'bg-base-100'} shadow-xl {plan.id ===
+					currentTier
 							? 'opacity-75'
 							: ''}"
 					>

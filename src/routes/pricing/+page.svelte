@@ -34,7 +34,13 @@ import { onMount } from 'svelte';
 		error?: string;
 	};
 
-	const pricingPromise = fetchPricingData();
+	// Initialize pricingPromise as a deferred promise
+	let pricingPromise = new Promise<PricingLoadResult>((resolve) => {
+		if (typeof window !== 'undefined') {
+			// Client-side only
+			fetchPricingData().then(resolve);
+		}
+	});
 
 	async function fetchPricingData(): Promise<PricingLoadResult> {
 		const fallback: Record<UserTier, PricingTier> = {
@@ -234,7 +240,7 @@ onMount(() => {
 				body: JSON.stringify({
 					tier: tierId,
 					billing,
-					successPath: '/dashboard?upgraded=true',
+					successPath: '/profile?upgraded=true',
 					cancelPath: '/pricing?cancelled=true'
 				})
 			});
