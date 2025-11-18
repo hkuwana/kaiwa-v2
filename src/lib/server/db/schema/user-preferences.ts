@@ -169,7 +169,7 @@ export const userPreferences = pgTable(
 
 		correctionStyle: correctionStyleEnum('correction_style').default('gentle').notNull(),
 
-		audioInputMode: audioInputModeEnum('audio_input_mode').default('vad').notNull(),
+		audioInputMode: audioInputModeEnum('audio_input_mode').default('ptt').notNull(),
 
 		speechSpeed: speechSpeedEnum('speech_speed').default('slow').notNull(),
 
