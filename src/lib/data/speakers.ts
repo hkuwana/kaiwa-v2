@@ -24,7 +24,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-hiro',
 		openaiVoiceId: 'ash',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/hiro-speaker.png',
+		characterImageAlt: 'Image of Hiro'
 	},
 	{
 		id: 'ja-jp-female',
@@ -38,7 +40,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-yuki',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/yuki-speaker.png',
+		characterImageAlt: 'Image of Yuki'
 	},
 	{
 		id: 'ja-jp-osaka-female',
@@ -52,7 +56,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-osaka',
 		openaiVoiceId: 'coral',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/minami-speaker.png',
+		characterImageAlt: 'Image of Minami'
 	},
 	{
 		id: 'ja-jp-osaka-male',
@@ -66,7 +72,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-kenta',
 		openaiVoiceId: 'verse',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'ja-jp-okinawa-male',
@@ -80,7 +88,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-kaito',
 		openaiVoiceId: 'ballad',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'ja-jp-okinawa-female',
@@ -94,7 +104,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-hina',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	// --- English Speakers ---
 	{
@@ -109,7 +121,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-matthew',
 		openaiVoiceId: 'alloy',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/matthew-speaker.png',
+		characterImageAlt: 'Image of Matthew'
 	},
 	{
 		id: 'en-us-female',
@@ -123,7 +137,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-emily',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/emily-speaker.png',
+		characterImageAlt: 'Image of Emily'
 	},
 	{
 		id: 'en-gb-male',
@@ -137,7 +153,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-james',
 		openaiVoiceId: 'ash',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/james-speaker.png',
+		characterImageAlt: 'Image of James'
 	},
 	{
 		id: 'en-gb-female',
@@ -151,7 +169,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-charlotte',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/charlotte-speaker.png',
+		characterImageAlt: 'Image of Charlotte'
 	},
 
 	// --- Spanish Speakers ---
@@ -167,7 +187,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-javier',
 		openaiVoiceId: 'alloy',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/javier-speaker.png',
+		characterImageAlt: 'Image of Javier'
 	},
 	{
 		id: 'es-es-female',
@@ -181,7 +203,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-sofia',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/sofia-speaker.png',
+		characterImageAlt: 'Image of Sofia'
 	},
 	{
 		id: 'es-mx-male',
@@ -195,7 +219,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'aws-mateo',
 		openaiVoiceId: 'ash',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'es-mx-female',
@@ -209,7 +235,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'aws-valentina',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'es-co-male',
@@ -223,7 +251,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-santiago',
 		openaiVoiceId: 'verse',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'es-co-female',
@@ -237,7 +267,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-isabella-co',
 		openaiVoiceId: 'coral',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/isabella-speaker.png',
+		characterImageAlt: 'Image of Isabella'
 	},
 
 	// --- Chinese (Mandarin) Speakers ---
@@ -253,7 +285,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'azure-wei',
 		openaiVoiceId: 'alloy',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/wei-speaker.png',
+		characterImageAlt: 'Image of Wei'
 	},
 	{
 		id: 'zh-cn-female',
@@ -267,7 +301,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'azure-xiaoxiao',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/xiaoxiao-speaker.png',
+		characterImageAlt: 'Image of Xiaoxiao'
 	},
 	{
 		id: 'zh-tw-male',
@@ -281,7 +317,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'google-chen',
 		openaiVoiceId: 'ash',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'zh-tw-female',
@@ -295,7 +333,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'google-hsiao-mei',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 
 	// --- French Speakers ---
@@ -311,7 +351,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-louis',
 		openaiVoiceId: 'alloy',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/louis-speaker.png',
+		characterImageAlt: 'Image of Louis'
 	},
 	{
 		id: 'fr-fr-female',
@@ -325,7 +367,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-chloe',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/chloe-speaker.png',
+		characterImageAlt: 'Image of Chloé'
 	},
 	{
 		id: 'fr-ca-male',
@@ -339,7 +383,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-felix',
 		openaiVoiceId: 'ash',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'fr-ca-female',
@@ -353,7 +399,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-amelie',
 		openaiVoiceId: 'coral',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 
 	// --- Korean Speakers ---
@@ -369,7 +417,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-minjun',
 		openaiVoiceId: 'alloy',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'ko-kr-female',
@@ -383,7 +433,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-seoyeon',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/seo-yeon-speaker.png',
+		characterImageAlt: 'Image of Seo-yeon'
 	},
 	{
 		id: 'ko-kr-busan-male',
@@ -397,7 +449,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-jihoon',
 		openaiVoiceId: 'verse',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'ko-kr-busan-female',
@@ -411,7 +465,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-soojin',
 		openaiVoiceId: 'coral',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 
 	// --- German Speakers ---
@@ -427,7 +483,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-lukas',
 		openaiVoiceId: 'ash',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/lukas-speaker.png',
+		characterImageAlt: 'Image of Lukas'
 	},
 	{
 		id: 'de-de-standard-female',
@@ -441,7 +499,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-hanna',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/hanna-speaker.png',
+		characterImageAlt: 'Image of Hanna'
 	},
 	{
 		id: 'de-de-berlin-male',
@@ -455,7 +515,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-klaus',
 		openaiVoiceId: 'alloy',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'de-de-berlin-female',
@@ -469,7 +531,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-monika',
 		openaiVoiceId: 'coral',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'de-de-munich-male',
@@ -483,7 +547,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-stefan',
 		openaiVoiceId: 'verse',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'de-de-munich-female',
@@ -497,7 +563,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-anja',
 		openaiVoiceId: 'ballad',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 
 	// --- Portuguese Speakers ---
@@ -513,7 +581,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-lucas',
 		openaiVoiceId: 'alloy',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/lucas-speaker.png',
+		characterImageAlt: 'Image of Lucas'
 	},
 	{
 		id: 'pt-br-female',
@@ -527,7 +597,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-isabella',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/isabella-speaker.png',
+		characterImageAlt: 'Image of Isabella'
 	},
 	{
 		id: 'pt-pt-male',
@@ -541,7 +613,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'azure-tiago',
 		openaiVoiceId: 'ash',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'pt-pt-female',
@@ -555,7 +629,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'azure-beatriz',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 
 	// --- Italian Speakers ---
@@ -571,7 +647,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-leonardo',
 		openaiVoiceId: 'alloy',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: '/src/lib/assets/speakers/leonardo-speaker.png',
+		characterImageAlt: 'Image of Leonardo'
 	},
 	{
 		id: 'it-it-standard-female',
@@ -585,7 +663,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-giulia',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'it-it-rome-male',
@@ -599,7 +679,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-marco',
 		openaiVoiceId: 'ash',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'it-it-rome-female',
@@ -613,7 +695,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-francesca',
 		openaiVoiceId: 'coral',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'it-it-milan-male',
@@ -627,7 +711,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-alessandro',
 		openaiVoiceId: 'verse',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'it-it-milan-female',
@@ -641,7 +727,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-chiara',
 		openaiVoiceId: 'ballad',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 
 	// --- Vietnamese Speakers ---
@@ -657,7 +745,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-nam',
 		openaiVoiceId: 'alloy',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'vi-vn-hanoi-female',
@@ -671,7 +761,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-mai',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'vi-vn-hcmc-male',
@@ -681,11 +773,13 @@ export const speakersData: Speaker[] = [
 		bcp47Code: 'vi-VN',
 		speakerEmoji: '🛵',
 		gender: 'male',
-		voiceName: 'Bao',
+		voiceName: 'bao',
 		voiceProviderId: 'openai-bao',
 		openaiVoiceId: 'ash',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'vi-vn-hcmc-female',
@@ -699,7 +793,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-ngoc',
 		openaiVoiceId: 'coral',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 
 	// --- Dutch Speakers ---
@@ -715,7 +811,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-daan',
 		openaiVoiceId: 'ash',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'nl-nl-female',
@@ -729,7 +827,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-sophie',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'nl-amsterdam-male',
@@ -743,7 +843,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-jasper',
 		openaiVoiceId: 'alloy',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'nl-amsterdam-female',
@@ -757,7 +859,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-fleur',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'nl-antwerp-male',
@@ -771,7 +875,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-lars',
 		openaiVoiceId: 'ash',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'nl-antwerp-female',
@@ -785,7 +891,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-eva',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 
 	// --- Filipino Speakers ---
@@ -801,7 +909,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-juan',
 		openaiVoiceId: 'alloy',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'fil-ph-standard-female',
@@ -815,7 +925,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-maria',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'fil-ph-manila-male',
@@ -829,7 +941,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-jose',
 		openaiVoiceId: 'ash',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'fil-ph-manila-female',
@@ -843,7 +957,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-sofia-fil',
 		openaiVoiceId: 'coral',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 
 	// --- Hindi Speakers ---
@@ -859,7 +975,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-arjun',
 		openaiVoiceId: 'alloy',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'hi-in-standard-female',
@@ -873,7 +991,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-priya',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'hi-in-mumbai-male',
@@ -887,7 +1007,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-rohan',
 		openaiVoiceId: 'ash',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'hi-in-mumbai-female',
@@ -901,7 +1023,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-priya',
 		openaiVoiceId: 'coral',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 
 	// --- Russian Speakers ---
@@ -917,7 +1041,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-dmitri',
 		openaiVoiceId: 'alloy',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'ru-ru-standard-female',
@@ -931,7 +1057,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-elena',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'ru-ru-stpetersburg-male',
@@ -945,7 +1073,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-ivan',
 		openaiVoiceId: 'ash',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'ru-ru-stpetersburg-female',
@@ -959,7 +1089,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-anna',
 		openaiVoiceId: 'coral',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 
 	// --- Indonesian Speakers ---
@@ -975,7 +1107,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-budi',
 		openaiVoiceId: 'alloy',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'id-id-standard-female',
@@ -989,7 +1123,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-siti',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'id-id-surabaya-male',
@@ -1003,7 +1139,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-agus',
 		openaiVoiceId: 'ash',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'id-id-surabaya-female',
@@ -1017,7 +1155,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-dewi',
 		openaiVoiceId: 'coral',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 
 	// --- Turkish Speakers ---
@@ -1033,7 +1173,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-ahmet',
 		openaiVoiceId: 'alloy',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'tr-tr-standard-female',
@@ -1047,7 +1189,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-elif',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'tr-tr-izmir-male',
@@ -1061,7 +1205,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-can',
 		openaiVoiceId: 'alloy',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'tr-tr-izmir-female',
@@ -1075,7 +1221,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-ece',
 		openaiVoiceId: 'coral',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 
 	// --- Arabic Speakers ---
@@ -1091,7 +1239,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-omar',
 		openaiVoiceId: 'alloy',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	},
 	{
 		id: 'ar-levant-female',
@@ -1105,7 +1255,9 @@ export const speakersData: Speaker[] = [
 		voiceProviderId: 'openai-layla',
 		openaiVoiceId: 'sage',
 		isActive: false,
-		createdAt: null
+		createdAt: null,
+		characterImageUrl: null,
+		characterImageAlt: null
 	}
 ];
 
