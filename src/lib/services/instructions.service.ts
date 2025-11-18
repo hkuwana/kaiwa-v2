@@ -95,6 +95,13 @@ export function createScenarioSessionConfig(
 	});
 	const initialMessage = generateScenarioGreeting({ language, scenario, user });
 
+	console.log('📝 Full instructions being sent to OpenAI:', {
+		speaker: speaker?.voiceName || 'default',
+		language: language.code,
+		instructionsLength: instructions.length,
+		instructions: instructions
+	});
+
 	// ⚠️ CRITICAL: Use openaiVoiceId (e.g., 'coral'), NOT voiceName (e.g., 'Minami')
 	// OpenAI Realtime API requires valid voice IDs from: alloy, ash, ballad, coral, echo, sage, verse
 	// Using voiceName will cause OpenAI to not recognize the voice and default to an unexpected voice
