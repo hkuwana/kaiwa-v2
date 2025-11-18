@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
+import { onMount } from 'svelte';
 	import { posthogManager } from '$lib/client/posthog';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { SubscriptionTier } from '$lib/enums.js';
@@ -149,9 +149,20 @@
 		];
 	}
 
-	onMount(() => {
-		posthogManager.trackEvent('pricing_page_viewed', { plan: selectedPlan });
-	});
+function getCycleFromQuery(): 'monthly' | 'annual' | null {
+	if (typeof window === 'undefined') return null;
+	const searchParams = new URLSearchParams(window.location.search);
+	const cycle = searchParams.get('billing')?.toLowerCase();
+	return cycle === 'monthly' || cycle === 'annual' ? cycle : null;
+}
+
+onMount(() => {
+	const cycle = getCycleFromQuery();
+	if (cycle) {
+		selectedPlan = cycle;
+	}
+	posthogManager.trackEvent('pricing_page_viewed', { plan: selectedPlan });
+});
 
 	function isCurrentTier(tier: SubscriptionTier): boolean {
 		return currentTier?.toLowerCase() === tier.toLowerCase();
