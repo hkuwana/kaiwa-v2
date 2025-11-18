@@ -1691,6 +1691,12 @@ export class RealtimeOpenAIStore {
 		audio?: SessionConfig['audio'];
 		turnDetection?: SessionConfig['turnDetection'] | null;
 	}): void {
+		logger.info('🔧 updateSessionConfig CALLED', {
+			hasConnection: !!this.connection,
+			hasInstructions: !!config.instructions,
+			instructionsLength: config.instructions?.length ?? 0
+		});
+
 		if (!this.connection) {
 			logger.warn('⚠️ updateSessionConfig called but no connection!');
 			return;
@@ -1698,10 +1704,9 @@ export class RealtimeOpenAIStore {
 
 		// 📋 LOG INSTRUCTIONS FOR DEBUGGING
 		if (config.instructions) {
-			console.info('🎯 [Realtime] updateSessionConfig called with instructions:', {
+			logger.info('🎯 [Realtime] updateSessionConfig called with instructions:', {
 				length: config.instructions.length,
-				preview: config.instructions.substring(0, 200) + '...',
-				fullInstructions: config.instructions
+				preview: config.instructions.substring(0, 200) + '...'
 			});
 		}
 
@@ -1777,7 +1782,9 @@ export class RealtimeOpenAIStore {
 			// Verify instructions are in the actual update object being sent
 			sessionObjectHasInstructions: sessionHasInstructions,
 			sessionObjectInstructionsLength: sessionInstructionsLength,
-			instructionsPreview: update.session.instructions?.substring(0, 100) + '...'
+			instructionsPreview: update.session.instructions
+				? update.session.instructions.substring(0, 100) + '...'
+				: 'none'
 		});
 
 		if (config.instructions && !sessionHasInstructions) {
