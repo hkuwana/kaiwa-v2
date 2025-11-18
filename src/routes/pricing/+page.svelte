@@ -13,6 +13,7 @@
 	import WhyDifferent from '$lib/components/WhyDifferent.svelte';
 	import Faq from '$lib/features/payments/components/Faq.svelte';
 	import Testimonials from '$lib/features/payments/components/Testimonials.svelte';
+	import DowngradeModal from '$lib/features/payments/components/DowngradeModal.svelte';
 	import { resolve } from '$app/paths';
 
 	// Plan selection
@@ -152,15 +153,6 @@
 		posthogManager.trackEvent('pricing_page_viewed', { plan: selectedPlan });
 	});
 
-	async function handleGetStarted() {
-		console.log('handleGetStarted', userManager.isLoggedIn);
-		if (!userManager.isLoggedIn) {
-			await goto(resolve('/auth'));
-		} else {
-			await goto('/');
-		}
-	}
-
 	function isCurrentTier(tier: SubscriptionTier): boolean {
 		return currentTier?.toLowerCase() === tier.toLowerCase();
 	}
@@ -182,6 +174,15 @@
 	// Loading state for checkout
 	let isLoading = $state(false);
 
+	// Downgrade modal state
+	let showDowngradeModal = $state(false);
+
+	// Check if user is on a paid tier
+	function isOnPaidTier(): boolean {
+		const tier = currentTier?.toLowerCase();
+		return tier === 'plus' || tier === 'premium';
+	}
+
 	// Handle plan selection
 	async function handlePlanSelection(tierId: string) {
 		if (!userManager.isLoggedIn) {
@@ -191,6 +192,12 @@
 		}
 
 		if (tierId === 'free') {
+			// Check if user is downgrading from a paid tier
+			if (isOnPaidTier()) {
+				// Show downgrade modal to collect feedback
+				showDowngradeModal = true;
+				return;
+			}
 			// Free tier - just redirect to dashboard
 			await goto('/');
 			return;
@@ -233,6 +240,37 @@
 		} catch (error) {
 			console.error('Checkout error:', error);
 			alert('Something went wrong. Please try again.');
+		} finally {
+			isLoading = false;
+		}
+	}
+
+	// Handle downgrade confirmation
+	async function handleDowngradeConfirm(reason: string, feedback: string) {
+		isLoading = true;
+
+		try {
+			const response = await fetch('/api/billing/cancel', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ reason, feedback })
+			});
+
+			const data = await response.json();
+
+			if (response.ok) {
+				// Show success message
+				alert(
+					`Your subscription has been cancelled and will remain active until the end of your billing period. Thank you for your feedback!`
+				);
+				// Optionally redirect to dashboard
+				await goto('/dashboard?downgraded=true');
+			} else {
+				throw new Error(data.error || 'Failed to cancel subscription');
+			}
+		} catch (error) {
+			console.error('Downgrade error:', error);
+			throw error; // Re-throw to let modal handle it
 		} finally {
 			isLoading = false;
 		}
@@ -364,9 +402,27 @@
 				<div class="flex-grow"></div>
 				{#if isCurrentTier(SubscriptionTier.GUEST) || isCurrentTier(SubscriptionTier.BASIC)}
 					<button class="btn mt-8 w-full btn-outline" disabled>Your Current Plan</button>
-				{:else}
-					<button onclick={handleGetStarted} class="btn mt-8 w-full btn-outline">Get Started</button
+				{:else if isOnPaidTier()}
+					<button
+						class="btn mt-8 w-full btn-outline btn-error"
+						onclick={() => handlePlanSelection('free')}
+						disabled={isLoading}
 					>
+						{#if isLoading}
+							<span class="loading loading-sm loading-spinner"></span>
+							Processing...
+						{:else}
+							Downgrade to Free
+						{/if}
+					</button>
+				{:else}
+					<button
+						onclick={() => handlePlanSelection('free')}
+						class="btn mt-8 w-full btn-outline"
+						disabled={isLoading}
+					>
+						Get Started
+					</button>
 				{/if}
 			</div>
 
@@ -496,3 +552,10 @@
 		</div>
 	</div>
 {/await}
+
+<!-- Downgrade Modal -->
+<DowngradeModal
+	bind:isOpen={showDowngradeModal}
+	currentTier={currentTier || 'plus'}
+	onConfirm={handleDowngradeConfirm}
+/>
