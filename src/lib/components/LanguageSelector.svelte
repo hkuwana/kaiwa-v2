@@ -287,7 +287,24 @@
 							class:text-primary-content={selectedSpeaker === speaker.id}
 						>
 							<div class="flex items-center gap-3">
-								<span class="text-xl">{getGenderIcon(speaker.gender)}</span>
+								<!-- Speaker Avatar -->
+							<div class="avatar">
+								<div class="w-12 rounded-full">
+									{#if speaker.characterImageUrl}
+										<img
+											alt={speaker.characterImageAlt || `Image of ${speaker.voiceName}`}
+											src={speaker.characterImageUrl}
+										/>
+									{:else}
+										<!-- Fallback to gender emoji if no image -->
+										<div
+											class="flex h-full w-full items-center justify-center bg-base-200 text-2xl"
+										>
+											{getGenderIcon(speaker.gender)}
+										</div>
+									{/if}
+								</div>
+							</div>
 								<div class="flex flex-col">
 									<span class="font-medium">{speaker.voiceName}</span>
 									<span class="text-sm opacity-70">{speaker.dialectName} • {speaker.region}</span>

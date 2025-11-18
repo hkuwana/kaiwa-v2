@@ -25,7 +25,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'ash',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/hiro-speaker.png',
+		characterImageUrl: '/speakers/hiro-speaker.png',
 		characterImageAlt: 'Image of Hiro'
 	},
 	{
@@ -41,7 +41,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/yuki-speaker.png',
+		characterImageUrl: '/speakers/yuki-speaker.png',
 		characterImageAlt: 'Image of Yuki'
 	},
 	{
@@ -57,7 +57,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'coral',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/minami-speaker.png',
+		characterImageUrl: '/speakers/minami-speaker.png',
 		characterImageAlt: 'Image of Minami'
 	},
 	{
@@ -122,7 +122,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'alloy',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/matthew-speaker.png',
+		characterImageUrl: '/speakers/matthew-speaker.png',
 		characterImageAlt: 'Image of Matthew'
 	},
 	{
@@ -138,7 +138,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/emily-speaker.png',
+		characterImageUrl: '/speakers/emily-speaker.png',
 		characterImageAlt: 'Image of Emily'
 	},
 	{
@@ -154,7 +154,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'ash',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/james-speaker.png',
+		characterImageUrl: '/speakers/james-speaker.png',
 		characterImageAlt: 'Image of James'
 	},
 	{
@@ -170,7 +170,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/charlotte-speaker.png',
+		characterImageUrl: '/speakers/charlotte-speaker.png',
 		characterImageAlt: 'Image of Charlotte'
 	},
 
@@ -188,7 +188,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'alloy',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/javier-speaker.png',
+		characterImageUrl: '/speakers/javier-speaker.png',
 		characterImageAlt: 'Image of Javier'
 	},
 	{
@@ -204,7 +204,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/sofia-speaker.png',
+		characterImageUrl: '/speakers/sofia-speaker.png',
 		characterImageAlt: 'Image of Sofia'
 	},
 	{
@@ -268,7 +268,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'coral',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/isabella-speaker.png',
+		characterImageUrl: '/speakers/isabella-speaker.png',
 		characterImageAlt: 'Image of Isabella'
 	},
 
@@ -286,7 +286,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'alloy',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/wei-speaker.png',
+		characterImageUrl: '/speakers/wei-speaker.png',
 		characterImageAlt: 'Image of Wei'
 	},
 	{
@@ -302,7 +302,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/xiaoxiao-speaker.png',
+		characterImageUrl: '/speakers/xiaoxiao-speaker.png',
 		characterImageAlt: 'Image of Xiaoxiao'
 	},
 	{
@@ -352,7 +352,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'alloy',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/louis-speaker.png',
+		characterImageUrl: '/speakers/louis-speaker.png',
 		characterImageAlt: 'Image of Louis'
 	},
 	{
@@ -368,7 +368,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/chloe-speaker.png',
+		characterImageUrl: '/speakers/chloe-speaker.png',
 		characterImageAlt: 'Image of Chloé'
 	},
 	{
@@ -434,7 +434,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/seo-yeon-speaker.png',
+		characterImageUrl: '/speakers/seo-yeon-speaker.png',
 		characterImageAlt: 'Image of Seo-yeon'
 	},
 	{
@@ -484,7 +484,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'ash',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/lukas-speaker.png',
+		characterImageUrl: '/speakers/lukas-speaker.png',
 		characterImageAlt: 'Image of Lukas'
 	},
 	{
@@ -500,7 +500,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/hanna-speaker.png',
+		characterImageUrl: '/speakers/hanna-speaker.png',
 		characterImageAlt: 'Image of Hanna'
 	},
 	{
@@ -582,7 +582,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'alloy',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/lucas-speaker.png',
+		characterImageUrl: '/speakers/lucas-speaker.png',
 		characterImageAlt: 'Image of Lucas'
 	},
 	{
@@ -598,7 +598,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/isabella-speaker.png',
+		characterImageUrl: '/speakers/isabella-speaker.png',
 		characterImageAlt: 'Image of Isabella'
 	},
 	{
@@ -648,7 +648,7 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'alloy',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: '/src/lib/assets/speakers/leonardo-speaker.png',
+		characterImageUrl: '/speakers/leonardo-speaker.png',
 		characterImageAlt: 'Image of Leonardo'
 	},
 	{
