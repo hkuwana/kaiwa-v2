@@ -936,7 +936,10 @@ export class ConversationStore {
 		logger.info('🔍 ensureUsageBudget: Checking usage limits', {
 			canUseRealtime: usageContext.canUseRealtime,
 			canStartConversation: usageContext.canStartConversation,
-			remainingSeconds: usageContext.timerLimits.remainingSeconds
+			remainingSeconds: usageContext.timerLimits.remainingSeconds,
+			conversationsUsed: usageContext.usage.conversationsUsed,
+			tierMonthlyLimit: usageContext.tier.monthlyConversations,
+			remainingMinutes: Math.floor(usageContext.timerLimits.remainingSeconds / 60)
 		});
 
 		if (!usageContext.canUseRealtime) {
@@ -946,8 +949,15 @@ export class ConversationStore {
 		}
 
 		if (!usageContext.canStartConversation) {
-			this.error = 'You have reached your conversation limit for this billing cycle.';
-			logger.error('❌ ensureUsageBudget: canStartConversation is false', this.error);
+			const conversationsUsed = usageContext.usage.conversationsUsed || 0;
+			const limit = usageContext.tier.monthlyConversations;
+			this.error = `You have started ${conversationsUsed} out of ${limit} conversations this month. Upgrade or wait for your billing cycle to reset.`;
+			logger.error('❌ ensureUsageBudget: Conversation count limit reached', {
+				conversationsUsed,
+				limit,
+				remainingMinutes: Math.floor(usageContext.timerLimits.remainingSeconds / 60),
+				note: 'User has time remaining but has hit conversation COUNT limit'
+			});
 			return false;
 		}
 
