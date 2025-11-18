@@ -178,6 +178,65 @@
 		if (Number.isNaN(annual) || annual === 0) return '0';
 		return (annual / 12).toFixed(2);
 	}
+
+	// Loading state for checkout
+	let isLoading = $state(false);
+
+	// Handle plan selection
+	async function handlePlanSelection(tierId: string) {
+		if (!userManager.isLoggedIn) {
+			// Redirect to auth if not logged in
+			await goto(resolve('/auth'));
+			return;
+		}
+
+		if (tierId === 'free') {
+			// Free tier - just redirect to dashboard
+			await goto('/');
+			return;
+		}
+
+		isLoading = true;
+
+		try {
+			// Map selectedPlan to billing cycle ('annual' or 'monthly')
+			const billing = selectedPlan === 'annual' ? 'annual' : 'monthly';
+
+			// Track checkout started
+			posthogManager.trackEvent('checkout_started', {
+				tier: tierId,
+				billing_cycle: billing,
+				source: 'pricing_page'
+			});
+
+			// Call checkout API
+			const response = await fetch('/api/billing/checkout', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					tier: tierId,
+					billing,
+					successPath: '/dashboard?upgraded=true',
+					cancelPath: '/pricing?cancelled=true'
+				})
+			});
+
+			const data = await response.json();
+
+			if (response.ok && data.url) {
+				// Redirect to Stripe checkout
+				window.location.href = data.url;
+			} else {
+				console.error('Checkout error:', data);
+				alert(data.error || 'Failed to create checkout session. Please try again.');
+			}
+		} catch (error) {
+			console.error('Checkout error:', error);
+			alert('Something went wrong. Please try again.');
+		} finally {
+			isLoading = false;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -338,7 +397,18 @@
 				{#if isCurrentTier(SubscriptionTier.PLUS)}
 					<button class="btn mt-8 w-full btn-outline" disabled>Your Current Plan</button>
 				{:else}
-					<button class="btn mt-8 w-full btn-primary">Start Free Trial</button>
+					<button
+						class="btn mt-8 w-full btn-primary"
+						onclick={() => handlePlanSelection('plus')}
+						disabled={isLoading}
+					>
+						{#if isLoading}
+							<span class="loading loading-sm loading-spinner"></span>
+							Processing...
+						{:else}
+							Start Free Trial
+						{/if}
+					</button>
 				{/if}
 			</div>
 
@@ -366,7 +436,18 @@
 				{#if isCurrentTier(SubscriptionTier.PREMIUM)}
 					<button class="btn mt-8 w-full btn-outline" disabled>Your Current Plan</button>
 				{:else}
-					<button class="btn mt-8 w-full btn-outline btn-primary">Start Free Trial</button>
+					<button
+						class="btn mt-8 w-full btn-outline btn-primary"
+						onclick={() => handlePlanSelection('premium')}
+						disabled={isLoading}
+					>
+						{#if isLoading}
+							<span class="loading loading-sm loading-spinner"></span>
+							Processing...
+						{:else}
+							Start Free Trial
+						{/if}
+					</button>
 				{/if}
 			</div>
 		</div>
