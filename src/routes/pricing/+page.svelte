@@ -10,7 +10,7 @@
 		calculateAnnualDiscount
 	} from '$lib/features/payments/services/stripe.service';
 	import { PricingService } from '$lib/features/payments/services/pricing.service';
-	import WhyDifferent from '$lib/components/WhyDifferent.svelte';
+
 	import Faq from '$lib/features/payments/components/Faq.svelte';
 	import Testimonials from '$lib/features/payments/components/Testimonials.svelte';
 	import DowngradeModal from '$lib/features/payments/components/DowngradeModal.svelte';
@@ -365,7 +365,7 @@
 			<div class="mt-6 flex justify-center space-x-6 text-sm opacity-70">
 				<span>✓ Free trial included</span>
 				<span>✓ Cancel anytime</span>
-				<span>✓ All languages included</span>
+				<span>✓ 20+ languages included</span>
 			</div>
 		</div>
 
@@ -539,11 +539,6 @@
 		<Testimonials />
 
 		<Faq />
-
-		<!-- Extended Differentiators (educate near bottom) -->
-		<div class="mt-24">
-			<WhyDifferent variant="extended" />
-		</div>
 	</div>
 {:catch _error}
 	<div class="container mx-auto max-w-4xl px-4 py-16">

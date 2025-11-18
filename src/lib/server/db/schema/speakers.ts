@@ -64,7 +64,10 @@ export const speakers = pgTable(
 
 		createdAt: timestamp('created_at').defaultNow(),
 
-		openaiVoiceId: text('openai_voice_id').default('alloy')
+		openaiVoiceId: text('openai_voice_id').default('alloy'),
+
+		characterImageUrl: text('character_image_url'),
+		characterImageAlt: text('character_image_alt')
 	},
 	(table) => [
 		// Performance indexes for speaker queries

@@ -18,7 +18,7 @@
 		{
 			question: 'What if I have subscription or billing issues?',
 			answer:
-				'If you experience any problems with your subscription or billing, please email us at hiro@trykaiwa.com and we\'ll help you resolve it as quickly as possible.',
+				"If you experience any problems with your subscription or billing, please email me at hiro@trykaiwa.com and we'll help you resolve it as quickly as possible.",
 			isContact: true
 		}
 	];
@@ -40,8 +40,8 @@
 				<div class="collapse-content">
 					<p class="pt-2 text-base-content/90">
 						{#if faq.isContact}
-							If you experience any problems with your subscription or billing, please email us at
-							<a href="mailto:hiro@trykaiwa.com" class="link link-primary font-semibold"
+							If you experience any problems with your subscription or billing, please email me at
+							<a href="mailto:hiro@trykaiwa.com" class="link font-semibold link-primary"
 								>hiro@trykaiwa.com</a
 							>
 							and we'll help you resolve it as quickly as possible.
