@@ -8,16 +8,13 @@ export const scenariosData: Scenario[] = [
 	{
 		id: 'beginner-confidence-bridge',
 		title: 'Your First Conversation',
-		description:
-			'Start in your native language, then build confidence with 2–3 key phrases inside a real micro‑interaction you can use today.',
+		description: 'Start in your native language, then build confidence with 2–3 key phrases inside a real micro‑interaction you can use today.',
 		role: 'tutor',
 		difficulty: 'beginner',
 		difficultyRating: 1,
 		cefrLevel: 'A1',
-		cefrRecommendation:
-			"Perfect if you've just started your learning journey (A0–A1) and need native-language support.",
-		learningGoal:
-			'From zero knowledge, confidently introduce yourself in your target language using real phrases you can use today',
+		cefrRecommendation: "Perfect if you've just started your learning journey (A0–A1) and need native-language support.",
+		learningGoal: 'From zero knowledge, confidently introduce yourself in your target language using real phrases you can use today',
 		instructions: `This is your confidence bootcamp. Start in the user's native language to learn who they want to talk to and why—this is their mission. Then move fast with an interaction-first plan:
 
 1. **Mission Statement** (native language): Get a concrete situation: "Who do you want to talk to? What do you want to say? Why does it matter?"
@@ -33,10 +30,8 @@ export const scenariosData: Scenario[] = [
 4. **Final Run-Through** (target language): Have them say their full introduction once without translation. If they freeze, give the first word.
 
 Coach warmly. Avoid lists. Build confidence in ~5 minutes.`,
-		context:
-			"A comfortable, pressure-free space. You're sitting with someone who has never spoken this language before. You are warm, patient, and genuinely excited about their goal. The goal is trust, clarity, and one tiny win they can feel.",
-		expectedOutcome:
-			"Learner leaves with a personal 30-second introduction in the target language they can say without translation, plus clarity on why they're learning.",
+		context: "A comfortable, pressure-free space. You're sitting with someone who has never spoken this language before. You are warm, patient, and genuinely excited about their goal. The goal is trust, clarity, and one tiny win they can feel.",
+		expectedOutcome: "Learner leaves with a personal 30-second introduction in the target language they can say without translation, plus clarity on why they're learning.",
 		learningObjectives: [
 			'confidence priming through quick wins',
 			'core phrase acquisition (2-3 phrases)',
@@ -56,19 +51,26 @@ Coach warmly. Avoid lists. Build confidence in ~5 minutes.`,
 		usageCount: 0,
 		isActive: true,
 		createdAt: new Date(),
-		updatedAt: new Date()
+		updatedAt: new Date(),
+		categories: null,
+		tags: null,
+		primarySkill: null,
+		searchKeywords: null,
+		thumbnailUrl: null,
+		estimatedDurationSeconds: null,
+		authorDisplayName: null,
+		shareSlug: null,
+		shareUrl: null
 	},
 	{
 		id: 'onboarding-welcome',
 		title: 'Free Practice Mode',
-		description:
-			'Practice any phrases you want in your target language in a safe, judgment-free space.',
+		description: 'Practice any phrases you want in your target language in a safe, judgment-free space.',
 		role: 'tutor',
 		difficulty: 'beginner',
 		difficultyRating: 1,
 		cefrLevel: 'A1',
-		learningGoal:
-			'Build confidence by practicing specific phrases in your target language and getting instant feedback in a low-pressure sandbox',
+		learningGoal: 'Build confidence by practicing specific phrases in your target language and getting instant feedback in a low-pressure sandbox',
 		instructions: `You are a friendly native speaker in a safe practice sandbox. Speak entirely in the learner's target language throughout this session. Your role is to:
 
 1. **Greet warmly** and set the tone, asking what they'd like to practice today in their target language.
@@ -99,10 +101,8 @@ Coach warmly. Avoid lists. Build confidence in ~5 minutes.`,
    - Only provide native-language translations when explicitly helping with a difficult word
 
 This is a judgment-free zone. No pressure, just practice.`,
-		context:
-			'A cozy, relaxed virtual space. No stakes, no formal lesson—just a native speaker who is genuinely happy to help you practice whatever phrases you want to work on.',
-		expectedOutcome:
-			'Leave with 2–3 new phrases in your target language you feel confident saying, and a sense that you can ask for help anytime',
+		context: 'A cozy, relaxed virtual space. No stakes, no formal lesson—just a native speaker who is genuinely happy to help you practice whatever phrases you want to work on.',
+		expectedOutcome: 'Leave with 2–3 new phrases in your target language you feel confident saying, and a sense that you can ask for help anytime',
 		learningObjectives: [
 			'phrase acquisition on demand',
 			'conversational target language exposure',
@@ -123,7 +123,16 @@ This is a judgment-free zone. No pressure, just practice.`,
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		cefrRecommendation: null
+		cefrRecommendation: null,
+		categories: null,
+		tags: null,
+		primarySkill: null,
+		searchKeywords: null,
+		thumbnailUrl: null,
+		estimatedDurationSeconds: null,
+		authorDisplayName: null,
+		shareSlug: null,
+		shareUrl: null
 	},
 	{
 		id: 'family-dinner-introduction',
@@ -133,13 +142,10 @@ This is a judgment-free zone. No pressure, just practice.`,
 		difficulty: 'intermediate',
 		difficultyRating: 6,
 		cefrLevel: 'B2',
-		cefrRecommendation:
-			'Ideal for advanced intermediate learners (B2) who want to navigate family introductions with cultural sensitivity',
-		learningGoal:
-			"Build genuine trust and connection with your partner's family through respectful, culturally-aware conversation",
+		cefrRecommendation: 'Ideal for advanced intermediate learners (B2) who want to navigate family introductions with cultural sensitivity',
+		learningGoal: "Build genuine trust and connection with your partner's family through respectful, culturally-aware conversation",
 		instructions: `Share who you are, ask questions that show respect, and respond to advice with warmth. Practice toasts, compliments, and the small cultural cues that matter.`,
-		context:
-			'A low table, seasonal dishes, and parents who are curious but cautious about welcoming you in.',
+		context: 'A low table, seasonal dishes, and parents who are curious but cautious about welcoming you in.',
 		expectedOutcome: 'Leave the conversation feeling accepted and with a promised next visit',
 		learningObjectives: [
 			'family honorifics',
@@ -158,41 +164,43 @@ This is a judgment-free zone. No pressure, just practice.`,
 			title: 'Protective Parent Hosting Dinner',
 			nameTemplate: '{SPEAKER_NAME}-san',
 			setting: 'Tatami dining room with seasonal dishes and attentive family members.',
-			introPrompt:
-				"Greet your child's partner warmly but with cautious curiosity, ask respectful questions about their background, and notice small etiquette cues.",
-			stakes:
-				"You want to decide whether to welcome them into the family and trust them with your child's future."
+			introPrompt: "Greet your child's partner warmly but with cautious curiosity, ask respectful questions about their background, and notice small etiquette cues.",
+			stakes: "You want to decide whether to welcome them into the family and trust them with your child's future."
 		},
 		createdByUserId: null,
 		visibility: 'public' as const,
 		usageCount: 0,
 		isActive: true,
 		createdAt: new Date(),
-		updatedAt: new Date()
+		updatedAt: new Date(),
+		categories: null,
+		tags: null,
+		primarySkill: null,
+		searchKeywords: null,
+		thumbnailUrl: null,
+		estimatedDurationSeconds: null,
+		authorDisplayName: null,
+		shareSlug: null,
+		shareUrl: null
 	},
 	{
 		id: 'inlaws-family-friends-intro',
 		title: 'Meeting Family Friends',
-		description:
-			"Meet family friends for the first time as your partner's sibling explains the web of relationships.",
+		description: "Meet family friends for the first time as your partner's sibling explains the web of relationships.",
 		role: 'character',
 		difficulty: 'intermediate',
 		difficultyRating: 5,
 		cefrLevel: 'B2',
-		cefrRecommendation:
-			'Great for advanced intermediate learners (B2) who want to practice relationship vocabulary and social navigation',
-		learningGoal:
-			'Navigate layered family introductions gracefully, remember connections, and respond with culturally aware warmth',
+		cefrRecommendation: 'Great for advanced intermediate learners (B2) who want to practice relationship vocabulary and social navigation',
+		learningGoal: 'Navigate layered family introductions gracefully, remember connections, and respond with culturally aware warmth',
 		instructions: `You are meeting long-time family friends alongside your partner's sibling. Show respect, track relationships, and respond warmly:
 
 1. **Listen for connection clues** – note who is related to whom, shared histories, and key milestones.
 2. **Mirror and clarify** – repeat names with the right honorifics, confirm how people are connected, and ask gentle follow-ups.
 3. **Offer thoughtful details** – share short stories about yourself or your partner that reinforce trust.
 4. **Close each mini-introduction** – express gratitude, offer a compliment, or suggest a future touchpoint.`,
-		context:
-			'A lively weekend gathering in the family living room. Laughter, framed photos, and curious family friends eager to size you up.',
-		expectedOutcome:
-			'Leave knowing each person’s relationship to the family and having made a warm impression as a respectful new addition',
+		context: 'A lively weekend gathering in the family living room. Laughter, framed photos, and curious family friends eager to size you up.',
+		expectedOutcome: 'Leave knowing each person’s relationship to the family and having made a warm impression as a respectful new addition',
 		learningObjectives: [
 			'relationship vocabulary',
 			'polite introductions',
@@ -209,19 +217,25 @@ This is a judgment-free zone. No pressure, just practice.`,
 		persona: {
 			title: 'Protective Older Sibling Host',
 			nameTemplate: '{SPEAKER_NAME}-san',
-			setting:
-				"A weekend gathering where your sibling is walking you through the family's closest friends.",
-			introPrompt:
-				"Welcome your sibling's partner, explain each guest's connection to the family, and gently test how well they're following along.",
-			stakes:
-				'You want to be sure they understand the family network and can represent your sibling well in future gatherings.'
+			setting: "A weekend gathering where your sibling is walking you through the family's closest friends.",
+			introPrompt: "Welcome your sibling's partner, explain each guest's connection to the family, and gently test how well they're following along.",
+			stakes: 'You want to be sure they understand the family network and can represent your sibling well in future gatherings.'
 		},
 		createdByUserId: null,
 		visibility: 'public' as const,
 		usageCount: 0,
 		isActive: true,
 		createdAt: new Date(),
-		updatedAt: new Date()
+		updatedAt: new Date(),
+		categories: null,
+		tags: null,
+		primarySkill: null,
+		searchKeywords: null,
+		thumbnailUrl: null,
+		estimatedDurationSeconds: null,
+		authorDisplayName: null,
+		shareSlug: null,
+		shareUrl: null
 	},
 	{
 		id: 'clinic-night-triage',
@@ -231,10 +245,8 @@ This is a judgment-free zone. No pressure, just practice.`,
 		difficulty: 'intermediate',
 		difficultyRating: 5,
 		cefrLevel: 'B1',
-		cefrRecommendation:
-			'Ideal for strong A2–B1 learners who need to describe urgent medical issues calmly under stress',
-		learningGoal:
-			'Describe symptoms, severity, and timelines clearly enough for triage staff to prioritize care while staying composed',
+		cefrRecommendation: 'Ideal for strong A2–B1 learners who need to describe urgent medical issues calmly under stress',
+		learningGoal: 'Describe symptoms, severity, and timelines clearly enough for triage staff to prioritize care while staying composed',
 		instructions: `You are the triage nurse on the night shift. Keep things calm and clear:
 
 1. **Establish control quickly** – ask for name, symptoms, onset, and current pain level. Paraphrase back what you heard.
@@ -244,10 +256,8 @@ This is a judgment-free zone. No pressure, just practice.`,
 5. **Close the loop** – once you have enough info, explain the next step (vitals, tests, waiting area) so they feel taken care of.
 
 Stay warm but efficient. The learner should feel heard, understood, and guided even if their language breaks down.`,
-		context:
-			"A fluorescent emergency room triage desk just after midnight. You're balancing urgency with calm focus as the learner explains what's wrong.",
-		expectedOutcome:
-			'The nurse captures symptom, duration, and pain scale details and the learner feels confident they communicated clearly enough to get help',
+		context: "A fluorescent emergency room triage desk just after midnight. You're balancing urgency with calm focus as the learner explains what's wrong.",
+		expectedOutcome: 'The nurse captures symptom, duration, and pain scale details and the learner feels confident they communicated clearly enough to get help',
 		learningObjectives: [
 			'urgent symptom vocabulary',
 			'describing onset and duration',
@@ -265,17 +275,24 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 			title: 'Emergency Room Triage Nurse',
 			nameTemplate: 'Nurse {SPEAKER_NAME}',
 			setting: 'Hospital intake counter with vitals monitors humming behind you.',
-			introPrompt:
-				'Greet the patient, gather symptoms, duration, and severity, and ask concise follow-ups. Slow down or repeat when they struggle, then confirm the next step for care.',
-			stakes:
-				'If you miss key details, the patient could be mis-prioritized and care would be delayed.'
+			introPrompt: 'Greet the patient, gather symptoms, duration, and severity, and ask concise follow-ups. Slow down or repeat when they struggle, then confirm the next step for care.',
+			stakes: 'If you miss key details, the patient could be mis-prioritized and care would be delayed.'
 		},
 		createdByUserId: null,
 		visibility: 'public' as const,
 		usageCount: 0,
 		isActive: true,
 		createdAt: new Date(),
-		updatedAt: new Date()
+		updatedAt: new Date(),
+		categories: null,
+		tags: null,
+		primarySkill: null,
+		searchKeywords: null,
+		thumbnailUrl: null,
+		estimatedDurationSeconds: null,
+		authorDisplayName: null,
+		shareSlug: null,
+		shareUrl: null
 	},
 	{
 		id: 'first-date-drinks',
@@ -285,10 +302,8 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 		difficulty: 'intermediate',
 		difficultyRating: 4,
 		cefrLevel: 'B1',
-		cefrRecommendation:
-			'Perfect for intermediate learners (B1) who want to practice casual conversation and personal storytelling',
-		learningGoal:
-			'Create genuine connection by asking thoughtful questions and sharing your story naturally',
+		cefrRecommendation: 'Perfect for intermediate learners (B1) who want to practice casual conversation and personal storytelling',
+		learningGoal: 'Create genuine connection by asking thoughtful questions and sharing your story naturally',
 		instructions: `You're on a first date. Ask questions, share stories, and see if there's a connection.`,
 		context: 'A cozy bar with dim lighting and a good selection of drinks.',
 		expectedOutcome: 'A fun and engaging conversation that leads to a second date.',
@@ -309,7 +324,16 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 		usageCount: 0,
 		isActive: true,
 		createdAt: new Date(),
-		updatedAt: new Date()
+		updatedAt: new Date(),
+		categories: null,
+		tags: null,
+		primarySkill: null,
+		searchKeywords: null,
+		thumbnailUrl: null,
+		estimatedDurationSeconds: null,
+		authorDisplayName: null,
+		shareSlug: null,
+		shareUrl: null
 	},
 	{
 		id: 'relationship-apology',
@@ -319,15 +343,11 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 		difficulty: 'intermediate',
 		difficultyRating: 5,
 		cefrLevel: 'B2',
-		cefrRecommendation:
-			'Excellent for advanced intermediate learners (B2) who want to practice emotional communication and relationship repair',
-		learningGoal:
-			'Repair trust in relationships by apologizing authentically and rebuilding emotional connection',
+		cefrRecommendation: 'Excellent for advanced intermediate learners (B2) who want to practice emotional communication and relationship repair',
+		learningGoal: 'Repair trust in relationships by apologizing authentically and rebuilding emotional connection',
 		instructions: `Acknowledge what hurt them, explain what you meant without deflecting, and rebuild trust by asking what they need from you. Practice the vulnerability that turns "sorry" into real repair.`,
-		context:
-			'A quiet moment after the argument has cooled. Your partner is willing to listen, but trust needs rebuilding.',
-		expectedOutcome:
-			'Restore emotional connection and leave with a shared plan to prevent the same friction',
+		context: 'A quiet moment after the argument has cooled. Your partner is willing to listen, but trust needs rebuilding.',
+		expectedOutcome: 'Restore emotional connection and leave with a shared plan to prevent the same friction',
 		learningObjectives: [
 			'apology language',
 			'taking responsibility',
@@ -346,17 +366,24 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 			title: 'Partner After Conflict',
 			nameTemplate: '{SPEAKER_NAME}',
 			setting: 'A quiet space where your partner is ready to talk but still hurt.',
-			introPrompt:
-				'Express that you are willing to listen but need to hear genuine acknowledgment. Share how the situation made you feel and wait to see if your partner truly understands.',
-			stakes:
-				'If the apology feels shallow or defensive, the relationship loses another layer of trust.'
+			introPrompt: 'Express that you are willing to listen but need to hear genuine acknowledgment. Share how the situation made you feel and wait to see if your partner truly understands.',
+			stakes: 'If the apology feels shallow or defensive, the relationship loses another layer of trust.'
 		},
 		createdByUserId: null,
 		visibility: 'public' as const,
 		usageCount: 0,
 		isActive: true,
 		createdAt: new Date(),
-		updatedAt: new Date()
+		updatedAt: new Date(),
+		categories: null,
+		tags: null,
+		primarySkill: null,
+		searchKeywords: null,
+		thumbnailUrl: null,
+		estimatedDurationSeconds: null,
+		authorDisplayName: null,
+		shareSlug: null,
+		shareUrl: null
 	},
 	{
 		id: 'vulnerable-heart-to-heart',
@@ -366,13 +393,10 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 		difficulty: 'intermediate',
 		difficultyRating: 4,
 		cefrLevel: 'B1',
-		cefrRecommendation:
-			'Great for intermediate learners (B1) who want to practice emotional vocabulary and vulnerability in relationships',
-		learningGoal:
-			"Express emotions vulnerably and deepen emotional intimacy by sharing what's truly important to you",
+		cefrRecommendation: 'Great for intermediate learners (B1) who want to practice emotional vocabulary and vulnerability in relationships',
+		learningGoal: "Express emotions vulnerably and deepen emotional intimacy by sharing what's truly important to you",
 		instructions: `Name the feeling, explain why it matters, and ask for what you need. Practice moving past "I'm fine" to say what's actually true.`,
-		context:
-			'Late evening, safe space with someone who cares. The moment when surface talk could go deeper.',
+		context: 'Late evening, safe space with someone who cares. The moment when surface talk could go deeper.',
 		expectedOutcome: 'Feel heard and understood; strengthen emotional intimacy through honesty',
 		learningObjectives: [
 			'emotion vocabulary',
@@ -391,8 +415,7 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 			title: 'Trusted Loved One',
 			nameTemplate: '{SPEAKER_NAME}',
 			setting: 'A safe, quiet moment where someone is ready to really listen.',
-			introPrompt:
-				'Notice that something feels important. Ask gentle questions, create space for honesty, and respond with empathy when they share.',
+			introPrompt: 'Notice that something feels important. Ask gentle questions, create space for honesty, and respond with empathy when they share.',
 			stakes: 'If you rush or minimize their feelings, they may close off and stop sharing.'
 		},
 		createdByUserId: null,
@@ -400,7 +423,16 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 		usageCount: 0,
 		isActive: true,
 		createdAt: new Date(),
-		updatedAt: new Date()
+		updatedAt: new Date(),
+		categories: null,
+		tags: null,
+		primarySkill: null,
+		searchKeywords: null,
+		thumbnailUrl: null,
+		estimatedDurationSeconds: null,
+		authorDisplayName: null,
+		shareSlug: null,
+		shareUrl: null
 	},
 	{
 		id: 'family-milestone-toast',
@@ -410,15 +442,11 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 		difficulty: 'intermediate',
 		difficultyRating: 5,
 		cefrLevel: 'B2',
-		cefrRecommendation:
-			'Perfect for advanced intermediate learners (B2) who want to practice public speaking and cultural expression',
-		learningGoal:
-			'Deliver a heartfelt, memorable toast that celebrates loved ones with genuine warmth and cultural grace',
+		cefrRecommendation: 'Perfect for advanced intermediate learners (B2) who want to practice public speaking and cultural expression',
+		learningGoal: 'Deliver a heartfelt, memorable toast that celebrates loved ones with genuine warmth and cultural grace',
 		instructions: `Share a personal story, honor the people being celebrated, and close with a wish for the future. Practice the cadence, warmth, and cultural touches that make a toast memorable.`,
-		context:
-			'A room full of relatives and friends. Glasses raised, cameras ready, and everyone waiting to hear your words.',
-		expectedOutcome:
-			'Deliver a toast that feels authentic, honors tradition, and earns genuine applause',
+		context: 'A room full of relatives and friends. Glasses raised, cameras ready, and everyone waiting to hear your words.',
+		expectedOutcome: 'Deliver a toast that feels authentic, honors tradition, and earns genuine applause',
 		learningObjectives: [
 			'celebratory language',
 			'storytelling in public',
@@ -436,17 +464,24 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 			title: 'Family Gathering Audience',
 			nameTemplate: 'Family & Friends',
 			setting: 'A celebration with relatives of all ages listening and recording the moment.',
-			introPrompt:
-				'Listen warmly as someone you care about gives a toast. React to personal stories, laugh at gentle humor, and raise your glass when they finish.',
-			stakes:
-				'If the toast feels flat or culturally off, the moment loses its emotional weight and becomes awkward.'
+			introPrompt: 'Listen warmly as someone you care about gives a toast. React to personal stories, laugh at gentle humor, and raise your glass when they finish.',
+			stakes: 'If the toast feels flat or culturally off, the moment loses its emotional weight and becomes awkward.'
 		},
 		createdByUserId: null,
 		visibility: 'public' as const,
 		usageCount: 0,
 		isActive: true,
 		createdAt: new Date(),
-		updatedAt: new Date()
+		updatedAt: new Date(),
+		categories: null,
+		tags: null,
+		primarySkill: null,
+		searchKeywords: null,
+		thumbnailUrl: null,
+		estimatedDurationSeconds: null,
+		authorDisplayName: null,
+		shareSlug: null,
+		shareUrl: null
 	},
 	{
 		id: 'breaking-important-news',
@@ -456,15 +491,11 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 		difficulty: 'intermediate',
 		difficultyRating: 5,
 		cefrLevel: 'B2',
-		cefrRecommendation:
-			'Excellent for advanced intermediate learners (B2) who want to practice assertiveness and handling emotional family conversations',
-		learningGoal:
-			'Announce major life decisions with clarity and confidence while maintaining family trust and understanding',
+		cefrRecommendation: 'Excellent for advanced intermediate learners (B2) who want to practice assertiveness and handling emotional family conversations',
+		learningGoal: 'Announce major life decisions with clarity and confidence while maintaining family trust and understanding',
 		instructions: `Lead with the decision, explain your reasoning, acknowledge their concerns, and reassure them that the relationship stays strong. Practice handling reactions from surprise to resistance.`,
-		context:
-			'A serious family conversation. You have news that will change things, and they deserve to hear it from you directly.',
-		expectedOutcome:
-			'Share your decision clearly, handle emotional reactions with care, and maintain family trust',
+		context: 'A serious family conversation. You have news that will change things, and they deserve to hear it from you directly.',
+		expectedOutcome: 'Share your decision clearly, handle emotional reactions with care, and maintain family trust',
 		learningObjectives: [
 			'delivering important news',
 			'explaining decisions',
@@ -482,17 +513,24 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 			title: 'Family Member Receiving News',
 			nameTemplate: '{SPEAKER_NAME}',
 			setting: 'A family setting where important news is about to be shared.',
-			introPrompt:
-				'Listen as your family member shares an important life decision. React with genuine emotion—surprise, concern, or questions—and try to understand their reasoning.',
-			stakes:
-				'If they cannot explain clearly or handle your concerns, you may feel excluded from their life or worried about their future.'
+			introPrompt: 'Listen as your family member shares an important life decision. React with genuine emotion—surprise, concern, or questions—and try to understand their reasoning.',
+			stakes: 'If they cannot explain clearly or handle your concerns, you may feel excluded from their life or worried about their future.'
 		},
 		createdByUserId: null,
 		visibility: 'public' as const,
 		usageCount: 0,
 		isActive: true,
 		createdAt: new Date(),
-		updatedAt: new Date()
+		updatedAt: new Date(),
+		categories: null,
+		tags: null,
+		primarySkill: null,
+		searchKeywords: null,
+		thumbnailUrl: null,
+		estimatedDurationSeconds: null,
+		authorDisplayName: null,
+		shareSlug: null,
+		shareUrl: null
 	}
 ];
 

@@ -90,6 +90,9 @@ export class ConversationStore {
 	private conversationStartTime = $state<Date | null>(null);
 	private lastSaveTime = $state<Date | null>(null);
 
+	// Debug/Dev panel state - exposed for debugging
+	sessionConfigHistory = $state<Array<{ timestamp: Date; config: unknown; type: string }>>([]);
+
 	// Private connection state (SDK only)
 	private audioStream: MediaStream | null = null;
 	private messageUnsub: (() => void) | null = null;
@@ -1274,6 +1277,30 @@ export class ConversationStore {
 			turnDetection: turnDetectionConfig ? 'server_vad' : 'manual (PTT)'
 		});
 
+		// Track session config for debugging
+		const configUpdate = {
+			model: sessionConfig.model,
+			voice: this.voice,
+			language: this.language.code,
+			instructionsLength: sessionConfig.instructions.length,
+			instructionsPreview: sessionConfig.instructions.slice(0, 150) + '...',
+			turnDetection: turnDetectionConfig,
+			transcriptionLanguage: this.language.code,
+			scenario: scenarioStore.getSelectedScenario()?.title || 'none',
+			speaker: this.speaker?.voiceName || 'default'
+		};
+
+		// Log to dev panel
+		console.log('%c🔧 SESSION CONFIG UPDATE (Initial Setup)', 'color: purple; font-weight: bold; font-size: 12px;', configUpdate);
+		this.sessionConfigHistory = [...this.sessionConfigHistory, {
+			timestamp: new SvelteDate(),
+			config: configUpdate,
+			type: 'initial-setup'
+		}];
+		if (this.sessionConfigHistory.length > 50) {
+			this.sessionConfigHistory = this.sessionConfigHistory.slice(-50);
+		}
+
 		// Send the combined configuration with mode-specific turn detection
 		realtimeOpenAI.updateSessionConfig({
 			model: sessionConfig.model,
@@ -1398,6 +1425,28 @@ export class ConversationStore {
 	private applyInstructionUpdate(delta: string) {
 		if (!this.language) return;
 		const combined = `${this.lastInstructions}\n\n${delta}`;
+
+		// Track instruction update for debugging
+		const configUpdate = {
+			model: 'gpt-realtime',
+			voice: this.voice,
+			language: this.language.code,
+			instructionsLength: combined.length,
+			instructionsDelta: delta.slice(0, 100) + '...',
+			scenario: scenarioStore.getSelectedScenario()?.title || 'none',
+			speaker: this.speaker?.voiceName || 'default'
+		};
+
+		console.log('%c🔧 SESSION CONFIG UPDATE (Instruction Update)', 'color: orange; font-weight: bold; font-size: 12px;', configUpdate);
+		this.sessionConfigHistory = [...this.sessionConfigHistory, {
+			timestamp: new SvelteDate(),
+			config: configUpdate,
+			type: 'instruction-update'
+		}];
+		if (this.sessionConfigHistory.length > 50) {
+			this.sessionConfigHistory = this.sessionConfigHistory.slice(-50);
+		}
+
 		realtimeOpenAI.updateSessionConfig({
 			instructions: combined,
 			turnDetection: this.getTurnDetectionConfig(),
