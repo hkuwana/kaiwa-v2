@@ -8,7 +8,17 @@
 	import FeedbackButton from '$lib/components/FeedbackButton.svelte';
 	import { initializePostHog, trackPageView, posthog, track } from '$lib/analytics/posthog';
 
-	const conversationStore = new ConversationStore();
+	// Initialize conversation store once at module level
+	// Using a module-level let variable ensures it persists across component re-renders
+	let conversationStoreInstance: ConversationStore | null = null;
+	const getConversationStore = (): ConversationStore => {
+		if (!conversationStoreInstance) {
+			conversationStoreInstance = new ConversationStore();
+		}
+		return conversationStoreInstance;
+	};
+
+	const conversationStore = getConversationStore();
 
 	const { children, data } = $props();
 

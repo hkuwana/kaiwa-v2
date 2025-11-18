@@ -1271,6 +1271,11 @@ export function getSpeakerById(id: string): Speaker | undefined {
 	return speakersData.find((speaker) => speaker.id === id);
 }
 
+// Helper function to get speaker by OpenAI voice ID
+export function getSpeakerByVoiceId(voiceId: string): Speaker | undefined {
+	return speakersData.find((speaker) => speaker.openaiVoiceId === voiceId);
+}
+
 // Helper function to get default speaker for a language (prioritize female speakers)
 export function getDefaultSpeakerForLanguage(languageId: string): Speaker | undefined {
 	const languageSpeakers = getSpeakersByLanguage(languageId);

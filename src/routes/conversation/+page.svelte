@@ -10,7 +10,7 @@
 	import { realtimeOpenAI } from '$lib/stores/realtime-openai.store.svelte';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
-	import { getSpeakerById } from '$lib/data/speakers';
+	import { getSpeakerById, getSpeakerByVoiceId, getDefaultSpeakerForLanguage } from '$lib/data/speakers';
 	import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 	import { determineAnalysisType } from '$lib/services/analysis.service';
 
@@ -222,10 +222,21 @@
 			// Set sessionId in conversation store before starting
 			conversationStore.sessionId = sessionId;
 
-			// Get speaker object from ID
-			const speaker = settingsStore.selectedSpeaker
-				? getSpeakerById(settingsStore.selectedSpeaker)
-				: undefined;
+			// Get speaker object from ID, with fallbacks
+			// First try to get by speaker ID, then by voice ID, then use default for language
+			let speaker = undefined;
+			if (settingsStore.selectedSpeaker) {
+				// Try speaker ID first
+				speaker = getSpeakerById(settingsStore.selectedSpeaker);
+				// If not found, try voice ID (in case settings store is storing voice IDs)
+				if (!speaker) {
+					speaker = getSpeakerByVoiceId(settingsStore.selectedSpeaker);
+				}
+			}
+			// If still no speaker, use default for the selected language (ensures regional dialect)
+			if (!speaker && selectedLanguage) {
+				speaker = getDefaultSpeakerForLanguage(selectedLanguage.id);
+			}
 			await conversationStore.startConversation(selectedLanguage, speaker, {
 				audioInputMode: audioMode
 			});
