@@ -201,7 +201,7 @@
 	<div class="avatar chat-image">
 		<div class="w-10 rounded-full">
 			{#if isUser && userManager.user.avatarUrl}
-				<img alt={avatarAlt} src={userManager.user.avatarUrl} />
+				<img alt={avatarAlt} src={userManager.user.avatarUrl} loading="lazy" />
 			{:else if isUser}
 				<!-- Show user initials if no avatar -->
 				<div
@@ -213,7 +213,7 @@
 				</div>
 			{:else}
 				<!-- Show Kaiwa mascot for assistant -->
-				<img alt={avatarAlt} src={kitsune} />
+				<img alt={avatarAlt} src={kitsune} loading="lazy" />
 			{/if}
 		</div>
 	</div>

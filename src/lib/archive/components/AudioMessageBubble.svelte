@@ -116,7 +116,7 @@
 	<!-- Avatar -->
 	<div class="avatar chat-image">
 		<div class="w-10 rounded-full">
-			<img alt={avatarSrc} src={avatarSrc} />
+			<img alt={avatarSrc} src={avatarSrc} loading="lazy" />
 		</div>
 	</div>
 

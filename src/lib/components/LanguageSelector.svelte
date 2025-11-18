@@ -294,6 +294,7 @@
 										<img
 											alt={speaker.characterImageAlt || `Image of ${speaker.voiceName}`}
 											src={speaker.characterImageUrl}
+											loading="lazy"
 										/>
 									{:else}
 										<!-- Fallback to gender emoji if no image -->
