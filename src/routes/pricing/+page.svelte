@@ -263,8 +263,8 @@
 				alert(
 					`Your subscription has been cancelled and will remain active until the end of your billing period. Thank you for your feedback!`
 				);
-				// Optionally redirect to dashboard
-				await goto('/dashboard?downgraded=true');
+				// Redirect to profile page
+				await goto('/profile?downgraded=true');
 			} else {
 				throw new Error(data.error || 'Failed to cancel subscription');
 			}
