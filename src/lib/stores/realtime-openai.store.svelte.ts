@@ -1312,15 +1312,19 @@ export class RealtimeOpenAIStore {
 		// - All previous user input items
 		// - All previous assistant response items
 		// - Current session-level instructions (set via session.update)
+		//
+		// IMPORTANT: We do NOT include instructions in response.create because:
+		// 1. Response-level instructions are transient and override session instructions for that response only
+		// 2. They don't persist in the conversation context
+		// 3. This causes context loss after the first response
+		// Instead, we rely on session-level instructions set via session.update
 		const responsePayload: Record<string, unknown> = {};
-		if (this.currentInstructions) {
-			responsePayload.instructions = this.currentInstructions;
-		}
 
-		logger.info('📤 CLIENT: Creating response (API maintains conversation automatically)', {
+		logger.info('📤 CLIENT: Creating response (using session-level instructions)', {
 			hasSessionInstructions: !!this.currentInstructions,
 			instructionsLength: this.currentInstructions?.length ?? 0,
-			instructionsPreview: this.currentInstructions?.substring(0, 100) + '...'
+			instructionsPreview: this.currentInstructions?.substring(0, 100) + '...',
+			note: 'Instructions are set at session level, not response level'
 		});
 
 		const ev = {
