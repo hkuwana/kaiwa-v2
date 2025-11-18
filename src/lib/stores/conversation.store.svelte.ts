@@ -917,6 +917,7 @@ export class ConversationStore {
 	private async ensureUsageBudget(): Promise<boolean> {
 		const userId = userManager.user?.id;
 		if (!userId || userId === 'guest') {
+			logger.info('✅ ensureUsageBudget: Allowing guest user');
 			return true;
 		}
 
@@ -928,24 +929,35 @@ export class ConversationStore {
 
 		if (!usageContext) {
 			// Fail open if we cannot load usage; treat as warning rather than a blocker.
+			logger.warn('⚠️ ensureUsageBudget: No usage context, failing open');
 			return true;
 		}
 
+		logger.info('🔍 ensureUsageBudget: Checking usage limits', {
+			canUseRealtime: usageContext.canUseRealtime,
+			canStartConversation: usageContext.canStartConversation,
+			remainingSeconds: usageContext.timerLimits.remainingSeconds
+		});
+
 		if (!usageContext.canUseRealtime) {
 			this.error = 'Realtime conversations are not available on your current plan.';
+			logger.error('❌ ensureUsageBudget: canUseRealtime is false', this.error);
 			return false;
 		}
 
 		if (!usageContext.canStartConversation) {
 			this.error = 'You have reached your conversation limit for this billing cycle.';
+			logger.error('❌ ensureUsageBudget: canStartConversation is false', this.error);
 			return false;
 		}
 
 		if (usageContext.timerLimits.remainingSeconds <= 0) {
 			this.error = 'You have used all available conversation time for this period.';
+			logger.error('❌ ensureUsageBudget: No remaining time', this.error);
 			return false;
 		}
 
+		logger.info('✅ ensureUsageBudget: All checks passed');
 		return true;
 	}
 
