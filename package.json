@@ -119,7 +119,7 @@
 		"date-fns": "^4.1.0",
 		"drizzle-orm": "^0.40.0",
 		"echogarden": "^2.10.1",
-		"glob": "^11.0.3",
+		"glob": "^11.1.0",
 		"google-auth-library": "^10.3.0",
 		"highlight.js": "^11.11.1",
 		"howler": "^2.2.4",
