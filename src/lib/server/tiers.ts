@@ -70,7 +70,7 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		description: 'For serious language learners',
 
 		// Monthly limits
-		monthlyConversations: 100, // Unlimited
+		monthlyConversations: 300, // Increased for testing
 		monthlySeconds: 18000, // 300 minutes = 18000 seconds
 		monthlyRealtimeSessions: 100, // Unlimited
 
