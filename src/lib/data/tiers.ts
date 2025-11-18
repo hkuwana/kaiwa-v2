@@ -52,7 +52,7 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 		id: 'plus',
 		name: 'Plus',
 		description: 'For serious language learners',
-		monthlyConversations: 100,
+		monthlyConversations: 300,
 		monthlySeconds: 18000,
 		monthlyRealtimeSessions: 100,
 		dailyConversations: null,
