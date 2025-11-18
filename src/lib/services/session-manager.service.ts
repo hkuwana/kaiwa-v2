@@ -2,6 +2,7 @@
 import type { Language } from '$lib/server/db/types';
 import type { SessionConfig, Voice } from '$lib/types/openai.realtime.types';
 import { env as publicEnv } from '$env/dynamic/public';
+import { DEFAULT_VOICE, isValidVoice } from '$lib/types/openai.realtime.types';
 import type { RealtimeSessionConfig } from '@openai/agents-realtime';
 
 export function createSessionConfig(
@@ -9,9 +10,28 @@ export function createSessionConfig(
 	voice: Voice,
 	instructions: string
 ): RealtimeSessionConfig {
+	// 🛡️ Validate voice before creating session
+	let validatedVoice = voice;
+	if (!isValidVoice(voice)) {
+		console.warn(
+			`⚠️ Invalid voice "${voice}" for language "${language.name}". ` +
+			`Falling back to default voice "${DEFAULT_VOICE}". ` +
+			`Valid voices are: alloy, ash, ballad, coral, echo, sage, shimmer, verse`
+		);
+		validatedVoice = DEFAULT_VOICE;
+	}
+
+	// 📝 Log the session config being sent
+	console.log('📝 Session config being created:', {
+		language: language.code,
+		voice: validatedVoice,
+		instructionsLength: instructions.length,
+		model: publicEnv.PUBLIC_OPEN_AI_MODEL
+	});
+
 	return {
 		model: publicEnv.PUBLIC_OPEN_AI_MODEL,
-		voice: voice,
+		voice: validatedVoice,
 		instructions: instructions,
 		toolChoice: 'auto',
 		tools: []
@@ -70,11 +90,32 @@ export function createSessionUpdateConfig(
 	language: Language,
 	voice: Voice
 ): SessionConfig {
+	// 🛡️ Validate voice before creating session update
+	let validatedVoice = voice;
+	if (!isValidVoice(voice)) {
+		console.warn(
+			`⚠️ Invalid voice "${voice}" for language "${language.name}". ` +
+			`Falling back to default voice "${DEFAULT_VOICE}". ` +
+			`Valid voices are: alloy, ash, ballad, coral, echo, sage, shimmer, verse`
+		);
+		validatedVoice = DEFAULT_VOICE;
+	}
+
+	const instructions =
+		updates.instructions || `You are a helpful language tutor for ${language.name || 'English'}.`;
+
+	// 📝 Log the session update config
+	console.log('📝 Session update config being created:', {
+		language: language.code,
+		voice: validatedVoice,
+		instructionsLength: instructions.length,
+		hasCustomInstructions: !!updates.instructions
+	});
+
 	return {
 		model: publicEnv.PUBLIC_OPEN_AI_MODEL,
-		voice: voice,
-		instructions:
-			updates.instructions || `You are a helpful language tutor for ${language.name || 'English'}.`,
+		voice: validatedVoice,
+		instructions: instructions,
 		toolChoice: 'auto',
 		tools: []
 	};
