@@ -187,7 +187,7 @@ function composeInitialInstructions(
 		speaker: params.speaker,
 		sessionContext: normalizeSessionContext(params.sessionContext, params.preferences),
 		parameters: parameterOverrides,
-		compact: false
+		mode: 'conversational' // OPTIMAL: Preserves personality + enforces brevity + prevents drift
 	});
 
 	return composer.compose();

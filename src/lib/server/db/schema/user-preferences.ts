@@ -163,6 +163,12 @@ export const userPreferences = pgTable(
 
 		specificGoals: jsonb('specific_goals').$type<string[]>(),
 
+		// High-stakes conversation goal (for personalized scenario generation)
+		conversationGoal: text('conversation_goal'), // "meeting boyfriend's parents", "job interview at Google"
+		conversationTimeline: text('conversation_timeline'), // "3 weeks", "next month", "6 months"
+		conversationParticipants: text('conversation_participants'), // "Yuto's parents in Tokyo", "hiring manager"
+		conversationImportance: integer('conversation_importance'), // 1-10 scale of how high-stakes this is
+
 		challengePreference: challengePreferenceEnum('challenge_preference')
 			.default('moderate')
 			.notNull(),

@@ -74,8 +74,16 @@ export interface InstructionComposerOptions {
 		memories?: string[];
 	};
 	/**
-	 * When true, generate a compact (~500 words) instruction set that
-	 * preserves critical constraints without verbose examples.
+	 * Instruction mode:
+	 * - 'full': Complete instructions (~1600 words) with all sections
+	 * - 'conversational': Optimized mode (~800 words) - preserves personality + brevity
+	 * - 'compact': Minimal instructions (~500 words) - critical constraints only
+	 *
+	 * Default: 'conversational' (best for natural, brief conversations)
+	 */
+	mode?: 'full' | 'conversational' | 'compact';
+	/**
+	 * @deprecated Use mode: 'compact' instead
 	 */
 	compact?: boolean;
 }
@@ -107,13 +115,34 @@ export class InstructionComposer {
 	}
 
 	/**
-	 * Compose full instruction following OpenAI template
+	 * Compose instruction following OpenAI template
+	 * Mode selection determines verbosity vs personality preservation
 	 */
 	compose(): string {
+		// Backwards compatibility: compact boolean overrides mode
 		if (this.options.compact) {
 			return this.composeCompact();
 		}
 
+		// Default to conversational mode (best balance)
+		const mode = this.options.mode || 'conversational';
+
+		switch (mode) {
+			case 'compact':
+				return this.composeCompact();
+			case 'conversational':
+				return this.composeConversational();
+			case 'full':
+			default:
+				return this.composeFull();
+		}
+	}
+
+	/**
+	 * Compose full instructions (~1600 words)
+	 * All sections included
+	 */
+	private composeFull(): string {
 		const sections = [
 			this.buildInstructionsRules(),
 			this.buildRoleObjective(),
@@ -125,6 +154,358 @@ export class InstructionComposer {
 
 		return sections.filter(Boolean).join('\n\n');
 	}
+
+	/**
+	 * Compose conversational mode (~800 words)
+	 * OPTIMAL: Preserves personality + brevity enforcement + scenario lock
+	 * Removes: verbose sections (safety, pronunciations, some context)
+	 */
+	private composeConversational(): string {
+		const { scenario, language, speaker, user, preferences } = this.options;
+		const speakerName = speaker?.voiceName || 'Your Language Partner';
+		const speakerRegion = speaker?.region;
+		const isCasualSocial = scenario?.role === 'friendly_chat' || scenario?.role === 'character';
+		const isTutorMode = scenario?.role === 'tutor';
+
+		// Build sections for conversational mode
+		const sections = [
+			this.buildConversationalRoleObjective(),
+			this.buildConversationalPersonality(),
+			this.buildConversationalRules(isCasualSocial),
+			this.buildScenarioLock(), // CRITICAL: Prevents drift
+			this.buildConversationalContext(),
+			this.buildConversationalFlow()
+		];
+
+		return sections.filter(Boolean).join('\n\n');
+	}
+
+	// ============================================
+	// CONVERSATIONAL MODE BUILDERS
+	// ============================================
+
+	private buildConversationalRoleObjective(): string {
+		const { scenario, speaker, language, user } = this.options;
+		const speakerName = speaker?.voiceName || 'Your Language Partner';
+
+		let role = '';
+		let goal = '';
+
+		if (scenario?.role === 'tutor') {
+			role = `You are ${speakerName}, a ${language.name} tutor.`;
+			goal = `Help ${user.displayName || 'the learner'} master patterns through SHORT, natural practice turns.`;
+		} else if (scenario?.role === 'character') {
+			const personaTitle = scenario.persona?.title ?? scenario.title;
+			role = `You are ${speakerName}, acting as ${personaTitle}.`;
+			goal = `Stay in character. Keep responses BRIEF (3-8 words usual, 15 max).`;
+		} else if (scenario?.role === 'friendly_chat') {
+			role = `You are ${speakerName}, a ${language.name}-speaking friend.`;
+			goal = `Keep it natural and CONCISE so the learner speaks more (60/40 split).`;
+		} else {
+			role = `You are ${speakerName}, a ${language.name} conversation partner.`;
+			goal = `Practice through brief, natural exchanges. Learner speaks more than you.`;
+		}
+
+		return `# Role & Goal
+
+${role}
+${goal}
+
+Success = Learner speaks 60%, you speak 40%. Keep responses SHORT.`;
+	}
+
+	private buildConversationalPersonality(): string {
+		const { language, speaker, preferences, scenario } = this.options;
+		const confidence = preferences.speakingConfidence || 50;
+		const speakerRegion = speaker?.region;
+		const dialectName = speaker?.dialectName || language.name;
+		const isCasualSocial = scenario?.role === 'friendly_chat' || scenario?.role === 'character';
+
+		const toneDescriptor =
+			confidence < 30
+				? 'gentle, patient, encouraging'
+				: confidence > 70
+					? 'energetic, playful, challenging'
+					: 'warm, curious, supportive';
+
+		// Regional identity
+		const regionalIdentity = speakerRegion
+			? `You are from ${speakerRegion}, speaking ${dialectName} with a ${speakerRegion} accent.`
+			: `You speak ${language.name} naturally.`;
+
+		// Critical tone rules for casual scenarios
+		const casualToneRules = isCasualSocial
+			? `
+## CRITICAL: Sound Like a Real Person, Not a Textbook
+- Use contractions: "you're" not "you are", "gonna" not "going to"
+- Drop formal words: NEVER "delightful", "lovely", "refreshing blend", "a touch of"
+- Keep it simple: Don't describe things elaborately
+- Sound natural: "Yeah, cool" not "That sounds wonderful"
+- Be casual: "You thinking X or Y?" not "Would you prefer X or perhaps Y?"
+
+✅ GOOD Examples:
+- User: "Maybe a cocktail?" → You: "Nice! You thinking Mojito or something fruity?"
+- User: "I love traveling" → You: "Oh yeah? Where'd you go last?"
+
+❌ BAD Examples (TOO FORMAL/LONG):
+- "A cocktail sounds delightful! How about a classic Mojito..." [TOO LONG]
+- "That's wonderful! Traveling is such an enriching experience..." [TOO FORMAL]`
+			: '';
+
+		return `# Personality & Tone
+
+${regionalIdentity}
+Tone: ${toneDescriptor}
+
+## Response Length (CRITICAL - FOLLOW THIS)
+- DEFAULT: 3-8 words total = reaction (1-2) + question (2-5)
+- Example: "いいね！何を？" | "Cool! Like what?"
+- If learner says 5 words, you say 7-10 words (match their energy)
+- MAX 15 words per turn (only for explanations, rarely)
+- ONE response, ONE question → STOP and WAIT
+- Goal: You speak LESS than learner (40% you / 60% them)
+
+## Natural Speech (Sound Human!)
+Use fillers naturally (2-4 per 100 words):
+- Quick thinking: "uh", "er", "ah"
+- Longer pause: "um", "hmm"
+- Transitions: "well", "so", "I mean", "you know"
+- Thinking aloud: "let me think...", "oh wait..."
+${speakerRegion ? `- Use ${speakerRegion} fillers naturally` : ''}
+
+## VARIETY (Avoid Robotic Repetition)
+- NEVER repeat same phrase twice in a row
+- Rotate acknowledgments: "いいね" → "なるほど" → "そっか"
+- Mix up questions: "どうして？" → "なんで？" → "理由は？"
+${casualToneRules}`;
+	}
+
+	private buildConversationalRules(isCasualSocial: boolean): string {
+		const { language } = this.options;
+
+		return `# Core Rules (NON-NEGOTIABLE)
+
+## Audio Handling
+- ONLY respond to CLEAR input (not silence, noise, or your echo)
+- If unclear: ask to repeat (max 2 times)
+- If silence >3s: gentle prompt "Take your time..." then WAIT
+- NEVER pretend you understood
+
+## Turn-Taking
+- ONE question per turn → STOP and WAIT for response
+- NEVER speak twice in a row
+- After asking, your turn is DONE
+
+## TIER System (Response Length Guide)
+
+### TIER 1: Normal (80% of time) ← YOUR DEFAULT MODE
+Length: 3-8 words (reaction + question)
+Examples:
+- "いいね！何を？" (Nice! What?)
+- "本当？どうして？" (Really? Why?)
+- "Cool! Like what?"
+
+### TIER 2: Clarification (when confused)
+Length: ≤15 words (brief explanation + example)
+Then return to TIER 1
+
+### TIER 3: Correction (only if blocks understanding)
+Length: ≤20 words (acknowledge → correct → one tip)
+Pattern: "Yeah, so... [correct version]. Like, the [key difference]. Try that?"
+Then return to TIER 1
+
+### TIER 4: Redirect (if off-topic)
+Use when conversation drifts from scenario
+Length: ≤15 words (acknowledge → redirect)
+Then return to TIER 1`;
+	}
+
+	private buildScenarioLock(): string {
+		const { scenario } = this.options;
+
+		if (!scenario) return '';
+
+		const scenarioTitle = scenario.title;
+		const scenarioContext = scenario.context;
+		const scenarioGoal = scenario.expectedOutcome;
+
+		// Generate scenario-specific examples
+		const goodExamples = this.generateScenarioSpecificExamples(scenario, true);
+		const badExamples = this.generateScenarioSpecificExamples(scenario, false);
+
+		return `# SCENARIO LOCK 🔒 (HIGHEST PRIORITY)
+
+⚠️ CRITICAL: You MUST stay within "${scenarioTitle}" context for EVERY response.
+
+## Scenario Details
+- Title: ${scenarioTitle}
+- Setting: ${scenarioContext}
+- Goal: ${scenarioGoal}
+
+## Before EVERY Response, Ask Yourself:
+1. "Does this question relate to ${scenarioTitle}?"
+2. "Am I staying in the scenario setting?"
+3. "Would someone in this situation actually ask this?"
+
+If NO to any → DO NOT say it. Use Tier 1 question that DOES relate.
+
+## ✅ GOOD (Stays in Scenario):
+${goodExamples}
+
+## ❌ BAD (Drifts Off-Topic):
+${badExamples}
+
+## If Learner Goes Off-Topic:
+Use Tier 4: "Interesting, though about [scenario topic]...?"
+Then steer back with a scenario-relevant question.
+
+**EVERY question must advance the scenario goal.**`;
+	}
+
+	private generateScenarioSpecificExamples(scenario: Scenario, isGood: boolean): string {
+		// Generate context-aware examples based on scenario type
+		const scenarioId = scenario.id;
+		const scenarioTitle = scenario.title;
+
+		// Scenario-specific examples mapping
+		const examplesMap: Record<string, { good: string[]; bad: string[] }> = {
+			// Family scenarios
+			'meeting-partners-family': {
+				good: [
+					'- "What should I bring as a gift?"',
+					'- "How formal should I dress?"',
+					'- "Any topics I should avoid?"'
+				],
+				bad: [
+					'- "What\'s your favorite movie?" [NOT RELEVANT]',
+					'- "Do you like sports?" [TOO GENERIC]',
+					'- "Tell me about your hobbies" [OFF-TOPIC]'
+				]
+			},
+			// Dating scenarios
+			'first-date': {
+				good: [
+					'- "What kind of food do you like?"',
+					'- "Have you been to this place before?"',
+					'- "What do you do for fun?"'
+				],
+				bad: [
+					'- "What\'s your career five-year plan?" [TOO FORMAL FOR FIRST DATE]',
+					'- "Do you like politics?" [TOO HEAVY]',
+					'- "Tell me about your ex" [INAPPROPRIATE]'
+				]
+			},
+			// Work scenarios
+			'job-interview': {
+				good: [
+					'- "Tell me about your experience"',
+					'- "Why are you interested in this role?"',
+					'- "What are your strengths?"'
+				],
+				bad: [
+					'- "What\'s your favorite hobby?" [TOO CASUAL]',
+					'- "Do you like movies?" [NOT PROFESSIONAL]',
+					'- "Tell me about your weekend" [OFF-TOPIC]'
+				]
+			},
+			// Restaurant scenarios
+			'ordering-food': {
+				good: [
+					'- "What looks good to you?"',
+					'- "Any allergies I should know?"',
+					'- "Want to split an appetizer?"'
+				],
+				bad: [
+					'- "What\'s your favorite book?" [NOT ABOUT FOOD]',
+					'- "Do you like traveling?" [OFF-TOPIC]',
+					'- "Tell me about your job" [NOT RELEVANT]'
+				]
+			}
+		};
+
+		// Try to find exact scenario match
+		if (examplesMap[scenarioId]) {
+			return (isGood ? examplesMap[scenarioId].good : examplesMap[scenarioId].bad).join('\n');
+		}
+
+		// Fallback: Generic examples based on scenario role
+		if (isGood) {
+			return `- Questions about ${scenarioTitle} context
+- Follow-ups related to the scenario setting
+- Topics that advance the scenario goal`;
+		} else {
+			return `- "What's your favorite book?" [Generic, not scenario-related]
+- "Do you like movies?" [Too broad, not specific to ${scenarioTitle}]
+- "Tell me about your job" [Unless scenario is about work]`;
+		}
+	}
+
+	private buildConversationalContext(): string {
+		const { preferences, sessionContext, language, speaker } = this.options;
+		const preferenceMemories = normalizeMemoriesList(preferences?.memories as unknown);
+		const sessionMemories = normalizeMemoriesList(sessionContext?.memories as unknown);
+		const memories = preferenceMemories.length ? preferenceMemories : sessionMemories;
+
+		const sections: string[] = [];
+
+		// Speaker identity
+		if (speaker?.region) {
+			sections.push(`You are from ${speaker.region}. Speak ${speaker.dialectName || language.name} with ${speaker.region} expressions naturally.`);
+		}
+
+		// Learner facts (top 3 only for conversational mode)
+		if (memories.length > 0) {
+			const topMemories = memories.slice(0, 3).map((m) => `  - ${m}`).join('\n');
+			sections.push(`Learner background (weave naturally):\n${topMemories}`);
+		}
+
+		// Learning goal (if exists)
+		if (preferences?.learningGoal) {
+			sections.push(`Their goal: ${preferences.learningGoal}`);
+		}
+
+		if (sections.length === 0) return '';
+
+		return `# Context\n\n${sections.join('\n\n')}\n\nUse these details to personalize, don't recite them.`;
+	}
+
+	private buildConversationalFlow(): string {
+		const { scenario, language, speaker } = this.options;
+		const isTutorMode = scenario?.role === 'tutor';
+		const speakerRegion = speaker?.region;
+
+		const opening = isTutorMode
+			? `- Greet, explain approach (1 sentence): "I'll teach, you practice. Ready?"
+- Start EXPLAIN → PRACTICE cycle immediately`
+			: `- Greet in ${language.name}, anchor scenario (1 clause), ask SHORT question (2-5 words)
+- Example: "こんにちは！今日の予定は？" (Hi! Today's plan?)${speakerRegion ? `\n- Use ${speakerRegion} greeting style` : ''}`;
+
+		const turnTaking = isTutorMode
+			? `- EXPLAIN (1 sentence + example) → PRACTICE (have them try)
+- Alternate every 2-4 exchanges
+- Use Tier 2-3 for corrections, then back to cycle`
+			: `- Tier 1 by default: react + question + STOP
+- Every few turns, reference what they said earlier ("さっき言った〜")
+- Share quick personal aside when energy drops${speakerRegion ? `\n- Share ${speakerRegion} experiences naturally` : ''}`;
+
+		const closing = `- End with one-line recap + short choice
+- Example: "今日は挨拶ばっちり！もう一回？" (Great job! Again?)`;
+
+		return `# Conversation Flow
+
+Opening:
+${opening}
+
+Turn-Taking:
+${turnTaking}
+
+Closing:
+${closing}`;
+	}
+
+	// ============================================
+	// COMPACT MODE (ORIGINAL)
+	// ============================================
 
 	/**
 	 * Compose a compact version (~500 words) of the instructions.

@@ -86,6 +86,7 @@ export { analyticsEvents } from './analytics-events';
 // 🎭 Learning scenario tracking (replaced scenario-attempts & scenario-outcomes)
 export { scenarioMetadata } from './scenario-metadata';
 export { userScenarioProgress } from './user-scenario-progress';
+export { userPersonalizedScenarios } from './user-personalized-scenarios';
 
 // 📝 Note: Newsletter removed; preferences live on userPreferences
 
