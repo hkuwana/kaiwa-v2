@@ -1291,12 +1291,19 @@ export class ConversationStore {
 		};
 
 		// Log to dev panel
-		console.log('%c🔧 SESSION CONFIG UPDATE (Initial Setup)', 'color: purple; font-weight: bold; font-size: 12px;', configUpdate);
-		this.sessionConfigHistory = [...this.sessionConfigHistory, {
-			timestamp: new SvelteDate(),
-			config: configUpdate,
-			type: 'initial-setup'
-		}];
+		console.log(
+			'%c🔧 SESSION CONFIG UPDATE (Initial Setup)',
+			'color: purple; font-weight: bold; font-size: 12px;',
+			configUpdate
+		);
+		this.sessionConfigHistory = [
+			...this.sessionConfigHistory,
+			{
+				timestamp: new SvelteDate(),
+				config: configUpdate,
+				type: 'initial-setup'
+			}
+		];
 		if (this.sessionConfigHistory.length > 50) {
 			this.sessionConfigHistory = this.sessionConfigHistory.slice(-50);
 		}
@@ -1437,12 +1444,19 @@ export class ConversationStore {
 			speaker: this.speaker?.voiceName || 'default'
 		};
 
-		console.log('%c🔧 SESSION CONFIG UPDATE (Instruction Update)', 'color: orange; font-weight: bold; font-size: 12px;', configUpdate);
-		this.sessionConfigHistory = [...this.sessionConfigHistory, {
-			timestamp: new SvelteDate(),
-			config: configUpdate,
-			type: 'instruction-update'
-		}];
+		console.log(
+			'%c🔧 SESSION CONFIG UPDATE (Instruction Update)',
+			'color: orange; font-weight: bold; font-size: 12px;',
+			configUpdate
+		);
+		this.sessionConfigHistory = [
+			...this.sessionConfigHistory,
+			{
+				timestamp: new SvelteDate(),
+				config: configUpdate,
+				type: 'instruction-update'
+			}
+		];
 		if (this.sessionConfigHistory.length > 50) {
 			this.sessionConfigHistory = this.sessionConfigHistory.slice(-50);
 		}
@@ -2275,7 +2289,7 @@ export class ConversationStore {
 	};
 
 	// Add method to preserve conversation context for analysis navigation
-	preserveForAnalysis = () => {
+	preserveForAnalysis = async () => {
 		if (!browser) return;
 
 		logger.info('Preserving conversation for analysis...');
