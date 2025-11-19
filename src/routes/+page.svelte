@@ -155,8 +155,8 @@
 </script>
 
 <svelte:head>
-	<title>Kaiwa - Language Learning Platform</title>
-	<meta name="description" content="Practice conversation with AI tutor" />
+	<title>Kaiwa - Practice Real Conversations With Loved Ones</title>
+	<meta name="description" content="Go beyond Duolingo basics. Practice conversations that make your loved ones' faces light up with pride when you speak." />
 </svelte:head>
 
 <div

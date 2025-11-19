@@ -184,16 +184,16 @@
 	<title>Kaiwa | Pricing Plans</title>
 	<meta
 		name="description"
-		content="Choose a Kaiwa plan that fits your language learning goals. Basic, Plus, and Premium options available."
+		content="Practice real conversations with loved ones. Go beyond Duolingo basics and see their face light up when you speak. Free trial included."
 	/>
 	<meta
 		name="keywords"
-		content="Kaiwa pricing, language learning pricing, AI conversation practice plans, Japanese learning, Spanish practice, language app subscription"
+		content="practice conversations with family, learn language for loved ones, speak to partner's family, heritage language practice, conversation practice not Duolingo"
 	/>
-	<meta property="og:title" content="Kaiwa | Pricing Plans" />
+	<meta property="og:title" content="Kaiwa | Practice Real Conversations" />
 	<meta
 		property="og:description"
-		content="Compare Kaiwa plans and choose the conversation practice that fits your goals."
+		content="Go beyond tourist phrases. Practice conversations that make your loved ones' faces light up with pride."
 	/>
 	<meta property="og:type" content="website" />
 </svelte:head>
@@ -258,12 +258,10 @@
 
 		<div class="mb-16 text-center">
 			<h1 class="mb-4 text-4xl font-bold tracking-tight lg:text-5xl">
-				Kaiwa Pricing: Choose Your AI Language Learning Plan
+				Practice Real Conversations With Loved Ones
 			</h1>
 			<p class="mx-auto max-w-3xl text-lg text-base-content/70 lg:text-xl">
-				Start practicing conversations for free, then unlock more practice time with our affordable
-				subscription plans. Perfect for learning Japanese, Spanish, French, and more through
-				AI-powered conversation practice.
+				Go beyond Duolingo basics. Practice the conversations that matter—so you can see their face light up with pride when you speak.
 			</p>
 			<div class="mt-6 flex justify-center space-x-6 text-sm opacity-70">
 				<span>✓ Free trial included</span>
