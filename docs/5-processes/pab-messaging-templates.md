@@ -278,8 +278,8 @@ Excited for our first Kaiwa Product Advisory Board meeting!
 
 If you have 5 minutes before the meeting, think about:
 
-- One specific conversation you're nervous about having in your target language
-- What would make you feel "ready" for that conversation?
+- One specific conversation you want to have with someone you care about
+- What would it feel like to see their face light up when you speak?
 
 **Questions?**
 

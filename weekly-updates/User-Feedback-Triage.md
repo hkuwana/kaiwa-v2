@@ -3,7 +3,7 @@
 **Last Updated**: November 10, 2025
 **Total Sessions**: 10+ (Scott, Mark, akuwana3, Timothy, Kazu, Brie, Martin, Thomas Clarke, Austrian User, Dad)
 
-**North Star**: Give users the specific, practiced skills to have a single, successful, high-stakes conversation with a loved one.
+**North Star**: Help users have real conversations with loved ones that go beyond Duolingo basics, so they can see their partner's face light up with pride when they speak.
 
 **Primary Persona**: Sofia (Bilingual Spouse) | Secondary: David (Heritage Speaker) | Tertiary: Jamie (Relocation Expat)
 
@@ -11,7 +11,7 @@
 
 ## 🎯 Design Principle: "Does This Serve The Magic Moment?"
 
-**The Magic Moment**: When Sofia finishes practicing "Meeting partner's family" and thinks: _"I can actually do this."_
+**The Magic Moment**: When Sofia speaks to her partner's family in their language, and her partner's eyes light up with pride—realizing she cared enough to truly learn, not just memorize tourist phrases.
 
 Every issue below is evaluated through this lens:
 
