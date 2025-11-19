@@ -245,6 +245,7 @@
 					<div class="text-base">
 						<div class="relative" style="line-height: 2em;">
 							<!-- Safe: message.hiragana contains sanitized furigana ruby markup generated server-side -->
+							<!-- svelte-ignore svelte_no_at_html_tags -->
 							{@html message.hiragana}
 						</div>
 					</div>
@@ -259,6 +260,7 @@
 					<div class="text-base">
 						<div class="relative" style="line-height: 2em;">
 							<!-- Safe: pinyinRuby contains sanitized pinyin ruby markup generated server-side -->
+							<!-- svelte-ignore svelte_no_at_html_tags -->
 							{@html message.otherScripts.pinyinRuby}
 						</div>
 					</div>
@@ -279,6 +281,7 @@
 						<div class="text-base">
 							{#if highlightedContent()}
 								<!-- Safe: highlightedContent() returns sanitized HTML for text highlighting -->
+								<!-- svelte-ignore svelte_no_at_html_tags -->
 								{@html highlightedContent()}
 							{:else}
 								{message.content}
@@ -290,6 +293,7 @@
 					<div class="text-base">
 						{#if highlightedContent()}
 							<!-- Safe: highlightedContent() returns sanitized HTML for text highlighting -->
+							<!-- svelte-ignore svelte_no_at_html_tags -->
 							{@html highlightedContent()}
 						{:else}
 							{message.content}
@@ -312,8 +316,8 @@
 						activeIndex={normalizedActiveWordIndex}
 					/>
 				{:else if highlightedContent()}
-					<!-- svelte-ignore no-at-html-tags -->
 					<!-- Safe: highlightedContent() returns sanitized HTML for text highlighting -->
+					<!-- svelte-ignore svelte_no_at_html_tags -->
 					{@html highlightedContent()}
 				{:else}
 					{message.content}

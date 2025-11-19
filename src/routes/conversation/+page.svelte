@@ -37,7 +37,7 @@
 	const error = $derived(conversationStore.error);
 	const selectedLanguage = $derived(settingsStore.selectedLanguage);
 	const hasAnalysisResults = $derived(userPreferencesStore.hasCurrentAnalysisResults);
-	const isAnalyzing = $derived(userPreferencesStore.isCurrentlyAnalyzing);
+	const _isAnalyzing = $derived(userPreferencesStore.isCurrentlyAnalyzing);
 	const isGuestUser = $derived(data.isGuest);
 	const isStaticView = $derived(data.isStaticView);
 

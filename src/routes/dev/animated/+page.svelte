@@ -122,6 +122,7 @@
 
 	// Generate ALL speakers (use with caution - ~73 images, ~$6-8 total)
 	async function generateAllSpeakers() {
+		// eslint-disable-next-line no-alert
 		const confirmed = window.confirm(
 			`This will generate ~${speakersData.length} images at ~$0.08 each (Total: ~$${(speakersData.length * 0.08).toFixed(2)}). Continue?`
 		);

@@ -1590,8 +1590,8 @@ export class RealtimeOpenAIStore {
 
 		// Log timing before sending response
 		const now = Date.now();
-		const timeSinceCommitAck = commit.commitAckTimestamp ? now - commit.commitAckTimestamp : 'N/A';
-		const timeSinceTranscript = commit.transcriptTimestamp
+		const _timeSinceCommitAck = commit.commitAckTimestamp ? now - commit.commitAckTimestamp : 'N/A';
+		const _timeSinceTranscript = commit.transcriptTimestamp
 			? now - commit.transcriptTimestamp
 			: 'N/A';
 

@@ -41,6 +41,7 @@
 	// Handle confirmation
 	async function handleConfirm() {
 		if (!selectedReason) {
+			// eslint-disable-next-line no-alert
 			alert('Please select a reason for downgrading');
 			return;
 		}
@@ -68,6 +69,7 @@
 			closeModal();
 		} catch (error) {
 			console.error('Downgrade error:', error);
+			// eslint-disable-next-line no-alert
 			alert('Failed to downgrade. Please try again or contact support.');
 
 			// Track downgrade failure

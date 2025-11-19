@@ -389,7 +389,7 @@
 		error = null;
 	}
 
-	async function handleTranslation(event: string, data: any) {
+	async function handleTranslation(event: string, data: unknown) {
 		console.log('Translation event received:', event, data);
 		await testTranslation();
 	}

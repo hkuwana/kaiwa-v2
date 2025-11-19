@@ -272,6 +272,7 @@
 	}
 
 	function resetWeek() {
+		// eslint-disable-next-line no-alert
 		const confirmed = window.confirm('Reset all weekly checkboxes?');
 		if (!confirmed) return;
 		week = DEFAULT_WEEK.map((d) => ({

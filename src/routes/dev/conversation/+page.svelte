@@ -18,8 +18,8 @@
 				limit,
 				languageId || undefined
 			);
-		} catch (e: any) {
-			error = e?.message || 'Failed to load conversations';
+		} catch (e: unknown) {
+			error = (e as Error)?.message || 'Failed to load conversations';
 		} finally {
 			loading = false;
 		}

@@ -121,6 +121,7 @@
 		} catch (error) {
 			console.error('Checkout error:', error);
 			// TODO: Replace with toast notification when available
+			// eslint-disable-next-line no-alert
 			alert('Something went wrong. Please try again.');
 		} finally {
 			isLoading = false;

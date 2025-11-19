@@ -77,8 +77,8 @@
 	};
 
 	let saveTimeout: NodeJS.Timeout | null = null;
-	let isSaving = $state(false);
-	let lastSaved = $state<Date | null>(null);
+	let _isSaving = $state(false);
+	let _lastSaved = $state<Date | null>(null);
 
 	const debouncedSave = (updates: Partial<User>) => {
 		if (saveTimeout) {
@@ -91,7 +91,7 @@
 	};
 
 	const saveUser = async (updates: Partial<User>) => {
-		isSaving = true;
+		_isSaving = true;
 		try {
 			const response = await fetch(`/api/users/${data.user.id}`, {
 				method: 'PUT',
@@ -104,11 +104,11 @@
 			if (!response.ok) {
 				throw new Error('Failed to save user data');
 			}
-			lastSaved = new Date();
+			_lastSaved = new Date();
 		} catch (error) {
 			console.error('Error saving user data:', error);
 		} finally {
-			isSaving = false;
+			_isSaving = false;
 		}
 	};
 
