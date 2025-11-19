@@ -1,6 +1,6 @@
 # Kaiwa Ideal Customer Profiles (ICP)
 
-> **Core Philosophy**: Kaiwa customers are not "language learners" in the traditional sense. They are **High-Stakes Connectors**—people whose relationships depend on real, emotional conversations in another language. Their motivation is driven by **fear and love**, not gamification or test scores.
+> **Core Philosophy**: Kaiwa customers are not "language learners" in the traditional sense. They are **High-Stakes Connectors**—people learning to have real conversations with loved ones, not just memorize Duolingo basics. Their motivation is driven by **love and the joy of connection**—they want to see their partner's face light up with pride when they speak, not gamification or test scores.
 
 ---
 
@@ -25,12 +25,12 @@ Sofia (29, Product Designer, American) has been dating Yuto (Japanese) for two y
 
 Yuto has invited her to Tokyo to meet his parents for the first time. This is no longer a "nice-to-have"; it's a **life-changing event**.
 
-### Core Fears (The Noise in Her Head)
+### Core Motivation (What She Really Wants)
 
-- "What if his parents think I'm rude or stupid?"
-- "My textbook taught me 'This is a pen.' It didn't teach me how to say, 'Thank you for having me, your son is the most important person in my life.'"
-- "What if his father asks me about our future and I freeze?"
-- "I don't care about passing a test. I care about his mom liking me."
+- "I want to see Yuto's face light up when I talk to his parents in Japanese"
+- "I want to have real conversations—not just 'This is a pen' tourist phrases. I want to tell his mom 'Your son is the most important person in my life' and mean it."
+- "I want his parents to see how much I care by actually speaking their language"
+- "I'm not doing this to pass a test. I'm doing this to show love and effort."
 
 ### The "Signal" She's Desperate For
 
@@ -79,7 +79,7 @@ Yuto has invited her to Tokyo to meet his parents for the first time. This is no
 
 ### Messaging Angle
 
-_"You've got grammar down. Now let's make sure he knows you love him."_
+_"Go beyond Duolingo basics. Have real conversations that make his face light up with pride."_
 
 ---
 
@@ -93,12 +93,12 @@ David (35, Engineer) grew up in California. His parents are from Mexico, but the
 
 He's attending a family reunion (wedding, funeral, or just reconnecting with aunts/uncles/cousins) in Mexico City. He hasn't spoken to them in years.
 
-### Core Fears (The Noise in His Head)
+### Core Motivation (What He Really Wants)
 
-- "I feel like a fraud. I look the part, I have the name, but I can't talk to my abuela."
-- "They'll talk to me in Spanish, and I'll have to reply in English like an idiot."
-- "I want to share a memory with my grandfather, but I don't have the emotional vocabulary."
-- "I'm afraid I'll just sit there silently, and they'll judge me."
+- "I want to see my abuela's face light up when I actually speak to her in Spanish—not just nod along while she talks"
+- "I want to share memories with my grandfather in his language, not through translation"
+- "I want my family to see that I care enough to reconnect with my roots, not just survive as the 'American cousin'"
+- "I want real conversations with emotional depth—not just 'Como estas?' small talk"
 
 ### The "Signal" He's Desperate For
 
