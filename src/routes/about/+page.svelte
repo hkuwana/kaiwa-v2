@@ -90,7 +90,7 @@
 	<title>About Kaiwa</title>
 	<meta
 		name="description"
-		content="Practice real conversations. Build genuine confidence. Connect with the people who matter."
+		content="Go beyond Duolingo basics. Have real conversations with loved ones that make their faces light up with pride when you speak."
 	/>
 </svelte:head>
 
@@ -103,7 +103,7 @@
 					class="mb-12 text-4xl leading-tight font-light tracking-tight md:text-5xl lg:text-6xl"
 					in:fade={{ duration: 1000 }}
 				>
-					Duolingo teaches you words.
+					Duolingo teaches you "Where is the bathroom?"
 				</h1>
 			{/if}
 			{#if showHero2}
@@ -111,7 +111,7 @@
 					class="mb-12 text-4xl leading-tight font-light tracking-tight md:text-5xl lg:text-6xl"
 					in:fade={{ duration: 1000 }}
 				>
-					Kaiwa teaches you how to connect.
+					Kaiwa helps you see your loved one's face light up when you speak.
 				</h1>
 			{/if}
 		</div>
@@ -125,8 +125,7 @@
 					class="mb-8 text-2xl leading-relaxed font-light tracking-wide opacity-90 md:text-3xl lg:text-4xl"
 					in:fade={{ duration: 1000 }}
 				>
-					It's a conversation coach that helps you practice the real-life conversations you need to
-					have with the people you love.
+					Practice real conversations with someone you care about—not just tourist phrases.
 				</p>
 			{/if}
 			{#if showWhatItIs2}
@@ -134,8 +133,7 @@
 					class="text-xl leading-relaxed font-light tracking-wide opacity-70 md:text-2xl lg:text-3xl"
 					in:fade={{ duration: 1000 }}
 				>
-					It's the fastest way to go from 'studying' a language to actually 'speaking' it with
-					confidence.
+					So when you speak, they see the effort you put in—and their face lights up with pride.
 				</p>
 			{/if}
 		</div>
@@ -155,10 +153,10 @@
 				{#if showDifference}
 					<div in:fade={{ duration: 800 }}>
 						<p class="mb-4 text-3xl font-light tracking-tight opacity-50 md:text-4xl">
-							Most apps teach vocabulary.
+							Duolingo teaches tourist basics.
 						</p>
 						<p class="text-3xl font-light tracking-tight md:text-4xl">
-							Kaiwa teaches conversations.
+							Kaiwa helps you connect with loved ones.
 						</p>
 					</div>
 				{/if}

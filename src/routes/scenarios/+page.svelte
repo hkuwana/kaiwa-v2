@@ -87,10 +87,10 @@
 </script>
 
 <svelte:head>
-	<title>Practice Scenarios - Flight Simulator for the Heart | Kaiwa</title>
+	<title>Practice Scenarios - Real Conversations With Loved Ones | Kaiwa</title>
 	<meta
 		name="description"
-		content="Explore all conversation scenarios on Kaiwa. From building confidence to high-stakes family dinners, practice the conversations that matter most."
+		content="Practice conversations with your partner's family, reconnect with grandparents, or surprise someone you love. Go beyond tourist phrases."
 	/>
 </svelte:head>
 
