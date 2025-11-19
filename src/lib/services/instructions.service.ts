@@ -95,7 +95,10 @@ export function createScenarioSessionConfig(
 	});
 	const initialMessage = generateScenarioGreeting({ language, scenario, user });
 
-	console.log('%c📝 FULL INSTRUCTIONS BEING SENT TO OPENAI', 'color: blue; font-weight: bold; font-size: 14px;');
+	console.log(
+		'%c📝 FULL INSTRUCTIONS BEING SENT TO OPENAI',
+		'color: blue; font-weight: bold; font-size: 14px;'
+	);
 	console.log({
 		speaker: speaker?.voiceName || 'default',
 		language: language.code,

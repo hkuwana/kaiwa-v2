@@ -156,7 +156,10 @@
 
 <svelte:head>
 	<title>Kaiwa - Practice Real Conversations With Loved Ones</title>
-	<meta name="description" content="Go beyond Duolingo basics. Practice conversations that make your loved ones' faces light up with pride when you speak." />
+	<meta
+		name="description"
+		content="Go beyond Duolingo basics. Practice conversations that make your loved ones' faces light up with pride when you speak."
+	/>
 </svelte:head>
 
 <div

@@ -224,7 +224,11 @@
 
 			<!-- Subscription Renewal/End Date -->
 			{#if usageStatus?.tier.id !== 'free' && (subscriptionStatus || isLoadingStatus)}
-				<div class="mt-4 alert {subscriptionStatus?.willCancelAtPeriodEnd ? 'alert-warning' : 'alert-info'}">
+				<div
+					class="mt-4 alert {subscriptionStatus?.willCancelAtPeriodEnd
+						? 'alert-warning'
+						: 'alert-info'}"
+				>
 					{#if isLoadingStatus}
 						<span class="loading loading-sm loading-spinner"></span>
 						<span>Loading subscription details...</span>
@@ -234,9 +238,10 @@
 							<div>
 								<h3 class="font-bold">Subscription Ending</h3>
 								<div class="text-sm">
-									Your subscription will end on <strong>{formatDate(subscriptionStatus.currentPeriodEnd)}</strong>.
-									You'll continue to have access to {usageStatus?.tier.id} features until then.
-									You can reactivate anytime before this date.
+									Your subscription will end on <strong
+										>{formatDate(subscriptionStatus.currentPeriodEnd)}</strong
+									>. You'll continue to have access to {usageStatus?.tier.id} features until then. You
+									can reactivate anytime before this date.
 								</div>
 							</div>
 						{:else if subscriptionStatus.currentPeriodEnd}
@@ -244,7 +249,9 @@
 							<div>
 								<h3 class="font-bold">Next Billing Date</h3>
 								<div class="text-sm">
-									Your subscription will renew on <strong>{formatDate(subscriptionStatus.currentPeriodEnd)}</strong>
+									Your subscription will renew on <strong
+										>{formatDate(subscriptionStatus.currentPeriodEnd)}</strong
+									>
 									({subscriptionStatus.billingCycle === 'year' ? 'annual' : 'monthly'} billing).
 								</div>
 							</div>

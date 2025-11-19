@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-import { onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import { posthogManager } from '$lib/client/posthog';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { SubscriptionTier } from '$lib/enums.js';
@@ -155,20 +155,20 @@ import { onMount } from 'svelte';
 		];
 	}
 
-function getCycleFromQuery(): 'monthly' | 'annual' | null {
-	if (typeof window === 'undefined') return null;
-	const searchParams = new URLSearchParams(window.location.search);
-	const cycle = searchParams.get('billing')?.toLowerCase();
-	return cycle === 'monthly' || cycle === 'annual' ? cycle : null;
-}
-
-onMount(() => {
-	const cycle = getCycleFromQuery();
-	if (cycle) {
-		selectedPlan = cycle;
+	function getCycleFromQuery(): 'monthly' | 'annual' | null {
+		if (typeof window === 'undefined') return null;
+		const searchParams = new URLSearchParams(window.location.search);
+		const cycle = searchParams.get('billing')?.toLowerCase();
+		return cycle === 'monthly' || cycle === 'annual' ? cycle : null;
 	}
-	posthogManager.trackEvent('pricing_page_viewed', { plan: selectedPlan });
-});
+
+	onMount(() => {
+		const cycle = getCycleFromQuery();
+		if (cycle) {
+			selectedPlan = cycle;
+		}
+		posthogManager.trackEvent('pricing_page_viewed', { plan: selectedPlan });
+	});
 
 	function isCurrentTier(tier: SubscriptionTier): boolean {
 		return currentTier?.toLowerCase() === tier.toLowerCase();
@@ -375,7 +375,8 @@ onMount(() => {
 				Practice Real Conversations With Loved Ones
 			</h1>
 			<p class="mx-auto max-w-3xl text-lg text-base-content/70 lg:text-xl">
-				Go beyond Duolingo basics. Practice the conversations that matter—so you can see their face light up with pride when you speak.
+				Go beyond Duolingo basics. Practice the conversations that matter—so you can see their face
+				light up with pride when you speak.
 			</p>
 			<div class="mt-6 flex justify-center space-x-6 text-sm opacity-70">
 				<span>✓ Free trial included</span>

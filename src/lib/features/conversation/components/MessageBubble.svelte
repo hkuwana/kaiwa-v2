@@ -312,7 +312,6 @@
 						activeIndex={normalizedActiveWordIndex}
 					/>
 				{:else if highlightedContent()}
-					<!-- svelte-ignore no-at-html-tags -->
 					<!-- Safe: highlightedContent() returns sanitized HTML for text highlighting -->
 					{@html highlightedContent()}
 				{:else}

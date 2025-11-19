@@ -209,9 +209,7 @@ export const POST = async ({ params, cookies, request }) => {
 				return json(createSuccessResponse(result));
 			}
 
-			const existingMemories = normalizeMemoriesList(
-				currentPreferences.memories as unknown
-			);
+			const existingMemories = normalizeMemoriesList(currentPreferences.memories as unknown);
 			const formattedMemory = formatMemoryEntry(memory);
 			const mergedMemories =
 				formattedMemory && !existingMemories.includes(formattedMemory)

@@ -339,7 +339,10 @@ Tiers
 		const contextSections: string[] = [];
 
 		if (memories.length > 0) {
-			const top = memories.slice(0, 4).map((memory) => `  - ${memory}`).join('\n');
+			const top = memories
+				.slice(0, 4)
+				.map((memory) => `  - ${memory}`)
+				.join('\n');
 			contextSections.push(`- Learner facts (weave naturally):\n${top}`);
 		}
 
@@ -364,9 +367,7 @@ Tiers
 		}
 		const specificGoals = preferences?.specificGoals as string[];
 		if (Array.isArray(specificGoals) && specificGoals.length > 0) {
-			preferencesLines.push(
-				`  - Focus targets: ${specificGoals.slice(0, 3).join(', ')}`
-			);
+			preferencesLines.push(`  - Focus targets: ${specificGoals.slice(0, 3).join(', ')}`);
 		}
 		const comfortZone = preferences?.comfortZone as string[];
 		if (Array.isArray(comfortZone) && comfortZone.length > 0) {
@@ -385,7 +386,10 @@ Tiers
 
 		const learningObjectives = scenario?.learningObjectives;
 		if (Array.isArray(learningObjectives) && learningObjectives.length > 0) {
-			const objectives = learningObjectives.slice(0, 3).map((obj) => `  - ${obj}`).join('\n');
+			const objectives = learningObjectives
+				.slice(0, 3)
+				.map((obj) => `  - ${obj}`)
+				.join('\n');
 			contextSections.push(`- Scenario focus:\n${objectives}`);
 		}
 
@@ -684,10 +688,7 @@ ${regionalInfo.join('\n')}`);
 		}
 
 		// Learner background with database memories + preferences
-		const learnerBackgroundSection = this.buildLearnerBackgroundSection(
-			preferences,
-			finalMemories
-		);
+		const learnerBackgroundSection = this.buildLearnerBackgroundSection(preferences, finalMemories);
 		if (learnerBackgroundSection) {
 			contextSections.push(learnerBackgroundSection);
 		}

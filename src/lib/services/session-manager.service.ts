@@ -15,14 +15,17 @@ export function createSessionConfig(
 	if (!isValidVoice(voice)) {
 		console.warn(
 			`⚠️ Invalid voice "${voice}" for language "${language.name}". ` +
-			`Falling back to default voice "${DEFAULT_VOICE}". ` +
-			`Valid voices are: alloy, ash, ballad, coral, echo, sage, shimmer, verse`
+				`Falling back to default voice "${DEFAULT_VOICE}". ` +
+				`Valid voices are: alloy, ash, ballad, coral, echo, sage, shimmer, verse`
 		);
 		validatedVoice = DEFAULT_VOICE;
 	}
 
 	// 📝 Log the session config being sent
-	console.log('%c📝 SESSION CONFIG BEING SENT TO OPENAI', 'color: green; font-weight: bold; font-size: 14px;');
+	console.log(
+		'%c📝 SESSION CONFIG BEING SENT TO OPENAI',
+		'color: green; font-weight: bold; font-size: 14px;'
+	);
 	console.log({
 		language: language.code,
 		voice: validatedVoice,
@@ -97,8 +100,8 @@ export function createSessionUpdateConfig(
 	if (!isValidVoice(voice)) {
 		console.warn(
 			`⚠️ Invalid voice "${voice}" for language "${language.name}". ` +
-			`Falling back to default voice "${DEFAULT_VOICE}". ` +
-			`Valid voices are: alloy, ash, ballad, coral, echo, sage, shimmer, verse`
+				`Falling back to default voice "${DEFAULT_VOICE}". ` +
+				`Valid voices are: alloy, ash, ballad, coral, echo, sage, shimmer, verse`
 		);
 		validatedVoice = DEFAULT_VOICE;
 	}
@@ -107,7 +110,10 @@ export function createSessionUpdateConfig(
 		updates.instructions || `You are a helpful language tutor for ${language.name || 'English'}.`;
 
 	// 📝 Log the session update config
-	console.log('%c📝 SESSION UPDATE CONFIG BEING SENT TO OPENAI', 'color: orange; font-weight: bold; font-size: 14px;');
+	console.log(
+		'%c📝 SESSION UPDATE CONFIG BEING SENT TO OPENAI',
+		'color: orange; font-weight: bold; font-size: 14px;'
+	);
 	console.log({
 		language: language.code,
 		voice: validatedVoice,
