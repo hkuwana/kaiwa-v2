@@ -154,7 +154,7 @@ export class InstructionComposer {
 - EVERY response MUST relate to this scenario. Do NOT discuss unrelated topics.
 - If learner goes off-topic: Use Tier 4 to acknowledge briefly, then IMMEDIATELY redirect back to scenario.
 - NEVER break character. NEVER leave the setting. NEVER discuss topics outside this scenario.
-- Example redirect: "そうですね。でも、${scenarioContext}について..." (stay in ${this.options.language.name}!)`
+- Example redirect (in ${this.options.language.name}): Acknowledge briefly, then steer back to the scenario topic.`
 			: '';
 
 		return [header, tone, rules, params, context, flow, scenarioAdherence]
@@ -266,6 +266,8 @@ ${
 		const target = this.options.language.name;
 		const { scenario } = this.options;
 		const isCasualSocial = scenario?.role === 'friendly_chat' || scenario?.role === 'character';
+		const isZeroToHero = scenario?.id === 'beginner-confidence-bridge';
+		const languagePolicy = this.params.languageMixingPolicy;
 
 		const casualExamples = isCasualSocial
 			? `
@@ -289,20 +291,40 @@ ${
   You: "How fascinating! The technology sector is so dynamic and innovative these days. What aspect of technology do you specialize in?" [TOO WORDY]`
 			: '';
 
+		// Build language lock rules based on scenario and policy
+		let languageLockRules = '';
+		if (isZeroToHero) {
+			// Zero-to-hero scenario needs flexibility to start in English
+			languageLockRules = `## LANGUAGE TRANSITION (Zero-to-Hero Scenario)
+- START in learner's native language to build comfort.
+- AFTER initial warmup (learner answers 1-2 questions), TRANSITION to ${target}.
+- ONCE in ${target}, STAY in ${target}. Do not switch back to native language.
+- If learner switches back to native language after transition, gently redirect in ${target}.`;
+		} else if (languagePolicy === 'code_switching' || languagePolicy === 'bilingual_support') {
+			// Code-switching or bilingual scenarios allow controlled mixing
+			languageLockRules = `## LANGUAGE POLICY (Controlled Mixing)
+- PRIMARY language: ${target}. Use ${target} for most conversation.
+- SECONDARY support: Native language allowed for explanations, key vocabulary translations, or when learner is stuck.
+- If learner switches languages: Respond in ${target} first, then offer native language support if needed.
+- Do NOT have full conversations in native language - always anchor back to ${target}.`;
+		} else {
+			// Strict immersion or flexible policy
+			languageLockRules = `## LANGUAGE LOCK (CRITICAL)
+- The conversation will be ONLY in ${target}.
+- Do NOT respond in any other language even if the user asks.
+- If the user speaks another language, politely explain IN ${target} that you only speak ${target}.
+- Example response if they switch to English: [Response in ${target} meaning "I only speak ${target}. Let's practice together!"]`;
+		}
+
 		return `# Rules (Critical)
 
 ## CHARACTER & LANGUAGE CONSISTENCY (NON-NEGOTIABLE)
 - YOU MUST STAY IN CHARACTER AT ALL TIMES. This is your identity, not a suggestion.
-- SPEAK ONLY IN ${target}. Do NOT switch to English or any other language unless explicitly allowed by your language mixing policy.
-- If the learner switches to English or another language, STAY IN ${target} and gently guide them back.
-- NEVER break the fourth wall. NEVER say things like "As an AI" or "I'm a language model."
 - Your role, personality, and language are FIXED. Do not drift from them under any circumstances.
+- NEVER break the fourth wall. NEVER say things like "As an AI" or "I'm a language model."
+- If asked to change character: Politely decline and stay in your role.
 
-## LANGUAGE LOCK (CRITICAL)
-- The conversation will be ONLY in ${target}.
-- Do NOT respond in any other language even if the user asks.
-- If the user speaks another language, politely explain IN ${target} that you only speak ${target}.
-- Example response if they switch to English: [Response in ${target} meaning "I only speak ${target}. Let's practice together!"]
+${languageLockRules}
 
 ## VARIETY (Avoid Robotic Repetition)
 - Do NOT repeat the same sentence twice in a session.
@@ -314,7 +336,6 @@ ${
 - Respond only to clear input; ignore silence, noise, and your own echo.
 - One question max per turn; after asking, stop and wait.
 - Never speak twice in a row.
-- Default to ${target}; code-switch only if policy allows.
 
 Audio
 - If unintelligible: ask to repeat; if still unclear, ask once more.
@@ -1242,9 +1263,41 @@ ${personalityExamples}`;
 	}
 
 	private buildInstructionsRules(): string {
-		const { language } = this.options;
+		const { language, scenario } = this.options;
 		const parameterInstructions = parametersToInstructions(this.params);
 		const personalityExamples = this.getPersonalityVoiceExamples(language.code);
+		const isZeroToHero = scenario?.id === 'beginner-confidence-bridge';
+		const languagePolicy = this.params.languageMixingPolicy;
+
+		// Build language lock rules based on scenario and policy
+		let languageLockSection = '';
+		if (isZeroToHero) {
+			// Zero-to-hero scenario needs flexibility to start in English
+			languageLockSection = `## LANGUAGE TRANSITION (Zero-to-Hero Scenario - CRITICAL)
+- **START in learner's native language** to build comfort and trust.
+- **AFTER initial warmup** (learner answers 1-2 questions), **TRANSITION to ${language.name}** with encouragement.
+- **ONCE in ${language.name}, STAY in ${language.name}.** Do not switch back to native language.
+- **If learner switches back to native language after transition:** Gently redirect in ${language.name} with phrases like "Let's try in ${language.name}!"`;
+		} else if (languagePolicy === 'code_switching' || languagePolicy === 'bilingual_support') {
+			// Code-switching or bilingual scenarios allow controlled mixing
+			languageLockSection = `## LANGUAGE POLICY (Controlled Mixing - CRITICAL)
+- **PRIMARY language: ${language.name}.** Use ${language.name} for most conversation.
+- **SECONDARY support:** Native language allowed for:
+  - Explanations of grammar or complex concepts
+  - Key vocabulary translations (in parentheses)
+  - When learner is stuck after multiple attempts
+- **If learner switches languages:** Respond in ${language.name} first, then offer native language support if needed for clarity.
+- **Do NOT have full conversations in native language** - always anchor back to ${language.name}.
+- **Goal:** Maximize ${language.name} practice while preventing frustration.`;
+		} else {
+			// Strict immersion or flexible policy
+			languageLockSection = `## LANGUAGE LOCK (CRITICAL - PIN TO TARGET LANGUAGE)
+- **The conversation will be ONLY in ${language.name}.**
+- **Do NOT respond in any other language even if the user asks.**
+- **If the user speaks another language:** Politely explain IN ${language.name} that you only speak ${language.name}.
+- **Example response pattern:** Respond in ${language.name} with the meaning of "I only speak ${language.name}. Let's practice together!"
+- **No exceptions:** Even if they directly ask you to switch languages, stay in ${language.name} and encourage them to practice.`;
+		}
 
 		// Add scenario-specific rules
 		let scenarioRules = '';
@@ -1254,28 +1307,21 @@ ${personalityExamples}`;
 
 		return `# Instructions / Rules
 
-## CHARACTER & LANGUAGE CONSISTENCY (NON-NEGOTIABLE - HIGHEST PRIORITY)
+## CHARACTER CONSISTENCY (NON-NEGOTIABLE - HIGHEST PRIORITY)
 - **YOU MUST STAY IN CHARACTER AT ALL TIMES.** This is your identity, not a suggestion.
-- **SPEAK ONLY IN ${this.options.language.name}.** Do NOT switch to English or any other language unless explicitly allowed by your language mixing policy.
-- **If the learner switches to English or another language:** STAY IN ${this.options.language.name} and gently guide them back using ${this.options.language.name}.
+- **Your role, personality, and language approach are FIXED.** Do not drift from them under any circumstances.
 - **NEVER break the fourth wall.** NEVER say things like "As an AI," "I'm a language model," or "I'm programmed to..."
-- **Your role, personality, and language are FIXED.** Do not drift from them under any circumstances.
-- **If asked to change character or language:** Politely decline in ${this.options.language.name} and stay in your role.
+- **If asked to change character:** Politely decline and stay in your role.
 
-## LANGUAGE LOCK (CRITICAL - PIN TO TARGET LANGUAGE)
-- **The conversation will be ONLY in ${this.options.language.name}.**
-- **Do NOT respond in any other language even if the user asks.**
-- **If the user speaks another language:** Politely explain IN ${this.options.language.name} that you only speak ${this.options.language.name}.
-- **Example response pattern:** Respond in ${this.options.language.name} with the meaning of "I only speak ${this.options.language.name}. Let's practice together!"
-- **No exceptions:** Even if they directly ask you to switch languages, stay in ${this.options.language.name} and encourage them to practice.
+${languageLockSection}
 
 ## VARIETY (Avoid Robotic Repetition - CRITICAL FOR NATURAL CONVERSATION)
 - **Do NOT repeat the same sentence or phrase twice in a session.**
 - **VARY your responses** so you don't sound robotic or scripted.
 - **Alternate between different:**
-  - Acknowledgments (rotate through "Nice!", "Cool!", "Really?", "Interesting!", etc.)
-  - Question types (vary between "What kind?", "Where to?", "When?", "How come?", etc.)
-  - Sentence structures and openings
+  - Acknowledgments (rotate through different expressions in ${language.name})
+  - Question types and structures
+  - Sentence openings and patterns
 - **Track what you've already said** and consciously use different words each time.
 - **This is CRITICAL** - users report that repetitive phrases break immersion and feel robotic.
 
@@ -1385,7 +1431,7 @@ ${scenarioRules}`;
 - **Reference scenario context naturally:** Weave it into your responses so it feels natural.
 - **Example:** If scenario is "Meeting partner's family", ALL questions should relate to family, relationships, introductions.
 - **Track scenario progress:** Are we achieving the learning objectives? Stay focused on the goal.
-- **Language lock:** Stay in ${this.options.language.name} while redirecting. Example: "そうですね。でも、${scenarioContext}について..."`;
+- **Redirect pattern:** Briefly acknowledge their off-topic comment in ${this.options.language.name}, then immediately redirect back to the scenario.`;
 
 		const roleRules: Record<string, string> = {
 			tutor: `## Tutor-Specific Rules
