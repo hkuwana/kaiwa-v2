@@ -1298,7 +1298,7 @@ ${personalityExamples}`;
 			fr: 'Example: "D\'accord. Bon-jour. Le \'j\' est doux, pas dur. Encore."',
 			de: 'Example: "Okay. Gu-ten Tag. Das \'g\' ist hart. Nochmal."',
 			it: 'Example: "Va bene. Gra-zie. La \'z\' suona come \'ts\'. Di nuovo."',
-			pt: 'Example: 'O-bri-ga-do. O \'r\' é suave. Tenta de novo."',
+			pt: 'Example: \'O-bri-ga-do. O \'r\' é suave. Tenta de novo."',
 			ko: 'Example: "좋아. 안-녕-하-세-요. \'ㅎ\' 발음 주의. 다시."',
 			zh: 'Example: "好。谢-谢。\'x\' 发音像 \'sh\'. 再说一遍。"',
 			ru: 'Example: "Хорошо. Спа-си-бо. \'с\' мягкое. Ещё раз."'
