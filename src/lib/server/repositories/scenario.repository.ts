@@ -34,6 +34,19 @@ export const scenarioRepository = {
 		return db.query.scenarios.findFirst({ where: eq(scenarios.id, id) });
 	},
 
+	async findScenarioByShareSlug(shareSlug: string): Promise<Scenario | undefined> {
+		return db.query.scenarios.findFirst({
+			where: and(eq(scenarios.shareSlug, shareSlug), eq(scenarios.isActive, true))
+		});
+	},
+
+	async findScenarioByIdOrSlug(idOrSlug: string): Promise<Scenario | undefined> {
+		// Try to find by shareSlug first, then by ID
+		const bySlug = await this.findScenarioByShareSlug(idOrSlug);
+		if (bySlug) return bySlug;
+		return this.findScenarioById(idOrSlug);
+	},
+
 	async listUserScenarios(options: {
 		userId: string;
 		visibility?: ScenarioVisibility;
