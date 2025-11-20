@@ -219,12 +219,12 @@
 						<input
 							type="text"
 							placeholder="Search scenarios..."
-							class="input input-bordered w-full rounded-full pr-4 pl-12 shadow-sm transition-all focus:shadow-md"
+							class="input-bordered input w-full rounded-full pr-4 pl-12 shadow-sm transition-all focus:shadow-md"
 							bind:value={searchQuery}
 						/>
 						{#if searchQuery}
 							<button
-								class="btn absolute top-1/2 right-2 -translate-y-1/2 btn-circle btn-ghost btn-sm"
+								class="btn absolute top-1/2 right-2 btn-circle -translate-y-1/2 btn-ghost btn-sm"
 								onclick={() => (searchQuery = '')}
 							>
 								<span class="icon-[mdi--close] h-4 w-4"></span>
@@ -237,7 +237,7 @@
 				{#if !isGuest}
 					<div class="mt-6">
 						<button
-							class="btn btn-primary gap-2 shadow-md hover:shadow-lg"
+							class="btn gap-2 shadow-md btn-primary hover:shadow-lg"
 							onclick={() => (isCreatorOpen = true)}
 						>
 							<span class="icon-[mdi--plus-circle] h-5 w-5"></span>
@@ -264,9 +264,17 @@
 						{@const meta = getScenarioMeta(scenario)}
 						{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
 						{@const userOwned = isUserOwned(scenario)}
-						<button
-							class="group card overflow-hidden rounded-2xl border border-base-content/10 bg-base-100 text-left shadow-sm transition-all hover:border-primary/30 hover:shadow-lg"
+						<div
+							role="button"
+							tabindex="0"
+							class="group card overflow-hidden rounded-2xl border border-base-content/10 bg-base-100 text-left shadow-sm transition-all hover:border-primary/30 hover:shadow-lg cursor-pointer"
 							onclick={() => openScenarioDetails(scenario)}
+							onkeydown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									e.preventDefault();
+									openScenarioDetails(scenario);
+								}
+							}}
 						>
 							<!-- Thumbnail or placeholder -->
 							{#if scenario.thumbnailUrl}
@@ -279,7 +287,7 @@
 									<!-- Favorite badge overlay -->
 									<div class="absolute top-3 right-3">
 										<button
-											class="btn btn-circle btn-sm border-none bg-base-100/90 shadow-md backdrop-blur-sm transition-transform hover:scale-110 hover:bg-base-100"
+											class="btn btn-circle border-none bg-base-100/90 shadow-md backdrop-blur-sm transition-transform btn-sm hover:scale-110 hover:bg-base-100"
 											onclick={(e) => toggleFavorite(scenario.id, e)}
 											aria-label="Unfavorite scenario"
 										>
@@ -301,7 +309,7 @@
 									<!-- Favorite badge overlay -->
 									<div class="absolute top-3 right-3">
 										<button
-											class="btn btn-circle btn-sm border-none bg-base-100/90 shadow-md backdrop-blur-sm transition-transform hover:scale-110 hover:bg-base-100"
+											class="btn btn-circle border-none bg-base-100/90 shadow-md backdrop-blur-sm transition-transform btn-sm hover:scale-110 hover:bg-base-100"
 											onclick={(e) => toggleFavorite(scenario.id, e)}
 											aria-label="Unfavorite scenario"
 										>
@@ -366,14 +374,14 @@
 								<!-- Actions -->
 								<div class="flex gap-2">
 									<button
-										class="btn btn-primary btn-sm flex-1 gap-1 shadow-sm"
+										class="btn flex-1 gap-1 shadow-sm btn-sm btn-primary"
 										onclick={(e) => handleTryScenario(scenario, e)}
 									>
 										<span class="icon-[mdi--play] h-4 w-4"></span>
 										<span>Start</span>
 									</button>
 									<button
-										class="btn btn-ghost btn-sm btn-square"
+										class="btn btn-square btn-ghost btn-sm"
 										onclick={(e) => shareScenario(scenario, e)}
 										aria-label="Share scenario"
 									>
@@ -381,7 +389,7 @@
 									</button>
 									{#if userOwned}
 										<button
-											class="btn btn-ghost btn-sm btn-square"
+											class="btn btn-square btn-ghost btn-sm"
 											onclick={(e) => handleEdit(scenario, e)}
 											aria-label="Edit scenario"
 										>
@@ -390,7 +398,7 @@
 									{/if}
 								</div>
 							</div>
-						</button>
+						</div>
 					{/each}
 				</div>
 			</div>
@@ -411,9 +419,17 @@
 						{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
 						{@const userOwned = isUserOwned(scenario)}
 						{@const isFavorited = savedScenarioIds.has(scenario.id)}
-						<button
-							class="group card overflow-hidden rounded-2xl border border-base-content/10 bg-base-100 text-left shadow-sm transition-all hover:border-primary/30 hover:shadow-lg"
+						<div
+							role="button"
+							tabindex="0"
+							class="group card overflow-hidden rounded-2xl border border-base-content/10 bg-base-100 text-left shadow-sm transition-all hover:border-primary/30 hover:shadow-lg cursor-pointer"
 							onclick={() => openScenarioDetails(scenario)}
+							onkeydown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									e.preventDefault();
+									openScenarioDetails(scenario);
+								}
+							}}
 						>
 							<!-- Thumbnail or placeholder -->
 							{#if scenario.thumbnailUrl}
@@ -427,7 +443,7 @@
 									{#if !isGuest}
 										<div class="absolute top-3 right-3">
 											<button
-												class="btn btn-circle btn-sm border-none bg-base-100/90 shadow-md backdrop-blur-sm transition-transform hover:scale-110 hover:bg-base-100"
+												class="btn btn-circle border-none bg-base-100/90 shadow-md backdrop-blur-sm transition-transform btn-sm hover:scale-110 hover:bg-base-100"
 												onclick={(e) => toggleFavorite(scenario.id, e)}
 												aria-label={isFavorited ? 'Unfavorite scenario' : 'Favorite scenario'}
 											>
@@ -455,7 +471,7 @@
 									{#if !isGuest}
 										<div class="absolute top-3 right-3">
 											<button
-												class="btn btn-circle btn-sm border-none bg-base-100/90 shadow-md backdrop-blur-sm transition-transform hover:scale-110 hover:bg-base-100"
+												class="btn btn-circle border-none bg-base-100/90 shadow-md backdrop-blur-sm transition-transform btn-sm hover:scale-110 hover:bg-base-100"
 												onclick={(e) => toggleFavorite(scenario.id, e)}
 												aria-label={isFavorited ? 'Unfavorite scenario' : 'Favorite scenario'}
 											>
@@ -525,14 +541,14 @@
 								<!-- Actions -->
 								<div class="flex gap-2">
 									<button
-										class="btn btn-primary btn-sm flex-1 gap-1 shadow-sm"
+										class="btn flex-1 gap-1 shadow-sm btn-sm btn-primary"
 										onclick={(e) => handleTryScenario(scenario, e)}
 									>
 										<span class="icon-[mdi--play] h-4 w-4"></span>
 										<span>Start</span>
 									</button>
 									<button
-										class="btn btn-ghost btn-sm btn-square"
+										class="btn btn-square btn-ghost btn-sm"
 										onclick={(e) => shareScenario(scenario, e)}
 										aria-label="Share scenario"
 									>
@@ -540,7 +556,7 @@
 									</button>
 									{#if userOwned}
 										<button
-											class="btn btn-ghost btn-sm btn-square"
+											class="btn btn-square btn-ghost btn-sm"
 											onclick={(e) => handleEdit(scenario, e)}
 											aria-label="Edit scenario"
 										>
@@ -549,7 +565,7 @@
 									{/if}
 								</div>
 							</div>
-						</button>
+						</div>
 					{/each}
 				</div>
 			</div>
@@ -561,16 +577,14 @@
 				<span class="mb-4 icon-[mdi--magnify-close] inline-block h-16 w-16 text-base-content/20"
 				></span>
 				<p class="text-lg text-base-content/50">
-					{searchQuery
-						? `No scenarios found matching "${searchQuery}"`
-						: 'No scenarios available'}
+					{searchQuery ? `No scenarios found matching "${searchQuery}"` : 'No scenarios available'}
 				</p>
 				{#if searchQuery}
-					<button class="btn mt-4 btn-primary btn-sm" onclick={() => (searchQuery = '')}>
+					<button class="btn mt-4 btn-sm btn-primary" onclick={() => (searchQuery = '')}>
 						Clear search
 					</button>
 				{/if}
-			</div}
+			</div>
 		{/if}
 	</section>
 
@@ -584,11 +598,11 @@
 				Practice the exact moments that matter to you. AI-assisted and personalized.
 			</p>
 			{#if isGuest}
-				<a href="/auth?from=scenarios" class="btn btn-primary btn-lg shadow-md">
+				<a href="/auth?from=scenarios" class="btn shadow-md btn-lg btn-primary">
 					Sign Up to Create
 				</a>
 			{:else}
-				<button class="btn btn-primary btn-lg shadow-md" onclick={() => (isCreatorOpen = true)}>
+				<button class="btn shadow-md btn-lg btn-primary" onclick={() => (isCreatorOpen = true)}>
 					<span class="icon-[mdi--plus-circle] h-5 w-5"></span>
 					<span>Create Scenario</span>
 				</button>
@@ -612,7 +626,7 @@
 		>
 			<!-- Close button -->
 			<button
-				class="btn btn-circle btn-ghost btn-sm absolute top-4 right-4 z-10"
+				class="btn absolute top-4 right-4 z-10 btn-circle btn-ghost btn-sm"
 				onclick={closeScenarioDetails}
 				aria-label="Close"
 			>
@@ -718,8 +732,8 @@
 						<ul class="grid gap-2 md:grid-cols-2">
 							{#each scenario.learningObjectives as objective}
 								<li class="flex items-start gap-2">
-									<span class="icon-[mdi--check] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
-									<span class="capitalize text-base-content/80">{objective}</span>
+									<span class="mt-0.5 icon-[mdi--check] h-5 w-5 shrink-0 text-success"></span>
+									<span class="text-base-content/80 capitalize">{objective}</span>
 								</li>
 							{/each}
 						</ul>
@@ -729,22 +743,19 @@
 				<!-- Actions -->
 				<div class="flex gap-3">
 					<button
-						class="btn btn-primary flex-1 gap-2 shadow-md"
+						class="btn flex-1 gap-2 shadow-md btn-primary"
 						onclick={(e) => handleTryScenario(scenario, e)}
 					>
 						<span class="icon-[mdi--play] h-5 w-5"></span>
 						<span>Start Scenario</span>
 					</button>
-					<button
-						class="btn btn-ghost gap-2"
-						onclick={(e) => shareScenario(scenario, e)}
-					>
+					<button class="btn gap-2 btn-ghost" onclick={(e) => shareScenario(scenario, e)}>
 						<span class="icon-[mdi--share-variant] h-5 w-5"></span>
 						<span>Share</span>
 					</button>
 					{#if !isGuest}
 						<button
-							class="btn btn-ghost btn-square"
+							class="btn btn-square btn-ghost"
 							onclick={(e) => toggleFavorite(scenario.id, e)}
 							aria-label={savedScenarioIds.has(scenario.id)
 								? 'Unfavorite scenario'
