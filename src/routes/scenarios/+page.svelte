@@ -4,6 +4,7 @@
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { tryScenarioNow } from '$lib/services/scenarios/scenario-interaction.service';
 	import ScenarioCreatorModal from '$lib/features/scenarios/components/ScenarioCreatorModal.svelte';
+	import { notificationStore } from '$lib/stores/notification.store.svelte';
 
 	const { data } = $props();
 	const user = userManager.user;
@@ -13,8 +14,7 @@
 	let searchQuery = $state('');
 	let isCreatorOpen = $state(false);
 	let savedScenarioIds = $state<Set<string>>(new Set(data.savedScenarioIds || []));
-	let isSavingScenario = $state<Record<string, boolean>>({});
-	let copiedScenarioId = $state<string | null>(null);
+	let selectedScenario = $state<Scenario | null>(null); // For modal overlay
 
 	const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
 
@@ -65,12 +65,24 @@
 		expert: 'Expert Advice'
 	};
 
+	// Placeholder image function - generates a nice gradient based on scenario role
+	function getPlaceholderImage(scenario: Scenario): string {
+		const gradients: Record<string, string> = {
+			tutor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+			character: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+			friendly_chat: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+			expert: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+		};
+		return gradients[scenario.role] || gradients.tutor;
+	}
+
 	function getScenarioMeta(scenario: Scenario) {
 		const rating = scenario.difficultyRating ?? 1;
 		return getDifficultyLevel(rating);
 	}
 
-	function handleTryScenario(scenario: Scenario) {
+	function handleTryScenario(scenario: Scenario, event?: Event) {
+		event?.stopPropagation();
 		tryScenarioNow(scenario);
 	}
 
@@ -78,17 +90,36 @@
 		return scenario.createdByUserId === user.id;
 	}
 
-	async function toggleFavorite(scenarioId: string) {
+	function openScenarioDetails(scenario: Scenario) {
+		selectedScenario = scenario;
+	}
+
+	function closeScenarioDetails() {
+		selectedScenario = null;
+	}
+
+	async function toggleFavorite(scenarioId: string, event?: Event) {
+		// Prevent card click when clicking favorite button
+		event?.stopPropagation();
+
 		if (isGuest) {
 			// Redirect to auth
 			window.location.href = '/auth?from=scenarios&message=Sign in to favorite scenarios';
 			return;
 		}
 
-		isSavingScenario[scenarioId] = true;
+		const isSaved = savedScenarioIds.has(scenarioId);
 
+		// Optimistic update - update UI immediately
+		if (isSaved) {
+			savedScenarioIds.delete(scenarioId);
+		} else {
+			savedScenarioIds.add(scenarioId);
+		}
+		savedScenarioIds = new Set(savedScenarioIds);
+
+		// Save in background
 		try {
-			const isSaved = savedScenarioIds.has(scenarioId);
 			const method = isSaved ? 'DELETE' : 'POST';
 
 			const response = await fetch(`/api/scenarios/${scenarioId}/save`, {
@@ -96,48 +127,61 @@
 			});
 
 			if (response.ok) {
+				// Show success toast
+				notificationStore.success(isSaved ? 'Removed from favorites' : 'Added to favorites');
+			} else {
+				// Revert on error
 				if (isSaved) {
-					savedScenarioIds.delete(scenarioId);
-				} else {
 					savedScenarioIds.add(scenarioId);
+				} else {
+					savedScenarioIds.delete(scenarioId);
 				}
 				savedScenarioIds = new Set(savedScenarioIds);
+				notificationStore.error('Failed to update favorites. Please try again.');
 			}
 		} catch (error) {
 			console.error('Error toggling favorite:', error);
-		} finally {
-			isSavingScenario[scenarioId] = false;
+			// Revert on error
+			if (isSaved) {
+				savedScenarioIds.add(scenarioId);
+			} else {
+				savedScenarioIds.delete(scenarioId);
+			}
+			savedScenarioIds = new Set(savedScenarioIds);
+			notificationStore.error('Failed to update favorites. Please try again.');
 		}
 	}
 
-	async function shareScenario(scenario: Scenario) {
+	async function shareScenario(scenario: Scenario, event?: Event) {
+		// Prevent card click when clicking share button
+		event?.stopPropagation();
+
 		const shareUrl = scenario.shareSlug
 			? `${window.location.origin}/s/${scenario.shareSlug}`
 			: `${window.location.origin}/s/${scenario.id}`;
 
 		try {
 			await navigator.clipboard.writeText(shareUrl);
-			copiedScenarioId = scenario.id;
-			setTimeout(() => {
-				copiedScenarioId = null;
-			}, 2000);
+			notificationStore.success('Link copied to clipboard!');
 		} catch (error) {
 			console.error('Error copying link:', error);
 			// Fallback for older browsers
-			const textArea = document.createElement('textarea');
-			textArea.value = shareUrl;
-			document.body.appendChild(textArea);
-			textArea.select();
-			document.execCommand('copy');
-			document.body.removeChild(textArea);
-			copiedScenarioId = scenario.id;
-			setTimeout(() => {
-				copiedScenarioId = null;
-			}, 2000);
+			try {
+				const textArea = document.createElement('textarea');
+				textArea.value = shareUrl;
+				document.body.appendChild(textArea);
+				textArea.select();
+				document.execCommand('copy');
+				document.body.removeChild(textArea);
+				notificationStore.success('Link copied to clipboard!');
+			} catch (fallbackError) {
+				notificationStore.error('Failed to copy link. Please copy manually.');
+			}
 		}
 	}
 
-	function handleEdit(scenario: Scenario) {
+	function handleEdit(scenario: Scenario, event?: Event) {
+		event?.stopPropagation();
 		// TODO: Open edit modal
 		console.log('Edit scenario:', scenario.id);
 	}
@@ -161,9 +205,7 @@
 	<section class="border-b border-base-content/10 bg-gradient-to-b from-base-200/30 to-base-100">
 		<div class="container mx-auto max-w-6xl px-6 py-16">
 			<div class="text-center">
-				<h1 class="mb-3 text-4xl font-light tracking-tight md:text-5xl">
-					Practice Scenarios
-				</h1>
+				<h1 class="mb-3 text-4xl font-light tracking-tight md:text-5xl">Practice Scenarios</h1>
 				<p class="mx-auto max-w-2xl text-lg font-light text-base-content/70">
 					Browse curated scenarios or create your own moments to practice
 				</p>
@@ -222,11 +264,11 @@
 						{@const meta = getScenarioMeta(scenario)}
 						{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
 						{@const userOwned = isUserOwned(scenario)}
-						{@const isCopied = copiedScenarioId === scenario.id}
-						<div
+						<button
 							class="group card overflow-hidden rounded-2xl border border-base-content/10 bg-base-100 text-left shadow-sm transition-all hover:border-primary/30 hover:shadow-lg"
+							onclick={() => openScenarioDetails(scenario)}
 						>
-							<!-- Thumbnail -->
+							<!-- Thumbnail or placeholder -->
 							{#if scenario.thumbnailUrl}
 								<figure class="relative h-40 overflow-hidden bg-base-200">
 									<img
@@ -238,8 +280,29 @@
 									<div class="absolute top-3 right-3">
 										<button
 											class="btn btn-circle btn-sm border-none bg-base-100/90 shadow-md backdrop-blur-sm transition-transform hover:scale-110 hover:bg-base-100"
-											onclick={() => toggleFavorite(scenario.id)}
-											disabled={isSavingScenario[scenario.id]}
+											onclick={(e) => toggleFavorite(scenario.id, e)}
+											aria-label="Unfavorite scenario"
+										>
+											<span class="icon-[mdi--heart] h-5 w-5 text-error"></span>
+										</button>
+									</div>
+								</figure>
+							{:else}
+								<figure class="relative h-40 overflow-hidden">
+									<div
+										class="flex h-full w-full items-center justify-center"
+										style="background: {getPlaceholderImage(scenario)}"
+									>
+										<span
+											class="{roleIcons[scenario.role] ||
+												'icon-[mdi--lightbulb-on-outline]'} h-16 w-16 text-white opacity-80"
+										></span>
+									</div>
+									<!-- Favorite badge overlay -->
+									<div class="absolute top-3 right-3">
+										<button
+											class="btn btn-circle btn-sm border-none bg-base-100/90 shadow-md backdrop-blur-sm transition-transform hover:scale-110 hover:bg-base-100"
+											onclick={(e) => toggleFavorite(scenario.id, e)}
 											aria-label="Unfavorite scenario"
 										>
 											<span class="icon-[mdi--heart] h-5 w-5 text-error"></span>
@@ -263,9 +326,9 @@
 								<!-- Title -->
 								<h3 class="mb-2 line-clamp-2 text-lg font-medium">{scenario.title}</h3>
 
-								<!-- Description -->
+								<!-- Learning Goal (replaced description) -->
 								<p class="mb-4 line-clamp-2 text-sm text-base-content/70">
-									{scenario.description}
+									{scenario.learningGoal || scenario.description || ''}
 								</p>
 
 								<!-- Difficulty indicator -->
@@ -304,26 +367,22 @@
 								<div class="flex gap-2">
 									<button
 										class="btn btn-primary btn-sm flex-1 gap-1 shadow-sm"
-										onclick={() => handleTryScenario(scenario)}
+										onclick={(e) => handleTryScenario(scenario, e)}
 									>
 										<span class="icon-[mdi--play] h-4 w-4"></span>
 										<span>Start</span>
 									</button>
 									<button
 										class="btn btn-ghost btn-sm btn-square"
-										onclick={() => shareScenario(scenario)}
+										onclick={(e) => shareScenario(scenario, e)}
 										aria-label="Share scenario"
 									>
-										{#if isCopied}
-											<span class="icon-[mdi--check] h-4 w-4 text-success"></span>
-										{:else}
-											<span class="icon-[mdi--share-variant] h-4 w-4"></span>
-										{/if}
+										<span class="icon-[mdi--share-variant] h-4 w-4"></span>
 									</button>
 									{#if userOwned}
 										<button
 											class="btn btn-ghost btn-sm btn-square"
-											onclick={() => handleEdit(scenario)}
+											onclick={(e) => handleEdit(scenario, e)}
 											aria-label="Edit scenario"
 										>
 											<span class="icon-[mdi--pencil] h-4 w-4"></span>
@@ -331,7 +390,7 @@
 									{/if}
 								</div>
 							</div>
-						</div>
+						</button>
 					{/each}
 				</div>
 			</div>
@@ -352,11 +411,11 @@
 						{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
 						{@const userOwned = isUserOwned(scenario)}
 						{@const isFavorited = savedScenarioIds.has(scenario.id)}
-						{@const isCopied = copiedScenarioId === scenario.id}
-						<div
+						<button
 							class="group card overflow-hidden rounded-2xl border border-base-content/10 bg-base-100 text-left shadow-sm transition-all hover:border-primary/30 hover:shadow-lg"
+							onclick={() => openScenarioDetails(scenario)}
 						>
-							<!-- Thumbnail -->
+							<!-- Thumbnail or placeholder -->
 							{#if scenario.thumbnailUrl}
 								<figure class="relative h-40 overflow-hidden bg-base-200">
 									<img
@@ -369,13 +428,38 @@
 										<div class="absolute top-3 right-3">
 											<button
 												class="btn btn-circle btn-sm border-none bg-base-100/90 shadow-md backdrop-blur-sm transition-transform hover:scale-110 hover:bg-base-100"
-												onclick={() => toggleFavorite(scenario.id)}
-												disabled={isSavingScenario[scenario.id]}
+												onclick={(e) => toggleFavorite(scenario.id, e)}
 												aria-label={isFavorited ? 'Unfavorite scenario' : 'Favorite scenario'}
 											>
-												{#if isSavingScenario[scenario.id]}
-													<span class="loading loading-sm loading-spinner"></span>
-												{:else if isFavorited}
+												{#if isFavorited}
+													<span class="icon-[mdi--heart] h-5 w-5 text-error"></span>
+												{:else}
+													<span class="icon-[mdi--heart-outline] h-5 w-5"></span>
+												{/if}
+											</button>
+										</div>
+									{/if}
+								</figure>
+							{:else}
+								<figure class="relative h-40 overflow-hidden">
+									<div
+										class="flex h-full w-full items-center justify-center"
+										style="background: {getPlaceholderImage(scenario)}"
+									>
+										<span
+											class="{roleIcons[scenario.role] ||
+												'icon-[mdi--lightbulb-on-outline]'} h-16 w-16 text-white opacity-80"
+										></span>
+									</div>
+									<!-- Favorite button overlay -->
+									{#if !isGuest}
+										<div class="absolute top-3 right-3">
+											<button
+												class="btn btn-circle btn-sm border-none bg-base-100/90 shadow-md backdrop-blur-sm transition-transform hover:scale-110 hover:bg-base-100"
+												onclick={(e) => toggleFavorite(scenario.id, e)}
+												aria-label={isFavorited ? 'Unfavorite scenario' : 'Favorite scenario'}
+											>
+												{#if isFavorited}
 													<span class="icon-[mdi--heart] h-5 w-5 text-error"></span>
 												{:else}
 													<span class="icon-[mdi--heart-outline] h-5 w-5"></span>
@@ -401,9 +485,9 @@
 								<!-- Title -->
 								<h3 class="mb-2 line-clamp-2 text-lg font-medium">{scenario.title}</h3>
 
-								<!-- Description -->
+								<!-- Learning Goal (replaced description) -->
 								<p class="mb-4 line-clamp-2 text-sm text-base-content/70">
-									{scenario.description}
+									{scenario.learningGoal || scenario.description || ''}
 								</p>
 
 								<!-- Difficulty indicator -->
@@ -442,42 +526,22 @@
 								<div class="flex gap-2">
 									<button
 										class="btn btn-primary btn-sm flex-1 gap-1 shadow-sm"
-										onclick={() => handleTryScenario(scenario)}
+										onclick={(e) => handleTryScenario(scenario, e)}
 									>
 										<span class="icon-[mdi--play] h-4 w-4"></span>
 										<span>Start</span>
 									</button>
 									<button
 										class="btn btn-ghost btn-sm btn-square"
-										onclick={() => shareScenario(scenario)}
+										onclick={(e) => shareScenario(scenario, e)}
 										aria-label="Share scenario"
 									>
-										{#if isCopied}
-											<span class="icon-[mdi--check] h-4 w-4 text-success"></span>
-										{:else}
-											<span class="icon-[mdi--share-variant] h-4 w-4"></span>
-										{/if}
+										<span class="icon-[mdi--share-variant] h-4 w-4"></span>
 									</button>
-									{#if !isGuest && !scenario.thumbnailUrl}
-										<button
-											class="btn btn-ghost btn-sm btn-square"
-											onclick={() => toggleFavorite(scenario.id)}
-											disabled={isSavingScenario[scenario.id]}
-											aria-label={isFavorited ? 'Unfavorite scenario' : 'Favorite scenario'}
-										>
-											{#if isSavingScenario[scenario.id]}
-												<span class="loading loading-sm loading-spinner"></span>
-											{:else if isFavorited}
-												<span class="icon-[mdi--heart] h-5 w-5 text-error"></span>
-											{:else}
-												<span class="icon-[mdi--heart-outline] h-5 w-5"></span>
-											{/if}
-										</button>
-									{/if}
 									{#if userOwned}
 										<button
 											class="btn btn-ghost btn-sm btn-square"
-											onclick={() => handleEdit(scenario)}
+											onclick={(e) => handleEdit(scenario, e)}
 											aria-label="Edit scenario"
 										>
 											<span class="icon-[mdi--pencil] h-4 w-4"></span>
@@ -485,7 +549,7 @@
 									{/if}
 								</div>
 							</div>
-						</div>
+						</button>
 					{/each}
 				</div>
 			</div>
@@ -506,12 +570,14 @@
 						Clear search
 					</button>
 				{/if}
-			</div>
+			</div}
 		{/if}
 	</section>
 
 	<!-- CTA Footer -->
-	<section class="border-t border-base-content/10 bg-gradient-to-b from-base-100 to-base-200/30 py-16">
+	<section
+		class="border-t border-base-content/10 bg-gradient-to-b from-base-100 to-base-200/30 py-16"
+	>
 		<div class="container mx-auto max-w-4xl px-6 text-center">
 			<h2 class="mb-4 text-2xl font-light">Create your own scenario</h2>
 			<p class="mb-6 font-light text-base-content/70">
@@ -530,6 +596,172 @@
 		</div>
 	</section>
 </div>
+
+<!-- Scenario Details Modal -->
+{#if selectedScenario}
+	{@const scenario = selectedScenario}
+	{@const meta = getScenarioMeta(scenario)}
+	{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
+	<div
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+		onclick={closeScenarioDetails}
+	>
+		<div
+			class="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-base-100 shadow-2xl"
+			onclick={(e) => e.stopPropagation()}
+		>
+			<!-- Close button -->
+			<button
+				class="btn btn-circle btn-ghost btn-sm absolute top-4 right-4 z-10"
+				onclick={closeScenarioDetails}
+				aria-label="Close"
+			>
+				<span class="icon-[mdi--close] h-5 w-5"></span>
+			</button>
+
+			<!-- Thumbnail or placeholder -->
+			{#if scenario.thumbnailUrl}
+				<figure class="h-64 overflow-hidden bg-base-200">
+					<img
+						src={scenario.thumbnailUrl}
+						alt={scenario.title}
+						class="h-full w-full object-cover"
+					/>
+				</figure>
+			{:else}
+				<figure class="h-64 overflow-hidden">
+					<div
+						class="flex h-full w-full items-center justify-center"
+						style="background: {getPlaceholderImage(scenario)}"
+					>
+						<span
+							class="{roleIcons[scenario.role] ||
+								'icon-[mdi--lightbulb-on-outline]'} h-24 w-24 text-white opacity-80"
+						></span>
+					</div>
+				</figure>
+			{/if}
+
+			<div class="p-8">
+				<!-- Header -->
+				<div class="mb-6">
+					<div class="mb-3 flex items-center gap-3">
+						<span
+							class="{roleIcons[scenario.role] ||
+								'icon-[mdi--lightbulb-on-outline]'} h-8 w-8 text-primary"
+						></span>
+						<span class="badge badge-lg capitalize">
+							{roleDisplayNames[scenario.role] || scenario.role}
+						</span>
+					</div>
+					<h2 class="mb-4 text-3xl font-light">{scenario.title}</h2>
+
+					<!-- Metadata -->
+					<div class="flex flex-wrap items-center gap-3 text-sm">
+						<!-- Difficulty -->
+						<div class="flex items-center gap-2">
+							<div class="flex items-center gap-1">
+								{#each DIFFICULTY_SEGMENTS as segment (segment)}
+									<span
+										class="h-1.5 w-5 rounded-full bg-base-200 transition-colors"
+										class:bg-success={segment <= difficultyTier && meta.color === 'success'}
+										class:bg-warning={segment <= difficultyTier && meta.color === 'warning'}
+										class:bg-error={segment <= difficultyTier && meta.color === 'error'}
+									></span>
+								{/each}
+							</div>
+							<span class="font-medium text-base-content/80">{meta.label}</span>
+						</div>
+
+						{#if scenario.cefrLevel}
+							<span class="text-base-content/40">·</span>
+							<span
+								class="rounded-full border border-base-content/20 px-3 py-1 text-xs font-semibold tracking-tight"
+							>
+								{scenario.cefrLevel}
+							</span>
+						{/if}
+
+						{#if scenario.estimatedDurationSeconds}
+							<span class="text-base-content/40">·</span>
+							<div class="flex items-center gap-1.5 text-base-content/70">
+								<span class="icon-[mdi--clock-outline] h-4 w-4"></span>
+								<span>{Math.round(scenario.estimatedDurationSeconds / 60)} min</span>
+							</div>
+						{/if}
+					</div>
+				</div>
+
+				<!-- Learning Goal -->
+				{#if scenario.learningGoal}
+					<div class="mb-6">
+						<h3 class="mb-2 flex items-center gap-2 text-lg font-medium">
+							<span class="icon-[mdi--target] h-5 w-5 text-primary"></span>
+							<span>Learning Goal</span>
+						</h3>
+						<p class="text-base-content/80">{scenario.learningGoal}</p>
+					</div>
+				{/if}
+
+				<!-- Description -->
+				{#if scenario.description}
+					<div class="mb-6">
+						<h3 class="mb-2 text-lg font-medium">About This Scenario</h3>
+						<p class="text-base-content/80">{scenario.description}</p>
+					</div>
+				{/if}
+
+				<!-- Learning Objectives -->
+				{#if scenario.learningObjectives && scenario.learningObjectives.length > 0}
+					<div class="mb-6">
+						<h3 class="mb-3 text-lg font-medium">What You'll Practice</h3>
+						<ul class="grid gap-2 md:grid-cols-2">
+							{#each scenario.learningObjectives as objective}
+								<li class="flex items-start gap-2">
+									<span class="icon-[mdi--check] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
+									<span class="capitalize text-base-content/80">{objective}</span>
+								</li>
+							{/each}
+						</ul>
+					</div>
+				{/if}
+
+				<!-- Actions -->
+				<div class="flex gap-3">
+					<button
+						class="btn btn-primary flex-1 gap-2 shadow-md"
+						onclick={(e) => handleTryScenario(scenario, e)}
+					>
+						<span class="icon-[mdi--play] h-5 w-5"></span>
+						<span>Start Scenario</span>
+					</button>
+					<button
+						class="btn btn-ghost gap-2"
+						onclick={(e) => shareScenario(scenario, e)}
+					>
+						<span class="icon-[mdi--share-variant] h-5 w-5"></span>
+						<span>Share</span>
+					</button>
+					{#if !isGuest}
+						<button
+							class="btn btn-ghost btn-square"
+							onclick={(e) => toggleFavorite(scenario.id, e)}
+							aria-label={savedScenarioIds.has(scenario.id)
+								? 'Unfavorite scenario'
+								: 'Favorite scenario'}
+						>
+							{#if savedScenarioIds.has(scenario.id)}
+								<span class="icon-[mdi--heart] h-6 w-6 text-error"></span>
+							{:else}
+								<span class="icon-[mdi--heart-outline] h-6 w-6"></span>
+							{/if}
+						</button>
+					{/if}
+				</div>
+			</div>
+		</div>
+	</div>
+{/if}
 
 <!-- Scenario Creator Modal -->
 {#if !isGuest}
