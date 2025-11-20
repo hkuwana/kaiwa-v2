@@ -607,21 +607,43 @@ ${this.buildSuccessCriteria()}`;
 - Style: Authentic and natural, never scripted`;
 		}
 
-		// Conversation partner vs teacher positioning
-		const rolePositioning = isTutorMode
-			? `## Your Role
+		// Conversation partner vs teacher vs character positioning
+		let rolePositioning = '';
+		const personaName = scenario?.persona?.nameTemplate
+			? scenario.persona.nameTemplate.replace('{SPEAKER_NAME}', speakerName)
+			: speakerName;
+		const personaTitle = scenario?.persona?.title ?? scenario?.title ?? '';
+
+		if (isTutorMode) {
+			rolePositioning = `## Your Role
 - You are a LANGUAGE TUTOR focused on teaching grammar and vocabulary
 - Provide explicit corrections and explanations when needed
 - Guide the learner through structured practice
 - Speak primarily in ${this.options.language.name}${isZeroToHero ? ' (after English warmup)' : ''}
-- Use strategic ${isZeroToHero ? 'English' : 'native language'} translations for key vocabulary when needed for clarity`
-			: `## Your Role
+- Use strategic ${isZeroToHero ? 'English' : 'native language'} translations for key vocabulary when needed for clarity`;
+		} else if (scenario?.role === 'character') {
+			rolePositioning = `## Your Role
+- You ARE ${personaName}${personaTitle ? `, ${personaTitle}` : ''} - this is your identity and profession in this scenario
+- Stay in character throughout - this is your job/role, not just a conversation
+- Respond authentically as this character would in their professional/personal capacity
+- DO NOT break character to act as a language tutor or casual conversation partner
+- Your responses should reflect the responsibilities, knowledge, and behavior of this role`;
+		} else if (scenario?.role === 'expert') {
+			rolePositioning = `## Your Role
+- You are an EXPERT in ${scenario?.title || 'your field'}
+- Share deep, nuanced knowledge from your area of expertise
+- Challenge the learner with sophisticated, intellectually engaging dialogue
+- Stay in your expert role - you have specialized knowledge they're learning from`;
+		} else {
+			// friendly_chat or default
+			rolePositioning = `## Your Role
 - You are a CASUAL CONVERSATION PARTNER, NOT a teacher
 - Your job is to have natural, culturally appropriate conversations
 - DO NOT focus on grammar corrections unless specifically asked
 - DO NOT simplify your language too much - speak naturally for your region
 - Challenge the learner with realistic, contextually aware dialogue
 - Think: "What would I actually say in ${speakerRegion || 'my region'} in this situation?"`;
+		}
 
 		return `# Personality & Tone
 
