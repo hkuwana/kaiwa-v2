@@ -4,18 +4,56 @@
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { tryScenarioNow } from '$lib/services/scenarios/scenario-interaction.service';
 	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
+	import tutorDefault from '$lib/assets/scenarios/tutor-scenario.png?enhanced';
 
 	const { data } = $props();
 	const user = userManager.user;
 	const isGuest = user.id === 'guest';
+
+	// Dynamically import scenario images
+	const imageModules = import.meta.glob('$lib/assets/scenarios/*.png', {
+		eager: true,
+		query: {
+			enhanced: true
+		}
+	});
+
+	// Map scenario IDs to their enhanced images
+	const getScenarioImage = (scenario: Scenario) => {
+		// Try to find a matching image for the scenario
+		const scenarioId = scenario.id;
+		const imagePath = `$lib/assets/scenarios/${scenarioId}.png`;
+
+		try {
+			if (imageModules[imagePath]) {
+				const module = imageModules[imagePath];
+				// Return the module directly if it has src, or access default
+				return module.default || module;
+			}
+		} catch (e) {
+			// Silently fall back to default on error
+		}
+
+		// Fallback to tutor-scenario if specific image not found
+		return tutorDefault.default || tutorDefault;
+	};
 
 	// State
 	let searchQuery = $state('');
 	let isCreatorOpen = $state(false);
 	let savedScenarioIds = $state<Set<string>>(new Set(data.savedScenarioIds || []));
 	let selectedScenario = $state<Scenario | null>(null); // For modal overlay
+	let isLoading = $state(true);
+
+	// Simulate initial load completion
+	$effect(() => {
+		if (data) {
+			isLoading = false;
+		}
+	});
 
 	const DIFFICULTY_SEGMENTS = [1, 2, 3] as const;
+	const SKELETON_COUNT = 6; // Number of skeleton loaders to show
 
 	// Combine static scenarios with user-created scenarios
 	const allScenarios = $derived.by(() => {
@@ -275,48 +313,25 @@
 								}
 							}}
 						>
-							<!-- Thumbnail or placeholder -->
-							{#if scenario.thumbnailUrl}
-								<figure class="relative h-40 overflow-hidden bg-base-200">
-									<img
-										src={scenario.thumbnailUrl}
-										alt={scenario.title}
-										class="h-full w-full object-cover transition-transform group-hover:scale-105"
-									/>
-									<!-- Favorite badge overlay -->
-									<div class="absolute top-3 right-3">
-										<button
-											class="btn btn-circle border-none bg-base-100/90 shadow-md backdrop-blur-sm transition-transform btn-sm hover:scale-110 hover:bg-base-100"
-											onclick={(e) => toggleFavorite(scenario.id, e)}
-											aria-label="Unfavorite scenario"
-										>
-											<span class="icon-[mdi--heart] h-5 w-5 text-error"></span>
-										</button>
-									</div>
-								</figure>
-							{:else}
-								<figure class="relative h-40 overflow-hidden">
-									<div
-										class="flex h-full w-full items-center justify-center"
-										style="background: {getPlaceholderImage(scenario)}"
+							<!-- Thumbnail image -->
+							<figure class="relative h-40 overflow-hidden bg-base-200">
+								<enhanced:img
+									src={getScenarioImage(scenario)}
+									alt={scenario.title}
+									class="h-full w-full object-cover transition-transform group-hover:scale-105"
+									sizes="(min-width: 1024px) 300px, (min-width: 768px) 250px, 100vw"
+								/>
+								<!-- Favorite badge overlay -->
+								<div class="absolute top-3 right-3">
+									<button
+										class="btn btn-circle border-none bg-base-100/90 shadow-md backdrop-blur-sm transition-transform btn-sm hover:scale-110 hover:bg-base-100"
+										onclick={(e) => toggleFavorite(scenario.id, e)}
+										aria-label="Unfavorite scenario"
 									>
-										<span
-											class="{roleIcons[scenario.role] ||
-												'icon-[mdi--lightbulb-on-outline]'} h-16 w-16 text-white opacity-80"
-										></span>
-									</div>
-									<!-- Favorite badge overlay -->
-									<div class="absolute top-3 right-3">
-										<button
-											class="btn btn-circle border-none bg-base-100/90 shadow-md backdrop-blur-sm transition-transform btn-sm hover:scale-110 hover:bg-base-100"
-											onclick={(e) => toggleFavorite(scenario.id, e)}
-											aria-label="Unfavorite scenario"
-										>
-											<span class="icon-[mdi--heart] h-5 w-5 text-error"></span>
-										</button>
-									</div>
-								</figure>
-							{/if}
+										<span class="icon-[mdi--heart] h-5 w-5 text-error"></span>
+									</button>
+								</div>
+							</figure>
 
 							<div class="card-body p-6">
 								<!-- Icon and role -->
@@ -404,7 +419,57 @@
 		{/if}
 
 		<!-- All Scenarios -->
-		{#if filteredScenarios.length > 0}
+		{#if isLoading}
+			<!-- Skeleton Loading State -->
+			<div>
+				<div class="mb-6 flex items-center gap-3">
+					<div class="skeleton h-8 w-48"></div>
+					<div class="skeleton h-6 w-12"></div>
+				</div>
+				<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+					{#each Array(SKELETON_COUNT) as _, i (i)}
+						<div class="card overflow-hidden rounded-2xl border border-base-content/10 bg-base-100 shadow-sm">
+							<!-- Skeleton image -->
+							<div class="skeleton h-40 w-full bg-base-300"></div>
+
+							<div class="card-body p-6">
+								<!-- Skeleton role badge -->
+								<div class="mb-3 flex items-center justify-between">
+									<div class="skeleton h-5 w-5"></div>
+									<div class="skeleton h-5 w-20"></div>
+								</div>
+
+								<!-- Skeleton title -->
+								<div class="mb-2 space-y-2">
+									<div class="skeleton h-5 w-full"></div>
+									<div class="skeleton h-5 w-3/4"></div>
+								</div>
+
+								<!-- Skeleton description -->
+								<div class="mb-4 space-y-2">
+									<div class="skeleton h-4 w-full"></div>
+									<div class="skeleton h-4 w-5/6"></div>
+								</div>
+
+								<!-- Skeleton difficulty -->
+								<div class="mb-4 flex gap-2">
+									<div class="skeleton h-1.5 w-5"></div>
+									<div class="skeleton h-1.5 w-5"></div>
+									<div class="skeleton h-1.5 w-5"></div>
+									<div class="skeleton h-4 w-12"></div>
+								</div>
+
+								<!-- Skeleton buttons -->
+								<div class="flex gap-2">
+									<div class="skeleton h-8 flex-1"></div>
+									<div class="skeleton h-8 w-8"></div>
+								</div>
+							</div>
+						</div>
+					{/each}
+				</div>
+			</div>
+		{:else if filteredScenarios.length > 0}
 			<div>
 				<div class="mb-6 flex items-center gap-3">
 					<h2 class="text-2xl font-light">
@@ -430,60 +495,31 @@
 								}
 							}}
 						>
-							<!-- Thumbnail or placeholder -->
-							{#if scenario.thumbnailUrl}
-								<figure class="relative h-40 overflow-hidden bg-base-200">
-									<img
-										src={scenario.thumbnailUrl}
-										alt={scenario.title}
-										class="h-full w-full object-cover transition-transform group-hover:scale-105"
-									/>
-									<!-- Favorite button overlay -->
-									{#if !isGuest}
-										<div class="absolute top-3 right-3">
-											<button
-												class="btn btn-circle border-none bg-base-100/90 shadow-md backdrop-blur-sm transition-transform btn-sm hover:scale-110 hover:bg-base-100"
-												onclick={(e) => toggleFavorite(scenario.id, e)}
-												aria-label={isFavorited ? 'Unfavorite scenario' : 'Favorite scenario'}
-											>
-												{#if isFavorited}
-													<span class="icon-[mdi--heart] h-5 w-5 text-error"></span>
-												{:else}
-													<span class="icon-[mdi--heart-outline] h-5 w-5"></span>
-												{/if}
-											</button>
-										</div>
-									{/if}
-								</figure>
-							{:else}
-								<figure class="relative h-40 overflow-hidden">
-									<div
-										class="flex h-full w-full items-center justify-center"
-										style="background: {getPlaceholderImage(scenario)}"
-									>
-										<span
-											class="{roleIcons[scenario.role] ||
-												'icon-[mdi--lightbulb-on-outline]'} h-16 w-16 text-white opacity-80"
-										></span>
+							<!-- Thumbnail image -->
+							<figure class="relative h-40 overflow-hidden bg-base-200">
+								<enhanced:img
+									src={getScenarioImage(scenario)}
+									alt={scenario.title}
+									class="h-full w-full object-cover transition-transform group-hover:scale-105"
+									sizes="(min-width: 1024px) 300px, (min-width: 768px) 250px, 100vw"
+								/>
+								<!-- Favorite button overlay -->
+								{#if !isGuest}
+									<div class="absolute top-3 right-3">
+										<button
+											class="btn btn-circle border-none bg-base-100/90 shadow-md backdrop-blur-sm transition-transform btn-sm hover:scale-110 hover:bg-base-100"
+											onclick={(e) => toggleFavorite(scenario.id, e)}
+											aria-label={isFavorited ? 'Unfavorite scenario' : 'Favorite scenario'}
+										>
+											{#if isFavorited}
+												<span class="icon-[mdi--heart] h-5 w-5 text-error"></span>
+											{:else}
+												<span class="icon-[mdi--heart-outline] h-5 w-5"></span>
+											{/if}
+										</button>
 									</div>
-									<!-- Favorite button overlay -->
-									{#if !isGuest}
-										<div class="absolute top-3 right-3">
-											<button
-												class="btn btn-circle border-none bg-base-100/90 shadow-md backdrop-blur-sm transition-transform btn-sm hover:scale-110 hover:bg-base-100"
-												onclick={(e) => toggleFavorite(scenario.id, e)}
-												aria-label={isFavorited ? 'Unfavorite scenario' : 'Favorite scenario'}
-											>
-												{#if isFavorited}
-													<span class="icon-[mdi--heart] h-5 w-5 text-error"></span>
-												{:else}
-													<span class="icon-[mdi--heart-outline] h-5 w-5"></span>
-												{/if}
-											</button>
-										</div>
-									{/if}
-								</figure>
-							{/if}
+								{/if}
+							</figure>
 
 							<div class="card-body p-6">
 								<!-- Icon and role -->
@@ -632,28 +668,15 @@
 				<span class="icon-[mdi--close] h-5 w-5"></span>
 			</button>
 
-			<!-- Thumbnail or placeholder -->
-			{#if scenario.thumbnailUrl}
-				<figure class="h-64 overflow-hidden bg-base-200">
-					<img
-						src={scenario.thumbnailUrl}
-						alt={scenario.title}
-						class="h-full w-full object-cover"
-					/>
-				</figure>
-			{:else}
-				<figure class="h-64 overflow-hidden">
-					<div
-						class="flex h-full w-full items-center justify-center"
-						style="background: {getPlaceholderImage(scenario)}"
-					>
-						<span
-							class="{roleIcons[scenario.role] ||
-								'icon-[mdi--lightbulb-on-outline]'} h-24 w-24 text-white opacity-80"
-						></span>
-					</div>
-				</figure>
-			{/if}
+			<!-- Thumbnail image -->
+			<figure class="h-64 overflow-hidden bg-base-200">
+				<enhanced:img
+					src={getScenarioImage(scenario)}
+					alt={scenario.title}
+					class="h-full w-full object-cover"
+					sizes="(min-width: 1024px) 400px, 100vw"
+				/>
+			</figure>
 
 			<div class="p-8">
 				<!-- Header -->

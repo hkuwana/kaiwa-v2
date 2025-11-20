@@ -103,7 +103,7 @@
 					class="mb-12 text-4xl leading-tight font-light tracking-tight md:text-5xl lg:text-6xl"
 					in:fade={{ duration: 1000 }}
 				>
-					Duolingo teaches you "Where is the bathroom?"
+					Duolingo teaches you gamefication
 				</h1>
 			{/if}
 			{#if showHero2}
@@ -111,7 +111,7 @@
 					class="mb-12 text-4xl leading-tight font-light tracking-tight md:text-5xl lg:text-6xl"
 					in:fade={{ duration: 1000 }}
 				>
-					Kaiwa helps you see your loved one's face light up when you speak.
+					Kaiwa lights up your loved ones with your words.
 				</h1>
 			{/if}
 		</div>
@@ -143,24 +143,6 @@
 	<section class="flex min-h-screen items-center justify-center px-6 py-24">
 		<div class="mx-auto w-full max-w-6xl">
 			<InteractiveScenarioPreview {selectedLanguage} />
-		</div>
-	</section>
-
-	<!-- The difference: One comparison at a time -->
-	<section class="flex min-h-screen items-center justify-center bg-base-200/30 px-6">
-		<div class="mx-auto max-w-5xl text-center">
-			<div class="mb-20 space-y-16">
-				{#if showDifference}
-					<div in:fade={{ duration: 800 }}>
-						<p class="mb-4 text-3xl font-light tracking-tight opacity-50 md:text-4xl">
-							Duolingo teaches tourist basics.
-						</p>
-						<p class="text-3xl font-light tracking-tight md:text-4xl">
-							Kaiwa helps you connect with loved ones.
-						</p>
-					</div>
-				{/if}
-			</div>
 		</div>
 	</section>
 
