@@ -1272,23 +1272,65 @@ ${personalityExamples}`;
 	 */
 	private getTier1Examples(languageCode: string): string[] {
 		const examples: Record<string, string[]> = {
-			ja: ['"いいね！何を？" (Nice! What?)', '"本当？どうして？" (Really? Why?)', '"素敵！いつ？" (Great! When?)'],
-			es: ['"¡Genial! ¿Qué?" (Great! What?)', '"¿En serio? ¿Por qué?" (Really? Why?)', '"¡Bueno! ¿Cuándo?" (Good! When?)'],
-			fr: ['"Super ! Quoi ?" (Great! What?)', '"Vraiment ? Pourquoi ?" (Really? Why?)', '"Génial ! Quand ?" (Great! When?)'],
-			de: ['"Cool! Was?" (Cool! What?)', '"Wirklich? Warum?" (Really? Why?)', '"Super! Wann?" (Great! When?)'],
-			it: ['"Bello! Cosa?" (Nice! What?)', '"Davvero? Perché?" (Really? Why?)', '"Ottimo! Quando?" (Great! When?)'],
-			pt: ['"Legal! O quê?" (Cool! What?)', '"Sério? Por quê?" (Really? Why?)', '"Ótimo! Quando?" (Great! When?)'],
-			ko: ['"좋네! 뭐?" (Nice! What?)', '"정말? 왜?" (Really? Why?)', '"멋져! 언제?" (Great! When?)'],
-			zh: ['"不错！什么？" (Nice! What?)', '"真的？为什么？" (Really? Why?)', '"太好了！什么时候？" (Great! When?)'],
-			ru: ['"Классно! Что?" (Cool! What?)', '"Правда? Почему?" (Really? Why?)', '"Отлично! Когда?" (Great! When?)'],
-			hi: ['"अच्छा! क्या?" (Nice! What?)', '"सच में? क्यों?" (Really! Why?)', '"बढ़िया! कब?" (Great! When?)']
+			ja: [
+				'"いいね！何を？" (Nice! What?)',
+				'"本当？どうして？" (Really? Why?)',
+				'"素敵！いつ？" (Great! When?)'
+			],
+			es: [
+				'"¡Genial! ¿Qué?" (Great! What?)',
+				'"¿En serio? ¿Por qué?" (Really? Why?)',
+				'"¡Bueno! ¿Cuándo?" (Good! When?)'
+			],
+			fr: [
+				'"Super ! Quoi ?" (Great! What?)',
+				'"Vraiment ? Pourquoi ?" (Really? Why?)',
+				'"Génial ! Quand ?" (Great! When?)'
+			],
+			de: [
+				'"Cool! Was?" (Cool! What?)',
+				'"Wirklich? Warum?" (Really? Why?)',
+				'"Super! Wann?" (Great! When?)'
+			],
+			it: [
+				'"Bello! Cosa?" (Nice! What?)',
+				'"Davvero? Perché?" (Really? Why?)',
+				'"Ottimo! Quando?" (Great! When?)'
+			],
+			pt: [
+				'"Legal! O quê?" (Cool! What?)',
+				'"Sério? Por quê?" (Really? Why?)',
+				'"Ótimo! Quando?" (Great! When?)'
+			],
+			ko: [
+				'"좋네! 뭐?" (Nice! What?)',
+				'"정말? 왜?" (Really? Why?)',
+				'"멋져! 언제?" (Great! When?)'
+			],
+			zh: [
+				'"不错！什么？" (Nice! What?)',
+				'"真的？为什么？" (Really? Why?)',
+				'"太好了！什么时候？" (Great! When?)'
+			],
+			ru: [
+				'"Классно! Что?" (Cool! What?)',
+				'"Правда? Почему?" (Really? Why?)',
+				'"Отлично! Когда?" (Great! When?)'
+			],
+			hi: [
+				'"अच्छा! क्या?" (Nice! What?)',
+				'"सच में? क्यों?" (Really! Why?)',
+				'"बढ़िया! कब?" (Great! When?)'
+			]
 		};
 
-		return examples[languageCode] || [
-			'"[Reaction]! [Question]?" (Pattern: brief reaction + short question)',
-			'"[Interest word]? [Why/what/when]?" (Show curiosity briefly)',
-			'"[Agreement]! [Follow-up]?" (Acknowledge + probe deeper)'
-		];
+		return (
+			examples[languageCode] || [
+				'"[Reaction]! [Question]?" (Pattern: brief reaction + short question)',
+				'"[Interest word]? [Why/what/when]?" (Show curiosity briefly)',
+				'"[Agreement]! [Follow-up]?" (Acknowledge + probe deeper)'
+			]
+		);
 	}
 
 	/**
@@ -1297,17 +1339,20 @@ ${personalityExamples}`;
 	private getTier3Example(languageCode: string): string {
 		const examples: Record<string, string> = {
 			ja: 'Example: "ちょっと。す・み・ま・せ・ん。『ん』は鼻から出ます。もう一度。"',
-			es: 'Example: "Vale. Gra-ci-as. La \'c\' suena como \'th\' en España. Otra vez."',
-			fr: 'Example: "D\'accord. Bon-jour. Le \'j\' est doux, pas dur. Encore."',
+			es: "Example: \"Vale. Gra-ci-as. La 'c' suena como 'th' en España. Otra vez.\"",
+			fr: "Example: \"D'accord. Bon-jour. Le 'j' est doux, pas dur. Encore.\"",
 			de: 'Example: "Okay. Gu-ten Tag. Das \'g\' ist hart. Nochmal."',
-			it: 'Example: "Va bene. Gra-zie. La \'z\' suona come \'ts\'. Di nuovo."',
-			pt: 'Example: \'O-bri-ga-do. O \'r\' é suave. Tenta de novo."',
+			it: "Example: \"Va bene. Gra-zie. La 'z' suona come 'ts'. Di nuovo.\"",
+			pt: "Example: 'O-bri-ga-do. O 'r' é suave. Tenta de novo.\"",
 			ko: 'Example: "좋아. 안-녕-하-세-요. \'ㅎ\' 발음 주의. 다시."',
-			zh: 'Example: "好。谢-谢。\'x\' 发音像 \'sh\'. 再说一遍。"',
+			zh: "Example: \"好。谢-谢。'x' 发音像 'sh'. 再说一遍。\"",
 			ru: 'Example: "Хорошо. Спа-си-бо. \'с\' мягкое. Ещё раз."'
 		};
 
-		return examples[languageCode] || 'Example: Break the word into syllables, highlight the tricky sound, have them try again.';
+		return (
+			examples[languageCode] ||
+			'Example: Break the word into syllables, highlight the tricky sound, have them try again.'
+		);
 	}
 
 	/**
@@ -1353,12 +1398,15 @@ ${personalityExamples}`;
 6. [Continue with natural back-and-forth conversation...]`
 		};
 
-		return examples[languageCode] || `1. YOU: "Teach a common ${languageName} greeting phrase. Have them repeat it."
+		return (
+			examples[languageCode] ||
+			`1. YOU: "Teach a common ${languageName} greeting phrase. Have them repeat it."
 2. LEARNER: [attempts]
 3. YOU: "Acknowledge success. Introduce how to say their name in ${languageName}. Have them combine both."
 4. LEARNER: [practices both phrases]
 5. YOU: "Perfect! Now let's try a simple conversation using both? I'll reply to you as if we're talking."
-6. [Continue with natural back-and-forth conversation using the phrases...]`;
+6. [Continue with natural back-and-forth conversation using the phrases...]`
+		);
 	}
 
 	private buildInstructionsRules(): string {

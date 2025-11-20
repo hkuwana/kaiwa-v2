@@ -1,5 +1,4 @@
 import { userScenarioProgressRepository, scenarioRepository } from '$lib/server/repositories';
-import type { Scenario } from '$lib/server/db/types';
 
 export const load = async ({ locals }) => {
 	const userId = locals.user?.id;

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { page } from '$app/stores';
 	import UnifiedStartButton from '$lib/components/UnifiedStartButton.svelte';
 	import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
 	import type { Language as DataLanguage } from '$lib/data/languages';
@@ -150,7 +149,7 @@
 				{#if scenario.categories && scenario.categories.length > 0}
 					<div class="mt-4 flex flex-wrap justify-center gap-2">
 						{#each scenario.categories as category}
-							<span class="badge badge-sm capitalize badge-outline">
+							<span class="badge badge-outline badge-sm capitalize">
 								{category.replace(/_/g, ' ')}
 							</span>
 						{/each}
@@ -161,11 +160,7 @@
 			<!-- Thumbnail -->
 			{#if scenario.thumbnailUrl}
 				<div class="mb-8 overflow-hidden rounded-2xl shadow-lg">
-					<img
-						src={scenario.thumbnailUrl}
-						alt={scenario.title}
-						class="h-64 w-full object-cover"
-					/>
+					<img src={scenario.thumbnailUrl} alt={scenario.title} class="h-64 w-full object-cover" />
 				</div>
 			{/if}
 
@@ -239,8 +234,8 @@
 					<ul class="grid gap-2 md:grid-cols-2">
 						{#each scenario.learningObjectives as objective}
 							<li class="flex items-start gap-2">
-								<span class="icon-[mdi--check] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
-								<span class="capitalize text-base-content/80">{objective}</span>
+								<span class="mt-0.5 icon-[mdi--check] h-5 w-5 shrink-0 text-success"></span>
+								<span class="text-base-content/80 capitalize">{objective}</span>
 							</li>
 						{/each}
 					</ul>
@@ -266,9 +261,7 @@
 	<section class="border-t border-base-content/10 bg-base-200/30 py-16">
 		<div class="container mx-auto max-w-2xl px-6 text-center">
 			<h2 class="mb-4 text-2xl font-light">Ready to practice?</h2>
-			<p class="mb-6 text-base-content/70">
-				Choose your language and start this scenario now.
-			</p>
+			<p class="mb-6 text-base-content/70">Choose your language and start this scenario now.</p>
 			<div class="mx-auto max-w-md">
 				<UnifiedStartButton
 					{user}

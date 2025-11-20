@@ -252,7 +252,7 @@ export class UserPreferencesStore {
 					userId: resolvedUserId,
 					createdAt: rest.createdAt
 						? new SvelteDate(rest.createdAt as Date | string)
-						: this.preferences?.createdAt ?? new SvelteDate(),
+						: (this.preferences?.createdAt ?? new SvelteDate()),
 					updatedAt: rest.updatedAt
 						? new SvelteDate(rest.updatedAt as Date | string)
 						: new SvelteDate()

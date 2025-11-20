@@ -610,14 +610,16 @@ const collection = {
 ### Critical Role Improvements Needed
 
 **Problem Identified (2025-11-20):**
+
 - Character scenarios had role confusion - AI would deny being the nurse/doctor when pressed
 - Root cause: Prompt said "You are a casual conversation partner" even for professional roles
 
 **Solution Implemented:**
+
 ```typescript
 // Now properly differentiates by scenario.role:
 if (scenario?.role === 'character') {
-  rolePositioning = `## Your Role
+	rolePositioning = `## Your Role
 - You ARE ${personaName}, ${personaTitle} - this is your identity and profession
 - Stay in character throughout - this is your job/role, not just a conversation
 - Respond authentically as this character would in their professional/personal capacity`;
@@ -625,6 +627,7 @@ if (scenario?.role === 'character') {
 ```
 
 **Still Needed:**
+
 1. **Audit all scenarios** to ensure every scenario has a clear `role` field defined
 2. **Add `profession` field** to character scenarios for clarity (e.g., "nurse", "interviewer", "barista")
 3. **Standardize persona structure** across all character-based scenarios
@@ -632,6 +635,7 @@ if (scenario?.role === 'character') {
 ### Shareable Scenario MVP (Priority Features)
 
 **Phase 1: Make Scenarios Shareable (Week 1-2)**
+
 - [ ] Add `shareSlug` to all existing scenarios
 - [ ] Create `/s/{slug}` route for shareable scenario pages
 - [ ] Design beautiful OG:image for each scenario (shows title, difficulty, preview)
@@ -639,12 +643,14 @@ if (scenario?.role === 'character') {
 - [ ] Track click-through from share links (attribution)
 
 **Phase 2: Viral Mechanics (Week 3-4)**
+
 - [ ] "Try this scenario" CTA on share page (low-friction signup)
 - [ ] Post-completion share prompt: "You completed [scenario]! Challenge your friends?"
 - [ ] Leaderboard: "Top attempts this week" for competitive scenarios
 - [ ] Social proof: "1,234 people tried this scenario this week"
 
 **Phase 3: Popular Scenario Discovery (Month 2)**
+
 - [ ] Homepage section: "Trending Scenarios"
 - [ ] Category pages: "Most Popular Medical Scenarios"
 - [ ] Search by viral metrics (shares, attempts, completion rate)
@@ -653,6 +659,7 @@ if (scenario?.role === 'character') {
 ### Ideal Viral Scenarios to Build First
 
 **High Shareability Potential:**
+
 1. **"Job Interview Horror Stories"** - Relatable, shareable fails
 2. **"Breaking Up with Someone (Politely)"** - Emotional, relevant
 3. **"Ordering at a Noisy Restaurant"** - Frustrating but common
@@ -662,6 +669,7 @@ if (scenario?.role === 'character') {
 7. **"Meeting Your Crush's Best Friend"** - Social anxiety scenario
 
 **Why These Work:**
+
 - ✅ Emotionally charged (people want to share emotional experiences)
 - ✅ Relatable (everyone's been there)
 - ✅ Shareable headline ("I just tried negotiating a raise in Japanese 😅")
@@ -701,6 +709,7 @@ if (scenario?.role === 'character') {
 ### Metrics to Track for Viral Growth
 
 **Scenario-Level Metrics:**
+
 - `shareCount`: Number of times shared
 - `shareSourceBreakdown`: {twitter: 50, whatsapp: 30, copy: 20}
 - `clickThroughRate`: % of share views → scenario starts
@@ -708,6 +717,7 @@ if (scenario?.role === 'character') {
 - `completionFromShare`: % who complete after clicking share link
 
 **User Attribution:**
+
 - `referredByScenario`: Which scenario brought them in
 - `referrerUserId`: Who shared it (for future referral program)
 - `shareConversionTime`: Time from share click to signup
@@ -715,11 +725,13 @@ if (scenario?.role === 'character') {
 ### Viral Loop Optimization
 
 **Current Flow:**
+
 1. User completes scenario
 2. ???
 3. No sharing happens
 
 **Target Flow:**
+
 1. User completes scenario
 2. **Post-completion modal**: "You finished! Share your attempt?"
 3. User shares with custom message template
@@ -731,6 +743,7 @@ if (scenario?.role === 'character') {
 ### Required Code Changes
 
 **1. Add Share Metadata to Scenarios**
+
 ```typescript
 // In scenarios table:
 shareSlug: text('share_slug').unique(),
@@ -741,37 +754,40 @@ shareConversionRate: real('share_conversion_rate'),
 ```
 
 **2. Create Share Event Tracking**
+
 ```typescript
 // New table: scenario_shares
 export const scenarioShares = pgTable('scenario_shares', {
-  id: text('id').primaryKey(),
-  scenarioId: text('scenario_id').references(() => scenarios.id),
-  sharedByUserId: uuid('shared_by_user_id').references(() => users.id),
-  shareMethod: text('share_method'), // 'twitter' | 'whatsapp' | 'copy'
-  clickCount: integer('click_count').default(0),
-  signupCount: integer('signup_count').default(0),
-  createdAt: timestamp('created_at').defaultNow()
+	id: text('id').primaryKey(),
+	scenarioId: text('scenario_id').references(() => scenarios.id),
+	sharedByUserId: uuid('shared_by_user_id').references(() => users.id),
+	shareMethod: text('share_method'), // 'twitter' | 'whatsapp' | 'copy'
+	clickCount: integer('click_count').default(0),
+	signupCount: integer('signup_count').default(0),
+	createdAt: timestamp('created_at').defaultNow()
 });
 ```
 
 **3. Share Page Route**
+
 ```typescript
 // src/routes/s/[slug]/+page.server.ts
 export async function load({ params }) {
-  const scenario = await db.query.scenarios.findFirst({
-    where: eq(scenarios.shareSlug, params.slug)
-  });
+	const scenario = await db.query.scenarios.findFirst({
+		where: eq(scenarios.shareSlug, params.slug)
+	});
 
-  // Track share view
-  await incrementShareView(scenario.id);
+	// Track share view
+	await incrementShareView(scenario.id);
 
-  return { scenario };
+	return { scenario };
 }
 ```
 
 ### Success Metrics (3-Month Target)
 
 **Viral Growth KPIs:**
+
 - [ ] 30% of users share at least one scenario
 - [ ] Viral coefficient > 0.5 (target: 0.8 by month 6)
 - [ ] 20% of new signups come from shared scenarios
@@ -779,6 +795,7 @@ export async function load({ params }) {
 - [ ] Average share CTR > 15%
 
 **Quality Metrics:**
+
 - [ ] Share → completion rate > 40%
 - [ ] Shared scenario completion rate > base (shows good selection)
 - [ ] Post-share NPS > 8/10
@@ -788,18 +805,21 @@ export async function load({ params }) {
 ## Action Items (Immediate Next Steps)
 
 ### This Week
+
 - [x] Fix role confusion in character scenarios ✅ (2025-11-20)
 - [ ] Audit all scenarios to ensure role field is defined
 - [ ] Add `shareSlug` to top 20 most popular scenarios
 - [ ] Design OG:image template for scenario shares
 
 ### Next Week
+
 - [ ] Build `/s/{slug}` share page route
 - [ ] Implement share tracking analytics
 - [ ] Add "Share" button to post-completion modal
 - [ ] Create 5 viral-optimized scenarios (job interview, breakup, etc.)
 
 ### Month 2
+
 - [ ] Launch "Trending Scenarios" homepage section
 - [ ] Build scenario collections feature
 - [ ] Add remix/fork functionality

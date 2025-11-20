@@ -101,19 +101,12 @@ export function formatScenarioCategories(categories: string[] | null | undefined
  * Quick action: Try a scenario immediately from browse page
  * Tracks analytics and navigates to conversation
  */
-export function tryScenarioNow(
-	scenario: Scenario,
-	store: ScenarioSelectionStoreAdapter
-): void {
-	selectScenario(
-		scenario,
-		store,
-		{
-			source: 'browse_try_now',
-			trackEvent: true,
-			navigateTo: '/conversation'
-		}
-	);
+export function tryScenarioNow(scenario: Scenario, store: ScenarioSelectionStoreAdapter): void {
+	selectScenario(scenario, store, {
+		source: 'browse_try_now',
+		trackEvent: true,
+		navigateTo: '/conversation'
+	});
 }
 
 /**

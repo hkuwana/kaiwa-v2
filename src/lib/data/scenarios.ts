@@ -329,7 +329,13 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 		categories: ['health', 'emergency'],
 		tags: ['medical', 'emergency room', 'symptoms', 'urgent care', 'triage'],
 		primarySkill: 'conversation',
-		searchKeywords: ['emergency room', 'hospital', 'medical emergency', 'describe symptoms', 'urgent'],
+		searchKeywords: [
+			'emergency room',
+			'hospital',
+			'medical emergency',
+			'describe symptoms',
+			'urgent'
+		],
 		thumbnailUrl: '/src/lib/assets/scenarios/clinic-night-triage.png',
 		estimatedDurationSeconds: 900, // 15 minutes
 		authorDisplayName: 'Kaiwa Team',

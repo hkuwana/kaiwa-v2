@@ -12,9 +12,9 @@
 	};
 
 	const groupedByDifficulty = {
-		beginner: sortedScenarios.filter(s => s.difficulty === 'beginner'),
-		intermediate: sortedScenarios.filter(s => s.difficulty === 'intermediate'),
-		advanced: sortedScenarios.filter(s => s.difficulty === 'advanced')
+		beginner: sortedScenarios.filter((s) => s.difficulty === 'beginner'),
+		intermediate: sortedScenarios.filter((s) => s.difficulty === 'intermediate'),
+		advanced: sortedScenarios.filter((s) => s.difficulty === 'advanced')
 	};
 
 	async function copyScenarioToClipboard(scenario) {
@@ -63,7 +63,9 @@
 <div class="scenarios-container">
 	<div class="header">
 		<h1>All Scenarios</h1>
-		<p class="subtitle">Total: {sortedScenarios.length} scenarios • Copy any scenario to paste into your code</p>
+		<p class="subtitle">
+			Total: {sortedScenarios.length} scenarios • Copy any scenario to paste into your code
+		</p>
 		{#if copyFeedback}
 			<div class="feedback">{copyFeedback}</div>
 		{/if}
@@ -72,7 +74,9 @@
 	{#each Object.entries(groupedByDifficulty) as [difficulty, scenarios]}
 		{#if scenarios.length > 0}
 			<section class="difficulty-section">
-				<h2 class="difficulty-header">{difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} ({scenarios.length})</h2>
+				<h2 class="difficulty-header">
+					{difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} ({scenarios.length})
+				</h2>
 
 				<div class="scenarios-grid">
 					{#each scenarios as scenario (scenario.id)}
@@ -96,7 +100,9 @@
 
 								<div class="scenario-details">
 									{#if scenario.estimatedDurationSeconds}
-										<span class="detail">⏱️ {Math.round(scenario.estimatedDurationSeconds / 60)} min</span>
+										<span class="detail"
+											>⏱️ {Math.round(scenario.estimatedDurationSeconds / 60)} min</span
+										>
 									{/if}
 									{#if scenario.primarySkill}
 										<span class="detail">🎯 {scenario.primarySkill}</span>
@@ -140,7 +146,8 @@
 
 <style>
 	:global(body) {
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+		font-family:
+			-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 		background-color: #f5f5f5;
 		padding: 20px;
 	}
@@ -212,7 +219,9 @@
 		border-radius: 8px;
 		overflow: hidden;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-		transition: transform 0.2s, box-shadow 0.2s;
+		transition:
+			transform 0.2s,
+			box-shadow 0.2s;
 		display: flex;
 		flex-direction: column;
 	}

@@ -2,9 +2,8 @@
 	import { onMount } from 'svelte';
 	import { speakersData } from '$lib/data/speakers';
 	import { aboutPagePrompts, characterPrompts, scenarioPrompts } from '$lib/prompts/dev-animated';
-	import { SvelteMap } from 'svelte/reactivity';
-
-	type Speaker = Record<string, unknown>;
+	
+type Speaker = Record<string, unknown>;
 
 	onMount(() => {
 		document.title = 'Animation Prompts - Kaiwa Dev';
@@ -604,8 +603,7 @@ TECHNICAL DETAILS:
 					Preview Current Prompt (for Yuki example)
 				</summary>
 				<div class="collapse-content">
-					<pre
-						class="mt-2 overflow-x-auto rounded bg-base-300 p-4 text-xs">{generateSpeakerPrompt(
+					<pre class="mt-2 overflow-x-auto rounded bg-base-300 p-4 text-xs">{generateSpeakerPrompt(
 							speakersData.find((s) => s.id === 'ja-jp-female'),
 							promptStyle
 						)}</pre>

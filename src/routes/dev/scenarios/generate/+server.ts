@@ -1,4 +1,3 @@
-
 import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { scenarios } from '$lib/prompts/scenarios';
@@ -76,7 +75,7 @@ export const POST = async ({ request }) => {
 			success: true,
 			scenario: {
 				id: scenario.id,
-				title: scenario.title,
+				title: scenario.title
 			},
 			imageUrl,
 			revisedPrompt: revisedPrompt?.substring(0, 200) + '...' || 'No revised prompt returned'

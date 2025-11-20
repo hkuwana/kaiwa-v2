@@ -1,7 +1,6 @@
-
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { scenarios, generateScenarioPrompt } from '$lib/prompts/scenarios';
+	import { scenarios } from '$lib/prompts/scenarios';
 
 	onMount(() => {
 		document.title = 'Scenario Prompts - Kaiwa Dev';
@@ -10,10 +9,10 @@
 	// Image generation state
 	let isGenerating = $state(false);
 	let generationResult = $state<{
-        scenarioId: string;
-        imageUrl: string;
-        error?: string;
-    } | null>(null);
+		scenarioId: string;
+		imageUrl: string;
+		error?: string;
+	} | null>(null);
 
 	// Selected model
 	let selectedModel = $state<'dall-e-3' | 'gpt-image-1'>('dall-e-3');
@@ -26,20 +25,20 @@
 		scenarioId: string,
 		model: 'dall-e-3' | 'gpt-image-1' = selectedModel
 	): Promise<boolean> {
-        const scenario = scenarios.find(s => s.id === scenarioId);
-        if (!scenario) {
-            generationResult = {
-                scenarioId,
-                imageUrl: '',
-                error: 'Scenario not found'
-            };
-            return false;
-        }
+		const scenario = scenarios.find((s) => s.id === scenarioId);
+		if (!scenario) {
+			generationResult = {
+				scenarioId,
+				imageUrl: '',
+				error: 'Scenario not found'
+			};
+			return false;
+		}
 
 		const prompt = scenario.prompt;
 
 		isGenerating = true;
-        generationResult = null;
+		generationResult = null;
 
 		try {
 			const response = await fetch('/dev/scenarios/generate', {
@@ -53,28 +52,28 @@
 			});
 
 			const result = await response.json();
-            isGenerating = false;
+			isGenerating = false;
 
 			if (result.success) {
 				generationResult = {
-                    scenarioId,
-					imageUrl: result.imageUrl,
+					scenarioId,
+					imageUrl: result.imageUrl
 				};
 				return true;
 			} else {
 				generationResult = {
-                    scenarioId,
+					scenarioId,
 					imageUrl: '',
-					error: result.error,
+					error: result.error
 				};
 				return false;
 			}
 		} catch {
-            isGenerating = false;
+			isGenerating = false;
 			generationResult = {
-                scenarioId,
+				scenarioId,
 				imageUrl: '',
-				error: 'Network error',
+				error: 'Network error'
 			};
 			return false;
 		}
@@ -85,11 +84,11 @@
 		generationResult = null;
 	}
 
-    function getScenarioPrompt(scenarioId: string | null): string {
-        if (!scenarioId) return 'Select a scenario to see the prompt.';
-        const scenario = scenarios.find(s => s.id === scenarioId);
-        return scenario ? scenario.prompt : 'Scenario not found.';
-    }
+	function getScenarioPrompt(scenarioId: string | null): string {
+		if (!scenarioId) return 'Select a scenario to see the prompt.';
+		const scenario = scenarios.find((s) => s.id === scenarioId);
+		return scenario ? scenario.prompt : 'Scenario not found.';
+	}
 </script>
 
 <svelte:head>
@@ -145,7 +144,7 @@
 				</div>
 			</div>
 
-            <!-- Individual Scenario Testing -->
+			<!-- Individual Scenario Testing -->
 			<div class="card mb-6 border border-success/20 bg-base-200 p-4">
 				<h3 class="mb-3 font-bold">🎨 Test Individual Scenario</h3>
 				<p class="mb-4 text-sm opacity-75">
@@ -185,67 +184,65 @@
 					</div>
 				</div>
 
-                <!-- Prompt Preview -->
-                {#if selectedTestScenario}
-				<details class="collapse-arrow collapse mt-4 border border-base-300 bg-base-100">
-					<summary class="collapse-title text-sm font-medium">
-						Preview Current Prompt
-					</summary>
-					<div class="collapse-content">
-						<pre
-							class="mt-2 overflow-x-auto rounded bg-base-300 p-4 text-xs">{getScenarioPrompt(selectedTestScenario)}</pre>
-					</div>
-				</details>
-                {/if}
+				<!-- Prompt Preview -->
+				{#if selectedTestScenario}
+					<details class="collapse-arrow collapse mt-4 border border-base-300 bg-base-100">
+						<summary class="collapse-title text-sm font-medium"> Preview Current Prompt </summary>
+						<div class="collapse-content">
+							<pre class="mt-2 overflow-x-auto rounded bg-base-300 p-4 text-xs">{getScenarioPrompt(
+									selectedTestScenario
+								)}</pre>
+						</div>
+					</details>
+				{/if}
 			</div>
 
-            <button class="btn ml-2 btn-outline" onclick={clearResult} disabled={isGenerating}>
-                Clear Result
-            </button>
-
+			<button class="btn ml-2 btn-outline" onclick={clearResult} disabled={isGenerating}>
+				Clear Result
+			</button>
 
 			{#if generationResult}
 				<div class="mt-6">
-                    <h3 class="text-2xl font-bold mb-4">Generation Result</h3>
-                    <div class="card border border-success/20 bg-base-200 shadow-xl">
-                        <div class="card-body">
-                            <h3 class="card-title text-lg">
-                                {scenarios.find(s => s.id === generationResult.scenarioId)?.title}
-                            </h3>
+					<h3 class="mb-4 text-2xl font-bold">Generation Result</h3>
+					<div class="card border border-success/20 bg-base-200 shadow-xl">
+						<div class="card-body">
+							<h3 class="card-title text-lg">
+								{scenarios.find((s) => s.id === generationResult.scenarioId)?.title}
+							</h3>
 
-                            {#if isGenerating}
-                                <div class="flex items-center justify-center py-8">
-                                    <span class="loading loading-lg loading-spinner"></span>
-                                </div>
-                            {:else if generationResult.error}
-                                <div class="alert alert-error">
-                                    <p class="text-sm">❌ {generationResult.error}</p>
-                                </div>
-                            {:else if generationResult.imageUrl}
-                                <div class="mt-4">
-                                    <img
-                                        src={generationResult.imageUrl}
-                                        alt={`Generated image for ${scenarios.find(s => s.id === generationResult.scenarioId)?.title}`}
-                                        class="w-full rounded-lg"
-                                        loading="lazy"
-                                    />
-                                    <div class="mt-2 flex flex-wrap gap-2">
-                                        <button
-                                            class="btn btn-xs btn-primary"
-                                            onclick={() => window.open(generationResult.imageUrl, '_blank')}
-                                        >
-                                            📂 Open Full Size
-                                        </button>
-                                    </div>
-                                </div>
-                            {/if}
-                        </div>
-                    </div>
+							{#if isGenerating}
+								<div class="flex items-center justify-center py-8">
+									<span class="loading loading-lg loading-spinner"></span>
+								</div>
+							{:else if generationResult.error}
+								<div class="alert alert-error">
+									<p class="text-sm">❌ {generationResult.error}</p>
+								</div>
+							{:else if generationResult.imageUrl}
+								<div class="mt-4">
+									<img
+										src={generationResult.imageUrl}
+										alt={`Generated image for ${scenarios.find((s) => s.id === generationResult.scenarioId)?.title}`}
+										class="w-full rounded-lg"
+										loading="lazy"
+									/>
+									<div class="mt-2 flex flex-wrap gap-2">
+										<button
+											class="btn btn-xs btn-primary"
+											onclick={() => window.open(generationResult.imageUrl, '_blank')}
+										>
+											📂 Open Full Size
+										</button>
+									</div>
+								</div>
+							{/if}
+						</div>
+					</div>
 				</div>
 			{/if}
 		</section>
 
-        <!-- Scenario Prompts -->
+		<!-- Scenario Prompts -->
 		<section class="mb-12">
 			<h2 class="mb-6 text-3xl font-bold text-accent">Scenario Backgrounds</h2>
 			<div class="grid gap-6 md:grid-cols-2">

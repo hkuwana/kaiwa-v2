@@ -304,7 +304,7 @@
 						<div
 							role="button"
 							tabindex="0"
-							class="group card overflow-hidden rounded-2xl border border-base-content/10 bg-base-100 text-left shadow-sm transition-all hover:border-primary/30 hover:shadow-lg cursor-pointer"
+							class="group card cursor-pointer overflow-hidden rounded-2xl border border-base-content/10 bg-base-100 text-left shadow-sm transition-all hover:border-primary/30 hover:shadow-lg"
 							onclick={() => openScenarioDetails(scenario)}
 							onkeydown={(e) => {
 								if (e.key === 'Enter' || e.key === ' ') {
@@ -423,46 +423,48 @@
 			<!-- Skeleton Loading State -->
 			<div>
 				<div class="mb-6 flex items-center gap-3">
-					<div class="skeleton h-8 w-48"></div>
-					<div class="skeleton h-6 w-12"></div>
+					<div class="h-8 w-48 skeleton"></div>
+					<div class="h-6 w-12 skeleton"></div>
 				</div>
 				<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 					{#each Array(SKELETON_COUNT) as _, i (i)}
-						<div class="card overflow-hidden rounded-2xl border border-base-content/10 bg-base-100 shadow-sm">
+						<div
+							class="card overflow-hidden rounded-2xl border border-base-content/10 bg-base-100 shadow-sm"
+						>
 							<!-- Skeleton image -->
-							<div class="skeleton h-40 w-full bg-base-300"></div>
+							<div class="h-40 w-full skeleton bg-base-300"></div>
 
 							<div class="card-body p-6">
 								<!-- Skeleton role badge -->
 								<div class="mb-3 flex items-center justify-between">
-									<div class="skeleton h-5 w-5"></div>
-									<div class="skeleton h-5 w-20"></div>
+									<div class="h-5 w-5 skeleton"></div>
+									<div class="h-5 w-20 skeleton"></div>
 								</div>
 
 								<!-- Skeleton title -->
 								<div class="mb-2 space-y-2">
-									<div class="skeleton h-5 w-full"></div>
-									<div class="skeleton h-5 w-3/4"></div>
+									<div class="h-5 w-full skeleton"></div>
+									<div class="h-5 w-3/4 skeleton"></div>
 								</div>
 
 								<!-- Skeleton description -->
 								<div class="mb-4 space-y-2">
-									<div class="skeleton h-4 w-full"></div>
-									<div class="skeleton h-4 w-5/6"></div>
+									<div class="h-4 w-full skeleton"></div>
+									<div class="h-4 w-5/6 skeleton"></div>
 								</div>
 
 								<!-- Skeleton difficulty -->
 								<div class="mb-4 flex gap-2">
-									<div class="skeleton h-1.5 w-5"></div>
-									<div class="skeleton h-1.5 w-5"></div>
-									<div class="skeleton h-1.5 w-5"></div>
-									<div class="skeleton h-4 w-12"></div>
+									<div class="h-1.5 w-5 skeleton"></div>
+									<div class="h-1.5 w-5 skeleton"></div>
+									<div class="h-1.5 w-5 skeleton"></div>
+									<div class="h-4 w-12 skeleton"></div>
 								</div>
 
 								<!-- Skeleton buttons -->
 								<div class="flex gap-2">
-									<div class="skeleton h-8 flex-1"></div>
-									<div class="skeleton h-8 w-8"></div>
+									<div class="h-8 flex-1 skeleton"></div>
+									<div class="h-8 w-8 skeleton"></div>
 								</div>
 							</div>
 						</div>
@@ -486,7 +488,7 @@
 						<div
 							role="button"
 							tabindex="0"
-							class="group card overflow-hidden rounded-2xl border border-base-content/10 bg-base-100 text-left shadow-sm transition-all hover:border-primary/30 hover:shadow-lg cursor-pointer"
+							class="group card cursor-pointer overflow-hidden rounded-2xl border border-base-content/10 bg-base-100 text-left shadow-sm transition-all hover:border-primary/30 hover:shadow-lg"
 							onclick={() => openScenarioDetails(scenario)}
 							onkeydown={(e) => {
 								if (e.key === 'Enter' || e.key === ' ') {
