@@ -641,7 +641,7 @@ ${rolePositioning}
 ## Communication Style
 - React with 1-2 words, ask SHORT follow-up questions (2-5 words)
 - MAX 8 words per turn (80% of time): reaction (1-2 words) + question (2-5 words)
-- Example: "いいね！何を？" | "本当？どうして？" | "素敵！いつ？"
+- Example patterns in ${language.name}: [reaction]! [question]?
 - VARY your phrases—never repeat the same response twice
 - Be playful: use casual language, filler words ("uhh", "yeah", "like")
 - When correcting, acknowledge first then offer the better way
@@ -1306,6 +1306,57 @@ ${personalityExamples}`;
 		return examples[languageCode] || 'Example: Break the word into syllables, highlight the tricky sound, have them try again.';
 	}
 
+	/**
+	 * Get language-specific teaching flow example
+	 */
+	private getTeachingFlowExample(languageCode: string, languageName: string): string {
+		const examples: Record<string, string> = {
+			ja: `1. YOU: "When meeting someone, say: 'はじめまして.' It means 'nice to meet you.' Try it?"
+2. LEARNER: [attempts]
+3. YOU: "Great! Now say your name: '[Name]です.' Try both?"
+4. LEARNER: [practices both]
+5. YOU: "Perfect! Now let's practice asking their name: 'お名前は？'"
+6. [Cycle continues...]`,
+			es: `1. YOU: "When meeting someone, say: 'Mucho gusto.' It means 'nice to meet you.' Try it?"
+2. LEARNER: [attempts]
+3. YOU: "Great! Now say your name: 'Me llamo [Name].' Try both?"
+4. LEARNER: [practices both]
+5. YOU: "Perfect! Now let's practice asking their name: '¿Cómo te llamas?'"
+6. [Cycle continues...]`,
+			fr: `1. YOU: "When meeting someone, say: 'Enchanté.' It means 'nice to meet you.' Try it?"
+2. LEARNER: [attempts]
+3. YOU: "Great! Now say your name: 'Je m'appelle [Name].' Try both?"
+4. LEARNER: [practices both]
+5. YOU: "Perfect! Now let's practice asking their name: 'Comment tu t'appelles?'"
+6. [Cycle continues...]`,
+			de: `1. YOU: "When meeting someone, say: 'Freut mich.' It means 'nice to meet you.' Try it?"
+2. LEARNER: [attempts]
+3. YOU: "Great! Now say your name: 'Ich heiße [Name].' Try both?"
+4. LEARNER: [practices both]
+5. YOU: "Perfect! Now let's practice asking their name: 'Wie heißt du?'"
+6. [Cycle continues...]`,
+			it: `1. YOU: "When meeting someone, say: 'Piacere.' It means 'nice to meet you.' Try it?"
+2. LEARNER: [attempts]
+3. YOU: "Great! Now say your name: 'Mi chiamo [Name].' Try both?"
+4. LEARNER: [practices both]
+5. YOU: "Perfect! Now let's practice asking their name: 'Come ti chiami?'"
+6. [Cycle continues...]`,
+			pt: `1. YOU: "When meeting someone, say: 'Prazer.' It means 'nice to meet you.' Try it?"
+2. LEARNER: [attempts]
+3. YOU: "Great! Now say your name: 'Meu nome é [Name].' Try both?"
+4. LEARNER: [practices both]
+5. YOU: "Perfect! Now let's practice asking their name: 'Qual é o seu nome?'"
+6. [Cycle continues...]`
+		};
+
+		return examples[languageCode] || `1. YOU: "Teach a common ${languageName} greeting phrase. Have them repeat it."
+2. LEARNER: [attempts]
+3. YOU: "Acknowledge success. Introduce how to say their name in ${languageName}. Have them combine both."
+4. LEARNER: [practices both phrases]
+5. YOU: "Acknowledge mastery. Teach how to ask someone's name in ${languageName}."
+6. [Cycle continues building on previous phrases...]`;
+	}
+
 	private buildInstructionsRules(): string {
 		const { language, scenario } = this.options;
 		const parameterInstructions = parametersToInstructions(this.params);
@@ -1503,13 +1554,8 @@ Your role is to guide the learner through a structured cycle of EXPLAIN → PRAC
 - Alternate every 2-4 exchanges: explain → practice → explain → practice
 - Build on previous phrases: "Remember [earlier phrase]? Now let's add..."
 
-**Example Teaching Flow:**
-1. YOU: "When meeting someone, say: 'はじめまして.' It means 'nice to meet you.' Try it?"
-2. LEARNER: [attempts]
-3. YOU: "Great! Now say your name: '[Name]です.' Try both?"
-4. LEARNER: [practices both]
-5. YOU: "Perfect! Now let's practice asking their name: 'お名前は？'"
-6. [Cycle continues...]
+**Example Teaching Flow (in ${this.options.language.name}):**
+${this.getTeachingFlowExample(this.options.language.code, this.options.language.name)}
 
 **Key Rules:**
 - NEVER lecture for more than one sentence
