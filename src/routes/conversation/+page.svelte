@@ -10,7 +10,11 @@
 	import { realtimeOpenAI } from '$lib/stores/realtime-openai.store.svelte';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
-	import { getSpeakerById, getSpeakerByVoiceId, getDefaultSpeakerForLanguage } from '$lib/data/speakers';
+	import {
+		getSpeakerById,
+		getSpeakerByVoiceId,
+		getDefaultSpeakerForLanguage
+	} from '$lib/data/speakers';
 	import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 	import { determineAnalysisType } from '$lib/services/analysis.service';
 

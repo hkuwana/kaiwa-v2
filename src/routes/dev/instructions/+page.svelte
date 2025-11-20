@@ -20,15 +20,15 @@
 
 	let selectedLanguage = $state(languages[0]);
 	let selectedScenario = $state(scenariosData[0]);
-let currentInstructions = $state('');
-let autoAdapt = $state(false);
-let errorCount = $state(0);
-let successStreak = $state(0);
-let userPreferences = $state<UserPreferences | null>(null);
-let isLoadingPreferences = $state(true);
+	let currentInstructions = $state('');
+	let autoAdapt = $state(false);
+	let errorCount = $state(0);
+	let successStreak = $state(0);
+	let userPreferences = $state<UserPreferences | null>(null);
+	let isLoadingPreferences = $state(true);
 
-const getSpeakersForLanguage = (languageId: string) =>
-	speakersData.filter((speaker) => speaker.languageId === languageId);
+	const getSpeakersForLanguage = (languageId: string) =>
+		speakersData.filter((speaker) => speaker.languageId === languageId);
 
 	let availableSpeakers = $derived(getSpeakersForLanguage(selectedLanguage.id));
 	let selectedSpeakerId = $state('');
@@ -669,9 +669,7 @@ const getSpeakersForLanguage = (languageId: string) =>
 					</div>
 				</div>
 				{#if isLoadingPreferences}
-					<div class="mb-2 text-xs text-gray-500">
-						Loading your saved preferences and memories…
-					</div>
+					<div class="mb-2 text-xs text-gray-500">Loading your saved preferences and memories…</div>
 				{/if}
 				<div
 					class="max-h-[800px] overflow-y-auto rounded border bg-gray-50 p-4 font-mono text-xs whitespace-pre-wrap"

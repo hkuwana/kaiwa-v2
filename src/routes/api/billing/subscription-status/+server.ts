@@ -43,9 +43,7 @@ export const GET = async ({ locals }) => {
 
 		const cancelAt = subscription.cancel_at ? new Date(subscription.cancel_at * 1000) : null;
 
-		const canceledAt = subscription.canceled_at
-			? new Date(subscription.canceled_at * 1000)
-			: null;
+		const canceledAt = subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null;
 
 		const willCancelAtPeriodEnd = subscription.cancel_at_period_end || false;
 

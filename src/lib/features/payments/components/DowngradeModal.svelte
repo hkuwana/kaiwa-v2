@@ -122,7 +122,7 @@
 					</label>
 					<select
 						id="downgrade-reason"
-						class="select select-bordered w-full"
+						class="select-bordered select w-full"
 						bind:value={selectedReason}
 					>
 						<option value="" disabled>Select a reason...</option>
@@ -140,7 +140,7 @@
 					</label>
 					<textarea
 						id="additional-feedback"
-						class="textarea textarea-bordered h-24"
+						class="textarea-bordered textarea h-24"
 						placeholder="Tell us more about your experience..."
 						bind:value={additionalFeedback}
 						maxlength="500"
@@ -171,7 +171,11 @@
 				<button class="btn btn-ghost" onclick={closeModal} disabled={isLoading}>
 					Never Mind, Keep {currentTier}
 				</button>
-				<button class="btn btn-error" onclick={handleConfirm} disabled={isLoading || !selectedReason}>
+				<button
+					class="btn btn-error"
+					onclick={handleConfirm}
+					disabled={isLoading || !selectedReason}
+				>
 					{#if isLoading}
 						<span class="loading loading-sm loading-spinner"></span>
 						Processing...

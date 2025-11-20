@@ -182,13 +182,13 @@
 
 	<!-- Headphone Warning Modal -->
 	{#if showHeadphoneWarning}
-		<dialog class="modal modal-open">
+		<dialog class="modal-open modal">
 			<div class="modal-box">
-				<h3 class="text-lg font-bold flex items-center gap-2">
+				<h3 class="flex items-center gap-2 text-lg font-bold">
 					<span class="icon-[mdi--alert-circle-outline] h-6 w-6 text-warning"></span>
 					Headphones Required
 				</h3>
-				<div class="py-4 space-y-3">
+				<div class="space-y-3 py-4">
 					<p class="text-sm">
 						<strong>Conversation Mode</strong> works best with headphones or earbuds to prevent audio
 						feedback loops.
@@ -196,8 +196,8 @@
 					<div class="alert alert-warning py-2">
 						<span class="icon-[mdi--headphones] h-5 w-5 shrink-0"></span>
 						<span class="text-xs"
-							>Without headphones, the assistant's voice may be picked up by your microphone, creating
-							an echo effect and poor audio quality.</span
+							>Without headphones, the assistant's voice may be picked up by your microphone,
+							creating an echo effect and poor audio quality.</span
 						>
 					</div>
 					<p class="text-sm">Do you have headphones or earbuds connected?</p>

@@ -275,7 +275,6 @@ export class RealtimeEventCoordinator {
 		this.historyText[itemId] = text;
 	}
 
-	 
 	private maybeSendResponseForCommit(_commit: PendingCommitEntry, _reason: string) {
 		// This would be called to determine if a response should be created
 		// Implementation depends on response.created event handling
