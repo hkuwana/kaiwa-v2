@@ -104,39 +104,79 @@ async function seedScenarios() {
 
 	for (const scenario of scenariosData) {
 		try {
-			// Check if scenario already exists
-			const existing = await db
-				.select()
-				.from(scenarios)
-				.where(eq(scenarios.id, scenario.id))
-				.limit(1);
+			// Upsert scenario (insert or update if exists)
+			await db
+				.insert(scenarios)
+				.values({
+					id: scenario.id,
+					title: scenario.title,
+					description: scenario.description,
+					role: scenario.role,
+					difficulty: scenario.difficulty,
+					difficultyRating: scenario.difficultyRating,
+					cefrLevel: scenario.cefrLevel,
+					cefrRecommendation: scenario.cefrRecommendation,
+					learningGoal: scenario.learningGoal,
+					instructions: scenario.instructions,
+					context: scenario.context,
+					persona: scenario.persona,
+					expectedOutcome: scenario.expectedOutcome,
+					learningObjectives: scenario.learningObjectives,
+					comfortIndicators: scenario.comfortIndicators,
+					// Phase 1: Discovery & Sharing fields
+					categories: scenario.categories,
+					tags: scenario.tags,
+					primarySkill: scenario.primarySkill,
+					searchKeywords: scenario.searchKeywords,
+					thumbnailUrl: scenario.thumbnailUrl,
+					estimatedDurationSeconds: scenario.estimatedDurationSeconds,
+					authorDisplayName: scenario.authorDisplayName,
+					shareSlug: scenario.shareSlug,
+					shareUrl: scenario.shareUrl,
+					// Metadata
+					createdByUserId: scenario.createdByUserId,
+					visibility: scenario.visibility,
+					usageCount: scenario.usageCount,
+					isActive: scenario.isActive,
+					updatedAt: new Date()
+				})
+				.onConflictDoUpdate({
+					target: scenarios.id,
+					set: {
+						title: scenario.title,
+						description: scenario.description,
+						role: scenario.role,
+						difficulty: scenario.difficulty,
+						difficultyRating: scenario.difficultyRating,
+						cefrLevel: scenario.cefrLevel,
+						cefrRecommendation: scenario.cefrRecommendation,
+						learningGoal: scenario.learningGoal,
+						instructions: scenario.instructions,
+						context: scenario.context,
+						persona: scenario.persona,
+						expectedOutcome: scenario.expectedOutcome,
+						learningObjectives: scenario.learningObjectives,
+						comfortIndicators: scenario.comfortIndicators,
+						// Phase 1: Discovery & Sharing fields
+						categories: scenario.categories,
+						tags: scenario.tags,
+						primarySkill: scenario.primarySkill,
+						searchKeywords: scenario.searchKeywords,
+						thumbnailUrl: scenario.thumbnailUrl,
+						estimatedDurationSeconds: scenario.estimatedDurationSeconds,
+						authorDisplayName: scenario.authorDisplayName,
+						shareSlug: scenario.shareSlug,
+						shareUrl: scenario.shareUrl,
+						// Metadata
+						visibility: scenario.visibility,
+						isActive: scenario.isActive,
+						updatedAt: new Date()
+					}
+				});
 
-			if (existing.length > 0) {
-				logger.info(`  ✓ Scenario ${scenario.title} (${scenario.id}) already exists`);
-				continue;
-			}
-
-			// Insert new scenario
-			await db.insert(scenarios).values({
-				id: scenario.id,
-				title: scenario.title,
-				description: scenario.description,
-				role: scenario.role,
-				difficulty: scenario.difficulty,
-				instructions: scenario.instructions,
-				context: scenario.context,
-				persona: scenario.persona,
-				expectedOutcome: scenario.expectedOutcome,
-				learningObjectives: scenario.learningObjectives,
-				comfortIndicators: scenario.comfortIndicators,
-				isActive: scenario.isActive,
-				createdAt: new Date(),
-				updatedAt: new Date()
-			});
-
-			logger.info(`  ✅ Inserted scenario: ${scenario.title} (${scenario.id})`);
+			logger.info(`  ✅ Upserted scenario: ${scenario.title} (${scenario.id})`);
 		} catch (error) {
-			logger.error(`  ❌ Error inserting scenario ${scenario.title}:`, error);
+			logger.error(`  ❌ Error upserting scenario ${scenario.title}:`, error);
 		}
 	}
 }

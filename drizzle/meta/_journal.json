@@ -239,6 +239,13 @@
       "when": 1763362472558,
       "tag": "0033_light_daredevil",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1763636608773,
+      "tag": "0034_graceful_silverclaw",
+      "breakpoints": true
     }
   ]
 }

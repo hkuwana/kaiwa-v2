@@ -202,7 +202,17 @@ function buildInsertPayload(input: {
 		learningObjectives: scenarioWithId.learningObjectives ?? [],
 		comfortIndicators: scenarioWithId.comfortIndicators ?? null,
 		persona: scenarioWithId.persona ?? null,
-		isActive: true
+		isActive: true,
+		// Phase 1: Discovery & Sharing fields
+		categories: scenarioWithId.categories ?? null,
+		tags: scenarioWithId.tags ?? null,
+		primarySkill: scenarioWithId.primarySkill ?? 'conversation',
+		searchKeywords: scenarioWithId.searchKeywords ?? null,
+		thumbnailUrl: scenarioWithId.thumbnailUrl ?? null,
+		estimatedDurationSeconds: scenarioWithId.estimatedDurationSeconds ?? null,
+		authorDisplayName: scenarioWithId.authorDisplayName ?? null,
+		shareSlug: scenarioWithId.shareSlug ?? null,
+		shareUrl: scenarioWithId.shareUrl ?? null
 	};
 }
 
@@ -439,7 +449,17 @@ export async function generateScenarioDraft(
 		usageCount: 0,
 		isActive: true,
 		createdAt: now,
-		updatedAt: now
+		updatedAt: now,
+		// Phase 1: Discovery & Sharing fields (optional for custom scenarios)
+		categories: null, // Users can add these later if desired
+		tags: null,
+		primarySkill: 'conversation', // Default to conversation for all custom scenarios
+		searchKeywords: null,
+		thumbnailUrl: null,
+		estimatedDurationSeconds: null, // Optional UX hint - not used for tier tracking
+		authorDisplayName: null, // Will be set on save to user's display name
+		shareSlug: null, // Generated on save if scenario is made shareable
+		shareUrl: null
 	};
 
 	return {

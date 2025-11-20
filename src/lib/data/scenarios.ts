@@ -1,5 +1,14 @@
 // 🎯 Scenarios Data
 // Focused scenario set for the MVP
+//
+// ⚠️ NOTE ON DURATION TRACKING:
+// - estimatedDurationSeconds is OPTIONAL UX metadata (can be null)
+// - It's NOT used for tier usage limits - we track actual conversation time via:
+//   • user_usage.secondsUsed (actual time spent in conversations)
+//   • tiers.monthlySeconds (tier limit, e.g., 900 seconds for free tier)
+// - You do NOT need to fill out estimatedDurationSeconds for new scenarios
+// - Only add it if you want to help users plan their practice time
+// - Actual usage tracking happens automatically during conversations
 
 import type { Scenario } from '$lib/server/db/types';
 export type { Scenario };
@@ -57,14 +66,15 @@ Coach warmly. Avoid lists. Build confidence in ~5 minutes.`,
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		categories: null,
-		tags: null,
-		primarySkill: null,
-		searchKeywords: null,
-		thumbnailUrl: null,
-		estimatedDurationSeconds: null,
-		authorDisplayName: null,
-		shareSlug: null,
+		// Phase 1: Discovery & Sharing fields
+		categories: ['education'],
+		tags: ['beginner', 'first conversation', 'confidence building', 'onboarding'],
+		primarySkill: 'conversation',
+		searchKeywords: ['first conversation', 'beginner', 'start learning', 'confidence'],
+		thumbnailUrl: '/thumbnails/scenarios/beginner-confidence-bridge.jpg',
+		estimatedDurationSeconds: 300, // 5 minutes - quick intro
+		authorDisplayName: 'Kaiwa Team',
+		shareSlug: 'your-first-conversation-a1b2',
 		shareUrl: null
 	},
 	{
@@ -133,14 +143,15 @@ This is a judgment-free zone. No pressure, just practice.`,
 		createdAt: new Date(),
 		updatedAt: new Date(),
 		cefrRecommendation: null,
-		categories: null,
-		tags: null,
-		primarySkill: null,
-		searchKeywords: null,
-		thumbnailUrl: null,
-		estimatedDurationSeconds: null,
-		authorDisplayName: null,
-		shareSlug: null,
+		// Phase 1: Discovery & Sharing fields
+		categories: ['education'],
+		tags: ['practice', 'free form', 'sandbox', 'beginner friendly'],
+		primarySkill: 'conversation',
+		searchKeywords: ['practice', 'free practice', 'sandbox', 'open practice'],
+		thumbnailUrl: '/thumbnails/scenarios/onboarding-welcome.jpg',
+		estimatedDurationSeconds: null, // Open-ended practice
+		authorDisplayName: 'Kaiwa Team',
+		shareSlug: 'free-practice-mode-x9z3',
 		shareUrl: null
 	},
 	{
@@ -187,14 +198,15 @@ This is a judgment-free zone. No pressure, just practice.`,
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		categories: null,
-		tags: null,
-		primarySkill: null,
-		searchKeywords: null,
-		thumbnailUrl: null,
-		estimatedDurationSeconds: null,
-		authorDisplayName: null,
-		shareSlug: null,
+		// Phase 1: Discovery & Sharing fields
+		categories: ['relationships', 'food_drink'],
+		tags: ['parents', 'family dinner', 'first impression', 'cultural etiquette'],
+		primarySkill: 'conversation',
+		searchKeywords: ['meet parents', 'family introduction', 'earn trust', 'dinner conversation'],
+		thumbnailUrl: '/thumbnails/scenarios/family-dinner-introduction.jpg',
+		estimatedDurationSeconds: 1080, // 18 minutes
+		authorDisplayName: 'Kaiwa Team',
+		shareSlug: 'meeting-parents-jb2k',
 		shareUrl: null
 	},
 	{
@@ -249,14 +261,15 @@ This is a judgment-free zone. No pressure, just practice.`,
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		categories: null,
-		tags: null,
-		primarySkill: null,
-		searchKeywords: null,
-		thumbnailUrl: null,
-		estimatedDurationSeconds: null,
-		authorDisplayName: null,
-		shareSlug: null,
+		// Phase 1: Discovery & Sharing fields
+		categories: ['relationships'],
+		tags: ['family', 'introductions', 'social', 'relationships'],
+		primarySkill: 'conversation',
+		searchKeywords: ['family friends', 'introductions', 'social gathering', 'relationships'],
+		thumbnailUrl: '/thumbnails/scenarios/inlaws-family-friends-intro.jpg',
+		estimatedDurationSeconds: 900, // 15 minutes
+		authorDisplayName: 'Kaiwa Team',
+		shareSlug: 'meeting-family-friends-k5m7',
 		shareUrl: null
 	},
 	{
@@ -312,14 +325,15 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		categories: null,
-		tags: null,
-		primarySkill: null,
-		searchKeywords: null,
-		thumbnailUrl: null,
-		estimatedDurationSeconds: null,
-		authorDisplayName: null,
-		shareSlug: null,
+		// Phase 1: Discovery & Sharing fields
+		categories: ['health', 'emergency'],
+		tags: ['medical', 'emergency room', 'symptoms', 'urgent care', 'triage'],
+		primarySkill: 'conversation',
+		searchKeywords: ['emergency room', 'hospital', 'medical emergency', 'describe symptoms', 'urgent'],
+		thumbnailUrl: '/thumbnails/scenarios/clinic-night-triage.jpg',
+		estimatedDurationSeconds: 900, // 15 minutes
+		authorDisplayName: 'Kaiwa Team',
+		shareSlug: 'emergency-room-visit-x7p9',
 		shareUrl: null
 	},
 	{
@@ -355,14 +369,15 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		categories: null,
-		tags: null,
-		primarySkill: null,
-		searchKeywords: null,
-		thumbnailUrl: null,
-		estimatedDurationSeconds: null,
-		authorDisplayName: null,
-		shareSlug: null,
+		// Phase 1: Discovery & Sharing fields
+		categories: ['relationships', 'food_drink'],
+		tags: ['dating', 'first date', 'conversation', 'getting to know you'],
+		primarySkill: 'conversation',
+		searchKeywords: ['first date', 'dating', 'romantic conversation', 'bar conversation'],
+		thumbnailUrl: '/thumbnails/scenarios/first-date-drinks.jpg',
+		estimatedDurationSeconds: 720, // 12 minutes
+		authorDisplayName: 'Kaiwa Team',
+		shareSlug: 'first-date-drinks-m4k1',
 		shareUrl: null
 	},
 	{
@@ -411,14 +426,15 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		categories: null,
-		tags: null,
-		primarySkill: null,
-		searchKeywords: null,
-		thumbnailUrl: null,
-		estimatedDurationSeconds: null,
-		authorDisplayName: null,
-		shareSlug: null,
+		// Phase 1: Discovery & Sharing fields
+		categories: ['relationships'],
+		tags: ['apology', 'conflict resolution', 'emotional', 'relationships'],
+		primarySkill: 'conversation',
+		searchKeywords: ['apology', 'conflict', 'relationship repair', 'emotional'],
+		thumbnailUrl: '/thumbnails/scenarios/relationship-apology.jpg',
+		estimatedDurationSeconds: 600, // 10 minutes
+		authorDisplayName: 'Kaiwa Team',
+		shareSlug: 'relationship-apology-p4q8',
 		shareUrl: null
 	},
 	{
@@ -464,14 +480,15 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		categories: null,
-		tags: null,
-		primarySkill: null,
-		searchKeywords: null,
-		thumbnailUrl: null,
-		estimatedDurationSeconds: null,
-		authorDisplayName: null,
-		shareSlug: null,
+		// Phase 1: Discovery & Sharing fields
+		categories: ['relationships'],
+		tags: ['emotional', 'vulnerability', 'deep conversation', 'intimacy'],
+		primarySkill: 'conversation',
+		searchKeywords: ['heart to heart', 'vulnerability', 'emotional', 'deep talk'],
+		thumbnailUrl: '/thumbnails/scenarios/vulnerable-heart-to-heart.jpg',
+		estimatedDurationSeconds: 720, // 12 minutes
+		authorDisplayName: 'Kaiwa Team',
+		shareSlug: 'heart-to-heart-talk-v2n6',
 		shareUrl: null
 	},
 	{
@@ -519,14 +536,15 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		categories: null,
-		tags: null,
-		primarySkill: null,
-		searchKeywords: null,
-		thumbnailUrl: null,
-		estimatedDurationSeconds: null,
-		authorDisplayName: null,
-		shareSlug: null,
+		// Phase 1: Discovery & Sharing fields
+		categories: ['relationships', 'entertainment'],
+		tags: ['celebration', 'toast', 'public speaking', 'family'],
+		primarySkill: 'conversation',
+		searchKeywords: ['toast', 'celebration', 'wedding', 'public speaking'],
+		thumbnailUrl: '/thumbnails/scenarios/family-milestone-toast.jpg',
+		estimatedDurationSeconds: 480, // 8 minutes
+		authorDisplayName: 'Kaiwa Team',
+		shareSlug: 'family-toast-celebration-t8w4',
 		shareUrl: null
 	},
 	{
@@ -574,14 +592,15 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		categories: null,
-		tags: null,
-		primarySkill: null,
-		searchKeywords: null,
-		thumbnailUrl: null,
-		estimatedDurationSeconds: null,
-		authorDisplayName: null,
-		shareSlug: null,
+		// Phase 1: Discovery & Sharing fields
+		categories: ['relationships'],
+		tags: ['family', 'important news', 'decision', 'communication'],
+		primarySkill: 'conversation',
+		searchKeywords: ['big news', 'family announcement', 'major decision', 'life changes'],
+		thumbnailUrl: '/thumbnails/scenarios/breaking-important-news.jpg',
+		estimatedDurationSeconds: 900, // 15 minutes
+		authorDisplayName: 'Kaiwa Team',
+		shareSlug: 'sharing-big-news-b3d9',
 		shareUrl: null
 	}
 ];

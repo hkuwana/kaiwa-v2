@@ -155,9 +155,13 @@ export const scenarios = pgTable(
 		// Visual thumbnail URL (watercolor/artistic style preferred)
 		thumbnailUrl: text('thumbnail_url'),
 
-		// Estimated duration in SECONDS (e.g., 600 = 10 minutes, 210 = 3.5 minutes)
-		// Stored in seconds for precision and tier-based limits
-		estimatedDurationSeconds: integer('estimated_duration_seconds').default(600), // Default 10 min
+		// ⚠️ OPTIONAL UX METADATA: Estimated duration in SECONDS (e.g., 600 = 10 minutes)
+		// This is NOT used for tier usage tracking. Actual conversation time is tracked via:
+		//   - user_usage.secondsUsed (actual time spent)
+		//   - tiers.monthlySeconds (tier limit)
+		// This field is purely for helping users plan their practice sessions.
+		// You do NOT need to fill this out for new scenarios. We track actual usage instead.
+		estimatedDurationSeconds: integer('estimated_duration_seconds'), // Nullable - optional UX hint
 
 		// Author attribution for user-generated content
 		authorDisplayName: text('author_display_name').default('Kaiwa Team'),

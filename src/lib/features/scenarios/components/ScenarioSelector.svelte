@@ -3,7 +3,7 @@
 	import { scenariosData, type Scenario } from '$lib/data/scenarios';
 	import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
 	import { onMount } from 'svelte';
-	import ScenarioCreatorModal from './ScenarioCreatorModal.svelte';
+	import ScenarioCreatorModal from '$lib/features/scenarios/components/ScenarioCreatorModal.svelte';
 	import {
 		customScenarioStore,
 		type SaveScenarioResult
@@ -11,6 +11,7 @@
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { setSelectedScenarioIdCookie } from '$lib/utils/cookies';
 	import { SvelteMap } from 'svelte/reactivity';
+	import { selectScenario } from '$lib/services/scenarios/scenario-interaction.service';
 
 	interface Props {
 		scenarios: Scenario[];
@@ -149,13 +150,20 @@
 		return getDifficultyLevel(rating);
 	}
 
-	function selectScenario(scenario: Scenario) {
+	// Delegate to service - keep component dumb
+	function handleSelectScenario(scenario: Scenario) {
 		if (isGuest && scenario.id !== 'onboarding-welcome') {
 			return;
 		}
 
-		// Save selected scenario to cookie for quick recall
-		setSelectedScenarioIdCookie(scenario.id);
+		// Use service to handle selection logic
+		selectScenario(scenario, {
+			source: 'scenario_dropdown',
+			trackEvent: true,
+			navigateTo: null // Don't navigate, just select
+		});
+
+		// Update parent component
 		onScenarioSelect(scenario);
 		isOpen = false;
 		searchQuery = '';
@@ -289,15 +297,15 @@
 				<div class="flex justify-center gap-4 text-xs text-base-content/60">
 					<div class="flex items-center gap-1">
 						<span class="icon-[mdi--circle] h-3 w-3 text-success"></span>
-						<span>Beginner</span>
+						<span>Easy</span>
 					</div>
 					<div class="flex items-center gap-1">
 						<span class="icon-[mdi--circle] h-3 w-3 text-warning"></span>
-						<span>Intermediate</span>
+						<span>Medium</span>
 					</div>
 					<div class="flex items-center gap-1">
 						<span class="icon-[mdi--circle] h-3 w-3 text-error"></span>
-						<span>Advanced</span>
+						<span>Hard</span>
 					</div>
 				</div>
 			</div>
@@ -329,7 +337,7 @@
 						{@const meta = getScenarioMeta(scenario)}
 						{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
 						<button
-							onclick={() => selectScenario(scenario)}
+							onclick={() => handleSelectScenario(scenario)}
 							class="group btn relative my-1 flex w-full items-center justify-start rounded-xl px-4 py-3 text-left btn-ghost transition-colors duration-150"
 							class:bg-primary={selectedScenario?.id === scenario.id}
 							class:text-primary-content={selectedScenario?.id === scenario.id}
@@ -360,15 +368,6 @@
 											></span>
 										{/each}
 									</div>
-									<span>{meta.label}</span>
-									{#if scenario.cefrLevel}
-										<span>·</span>
-										<span
-											class="rounded-full border border-base-content/30 px-1.5 py-px text-[10px] font-semibold"
-										>
-											{scenario.cefrLevel}
-										</span>
-									{/if}
 								</div>
 							</div>
 
