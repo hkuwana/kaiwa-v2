@@ -3,7 +3,7 @@
 	import { scenariosData, type Scenario } from '$lib/data/scenarios';
 	import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
 	import { onMount } from 'svelte';
-	import ScenarioCreatorModal from './ScenarioCreatorModal.svelte';
+	import ScenarioCreatorModal from '$lib/features/scenarios/components/ScenarioCreatorModal.svelte';
 	import {
 		customScenarioStore,
 		type SaveScenarioResult
@@ -289,15 +289,15 @@
 				<div class="flex justify-center gap-4 text-xs text-base-content/60">
 					<div class="flex items-center gap-1">
 						<span class="icon-[mdi--circle] h-3 w-3 text-success"></span>
-						<span>Beginner</span>
+						<span>Easy</span>
 					</div>
 					<div class="flex items-center gap-1">
 						<span class="icon-[mdi--circle] h-3 w-3 text-warning"></span>
-						<span>Intermediate</span>
+						<span>Medium</span>
 					</div>
 					<div class="flex items-center gap-1">
 						<span class="icon-[mdi--circle] h-3 w-3 text-error"></span>
-						<span>Advanced</span>
+						<span>Hard</span>
 					</div>
 				</div>
 			</div>
@@ -360,32 +360,7 @@
 											></span>
 										{/each}
 									</div>
-									<span>{meta.label}</span>
-									{#if scenario.cefrLevel}
-										<span>·</span>
-										<span
-											class="rounded-full border border-base-content/30 px-1.5 py-px text-[10px] font-semibold"
-										>
-											{scenario.cefrLevel}
-										</span>
-									{/if}
-									{#if scenario.estimatedDurationSeconds}
-										<span>·</span>
-										<span class="flex items-center gap-0.5">
-											<span class="icon-[mdi--clock-outline] h-3 w-3"></span>
-											<span>{Math.round(scenario.estimatedDurationSeconds / 60)}min</span>
-										</span>
-									{/if}
 								</div>
-								{#if scenario.categories && scenario.categories.length > 0}
-									<div class="mt-1 flex flex-wrap gap-1">
-										{#each scenario.categories.slice(0, 2) as category}
-											<span class="badge badge-xs capitalize badge-outline opacity-60">
-												{category.replace(/_/g, ' ')}
-											</span>
-										{/each}
-									</div>
-								{/if}
 							</div>
 
 							{#if isLocked}
