@@ -187,14 +187,15 @@ This is a judgment-free zone. No pressure, just practice.`,
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		categories: null,
-		tags: null,
-		primarySkill: null,
-		searchKeywords: null,
+		// Phase 1: Discovery & Sharing fields
+		categories: ['relationships', 'food_drink'],
+		tags: ['parents', 'family dinner', 'first impression', 'cultural etiquette'],
+		primarySkill: 'conversation',
+		searchKeywords: ['meet parents', 'family introduction', 'earn trust', 'dinner conversation'],
 		thumbnailUrl: null,
-		estimatedDurationSeconds: null,
-		authorDisplayName: null,
-		shareSlug: null,
+		estimatedDurationSeconds: 1080, // 18 minutes
+		authorDisplayName: 'Kaiwa Team',
+		shareSlug: 'meeting-parents-jb2k',
 		shareUrl: null
 	},
 	{
@@ -312,14 +313,15 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		categories: null,
-		tags: null,
-		primarySkill: null,
-		searchKeywords: null,
+		// Phase 1: Discovery & Sharing fields
+		categories: ['health', 'emergency'],
+		tags: ['medical', 'emergency room', 'symptoms', 'urgent care', 'triage'],
+		primarySkill: 'conversation',
+		searchKeywords: ['emergency room', 'hospital', 'medical emergency', 'describe symptoms', 'urgent'],
 		thumbnailUrl: null,
-		estimatedDurationSeconds: null,
-		authorDisplayName: null,
-		shareSlug: null,
+		estimatedDurationSeconds: 900, // 15 minutes
+		authorDisplayName: 'Kaiwa Team',
+		shareSlug: 'emergency-room-visit-x7p9',
 		shareUrl: null
 	},
 	{
@@ -355,14 +357,15 @@ Stay warm but efficient. The learner should feel heard, understood, and guided e
 		isActive: true,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		categories: null,
-		tags: null,
-		primarySkill: null,
-		searchKeywords: null,
+		// Phase 1: Discovery & Sharing fields
+		categories: ['relationships', 'food_drink'],
+		tags: ['dating', 'first date', 'conversation', 'getting to know you'],
+		primarySkill: 'conversation',
+		searchKeywords: ['first date', 'dating', 'romantic conversation', 'bar conversation'],
 		thumbnailUrl: null,
-		estimatedDurationSeconds: null,
-		authorDisplayName: null,
-		shareSlug: null,
+		estimatedDurationSeconds: 720, // 12 minutes
+		authorDisplayName: 'Kaiwa Team',
+		shareSlug: 'first-date-drinks-m4k1',
 		shareUrl: null
 	},
 	{

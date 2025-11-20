@@ -187,7 +187,25 @@
 											{scenario.cefrLevel}
 										</span>
 									{/if}
+									{#if scenario.estimatedDurationSeconds}
+										<span class="text-base-content/40">·</span>
+										<span class="flex items-center gap-1">
+											<span class="icon-[mdi--clock-outline] h-3.5 w-3.5"></span>
+											<span>{Math.round(scenario.estimatedDurationSeconds / 60)}min</span>
+										</span>
+									{/if}
 								</div>
+
+								<!-- Categories -->
+								{#if scenario.categories && scenario.categories.length > 0}
+									<div class="mt-3 flex flex-wrap gap-1.5">
+										{#each scenario.categories.slice(0, 3) as category}
+											<span class="badge badge-xs capitalize badge-outline">
+												{category.replace(/_/g, ' ')}
+											</span>
+										{/each}
+									</div>
+								{/if}
 
 								<!-- CTA -->
 								<div class="mt-4 flex items-center gap-2 text-sm font-medium text-primary">
@@ -256,7 +274,25 @@
 											{scenario.cefrLevel}
 										</span>
 									{/if}
+									{#if scenario.estimatedDurationSeconds}
+										<span class="text-base-content/40">·</span>
+										<span class="flex items-center gap-1">
+											<span class="icon-[mdi--clock-outline] h-3.5 w-3.5"></span>
+											<span>{Math.round(scenario.estimatedDurationSeconds / 60)}min</span>
+										</span>
+									{/if}
 								</div>
+
+								<!-- Categories -->
+								{#if scenario.categories && scenario.categories.length > 0}
+									<div class="mt-3 flex flex-wrap gap-1.5">
+										{#each scenario.categories.slice(0, 3) as category}
+											<span class="badge badge-xs capitalize badge-outline">
+												{category.replace(/_/g, ' ')}
+											</span>
+										{/each}
+									</div>
+								{/if}
 							</div>
 						</button>
 					{/each}

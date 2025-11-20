@@ -369,7 +369,23 @@
 											{scenario.cefrLevel}
 										</span>
 									{/if}
+									{#if scenario.estimatedDurationSeconds}
+										<span>·</span>
+										<span class="flex items-center gap-0.5">
+											<span class="icon-[mdi--clock-outline] h-3 w-3"></span>
+											<span>{Math.round(scenario.estimatedDurationSeconds / 60)}min</span>
+										</span>
+									{/if}
 								</div>
+								{#if scenario.categories && scenario.categories.length > 0}
+									<div class="mt-1 flex flex-wrap gap-1">
+										{#each scenario.categories.slice(0, 2) as category}
+											<span class="badge badge-xs capitalize badge-outline opacity-60">
+												{category.replace(/_/g, ' ')}
+											</span>
+										{/each}
+									</div>
+								{/if}
 							</div>
 
 							{#if isLocked}
