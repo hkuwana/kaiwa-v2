@@ -25,7 +25,7 @@
 	let isSaving = $state(false);
 	let draftText = $state('');
 	let creationMode = $state<'description' | 'memories'>('description');
-	let selectedMemories = $state<SvelteSet<number>>(new SvelteSet());
+	let selectedMemories = new SvelteSet<number>();
 
 	const draft = $derived(customScenarioStore.draft);
 	const limits = $derived(customScenarioStore.limits);

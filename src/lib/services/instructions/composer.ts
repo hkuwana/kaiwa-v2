@@ -325,7 +325,7 @@ Tiers
 	}
 
 	private buildCompactContext(): string {
-		const { preferences, sessionContext, language, scenario } = this.options;
+		const { preferences, sessionContext, scenario } = this.options;
 		const preferredMemories = normalizeMemoriesList(preferences?.memories as unknown);
 		const contextMemories = normalizeMemoriesList(sessionContext?.memories as unknown);
 		const memories = preferredMemories.length ? preferredMemories : contextMemories;

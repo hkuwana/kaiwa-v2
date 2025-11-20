@@ -2,7 +2,6 @@
 	interface ConfidenceData {
 		currentScore: number;
 		previousScore?: number;
-		trend: 'increasing' | 'stable' | 'decreasing';
 		level: 'low' | 'medium' | 'high';
 		indicators: string[];
 		milestones: Array<{

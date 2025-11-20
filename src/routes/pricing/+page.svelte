@@ -252,10 +252,12 @@
 				window.location.href = data.url;
 			} else {
 				console.error('Checkout error:', data);
+				// eslint-disable-next-line no-alert
 				alert(data.error || 'Failed to create checkout session. Please try again.');
 			}
 		} catch (error) {
 			console.error('Checkout error:', error);
+			// eslint-disable-next-line no-alert
 			alert('Something went wrong. Please try again.');
 		} finally {
 			isLoading = false;
@@ -277,6 +279,7 @@
 
 			if (response.ok) {
 				// Show success message
+				// eslint-disable-next-line no-alert
 				alert(
 					`Your subscription has been cancelled and will remain active until the end of your billing period. Thank you for your feedback!`
 				);

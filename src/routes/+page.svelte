@@ -21,7 +21,7 @@
 	import { defaultTierConfigs } from '$lib/data/tiers';
 	import type { UserTier } from '$lib/data/tiers';
 
-	const { data } = $props();
+	const { data: _data } = $props();
 
 	const user = userManager.user;
 
@@ -122,6 +122,7 @@
 
 	// Clear conversation data functions
 	function handleClearAllData() {
+		// eslint-disable-next-line no-alert
 		const confirmed = window.confirm(
 			'This will clear ALL your stored data including preferences, settings, and conversation history. Are you sure?'
 		);
@@ -133,6 +134,7 @@
 	}
 
 	function handleClearConversationData() {
+		// eslint-disable-next-line no-alert
 		const confirmed = window.confirm(
 			'This will clear only conversation-related data, keeping your preferences and settings. Continue?'
 		);
