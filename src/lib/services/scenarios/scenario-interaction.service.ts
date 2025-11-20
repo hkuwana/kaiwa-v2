@@ -3,7 +3,6 @@
 // Keep components dumb - put all business logic here
 
 import { goto } from '$app/navigation';
-import { scenarioStore } from '$lib/stores/scenario.store.svelte';
 import { track } from '$lib/analytics/posthog';
 import type { Scenario } from '$lib/data/scenarios';
 
@@ -13,18 +12,23 @@ export interface ScenarioSelectionOptions {
 	navigateTo?: string; // Where to navigate after selection
 }
 
+export interface ScenarioSelectionStoreAdapter {
+	setScenarioById: (scenarioId: string) => void;
+}
+
 /**
  * Select a scenario and optionally navigate to conversation page
  * This is the main entry point for scenario selection across the app
  */
 export function selectScenario(
 	scenario: Scenario,
+	store: ScenarioSelectionStoreAdapter,
 	options: ScenarioSelectionOptions = {}
 ): void {
 	const { source = 'unknown', trackEvent = true, navigateTo = '/conversation' } = options;
 
 	// Update the store
-	scenarioStore.setScenarioById(scenario.id);
+	store.setScenarioById(scenario.id);
 
 	// Track analytics if enabled
 	if (trackEvent) {
@@ -97,12 +101,19 @@ export function formatScenarioCategories(categories: string[] | null | undefined
  * Quick action: Try a scenario immediately from browse page
  * Tracks analytics and navigates to conversation
  */
-export function tryScenarioNow(scenario: Scenario): void {
-	selectScenario(scenario, {
-		source: 'browse_try_now',
-		trackEvent: true,
-		navigateTo: '/conversation'
-	});
+export function tryScenarioNow(
+	scenario: Scenario,
+	store: ScenarioSelectionStoreAdapter
+): void {
+	selectScenario(
+		scenario,
+		store,
+		{
+			source: 'browse_try_now',
+			trackEvent: true,
+			navigateTo: '/conversation'
+		}
+	);
 }
 
 /**

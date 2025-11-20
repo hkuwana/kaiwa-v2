@@ -3,6 +3,7 @@
 	import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { tryScenarioNow } from '$lib/services/scenarios/scenario-interaction.service';
+	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
 
 	const user = userManager.user;
 
@@ -70,7 +71,7 @@
 
 	// Delegate all logic to service - keep component dumb
 	function handleTryScenario(scenario: Scenario) {
-		tryScenarioNow(scenario);
+		tryScenarioNow(scenario, scenarioStore);
 	}
 </script>
 
