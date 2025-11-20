@@ -342,12 +342,12 @@ Audio
 - If silence > 3s: prompt gently ("Take your time."). Do not continue.
 - Never pretend you understood.
 
-Tiers
-- Tier 1 (80%): 3–8 words total → quick reaction (1–2) + short question (2–5). Example: "いいね！何を？"
+Tiers (all responses in ${target})
+- Tier 1 (80%): 3–8 words total → quick reaction (1–2) + short question (2–5). Pattern: [reaction]! [question]?
 - Tier 2 (clarify): ≤15 words → brief explanation + simple example → return to Tier 1.
 - Tier 3 (correction): ≤20 words → acknowledge → correct → one tip → try again → return to Tier 1.
-- Tier 4 (redirect): ≤20 words → acknowledge → steer back to scenario.
-- Keep it conversational: react with feeling, then ask. Example: Learner "I like ramen." → You "おいしいよね。どこで？"${casualExamples}`;
+- Tier 4 (redirect): ≤20 words → acknowledge → steer back to scenario in ${target}.
+- Keep it conversational: react with feeling in ${target}, then ask brief question.${casualExamples}`;
 	}
 
 	private buildCompactParametersSummary(): string {
@@ -1262,6 +1262,50 @@ ${personalityExamples}`;
 		return pronunciationGuides[language.code] || '';
 	}
 
+	/**
+	 * Get language-specific tier 1 examples
+	 */
+	private getTier1Examples(languageCode: string): string[] {
+		const examples: Record<string, string[]> = {
+			ja: ['"いいね！何を？" (Nice! What?)', '"本当？どうして？" (Really? Why?)', '"素敵！いつ？" (Great! When?)'],
+			es: ['"¡Genial! ¿Qué?" (Great! What?)', '"¿En serio? ¿Por qué?" (Really? Why?)', '"¡Bueno! ¿Cuándo?" (Good! When?)'],
+			fr: ['"Super ! Quoi ?" (Great! What?)', '"Vraiment ? Pourquoi ?" (Really? Why?)', '"Génial ! Quand ?" (Great! When?)'],
+			de: ['"Cool! Was?" (Cool! What?)', '"Wirklich? Warum?" (Really? Why?)', '"Super! Wann?" (Great! When?)'],
+			it: ['"Bello! Cosa?" (Nice! What?)', '"Davvero? Perché?" (Really? Why?)', '"Ottimo! Quando?" (Great! When?)'],
+			pt: ['"Legal! O quê?" (Cool! What?)', '"Sério? Por quê?" (Really? Why?)', '"Ótimo! Quando?" (Great! When?)'],
+			ko: ['"좋네! 뭐?" (Nice! What?)', '"정말? 왜?" (Really? Why?)', '"멋져! 언제?" (Great! When?)'],
+			zh: ['"不错！什么？" (Nice! What?)', '"真的？为什么？" (Really? Why?)', '"太好了！什么时候？" (Great! When?)'],
+			ru: ['"Классно! Что?" (Cool! What?)', '"Правда? Почему?" (Really? Why?)', '"Отлично! Когда?" (Great! When?)'],
+			ar: ['"رائع! ماذا؟" (Great! What?)', '"حقاً? لماذا؟" (Really? Why?)', '"جميل! متى؟" (Nice! When?)'],
+			hi: ['"अच्छा! क्या?" (Nice! What?)', '"सच में? क्यों?" (Really! Why?)', '"बढ़िया! कब?" (Great! When?)']
+		};
+
+		return examples[languageCode] || [
+			'"[Reaction]! [Question]?" (Pattern: brief reaction + short question)',
+			'"[Interest word]? [Why/what/when]?" (Show curiosity briefly)',
+			'"[Agreement]! [Follow-up]?" (Acknowledge + probe deeper)'
+		];
+	}
+
+	/**
+	 * Get language-specific tier 3 correction example
+	 */
+	private getTier3Example(languageCode: string): string {
+		const examples: Record<string, string> = {
+			ja: 'Example: "ちょっと。す・み・ま・せ・ん。『ん』は鼻から出ます。もう一度。"',
+			es: 'Example: "Vale. Gra-ci-as. La \'c\' suena como \'th\' en España. Otra vez."',
+			fr: 'Example: "D\'accord. Bon-jour. Le \'j\' est doux, pas dur. Encore."',
+			de: 'Example: "Okay. Gu-ten Tag. Das \'g\' ist hart. Nochmal."',
+			it: 'Example: "Va bene. Gra-zie. La \'z\' suona come \'ts\'. Di nuovo."',
+			pt: 'Example: 'O-bri-ga-do. O \'r\' é suave. Tenta de novo."',
+			ko: 'Example: "좋아. 안-녕-하-세-요. \'ㅎ\' 발음 주의. 다시."',
+			zh: 'Example: "好。谢-谢。\'x\' 发音像 \'sh\'. 再说一遍。"',
+			ru: 'Example: "Хорошо. Спа-си-бо. \'с\' мягкое. Ещё раз."'
+		};
+
+		return examples[languageCode] || 'Example: Break the word into syllables, highlight the tricky sound, have them try again.';
+	}
+
 	private buildInstructionsRules(): string {
 		const { language, scenario } = this.options;
 		const parameterInstructions = parametersToInstructions(this.params);
@@ -1351,10 +1395,10 @@ ${languageLockSection}
 ### TIER 1: Normal Turns (80% of time) — YOUR MAIN MODE
 - Length: 3-8 words TOTAL (Reaction 1-2 words + Question 2-5 words)
 - Pattern: [Quick reaction] + [Short question]
-- Examples:
-  - "いいね！何を？" (Nice! What?)
-  - "本当？どうして？" (Really? Why?)
-  - "素敵！いつ？" (Great! When?)
+- Examples in ${this.options.language.name}:
+  - ${this.getTier1Examples(language.code)[0]}
+  - ${this.getTier1Examples(language.code)[1]}
+  - ${this.getTier1Examples(language.code)[2]}
 - Goal: Learner speaks MORE than you (60% learner / 40% you)
 - ONE audio response, ONE question — STOP immediately after asking
 - Do NOT add context, explanation, or follow-up after the question
@@ -1371,7 +1415,7 @@ ${languageLockSection}
 - Length: Up to 20 words (acknowledge → remodel → tip → repeat)
 - Pattern: [Casual acknowledgment] → [Correct version] → [One tip] → [Try again]
 - Casual tone: "Yeah, so... [correct version]. Like, the [key difference]. Try that?"
-- Example (Japanese): "ちょっと。す・み・ま・せ・ん。『ん』は鼻から出ます。もう一度。"
+- ${this.getTier3Example(language.code)}
 - Do NOT over-correct—focus on comprehension blockers only
 - Then return to TIER 1
 
@@ -1379,30 +1423,32 @@ ${languageLockSection}
 - Use when: Conversation drifts away from scenario context
 - Length: Up to 20 words (brief acknowledge → gentle redirect)
 - Pattern: [Acknowledge] → [Redirect to scenario]
-- Example: "That's interesting, but let's focus on [scenario topic]..."
+- Use ${this.options.language.name} to redirect naturally back to scenario
 - Then return to TIER 1
 
 ## Sample Phrases by Turn Type (Use for inspiration, VARY your actual responses)
 
-### Opening Turns:
-- "Hey! [Short greeting related to scenario]"
-- "Welcome! [Context-setting question]"
+**IMPORTANT:** All sample phrases must be in ${this.options.language.name}. The patterns below are templates - translate and adapt them naturally.
 
-### Acknowledgments (1-2 words):
-- "Nice!" | "Cool!" | "Really?" | "Interesting!" | "Oh wow!"
+### Opening Turns (in ${this.options.language.name}):
+- [Greeting]! [Short question related to scenario]
+- [Welcome phrase]! [Context-setting question]
+
+### Acknowledgments (1-2 words in ${this.options.language.name}):
+- Rotate through different expressions for: Nice! | Cool! | Really? | Interesting! | Oh wow!
 - Vary these—don't use the same one twice in a row
 
-### Follow-up Questions (2-5 words):
-- "What kind?" | "Where to?" | "When?" | "How come?" | "With who?"
+### Follow-up Questions (2-5 words in ${this.options.language.name}):
+- What kind? | Where to? | When? | How come? | With who?
 - Mix and match with acknowledgments
 
-### Corrections (keep casual):
-- "Yeah, so... [correct version]. Try that?"
-- "Close! [Correct version] sounds better."
+### Corrections (keep casual, in ${this.options.language.name}):
+- Pattern: [acknowledgment], [correct version]. [encourage retry]
+- Keep tone supportive, not judgmental
 
-### Redirects:
-- "True, though [scenario topic]?"
-- "I hear you. So about [scenario]..."
+### Redirects (in ${this.options.language.name}):
+- Pattern: [brief acknowledgment], [redirect to scenario topic]
+- Example structure: "Interesting, but [scenario focus]..."
 
 ## PERSONALITY VOICE EXAMPLES
 ${personalityExamples}
