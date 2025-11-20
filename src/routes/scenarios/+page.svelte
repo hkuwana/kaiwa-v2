@@ -1,10 +1,8 @@
 <script lang="ts">
 	import { scenariosData, type Scenario } from '$lib/data/scenarios';
 	import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
-	import { goto } from '$app/navigation';
 	import { userManager } from '$lib/stores/user.store.svelte';
-	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
-	import { track } from '$lib/analytics/posthog';
+	import { tryScenarioNow } from '$lib/services/scenarios/scenario-interaction.service';
 
 	const user = userManager.user;
 
@@ -70,19 +68,9 @@
 		return getDifficultyLevel(rating);
 	}
 
-	function handleScenarioClick(scenario: Scenario) {
-		// Set the scenario in the store
-		scenarioStore.setScenarioById(scenario.id);
-
-		// Track the click
-		track('scenario_selected_from_browse', {
-			scenario_id: scenario.id,
-			scenario_title: scenario.title,
-			source: 'scenarios_page'
-		});
-
-		// Navigate to conversation page
-		goto('/conversation');
+	// Delegate all logic to service - keep component dumb
+	function handleTryScenario(scenario: Scenario) {
+		tryScenarioNow(scenario);
 	}
 </script>
 
@@ -140,9 +128,8 @@
 					{#each filteredScenarios.featured as scenario (scenario.id)}
 						{@const meta = getScenarioMeta(scenario)}
 						{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
-						<button
-							class="group card cursor-pointer border-2 border-base-300 bg-base-100 text-left transition-all hover:border-primary hover:shadow-lg"
-							onclick={() => handleScenarioClick(scenario)}
+						<div
+							class="group card border-2 border-base-300 bg-base-100 text-left transition-all hover:border-primary hover:shadow-lg"
 						>
 							<div class="card-body p-6">
 								<!-- Icon and role -->
@@ -208,12 +195,17 @@
 								{/if}
 
 								<!-- CTA -->
-								<div class="mt-4 flex items-center gap-2 text-sm font-medium text-primary">
-									<span>Start Practice</span>
-									<span class="icon-[mdi--arrow-right] h-4 w-4"></span>
+								<div class="mt-4">
+									<button
+										class="btn w-full btn-primary btn-sm"
+										onclick={() => handleTryScenario(scenario)}
+									>
+										<span class="icon-[mdi--play] h-4 w-4"></span>
+										<span>Try Now</span>
+									</button>
 								</div>
 							</div>
-						</button>
+						</div>
 					{/each}
 				</div>
 			</div>
@@ -227,9 +219,8 @@
 					{#each filteredScenarios.other as scenario (scenario.id)}
 						{@const meta = getScenarioMeta(scenario)}
 						{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
-						<button
-							class="group card cursor-pointer border-2 border-base-300 bg-base-100 text-left transition-all hover:border-primary hover:shadow-lg"
-							onclick={() => handleScenarioClick(scenario)}
+						<div
+							class="group card border-2 border-base-300 bg-base-100 text-left transition-all hover:border-primary hover:shadow-lg"
 						>
 							<div class="card-body p-6">
 								<!-- Icon and role -->
@@ -293,8 +284,19 @@
 										{/each}
 									</div>
 								{/if}
+
+								<!-- CTA -->
+								<div class="mt-4">
+									<button
+										class="btn w-full btn-primary btn-sm"
+										onclick={() => handleTryScenario(scenario)}
+									>
+										<span class="icon-[mdi--play] h-4 w-4"></span>
+										<span>Try Now</span>
+									</button>
+								</div>
 							</div>
-						</button>
+						</div>
 					{/each}
 				</div>
 			</div>

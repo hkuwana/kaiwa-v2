@@ -11,6 +11,7 @@
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { setSelectedScenarioIdCookie } from '$lib/utils/cookies';
 	import { SvelteMap } from 'svelte/reactivity';
+	import { selectScenario } from '$lib/services/scenarios/scenario-interaction.service';
 
 	interface Props {
 		scenarios: Scenario[];
@@ -149,13 +150,20 @@
 		return getDifficultyLevel(rating);
 	}
 
-	function selectScenario(scenario: Scenario) {
+	// Delegate to service - keep component dumb
+	function handleSelectScenario(scenario: Scenario) {
 		if (isGuest && scenario.id !== 'onboarding-welcome') {
 			return;
 		}
 
-		// Save selected scenario to cookie for quick recall
-		setSelectedScenarioIdCookie(scenario.id);
+		// Use service to handle selection logic
+		selectScenario(scenario, {
+			source: 'scenario_dropdown',
+			trackEvent: true,
+			navigateTo: null // Don't navigate, just select
+		});
+
+		// Update parent component
 		onScenarioSelect(scenario);
 		isOpen = false;
 		searchQuery = '';
@@ -329,7 +337,7 @@
 						{@const meta = getScenarioMeta(scenario)}
 						{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
 						<button
-							onclick={() => selectScenario(scenario)}
+							onclick={() => handleSelectScenario(scenario)}
 							class="group btn relative my-1 flex w-full items-center justify-start rounded-xl px-4 py-3 text-left btn-ghost transition-colors duration-150"
 							class:bg-primary={selectedScenario?.id === scenario.id}
 							class:text-primary-content={selectedScenario?.id === scenario.id}
