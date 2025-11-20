@@ -3,6 +3,7 @@ import path from 'node:path';
 import { paraglideVitePlugin } from '@inlang/paraglide-js';
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { enhancedImages } from '@sveltejs/enhanced-img';
 import { defineConfig } from 'vite';
 
 const certDir = path.resolve(process.cwd(), 'certs');
@@ -17,6 +18,7 @@ const httpsConfig =
 
 export default defineConfig({
 	plugins: [
+		enhancedImages(),
 		tailwindcss(),
 		sveltekit(),
 		paraglideVitePlugin({
