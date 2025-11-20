@@ -57,7 +57,7 @@ export function formatLanguageName(languageCode: string | null): string {
 		it: '🇮🇹 Italian',
 		pt: '🇵🇹 Portuguese',
 		ru: '🇷🇺 Russian',
-		ar: '🇸🇦 Arabic'
+
 	};
 
 	return languageMap[languageCode] || languageCode;

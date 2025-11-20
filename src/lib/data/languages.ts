@@ -124,18 +124,7 @@ export const languages: Language[] = [
 		supportedScripts: ['traditional'],
 		isSupported: true
 	},
-	{
-		id: 'ar',
-		code: 'ar',
-		name: 'Arabic',
-		nativeName: 'العربية',
-		flag: '🇸🇦',
-		isRTL: true,
-		hasRomanization: false,
-		writingSystem: 'arabic',
-		supportedScripts: ['arabic'],
-		isSupported: true
-	},
+
 	{
 		id: 'hi',
 		code: 'hi',

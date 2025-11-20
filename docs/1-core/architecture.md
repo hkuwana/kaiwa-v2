@@ -4,7 +4,7 @@
 
 ## 🎯 Core Philosophy
 
-**Mission**: For learners conversing with people they love
+**Mission**: For language learners conversing with people they love
 
 ### The Anti-Language-Learning App
 

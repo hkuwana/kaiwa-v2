@@ -409,8 +409,7 @@ export class WeeklyStatsEmailService {
 			de: 'German',
 			it: 'Italian',
 			pt: 'Portuguese',
-			ru: 'Russian',
-			ar: 'Arabic'
+			ru: 'Russian'
 		};
 
 		return languageMap[language] || language;

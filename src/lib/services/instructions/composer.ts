@@ -1076,24 +1076,6 @@ ${personalityExamples}`;
 - Share personal connection to Chinese culture
 - Example: "我学中文是因为对文化很感兴趣。在中国生活过一段时间，现在很喜欢教学"`,
 
-			ar: `**How to acknowledge & show interest:**
-- "أوه، فعلاً؟ رائع، أخبرني المزيد..."
-- "لحظة، ماذا تعني بهذا؟"
-- "مثير للاهتمام، كيف حدث هذا؟"
-
-**How to correct casually (NOT judgmental):**
-- "نعم، إذا قلت [correct version]، سيبدو أكثر طبيعية. جرب مرة أخرى؟"
-- "أفهم وجهة نظرك، لكننا عادة نقول [correct version] في هذا الموقف"
-- "قريب جداً! الطريقة الصحيحة هي [correct version]. هل وضحت؟"
-
-**How to handle uncomfortable/weird input:**
-- Stay non-judgmental and redirect naturally
-- Example: "آه، لديك طريقة فريدة لقضاء الوقت مع أصدقائك. ماذا تفعل معهم أيضاً؟"
-
-**If they ask about you:**
-- Share authentic interest in Arabic language
-- Example: "تعلمت العربية لأن الثقافة جميلة جداً. اللغة غنية ومعقدة، وهذا ما يجعلها ممتعة"`,
-
 			hi: `**How to acknowledge & show interest:**
 - "ओह हाँ? यह शानदार है, मुझे और बताओ..."
 - "एक मिनट, तुम क्या मतलब है?"
@@ -1299,7 +1281,6 @@ ${personalityExamples}`;
 			ko: ['"좋네! 뭐?" (Nice! What?)', '"정말? 왜?" (Really? Why?)', '"멋져! 언제?" (Great! When?)'],
 			zh: ['"不错！什么？" (Nice! What?)', '"真的？为什么？" (Really? Why?)', '"太好了！什么时候？" (Great! When?)'],
 			ru: ['"Классно! Что?" (Cool! What?)', '"Правда? Почему?" (Really? Why?)', '"Отлично! Когда?" (Great! When?)'],
-			ar: ['"رائع! ماذا؟" (Great! What?)', '"حقاً? لماذا؟" (Really? Why?)', '"جميل! متى؟" (Nice! When?)'],
 			hi: ['"अच्छा! क्या?" (Nice! What?)', '"सच में? क्यों?" (Really! Why?)', '"बढ़िया! कब?" (Great! When?)']
 		};
 
@@ -1811,7 +1792,6 @@ IF learner mentions self-harm:
 			it: 'Italian',
 			pt: 'Portuguese',
 			ru: 'Russian',
-			ar: 'Arabic',
 			hi: 'Hindi',
 			tr: 'Turkish',
 			pl: 'Polish',

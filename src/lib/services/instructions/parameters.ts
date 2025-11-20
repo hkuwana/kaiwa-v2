@@ -591,7 +591,6 @@ const LANGUAGE_SPEED_ADJUSTMENTS: Record<string, number> = {
 	it: 0, // Italian: Normal pace
 	pt: 0, // Portuguese: Normal pace
 	ru: 0, // Russian: Normal pace
-	ar: -1, // Arabic: Script + morphology benefits from slower pace
 	th: -1 // Thai: Tones + script need slower pace
 };
 

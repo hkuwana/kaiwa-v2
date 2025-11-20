@@ -303,7 +303,7 @@ function formatLanguageName(language: string | null): string {
 		it: 'Italian',
 		pt: 'Portuguese',
 		ru: 'Russian',
-		ar: 'Arabic'
+
 	};
 
 	return languageMap[language] || language;
