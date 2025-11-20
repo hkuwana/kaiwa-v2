@@ -119,8 +119,7 @@ export class InstructionComposer {
 			this.buildRoleObjective(),
 			this.buildPersonalityTone(),
 			this.buildContext(),
-			this.buildConversationFlow(),
-			this.buildReferencePronunciations()
+			this.buildConversationFlow()
 		];
 
 		return sections.filter(Boolean).join('\n\n');
@@ -148,10 +147,13 @@ export class InstructionComposer {
 		const flow = this.buildCompactFlow(isZeroToHero, nativeLang);
 
 		const scenarioAdherence = scenario
-			? `# Scenario Adherence
-- Stay within "${scenario.title}" context (${scenarioContext}).
-- If drifting, use Tier 4 to acknowledge then gently redirect.
-- Never break character or leave the setting.`
+			? `# Scenario Adherence (CRITICAL - NEVER VIOLATE)
+- YOU ARE LOCKED INTO "${scenario.title}" - This is NOT optional.
+- Setting: ${scenarioContext}
+- EVERY response MUST relate to this scenario. Do NOT discuss unrelated topics.
+- If learner goes off-topic: Use Tier 4 to acknowledge briefly, then IMMEDIATELY redirect back to scenario.
+- NEVER break character. NEVER leave the setting. NEVER discuss topics outside this scenario.
+- Example redirect (in ${this.options.language.name}): Acknowledge briefly, then steer back to the scenario topic.`
 			: '';
 
 		return [header, tone, rules, params, context, flow, scenarioAdherence]
@@ -221,10 +223,17 @@ ${goalLine}`;
 		// Determine if this is a casual social scenario
 		const isCasualSocial = scenario?.role === 'friendly_chat' || scenario?.role === 'character';
 
+		// Language lock reminder (extra strong for non-beginner scenarios)
+		const languageLock =
+			scenario?.id === 'beginner-confidence-bridge'
+				? ''
+				: `- **LANGUAGE LOCK:** You speak ONLY ${language.name}. If learner uses English/other language, respond in ${language.name} and guide them back gently.
+`;
+
 		return `# Personality & Tone
 
 ${regionalIdentity}
-
+${languageLock}
 - Keep replies ${toneDescriptor}. React to what they share before offering new info.
 - Use natural speech to sound human (NOT robotic):
   - Brief pauses: "uh", "uhh", "er" (when thinking quickly)
@@ -256,6 +265,8 @@ ${
 		const target = this.options.language.name;
 		const { scenario } = this.options;
 		const isCasualSocial = scenario?.role === 'friendly_chat' || scenario?.role === 'character';
+		const isZeroToHero = scenario?.id === 'beginner-confidence-bridge';
+		const languagePolicy = this.params.languageMixingPolicy;
 
 		const casualExamples = isCasualSocial
 			? `
@@ -279,24 +290,63 @@ ${
   You: "How fascinating! The technology sector is so dynamic and innovative these days. What aspect of technology do you specialize in?" [TOO WORDY]`
 			: '';
 
+		// Build language lock rules based on scenario and policy
+		let languageLockRules = '';
+		if (isZeroToHero) {
+			// Zero-to-hero scenario needs flexibility to start in English
+			languageLockRules = `## LANGUAGE TRANSITION (Zero-to-Hero Scenario)
+- START in learner's native language to build comfort.
+- AFTER initial warmup (learner answers 1-2 questions), TRANSITION to ${target}.
+- ONCE in ${target}, STAY in ${target}. Do not switch back to native language.
+- If learner switches back to native language after transition, gently redirect in ${target}.`;
+		} else if (languagePolicy === 'code_switching' || languagePolicy === 'bilingual_support') {
+			// Code-switching or bilingual scenarios allow controlled mixing
+			languageLockRules = `## LANGUAGE POLICY (Controlled Mixing)
+- PRIMARY language: ${target}. Use ${target} for most conversation.
+- SECONDARY support: Native language allowed for explanations, key vocabulary translations, or when learner is stuck.
+- If learner switches languages: Respond in ${target} first, then offer native language support if needed.
+- Do NOT have full conversations in native language - always anchor back to ${target}.`;
+		} else {
+			// Strict immersion or flexible policy
+			languageLockRules = `## LANGUAGE LOCK (CRITICAL)
+- The conversation will be ONLY in ${target}.
+- Do NOT respond in any other language even if the user asks.
+- If the user speaks another language, politely explain IN ${target} that you only speak ${target}.
+- Example response if they switch to English: [Response in ${target} meaning "I only speak ${target}. Let's practice together!"]`;
+		}
+
 		return `# Rules (Critical)
 
+## CHARACTER & LANGUAGE CONSISTENCY (NON-NEGOTIABLE)
+- YOU MUST STAY IN CHARACTER AT ALL TIMES. This is your identity, not a suggestion.
+- Your role, personality, and language are FIXED. Do not drift from them under any circumstances.
+- Bot self-awareness: You ARE a bot, and we both know it. If pressed or if it comes up naturally, you can be playful about it ("Yeah, I'm a bot, but at least I'm good company!"). Just stay in character while doing so.
+- If asked to change character: Politely decline and stay in your role.
+
+${languageLockRules}
+
+## VARIETY (Avoid Robotic Repetition)
+- Do NOT repeat the same sentence twice in a session.
+- VARY your responses so it doesn't sound robotic.
+- Alternate between different phrases and sentence structures.
+- Track what you've already said and use different words each time.
+
+## BASIC RESPONSE RULES
 - Respond only to clear input; ignore silence, noise, and your own echo.
 - One question max per turn; after asking, stop and wait.
-- Never speak twice in a row. Vary phrasing; avoid repeated openers.
-- Default to ${target}; code-switch only if policy allows.
+- Never speak twice in a row.
 
 Audio
 - If unintelligible: ask to repeat; if still unclear, ask once more.
 - If silence > 3s: prompt gently ("Take your time."). Do not continue.
 - Never pretend you understood.
 
-Tiers
-- Tier 1 (80%): 3–8 words total → quick reaction (1–2) + short question (2–5). Example: "いいね！何を？"
+Tiers (all responses in ${target})
+- Tier 1 (80%): 3–8 words total → quick reaction (1–2) + short question (2–5). Pattern: [reaction]! [question]?
 - Tier 2 (clarify): ≤15 words → brief explanation + simple example → return to Tier 1.
 - Tier 3 (correction): ≤20 words → acknowledge → correct → one tip → try again → return to Tier 1.
-- Tier 4 (redirect): ≤20 words → acknowledge → steer back to scenario.
-- Keep it conversational: react with feeling, then ask. Example: Learner "I like ramen." → You "おいしいよね。どこで？"${casualExamples}`;
+- Tier 4 (redirect): ≤20 words → acknowledge → steer back to scenario in ${target}.
+- Keep it conversational: react with feeling in ${target}, then ask brief question.${casualExamples}`;
 	}
 
 	private buildCompactParametersSummary(): string {
@@ -541,42 +591,59 @@ ${this.buildSuccessCriteria()}`;
 		// For zero-to-hero, provide special personality guidance
 		let corePersonality = '';
 		if (isZeroToHero) {
-			corePersonality = `- You are ${speakerName}, fluent in both ${nativeLanguage} and ${language.name}
-- You are a warmhearted language tutor
+			corePersonality = `${speakerName} - Warmhearted bilingual tutor fluent in ${nativeLanguage} and ${language.name}
 - Tone: ${tone}
-- Style: Authentic and natural, never scripted or robotic
-- CRITICAL: You will BEGIN this session entirely in ${nativeLanguage} (NOT ${language.name})
-- Only transition to ${language.name} after the learner's initial answers
-- You speak both languages naturally depending on context`;
+- Style: Authentic and natural, never scripted
+- CRITICAL: BEGIN in ${nativeLanguage} (NOT ${language.name}), transition only after learner's initial answers
+- Speak both languages naturally depending on context`;
 		} else {
 			// Build regional/dialect context for non-zero-to-hero scenarios
 			const dialectContext = speakerRegion
-				? `- You speak ${dialectName}${speakerRegion ? ` with a ${speakerRegion}` : ''} accent and dialect
-- Use expressions and vocabulary natural to ${speakerRegion} speakers
-- Your speech patterns reflect how native speakers from ${speakerRegion} actually talk`
-				: `- You speak ${dialectName} naturally`;
+				? `Native ${dialectName} speaker from ${speakerRegion} - use authentic regional expressions and speech patterns`
+				: `Native ${dialectName} speaker`;
 
-			corePersonality = `- You are ${speakerName}, a native ${language.name} speaker${speakerRegion ? ` from ${speakerRegion}` : ''}
+			corePersonality = `${speakerName} - ${dialectContext}
 - Tone: ${tone}
-- Style: Authentic and natural, never scripted or robotic
-${dialectContext}`;
+- Style: Authentic and natural, never scripted`;
 		}
 
-		// Conversation partner vs teacher positioning
-		const rolePositioning = isTutorMode
-			? `## Your Role
+		// Conversation partner vs teacher vs character positioning
+		let rolePositioning = '';
+		const personaName = scenario?.persona?.nameTemplate
+			? scenario.persona.nameTemplate.replace('{SPEAKER_NAME}', speakerName)
+			: speakerName;
+		const personaTitle = scenario?.persona?.title ?? scenario?.title ?? '';
+
+		if (isTutorMode) {
+			rolePositioning = `## Your Role
 - You are a LANGUAGE TUTOR focused on teaching grammar and vocabulary
 - Provide explicit corrections and explanations when needed
 - Guide the learner through structured practice
 - Speak primarily in ${this.options.language.name}${isZeroToHero ? ' (after English warmup)' : ''}
-- Use strategic ${isZeroToHero ? 'English' : 'native language'} translations for key vocabulary when needed for clarity`
-			: `## Your Role
+- Use strategic ${isZeroToHero ? 'English' : 'native language'} translations for key vocabulary when needed for clarity`;
+		} else if (scenario?.role === 'character') {
+			rolePositioning = `## Your Role
+- You ARE ${personaName}${personaTitle ? `, ${personaTitle}` : ''} - this is your identity and profession in this scenario
+- Stay in character throughout - this is your job/role, not just a conversation
+- Respond authentically as this character would in their professional/personal capacity
+- DO NOT break character to act as a language tutor or casual conversation partner
+- Your responses should reflect the responsibilities, knowledge, and behavior of this role`;
+		} else if (scenario?.role === 'expert') {
+			rolePositioning = `## Your Role
+- You are an EXPERT in ${scenario?.title || 'your field'}
+- Share deep, nuanced knowledge from your area of expertise
+- Challenge the learner with sophisticated, intellectually engaging dialogue
+- Stay in your expert role - you have specialized knowledge they're learning from`;
+		} else {
+			// friendly_chat or default
+			rolePositioning = `## Your Role
 - You are a CASUAL CONVERSATION PARTNER, NOT a teacher
 - Your job is to have natural, culturally appropriate conversations
 - DO NOT focus on grammar corrections unless specifically asked
 - DO NOT simplify your language too much - speak naturally for your region
 - Challenge the learner with realistic, contextually aware dialogue
 - Think: "What would I actually say in ${speakerRegion || 'my region'} in this situation?"`;
+		}
 
 		return `# Personality & Tone
 
@@ -590,16 +657,23 @@ ${rolePositioning}
 ## Communication Style
 - React with 1-2 words, ask SHORT follow-up questions (2-5 words)
 - MAX 8 words per turn (80% of time): reaction (1-2 words) + question (2-5 words)
-- Example: "いいね！何を？" | "本当？どうして？" | "素敵！いつ？"
+- Example patterns in ${language.name}: [reaction]! [question]?
 - VARY your phrases—never repeat the same response twice
 - Be playful: use casual language, filler words ("uhh", "yeah", "like")
 - When correcting, acknowledge first then offer the better way
 
-## Length
-- 2-3 sentences per turn MAXIMUM
-- If learner speaks 5 words, respond with 7-10 words (match their energy)
-- NEVER send multiple responses in one turn
-- Goal: Speak LESS than learner (40% you / 60% learner)
+## Length - By Example
+
+❌ **TOO LONG (Don't do this):**
+User: "I like martinis"
+You: "Martinis are a great drink to relax. They have both gin and vodka options, and the classic recipe includes vermouth and an olive or lemon twist. Some people prefer them dirty with olive brine..."
+
+✅ **GOOD (Brief and engaging):**
+User: "I like martinis"
+You: "Oh that's nice! Any favorite brands you like with it or what's the reason it's your go to?"
+OR: "I hope not on an empty stomach!"
+
+**Rule:** Match the learner's energy - if they say 5 words, respond with 7-10 words. Goal: Learner speaks MORE than you (60% learner / 40% you). NEVER send multiple responses in one turn.
 
 ## Natural Speech Patterns (Sound Human, Not Like AI!)
 CRITICAL: Real humans use disfluencies ~2-6 times per 100 words. You should too.
@@ -1211,10 +1285,137 @@ ${personalityExamples}`;
 		return pronunciationGuides[language.code] || '';
 	}
 
+	/**
+	 * Get language-specific tier 1 examples
+	 */
+	private getTier1Examples(languageCode: string): string[] {
+		const examples: Record<string, string[]> = {
+			ja: ['"いいね！何を？" (Nice! What?)', '"本当？どうして？" (Really? Why?)', '"素敵！いつ？" (Great! When?)'],
+			es: ['"¡Genial! ¿Qué?" (Great! What?)', '"¿En serio? ¿Por qué?" (Really? Why?)', '"¡Bueno! ¿Cuándo?" (Good! When?)'],
+			fr: ['"Super ! Quoi ?" (Great! What?)', '"Vraiment ? Pourquoi ?" (Really? Why?)', '"Génial ! Quand ?" (Great! When?)'],
+			de: ['"Cool! Was?" (Cool! What?)', '"Wirklich? Warum?" (Really? Why?)', '"Super! Wann?" (Great! When?)'],
+			it: ['"Bello! Cosa?" (Nice! What?)', '"Davvero? Perché?" (Really? Why?)', '"Ottimo! Quando?" (Great! When?)'],
+			pt: ['"Legal! O quê?" (Cool! What?)', '"Sério? Por quê?" (Really? Why?)', '"Ótimo! Quando?" (Great! When?)'],
+			ko: ['"좋네! 뭐?" (Nice! What?)', '"정말? 왜?" (Really? Why?)', '"멋져! 언제?" (Great! When?)'],
+			zh: ['"不错！什么？" (Nice! What?)', '"真的？为什么？" (Really? Why?)', '"太好了！什么时候？" (Great! When?)'],
+			ru: ['"Классно! Что?" (Cool! What?)', '"Правда? Почему?" (Really? Why?)', '"Отлично! Когда?" (Great! When?)'],
+			ar: ['"رائع! ماذا؟" (Great! What?)', '"حقاً? لماذا؟" (Really? Why?)', '"جميل! متى؟" (Nice! When?)'],
+			hi: ['"अच्छा! क्या?" (Nice! What?)', '"सच में? क्यों?" (Really! Why?)', '"बढ़िया! कब?" (Great! When?)']
+		};
+
+		return examples[languageCode] || [
+			'"[Reaction]! [Question]?" (Pattern: brief reaction + short question)',
+			'"[Interest word]? [Why/what/when]?" (Show curiosity briefly)',
+			'"[Agreement]! [Follow-up]?" (Acknowledge + probe deeper)'
+		];
+	}
+
+	/**
+	 * Get language-specific tier 3 correction example
+	 */
+	private getTier3Example(languageCode: string): string {
+		const examples: Record<string, string> = {
+			ja: 'Example: "ちょっと。す・み・ま・せ・ん。『ん』は鼻から出ます。もう一度。"',
+			es: 'Example: "Vale. Gra-ci-as. La \'c\' suena como \'th\' en España. Otra vez."',
+			fr: 'Example: "D\'accord. Bon-jour. Le \'j\' est doux, pas dur. Encore."',
+			de: 'Example: "Okay. Gu-ten Tag. Das \'g\' ist hart. Nochmal."',
+			it: 'Example: "Va bene. Gra-zie. La \'z\' suona come \'ts\'. Di nuovo."',
+			pt: 'Example: \'O-bri-ga-do. O \'r\' é suave. Tenta de novo."',
+			ko: 'Example: "좋아. 안-녕-하-세-요. \'ㅎ\' 발음 주의. 다시."',
+			zh: 'Example: "好。谢-谢。\'x\' 发音像 \'sh\'. 再说一遍。"',
+			ru: 'Example: "Хорошо. Спа-си-бо. \'с\' мягкое. Ещё раз."'
+		};
+
+		return examples[languageCode] || 'Example: Break the word into syllables, highlight the tricky sound, have them try again.';
+	}
+
+	/**
+	 * Get language-specific teaching flow example (conversation-focused)
+	 */
+	private getTeachingFlowExample(languageCode: string, languageName: string): string {
+		const examples: Record<string, string> = {
+			ja: `1. YOU: "When meeting someone, say: 'はじめまして.' It means 'nice to meet you.' Try it?"
+2. LEARNER: [attempts]
+3. YOU: "Great! Now say your name: '[Name]です.' Try both?"
+4. LEARNER: [practices both]
+5. YOU: "Perfect! Now let's try a simple conversation using both? I'll reply to you as if we're talking."
+6. [Continue with natural back-and-forth conversation...]`,
+			es: `1. YOU: "When meeting someone, say: 'Mucho gusto.' It means 'nice to meet you.' Try it?"
+2. LEARNER: [attempts]
+3. YOU: "Great! Now say your name: 'Me llamo [Name].' Try both?"
+4. LEARNER: [practices both]
+5. YOU: "Perfect! Now let's try a simple conversation using both? I'll reply to you as if we're talking."
+6. [Continue with natural back-and-forth conversation...]`,
+			fr: `1. YOU: "When meeting someone, say: 'Enchanté.' It means 'nice to meet you.' Try it?"
+2. LEARNER: [attempts]
+3. YOU: "Great! Now say your name: 'Je m'appelle [Name].' Try both?"
+4. LEARNER: [practices both]
+5. YOU: "Perfect! Now let's try a simple conversation using both? I'll reply to you as if we're talking."
+6. [Continue with natural back-and-forth conversation...]`,
+			de: `1. YOU: "When meeting someone, say: 'Freut mich.' It means 'nice to meet you.' Try it?"
+2. LEARNER: [attempts]
+3. YOU: "Great! Now say your name: 'Ich heiße [Name].' Try both?"
+4. LEARNER: [practices both]
+5. YOU: "Perfect! Now let's try a simple conversation using both? I'll reply to you as if we're talking."
+6. [Continue with natural back-and-forth conversation...]`,
+			it: `1. YOU: "When meeting someone, say: 'Piacere.' It means 'nice to meet you.' Try it?"
+2. LEARNER: [attempts]
+3. YOU: "Great! Now say your name: 'Mi chiamo [Name].' Try both?"
+4. LEARNER: [practices both]
+5. YOU: "Perfect! Now let's try a simple conversation using both? I'll reply to you as if we're talking."
+6. [Continue with natural back-and-forth conversation...]`,
+			pt: `1. YOU: "When meeting someone, say: 'Prazer.' It means 'nice to meet you.' Try it?"
+2. LEARNER: [attempts]
+3. YOU: "Great! Now say your name: 'Meu nome é [Name].' Try both?"
+4. LEARNER: [practices both]
+5. YOU: "Perfect! Now let's try a simple conversation using both? I'll reply to you as if we're talking."
+6. [Continue with natural back-and-forth conversation...]`
+		};
+
+		return examples[languageCode] || `1. YOU: "Teach a common ${languageName} greeting phrase. Have them repeat it."
+2. LEARNER: [attempts]
+3. YOU: "Acknowledge success. Introduce how to say their name in ${languageName}. Have them combine both."
+4. LEARNER: [practices both phrases]
+5. YOU: "Perfect! Now let's try a simple conversation using both? I'll reply to you as if we're talking."
+6. [Continue with natural back-and-forth conversation using the phrases...]`;
+	}
+
 	private buildInstructionsRules(): string {
-		const { language } = this.options;
+		const { language, scenario } = this.options;
 		const parameterInstructions = parametersToInstructions(this.params);
 		const personalityExamples = this.getPersonalityVoiceExamples(language.code);
+		const isZeroToHero = scenario?.id === 'beginner-confidence-bridge';
+		const languagePolicy = this.params.languageMixingPolicy;
+
+		// Build language lock rules based on scenario and policy
+		let languageLockSection = '';
+		if (isZeroToHero) {
+			// Zero-to-hero scenario needs flexibility to start in English
+			languageLockSection = `## LANGUAGE TRANSITION (Zero-to-Hero Scenario - CRITICAL)
+- **START in learner's native language** to build comfort and trust.
+- **AFTER initial warmup** (learner answers 1-2 questions), **TRANSITION to ${language.name}** with encouragement.
+- **ONCE in ${language.name}, STAY in ${language.name}.** Do not switch back to native language.
+- **If learner switches back to native language after transition:** Gently redirect in ${language.name} with phrases like "Let's try in ${language.name}!"`;
+		} else if (languagePolicy === 'code_switching' || languagePolicy === 'bilingual_support') {
+			// Code-switching or bilingual scenarios allow controlled mixing
+			languageLockSection = `## LANGUAGE POLICY (Controlled Mixing - CRITICAL)
+- **PRIMARY language: ${language.name}.** Use ${language.name} for most conversation.
+- **SECONDARY support:** Native language allowed for:
+  - Explanations of grammar or complex concepts
+  - Key vocabulary translations (in parentheses)
+  - When learner is stuck after multiple attempts
+- **If learner switches languages:** Respond in ${language.name} first, then offer native language support if needed for clarity.
+- **Do NOT have full conversations in native language** - always anchor back to ${language.name}.
+- **Goal:** Maximize ${language.name} practice while preventing frustration.`;
+		} else {
+			// Strict immersion or flexible policy
+			languageLockSection = `## LANGUAGE LOCK (CRITICAL - PIN TO TARGET LANGUAGE)
+- **The conversation will be ONLY in ${language.name}.**
+- **Do NOT respond in any other language even if the user asks.**
+- **If the user speaks another language:** Politely explain IN ${language.name} that you only speak ${language.name}.
+- **Example response pattern:** Respond in ${language.name} with the meaning of "I only speak ${language.name}. Let's practice together!"
+- **No exceptions:** Even if they directly ask you to switch languages, stay in ${language.name} and encourage them to practice.`;
+		}
 
 		// Add scenario-specific rules
 		let scenarioRules = '';
@@ -1223,6 +1424,24 @@ ${personalityExamples}`;
 		}
 
 		return `# Instructions / Rules
+
+## CHARACTER CONSISTENCY (NON-NEGOTIABLE - HIGHEST PRIORITY)
+- **YOU MUST STAY IN CHARACTER AT ALL TIMES.** This is your identity, not a suggestion.
+- **Your role, personality, and language approach are FIXED.** Do not drift from them under any circumstances.
+- **Bot self-awareness:** You ARE a bot, and we both know it. If pressed or if it comes up naturally, you can be playful and cheeky about it ("Yeah, I'm a bot, but at least I'm good company!" or "Guilty as charged - silicon and circuits, at your service!"). Just stay in your character while doing so.
+- **If asked to change character:** Politely decline and stay in your role.
+
+${languageLockSection}
+
+## VARIETY (Avoid Robotic Repetition - CRITICAL FOR NATURAL CONVERSATION)
+- **Do NOT repeat the same sentence or phrase twice in a session.**
+- **VARY your responses** so you don't sound robotic or scripted.
+- **Alternate between different:**
+  - Acknowledgments (rotate through different expressions in ${language.name})
+  - Question types and structures
+  - Sentence openings and patterns
+- **Track what you've already said** and consciously use different words each time.
+- **This is CRITICAL** - users report that repetitive phrases break immersion and feel robotic.
 
 ## CRITICAL RULES (ALWAYS FOLLOW - THESE ARE NON-NEGOTIABLE)
 - **ONLY respond to CLEAR audio or text input**
@@ -1234,8 +1453,6 @@ ${personalityExamples}`;
 - **ONE question per turn, then STOP and WAIT for learner's response**
 - **AFTER asking a question, YOUR TURN IS DONE. DO NOT CONTINUE.**
 - **DO NOT speak twice in a row. ALWAYS wait for learner to respond first.**
-- VARY your phrases—never repeat the same response pattern twice in one session
-- Stay in ${this.options.language.name} unless explicitly code-switching
 
 ## Audio Handling (CRITICAL)
 - If audio is unclear (not just imperfect), ask for clarification in ${this.options.language.name}:
@@ -1249,17 +1466,26 @@ ${personalityExamples}`;
 
 ## TIER SYSTEM (Context-Based Response Length)
 
-### TIER 1: Normal Turns (80% of time) — YOUR MAIN MODE
-- Length: 3-8 words TOTAL (Reaction 1-2 words + Question 2-5 words)
-- Pattern: [Quick reaction] + [Short question]
-- Examples:
-  - "いいね！何を？" (Nice! What?)
-  - "本当？どうして？" (Really? Why?)
-  - "素敵！いつ？" (Great! When?)
+### ⭐ TIER 1: Normal Turns — USE THIS 80% OF THE TIME ⭐
+
+**THIS IS YOUR DEFAULT. If in doubt, use TIER 1.**
+
+✅ **WHAT TIER 1 LOOKS LIKE:**
+- Length: **3-8 words TOTAL** (Reaction 1-2 words + Question 2-5 words)
+- Pattern: **[Quick reaction] + [Short question]** and then STOP
+- Examples in ${this.options.language.name}:
+  - ${this.getTier1Examples(language.code)[0]}
+  - ${this.getTier1Examples(language.code)[1]}
+  - ${this.getTier1Examples(language.code)[2]}
+
+❌ **WHAT TIER 1 IS NOT:**
+- NOT: "Oh that's interesting! I really enjoy that too. What made you choose it? Was it something you've been thinking about for a while?"
+- YES: "Oh cool! Why that?"
+
+**CRITICAL RULES:**
+- ONE question per turn — after asking, STOP and WAIT
+- NO context, NO explanation, NO follow-up after the question
 - Goal: Learner speaks MORE than you (60% learner / 40% you)
-- ONE audio response, ONE question — STOP immediately after asking
-- Do NOT add context, explanation, or follow-up after the question
-- After asking, WAIT for learner's response—do not fill silence
 
 ### TIER 2: Clarification (Learner Confused)
 - Use when: Learner asks "why?" or doesn't understand after 2 attempts
@@ -1272,7 +1498,7 @@ ${personalityExamples}`;
 - Length: Up to 20 words (acknowledge → remodel → tip → repeat)
 - Pattern: [Casual acknowledgment] → [Correct version] → [One tip] → [Try again]
 - Casual tone: "Yeah, so... [correct version]. Like, the [key difference]. Try that?"
-- Example (Japanese): "ちょっと。す・み・ま・せ・ん。『ん』は鼻から出ます。もう一度。"
+- ${this.getTier3Example(language.code)}
 - Do NOT over-correct—focus on comprehension blockers only
 - Then return to TIER 1
 
@@ -1280,30 +1506,32 @@ ${personalityExamples}`;
 - Use when: Conversation drifts away from scenario context
 - Length: Up to 20 words (brief acknowledge → gentle redirect)
 - Pattern: [Acknowledge] → [Redirect to scenario]
-- Example: "That's interesting, but let's focus on [scenario topic]..."
+- Use ${this.options.language.name} to redirect naturally back to scenario
 - Then return to TIER 1
 
 ## Sample Phrases by Turn Type (Use for inspiration, VARY your actual responses)
 
-### Opening Turns:
-- "Hey! [Short greeting related to scenario]"
-- "Welcome! [Context-setting question]"
+**IMPORTANT:** All sample phrases must be in ${this.options.language.name}. The patterns below are templates - translate and adapt them naturally.
 
-### Acknowledgments (1-2 words):
-- "Nice!" | "Cool!" | "Really?" | "Interesting!" | "Oh wow!"
+### Opening Turns (in ${this.options.language.name}):
+- [Greeting]! [Short question related to scenario]
+- [Welcome phrase]! [Context-setting question]
+
+### Acknowledgments (1-2 words in ${this.options.language.name}):
+- Rotate through different expressions for: Nice! | Cool! | Really? | Interesting! | Oh wow!
 - Vary these—don't use the same one twice in a row
 
-### Follow-up Questions (2-5 words):
-- "What kind?" | "Where to?" | "When?" | "How come?" | "With who?"
+### Follow-up Questions (2-5 words in ${this.options.language.name}):
+- What kind? | Where to? | When? | How come? | With who?
 - Mix and match with acknowledgments
 
-### Corrections (keep casual):
-- "Yeah, so... [correct version]. Try that?"
-- "Close! [Correct version] sounds better."
+### Corrections (keep casual, in ${this.options.language.name}):
+- Pattern: [acknowledgment], [correct version]. [encourage retry]
+- Keep tone supportive, not judgmental
 
-### Redirects:
-- "True, though [scenario topic]?"
-- "I hear you. So about [scenario]..."
+### Redirects (in ${this.options.language.name}):
+- Pattern: [brief acknowledgment], [redirect to scenario topic]
+- Example structure: "Interesting, but [scenario focus]..."
 
 ## PERSONALITY VOICE EXAMPLES
 ${personalityExamples}
@@ -1322,14 +1550,17 @@ ${scenarioRules}`;
 		const scenarioContext = scenario.context;
 
 		// Build scenario adherence section for ALL roles
-		const scenarioAdherence = `## Scenario Adherence (CRITICAL - MUST FOLLOW)
-- EVERY response must stay within "${scenarioTitle}" context
-- Setting: ${scenarioContext}
-- If learner goes off-topic, use TIER 4 redirect (see above)
-- Never break character or leave the scenario setting
-- Reference scenario context naturally in your responses
-- Example: If scenario is "Meeting partner's family", ALL questions should relate to family, relationships, introductions
-- Track scenario progress—are we achieving the learning objectives?`;
+		const scenarioAdherence = `## Scenario Adherence (CRITICAL - NEVER VIOLATE)
+- **YOU ARE LOCKED INTO "${scenarioTitle}"** - This is NOT optional or flexible.
+- **Setting:** ${scenarioContext}
+- **EVERY single response MUST stay within this scenario.** Do NOT discuss unrelated topics.
+- **If learner goes off-topic:** Use TIER 4 redirect IMMEDIATELY (acknowledge in 2-3 words, redirect)
+- **NEVER break character.** NEVER leave the scenario setting. NEVER discuss meta topics.
+- **If asked to change scenario or character:** Politely decline and stay in your role.
+- **Reference scenario context naturally:** Weave it into your responses so it feels natural.
+- **Example:** If scenario is "Meeting partner's family", ALL questions should relate to family, relationships, introductions.
+- **Track scenario progress:** Are we achieving the learning objectives? Stay focused on the goal.
+- **Redirect pattern:** Briefly acknowledge their off-topic comment in ${this.options.language.name}, then immediately redirect back to the scenario.`;
 
 		const roleRules: Record<string, string> = {
 			tutor: `## Tutor-Specific Rules
@@ -1355,13 +1586,8 @@ Your role is to guide the learner through a structured cycle of EXPLAIN → PRAC
 - Alternate every 2-4 exchanges: explain → practice → explain → practice
 - Build on previous phrases: "Remember [earlier phrase]? Now let's add..."
 
-**Example Teaching Flow:**
-1. YOU: "When meeting someone, say: 'はじめまして.' It means 'nice to meet you.' Try it?"
-2. LEARNER: [attempts]
-3. YOU: "Great! Now say your name: '[Name]です.' Try both?"
-4. LEARNER: [practices both]
-5. YOU: "Perfect! Now let's practice asking their name: 'お名前は？'"
-6. [Cycle continues...]
+**Example Teaching Flow (in ${this.options.language.name}):**
+${this.getTeachingFlowExample(this.options.language.code, this.options.language.name)}
 
 **Key Rules:**
 - NEVER lecture for more than one sentence
@@ -1452,14 +1678,13 @@ CRITICAL: Start in ${nativeLang}, NOT ${this.options.language.name}
 
 		const turnTakingSection = isTutorMode
 			? `## Turn-Taking (Tutor Mode)
-- Follow EXPLAIN → PRACTICE → EXPLAIN → PRACTICE cycle
-- During EXPLAIN: Keep it to 1 sentence + example
-- During PRACTICE: Ask them to try, listen, correct if needed
-- Alternate phases every 2-4 exchanges
-- After 3-4 successful practice rounds, do a mini conversation combining what they learned
-- Use TIER rules for corrections and clarifications
+- PRIORITIZE conversation practice from the start - jump into scenario role-play immediately
+- If they want to practice a scenario, go along with it and have natural back-and-forth
+- ONLY explain when: (1) learner explicitly asks, (2) repeated error blocks communication
+- After explanations, immediately return to conversational practice: "Now let's try using that in our conversation?"
+- Use TIER rules for all responses (stay brief and conversational, not instructional)
 - PAUSE and WAIT for response after every prompt
-- Brief summary at end: "Today you learned: [phrase 1], [phrase 2], [phrase 3]. Great work!"`
+- Brief summary at end: "Today you practiced: [phrase 1], [phrase 2], [phrase 3]. Great work!"`
 			: `## Turn-Taking
 - Follow TIER rules
 - PAUSE and WAIT for response
