@@ -1,16 +1,16 @@
 <script lang="ts">
 	interface Props {
-		currentStage?: 'selection' | 'chat' | 'review';
+		currentStage?: 'setup' | 'chat' | 'review';
 		showLabels?: boolean;
 		compact?: boolean;
 	}
 
-	let { currentStage = 'selection', showLabels = true, compact = false }: Props = $props();
+	let { currentStage = 'setup', showLabels = true, compact = false }: Props = $props();
 
 	const stages = [
 		{
-			id: 'selection',
-			label: 'Selection',
+			id: 'setup',
+			label: 'Setup',
 			description: 'Choose language & scenario',
 			icon: 'icon-[mdi--cog]'
 		},

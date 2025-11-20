@@ -3,8 +3,7 @@
 	import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { tryScenarioNow } from '$lib/services/scenarios/scenario-interaction.service';
-	import ScenarioCreatorModal from '$lib/features/scenarios/components/ScenarioCreatorModal.svelte';
-	import { notificationStore } from '$lib/stores/notification.store.svelte';
+	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
 
 	const { data } = $props();
 	const user = userManager.user;
@@ -81,9 +80,9 @@
 		return getDifficultyLevel(rating);
 	}
 
-	function handleTryScenario(scenario: Scenario, event?: Event) {
-		event?.stopPropagation();
-		tryScenarioNow(scenario);
+	// Delegate all logic to service - keep component dumb
+	function handleTryScenario(scenario: Scenario) {
+		tryScenarioNow(scenario, scenarioStore);
 	}
 
 	function isUserOwned(scenario: Scenario) {

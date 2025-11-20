@@ -12,6 +12,7 @@
 	import { setSelectedScenarioIdCookie } from '$lib/utils/cookies';
 	import { SvelteMap } from 'svelte/reactivity';
 	import { selectScenario } from '$lib/services/scenarios/scenario-interaction.service';
+	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
 
 	interface Props {
 		scenarios: Scenario[];
@@ -157,11 +158,15 @@
 		}
 
 		// Use service to handle selection logic
-		selectScenario(scenario, {
-			source: 'scenario_dropdown',
-			trackEvent: true,
-			navigateTo: null // Don't navigate, just select
-		});
+		selectScenario(
+			scenario,
+			scenarioStore,
+			{
+				source: 'scenario_dropdown',
+				trackEvent: true,
+				navigateTo: null // Don't navigate, just select
+			}
+		);
 
 		// Update parent component
 		onScenarioSelect(scenario);
