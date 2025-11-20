@@ -1,5 +1,14 @@
 // 🎯 Scenarios Data
 // Focused scenario set for the MVP
+//
+// ⚠️ NOTE ON DURATION TRACKING:
+// - estimatedDurationSeconds is OPTIONAL UX metadata (can be null)
+// - It's NOT used for tier usage limits - we track actual conversation time via:
+//   • user_usage.secondsUsed (actual time spent in conversations)
+//   • tiers.monthlySeconds (tier limit, e.g., 900 seconds for free tier)
+// - You do NOT need to fill out estimatedDurationSeconds for new scenarios
+// - Only add it if you want to help users plan their practice time
+// - Actual usage tracking happens automatically during conversations
 
 import type { Scenario } from '$lib/server/db/types';
 export type { Scenario };
