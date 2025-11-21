@@ -32,24 +32,24 @@
 </script>
 
 <div class="w-full" class:scale-90={compact}>
-	<div class="flex items-center justify-center gap-2">
+	<div class="flex items-center justify-center gap-1 sm:gap-2">
 		{#each stages as stage, index (stage.id)}
 			<div class="flex items-center">
-				<!-- Stage Circle -->
+				<!-- Stage Circle - More compact on mobile -->
 				<div
-					class="flex h-6 w-6 items-center justify-center rounded-full border-2 transition-all duration-300 sm:h-8 sm:w-8 {index <=
+					class="flex h-5 w-5 items-center justify-center rounded-full border-2 transition-all duration-300 sm:h-8 sm:w-8 {index <=
 					currentStageIndex
 						? index < currentStageIndex
 							? 'border-success bg-success text-success-content'
-							: 'border-primary bg-primary text-primary-content ring-2 ring-primary/30 ring-offset-2 ring-offset-base-100'
+							: 'border-primary bg-primary text-primary-content ring-2 ring-primary/30 ring-offset-1 ring-offset-base-100 sm:ring-offset-2'
 						: 'border-base-300 bg-base-100 text-base-content/50'}"
 				>
-					<span class="{stage.icon} h-3 w-3 sm:h-4 sm:w-4"></span>
+					<span class="{stage.icon} h-2.5 w-2.5 sm:h-4 sm:w-4"></span>
 				</div>
 
-				<!-- Stage Label (if not compact) -->
+				<!-- Stage Label (if not compact) - Hide labels on very small screens -->
 				{#if showLabels && !compact}
-					<div class="ml-2 text-sm">
+					<div class="ml-1.5 hidden text-sm sm:ml-2 sm:block">
 						<div class="font-medium {index !== currentStageIndex ? 'opacity-70' : ''}">
 							{stage.label}
 						</div>
@@ -59,10 +59,10 @@
 					</div>
 				{/if}
 
-				<!-- Connector Line -->
+				<!-- Connector Line - Shorter on mobile -->
 				{#if index < stages.length - 1}
 					<div
-						class="h-0.5 w-6 transition-colors duration-300 sm:w-8 {index < currentStageIndex
+						class="h-0.5 w-4 transition-colors duration-300 sm:w-8 {index < currentStageIndex
 							? 'bg-primary'
 							: 'bg-base-300'}"
 					></div>
