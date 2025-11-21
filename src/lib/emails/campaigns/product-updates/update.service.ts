@@ -4,7 +4,7 @@ import { env } from '$env/dynamic/private';
 import { userRepository } from '$lib/server/repositories';
 import type { User } from '$lib/server/db/types';
 import { EmailPermissionService } from '$lib/emails/shared/email-permission';
-import { generateSuperhumanEmail, type SuperhumanEmailContent } from './superhuman-template';
+import { generateKaiwaEmail, type KaiwaEmailContent } from '$lib/emails/shared/base-template';
 
 const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
 
@@ -15,7 +15,7 @@ const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
  * who have opted in to receive product updates.
  *
  * Usage:
- * - sendSuperhumanStyleUpdate() - Send weekly updates with clean template
+ * - sendWeeklyUpdate() - Send weekly updates with clean template
  * - sendProductUpdate() - Legacy simple update format
  * - Can send bulk emails to all subscribers
  */
@@ -24,15 +24,15 @@ export class ProductUpdatesEmailService {
 	public static readonly SENDER_NAME = 'Hiro';
 
 	/**
-	 * Send a Superhuman-style weekly update to all eligible users
+	 * Send a weekly update email to all eligible users
 	 *
 	 * This is the easiest way to send your weekly email:
-	 * 1. Edit superhuman-template.ts
+	 * 1. Edit weekly-update-template.ts
 	 * 2. Call this method
 	 * 3. Done!
 	 */
-	static async sendSuperhumanStyleUpdate(
-		content: SuperhumanEmailContent
+	static async sendWeeklyUpdate(
+		content: KaiwaEmailContent
 	): Promise<{ sent: number; skipped: number; failed: number }> {
 		if (!env.RESEND_API_KEY || env.RESEND_API_KEY === 're_dummy_resend_key') {
 			logger.warn('RESEND_API_KEY not configured, skipping email send');
@@ -60,7 +60,7 @@ export class ProductUpdatesEmailService {
 
 			// Generate personalized email with user's first name
 			const firstName = user.displayName?.split(' ')[0];
-			const html = generateSuperhumanEmail(content, firstName);
+			const html = generateKaiwaEmail(content, firstName);
 
 			// Replace placeholders
 			const appUrl = env.PUBLIC_APP_URL || 'https://trykaiwa.com';
@@ -77,7 +77,7 @@ export class ProductUpdatesEmailService {
 			});
 
 			if (result.error) {
-				logger.error('Failed to send superhuman email to user', user.id, result.error);
+				logger.error('Failed to send weekly email to user', user.id, result.error);
 				failed++;
 				continue;
 			}
@@ -88,7 +88,7 @@ export class ProductUpdatesEmailService {
 			await new Promise((resolve) => setTimeout(resolve, 100));
 		}
 
-		logger.info(`Superhuman email sent: ${sent} emails, skipped: ${skipped}, failed: ${failed}`);
+		logger.info(`Weekly email sent: ${sent} emails, skipped: ${skipped}, failed: ${failed}`);
 		return { sent, skipped, failed };
 	}
 

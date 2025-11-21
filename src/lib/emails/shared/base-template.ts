@@ -1,12 +1,15 @@
 /**
- * Superhuman-Style Email Template
+ * Kaiwa Base Email Template
  *
- * Clean, minimal, easy-to-read email template inspired by Superhuman.
- * Perfect for weekly product updates and announcements.
+ * Unified, clean email template for ALL Kaiwa emails.
+ * Ensures consistent branding and professional appearance across:
+ * - Weekly product updates
+ * - Practice reminders
+ * - Progress reports
+ * - Founder emails
+ * - All other campaigns
  *
- * Usage:
- * 1. Edit the content object below
- * 2. Send via API or dashboard
+ * Design inspired by Superhuman, Linear, and modern SaaS products.
  */
 
 interface EmailSection {
@@ -18,7 +21,7 @@ interface EmailSection {
 	}>;
 }
 
-export interface SuperhumanEmailContent {
+export interface KaiwaEmailContent {
 	// Header
 	logoText?: string; // e.g., "KAIWA" or leave empty for no logo
 	preheader?: string; // Shows in inbox preview
@@ -40,79 +43,24 @@ export interface SuperhumanEmailContent {
 }
 
 /**
- * ✏️ EDIT THIS CONTENT FOR YOUR WEEKLY EMAIL
+ * Generate clean, professional HTML email using Kaiwa's unified template
  *
- * Copy this template and update it each week
+ * All Kaiwa emails should use this function to ensure consistent branding.
  */
-export const THIS_WEEKS_EMAIL: SuperhumanEmailContent = {
-	logoText: 'KAIWA',
-	preheader: 'New features, improvements, and what\'s coming next',
-
-	greeting: 'Hey 👋',
-	intro: 'Quick update on what we shipped this week and what\'s coming next.',
-
-	sections: [
-		{
-			title: '✨ New This Week',
-			items: [
-				{
-					heading: 'Faster conversation loading',
-					description: 'Removed a slow database join. Conversations now start ~1.5s faster, especially on older devices.',
-					link: { text: 'See the changelog', url: 'https://trykaiwa.com/changelog/faster-loading' }
-				},
-				{
-					heading: 'New family dinner scenario',
-					description: 'Practice navigating cultural questions with in-laws in a low-pressure setting.',
-					link: { text: 'Try it now', url: 'https://trykaiwa.com/?scenario=family-dinner' }
-				}
-			]
-		},
-		{
-			title: '🎯 Coming Soon',
-			items: [
-				{
-					heading: 'Custom vocabulary packs',
-					description: 'Load partner-specific phrases before each session. Focus on what actually matters to you.',
-				},
-				{
-					heading: 'Improved progress tracking',
-					description: 'See your learning patterns and get personalized recommendations.',
-				}
-			]
-		},
-		{
-			title: '📝 Your Feedback in Action',
-			items: [
-				{
-					heading: 'Microphone timeout fix',
-					description: 'Changed auto-mute threshold to 90 seconds and added a visual timer. No more surprise disconnects.',
-					link: { text: 'See the fix', url: 'https://trykaiwa.com/changelog/mic-timeout' }
-				}
-			]
-		}
-	],
-
-	closingNote: 'That\'s it for this week. If something\'s not working or you want to see a specific feature, just reply to this email.',
-
-	signature: {
-		name: 'Hiro',
-		title: 'Founder',
-		ps: 'P.S. Trying something new with this format—let me know if you prefer this over the old style.'
-	}
-};
-
-/**
- * Generate Superhuman-style HTML email
- */
-export function generateSuperhumanEmail(content: SuperhumanEmailContent, userName?: string): string {
-	const sections = content.sections.map(section => {
-		const title = section.title ? `
+export function generateKaiwaEmail(content: KaiwaEmailContent, userName?: string): string {
+	const sections = content.sections
+		.map((section) => {
+			const title = section.title
+				? `
 			<div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; margin: 32px 0 16px;">
 				${section.title}
 			</div>
-		` : '';
+		`
+				: '';
 
-		const items = section.items.map(item => `
+			const items = section.items
+				.map(
+					(item) => `
 			<div style="margin-bottom: 24px;">
 				<div style="font-weight: 500; color: #111827; margin-bottom: 4px;">
 					${item.heading}
@@ -120,18 +68,25 @@ export function generateSuperhumanEmail(content: SuperhumanEmailContent, userNam
 				<div style="color: #6b7280; font-size: 14px; line-height: 1.6;">
 					${item.description}
 				</div>
-				${item.link ? `
+				${
+					item.link
+						? `
 					<div style="margin-top: 8px;">
 						<a href="${item.link.url}" style="color: #667eea; text-decoration: none; font-size: 14px; font-weight: 500;">
 							${item.link.text} →
 						</a>
 					</div>
-				` : ''}
+				`
+						: ''
+				}
 			</div>
-		`).join('');
+		`
+				)
+				.join('');
 
-		return title + items;
-	}).join('');
+			return title + items;
+		})
+		.join('');
 
 	return `
 <!DOCTYPE html>
@@ -160,7 +115,9 @@ export function generateSuperhumanEmail(content: SuperhumanEmailContent, userNam
 				<!-- Main Content -->
 				<table role="presentation" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 8px; overflow: hidden;">
 					<!-- Header (Optional Logo) -->
-					${content.logoText ? `
+					${
+						content.logoText
+							? `
 					<tr>
 						<td style="padding: 24px 32px; border-bottom: 1px solid #f3f4f6;">
 							<div style="font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #667eea;">
@@ -168,7 +125,9 @@ export function generateSuperhumanEmail(content: SuperhumanEmailContent, userNam
 							</div>
 						</td>
 					</tr>
-					` : ''}
+					`
+							: ''
+					}
 
 					<!-- Body Content -->
 					<tr>
@@ -187,14 +146,20 @@ export function generateSuperhumanEmail(content: SuperhumanEmailContent, userNam
 							${sections}
 
 							<!-- Closing Note -->
-							${content.closingNote ? `
+							${
+								content.closingNote
+									? `
 							<div style="color: #374151; font-size: 15px; line-height: 1.6; margin-top: 32px; padding-top: 24px; border-top: 1px solid #f3f4f6;">
 								${content.closingNote}
 							</div>
-							` : ''}
+							`
+									: ''
+							}
 
 							<!-- Signature -->
-							${content.signature ? `
+							${
+								content.signature
+									? `
 							<div style="margin-top: 32px;">
 								<div style="color: #111827; font-weight: 500;">
 									${content.signature.name}
@@ -202,13 +167,19 @@ export function generateSuperhumanEmail(content: SuperhumanEmailContent, userNam
 								<div style="color: #6b7280; font-size: 14px;">
 									${content.signature.title}
 								</div>
-								${content.signature.ps ? `
+								${
+									content.signature.ps
+										? `
 								<div style="color: #6b7280; font-size: 13px; margin-top: 16px; font-style: italic;">
 									${content.signature.ps}
 								</div>
-								` : ''}
+								`
+										: ''
+								}
 							</div>
-							` : ''}
+							`
+									: ''
+							}
 						</td>
 					</tr>
 
@@ -216,7 +187,7 @@ export function generateSuperhumanEmail(content: SuperhumanEmailContent, userNam
 					<tr>
 						<td style="padding: 24px 32px; background-color: #f9fafb; border-top: 1px solid #f3f4f6;">
 							<div style="font-size: 12px; color: #9ca3af; line-height: 1.5;">
-								You're receiving this because you opted into product updates.
+								You're receiving this because you opted into Kaiwa emails.
 								<a href="{{UNSUBSCRIBE_URL}}" style="color: #667eea; text-decoration: none;">Unsubscribe</a>
 								or <a href="{{PREFERENCES_URL}}" style="color: #667eea; text-decoration: none;">manage preferences</a>
 							</div>
@@ -235,11 +206,27 @@ export function generateSuperhumanEmail(content: SuperhumanEmailContent, userNam
 }
 
 /**
- * Quick helper to send this week's email
+ * Color palette for Kaiwa emails
+ * Use these values for consistency across all campaigns
  */
-export function getThisWeeksEmail(userName?: string): { subject: string; html: string } {
-	return {
-		subject: THIS_WEEKS_EMAIL.preheader || 'Kaiwa Weekly Update',
-		html: generateSuperhumanEmail(THIS_WEEKS_EMAIL, userName)
-	};
-}
+export const KAIWA_EMAIL_COLORS = {
+	// Brand
+	primary: '#667eea',
+	primaryDark: '#5568d3',
+
+	// Text
+	headingDark: '#111827',
+	bodyDark: '#374151',
+	bodyMuted: '#6b7280',
+	bodyLight: '#9ca3af',
+
+	// Background
+	white: '#ffffff',
+	grayLight: '#f9fafb',
+	grayBorder: '#f3f4f6',
+
+	// Status
+	success: '#10b981',
+	warning: '#f59e0b',
+	error: '#ef4444'
+} as const;

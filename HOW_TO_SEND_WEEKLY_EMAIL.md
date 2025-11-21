@@ -1,6 +1,6 @@
 # How to Send Your Weekly Product Email
 
-A super simple guide to sending beautiful, Superhuman-style weekly updates.
+A super simple guide to sending beautiful, Kaiwa-style weekly updates.
 
 ---
 
@@ -8,11 +8,11 @@ A super simple guide to sending beautiful, Superhuman-style weekly updates.
 
 ### 1. Edit Your Content
 
-Open `src/lib/emails/campaigns/product-updates/superhuman-template.ts`
+Open `src/lib/emails/campaigns/product-updates/weekly-update-template.ts`
 
 Find this section:
 ```typescript
-export const THIS_WEEKS_EMAIL: SuperhumanEmailContent = {
+export const THIS_WEEKS_EMAIL: KaiwaEmailContent = {
   logoText: 'KAIWA',
   preheader: 'New features, improvements, and what\'s coming next',
 
@@ -29,7 +29,7 @@ export const THIS_WEEKS_EMAIL: SuperhumanEmailContent = {
 
 **Option A: Via Dashboard**
 ```bash
-http://localhost:5173/api/admin/send-superhuman-update?preview=true
+http://localhost:5173/api/admin/send-weekly-update?preview=true
 ```
 
 **Option B: Via Dev Email Dashboard**
@@ -41,7 +41,7 @@ http://localhost:5173/api/admin/send-superhuman-update?preview=true
 
 **Option A: Via Terminal**
 ```bash
-curl -X POST http://localhost:5173/api/admin/send-superhuman-update \
+curl -X POST http://localhost:5173/api/admin/send-weekly-update \
   -H "Authorization: Bearer YOUR_ADMIN_SECRET"
 ```
 
@@ -55,7 +55,7 @@ curl -X POST http://localhost:5173/api/admin/send-superhuman-update \
 
 ## 📧 Email Template Structure
 
-### The Superhuman Style
+### The Kaiwa Style
 
 Clean, minimal, easy to scan. Here's the structure:
 
@@ -98,7 +98,7 @@ Clean, minimal, easy to scan. Here's the structure:
 Copy-paste this and fill it in each week:
 
 ```typescript
-export const THIS_WEEKS_EMAIL: SuperhumanEmailContent = {
+export const THIS_WEEKS_EMAIL: KaiwaEmailContent = {
   logoText: 'KAIWA',
   preheader: 'Week of [DATE] - New features and improvements',
 
@@ -160,7 +160,7 @@ export const THIS_WEEKS_EMAIL: SuperhumanEmailContent = {
 
 ---
 
-## 🎨 Design Principles (Superhuman Style)
+## 🎨 Design Principles (Kaiwa Style)
 
 ### ✅ Do:
 - **Keep it short** - People skim emails
@@ -218,7 +218,7 @@ export const THIS_WEEKS_EMAIL: SuperhumanEmailContent = {
 ### Monday
 1. Review what shipped last week
 2. Check your changelog / git commits
-3. Draft content in `superhuman-template.ts`
+3. Draft content in `weekly-update-template.ts`
 
 ### Tuesday
 1. Preview email via dashboard
@@ -308,7 +308,7 @@ sections: [
 
 ## 🛠 Customization
 
-Want to change the design? Edit `generateSuperhumanEmail()` in `superhuman-template.ts`.
+Want to change the design? Edit `generateKaiwaEmail()` in `weekly-update-template.ts`.
 
 ### Colors
 ```typescript
@@ -363,7 +363,7 @@ A: Check the Resend dashboard at https://resend.com/emails
 ## 🎓 Learn From the Best
 
 Study these companies for inspiration:
-- **Superhuman** - Master of minimal, scannable updates
+- **Kaiwa** - Master of minimal, scannable updates
 - **Linear** - Great feature announcements
 - **Notion** - Excellent changelog style
 - **Hey** - Conversational tone
