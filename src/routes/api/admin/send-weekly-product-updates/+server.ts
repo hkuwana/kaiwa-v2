@@ -1,8 +1,8 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { WeeklyUpdatesEmailService } from '$lib/server/email/weekly-updates-email.service';
+import { WeeklyUpdatesEmailService } from '$lib/emails/campaigns/weekly-digest/digest.service';
 import { WeeklyUpdatesParserService } from '$lib/server/services/weekly-updates-parser.service';
-import type { WeeklyDigestOptions } from '$lib/server/email/weekly-updates-email.service';
+import type { WeeklyDigestOptions } from '$lib/emails/campaigns/weekly-digest/digest.service';
 
 /**
  * Manual endpoint for sending weekly product updates
