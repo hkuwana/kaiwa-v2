@@ -1,7 +1,7 @@
 import { google, isGoogleOAuthEnabled } from '$lib/services/auth-oauth.service';
 import { createSession, setSessionTokenCookie, findOrCreateUser } from '$lib/server/auth';
 import { OAuth2RequestError, decodeIdToken } from 'arctic';
-import { FounderEmailService } from '$lib/server/email/founder-email.service';
+import { FounderEmailService } from '$lib/emails/campaigns/founder-sequence/founder.service';
 import { userSettingsRepository } from '$lib/server/repositories';
 
 interface IdTokenClaims {

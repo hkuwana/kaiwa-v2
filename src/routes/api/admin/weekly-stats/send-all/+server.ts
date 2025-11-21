@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { WeeklyStatsEmailService } from '$lib/server/email/weekly-stats-email.service';
+import { WeeklyStatsEmailService } from '$lib/emails/campaigns/weekly-stats/stats.service';
 
 export const POST = async () => {
 	try {

@@ -1,6 +1,6 @@
 import { logger } from '$lib/logger';
 import { json } from '@sveltejs/kit';
-import { ProductUpdatesEmailService } from '$lib/server/email/product-updates-email.service';
+import { ProductUpdatesEmailService } from '$lib/emails/campaigns/product-updates/update.service';
 import { env } from '$env/dynamic/private';
 
 /**

@@ -2,7 +2,7 @@ import { logger } from '$lib/logger';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { env } from '$env/dynamic/private';
-import { ScenarioInspirationEmailService } from '$lib/server/email/scenario-inspiration-email.service';
+import { ScenarioInspirationEmailService } from '$lib/emails/campaigns/scenario-inspiration/inspiration.service';
 
 /**
  * HTTP endpoint for triggering scenario inspiration emails

@@ -2,7 +2,7 @@ import { logger } from '$lib/logger';
 import { Resend } from 'resend';
 import { userRepository } from '$lib/server/repositories';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
-import { EmailPermissionService } from './email-permission.service';
+import { EmailPermissionService } from '$lib/emails/shared/email-permission';
 import type { User } from '$lib/server/db/types';
 import { analyticsEventsRepository } from '$lib/server/repositories/analytics-events.repository';
 
