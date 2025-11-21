@@ -45,7 +45,17 @@
 		friendly_chat: 'Friendly Chat',
 		expert: 'Expert'
 	};
-</script>
+
+	// Language display variants for rotation animation
+	const languageVariants = $derived.by(() => {
+		if (!selectedLanguage) return [];
+		return [
+			{ text: selectedLanguage.name, color: 'bg-primary text-primary-content' },
+			{ text: selectedLanguage.nativeName, color: 'bg-secondary text-secondary-content' },
+			{ text: selectedLanguage.name, color: 'bg-accent text-accent-content' }
+		];
+	});
+
 
 {#if hasSelections}
 	<div
@@ -117,79 +127,111 @@
 				<!-- Scenario Section - More compact on mobile -->
 				{#if selectedScenario}
 					<div
-						class="rounded-2xl bg-base-100/50 p-3 backdrop-blur-sm sm:p-4"
+						class="card rounded-2xl shadow-sm {selectedScenario.thumbnailUrl
+							? 'image-full bg-base-100'
+							: 'bg-base-100/50'}"
 						in:fade={{ duration: 400, delay: 250 }}
 					>
-						<div class="mb-2 flex items-start justify-between gap-2 sm:mb-3 sm:gap-3">
-							<div class="flex-1">
-								<p
-									class="text-[10px] font-medium tracking-wide text-base-content/50 uppercase sm:text-xs"
-								>
-									Scenario
-								</p>
-								<p
-									class="mt-0.5 text-base leading-tight font-semibold text-base-content sm:mt-1 sm:text-lg"
-								>
-									{selectedScenario.title}
-								</p>
-							</div>
-							<div class="flex-shrink-0">
-								<span
-									class="badge badge-xs capitalize sm:badge-sm"
-									class:badge-primary={selectedScenario.role === 'tutor'}
-									class:badge-info={selectedScenario.role === 'character'}
-									class:badge-warning={selectedScenario.role === 'friendly_chat'}
-									class:badge-accent={selectedScenario.role === 'expert'}
-								>
-									{roleDisplayNames[selectedScenario.role] || selectedScenario.role}
-								</span>
-							</div>
-						</div>
-
-						<!-- Scenario Description - Hide on small mobile, show on sm+ -->
-						{#if selectedScenario.description}
-							<p class="mb-2 hidden text-sm leading-relaxed text-base-content/70 sm:mb-3 sm:block">
-								{selectedScenario.description}
-							</p>
+						{#if selectedScenario.thumbnailUrl}
+							<figure class="opacity-40">
+								<img
+									src={selectedScenario.thumbnailUrl}
+									alt={selectedScenario.title}
+									class="h-full w-full object-cover"
+								/>
+							</figure>
 						{/if}
-
-						<!-- Scenario Goal (learningGoal) - Show on mobile if available -->
-						{#if selectedScenario.learningGoal}
-							<p class="mb-2 text-xs leading-relaxed text-base-content/70 sm:hidden">
-								Goal: {selectedScenario.learningGoal}
-							</p>
-						{/if}
-
-						<!-- Difficulty Indicator - More compact on mobile -->
-						{#if scenarioMeta}
-							<div class="flex items-center gap-1.5 sm:gap-2">
-								<span class="text-[10px] text-base-content/50 sm:text-xs">Difficulty:</span>
-								<div class="flex items-center gap-0.5 sm:gap-1">
-									{#each [1, 2, 3] as segment}
-										<span
-											class="h-1 w-4 rounded-full transition-colors sm:h-1.5 sm:w-6"
-											class:bg-success={segment <=
-												(selectedScenario.difficultyRating || 0) / 3.33 &&
-												scenarioMeta.color === 'success'}
-											class:bg-warning={segment <=
-												(selectedScenario.difficultyRating || 0) / 3.33 &&
-												scenarioMeta.color === 'warning'}
-											class:bg-error={segment <= (selectedScenario.difficultyRating || 0) / 3.33 &&
-												scenarioMeta.color === 'error'}
-											class:bg-base-300={segment > (selectedScenario.difficultyRating || 0) / 3.33}
-										></span>
-									{/each}
+						<div class="card-body p-3 sm:p-4">
+							<div class="mb-2 flex items-start justify-between gap-2 sm:mb-3 sm:gap-3">
+								<div class="flex-1">
+									<p
+										class="text-[10px] font-medium uppercase tracking-wide sm:text-xs {selectedScenario.thumbnailUrl
+											? 'text-base-content'
+											: 'text-base-content/50'}"
+									>
+										Scenario
+									</p>
+									<h3
+										class="mt-0.5 text-base font-semibold leading-tight sm:mt-1 sm:text-lg {selectedScenario.thumbnailUrl
+											? 'text-base-content'
+											: 'text-base-content'}"
+									>
+										{selectedScenario.title}
+									</h3>
 								</div>
-								<span
-									class="text-[10px] font-medium sm:text-xs"
-									class:text-success={scenarioMeta.color === 'success'}
-									class:text-warning={scenarioMeta.color === 'warning'}
-									class:text-error={scenarioMeta.color === 'error'}
-								>
-									{scenarioMeta.label}
-								</span>
+								<div class="flex-shrink-0">
+									<span
+										class="badge badge-xs capitalize sm:badge-sm"
+										class:badge-primary={selectedScenario.role === 'tutor'}
+										class:badge-info={selectedScenario.role === 'character'}
+										class:badge-warning={selectedScenario.role === 'friendly_chat'}
+										class:badge-accent={selectedScenario.role === 'expert'}
+									>
+										{roleDisplayNames[selectedScenario.role] || selectedScenario.role}
+									</span>
+								</div>
 							</div>
-						{/if}
+
+							<!-- Scenario Description - Hide on small mobile, show on sm+ -->
+							{#if selectedScenario.description}
+								<p
+									class="mb-2 hidden text-sm leading-relaxed sm:mb-3 sm:block {selectedScenario.thumbnailUrl
+										? 'text-base-content/90'
+										: 'text-base-content/70'}"
+								>
+									{selectedScenario.description}
+								</p>
+							{/if}
+
+							<!-- Scenario Goal (learningGoal) - Show on mobile if available -->
+							{#if selectedScenario.learningGoal}
+								<p
+									class="mb-2 text-xs leading-relaxed sm:hidden {selectedScenario.thumbnailUrl
+										? 'text-base-content/90'
+										: 'text-base-content/70'}"
+								>
+									Goal: {selectedScenario.learningGoal}
+								</p>
+							{/if}
+
+							<!-- Difficulty Indicator - More compact on mobile -->
+							{#if scenarioMeta}
+								<div class="flex items-center gap-1.5 sm:gap-2">
+									<span
+										class="text-[10px] sm:text-xs {selectedScenario.thumbnailUrl
+											? 'text-base-content/70'
+											: 'text-base-content/50'}"
+									>
+										Difficulty:
+									</span>
+									<div class="flex items-center gap-0.5 sm:gap-1">
+										{#each [1, 2, 3] as segment}
+											<span
+												class="h-1 w-4 rounded-full transition-colors sm:h-1.5 sm:w-6"
+												class:bg-success={segment <=
+													(selectedScenario.difficultyRating || 0) / 3.33 &&
+													scenarioMeta.color === 'success'}
+												class:bg-warning={segment <=
+													(selectedScenario.difficultyRating || 0) / 3.33 &&
+													scenarioMeta.color === 'warning'}
+												class:bg-error={segment <= (selectedScenario.difficultyRating || 0) / 3.33 &&
+													scenarioMeta.color === 'error'}
+												class:bg-base-300={segment >
+													(selectedScenario.difficultyRating || 0) / 3.33}
+											></span>
+										{/each}
+									</div>
+									<span
+										class="text-[10px] font-medium sm:text-xs"
+										class:text-success={scenarioMeta.color === 'success'}
+										class:text-warning={scenarioMeta.color === 'warning'}
+										class:text-error={scenarioMeta.color === 'error'}
+									>
+										{scenarioMeta.label}
+									</span>
+								</div>
+							{/if}
+						</div>
 					</div>
 				{/if}
 			</div>
@@ -211,5 +253,55 @@
 	/* Subtle hover effect on card */
 	.briefing-card:hover {
 		@apply shadow-2xl;
+	}
+
+	/* Rotating text animation for language display */
+	.text-rotate {
+		overflow: hidden;
+		height: 1.5rem; /* Mobile height */
+		position: relative;
+	}
+
+	@media (min-width: 640px) {
+		.text-rotate {
+			height: 1.75rem; /* Desktop height */
+		}
+	}
+
+	.rotate-text {
+		display: flex;
+		flex-direction: column;
+		animation: rotate-words 9s infinite;
+	}
+
+	.rotate-text span {
+		display: block;
+		height: 1.5rem;
+		line-height: 1.5rem;
+	}
+
+	@media (min-width: 640px) {
+		.rotate-text span {
+			height: 1.75rem;
+			line-height: 1.75rem;
+		}
+	}
+
+	@keyframes rotate-words {
+		0%,
+		30% {
+			transform: translateY(0%);
+		}
+		33%,
+		63% {
+			transform: translateY(-33.33%);
+		}
+		66%,
+		96% {
+			transform: translateY(-66.66%);
+		}
+		100% {
+			transform: translateY(0%);
+		}
 	}
 </style>
