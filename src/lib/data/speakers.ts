@@ -318,8 +318,8 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'ash',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: null,
-		characterImageAlt: null
+		characterImageUrl: '/speakers/chen-speaker.webp',
+		characterImageAlt: 'Image of Chen'
 	},
 	{
 		id: 'zh-tw-female',
@@ -334,8 +334,8 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: null,
-		characterImageAlt: null
+		characterImageUrl: '/speakers/hsiao-mei-speaker.webp',
+		characterImageAlt: 'Image of Hsiao-Mei'
 	},
 
 	// --- French Speakers ---
@@ -892,8 +892,8 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'sage',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: null,
-		characterImageAlt: null
+		characterImageUrl: '/speakers/eva-speaker.webp',
+		characterImageAlt: 'Image of Juan'
 	},
 
 	// --- Filipino Speakers ---
@@ -1042,8 +1042,8 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'alloy',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: null,
-		characterImageAlt: null
+		characterImageUrl: '/speakers/dmitri-speaker.webp',
+		characterImageAlt: 'image of Dmitri'
 	},
 	{
 		id: 'ru-ru-standard-female',
@@ -1090,8 +1090,8 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'coral',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: null,
-		characterImageAlt: null
+		characterImageUrl: '/speakers/anna-speaker.webp',
+		characterImageAlt: 'Image of Anna'
 	},
 
 	// --- Indonesian Speakers ---
@@ -1222,8 +1222,8 @@ export const speakersData: Speaker[] = [
 		openaiVoiceId: 'coral',
 		isActive: false,
 		createdAt: null,
-		characterImageUrl: null,
-		characterImageAlt: null
+		characterImageUrl: '/speakers/Izmir-speaker.webp',
+		characterImageAlt: 'Image of Ece'
 	}
 ];
 

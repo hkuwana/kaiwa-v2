@@ -161,7 +161,7 @@ export class FounderEmailService {
 				? `Your first ${languageName} conversation starts here`
 				: 'Your first conversation starts here',
 
-			preheader: 'Welcome to Kaiwa - let's start with just 5 minutes',
+			preheader: "Welcome to Kaiwa - let's start with just 5 minutes",
 
 			greeting: 'Hey 👋',
 			intro: `Thanks for joining Kaiwa! I'm Hiro, and I built this to make speaking ${languageName || 'a new language'} feel less intimidating—especially when it's for the people you care about.`,
@@ -198,7 +198,6 @@ export class FounderEmailService {
 	 */
 	public static getDay3Email(user: User, languageName: string | null): string {
 		const firstName = user.displayName?.split(' ')[0] || 'there';
-		const appUrl = env.PUBLIC_APP_URL || 'https://trykaiwa.com';
 
 		const content: KaiwaEmailContent = {
 			headerCategory: 'Personal Invitation',
