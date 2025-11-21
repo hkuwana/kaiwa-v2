@@ -10,9 +10,9 @@
  *   pnpm run send-weekly-product-updates
  */
 
-import { WeeklyUpdatesEmailService } from '../src/lib/server/email/weekly-updates-email.service';
+import { WeeklyUpdatesEmailService } from '../src/lib/emails/campaigns/weekly-digest/digest.service';
 import { WeeklyUpdatesParserService } from '../src/lib/server/services/weekly-updates-parser.service';
-import type { WeeklyDigestOptions } from '../src/lib/server/email/weekly-updates-email.service';
+import type { WeeklyDigestOptions } from '../src/lib/emails/campaigns/weekly-digest/digest.service';
 
 interface WeeklyProductUpdatesStats {
 	sent: number;

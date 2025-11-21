@@ -5,7 +5,7 @@ import { conversationSessionsRepository } from '$lib/server/repositories/convers
 import { userRepository } from '$lib/server/repositories';
 import { scenarioRepository } from '$lib/server/repositories';
 import { userScenarioProgressRepository } from '$lib/server/repositories';
-import { EmailPermissionService } from './email-permission.service';
+import { EmailPermissionService } from '$lib/emails/shared/email-permission';
 import type { User, Scenario } from '$lib/server/db/types';
 import { userPreferencesRepository } from '$lib/server/repositories/user-preferences.repository';
 import { languageRepository } from '$lib/server/repositories/language.repository';

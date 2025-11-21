@@ -2,7 +2,7 @@ import { logger } from '$lib/logger';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { env } from '$env/dynamic/private';
-import { CommunityStoryEmailService } from '$lib/server/email/community-story-email.service';
+import { CommunityStoryEmailService } from '$lib/emails/campaigns/community-stories/story.service';
 
 /**
  * HTTP endpoint for triggering community story spotlight emails

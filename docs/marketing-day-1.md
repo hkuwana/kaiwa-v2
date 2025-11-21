@@ -208,7 +208,7 @@ Add any responses you got:
 ### If someone asks "What's Kaiwa?"
 
 ```
-Kaiwa is a practice platform I'm building for people who need to have specific, high-stakes conversations in another language - like meeting your partner's parents, having difficult family conversations, or navigating emotional situations.
+Kaiwa is a conversation platform to talk to people you love.
 
 Think of it as a rehearsal space for the moments that matter most in relationships.
 

@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { posthogManager } from '$lib/client/posthog';
+	import { EMAIL_CAMPAIGNS, CAMPAIGN_CATEGORIES } from '$lib/emails/email-campaigns.config';
 
 	let isLoading = $state(false);
 	let testResult = $state<string>('');
@@ -11,6 +12,9 @@
 	let isLoadingPreview = $state(false);
 	let isCronRunning = $state(false);
 	let cronResult = $state<string>('');
+	let showWeeklyPreview = $state(false);
+	let weeklyPreviewHtml = $state<string>('');
+	let showSideBySide = $state(false); // Toggle for side-by-side vs full width
 
 	const emailTypes = [
 		{
@@ -217,19 +221,294 @@
 			isCronRunning = false;
 		}
 	}
+
+	async function previewWeeklyEmail() {
+		isLoadingPreview = true;
+
+		try {
+			const response = await fetch('/api/admin/send-weekly-update?preview=true');
+
+			if (response.ok) {
+				weeklyPreviewHtml = await response.text();
+				showWeeklyPreview = true;
+
+				posthogManager.trackEvent('dev_weekly_email_preview_viewed');
+			} else {
+				testResult = `❌ Failed to load preview: ${await response.text()}`;
+			}
+		} catch (error) {
+			testResult = `❌ Error loading preview: ${error instanceof Error ? error.message : 'Unknown error'}`;
+		} finally {
+			isLoadingPreview = false;
+		}
+	}
 </script>
 
 <div class="min-h-screen bg-base-200 p-8">
-	<div class="mx-auto max-w-4xl">
+	<div class="mx-auto max-w-6xl">
 		<!-- Header -->
 		<div class="mb-8">
-			<h1 class="mb-2 text-4xl font-bold">📧 Email Testing</h1>
+			<h1 class="mb-2 text-4xl font-bold">📧 Email System Dashboard</h1>
 			<p class="text-base-content/70">
-				Test all email templates by sending them to <strong class="text-primary"
-					>weijo34@gmail.com</strong
-				>
+				Manage and test all email campaigns from one central dashboard
 			</p>
 		</div>
+
+		<!-- CAMPAIGNS OVERVIEW TABLE -->
+		<div class="card mb-8 bg-base-100 shadow-xl">
+			<div class="card-body">
+				<div class="mb-4 flex items-center justify-between">
+					<h2 class="card-title">📊 All Email Campaigns</h2>
+					<div class="badge badge-primary">{EMAIL_CAMPAIGNS.length} Campaigns</div>
+				</div>
+
+				<!-- Campaigns Table -->
+				<div class="overflow-x-auto">
+					<table class="table table-zebra">
+						<thead>
+							<tr>
+								<th>Campaign</th>
+								<th>Category</th>
+								<th>Schedule</th>
+								<th>Status</th>
+								<th>Recipients</th>
+							</tr>
+						</thead>
+						<tbody>
+							{#each EMAIL_CAMPAIGNS as campaign (campaign.id)}
+								<tr class="hover">
+									<td>
+										<div class="font-semibold">{campaign.name}</div>
+										<div class="text-xs text-base-content/60">{campaign.description}</div>
+									</td>
+									<td>
+										<div class="badge badge-ghost badge-sm">
+											{CAMPAIGN_CATEGORIES[campaign.category].icon}
+											{CAMPAIGN_CATEGORIES[campaign.category].name}
+										</div>
+									</td>
+									<td>
+										<div class="text-sm">{campaign.frequency || campaign.schedule}</div>
+									</td>
+									<td>
+										{#if campaign.status === 'active'}
+											<div class="badge badge-sm badge-success">🟢 Active</div>
+										{:else if campaign.status === 'paused'}
+											<div class="badge badge-sm badge-warning">⏸️ Paused</div>
+										{:else}
+											<div class="badge badge-ghost badge-sm">📝 Draft</div>
+										{/if}
+									</td>
+									<td class="text-xs text-base-content/60">
+										{campaign.estimatedRecipients || 'N/A'}
+									</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+
+				<div class="mt-4 text-sm text-base-content/60">
+					<strong>Note:</strong> Email campaigns are reaching daily limits on Resend's free tier. Consider
+					implementing email preferences and user segmentation to reduce volume.
+				</div>
+			</div>
+		</div>
+
+		<!-- WEEKLY EMAIL QUICK PREVIEW -->
+		<div
+			class="card mb-8 border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5 shadow-xl"
+		>
+			<div class="card-body">
+				<div class="mb-4 flex items-center justify-between">
+					<div>
+						<h2 class="card-title">✨ Weekly Email Editor</h2>
+						<p class="text-sm text-base-content/60">
+							Edit your weekly product update and see it live
+						</p>
+					</div>
+					<div class="badge badge-lg badge-primary">Unified Template</div>
+				</div>
+
+				<!-- Quick Instructions -->
+				<div class="mb-4 alert alert-info">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						class="h-6 w-6 shrink-0 stroke-current"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+						></path>
+					</svg>
+					<div class="text-sm">
+						<div class="font-bold">Quick Workflow:</div>
+						<ol class="mt-2 list-inside list-decimal space-y-1">
+							<li>
+								Edit
+								<code class="rounded px-2 py-1 text-xs"
+									>src/lib/emails/campaigns/product-updates/weekly-update-template.ts</code
+								>
+							</li>
+							<li>Save the file</li>
+							<li>Click "Preview" below to see your changes</li>
+							<li>Send when ready!</li>
+						</ol>
+					</div>
+				</div>
+
+				<!-- Action Buttons -->
+				<div class="flex gap-3">
+					<button
+						class="btn flex-1 btn-lg btn-primary"
+						onclick={previewWeeklyEmail}
+						disabled={isLoadingPreview}
+					>
+						{#if isLoadingPreview}
+							<span class="loading loading-spinner"></span>
+							Loading...
+						{:else}
+							👁️ Preview This Week's Email
+						{/if}
+					</button>
+					<a
+						href="/api/admin/send-weekly-update?preview=true"
+						target="_blank"
+						class="btn btn-outline btn-lg"
+					>
+						🔗 Open in New Tab
+					</a>
+				</div>
+
+				<!-- Template File Link -->
+				<div class="mt-4 text-sm text-base-content/60">
+					<strong>Template file:</strong>
+					<code class="ml-2 rounded bg-base-200 px-2 py-1"
+						>src/lib/emails/campaigns/product-updates/weekly-update-template.ts</code
+					>
+				</div>
+			</div>
+		</div>
+
+		<!-- Weekly Preview Display (Desktop + Mobile) -->
+		{#if showWeeklyPreview}
+			<div class="card mb-8 bg-base-100 shadow-xl">
+				<div class="card-body">
+					<div class="mb-4 flex items-center justify-between">
+						<div>
+							<h2 class="card-title">📧 Weekly Email Preview</h2>
+							<!-- View Toggle -->
+							<div class="mt-2 flex gap-2">
+								<button
+									class="btn btn-xs {!showSideBySide ? 'btn-primary' : 'btn-ghost'}"
+									onclick={() => (showSideBySide = false)}
+								>
+									🖥️ Full Width
+								</button>
+								<button
+									class="btn btn-xs {showSideBySide ? 'btn-primary' : 'btn-ghost'}"
+									onclick={() => (showSideBySide = true)}
+								>
+									📱 Desktop + Mobile
+								</button>
+							</div>
+						</div>
+						<button
+							class="btn btn-ghost btn-sm"
+							onclick={() => (showWeeklyPreview = false)}
+						>
+							✕ Close
+						</button>
+					</div>
+
+					<!-- Full Width View (Default) -->
+					{#if !showSideBySide}
+						<div class="overflow-hidden rounded-lg border-2 border-base-300 bg-white shadow-lg">
+							<!-- Safe: weeklyPreviewHtml is email preview HTML generated by our template -->
+							<!-- svelte-ignore svelte_no_at_html_tags -->
+							<div class="max-h-[700px] overflow-y-auto">
+								{@html weeklyPreviewHtml}
+							</div>
+						</div>
+					{/if}
+
+					<!-- Desktop + Mobile Side by Side View -->
+					{#if showSideBySide}
+					<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+						<!-- Desktop Preview -->
+						<div>
+							<div class="mb-2 text-sm font-semibold text-base-content/70 flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+								</svg>
+								Desktop View
+							</div>
+							<div class="overflow-hidden rounded-lg border-2 border-base-300 bg-white shadow-lg">
+								<!-- Safe: weeklyPreviewHtml is email preview HTML generated by our template -->
+								<!-- svelte-ignore svelte_no_at_html_tags -->
+								<div class="max-h-[600px] overflow-y-auto">
+									{@html weeklyPreviewHtml}
+								</div>
+							</div>
+						</div>
+
+						<!-- Mobile Preview -->
+						<div>
+							<div class="mb-2 text-sm font-semibold text-base-content/70 flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+								</svg>
+								Mobile View (iPhone)
+							</div>
+							<div class="flex justify-center">
+								<div class="mockup-phone border-primary">
+									<div class="mockup-phone-camera"></div>
+									<div class="mockup-phone-display">
+										<div class="bg-white h-full overflow-y-auto">
+											<!-- Safe: weeklyPreviewHtml is email preview HTML generated by our template -->
+											<!-- svelte-ignore svelte_no_at_html_tags -->
+											{@html weeklyPreviewHtml}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					{/if}
+
+					<div class="mt-6 alert alert-success">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							class="h-6 w-6 shrink-0 stroke-current"
+							fill="none"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+							></path>
+						</svg>
+						<div class="flex-1">
+							<div class="font-bold">Looks good on both desktop and mobile?</div>
+							<div class="text-sm mt-1">
+								Send it to all users via API:
+								<code class="ml-2 rounded bg-base-200 px-2 py-1"
+									>POST /api/admin/send-weekly-update</code
+								>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		{/if}
+
+		<div class="divider">Email Testing</div>
 
 		<!-- Auth Check -->
 		{#if !userManager.isLoggedIn}
@@ -375,11 +654,49 @@
 								✕ Close Preview
 							</button>
 						</div>
-						<div class="overflow-hidden rounded-lg border border-base-300 bg-white">
-							<!-- Safe: previewHtml is email preview HTML generated by our own email templates -->
-							<!-- svelte-ignore svelte_no_at_html_tags -->
-							{@html previewHtml}
+
+						<!-- Desktop + Mobile Preview Side by Side -->
+						<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+							<!-- Desktop Preview -->
+							<div>
+								<div class="mb-2 text-sm font-semibold text-base-content/70 flex items-center gap-2">
+									<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+									</svg>
+									Desktop View
+								</div>
+								<div class="overflow-hidden rounded-lg border-2 border-base-300 bg-white shadow-lg">
+									<!-- Safe: previewHtml is email preview HTML generated by our own email templates -->
+									<!-- svelte-ignore svelte_no_at_html_tags -->
+									<div class="max-h-[600px] overflow-y-auto">
+										{@html previewHtml}
+									</div>
+								</div>
+							</div>
+
+							<!-- Mobile Preview -->
+							<div>
+								<div class="mb-2 text-sm font-semibold text-base-content/70 flex items-center gap-2">
+									<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+									</svg>
+									Mobile View (iPhone)
+								</div>
+								<div class="flex justify-center">
+									<div class="mockup-phone border-primary">
+										<div class="mockup-phone-camera"></div>
+										<div class="mockup-phone-display">
+											<div class="bg-white h-full overflow-y-auto">
+												<!-- Safe: previewHtml is email preview HTML generated by our own email templates -->
+												<!-- svelte-ignore svelte_no_at_html_tags -->
+												{@html previewHtml}
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
+
 						<div class="mt-4 alert alert-info">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"

@@ -1,7 +1,7 @@
 import { logger } from '$lib/logger';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { WeeklyStatsEmailService } from '$lib/server/email/weekly-stats-email.service';
+import { WeeklyStatsEmailService } from '$lib/emails/campaigns/weekly-stats/stats.service';
 import { env } from '$env/dynamic/private';
 
 /**

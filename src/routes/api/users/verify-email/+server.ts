@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { EmailVerificationService } from '$lib/server/services/email-verification.service';
-import { FounderEmailService } from '$lib/server/email/founder-email.service';
+import { FounderEmailService } from '$lib/emails/campaigns/founder-sequence/founder.service';
 import { userSettingsRepository } from '$lib/server/repositories';
 
 export const POST = async ({ request, locals }) => {

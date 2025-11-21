@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { WeeklyUpdatesEmailService } from '$lib/server/email/weekly-updates-email.service';
+import { WeeklyUpdatesEmailService } from '$lib/emails/campaigns/weekly-digest/digest.service';
 
 export const POST: RequestHandler = async ({ request }) => {
 	try {

@@ -1,10 +1,10 @@
 import { logger } from '$lib/logger';
 import { json } from '@sveltejs/kit';
-import { FounderEmailService } from '$lib/server/email/founder-email.service';
+import { FounderEmailService } from '$lib/emails/campaigns/founder-sequence/founder.service';
 import { userRepository } from '$lib/server/repositories';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
 import { userSettingsRepository } from '$lib/server/repositories/user-settings.repository';
-import { EmailPermissionService } from '$lib/server/email/email-permission.service';
+import { EmailPermissionService } from '$lib/emails/shared/email-permission';
 import { env } from '$env/dynamic/private';
 
 /**
