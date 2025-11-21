@@ -24,7 +24,7 @@ export * as paymentService from './payment.service';
 export { stripeService } from './stripe.service';
 
 // Email services
-export * as emailService from './email-service';
+export * as emailService from '$lib/emails/shared/email-sender';
 export * as emailVerificationService from './email-verification.service';
 
 // Translation service
