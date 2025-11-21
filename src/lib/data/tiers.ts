@@ -46,7 +46,9 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 		isActive: false,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		hasDeepAnalysis: false
+		hasDeepAnalysis: false,
+		maxCustomScenarios: 0,
+		maxPrivateCustomScenarios: 0
 	},
 	plus: {
 		id: 'plus',
@@ -86,7 +88,9 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 		isActive: false,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		hasDeepAnalysis: false
+		hasDeepAnalysis: false,
+		maxCustomScenarios: 0,
+		maxPrivateCustomScenarios: 0
 	},
 	premium: {
 		id: 'premium',
@@ -126,7 +130,9 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 		isActive: false,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		hasDeepAnalysis: false
+		hasDeepAnalysis: false,
+		maxCustomScenarios: 0,
+		maxPrivateCustomScenarios: 0
 	}
 };
 

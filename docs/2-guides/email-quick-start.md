@@ -9,11 +9,13 @@
 **Just want to see what you have?**
 
 1. Visit your current email testing guide:
+
    ```bash
    cat docs/2-guides/email-testing-guide.md
    ```
 
 2. Test an email right now:
+
    ```bash
    curl http://localhost:5173/api/cron/send-reminders?dryRun=true
    ```
@@ -58,6 +60,7 @@ mkdir -p src/routes/dev/email
 ```
 
 Copy code from `docs/2-guides/email-system-architecture.md` section "Dashboard Implementation" into:
+
 - `src/routes/dev/email/+page.svelte`
 
 ```bash
@@ -126,6 +129,7 @@ open https://trykaiwa.com/dev/email
 ### Before Migration
 
 **Email operations**:
+
 ```bash
 # Want to preview an email?
 1. Find the service file (where is it?)
@@ -137,6 +141,7 @@ Time: 10-15 minutes
 ```
 
 **File organization**:
+
 ```
 src/lib/server/email/
 ├── email-reminder.service.ts      (where is the template?)
@@ -148,6 +153,7 @@ src/lib/server/email/
 ### After Migration
 
 **Email operations**:
+
 ```bash
 # Want to preview an email?
 1. Visit /dev/email
@@ -156,6 +162,7 @@ Time: 5 seconds
 ```
 
 **File organization**:
+
 ```
 src/lib/emails/campaigns/
 ├── reminders/
@@ -181,6 +188,7 @@ src/lib/emails/campaigns/
 4. Check next send times
 
 **What you'll learn**:
+
 - What emails are automated
 - When they send
 - How many recipients
@@ -194,12 +202,14 @@ src/lib/emails/campaigns/
 5. Check your inbox
 
 **What you'll learn**:
+
 - What emails look like
 - How to test before deploying
 
 ### Afternoon: Make Your First Change
 
 1. Find the campaign in filesystem:
+
    ```bash
    # It's organized, easy to find!
    open src/lib/emails/campaigns/reminders/reminder.template.ts
@@ -212,6 +222,7 @@ src/lib/emails/campaigns/
 6. Deploy when happy
 
 **What you'll learn**:
+
 - How fast iteration is now
 - How organized everything is
 
@@ -230,6 +241,7 @@ open https://trykaiwa.com/dev/email
 ```
 
 **Look for**:
+
 - ✅ All campaigns show "Active"
 - ✅ Next send times are correct
 - ⚠️ Any campaigns showing errors
@@ -275,6 +287,7 @@ open https://resend.com/emails
 **Problem**: `/dev/email` not found
 
 **Fix**:
+
 ```bash
 # Verify file exists
 ls src/routes/dev/email/+page.svelte
@@ -289,6 +302,7 @@ mkdir -p src/routes/dev/email
 **Problem**: Email preview is empty
 
 **Fix**:
+
 ```bash
 # Check browser console for errors
 # Common issue: template import failed
@@ -305,6 +319,7 @@ grep "export" src/lib/emails/campaigns/reminders/reminder.template.ts
 **Problem**: "Error sending email"
 
 **Fix**:
+
 ```bash
 # Check Resend API key
 echo $RESEND_API_KEY
@@ -323,6 +338,7 @@ curl -X POST https://trykaiwa.com/api/dev/email/test \
 **Problem**: Cron jobs stopped running
 
 **Fix**:
+
 ```bash
 # Check GitHub Actions
 open https://github.com/YOUR_USERNAME/kaiwa/actions
@@ -342,24 +358,28 @@ fly secrets list | grep CRON
 ## 📚 Next Steps After Quick Start
 
 ### Week 1: Learn the System
+
 - [ ] Read [Email System Architecture](./email-system-architecture.md)
 - [ ] Understand campaign structure
 - [ ] Test preview for all campaigns
 - [ ] Send test emails to yourself
 
 ### Week 2: Make First Changes
+
 - [ ] Edit one email template
 - [ ] Test changes via dashboard
 - [ ] Deploy to production
 - [ ] Monitor for issues
 
 ### Month 1: Optimize
+
 - [ ] Review email analytics
 - [ ] A/B test subject lines
 - [ ] Adjust schedules based on data
 - [ ] Add new campaign if needed
 
 ### Month 2-3: Consider Kit
+
 - [ ] Review [Kit Migration Guide](./email-kit-migration.md)
 - [ ] Wait until 100+ users
 - [ ] Evaluate if you need it
@@ -380,10 +400,11 @@ fly secrets list | grep CRON
 ### Code Examples
 
 **Simple template**:
+
 ```typescript
 // src/lib/emails/campaigns/example/example.template.ts
 export function exampleTemplate(data: { userName: string }) {
-  return `
+	return `
     <!DOCTYPE html>
     <html>
       <body>
@@ -396,19 +417,20 @@ export function exampleTemplate(data: { userName: string }) {
 ```
 
 **Simple service**:
+
 ```typescript
 // src/lib/emails/campaigns/example/example.service.ts
 import { exampleTemplate } from './example.template';
 import { sendEmail } from '$lib/emails/shared/email-sender';
 
 export async function sendExample(userName: string, email: string) {
-  const html = exampleTemplate({ userName });
+	const html = exampleTemplate({ userName });
 
-  await sendEmail({
-    to: email,
-    subject: 'Example Email',
-    html
-  });
+	await sendEmail({
+		to: email,
+		subject: 'Example Email',
+		html
+	});
 }
 ```
 
@@ -417,11 +439,13 @@ export async function sendExample(userName: string, email: string) {
 ## ✅ Quick Start Checklist
 
 ### Pre-Migration
+
 - [ ] Read this guide
 - [ ] Understand current email system
 - [ ] Have 30 min - 2 hours available
 
 ### Migration
+
 - [ ] Run migration script
 - [ ] Fix TypeScript errors
 - [ ] Create dashboard page
@@ -429,18 +453,21 @@ export async function sendExample(userName: string, email: string) {
 - [ ] Install dependencies
 
 ### Testing
+
 - [ ] Visit `/dev/email` locally
 - [ ] Preview all campaigns
 - [ ] Test send to yourself
 - [ ] Verify cron endpoints work
 
 ### Deployment
+
 - [ ] Commit changes
 - [ ] Push to GitHub
 - [ ] Deploy to Fly.io
 - [ ] Verify production dashboard
 
 ### Post-Deployment
+
 - [ ] Use dashboard daily
 - [ ] Monitor GitHub Actions
 - [ ] Review email analytics weekly
@@ -451,6 +478,7 @@ export async function sendExample(userName: string, email: string) {
 ## 🎉 You're Done!
 
 Congrats! You now have:
+
 - ✅ Organized email system
 - ✅ Beautiful dashboard at `/dev/email`
 - ✅ Click-to-preview any email
@@ -459,6 +487,7 @@ Congrats! You now have:
 - ✅ Automated scheduling via GitHub Actions
 
 **What's next?**
+
 - Use the dashboard daily
 - Read architecture docs
 - Optimize based on data

@@ -7,12 +7,14 @@
 ### Decision Framework
 
 **Stay with Resend ONLY if**:
+
 - ✅ You have < 100 users (cost = $0/month)
 - ✅ You're technical and comfortable with code
 - ✅ You want maximum control over personalization
 - ✅ Your emails are data-driven (stats, suggestions)
 
 **Add Kit when**:
+
 - ✅ You have 100+ users (Kit starts being worth it)
 - ✅ You want visual email builder (non-technical editing)
 - ✅ You need complex drip campaigns (30-day sequences)
@@ -20,6 +22,7 @@
 - ✅ You hire a marketer (non-technical team member)
 
 **Hybrid Approach (Recommended at 100+ users)**:
+
 - Resend: Transactional emails (signup, password reset, notifications)
 - Kit: Marketing emails (weekly digest, campaigns, broadcasts)
 
@@ -29,27 +32,28 @@
 
 ### Current (Resend Only)
 
-| Users | Emails/Month | Resend Cost | Total    |
-|-------|--------------|-------------|----------|
-| 12    | ~100         | $0          | **$0**   |
-| 50    | ~400         | $0          | **$0**   |
-| 100   | ~800         | $0          | **$0**   |
-| 500   | ~4,000       | $20/mo      | **$20**  |
-| 1,000 | ~8,000       | $40/mo      | **$40**  |
+| Users | Emails/Month | Resend Cost | Total   |
+| ----- | ------------ | ----------- | ------- |
+| 12    | ~100         | $0          | **$0**  |
+| 50    | ~400         | $0          | **$0**  |
+| 100   | ~800         | $0          | **$0**  |
+| 500   | ~4,000       | $20/mo      | **$20** |
+| 1,000 | ~8,000       | $40/mo      | **$40** |
 
 ### With Kit (Hybrid)
 
-| Users | Kit Cost | Resend Cost | Total    | ROI                        |
-|-------|----------|-------------|----------|----------------------------|
-| 12    | $0       | $0          | **$0**   | No benefit                 |
-| 50    | $0       | $0          | **$0**   | No benefit                 |
-| 100   | $25/mo   | $0          | **$25**  | Visual builder, automation |
-| 500   | $33/mo   | $0          | **$33**  | Drip campaigns, analytics  |
-| 1,000 | $41/mo   | $0          | **$41**  | Landing pages, segments    |
+| Users | Kit Cost | Resend Cost | Total   | ROI                        |
+| ----- | -------- | ----------- | ------- | -------------------------- |
+| 12    | $0       | $0          | **$0**  | No benefit                 |
+| 50    | $0       | $0          | **$0**  | No benefit                 |
+| 100   | $25/mo   | $0          | **$25** | Visual builder, automation |
+| 500   | $33/mo   | $0          | **$33** | Drip campaigns, analytics  |
+| 1,000 | $41/mo   | $0          | **$41** | Landing pages, segments    |
 
 ### ROI Break-Even Analysis
 
 **Kit becomes worth it when**:
+
 - You save 2+ hours/month on email operations
 - You run 3+ drip campaigns simultaneously
 - You hire a marketer (non-technical)
@@ -90,6 +94,7 @@
 ### When NOT to Migrate
 
 **Don't migrate to Kit if**:
+
 - ❌ You're under 100 users (waste of money)
 - ❌ Your emails are heavily data-driven (Kit is worse for this)
 - ❌ You like coding templates (Resend is better)
@@ -112,6 +117,7 @@
    - Verify sending domain
 
 3. **Get API credentials**:
+
    ```bash
    # Add to .env
    KIT_API_SECRET=your_api_secret_here
@@ -119,6 +125,7 @@
    ```
 
 4. **Install SDK**:
+
    ```bash
    npm install @convertkit/convertkit-node
    ```
@@ -157,74 +164,76 @@ import { db } from '$lib/server/db';
 const kit = new ConvertKit(process.env.KIT_API_SECRET);
 
 export async function syncUserToKit(userId: string) {
-  // Get user from database
-  const user = await db.query.users.findFirst({
-    where: eq(users.id, userId)
-  });
+	// Get user from database
+	const user = await db.query.users.findFirst({
+		where: eq(users.id, userId)
+	});
 
-  if (!user) return;
+	if (!user) return;
 
-  // Add to Kit
-  const subscriber = await kit.subscribers.create({
-    email: user.email,
-    first_name: user.firstName,
-    fields: {
-      user_id: user.id,
-      language_learning: user.languageLearning,
-      persona: user.persona,
-      scenarios_completed: user.scenariosCompleted || 0,
-      is_paying: user.isPaying || false,
-      signup_date: user.createdAt
-    }
-  });
+	// Add to Kit
+	const subscriber = await kit.subscribers.create({
+		email: user.email,
+		first_name: user.firstName,
+		fields: {
+			user_id: user.id,
+			language_learning: user.languageLearning,
+			persona: user.persona,
+			scenarios_completed: user.scenariosCompleted || 0,
+			is_paying: user.isPaying || false,
+			signup_date: user.createdAt
+		}
+	});
 
-  // Add tags
-  if (user.isPaying) {
-    await kit.tags.tagSubscriber({
-      tagId: await getTagId('paying-customer'),
-      email: user.email
-    });
-  }
+	// Add tags
+	if (user.isPaying) {
+		await kit.tags.tagSubscriber({
+			tagId: await getTagId('paying-customer'),
+			email: user.email
+		});
+	}
 
-  if (user.persona) {
-    await kit.tags.tagSubscriber({
-      tagId: await getTagId(`persona-${user.persona.toLowerCase()}`),
-      email: user.email
-    });
-  }
+	if (user.persona) {
+		await kit.tags.tagSubscriber({
+			tagId: await getTagId(`persona-${user.persona.toLowerCase()}`),
+			email: user.email
+		});
+	}
 
-  return subscriber;
+	return subscriber;
 }
 
 // Bulk sync all users
 export async function bulkSyncToKit() {
-  const users = await db.query.users.findMany();
+	const users = await db.query.users.findMany();
 
-  for (const user of users) {
-    await syncUserToKit(user.id);
-    // Small delay to avoid rate limits
-    await new Promise(r => setTimeout(r, 100));
-  }
+	for (const user of users) {
+		await syncUserToKit(user.id);
+		// Small delay to avoid rate limits
+		await new Promise((r) => setTimeout(r, 100));
+	}
 
-  console.log(`Synced ${users.length} users to Kit`);
+	console.log(`Synced ${users.length} users to Kit`);
 }
 ```
 
 **Run initial sync**:
+
 ```bash
 npx tsx scripts/sync-all-users-to-kit.ts
 ```
 
 **Set up auto-sync** (webhook on user signup):
+
 ```typescript
 // src/hooks.server.ts
 import { syncUserToKit } from '$lib/integrations/kit-sync.service';
 
 supabase.auth.onAuthStateChange(async (event, session) => {
-  if (event === 'SIGNED_IN') {
-    // Sync to Kit in background
-    syncUserToKit(session.user.id).catch(console.error);
-  }
+	if (event === 'SIGNED_IN') {
+		// Sync to Kit in background
+		syncUserToKit(session.user.id).catch(console.error);
+	}
 });
 ```
 
@@ -246,25 +255,23 @@ supabase.auth.onAuthStateChange(async (event, session) => {
    - Use Liquid variables: `{{ subscriber.first_name }}`
 
 3. **Send via Kit API**:
+
    ```typescript
    // src/lib/emails/campaigns/weekly-digest/digest-kit.service.ts
    import ConvertKit from '@convertkit/convertkit-node';
 
    const kit = new ConvertKit(process.env.KIT_API_SECRET);
 
-   export async function sendWeeklyDigestViaKit(content: {
-     subject: string;
-     preview: string;
-   }) {
-     await kit.broadcasts.create({
-       subject: content.subject,
-       content: `
+   export async function sendWeeklyDigestViaKit(content: { subject: string; preview: string }) {
+   	await kit.broadcasts.create({
+   		subject: content.subject,
+   		content: `
          <h1>Week {{ week_number }}</h1>
          <p>Hi {{ subscriber.first_name }},</p>
          ${content.preview}
        `,
-       published_at: new Date().toISOString()
-     });
+   		published_at: new Date().toISOString()
+   	});
    }
    ```
 
@@ -273,13 +280,13 @@ supabase.auth.onAuthStateChange(async (event, session) => {
 ```typescript
 // Still use your Resend templates, but send via Kit
 export async function sendWeeklyDigestViaKitAPI(digest: WeeklyDigest) {
-  const html = weeklyDigestTemplate(digest); // Your existing template
+	const html = weeklyDigestTemplate(digest); // Your existing template
 
-  await kit.broadcasts.create({
-    subject: digest.subject,
-    content: html,
-    published_at: new Date().toISOString()
-  });
+	await kit.broadcasts.create({
+		subject: digest.subject,
+		content: html,
+		published_at: new Date().toISOString()
+	});
 }
 ```
 
@@ -295,6 +302,7 @@ export async function sendWeeklyDigestViaKitAPI(digest: WeeklyDigest) {
 4. **Community Stories** (occasional broadcasts)
 
 **Keep in Resend**:
+
 - ❌ Practice Reminders (data-driven, personalized stats)
 - ❌ Weekly Stats (heavily personalized with user data)
 - ❌ Transactional emails (signup, password reset)
@@ -306,6 +314,7 @@ export async function sendWeeklyDigestViaKitAPI(digest: WeeklyDigest) {
 **Once migrated, use**:
 
 **1. Drip Campaigns**:
+
 ```
 Day 0: Welcome email
 Day 1: First scenario suggestion
@@ -315,6 +324,7 @@ Day 14: Upgrade prompt
 ```
 
 **2. Segmentation**:
+
 ```
 Segment: "Engaged Sofia Users"
 - Tag: persona-sofia
@@ -325,6 +335,7 @@ Send targeted content about meeting partner's family
 ```
 
 **3. A/B Testing**:
+
 ```
 Test subject lines:
 A: "Your week in Kaiwa - 7 scenarios practiced"
@@ -334,6 +345,7 @@ Kit automatically splits traffic 50/50
 ```
 
 **4. Landing Pages**:
+
 ```
 Create landing pages for:
 - Lead magnets ("5 Phrases for Meeting Parents")
@@ -387,12 +399,14 @@ Create landing pages for:
 ## 📋 Migration Checklist
 
 ### Pre-Migration Decision
+
 - [ ] You have 100+ users
 - [ ] You're spending 2+ hours/week on email
 - [ ] You need drip campaigns
 - [ ] You have budget for $25-40/month
 
 ### Setup (Week 1)
+
 - [ ] Kit account created
 - [ ] Domain verified
 - [ ] API keys added to .env
@@ -400,18 +414,21 @@ Create landing pages for:
 - [ ] Tags created
 
 ### Sync (Week 2)
+
 - [ ] Sync service built
 - [ ] All users synced to Kit
 - [ ] Webhook auto-sync enabled
 - [ ] Verified data in Kit dashboard
 
 ### Migration (Week 3-4)
+
 - [ ] Weekly digest migrated
 - [ ] Founder sequence migrated
 - [ ] Other campaigns as needed
 - [ ] Transactional emails stay in Resend
 
 ### Post-Migration
+
 - [ ] Monitor open rates (Kit vs Resend)
 - [ ] A/B test subject lines
 - [ ] Create drip campaigns
@@ -424,12 +441,14 @@ Create landing pages for:
 ### Monthly Costs (Example at 500 users)
 
 **Before Kit**:
+
 ```
 Resend: $20/month (4,000 emails)
 Total: $20/month
 ```
 
 **After Kit (Hybrid)**:
+
 ```
 Kit: $33/month (500 subscribers, marketing emails)
 Resend: $0/month (transactional only, <3K emails)
@@ -481,6 +500,7 @@ if (users < 100 ||
 ---
 
 **Recommendation for Kaiwa**:
+
 - **Now (12 users)**: ❌ Don't use Kit
 - **At 50 users**: ⚠️ Probably not yet
 - **At 100 users**: ✅ Consider it

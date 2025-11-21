@@ -27,6 +27,7 @@
 ### Phase 1: Preparation (30 min)
 
 **Goals**:
+
 - Create new directory structure
 - Set up central configuration
 - No breaking changes yet
@@ -34,6 +35,7 @@
 **Steps**:
 
 1. **Create new directories**:
+
    ```bash
    mkdir -p src/lib/emails/campaigns
    mkdir -p src/lib/emails/shared
@@ -41,11 +43,13 @@
    ```
 
 2. **Create central config**:
+
    ```bash
    touch src/lib/emails/email-campaigns.config.ts
    ```
 
 3. **Install dependencies**:
+
    ```bash
    npm install cron-parser
    ```
@@ -66,6 +70,7 @@
 ### Phase 2: File Reorganization (1-2 hours)
 
 **Goals**:
+
 - Move email files to new structure
 - Preserve git history
 - Update imports
@@ -156,6 +161,7 @@ import { reminderService } from '$lib/emails/campaigns/reminders/reminder.servic
 ```
 
 **Verify**:
+
 ```bash
 # Search for old imports
 grep -r "lib/server/email" src/
@@ -168,6 +174,7 @@ grep -r "lib/server/email" src/
 ### Phase 3: Dashboard Development (2-3 hours)
 
 **Goals**:
+
 - Build `/dev/email` dashboard
 - Add preview functionality
 - Add test send functionality
@@ -175,6 +182,7 @@ grep -r "lib/server/email" src/
 **Steps**:
 
 1. **Create dashboard page**:
+
    ```bash
    mkdir -p src/routes/dev/email
    touch src/routes/dev/email/+page.svelte
@@ -182,6 +190,7 @@ grep -r "lib/server/email" src/
    ```
 
 2. **Create API endpoints**:
+
    ```bash
    mkdir -p src/routes/api/dev/email
    touch src/routes/api/dev/email/campaigns/+server.ts
@@ -245,22 +254,26 @@ curl -X POST http://localhost:5173/api/dev/email/test \
 **Steps**:
 
 1. **Commit changes**:
+
    ```bash
    git add .
    git commit -m "Reorganize email system with unified dashboard"
    ```
 
 2. **Push to GitHub**:
+
    ```bash
    git push origin main
    ```
 
 3. **Deploy to Fly.io**:
+
    ```bash
    fly deploy
    ```
 
 4. **Verify production**:
+
    ```bash
    # Visit production dashboard
    open https://trykaiwa.com/dev/email
@@ -337,18 +350,21 @@ src/lib/emails/
 ### Optional Enhancements
 
 **1. Add Email Analytics** (Later):
+
 ```typescript
 // Track opens and clicks
-src/lib/emails/shared/email-analytics.ts
+src / lib / emails / shared / email - analytics.ts;
 ```
 
 **2. Add A/B Testing** (Later):
+
 ```typescript
 // Test subject lines
-src/lib/emails/shared/email-ab-testing.ts
+src / lib / emails / shared / email - ab - testing.ts;
 ```
 
 **3. Add Template Builder** (Later):
+
 ```svelte
 <!-- Visual email builder -->
 src/routes/dev/email/builder/+page.svelte
@@ -363,6 +379,7 @@ src/routes/dev/email/builder/+page.svelte
 **Problem**: `Cannot find module '$lib/server/email/...'`
 
 **Solution**:
+
 ```bash
 # Search for old imports
 grep -r "lib/server/email" src/
@@ -377,6 +394,7 @@ grep -r "lib/server/email" src/
 **Problem**: `/dev/email` shows 404
 
 **Solution**:
+
 ```bash
 # Verify route exists
 ls src/routes/dev/email/+page.svelte
@@ -390,6 +408,7 @@ pnpm dev
 **Problem**: Email preview is empty
 
 **Solution**:
+
 ```bash
 # Check template path in config
 # Verify template exports a function
@@ -401,17 +420,20 @@ pnpm dev
 ## ✅ Migration Checklist
 
 ### Pre-Migration
+
 - [ ] Backup current email files
 - [ ] Review current email functionality
 - [ ] Understand current cron schedules
 - [ ] Have test email address ready
 
 ### Phase 1: Preparation
+
 - [ ] Create new directory structure
 - [ ] Install cron-parser
 - [ ] Create central config file
 
 ### Phase 2: Reorganization
+
 - [ ] Move all service files
 - [ ] Split templates from services
 - [ ] Create config files for each campaign
@@ -419,24 +441,28 @@ pnpm dev
 - [ ] Test that nothing broke
 
 ### Phase 3: Dashboard
+
 - [ ] Build `/dev/email` page
 - [ ] Create API endpoints
 - [ ] Add preview functionality
 - [ ] Add test send functionality
 
 ### Phase 4: Testing
+
 - [ ] Test preview for all campaigns
 - [ ] Test dry run for all campaigns
 - [ ] Test actual send to yourself
 - [ ] Verify cron endpoints still work
 
 ### Phase 5: Deployment
+
 - [ ] Commit and push
 - [ ] Deploy to production
 - [ ] Verify production dashboard
 - [ ] Monitor GitHub Actions
 
 ### Post-Migration
+
 - [ ] Update team documentation
 - [ ] Train team on new dashboard
 - [ ] Delete old email files
@@ -447,12 +473,14 @@ pnpm dev
 ## 📊 Success Metrics
 
 **Before Migration**:
+
 - Time to preview email: 5-10 min (write test script)
 - Time to test send: 3-5 min (curl command)
 - Time to find email code: 2-3 min (search multiple dirs)
 - Visibility into schedules: None (check GitHub Actions)
 
 **After Migration**:
+
 - Time to preview email: 5 seconds (click button)
 - Time to test send: 10 seconds (click button)
 - Time to find email code: 5 seconds (organized by campaign)

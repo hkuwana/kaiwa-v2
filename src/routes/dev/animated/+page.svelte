@@ -2,8 +2,8 @@
 	import { onMount } from 'svelte';
 	import { speakersData } from '$lib/data/speakers';
 	import { aboutPagePrompts, characterPrompts, scenarioPrompts } from '$lib/prompts/dev-animated';
-	
-type Speaker = Record<string, unknown>;
+
+	type Speaker = Record<string, unknown>;
 
 	onMount(() => {
 		document.title = 'Animation Prompts - Kaiwa Dev';

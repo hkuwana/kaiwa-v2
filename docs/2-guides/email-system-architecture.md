@@ -7,6 +7,7 @@
 ### Single Source of Truth
 
 **Central Configuration**: `src/lib/emails/email-campaigns.config.ts`
+
 - All campaigns defined in one place
 - Schedules, templates, endpoints all configured here
 - Dashboard reads from this config automatically
@@ -23,6 +24,7 @@ Dashboard  → Developer interface
 ### Developer Experience
 
 **Before**:
+
 ```
 Want to preview an email?
 → Write a test script
@@ -32,6 +34,7 @@ Want to preview an email?
 ```
 
 **After**:
+
 ```
 Want to preview an email?
 → Visit /dev/email
@@ -51,14 +54,15 @@ Want to preview an email?
 **Purpose**: Pure HTML generation
 
 **Example**:
+
 ```typescript
 // src/lib/emails/campaigns/reminders/reminder.template.ts
 export function reminderTemplate(data: {
-  userName: string;
-  lastPracticed: Date;
-  nextScenario: string;
+	userName: string;
+	lastPracticed: Date;
+	nextScenario: string;
 }) {
-  return `
+	return `
     <!DOCTYPE html>
     <html>
       <body>
@@ -72,6 +76,7 @@ export function reminderTemplate(data: {
 ```
 
 **Rules**:
+
 - ✅ Pure function (no side effects)
 - ✅ Takes data, returns HTML
 - ✅ No database access
@@ -87,6 +92,7 @@ export function reminderTemplate(data: {
 **Purpose**: Who gets the email and why
 
 **Example**:
+
 ```typescript
 // src/lib/emails/campaigns/reminders/reminder.service.ts
 import { reminderTemplate } from './reminder.template';
@@ -94,34 +100,32 @@ import { db } from '$lib/server/db';
 import { sendEmail } from '$lib/emails/shared/email-sender';
 
 export async function sendPracticeReminders() {
-  // Business logic: Who should receive this?
-  const users = await db.query.users.findMany({
-    where: and(
-      eq(users.receiveReminders, true),
-      lt(users.lastPracticed, sevenDaysAgo())
-    )
-  });
+	// Business logic: Who should receive this?
+	const users = await db.query.users.findMany({
+		where: and(eq(users.receiveReminders, true), lt(users.lastPracticed, sevenDaysAgo()))
+	});
 
-  // Send to each user
-  for (const user of users) {
-    const html = reminderTemplate({
-      userName: user.firstName,
-      lastPracticed: user.lastPracticed,
-      nextScenario: await getSuggestedScenario(user)
-    });
+	// Send to each user
+	for (const user of users) {
+		const html = reminderTemplate({
+			userName: user.firstName,
+			lastPracticed: user.lastPracticed,
+			nextScenario: await getSuggestedScenario(user)
+		});
 
-    await sendEmail({
-      to: user.email,
-      subject: 'Time to practice! 🎯',
-      html
-    });
-  }
+		await sendEmail({
+			to: user.email,
+			subject: 'Time to practice! 🎯',
+			html
+		});
+	}
 
-  return { sent: users.length };
+	return { sent: users.length };
 }
 ```
 
 **Rules**:
+
 - ✅ Contains business logic
 - ✅ Database queries allowed
 - ✅ Calls template for HTML
@@ -137,22 +141,24 @@ export async function sendPracticeReminders() {
 **Purpose**: Central registry of all campaigns
 
 **Example**:
+
 ```typescript
 export const EMAIL_CAMPAIGNS: EmailCampaign[] = [
-  {
-    id: 'practice-reminders',
-    name: 'Practice Reminders',
-    description: 'Weekly reminder to practice',
-    schedule: '0 9 * * 5', // Fridays at 9 AM UTC
-    status: 'active',
-    templatePath: 'campaigns/reminders/reminder.template.ts',
-    servicePath: 'campaigns/reminders/reminder.service.ts',
-    endpoint: '/api/cron/send-reminders'
-  }
+	{
+		id: 'practice-reminders',
+		name: 'Practice Reminders',
+		description: 'Weekly reminder to practice',
+		schedule: '0 9 * * 5', // Fridays at 9 AM UTC
+		status: 'active',
+		templatePath: 'campaigns/reminders/reminder.template.ts',
+		servicePath: 'campaigns/reminders/reminder.service.ts',
+		endpoint: '/api/cron/send-reminders'
+	}
 ];
 ```
 
 **Rules**:
+
 - ✅ Single source of truth
 - ✅ Dashboard reads this
 - ✅ GitHub Actions reads this
@@ -167,6 +173,7 @@ export const EMAIL_CAMPAIGNS: EmailCampaign[] = [
 **Purpose**: Visual interface for all email operations
 
 **Features**:
+
 - 📊 See all campaigns at a glance
 - 👁️ Preview any email instantly
 - 🧪 Test send to yourself
@@ -174,6 +181,7 @@ export const EMAIL_CAMPAIGNS: EmailCampaign[] = [
 - ✏️ Edit campaigns
 
 **Architecture**:
+
 ```
 Dashboard (UI)
     ↓
@@ -198,6 +206,7 @@ src/lib/emails/campaigns/[campaign-name]/
 ```
 
 **Example: Reminders Campaign**
+
 ```
 src/lib/emails/campaigns/reminders/
 ├── reminder.template.ts      # HTML for reminder email
@@ -206,6 +215,7 @@ src/lib/emails/campaigns/reminders/
 ```
 
 **Example: Founder Sequence**
+
 ```
 src/lib/emails/campaigns/founder-sequence/
 ├── day-1.template.ts         # Day 1 email HTML
@@ -278,10 +288,14 @@ src/lib/emails/shared/
 ```svelte
 <!-- Main Dashboard -->
 <EmailDashboard>
-  <CampaignList />         <!-- Table of all campaigns -->
-  <PreviewPanel />         <!-- Live email preview -->
-  <TestControls />         <!-- Send test email -->
-  <QuickActions />         <!-- Create product update, etc -->
+	<CampaignList />
+	<!-- Table of all campaigns -->
+	<PreviewPanel />
+	<!-- Live email preview -->
+	<TestControls />
+	<!-- Send test email -->
+	<QuickActions />
+	<!-- Create product update, etc -->
 </EmailDashboard>
 ```
 
@@ -318,13 +332,13 @@ src/lib/emails/shared/
 ```typescript
 // All cron endpoints check secret
 export const GET: RequestHandler = async ({ url }) => {
-  const secret = url.searchParams.get('secret');
+	const secret = url.searchParams.get('secret');
 
-  if (secret !== process.env.CRON_SECRET) {
-    return json({ error: 'Unauthorized' }, { status: 401 });
-  }
+	if (secret !== process.env.CRON_SECRET) {
+		return json({ error: 'Unauthorized' }, { status: 401 });
+	}
 
-  // Execute cron job...
+	// Execute cron job...
 };
 ```
 
@@ -333,11 +347,11 @@ export const GET: RequestHandler = async ({ url }) => {
 ```typescript
 // Only accessible in development or to admins
 export const load: PageServerLoad = async ({ locals }) => {
-  if (process.env.NODE_ENV === 'production' && !locals.user?.isAdmin) {
-    throw redirect(302, '/');
-  }
+	if (process.env.NODE_ENV === 'production' && !locals.user?.isAdmin) {
+		throw redirect(302, '/');
+	}
 
-  // Load dashboard data...
+	// Load dashboard data...
 };
 ```
 
@@ -348,12 +362,14 @@ export const load: PageServerLoad = async ({ locals }) => {
 ### Email Metrics Tracked
 
 **Per Campaign**:
+
 - Total sent
 - Last sent timestamp
 - Next scheduled send
 - Estimated recipients
 
 **Per Email** (future):
+
 - Opens
 - Clicks
 - Bounces
@@ -364,13 +380,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 ```typescript
 // Check if email system is healthy
 export async function checkEmailHealth() {
-  return {
-    resendApiKey: !!process.env.RESEND_API_KEY,
-    cronSecret: !!process.env.CRON_SECRET,
-    campaigns: EMAIL_CAMPAIGNS.length,
-    nextScheduledSend: getNextSendTime(),
-    lastSuccessfulSend: await getLastSuccessfulSend()
-  };
+	return {
+		resendApiKey: !!process.env.RESEND_API_KEY,
+		cronSecret: !!process.env.CRON_SECRET,
+		campaigns: EMAIL_CAMPAIGNS.length,
+		nextScheduledSend: getNextSendTime(),
+		lastSuccessfulSend: await getLastSuccessfulSend()
+	};
 }
 ```
 
@@ -413,6 +429,7 @@ Option 2: Background queue
 ### Adding a New Campaign
 
 **1. Create campaign directory**:
+
 ```bash
 mkdir -p src/lib/emails/campaigns/new-campaign
 touch src/lib/emails/campaigns/new-campaign/new.template.ts
@@ -420,6 +437,7 @@ touch src/lib/emails/campaigns/new-campaign/new.service.ts
 ```
 
 **2. Add to config**:
+
 ```typescript
 // src/lib/emails/email-campaigns.config.ts
 {
@@ -435,11 +453,13 @@ touch src/lib/emails/campaigns/new-campaign/new.service.ts
 ```
 
 **3. Create endpoint**:
+
 ```bash
 touch src/routes/api/cron/new-campaign/+server.ts
 ```
 
 **4. Update GitHub Actions** (optional if manual only):
+
 ```yaml
 # .github/workflows/cron-jobs.yml
 - name: New Campaign
@@ -458,14 +478,14 @@ touch src/routes/api/cron/new-campaign/+server.ts
 import { reminderTemplate } from './reminder.template';
 
 test('renders reminder email with user name', () => {
-  const html = reminderTemplate({
-    userName: 'Test User',
-    lastPracticed: new Date('2025-01-01'),
-    nextScenario: 'Meeting Parents'
-  });
+	const html = reminderTemplate({
+		userName: 'Test User',
+		lastPracticed: new Date('2025-01-01'),
+		nextScenario: 'Meeting Parents'
+	});
 
-  expect(html).toContain('Test User');
-  expect(html).toContain('Meeting Parents');
+	expect(html).toContain('Test User');
+	expect(html).toContain('Meeting Parents');
 });
 ```
 
@@ -475,14 +495,14 @@ test('renders reminder email with user name', () => {
 import { sendPracticeReminders } from './reminder.service';
 
 test('sends reminders to inactive users', async () => {
-  // Setup: Create test users
-  await createTestUser({ lastPracticed: sevenDaysAgo() });
+	// Setup: Create test users
+	await createTestUser({ lastPracticed: sevenDaysAgo() });
 
-  // Execute
-  const result = await sendPracticeReminders();
+	// Execute
+	const result = await sendPracticeReminders();
 
-  // Assert
-  expect(result.sent).toBe(1);
+	// Assert
+	expect(result.sent).toBe(1);
 });
 ```
 
@@ -490,19 +510,19 @@ test('sends reminders to inactive users', async () => {
 
 ```typescript
 test('dashboard shows all campaigns', async ({ page }) => {
-  await page.goto('/dev/email');
+	await page.goto('/dev/email');
 
-  // Should see all campaigns from config
-  await expect(page.getByText('Practice Reminders')).toBeVisible();
-  await expect(page.getByText('Founder Sequence')).toBeVisible();
+	// Should see all campaigns from config
+	await expect(page.getByText('Practice Reminders')).toBeVisible();
+	await expect(page.getByText('Founder Sequence')).toBeVisible();
 });
 
 test('preview email works', async ({ page }) => {
-  await page.goto('/dev/email');
-  await page.click('text=Preview'); // Click preview button
+	await page.goto('/dev/email');
+	await page.click('text=Preview'); // Click preview button
 
-  // Should show email preview
-  await expect(page.frameLocator('iframe')).toContainText('Hi Test User!');
+	// Should show email preview
+	await expect(page.frameLocator('iframe')).toContainText('Hi Test User!');
 });
 ```
 
@@ -520,17 +540,20 @@ test('preview email works', async ({ page }) => {
 ## 🎯 Success Criteria
 
 **Developer Productivity**:
+
 - ✅ Any email can be previewed in <10 seconds
 - ✅ Any email can be tested in <30 seconds
 - ✅ New campaign can be added in <15 minutes
 - ✅ All email code is easy to find
 
 **System Reliability**:
+
 - ✅ All emails send on schedule (99%+ reliability)
 - ✅ Clear monitoring and alerting
 - ✅ Easy to debug when issues occur
 
 **Maintainability**:
+
 - ✅ New developer can understand system in <1 hour
 - ✅ Clear separation of concerns
 - ✅ Well-documented and tested

@@ -61,7 +61,8 @@ export const EMAIL_CAMPAIGNS: EmailCampaign[] = [
 	{
 		id: 'weekly-digest',
 		name: 'Weekly Product Updates',
-		description: 'Weekly digest of new features, improvements, and major announcements (sent manually)',
+		description:
+			'Weekly digest of new features, improvements, and major announcements (sent manually)',
 		schedule: 'manual', // Sent manually when ready
 		status: 'active',
 		category: 'content',

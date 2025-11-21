@@ -7,6 +7,7 @@
 ### Start Here
 
 **👉 [Email Quick Start](./2-guides/email-quick-start.md)** ← Read this first
+
 - 10-minute version (just test what you have)
 - 2-hour version (full migration + dashboard)
 - Your first day using the dashboard
@@ -15,23 +16,27 @@
 ### Core Documentation
 
 **[Email System Architecture](./2-guides/email-system-architecture.md)**
+
 - How the new system works
 - Layer-by-layer explanation
 - File organization
 - Extension points
 
 **[Email System Migration](./2-guides/email-system-migration.md)**
+
 - Complete step-by-step migration plan
 - 5 phases with time estimates
 - Before/after comparison
 - Success metrics
 
 **[Email Testing Guide](./2-guides/email-testing-guide.md)**
+
 - How to test emails safely
 - Dry run vs actual send
 - Preview without database
 
 **[Kit Migration Guide](./2-guides/email-kit-migration.md)**
+
 - When to migrate from Resend to Kit
 - Cost comparison
 - Decision framework
@@ -44,6 +49,7 @@
 ### Current State (Before)
 
 **Problems**:
+
 - ❌ Email files scattered across multiple directories
 - ❌ No visibility into what emails exist or when they send
 - ❌ Testing requires writing curl commands
@@ -52,6 +58,7 @@
 - ❌ Each email configured separately in GitHub Actions
 
 **Example workflow**:
+
 ```bash
 # Want to preview the reminder email?
 1. Find the service file (search for 5 min)
@@ -65,6 +72,7 @@ Total time: 10-15 minutes
 ### Future State (After)
 
 **Solutions**:
+
 - ✅ All email code in `src/lib/emails/campaigns/`
 - ✅ Single dashboard at `/dev/email` shows everything
 - ✅ Click "Preview" to see any email instantly
@@ -73,6 +81,7 @@ Total time: 10-15 minutes
 - ✅ Central config file for all campaigns
 
 **Example workflow**:
+
 ```bash
 # Want to preview the reminder email?
 1. Visit /dev/email
@@ -116,6 +125,7 @@ Follow the detailed guide in [Email System Migration](./2-guides/email-system-mi
 ### Option 3: Do Nothing (Stay Current)
 
 **Keep current system if**:
+
 - You're comfortable with curl commands
 - You only have 2-3 emails
 - You rarely change email templates
@@ -128,6 +138,7 @@ Follow the detailed guide in [Email System Migration](./2-guides/email-system-mi
 ## 📁 New File Structure
 
 ### Before (Scattered)
+
 ```
 src/lib/server/email/
 ├── email-reminder.service.ts
@@ -142,6 +153,7 @@ src/lib/server/email/
 ```
 
 ### After (Organized)
+
 ```
 src/lib/emails/
 ├── campaigns/                        # All email campaigns
@@ -167,6 +179,7 @@ src/lib/emails/
 ```
 
 **Benefits**:
+
 - Easy to find: "Where's the reminder email?" → `campaigns/reminders/`
 - Organized: Template, service, config all in one place
 - Scalable: Add new campaigns without cluttering
@@ -178,6 +191,7 @@ src/lib/emails/
 ### Email Command Center (`/dev/email`)
 
 **Table View**:
+
 ```
 ┌────────────┬──────────────┬────────────┬──────────┐
 │ Campaign   │ Next Send    │ Status     │ Actions  │
@@ -191,11 +205,13 @@ src/lib/emails/
 ```
 
 **Preview Panel**:
+
 - Live preview of email HTML
 - See exactly what users receive
 - Updates instantly as you edit
 
 **Test Controls**:
+
 - Enter your email address
 - Click "Send Test"
 - Receive email in seconds
@@ -208,6 +224,7 @@ src/lib/emails/
 ### Previewing an Email
 
 **Before**:
+
 ```bash
 1. Find email service file (where is it?)
 2. Read the code
@@ -218,6 +235,7 @@ Time: 10 minutes
 ```
 
 **After**:
+
 ```bash
 1. Visit /dev/email
 2. Click "Preview"
@@ -227,6 +245,7 @@ Time: 5 seconds
 ### Testing an Email
 
 **Before**:
+
 ```bash
 1. Write curl command with auth
 2. Add test email parameter
@@ -237,6 +256,7 @@ Time: 5 minutes
 ```
 
 **After**:
+
 ```bash
 1. Enter email in dashboard
 2. Click "Send Test"
@@ -247,6 +267,7 @@ Time: 30 seconds
 ### Finding Email Code
 
 **Before**:
+
 ```bash
 1. Search codebase: "email reminder"
 2. Find service file
@@ -256,6 +277,7 @@ Time: 5 minutes
 ```
 
 **After**:
+
 ```bash
 1. Go to: src/lib/emails/campaigns/reminders/
 2. All files in one place
@@ -268,26 +290,29 @@ Time: 5 seconds
 
 ### Decision Matrix
 
-| Your Situation | Recommendation |
-|----------------|---------------|
-| < 50 users | ❌ **Don't use Kit** - Waste of $25/month |
-| 50-100 users | ⚠️ **Maybe** - Only if hiring marketer |
-| 100-300 users | ✅ **Consider it** - Visual builder, drip campaigns |
-| 300+ users | ✅✅ **Yes** - Advanced features worth the cost |
+| Your Situation | Recommendation                                      |
+| -------------- | --------------------------------------------------- |
+| < 50 users     | ❌ **Don't use Kit** - Waste of $25/month           |
+| 50-100 users   | ⚠️ **Maybe** - Only if hiring marketer              |
+| 100-300 users  | ✅ **Consider it** - Visual builder, drip campaigns |
+| 300+ users     | ✅✅ **Yes** - Advanced features worth the cost     |
 
 ### Cost Comparison at Your Scale
 
 **Current (12 users)**:
+
 - Resend: $0/month (under 3K emails)
 - Kit: $0/month (if you don't use it)
 - **Total: $0/month**
 
 **At 100 users**:
+
 - Resend only: $0/month
 - Resend + Kit: $25/month
 - **ROI**: Only worth it if you save 2+ hours/month
 
 **At 500 users**:
+
 - Resend only: $20/month
 - Resend + Kit: $33/month (Kit does marketing, Resend does transactional)
 - **ROI**: Definitely worth it (drip campaigns, landing pages, analytics)
@@ -295,6 +320,7 @@ Time: 5 seconds
 ### When Kit Makes Sense
 
 **Use Kit when you**:
+
 - ✅ Have 100+ users
 - ✅ Want visual email builder (non-technical editing)
 - ✅ Need drip campaigns (Day 1, 3, 7, 14 sequences)
@@ -302,6 +328,7 @@ Time: 5 seconds
 - ✅ Hire a marketer (non-technical team member)
 
 **Stick with Resend when you**:
+
 - ✅ Have < 100 users
 - ✅ Your emails are data-driven (personalized stats)
 - ✅ You're technical and like coding
@@ -316,6 +343,7 @@ Time: 5 seconds
 ### This Week: Migration
 
 **Day 1** (2 hours):
+
 ```bash
 # Morning: Run migration
 npx tsx scripts/migrate-email-files.ts
@@ -332,6 +360,7 @@ open http://localhost:5173/dev/email
 ```
 
 **Day 2** (1 hour):
+
 ```bash
 # Deploy to production
 git add .
@@ -348,11 +377,13 @@ open https://trykaiwa.com/dev/email
 ### This Month: Optimize
 
 **Week 2**:
+
 - Review email analytics in Resend dashboard
 - A/B test one subject line
 - Adjust timing based on open rates
 
 **Week 3-4**:
+
 - Add new campaign if needed (using organized structure)
 - Optimize templates based on user feedback
 - Monitor GitHub Actions for reliability
@@ -360,11 +391,13 @@ open https://trykaiwa.com/dev/email
 ### Month 2-3: Consider Kit
 
 **At 50 users**:
+
 - Review Kit migration guide
 - Evaluate if you need visual builder
 - Calculate ROI
 
 **At 100 users**:
+
 - Strongly consider Kit
 - Set up trial
 - Migrate weekly digest first
@@ -375,27 +408,28 @@ open https://trykaiwa.com/dev/email
 
 ### Developer Productivity (Before → After)
 
-| Task | Before | After | Improvement |
-|------|--------|-------|-------------|
-| Preview email | 10 min | 5 sec | **120x faster** |
-| Test email | 5 min | 30 sec | **10x faster** |
-| Find email code | 5 min | 5 sec | **60x faster** |
-| Add new campaign | 1 hour | 15 min | **4x faster** |
+| Task             | Before | After  | Improvement     |
+| ---------------- | ------ | ------ | --------------- |
+| Preview email    | 10 min | 5 sec  | **120x faster** |
+| Test email       | 5 min  | 30 sec | **10x faster**  |
+| Find email code  | 5 min  | 5 sec  | **60x faster**  |
+| Add new campaign | 1 hour | 15 min | **4x faster**   |
 
 ### System Visibility (Before → After)
 
-| Question | Before | After |
-|----------|--------|-------|
-| What emails do we send? | Search codebase | See dashboard table |
-| When do they send? | Check GitHub Actions | See "Next Send" column |
-| How many recipients? | Run DB query | See dashboard |
-| Is it working? | Check logs manually | Dashboard status indicators |
+| Question                | Before               | After                       |
+| ----------------------- | -------------------- | --------------------------- |
+| What emails do we send? | Search codebase      | See dashboard table         |
+| When do they send?      | Check GitHub Actions | See "Next Send" column      |
+| How many recipients?    | Run DB query         | See dashboard               |
+| Is it working?          | Check logs manually  | Dashboard status indicators |
 
 ---
 
 ## 🔗 Quick Links
 
 ### Documentation
+
 - [Quick Start](./2-guides/email-quick-start.md) - Start here
 - [Architecture](./2-guides/email-system-architecture.md) - How it works
 - [Migration Guide](./2-guides/email-system-migration.md) - Step-by-step
@@ -403,6 +437,7 @@ open https://trykaiwa.com/dev/email
 - [Kit Guide](./2-guides/email-kit-migration.md) - When to use Kit
 
 ### Code
+
 - [Migration Script](../scripts/migrate-email-files.ts) - Automated migration
 - [Central Config](../src/lib/emails/email-campaigns.config.ts) - After migration
 - [Cron Jobs](./1-core/cron-jobs.md) - How scheduling works
@@ -427,19 +462,23 @@ open https://trykaiwa.com/dev/email
 ### Common Issues
 
 **Migration script fails**:
+
 - See manual migration steps in [Migration Guide](./2-guides/email-system-migration.md)
 - Check git status (are files already moved?)
 
 **Dashboard shows 404**:
+
 - Verify file exists: `ls src/routes/dev/email/+page.svelte`
 - Restart dev server: `pnpm dev`
 
 **Preview is blank**:
+
 - Check browser console for errors
 - Verify template exports function
 - Check import path in config
 
 **Emails not sending**:
+
 - Check RESEND_API_KEY is set
 - Verify user email preferences
 - Check Resend dashboard for errors

@@ -65,7 +65,10 @@ export class ProductUpdatesEmailService {
 			// Replace placeholders
 			const appUrl = env.PUBLIC_APP_URL || 'https://trykaiwa.com';
 			const finalHtml = html
-				.replace(/\{\{UNSUBSCRIBE_URL\}\}/g, `${appUrl}/profile/email-preferences?unsubscribe=product-updates`)
+				.replace(
+					/\{\{UNSUBSCRIBE_URL\}\}/g,
+					`${appUrl}/profile/email-preferences?unsubscribe=product-updates`
+				)
 				.replace(/\{\{PREFERENCES_URL\}\}/g, `${appUrl}/profile/email-preferences`);
 
 			const result = await resend.emails.send({
