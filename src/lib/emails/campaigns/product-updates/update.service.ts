@@ -3,7 +3,7 @@ import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 import { userRepository } from '$lib/server/repositories';
 import type { User } from '$lib/server/db/types';
-import { EmailPermissionService } from './email-permission.service';
+import { EmailPermissionService } from '$lib/emails/shared/email-permission';
 
 const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
 

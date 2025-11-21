@@ -3,7 +3,7 @@ import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 import { userRepository } from '$lib/server/repositories';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
-import { EmailPermissionService } from './email-permission.service';
+import { EmailPermissionService } from '$lib/emails/shared/email-permission';
 import type { User } from '$lib/server/db/types';
 import { userPreferencesRepository } from '$lib/server/repositories/user-preferences.repository';
 import { languageRepository } from '$lib/server/repositories/language.repository';
