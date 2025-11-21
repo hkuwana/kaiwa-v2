@@ -6,16 +6,7 @@
 	import { getDifficultyLevel } from '$lib/utils/cefr';
 	import { fade, scale } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
-
-	interface Speaker {
-		id: string;
-		voiceName: string;
-		characterImageUrl?: string;
-		characterImageAlt?: string;
-		dialectName?: string;
-		region?: string;
-		gender: 'male' | 'female' | 'neutral';
-	}
+	import type { Speaker } from '$lib/types';
 
 	interface Props {
 		selectedLanguage?: DataLanguage | null;
@@ -23,8 +14,11 @@
 		selectedScenario?: Scenario | null;
 	}
 
-	const { selectedLanguage = null, selectedSpeaker = null, selectedScenario = null }: Props =
-		$props();
+	const {
+		selectedLanguage = null,
+		selectedSpeaker = null,
+		selectedScenario = null
+	}: Props = $props();
 
 	const hasSelections = $derived(selectedLanguage || selectedSpeaker || selectedScenario);
 
@@ -64,13 +58,6 @@
 			class="relative overflow-hidden rounded-3xl border border-base-300 bg-gradient-to-br from-base-100 to-base-200/50 p-4 shadow-xl backdrop-blur-sm sm:p-8"
 			in:scale={{ duration: 400, start: 0.95, easing: cubicOut }}
 		>
-			<!-- Header - more compact on mobile -->
-			<div class="mb-3 text-center sm:mb-6">
-				<h2 class="text-xs font-medium uppercase tracking-wider text-base-content/50 sm:text-sm">
-					Your Session
-				</h2>
-			</div>
-
 			<!-- Speaker Section (Hero) - Compact on mobile -->
 			{#if selectedSpeaker}
 				<div
@@ -78,14 +65,11 @@
 					in:fade={{ duration: 400, delay: 100 }}
 				>
 					<!-- Avatar - Smaller on mobile -->
-					<div class="avatar mb-2 sm:mb-4">
-						<div
-							class="w-16 rounded-full ring-2 ring-primary/20 ring-offset-2 ring-offset-base-100 sm:w-24 sm:ring-4"
-						>
+					<div class=" avatar mb-2 sm:mb-4">
+						<div class="w-20 rounded-full ring-2 ring-success sm:w-24 sm:ring-4">
 							{#if selectedSpeaker.characterImageUrl}
 								<img
-									alt={selectedSpeaker.characterImageAlt ||
-										`Image of ${selectedSpeaker.voiceName}`}
+									alt={selectedSpeaker.characterImageAlt || `Image of ${selectedSpeaker.voiceName}`}
 									src={selectedSpeaker.characterImageUrl}
 									class="object-cover"
 									loading="eager"
@@ -119,10 +103,6 @@
 								{selectedSpeaker.region}
 							{/if}
 						</p>
-						<!-- Mobile: Show just dialect -->
-						<p class="text-xs text-base-content/60 sm:hidden">
-							{selectedSpeaker.dialectName}
-						</p>
 					</div>
 				</div>
 			{/if}
@@ -134,28 +114,6 @@
 
 			<!-- Language & Scenario Grid - More compact on mobile -->
 			<div class="space-y-2 sm:space-y-4">
-				<!-- Language Section - Compact -->
-				{#if selectedLanguage}
-					<div
-						class="flex items-center gap-3 rounded-2xl bg-base-100/50 p-3 backdrop-blur-sm sm:gap-4 sm:p-4"
-						in:fade={{ duration: 400, delay: 200 }}
-					>
-						<div
-							class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-xl sm:h-12 sm:w-12 sm:text-2xl"
-						>
-							{selectedLanguage.flag || '🌍'}
-						</div>
-						<div class="flex-1">
-							<p class="text-[10px] font-medium uppercase tracking-wide text-base-content/50 sm:text-xs">
-								Language
-							</p>
-							<p class="text-base font-semibold text-base-content sm:text-lg">
-								{selectedLanguage.name}
-							</p>
-						</div>
-					</div>
-				{/if}
-
 				<!-- Scenario Section - More compact on mobile -->
 				{#if selectedScenario}
 					<div
@@ -164,10 +122,14 @@
 					>
 						<div class="mb-2 flex items-start justify-between gap-2 sm:mb-3 sm:gap-3">
 							<div class="flex-1">
-								<p class="text-[10px] font-medium uppercase tracking-wide text-base-content/50 sm:text-xs">
+								<p
+									class="text-[10px] font-medium tracking-wide text-base-content/50 uppercase sm:text-xs"
+								>
 									Scenario
 								</p>
-								<p class="mt-0.5 text-base font-semibold leading-tight text-base-content sm:mt-1 sm:text-lg">
+								<p
+									class="mt-0.5 text-base leading-tight font-semibold text-base-content sm:mt-1 sm:text-lg"
+								>
 									{selectedScenario.title}
 								</p>
 							</div>
@@ -214,8 +176,7 @@
 												scenarioMeta.color === 'warning'}
 											class:bg-error={segment <= (selectedScenario.difficultyRating || 0) / 3.33 &&
 												scenarioMeta.color === 'error'}
-											class:bg-base-300={segment >
-												(selectedScenario.difficultyRating || 0) / 3.33}
+											class:bg-base-300={segment > (selectedScenario.difficultyRating || 0) / 3.33}
 										></span>
 									{/each}
 								</div>

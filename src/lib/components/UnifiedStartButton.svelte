@@ -15,10 +15,10 @@
 	// Props
 	interface Props {
 		user: User;
-		selectedLanguage?: DataLanguage | null;
-		selectedSpeaker?: string | null;
-		selectedScenario?: Scenario | null;
-		selectedAudioMode?: 'vad' | 'ptt';
+		selectedLanguage: DataLanguage;
+		selectedSpeaker: string;
+		selectedScenario: Scenario;
+		selectedAudioMode: 'vad' | 'ptt';
 		onLanguageChange?: (language: DataLanguage) => void;
 		onSpeakerChange?: (speakerId: string) => void;
 		onScenarioChange?: (scenario: Scenario) => void;
@@ -29,10 +29,10 @@
 
 	const {
 		user = GUEST_USER,
-		selectedLanguage = null,
+		selectedLanguage,
 		children,
-		selectedSpeaker = null,
-		selectedScenario = null,
+		selectedSpeaker,
+		selectedScenario,
 		selectedAudioMode = 'ptt', // Default to Push-to-Talk
 		onLanguageChange,
 		onSpeakerChange,
@@ -52,7 +52,7 @@
 
 	// Get current speaker object from selectedSpeaker ID
 	const currentSpeaker = $derived(
-		selectedSpeaker ? speakersData.find((s) => s.id === selectedSpeaker) : null
+		speakersData.find((s) => s.id === selectedSpeaker) ?? speakersData[0]
 	);
 
 	type ScenarioRole = 'tutor' | 'character' | 'friendly_chat' | 'expert';
@@ -180,7 +180,7 @@
 
 	<!-- Briefing Card - Shows selected speaker, language, and scenario -->
 	<BriefingCard
-		selectedLanguage={selectedLanguage}
+		{selectedLanguage}
 		selectedSpeaker={currentSpeaker}
 		selectedScenario={currentScenario}
 	/>
