@@ -23,7 +23,7 @@ export const THIS_WEEKS_EMAIL: KaiwaEmailContent = {
 	// Dark header
 	headerCategory: 'Weekly Product Update',
 	headerTitle: "What's New This Week",
-	headerSubtitle: 'New features, improvements, and what's coming next',
+	headerSubtitle: "New features, improvements, and what's coming next",
 
 	preheader: "New features, improvements, and what's coming next",
 

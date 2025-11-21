@@ -161,7 +161,7 @@ export class FounderEmailService {
 				? `Your first ${languageName} conversation starts here`
 				: 'Your first conversation starts here',
 
-			preheader: 'Welcome to Kaiwa - let's start with just 5 minutes',
+			preheader: "Welcome to Kaiwa - let's start with just 5 minutes",
 
 			greeting: 'Hey 👋',
 			intro: `Thanks for joining Kaiwa! I'm Hiro, and I built this to make speaking ${languageName || 'a new language'} feel less intimidating—especially when it's for the people you care about.`,
@@ -251,7 +251,7 @@ export class FounderEmailService {
 			signature: {
 				name: 'Hiro',
 				title: 'Founder, Kaiwa',
-				ps: "P.S. You can also just reply to this email if you prefer. I read every message and usually respond within a few hours."
+				ps: 'P.S. You can also just reply to this email if you prefer. I read every message and usually respond within a few hours.'
 			}
 		};
 
