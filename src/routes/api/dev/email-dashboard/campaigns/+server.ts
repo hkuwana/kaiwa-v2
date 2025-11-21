@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { EMAIL_CAMPAIGNS } from '$lib/emails/email-campaigns.config';
-import { parseExpression } from 'cron-parser';
+import cronParser from 'cron-parser';
 
 /**
  * GET /api/dev/email-dashboard/campaigns
@@ -16,7 +16,7 @@ export const GET: RequestHandler = async () => {
 
 			if (campaign.schedule && campaign.status === 'active') {
 				try {
-					const interval = parseExpression(campaign.schedule, {
+					const interval = cronParser.parseExpression(campaign.schedule, {
 						currentDate: new Date(),
 						utc: true
 					});
