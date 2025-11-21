@@ -8,6 +8,8 @@
 	import AudioPermissionPrompt from '$lib/features/audio/components/AudioPermissionPrompt.svelte';
 	import { getSpeakerById } from '$lib/data/speakers';
 	import { audioStore } from '$lib/stores/audio.store.svelte';
+	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
+	import BriefingCard from './BriefingCard.svelte';
 
 	const {
 		status = 'connecting',
@@ -26,6 +28,7 @@
 	// Get current settings
 	const selectedSpeaker = $derived(settingsStore.selectedSpeaker);
 	const currentSpeaker = $derived(selectedSpeaker ? getSpeakerById(selectedSpeaker) : null);
+	const currentScenario = $derived(scenarioStore.getSelectedScenario());
 
 	// Check if we should show audio permission prompt
 	const shouldShowPermissionPrompt = $derived(
@@ -138,22 +141,22 @@
 	}
 </script>
 
-<div class="flex justify-center p-4 pt-20">
+<div class="flex justify-center p-4 pt-8 sm:pt-20">
 	<div
-		class="card w-full max-w-lg animate-[slideInScale_0.6s_cubic-bezier(0.34,1.56,0.64,1)] border shadow-2xl backdrop-blur-sm {statusConfig.bgColor} {statusConfig.borderColor}"
+		class="w-full max-w-lg animate-[slideInScale_0.6s_cubic-bezier(0.34,1.56,0.64,1)] space-y-6"
 	>
-		<div class="card-body text-center">
-			<!-- Language Header -->
-			<div class="mb-6">
-				<h2 class="mb-2 text-2xl font-bold text-base-content">
-					Practicing {settingsStore.selectedLanguage?.name || 'Language'}
-				</h2>
-				{#if currentSpeaker}
-					<div class="badge badge-outline badge-lg">
-						with {currentSpeaker.voiceName}
-					</div>
-				{/if}
-			</div>
+		<!-- Briefing Card -->
+		<BriefingCard
+			selectedLanguage={settingsStore.selectedLanguage}
+			selectedSpeaker={currentSpeaker}
+			selectedScenario={currentScenario}
+		/>
+
+		<!-- Loading Status Card -->
+		<div
+			class="card border shadow-2xl backdrop-blur-sm {statusConfig.bgColor} {statusConfig.borderColor}"
+		>
+			<div class="card-body text-center">
 
 			<!-- Premium Headphone Guide -->
 			<div class="mb-6 flex justify-center">
@@ -255,6 +258,7 @@
 					<p class="text-xs text-base-content/60">Speak naturally. Pause to get a response.</p>
 				</div>
 			{/if}
+			</div>
 		</div>
 	</div>
 </div>
