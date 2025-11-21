@@ -6,9 +6,11 @@
 	import LanguageSelector from './LanguageSelector.svelte';
 	import ScenarioSelector from '$lib/features/scenarios/components/ScenarioSelector.svelte';
 	import AdvancedAudioOptions from './AdvancedAudioOptions.svelte';
+	import BriefingCard from './BriefingCard.svelte';
 	import type { Language as DataLanguage } from '$lib/data/languages';
 	import type { User } from '$lib/server/db/types';
 	import { GUEST_USER } from '$lib/data/user';
+	import { speakersData } from '$lib/data/speakers';
 
 	// Props
 	interface Props {
@@ -47,6 +49,11 @@
 
 	// Current scenario or default to onboarding
 	const currentScenario = $derived(selectedScenario || availableScenarios[0]);
+
+	// Get current speaker object from selectedSpeaker ID
+	const currentSpeaker = $derived(
+		selectedSpeaker ? speakersData.find((s) => s.id === selectedSpeaker) : null
+	);
 
 	type ScenarioRole = 'tutor' | 'character' | 'friendly_chat' | 'expert';
 
@@ -170,6 +177,13 @@
 			{isGuest}
 		/>
 	</div>
+
+	<!-- Briefing Card - Shows selected speaker, language, and scenario -->
+	<BriefingCard
+		selectedLanguage={selectedLanguage}
+		selectedSpeaker={currentSpeaker}
+		selectedScenario={currentScenario}
+	/>
 
 	<!-- Advanced Audio Options -->
 	<div class="w-full max-w-md">
