@@ -1,7 +1,7 @@
 import { logger } from '$lib/logger';
 import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
-import type { WeeklyUpdateItem } from '$lib/server/email/weekly-updates-email.service';
+import type { WeeklyUpdateItem } from '$lib/emails/campaigns/weekly-digest/digest.service';
 
 export interface ParsedWeeklyUpdate {
 	date: string;

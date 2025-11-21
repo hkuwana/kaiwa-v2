@@ -7,13 +7,13 @@ import {
 	type CommunityStory,
 	type LearningGoal
 } from '$lib/data/community-stories';
-import { EmailPermissionService } from '$lib/server/email/email-permission.service';
+import { EmailPermissionService } from '$lib/emails/shared/email-permission';
 import { analyticsEventsRepository } from '$lib/server/repositories/analytics-events.repository';
 import { conversationSessionsRepository } from '$lib/server/repositories/conversation-sessions.repository';
 import { languageRepository } from '$lib/server/repositories/language.repository';
 import { userPreferencesRepository } from '$lib/server/repositories/user-preferences.repository';
 import { userRepository } from '$lib/server/repositories';
-import { EmailSendGuardService } from '$lib/server/email/email-send-guard.service';
+import { EmailSendGuardService } from '$lib/emails/shared/email-guard';
 import type { User, UserPreferences, ConversationSession } from '$lib/server/db/types';
 
 interface WeeklyPracticeSummary {

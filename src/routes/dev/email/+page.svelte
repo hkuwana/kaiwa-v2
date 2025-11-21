@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { posthogManager } from '$lib/client/posthog';
+	import { EMAIL_CAMPAIGNS, CAMPAIGN_CATEGORIES } from '$lib/emails/email-campaigns.config';
 
 	let isLoading = $state(false);
 	let testResult = $state<string>('');
@@ -220,16 +221,77 @@
 </script>
 
 <div class="min-h-screen bg-base-200 p-8">
-	<div class="mx-auto max-w-4xl">
+	<div class="mx-auto max-w-6xl">
 		<!-- Header -->
 		<div class="mb-8">
-			<h1 class="mb-2 text-4xl font-bold">📧 Email Testing</h1>
+			<h1 class="mb-2 text-4xl font-bold">📧 Email System Dashboard</h1>
 			<p class="text-base-content/70">
-				Test all email templates by sending them to <strong class="text-primary"
-					>weijo34@gmail.com</strong
-				>
+				Manage and test all email campaigns from one central dashboard
 			</p>
 		</div>
+
+		<!-- CAMPAIGNS OVERVIEW TABLE -->
+		<div class="card mb-8 bg-base-100 shadow-xl">
+			<div class="card-body">
+				<div class="mb-4 flex items-center justify-between">
+					<h2 class="card-title">📊 All Email Campaigns</h2>
+					<div class="badge badge-primary">{EMAIL_CAMPAIGNS.length} Campaigns</div>
+				</div>
+
+				<!-- Campaigns Table -->
+				<div class="overflow-x-auto">
+					<table class="table table-zebra">
+						<thead>
+							<tr>
+								<th>Campaign</th>
+								<th>Category</th>
+								<th>Schedule</th>
+								<th>Status</th>
+								<th>Recipients</th>
+							</tr>
+						</thead>
+						<tbody>
+							{#each EMAIL_CAMPAIGNS as campaign (campaign.id)}
+								<tr class="hover">
+									<td>
+										<div class="font-semibold">{campaign.name}</div>
+										<div class="text-xs text-base-content/60">{campaign.description}</div>
+									</td>
+									<td>
+										<div class="badge badge-ghost badge-sm">
+											{CAMPAIGN_CATEGORIES[campaign.category].icon}
+											{CAMPAIGN_CATEGORIES[campaign.category].name}
+										</div>
+									</td>
+									<td>
+										<div class="text-sm">{campaign.frequency || campaign.schedule}</div>
+									</td>
+									<td>
+										{#if campaign.status === 'active'}
+											<div class="badge badge-success badge-sm">🟢 Active</div>
+										{:else if campaign.status === 'paused'}
+											<div class="badge badge-warning badge-sm">⏸️ Paused</div>
+										{:else}
+											<div class="badge badge-ghost badge-sm">📝 Draft</div>
+										{/if}
+									</td>
+									<td class="text-xs text-base-content/60">
+										{campaign.estimatedRecipients || 'N/A'}
+									</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+
+				<div class="mt-4 text-sm text-base-content/60">
+					<strong>Note:</strong> Email campaigns are reaching daily limits on Resend's free tier.
+					Consider implementing email preferences and user segmentation to reduce volume.
+				</div>
+			</div>
+		</div>
+
+		<div class="divider">Email Testing</div>
 
 		<!-- Auth Check -->
 		{#if !userManager.isLoggedIn}

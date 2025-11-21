@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { EmailReminderService } from '$lib/server/email/email-reminder.service';
+import { EmailReminderService } from '$lib/emails/campaigns/reminders/reminder.service';
 
 /**
  * Bulk reminder endpoint - sends reminders to all eligible users

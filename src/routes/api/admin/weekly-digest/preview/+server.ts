@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { WeeklyUpdatesEmailService } from '$lib/server/email/weekly-updates-email.service';
+import { WeeklyUpdatesEmailService } from '$lib/emails/campaigns/weekly-digest/digest.service';
 import { userRepository } from '$lib/server/repositories';
 import type { User } from '$lib/server/db/types';
 
