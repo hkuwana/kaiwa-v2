@@ -18,8 +18,8 @@
  * See .github/cron/ for documentation on the new GitHub Actions setup.
  */
 
-import { WeeklyUpdatesEmailService } from '../src/lib/server/email/weekly-updates-email.service';
-import type { WeeklyDigestOptions } from '../src/lib/server/email/weekly-updates-email.service';
+import { WeeklyUpdatesEmailService } from '../src/lib/emails/campaigns/weekly-digest/digest.service';
+import type { WeeklyDigestOptions } from '../src/lib/emails/campaigns/weekly-digest/digest.service';
 
 interface WeeklyDigestStats {
 	sent: number;

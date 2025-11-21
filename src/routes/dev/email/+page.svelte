@@ -291,9 +291,9 @@
 									</td>
 									<td>
 										{#if campaign.status === 'active'}
-											<div class="badge badge-success badge-sm">🟢 Active</div>
+											<div class="badge badge-sm badge-success">🟢 Active</div>
 										{:else if campaign.status === 'paused'}
-											<div class="badge badge-warning badge-sm">⏸️ Paused</div>
+											<div class="badge badge-sm badge-warning">⏸️ Paused</div>
 										{:else}
 											<div class="badge badge-ghost badge-sm">📝 Draft</div>
 										{/if}
@@ -308,14 +308,16 @@
 				</div>
 
 				<div class="mt-4 text-sm text-base-content/60">
-					<strong>Note:</strong> Email campaigns are reaching daily limits on Resend's free tier.
-					Consider implementing email preferences and user segmentation to reduce volume.
+					<strong>Note:</strong> Email campaigns are reaching daily limits on Resend's free tier. Consider
+					implementing email preferences and user segmentation to reduce volume.
 				</div>
 			</div>
 		</div>
 
 		<!-- WEEKLY EMAIL QUICK PREVIEW -->
-		<div class="card mb-8 bg-gradient-to-br from-primary/5 to-secondary/5 shadow-xl border-2 border-primary/20">
+		<div
+			class="card mb-8 border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5 shadow-xl"
+		>
 			<div class="card-body">
 				<div class="mb-4 flex items-center justify-between">
 					<div>
@@ -324,11 +326,11 @@
 							Edit your weekly product update and see it live
 						</p>
 					</div>
-					<div class="badge badge-primary badge-lg">Unified Template</div>
+					<div class="badge badge-lg badge-primary">Unified Template</div>
 				</div>
 
 				<!-- Quick Instructions -->
-				<div class="alert alert-info mb-4">
+				<div class="mb-4 alert alert-info">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						fill="none"
@@ -344,10 +346,10 @@
 					</svg>
 					<div class="text-sm">
 						<div class="font-bold">Quick Workflow:</div>
-						<ol class="mt-2 list-decimal list-inside space-y-1">
+						<ol class="mt-2 list-inside list-decimal space-y-1">
 							<li>
 								Edit
-								<code class="bg-base-200 px-2 py-1 rounded text-xs"
+								<code class="rounded px-2 py-1 text-xs"
 									>src/lib/emails/campaigns/product-updates/weekly-update-template.ts</code
 								>
 							</li>
@@ -361,7 +363,7 @@
 				<!-- Action Buttons -->
 				<div class="flex gap-3">
 					<button
-						class="btn btn-primary btn-lg flex-1"
+						class="btn flex-1 btn-lg btn-primary"
 						onclick={previewWeeklyEmail}
 						disabled={isLoadingPreview}
 					>
@@ -384,7 +386,7 @@
 				<!-- Template File Link -->
 				<div class="mt-4 text-sm text-base-content/60">
 					<strong>Template file:</strong>
-					<code class="bg-base-200 px-2 py-1 rounded ml-2"
+					<code class="ml-2 rounded bg-base-200 px-2 py-1"
 						>src/lib/emails/campaigns/product-updates/weekly-update-template.ts</code
 					>
 				</div>
@@ -397,10 +399,7 @@
 				<div class="card-body">
 					<div class="mb-4 flex items-center justify-between">
 						<h2 class="card-title">📧 Weekly Email Preview</h2>
-						<button
-							class="btn btn-ghost btn-sm"
-							onclick={() => (showWeeklyPreview = false)}
-						>
+						<button class="btn btn-ghost btn-sm" onclick={() => (showWeeklyPreview = false)}>
 							✕ Close
 						</button>
 					</div>
@@ -427,7 +426,7 @@
 							<div class="font-bold">Looks good?</div>
 							<div class="text-sm">
 								Send it to all users via API:
-								<code class="bg-base-200 px-2 py-1 rounded ml-2"
+								<code class="ml-2 rounded bg-base-200 px-2 py-1"
 									>POST /api/admin/send-weekly-update</code
 								>
 							</div>

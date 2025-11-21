@@ -24,7 +24,7 @@ export const THIS_WEEKS_EMAIL: KaiwaEmailContent = {
 	preheader: "New features, improvements, and what's coming next",
 
 	greeting: 'Hey 👋',
-	intro: 'Quick update on what we shipped this week and what's coming next.',
+	intro: "Quick update on what we shipped this week and what's coming next.",
 
 	sections: [
 		{
@@ -83,7 +83,7 @@ export const THIS_WEEKS_EMAIL: KaiwaEmailContent = {
 	signature: {
 		name: 'Hiro',
 		title: 'Founder',
-		ps: "P.S. Trying something new with this format—let me know if you prefer this over the old style."
+		ps: 'P.S. Trying something new with this format—let me know if you prefer this over the old style.'
 	}
 };
 
