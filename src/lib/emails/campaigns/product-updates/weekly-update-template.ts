@@ -20,7 +20,11 @@ export { generateKaiwaEmail, type KaiwaEmailContent };
  * Update this object each week with your latest product news.
  */
 export const THIS_WEEKS_EMAIL: KaiwaEmailContent = {
-	logoText: 'KAIWA',
+	// Dark header
+	headerCategory: 'Weekly Product Update',
+	headerTitle: "What's New This Week",
+	headerSubtitle: 'New features, improvements, and what's coming next',
+
 	preheader: "New features, improvements, and what's coming next",
 
 	greeting: 'Hey 👋',

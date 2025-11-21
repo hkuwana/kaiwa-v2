@@ -47,28 +47,28 @@ export const EMAIL_CAMPAIGNS: EmailCampaign[] = [
 	{
 		id: 'founder-sequence',
 		name: 'Founder Welcome Sequence',
-		description: 'Personal 3-day sequence from founder for new users who haven\'t practiced',
+		description: 'Personal 2-email sequence: Day 1 welcome + Day 3 walkthrough offer',
 		schedule: '0 14-16 * * *', // Every day 2-4 PM UTC
 		status: 'active',
 		category: 'onboarding',
 		endpoint: '/api/cron/founder-emails',
 		servicePath: 'campaigns/founder-sequence/founder.service.ts',
-		estimatedRecipients: 'New users (Day 1-3) who haven\'t practiced yet',
-		frequency: 'Daily at 2-4 PM UTC (Days 1-3 after signup)'
+		estimatedRecipients: 'New users on Day 1 and Day 3 after signup',
+		frequency: 'Day 1 (signup) + Day 3 (2 days later)'
 	},
 
 	// CONTENT CAMPAIGNS
 	{
 		id: 'weekly-digest',
 		name: 'Weekly Product Updates',
-		description: 'Weekly digest of new features, scenarios, and product updates',
-		schedule: '0 10 * * 1', // Mondays at 10:00 AM UTC
+		description: 'Weekly digest of new features, improvements, and major announcements (sent manually)',
+		schedule: 'manual', // Sent manually when ready
 		status: 'active',
 		category: 'content',
-		endpoint: '/api/cron/weekly-digest',
-		servicePath: 'campaigns/weekly-digest/digest.service.ts',
+		endpoint: '/api/admin/send-weekly-update',
+		servicePath: 'campaigns/product-updates/weekly-update-template.ts',
 		estimatedRecipients: 'All users who opted in for product updates',
-		frequency: 'Weekly (Monday at 10 AM UTC)'
+		frequency: 'Weekly (manual send, typically Monday)'
 	},
 	{
 		id: 'scenario-inspiration',
@@ -93,18 +93,6 @@ export const EMAIL_CAMPAIGNS: EmailCampaign[] = [
 		servicePath: 'campaigns/community-stories/story.service.ts',
 		estimatedRecipients: 'Active users who opted in for community content',
 		frequency: 'Weekly (Friday at 12 PM UTC)'
-	},
-	{
-		id: 'product-updates',
-		name: 'Product Launch Announcements',
-		description: 'Major product updates and new feature launches',
-		schedule: 'manual', // Sent manually when needed
-		status: 'active',
-		category: 'content',
-		endpoint: '/api/admin/send-weekly-product-updates',
-		servicePath: 'campaigns/product-updates/update.service.ts',
-		estimatedRecipients: 'All users',
-		frequency: 'Manual (as needed for major launches)'
 	},
 
 	// REPORTS CAMPAIGNS
