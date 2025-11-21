@@ -4,6 +4,7 @@ import { env } from '$env/dynamic/private';
 import { userRepository } from '$lib/server/repositories';
 import type { User } from '$lib/server/db/types';
 import { EmailPermissionService } from '$lib/emails/shared/email-permission';
+import { generateSuperhumanEmail, type SuperhumanEmailContent } from './superhuman-template';
 
 const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
 
@@ -14,12 +15,82 @@ const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
  * who have opted in to receive product updates.
  *
  * Usage:
+ * - sendSuperhumanStyleUpdate() - Send weekly updates with clean template
+ * - sendProductUpdate() - Legacy simple update format
  * - Can send bulk emails to all subscribers
- * - Can send individual product update emails
  */
 export class ProductUpdatesEmailService {
 	public static readonly SENDER_EMAIL = 'hiro@trykaiwa.com';
 	public static readonly SENDER_NAME = 'Hiro';
+
+	/**
+	 * Send a Superhuman-style weekly update to all eligible users
+	 *
+	 * This is the easiest way to send your weekly email:
+	 * 1. Edit superhuman-template.ts
+	 * 2. Call this method
+	 * 3. Done!
+	 */
+	static async sendSuperhumanStyleUpdate(
+		content: SuperhumanEmailContent
+	): Promise<{ sent: number; skipped: number; failed: number }> {
+		if (!env.RESEND_API_KEY || env.RESEND_API_KEY === 're_dummy_resend_key') {
+			logger.warn('RESEND_API_KEY not configured, skipping email send');
+			return { sent: 0, skipped: 0, failed: 0 };
+		}
+
+		const eligibleUserIds = await EmailPermissionService.getProductUpdateEligibleUsers();
+		if (eligibleUserIds.length === 0) {
+			logger.info('No product update subscribers found.');
+			return { sent: 0, skipped: 0, failed: 0 };
+		}
+
+		let sent = 0;
+		let skipped = 0;
+		let failed = 0;
+
+		const subject = content.preheader || 'Kaiwa Weekly Update';
+
+		for (const userId of eligibleUserIds) {
+			const user = await userRepository.findUserById(userId);
+			if (!user || !user.email) {
+				skipped++;
+				continue;
+			}
+
+			// Generate personalized email with user's first name
+			const firstName = user.displayName?.split(' ')[0];
+			const html = generateSuperhumanEmail(content, firstName);
+
+			// Replace placeholders
+			const appUrl = env.PUBLIC_APP_URL || 'https://trykaiwa.com';
+			const finalHtml = html
+				.replace(/\{\{UNSUBSCRIBE_URL\}\}/g, `${appUrl}/profile/email-preferences?unsubscribe=product-updates`)
+				.replace(/\{\{PREFERENCES_URL\}\}/g, `${appUrl}/profile/email-preferences`);
+
+			const result = await resend.emails.send({
+				from: `${this.SENDER_NAME} <${this.SENDER_EMAIL}>`,
+				replyTo: this.SENDER_EMAIL,
+				to: [user.email],
+				subject,
+				html: finalHtml
+			});
+
+			if (result.error) {
+				logger.error('Failed to send superhuman email to user', user.id, result.error);
+				failed++;
+				continue;
+			}
+
+			sent++;
+
+			// Rate-limit safety
+			await new Promise((resolve) => setTimeout(resolve, 100));
+		}
+
+		logger.info(`Superhuman email sent: ${sent} emails, skipped: ${skipped}, failed: ${failed}`);
+		return { sent, skipped, failed };
+	}
 
 	/**
 	 * Send a product update email to all eligible users
