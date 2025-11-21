@@ -114,6 +114,7 @@ All tasks completed successfully. The email system has been fully reorganized an
 - [x] Unified template implemented
 - [x] Dashboard shows all 8 campaigns
 - [x] Weekly email editor added to dashboard
+- [x] Toggle between full-width and side-by-side preview
 
 ---
 
@@ -128,7 +129,8 @@ All tasks completed successfully. The email system has been fully reorganized an
 Visit `/dev/email` to see:
 - **Campaigns Table**: All 8 campaigns with status, schedule, recipients
 - **Weekly Email Editor**: Edit and preview weekly updates
-- **Live Preview**: See changes instantly
+- **Live Preview**: See changes instantly with toggle between full-width and side-by-side views
+- **Desktop + Mobile Preview**: View how emails look on both desktop and mobile devices
 - **Test Emails**: Send test emails to verify
 
 ### ✅ Simple Weekly Email Workflow
@@ -201,6 +203,7 @@ src/lib/emails/
 - ❌ Hard to preview emails (required curl + logs)
 - ❌ Different styles for different emails
 - ❌ 10+ minutes to preview a change
+- ❌ No way to preview mobile vs desktop
 
 **After Migration**:
 - ✅ All emails in one organized directory
@@ -208,6 +211,7 @@ src/lib/emails/
 - ✅ One-click preview in browser
 - ✅ Consistent Kaiwa branding across all emails
 - ✅ 5 seconds to preview a change
+- ✅ Toggle between full-width and side-by-side preview (desktop + mobile)
 
 ---
 
