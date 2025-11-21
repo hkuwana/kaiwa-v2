@@ -8,6 +8,7 @@
 	import AudioPermissionPrompt from '$lib/features/audio/components/AudioPermissionPrompt.svelte';
 	import { getSpeakerById } from '$lib/data/speakers';
 	import { audioStore } from '$lib/stores/audio.store.svelte';
+	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
 
 	const {
 		status = 'connecting',
@@ -26,6 +27,7 @@
 	// Get current settings
 	const selectedSpeaker = $derived(settingsStore.selectedSpeaker);
 	const currentSpeaker = $derived(selectedSpeaker ? getSpeakerById(selectedSpeaker) : null);
+	const currentScenario = $derived(scenarioStore.getSelectedScenario());
 
 	// Check if we should show audio permission prompt
 	const shouldShowPermissionPrompt = $derived(
@@ -138,25 +140,81 @@
 	}
 </script>
 
-<div class="flex justify-center p-4 pt-20">
+<div class="flex justify-center p-4 pt-8 sm:pt-20">
 	<div
 		class="card w-full max-w-lg animate-[slideInScale_0.6s_cubic-bezier(0.34,1.56,0.64,1)] border shadow-2xl backdrop-blur-sm {statusConfig.bgColor} {statusConfig.borderColor}"
 	>
 		<div class="card-body text-center">
-			<!-- Language Header -->
-			<div class="mb-6">
-				<h2 class="mb-2 text-2xl font-bold text-base-content">
-					Practicing {settingsStore.selectedLanguage?.name || 'Language'}
-				</h2>
-				{#if currentSpeaker}
-					<div class="badge badge-outline badge-lg">
-						with {currentSpeaker.voiceName}
+			<!-- Speaker Avatar (Hero) - Animated -->
+			{#if currentSpeaker}
+				<div class="mb-4 flex flex-col items-center" in:scale={{ duration: 400, delay: 100 }}>
+					<!-- Large Pulsing Avatar -->
+					<div class="avatar mb-3">
+						<div
+							class="w-24 rounded-full ring-4 ring-primary/20 ring-offset-2 ring-offset-base-100 sm:w-28 {status ===
+							'connecting'
+								? 'animate-[breathe_2s_ease-in-out_infinite]'
+								: ''}"
+						>
+							{#if currentSpeaker.characterImageUrl}
+								<img
+									alt={currentSpeaker.characterImageAlt ||
+										`Image of ${currentSpeaker.voiceName}`}
+									src={currentSpeaker.characterImageUrl}
+									class="object-cover"
+									loading="eager"
+								/>
+							{:else}
+								<div
+									class="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 to-primary/30 text-5xl"
+								>
+									{#if currentSpeaker.gender === 'male'}
+										👨
+									{:else if currentSpeaker.gender === 'female'}
+										👩
+									{:else}
+										👤
+									{/if}
+								</div>
+							{/if}
+						</div>
+					</div>
+
+					<!-- Speaker Name -->
+					<h3 class="mb-1 text-xl font-semibold text-base-content">
+						{currentSpeaker.voiceName}
+					</h3>
+					<p class="text-sm text-base-content/60">
+						{currentSpeaker.dialectName}
+						{#if currentSpeaker.region}
+							<span class="opacity-50">•</span>
+							{currentSpeaker.region}
+						{/if}
+					</p>
+				</div>
+			{/if}
+
+			<!-- Language & Scenario Info -->
+			<div class="mb-4 space-y-2">
+				{#if settingsStore.selectedLanguage}
+					<div class="flex items-center justify-center gap-2 text-base-content/70">
+						<span class="text-xl">{settingsStore.selectedLanguage.flag || '🌍'}</span>
+						<span class="font-medium">{settingsStore.selectedLanguage.name}</span>
+					</div>
+				{/if}
+
+				{#if currentScenario}
+					<div class="flex items-center justify-center gap-2">
+						<span class="text-sm text-base-content/60">{currentScenario.title}</span>
 					</div>
 				{/if}
 			</div>
 
+			<!-- Divider -->
+			<div class="divider my-2"></div>
+
 			<!-- Premium Headphone Guide -->
-			<div class="mb-6 flex justify-center">
+			<div class="mb-4 flex justify-center">
 				<AnimatedHeadphones
 					animation="wiggle"
 					size="md"
@@ -184,14 +242,10 @@
 
 			<!-- Dynamic Status Content -->
 			{#if showContent}
-				<div
-					class="space-y-4 pt-4"
-					in:fly={{ y: 20, duration: 300 }}
-					out:fly={{ y: -20, duration: 150 }}
-				>
+				<div class="space-y-3 pt-2" in:fly={{ y: 20, duration: 300 }} out:fly={{ y: -20, duration: 150 }}>
 					<!-- Status Title and Message -->
-					<div class="space-y-2 text-center">
-						<h3 class="text-xl font-semibold {statusConfig.color}">
+					<div class="space-y-1 text-center">
+						<h3 class="text-lg font-semibold {statusConfig.color}">
 							{statusConfig.title}
 						</h3>
 
@@ -199,18 +253,18 @@
 							{statusConfig.message}
 						</p>
 					</div>
+				</div>
+			{/if}
 
-					<!-- Loading Progress (for connecting state) -->
-					{#if status === 'connecting'}
-						<div class="w-full pt-2">
-							<progress
-								class="progress w-full progress-info"
-								value={(currentStepIndex + 1) * 25}
-								max="100"
-								in:scale={{ duration: 300 }}
-							></progress>
-						</div>
-					{/if}
+			<!-- Loading Progress (always visible when connecting) -->
+			{#if status === 'connecting'}
+				<div class="w-full px-4 py-3">
+					<progress
+						class="progress w-full progress-info"
+						value={(currentStepIndex + 1) * 25}
+						max="100"
+						in:scale={{ duration: 300 }}
+					></progress>
 				</div>
 			{/if}
 
@@ -268,6 +322,17 @@
 		to {
 			opacity: 1;
 			transform: translateY(0) scale(1);
+		}
+	}
+
+	/* Breathing animation for avatar - like connecting via phone */
+	@keyframes breathe {
+		0%,
+		100% {
+			transform: scale(1);
+		}
+		50% {
+			transform: scale(1.08);
 		}
 	}
 

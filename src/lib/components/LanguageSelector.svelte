@@ -226,7 +226,7 @@
 	<!-- Language dropdown -->
 	{#if isOpen}
 		<div
-			class="absolute top-full left-1/2 z-50 mt-3 w-96 -translate-x-1/2 transform rounded-2xl border border-base-200 bg-base-100 py-4 shadow-2xl backdrop-blur-md"
+			class="absolute top-full left-1/2 z-50 mt-3 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 transform rounded-2xl border border-base-200 bg-base-100 py-4 shadow-2xl backdrop-blur-md sm:w-96"
 		>
 			<!-- Header with back button if viewing speakers -->
 			<div class="flex items-center gap-2 px-4 pb-3">

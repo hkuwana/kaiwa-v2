@@ -6,17 +6,19 @@
 	import LanguageSelector from './LanguageSelector.svelte';
 	import ScenarioSelector from '$lib/features/scenarios/components/ScenarioSelector.svelte';
 	import AdvancedAudioOptions from './AdvancedAudioOptions.svelte';
+	import BriefingCard from './BriefingCard.svelte';
 	import type { Language as DataLanguage } from '$lib/data/languages';
 	import type { User } from '$lib/server/db/types';
 	import { GUEST_USER } from '$lib/data/user';
+	import { speakersData } from '$lib/data/speakers';
 
 	// Props
 	interface Props {
 		user: User;
-		selectedLanguage?: DataLanguage | null;
-		selectedSpeaker?: string | null;
-		selectedScenario?: Scenario | null;
-		selectedAudioMode?: 'vad' | 'ptt';
+		selectedLanguage: DataLanguage;
+		selectedSpeaker: string;
+		selectedScenario: Scenario;
+		selectedAudioMode: 'vad' | 'ptt';
 		onLanguageChange?: (language: DataLanguage) => void;
 		onSpeakerChange?: (speakerId: string) => void;
 		onScenarioChange?: (scenario: Scenario) => void;
@@ -27,10 +29,10 @@
 
 	const {
 		user = GUEST_USER,
-		selectedLanguage = null,
+		selectedLanguage,
 		children,
-		selectedSpeaker = null,
-		selectedScenario = null,
+		selectedSpeaker,
+		selectedScenario,
 		selectedAudioMode = 'ptt', // Default to Push-to-Talk
 		onLanguageChange,
 		onSpeakerChange,
@@ -47,6 +49,11 @@
 
 	// Current scenario or default to onboarding
 	const currentScenario = $derived(selectedScenario || availableScenarios[0]);
+
+	// Get current speaker object from selectedSpeaker ID
+	const currentSpeaker = $derived(
+		speakersData.find((s) => s.id === selectedSpeaker) ?? speakersData[0]
+	);
 
 	type ScenarioRole = 'tutor' | 'character' | 'friendly_chat' | 'expert';
 
@@ -170,6 +177,13 @@
 			{isGuest}
 		/>
 	</div>
+
+	<!-- Briefing Card - Shows selected speaker, language, and scenario -->
+	<BriefingCard
+		{selectedLanguage}
+		selectedSpeaker={currentSpeaker}
+		selectedScenario={currentScenario}
+	/>
 
 	<!-- Advanced Audio Options -->
 	<div class="w-full max-w-md">

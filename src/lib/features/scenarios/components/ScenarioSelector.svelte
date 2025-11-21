@@ -290,7 +290,7 @@
 
 	{#if isOpen}
 		<div
-			class="absolute top-full left-1/2 z-50 mt-3 w-96 -translate-x-1/2 transform rounded-2xl border border-base-200 bg-base-100 py-4 shadow-2xl backdrop-blur-md"
+			class="absolute top-full left-1/2 z-50 mt-3 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 transform rounded-2xl border border-base-200 bg-base-100 py-4 shadow-2xl backdrop-blur-md sm:w-96"
 		>
 			<div class="mb-3 px-4 text-center">
 				<h3 class="mb-2 text-sm font-semibold text-base-content/70">Choose Learning Scenario</h3>
