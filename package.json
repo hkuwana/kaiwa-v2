@@ -117,6 +117,7 @@
 		"@sveltejs/adapter-node": "^5.3.1",
 		"@tanstack/svelte-query": "^5.85.3",
 		"arctic": "^3.7.0",
+		"cron-parser": "^5.4.0",
 		"date-fns": "^4.1.0",
 		"drizzle-orm": "^0.40.0",
 		"echogarden": "^2.10.1",
