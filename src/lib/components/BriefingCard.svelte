@@ -46,6 +46,13 @@
 		expert: 'Expert'
 	};
 
+	const rolePersonLabels: Record<string, string> = {
+		tutor: 'Your Tutor',
+		character: 'Your Date',
+		friendly_chat: 'Your Friend',
+		expert: 'Your Expert'
+	};
+
 	// Language display variants for rotation animation
 	const languageVariants = $derived.by(() => {
 		if (!selectedLanguage) return [];
@@ -55,7 +62,7 @@
 			{ text: selectedLanguage.name, color: 'bg-accent text-accent-content' }
 		];
 	});
-
+</script>
 
 {#if hasSelections}
 	<div
@@ -75,6 +82,7 @@
 					in:fade={{ duration: 400, delay: 100 }}
 				>
 					<!-- Avatar - Smaller on mobile -->
+
 					<div class=" avatar mb-2 sm:mb-4">
 						<div class="w-20 rounded-full ring-2 ring-success sm:w-24 sm:ring-4">
 							{#if selectedSpeaker.characterImageUrl}
@@ -96,6 +104,14 @@
 
 					<!-- Speaker Info - More compact format on mobile -->
 					<div class="text-center">
+						<!-- Role Label - "Your Tutor", "Your Friend", etc. -->
+						{#if selectedScenario}
+							<p
+								class="mb-1 text-xs font-medium tracking-wide text-base-content/60 uppercase sm:mb-2"
+							>
+								{rolePersonLabels[selectedScenario.role] || 'Your Partner'}
+							</p>
+						{/if}
 						<!-- Mobile: "Charlotte from Great Britain" format -->
 						<h3 class="mb-0.5 text-lg font-semibold text-base-content sm:mb-1 sm:text-2xl">
 							{selectedSpeaker.voiceName}
@@ -124,16 +140,14 @@
 
 			<!-- Language & Scenario Grid - More compact on mobile -->
 			<div class="space-y-2 sm:space-y-4">
-				<!-- Scenario Section - More compact on mobile -->
 				{#if selectedScenario}
 					<div
 						class="card rounded-2xl shadow-sm {selectedScenario.thumbnailUrl
 							? 'image-full bg-base-100'
 							: 'bg-base-100/50'}"
-						in:fade={{ duration: 400, delay: 250 }}
 					>
 						{#if selectedScenario.thumbnailUrl}
-							<figure class="opacity-40">
+							<figure>
 								<img
 									src={selectedScenario.thumbnailUrl}
 									alt={selectedScenario.title}
@@ -145,54 +159,29 @@
 							<div class="mb-2 flex items-start justify-between gap-2 sm:mb-3 sm:gap-3">
 								<div class="flex-1">
 									<p
-										class="text-[10px] font-medium uppercase tracking-wide sm:text-xs {selectedScenario.thumbnailUrl
+										class="text-[10px] font-medium tracking-wide uppercase sm:text-xs {selectedScenario.thumbnailUrl
 											? 'text-base-content'
 											: 'text-base-content/50'}"
 									>
 										Scenario
 									</p>
 									<h3
-										class="mt-0.5 text-base font-semibold leading-tight sm:mt-1 sm:text-lg {selectedScenario.thumbnailUrl
+										class="mt-0.5 text-base leading-tight font-semibold sm:mt-1 sm:text-lg {selectedScenario.thumbnailUrl
 											? 'text-base-content'
 											: 'text-base-content'}"
 									>
 										{selectedScenario.title}
 									</h3>
 								</div>
-								<div class="flex-shrink-0">
-									<span
-										class="badge badge-xs capitalize sm:badge-sm"
-										class:badge-primary={selectedScenario.role === 'tutor'}
-										class:badge-info={selectedScenario.role === 'character'}
-										class:badge-warning={selectedScenario.role === 'friendly_chat'}
-										class:badge-accent={selectedScenario.role === 'expert'}
-									>
-										{roleDisplayNames[selectedScenario.role] || selectedScenario.role}
-									</span>
-								</div>
 							</div>
 
-							<!-- Scenario Description - Hide on small mobile, show on sm+ -->
-							{#if selectedScenario.description}
-								<p
-									class="mb-2 hidden text-sm leading-relaxed sm:mb-3 sm:block {selectedScenario.thumbnailUrl
-										? 'text-base-content/90'
-										: 'text-base-content/70'}"
-								>
-									{selectedScenario.description}
-								</p>
-							{/if}
-
-							<!-- Scenario Goal (learningGoal) - Show on mobile if available -->
-							{#if selectedScenario.learningGoal}
-								<p
-									class="mb-2 text-xs leading-relaxed sm:hidden {selectedScenario.thumbnailUrl
-										? 'text-base-content/90'
-										: 'text-base-content/70'}"
-								>
-									Goal: {selectedScenario.learningGoal}
-								</p>
-							{/if}
+							<p
+								class="mb-2 text-xs leading-relaxed {selectedScenario.thumbnailUrl
+									? 'text-base-content/90'
+									: 'text-base-content/70'}"
+							>
+								Goal: {selectedScenario.learningGoal}
+							</p>
 
 							<!-- Difficulty Indicator - More compact on mobile -->
 							{#if scenarioMeta}
@@ -214,7 +203,8 @@
 												class:bg-warning={segment <=
 													(selectedScenario.difficultyRating || 0) / 3.33 &&
 													scenarioMeta.color === 'warning'}
-												class:bg-error={segment <= (selectedScenario.difficultyRating || 0) / 3.33 &&
+												class:bg-error={segment <=
+													(selectedScenario.difficultyRating || 0) / 3.33 &&
 													scenarioMeta.color === 'error'}
 												class:bg-base-300={segment >
 													(selectedScenario.difficultyRating || 0) / 3.33}
