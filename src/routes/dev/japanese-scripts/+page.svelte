@@ -450,7 +450,6 @@
 							<div class="rounded bg-base-200 p-4">
 								<h3 class="mb-2 font-semibold">Furigana HTML:</h3>
 								<!-- Safe: processedResult.furigana contains sanitized furigana ruby markup for testing -->
-								<!-- svelte-ignore svelte_no_at_html_tags -->
 								<div class="text-lg">{@html processedResult.furigana}</div>
 							</div>
 						{/if}
@@ -549,7 +548,6 @@
 												<div>
 													<div class="text-xs text-base-content/60">Furigana:</div>
 													<!-- Safe: message.otherScripts.furigana contains sanitized furigana ruby markup for testing -->
-													<!-- svelte-ignore svelte_no_at_html_tags -->
 													<div class="rounded bg-info/10 p-2 text-sm">
 														{@html message.otherScripts.furigana}
 													</div>
