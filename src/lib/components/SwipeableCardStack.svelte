@@ -150,13 +150,9 @@
 
 		// Only trigger swipe if horizontal movement is greater than vertical
 		if (horizontalSwipe > swipeThreshold && horizontalSwipe > verticalSwipe) {
-			if (dragCurrentX < 0) {
-				// Swiped left - next card
-				nextCard();
-			} else {
-				// Swiped right - previous card
-				previousCard();
-			}
+			// Both left and right swipes dismiss the card (move to next)
+			// This creates a "pass/no thanks" gesture for both directions
+			nextCard();
 		}
 
 		// Reset drag state
@@ -603,7 +599,7 @@
 
 			<!-- Swipe Hint (Mobile) -->
 			<div class="mt-4 text-center text-xs text-base-content/50 sm:hidden">
-				← Swipe to explore →
+				👈 Swipe left or right to pass 👉
 			</div>
 		</div>
 	</div>
