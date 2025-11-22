@@ -7,6 +7,7 @@
 ## 🎯 Strategy: Make It Feel Selective (Not Mass Email)
 
 ### Key Principles:
+
 1. **Segment your list** - Don't email everyone, email your best matches
 2. **Personalize the subject line** - Use their name or situation
 3. **Create artificial scarcity** - "Last 2 spots" + 24-hour deadline
@@ -20,17 +21,20 @@
 ### Don't email everyone on your platform. Email only:
 
 **Tier 1 (Email first - 5-10 people):**
+
 - Signed up in last 30 days
 - Have completed onboarding or used the app at least once
 - Match your ICP personas (Bilingual Spouse or Heritage Speaker)
 - Have NOT been invited to PAB yet
 
 **Tier 2 (If Tier 1 doesn't fill slots - another 5-10 people):**
+
 - Signed up more than 30 days ago but recently active
 - Engaged with your emails or product in last 2 weeks
 - Close ICP match even if not perfect
 
 **DO NOT email:**
+
 - People who already declined PAB
 - People who haven't verified email
 - People who signed up but never logged in
@@ -47,6 +51,7 @@
 **Best for**: When you have 5-10 strong candidates
 
 **Steps**:
+
 1. Query your database to get email list (see query below)
 2. Use your personal email (not automated from platform)
 3. Send individually with personalization
@@ -59,6 +64,7 @@
 **Best for**: When you have 15-20 candidates
 
 **Steps**:
+
 1. Create a simple admin page to send custom emails
 2. Use Resend (you already have it set up)
 3. Still personalize with merge tags
@@ -93,6 +99,7 @@ LIMIT 20;
 ```
 
 ### Export to CSV:
+
 ```bash
 # Connect to your database
 fly postgres connect -a kaiwa-db
@@ -102,6 +109,7 @@ fly postgres connect -a kaiwa-db
 ```
 
 ### Review manually:
+
 - Open CSV
 - Look at each person's activity
 - Pick your top 5-10 who seem like best ICP matches
@@ -210,16 +218,19 @@ P.S. Regardless of PAB, how's your experience with Kaiwa been so far? Always cur
 ### Send Schedule:
 
 **Today (T+0 hours):**
+
 - 9-10am: Send to Tier 1 candidates (5-10 people)
 - Subject: "Last 2 PAB spots - you came to mind"
 - Deadline: "Need to know by tomorrow 10am"
 
 **Today Evening (T+8 hours):**
+
 - 6-7pm: If no responses, send gentle nudge to non-responders
 - Subject: "Re: PAB spots"
 - Body: "Just bumping this - finalizing tomorrow morning. LMK if interested!"
 
 **Tomorrow Morning (T+24 hours):**
+
 - 10am: Deadline hits
 - If you got 2+ interested: Pick your top 2, send acceptance emails
 - If you got 0-1 interested: Send to Tier 2 candidates, extend deadline 24 hours
@@ -229,26 +240,31 @@ P.S. Regardless of PAB, how's your experience with Kaiwa been so far? Always cur
 ## 🎨 Why This Works Psychologically
 
 ### 1. **Feels Selective**
+
 - "You came to mind" = I specifically thought of you
 - Not "I'm emailing everyone on my list"
 - Specific detail about them = I remember you
 
 ### 2. **Creates Urgency**
+
 - 24-hour deadline = need to decide now
 - "Finalizing roster" = train is leaving
 - "2 spots left" = scarcity
 
 ### 3. **Low Friction**
+
 - Just reply "I'm in" = super easy
 - Not "fill out this form" or "schedule a call first"
 - Can ask questions before committing
 
 ### 4. **Value is Clear**
+
 - Free access (normally $19-29/mo)
 - Influence on product
 - Community
 
 ### 5. **No Pressure Exit**
+
 - "Totally understand if not" = not pushy
 - "Keep you in the loop" = relationship maintained
 - P.S. asks about their experience = genuine interest
@@ -302,22 +318,26 @@ In the meantime, if anything changes or you have feedback on Kaiwa, just reply -
 ## 🚀 Quick Start Checklist
 
 ### Tonight (30 min):
+
 - [ ] Query database for candidate emails (use query above)
 - [ ] Export to CSV
 - [ ] Review list, pick top 5-10 Tier 1 candidates
 - [ ] Note any personalization details for each
 
 ### Tomorrow Morning (60 min):
+
 - [ ] Customize email template for each person (5 min each)
 - [ ] Send emails individually from your personal email
 - [ ] Set reminder for evening follow-up
 - [ ] Set deadline for 24 hours from now
 
 ### Tomorrow Evening (15 min):
+
 - [ ] Check responses
 - [ ] Send gentle nudge to non-responders if needed
 
 ### Day 3 Morning (30 min):
+
 - [ ] Close at deadline
 - [ ] Accept top 2 respondents
 - [ ] Send welcome emails with 3 tasks
@@ -328,25 +348,30 @@ In the meantime, if anything changes or you have feedback on Kaiwa, just reply -
 ## 💡 Pro Tips
 
 ### 1. **Send from your personal email, not automated**
+
 - Use your @gmail.com or whatever you normally use
 - Feel like a personal note, not marketing automation
 - Include your signature
 
 ### 2. **Personalize every single email**
+
 - Mention specific detail about them
 - Reference their language or goal
 - Show you remember them
 
 ### 3. **Use your personal voice**
+
 - Write like you're texting a friend
 - No marketing jargon
 - Be human
 
 ### 4. **Track in a simple spreadsheet**
+
 - Name | Email | Sent Date | Response | Status
 - Mark as "Interested" / "Declined" / "No Response"
 
 ### 5. **Don't oversell**
+
 - They already signed up for your product
 - You're offering an exclusive opportunity
 - Let the value speak for itself
@@ -358,15 +383,18 @@ In the meantime, if anything changes or you have feedback on Kaiwa, just reply -
 ### Realistic Conversion Rates:
 
 **Tier 1 candidates (5-10 emails):**
+
 - 40-60% open rate (they already know you)
 - 20-40% response rate (engaged users)
 - 10-30% acceptance rate (1-3 people say yes)
 
 **Translation:**
+
 - Email 5-10 people → 2-4 respond → 1-2 accept
 - **You need to email ~10 people to fill 2 spots**
 
 ### If you're not hitting these numbers:
+
 - Your list isn't targeted enough (too many cold signups)
 - Not enough personalization
 - Value isn't clear
@@ -379,16 +407,19 @@ In the meantime, if anything changes or you have feedback on Kaiwa, just reply -
 ### "What if NO ONE responds in 24 hours?"
 
 **Option 1: Extend deadline**
+
 - Send to Tier 2 candidates
 - Give another 24 hours
 - Mention "Extended deadline due to scheduling"
 
 **Option 2: Lower the barrier**
+
 - Change from "monthly meetings" to "quarterly"
 - Offer "Pilot Program" instead of "Core PAB"
 - Make time commitment lighter
 
 **Option 3: Reassess**
+
 - Maybe you don't need 12 people
 - 10 engaged members > 12 lukewarm members
 - Quality over quantity
@@ -398,14 +429,17 @@ In the meantime, if anything changes or you have feedback on Kaiwa, just reply -
 **Good problem to have!**
 
 **Option 1: Accept the best 2**
+
 - Based on ICP alignment, urgency, diversity
 - Offer others "USJC Pilot" or "Next Cohort"
 
 **Option 2: Expand to 13-14 people**
+
 - If they're all strong candidates, take them
 - Better to have backups in case of dropouts
 
 **Option 3: Create waitlist**
+
 - "All spots filled, but I'll add you to priority list for next cohort"
 
 ---
@@ -415,6 +449,7 @@ In the meantime, if anything changes or you have feedback on Kaiwa, just reply -
 ### Your action plan for tonight:
 
 1. **Run this query** to get candidates:
+
 ```sql
 SELECT email, display_name, created_at
 FROM users
@@ -427,6 +462,7 @@ LIMIT 20;
 2. **Pick top 5-10** who match ICP best
 
 3. **Customize this email** for each:
+
 ```
 Subject: [Name], I have 2 PAB spots left - interested?
 

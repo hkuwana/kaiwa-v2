@@ -1,6 +1,11 @@
+<!-- @migration-task Error while migrating Svelte code: Cannot use `export let` in runes mode — use `$props()` instead
+https://svelte.dev/e/legacy_export_invalid -->
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { scenarios } from '$lib/prompts/scenarios';
+
+	const data = $props();
+
+	const scenarios = data.scenarioPrompts;
 
 	onMount(() => {
 		document.title = 'Scenario Prompts - Kaiwa Dev';
@@ -18,7 +23,8 @@
 	let selectedModel = $state<'dall-e-3' | 'gpt-image-1'>('dall-e-3');
 
 	// Individual scenario testing
-	let selectedTestScenario = $state<string | null>(null);
+	let selectedTestScenario = $state<string>(scenarios[0]?.id ?? '');
+	let lastCopiedScenarioId = $state<string | null>(null);
 
 	// Generate image for a specific scenario
 	async function generateScenarioImage(
@@ -84,7 +90,18 @@
 		generationResult = null;
 	}
 
-	function getScenarioPrompt(scenarioId: string | null): string {
+	// Copy prompt helper
+	async function copyPrompt(prompt: string, scenarioId: string) {
+		try {
+			await navigator.clipboard.writeText(prompt);
+			lastCopiedScenarioId = scenarioId;
+			setTimeout(() => (lastCopiedScenarioId = null), 1500);
+		} catch (error) {
+			console.error('Copy failed', error);
+		}
+	}
+
+	function getScenarioPrompt(scenarioId: string): string {
 		if (!scenarioId) return 'Select a scenario to see the prompt.';
 		const scenario = scenarios.find((s) => s.id === scenarioId);
 		return scenario ? scenario.prompt : 'Scenario not found.';
@@ -98,9 +115,10 @@
 <div class="min-h-screen bg-base-100 p-8">
 	<div class="container mx-auto max-w-4xl">
 		<div class="mb-8">
-			<h1 class="mb-4 text-4xl font-bold">Kaiwa Scenario Generation System</h1>
+			<h1 class="mb-4 text-4xl font-bold">Ghibli Background Prompts</h1>
 			<p class="mb-2 text-lg opacity-75">
-				Generate scenario thumbnails using a structured prompt template.
+				Browse every active scenario, grab the Ghibli-inspired background prompt, and optionally
+				test a live generation (no forced aspect ratio).
 			</p>
 		</div>
 
@@ -158,7 +176,7 @@
 							<span class="label-text font-semibold">Select Scenario</span>
 						</label>
 						<select class="select-bordered select" bind:value={selectedTestScenario}>
-							<option value={null}>Choose a scenario...</option>
+							<option value="">Choose a scenario...</option>
 							{#each scenarios as scenario (scenario.id)}
 								<option value={scenario.id}>
 									{scenario.title}
@@ -244,14 +262,36 @@
 
 		<!-- Scenario Prompts -->
 		<section class="mb-12">
-			<h2 class="mb-6 text-3xl font-bold text-accent">Scenario Backgrounds</h2>
+			<h2 class="mb-2 text-3xl font-bold text-accent">Scenario Backgrounds</h2>
+			<p class="mb-6 text-sm opacity-75">
+				{scenarios.length} active scenarios loaded. Copy the Ghibli prompt and paste into your image
+				tool, or test a generation above.
+			</p>
 			<div class="grid gap-6 md:grid-cols-2">
 				{#each scenarios as item (item.title)}
 					<div class="card border border-accent/20 bg-base-200 shadow-xl">
-						<div class="card-body">
-							<h3 class="card-title text-lg">{item.title}</h3>
-							<p class="text-sm opacity-75">{item.description}</p>
-							<div class="mt-4">
+						<div class="card-body space-y-3">
+							<div class="flex items-start justify-between gap-3">
+								<div>
+									<h3 class="card-title text-lg">{item.title}</h3>
+									<p class="text-sm opacity-75">{item.description}</p>
+									<div class="mt-2 flex flex-wrap gap-2 text-xs opacity-70">
+										<span class="badge badge-outline">{item.role}</span>
+										<span class="badge badge-outline">{item.difficulty}</span>
+										{#if item.tags?.length}
+											<span class="badge badge-outline">{item.tags.slice(0, 3).join(', ')}</span>
+										{/if}
+									</div>
+								</div>
+								<button
+									class="btn btn-outline btn-xs"
+									aria-label="Copy prompt"
+									onclick={() => copyPrompt(item.prompt, item.id)}
+								>
+									{lastCopiedScenarioId === item.id ? 'Copied!' : 'Copy'}
+								</button>
+							</div>
+							<div class="mt-1">
 								<textarea
 									class="textarea-bordered textarea h-48 w-full text-sm"
 									readonly

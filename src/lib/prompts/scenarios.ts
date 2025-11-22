@@ -69,7 +69,7 @@ STEP 4 - REFINE THE DETAILS:
 - Emotional Resonance: The final image should make the viewer feel ${scenario.emotionResonance}.
 
 TECHNICAL REQUIREMENTS:
-- Aspect Ratio: 16:9, landscape orientation.
+- Composition: Favor a horizontal frame that could fill a phone screen without extreme panorama; let the model choose the exact ratio.
 - Artistic Style: Must be ${scenario.style}, NOT photorealistic.
 - Human Presence: No people in the shot, or only subtle hints of human presence. The focus is on the environment.
 - Purpose: The image should serve as an inviting background that sets the stage for a conversation.`;
