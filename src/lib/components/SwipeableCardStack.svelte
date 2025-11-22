@@ -264,7 +264,7 @@
 	<!-- Language Selection Section -->
 	<div class="mx-auto w-full max-w-md space-y-4">
 		<div class="text-center">
-			<h2 class="text-2xl font-bold text-base-content sm:text-3xl">Choose Your Language</h2>
+			<h2 class="text-xl font-bold text-base-content sm:text-3xl">Choose Your Language</h2>
 			<p class="mt-2 text-sm text-base-content/70">
 				Select the language and speaker you want to practice with
 			</p>
@@ -418,7 +418,6 @@
 	<!-- Swipeable Card Stack Section -->
 	<div class="space-y-4">
 		<div class="text-center">
-			<h3 class="text-xl font-semibold text-base-content sm:text-2xl">Featured Scenarios</h3>
 			<div class="mt-2 flex items-center justify-center gap-3 text-sm text-base-content/60">
 				<span class="flex items-center gap-1">
 					<span class="icon-[mdi--gesture-swipe-horizontal] h-5 w-5"></span>
@@ -438,20 +437,21 @@
 			{#if showSwipeHint}
 				<!-- Left Arrow -->
 				<div
-					class="swipe-hint-left absolute left-0 top-1/2 z-50 -translate-y-1/2 pointer-events-none"
+					class="swipe-hint-left pointer-events-none absolute top-1/2 left-0 z-50 -translate-y-1/2"
 				>
 					<div class="flex flex-col items-center gap-1 opacity-60">
-						<span class="icon-[mdi--chevron-left] h-10 w-10 text-primary animate-swipe-left"></span>
+						<span class="animate-swipe-left icon-[mdi--chevron-left] h-10 w-10 text-primary"></span>
 						<span class="text-xs font-medium text-primary">Swipe</span>
 					</div>
 				</div>
 
 				<!-- Right Arrow -->
 				<div
-					class="swipe-hint-right absolute right-0 top-1/2 z-50 -translate-y-1/2 pointer-events-none"
+					class="swipe-hint-right pointer-events-none absolute top-1/2 right-0 z-50 -translate-y-1/2"
 				>
 					<div class="flex flex-col items-center gap-1 opacity-60">
-						<span class="icon-[mdi--chevron-right] h-10 w-10 text-primary animate-swipe-right"></span>
+						<span class="animate-swipe-right icon-[mdi--chevron-right] h-10 w-10 text-primary"
+						></span>
 						<span class="text-xs font-medium text-primary">Swipe</span>
 					</div>
 				</div>
