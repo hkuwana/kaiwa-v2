@@ -20,10 +20,10 @@
 
 	// Get featured scenarios + add a "Browse All" placeholder at the end
 	const featuredScenarios = scenariosData.slice(0, featuredScenariosCount);
-
 	// Card stack state
 	let currentCardIndex = $state(0);
 	let showAdvancedOptions = $state(false);
+	const browseCardTransform = getCardTransform(featuredScenarios.length);
 
 	// Swipe gesture state
 	let isDragging = $state(false);
@@ -45,10 +45,10 @@
 
 	// Language selection handler
 	function selectLanguage(language: Language) {
-		settingsStore.setLanguage(language);
+		settingsStore.setLanguage(language.code);
 		const speakersForLanguage = getSpeakersByLanguage(language.code);
 		if (speakersForLanguage?.[0]) {
-			settingsStore.setSpeaker(speakersForLanguage[0]);
+			settingsStore.setSpeaker(speakersForLanguage[0].id);
 		}
 	}
 
@@ -123,7 +123,9 @@
 	function handleStartConversation(scenario: Scenario) {
 		console.log('Starting conversation with scenario:', scenario.title);
 		// TODO: Navigate to conversation or trigger start
-		alert(`Starting conversation: ${scenario.title}\n\nThis will be implemented to start the actual conversation!`);
+		alert(
+			`Starting conversation: ${scenario.title}\n\nThis will be implemented to start the actual conversation!`
+		);
 	}
 
 	function goToScenario(index: number) {
@@ -218,16 +220,16 @@
 
 		<!-- Language Tabs - Scrollable on mobile, wrapped on desktop -->
 		<div
-			class="flex justify-center overflow-x-auto px-4 pb-2 scrollbar-hide sm:px-0"
+			class="scrollbar-hide flex justify-center overflow-x-auto px-4 pb-2 sm:px-0"
 			role="tablist"
 			aria-label="Language selection"
 		>
-			<div class="tabs tabs-boxed gap-2 bg-base-200/50 p-2 backdrop-blur-sm">
+			<div class="tabs-boxed tabs gap-2 bg-base-200/50 p-2 backdrop-blur-sm">
 				{#each languages as language (language.code)}
 					<button
 						role="tab"
 						aria-selected={settingsStore.selectedLanguage?.code === language.code}
-						class="tab tab-lg whitespace-nowrap transition-all duration-200 hover:scale-105"
+						class="tab-lg tab whitespace-nowrap transition-all duration-200 hover:scale-105"
 						class:tab-active={settingsStore.selectedLanguage?.code === language.code}
 						onclick={() => selectLanguage(language)}
 					>
@@ -252,7 +254,7 @@
 
 	<!-- Advanced Options Section -->
 	<div class="mx-auto max-w-2xl">
-		<div class="collapse collapse-arrow bg-base-200/30 backdrop-blur-sm">
+		<div class="collapse-arrow collapse bg-base-200/30 backdrop-blur-sm">
 			<input type="checkbox" bind:checked={showAdvancedOptions} />
 			<div class="collapse-title text-sm font-medium text-base-content/70">
 				<div class="flex items-center gap-2">
@@ -308,9 +310,7 @@
 	<div class="space-y-4">
 		<div class="text-center">
 			<h3 class="text-xl font-semibold text-base-content sm:text-2xl">Featured Scenarios</h3>
-			<p class="mt-2 text-sm text-base-content/60">
-				Swipe to explore • Tap to start
-			</p>
+			<p class="mt-2 text-sm text-base-content/60">Swipe to explore • Tap to start</p>
 		</div>
 
 		<!-- Card Stack Container -->
@@ -330,7 +330,7 @@
 				{#each featuredScenarios as scenario, index (scenario.id)}
 					{@const cardTransform = getCardTransform(index)}
 					<div
-						class="card-stack-item absolute top-0 w-full cursor-grab touch-none select-none transition-all duration-300 ease-out"
+						class="card-stack-item absolute top-0 w-full cursor-grab touch-none transition-all duration-300 ease-out select-none"
 						class:cursor-grabbing={isDragging && index === currentCardIndex}
 						style="
 							left: {cardTransform.left};
@@ -353,21 +353,20 @@
 				{/each}
 
 				<!-- Browse All Scenarios Card (Final Card) -->
-				{#if true}
-					{@const browseCardTransform = getCardTransform(featuredScenarios.length)}
-					<div
-						class="card-stack-item absolute top-0 w-full cursor-grab touch-none select-none transition-all duration-300 ease-out"
-						class:cursor-grabbing={isDragging && isOnBrowseAllCard}
-						style="
+
+				<div
+					class="card-stack-item absolute top-0 w-full cursor-grab touch-none transition-all duration-300 ease-out select-none"
+					class:cursor-grabbing={isDragging && isOnBrowseAllCard}
+					style="
 							left: {browseCardTransform.left};
 							transform: translateX(-50%) {browseCardTransform.transform};
 							opacity: {getCardOpacity(featuredScenarios.length)};
 							z-index: {getCardZIndex(featuredScenarios.length)};
 							pointer-events: {getCardPointerEvents(featuredScenarios.length)};
 						"
-						onmousedown={isOnBrowseAllCard ? handleDragStart : undefined}
-						ontouchstart={isOnBrowseAllCard ? handleDragStart : undefined}
-					>
+					onmousedown={isOnBrowseAllCard ? handleDragStart : undefined}
+					ontouchstart={isOnBrowseAllCard ? handleDragStart : undefined}
+				>
 					<div
 						class="w-full max-w-md"
 						in:fade={{ duration: 300, easing: cubicOut }}
@@ -409,7 +408,7 @@
 								</div>
 
 								<!-- CTA -->
-								<div class="btn btn-primary btn-lg shadow-lg">
+								<div class="btn shadow-lg btn-lg btn-primary">
 									View All
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
@@ -429,82 +428,82 @@
 							</div>
 						</a>
 					</div>
-				{/if}
-			</div>
+				</div>
 
-			<!-- Navigation Controls (Desktop) -->
-			<div class="mt-8 hidden justify-center gap-4 sm:flex">
-				<button
-					class="btn btn-circle btn-ghost btn-lg"
-					onclick={previousCard}
-					aria-label="Previous scenario"
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="h-6 w-6"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M15 19l-7-7 7-7"
-						/>
-					</svg>
-				</button>
-				<button
-					class="btn btn-circle btn-ghost btn-lg"
-					onclick={nextCard}
-					aria-label="Next scenario"
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="h-6 w-6"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M9 5l7 7-7 7"
-						/>
-					</svg>
-				</button>
-			</div>
-
-			<!-- Progress Indicators -->
-			<div class="mt-6 flex justify-center gap-2">
-				{#each Array(totalCards) as _, index}
+				<!-- Navigation Controls (Desktop) -->
+				<div class="mt-8 hidden justify-center gap-4 sm:flex">
 					<button
-						class="h-2 rounded-full transition-all duration-300"
-						class:w-8={currentCardIndex === index}
-						class:w-2={currentCardIndex !== index}
-						class:bg-primary={currentCardIndex === index}
-						class:bg-base-300={currentCardIndex !== index}
-						onclick={() => goToScenario(index)}
-						aria-label={index === totalCards - 1
-							? 'Go to Browse All Scenarios'
-							: `Go to scenario ${index + 1}`}
-					></button>
-				{/each}
-			</div>
+						class="btn btn-circle btn-ghost btn-lg"
+						onclick={previousCard}
+						aria-label="Previous scenario"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							class="h-6 w-6"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M15 19l-7-7 7-7"
+							/>
+						</svg>
+					</button>
+					<button
+						class="btn btn-circle btn-ghost btn-lg"
+						onclick={nextCard}
+						aria-label="Next scenario"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							class="h-6 w-6"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M9 5l7 7-7 7"
+							/>
+						</svg>
+					</button>
+				</div>
 
-			<!-- Card Counter -->
-			<div class="mt-4 text-center text-sm text-base-content/60">
-				{#if isOnBrowseAllCard}
-					<span class="font-medium">Browse All</span>
-				{:else}
-					<span class="font-medium">{currentCardIndex + 1}</span> of {featuredScenarios.length}
-				{/if}
-			</div>
+				<!-- Progress Indicators -->
+				<div class="mt-6 flex justify-center gap-2">
+					{#each Array(totalCards) as _, index}
+						<button
+							class="h-2 rounded-full transition-all duration-300"
+							class:w-8={currentCardIndex === index}
+							class:w-2={currentCardIndex !== index}
+							class:bg-primary={currentCardIndex === index}
+							class:bg-base-300={currentCardIndex !== index}
+							onclick={() => goToScenario(index)}
+							aria-label={index === totalCards - 1
+								? 'Go to Browse All Scenarios'
+								: `Go to scenario ${index + 1}`}
+						></button>
+					{/each}
+				</div>
 
-			<!-- Swipe Hint (Mobile) -->
-			<div class="mt-4 text-center text-xs text-base-content/50 sm:hidden">
-				← Swipe to explore →
+				<!-- Card Counter -->
+				<div class="mt-4 text-center text-sm text-base-content/60">
+					{#if isOnBrowseAllCard}
+						<span class="font-medium">Browse All</span>
+					{:else}
+						<span class="font-medium">{currentCardIndex + 1}</span> of {featuredScenarios.length}
+					{/if}
+				</div>
+
+				<!-- Swipe Hint (Mobile) -->
+				<div class="mt-4 text-center text-xs text-base-content/50 sm:hidden">
+					← Swipe to explore →
+				</div>
 			</div>
 		</div>
 	</div>
