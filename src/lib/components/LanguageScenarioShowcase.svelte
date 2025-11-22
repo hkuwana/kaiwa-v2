@@ -229,6 +229,8 @@
 </div>
 
 <style>
+	@reference "tailwindcss";
+
 	/* Hide scrollbar but keep functionality */
 	.scrollbar-hide {
 		-ms-overflow-style: none;
