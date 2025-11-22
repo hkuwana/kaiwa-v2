@@ -353,7 +353,7 @@
 				{/each}
 
 				<!-- Browse All Scenarios Card (Final Card) -->
-				<svelte:fragment>
+				{#if true}
 					{@const browseCardTransform = getCardTransform(featuredScenarios.length)}
 					<div
 						class="card-stack-item absolute top-0 w-full cursor-grab touch-none select-none transition-all duration-300 ease-out"
@@ -429,7 +429,7 @@
 							</div>
 						</a>
 					</div>
-				</svelte:fragment>
+				{/if}
 			</div>
 
 			<!-- Navigation Controls (Desktop) -->
