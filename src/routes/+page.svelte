@@ -2,7 +2,7 @@
 	import { browser } from '$app/environment';
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
-	import UnifiedStartButton from '$lib/components/UnifiedStartButton.svelte';
+	import SwipeableCardStack from '$lib/components/SwipeableCardStack.svelte';
 	import DynamicLanguageText from '$lib/components/DynamicLanguageText.svelte';
 	import MonthlyUsageDisplay from '$lib/components/MonthlyUsageDisplay.svelte';
 	import {
@@ -16,7 +16,6 @@
 	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
 	import { trackABTest } from '$lib/analytics/posthog';
 	import type { Language as DataLanguage } from '$lib/data/languages';
-	import type { Scenario, AudioInputMode } from '$lib/server/db/types';
 	import StageIndicator from '$lib/components/StageIndicator.svelte';
 	import { defaultTierConfigs } from '$lib/data/tiers';
 	import type { UserTier } from '$lib/data/tiers';
@@ -25,11 +24,8 @@
 
 	const user = userManager.user;
 
-	// State management for language, speaker, and scenario selection
+	// State for dynamic headline with language selection
 	let selectedLanguage = $state<DataLanguage | null>(settingsStore.selectedLanguage);
-	let selectedSpeaker = $state<string | null>(settingsStore.selectedSpeaker);
-	let selectedScenario = $state<Scenario | null>(scenarioStore.getSelectedScenario());
-	let selectedAudioMode = $state<AudioInputMode>('ptt'); // Audio input mode preference - default to Push-to-Talk
 
 	// Handle scenario query parameter from URL (e.g., from email links)
 	onMount(async () => {
@@ -89,32 +85,7 @@
 		trackABTest.headlineVariantShown(selectedVariant, trackingTexts[selectedVariant]);
 	}
 
-	// Function to track when user clicks start speaking
-	function trackStartSpeakingClick() {
-		// Get current values to avoid state reference issues
-		const currentVariant = headlineVariant;
-		const currentText = headlineText;
-		const userType = user ? 'logged_in' : 'guest';
-
-		trackABTest.startSpeakingClicked(currentVariant, currentText, userType);
-	}
-
-	// Event handlers for component callbacks
-	function handleLanguageChange(language: DataLanguage) {
-		selectedLanguage = language;
-		settingsStore.setLanguageObject(language);
-	}
-
-	function handleSpeakerChange(speakerId: string) {
-		selectedSpeaker = speakerId;
-		settingsStore.setSpeaker(speakerId);
-	}
-
-	function handleScenarioChange(scenario: Scenario) {
-		scenarioStore.setScenarioById(scenario.id);
-		selectedScenario = scenario;
-	}
-
+	// Event handler for dynamic headline language selection
 	function handleDynamicLanguageSelect(language: DataLanguage) {
 		selectedLanguage = language;
 		settingsStore.setLanguageObject(language);
@@ -164,102 +135,93 @@
 	/>
 </svelte:head>
 
-<div
-	class="min-h-[100dvh] bg-gradient-to-br from-base-100 to-base-200 px-2 text-base-content sm:px-4"
->
-	<header class="box-border flex min-h-[100dvh] items-start justify-center pt-2 sm:pt-8 sm:pt-20">
-		<div class="text-center">
-			<!-- Stage Indicator -->
-			<div class="mb-3 hidden sm:mb-8 sm:flex">
-				<StageIndicator />
-			</div>
-
-			<div class="max-w-md">
-				{#if user.id !== 'guest'}
-					<div class="mb-3 text-lg opacity-90 sm:mb-4 sm:text-xl">
-						Welcome back, {user ? user.displayName : 'Dev'}!
-					</div>
-				{:else}
-					<h4 class="mb-2 text-xl font-semibold opacity-90 sm:mb-4 sm:text-3xl">
-						{#if useDynamicLanguage}
-							<DynamicLanguageText
-								bind:selectedLanguage
-								onLanguageSelect={handleDynamicLanguageSelect}
-								variant={dynamicVariant}
-								animationInterval={2800}
-								interactive={false}
-							/>
-						{:else}
-							{headlineText}
-						{/if}
-					</h4>
-				{/if}
-
-				<UnifiedStartButton
-					{user}
-					{selectedLanguage}
-					{selectedSpeaker}
-					{selectedScenario}
-					{selectedAudioMode}
-					onLanguageChange={handleLanguageChange}
-					onSpeakerChange={handleSpeakerChange}
-					onScenarioChange={handleScenarioChange}
-					onStartClick={trackStartSpeakingClick}
-					onModeChange={(mode) => (selectedAudioMode = mode)}
-				/>
-				<!-- Monthly Usage Display - Only show for logged in users -->
-				{#if user.id !== 'guest'}
-					<div class="mb-6 pt-10">
-						{#if usageStore.tier && usageStore.usage}
-							<MonthlyUsageDisplay
-								remainingSeconds={usageStore.secondsRemaining()}
-								monthlySeconds={usageStore.tier.monthlySeconds}
-								usedSeconds={usageStore.usage.secondsUsed || 0}
-								bankedSeconds={usageStore.usage.bankedSeconds || 0}
-								tierName={usageStore.tier.name}
-								showUpgradeOption={userManager.effectiveTier === 'free'}
-								isLoading={usageStore.loading}
-								conversationsUsed={usageStore.usage.conversationsUsed || 0}
-								realtimeSessionsUsed={usageStore.usage.realtimeSessionsUsed || 0}
-								analysesUsed={usageStore.usage.analysesUsed || 0}
-								overageSeconds={usageStore.usage.overageSeconds || 0}
-							/>
-						{:else}
-							<MonthlyUsageDisplay
-								remainingSeconds={0}
-								monthlySeconds={0}
-								usedSeconds={0}
-								tierName="Free"
-								showUpgradeOption={true}
-								isLoading={usageStore.loading}
-							/>
-						{/if}
-					</div>
-				{/if}
-				<!-- Debug/Development Tools -->
-				{#if browser && user.id === 'dev'}
-					<div class="mt-8 rounded-lg bg-base-200 p-4">
-						<h3 class="mb-3 text-sm font-semibold text-base-content/70">
-							🧹 Clear Conversation Data
-						</h3>
-						<div class="flex flex-wrap gap-2">
-							<button onclick={handleShowDataSummary} class="btn btn-outline btn-sm">
-								📊 Show Data Summary
-							</button>
-							<button onclick={handleClearConversationData} class="btn btn-sm btn-warning">
-								🧹 Clear Conversation Data
-							</button>
-							<button onclick={handleClearAllData} class="btn btn-sm btn-error">
-								🗑️ Clear ALL Data
-							</button>
-						</div>
-						<p class="mt-2 text-xs text-base-content/60">
-							Use these tools to clear stored conversation data if you're experiencing issues with
-							previous sessions.
-						</p>
-					</div>
-				{/if}
-			</div>
+<div class="min-h-[100dvh] bg-gradient-to-br from-base-100 to-base-200 px-2 pb-12 text-base-content sm:px-4">
+	<div class="mx-auto max-w-7xl">
+		<!-- Stage Indicator -->
+		<div class="mb-3 pt-2 sm:mb-8 sm:flex sm:justify-center sm:pt-8">
+			<StageIndicator />
 		</div>
-	</header>
+
+		<!-- Welcome Header -->
+		<div class="mb-6 text-center sm:mb-8">
+			{#if user.id !== 'guest'}
+				<div class="mb-3 text-lg opacity-90 sm:mb-4 sm:text-xl">
+					Welcome back, {user ? user.displayName : 'Dev'}!
+				</div>
+			{:else}
+				<h4 class="mb-2 text-xl font-semibold opacity-90 sm:mb-4 sm:text-3xl">
+					{#if useDynamicLanguage}
+						<DynamicLanguageText
+							bind:selectedLanguage
+							onLanguageSelect={handleDynamicLanguageSelect}
+							variant={dynamicVariant}
+							animationInterval={2800}
+							interactive={false}
+						/>
+					{:else}
+						{headlineText}
+					{/if}
+				</h4>
+			{/if}
+		</div>
+
+		<!-- Swipeable Card Stack -->
+		<div class="mb-8">
+			<SwipeableCardStack />
+		</div>
+
+		<!-- Monthly Usage Display - Only show for logged in users -->
+		{#if user.id !== 'guest'}
+			<div class="mb-6 mx-auto max-w-2xl">
+				{#if usageStore.tier && usageStore.usage}
+					<MonthlyUsageDisplay
+						remainingSeconds={usageStore.secondsRemaining()}
+						monthlySeconds={usageStore.tier.monthlySeconds}
+						usedSeconds={usageStore.usage.secondsUsed || 0}
+						bankedSeconds={usageStore.usage.bankedSeconds || 0}
+						tierName={usageStore.tier.name}
+						showUpgradeOption={userManager.effectiveTier === 'free'}
+						isLoading={usageStore.loading}
+						conversationsUsed={usageStore.usage.conversationsUsed || 0}
+						realtimeSessionsUsed={usageStore.usage.realtimeSessionsUsed || 0}
+						analysesUsed={usageStore.usage.analysesUsed || 0}
+						overageSeconds={usageStore.usage.overageSeconds || 0}
+					/>
+				{:else}
+					<MonthlyUsageDisplay
+						remainingSeconds={0}
+						monthlySeconds={0}
+						usedSeconds={0}
+						tierName="Free"
+						showUpgradeOption={true}
+						isLoading={usageStore.loading}
+					/>
+				{/if}
+			</div>
+		{/if}
+
+		<!-- Debug/Development Tools -->
+		{#if browser && user.id === 'dev'}
+			<div class="mx-auto max-w-2xl mt-8 rounded-lg bg-base-200 p-4">
+				<h3 class="mb-3 text-sm font-semibold text-base-content/70">
+					🧹 Clear Conversation Data
+				</h3>
+				<div class="flex flex-wrap gap-2">
+					<button onclick={handleShowDataSummary} class="btn btn-outline btn-sm">
+						📊 Show Data Summary
+					</button>
+					<button onclick={handleClearConversationData} class="btn btn-sm btn-warning">
+						🧹 Clear Conversation Data
+					</button>
+					<button onclick={handleClearAllData} class="btn btn-sm btn-error">
+						🗑️ Clear ALL Data
+					</button>
+				</div>
+				<p class="mt-2 text-xs text-base-content/60">
+					Use these tools to clear stored conversation data if you're experiencing issues with
+					previous sessions.
+				</p>
+			</div>
+		{/if}
+	</div>
 </div>
