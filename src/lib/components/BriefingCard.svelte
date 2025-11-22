@@ -59,6 +59,9 @@
 		expert: 'Your Expert'
 	};
 
+	// Image error handling
+	let scenarioImageError = $state(false);
+
 	// Language display variants for rotation animation
 	const languageVariants = $derived.by(() => {
 		if (!selectedLanguage) return [];
@@ -68,6 +71,13 @@
 			{ text: selectedLanguage.name, color: 'bg-accent text-accent-content' }
 		];
 	});
+
+	// Default fallback image for scenarios
+	const defaultScenarioImage = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"%3E%3Crect fill="%2394a3b8" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%23fff"%3EScenario%3C/text%3E%3C/svg%3E';
+
+	function handleImageError() {
+		scenarioImageError = true;
+	}
 </script>
 
 {#if hasSelections}
@@ -148,14 +158,23 @@
 			<div class="space-y-2 sm:space-y-4">
 				{#if selectedScenario}
 					<div
-						class="card rounded-2xl shadow-sm {selectedScenario.thumbnailUrl
+						class="card rounded-2xl shadow-sm {selectedScenario.thumbnailUrl && !scenarioImageError
 							? 'image-full bg-base-100'
 							: 'bg-base-100/50'}"
 					>
-						{#if selectedScenario.thumbnailUrl}
+						{#if selectedScenario.thumbnailUrl && !scenarioImageError}
 							<figure>
 								<img
 									src={selectedScenario.thumbnailUrl}
+									alt={selectedScenario.title}
+									class="h-full w-full object-cover"
+									onerror={handleImageError}
+								/>
+							</figure>
+						{:else if selectedScenario.thumbnailUrl && scenarioImageError}
+							<figure>
+								<img
+									src={defaultScenarioImage}
 									alt={selectedScenario.title}
 									class="h-full w-full object-cover"
 								/>
