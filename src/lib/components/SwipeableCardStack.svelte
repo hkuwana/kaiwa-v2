@@ -271,7 +271,7 @@
 		<div class="advanced-options-container text-center">
 			<!-- Toggle Button -->
 			<button
-				class="btn btn-ghost btn-sm gap-2"
+				class="btn gap-2 btn-ghost btn-sm"
 				onclick={() => (showAdvancedOptions = !showAdvancedOptions)}
 				aria-expanded={showAdvancedOptions}
 				aria-controls="advanced-options-panel"
@@ -358,7 +358,7 @@
 					<SpeechSpeedSelector />
 
 					<!-- Info Banner -->
-					<div class="alert mt-4 py-2 text-xs">
+					<div class="mt-4 alert py-2 text-xs">
 						<span class="icon-[mdi--information-outline] h-4 w-4 shrink-0 stroke-info"></span>
 						<span>You can change this setting anytime in your profile settings.</span>
 					</div>
@@ -369,7 +369,7 @@
 
 	<!-- Headphone Warning Modal -->
 	{#if showHeadphoneWarning}
-		<dialog class="modal modal-open">
+		<dialog class="modal-open modal">
 			<div class="modal-box">
 				<h3 class="flex items-center gap-2 text-lg font-bold">
 					<span class="icon-[mdi--alert-circle-outline] h-6 w-6 text-warning"></span>
@@ -383,8 +383,8 @@
 					<div class="alert alert-warning py-2">
 						<span class="icon-[mdi--headphones] h-5 w-5 shrink-0"></span>
 						<span class="text-xs"
-							>Without headphones, the assistant's voice may be picked up by your microphone, creating
-							an echo effect and poor audio quality.</span
+							>Without headphones, the assistant's voice may be picked up by your microphone,
+							creating an echo effect and poor audio quality.</span
 						>
 					</div>
 					<p class="text-sm">Do you have headphones or earbuds connected?</p>
@@ -406,7 +406,6 @@
 	<!-- Swipeable Card Stack Section -->
 	<div class="space-y-4">
 		<div class="text-center">
-			<h3 class="text-xl font-semibold text-base-content sm:text-2xl">Featured Scenarios</h3>
 			<p class="mt-2 text-sm text-base-content/60">Swipe to explore • Tap to start</p>
 		</div>
 
