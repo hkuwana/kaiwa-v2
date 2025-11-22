@@ -87,7 +87,7 @@
 		<!-- CTA Section -->
 		{#if settingsStore.selectedLanguage}
 			<div class="mt-12 text-center">
-				<button class="btn btn-primary btn-lg shadow-lg">
+				<button class="btn shadow-lg btn-lg btn-primary">
 					Start Learning {settingsStore.selectedLanguage.name}
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -110,7 +110,7 @@
 			</div>
 		{:else}
 			<div class="mt-12 text-center">
-				<div class="alert alert-info mx-auto max-w-md shadow-lg">
+				<div class="mx-auto alert max-w-md alert-info shadow-lg">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						fill="none"
@@ -165,7 +165,7 @@
 		<!-- Debug Info (only in development) -->
 		{#if import.meta.env.DEV}
 			<div class="mt-12">
-				<div class="collapse collapse-arrow bg-base-200">
+				<div class="collapse-arrow collapse bg-base-200">
 					<input type="checkbox" />
 					<div class="collapse-title text-sm font-medium text-base-content/50">
 						🔧 Debug Info (Dev Only)

@@ -135,7 +135,9 @@
 	/>
 </svelte:head>
 
-<div class="min-h-[100dvh] bg-gradient-to-br from-base-100 to-base-200 px-2 pb-12 text-base-content sm:px-4">
+<div
+	class="min-h-[100dvh] bg-gradient-to-br from-base-100 to-base-200 px-2 pb-12 text-base-content sm:px-4"
+>
 	<div class="mx-auto max-w-7xl">
 		<!-- Stage Indicator -->
 		<div class="mb-3 pt-2 sm:mb-8 sm:flex sm:justify-center sm:pt-8">
@@ -149,7 +151,7 @@
 					Welcome back, {user ? user.displayName : 'Dev'}!
 				</div>
 			{:else}
-				<h4 class="mb-2 text-xl font-semibold opacity-90 sm:mb-4 sm:text-3xl">
+				<div class="mb-2 text-xl font-semibold opacity-90 sm:mb-4 sm:text-3xl">
 					{#if useDynamicLanguage}
 						<DynamicLanguageText
 							bind:selectedLanguage
@@ -161,7 +163,7 @@
 					{:else}
 						{headlineText}
 					{/if}
-				</h4>
+				</div>
 			{/if}
 		</div>
 
@@ -172,7 +174,7 @@
 
 		<!-- Monthly Usage Display - Only show for logged in users -->
 		{#if user.id !== 'guest'}
-			<div class="mb-6 mx-auto max-w-2xl">
+			<div class="mx-auto mb-6 max-w-2xl">
 				{#if usageStore.tier && usageStore.usage}
 					<MonthlyUsageDisplay
 						remainingSeconds={usageStore.secondsRemaining()}
@@ -202,10 +204,8 @@
 
 		<!-- Debug/Development Tools -->
 		{#if browser && user.id === 'dev'}
-			<div class="mx-auto max-w-2xl mt-8 rounded-lg bg-base-200 p-4">
-				<h3 class="mb-3 text-sm font-semibold text-base-content/70">
-					🧹 Clear Conversation Data
-				</h3>
+			<div class="mx-auto mt-8 max-w-2xl rounded-lg bg-base-200 p-4">
+				<h3 class="mb-3 text-sm font-semibold text-base-content/70">🧹 Clear Conversation Data</h3>
 				<div class="flex flex-wrap gap-2">
 					<button onclick={handleShowDataSummary} class="btn btn-outline btn-sm">
 						📊 Show Data Summary

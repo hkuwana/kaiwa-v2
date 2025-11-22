@@ -169,7 +169,11 @@ P.S. Even if PAB isn't for you, I'd love to hear how your language learning is g
 		</button>
 
 		{#if message}
-			<div class="message" class:success={message.includes('✅')} class:error={message.includes('❌')}>
+			<div
+				class="message"
+				class:success={message.includes('✅')}
+				class:error={message.includes('❌')}
+			>
 				{message}
 			</div>
 		{/if}
@@ -181,7 +185,9 @@ P.S. Even if PAB isn't for you, I'd love to hear how your language learning is g
 			<li>
 				<strong>For 2 spots:</strong> Email 8-10 people (expect ~20-30% response rate)
 			</li>
-			<li><strong>Personalize:</strong> Edit template to reference specific details about each person</li>
+			<li>
+				<strong>Personalize:</strong> Edit template to reference specific details about each person
+			</li>
 			<li>
 				<strong>Better approach:</strong> Copy emails and send individually from your personal email
 				for maximum impact
@@ -196,7 +202,10 @@ P.S. Even if PAB isn't for you, I'd love to hear how your language learning is g
 		max-width: 1200px;
 		margin: 0 auto;
 		padding: 2rem;
-		font-family: system-ui, -apple-system, sans-serif;
+		font-family:
+			system-ui,
+			-apple-system,
+			sans-serif;
 	}
 
 	.warning {

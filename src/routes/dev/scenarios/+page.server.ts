@@ -11,10 +11,15 @@ export const load: PageServerLoad = async () => {
 	try {
 		liveScenarios = await scenarioRepository.findActiveScenarios(500);
 	} catch (error) {
-		logger.error('Failed to fetch scenarios from DB for /dev/scenarios, falling back to seed data', error);
+		logger.error(
+			'Failed to fetch scenarios from DB for /dev/scenarios, falling back to seed data',
+			error
+		);
 	}
 
-	const source = liveScenarios.length ? liveScenarios : scenariosData.filter((scenario) => scenario.isActive);
+	const source = liveScenarios.length
+		? liveScenarios
+		: scenariosData.filter((scenario) => scenario.isActive);
 
 	const scenarioPrompts = source
 		.map((scenario) => ({

@@ -13,7 +13,10 @@ function formatContext(context?: string | null, description?: string | null): st
 
 function formatTags(tags?: string[] | null): string {
 	if (!tags || tags.length === 0) return '';
-	const trimmed = tags.filter(Boolean).map((tag) => tag.trim()).filter(Boolean);
+	const trimmed = tags
+		.filter(Boolean)
+		.map((tag) => tag.trim())
+		.filter(Boolean);
 	if (!trimmed.length) return '';
 	return trimmed.slice(0, 5).join(', ');
 }

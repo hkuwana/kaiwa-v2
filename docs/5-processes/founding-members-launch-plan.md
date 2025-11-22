@@ -1,4 +1,5 @@
 # Kaiwa Founding Members Launch Plan
+
 **Complete Strategy & Execution Guide**
 
 **Created:** November 22, 2024
@@ -24,14 +25,17 @@
 ## Program Overview
 
 ### What It's Called:
+
 **"Kaiwa Founding Members"** (not "Product Advisory Board")
 
 ### Why the Name Change:
+
 - "Advisory Board" + paying = feels like "pay to work"
 - "Founding Members" + paying = feels like "early adopter discount"
 - Better positioning: exclusive club, not unpaid labor
 
 ### Program Structure:
+
 - **Total spots:** 12 people
 - **Currently filled:** 10 spots
 - **Remaining:** 2 spots
@@ -42,23 +46,28 @@
 ## Pricing & Value Proposition
 
 ### Founding Member Pricing:
+
 **$10/month (locked in forever)**
 
 **Why $10/month:**
+
 - Covers your API costs (OpenAI Realtime API: ~$10/user/month for typical use)
 - You're not making profit on these 12 people
 - It's an investment in getting the right early users
 - Long-term "loss" worth it for feedback, testimonials, and loyalty
 
 **Regular pricing when you launch publicly:**
+
 - $19/month standard
 
 **Value proposition:**
+
 - 50% discount locked in forever
 - Even if you raise prices to $29/month later, they stay at $10
 - Founding members are rewarded for early support
 
 ### What's Included:
+
 ✅ $10/month rate (locked in forever)
 ✅ Unlimited access to Kaiwa
 ✅ Monthly 1-hour video calls with you + other founding members
@@ -68,6 +77,7 @@
 ✅ "I was here from day 1" status
 
 ### Fair Use:
+
 - Typical use: 15-25 conversations/month
 - If someone consistently uses 40+ conversations/month, you may ask them to discuss a custom plan
 - Be transparent but fair
@@ -79,9 +89,11 @@
 When someone joins, they complete 3 tasks in their first week:
 
 ### ✅ Action 1: Fill Out Availability Poll (Due: 48 hours)
+
 **Purpose:** Lock in first meeting date
 **Tool:** Calendly or When2Meet
 **Message:**
+
 ```
 📅 First Task: When can you meet?
 
@@ -100,8 +112,10 @@ This will be our kickoff where we:
 ```
 
 ### ✅ Action 2: Complete Your First Conversation (Due: 5 days)
+
 **Purpose:** Get hands-on with product immediately
 **Message:**
+
 ```
 🗣️ Second Task: Try Kaiwa!
 
@@ -121,8 +135,10 @@ You can share feedback in our group or bring it to our first meeting.
 ```
 
 ### ✅ Action 3: Share Your Story (Due: Before first meeting)
+
 **Purpose:** Build community and gather persona data
 **Message:**
+
 ```
 💭 Third Task: Tell us your story
 
@@ -146,6 +162,7 @@ No essay needed - 2-3 sentences is perfect!
 **Context:** Met at Jason Calacanis event, wife is learning language to meet partner's family (perfect ICP)
 
 **Message:**
+
 ```
 Hey Maxi!
 
@@ -171,12 +188,14 @@ Want me to add her? Just need a yes 👍
 **Context:** They're peer language mentors at Brown, perfect for Founding Members or Student Ambassadors
 
 **Contacts:**
+
 1. Emma Brignall '27 - emma_brignall@brown.edu
 2. Martina Herman '26 - martina_herman@brown.edu
 3. Farah Akbari '28 - farahnaz_akbari@brown.edu
 4. Mario Joyo Villanueva '28 - mario_joyo_villanueva@brown.edu
 
 **Message:**
+
 ```
 Subject: Kaiwa Founding Members - $10/month (vs $19 regular)
 
@@ -219,6 +238,7 @@ P.S. What languages are you working with as an Ambassador?
 **Strategy:** Research collaboration (free for study participants) + Founding Members for other students
 
 **Message:**
+
 ```
 Subject: Great meeting you last week - quick collaboration idea
 
@@ -255,9 +275,11 @@ P.S. Also happy to just grab coffee next time I'm in Tokyo and hear your thought
 ### Priority 4: Your "Few Other People"
 
 **Who are they?** List them here:
+
 - [Add names and context]
 
 **Template to customize:**
+
 ```
 Hey [Name]!
 
@@ -285,6 +307,7 @@ No worries if not - would still love to catch up about [their situation] sometim
 ## Marketing Strategy (Dual Approach)
 
 ### Approach A: Founding Members (High-Touch)
+
 **Target:** 12 people total
 **Goal:** Shape the product, deep feedback
 **Time:** 1 hour/month meetings
@@ -292,12 +315,14 @@ No worries if not - would still love to catch up about [their situation] sometim
 **Status:** 10/12 filled, need 2 more
 
 ### Approach B: Student Ambassador Program (Scalable)
+
 **Target:** 2-3 students initially (scalable to 50+)
 **Goal:** Campus distribution, word of mouth
 **Time:** 2-3 hours/month activities
 **Compensation:** $50/month stipend + free access
 
 **How they work together:**
+
 ```
 Student Ambassadors (awareness)
     ↓
@@ -321,6 +346,7 @@ Cycle repeats
 **When to launch:** After filling Founding Members spots (Week 2)
 
 **Value prop for students:**
+
 - $50/month stipend
 - Free lifetime access to Kaiwa
 - "Ambassador" credential (resume builder)
@@ -328,6 +354,7 @@ Cycle repeats
 - Exclusive community with other ambassadors
 
 **What they do:**
+
 - Share Kaiwa with 5-10 students per semester
 - Post on social media 2-3x/month
 - Host 1 info session or demo per semester
@@ -335,6 +362,7 @@ Cycle repeats
 - Report monthly
 
 **Student Ambassador Pitch (for Brown Language Ambassadors who decline Founding Members):**
+
 ```
 Subject: Different opportunity - Student Ambassador ($50/month)
 
@@ -372,17 +400,20 @@ Hiro
 ### Why NOT to Do Broad Student Marketing (Yet)
 
 **Cost Reality:**
+
 - Heavy student user: $10-15/month in API costs
 - Students willing to pay: $0-10/month
 - 50 free students = $500-750/month burn
 
 **Better strategy:**
+
 - Focus on paying customers (professionals with urgency)
 - Do ONE strategic student partnership (Shinohara research = controlled cost)
 - Launch Student Ambassador program (2-3 paid ambassadors, not 100 free users)
 - Add student discount tier later ($9/month) but don't aggressively market to students yet
 
 **When to revisit:**
+
 - After you have 50+ paying customers
 - After you've validated product-market fit
 - After you have more budget for student acquisition
@@ -394,6 +425,7 @@ Hiro
 ### Payment Collection (Choose One):
 
 **Option 1: Stripe Subscription (RECOMMENDED)**
+
 ```
 Steps:
 1. Log into Stripe dashboard
@@ -407,6 +439,7 @@ Time: 10 minutes to set up
 ```
 
 **Option 2: Manual (Venmo/PayPal)**
+
 ```
 Steps:
 1. Request $10/month from each member manually
@@ -424,14 +457,17 @@ Cons: Not scalable, unprofessional, manual work
 ### Community Platform (Choose One):
 
 **Option 1: WhatsApp Group**
+
 - Pros: Everyone has it, low friction, instant
 - Cons: Less organized, hard to search, casual
 
 **Option 2: Slack Workspace**
+
 - Pros: Professional, organized, searchable
 - Cons: Another app to check, some learning curve
 
 **Option 3: Discord Server**
+
 - Pros: Good for communities, voice channels, organized
 - Cons: Less professional, younger demographic
 
@@ -477,11 +513,13 @@ Founder, Kaiwa
 ### TONIGHT (Next 60 minutes)
 
 **Step 1: Send WhatsApp to Maxi** (5 min)
+
 - [ ] Copy message from "Priority 1" section
 - [ ] Send to Maxi on WhatsApp
 - [ ] Set reminder to follow up tomorrow if no response
 
 **Step 2: Email Brown Language Ambassadors** (20 min)
+
 - [ ] Copy email from "Priority 2" section
 - [ ] Send individually to all 4:
   - [ ] Emma Brignall (emma_brignall@brown.edu)
@@ -490,23 +528,27 @@ Founder, Kaiwa
   - [ ] Mario Joyo Villanueva (mario_joyo_villanueva@brown.edu)
 
 **Step 3: Email Your Other Contacts** (15 min)
+
 - [ ] List your "few other people" who showed interest
 - [ ] Customize template from "Priority 4" section
 - [ ] Send individually
 
 **Step 4: Set Up Payment** (10 min)
+
 - [ ] Create Stripe product: "Kaiwa Founding Members - $10/month"
 - [ ] Generate payment link
 - [ ] Test it yourself
 - [ ] Save link for welcome emails
 
 **Step 5: Create Community Group** (10 min)
+
 - [ ] Create WhatsApp/Slack/Discord group
 - [ ] Name it "Kaiwa Founding Members"
 - [ ] Write welcome message (use template above)
 - [ ] DON'T invite anyone yet (wait for confirmations)
 
 **Step 6: Set Deadline Reminder** (1 min)
+
 - [ ] Phone reminder for tomorrow evening
 - [ ] Email reminder for tomorrow evening
 - [ ] "Close Founding Members roster"
@@ -516,17 +558,20 @@ Founder, Kaiwa
 ### TOMORROW MORNING
 
 **Step 7: Check Responses** (10 min)
+
 - [ ] Who replied to Maxi message?
 - [ ] Who replied from Brown students?
 - [ ] Who replied from other contacts?
 - [ ] Tally: How many "yes" responses?
 
 **Step 8: Send to Professor Shinohara** (5 min)
+
 - [ ] Copy email from "Priority 3" section
 - [ ] Send to y.shinohara@waseda.jp
 - [ ] No urgency on this one (different track)
 
 **Step 9: Follow Up on Non-Responses** (10 min)
+
 - [ ] If Maxi didn't respond, send gentle nudge
 - [ ] If Brown students didn't respond, send follow-up
 - [ ] Give them until evening deadline
@@ -536,17 +581,20 @@ Founder, Kaiwa
 ### TOMORROW EVENING (Deadline)
 
 **Step 10: Close Roster** (30 min)
+
 - [ ] Accept first 2 "yes" responses (or best 2 if multiple)
 - [ ] Send welcome emails to new members
 - [ ] Send payment links
 - [ ] Invite to community group
 
 **Step 11: Send Decline Emails** (15 min)
+
 - [ ] To people who said "no" - thank them
 - [ ] To people who didn't respond - close the opportunity
 - [ ] Keep door open for future opportunities
 
 **Step 12: Update Tracking** (10 min)
+
 - [ ] Mark roster as "12/12 FILLED"
 - [ ] Create member spreadsheet (see template below)
 - [ ] Schedule first meeting using When2Meet/Calendly
@@ -556,12 +604,14 @@ Founder, Kaiwa
 ### WEEK 2
 
 **Step 13: Onboard New Members** (Ongoing)
+
 - [ ] Monitor payment confirmations
 - [ ] Send 3 initial tasks to each member
 - [ ] Answer questions in community group
 - [ ] Lock in first meeting time
 
 **Step 14: First Meeting** (90 min)
+
 - [ ] Host first Founding Members call
 - [ ] Introductions (each person shares story)
 - [ ] Product demo
@@ -569,6 +619,7 @@ Founder, Kaiwa
 - [ ] Schedule next meeting
 
 **Step 15: Process Feedback** (30 min)
+
 - [ ] Write up meeting notes
 - [ ] Share notes with group
 - [ ] Identify top 3 feature requests
@@ -626,6 +677,7 @@ P.S. If you have any issues with payment or access, just reply to this email!
 ### Follow-Up Message (If No Response After 8 Hours)
 
 **For Maxi (WhatsApp):**
+
 ```
 Bumping this - need to finalize by tonight!
 
@@ -635,6 +687,7 @@ Thanks!
 ```
 
 **For Brown Students (Email):**
+
 ```
 Subject: Re: Kaiwa Founding Members - closing tonight
 
@@ -724,12 +777,13 @@ P.S. If you know anyone preparing to meet their partner's family in another lang
 
 Create a Google Sheet with these columns:
 
-| Name | Email | Source | Payment Status | Conversations This Month | Last Active | Attending Meetings | Notes |
-|------|-------|--------|---------------|------------------------|-------------|-------------------|-------|
-| Sarah | sarah@example.com | USJC | ✅ Active | 12 | 2024-11-21 | 2/2 | Great feedback on scenarios |
-| David | david@example.com | Friend | ✅ Active | 8 | 2024-11-20 | 1/2 | Requested Spanish scenarios |
+| Name  | Email             | Source | Payment Status | Conversations This Month | Last Active | Attending Meetings | Notes                       |
+| ----- | ----------------- | ------ | -------------- | ------------------------ | ----------- | ------------------ | --------------------------- |
+| Sarah | sarah@example.com | USJC   | ✅ Active      | 12                       | 2024-11-21  | 2/2                | Great feedback on scenarios |
+| David | david@example.com | Friend | ✅ Active      | 8                        | 2024-11-20  | 1/2                | Requested Spanish scenarios |
 
 **Track monthly:**
+
 - Payment status (active, past due, cancelled)
 - Usage (conversations per month)
 - Engagement (attending meetings, posting in group)
@@ -740,24 +794,29 @@ Create a Google Sheet with these columns:
 ## Key Principles to Remember
 
 ### 1. Founding Members = Investment, Not Revenue
+
 These 12 people at $10/month are:
+
 - ✅ Worth it for feedback and testimonials
 - ✅ Worth it for loyalty and referrals
 - ✅ Worth it even if you "lose money" long-term
 - ✅ Building the product WITH the right people
 
 ### 2. Keep It Simple
+
 - Don't overcomplicate the offer
 - Don't add tiers or options
 - Just: $10/month, 12 spots, locked in forever
 
 ### 3. Be Transparent
+
 - "This covers my API costs"
 - "I'm not making profit on you 12"
 - "Later users pay $19-29/month"
 - Honesty builds trust
 
 ### 4. Execute Fast
+
 - You have momentum NOW
 - 13-14 people already interested
 - Send messages tonight
@@ -765,6 +824,7 @@ These 12 people at $10/month are:
 - Launch Week 2
 
 ### 5. Students = Later
+
 - Don't chase free student users yet
 - Do ONE strategic partnership (Shinohara research)
 - Focus on paying customers first
@@ -775,6 +835,7 @@ These 12 people at $10/month are:
 ## Quick Reference: Who Gets What
 
 ### Founding Members (12 people):
+
 - $10/month (locked in forever)
 - Unlimited conversations
 - Monthly calls
@@ -782,17 +843,20 @@ These 12 people at $10/month are:
 - Early access
 
 ### Student Ambassadors (2-3 people, launch Week 2):
+
 - $50/month stipend
 - Free access
 - Promote to peers
 - 2-3 hours/month
 
 ### Research Participants (20-30 people, Shinohara study):
+
 - Free for study duration (1 semester)
 - Pre/post assessments
 - Academic collaboration
 
 ### Regular Users (launch later):
+
 - $19/month standard
 - No meetings
 - Standard support
@@ -815,19 +879,23 @@ These 12 people at $10/month are:
 ## Emergency Contacts If Things Go Wrong
 
 **If Stripe fails:**
+
 - Use Venmo/PayPal temporarily, fix Stripe later
 
 **If no one responds:**
+
 - Send to more people from your existing list
 - Extend deadline 24 hours
 - Reach out personally (call/text)
 
 **If too many people say yes:**
+
 - Great problem! Accept first 2 or best 2
 - Create waitlist for others
 - Offer them "next cohort" in 3 months
 
 **If confused about API costs:**
+
 - Check OpenAI dashboard for actual usage
 - Adjust fair use policy if needed
 - Can always raise to $12-15/month for new members later
@@ -846,11 +914,13 @@ Everything is prepared:
 **Stop strategizing. Start executing.**
 
 **Send to:**
+
 1. Maxi (WhatsApp) - 5 min
 2. Brown students (Email) - 20 min
 3. Other contacts (Email) - 15 min
 
 **Tomorrow evening you'll have:**
+
 - 12/12 Founding Members filled
 - Revenue coming in ($120/month)
 - Momentum building

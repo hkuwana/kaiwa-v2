@@ -244,7 +244,6 @@
 					<!-- Japanese text with furigana display -->
 					<div class="text-base">
 						<div class="relative" style="line-height: 2em;">
-						
 							{@html message.hiragana}
 						</div>
 					</div>

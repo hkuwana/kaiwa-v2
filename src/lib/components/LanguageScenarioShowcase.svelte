@@ -107,16 +107,16 @@
 
 		<!-- Language Tabs - Scrollable on mobile, wrapped on desktop -->
 		<div
-			class="flex justify-center overflow-x-auto px-4 pb-2 scrollbar-hide sm:px-0"
+			class="scrollbar-hide flex justify-center overflow-x-auto px-4 pb-2 sm:px-0"
 			role="tablist"
 			aria-label="Language selection"
 		>
-			<div class="tabs tabs-boxed gap-2 bg-base-200/50 p-2 backdrop-blur-sm">
+			<div class="tabs-boxed tabs gap-2 bg-base-200/50 p-2 backdrop-blur-sm">
 				{#each languages as language (language.code)}
 					<button
 						role="tab"
 						aria-selected={settingsStore.selectedLanguage?.code === language.code}
-						class="tab tab-lg whitespace-nowrap transition-all duration-200 hover:scale-105"
+						class="tab-lg tab whitespace-nowrap transition-all duration-200 hover:scale-105"
 						class:tab-active={settingsStore.selectedLanguage?.code === language.code}
 						onclick={() => selectLanguage(language)}
 					>
@@ -174,14 +174,14 @@
 
 				<!-- Navigation Arrows (Desktop) -->
 				<button
-					class="btn btn-circle btn-ghost absolute left-2 top-1/2 hidden -translate-y-1/2 sm:flex"
+					class="btn absolute top-1/2 left-2 hidden btn-circle -translate-y-1/2 btn-ghost sm:flex"
 					onclick={previousScenario}
 					aria-label="Previous scenario"
 				>
 					❮
 				</button>
 				<button
-					class="btn btn-circle btn-ghost absolute right-2 top-1/2 hidden -translate-y-1/2 sm:flex"
+					class="btn absolute top-1/2 right-2 hidden btn-circle -translate-y-1/2 btn-ghost sm:flex"
 					onclick={nextScenario}
 					aria-label="Next scenario"
 				>
