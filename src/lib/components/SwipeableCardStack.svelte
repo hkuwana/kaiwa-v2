@@ -27,7 +27,16 @@
 	// Card stack state
 	let currentCardIndex = $state(0);
 	let showAdvancedOptions = $state(false);
+	let showSwipeHint = $state(true); // Show hint animation initially
 	const browseCardTransform = getCardTransform(featuredScenarios.length);
+
+	// Hide swipe hint after first interaction or after 5 seconds
+	$effect(() => {
+		const timer = setTimeout(() => {
+			showSwipeHint = false;
+		}, 5000);
+		return () => clearTimeout(timer);
+	});
 
 	// Advanced audio options state
 	let selectedAudioMode = $state<AudioInputMode>('ptt');
@@ -114,6 +123,9 @@
 	// Swipe gesture handlers
 	function handleDragStart(e: MouseEvent | TouchEvent) {
 		if (currentCardIndex >= totalCards) return;
+
+		// Hide hint on first interaction
+		showSwipeHint = false;
 
 		isDragging = true;
 		const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
@@ -406,11 +418,44 @@
 	<!-- Swipeable Card Stack Section -->
 	<div class="space-y-4">
 		<div class="text-center">
-			<p class="mt-2 text-sm text-base-content/60">Swipe to explore • Tap to start</p>
+			<h3 class="text-xl font-semibold text-base-content sm:text-2xl">Featured Scenarios</h3>
+			<div class="mt-2 flex items-center justify-center gap-3 text-sm text-base-content/60">
+				<span class="flex items-center gap-1">
+					<span class="icon-[mdi--gesture-swipe-horizontal] h-5 w-5"></span>
+					Swipe to explore
+				</span>
+				<span class="opacity-40">•</span>
+				<span class="flex items-center gap-1">
+					<span class="icon-[mdi--gesture-tap] h-5 w-5"></span>
+					Tap to start
+				</span>
+			</div>
 		</div>
 
 		<!-- Card Stack Container -->
 		<div class="relative mx-auto w-full max-w-2xl px-4">
+			<!-- Animated Swipe Hints - Show initially then fade out -->
+			{#if showSwipeHint}
+				<!-- Left Arrow -->
+				<div
+					class="swipe-hint-left absolute left-0 top-1/2 z-50 -translate-y-1/2 pointer-events-none"
+				>
+					<div class="flex flex-col items-center gap-1 opacity-60">
+						<span class="icon-[mdi--chevron-left] h-10 w-10 text-primary animate-swipe-left"></span>
+						<span class="text-xs font-medium text-primary">Swipe</span>
+					</div>
+				</div>
+
+				<!-- Right Arrow -->
+				<div
+					class="swipe-hint-right absolute right-0 top-1/2 z-50 -translate-y-1/2 pointer-events-none"
+				>
+					<div class="flex flex-col items-center gap-1 opacity-60">
+						<span class="icon-[mdi--chevron-right] h-10 w-10 text-primary animate-swipe-right"></span>
+						<span class="text-xs font-medium text-primary">Swipe</span>
+					</div>
+				</div>
+			{/if}
 			<!-- Stack of Cards with Depth -->
 			<div
 				class="relative mx-auto h-[520px] w-full max-w-md sm:h-[620px]"
@@ -634,5 +679,80 @@
 	/* Progress indicator animation */
 	button[aria-label^='Go to'] {
 		@apply cursor-pointer transition-all duration-300 hover:scale-125;
+	}
+
+	/* Swipe hint animations */
+	.animate-swipe-left {
+		animation: swipe-left 2s ease-in-out infinite;
+	}
+
+	.animate-swipe-right {
+		animation: swipe-right 2s ease-in-out infinite;
+	}
+
+	@keyframes swipe-left {
+		0%,
+		100% {
+			transform: translateX(0);
+			opacity: 0.6;
+		}
+		50% {
+			transform: translateX(-10px);
+			opacity: 1;
+		}
+	}
+
+	@keyframes swipe-right {
+		0%,
+		100% {
+			transform: translateX(0);
+			opacity: 0.6;
+		}
+		50% {
+			transform: translateX(10px);
+			opacity: 1;
+		}
+	}
+
+	/* Swipe hint containers fade in/out */
+	.swipe-hint-left,
+	.swipe-hint-right {
+		animation: fade-in-out 5s ease-in-out forwards;
+	}
+
+	@keyframes fade-in-out {
+		0% {
+			opacity: 0;
+		}
+		10% {
+			opacity: 1;
+		}
+		90% {
+			opacity: 1;
+		}
+		100% {
+			opacity: 0;
+		}
+	}
+
+	/* Initial card nudge animation - shows swipeability */
+	.card-stack-item:first-child {
+		animation: card-nudge 3s ease-in-out 0.5s;
+	}
+
+	@keyframes card-nudge {
+		0%,
+		100% {
+			transform: translateX(-50%) translateY(0) scale(1);
+		}
+		5% {
+			transform: translateX(calc(-50% + 20px)) translateY(-5px) rotate(3deg) scale(1.01);
+		}
+		10% {
+			transform: translateX(calc(-50% - 20px)) translateY(-5px) rotate(-3deg) scale(1.01);
+		}
+		15% {
+			transform: translateX(-50%) translateY(0) scale(1);
+		}
 	}
 </style>
