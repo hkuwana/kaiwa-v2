@@ -2,7 +2,11 @@
 <!-- Demo page for the new LanguageScenarioShowcase component -->
 <script lang="ts">
 	import LanguageScenarioShowcase from '$lib/components/LanguageScenarioShowcase.svelte';
+	import SwipeableCardStack from '$lib/components/SwipeableCardStack.svelte';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
+
+	// Toggle between carousel and swipeable stack views
+	let viewMode = $state<'carousel' | 'stack'>('stack');
 </script>
 
 <svelte:head>
@@ -25,8 +29,60 @@
 			</p>
 		</div>
 
+		<!-- View Mode Toggle -->
+		<div class="mb-8 flex justify-center">
+			<div class="join">
+				<button
+					class="btn join-item"
+					class:btn-active={viewMode === 'stack'}
+					onclick={() => (viewMode = 'stack')}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="h-5 w-5"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+						/>
+					</svg>
+					Swipeable Stack
+				</button>
+				<button
+					class="btn join-item"
+					class:btn-active={viewMode === 'carousel'}
+					onclick={() => (viewMode = 'carousel')}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="h-5 w-5"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+						/>
+					</svg>
+					Auto Carousel
+				</button>
+			</div>
+		</div>
+
 		<!-- Main Showcase Component -->
-		<LanguageScenarioShowcase />
+		{#if viewMode === 'stack'}
+			<SwipeableCardStack />
+		{:else}
+			<LanguageScenarioShowcase />
+		{/if}
 
 		<!-- CTA Section -->
 		{#if settingsStore.selectedLanguage}
