@@ -1,11 +1,11 @@
 <!-- src/lib/components/SwipeableCardStack.svelte -->
 <!-- Jony Ive-inspired swipeable stacked card carousel -->
 <script lang="ts">
-	import { languages } from '$lib/data/languages';
 	import { scenariosData } from '$lib/data/scenarios';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { getSpeakersByLanguage } from '$lib/data/speakers';
 	import BriefingCard from './BriefingCard.svelte';
+	import LanguageSelector from './LanguageSelector.svelte';
 	import { fade, scale } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import type { Language } from '$lib/data/languages';
@@ -43,12 +43,19 @@
 	const isOnBrowseAllCard = $derived(currentCardIndex === featuredScenarios.length);
 	const totalCards = $derived(featuredScenarios.length + 1); // +1 for Browse All card
 
-	// Language selection handler
-	function selectLanguage(language: Language) {
-		settingsStore.setLanguage(language.code);
-		const speakersForLanguage = getSpeakersByLanguage(language.code);
-		if (speakersForLanguage?.[0]) {
-			settingsStore.setSpeaker(speakersForLanguage[0].id);
+	// Language selection handlers
+	function handleLanguageChange(language: Language) {
+		settingsStore.setLanguage(language);
+	}
+
+	function handleSpeakerChange(speakerId: string) {
+		// Find the speaker and set it
+		if (settingsStore.selectedLanguage) {
+			const speakers = getSpeakersByLanguage(settingsStore.selectedLanguage.code);
+			const speaker = speakers.find((s) => s.id === speakerId);
+			if (speaker) {
+				settingsStore.setSpeaker(speaker);
+			}
 		}
 	}
 
@@ -134,55 +141,40 @@
 
 	// Get transform for card based on position in stack
 	// Jony Ive approach: Show only top 3 cards with subtle depth
-	function getCardTransform(index: number): { transform: string; left: string } {
+	function getCardTransform(index: number): string {
 		const offset = index - currentCardIndex;
 
 		if (offset < 0) {
 			// Cards that have been swiped away (move off to the left with rotation)
-			return {
-				transform: 'translateY(-20px) rotate(-12deg) scale(0.9)',
-				left: '-120%' // Move completely off-screen to the left
-			};
+			// -50% centers, then -150% moves it way off-screen = -200% total
+			return 'translateX(-200%) translateY(-20px) rotate(-12deg) scale(0.9)';
 		}
 
 		if (offset === 0 && isDragging) {
 			// Current card being dragged
 			const rotation = dragCurrentX / 30; // Subtle rotation based on drag
-			return {
-				transform: `translate(${dragCurrentX}px, ${dragCurrentY}px) rotate(${rotation}deg) scale(1)`,
-				left: '50%'
-			};
+			// Keep the -50% centering, add the drag offset
+			const dragOffset = `calc(-50% + ${dragCurrentX}px)`;
+			return `translateX(${dragOffset}) translateY(${dragCurrentY}px) rotate(${rotation}deg) scale(1)`;
 		}
 
 		if (offset === 0) {
 			// Current card at front - centered, no additional transform
-			return {
-				transform: 'translate(0, 0) scale(1) rotate(0deg)',
-				left: '50%'
-			};
+			return 'translateX(-50%) translateY(0) scale(1) rotate(0deg)';
 		}
 
 		if (offset === 1) {
 			// Next card - slightly behind and down
-			return {
-				transform: 'translate(0, 12px) scale(0.96) rotate(0deg)',
-				left: '50%'
-			};
+			return 'translateX(-50%) translateY(12px) scale(0.96) rotate(0deg)';
 		}
 
 		if (offset === 2) {
 			// Card two positions back - more offset
-			return {
-				transform: 'translate(0, 24px) scale(0.92) rotate(0deg)',
-				left: '50%'
-			};
+			return 'translateX(-50%) translateY(24px) scale(0.92) rotate(0deg)';
 		}
 
 		// Cards further back - hidden but slightly visible
-		return {
-			transform: 'translate(0, 32px) scale(0.88) rotate(0deg)',
-			left: '50%'
-		};
+		return 'translateX(-50%) translateY(32px) scale(0.88) rotate(0deg)';
 	}
 
 	function getCardOpacity(index: number): number {
@@ -210,46 +202,20 @@
 
 <div class="w-full space-y-8">
 	<!-- Language Selection Section -->
-	<div class="space-y-4">
+	<div class="mx-auto w-full max-w-md space-y-4">
 		<div class="text-center">
 			<h2 class="text-2xl font-bold text-base-content sm:text-3xl">Choose Your Language</h2>
 			<p class="mt-2 text-sm text-base-content/70">
-				Select the language you want to practice speaking
+				Select the language and speaker you want to practice with
 			</p>
 		</div>
 
-		<!-- Language Tabs - Scrollable on mobile, wrapped on desktop -->
-		<div
-			class="scrollbar-hide flex justify-center overflow-x-auto px-4 pb-2 sm:px-0"
-			role="tablist"
-			aria-label="Language selection"
-		>
-			<div class="tabs-boxed tabs gap-2 bg-base-200/50 p-2 backdrop-blur-sm">
-				{#each languages as language (language.code)}
-					<button
-						role="tab"
-						aria-selected={settingsStore.selectedLanguage?.code === language.code}
-						class="tab-lg tab whitespace-nowrap transition-all duration-200 hover:scale-105"
-						class:tab-active={settingsStore.selectedLanguage?.code === language.code}
-						onclick={() => selectLanguage(language)}
-					>
-						<span class="mr-2 text-xl sm:text-2xl">{language.flag}</span>
-						<span class="hidden sm:inline">{language.name}</span>
-						<span class="sm:hidden">{language.code.toUpperCase()}</span>
-					</button>
-				{/each}
-			</div>
-		</div>
-
-		<!-- Selected Language Display (Mobile) -->
-		{#if settingsStore.selectedLanguage}
-			<div class="text-center sm:hidden" transition:fade={{ duration: 200 }}>
-				<p class="text-sm font-medium text-base-content/80">
-					Learning: <span class="text-primary">{settingsStore.selectedLanguage.name}</span>
-					<span class="text-base-content/50">({settingsStore.selectedLanguage.nativeName})</span>
-				</p>
-			</div>
-		{/if}
+		<LanguageSelector
+			selectedLanguage={settingsStore.selectedLanguage}
+			selectedSpeaker={currentSpeaker?.id || null}
+			onLanguageChange={handleLanguageChange}
+			onSpeakerChange={handleSpeakerChange}
+		/>
 	</div>
 
 	<!-- Advanced Options Section -->
@@ -328,13 +294,11 @@
 			>
 				<!-- Render scenario cards -->
 				{#each featuredScenarios as scenario, index (scenario.id)}
-					{@const cardTransform = getCardTransform(index)}
 					<div
-						class="card-stack-item absolute top-0 w-full cursor-grab touch-none transition-all duration-300 ease-out select-none"
+						class="card-stack-item absolute top-0 left-1/2 w-full cursor-grab touch-none transition-all duration-300 ease-out select-none"
 						class:cursor-grabbing={isDragging && index === currentCardIndex}
 						style="
-							left: {cardTransform.left};
-							transform: translateX(-50%) {cardTransform.transform};
+							transform: {getCardTransform(index)};
 							opacity: {getCardOpacity(index)};
 							z-index: {getCardZIndex(index)};
 							pointer-events: {getCardPointerEvents(index)};
@@ -353,17 +317,15 @@
 				{/each}
 
 				<!-- Browse All Scenarios Card (Final Card) -->
-
 				<div
-					class="card-stack-item absolute top-0 w-full cursor-grab touch-none transition-all duration-300 ease-out select-none"
+					class="card-stack-item absolute top-0 left-1/2 w-full cursor-grab touch-none transition-all duration-300 ease-out select-none"
 					class:cursor-grabbing={isDragging && isOnBrowseAllCard}
 					style="
-							left: {browseCardTransform.left};
-							transform: translateX(-50%) {browseCardTransform.transform};
-							opacity: {getCardOpacity(featuredScenarios.length)};
-							z-index: {getCardZIndex(featuredScenarios.length)};
-							pointer-events: {getCardPointerEvents(featuredScenarios.length)};
-						"
+						transform: {getCardTransform(featuredScenarios.length)};
+						opacity: {getCardOpacity(featuredScenarios.length)};
+						z-index: {getCardZIndex(featuredScenarios.length)};
+						pointer-events: {getCardPointerEvents(featuredScenarios.length)};
+					"
 					onmousedown={isOnBrowseAllCard ? handleDragStart : undefined}
 					ontouchstart={isOnBrowseAllCard ? handleDragStart : undefined}
 				>
@@ -429,81 +391,81 @@
 						</a>
 					</div>
 				</div>
+			</div>
 
-				<!-- Navigation Controls (Desktop) -->
-				<div class="mt-8 hidden justify-center gap-4 sm:flex">
-					<button
-						class="btn btn-circle btn-ghost btn-lg"
-						onclick={previousCard}
-						aria-label="Previous scenario"
+			<!-- Navigation Controls (Desktop) -->
+			<div class="mt-8 hidden justify-center gap-4 sm:flex">
+				<button
+					class="btn btn-circle btn-ghost btn-lg"
+					onclick={previousCard}
+					aria-label="Previous scenario"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="h-6 w-6"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
 					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="h-6 w-6"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M15 19l-7-7 7-7"
-							/>
-						</svg>
-					</button>
-					<button
-						class="btn btn-circle btn-ghost btn-lg"
-						onclick={nextCard}
-						aria-label="Next scenario"
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M15 19l-7-7 7-7"
+						/>
+					</svg>
+				</button>
+				<button
+					class="btn btn-circle btn-ghost btn-lg"
+					onclick={nextCard}
+					aria-label="Next scenario"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="h-6 w-6"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
 					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="h-6 w-6"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M9 5l7 7-7 7"
-							/>
-						</svg>
-					</button>
-				</div>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M9 5l7 7-7 7"
+						/>
+					</svg>
+				</button>
+			</div>
 
-				<!-- Progress Indicators -->
-				<div class="mt-6 flex justify-center gap-2">
-					{#each Array(totalCards) as _, index}
-						<button
-							class="h-2 rounded-full transition-all duration-300"
-							class:w-8={currentCardIndex === index}
-							class:w-2={currentCardIndex !== index}
-							class:bg-primary={currentCardIndex === index}
-							class:bg-base-300={currentCardIndex !== index}
-							onclick={() => goToScenario(index)}
-							aria-label={index === totalCards - 1
-								? 'Go to Browse All Scenarios'
-								: `Go to scenario ${index + 1}`}
-						></button>
-					{/each}
-				</div>
+			<!-- Progress Indicators -->
+			<div class="mt-6 flex justify-center gap-2">
+				{#each Array(totalCards) as _, index}
+					<button
+						class="h-2 rounded-full transition-all duration-300"
+						class:w-8={currentCardIndex === index}
+						class:w-2={currentCardIndex !== index}
+						class:bg-primary={currentCardIndex === index}
+						class:bg-base-300={currentCardIndex !== index}
+						onclick={() => goToScenario(index)}
+						aria-label={index === totalCards - 1
+							? 'Go to Browse All Scenarios'
+							: `Go to scenario ${index + 1}`}
+					></button>
+				{/each}
+			</div>
 
-				<!-- Card Counter -->
-				<div class="mt-4 text-center text-sm text-base-content/60">
-					{#if isOnBrowseAllCard}
-						<span class="font-medium">Browse All</span>
-					{:else}
-						<span class="font-medium">{currentCardIndex + 1}</span> of {featuredScenarios.length}
-					{/if}
-				</div>
+			<!-- Card Counter -->
+			<div class="mt-4 text-center text-sm text-base-content/60">
+				{#if isOnBrowseAllCard}
+					<span class="font-medium">Browse All</span>
+				{:else}
+					<span class="font-medium">{currentCardIndex + 1}</span> of {featuredScenarios.length}
+				{/if}
+			</div>
 
-				<!-- Swipe Hint (Mobile) -->
-				<div class="mt-4 text-center text-xs text-base-content/50 sm:hidden">
-					← Swipe to explore →
-				</div>
+			<!-- Swipe Hint (Mobile) -->
+			<div class="mt-4 text-center text-xs text-base-content/50 sm:hidden">
+				← Swipe to explore →
 			</div>
 		</div>
 	</div>
