@@ -15,6 +15,7 @@
 		getSpeakerByVoiceId,
 		getDefaultSpeakerForLanguage
 	} from '$lib/data/speakers';
+	import RealtimeDebugPanel from '$lib/features/development/components/RealtimeDebugPanel.svelte';
 	import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 	import { determineAnalysisType } from '$lib/services/analysis.service';
 
@@ -44,6 +45,8 @@
 	const _isAnalyzing = $derived(userPreferencesStore.isCurrentlyAnalyzing);
 	const isGuestUser = $derived(data.isGuest);
 	const isStaticView = $derived(data.isStaticView);
+	let showDebugPanel = $state(false);
+	let debugCollapsed = $state(true);
 
 	// Connection state
 	let autoConnectAttempted = $state(false);
@@ -451,7 +454,28 @@
 	{#if dev}
 		<div class="card bg-base-100 shadow-xl">
 			<div class="card-body">
-				<h2 class="card-title">Dev Controls</h2>
+				<div class="flex items-center justify-between gap-2">
+					<h2 class="card-title">Dev Controls</h2>
+					<div class="flex gap-2">
+						<button
+							class="btn btn-sm {showDebugPanel ? 'btn-secondary' : 'btn-outline'}"
+							onclick={() => {
+								showDebugPanel = !showDebugPanel;
+								if (showDebugPanel) debugCollapsed = true;
+							}}
+						>
+							{showDebugPanel ? (debugCollapsed ? 'Expand Debug' : 'Hide Debug') : 'Show Debug'}
+						</button>
+						{#if showDebugPanel}
+							<button
+								class="btn btn-sm {debugCollapsed ? 'btn-outline' : 'btn-secondary'}"
+								onclick={() => (debugCollapsed = !debugCollapsed)}
+							>
+								{debugCollapsed ? 'Expand' : 'Collapse'}
+							</button>
+						{/if}
+					</div>
+				</div>
 				<div class="space-y-3">
 					<!-- Audio Interaction Mode -->
 					<div class="flex flex-wrap items-center gap-3">
@@ -708,6 +732,20 @@
 				</div>
 			</div>
 		</div>
+		{#if showDebugPanel}
+			<div class="mt-4">
+				<RealtimeDebugPanel
+					messages={conversationStore.messages}
+					realtimeMessages={realtimeOpenAI.messages}
+					events={realtimeOpenAI.events}
+					connectionStatus={conversationStore.status}
+					isCollapsed={debugCollapsed}
+					onToggleCollapse={() => (debugCollapsed = !debugCollapsed)}
+					onPttStart={() => conversationStore.resumeStreaming()}
+					onPttStop={() => conversationStore.pauseStreaming()}
+				/>
+			</div>
+		{/if}
 	{/if}
 {:else if hasAnalysisResults}
 	<!-- Analysis Results Modal -->

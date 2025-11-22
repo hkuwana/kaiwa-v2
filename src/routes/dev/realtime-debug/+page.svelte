@@ -118,5 +118,7 @@
 	{events}
 	connectionStatus={conversationStore.status}
 	isCollapsed={debugCollapsed}
+	onPttStart={() => conversationStore.resumeStreaming()}
+	onPttStop={() => conversationStore.pauseStreaming()}
 	onToggleCollapse={toggleDebugPanel}
 />

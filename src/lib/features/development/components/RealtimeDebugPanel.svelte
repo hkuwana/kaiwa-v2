@@ -9,7 +9,9 @@
 		events = [],
 		connectionStatus = 'idle',
 		isCollapsed = false,
-		onToggleCollapse
+		onToggleCollapse,
+		onPttStart = () => {},
+		onPttStop = () => {}
 	}: {
 		messages: Message[];
 		realtimeMessages: Message[];
@@ -17,6 +19,8 @@
 		connectionStatus: string;
 		isCollapsed?: boolean;
 		onToggleCollapse?: () => void;
+		onPttStart?: () => void;
+		onPttStop?: () => void;
 	} = $props();
 
 	// Local state
@@ -78,6 +82,9 @@
 		const event = new CustomEvent('clearEvents');
 		document.dispatchEvent(event);
 	}
+
+	const handlePttStart = () => onPttStart?.();
+	const handlePttStop = () => onPttStop?.();
 </script>
 
 <div
@@ -89,6 +96,18 @@
 	<div class="flex items-center justify-between rounded-t-lg border-b bg-gray-50 p-3">
 		<h3 class="text-sm font-semibold">Realtime Debug Panel</h3>
 		<div class="flex items-center gap-2">
+			<button
+				class="rounded bg-gray-800 px-2 py-1 text-xs text-white hover:bg-black"
+				onmousedown={handlePttStart}
+				ontouchstart={handlePttStart}
+				onmouseup={handlePttStop}
+				onmouseleave={handlePttStop}
+				ontouchend={handlePttStop}
+				ontouchcancel={handlePttStop}
+				title="Hold to talk (PTT)"
+			>
+				PTT
+			</button>
 			<button class="rounded bg-gray-200 px-2 py-1 text-xs hover:bg-gray-300" onclick={clearEvents}>
 				Clear Events
 			</button>
