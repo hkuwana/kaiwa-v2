@@ -353,20 +353,21 @@
 				{/each}
 
 				<!-- Browse All Scenarios Card (Final Card) -->
-				{@const browseCardTransform = getCardTransform(featuredScenarios.length)}
-				<div
-					class="card-stack-item absolute top-0 w-full cursor-grab touch-none select-none transition-all duration-300 ease-out"
-					class:cursor-grabbing={isDragging && isOnBrowseAllCard}
-					style="
-						left: {browseCardTransform.left};
-						transform: translateX(-50%) {browseCardTransform.transform};
-						opacity: {getCardOpacity(featuredScenarios.length)};
-						z-index: {getCardZIndex(featuredScenarios.length)};
-						pointer-events: {getCardPointerEvents(featuredScenarios.length)};
-					"
-					onmousedown={isOnBrowseAllCard ? handleDragStart : undefined}
-					ontouchstart={isOnBrowseAllCard ? handleDragStart : undefined}
-				>
+				<svelte:fragment>
+					{@const browseCardTransform = getCardTransform(featuredScenarios.length)}
+					<div
+						class="card-stack-item absolute top-0 w-full cursor-grab touch-none select-none transition-all duration-300 ease-out"
+						class:cursor-grabbing={isDragging && isOnBrowseAllCard}
+						style="
+							left: {browseCardTransform.left};
+							transform: translateX(-50%) {browseCardTransform.transform};
+							opacity: {getCardOpacity(featuredScenarios.length)};
+							z-index: {getCardZIndex(featuredScenarios.length)};
+							pointer-events: {getCardPointerEvents(featuredScenarios.length)};
+						"
+						onmousedown={isOnBrowseAllCard ? handleDragStart : undefined}
+						ontouchstart={isOnBrowseAllCard ? handleDragStart : undefined}
+					>
 					<div
 						class="w-full max-w-md"
 						in:fade={{ duration: 300, easing: cubicOut }}
@@ -428,7 +429,7 @@
 							</div>
 						</a>
 					</div>
-				</div>
+				</svelte:fragment>
 			</div>
 
 			<!-- Navigation Controls (Desktop) -->
