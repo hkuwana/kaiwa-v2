@@ -132,37 +132,55 @@
 
 	// Get transform for card based on position in stack
 	// Jony Ive approach: Show only top 3 cards with subtle depth
-	function getCardTransform(index: number): string {
+	function getCardTransform(index: number): { transform: string; left: string } {
 		const offset = index - currentCardIndex;
 
 		if (offset < 0) {
 			// Cards that have been swiped away (move off to the left with rotation)
-			return `translateX(-120%) translateY(-20px) rotate(-12deg) scale(0.9)`;
+			return {
+				transform: 'translateY(-20px) rotate(-12deg) scale(0.9)',
+				left: '-120%' // Move completely off-screen to the left
+			};
 		}
 
 		if (offset === 0 && isDragging) {
 			// Current card being dragged
 			const rotation = dragCurrentX / 30; // Subtle rotation based on drag
-			return `translateX(${dragCurrentX}px) translateY(${dragCurrentY}px) rotate(${rotation}deg) scale(1)`;
+			return {
+				transform: `translate(${dragCurrentX}px, ${dragCurrentY}px) rotate(${rotation}deg) scale(1)`,
+				left: '50%'
+			};
 		}
 
 		if (offset === 0) {
-			// Current card at front - no transform
-			return 'translateX(0) translateY(0) scale(1) rotate(0deg)';
+			// Current card at front - centered, no additional transform
+			return {
+				transform: 'translate(0, 0) scale(1) rotate(0deg)',
+				left: '50%'
+			};
 		}
 
 		if (offset === 1) {
 			// Next card - slightly behind and down
-			return 'translateX(0) translateY(12px) scale(0.96) rotate(0deg)';
+			return {
+				transform: 'translate(0, 12px) scale(0.96) rotate(0deg)',
+				left: '50%'
+			};
 		}
 
 		if (offset === 2) {
 			// Card two positions back - more offset
-			return 'translateX(0) translateY(24px) scale(0.92) rotate(0deg)';
+			return {
+				transform: 'translate(0, 24px) scale(0.92) rotate(0deg)',
+				left: '50%'
+			};
 		}
 
 		// Cards further back - hidden but slightly visible
-		return 'translateX(0) translateY(32px) scale(0.88) rotate(0deg)';
+		return {
+			transform: 'translate(0, 32px) scale(0.88) rotate(0deg)',
+			left: '50%'
+		};
 	}
 
 	function getCardOpacity(index: number): number {
@@ -310,11 +328,13 @@
 			>
 				<!-- Render scenario cards -->
 				{#each featuredScenarios as scenario, index (scenario.id)}
+					{@const cardTransform = getCardTransform(index)}
 					<div
-						class="card-stack-item absolute left-1/2 top-0 w-full -translate-x-1/2 cursor-grab touch-none select-none transition-all duration-300 ease-out"
+						class="card-stack-item absolute top-0 w-full cursor-grab touch-none select-none transition-all duration-300 ease-out"
 						class:cursor-grabbing={isDragging && index === currentCardIndex}
 						style="
-							transform: translateX(-50%) {getCardTransform(index)};
+							left: {cardTransform.left};
+							transform: translateX(-50%) {cardTransform.transform};
 							opacity: {getCardOpacity(index)};
 							z-index: {getCardZIndex(index)};
 							pointer-events: {getCardPointerEvents(index)};
@@ -333,11 +353,13 @@
 				{/each}
 
 				<!-- Browse All Scenarios Card (Final Card) -->
+				{@const browseCardTransform = getCardTransform(featuredScenarios.length)}
 				<div
-					class="card-stack-item absolute left-1/2 top-0 w-full -translate-x-1/2 cursor-grab touch-none select-none transition-all duration-300 ease-out"
+					class="card-stack-item absolute top-0 w-full cursor-grab touch-none select-none transition-all duration-300 ease-out"
 					class:cursor-grabbing={isDragging && isOnBrowseAllCard}
 					style="
-						transform: translateX(-50%) {getCardTransform(featuredScenarios.length)};
+						left: {browseCardTransform.left};
+						transform: translateX(-50%) {browseCardTransform.transform};
 						opacity: {getCardOpacity(featuredScenarios.length)};
 						z-index: {getCardZIndex(featuredScenarios.length)};
 						pointer-events: {getCardPointerEvents(featuredScenarios.length)};
