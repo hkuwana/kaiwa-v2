@@ -4,6 +4,8 @@
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { tryScenarioNow } from '$lib/services/scenarios/scenario-interaction.service';
 	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
+	import { notificationStore } from '$lib/stores/notification.store.svelte';
+	import ScenarioCreatorModal from '$lib/features/scenarios/components/ScenarioCreatorModal.svelte';
 	import tutorDefault from '$lib/assets/scenarios/tutor-scenario.png?enhanced';
 
 	const { data } = $props();
