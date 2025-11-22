@@ -45,13 +45,6 @@
 		selectedScenario ? getDifficultyLevel(selectedScenario.difficultyRating ?? 1) : null
 	);
 
-	const roleDisplayNames: Record<string, string> = {
-		tutor: 'Tutor',
-		character: 'Roleplay',
-		friendly_chat: 'Friendly Chat',
-		expert: 'Expert'
-	};
-
 	const rolePersonLabels: Record<string, string> = {
 		tutor: 'Your Tutor',
 		character: 'Your Date',
@@ -59,26 +52,11 @@
 		expert: 'Your Expert'
 	};
 
-	// Image error handling
-	let scenarioImageError = $state(false);
-
 	// Language display variants for rotation animation
-	const languageVariants = $derived.by(() => {
-		if (!selectedLanguage) return [];
-		return [
-			{ text: selectedLanguage.name, color: 'bg-primary text-primary-content' },
-			{ text: selectedLanguage.nativeName, color: 'bg-secondary text-secondary-content' },
-			{ text: selectedLanguage.name, color: 'bg-accent text-accent-content' }
-		];
-	});
 
 	// Default fallback image for scenarios
 	const defaultScenarioImage =
 		'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"%3E%3Crect fill="%2394a3b8" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%23fff"%3EScenario%3C/text%3E%3C/svg%3E';
-
-	function handleImageError() {
-		scenarioImageError = true;
-	}
 </script>
 
 {#if hasSelections}
@@ -89,22 +67,21 @@
 	>
 		<!-- Briefing Card with Full Background Image -->
 		<div
-			class="card {selectedScenario?.thumbnailUrl && !scenarioImageError
+			class="card {selectedScenario?.thumbnailUrl
 				? 'image-full'
 				: ''} relative overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-xl"
 			in:scale={{ duration: 400, start: 0.95, easing: cubicOut }}
 		>
 			<!-- Scenario Background Image (Full Card) -->
-			{#if selectedScenario?.thumbnailUrl && !scenarioImageError}
+			{#if selectedScenario?.thumbnailUrl}
 				<figure>
 					<img
 						src={selectedScenario.thumbnailUrl}
 						alt={selectedScenario.title}
 						class="h-full w-full object-cover"
-						onerror={handleImageError}
 					/>
 				</figure>
-			{:else if selectedScenario?.thumbnailUrl && scenarioImageError}
+			{:else if selectedScenario?.thumbnailUrl}
 				<figure>
 					<img
 						src={defaultScenarioImage}
@@ -149,22 +126,22 @@
 							<!-- Role Label - "Your Tutor", "Your Friend", etc. -->
 							{#if selectedScenario}
 								<p
-									class="mb-1 text-xs font-medium tracking-wide text-base-content/60 uppercase sm:mb-2"
+									class="mb-1 text-xs font-medium tracking-wide text-neutral-content uppercase sm:mb-2"
 								>
 									{rolePersonLabels[selectedScenario.role] || 'Your Partner'}
 								</p>
 							{/if}
 							<!-- Mobile: "Charlotte from Great Britain" format -->
-							<h3 class="mb-0.5 text-lg font-semibold text-base-content sm:mb-1 sm:text-2xl">
+							<h3 class="mb-0.5 text-lg font-semibold text-neutral-content sm:mb-1 sm:text-2xl">
 								{selectedSpeaker.voiceName}
 								{#if selectedSpeaker.region}
-									<span class="text-sm font-normal text-base-content/60 sm:hidden">
+									<span class="text-sm font-normal text-neutral-content sm:hidden">
 										from {selectedSpeaker.region}
 									</span>
 								{/if}
 							</h3>
 							<!-- Desktop: Show dialect and region separately -->
-							<p class="hidden text-sm text-base-content/60 sm:block">
+							<p class="hidden text-sm text-neutral-content sm:block">
 								{selectedSpeaker.dialectName}
 								{#if selectedSpeaker.region}
 									<span class="opacity-50">•</span>
@@ -173,11 +150,6 @@
 							</p>
 						</div>
 					</div>
-				{/if}
-
-				<!-- Divider - thinner on mobile -->
-				{#if selectedSpeaker && (selectedLanguage || selectedScenario)}
-					<div class="divider my-2 sm:my-4"></div>
 				{/if}
 
 				<!-- Scenario Info - Overlaid on background image -->
