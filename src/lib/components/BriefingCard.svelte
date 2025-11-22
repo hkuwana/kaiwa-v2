@@ -95,16 +95,7 @@
 			in:scale={{ duration: 400, start: 0.95, easing: cubicOut }}
 		>
 			<!-- Scenario Background Image (Full Card) -->
-			{#if selectedScenario?.thumbnailUrl && !scenarioImageError}
-				<figure>
-					<img
-						src={selectedScenario.thumbnailUrl}
-						alt={selectedScenario.title}
-						class="h-full w-full object-cover"
-						onerror={handleImageError}
-					/>
-				</figure>
-			{:else if selectedScenario?.thumbnailUrl && scenarioImageError}
+			{#if selectedScenario?.thumbnailUrl && !scenarioImageError}{:else if selectedScenario?.thumbnailUrl && scenarioImageError}
 				<figure>
 					<img
 						src={defaultScenarioImage}

@@ -7,12 +7,11 @@
 	import { getSpeakersByLanguage } from '$lib/data/speakers';
 	import BriefingCard from './BriefingCard.svelte';
 	import { onMount, onDestroy } from 'svelte';
-	import { fade, slide } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import type { Language } from '$lib/data/languages';
-	import type { Scenario } from '$lib/data/scenarios';
-
-	interface Props {
+	
+interface Props {
 		/** Auto-rotate interval in milliseconds (default: 6000 = 6 seconds) */
 		autoRotateInterval?: number;
 		/** Show only featured scenarios (default: first 6) */

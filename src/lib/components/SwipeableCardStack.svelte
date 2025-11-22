@@ -7,7 +7,7 @@
 	import BriefingCard from './BriefingCard.svelte';
 	import LanguageSelector from './LanguageSelector.svelte';
 	import SpeechSpeedSelector from './SpeechSpeedSelector.svelte';
-	import { fade, scale, slide } from 'svelte/transition';
+	import { fade, slide } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import type { Language } from '$lib/data/languages';
 	import type { Scenario } from '$lib/data/scenarios';
@@ -575,7 +575,7 @@
 						class:w-8={currentCardIndex === index}
 						class:w-2={currentCardIndex !== index}
 						class:bg-primary={currentCardIndex === index}
-						class:bg-base-300={currentCardIndex !== index}
+						class:bg-secondary={currentCardIndex !== index}
 						onclick={() => goToScenario(index)}
 						aria-label={index === totalCards - 1
 							? 'Go to Browse All Scenarios'
@@ -591,11 +591,6 @@
 				{:else}
 					<span class="font-medium">{currentCardIndex + 1}</span> of {featuredScenarios.length}
 				{/if}
-			</div>
-
-			<!-- Swipe Hint (Mobile) -->
-			<div class="mt-4 text-center text-xs text-base-content/50 sm:hidden">
-				👈 Swipe left or right to pass 👉
 			</div>
 		</div>
 	</div>
