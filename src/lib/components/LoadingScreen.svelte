@@ -158,8 +158,7 @@
 						>
 							{#if currentSpeaker.characterImageUrl}
 								<img
-									alt={currentSpeaker.characterImageAlt ||
-										`Image of ${currentSpeaker.voiceName}`}
+									alt={currentSpeaker.characterImageAlt || `Image of ${currentSpeaker.voiceName}`}
 									src={currentSpeaker.characterImageUrl}
 									class="object-cover"
 									loading="eager"
@@ -242,7 +241,11 @@
 
 			<!-- Dynamic Status Content -->
 			{#if showContent}
-				<div class="space-y-3 pt-2" in:fly={{ y: 20, duration: 300 }} out:fly={{ y: -20, duration: 150 }}>
+				<div
+					class="space-y-3 pt-2"
+					in:fly={{ y: 20, duration: 300 }}
+					out:fly={{ y: -20, duration: 150 }}
+				>
 					<!-- Status Title and Message -->
 					<div class="space-y-1 text-center">
 						<h3 class="text-lg font-semibold {statusConfig.color}">

@@ -1,6 +1,8 @@
 import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
-import { scenarios } from '$lib/prompts/scenarios';
+import { scenariosData } from '$lib/data/scenarios';
+import { scenarioRepository } from '$lib/server/repositories/scenario.repository';
+import { buildGhibliBackgroundPrompt } from '$lib/server/prompts/scenario-backgrounds';
 import type { OpenAI } from 'openai';
 
 interface GenerateImageRequest {
@@ -21,29 +23,31 @@ export const POST = async ({ request }) => {
 			return json({ error: 'Missing scenarioId or prompt' }, { status: 400 });
 		}
 
-		const scenario = scenarios.find((s) => s.id === scenarioId);
+		const scenario =
+			(await scenarioRepository.findScenarioById(scenarioId).catch(() => undefined)) ||
+			scenariosData.find((s) => s.id === scenarioId);
 		if (!scenario) {
 			return json({ error: 'Scenario not found' }, { status: 404 });
 		}
 
+		const promptToUse = prompt?.trim() || buildGhibliBackgroundPrompt(scenario);
+
 		console.log(`Generating image for ${scenario.title} (${scenario.id}) using ${model}`);
-		console.log(`Prompt: ${prompt.substring(0, 100)}...`);
+		console.log(`Prompt: ${promptToUse.substring(0, 100)}...`);
 
 		let apiBody: OpenAI.Images.ImageGenerateParams;
 		if (model === 'gpt-image-1') {
 			apiBody = {
 				model: 'gpt-image-1',
-				prompt: prompt,
+				prompt: promptToUse,
 				n: 1,
-				size: '1792x1024',
 				quality: 'high'
 			};
 		} else {
 			apiBody = {
 				model: 'dall-e-3',
-				prompt: prompt,
+				prompt: promptToUse,
 				n: 1,
-				size: '1792x1024',
 				quality: 'hd',
 				style: 'vivid'
 			};

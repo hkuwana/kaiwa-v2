@@ -112,7 +112,7 @@
 <div class="relative">
 	<!-- Slogan-only (non-interactive) -->
 	{#if !interactive}
-		<div class="text-left transition-all duration-300">
+		<div class="transition-all duration-300">
 			<span>{textParts.prefix}</span>
 			<span
 				class="inline-block transition-transform duration-300 [transform-style:preserve-3d]"

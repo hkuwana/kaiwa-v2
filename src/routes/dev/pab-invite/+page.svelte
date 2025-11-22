@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	let candidates: Array<{ email: string; displayName: string; createdAt: string }> = [];
-	let selectedEmails: Set<string> = new Set();
-	let loading = false;
-	let message = '';
-	let emailTemplate = `Hi {name},
+	let candidates: Array<{ email: string; displayName: string; createdAt: string }> = $state([]);
+	let selectedEmails: Set<string> = $state(new Set());
+	let loading = $state(false);
+	let message = $state('');
+	let emailTemplate = $state(`Hi {name},
 
 I'm finalizing Kaiwa's Product Advisory Board and you came to mind.
 
@@ -29,7 +29,7 @@ Thanks,
 Hiro
 Kaiwa Founder
 
-P.S. Even if PAB isn't for you, I'd love to hear how your language learning is going!`;
+P.S. Even if PAB isn't for you, I'd love to hear how your language learning is going!`);
 
 	onMount(async () => {
 		await loadCandidates();
@@ -133,7 +133,7 @@ P.S. Even if PAB isn't for you, I'd love to hear how your language learning is g
 								<input
 									type="checkbox"
 									checked={selectedEmails.has(candidate.email)}
-									on:change={() => toggleEmail(candidate.email)}
+									onchange={() => toggleEmail(candidate.email)}
 								/>
 							</td>
 							<td>{candidate.displayName || 'N/A'}</td>
@@ -160,7 +160,7 @@ P.S. Even if PAB isn't for you, I'd love to hear how your language learning is g
 	<div class="section">
 		<h2>Step 3: Send Invites</h2>
 
-		<button on:click={sendInvites} disabled={loading || selectedEmails.size === 0}>
+		<button onclick={sendInvites} disabled={loading || selectedEmails.size === 0}>
 			{#if loading}
 				Sending...
 			{:else}
@@ -169,7 +169,11 @@ P.S. Even if PAB isn't for you, I'd love to hear how your language learning is g
 		</button>
 
 		{#if message}
-			<div class="message" class:success={message.includes('✅')} class:error={message.includes('❌')}>
+			<div
+				class="message"
+				class:success={message.includes('✅')}
+				class:error={message.includes('❌')}
+			>
 				{message}
 			</div>
 		{/if}
@@ -181,7 +185,9 @@ P.S. Even if PAB isn't for you, I'd love to hear how your language learning is g
 			<li>
 				<strong>For 2 spots:</strong> Email 8-10 people (expect ~20-30% response rate)
 			</li>
-			<li><strong>Personalize:</strong> Edit template to reference specific details about each person</li>
+			<li>
+				<strong>Personalize:</strong> Edit template to reference specific details about each person
+			</li>
 			<li>
 				<strong>Better approach:</strong> Copy emails and send individually from your personal email
 				for maximum impact
@@ -196,7 +202,10 @@ P.S. Even if PAB isn't for you, I'd love to hear how your language learning is g
 		max-width: 1200px;
 		margin: 0 auto;
 		padding: 2rem;
-		font-family: system-ui, -apple-system, sans-serif;
+		font-family:
+			system-ui,
+			-apple-system,
+			sans-serif;
 	}
 
 	.warning {
