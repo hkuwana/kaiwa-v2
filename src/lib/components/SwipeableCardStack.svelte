@@ -6,10 +6,14 @@
 	import { getSpeakersByLanguage } from '$lib/data/speakers';
 	import BriefingCard from './BriefingCard.svelte';
 	import LanguageSelector from './LanguageSelector.svelte';
-	import { fade, scale } from 'svelte/transition';
+	import SpeechSpeedSelector from './SpeechSpeedSelector.svelte';
+	import { fade, scale, slide } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import type { Language } from '$lib/data/languages';
 	import type { Scenario } from '$lib/data/scenarios';
+	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
+	import type { AudioInputMode } from '$lib/server/db/types';
+	import { getAudioInputModeFromCookie, setAudioInputModeCookie } from '$lib/utils/cookies';
 
 	interface Props {
 		/** Show only featured scenarios (default: first 5) */
@@ -24,6 +28,26 @@
 	let currentCardIndex = $state(0);
 	let showAdvancedOptions = $state(false);
 	const browseCardTransform = getCardTransform(featuredScenarios.length);
+
+	// Advanced audio options state
+	let selectedAudioMode = $state<AudioInputMode>('ptt');
+	let isAudioInitialized = $state(false);
+	let showHeadphoneWarning = $state(false);
+	let pendingMode = $state<AudioInputMode | null>(null);
+
+	// Initialize audio mode from cookies
+	$effect(() => {
+		if (isAudioInitialized) return;
+
+		const cookieMode = getAudioInputModeFromCookie();
+		if (cookieMode) {
+			selectedAudioMode = cookieMode;
+		} else {
+			selectedAudioMode = 'ptt';
+		}
+
+		isAudioInitialized = true;
+	});
 
 	// Swipe gesture state
 	let isDragging = $state(false);
@@ -57,6 +81,37 @@
 				settingsStore.setSpeaker(speaker);
 			}
 		}
+	}
+
+	// Audio mode handlers
+	function handleAudioModeChange(mode: AudioInputMode) {
+		// Show warning when switching to conversation mode (VAD)
+		if (mode === 'vad' && selectedAudioMode === 'ptt') {
+			pendingMode = mode;
+			showHeadphoneWarning = true;
+			return;
+		}
+
+		applyAudioModeChange(mode);
+	}
+
+	function applyAudioModeChange(mode: AudioInputMode) {
+		selectedAudioMode = mode;
+		setAudioInputModeCookie(mode);
+		userPreferencesStore.updatePreferences({ audioInputMode: mode });
+	}
+
+	function confirmModeChange() {
+		if (pendingMode) {
+			applyAudioModeChange(pendingMode);
+			pendingMode = null;
+		}
+		showHeadphoneWarning = false;
+	}
+
+	function cancelModeChange() {
+		pendingMode = null;
+		showHeadphoneWarning = false;
 	}
 
 	// Swipe gesture handlers
@@ -220,57 +275,140 @@
 
 	<!-- Advanced Options Section -->
 	<div class="mx-auto max-w-2xl">
-		<div class="collapse-arrow collapse bg-base-200/30 backdrop-blur-sm">
-			<input type="checkbox" bind:checked={showAdvancedOptions} />
-			<div class="collapse-title text-sm font-medium text-base-content/70">
-				<div class="flex items-center gap-2">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="h-5 w-5"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
-						/>
-					</svg>
-					<span>Advanced Options</span>
-				</div>
-			</div>
-			<div class="collapse-content">
-				<div class="space-y-4 pt-2">
-					<!-- Difficulty Filter -->
-					<div>
-						<label class="label">
-							<span class="label-text text-xs font-medium">Difficulty Level</span>
-						</label>
-						<div class="flex gap-2">
-							<button class="btn btn-outline btn-xs">Beginner</button>
-							<button class="btn btn-outline btn-xs">Intermediate</button>
-							<button class="btn btn-outline btn-xs">Advanced</button>
-							<button class="btn btn-xs">All</button>
+		<div class="advanced-options-container">
+			<!-- Toggle Button -->
+			<button
+				class="btn btn-ghost btn-sm gap-2"
+				onclick={() => (showAdvancedOptions = !showAdvancedOptions)}
+				aria-expanded={showAdvancedOptions}
+				aria-controls="advanced-options-panel"
+			>
+				<span class="icon-[mdi--cog] h-5 w-5"></span>
+				Advanced Options
+				<span
+					class="icon-[mdi--chevron-down] h-4 w-4 transition-transform {showAdvancedOptions
+						? 'rotate-180'
+						: ''}"
+				></span>
+			</button>
+
+			<!-- Options Panel -->
+			{#if showAdvancedOptions}
+				<div
+					id="advanced-options-panel"
+					class="mt-4 rounded-lg border border-base-300 bg-base-100 p-4 shadow-sm"
+					transition:slide={{ duration: 200 }}
+				>
+					<h3 class="mb-4 text-sm font-semibold">Audio Input Mode</h3>
+
+					<!-- Audio Mode Swap Toggle -->
+					<div class="flex flex-col gap-4">
+						<!-- Mode Labels -->
+						<div class="flex items-center justify-between">
+							<div class="text-left">
+								<div class="text-sm font-medium" class:text-primary={selectedAudioMode === 'vad'}>
+									Conversation Mode
+								</div>
+								<div class="text-xs text-base-content/60">Natural hands-free speaking</div>
+							</div>
+							<div class="text-right">
+								<div class="text-sm font-medium" class:text-primary={selectedAudioMode === 'ptt'}>
+									Manual Control
+								</div>
+								<div class="text-xs text-base-content/60">Press & hold to speak</div>
+							</div>
+						</div>
+
+						<!-- Swap Toggle Container -->
+						<div class="flex justify-center">
+							<label class="swap swap-rotate">
+								<input
+									type="checkbox"
+									checked={selectedAudioMode === 'ptt'}
+									onchange={() =>
+										handleAudioModeChange(selectedAudioMode === 'vad' ? 'ptt' : 'vad')}
+								/>
+
+								<!-- Auto-Detect icon (swap-off) -->
+								<div class="swap-off flex items-center justify-center">
+									<span class="icon-[mdi--microphone] h-8 w-8 text-base-content/70"></span>
+								</div>
+
+								<!-- Push-to-Talk icon (swap-on) -->
+								<div class="swap-on flex items-center justify-center">
+									<span class="icon-[mdi--gesture-tap] h-8 w-8 text-primary"></span>
+								</div>
+							</label>
+						</div>
+
+						<!-- Description based on selected mode -->
+						<div class="rounded-lg bg-base-200 p-3">
+							{#if selectedAudioMode === 'vad'}
+								<div class="text-xs text-base-content/70">
+									<strong>Conversation Mode:</strong> Automatically detects when you're speaking and
+									captures your voice naturally. No buttons to press—just talk! Perfect for natural conversation
+									flow in quiet environments.
+								</div>
+							{:else}
+								<div class="text-xs text-base-content/70">
+									<strong>Manual Control:</strong> Press and hold the microphone button to speak. Release
+									to stop. Best for noisy backgrounds or when you want precise control over when your
+									audio is transmitted.
+								</div>
+							{/if}
 						</div>
 					</div>
 
-					<!-- Speaker Preference -->
-					{#if currentSpeaker}
-						<div>
-							<label class="label">
-								<span class="label-text text-xs font-medium">Voice</span>
-							</label>
-							<div class="text-xs text-base-content/70">
-								{currentSpeaker.voiceName} • {currentSpeaker.dialectName}
-							</div>
-						</div>
-					{/if}
+					<!-- Speech Speed Section -->
+					<div class="divider"></div>
+
+					<SpeechSpeedSelector />
+
+					<!-- Info Banner -->
+					<div class="alert mt-4 py-2 text-xs">
+						<span class="icon-[mdi--information-outline] h-4 w-4 shrink-0 stroke-info"></span>
+						<span>You can change this setting anytime in your profile settings.</span>
+					</div>
 				</div>
-			</div>
+			{/if}
 		</div>
 	</div>
+
+	<!-- Headphone Warning Modal -->
+	{#if showHeadphoneWarning}
+		<dialog class="modal modal-open">
+			<div class="modal-box">
+				<h3 class="flex items-center gap-2 text-lg font-bold">
+					<span class="icon-[mdi--alert-circle-outline] h-6 w-6 text-warning"></span>
+					Headphones Required
+				</h3>
+				<div class="space-y-3 py-4">
+					<p class="text-sm">
+						<strong>Conversation Mode</strong> works best with headphones or earbuds to prevent audio
+						feedback loops.
+					</p>
+					<div class="alert alert-warning py-2">
+						<span class="icon-[mdi--headphones] h-5 w-5 shrink-0"></span>
+						<span class="text-xs"
+							>Without headphones, the assistant's voice may be picked up by your microphone, creating
+							an echo effect and poor audio quality.</span
+						>
+					</div>
+					<p class="text-sm">Do you have headphones or earbuds connected?</p>
+				</div>
+				<div class="modal-action">
+					<button class="btn btn-ghost" onclick={cancelModeChange}>Cancel</button>
+					<button class="btn btn-primary" onclick={confirmModeChange}>
+						<span class="icon-[mdi--check] h-5 w-5"></span>
+						Yes, Continue
+					</button>
+				</div>
+			</div>
+			<form method="dialog" class="modal-backdrop" onclick={cancelModeChange}>
+				<button>close</button>
+			</form>
+		</dialog>
+	{/if}
 
 	<!-- Swipeable Card Stack Section -->
 	<div class="space-y-4">
@@ -293,7 +431,7 @@
 				aria-label="Scenario cards"
 			>
 				<!-- Render scenario cards -->
-				{#each featuredScenarios as scenario, index (scenario.id)}
+				{#each featuredScenarios as scenario, index (scenario.id + '-' + (currentSpeaker?.id || 'no-speaker'))}
 					<div
 						class="card-stack-item absolute top-0 left-1/2 w-full cursor-grab touch-none transition-all duration-300 ease-out select-none"
 						class:cursor-grabbing={isDragging && index === currentCardIndex}
