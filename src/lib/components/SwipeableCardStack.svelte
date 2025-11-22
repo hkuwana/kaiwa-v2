@@ -268,7 +268,7 @@
 
 	<!-- Advanced Options Section -->
 	<div class="mx-auto max-w-2xl">
-		<div class="advanced-options-container">
+		<div class="advanced-options-container text-center">
 			<!-- Toggle Button -->
 			<button
 				class="btn btn-ghost btn-sm gap-2"

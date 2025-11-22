@@ -86,12 +86,36 @@
 		in:fade={{ duration: 300, easing: cubicOut }}
 		out:fade={{ duration: 200 }}
 	>
-		<!-- Briefing Card -->
+		<!-- Briefing Card with Full Background Image -->
 		<div
-			class="relative overflow-hidden rounded-3xl border border-base-300 bg-gradient-to-br from-base-100 to-base-200/50 p-4 shadow-xl backdrop-blur-sm sm:p-8"
+			class="card {selectedScenario?.thumbnailUrl && !scenarioImageError
+				? 'image-full'
+				: ''} relative overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-xl"
 			in:scale={{ duration: 400, start: 0.95, easing: cubicOut }}
 		>
-			<!-- Speaker Section (Hero) - Compact on mobile -->
+			<!-- Scenario Background Image (Full Card) -->
+			{#if selectedScenario?.thumbnailUrl && !scenarioImageError}
+				<figure>
+					<img
+						src={selectedScenario.thumbnailUrl}
+						alt={selectedScenario.title}
+						class="h-full w-full object-cover"
+						onerror={handleImageError}
+					/>
+				</figure>
+			{:else if selectedScenario?.thumbnailUrl && scenarioImageError}
+				<figure>
+					<img
+						src={defaultScenarioImage}
+						alt={selectedScenario.title}
+						class="h-full w-full object-cover"
+					/>
+				</figure>
+			{/if}
+
+			<!-- Card Content Overlay -->
+			<div class="card-body p-4 sm:p-8">
+				<!-- Speaker Section (Hero) - Compact on mobile -->
 			{#if selectedSpeaker}
 				<div
 					class="mb-4 flex flex-col items-center sm:mb-6"
@@ -154,85 +178,40 @@
 				<div class="divider my-2 sm:my-4"></div>
 			{/if}
 
-			<!-- Language & Scenario Grid - More compact on mobile -->
-			<div class="space-y-2 sm:space-y-4">
+				<!-- Scenario Info - Overlaid on background image -->
 				{#if selectedScenario}
-					<div
-						class="card rounded-2xl shadow-sm {selectedScenario.thumbnailUrl && !scenarioImageError
-							? 'image-full bg-base-100'
-							: 'bg-base-100/50'}"
-					>
-						{#if selectedScenario.thumbnailUrl && !scenarioImageError}
-							<figure>
-								<img
-									src={selectedScenario.thumbnailUrl}
-									alt={selectedScenario.title}
-									class="h-full w-full object-cover"
-									onerror={handleImageError}
-								/>
-							</figure>
-						{:else if selectedScenario.thumbnailUrl && scenarioImageError}
-							<figure>
-								<img
-									src={defaultScenarioImage}
-									alt={selectedScenario.title}
-									class="h-full w-full object-cover"
-								/>
-							</figure>
-						{/if}
-						<div class="card-body p-3 sm:p-4">
+					<div class="space-y-2 sm:space-y-4">
+						<div class="rounded-2xl bg-base-100/80 p-3 backdrop-blur-sm sm:p-4">
 							<div class="mb-2 flex items-start justify-between gap-2 sm:mb-3 sm:gap-3">
 								<div class="flex-1">
-									<p
-										class="text-[10px] font-medium tracking-wide uppercase sm:text-xs {selectedScenario.thumbnailUrl
-											? 'text-base-content'
-											: 'text-base-content/50'}"
-									>
+									<p class="text-[10px] font-medium uppercase tracking-wide text-base-content/70 sm:text-xs">
 										Scenario
 									</p>
-									<h3
-										class="mt-0.5 text-base leading-tight font-semibold sm:mt-1 sm:text-lg {selectedScenario.thumbnailUrl
-											? 'text-base-content'
-											: 'text-base-content'}"
-									>
+									<h3 class="mt-0.5 text-base font-semibold leading-tight text-base-content sm:mt-1 sm:text-lg">
 										{selectedScenario.title}
 									</h3>
 								</div>
 							</div>
 
-							<p
-								class="mb-2 text-xs leading-relaxed {selectedScenario.thumbnailUrl
-									? 'text-base-content/90'
-									: 'text-base-content/70'}"
-							>
+							<p class="mb-2 text-xs leading-relaxed text-base-content/90">
 								Goal: {selectedScenario.learningGoal}
 							</p>
 
 							<!-- Difficulty Indicator - More compact on mobile -->
 							{#if scenarioMeta}
 								<div class="flex items-center gap-1.5 sm:gap-2">
-									<span
-										class="text-[10px] sm:text-xs {selectedScenario.thumbnailUrl
-											? 'text-base-content/70'
-											: 'text-base-content/50'}"
-									>
-										Difficulty:
-									</span>
+									<span class="text-[10px] text-base-content/70 sm:text-xs">Difficulty:</span>
 									<div class="flex items-center gap-0.5 sm:gap-1">
 										{#each [1, 2, 3] as segment}
 											<span
 												class="h-1 w-4 rounded-full transition-colors sm:h-1.5 sm:w-6"
-												class:bg-success={segment <=
-													(selectedScenario.difficultyRating || 0) / 3.33 &&
+												class:bg-success={segment <= (selectedScenario.difficultyRating || 0) / 3.33 &&
 													scenarioMeta.color === 'success'}
-												class:bg-warning={segment <=
-													(selectedScenario.difficultyRating || 0) / 3.33 &&
+												class:bg-warning={segment <= (selectedScenario.difficultyRating || 0) / 3.33 &&
 													scenarioMeta.color === 'warning'}
-												class:bg-error={segment <=
-													(selectedScenario.difficultyRating || 0) / 3.33 &&
+												class:bg-error={segment <= (selectedScenario.difficultyRating || 0) / 3.33 &&
 													scenarioMeta.color === 'error'}
-												class:bg-base-300={segment >
-													(selectedScenario.difficultyRating || 0) / 3.33}
+												class:bg-base-300={segment > (selectedScenario.difficultyRating || 0) / 3.33}
 											></span>
 										{/each}
 									</div>
@@ -249,7 +228,6 @@
 						</div>
 					</div>
 				{/if}
-			</div>
 
 			<!-- Start Conversation Button - Integrated into card -->
 			{#if showStartButton && selectedScenario && onStartConversation}
@@ -290,6 +268,8 @@
 					</button>
 				</div>
 			{/if}
+			</div>
+			<!-- End Card Body -->
 
 			<!-- Subtle Gradient Overlay (bottom) - only show when no button -->
 			{#if !showStartButton}
@@ -298,6 +278,7 @@
 				></div>
 			{/if}
 		</div>
+		<!-- End Card -->
 	</div>
 {/if}
 
