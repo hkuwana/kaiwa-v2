@@ -56,11 +56,14 @@
 	let dragCurrentX = $state(0);
 	let dragCurrentY = $state(0);
 
-	// Get current speaker for selected language
+	// Speaker selection state (ID string, not object) - matches home page pattern
+	let selectedSpeaker = $state<string | null>(settingsStore.selectedSpeaker);
+
+	// Derive the speaker object from the ID
 	const currentSpeaker = $derived.by(() => {
-		if (!settingsStore.selectedLanguage) return null;
-		const speakersForLanguage = getSpeakersByLanguage(settingsStore.selectedLanguage.code);
-		return speakersForLanguage?.[0] || null;
+		if (!selectedSpeaker || !settingsStore.selectedLanguage) return null;
+		const speakers = getSpeakersByLanguage(settingsStore.selectedLanguage.code);
+		return speakers.find((s) => s.id === selectedSpeaker) || null;
 	});
 
 	// Check if we're on the "Browse All" card (last position)
@@ -73,14 +76,8 @@
 	}
 
 	function handleSpeakerChange(speakerId: string) {
-		// Find the speaker and set it
-		if (settingsStore.selectedLanguage) {
-			const speakers = getSpeakersByLanguage(settingsStore.selectedLanguage.code);
-			const speaker = speakers.find((s) => s.id === speakerId);
-			if (speaker) {
-				settingsStore.setSpeaker(speaker);
-			}
-		}
+		selectedSpeaker = speakerId;
+		settingsStore.setSpeaker(speakerId);
 	}
 
 	// Audio mode handlers
