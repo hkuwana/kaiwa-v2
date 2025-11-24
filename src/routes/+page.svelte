@@ -19,10 +19,15 @@
 	import StageIndicator from '$lib/components/StageIndicator.svelte';
 	import { defaultTierConfigs } from '$lib/data/tiers';
 	import type { UserTier } from '$lib/data/tiers';
+	import { conversationStore } from '$lib/stores/conversation.store.svelte';
+	import type { Scenario } from '$lib/data/scenarios';
 
 	const { data: _data } = $props();
 
 	const user = userManager.user;
+
+	// State for starting conversation
+	let isStartingConversation = $state(false);
 
 	// State for dynamic headline with language selection
 	let selectedLanguage = $state<DataLanguage | null>(settingsStore.selectedLanguage);
@@ -88,7 +93,44 @@
 	// Event handler for dynamic headline language selection
 	function handleDynamicLanguageSelect(language: DataLanguage) {
 		selectedLanguage = language;
-		settingsStore.setLanguageObject(language);
+		settingsStore.setLanguage(language);
+	}
+
+	// Handle conversation start - manages stores and navigation
+	async function handleStartConversation(scenario: Scenario) {
+		isStartingConversation = true;
+
+		try {
+			// Set the scenario in the scenario store
+			scenarioStore.setScenarioById(scenario.id);
+
+			// Generate session ID
+			const sessionId = crypto.randomUUID();
+
+			// Get the currently selected language and speaker
+			const selectedLanguage = settingsStore.selectedLanguage;
+			const selectedSpeaker = settingsStore.selectedSpeaker;
+
+			// Get the current audio mode preference
+			const userPrefs = userManager.preferences || {};
+			const audioMode = userPrefs.audioInputMode || 'ptt';
+
+			console.log('Starting conversation with:', {
+				scenario: scenario.title,
+				sessionId,
+				language: selectedLanguage?.code,
+				speaker: selectedSpeaker,
+				audioMode
+			});
+
+			// Navigate to conversation page with parameters
+			await goto(
+				`/conversation?sessionId=${sessionId}&scenario=${scenario.id}&autoStart=true&audioMode=${audioMode}`
+			);
+		} catch (error) {
+			console.error('Error starting conversation:', error);
+			isStartingConversation = false;
+		}
 	}
 
 	// Clear conversation data functions
@@ -169,7 +211,7 @@
 
 		<!-- Swipeable Card Stack -->
 		<div class="mb-8">
-			<SwipeableCardStack />
+			<SwipeableCardStack onStartConversation={handleStartConversation} />
 		</div>
 
 		<!-- Monthly Usage Display - Only show for logged in users -->

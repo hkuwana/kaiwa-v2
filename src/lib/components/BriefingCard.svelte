@@ -16,6 +16,8 @@
 		onStartConversation?: (scenario: Scenario) => void;
 		/** Show the start conversation button (default: false) */
 		showStartButton?: boolean;
+		/** Show loading spinner on button (default: false) */
+		isLoading?: boolean;
 	}
 
 	const {
@@ -23,7 +25,8 @@
 		selectedSpeaker = null,
 		selectedScenario = null,
 		onStartConversation,
-		showStartButton = false
+		showStartButton = false,
+		isLoading = false
 	}: Props = $props();
 
 	const hasSelections = $derived(selectedLanguage || selectedSpeaker || selectedScenario);
@@ -215,10 +218,16 @@
 				{#if showStartButton && selectedScenario && onStartConversation}
 					<div class="relative z-10 mt-4 sm:mt-6">
 						<button
-							class="btn btn-block shadow-lg transition-all duration-200 btn-lg btn-primary hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
+							disabled={isLoading}
+							class="btn btn-block shadow-lg transition-all duration-200 btn-lg btn-primary hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] disabled:opacity-75 disabled:cursor-not-allowed"
 							onclick={() => onStartConversation?.(selectedScenario)}
 						>
-							Start Conversation
+							{#if isLoading}
+								<span class="loading loading-spinner loading-sm"></span>
+								Starting Conversation...
+							{:else}
+								Start Conversation
+							{/if}
 						</button>
 					</div>
 				{/if}

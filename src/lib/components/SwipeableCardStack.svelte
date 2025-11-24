@@ -19,9 +19,11 @@
 	interface Props {
 		/** Show only featured scenarios (default: first 5) */
 		featuredScenariosCount?: number;
+		/** Callback when user starts a conversation */
+		onStartConversation?: (scenario: Scenario) => void;
 	}
 
-	const { featuredScenariosCount = 5 }: Props = $props();
+	const { featuredScenariosCount = 5, onStartConversation }: Props = $props();
 
 	// Get featured scenarios + add a "Browse All" placeholder at the end
 	const featuredScenarios = scenariosData.slice(0, featuredScenariosCount);
@@ -29,7 +31,7 @@
 	let currentCardIndex = $state(0);
 	let showAdvancedOptions = $state(false);
 	let showSwipeHint = $state(true); // Show hint animation initially
-	const browseCardTransform = getCardTransform(featuredScenarios.length);
+	let isStartingConversation = $state(false); // Track loading state
 
 	// Hide swipe hint after first interaction or after 5 seconds
 	$effect(() => {
@@ -190,10 +192,18 @@
 
 	function handleStartConversation(scenario: Scenario) {
 		console.log('Starting conversation with scenario:', scenario.title);
-		const sessionId = crypto.randomUUID();
-		goto(
-			`/conversation?sessionId=${sessionId}&scenario=${scenario.id}&autoStart=true&audioMode=${selectedAudioMode}`
-		);
+		isStartingConversation = true;
+
+		// Call parent callback if provided, otherwise fall back to direct navigation
+		if (onStartConversation) {
+			onStartConversation(scenario);
+		} else {
+			// Fallback for components that don't provide the callback
+			const sessionId = crypto.randomUUID();
+			goto(
+				`/conversation?sessionId=${sessionId}&scenario=${scenario.id}&autoStart=true&audioMode=${selectedAudioMode}`
+			);
+		}
 	}
 
 	function goToScenario(index: number) {
@@ -487,6 +497,7 @@
 							selectedSpeaker={currentSpeaker}
 							selectedScenario={scenario}
 							showStartButton={true}
+							isLoading={isStartingConversation}
 							onStartConversation={handleStartConversation}
 						/>
 					</div>
