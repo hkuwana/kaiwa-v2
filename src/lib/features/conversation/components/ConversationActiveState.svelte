@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
+	import { onDestroy } from 'svelte';
 	import AudioVisualizer from '$lib/features/audio/components/AudioVisualizer.svelte';
 	import MessageBubble from '$lib/features/conversation/components/MessageBubble.svelte';
 	import ConversationFab from '$lib/features/conversation/components/ConversationFab.svelte';
@@ -169,6 +170,15 @@
 			translationStore.setTranslating(messageId, false);
 		}
 	}
+
+	// Safety net: If this component is destroyed, ensure audio/realtime connections are cleaned up
+	onDestroy(() => {
+		// Only trigger cleanup if conversation is still active (not already in analysis)
+		if (status === 'connected' || status === 'streaming') {
+			console.log('⚠️ ConversationActiveState destroyed while conversation active - triggering cleanup');
+			conversationStore.pauseStreaming();
+		}
+	});
 </script>
 
 <div
