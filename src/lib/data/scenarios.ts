@@ -250,7 +250,7 @@ Stay curious but kind. You are evaluating them, but you also want them to feel t
 		tags: ['parents', 'family dinner', 'first impression', 'cultural etiquette'],
 		primarySkill: 'conversation',
 		searchKeywords: ['meet parents', 'family introduction', 'earn trust', 'dinner conversation'],
-		thumbnailUrl: '/scenarios/family-dinner-introduction.png',
+		thumbnailUrl: 'src/lib/assets/scenarios/Free-Practice-Mode.png',
 		estimatedDurationSeconds: 1080, // 18 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'meeting-parents-jb2k',
@@ -335,7 +335,7 @@ Keep each turn short. Use clear relationship words and natural honorifics. Your 
 		tags: ['family', 'introductions', 'social', 'relationships'],
 		primarySkill: 'conversation',
 		searchKeywords: ['family friends', 'introductions', 'social gathering', 'relationships'],
-		thumbnailUrl: '/scenarios/inlaws-family-friends-intro.png',
+		thumbnailUrl: 'src/lib/assets/scenarios/family-celebration-toast.png',
 		estimatedDurationSeconds: 900, // 15 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'meeting-family-friends-k5m7',
@@ -446,7 +446,7 @@ Stay warm but efficient. The learner should finish feeling: "I can describe sudd
 			'describe symptoms',
 			'urgent'
 		],
-		thumbnailUrl: '/scenarios/clinic-night-triage.png',
+		thumbnailUrl: 'src/lib/assets/scenarios/Emergency-room-visit.png',
 		estimatedDurationSeconds: 900, // 15 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'emergency-room-visit-x7p9',
@@ -510,7 +510,7 @@ Use simple sentences and give the learner space to talk. Your job is to make it 
 		tags: ['dating', 'first date', 'conversation', 'getting to know you'],
 		primarySkill: 'conversation',
 		searchKeywords: ['first date', 'dating', 'romantic conversation', 'bar conversation'],
-		thumbnailUrl: '/scenarios/first-date-drinks.png',
+		thumbnailUrl: 'src/lib/assets/scenarios/Dinner-drinks-date.png',
 		estimatedDurationSeconds: 720, // 12 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'first-date-drinks-m4k1',
@@ -595,7 +595,7 @@ Stay emotionally honest but not cruel. You are helping them practice **real, spe
 		tags: ['apology', 'conflict resolution', 'emotional', 'relationships'],
 		primarySkill: 'conversation',
 		searchKeywords: ['apology', 'conflict', 'relationship repair', 'emotional'],
-		thumbnailUrl: '/scenarios/relationship-apology.png',
+		thumbnailUrl: 'src/lib/assets/scenarios/repairing-the-relationship.png',
 		estimatedDurationSeconds: 600, // 10 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'relationship-apology-p4q8',
@@ -675,7 +675,7 @@ Keep your sentences short and your tone warm. Your job is to make it easier for 
 		tags: ['emotional', 'vulnerability', 'deep conversation', 'intimacy'],
 		primarySkill: 'conversation',
 		searchKeywords: ['heart to heart', 'vulnerability', 'emotional', 'deep talk'],
-		thumbnailUrl: '/scenarios/vulnerable-heart-to-heart.png',
+		thumbnailUrl: 'src/lib/assets/scenarios/Free-Practice-Mode.png',
 		estimatedDurationSeconds: 720, // 12 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'heart-to-heart-talk-v2n6',
@@ -751,7 +751,7 @@ As the audience, react with warmth (laughter at light humor, soft responses at e
 		tags: ['celebration', 'toast', 'public speaking', 'family'],
 		primarySkill: 'conversation',
 		searchKeywords: ['toast', 'celebration', 'wedding', 'public speaking'],
-		thumbnailUrl: '/scenarios/family-milestone-toast.png',
+		thumbnailUrl: 'src/lib/assets/scenarios/family-celebration-toast.png',
 		estimatedDurationSeconds: 480, // 8 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'family-toast-celebration-t8w4',
@@ -836,7 +836,7 @@ Stay emotionally real but not hostile. Your role is to help them practice **sayi
 		tags: ['family', 'important news', 'decision', 'communication'],
 		primarySkill: 'conversation',
 		searchKeywords: ['big news', 'family announcement', 'major decision', 'life changes'],
-		thumbnailUrl: '/scenarios/breaking-important-news.png',
+		thumbnailUrl: 'src/lib/assets/scenarios/Sharing-big-life-news.png',
 		estimatedDurationSeconds: 900, // 15 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'sharing-big-news-b3d9',
