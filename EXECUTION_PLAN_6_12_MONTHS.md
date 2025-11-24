@@ -38,7 +38,7 @@ This plan takes Kaiwa from early validation (current state: <$1K MRR) to **$30K 
 **Objective**: Build systems to scale content production
 
 **Tasks**:
-- [ ] Set up content calendar (Notion/Airtable)
+- [ ] Set up content calendar (Google Docs/SHeets)
 - [ ] Create 10 "before/after" case file templates
 - [ ] Set up TikTok, Instagram Reels, YouTube Shorts accounts
 - [ ] Design 5 reusable video templates (CapCut/Canva)
@@ -99,6 +99,8 @@ This plan takes Kaiwa from early validation (current state: <$1K MRR) to **$30K 
 - [ ] User authentication (reuse backend)
 
 **Deliverable**: iOS TestFlight beta ready for Month 2
+
+See the full [Mobile Development Plan](./docs/4-technical/mobile-development-plan.md).
 
 ---
 
@@ -356,6 +358,8 @@ With content creator hired:
 - [ ] Beta test with 25 users
 
 **Deliverable**: Android beta ready for Month 6 launch
+
+See the full [Mobile Development Plan](./docs/4-technical/mobile-development-plan.md).
 
 ---
 
@@ -689,7 +693,7 @@ With content creator hired:
 
 - **Build proprietary AI** (fine-tuned models, better than OpenAI)
 
-- **Mobile-first** (world-class iOS/Android apps)
+- **Mobile-first** ([see Mobile Development Plan](./docs/4-technical/mobile-development-plan.md) for world-class iOS/Android apps)
 
 **What you'd give up**:
 - 20-30% equity (you'd own 70-80% post-seed)

@@ -1,11 +1,11 @@
 <script lang="ts">
 	import ThemeSwitcher from './ThemeSwitcher.svelte';
+	import NavLanguageSwitcher from './NavLanguageSwitcher.svelte';
 	import type { User } from '$lib/server/db/types';
 	import { goto } from '$app/navigation';
 	import { dev } from '$app/environment';
 	import { resolve } from '$app/paths';
 	const { user }: { user: User | null } = $props();
-	// Get user data from page data
 </script>
 
 <nav class="relative z-50 navbar bg-base-100">
@@ -19,6 +19,13 @@
 				<li><a href="/scenarios" class="">Scenarios</a></li>
 				<li><a href="/pricing" class="">Pricing</a></li>
 				<li><a href="/privacy" class="">Privacy</a></li>
+				<li class="menu-title">Settings</li>
+				<li>
+					<div class="flex items-center justify-between">
+						<span>Light/Dark Mode</span>
+						<ThemeSwitcher />
+					</div>
+				</li>
 
 				{#if dev}
 					<li class="menu-title">Dev</li>
@@ -52,7 +59,9 @@
 		</ul>
 	</div>
 
-	<div class="navbar-end">
+	<div class="navbar-end gap-2">
+		<NavLanguageSwitcher />
+
 		{#if user && user.id !== 'guest'}
 			<div class="dropdown dropdown-end">
 				<div tabindex="0" role="button" class="btn avatar btn-circle btn-ghost">
@@ -72,12 +81,18 @@
 					<li><a href="/conversation" class="">Start Practice</a></li>
 					<li><a href="/profile" class="">Profile</a></li>
 					<li><a href="/user/history" class="">History</a></li>
+					<li class="divider my-1"></li>
+					<li>
+						<div class="flex items-center justify-between">
+							<span>Light/Dark Mode</span>
+							<ThemeSwitcher />
+						</div>
+					</li>
 					<li><a href="/logout" class="">Logout</a></li>
 				</ul>
 			</div>
 		{:else}
 			<a href="/auth" class="btn btn-outline">Sign Up</a>
 		{/if}
-		<ThemeSwitcher />
 	</div>
 </nav>

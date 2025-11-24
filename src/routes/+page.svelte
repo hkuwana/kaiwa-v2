@@ -212,7 +212,10 @@
 
 		<!-- Swipeable Card Stack -->
 		<div class="mb-8">
-			<SwipeableCardStack onStartConversation={handleStartConversation} />
+			<SwipeableCardStack
+				selectedSpeaker={settingsStore.selectedSpeaker}
+				onStartConversation={handleStartConversation}
+			/>
 		</div>
 
 		<!-- Monthly Usage Display - Only show for logged in users -->

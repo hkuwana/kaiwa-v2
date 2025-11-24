@@ -5,7 +5,6 @@
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { getSpeakersByLanguage } from '$lib/data/speakers';
 	import BriefingCard from './BriefingCard.svelte';
-	import LanguageSelector from './LanguageSelector.svelte';
 	import SpeechSpeedSelector from './SpeechSpeedSelector.svelte';
 	import { fade, slide } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
@@ -21,9 +20,11 @@
 		featuredScenariosCount?: number;
 		/** Callback when user starts a conversation */
 		onStartConversation?: (scenario: Scenario) => void;
+		/** Selected speaker ID */
+		selectedSpeaker?: string | null;
 	}
 
-	const { featuredScenariosCount = 5, onStartConversation }: Props = $props();
+	const { featuredScenariosCount = 5, onStartConversation, selectedSpeaker }: Props = $props();
 
 	// Get featured scenarios + add a "Browse All" placeholder at the end
 	const featuredScenarios = scenariosData.slice(0, featuredScenariosCount);
@@ -68,29 +69,28 @@
 	let dragCurrentX = $state(0);
 	let dragCurrentY = $state(0);
 
-	// Speaker selection state (ID string, not object) - matches home page pattern
-	let selectedSpeaker = $state<string | null>(settingsStore.selectedSpeaker);
-
-	// Derive the speaker object from the ID
+	// Derive the speaker object from prop or store
 	const currentSpeaker = $derived.by(() => {
-		if (!selectedSpeaker || !settingsStore.selectedLanguage) return null;
-		const speakers = getSpeakersByLanguage(settingsStore.selectedLanguage.code);
-		return speakers.find((s) => s.id === selectedSpeaker) || null;
+		const speakerId = selectedSpeaker || settingsStore.selectedSpeaker;
+		console.log('[SwipeableCardStack] Current speaker:', { selectedSpeaker, storeSelectedSpeaker: settingsStore.selectedSpeaker, speakerId });
+
+		if (!speakerId || !settingsStore.selectedLanguage) {
+			console.log('[SwipeableCardStack] No speaker ID or language, returning null');
+			return null;
+		}
+
+		const languageId = settingsStore.selectedLanguage.id;
+		console.log('[SwipeableCardStack] Looking up speakers for language:', { code: settingsStore.selectedLanguage.code, id: languageId, speakerId });
+		const speakers = getSpeakersByLanguage(languageId);
+		console.log('[SwipeableCardStack] Available speakers:', speakers.map(s => ({ id: s.id, voiceName: s.voiceName, languageId: s.languageId })));
+		const speaker = speakers.find((s) => s.id === speakerId) || null;
+		console.log('[SwipeableCardStack] Found speaker:', speaker);
+		return speaker;
 	});
 
 	// Check if we're on the "Browse All" card (last position)
 	const isOnBrowseAllCard = $derived(currentCardIndex === featuredScenarios.length);
 	const totalCards = $derived(featuredScenarios.length + 1); // +1 for Browse All card
-
-	// Language selection handlers
-	function handleLanguageChange(language: Language) {
-		settingsStore.setLanguage(language);
-	}
-
-	function handleSpeakerChange(speakerId: string) {
-		selectedSpeaker = speakerId;
-		settingsStore.setSpeaker(speakerId);
-	}
 
 	// Audio mode handlers
 	function handleAudioModeChange(mode: AudioInputMode) {
@@ -272,23 +272,6 @@
 </script>
 
 <div class="w-full space-y-8">
-	<!-- Language Selection Section -->
-	<div class="mx-auto w-full max-w-md space-y-4">
-		<div class="text-center">
-			<h2 class="text-xl font-bold text-base-content sm:text-3xl">Choose Your Language</h2>
-			<p class="mt-2 text-sm text-base-content/70">
-				Select the language and speaker you want to practice with
-			</p>
-		</div>
-
-		<LanguageSelector
-			selectedLanguage={settingsStore.selectedLanguage}
-			selectedSpeaker={currentSpeaker?.id || null}
-			onLanguageChange={handleLanguageChange}
-			onSpeakerChange={handleSpeakerChange}
-		/>
-	</div>
-
 	<!-- Advanced Options Section -->
 	<div class="mx-auto max-w-2xl">
 		<div class="advanced-options-container text-center">
@@ -549,7 +532,7 @@
 								<!-- Text -->
 								<div class="space-y-2">
 									<h3 class="text-xl font-bold text-base-content sm:text-2xl">
-										Browse All Scenarios
+										Browse More Scenarios
 									</h3>
 									<p class="text-sm text-base-content/70 sm:text-base">
 										Explore {scenariosData.length}+ conversation scenarios

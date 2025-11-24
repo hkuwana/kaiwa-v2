@@ -73,7 +73,7 @@
 					class="inline-flex items-center gap-2 text-sm text-base-content/60 transition-colors hover:text-base-content"
 				>
 					<span class="icon-[mdi--arrow-left] h-4 w-4"></span>
-					<span>Browse all scenarios</span>
+					<span>Browse more scenarios</span>
 				</a>
 			</div>
 

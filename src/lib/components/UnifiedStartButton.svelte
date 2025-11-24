@@ -3,7 +3,6 @@
 	import { scenariosData, sortScenariosByDifficulty, type Scenario } from '$lib/data/scenarios';
 	import { goto } from '$app/navigation';
 	import { track } from '$lib/analytics/posthog';
-	import LanguageSelector from './LanguageSelector.svelte';
 	import ScenarioSelector from '$lib/features/scenarios/components/ScenarioSelector.svelte';
 	import AdvancedAudioOptions from './AdvancedAudioOptions.svelte';
 	import BriefingCard from './BriefingCard.svelte';
@@ -19,8 +18,6 @@
 		selectedSpeaker: string;
 		selectedScenario: Scenario;
 		selectedAudioMode: 'vad' | 'ptt';
-		onLanguageChange?: (language: DataLanguage) => void;
-		onSpeakerChange?: (speakerId: string) => void;
 		onScenarioChange?: (scenario: Scenario) => void;
 		onStartClick?: () => void;
 		onModeChange?: (mode: 'vad' | 'ptt') => void;
@@ -34,8 +31,6 @@
 		selectedSpeaker,
 		selectedScenario,
 		selectedAudioMode = 'ptt', // Default to Push-to-Talk
-		onLanguageChange,
-		onSpeakerChange,
 		onScenarioChange,
 		onStartClick,
 		onModeChange
@@ -50,9 +45,9 @@
 	// Current scenario or default to onboarding
 	const currentScenario = $derived(selectedScenario || availableScenarios[0]);
 
-	// Get current speaker object from selectedSpeaker ID
+	// Get current speaker object from settings store
 	const currentSpeaker = $derived(
-		speakersData.find((s) => s.id === selectedSpeaker) ?? speakersData[0]
+		speakersData.find((s) => s.id === settingsStore.selectedSpeaker) ?? speakersData[0]
 	);
 
 	type ScenarioRole = 'tutor' | 'character' | 'friendly_chat' | 'expert';
@@ -97,18 +92,6 @@
 	let isLoading = $state(false);
 
 	// Functions
-	function handleLanguageChange(language: DataLanguage) {
-		if (onLanguageChange) {
-			onLanguageChange(language);
-		}
-	}
-
-	function handleSpeakerChange(speakerId: string) {
-		if (onSpeakerChange) {
-			onSpeakerChange(speakerId);
-		}
-	}
-
 	function handleScenarioChange(scenario: Scenario) {
 		if (onScenarioChange) {
 			onScenarioChange(scenario);
@@ -156,18 +139,8 @@
 </script>
 
 <div class="flex flex-col items-center gap-6">
-	<!-- Two Choice Buttons Row -->
+	<!-- Scenario Selection -->
 	<div class="flex w-full max-w-md flex-col gap-4">
-		<!-- Language Selection -->
-		<LanguageSelector
-			{selectedLanguage}
-			{selectedSpeaker}
-			onLanguageChange={handleLanguageChange}
-			onSpeakerChange={handleSpeakerChange}
-			disabled={false}
-		/>
-
-		<!-- Scenario Selection -->
 		<ScenarioSelector
 			scenarios={availableScenarios}
 			selectedScenario={currentScenario}
