@@ -163,16 +163,15 @@
 	});
 
 	onDestroy(async () => {
-		const shouldDestroy =
-			shouldDestroyOnUnmount &&
-			conversationStore.status !== 'analyzing' &&
-			conversationStore.status !== 'analyzed';
+		// Always destroy if explicitly requested (not transitioning to analysis)
+		// Only preserve store if navigating TO analysis page
+		const isNavigatingToAnalysis = shouldDestroyOnUnmount === false;
 
-		if (shouldDestroy) {
-			console.log('Cleaning up conversation...');
+		if (!isNavigatingToAnalysis) {
+			console.log('🧹 Cleaning up conversation resources...');
 			await conversationStore.destroyConversation();
 		} else {
-			console.log('Preserving conversation store for analysis view');
+			console.log('📊 Preserving conversation store for analysis view');
 		}
 	});
 

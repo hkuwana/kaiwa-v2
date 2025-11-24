@@ -229,26 +229,17 @@ export class SettingsStore {
 		}
 	};
 
-	// Update selected language by code
-	setLanguage = (languageCode: string) => {
-		const language = allLanguages.find((lang) => lang.code === languageCode);
-		if (language) {
+	// Update selected language by object
+	setLanguage = (language: Language) => {
+		const languageExists = allLanguages.some((lang) => lang.code === language.code);
+
+		if (languageExists) {
 			this.selectedLanguage = language;
 
 			// Persist language but don't auto-select speaker
 			if (browser) {
 				this.persistLanguage(language);
 			}
-		}
-	};
-
-	// Update selected language with full language object
-	setLanguageObject = (language: Language) => {
-		this.selectedLanguage = language;
-
-		// Persist language but don't auto-select speaker - let user choose manually
-		if (browser) {
-			this.persistLanguage(language);
 		}
 	};
 

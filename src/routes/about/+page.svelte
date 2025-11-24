@@ -29,7 +29,7 @@
 
 	function handleLanguageChange(language: DataLanguage) {
 		selectedLanguage = language;
-		settingsStore.setLanguageObject(language);
+		settingsStore.setLanguage(language);
 	}
 
 	function handleSpeakerChange(speakerId: string) {
