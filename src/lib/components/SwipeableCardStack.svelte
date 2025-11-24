@@ -14,6 +14,7 @@
 	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
 	import type { AudioInputMode } from '$lib/server/db/types';
 	import { getAudioInputModeFromCookie, setAudioInputModeCookie } from '$lib/utils/cookies';
+	import { goto } from '$app/navigation';
 
 	interface Props {
 		/** Show only featured scenarios (default: first 5) */
@@ -189,9 +190,9 @@
 
 	function handleStartConversation(scenario: Scenario) {
 		console.log('Starting conversation with scenario:', scenario.title);
-		// TODO: Navigate to conversation or trigger start
-		alert(
-			`Starting conversation: ${scenario.title}\n\nThis will be implemented to start the actual conversation!`
+		const sessionId = crypto.randomUUID();
+		goto(
+			`/conversation?sessionId=${sessionId}&scenario=${scenario.id}&autoStart=true&audioMode=${selectedAudioMode}`
 		);
 	}
 
