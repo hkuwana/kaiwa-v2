@@ -47,7 +47,7 @@
 
 	const rolePersonLabels: Record<string, string> = {
 		tutor: 'Your Tutor',
-		character: 'Your Date',
+		character: 'Your Partner',
 		friendly_chat: 'Your Friend',
 		expert: 'Your Expert'
 	};

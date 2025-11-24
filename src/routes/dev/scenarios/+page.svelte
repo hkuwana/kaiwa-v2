@@ -1,11 +1,9 @@
-<!-- @migration-task Error while migrating Svelte code: Cannot use `export let` in runes mode — use `$props()` instead
-https://svelte.dev/e/legacy_export_invalid -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	const data = $props();
+	let { data } = $props();
 
-	const scenarios = data.scenarioPrompts;
+	const scenarios = data?.scenarioPrompts ?? [];
 
 	onMount(() => {
 		document.title = 'Scenario Prompts - Kaiwa Dev';

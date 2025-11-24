@@ -10,16 +10,21 @@ export const load: PageServerLoad = async () => {
 
 	try {
 		liveScenarios = await scenarioRepository.findActiveScenarios(500);
+		console.log(`[dev/scenarios] Found ${liveScenarios.length} active scenarios from database`);
 	} catch (error) {
+		console.error('[dev/scenarios] Database query failed:', error);
 		logger.error(
 			'Failed to fetch scenarios from DB for /dev/scenarios, falling back to seed data',
 			error
 		);
 	}
 
+	const seedActive = scenariosData.filter((scenario) => scenario.isActive);
+	console.log(`[dev/scenarios] Seed data has ${seedActive.length} active scenarios`);
+
 	const source = liveScenarios.length
 		? liveScenarios
-		: scenariosData.filter((scenario) => scenario.isActive);
+		: seedActive;
 
 	const scenarioPrompts = source
 		.map((scenario) => ({
@@ -32,7 +37,6 @@ export const load: PageServerLoad = async () => {
 			prompt: buildGhibliBackgroundPrompt(scenario)
 		}))
 		.sort((a, b) => a.title.localeCompare(b.title));
-
 	return {
 		scenarioPrompts
 	};

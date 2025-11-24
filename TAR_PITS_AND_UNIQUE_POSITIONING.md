@@ -684,7 +684,7 @@ Most companies think they're unique, but they're not. Here's how to know if you'
 
 When deciding on features, strategy, or tactics, ask:
 
-**"Does this help someone have a real conversation they're afraid to have?"**
+**"Does this give someone the confidence to have a conversation that matters most to them?"**
 
 - If YES → Build it
 - If NO → Don't build it
