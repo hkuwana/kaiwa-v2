@@ -13,7 +13,7 @@
 	const isGuest = user.id === 'guest';
 
 	// Dynamically import scenario images
-	const imageModules = import.meta.glob('$lib/assets/scenarios/*.png', {
+	const imageModules = import.meta.glob('../../lib/assets/scenarios/*.png', {
 		eager: true,
 		query: {
 			enhanced: true
@@ -22,14 +22,26 @@
 
 	// Map scenario IDs to their enhanced images
 	const getScenarioImage = (scenario: Scenario) => {
-		// Try to find a matching image for the scenario
+		// First, try to use the saved thumbnailUrl if it exists
+		if (scenario.thumbnailUrl) {
+			try {
+				const imagePath = scenario.thumbnailUrl.replace('src/lib/', '../../lib/');
+				if (imageModules[imagePath]) {
+					const module = imageModules[imagePath];
+					return module.default || module;
+				}
+			} catch (e) {
+				// Silently fall back to default on error
+			}
+		}
+
+		// Try to find a matching image for the scenario by ID
 		const scenarioId = scenario.id;
-		const imagePath = `$lib/assets/scenarios/${scenarioId}.png`;
+		const imagePath = `../../lib/assets/scenarios/${scenarioId}.png`;
 
 		try {
 			if (imageModules[imagePath]) {
 				const module = imageModules[imagePath];
-				// Return the module directly if it has src, or access default
 				return module.default || module;
 			}
 		} catch (e) {
