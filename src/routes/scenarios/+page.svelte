@@ -6,51 +6,10 @@
 	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
 	import { notificationStore } from '$lib/stores/notification.store.svelte';
 	import ScenarioCreatorModal from '$lib/features/scenarios/components/ScenarioCreatorModal.svelte';
-	import tutorDefault from '$lib/assets/scenarios/tutor-scenario.png?enhanced';
 
 	const { data } = $props();
 	const user = userManager.user;
 	const isGuest = user.id === 'guest';
-
-	// Dynamically import scenario images
-	const imageModules = import.meta.glob('../../lib/assets/scenarios/*.png', {
-		eager: true,
-		query: {
-			enhanced: true
-		}
-	});
-
-	// Map scenario IDs to their enhanced images
-	const getScenarioImage = (scenario: Scenario) => {
-		// First, try to use the saved thumbnailUrl if it exists
-		if (scenario.thumbnailUrl) {
-			try {
-				const imagePath = scenario.thumbnailUrl.replace('src/lib/', '../../lib/');
-				if (imageModules[imagePath]) {
-					const module = imageModules[imagePath];
-					return module.default || module;
-				}
-			} catch (e) {
-				// Silently fall back to default on error
-			}
-		}
-
-		// Try to find a matching image for the scenario by ID
-		const scenarioId = scenario.id;
-		const imagePath = `../../lib/assets/scenarios/${scenarioId}.png`;
-
-		try {
-			if (imageModules[imagePath]) {
-				const module = imageModules[imagePath];
-				return module.default || module;
-			}
-		} catch (e) {
-			// Silently fall back to default on error
-		}
-
-		// Fallback to tutor-scenario if specific image not found
-		return tutorDefault.default || tutorDefault;
-	};
 
 	// State
 	let searchQuery = $state('');
@@ -330,7 +289,7 @@
 							<!-- Thumbnail image -->
 							<figure class="relative h-40 overflow-hidden bg-base-200">
 								<enhanced:img
-									src={getScenarioImage(scenario)}
+									src={scenario.thumbnailUrl}
 									alt={scenario.title}
 									class="h-full w-full object-cover transition-transform group-hover:scale-105"
 									sizes="(min-width: 1024px) 300px, (min-width: 768px) 250px, 100vw"
@@ -514,7 +473,7 @@
 							<!-- Thumbnail image -->
 							<figure class="relative h-40 overflow-hidden bg-base-200">
 								<enhanced:img
-									src={getScenarioImage(scenario)}
+									src={scenario.thumbnailUrl}
 									alt={scenario.title}
 									class="h-full w-full object-cover transition-transform group-hover:scale-105"
 									sizes="(min-width: 1024px) 300px, (min-width: 768px) 250px, 100vw"
@@ -687,7 +646,7 @@
 			<!-- Thumbnail image -->
 			<figure class="h-64 overflow-hidden bg-base-200">
 				<enhanced:img
-					src={getScenarioImage(scenario)}
+					src={scenario.thumbnailUrl}
 					alt={scenario.title}
 					class="h-full w-full object-cover"
 					sizes="(min-width: 1024px) 400px, 100vw"

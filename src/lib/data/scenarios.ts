@@ -92,7 +92,7 @@ Coach warmly. Avoid vocab lists or grammar explanations. Your job is to create o
 		tags: ['beginner', 'first conversation', 'confidence building', 'onboarding'],
 		primarySkill: 'conversation',
 		searchKeywords: ['first conversation', 'beginner', 'start learning', 'confidence'],
-		thumbnailUrl: 'src/lib/assets/scenarios/tutor-scenario.png',
+		thumbnailUrl: '/scenarios/tutor-scenario.png',
 		estimatedDurationSeconds: 300, // 5 minutes - quick intro
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'your-first-conversation-a1b2',
@@ -169,7 +169,7 @@ This is a judgment-free zone. No pressure, just practice.`,
 		tags: ['practice', 'free form', 'sandbox', 'beginner friendly'],
 		primarySkill: 'conversation',
 		searchKeywords: ['practice', 'free practice', 'sandbox', 'open practice'],
-		thumbnailUrl: 'src/lib/assets/scenarios/tutor-scenario.png',
+		thumbnailUrl: '/scenarios/tutor-scenario.png',
 		estimatedDurationSeconds: null, // Open-ended practice
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'free-practice-mode-x9z3',
@@ -250,7 +250,7 @@ Stay curious but kind. You are evaluating them, but you also want them to feel t
 		tags: ['parents', 'family dinner', 'first impression', 'cultural etiquette'],
 		primarySkill: 'conversation',
 		searchKeywords: ['meet parents', 'family introduction', 'earn trust', 'dinner conversation'],
-		thumbnailUrl: 'src/lib/assets/scenarios/Free-Practice-Mode.png',
+		thumbnailUrl: '/scenarios/Free-Practice-Mode.png',
 		estimatedDurationSeconds: 1080, // 18 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'meeting-parents-jb2k',
@@ -268,7 +268,7 @@ Stay curious but kind. You are evaluating them, but you also want them to feel t
 		cefrRecommendation:
 			'Great for advanced intermediate learners (B2) who want to practice relationship vocabulary and social navigation',
 		learningGoal:
-			'Learn three family friends\' names and roles, repeat each relationship correctly, answer simple questions about your background, and greet each person warmly',
+			"Learn three family friends' names and roles, repeat each relationship correctly, answer simple questions about your background, and greet each person warmly",
 		instructions: `You are the protective older sibling hosting your sibling's partner at a **small weekend gathering** with three of the family's closest friends.
 
 Your goal is to walk them through **exactly three introductions** and check that they understand who each person is.
@@ -335,7 +335,7 @@ Keep each turn short. Use clear relationship words and natural honorifics. Your 
 		tags: ['family', 'introductions', 'social', 'relationships'],
 		primarySkill: 'conversation',
 		searchKeywords: ['family friends', 'introductions', 'social gathering', 'relationships'],
-		thumbnailUrl: 'src/lib/assets/scenarios/family-celebration-toast.png',
+		thumbnailUrl: '/scenarios/family-celebration-toast.png',
 		estimatedDurationSeconds: 900, // 15 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'meeting-family-friends-k5m7',
@@ -446,7 +446,7 @@ Stay warm but efficient. The learner should finish feeling: "I can describe sudd
 			'describe symptoms',
 			'urgent'
 		],
-		thumbnailUrl: 'src/lib/assets/scenarios/Emergency-room-visit.png',
+		thumbnailUrl: '/scenarios/Emergency-room-visit.png',
 		estimatedDurationSeconds: 900, // 15 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'emergency-room-visit-x7p9',
@@ -510,7 +510,7 @@ Use simple sentences and give the learner space to talk. Your job is to make it 
 		tags: ['dating', 'first date', 'conversation', 'getting to know you'],
 		primarySkill: 'conversation',
 		searchKeywords: ['first date', 'dating', 'romantic conversation', 'bar conversation'],
-		thumbnailUrl: 'src/lib/assets/scenarios/Dinner-drinks-date.png',
+		thumbnailUrl: '/scenarios/Dinner-drinks-date.png',
 		estimatedDurationSeconds: 720, // 12 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'first-date-drinks-m4k1',
@@ -595,7 +595,7 @@ Stay emotionally honest but not cruel. You are helping them practice **real, spe
 		tags: ['apology', 'conflict resolution', 'emotional', 'relationships'],
 		primarySkill: 'conversation',
 		searchKeywords: ['apology', 'conflict', 'relationship repair', 'emotional'],
-		thumbnailUrl: 'src/lib/assets/scenarios/repairing-the-relationship.png',
+		thumbnailUrl: '/scenarios/repairing-the-relationship.png',
 		estimatedDurationSeconds: 600, // 10 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'relationship-apology-p4q8',
@@ -612,7 +612,7 @@ Stay emotionally honest but not cruel. You are helping them practice **real, spe
 		cefrRecommendation:
 			'Great for intermediate learners (B1) who want to practice emotional vocabulary and vulnerability in relationships',
 		learningGoal:
-			"Name one specific feeling (scared, lonely, exhausted), share a concrete moment when it felt hard, explain why it matters to you, ask clearly for one small support you need, and strengthen emotional closeness",
+			'Name one specific feeling (scared, lonely, exhausted), share a concrete moment when it felt hard, explain why it matters to you, ask clearly for one small support you need, and strengthen emotional closeness',
 		instructions: `You are a trusted loved one (often a partner) listening to someone who is finally ready to talk about something heavy on their heart.
 
 In this scenario, keep one clear example in mind: they are **overwhelmed about moving to your country and using your language every day**, but they have been saying "I'm fine."
@@ -675,7 +675,7 @@ Keep your sentences short and your tone warm. Your job is to make it easier for 
 		tags: ['emotional', 'vulnerability', 'deep conversation', 'intimacy'],
 		primarySkill: 'conversation',
 		searchKeywords: ['heart to heart', 'vulnerability', 'emotional', 'deep talk'],
-		thumbnailUrl: 'src/lib/assets/scenarios/Free-Practice-Mode.png',
+		thumbnailUrl: '/scenarios/Free-Practice-Mode.png',
 		estimatedDurationSeconds: 720, // 12 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'heart-to-heart-talk-v2n6',
@@ -751,7 +751,7 @@ As the audience, react with warmth (laughter at light humor, soft responses at e
 		tags: ['celebration', 'toast', 'public speaking', 'family'],
 		primarySkill: 'conversation',
 		searchKeywords: ['toast', 'celebration', 'wedding', 'public speaking'],
-		thumbnailUrl: 'src/lib/assets/scenarios/family-celebration-toast.png',
+		thumbnailUrl: '/scenarios/family-celebration-toast.png',
 		estimatedDurationSeconds: 480, // 8 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'family-toast-celebration-t8w4',
@@ -836,7 +836,7 @@ Stay emotionally real but not hostile. Your role is to help them practice **sayi
 		tags: ['family', 'important news', 'decision', 'communication'],
 		primarySkill: 'conversation',
 		searchKeywords: ['big news', 'family announcement', 'major decision', 'life changes'],
-		thumbnailUrl: 'src/lib/assets/scenarios/Sharing-big-life-news.png',
+		thumbnailUrl: '/scenarios/Sharing-big-life-news.png',
 		estimatedDurationSeconds: 900, // 15 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'sharing-big-news-b3d9',
