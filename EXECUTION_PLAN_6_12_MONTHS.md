@@ -27,6 +27,55 @@ This plan takes Kaiwa from early validation (current state: <$1K MRR) to **$30K 
 
 **Required growth rate**: ~30% MoM for first 6 months, ~20% MoM for months 7-12
 
+
+---
+
+## Core Early-Stage KPIs (Manual-First)
+
+Before worrying about scaled acquisition, track how a small number of real people actually use Kaiwa:
+
+- **Weekly Active Conversation Users (WACU)**  
+  Unique users who complete at least one full conversation from start → analysis in the last 7 days. This is your primary “are people really using this?” health metric.
+
+- **Weekly Conversation Sessions (WCS)**  
+  Total number of completed conversations (start → analysis) in the last 7 days. Use alongside WACU to see depth of use.
+
+- **Conversations per Active User (CpAU)**  
+  `CpAU = WCS / WACU`. Target ≥ 2 conversations/week for your core personas once they’re onboarded.
+
+- **First-Week Repeat Rate (FWR)**  
+  Of users who complete their first conversation this week, % who come back for at least one more conversation within 7 days. Early retention leading indicator.
+
+- **Manual Touchpoints per Week (MTPW)**  
+  Number of high-touch interactions you personally have with users (PAB calls, Loom reviews, 1:1 Zooms, async feedback threads). Target 5–10/week at this stage.
+
+These KPIs should be visible in one simple weekly dashboard before you optimize for MRR or paid acquisition.
+
+
+---
+
+## This Week: Manual Advisory Sprint (Do Things That Don’t Scale)
+
+For the next 7 days, the priority is to apply the “Do Things That Don’t Scale” mindset with your Product Advisory Board and early users:
+
+- **Recruit & host**  
+  - Personally invite PAB members in WhatsApp to run one full conversation (start → analysis) and share a recording or Loom.  
+  - Offer a 20–30 minute casual Zoom follow-up to debrief how the conversation felt and where the UX was confusing.
+
+- **Observe & annotate**  
+  - Watch every recording end-to-end, take notes on: conversation balance, tone, language difficulty, and any confusing screens.  
+  - Tag each session by persona (Sofia/David/etc.) and scenario.
+
+- **Close the loop**  
+  - Send each participant a short summary: what you heard, what you’re changing, and when they can retest.  
+  - Log 2–3 “shipped fixes” per week that came directly from these calls.
+
+- **Measure manually**  
+  - At the end of the week, fill in: WACU, WCS, CpAU, FWR, and MTPW by hand in a simple sheet or Notion page.  
+  - Use this to decide next week’s focus (conversation quality vs UX clarity).
+
+This manual sprint should be considered **part of Phase 1**, not a detour: it gives you the qualitative and quantitative foundation to make the rest of this 6–12 month plan worth executing.
+
 ---
 
 ## Phase 1: Foundation & Validation (Months 1-3)

@@ -27,6 +27,17 @@ The real pain isn’t grammar — it’s relying on subtitles and translation ap
 - Show pasteable scripts; end with soft CTA (invite to Practice Lab/DM).
 - Credit real feedback: “Shipped X based on Y’s rehearsal.”
 
+## 🧪 Principle: Do Things That Don’t Scale (First 50 Users)
+
+For now, marketing = **high‑touch work with a small number of real people**, not reach:
+
+- Personally onboard PAB members and early users into 1–2 key scenarios (e.g., “Meet the Parents,” “Heritage Reunion”), then watch their full conversations.
+- Offer 1:1 Loom reviews or short Zoom calls where you tailor scripts line‑by‑line to their real situation.
+- Turn each deep session into a Case File + 1–2 public artifacts (Reddit thread, Reel, email story) that credit the user and the shipped fix.
+- Manually log core usage metrics weekly (WACU, conversations per active user, real‑world conversations reported) before optimizing MRR or followers.
+
+These “unscalable” touches are the primary marketing channel for the next few weeks; content and scalable distribution sit downstream of this loop.
+
 ## 📊 90‑Day Go‑To‑Market (Marketing × Distribution)
 
 ### Phase 1: Subtitles → Speaking (Days 1–30)
@@ -195,7 +206,7 @@ If you want, I’ll tailor a one‑page rehearsal for your situation.
 ## 📊 Minimal Metrics That Matter
 
 - Per post: comments, saves, DM invites, requested templates.
-- Per week: Practice Labs hosted, first conversations started, 1–2 shipped fixes you can cite publicly.
+- Per week: **WACU (Weekly Active Conversation Users)**, conversations per active user, Practice Labs hosted, first conversations started, 1–2 shipped fixes you can cite publicly.
 - Email engine: replies and conversions from founder emails tied to these posts.
 
 ---

@@ -199,6 +199,18 @@ Subject: [Emotional Hook]
 
 ---
 
+## How to Know Distribution Is Working (Manual-First KPIs)
+
+For this stage, judge distribution by **usage, not just signups or followers**:
+
+- **Weekly Active Conversation Users (WACU)**: people who complete at least one full conversation (start → analysis) in the last 7 days.
+- **Conversations per Active User**: aim for ≥2/week once someone has had their first session.
+- **Manual Touchpoints per Week**: number of 1:1 calls, Loom reviews, and deep Reddit/DM threads with real users (target 5–10/week).
+
+If WACU and conversations per active user are flat, prioritize more high‑touch “do things that don’t scale” outreach (PAB calls, direct DMs, manual onboarding) over adding new channels or writing more code.
+
+---
+
 ## The Content Repurposing System
 
 **Write Once, Distribute Everywhere**

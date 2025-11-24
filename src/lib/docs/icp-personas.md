@@ -41,7 +41,7 @@ Yuto has invited her to Tokyo to meet his parents for the first time. This is no
 
 ### Why Kaiwa is Her Only Solution
 
-1. **Survival Training Ground**: Not a classroom; a flight simulator for one specific weekend
+1. **Survival Training Ground**: Not a classroom; a conversation simulator for one specific weekend
 2. **Specific Scenarios**: She can immediately find and practice "Meeting the Family," "Expressing Gratitude," "Apologizing"
 3. **Real-World Bridge**: Prep Plan + Warm-Up features are built exactly for her
 4. **Connection > Correctness**: AI coach helps her sound sincere, not just grammatically perfect

@@ -117,6 +117,7 @@ See: [Days 29-30](./marketing-days-29-30.md)
 ### Week 1
 
 - [ ] Feedback tracker created
+- [ ] Simple usage dashboard created (WACU, conversations/week, manual touchpoints)
 - [ ] 5+ Reddit comments posted
 - [ ] 3+ videos created
 - [ ] First Practice Lab hosted (3-5 attendees)
@@ -130,6 +131,7 @@ See: [Days 29-30](./marketing-days-29-30.md)
 - [ ] Email automation set up
 - [ ] Second Practice Lab hosted
 - [ ] 10+ warm leads added (20 total)
+ - [ ] 5–10 Weekly Active Conversation Users (WACU) tracked
 
 ### Week 3
 
@@ -139,6 +141,7 @@ See: [Days 29-30](./marketing-days-29-30.md)
 - [ ] Third Practice Lab hosted
 - [ ] Partnership conversations started
 - [ ] 30+ warm leads total
+ - [ ] 10–15 Weekly Active Conversation Users (WACU) tracked
 
 ### Week 4
 
@@ -164,6 +167,7 @@ See: [Days 29-30](./marketing-days-29-30.md)
 - 4 Practice Labs hosted
 - 15-20 total attendees
 - 30+ warm leads in tracker
+ - 10–20 Weekly Active Conversation Users (WACU), avg ≥2 conversations per active user
 
 ### Conversion
 

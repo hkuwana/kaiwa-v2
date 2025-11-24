@@ -14,7 +14,7 @@ _Why it works_: Immediate pain point (being left out), visual metaphor (subtitle
 
 ### Version 2: The High-Stakes Moment
 
-**"Meeting your partner's parents next month? We're like a flight simulator for that one dinner that changes everything. You practice the actual conversation - not vocab lists - until you're confident."**
+**"Meeting your partner's parents next month? We're a conversation simulator that wows the people that know you. You practice the actual conversation - not vocab lists - until you're confident."**
 
 _Why it works_: Time pressure (next month), high stakes (changes everything), concrete outcome (confidence)
 
@@ -30,7 +30,7 @@ _Why it works_: Personal story, urgency (before it's too late), emotional weight
 
 ### Version 1: The Wedge Strategy
 
-**"Duolingo teaches you how to order coffee. We teach you how to apologize to your Japanese in-laws. We're a conversation simulator for high-stakes relationship moments - think flight simulator but for the one dinner that determines whether her parents approve of you. $1.5B language learning market, but we own the 'don't screw up with the in-laws' wedge."**
+**"Duolingo teaches you how to order coffee. We teach you how to apologize to your Japanese in-laws. We're a conversation simulator for high-stakes relationship moments - think conversation simulator but for the one dinner that determines whether her parents approve of you. $1.5B language learning market, but we own the 'don't screw up with the in-laws' wedge."**
 
 _Why it works_: Clear differentiation from Duolingo, narrow beachhead strategy, huge TAM with focused wedge
 
@@ -185,7 +185,7 @@ The pitch that generates **pull** (not push) wins.
 Sometimes you have 3 seconds. Use these:
 
 1. **"Rehearsal for meeting your partner's parents - in Japanese, Korean, or Spanish."**
-2. **"Flight simulator for the one dinner that determines if her parents approve."**
+2. **"Conversation simulator for the one dinner that determines if her parents approve."**
 3. **"We help you talk to your in-laws without needing your partner to translate."**
 
 ---
@@ -268,7 +268,7 @@ When you have 60+ seconds and want tocreate emotional resonance:
 
 The best pitch is the one that **sounds like you having a normal conversation**, not a sales pitch.
 
-If "flight simulator for the heart" feels natural to you - use it. Just add: "Let me explain what I mean..." and go into the specifics.
+If "conversation simulator for the heart" feels natural to you - use it. Just add: "Let me explain what I mean..." and go into the specifics.
 
 If the grandmother story gives you energy - lead with that.
 
