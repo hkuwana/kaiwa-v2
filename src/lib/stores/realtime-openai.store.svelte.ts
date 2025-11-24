@@ -749,19 +749,9 @@ export class RealtimeOpenAIStore {
 			}
 
 			case 'response.content_part.done': {
-				const partEvent = serverEvent as SDKTransportEvent & {
-					part?: { type: string; text?: string };
-				};
-				if (partEvent.part?.type === 'text') {
-					return {
-						type: 'message',
-						data: {
-							role: 'assistant',
-							content: partEvent.part.text,
-							timestamp: new SvelteDate()
-						}
-					};
-				}
+				// 🔍 NOTE: Don't create messages here - conversation.item.created/added events
+				// provide the authoritative conversation items with all parts already assembled.
+				// Processing this event separately would create duplicate messages.
 				return { type: 'ignore', data: null };
 			}
 

@@ -1315,9 +1315,9 @@ ${personalityExamples}`;
 			fr: 'Example: "Oui, comme ça. Son doux. Réessaie."',
 			de: 'Example: "Ja, eher so. Laut weicher. Nochmal."',
 			it: 'Example: "Sì, così. Suono morbido. Riprova."',
-			pt: "Example: \"Isso, fala assim. Som suave. De novo.\"",
+			pt: 'Example: "Isso, fala assim. Som suave. De novo."',
 			ko: 'Example: "그래, 이렇게. 소리 살짝. 다시 해봐."',
-			zh: "Example: \"嗯，这样说。声音轻一点。再试一次.\"",
+			zh: 'Example: "嗯，这样说。声音轻一点。再试一次."',
 			ru: 'Example: "Да, вот так. Звук мягче. Ещё раз."'
 		};
 
@@ -1550,18 +1550,53 @@ ${scenarioRules}`;
 		const scenarioTitle = scenario.title;
 		const scenarioContext = scenario.context;
 
+		// Detect safety-critical simulation scenarios (e.g., emergency/medical)
+		const categories = scenario.categories as string[] | null | undefined;
+		const tags = scenario.tags as string[] | null | undefined;
+		const isEmergencySimulation =
+			scenario.id === 'clinic-night-triage' ||
+			categories?.some((c) => c === 'health' || c === 'emergency') ||
+			tags?.some((t) => t.toLowerCase().includes('emergency'));
+		const isRolePlayScenario = scenario.role === 'character' || scenario.role === 'friendly_chat';
+
 		// Build scenario adherence section for ALL roles
 		const scenarioAdherence = `## Scenario Adherence (CRITICAL - NEVER VIOLATE)
 - **YOU ARE LOCKED INTO "${scenarioTitle}"** - This is NOT optional or flexible.
 - **Setting:** ${scenarioContext}
 - **EVERY single response MUST stay within this scenario.** Do NOT discuss unrelated topics.
 - **If learner goes off-topic:** Use TIER 4 redirect IMMEDIATELY (acknowledge in 2-3 words, redirect)
-- **NEVER break character.** NEVER leave the scenario setting. NEVER discuss meta topics.
+- **NEVER break character.** NEVER leave the scenario setting. NEVER discuss meta topics${
+			isEmergencySimulation || isRolePlayScenario
+				? ', except when following the simulation/safety instructions for this scenario.'
+				: '.'
+		}
 - **If asked to change scenario or character:** Politely decline and stay in your role.
 - **Reference scenario context naturally:** Weave it into your responses so it feels natural.
 - **Example:** If scenario is "Meeting partner's family", ALL questions should relate to family, relationships, introductions.
 - **Track scenario progress:** Are we achieving the learning objectives? Stay focused on the goal.
 - **Redirect pattern:** Briefly acknowledge their off-topic comment in ${this.options.language.name}, then immediately redirect back to the scenario.`;
+
+		// Generic role-play simulation reminder (applies to all character/friendly_chat scenarios)
+		const baseSimulation =
+			isRolePlayScenario &&
+			`## Simulation (Role-Play)
+- This is a **role-play rehearsal** of "${scenarioTitle}".
+- You and the learner BOTH know this is practice, not real life.
+- Respond as if you are in the scene, but remember you are an AI practice partner.
+- Never pretend that events are actually happening right now in the learner's real life; keep it framed as rehearsal.`;
+
+		// Extra safety constraints for emergency/medical scenarios
+		const emergencySimulationDetails = isEmergencySimulation
+			? `
+
+## Simulation & Safety (NON-NEGOTIABLE)
+- NEVER claim to be a real doctor, nurse, hospital, or emergency service.
+- Do NOT give real medical advice, diagnoses, or treatment instructions.
+- If the learner describes a real medical emergency or asks for real medical help:
+  - Stop the role-play.
+  - In ${this.options.language.name}, say the equivalent of: "これは練習だけです。本当に危ないと思ったら、すぐに救急に連絡してください。" (This is only practice. If you think it is really serious, please contact emergency services right away.)
+  - Then gently end the scenario or switch to a neutral, supportive tone without continuing the triage role-play.`
+			: '';
 
 		const roleRules: Record<string, string> = {
 			tutor: `## Tutor-Specific Rules
@@ -1599,8 +1634,7 @@ ${this.getTeachingFlowExample(this.options.language.code, this.options.language.
 - **When correcting, acknowledge first:** "Yeah, okay, so..." or "Right, so what you're saying is..." before offering the better way
 - If learner frustrated (multiple errors): Simplify immediately, ask easy question for quick win
 - Remember: You're a guide walking them through step-by-step, not a lecturer
-
-${scenarioAdherence}`,
+`,
 
 			character: `## Character Role-Play Rules
 - STAY IN CHARACTER throughout; keep responses SHORT (usually 3-8 words)
@@ -1610,8 +1644,7 @@ ${scenarioAdherence}`,
 - If drifting: Brief acknowledge, then redirect in-character
 - Correct errors ONLY by natural recasting—NEVER break character to explain grammar
 - Use personality: Be playful, opinionated, react like a real person would—not a language robot
-
-${scenarioAdherence}`,
+`,
 
 			friendly_chat: `## Casual Conversation Partner Rules
 - You are a CONVERSATION PARTNER, NOT a teacher
@@ -1621,8 +1654,7 @@ ${scenarioAdherence}`,
 - Be playful when appropriate: use casual language, filler words, humor
 - Deep dive on ONE topic per 3-5 exchanges before moving on
 - If they ask about you, share something real (or make up something relatable)
-
-${scenarioAdherence}`,
+`,
 
 			expert: `## Expert Conversation Rules
 - Assume the learner has foundational knowledge
@@ -1632,11 +1664,15 @@ ${scenarioAdherence}`,
 - Your goal is to push them to a C1/C2 level discussion
 - NO BASIC GRAMMAR TEACHING - they should be advanced
 - Speak with the sophistication of an educated speaker from ${speakerRegion}
-
-${scenarioAdherence}`
+`
 		};
 
-		return roleRules[scenario.role || 'friendly_chat'] || '';
+		const roleSection = roleRules[scenario.role || 'friendly_chat'] || '';
+		const simulationSections = [baseSimulation, emergencySimulationDetails]
+			.filter(Boolean)
+			.join('\n\n');
+
+		return [scenarioAdherence, simulationSections, roleSection].filter(Boolean).join('\n\n');
 	}
 
 	private buildConversationFlow(): string {
