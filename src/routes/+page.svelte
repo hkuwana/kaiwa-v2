@@ -21,6 +21,7 @@
 	import type { UserTier } from '$lib/data/tiers';
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import type { Scenario } from '$lib/data/scenarios';
+	import { goto } from '$app/navigation';
 
 	const { data: _data } = $props();
 
