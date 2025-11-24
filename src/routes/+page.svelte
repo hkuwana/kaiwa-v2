@@ -183,7 +183,7 @@
 >
 	<div class="mx-auto max-w-7xl">
 		<!-- Stage Indicator -->
-		<div class="mb-3 pt-2 sm:mb-8 sm:flex sm:justify-center sm:pt-8">
+		<div class="mb-3 hidden pt-2 sm:mb-8 sm:flex sm:justify-center sm:pt-8">
 			<StageIndicator />
 		</div>
 
@@ -212,10 +212,7 @@
 
 		<!-- Swipeable Card Stack -->
 		<div class="mb-8">
-			<SwipeableCardStack
-				selectedSpeaker={settingsStore.selectedSpeaker}
-				onStartConversation={handleStartConversation}
-			/>
+			<SwipeableCardStack onStartConversation={handleStartConversation} />
 		</div>
 
 		<!-- Monthly Usage Display - Only show for logged in users -->

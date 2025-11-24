@@ -305,39 +305,6 @@ export const speakersData: Speaker[] = [
 		characterImageUrl: '/speakers/xiaoxiao-speaker.webp',
 		characterImageAlt: 'Image of Xiaoxiao'
 	},
-	{
-		id: 'zh-tw-male',
-		languageId: 'zh',
-		region: 'Taiwan',
-		dialectName: 'Taiwanese Mandarin',
-		bcp47Code: 'zh-TW',
-		speakerEmoji: '🇹🇼',
-		gender: 'male',
-		voiceName: 'Chen',
-		voiceProviderId: 'google-chen',
-		openaiVoiceId: 'ash',
-		isActive: false,
-		createdAt: null,
-		characterImageUrl: '/speakers/chen-speaker.png',
-		characterImageAlt: 'Image of Chen'
-	},
-	{
-		id: 'zh-tw-female',
-		languageId: 'zh',
-		region: 'Taiwan',
-		dialectName: 'Taiwanese Mandarin',
-		bcp47Code: 'zh-TW',
-		speakerEmoji: '🇹🇼',
-		gender: 'female',
-		voiceName: 'Hsiao-Mei',
-		voiceProviderId: 'google-hsiao-mei',
-		openaiVoiceId: 'sage',
-		isActive: false,
-		createdAt: null,
-		characterImageUrl: '/speakers/hsiao-mei-speaker.png',
-		characterImageAlt: 'Image of Hsiao-Mei'
-	},
-
 	// --- French Speakers ---
 	{
 		id: 'fr-fr-male',

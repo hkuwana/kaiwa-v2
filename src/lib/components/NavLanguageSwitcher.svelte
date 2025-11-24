@@ -3,7 +3,7 @@
 	// Responsive language and speaker selector for navbar
 
 	import { languages as allLanguages } from '$lib/data/languages';
-	import { getSpeakersByLanguage, getDefaultSpeakerForLanguage } from '$lib/data/speakers';
+	import { getSpeakersByLanguage, getDefaultSpeakerForLanguage, getSpeakerById } from '$lib/data/speakers';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { setSelectedLanguageIdCookie, setSelectedSpeakerIdCookie } from '$lib/utils/cookies';
 	import type { Language as DataLanguage } from '$lib/data/languages';
@@ -28,6 +28,35 @@
 				})
 			: []
 	);
+
+	// Get current speaker to show region-specific emoji
+	const currentSpeaker = $derived(
+		settingsStore.selectedSpeaker ? getSpeakerById(settingsStore.selectedSpeaker) : null
+	);
+
+	// Get the primary country for the selected language (first speaker's country)
+	const primaryCountryCode = $derived(
+		availableSpeakers.length > 0
+			? availableSpeakers[0].bcp47Code?.split('-')[1]
+			: null
+	);
+
+	// Determine which emoji to show: country-specific flag if speaker is from different country,
+	// otherwise use language flag (to avoid regional dialect emojis like 🏯, 🐻, etc.)
+	const displayEmoji = $derived.by(() => {
+		if (!currentSpeaker) {
+			return settingsStore.selectedLanguage?.flag || '🌍';
+		}
+
+		const speakerCountry = currentSpeaker.bcp47Code?.split('-')[1];
+		// Only show speaker emoji if it's a different country; otherwise use language flag
+		if (speakerCountry && primaryCountryCode && speakerCountry !== primaryCountryCode) {
+			return currentSpeaker.speakerEmoji || settingsStore.selectedLanguage?.flag || '🌍';
+		}
+
+		// Same country = use language flag
+		return settingsStore.selectedLanguage?.flag || '🌍';
+	});
 
 	let viewingSpeakersFor = $state<DataLanguage | null>(null);
 	let modalRef: HTMLDialogElement;
@@ -126,7 +155,7 @@
 	aria-haspopup="dialog"
 	title="Change language and speaker"
 >
-	<span class="text-lg">{settingsStore.selectedLanguage?.flag || '🌍'}</span>
+	<span class="text-lg">{displayEmoji}</span>
 </button>
 
 <!-- Modal dialog -->

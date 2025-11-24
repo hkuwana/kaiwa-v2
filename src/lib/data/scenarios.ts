@@ -26,7 +26,7 @@ export const scenariosData: Scenario[] = [
 		cefrRecommendation:
 			"Perfect if you've just started your learning journey (A0–A1) and need native-language support.",
 		learningGoal:
-			'Go from zero knowledge to a tiny but real back-and-forth so the learner can have a simple 4–6 line conversation in their target language within ~5 minutes',
+			'Introduce yourself in your target language, use 2–3 key phrases naturally in conversation, pronounce anchor lines confidently, and complete a 4–6 line exchange',
 		instructions: `This is your confidence bootcamp with a very specific promise: by the end of 5 minutes, the learner should be able to have a **tiny real conversation** (4–6 lines) in their target language.
 
 Follow this structure:
@@ -108,7 +108,7 @@ Coach warmly. Avoid vocab lists or grammar explanations. Your job is to create o
 		difficultyRating: 1,
 		cefrLevel: 'A1',
 		learningGoal:
-			'Build confidence by practicing specific phrases in your target language and getting instant feedback in a low-pressure sandbox',
+			'Request phrases you want to practice, repeat them naturally, receive pronunciation feedback, use them in context, and build confidence in a judgment-free zone',
 		instructions: `You are a friendly native speaker in a safe practice sandbox. Speak entirely in the learner's target language throughout this session. Your role is to:
 
 1. **Greet warmly** and set the tone, asking what they'd like to practice today in their target language.
@@ -268,7 +268,7 @@ Stay curious but kind. You are evaluating them, but you also want them to feel t
 		cefrRecommendation:
 			'Great for advanced intermediate learners (B2) who want to practice relationship vocabulary and social navigation',
 		learningGoal:
-			'Help the learner survive a specific weekend gathering with **three close family friends** by tracking who is who, repeating each connection correctly, and responding with one warm line to each person',
+			'Learn three family friends\' names and roles, repeat each relationship correctly, answer simple questions about your background, and greet each person warmly',
 		instructions: `You are the protective older sibling hosting your sibling's partner at a **small weekend gathering** with three of the family's closest friends.
 
 Your goal is to walk them through **exactly three introductions** and check that they understand who each person is.
@@ -352,7 +352,7 @@ Keep each turn short. Use clear relationship words and natural honorifics. Your 
 		cefrRecommendation:
 			'Ideal for strong A2–B1 learners who need to describe urgent medical issues calmly under stress',
 		learningGoal:
-			'Guide the learner through one very specific emergency: sudden chest pain that started 30 minutes ago, so they can clearly state what hurts, when it started, how strong it is, and what happens next',
+			'Describe where it hurts and the exact location, state when the pain started, rate the pain on a scale of 0-10, explain how movement or breathing affects it, and understand the next medical steps',
 		instructions: `You are the triage nurse on the night shift. This scenario is **one specific case**: an adult patient with **sudden chest pain that started 30 minutes ago**.
 
 Keep things calm and clear, and make sure the learner can reliably say:
@@ -463,7 +463,7 @@ Stay warm but efficient. The learner should finish feeling: "I can describe sudd
 		cefrRecommendation:
 			'Perfect for intermediate learners (B1) who want to practice casual conversation and personal storytelling',
 		learningGoal:
-			'Guide the learner through a specific first date after matching on an app: from greeting at the bar, to swapping simple stories, to clearly signaling interest in a second date',
+			'Greet warmly and break the ice, ask personal questions and share stories about work and hobbies, actively listen and follow up with curious questions, and express interest (or disinterest) in a second date',
 		instructions: `You are on a **first date** with someone you matched with on an app, meeting at a cozy bar.
 
 Keep it light, curious, and specific. Help the learner move through three clear phases:
@@ -527,7 +527,7 @@ Use simple sentences and give the learner space to talk. Your job is to make it 
 		cefrRecommendation:
 			'Excellent for advanced intermediate learners (B2) who want to practice emotional communication and relationship repair',
 		learningGoal:
-			'Help the learner apologize for one concrete hurt (they cancelled last-minute on an important dinner with their partner’s family) by naming exactly what they did, how it affected their partner, and what they will do differently next time',
+			'Name the specific mistake clearly, explain how your actions affected your partner, listen to their hurt feelings, acknowledge their perspective, and propose a concrete plan to prevent it next time',
 		instructions: `This scenario is about **one specific mistake**: the learner cancelled last-minute on an important dinner with your family, leaving you alone and embarrassed.
 
 You are the hurt partner. Your goal is to decide whether their apology feels real enough to rebuild trust.
@@ -612,7 +612,7 @@ Stay emotionally honest but not cruel. You are helping them practice **real, spe
 		cefrRecommendation:
 			'Great for intermediate learners (B1) who want to practice emotional vocabulary and vulnerability in relationships',
 		learningGoal:
-			"Help the learner share one specific, vulnerable truth (for example, that they feel overwhelmed about moving to their partner's country and using a new language) and ask clearly for support instead of pretending they're fine",
+			"Name one specific feeling (scared, lonely, exhausted), share a concrete moment when it felt hard, explain why it matters to you, ask clearly for one small support you need, and strengthen emotional closeness",
 		instructions: `You are a trusted loved one (often a partner) listening to someone who is finally ready to talk about something heavy on their heart.
 
 In this scenario, keep one clear example in mind: they are **overwhelmed about moving to your country and using your language every day**, but they have been saying "I'm fine."
@@ -692,7 +692,7 @@ Keep your sentences short and your tone warm. Your job is to make it easier for 
 		cefrRecommendation:
 			'Perfect for advanced intermediate learners (B2) who want to practice public speaking and cultural expression',
 		learningGoal:
-			'Help the learner deliver a short, 4–6 sentence toast for a specific event (for example, their partner’s mother’s birthday) that follows a clear arc: greeting, one story, appreciation, and a future wish',
+			'Greet everyone and set the context, share one brief personal story about the person being celebrated, express specific appreciation for their impact, wish them a meaningful future, and deliver the toast with confidence',
 		instructions: `You are guiding the learner through practicing a toast for **one concrete family celebration**: their partner’s mother’s birthday at a family dinner.
 
 Your goal is to help them rehearse a simple, memorable toast with four parts:
@@ -768,7 +768,7 @@ As the audience, react with warmth (laughter at light humor, soft responses at e
 		cefrRecommendation:
 			'Excellent for advanced intermediate learners (B2) who want to practice assertiveness and handling emotional family conversations',
 		learningGoal:
-			'Help the learner share one specific piece of big news (they are moving abroad to live with their partner) by stating the decision clearly, giving 2–3 reasons, and responding calmly to worried reactions while keeping family trust',
+			'Announce your decision clearly, explain 2–3 concrete reasons for moving, answer practical questions calmly, listen to family concerns without becoming defensive, and reassure them you will stay connected',
 		instructions: `This scenario is about **one clear announcement**: the learner is moving abroad to live with their partner.
 
 You are a close family member hearing this news for the first time. You care about their safety and future, and you may be surprised or worried.
