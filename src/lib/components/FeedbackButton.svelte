@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { notificationStore } from '$lib/stores/notification.store.svelte';
-	import { track } from '$lib/analytics/posthog';
+	import { track, posthog } from '$lib/analytics/posthog';
 
 	let isOpen = $state(false);
 	let feedbackType = $state<'bug' | 'suggestion' | 'debug'>('bug');
 	let message = $state('');
 	let isSubmitting = $state(false);
+	let showSurvey = $state(false);
 
 	const feedbackTypes = [
 		{ value: 'bug', label: '🐛 Bug Report', description: 'Something is broken' },
@@ -39,6 +40,19 @@
 			});
 
 			notificationStore.success('Thanks for the feedback! 🙏');
+
+			// Trigger PostHog survey if available (survey shows after feedback submission)
+			if (typeof posthog !== 'undefined' && posthog?.showSurvey) {
+				setTimeout(() => {
+					try {
+						posthog.showSurvey('survey_id_here'); // Replace with actual survey ID from PostHog
+						console.log('📋 PostHog survey triggered');
+					} catch (surveyError) {
+						console.warn('Survey trigger failed (non-critical):', surveyError);
+					}
+				}, 500);
+			}
+
 			isOpen = false;
 			message = '';
 			feedbackType = 'bug';

@@ -3,6 +3,7 @@
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
 	import SwipeableCardStack from '$lib/components/SwipeableCardStack.svelte';
+	import NavLanguageSwitcher from '$lib/components/NavLanguageSwitcher.svelte';
 	import DynamicLanguageText from '$lib/components/DynamicLanguageText.svelte';
 	import MonthlyUsageDisplay from '$lib/components/MonthlyUsageDisplay.svelte';
 	import {
@@ -32,6 +33,20 @@
 
 	// State for dynamic headline with language selection
 	let selectedLanguage = $state<DataLanguage | null>(settingsStore.selectedLanguage);
+
+	// Reference to language switcher component
+	let languageSwitcherComponent: NavLanguageSwitcher;
+
+	// Handler to open language switcher
+	function handleOpenLanguageSwitcher() {
+		// Get the button from the component and click it to open the modal
+		const button = document.querySelector(
+			'[aria-haspopup="dialog"][title="Change language and speaker"]'
+		) as HTMLButtonElement;
+		if (button) {
+			button.click();
+		}
+	}
 
 	// Handle scenario query parameter from URL (e.g., from email links)
 	onMount(async () => {
@@ -212,7 +227,10 @@
 
 		<!-- Swipeable Card Stack -->
 		<div class="mb-8">
-			<SwipeableCardStack onStartConversation={handleStartConversation} />
+			<SwipeableCardStack
+				onStartConversation={handleStartConversation}
+				onChooseLanguage={handleOpenLanguageSwitcher}
+			/>
 		</div>
 
 		<!-- Monthly Usage Display - Only show for logged in users -->
@@ -266,5 +284,10 @@
 				</p>
 			</div>
 		{/if}
+	</div>
+
+	<!-- Hidden Language Switcher Component (modal only) -->
+	<div class="hidden">
+		<NavLanguageSwitcher bind:this={languageSwitcherComponent} />
 	</div>
 </div>

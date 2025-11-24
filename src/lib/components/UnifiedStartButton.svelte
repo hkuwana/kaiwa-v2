@@ -45,9 +45,9 @@
 	// Current scenario or default to onboarding
 	const currentScenario = $derived(selectedScenario || availableScenarios[0]);
 
-	// Get current speaker object from settings store
+	// Get current speaker object from props
 	const currentSpeaker = $derived(
-		speakersData.find((s) => s.id === settingsStore.selectedSpeaker) ?? speakersData[0]
+		selectedSpeaker ? speakersData.find((s) => s.id === selectedSpeaker) : null
 	);
 
 	type ScenarioRole = 'tutor' | 'character' | 'friendly_chat' | 'expert';
@@ -101,12 +101,13 @@
 	async function handleStartClick(_event: MouseEvent) {
 		if (isLoading) return;
 
-		if (!selectedLanguage || !currentScenario) return;
+		if (!selectedLanguage || !selectedSpeaker || !currentScenario) return;
 
 		// Track the click event regardless of auth state
 		track('start_language_clicked', {
 			language: selectedLanguage.code || selectedLanguage.name,
 			scenario_id: currentScenario.id,
+			speaker_id: selectedSpeaker,
 			requires_login: isGuest
 		});
 
@@ -145,8 +146,8 @@
 			scenarios={availableScenarios}
 			selectedScenario={currentScenario}
 			onScenarioSelect={handleScenarioChange}
-			disabled={!selectedLanguage}
-			tooltipMessage={!selectedLanguage ? 'Choose your language first' : ''}
+			disabled={!selectedLanguage || !selectedSpeaker}
+			tooltipMessage={!selectedLanguage ? 'Choose your language first' : !selectedSpeaker ? 'Choose your speaker first' : ''}
 			{isGuest}
 		/>
 	</div>
@@ -166,26 +167,31 @@
 	<div class="w-full max-w-md">
 		<button
 			onclick={handleStartClick}
+			disabled={!selectedLanguage || !selectedSpeaker}
 			class="group btn w-full btn-lg btn-primary"
-			aria-label={selectedLanguage
-				? isGuest
-					? 'Sign up or log in to start your practice session'
-					: scenarioRoleCopy.aria(selectedLanguage.name)
-				: 'Choose your language to start'}
+			class:btn-disabled={!selectedLanguage || !selectedSpeaker}
+			aria-label={!selectedLanguage
+				? 'Choose your language to start'
+				: !selectedSpeaker
+					? 'Choose a speaker to start'
+					: isGuest
+						? 'Sign up or log in to start your practice session'
+						: scenarioRoleCopy.aria(selectedLanguage.name)}
 		>
 			<span class="relative z-10 flex items-center gap-2">
 				{#if isLoading}
 					<span class="loading loading-sm loading-spinner"></span>
 					<span>Preparing...</span>
-				{:else if selectedLanguage}
-					{#if isGuest}
-						<span>Sign up to start</span>
-					{:else}
-						<span>{scenarioRoleCopy.button}</span>
-					{/if}
-				{:else}
+				{:else if !selectedLanguage}
 					<span class="sm:hidden">Choose language</span>
 					<span class="hidden sm:inline">Choose your language to start</span>
+				{:else if !selectedSpeaker}
+					<span class="sm:hidden">Choose speaker</span>
+					<span class="hidden sm:inline">Choose a speaker to start</span>
+				{:else if isGuest}
+					<span>Sign up to start</span>
+				{:else}
+					<span>{scenarioRoleCopy.button}</span>
 				{/if}
 			</span>
 		</button>

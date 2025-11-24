@@ -5,7 +5,7 @@
 	import { languages as allLanguages } from '$lib/data/languages';
 	import { getSpeakersByLanguage, getDefaultSpeakerForLanguage, getSpeakerById } from '$lib/data/speakers';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
-	import { setSelectedLanguageIdCookie, setSelectedSpeakerIdCookie } from '$lib/utils/cookies';
+	import { setSelectedLanguageIdCookie, setSelectedSpeakerIdCookie, getSelectedLanguageIdFromCookie, getSelectedSpeakerIdFromCookie } from '$lib/utils/cookies';
 	import type { Language as DataLanguage } from '$lib/data/languages';
 
 	// Available languages
@@ -62,6 +62,42 @@
 	let modalRef: HTMLDialogElement;
 	let languageListRef: HTMLDivElement | null = null;
 	let searchQuery = $state('');
+
+	// Initialize language and speaker from cookies on component mount
+	$effect.pre(() => {
+		const savedLanguageId = getSelectedLanguageIdFromCookie();
+		const savedSpeakerId = getSelectedSpeakerIdFromCookie();
+
+		// Load language from cookie if available and not already set
+		if (savedLanguageId && !settingsStore.selectedLanguage) {
+			const language = allLanguages.find((lang) => lang.id === savedLanguageId);
+			if (language) {
+				settingsStore.selectedLanguage = language;
+			}
+		}
+
+		// Load speaker from cookie if available and not already set
+		if (savedSpeakerId && !settingsStore.selectedSpeaker) {
+			settingsStore.selectedSpeaker = savedSpeakerId;
+		}
+	});
+
+	// Sync speaker with language - auto-select default speaker if current speaker doesn't exist for the language
+	$effect(() => {
+		if (!settingsStore.selectedLanguage || !settingsStore.selectedSpeaker) return;
+
+		const currentLanguageSpeakers = getSpeakersByLanguage(settingsStore.selectedLanguage.code);
+		const speakerExists = currentLanguageSpeakers.some((s) => s.id === settingsStore.selectedSpeaker);
+
+		// If speaker doesn't exist for this language, auto-select the default speaker for this language
+		if (!speakerExists) {
+			const defaultSpeaker = getDefaultSpeakerForLanguage(settingsStore.selectedLanguage.id);
+			if (defaultSpeaker) {
+				settingsStore.selectedSpeaker = defaultSpeaker.id;
+				setSelectedSpeakerIdCookie(defaultSpeaker.id);
+			}
+		}
+	});
 
 	// Filtered languages based on search
 	let filteredLanguages = $derived(

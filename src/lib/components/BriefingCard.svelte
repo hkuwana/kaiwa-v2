@@ -18,6 +18,8 @@
 		showStartButton?: boolean;
 		/** Show loading spinner on button (default: false) */
 		isLoading?: boolean;
+		/** Callback to open language/speaker selector */
+		onChooseLanguage?: () => void;
 	}
 
 	const {
@@ -26,7 +28,8 @@
 		selectedScenario = null,
 		onStartConversation,
 		showStartButton = false,
-		isLoading = false
+		isLoading = false,
+		onChooseLanguage
 	}: Props = $props();
 
 	const hasSelections = $derived(selectedLanguage || selectedSpeaker || selectedScenario);
@@ -62,7 +65,39 @@
 		'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"%3E%3Crect fill="%2394a3b8" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%23fff"%3EScenario%3C/text%3E%3C/svg%3E';
 </script>
 
-{#if hasSelections}
+<!-- Empty State - Show when no language selected -->
+{#if !selectedLanguage}
+	<div class="w-full max-w-md" in:fade={{ duration: 300, easing: cubicOut }}>
+		<div
+			class="card relative overflow-hidden rounded-3xl border border-base-300 bg-gradient-to-br from-base-100 to-base-200 shadow-xl"
+		>
+			<div class="card-body flex items-center justify-center gap-6 p-8 text-center sm:p-12">
+				<div
+					class="flex h-24 w-24 items-center justify-center rounded-full bg-primary/10 sm:h-32 sm:w-32"
+				>
+					<span class="icon-[mdi--earth] h-12 w-12 text-primary sm:h-16 sm:w-16"></span>
+				</div>
+
+				<div class="space-y-3">
+					<h3 class="text-xl font-semibold text-base-content sm:text-2xl">Choose Your Language</h3>
+					<p class="text-sm text-base-content/70 sm:text-base">
+						Select a language and speaker to get started with a conversation practice
+					</p>
+				</div>
+
+				{#if onChooseLanguage}
+					<button
+						onclick={onChooseLanguage}
+						class="btn shadow-lg transition-all duration-200 btn-lg btn-primary hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
+					>
+						<span class="icon-[mdi--globe] h-5 w-5"></span>
+						Choose Language & Speaker
+					</button>
+				{/if}
+			</div>
+		</div>
+	</div>
+{:else if hasSelections}
 	<div
 		class="w-full max-w-md"
 		in:fade={{ duration: 300, easing: cubicOut }}
@@ -177,39 +212,6 @@
 							<p class="mb-2 text-xs leading-relaxed text-base-content/90">
 								Goal: {selectedScenario.learningGoal}
 							</p>
-
-							<!-- Difficulty Indicator - More compact on mobile -->
-							{#if scenarioMeta}
-								<div class="flex items-center gap-1.5 sm:gap-2">
-									<span class="text-[10px] text-base-content/70 sm:text-xs">Difficulty:</span>
-									<div class="flex items-center gap-0.5 sm:gap-1">
-										{#each [1, 2, 3] as segment}
-											<span
-												class="h-1 w-4 rounded-full transition-colors sm:h-1.5 sm:w-6"
-												class:bg-success={segment <=
-													(selectedScenario.difficultyRating || 0) / 3.33 &&
-													scenarioMeta.color === 'success'}
-												class:bg-warning={segment <=
-													(selectedScenario.difficultyRating || 0) / 3.33 &&
-													scenarioMeta.color === 'warning'}
-												class:bg-error={segment <=
-													(selectedScenario.difficultyRating || 0) / 3.33 &&
-													scenarioMeta.color === 'error'}
-												class:bg-base-300={segment >
-													(selectedScenario.difficultyRating || 0) / 3.33}
-											></span>
-										{/each}
-									</div>
-									<span
-										class="text-[10px] font-medium sm:text-xs"
-										class:text-success={scenarioMeta.color === 'success'}
-										class:text-warning={scenarioMeta.color === 'warning'}
-										class:text-error={scenarioMeta.color === 'error'}
-									>
-										{scenarioMeta.label}
-									</span>
-								</div>
-							{/if}
 						</div>
 					</div>
 				{/if}
@@ -219,11 +221,11 @@
 					<div class="relative z-10 mt-4 sm:mt-6">
 						<button
 							disabled={isLoading}
-							class="btn btn-block shadow-lg transition-all duration-200 btn-lg btn-primary hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] disabled:opacity-75 disabled:cursor-not-allowed"
+							class="btn btn-block shadow-lg transition-all duration-200 btn-lg btn-primary hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-75"
 							onclick={() => onStartConversation?.(selectedScenario)}
 						>
 							{#if isLoading}
-								<span class="loading loading-spinner loading-sm"></span>
+								<span class="loading loading-sm loading-spinner"></span>
 								Starting Conversation...
 							{:else}
 								Start Conversation

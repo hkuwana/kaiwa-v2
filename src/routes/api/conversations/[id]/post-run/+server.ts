@@ -6,6 +6,7 @@ import { userPreferencesRepository } from '$lib/server/repositories/user-prefere
 import { conversationMemoryService } from '$lib/server/services/conversation-memory.service';
 import { createErrorResponse, createSuccessResponse } from '$lib/types/api';
 import { normalizeMemoriesList, formatMemoryEntry } from '$lib/utils/memory-format';
+import { trackServerEvent } from '$lib/server/posthog';
 
 // In-memory cache for idempotency (in production, use Redis)
 const idempotencyCache = new Map<string, { result: unknown; timestamp: number }>();
@@ -155,6 +156,30 @@ export const POST = async ({ params, cookies, request }) => {
 			userMessageCount: actualUserMessageCount,
 			durationSeconds
 		});
+
+		// 7a. Track conversation completion server-side (for KPI tracking)
+		try {
+			const userConversations = await conversationRepository.getUserConversations(userId, 1, 1);
+			const isFirstConversation = userConversations.length === 1;
+
+			trackServerEvent('conversation_completed', userId, {
+				conversation_id: conversationId,
+				language_id: conversation.targetLanguageId,
+				mode: conversation.mode || 'traditional',
+				duration_seconds: durationSeconds || 0,
+				user_message_count: actualUserMessageCount,
+				total_message_count: messages.length,
+				is_first_conversation: isFirstConversation,
+				scenario_id: conversation.scenarioId || null,
+				engagement_level:
+					actualUserMessageCount > 5 ? 'high' : actualUserMessageCount > 2 ? 'medium' : 'low',
+				timestamp: new Date().toISOString()
+			});
+			console.log('📊 Conversation completion tracked:', { conversationId, userId });
+		} catch (trackingError) {
+			console.warn('⚠️ Analytics tracking failed (non-critical):', trackingError);
+			// Don't fail the entire request if tracking fails
+		}
 
 		// 8. Try to extract memory via GPT (graceful degradation if fails)
 		let memory = null;
