@@ -44,7 +44,10 @@ export const scenarioGenerationQueueRepository = {
 		});
 	},
 
-	async findJobForDay(pathId: string, dayIndex: number): Promise<ScenarioGenerationQueue | undefined> {
+	async findJobForDay(
+		pathId: string,
+		dayIndex: number
+	): Promise<ScenarioGenerationQueue | undefined> {
 		return db.query.scenarioGenerationQueue.findFirst({
 			where: and(
 				eq(scenarioGenerationQueue.pathId, pathId),

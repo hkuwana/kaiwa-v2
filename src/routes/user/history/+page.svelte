@@ -7,6 +7,7 @@
 	import type { Message } from '$lib/server/db/types';
 	import VirtualizedMessageList from '$lib/features/conversation/components/VirtualizedMessageList.svelte';
 	import { SvelteDate, SvelteMap, SvelteSet, SvelteURLSearchParams } from 'svelte/reactivity';
+	import { trackEngagement } from '$lib/analytics/posthog';
 
 	interface ConversationPreview {
 		id: string;
@@ -332,6 +333,9 @@
 	}
 
 	function startNewConversation(): void {
+		trackEngagement.conversationStartClicked('history_empty_state', {
+			has_existing_conversations: conversations.length > 0
+		});
 		goto(resolve('/conversation'));
 	}
 

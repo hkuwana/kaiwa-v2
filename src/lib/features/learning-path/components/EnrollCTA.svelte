@@ -38,22 +38,22 @@
 
 {#if isHero}
 	<!-- Hero CTA - Large, prominent -->
-	<div class="hero bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 rounded-2xl">
-		<div class="hero-content text-center py-12 px-6">
+	<div class="hero rounded-2xl bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
+		<div class="hero-content px-6 py-12 text-center">
 			<div class="max-w-2xl">
-				<h1 class="text-4xl md:text-5xl font-bold mb-4">
+				<h1 class="mb-4 text-4xl font-bold md:text-5xl">
 					{title}
 				</h1>
-				<p class="text-lg mb-2 text-base-content/80">
+				<p class="mb-2 text-lg text-base-content/80">
 					Master real conversations in just {weeks} weeks
 				</p>
-				<p class="text-base mb-8 text-base-content/60">
-					Practice {totalDays} days of authentic scenarios • Build confidence before talking with
-					real people
+				<p class="mb-8 text-base text-base-content/60">
+					Practice {totalDays} days of authentic scenarios • Build confidence before talking with real
+					people
 				</p>
 
-				<div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-					<a href={signupUrl} class="btn btn-primary btn-lg gap-2">
+				<div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
+					<a href={signupUrl} class="btn gap-2 btn-lg btn-primary">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							class="h-6 w-6"
@@ -70,12 +70,10 @@
 						</svg>
 						Start Learning Free
 					</a>
-					<a href="#syllabus" class="btn btn-outline btn-lg">
-						View Full Syllabus
-					</a>
+					<a href="#syllabus" class="btn btn-outline btn-lg"> View Full Syllabus </a>
 				</div>
 
-				<p class="text-sm mt-6 text-base-content/50">
+				<p class="mt-6 text-sm text-base-content/50">
 					✓ No credit card required • ✓ 5 minutes a day • ✓ AI-powered conversations
 				</p>
 			</div>
@@ -85,12 +83,10 @@
 	<!-- Inline CTA - Smaller, within content -->
 	<div class="card bg-primary text-primary-content shadow-xl">
 		<div class="card-body items-center text-center">
-			<h3 class="card-title text-2xl mb-2">Ready to Start?</h3>
-			<p class="mb-4">
-				Join thousands of learners building confidence with real conversations
-			</p>
+			<h3 class="mb-2 card-title text-2xl">Ready to Start?</h3>
+			<p class="mb-4">Join thousands of learners building confidence with real conversations</p>
 			<div class="card-actions">
-				<a href={signupUrl} class="btn btn-secondary btn-wide gap-2">
+				<a href={signupUrl} class="btn btn-wide gap-2 btn-secondary">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						class="h-5 w-5"
@@ -108,9 +104,7 @@
 					Enroll Free Today
 				</a>
 			</div>
-			<p class="text-sm mt-2 opacity-80">
-				Get started in less than 2 minutes
-			</p>
+			<p class="mt-2 text-sm opacity-80">Get started in less than 2 minutes</p>
 		</div>
 	</div>
 {/if}

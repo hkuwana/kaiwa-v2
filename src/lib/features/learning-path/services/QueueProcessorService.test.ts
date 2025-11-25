@@ -67,9 +67,7 @@ describe('QueueProcessorService', () => {
 			expect(typeof stats.total).toBe('number');
 
 			// Total should be sum of all statuses
-			expect(stats.total).toBe(
-				stats.pending + stats.processing + stats.ready + stats.failed
-			);
+			expect(stats.total).toBe(stats.pending + stats.processing + stats.ready + stats.failed);
 		});
 
 		it('should show pending jobs from test path creation', async () => {

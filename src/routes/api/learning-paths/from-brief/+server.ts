@@ -53,10 +53,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 		// Validate required fields
 		if (!brief || !targetLanguage) {
-			return json(
-				createErrorResponse('Both "brief" and "targetLanguage" are required'),
-				{ status: 400 }
-			);
+			return json(createErrorResponse('Both "brief" and "targetLanguage" are required'), {
+				status: 400
+			});
 		}
 
 		// Use logged-in user if no userId provided
@@ -64,10 +63,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 		// If userId is provided and user is logged in, verify they match
 		if (userId && locals.user?.id && userId !== locals.user.id) {
-			return json(
-				createErrorResponse('You are not authorized to create paths for other users'),
-				{ status: 403 }
-			);
+			return json(createErrorResponse('You are not authorized to create paths for other users'), {
+				status: 403
+			});
 		}
 
 		// Build creator input

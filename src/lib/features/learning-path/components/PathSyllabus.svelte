@@ -71,12 +71,12 @@
 </script>
 
 <div class="path-syllabus">
-	<h2 class="text-2xl font-bold mb-6">📚 Course Syllabus</h2>
+	<h2 class="mb-6 text-2xl font-bold">📚 Course Syllabus</h2>
 
 	<div class="space-y-8">
 		{#each weeks as week, weekIndex}
 			<div class="week-section">
-				<h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+				<h3 class="mb-4 flex items-center gap-2 text-xl font-semibold">
 					<span class="badge badge-primary">Week {weekIndex + 1}</span>
 					<span class="text-base font-normal text-base-content/70">
 						Days {week[0].dayIndex}–{week[week.length - 1].dayIndex}
@@ -89,19 +89,19 @@
 							<div class="card-body p-4">
 								<div class="flex items-start justify-between gap-2">
 									<div class="flex-1">
-										<div class="flex items-center gap-2 mb-2">
-											<span class="font-semibold text-sm text-base-content/60">
+										<div class="mb-2 flex items-center gap-2">
+											<span class="text-sm font-semibold text-base-content/60">
 												Day {day.dayIndex}
 											</span>
 											<span class="badge badge-sm {getDifficultyColor(day.difficulty)}">
 												{formatDifficulty(day.difficulty)}
 											</span>
 										</div>
-										<h4 class="font-medium text-base leading-tight mb-1">
+										<h4 class="mb-1 text-base leading-tight font-medium">
 											{day.theme}
 										</h4>
 										{#if day.description}
-											<p class="text-sm text-base-content/70 mt-2">
+											<p class="mt-2 text-sm text-base-content/70">
 												{day.description}
 											</p>
 										{/if}
@@ -116,7 +116,7 @@
 	</div>
 
 	<!-- Summary Stats -->
-	<div class="stats stats-vertical lg:stats-horizontal shadow mt-8">
+	<div class="stats mt-8 stats-vertical shadow lg:stats-horizontal">
 		<div class="stat">
 			<div class="stat-title">Total Days</div>
 			<div class="stat-value text-primary">{schedule.length}</div>
@@ -125,13 +125,13 @@
 
 		<div class="stat">
 			<div class="stat-title">Target Language</div>
-			<div class="stat-value text-secondary text-3xl">{languageName}</div>
+			<div class="stat-value text-3xl text-secondary">{languageName}</div>
 			<div class="stat-desc">Conversation-focused practice</div>
 		</div>
 
 		<div class="stat">
 			<div class="stat-title">Daily Commitment</div>
-			<div class="stat-value text-accent text-3xl">~20 min</div>
+			<div class="stat-value text-3xl text-accent">~20 min</div>
 			<div class="stat-desc">Fits into your busy schedule</div>
 		</div>
 	</div>
@@ -139,7 +139,7 @@
 
 <style>
 	.path-syllabus {
-		@apply max-w-5xl mx-auto;
+		@apply mx-auto max-w-5xl;
 	}
 
 	.week-section {

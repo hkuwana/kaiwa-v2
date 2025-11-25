@@ -15,6 +15,7 @@ pnpm test:pr4
 ```
 
 This will:
+
 - ✅ Run comprehensive vitest test suite
 - ✅ Test path creation from preferences
 - ✅ Test path creation from creator brief
@@ -24,6 +25,7 @@ This will:
 - ✅ Auto-cleanup test data
 
 **Watch mode:**
+
 ```bash
 pnpm test:pr4:watch
 ```
@@ -43,6 +45,7 @@ pnpm test:pr4:api
 ```
 
 This will:
+
 - ✅ Create 2 test learning paths via API
 - ✅ Verify API responses
 - ✅ Check queue statistics
@@ -51,6 +54,7 @@ This will:
 **Requires:** Dev server running on https://localhost:5173
 
 **Expected output:**
+
 ```
 🚀 PR #4 Testing Suite
 ============================================================
@@ -92,6 +96,7 @@ Test 3 (Queue Stats): ✅ PASS
 Before testing, ensure:
 
 1. **OpenAI API Key** is configured:
+
    ```bash
    # Check if set
    echo $OPENAI_API_KEY
@@ -101,6 +106,7 @@ Before testing, ensure:
    ```
 
 2. **Database tables** exist:
+
    ```bash
    # If needed, run migration
    pnpm db:push
@@ -116,18 +122,21 @@ Before testing, ensure:
 ## 🔍 What Gets Tested
 
 ### Test 1: Path from User Preferences
+
 - Creates a 7-day learning path based on user profile
 - User: A2 level Japanese learner
 - Goal: Connection (meeting partner's family)
 - Preset: "Meet the Parents" course
 
 ### Test 2: Path from Creator Brief
+
 - Creates a 7-day learning path from a detailed brief
 - Topic: Preparing to meet Japanese partner's parents
 - Focus: Formal greetings, etiquette, keigo
 - Difficulty: A2 → B1
 
 ### Test 3: Queue Statistics
+
 - Verifies scenario generation jobs were created
 - Checks queue counts (pending, processing, ready, failed)
 
@@ -138,6 +147,7 @@ Before testing, ensure:
 After running tests, check Supabase:
 
 ### View Created Paths
+
 ```sql
 SELECT id, title, target_language, status,
        jsonb_array_length(schedule) as day_count
@@ -147,6 +157,7 @@ LIMIT 5;
 ```
 
 ### View Queue Jobs
+
 ```sql
 SELECT path_id, day_index, status, created_at
 FROM scenario_generation_queue
@@ -159,15 +170,19 @@ LIMIT 14;
 ## 🐛 Troubleshooting
 
 ### Error: "OpenAI completion failed"
+
 **Solution:** Check your `OPENAI_API_KEY` in `.env` file
 
 ### Error: "Table does not exist"
+
 **Solution:** Run `pnpm db:push` to create tables
 
 ### Error: "Cannot find module"
+
 **Solution:** Run `pnpm install` to install dependencies
 
 ### Test hangs or takes too long
+
 **Cause:** OpenAI API call in progress (5-10 seconds per path)
 **Solution:** Wait for completion. Each test creates a syllabus via AI.
 
@@ -176,6 +191,7 @@ LIMIT 14;
 ## 📖 Detailed Documentation
 
 For more testing options and detailed guides, see:
+
 - **Full Testing Guide:** `docs/3-features/pr4-testing-guide.md`
 - **API Testing:** See curl examples in the guide
 - **Implementation Plan:** `docs/3-features/learning-path-implementation-plan.md`
@@ -228,6 +244,7 @@ DELETE FROM learning_paths WHERE id LIKE 'lp-%';
 ```
 
 Or via repository:
+
 ```typescript
 // In a script or console
 await learningPathRepository.deletePath('lp-...');

@@ -164,20 +164,21 @@ export class QueueProcessorService {
 			const daySchedule = path.schedule.find((day) => day.dayIndex === job.dayIndex);
 
 			if (!daySchedule) {
-				throw new Error(
-					`Day ${job.dayIndex} not found in path ${job.pathId} schedule`
-				);
+				throw new Error(`Day ${job.dayIndex} not found in path ${job.pathId} schedule`);
 			}
 
 			// TODO: Generate actual scenario using existing scenario generation service
 			// For now, we'll mark it as ready with placeholder
 			// In a future PR, this will call the actual scenario generation service
 
-			logger.info(`🎬 [QueueProcessor] Scenario generation for path ${job.pathId} day ${job.dayIndex}`, {
-				theme: daySchedule.theme,
-				difficulty: daySchedule.difficulty,
-				objectives: daySchedule.learningObjectives
-			});
+			logger.info(
+				`🎬 [QueueProcessor] Scenario generation for path ${job.pathId} day ${job.dayIndex}`,
+				{
+					theme: daySchedule.theme,
+					difficulty: daySchedule.difficulty,
+					objectives: daySchedule.learningObjectives
+				}
+			);
 
 			// For now, just mark as ready
 			// Future enhancement: Create actual scenario record and link it
@@ -185,9 +186,7 @@ export class QueueProcessorService {
 
 			// Update path schedule to mark day as ready (scenario ready even if null for now)
 			const updatedSchedule = path.schedule.map((day) =>
-				day.dayIndex === job.dayIndex
-					? { ...day, scenarioId: null, isUnlocked: true }
-					: day
+				day.dayIndex === job.dayIndex ? { ...day, scenarioId: null, isUnlocked: true } : day
 			);
 
 			await learningPathRepository.updatePathSchedule(job.pathId, updatedSchedule);

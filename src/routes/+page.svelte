@@ -15,7 +15,7 @@
 	import { usageStore } from '$lib/stores/usage.store.svelte';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { scenarioStore } from '$lib/stores/scenario.store.svelte';
-	import { trackABTest } from '$lib/analytics/posthog';
+	import { trackABTest, trackEngagement } from '$lib/analytics/posthog';
 	import type { Language as DataLanguage } from '$lib/data/languages';
 	import StageIndicator from '$lib/components/StageIndicator.svelte';
 	import { defaultTierConfigs } from '$lib/data/tiers';
@@ -23,6 +23,7 @@
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import type { Scenario } from '$lib/data/scenarios';
 	import { goto } from '$app/navigation';
+	import { selectScenario } from '$lib/services/scenarios/scenario-interaction.service';
 
 	const { data } = $props();
 
@@ -33,6 +34,8 @@
 
 	// State for dynamic headline with language selection
 	let selectedLanguage = $state<DataLanguage | null>(settingsStore.selectedLanguage);
+
+	let selectedScenario: Scenario | null = $state(null);
 
 	// Reference to language switcher component
 	let languageSwitcherComponent: NavLanguageSwitcher;
@@ -84,6 +87,12 @@
 	let useDynamicLanguage = $state(false);
 	let dynamicVariant: 'grandmother' | 'practice' | 'connect' = $state('grandmother');
 
+	const headlineTrackingTexts: Record<'grandmother' | 'practice' | 'connect', string> = {
+		grandmother: 'Talk to your grandmother in [Language]',
+		practice: 'Practice [Language] without fear',
+		connect: 'Connect through heart in [Language]'
+	};
+
 	// Initialize random A/B test on client side
 	if (browser) {
 		// Test dynamic language variants
@@ -97,13 +106,7 @@
 		headlineText = `dynamic-${selectedVariant}`;
 
 		// Track which variant the user saw
-		const trackingTexts = {
-			grandmother: 'Talk to your grandmother in [Language]',
-			practice: 'Practice [Language] without fear',
-			connect: 'Connect through heart in [Language]'
-		};
-
-		trackABTest.headlineVariantShown(selectedVariant, trackingTexts[selectedVariant]);
+		trackABTest.headlineVariantShown(selectedVariant, headlineTrackingTexts[selectedVariant]);
 	}
 
 	// Event handler for dynamic headline language selection
@@ -117,8 +120,40 @@
 		isStartingConversation = true;
 
 		try {
-			// Set the scenario in the scenario store
-			scenarioStore.setScenarioById(scenario.id);
+			// Record scenario selection through central service for analytics
+			selectScenario(scenario, scenarioStore, {
+				source: 'home_swipe_stack',
+				trackEvent: true,
+				navigateTo: undefined
+			});
+
+			// Track home conversation start click (generic conversion event)
+			const userType: 'logged_in' | 'guest' = user.id === 'guest' ? 'guest' : 'logged_in';
+			const audioMode = (userManager.preferences?.audioInputMode || 'ptt') as string;
+
+			trackEngagement.homeConversationStartClicked({
+				scenario_id: scenario.id,
+				scenario_title: scenario.title,
+				scenario_role: scenario.role,
+				scenario_difficulty: scenario.difficulty,
+				language_id: selectedLanguage?.id || settingsStore.selectedLanguage?.id || null,
+				language_code: selectedLanguage?.code || settingsStore.selectedLanguage?.code || null,
+				audio_mode: audioMode,
+				user_type: userType,
+				is_guest: user.id === 'guest',
+				headline_variant: headlineVariant,
+				headline_text: headlineText
+			});
+
+			// Track A/B test conversion separately for guests
+			if (user.id === 'guest') {
+				const trackingHeadline =
+					headlineTrackingTexts[dynamicVariant] !== undefined
+						? headlineTrackingTexts[dynamicVariant]
+						: headlineText;
+
+				trackABTest.startSpeakingClicked(dynamicVariant, trackingHeadline, 'guest');
+			}
 
 			// Generate session ID
 			const sessionId = crypto.randomUUID();

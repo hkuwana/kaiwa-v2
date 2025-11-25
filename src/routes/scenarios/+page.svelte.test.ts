@@ -54,4 +54,3 @@ describe('Scenarios browse page', () => {
 		await expect.element(message).toBeVisible();
 	});
 });
-

@@ -14,6 +14,7 @@
 	import type { AudioInputMode } from '$lib/server/db/types';
 	import { getAudioInputModeFromCookie, setAudioInputModeCookie } from '$lib/utils/cookies';
 	import { goto } from '$app/navigation';
+	import { track } from '$lib/analytics/posthog';
 
 	interface Props {
 		/** Show only featured scenarios (default: first 5) */
@@ -194,7 +195,12 @@
 		if (horizontalSwipe > swipeThreshold && horizontalSwipe > verticalSwipe) {
 			// Both left and right swipes dismiss the card (move to next)
 			// This creates a "pass/no thanks" gesture for both directions
-			nextCard();
+			const direction = dragCurrentX > 0 ? 'next' : 'previous';
+			if (direction === 'next') {
+				nextCard(true);
+			} else {
+				previousCard(true);
+			}
 		}
 
 		// Reset drag state
@@ -202,21 +208,56 @@
 		dragCurrentY = 0;
 	}
 
-	function nextCard() {
+	function trackCardChange(
+		direction: 'next' | 'previous',
+		fromIndex: number,
+		toIndex: number
+	): void {
+		if (fromIndex === toIndex) return;
+
+		const fromScenario =
+			fromIndex >= 0 && fromIndex < featuredScenarios.length ? featuredScenarios[fromIndex] : null;
+		const toScenario =
+			toIndex >= 0 && toIndex < featuredScenarios.length ? featuredScenarios[toIndex] : null;
+
+		track('home_scenario_swiped', {
+			direction,
+			from_index: fromIndex,
+			to_index: toIndex,
+			from_card_type: fromScenario ? 'scenario' : 'browse_all',
+			to_card_type: toScenario ? 'scenario' : 'browse_all',
+			from_scenario_id: fromScenario?.id || null,
+			to_scenario_id: toScenario?.id || null
+		});
+	}
+
+	function nextCard(fromUserGesture: boolean = false) {
+		const previousIndex = currentCardIndex;
+
 		if (currentCardIndex < totalCards - 1) {
 			currentCardIndex++;
 		} else {
 			// Loop back to start
 			currentCardIndex = 0;
 		}
+
+		if (fromUserGesture) {
+			trackCardChange('next', previousIndex, currentCardIndex);
+		}
 	}
 
-	function previousCard() {
+	function previousCard(fromUserGesture: boolean = false) {
+		const previousIndex = currentCardIndex;
+
 		if (currentCardIndex > 0) {
 			currentCardIndex--;
 		} else {
 			// Loop to end
 			currentCardIndex = totalCards - 1;
+		}
+
+		if (fromUserGesture) {
+			trackCardChange('previous', previousIndex, currentCardIndex);
 		}
 	}
 
@@ -572,7 +613,7 @@
 						<strong>Conversation Mode</strong> works best with headphones or earbuds to prevent audio
 						feedback loops.
 					</p>
-					<div class="alert alert-warning py-2">
+					<div class="alert py-2 alert-warning">
 						<span class="icon-[mdi--headphones] h-5 w-5 shrink-0"></span>
 						<span class="text-xs"
 							>Without headphones, the assistant's voice may be picked up by your microphone,

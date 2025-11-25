@@ -22,9 +22,7 @@ export const load: PageServerLoad = async () => {
 	const seedActive = scenariosData.filter((scenario) => scenario.isActive);
 	console.log(`[dev/scenarios] Seed data has ${seedActive.length} active scenarios`);
 
-	const source = liveScenarios.length
-		? liveScenarios
-		: seedActive;
+	const source = liveScenarios.length ? liveScenarios : seedActive;
 
 	const scenarioPrompts = source
 		.map((scenario) => ({

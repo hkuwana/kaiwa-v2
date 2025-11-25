@@ -74,7 +74,10 @@ describe('TemplatePublishingService', () => {
 
 	describe('createAnonymousTemplate', () => {
 		it('should create a public template from user path', async () => {
-			const result = await TemplatePublishingService.createAnonymousTemplate(testPathId, testUserId);
+			const result = await TemplatePublishingService.createAnonymousTemplate(
+				testPathId,
+				testUserId
+			);
 
 			expect(result.success).toBe(true);
 			if (!result.success) return;
@@ -94,7 +97,10 @@ describe('TemplatePublishingService', () => {
 		}, 10000);
 
 		it('should scrub PII from title and description', async () => {
-			const result = await TemplatePublishingService.createAnonymousTemplate(testPathId, testUserId);
+			const result = await TemplatePublishingService.createAnonymousTemplate(
+				testPathId,
+				testUserId
+			);
 
 			expect(result.success).toBe(true);
 			if (!result.success) return;
@@ -113,7 +119,10 @@ describe('TemplatePublishingService', () => {
 		}, 10000);
 
 		it('should generate unique share slug', async () => {
-			const result = await TemplatePublishingService.createAnonymousTemplate(testPathId, testUserId);
+			const result = await TemplatePublishingService.createAnonymousTemplate(
+				testPathId,
+				testUserId
+			);
 
 			expect(result.success).toBe(true);
 			if (!result.success) return;
@@ -148,7 +157,10 @@ describe('TemplatePublishingService', () => {
 		});
 
 		it('should fail if user does not own path', async () => {
-			const result = await TemplatePublishingService.createAnonymousTemplate(testPathId, otherUserId);
+			const result = await TemplatePublishingService.createAnonymousTemplate(
+				testPathId,
+				otherUserId
+			);
 
 			expect(result.success).toBe(false);
 			if (result.success) return;
@@ -187,7 +199,10 @@ describe('TemplatePublishingService', () => {
 			expect(originalPath).toBeDefined();
 			if (!originalPath) return;
 
-			const result = await TemplatePublishingService.createAnonymousTemplate(testPathId, testUserId);
+			const result = await TemplatePublishingService.createAnonymousTemplate(
+				testPathId,
+				testUserId
+			);
 			expect(result.success).toBe(true);
 			if (!result.success) return;
 
@@ -228,7 +243,10 @@ describe('TemplatePublishingService', () => {
 				}
 			};
 
-			const pathResult = await PathGeneratorService.createPathFromPreferences('test-user-pii-789', piiInput);
+			const pathResult = await PathGeneratorService.createPathFromPreferences(
+				'test-user-pii-789',
+				piiInput
+			);
 			expect(pathResult.success).toBe(true);
 			if (!pathResult.success) return;
 
@@ -281,7 +299,10 @@ describe('TemplatePublishingService', () => {
 				}
 			};
 
-			const path1Result = await PathGeneratorService.createPathFromPreferences('test-user-slug-1', input1);
+			const path1Result = await PathGeneratorService.createPathFromPreferences(
+				'test-user-slug-1',
+				input1
+			);
 			expect(path1Result.success).toBe(true);
 			if (!path1Result.success) return;
 
@@ -294,7 +315,10 @@ describe('TemplatePublishingService', () => {
 			if (!template1Result.success) return;
 
 			// Create second path with same title
-			const path2Result = await PathGeneratorService.createPathFromPreferences('test-user-slug-2', input1);
+			const path2Result = await PathGeneratorService.createPathFromPreferences(
+				'test-user-slug-2',
+				input1
+			);
 			expect(path2Result.success).toBe(true);
 			if (!path2Result.success) return;
 

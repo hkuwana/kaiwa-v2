@@ -63,7 +63,10 @@ export const learningPathRepository = {
 		});
 	},
 
-	async listUserPaths(userId: string, options?: { includeArchived?: boolean }): Promise<LearningPath[]> {
+	async listUserPaths(
+		userId: string,
+		options?: { includeArchived?: boolean }
+	): Promise<LearningPath[]> {
 		const conditions = [eq(learningPaths.userId, userId)];
 
 		if (!options?.includeArchived) {

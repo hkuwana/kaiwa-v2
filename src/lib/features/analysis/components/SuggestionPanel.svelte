@@ -86,7 +86,7 @@
 								? 'alert-success'
 								: 'alert-info'}
 					<div
-						class="alert {alertType} alert-outline cursor-pointer px-4 py-3"
+						class="alert {alertType} cursor-pointer alert-outline px-4 py-3"
 						role="button"
 						tabindex="0"
 						onmouseenter={() => handleHoverSuggestion(suggestion.originalText)}

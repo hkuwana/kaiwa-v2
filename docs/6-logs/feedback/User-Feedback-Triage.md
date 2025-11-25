@@ -901,6 +901,7 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 ### New Members Introductions
 
 **Robert Roche** (NEW - Full Context)
+
 - **Language**: Japanese
 - **Level**: Conversational with family, but has gaps
 - **Background**: Speaks Japanese with family → vocabulary gaps + lacks formal Japanese
@@ -912,6 +913,7 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 - **Current Issue**: Analysis/report function not loading (bug blocking proof moment)
 
 **Chika Kondo** (NEW)
+
 - **Language**: French
 - **Level**: Beginner ("can barely hold a convo")
 - **Goal**: Communicate with partner's mom + partner
@@ -920,6 +922,7 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 - **Timeline**: Long-term commitment (kids planning)
 
 **Brianne Yamada Nitahara** (NEW)
+
 - **Language**: Japanese
 - **Goal**: Work and live in Japan eventually
 - **Persona Match**: Relocation Expat (Jamie)
@@ -927,6 +930,7 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 - **Duolingo User**: Active Duolingo Max subscriber with AI conversation practice
 
 **Akemi Tsutsui** (NEW)
+
 - **Language**: Japanese
 - **Goal**: Part-time residence in Japan
 - **Current Level**: Can survive with "vocabulary, social cues and Google Translate"
@@ -937,6 +941,7 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 ### 🔴 CRITICAL Issues (November 25)
 
 **21. Analysis/Report Function Not Loading** ⚠️ **BLOCKS PROOF MOMENT**
+
 - **Reported by**: Robert Roche (Nov 25)
 - **Issue**: "Report/analysis function doesn't seem to work for me. Like it'll be loading the report but I never get one."
 - **Why Critical**: Analysis = proof of improvement. If it never loads, user never gets validation.
@@ -945,6 +950,7 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 - **Priority**: HIGH - This is the "you got better" moment
 
 **22. AI Responds Without User Speaking** 🚨 **FALSE POSITIVE**
+
 - **Reported by**: Akemi Tsutsui (Nov 25)
 - **Issue**: "A couple of times it seemed like the AI didn't actually hear me in my response. Like it told me a phrase to say and without me saying anything yet it told me good job and gave me another phrase"
 - **Why Critical**: False positives break trust in the system
@@ -955,6 +961,7 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 ### 🟡 HIGH: Blocks Learning Experience
 
 **23. Beginner → Intermediate Transition Too Steep** 📈 **LEVELING PROBLEM**
+
 - **Reported by**: Brianne Yamada Nitahara (Nov 25)
 - **Issue**:
   - First lessons: AI speaks mostly English with short Japanese phrases to repeat → comfortable
@@ -967,6 +974,7 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 - **Priority**: HIGH - This is likely killing retention at intermediate level
 
 **Fix Needed**:
+
 - Gradual difficulty increase (not sudden 3-5 sentence jumps)
 - Progressive English → Target Language ratio
 - Difficulty level detection/adjustment
@@ -975,6 +983,7 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 ### 💚 What's Working (November 25)
 
 **Transcript Access for Speed Training** ✅
+
 - **Reported by**: Akemi Tsutsui
 - **Quote**: "I really like ability to access the transcript. One of the difficult things for me is to pick up Japanese 'at speed', but since I can read the hiragana I can put it together better."
 - **Insight**: Transcript helps with listening comprehension training
@@ -988,22 +997,26 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 **Total Active PAB Members**: ~10-12
 
 **By Persona**:
+
 - **Bilingual Spouse** (Sofia): Chika Kondo, [others from earlier sessions]
 - **Heritage Speaker** (David): Robert Roche (Japanese with family → professional contexts)
 - **Relocation Expat** (Jamie): Brianne Yamada Nitahara, Akemi Tsutsui
 - **Multi-language users**: Martin, [others]
 
 **By Language**:
+
 - Japanese: Robert, Brianne, Akemi, [others]
 - French: Chika
 - Multiple: Martin
 
 **By Goal**:
+
 - **Professional advancement**: Robert (formal Japanese), Brianne (work in Japan)
 - **Family connection**: Chika (partner's mom + future kids)
 - **Long-term residence**: Akemi (part-time Japan), Brianne (full-time Japan)
 
 **Engagement Level**:
+
 - Active users reporting bugs/feedback: HIGH (4 people giving detailed feedback in one day)
 - New member introductions: 4 new in one day (strong validation signal)
 - Cross-referencing competitors (Duolingo): Brianne comparison valuable

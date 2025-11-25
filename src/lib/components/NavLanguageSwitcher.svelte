@@ -3,9 +3,18 @@
 	// Responsive language and speaker selector for navbar
 
 	import { languages as allLanguages } from '$lib/data/languages';
-	import { getSpeakersByLanguage, getDefaultSpeakerForLanguage, getSpeakerById } from '$lib/data/speakers';
+	import {
+		getSpeakersByLanguage,
+		getDefaultSpeakerForLanguage,
+		getSpeakerById
+	} from '$lib/data/speakers';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
-	import { setSelectedLanguageIdCookie, setSelectedSpeakerIdCookie, getSelectedLanguageIdFromCookie, getSelectedSpeakerIdFromCookie } from '$lib/utils/cookies';
+	import {
+		setSelectedLanguageIdCookie,
+		setSelectedSpeakerIdCookie,
+		getSelectedLanguageIdFromCookie,
+		getSelectedSpeakerIdFromCookie
+	} from '$lib/utils/cookies';
 	import type { Language as DataLanguage } from '$lib/data/languages';
 
 	// Available languages
@@ -36,9 +45,7 @@
 
 	// Get the primary country for the selected language (first speaker's country)
 	const primaryCountryCode = $derived(
-		availableSpeakers.length > 0
-			? availableSpeakers[0].bcp47Code?.split('-')[1]
-			: null
+		availableSpeakers.length > 0 ? availableSpeakers[0].bcp47Code?.split('-')[1] : null
 	);
 
 	// Determine which emoji to show: country-specific flag if speaker is from different country,
@@ -87,7 +94,9 @@
 		if (!settingsStore.selectedLanguage || !settingsStore.selectedSpeaker) return;
 
 		const currentLanguageSpeakers = getSpeakersByLanguage(settingsStore.selectedLanguage.code);
-		const speakerExists = currentLanguageSpeakers.some((s) => s.id === settingsStore.selectedSpeaker);
+		const speakerExists = currentLanguageSpeakers.some(
+			(s) => s.id === settingsStore.selectedSpeaker
+		);
 
 		// If speaker doesn't exist for this language, auto-select the default speaker for this language
 		if (!speakerExists) {
@@ -196,125 +205,127 @@
 
 <!-- Modal dialog -->
 <dialog bind:this={modalRef} class="modal modal-bottom sm:modal-middle">
-		<div class="modal-box flex max-h-[85vh] w-full max-w-2xl flex-col sm:max-h-screen">
-			<!-- Header -->
-			<div class="flex items-center justify-between border-b border-base-200 pb-2 sm:pb-4">
-				{#if viewingSpeakersFor}
-					<button
-						onclick={() => {
-							viewingSpeakersFor = null;
-							searchQuery = '';
-						}}
-						class="btn btn-circle btn-ghost btn-sm"
-						aria-label="Back to languages"
-					>
-						<span class="icon-[mdi--arrow-left] h-5 w-5"></span>
-					</button>
-				{/if}
-				<h2 class="flex-1 text-center text-base sm:text-lg font-semibold">
-					{#if viewingSpeakersFor}
-						Choose Speaker
-					{:else}
-						Choose Language
-					{/if}
-				</h2>
-				<button onclick={closeMenu} class="btn btn-circle btn-ghost btn-sm" aria-label="Close">
-					<span class="icon-[mdi--close] h-5 w-5"></span>
+	<div class="modal-box flex max-h-[85vh] w-full max-w-2xl flex-col sm:max-h-screen">
+		<!-- Header -->
+		<div class="flex items-center justify-between border-b border-base-200 pb-2 sm:pb-4">
+			{#if viewingSpeakersFor}
+				<button
+					onclick={() => {
+						viewingSpeakersFor = null;
+						searchQuery = '';
+					}}
+					class="btn btn-circle btn-ghost btn-sm"
+					aria-label="Back to languages"
+				>
+					<span class="icon-[mdi--arrow-left] h-5 w-5"></span>
 				</button>
-			</div>
-
-			<!-- Search input (languages only) -->
-			{#if !viewingSpeakersFor}
-				<div class="py-2 sm:py-4">
-					<div class="relative">
-						<input
-							type="text"
-							bind:value={searchQuery}
-							placeholder="Search languages..."
-							class="input-bordered input input-sm w-full pl-8"
-							autofocus
-						/>
-						<span
-							class="absolute top-1/2 left-3 icon-[mdi--magnify] h-4 w-4 -translate-y-1/2 text-base-content/50"
-						></span>
-					</div>
-				</div>
 			{/if}
-
-			<!-- Content -->
-			<div class="flex-1 overflow-y-auto" bind:this={languageListRef}>
+			<h2 class="flex-1 text-center text-base font-semibold sm:text-lg">
 				{#if viewingSpeakersFor}
-					<!-- Speaker List -->
-					{#each availableSpeakers as speaker (speaker.id)}
-						<button
-							onclick={() => selectSpeaker(speaker.id)}
-							class="my-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors duration-150 hover:bg-primary/20 sm:my-2 sm:gap-4 sm:rounded-xl sm:px-4 sm:py-4"
-							class:bg-primary={settingsStore.selectedSpeaker === speaker.id}
-							class:text-primary-content={settingsStore.selectedSpeaker === speaker.id}
-						>
-							<!-- Speaker Avatar -->
-							{#if speaker.characterImageUrl}
-								<img
-									alt={speaker.characterImageAlt || speaker.voiceName}
-									src={speaker.characterImageUrl}
-									class="h-10 w-10 flex-shrink-0 rounded-full object-cover sm:h-14 sm:w-14"
-									loading="lazy"
-								/>
-							{:else}
-								<div
-									class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-base-200 text-xl sm:h-14 sm:w-14 sm:text-3xl"
-								>
-									{getGenderIcon(speaker.gender)}
-								</div>
-							{/if}
-							<div class="flex min-w-0 flex-1 flex-col">
-								<span class="text-sm font-semibold sm:text-base">{speaker.voiceName}</span>
-								<span class="text-xs opacity-70 sm:text-sm">{speaker.dialectName} • {speaker.region}</span>
+					Choose Speaker
+				{:else}
+					Choose Language
+				{/if}
+			</h2>
+			<button onclick={closeMenu} class="btn btn-circle btn-ghost btn-sm" aria-label="Close">
+				<span class="icon-[mdi--close] h-5 w-5"></span>
+			</button>
+		</div>
+
+		<!-- Search input (languages only) -->
+		{#if !viewingSpeakersFor}
+			<div class="py-2 sm:py-4">
+				<div class="relative">
+					<input
+						type="text"
+						bind:value={searchQuery}
+						placeholder="Search languages..."
+						class="input-bordered input input-sm w-full pl-8"
+						autofocus
+					/>
+					<span
+						class="absolute top-1/2 left-3 icon-[mdi--magnify] h-4 w-4 -translate-y-1/2 text-base-content/50"
+					></span>
+				</div>
+			</div>
+		{/if}
+
+		<!-- Content -->
+		<div class="flex-1 overflow-y-auto" bind:this={languageListRef}>
+			{#if viewingSpeakersFor}
+				<!-- Speaker List -->
+				{#each availableSpeakers as speaker (speaker.id)}
+					<button
+						onclick={() => selectSpeaker(speaker.id)}
+						class="my-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors duration-150 hover:bg-primary/20 sm:my-2 sm:gap-4 sm:rounded-xl sm:px-4 sm:py-4"
+						class:bg-primary={settingsStore.selectedSpeaker === speaker.id}
+						class:text-primary-content={settingsStore.selectedSpeaker === speaker.id}
+					>
+						<!-- Speaker Avatar -->
+						{#if speaker.characterImageUrl}
+							<img
+								alt={speaker.characterImageAlt || speaker.voiceName}
+								src={speaker.characterImageUrl}
+								class="h-10 w-10 flex-shrink-0 rounded-full object-cover sm:h-14 sm:w-14"
+								loading="lazy"
+							/>
+						{:else}
+							<div
+								class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-base-200 text-xl sm:h-14 sm:w-14 sm:text-3xl"
+							>
+								{getGenderIcon(speaker.gender)}
 							</div>
-							{#if settingsStore.selectedSpeaker === speaker.id}
+						{/if}
+						<div class="flex min-w-0 flex-1 flex-col">
+							<span class="text-sm font-semibold sm:text-base">{speaker.voiceName}</span>
+							<span class="text-xs opacity-70 sm:text-sm"
+								>{speaker.dialectName} • {speaker.region}</span
+							>
+						</div>
+						{#if settingsStore.selectedSpeaker === speaker.id}
+							<span class="icon-[mdi--check] h-6 w-6 flex-shrink-0"></span>
+						{/if}
+					</button>
+				{/each}
+			{:else}
+				<!-- Language List -->
+				{#if filteredLanguages.length === 0}
+					<div class="flex h-full items-center justify-center text-center text-base-content/60">
+						<div>
+							<span class="mx-auto mb-3 icon-[mdi--magnify] block h-12 w-12"></span>
+							<p class="text-lg">No languages found</p>
+							<p class="text-sm">Try a different search term</p>
+						</div>
+					</div>
+				{:else}
+					{#each filteredLanguages as language (language.id)}
+						<button
+							data-language-code={language.code}
+							onclick={() => selectLanguage(language)}
+							class="my-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors duration-150 hover:bg-primary/20 sm:my-2 sm:gap-4 sm:rounded-xl sm:px-4 sm:py-4"
+							class:bg-primary={settingsStore.selectedLanguage?.code === language.code}
+							class:text-primary-content={settingsStore.selectedLanguage?.code === language.code}
+						>
+							<span class="flex-shrink-0 text-xl sm:text-3xl">{language.flag || '🌍'}</span>
+							<div class="flex min-w-0 flex-1 flex-col">
+								<span class="text-sm font-semibold sm:text-base">{language.name}</span>
+								<span class="text-xs opacity-70 sm:text-sm">{language.nativeName}</span>
+							</div>
+							{#if settingsStore.selectedLanguage?.code === language.code}
 								<span class="icon-[mdi--check] h-6 w-6 flex-shrink-0"></span>
 							{/if}
 						</button>
 					{/each}
-				{:else}
-					<!-- Language List -->
-					{#if filteredLanguages.length === 0}
-						<div class="flex h-full items-center justify-center text-center text-base-content/60">
-							<div>
-								<span class="mx-auto mb-3 icon-[mdi--magnify] block h-12 w-12"></span>
-								<p class="text-lg">No languages found</p>
-								<p class="text-sm">Try a different search term</p>
-							</div>
-						</div>
-					{:else}
-						{#each filteredLanguages as language (language.id)}
-							<button
-								data-language-code={language.code}
-								onclick={() => selectLanguage(language)}
-								class="my-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors duration-150 hover:bg-primary/20 sm:my-2 sm:gap-4 sm:rounded-xl sm:px-4 sm:py-4"
-								class:bg-primary={settingsStore.selectedLanguage?.code === language.code}
-								class:text-primary-content={settingsStore.selectedLanguage?.code === language.code}
-							>
-								<span class="flex-shrink-0 text-xl sm:text-3xl">{language.flag || '🌍'}</span>
-								<div class="flex min-w-0 flex-1 flex-col">
-									<span class="text-sm font-semibold sm:text-base">{language.name}</span>
-									<span class="text-xs opacity-70 sm:text-sm">{language.nativeName}</span>
-								</div>
-								{#if settingsStore.selectedLanguage?.code === language.code}
-									<span class="icon-[mdi--check] h-6 w-6 flex-shrink-0"></span>
-								{/if}
-							</button>
-						{/each}
-					{/if}
 				{/if}
-			</div>
+			{/if}
 		</div>
+	</div>
 
-		<!-- Modal backdrop (closes on click) -->
-		<form method="dialog" class="modal-backdrop">
-			<button>close</button>
-		</form>
-	</dialog>
+	<!-- Modal backdrop (closes on click) -->
+	<form method="dialog" class="modal-backdrop">
+		<button>close</button>
+	</form>
+</dialog>
 
 <style>
 	:global(body.language-modal-open) {

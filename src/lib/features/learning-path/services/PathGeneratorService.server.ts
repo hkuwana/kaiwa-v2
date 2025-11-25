@@ -193,9 +193,10 @@ export class PathGeneratorService {
 	 * @param promptPayload - System and user prompts
 	 * @returns Generated syllabus or null if failed
 	 */
-	private static async generateSyllabus(
-		promptPayload: { systemPrompt: string; userPrompt: string }
-	): Promise<GeneratedSyllabus | null> {
+	private static async generateSyllabus(promptPayload: {
+		systemPrompt: string;
+		userPrompt: string;
+	}): Promise<GeneratedSyllabus | null> {
 		try {
 			const messages: ChatCompletionMessageParam[] = [
 				{ role: 'system', content: promptPayload.systemPrompt },

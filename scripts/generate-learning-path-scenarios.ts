@@ -25,11 +25,11 @@ const dryRun = args.includes('--dry-run');
 
 async function main() {
 	console.log('🚀 Learning Path Scenario Generator');
-	console.log('=' .repeat(60));
+	console.log('='.repeat(60));
 	console.log(`Started at: ${new Date().toISOString()}`);
 	console.log(`Limit: ${limit} jobs`);
 	console.log(`Mode: ${dryRun ? 'DRY RUN' : 'LIVE'}`);
-	console.log('=' .repeat(60));
+	console.log('='.repeat(60));
 	console.log('');
 
 	try {
@@ -55,7 +55,7 @@ async function main() {
 		const result = await QueueProcessorService.processPendingJobs(limit, dryRun);
 
 		console.log('');
-		console.log('=' .repeat(60));
+		console.log('='.repeat(60));
 		console.log('📊 Processing Results:');
 		console.log(`  - Processed: ${result.processed}`);
 		console.log(`  - Succeeded: ${result.succeeded}`);
@@ -81,7 +81,7 @@ async function main() {
 		console.log(`  - Total: ${finalStats.total}`);
 		console.log('');
 
-		console.log('=' .repeat(60));
+		console.log('='.repeat(60));
 		console.log(`Completed at: ${new Date().toISOString()}`);
 
 		if (result.failed > 0) {
@@ -93,10 +93,10 @@ async function main() {
 		}
 	} catch (error) {
 		console.error('');
-		console.error('=' .repeat(60));
+		console.error('='.repeat(60));
 		console.error('💥 Fatal Error:');
 		console.error(error);
-		console.error('=' .repeat(60));
+		console.error('='.repeat(60));
 		process.exit(1);
 	}
 }

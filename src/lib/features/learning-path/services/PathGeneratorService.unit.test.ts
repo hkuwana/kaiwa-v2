@@ -140,4 +140,3 @@ describe('PathGeneratorService (unit)', () => {
 		expect(mockEnqueuePathRange).not.toHaveBeenCalled();
 	});
 });
-

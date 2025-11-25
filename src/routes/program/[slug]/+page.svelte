@@ -75,7 +75,7 @@
 </svelte:head>
 
 <div class="min-h-screen bg-base-100">
-	<div class="container mx-auto px-4 py-8 max-w-6xl">
+	<div class="container mx-auto max-w-6xl px-4 py-8">
 		<!-- Hero CTA -->
 		<div class="mb-12">
 			<EnrollCTA
@@ -87,16 +87,16 @@
 		</div>
 
 		<!-- Program Overview -->
-		<div class="prose prose-lg max-w-none mb-12">
+		<div class="prose-lg mb-12 prose max-w-none">
 			<h2>About This Program</h2>
 			<p class="text-lg leading-relaxed">
 				{template.description}
 			</p>
 
-			<div class="grid md:grid-cols-3 gap-6 not-prose my-8">
+			<div class="not-prose my-8 grid gap-6 md:grid-cols-3">
 				<div class="card bg-base-200">
 					<div class="card-body items-center text-center">
-						<div class="text-4xl mb-2">🎯</div>
+						<div class="mb-2 text-4xl">🎯</div>
 						<h3 class="card-title text-lg">Practical Focus</h3>
 						<p class="text-sm">Real conversations you'll actually use</p>
 					</div>
@@ -104,7 +104,7 @@
 
 				<div class="card bg-base-200">
 					<div class="card-body items-center text-center">
-						<div class="text-4xl mb-2">⚡</div>
+						<div class="mb-2 text-4xl">⚡</div>
 						<h3 class="card-title text-lg">Quick Sessions</h3>
 						<p class="text-sm">Just 5-20 minutes per day</p>
 					</div>
@@ -112,7 +112,7 @@
 
 				<div class="card bg-base-200">
 					<div class="card-body items-center text-center">
-						<div class="text-4xl mb-2">🤖</div>
+						<div class="mb-2 text-4xl">🤖</div>
 						<h3 class="card-title text-lg">AI-Powered</h3>
 						<p class="text-sm">Practice anytime, get instant feedback</p>
 					</div>
@@ -125,7 +125,7 @@
 						xmlns="http://www.w3.org/2000/svg"
 						fill="none"
 						viewBox="0 0 24 24"
-						class="stroke-current shrink-0 w-6 h-6"
+						class="h-6 w-6 shrink-0 stroke-current"
 					>
 						<path
 							stroke-linecap="round"
@@ -162,9 +162,9 @@
 		</div>
 
 		<!-- How It Works -->
-		<div class="prose max-w-none mb-12">
+		<div class="mb-12 prose max-w-none">
 			<h2>How It Works</h2>
-			<div class="steps steps-vertical lg:steps-horizontal w-full">
+			<div class="steps steps-vertical w-full lg:steps-horizontal">
 				<div class="step step-primary">
 					<div class="text-left">
 						<h3 class="font-bold">1. Sign Up Free</h3>
@@ -193,17 +193,15 @@
 		</div>
 
 		<!-- Social Proof / Benefits -->
-		<div class="card bg-gradient-to-br from-base-200 to-base-300 mb-8">
+		<div class="card mb-8 bg-gradient-to-br from-base-200 to-base-300">
 			<div class="card-body">
-				<h3 class="card-title text-2xl mb-4">Why Learners Love Kaiwa</h3>
-				<div class="grid md:grid-cols-2 gap-4">
+				<h3 class="mb-4 card-title text-2xl">Why Learners Love Kaiwa</h3>
+				<div class="grid gap-4 md:grid-cols-2">
 					<div class="flex gap-3">
 						<div class="text-2xl">✓</div>
 						<div>
 							<h4 class="font-semibold">Safe Practice Environment</h4>
-							<p class="text-sm text-base-content/70">
-								Build confidence without fear of judgment
-							</p>
+							<p class="text-sm text-base-content/70">Build confidence without fear of judgment</p>
 						</div>
 					</div>
 					<div class="flex gap-3">
@@ -239,10 +237,10 @@
 
 <style>
 	:global(.prose h2) {
-		@apply text-3xl font-bold mt-12 mb-6;
+		@apply mt-12 mb-6 text-3xl font-bold;
 	}
 
 	:global(.prose h3) {
-		@apply text-xl font-semibold mt-6 mb-3;
+		@apply mt-6 mb-3 text-xl font-semibold;
 	}
 </style>

@@ -21,9 +21,13 @@
 	let createMode = $state<'preferences' | 'brief'>('preferences');
 	let targetLanguage = $state('ja');
 	let presetName = $state("Meeting Your Partner's Parents");
-	let presetDescription = $state('Preparing to meet your Japanese partner\'s parents for the first time');
+	let presetDescription = $state(
+		"Preparing to meet your Japanese partner's parents for the first time"
+	);
 	let duration = $state(7);
-	let brief = $state('A 1-week intensive course for meeting your Japanese partner\'s parents. Focus on polite conversation, family topics, cultural etiquette, gift-giving customs, and handling formal situations.');
+	let brief = $state(
+		"A 1-week intensive course for meeting your Japanese partner's parents. Focus on polite conversation, family topics, cultural etiquette, gift-giving customs, and handling formal situations."
+	);
 
 	// Data
 	let allPaths = $state<any[]>([]);
@@ -84,32 +88,34 @@
 		loading = true;
 		message = '';
 
-		const endpoint = createMode === 'preferences'
-			? '/api/learning-paths/from-preferences'
-			: '/api/learning-paths/from-brief';
+		const endpoint =
+			createMode === 'preferences'
+				? '/api/learning-paths/from-preferences'
+				: '/api/learning-paths/from-brief';
 
-		const body = createMode === 'preferences'
-			? {
-					userPreferences: {
-						targetLanguageId: targetLanguage,
-						currentLanguageLevel: 'A2',
-						practicalLevel: 'intermediate beginner',
-						learningGoal: 'Connection',
-						specificGoals: [presetDescription],
-						challengePreference: 'moderate',
-						correctionStyle: 'gentle'
-					},
-					presetName,
-					presetDescription,
-					duration
-				}
-			: {
-					brief,
-					targetLanguage,
-					duration,
-					difficultyRange: { min: 'A2', max: 'B1' },
-					primarySkill: 'conversation'
-				};
+		const body =
+			createMode === 'preferences'
+				? {
+						userPreferences: {
+							targetLanguageId: targetLanguage,
+							currentLanguageLevel: 'A2',
+							practicalLevel: 'intermediate beginner',
+							learningGoal: 'Connection',
+							specificGoals: [presetDescription],
+							challengePreference: 'moderate',
+							correctionStyle: 'gentle'
+						},
+						presetName,
+						presetDescription,
+						duration
+					}
+				: {
+						brief,
+						targetLanguage,
+						duration,
+						difficultyRange: { min: 'A2', max: 'B1' },
+						primarySkill: 'conversation'
+					};
 
 		try {
 			const response = await fetch(endpoint, {
@@ -248,23 +254,23 @@
 	}
 </script>
 
-<div class="container mx-auto px-4 py-6 max-w-7xl">
+<div class="container mx-auto max-w-7xl px-4 py-6">
 	<!-- Header -->
-	<div class="flex justify-between items-center mb-6">
+	<div class="mb-6 flex items-center justify-between">
 		<div>
 			<h1 class="text-3xl font-bold">⚙️ Learning Paths Admin</h1>
 			<p class="text-base-content/70">Create, manage, and assign learning paths</p>
 		</div>
 		<div class="stats shadow">
-			<div class="stat py-2 px-4">
+			<div class="stat px-4 py-2">
 				<div class="stat-title text-xs">Total Paths</div>
 				<div class="stat-value text-2xl">{allPaths.length}</div>
 			</div>
-			<div class="stat py-2 px-4">
+			<div class="stat px-4 py-2">
 				<div class="stat-title text-xs">Templates</div>
 				<div class="stat-value text-2xl">{templates.length}</div>
 			</div>
-			<div class="stat py-2 px-4">
+			<div class="stat px-4 py-2">
 				<div class="stat-title text-xs">Queue</div>
 				<div class="stat-value text-2xl text-warning">{queueStats.pending}</div>
 			</div>
@@ -273,26 +279,47 @@
 
 	<!-- Message -->
 	{#if message}
-		<div class="alert alert-{messageType === 'success' ? 'success' : messageType === 'error' ? 'error' : 'info'} mb-4">
+		<div
+			class="alert alert-{messageType === 'success'
+				? 'success'
+				: messageType === 'error'
+					? 'error'
+					: 'info'} mb-4"
+		>
 			{message}
 		</div>
 	{/if}
 
 	<!-- Tabs -->
-	<div class="tabs tabs-boxed mb-4">
-		<button class="tab {activeTab === 'create' ? 'tab-active' : ''}" onclick={() => activeTab = 'create'}>
+	<div class="tabs-boxed mb-4 tabs">
+		<button
+			class="tab {activeTab === 'create' ? 'tab-active' : ''}"
+			onclick={() => (activeTab = 'create')}
+		>
 			Create
 		</button>
-		<button class="tab {activeTab === 'paths' ? 'tab-active' : ''}" onclick={() => activeTab = 'paths'}>
+		<button
+			class="tab {activeTab === 'paths' ? 'tab-active' : ''}"
+			onclick={() => (activeTab = 'paths')}
+		>
 			All Paths
 		</button>
-		<button class="tab {activeTab === 'templates' ? 'tab-active' : ''}" onclick={() => activeTab = 'templates'}>
+		<button
+			class="tab {activeTab === 'templates' ? 'tab-active' : ''}"
+			onclick={() => (activeTab = 'templates')}
+		>
 			Templates
 		</button>
-		<button class="tab {activeTab === 'assign' ? 'tab-active' : ''}" onclick={() => activeTab = 'assign'}>
+		<button
+			class="tab {activeTab === 'assign' ? 'tab-active' : ''}"
+			onclick={() => (activeTab = 'assign')}
+		>
 			Assign
 		</button>
-		<button class="tab {activeTab === 'queue' ? 'tab-active' : ''}" onclick={() => activeTab = 'queue'}>
+		<button
+			class="tab {activeTab === 'queue' ? 'tab-active' : ''}"
+			onclick={() => (activeTab = 'queue')}
+		>
 			Queue
 		</button>
 	</div>
@@ -301,26 +328,26 @@
 	{#if activeTab === 'create'}
 		<div class="card bg-base-200">
 			<div class="card-body">
-				<div class="flex gap-4 mb-4">
+				<div class="mb-4 flex gap-4">
 					<button
 						class="btn btn-sm {createMode === 'preferences' ? 'btn-primary' : 'btn-outline'}"
-						onclick={() => createMode = 'preferences'}
+						onclick={() => (createMode = 'preferences')}
 					>
 						From Preferences
 					</button>
 					<button
 						class="btn btn-sm {createMode === 'brief' ? 'btn-primary' : 'btn-outline'}"
-						onclick={() => createMode = 'brief'}
+						onclick={() => (createMode = 'brief')}
 					>
 						From Brief
 					</button>
 				</div>
 
 				{#if createMode === 'preferences'}
-					<div class="grid md:grid-cols-2 gap-4">
+					<div class="grid gap-4 md:grid-cols-2">
 						<div class="form-control">
 							<label class="label"><span class="label-text">Language</span></label>
-							<select class="select select-bordered" bind:value={targetLanguage}>
+							<select class="select-bordered select" bind:value={targetLanguage}>
 								<option value="ja">Japanese</option>
 								<option value="es">Spanish</option>
 								<option value="fr">French</option>
@@ -329,22 +356,29 @@
 						</div>
 						<div class="form-control">
 							<label class="label"><span class="label-text">Duration</span></label>
-							<input type="number" class="input input-bordered" bind:value={duration} min="3" max="30" />
+							<input
+								type="number"
+								class="input-bordered input"
+								bind:value={duration}
+								min="3"
+								max="30"
+							/>
 						</div>
 						<div class="form-control md:col-span-2">
 							<label class="label"><span class="label-text">Preset Name</span></label>
-							<input type="text" class="input input-bordered" bind:value={presetName} />
+							<input type="text" class="input-bordered input" bind:value={presetName} />
 						</div>
 						<div class="form-control md:col-span-2">
 							<label class="label"><span class="label-text">Description</span></label>
-							<textarea class="textarea textarea-bordered" bind:value={presetDescription}></textarea>
+							<textarea class="textarea-bordered textarea" bind:value={presetDescription}
+							></textarea>
 						</div>
 					</div>
 				{:else}
-					<div class="grid md:grid-cols-2 gap-4">
+					<div class="grid gap-4 md:grid-cols-2">
 						<div class="form-control">
 							<label class="label"><span class="label-text">Language</span></label>
-							<select class="select select-bordered" bind:value={targetLanguage}>
+							<select class="select-bordered select" bind:value={targetLanguage}>
 								<option value="ja">Japanese</option>
 								<option value="es">Spanish</option>
 								<option value="fr">French</option>
@@ -352,16 +386,22 @@
 						</div>
 						<div class="form-control">
 							<label class="label"><span class="label-text">Duration</span></label>
-							<input type="number" class="input input-bordered" bind:value={duration} min="3" max="30" />
+							<input
+								type="number"
+								class="input-bordered input"
+								bind:value={duration}
+								min="3"
+								max="30"
+							/>
 						</div>
 						<div class="form-control md:col-span-2">
 							<label class="label"><span class="label-text">Creator Brief</span></label>
-							<textarea class="textarea textarea-bordered h-32" bind:value={brief}></textarea>
+							<textarea class="textarea-bordered textarea h-32" bind:value={brief}></textarea>
 						</div>
 					</div>
 				{/if}
 
-				<div class="card-actions justify-end mt-4">
+				<div class="mt-4 card-actions justify-end">
 					<button class="btn btn-primary" onclick={createPath} disabled={loading}>
 						{loading ? 'Creating...' : 'Create Path'}
 					</button>
@@ -374,26 +414,36 @@
 	{#if activeTab === 'paths'}
 		<div class="space-y-2">
 			{#each allPaths as path}
-				<div class="card bg-base-200 card-compact">
+				<div class="card-compact card bg-base-200">
 					<div class="card-body">
-						<div class="flex justify-between items-start">
+						<div class="flex items-start justify-between">
 							<div class="flex-1">
 								<h3 class="font-bold">{path.title}</h3>
 								<p class="text-sm text-base-content/70">{path.description}</p>
-								<div class="flex gap-2 mt-2">
+								<div class="mt-2 flex gap-2">
 									<span class="badge badge-sm">{path.targetLanguage}</span>
 									<span class="badge badge-sm">{path.schedule?.length} days</span>
-									<span class="badge badge-sm badge-{path.status === 'active' ? 'success' : 'neutral'}">{path.status}</span>
-									{#if path.isTemplate}<span class="badge badge-sm badge-secondary">Template</span>{/if}
+									<span
+										class="badge badge-sm badge-{path.status === 'active' ? 'success' : 'neutral'}"
+										>{path.status}</span
+									>
+									{#if path.isTemplate}<span class="badge badge-sm badge-secondary">Template</span
+										>{/if}
 								</div>
 							</div>
 							<div class="flex gap-2">
 								{#if !path.isTemplate}
-									<button class="btn btn-xs btn-outline" onclick={() => publishAsTemplate(path.id)}>Publish</button>
+									<button class="btn btn-outline btn-xs" onclick={() => publishAsTemplate(path.id)}
+										>Publish</button
+									>
 								{:else}
-									<a href="/program/{path.shareSlug}" target="_blank" class="btn btn-xs btn-primary">View</a>
+									<a href="/program/{path.shareSlug}" target="_blank" class="btn btn-xs btn-primary"
+										>View</a
+									>
 								{/if}
-								<button class="btn btn-xs btn-error btn-outline" onclick={() => deletePath(path.id)}>Delete</button>
+								<button class="btn btn-outline btn-xs btn-error" onclick={() => deletePath(path.id)}
+									>Delete</button
+								>
 							</div>
 						</div>
 					</div>
@@ -404,19 +454,24 @@
 
 	<!-- Templates Tab -->
 	{#if activeTab === 'templates'}
-		<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+		<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 			{#each templates as template}
 				<div class="card bg-base-200 shadow-sm">
 					<div class="card-body">
 						<h3 class="card-title text-base">{template.title}</h3>
-						<p class="text-sm text-base-content/70 line-clamp-2">{template.description}</p>
-						<div class="flex gap-2 mt-2">
+						<p class="line-clamp-2 text-sm text-base-content/70">{template.description}</p>
+						<div class="mt-2 flex gap-2">
 							<span class="badge badge-xs">{template.targetLanguage}</span>
 							<span class="badge badge-xs">{template.schedule?.length} days</span>
 						</div>
-						<div class="card-actions justify-end mt-4">
-							<a href="/program/{template.shareSlug}" target="_blank" class="btn btn-xs btn-primary">View</a>
-							<button class="btn btn-xs btn-error btn-outline" onclick={() => deletePath(template.id)}>Delete</button>
+						<div class="mt-4 card-actions justify-end">
+							<a href="/program/{template.shareSlug}" target="_blank" class="btn btn-xs btn-primary"
+								>View</a
+							>
+							<button
+								class="btn btn-outline btn-xs btn-error"
+								onclick={() => deletePath(template.id)}>Delete</button
+							>
 						</div>
 					</div>
 				</div>
@@ -432,7 +487,7 @@
 
 				<div class="form-control">
 					<label class="label"><span class="label-text">Select Path</span></label>
-					<select class="select select-bordered" bind:value={selectedPathForAssignment}>
+					<select class="select-bordered select" bind:value={selectedPathForAssignment}>
 						<option value="">Choose a path...</option>
 						{#each allPaths as path}
 							<option value={path.id}>{path.title} ({path.schedule?.length} days)</option>
@@ -442,20 +497,34 @@
 
 				<div class="divider">OR</div>
 
-				<div class="grid md:grid-cols-2 gap-4">
+				<div class="grid gap-4 md:grid-cols-2">
 					<div class="form-control">
 						<label class="label"><span class="label-text">User Email</span></label>
-						<input type="email" class="input input-bordered" bind:value={assignToEmail} placeholder="user@example.com" />
+						<input
+							type="email"
+							class="input-bordered input"
+							bind:value={assignToEmail}
+							placeholder="user@example.com"
+						/>
 					</div>
 					<div class="form-control">
 						<label class="label"><span class="label-text">User ID</span></label>
-						<input type="text" class="input input-bordered" bind:value={assignToUserId} placeholder="uuid" />
+						<input
+							type="text"
+							class="input-bordered input"
+							bind:value={assignToUserId}
+							placeholder="uuid"
+						/>
 					</div>
 				</div>
 
 				<div class="form-control">
 					<label class="label"><span class="label-text">Note (optional)</span></label>
-					<textarea class="textarea textarea-bordered" bind:value={assignmentNote} placeholder="Internal note about this assignment"></textarea>
+					<textarea
+						class="textarea-bordered textarea"
+						bind:value={assignmentNote}
+						placeholder="Internal note about this assignment"
+					></textarea>
 				</div>
 
 				<div class="card-actions justify-end">
@@ -470,7 +539,7 @@
 	<!-- Queue Tab -->
 	{#if activeTab === 'queue'}
 		<div class="space-y-4">
-			<div class="stats shadow w-full">
+			<div class="stats w-full shadow">
 				<div class="stat">
 					<div class="stat-title">Pending</div>
 					<div class="stat-value text-warning">{queueStats.pending}</div>

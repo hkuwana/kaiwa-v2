@@ -24,6 +24,7 @@ This bridge plan **is the detailed playbook for the Now (0–6 months) horizon**
 ### The Brutal Truth
 
 You're at a critical inflection point. You have:
+
 - ✅ A working product
 - ✅ 7-10 beta users
 - ✅ Clear ICP and execution plan
@@ -39,6 +40,7 @@ Your execution plan calls for aggressive paid advertising scaling ($2K → $15K/
 **Bridge Amount Needed**: $25,000 - $35,000 for 6 months
 
 This covers:
+
 - Reduced founder salary ($20K → $10K/year for 6 months)
 - Essential operating expenses
 - Minimal marketing spend ($500-1,000/month organic-first)
@@ -50,33 +52,33 @@ This covers:
 
 ### Monthly Operating Expenses (Current)
 
-| Expense Category | Monthly Cost | Annual Cost | Notes |
-|-----------------|--------------|-------------|-------|
-| **Infrastructure** | | | |
-| OpenAI API | $21.27 | $255 | Will increase with usage |
-| Vercel (hosting) | $20.20 | $242 | |
-| Fly.io (backend) | $5.00 | $60 | |
-| Supabase (database) | $25.00 | $300 | |
-| **Subtotal Infrastructure** | **$71.47** | **$857** | |
-| | | | |
-| **Tools & Services** | | | |
-| Squarespace (website) | $21.27 | $255 | Consider migrating to Vercel |
-| Google Workspace | $38.29 | $459 | |
-| Next Insurance | $27.10 | $325 | |
-| Intuit/QuickBooks | $35.35 | $424 | |
-| **Subtotal Tools** | **$122.01** | **$1,463** | |
-| | | | |
-| **Payroll Overhead** | | | |
-| Gusto (payroll fees) | $56.56 | $679 | |
-| Gusto R&D Tax Credit | $20.43 | $245 | |
-| **Subtotal Payroll** | **$76.99** | **$924** | |
-| | | | |
-| **TOTAL MONTHLY OPEX** | **$270.47** | **$3,244** | Excluding founder salary |
-| | | | |
-| **Founder Compensation** | | | |
-| Current salary | $3,333 | $40,000 | |
-| **Proposed reduced salary** | **$1,667** | **$20,000** | 50% reduction |
-| **Further reduced (bridge mode)** | **$833** | **$10,000** | Survival mode |
+| Expense Category                  | Monthly Cost | Annual Cost | Notes                        |
+| --------------------------------- | ------------ | ----------- | ---------------------------- |
+| **Infrastructure**                |              |             |                              |
+| OpenAI API                        | $21.27       | $255        | Will increase with usage     |
+| Vercel (hosting)                  | $20.20       | $242        |                              |
+| Fly.io (backend)                  | $5.00        | $60         |                              |
+| Supabase (database)               | $25.00       | $300        |                              |
+| **Subtotal Infrastructure**       | **$71.47**   | **$857**    |                              |
+|                                   |              |             |                              |
+| **Tools & Services**              |              |             |                              |
+| Squarespace (website)             | $21.27       | $255        | Consider migrating to Vercel |
+| Google Workspace                  | $38.29       | $459        |                              |
+| Next Insurance                    | $27.10       | $325        |                              |
+| Intuit/QuickBooks                 | $35.35       | $424        |                              |
+| **Subtotal Tools**                | **$122.01**  | **$1,463**  |                              |
+|                                   |              |             |                              |
+| **Payroll Overhead**              |              |             |                              |
+| Gusto (payroll fees)              | $56.56       | $679        |                              |
+| Gusto R&D Tax Credit              | $20.43       | $245        |                              |
+| **Subtotal Payroll**              | **$76.99**   | **$924**    |                              |
+|                                   |              |             |                              |
+| **TOTAL MONTHLY OPEX**            | **$270.47**  | **$3,244**  | Excluding founder salary     |
+|                                   |              |             |                              |
+| **Founder Compensation**          |              |             |                              |
+| Current salary                    | $3,333       | $40,000     |                              |
+| **Proposed reduced salary**       | **$1,667**   | **$20,000** | 50% reduction                |
+| **Further reduced (bridge mode)** | **$833**     | **$10,000** | Survival mode                |
 
 ### Current Revenue
 
@@ -87,11 +89,11 @@ This covers:
 
 ### Current Burn Rate
 
-| Scenario | Monthly Burn | 6-Month Burn |
-|----------|--------------|--------------|
-| Current (full salary) | $3,604 | $21,624 |
-| Reduced salary ($20K/year) | $1,937 | $11,622 |
-| **Bridge mode ($10K/year)** | **$1,104** | **$6,624** |
+| Scenario                    | Monthly Burn | 6-Month Burn |
+| --------------------------- | ------------ | ------------ |
+| Current (full salary)       | $3,604       | $21,624      |
+| Reduced salary ($20K/year)  | $1,937       | $11,622      |
+| **Bridge mode ($10K/year)** | **$1,104**   | **$6,624**   |
 
 ---
 
@@ -101,14 +103,14 @@ This covers:
 
 **Assumption**: Focus on organic growth, validate before scaling paid ads
 
-| Month | MRR Target | Monthly Expenses | Net Burn | Strategy |
-|-------|------------|------------------|----------|----------|
-| **Month 1** | $200 | $1,104 | -$904 | Organic only: Reddit, outreach, bootcamps |
-| **Month 2** | $500 | $1,604 | -$1,104 | Add $500/mo marketing (Fiverr creator, tools) |
-| **Month 3** | $1,000 | $1,604 | -$604 | Continue organic + content |
-| **Month 4** | $2,000 | $2,104 | -$104 | Test paid ads ($500/mo if organic validated) |
-| **Month 5** | $3,000 | $2,604 | +$396 | Scale ads to $1K/mo |
-| **Month 6** | $4,000 | $2,604 | +$1,396 | Maintain |
+| Month       | MRR Target | Monthly Expenses | Net Burn | Strategy                                      |
+| ----------- | ---------- | ---------------- | -------- | --------------------------------------------- |
+| **Month 1** | $200       | $1,104           | -$904    | Organic only: Reddit, outreach, bootcamps     |
+| **Month 2** | $500       | $1,604           | -$1,104  | Add $500/mo marketing (Fiverr creator, tools) |
+| **Month 3** | $1,000     | $1,604           | -$604    | Continue organic + content                    |
+| **Month 4** | $2,000     | $2,104           | -$104    | Test paid ads ($500/mo if organic validated)  |
+| **Month 5** | $3,000     | $2,604           | +$396    | Scale ads to $1K/mo                           |
+| **Month 6** | $4,000     | $2,604           | +$1,396  | Maintain                                      |
 
 **Total Cash Need**: $2,320 net burn + $5,000 buffer = **$7,320**
 
@@ -118,14 +120,14 @@ This covers:
 
 **Assumption**: Organic works well, scale faster in Month 3-4
 
-| Month | MRR Target | Monthly Expenses | Net Burn | Strategy |
-|-------|------------|------------------|----------|----------|
-| Month 1 | $300 | $1,104 | -$804 | Aggressive organic: bootcamps, PAB conversion |
-| Month 2 | $800 | $1,604 | -$804 | Add Fiverr creator, scale content |
-| Month 3 | $1,500 | $2,104 | -$604 | Test $500/mo paid ads |
-| Month 4 | $2,500 | $2,604 | -$104 | Scale to $1K/mo ads |
-| Month 5 | $3,500 | $3,104 | +$396 | Scale to $1.5K/mo ads |
-| Month 6 | $5,000 | $3,104 | +$1,896 | Maintain |
+| Month   | MRR Target | Monthly Expenses | Net Burn | Strategy                                      |
+| ------- | ---------- | ---------------- | -------- | --------------------------------------------- |
+| Month 1 | $300       | $1,104           | -$804    | Aggressive organic: bootcamps, PAB conversion |
+| Month 2 | $800       | $1,604           | -$804    | Add Fiverr creator, scale content             |
+| Month 3 | $1,500     | $2,104           | -$604    | Test $500/mo paid ads                         |
+| Month 4 | $2,500     | $2,604           | -$104    | Scale to $1K/mo ads                           |
+| Month 5 | $3,500     | $3,104           | +$396    | Scale to $1.5K/mo ads                         |
+| Month 6 | $5,000     | $3,104           | +$1,896  | Maintain                                      |
 
 **Total Cash Need**: $2,316 net burn + $5,000 buffer = **$7,316**
 
@@ -135,14 +137,14 @@ This covers:
 
 **Assumption**: Follow original 12-month execution plan (NOT RECOMMENDED for bridge)
 
-| Month | MRR Target | Monthly Expenses | Net Burn | Strategy |
-|-------|------------|------------------|----------|----------|
-| Month 1 | $600 | $3,104 | -$2,504 | $2K/mo paid ads immediately |
-| Month 2 | $1,200 | $3,604 | -$2,404 | Full salary restored, scale ads |
-| Month 3 | $2,400 | $5,104 | -$2,704 | $3K/mo ads + hire content creator |
-| Month 4 | $4,000 | $7,104 | -$3,104 | $5K/mo ads |
-| Month 5 | $6,000 | $7,104 | -$1,104 | Maintain |
-| Month 6 | $8,800 | $7,104 | +$1,696 | Hit target |
+| Month   | MRR Target | Monthly Expenses | Net Burn | Strategy                          |
+| ------- | ---------- | ---------------- | -------- | --------------------------------- |
+| Month 1 | $600       | $3,104           | -$2,504  | $2K/mo paid ads immediately       |
+| Month 2 | $1,200     | $3,604           | -$2,404  | Full salary restored, scale ads   |
+| Month 3 | $2,400     | $5,104           | -$2,704  | $3K/mo ads + hire content creator |
+| Month 4 | $4,000     | $7,104           | -$3,104  | $5K/mo ads                        |
+| Month 5 | $6,000     | $7,104           | -$1,104  | Maintain                          |
+| Month 6 | $8,800     | $7,104           | +$1,696  | Hit target                        |
 
 **Total Cash Need**: $14,524 net burn + $5,000 buffer = **$19,524**
 
@@ -154,53 +156,56 @@ This covers:
 
 ### Base Operating Costs (Cannot Cut)
 
-| Item | Cost | Can Reduce? | Notes |
-|------|------|-------------|-------|
-| OpenAI API | $21-50 | No | Will increase with users |
-| Vercel | $20 | No | Hosting |
-| Fly.io | $5 | No | Backend |
-| Supabase | $25 | No | Database |
-| Google Workspace | $38 | Maybe | Could use free Gmail |
-| Gusto payroll overhead | $77 | No | Need for compliance |
-| Insurance | $27 | No | Required |
-| QuickBooks | $35 | Maybe | Could DIY accounting |
-| **TOTAL** | **$248-277** | | **Rock bottom** |
+| Item                   | Cost         | Can Reduce? | Notes                    |
+| ---------------------- | ------------ | ----------- | ------------------------ |
+| OpenAI API             | $21-50       | No          | Will increase with users |
+| Vercel                 | $20          | No          | Hosting                  |
+| Fly.io                 | $5           | No          | Backend                  |
+| Supabase               | $25          | No          | Database                 |
+| Google Workspace       | $38          | Maybe       | Could use free Gmail     |
+| Gusto payroll overhead | $77          | No          | Need for compliance      |
+| Insurance              | $27          | No          | Required                 |
+| QuickBooks             | $35          | Maybe       | Could DIY accounting     |
+| **TOTAL**              | **$248-277** |             | **Rock bottom**          |
 
 ### Proposed Expense Optimization
 
-| Current Item | Monthly | Proposed Change | New Cost | Savings |
-|--------------|---------|-----------------|----------|---------|
-| Squarespace | $21.27 | Migrate to Vercel | $0 | $21.27 |
-| Google Workspace | $38.29 | Downgrade or use free tier | $0-12 | $26-38 |
-| QuickBooks | $35.35 | Switch to Wave (free) | $0 | $35.35 |
-| Cursor subscription | ~$20? | Remove (use Claude Pro) | $0 | $20 |
-| **TOTAL SAVINGS** | | | | **$102-115/mo** |
+| Current Item        | Monthly | Proposed Change            | New Cost | Savings         |
+| ------------------- | ------- | -------------------------- | -------- | --------------- |
+| Squarespace         | $21.27  | Migrate to Vercel          | $0       | $21.27          |
+| Google Workspace    | $38.29  | Downgrade or use free tier | $0-12    | $26-38          |
+| QuickBooks          | $35.35  | Switch to Wave (free)      | $0       | $35.35          |
+| Cursor subscription | ~$20?   | Remove (use Claude Pro)    | $0       | $20             |
+| **TOTAL SAVINGS**   |         |                            |          | **$102-115/mo** |
 
 **New Base Operating Cost**: **$155-175/month**
 
 ### Additional Costs to Consider
 
-| Item | Month 1-2 | Month 3-4 | Month 5-6 | Notes |
-|------|-----------|-----------|-----------|-------|
-| Claude Pro | $20 | $20 | $20 | Worth it for faster coding |
-| Marketing tools (F5Bot, ConvertKit) | $0-30 | $30 | $30 | Start free, upgrade |
-| Fiverr content creator | $0 | $500 | $500-800 | Only after validation |
-| Paid ads (Meta/TikTok) | $0 | $0-500 | $500-1,000 | Only if organic works |
-| **TOTAL ADDITIONAL** | **$20** | **$550-1,050** | **$1,050-1,850** | |
+| Item                                | Month 1-2 | Month 3-4      | Month 5-6        | Notes                      |
+| ----------------------------------- | --------- | -------------- | ---------------- | -------------------------- |
+| Claude Pro                          | $20       | $20            | $20              | Worth it for faster coding |
+| Marketing tools (F5Bot, ConvertKit) | $0-30     | $30            | $30              | Start free, upgrade        |
+| Fiverr content creator              | $0        | $500           | $500-800         | Only after validation      |
+| Paid ads (Meta/TikTok)              | $0        | $0-500         | $500-1,000       | Only if organic works      |
+| **TOTAL ADDITIONAL**                | **$20**   | **$550-1,050** | **$1,050-1,850** |                            |
 
 ### Founder Salary Options
 
 **Current**: $40,000/year ($3,333/month)
 
 **Option 1 - Moderate Cut**: $20,000/year ($1,667/month)
+
 - Can you survive on this? Only if you have savings or partner income
 
 **Option 2 - Survival Mode**: $10,000/year ($833/month)
+
 - Bare minimum for food/rent
 - Only sustainable for 6 months max
 - Need roommate, cut all personal expenses
 
 **Option 3 - Zero Salary**: $0/year
+
 - Live off savings or partner
 - All-in bet on Kaiwa
 - Psychologically brutal, not recommended
@@ -227,12 +232,14 @@ This covers:
 **Why**: You need to prove people will pay AND that you can reach them cheaply before spending on ads or hiring.
 
 **How**:
+
 - **Week 1-2**: Do 10 customer interviews (pay $20 each). Understand their exact pain.
 - **Week 3-4**: Launch $49 Practice Bootcamp (pre-sell before building it)
 - **Daily (45 min)**: Reddit engagement in r/LongDistance, r/LearnJapanese, r/relationships
 - **Weekly (3 hours)**: Write newsletter + Quora answers
 
 **Success metrics**:
+
 - 50+ email subscribers by end Month 1
 - 5-10 bootcamp sales ($245-490) by end Month 2
 - 30-50 paying Kaiwa users by end Month 3
@@ -249,6 +256,7 @@ This covers:
 **Budget**: $500-1,000/month
 
 **Options**:
+
 1. **Hire Fiverr creator** ($200-500/month)
    - Create 8-12 TikTok/Instagram Reels per month
    - Test hooks: language barrier, meeting parents, heritage shame
@@ -265,6 +273,7 @@ This covers:
    - Goal: CAC < $100, otherwise kill immediately
 
 **Success metrics**:
+
 - At least ONE channel gets CAC < $75
 - Conversion rate improves from 1% → 5%+
 - MRR grows 30%+ month-over-month
@@ -288,16 +297,19 @@ This covers:
 **Answer**: YES to trials, but structured correctly.
 
 **Don't do**: Unlimited free tier with no friction
+
 - You'll get tire-kickers who never pay
 - No skin in the game = no commitment = no learning
 
 **Do do**: 7-day trial with credit card required
+
 - Forces qualification ("Is this worth $19 to me?")
 - Creates urgency to try it NOW
 - Converts at 15-25% if product delivers
 - Lets you test messaging and onboarding
 
 **Even better**: $49 Practice Bootcamp → Upsell to Monthly
+
 - Charge $49 upfront for 5-day intensive bootcamp
 - Deliver massive value (group Zoom calls + Kaiwa practice + Q&A)
 - At end: "Want to keep practicing? $14/mo (normally $20)"
@@ -310,12 +322,14 @@ This covers:
 **Answer**: Marketing (customer acquisition) is the bottleneck, NOT people.
 
 **Why you don't need to hire yet**:
+
 - You're pre-product-market fit
 - You don't know what marketing works yet
 - Hiring before validation = waste of money
 - You need to do the uncomfortable work yourself first
 
 **What you should do instead**:
+
 1. **Months 1-3**: You do ALL distribution yourself (9 hrs/week)
    - This is uncomfortable but essential
    - You learn what resonates with customers
@@ -340,16 +354,19 @@ This covers:
 **Answer**: YES, but not yet, and not for "making a plan"
 
 **Wrong approach**:
+
 - Hire someone to "make a marketing plan"
 - Pay 5 people to "make videos for you"
 - Hope one of them figures out your messaging
 
 **Why this fails**:
+
 - They don't understand your customers like you do
 - Generic content won't resonate
 - You'll waste $500-1,000 learning this
 
 **Right approach**:
+
 1. **Month 1-2**: YOU create 10-15 pieces of content yourself
    - Film yourself talking about your grandparent story
    - Interview your beta users and share their stories
@@ -375,16 +392,19 @@ This covers:
 **Answer**: It depends on what you mean
 
 **If you mean**: Hire recent grads to help with marketing
+
 - ❌ **No** - They don't have experience, you'll spend time training them
 - Better to hire experienced Fiverr freelancers for specific tasks
 
 **If you mean**: Target recent grads as customers
+
 - ✅ **Yes** - Recent grads are GREAT for specific personas:
   - **Bilingual Spouse** (Sofia): 25-29, recent grad, in serious relationship
   - **Heritage Speaker** (David): 30-35, recent grad feeling disconnected from roots
   - These are your ICP! Target them aggressively on Reddit, TikTok, LinkedIn
 
 **How to reach recent grads**:
+
 - Reddit: r/GradSchool, r/StudentLoans (for context on life transition)
 - LinkedIn: Connect with recent grads in language learning groups
 - Facebook: University alumni groups for bilingual communities
@@ -397,17 +417,20 @@ This covers:
 ### How Much Do You Actually Need?
 
 **Minimum (Conservative Path)**: $15,000
+
 - Covers 6 months at survival salary ($833/mo)
 - Minimal marketing spend ($0-500/mo ramping up)
 - Must hit revenue targets or you're out of runway
 
 **Recommended (Moderate Path)**: $25,000
+
 - Covers 6 months at reduced salary ($1,667/mo in months 4-6)
 - Room for marketing experiments ($500-1,000/mo)
 - Buffer for unexpected costs
 - **This is my recommendation**
 
 **Comfortable (Aggressive Path)**: $35,000
+
 - Covers 6 months at reduced salary throughout
 - Significant marketing budget ($2-5K/mo ramping)
 - Can hire contractor in month 4-5
@@ -416,26 +439,31 @@ This covers:
 ### Where to Get the Money
 
 **Option 1: Friends & Family**
+
 - Fastest, most flexible
 - Can be $10-25K typically
 - Structure as convertible note (converts to equity in future round)
 
 **Option 2: Angel Investors**
+
 - Harder to close small amounts
 - But if you have warm intros, could raise $25-50K
 - Show them your execution plan + early traction
 
 **Option 3: Revenue-Based Financing**
+
 - Companies like Pipe, Clearco, Capchase
 - But you need $2-3K MRR minimum (you're not there yet)
 - Come back to this at Month 3-4 if hitting targets
 
 **Option 4: Personal Savings / Credit**
+
 - Last resort but fastest
 - Be careful with credit card debt (high interest)
 - Only do this if you're 100% committed
 
 **Option 5: Grants / Accelerators**
+
 - Apply to Techstars, Y Combinator, indie maker grants
 - Takes 2-3 months, may be too slow
 - But worth applying while you execute
@@ -443,16 +471,19 @@ This covers:
 ### My Recommendation
 
 **Raise $25,000 as follows**:
+
 - $15,000 from friends & family (convertible note, $1M cap)
 - $10,000 from personal savings / credit line
 - This gives you 6 months to prove the model
 
 **Use it like this**:
+
 - Months 1-3: Burn $3-5K total (lean mode, organic only)
 - Months 4-6: Burn $8-12K (ramp marketing if working)
 - End of Month 6: You should be at $3-5K MRR, making this sustainable
 
 **If you hit $5K MRR at Month 6**:
+
 - You can raise a proper seed round ($500K-1M) or
 - Go lifestyle business mode (profitable, slow growth) or
 - Take another $25K bridge and push to $10K MRR
@@ -463,99 +494,99 @@ This covers:
 
 ### Month 1 - Organic Only, Survival Mode
 
-| Category | Item | Cost |
-|----------|------|------|
-| **Infrastructure** | OpenAI, Vercel, Fly.io, Supabase | $71 |
-| **Tools (optimized)** | Google Workspace (downgrade), Insurance | $77 |
-| **Payroll Overhead** | Gusto fees | $77 |
-| **New Tools** | Claude Pro | $20 |
-| **Marketing** | $0 (organic only) | $0 |
-| **Founder Salary** | Survival mode | $833 |
-| **TOTAL** | | **$1,078** |
+| Category              | Item                                    | Cost       |
+| --------------------- | --------------------------------------- | ---------- |
+| **Infrastructure**    | OpenAI, Vercel, Fly.io, Supabase        | $71        |
+| **Tools (optimized)** | Google Workspace (downgrade), Insurance | $77        |
+| **Payroll Overhead**  | Gusto fees                              | $77        |
+| **New Tools**         | Claude Pro                              | $20        |
+| **Marketing**         | $0 (organic only)                       | $0         |
+| **Founder Salary**    | Survival mode                           | $833       |
+| **TOTAL**             |                                         | **$1,078** |
 
 **Revenue Target**: $200 MRR (10 users @ $20/mo)
 **Net Burn**: -$878
 
 ### Month 2 - Start Testing Content
 
-| Category | Item | Cost |
-|----------|------|------|
-| **Infrastructure** | Same as M1 | $71 |
-| **Tools** | Same as M1 | $77 |
-| **Payroll Overhead** | Same as M1 | $77 |
-| **New Tools** | Claude Pro, ConvertKit free | $20 |
-| **Marketing** | F5Bot premium, small experiments | $100 |
-| **Founder Salary** | Survival mode | $833 |
-| **TOTAL** | | **$1,178** |
+| Category             | Item                             | Cost       |
+| -------------------- | -------------------------------- | ---------- |
+| **Infrastructure**   | Same as M1                       | $71        |
+| **Tools**            | Same as M1                       | $77        |
+| **Payroll Overhead** | Same as M1                       | $77        |
+| **New Tools**        | Claude Pro, ConvertKit free      | $20        |
+| **Marketing**        | F5Bot premium, small experiments | $100       |
+| **Founder Salary**   | Survival mode                    | $833       |
+| **TOTAL**            |                                  | **$1,178** |
 
 **Revenue Target**: $500 MRR (25 users @ $20/mo)
 **Net Burn**: -$678
 
 ### Month 3 - Validated Organic, Add Budget
 
-| Category | Item | Cost |
-|----------|------|------|
-| **Infrastructure** | Same + increased OpenAI | $90 |
-| **Tools** | Same | $77 |
-| **Payroll Overhead** | Same | $77 |
-| **New Tools** | Same | $20 |
-| **Marketing** | Fiverr creator trial (1 month) | $500 |
-| **Founder Salary** | Survival mode | $833 |
-| **TOTAL** | | **$1,597** |
+| Category             | Item                           | Cost       |
+| -------------------- | ------------------------------ | ---------- |
+| **Infrastructure**   | Same + increased OpenAI        | $90        |
+| **Tools**            | Same                           | $77        |
+| **Payroll Overhead** | Same                           | $77        |
+| **New Tools**        | Same                           | $20        |
+| **Marketing**        | Fiverr creator trial (1 month) | $500       |
+| **Founder Salary**   | Survival mode                  | $833       |
+| **TOTAL**            |                                | **$1,597** |
 
 **Revenue Target**: $1,000 MRR (50 users @ $20/mo)
 **Net Burn**: -$597
 
 ### Month 4 - Scale What Works
 
-| Category | Item | Cost |
-|----------|------|------|
-| **Infrastructure** | Increased usage | $120 |
-| **Tools** | Same | $77 |
-| **Payroll Overhead** | Same | $77 |
-| **New Tools** | Same | $20 |
-| **Marketing** | Fiverr creator + ad test ($500) | $1,000 |
-| **Founder Salary** | **Increase to $1,667** | $1,667 |
-| **TOTAL** | | **$2,961** |
+| Category             | Item                            | Cost       |
+| -------------------- | ------------------------------- | ---------- |
+| **Infrastructure**   | Increased usage                 | $120       |
+| **Tools**            | Same                            | $77        |
+| **Payroll Overhead** | Same                            | $77        |
+| **New Tools**        | Same                            | $20        |
+| **Marketing**        | Fiverr creator + ad test ($500) | $1,000     |
+| **Founder Salary**   | **Increase to $1,667**          | $1,667     |
+| **TOTAL**            |                                 | **$2,961** |
 
 **Revenue Target**: $2,000 MRR (100 users @ $20/mo)
 **Net Burn**: -$961
 
 ### Month 5 - Continuing Scale
 
-| Category | Item | Cost |
-|----------|------|------|
-| **Infrastructure** | Increased usage | $150 |
-| **Tools** | Same | $77 |
-| **Payroll Overhead** | Same | $77 |
-| **New Tools** | Same | $20 |
-| **Marketing** | Fiverr + scale ads to $1K | $1,500 |
-| **Founder Salary** | Maintain | $1,667 |
-| **TOTAL** | | **$3,491** |
+| Category             | Item                      | Cost       |
+| -------------------- | ------------------------- | ---------- |
+| **Infrastructure**   | Increased usage           | $150       |
+| **Tools**            | Same                      | $77        |
+| **Payroll Overhead** | Same                      | $77        |
+| **New Tools**        | Same                      | $20        |
+| **Marketing**        | Fiverr + scale ads to $1K | $1,500     |
+| **Founder Salary**   | Maintain                  | $1,667     |
+| **TOTAL**            |                           | **$3,491** |
 
 **Revenue Target**: $3,000 MRR (150 users @ $20/mo)
 **Net Burn**: -$491
 
 ### Month 6 - Near Breakeven
 
-| Category | Item | Cost |
-|----------|------|------|
-| **Infrastructure** | Increased usage | $180 |
-| **Tools** | Same | $77 |
-| **Payroll Overhead** | Same | $77 |
-| **New Tools** | Same | $20 |
-| **Marketing** | Fiverr + maintain $1K ads | $1,500 |
-| **Founder Salary** | Maintain | $1,667 |
-| **TOTAL** | | **$3,521** |
+| Category             | Item                      | Cost       |
+| -------------------- | ------------------------- | ---------- |
+| **Infrastructure**   | Increased usage           | $180       |
+| **Tools**            | Same                      | $77        |
+| **Payroll Overhead** | Same                      | $77        |
+| **New Tools**        | Same                      | $20        |
+| **Marketing**        | Fiverr + maintain $1K ads | $1,500     |
+| **Founder Salary**   | Maintain                  | $1,667     |
+| **TOTAL**            |                           | **$3,521** |
 
 **Revenue Target**: $4,000 MRR (200 users @ $20/mo)
 **Net Profit**: +$479 🎉
 
 ### 6-Month Total
 
-| | Expenses | Revenue | Net |
-|---|---|---|---|
-| **Total** | $13,826 | $10,700 | **-$3,126** |
+|           | Expenses | Revenue | Net         |
+| --------- | -------- | ------- | ----------- |
+| **Total** | $13,826  | $10,700 | **-$3,126** |
 
 Add $5,000 buffer = **$18,126 needed**
 
@@ -604,6 +635,7 @@ Add $5,000 buffer = **$18,126 needed**
 ## Action Plan: Next 30 Days
 
 ### Week 1: Setup & Research
+
 - [ ] Optimize expenses: Cancel Squarespace, downgrade Google Workspace, switch to Wave accounting
 - [ ] Set up F5Bot for Reddit keyword alerts
 - [ ] Join 7 target subreddits: r/LongDistance, r/relationships, r/LearnJapanese, r/Spanish, r/languagelearning, r/expats, r/IWantOut
@@ -611,18 +643,21 @@ Add $5,000 buffer = **$18,126 needed**
 - [ ] Create interview script based on ICP docs
 
 ### Week 2: Start Distribution
+
 - [ ] Make 30 helpful Reddit comments (NO LINKS, pure value)
 - [ ] Write first newsletter issue to existing email list
 - [ ] Create lead magnet: "5-Minute Meeting Your Partner's Parents Prep Guide"
 - [ ] Set up ConvertKit form on trykaiwa.com
 
 ### Week 3: Create Paid Offer
+
 - [ ] Design $49 Practice Bootcamp: "Meet Your Partner's Japanese Parents with Confidence"
 - [ ] Write sales page in Google Doc
 - [ ] Set up Gumroad payment link
 - [ ] Pre-sell to email list and Reddit (value-first post)
 
 ### Week 4: Deliver & Convert
+
 - [ ] Run 5-day bootcamp (30 min Zoom per day)
 - [ ] Over-deliver on value
 - [ ] Upsell to Kaiwa Plus at special rate
@@ -630,6 +665,7 @@ Add $5,000 buffer = **$18,126 needed**
 - [ ] Review metrics: What worked? What didn't?
 
 ### Success Metrics (End of Month 1)
+
 - ✅ 50+ email subscribers
 - ✅ 5-10 bootcamp sales ($245-490)
 - ✅ 20-30 helpful Reddit comments building trust

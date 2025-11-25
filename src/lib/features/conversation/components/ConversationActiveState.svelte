@@ -175,7 +175,9 @@
 	onDestroy(() => {
 		// Only trigger cleanup if conversation is still active (not already in analysis)
 		if (status === 'connected' || status === 'streaming') {
-			console.log('⚠️ ConversationActiveState destroyed while conversation active - triggering cleanup');
+			console.log(
+				'⚠️ ConversationActiveState destroyed while conversation active - triggering cleanup'
+			);
 			conversationStore.pauseStreaming();
 		}
 	});

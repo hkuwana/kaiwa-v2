@@ -1,23 +1,10 @@
-import {
-	pgTable,
-	uuid,
-	text,
-	integer,
-	timestamp,
-	index,
-	pgEnum
-} from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, integer, timestamp, index, pgEnum } from 'drizzle-orm/pg-core';
 import { learningPaths } from './learning-paths';
 
 /**
  * Queue job status enumeration
  */
-export const queueStatusEnum = pgEnum('queue_status', [
-	'pending',
-	'processing',
-	'ready',
-	'failed'
-]);
+export const queueStatusEnum = pgEnum('queue_status', ['pending', 'processing', 'ready', 'failed']);
 
 /**
  * 🔄 Scenario Generation Queue table - Manages async scenario generation for learning paths

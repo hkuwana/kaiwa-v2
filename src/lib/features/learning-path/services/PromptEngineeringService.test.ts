@@ -63,7 +63,9 @@ describe('PromptEngineeringService', () => {
 		expect(prompt.systemPrompt).toContain('structured 10-day learning path');
 
 		expect(prompt.userPrompt).toContain('Create a 10-day JA learning path');
-		expect(prompt.userPrompt).toContain('A focused course on meeting your Japanese partner’s parents.');
+		expect(prompt.userPrompt).toContain(
+			'A focused course on meeting your Japanese partner’s parents.'
+		);
 		expect(prompt.userPrompt).toContain('Difficulty Range: A2 → B1');
 		expect(prompt.userPrompt).toContain('Category: relationships');
 		expect(prompt.userPrompt).toMatch(/"tags": \["family","formal"]/);
@@ -89,10 +91,11 @@ describe('PromptEngineeringService', () => {
 
 		expect(prompt.systemPrompt).toContain('scenario designer for JA language learning');
 
-		expect(prompt.userPrompt).toContain('Create a conversation scenario for Day 2 of "Meet the Parents".');
+		expect(prompt.userPrompt).toContain(
+			'Create a conversation scenario for Day 2 of "Meet the Parents".'
+		);
 		expect(prompt.userPrompt).toContain('Theme: Dinner with family');
 		expect(prompt.userPrompt).toContain('Day 1: Introductions and greetings');
 		expect(prompt.userPrompt).toContain('Learning Objectives:');
 	});
 });
-

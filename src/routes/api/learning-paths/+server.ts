@@ -85,9 +85,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	} catch (error) {
 		console.error('Error listing learning paths:', error);
 		return json(
-			createErrorResponse(
-				error instanceof Error ? error.message : 'Failed to list learning paths'
-			),
+			createErrorResponse(error instanceof Error ? error.message : 'Failed to list learning paths'),
 			{ status: 500 }
 		);
 	}

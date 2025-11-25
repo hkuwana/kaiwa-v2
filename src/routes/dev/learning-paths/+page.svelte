@@ -104,16 +104,16 @@
 	}
 </script>
 
-<div class="container mx-auto p-8 max-w-6xl">
+<div class="container mx-auto max-w-6xl p-8">
 	<div class="mb-8">
-		<h1 class="text-4xl font-bold mb-2">Learning Paths Playground 🎓</h1>
+		<h1 class="mb-2 text-4xl font-bold">Learning Paths Playground 🎓</h1>
 		<p class="text-base-content/70">
 			Test and explore learning path features: prompts, repositories, and queue management
 		</p>
 	</div>
 
 	<!-- Tab Navigation -->
-	<div class="tabs tabs-boxed mb-6">
+	<div class="tabs-boxed mb-6 tabs">
 		<button
 			class="tab {activeTab === 'prompt' ? 'tab-active' : ''}"
 			onclick={() => (activeTab = 'prompt')}
@@ -139,7 +139,7 @@
 		<div class="card bg-base-200 shadow-xl">
 			<div class="card-body">
 				<h2 class="card-title">Prompt Engineering Service</h2>
-				<p class="text-sm text-base-content/70 mb-4">
+				<p class="mb-4 text-sm text-base-content/70">
 					Generate prompts for LLM syllabus creation based on user preferences or creator briefs.
 				</p>
 
@@ -148,16 +148,16 @@
 					<label class="label">
 						<span class="label-text">Prompt Type</span>
 					</label>
-					<select class="select select-bordered" bind:value={promptType}>
+					<select class="select-bordered select" bind:value={promptType}>
 						<option value="preferences">From User Preferences</option>
 						<option value="creator">From Creator Brief</option>
 					</select>
 				</div>
 
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 					<!-- Input Section -->
 					<div>
-						<h3 class="font-semibold mb-3">Input Parameters</h3>
+						<h3 class="mb-3 font-semibold">Input Parameters</h3>
 
 						{#if promptType === 'preferences'}
 							<div class="space-y-3">
@@ -165,7 +165,7 @@
 									<label class="label"><span class="label-text">User Level (CEFR)</span></label>
 									<input
 										type="text"
-										class="input input-bordered"
+										class="input-bordered input"
 										bind:value={promptInput.userLevel}
 										placeholder="A1, A2, B1, etc."
 									/>
@@ -175,7 +175,7 @@
 									<label class="label"><span class="label-text">Learning Goal</span></label>
 									<input
 										type="text"
-										class="input input-bordered"
+										class="input-bordered input"
 										bind:value={promptInput.userGoal}
 										placeholder="Connection, Career, Travel, etc."
 									/>
@@ -185,7 +185,7 @@
 									<label class="label"><span class="label-text">Target Language</span></label>
 									<input
 										type="text"
-										class="input input-bordered"
+										class="input-bordered input"
 										bind:value={promptInput.targetLanguage}
 										placeholder="ja, es, fr, etc."
 									/>
@@ -195,7 +195,7 @@
 									<label class="label"><span class="label-text">Duration (days)</span></label>
 									<input
 										type="number"
-										class="input input-bordered"
+										class="input-bordered input"
 										bind:value={promptInput.duration}
 										placeholder="28"
 									/>
@@ -206,7 +206,7 @@
 								<div class="form-control">
 									<label class="label"><span class="label-text">Creator Brief</span></label>
 									<textarea
-										class="textarea textarea-bordered h-32"
+										class="textarea-bordered textarea h-32"
 										bind:value={promptInput.brief}
 										placeholder="Describe the learning path in detail..."
 									></textarea>
@@ -216,7 +216,7 @@
 									<label class="label"><span class="label-text">Target Language</span></label>
 									<input
 										type="text"
-										class="input input-bordered"
+										class="input-bordered input"
 										bind:value={promptInput.targetLanguage}
 										placeholder="ja, es, fr, etc."
 									/>
@@ -226,7 +226,7 @@
 									<label class="label"><span class="label-text">Duration (days)</span></label>
 									<input
 										type="number"
-										class="input input-bordered"
+										class="input-bordered input"
 										bind:value={promptInput.duration}
 										placeholder="30"
 									/>
@@ -234,16 +234,17 @@
 							</div>
 						{/if}
 
-						<button class="btn btn-primary mt-4 w-full" onclick={generatePrompt}>
+						<button class="btn mt-4 w-full btn-primary" onclick={generatePrompt}>
 							Generate Prompt
 						</button>
 					</div>
 
 					<!-- Output Section -->
 					<div>
-						<h3 class="font-semibold mb-3">Generated Prompt</h3>
+						<h3 class="mb-3 font-semibold">Generated Prompt</h3>
 						<div class="mockup-code h-[400px] overflow-auto">
-							<pre><code>{generatedPrompt || 'Click "Generate Prompt" to see output...'}</code></pre>
+							<pre><code>{generatedPrompt || 'Click "Generate Prompt" to see output...'}</code
+								></pre>
 						</div>
 					</div>
 				</div>
@@ -259,25 +260,25 @@
 				<div class="card-body">
 					<h2 class="card-title">Create Test Path</h2>
 
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 						<div>
 							<div class="form-control mb-3">
 								<label class="label"><span class="label-text">User ID</span></label>
 								<input
 									type="text"
-									class="input input-bordered"
+									class="input-bordered input"
 									bind:value={userId}
 									placeholder="Enter user UUID"
 								/>
 							</div>
 
-							<button class="btn btn-primary w-full" onclick={createTestPath}>
+							<button class="btn w-full btn-primary" onclick={createTestPath}>
 								Create Test Path
 							</button>
 						</div>
 
 						<div>
-							<h3 class="font-semibold mb-2">Result</h3>
+							<h3 class="mb-2 font-semibold">Result</h3>
 							<div class="mockup-code h-32 overflow-auto text-xs">
 								<pre><code>{pathResult || 'No result yet...'}</code></pre>
 							</div>
@@ -291,23 +292,23 @@
 				<div class="card-body">
 					<h2 class="card-title">Fetch Path by ID</h2>
 
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 						<div>
 							<div class="form-control mb-3">
 								<label class="label"><span class="label-text">Path ID</span></label>
 								<input
 									type="text"
-									class="input input-bordered"
+									class="input-bordered input"
 									bind:value={pathId}
 									placeholder="Enter path ID"
 								/>
 							</div>
 
-							<button class="btn btn-secondary w-full" onclick={fetchPath}>Fetch Path</button>
+							<button class="btn w-full btn-secondary" onclick={fetchPath}>Fetch Path</button>
 						</div>
 
 						<div>
-							<h3 class="font-semibold mb-2">Result</h3>
+							<h3 class="mb-2 font-semibold">Result</h3>
 							<div class="mockup-code h-32 overflow-auto text-xs">
 								<pre><code>{pathResult || 'No result yet...'}</code></pre>
 							</div>
@@ -326,30 +327,30 @@
 				<div class="card-body">
 					<h2 class="card-title">Queue Statistics</h2>
 
-					<div class="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4">
-						<div class="stat bg-base-300 rounded-lg p-4">
+					<div class="mt-4 grid grid-cols-2 gap-4 md:grid-cols-5">
+						<div class="stat rounded-lg bg-base-300 p-4">
 							<div class="stat-title">Pending</div>
-							<div class="stat-value text-warning text-2xl">{queueStats.pending}</div>
+							<div class="stat-value text-2xl text-warning">{queueStats.pending}</div>
 						</div>
-						<div class="stat bg-base-300 rounded-lg p-4">
+						<div class="stat rounded-lg bg-base-300 p-4">
 							<div class="stat-title">Processing</div>
-							<div class="stat-value text-info text-2xl">{queueStats.processing}</div>
+							<div class="stat-value text-2xl text-info">{queueStats.processing}</div>
 						</div>
-						<div class="stat bg-base-300 rounded-lg p-4">
+						<div class="stat rounded-lg bg-base-300 p-4">
 							<div class="stat-title">Ready</div>
-							<div class="stat-value text-success text-2xl">{queueStats.ready}</div>
+							<div class="stat-value text-2xl text-success">{queueStats.ready}</div>
 						</div>
-						<div class="stat bg-base-300 rounded-lg p-4">
+						<div class="stat rounded-lg bg-base-300 p-4">
 							<div class="stat-title">Failed</div>
-							<div class="stat-value text-error text-2xl">{queueStats.failed}</div>
+							<div class="stat-value text-2xl text-error">{queueStats.failed}</div>
 						</div>
-						<div class="stat bg-base-300 rounded-lg p-4">
+						<div class="stat rounded-lg bg-base-300 p-4">
 							<div class="stat-title">Total</div>
 							<div class="stat-value text-2xl">{queueStats.total}</div>
 						</div>
 					</div>
 
-					<button class="btn btn-primary mt-4" onclick={fetchQueueStats}>Refresh Stats</button>
+					<button class="btn mt-4 btn-primary" onclick={fetchQueueStats}>Refresh Stats</button>
 				</div>
 			</div>
 
@@ -358,25 +359,25 @@
 				<div class="card-body">
 					<h2 class="card-title">Queue Jobs for Path</h2>
 
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 						<div>
 							<div class="form-control mb-3">
 								<label class="label"><span class="label-text">Path ID</span></label>
 								<input
 									type="text"
-									class="input input-bordered"
+									class="input-bordered input"
 									bind:value={pathId}
 									placeholder="Enter path ID"
 								/>
 							</div>
 
-							<button class="btn btn-secondary w-full" onclick={fetchQueueForPath}>
+							<button class="btn w-full btn-secondary" onclick={fetchQueueForPath}>
 								Fetch Queue Jobs
 							</button>
 						</div>
 
 						<div>
-							<h3 class="font-semibold mb-2">Result</h3>
+							<h3 class="mb-2 font-semibold">Result</h3>
 							<div class="mockup-code h-48 overflow-auto text-xs">
 								<pre><code>{queueResult || 'No result yet...'}</code></pre>
 							</div>

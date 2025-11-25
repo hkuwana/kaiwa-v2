@@ -39,7 +39,7 @@ export const GET = async ({ url, locals }) => {
 		}
 
 		// Get the latest run (most recent by createdAt)
-		let latestRun: (typeof findings) = [];
+		let latestRun: typeof findings = [];
 		let latestRunId: string | null = null;
 
 		for (const [runId, runFindings] of findingsByRun) {
@@ -70,44 +70,47 @@ export const GET = async ({ url, locals }) => {
 			suggestedText: finding.suggestedText || '',
 			explanation: finding.explanation || '',
 			example: finding.example || undefined,
-			offsets: finding.offsetStart !== null && finding.offsetEnd !== null
-				? { start: finding.offsetStart, end: finding.offsetEnd }
-				: undefined
+			offsets:
+				finding.offsetStart !== null && finding.offsetEnd !== null
+					? { start: finding.offsetStart, end: finding.offsetEnd }
+					: undefined
 		}));
 
 		// Reconstruct module results from findings
-		const moduleResults = Array.from(findingsByModule.entries()).map(([moduleId, moduleFinding]) => {
-			// Get aggregated data from findings
-			const suggestions = moduleFinding.map((f) => ({
-				messageId: f.messageId,
-				originalText: f.originalText,
-				suggestedText: f.suggestedText,
-				explanation: f.explanation,
-				example: f.example,
-				severity: f.severity
-			}));
+		const moduleResults = Array.from(findingsByModule.entries()).map(
+			([moduleId, moduleFinding]) => {
+				// Get aggregated data from findings
+				const suggestions = moduleFinding.map((f) => ({
+					messageId: f.messageId,
+					originalText: f.originalText,
+					suggestedText: f.suggestedText,
+					explanation: f.explanation,
+					example: f.example,
+					severity: f.severity
+				}));
 
-			// Create summary based on module type
-			let summary = '';
-			if (moduleId === 'grammar-suggestions') {
-				summary = `Found ${moduleFinding.length} language suggestions`;
-			} else if (moduleId === 'quick-stats') {
-				summary = `Analyzed conversation`;
-			} else if (moduleId === 'language-assessment') {
-				summary = `Language assessment completed`;
-			} else {
-				summary = `${moduleId} analysis complete`;
-			}
-
-			return {
-				moduleId,
-				summary,
-				recommendations: [], // Could extract from metadata if needed
-				data: {
-					suggestions
+				// Create summary based on module type
+				let summary = '';
+				if (moduleId === 'grammar-suggestions') {
+					summary = `Found ${moduleFinding.length} language suggestions`;
+				} else if (moduleId === 'quick-stats') {
+					summary = `Analyzed conversation`;
+				} else if (moduleId === 'language-assessment') {
+					summary = `Language assessment completed`;
+				} else {
+					summary = `${moduleId} analysis complete`;
 				}
-			};
-		});
+
+				return {
+					moduleId,
+					summary,
+					recommendations: [], // Could extract from metadata if needed
+					data: {
+						suggestions
+					}
+				};
+			}
+		);
 
 		// Reconstruct the analysis run
 		const reconstructedRun: AnalysisRunResult = {

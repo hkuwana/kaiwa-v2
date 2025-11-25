@@ -8,17 +8,17 @@
 
 ## 📊 Progress Tracker
 
-| PR # | Name | Status | Lines | Dependencies |
-|------|------|--------|-------|--------------|
-| #1 | Database Schema & Migrations | ✅ Complete | ~200 | None |
-| #2 | Repository Layer | ✅ Complete | ~400 | #1 |
-| #3 | Prompt Engineering Service | ✅ Complete | ~250 | None |
-| #4 | Path Generator Service & API | ✅ Complete | ~350 | #2, #3 |
-| #5 | Background Job Infrastructure | ✅ Complete | ~400 | #2, #4 |
-| #6 | Template Publishing Service | ✅ Complete | ~280 | #2 |
-| #7 | Public Template Pages | ✅ Complete | ~450 | #2, #6 |
-| #8 | Dashboard Integration | ⏳ Pending | ~300 | #2 |
-| #9 | Assignment & Email Automation | ⏳ Pending | ~350 | #2 |
+| PR # | Name                          | Status      | Lines | Dependencies |
+| ---- | ----------------------------- | ----------- | ----- | ------------ |
+| #1   | Database Schema & Migrations  | ✅ Complete | ~200  | None         |
+| #2   | Repository Layer              | ✅ Complete | ~400  | #1           |
+| #3   | Prompt Engineering Service    | ✅ Complete | ~250  | None         |
+| #4   | Path Generator Service & API  | ✅ Complete | ~350  | #2, #3       |
+| #5   | Background Job Infrastructure | ✅ Complete | ~400  | #2, #4       |
+| #6   | Template Publishing Service   | ✅ Complete | ~280  | #2           |
+| #7   | Public Template Pages         | ✅ Complete | ~450  | #2, #6       |
+| #8   | Dashboard Integration         | ⏳ Pending  | ~300  | #2           |
+| #9   | Assignment & Email Automation | ⏳ Pending  | ~350  | #2           |
 
 **Overall Progress**: 7/9 PRs Complete (78%)
 
@@ -44,6 +44,7 @@ This document breaks down the learning path templates feature into **9 small, ma
 **Dependencies**: None
 
 **What it includes**:
+
 - Create `learning_paths` table schema
 - Create `scenario_generation_queue` table schema
 - Create `learning_path_assignments` table schema
@@ -51,6 +52,7 @@ This document breaks down the learning path templates feature into **9 small, ma
 - TypeScript types for new tables
 
 **Files to create**:
+
 - `src/lib/server/db/schema/learning-paths.ts`
 - `src/lib/server/db/schema/scenario-generation-queue.ts`
 - `src/lib/server/db/schema/learning-path-assignments.ts`
@@ -59,12 +61,14 @@ This document breaks down the learning path templates feature into **9 small, ma
 - Migration files in `migrations/`
 
 **Acceptance criteria**:
+
 - [ ] All three tables created with proper indexes
 - [ ] Foreign key relationships defined
 - [ ] Migration runs successfully
 - [ ] Types exported and available
 
 **Testing**:
+
 - Run migration against local DB
 - Verify tables exist with correct columns
 - Test rollback scenario
@@ -78,24 +82,28 @@ This document breaks down the learning path templates feature into **9 small, ma
 **Dependencies**: PR #1 (schema must exist)
 
 **What it includes**:
+
 - Learning path repository with CRUD operations
 - Scenario generation queue repository
 - Learning path assignments repository
 - Export from repository index
 
 **Files to create**:
+
 - `src/lib/server/repositories/learning-path.repository.ts`
 - `src/lib/server/repositories/scenario-generation-queue.repository.ts`
 - `src/lib/server/repositories/learning-path-assignment.repository.ts`
 - Update `src/lib/server/repositories/index.ts`
 
 **Acceptance criteria**:
+
 - [ ] All repository methods implemented
 - [ ] Follows existing repository patterns (e.g., `scenario.repository.ts`)
 - [ ] Type-safe with proper return types
 - [ ] Exports added to index
 
 **Testing**:
+
 - Create simple test script in `scripts/` to verify CRUD operations
 - Test each repository method manually
 
@@ -108,17 +116,20 @@ This document breaks down the learning path templates feature into **9 small, ma
 **Dependencies**: None (pure TypeScript)
 
 **What it includes**:
+
 - PromptEngineeringService for syllabus generation
 - Support for user preferences-based prompts
 - Support for creator brief-based prompts
 - Unit tests (optional but recommended)
 
 **Files to create**:
+
 - `src/lib/features/learning-path/` (create directory)
 - `src/lib/features/learning-path/services/PromptEngineeringService.ts`
 - `src/lib/features/learning-path/types.ts` (for DTOs and interfaces)
 
 **Acceptance criteria**:
+
 - [ ] `buildSyllabusPrompt(userPreferences, preset)` implemented
 - [ ] `buildCreatorPathPrompt(brief, options)` implemented
 - [ ] Returns well-structured prompt with JSON schema
@@ -126,6 +137,7 @@ This document breaks down the learning path templates feature into **9 small, ma
 - [ ] Comprehensive JSDoc comments
 
 **Testing**:
+
 - Create test script that generates prompts for sample inputs
 - Verify prompt quality manually
 
@@ -139,6 +151,7 @@ This document breaks down the learning path templates feature into **9 small, ma
 **Status**: ✅ **COMPLETE**
 
 **What it includes**:
+
 - PathGeneratorService for orchestrating path creation
 - API endpoint for creating paths from user preferences
 - API endpoint for creating paths from creator briefs
@@ -147,6 +160,7 @@ This document breaks down the learning path templates feature into **9 small, ma
 - List endpoint with filtering
 
 **Files created**:
+
 - ✅ `src/lib/features/learning-path/services/PathGeneratorService.server.ts`
 - ✅ `src/routes/api/learning-paths/from-preferences/+server.ts` (POST endpoint)
 - ✅ `src/routes/api/learning-paths/from-brief/+server.ts` (POST endpoint)
@@ -154,6 +168,7 @@ This document breaks down the learning path templates feature into **9 small, ma
 - ✅ `src/routes/api/learning-paths/[pathId]/+server.ts` (GET/PATCH/DELETE)
 
 **Acceptance criteria**:
+
 - [x] `createPathFromPreferences(userId, preferences)` works
 - [x] `createPathFromCreatorBrief(brief, options)` works
 - [x] Paths saved to database with correct structure
@@ -164,6 +179,7 @@ This document breaks down the learning path templates feature into **9 small, ma
 - [x] List/filter functionality
 
 **Testing**:
+
 - ✅ PathGeneratorService integrates with PromptEngineeringService
 - ✅ OpenAI integration for syllabus generation
 - ✅ Database persistence and queue enqueuing
@@ -179,6 +195,7 @@ This document breaks down the learning path templates feature into **9 small, ma
 **Status**: ✅ **COMPLETE**
 
 **What it includes**:
+
 - Queue processing service with retry logic
 - Command-line script for manual/cron execution
 - Cron API endpoint with authentication
@@ -186,6 +203,7 @@ This document breaks down the learning path templates feature into **9 small, ma
 - npm script for easy execution
 
 **Files created**:
+
 - ✅ `src/lib/features/learning-path/services/QueueProcessorService.server.ts`
 - ✅ `scripts/generate-learning-path-scenarios.ts`
 - ✅ `src/routes/api/cron/generate-scenarios/+server.ts`
@@ -193,6 +211,7 @@ This document breaks down the learning path templates feature into **9 small, ma
 - ✅ Updated `package.json` with `cron:generate-scenarios` script
 
 **Acceptance criteria**:
+
 - [x] Script processes pending queue items
 - [x] Updates queue status (PENDING → PROCESSING → READY/FAILED)
 - [x] Cron endpoint protected with CRON_SECRET
@@ -202,6 +221,7 @@ This document breaks down the learning path templates feature into **9 small, ma
 - [x] Vitest test coverage
 
 **Testing**:
+
 - ✅ Vitest tests: `pnpm test:pr4` (includes queue processor tests)
 - ✅ Manual execution: `pnpm cron:generate-scenarios`
 - ✅ Dry run: `pnpm cron:generate-scenarios -- --dry-run`
@@ -220,6 +240,7 @@ Actual scenario generation can be added in future enhancement.
 **Status**: ✅ **COMPLETE**
 
 **What it includes**:
+
 - TemplatePublishingService for creating anonymous templates
 - PII scrubbing logic (removes names, possessives, personal pronouns)
 - API endpoint for sharing/publishing paths
@@ -227,11 +248,13 @@ Actual scenario generation can be added in future enhancement.
 - Comprehensive vitest test suite
 
 **Files created**:
+
 - ✅ `src/lib/features/learning-path/services/TemplatePublishingService.server.ts`
 - ✅ `src/routes/api/learning-paths/[pathId]/share/+server.ts` (POST endpoint)
 - ✅ `src/lib/features/learning-path/services/TemplatePublishingService.test.ts`
 
 **Acceptance criteria**:
+
 - [x] `createAnonymousTemplate(pathId, userId)` works
 - [x] PII removed from title and description
 - [x] Unique share slug generated
@@ -240,6 +263,7 @@ Actual scenario generation can be added in future enhancement.
 - [x] Returns template with share URL
 
 **Testing**:
+
 - ✅ Vitest tests: `pnpm test:pr4` (includes template publishing tests)
 - ✅ Tests PII scrubbing with multiple patterns
 - ✅ Tests slug uniqueness and collision handling
@@ -256,6 +280,7 @@ Actual scenario generation can be added in future enhancement.
 **Status**: ✅ **COMPLETE**
 
 **What it includes**:
+
 - Public template page route `/program/[slug]`
 - JSON-LD Course schema helper
 - SEO-optimized template display with meta tags
@@ -264,6 +289,7 @@ Actual scenario generation can be added in future enhancement.
 - Syllabus display grouped by weeks
 
 **Files created**:
+
 - ✅ `src/routes/program/[slug]/+page.server.ts` (~40 lines)
 - ✅ `src/routes/program/[slug]/+page.svelte` (~230 lines)
 - ✅ `src/lib/seo/jsonld.ts` - added `createLearningPathJsonLd` (~100 lines)
@@ -271,6 +297,7 @@ Actual scenario generation can be added in future enhancement.
 - ✅ `src/lib/features/learning-path/components/EnrollCTA.svelte` (~115 lines)
 
 **Acceptance criteria**:
+
 - [x] Public template pages render correctly
 - [x] Shows complete syllabus grouped by weeks (no private data)
 - [x] JSON-LD Course schema included with full metadata
@@ -279,6 +306,7 @@ Actual scenario generation can be added in future enhancement.
 - [x] SEO meta tags (title, description, OG tags, Twitter cards)
 
 **Testing**:
+
 - ⏳ Visit `/program/[slug]` for test template (requires dev server)
 - ⏳ Verify JSON-LD in page source
 - ⏳ Test mobile responsiveness
@@ -293,6 +321,7 @@ Actual scenario generation can be added in future enhancement.
 **Dependencies**: PR #2 (repositories), PR #4 (generator), PR #6 (templates)
 
 **What it includes**:
+
 - LearningPathStore (Svelte 5 runes)
 - Dashboard widget showing active paths
 - Progress indicators
@@ -300,12 +329,14 @@ Actual scenario generation can be added in future enhancement.
 - Integration with existing user dashboard
 
 **Files to create**:
+
 - `src/lib/features/learning-path/stores/learning-path.store.svelte.ts`
 - `src/lib/features/learning-path/components/LearningPathProgress.svelte`
 - `src/lib/features/learning-path/components/SharePathButton.svelte`
 - Update existing dashboard route to include widget
 
 **Acceptance criteria**:
+
 - [ ] Store fetches user's active paths
 - [ ] Shows next scenario status (READY/Generating)
 - [ ] Weekly progress visualization
@@ -314,6 +345,7 @@ Actual scenario generation can be added in future enhancement.
 - [ ] Mobile-responsive
 
 **Testing**:
+
 - Create test path for logged-in user
 - Verify widget displays correctly
 - Test share button flow
@@ -328,6 +360,7 @@ Actual scenario generation can be added in future enhancement.
 **Dependencies**: PR #2 (repositories), PR #5 (queue processor)
 
 **What it includes**:
+
 - Assignment creation and management
 - Daily email automation for assigned paths
 - Creator UI for assigning to testers
@@ -335,6 +368,7 @@ Actual scenario generation can be added in future enhancement.
 - Cron job for daily path emails
 
 **Files to create**:
+
 - `scripts/send-learning-path-emails.ts`
 - `src/routes/api/cron/learning-path-emails/+server.ts`
 - `src/lib/server/email/learning-path-email.service.ts`
@@ -343,6 +377,7 @@ Actual scenario generation can be added in future enhancement.
 - Update `.github/workflows/cron-jobs.yml`
 
 **Acceptance criteria**:
+
 - [ ] Creators can assign paths to testers
 - [ ] Daily emails sent to assigned users
 - [ ] Emails include today's topic and deep link
@@ -352,6 +387,7 @@ Actual scenario generation can be added in future enhancement.
 - [ ] Cron job runs daily
 
 **Testing**:
+
 - Assign path to test user
 - Run email script manually
 - Verify email content and links
@@ -415,25 +451,27 @@ Part of learning path templates implementation (#[issue-number])
 
 ## 📊 Progress Tracking
 
-| PR # | Component | Status | Branch | Est. Size | Priority |
-|------|-----------|--------|--------|-----------|----------|
-| 1 | Database Schema | 🔵 Todo | `feature/learning-paths-schema` | ~200 lines | P0 |
-| 2 | Repositories | 🔵 Todo | `feature/learning-paths-repositories` | ~400 lines | P0 |
-| 3 | Prompt Service | 🔵 Todo | `feature/learning-paths-prompt-service` | ~250 lines | P0 |
-| 4 | Path Generator | 🔵 Todo | `feature/learning-paths-generator` | ~350 lines | P0 |
-| 5 | Queue Processor | 🔵 Todo | `feature/learning-paths-queue-processor` | ~300 lines | P0 |
-| 6 | Templates | 🔵 Todo | `feature/learning-paths-templates` | ~250 lines | P1 |
-| 7 | Public Pages | 🔵 Todo | `feature/learning-paths-public-pages` | ~400 lines | P1 |
-| 8 | Dashboard | 🔵 Todo | `feature/learning-paths-dashboard` | ~350 lines | P1 |
-| 9 | Assignments | 🔵 Todo | `feature/learning-paths-assignments` | ~400 lines | P2 |
+| PR # | Component       | Status  | Branch                                   | Est. Size  | Priority |
+| ---- | --------------- | ------- | ---------------------------------------- | ---------- | -------- |
+| 1    | Database Schema | 🔵 Todo | `feature/learning-paths-schema`          | ~200 lines | P0       |
+| 2    | Repositories    | 🔵 Todo | `feature/learning-paths-repositories`    | ~400 lines | P0       |
+| 3    | Prompt Service  | 🔵 Todo | `feature/learning-paths-prompt-service`  | ~250 lines | P0       |
+| 4    | Path Generator  | 🔵 Todo | `feature/learning-paths-generator`       | ~350 lines | P0       |
+| 5    | Queue Processor | 🔵 Todo | `feature/learning-paths-queue-processor` | ~300 lines | P0       |
+| 6    | Templates       | 🔵 Todo | `feature/learning-paths-templates`       | ~250 lines | P1       |
+| 7    | Public Pages    | 🔵 Todo | `feature/learning-paths-public-pages`    | ~400 lines | P1       |
+| 8    | Dashboard       | 🔵 Todo | `feature/learning-paths-dashboard`       | ~350 lines | P1       |
+| 9    | Assignments     | 🔵 Todo | `feature/learning-paths-assignments`     | ~400 lines | P2       |
 
 **Legend**:
+
 - 🔵 Todo
 - 🟡 In Progress
 - 🟢 Done
 - 🔴 Blocked
 
 **Priority Levels**:
+
 - **P0**: Core functionality (must have)
 - **P1**: Enhanced features (should have)
 - **P2**: Nice-to-have (could have)

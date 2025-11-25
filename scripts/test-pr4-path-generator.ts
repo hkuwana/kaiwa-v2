@@ -17,7 +17,10 @@
 import { PathGeneratorService } from '../src/lib/features/learning-path/services/PathGeneratorService.server';
 import { learningPathRepository } from '../src/lib/server/repositories/learning-path.repository';
 import { scenarioGenerationQueueRepository } from '../src/lib/server/repositories/scenario-generation-queue.repository';
-import type { PathFromPreferencesInput, PathFromCreatorBriefInput } from '../src/lib/features/learning-path/types';
+import type {
+	PathFromPreferencesInput,
+	PathFromCreatorBriefInput
+} from '../src/lib/features/learning-path/types';
 
 // Test user preferences (mock data)
 const testUserPreferences = {
@@ -26,11 +29,11 @@ const testUserPreferences = {
 	currentLanguageLevel: 'A2',
 	practicalLevel: 'intermediate beginner',
 	learningGoal: 'Connection',
-	specificGoals: ['Have meaningful conversations', 'Meet partner\'s family'],
+	specificGoals: ['Have meaningful conversations', "Meet partner's family"],
 	challengePreference: 'moderate' as const,
 	correctionStyle: 'gentle' as const,
 	conversationContext: {
-		learningReason: 'Planning to visit partner\'s family in Japan',
+		learningReason: "Planning to visit partner's family in Japan",
 		occupation: 'Software Engineer'
 	}
 };
@@ -57,14 +60,14 @@ that are critical in this high-stakes scenario.`,
 
 async function testPathFromPreferences() {
 	console.log('\n🧪 TEST 1: Creating path from user preferences');
-	console.log('=' .repeat(60));
+	console.log('='.repeat(60));
 
 	try {
 		const input: PathFromPreferencesInput = {
 			userPreferences: testUserPreferences,
 			preset: {
 				name: 'Meet the Parents (Japanese)',
-				description: '4-week intensive preparation for meeting partner\'s family',
+				description: "4-week intensive preparation for meeting partner's family",
 				duration: 7 // Shorter for testing
 			}
 		};
@@ -108,7 +111,7 @@ async function testPathFromPreferences() {
 
 async function testPathFromCreatorBrief() {
 	console.log('\n🧪 TEST 2: Creating path from creator brief');
-	console.log('=' .repeat(60));
+	console.log('='.repeat(60));
 
 	try {
 		console.log('📤 Input:', JSON.stringify(testCreatorBrief, null, 2));
@@ -150,7 +153,7 @@ async function testPathFromCreatorBrief() {
 
 async function testQueueStats() {
 	console.log('\n🧪 TEST 3: Checking queue statistics');
-	console.log('=' .repeat(60));
+	console.log('='.repeat(60));
 
 	try {
 		const stats = await scenarioGenerationQueueRepository.getQueueStats();
@@ -170,7 +173,7 @@ async function testQueueStats() {
 
 async function main() {
 	console.log('\n🚀 PR #4 Testing Suite');
-	console.log('=' .repeat(60));
+	console.log('='.repeat(60));
 	console.log('Testing PathGeneratorService and related functionality\n');
 
 	const results = {
@@ -184,14 +187,14 @@ async function main() {
 	results.test1 = test1Result as any;
 
 	// Wait a bit between tests
-	await new Promise(resolve => setTimeout(resolve, 2000));
+	await new Promise((resolve) => setTimeout(resolve, 2000));
 
 	// Test 2: Path from creator brief
 	const test2Result = await testPathFromCreatorBrief();
 	results.test2 = test2Result as any;
 
 	// Wait a bit
-	await new Promise(resolve => setTimeout(resolve, 1000));
+	await new Promise((resolve) => setTimeout(resolve, 1000));
 
 	// Test 3: Queue stats
 	const test3Result = await testQueueStats();
@@ -200,7 +203,7 @@ async function main() {
 	// Summary
 	console.log('\n' + '='.repeat(60));
 	console.log('📊 TEST SUMMARY');
-	console.log('=' .repeat(60));
+	console.log('='.repeat(60));
 	console.log('Test 1 (Preferences):', results.test1.success ? '✅ PASS' : '❌ FAIL');
 	console.log('Test 2 (Creator Brief):', results.test2.success ? '✅ PASS' : '❌ FAIL');
 	console.log('Test 3 (Queue Stats):', results.test3.success ? '✅ PASS' : '❌ FAIL');
@@ -208,7 +211,7 @@ async function main() {
 	const allPassed = results.test1.success && results.test2.success && results.test3.success;
 
 	console.log('\n' + (allPassed ? '🎉 ALL TESTS PASSED!' : '⚠️  SOME TESTS FAILED'));
-	console.log('=' .repeat(60));
+	console.log('='.repeat(60));
 
 	if (results.test1.pathId) {
 		console.log('\n📝 Created test paths:');

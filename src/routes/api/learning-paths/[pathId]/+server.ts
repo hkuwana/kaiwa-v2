@@ -48,19 +48,16 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 		const isOwner = locals.user?.id === path.userId;
 
 		if (!isAnonymous && !isPublic && !isOwner) {
-			return json(
-				createErrorResponse('You are not authorized to view this learning path'),
-				{ status: 403 }
-			);
+			return json(createErrorResponse('You are not authorized to view this learning path'), {
+				status: 403
+			});
 		}
 
 		return json(createSuccessResponse(path));
 	} catch (error) {
 		console.error('Error fetching learning path:', error);
 		return json(
-			createErrorResponse(
-				error instanceof Error ? error.message : 'Failed to fetch learning path'
-			),
+			createErrorResponse(error instanceof Error ? error.message : 'Failed to fetch learning path'),
 			{ status: 500 }
 		);
 	}
@@ -94,10 +91,9 @@ export const PATCH: RequestHandler = async ({ params, request, locals }) => {
 
 		// Only the owner can update their path
 		if (locals.user?.id !== path.userId) {
-			return json(
-				createErrorResponse('You are not authorized to update this learning path'),
-				{ status: 403 }
-			);
+			return json(createErrorResponse('You are not authorized to update this learning path'), {
+				status: 403
+			});
 		}
 
 		const updates = await request.json();
@@ -151,10 +147,9 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
 
 		// Only the owner can delete their path
 		if (locals.user?.id !== path.userId) {
-			return json(
-				createErrorResponse('You are not authorized to delete this learning path'),
-				{ status: 403 }
-			);
+			return json(createErrorResponse('You are not authorized to delete this learning path'), {
+				status: 403
+			});
 		}
 
 		await learningPathRepository.deletePath(pathId);

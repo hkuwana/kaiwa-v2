@@ -35,19 +35,15 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 		// Verify admin/creator access (for now, just check if user is logged in)
 		// TODO: Add proper admin role check
 		if (!locals.user?.id) {
-			return json(
-				createErrorResponse('You must be logged in to assign learning paths'),
-				{ status: 401 }
-			);
+			return json(createErrorResponse('You must be logged in to assign learning paths'), {
+				status: 401
+			});
 		}
 
 		// Validate path exists
 		const path = await learningPathRepository.findPathById(pathId);
 		if (!path) {
-			return json(
-				createErrorResponse('Learning path not found'),
-				{ status: 404 }
-			);
+			return json(createErrorResponse('Learning path not found'), { status: 404 });
 		}
 
 		// Determine target user ID
@@ -63,10 +59,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 				{ status: 400 }
 			);
 		} else {
-			return json(
-				createErrorResponse('Either email or userId is required'),
-				{ status: 400 }
-			);
+			return json(createErrorResponse('Either email or userId is required'), { status: 400 });
 		}
 
 		// Create assignment

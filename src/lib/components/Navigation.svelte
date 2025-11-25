@@ -8,7 +8,7 @@
 	const { user }: { user: User | null } = $props();
 </script>
 
-<nav class="relative z-50 navbar bg-base-100">
+<nav class="navbar relative z-50 bg-base-100">
 	<div class="navbar-start">
 		<div class="dropdown">
 			<div role="button" class="btn btn-ghost lg:hidden" tabindex="0">

@@ -23,7 +23,9 @@ const handleSchemaVersion: Handle = async ({ event, resolve }) => {
 
 	// Check if client schema version matches current version
 	if (clientVersion && parseInt(clientVersion, 10) !== CURRENT_SCHEMA_VERSION) {
-		logger.warn(`Schema version mismatch detected. Client: ${clientVersion}, Server: ${CURRENT_SCHEMA_VERSION}. Clearing cookies.`);
+		logger.warn(
+			`Schema version mismatch detected. Client: ${clientVersion}, Server: ${CURRENT_SCHEMA_VERSION}. Clearing cookies.`
+		);
 
 		// Clear all cookies to prevent deserialization errors
 		clearAllCookies(event.cookies);

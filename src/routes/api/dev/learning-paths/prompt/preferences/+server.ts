@@ -25,7 +25,10 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		const promptPayload = PromptEngineeringService.buildSyllabusPrompt({
 			userPreferences: mockPreferences,
-			preset: duration !== 28 ? { name: 'Custom Path', description: 'Custom learning path', duration } : undefined
+			preset:
+				duration !== 28
+					? { name: 'Custom Path', description: 'Custom learning path', duration }
+					: undefined
 		});
 
 		return json({

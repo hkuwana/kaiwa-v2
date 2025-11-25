@@ -9,6 +9,7 @@ This guide provides multiple methods for testing the PathGeneratorService and AP
 ### Method 1: Direct Service Testing (Recommended)
 
 **Advantages:**
+
 - ✅ No dev server required
 - ✅ Direct database verification
 - ✅ Tests core service logic
@@ -22,6 +23,7 @@ pnpm tsx scripts/test-pr4-path-generator.ts
 ```
 
 **What it tests:**
+
 1. Path creation from user preferences (7-day course)
 2. Path creation from creator brief (7-day course)
 3. Database persistence verification
@@ -29,6 +31,7 @@ pnpm tsx scripts/test-pr4-path-generator.ts
 5. Queue statistics
 
 **Expected output:**
+
 ```
 🚀 PR #4 Testing Suite
 ============================================================
@@ -76,6 +79,7 @@ Test 3 (Queue Stats): ✅ PASS
 ### Method 2: API Testing via curl (If dev server is running)
 
 **Prerequisites:**
+
 - Dev server running on HTTPS (`pnpm dev`)
 - Valid OpenAI API key configured
 
@@ -101,23 +105,24 @@ curl -X POST https://localhost:5173/api/learning-paths/from-preferences \
 ```
 
 **Expected response:**
+
 ```json
 {
-  "success": true,
-  "data": {
-    "pathId": "lp-abc123...",
-    "path": {
-      "id": "lp-abc123...",
-      "title": "Mastering Japanese Conversation",
-      "description": "7-day journey to meaningful connections",
-      "targetLanguage": "ja",
-      "totalDays": 7,
-      "status": "draft"
-    },
-    "queuedJobs": 7
-  },
-  "message": "Learning path created successfully",
-  "timestamp": "2025-11-25T..."
+	"success": true,
+	"data": {
+		"pathId": "lp-abc123...",
+		"path": {
+			"id": "lp-abc123...",
+			"title": "Mastering Japanese Conversation",
+			"description": "7-day journey to meaningful connections",
+			"targetLanguage": "ja",
+			"totalDays": 7,
+			"status": "draft"
+		},
+		"queuedJobs": 7
+	},
+	"message": "Learning path created successfully",
+	"timestamp": "2025-11-25T..."
 }
 ```
 
@@ -183,12 +188,14 @@ curl -X DELETE https://localhost:5173/api/learning-paths/{pathId} -k
 After running tests, verify in Supabase:
 
 **1. Check `learning_paths` table:**
+
 - Should have 2 new rows (from test script) or more (from curl tests)
 - Verify `title`, `description`, `schedule` (JSON array), `status`
 - Check `targetLanguage` is 'ja'
 - Verify `schedule` has 7 day objects with themes and objectives
 
 **2. Check `scenario_generation_queue` table:**
+
 - Should have 14 new rows (7 per path from test script)
 - Each row should have:
   - `pathId` matching created paths
@@ -230,6 +237,7 @@ GROUP BY status;
 **Cause:** Missing or invalid OpenAI API key
 
 **Fix:**
+
 ```bash
 # Check if API key is set
 echo $OPENAI_API_KEY
@@ -243,6 +251,7 @@ OPENAI_API_KEY=sk-...
 **Cause:** Database migration not run
 
 **Fix:**
+
 ```bash
 # Generate and run migration
 pnpm db:generate

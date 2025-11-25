@@ -46,10 +46,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 		// If userId is provided and user is logged in, verify they match
 		if (userId && locals.user?.id && userId !== locals.user.id) {
-			return json(
-				createErrorResponse('You are not authorized to create paths for other users'),
-				{ status: 403 }
-			);
+			return json(createErrorResponse('You are not authorized to create paths for other users'), {
+				status: 403
+			});
 		}
 
 		// Fetch user preferences
@@ -59,21 +58,16 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 			if (!userPreferences) {
 				return json(
-					createErrorResponse(
-						'User preferences not found. Please complete onboarding first.'
-					),
+					createErrorResponse('User preferences not found. Please complete onboarding first.'),
 					{ status: 400 }
 				);
 			}
 		} else {
 			// For anonymous paths, require preferences in request body
 			if (!body.userPreferences) {
-				return json(
-					createErrorResponse(
-						'Either userId or userPreferences must be provided'
-					),
-					{ status: 400 }
-				);
+				return json(createErrorResponse('Either userId or userPreferences must be provided'), {
+					status: 400
+				});
 			}
 			userPreferences = body.userPreferences;
 		}

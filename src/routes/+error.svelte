@@ -34,23 +34,23 @@
 	<title>Error - Kaiwa</title>
 </svelte:head>
 
-<div class="min-h-screen flex items-center justify-center bg-base-200 p-4">
+<div class="flex min-h-screen items-center justify-center bg-base-200 p-4">
 	<div class="card w-full max-w-md bg-base-100 shadow-xl">
 		<div class="card-body items-center text-center">
-			<div class="text-6xl mb-4">⚠️</div>
-			<h2 class="card-title text-2xl mb-2">Oops! Something went wrong</h2>
+			<div class="mb-4 text-6xl">⚠️</div>
+			<h2 class="mb-2 card-title text-2xl">Oops! Something went wrong</h2>
 
 			{#if isSchemaCookieError}
-				<p class="text-base-content/70 mb-4">
+				<p class="mb-4 text-base-content/70">
 					We've updated the app and your browser data needs to be refreshed. This is a one-time fix.
 				</p>
 
-				<div class="alert alert-info mb-4">
+				<div class="mb-4 alert alert-info">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						fill="none"
 						viewBox="0 0 24 24"
-						class="stroke-current shrink-0 w-6 h-6"
+						class="h-6 w-6 shrink-0 stroke-current"
 					>
 						<path
 							stroke-linecap="round"
@@ -62,25 +62,21 @@
 					<span>Click below to clear cached data and reload</span>
 				</div>
 
-				<button class="btn btn-primary" onclick={clearAndReload}>
-					Clear Data & Reload
-				</button>
+				<button class="btn btn-primary" onclick={clearAndReload}> Clear Data & Reload </button>
 			{:else}
-				<p class="text-base-content/70 mb-4">
+				<p class="mb-4 text-base-content/70">
 					{error?.message || 'An unexpected error occurred'}
 				</p>
 
 				<div class="card-actions">
-					<button class="btn btn-primary" onclick={() => goto('/')}>
-						Go Home
-					</button>
+					<button class="btn btn-primary" onclick={() => goto('/')}> Go Home </button>
 					<button class="btn btn-ghost" onclick={() => window.location.reload()}>
 						Reload Page
 					</button>
 				</div>
 
 				{#if page?.status === 404}
-					<p class="text-sm text-base-content/50 mt-4">
+					<p class="mt-4 text-sm text-base-content/50">
 						Error code: {page.status || 500}
 					</p>
 				{/if}

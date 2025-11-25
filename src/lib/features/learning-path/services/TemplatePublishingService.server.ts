@@ -57,8 +57,7 @@ export class TemplatePublishingService {
 		pathId: string,
 		userId: string
 	): Promise<
-		| { success: true; template: LearningPath; shareUrl: string }
-		| { success: false; error: string }
+		{ success: true; template: LearningPath; shareUrl: string } | { success: false; error: string }
 	> {
 		try {
 			logger.info('📤 [TemplatePublishing] Creating anonymous template', {
@@ -176,11 +175,17 @@ export class TemplatePublishingService {
 
 		// Replace possessive names (e.g., "Sarah's" → "your partner's")
 		// Pattern: Capitalized word followed by 's
-		scrubbed = scrubbed.replace(/\b[A-Z][a-z]+'s\s+(parents?|family|home|house)/gi, "your partner's $1");
+		scrubbed = scrubbed.replace(
+			/\b[A-Z][a-z]+'s\s+(parents?|family|home|house)/gi,
+			"your partner's $1"
+		);
 		scrubbed = scrubbed.replace(/\b[A-Z][a-z]+'s\s+/g, 'your ');
 
 		// Replace "my [relationship]" → "your [relationship]"
-		scrubbed = scrubbed.replace(/\bmy\s+(girlfriend|boyfriend|partner|wife|husband|fiancé|fiancée)/gi, 'your $1');
+		scrubbed = scrubbed.replace(
+			/\bmy\s+(girlfriend|boyfriend|partner|wife|husband|fiancé|fiancée)/gi,
+			'your $1'
+		);
 		scrubbed = scrubbed.replace(/\bmy\s+(family|parents?|boss|colleague)/gi, 'your $1');
 
 		// Replace standalone capitalized names in certain contexts

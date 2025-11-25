@@ -1,6 +1,7 @@
 # PostHog KPI Tracking Guide
 
 ## Overview
+
 This guide documents how to track and calculate the early-stage KPIs for Kaiwa using PostHog events and insights.
 
 ---
@@ -8,42 +9,48 @@ This guide documents how to track and calculate the early-stage KPIs for Kaiwa u
 ## Events Being Tracked
 
 ### 1. `conversation_completed` (Server-Side)
+
 **When**: After conversation is saved to database with ≥2 user messages
 **Location**: `/api/conversations/[id]/post-run` endpoint
 **Properties**:
+
 ```json
 {
-  "conversation_id": "uuid",
-  "language_id": "ja",
-  "mode": "traditional|realtime",
-  "duration_seconds": 180,
-  "user_message_count": 5,
-  "total_message_count": 12,
-  "is_first_conversation": true,
-  "scenario_id": "uuid or null",
-  "engagement_level": "low|medium|high",
-  "timestamp": "ISO-8601"
+	"conversation_id": "uuid",
+	"language_id": "ja",
+	"mode": "traditional|realtime",
+	"duration_seconds": 180,
+	"user_message_count": 5,
+	"total_message_count": 12,
+	"is_first_conversation": true,
+	"scenario_id": "uuid or null",
+	"engagement_level": "low|medium|high",
+	"timestamp": "ISO-8601"
 }
 ```
 
 ### 2. `conversation_session_started` (Client-Side)
+
 **When**: User starts a conversation
 **Location**: Conversation timer store
 **Properties**: `{ tier: 'free|plus|premium' }`
 
 ### 3. `conversation_session_ended` (Client-Side)
+
 **When**: User ends or session expires
 **Properties**: `{ reason: 'stopped', duration_seconds: 180, tier: 'free|plus|premium' }`
 
 ### 4. `user_feedback_submitted` (Client-Side)
+
 **When**: User submits feedback via FeedbackButton
 **Properties**:
+
 ```json
 {
-  "feedback_type": "bug|suggestion|debug",
-  "feedback_message": "User's message",
-  "page_url": "https://...",
-  "page_pathname": "/conversation"
+	"feedback_type": "bug|suggestion|debug",
+	"feedback_message": "User's message",
+	"page_url": "https://...",
+	"page_pathname": "/conversation"
 }
 ```
 
@@ -56,6 +63,7 @@ This guide documents how to track and calculate the early-stage KPIs for Kaiwa u
 **Definition**: Unique users who completed at least one full conversation (start → analysis) in the last 7 days.
 
 **PostHog Insight Setup**:
+
 1. Create **Trends** insight
 2. Event: `conversation_completed`
 3. Aggregation: **Unique users** (distinctId)
@@ -73,6 +81,7 @@ This guide documents how to track and calculate the early-stage KPIs for Kaiwa u
 **Definition**: Total number of completed conversations (start → analysis) in the last 7 days.
 
 **PostHog Insight Setup**:
+
 1. Create **Trends** insight
 2. Event: `conversation_completed`
 3. Aggregation: **Total count**
@@ -90,8 +99,10 @@ This guide documents how to track and calculate the early-stage KPIs for Kaiwa u
 **Definition**: Average conversations per active user. Formula: `WCS ÷ WACU`
 
 **PostHog Insight Setup**:
+
 1. Create **Funnel** or **Custom SQL** insight (recommended: SQL for flexibility)
 2. Use SQL to calculate:
+
 ```sql
 WITH wacu AS (
   SELECT COUNT(DISTINCT distinct_id) as active_users
@@ -119,12 +130,14 @@ SELECT
 **Definition**: % of users who completed their first conversation this week AND returned for at least one more conversation within 7 days.
 
 **PostHog Insight Setup**:
+
 1. Create **Funnel** insight
 2. Step 1: `conversation_completed` where `is_first_conversation = true` (past 7 days)
 3. Step 2: `conversation_completed` where `is_first_conversation = false` (same user, within 7 days)
 4. Shows: Drop-off rate = FWR %
 
 **Alternative SQL Approach**:
+
 ```sql
 WITH first_time_users AS (
   SELECT DISTINCT distinct_id
@@ -156,11 +169,12 @@ SELECT
 **PostHog Tracking**: Manual input via Notion/Airtable (not automated)
 
 **Alternative**: Create custom events for manual touchpoints:
+
 ```typescript
 track('manual_touchpoint', {
-  touchpoint_type: 'pab_call|loom_review|zoom_1on1|async_feedback',
-  user_id: 'uuid',
-  duration_minutes: 30
+	touchpoint_type: 'pab_call|loom_review|zoom_1on1|async_feedback',
+	user_id: 'uuid',
+	duration_minutes: 30
 });
 ```
 
@@ -177,6 +191,7 @@ track('manual_touchpoint', {
 3. **Add Cards** in this order:
 
 #### Card 1: WACU
+
 - Trends insight
 - Event: `conversation_completed`
 - Aggregation: Unique users
@@ -184,6 +199,7 @@ track('manual_touchpoint', {
 - Display: Big Number
 
 #### Card 2: WCS
+
 - Trends insight
 - Event: `conversation_completed`
 - Aggregation: Count
@@ -191,20 +207,24 @@ track('manual_touchpoint', {
 - Display: Big Number
 
 #### Card 3: CpAU
+
 - SQL insight (use SQL from above)
 - Display: Gauge (Target ≥2)
 
 #### Card 4: FWR
+
 - Funnel insight (see above)
 - Display: Percentage / Gauge
 
 #### Card 5: Conversation Completion Rate (Funnel)
+
 - Step 1: `conversation_session_started`
 - Step 2: `conversation_completed`
 - Shows drop-off from start → completion
 - Display: Funnel visualization
 
 #### Card 6: Language Breakdown
+
 - Trends insight
 - Event: `conversation_completed`
 - Breakdown: By `language_id`
@@ -212,6 +232,7 @@ track('manual_touchpoint', {
 - Display: Bar chart
 
 #### Card 7: Engagement Distribution
+
 - Trends insight
 - Event: `conversation_completed`
 - Breakdown: By `engagement_level`
@@ -219,6 +240,7 @@ track('manual_touchpoint', {
 - Display: Pie chart
 
 #### Card 8: Mode Usage (Traditional vs Realtime)
+
 - Trends insight
 - Event: `conversation_completed`
 - Breakdown: By `mode`
@@ -255,12 +277,12 @@ track('manual_touchpoint', {
 
 ### Common Issues:
 
-| Issue | Solution |
-|-------|----------|
-| No events appear | Check NODE_ENV is 'production' |
-| Missing properties | Verify trackServerEvent includes all fields |
-| Distinct_id is 'anonymous' | User might not be authenticated |
-| Events delayed | Check PostHog flush interval (set to 1) |
+| Issue                      | Solution                                    |
+| -------------------------- | ------------------------------------------- |
+| No events appear           | Check NODE_ENV is 'production'              |
+| Missing properties         | Verify trackServerEvent includes all fields |
+| Distinct_id is 'anonymous' | User might not be authenticated             |
+| Events delayed             | Check PostHog flush interval (set to 1)     |
 
 ---
 
@@ -278,6 +300,7 @@ The FeedbackButton now triggers a PostHog survey after feedback submission.
 4. **Display**: After `user_feedback_submitted` event
 5. **Copy Survey ID** (format: `survey_xxx`)
 6. **Update FeedbackButton.svelte**:
+
 ```typescript
 posthog.showSurvey('survey_YOUR_ID_HERE'); // Replace with your survey ID
 ```
@@ -290,11 +313,11 @@ posthog.showSurvey('survey_YOUR_ID_HERE'); // Replace with your survey ID
 
 1. Open your Early-Stage KPIs dashboard
 2. Document the numbers:
-   - WACU: ___
-   - WCS: ___
-   - CpAU: ___
-   - FWR: ___
-   - MTPW: ___ (manual count)
+   - WACU: \_\_\_
+   - WCS: \_\_\_
+   - CpAU: \_\_\_
+   - FWR: \_\_\_
+   - MTPW: \_\_\_ (manual count)
 
 3. Calculate growth rate: `(This week - Last week) / Last week * 100`
 
@@ -310,6 +333,7 @@ posthog.showSurvey('survey_YOUR_ID_HERE'); // Replace with your survey ID
 ## Advanced: Custom Cohorts
 
 Create a PostHog Cohort for:
+
 - **"First-time users"**: `is_first_conversation = true`
 - **"Active users"**: Completed ≥2 conversations in 7 days
 - **"Highly engaged"**: `engagement_level = 'high'`
@@ -322,15 +346,19 @@ Use these in insights for deeper analysis.
 ## Troubleshooting
 
 ### Q: Events show up in dev but not production?
+
 **A**: Check that `NODE_ENV !== 'production'` in `posthog.ts`. Make sure deployed version has env vars set correctly.
 
 ### Q: WACU and WCS are the same number?
+
 **A**: Expected if each user completes only 1 conversation/week. Check individual users in PostHog Person tab.
 
 ### Q: FWR stuck at 0%?
+
 **A**: Not enough users have returned yet. Funnel takes time to populate. Check back after more data.
 
 ### Q: Survey not showing?
+
 **A**: Verify survey ID is correct. Check PostHog docs for survey trigger conditions.
 
 ---
