@@ -2,7 +2,8 @@
 
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { learningPathRepository, scenarioGenerationQueueRepository } from '$lib/server/repositories';
+import { learningPathRepository } from '$lib/server/repositories/learning-path.repository';
+import { scenarioGenerationQueueRepository } from '$lib/server/repositories/scenario-generation-queue.repository';
 
 export const POST: RequestHandler = async ({ request }) => {
 	try {
