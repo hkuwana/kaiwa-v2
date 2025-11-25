@@ -43,6 +43,19 @@
 
 ---
 
+### [learning-path-templates.md](learning-path-templates.md)
+
+**Learning path templates & SEO loop**
+
+- 📚 4-week learning path architecture
+- 🧠 Prompt engineering & path generation
+- 🧵 Scenario generation queue & cron jobs
+- 🔍 Public templates, PII scrubbing & JSON-LD
+
+👉 **Start here** for the learning path SEO feature
+
+---
+
 ### [usage-service.md](usage-service.md)
 
 **Usage tracking and limits**
