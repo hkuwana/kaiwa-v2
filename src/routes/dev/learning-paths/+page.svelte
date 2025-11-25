@@ -1,38 +1,37 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-
-	let activeTab: 'prompt' | 'repository' | 'queue' = 'prompt';
+	let activeTab = $state<'prompt' | 'repository' | 'queue'>('prompt');
 
 	// Prompt Testing
-	let promptInput = {
+	let promptInput = $state({
 		userLevel: 'A2',
 		userGoal: 'Connection',
 		targetLanguage: 'ja',
 		duration: 28,
 		brief: ''
-	};
-	let generatedPrompt = '';
-	let promptType: 'preferences' | 'creator' = 'preferences';
+	});
+	let generatedPrompt = $state('');
+	let promptType = $state<'preferences' | 'creator'>('preferences');
 
 	// Repository Testing
-	let pathId = '';
-	let userId = '';
-	let pathResult = '';
-	let queueResult = '';
+	let pathId = $state('');
+	let userId = $state('');
+	let pathResult = $state('');
+	let queueResult = $state('');
 
 	// Queue Stats
-	let queueStats = {
+	let queueStats = $state({
 		pending: 0,
 		processing: 0,
 		ready: 0,
 		failed: 0,
 		total: 0
-	};
+	});
 
 	async function generatePrompt() {
-		const endpoint = promptType === 'preferences'
-			? '/api/dev/learning-paths/prompt/preferences'
-			: '/api/dev/learning-paths/prompt/creator';
+		const endpoint =
+			promptType === 'preferences'
+				? '/api/dev/learning-paths/prompt/preferences'
+				: '/api/dev/learning-paths/prompt/creator';
 
 		try {
 			const response = await fetch(endpoint, {
@@ -43,8 +42,8 @@
 
 			const data = await response.json();
 			generatedPrompt = JSON.stringify(data, null, 2);
-		} catch (error) {
-			generatedPrompt = `Error: ${error}`;
+		} catch (err: any) {
+			generatedPrompt = `Error: ${err.message}`;
 		}
 	}
 
@@ -64,8 +63,8 @@
 			const data = await response.json();
 			pathResult = JSON.stringify(data, null, 2);
 			if (data.pathId) pathId = data.pathId;
-		} catch (error) {
-			pathResult = `Error: ${error}`;
+		} catch (err: any) {
+			pathResult = `Error: ${err.message}`;
 		}
 	}
 
@@ -76,8 +75,8 @@
 			const response = await fetch(`/api/dev/learning-paths/${pathId}`);
 			const data = await response.json();
 			pathResult = JSON.stringify(data, null, 2);
-		} catch (error) {
-			pathResult = `Error: ${error}`;
+		} catch (err: any) {
+			pathResult = `Error: ${err.message}`;
 		}
 	}
 
@@ -87,8 +86,8 @@
 			const data = await response.json();
 			queueStats = data.stats;
 			queueResult = JSON.stringify(data, null, 2);
-		} catch (error) {
-			queueResult = `Error: ${error}`;
+		} catch (err: any) {
+			queueResult = `Error: ${err.message}`;
 		}
 	}
 
@@ -99,14 +98,10 @@
 			const response = await fetch(`/api/dev/learning-paths/queue/${pathId}`);
 			const data = await response.json();
 			queueResult = JSON.stringify(data, null, 2);
-		} catch (error) {
-			queueResult = `Error: ${error}`;
+		} catch (err: any) {
+			queueResult = `Error: ${err.message}`;
 		}
 	}
-
-	onMount(() => {
-		fetchQueueStats();
-	});
 </script>
 
 <div class="container mx-auto p-8 max-w-6xl">
@@ -150,16 +145,13 @@
 
 				<!-- Prompt Type Selector -->
 				<div class="form-control mb-4">
-					<label class="label cursor-pointer">
+					<label class="label">
 						<span class="label-text">Prompt Type</span>
-						<select
-							class="select select-bordered"
-							bind:value={promptType}
-						>
-							<option value="preferences">From User Preferences</option>
-							<option value="creator">From Creator Brief</option>
-						</select>
 					</label>
+					<select class="select select-bordered" bind:value={promptType}>
+						<option value="preferences">From User Preferences</option>
+						<option value="creator">From Creator Brief</option>
+					</select>
 				</div>
 
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -311,9 +303,7 @@
 								/>
 							</div>
 
-							<button class="btn btn-secondary w-full" onclick={fetchPath}>
-								Fetch Path
-							</button>
+							<button class="btn btn-secondary w-full" onclick={fetchPath}>Fetch Path</button>
 						</div>
 
 						<div>
@@ -337,31 +327,29 @@
 					<h2 class="card-title">Queue Statistics</h2>
 
 					<div class="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4">
-						<div class="stat bg-base-300 rounded-lg">
+						<div class="stat bg-base-300 rounded-lg p-4">
 							<div class="stat-title">Pending</div>
-							<div class="stat-value text-warning">{queueStats.pending}</div>
+							<div class="stat-value text-warning text-2xl">{queueStats.pending}</div>
 						</div>
-						<div class="stat bg-base-300 rounded-lg">
+						<div class="stat bg-base-300 rounded-lg p-4">
 							<div class="stat-title">Processing</div>
-							<div class="stat-value text-info">{queueStats.processing}</div>
+							<div class="stat-value text-info text-2xl">{queueStats.processing}</div>
 						</div>
-						<div class="stat bg-base-300 rounded-lg">
+						<div class="stat bg-base-300 rounded-lg p-4">
 							<div class="stat-title">Ready</div>
-							<div class="stat-value text-success">{queueStats.ready}</div>
+							<div class="stat-value text-success text-2xl">{queueStats.ready}</div>
 						</div>
-						<div class="stat bg-base-300 rounded-lg">
+						<div class="stat bg-base-300 rounded-lg p-4">
 							<div class="stat-title">Failed</div>
-							<div class="stat-value text-error">{queueStats.failed}</div>
+							<div class="stat-value text-error text-2xl">{queueStats.failed}</div>
 						</div>
-						<div class="stat bg-base-300 rounded-lg">
+						<div class="stat bg-base-300 rounded-lg p-4">
 							<div class="stat-title">Total</div>
-							<div class="stat-value">{queueStats.total}</div>
+							<div class="stat-value text-2xl">{queueStats.total}</div>
 						</div>
 					</div>
 
-					<button class="btn btn-primary mt-4" onclick={fetchQueueStats}>
-						Refresh Stats
-					</button>
+					<button class="btn btn-primary mt-4" onclick={fetchQueueStats}>Refresh Stats</button>
 				</div>
 			</div>
 
@@ -399,9 +387,3 @@
 		</div>
 	{/if}
 </div>
-
-<style>
-	.stat {
-		padding: 1rem;
-	}
-</style>
