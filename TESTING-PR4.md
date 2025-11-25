@@ -6,7 +6,29 @@ Quick guide to test the learning path generation functionality.
 
 ## ⚡ Quick Start (Recommended)
 
-The easiest way to test PR #4 is using the automated test script:
+### Option 1: API Testing (Easiest)
+
+Test via API endpoints with the dev server running:
+
+```bash
+# Terminal 1: Start dev server
+pnpm dev
+
+# Terminal 2: Run API tests
+pnpm test:pr4:api
+```
+
+This will:
+- ✅ Create 2 test learning paths via API (from preferences + from brief)
+- ✅ Verify API responses
+- ✅ Check queue statistics
+- ✅ Display formatted results with colors
+
+**Requires:** Dev server running on https://localhost:5173
+
+### Option 2: Direct Service Testing
+
+Test the service layer directly (no dev server needed):
 
 ```bash
 pnpm test:pr4
@@ -17,6 +39,8 @@ This will:
 - ✅ Verify database persistence
 - ✅ Check queue job creation
 - ✅ Display statistics and summary
+
+**Note:** Currently has SvelteKit import issues. Use Option 1 for now.
 
 **Expected output:**
 ```
