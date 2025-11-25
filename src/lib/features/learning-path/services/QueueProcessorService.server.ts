@@ -55,7 +55,7 @@ export class QueueProcessorService {
 			});
 
 			// Fetch pending jobs that are ready to process
-			const pendingJobs = await scenarioGenerationQueueRepository.getPendingJobs(limit);
+			const pendingJobs = await scenarioGenerationQueueRepository.getPendingJobs({ limit });
 
 			if (pendingJobs.length === 0) {
 				logger.info('✨ [QueueProcessor] No pending jobs to process');
