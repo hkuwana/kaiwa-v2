@@ -4,15 +4,11 @@ import { analysisFindingsRepository } from '$lib/server/repositories/analysis-fi
 import type { AnalysisRunResult } from '$lib/features/analysis/services/analysis.service';
 import type { AnalysisSuggestion } from '$lib/features/analysis/types/analysis-suggestion.types';
 
-interface GetAnalysisPayload {
-	conversationId: string;
-}
-
 /**
  * Fetch the latest analysis results for a conversation
  * Reconstructs the analysis run from persisted findings
  */
-export const GET = async ({ url, locals }) => {
+export const GET = async ({ url }) => {
 	const conversationId = url.searchParams.get('conversationId');
 
 	if (!conversationId) {
@@ -34,7 +30,7 @@ export const GET = async ({ url, locals }) => {
 			if (!findingsByRun.has(runId)) {
 				findingsByRun.set(runId, []);
 			}
-			findingsByRun.get(runId)!.push(finding);
+			findingsByRun.get(runId)?.push(finding);
 		}
 
 		// Get the latest run (most recent by createdAt)
@@ -55,7 +51,7 @@ export const GET = async ({ url, locals }) => {
 			if (!findingsByModule.has(moduleId)) {
 				findingsByModule.set(moduleId, []);
 			}
-			findingsByModule.get(moduleId)!.push(finding);
+			findingsByModule.get(moduleId)?.push(finding);
 		}
 
 		// Convert findings to suggestions for compatibility
