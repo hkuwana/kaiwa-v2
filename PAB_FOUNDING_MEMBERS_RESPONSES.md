@@ -7,34 +7,63 @@
 
 ## Response Template for Each PAB Member
 
-### 1. Robert Roche (Bug Report - Analysis Not Loading)
+### 1. Robert Roche (Heritage Speaker - Family → Professional)
 
 **Response:**
 
 ```
 Hey Robert,
 
-Thanks for flagging the analysis issue. I'm investigating this morning - I've seen it happen once before and want to get to the bottom of it.
+Thanks for flagging the analysis issue - investigating this morning. I've seen it once before and need to get to the bottom of it.
 
-Quick question while I'm fixing this: Do you have a specific conversation coming up in the next few weeks where you really want to feel confident? (Meeting someone's family, a trip, work situation, etc.)
+Your situation is really interesting: speaking Japanese with family but having gaps in vocabulary + formal Japanese, wanting to communicate confidently with strangers and at a professional level.
 
-I'm running a 4-week Founding Members Intensive for early believers like you - completely free as a thank you for the support and feedback.
+This is exactly the kind of progression Kaiwa should help with - going from "comfortable with family" to "confident in any context."
 
-**What you'd get:**
-- Custom scenario built specifically for your situation
-- 4 weeks of guided practice (you practice 3x/week, I check in 2x/week)
-- Direct support from me to make sure the app actually works for you
+I'm running a 4-Week Founding Members Intensive for PAB members - completely free as a thank you for early support.
 
-Only asking 5-10 people from the PAB. Interested?
+**Here's what I'm thinking for you:**
+
+**The Gap You Have:**
+- Family Japanese = comfortable but informal, lots of context/shared history
+- Stranger/Professional Japanese = vocabulary gaps, formality gaps, confidence gaps
+- You know you're capable, but you need practice in those specific contexts
+
+**What We'd Do:**
+
+**Week 1:**
+- 30-min call: I understand which contexts you're most nervous about (work meetings? networking events? formal situations with strangers?)
+- I create custom scenarios for YOUR specific gaps (e.g., "Business meeting introduction," "Explaining your work to a stranger," "Formal apology/request")
+- We practice together
+
+**Weeks 2-4:**
+- You practice 3x/week with different conversation partners in different contexts (exactly what you said you love about Kaiwa)
+- I check in 2x/week via text
+- Focus: Building the formal/professional vocabulary and confidence that family conversations don't give you
+
+**After 4 weeks:**
+- You'll have practiced 12+ conversations in the contexts you're weakest in
+- You decide if you want to keep going ($20/month)
+
+**What I need from you:**
+1. Practice 3x/week for 4 weeks in the contexts that make you nervous
+2. Honest feedback on which conversation partners/contexts work best
+3. Help me fix the analysis bug by testing with me
+
+Sound good? Reply YES and we'll start this week!
 
 - Hiro
+
+P.S. Heritage speakers like you are exactly who I want to help - you have the foundation, you just need structured practice in the contexts your family doesn't cover. Let's fill those gaps.
 ```
 
 **Why this works:**
-- Acknowledges his bug report first
-- Transitions naturally to offering value
-- Positions it as exclusive (only 5-10 people)
-- Low commitment ask ("interested?")
+- Acknowledges his specific situation (heritage speaker with professional goals)
+- Shows you understand the "family vs formal" gap he's experiencing
+- Hooks into what he already said he loves about Kaiwa (different contexts)
+- Positions the intensive as solving HIS specific problem (family → professional transition)
+- Acknowledges his capability while addressing his gaps
+- Makes him feel understood (not "beginner" but "filling specific gaps")
 
 ---
 

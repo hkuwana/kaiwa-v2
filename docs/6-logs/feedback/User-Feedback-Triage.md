@@ -900,6 +900,17 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 
 ### New Members Introductions
 
+**Robert Roche** (NEW - Full Context)
+- **Language**: Japanese
+- **Level**: Conversational with family, but has gaps
+- **Background**: Speaks Japanese with family → vocabulary gaps + lacks formal Japanese
+- **Goal**: Speak confidently to strangers in Japanese (not just family)
+- **Professional Goal**: Higher level communication across personal AND professional contexts
+- **What he loves about Kaiwa**: Different conversation partners within different contexts
+- **Persona Match**: Heritage Speaker (David) + Professional scenarios
+- **Timeline**: Ongoing improvement, professional advancement
+- **Current Issue**: Analysis/report function not loading (bug blocking proof moment)
+
 **Chika Kondo** (NEW)
 - **Language**: French
 - **Level**: Beginner ("can barely hold a convo")
@@ -977,19 +988,28 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 **Total Active PAB Members**: ~10-12
 
 **By Persona**:
-- **Bilingual Spouse**: Chika Kondo, [others from earlier sessions]
-- **Relocation Expat**: Brianne Yamada Nitahara, Akemi Tsutsui
-- **Multi-language users**: Robert Roche, Martin, [others]
+- **Bilingual Spouse** (Sofia): Chika Kondo, [others from earlier sessions]
+- **Heritage Speaker** (David): Robert Roche (Japanese with family → professional contexts)
+- **Relocation Expat** (Jamie): Brianne Yamada Nitahara, Akemi Tsutsui
+- **Multi-language users**: Martin, [others]
 
 **By Language**:
-- Japanese: Brianne, Akemi, [others]
+- Japanese: Robert, Brianne, Akemi, [others]
 - French: Chika
-- Multiple: Robert, Martin
+- Multiple: Martin
+
+**By Goal**:
+- **Professional advancement**: Robert (formal Japanese), Brianne (work in Japan)
+- **Family connection**: Chika (partner's mom + future kids)
+- **Long-term residence**: Akemi (part-time Japan), Brianne (full-time Japan)
 
 **Engagement Level**:
-- Active users reporting bugs/feedback: HIGH
-- New member introductions: 3 new in one day (strong sign)
+- Active users reporting bugs/feedback: HIGH (4 people giving detailed feedback in one day)
+- New member introductions: 4 new in one day (strong validation signal)
 - Cross-referencing competitors (Duolingo): Brianne comparison valuable
+- Already understanding product value: Robert explicitly called out "different conversation partners within different contexts"
+
+**Key Insight**: All 4 new members match core ICP personas (Sofia, David, Jamie) - strong product-market fit signal
 
 ---
 
