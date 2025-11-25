@@ -29,6 +29,11 @@ export { userUsageRepository } from './user-usage.repository';
 export { conversationSessionsRepository } from './conversation-sessions.repository';
 export { analyticsEventsRepository } from './analytics-events.repository';
 
+// Learning path repositories
+export { learningPathRepository } from './learning-path.repository';
+export { scenarioGenerationQueueRepository } from './scenario-generation-queue.repository';
+export { learningPathAssignmentRepository } from './learning-path-assignment.repository';
+
 // Note: Additional repositories can be added here as they are created:
 // - vocabularyRepository (requires v2 schema exports)
 // etc.
