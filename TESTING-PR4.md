@@ -6,7 +6,31 @@ Quick guide to test the learning path generation functionality.
 
 ## ⚡ Quick Start (Recommended)
 
-### Option 1: API Testing (Easiest)
+### Option 1: Vitest Unit Tests (Best)
+
+Test the service layer directly using vitest:
+
+```bash
+pnpm test:pr4
+```
+
+This will:
+- ✅ Run comprehensive vitest test suite
+- ✅ Test path creation from preferences
+- ✅ Test path creation from creator brief
+- ✅ Verify database persistence
+- ✅ Check queue job creation
+- ✅ Validate syllabus quality
+- ✅ Auto-cleanup test data
+
+**Watch mode:**
+```bash
+pnpm test:pr4:watch
+```
+
+**Requires:** DATABASE_URL and OPENAI_API_KEY in `.env.development`
+
+### Option 2: API Testing (Integration)
 
 Test via API endpoints with the dev server running:
 
@@ -19,28 +43,12 @@ pnpm test:pr4:api
 ```
 
 This will:
-- ✅ Create 2 test learning paths via API (from preferences + from brief)
+- ✅ Create 2 test learning paths via API
 - ✅ Verify API responses
 - ✅ Check queue statistics
 - ✅ Display formatted results with colors
 
 **Requires:** Dev server running on https://localhost:5173
-
-### Option 2: Direct Service Testing
-
-Test the service layer directly (no dev server needed):
-
-```bash
-pnpm test:pr4
-```
-
-This will:
-- ✅ Create 2 test learning paths (from preferences + from brief)
-- ✅ Verify database persistence
-- ✅ Check queue job creation
-- ✅ Display statistics and summary
-
-**Note:** Currently has SvelteKit import issues. Use Option 1 for now.
 
 **Expected output:**
 ```
