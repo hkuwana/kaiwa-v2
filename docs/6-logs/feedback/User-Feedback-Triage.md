@@ -894,6 +894,125 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 
 ---
 
-**Last Review**: November 16, 2025
-**Next Review**: November 17, 2025
+---
+
+## 📋 November 25, 2025 - New PAB Member Feedback
+
+### New Members Introductions
+
+**Robert Roche** (NEW - Full Context)
+- **Language**: Japanese
+- **Level**: Conversational with family, but has gaps
+- **Background**: Speaks Japanese with family → vocabulary gaps + lacks formal Japanese
+- **Goal**: Speak confidently to strangers in Japanese (not just family)
+- **Professional Goal**: Higher level communication across personal AND professional contexts
+- **What he loves about Kaiwa**: Different conversation partners within different contexts
+- **Persona Match**: Heritage Speaker (David) + Professional scenarios
+- **Timeline**: Ongoing improvement, professional advancement
+- **Current Issue**: Analysis/report function not loading (bug blocking proof moment)
+
+**Chika Kondo** (NEW)
+- **Language**: French
+- **Level**: Beginner ("can barely hold a convo")
+- **Goal**: Communicate with partner's mom + partner
+- **Long-term**: Speak with future kids (partner will speak French to them, she speaks Japanese)
+- **Persona Match**: Bilingual Spouse (Sofia) - perfect ICP
+- **Timeline**: Long-term commitment (kids planning)
+
+**Brianne Yamada Nitahara** (NEW)
+- **Language**: Japanese
+- **Goal**: Work and live in Japan eventually
+- **Persona Match**: Relocation Expat (Jamie)
+- **Current Issue**: Beginner → Intermediate transition difficulty (see below)
+- **Duolingo User**: Active Duolingo Max subscriber with AI conversation practice
+
+**Akemi Tsutsui** (NEW)
+- **Language**: Japanese
+- **Goal**: Part-time residence in Japan
+- **Current Level**: Can survive with "vocabulary, social cues and Google Translate"
+- **Pain Point**: Can scrape by but can't express herself
+- **Persona Match**: Relocation Expat (Jamie)
+- **Previous Experience**: Lived in Japan before, wants to do better this time
+
+### 🔴 CRITICAL Issues (November 25)
+
+**21. Analysis/Report Function Not Loading** ⚠️ **BLOCKS PROOF MOMENT**
+- **Reported by**: Robert Roche (Nov 25)
+- **Issue**: "Report/analysis function doesn't seem to work for me. Like it'll be loading the report but I never get one."
+- **Why Critical**: Analysis = proof of improvement. If it never loads, user never gets validation.
+- **Previous mentions**: Hiro mentioned seeing this with "one another person"
+- **Status**: Open (Hiro to investigate in morning)
+- **Priority**: HIGH - This is the "you got better" moment
+
+**22. AI Responds Without User Speaking** 🚨 **FALSE POSITIVE**
+- **Reported by**: Akemi Tsutsui (Nov 25)
+- **Issue**: "A couple of times it seemed like the AI didn't actually hear me in my response. Like it told me a phrase to say and without me saying anything yet it told me good job and gave me another phrase"
+- **Why Critical**: False positives break trust in the system
+- **Related to**: Issue #1 (AI responds to itself)
+- **Status**: Open
+- **Priority**: HIGH
+
+### 🟡 HIGH: Blocks Learning Experience
+
+**23. Beginner → Intermediate Transition Too Steep** 📈 **LEVELING PROBLEM**
+- **Reported by**: Brianne Yamada Nitahara (Nov 25)
+- **Issue**:
+  - First lessons: AI speaks mostly English with short Japanese phrases to repeat → comfortable
+  - Next level: AI says "3-5 sentences all at once" → completely lost
+  - Has to use translate feature to get through it
+- **Why High**: Kills momentum at critical leveling-up moment
+- **Comparison**: "I am an avid Duolingo Max account holder. I utilize the AI conversation practice every day."
+- **Insight**: Duolingo's gradual progression works better than Kaiwa's jump
+- **Status**: Open
+- **Priority**: HIGH - This is likely killing retention at intermediate level
+
+**Fix Needed**:
+- Gradual difficulty increase (not sudden 3-5 sentence jumps)
+- Progressive English → Target Language ratio
+- Difficulty level detection/adjustment
+- Consider adaptive difficulty based on user response length
+
+### 💚 What's Working (November 25)
+
+**Transcript Access for Speed Training** ✅
+- **Reported by**: Akemi Tsutsui
+- **Quote**: "I really like ability to access the transcript. One of the difficult things for me is to pick up Japanese 'at speed', but since I can read the hiragana I can put it together better."
+- **Insight**: Transcript helps with listening comprehension training
+- **Design Decision**: Keep transcript available (hide by default, but accessible)
+- **Validates**: Current transcript toggle approach
+
+---
+
+## 📊 PAB Member Summary (November 25, 2025)
+
+**Total Active PAB Members**: ~10-12
+
+**By Persona**:
+- **Bilingual Spouse** (Sofia): Chika Kondo, [others from earlier sessions]
+- **Heritage Speaker** (David): Robert Roche (Japanese with family → professional contexts)
+- **Relocation Expat** (Jamie): Brianne Yamada Nitahara, Akemi Tsutsui
+- **Multi-language users**: Martin, [others]
+
+**By Language**:
+- Japanese: Robert, Brianne, Akemi, [others]
+- French: Chika
+- Multiple: Martin
+
+**By Goal**:
+- **Professional advancement**: Robert (formal Japanese), Brianne (work in Japan)
+- **Family connection**: Chika (partner's mom + future kids)
+- **Long-term residence**: Akemi (part-time Japan), Brianne (full-time Japan)
+
+**Engagement Level**:
+- Active users reporting bugs/feedback: HIGH (4 people giving detailed feedback in one day)
+- New member introductions: 4 new in one day (strong validation signal)
+- Cross-referencing competitors (Duolingo): Brianne comparison valuable
+- Already understanding product value: Robert explicitly called out "different conversation partners within different contexts"
+
+**Key Insight**: All 4 new members match core ICP personas (Sofia, David, Jamie) - strong product-market fit signal
+
+---
+
+**Last Review**: November 25, 2025
+**Next Review**: November 26, 2025
 **Owner**: Hiro Kuwana
