@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
 
@@ -79,9 +79,9 @@
 					</button>
 				</div>
 
-				{#if $page?.status === 404}
+				{#if page?.status === 404}
 					<p class="text-sm text-base-content/50 mt-4">
-						Error code: {$page.status || 500}
+						Error code: {page.status || 500}
 					</p>
 				{/if}
 			{/if}
