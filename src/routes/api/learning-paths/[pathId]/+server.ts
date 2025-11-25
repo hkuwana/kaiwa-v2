@@ -40,12 +40,14 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 		}
 
 		// Check access permissions
+		// - Anonymous paths (userId === null) can be viewed by anyone
 		// - Public paths or templates can be viewed by anyone
 		// - Private paths can only be viewed by the owner
+		const isAnonymous = path.userId === null;
 		const isPublic = path.isPublic || path.isTemplate;
 		const isOwner = locals.user?.id === path.userId;
 
-		if (!isPublic && !isOwner) {
+		if (!isAnonymous && !isPublic && !isOwner) {
 			return json(
 				createErrorResponse('You are not authorized to view this learning path'),
 				{ status: 403 }
