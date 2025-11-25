@@ -51,6 +51,7 @@
 		"cron:reminders": "tsx scripts/send-reminders.ts",
 		"cron:founder-emails": "tsx scripts/send-founder-emails.ts",
 		"cron:weekly-stats": "tsx scripts/send-weekly-stats.ts",
+		"cron:generate-scenarios": "dotenv -e .env.development -- tsx scripts/generate-learning-path-scenarios.ts",
 		"send-weekly-product-updates": "tsx scripts/send-weekly-product-updates.ts",
 		"create-weekly-update": "tsx scripts/create-weekly-update.ts",
 		"generate-weekly-update-from-git": "tsx scripts/generate-weekly-update-from-git.ts",
