@@ -184,7 +184,7 @@ The pitch that generates **pull** (not push) wins.
 
 Sometimes you have 3 seconds. Use these:
 
-1. **"Rehearsal for meeting your partner's parents - in Japanese, Korean, or Spanish."**
+1. **"Personalized partner to learn your loved one's langauge"**
 2. **"Conversation simulator for the one dinner that determines if her parents approve."**
 3. **"We help you talk to your in-laws without needing your partner to translate."**
 

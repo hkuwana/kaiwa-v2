@@ -7,6 +7,18 @@
 
 ---
 
+## Where This Fits in the Global Plan
+
+Across your strategy docs, time is broken into shared horizons:
+
+- **Now (0–6 months)** – Bridge + validation: organic acquisition, reach $3–5K MRR, prove retention.
+- **Next (6–18 months)** – Scale to $30K MRR and deepen core moats.
+- **Later (18–36 months)** – Marketplace, B2B experiments, advanced speech analysis at scale.
+
+This bridge plan **is the detailed playbook for the Now (0–6 months) horizon** and should be read alongside the 6–12 Month Execution Plan for what happens in **Next**.
+
+---
+
 ## Executive Summary
 
 ### The Brutal Truth

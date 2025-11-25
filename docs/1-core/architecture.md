@@ -4,7 +4,7 @@
 
 ## 🎯 Core Philosophy
 
-**Mission**: To talk in the languaeg of the people you love.
+**Mission**: Personalized conversation partner to learn languages
 
 ### The Anti-Language-Learning App
 

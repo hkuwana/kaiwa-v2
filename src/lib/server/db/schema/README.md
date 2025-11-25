@@ -103,41 +103,47 @@ This document provides a comprehensive overview of all database schemas in the K
 
 #### `scenarios`
 
-**Purpose**: Learning scenario definitions
+**Purpose**: Structured learning situations and personas
 
 - **Primary Key**: `id` (text)
 - **Key Fields**:
-  - `category` (onboarding/comfort/basic/intermediate)
-  - `difficulty` (beginner/intermediate/advanced)
-  - `instructions`, `context`, `expectedOutcome`
+  - `title`, `description`
+  - `role` (enum: tutor/character/friendly_chat/expert)
+  - `difficulty` (beginner/intermediate/advanced), `difficultyRating`, `cefrLevel`
+  - `instructions`, `context`, `learningGoal`, `cefrRecommendation`
+  - `persona` (JSON: title, nameTemplate, setting, introPrompt, stakes)
+  - `expectedOutcome`
   - `learningObjectives` (JSON array)
   - `comfortIndicators` (JSON with confidence/engagement/understanding scores)
-- **Usage**: Defines structured learning scenarios for user onboarding and practice
+  - Discovery fields: `categories`, `tags`, `primarySkill`, `searchKeywords`
+  - UX metadata: `thumbnailUrl`, `estimatedDurationSeconds`
+  - Publishing & usage: `createdByUserId`, `visibility`, `usageCount`, `isActive`
+- **Usage**: Defines the canonical catalog of scenarios for onboarding, browsing, and practice, including persona, pedagogy, and discovery metadata.
 
-#### `scenarioAttempts`
+#### `scenarioMetadata`
 
-**Purpose**: Track multiple attempts at scenarios
+**Purpose**: Aggregated engagement and quality metrics per scenario
 
-- **Primary Key**: `id` (UUID)
+- **Primary Key**: `scenarioId` (text, references `scenarios.id`)
 - **Key Fields**:
-  - `userId`, `scenarioId`
-  - `attemptNumber`, `startedAt`, `completedAt`
-  - `completedSteps` (JSON array)
-  - `timeSpentSeconds`, `hintsUsed`, `translationsUsed`
-- **Usage**: Tracks user progress through scenario attempts and learning analytics
+  - `amountSavedCount`, `totalTimesUsed`, `totalAttempts`
+  - `averageRating`, `ratingsCount`
+  - `completionRate`, `averageTimeSpent`
+  - `createdAt`, `updatedAt`
+- **Usage**: Stores app-wide aggregated metrics for each scenario to power "trending", "most saved", and "top rated" queries without expensive aggregation joins.
 
-#### `scenarioOutcomes`
+#### `userScenarioProgress`
 
-**Purpose**: Detailed scenario completion results
+**Purpose**: Per-user progress and relationship to scenarios
 
-- **Primary Key**: `id` (UUID)
+- **Primary Key**: Composite (`userId`, `scenarioId`)
 - **Key Fields**:
-  - `userId`, `conversationId`, `scenarioId`
-  - `wasGoalAchieved`, `goalCompletionScore`
-  - `grammarUsageScore`, `vocabularyUsageScore`, `pronunciationScore`
-  - `usedTargetVocabulary`, `missedTargetVocabulary` (JSON arrays)
-  - `aiFeedback`, `suggestions` (JSON array)
-- **Usage**: Stores detailed assessment results and AI feedback from scenario completions
+  - `isSaved`, `savedAt`
+  - `timesCompleted`, `timesAttempted`, `lastAttemptAt`, `lastCompletedAt`
+  - `totalTimeSpentSeconds`
+  - `userRating`, `userNotes`
+  - `createdAt`, `updatedAt`
+- **Usage**: Tracks each user's engagement, saves, completions, and ratings for scenarios; replaces the earlier `scenarioAttempts` and `scenarioOutcomes` designs.
 
 ### Billing & Subscriptions
 
@@ -193,14 +199,14 @@ This document provides a comprehensive overview of all database schemas in the K
 
 #### `conversationSessions`
 
-**Purpose**: Detailed conversation session analytics (DEPRECATED - moved to v2)
+**Purpose**: Detailed conversation session analytics
 
 - **Primary Key**: `id` (text)
 - **Key Fields**:
   - `userId`, `language`, `startTime`, `endTime`
   - `durationSeconds`, `secondsConsumed`, `inputTokens`
   - `wasExtended`, `extensionsUsed`
-- **Usage**: Legacy detailed session tracking (use v2 version for new development)
+- **Usage**: Tracks per-session conversation metrics (duration, usage, tokens, extensions) for advanced analytics and usage reconciliation.
 
 ### Analytics
 
@@ -225,7 +231,8 @@ This document provides a comprehensive overview of all database schemas in the K
 - `users` → `subscriptions` (1:many)
 - `conversations` → `messages` (1:many)
 - `languages` → `speakers` (1:many)
-- `scenarios` → `scenarioAttempts` (1:many)
+- `scenarios` → `userScenarioProgress` (1:many)
+- `scenarios` → `scenarioMetadata` (1:1)
 - `tiers` → `subscriptions` (1:many)
 
 ### Key Design Patterns

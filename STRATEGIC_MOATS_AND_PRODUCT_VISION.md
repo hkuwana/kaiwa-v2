@@ -13,6 +13,19 @@ Here's how we do that.
 
 ---
 
+## Shared Time Horizons (Across All Plans)
+
+To keep every doc and roadmap aligned, use these shared time horizons:
+
+- **Now (0–6 months)** – Bridge financing, organic acquisition, validation to $3–5K MRR.
+- **Next (6–18 months)** – Scale to $30K MRR, strengthen core moats (data, scenarios, community, readiness).
+- **Later (18–36 months)** – Marketplace, deeper B2B experiments, advanced speech analysis at scale.
+- **Vision (3–10 years)** – Kaiwa as the default place to practice high‑stakes conversations.
+
+Other docs (6–12 month execution plan, 6‑month bridge plan) map into these same horizons.
+
+---
+
 ## Part 1: Your Defensible Moats (What Keeps Competitors Out)
 
 Most SaaS companies have **no moat**. They can be copied in 3-6 months. You need to build moats that take **years to replicate** and get stronger over time.
@@ -40,6 +53,8 @@ Most SaaS companies have **no moat**. They can be copied in 3-6 months. You need
 - Ship: "Kaiwa's pronunciation model is 2x more accurate than OpenAI for emotional conversations"
 
 **Timeline**: 12-24 months to build proprietary advantage
+
+**Horizon mapping**: Starts in **Next (6–18 months)**, compounds through **Later (18–36 months)** as more data accumulates.
 
 **Jobs/Ive perspective**: *"Data is the new oil, but only if you refine it. We're not just collecting conversations—we're building the world's most empathetic language AI."*
 
@@ -87,6 +102,8 @@ Every user creates and shares scenarios. The library grows exponentially. New us
 - **You** can dominate "high-stakes conversation practice" the same way
 
 **Timeline**: 6-12 months to reach critical mass (10,000+ shared scenarios)
+
+**Horizon mapping**: Primarily in **Next (6–18 months)**—early versions begin in the tail end of **Now (0–6 months)**.
 
 **Jobs/Ive perspective**: *"The best product is one that gets better the more people use it. Every scenario shared is a brick in our moat."*
 
@@ -179,6 +196,8 @@ Every user creates and shares scenarios. The library grows exponentially. New us
 
 **Timeline**: 12-18 months to build world-class analysis
 
+**Horizon mapping**: Starts in **Next (6–18 months)** and matures into **Later (18–36 months)**.
+
 **Jobs/Ive perspective**: *"The product should tell you not just WHAT you said, but HOW to get better. Feedback without actionability is noise."*
 
 ---
@@ -211,6 +230,8 @@ Every user creates and shares scenarios. The library grows exponentially. New us
 
 **Timeline**: 18-24 months to launch marketplace
 
+**Horizon mapping**: Squarely in **Later (18–36 months)** once core consumer product and community are working.
+
 **Jobs/Ive perspective**: *"AI is the appetizer. Human connection is the main course. We're building both."*
 
 ---
@@ -242,6 +263,8 @@ Every user creates and shares scenarios. The library grows exponentially. New us
 - **TAM expansion**: Proves you're not just consumer, you're B2B2C
 
 **Timeline**: 12-18 months to close first 5 enterprise deals
+
+**Horizon mapping**: Begins in late **Next (6–18 months)** with pilots; scales in **Later (18–36 months)** if it proves out.
 
 **Jobs/Ive perspective**: *"Consumer builds the brand. Enterprise builds the bank account. We need both."*
 
@@ -621,15 +644,15 @@ If I were your cofounder, here's what I'd say:
 
 **The long-term vision**:
 
-**Year 1**: AI conversation practice (where you are now)
+**Year 1 (Now + early Next)**: AI conversation practice (bridge plan + 6–12 month execution plan)
 
-**Year 2**: AI + Human hybrid (marketplace for native speakers)
+**Year 2 (Next)**: AI + Human hybrid (early marketplace for native speakers, deeper moats 1–4)
 
-**Year 3**: Peer-to-peer practice matching (language exchange 2.0)
+**Year 3 (Later)**: Peer-to-peer practice matching (language exchange 2.0) and B2B experiments that prove out
 
-**Year 5**: The world's largest community of people connecting across languages
+**Year 5 (Vision)**: The world's largest community of people connecting across languages
 
-**Year 10**: Kaiwa is synonymous with "practicing high-stakes conversations"
+**Year 10 (Vision)**: Kaiwa is synonymous with "practicing high-stakes conversations"
 - "I have a job interview tomorrow." → "Practice it on Kaiwa."
 - "I need to apologize to my partner." → "Rehearse it on Kaiwa."
 - "I'm meeting my in-laws next week." → "Prepare on Kaiwa."

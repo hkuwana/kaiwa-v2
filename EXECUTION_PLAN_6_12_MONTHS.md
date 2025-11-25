@@ -9,6 +9,17 @@
 
 ---
 
+## How This Maps to Global Time Horizons
+
+Across all Kaiwa strategy docs, use these shared horizons:
+
+- **Now (0–6 months)** – Bridge + validation phase: organic acquisition, reach $3–5K MRR, prove retention.
+- **Next (6–18 months)** – Scale phase: execute toward $30K MRR and build core moats.
+
+This execution plan mostly covers:
+- **Now (0–6 months)** → Phases 1–2
+- **Next (6–12 months subset)** → Phases 3–4
+
 ## Executive Summary
 
 This plan takes Kaiwa from early validation (current state: <$1K MRR) to **$30K MRR** in 12 months through:
@@ -78,7 +89,7 @@ This manual sprint should be considered **part of Phase 1**, not a detour: it gi
 
 ---
 
-## Phase 1: Foundation & Validation (Months 1-3)
+## Phase 1: Foundation & Validation (Months 1-3, **Now**)
 **Goal**: $3K MRR | 120 paying users | Validate retention hypothesis
 
 ### Month 1: Content Machine + iOS Foundation
@@ -269,7 +280,7 @@ See the full [Mobile Development Plan](./docs/4-technical/mobile-development-pla
 
 ---
 
-## Phase 2: Scale & Optimize (Months 4-6)
+## Phase 2: Scale & Optimize (Months 4-6, **Now**)
 **Goal**: $10K MRR | 400 paying users | Hire first team member
 
 ### Month 4: Scenario Expansion + Content Hire
@@ -453,7 +464,7 @@ See the full [Mobile Development Plan](./docs/4-technical/mobile-development-pla
 
 ---
 
-## Phase 3: Acceleration (Months 7-9)
+## Phase 3: Acceleration (Months 7-9, **Next**)
 **Goal**: $20K MRR | 800 paying users | Build small team
 
 ### Month 7: Team Expansion + Community Build
@@ -611,7 +622,7 @@ See the full [Mobile Development Plan](./docs/4-technical/mobile-development-pla
 
 ---
 
-## Phase 4: Validation & Decision (Months 10-12)
+## Phase 4: Validation & Decision (Months 10-12, **Next**)
 **Goal**: $30K MRR | Prove retention | Decide: Stay lifestyle or raise VC
 
 ### Month 10-11: Retention Validation
