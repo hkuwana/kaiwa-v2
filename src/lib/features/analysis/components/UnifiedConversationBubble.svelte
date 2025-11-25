@@ -100,10 +100,24 @@
 
 	// State for suggestion highlighting
 	let hoveredSuggestion = $state<string | null>(null);
-	let internalOpenSuggestions = new SvelteSet<string>();
+	let internalOpenSuggestions = $state(new SvelteSet<string>());
 
 	// Use external state if provided, otherwise use internal state
 	const openSuggestions = $derived(externalOpenSuggestions || internalOpenSuggestions);
+
+	// Auto-expand suggestions for messages that have them
+	$effect.pre(() => {
+		const newOpenSuggestions = new SvelteSet<string>();
+		for (const message of messages) {
+			const messageSuggestions = groupedSuggestions().get(message.id) ?? [];
+			if (messageSuggestions.length > 0 && message.role === 'user') {
+				newOpenSuggestions.add(message.id);
+			}
+		}
+		if (!externalOpenSuggestions) {
+			internalOpenSuggestions = newOpenSuggestions;
+		}
+	});
 
 	// Event handlers
 	function handlePlayAudio(messageId: string) {

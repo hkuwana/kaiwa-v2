@@ -5,7 +5,7 @@
 	import { onMount } from 'svelte';
 
 	import QuickAnalysisModal from '$lib/features/analysis/components/QuickAnalysisModal.svelte';
-	import MessageBubble from '$lib/features/conversation/components/MessageBubble.svelte';
+	import UnifiedConversationBubble from '$lib/features/analysis/components/UnifiedConversationBubble.svelte';
 	import ExitSurvey from '$lib/components/ExitSurvey.svelte';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
@@ -14,8 +14,9 @@
 	import { analysisSuggestionService } from '$lib/features/analysis/services/analysis-suggestion.service';
 	import { SvelteSet } from 'svelte/reactivity';
 	import StageIndicator from '$lib/components/StageIndicator.svelte';
-	import type { AnalysisRun } from '$lib/features/analysis/types/analysis.types';
+	import type { AnalysisRunResult } from '$lib/features/analysis/services/analysis.service';
 	import type { AnalysisModuleDefinition } from '$lib/features/analysis/types/analysis-module.types';
+	import type { AnalysisSuggestion } from '$lib/features/analysis/types/analysis-suggestion.types';
 
 	interface UsageInfo {
 		current?: {
@@ -27,7 +28,7 @@
 	}
 
 	interface AnalysisStoreType {
-		setAnalysisResults: (run: AnalysisRun, suggestions: unknown[], messages: unknown[]) => void;
+		setAnalysisResults: (run: AnalysisRunResult, suggestions: unknown[], messages: unknown[]) => void;
 	}
 
 	const { data } = $props();
@@ -57,9 +58,10 @@
 	// Analysis pipeline state
 	let analysisStore = $state<AnalysisStoreType | null>(null);
 	let modules = $state<AnalysisModuleDefinition[]>([]);
-	let selectedModuleIds = new SvelteSet<string>();
+	let selectedModuleIds = $state(new SvelteSet<string>());
 	let isLoading = $state(false);
-	let lastRun = $state<AnalysisRun | null>(null);
+	let lastRun = $state<AnalysisRunResult | null>(null);
+	let extractedSuggestions = $state<AnalysisSuggestion[]>([]);
 	let errorMessage = $state<string | null>(null);
 	let showRawAnalysis = $state(false);
 	let showFindingsJson = $state(false);
@@ -188,6 +190,7 @@
 		isLoading = true;
 		errorMessage = null;
 		lastRun = null;
+		extractedSuggestions = [];
 		usageInfo = null;
 
 		try {
@@ -199,12 +202,15 @@
 				analysisStore = store;
 			}
 
+			// Get language code from conversation session if available, otherwise use selected language
+			const languageCode = data.conversationSession?.targetLanguage?.code || selectedLanguage.code;
+
 			const response: Response = await fetch('/api/analysis/run', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					conversationId: data.sessionId || 'analysis-session',
-					languageCode: selectedLanguage.code,
+					languageCode,
 					moduleIds: Array.from(selectedModuleIds),
 					messages: messages.map((m) => ({
 						id: m.id,
@@ -218,7 +224,7 @@
 			const analysisData = (await response.json()) as {
 				success: boolean;
 				error?: string;
-				run?: AnalysisRun;
+				run?: AnalysisRunResult;
 				suggestions?: unknown[];
 			};
 
@@ -226,9 +232,12 @@
 				throw new Error(analysisData?.error || 'Analysis failed');
 			}
 
-			lastRun = analysisData.run;
-			const extractedSuggestions =
-				analysisData.suggestions ??
+			lastRun = analysisData.run || null;
+			if (!lastRun) {
+				throw new Error('No analysis run data returned');
+			}
+			extractedSuggestions =
+				(analysisData.suggestions as AnalysisSuggestion[] | undefined) ??
 				analysisSuggestionService.extract(lastRun, {
 					runId: lastRun.runId,
 					messages: messages.map((m) => ({
@@ -247,7 +256,9 @@
 			}));
 
 			// Update the analysis store with the complete analysis results
-			analysisStore.setAnalysisResults(lastRun, extractedSuggestions, normalizedMessages);
+			if (analysisStore) {
+				analysisStore.setAnalysisResults(lastRun, extractedSuggestions, normalizedMessages);
+			}
 
 			// Fetch updated usage info after running analysis
 			try {
@@ -345,37 +356,11 @@
 
 			<section class="rounded-lg bg-base-100 p-6 shadow">
 				<h2 class="mb-4 text-xl font-semibold">Your Conversation</h2>
-				<div class="space-y-4">
-					{#each messages as message (message.id)}
-						<div class="space-y-2">
-							<!-- Original message -->
-							<MessageBubble
-								message={{
-									...message,
-									conversationId: data.sessionId || 'analysis-session',
-									sequenceId: null,
-									translatedContent: null,
-									sourceLanguage: null,
-									targetLanguage: null,
-									romanization: null,
-									hiragana: null,
-									otherScripts: null,
-									audioUrl: null,
-									isStreaming: null,
-									hasCompleted: null,
-									finishReason: null,
-									toolCalls: null,
-									toolCallResults: null,
-									tokens: null,
-									promptTokens: null,
-									completionTokens: null,
-									messageIntent: null
-								}}
-								clickToToggle={false}
-							/>
-						</div>
-					{/each}
-				</div>
+				<UnifiedConversationBubble
+					{messages}
+					suggestions={extractedSuggestions}
+					showSuggestions={true}
+				/>
 			</section>
 
 			<!-- Analysis Results -->
@@ -391,180 +376,175 @@
 
 			{#if lastRun}
 				<section class="rounded-lg bg-base-100 p-6 shadow">
-					<div class="mb-4 flex items-center justify-between">
-						<h2 class="text-xl font-semibold">Analysis Results</h2>
-						<div class="flex gap-2">
-							<label class="flex cursor-pointer items-center gap-2">
-								<input type="checkbox" class="toggle toggle-sm" bind:checked={showRawAnalysis} />
-								<span class="text-sm">Show Raw JSON</span>
-							</label>
-							<label class="flex cursor-pointer items-center gap-2">
-								<input type="checkbox" class="toggle toggle-sm" bind:checked={showFindingsJson} />
-								<span class="text-sm">Show Findings JSON</span>
-							</label>
-						</div>
-					</div>
-
-					<!-- Analysis Complete Status -->
-					<div class="mb-6 rounded-lg border border-success/20 bg-success p-4">
-						<div class="mb-2 flex items-center gap-2">
-							<span class="icon-[mdi--arrow-right-circle] h-5 w-5 text-success"></span>
-							<h3 class="font-semibold text-success-content">Analysis Complete</h3>
+					<!-- Analysis Summary Header -->
+					<div class="mb-6 rounded-lg border border-success/20 bg-success/10 p-4">
+						<div class="mb-3 flex items-center justify-between">
+							<div class="flex items-center gap-2">
+								<span class="icon-[mdi--check-circle] h-5 w-5 text-success"></span>
+								<h2 class="text-xl font-semibold text-success">Analysis Complete</h2>
+							</div>
 						</div>
 						<div class="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
 							<div>
-								<span class="text-success-content">Conversation ID:</span>
-								<span class="font-mono text-success-content">{lastRun.conversationId}</span>
+								<span class="text-base-content/70">Modules Run:</span>
+								<span class="ml-2 font-bold text-base-content">{lastRun.moduleResults?.length || 0}</span>
 							</div>
 							<div>
-								<span class="text-success-content">Modules Run:</span>
-								<span class="font-medium text-success-content"
-									>{lastRun.moduleResults?.length || 0}</span
-								>
+								<span class="text-base-content/70">Messages Analyzed:</span>
+								<span class="ml-2 font-bold text-base-content">{messages.length}</span>
 							</div>
-							<div>
-								<span class="text-success-content">Messages Analyzed:</span>
-								<span class="font-medium text-success-content">{messages.length}</span>
-							</div>
+							{#if extractedSuggestions.length > 0}
+								<div>
+									<span class="text-base-content/70">Suggestions Found:</span>
+									<span class="ml-2 font-bold text-base-content">{extractedSuggestions.length}</span>
+								</div>
+							{/if}
 						</div>
 					</div>
 
 					<!-- Usage Impact -->
 					{#if usageInfo}
-						<div class="mb-6 rounded-lg border border-info/20 bg-info p-4">
-							<div class="mb-3 flex items-center justify-between">
-								<div class="flex items-center gap-2">
-									<span class="icon-[mdi--database-outline] h-5 w-5 text-info"></span>
-									<h3 class="font-semibold text-info-content">Usage Impact</h3>
-								</div>
-								<label class="flex cursor-pointer items-center gap-2">
-									<input type="checkbox" class="toggle toggle-sm" bind:checked={showUsageDetails} />
-									<span class="text-xs text-info-content">Details</span>
-								</label>
+						<div class="mb-6 rounded-lg border border-info/20 bg-info/10 p-4">
+							<div class="mb-3 flex items-center gap-2">
+								<span class="icon-[mdi--database-outline] h-5 w-5 text-info"></span>
+								<h3 class="font-semibold text-info">Usage Impact</h3>
 							</div>
 
 							<div class="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
-								<div class="rounded border border-info/10 bg-info/5 p-3 text-center">
-									<div class="text-lg font-bold text-info-content">
+								<div class="rounded border border-base-300 bg-base-50 p-3 text-center">
+									<div class="text-lg font-bold text-base-content">
 										{usageInfo.current?.analysesUsed || 0}
 									</div>
-									<div class="text-xs text-info-content/80">Total Analyses</div>
+									<div class="text-xs text-base-content/70">Total Analyses</div>
 								</div>
-								<div class="rounded border border-info/10 bg-info/5 p-3 text-center">
-									<div class="text-lg font-bold text-info-content">
+								<div class="rounded border border-base-300 bg-base-50 p-3 text-center">
+									<div class="text-lg font-bold text-base-content">
 										{usageInfo.current?.basicAnalysesUsed || 0}
 									</div>
-									<div class="text-xs text-info-content/80">Basic Analyses</div>
+									<div class="text-xs text-base-content/70">Basic Analyses</div>
 								</div>
-								<div class="rounded border border-info/10 bg-info/5 p-3 text-center">
-									<div class="text-lg font-bold text-info-content">
+								<div class="rounded border border-base-300 bg-base-50 p-3 text-center">
+									<div class="text-lg font-bold text-base-content">
 										{usageInfo.current?.advancedGrammarUsed || 0}
 									</div>
-									<div class="text-xs text-info-content/80">Advanced Grammar</div>
+									<div class="text-xs text-base-content/70">Advanced Grammar</div>
 								</div>
-								<div class="rounded border border-info/10 bg-info/5 p-3 text-center">
-									<div class="text-lg font-bold text-info-content">
+								<div class="rounded border border-base-300 bg-base-50 p-3 text-center">
+									<div class="text-lg font-bold text-base-content">
 										{usageInfo.current?.fluencyAnalysisUsed || 0}
 									</div>
-									<div class="text-xs text-info-content/80">Fluency Analysis</div>
+									<div class="text-xs text-base-content/70">Fluency Analysis</div>
 								</div>
 							</div>
 						</div>
 					{/if}
 
-					<!-- Module Results -->
-					<div class="space-y-4">
-						<h3 class="flex items-center gap-2 font-semibold">
-							<span class="icon-[mdi--check-circle] h-5 w-5"></span>
-							Module Results
-						</h3>
-						{#each lastRun.moduleResults as moduleResult, index (index)}
-							<div class="bg-base-50 rounded-lg border border-base-300 p-4">
-								<div class="mb-3 flex items-center justify-between">
-									<div class="flex items-center gap-2">
-										<span class="badge badge-sm badge-primary">{index + 1}</span>
-										<span class="font-semibold text-base-content">{moduleResult.moduleId}</span>
-									</div>
-									{#if modules.find((m) => m.id === moduleResult.moduleId)}
-										{@const module = modules.find((m) => m.id === moduleResult.moduleId)}
-										{#if module}
-											<div class="flex gap-1">
-												<span class="badge badge-outline badge-xs">{module.modality}</span>
-												{#if module.tier}
-													<span class="badge badge-outline badge-xs">{module.tier}</span>
+					<!-- Detailed Module Results (Collapsible) -->
+					{#if lastRun.moduleResults && lastRun.moduleResults.length > 0}
+						<details class="group rounded-lg border border-base-300">
+							<summary class="flex cursor-pointer items-center justify-between bg-base-50 p-4 hover:bg-base-100">
+								<h3 class="flex items-center gap-2 font-semibold">
+									<span class="icon-[mdi--chevron-down] h-5 w-5 transition-transform group-open:rotate-180"></span>
+									Module Details ({lastRun.moduleResults.length})
+								</h3>
+								<div class="flex gap-2">
+									<label class="flex cursor-pointer items-center gap-2">
+										<input type="checkbox" class="toggle toggle-sm" bind:checked={showRawAnalysis} />
+										<span class="text-sm">Raw JSON</span>
+									</label>
+								</div>
+							</summary>
+
+							<div class="space-y-4 border-t border-base-300 p-4">
+								{#each lastRun.moduleResults as moduleResult, index (index)}
+									<div class="bg-base-50 rounded-lg border border-base-300 p-4">
+										<div class="mb-3 flex items-center justify-between">
+											<div class="flex items-center gap-2">
+												<span class="badge badge-sm badge-primary">{index + 1}</span>
+												<span class="font-semibold text-base-content">{moduleResult.moduleId}</span>
+											</div>
+											{#if modules.find((m) => m.id === moduleResult.moduleId)}
+												{@const module = modules.find((m) => m.id === moduleResult.moduleId)}
+												{#if module}
+													<div class="flex gap-1">
+														<span class="badge badge-outline badge-xs">{module.modality}</span>
+														{#if module.tier}
+															<span class="badge badge-outline badge-xs">{module.tier}</span>
+														{/if}
+													</div>
 												{/if}
+											{/if}
+										</div>
+
+										{#if moduleResult.summary}
+											<div class="mb-3">
+												<h4 class="mb-1 text-sm font-medium text-base-content/80">Summary:</h4>
+												<p class="rounded border-l-4 border-primary bg-base-100 p-3 text-base-content">
+													{moduleResult.summary}
+												</p>
 											</div>
 										{/if}
-									{/if}
+
+										{#if moduleResult.recommendations?.length}
+											<div>
+												<h4
+													class="mb-2 flex items-center gap-1 text-sm font-medium text-base-content/80"
+												>
+													<span class="icon-[mdi--information-outline] h-4 w-4"></span>
+													Recommendations ({moduleResult.recommendations.length}):
+												</h4>
+												<ul class="space-y-2">
+													{#each moduleResult.recommendations as recommendation, recIndex (recIndex)}
+														<li class="flex items-start gap-2 text-sm text-base-content/80">
+															<span class="mt-0.5 badge badge-xs badge-info">{recIndex + 1}</span>
+															<span>{recommendation}</span>
+														</li>
+													{/each}
+												</ul>
+											</div>
+										{/if}
+
+										{#if showRawAnalysis && moduleResult.data && Object.keys(moduleResult.data).length > 0}
+											<details class="mt-3">
+												<summary
+													class="flex cursor-pointer items-center gap-1 text-sm font-medium text-base-content/60 hover:text-base-content"
+												>
+													<span class="icon-[mdi--code-json] h-4 w-4"></span>
+													Module Data (Click to expand)
+												</summary>
+												<pre
+													class="mt-2 max-h-48 overflow-auto rounded bg-base-200 p-3 text-xs text-base-content">{JSON.stringify(
+														moduleResult.data,
+														null,
+														2
+													)}</pre>
+											</details>
+										{/if}
+									</div>
+								{/each}
+							</div>
+
+							<!-- Raw Analysis JSON -->
+							{#if showRawAnalysis}
+								<div class="border-t border-base-300 bg-base-50 p-4">
+									<div class="mb-4 flex items-center gap-2">
+										<span class="icon-[mdi--code-json] h-5 w-5"></span>
+										<h4 class="font-semibold">Raw Analysis JSON</h4>
+										<button
+											class="btn ml-auto btn-outline btn-xs"
+											onclick={() => navigator.clipboard.writeText(JSON.stringify(lastRun, null, 2))}
+											>Copy JSON</button
+										>
+									</div>
+									<pre
+										class="max-h-96 overflow-auto rounded bg-base-200 p-4 text-xs text-base-content/80">{JSON.stringify(
+											lastRun,
+											null,
+											2
+										)}</pre>
 								</div>
-
-								{#if moduleResult.summary}
-									<div class="mb-3">
-										<h4 class="mb-1 text-sm font-medium text-base-content/80">Summary:</h4>
-										<p class="rounded border-l-4 border-primary bg-base-100 p-3 text-base-content">
-											{moduleResult.summary}
-										</p>
-									</div>
-								{/if}
-
-								{#if moduleResult.recommendations?.length}
-									<div>
-										<h4
-											class="mb-2 flex items-center gap-1 text-sm font-medium text-base-content/80"
-										>
-											<span class="icon-[mdi--information-outline] h-4 w-4"></span>
-											Recommendations ({moduleResult.recommendations.length}):
-										</h4>
-										<ul class="space-y-2">
-											{#each moduleResult.recommendations as recommendation, recIndex (recIndex)}
-												<li class="flex items-start gap-2 text-sm text-base-content/80">
-													<span class="mt-0.5 badge badge-xs badge-info">{recIndex + 1}</span>
-													<span>{recommendation}</span>
-												</li>
-											{/each}
-										</ul>
-									</div>
-								{/if}
-
-								{#if showRawAnalysis && moduleResult.data && Object.keys(moduleResult.data).length > 0}
-									<details class="mt-3">
-										<summary
-											class="flex cursor-pointer items-center gap-1 text-sm font-medium text-base-content/60 hover:text-base-content"
-										>
-											<span class="icon-[mdi--code-json] h-4 w-4"></span>
-											Module Data (Click to expand)
-										</summary>
-										<pre
-											class="mt-2 max-h-48 overflow-auto rounded bg-base-200 p-3 text-xs text-base-content">{JSON.stringify(
-												moduleResult.data,
-												null,
-												2
-											)}</pre>
-									</details>
-								{/if}
-							</div>
-						{/each}
-					</div>
-
-					<!-- Raw Analysis JSON -->
-					{#if showRawAnalysis}
-						<div class="mt-6 rounded-lg bg-base-200 p-4">
-							<div class="mb-4 flex items-center gap-2">
-								<span class="icon-[mdi--code-json] h-5 w-5"></span>
-								<h4 class="font-semibold">Raw Analysis JSON</h4>
-								<button
-									class="btn ml-auto btn-outline btn-xs"
-									onclick={() => navigator.clipboard.writeText(JSON.stringify(lastRun, null, 2))}
-									>Copy JSON</button
-								>
-							</div>
-							<pre
-								class="max-h-96 overflow-auto rounded bg-base-300 p-4 text-xs text-base-content/80">{JSON.stringify(
-									lastRun,
-									null,
-									2
-								)}</pre>
-						</div>
+							{/if}
+						</details>
 					{/if}
 				</section>
 			{/if}

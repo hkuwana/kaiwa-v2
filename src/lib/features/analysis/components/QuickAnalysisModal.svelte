@@ -103,7 +103,7 @@
 		};
 
 		// Generate quick insights based on analysis type
-		quickInsights = generateInsights(analysisType, conversationStats);
+		_quickInsights = generateInsights(analysisType, conversationStats);
 	}
 
 	function extractKeyTopics(content: string): string[] {
