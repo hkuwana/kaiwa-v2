@@ -216,10 +216,30 @@ export class PathGeneratorService {
 
 			const syllabus = parseAndValidateJSON<GeneratedSyllabus>(response.content);
 
-			if (!syllabus || !syllabus.title || !syllabus.days || syllabus.days.length === 0) {
-				logger.error('🚨 [PathGenerator] Invalid syllabus structure from OpenAI', {
+			if (!syllabus) {
+				logger.error('🚨 [PathGenerator] Failed to parse JSON from OpenAI', {
 					content: response.content
 				});
+				return null;
+			}
+
+			// Validate syllabus structure
+			if (!syllabus.title || typeof syllabus.title !== 'string') {
+				logger.error('🚨 [PathGenerator] Missing or invalid title', { syllabus });
+				return null;
+			}
+
+			if (!Array.isArray(syllabus.days)) {
+				logger.error('🚨 [PathGenerator] days is not an array', {
+					daysType: typeof syllabus.days,
+					days: syllabus.days,
+					fullResponse: response.content
+				});
+				return null;
+			}
+
+			if (syllabus.days.length === 0) {
+				logger.error('🚨 [PathGenerator] days array is empty', { syllabus });
 				return null;
 			}
 
@@ -249,6 +269,11 @@ export class PathGeneratorService {
 		targetLanguage: string,
 		syllabus: GeneratedSyllabus
 	) {
+		// Extra safety check
+		if (!Array.isArray(syllabus.days)) {
+			throw new Error('Invalid syllabus: days must be an array');
+		}
+
 		// Transform syllabus days into schedule format
 		const schedule = syllabus.days.map((day) => ({
 			dayIndex: day.dayIndex,
