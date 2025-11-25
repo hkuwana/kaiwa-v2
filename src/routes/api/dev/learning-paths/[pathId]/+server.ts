@@ -2,7 +2,7 @@
 
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { learningPathRepository } from '$lib/server/repositories';
+import { learningPathRepository } from '$lib/server/repositories/learning-path.repository';
 
 export const GET: RequestHandler = async ({ params }) => {
 	try {

@@ -2,7 +2,7 @@
 
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { scenarioGenerationQueueRepository } from '$lib/server/repositories';
+import { scenarioGenerationQueueRepository } from '$lib/server/repositories/scenario-generation-queue.repository';
 
 export const GET: RequestHandler = async () => {
 	try {
