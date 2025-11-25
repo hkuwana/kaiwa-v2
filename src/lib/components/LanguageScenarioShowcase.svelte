@@ -48,7 +48,7 @@
 		// Also auto-select first speaker for that language
 		const speakersForLanguage = getSpeakersByLanguage(language.code);
 		if (speakersForLanguage?.[0]) {
-			settingsStore.setSpeaker(speakersForLanguage[0]);
+			settingsStore.setSpeaker(speakersForLanguage[0].id);
 		}
 	}
 

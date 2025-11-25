@@ -121,7 +121,6 @@ export function createSessionUpdateConfig(
 	});
 
 	return {
-		type: 'realtime',
 		model: publicEnv.PUBLIC_OPEN_AI_MODEL,
 		voice: validatedVoice,
 		instructions: instructions,

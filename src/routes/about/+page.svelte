@@ -167,8 +167,7 @@
 						{selectedLanguage}
 						{selectedSpeaker}
 						{selectedScenario}
-						onLanguageChange={handleLanguageChange}
-						onSpeakerChange={handleSpeakerChange}
+						 
 						onScenarioChange={handleScenarioChange}
 						onStartClick={handleAboutStartClick}
 					/>

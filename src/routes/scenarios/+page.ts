@@ -1,7 +1,8 @@
-export const load = async ({ parent }) => {
-	const { seo, ...data } = await parent();
+export const load = async ({ parent, data }) => {
+	const { seo, ...parentData } = await parent();
 
 	return {
+		...parentData,
 		...data,
 		seo: {
 			...seo,

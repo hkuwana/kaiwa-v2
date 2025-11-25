@@ -6,7 +6,7 @@
 	import ScenarioSelector from '$lib/features/scenarios/components/ScenarioSelector.svelte';
 	import AdvancedAudioOptions from './AdvancedAudioOptions.svelte';
 	import BriefingCard from './BriefingCard.svelte';
-	import type { Language as DataLanguage } from '$lib/data/languages';
+	import { languages, type Language as DataLanguage } from '$lib/data/languages';
 	import type { User } from '$lib/server/db/types';
 	import { GUEST_USER } from '$lib/data/user';
 	import { speakersData } from '$lib/data/speakers';
@@ -14,10 +14,10 @@
 	// Props
 	interface Props {
 		user: User;
-		selectedLanguage: DataLanguage;
-		selectedSpeaker: string;
-		selectedScenario: Scenario;
-		selectedAudioMode: 'vad' | 'ptt';
+		selectedAudioMode?: 'vad' | 'ptt';
+		selectedLanguage: DataLanguage | null;
+		selectedSpeaker: string | null;
+		selectedScenario: Scenario | null;
 		onScenarioChange?: (scenario: Scenario) => void;
 		onStartClick?: () => void;
 		onModeChange?: (mode: 'vad' | 'ptt') => void;
@@ -26,10 +26,10 @@
 
 	const {
 		user = GUEST_USER,
-		selectedLanguage,
+		selectedLanguage = languages[0],
 		children,
-		selectedSpeaker,
-		selectedScenario,
+		selectedSpeaker = speakersData[0].voiceName,
+		selectedScenario = scenariosData[0],
 		selectedAudioMode = 'ptt', // Default to Push-to-Talk
 		onScenarioChange,
 		onStartClick,

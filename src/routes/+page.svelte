@@ -23,6 +23,7 @@
 	import type { Scenario } from '$lib/data/scenarios';
 	import { goto } from '$app/navigation';
 	import { selectScenario } from '$lib/services/scenarios/scenario-interaction.service';
+	import { userPreferences } from '$lib/server/db/index.js';
 
 	const { data } = $props();
 
@@ -120,7 +121,7 @@
 
 		try {
 			const userType: 'logged_in' | 'guest' = user.id === 'guest' ? 'guest' : 'logged_in';
-			const audioMode = userManager.preferences?.audioInputMode || 'ptt';
+			const audioMode = userPreferences.audioInputMode || 'ptt';
 			const currentLanguage = selectedLanguage || settingsStore.selectedLanguage;
 			const currentSpeaker = settingsStore.selectedSpeaker;
 
