@@ -10,6 +10,44 @@ import * as auth from '$lib/server/auth';
 import { nanoid } from 'nanoid';
 import { userRepository } from '$lib/server/repositories';
 import { ensureStripeCustomer } from '$lib/server/services/payment.service';
+import {
+	CURRENT_SCHEMA_VERSION,
+	getSchemaVersionFromCookies,
+	setSchemaVersionCookie,
+	clearAllCookies
+} from '$lib/server/utils/schema-version';
+
+// 🔄 Schema Version Check - Auto-clear cookies on schema changes
+const handleSchemaVersion: Handle = async ({ event, resolve }) => {
+	const clientVersion = getSchemaVersionFromCookies(event.cookies);
+
+	// Check if client schema version matches current version
+	if (clientVersion && parseInt(clientVersion, 10) !== CURRENT_SCHEMA_VERSION) {
+		logger.warn(`Schema version mismatch detected. Client: ${clientVersion}, Server: ${CURRENT_SCHEMA_VERSION}. Clearing cookies.`);
+
+		// Clear all cookies to prevent deserialization errors
+		clearAllCookies(event.cookies);
+
+		// Set new schema version
+		setSchemaVersionCookie(event.cookies);
+
+		// Redirect to home to force fresh page load
+		if (!event.url.pathname.startsWith('/api')) {
+			return new Response(null, {
+				status: 302,
+				headers: {
+					Location: '/',
+					'Set-Cookie': `schema_version=${CURRENT_SCHEMA_VERSION}; Path=/; Max-Age=${60 * 60 * 24 * 365}; SameSite=Lax`
+				}
+			});
+		}
+	} else if (!clientVersion) {
+		// First visit - set schema version
+		setSchemaVersionCookie(event.cookies);
+	}
+
+	return resolve(event);
+};
 
 // 🔒 Security Headers Handle - CSP and Security Headers
 const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
@@ -130,6 +168,7 @@ const userSetup: Handle = async ({ event, resolve }) => {
 
 // Sequence the handles in the correct order
 export const handle: Handle = sequence(
+	handleSchemaVersion, // Check schema version FIRST - before any other processing
 	handleDevRoutes,
 	handleParaglide,
 	handleAuth,
