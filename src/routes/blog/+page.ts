@@ -1,5 +1,6 @@
 import { getAllBlogPosts, paginatePosts } from '$lib/blog/utils/blogIndex.js';
 import { createBlogListSeo } from '$lib/blog/utils/blogSeo.js';
+import { createBlogIndexJsonLd } from '$lib/seo/jsonld';
 
 export const load = async ({ parent, url }) => {
 	const { seo } = await parent();
@@ -10,9 +11,11 @@ export const load = async ({ parent, url }) => {
 	const paginatedData = paginatePosts(allPosts, page, postsPerPage);
 
 	const blogSeo = createBlogListSeo(url.origin);
+	const jsonLd = createBlogIndexJsonLd(url.origin);
 
 	return {
 		...paginatedData,
-		seo: { ...seo, ...blogSeo }
+		seo: { ...seo, ...blogSeo },
+		jsonLd
 	};
 };

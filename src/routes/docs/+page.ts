@@ -1,7 +1,8 @@
 // Import all markdown files from the docs directory
 const docs = import.meta.glob('../../lib/docs/*.md', { eager: true });
+import { createDocsIndexJsonLd } from '$lib/seo/jsonld';
 
-export const load = () => {
+export const load = ({ url }) => {
 	// Convert the glob results to a more usable format
 	interface DocModule {
 		metadata?: { title?: string; description?: string };
@@ -22,7 +23,10 @@ export const load = () => {
 	// Sort by title
 	docList.sort((a, b) => a.title.localeCompare(b.title));
 
+	const jsonLd = createDocsIndexJsonLd(url.origin);
+
 	return {
-		docs: docList
+		docs: docList,
+		jsonLd
 	};
 };

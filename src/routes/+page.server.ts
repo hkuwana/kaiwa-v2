@@ -1,5 +1,6 @@
 import { subscriptionService } from '$lib/server/services/subscription.service';
 import { serverTierConfigs } from '$lib/server/tiers';
+import { createHomePageJsonLd } from '$lib/seo/jsonld';
 
 export const load = async ({ locals, url }) => {
 	// Get user data from locals (set by hooks.server.ts)
@@ -45,10 +46,13 @@ export const load = async ({ locals, url }) => {
 		twitterCard: 'summary_large_image'
 	};
 
+	const jsonLd = createHomePageJsonLd(url.origin);
+
 	return {
 		user,
 		usageLimits,
 		tierInfo,
-		seo
+		seo,
+		jsonLd
 	};
 };

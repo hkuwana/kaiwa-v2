@@ -12,6 +12,11 @@
 <svelte:head>
 	<title>{data.title || slug} - Kaiwa Docs</title>
 	<meta name="description" content={data.description || `Documentation for ${slug}`} />
+	{#if data.jsonLd}
+		<script type="application/ld+json">
+			{@html JSON.stringify(data.jsonLd)}
+		</script>
+	{/if}
 </svelte:head>
 
 {#if data.content}

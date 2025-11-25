@@ -8,6 +8,11 @@
 		name="description"
 		content="Comprehensive documentation for Kaiwa v2, including architecture, API reference, deployment guides, and more."
 	/>
+	{#if data.jsonLd}
+		<script type="application/ld+json">
+			{@html JSON.stringify(data.jsonLd)}
+		</script>
+	{/if}
 </svelte:head>
 
 <div class="docs-container">

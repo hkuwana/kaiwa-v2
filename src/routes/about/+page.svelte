@@ -8,6 +8,7 @@
 	import type { Scenario } from '$lib/server/db/types';
 	import { track } from '$lib/analytics/posthog';
 	import InteractiveScenarioPreview from '$lib/features/scenarios/components/InteractiveScenarioPreview.svelte';
+	import { createAboutPageJsonLd } from '$lib/seo/jsonld';
 	import { fade } from 'svelte/transition';
 
 	// Current user
@@ -84,6 +85,8 @@
 			showCTAButton = true;
 		}, 5200);
 	});
+
+	const aboutJsonLd = createAboutPageJsonLd('https://trykaiwa.com');
 </script>
 
 <svelte:head>
@@ -92,6 +95,9 @@
 		name="description"
 		content="Go beyond Duolingo basics. Have real conversations with loved ones that make their faces light up with pride when you speak."
 	/>
+	<script type="application/ld+json">
+		{@html JSON.stringify(aboutJsonLd)}
+	</script>
 </svelte:head>
 
 <div class="bg-base-100">

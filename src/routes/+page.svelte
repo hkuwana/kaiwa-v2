@@ -24,7 +24,7 @@
 	import type { Scenario } from '$lib/data/scenarios';
 	import { goto } from '$app/navigation';
 
-	const { data: _data } = $props();
+	const { data } = $props();
 
 	const user = userManager.user;
 
@@ -191,6 +191,11 @@
 		name="description"
 		content="Go beyond Duolingo basics. Practice conversations that make your loved ones' faces light up with pride when you speak."
 	/>
+	{#if data?.jsonLd}
+		<script type="application/ld+json">
+			{@html JSON.stringify(data.jsonLd)}
+		</script>
+	{/if}
 </svelte:head>
 
 <div
