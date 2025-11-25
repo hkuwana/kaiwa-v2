@@ -1,3 +1,4 @@
+import devtoolsJson from 'vite-plugin-devtools-json';
 import fs from 'node:fs';
 import path from 'node:path';
 import { paraglideVitePlugin } from '@inlang/paraglide-js';
@@ -24,16 +25,15 @@ export default defineConfig({
 		paraglideVitePlugin({
 			project: './project.inlang',
 			outdir: './src/lib/paraglide'
-		})
+		}),
+		devtoolsJson()
 	],
 	build: {
 		reportCompressedSize: false,
 		chunkSizeWarningLimit: 1000,
 		minify: 'esbuild'
 	},
-	esbuild: {
-		logLevel: 'error'
-	},
+	esbuild: { logLevel: 'error' },
 	test: {
 		expect: { requireAssertions: true },
 		projects: [

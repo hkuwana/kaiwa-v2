@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { createLearningPathJsonLd } from '$lib/seo/jsonld';
 	import PathSyllabus from '$lib/features/learning-path/components/PathSyllabus.svelte';
 	import EnrollCTA from '$lib/features/learning-path/components/EnrollCTA.svelte';
 	import type { PageData } from './$types';
+	import { getLanguageName } from '$lib/data/languages';
 
 	/**
 	 * Public Learning Path Template Page
@@ -19,22 +20,10 @@
 	const { template } = data;
 
 	// Get base URL for JSON-LD and meta tags
-	const baseUrl = $page.url.origin;
+	const baseUrl = page.url.origin;
 	const pageUrl = `${baseUrl}/program/${template.shareSlug}`;
 
-	// Language display names for meta description
-	const languageNames: Record<string, string> = {
-		ja: 'Japanese',
-		es: 'Spanish',
-		fr: 'French',
-		de: 'German',
-		zh: 'Chinese',
-		ko: 'Korean',
-		it: 'Italian',
-		pt: 'Portuguese'
-	};
-
-	const languageName = languageNames[template.targetLanguage] || template.targetLanguage;
+	const languageName = getLanguageName(template.targetLanguage);
 	const weeks = Math.ceil(template.schedule.length / 7);
 
 	// Generate JSON-LD structured data
@@ -234,13 +223,3 @@
 		</div>
 	</div>
 </div>
-
-<style>
-	:global(.prose h2) {
-		@apply mt-12 mb-6 text-3xl font-bold;
-	}
-
-	:global(.prose h3) {
-		@apply mt-6 mb-3 text-xl font-semibold;
-	}
-</style>

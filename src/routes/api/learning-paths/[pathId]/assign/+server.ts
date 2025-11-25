@@ -66,10 +66,13 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 		const assignment = await learningPathAssignmentRepository.createAssignment({
 			pathId,
 			userId: targetUserId,
-			assignedByUserId: locals.user.id,
 			status: 'active',
 			currentDayIndex: 1,
-			note
+			startsAt: new Date(),
+			metadata: {
+				invitedBy: locals.user.id,
+				inviteNote: note
+			}
 		});
 
 		return json(

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { getLanguageName } from '$lib/data/languages';
+
 	/**
 	 * PathSyllabus Component
 	 *
@@ -25,27 +27,15 @@
 	let { schedule, targetLanguage }: Props = $props();
 
 	// Group schedule by weeks
-	const weeks = $derived(() => {
+	const weeks = $derived.by(() => {
 		const grouped: DayScheduleEntry[][] = [];
 		for (let i = 0; i < schedule.length; i += 7) {
 			grouped.push(schedule.slice(i, i + 7));
 		}
 		return grouped;
-	})();
+	});
 
-	// Language display names
-	const languageNames: Record<string, string> = {
-		ja: 'Japanese',
-		es: 'Spanish',
-		fr: 'French',
-		de: 'German',
-		zh: 'Chinese',
-		ko: 'Korean',
-		it: 'Italian',
-		pt: 'Portuguese'
-	};
-
-	const languageName = languageNames[targetLanguage] || targetLanguage;
+	const languageName = getLanguageName(targetLanguage);
 
 	// Map difficulty codes to display text
 	function formatDifficulty(difficulty: string): string {
@@ -136,13 +126,3 @@
 		</div>
 	</div>
 </div>
-
-<style>
-	.path-syllabus {
-		@apply mx-auto max-w-5xl;
-	}
-
-	.week-section {
-		@apply border-l-4 border-primary/30 pl-4;
-	}
-</style>

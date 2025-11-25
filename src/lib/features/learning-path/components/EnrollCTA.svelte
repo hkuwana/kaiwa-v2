@@ -24,14 +24,15 @@
 	const weeks = Math.ceil(totalDays / 7);
 
 	// Build signup URL with UTM parameters for tracking
-	const signupUrl = $derived(() => {
+	const signupUrl = $derived.by(() => {
 		const params = new URLSearchParams({
 			utm_source: 'learning_path',
 			utm_medium: 'cta',
 			utm_campaign: shareSlug || 'template'
 		});
-		return `/signup?${params.toString()}`;
-	})();
+		// Send users through the main auth flow
+		return `/auth?${params.toString()}`;
+	});
 
 	const isHero = variant === 'hero';
 </script>

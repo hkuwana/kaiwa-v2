@@ -1,3 +1,5 @@
+import { getLanguageName } from "$lib/data/languages";
+
 export type JsonLdObject = Record<string, unknown>;
 
 export function createHomePageJsonLd(baseUrl: string): JsonLdObject {
@@ -131,19 +133,9 @@ export function createLearningPathJsonLd(
 	const totalDays = template.schedule.length;
 	const weeks = Math.ceil(totalDays / 7);
 
-	// Map target language codes to names
-	const languageNames: Record<string, string> = {
-		ja: 'Japanese',
-		es: 'Spanish',
-		fr: 'French',
-		de: 'German',
-		zh: 'Chinese',
-		ko: 'Korean',
-		it: 'Italian',
-		pt: 'Portuguese'
-	};
+ 
 
-	const languageName = languageNames[template.targetLanguage] || template.targetLanguage;
+	const languageName = getLanguageName(template.targetLanguage) || template.targetLanguage;
 
 	return {
 		'@context': 'https://schema.org',

@@ -38,11 +38,13 @@ export const learningPathRepository = {
 		});
 	},
 
-	async listPublicTemplates(options: {
-		limit?: number;
-		offset?: number;
-		targetLanguage?: string;
-	}): Promise<LearningPath[]> {
+	async listPublicTemplates(
+		options: {
+			limit?: number;
+			offset?: number;
+			targetLanguage?: string;
+		} = {}
+	): Promise<LearningPath[]> {
 		const { limit = 50, offset = 0, targetLanguage } = options;
 
 		const conditions = [

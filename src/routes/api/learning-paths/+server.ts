@@ -57,7 +57,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 		}
 
 		// Fetch user's paths
-		const paths = await learningPathRepository.listPathsForUser(userId);
+		const paths = await learningPathRepository.listUserPaths(userId);
 
 		// Apply filters
 		let filteredPaths = paths;

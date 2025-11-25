@@ -98,7 +98,7 @@ export const learningPathAssignmentRepository = {
 		assignmentId: string,
 		status: 'invited' | 'active' | 'completed' | 'archived'
 	): Promise<LearningPathAssignment | undefined> {
-		const updateData: any = {
+		const updateData: Partial<LearningPathAssignment> = {
 			status,
 			updatedAt: new Date()
 		};
