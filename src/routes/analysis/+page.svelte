@@ -67,6 +67,9 @@
 	let showFindingsJson = $state(false);
 	let usageInfo = $state<UsageInfo | null>(null);
 	let showUsageDetails = $state(false);
+	let isLoadingExistingAnalysis = $state(false);
+	let hasExistingAnalysis = $state(false);
+	let analysisDate = $state<Date | null>(null);
 
 	// URL parameters
 	const urlParams = $derived({
@@ -104,16 +107,23 @@
 		// Load analysis modules
 		await loadModules();
 
+		// Try to load existing analysis for this conversation
+		if (data.sessionId) {
+			await loadExistingAnalysis();
+		}
+
 		// If we have existing data from server (prioritized) or messages from conversationStore
 		if (messages.length > 0 && selectedLanguage) {
 			const dataSource = data.hasExistingData ? 'server data' : 'conversation store';
 			console.log(`Using ${dataSource} for analysis:`, messages.length, 'messages');
 
-			// Show quick analysis modal for all conversations
-			if (analysisMode === 'quick') {
+			// Show quick analysis modal for all conversations (only if no existing analysis)
+			if (analysisMode === 'quick' && !hasExistingAnalysis) {
 				showQuickAnalysisModal = true;
 			} else if (data.hasExistingData) {
 				console.log('📄 Displaying historical conversation - skipping new analysis generation');
+			} else if (hasExistingAnalysis) {
+				console.log('📊 Existing analysis found - displaying from storage');
 			}
 		} else if (data.sessionId && !data.isGuest && data.conversationSession) {
 			// For authenticated users with a valid session, we could load messages from the session
@@ -181,6 +191,35 @@
 			);
 		} catch (error) {
 			errorMessage = error instanceof Error ? error.message : 'Failed to load modules';
+		}
+	}
+
+	async function loadExistingAnalysis() {
+		isLoadingExistingAnalysis = true;
+		try {
+			const response = await fetch(`/api/analysis/get?conversationId=${data.sessionId}`);
+			if (!response.ok) throw new Error('Failed to load existing analysis');
+
+			const result = (await response.json()) as {
+				success: boolean;
+				run: AnalysisRunResult | null;
+				suggestions: AnalysisSuggestion[] | null;
+				isFromStorage?: boolean;
+				analysisDate?: Date;
+			};
+
+			if (result.success && result.run) {
+				lastRun = result.run;
+				extractedSuggestions = result.suggestions || [];
+				hasExistingAnalysis = true;
+				analysisDate = result.analysisDate ? new Date(result.analysisDate) : null;
+				console.log('✅ Loaded existing analysis from storage');
+			}
+		} catch (error) {
+			// No existing analysis - this is fine, not an error
+			console.log('No existing analysis found, ready for new analysis');
+		} finally {
+			isLoadingExistingAnalysis = false;
 		}
 	}
 
@@ -334,16 +373,22 @@
 							Quick Insights
 						</button>
 						<button
-							class="btn btn-outline"
+							class="btn {hasExistingAnalysis ? 'btn-info' : 'btn-outline'}"
 							onclick={runAnalysis}
-							disabled={isLoading || selectedModuleIds.size === 0}
+							disabled={isLoading || selectedModuleIds.size === 0 || isLoadingExistingAnalysis}
 						>
 							{#if isLoading}
 								<span class="loading mr-2 loading-sm loading-spinner"></span>
 								Running Analysis...
+							{:else if isLoadingExistingAnalysis}
+								<span class="loading mr-2 loading-sm loading-spinner"></span>
+								Loading Analysis...
+							{:else if hasExistingAnalysis}
+								<span class="mr-2 icon-[mdi--refresh] h-4 w-4"></span>
+								Recreate Analysis
 							{:else}
 								<span class="mr-2 icon-[mdi--chart-line] h-4 w-4"></span>
-								Detailed Analysis
+								Run Detailed Analysis
 							{/if}
 						</button>
 						<button class="btn btn-ghost" onclick={handleStartNewConversation}>
@@ -382,6 +427,12 @@
 							<div class="flex items-center gap-2">
 								<span class="icon-[mdi--check-circle] h-5 w-5 text-success"></span>
 								<h2 class="text-xl font-semibold text-success">Analysis Complete</h2>
+								{#if hasExistingAnalysis && analysisDate}
+									<div class="badge badge-info gap-1">
+										<span class="icon-[mdi--database] h-3 w-3"></span>
+										<span class="text-xs">From {analysisDate.toLocaleDateString()} {analysisDate.toLocaleTimeString()}</span>
+									</div>
+								{/if}
 							</div>
 						</div>
 						<div class="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
