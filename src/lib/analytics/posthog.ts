@@ -210,6 +210,19 @@ export const trackEngagement = {
 			days_since_last_visit,
 			$set: { last_return: new Date().toISOString() }
 		});
+	},
+
+	// Home page conversation start (route-level conversion)
+	homeConversationStartClicked: (properties: Record<string, unknown>) => {
+		track('home_conversation_start_clicked', properties);
+	},
+
+	// Generic conversation start click (other entry points)
+	conversationStartClicked: (source: string, properties?: Record<string, unknown>) => {
+		track('conversation_start_clicked', {
+			source,
+			...(properties || {})
+		});
 	}
 };
 
