@@ -119,6 +119,11 @@
 		isStartingConversation = true;
 
 		try {
+			const userType: 'logged_in' | 'guest' = user.id === 'guest' ? 'guest' : 'logged_in';
+			const audioMode = userManager.preferences?.audioInputMode || 'ptt';
+			const currentLanguage = selectedLanguage || settingsStore.selectedLanguage;
+			const currentSpeaker = settingsStore.selectedSpeaker;
+
 			// Record scenario selection through central service for analytics
 			selectScenario(scenario, scenarioStore, {
 				source: 'home_swipe_stack',
@@ -127,16 +132,13 @@
 			});
 
 			// Track home conversation start click (generic conversion event)
-			const userType: 'logged_in' | 'guest' = user.id === 'guest' ? 'guest' : 'logged_in';
-			const audioMode = (userManager.preferences?.audioInputMode || 'ptt') as string;
-
 			trackEngagement.homeConversationStartClicked({
 				scenario_id: scenario.id,
 				scenario_title: scenario.title,
 				scenario_role: scenario.role,
 				scenario_difficulty: scenario.difficulty,
-				language_id: selectedLanguage?.id || settingsStore.selectedLanguage?.id || null,
-				language_code: selectedLanguage?.code || settingsStore.selectedLanguage?.code || null,
+				language_id: currentLanguage?.id || null,
+				language_code: currentLanguage?.code || null,
 				audio_mode: audioMode,
 				user_type: userType,
 				is_guest: user.id === 'guest',
@@ -157,19 +159,11 @@
 			// Generate session ID
 			const sessionId = crypto.randomUUID();
 
-			// Get the currently selected language and speaker
-			const selectedLanguage = settingsStore.selectedLanguage;
-			const selectedSpeaker = settingsStore.selectedSpeaker;
-
-			// Get the current audio mode preference
-			const userPrefs = userManager.preferences || {};
-			const audioMode = userPrefs.audioInputMode || 'ptt';
-
 			console.log('Starting conversation with:', {
 				scenario: scenario.title,
 				sessionId,
-				language: selectedLanguage?.code,
-				speaker: selectedSpeaker,
+				language: currentLanguage?.code,
+				speaker: currentSpeaker,
 				audioMode
 			});
 
@@ -225,7 +219,7 @@
 		name="description"
 		content="Go beyond Duolingo basics. Practice conversations that make your loved ones' faces light up with pride when you speak."
 	/>
-	{#if data?.jsonLd}
+	{#if data.jsonLd}
 		<script type="application/ld+json">
 			{@html JSON.stringify(data.jsonLd)}
 		</script>
