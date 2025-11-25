@@ -331,7 +331,13 @@ export class PathGeneratorService {
 			// The queue processor will handle them based on targetGenerationDate
 			const now = new Date();
 
-			await scenarioGenerationQueueRepository.enqueuePathRange(pathId, 1, totalDays, now);
+			// Create array of days to enqueue
+			const daysToEnqueue = Array.from({ length: totalDays }, (_, i) => ({
+				dayIndex: i + 1,
+				targetDate: new Date(now.getTime() + i * 24 * 60 * 60 * 1000) // Stagger by one day each
+			}));
+
+			await scenarioGenerationQueueRepository.enqueuePathRange(pathId, daysToEnqueue);
 
 			logger.info('📋 [PathGenerator] Enqueued scenario generation jobs', {
 				pathId,
