@@ -8,7 +8,6 @@
 	import SpeechSpeedSelector from './SpeechSpeedSelector.svelte';
 	import { fade, slide } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
-	import type { Language } from '$lib/data/languages';
 	import type { Scenario } from '$lib/data/scenarios';
 	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
 	import type { AudioInputMode } from '$lib/server/db/types';

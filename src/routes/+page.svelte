@@ -20,7 +20,6 @@
 	import StageIndicator from '$lib/components/StageIndicator.svelte';
 	import { defaultTierConfigs } from '$lib/data/tiers';
 	import type { UserTier } from '$lib/data/tiers';
-	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import type { Scenario } from '$lib/data/scenarios';
 	import { goto } from '$app/navigation';
 	import { selectScenario } from '$lib/services/scenarios/scenario-interaction.service';

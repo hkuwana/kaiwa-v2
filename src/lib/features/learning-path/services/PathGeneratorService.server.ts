@@ -13,7 +13,6 @@ import type {
 	GeneratedSyllabus
 } from '../types';
 import type { NewLearningPath } from '$lib/server/db/schema/learning-paths';
-import type { UserPreferences } from '$lib/server/db/types';
 
 /**
  * Result of path generation

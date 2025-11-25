@@ -1,7 +1,6 @@
 import { logger } from '$lib/logger';
 import { json } from '@sveltejs/kit';
 import { analysisFindingsRepository } from '$lib/server/repositories/analysis-findings.repository';
-import { analysisSuggestionService } from '$lib/features/analysis/services/analysis-suggestion.service';
 import type { AnalysisRunResult } from '$lib/features/analysis/services/analysis.service';
 import type { AnalysisSuggestion } from '$lib/features/analysis/types/analysis-suggestion.types';
 

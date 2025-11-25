@@ -3,7 +3,7 @@
 import { db } from '$lib/server/db/index';
 import { learningPathAssignments } from '$lib/server/db/schema';
 import type { NewLearningPathAssignment, LearningPathAssignment } from '$lib/server/db/types';
-import { eq, and, gte, lt, sql } from 'drizzle-orm';
+import { eq, and, lt, sql } from 'drizzle-orm';
 
 export const learningPathAssignmentRepository = {
 	// CREATE

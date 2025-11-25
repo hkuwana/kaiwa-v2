@@ -3,8 +3,7 @@
 import type {
 	PathFromPreferencesInput,
 	PathFromCreatorBriefInput,
-	PromptPayload,
-	GeneratedSyllabus
+	PromptPayload
 } from '../types';
 
 /**

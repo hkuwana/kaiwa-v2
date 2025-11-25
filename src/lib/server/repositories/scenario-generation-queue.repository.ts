@@ -3,7 +3,7 @@
 import { db } from '$lib/server/db/index';
 import { scenarioGenerationQueue } from '$lib/server/db/schema';
 import type { NewScenarioGenerationQueue, ScenarioGenerationQueue } from '$lib/server/db/types';
-import { eq, and, lt, gte, inArray, sql } from 'drizzle-orm';
+import { eq, and, lt, gte, sql } from 'drizzle-orm';
 
 export const scenarioGenerationQueueRepository = {
 	// CREATE
