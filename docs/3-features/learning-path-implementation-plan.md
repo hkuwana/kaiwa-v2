@@ -1,6 +1,6 @@
 # 🚀 Learning Path Templates - Implementation Plan
 
-> **Status**: In Progress (PR #5 Complete)
+> **Status**: In Progress (PR #6 Complete)
 > **Based on**: [learning-path-templates.md](./learning-path-templates.md)
 > **Branch**: `claude/setup-learning-path-templates-017fCMMFr58Bgss9sNgWBHJ3`
 
@@ -15,12 +15,12 @@
 | #3 | Prompt Engineering Service | ✅ Complete | ~250 | None |
 | #4 | Path Generator Service & API | ✅ Complete | ~350 | #2, #3 |
 | #5 | Background Job Infrastructure | ✅ Complete | ~400 | #2, #4 |
-| #6 | Template Publishing Service | ⏳ Pending | ~250 | #2 |
+| #6 | Template Publishing Service | ✅ Complete | ~280 | #2 |
 | #7 | Public Template Pages | ⏳ Pending | ~400 | #2, #6 |
 | #8 | Dashboard Integration | ⏳ Pending | ~300 | #2 |
 | #9 | Assignment & Email Automation | ⏳ Pending | ~350 | #2 |
 
-**Overall Progress**: 5/9 PRs Complete (56%)
+**Overall Progress**: 6/9 PRs Complete (67%)
 
 ---
 
@@ -212,34 +212,39 @@ Actual scenario generation can be added in future enhancement.
 
 ---
 
-### PR #6: Template Publishing Service (PII Protection)
+### PR #6: Template Publishing Service (PII Protection) ✅
 
 **Branch**: `feature/learning-paths-templates`
-**Estimated Size**: ~250 lines
+**Estimated Size**: ~280 lines
 **Dependencies**: PR #2 (repositories)
+**Status**: ✅ **COMPLETE**
 
 **What it includes**:
 - TemplatePublishingService for creating anonymous templates
-- PII scrubbing logic
+- PII scrubbing logic (removes names, possessives, personal pronouns)
 - API endpoint for sharing/publishing paths
-- Share slug generation
+- Share slug generation with uniqueness checks
+- Comprehensive vitest test suite
 
-**Files to create**:
-- `src/lib/features/learning-path/services/TemplatePublishingService.server.ts`
-- `src/routes/api/learning-paths/[pathId]/share/+server.ts` (POST endpoint)
+**Files created**:
+- ✅ `src/lib/features/learning-path/services/TemplatePublishingService.server.ts`
+- ✅ `src/routes/api/learning-paths/[pathId]/share/+server.ts` (POST endpoint)
+- ✅ `src/lib/features/learning-path/services/TemplatePublishingService.test.ts`
 
 **Acceptance criteria**:
-- [ ] `createAnonymousTemplate(pathId, userId)` works
-- [ ] PII removed from title and description
-- [ ] Unique share slug generated
-- [ ] Template marked with userId=NULL, isTemplate=TRUE
-- [ ] Auth check ensures user owns original path
-- [ ] Returns template with share URL
+- [x] `createAnonymousTemplate(pathId, userId)` works
+- [x] PII removed from title and description
+- [x] Unique share slug generated
+- [x] Template marked with userId=NULL, isTemplate=TRUE
+- [x] Auth check ensures user owns original path
+- [x] Returns template with share URL
 
 **Testing**:
-- Create test path with PII
-- Generate template and verify PII removed
-- Test share endpoint with various scenarios
+- ✅ Vitest tests: `pnpm test:pr4` (includes template publishing tests)
+- ✅ Tests PII scrubbing with multiple patterns
+- ✅ Tests slug uniqueness and collision handling
+- ✅ Tests authorization and error cases
+- ✅ Tests metadata and schedule preservation
 
 ---
 
