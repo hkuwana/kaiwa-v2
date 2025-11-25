@@ -3,7 +3,7 @@
 import { db } from '$lib/server/db/index';
 import { scenarioGenerationQueue } from '$lib/server/db/schema';
 import type { NewScenarioGenerationQueue, ScenarioGenerationQueue } from '$lib/server/db/types';
-import { eq, and, lt, gte, sql } from 'drizzle-orm';
+import { eq, and, lt, gte, sql, desc } from 'drizzle-orm';
 
 export const scenarioGenerationQueueRepository = {
 	// CREATE
@@ -80,6 +80,22 @@ export const scenarioGenerationQueueRepository = {
 		});
 	},
 
+	async getJobsByStatus(
+		status: 'pending' | 'processing' | 'ready' | 'failed',
+		options: { limit?: number } = {}
+	): Promise<ScenarioGenerationQueue[]> {
+		const { limit = 50 } = options;
+
+		return db.query.scenarioGenerationQueue.findMany({
+			where: eq(scenarioGenerationQueue.status, status),
+			orderBy:
+				status === 'pending'
+					? [scenarioGenerationQueue.targetGenerationDate]
+					: [desc(scenarioGenerationQueue.updatedAt)],
+			limit
+		});
+	},
+
 	async getJobsForPath(
 		pathId: string,
 		status?: 'pending' | 'processing' | 'ready' | 'failed'
@@ -143,6 +159,19 @@ export const scenarioGenerationQueueRepository = {
 				status: 'failed',
 				lastError: error,
 				retryCount: (job.retryCount || 0) + 1,
+				updatedAt: new Date()
+			})
+			.where(eq(scenarioGenerationQueue.id, jobId))
+			.returning();
+
+		return updatedJob;
+	},
+
+	async incrementRetryCount(jobId: string): Promise<ScenarioGenerationQueue | undefined> {
+		const [updatedJob] = await db
+			.update(scenarioGenerationQueue)
+			.set({
+				retryCount: sql<number>`${scenarioGenerationQueue.retryCount} + 1`,
 				updatedAt: new Date()
 			})
 			.where(eq(scenarioGenerationQueue.id, jobId))

@@ -10,7 +10,8 @@ export const GET: RequestHandler = async () => {
 
 		return json({
 			success: true,
-			stats
+			data: stats,
+			stats // keep legacy key for callers using .stats
 		});
 	} catch (error: any) {
 		return json({ success: false, error: error.message }, { status: 500 });

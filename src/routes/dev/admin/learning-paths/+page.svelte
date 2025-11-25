@@ -33,6 +33,8 @@
 	let allPaths = $state<any[]>([]);
 	let templates = $state<any[]>([]);
 	let queueStats = $state({ pending: 0, processing: 0, ready: 0, failed: 0, total: 0 });
+	let pendingJobs = $state<any[]>([]);
+	let readyJobs = $state<any[]>([]);
 
 	// Assignment form
 	let selectedPathForAssignment = $state('');
@@ -45,7 +47,7 @@
 	});
 
 	async function loadAllData() {
-		await Promise.all([loadPaths(), loadTemplates(), loadQueueStats()]);
+		await Promise.all([loadPaths(), loadTemplates(), loadQueueData()]);
 	}
 
 	async function loadPaths() {
@@ -77,11 +79,46 @@
 			const response = await fetch('/api/dev/learning-paths/queue/stats');
 			if (response.ok) {
 				const result = await response.json();
-				queueStats = result.data || queueStats;
+				queueStats = result.data || result.stats || queueStats;
 			}
 		} catch (error) {
 			console.error('Failed to load queue stats:', error);
 		}
+	}
+
+	async function loadQueueJobs() {
+		try {
+			const [pendingResponse, readyResponse] = await Promise.all([
+				fetch('/api/dev/learning-paths/queue/jobs?status=pending&limit=100'),
+				fetch('/api/dev/learning-paths/queue/jobs?status=ready&limit=100')
+			]);
+
+			if (pendingResponse.ok) {
+				const result = await pendingResponse.json();
+				pendingJobs = result.data?.jobs || [];
+			}
+
+			if (readyResponse.ok) {
+				const result = await readyResponse.json();
+				readyJobs = result.data?.jobs || [];
+			}
+		} catch (error) {
+			console.error('Failed to load queue jobs:', error);
+		}
+	}
+
+	async function loadQueueData() {
+		await Promise.all([loadQueueStats(), loadQueueJobs()]);
+	}
+
+	function getPathTitle(pathId: string) {
+		return allPaths.find((path) => path.id === pathId)?.title || pathId;
+	}
+
+	function formatDateTime(value?: string) {
+		if (!value) return '—';
+		const date = new Date(value);
+		return isNaN(date.getTime()) ? value : date.toLocaleString();
 	}
 
 	async function createPath() {
@@ -244,7 +281,7 @@
 			const result = await response.json();
 			message = `✅ Processed ${result.data?.processed || 0} jobs`;
 			messageType = 'success';
-			await loadQueueStats();
+			await loadQueueData();
 		} catch (error) {
 			message = `❌ ${error instanceof Error ? error.message : 'Unknown error'}`;
 			messageType = 'error';
@@ -318,7 +355,10 @@
 		</button>
 		<button
 			class="tab {activeTab === 'queue' ? 'tab-active' : ''}"
-			onclick={() => (activeTab = 'queue')}
+			onclick={() => {
+				activeTab = 'queue';
+				loadQueueData();
+			}}
 		>
 			Queue
 		</button>
@@ -560,13 +600,86 @@
 
 			<div class="card bg-base-200">
 				<div class="card-body">
+					<div class="mb-4 flex items-center justify-between">
+						<h3 class="card-title">Queued Learning Paths</h3>
+						<div class="card-actions">
+							<button class="btn btn-sm btn-outline" onclick={loadQueueData}>Refresh</button>
+						</div>
+					</div>
+
+					<div class="grid gap-4 lg:grid-cols-2">
+						<div>
+							<div class="mb-2 flex items-center justify-between">
+								<h4 class="font-semibold">Pending ({pendingJobs.length})</h4>
+								<span class="badge badge-warning badge-sm">pending</span>
+							</div>
+
+							{#if pendingJobs.length === 0}
+								<p class="text-sm text-base-content/70">No pending queue items.</p>
+							{:else}
+								<ul class="divide-y divide-base-300">
+									{#each pendingJobs as job}
+										<li class="py-2">
+											<div class="flex items-start justify-between gap-4">
+												<div>
+													<p class="font-semibold">{getPathTitle(job.pathId)}</p>
+													<p class="text-xs text-base-content/70">
+														Day {job.dayIndex} • Target {formatDateTime(job.targetGenerationDate)}
+													</p>
+												</div>
+												<div class="text-right text-xs text-base-content/70">
+													<span class="badge badge-warning badge-sm mb-1">pending</span>
+													<div>Updated {formatDateTime(job.updatedAt || job.createdAt)}</div>
+												</div>
+											</div>
+										</li>
+									{/each}
+								</ul>
+							{/if}
+						</div>
+
+						<div>
+							<div class="mb-2 flex items-center justify-between">
+								<h4 class="font-semibold">Ready ({readyJobs.length})</h4>
+								<span class="badge badge-success badge-sm">ready</span>
+							</div>
+
+							{#if readyJobs.length === 0}
+								<p class="text-sm text-base-content/70">No ready queue items.</p>
+							{:else}
+								<ul class="divide-y divide-base-300">
+									{#each readyJobs as job}
+										<li class="py-2">
+											<div class="flex items-start justify-between gap-4">
+												<div>
+													<p class="font-semibold">{getPathTitle(job.pathId)}</p>
+													<p class="text-xs text-base-content/70">
+														Day {job.dayIndex} • Target {formatDateTime(job.targetGenerationDate)}
+													</p>
+												</div>
+												<div class="text-right text-xs text-base-content/70">
+													<span class="badge badge-success badge-sm mb-1">ready</span>
+													<div>Updated {formatDateTime(job.updatedAt || job.createdAt)}</div>
+												</div>
+											</div>
+										</li>
+									{/each}
+								</ul>
+							{/if}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="card bg-base-200">
+				<div class="card-body">
 					<h3 class="card-title">Process Queue</h3>
 					<p class="text-sm text-base-content/70">Manually trigger queue processing for testing</p>
 					<div class="card-actions">
 						<button class="btn btn-primary" onclick={processQueue} disabled={loading}>
 							{loading ? 'Processing...' : 'Process 5 Jobs'}
 						</button>
-						<button class="btn btn-outline" onclick={loadQueueStats}>Refresh Stats</button>
+						<button class="btn btn-outline" onclick={loadQueueData}>Refresh Queue</button>
 					</div>
 				</div>
 			</div>
