@@ -23,6 +23,7 @@
 | DM Chika (French partner's mom) | ⬜ | | |
 | Fix analysis bug Robert reported | ⬜ | | |
 | 1 X post (intro/what you're building) | ⬜ | | |
+| Draft first Nano Banana Pro infographic prompt (IG/TikTok) | ⬜ | | |
 
 **Robert message:**
 ```
@@ -81,6 +82,7 @@ Week 1 begins.
 | DM Akemi (part-time Japan) | ⬜ | | |
 | DM Scott (Spanish maintenance) | ⬜ | | |
 | 1 Reddit comment (r/LearnJapanese or r/LongDistance) | ⬜ | | |
+| Generate 1 IG/TikTok infographic with Nano Banana Pro | ⬜ | | Save prompt + caption for blog reuse |
 
 **Bri message:**
 ```
@@ -168,6 +170,7 @@ This is the fun part.
 | Create first personalized path | ⬜ | | |
 | 1-2 Reddit comments | ⬜ | | |
 | 1 X post (learnings from call) | ⬜ | | |
+| Refresh/ship a new visual (quote card or scenario explainer) | ⬜ | | |
 
 **X post idea (after call):**
 ```
@@ -212,6 +215,7 @@ Free for founding members!
 | Review week: what worked, what didn't | ⬜ | | |
 | Plan Week 2 based on learnings | ⬜ | | |
 | 1 X post (week 1 recap) | ⬜ | | |
+| Pick top-performing visual + turn into draft blog outline | ⬜ | | |
 
 **X post idea:**
 ```
@@ -321,6 +325,40 @@ For the conversations that actually matter.
 - Evening: 6-8pm
 
 Pick ONE time and be consistent.
+
+---
+
+## IG/TikTok Visuals (Nano Banana Pro)
+
+**Goal**: Ship 2-3 visuals this week that make the personalized-path idea tangible and are easy to repost to X and later expand into blog posts.
+
+**Workflow (15-25 min each)**:
+- Pick a user story or insight from a call/DM.
+- Drop a prompt into Nano Banana Pro (templates below), generate 1-2 options.
+- Write a short caption with hook + CTA to book a call; post to IG + TikTok (and screenshot for X).
+- Save the winning prompt + caption in a log (so we can turn top performers into a blog post later).
+
+**Prompt Templates** (swap in your scenario + language):
+
+1) Personalized Path Explainer (infographic)
+```
+Create a crisp, square infographic that explains a 14-day personalized language path for [persona] who wants to [goal]. Visualize 3-4 steps: 15-min discovery call, daily custom scenarios, reminders/accountability, end-state outcome. Style: clean sans-serif, bold accent color, friendly icons, high contrast, legible on phone, minimal text. Include headline: "Built-For-You Language Path" and CTA: "Book a 15-min call."
+```
+
+2) Before/After Quote Card (works for IG + TikTok cover)
+```
+A wide quote card featuring a portrait placeholder on the left and text on the right. Background: warm neutral with subtle gradient. Text: large serif quote says "I finally spoke to [partner's mom] in [language] without switching to English." Small sans-serif caption: "14 days. Custom scenarios. Nano Banana Pro + Kaiwa." Keep it modern, high-contrast, social friendly.
+```
+
+3) Scenario Vignette (TikTok-friendly)
+```
+Design a vertical 9:16 visual of a real-life scene: [persona] in [setting], practicing [language] for [specific moment]. Add 3 sticky-note style callouts showing the exact phrases they practice. Style: bright, minimal illustrations with clear text, phone-legible, no heavy text blocks. Title ribbon: "Day 4: [scenario name]".
+```
+
+**Posting tips**
+- Use one CTA: `Grab a 15-min slot for your custom path.`
+- Add alt text/description to visuals so X/IG auto-captioning works.
+- Keep a running list of prompts + captions in the log for fast blog expansion.
 
 ---
 
