@@ -56,6 +56,20 @@
 
 ---
 
+### [inline-learning-path-creation.md](inline-learning-path-creation.md)
+
+**Intent-driven learning path creation with instant preview**
+
+- 🎯 Natural language intent parsing
+- ⚡ Instant preview generation (8-12s)
+- ✨ Natural language refinement
+- 🔄 Individual scenario regeneration
+- 📋 Fork and customize active paths
+
+👉 **Start here** for dashboard learning path creation
+
+---
+
 ### [usage-service.md](usage-service.md)
 
 **Usage tracking and limits**
@@ -191,4 +205,4 @@ When adding feature docs:
 
 ---
 
-**Last Updated**: 2025-11-13
+**Last Updated**: 2025-11-26
