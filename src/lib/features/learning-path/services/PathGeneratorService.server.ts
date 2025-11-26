@@ -6,6 +6,7 @@ import type { ChatCompletionMessageParam } from 'openai/resources/chat/completio
 import { createCompletion, parseAndValidateJSON } from '$lib/server/services/openai.service';
 import { PromptEngineeringService } from './PromptEngineeringService';
 import { learningPathRepository } from '$lib/server/repositories/learning-path.repository';
+import { learningPathAssignmentRepository } from '$lib/server/repositories/learning-path-assignment.repository';
 import { scenarioGenerationQueueRepository } from '$lib/server/repositories/scenario-generation-queue.repository';
 import type {
 	PathFromPreferencesInput,
@@ -84,14 +85,20 @@ export class PathGeneratorService {
 			const targetLanguage = input.userPreferences.targetLanguageId || 'ja';
 			const path = await this.persistPath(userId, targetLanguage, syllabus);
 
-			// Step 4: Enqueue scenario generation for all days
+			// Step 4: Auto-enroll user if userId provided
+			if (userId) {
+				await this.createAssignmentForUser(userId, path.id);
+			}
+
+			// Step 5: Enqueue scenario generation for all days
 			const queuedJobs = await this.enqueueScenarioGeneration(path.id, syllabus.days.length);
 
 			logger.info('✅ [PathGenerator] Path created successfully', {
 				pathId: path.id,
 				title: syllabus.title,
 				days: syllabus.days.length,
-				queuedJobs
+				queuedJobs,
+				autoEnrolled: !!userId
 			});
 
 			return {
@@ -154,14 +161,20 @@ export class PathGeneratorService {
 			// Step 3: Persist learning path
 			const path = await this.persistPath(userId, input.targetLanguage, syllabus);
 
-			// Step 4: Enqueue scenario generation for all days
+			// Step 4: Auto-enroll user if userId provided
+			if (userId) {
+				await this.createAssignmentForUser(userId, path.id);
+			}
+
+			// Step 5: Enqueue scenario generation for all days
 			const queuedJobs = await this.enqueueScenarioGeneration(path.id, syllabus.days.length);
 
 			logger.info('✅ [PathGenerator] Path created successfully from brief', {
 				pathId: path.id,
 				title: syllabus.title,
 				days: syllabus.days.length,
-				queuedJobs
+				queuedJobs,
+				autoEnrolled: !!userId
 			});
 
 			return {
@@ -349,6 +362,54 @@ export class PathGeneratorService {
 		} catch (error) {
 			logger.error('🚨 [PathGenerator] Failed to enqueue scenario generation', error);
 			throw error;
+		}
+	}
+
+	/**
+	 * Create assignment for user (auto-enrollment)
+	 *
+	 * Creates a learning path assignment so the user is automatically enrolled
+	 * in the path when it's created. This allows the path to show up on their
+	 * dashboard immediately, even before they click "start your first lesson".
+	 *
+	 * @param userId - User ID to enroll
+	 * @param pathId - Learning path ID
+	 */
+	private static async createAssignmentForUser(userId: string, pathId: string): Promise<void> {
+		try {
+			// Check if assignment already exists
+			const existingAssignment = await learningPathAssignmentRepository.findAssignment(
+				userId,
+				pathId
+			);
+
+			if (existingAssignment) {
+				logger.info('ℹ️ [PathGenerator] Assignment already exists', {
+					userId,
+					pathId,
+					assignmentId: existingAssignment.id
+				});
+				return;
+			}
+
+			// Create new assignment
+			await learningPathAssignmentRepository.createAssignment({
+				pathId,
+				userId,
+				status: 'active',
+				currentDayIndex: 0,
+				startsAt: new Date(),
+				role: 'learner',
+				emailRemindersEnabled: true
+			});
+
+			logger.info('✅ [PathGenerator] User auto-enrolled in path', {
+				userId,
+				pathId
+			});
+		} catch (error) {
+			logger.error('🚨 [PathGenerator] Failed to create assignment', error);
+			// Don't throw - assignment creation failure shouldn't fail path creation
 		}
 	}
 }
