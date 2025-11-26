@@ -212,8 +212,16 @@
 			});
 		}
 
-		// Read audioMode from URL search params, default to Push-to-Talk
-		const audioMode = (page.url.searchParams.get('audioMode') as 'vad' | 'ptt') || 'ptt';
+		// Read audioMode from URL search params, fall back to user preference, then default to PTT
+		const urlAudioMode = page.url.searchParams.get('audioMode') as 'vad' | 'ptt' | null;
+		const preferredAudioMode = userPreferencesStore.getPreference('audioInputMode') as 'vad' | 'ptt' | undefined;
+		const audioMode = urlAudioMode || preferredAudioMode || 'ptt';
+		console.log('🎙️ Audio mode resolved:', {
+			fromUrl: urlAudioMode,
+			fromPreference: preferredAudioMode,
+			resolved: audioMode,
+			source: urlAudioMode ? 'URL' : preferredAudioMode ? 'user preference' : 'default'
+		});
 		console.log('📞 Starting auto-connection with:', {
 			language: selectedLanguage.name,
 			code: selectedLanguage.code,
