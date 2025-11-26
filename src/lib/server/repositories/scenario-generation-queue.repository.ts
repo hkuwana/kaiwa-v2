@@ -180,6 +180,29 @@ export const scenarioGenerationQueueRepository = {
 		return updatedJob;
 	},
 
+	/**
+	 * Reset a job back to pending status for retry
+	 * This is used when a job fails but hasn't exceeded max retries
+	 */
+	async resetJobForRetry(
+		jobId: string,
+		error?: string
+	): Promise<ScenarioGenerationQueue | undefined> {
+		const [updatedJob] = await db
+			.update(scenarioGenerationQueue)
+			.set({
+				status: 'pending',
+				retryCount: sql<number>`${scenarioGenerationQueue.retryCount} + 1`,
+				lastError: error || null,
+				lastProcessedAt: new Date(),
+				updatedAt: new Date()
+			})
+			.where(eq(scenarioGenerationQueue.id, jobId))
+			.returning();
+
+		return updatedJob;
+	},
+
 	async retryJob(jobId: string): Promise<ScenarioGenerationQueue | undefined> {
 		const [updatedJob] = await db
 			.update(scenarioGenerationQueue)

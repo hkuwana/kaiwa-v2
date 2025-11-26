@@ -117,16 +117,21 @@ export class QueueProcessorService {
 						retryCount: job.retryCount
 					});
 
-					// Handle retry logic
+					// Handle retry logic - reset to pending so it can be picked up again
 					if (job.retryCount < 3) {
-						await scenarioGenerationQueueRepository.incrementRetryCount(job.id);
-						logger.info(`🔁 [QueueProcessor] Job ${job.id} will be retried`, {
+						// Reset job to pending status AND increment retry count
+						await scenarioGenerationQueueRepository.resetJobForRetry(job.id, errorMessage);
+						logger.info(`🔁 [QueueProcessor] Job ${job.id} reset to pending for retry`, {
 							jobId: job.id,
-							retryCount: job.retryCount + 1
+							retryCount: job.retryCount + 1,
+							error: errorMessage
 						});
 					} else {
 						await scenarioGenerationQueueRepository.markJobFailed(job.id, errorMessage);
-						logger.error(`💀 [QueueProcessor] Job ${job.id} marked as failed after max retries`);
+						logger.error(`💀 [QueueProcessor] Job ${job.id} marked as failed after max retries`, {
+							jobId: job.id,
+							error: errorMessage
+						});
 					}
 				}
 			}
@@ -182,7 +187,7 @@ export class QueueProcessorService {
 
 			// For now, just mark as ready
 			// Future enhancement: Create actual scenario record and link it
-			await scenarioGenerationQueueRepository.markJobReady(job.id, null);
+			await scenarioGenerationQueueRepository.markJobReady(job.id);
 
 			// Update path schedule to mark day as ready (scenario ready even if null for now)
 			const updatedSchedule = path.schedule.map((day) =>

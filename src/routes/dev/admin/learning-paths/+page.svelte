@@ -34,7 +34,9 @@
 	let templates = $state<any[]>([]);
 	let queueStats = $state({ pending: 0, processing: 0, ready: 0, failed: 0, total: 0 });
 	let pendingJobs = $state<any[]>([]);
+	let processingJobs = $state<any[]>([]);
 	let readyJobs = $state<any[]>([]);
+	let failedJobs = $state<any[]>([]);
 
 	// Assignment form
 	let selectedPathForAssignment = $state('');
@@ -88,19 +90,35 @@
 
 	async function loadQueueJobs() {
 		try {
-			const [pendingResponse, readyResponse] = await Promise.all([
-				fetch('/api/dev/learning-paths/queue/jobs?status=pending&limit=100'),
-				fetch('/api/dev/learning-paths/queue/jobs?status=ready&limit=100')
-			]);
+			const [pendingResponse, processingResponse, readyResponse, failedResponse] =
+				await Promise.all([
+					fetch('/api/dev/learning-paths/queue/jobs?status=pending&limit=100'),
+					fetch('/api/dev/learning-paths/queue/jobs?status=processing&limit=100'),
+					fetch('/api/dev/learning-paths/queue/jobs?status=ready&limit=100'),
+					fetch('/api/dev/learning-paths/queue/jobs?status=failed&limit=100')
+				]);
 
 			if (pendingResponse.ok) {
 				const result = await pendingResponse.json();
 				pendingJobs = result.data?.jobs || [];
 			}
 
+			if (processingResponse.ok) {
+				const result = await processingResponse.json();
+				processingJobs = result.data?.jobs || [];
+				if (processingJobs.length > 0) {
+					console.warn('[Admin] Found stuck processing jobs:', processingJobs);
+				}
+			}
+
 			if (readyResponse.ok) {
 				const result = await readyResponse.json();
 				readyJobs = result.data?.jobs || [];
+			}
+
+			if (failedResponse.ok) {
+				const result = await failedResponse.json();
+				failedJobs = result.data?.jobs || [];
 			}
 		} catch (error) {
 			console.error('Failed to load queue jobs:', error);
@@ -269,8 +287,44 @@
 		}
 	}
 
+	async function resetStuckJobs() {
+		if (processingJobs.length === 0) {
+			message = 'No stuck jobs to reset';
+			messageType = 'info';
+			return;
+		}
+
+		loading = true;
+		console.log('[Admin] Resetting stuck processing jobs...');
+
+		try {
+			let resetCount = 0;
+			for (const job of processingJobs) {
+				// Use the retryJob endpoint to reset to pending
+				const response = await fetch(`/api/dev/learning-paths/queue/jobs`, {
+					method: 'PATCH',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ jobId: job.id, action: 'retry' })
+				});
+				if (response.ok) resetCount++;
+			}
+
+			message = `✅ Reset ${resetCount} stuck jobs to pending`;
+			messageType = 'success';
+			console.log(`[Admin] Reset ${resetCount} jobs`);
+			await loadQueueData();
+		} catch (error) {
+			console.error('[Admin] Reset failed:', error);
+			message = `❌ ${error instanceof Error ? error.message : 'Unknown error'}`;
+			messageType = 'error';
+		} finally {
+			loading = false;
+		}
+	}
+
 	async function processQueue() {
 		loading = true;
+		console.log('[Admin] Starting queue processing...');
 		try {
 			const response = await fetch('/api/dev/learning-paths/queue/process', {
 				method: 'POST',
@@ -278,15 +332,33 @@
 				body: JSON.stringify({ limit: 5, dryRun: false })
 			});
 
+			console.log('[Admin] Response status:', response.status);
 			const result = await response.json();
-			message = `✅ Processed ${result.data?.processed || 0} jobs`;
-			messageType = 'success';
+			console.log('[Admin] Process result:', result);
+
+			if (result.success) {
+				const { processed, succeeded, failed, skipped, errors } = result.data || {};
+				message = `✅ Processed ${processed || 0} jobs (${succeeded || 0} succeeded, ${failed || 0} failed, ${skipped || 0} skipped)`;
+				messageType = 'success';
+
+				if (errors && errors.length > 0) {
+					console.warn('[Admin] Job errors:', errors);
+					message += ` - ${errors.length} error(s) logged to console`;
+				}
+			} else {
+				console.error('[Admin] Process failed:', result.error);
+				message = `❌ ${result.error}`;
+				messageType = 'error';
+			}
+
 			await loadQueueData();
 		} catch (error) {
+			console.error('[Admin] Queue processing error:', error);
 			message = `❌ ${error instanceof Error ? error.message : 'Unknown error'}`;
 			messageType = 'error';
 		} finally {
 			loading = false;
+			console.log('[Admin] Queue processing complete');
 		}
 	}
 </script>
@@ -608,6 +680,7 @@
 					</div>
 
 					<div class="grid gap-4 lg:grid-cols-2">
+						<!-- Pending Jobs -->
 						<div>
 							<div class="mb-2 flex items-center justify-between">
 								<h4 class="font-semibold">Pending ({pendingJobs.length})</h4>
@@ -617,19 +690,18 @@
 							{#if pendingJobs.length === 0}
 								<p class="text-sm text-base-content/70">No pending queue items.</p>
 							{:else}
-								<ul class="divide-y divide-base-300">
+								<ul class="max-h-48 divide-y divide-base-300 overflow-y-auto">
 									{#each pendingJobs as job}
 										<li class="py-2">
 											<div class="flex items-start justify-between gap-4">
 												<div>
 													<p class="font-semibold">{getPathTitle(job.pathId)}</p>
 													<p class="text-xs text-base-content/70">
-														Day {job.dayIndex} • Target {formatDateTime(job.targetGenerationDate)}
+														Day {job.dayIndex} • Retries: {job.retryCount || 0}
 													</p>
 												</div>
 												<div class="text-right text-xs text-base-content/70">
 													<span class="badge badge-warning badge-sm mb-1">pending</span>
-													<div>Updated {formatDateTime(job.updatedAt || job.createdAt)}</div>
 												</div>
 											</div>
 										</li>
@@ -638,6 +710,43 @@
 							{/if}
 						</div>
 
+						<!-- Processing Jobs (Stuck) -->
+						<div>
+							<div class="mb-2 flex items-center justify-between">
+								<h4 class="font-semibold">Processing ({processingJobs.length})</h4>
+								<span class="badge badge-info badge-sm">processing</span>
+							</div>
+
+							{#if processingJobs.length === 0}
+								<p class="text-sm text-base-content/70">No jobs currently processing.</p>
+							{:else}
+								<div class="alert alert-warning mb-2 py-2 text-sm">
+									These jobs may be stuck. Use "Reset Stuck Jobs" to retry.
+								</div>
+								<ul class="max-h-48 divide-y divide-base-300 overflow-y-auto">
+									{#each processingJobs as job}
+										<li class="py-2">
+											<div class="flex items-start justify-between gap-4">
+												<div>
+													<p class="font-semibold">{getPathTitle(job.pathId)}</p>
+													<p class="text-xs text-base-content/70">
+														Day {job.dayIndex} • Started {formatDateTime(job.lastProcessedAt)}
+													</p>
+													{#if job.lastError}
+														<p class="text-xs text-error">{job.lastError}</p>
+													{/if}
+												</div>
+												<div class="text-right text-xs text-base-content/70">
+													<span class="badge badge-info badge-sm mb-1">processing</span>
+												</div>
+											</div>
+										</li>
+									{/each}
+								</ul>
+							{/if}
+						</div>
+
+						<!-- Ready Jobs -->
 						<div>
 							<div class="mb-2 flex items-center justify-between">
 								<h4 class="font-semibold">Ready ({readyJobs.length})</h4>
@@ -647,19 +756,51 @@
 							{#if readyJobs.length === 0}
 								<p class="text-sm text-base-content/70">No ready queue items.</p>
 							{:else}
-								<ul class="divide-y divide-base-300">
+								<ul class="max-h-48 divide-y divide-base-300 overflow-y-auto">
 									{#each readyJobs as job}
 										<li class="py-2">
 											<div class="flex items-start justify-between gap-4">
 												<div>
 													<p class="font-semibold">{getPathTitle(job.pathId)}</p>
-													<p class="text-xs text-base-content/70">
-														Day {job.dayIndex} • Target {formatDateTime(job.targetGenerationDate)}
-													</p>
+													<p class="text-xs text-base-content/70">Day {job.dayIndex}</p>
 												</div>
 												<div class="text-right text-xs text-base-content/70">
 													<span class="badge badge-success badge-sm mb-1">ready</span>
-													<div>Updated {formatDateTime(job.updatedAt || job.createdAt)}</div>
+												</div>
+											</div>
+										</li>
+									{/each}
+								</ul>
+							{/if}
+						</div>
+
+						<!-- Failed Jobs -->
+						<div>
+							<div class="mb-2 flex items-center justify-between">
+								<h4 class="font-semibold">Failed ({failedJobs.length})</h4>
+								<span class="badge badge-error badge-sm">failed</span>
+							</div>
+
+							{#if failedJobs.length === 0}
+								<p class="text-sm text-base-content/70">No failed jobs.</p>
+							{:else}
+								<ul class="max-h-48 divide-y divide-base-300 overflow-y-auto">
+									{#each failedJobs as job}
+										<li class="py-2">
+											<div class="flex items-start justify-between gap-4">
+												<div>
+													<p class="font-semibold">{getPathTitle(job.pathId)}</p>
+													<p class="text-xs text-base-content/70">
+														Day {job.dayIndex} • Retries: {job.retryCount || 0}
+													</p>
+													{#if job.lastError}
+														<p class="max-w-xs truncate text-xs text-error" title={job.lastError}>
+															{job.lastError}
+														</p>
+													{/if}
+												</div>
+												<div class="text-right text-xs text-base-content/70">
+													<span class="badge badge-error badge-sm mb-1">failed</span>
 												</div>
 											</div>
 										</li>
@@ -675,11 +816,18 @@
 				<div class="card-body">
 					<h3 class="card-title">Process Queue</h3>
 					<p class="text-sm text-base-content/70">Manually trigger queue processing for testing</p>
-					<div class="card-actions">
+					<div class="card-actions flex-wrap">
 						<button class="btn btn-primary" onclick={processQueue} disabled={loading}>
 							{loading ? 'Processing...' : 'Process 5 Jobs'}
 						</button>
-						<button class="btn btn-outline" onclick={loadQueueData}>Refresh Queue</button>
+						<button class="btn btn-outline" onclick={loadQueueData} disabled={loading}>
+							Refresh Queue
+						</button>
+						{#if processingJobs.length > 0}
+							<button class="btn btn-warning" onclick={resetStuckJobs} disabled={loading}>
+								Reset {processingJobs.length} Stuck Job{processingJobs.length > 1 ? 's' : ''}
+							</button>
+						{/if}
 					</div>
 				</div>
 			</div>
