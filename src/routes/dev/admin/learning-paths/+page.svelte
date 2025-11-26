@@ -15,11 +15,14 @@
 	let activeTab = $state('create');
 	let loading = $state(false);
 	let initialLoadComplete = $state(false);
+	let queueDataLoading = $state(false); // Separate flag for queue data loading
+	let queueJobsLoaded = $state(false); // Track if queue jobs have been loaded
 	let message = $state('');
 	let messageType = $state<'success' | 'error' | 'info'>('info');
 
 	// Timeout helper for fetch requests (prevents hanging)
-	const REQUEST_TIMEOUT = 15000; // 15 seconds
+	// Increased to 30 seconds for slow dev database connections
+	const REQUEST_TIMEOUT = 30000; // 30 seconds
 	async function fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
@@ -218,12 +221,30 @@
 		}
 	}
 
-	async function loadQueueData() {
+	async function loadQueueData(forceReload = false) {
+		// Prevent concurrent queue data loads
+		if (queueDataLoading) {
+			console.log('[Admin] Queue data already loading, skipping...');
+			return;
+		}
+
+		// Skip if already loaded (unless force reload requested)
+		if (!forceReload && queueJobsLoaded) {
+			console.log('[Admin] Queue data already loaded, skipping...');
+			return;
+		}
+
+		queueDataLoading = true;
 		loading = true;
+		console.log('[Admin] Loading queue data...');
+
 		try {
 			await loadQueueStats();
 			await loadQueueJobs();
+			queueJobsLoaded = true;
+			console.log('[Admin] Queue data loaded successfully');
 		} finally {
+			queueDataLoading = false;
 			loading = false;
 		}
 	}
@@ -815,7 +836,9 @@
 					<div class="mb-4 flex items-center justify-between">
 						<h3 class="card-title">Queued Learning Paths</h3>
 						<div class="card-actions">
-							<button class="btn btn-sm btn-outline" onclick={loadQueueData}>Refresh</button>
+							<button class="btn btn-sm btn-outline" onclick={() => loadQueueData(true)} disabled={queueDataLoading}>
+								{queueDataLoading ? 'Loading...' : 'Refresh'}
+							</button>
 						</div>
 					</div>
 
@@ -960,7 +983,7 @@
 						<button class="btn btn-primary" onclick={processQueue} disabled={loading}>
 							{loading ? 'Processing...' : 'Process 5 Jobs'}
 						</button>
-						<button class="btn btn-outline" onclick={loadQueueData} disabled={loading}>
+						<button class="btn btn-outline" onclick={() => loadQueueData(true)} disabled={loading || queueDataLoading}>
 							Refresh Queue
 						</button>
 						{#if processingJobs.length > 0}
