@@ -14,8 +14,26 @@
 
 	let activeTab = $state('create');
 	let loading = $state(false);
+	let initialLoadComplete = $state(false);
 	let message = $state('');
 	let messageType = $state<'success' | 'error' | 'info'>('info');
+
+	// Timeout helper for fetch requests (prevents hanging)
+	const REQUEST_TIMEOUT = 15000; // 15 seconds
+	async function fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
+		try {
+			const response = await fetch(url, {
+				...options,
+				signal: controller.signal
+			});
+			return response;
+		} finally {
+			clearTimeout(timeoutId);
+		}
+	}
 
 	// Create form
 	let createMode = $state<'preferences' | 'brief'>('preferences');
@@ -45,64 +63,120 @@
 	let assignmentNote = $state('');
 
 	onMount(() => {
-		loadAllData();
+		loadAllDataSequential();
 	});
 
+	/**
+	 * Load data sequentially to avoid overwhelming the dev server
+	 * Only loads essential data on mount, queue data loads on-demand when tab is selected
+	 */
+	async function loadAllDataSequential() {
+		if (initialLoadComplete) return;
+
+		console.log('[Admin] Starting sequential data load...');
+		loading = true;
+
+		try {
+			// Load paths first (essential for all tabs)
+			await loadPaths();
+			console.log('[Admin] Paths loaded');
+
+			// Then templates (used by multiple tabs)
+			await loadTemplates();
+			console.log('[Admin] Templates loaded');
+
+			// Queue stats only (lightweight) - full queue data loads when tab is selected
+			await loadQueueStats();
+			console.log('[Admin] Queue stats loaded');
+
+			initialLoadComplete = true;
+			console.log('[Admin] Initial load complete');
+		} catch (error) {
+			console.error('[Admin] Initial load failed:', error);
+			message = `Failed to load data: ${error instanceof Error ? error.message : 'Unknown error'}`;
+			messageType = 'error';
+		} finally {
+			loading = false;
+		}
+	}
+
 	async function loadAllData() {
-		await Promise.all([loadPaths(), loadTemplates(), loadQueueData()]);
+		await loadPaths();
+		await loadTemplates();
+		await loadQueueData();
 	}
 
 	async function loadPaths() {
 		try {
-			const response = await fetch('/api/learning-paths');
+			const response = await fetchWithTimeout('/api/learning-paths');
 			if (response.ok) {
 				const result = await response.json();
 				allPaths = result.data?.paths || [];
 			}
-		} catch (error) {
-			console.error('Failed to load paths:', error);
+		} catch (error: any) {
+			if (error.name === 'AbortError') {
+				console.error('[Admin] loadPaths timed out');
+			} else {
+				console.error('[Admin] Failed to load paths:', error);
+			}
+			throw error;
 		}
 	}
 
 	async function loadTemplates() {
 		try {
-			const response = await fetch('/api/learning-paths?isTemplate=true');
+			const response = await fetchWithTimeout('/api/learning-paths?isTemplate=true');
 			if (response.ok) {
 				const result = await response.json();
 				templates = result.data?.paths || [];
 			}
-		} catch (error) {
-			console.error('Failed to load templates:', error);
+		} catch (error: any) {
+			if (error.name === 'AbortError') {
+				console.error('[Admin] loadTemplates timed out');
+			} else {
+				console.error('[Admin] Failed to load templates:', error);
+			}
+			throw error;
 		}
 	}
 
 	async function loadQueueStats() {
 		try {
-			const response = await fetch('/api/dev/learning-paths/queue/stats');
+			const response = await fetchWithTimeout('/api/dev/learning-paths/queue/stats');
 			if (response.ok) {
 				const result = await response.json();
 				queueStats = result.data || result.stats || queueStats;
 			}
-		} catch (error) {
-			console.error('Failed to load queue stats:', error);
+		} catch (error: any) {
+			if (error.name === 'AbortError') {
+				console.error('[Admin] loadQueueStats timed out');
+			} else {
+				console.error('[Admin] Failed to load queue stats:', error);
+			}
+			// Don't throw - queue stats are non-essential
 		}
 	}
 
+	/**
+	 * Load queue jobs sequentially to avoid overwhelming the server
+	 */
 	async function loadQueueJobs() {
-		try {
-			const [pendingResponse, processingResponse, readyResponse, failedResponse] =
-				await Promise.all([
-					fetch('/api/dev/learning-paths/queue/jobs?status=pending&limit=100'),
-					fetch('/api/dev/learning-paths/queue/jobs?status=processing&limit=100'),
-					fetch('/api/dev/learning-paths/queue/jobs?status=ready&limit=100'),
-					fetch('/api/dev/learning-paths/queue/jobs?status=failed&limit=100')
-				]);
+		console.log('[Admin] Loading queue jobs sequentially...');
 
+		try {
+			// Load pending jobs
+			const pendingResponse = await fetchWithTimeout(
+				'/api/dev/learning-paths/queue/jobs?status=pending&limit=50'
+			);
 			if (pendingResponse.ok) {
 				const result = await pendingResponse.json();
 				pendingJobs = result.data?.jobs || [];
 			}
 
+			// Load processing jobs
+			const processingResponse = await fetchWithTimeout(
+				'/api/dev/learning-paths/queue/jobs?status=processing&limit=50'
+			);
 			if (processingResponse.ok) {
 				const result = await processingResponse.json();
 				processingJobs = result.data?.jobs || [];
@@ -111,22 +185,47 @@
 				}
 			}
 
+			// Load ready jobs
+			const readyResponse = await fetchWithTimeout(
+				'/api/dev/learning-paths/queue/jobs?status=ready&limit=50'
+			);
 			if (readyResponse.ok) {
 				const result = await readyResponse.json();
 				readyJobs = result.data?.jobs || [];
 			}
 
+			// Load failed jobs
+			const failedResponse = await fetchWithTimeout(
+				'/api/dev/learning-paths/queue/jobs?status=failed&limit=50'
+			);
 			if (failedResponse.ok) {
 				const result = await failedResponse.json();
 				failedJobs = result.data?.jobs || [];
 			}
-		} catch (error) {
-			console.error('Failed to load queue jobs:', error);
+
+			console.log('[Admin] Queue jobs loaded:', {
+				pending: pendingJobs.length,
+				processing: processingJobs.length,
+				ready: readyJobs.length,
+				failed: failedJobs.length
+			});
+		} catch (error: any) {
+			if (error.name === 'AbortError') {
+				console.error('[Admin] loadQueueJobs timed out');
+			} else {
+				console.error('[Admin] Failed to load queue jobs:', error);
+			}
 		}
 	}
 
 	async function loadQueueData() {
-		await Promise.all([loadQueueStats(), loadQueueJobs()]);
+		loading = true;
+		try {
+			await loadQueueStats();
+			await loadQueueJobs();
+		} finally {
+			loading = false;
+		}
 	}
 
 	function getPathTitle(pathId: string) {
@@ -173,24 +272,32 @@
 					};
 
 		try {
-			const response = await fetch(endpoint, {
+			console.log('[Admin] Creating path...', { endpoint, createMode });
+			const response = await fetchWithTimeout(endpoint, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(body)
 			});
 
 			const result = await response.json();
+			console.log('[Admin] Create path result:', result);
 
 			if (result.success) {
 				message = `✅ Created: ${result.data.path.title} (${result.data.queuedJobs} scenarios queued)`;
 				messageType = 'success';
-				await loadAllData();
+				await loadPaths();
+				await loadQueueStats();
 			} else {
 				message = `❌ ${result.error}`;
 				messageType = 'error';
 			}
-		} catch (error) {
-			message = `❌ ${error instanceof Error ? error.message : 'Unknown error'}`;
+		} catch (error: any) {
+			console.error('[Admin] Create path error:', error);
+			if (error.name === 'AbortError') {
+				message = '❌ Request timed out. The server may be busy.';
+			} else {
+				message = `❌ ${error instanceof Error ? error.message : 'Unknown error'}`;
+			}
 			messageType = 'error';
 		} finally {
 			loading = false;
@@ -201,7 +308,7 @@
 		loading = true;
 
 		try {
-			const response = await fetch(`/api/learning-paths/${pathId}/share`, {
+			const response = await fetchWithTimeout(`/api/learning-paths/${pathId}/share`, {
 				method: 'POST'
 			});
 
@@ -210,13 +317,18 @@
 			if (result.success) {
 				message = `✅ Published! View at /program/${result.data.template.shareSlug}`;
 				messageType = 'success';
-				await loadAllData();
+				await loadPaths();
+				await loadTemplates();
 			} else {
 				message = `❌ ${result.error}`;
 				messageType = 'error';
 			}
-		} catch (error) {
-			message = `❌ ${error instanceof Error ? error.message : 'Unknown error'}`;
+		} catch (error: any) {
+			if (error.name === 'AbortError') {
+				message = '❌ Request timed out. The server may be busy.';
+			} else {
+				message = `❌ ${error instanceof Error ? error.message : 'Unknown error'}`;
+			}
 			messageType = 'error';
 		} finally {
 			loading = false;
@@ -228,12 +340,18 @@
 
 		loading = true;
 		try {
-			await fetch(`/api/learning-paths/${pathId}`, { method: 'DELETE' });
+			await fetchWithTimeout(`/api/learning-paths/${pathId}`, { method: 'DELETE' });
 			message = '✅ Deleted';
 			messageType = 'success';
-			await loadAllData();
-		} catch (error) {
-			message = `❌ ${error instanceof Error ? error.message : 'Unknown error'}`;
+			await loadPaths();
+			await loadTemplates();
+			await loadQueueStats();
+		} catch (error: any) {
+			if (error.name === 'AbortError') {
+				message = '❌ Request timed out. The server may be busy.';
+			} else {
+				message = `❌ ${error instanceof Error ? error.message : 'Unknown error'}`;
+			}
 			messageType = 'error';
 		} finally {
 			loading = false;
@@ -256,15 +374,18 @@
 		loading = true;
 
 		try {
-			const response = await fetch(`/api/learning-paths/${selectedPathForAssignment}/assign`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					email: assignToEmail || undefined,
-					userId: assignToUserId || undefined,
-					note: assignmentNote || undefined
-				})
-			});
+			const response = await fetchWithTimeout(
+				`/api/learning-paths/${selectedPathForAssignment}/assign`,
+				{
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						email: assignToEmail || undefined,
+						userId: assignToUserId || undefined,
+						note: assignmentNote || undefined
+					})
+				}
+			);
 
 			const result = await response.json();
 
@@ -279,8 +400,12 @@
 				message = `❌ ${result.error}`;
 				messageType = 'error';
 			}
-		} catch (error) {
-			message = `❌ ${error instanceof Error ? error.message : 'Unknown error'}`;
+		} catch (error: any) {
+			if (error.name === 'AbortError') {
+				message = '❌ Request timed out. The server may be busy.';
+			} else {
+				message = `❌ ${error instanceof Error ? error.message : 'Unknown error'}`;
+			}
 			messageType = 'error';
 		} finally {
 			loading = false;
@@ -301,7 +426,7 @@
 			let resetCount = 0;
 			for (const job of processingJobs) {
 				// Use the retryJob endpoint to reset to pending
-				const response = await fetch(`/api/dev/learning-paths/queue/jobs`, {
+				const response = await fetchWithTimeout(`/api/dev/learning-paths/queue/jobs`, {
 					method: 'PATCH',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ jobId: job.id, action: 'retry' })
@@ -313,9 +438,13 @@
 			messageType = 'success';
 			console.log(`[Admin] Reset ${resetCount} jobs`);
 			await loadQueueData();
-		} catch (error) {
+		} catch (error: any) {
 			console.error('[Admin] Reset failed:', error);
-			message = `❌ ${error instanceof Error ? error.message : 'Unknown error'}`;
+			if (error.name === 'AbortError') {
+				message = '❌ Request timed out. The server may be busy.';
+			} else {
+				message = `❌ ${error instanceof Error ? error.message : 'Unknown error'}`;
+			}
 			messageType = 'error';
 		} finally {
 			loading = false;
@@ -326,11 +455,18 @@
 		loading = true;
 		console.log('[Admin] Starting queue processing...');
 		try {
+			// Use a longer timeout for processing since it can take a while
+			const controller = new AbortController();
+			const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for processing
+
 			const response = await fetch('/api/dev/learning-paths/queue/process', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ limit: 5, dryRun: false })
+				body: JSON.stringify({ limit: 5, dryRun: false }),
+				signal: controller.signal
 			});
+
+			clearTimeout(timeoutId);
 
 			console.log('[Admin] Response status:', response.status);
 			const result = await response.json();
@@ -352,9 +488,13 @@
 			}
 
 			await loadQueueData();
-		} catch (error) {
+		} catch (error: any) {
 			console.error('[Admin] Queue processing error:', error);
-			message = `❌ ${error instanceof Error ? error.message : 'Unknown error'}`;
+			if (error.name === 'AbortError') {
+				message = '❌ Processing timed out after 60 seconds. Check server logs for details.';
+			} else {
+				message = `❌ ${error instanceof Error ? error.message : 'Unknown error'}`;
+			}
 			messageType = 'error';
 		} finally {
 			loading = false;
