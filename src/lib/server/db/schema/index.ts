@@ -89,6 +89,7 @@ export { userScenarioProgress } from './user-scenario-progress';
 
 // 📚 Learning Paths (structured multi-week learning programs)
 export { learningPaths, learningPathStatusEnum } from './learning-paths';
+export { learningPathPreviews, previewStatusEnum } from './learning-path-previews';
 export { scenarioGenerationQueue, queueStatusEnum } from './scenario-generation-queue';
 export {
 	learningPathAssignments,
