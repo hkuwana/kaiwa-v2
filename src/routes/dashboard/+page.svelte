@@ -12,10 +12,19 @@
 	import { goto } from '$app/navigation';
 	import LearningPathProgress from '$lib/features/learning-path/components/LearningPathProgress.svelte';
 	import SharePathButton from '$lib/features/learning-path/components/SharePathButton.svelte';
+	import LearningIntentInput from '$lib/features/learning-path/components/creation/LearningIntentInput.svelte';
+	import PathPreview from '$lib/features/learning-path/components/creation/PathPreview.svelte';
 	import type { UserLearningPath } from '$lib/features/learning-path/stores/learning-path.store.svelte';
 	import type { LearningPath, LearningPathAssignment } from '$lib/server/db/types';
+	import type { PreviewSession } from '$lib/features/learning-path/services/PreviewGeneratorService.server';
 
 	const { data } = $props();
+
+	// Preview creation state
+	let previewSession = $state<PreviewSession | null>(null);
+	let isGeneratingPreview = $state(false);
+	let regeneratingDay = $state<number | null>(null);
+	let error = $state<string | null>(null);
 
 	// Transform server data to UserLearningPath format
 	function toUserLearningPath(item: {
@@ -62,6 +71,93 @@
 	function handleEnroll(templateId: string) {
 		goto(`/program/${data.templates.find((t: LearningPath) => t.id === templateId)?.shareSlug || templateId}`);
 	}
+
+	// Preview generation handlers
+	async function handleGeneratePreview(intent: string) {
+		error = null;
+		isGeneratingPreview = true;
+
+		try {
+			const response = await fetch('/api/learning-paths/generate-preview', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ intent })
+			});
+
+			const result = await response.json();
+
+			if (!response.ok) {
+				throw new Error(result.message || 'Failed to generate preview');
+			}
+
+			previewSession = result.data;
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'Failed to generate preview';
+			console.error('Error generating preview:', err);
+		} finally {
+			isGeneratingPreview = false;
+		}
+	}
+
+	async function handleStartLearning() {
+		if (!previewSession) return;
+
+		try {
+			const response = await fetch(
+				`/api/learning-paths/preview/${previewSession.sessionId}/commit`,
+				{ method: 'POST' }
+			);
+
+			const result = await response.json();
+
+			if (!response.ok) {
+				throw new Error(result.message || 'Failed to create learning path');
+			}
+
+			// Redirect to dashboard to see the new path
+			goto('/dashboard');
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'Failed to create learning path';
+			console.error('Error committing preview:', err);
+		}
+	}
+
+	async function handleRegenerateDay(dayNumber: number) {
+		if (!previewSession) return;
+
+		regeneratingDay = dayNumber;
+		error = null;
+
+		try {
+			const response = await fetch(
+				`/api/learning-paths/preview/${previewSession.sessionId}/regenerate`,
+				{
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ dayNumber })
+				}
+			);
+
+			const result = await response.json();
+
+			if (!response.ok) {
+				throw new Error(result.message || 'Failed to regenerate scenario');
+			}
+
+			// Update the preview with the new scenario
+			previewSession.scenarios[dayNumber.toString()] = result.data.scenario;
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'Failed to regenerate scenario';
+			console.error('Error regenerating scenario:', err);
+		} finally {
+			regeneratingDay = null;
+		}
+	}
+
+	function handleBackToInput() {
+		previewSession = null;
+		error = null;
+	}
 </script>
 
 <svelte:head>
@@ -76,20 +172,44 @@
 		<p class="mt-1 text-base-content/70">Continue your language learning journey</p>
 	</div>
 
-	{#if data.error}
+	<!-- Error Display -->
+	{#if data.error || error}
 		<div class="alert alert-error mb-6">
 			<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
 			</svg>
-			<span>{data.error}</span>
+			<span>{data.error || error}</span>
 		</div>
 	{/if}
 
-	<div class="grid gap-6 lg:grid-cols-3">
-		<!-- Main content area -->
-		<div class="lg:col-span-2 space-y-6">
-			<!-- Current Learning Path -->
-			{#if currentPath}
+	<!-- Preview Mode: Show full-width preview -->
+	{#if previewSession}
+		<PathPreview
+			preview={previewSession}
+			onStart={handleStartLearning}
+			onBack={handleBackToInput}
+			onRegenerate={handleRegenerateDay}
+			{regeneratingDay}
+		/>
+	{:else}
+		<!-- Normal Dashboard Layout -->
+		<div class="grid gap-6 lg:grid-cols-3">
+			<!-- Main content area -->
+			<div class="lg:col-span-2 space-y-6">
+				<!-- Create New Path Section -->
+				{#if !currentPath}
+					<div class="card bg-base-100 border-2 border-primary/20">
+						<div class="card-body">
+							<LearningIntentInput
+								onGenerate={handleGeneratePreview}
+								loading={isGeneratingPreview}
+							/>
+						</div>
+					</div>
+				{/if}
+
+				<!-- Current Learning Path -->
+				{#if currentPath}
 				<div>
 					<div class="mb-4 flex items-center justify-between">
 						<h2 class="text-xl font-semibold">Current Learning Path</h2>
@@ -232,6 +352,7 @@
 			{/if}
 		</div>
 	</div>
+	{/if}
 </div>
 
 <style>
