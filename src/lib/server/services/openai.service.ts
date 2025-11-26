@@ -231,10 +231,84 @@ export function parseAndValidateJSON<T>(jsonString: string): T | null {
 	}
 }
 
+export interface GenerateScenarioOptions {
+	description?: string;
+	memories?: string[];
+	mode: 'tutor' | 'character';
+	languageId?: string;
+}
+
+export interface GeneratedScenarioContent {
+	title: string;
+	description: string;
+	instructions: string;
+	context: string;
+	expectedOutcome: string;
+	learningGoal: string;
+	learningObjectives: string[];
+	difficulty: 'beginner' | 'intermediate' | 'advanced';
+	cefrLevel: string;
+	persona: { title: string; introPrompt: string } | null;
+}
+
+const SCENARIO_JSON_SCHEMA = `{
+  "title": "A concise, engaging title (max 60 chars)",
+  "description": "A brief description of the scenario (1-2 sentences)",
+  "instructions": "Detailed instructions for the AI conversation partner",
+  "context": "The setting and background context",
+  "expectedOutcome": "What the learner should accomplish",
+  "learningGoal": "The main language learning objective",
+  "learningObjectives": ["objective1", "objective2", "objective3"],
+  "difficulty": "beginner" | "intermediate" | "advanced",
+  "cefrLevel": "A1" | "A2" | "B1" | "B2" | "C1" | "C2",
+  "persona": { "title": "Role name", "introPrompt": "Opening line" }
+}`;
+
+/**
+ * Generate a scenario using GPT from description or memories
+ */
+export async function generateScenarioWithGPT(
+	options: GenerateScenarioOptions
+): Promise<{ content: GeneratedScenarioContent; tokensUsed: number }> {
+	const { description, memories, mode, languageId } = options;
+	const lang = languageId || 'Japanese';
+	const modeText = mode === 'tutor' ? 'tutoring' : 'roleplay';
+	const modeDesc =
+		mode === 'tutor'
+			? 'Language Tutor (supportive, corrective)'
+			: 'Character Roleplay (realistic, immersive)';
+
+	const hasMemories = memories && memories.length > 0;
+	const context = hasMemories
+		? `What I know about this learner:\n- ${memories.slice(0, 5).join('\n- ')}`
+		: `Description: "${description}"`;
+
+	const systemPrompt = `You are a language learning scenario designer for ${lang} learners.
+${hasMemories ? 'Create a personalized scenario connecting to the learner\'s interests.' : 'Expand the description into a complete scenario.'}
+Return JSON: ${SCENARIO_JSON_SCHEMA}
+Guidelines: ${mode === 'tutor' ? 'Focus on teaching and gentle correction' : 'Focus on realistic roleplay'}. Include culturally appropriate elements.`;
+
+	const userPrompt = `Create a ${modeText} scenario.\n${context}\nMode: ${modeDesc}`;
+
+	const response = await createCompletion(
+		[
+			{ role: 'system', content: systemPrompt },
+			{ role: 'user', content: userPrompt }
+		],
+		{ model: 'gpt-4o-mini', temperature: hasMemories ? 0.8 : 0.7, maxTokens: 1000, responseFormat: 'json' }
+	);
+
+	const parsed = parseAndValidateJSON<GeneratedScenarioContent>(response.content);
+	if (!parsed) throw new Error('Failed to parse GPT scenario response');
+
+	return { content: parsed, tokensUsed: response.usage?.totalTokens ?? 0 };
+}
+
 export default {
 	createCompletion,
 	analyzeOnboardingConversation,
 	generateLearningPlan,
 	generateLessonContent,
-	parseAndValidateJSON
+	parseAndValidateJSON,
+	generateScenarioWithGPT
 };
