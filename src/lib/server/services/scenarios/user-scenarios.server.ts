@@ -14,10 +14,7 @@ import {
 import { scenarioRepository } from '$lib/server/repositories';
 import { getUserCurrentTier } from '$lib/server/services/payment.service';
 import { serverTierConfigs } from '$lib/server/tiers';
-import {
-	generateScenarioWithGPT,
-	generateScenarioFromMemoriesWithGPT
-} from '$lib/server/services/openai.service';
+import { generateScenarioWithGPT } from '$lib/server/services/openai.service';
 import { logger } from '$lib/logger';
 
 export interface UserScenarioSummary {
@@ -400,172 +397,92 @@ export async function getUserScenarioDetail(options: {
 	return record;
 }
 
+// Shared scenario defaults
+const SCENARIO_DEFAULTS = {
+	comfortIndicators: { confidence: 3, engagement: 4, understanding: 3 },
+	visibility: 'public' as const,
+	createdByUserId: null,
+	usageCount: 0,
+	isActive: true,
+	categories: null,
+	tags: null,
+	primarySkill: 'conversation' as const,
+	searchKeywords: null,
+	thumbnailUrl: null,
+	estimatedDurationSeconds: null,
+	authorDisplayName: null,
+	shareSlug: null,
+	shareUrl: null
+};
+
+function getDifficultyRating(difficulty: string): number {
+	return difficulty === 'beginner' ? 2 : difficulty === 'advanced' ? 5 : 4;
+}
+
+function buildScenario(
+	id: string,
+	mode: ScenarioMode,
+	content: {
+		title: string;
+		description: string;
+		instructions: string;
+		context: string;
+		expectedOutcome: string;
+		learningGoal: string;
+		learningObjectives: string[];
+		difficulty?: string;
+		cefrLevel?: string;
+		persona?: { title: string; introPrompt: string } | null;
+	},
+	now: Date
+): Scenario {
+	const difficulty = (content.difficulty || 'intermediate') as Scenario['difficulty'];
+	const cefrLevel = content.cefrLevel || 'B1';
+	return {
+		id,
+		title: content.title,
+		description: content.description,
+		role: mode === 'tutor' ? 'tutor' : 'character',
+		difficulty,
+		difficultyRating: getDifficultyRating(difficulty),
+		cefrLevel,
+		cefrRecommendation: cefrLevel,
+		instructions: content.instructions,
+		context: content.context,
+		expectedOutcome: content.expectedOutcome,
+		learningObjectives: content.learningObjectives,
+		persona: content.persona ?? null,
+		learningGoal: content.learningGoal,
+		createdAt: now,
+		updatedAt: now,
+		...SCENARIO_DEFAULTS
+	};
+}
+
 export async function generateScenarioDraft(
 	request: AuthorScenarioRequest
 ): Promise<AuthorScenarioResponse> {
-	const sanitizedDescription = sanitizeText(request.description, 'Custom conversation practice');
+	const desc = sanitizeText(request.description, 'Custom conversation practice');
 	const mode = (request.mode ?? 'character') as ScenarioMode;
-
 	const now = new Date();
 	const id = randomUUID();
 
-	// Try GPT generation first
 	try {
-		logger.info('🎭 [Scenario Generation] Calling GPT to generate scenario', {
-			description: sanitizedDescription.slice(0, 100),
-			mode
-		});
-
-		const gptResult = await generateScenarioWithGPT({
-			description: sanitizedDescription,
+		logger.info('🎭 [Scenario] Calling GPT', { desc: desc.slice(0, 100), mode });
+		const { content, tokensUsed } = await generateScenarioWithGPT({
+			description: desc,
 			mode,
 			languageId: request.languageId
 		});
-
-		const gptContent = gptResult.content;
-
-		// Map CEFR level to difficulty rating
-		const difficultyRating = getDifficultyRating(gptContent.difficulty);
-
-		const scenario: Scenario = {
-			id,
-			title: gptContent.title || sanitizedDescription.slice(0, 60),
-			description: gptContent.description || sanitizedDescription,
-			role: mode === 'tutor' ? 'tutor' : 'character',
-			difficulty: gptContent.difficulty || 'intermediate',
-			difficultyRating,
-			cefrLevel: gptContent.cefrLevel || 'B1',
-			cefrRecommendation: gptContent.cefrLevel || 'B1',
-			instructions: gptContent.instructions,
-			context: gptContent.context || sanitizedDescription,
-			expectedOutcome: gptContent.expectedOutcome,
-			learningObjectives: gptContent.learningObjectives || [],
-			comfortIndicators: {
-				confidence: 3,
-				engagement: 4,
-				understanding: 3
-			},
-			persona: gptContent.persona,
-			learningGoal: gptContent.learningGoal,
-			visibility: 'public',
-			createdByUserId: null,
-			usageCount: 0,
-			isActive: true,
-			createdAt: now,
-			updatedAt: now,
-			// Phase 1: Discovery & Sharing fields
-			categories: null,
-			tags: null,
-			primarySkill: 'conversation',
-			searchKeywords: null,
-			thumbnailUrl: null,
-			estimatedDurationSeconds: null,
-			authorDisplayName: null,
-			shareSlug: null,
-			shareUrl: null
-		};
-
-		logger.info('🎭 [Scenario Generation] GPT scenario generated successfully', {
-			title: scenario.title,
-			tokensUsed: gptResult.tokensUsed
-		});
-
 		return {
-			draft: scenario,
+			draft: buildScenario(id, mode, { ...content, title: content.title || desc.slice(0, 60) }, now),
 			sourceModel: 'gpt-4o-mini',
-			tokensUsed: gptResult.tokensUsed
+			tokensUsed
 		};
 	} catch (error) {
-		logger.warn('🎭 [Scenario Generation] GPT failed, falling back to local generation', {
-			error: error instanceof Error ? error.message : 'Unknown error'
-		});
-
-		// Fall back to local generation
-		return generateLocalScenarioDraft(id, sanitizedDescription, mode, now);
+		logger.warn('🎭 [Scenario] GPT failed, using local', { error: (error as Error).message });
+		return buildLocalScenario(id, desc, mode, now);
 	}
-}
-
-function getDifficultyRating(difficulty: string): number {
-	switch (difficulty) {
-		case 'beginner':
-			return 2;
-		case 'advanced':
-			return 5;
-		default:
-			return 4;
-	}
-}
-
-function generateLocalScenarioDraft(
-	id: string,
-	sanitizedDescription: string,
-	mode: ScenarioMode,
-	now: Date
-): AuthorScenarioResponse {
-	const title =
-		sanitizedDescription.length > 60
-			? `${sanitizedDescription.slice(0, 57)}...`
-			: sanitizedDescription || 'Custom Scenario';
-
-	const baseScenario: Scenario = {
-		id,
-		title,
-		description: sanitizedDescription,
-		role: mode === 'tutor' ? 'tutor' : 'character',
-		difficulty: 'intermediate',
-		difficultyRating: mode === 'tutor' ? 3 : 4,
-		cefrLevel: 'B1',
-		cefrRecommendation: 'B1',
-		instructions:
-			mode === 'tutor'
-				? `You are a supportive language tutor helping the learner prepare for: ${sanitizedDescription}. Guide them step by step, correct gently, and make sure they can express themselves clearly.`
-				: `You are roleplaying the other side of the situation: ${sanitizedDescription}. Stay in character, keep the conversation realistic, and help the learner reach a successful outcome.`,
-		context: sanitizedDescription,
-		expectedOutcome:
-			mode === 'tutor'
-				? 'The learner practices key language needed for this situation and feels confident.'
-				: 'The learner successfully navigates the situation using natural language.',
-		learningObjectives: [
-			'activate relevant vocabulary',
-			'practice realistic responses',
-			'balance confidence with accuracy'
-		],
-		comfortIndicators: {
-			confidence: 3,
-			engagement: 4,
-			understanding: 3
-		},
-		persona:
-			mode === 'character'
-				? { title: 'Conversation Partner', introPrompt: sanitizedDescription }
-				: null,
-		learningGoal:
-			mode === 'tutor'
-				? 'Build confidence with the specific language needed for this scenario'
-				: 'Handle the scenario naturally and reach a successful outcome',
-		visibility: 'public',
-		createdByUserId: null,
-		usageCount: 0,
-		isActive: true,
-		createdAt: now,
-		updatedAt: now,
-		// Phase 1: Discovery & Sharing fields (optional for custom scenarios)
-		categories: null,
-		tags: null,
-		primarySkill: 'conversation',
-		searchKeywords: null,
-		thumbnailUrl: null,
-		estimatedDurationSeconds: null,
-		authorDisplayName: null,
-		shareSlug: null,
-		shareUrl: null
-	};
-
-	return {
-		draft: baseScenario,
-		sourceModel: 'local-fallback',
-		tokensUsed: 0
-	};
 }
 
 export interface GenerateFromMemoriesRequest {
@@ -574,170 +491,57 @@ export interface GenerateFromMemoriesRequest {
 	languageId?: string;
 }
 
-/**
- * Generate a scenario based on user's learner memories and conversation history
- * This helps create personalized learning scenarios tailored to what the user has shared about themselves
- */
 export async function generateScenarioFromMemories(
 	request: GenerateFromMemoriesRequest
 ): Promise<AuthorScenarioResponse> {
 	const { memories = [], mode = 'character', languageId } = request;
-
 	const now = new Date();
 	const id = randomUUID();
 
-	// Try GPT generation first
 	try {
-		logger.info('🎭 [Scenario Generation] Calling GPT to generate scenario from memories', {
-			memoriesCount: memories.length,
-			mode
-		});
-
-		const gptResult = await generateScenarioFromMemoriesWithGPT({
-			memories,
-			mode,
-			languageId
-		});
-
-		const gptContent = gptResult.content;
-		const difficultyRating = getDifficultyRating(gptContent.difficulty);
-
-		const scenario: Scenario = {
-			id,
-			title: gptContent.title,
-			description: gptContent.description,
-			role: mode === 'tutor' ? 'tutor' : 'character',
-			difficulty: gptContent.difficulty || 'intermediate',
-			difficultyRating,
-			cefrLevel: gptContent.cefrLevel || 'B1',
-			cefrRecommendation: gptContent.cefrLevel || 'B1',
-			instructions: gptContent.instructions,
-			context: gptContent.context,
-			expectedOutcome: gptContent.expectedOutcome,
-			learningObjectives: gptContent.learningObjectives || [],
-			comfortIndicators: {
-				confidence: 3,
-				engagement: 4,
-				understanding: 3
-			},
-			persona: gptContent.persona,
-			learningGoal: gptContent.learningGoal,
-			visibility: 'public',
-			createdByUserId: null,
-			usageCount: 0,
-			isActive: true,
-			createdAt: now,
-			updatedAt: now,
-			// Phase 1: Discovery & Sharing fields
-			categories: null,
-			tags: null,
-			primarySkill: 'conversation',
-			searchKeywords: null,
-			thumbnailUrl: null,
-			estimatedDurationSeconds: null,
-			authorDisplayName: null,
-			shareSlug: null,
-			shareUrl: null
-		};
-
-		logger.info('🎭 [Scenario Generation] GPT memory-based scenario generated successfully', {
-			title: scenario.title,
-			tokensUsed: gptResult.tokensUsed
-		});
-
-		return {
-			draft: scenario,
-			sourceModel: 'gpt-4o-mini',
-			tokensUsed: gptResult.tokensUsed
-		};
+		logger.info('🎭 [Scenario] Calling GPT for memories', { count: memories.length, mode });
+		const { content, tokensUsed } = await generateScenarioWithGPT({ memories, mode, languageId });
+		return { draft: buildScenario(id, mode, content, now), sourceModel: 'gpt-4o-mini', tokensUsed };
 	} catch (error) {
-		logger.warn(
-			'🎭 [Scenario Generation] GPT failed for memories, falling back to local generation',
-			{
-				error: error instanceof Error ? error.message : 'Unknown error'
-			}
-		);
-
-		// Fall back to local generation
-		return generateLocalMemoriesScenarioDraft(id, memories, mode, now);
+		logger.warn('🎭 [Scenario] GPT failed for memories', { error: (error as Error).message });
+		const memText = memories.slice(0, 5).join(' ');
+		const desc = memText ? `Based on: ${memText}` : 'A personalized scenario from learner memories';
+		const title = memories[0]
+			? `Custom: ${memories[0].slice(0, 40)}${memories[0].length > 40 ? '...' : ''}`
+			: 'Memory-Based Scenario';
+		return buildLocalScenario(id, sanitizeText(desc, 'Custom conversation'), mode, now, title, memText);
 	}
 }
 
-function generateLocalMemoriesScenarioDraft(
+function buildLocalScenario(
 	id: string,
-	memories: string[],
+	desc: string,
 	mode: ScenarioMode,
-	now: Date
+	now: Date,
+	customTitle?: string,
+	memText?: string
 ): AuthorScenarioResponse {
-	const memoriesText = memories.slice(0, 5).join(' ');
-	const description =
-		memoriesText.length > 0
-			? `Based on: ${memoriesText}`
-			: 'A personalized scenario created from learner memories';
-
-	const sanitizedDescription = sanitizeText(description, 'Custom conversation practice');
-
-	const title =
-		memories.length > 0
-			? `Custom Scenario: ${memories[0].slice(0, 40)}${memories[0].length > 40 ? '...' : ''}`
-			: 'Memory-Based Scenario';
-
-	const baseScenario: Scenario = {
-		id,
-		title,
-		description: sanitizedDescription,
-		role: mode === 'tutor' ? 'tutor' : 'character',
-		difficulty: 'intermediate',
-		difficultyRating: mode === 'tutor' ? 3 : 4,
-		cefrLevel: 'B1',
-		cefrRecommendation: 'B1',
-		instructions:
-			mode === 'tutor'
-				? `You are a supportive language tutor helping the learner practice about: ${sanitizedDescription}. Based on what you know about them (${memoriesText}), tailor your guidance to their interests and level. Guide them step by step, correct gently, and make sure they can express themselves clearly.`
-				: `You are roleplaying a conversation partner in a scenario the learner has expressed interest in: ${sanitizedDescription}. Based on their interests (${memoriesText}), make the conversation relevant and engaging. Stay in character, keep the conversation realistic, and help the learner reach a successful outcome.`,
-		context: sanitizedDescription,
-		expectedOutcome:
-			mode === 'tutor'
-				? 'The learner practices language relevant to their interests and feels more confident.'
-				: 'The learner successfully navigates a scenario aligned with their learning goals.',
-		learningObjectives: [
-			'practice vocabulary relevant to learner interests',
-			'apply language in personally meaningful contexts',
-			'build confidence through personalized scenarios'
-		],
-		comfortIndicators: {
-			confidence: 3,
-			engagement: 4,
-			understanding: 3
-		},
-		persona:
-			mode === 'character'
-				? { title: 'Conversation Partner', introPrompt: sanitizedDescription }
-				: null,
-		learningGoal:
-			mode === 'tutor'
-				? 'Practice language relevant to personal interests and goals'
-				: 'Navigate a personally meaningful scenario naturally',
-		visibility: 'public',
-		createdByUserId: null,
-		usageCount: 0,
-		isActive: true,
-		createdAt: now,
-		updatedAt: now,
-		// Phase 1: Discovery & Sharing fields
-		categories: null,
-		tags: null,
-		primarySkill: 'conversation',
-		searchKeywords: null,
-		thumbnailUrl: null,
-		estimatedDurationSeconds: null,
-		authorDisplayName: null,
-		shareSlug: null,
-		shareUrl: null
-	};
+	const title = customTitle || (desc.length > 60 ? `${desc.slice(0, 57)}...` : desc || 'Custom Scenario');
+	const isTutor = mode === 'tutor';
+	const ctx = memText ? `Based on interests (${memText}), ` : '';
 
 	return {
-		draft: baseScenario,
+		draft: buildScenario(id, mode, {
+			title,
+			description: desc,
+			instructions: isTutor
+				? `You are a supportive language tutor. ${ctx}Guide step by step, correct gently: ${desc}`
+				: `You are roleplaying: ${desc}. ${ctx}Stay in character, be realistic.`,
+			context: desc,
+			expectedOutcome: isTutor
+				? 'Learner practices key language and feels confident.'
+				: 'Learner successfully navigates the situation naturally.',
+			learningGoal: isTutor
+				? 'Build confidence with scenario-specific language'
+				: 'Handle the scenario naturally',
+			learningObjectives: ['activate vocabulary', 'practice responses', 'build confidence'],
+			persona: mode === 'character' ? { title: 'Conversation Partner', introPrompt: desc } : null
+		}, now),
 		sourceModel: 'local-fallback',
 		tokensUsed: 0
 	};
