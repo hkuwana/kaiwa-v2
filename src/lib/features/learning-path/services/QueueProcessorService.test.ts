@@ -1,8 +1,6 @@
 // src/lib/features/learning-path/services/QueueProcessorService.test.ts
 
 import { describe, it, expect, beforeAll, vi } from 'vitest';
-import { QueueProcessorService } from './QueueProcessorService.server';
-import { PathGeneratorService } from './PathGeneratorService.server';
 import type { PathFromPreferencesInput } from '../types';
 
 // Mock SvelteKit environment
@@ -14,46 +12,65 @@ vi.mock('$env/dynamic/private', () => ({
 	}
 }));
 
-describe('QueueProcessorService', () => {
-	let testPathId: string;
+// Only run these slow, external-integration tests when explicitly requested.
+// They rely on a real database and OpenAI API.
+const shouldRunIntegrationTests =
+	process.env.RUN_PR4_TESTS === '1' ||
+	process.env.RUN_PR4_TESTS === 'true' ||
+	process.env.npm_lifecycle_event === 'test:pr4';
 
-	// Create a test path with queue jobs before running tests
-	beforeAll(async () => {
-		if (!process.env.DATABASE_URL) {
-			throw new Error('DATABASE_URL must be set to run tests');
-		}
-		if (!process.env.OPENAI_API_KEY) {
-			throw new Error('OPENAI_API_KEY must be set to run tests');
-		}
+if (!shouldRunIntegrationTests) {
+	// Mark the suite as skipped so Vitest reports it but CI stays fast and reliable.
+	describe.skip('QueueProcessorService', () => {
+		it('skipped unless RUN_PR4_TESTS is enabled or test:pr4 script is used', () => {
+			// no-op
+		});
+	});
+} else {
+	// Dynamic imports to avoid loading services when skipping
+	const { QueueProcessorService } = await import('./QueueProcessorService.server');
+	const { PathGeneratorService } = await import('./PathGeneratorService.server');
 
-		// Create a test path that will have queue jobs
-		const testUserPreferences = {
-			userId: 'test-user-queue-123',
-			targetLanguageId: 'ja',
-			currentLanguageLevel: 'A2',
-			practicalLevel: 'intermediate beginner',
-			learningGoal: 'Connection',
-			specificGoals: ['Test queue processing'],
-			challengePreference: 'moderate' as const,
-			correctionStyle: 'gentle' as const
-		};
+	describe('QueueProcessorService', () => {
+		let testPathId: string;
 
-		const input: PathFromPreferencesInput = {
-			userPreferences: testUserPreferences,
-			preset: {
-				name: 'Queue Processor Test',
-				description: 'Testing queue processing',
-				duration: 3 // Small number for faster testing
+		// Create a test path with queue jobs before running tests
+		beforeAll(async () => {
+			if (!process.env.DATABASE_URL) {
+				throw new Error('DATABASE_URL must be set to run tests');
 			}
-		};
+			if (!process.env.OPENAI_API_KEY) {
+				throw new Error('OPENAI_API_KEY must be set to run tests');
+			}
 
-		const result = await PathGeneratorService.createPathFromPreferences(null, input);
-		if (!result.success || !result.pathId) {
-			throw new Error('Failed to create test path for queue processor tests');
-		}
+			// Create a test path that will have queue jobs
+			const testUserPreferences = {
+				userId: 'test-user-queue-123',
+				targetLanguageId: 'ja',
+				currentLanguageLevel: 'A2',
+				practicalLevel: 'intermediate beginner',
+				learningGoal: 'Connection',
+				specificGoals: ['Test queue processing'],
+				challengePreference: 'moderate' as const,
+				correctionStyle: 'gentle' as const
+			};
 
-		testPathId = result.pathId;
-	}, 30000);
+			const input: PathFromPreferencesInput = {
+				userPreferences: testUserPreferences,
+				preset: {
+					name: 'Queue Processor Test',
+					description: 'Testing queue processing',
+					duration: 3 // Small number for faster testing
+				}
+			};
+
+			const result = await PathGeneratorService.createPathFromPreferences(null, input);
+			if (!result.success || !result.pathId) {
+				throw new Error('Failed to create test path for queue processor tests');
+			}
+
+			testPathId = result.pathId;
+		}, 30000);
 
 	describe('getQueueStats', () => {
 		it('should return queue statistics', async () => {
@@ -185,3 +202,4 @@ describe('QueueProcessorService', () => {
 		});
 	});
 });
+}

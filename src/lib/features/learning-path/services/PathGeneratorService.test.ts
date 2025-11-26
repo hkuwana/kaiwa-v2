@@ -1,7 +1,6 @@
 // src/lib/features/learning-path/services/PathGeneratorService.test.ts
 
 import { describe, it, expect, beforeAll, vi } from 'vitest';
-import { PathGeneratorService } from './PathGeneratorService.server';
 import type { PathFromPreferencesInput, PathFromCreatorBriefInput } from '../types';
 
 // Mock SvelteKit environment - must be before any imports that use $env
@@ -28,6 +27,9 @@ if (!shouldRunIntegrationTests) {
 		});
 	});
 } else {
+	// Dynamic import to avoid loading the service when tests are skipped
+	const { PathGeneratorService } = await import('./PathGeneratorService.server');
+
 	describe('PathGeneratorService (integration)', () => {
 		// Test user preferences (mock data)
 		const testUserPreferences = {

@@ -4,9 +4,22 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { GeneratedSyllabus } from '../types';
 
-const mockCreateCompletion = vi.fn();
-const mockCreatePathForUser = vi.fn();
-const mockEnqueuePathRange = vi.fn();
+// Use vi.hoisted() to ensure mock variables are available when vi.mock() factories run
+// (vi.mock calls are hoisted to the top of the file)
+const { mockCreateCompletion, mockCreatePathForUser, mockEnqueuePathRange } = vi.hoisted(() => ({
+	mockCreateCompletion: vi.fn(),
+	mockCreatePathForUser: vi.fn(),
+	mockEnqueuePathRange: vi.fn()
+}));
+
+// Mock environment variables before any module that uses them is loaded
+vi.mock('$env/dynamic/private', () => ({
+	env: {
+		OPENAI_API_KEY: 'test-api-key',
+		DATABASE_URL: 'postgresql://test',
+		NODE_ENV: 'test'
+	}
+}));
 
 vi.mock('$lib/logger', () => ({
 	logger: {
@@ -17,16 +30,21 @@ vi.mock('$lib/logger', () => ({
 	}
 }));
 
-vi.mock('$lib/server/services/openai.service', async () => {
-	const actual = await vi.importActual<typeof import('$lib/server/services/openai.service')>(
-		'$lib/server/services/openai.service'
-	);
-
-	return {
-		...actual,
-		createCompletion: mockCreateCompletion
-	};
-});
+// Fully mock the openai.service module to avoid initializing the real OpenAI client
+vi.mock('$lib/server/services/openai.service', () => ({
+	createCompletion: mockCreateCompletion,
+	parseAndValidateJSON: <T>(jsonString: string): T | null => {
+		try {
+			const cleanJson = jsonString
+				.replace(/```json\n?/g, '')
+				.replace(/```\n?/g, '')
+				.trim();
+			return JSON.parse(cleanJson);
+		} catch {
+			return null;
+		}
+	}
+}));
 
 vi.mock('$lib/server/repositories/learning-path.repository', () => ({
 	learningPathRepository: {
