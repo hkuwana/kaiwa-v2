@@ -1597,6 +1597,16 @@ export class RealtimeOpenAIStore {
 		// This prevents race condition where response.create is sent before the server
 		// has finished creating the user's conversation.item.created event
 		setTimeout(() => {
+			// 🔧 FIX: Check if commit was cleared by pttStart() before sending response
+			// This prevents duplicate responses when user quickly presses PTT again
+			if (!this.pendingCommits.includes(commit)) {
+				logger.warn('⚠️ CANCELLED - Commit was cleared before response sent', {
+					commitNumber: commit.commitNumber,
+					reason: 'User likely started new PTT session - skipping stale response'
+				});
+				return;
+			}
+
 			logger.warn('⏱️ DELAYED RESPONSE - Sending response.create NOW', {
 				commitNumber: commit.commitNumber,
 				delayMs: 200
