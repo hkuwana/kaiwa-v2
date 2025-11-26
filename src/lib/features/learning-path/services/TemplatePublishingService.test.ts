@@ -1,9 +1,6 @@
 // src/lib/features/learning-path/services/TemplatePublishingService.test.ts
 
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
-import { TemplatePublishingService } from './TemplatePublishingService.server';
-import { PathGeneratorService } from './PathGeneratorService.server';
-import { learningPathRepository } from '$lib/server/repositories/learning-path.repository';
 import type { PathFromPreferencesInput } from '../types';
 
 // Mock SvelteKit environment
@@ -15,62 +12,84 @@ vi.mock('$env/dynamic/private', () => ({
 	}
 }));
 
-describe('TemplatePublishingService', () => {
-	let testUserId: string;
-	let testPathId: string;
-	let otherUserId: string;
-	let templateId: string;
+// Only run these slow, external-integration tests when explicitly requested.
+// They rely on a real database and OpenAI API.
+const shouldRunIntegrationTests =
+	process.env.RUN_PR4_TESTS === '1' ||
+	process.env.RUN_PR4_TESTS === 'true' ||
+	process.env.npm_lifecycle_event === 'test:pr4';
 
-	// Create test paths before running tests
-	beforeAll(async () => {
-		if (!process.env.DATABASE_URL) {
-			throw new Error('DATABASE_URL must be set to run tests');
-		}
-		if (!process.env.OPENAI_API_KEY) {
-			throw new Error('OPENAI_API_KEY must be set to run tests');
-		}
-
-		testUserId = 'test-user-template-publish-123';
-		otherUserId = 'other-user-456';
-
-		// Create a test path with PII for template publishing
-		const testUserPreferences = {
-			userId: testUserId,
-			targetLanguageId: 'ja',
-			currentLanguageLevel: 'A2',
-			practicalLevel: 'intermediate beginner',
-			learningGoal: 'Connection',
-			specificGoals: ["Meeting Sarah's parents for the first time"],
-			challengePreference: 'moderate' as const,
-			correctionStyle: 'gentle' as const
-		};
-
-		const input: PathFromPreferencesInput = {
-			userPreferences: testUserPreferences,
-			preset: {
-				name: "Meeting Your Partner's Parents",
-				description: "Preparing for my girlfriend's family dinner",
-				duration: 4 // Small number for faster testing
-			}
-		};
-
-		const result = await PathGeneratorService.createPathFromPreferences(testUserId, input);
-		if (!result.success || !result.pathId) {
-			throw new Error('Failed to create test path for template publishing tests');
-		}
-
-		testPathId = result.pathId;
-	}, 30000);
-
-	// Clean up test data
-	afterAll(async () => {
-		if (testPathId) {
-			await learningPathRepository.deletePath(testPathId);
-		}
-		if (templateId) {
-			await learningPathRepository.deletePath(templateId);
-		}
+if (!shouldRunIntegrationTests) {
+	// Mark the suite as skipped so Vitest reports it but CI stays fast and reliable.
+	describe.skip('TemplatePublishingService', () => {
+		it('skipped unless RUN_PR4_TESTS is enabled or test:pr4 script is used', () => {
+			// no-op
+		});
 	});
+} else {
+	// Dynamic imports to avoid loading services when skipping
+	const { TemplatePublishingService } = await import('./TemplatePublishingService.server');
+	const { PathGeneratorService } = await import('./PathGeneratorService.server');
+	const { learningPathRepository } = await import(
+		'$lib/server/repositories/learning-path.repository'
+	);
+
+	describe('TemplatePublishingService', () => {
+		let testUserId: string;
+		let testPathId: string;
+		let otherUserId: string;
+		let templateId: string;
+
+		// Create test paths before running tests
+		beforeAll(async () => {
+			if (!process.env.DATABASE_URL) {
+				throw new Error('DATABASE_URL must be set to run tests');
+			}
+			if (!process.env.OPENAI_API_KEY) {
+				throw new Error('OPENAI_API_KEY must be set to run tests');
+			}
+
+			testUserId = 'test-user-template-publish-123';
+			otherUserId = 'other-user-456';
+
+			// Create a test path with PII for template publishing
+			const testUserPreferences = {
+				userId: testUserId,
+				targetLanguageId: 'ja',
+				currentLanguageLevel: 'A2',
+				practicalLevel: 'intermediate beginner',
+				learningGoal: 'Connection',
+				specificGoals: ["Meeting Sarah's parents for the first time"],
+				challengePreference: 'moderate' as const,
+				correctionStyle: 'gentle' as const
+			};
+
+			const input: PathFromPreferencesInput = {
+				userPreferences: testUserPreferences,
+				preset: {
+					name: "Meeting Your Partner's Parents",
+					description: "Preparing for my girlfriend's family dinner",
+					duration: 4 // Small number for faster testing
+				}
+			};
+
+			const result = await PathGeneratorService.createPathFromPreferences(testUserId, input);
+			if (!result.success || !result.pathId) {
+				throw new Error('Failed to create test path for template publishing tests');
+			}
+
+			testPathId = result.pathId;
+		}, 30000);
+
+		// Clean up test data
+		afterAll(async () => {
+			if (testPathId) {
+				await learningPathRepository.deletePath(testPathId);
+			}
+			if (templateId) {
+				await learningPathRepository.deletePath(templateId);
+			}
+		});
 
 	describe('createAnonymousTemplate', () => {
 		it('should create a public template from user path', async () => {
@@ -345,3 +364,4 @@ describe('TemplatePublishingService', () => {
 		}, 20000);
 	});
 });
+}
