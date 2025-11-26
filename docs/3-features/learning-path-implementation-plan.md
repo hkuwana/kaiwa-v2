@@ -571,9 +571,9 @@ A PR is considered "done" when:
 ## 🔗 Related Documents
 
 - [Learning Path Templates Spec](./learning-path-templates.md) - Full feature specification
-- [Cron Job Architecture](../1-architecture/architecture-cron-jobs.md) - Background job patterns
+- [Cron Job Architecture](../1-core/cron-jobs.md) - Background job patterns
 - [FSD Principles](https://feature-sliced.design/) - Architecture guidelines
-- [Database Schema Docs](../1-architecture/database-schema.md) - Schema conventions
+- [Database Schema Docs](../1-core/database-schema.md) - Schema conventions
 
 ---
 

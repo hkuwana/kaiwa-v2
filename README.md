@@ -49,7 +49,7 @@ Kaiwa is built on a **Clean 3-Layer Architecture** (Services → Stores → UI) 
 - **UI**: Thin, declarative Svelte components.
 - **Features**: Encapsulated feature modules with their own components, services, and stores.
 
-For a detailed explanation, please see the [Architecture Documentation](src/lib/docs/architecture.md).
+For a detailed explanation, please see the [Architecture Documentation](docs/1-core/architecture.md).
 
 ## ✨ Features
 
@@ -64,12 +64,12 @@ For a detailed explanation, please see the [Architecture Documentation](src/lib/
 
 ## 📚 Documentation
 
-All project documentation has been consolidated in the `src/lib/docs` directory.
+All project documentation has been consolidated in the `docs/` directory.
 
-- **[Architecture](src/lib/docs/core-architecture.md)**: An overview of the project's philosophy and technical architecture.
-- **[Marketing Strategy](src/lib/docs/strategy-marketing.md)**: The go-to-market and user acquisition strategy.
-- **[Analysis Feature](src/lib/docs/feature-analysis.md)**: A guide to the conversation analysis feature.
-- **[Database Schema](src/lib/docs/core-database-schema.md)**: A detailed look at the database structure.
+- **[Architecture](docs/1-core/architecture.md)**: An overview of the project's philosophy and technical architecture.
+- **[Marketing Strategy](docs/4-strategy/marketing.md)**: The go-to-market and user acquisition strategy.
+- **[Analysis Feature](docs/3-features/analysis.md)**: A guide to the conversation analysis feature.
+- **[Database Schema](docs/1-core/database-schema.md)**: A detailed look at the database structure.
 
 ## 🧪 Testing
 
@@ -92,11 +92,11 @@ pnpm test:e2e
 pnpm smoke:test:all
 ```
 
-For more details, see the [Testing Strategy Guide](src/lib/docs/dev_testing_strategy.md).
+For more details, see the [Testing Instructions](docs/2-guides/testing-instructions.md).
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow the existing code patterns and architectural principles. Before starting, please read the [Architecture Documentation](src/lib/docs/architecture.md) to understand the project structure.
+Contributions are welcome! Please follow the existing code patterns and architectural principles. Before starting, please read the [Architecture Documentation](docs/1-core/architecture.md) to understand the project structure.
 
 ## 📄 License
 

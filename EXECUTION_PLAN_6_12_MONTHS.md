@@ -172,7 +172,7 @@ This manual sprint should be considered **part of Phase 1**, not a detour: it gi
 
 **Deliverable**: iOS TestFlight beta ready for Month 2
 
-See the full [Mobile Development Plan](./docs/4-technical/mobile-development-plan.md).
+See the full [Mobile Development Plan](./docs/4-strategy/mobile-development-plan.md).
 
 ---
 
@@ -459,7 +459,7 @@ With content creator hired:
 
 **Deliverable**: Android beta ready for Month 6 launch
 
-See the full [Mobile Development Plan](./docs/4-technical/mobile-development-plan.md).
+See the full [Mobile Development Plan](./docs/4-strategy/mobile-development-plan.md).
 
 ---
 
@@ -826,7 +826,7 @@ See the full [Mobile Development Plan](./docs/4-technical/mobile-development-pla
 
 - **Build proprietary AI** (fine-tuned models, better than OpenAI)
 
-- **Mobile-first** ([see Mobile Development Plan](./docs/4-technical/mobile-development-plan.md) for world-class iOS/Android apps)
+- **Mobile-first** ([see Mobile Development Plan](./docs/4-strategy/mobile-development-plan.md) for world-class iOS/Android apps)
 
 **What you'd give up**:
 

@@ -49,7 +49,7 @@ First 10 spots only. Let me know!
 
 1. Create WhatsApp group: `Kaiwa Founding Members 🗣️`
 2. Add your friends
-3. Post welcome message (see [whatsapp-founding-member-strategy.md](../src/lib/docs/whatsapp-founding-member-strategy.md))
+3. Post welcome message (see [whatsapp-founding-member-strategy.md](./whatsapp-founding-member-strategy.md))
 
 ### Week 2+: Add Strangers to Active Group
 
@@ -59,7 +59,7 @@ Once you have 3-5 friends active:
 - They join an already-active community
 - Friends help welcome and onboard them
 
-**Full strategy:** See [whatsapp-founding-member-strategy.md](../src/lib/docs/whatsapp-founding-member-strategy.md)
+**Full strategy:** See [whatsapp-founding-member-strategy.md](./whatsapp-founding-member-strategy.md)
 
 ---
 

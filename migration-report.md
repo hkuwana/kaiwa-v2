@@ -262,7 +262,7 @@ See `NEXT_STEPS_EMAIL_COST_CONTROL.md` for full strategy.
 **Documentation**:
 
 - `docs/2-guides/email-system-migration.md` - Original migration plan
-- `docs/EMAIL_SYSTEM_SUMMARY.md` - System overview
+- `docs/2-guides/email-system-summary.md` - System overview
 - `HOW_TO_SEND_WEEKLY_EMAIL.md` - Weekly email guide
 - `NEXT_STEPS_EMAIL_COST_CONTROL.md` - Cost optimization strategy
 

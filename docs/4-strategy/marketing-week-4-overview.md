@@ -132,7 +132,7 @@ Either way, thanks for being part of this journey.
 
 ### WhatsApp Group Setup (Recommended)
 
-> **Full strategy**: See [whatsapp-founding-member-strategy.md](../src/lib/docs/whatsapp-founding-member-strategy.md)
+> **Full strategy**: See [whatsapp-founding-member-strategy.md](./whatsapp-founding-member-strategy.md)
 
 **Why WhatsApp > Discord/Slack:**
 

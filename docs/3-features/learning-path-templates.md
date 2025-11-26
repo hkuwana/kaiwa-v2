@@ -23,7 +23,7 @@
 - Respect the existing **UI → Store → Service** layering.
 - Implement new logic inside a **feature slice**: `src/lib/features/learning-path/`.
 - Use the existing **Drizzle** setup in `src/lib/server/db/schema` and repositories in `src/lib/server/repositories`.
-- Reuse the existing **cron job architecture** described in `src/lib/docs/architecture-cron-jobs.md`.
+- Reuse the existing **cron job architecture** described in `docs/1-core/cron-jobs.md`.
 
 ---
 
@@ -257,7 +257,7 @@ Once you click **Publish & generate**:
 
 - **GitHub Actions**:
   - Extend `.github/workflows/cron-jobs.yml` to call `/api/cron/generate-scenarios?secret=...`.
-  - See `src/lib/docs/architecture-cron-jobs.md` for exact pattern.
+  - See `docs/1-core/cron-jobs.md` for exact pattern.
 
 ---
 

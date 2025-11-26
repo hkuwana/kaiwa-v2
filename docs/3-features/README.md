@@ -121,6 +121,45 @@
 
 ---
 
+### [scenario-thumbnails.md](scenario-thumbnails.md)
+
+**Scenario thumbnail generation and display**
+
+- 🖼️ Thumbnail generation system
+- 🎨 Visual design and formats
+- 📊 Storage and optimization
+- 🔄 Dynamic thumbnail updates
+
+👉 **Start here** for scenario thumbnails
+
+---
+
+### [scenario-custom-mode.md](scenario-custom-mode.md)
+
+**Custom scenario creation feature**
+
+- 🎨 Custom scenario builder
+- 🔧 User-defined scenarios
+- 📊 Custom scenario management
+- 🚀 Implementation details
+
+👉 **Start here** for custom scenarios
+
+---
+
+### [seo-implementation-summary-2025.md](seo-implementation-summary-2025.md)
+
+**2025 SEO implementation summary**
+
+- 🔍 SEO strategy overview
+- 📊 Implementation timeline
+- 📈 Results and metrics
+- 🎯 Future optimizations
+
+👉 **Start here** for SEO implementation status
+
+---
+
 ## 🎯 When to Use This Section
 
 **Use feature docs when:**

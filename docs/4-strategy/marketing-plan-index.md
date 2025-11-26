@@ -365,10 +365,10 @@ Let's go. 🎯
 
 Refer back to your core strategy documents:
 
-- [Strategy Marketing](../src/lib/docs/strategy-marketing.md) - Overall strategy
-- [Solo Founder Action Plan](../src/lib/docs/solo-founder-action-plan.md) - Daily execution
-- [ICP Personas](../src/lib/docs/icp-personas.md) - Know your customer
-- [Content Calendar](../src/lib/docs/content-calendar-2025.md) - Content guidance
+- [Strategy Marketing](./marketing.md) - Overall strategy
+- [Solo Founder Action Plan](./solo-founder-action-plan.md) - Daily execution
+- [ICP Personas](./icp-personas.md) - Know your customer
+- [Content Calendar](./content-calendar-2025.md) - Content guidance
 
 ---
 

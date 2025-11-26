@@ -70,6 +70,45 @@
 
 ---
 
+### [scenario-schema-improvements.md](scenario-schema-improvements.md)
+
+**Proposed improvements to scenario schema**
+
+- 🔧 Schema enhancement proposals
+- 📊 Data structure optimizations
+- 🚀 Performance improvements
+- 📋 Migration considerations
+
+👉 **Start here** for scenario schema evolution
+
+---
+
+### [server-architecture.md](server-architecture.md)
+
+**Server-side architecture and patterns**
+
+- 🏗️ Server architecture overview
+- 🔧 Backend design patterns
+- 📊 API design and structure
+- 🚀 Server-side best practices
+
+👉 **Start here** for server architecture
+
+---
+
+### [cron-architecture-unified.md](cron-architecture-unified.md)
+
+**Unified cron job architecture documentation**
+
+- ⏰ Comprehensive cron architecture
+- 🔄 Job scheduling patterns
+- 🐛 Monitoring and debugging
+- 📋 Best practices
+
+👉 **Start here** for complete cron architecture
+
+---
+
 ## 🎯 When to Use This Section
 
 **Use core docs when:**

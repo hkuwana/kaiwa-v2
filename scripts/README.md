@@ -182,9 +182,9 @@ pnpm cron:reminders
 ## 📚 Related Documentation
 
 - [GitHub Actions Workflow](../.github/workflows/cron-jobs.yml) - Cron job scheduler
-- [Architecture: Cron Jobs](../src/lib/docs/architecture-cron-jobs.md) - Detailed architecture
-- [Email Reminder Setup](../src/lib/docs/feature-email-reminder-setup.md) - Email configuration
-- [Founder Email Strategy](../src/lib/docs/strategy-founder-email.md) - Email content strategy
+- [Architecture: Cron Jobs](../docs/1-core/cron-jobs.md) - Detailed architecture
+- [Email Reminder Setup](../docs/3-features/email-reminder-setup.md) - Email configuration
+- [Founder Email Strategy](../docs/4-strategy/strategy-founder-email.md) - Email content strategy
 
 ---
 
@@ -211,4 +211,4 @@ Each cron job takes ~10 seconds to run:
 
 ---
 
-**Questions?** See [architecture-cron-jobs.md](../src/lib/docs/architecture-cron-jobs.md)
+**Questions?** See [cron-jobs.md](../docs/1-core/cron-jobs.md)

@@ -69,6 +69,45 @@
 
 ---
 
+### [email-system-summary.md](email-system-summary.md)
+
+**Email system architecture and overview**
+
+- 📧 Email infrastructure
+- 🔧 Configuration and setup
+- 📊 Email service integration
+- 🐛 Troubleshooting
+
+👉 **Start here** for email system understanding
+
+---
+
+### [logging.md](logging.md)
+
+**Structured logging guide**
+
+- 📝 Logger APIs (server & client)
+- 🔍 Log levels and usage
+- 🐛 Debugging with logs
+- 📊 Production logging best practices
+
+👉 **Start here** for logging implementation
+
+---
+
+### [daily-content-creation-guide.md](daily-content-creation-guide.md)
+
+**Daily content creation workflow**
+
+- 📝 Content writing process
+- 🎯 SEO optimization tips
+- 📅 Publishing workflow
+- ✍️ Writing best practices
+
+👉 **Start here** for creating content
+
+---
+
 ## 🎯 When to Use This Section
 
 **Use guides when:**

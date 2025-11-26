@@ -56,6 +56,19 @@
 
 ---
 
+### [posthog-kpi-tracking.md](posthog-kpi-tracking.md)
+
+**PostHog KPI tracking and analytics**
+
+- 📊 KPI definitions and tracking
+- 🎯 Dashboard setup
+- 📈 Analytics implementation
+- 🔍 Insight extraction
+
+👉 **Start here** for analytics and KPI tracking
+
+---
+
 ## 🎯 When to Use This Section
 
 **Use process docs when:**
@@ -77,7 +90,7 @@
 
 ## 🔗 Related Sections
 
-- [2-guides/testing-strategy.md](../2-guides/testing-strategy.md) - Overall testing approach
+- [2-guides/testing-instructions.md](../2-guides/testing-instructions.md) - Overall testing approach
 - [4-strategy/](../4-strategy/) - Marketing and business strategy
 - [6-logs/](../6-logs/) - Track execution and results
 

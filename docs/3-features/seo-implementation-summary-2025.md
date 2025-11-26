@@ -71,7 +71,7 @@ Keywords: AI language partner, AI language coach, language confidence, conversat
 
 ### 1. Content Calendar
 
-📄 **File**: `src/lib/docs/content-calendar-2025.md`
+📄 **File**: `docs/4-strategy/content-calendar-2025.md`
 
 **Contains**:
 
@@ -91,7 +91,7 @@ Keywords: AI language partner, AI language coach, language confidence, conversat
 
 ### 2. Interview Template
 
-📄 **File**: `src/lib/docs/blog-template-interview.md`
+📄 **File**: `docs/4-strategy/blog-template-interview.md`
 
 **Contains**:
 
@@ -123,7 +123,7 @@ Keywords: AI language partner, AI language coach, language confidence, conversat
 
 ### 3. Daily Writing Guide
 
-📄 **File**: `src/lib/docs/daily-content-creation-guide.md`
+📄 **File**: `docs/2-guides/daily-content-creation-guide.md`
 
 **Contains**:
 
@@ -410,10 +410,10 @@ Keyword Ranking:
 
 ## 📚 Document Map
 
-All documents created are in `src/lib/docs/`:
+All documents created are in `docs/`:
 
 ```
-src/lib/docs/
+docs/4-strategy/
 ├── content-calendar-2025.md              (📅 Publishing schedule)
 ├── blog-template-interview.md            (🎙️ Interview format)
 ├── daily-content-creation-guide.md       (📝 Writing process)
