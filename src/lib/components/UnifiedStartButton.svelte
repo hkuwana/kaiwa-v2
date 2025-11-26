@@ -2,11 +2,11 @@
 <script lang="ts">
 	import { scenariosData, sortScenariosByDifficulty, type Scenario } from '$lib/data/scenarios';
 	import { goto } from '$app/navigation';
-	import { track } from '$lib/analytics/posthog';
+	import { track, trackEngagement } from '$lib/analytics/posthog';
 	import ScenarioSelector from '$lib/features/scenarios/components/ScenarioSelector.svelte';
 	import AdvancedAudioOptions from './AdvancedAudioOptions.svelte';
 	import BriefingCard from './BriefingCard.svelte';
-	import type { Language as DataLanguage } from '$lib/data/languages';
+	import { languages, type Language as DataLanguage } from '$lib/data/languages';
 	import type { User } from '$lib/server/db/types';
 	import { GUEST_USER } from '$lib/data/user';
 	import { speakersData } from '$lib/data/speakers';
@@ -14,10 +14,10 @@
 	// Props
 	interface Props {
 		user: User;
-		selectedLanguage: DataLanguage;
-		selectedSpeaker: string;
-		selectedScenario: Scenario;
-		selectedAudioMode: 'vad' | 'ptt';
+		selectedAudioMode?: 'vad' | 'ptt';
+		selectedLanguage: DataLanguage | null;
+		selectedSpeaker: string | null;
+		selectedScenario: Scenario | null;
 		onScenarioChange?: (scenario: Scenario) => void;
 		onStartClick?: () => void;
 		onModeChange?: (mode: 'vad' | 'ptt') => void;
@@ -26,10 +26,10 @@
 
 	const {
 		user = GUEST_USER,
-		selectedLanguage,
+		selectedLanguage = languages[0],
 		children,
-		selectedSpeaker,
-		selectedScenario,
+		selectedSpeaker = speakersData[0].voiceName,
+		selectedScenario = scenariosData[0],
 		selectedAudioMode = 'ptt', // Default to Push-to-Talk
 		onScenarioChange,
 		onStartClick,
@@ -103,12 +103,25 @@
 
 		if (!selectedLanguage || !selectedSpeaker || !currentScenario) return;
 
-		// Track the click event regardless of auth state
+		// Legacy event: track language start click regardless of auth state
 		track('start_language_clicked', {
 			language: selectedLanguage.code || selectedLanguage.name,
 			scenario_id: currentScenario.id,
 			speaker_id: selectedSpeaker,
 			requires_login: isGuest
+		});
+
+		// New generic engagement event for conversation starts from unified button
+		trackEngagement.conversationStartClicked('unified_start_button', {
+			scenario_id: currentScenario.id,
+			scenario_title: currentScenario.title,
+			scenario_role: currentScenario.role,
+			scenario_difficulty: currentScenario.difficulty,
+			language_id: selectedLanguage.id,
+			language_code: selectedLanguage.code,
+			speaker_id: selectedSpeaker,
+			audio_mode: selectedAudioMode,
+			is_guest: isGuest
 		});
 
 		if (onStartClick) {
@@ -147,7 +160,11 @@
 			selectedScenario={currentScenario}
 			onScenarioSelect={handleScenarioChange}
 			disabled={!selectedLanguage || !selectedSpeaker}
-			tooltipMessage={!selectedLanguage ? 'Choose your language first' : !selectedSpeaker ? 'Choose your speaker first' : ''}
+			tooltipMessage={!selectedLanguage
+				? 'Choose your language first'
+				: !selectedSpeaker
+					? 'Choose your speaker first'
+					: ''}
 			{isGuest}
 		/>
 	</div>

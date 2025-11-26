@@ -1,19 +1,14 @@
 import { logger } from '$lib/logger';
 import { json } from '@sveltejs/kit';
 import { analysisFindingsRepository } from '$lib/server/repositories/analysis-findings.repository';
-import { analysisSuggestionService } from '$lib/features/analysis/services/analysis-suggestion.service';
 import type { AnalysisRunResult } from '$lib/features/analysis/services/analysis.service';
 import type { AnalysisSuggestion } from '$lib/features/analysis/types/analysis-suggestion.types';
-
-interface GetAnalysisPayload {
-	conversationId: string;
-}
 
 /**
  * Fetch the latest analysis results for a conversation
  * Reconstructs the analysis run from persisted findings
  */
-export const GET = async ({ url, locals }) => {
+export const GET = async ({ url }) => {
 	const conversationId = url.searchParams.get('conversationId');
 
 	if (!conversationId) {
@@ -35,11 +30,11 @@ export const GET = async ({ url, locals }) => {
 			if (!findingsByRun.has(runId)) {
 				findingsByRun.set(runId, []);
 			}
-			findingsByRun.get(runId)!.push(finding);
+			findingsByRun.get(runId)?.push(finding);
 		}
 
 		// Get the latest run (most recent by createdAt)
-		let latestRun: (typeof findings) = [];
+		let latestRun: typeof findings = [];
 		let latestRunId: string | null = null;
 
 		for (const [runId, runFindings] of findingsByRun) {
@@ -56,7 +51,7 @@ export const GET = async ({ url, locals }) => {
 			if (!findingsByModule.has(moduleId)) {
 				findingsByModule.set(moduleId, []);
 			}
-			findingsByModule.get(moduleId)!.push(finding);
+			findingsByModule.get(moduleId)?.push(finding);
 		}
 
 		// Convert findings to suggestions for compatibility
@@ -70,44 +65,47 @@ export const GET = async ({ url, locals }) => {
 			suggestedText: finding.suggestedText || '',
 			explanation: finding.explanation || '',
 			example: finding.example || undefined,
-			offsets: finding.offsetStart !== null && finding.offsetEnd !== null
-				? { start: finding.offsetStart, end: finding.offsetEnd }
-				: undefined
+			offsets:
+				finding.offsetStart !== null && finding.offsetEnd !== null
+					? { start: finding.offsetStart, end: finding.offsetEnd }
+					: undefined
 		}));
 
 		// Reconstruct module results from findings
-		const moduleResults = Array.from(findingsByModule.entries()).map(([moduleId, moduleFinding]) => {
-			// Get aggregated data from findings
-			const suggestions = moduleFinding.map((f) => ({
-				messageId: f.messageId,
-				originalText: f.originalText,
-				suggestedText: f.suggestedText,
-				explanation: f.explanation,
-				example: f.example,
-				severity: f.severity
-			}));
+		const moduleResults = Array.from(findingsByModule.entries()).map(
+			([moduleId, moduleFinding]) => {
+				// Get aggregated data from findings
+				const suggestions = moduleFinding.map((f) => ({
+					messageId: f.messageId,
+					originalText: f.originalText,
+					suggestedText: f.suggestedText,
+					explanation: f.explanation,
+					example: f.example,
+					severity: f.severity
+				}));
 
-			// Create summary based on module type
-			let summary = '';
-			if (moduleId === 'grammar-suggestions') {
-				summary = `Found ${moduleFinding.length} language suggestions`;
-			} else if (moduleId === 'quick-stats') {
-				summary = `Analyzed conversation`;
-			} else if (moduleId === 'language-assessment') {
-				summary = `Language assessment completed`;
-			} else {
-				summary = `${moduleId} analysis complete`;
-			}
-
-			return {
-				moduleId,
-				summary,
-				recommendations: [], // Could extract from metadata if needed
-				data: {
-					suggestions
+				// Create summary based on module type
+				let summary = '';
+				if (moduleId === 'grammar-suggestions') {
+					summary = `Found ${moduleFinding.length} language suggestions`;
+				} else if (moduleId === 'quick-stats') {
+					summary = `Analyzed conversation`;
+				} else if (moduleId === 'language-assessment') {
+					summary = `Language assessment completed`;
+				} else {
+					summary = `${moduleId} analysis complete`;
 				}
-			};
-		});
+
+				return {
+					moduleId,
+					summary,
+					recommendations: [], // Could extract from metadata if needed
+					data: {
+						suggestions
+					}
+				};
+			}
+		);
 
 		// Reconstruct the analysis run
 		const reconstructedRun: AnalysisRunResult = {

@@ -10,8 +10,8 @@
 	import { fade } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import type { Language } from '$lib/data/languages';
-	
-interface Props {
+
+	interface Props {
 		/** Auto-rotate interval in milliseconds (default: 6000 = 6 seconds) */
 		autoRotateInterval?: number;
 		/** Show only featured scenarios (default: first 6) */
@@ -48,7 +48,7 @@ interface Props {
 		// Also auto-select first speaker for that language
 		const speakersForLanguage = getSpeakersByLanguage(language.code);
 		if (speakersForLanguage?.[0]) {
-			settingsStore.setSpeaker(speakersForLanguage[0]);
+			settingsStore.setSpeaker(speakersForLanguage[0].id);
 		}
 	}
 

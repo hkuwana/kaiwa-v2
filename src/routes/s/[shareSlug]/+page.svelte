@@ -1,7 +1,7 @@
 <script lang="ts">
 	import UnifiedStartButton from '$lib/components/UnifiedStartButton.svelte';
 	import { getDifficultyLevel, getDifficultyTier } from '$lib/utils/cefr';
-	import type { Language as DataLanguage } from '$lib/data/languages';
+	import { type Language as DataLanguage } from '$lib/data/languages';
 	import type { Scenario } from '$lib/server/db/types';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
@@ -32,11 +32,6 @@
 		friendly_chat: 'Casual Chat',
 		expert: 'Expert Advice'
 	};
-
-	function handleLanguageChange(language: DataLanguage) {
-		selectedLanguage = language;
-		settingsStore.setLanguage(language);
-	}
 
 	function handleSpeakerChange(speakerId: string) {
 		selectedSpeaker = speakerId;
@@ -172,8 +167,6 @@
 					{selectedSpeaker}
 					selectedScenario={scenario}
 					{selectedAudioMode}
-					onLanguageChange={handleLanguageChange}
-					onSpeakerChange={handleSpeakerChange}
 					onModeChange={(mode) => (selectedAudioMode = mode)}
 				/>
 			</div>
@@ -269,8 +262,6 @@
 					{selectedSpeaker}
 					selectedScenario={scenario}
 					{selectedAudioMode}
-					onLanguageChange={handleLanguageChange}
-					onSpeakerChange={handleSpeakerChange}
 					onModeChange={(mode) => (selectedAudioMode = mode)}
 				/>
 			</div>

@@ -91,9 +91,9 @@ src/lib/
      - `pathId`: `text` — FK to `learning_paths.id`.
      - `dayIndex`: `integer` — 1..N, aligns with `schedule` array.
      - `targetGenerationDate`: `timestamp` — when we want content ready (user timezone-aware at application layer).
-      - `status`: enum as `text` — `PENDING | PROCESSING | READY | FAILED`.
-      - `lastError`: `text` (nullable) — last failure description for debugging.
-      - `createdAt`, `updatedAt`: timestamps.
+     - `status`: enum as `text` — `PENDING | PROCESSING | READY | FAILED`.
+     - `lastError`: `text` (nullable) — last failure description for debugging.
+     - `createdAt`, `updatedAt`: timestamps.
 
 3. **`learning_path_assignments`** (for testers & future cohorts)
    - Purpose: Track which users are following which path, without copying the path itself.
@@ -345,7 +345,7 @@ Once you click **Publish & generate**:
 
 - Add a learning path widget (e.g. `LearningPathProgress` component) to the user’s dashboard, using:
   - `learning_paths` + `scenario_generation_queue` to show:
-    - Next scenario status: **READY** / *Generating…*.
+    - Next scenario status: **READY** / _Generating…_.
     - Overall weekly progress.
   - CTA: **“Share this Course”** → kicks off the PII-safe template creation.
 
@@ -459,29 +459,29 @@ Use `Course` or `HowTo` depending on tone; **Course** usually fits better:
 
 ```html
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Course",
-  "name": "4-Week Japanese 'Meet the Parents' Path",
-  "description": "A 4-week curriculum to prepare for meeting your partner's Japanese parents, focusing on dinner conversation, small talk, and polite compliments.",
-  "provider": {
-    "@type": "Organization",
-    "name": "Kaiwa",
-    "url": "https://trykaiwa.com"
-  },
-  "hasCourseInstance": {
-    "@type": "CourseInstance",
-    "courseMode": "online",
-    "courseWorkload": "PT20M",
-    "url": "https://trykaiwa.com/program/jp-meet-parents-four-week-path"
-  },
-  "inLanguage": "ja",
-  "about": [
-    "meeting partner's parents",
-    "family dinner in Japanese",
-    "Japanese relationship conversations"
-  ]
-}
+	{
+		"@context": "https://schema.org",
+		"@type": "Course",
+		"name": "4-Week Japanese 'Meet the Parents' Path",
+		"description": "A 4-week curriculum to prepare for meeting your partner's Japanese parents, focusing on dinner conversation, small talk, and polite compliments.",
+		"provider": {
+			"@type": "Organization",
+			"name": "Kaiwa",
+			"url": "https://trykaiwa.com"
+		},
+		"hasCourseInstance": {
+			"@type": "CourseInstance",
+			"courseMode": "online",
+			"courseWorkload": "PT20M",
+			"url": "https://trykaiwa.com/program/jp-meet-parents-four-week-path"
+		},
+		"inLanguage": "ja",
+		"about": [
+			"meeting partner's parents",
+			"family dinner in Japanese",
+			"Japanese relationship conversations"
+		]
+	}
 </script>
 ```
 

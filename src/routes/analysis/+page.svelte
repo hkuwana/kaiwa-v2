@@ -28,7 +28,11 @@
 	}
 
 	interface AnalysisStoreType {
-		setAnalysisResults: (run: AnalysisRunResult, suggestions: unknown[], messages: unknown[]) => void;
+		setAnalysisResults: (
+			run: AnalysisRunResult,
+			suggestions: unknown[],
+			messages: unknown[]
+		) => void;
 	}
 
 	const { data } = $props();
@@ -428,9 +432,12 @@
 								<span class="icon-[mdi--check-circle] h-5 w-5 text-success"></span>
 								<h2 class="text-xl font-semibold text-success">Analysis Complete</h2>
 								{#if hasExistingAnalysis && analysisDate}
-									<div class="badge badge-info gap-1">
+									<div class="badge gap-1 badge-info">
 										<span class="icon-[mdi--database] h-3 w-3"></span>
-										<span class="text-xs">From {analysisDate.toLocaleDateString()} {analysisDate.toLocaleTimeString()}</span>
+										<span class="text-xs"
+											>From {analysisDate.toLocaleDateString()}
+											{analysisDate.toLocaleTimeString()}</span
+										>
 									</div>
 								{/if}
 							</div>
@@ -438,7 +445,9 @@
 						<div class="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
 							<div>
 								<span class="text-base-content/70">Modules Run:</span>
-								<span class="ml-2 font-bold text-base-content">{lastRun.moduleResults?.length || 0}</span>
+								<span class="ml-2 font-bold text-base-content"
+									>{lastRun.moduleResults?.length || 0}</span
+								>
 							</div>
 							<div>
 								<span class="text-base-content/70">Messages Analyzed:</span>
@@ -447,7 +456,8 @@
 							{#if extractedSuggestions.length > 0}
 								<div>
 									<span class="text-base-content/70">Suggestions Found:</span>
-									<span class="ml-2 font-bold text-base-content">{extractedSuggestions.length}</span>
+									<span class="ml-2 font-bold text-base-content">{extractedSuggestions.length}</span
+									>
 								</div>
 							{/if}
 						</div>
@@ -462,25 +472,25 @@
 							</div>
 
 							<div class="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
-								<div class="rounded border border-base-300 bg-base-50 p-3 text-center">
+								<div class="bg-base-50 rounded border border-base-300 p-3 text-center">
 									<div class="text-lg font-bold text-base-content">
 										{usageInfo.current?.analysesUsed || 0}
 									</div>
 									<div class="text-xs text-base-content/70">Total Analyses</div>
 								</div>
-								<div class="rounded border border-base-300 bg-base-50 p-3 text-center">
+								<div class="bg-base-50 rounded border border-base-300 p-3 text-center">
 									<div class="text-lg font-bold text-base-content">
 										{usageInfo.current?.basicAnalysesUsed || 0}
 									</div>
 									<div class="text-xs text-base-content/70">Basic Analyses</div>
 								</div>
-								<div class="rounded border border-base-300 bg-base-50 p-3 text-center">
+								<div class="bg-base-50 rounded border border-base-300 p-3 text-center">
 									<div class="text-lg font-bold text-base-content">
 										{usageInfo.current?.advancedGrammarUsed || 0}
 									</div>
 									<div class="text-xs text-base-content/70">Advanced Grammar</div>
 								</div>
-								<div class="rounded border border-base-300 bg-base-50 p-3 text-center">
+								<div class="bg-base-50 rounded border border-base-300 p-3 text-center">
 									<div class="text-lg font-bold text-base-content">
 										{usageInfo.current?.fluencyAnalysisUsed || 0}
 									</div>
@@ -493,14 +503,22 @@
 					<!-- Detailed Module Results (Collapsible) -->
 					{#if lastRun.moduleResults && lastRun.moduleResults.length > 0}
 						<details class="group rounded-lg border border-base-300">
-							<summary class="flex cursor-pointer items-center justify-between bg-base-50 p-4 hover:bg-base-100">
+							<summary
+								class="bg-base-50 flex cursor-pointer items-center justify-between p-4 hover:bg-base-100"
+							>
 								<h3 class="flex items-center gap-2 font-semibold">
-									<span class="icon-[mdi--chevron-down] h-5 w-5 transition-transform group-open:rotate-180"></span>
+									<span
+										class="icon-[mdi--chevron-down] h-5 w-5 transition-transform group-open:rotate-180"
+									></span>
 									Module Details ({lastRun.moduleResults.length})
 								</h3>
 								<div class="flex gap-2">
 									<label class="flex cursor-pointer items-center gap-2">
-										<input type="checkbox" class="toggle toggle-sm" bind:checked={showRawAnalysis} />
+										<input
+											type="checkbox"
+											class="toggle toggle-sm"
+											bind:checked={showRawAnalysis}
+										/>
 										<span class="text-sm">Raw JSON</span>
 									</label>
 								</div>
@@ -530,7 +548,9 @@
 										{#if moduleResult.summary}
 											<div class="mb-3">
 												<h4 class="mb-1 text-sm font-medium text-base-content/80">Summary:</h4>
-												<p class="rounded border-l-4 border-primary bg-base-100 p-3 text-base-content">
+												<p
+													class="rounded border-l-4 border-primary bg-base-100 p-3 text-base-content"
+												>
 													{moduleResult.summary}
 												</p>
 											</div>
@@ -577,13 +597,14 @@
 
 							<!-- Raw Analysis JSON -->
 							{#if showRawAnalysis}
-								<div class="border-t border-base-300 bg-base-50 p-4">
+								<div class="bg-base-50 border-t border-base-300 p-4">
 									<div class="mb-4 flex items-center gap-2">
 										<span class="icon-[mdi--code-json] h-5 w-5"></span>
 										<h4 class="font-semibold">Raw Analysis JSON</h4>
 										<button
 											class="btn ml-auto btn-outline btn-xs"
-											onclick={() => navigator.clipboard.writeText(JSON.stringify(lastRun, null, 2))}
+											onclick={() =>
+												navigator.clipboard.writeText(JSON.stringify(lastRun, null, 2))}
 											>Copy JSON</button
 										>
 									</div>

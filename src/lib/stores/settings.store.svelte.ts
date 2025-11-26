@@ -121,7 +121,7 @@ export class SettingsStore {
 				const language = allLanguages.find((lang) => lang.code === storedLanguageCode);
 				if (language) {
 					this.selectedLanguage = language;
-					logger.info('🌍 Language loaded from storage:', language.name, `(${language.code})`);
+					logger.info('🌍 Language loaded from storage:', language.name);
 				} else {
 					logger.warn(
 						'⚠️ Stored language code not found in available languages:',

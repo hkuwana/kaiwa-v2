@@ -362,7 +362,7 @@
 								<div class="flex gap-2">
 									<button
 										class="btn flex-1 gap-1 shadow-sm btn-sm btn-primary"
-										onclick={(e) => handleTryScenario(scenario, e)}
+										onclick={(e) => handleTryScenario(scenario)}
 									>
 										<span class="icon-[mdi--play] h-4 w-4"></span>
 										<span>Start</span>
@@ -552,7 +552,7 @@
 								<div class="flex gap-2">
 									<button
 										class="btn flex-1 gap-1 shadow-sm btn-sm btn-primary"
-										onclick={(e) => handleTryScenario(scenario, e)}
+										onclick={(e) => handleTryScenario(scenario)}
 									>
 										<span class="icon-[mdi--play] h-4 w-4"></span>
 										<span>Start</span>
@@ -741,7 +741,7 @@
 				<div class="flex gap-3">
 					<button
 						class="btn flex-1 gap-2 shadow-md btn-primary"
-						onclick={(e) => handleTryScenario(scenario, e)}
+						onclick={(e) => handleTryScenario(scenario)}
 					>
 						<span class="icon-[mdi--play] h-5 w-5"></span>
 						<span>Start Scenario</span>

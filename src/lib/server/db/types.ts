@@ -28,7 +28,14 @@ import {
 	userFeatureProfiles,
 	scenarioVisibilityEnum,
 	scenarioMetadata,
-	userScenarioProgress
+	userScenarioProgress,
+	learningPaths,
+	learningPathStatusEnum,
+	scenarioGenerationQueue,
+	queueStatusEnum,
+	learningPathAssignments,
+	assignmentRoleEnum,
+	assignmentStatusEnum
 } from './schema';
 
 // Tier type definitions
@@ -66,6 +73,9 @@ export type AnalysisSuggestionSeverity = (typeof analysisSuggestionSeverityEnum.
 export type AnalysisFindingAction = (typeof analysisFindingActionEnum.enumValues)[number];
 export type AnalysisFinding = InferSelectModel<typeof analysisFindings>;
 export type UserFeatureProfile = InferSelectModel<typeof userFeatureProfiles>;
+export type LearningPath = InferSelectModel<typeof learningPaths>;
+export type ScenarioGenerationQueue = InferSelectModel<typeof scenarioGenerationQueue>;
+export type LearningPathAssignment = InferSelectModel<typeof learningPathAssignments>;
 
 // Helper types for audio analysis
 export type SpeechTiming = NonNullable<MessageAudioAnalysis['speechTimings']>[number];
@@ -96,4 +106,13 @@ export type NewLinguisticFeature = InferInsertModel<typeof linguisticFeatures>;
 export type NewLinguisticFeatureAlias = InferInsertModel<typeof linguisticFeatureAliases>;
 export type NewAnalysisFinding = InferInsertModel<typeof analysisFindings>;
 export type NewUserFeatureProfile = InferInsertModel<typeof userFeatureProfiles>;
+export type NewLearningPath = InferInsertModel<typeof learningPaths>;
+export type NewScenarioGenerationQueue = InferInsertModel<typeof scenarioGenerationQueue>;
+export type NewLearningPathAssignment = InferInsertModel<typeof learningPathAssignments>;
+
+// Enum types
 export type ScenarioVisibility = (typeof scenarioVisibilityEnum.enumValues)[number];
+export type LearningPathStatus = (typeof learningPathStatusEnum.enumValues)[number];
+export type QueueStatus = (typeof queueStatusEnum.enumValues)[number];
+export type AssignmentRole = (typeof assignmentRoleEnum.enumValues)[number];
+export type AssignmentStatus = (typeof assignmentStatusEnum.enumValues)[number];

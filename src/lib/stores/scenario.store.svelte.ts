@@ -99,11 +99,7 @@ export class ScenarioStore {
 			if (storedHistory) {
 				try {
 					this.scenarioHistory = JSON.parse(storedHistory);
-					logger.info(
-						'📚 Scenario history loaded from storage:',
-						this.scenarioHistory.length,
-						'items'
-					);
+					logger.info('📚 Scenario history loaded from storage:', this.scenarioHistory.length);
 				} catch (error) {
 					logger.warn('⚠️ Failed to parse scenario history:', error);
 					this.scenarioHistory = [];
@@ -169,7 +165,7 @@ export class ScenarioStore {
 		try {
 			// Store in localStorage
 			localStorage.setItem(STORAGE_KEYS.SCENARIO_HISTORY, JSON.stringify(history));
-			logger.info('💾 Scenario history persisted:', history.length, 'items');
+			logger.info('💾 Scenario history persisted:', history.length);
 		} catch (error) {
 			logger.warn('⚠️ Failed to persist scenario history:', error);
 		}

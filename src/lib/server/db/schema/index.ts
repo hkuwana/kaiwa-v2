@@ -87,6 +87,15 @@ export { analyticsEvents } from './analytics-events';
 export { scenarioMetadata } from './scenario-metadata';
 export { userScenarioProgress } from './user-scenario-progress';
 
+// 📚 Learning Paths (structured multi-week learning programs)
+export { learningPaths, learningPathStatusEnum } from './learning-paths';
+export { scenarioGenerationQueue, queueStatusEnum } from './scenario-generation-queue';
+export {
+	learningPathAssignments,
+	assignmentRoleEnum,
+	assignmentStatusEnum
+} from './learning-path-assignments';
+
 // 📝 Note: Newsletter removed; preferences live on userPreferences
 
 // 🚀 Advanced schemas moved to /v2 for future implementation:

@@ -1,6 +1,8 @@
 // src/lib/utils/cefr.ts
 // Helper utilities for working with CEFR-aligned difficulty ratings
 
+import type { Scenario } from '$lib/types';
+
 export type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
 
 // 1-8 scale where higher numbers indicate more advanced CEFR proficiency.
@@ -119,10 +121,7 @@ export function getLearnerCefrLevel(preferences: { speakingLevel?: number | null
 }
 
 // Helper for scenario difficulty
-export function getScenarioCefrLevel(scenario?: {
-	cefrLevel?: CEFRLevel;
-	difficultyRating?: number;
-}): CEFRLevel {
+export function getScenarioCefrLevel(scenario?: Scenario): CEFRLevel {
 	if (!scenario) return 'A1';
-	return scenario.cefrLevel || difficultyRatingToCefr(scenario.difficultyRating);
+	return (scenario.cefrLevel as CEFRLevel) || difficultyRatingToCefr(scenario.difficultyRating);
 }

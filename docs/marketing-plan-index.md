@@ -131,7 +131,7 @@ See: [Days 29-30](./marketing-days-29-30.md)
 - [ ] Email automation set up
 - [ ] Second Practice Lab hosted
 - [ ] 10+ warm leads added (20 total)
- - [ ] 5–10 Weekly Active Conversation Users (WACU) tracked
+- [ ] 5–10 Weekly Active Conversation Users (WACU) tracked
 
 ### Week 3
 
@@ -141,7 +141,7 @@ See: [Days 29-30](./marketing-days-29-30.md)
 - [ ] Third Practice Lab hosted
 - [ ] Partnership conversations started
 - [ ] 30+ warm leads total
- - [ ] 10–15 Weekly Active Conversation Users (WACU) tracked
+- [ ] 10–15 Weekly Active Conversation Users (WACU) tracked
 
 ### Week 4
 
@@ -167,7 +167,7 @@ See: [Days 29-30](./marketing-days-29-30.md)
 - 4 Practice Labs hosted
 - 15-20 total attendees
 - 30+ warm leads in tracker
- - 10–20 Weekly Active Conversation Users (WACU), avg ≥2 conversations per active user
+- 10–20 Weekly Active Conversation Users (WACU), avg ≥2 conversations per active user
 
 ### Conversion
 

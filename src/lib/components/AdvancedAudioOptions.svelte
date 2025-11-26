@@ -193,7 +193,7 @@
 						<strong>Conversation Mode</strong> works best with headphones or earbuds to prevent audio
 						feedback loops.
 					</p>
-					<div class="alert alert-warning py-2">
+					<div class="alert py-2 alert-warning">
 						<span class="icon-[mdi--headphones] h-5 w-5 shrink-0"></span>
 						<span class="text-xs"
 							>Without headphones, the assistant's voice may be picked up by your microphone,
