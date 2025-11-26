@@ -14,9 +14,15 @@ if (!connectionString) {
 }
 
 // Create postgres client
+// Note: Connection pool size - increase for better concurrency
+// Development: 5 connections should be enough
+// Production: Consider 10-20 depending on your database plan limits
+const isProduction = env.NODE_ENV === 'production';
 const client = postgres(connectionString, {
-	max: 1,
-	ssl: env.NODE_ENV === 'production' ? 'require' : false
+	max: isProduction ? 10 : 5,
+	idle_timeout: 20, // Close idle connections after 20 seconds
+	connect_timeout: 30, // 30 second connection timeout
+	ssl: isProduction ? 'require' : false
 });
 
 // Create drizzle instance with schema
