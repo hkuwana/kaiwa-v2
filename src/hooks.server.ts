@@ -58,11 +58,11 @@ const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
 	// Content Security Policy - Secure but allows furigana HTML
 	const cspDirectives = [
 		"default-src 'self'",
-		"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://app.posthog.com https://us-assets.i.posthog.com", // Allow Stripe, PostHog
-		"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com", // Allow inline styles for components, Google Fonts
+		"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://app.posthog.com https://us.posthog.com https://us-assets.i.posthog.com", // Allow Stripe, PostHog
+		"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://us.posthog.com", // Allow inline styles for components, Google Fonts, PostHog toolbar
 		"font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com", // Google Fonts
 		"img-src 'self' data: https: blob:", // Allow images from various sources
-		"connect-src 'self' https://api.stripe.com https://api.openai.com wss://realtime.api.openai.com https://app.posthog.com https://us.i.posthog.com https://us-assets.i.posthog.com", // API connections
+		"connect-src 'self' https://api.stripe.com https://api.openai.com wss://realtime.api.openai.com https://app.posthog.com https://us.posthog.com https://us.i.posthog.com https://us-assets.i.posthog.com https://internal-j.posthog.com", // API connections + PostHog ingest/toolbar
 		"media-src 'self' blob: data:", // Audio/video from blob URLs and data
 		"object-src 'none'", // Block Flash/Java objects
 		"frame-src 'self' https://js.stripe.com https://hooks.stripe.com", // Allow Stripe frames
