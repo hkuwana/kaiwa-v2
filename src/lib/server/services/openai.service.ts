@@ -231,10 +231,178 @@ export function parseAndValidateJSON<T>(jsonString: string): T | null {
 	}
 }
 
+export interface GenerateScenarioOptions {
+	description: string;
+	mode: 'tutor' | 'character';
+	languageId?: string;
+}
+
+export interface GeneratedScenarioContent {
+	title: string;
+	description: string;
+	instructions: string;
+	context: string;
+	expectedOutcome: string;
+	learningGoal: string;
+	learningObjectives: string[];
+	difficulty: 'beginner' | 'intermediate' | 'advanced';
+	cefrLevel: string;
+	persona: {
+		title: string;
+		introPrompt: string;
+	} | null;
+}
+
+/**
+ * Generate a rich scenario using GPT based on user's description
+ */
+export async function generateScenarioWithGPT(
+	options: GenerateScenarioOptions
+): Promise<{ content: GeneratedScenarioContent; tokensUsed: number }> {
+	const { description, mode, languageId } = options;
+	const targetLanguage = languageId || 'Japanese';
+
+	const systemPrompt = `You are a language learning scenario designer. Create engaging, realistic conversation scenarios for ${targetLanguage} learners.
+
+Your task is to expand a user's brief description into a complete, detailed scenario for language practice.
+
+Return a JSON object with the following structure:
+{
+  "title": "A concise, engaging title (max 60 chars)",
+  "description": "A brief description of the scenario (1-2 sentences)",
+  "instructions": "Detailed instructions for the AI conversation partner on how to behave and respond",
+  "context": "The setting and background context for the conversation",
+  "expectedOutcome": "What the learner should accomplish by the end",
+  "learningGoal": "The main language learning objective",
+  "learningObjectives": ["objective1", "objective2", "objective3"],
+  "difficulty": "beginner" | "intermediate" | "advanced",
+  "cefrLevel": "A1" | "A2" | "B1" | "B2" | "C1" | "C2",
+  "persona": {
+    "title": "The role/character name",
+    "introPrompt": "Opening line or greeting for the conversation"
+  }
+}
+
+Guidelines:
+- Make scenarios realistic and practical for everyday situations
+- For "tutor" mode: Focus on teaching and gentle correction
+- For "character" mode: Focus on realistic roleplay and natural conversation
+- Include culturally appropriate elements when relevant
+- Learning objectives should be specific and achievable
+- The persona should have a clear identity that fits the scenario`;
+
+	const userPrompt = `Create a ${mode === 'tutor' ? 'tutoring' : 'roleplay'} scenario for ${targetLanguage} practice based on this description:
+
+"${description}"
+
+Mode: ${mode === 'tutor' ? 'Language Tutor (supportive, corrective, educational)' : 'Character Roleplay (realistic, immersive, in-character)'}
+
+Generate a complete scenario JSON.`;
+
+	const messages: ChatCompletionMessageParam[] = [
+		{ role: 'system', content: systemPrompt },
+		{ role: 'user', content: userPrompt }
+	];
+
+	const response = await createCompletion(messages, {
+		model: 'gpt-4o-mini',
+		temperature: 0.7,
+		maxTokens: 1200,
+		responseFormat: 'json'
+	});
+
+	const parsed = parseAndValidateJSON<GeneratedScenarioContent>(response.content);
+
+	if (!parsed) {
+		throw new Error('Failed to parse GPT response for scenario generation');
+	}
+
+	return {
+		content: parsed,
+		tokensUsed: response.usage?.totalTokens ?? 0
+	};
+}
+
+/**
+ * Generate a scenario based on user memories using GPT
+ */
+export async function generateScenarioFromMemoriesWithGPT(options: {
+	memories: string[];
+	mode: 'tutor' | 'character';
+	languageId?: string;
+}): Promise<{ content: GeneratedScenarioContent; tokensUsed: number }> {
+	const { memories, mode, languageId } = options;
+	const targetLanguage = languageId || 'Japanese';
+
+	const memoriesText = memories.slice(0, 5).join('\n- ');
+
+	const systemPrompt = `You are a language learning scenario designer. Create personalized, engaging conversation scenarios based on what you know about the learner.
+
+Your task is to create a scenario that connects to the learner's interests, experiences, or goals.
+
+Return a JSON object with the following structure:
+{
+  "title": "A concise, engaging title (max 60 chars)",
+  "description": "A brief description of the scenario (1-2 sentences)",
+  "instructions": "Detailed instructions for the AI conversation partner on how to behave and respond",
+  "context": "The setting and background context for the conversation",
+  "expectedOutcome": "What the learner should accomplish by the end",
+  "learningGoal": "The main language learning objective",
+  "learningObjectives": ["objective1", "objective2", "objective3"],
+  "difficulty": "beginner" | "intermediate" | "advanced",
+  "cefrLevel": "A1" | "A2" | "B1" | "B2" | "C1" | "C2",
+  "persona": {
+    "title": "The role/character name",
+    "introPrompt": "Opening line or greeting for the conversation"
+  }
+}
+
+Guidelines:
+- Connect the scenario to the learner's stated interests or experiences
+- Make it personally relevant and motivating
+- For "tutor" mode: Focus on teaching and gentle correction
+- For "character" mode: Focus on realistic roleplay and natural conversation
+- Include culturally appropriate elements when relevant`;
+
+	const userPrompt = `Create a personalized ${mode === 'tutor' ? 'tutoring' : 'roleplay'} scenario for ${targetLanguage} practice.
+
+What I know about this learner:
+- ${memoriesText}
+
+Mode: ${mode === 'tutor' ? 'Language Tutor (supportive, corrective, educational)' : 'Character Roleplay (realistic, immersive, in-character)'}
+
+Generate a scenario that connects to their interests and would be meaningful for them.`;
+
+	const messages: ChatCompletionMessageParam[] = [
+		{ role: 'system', content: systemPrompt },
+		{ role: 'user', content: userPrompt }
+	];
+
+	const response = await createCompletion(messages, {
+		model: 'gpt-4o-mini',
+		temperature: 0.8,
+		maxTokens: 1200,
+		responseFormat: 'json'
+	});
+
+	const parsed = parseAndValidateJSON<GeneratedScenarioContent>(response.content);
+
+	if (!parsed) {
+		throw new Error('Failed to parse GPT response for memory-based scenario generation');
+	}
+
+	return {
+		content: parsed,
+		tokensUsed: response.usage?.totalTokens ?? 0
+	};
+}
+
 export default {
 	createCompletion,
 	analyzeOnboardingConversation,
 	generateLearningPlan,
 	generateLessonContent,
-	parseAndValidateJSON
+	parseAndValidateJSON,
+	generateScenarioWithGPT,
+	generateScenarioFromMemoriesWithGPT
 };

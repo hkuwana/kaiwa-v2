@@ -14,6 +14,11 @@ import {
 import { scenarioRepository } from '$lib/server/repositories';
 import { getUserCurrentTier } from '$lib/server/services/payment.service';
 import { serverTierConfigs } from '$lib/server/tiers';
+import {
+	generateScenarioWithGPT,
+	generateScenarioFromMemoriesWithGPT
+} from '$lib/server/services/openai.service';
+import { logger } from '$lib/logger';
 
 export interface UserScenarioSummary {
 	id: string;
@@ -403,6 +408,100 @@ export async function generateScenarioDraft(
 
 	const now = new Date();
 	const id = randomUUID();
+
+	// Try GPT generation first
+	try {
+		logger.info('🎭 [Scenario Generation] Calling GPT to generate scenario', {
+			description: sanitizedDescription.slice(0, 100),
+			mode
+		});
+
+		const gptResult = await generateScenarioWithGPT({
+			description: sanitizedDescription,
+			mode,
+			languageId: request.languageId
+		});
+
+		const gptContent = gptResult.content;
+
+		// Map CEFR level to difficulty rating
+		const difficultyRating = getDifficultyRating(gptContent.difficulty);
+
+		const scenario: Scenario = {
+			id,
+			title: gptContent.title || sanitizedDescription.slice(0, 60),
+			description: gptContent.description || sanitizedDescription,
+			role: mode === 'tutor' ? 'tutor' : 'character',
+			difficulty: gptContent.difficulty || 'intermediate',
+			difficultyRating,
+			cefrLevel: gptContent.cefrLevel || 'B1',
+			cefrRecommendation: gptContent.cefrLevel || 'B1',
+			instructions: gptContent.instructions,
+			context: gptContent.context || sanitizedDescription,
+			expectedOutcome: gptContent.expectedOutcome,
+			learningObjectives: gptContent.learningObjectives || [],
+			comfortIndicators: {
+				confidence: 3,
+				engagement: 4,
+				understanding: 3
+			},
+			persona: gptContent.persona,
+			learningGoal: gptContent.learningGoal,
+			visibility: 'public',
+			createdByUserId: null,
+			usageCount: 0,
+			isActive: true,
+			createdAt: now,
+			updatedAt: now,
+			// Phase 1: Discovery & Sharing fields
+			categories: null,
+			tags: null,
+			primarySkill: 'conversation',
+			searchKeywords: null,
+			thumbnailUrl: null,
+			estimatedDurationSeconds: null,
+			authorDisplayName: null,
+			shareSlug: null,
+			shareUrl: null
+		};
+
+		logger.info('🎭 [Scenario Generation] GPT scenario generated successfully', {
+			title: scenario.title,
+			tokensUsed: gptResult.tokensUsed
+		});
+
+		return {
+			draft: scenario,
+			sourceModel: 'gpt-4o-mini',
+			tokensUsed: gptResult.tokensUsed
+		};
+	} catch (error) {
+		logger.warn('🎭 [Scenario Generation] GPT failed, falling back to local generation', {
+			error: error instanceof Error ? error.message : 'Unknown error'
+		});
+
+		// Fall back to local generation
+		return generateLocalScenarioDraft(id, sanitizedDescription, mode, now);
+	}
+}
+
+function getDifficultyRating(difficulty: string): number {
+	switch (difficulty) {
+		case 'beginner':
+			return 2;
+		case 'advanced':
+			return 5;
+		default:
+			return 4;
+	}
+}
+
+function generateLocalScenarioDraft(
+	id: string,
+	sanitizedDescription: string,
+	mode: ScenarioMode,
+	now: Date
+): AuthorScenarioResponse {
 	const title =
 		sanitizedDescription.length > 60
 			? `${sanitizedDescription.slice(0, 57)}...`
@@ -451,14 +550,14 @@ export async function generateScenarioDraft(
 		createdAt: now,
 		updatedAt: now,
 		// Phase 1: Discovery & Sharing fields (optional for custom scenarios)
-		categories: null, // Users can add these later if desired
+		categories: null,
 		tags: null,
-		primarySkill: 'conversation', // Default to conversation for all custom scenarios
+		primarySkill: 'conversation',
 		searchKeywords: null,
 		thumbnailUrl: null,
-		estimatedDurationSeconds: null, // Optional UX hint - not used for tier tracking
-		authorDisplayName: null, // Will be set on save to user's display name
-		shareSlug: null, // Generated on save if scenario is made shareable
+		estimatedDurationSeconds: null,
+		authorDisplayName: null,
+		shareSlug: null,
 		shareUrl: null
 	};
 
@@ -482,9 +581,94 @@ export interface GenerateFromMemoriesRequest {
 export async function generateScenarioFromMemories(
 	request: GenerateFromMemoriesRequest
 ): Promise<AuthorScenarioResponse> {
-	const { memories = [], mode = 'character', languageId: _languageId } = request;
+	const { memories = [], mode = 'character', languageId } = request;
 
-	// Create a description based on memories
+	const now = new Date();
+	const id = randomUUID();
+
+	// Try GPT generation first
+	try {
+		logger.info('🎭 [Scenario Generation] Calling GPT to generate scenario from memories', {
+			memoriesCount: memories.length,
+			mode
+		});
+
+		const gptResult = await generateScenarioFromMemoriesWithGPT({
+			memories,
+			mode,
+			languageId
+		});
+
+		const gptContent = gptResult.content;
+		const difficultyRating = getDifficultyRating(gptContent.difficulty);
+
+		const scenario: Scenario = {
+			id,
+			title: gptContent.title,
+			description: gptContent.description,
+			role: mode === 'tutor' ? 'tutor' : 'character',
+			difficulty: gptContent.difficulty || 'intermediate',
+			difficultyRating,
+			cefrLevel: gptContent.cefrLevel || 'B1',
+			cefrRecommendation: gptContent.cefrLevel || 'B1',
+			instructions: gptContent.instructions,
+			context: gptContent.context,
+			expectedOutcome: gptContent.expectedOutcome,
+			learningObjectives: gptContent.learningObjectives || [],
+			comfortIndicators: {
+				confidence: 3,
+				engagement: 4,
+				understanding: 3
+			},
+			persona: gptContent.persona,
+			learningGoal: gptContent.learningGoal,
+			visibility: 'public',
+			createdByUserId: null,
+			usageCount: 0,
+			isActive: true,
+			createdAt: now,
+			updatedAt: now,
+			// Phase 1: Discovery & Sharing fields
+			categories: null,
+			tags: null,
+			primarySkill: 'conversation',
+			searchKeywords: null,
+			thumbnailUrl: null,
+			estimatedDurationSeconds: null,
+			authorDisplayName: null,
+			shareSlug: null,
+			shareUrl: null
+		};
+
+		logger.info('🎭 [Scenario Generation] GPT memory-based scenario generated successfully', {
+			title: scenario.title,
+			tokensUsed: gptResult.tokensUsed
+		});
+
+		return {
+			draft: scenario,
+			sourceModel: 'gpt-4o-mini',
+			tokensUsed: gptResult.tokensUsed
+		};
+	} catch (error) {
+		logger.warn(
+			'🎭 [Scenario Generation] GPT failed for memories, falling back to local generation',
+			{
+				error: error instanceof Error ? error.message : 'Unknown error'
+			}
+		);
+
+		// Fall back to local generation
+		return generateLocalMemoriesScenarioDraft(id, memories, mode, now);
+	}
+}
+
+function generateLocalMemoriesScenarioDraft(
+	id: string,
+	memories: string[],
+	mode: ScenarioMode,
+	now: Date
+): AuthorScenarioResponse {
 	const memoriesText = memories.slice(0, 5).join(' ');
 	const description =
 		memoriesText.length > 0
@@ -493,8 +677,6 @@ export async function generateScenarioFromMemories(
 
 	const sanitizedDescription = sanitizeText(description, 'Custom conversation practice');
 
-	const now = new Date();
-	const id = randomUUID();
 	const title =
 		memories.length > 0
 			? `Custom Scenario: ${memories[0].slice(0, 40)}${memories[0].length > 40 ? '...' : ''}`
@@ -536,17 +718,27 @@ export async function generateScenarioFromMemories(
 			mode === 'tutor'
 				? 'Practice language relevant to personal interests and goals'
 				: 'Navigate a personally meaningful scenario naturally',
-		visibility: 'private',
+		visibility: 'public',
 		createdByUserId: null,
 		usageCount: 0,
 		isActive: true,
 		createdAt: now,
-		updatedAt: now
+		updatedAt: now,
+		// Phase 1: Discovery & Sharing fields
+		categories: null,
+		tags: null,
+		primarySkill: 'conversation',
+		searchKeywords: null,
+		thumbnailUrl: null,
+		estimatedDurationSeconds: null,
+		authorDisplayName: null,
+		shareSlug: null,
+		shareUrl: null
 	};
 
 	return {
 		draft: baseScenario,
-		sourceModel: 'memories-based',
+		sourceModel: 'local-fallback',
 		tokensUsed: 0
 	};
 }
