@@ -86,7 +86,70 @@ Goal: Turn proofs into lightweight virality and referrals.
 
 ## ✅ The Simple Truth
 
-We’re not chasing points or streaks. We’re replacing a tech crutch (subtitles/auto‑translate) with real speech in the moments that matter. Less drama, more practice — so you’re understood by the people you love.
+We're not chasing points or streaks. We're replacing a tech crutch (subtitles/auto‑translate) with real speech in the moments that matter. Less drama, more practice — so you're understood by the people you love.
+
+---
+
+## 🎯 Personalized Paths: The High-Touch Offering
+
+> **New (Nov 2025)**: A custom 2-week scenario journey built for ONE user's specific goal.
+
+### What It Is
+
+- 15-minute discovery call to understand their exact situation
+- 14 custom scenarios delivered daily, tailored to THEIR goal
+- Async check-ins via WhatsApp/email
+- Includes 1 month of Kaiwa Plus
+
+### Pricing
+
+| Segment | Price | Rationale |
+|---------|-------|-----------|
+| **Founding Members** | FREE | They're beta testing; goodwill = referrals |
+| **New Users (2-week)** | $49 | Consumer-friendly impulse price |
+| **New Users (4-week)** | $79 | Better value per day |
+| **Monthly Custom Add-on** | $29/month | Ongoing custom scenarios |
+
+### Why $49 (Not $99)
+
+- Consumer app = impulse purchase territory
+- $49 compares favorably to 1-2 italki lessons
+- Lower friction → more conversions → more testimonials
+- Can raise prices after proof (testimonials, case studies)
+
+### How It Fits the Funnel
+
+```
+Reddit/Quora comment (value-first)
+         ↓
+User checks profile → tries free tier
+         ↓
+    ┌────┴────┐
+    ↓         ↓
+$14/mo    $49 Path ← HIGH CONVERSION OFFER
+ Plus    (one-time)
+    ↓         ↓
+    └────┬────┘
+         ↓
+$29/mo Pro (ongoing custom)
+```
+
+### Sample Pitch (Reddit/DM)
+
+```
+Hey! I saw your post about [meeting boyfriend's parents / talking to grandma / etc].
+
+I run Kaiwa, a conversation practice app. I'm offering something that might help:
+a Personalized Path.
+
+- 15-min call where you tell me your exact situation
+- I build you 14 custom scenarios (one per day)
+- Each one tailored to YOUR goal
+
+$49 for the full 2-week path. Interested?
+```
+
+**See**: [personalized-paths.md](personalized-paths.md) for full strategy
 
 ---
 
