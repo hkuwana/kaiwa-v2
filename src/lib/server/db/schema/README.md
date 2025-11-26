@@ -222,6 +222,77 @@ This document provides a comprehensive overview of all database schemas in the K
   - `userAgent`, `ipAddress`, `referrer`
 - **Usage**: Tracks user events for analytics, conversion tracking, and behavior analysis
 
+### Learning Paths & Curriculum
+
+#### `learningPaths`
+
+**Purpose**: Structured 4-week learning curricula and templates
+
+- **Primary Key**: `id` (text, slug-like)
+- **Key Fields**:
+  - `userId` (nullable for anonymous templates)
+  - `title`, `description` (scrubbed for public templates)
+  - `targetLanguage` (e.g., 'ja', 'es', 'fr')
+  - `schedule` (JSON array of day entries with themes, difficulty, scenarioId)
+  - `isTemplate`, `isPublic` (template vs user-specific, SEO visibility)
+  - `shareSlug` (SEO-friendly public URL slug)
+  - `status` (enum: draft/active/archived)
+  - `createdByUserId` (creator for authored courses)
+  - `metadata` (JSON: cefrLevel, primarySkill, estimatedMinutesPerDay, category, tags)
+- **Usage**: Stores 4-week learning path definitions that can be user-specific (generated from preferences), creator-authored (custom courses), or anonymous templates (public, SEO-friendly). Each path contains a schedule of daily lessons with themes, difficulty progression, and linked scenarios.
+
+#### `learningPathAssignments`
+
+**Purpose**: User enrollment and progress tracking in learning paths
+
+- **Primary Key**: `id` (UUID)
+- **Key Fields**:
+  - `pathId` (references learningPaths)
+  - `userId` (user enrolled in this path)
+  - `role` (enum: tester/learner - for early testers vs regular users)
+  - `status` (enum: invited/active/completed/archived)
+  - `startsAt` (when this course starts for this user)
+  - `currentDayIndex` (0 = not started, 1-28 = current day)
+  - `completedAt` (completion timestamp)
+  - `emailRemindersEnabled` (opt-in for daily reminder emails)
+  - `lastEmailSentAt` (email tracking)
+  - `metadata` (JSON: invitedBy, inviteNote, feedbackRequested, customStartTime)
+- **Usage**: Tracks which users are following which learning paths, supporting both testers (early users testing creator-authored courses) and learners (regular users). Enables email automation, progress tracking, cohort management, and tester feedback loops. Unique constraint: one assignment per user-path combination.
+
+#### `learningPathPreviews`
+
+**Purpose**: Temporary preview sessions for instant path creation
+
+- **Primary Key**: `id` (UUID)
+- **Key Fields**:
+  - `userId` (user creating this preview)
+  - `sessionId` (short ID for URL, e.g., 'abc123', unique)
+  - `intent` (original user intent text)
+  - `title`, `description` (generated path metadata)
+  - `targetLanguage`, `sourceLanguage`
+  - `schedule` (complete 30-day schedule, same format as learningPaths)
+  - `previewScenarios` (JSON: embedded scenario data for days 1-3)
+  - `status` (enum: generating/ready/committed)
+  - `committedPathId` (link to created learning_path if committed)
+  - `expiresAt` (auto-delete after 24h)
+  - `metadata` (JSON: parsedIntent, refinementHistory, regeneratedDays)
+- **Usage**: Stores temporary preview sessions (8-12 second generation) when users create learning paths through dashboard. Previews show first 3 scenarios before committing, support natural language refinement and individual scenario regeneration. Auto-cleanup cron deletes expired/committed previews.
+
+#### `scenarioGenerationQueue`
+
+**Purpose**: Background job queue for async scenario generation
+
+- **Primary Key**: `id` (UUID)
+- **Key Fields**:
+  - `pathId` (references learningPaths)
+  - `dayIndex` (1-based day number: 1, 2, 3, ..., 28)
+  - `targetGenerationDate` (when scenario should be ready, timezone-aware)
+  - `status` (enum: pending/processing/ready/failed)
+  - `lastError` (error message for debugging)
+  - `retryCount` (for exponential backoff)
+  - `lastProcessedAt` (timeout detection)
+- **Usage**: Acts as job queue for background scenario generation. When a learning path is created, queue entries are created for each day needing a scenario. Background workers process these jobs, generate scenarios via LLM, and link them back to the learning path schedule. Supports both JIT and pre-generation strategies.
+
 ## 🔄 Schema Relationships
 
 ### Primary Relationships
@@ -229,11 +300,16 @@ This document provides a comprehensive overview of all database schemas in the K
 - `users` → `userPreferences` (1:1)
 - `users` → `conversations` (1:many)
 - `users` → `subscriptions` (1:many)
+- `users` → `learningPathAssignments` (1:many)
+- `users` → `learningPathPreviews` (1:many)
+- `users` → `learningPaths` (1:many, as creator via createdByUserId)
 - `conversations` → `messages` (1:many)
 - `languages` → `speakers` (1:many)
 - `scenarios` → `userScenarioProgress` (1:many)
 - `scenarios` → `scenarioMetadata` (1:1)
 - `tiers` → `subscriptions` (1:many)
+- `learningPaths` → `learningPathAssignments` (1:many)
+- `learningPaths` → `scenarioGenerationQueue` (1:many)
 
 ### Key Design Patterns
 
@@ -242,6 +318,10 @@ This document provides a comprehensive overview of all database schemas in the K
 - **Flexible Analytics**: JSON fields for extensible event properties and analysis
 - **Usage Banking**: Session time can roll over between months
 - **Progressive Enhancement**: MVP schemas with v2 folder for advanced features
+- **Curriculum Management**: Learning paths support user-specific, creator-authored, and anonymous public templates
+- **Preview & Commit**: Temporary preview sessions allow refinement before committing to full learning paths
+- **Async Generation**: Background job queue for scenario generation with retry logic and error handling
+- **PII Protection**: Public templates scrub user data for SEO and sharing
 
 ## 📁 V2 Schemas (Future)
 
