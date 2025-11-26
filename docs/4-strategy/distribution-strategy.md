@@ -179,23 +179,47 @@ Subject: [Emotional Hook]
 
 ### Tier 2: Maybe Later ⭐⭐⭐
 
-#### 4. LinkedIn (Build in Public)
+#### 4. X/Twitter (Build in Public)
 
-- 2x/week posts (Tue/Thu mornings)
-- Customer stories + founder lessons
-- Repurpose newsletter content
+> **Updated Nov 2025**: Use X for founder journey, NOT customer acquisition. Your ICP isn't on X searching for language help—they're on Reddit.
+
+- 3x/week posts (Mon/Wed/Fri)
+- Build-in-public content: metrics, learnings, experiments
+- Connect with other founders (network building)
+- **Don't expect signups from X—it's for credibility**
+
+**Sample X content:**
+```
+Week 3 of personalized paths experiment:
+- 5 users onboarded
+- $245 revenue
+- Learning: Everyone wants "meeting the parents" scenarios
+
+What should I try next?
+```
 
 #### 5. SEO Blog Posts
 
 - Long-form guides that rank on Google
 - Takes 3-6 months, but compounds forever
 - "How to prepare to meet your Japanese boyfriend's parents"
+- **Strategy**: Turn best Reddit comments into blog posts
 
 ### Tier 3: Skip These ❌
 
-- X/Twitter (you don't believe in it, too noisy)
-- Instagram/TikTok (wrong intent, high effort, low ROI)
+- LinkedIn (you hate it, won't be consistent)
+- Instagram/TikTok (wrong intent for your ICP, high effort)
 - Your own subreddit (you have $15 MRR, not 100 customers)
+
+### Channel Time Allocation (Updated)
+
+| Channel | Time/Week | Purpose | Expected Outcome |
+|---------|-----------|---------|------------------|
+| **Reddit** | 5-6 hrs | Customer acquisition | Signups, DMs, path sales |
+| **WhatsApp group** | 1-2 hrs | Nurture founding members | Retention, referrals |
+| **X/Twitter** | 1-2 hrs | Build-in-public | Credibility, founder network |
+| **LinkedIn** | 0 hrs | Skip | You hate it |
+| **Quora** | 2 hrs | SEO + authority | Long-term traffic |
 
 ---
 
@@ -265,14 +289,29 @@ When you see a relevant Reddit post:
 ```
 HIGH-INTENT TRAFFIC (Reddit/Quora)
 ↓
-LEAD MAGNET ("5-Day Guide to Meeting Parents")
+HELPFUL COMMENT (value-first, no link)
 ↓
-EMAIL SEQUENCE (3 emails over 5 days via ConvertKit)
+PROFILE CHECK → FREE TRIAL (3 convos)
 ↓
-PAID OFFER ($49 Practice Bootcamp)
-↓
-UPSELL (Kaiwa Plus $14/month)
+    ┌────────┴────────┐
+    ↓                 ↓
+$14/mo Plus    $49 Personalized Path
+(self-serve)      (high-touch)
+    ↓                 ↓
+    └────────┬────────┘
+             ↓
+    $29/mo Pro (ongoing custom)
 ```
+
+### Pricing Tiers (Updated Nov 2025)
+
+| Tier | Price | What's Included |
+|------|-------|-----------------|
+| **Free** | $0 | 3 conversations/month |
+| **Plus** | $14/month | Unlimited conversations |
+| **Path** | $49 one-time | 15-min call + 14 custom scenarios + 1 month Plus |
+| **Path+** | $79 one-time | 15-min call + 28 custom scenarios + 1 month Plus |
+| **Pro** | $29/month | Unlimited + 4 custom scenarios/month |
 
 ### The Customer Journey
 
@@ -281,10 +320,18 @@ UPSELL (Kaiwa Plus $14/month)
 1. Posts in r/LongDistance: "Meeting Korean boyfriend's parents next month, terrified"
 2. You reply with 300-word helpful comment (no link)
 3. She checks your profile → sees Kaiwa link
-4. Visits site → downloads lead magnet
-5. Gets 3 emails over 5 days
-6. Email 3 pitches $49 bootcamp
-7. After bootcamp, upgrades to Kaiwa Plus
+4. Visits site → tries free tier (3 conversations)
+5. DM offer: "Want a custom 2-week path for meeting his parents? $49"
+6. 15-min call → you build her path
+7. After path, converts to Plus or Pro
+
+**Chika's Journey (Founding Member):**
+
+1. Already in WhatsApp group at $15/month
+2. You offer FREE personalized path as founding member bonus
+3. 15-min call → custom "Partner's Family" path
+4. She completes path → becomes advocate
+5. Refers 2-3 friends → they pay $49
 
 **This is the ONLY funnel you need for the next 30 days.**
 
@@ -420,28 +467,74 @@ UPSELL (Kaiwa Plus $14/month)
 
 ## Revenue Math: Getting to $1,000 MRR
 
-**Conservative Scenario:**
+### Updated Model (Nov 2025)
 
-- 10 bootcamp signups @ $49 = $490 (one-time)
-- 5 convert to Kaiwa Plus @ $14/month = $70 MRR
-- 20 new Kaiwa signups from community @ $14/month = $280 MRR
-- **Total: $350 MRR + $490 one-time**
+**Starting Point:**
+- Current MRR: $15 (founding members at $15/month)
+- Founding members: 5 users (WhatsApp group)
 
-**Aggressive (But Possible) Scenario:**
+**Phase 1: Founding Member Paths (Free, for goodwill)**
 
-- 15 bootcamp signups @ $49 = $735 (one-time)
-- 8 convert to Kaiwa Plus @ $14/month = $112 MRR
-- 30 new signups @ $14/month = $420 MRR
-- 10 Premium upgrades @ $30/month = $300 MRR
-- **Total: $832 MRR + $735 one-time**
+- 5 founding members get FREE personalized paths
+- Cost: Your time (~5 hours total)
+- Return: Testimonials, referrals, product feedback
+- **Revenue impact: $0 direct, but each may refer 1-2 paying users**
 
-**To hit $1,000 MRR exactly:**
+**Phase 2: First Paid Paths (Week 2-4)**
 
-- ~70 paying users at $14/month
-- OR 35 at $14/month + 20 at $30/month
-- OR 2 bootcamps (20 people @ $49) + 30 users at $14/month
+- 5-10 paths sold @ $49 = $245-490 (one-time)
+- 50% convert to Plus after path @ $14/month = $35-70 MRR added
+- **Running total: $50-85 MRR + $245-490 cash**
 
-**Is this realistic?** If you hustle and follow this plan? YES. If you go back to coding? NO.
+**Phase 3: Scaling Paths + Subscriptions (Week 4-8)**
+
+- 10-15 more paths @ $49 = $490-735 (one-time)
+- Reddit organic → 20 Plus signups @ $14/month = $280 MRR
+- 5 Pro upgrades @ $29/month = $145 MRR
+- **Running total: $475-510 MRR + $735-1,225 cash**
+
+### Conservative 60-Day Scenario
+
+| Source | Count | Price | Revenue |
+|--------|-------|-------|---------|
+| Founding members | 5 | $15/mo | $75 MRR |
+| Paths sold | 10 | $49 | $490 cash |
+| Path → Plus converts | 5 | $14/mo | $70 MRR |
+| Reddit → Plus | 15 | $14/mo | $210 MRR |
+| Pro upgrades | 3 | $29/mo | $87 MRR |
+| **TOTAL** | | | **$442 MRR + $490 cash** |
+
+### Aggressive 60-Day Scenario
+
+| Source | Count | Price | Revenue |
+|--------|-------|-------|---------|
+| Founding members | 5 | $15/mo | $75 MRR |
+| Paths sold | 20 | $49 | $980 cash |
+| Path → Plus converts | 12 | $14/mo | $168 MRR |
+| Reddit → Plus | 30 | $14/mo | $420 MRR |
+| Pro upgrades | 10 | $29/mo | $290 MRR |
+| **TOTAL** | | | **$953 MRR + $980 cash** |
+
+### Path to $1,000 MRR
+
+**Option A (Path-Heavy):**
+- 30 paths @ $49 → 15 convert to Plus ($210 MRR)
+- 20 direct Plus signups ($280 MRR)
+- 15 Pro upgrades ($435 MRR)
+- Founding members ($75 MRR)
+- **Total: $1,000 MRR**
+
+**Option B (Subscription-Heavy):**
+- 10 paths @ $49 → 5 convert to Plus ($70 MRR)
+- 50 direct Plus signups ($700 MRR)
+- 8 Pro upgrades ($232 MRR)
+- **Total: $1,002 MRR**
+
+**Is this realistic?** Yes, if you:
+1. Give founding members FREE paths (they become advocates)
+2. Sell 2-3 paths/week via Reddit DMs
+3. Keep Reddit engagement consistent (45 min/day)
+4. Convert path completers to subscriptions
 
 ---
 
