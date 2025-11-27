@@ -173,12 +173,14 @@
 
 								<div class="form-control">
 									<label class="label"><span class="label-text">Learning Goal</span></label>
-									<input
-										type="text"
-										class="input-bordered input"
-										bind:value={promptInput.userGoal}
-										placeholder="Connection, Career, Travel, etc."
-									/>
+									<select class="select-bordered select" bind:value={promptInput.userGoal}>
+										<option value="Connection">Connection</option>
+										<option value="Career">Career</option>
+										<option value="Travel">Travel</option>
+										<option value="Academic">Academic</option>
+										<option value="Culture">Culture</option>
+										<option value="Growth">Growth</option>
+									</select>
 								</div>
 
 								<div class="form-control">
