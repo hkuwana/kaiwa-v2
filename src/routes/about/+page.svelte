@@ -10,6 +10,7 @@
 	import InteractiveScenarioPreview from '$lib/features/scenarios/components/InteractiveScenarioPreview.svelte';
 	import { createAboutPageJsonLd } from '$lib/seo/jsonld';
 	import { fade } from 'svelte/transition';
+	import { personalizedPathExamples } from '$lib/data/marketing';
 
 	// Current user
 	const user = userManager.user;
@@ -25,6 +26,7 @@
 	let showWhatItIs1 = $state(false);
 	let showWhatItIs2 = $state(false);
 	let showDifference = $state(false);
+	let showPersonalized = $state(false);
 	let showCTA = $state(false);
 	let showCTAButton = $state(false);
 
@@ -76,14 +78,19 @@
 			showDifference = true;
 		}, 3500);
 
+		// Personalized section animation
+		setTimeout(() => {
+			showPersonalized = true;
+		}, 4200);
+
 		// CTA section animations
 		setTimeout(() => {
 			showCTA = true;
-		}, 4500);
+		}, 5000);
 
 		setTimeout(() => {
 			showCTAButton = true;
-		}, 5200);
+		}, 5700);
 	});
 
 	const aboutJsonLd = createAboutPageJsonLd('https://trykaiwa.com');
@@ -151,6 +158,44 @@
 			<InteractiveScenarioPreview {selectedLanguage} />
 		</div>
 	</section>
+
+	<!-- Personalized Paths: The difference -->
+	{#if showPersonalized}
+		<section
+			class="flex min-h-screen items-center justify-center bg-base-200/30 px-6"
+			in:fade={{ duration: 1000 }}
+		>
+			<div class="mx-auto max-w-4xl">
+				<h2 class="mb-8 text-center text-3xl font-light tracking-tight md:text-4xl lg:text-5xl">
+					Your situation is unique.
+				</h2>
+				<p class="mb-12 text-center text-xl font-light opacity-80 md:text-2xl">
+					So is your path.
+				</p>
+
+				<div class="grid gap-8 md:grid-cols-3">
+					{#each personalizedPathExamples.slice(0, 3) as example}
+						<div class="rounded-2xl bg-base-100 p-6 text-center shadow-sm">
+							<div class="mb-4 text-4xl">{example.emoji}</div>
+							<p class="font-medium">"{example.situation}"</p>
+						</div>
+					{/each}
+				</div>
+
+				<div class="mt-12 text-center">
+					<p class="mb-6 text-lg font-light opacity-70">
+						15 minutes with me. Then a custom path built just for you.
+					</p>
+					<a
+						href="/pricing"
+						class="btn btn-primary btn-lg"
+					>
+						See Personalized Paths
+					</a>
+				</div>
+			</div>
+		</section>
+	{/if}
 
 	<!-- Begin: Single CTA -->
 	<section class="flex min-h-screen items-center justify-center px-6">
