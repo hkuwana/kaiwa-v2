@@ -5,6 +5,8 @@
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { SubscriptionTier } from '$lib/enums.js';
 	import { defaultTierConfigs, type UserTier } from '$lib/data/tiers';
+	import { personalizedPathOffer } from '$lib/data/marketing';
+	import { CALENDAR_LINK } from '$lib/data/calendar';
 	import {
 		formatPrice,
 		calculateAnnualDiscount
@@ -373,7 +375,67 @@
 			</div>
 		{/if}
 
+		<!-- Personalized Path Featured Offer -->
+		<div class="mb-16 rounded-3xl border-2 border-accent bg-gradient-to-br from-accent/10 via-base-100 to-primary/10 p-8 shadow-xl md:p-12">
+			<div class="grid gap-8 lg:grid-cols-2 lg:items-center">
+				<div>
+					<div class="mb-4 inline-flex items-center gap-2 rounded-full bg-accent/20 px-4 py-1 text-sm font-medium text-accent">
+						<span class="icon-[mdi--star-four-points] h-4 w-4"></span>
+						{personalizedPathOffer.tagline}
+					</div>
+					<h2 class="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
+						{personalizedPathOffer.headline}
+					</h2>
+					<p class="mb-6 text-lg text-base-content/80">
+						{personalizedPathOffer.description}
+					</p>
+					<ul class="mb-6 space-y-3">
+						<li class="flex items-start gap-3">
+							<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
+							<span><strong>15 minutes with me, personally</strong> — We'll talk through your exact situation and goals</span>
+						</li>
+						<li class="flex items-start gap-3">
+							<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
+							<span><strong>Custom path built for you</strong> — 14 or 28 days of scenarios designed for YOUR life</span>
+						</li>
+						<li class="flex items-start gap-3">
+							<span class="icon-[mdi--crown] mt-0.5 h-5 w-5 shrink-0 text-accent"></span>
+							<span><strong>Premium access included</strong> — Unlimited practice time during your entire path</span>
+						</li>
+						<li class="flex items-start gap-3">
+							<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
+							<span><strong>Mid-path check-in</strong> — We'll review progress and adjust if needed</span>
+						</li>
+					</ul>
+				</div>
+				<div class="text-center lg:text-right">
+					<div class="inline-block rounded-2xl bg-base-100 p-8 shadow-lg">
+						<p class="mb-1 text-sm font-medium text-base-content/70">Then unlock your path for</p>
+						<div class="mb-2 flex items-center justify-center gap-2">
+							<p class="text-2xl font-medium text-base-content/40 line-through">${personalizedPathOffer.regularPrice}</p>
+							<p class="text-5xl font-bold text-accent">${personalizedPathOffer.foundingMemberPrice}</p>
+						</div>
+						<p class="mb-4 text-sm text-base-content/70">Founding member price</p>
+						<p class="mb-6 text-xs text-base-content/50">Only {personalizedPathOffer.spotsAvailable} spots for {personalizedPathOffer.availabilityPeriod}</p>
+						<a
+							href={CALENDAR_LINK}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="btn btn-accent btn-lg w-full gap-2"
+						>
+							<span class="icon-[mdi--calendar-check] h-5 w-5"></span>
+							{personalizedPathOffer.ctaText}
+						</a>
+						<p class="mt-3 text-xs text-base-content/50">
+							{personalizedPathOffer.ctaSubtext}
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<div class="mb-16 text-center">
+			<p class="mb-2 text-sm font-medium uppercase tracking-wider text-base-content/50">Or practice on your own</p>
 			<h1 class="mb-4 text-4xl font-bold tracking-tight lg:text-5xl">
 				Practice Real Conversations With Loved Ones
 			</h1>
