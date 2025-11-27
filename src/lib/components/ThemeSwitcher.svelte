@@ -1,23 +1,46 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { themeChange } from 'theme-change';
+	import { browser } from '$app/environment';
+
+	let isDark = $state(false);
+
+	function getStoredTheme(): string | null {
+		if (!browser) return null;
+		return localStorage.getItem('theme');
+	}
+
+	function setTheme(theme: string) {
+		if (!browser) return;
+		document.documentElement.setAttribute('data-theme', theme);
+		localStorage.setItem('theme', theme);
+	}
+
+	function toggleTheme() {
+		isDark = !isDark;
+		setTheme(isDark ? 'night' : 'light');
+	}
 
 	onMount(() => {
-		// Initialize theme-change for Svelte
-		themeChange(false);
+		const storedTheme = getStoredTheme();
+		if (storedTheme) {
+			isDark = storedTheme === 'night';
+			setTheme(storedTheme);
+		} else {
+			// Check system preference
+			const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+			isDark = prefersDark;
+			setTheme(prefersDark ? 'night' : 'light');
+		}
 	});
 </script>
 
-<label class="swap ml-2 swap-rotate">
-	<input type="checkbox" data-toggle-theme="night,light" data-act-class="active" />
-
-	<!-- sun icon (light theme) -->
-	<div class="swap-on btn btn-circle btn-primary">
-		<span class="icon-[mdi--weather-sunny] h-6 w-6"></span>
-	</div>
-
-	<!-- moon icon (dark theme) -->
-	<div class="swap-off btn btn-circle btn-primary">
-		<span class="icon-[mdi--weather-night] h-6 w-6"></span>
-	</div>
+<label class="flex cursor-pointer items-center gap-2">
+	<span class="icon-[mdi--weather-sunny] h-5 w-5 opacity-70"></span>
+	<input
+		type="checkbox"
+		class="toggle toggle-sm"
+		checked={isDark}
+		onchange={toggleTheme}
+	/>
+	<span class="icon-[mdi--weather-night] h-5 w-5 opacity-70"></span>
 </label>
