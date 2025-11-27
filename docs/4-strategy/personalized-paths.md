@@ -239,6 +239,43 @@ Here's how it works:
 It's $49 for the full 2-week path. Interested?
 ```
 
+### Text Messages for Customer Advisory Board (28-Day Program)
+
+**Option 1: Short & Direct**
+```
+Hey [Name]! Quick ask - I'm testing a new 28-day personalized path program (custom scenarios for your goals). Free for you, just need a quick 15-min call to set it up. Available this week? [calendar link]
+
+Hope you have a wonderful Thanksgiving! 🦃
+```
+
+**Option 2: Friendly & Casual**
+```
+Hey [Name]! I'm launching a 28-day personalized path - I'll build you custom scenarios based on what you need. It's free for you, just need 15 mins to chat about your goals. When works? [calendar link]
+
+Hope you have a wonderful Thanksgiving! 🦃
+```
+
+**Option 3: Simple & Warm**
+```
+Hey [Name]! New pilot: 28 days of custom scenarios tailored to your goals. Free for you, just need a quick 15-min call. Interested? [calendar link]
+
+Hope you have a wonderful Thanksgiving! 🦃
+```
+
+**Option 4: Very Casual**
+```
+[Name]! Testing a new 28-day personalized path with custom scenarios. Free for you - just need 15 mins to chat about your goals. When works? [calendar link]
+
+Hope you have a wonderful Thanksgiving! 🦃
+```
+
+**Option 5: Brief & Friendly**
+```
+Hey [Name]! Quick thing - I'm building a 28-day personalized path program. Free for you, just need a 15-min call to get started. Available this week? [calendar link]
+
+Hope you have a wonderful Thanksgiving! 🦃
+```
+
 ---
 
 ## Integration with Existing Strategy
