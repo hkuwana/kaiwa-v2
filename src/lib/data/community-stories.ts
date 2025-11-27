@@ -35,7 +35,7 @@ export const communityStories: CommunityStory[] = [
 		headline: 'Finding a daily rhythm that still feels personal',
 		subheadline: 'Micro-reps with family check-ins turned call anxiety into momentum.',
 		quote:
-			'“I felt guilty reading scripts to my mom. Now we have a goofy ritual—five questions, every night, in Japanese. She says I sound more like myself each week.”',
+			'"I felt guilty reading scripts to my mom. Now we have a goofy ritual: five questions, every night, in Japanese. She says I sound more like myself each week."',
 		author: {
 			name: 'Mariko H.',
 			role: 'Product designer learning Japanese to talk with family',
@@ -52,7 +52,7 @@ export const communityStories: CommunityStory[] = [
 			},
 			{
 				title: 'Anchor the call to the same moment',
-				tip: 'The “tea is ready” notification became her cue—no calendar invite, just a physical trigger.'
+				tip: 'The "tea is ready" notification became her cue. No calendar invite, just a physical trigger.'
 			},
 			{
 				title: 'Celebrate a single improvement',
@@ -120,7 +120,7 @@ export const communityStories: CommunityStory[] = [
 		playbook: [
 			{
 				title: 'Stack practice onto an unavoidable wait',
-				tip: 'She always runs a Kaiwa scenario once the plane door closes—no distractions, easy habit.'
+				tip: 'She always runs a Kaiwa scenario once the plane door closes. No distractions, easy habit.'
 			},
 			{
 				title: 'Capture the one tricky follow-up question',
@@ -224,7 +224,7 @@ export const communityStories: CommunityStory[] = [
 		context:
 			'Sam wanted to feel the growth each day, not just count minutes. He struggled to notice progress.',
 		result:
-			'A short Kaiwa reflection nightly helped him name one micro win and one micro challenge—he now sees compounding progress.',
+			'A short Kaiwa reflection nightly helped him name one micro win and one micro challenge. He now sees compounding progress.',
 		playbook: [
 			{
 				title: 'Keep the reflection under three prompts',

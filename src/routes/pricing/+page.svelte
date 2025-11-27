@@ -392,19 +392,19 @@
 					<ul class="mb-6 space-y-3">
 						<li class="flex items-start gap-3">
 							<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
-							<span><strong>15 minutes with me, personally</strong> — We'll talk through your exact situation and goals</span>
+							<span><strong>15 minutes with me, personally</strong>: We'll talk through your exact situation and goals</span>
 						</li>
 						<li class="flex items-start gap-3">
 							<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
-							<span><strong>Custom path built for you</strong> — 14 or 28 days of scenarios designed for YOUR life</span>
+							<span><strong>Custom path built for you</strong>: 14 or 28 days of scenarios designed for YOUR life</span>
 						</li>
 						<li class="flex items-start gap-3">
 							<span class="icon-[mdi--crown] mt-0.5 h-5 w-5 shrink-0 text-accent"></span>
-							<span><strong>Premium access included</strong> — Unlimited practice time during your entire path</span>
+							<span><strong>Premium access included</strong>: Unlimited practice time during your entire path</span>
 						</li>
 						<li class="flex items-start gap-3">
 							<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
-							<span><strong>Mid-path check-in</strong> — We'll review progress and adjust if needed</span>
+							<span><strong>Mid-path check-in</strong>: We'll review progress and adjust if needed</span>
 						</li>
 					</ul>
 				</div>
@@ -440,7 +440,7 @@
 				Practice Real Conversations With Loved Ones
 			</h1>
 			<p class="mx-auto max-w-3xl text-lg text-base-content/70 lg:text-xl">
-				Go beyond Duolingo basics. Practice the conversations that matter—so you can see their face
+				Go beyond Duolingo basics. Practice the conversations that matter, so you can see their face
 				light up with pride when you speak.
 			</p>
 			<div class="mt-6 flex justify-center space-x-6 text-sm opacity-70">
