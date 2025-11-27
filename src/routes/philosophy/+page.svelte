@@ -31,7 +31,7 @@
 					Our emotional outcome is simple: <strong
 						>connecting without fear with the people who matter most.</strong
 					> Every feature, every scenario, every piece of feedback exists to move you closer to that
-					moment when they understand you—truly, deeply—in their language.
+					moment when they understand you, truly and deeply, in their language.
 				</p>
 			</div>
 		</div>
@@ -43,7 +43,7 @@
 				<p class="mb-6 text-lg text-gray-200">
 					Kaiwa is built around one clear Signal: the specific conversations that connect you with
 					the people you love. Not test scores. Not vocabulary counts. The moments where they
-					understand you—and you understand them.
+					understand you. And you understand them.
 				</p>
 				<div class="grid gap-8 md:grid-cols-2">
 					<div>
@@ -59,7 +59,7 @@
 					<div>
 						<h3 class="mb-4 text-xl font-semibold text-green-400">Signal (Our Focus)</h3>
 						<ul class="space-y-3 text-gray-300">
-							<li>Tell your parents you're changing careers—and have them be proud</li>
+							<li>Tell your parents you're changing careers, and have them be proud</li>
 							<li>Practice the 5-minute conversation that can save your relationship</li>
 							<li>Meet your partner's family without a translator</li>
 							<li>Apologize genuinely, in their language</li>
@@ -95,7 +95,7 @@
 						</li>
 						<li>
 							<strong>Signal Moment:</strong> Having an honest argument, laughing at jokes, sharing a
-							difficult feeling—all without help
+							difficult feeling. All without help
 						</li>
 						<li><strong>Win:</strong> "They finally understood me without me translating"</li>
 					</ul>
@@ -111,7 +111,7 @@
 						</li>
 						<li>
 							<strong>Signal Moment:</strong> Having a real conversation with grandparents or extended
-							family—not just hellos
+							family. Not just hellos
 						</li>
 						<li>
 							<strong>Win:</strong> "They shared something vulnerable with me. In their language"
@@ -198,19 +198,19 @@
 					<p>So we built four phases:</p>
 					<ul class="mt-4 space-y-2 text-gray-300">
 						<li>
-							<strong>Phase 1: User Acquisition</strong> — We market the solution to emotional problems,
+							<strong>Phase 1: User Acquisition</strong>: We market the solution to emotional problems,
 							not features
 						</li>
 						<li>
-							<strong>Phase 2: User Onboarding</strong> — We prove value instantly by helping with their
+							<strong>Phase 2: User Onboarding</strong>: We prove value instantly by helping with their
 							specific conversation fear
 						</li>
 						<li>
-							<strong>Phase 3: User Retention</strong> — We use engagement only to encourage deeper practice
+							<strong>Phase 3: User Retention</strong>: We use engagement only to encourage deeper practice
 							of what matters
 						</li>
 						<li>
-							<strong>Phase 4: Real-World Bridge</strong> — We celebrate the real conversation outcomes
+							<strong>Phase 4: Real-World Bridge</strong>: We celebrate the real conversation outcomes
 							that prove this works
 						</li>
 					</ul>
