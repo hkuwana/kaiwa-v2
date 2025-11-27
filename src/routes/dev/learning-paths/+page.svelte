@@ -5,6 +5,7 @@
 	let promptInput = $state({
 		userLevel: 'A2',
 		userGoal: 'Connection',
+		userContext: '',
 		targetLanguage: 'ja',
 		duration: 28,
 		brief: ''
@@ -172,7 +173,7 @@
 								</div>
 
 								<div class="form-control">
-									<label class="label"><span class="label-text">Learning Goal</span></label>
+									<label class="label"><span class="label-text">Primary Goal</span></label>
 									<select class="select-bordered select" bind:value={promptInput.userGoal}>
 										<option value="Connection">Connection</option>
 										<option value="Career">Career</option>
@@ -181,6 +182,23 @@
 										<option value="Culture">Culture</option>
 										<option value="Growth">Growth</option>
 									</select>
+								</div>
+
+								<div class="form-control">
+									<label class="label">
+										<span class="label-text">User Context & Notes</span>
+									</label>
+									<textarea
+										class="textarea-bordered textarea h-32"
+										bind:value={promptInput.userContext}
+										placeholder="E.g., Part time living in Japan, town: Taiji-cho in Wakayama. Lived in Nagoya for 4 months. Can pick up combos but can't express herself. Uses Memrise. Wants to speak and respond naturally..."
+									></textarea>
+									<label class="label">
+										<span class="label-text-alt text-base-content/50"
+											>Include: location, background, current abilities, specific situations, tools
+											they use</span
+										>
+									</label>
 								</div>
 
 								<div class="form-control">
