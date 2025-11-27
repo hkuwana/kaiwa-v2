@@ -12,7 +12,7 @@
 
 	import { onMount } from 'svelte';
 
-	let activeTab = $state('create');
+	let activeTab = $state('transcript');
 	let loading = $state(false);
 	let initialLoadComplete = $state(false);
 	let queueDataLoading = $state(false); // Separate flag for queue data loading
@@ -64,6 +64,109 @@
 	let assignToEmail = $state('');
 	let assignToUserId = $state('');
 	let assignmentNote = $state('');
+
+	// Transcript to Brief
+	let transcriptInput = $state('');
+	let transcriptLanguage = $state('ja');
+	let transcriptDuration = $state(14);
+	let generatedBrief = $state('');
+	let briefCopied = $state(false);
+
+	// AI Prompt Template for converting transcripts to briefs
+	const AI_PROMPT_TEMPLATE = `You are helping create a personalized language learning path for Kaiwa, an AI-powered conversation practice app.
+
+Analyze the following discovery call transcript/notes and extract the key information to create a structured learning path brief.
+
+## TRANSCRIPT/NOTES:
+{TRANSCRIPT}
+
+## EXTRACT THE FOLLOWING:
+
+1. **Learner Profile**
+   - Name (first name only for personalization)
+   - Current language level (estimate: complete beginner, beginner, intermediate beginner, intermediate, advanced)
+   - Native language
+   - Target language: {LANGUAGE}
+
+2. **Primary Goal** (pick the most important one)
+   - Connection (family, partner, friends)
+   - Career (work, business, interviews)
+   - Travel (tourism, living abroad)
+   - Culture (media, heritage, personal interest)
+
+3. **Specific Situation**
+   - What's the specific real-life situation they want to prepare for?
+   - Is there a deadline or upcoming event?
+   - Who will they be speaking with?
+
+4. **Key Scenarios** (list 3-5 specific situations they mentioned wanting to practice)
+
+5. **Challenges/Fears**
+   - What are they most nervous about?
+   - What has frustrated them with other learning methods?
+
+6. **Preferences**
+   - How much time can they dedicate daily? (5-10 min, 10-20 min, 20+ min)
+   - Do they prefer gentle corrections or direct feedback?
+
+## OUTPUT FORMAT:
+
+Generate a 2-3 paragraph brief in this style:
+
+"A {DURATION}-day personalized path for [name/persona] who wants to [primary goal]. They are currently at [level] and need to prepare for [specific situation].
+
+The path should focus on: [key scenarios as comma-separated list]. Special attention to [their main fear/challenge].
+
+Difficulty should progress from [starting difficulty] to [ending difficulty]. Each day should be [time estimate] of focused practice. Tone should be [encouraging/challenging based on their preference]."
+
+---
+
+Be concise but include all the specific details that make this path PERSONAL to them. The more specific, the better the AI-generated scenarios will be.`;
+
+	function getFilledPrompt() {
+		return AI_PROMPT_TEMPLATE.replace('{TRANSCRIPT}', transcriptInput || '[Paste transcript here]')
+			.replace('{LANGUAGE}', getLanguageName(transcriptLanguage))
+			.replace('{DURATION}', transcriptDuration.toString());
+	}
+
+	function getLanguageName(code: string) {
+		const names: Record<string, string> = {
+			ja: 'Japanese',
+			es: 'Spanish',
+			fr: 'French',
+			de: 'German',
+			ko: 'Korean',
+			zh: 'Mandarin Chinese',
+			pt: 'Portuguese',
+			it: 'Italian'
+		};
+		return names[code] || code;
+	}
+
+	async function copyPromptToClipboard() {
+		try {
+			await navigator.clipboard.writeText(getFilledPrompt());
+			briefCopied = true;
+			message = '✅ Prompt copied! Paste into ChatGPT/Claude to generate brief.';
+			messageType = 'success';
+			setTimeout(() => (briefCopied = false), 3000);
+		} catch {
+			message = '❌ Failed to copy. Please select and copy manually.';
+			messageType = 'error';
+		}
+	}
+
+	function useBriefForPath() {
+		if (generatedBrief) {
+			brief = generatedBrief;
+			targetLanguage = transcriptLanguage;
+			duration = transcriptDuration;
+			createMode = 'brief';
+			activeTab = 'create';
+			message = '✅ Brief loaded! Review and click "Create Path"';
+			messageType = 'success';
+		}
+	}
 
 	onMount(() => {
 		loadAllDataSequential();
@@ -563,6 +666,12 @@
 	<!-- Tabs -->
 	<div class="tabs-boxed mb-4 tabs">
 		<button
+			class="tab {activeTab === 'transcript' ? 'tab-active' : ''}"
+			onclick={() => (activeTab = 'transcript')}
+		>
+			Transcript → Brief
+		</button>
+		<button
 			class="tab {activeTab === 'create' ? 'tab-active' : ''}"
 			onclick={() => (activeTab = 'create')}
 		>
@@ -596,6 +705,159 @@
 			Queue
 		</button>
 	</div>
+
+	<!-- Transcript to Brief Tab -->
+	{#if activeTab === 'transcript'}
+		<div class="space-y-4">
+			<!-- Workflow Overview -->
+			<div class="alert alert-info">
+				<div>
+					<h3 class="font-bold">Workflow: Discovery Call → Learning Path</h3>
+					<p class="text-sm">
+						1. Paste transcript/notes below → 2. Copy AI prompt → 3. Paste in ChatGPT/Claude → 4.
+						Paste generated brief → 5. Create Path
+					</p>
+				</div>
+			</div>
+
+			<div class="grid gap-4 lg:grid-cols-2">
+				<!-- Left: Input -->
+				<div class="card bg-base-200">
+					<div class="card-body">
+						<h2 class="card-title">Step 1: Input Transcript/Notes</h2>
+
+						<div class="grid gap-3 sm:grid-cols-2">
+							<div class="form-control">
+								<label class="label"><span class="label-text">Target Language</span></label>
+								<select class="select-bordered select" bind:value={transcriptLanguage}>
+									<option value="ja">Japanese</option>
+									<option value="es">Spanish</option>
+									<option value="fr">French</option>
+									<option value="de">German</option>
+									<option value="ko">Korean</option>
+									<option value="zh">Mandarin Chinese</option>
+									<option value="pt">Portuguese</option>
+									<option value="it">Italian</option>
+								</select>
+							</div>
+							<div class="form-control">
+								<label class="label"><span class="label-text">Duration (days)</span></label>
+								<select class="select-bordered select" bind:value={transcriptDuration}>
+									<option value={7}>7 days (1 week)</option>
+									<option value={14}>14 days (2 weeks)</option>
+									<option value={21}>21 days (3 weeks)</option>
+									<option value={28}>28 days (4 weeks)</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-control">
+							<label class="label">
+								<span class="label-text">Discovery Call Transcript / Notes</span>
+								<span class="label-text-alt text-base-content/50">Paste raw notes, transcript, or key points</span>
+							</label>
+							<textarea
+								class="textarea-bordered textarea h-48 font-mono text-sm"
+								bind:value={transcriptInput}
+								placeholder="Paste your discovery call transcript, Zoom transcript, or meeting notes here...
+
+Example:
+- Robert wants to speak more confidently with strangers in Japan
+- Currently intermediate beginner, studied 2 years casually
+- Struggles with formal/polite forms (keigo)
+- Has a trip to Tokyo in 6 weeks
+- Nervous about ordering at restaurants, asking for directions
+- Wants gentle corrections, 10-15 min daily practice"
+							></textarea>
+						</div>
+					</div>
+				</div>
+
+				<!-- Right: AI Prompt -->
+				<div class="card bg-base-200">
+					<div class="card-body">
+						<h2 class="card-title">Step 2: Generate Brief with AI</h2>
+
+						<div class="rounded-lg bg-base-300 p-3">
+							<div class="mb-2 flex items-center justify-between">
+								<span class="text-sm font-semibold">AI Prompt (copy this)</span>
+								<button
+									class="btn btn-sm {briefCopied ? 'btn-success' : 'btn-primary'}"
+									onclick={copyPromptToClipboard}
+								>
+									{briefCopied ? '✓ Copied!' : 'Copy Prompt'}
+								</button>
+							</div>
+							<div class="max-h-48 overflow-y-auto rounded bg-base-100 p-2">
+								<pre class="whitespace-pre-wrap text-xs">{getFilledPrompt()}</pre>
+							</div>
+						</div>
+
+						<div class="divider my-2">After AI generates the brief</div>
+
+						<div class="form-control">
+							<label class="label">
+								<span class="label-text">Step 3: Paste Generated Brief</span>
+								<span class="label-text-alt">From ChatGPT/Claude</span>
+							</label>
+							<textarea
+								class="textarea-bordered textarea h-32"
+								bind:value={generatedBrief}
+								placeholder="Paste the AI-generated brief here..."
+							></textarea>
+						</div>
+
+						<button
+							class="btn btn-primary"
+							onclick={useBriefForPath}
+							disabled={!generatedBrief}
+						>
+							Use This Brief → Create Tab
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Quick Examples -->
+			<div class="collapse-arrow collapse bg-base-200">
+				<input type="checkbox" />
+				<div class="collapse-title font-semibold">Example Briefs (click to expand)</div>
+				<div class="collapse-content">
+					<div class="grid gap-3 md:grid-cols-2">
+						<div class="rounded-lg bg-base-300 p-3">
+							<h4 class="mb-1 font-semibold">Meeting Partner's Parents (Japanese)</h4>
+							<p class="text-sm">
+								A 14-day personalized path for Sofia who wants to make a good impression on her
+								Japanese boyfriend's parents. She's an intermediate beginner who needs to prepare for
+								a family dinner in 3 weeks.
+								<br /><br />
+								The path should focus on: polite self-introduction, complimenting food, asking about
+								family/hobbies, handling gift-giving etiquette, and graceful goodbyes. Special attention
+								to keigo (polite forms) which makes her nervous.
+								<br /><br />
+								Difficulty should progress from A2 to B1. Each day should be 10-15 minutes of focused
+								practice. Tone should be encouraging with gentle corrections.
+							</p>
+						</div>
+						<div class="rounded-lg bg-base-300 p-3">
+							<h4 class="mb-1 font-semibold">Business Trip (Spanish)</h4>
+							<p class="text-sm">
+								A 7-day intensive path for Marcus preparing for a business trip to Mexico City. He's
+								at beginner level with some Duolingo experience but has never had real conversations.
+								<br /><br />
+								The path should focus on: professional greetings, small talk with colleagues, ordering
+								at business dinners, navigating the airport/hotel, and basic negotiation phrases. Special
+								attention to formal vs informal "you" which confuses him.
+								<br /><br />
+								Difficulty should progress from A1 to A2. Each day should be 15-20 minutes. Tone should
+								be direct with clear corrections for business contexts.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{/if}
 
 	<!-- Create Tab -->
 	{#if activeTab === 'create'}
