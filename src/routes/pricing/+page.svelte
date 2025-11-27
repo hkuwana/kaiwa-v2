@@ -373,7 +373,64 @@
 			</div>
 		{/if}
 
+		<!-- Personalized Path Featured Offer -->
+		<div class="mb-16 rounded-3xl border-2 border-accent bg-gradient-to-br from-accent/10 via-base-100 to-primary/10 p-8 shadow-xl md:p-12">
+			<div class="grid gap-8 lg:grid-cols-2 lg:items-center">
+				<div>
+					<div class="mb-4 inline-flex items-center gap-2 rounded-full bg-accent/20 px-4 py-1 text-sm font-medium text-accent">
+						<span class="icon-[mdi--star-four-points] h-4 w-4"></span>
+						Limited Spots Available
+					</div>
+					<h2 class="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
+						Personalized Learning Path
+					</h2>
+					<p class="mb-6 text-lg text-base-content/80">
+						Stop practicing random scenarios. Get a custom 14 or 28-day path built specifically for YOUR situation—meeting your partner's parents, preparing for a work trip, connecting with heritage speakers.
+					</p>
+					<ul class="mb-6 space-y-3">
+						<li class="flex items-start gap-3">
+							<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
+							<span><strong>15-minute discovery call</strong> - Tell me exactly what you're preparing for</span>
+						</li>
+						<li class="flex items-start gap-3">
+							<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
+							<span><strong>Custom scenario path</strong> - 14 or 28 days of personalized practice</span>
+						</li>
+						<li class="flex items-start gap-3">
+							<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
+							<span><strong>Premium access included</strong> - Unlimited practice during your path</span>
+						</li>
+						<li class="flex items-start gap-3">
+							<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
+							<span><strong>Progress check-in</strong> - Mid-path review to adjust if needed</span>
+						</li>
+					</ul>
+				</div>
+				<div class="text-center lg:text-right">
+					<div class="inline-block rounded-2xl bg-base-100 p-8 shadow-lg">
+						<p class="mb-2 text-sm font-medium text-base-content/60 line-through">$99 regular price</p>
+						<p class="mb-1 text-5xl font-bold text-accent">$49</p>
+						<p class="mb-4 text-sm text-base-content/70">Founding member price</p>
+						<p class="mb-6 text-xs text-base-content/50">Only 5 spots available for December</p>
+						<a
+							href="https://calendly.com/trykaiwa/discovery"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="btn btn-accent btn-lg w-full gap-2"
+						>
+							<span class="icon-[mdi--calendar-check] h-5 w-5"></span>
+							Book Discovery Call
+						</a>
+						<p class="mt-3 text-xs text-base-content/50">
+							15 min • No commitment • I'll tell you if it's a good fit
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<div class="mb-16 text-center">
+			<p class="mb-2 text-sm font-medium uppercase tracking-wider text-base-content/50">Or practice on your own</p>
 			<h1 class="mb-4 text-4xl font-bold tracking-tight lg:text-5xl">
 				Practice Real Conversations With Loved Ones
 			</h1>
