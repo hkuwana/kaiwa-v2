@@ -184,7 +184,7 @@ I'm building custom 14-day paths now. Would love to create one specifically for 
 
 15-min call to understand exactly what situations you'll face, then 14 daily scenarios designed for those moments.
 
-Free for founding members (your feedback > money right now).
+Founding member pricing ($49) - your feedback is worth more than the discount.
 
 Want to try it? https://calendar.app.google/XESCmxmKpNrhzN5d7
 ```
@@ -200,7 +200,7 @@ Things like:
 - Topics she'd want to discuss
 - Phrases for when the kids arrive (!)
 
-Free for founding members. Want to try it?
+$49 for founding members (normally $99). Want to try it?
 https://calendar.app.google/XESCmxmKpNrhzN5d7
 ```
 
@@ -216,7 +216,7 @@ Instead of random scenarios, you get daily practice designed for what YOU need t
 
 15-min call to understand your situation, then 14 custom scenarios.
 
-Free for founding members. Interested?
+$49 for founding members. Interested?
 https://calendar.app.google/XESCmxmKpNrhzN5d7
 ```
 

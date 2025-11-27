@@ -410,8 +410,11 @@
 				</div>
 				<div class="text-center lg:text-right">
 					<div class="inline-block rounded-2xl bg-base-100 p-8 shadow-lg">
-						<p class="mb-2 text-sm font-medium text-base-content/60 line-through">${personalizedPathOffer.regularPrice} regular price</p>
-						<p class="mb-1 text-5xl font-bold text-accent">${personalizedPathOffer.foundingMemberPrice}</p>
+						<p class="mb-1 text-sm font-medium text-base-content/70">Then unlock your path for</p>
+						<div class="mb-2 flex items-center justify-center gap-2">
+							<p class="text-2xl font-medium text-base-content/40 line-through">${personalizedPathOffer.regularPrice}</p>
+							<p class="text-5xl font-bold text-accent">${personalizedPathOffer.foundingMemberPrice}</p>
+						</div>
 						<p class="mb-4 text-sm text-base-content/70">Founding member price</p>
 						<p class="mb-6 text-xs text-base-content/50">Only {personalizedPathOffer.spotsAvailable} spots for {personalizedPathOffer.availabilityPeriod}</p>
 						<a

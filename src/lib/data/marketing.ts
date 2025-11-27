@@ -52,15 +52,15 @@ export const personalizedPathOffer = {
 	],
 
 	// CTA
-	ctaText: 'Book Discovery Call',
-	ctaSubtext: '15 min with me • No commitment • See if it fits',
+	ctaText: 'Book Your Consultation',
+	ctaSubtext: '15 min with me personally • Then $49 to unlock your path',
 	calendarLink: CALENDAR_LINK,
 
 	// Copy
 	headline: 'Personalized Learning Path',
 	tagline: 'Limited Spots Available',
 	description:
-		"Stop practicing random scenarios. In a 15-minute call with me, you'll tell me exactly what you're preparing for—meeting your partner's parents, a work trip, reconnecting with family. Then I build you a custom path with daily scenarios designed for YOUR situation.",
+		"Stop practicing random scenarios. In a 15-minute consultation, you'll tell me exactly what you're preparing for—meeting your partner's parents, a work trip, reconnecting with family. Then I build you a custom path with daily scenarios designed for YOUR situation.",
 
 	// Value props for comparison
 	comparisonPoints: [
