@@ -288,11 +288,10 @@
 						>
 							<!-- Thumbnail image -->
 							<figure class="relative h-40 overflow-hidden bg-base-200">
-								<enhanced:img
+								<img
 									src={scenario.thumbnailUrl}
 									alt={scenario.title}
 									class="h-full w-full object-cover transition-transform group-hover:scale-105"
-									sizes="(min-width: 1024px) 300px, (min-width: 768px) 250px, 100vw"
 								/>
 								<!-- Favorite badge overlay -->
 								<div class="absolute top-3 right-3">
@@ -472,11 +471,10 @@
 						>
 							<!-- Thumbnail image -->
 							<figure class="relative h-40 overflow-hidden bg-base-200">
-								<enhanced:img
+								<img
 									src={scenario.thumbnailUrl}
 									alt={scenario.title}
 									class="h-full w-full object-cover transition-transform group-hover:scale-105"
-									sizes="(min-width: 1024px) 300px, (min-width: 768px) 250px, 100vw"
 								/>
 								<!-- Favorite button overlay -->
 								{#if !isGuest}
@@ -645,11 +643,10 @@
 
 			<!-- Thumbnail image -->
 			<figure class="h-64 overflow-hidden bg-base-200">
-				<enhanced:img
+				<img
 					src={scenario.thumbnailUrl}
 					alt={scenario.title}
 					class="h-full w-full object-cover"
-					sizes="(min-width: 1024px) 400px, 100vw"
 				/>
 			</figure>
 
