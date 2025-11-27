@@ -100,7 +100,7 @@
 	<title>About Kaiwa</title>
 	<meta
 		name="description"
-		content="Go beyond Duolingo basics. Have real conversations with loved ones that make their faces light up with pride when you speak."
+		content="Apps teach vocabulary. Kaiwa prepares you for the moment—meeting your partner's parents, your business trip, talking to your grandmother. Personalized paths for your reason to speak."
 	/>
 	<script type="application/ld+json">
 		{@html JSON.stringify(aboutJsonLd)}
@@ -116,7 +116,7 @@
 					class="mb-12 text-4xl leading-tight font-light tracking-tight md:text-5xl lg:text-6xl"
 					in:fade={{ duration: 1000 }}
 				>
-					Duolingo teaches you gamefication
+					Apps teach vocabulary.
 				</h1>
 			{/if}
 			{#if showHero2}
@@ -124,7 +124,7 @@
 					class="mb-12 text-4xl leading-tight font-light tracking-tight md:text-5xl lg:text-6xl"
 					in:fade={{ duration: 1000 }}
 				>
-					Kaiwa lights up your loved ones with your words.
+					Kaiwa prepares you for <em>the moment</em>.
 				</h1>
 			{/if}
 		</div>
@@ -138,7 +138,7 @@
 					class="mb-8 text-2xl leading-relaxed font-light tracking-wide opacity-90 md:text-3xl lg:text-4xl"
 					in:fade={{ duration: 1000 }}
 				>
-					Practice real conversations with someone you care about—not just tourist phrases.
+					Your partner's parents. Your business trip. Your grandmother.
 				</p>
 			{/if}
 			{#if showWhatItIs2}
@@ -146,7 +146,7 @@
 					class="text-xl leading-relaxed font-light tracking-wide opacity-70 md:text-2xl lg:text-3xl"
 					in:fade={{ duration: 1000 }}
 				>
-					So when you speak, they see the effort you put in—and their face lights up with pride.
+					Practice for your reason. See their face light up when you speak.
 				</p>
 			{/if}
 		</div>
@@ -166,31 +166,34 @@
 			in:fade={{ duration: 1000 }}
 		>
 			<div class="mx-auto max-w-4xl">
-				<h2 class="mb-8 text-center text-3xl font-light tracking-tight md:text-4xl lg:text-5xl">
-					Your situation is unique.
+				<h2 class="mb-4 text-center text-3xl font-light tracking-tight md:text-4xl lg:text-5xl">
+					Personalized for you.
 				</h2>
 				<p class="mb-12 text-center text-xl font-light opacity-80 md:text-2xl">
-					So is your path.
+					Not a course. A path built for your life.
 				</p>
 
-				<div class="grid gap-8 md:grid-cols-3">
+				<div class="grid gap-6 md:grid-cols-3">
 					{#each personalizedPathExamples.slice(0, 3) as example}
 						<div class="rounded-2xl bg-base-100 p-6 text-center shadow-sm">
-							<div class="mb-4 text-4xl">{example.emoji}</div>
-							<p class="font-medium">"{example.situation}"</p>
+							<div class="mb-3 text-4xl">{example.emoji}</div>
+							<p class="text-sm font-medium leading-snug">"{example.situation}"</p>
 						</div>
 					{/each}
 				</div>
 
 				<div class="mt-12 text-center">
-					<p class="mb-6 text-lg font-light opacity-70">
-						15 minutes with me. Then a custom path built just for you.
+					<p class="mb-2 text-2xl font-light md:text-3xl">
+						15 minutes with me.
+					</p>
+					<p class="mb-8 text-lg font-light opacity-70">
+						Then a path built just for your moment.
 					</p>
 					<a
 						href="/pricing"
 						class="btn btn-primary btn-lg"
 					>
-						See Personalized Paths
+						Book Your Consultation
 					</a>
 				</div>
 			</div>
