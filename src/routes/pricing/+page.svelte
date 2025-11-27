@@ -5,6 +5,8 @@
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { SubscriptionTier } from '$lib/enums.js';
 	import { defaultTierConfigs, type UserTier } from '$lib/data/tiers';
+	import { personalizedPathOffer } from '$lib/data/marketing';
+	import { CALENDAR_LINK } from '$lib/data/calendar';
 	import {
 		formatPrice,
 		calculateAnnualDiscount
@@ -379,50 +381,50 @@
 				<div>
 					<div class="mb-4 inline-flex items-center gap-2 rounded-full bg-accent/20 px-4 py-1 text-sm font-medium text-accent">
 						<span class="icon-[mdi--star-four-points] h-4 w-4"></span>
-						Limited Spots Available
+						{personalizedPathOffer.tagline}
 					</div>
 					<h2 class="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
-						Personalized Learning Path
+						{personalizedPathOffer.headline}
 					</h2>
 					<p class="mb-6 text-lg text-base-content/80">
-						Stop practicing random scenarios. Get a custom 14 or 28-day path built specifically for YOUR situation—meeting your partner's parents, preparing for a work trip, connecting with heritage speakers.
+						{personalizedPathOffer.description}
 					</p>
 					<ul class="mb-6 space-y-3">
 						<li class="flex items-start gap-3">
 							<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
-							<span><strong>15-minute discovery call</strong> - Tell me exactly what you're preparing for</span>
+							<span><strong>15 minutes with me, personally</strong> — We'll talk through your exact situation and goals</span>
 						</li>
 						<li class="flex items-start gap-3">
 							<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
-							<span><strong>Custom scenario path</strong> - 14 or 28 days of personalized practice</span>
+							<span><strong>Custom path built for you</strong> — 14 or 28 days of scenarios designed for YOUR life</span>
+						</li>
+						<li class="flex items-start gap-3">
+							<span class="icon-[mdi--crown] mt-0.5 h-5 w-5 shrink-0 text-accent"></span>
+							<span><strong>Premium access included</strong> — Unlimited practice time during your entire path</span>
 						</li>
 						<li class="flex items-start gap-3">
 							<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
-							<span><strong>Premium access included</strong> - Unlimited practice during your path</span>
-						</li>
-						<li class="flex items-start gap-3">
-							<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
-							<span><strong>Progress check-in</strong> - Mid-path review to adjust if needed</span>
+							<span><strong>Mid-path check-in</strong> — We'll review progress and adjust if needed</span>
 						</li>
 					</ul>
 				</div>
 				<div class="text-center lg:text-right">
 					<div class="inline-block rounded-2xl bg-base-100 p-8 shadow-lg">
-						<p class="mb-2 text-sm font-medium text-base-content/60 line-through">$99 regular price</p>
-						<p class="mb-1 text-5xl font-bold text-accent">$49</p>
+						<p class="mb-2 text-sm font-medium text-base-content/60 line-through">${personalizedPathOffer.regularPrice} regular price</p>
+						<p class="mb-1 text-5xl font-bold text-accent">${personalizedPathOffer.foundingMemberPrice}</p>
 						<p class="mb-4 text-sm text-base-content/70">Founding member price</p>
-						<p class="mb-6 text-xs text-base-content/50">Only 5 spots available for December</p>
+						<p class="mb-6 text-xs text-base-content/50">Only {personalizedPathOffer.spotsAvailable} spots for {personalizedPathOffer.availabilityPeriod}</p>
 						<a
-							href="https://calendly.com/trykaiwa/discovery"
+							href={CALENDAR_LINK}
 							target="_blank"
 							rel="noopener noreferrer"
 							class="btn btn-accent btn-lg w-full gap-2"
 						>
 							<span class="icon-[mdi--calendar-check] h-5 w-5"></span>
-							Book Discovery Call
+							{personalizedPathOffer.ctaText}
 						</a>
 						<p class="mt-3 text-xs text-base-content/50">
-							15 min • No commitment • I'll tell you if it's a good fit
+							{personalizedPathOffer.ctaSubtext}
 						</p>
 					</div>
 				</div>

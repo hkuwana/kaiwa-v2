@@ -10,6 +10,7 @@
 	import InteractiveScenarioPreview from '$lib/features/scenarios/components/InteractiveScenarioPreview.svelte';
 	import { createAboutPageJsonLd } from '$lib/seo/jsonld';
 	import { fade } from 'svelte/transition';
+	import { personalizedPathExamples } from '$lib/data/marketing';
 
 	// Current user
 	const user = userManager.user;
@@ -173,23 +174,17 @@
 				</p>
 
 				<div class="grid gap-8 md:grid-cols-3">
-					<div class="rounded-2xl bg-base-100 p-6 text-center shadow-sm">
-						<div class="mb-4 text-4xl">👨‍👩‍👧</div>
-						<p class="font-medium">"Meeting my partner's Japanese parents next month"</p>
-					</div>
-					<div class="rounded-2xl bg-base-100 p-6 text-center shadow-sm">
-						<div class="mb-4 text-4xl">💼</div>
-						<p class="font-medium">"Business trip to Mexico City in 3 weeks"</p>
-					</div>
-					<div class="rounded-2xl bg-base-100 p-6 text-center shadow-sm">
-						<div class="mb-4 text-4xl">👵</div>
-						<p class="font-medium">"Want my kids to talk to their French grandmother"</p>
-					</div>
+					{#each personalizedPathExamples.slice(0, 3) as example}
+						<div class="rounded-2xl bg-base-100 p-6 text-center shadow-sm">
+							<div class="mb-4 text-4xl">{example.emoji}</div>
+							<p class="font-medium">"{example.situation}"</p>
+						</div>
+					{/each}
 				</div>
 
 				<div class="mt-12 text-center">
 					<p class="mb-6 text-lg font-light opacity-70">
-						Tell me your specific situation. I'll build you a custom 14 or 28-day path.
+						15 minutes with me. Then a custom path built just for you.
 					</p>
 					<a
 						href="/pricing"

@@ -88,7 +88,7 @@ $49 (founding member price)
 
 Reply with your situation. Not everyone's a fit.
 
-[link to /pricing or calendly]
+[link to /pricing or https://calendar.app.google/XESCmxmKpNrhzN5d7]
 ```
 
 ---
@@ -117,7 +117,7 @@ Opening 5 spots for December if anyone wants in:
 - I build you a custom 14 or 28-day path
 - $49 for founding members
 
-DM me with what you're preparing for, or grab a time: [calendly link]
+DM me with what you're preparing for, or grab a time: https://calendar.app.google/XESCmxmKpNrhzN5d7
 
 Would love your feedback more than anything!
 ```
@@ -186,7 +186,7 @@ I'm building custom 14-day paths now. Would love to create one specifically for 
 
 Free for founding members (your feedback > money right now).
 
-Want to try it? [calendly link]
+Want to try it? https://calendar.app.google/XESCmxmKpNrhzN5d7
 ```
 
 ### Chika (French partner's mom)
@@ -201,7 +201,7 @@ Things like:
 - Phrases for when the kids arrive (!)
 
 Free for founding members. Want to try it?
-[calendly link]
+https://calendar.app.google/XESCmxmKpNrhzN5d7
 ```
 
 ### Generic Template
@@ -217,7 +217,7 @@ Instead of random scenarios, you get daily practice designed for what YOU need t
 15-min call to understand your situation, then 14 custom scenarios.
 
 Free for founding members. Interested?
-[calendly link]
+https://calendar.app.google/XESCmxmKpNrhzN5d7
 ```
 
 ---
