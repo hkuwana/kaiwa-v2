@@ -85,27 +85,27 @@ export const personalizedPathOffer = {
  */
 export const personalizedPathExamples = [
 	{
-		emoji: '👨‍👩‍👧',
+		iconClass: 'icon-[mdi--account-group]',
 		situation: "Meeting my partner's Japanese parents next month",
 		language: 'Japanese'
 	},
 	{
-		emoji: '💼',
+		iconClass: 'icon-[mdi--briefcase]',
 		situation: 'Business trip to Mexico City in 3 weeks',
 		language: 'Spanish'
 	},
 	{
-		emoji: '👵',
+		iconClass: 'icon-[mdi--account-heart]',
 		situation: 'Want my kids to talk to their French grandmother',
 		language: 'French'
 	},
 	{
-		emoji: '🏠',
+		iconClass: 'icon-[mdi--home]',
 		situation: 'Moving to Germany and need to handle daily life',
 		language: 'German'
 	},
 	{
-		emoji: '💕',
+		iconClass: 'icon-[mdi--heart]',
 		situation: "Learning Korean for my partner's family",
 		language: 'Korean'
 	}

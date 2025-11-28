@@ -100,7 +100,7 @@
 	<title>About Kaiwa</title>
 	<meta
 		name="description"
-		content="Go beyond Duolingo basics. Have real conversations with loved ones that make their faces light up with pride when you speak."
+		content="Personalized for you. Kaiwa helps you speak with your loved ones through tailored feedback on conversations that matter."
 	/>
 	<script type="application/ld+json">
 		{@html JSON.stringify(aboutJsonLd)}
@@ -116,7 +116,7 @@
 					class="mb-12 text-4xl leading-tight font-light tracking-tight md:text-5xl lg:text-6xl"
 					in:fade={{ duration: 1000 }}
 				>
-					Personalized for you
+					Personalized for you.
 				</h1>
 			{/if}
 			{#if showHero2}
@@ -124,7 +124,7 @@
 					class="mb-12 text-4xl leading-tight font-light tracking-tight md:text-5xl lg:text-6xl"
 					in:fade={{ duration: 1000 }}
 				>
-					Kaiwa helps you practice for scenarios you need
+					Kaiwa helps you speak with your loved ones.
 				</h1>
 			{/if}
 		</div>
@@ -138,7 +138,7 @@
 					class="mb-8 text-2xl leading-relaxed font-light tracking-wide opacity-90 md:text-3xl lg:text-4xl"
 					in:fade={{ duration: 1000 }}
 				>
-					Practice real conversations with someone you care about—not just tourist phrases.
+					Get tailored feedback on the conversations that actually matter to you.
 				</p>
 			{/if}
 			{#if showWhatItIs2}
@@ -146,7 +146,7 @@
 					class="text-xl leading-relaxed font-light tracking-wide opacity-70 md:text-2xl lg:text-3xl"
 					in:fade={{ duration: 1000 }}
 				>
-					So when you speak, they see the effort you put in—and their face lights up with pride.
+					So when you finally speak, their face lights up with pride.
 				</p>
 			{/if}
 		</div>
@@ -174,7 +174,9 @@
 				<div class="grid gap-8 md:grid-cols-3">
 					{#each personalizedPathExamples.slice(0, 3) as example}
 						<div class="rounded-2xl bg-base-100 p-6 text-center shadow-sm">
-							<div class="mb-4 text-4xl">{example.emoji}</div>
+							<div class="mb-4 flex justify-center">
+								<span class="{example.iconClass} h-10 w-10 text-primary"></span>
+							</div>
 							<p class="font-medium">"{example.situation}"</p>
 						</div>
 					{/each}
