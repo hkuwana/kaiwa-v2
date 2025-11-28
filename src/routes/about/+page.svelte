@@ -116,7 +116,7 @@
 					class="mb-12 text-4xl leading-tight font-light tracking-tight md:text-5xl lg:text-6xl"
 					in:fade={{ duration: 1000 }}
 				>
-					Duolingo teaches you gamefication
+					Personalized for you
 				</h1>
 			{/if}
 			{#if showHero2}
@@ -124,7 +124,7 @@
 					class="mb-12 text-4xl leading-tight font-light tracking-tight md:text-5xl lg:text-6xl"
 					in:fade={{ duration: 1000 }}
 				>
-					Kaiwa lights up your loved ones with your words.
+					Kaiwa helps you practice for scenarios you need
 				</h1>
 			{/if}
 		</div>
@@ -169,9 +169,7 @@
 				<h2 class="mb-8 text-center text-3xl font-light tracking-tight md:text-4xl lg:text-5xl">
 					Your situation is unique.
 				</h2>
-				<p class="mb-12 text-center text-xl font-light opacity-80 md:text-2xl">
-					So is your path.
-				</p>
+				<p class="mb-12 text-center text-xl font-light opacity-80 md:text-2xl">So is your path.</p>
 
 				<div class="grid gap-8 md:grid-cols-3">
 					{#each personalizedPathExamples.slice(0, 3) as example}
@@ -186,12 +184,7 @@
 					<p class="mb-6 text-lg font-light opacity-70">
 						15 minutes with me. Then a custom path built just for you.
 					</p>
-					<a
-						href="/pricing"
-						class="btn btn-primary btn-lg"
-					>
-						See Personalized Paths
-					</a>
+					<a href="/pricing" class="btn btn-lg btn-primary"> See Personalized Paths </a>
 				</div>
 			</div>
 		</section>
@@ -212,7 +205,6 @@
 						{selectedLanguage}
 						{selectedSpeaker}
 						{selectedScenario}
-						 
 						onScenarioChange={handleScenarioChange}
 						onStartClick={handleAboutStartClick}
 					/>
