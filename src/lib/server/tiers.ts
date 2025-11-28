@@ -1,5 +1,17 @@
 // 🏆 Server-side Tier Configurations
 // This file contains tier configurations that should only be accessible server-side
+//
+// BILLING CYCLE NOTES:
+// - All subscriptions use CALENDAR MONTHS (not fixed 28-day cycles)
+// - Example: Subscribe Jan 15 -> renews Feb 15 -> Mar 15, etc.
+// - Stripe automatically handles month-end edge cases (Jan 31 -> Feb 28)
+// - Annual subscriptions renew on the same date each year
+// - Usage limits (monthlySeconds, monthlyConversations) reset each billing cycle
+//
+// This is the industry standard and what users expect. It also means:
+// - 12 billing cycles per year (not 13 with 28-day cycles)
+// - Users can easily budget and predict billing dates
+// - Renewal day stays consistent (same day of month)
 
 import type { Tier, UserTier } from './db/types';
 import { env } from '$env/dynamic/private';

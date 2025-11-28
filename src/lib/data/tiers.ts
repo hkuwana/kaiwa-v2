@@ -1,6 +1,9 @@
 // 🏆 Client-side Tier Access (safe subset)
 // This file provides a client-safe mirror of tier configurations.
 // DO NOT import server modules here. Only expose non-sensitive fields.
+//
+// BILLING CYCLE: All subscriptions use calendar months (not 28-day cycles).
+// See $lib/server/tiers.ts for detailed billing documentation.
 
 import type { Tier } from '$lib/server/db/types';
 
