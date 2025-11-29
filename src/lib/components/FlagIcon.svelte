@@ -1,8 +1,9 @@
 <script lang="ts">
 	// FlagIcon - Renders country flags using Iconify circle-flags
-	// Uses SVG-based flags for consistent rendering across all platforms
+	// Uses inline SVGs for consistent rendering across all platforms
 
-	import Icon from '@iconify/svelte';
+	// Import the circle-flags icon data
+	import iconData from '@iconify-json/circle-flags/icons.json';
 
 	interface Props {
 		/** ISO 3166-1 alpha-2 country code (e.g., 'jp', 'us', 'gb') */
@@ -18,11 +19,28 @@
 	// Normalize country code to lowercase for Iconify
 	const normalizedCode = $derived(countryCode?.toLowerCase() || 'xx');
 
-	// Build the icon name for circle-flags
-	const iconName = $derived(`circle-flags:${normalizedCode}`);
+	// Get the SVG body for the country code
+	const iconBody = $derived(
+		(iconData.icons as Record<string, { body: string }>)[normalizedCode]?.body || ''
+	);
 
 	// Combine size and additional classes
-	const combinedClass = $derived(`${size} shrink-0 rounded-full ${className}`.trim());
+	const combinedClass = $derived(`${size} shrink-0 ${className}`.trim());
 </script>
 
-<Icon icon={iconName} class={combinedClass} aria-label={`${countryCode} flag`} />
+{#if iconBody}
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		viewBox="0 0 512 512"
+		class={combinedClass}
+		role="img"
+		aria-label={`${countryCode} flag`}
+	>
+		{@html iconBody}
+	</svg>
+{:else}
+	<!-- Fallback for unknown country codes -->
+	<span class="{combinedClass} flex items-center justify-center rounded-full bg-base-300 text-xs">
+		{countryCode?.toUpperCase().slice(0, 2) || '??'}
+	</span>
+{/if}
