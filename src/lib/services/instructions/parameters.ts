@@ -669,3 +669,63 @@ export function resolveUserSpeechSpeed(
 
 	return finalSpeed;
 }
+
+/**
+ * Map SpeakingSpeed to OpenAI Realtime API speed parameter (0.5 - 2.0)
+ *
+ * OpenAI's speed parameter controls the audio playback speed:
+ * - 0.5 = half speed (very slow)
+ * - 1.0 = normal speed (default)
+ * - 2.0 = double speed (very fast)
+ *
+ * Mapping Strategy:
+ * - very_slow: 0.6 (40% slower)
+ * - slow: 0.8 (20% slower - default for learners)
+ * - normal: 1.0 (standard speed)
+ * - fast: 1.2 (20% faster)
+ * - native: 1.4 (40% faster)
+ *
+ * @param speakingSpeed - The instruction-level speaking speed parameter
+ * @returns OpenAI API speed value (0.5 - 2.0)
+ *
+ * @example
+ * mapSpeakingSpeedToAudioSpeed('slow')
+ * // Returns 0.8
+ *
+ * mapSpeakingSpeedToAudioSpeed('native')
+ * // Returns 1.4
+ */
+export function mapSpeakingSpeedToAudioSpeed(speakingSpeed: SpeakingSpeed): number {
+	const SPEED_MAP: Record<SpeakingSpeed, number> = {
+		very_slow: 0.6, // 40% slower - for elderly/accessibility
+		slow: 0.8, // 20% slower - default for language learners
+		normal: 1.0, // Standard speed
+		fast: 1.2, // 20% faster - advanced learners
+		native: 1.4 // 40% faster - near-native speed
+	};
+
+	const speed = SPEED_MAP[speakingSpeed];
+	console.log(`🎚️ Audio speed: "${speakingSpeed}" → ${speed}x`);
+
+	return speed;
+}
+
+/**
+ * Convert SpeechSpeed preference (including 'auto') to OpenAI audio speed
+ *
+ * @param userSpeechSpeed - User's preference from database
+ * @param cefrLevel - User's proficiency level
+ * @param languageCode - Target language code
+ * @returns OpenAI API speed value (0.5 - 2.0)
+ */
+export function resolveAudioSpeedFromUserPreference(
+	userSpeechSpeed: SpeechSpeed,
+	cefrLevel: string,
+	languageCode?: string
+): number {
+	// First resolve to SpeakingSpeed (handles 'auto' case)
+	const resolvedSpeed = resolveUserSpeechSpeed(userSpeechSpeed, cefrLevel, languageCode);
+
+	// Then map to OpenAI audio speed
+	return mapSpeakingSpeedToAudioSpeed(resolvedSpeed);
+}
