@@ -177,7 +177,7 @@
 					{#each personalizedPathExamples.slice(0, 3) as example (example.situation)}
 						<div class="rounded-2xl bg-base-100 p-6 text-center shadow-sm">
 							<div class="mb-4 flex justify-center">
-								<span class="{example.iconClass} h-10 w-10 text-primary"></span>
+								<span class="{example.iconClass} h-10 w-10 text-success"></span>
 							</div>
 							<p class="font-medium">"{example.situation}"</p>
 						</div>

@@ -69,8 +69,8 @@
 		onclick={() => selectMode('ptt')}
 		{disabled}
 	>
-		<span class="mode-icon icon-[mdi--walkie-talkie]" aria-hidden="true"></span>
-		<span class="mode-label">Walkie Talkie</span>
+		<span class="mode-icon icon-[mdi--gesture-tap-button]" aria-hidden="true"></span>
+		<span class="mode-label">Push to Talk</span>
 		{#if mode === 'ptt'}
 			<span class="sr-only">(active)</span>
 		{/if}

@@ -379,15 +379,15 @@
 					class:opacity-50={selectedAudioMode === 'vad'}
 					class:scale-105={selectedAudioMode === 'ptt'}
 				>
-					<span class="h-4.5 w-4.5 icon-[mdi--walkie-talkie]"></span>
-					<span class:hidden={selectedAudioMode === 'vad'} class="sm:inline">Walkie Talkie</span>
+					<span class="h-4.5 w-4.5 icon-[mdi--gesture-tap-button]"></span>
+					<span class:hidden={selectedAudioMode === 'vad'} class="sm:inline">Push to Talk</span>
 				</span>
 				<input
 					type="checkbox"
 					class="toggle toggle-primary toggle-sm"
 					checked={selectedAudioMode === 'vad'}
 					onchange={() => handleAudioModeChange(selectedAudioMode === 'vad' ? 'ptt' : 'vad')}
-					aria-label="Switch between Walkie Talkie and Casual Chat modes"
+					aria-label="Switch between Push to Talk and Casual Chat modes"
 				/>
 				<span
 					class="flex items-center gap-1.5 text-sm font-medium transition-all"
