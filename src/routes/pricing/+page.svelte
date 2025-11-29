@@ -126,18 +126,32 @@
 				tooltip: 'Total conversation time available each month.'
 			},
 			{
+				feature: '28-Day Learning Path',
+				basic: '-',
+				plus: 'Automated',
+				premium: 'Custom (built for you)',
+				tooltip: 'Structured learning path to guide your practice.'
+			},
+			{
+				feature: 'Monthly Call',
+				basic: '-',
+				plus: '-',
+				premium: '15 min with Hiro',
+				tooltip: 'Personal check-in call to adjust your learning path.'
+			},
+			{
+				feature: 'Text/Chat Support',
+				basic: '-',
+				plus: 'Email only',
+				premium: 'Direct messaging',
+				tooltip: 'Get help and ask questions between sessions.'
+			},
+			{
 				feature: 'Feedback & Reports',
 				basic: '10 reports / month',
 				plus: 'Unlimited',
 				premium: 'Unlimited',
 				tooltip: 'Receive detailed feedback on your conversations.'
-			},
-			{
-				feature: 'Customized Phrases',
-				basic: frequencyLabel(free.customizedPhrasesFrequency),
-				plus: frequencyLabel(plus.customizedPhrasesFrequency),
-				premium: frequencyLabel(premium.customizedPhrasesFrequency),
-				tooltip: 'Get new phrases to practice every day.'
 			},
 			{
 				feature: 'Conversation Memory',
@@ -147,12 +161,11 @@
 				tooltip: 'Our AI remembers past conversations to personalize your learning.'
 			},
 			{
-				feature: 'Anki Export',
-				basic: `First ${free.ankiExportLimit ?? 0} words`,
-				plus: '✓',
-				premium: '✓',
-				status: COMING_SOON,
-				tooltip: 'Easily export vocabulary to Anki for spaced repetition practice.'
+				feature: 'Rollover Minutes',
+				basic: '-',
+				plus: `${formatTime(plus.maxBankedSeconds)}`,
+				premium: `${formatTime(premium.maxBankedSeconds)}`,
+				tooltip: 'Unused minutes roll over to the next month.'
 			}
 		];
 	}
@@ -512,9 +525,9 @@
 			>
 				<div class="flex items-center gap-2">
 					<span class="icon-[mdi--star] h-6 w-6 text-yellow-400"></span>
-					<h2 class="text-2xl font-semibold">{plusTier.name} - Most Popular</h2>
+					<h2 class="text-2xl font-semibold">{plusTier.name}</h2>
 				</div>
-				<p class="mt-4 badge badge-outline badge-primary">Best for Regular Learners</p>
+				<p class="mt-4 badge badge-outline badge-primary">Most Popular</p>
 
 				{#if selectedPlan === 'monthly'}
 					<p class="mt-4 text-4xl font-bold">
@@ -528,7 +541,7 @@
 					</p>
 				{/if}
 				<p class="mt-4 min-h-[4rem] text-base-content/70">
-					{plusTier.description} • 300 minutes monthly • Advanced features • Perfect for consistent practice
+					10 hours of AI practice monthly with automated 28-day learning paths
 				</p>
 				<div class="flex-grow"></div>
 				{#if isCurrentTier(SubscriptionTier.PLUS)}
@@ -549,26 +562,41 @@
 				{/if}
 			</div>
 
-			<div class="flex flex-col items-center rounded-2xl border bg-base-100 p-8 text-center">
+			<div class="flex flex-col items-center rounded-2xl border-2 border-accent bg-base-100 p-8 text-center">
 				<div class="flex items-center gap-2">
 					<span class="icon-[mdi--crown] h-6 w-6 text-purple-400"></span>
-					<h2 class="text-2xl font-semibold">{premiumTier.name} - Power Users</h2>
+					<h2 class="text-2xl font-semibold">{premiumTier.name}</h2>
 				</div>
+				<p class="mt-2 text-sm text-base-content/50 line-through">$99/month value</p>
 
 				{#if selectedPlan === 'monthly'}
-					<p class="mt-4 text-4xl font-bold">
+					<p class="mt-2 text-4xl font-bold text-accent">
 						{formatPriceDisplay(premiumTier.monthlyPriceUsd)}
 						<span class="text-xl font-normal text-base-content/60">/month</span>
 					</p>
 				{:else}
-					<p class="mt-4 text-4xl font-bold">
+					<p class="mt-2 text-4xl font-bold text-accent">
 						${getAnnualPricePerMonth(premiumTier)}
 						<span class="text-xl font-normal text-base-content/60">/month</span>
 					</p>
 				{/if}
-				<p class="mt-4 min-h-[4rem] text-base-content/70">
-					{premiumTier.description} • 600 minutes monthly • Maximum practice time • Unlimited features
+				<p class="mt-4 text-base-content/70">
+					Everything in Plus, with human touch:
 				</p>
+				<ul class="mt-2 space-y-1 text-left text-sm text-base-content/70">
+					<li class="flex items-center gap-2">
+						<span class="icon-[mdi--phone] h-4 w-4 text-accent"></span>
+						15-min monthly call
+					</li>
+					<li class="flex items-center gap-2">
+						<span class="icon-[mdi--message-text] h-4 w-4 text-accent"></span>
+						Text/chat support
+					</li>
+					<li class="flex items-center gap-2">
+						<span class="icon-[mdi--road-variant] h-4 w-4 text-accent"></span>
+						Custom learning path
+					</li>
+				</ul>
 				<div class="flex-grow"></div>
 				{#if isCurrentTier(SubscriptionTier.PREMIUM)}
 					<button class="btn mt-8 w-full btn-outline" disabled>Your Current Plan</button>

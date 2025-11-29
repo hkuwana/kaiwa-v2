@@ -56,25 +56,25 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 	plus: {
 		id: 'plus',
 		name: 'Plus',
-		description: 'For serious language learners',
+		description: '10 hours of AI practice + automated 28-day learning paths',
 		monthlyConversations: 300,
-		monthlySeconds: 18000,
-		monthlyRealtimeSessions: 100,
+		monthlySeconds: 36000, // 600 minutes = 10 hours
+		monthlyRealtimeSessions: 300,
 		dailyConversations: null,
 		dailySeconds: null,
 		dailyAnalyses: null,
-		maxSessionLengthSeconds: 600,
+		maxSessionLengthSeconds: 900, // 15 minutes per session
 		sessionBankingEnabled: true,
-		maxBankedSeconds: 6000,
+		maxBankedSeconds: 18000, // 5 hours rollover
 		hasRealtimeAccess: true,
 		hasAdvancedVoices: true,
 		hasAnalytics: true,
 		hasCustomPhrases: true,
 		hasConversationMemory: true,
 		hasAnkiExport: true,
-		monthlyPriceUsd: '15.00',
-		annualPriceUsd: '144.00',
-		conversationTimeoutSeconds: 10 * 60,
+		monthlyPriceUsd: '29.00',
+		annualPriceUsd: '232.00', // ~33% discount
+		conversationTimeoutSeconds: 15 * 60,
 		warningThresholdSeconds: 60,
 		canExtend: true,
 		maxExtensions: 3,
@@ -98,24 +98,24 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 	premium: {
 		id: 'premium',
 		name: 'Premium',
-		description: 'For power users who want more practice time',
-		monthlyConversations: 100,
-		monthlySeconds: 36000,
-		monthlyRealtimeSessions: 100,
+		description: 'Everything in Plus + monthly call, text support, and custom paths',
+		monthlyConversations: 300,
+		monthlySeconds: 36000, // 600 minutes = 10 hours
+		monthlyRealtimeSessions: 300,
 		dailyConversations: null,
 		dailySeconds: null,
 		dailyAnalyses: null,
-		maxSessionLengthSeconds: 600,
+		maxSessionLengthSeconds: 900, // 15 minutes per session
 		sessionBankingEnabled: true,
-		maxBankedSeconds: 12000,
+		maxBankedSeconds: 36000, // 10 hours rollover (more generous)
 		hasRealtimeAccess: true,
 		hasAdvancedVoices: true,
 		hasAnalytics: true,
 		hasCustomPhrases: true,
 		hasConversationMemory: true,
 		hasAnkiExport: true,
-		monthlyPriceUsd: '25.00', // display only; real prices fetched from backend/Stripe
-		annualPriceUsd: '240.00',
+		monthlyPriceUsd: '49.00', // $99 value with human touch included
+		annualPriceUsd: '392.00', // ~33% discount
 		conversationTimeoutSeconds: 15 * 60,
 		warningThresholdSeconds: 60,
 		canExtend: true,

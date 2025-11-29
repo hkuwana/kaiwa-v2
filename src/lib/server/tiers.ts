@@ -12,6 +12,20 @@
 // - 12 billing cycles per year (not 13 with 28-day cycles)
 // - Users can easily budget and predict billing dates
 // - Renewal day stays consistent (same day of month)
+//
+// TIER STRUCTURE (3 tiers + free):
+// ┌─────────────────────────────────────────────────────────────────────────┐
+// │ Free     $0      15 min/mo    Try Kaiwa, basic features                 │
+// │ Plus     $29/mo  10 hrs/mo    AI practice + automated 28-day paths      │
+// │ Premium  $49/mo  10 hrs/mo    Everything in Plus + human touch:         │
+// │                               - 15-min monthly call                     │
+// │                               - Text/chat support                       │
+// │                               - Custom path creation                    │
+// └─────────────────────────────────────────────────────────────────────────┘
+//
+// NOTE: Human touch (calls, texting) is a SERVICE LAYER, not tracked here.
+// These tier configs define AI access limits and features only.
+// Human touch is managed via learning_path_assignments and scheduling.
 
 import type { Tier, UserTier } from './db/types';
 import { env } from '$env/dynamic/private';
@@ -79,11 +93,11 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 	plus: {
 		id: 'plus',
 		name: 'Plus',
-		description: 'For serious language learners',
+		description: '10 hours of AI practice + automated 28-day learning paths',
 
 		// Monthly limits
 		monthlyConversations: 300, // Unlimited
-		monthlySeconds: 18000, // 300 minutes = 18000 seconds
+		monthlySeconds: 36000, // 600 minutes = 10 hours
 		monthlyRealtimeSessions: 300, // Unlimited
 
 		// No daily limits for plus users
@@ -92,9 +106,9 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		dailyAnalyses: null,
 
 		// Session limits
-		maxSessionLengthSeconds: 600, // 10 minutes = 600 seconds
+		maxSessionLengthSeconds: 900, // 15 minutes per session
 		sessionBankingEnabled: true,
-		maxBankedSeconds: 6000, // 100 minutes = 6000 seconds
+		maxBankedSeconds: 18000, // 300 minutes = 5 hours rollover
 
 		// Feature access
 		hasRealtimeAccess: true,
@@ -105,8 +119,8 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		hasAnkiExport: true,
 
 		// Pricing - using environment-aware price IDs
-		monthlyPriceUsd: '19.00',
-		annualPriceUsd: '144.00', // 20% discount
+		monthlyPriceUsd: '29.00',
+		annualPriceUsd: '232.00', // ~33% discount ($19.33/mo)
 		stripeProductId: null, // Will be fetched from Stripe API when needed
 		stripePriceIdMonthly: isStripeDevServer
 			? SERVER_STRIPE_PRICE_IDS.plus_monthly.dev
@@ -140,12 +154,12 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 	premium: {
 		id: 'premium',
 		name: 'Premium',
-		description: 'For power users who want more practice time',
+		description: 'Everything in Plus + monthly call, text support, and custom paths',
 
-		// Monthly limits
-		monthlyConversations: 100, // Unlimited
-		monthlySeconds: 36000, // 600 minutes = 36000 seconds
-		monthlyRealtimeSessions: 100, // Unlimited
+		// Monthly limits (same AI time as Plus - premium value is human touch)
+		monthlyConversations: 300, // Unlimited
+		monthlySeconds: 36000, // 600 minutes = 10 hours
+		monthlyRealtimeSessions: 300, // Unlimited
 
 		// No daily limits for premium users
 		dailyConversations: null,
@@ -153,9 +167,9 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		dailyAnalyses: null,
 
 		// Session limits
-		maxSessionLengthSeconds: 600, // 10 minutes = 600 seconds
+		maxSessionLengthSeconds: 900, // 15 minutes per session
 		sessionBankingEnabled: true,
-		maxBankedSeconds: 12000, // 200 minutes = 12000 seconds
+		maxBankedSeconds: 36000, // 600 minutes = 10 hours rollover (more generous)
 
 		// Feature access
 		hasRealtimeAccess: true,
@@ -165,9 +179,9 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		hasConversationMemory: true,
 		hasAnkiExport: true,
 
-		// Pricing - using environment-aware price IDs
-		monthlyPriceUsd: '29.00',
-		annualPriceUsd: '240.00', // 30% discount
+		// Pricing - $49/mo ($99 value with human touch included)
+		monthlyPriceUsd: '49.00',
+		annualPriceUsd: '392.00', // ~33% discount ($32.67/mo)
 		stripeProductId: null, // Will be fetched from Stripe API when needed
 		stripePriceIdMonthly: isStripeDevServer
 			? SERVER_STRIPE_PRICE_IDS.premium_monthly.dev
