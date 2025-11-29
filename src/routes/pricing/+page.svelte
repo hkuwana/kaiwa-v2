@@ -25,7 +25,7 @@
 	let selectedPlan = $state('annual');
 
 	// Feature status tracking
-	const data = $props();
+	const { data } = $props();
 
 	// Assumes tiers are 'free', 'plus', 'premium'
 	const currentTier = $derived(userManager.effectiveTier);
