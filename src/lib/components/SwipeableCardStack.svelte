@@ -7,8 +7,9 @@
 	import BriefingCard from './BriefingCard.svelte';
 	import SpeechSpeedSelector from './SpeechSpeedSelector.svelte';
 	import VoiceModeSelector from './VoiceModeSelector.svelte';
-	import { fade, slide } from 'svelte/transition';
+	import { fade, slide, fly } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
+	import { quintOut } from 'svelte/easing';
 	import type { Scenario } from '$lib/data/scenarios';
 	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
 	import type { AudioInputMode } from '$lib/server/db/types';
@@ -343,30 +344,8 @@
 </script>
 
 <div class="w-full">
-	<!-- Voice Mode Selector - Compact at top -->
-	<div class="mb-4">
-		<VoiceModeSelector
-			mode={selectedAudioMode}
-			onModeChange={handleAudioModeChange}
-			compact={true}
-		/>
-	</div>
-
-	<!-- Swipeable Card Stack Section -->
-	<div class="space-y-2">
-		<div class="text-center">
-			<div class="mt-2 flex items-center justify-center gap-3 text-sm text-base-content/60">
-				<span class="flex items-center gap-1">
-					<span class="icon-[mdi--gesture-swipe-horizontal] h-5 w-5"></span>
-					Swipe to explore
-				</span>
-				<span class="opacity-40">•</span>
-				<span class="flex items-center gap-1">
-					<span class="icon-[mdi--gesture-tap] h-5 w-5"></span>
-					Tap to start
-				</span>
-			</div>
-		</div>
+	<!-- Swipeable Card Stack Section - HERO ELEMENT -->
+	<div class="space-y-3">
 
 		<!-- Card Stack Container -->
 		<div class="relative mx-auto w-full max-w-2xl px-4">
@@ -395,7 +374,7 @@
 			{/if}
 			<!-- Stack of Cards with Depth -->
 			<div
-				class="relative mx-auto h-[500px] w-full max-w-md sm:h-[580px]"
+				class="relative mx-auto h-[560px] w-full max-w-md sm:h-[640px]"
 				onmousemove={handleDragMove}
 				onmouseup={handleDragEnd}
 				onmouseleave={handleDragEnd}
@@ -481,43 +460,55 @@
 					</div>
 				</div>
 			</div>
-		</div>
-	</div>
-	<!-- Advanced Options Section - Speech Speed Only -->
-	<div class="mx-auto max-w-2xl">
-		<div class="advanced-options-container text-center">
-			<!-- Toggle Button -->
-			<button
-				class="btn gap-2 btn-ghost btn-sm"
-				onclick={() => (showAdvancedOptions = !showAdvancedOptions)}
-				aria-expanded={showAdvancedOptions}
-				aria-controls="advanced-options-panel"
+
+			<!-- Integrated Voice Mode Toggle - Jony Ive style floating control -->
+			<div
+				class="mt-6 flex justify-center"
+				in:fly={{ y: 20, duration: 400, delay: 300, easing: quintOut }}
 			>
-				<span class="icon-[mdi--cog] h-5 w-5"></span>
-				Speech Speed Settings
-				<span
-					class="icon-[mdi--chevron-down] h-4 w-4 transition-transform {showAdvancedOptions
-						? 'rotate-180'
-						: ''}"
-				></span>
-			</button>
-
-			<!-- Options Panel -->
-			{#if showAdvancedOptions}
 				<div
-					id="advanced-options-panel"
-					class="mt-4 rounded-lg border border-base-300 bg-base-100 p-4 shadow-sm"
-					transition:slide={{ duration: 200 }}
+					class="flex flex-col items-center gap-2 rounded-2xl border border-base-content/10 bg-base-100/80 px-5 py-3 shadow-lg backdrop-blur-xl"
 				>
-					<SpeechSpeedSelector />
-
-					<!-- Info Banner -->
-					<div class="mt-4 alert py-2 text-xs">
-						<span class="icon-[mdi--information-outline] h-4 w-4 shrink-0 stroke-info"></span>
-						<span>You can change these settings anytime in your profile.</span>
+					<label class="flex cursor-pointer items-center gap-3">
+						<span
+							class="flex items-center gap-1.5 text-sm font-medium transition-all"
+							class:text-base-content={selectedAudioMode === 'ptt'}
+							class:opacity-50={selectedAudioMode === 'vad'}
+							class:scale-105={selectedAudioMode === 'ptt'}
+						>
+							<span class="icon-[mdi--walkie-talkie] h-4.5 w-4.5"></span>
+							<span class="hidden sm:inline">Walkie Talkie</span>
+						</span>
+						<input
+							type="checkbox"
+							class="toggle toggle-sm toggle-primary"
+							checked={selectedAudioMode === 'vad'}
+							onchange={() => handleAudioModeChange(selectedAudioMode === 'vad' ? 'ptt' : 'vad')}
+							aria-label="Switch between Walkie Talkie and Casual Chat modes"
+						/>
+						<span
+							class="flex items-center gap-1.5 text-sm font-medium transition-all"
+							class:text-base-content={selectedAudioMode === 'vad'}
+							class:opacity-50={selectedAudioMode === 'ptt'}
+							class:scale-105={selectedAudioMode === 'vad'}
+						>
+							<span class="hidden sm:inline">Casual Chat</span>
+							<span class="icon-[mdi--message-text-outline] h-4.5 w-4.5"></span>
+						</span>
+					</label>
+					<div class="text-center text-xs text-base-content/60" in:fade={{ duration: 200 }}>
+						{selectedAudioMode === 'vad' ? 'Best with earphones' : 'Best without earphones'}
 					</div>
 				</div>
-			{/if}
+			</div>
+
+			<!-- Minimal swipe hint -->
+			<div
+				class="mt-4 text-center text-xs font-normal text-base-content/40"
+				in:fly={{ y: 10, duration: 400, delay: 600, easing: quintOut }}
+			>
+				Swipe to explore more scenarios
+			</div>
 		</div>
 	</div>
 

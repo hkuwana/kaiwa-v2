@@ -5,7 +5,6 @@
 	import SwipeableCardStack from '$lib/components/SwipeableCardStack.svelte';
 	import NavLanguageSwitcher from '$lib/components/NavLanguageSwitcher.svelte';
 	import DynamicLanguageText from '$lib/components/DynamicLanguageText.svelte';
-	import MonthlyUsageDisplay from '$lib/components/MonthlyUsageDisplay.svelte';
 	import {
 		clearAllConversationData,
 		clearConversationDataOnly,
@@ -236,81 +235,44 @@
 			<StageIndicator />
 		</div>
 
-		<!-- Welcome Header -->
-		<div class="mb-6 text-center sm:mb-8">
-			{#if user.id !== 'guest'}
-				<div class="mb-3 text-lg opacity-90 sm:mb-4 sm:text-xl">
-					Welcome back, {user ? user.displayName : 'Dev'}!
-				</div>
-			{:else}
-				<div class="mb-2 text-xl font-semibold opacity-90 sm:mb-4 sm:text-3xl">
-					{#if useDynamicLanguage}
-						<DynamicLanguageText
-							bind:selectedLanguage
-							onLanguageSelect={handleDynamicLanguageSelect}
-							variant={dynamicVariant}
-							animationInterval={2800}
-							interactive={false}
-						/>
-					{:else}
-						{headlineText}
-					{/if}
-				</div>
+		<!-- Minimal Header with Usage Badge -->
+		<div class="mb-4 flex items-center justify-between sm:mb-6">
+			<div class="text-base font-medium opacity-70 sm:text-lg">
+				{#if user.id !== 'guest'}
+					{user ? user.displayName : 'Dev'}
+				{:else if useDynamicLanguage}
+					<DynamicLanguageText
+						bind:selectedLanguage
+						onLanguageSelect={handleDynamicLanguageSelect}
+						variant={dynamicVariant}
+						animationInterval={2800}
+						interactive={false}
+					/>
+				{:else}
+					{headlineText}
+				{/if}
+			</div>
+
+			<!-- Minimal Usage Badge (logged in users only) -->
+			{#if user.id !== 'guest' && usageStore.tier && usageStore.usage}
+				<a
+					href="/profile"
+					class="badge badge-ghost badge-sm gap-1 hover:badge-primary transition-colors"
+					title="View usage details"
+				>
+					<span class="icon-[mdi--clock-outline] h-3 w-3"></span>
+					{Math.floor(usageStore.secondsRemaining() / 60)}min
+				</a>
 			{/if}
 		</div>
 
-		<!-- Swipeable Card Stack -->
-		<div class="mb-6">
+		<!-- HERO: Swipeable Card Stack -->
+		<div class="mb-4">
 			<SwipeableCardStack
 				onStartConversation={handleStartConversation}
 				onChooseLanguage={handleOpenLanguageSwitcher}
 			/>
 		</div>
-
-		<!-- Monthly Usage Display - Only show for logged in users, compact below cards -->
-		{#if user.id !== 'guest'}
-			<div class="mx-auto mb-6 max-w-2xl">
-				<details class="collapse collapse-arrow bg-base-200/50 rounded-box">
-					<summary class="collapse-title text-sm font-medium">
-						<span class="flex items-center gap-2">
-							<span class="icon-[mdi--clock-outline] h-4 w-4"></span>
-							<span>Usage Stats</span>
-							{#if usageStore.tier && usageStore.usage}
-								<span class="badge badge-sm badge-ghost">
-									{Math.floor(usageStore.secondsRemaining() / 60)}min remaining
-								</span>
-							{/if}
-						</span>
-					</summary>
-					<div class="collapse-content">
-						{#if usageStore.tier && usageStore.usage}
-							<MonthlyUsageDisplay
-								remainingSeconds={usageStore.secondsRemaining()}
-								monthlySeconds={usageStore.tier.monthlySeconds}
-								usedSeconds={usageStore.usage.secondsUsed || 0}
-								bankedSeconds={usageStore.usage.bankedSeconds || 0}
-								tierName={usageStore.tier.name}
-								showUpgradeOption={userManager.effectiveTier === 'free'}
-								isLoading={usageStore.loading}
-								conversationsUsed={usageStore.usage.conversationsUsed || 0}
-								realtimeSessionsUsed={usageStore.usage.realtimeSessionsUsed || 0}
-								analysesUsed={usageStore.usage.analysesUsed || 0}
-								overageSeconds={usageStore.usage.overageSeconds || 0}
-							/>
-						{:else}
-							<MonthlyUsageDisplay
-								remainingSeconds={0}
-								monthlySeconds={0}
-								usedSeconds={0}
-								tierName="Free"
-								showUpgradeOption={true}
-								isLoading={usageStore.loading}
-							/>
-						{/if}
-					</div>
-				</details>
-			</div>
-		{/if}
 
 		<!-- Debug/Development Tools -->
 		{#if browser && user.id === 'dev'}
