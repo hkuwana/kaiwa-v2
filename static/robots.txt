@@ -19,9 +19,14 @@ Allow: /docs
 Allow: /blog
 Allow: /about
 Allow: /pricing
+Allow: /faq
+Allow: /changelog
 
-# Sitemap
+# Sitemap & RSS Feed
 Sitemap: https://trykaiwa.com/sitemap.xml
+
+# RSS Feed for blog syndication
+# Feed URL: https://trykaiwa.com/blog/rss.xml
 
 # Crawl-delay for respectful crawling
 Crawl-delay: 1

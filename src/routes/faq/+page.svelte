@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { createFaqPageJsonLd } from '$lib/seo/jsonld';
+
 	const faqCategories = [
 		{
 			title: 'Getting Started',
@@ -107,14 +109,26 @@
 	function toggleFaq(id: string) {
 		expandedFaq = expandedFaq === id ? null : id;
 	}
+
+	// Flatten all FAQs for JSON-LD schema
+	const allFaqs = faqCategories.flatMap((cat) => cat.faqs);
+	const faqJsonLd = createFaqPageJsonLd(allFaqs, 'https://trykaiwa.com');
 </script>
 
 <svelte:head>
-	<title>FAQ | Kaiwa</title>
+	<title>FAQ | Kaiwa - AI Language Learning</title>
 	<meta
 		name="description"
-		content="Frequently asked questions about Kaiwa, the AI-powered conversation practice platform for language learning."
+		content="Frequently asked questions about Kaiwa, the AI-powered conversation practice platform for language learning. Learn about features, pricing, and how to get started."
 	/>
+	<meta
+		name="keywords"
+		content="Kaiwa FAQ, language learning questions, AI conversation practice, language app help"
+	/>
+	<link rel="canonical" href="https://trykaiwa.com/faq" />
+
+	<!-- FAQ Schema for rich results in Google/Bing -->
+	{@html `<script type="application/ld+json">${JSON.stringify(faqJsonLd)}</script>`}
 </svelte:head>
 
 <div class="container mx-auto max-w-4xl px-4 py-16 sm:py-20">

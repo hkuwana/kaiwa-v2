@@ -1,15 +1,73 @@
-# Bing, ChatGPT & Perplexity Search Indexing
+# Google, Bing, ChatGPT & Perplexity Search Indexing
 
-This guide covers how to get Kaiwa properly indexed by Bing (which powers ChatGPT Search) and Perplexity AI.
+This guide covers how to get Kaiwa properly indexed by Google, Bing (which powers ChatGPT Search), and Perplexity AI.
 
 ## Quick Start Checklist
 
 After deploying, complete these steps in order:
 
-1. [ ] **Verify Bing Webmaster Tools** - https://www.bing.com/webmasters
-2. [ ] **Submit sitemap** - https://trykaiwa.com/sitemap.xml
-3. [ ] **Test IndexNow** - Run `POST /api/seo/indexnow` with `{"siteUpdate": true}`
-4. [ ] **Verify robots.txt** - Confirm bots are allowed
+### Google (Primary)
+1. [ ] **Verify Google Search Console** - https://search.google.com/search-console
+2. [ ] **Submit sitemap to Google** - Add `https://trykaiwa.com/sitemap.xml`
+3. [ ] **Test structured data** - Use Rich Results Test tool
+4. [ ] **Check Core Web Vitals** - Review performance metrics
+
+### Bing & AI Search
+5. [ ] **Verify Bing Webmaster Tools** - https://www.bing.com/webmasters
+6. [ ] **Submit sitemap to Bing** - https://trykaiwa.com/sitemap.xml
+7. [ ] **Test IndexNow** - Run `POST /api/seo/indexnow` with `{"siteUpdate": true}`
+8. [ ] **Verify robots.txt** - Confirm bots are allowed
+
+---
+
+## Google Search Console Setup
+
+### 1. Create Account & Verify Site
+
+1. Go to [Google Search Console](https://search.google.com/search-console)
+2. Sign in with Google account
+3. Click **Add Property**
+4. Choose **URL prefix** method: `https://trykaiwa.com`
+5. Verify ownership via one of these methods:
+   - **Recommended**: HTML file upload (add to `/static/`)
+   - Alternative: DNS TXT record
+   - Alternative: Meta tag in `<head>` (already set up in `app.html`)
+   - Alternative: Google Analytics (if using GA4)
+
+### 2. Submit Sitemap
+
+After verification:
+1. Go to **Sitemaps** in the left menu
+2. Enter: `sitemap.xml`
+3. Click **Submit**
+4. Google will crawl and report status within 24-48 hours
+
+### 3. Monitor Performance
+
+Key reports to check weekly:
+- **Performance**: Clicks, impressions, CTR, position
+- **Coverage**: Indexed pages, errors, warnings
+- **Core Web Vitals**: LCP, FID, CLS scores
+- **Mobile Usability**: Mobile-friendly issues
+
+### 4. Request Indexing
+
+For new or updated pages:
+1. Go to **URL Inspection**
+2. Enter the URL (e.g., `https://trykaiwa.com/blog/new-post`)
+3. Click **Request Indexing**
+4. Google will prioritize crawling this URL
+
+### 5. Rich Results Testing
+
+Validate your structured data:
+1. Go to [Rich Results Test](https://search.google.com/test/rich-results)
+2. Enter your URL
+3. Check for:
+   - FAQ schema (FAQ pages)
+   - Article schema (blog posts)
+   - Course schema (learning paths)
+   - Organization schema (homepage)
 
 ---
 
@@ -225,7 +283,22 @@ If your site doesn't appear, check:
 
 ## Resources
 
+### Google
+- [Google Search Console](https://search.google.com/search-console)
+- [Google Search Central Docs](https://developers.google.com/search/docs)
+- [Rich Results Test](https://search.google.com/test/rich-results)
+- [PageSpeed Insights](https://pagespeed.web.dev/)
+- [Sitemap Best Practices](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap)
+
+### Bing & AI Search
+- [Bing Webmaster Tools](https://www.bing.com/webmasters)
 - [Bing Webmaster Guidelines](https://www.bing.com/webmasters/help/webmaster-guidelines-30fba23a)
 - [IndexNow Documentation](https://www.indexnow.org/documentation)
 - [OpenAI Crawlers](https://platform.openai.com/docs/bots)
 - [Perplexity AI Guidelines](https://docs.perplexity.ai)
+
+### Schema & Structured Data
+- [Schema.org](https://schema.org/)
+- [FAQ Schema](https://developers.google.com/search/docs/appearance/structured-data/faqpage)
+- [Article Schema](https://developers.google.com/search/docs/appearance/structured-data/article)
+- [Course Schema](https://developers.google.com/search/docs/appearance/structured-data/course)
