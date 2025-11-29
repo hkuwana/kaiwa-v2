@@ -5,7 +5,6 @@
 	import SwipeableCardStack from '$lib/components/SwipeableCardStack.svelte';
 	import NavLanguageSwitcher from '$lib/components/NavLanguageSwitcher.svelte';
 	import DynamicLanguageText from '$lib/components/DynamicLanguageText.svelte';
-	import MonthlyUsageDisplay from '$lib/components/MonthlyUsageDisplay.svelte';
 	import {
 		clearAllConversationData,
 		clearConversationDataOnly,
@@ -236,14 +235,31 @@
 			<StageIndicator />
 		</div>
 
-		<!-- Welcome Header -->
-		<div class="mb-6 text-center sm:mb-8">
+		<!-- Warm Header - Stacked vertically -->
+		<div class="mb-4 text-center sm:mb-6">
 			{#if user.id !== 'guest'}
-				<div class="mb-3 text-lg opacity-90 sm:mb-4 sm:text-xl">
-					Welcome back, {user ? user.displayName : 'Dev'}!
+				<!-- Logged in users: Warm welcome -->
+				<div class="text-base text-base-content/70 sm:text-lg">Welcome back,</div>
+				<div class="text-lg font-semibold sm:text-xl">
+					{user ? user.displayName : 'Dev'}
 				</div>
+
+				<!-- Usage info - hidden on mobile, shown on desktop -->
+				{#if usageStore.tier && usageStore.usage}
+					<a
+						href="/profile"
+						class="mt-1 hidden items-center gap-1.5 text-sm text-base-content/60 hover:text-primary transition-colors sm:inline-flex"
+						title="View usage details"
+					>
+						<span class="icon-[mdi--clock-outline] h-4 w-4"></span>
+						<span>{Math.floor(usageStore.secondsRemaining() / 60)} minutes remaining</span>
+						<span class="opacity-50">·</span>
+						<span class="capitalize">{usageStore.tier.name} Plan</span>
+					</a>
+				{/if}
 			{:else}
-				<div class="mb-2 text-xl font-semibold opacity-90 sm:mb-4 sm:text-3xl">
+				<!-- Guest users: Dynamic headline -->
+				<div class="text-lg font-semibold sm:text-2xl">
 					{#if useDynamicLanguage}
 						<DynamicLanguageText
 							bind:selectedLanguage
@@ -259,43 +275,13 @@
 			{/if}
 		</div>
 
-		<!-- Swipeable Card Stack -->
-		<div class="mb-8">
+		<!-- HERO: Swipeable Card Stack -->
+		<div class="mb-4">
 			<SwipeableCardStack
 				onStartConversation={handleStartConversation}
 				onChooseLanguage={handleOpenLanguageSwitcher}
 			/>
 		</div>
-
-		<!-- Monthly Usage Display - Only show for logged in users -->
-		{#if user.id !== 'guest'}
-			<div class="mx-auto mb-6 max-w-2xl">
-				{#if usageStore.tier && usageStore.usage}
-					<MonthlyUsageDisplay
-						remainingSeconds={usageStore.secondsRemaining()}
-						monthlySeconds={usageStore.tier.monthlySeconds}
-						usedSeconds={usageStore.usage.secondsUsed || 0}
-						bankedSeconds={usageStore.usage.bankedSeconds || 0}
-						tierName={usageStore.tier.name}
-						showUpgradeOption={userManager.effectiveTier === 'free'}
-						isLoading={usageStore.loading}
-						conversationsUsed={usageStore.usage.conversationsUsed || 0}
-						realtimeSessionsUsed={usageStore.usage.realtimeSessionsUsed || 0}
-						analysesUsed={usageStore.usage.analysesUsed || 0}
-						overageSeconds={usageStore.usage.overageSeconds || 0}
-					/>
-				{:else}
-					<MonthlyUsageDisplay
-						remainingSeconds={0}
-						monthlySeconds={0}
-						usedSeconds={0}
-						tierName="Free"
-						showUpgradeOption={true}
-						isLoading={usageStore.loading}
-					/>
-				{/if}
-			</div>
-		{/if}
 
 		<!-- Debug/Development Tools -->
 		{#if browser && user.id === 'dev'}

@@ -6,8 +6,10 @@
 	import { getSpeakersByLanguage } from '$lib/data/speakers';
 	import BriefingCard from './BriefingCard.svelte';
 	import SpeechSpeedSelector from './SpeechSpeedSelector.svelte';
-	import { fade, slide } from 'svelte/transition';
+	import VoiceModeSelector from './VoiceModeSelector.svelte';
+	import { fade, slide, fly } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
+	import { quintOut } from 'svelte/easing';
 	import type { Scenario } from '$lib/data/scenarios';
 	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
 	import type { AudioInputMode } from '$lib/server/db/types';
@@ -16,7 +18,7 @@
 	import { track } from '$lib/analytics/posthog';
 
 	interface Props {
-		/** Show only featured scenarios (default: first 5) */
+		/** Show only featured scenarios (default: first 3) */
 		featuredScenariosCount?: number;
 		/** Callback when user starts a conversation */
 		onStartConversation?: (scenario: Scenario) => void;
@@ -27,7 +29,7 @@
 	}
 
 	const {
-		featuredScenariosCount = 5,
+		featuredScenariosCount = 3,
 		onStartConversation,
 		selectedSpeaker,
 		onChooseLanguage
@@ -342,20 +344,56 @@
 </script>
 
 <div class="w-full">
-	<!-- Swipeable Card Stack Section -->
-	<div class="space-y-2">
-		<div class="text-center">
-			<div class="mt-2 flex items-center justify-center gap-3 text-sm text-base-content/60">
-				<span class="flex items-center gap-1">
-					<span class="icon-[mdi--gesture-swipe-horizontal] h-5 w-5"></span>
-					Swipe to explore
+	<!-- Voice Mode Toggle - Top position -->
+	<div
+		class="mb-3 flex justify-center sm:mb-5"
+		in:fly={{ y: -10, duration: 400, delay: 100, easing: quintOut }}
+	>
+		<div
+			class="flex flex-col items-center gap-2 rounded-2xl border border-base-content/10 bg-base-100/80 px-4 py-2.5 shadow-lg backdrop-blur-xl sm:px-5 sm:py-3"
+		>
+			<label class="flex cursor-pointer items-center gap-2 sm:gap-3">
+				<!-- Show only active mode text on mobile, both on desktop -->
+				<span
+					class="flex items-center gap-1.5 text-sm font-medium transition-all"
+					class:text-base-content={selectedAudioMode === 'ptt'}
+					class:opacity-50={selectedAudioMode === 'vad'}
+					class:scale-105={selectedAudioMode === 'ptt'}
+				>
+					<span class="icon-[mdi--walkie-talkie] h-4.5 w-4.5"></span>
+					<span class:hidden={selectedAudioMode === 'vad'} class="sm:inline">Walkie Talkie</span>
 				</span>
-				<span class="opacity-40">•</span>
-				<span class="flex items-center gap-1">
-					<span class="icon-[mdi--gesture-tap] h-5 w-5"></span>
-					Tap to start
+				<input
+					type="checkbox"
+					class="toggle toggle-sm toggle-primary"
+					checked={selectedAudioMode === 'vad'}
+					onchange={() => handleAudioModeChange(selectedAudioMode === 'vad' ? 'ptt' : 'vad')}
+					aria-label="Switch between Walkie Talkie and Casual Chat modes"
+				/>
+				<span
+					class="flex items-center gap-1.5 text-sm font-medium transition-all"
+					class:text-base-content={selectedAudioMode === 'vad'}
+					class:opacity-50={selectedAudioMode === 'ptt'}
+					class:scale-105={selectedAudioMode === 'vad'}
+				>
+					<span class:hidden={selectedAudioMode === 'ptt'} class="sm:inline">Casual Chat</span>
+					<span class="icon-[mdi--message-text-outline] h-4.5 w-4.5"></span>
 				</span>
+			</label>
+			<div class="text-center text-xs text-base-content/60" in:fade={{ duration: 200 }}>
+				{selectedAudioMode === 'vad' ? 'Best with earphones' : 'Best without earphones'}
 			</div>
+		</div>
+	</div>
+
+	<!-- Swipeable Card Stack Section -->
+	<div class="space-y-2 sm:space-y-3">
+		<!-- Swipe hint - Above cards -->
+		<div
+			class="text-center text-xs font-normal text-base-content/40"
+			in:fly={{ y: -5, duration: 400, delay: 200, easing: quintOut }}
+		>
+			Swipe to explore scenarios
 		</div>
 
 		<!-- Card Stack Container -->
@@ -385,7 +423,7 @@
 			{/if}
 			<!-- Stack of Cards with Depth -->
 			<div
-				class="relative mx-auto h-[520px] w-full max-w-md sm:h-[620px]"
+				class="relative mx-auto h-[520px] w-full max-w-md sm:h-[600px]"
 				onmousemove={handleDragMove}
 				onmouseup={handleDragEnd}
 				onmouseleave={handleDragEnd}
@@ -471,106 +509,6 @@
 					</div>
 				</div>
 			</div>
-		</div>
-	</div>
-	<!-- Advanced Options Section -->
-	<div class="mx-auto max-w-2xl">
-		<div class="advanced-options-container text-center">
-			<!-- Toggle Button -->
-			<button
-				class="btn gap-2 btn-ghost btn-sm"
-				onclick={() => (showAdvancedOptions = !showAdvancedOptions)}
-				aria-expanded={showAdvancedOptions}
-				aria-controls="advanced-options-panel"
-			>
-				<span class="icon-[mdi--cog] h-5 w-5"></span>
-				Advanced Options
-				<span
-					class="icon-[mdi--chevron-down] h-4 w-4 transition-transform {showAdvancedOptions
-						? 'rotate-180'
-						: ''}"
-				></span>
-			</button>
-
-			<!-- Options Panel -->
-			{#if showAdvancedOptions}
-				<div
-					id="advanced-options-panel"
-					class="mt-4 rounded-lg border border-base-300 bg-base-100 p-4 shadow-sm"
-					transition:slide={{ duration: 200 }}
-				>
-					<h3 class="mb-4 text-sm font-semibold">Audio Input Mode</h3>
-
-					<!-- Audio Mode Swap Toggle -->
-					<div class="flex flex-col gap-4">
-						<!-- Mode Labels -->
-						<div class="flex items-center justify-between">
-							<div class="text-left">
-								<div class="text-sm font-medium" class:text-primary={selectedAudioMode === 'vad'}>
-									Conversation Mode
-								</div>
-								<div class="text-xs text-base-content/60">Natural hands-free speaking</div>
-							</div>
-							<div class="text-right">
-								<div class="text-sm font-medium" class:text-primary={selectedAudioMode === 'ptt'}>
-									Manual Control
-								</div>
-								<div class="text-xs text-base-content/60">Press & hold to speak</div>
-							</div>
-						</div>
-
-						<!-- Swap Toggle Container -->
-						<div class="flex justify-center">
-							<label class="swap swap-rotate">
-								<input
-									type="checkbox"
-									checked={selectedAudioMode === 'ptt'}
-									onchange={() =>
-										handleAudioModeChange(selectedAudioMode === 'vad' ? 'ptt' : 'vad')}
-								/>
-
-								<!-- Auto-Detect icon (swap-off) -->
-								<div class="swap-off flex items-center justify-center">
-									<span class="icon-[mdi--microphone] h-8 w-8 text-base-content/70"></span>
-								</div>
-
-								<!-- Push-to-Talk icon (swap-on) -->
-								<div class="swap-on flex items-center justify-center">
-									<span class="icon-[mdi--gesture-tap] h-8 w-8 text-primary"></span>
-								</div>
-							</label>
-						</div>
-
-						<!-- Description based on selected mode -->
-						<div class="rounded-lg bg-base-200 p-3">
-							{#if selectedAudioMode === 'vad'}
-								<div class="text-xs text-base-content/70">
-									<strong>Conversation Mode:</strong> Automatically detects when you're speaking and
-									captures your voice naturally. No buttons to press—just talk! Perfect for natural conversation
-									flow in quiet environments.
-								</div>
-							{:else}
-								<div class="text-xs text-base-content/70">
-									<strong>Manual Control:</strong> Press and hold the microphone button to speak. Release
-									to stop. Best for noisy backgrounds or when you want precise control over when your
-									audio is transmitted.
-								</div>
-							{/if}
-						</div>
-					</div>
-
-					<!-- Speech Speed Section -->
-					<div class="divider"></div>
-
-					<SpeechSpeedSelector />
-
-					<!-- Info Banner -->
-					<div class="mt-4 alert py-2 text-xs">
-						<span class="icon-[mdi--information-outline] h-4 w-4 shrink-0 stroke-info"></span>
-						<span>You can change this setting anytime in your profile settings.</span>
-					</div>
-				</div>
-			{/if}
 		</div>
 	</div>
 
