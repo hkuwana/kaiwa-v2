@@ -16,6 +16,9 @@ Disallow: /test-*
 Allow: /privacy
 Allow: /terms
 Allow: /docs
+Allow: /blog
+Allow: /about
+Allow: /pricing
 
 # Sitemap
 Sitemap: https://trykaiwa.com/sitemap.xml
@@ -23,15 +26,61 @@ Sitemap: https://trykaiwa.com/sitemap.xml
 # Crawl-delay for respectful crawling
 Crawl-delay: 1
 
-# Block common bot patterns
+# ============================================
+# SEARCH ENGINE BOTS - ALLOW FOR INDEXING
+# ============================================
+
+# Bing - Primary search engine, powers ChatGPT Search
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Bing Preview - For rich snippets
+User-agent: BingPreview
+Allow: /
+
+# OpenAI SearchBot - Required for ChatGPT Search visibility
+User-agent: OAI-SearchBot
+Allow: /
+
+# ChatGPT-User - Processes real-time user queries in ChatGPT
+User-agent: ChatGPT-User
+Allow: /
+
+# Perplexity AI Bot - For Perplexity search indexing
+User-agent: PerplexityBot
+Allow: /
+
+# ============================================
+# AI TRAINING BOTS - BLOCK TO PREVENT TRAINING
+# ============================================
+# Note: Blocking these does NOT affect search visibility
+# These bots collect data for AI model training only
+
+# OpenAI GPTBot - AI training data collection
 User-agent: GPTBot
 Disallow: /
 
-User-agent: ChatGPT-User
-Disallow: /
-
+# Common Crawl - Used by many AI training datasets
 User-agent: CCBot
 Disallow: /
 
+# Anthropic AI - AI training data collection
 User-agent: anthropic-ai
+Disallow: /
+
+# Google AI training bots
+User-agent: Google-Extended
+Disallow: /
+
+# Cohere AI training
+User-agent: cohere-ai
+Disallow: /
+
+# Meta/Facebook AI training
+User-agent: FacebookBot
+Disallow: /
+
+# ByteDance/TikTok AI training
+User-agent: Bytespider
 Disallow: /
