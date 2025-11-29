@@ -205,6 +205,7 @@ After doing 20+ manual paths, you'll see patterns. Document them here:
 | Bri | Japanese | Work/live in Japan | | | |
 | Akemi | Japanese | Part-time Japan residence | | | |
 | Scott | Spanish | Fluency maintenance | | | |
+| Todd | Spanish, Japanese | Elderly family communication (95yo grandma) | Nov 29, 2025 | | Feedback received |
 
 ---
 
@@ -323,6 +324,106 @@ A: Yes, for founding members (goodwill). For paid users, offer to rebuild the pa
 
 ---
 
-**Last Updated**: November 2025
+---
+
+## 📋 Discovery Call Notes
+
+### Todd Matsumoto - November 29, 2025
+
+**User Profile:**
+- **Name**: Todd Matsumoto
+- **Languages**: Spanish, Japanese
+- **Current Level**: Conversational (uses free conversation mode successfully)
+- **Primary Goal**: Communicate with 95-year-old grandmother
+- **Secondary Interest**: Emily (curiosity-driven learning)
+
+**Use Case Deep Dive:**
+
+**Primary: Elderly Family Communication (Grandmother)**
+- **Who**: 95-year-old grandmother
+- **Frequency**: Very frequent ("Communicate with his grandma frequently and a lot of stuff")
+- **Context**: Caregiver/family support role
+- **Specific Situations**:
+  - Taking her to places (Place X and Place Y)
+  - Explaining things to her caregivers/people around her
+  - Reporting on family members to grandmother
+  - Example: "Sister is in San Francisco and going to [somewhere]"
+  - Providing updates on family activities and locations
+- **Challenge**: "A lot of things that's not in the room" - abstract concepts, places not physically present
+
+**What Worked:**
+- ✅ Free conversation mode - unstructured practice suited his needs
+- ✅ About page resonates - mission/branding connects emotionally
+- ✅ No gamification needed - wants authentic conversation practice
+
+**What Didn't Work:**
+- ❌ Spanish: Speed escalation too fast ("tutor mode to super conversational speed real quick and felt overwhelming")
+- ❌ Japanese: Overall pacing too fast ("It's too fast when she was doing Japanese")
+- ❌ Input mode discovery: "Walkie talkie" mode wasn't findable
+- ❌ Audio input mode visibility: "He didn't know audio input mode was there"
+- ❌ Terminology confusion: "Manual control" vs "walkie talkie mode"
+- ❌ Name insertion unclear: "Couldn't identify the part to insert name with things like 'my name is [your name]'"
+
+**Feature Requests:**
+- 🔄 Repetition for elderly learners: "Old people: Say it 3 times"
+- 🎙️ Hands-free mode: "Hangout so while he's driving that he can talk"
+- 📚 Vocabulary component: Visual reference during conversation
+- ⌨️ Keyboard controls: Spacebar to talk, Enter confusion
+
+**Personalized Path Opportunity:**
+
+**Template: "Elderly Family Communication"**
+**Target Persona**: Heritage Speaker (David) + Caregiver role
+**Duration**: 2-4 weeks
+**Unique Needs**:
+- Slower pacing with repetition ("say it 3 times")
+- Explaining abstract concepts (places, events not present)
+- Bridging language for caregivers/medical professionals
+- Family update conversations (reporting on relatives)
+
+**Potential Scenario Structure:**
+
+**Week 1: Basic Communication with Elderly Family**
+- Day 1: Daily check-ins and greetings
+- Day 2: Discussing meals and preferences
+- Day 3: Talking about family members (who, where, what they're doing)
+- Day 4: Explaining places you're taking them
+- Day 5: Describing activities for the day
+- Day 6: Communicating with caregivers/helpers
+- Day 7: Review (full conversation simulation)
+
+**Week 2: Complex Topics & Medical/Care Situations**
+- Day 8: Medical appointments and health updates
+- Day 9: Explaining family news and events
+- Day 10: Discussing memories and past events
+- Day 11: Coordinating with other family members
+- Day 12: Emergency situations (doctor, medication, etc.)
+- Day 13: Comfort and emotional support phrases
+- Day 14: Final simulation (comprehensive care conversation)
+
+**Cool Use Cases Mentioned:**
+- Emily (curiosity-driven)
+- Potential for driving/commute practice (hands-free need)
+
+**Follow-Up Actions:**
+- [ ] Reach out to offer personalized path (free for founding member)
+- [ ] Focus on elderly communication + caregiver scenarios
+- [ ] Highlight slower pacing with repetition features
+- [ ] Consider this as template for elder care/heritage speaker segment
+
+**Key Insights for Product:**
+1. **Accessibility matters**: Speed control critical for different age groups/contexts
+2. **Caregiver use case**: Untapped market (communicating FOR elderly relatives)
+3. **Hands-free mode**: Important for multitasking caregivers (driving, cooking)
+4. **Repetition > Gamification**: Older learners need reinforcement, not points
+5. **Clear terminology**: "Walkie talkie" resonates more than "manual control"
+
+**Persona Validation:**
+- ✅ Heritage Speaker (David): Family-focused, practical communication needs
+- ✅ New sub-persona: "Caregiver Communicator" - helping elderly family navigate language barriers
+
+---
+
+**Last Updated**: November 29, 2025
 **Status**: Phase 1 (Manual)
 **Next Milestone**: Complete 10 paths → Create first template
