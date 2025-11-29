@@ -12,6 +12,9 @@
 		calculateAnnualDiscount
 	} from '$lib/features/payments/services/stripe.service';
 	import { PricingService } from '$lib/features/payments/services/pricing.service';
+	import bambooDayImage from '$lib/assets/pricing/pricing-bamboo-day.png?enhanced';
+	import pineDawnImage from '$lib/assets/pricing/pricing-pine-dawn.png?enhanced';
+	import plumSunsetImage from '$lib/assets/pricing/pricing-plum-sunset.png?enhanced';
 
 	import Faq from '$lib/features/payments/components/Faq.svelte';
 	import Testimonials from '$lib/features/payments/components/Testimonials.svelte';
@@ -472,12 +475,7 @@
 							>${personalizedPathOffer.foundingMemberPrice}</span
 						>
 					</div>
-					<a
-						href={CALENDAR_LINK}
-						target="_blank"
-						rel="noopener noreferrer"
-						class="btn btn-accent"
-					>
+					<a href={CALENDAR_LINK} target="_blank" rel="noopener noreferrer" class="btn btn-accent">
 						Book Call
 					</a>
 				</div>
@@ -514,17 +512,23 @@
 			</div>
 		</div>
 
-		<!-- Pricing Cards - Clean with Ghibli-inspired backgrounds -->
-		<div class="mx-auto mb-16 grid max-w-4xl grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:items-start">
-			<!-- Free Tier - Pine Dawn -->
+	 
+		<div
+			class="mx-auto mb-16 grid max-w-4xl grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:items-start"
+		>
+			 
 			<div
 				class="relative flex flex-col overflow-hidden rounded-2xl border border-base-200 bg-base-100 p-6 sm:p-8"
 			>
-				<!-- Ghibli background - pine forest at dawn -->
-				<div
-					class="pointer-events-none absolute inset-0 bg-cover bg-center opacity-20 dark:opacity-10"
-					style="background-image: url('/pricing/pricing-pine-dawn.png')"
-				></div>
+				<div class="absolute inset-0 pointer-events-none">
+					<enhanced:img
+						src={pineDawnImage}
+						alt="Sunrise over a pine forest"
+						class="h-full w-full object-cover opacity-20 dark:opacity-10"
+						sizes="(min-width:1024px) 360px, (min-width:640px) 520px, 100vw"
+						loading="lazy"
+					/>
+				</div>
 				<div
 					class="pointer-events-none absolute inset-0 bg-linear-to-t from-base-100 via-base-100/80 to-transparent"
 				></div>
@@ -563,10 +567,16 @@
 				class="relative flex flex-col overflow-hidden rounded-2xl border-2 border-primary bg-base-100 p-6 shadow-xl shadow-primary/10 sm:p-8 lg:-mt-2 lg:mb-2"
 			>
 				<!-- Ghibli background - plum blossoms at sunset -->
-				<div
-					class="pointer-events-none absolute inset-0 bg-cover bg-center opacity-25 dark:opacity-15"
-					style="background-image: url('/pricing/pricing-plum-sunset.png')"
-				></div>
+				<div class="absolute inset-0 pointer-events-none">
+					<enhanced:img
+						src={plumSunsetImage}
+						alt="Plum blossoms at sunset"
+						class="h-full w-full object-cover opacity-25 dark:opacity-15"
+						sizes="(min-width:1024px) 360px, (min-width:640px) 520px, 100vw"
+						loading="eager"
+						fetchpriority="high"
+					/>
+				</div>
 				<div
 					class="pointer-events-none absolute inset-0 bg-linear-to-t from-base-100 via-base-100/70 to-transparent"
 				></div>
@@ -611,10 +621,15 @@
 				class="relative flex flex-col overflow-hidden rounded-2xl border border-base-200 bg-base-100 p-6 sm:p-8"
 			>
 				<!-- Ghibli background - bamboo forest in daylight -->
-				<div
-					class="pointer-events-none absolute inset-0 bg-cover bg-center opacity-20 dark:opacity-10"
-					style="background-image: url('/pricing/pricing-bamboo-day.png')"
-				></div>
+				<div class="absolute inset-0 pointer-events-none">
+					<enhanced:img
+						src={bambooDayImage}
+						alt="Bamboo forest in daylight"
+						class="h-full w-full object-cover opacity-20 dark:opacity-10"
+						sizes="(min-width:1024px) 360px, (min-width:640px) 520px, 100vw"
+						loading="lazy"
+					/>
+				</div>
 				<div
 					class="pointer-events-none absolute inset-0 bg-linear-to-t from-base-100 via-base-100/80 to-transparent"
 				></div>
@@ -728,7 +743,7 @@
 
 		<Faq />
 	</div>
-{:catch _error}
+{:catch }
 	<div class="container mx-auto max-w-4xl px-4 py-16">
 		<div class="alert alert-error shadow-lg">
 			<span>We couldn't load pricing details. Please refresh the page to try again.</span>
