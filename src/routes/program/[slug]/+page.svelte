@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { createLearningPathJsonLd } from '$lib/seo/jsonld';
+	import { createLearningPathJsonLd, createBreadcrumbJsonLd } from '$lib/seo/jsonld';
 	import PathSyllabus from '$lib/features/learning-path/components/PathSyllabus.svelte';
 	import EnrollCTA from '$lib/features/learning-path/components/EnrollCTA.svelte';
 	import type { PageData } from './$types';
@@ -28,6 +28,16 @@
 
 	// Generate JSON-LD structured data
 	const jsonLd = createLearningPathJsonLd(template, baseUrl);
+
+	// Create breadcrumb navigation
+	const breadcrumbJsonLd = createBreadcrumbJsonLd(
+		[
+			{ name: 'Home', url: '/' },
+			{ name: 'Programs', url: '/programs' },
+			{ name: template.title, url: `/program/${template.shareSlug}` }
+		],
+		baseUrl
+	);
 
 	// Meta description for SEO
 	const metaDescription = `${template.description} • ${template.schedule.length}-day ${languageName} learning program • Practice real conversations in ${weeks} weeks • Start free today!`;
@@ -59,8 +69,11 @@
 	<!-- Canonical URL -->
 	<link rel="canonical" href={pageUrl} />
 
-	<!-- JSON-LD Structured Data -->
+	<!-- JSON-LD Structured Data - Course -->
 	{@html `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`}
+
+	<!-- JSON-LD Structured Data - Breadcrumbs -->
+	{@html `<script type="application/ld+json">${JSON.stringify(breadcrumbJsonLd)}</script>`}
 </svelte:head>
 
 <div class="min-h-screen bg-base-100">

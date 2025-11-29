@@ -349,6 +349,13 @@
 		content="Go beyond tourist phrases. Practice conversations that make your loved ones' faces light up with pride."
 	/>
 	<meta property="og:type" content="website" />
+
+	<!-- Pricing JSON-LD structured data -->
+	{#if data.pricingJsonLd}
+		{#each data.pricingJsonLd as productSchema}
+			{@html `<script type="application/ld+json">${JSON.stringify(productSchema)}</script>`}
+		{/each}
+	{/if}
 </svelte:head>
 
 {#await pricingPromise}

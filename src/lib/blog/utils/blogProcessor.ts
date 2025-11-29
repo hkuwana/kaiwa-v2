@@ -61,18 +61,31 @@ export function generateSlug(title: string): string {
 		.trim();
 }
 
-export function createBlogJsonLd(metadata: BlogMetadata, url: string) {
+export function createBlogJsonLd(
+	metadata: BlogMetadata,
+	url: string,
+	options?: {
+		content?: string;
+		wordCount?: number;
+		modifiedDate?: string;
+		image?: string;
+	}
+) {
 	return {
 		'@context': 'https://schema.org',
 		'@type': 'BlogPosting',
 		headline: metadata.title,
 		description: metadata.description,
+		articleBody: options?.content || metadata.excerpt,
+		wordCount: options?.wordCount,
 		author: {
-			'@type': 'Organization',
+			'@type': 'Person',
 			name: metadata.author ?? 'Kaiwa Team'
 		},
-		datePublished: metadata.date,
-		dateModified: metadata.date,
+		datePublished: new Date(metadata.date).toISOString(),
+		dateModified: options?.modifiedDate
+			? new Date(options.modifiedDate).toISOString()
+			: new Date(metadata.date).toISOString(),
 		publisher: {
 			'@type': 'Organization',
 			name: 'Kaiwa',
@@ -85,7 +98,9 @@ export function createBlogJsonLd(metadata: BlogMetadata, url: string) {
 			'@type': 'WebPage',
 			'@id': url
 		},
-		image: 'https://trykaiwa.com/og-image.png',
-		keywords: metadata.tags?.join(', ') || ''
+		image: options?.image || 'https://trykaiwa.com/og-image.png',
+		thumbnailUrl: options?.image || 'https://trykaiwa.com/og-image.png',
+		keywords: metadata.tags?.join(', ') || '',
+		inLanguage: 'en'
 	};
 }
