@@ -66,8 +66,7 @@ export const personalizedPathOffer = {
 	comparisonPoints: [
 		{
 			generic: 'Practice ordering at a restaurant',
-			personalized:
-				"Practice meeting Takeshi's mom, who loves cooking and will ask about your job"
+			personalized: "Practice meeting Takeshi's mom, who loves cooking and will ask about your job"
 		},
 		{
 			generic: 'Learn travel phrases',

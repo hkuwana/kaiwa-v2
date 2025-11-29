@@ -16,6 +16,7 @@ Implemented automatic user enrollment when personalized learning paths are creat
 ### Root Cause
 
 The `PathGeneratorService` was creating learning paths but not creating the corresponding assignment records. The system had these separate concerns:
+
 - **Path creation**: Handled by `PathGeneratorService.createPathFromPreferences()`
 - **Enrollment**: Expected to happen separately (either manually or via `/api/learning-paths/[pathId]/assign`)
 
@@ -28,6 +29,7 @@ This separation made sense for template paths (where one path can be assigned to
 **File Modified**: `src/lib/features/learning-path/services/PathGeneratorService.server.ts`
 
 ### 1. Added Import
+
 ```typescript
 import { learningPathAssignmentRepository } from '$lib/server/repositories/learning-path-assignment.repository';
 ```
@@ -37,18 +39,20 @@ import { learningPathAssignmentRepository } from '$lib/server/repositories/learn
 Both path creation methods now automatically enroll the user:
 
 #### `createPathFromPreferences()` (lines 87-90)
+
 ```typescript
 // Step 4: Auto-enroll user if userId provided
 if (userId) {
-    await this.createAssignmentForUser(userId, path.id);
+	await this.createAssignmentForUser(userId, path.id);
 }
 ```
 
 #### `createPathFromCreatorBrief()` (lines 157-160)
+
 ```typescript
 // Step 4: Auto-enroll user if userId provided
 if (userId) {
-    await this.createAssignmentForUser(userId, path.id);
+	await this.createAssignmentForUser(userId, path.id);
 }
 ```
 
@@ -68,6 +72,7 @@ private static async createAssignmentForUser(userId: string, pathId: string): Pr
 ```
 
 **Key Features**:
+
 - ✅ Checks if assignment already exists (prevents duplicates)
 - ✅ Creates assignment with sensible defaults:
   - `status: 'active'`
@@ -93,6 +98,7 @@ private static async createAssignmentForUser(userId: string, pathId: string): Pr
 ### Database Records Created
 
 **Before**: Only 1 record
+
 ```
 learning_paths
 ├─ id: lp-abc123
@@ -102,6 +108,7 @@ learning_paths
 ```
 
 **After**: 2 records
+
 ```
 learning_paths
 ├─ id: lp-abc123
@@ -147,12 +154,14 @@ curl -X POST https://localhost:5173/api/learning-paths/from-preferences \
 ## Benefits
 
 ### User Experience
+
 - ✅ **Instant visibility**: Path appears on dashboard immediately after creation
 - ✅ **No extra steps**: Don't need to click "start your first lesson" to save
 - ✅ **Peace of mind**: Users can verify their path was created successfully
 - ✅ **Better onboarding**: Seamless transition from path creation to learning
 
 ### Technical
+
 - ✅ **Consistent state**: Path + Assignment created atomically
 - ✅ **No orphaned paths**: Every user path has a corresponding assignment
 - ✅ **Backwards compatible**: Anonymous/template paths still work (no userId provided)
@@ -169,9 +178,11 @@ curl -X POST https://localhost:5173/api/learning-paths/from-preferences \
 ## Related Files
 
 ### Modified
+
 - `src/lib/features/learning-path/services/PathGeneratorService.server.ts`
 
 ### Referenced
+
 - `src/lib/server/repositories/learning-path-assignment.repository.ts`
 - `src/lib/server/repositories/learning-path.repository.ts`
 - `src/routes/dashboard/+page.server.ts`
@@ -212,6 +223,7 @@ clicking "start your first lesson".
    - Ready for testing and deployment
 
 2. **Testing in Development**
+
    ```bash
    # Start your dev environment
    pnpm dev
@@ -224,6 +236,7 @@ clicking "start your first lesson".
    ```
 
 3. **Verify Database Changes**
+
    ```sql
    -- Check that assignments are being created
    SELECT
@@ -259,29 +272,27 @@ These are NOT required now but could improve the feature:
    - Could include assignment details (enrollment date, status, etc.)
 
 2. **Handle Existing Users with Orphaned Paths**
+
    ```typescript
    // Migration script to create assignments for existing paths
    // Run once after deployment to fix any existing orphaned paths
    async function backfillAssignments() {
-     const orphanedPaths = await db.query.learningPaths.findMany({
-       where: and(
-         isNotNull(learningPaths.userId),
-         eq(learningPaths.isTemplate, false)
-       )
-     });
+   	const orphanedPaths = await db.query.learningPaths.findMany({
+   		where: and(isNotNull(learningPaths.userId), eq(learningPaths.isTemplate, false))
+   	});
 
-     for (const path of orphanedPaths) {
-       const existingAssignment = await findAssignment(path.userId, path.id);
-       if (!existingAssignment) {
-         await createAssignment({
-           pathId: path.id,
-           userId: path.userId,
-           status: 'active',
-           currentDayIndex: 0,
-           startsAt: path.createdAt
-         });
-       }
-     }
+   	for (const path of orphanedPaths) {
+   		const existingAssignment = await findAssignment(path.userId, path.id);
+   		if (!existingAssignment) {
+   			await createAssignment({
+   				pathId: path.id,
+   				userId: path.userId,
+   				status: 'active',
+   				currentDayIndex: 0,
+   				startsAt: path.createdAt
+   			});
+   		}
+   	}
    }
    ```
 
@@ -311,12 +322,14 @@ These are NOT required now but could improve the feature:
 ## Future Considerations
 
 ### Possible Enhancements
+
 1. **Return assignment in API response**: Include assignment details in path creation response
 2. **Customizable enrollment settings**: Allow users to set email preferences during creation
 3. **Bulk enrollment**: Extend to handle multiple users enrolling in same template
 4. **Assignment notifications**: Trigger welcome email when assignment is created
 
 ### Monitoring
+
 - Track auto-enrollment success/failure rates
 - Monitor orphaned paths (paths without assignments)
 - Alert on assignment creation errors

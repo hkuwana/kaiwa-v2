@@ -63,7 +63,7 @@
 
 <div class="mx-auto max-w-5xl px-4 py-12 sm:py-16">
 	<header class="border-b border-base-300 pb-6 text-center">
-		<p class="text-sm font-semibold uppercase tracking-[0.08em] text-primary/70">Privacy</p>
+		<p class="text-sm font-semibold tracking-[0.08em] text-primary/70 uppercase">Privacy</p>
 		<h1 class="mt-2 text-4xl font-bold text-primary sm:text-5xl">Privacy Policy</h1>
 		<p class="mt-3 text-sm text-base-content/60">
 			Last updated: {new SvelteDate().toLocaleDateString()}
@@ -104,8 +104,8 @@
 					<li><strong>Target language</strong> - The language you're learning</li>
 					<li><strong>Learning goals</strong> - Your motivation (career, travel, culture, etc.)</li>
 					<li>
-						<strong>Skill levels</strong> - Speaking, listening, reading, and writing proficiency
-						(1-100 scale)
+						<strong>Skill levels</strong> - Speaking, listening, reading, and writing proficiency (1-100
+						scale)
 					</li>
 					<li><strong>Challenge preferences</strong> - How difficult you want lessons to be</li>
 					<li><strong>Correction style</strong> - How you prefer to receive feedback</li>
@@ -155,17 +155,25 @@
 					<li>
 						<strong>Personalized lessons</strong> - Adapt content to your skill level and preferences
 					</li>
-					<li><strong>Progress tracking</strong> - Monitor your learning journey and achievements</li>
+					<li>
+						<strong>Progress tracking</strong> - Monitor your learning journey and achievements
+					</li>
 					<li><strong>AI tutoring</strong> - Provide contextual language assistance</li>
-					<li><strong>Voice customization</strong> - Use your preferred AI voice for conversations</li>
+					<li>
+						<strong>Voice customization</strong> - Use your preferred AI voice for conversations
+					</li>
 				</ul>
 			</div>
 
 			<div class="space-y-2">
 				<h3 class="text-lg font-semibold text-base-content">Service Improvement</h3>
 				<ul class="list-disc space-y-2 pl-5">
-					<li><strong>Feature development</strong> - Understand which features are most valuable</li>
-					<li><strong>Content optimization</strong> - Improve lesson quality and difficulty curves</li>
+					<li>
+						<strong>Feature development</strong> - Understand which features are most valuable
+					</li>
+					<li>
+						<strong>Content optimization</strong> - Improve lesson quality and difficulty curves
+					</li>
 					<li><strong>Performance monitoring</strong> - Identify and fix technical issues</li>
 					<li><strong>User experience</strong> - Make the app more intuitive and engaging</li>
 				</ul>
@@ -174,7 +182,9 @@
 			<div class="space-y-2">
 				<h3 class="text-lg font-semibold text-base-content">Communication</h3>
 				<ul class="list-disc space-y-2 pl-5">
-					<li><strong>Account updates</strong> - Important changes to your subscription or account</li>
+					<li>
+						<strong>Account updates</strong> - Important changes to your subscription or account
+					</li>
 					<li><strong>Learning reminders</strong> - Help you maintain your study routine</li>
 					<li><strong>Feature announcements</strong> - New capabilities and improvements</li>
 				</ul>
@@ -187,16 +197,15 @@
 			<div class="space-y-2">
 				<h3 class="text-lg font-semibold text-base-content">PostHog Analytics</h3>
 				<p>
-					We use PostHog to understand how you interact with our application and improve your learning
-					experience. PostHog helps us:
+					We use PostHog to understand how you interact with our application and improve your
+					learning experience. PostHog helps us:
 				</p>
 				<ul class="list-disc space-y-2 pl-5">
 					<li>
 						<strong>Track learning patterns</strong> - See which features help users progress fastest
 					</li>
 					<li>
-						<strong>Optimize conversion flows</strong> - Improve the upgrade experience for premium
-						features
+						<strong>Optimize conversion flows</strong> - Improve the upgrade experience for premium features
 					</li>
 					<li>
 						<strong>Identify user needs</strong> - Understand what drives engagement and retention
@@ -215,8 +224,8 @@
 					<li><strong>Feature usage</strong> - How you interact with learning tools</li>
 					<li><strong>Conversion events</strong> - When you upgrade or hit usage limits</li>
 					<li>
-						<strong>Session recordings</strong> - Anonymous recordings of app interactions (with
-						sensitive data masked)
+						<strong>Session recordings</strong> - Anonymous recordings of app interactions (with sensitive
+						data masked)
 					</li>
 					<li>
 						<strong>User properties</strong> - Learning preferences, skill levels, subscription status
@@ -228,12 +237,16 @@
 				<h3 class="text-lg font-semibold text-base-content">Privacy Protections in PostHog</h3>
 				<ul class="list-disc space-y-2 pl-5">
 					<li>
-						<strong>Input masking</strong> - All form inputs are automatically masked to protect
-						sensitive data
+						<strong>Input masking</strong> - All form inputs are automatically masked to protect sensitive
+						data
 					</li>
 					<li><strong>Respects DNT</strong> - Honors "Do Not Track" browser settings</li>
-					<li><strong>Guest user protection</strong> - Only creates profiles for logged-in users</li>
-					<li><strong>Data retention</strong> - Analytics data is automatically deleted after 12 months</li>
+					<li>
+						<strong>Guest user protection</strong> - Only creates profiles for logged-in users
+					</li>
+					<li>
+						<strong>Data retention</strong> - Analytics data is automatically deleted after 12 months
+					</li>
 				</ul>
 			</div>
 		</section>
@@ -245,8 +258,7 @@
 				<h3 class="text-lg font-semibold text-base-content">Storage Locations</h3>
 				<ul class="list-disc space-y-2 pl-5">
 					<li>
-						<strong>Primary database</strong> - PostgreSQL database hosted on secure cloud
-						infrastructure
+						<strong>Primary database</strong> - PostgreSQL database hosted on secure cloud infrastructure
 					</li>
 					<li><strong>Audio files</strong> - Temporarily stored for processing, then deleted</li>
 					<li><strong>Analytics data</strong> - PostHog servers (with privacy protections)</li>
@@ -258,15 +270,15 @@
 				<h3 class="text-lg font-semibold text-base-content">Security Measures</h3>
 				<ul class="list-disc space-y-2 pl-5">
 					<li>
-						<strong>Encryption</strong> - All data transmitted and stored using industry-standard
-						encryption
+						<strong>Encryption</strong> - All data transmitted and stored using industry-standard encryption
 					</li>
 					<li>
-						<strong>Access controls</strong> - Strict authentication and authorization for database
-						access
+						<strong>Access controls</strong> - Strict authentication and authorization for database access
 					</li>
 					<li><strong>Regular audits</strong> - Security assessments and penetration testing</li>
-					<li><strong>Data backup</strong> - Regular backups with encryption and access controls</li>
+					<li>
+						<strong>Data backup</strong> - Regular backups with encryption and access controls
+					</li>
 				</ul>
 			</div>
 
@@ -275,7 +287,9 @@
 				<ul class="list-disc space-y-2 pl-5">
 					<li><strong>Account data</strong> - Retained while your account is active</li>
 					<li><strong>Conversation history</strong> - Kept for learning progress tracking</li>
-					<li><strong>Audio recordings</strong> - Deleted after processing (typically within 24 hours)</li>
+					<li>
+						<strong>Audio recordings</strong> - Deleted after processing (typically within 24 hours)
+					</li>
 					<li><strong>Analytics data</strong> - Automatically deleted after 12 months</li>
 					<li><strong>Payment records</strong> - Retained as required by financial regulations</li>
 				</ul>
@@ -316,8 +330,8 @@
 				<p>
 					<strong>Opt-Out Option:</strong> Free users can opt out of this data sharing by enabling the
 					"Enhanced Data Privacy" option in their User Preferences settings. However, opting out may
-					result in reduced service quality or feature limitations as we may need to limit usage to
-					maintain operational sustainability.
+					result in reduced service quality or feature limitations as we may need to limit usage to maintain
+					operational sustainability.
 				</p>
 			</div>
 
@@ -325,8 +339,12 @@
 				<h3 class="text-lg font-semibold text-base-content">Data Protection</h3>
 				<ul class="list-disc space-y-2 pl-5">
 					<li><strong>No selling</strong> - We never sell your personal data to third parties</li>
-					<li><strong>Limited sharing</strong> - Only share data necessary for service provision</li>
-					<li><strong>Privacy agreements</strong> - All third parties must meet our privacy standards</li>
+					<li>
+						<strong>Limited sharing</strong> - Only share data necessary for service provision
+					</li>
+					<li>
+						<strong>Privacy agreements</strong> - All third parties must meet our privacy standards
+					</li>
 					<li><strong>Audit rights</strong> - We can audit third-party data handling practices</li>
 				</ul>
 			</div>
@@ -339,7 +357,9 @@
 				<h3 class="text-lg font-semibold text-base-content">Access and Control</h3>
 				<ul class="list-disc space-y-2 pl-5">
 					<li><strong>View your data</strong> - Access all information we have about you</li>
-					<li><strong>Update preferences</strong> - Modify learning goals, skill levels, and settings</li>
+					<li>
+						<strong>Update preferences</strong> - Modify learning goals, skill levels, and settings
+					</li>
 					<li><strong>Delete conversations</strong> - Remove specific conversation history</li>
 					<li><strong>Export data</strong> - Download your learning data in standard formats</li>
 				</ul>
@@ -349,11 +369,15 @@
 				<h3 class="text-lg font-semibold text-base-content">Privacy Settings</h3>
 				<ul class="list-disc space-y-2 pl-5">
 					<li>
-						<strong>Enhanced Data Privacy</strong> - Free users can opt out of OpenAI data sharing
-						through this setting in User Preferences (may result in feature limitations)
+						<strong>Enhanced Data Privacy</strong> - Free users can opt out of OpenAI data sharing through
+						this setting in User Preferences (may result in feature limitations)
 					</li>
-					<li><strong>Analytics opt-out</strong> - Disable PostHog tracking in your account settings</li>
-					<li><strong>Session recording control</strong> - Choose whether to allow session recordings</li>
+					<li>
+						<strong>Analytics opt-out</strong> - Disable PostHog tracking in your account settings
+					</li>
+					<li>
+						<strong>Session recording control</strong> - Choose whether to allow session recordings
+					</li>
 					<li><strong>Communication preferences</strong> - Control email frequency and types</li>
 					<li><strong>Data deletion</strong> - Request complete account deletion</li>
 				</ul>
@@ -374,34 +398,35 @@
 		<section class="space-y-3">
 			<h2 class="text-2xl font-semibold text-base-content">Children's Privacy</h2>
 			<p>
-				Kaiwa is not intended for children under 13 years of age. We do not knowingly collect personal
-				information from children under 13. If you are a parent or guardian and believe your child has
-				provided us with personal information, please contact us immediately.
+				Kaiwa is not intended for children under 13 years of age. We do not knowingly collect
+				personal information from children under 13. If you are a parent or guardian and believe
+				your child has provided us with personal information, please contact us immediately.
 			</p>
 		</section>
 
 		<section class="space-y-3">
 			<h2 class="text-2xl font-semibold text-base-content">International Data Transfers</h2>
 			<p>
-				Your data may be transferred to and processed in countries other than your own. We ensure that
-				all data transfers comply with applicable data protection laws and implement appropriate
-				safeguards to protect your information.
+				Your data may be transferred to and processed in countries other than your own. We ensure
+				that all data transfers comply with applicable data protection laws and implement
+				appropriate safeguards to protect your information.
 			</p>
 		</section>
 
 		<section class="space-y-3">
 			<h2 class="text-2xl font-semibold text-base-content">Changes to This Policy</h2>
 			<p>
-				We may update this Privacy Policy from time to time. We will notify you of any changes by posting
-				the new Privacy Policy on this page and updating the "Last updated" date. Significant changes will
-				be communicated via email or in-app notifications.
+				We may update this Privacy Policy from time to time. We will notify you of any changes by
+				posting the new Privacy Policy on this page and updating the "Last updated" date.
+				Significant changes will be communicated via email or in-app notifications.
 			</p>
 		</section>
 
 		<section class="space-y-3">
 			<h2 class="text-2xl font-semibold text-base-content">Contact Us</h2>
 			<p>
-				If you have any questions about this Privacy Policy or our data practices, please contact us:
+				If you have any questions about this Privacy Policy or our data practices, please contact
+				us:
 			</p>
 			<ul class="list-disc space-y-2 pl-5">
 				<li><strong>Email</strong>: privacy@trykaiwa.com</li>

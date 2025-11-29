@@ -162,10 +162,7 @@
 			"logo": "https://trykaiwa.com/favicon.png",
 			"description": "AI-powered language learning platform helping people practice real conversations and build speaking confidence in 5 minutes a day.",
 			"foundingDate": "2024",
-			"sameAs": [
-				"https://twitter.com/kaiwa_app",
-				"https://github.com/hkuwana/kaiwa-v2"
-			],
+			"sameAs": ["https://twitter.com/kaiwa_app", "https://github.com/hkuwana/kaiwa-v2"],
 			"contactPoint": {
 				"@type": "ContactPoint",
 				"contactType": "Customer Support",

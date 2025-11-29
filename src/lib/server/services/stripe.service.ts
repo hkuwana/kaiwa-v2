@@ -15,9 +15,17 @@ let _stripe: Stripe | null = null;
 let _STRIPE_SECRET_KEY: string | null = null;
 let _STRIPE_WEBHOOK_SECRET: string | null = null;
 
-function initializeStripe(): { stripe: Stripe; STRIPE_SECRET_KEY: string; STRIPE_WEBHOOK_SECRET: string | null } {
+function initializeStripe(): {
+	stripe: Stripe;
+	STRIPE_SECRET_KEY: string;
+	STRIPE_WEBHOOK_SECRET: string | null;
+} {
 	if (_stripe && _STRIPE_SECRET_KEY !== null) {
-		return { stripe: _stripe, STRIPE_SECRET_KEY: _STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET: _STRIPE_WEBHOOK_SECRET };
+		return {
+			stripe: _stripe,
+			STRIPE_SECRET_KEY: _STRIPE_SECRET_KEY,
+			STRIPE_WEBHOOK_SECRET: _STRIPE_WEBHOOK_SECRET
+		};
 	}
 
 	// Environment variables
@@ -31,7 +39,11 @@ function initializeStripe(): { stripe: Stripe; STRIPE_SECRET_KEY: string; STRIPE
 	// Initialize Stripe
 	_stripe = new Stripe(_STRIPE_SECRET_KEY);
 
-	return { stripe: _stripe, STRIPE_SECRET_KEY: _STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET: _STRIPE_WEBHOOK_SECRET };
+	return {
+		stripe: _stripe,
+		STRIPE_SECRET_KEY: _STRIPE_SECRET_KEY,
+		STRIPE_WEBHOOK_SECRET: _STRIPE_WEBHOOK_SECRET
+	};
 }
 
 // Lazy getter for stripe instance

@@ -7,8 +7,7 @@ export const load = async ({ url }) => {
 	const baseUrl = url.origin;
 
 	// Get billing cycle from URL or default to monthly
-	const billingCycle =
-		(url.searchParams.get('billing') as 'monthly' | 'annual') || 'monthly';
+	const billingCycle = (url.searchParams.get('billing') as 'monthly' | 'annual') || 'monthly';
 
 	// Create JSON-LD for each pricing tier
 	const pricingJsonLd = Object.values(defaultTierConfigs).map((tier) =>

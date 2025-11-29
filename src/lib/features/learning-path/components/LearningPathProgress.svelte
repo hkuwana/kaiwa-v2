@@ -42,7 +42,10 @@
 						Day {path.daysCompleted + 1} of {path.totalDays}
 					</p>
 				</div>
-				<div class="radial-progress text-primary text-sm" style="--value:{path.progressPercent}; --size:3rem;">
+				<div
+					class="radial-progress text-sm text-primary"
+					style="--value:{path.progressPercent}; --size:3rem;"
+				>
 					{path.progressPercent}%
 				</div>
 			</div>
@@ -57,14 +60,14 @@
 					</div>
 					{#if canStartToday && onStartLesson}
 						<button
-							class="btn btn-primary btn-sm mt-2 w-full"
+							class="btn mt-2 w-full btn-sm btn-primary"
 							onclick={() => onStartLesson(path.currentDay!.scenarioId!)}
 						>
 							Start Today's Lesson
 						</button>
 					{:else if !path.currentDay.isReady}
 						<div class="mt-2 flex items-center gap-2 text-sm text-base-content/60">
-							<span class="loading loading-spinner loading-xs"></span>
+							<span class="loading loading-xs loading-spinner"></span>
 							Preparing lesson...
 						</div>
 					{/if}
@@ -82,7 +85,10 @@
 					<p class="mt-1 text-base-content/70">{path.path.description}</p>
 				</div>
 				<div class="text-right">
-					<div class="radial-progress text-primary" style="--value:{path.progressPercent}; --size:4rem; --thickness:4px;">
+					<div
+						class="radial-progress text-primary"
+						style="--value:{path.progressPercent}; --size:4rem; --thickness:4px;"
+					>
 						{path.progressPercent}%
 					</div>
 					<p class="mt-1 text-sm text-base-content/60">{daysRemaining} days left</p>
@@ -91,7 +97,11 @@
 
 			<!-- Progress bar -->
 			<div class="mt-4">
-				<progress class="progress progress-primary w-full" value={path.daysCompleted} max={path.totalDays}></progress>
+				<progress
+					class="progress w-full progress-primary"
+					value={path.daysCompleted}
+					max={path.totalDays}
+				></progress>
 				<div class="mt-1 flex justify-between text-xs text-base-content/60">
 					<span>Day {path.daysCompleted + 1}</span>
 					<span>{path.totalDays} days total</span>
@@ -108,7 +118,9 @@
 								{path.currentDay.difficulty}
 							</span>
 							<h3 class="text-lg font-semibold">{path.currentDay.theme}</h3>
-							<p class="mt-1 text-sm text-base-content/70">Day {path.currentDay.dayIndex} of {path.totalDays}</p>
+							<p class="mt-1 text-sm text-base-content/70">
+								Day {path.currentDay.dayIndex} of {path.totalDays}
+							</p>
 						</div>
 						{#if canStartToday && onStartLesson}
 							<button
@@ -119,7 +131,7 @@
 							</button>
 						{:else if !path.currentDay.isReady}
 							<div class="flex items-center gap-2 text-base-content/60">
-								<span class="loading loading-spinner loading-sm"></span>
+								<span class="loading loading-sm loading-spinner"></span>
 								<span>Generating...</span>
 							</div>
 						{/if}
@@ -130,7 +142,7 @@
 			<!-- Next day preview -->
 			{#if path.nextDay}
 				<div class="mt-4 rounded-lg border border-base-300 p-3">
-					<p class="text-xs font-medium uppercase text-base-content/50">Coming Next</p>
+					<p class="text-xs font-medium text-base-content/50 uppercase">Coming Next</p>
 					<div class="mt-1 flex items-center gap-2">
 						<span class="badge badge-outline badge-sm">{path.nextDay.difficulty}</span>
 						<span class="text-sm">{path.nextDay.theme}</span>

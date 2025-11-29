@@ -1053,6 +1053,7 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 - **Priority**: HIGH - Speed control is critical for accessibility
 
 **Implementation**:
+
 - ✅ Speech speed now applied from user preferences on session start
 - ✅ 5 speed levels map to OpenAI Realtime API speed parameter (0.5-2.0):
   - **very_slow**: 0.6x (40% slower - for elderly/accessibility)
@@ -1065,11 +1066,13 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 - ✅ Speed preference persists across sessions
 
 **Files Modified**:
+
 - `src/lib/services/instructions/parameters.ts`: Added speed mapping functions
 - `src/lib/stores/realtime-openai.store.svelte.ts`: Added speed to session config + updateSpeechSpeed method
 - Uses existing `SpeechSpeedSelector` component in `AdvancedAudioOptions`
 
 **Future Enhancement**:
+
 - Add real-time speed update when user changes preference during active conversation
 - "Repeat 3 times" feature for elderly learners (separate enhancement)
 
@@ -1086,6 +1089,7 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 - **Priority**: HIGH - Core interaction mode discovery
 
 **Fix Needed**:
+
 - Rename "Manual Control" → "Walkie Talkie Mode"
 - Make audio input mode selection MORE prominent
 - Add visual explanation of what each mode does
@@ -1101,6 +1105,7 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 - **Priority**: MEDIUM - Nice to have but not critical for mobile-first
 
 **Fix Needed**:
+
 - Document keyboard shortcuts clearly
 - Add visual indicators for keyboard controls
 - Consider spacebar = push-to-talk (like Discord/gaming)
@@ -1116,6 +1121,7 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 - **Priority**: MEDIUM
 
 **Fix Needed**:
+
 - Clearer placeholder text for name insertion
 - Pre-fill user's name if known
 - Better UX for customizable phrases
@@ -1137,6 +1143,7 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 - **Priority**: MEDIUM - Safety concern (driving use case)
 
 **Fix Needed**:
+
 - Hands-free mode (voice-only, no screen interaction needed)
 - Consider legal/safety implications of driving use case
 
@@ -1170,15 +1177,18 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 **Total Active PAB Members**: ~11-13
 
 **New Addition**:
+
 - **Heritage Speaker** (David): Todd Matsumoto (communicating with elderly grandmother)
 
 **By Use Case**:
+
 - **Elderly family communication**: Todd (grandmother - places, family updates)
 - **Professional advancement**: Robert (formal Japanese)
 - **Family connection**: Chika (partner's mom + future kids)
 - **Long-term residence**: Akemi, Brianne
 
 **Key Insight**: Todd's use case (elderly family communication) reveals accessibility needs:
+
 - Speed control for different age groups
 - Repetition features ("say it 3 times")
 - Clear, simple mode naming (walkie talkie vs manual control)

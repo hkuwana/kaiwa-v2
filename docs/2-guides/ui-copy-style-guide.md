@@ -9,11 +9,11 @@
 
 ### Punctuation
 
-| Do | Don't |
-|---|---|
-| Use colons after bold labels: `<strong>Feature</strong>: Description` | Em dashes: `Feature — Description` |
-| Use periods to separate related thoughts: `No distractions. Easy habit.` | Em dashes: `No distractions—easy habit` |
-| Use commas for light pauses: `Practice conversations that matter, so you can...` | Em dashes: `that matter—so you can` |
+| Do                                                                               | Don't                                   |
+| -------------------------------------------------------------------------------- | --------------------------------------- |
+| Use colons after bold labels: `<strong>Feature</strong>: Description`            | Em dashes: `Feature — Description`      |
+| Use periods to separate related thoughts: `No distractions. Easy habit.`         | Em dashes: `No distractions—easy habit` |
+| Use commas for light pauses: `Practice conversations that matter, so you can...` | Em dashes: `that matter—so you can`     |
 
 **Why**: Em dashes render inconsistently across devices and can look broken in some fonts.
 
@@ -67,16 +67,16 @@ const items = [
 
 ### Common Icon Mappings
 
-| Use Case | Icon Class |
-|----------|------------|
-| Family/Group | `icon-[mdi--account-group]` |
-| Love/Heart | `icon-[mdi--heart]` |
-| Business | `icon-[mdi--briefcase]` |
-| Home | `icon-[mdi--home]` |
-| Check/Success | `icon-[mdi--check-circle]` |
-| Premium/Crown | `icon-[mdi--crown]` |
-| Light mode | `icon-[mdi--weather-sunny]` |
-| Dark mode | `icon-[mdi--weather-night]` |
+| Use Case      | Icon Class                  |
+| ------------- | --------------------------- |
+| Family/Group  | `icon-[mdi--account-group]` |
+| Love/Heart    | `icon-[mdi--heart]`         |
+| Business      | `icon-[mdi--briefcase]`     |
+| Home          | `icon-[mdi--home]`          |
+| Check/Success | `icon-[mdi--check-circle]`  |
+| Premium/Crown | `icon-[mdi--crown]`         |
+| Light mode    | `icon-[mdi--weather-sunny]` |
+| Dark mode     | `icon-[mdi--weather-night]` |
 
 ### No Emojis in Code
 
@@ -90,28 +90,28 @@ Use native localStorage, not external libraries:
 
 ```svelte
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { browser } from '$app/environment';
+	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
 
-  let isDark = $state(false);
+	let isDark = $state(false);
 
-  function setTheme(theme: string) {
-    if (!browser) return;
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-  }
+	function setTheme(theme: string) {
+		if (!browser) return;
+		document.documentElement.setAttribute('data-theme', theme);
+		localStorage.setItem('theme', theme);
+	}
 
-  onMount(() => {
-    const stored = localStorage.getItem('theme');
-    if (stored) {
-      isDark = stored === 'night';
-      setTheme(stored);
-    } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      isDark = prefersDark;
-      setTheme(prefersDark ? 'night' : 'light');
-    }
-  });
+	onMount(() => {
+		const stored = localStorage.getItem('theme');
+		if (stored) {
+			isDark = stored === 'night';
+			setTheme(stored);
+		} else {
+			const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+			isDark = prefersDark;
+			setTheme(prefersDark ? 'night' : 'light');
+		}
+	});
 </script>
 ```
 
@@ -126,9 +126,9 @@ Use toggle for on/off states, not swap:
 ```svelte
 <!-- Preferred: Toggle slider -->
 <label class="flex cursor-pointer items-center gap-2">
-  <span class="icon-[mdi--weather-sunny] h-5 w-5"></span>
-  <input type="checkbox" class="toggle toggle-sm" checked={isDark} onchange={toggleTheme} />
-  <span class="icon-[mdi--weather-night] h-5 w-5"></span>
+	<span class="icon-[mdi--weather-sunny] h-5 w-5"></span>
+	<input type="checkbox" class="toggle toggle-sm" checked={isDark} onchange={toggleTheme} />
+	<span class="icon-[mdi--weather-night] h-5 w-5"></span>
 </label>
 
 <!-- Avoid: Swap (harder to understand state) -->
@@ -145,11 +145,11 @@ Use toggle for on/off states, not swap:
 // src/lib/data/marketing.ts
 
 export const personalizedPathExamples = [
-  {
-    iconClass: 'icon-[mdi--account-group]',  // Full Tailwind class
-    situation: "Meeting my partner's parents",  // User's words, in quotes
-    language: 'Japanese'
-  }
+	{
+		iconClass: 'icon-[mdi--account-group]', // Full Tailwind class
+		situation: "Meeting my partner's parents", // User's words, in quotes
+		language: 'Japanese'
+	}
 ] as const;
 ```
 
@@ -165,12 +165,12 @@ export type PersonalizedPathExample = (typeof personalizedPathExamples)[number];
 
 ## File Organization
 
-| Type | Location |
-|------|----------|
-| Marketing copy/data | `src/lib/data/marketing.ts` |
-| UI components | `src/lib/components/` |
-| Feature components | `src/lib/features/{feature}/components/` |
-| Page routes | `src/routes/{page}/+page.svelte` |
+| Type                | Location                                 |
+| ------------------- | ---------------------------------------- |
+| Marketing copy/data | `src/lib/data/marketing.ts`              |
+| UI components       | `src/lib/components/`                    |
+| Feature components  | `src/lib/features/{feature}/components/` |
+| Page routes         | `src/routes/{page}/+page.svelte`         |
 
 ---
 

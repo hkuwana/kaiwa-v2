@@ -11,6 +11,7 @@ A custom 2-4 week scenario journey built specifically for ONE user's goal, based
 **Example**: Chika wants to communicate with her French partner's mom and stay in the loop when they have kids.
 
 Her Personalized Path:
+
 ```
 Week 1: Basic mother-in-law conversations
   - Day 1: First meeting greetings
@@ -37,28 +38,28 @@ Week 2: Deeper family conversations
 
 ### For Founding Members (Current WhatsApp Group)
 
-| Offer | Price | What's Included |
-|-------|-------|-----------------|
-| Personalized Path | **FREE** | 15-min call + 14-day custom journey |
-| Base subscription | $15/month | What they already have |
+| Offer             | Price     | What's Included                     |
+| ----------------- | --------- | ----------------------------------- |
+| Personalized Path | **FREE**  | 15-min call + 14-day custom journey |
+| Base subscription | $15/month | What they already have              |
 
 **Rationale**: They're beta testers. Their feedback and testimonials are worth more than $49. Treat them like gold.
 
 ### For New Users
 
-| Tier | Price | What's Included |
-|------|-------|-----------------|
-| **2-Week Path** | $49 | 15-min call + 14 custom scenarios + async check-ins |
-| **4-Week Path** | $79 | 15-min call + 28 custom scenarios + weekly check-ins |
-| **Monthly Custom** | $29/month add-on | 4 new custom scenarios/month + priority support |
+| Tier               | Price            | What's Included                                      |
+| ------------------ | ---------------- | ---------------------------------------------------- |
+| **2-Week Path**    | $49              | 15-min call + 14 custom scenarios + async check-ins  |
+| **4-Week Path**    | $79              | 15-min call + 28 custom scenarios + weekly check-ins |
+| **Monthly Custom** | $29/month add-on | 4 new custom scenarios/month + priority support      |
 
 ### Subscription Tiers (Updated)
 
-| Tier | Monthly | Includes |
-|------|---------|----------|
-| **Free** | $0 | 3 conversations/month |
-| **Plus** | $14/month | Unlimited conversations |
-| **Pro** | $29/month | Unlimited + 4 custom scenarios/month |
+| Tier     | Monthly      | Includes                                            |
+| -------- | ------------ | --------------------------------------------------- |
+| **Free** | $0           | 3 conversations/month                               |
+| **Plus** | $14/month    | Unlimited conversations                             |
+| **Pro**  | $29/month    | Unlimited + 4 custom scenarios/month                |
 | **Path** | $49 one-time | 2-week personalized journey (includes 1 month Plus) |
 
 ---
@@ -114,6 +115,7 @@ Notes:
 ## Scalability Roadmap
 
 ### Phase 1: Full Manual (Now)
+
 - **Process**: 15-min call → manually create 14 scenarios
 - **Time per user**: ~1 hour
 - **Capacity**: 5-10 users/week
@@ -121,6 +123,7 @@ Notes:
 - **Goal**: Learn patterns, build templates
 
 ### Phase 2: Templated (After 20 users)
+
 - **Process**: Call → fill in template variables
 - **Time per user**: 30-40 min
 - **Capacity**: 10-15 users/week
@@ -128,6 +131,7 @@ Notes:
 - **Goal**: Create 5-6 reusable path templates
 
 ### Phase 3: AI-Assisted (After 50 users)
+
 - **Process**: Intake form → AI drafts → human review
 - **Time per user**: 15-20 min
 - **Capacity**: 20-30 users/week
@@ -135,6 +139,7 @@ Notes:
 - **Goal**: Reduce manual work by 70%
 
 ### Phase 4: Self-Serve (After 100+ users)
+
 - **Process**: User selects path → customizes via form → auto-generated
 - **Time per user**: 0 (automated)
 - **Capacity**: Unlimited
@@ -148,30 +153,37 @@ Notes:
 After doing 20+ manual paths, you'll see patterns. Document them here:
 
 ### Template: "Meet Partner's Family"
+
 **Target**: Sofia persona (bilingual spouse)
 **Duration**: 2 weeks
 **Scenarios**:
+
 - Week 1: First impressions, basic politeness, handling questions
 - Week 2: Deeper conversations, awkward moments, repair phrases
 
 ### Template: "Heritage Speaker Recovery"
+
 **Target**: David persona (reconnecting with roots)
 **Duration**: 2-4 weeks
 **Scenarios**:
+
 - Week 1: Overcoming shame, basic reconnection
 - Week 2: Family stories, emotional vocabulary
 - Week 3-4: Deeper family relationships, cultural topics
 
 ### Template: "Expat Life Prep"
+
 **Target**: Jamie/Akemi persona (moving abroad)
 **Duration**: 4 weeks
 **Scenarios**:
+
 - Week 1: Daily survival (shopping, transit, services)
 - Week 2: Social situations (neighbors, casual friends)
 - Week 3: Professional contexts (office, meetings)
 - Week 4: Deeper integration (friendships, local culture)
 
 ### Template: "Fluency Maintenance"
+
 **Target**: Scott persona (busy, maintaining skills)
 **Duration**: Ongoing
 **Format**: 5-min daily scenarios with variety
@@ -182,12 +194,14 @@ After doing 20+ manual paths, you'll see patterns. Document them here:
 ## Metrics to Track
 
 ### Per Path
+
 - Completion rate (how many finish all 14/28 days?)
 - Scenarios completed per day
 - User-reported confidence change (before/after)
 - Conversion to subscription after path ends
 
 ### Overall
+
 - Paths sold per week
 - Revenue from paths vs subscriptions
 - Time spent per path (track for efficiency)
@@ -198,14 +212,14 @@ After doing 20+ manual paths, you'll see patterns. Document them here:
 
 ## Founding Member Path Tracker
 
-| User | Language | Goal | Call Date | Path Started | Status |
-|------|----------|------|-----------|--------------|--------|
-| Robert | Japanese | Formal/stranger confidence | | | |
-| Chika | French | Partner's mom + future kids | | | |
-| Bri | Japanese | Work/live in Japan | | | |
-| Akemi | Japanese | Part-time Japan residence | | | |
-| Scott | Spanish | Fluency maintenance | | | |
-| Todd | Spanish, Japanese | Elderly family communication (95yo grandma) | Nov 29, 2025 | | Feedback received |
+| User   | Language          | Goal                                        | Call Date    | Path Started | Status            |
+| ------ | ----------------- | ------------------------------------------- | ------------ | ------------ | ----------------- |
+| Robert | Japanese          | Formal/stranger confidence                  |              |              |                   |
+| Chika  | French            | Partner's mom + future kids                 |              |              |                   |
+| Bri    | Japanese          | Work/live in Japan                          |              |              |                   |
+| Akemi  | Japanese          | Part-time Japan residence                   |              |              |                   |
+| Scott  | Spanish           | Fluency maintenance                         |              |              |                   |
+| Todd   | Spanish, Japanese | Elderly family communication (95yo grandma) | Nov 29, 2025 |              | Feedback received |
 
 ---
 
@@ -243,6 +257,7 @@ It's $49 for the full 2-week path. Interested?
 ### Text Messages for Customer Advisory Board (28-Day Program)
 
 **Option 1: Short & Direct**
+
 ```
 Hey [Name]! Quick ask - I'm testing a new 28-day personalized path program (custom scenarios for your goals). Free for you, just need a quick 15-min call to set it up. Available this week? [calendar link]
 
@@ -250,6 +265,7 @@ Hope you have a wonderful Thanksgiving! 🦃
 ```
 
 **Option 2: Friendly & Casual**
+
 ```
 Hey [Name]! I'm launching a 28-day personalized path - I'll build you custom scenarios based on what you need. It's free for you, just need 15 mins to chat about your goals. When works? [calendar link]
 
@@ -257,6 +273,7 @@ Hope you have a wonderful Thanksgiving! 🦃
 ```
 
 **Option 3: Simple & Warm**
+
 ```
 Hey [Name]! New pilot: 28 days of custom scenarios tailored to your goals. Free for you, just need a quick 15-min call. Interested? [calendar link]
 
@@ -264,6 +281,7 @@ Hope you have a wonderful Thanksgiving! 🦃
 ```
 
 **Option 4: Very Casual**
+
 ```
 [Name]! Testing a new 28-day personalized path with custom scenarios. Free for you - just need 15 mins to chat about your goals. When works? [calendar link]
 
@@ -271,6 +289,7 @@ Hope you have a wonderful Thanksgiving! 🦃
 ```
 
 **Option 5: Brief & Friendly**
+
 ```
 Hey [Name]! Quick thing - I'm building a 28-day personalized path program. Free for you, just need a 15-min call to get started. Available this week? [calendar link]
 
@@ -311,7 +330,7 @@ $29/mo Pro (ongoing custom)
 ## FAQ
 
 **Q: What if someone wants a language I don't speak?**
-A: You don't need to speak it. You're designing the *scenarios* and *progression*, not teaching grammar. AI handles the actual conversation.
+A: You don't need to speak it. You're designing the _scenarios_ and _progression_, not teaching grammar. AI handles the actual conversation.
 
 **Q: What if someone doesn't complete the path?**
 A: Check in at Day 3 and Day 7. If they're struggling, offer to adjust. Completion rate is a key metric.
@@ -331,6 +350,7 @@ A: Yes, for founding members (goodwill). For paid users, offer to rebuild the pa
 ### Todd Matsumoto - November 29, 2025
 
 **User Profile:**
+
 - **Name**: Todd Matsumoto
 - **Languages**: Spanish, Japanese
 - **Current Level**: Conversational (uses free conversation mode successfully)
@@ -340,6 +360,7 @@ A: Yes, for founding members (goodwill). For paid users, offer to rebuild the pa
 **Use Case Deep Dive:**
 
 **Primary: Elderly Family Communication (Grandmother)**
+
 - **Who**: 95-year-old grandmother
 - **Frequency**: Very frequent ("Communicate with his grandma frequently and a lot of stuff")
 - **Context**: Caregiver/family support role
@@ -352,11 +373,13 @@ A: Yes, for founding members (goodwill). For paid users, offer to rebuild the pa
 - **Challenge**: "A lot of things that's not in the room" - abstract concepts, places not physically present
 
 **What Worked:**
+
 - ✅ Free conversation mode - unstructured practice suited his needs
 - ✅ About page resonates - mission/branding connects emotionally
 - ✅ No gamification needed - wants authentic conversation practice
 
 **What Didn't Work:**
+
 - ❌ Spanish: Speed escalation too fast ("tutor mode to super conversational speed real quick and felt overwhelming")
 - ❌ Japanese: Overall pacing too fast ("It's too fast when she was doing Japanese")
 - ❌ Input mode discovery: "Walkie talkie" mode wasn't findable
@@ -365,6 +388,7 @@ A: Yes, for founding members (goodwill). For paid users, offer to rebuild the pa
 - ❌ Name insertion unclear: "Couldn't identify the part to insert name with things like 'my name is [your name]'"
 
 **Feature Requests:**
+
 - 🔄 Repetition for elderly learners: "Old people: Say it 3 times"
 - 🎙️ Hands-free mode: "Hangout so while he's driving that he can talk"
 - 📚 Vocabulary component: Visual reference during conversation
@@ -376,6 +400,7 @@ A: Yes, for founding members (goodwill). For paid users, offer to rebuild the pa
 **Target Persona**: Heritage Speaker (David) + Caregiver role
 **Duration**: 2-4 weeks
 **Unique Needs**:
+
 - Slower pacing with repetition ("say it 3 times")
 - Explaining abstract concepts (places, events not present)
 - Bridging language for caregivers/medical professionals
@@ -384,6 +409,7 @@ A: Yes, for founding members (goodwill). For paid users, offer to rebuild the pa
 **Potential Scenario Structure:**
 
 **Week 1: Basic Communication with Elderly Family**
+
 - Day 1: Daily check-ins and greetings
 - Day 2: Discussing meals and preferences
 - Day 3: Talking about family members (who, where, what they're doing)
@@ -393,6 +419,7 @@ A: Yes, for founding members (goodwill). For paid users, offer to rebuild the pa
 - Day 7: Review (full conversation simulation)
 
 **Week 2: Complex Topics & Medical/Care Situations**
+
 - Day 8: Medical appointments and health updates
 - Day 9: Explaining family news and events
 - Day 10: Discussing memories and past events
@@ -402,16 +429,19 @@ A: Yes, for founding members (goodwill). For paid users, offer to rebuild the pa
 - Day 14: Final simulation (comprehensive care conversation)
 
 **Cool Use Cases Mentioned:**
+
 - Emily (curiosity-driven)
 - Potential for driving/commute practice (hands-free need)
 
 **Follow-Up Actions:**
+
 - [ ] Reach out to offer personalized path (free for founding member)
 - [ ] Focus on elderly communication + caregiver scenarios
 - [ ] Highlight slower pacing with repetition features
 - [ ] Consider this as template for elder care/heritage speaker segment
 
 **Key Insights for Product:**
+
 1. **Accessibility matters**: Speed control critical for different age groups/contexts
 2. **Caregiver use case**: Untapped market (communicating FOR elderly relatives)
 3. **Hands-free mode**: Important for multitasking caregivers (driving, cooking)
@@ -419,6 +449,7 @@ A: Yes, for founding members (goodwill). For paid users, offer to rebuild the pa
 5. **Clear terminology**: "Walkie talkie" resonates more than "manual control"
 
 **Persona Validation:**
+
 - ✅ Heritage Speaker (David): Family-focused, practical communication needs
 - ✅ New sub-persona: "Caregiver Communicator" - helping elderly family navigate language barriers
 

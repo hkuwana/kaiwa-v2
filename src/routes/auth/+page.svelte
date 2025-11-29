@@ -114,7 +114,7 @@
 		<button
 			type="button"
 			onclick={() => goto('/auth/google')}
-			class="btn btn-primary w-full gap-2 shadow-lg shadow-primary/20"
+			class="btn w-full gap-2 shadow-lg shadow-primary/20 btn-primary"
 		>
 			<span class="icon-[mdi--google] h-5 w-5"></span>
 			Continue with Google

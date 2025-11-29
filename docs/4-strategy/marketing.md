@@ -103,12 +103,12 @@ We're not chasing points or streaks. We're replacing a tech crutch (subtitles/au
 
 ### Pricing
 
-| Segment | Price | Rationale |
-|---------|-------|-----------|
-| **Founding Members** | FREE | They're beta testing; goodwill = referrals |
-| **New Users (2-week)** | $49 | Consumer-friendly impulse price |
-| **New Users (4-week)** | $79 | Better value per day |
-| **Monthly Custom Add-on** | $29/month | Ongoing custom scenarios |
+| Segment                   | Price     | Rationale                                  |
+| ------------------------- | --------- | ------------------------------------------ |
+| **Founding Members**      | FREE      | They're beta testing; goodwill = referrals |
+| **New Users (2-week)**    | $49       | Consumer-friendly impulse price            |
+| **New Users (4-week)**    | $79       | Better value per day                       |
+| **Monthly Custom Add-on** | $29/month | Ongoing custom scenarios                   |
 
 ### Why $49 (Not $99)
 

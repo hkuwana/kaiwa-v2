@@ -36,11 +36,6 @@
 
 <label class="flex cursor-pointer items-center gap-2">
 	<span class="icon-[mdi--weather-sunny] h-5 w-5 opacity-70"></span>
-	<input
-		type="checkbox"
-		class="toggle toggle-sm"
-		checked={isDark}
-		onchange={toggleTheme}
-	/>
+	<input type="checkbox" class="toggle toggle-sm" checked={isDark} onchange={toggleTheme} />
 	<span class="icon-[mdi--weather-night] h-5 w-5 opacity-70"></span>
 </label>

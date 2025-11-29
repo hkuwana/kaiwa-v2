@@ -34,12 +34,7 @@
   - Beautiful materials: Glass-like, subtle shadows, smooth transitions
   - Focus on one thing: Switch between talking modes
 -->
-<div
-	class="mode-switcher"
-	class:disabled
-	role="radiogroup"
-	aria-label="Conversation mode"
->
+<div class="mode-switcher" class:disabled role="radiogroup" aria-label="Conversation mode">
 	<!-- Sliding indicator - the "soul" of the interaction -->
 	<div
 		class="mode-indicator"

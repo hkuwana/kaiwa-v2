@@ -75,12 +75,7 @@ export const GET: RequestHandler = async () => {
 	const today = new Date().toISOString().split('T')[0];
 
 	// Combine all pages
-	const allPages: SitemapEntry[] = [
-		...corePages,
-		...contentPages,
-		...legalPages,
-		...languagePages
-	];
+	const allPages: SitemapEntry[] = [...corePages, ...contentPages, ...legalPages, ...languagePages];
 
 	// Generate XML
 	const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

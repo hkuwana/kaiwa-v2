@@ -1,4 +1,4 @@
-import { getLanguageName } from "$lib/data/languages";
+import { getLanguageName } from '$lib/data/languages';
 
 export type JsonLdObject = Record<string, unknown>;
 
@@ -214,8 +214,6 @@ export function createLearningPathJsonLd(
 	const totalDays = template.schedule.length;
 	const weeks = Math.ceil(totalDays / 7);
 
-
-
 	const languageName = getLanguageName(template.targetLanguage) || template.targetLanguage;
 
 	return {
@@ -285,10 +283,7 @@ export function createOrganizationJsonLd(baseUrl: string): JsonLdObject {
 		description:
 			'AI-powered language learning platform helping people practice real conversations and build speaking confidence in 5 minutes a day.',
 		foundingDate: '2024',
-		sameAs: [
-			'https://twitter.com/kaiwa_app',
-			'https://github.com/hkuwana/kaiwa-v2'
-		],
+		sameAs: ['https://twitter.com/kaiwa_app', 'https://github.com/hkuwana/kaiwa-v2'],
 		contactPoint: {
 			'@type': 'ContactPoint',
 			contactType: 'Customer Support',
@@ -317,8 +312,7 @@ export function createPricingProductJsonLd(
 	baseUrl: string,
 	billingCycle: 'monthly' | 'annual' = 'monthly'
 ): JsonLdObject {
-	const price =
-		billingCycle === 'monthly' ? tier.monthlyPriceUsd : tier.annualPriceUsd;
+	const price = billingCycle === 'monthly' ? tier.monthlyPriceUsd : tier.annualPriceUsd;
 	const priceValue = price ? parseFloat(price) : 0;
 
 	return {
@@ -345,13 +339,16 @@ export function createPricingProductJsonLd(
 			},
 			billingIncrement: billingCycle === 'monthly' ? 'P1M' : 'P1Y'
 		},
-		aggregateRating: tier.name === 'Premium' ? {
-			'@type': 'AggregateRating',
-			ratingValue: '4.9',
-			reviewCount: '50',
-			bestRating: '5',
-			worstRating: '1'
-		} : undefined
+		aggregateRating:
+			tier.name === 'Premium'
+				? {
+						'@type': 'AggregateRating',
+						ratingValue: '4.9',
+						reviewCount: '50',
+						bestRating: '5',
+						worstRating: '1'
+					}
+				: undefined
 	};
 }
 

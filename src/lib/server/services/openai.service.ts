@@ -298,7 +298,7 @@ export async function generateScenarioWithGPT(
 		: `Description: "${description}"`;
 
 	const systemPrompt = `You are a language learning scenario designer for ${lang} learners.
-${hasMemories ? 'Create a personalized scenario connecting to the learner\'s interests.' : 'Expand the description into a complete scenario.'}
+${hasMemories ? "Create a personalized scenario connecting to the learner's interests." : 'Expand the description into a complete scenario.'}
 Return JSON: ${SCENARIO_JSON_SCHEMA}
 Guidelines: ${mode === 'tutor' ? 'Focus on teaching and gentle correction' : 'Focus on realistic roleplay'}. Include culturally appropriate elements.`;
 
@@ -309,7 +309,12 @@ Guidelines: ${mode === 'tutor' ? 'Focus on teaching and gentle correction' : 'Fo
 			{ role: 'system', content: systemPrompt },
 			{ role: 'user', content: userPrompt }
 		],
-		{ model: 'gpt-4o-mini', temperature: hasMemories ? 0.8 : 0.7, maxTokens: 1000, responseFormat: 'json' }
+		{
+			model: 'gpt-4o-mini',
+			temperature: hasMemories ? 0.8 : 0.7,
+			maxTokens: 1000,
+			responseFormat: 'json'
+		}
 	);
 
 	const parsed = parseAndValidateJSON<GeneratedScenarioContent>(response.content);

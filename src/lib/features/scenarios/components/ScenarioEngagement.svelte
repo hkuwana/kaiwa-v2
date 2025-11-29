@@ -155,7 +155,9 @@
 				aria-label="Rate {starRating} star{starRating !== 1 ? 's' : ''}"
 			>
 				<span
-					class="{iconSizeClasses[size]} icon-[mdi--star] {getStarColor(starRating)} transition-colors"
+					class="{iconSizeClasses[size]} icon-[mdi--star] {getStarColor(
+						starRating
+					)} transition-colors"
 				></span>
 			</button>
 		{/each}

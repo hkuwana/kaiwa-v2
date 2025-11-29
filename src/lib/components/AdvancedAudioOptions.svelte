@@ -89,11 +89,7 @@
 <div class="advanced-options-container">
 	<!-- Voice Mode Selector - Always visible at top -->
 	<div class="mb-6">
-		<VoiceModeSelector
-			mode={selectedMode}
-			onModeChange={handleModeChange}
-			compact={false}
-		/>
+		<VoiceModeSelector mode={selectedMode} onModeChange={handleModeChange} compact={false} />
 	</div>
 
 	<!-- Toggle Button for Speech Speed Settings -->

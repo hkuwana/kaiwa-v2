@@ -12,7 +12,10 @@
 	import { conversationStore } from '$lib/stores/conversation.store.svelte';
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { SvelteMap } from 'svelte/reactivity';
-	import { shouldTriggerOnboarding } from '$lib/services/onboarding-manager.service';
+	import {
+		shouldTriggerOnboarding,
+		type UserPreferencesProvider
+	} from '$lib/services/onboarding-manager.service';
 	import { autoScrollToBottom } from '$lib/actions/auto-scroll-to-bottom';
 	import { setAudioInputModeCookie } from '$lib/utils/cookies';
 
@@ -74,10 +77,11 @@
 
 	// Determine if we are in an onboarding-like session for hinting
 	const showOnboardingHint = $derived(() => {
-		const provider = {
+		const provider: UserPreferencesProvider = {
 			isGuest: () => userPreferencesStore.isGuest(),
-			getPreference: (key: string) => userPreferencesStore.getPreference(key),
-			updatePreferences: (updates: UserPreferences) =>
+			getPreference: <K extends keyof UserPreferences>(key: K) =>
+				userPreferencesStore.getPreference(key),
+			updatePreferences: (updates: Partial<UserPreferences>) =>
 				userPreferencesStore.updatePreferences(updates)
 		};
 		return shouldTriggerOnboarding(provider);
@@ -257,15 +261,12 @@
 	<div class="container mx-auto box-border flex h-[100dvh] max-w-4xl flex-col px-4 py-4">
 		<!-- Mode Switcher - Jony Ive inspired, prominent at top -->
 		<div class="mb-4 flex flex-col items-center gap-3">
-			<ConversationModeSwitcher
-				mode={audioInputMode}
-				onModeChange={handleModeChange}
-			/>
+			<ConversationModeSwitcher mode={audioInputMode} onModeChange={handleModeChange} />
 
 			<!-- Secondary: Transcript toggle (smaller, less prominent) -->
 			<button
 				type="button"
-				class="btn btn-ghost btn-xs opacity-60 hover:opacity-100 transition-opacity"
+				class="btn opacity-60 btn-ghost transition-opacity btn-xs hover:opacity-100"
 				aria-pressed={!conversationMode}
 				onclick={() => {
 					conversationMode = !conversationMode;

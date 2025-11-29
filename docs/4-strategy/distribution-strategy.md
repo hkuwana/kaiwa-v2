@@ -189,6 +189,7 @@ Subject: [Emotional Hook]
 - **Don't expect signups from X—it's for credibility**
 
 **Sample X content:**
+
 ```
 Week 3 of personalized paths experiment:
 - 5 users onboarded
@@ -213,13 +214,13 @@ What should I try next?
 
 ### Channel Time Allocation (Updated)
 
-| Channel | Time/Week | Purpose | Expected Outcome |
-|---------|-----------|---------|------------------|
-| **Reddit** | 5-6 hrs | Customer acquisition | Signups, DMs, path sales |
-| **WhatsApp group** | 1-2 hrs | Nurture founding members | Retention, referrals |
-| **X/Twitter** | 1-2 hrs | Build-in-public | Credibility, founder network |
-| **LinkedIn** | 0 hrs | Skip | You hate it |
-| **Quora** | 2 hrs | SEO + authority | Long-term traffic |
+| Channel            | Time/Week | Purpose                  | Expected Outcome             |
+| ------------------ | --------- | ------------------------ | ---------------------------- |
+| **Reddit**         | 5-6 hrs   | Customer acquisition     | Signups, DMs, path sales     |
+| **WhatsApp group** | 1-2 hrs   | Nurture founding members | Retention, referrals         |
+| **X/Twitter**      | 1-2 hrs   | Build-in-public          | Credibility, founder network |
+| **LinkedIn**       | 0 hrs     | Skip                     | You hate it                  |
+| **Quora**          | 2 hrs     | SEO + authority          | Long-term traffic            |
 
 ---
 
@@ -305,13 +306,13 @@ $14/mo Plus    $49 Personalized Path
 
 ### Pricing Tiers (Updated Nov 2025)
 
-| Tier | Price | What's Included |
-|------|-------|-----------------|
-| **Free** | $0 | 3 conversations/month |
-| **Plus** | $14/month | Unlimited conversations |
-| **Path** | $49 one-time | 15-min call + 14 custom scenarios + 1 month Plus |
+| Tier      | Price        | What's Included                                  |
+| --------- | ------------ | ------------------------------------------------ |
+| **Free**  | $0           | 3 conversations/month                            |
+| **Plus**  | $14/month    | Unlimited conversations                          |
+| **Path**  | $49 one-time | 15-min call + 14 custom scenarios + 1 month Plus |
 | **Path+** | $79 one-time | 15-min call + 28 custom scenarios + 1 month Plus |
-| **Pro** | $29/month | Unlimited + 4 custom scenarios/month |
+| **Pro**   | $29/month    | Unlimited + 4 custom scenarios/month             |
 
 ### The Customer Journey
 
@@ -470,6 +471,7 @@ $14/mo Plus    $49 Personalized Path
 ### Updated Model (Nov 2025)
 
 **Starting Point:**
+
 - Current MRR: $15 (founding members at $15/month)
 - Founding members: 5 users (WhatsApp group)
 
@@ -495,29 +497,30 @@ $14/mo Plus    $49 Personalized Path
 
 ### Conservative 60-Day Scenario
 
-| Source | Count | Price | Revenue |
-|--------|-------|-------|---------|
-| Founding members | 5 | $15/mo | $75 MRR |
-| Paths sold | 10 | $49 | $490 cash |
-| Path → Plus converts | 5 | $14/mo | $70 MRR |
-| Reddit → Plus | 15 | $14/mo | $210 MRR |
-| Pro upgrades | 3 | $29/mo | $87 MRR |
-| **TOTAL** | | | **$442 MRR + $490 cash** |
+| Source               | Count | Price  | Revenue                  |
+| -------------------- | ----- | ------ | ------------------------ |
+| Founding members     | 5     | $15/mo | $75 MRR                  |
+| Paths sold           | 10    | $49    | $490 cash                |
+| Path → Plus converts | 5     | $14/mo | $70 MRR                  |
+| Reddit → Plus        | 15    | $14/mo | $210 MRR                 |
+| Pro upgrades         | 3     | $29/mo | $87 MRR                  |
+| **TOTAL**            |       |        | **$442 MRR + $490 cash** |
 
 ### Aggressive 60-Day Scenario
 
-| Source | Count | Price | Revenue |
-|--------|-------|-------|---------|
-| Founding members | 5 | $15/mo | $75 MRR |
-| Paths sold | 20 | $49 | $980 cash |
-| Path → Plus converts | 12 | $14/mo | $168 MRR |
-| Reddit → Plus | 30 | $14/mo | $420 MRR |
-| Pro upgrades | 10 | $29/mo | $290 MRR |
-| **TOTAL** | | | **$953 MRR + $980 cash** |
+| Source               | Count | Price  | Revenue                  |
+| -------------------- | ----- | ------ | ------------------------ |
+| Founding members     | 5     | $15/mo | $75 MRR                  |
+| Paths sold           | 20    | $49    | $980 cash                |
+| Path → Plus converts | 12    | $14/mo | $168 MRR                 |
+| Reddit → Plus        | 30    | $14/mo | $420 MRR                 |
+| Pro upgrades         | 10    | $29/mo | $290 MRR                 |
+| **TOTAL**            |       |        | **$953 MRR + $980 cash** |
 
 ### Path to $1,000 MRR
 
 **Option A (Path-Heavy):**
+
 - 30 paths @ $49 → 15 convert to Plus ($210 MRR)
 - 20 direct Plus signups ($280 MRR)
 - 15 Pro upgrades ($435 MRR)
@@ -525,12 +528,14 @@ $14/mo Plus    $49 Personalized Path
 - **Total: $1,000 MRR**
 
 **Option B (Subscription-Heavy):**
+
 - 10 paths @ $49 → 5 convert to Plus ($70 MRR)
 - 50 direct Plus signups ($700 MRR)
 - 8 Pro upgrades ($232 MRR)
 - **Total: $1,002 MRR**
 
 **Is this realistic?** Yes, if you:
+
 1. Give founding members FREE paths (they become advocates)
 2. Sell 2-3 paths/week via Reddit DMs
 3. Keep Reddit engagement consistent (45 min/day)

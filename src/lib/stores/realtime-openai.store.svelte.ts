@@ -1175,8 +1175,13 @@ export class RealtimeOpenAIStore {
 				const preferences = userPreferencesStore.getPreferences();
 				const userSpeechSpeed = preferences.speechSpeed || 'slow';
 				const cefrLevel = getLearnerCefrLevel(preferences);
-				const languageCode = options?.conversationContext?.languageCode || preferences.targetLanguageId;
-				const audioSpeed = resolveAudioSpeedFromUserPreference(userSpeechSpeed, cefrLevel, languageCode);
+				const languageCode =
+					options?.conversationContext?.languageCode || preferences.targetLanguageId;
+				const audioSpeed = resolveAudioSpeedFromUserPreference(
+					userSpeechSpeed,
+					cefrLevel,
+					languageCode
+				);
 
 				logger.info('🎚️ Initializing audio speed:', {
 					userPreference: userSpeechSpeed,
@@ -1331,7 +1336,9 @@ export class RealtimeOpenAIStore {
 		if (typeof speed === 'number') {
 			numericSpeed = Math.max(0.5, Math.min(2.0, speed)); // Clamp to OpenAI range
 		} else {
-			const { mapSpeakingSpeedToAudioSpeed } = await import('$lib/services/instructions/parameters');
+			const { mapSpeakingSpeedToAudioSpeed } = await import(
+				'$lib/services/instructions/parameters'
+			);
 			numericSpeed = mapSpeakingSpeedToAudioSpeed(speed);
 		}
 

@@ -5,6 +5,7 @@
 	import TierBadge from '$lib/features/payments/components/TierBadge.svelte';
 	import type { UsageStatus } from '$lib/server/tier.service';
 	import { defaultTierConfigs, type UserTier } from '$lib/data/tiers';
+	import { createDevUsageStatus } from '$lib/data/dev';
 
 	// Use real tier configurations from data/tiers.ts
 
@@ -35,126 +36,11 @@
 
 	let isLoading = $state(false);
 
-	// Mock usage status for TierBadge testing
-	let mockUsageStatus = $state<UsageStatus>({
-		tier: {
-			id: 'free',
-			name: 'Free',
-			description: 'Basic plan',
-			monthlyConversations: 10,
-			monthlySeconds: 1800,
-			monthlyRealtimeSessions: 3,
-			customizedPhrasesFrequency: 'weekly',
-			conversationMemoryLevel: 'basic',
-			ankiExportLimit: 50,
-			dailyConversations: 1,
-			dailySeconds: 180,
-			dailyAnalyses: 1,
-			maxSessionLengthSeconds: 180,
-			sessionBankingEnabled: false,
-			maxBankedSeconds: 0,
-			hasRealtimeAccess: true,
-			hasAdvancedVoices: false,
-			hasAnalytics: false,
-			hasDeepAnalysis: false,
-			hasCustomPhrases: false,
-			hasConversationMemory: false,
-			hasAnkiExport: false,
-			monthlyPriceUsd: '0',
-			annualPriceUsd: '0',
-			stripeProductId: null,
-			stripePriceIdMonthly: null,
-			stripePriceIdAnnual: null,
-			overagePricePerMinuteInCents: 0,
-			conversationTimeoutSeconds: 300,
-			warningThresholdSeconds: 240,
-			canExtend: false,
-			maxExtensions: 0,
-			extensionDurationSeconds: 0,
-			feedbackSessionsPerMonth: '0',
-			maxMemories: 10,
-			isActive: true,
-			createdAt: new SvelteDate(),
-			updatedAt: new SvelteDate()
-		},
-		usage: {
-			createdAt: new SvelteDate(),
-			userId: 'demo-user',
-			updatedAt: new SvelteDate(),
-			period: '2024-01',
-			conversationsUsed: 8,
-			secondsUsed: 1500,
-			realtimeSessionsUsed: 2,
-			bankedSeconds: 0,
-			bankedSecondsUsed: 0,
-			ankiExportsUsed: 0,
-			sessionExtensionsUsed: 0,
-			advancedVoiceSeconds: 0,
-			analysesUsed: 5,
-			// Simplified analysis usage fields for MVP
-			basicAnalysesUsed: 3,
-			advancedGrammarUsed: 1,
-			fluencyAnalysisUsed: 1,
-			onboardingProfileUsed: 0,
-			pronunciationAnalysisUsed: 0,
-			speechRhythmUsed: 0,
-			completedSessions: 6,
-			longestSessionSeconds: 900,
-			averageSessionSeconds: 300,
-			overageSeconds: 0,
-			tierWhenUsed: 'free',
-			lastConversationAt: new SvelteDate(),
-			lastRealtimeAt: new SvelteDate(Date.now() - 2 * 86400000),
-			firstActivityAt: new SvelteDate(Date.now() - 20 * 86400000),
-			quickStatsUsed: null,
-			grammarSuggestionsUsed: null,
-			phraseSuggestionsUsed: null,
-			audioSuggestionUsed: null,
-			dailyUsage: null,
-			lastAnalysisAt: null
-		},
-		canStartConversation: true,
-		canUseRealtime: true,
-		resetDate: new SvelteDate(Date.now() + 20 * 24 * 60 * 60 * 1000)
-	});
+	// Dev usage status for TierBadge testing (built from canonical tier configs)
+	let devUsageStatus = $state<UsageStatus>(createDevUsageStatus('free'));
 
 	function switchMockTier(tierId: UserTier) {
-		const tierConfig = defaultTierConfigs[tierId];
-		if (!tierConfig) return;
-
-		// Update tier info
-		mockUsageStatus.tier.id = tierId;
-		mockUsageStatus.tier.name = tierConfig.name;
-		mockUsageStatus.tier.description = tierConfig.description;
-		mockUsageStatus.tier.monthlyConversations = tierConfig.monthlyConversations;
-		mockUsageStatus.tier.monthlySeconds = tierConfig.monthlySeconds;
-		mockUsageStatus.tier.monthlyRealtimeSessions = tierConfig.monthlyRealtimeSessions;
-		mockUsageStatus.tier.dailyConversations = tierConfig.dailyConversations;
-		mockUsageStatus.tier.dailySeconds = tierConfig.dailySeconds;
-		mockUsageStatus.tier.dailyAnalyses = tierConfig.dailyAnalyses;
-		mockUsageStatus.tier.maxSessionLengthSeconds = tierConfig.maxSessionLengthSeconds;
-		mockUsageStatus.tier.hasAnalytics = tierConfig.hasAnalytics;
-		mockUsageStatus.tier.hasAdvancedVoices = tierConfig.hasAdvancedVoices;
-		mockUsageStatus.tier.hasCustomPhrases = tierConfig.hasCustomPhrases;
-		mockUsageStatus.tier.hasConversationMemory = tierConfig.hasConversationMemory;
-		mockUsageStatus.tier.hasAnkiExport = tierConfig.hasAnkiExport;
-		mockUsageStatus.tier.monthlyPriceUsd = tierConfig.monthlyPriceUsd;
-		mockUsageStatus.tier.annualPriceUsd = tierConfig.annualPriceUsd;
-
-		// Adjust usage based on tier to show realistic scenarios
-		if (tierId === 'free') {
-			mockUsageStatus.usage.conversationsUsed = 8;
-			mockUsageStatus.usage.secondsUsed = 720; // 12 minutes out of 15
-			mockUsageStatus.canStartConversation = true;
-		} else if (tierId === 'plus') {
-			mockUsageStatus.usage.conversationsUsed = 45;
-			mockUsageStatus.usage.secondsUsed = 12600; // 3.5 hours out of 5 hours
-			mockUsageStatus.canStartConversation = true;
-		} else {
-			mockUsageStatus.usage.conversationsUsed = 80;
-			mockUsageStatus.usage.secondsUsed = 28800; // 8 hours out of 10 hours
-			mockUsageStatus.canStartConversation = true;
-		}
+		devUsageStatus = createDevUsageStatus(tierId);
 	}
 
 	function formatTime(seconds: number) {
@@ -275,7 +161,7 @@
 						<h3 class="mb-2 text-lg font-semibold">Switch Mock Tier:</h3>
 						<div class="flex gap-2">
 							<button
-								class="btn btn-sm {mockUsageStatus.tier.id === 'free'
+								class="btn btn-sm {devUsageStatus.tier.id === 'free'
 									? 'btn-active'
 									: 'btn-outline'}"
 								onclick={() => switchMockTier('free')}
@@ -284,7 +170,7 @@
 								Free
 							</button>
 							<button
-								class="btn btn-sm {mockUsageStatus.tier.id === 'plus'
+								class="btn btn-sm {devUsageStatus.tier.id === 'plus'
 									? 'btn-active btn-primary'
 									: 'btn-outline'}"
 								onclick={() => switchMockTier('plus')}
@@ -293,7 +179,7 @@
 								Plus
 							</button>
 							<button
-								class="btn btn-sm {mockUsageStatus.tier.id === 'premium'
+								class="btn btn-sm {devUsageStatus.tier.id === 'premium'
 									? 'btn-active btn-secondary'
 									: 'btn-outline'}"
 								onclick={() => switchMockTier('premium')}
@@ -309,14 +195,14 @@
 						<div class="space-y-3">
 							<h4 class="font-semibold">Simple Badge (showDetails=false):</h4>
 							<div class="rounded-lg border bg-base-200 p-4">
-								<TierBadge tierStatus={mockUsageStatus} showDetails={false} />
+								<TierBadge tierStatus={devUsageStatus} showDetails={false} />
 							</div>
 						</div>
 
 						<div class="space-y-3">
 							<h4 class="font-semibold">Detailed Badge (showDetails=true):</h4>
 							<div class="rounded-lg border bg-base-200 p-4">
-								<TierBadge tierStatus={mockUsageStatus} showDetails={true} />
+								<TierBadge tierStatus={devUsageStatus} showDetails={true} />
 							</div>
 						</div>
 					</div>
@@ -325,21 +211,20 @@
 					<div class="rounded-lg border border-info/20 bg-info/10 p-4">
 						<h4 class="mb-2 font-semibold text-info">Current Mock Data:</h4>
 						<div class="text-sm text-base-content/70">
-							<p><strong>Tier:</strong> {mockUsageStatus.tier.name} ({mockUsageStatus.tier.id})</p>
+							<p><strong>Tier:</strong> {devUsageStatus.tier.name} ({devUsageStatus.tier.id})</p>
 							<p>
 								<strong>Conversations:</strong>
-								{mockUsageStatus.usage.conversationsUsed}/{mockUsageStatus.tier
-									.monthlyConversations}
+								{devUsageStatus.usage.conversationsUsed}/{devUsageStatus.tier.monthlyConversations}
 							</p>
 							<p>
 								<strong>Time:</strong>
-								{formatTime(mockUsageStatus.usage.secondsUsed ?? 0)}/{formatTime(
-									mockUsageStatus.tier.monthlySeconds
+								{formatTime(devUsageStatus.usage.secondsUsed ?? 0)}/{formatTime(
+									devUsageStatus.tier.monthlySeconds
 								)}
 							</p>
 							<p>
 								<strong>Realtime:</strong>
-								{mockUsageStatus.usage.realtimeSessionsUsed}/{mockUsageStatus.tier
+								{devUsageStatus.usage.realtimeSessionsUsed}/{devUsageStatus.tier
 									.monthlyRealtimeSessions}
 							</p>
 						</div>

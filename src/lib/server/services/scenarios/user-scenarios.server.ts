@@ -475,7 +475,12 @@ export async function generateScenarioDraft(
 			languageId: request.languageId
 		});
 		return {
-			draft: buildScenario(id, mode, { ...content, title: content.title || desc.slice(0, 60) }, now),
+			draft: buildScenario(
+				id,
+				mode,
+				{ ...content, title: content.title || desc.slice(0, 60) },
+				now
+			),
 			sourceModel: 'gpt-4o-mini',
 			tokensUsed
 		};
@@ -509,7 +514,14 @@ export async function generateScenarioFromMemories(
 		const title = memories[0]
 			? `Custom: ${memories[0].slice(0, 40)}${memories[0].length > 40 ? '...' : ''}`
 			: 'Memory-Based Scenario';
-		return buildLocalScenario(id, sanitizeText(desc, 'Custom conversation'), mode, now, title, memText);
+		return buildLocalScenario(
+			id,
+			sanitizeText(desc, 'Custom conversation'),
+			mode,
+			now,
+			title,
+			memText
+		);
 	}
 }
 
@@ -521,27 +533,33 @@ function buildLocalScenario(
 	customTitle?: string,
 	memText?: string
 ): AuthorScenarioResponse {
-	const title = customTitle || (desc.length > 60 ? `${desc.slice(0, 57)}...` : desc || 'Custom Scenario');
+	const title =
+		customTitle || (desc.length > 60 ? `${desc.slice(0, 57)}...` : desc || 'Custom Scenario');
 	const isTutor = mode === 'tutor';
 	const ctx = memText ? `Based on interests (${memText}), ` : '';
 
 	return {
-		draft: buildScenario(id, mode, {
-			title,
-			description: desc,
-			instructions: isTutor
-				? `You are a supportive language tutor. ${ctx}Guide step by step, correct gently: ${desc}`
-				: `You are roleplaying: ${desc}. ${ctx}Stay in character, be realistic.`,
-			context: desc,
-			expectedOutcome: isTutor
-				? 'Learner practices key language and feels confident.'
-				: 'Learner successfully navigates the situation naturally.',
-			learningGoal: isTutor
-				? 'Build confidence with scenario-specific language'
-				: 'Handle the scenario naturally',
-			learningObjectives: ['activate vocabulary', 'practice responses', 'build confidence'],
-			persona: mode === 'character' ? { title: 'Conversation Partner', introPrompt: desc } : null
-		}, now),
+		draft: buildScenario(
+			id,
+			mode,
+			{
+				title,
+				description: desc,
+				instructions: isTutor
+					? `You are a supportive language tutor. ${ctx}Guide step by step, correct gently: ${desc}`
+					: `You are roleplaying: ${desc}. ${ctx}Stay in character, be realistic.`,
+				context: desc,
+				expectedOutcome: isTutor
+					? 'Learner practices key language and feels confident.'
+					: 'Learner successfully navigates the situation naturally.',
+				learningGoal: isTutor
+					? 'Build confidence with scenario-specific language'
+					: 'Handle the scenario naturally',
+				learningObjectives: ['activate vocabulary', 'practice responses', 'build confidence'],
+				persona: mode === 'character' ? { title: 'Conversation Partner', introPrompt: desc } : null
+			},
+			now
+		),
 		sourceModel: 'local-fallback',
 		tokensUsed: 0
 	};

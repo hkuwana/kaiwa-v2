@@ -32,7 +32,7 @@
 
 	<label class="label cursor-pointer">
 		<span class="label-text flex items-center gap-2">
-			<span class="icon-[mdi--walkie-talkie] h-5 w-5 text-base-content/70"></span>
+			<span class="h-5 w-5 text-base-content/70 icon-[mdi--walkie-talkie]"></span>
 			<span class="font-medium">Walkie Talkie</span>
 		</span>
 		<input

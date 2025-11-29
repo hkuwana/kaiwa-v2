@@ -248,7 +248,7 @@
 				{#if usageStore.tier && usageStore.usage}
 					<a
 						href="/profile"
-						class="mt-1 hidden items-center gap-1.5 text-sm text-base-content/60 hover:text-primary transition-colors sm:inline-flex"
+						class="mt-1 hidden items-center gap-1.5 text-sm text-base-content/60 transition-colors hover:text-primary sm:inline-flex"
 						title="View usage details"
 					>
 						<span class="icon-[mdi--clock-outline] h-4 w-4"></span>

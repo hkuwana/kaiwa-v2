@@ -1,10 +1,6 @@
 // src/lib/features/learning-path/services/PromptEngineeringService.ts
 
-import type {
-	PathFromPreferencesInput,
-	PathFromCreatorBriefInput,
-	PromptPayload
-} from '../types';
+import type { PathFromPreferencesInput, PathFromCreatorBriefInput, PromptPayload } from '../types';
 
 /**
  * PromptEngineeringService - Pure prompt generation logic for learning paths

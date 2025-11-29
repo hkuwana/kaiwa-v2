@@ -118,7 +118,9 @@ class LearningPathStore {
 	/**
 	 * Share a path as a public template
 	 */
-	async shareAsTemplate(pathId: string): Promise<{ success: boolean; shareUrl?: string; error?: string }> {
+	async shareAsTemplate(
+		pathId: string
+	): Promise<{ success: boolean; shareUrl?: string; error?: string }> {
 		try {
 			const response = await fetch(`/api/learning-paths/${pathId}/share`, {
 				method: 'POST'
@@ -190,7 +192,10 @@ class LearningPathStore {
 	/**
 	 * Update progress (mark day as completed)
 	 */
-	async markDayCompleted(assignmentId: string, dayIndex: number): Promise<{ success: boolean; error?: string }> {
+	async markDayCompleted(
+		assignmentId: string,
+		dayIndex: number
+	): Promise<{ success: boolean; error?: string }> {
 		try {
 			const response = await fetch(`/api/learning-paths/assignments/${assignmentId}/progress`, {
 				method: 'PATCH',
@@ -204,11 +209,13 @@ class LearningPathStore {
 
 			if (data.success) {
 				// Update local state
-				const pathIndex = this.activePaths.findIndex(p => p.assignment.id === assignmentId);
+				const pathIndex = this.activePaths.findIndex((p) => p.assignment.id === assignmentId);
 				if (pathIndex >= 0) {
 					this.activePaths[pathIndex].assignment.currentDayIndex = dayIndex;
 					this.activePaths[pathIndex].daysCompleted = dayIndex;
-					this.activePaths[pathIndex].progressPercent = Math.round((dayIndex / this.activePaths[pathIndex].totalDays) * 100);
+					this.activePaths[pathIndex].progressPercent = Math.round(
+						(dayIndex / this.activePaths[pathIndex].totalDays) * 100
+					);
 				}
 				return { success: true };
 			} else {

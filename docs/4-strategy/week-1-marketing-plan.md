@@ -9,7 +9,7 @@
 - **MRR**: $15
 - **Founding Members**: 5 (Robert, Chika, Bri, Akemi, Scott)
 - **Paid Paths Sold**: 0
-- **X Followers**: ___ (fill in)
+- **X Followers**: \_\_\_ (fill in)
 
 ---
 
@@ -17,15 +17,16 @@
 
 ### Day 1 (Tuesday, Nov 26)
 
-| Task | Planned | Actual | Notes |
-|------|---------|--------|-------|
-| DM Robert (Japanese formal) | ⬜ | | |
-| DM Chika (French partner's mom) | ⬜ | | |
-| Fix analysis bug Robert reported | ⬜ | | |
-| 1 X post (intro/what you're building) | ⬜ | | |
-| Draft first Nano Banana Pro infographic prompt (IG/TikTok) | ⬜ | | |
+| Task                                                       | Planned | Actual | Notes |
+| ---------------------------------------------------------- | ------- | ------ | ----- |
+| DM Robert (Japanese formal)                                | ⬜      |        |       |
+| DM Chika (French partner's mom)                            | ⬜      |        |       |
+| Fix analysis bug Robert reported                           | ⬜      |        |       |
+| 1 X post (intro/what you're building)                      | ⬜      |        |       |
+| Draft first Nano Banana Pro infographic prompt (IG/TikTok) | ⬜      |        |       |
 
 **Robert message:**
+
 ```
 Hey Robert! Thanks for flagging that analysis bug - I'm fixing it today.
 
@@ -43,6 +44,7 @@ Want to try it? Here's my calendar: [link]
 ```
 
 **Chika message:**
+
 ```
 Hey Chika! Love your goal - communicating with your partner's mom
 AND staying in the loop when you have French-speaking kids. That's
@@ -58,6 +60,7 @@ Calendar: [link]
 ```
 
 **X post idea:**
+
 ```
 Building a language app but realized something:
 
@@ -76,15 +79,16 @@ Week 1 begins.
 
 ### Day 2 (Wednesday, Nov 27)
 
-| Task | Planned | Actual | Notes |
-|------|---------|--------|-------|
-| DM Bri (Japan work/life) | ⬜ | | |
-| DM Akemi (part-time Japan) | ⬜ | | |
-| DM Scott (Spanish maintenance) | ⬜ | | |
-| 1 Reddit comment (r/LearnJapanese or r/LongDistance) | ⬜ | | |
-| Generate 1 IG/TikTok infographic with Nano Banana Pro | ⬜ | | Save prompt + caption for blog reuse |
+| Task                                                  | Planned | Actual | Notes                                |
+| ----------------------------------------------------- | ------- | ------ | ------------------------------------ |
+| DM Bri (Japan work/life)                              | ⬜      |        |                                      |
+| DM Akemi (part-time Japan)                            | ⬜      |        |                                      |
+| DM Scott (Spanish maintenance)                        | ⬜      |        |                                      |
+| 1 Reddit comment (r/LearnJapanese or r/LongDistance)  | ⬜      |        |                                      |
+| Generate 1 IG/TikTok infographic with Nano Banana Pro | ⬜      |        | Save prompt + caption for blog reuse |
 
 **Bri message:**
+
 ```
 Hey Bri! Your feedback about beginner→intermediate being tough
 is super valuable - that's a real gap I want to solve.
@@ -104,6 +108,7 @@ PS - Would love to hear about your Duolingo Max experience too!
 ```
 
 **Akemi message:**
+
 ```
 Hey Akemi! Thanks for catching that audio bug - super helpful.
 
@@ -119,6 +124,7 @@ Calendar: [link]
 ```
 
 **Scott message:**
+
 ```
 Hey Scott! You called out two things I want to solve:
 1. "I'm busy and need reminders"
@@ -139,13 +145,14 @@ Calendar: [link]
 
 ### Day 3 (Thursday, Nov 28 - Thanksgiving)
 
-| Task | Planned | Actual | Notes |
-|------|---------|--------|-------|
-| Follow up with anyone who hasn't responded | ⬜ | | |
-| 1 X post (what you're grateful for / founder journey) | ⬜ | | |
-| Light day - holiday | ⬜ | | |
+| Task                                                  | Planned | Actual | Notes |
+| ----------------------------------------------------- | ------- | ------ | ----- |
+| Follow up with anyone who hasn't responded            | ⬜      |        |       |
+| 1 X post (what you're grateful for / founder journey) | ⬜      |        |       |
+| Light day - holiday                                   | ⬜      |        |       |
 
 **X post idea:**
+
 ```
 Grateful for the 5 people testing my language app right now.
 
@@ -164,15 +171,16 @@ This is the fun part.
 
 ### Day 4 (Friday, Nov 29)
 
-| Task | Planned | Actual | Notes |
-|------|---------|--------|-------|
-| First discovery call (if booked) | ⬜ | | |
-| Create first personalized path | ⬜ | | |
-| 1-2 Reddit comments | ⬜ | | |
-| 1 X post (learnings from call) | ⬜ | | |
-| Refresh/ship a new visual (quote card or scenario explainer) | ⬜ | | |
+| Task                                                         | Planned | Actual | Notes |
+| ------------------------------------------------------------ | ------- | ------ | ----- |
+| First discovery call (if booked)                             | ⬜      |        |       |
+| Create first personalized path                               | ⬜      |        |       |
+| 1-2 Reddit comments                                          | ⬜      |        |       |
+| 1 X post (learnings from call)                               | ⬜      |        |       |
+| Refresh/ship a new visual (quote card or scenario explainer) | ⬜      |        |       |
 
 **X post idea (after call):**
+
 ```
 Just did my first "Personalized Path" discovery call.
 
@@ -190,13 +198,14 @@ This doesn't scale. That's the point.
 
 ### Day 5 (Saturday, Nov 30)
 
-| Task | Planned | Actual | Notes |
-|------|---------|--------|-------|
-| Second discovery call (if booked) | ⬜ | | |
-| Create second personalized path | ⬜ | | |
-| Post in WhatsApp group (social proof) | ⬜ | | |
+| Task                                  | Planned | Actual | Notes |
+| ------------------------------------- | ------- | ------ | ----- |
+| Second discovery call (if booked)     | ⬜      |        |       |
+| Create second personalized path       | ⬜      |        |       |
+| Post in WhatsApp group (social proof) | ⬜      |        |       |
 
 **WhatsApp group message (after 2+ calls booked):**
+
 ```
 Quick update! A few of you are trying the new "Personalized Path"
 feature - [Name] is working on [goal], [Name] is prepping for [goal].
@@ -210,14 +219,15 @@ Free for founding members!
 
 ### Day 6 (Sunday, Dec 1)
 
-| Task | Planned | Actual | Notes |
-|------|---------|--------|-------|
-| Review week: what worked, what didn't | ⬜ | | |
-| Plan Week 2 based on learnings | ⬜ | | |
-| 1 X post (week 1 recap) | ⬜ | | |
-| Pick top-performing visual + turn into draft blog outline | ⬜ | | |
+| Task                                                      | Planned | Actual | Notes |
+| --------------------------------------------------------- | ------- | ------ | ----- |
+| Review week: what worked, what didn't                     | ⬜      |        |       |
+| Plan Week 2 based on learnings                            | ⬜      |        |       |
+| 1 X post (week 1 recap)                                   | ⬜      |        |       |
+| Pick top-performing visual + turn into draft blog outline | ⬜      |        |       |
 
 **X post idea:**
+
 ```
 Week 1 of "Personalized Paths" experiment:
 
@@ -232,24 +242,24 @@ What I'm changing for Week 2: [adjustment]
 
 ### Day 7 (Monday, Dec 2)
 
-| Task | Planned | Actual | Notes |
-|------|---------|--------|-------|
-| Any remaining discovery calls | ⬜ | | |
-| 2-3 Reddit comments | ⬜ | | |
-| Start thinking about first PAID path pitch | ⬜ | | |
+| Task                                       | Planned | Actual | Notes |
+| ------------------------------------------ | ------- | ------ | ----- |
+| Any remaining discovery calls              | ⬜      |        |       |
+| 2-3 Reddit comments                        | ⬜      |        |       |
+| Start thinking about first PAID path pitch | ⬜      |        |       |
 
 ---
 
 ## Week 1 Success Metrics
 
-| Metric | Target | Actual |
-|--------|--------|--------|
-| Founding member DMs sent | 5 | |
-| Discovery calls booked | 3-5 | |
-| Discovery calls completed | 2-3 | |
-| Personalized paths created | 2-3 | |
-| Reddit comments posted | 5-7 | |
-| X posts published | 5-7 | |
+| Metric                     | Target | Actual |
+| -------------------------- | ------ | ------ |
+| Founding member DMs sent   | 5      |        |
+| Discovery calls booked     | 3-5    |        |
+| Discovery calls completed  | 2-3    |        |
+| Personalized paths created | 2-3    |        |
+| Reddit comments posted     | 5-7    |        |
+| X posts published          | 5-7    |        |
 
 ---
 
@@ -258,6 +268,7 @@ What I'm changing for Week 2: [adjustment]
 ### What to Post (3-5x/week)
 
 **Type 1: Build-in-Public Updates**
+
 ```
 Week X update:
 - [Metric]
@@ -268,6 +279,7 @@ What should I try next?
 ```
 
 **Type 2: Founder Journey / Vulnerability**
+
 ```
 I have $15 MRR.
 
@@ -277,6 +289,7 @@ Will report back.
 ```
 
 **Type 3: User Insights (anonymized)**
+
 ```
 Did a call with a user today.
 
@@ -289,6 +302,7 @@ Different problem. Different solution.
 ```
 
 **Type 4: Hot Takes / Positioning**
+
 ```
 Duolingo just added AI conversations.
 
@@ -301,6 +315,7 @@ Generic vs specific. That's the gap.
 ```
 
 **Type 5: Personal Story**
+
 ```
 I couldn't talk to my Japanese grandmother before she died.
 
@@ -333,6 +348,7 @@ Pick ONE time and be consistent.
 **Goal**: Ship 2-3 visuals this week that make the personalized-path idea tangible and are easy to repost to X and later expand into blog posts.
 
 **Workflow (15-25 min each)**:
+
 - Pick a user story or insight from a call/DM.
 - Drop a prompt into Nano Banana Pro (templates below), generate 1-2 options.
 - Write a short caption with hook + CTA to book a call; post to IG + TikTok (and screenshot for X).
@@ -340,22 +356,26 @@ Pick ONE time and be consistent.
 
 **Prompt Templates** (swap in your scenario + language):
 
-1) Personalized Path Explainer (infographic)
+1. Personalized Path Explainer (infographic)
+
 ```
 Create a crisp, square infographic that explains a 14-day personalized language path for [persona] who wants to [goal]. Visualize 3-4 steps: 15-min discovery call, daily custom scenarios, reminders/accountability, end-state outcome. Style: clean sans-serif, bold accent color, friendly icons, high contrast, legible on phone, minimal text. Include headline: "Built-For-You Language Path" and CTA: "Book a 15-min call."
 ```
 
-2) Before/After Quote Card (works for IG + TikTok cover)
+2. Before/After Quote Card (works for IG + TikTok cover)
+
 ```
 A wide quote card featuring a portrait placeholder on the left and text on the right. Background: warm neutral with subtle gradient. Text: large serif quote says "I finally spoke to [partner's mom] in [language] without switching to English." Small sans-serif caption: "14 days. Custom scenarios. Nano Banana Pro + Kaiwa." Keep it modern, high-contrast, social friendly.
 ```
 
-3) Scenario Vignette (TikTok-friendly)
+3. Scenario Vignette (TikTok-friendly)
+
 ```
 Design a vertical 9:16 visual of a real-life scene: [persona] in [setting], practicing [language] for [specific moment]. Add 3 sticky-note style callouts showing the exact phrases they practice. Style: bright, minimal illustrations with clear text, phone-legible, no heavy text blocks. Title ribbon: "Day 4: [scenario name]".
 ```
 
 **Posting tips**
+
 - Use one CTA: `Grab a 15-min slot for your custom path.`
 - Add alt text/description to visuals so X/IG auto-captioning works.
 - Keep a running list of prompts + captions in the log for fast blog expansion.
@@ -375,6 +395,7 @@ Design a vertical 9:16 visual of a real-life scene: [persona] in [setting], prac
 ### Why Skip
 
 At $15 MRR with 5 users, your bottleneck is:
+
 1. **Validation** - Do people want personalized paths?
 2. **Revenue** - Can you charge $49 for them?
 3. **Distribution** - Can you find more Sofias/Chikas?
@@ -397,16 +418,19 @@ If you write a Reddit comment that gets 50+ upvotes, turn THAT into a blog post.
 ## Week 1 Checklist (Print This)
 
 **Before Starting:**
+
 - [ ] Set up calendar booking link (15-min slots)
 - [ ] Prepare discovery call questions
 - [ ] Have scenario creation workflow ready
 
 **Daily Non-Negotiables:**
+
 - [ ] Check WhatsApp group
 - [ ] 1 X post
 - [ ] 1-2 Reddit comments (after Day 2)
 
 **By End of Week 1:**
+
 - [ ] All 5 founding members messaged
 - [ ] 2-3 discovery calls completed
 - [ ] 2-3 personalized paths created
@@ -430,10 +454,8 @@ If you write a Reddit comment that gets 50+ upvotes, turn THAT into a blog post.
 
 ### Adjustments for Week 2
 
--
+- ***
 
----
-
-**Remember**: The goal isn't to be everywhere. It's to deeply serve 5 people and learn from them.
+  **Remember**: The goal isn't to be everywhere. It's to deeply serve 5 people and learn from them.
 
 Week 2 is for Reddit outreach. Week 1 is for your founding members.

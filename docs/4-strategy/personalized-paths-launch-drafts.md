@@ -175,6 +175,7 @@ DM if you have a specific situation coming up.
 ## DM Templates for Founding Members
 
 ### Robert (Japanese formal)
+
 ```
 Hey Robert! Thanks again for all your feedback on Kaiwa.
 
@@ -190,6 +191,7 @@ Want to try it? https://calendar.app.google/XESCmxmKpNrhzN5d7
 ```
 
 ### Chika (French partner's mom)
+
 ```
 Hey Chika! Love that you're preparing to communicate with your partner's mom AND future French-speaking kids.
 
@@ -205,6 +207,7 @@ https://calendar.app.google/XESCmxmKpNrhzN5d7
 ```
 
 ### Generic Template
+
 ```
 Hey [name]! Thanks for being part of Kaiwa.
 
@@ -225,16 +228,19 @@ https://calendar.app.google/XESCmxmKpNrhzN5d7
 ## Scarcity & Urgency Tactics (Ethical)
 
 ### Real Scarcity (use these)
+
 - "5 spots for December" - You literally can only handle 5 manual setups
 - "Founding member price" - This IS temporary
 - "Your feedback is the payment" - True, you need validation
 
 ### Timeline Anchors (use these)
+
 - "Before the holidays"
 - "Preparing for [their specific event]"
 - "While I'm still doing manual builds"
 
 ### Avoid
+
 - Fake countdown timers
 - "Offer ends tonight" (unless true)
 - Pressure tactics that feel manipulative
@@ -244,6 +250,7 @@ https://calendar.app.google/XESCmxmKpNrhzN5d7
 ## Follow-Up Sequences
 
 ### Day 2 (if no response)
+
 ```
 Hey! Following up on the personalized path idea.
 
@@ -253,6 +260,7 @@ If the timing isn't right or it's not a fit, totally understand!
 ```
 
 ### Day 5 (if still no response)
+
 ```
 Last follow-up! The December spots are filling up.
 
@@ -266,6 +274,7 @@ If not, no worries at all - the regular Kaiwa scenarios are always there when yo
 ## Key Messaging Points
 
 ### What to emphasize
+
 - **Specific > Generic**: "Built for YOUR situation"
 - **Human touch**: "15-min call with me"
 - **Limited**: "Only 5 spots"
@@ -273,6 +282,7 @@ If not, no worries at all - the regular Kaiwa scenarios are always there when yo
 - **Outcome-focused**: "Prepare for X moment"
 
 ### What to avoid
+
 - Feature lists
 - Technical details about AI
 - Comparison to competitors
@@ -283,14 +293,14 @@ If not, no worries at all - the regular Kaiwa scenarios are always there when yo
 
 ## Success Metrics for Week 1
 
-| Metric | Target | Actual |
-|--------|--------|--------|
-| DMs sent | 5 | |
-| Responses | 3+ | |
-| Calls booked | 2-3 | |
-| Calls completed | 2 | |
-| Paths created | 2 | |
-| Conversion to paid (future) | TBD | |
+| Metric                      | Target | Actual |
+| --------------------------- | ------ | ------ |
+| DMs sent                    | 5      |        |
+| Responses                   | 3+     |        |
+| Calls booked                | 2-3    |        |
+| Calls completed             | 2      |        |
+| Paths created               | 2      |        |
+| Conversion to paid (future) | TBD    |        |
 
 ---
 

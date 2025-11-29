@@ -198,7 +198,7 @@ export class FounderEmailService {
 	 */
 	public static getDay3Email(user: User, languageName: string | null): string {
 		const firstName = user.displayName?.split(' ')[0] || 'there';
-		 
+
 		const content: KaiwaEmailContent = {
 			headerCategory: 'Personal Invitation',
 			headerTitle: 'Quick 15-minute walkthrough?',

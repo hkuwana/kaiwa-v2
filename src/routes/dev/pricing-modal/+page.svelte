@@ -3,89 +3,15 @@
 	import { resolve } from '$app/paths';
 	import PricingModal from '$lib/features/payments/components/PricingModal.svelte';
 	import type { UsageStatus } from '$lib/server/tier.service';
-	import { SvelteDate } from 'svelte/reactivity';
+	import { createDevUsageStatus } from '$lib/data/dev';
 
 	// State for controlling the modal
 	let isModalOpen = $state(false);
 	let currentTier = $state('free');
 	let modalSource = $state<'limit_modal' | 'navbar' | 'settings' | 'onboarding'>('navbar');
 
-	// Simplified mock usage status for testing
-	const mockUsageStatus: UsageStatus = {
-		tier: {
-			id: 'free',
-			name: 'Free',
-			description: 'Basic plan',
-			monthlyConversations: 10,
-			monthlySeconds: 1800,
-			monthlyRealtimeSessions: 3,
-			customizedPhrasesFrequency: 'weekly',
-			conversationMemoryLevel: 'basic',
-			ankiExportLimit: 50,
-			dailyConversations: null,
-			dailySeconds: null,
-			dailyAnalyses: null,
-			maxSessionLengthSeconds: 300,
-			sessionBankingEnabled: false,
-			maxBankedSeconds: 0,
-			hasRealtimeAccess: true,
-			hasAdvancedVoices: false,
-			hasAnalytics: false,
-			hasDeepAnalysis: false,
-			hasCustomPhrases: false,
-			hasConversationMemory: false,
-			hasAnkiExport: false,
-			monthlyPriceUsd: '0',
-			annualPriceUsd: '0',
-			stripeProductId: null,
-			stripePriceIdMonthly: null,
-			stripePriceIdAnnual: null,
-			overagePricePerMinuteInCents: 0,
-			conversationTimeoutSeconds: 300,
-			warningThresholdSeconds: 240,
-			canExtend: false,
-			maxExtensions: 0,
-			extensionDurationSeconds: 0,
-			feedbackSessionsPerMonth: '0',
-			maxMemories: 10,
-			isActive: true,
-			createdAt: new SvelteDate(),
-			updatedAt: new SvelteDate()
-		},
-		usage: {
-			createdAt: new SvelteDate(),
-			userId: 'demo-user',
-			updatedAt: new SvelteDate(),
-			period: '2024-01',
-			conversationsUsed: 8,
-			secondsUsed: 1600,
-			realtimeSessionsUsed: 2,
-			bankedSeconds: 0,
-			bankedSecondsUsed: 0,
-			ankiExportsUsed: 0,
-			sessionExtensionsUsed: 0,
-			advancedVoiceSeconds: 0,
-			analysesUsed: 1,
-			// Simplified analysis usage fields for MVP
-			basicAnalysesUsed: 1,
-			advancedGrammarUsed: 0,
-			fluencyAnalysisUsed: 0,
-			onboardingProfileUsed: 0,
-			pronunciationAnalysisUsed: 0,
-			speechRhythmUsed: 0,
-			completedSessions: 6,
-			longestSessionSeconds: 900,
-			averageSessionSeconds: 500,
-			overageSeconds: 0,
-			tierWhenUsed: 'free',
-			lastConversationAt: new SvelteDate(),
-			lastRealtimeAt: new SvelteDate(Date.now() - 2 * 86400000),
-			firstActivityAt: new SvelteDate(Date.now() - 20 * 86400000)
-		},
-		canStartConversation: true,
-		canUseRealtime: true,
-		resetDate: new SvelteDate(Date.now() + 20 * 24 * 60 * 60 * 1000)
-	};
+	// Dev usage status for testing, derived from canonical tier configs
+	const devUsageStatus: UsageStatus = createDevUsageStatus('free');
 
 	// Functions to open modal with different configurations
 	function openModal(source: typeof modalSource, tier: string = 'free') {
@@ -160,6 +86,6 @@
 <PricingModal
 	bind:isOpen={isModalOpen}
 	{currentTier}
-	usageStatus={modalSource === 'limit_modal' ? mockUsageStatus : null}
+	usageStatus={modalSource === 'limit_modal' ? devUsageStatus : null}
 	source={modalSource}
 />

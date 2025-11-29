@@ -39,7 +39,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
 			// Get current day info
 			const currentDayIndex = Math.min(daysCompleted + 1, totalDays);
-			const currentDaySchedule = schedule.find(s => s.dayIndex === currentDayIndex);
+			const currentDaySchedule = schedule.find((s) => s.dayIndex === currentDayIndex);
 
 			// Check if current day scenario is ready
 			let isReady = false;
@@ -47,12 +47,15 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 				isReady = true;
 			} else {
 				// Check queue status
-				const queueJob = await scenarioGenerationQueueRepository.findJobForDay(path.id, currentDayIndex);
+				const queueJob = await scenarioGenerationQueueRepository.findJobForDay(
+					path.id,
+					currentDayIndex
+				);
 				isReady = queueJob?.status === 'ready';
 			}
 
 			// Get next day info
-			const nextDaySchedule = schedule.find(s => s.dayIndex === currentDayIndex + 1);
+			const nextDaySchedule = schedule.find((s) => s.dayIndex === currentDayIndex + 1);
 
 			const userPath: UserLearningPath = {
 				path,
@@ -60,18 +63,22 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 				progressPercent,
 				daysCompleted,
 				totalDays,
-				currentDay: currentDaySchedule ? {
-					dayIndex: currentDaySchedule.dayIndex,
-					theme: currentDaySchedule.theme,
-					difficulty: currentDaySchedule.difficulty,
-					scenarioId: currentDaySchedule.scenarioId,
-					isReady
-				} : null,
-				nextDay: nextDaySchedule ? {
-					dayIndex: nextDaySchedule.dayIndex,
-					theme: nextDaySchedule.theme,
-					difficulty: nextDaySchedule.difficulty
-				} : null
+				currentDay: currentDaySchedule
+					? {
+							dayIndex: currentDaySchedule.dayIndex,
+							theme: currentDaySchedule.theme,
+							difficulty: currentDaySchedule.difficulty,
+							scenarioId: currentDaySchedule.scenarioId,
+							isReady
+						}
+					: null,
+				nextDay: nextDaySchedule
+					? {
+							dayIndex: nextDaySchedule.dayIndex,
+							theme: nextDaySchedule.theme,
+							difficulty: nextDaySchedule.difficulty
+						}
+					: null
 			};
 
 			// Sort into active vs completed

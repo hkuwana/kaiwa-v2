@@ -15,7 +15,14 @@
 		size?: 'sm' | 'md' | 'lg';
 	}
 
-	const { pathId, pathTitle, isTemplate = false, shareSlug = null, variant = 'outline', size = 'sm' }: Props = $props();
+	const {
+		pathId,
+		pathTitle,
+		isTemplate = false,
+		shareSlug = null,
+		variant = 'outline',
+		size = 'sm'
+	}: Props = $props();
 
 	let isSharing = $state(false);
 	let showModal = $state(false);
@@ -25,7 +32,9 @@
 
 	// If already a template with shareSlug, construct the URL directly
 	const existingShareUrl = $derived(
-		isTemplate && shareSlug ? `${typeof window !== 'undefined' ? window.location.origin : ''}/program/${shareSlug}` : null
+		isTemplate && shareSlug
+			? `${typeof window !== 'undefined' ? window.location.origin : ''}/program/${shareSlug}`
+			: null
 	);
 
 	async function handleShare() {
@@ -101,7 +110,7 @@
 <!-- Share Button -->
 <button class={buttonClasses()} onclick={handleShare} disabled={isSharing}>
 	{#if isSharing}
-		<span class="loading loading-spinner loading-xs"></span>
+		<span class="loading loading-xs loading-spinner"></span>
 	{:else}
 		<span class="icon-[mdi--share-variant] h-4 w-4"></span>
 	{/if}
@@ -113,16 +122,18 @@
 	<div class="toast toast-end">
 		<div class="alert alert-error">
 			<span>{error}</span>
-			<button class="btn btn-ghost btn-xs" onclick={() => error = null}>x</button>
+			<button class="btn btn-ghost btn-xs" onclick={() => (error = null)}>x</button>
 		</div>
 	</div>
 {/if}
 
 <!-- Share Modal -->
 {#if showModal}
-	<dialog class="modal modal-open">
+	<dialog class="modal-open modal">
 		<div class="modal-box">
-			<button class="btn btn-circle btn-ghost btn-sm absolute right-2 top-2" onclick={closeModal}>x</button>
+			<button class="btn absolute top-2 right-2 btn-circle btn-ghost btn-sm" onclick={closeModal}
+				>x</button
+			>
 
 			<h3 class="text-lg font-bold">Share Your Learning Path</h3>
 			<p class="py-2 text-base-content/70">
@@ -139,9 +150,12 @@
 						type="text"
 						readonly
 						value={shareUrl}
-						class="input join-item input-bordered w-full bg-base-200"
+						class="input-bordered input join-item w-full bg-base-200"
 					/>
-					<button class="btn join-item {copied ? 'btn-success' : 'btn-primary'}" onclick={copyToClipboard}>
+					<button
+						class="btn join-item {copied ? 'btn-success' : 'btn-primary'}"
+						onclick={copyToClipboard}
+					>
 						{#if copied}
 							<span class="icon-[mdi--check] h-5 w-5"></span>
 						{:else}
@@ -155,7 +169,9 @@
 			<div class="divider">Share via</div>
 			<div class="flex justify-center gap-2">
 				<a
-					href="https://twitter.com/intent/tweet?text=Check%20out%20this%20learning%20path%3A%20{encodeURIComponent(pathTitle)}&url={encodeURIComponent(shareUrl || '')}"
+					href="https://twitter.com/intent/tweet?text=Check%20out%20this%20learning%20path%3A%20{encodeURIComponent(
+						pathTitle
+					)}&url={encodeURIComponent(shareUrl || '')}"
 					target="_blank"
 					rel="noopener noreferrer"
 					class="btn btn-circle btn-outline"
@@ -163,7 +179,9 @@
 					<span class="icon-[mdi--twitter] h-5 w-5"></span>
 				</a>
 				<a
-					href="https://www.linkedin.com/sharing/share-offsite/?url={encodeURIComponent(shareUrl || '')}"
+					href="https://www.linkedin.com/sharing/share-offsite/?url={encodeURIComponent(
+						shareUrl || ''
+					)}"
 					target="_blank"
 					rel="noopener noreferrer"
 					class="btn btn-circle btn-outline"
@@ -171,7 +189,9 @@
 					<span class="icon-[mdi--linkedin] h-5 w-5"></span>
 				</a>
 				<a
-					href="mailto:?subject=Check%20out%20this%20learning%20path&body=I%20thought%20you%27d%20be%20interested%20in%20this%20learning%20path%3A%20{encodeURIComponent(shareUrl || '')}"
+					href="mailto:?subject=Check%20out%20this%20learning%20path&body=I%20thought%20you%27d%20be%20interested%20in%20this%20learning%20path%3A%20{encodeURIComponent(
+						shareUrl || ''
+					)}"
 					class="btn btn-circle btn-outline"
 				>
 					<span class="icon-[mdi--email-outline] h-5 w-5"></span>

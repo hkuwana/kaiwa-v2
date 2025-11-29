@@ -754,7 +754,9 @@ Be concise but include all the specific details that make this path PERSONAL to 
 						<div class="form-control">
 							<label class="label">
 								<span class="label-text">Discovery Call Transcript / Notes</span>
-								<span class="label-text-alt text-base-content/50">Paste raw notes, transcript, or key points</span>
+								<span class="label-text-alt text-base-content/50"
+									>Paste raw notes, transcript, or key points</span
+								>
 							</label>
 							<textarea
 								class="textarea-bordered textarea h-48 font-mono text-sm"
@@ -789,7 +791,7 @@ Example:
 								</button>
 							</div>
 							<div class="max-h-48 overflow-y-auto rounded bg-base-100 p-2">
-								<pre class="whitespace-pre-wrap text-xs">{getFilledPrompt()}</pre>
+								<pre class="text-xs whitespace-pre-wrap">{getFilledPrompt()}</pre>
 							</div>
 						</div>
 
@@ -807,11 +809,7 @@ Example:
 							></textarea>
 						</div>
 
-						<button
-							class="btn btn-primary"
-							onclick={useBriefForPath}
-							disabled={!generatedBrief}
-						>
+						<button class="btn btn-primary" onclick={useBriefForPath} disabled={!generatedBrief}>
 							Use This Brief → Create Tab
 						</button>
 					</div>
@@ -828,8 +826,8 @@ Example:
 							<h4 class="mb-1 font-semibold">Meeting Partner's Parents (Japanese)</h4>
 							<p class="text-sm">
 								A 14-day personalized path for Sofia who wants to make a good impression on her
-								Japanese boyfriend's parents. She's an intermediate beginner who needs to prepare for
-								a family dinner in 3 weeks.
+								Japanese boyfriend's parents. She's an intermediate beginner who needs to prepare
+								for a family dinner in 3 weeks.
 								<br /><br />
 								The path should focus on: polite self-introduction, complimenting food, asking about
 								family/hobbies, handling gift-giving etiquette, and graceful goodbyes. Special attention
@@ -843,7 +841,8 @@ Example:
 							<h4 class="mb-1 font-semibold">Business Trip (Spanish)</h4>
 							<p class="text-sm">
 								A 7-day intensive path for Marcus preparing for a business trip to Mexico City. He's
-								at beginner level with some Duolingo experience but has never had real conversations.
+								at beginner level with some Duolingo experience but has never had real
+								conversations.
 								<br /><br />
 								The path should focus on: professional greetings, small talk with colleagues, ordering
 								at business dinners, navigating the airport/hotel, and basic negotiation phrases. Special
@@ -1098,7 +1097,11 @@ Example:
 					<div class="mb-4 flex items-center justify-between">
 						<h3 class="card-title">Queued Learning Paths</h3>
 						<div class="card-actions">
-							<button class="btn btn-sm btn-outline" onclick={() => loadQueueData(true)} disabled={queueDataLoading}>
+							<button
+								class="btn btn-outline btn-sm"
+								onclick={() => loadQueueData(true)}
+								disabled={queueDataLoading}
+							>
 								{queueDataLoading ? 'Loading...' : 'Refresh'}
 							</button>
 						</div>
@@ -1109,7 +1112,7 @@ Example:
 						<div>
 							<div class="mb-2 flex items-center justify-between">
 								<h4 class="font-semibold">Pending ({pendingJobs.length})</h4>
-								<span class="badge badge-warning badge-sm">pending</span>
+								<span class="badge badge-sm badge-warning">pending</span>
 							</div>
 
 							{#if pendingJobs.length === 0}
@@ -1126,7 +1129,7 @@ Example:
 													</p>
 												</div>
 												<div class="text-right text-xs text-base-content/70">
-													<span class="badge badge-warning badge-sm mb-1">pending</span>
+													<span class="mb-1 badge badge-sm badge-warning">pending</span>
 												</div>
 											</div>
 										</li>
@@ -1139,13 +1142,13 @@ Example:
 						<div>
 							<div class="mb-2 flex items-center justify-between">
 								<h4 class="font-semibold">Processing ({processingJobs.length})</h4>
-								<span class="badge badge-info badge-sm">processing</span>
+								<span class="badge badge-sm badge-info">processing</span>
 							</div>
 
 							{#if processingJobs.length === 0}
 								<p class="text-sm text-base-content/70">No jobs currently processing.</p>
 							{:else}
-								<div class="alert alert-warning mb-2 py-2 text-sm">
+								<div class="mb-2 alert py-2 text-sm alert-warning">
 									These jobs may be stuck. Use "Reset Stuck Jobs" to retry.
 								</div>
 								<ul class="max-h-48 divide-y divide-base-300 overflow-y-auto">
@@ -1162,7 +1165,7 @@ Example:
 													{/if}
 												</div>
 												<div class="text-right text-xs text-base-content/70">
-													<span class="badge badge-info badge-sm mb-1">processing</span>
+													<span class="mb-1 badge badge-sm badge-info">processing</span>
 												</div>
 											</div>
 										</li>
@@ -1175,7 +1178,7 @@ Example:
 						<div>
 							<div class="mb-2 flex items-center justify-between">
 								<h4 class="font-semibold">Ready ({readyJobs.length})</h4>
-								<span class="badge badge-success badge-sm">ready</span>
+								<span class="badge badge-sm badge-success">ready</span>
 							</div>
 
 							{#if readyJobs.length === 0}
@@ -1190,7 +1193,7 @@ Example:
 													<p class="text-xs text-base-content/70">Day {job.dayIndex}</p>
 												</div>
 												<div class="text-right text-xs text-base-content/70">
-													<span class="badge badge-success badge-sm mb-1">ready</span>
+													<span class="mb-1 badge badge-sm badge-success">ready</span>
 												</div>
 											</div>
 										</li>
@@ -1203,7 +1206,7 @@ Example:
 						<div>
 							<div class="mb-2 flex items-center justify-between">
 								<h4 class="font-semibold">Failed ({failedJobs.length})</h4>
-								<span class="badge badge-error badge-sm">failed</span>
+								<span class="badge badge-sm badge-error">failed</span>
 							</div>
 
 							{#if failedJobs.length === 0}
@@ -1225,7 +1228,7 @@ Example:
 													{/if}
 												</div>
 												<div class="text-right text-xs text-base-content/70">
-													<span class="badge badge-error badge-sm mb-1">failed</span>
+													<span class="mb-1 badge badge-sm badge-error">failed</span>
 												</div>
 											</div>
 										</li>
@@ -1245,7 +1248,11 @@ Example:
 						<button class="btn btn-primary" onclick={processQueue} disabled={loading}>
 							{loading ? 'Processing...' : 'Process 5 Jobs'}
 						</button>
-						<button class="btn btn-outline" onclick={() => loadQueueData(true)} disabled={loading || queueDataLoading}>
+						<button
+							class="btn btn-outline"
+							onclick={() => loadQueueData(true)}
+							disabled={loading || queueDataLoading}
+						>
 							Refresh Queue
 						</button>
 						{#if processingJobs.length > 0}
