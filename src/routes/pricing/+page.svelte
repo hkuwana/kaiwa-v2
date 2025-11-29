@@ -514,15 +514,19 @@
 			</div>
 		</div>
 
-		<!-- Pricing Cards - Clean with Ghibli-inspired subtle backgrounds -->
+		<!-- Pricing Cards - Clean with Ghibli-inspired backgrounds -->
 		<div class="mx-auto mb-16 grid max-w-4xl grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:items-start">
-			<!-- Free Tier - Forest beginning -->
+			<!-- Free Tier - Pine Dawn -->
 			<div
 				class="relative flex flex-col overflow-hidden rounded-2xl border border-base-200 bg-base-100 p-6 sm:p-8"
 			>
-				<!-- Subtle Ghibli-inspired background - forest path beginning -->
+				<!-- Ghibli background - pine forest at dawn -->
 				<div
-					class="pointer-events-none absolute inset-0 bg-linear-to-b from-emerald-50/30 via-transparent to-transparent opacity-60 dark:from-emerald-900/10"
+					class="pointer-events-none absolute inset-0 bg-cover bg-center opacity-20 dark:opacity-10"
+					style="background-image: url('/pricing/pricing-pine-dawn.png')"
+				></div>
+				<div
+					class="pointer-events-none absolute inset-0 bg-linear-to-t from-base-100 via-base-100/80 to-transparent"
 				></div>
 				<div class="relative">
 					<h2 class="text-lg font-medium">{freeTier.name}</h2>
@@ -554,13 +558,17 @@
 				</div>
 			</div>
 
-			<!-- Premium Tier - Magical destination (recommended) -->
+			<!-- Premium Tier - Plum Sunset (recommended) -->
 			<div
 				class="relative flex flex-col overflow-hidden rounded-2xl border-2 border-primary bg-base-100 p-6 shadow-xl shadow-primary/10 sm:p-8 lg:-mt-2 lg:mb-2"
 			>
-				<!-- Subtle Ghibli-inspired background - magical sky/destination -->
+				<!-- Ghibli background - plum blossoms at sunset -->
 				<div
-					class="pointer-events-none absolute inset-0 bg-linear-to-b from-primary/10 via-transparent to-secondary/5 opacity-70"
+					class="pointer-events-none absolute inset-0 bg-cover bg-center opacity-25 dark:opacity-15"
+					style="background-image: url('/pricing/pricing-plum-sunset.png')"
+				></div>
+				<div
+					class="pointer-events-none absolute inset-0 bg-linear-to-t from-base-100 via-base-100/70 to-transparent"
 				></div>
 				<div class="relative">
 					<div class="flex items-center justify-between">
@@ -598,13 +606,17 @@
 				</div>
 			</div>
 
-			<!-- Plus Tier - Countryside journey -->
+			<!-- Plus Tier - Bamboo Day -->
 			<div
 				class="relative flex flex-col overflow-hidden rounded-2xl border border-base-200 bg-base-100 p-6 sm:p-8"
 			>
-				<!-- Subtle Ghibli-inspired background - countryside -->
+				<!-- Ghibli background - bamboo forest in daylight -->
 				<div
-					class="pointer-events-none absolute inset-0 bg-linear-to-b from-amber-50/30 via-transparent to-transparent opacity-60 dark:from-amber-900/10"
+					class="pointer-events-none absolute inset-0 bg-cover bg-center opacity-20 dark:opacity-10"
+					style="background-image: url('/pricing/pricing-bamboo-day.png')"
+				></div>
+				<div
+					class="pointer-events-none absolute inset-0 bg-linear-to-t from-base-100 via-base-100/80 to-transparent"
 				></div>
 				<div class="relative">
 					<h2 class="text-lg font-medium">{plusTier.name}</h2>
