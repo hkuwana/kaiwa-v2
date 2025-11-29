@@ -52,16 +52,6 @@
 	let selectedSpeaker = $state<string | null>(settingsStore.selectedSpeaker);
 	let selectedScenario = $state<Scenario | null>(scenarioStore.getSelectedScenario());
 
-	function handleLanguageChange(language: DataLanguage) {
-		selectedLanguage = language;
-		settingsStore.setLanguage(language);
-	}
-
-	function handleSpeakerChange(speakerId: string) {
-		selectedSpeaker = speakerId;
-		settingsStore.setSpeaker(speakerId);
-	}
-
 	function handleScenarioChange(scenario: Scenario) {
 		scenarioStore.setScenarioById(scenario.id);
 		selectedScenario = scenario;
