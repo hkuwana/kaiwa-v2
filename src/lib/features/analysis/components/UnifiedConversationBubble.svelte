@@ -100,7 +100,7 @@
 
 	// State for suggestion highlighting
 	let hoveredSuggestion = $state<string | null>(null);
-	let internalOpenSuggestions = $state(new SvelteSet<string>());
+	let internalOpenSuggestions = new SvelteSet<string>();
 
 	// Use external state if provided, otherwise use internal state
 	const openSuggestions = $derived(externalOpenSuggestions || internalOpenSuggestions);

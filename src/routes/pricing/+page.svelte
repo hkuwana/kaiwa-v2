@@ -378,7 +378,9 @@
 	<!-- Pricing JSON-LD structured data -->
 	{#if data.pricingJsonLd}
 		{#each data.pricingJsonLd as productSchema}
-			{@html `<script type="application/ld+json">${JSON.stringify(productSchema)}</script>`}
+			<script type="application/ld+json">
+				{@html JSON.stringify(productSchema)}
+			</script>
 		{/each}
 	{/if}
 </svelte:head>

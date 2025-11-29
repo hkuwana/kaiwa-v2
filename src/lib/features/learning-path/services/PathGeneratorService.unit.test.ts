@@ -97,6 +97,7 @@ describe('PathGeneratorService (unit)', () => {
 			content: JSON.stringify(syllabus)
 		});
 
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		mockCreatePathForUser.mockImplementation(async (input: any) => ({
 			...input,
 			id: input.id,
@@ -111,6 +112,7 @@ describe('PathGeneratorService (unit)', () => {
 				targetLanguageId: 'ja',
 				currentLanguageLevel: 'A2',
 				learningGoal: 'Connection'
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			} as any,
 			preset: {
 				name: 'Test Preset',
@@ -149,6 +151,7 @@ describe('PathGeneratorService (unit)', () => {
 				targetLanguageId: 'ja',
 				currentLanguageLevel: 'A2',
 				learningGoal: 'Connection'
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			} as any
 		});
 

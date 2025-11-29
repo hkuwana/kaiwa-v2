@@ -244,6 +244,7 @@
 					<!-- Japanese text with furigana display -->
 					<div class="text-base">
 						<div class="relative" style="line-height: 2em;">
+							<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 							{@html message.hiragana}
 						</div>
 					</div>
@@ -258,6 +259,7 @@
 					<div class="text-base">
 						<div class="relative" style="line-height: 2em;">
 							<!-- Safe: pinyinRuby contains sanitized pinyin ruby markup generated server-side -->
+							<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 							{@html message.otherScripts.pinyinRuby}
 						</div>
 					</div>
@@ -278,6 +280,7 @@
 						<div class="text-base">
 							{#if highlightedContent()}
 								<!-- Safe: highlightedContent() returns sanitized HTML for text highlighting -->
+								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 								{@html highlightedContent()}
 							{:else}
 								{message.content}
@@ -289,6 +292,7 @@
 					<div class="text-base">
 						{#if highlightedContent()}
 							<!-- Safe: highlightedContent() returns sanitized HTML for text highlighting -->
+							<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 							{@html highlightedContent()}
 						{:else}
 							{message.content}
@@ -312,6 +316,7 @@
 					/>
 				{:else if highlightedContent()}
 					<!-- Safe: highlightedContent() returns sanitized HTML for text highlighting -->
+					<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 					{@html highlightedContent()}
 				{:else}
 					{message.content}

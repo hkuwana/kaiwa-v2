@@ -64,7 +64,7 @@
 	<h2 class="mb-6 text-2xl font-bold">📚 Course Syllabus</h2>
 
 	<div class="space-y-8">
-		{#each weeks as week, weekIndex}
+		{#each weeks as week, weekIndex (weekIndex)}
 			<div class="week-section">
 				<h3 class="mb-4 flex items-center gap-2 text-xl font-semibold">
 					<span class="badge badge-primary">Week {weekIndex + 1}</span>
@@ -74,7 +74,7 @@
 				</h3>
 
 				<div class="grid gap-3 md:grid-cols-2">
-					{#each week as day}
+					{#each week as day (day.dayIndex)}
 						<div class="card bg-base-200 shadow-sm">
 							<div class="card-body p-4">
 								<div class="flex items-start justify-between gap-2">

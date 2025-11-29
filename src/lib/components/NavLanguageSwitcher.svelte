@@ -48,7 +48,7 @@
 	);
 
 	// Get the primary country for the selected language (first speaker's country)
-	const primaryCountryCode = $derived(
+	const _primaryCountryCode = $derived(
 		availableSpeakers.length > 0 ? availableSpeakers[0].bcp47Code?.split('-')[1] : null
 	);
 

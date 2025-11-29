@@ -184,6 +184,7 @@ async function main() {
 
 	// Test 1: Path from preferences
 	const test1Result = await testPathFromPreferences();
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	results.test1 = test1Result as any;
 
 	// Wait a bit between tests
@@ -191,6 +192,7 @@ async function main() {
 
 	// Test 2: Path from creator brief
 	const test2Result = await testPathFromCreatorBrief();
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	results.test2 = test2Result as any;
 
 	// Wait a bit

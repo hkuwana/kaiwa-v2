@@ -13,6 +13,7 @@ let _db: PostgresJsDatabase<typeof schema> | null = null;
 let _client: ReturnType<typeof postgres> | null = null;
 
 function initializeDb() {
+	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 	if (_db) return { db: _db, client: _client! };
 
 	// Database connection

@@ -151,6 +151,7 @@ if (!shouldRunIntegrationTests) {
 				// Should have a share slug
 				expect(template.shareSlug).toBeDefined();
 				expect(typeof template.shareSlug).toBe('string');
+				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 				expect(template.shareSlug!.length).toBeGreaterThan(0);
 
 				// Share slug should be URL-friendly (lowercase, hyphens, no special chars)
