@@ -282,6 +282,21 @@
 		currentCardIndex = index;
 	}
 
+	// Keyboard navigation for desktop users
+	function handleKeyDown(event: KeyboardEvent) {
+		// Only handle arrow keys
+		if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+
+		// Hide swipe hint on keyboard interaction
+		showSwipeHint = false;
+
+		if (event.key === 'ArrowLeft') {
+			previousCard(true);
+		} else if (event.key === 'ArrowRight') {
+			nextCard(true);
+		}
+	}
+
 	// Get transform for card based on position in stack
 	// Jony Ive approach: Show only top 3 cards with subtle depth
 	function getCardTransform(index: number): string {
@@ -343,6 +358,9 @@
 	}
 </script>
 
+<!-- Global keyboard listener for arrow key navigation -->
+<svelte:window onkeydown={handleKeyDown} />
+
 <div class="w-full">
 	<!-- Voice Mode Toggle - Top position -->
 	<div
@@ -393,7 +411,8 @@
 			class="text-center text-xs font-normal text-base-content/40"
 			in:fly={{ y: -5, duration: 400, delay: 200, easing: quintOut }}
 		>
-			Swipe to explore scenarios
+			<span class="sm:hidden">Swipe to explore scenarios</span>
+			<span class="hidden sm:inline">Use ← → arrow keys or swipe to explore</span>
 		</div>
 
 		<!-- Card Stack Container -->
