@@ -3,30 +3,53 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { env } from '$env/dynamic/private';
 import * as schema from './schema/index';
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 
 // Import all schemas
 export * from './schema/index';
 
-// Database connection
-const connectionString = env.DATABASE_URL;
-if (!connectionString) {
-	throw new Error('DATABASE_URL environment variable is required');
+// Lazy initialization of database connection
+let _db: PostgresJsDatabase<typeof schema> | null = null;
+let _client: ReturnType<typeof postgres> | null = null;
+
+function initializeDb() {
+	if (_db) return { db: _db, client: _client! };
+
+	// Database connection
+	const connectionString = env.DATABASE_URL;
+	if (!connectionString) {
+		throw new Error('DATABASE_URL environment variable is required');
+	}
+
+	// Create postgres client
+	// Note: Connection pool size - increase for better concurrency
+	// Development: 5 connections should be enough
+	// Production: Consider 10-20 depending on your database plan limits
+	const isProduction = env.NODE_ENV === 'production';
+	_client = postgres(connectionString, {
+		max: isProduction ? 10 : 5,
+		idle_timeout: 20, // Close idle connections after 20 seconds
+		connect_timeout: 30, // 30 second connection timeout
+		ssl: isProduction ? 'require' : false
+	});
+
+	// Create drizzle instance with schema
+	_db = drizzle(_client, { schema });
+
+	return { db: _db, client: _client };
 }
 
-// Create postgres client
-// Note: Connection pool size - increase for better concurrency
-// Development: 5 connections should be enough
-// Production: Consider 10-20 depending on your database plan limits
-const isProduction = env.NODE_ENV === 'production';
-const client = postgres(connectionString, {
-	max: isProduction ? 10 : 5,
-	idle_timeout: 20, // Close idle connections after 20 seconds
-	connect_timeout: 30, // 30 second connection timeout
-	ssl: isProduction ? 'require' : false
+// Export lazy getters
+export const db = new Proxy({} as PostgresJsDatabase<typeof schema>, {
+	get(_target, prop) {
+		const { db } = initializeDb();
+		return db[prop as keyof typeof db];
+	}
 });
 
-// Create drizzle instance with schema
-export const db = drizzle(client, { schema });
-
-// Export the client for direct access if needed
-export { client };
+export const client = new Proxy({} as ReturnType<typeof postgres>, {
+	get(_target, prop) {
+		const { client } = initializeDb();
+		return client[prop as keyof typeof client];
+	}
+});

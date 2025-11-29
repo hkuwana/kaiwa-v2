@@ -10,24 +10,47 @@ import { getAllStripePriceIds, getStripePriceId } from '../tiers';
 import { SvelteDate } from 'svelte/reactivity';
 import { logger } from '$lib/logger';
 
-// Environment variables
-const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;
-const STRIPE_WEBHOOK_SECRET = env.STRIPE_WEBHOOK_SECRET;
+// Lazy initialization of Stripe
+let _stripe: Stripe | null = null;
+let _STRIPE_SECRET_KEY: string | null = null;
+let _STRIPE_WEBHOOK_SECRET: string | null = null;
 
-// Stripe configuration is now imported from ../../data/stripe
+function initializeStripe(): { stripe: Stripe; STRIPE_SECRET_KEY: string; STRIPE_WEBHOOK_SECRET: string | null } {
+	if (_stripe && _STRIPE_SECRET_KEY !== null) {
+		return { stripe: _stripe, STRIPE_SECRET_KEY: _STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET: _STRIPE_WEBHOOK_SECRET };
+	}
+
+	// Environment variables
+	_STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;
+	_STRIPE_WEBHOOK_SECRET = env.STRIPE_WEBHOOK_SECRET;
+
+	if (!_STRIPE_SECRET_KEY) {
+		throw new Error('STRIPE_SECRET_KEY environment variable is required');
+	}
+
+	// Initialize Stripe
+	_stripe = new Stripe(_STRIPE_SECRET_KEY);
+
+	return { stripe: _stripe, STRIPE_SECRET_KEY: _STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET: _STRIPE_WEBHOOK_SECRET };
+}
+
+// Lazy getter for stripe instance
+const stripe = new Proxy({} as Stripe, {
+	get(_target, prop) {
+		const { stripe } = initializeStripe();
+		return stripe[prop as keyof Stripe];
+	}
+});
 
 // Legacy price IDs for backward compatibility
 export const STRIPE_PRICES_LEGACY = {
-	pro: env.STRIPE_PRO_PRICE_ID || 'price_pro_monthly',
-	premium: env.STRIPE_PREMIUM_PRICE_ID || 'price_premium_monthly'
+	get pro() {
+		return env.STRIPE_PRO_PRICE_ID || 'price_pro_monthly';
+	},
+	get premium() {
+		return env.STRIPE_PREMIUM_PRICE_ID || 'price_premium_monthly';
+	}
 } as const;
-
-if (!STRIPE_SECRET_KEY) {
-	throw new Error('STRIPE_SECRET_KEY environment variable is required');
-}
-
-// Initialize Stripe
-const stripe = new Stripe(STRIPE_SECRET_KEY);
 
 export class StripeService {
 	// Price ID helper methods are now imported from ../../data/stripe
@@ -878,6 +901,7 @@ export class StripeService {
 	 * Verify webhook signature
 	 */
 	verifyWebhook(body: string, signature: string): Stripe.Event {
+		const { stripe, STRIPE_WEBHOOK_SECRET } = initializeStripe();
 		if (!STRIPE_WEBHOOK_SECRET) {
 			throw new Error('STRIPE_WEBHOOK_SECRET not configured');
 		}
