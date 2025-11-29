@@ -32,6 +32,8 @@ import {
 	normalizeTranscript,
 	estimateWordDuration
 } from '$lib/services/realtime-transcript.helper.service';
+import { resolveAudioSpeedFromUserPreference } from '$lib/services/instructions/parameters';
+import { getLearnerCefrLevel } from '$lib/utils/cefr';
 
 type SessionData = { client_secret: { value: string; expires_at: number }; session_id?: string };
 
@@ -1169,9 +1171,23 @@ export class RealtimeOpenAIStore {
 			const transcriptionLanguage = options?.transcriptionLanguage || prefLang || 'en';
 
 			if (!options?.skipInitialSessionUpdate) {
+				// 🎚️ Resolve speech speed from user preferences
+				const preferences = userPreferencesStore.getPreferences();
+				const userSpeechSpeed = preferences.speechSpeed || 'slow';
+				const cefrLevel = getLearnerCefrLevel(preferences);
+				const languageCode = options?.conversationContext?.languageCode || preferences.targetLanguageId;
+				const audioSpeed = resolveAudioSpeedFromUserPreference(userSpeechSpeed, cefrLevel, languageCode);
+
+				logger.info('🎚️ Initializing audio speed:', {
+					userPreference: userSpeechSpeed,
+					cefrLevel,
+					languageCode,
+					resolvedSpeed: audioSpeed
+				});
+
 				let initialAudioConfig: RealtimeAudioConfig | undefined = options?.voice
-					? { output: { voice: options.voice } }
-					: undefined;
+					? { output: { voice: options.voice, speed: audioSpeed } }
+					: { output: { speed: audioSpeed } };
 
 				const audioCapture = captureOutputAudioConfig({
 					currentFormat: this.outputAudioFormat,
@@ -1292,6 +1308,62 @@ export class RealtimeOpenAIStore {
 		this.lastSessionUpdateInstructions = null;
 		this.pendingCommits = [];
 		this.lastSessionUpdateTime = 0;
+	}
+
+	/**
+	 * Update speech speed during an active conversation
+	 * Sends a session.update event to change the audio playback speed
+	 *
+	 * @param speed - SpeakingSpeed value or numeric speed (0.5 - 2.0)
+	 * @param options - Optional configuration
+	 */
+	async updateSpeechSpeed(
+		speed: 'very_slow' | 'slow' | 'normal' | 'fast' | 'native' | number,
+		options?: { skipUserPreferenceUpdate?: boolean }
+	): Promise<void> {
+		if (!this.connection) {
+			logger.warn('⚠️ Cannot update speech speed: no active connection');
+			return;
+		}
+
+		// Convert string speed to numeric if needed
+		let numericSpeed: number;
+		if (typeof speed === 'number') {
+			numericSpeed = Math.max(0.5, Math.min(2.0, speed)); // Clamp to OpenAI range
+		} else {
+			const { mapSpeakingSpeedToAudioSpeed } = await import('$lib/services/instructions/parameters');
+			numericSpeed = mapSpeakingSpeedToAudioSpeed(speed);
+		}
+
+		logger.info('🎚️ Updating speech speed:', {
+			requestedSpeed: speed,
+			numericSpeed
+		});
+
+		// Save to user preferences if not skipped
+		if (!options?.skipUserPreferenceUpdate && typeof speed === 'string') {
+			await userPreferencesStore.updatePreferences({
+				speechSpeed: speed as 'very_slow' | 'slow' | 'normal' | 'fast' | 'native'
+			});
+			logger.info('💾 Saved speech speed preference:', speed);
+		}
+
+		// Send session.update event to OpenAI
+		const sessionUpdateEvent = {
+			type: 'session.update' as const,
+			session: {
+				audio: {
+					output: {
+						speed: numericSpeed
+					}
+				}
+			}
+		};
+
+		this.logEvent('client', 'session.update', sessionUpdateEvent);
+		sendEventViaSession(this.connection, sessionUpdateEvent);
+
+		logger.info('✅ Speech speed update sent to OpenAI');
 	}
 
 	sendResponse(): void {

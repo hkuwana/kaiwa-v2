@@ -1049,13 +1049,29 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
   - Japanese: "It's too fast when she was doing Japanese"
 - **Why High**: Speed transition kills confidence, especially for elderly use case
 - **Related to**: Issue #23 (Beginner → Intermediate transition)
-- **Status**: Open
+- **Status**: ✅ **IMPLEMENTED** (Nov 29, 2025)
 - **Priority**: HIGH - Speed control is critical for accessibility
 
-**Fix Needed**:
-- Gradual speed transitions (don't jump from slow to native speed)
-- User-controlled speed setting per session
-- "Old people need: Say it 3 times" feature - repetition for retention
+**Implementation**:
+- ✅ Speech speed now applied from user preferences on session start
+- ✅ 5 speed levels map to OpenAI Realtime API speed parameter (0.5-2.0):
+  - **very_slow**: 0.6x (40% slower - for elderly/accessibility)
+  - **slow**: 0.8x (20% slower - default for learners)
+  - **normal**: 1.0x (standard speed)
+  - **fast**: 1.2x (20% faster - advanced learners)
+  - **native**: 1.4x (40% faster - near-native speed)
+- ✅ Speed setting in Advanced Audio Options → Speech Speed dropdown
+- ✅ `updateSpeechSpeed()` method available for dynamic changes during conversation
+- ✅ Speed preference persists across sessions
+
+**Files Modified**:
+- `src/lib/services/instructions/parameters.ts`: Added speed mapping functions
+- `src/lib/stores/realtime-openai.store.svelte.ts`: Added speed to session config + updateSpeechSpeed method
+- Uses existing `SpeechSpeedSelector` component in `AdvancedAudioOptions`
+
+**Future Enhancement**:
+- Add real-time speed update when user changes preference during active conversation
+- "Repeat 3 times" feature for elderly learners (separate enhancement)
 
 **25. Input Mode Confusion (Walkie Talkie vs Manual Control)** 🎙️ **TERMINOLOGY**
 
