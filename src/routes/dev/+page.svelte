@@ -59,7 +59,7 @@
 		{
 			category: '🧪 Core Testing & Analysis',
 			name: 'Usage Analytics',
-			href: '/dev/usage',
+			href: '/dev/api-usage',
 			desc: 'Monitor user behavior and feature usage patterns'
 		},
 		{
@@ -217,12 +217,6 @@
 		},
 
 		// Development & Planning
-		{
-			category: '🛠️ Development & Planning',
-			name: 'Data Migration',
-			href: '/dev/migration',
-			desc: 'Test database migration scripts and data integrity'
-		},
 		{
 			category: '🛠️ Development & Planning',
 			name: 'Component Lifecycle',
