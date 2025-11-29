@@ -3,12 +3,13 @@
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { SvelteDate, SvelteSet } from 'svelte/reactivity';
+	import FlagIcon from './FlagIcon.svelte';
 
 	// Sample conversation data showcasing different languages and scenarios
 	const conversations = [
 		{
 			language: 'Japanese',
-			flag: '🇯🇵',
+			countryCode: 'jp',
 			messages: [
 				{
 					type: 'user',
@@ -29,7 +30,7 @@
 		},
 		{
 			language: 'Spanish',
-			flag: '🇪🇸',
+			countryCode: 'es',
 			messages: [
 				{
 					type: 'user',
@@ -46,7 +47,7 @@
 		},
 		{
 			language: 'French',
-			flag: '🇫🇷',
+			countryCode: 'fr',
 			messages: [
 				{
 					type: 'user',
@@ -172,7 +173,7 @@
 		>
 			<!-- Language flag and indicator -->
 			<div class="mb-2 flex items-center gap-2 text-sm font-medium opacity-80">
-				<span class="text-lg">{bubble.conversation.flag}</span>
+				<FlagIcon countryCode={bubble.conversation.countryCode} size="h-5 w-5" />
 				<span class="badge badge-sm text-xs badge-primary">{bubble.conversation.language}</span>
 			</div>
 

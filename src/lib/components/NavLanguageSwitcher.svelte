@@ -2,7 +2,11 @@
 	// 🌍 Navigation Language Switcher Component
 	// Responsive language and speaker selector for navbar
 
-	import { languages as allLanguages } from '$lib/data/languages';
+	import {
+		languages as allLanguages,
+		getCountryCodeFromBcp47,
+		type LanguageWithCountry
+	} from '$lib/data/languages';
 	import {
 		getSpeakersByLanguage,
 		getDefaultSpeakerForLanguage,
@@ -15,7 +19,7 @@
 		getSelectedLanguageIdFromCookie,
 		getSelectedSpeakerIdFromCookie
 	} from '$lib/utils/cookies';
-	import type { Language as DataLanguage } from '$lib/data/languages';
+	import FlagIcon from './FlagIcon.svelte';
 
 	// Available languages
 	const languages = $derived(allLanguages.filter((l) => l.isSupported));
@@ -48,24 +52,28 @@
 		availableSpeakers.length > 0 ? availableSpeakers[0].bcp47Code?.split('-')[1] : null
 	);
 
-	// Determine which emoji to show: country-specific flag if speaker is from different country,
-	// otherwise use language flag (to avoid regional dialect emojis like 🏯, 🐻, etc.)
-	const displayEmoji = $derived.by(() => {
+	// Determine which country code to show for the flag icon
+	// Uses speaker's country from BCP47 code (e.g., 'en-GB' -> 'gb')
+	const displayCountryCode = $derived.by(() => {
+		const langWithCountry = settingsStore.selectedLanguage as LanguageWithCountry | null;
+
 		if (!currentSpeaker) {
-			return settingsStore.selectedLanguage?.flag || '🌍';
+			return langWithCountry?.countryCode || 'xx';
 		}
 
-		const speakerCountry = currentSpeaker.bcp47Code?.split('-')[1];
-		// Only show speaker emoji if it's a different country; otherwise use language flag
-		if (speakerCountry && primaryCountryCode && speakerCountry !== primaryCountryCode) {
-			return currentSpeaker.speakerEmoji || settingsStore.selectedLanguage?.flag || '🌍';
+		// Extract country code from speaker's BCP47 code
+		const speakerCountry = getCountryCodeFromBcp47(currentSpeaker.bcp47Code);
+
+		// If speaker has a valid country code, use it (e.g., 'gb' for British English)
+		if (speakerCountry) {
+			return speakerCountry;
 		}
 
-		// Same country = use language flag
-		return settingsStore.selectedLanguage?.flag || '🌍';
+		// Fallback to language's default country code
+		return langWithCountry?.countryCode || 'xx';
 	});
 
-	let viewingSpeakersFor = $state<DataLanguage | null>(null);
+	let viewingSpeakersFor = $state<LanguageWithCountry | null>(null);
 	let modalRef: HTMLDialogElement;
 	let languageListRef: HTMLDivElement | null = null;
 	let searchQuery = $state('');
@@ -143,7 +151,7 @@
 		}
 	});
 
-	function selectLanguage(language: DataLanguage) {
+	function selectLanguage(language: LanguageWithCountry) {
 		setSelectedLanguageIdCookie(language.id);
 		settingsStore.selectedLanguage = language;
 
@@ -200,7 +208,7 @@
 	aria-haspopup="dialog"
 	title="Change language and speaker"
 >
-	<span class="text-lg">{displayEmoji}</span>
+	<FlagIcon countryCode={displayCountryCode} size="h-6 w-6" />
 </button>
 
 <!-- Modal dialog -->
@@ -306,7 +314,7 @@
 							class:bg-primary={settingsStore.selectedLanguage?.code === language.code}
 							class:text-primary-content={settingsStore.selectedLanguage?.code === language.code}
 						>
-							<span class="shrink-0 text-xl sm:text-3xl">{language.flag || '🌍'}</span>
+							<FlagIcon countryCode={language.countryCode} size="h-6 w-6 sm:h-8 sm:w-8" />
 							<div class="flex min-w-0 flex-1 flex-col">
 								<span class="text-sm font-semibold sm:text-base">{language.name}</span>
 								<span class="text-xs opacity-70 sm:text-sm">{language.nativeName}</span>

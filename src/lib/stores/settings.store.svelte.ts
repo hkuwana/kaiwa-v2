@@ -2,8 +2,7 @@ import { logger } from '$lib/logger';
 // src/lib/stores/settings.store.svelte.ts
 // Enhanced settings store with persistent storage using cookies + localStorage
 
-import type { Language } from '$lib/server/db/types';
-import { languages as allLanguages } from '$lib/data/languages';
+import { languages as allLanguages, type LanguageWithCountry } from '$lib/data/languages';
 import { browser } from '$app/environment';
 import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
 
@@ -72,7 +71,7 @@ export const cookieUtils = {
 
 export class SettingsStore {
 	// User's selected language for conversation practice (full language object)
-	selectedLanguage = $state<Language | null>(null);
+	selectedLanguage = $state<LanguageWithCountry | null>(null);
 
 	// User's selected AI speaker/voice
 	selectedSpeaker = $state('ballad');
@@ -179,7 +178,7 @@ export class SettingsStore {
 	};
 
 	// Persist language to both localStorage and cookies
-	private persistLanguage = (language: Language) => {
+	private persistLanguage = (language: LanguageWithCountry) => {
 		if (!browser) return;
 
 		try {
@@ -230,7 +229,7 @@ export class SettingsStore {
 	};
 
 	// Update selected language by object
-	setLanguage = (language: Language) => {
+	setLanguage = (language: LanguageWithCountry) => {
 		const languageExists = allLanguages.some((lang) => lang.code === language.code);
 
 		if (languageExists) {
