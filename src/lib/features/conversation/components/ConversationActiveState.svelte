@@ -4,7 +4,8 @@
 	import AudioVisualizer from '$lib/features/audio/components/AudioVisualizer.svelte';
 	import MessageBubble from '$lib/features/conversation/components/MessageBubble.svelte';
 	import ConversationFab from '$lib/features/conversation/components/ConversationFab.svelte';
-	import type { Message, Language, UserPreferences } from '$lib/server/db/types';
+	import ConversationModeSwitcher from '$lib/components/ConversationModeSwitcher.svelte';
+	import type { Message, Language, UserPreferences, AudioInputMode } from '$lib/server/db/types';
 	import type { Speaker } from '$lib/types';
 	import { translationStore } from '$lib/stores/translation.store.svelte';
 	import { userPreferencesStore } from '$lib/stores/user-preferences.store.svelte';
@@ -13,6 +14,7 @@
 	import { SvelteMap } from 'svelte/reactivity';
 	import { shouldTriggerOnboarding } from '$lib/services/onboarding-manager.service';
 	import { autoScrollToBottom } from '$lib/actions/auto-scroll-to-bottom';
+	import { setAudioInputModeCookie } from '$lib/utils/cookies';
 
 	interface Props {
 		status: string;
@@ -181,6 +183,17 @@
 			conversationStore.pauseStreaming();
 		}
 	});
+
+	// Handle mode change from the mode switcher
+	function handleModeChange(newMode: AudioInputMode) {
+		// Update the conversation store's audio input mode (this also updates OpenAI session)
+		conversationStore.updateAudioInputMode(newMode);
+		// Save to cookie for persistence
+		setAudioInputModeCookie(newMode);
+		// Update user preferences for cross-device sync
+		userPreferencesStore.updatePreferences({ audioInputMode: newMode });
+		console.log('🎙️ Mode switched to:', newMode === 'vad' ? 'Casual Chat' : 'Walkie Talkie');
+	}
 </script>
 
 <div
@@ -188,20 +201,27 @@
 	in:fly={{ y: 20, duration: 400 }}
 >
 	<div class="container mx-auto box-border flex h-[100dvh] max-w-4xl flex-col px-4 py-4">
-		<div class="mb-4 flex items-center justify-center">
+		<!-- Mode Switcher - Jony Ive inspired, prominent at top -->
+		<div class="mb-4 flex flex-col items-center gap-3">
+			<ConversationModeSwitcher
+				mode={audioInputMode}
+				onModeChange={handleModeChange}
+			/>
+
+			<!-- Secondary: Transcript toggle (smaller, less prominent) -->
 			<button
 				type="button"
-				class={`btn btn-sm ${conversationMode ? 'btn-primary' : 'btn-secondary'}`}
-				aria-pressed={conversationMode}
+				class="btn btn-ghost btn-xs opacity-60 hover:opacity-100 transition-opacity"
+				aria-pressed={!conversationMode}
 				onclick={() => {
 					conversationMode = !conversationMode;
 				}}
 			>
 				{#if conversationMode}
-					<span class="mr-1 icon-[mdi--eye] h-4 w-4"></span>
+					<span class="mr-1 icon-[mdi--eye] h-3 w-3"></span>
 					Show Transcript
 				{:else}
-					<span class="mr-1 icon-[mdi--eye-off] h-4 w-4"></span>
+					<span class="mr-1 icon-[mdi--eye-off] h-3 w-3"></span>
 					Focus Mode
 				{/if}
 			</button>
