@@ -235,36 +235,43 @@
 			<StageIndicator />
 		</div>
 
-		<!-- Compact Header - Stacked vertically -->
+		<!-- Warm Header - Stacked vertically -->
 		<div class="mb-6 text-center">
-			<div class="text-lg font-semibold sm:text-xl">
-				{#if user.id !== 'guest'}
+			{#if user.id !== 'guest'}
+				<!-- Logged in users: Warm welcome -->
+				<div class="text-base text-base-content/70 sm:text-lg">Welcome back,</div>
+				<div class="text-lg font-semibold sm:text-xl">
 					{user ? user.displayName : 'Dev'}
-				{:else if useDynamicLanguage}
-					<DynamicLanguageText
-						bind:selectedLanguage
-						onLanguageSelect={handleDynamicLanguageSelect}
-						variant={dynamicVariant}
-						animationInterval={2800}
-						interactive={false}
-					/>
-				{:else}
-					{headlineText}
-				{/if}
-			</div>
+				</div>
 
-			<!-- Usage info directly underneath name -->
-			{#if user.id !== 'guest' && usageStore.tier && usageStore.usage}
-				<a
-					href="/profile"
-					class="mt-1 inline-flex items-center gap-1.5 text-sm text-base-content/60 hover:text-primary transition-colors"
-					title="View usage details"
-				>
-					<span class="icon-[mdi--clock-outline] h-4 w-4"></span>
-					<span>{Math.floor(usageStore.secondsRemaining() / 60)} minutes remaining</span>
-					<span class="opacity-50">·</span>
-					<span class="capitalize">{usageStore.tier.name} Plan</span>
-				</a>
+				<!-- Usage info directly underneath name -->
+				{#if usageStore.tier && usageStore.usage}
+					<a
+						href="/profile"
+						class="mt-1 inline-flex items-center gap-1.5 text-sm text-base-content/60 hover:text-primary transition-colors"
+						title="View usage details"
+					>
+						<span class="icon-[mdi--clock-outline] h-4 w-4"></span>
+						<span>{Math.floor(usageStore.secondsRemaining() / 60)} minutes remaining</span>
+						<span class="opacity-50">·</span>
+						<span class="capitalize">{usageStore.tier.name} Plan</span>
+					</a>
+				{/if}
+			{:else}
+				<!-- Guest users: Dynamic headline -->
+				<div class="text-lg font-semibold sm:text-2xl">
+					{#if useDynamicLanguage}
+						<DynamicLanguageText
+							bind:selectedLanguage
+							onLanguageSelect={handleDynamicLanguageSelect}
+							variant={dynamicVariant}
+							animationInterval={2800}
+							interactive={false}
+						/>
+					{:else}
+						{headlineText}
+					{/if}
+				</div>
 			{/if}
 		</div>
 
