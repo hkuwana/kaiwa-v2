@@ -236,7 +236,7 @@
 		</div>
 
 		<!-- Warm Header - Stacked vertically -->
-		<div class="mb-4 text-center sm:mb-6">
+		<div class="mb-2 text-center sm:mb-6">
 			{#if user.id !== 'guest'}
 				<!-- Logged in users: Warm welcome -->
 				<div class="text-base text-base-content/70 sm:text-lg">Welcome back,</div>

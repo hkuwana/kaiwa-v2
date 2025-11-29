@@ -360,12 +360,12 @@
 					class:opacity-50={selectedAudioMode === 'vad'}
 					class:scale-105={selectedAudioMode === 'ptt'}
 				>
-					<span class="icon-[mdi--walkie-talkie] h-4.5 w-4.5"></span>
+					<span class="h-4.5 w-4.5 icon-[mdi--walkie-talkie]"></span>
 					<span class:hidden={selectedAudioMode === 'vad'} class="sm:inline">Walkie Talkie</span>
 				</span>
 				<input
 					type="checkbox"
-					class="toggle toggle-sm toggle-primary"
+					class="toggle toggle-primary toggle-sm"
 					checked={selectedAudioMode === 'vad'}
 					onchange={() => handleAudioModeChange(selectedAudioMode === 'vad' ? 'ptt' : 'vad')}
 					aria-label="Switch between Walkie Talkie and Casual Chat modes"
@@ -388,14 +388,6 @@
 
 	<!-- Swipeable Card Stack Section -->
 	<div class="space-y-2 sm:space-y-3">
-		<!-- Swipe hint - Above cards -->
-		<div
-			class="text-center text-xs font-normal text-base-content/40"
-			in:fly={{ y: -5, duration: 400, delay: 200, easing: quintOut }}
-		>
-			Swipe to explore scenarios
-		</div>
-
 		<!-- Card Stack Container -->
 		<div class="relative mx-auto w-full max-w-2xl px-4">
 			<!-- Animated Swipe Hints - Show initially then fade out -->
@@ -404,7 +396,7 @@
 				<div
 					class="swipe-hint-left pointer-events-none absolute top-1/2 left-0 z-50 -translate-y-1/2"
 				>
-					<div class="flex flex-col items-center gap-1 opacity-60">
+					<div class="flex flex-col items-center gap-1">
 						<span class="animate-swipe-left icon-[mdi--chevron-left] h-10 w-10 text-primary"></span>
 						<span class="text-xs font-medium text-primary">Swipe</span>
 					</div>
@@ -414,7 +406,7 @@
 				<div
 					class="swipe-hint-right pointer-events-none absolute top-1/2 right-0 z-50 -translate-y-1/2"
 				>
-					<div class="flex flex-col items-center gap-1 opacity-60">
+					<div class="flex flex-col items-center gap-1">
 						<span class="animate-swipe-right icon-[mdi--chevron-right] h-10 w-10 text-primary"
 						></span>
 						<span class="text-xs font-medium text-primary">Swipe</span>
