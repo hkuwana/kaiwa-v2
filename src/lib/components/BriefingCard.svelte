@@ -221,7 +221,7 @@
 					<div class="relative z-10 mt-4 sm:mt-6">
 						<button
 							disabled={isLoading}
-							class="btn btn-block shadow-lg transition-all duration-200 btn-lg btn-primary hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-75"
+							class="btn btn-block text-success-content shadow-lg transition-all duration-200 btn-lg btn-success hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-75"
 							onclick={() => onStartConversation?.(selectedScenario)}
 						>
 							{#if isLoading}

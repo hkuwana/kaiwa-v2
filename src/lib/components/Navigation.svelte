@@ -19,13 +19,6 @@
 				<li><a href="/scenarios" class="">Scenarios</a></li>
 				<li><a href="/pricing" class="">Pricing</a></li>
 				<li><a href="/privacy" class="">Privacy</a></li>
-				<li class="menu-title">Settings</li>
-				<li>
-					<div class="flex items-center justify-between">
-						<span>Light/Dark Mode</span>
-						<ThemeSwitcher />
-					</div>
-				</li>
 
 				{#if dev}
 					<li class="menu-title">Dev</li>
