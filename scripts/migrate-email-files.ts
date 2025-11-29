@@ -181,7 +181,7 @@ async function main() {
 	let movedCount = 0;
 	let skippedCount = 0;
 
-	migrations.forEach(({ from, to, type }) => {
+	migrations.forEach(({ from, to, _type }) => {
 		if (existsSync(from)) {
 			try {
 				// Create parent directory if needed

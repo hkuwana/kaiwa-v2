@@ -43,6 +43,7 @@ export function getSchemaVersionFromCookies(cookies: {
  * Set current schema version in response cookies
  */
 export function setSchemaVersionCookie(cookies: {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	set: (name: string, value: string, options?: any) => void;
 }): void {
 	cookies.set(SCHEMA_VERSION_COOKIE_NAME, CURRENT_SCHEMA_VERSION.toString(), {
@@ -59,6 +60,7 @@ export function setSchemaVersionCookie(cookies: {
  */
 export function clearAllCookies(cookies: {
 	getAll: () => Array<{ name: string }>;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	delete: (name: string, options?: any) => void;
 }): void {
 	const allCookies = cookies.getAll();

@@ -39,7 +39,7 @@
 	const featuredScenarios = scenariosData.slice(0, featuredScenariosCount);
 	// Card stack state
 	let currentCardIndex = $state(0);
-	let showAdvancedOptions = $state(false);
+	let _showAdvancedOptions = $state(false);
 	let showSwipeHint = $state(true); // Show hint animation initially
 	let isStartingConversation = $state(false); // Track loading state
 
@@ -278,7 +278,7 @@
 		}
 	}
 
-	function goToScenario(index: number) {
+	function _goToScenario(index: number) {
 		currentCardIndex = index;
 	}
 

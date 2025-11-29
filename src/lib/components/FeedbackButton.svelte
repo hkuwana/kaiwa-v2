@@ -6,7 +6,7 @@
 	let feedbackType = $state<'bug' | 'suggestion' | 'debug'>('bug');
 	let message = $state('');
 	let isSubmitting = $state(false);
-	let showSurvey = $state(false);
+	let _showSurvey = $state(false);
 
 	const feedbackTypes = [
 		{ value: 'bug', label: '🐛 Bug Report', description: 'Something is broken' },

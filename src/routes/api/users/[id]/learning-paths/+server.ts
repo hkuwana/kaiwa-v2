@@ -105,6 +105,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 				totalCompleted: completedPaths.length
 			}
 		});
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (error: any) {
 		console.error('[API] GET user learning paths error:', error);
 		return json({ success: false, error: error.message }, { status: 500 });

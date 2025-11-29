@@ -16,6 +16,7 @@ export const GET: RequestHandler = async ({ params }) => {
 			jobCount: jobs.length,
 			jobs
 		});
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (error: any) {
 		return json({ success: false, error: error.message }, { status: 500 });
 	}

@@ -49,6 +49,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			path,
 			queueJobsCreated: queueJobs.length
 		});
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (error: any) {
 		return json({ success: false, error: error.message }, { status: 500 });
 	}

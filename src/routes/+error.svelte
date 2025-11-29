@@ -3,6 +3,8 @@
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
 
+	/* eslint-disable svelte/valid-prop-names-in-kit-pages */
+	/* eslint-disable @typescript-eslint/no-explicit-any */
 	let { error }: { error: any } = $props();
 
 	// Check if error is related to schema/cookie issues

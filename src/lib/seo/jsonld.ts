@@ -118,7 +118,7 @@ export function createBlogIndexJsonLd(baseUrl: string): JsonLdObject {
  */
 export function createFaqPageJsonLd(
 	faqs: Array<{ question: string; answer: string }>,
-	baseUrl: string
+	_baseUrl: string
 ): JsonLdObject {
 	return {
 		'@context': 'https://schema.org',

@@ -10,6 +10,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		const { userLevel, userGoal, targetLanguage, duration } = body;
 
 		// Create mock user preferences for testing
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const mockPreferences: any = {
 			targetLanguageId: targetLanguage || 'ja',
 			currentLanguageLevel: userLevel || 'A2',
@@ -39,6 +40,7 @@ export const POST: RequestHandler = async ({ request }) => {
 				userPromptLength: promptPayload.userPrompt.length
 			}
 		});
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (error: any) {
 		return json({ success: false, error: error.message }, { status: 500 });
 	}

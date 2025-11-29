@@ -62,15 +62,15 @@
 	// Analysis pipeline state
 	let analysisStore = $state<AnalysisStoreType | null>(null);
 	let modules = $state<AnalysisModuleDefinition[]>([]);
-	let selectedModuleIds = $state(new SvelteSet<string>());
+	let selectedModuleIds = new SvelteSet<string>();
 	let isLoading = $state(false);
 	let lastRun = $state<AnalysisRunResult | null>(null);
 	let extractedSuggestions = $state<AnalysisSuggestion[]>([]);
 	let errorMessage = $state<string | null>(null);
 	let showRawAnalysis = $state(false);
-	let showFindingsJson = $state(false);
+	let _showFindingsJson = $state(false);
 	let usageInfo = $state<UsageInfo | null>(null);
-	let showUsageDetails = $state(false);
+	let _showUsageDetails = $state(false);
 	let isLoadingExistingAnalysis = $state(false);
 	let hasExistingAnalysis = $state(false);
 	let analysisDate = $state<Date | null>(null);
@@ -219,7 +219,7 @@
 				analysisDate = result.analysisDate ? new Date(result.analysisDate) : null;
 				console.log('✅ Loaded existing analysis from storage');
 			}
-		} catch (error) {
+		} catch (_error) {
 			// No existing analysis - this is fine, not an error
 			console.log('No existing analysis found, ready for new analysis');
 		} finally {

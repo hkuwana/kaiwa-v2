@@ -61,7 +61,10 @@
 					{#if canStartToday && onStartLesson}
 						<button
 							class="btn mt-2 w-full btn-sm btn-primary"
-							onclick={() => onStartLesson(path.currentDay!.scenarioId!)}
+							onclick={() => {
+								// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+								onStartLesson(path.currentDay!.scenarioId!);
+							}}
 						>
 							Start Today's Lesson
 						</button>
@@ -125,7 +128,10 @@
 						{#if canStartToday && onStartLesson}
 							<button
 								class="btn btn-primary"
-								onclick={() => onStartLesson(path.currentDay!.scenarioId!)}
+								onclick={() => {
+									// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+									onStartLesson(path.currentDay!.scenarioId!);
+								}}
 							>
 								Start Lesson
 							</button>

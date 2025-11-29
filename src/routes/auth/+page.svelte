@@ -11,7 +11,7 @@
 	// Get query parameters from server data
 	const from = $derived(data.from);
 	const newsletter = $derived(data.newsletter);
-	const emailAuthEnabled = dev;
+	const _emailAuthEnabled = dev;
 
 	interface PendingAssessment {
 		targetLanguageId?: string;
@@ -21,11 +21,11 @@
 	}
 
 	let isLogin = $state(userManager.isLoggedIn ? true : false);
-	let email = $state('');
-	let password = $state('');
+	let _email = $state('');
+	let _password = $state('');
 	let error = $state('');
 	let pendingAssessment = $state<PendingAssessment | null>(null);
-	let agreedToTerms = $state(false);
+	let _agreedToTerms = $state(false);
 	let showEmailForm = $state(false);
 
 	onMount(() => {
