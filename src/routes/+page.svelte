@@ -260,40 +260,55 @@
 		</div>
 
 		<!-- Swipeable Card Stack -->
-		<div class="mb-8">
+		<div class="mb-6">
 			<SwipeableCardStack
 				onStartConversation={handleStartConversation}
 				onChooseLanguage={handleOpenLanguageSwitcher}
 			/>
 		</div>
 
-		<!-- Monthly Usage Display - Only show for logged in users -->
+		<!-- Monthly Usage Display - Only show for logged in users, compact below cards -->
 		{#if user.id !== 'guest'}
 			<div class="mx-auto mb-6 max-w-2xl">
-				{#if usageStore.tier && usageStore.usage}
-					<MonthlyUsageDisplay
-						remainingSeconds={usageStore.secondsRemaining()}
-						monthlySeconds={usageStore.tier.monthlySeconds}
-						usedSeconds={usageStore.usage.secondsUsed || 0}
-						bankedSeconds={usageStore.usage.bankedSeconds || 0}
-						tierName={usageStore.tier.name}
-						showUpgradeOption={userManager.effectiveTier === 'free'}
-						isLoading={usageStore.loading}
-						conversationsUsed={usageStore.usage.conversationsUsed || 0}
-						realtimeSessionsUsed={usageStore.usage.realtimeSessionsUsed || 0}
-						analysesUsed={usageStore.usage.analysesUsed || 0}
-						overageSeconds={usageStore.usage.overageSeconds || 0}
-					/>
-				{:else}
-					<MonthlyUsageDisplay
-						remainingSeconds={0}
-						monthlySeconds={0}
-						usedSeconds={0}
-						tierName="Free"
-						showUpgradeOption={true}
-						isLoading={usageStore.loading}
-					/>
-				{/if}
+				<details class="collapse collapse-arrow bg-base-200/50 rounded-box">
+					<summary class="collapse-title text-sm font-medium">
+						<span class="flex items-center gap-2">
+							<span class="icon-[mdi--clock-outline] h-4 w-4"></span>
+							<span>Usage Stats</span>
+							{#if usageStore.tier && usageStore.usage}
+								<span class="badge badge-sm badge-ghost">
+									{Math.floor(usageStore.secondsRemaining() / 60)}min remaining
+								</span>
+							{/if}
+						</span>
+					</summary>
+					<div class="collapse-content">
+						{#if usageStore.tier && usageStore.usage}
+							<MonthlyUsageDisplay
+								remainingSeconds={usageStore.secondsRemaining()}
+								monthlySeconds={usageStore.tier.monthlySeconds}
+								usedSeconds={usageStore.usage.secondsUsed || 0}
+								bankedSeconds={usageStore.usage.bankedSeconds || 0}
+								tierName={usageStore.tier.name}
+								showUpgradeOption={userManager.effectiveTier === 'free'}
+								isLoading={usageStore.loading}
+								conversationsUsed={usageStore.usage.conversationsUsed || 0}
+								realtimeSessionsUsed={usageStore.usage.realtimeSessionsUsed || 0}
+								analysesUsed={usageStore.usage.analysesUsed || 0}
+								overageSeconds={usageStore.usage.overageSeconds || 0}
+							/>
+						{:else}
+							<MonthlyUsageDisplay
+								remainingSeconds={0}
+								monthlySeconds={0}
+								usedSeconds={0}
+								tierName="Free"
+								showUpgradeOption={true}
+								isLoading={usageStore.loading}
+							/>
+						{/if}
+					</div>
+				</details>
 			</div>
 		{/if}
 

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { AudioInputMode } from '$lib/server/db/types';
-	import { fly } from 'svelte/transition';
 
 	interface Props {
 		mode: AudioInputMode;
@@ -11,290 +10,129 @@
 
 	let { mode, onModeChange, disabled = false, compact = false }: Props = $props();
 
-	function selectMode(newMode: AudioInputMode) {
-		if (disabled || newMode === mode) return;
-		onModeChange(newMode);
+	function handleToggle() {
+		if (disabled) return;
+		onModeChange(mode === 'vad' ? 'ptt' : 'vad');
 	}
 
 	// Get recommendation text based on mode
 	const getRecommendation = (selectedMode: AudioInputMode) => {
 		if (selectedMode === 'vad') {
-			return 'Recommended with earphones or headphones';
+			return 'Best with earphones';
 		}
-		return 'Recommended without earphones (speaker mode)';
+		return 'Best without earphones';
 	};
 </script>
 
-<div class="voice-mode-container" class:compact>
-	<!-- Mode Selector -->
-	<div class="mode-selector-wrapper">
-		<div
-			class="mode-selector"
-			class:disabled
-			role="radiogroup"
-			aria-label="Voice input mode"
-		>
-			<!-- Sliding indicator -->
-			<div
-				class="mode-indicator"
-				style="transform: translateX({mode === 'vad' ? 0 : 100}%)"
-				aria-hidden="true"
-			></div>
+<fieldset class="voice-mode-fieldset" class:disabled>
+	<legend class="fieldset-legend">
+		Voice Input Mode
+		<span class="mode-hint">{getRecommendation(mode)}</span>
+	</legend>
 
-			<!-- Casual Chat (VAD) Button -->
-			<button
-				type="button"
-				class="mode-option"
-				class:active={mode === 'vad'}
-				role="radio"
-				aria-checked={mode === 'vad'}
-				onclick={() => selectMode('vad')}
-				{disabled}
-			>
-				<span class="mode-icon icon-[mdi--message-text-outline]" aria-hidden="true"></span>
-				<span class="mode-label">
-					<span class="mode-name">Casual Chat</span>
-					{#if !compact}
-						<span class="mode-subtitle">Natural conversation</span>
-					{/if}
-				</span>
-				{#if mode === 'vad'}
-					<span class="sr-only">(active)</span>
-				{/if}
-			</button>
-
-			<!-- Walkie Talkie (PTT) Button -->
-			<button
-				type="button"
-				class="mode-option"
-				class:active={mode === 'ptt'}
-				role="radio"
-				aria-checked={mode === 'ptt'}
-				onclick={() => selectMode('ptt')}
-				{disabled}
-			>
-				<span class="mode-icon icon-[mdi--walkie-talkie]" aria-hidden="true"></span>
-				<span class="mode-label">
-					<span class="mode-name">Walkie Talkie</span>
-					{#if !compact}
-						<span class="mode-subtitle">Press & hold</span>
-					{/if}
-				</span>
-				{#if mode === 'ptt'}
-					<span class="sr-only">(active)</span>
-				{/if}
-			</button>
-		</div>
-	</div>
-
-	<!-- Recommendation Badge -->
-	<div class="recommendation" in:fly={{ y: -5, duration: 200 }}>
-		<span class="icon-[mdi--information-outline] recommendation-icon"></span>
-		<span class="recommendation-text">{getRecommendation(mode)}</span>
-	</div>
-</div>
+	<label class="label cursor-pointer">
+		<span class="label-text flex items-center gap-2">
+			<span class="icon-[mdi--walkie-talkie] h-5 w-5 text-base-content/70"></span>
+			<span class="font-medium">Walkie Talkie</span>
+		</span>
+		<input
+			type="checkbox"
+			class="toggle toggle-primary"
+			checked={mode === 'vad'}
+			onchange={handleToggle}
+			{disabled}
+			aria-label="Switch between Walkie Talkie and Casual Chat modes"
+		/>
+		<span class="label-text flex items-center gap-2">
+			<span class="font-medium">Casual Chat</span>
+			<span class="icon-[mdi--message-text-outline] h-5 w-5 text-base-content/70"></span>
+		</span>
+	</label>
+</fieldset>
 
 <style>
-	.voice-mode-container {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 12px;
+	.voice-mode-fieldset {
+		border: 1px solid oklch(var(--bc) / 0.2);
+		border-radius: var(--rounded-box, 1rem);
+		padding: 1rem;
+		background: oklch(var(--b1));
 		width: 100%;
+		max-width: 500px;
+		margin: 0 auto;
 	}
 
-	.voice-mode-container.compact {
-		gap: 8px;
-	}
-
-	.mode-selector-wrapper {
-		width: 100%;
-		display: flex;
-		justify-content: center;
-	}
-
-	.mode-selector {
-		position: relative;
-		display: inline-flex;
-		padding: 4px;
-		border-radius: 9999px;
-		background: oklch(var(--b2) / 0.8);
-		backdrop-filter: blur(12px);
-		box-shadow:
-			0 1px 3px oklch(0% 0 0 / 0.08),
-			0 4px 12px oklch(0% 0 0 / 0.04),
-			inset 0 1px 0 oklch(100% 0 0 / 0.1);
-		gap: 0;
-		width: 100%;
-		max-width: 480px;
-	}
-
-	.mode-selector.disabled {
+	.voice-mode-fieldset.disabled {
 		opacity: 0.6;
 		pointer-events: none;
 	}
 
-	.mode-indicator {
-		position: absolute;
-		top: 4px;
-		left: 4px;
-		width: calc(50% - 4px);
-		height: calc(100% - 8px);
-		border-radius: 9999px;
-		background: oklch(var(--b1));
-		box-shadow:
-			0 2px 8px oklch(0% 0 0 / 0.12),
-			0 1px 2px oklch(0% 0 0 / 0.08);
-		transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-	}
-
-	.mode-option {
-		position: relative;
-		z-index: 1;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 4px;
-		padding: 12px 16px;
-		border: none;
-		border-radius: 9999px;
-		background: transparent;
-		color: oklch(var(--bc) / 0.5);
-		font-size: 0.875rem;
-		font-weight: 500;
-		cursor: pointer;
-		transition: color 0.2s ease;
-		white-space: nowrap;
-		flex: 1;
-	}
-
-	.mode-option:hover:not(.active):not(:disabled) {
-		color: oklch(var(--bc) / 0.7);
-	}
-
-	.mode-option.active {
-		color: oklch(var(--bc));
-	}
-
-	.mode-option:focus-visible {
-		outline: 2px solid oklch(var(--p));
-		outline-offset: 2px;
-	}
-
-	.mode-icon {
-		width: 24px;
-		height: 24px;
-		flex-shrink: 0;
-	}
-
-	.mode-label {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 2px;
-	}
-
-	.mode-name {
+	.fieldset-legend {
+		padding: 0 0.5rem;
 		font-size: 0.875rem;
 		font-weight: 600;
-	}
-
-	.mode-subtitle {
-		font-size: 0.7rem;
-		opacity: 0.7;
-		font-weight: 400;
-	}
-
-	.recommendation {
+		color: oklch(var(--bc) / 0.8);
 		display: flex;
 		align-items: center;
-		gap: 6px;
-		padding: 8px 16px;
-		border-radius: 9999px;
-		background: oklch(var(--b2) / 0.6);
+		gap: 0.5rem;
+		flex-wrap: wrap;
+	}
+
+	.mode-hint {
 		font-size: 0.75rem;
-		color: oklch(var(--bc) / 0.7);
-		font-weight: 500;
-		backdrop-filter: blur(8px);
+		font-weight: 400;
+		color: oklch(var(--bc) / 0.6);
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
 	}
 
-	.recommendation-icon {
-		width: 14px;
-		height: 14px;
-		flex-shrink: 0;
-		color: oklch(var(--in));
+	.mode-hint::before {
+		content: '•';
+		margin: 0 0.25rem;
+		opacity: 0.5;
 	}
 
-	.recommendation-text {
-		white-space: nowrap;
+	.label {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.5rem 0;
+		gap: 1rem;
 	}
 
-	/* Compact mode adjustments */
-	.voice-mode-container.compact .mode-selector {
-		max-width: 360px;
-	}
-
-	.voice-mode-container.compact .mode-option {
-		padding: 10px 12px;
-		gap: 3px;
-	}
-
-	.voice-mode-container.compact .mode-icon {
-		width: 20px;
-		height: 20px;
-	}
-
-	.voice-mode-container.compact .mode-name {
-		font-size: 0.8rem;
-	}
-
-	.voice-mode-container.compact .recommendation {
-		padding: 6px 12px;
-		font-size: 0.7rem;
+	.label-text {
+		font-size: 0.875rem;
+		color: oklch(var(--bc) / 0.8);
 	}
 
 	/* Responsive */
-	@media (max-width: 400px) {
-		.mode-option {
-			padding: 10px 12px;
-			gap: 3px;
+	@media (max-width: 480px) {
+		.voice-mode-fieldset {
+			padding: 0.75rem;
 		}
 
-		.mode-name {
+		.fieldset-legend {
+			font-size: 0.8rem;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.25rem;
+		}
+
+		.mode-hint::before {
+			display: none;
+		}
+
+		.label {
+			padding: 0.25rem 0;
+			gap: 0.5rem;
+		}
+
+		.label-text {
 			font-size: 0.8rem;
 		}
 
-		.mode-subtitle {
-			font-size: 0.65rem;
+		.label-text span:not(.font-medium) {
+			display: none;
 		}
-
-		.mode-icon {
-			width: 20px;
-			height: 20px;
-		}
-
-		.recommendation {
-			padding: 6px 12px;
-			font-size: 0.7rem;
-		}
-
-		.recommendation-text {
-			white-space: normal;
-			text-align: center;
-		}
-	}
-
-	/* Screen reader only */
-	.sr-only {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		padding: 0;
-		margin: -1px;
-		overflow: hidden;
-		clip: rect(0, 0, 0, 0);
-		white-space: nowrap;
-		border: 0;
 	}
 </style>

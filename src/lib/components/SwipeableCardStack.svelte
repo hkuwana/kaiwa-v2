@@ -17,7 +17,7 @@
 	import { track } from '$lib/analytics/posthog';
 
 	interface Props {
-		/** Show only featured scenarios (default: first 5) */
+		/** Show only featured scenarios (default: first 3) */
 		featuredScenariosCount?: number;
 		/** Callback when user starts a conversation */
 		onStartConversation?: (scenario: Scenario) => void;
@@ -28,7 +28,7 @@
 	}
 
 	const {
-		featuredScenariosCount = 5,
+		featuredScenariosCount = 3,
 		onStartConversation,
 		selectedSpeaker,
 		onChooseLanguage
@@ -343,12 +343,12 @@
 </script>
 
 <div class="w-full">
-	<!-- Voice Mode Selector - Prominent at top -->
-	<div class="mb-6">
+	<!-- Voice Mode Selector - Compact at top -->
+	<div class="mb-4">
 		<VoiceModeSelector
 			mode={selectedAudioMode}
 			onModeChange={handleAudioModeChange}
-			compact={false}
+			compact={true}
 		/>
 	</div>
 
@@ -395,7 +395,7 @@
 			{/if}
 			<!-- Stack of Cards with Depth -->
 			<div
-				class="relative mx-auto h-[520px] w-full max-w-md sm:h-[620px]"
+				class="relative mx-auto h-[500px] w-full max-w-md sm:h-[580px]"
 				onmousemove={handleDragMove}
 				onmouseup={handleDragEnd}
 				onmouseleave={handleDragEnd}
