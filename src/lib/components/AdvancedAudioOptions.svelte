@@ -115,13 +115,15 @@
 				<div class="flex items-center justify-between">
 					<div class="text-left">
 						<div class="text-sm font-medium" class:text-primary={selectedMode === 'vad'}>
-							Conversation Mode
+							<span class="icon-[mdi--message-text-outline] mr-1 inline-block h-4 w-4 align-middle"></span>
+							Casual Chat
 						</div>
-						<div class="text-xs text-base-content/60">Natural hands-free speaking</div>
+						<div class="text-xs text-base-content/60">Just talk naturally</div>
 					</div>
 					<div class="text-right">
 						<div class="text-sm font-medium" class:text-primary={selectedMode === 'ptt'}>
-							Manual Control
+							Walkie Talkie
+							<span class="icon-[mdi--walkie-talkie] ml-1 inline-block h-4 w-4 align-middle"></span>
 						</div>
 						<div class="text-xs text-base-content/60">Press & hold to speak</div>
 					</div>
@@ -153,15 +155,13 @@
 				<div class="rounded-lg bg-base-200 p-3">
 					{#if selectedMode === 'vad'}
 						<div class="text-xs text-base-content/70">
-							<strong>Conversation Mode:</strong> Automatically detects when you're speaking and captures
-							your voice naturally. No buttons to press—just talk! Perfect for natural conversation flow
-							in quiet environments.
+							<strong>Casual Chat:</strong> Kaiwa automatically detects when you're speaking and
+							responds naturally. Just talk! Perfect for natural conversation flow in quiet environments.
 						</div>
 					{:else}
 						<div class="text-xs text-base-content/70">
-							<strong>Manual Control:</strong> Press and hold the microphone button to speak. Release
-							to stop. Best for noisy backgrounds or when you want precise control over when your audio
-							is transmitted.
+							<strong>Walkie Talkie:</strong> Press and hold the microphone to speak, release when done.
+							Great for noisy environments or when you want precise control over your turns.
 						</div>
 					{/if}
 				</div>
@@ -190,7 +190,7 @@
 				</h3>
 				<div class="space-y-3 py-4">
 					<p class="text-sm">
-						<strong>Conversation Mode</strong> works best with headphones or earbuds to prevent audio
+						<strong>Casual Chat</strong> mode works best with headphones or earbuds to prevent audio
 						feedback loops.
 					</p>
 					<div class="alert py-2 alert-warning">
