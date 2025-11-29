@@ -8,7 +8,7 @@
 		compact?: boolean;
 	}
 
-	let { mode, onModeChange, disabled = false, compact = false }: Props = $props();
+	let { mode, onModeChange, disabled = false, compact: _compact = false }: Props = $props();
 
 	function handleToggle() {
 		if (disabled) return;

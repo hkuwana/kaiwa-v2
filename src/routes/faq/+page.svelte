@@ -128,7 +128,9 @@
 	<link rel="canonical" href="https://trykaiwa.com/faq" />
 
 	<!-- FAQ Schema for rich results in Google/Bing -->
-	{@html `<script type="application/ld+json">${JSON.stringify(faqJsonLd)}</script>`}
+	<script type="application/ld+json">
+		{@html JSON.stringify(faqJsonLd)}
+	</script>
 </svelte:head>
 
 <div class="container mx-auto max-w-4xl px-4 py-16 sm:py-20">

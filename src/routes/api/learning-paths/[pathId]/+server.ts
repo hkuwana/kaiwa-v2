@@ -100,6 +100,7 @@ export const PATCH: RequestHandler = async ({ params, request, locals }) => {
 
 		// Validate allowed fields
 		const allowedFields = ['title', 'description', 'status'];
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const updateData: Record<string, any> = {};
 
 		for (const field of allowedFields) {

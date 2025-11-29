@@ -29,11 +29,13 @@
 	const user = userManager.user;
 
 	// State for starting conversation
+	// eslint-disable-next-line unused-imports/no-unused-vars
 	let isStartingConversation = $state(false);
 
 	// State for dynamic headline with language selection
 	let selectedLanguage = $state<DataLanguage | null>(settingsStore.selectedLanguage);
 
+	// eslint-disable-next-line unused-imports/no-unused-vars
 	let selectedScenario: Scenario | null = $state(null);
 
 	// Reference to language switcher component

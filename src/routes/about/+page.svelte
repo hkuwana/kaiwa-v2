@@ -25,17 +25,18 @@
 	let showHero2 = $state(false);
 	let showWhatItIs1 = $state(false);
 	let showWhatItIs2 = $state(false);
+	// eslint-disable-next-line unused-imports/no-unused-vars
 	let showDifference = $state(false);
 	let showPersonalized = $state(false);
 	let showCTA = $state(false);
 	let showCTAButton = $state(false);
 
-	function handleLanguageChange(language: DataLanguage) {
+	function _handleLanguageChange(language: DataLanguage) {
 		selectedLanguage = language;
 		settingsStore.setLanguage(language);
 	}
 
-	function handleSpeakerChange(speakerId: string) {
+	function _handleSpeakerChange(speakerId: string) {
 		selectedSpeaker = speakerId;
 		settingsStore.setSpeaker(speakerId);
 	}
@@ -93,6 +94,7 @@
 		}, 5700);
 	});
 
+	// eslint-disable-next-line unused-imports/no-unused-vars
 	const aboutJsonLd = createAboutPageJsonLd('https://trykaiwa.com');
 </script>
 
@@ -172,7 +174,7 @@
 				<p class="mb-12 text-center text-xl font-light opacity-80 md:text-2xl">So is your path.</p>
 
 				<div class="grid gap-8 md:grid-cols-3">
-					{#each personalizedPathExamples.slice(0, 3) as example}
+					{#each personalizedPathExamples.slice(0, 3) as example (example.situation)}
 						<div class="rounded-2xl bg-base-100 p-6 text-center shadow-sm">
 							<div class="mb-4 flex justify-center">
 								<span class="{example.iconClass} h-10 w-10 text-primary"></span>

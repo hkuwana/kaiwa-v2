@@ -27,6 +27,7 @@ export const PATCH: RequestHandler = async ({ request }) => {
 		}
 
 		return json({ success: false, error: 'Invalid action' }, { status: 400 });
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (error: any) {
 		console.error('[API] PATCH queue/jobs error:', error);
 		return json({ success: false, error: error.message }, { status: 500 });
@@ -62,6 +63,7 @@ export const GET: RequestHandler = async ({ url }) => {
 				jobs
 			}
 		});
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (error: any) {
 		return json({ success: false, error: error.message }, { status: 500 });
 	}

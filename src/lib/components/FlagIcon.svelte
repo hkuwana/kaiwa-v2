@@ -36,6 +36,7 @@
 		role="img"
 		aria-label={`${countryCode} flag`}
 	>
+		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 		{@html iconBody}
 	</svg>
 {:else}

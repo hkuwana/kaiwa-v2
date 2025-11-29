@@ -70,10 +70,14 @@
 	<link rel="canonical" href={pageUrl} />
 
 	<!-- JSON-LD Structured Data - Course -->
-	{@html `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`}
+	<script type="application/ld+json">
+		{@html JSON.stringify(jsonLd)}
+	</script>
 
 	<!-- JSON-LD Structured Data - Breadcrumbs -->
-	{@html `<script type="application/ld+json">${JSON.stringify(breadcrumbJsonLd)}</script>`}
+	<script type="application/ld+json">
+		{@html JSON.stringify(breadcrumbJsonLd)}
+	</script>
 </svelte:head>
 
 <div class="min-h-screen bg-base-100">

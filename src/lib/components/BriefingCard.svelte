@@ -47,7 +47,7 @@
 		}
 	}
 
-	const scenarioMeta = $derived(
+	const _scenarioMeta = $derived(
 		selectedScenario ? getDifficultyLevel(selectedScenario.difficultyRating ?? 1) : null
 	);
 
@@ -119,7 +119,7 @@
 						class="h-full w-full object-cover"
 					/>
 				</figure>
-			{:else if selectedScenario?.thumbnailUrl}
+			{:else}
 				<figure>
 					<img
 						src={defaultScenarioImage}

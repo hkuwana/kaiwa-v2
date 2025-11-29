@@ -222,6 +222,7 @@ export const scenarioGenerationQueueRepository = {
 		status: 'pending' | 'processing' | 'ready' | 'failed',
 		error?: string
 	): Promise<ScenarioGenerationQueue | undefined> {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const updateData: any = {
 			status,
 			updatedAt: new Date()

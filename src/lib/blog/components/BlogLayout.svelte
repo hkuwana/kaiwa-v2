@@ -17,6 +17,7 @@
 	const _jsonLd = createBlogJsonLd(post.metadata, postUrl);
 
 	// Create breadcrumb navigation
+	// eslint-disable-next-line unused-imports/no-unused-vars
 	const breadcrumbJsonLd = createBreadcrumbJsonLd(
 		[
 			{ name: 'Home', url: '/' },
