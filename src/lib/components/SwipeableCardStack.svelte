@@ -5,9 +5,7 @@
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
 	import { getSpeakersByLanguage } from '$lib/data/speakers';
 	import BriefingCard from './BriefingCard.svelte';
-	import SpeechSpeedSelector from './SpeechSpeedSelector.svelte';
-	import VoiceModeSelector from './VoiceModeSelector.svelte';
-	import { fade, slide, fly } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import { quintOut } from 'svelte/easing';
 	import type { Scenario } from '$lib/data/scenarios';

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import posthog from 'posthog-js';
 	import { browser, dev } from '$app/environment';
 	import { goto } from '$app/navigation';

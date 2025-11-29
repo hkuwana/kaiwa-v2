@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { fly, scale } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 	import { spring } from 'svelte/motion';
 	import type { AudioInputMode } from '$lib/server/db/types';
 
