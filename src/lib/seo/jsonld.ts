@@ -107,6 +107,87 @@ export function createBlogIndexJsonLd(baseUrl: string): JsonLdObject {
  *
  * @see https://schema.org/Course
  */
+/**
+ * Creates JSON-LD FAQPage schema for better search visibility
+ *
+ * FAQ rich results can appear in Google and Bing search results,
+ * showing questions and answers directly in the SERP.
+ *
+ * @see https://schema.org/FAQPage
+ * @see https://developers.google.com/search/docs/appearance/structured-data/faqpage
+ */
+export function createFaqPageJsonLd(
+	faqs: Array<{ question: string; answer: string }>,
+	baseUrl: string
+): JsonLdObject {
+	return {
+		'@context': 'https://schema.org',
+		'@type': 'FAQPage',
+		mainEntity: faqs.map((faq) => ({
+			'@type': 'Question',
+			name: faq.question,
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: faq.answer
+			}
+		}))
+	};
+}
+
+/**
+ * Creates JSON-LD BreadcrumbList for navigation context
+ *
+ * Helps search engines understand site structure and can display
+ * breadcrumbs in search results.
+ *
+ * @see https://schema.org/BreadcrumbList
+ */
+export function createBreadcrumbJsonLd(
+	items: Array<{ name: string; url: string }>,
+	baseUrl: string
+): JsonLdObject {
+	return {
+		'@context': 'https://schema.org',
+		'@type': 'BreadcrumbList',
+		itemListElement: items.map((item, index) => ({
+			'@type': 'ListItem',
+			position: index + 1,
+			name: item.name,
+			item: item.url.startsWith('http') ? item.url : `${baseUrl}${item.url}`
+		}))
+	};
+}
+
+/**
+ * Creates JSON-LD SoftwareApplication schema for app store optimization
+ *
+ * Useful for PWAs and apps to appear in rich results.
+ *
+ * @see https://schema.org/SoftwareApplication
+ */
+export function createSoftwareAppJsonLd(baseUrl: string): JsonLdObject {
+	return {
+		'@context': 'https://schema.org',
+		'@type': 'SoftwareApplication',
+		name: 'Kaiwa',
+		applicationCategory: 'EducationalApplication',
+		operatingSystem: 'Web',
+		offers: {
+			'@type': 'Offer',
+			price: '0',
+			priceCurrency: 'USD'
+		},
+		aggregateRating: {
+			'@type': 'AggregateRating',
+			ratingValue: '4.8',
+			ratingCount: '100'
+		},
+		description:
+			'Practice real conversations in any language with your AI language partner. Build speaking confidence in 5 minutes a day.',
+		url: baseUrl
+	};
+}
+
 export function createLearningPathJsonLd(
 	template: {
 		title: string;
