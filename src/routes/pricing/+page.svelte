@@ -477,21 +477,21 @@
 						: 'btn-soft'}"
 					onclick={() => selectBillingCycle('annual')}
 				>
-					Annual <span class="ml-2 badge badge-outline badge-success">Save {plusDiscount}%</span>
+					Annual
 				</button>
 			</div>
 		</div>
 
-		<div class="mx-auto mb-20 grid max-w-5xl grid-cols-1 gap-8 lg:grid-cols-3">
+		<div class="mx-auto mb-20 grid max-w-5xl grid-cols-1 gap-6 lg:grid-cols-3 lg:items-start">
+			<!-- Free Tier -->
 			<div class="flex flex-col items-center rounded-2xl border bg-base-100 p-8 text-center">
-				<h2 class="mb-4 text-2xl font-semibold">{freeTier.name} - Free Forever</h2>
+				<h2 class="mb-4 text-2xl font-semibold">{freeTier.name}</h2>
 				<p class="text-4xl font-bold">
-					FREE
-					<span class="text-xl font-normal text-base-content/60">/forever</span>
+					$0
+					<span class="text-xl font-normal text-base-content/60">/month</span>
 				</p>
-				<p class="mt-2 text-sm text-primary">15 minutes practice time included</p>
 				<p class="mt-4 min-h-[4rem] text-base-content/70">
-					{freeTier.description} • Perfect for trying AI conversation practice
+					Try Kaiwa with 15 minutes of AI conversation practice
 				</p>
 				<div class="flex-grow"></div>
 				{#if isCurrentTier(SubscriptionTier.GUEST) || isCurrentTier(SubscriptionTier.BASIC)}
@@ -520,36 +520,56 @@
 				{/if}
 			</div>
 
-			<div
-				class="flex flex-col items-center rounded-2xl border-2 border-primary bg-base-100 p-8 text-center shadow-xl shadow-primary/20"
-			>
-				<div class="flex items-center gap-2">
-					<span class="icon-[mdi--star] h-6 w-6 text-yellow-400"></span>
-					<h2 class="text-2xl font-semibold">{plusTier.name}</h2>
+			<!-- Premium Tier (Center - Recommended) -->
+			<div class="relative flex flex-col items-center rounded-2xl border-2 border-primary bg-base-100 p-8 text-center shadow-2xl shadow-primary/20 lg:-mt-4 lg:pb-12">
+				<div class="absolute -top-4 left-1/2 -translate-x-1/2">
+					<span class="badge badge-primary px-4 py-3 text-sm font-semibold">Recommended</span>
 				</div>
-				<p class="mt-4 badge badge-outline badge-primary">Most Popular</p>
+				<div class="mt-2 flex items-center gap-2">
+					<span class="icon-[mdi--crown] h-6 w-6 text-primary"></span>
+					<h2 class="text-2xl font-semibold">{premiumTier.name}</h2>
+				</div>
 
 				{#if selectedPlan === 'monthly'}
 					<p class="mt-4 text-4xl font-bold">
-						{formatPriceDisplay(plusTier.monthlyPriceUsd)}
+						{formatPriceDisplay(premiumTier.monthlyPriceUsd)}
 						<span class="text-xl font-normal text-base-content/60">/month</span>
 					</p>
 				{:else}
 					<p class="mt-4 text-4xl font-bold">
-						${getAnnualPricePerMonth(plusTier)}
+						${getAnnualPricePerMonth(premiumTier)}
 						<span class="text-xl font-normal text-base-content/60">/month</span>
 					</p>
+					<p class="text-sm text-base-content/50">billed annually</p>
 				{/if}
-				<p class="mt-4 min-h-[4rem] text-base-content/70">
-					10 hours of AI practice monthly with automated 28-day learning paths
+				<p class="mt-4 text-base-content/70">
+					10 hours of practice with personal guidance
 				</p>
+				<ul class="mt-4 space-y-2 text-left text-sm">
+					<li class="flex items-center gap-2">
+						<span class="icon-[mdi--check-circle] h-5 w-5 text-primary"></span>
+						Monthly 15-min call with Hiro
+					</li>
+					<li class="flex items-center gap-2">
+						<span class="icon-[mdi--check-circle] h-5 w-5 text-primary"></span>
+						Custom learning path built for you
+					</li>
+					<li class="flex items-center gap-2">
+						<span class="icon-[mdi--check-circle] h-5 w-5 text-primary"></span>
+						Direct text/chat support
+					</li>
+					<li class="flex items-center gap-2">
+						<span class="icon-[mdi--check-circle] h-5 w-5 text-primary"></span>
+						10 hours rollover minutes
+					</li>
+				</ul>
 				<div class="flex-grow"></div>
-				{#if isCurrentTier(SubscriptionTier.PLUS)}
+				{#if isCurrentTier(SubscriptionTier.PREMIUM)}
 					<button class="btn mt-8 w-full btn-outline" disabled>Your Current Plan</button>
 				{:else}
 					<button
 						class="btn mt-8 w-full btn-primary"
-						onclick={() => handlePlanSelection('plus')}
+						onclick={() => handlePlanSelection('premium')}
 						disabled={isLoading}
 					>
 						{#if isLoading}
@@ -562,48 +582,35 @@
 				{/if}
 			</div>
 
-			<div class="flex flex-col items-center rounded-2xl border-2 border-accent bg-base-100 p-8 text-center">
+			<!-- Plus Tier -->
+			<div class="flex flex-col items-center rounded-2xl border bg-base-100 p-8 text-center">
 				<div class="flex items-center gap-2">
-					<span class="icon-[mdi--crown] h-6 w-6 text-purple-400"></span>
-					<h2 class="text-2xl font-semibold">{premiumTier.name}</h2>
+					<span class="icon-[mdi--star] h-6 w-6 text-yellow-400"></span>
+					<h2 class="text-2xl font-semibold">{plusTier.name}</h2>
 				</div>
-				<p class="mt-2 text-sm text-base-content/50 line-through">$99/month value</p>
 
 				{#if selectedPlan === 'monthly'}
-					<p class="mt-2 text-4xl font-bold text-accent">
-						{formatPriceDisplay(premiumTier.monthlyPriceUsd)}
+					<p class="mt-4 text-4xl font-bold">
+						{formatPriceDisplay(plusTier.monthlyPriceUsd)}
 						<span class="text-xl font-normal text-base-content/60">/month</span>
 					</p>
 				{:else}
-					<p class="mt-2 text-4xl font-bold text-accent">
-						${getAnnualPricePerMonth(premiumTier)}
+					<p class="mt-4 text-4xl font-bold">
+						${getAnnualPricePerMonth(plusTier)}
 						<span class="text-xl font-normal text-base-content/60">/month</span>
 					</p>
+					<p class="text-sm text-base-content/50">billed annually</p>
 				{/if}
-				<p class="mt-4 text-base-content/70">
-					Everything in Plus, with human touch:
+				<p class="mt-4 min-h-[4rem] text-base-content/70">
+					10 hours of AI practice with automated learning paths
 				</p>
-				<ul class="mt-2 space-y-1 text-left text-sm text-base-content/70">
-					<li class="flex items-center gap-2">
-						<span class="icon-[mdi--phone] h-4 w-4 text-accent"></span>
-						15-min monthly call
-					</li>
-					<li class="flex items-center gap-2">
-						<span class="icon-[mdi--message-text] h-4 w-4 text-accent"></span>
-						Text/chat support
-					</li>
-					<li class="flex items-center gap-2">
-						<span class="icon-[mdi--road-variant] h-4 w-4 text-accent"></span>
-						Custom learning path
-					</li>
-				</ul>
 				<div class="flex-grow"></div>
-				{#if isCurrentTier(SubscriptionTier.PREMIUM)}
+				{#if isCurrentTier(SubscriptionTier.PLUS)}
 					<button class="btn mt-8 w-full btn-outline" disabled>Your Current Plan</button>
 				{:else}
 					<button
-						class="btn mt-8 w-full btn-outline btn-primary"
-						onclick={() => handlePlanSelection('premium')}
+						class="btn mt-8 w-full btn-outline"
+						onclick={() => handlePlanSelection('plus')}
 						disabled={isLoading}
 					>
 						{#if isLoading}
@@ -625,8 +632,8 @@
 						<tr class="bg-base-200">
 							<th class="w-2/5 text-left"></th>
 							<th class="text-lg">{freeTier.name}</th>
-							<th class="text-lg text-accent">{plusTier.name}</th>
-							<th class="text-lg">{premiumTier.name}</th>
+							<th class="text-lg text-primary font-bold">{premiumTier.name}</th>
+							<th class="text-lg">{plusTier.name}</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -636,8 +643,8 @@
 									{feature.feature}
 								</td>
 								<td class="font-light capitalize">{feature.basic}</td>
-								<td class="font-semibold text-accent capitalize">{feature.plus}</td>
-								<td class="font-medium capitalize">{feature.premium}</td>
+								<td class="font-semibold text-primary capitalize">{feature.premium}</td>
+								<td class="font-medium capitalize">{feature.plus}</td>
 							</tr>
 						{/each}
 					</tbody>
