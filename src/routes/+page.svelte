@@ -236,7 +236,7 @@
 		</div>
 
 		<!-- Warm Header - Stacked vertically -->
-		<div class="mb-6 text-center">
+		<div class="mb-4 text-center sm:mb-6">
 			{#if user.id !== 'guest'}
 				<!-- Logged in users: Warm welcome -->
 				<div class="text-base text-base-content/70 sm:text-lg">Welcome back,</div>
@@ -244,11 +244,11 @@
 					{user ? user.displayName : 'Dev'}
 				</div>
 
-				<!-- Usage info directly underneath name -->
+				<!-- Usage info - hidden on mobile, shown on desktop -->
 				{#if usageStore.tier && usageStore.usage}
 					<a
 						href="/profile"
-						class="mt-1 inline-flex items-center gap-1.5 text-sm text-base-content/60 hover:text-primary transition-colors"
+						class="mt-1 hidden items-center gap-1.5 text-sm text-base-content/60 hover:text-primary transition-colors sm:inline-flex"
 						title="View usage details"
 					>
 						<span class="icon-[mdi--clock-outline] h-4 w-4"></span>

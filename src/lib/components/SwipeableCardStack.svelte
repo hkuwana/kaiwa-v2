@@ -346,13 +346,14 @@
 <div class="w-full">
 	<!-- Voice Mode Toggle - Top position -->
 	<div
-		class="mb-5 flex justify-center"
+		class="mb-3 flex justify-center sm:mb-5"
 		in:fly={{ y: -10, duration: 400, delay: 100, easing: quintOut }}
 	>
 		<div
-			class="flex flex-col items-center gap-2 rounded-2xl border border-base-content/10 bg-base-100/80 px-5 py-3 shadow-lg backdrop-blur-xl"
+			class="flex flex-col items-center gap-2 rounded-2xl border border-base-content/10 bg-base-100/80 px-4 py-2.5 shadow-lg backdrop-blur-xl sm:px-5 sm:py-3"
 		>
-			<label class="flex cursor-pointer items-center gap-3">
+			<label class="flex cursor-pointer items-center gap-2 sm:gap-3">
+				<!-- Show only active mode text on mobile, both on desktop -->
 				<span
 					class="flex items-center gap-1.5 text-sm font-medium transition-all"
 					class:text-base-content={selectedAudioMode === 'ptt'}
@@ -360,7 +361,7 @@
 					class:scale-105={selectedAudioMode === 'ptt'}
 				>
 					<span class="icon-[mdi--walkie-talkie] h-4.5 w-4.5"></span>
-					<span class="hidden sm:inline">Walkie Talkie</span>
+					<span class:hidden={selectedAudioMode === 'vad'} class="sm:inline">Walkie Talkie</span>
 				</span>
 				<input
 					type="checkbox"
@@ -375,7 +376,7 @@
 					class:opacity-50={selectedAudioMode === 'ptt'}
 					class:scale-105={selectedAudioMode === 'vad'}
 				>
-					<span class="hidden sm:inline">Casual Chat</span>
+					<span class:hidden={selectedAudioMode === 'ptt'} class="sm:inline">Casual Chat</span>
 					<span class="icon-[mdi--message-text-outline] h-4.5 w-4.5"></span>
 				</span>
 			</label>
@@ -386,7 +387,7 @@
 	</div>
 
 	<!-- Swipeable Card Stack Section -->
-	<div class="space-y-3">
+	<div class="space-y-2 sm:space-y-3">
 		<!-- Swipe hint - Above cards -->
 		<div
 			class="text-center text-xs font-normal text-base-content/40"
