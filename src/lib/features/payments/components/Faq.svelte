@@ -1,6 +1,11 @@
 <script lang="ts">
 	const faqs = [
 		{
+			question: 'How does billing work?',
+			answer:
+				'Subscriptions renew on calendar months (not fixed 28-day cycles). For example, if you subscribe on January 15th, your next billing date will be February 15th. Your practice time resets each billing cycle, and Stripe handles month-end dates automatically.'
+		},
+		{
 			question: 'Can I cancel anytime?',
 			answer:
 				'Yes, you can cancel your subscription at any time. Your benefits will continue until the end of your billing period. You can manage your subscription through your account settings.'
