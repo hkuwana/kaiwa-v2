@@ -119,11 +119,18 @@
 		const { free, plus, premium } = tiers;
 		return [
 			{
-				feature: 'Practice Time',
-				basic: `${formatTime(free.monthlySeconds)} / month`,
-				plus: `${formatTime(plus.monthlySeconds)} / month`,
-				premium: `${formatTime(premium.monthlySeconds)} / month`,
-				tooltip: 'Total conversation time available each month.'
+				feature: '1-on-1 with Founder',
+				basic: '-',
+				plus: '-',
+				premium: 'Monthly 15-min call',
+				tooltip: 'Personal call with Hiro to discuss your goals and adjust your learning path.'
+			},
+			{
+				feature: 'Direct Support',
+				basic: '-',
+				plus: 'Email',
+				premium: 'Text/Chat anytime',
+				tooltip: 'Get help and ask questions between sessions.'
 			},
 			{
 				feature: '28-Day Learning Path',
@@ -133,25 +140,39 @@
 				tooltip: 'Structured learning path to guide your practice.'
 			},
 			{
-				feature: 'Monthly Call',
-				basic: '-',
-				plus: '-',
-				premium: '15 min with Hiro',
-				tooltip: 'Personal check-in call to adjust your learning path.'
+				feature: 'Practice Time',
+				basic: `${formatTime(free.monthlySeconds)} / month`,
+				plus: `${formatTime(plus.monthlySeconds)} / month`,
+				premium: `${formatTime(premium.monthlySeconds)} / month`,
+				tooltip: 'Total conversation time available each month.'
 			},
 			{
-				feature: 'Text/Chat Support',
-				basic: '-',
-				plus: 'Email only',
-				premium: 'Direct messaging',
-				tooltip: 'Get help and ask questions between sessions.'
-			},
-			{
-				feature: 'Feedback & Reports',
-				basic: '10 reports / month',
+				feature: 'Custom Scenarios',
+				basic: 'During trial only',
 				plus: 'Unlimited',
 				premium: 'Unlimited',
-				tooltip: 'Receive detailed feedback on your conversations.'
+				tooltip: 'Create your own practice scenarios tailored to your life.'
+			},
+			{
+				feature: 'Regenerate Scenarios',
+				basic: '-',
+				plus: '✓',
+				premium: '✓',
+				tooltip: 'Regenerate scenarios to get fresh variations.'
+			},
+			{
+				feature: 'Private Scenarios',
+				basic: '-',
+				plus: '✓',
+				premium: '✓',
+				tooltip: 'Keep your custom scenarios private instead of sharing publicly.'
+			},
+			{
+				feature: 'Scenario Translations',
+				basic: '50 / month',
+				plus: 'Unlimited',
+				premium: 'Unlimited',
+				tooltip: 'Translate scenarios to practice in different languages.'
 			},
 			{
 				feature: 'Conversation Memory',
@@ -548,7 +569,7 @@
 				<ul class="mt-4 space-y-2 text-left text-sm">
 					<li class="flex items-center gap-2">
 						<span class="icon-[mdi--check-circle] h-5 w-5 text-primary"></span>
-						Monthly 15-min call with Hiro
+						1-on-1 with Founder (monthly)
 					</li>
 					<li class="flex items-center gap-2">
 						<span class="icon-[mdi--check-circle] h-5 w-5 text-primary"></span>
@@ -556,11 +577,11 @@
 					</li>
 					<li class="flex items-center gap-2">
 						<span class="icon-[mdi--check-circle] h-5 w-5 text-primary"></span>
-						Direct text/chat support
+						Direct text/chat support anytime
 					</li>
 					<li class="flex items-center gap-2">
 						<span class="icon-[mdi--check-circle] h-5 w-5 text-primary"></span>
-						10 hours rollover minutes
+						Unlimited custom scenarios
 					</li>
 				</ul>
 				<div class="flex-grow"></div>
@@ -650,6 +671,9 @@
 					</tbody>
 				</table>
 			</div>
+			<p class="mt-4 text-center text-xs text-base-content/50">
+				* 1-on-1 calls available while we're small. See <a href="/terms" class="underline hover:text-base-content/70">terms</a> for details.
+			</p>
 		</div>
 
 		<Testimonials />

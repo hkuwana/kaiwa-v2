@@ -98,7 +98,7 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 	premium: {
 		id: 'premium',
 		name: 'Premium',
-		description: 'Everything in Plus + monthly call, text support, and custom paths',
+		description: 'Everything in Plus + 1-on-1 with Founder, direct support, and custom paths',
 		monthlyConversations: 300,
 		monthlySeconds: 36000, // 600 minutes = 10 hours
 		monthlyRealtimeSessions: 300,
@@ -114,8 +114,8 @@ export const defaultTierConfigs: Record<UserTier, Tier> = {
 		hasCustomPhrases: true,
 		hasConversationMemory: true,
 		hasAnkiExport: true,
-		monthlyPriceUsd: '49.00', // $99 value with human touch included
-		annualPriceUsd: '392.00', // ~33% discount
+		monthlyPriceUsd: '99.00',
+		annualPriceUsd: '948.00', // $79/month billed annually (~20% discount)
 		conversationTimeoutSeconds: 15 * 60,
 		warningThresholdSeconds: 60,
 		canExtend: true,

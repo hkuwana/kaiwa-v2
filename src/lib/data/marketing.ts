@@ -60,7 +60,7 @@ export const personalizedPathOffer = {
 	headline: 'Personalized Learning Path',
 	tagline: 'Limited Spots Available',
 	description:
-		"Stop practicing random scenarios. In a 15-minute consultation, you'll tell me exactly what you're preparing for—meeting your partner's parents, a work trip, reconnecting with family. Then I build you a custom path with daily scenarios designed for YOUR situation.",
+		"Stop practicing random scenarios. In a 15-minute consultation, you'll tell me exactly what you're preparing for (meeting your partner's parents, a work trip, reconnecting with family, and more). Then I build you a custom path with daily scenarios designed for YOUR situation.",
 
 	// Value props for comparison
 	comparisonPoints: [

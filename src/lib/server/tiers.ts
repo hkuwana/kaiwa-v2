@@ -17,9 +17,9 @@
 // ┌─────────────────────────────────────────────────────────────────────────┐
 // │ Free     $0      15 min/mo    Try Kaiwa, basic features                 │
 // │ Plus     $29/mo  10 hrs/mo    AI practice + automated 28-day paths      │
-// │ Premium  $49/mo  10 hrs/mo    Everything in Plus + human touch:         │
-// │                               - 15-min monthly call                     │
-// │                               - Text/chat support                       │
+// │ Premium  $99/mo  10 hrs/mo    Everything in Plus + human touch:         │
+// │                               - 1-on-1 with Founder (monthly)           │
+// │                               - Direct text/chat support                │
 // │                               - Custom path creation                    │
 // └─────────────────────────────────────────────────────────────────────────┘
 //
@@ -154,7 +154,7 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 	premium: {
 		id: 'premium',
 		name: 'Premium',
-		description: 'Everything in Plus + monthly call, text support, and custom paths',
+		description: 'Everything in Plus + 1-on-1 with Founder, direct support, and custom paths',
 
 		// Monthly limits (same AI time as Plus - premium value is human touch)
 		monthlyConversations: 300, // Unlimited
@@ -179,9 +179,9 @@ export const serverTierConfigs: Record<UserTier, Tier> = {
 		hasConversationMemory: true,
 		hasAnkiExport: true,
 
-		// Pricing - $49/mo ($99 value with human touch included)
-		monthlyPriceUsd: '49.00',
-		annualPriceUsd: '392.00', // ~33% discount ($32.67/mo)
+		// Pricing - $99/mo with human touch included
+		monthlyPriceUsd: '99.00',
+		annualPriceUsd: '948.00', // $79/mo billed annually (~20% discount)
 		stripeProductId: null, // Will be fetched from Stripe API when needed
 		stripePriceIdMonthly: isStripeDevServer
 			? SERVER_STRIPE_PRICE_IDS.premium_monthly.dev
