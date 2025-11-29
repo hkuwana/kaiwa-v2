@@ -1026,6 +1026,166 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 
 ---
 
-**Last Review**: November 25, 2025
-**Next Review**: November 26, 2025
+## 📋 November 29, 2025 - Todd Matsumoto Feedback
+
+### User Profile
+
+**Todd Matsumoto** (NEW)
+
+- **Language**: Spanish, Japanese
+- **Level**: Conversational (uses free conversation mode)
+- **Goal**: Communicate with 95-year-old grandmother (explaining places, family updates)
+- **Use Case**: Frequent communication with elderly family member - taking her places, reporting on family members
+- **Secondary Use Case**: Emily (curiosity-driven learning)
+- **Persona Match**: Heritage Speaker (David) - family communication focused
+
+### 🟡 HIGH: UX/Accessibility Issues
+
+**24. Conversation Speed Control Issues** ⚡ **PACING PROBLEM**
+
+- **Reported by**: Todd Matsumoto (Nov 29)
+- **Issue**:
+  - Spanish conversation: "went from tutor mode to super conversational speed real quick and felt overwhelming"
+  - Japanese: "It's too fast when she was doing Japanese"
+- **Why High**: Speed transition kills confidence, especially for elderly use case
+- **Related to**: Issue #23 (Beginner → Intermediate transition)
+- **Status**: ✅ **IMPLEMENTED** (Nov 29, 2025)
+- **Priority**: HIGH - Speed control is critical for accessibility
+
+**Implementation**:
+- ✅ Speech speed now applied from user preferences on session start
+- ✅ 5 speed levels map to OpenAI Realtime API speed parameter (0.5-2.0):
+  - **very_slow**: 0.6x (40% slower - for elderly/accessibility)
+  - **slow**: 0.8x (20% slower - default for learners)
+  - **normal**: 1.0x (standard speed)
+  - **fast**: 1.2x (20% faster - advanced learners)
+  - **native**: 1.4x (40% faster - near-native speed)
+- ✅ Speed setting in Advanced Audio Options → Speech Speed dropdown
+- ✅ `updateSpeechSpeed()` method available for dynamic changes during conversation
+- ✅ Speed preference persists across sessions
+
+**Files Modified**:
+- `src/lib/services/instructions/parameters.ts`: Added speed mapping functions
+- `src/lib/stores/realtime-openai.store.svelte.ts`: Added speed to session config + updateSpeechSpeed method
+- Uses existing `SpeechSpeedSelector` component in `AdvancedAudioOptions`
+
+**Future Enhancement**:
+- Add real-time speed update when user changes preference during active conversation
+- "Repeat 3 times" feature for elderly learners (separate enhancement)
+
+**25. Input Mode Confusion (Walkie Talkie vs Manual Control)** 🎙️ **TERMINOLOGY**
+
+- **Reported by**: Todd Matsumoto (Nov 29)
+- **Issue**:
+  - "Change name for manual control to walkie talkie mode since it's confusing"
+  - "Walkie talkie. Couldn't find the right [mode]"
+  - "He didn't know audio input mode was there, so maybe make it a larger option"
+- **Why High**: If users can't find how to talk, they can't use the app
+- **Related to**: Issue #7 (Push-to-talk hidden/confusing)
+- **Status**: Open
+- **Priority**: HIGH - Core interaction mode discovery
+
+**Fix Needed**:
+- Rename "Manual Control" → "Walkie Talkie Mode"
+- Make audio input mode selection MORE prominent
+- Add visual explanation of what each mode does
+
+**26. Keyboard Input Confusion** ⌨️ **UNEXPECTED BEHAVIOR**
+
+- **Reported by**: Todd Matsumoto (Nov 29)
+- **Issue**:
+  - "Keyboard spacebar to talk" (expected behavior unclear)
+  - "Pressing enter activates something" (what does it activate?)
+- **Why High**: Keyboard shortcuts undiscovered or confusing
+- **Status**: Open
+- **Priority**: MEDIUM - Nice to have but not critical for mobile-first
+
+**Fix Needed**:
+- Document keyboard shortcuts clearly
+- Add visual indicators for keyboard controls
+- Consider spacebar = push-to-talk (like Discord/gaming)
+
+### 🟠 MEDIUM: Feature Gaps
+
+**27. Name Insertion in Phrases** 📝 **PERSONALIZATION**
+
+- **Reported by**: Todd Matsumoto (Nov 29)
+- **Issue**: "Couldn't identify the part to insert name with things like 'my name is [your name]'. Just say the name of the person"
+- **Why Medium**: Makes practice feel less personalized
+- **Status**: Open
+- **Priority**: MEDIUM
+
+**Fix Needed**:
+- Clearer placeholder text for name insertion
+- Pre-fill user's name if known
+- Better UX for customizable phrases
+
+**28. Vocabulary Component Display** 📚 **LEARNING AID**
+
+- **Reported by**: Todd Matsumoto (Nov 29)
+- **Issue**: "Component to show vocabulary" (wants vocabulary reference during conversation)
+- **Why Medium**: Learning aid, but not core to conversation flow
+- **Status**: Open
+- **Priority**: LOW - Could distract from immersive conversation
+
+**29. Voice Video Function / Hangout Mode** 🚗 **HANDS-FREE**
+
+- **Reported by**: Todd Matsumoto (Nov 29)
+- **Issue**: "Hangout so while he's driving that he can talk" / "Voice video function"
+- **Why Medium**: Accessibility for multitasking (driving, cooking, etc.)
+- **Status**: Open
+- **Priority**: MEDIUM - Safety concern (driving use case)
+
+**Fix Needed**:
+- Hands-free mode (voice-only, no screen interaction needed)
+- Consider legal/safety implications of driving use case
+
+### 💚 What's Working (November 29)
+
+**Free Conversation Mode** ✅
+
+- **Reported by**: Todd Matsumoto
+- **Quote**: "Free conversation mode was good for him"
+- **Insight**: Unstructured conversation works well for heritage speakers
+- **Design Decision**: Keep free conversation mode as option
+
+**About Page** ✅
+
+- **Reported by**: Todd Matsumoto
+- **Quote**: "/About page is feel good"
+- **Insight**: Branding/mission resonates with users
+- **Design Decision**: About page messaging working well
+
+**Gamification Not Needed** 💡
+
+- **Reported by**: Todd Matsumoto
+- **Quote**: "Try this: Talk about the conversation. Don't need the gamification"
+- **Insight**: Users want conversation practice, not game mechanics
+- **Design Decision**: Focus on conversation quality over points/badges/streaks
+
+---
+
+## 📊 PAB Member Summary (Updated November 29, 2025)
+
+**Total Active PAB Members**: ~11-13
+
+**New Addition**:
+- **Heritage Speaker** (David): Todd Matsumoto (communicating with elderly grandmother)
+
+**By Use Case**:
+- **Elderly family communication**: Todd (grandmother - places, family updates)
+- **Professional advancement**: Robert (formal Japanese)
+- **Family connection**: Chika (partner's mom + future kids)
+- **Long-term residence**: Akemi, Brianne
+
+**Key Insight**: Todd's use case (elderly family communication) reveals accessibility needs:
+- Speed control for different age groups
+- Repetition features ("say it 3 times")
+- Clear, simple mode naming (walkie talkie vs manual control)
+- Hands-free operation for caregiving scenarios
+
+---
+
+**Last Review**: November 29, 2025
+**Next Review**: November 30, 2025
 **Owner**: Hiro Kuwana
