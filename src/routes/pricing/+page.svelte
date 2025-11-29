@@ -743,7 +743,7 @@
 
 		<Faq />
 	</div>
-{:catch }
+{:catch error}
 	<div class="container mx-auto max-w-4xl px-4 py-16">
 		<div class="alert alert-error shadow-lg">
 			<span>We couldn't load pricing details. Please refresh the page to try again.</span>
