@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { BlogPost } from '$lib/blog/utils/blogProcessor.js';
 	import { createBlogJsonLd, formatDate } from '$lib/blog/utils/blogProcessor.js';
+	import { createBreadcrumbJsonLd } from '$lib/seo/jsonld';
 
 	const { post, relatedPosts = [] } = $props<{
 		post: BlogPost;
@@ -10,12 +11,28 @@
 	// Calculate reading time if not provided
 	const readTime = post.metadata.readTime || '5 min read';
 
-	const _jsonLd = createBlogJsonLd(post.metadata, `https://trykaiwa.com/blog/${post.slug}`);
+	const baseUrl = 'https://trykaiwa.com';
+	const postUrl = `${baseUrl}/blog/${post.slug}`;
+
+	const _jsonLd = createBlogJsonLd(post.metadata, postUrl);
+
+	// Create breadcrumb navigation
+	const breadcrumbJsonLd = createBreadcrumbJsonLd(
+		[
+			{ name: 'Home', url: '/' },
+			{ name: 'Blog', url: '/blog' },
+			{ name: post.metadata.title, url: `/blog/${post.slug}` }
+		],
+		baseUrl
+	);
 </script>
 
 <svelte:head>
 	<script type="application/ld+json">
 		{@html JSON.stringify(_jsonLd)}
+	</script>
+	<script type="application/ld+json">
+		{@html JSON.stringify(breadcrumbJsonLd)}
 	</script>
 </svelte:head>
 

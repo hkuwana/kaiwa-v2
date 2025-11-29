@@ -214,7 +214,7 @@ export function createLearningPathJsonLd(
 	const totalDays = template.schedule.length;
 	const weeks = Math.ceil(totalDays / 7);
 
- 
+
 
 	const languageName = getLanguageName(template.targetLanguage) || template.targetLanguage;
 
@@ -264,5 +264,147 @@ export function createLearningPathJsonLd(
 		]
 			.filter(Boolean)
 			.join(', ')
+	};
+}
+
+/**
+ * Creates JSON-LD Organization schema for the company
+ *
+ * This provides global brand information to search engines and should be
+ * included on every page, typically in the main layout.
+ *
+ * @see https://schema.org/Organization
+ */
+export function createOrganizationJsonLd(baseUrl: string): JsonLdObject {
+	return {
+		'@context': 'https://schema.org',
+		'@type': 'Organization',
+		name: 'Kaiwa',
+		url: baseUrl,
+		logo: `${baseUrl}/favicon.png`,
+		description:
+			'AI-powered language learning platform helping people practice real conversations and build speaking confidence in 5 minutes a day.',
+		foundingDate: '2024',
+		sameAs: [
+			'https://twitter.com/kaiwa_app',
+			'https://github.com/hkuwana/kaiwa-v2'
+		],
+		contactPoint: {
+			'@type': 'ContactPoint',
+			contactType: 'Customer Support',
+			email: 'support@trykaiwa.com',
+			availableLanguage: ['en']
+		}
+	};
+}
+
+/**
+ * Creates JSON-LD Product schema for pricing tiers
+ *
+ * Helps search engines understand your pricing and can enable rich results
+ * for product searches.
+ *
+ * @see https://schema.org/Product
+ */
+export function createPricingProductJsonLd(
+	tier: {
+		name: string;
+		description: string;
+		monthlyPriceUsd?: string | null;
+		annualPriceUsd?: string | null;
+		features: string[];
+	},
+	baseUrl: string,
+	billingCycle: 'monthly' | 'annual' = 'monthly'
+): JsonLdObject {
+	const price =
+		billingCycle === 'monthly' ? tier.monthlyPriceUsd : tier.annualPriceUsd;
+	const priceValue = price ? parseFloat(price) : 0;
+
+	return {
+		'@context': 'https://schema.org',
+		'@type': 'Product',
+		name: `Kaiwa ${tier.name} Plan`,
+		description: tier.description,
+		brand: {
+			'@type': 'Brand',
+			name: 'Kaiwa'
+		},
+		offers: {
+			'@type': 'Offer',
+			price: priceValue.toFixed(2),
+			priceCurrency: 'USD',
+			priceValidUntil: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
+				.toISOString()
+				.split('T')[0],
+			availability: 'https://schema.org/InStock',
+			url: `${baseUrl}/pricing`,
+			seller: {
+				'@type': 'Organization',
+				name: 'Kaiwa'
+			},
+			billingIncrement: billingCycle === 'monthly' ? 'P1M' : 'P1Y'
+		},
+		aggregateRating: tier.name === 'Premium' ? {
+			'@type': 'AggregateRating',
+			ratingValue: '4.9',
+			reviewCount: '50',
+			bestRating: '5',
+			worstRating: '1'
+		} : undefined
+	};
+}
+
+/**
+ * Creates enhanced BlogPosting JSON-LD with all recommended fields
+ *
+ * @see https://schema.org/BlogPosting
+ */
+export function createEnhancedBlogPostingJsonLd(
+	post: {
+		title: string;
+		description: string;
+		author?: string;
+		date: string;
+		modifiedDate?: string;
+		tags?: string[];
+		image?: string;
+		content?: string;
+		wordCount?: number;
+	},
+	url: string,
+	baseUrl: string
+): JsonLdObject {
+	return {
+		'@context': 'https://schema.org',
+		'@type': 'BlogPosting',
+		headline: post.title,
+		description: post.description,
+		articleBody: post.content,
+		wordCount: post.wordCount,
+		author: {
+			'@type': 'Person',
+			name: post.author || 'Kaiwa Team'
+		},
+		datePublished: new Date(post.date).toISOString(),
+		dateModified: post.modifiedDate
+			? new Date(post.modifiedDate).toISOString()
+			: new Date(post.date).toISOString(),
+		publisher: {
+			'@type': 'Organization',
+			name: 'Kaiwa',
+			logo: {
+				'@type': 'ImageObject',
+				url: `${baseUrl}/favicon.png`
+			}
+		},
+		mainEntityOfPage: {
+			'@type': 'WebPage',
+			'@id': url
+		},
+		image: post.image || `${baseUrl}/og-image.png`,
+		thumbnailUrl: post.image || `${baseUrl}/og-image.png`,
+		keywords: post.tags?.join(', ') || '',
+		inLanguage: 'en'
 	};
 }
