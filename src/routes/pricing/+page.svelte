@@ -36,6 +36,8 @@
 		error?: string;
 	};
 
+	type PlanKey = 'free' | 'plus' | 'premium';
+
 	// Initialize pricingPromise as a deferred promise
 	let pricingPromise = new Promise<PricingLoadResult>((resolve) => {
 		if (typeof window !== 'undefined') {
@@ -113,6 +115,15 @@
 	function frequencyLabel(value: string | null | undefined): string {
 		if (value === 'daily') return 'Daily';
 		return 'Weekly';
+	}
+
+	function getFeatureValueForPlan(
+		plan: PlanKey,
+		featureRow: ReturnType<typeof buildFeatureRows>[number]
+	): string {
+		if (plan === 'premium') return featureRow.premium;
+		if (plan === 'plus') return featureRow.plus;
+		return featureRow.basic;
 	}
 
 	function buildFeatureRows(tiers: Record<UserTier, PricingTier>) {
@@ -222,6 +233,20 @@
 		const annual = parseFloat(tier.annualPriceUsd);
 		if (Number.isNaN(annual) || annual === 0) return '0';
 		return (annual / 12).toFixed(2);
+	}
+
+	function getMobilePriceCopy(tier: PricingTier) {
+		if (selectedPlan === 'annual') {
+			return {
+				price: `$${getAnnualPricePerMonth(tier)}`,
+				subline: 'Paid annually'
+			};
+		}
+
+		return {
+			price: formatPriceDisplay(tier.monthlyPriceUsd),
+			subline: 'Paid monthly'
+		};
 	}
 
 	// Loading state for checkout
@@ -688,7 +713,57 @@
 
 		<div class="mt-24">
 			<h2 class="mb-10 text-center text-3xl font-bold">Feature Comparison</h2>
-			<div class="overflow-x-auto rounded-xl border bg-base-100">
+
+			<!-- Mobile-first cards -->
+			<div class="lg:hidden">
+				<div class="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4">
+					{#each [{ id: 'free' as PlanKey, label: freeTier.name, badge: 'Start here', tier: freeTier, gradient: 'from-base-200 via-base-100 to-base-200/70', accent: 'text-base-content' }, { id: 'plus' as PlanKey, label: plusTier.name, badge: 'Balanced', tier: plusTier, gradient: 'from-secondary/15 via-base-100 to-secondary/5', accent: 'text-secondary' }, { id: 'premium' as PlanKey, label: premiumTier.name, badge: 'Most personal', tier: premiumTier, gradient: 'from-primary/20 via-base-100 to-primary/5', accent: 'text-primary' }] as plan (plan.id)}
+						{@const pricing = getMobilePriceCopy(plan.tier)}
+						<div
+							class="relative min-w-[85%] snap-center rounded-3xl border border-base-200 bg-linear-to-br {plan.gradient} p-6 shadow-lg backdrop-blur"
+						>
+							<div class="mb-4 flex items-center justify-between">
+								<div>
+									<p class="text-[11px] tracking-[0.18em] text-base-content/60 uppercase">
+										{plan.badge}
+									</p>
+									<p class="text-lg font-semibold sm:text-xl">{plan.label}</p>
+								</div>
+								<span
+									class="badge bg-base-200/80 badge-sm text-[11px] font-semibold sm:badge-md {plan.accent}"
+								>
+									{selectedPlan === 'annual' ? 'Annual' : 'Monthly'}
+								</span>
+							</div>
+							<div class="mb-2 flex items-baseline gap-2">
+								<span class="text-3xl font-bold sm:text-4xl {plan.accent}">{pricing.price}</span>
+								<span class="text-xs text-base-content/60 sm:text-sm">/mo</span>
+							</div>
+							<p class="text-[11px] text-base-content/60 sm:text-xs">{pricing.subline}</p>
+							<div class="mt-4 space-y-2">
+								{#each featureRows.slice(0, 8) as feature (feature.feature)}
+									<div
+										class="flex items-start justify-between gap-3 rounded-2xl bg-base-100/70 px-3 py-2"
+									>
+										<div class="text-[13px] font-medium text-base-content/90 sm:text-sm">
+											{feature.feature}
+										</div>
+										<div class="text-[12px] text-base-content/70 sm:text-sm">
+											{getFeatureValueForPlan(plan.id, feature)}
+										</div>
+									</div>
+								{/each}
+							</div>
+							<p class="mt-4 text-[11px] text-base-content/50 sm:text-xs">
+								Swipe for other plans • Detailed table available on desktop
+							</p>
+						</div>
+					{/each}
+				</div>
+			</div>
+
+			<!-- Desktop table -->
+			<div class="hidden overflow-x-auto rounded-xl border bg-base-100 lg:block">
 				<table class="table table-lg text-center">
 					<thead>
 						<tr class="bg-base-200">
