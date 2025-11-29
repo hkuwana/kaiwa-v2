@@ -81,7 +81,9 @@
 <div class="container mx-auto max-w-7xl px-4 py-6">
 	<!-- Header -->
 	<div class="mb-8">
-		<h1 class="text-3xl font-bold">Welcome back{data.user?.name ? `, ${data.user.name}` : ''}!</h1>
+		<h1 class="text-3xl font-bold">
+			Welcome back{data.user.username ? `, ${data.user.username}` : ''}!
+		</h1>
 		<p class="mt-1 text-base-content/70">Continue your language learning journey</p>
 	</div>
 

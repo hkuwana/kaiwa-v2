@@ -282,6 +282,24 @@
 		currentCardIndex = index;
 	}
 
+	// Keyboard navigation for desktop users
+	// Arrow direction matches the visual card movement direction
+	function handleKeyDown(event: KeyboardEvent) {
+		// Only handle arrow keys
+		if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+
+		// Hide swipe hint on keyboard interaction
+		showSwipeHint = false;
+
+		if (event.key === 'ArrowLeft') {
+			// Left arrow = cards move left = next card
+			nextCard(true);
+		} else if (event.key === 'ArrowRight') {
+			// Right arrow = cards move right = previous card
+			previousCard(true);
+		}
+	}
+
 	// Get transform for card based on position in stack
 	// Jony Ive approach: Show only top 3 cards with subtle depth
 	function getCardTransform(index: number): string {
@@ -342,6 +360,9 @@
 		return offset === 0 ? 'auto' : 'none';
 	}
 </script>
+
+<!-- Global keyboard listener for arrow key navigation -->
+<svelte:window onkeydown={handleKeyDown} />
 
 <div class="w-full">
 	<!-- Voice Mode Toggle - Top position -->

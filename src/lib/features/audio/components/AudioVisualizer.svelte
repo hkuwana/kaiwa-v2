@@ -208,9 +208,13 @@
 	}
 
 	// --- KEYBOARD HANDLING ---
+	// Note: Only handle Spacebar, NOT Enter key (Enter is reserved for form submission/other actions)
 	function handleKeyDown(event: KeyboardEvent) {
-		// Only handle spacebar and enter key
-		if (event.key !== ' ' && event.key !== 'Enter') return;
+		// Only handle spacebar - Enter key removed to prevent conflicts with other UI interactions
+		if (event.key !== ' ') return;
+
+		// In VAD mode, keyboard controls are disabled
+		if (isVADMode) return;
 
 		// Prevent default behavior (page scroll for spacebar)
 		event.preventDefault();
@@ -228,8 +232,11 @@
 	}
 
 	function handleKeyUp(event: KeyboardEvent) {
-		// Only handle spacebar and enter key
-		if (event.key !== ' ' && event.key !== 'Enter') return;
+		// Only handle spacebar - Enter key removed to prevent conflicts
+		if (event.key !== ' ') return;
+
+		// In VAD mode, keyboard controls are disabled
+		if (isVADMode) return;
 
 		// Prevent default behavior
 		event.preventDefault();
@@ -368,13 +375,13 @@
 	onpointerup={handlePointerUp}
 	onpointerleave={handlePointerLeave}
 	onkeydown={(e) => {
-		if (e.key === ' ' || e.key === 'Enter') {
+		if (e.key === ' ') {
 			e.preventDefault();
 			handleKeyDown(e);
 		}
 	}}
 	onkeyup={(e) => {
-		if (e.key === ' ' || e.key === 'Enter') {
+		if (e.key === ' ') {
 			e.preventDefault();
 			handleKeyUp(e);
 		}
@@ -449,7 +456,8 @@
 		{:else if isVADMode}
 			<span class="text-success">Voice detection active</span>
 		{:else}
-			<span>Press and hold to talk</span>
+			<span class="sm:hidden">Hold to talk</span>
+			<span class="hidden sm:inline">Press spacebar or hold to talk</span>
 		{/if}
 	</div>
 </div>

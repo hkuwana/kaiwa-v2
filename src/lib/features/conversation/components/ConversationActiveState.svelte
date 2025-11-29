@@ -194,7 +194,61 @@
 		userPreferencesStore.updatePreferences({ audioInputMode: newMode });
 		console.log('🎙️ Mode switched to:', newMode === 'vad' ? 'Casual Chat' : 'Walkie Talkie');
 	}
+
+	// Track if recording is active for spacebar toggle
+	let isRecordingActive = $state(false);
+
+	// Global keyboard handler for spacebar recording (desktop)
+	function handleGlobalKeyDown(event: KeyboardEvent) {
+		// Only handle spacebar
+		if (event.key !== ' ') return;
+
+		// Ignore if user is typing in an input field or focused on a button
+		// (button check prevents double-firing with AudioVisualizer's local handler)
+		const target = event.target as HTMLElement;
+		if (
+			target.tagName === 'INPUT' ||
+			target.tagName === 'TEXTAREA' ||
+			target.tagName === 'BUTTON' ||
+			target.role === 'button' ||
+			target.isContentEditable
+		) {
+			return;
+		}
+
+		// Only handle in PTT mode
+		if (audioInputMode !== 'ptt') return;
+
+		// Only handle in active conversation states
+		if (status !== 'connected' && status !== 'streaming') return;
+
+		// Prevent page scroll
+		event.preventDefault();
+
+		// Toggle recording state
+		if (isRecordingActive) {
+			// Stop recording
+			isRecordingActive = false;
+			conversationStore.pauseStreaming();
+			console.log('⏹️ Spacebar: Stopped recording');
+		} else {
+			// Start recording
+			isRecordingActive = true;
+			hasUsedAudioControl = true;
+
+			console.log('▶️ Spacebar: Started recording');
+			conversationStore.resumeStreaming();
+
+			// Trigger greeting if waiting
+			if (waitingForUserToStart) {
+				hasTriggeredInitialGreeting = true;
+			}
+		}
+	}
 </script>
+
+<!-- Global keyboard listener for spacebar recording on desktop -->
+<svelte:window onkeydown={handleGlobalKeyDown} />
 
 <div
 	class="min-h-[100dvh] bg-linear-to-br from-base-100 to-base-200"
@@ -389,9 +443,13 @@
 					{#if audioInputMode === 'ptt'}
 						<div class="flex items-center justify-center gap-2">
 							<span class="icon-[mdi--microphone] h-4 w-4"></span>
-							<span>Press and hold the microphone to talk</span>
+							<span class="sm:hidden">Press and hold the microphone to talk</span>
+							<span class="hidden sm:inline">Press spacebar or hold the microphone to talk</span>
 						</div>
-						<div class="mt-1 text-xs opacity-70">Release to hear Kaiwa's response</div>
+						<div class="mt-1 text-xs opacity-70">
+							<span class="sm:hidden">Release to hear Kaiwa's response</span>
+							<span class="hidden sm:inline">Press spacebar again or release to stop</span>
+						</div>
 					{:else}
 						<div class="flex items-center justify-center gap-2">
 							<span class="icon-[mdi--microphone] h-4 w-4"></span>
