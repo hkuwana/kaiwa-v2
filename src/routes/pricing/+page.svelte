@@ -436,7 +436,7 @@
 	{@const plusDiscount = computeAnnualDiscount(plusTier)}
 	{@const featureRows = buildFeatureRows(tiers)}
 
-	<div class="container mx-auto max-w-7xl px-4 py-16 sm:py-20">
+	<div class="container mx-auto max-w-7xl px-4 py-2 sm:py-20">
 		{#if result.error}
 			<div class="mb-8 alert alert-warning shadow-lg">
 				<span>{result.error}</span>
@@ -445,7 +445,7 @@
 
 		<!-- Personalized Path Featured Offer -->
 		<div
-			class="mb-16 rounded-3xl border-2 border-accent bg-linear-to-br from-accent/10 via-base-100 to-primary/10 p-8 shadow-xl md:p-12"
+			class="mb-16 rounded-3xl border-2 border-accent bg-linear-to-br from-accent/10 via-base-100 to-primary/10 p-2 shadow-xl md:p-12"
 		>
 			<div class="grid gap-8 lg:grid-cols-2 lg:items-center">
 				<div>
@@ -453,71 +453,71 @@
 						class="mb-4 inline-flex items-center gap-2 rounded-full bg-accent/20 px-4 py-1 text-sm font-medium text-accent"
 					>
 						<span class="icon-[mdi--star-four-points] h-4 w-4"></span>
-						{personalizedPathOffer.tagline}
+						{personalizedPathOffer.tagline} • Built with Hiro (founder)
 					</div>
-					<h2 class="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
+					<h2 class="mb-4 text-2xl font-bold tracking-tight md:text-4xl">
 						{personalizedPathOffer.headline}
 					</h2>
 					<p class="mb-6 hidden text-lg text-base-content/80 sm:flex">
 						{personalizedPathOffer.description}
 					</p>
-					<ul class="mb-6 space-y-3">
+					<ul class="mb-6 space-y-2.5 sm:space-y-3">
 						<li class="flex items-start gap-3">
 							<span class="mt-0.5 icon-[mdi--check-circle] h-5 w-5 shrink-0 text-success"></span>
-							<span
-								><strong>15 minutes with me, personally</strong>: We'll talk through your exact
-								situation and goals</span
+							<span class="text-sm sm:text-base"
+								><strong>15 minutes with Hiro (founder)</strong>: Talk through your exact situation
+								and goals</span
 							>
 						</li>
 						<li class="flex items-start gap-3">
 							<span class="mt-0.5 icon-[mdi--check-circle] h-5 w-5 shrink-0 text-success"></span>
-							<span
-								><strong>Custom path built for you</strong>: 14 or 28 days of scenarios designed for
-								YOUR life</span
+							<span class="text-sm sm:text-base"
+								><strong>Custom path built for you</strong>: 14 or 28 days of scenarios designed
+								for YOUR life</span
 							>
 						</li>
 						<li class="flex items-start gap-3">
 							<span class="mt-0.5 icon-[mdi--crown] h-5 w-5 shrink-0 text-accent"></span>
-							<span
+							<span class="text-sm sm:text-base"
 								><strong>Premium access included</strong>: Unlimited practice time during your
 								entire path</span
 							>
 						</li>
 						<li class="flex items-start gap-3">
 							<span class="mt-0.5 icon-[mdi--check-circle] h-5 w-5 shrink-0 text-success"></span>
-							<span
+							<span class="text-sm sm:text-base"
 								><strong>Mid-path check-in</strong>: We'll review progress and adjust if needed</span
 							>
 						</li>
 					</ul>
 				</div>
 				<div class="text-center lg:text-right">
-					<div class="inline-block rounded-2xl bg-base-100 p-8 shadow-lg">
-						<p class="mb-1 text-sm font-medium text-base-content/70">
+					<div class="w-full max-w-sm sm:max-w-md rounded-2xl bg-base-100 p-6 shadow-lg sm:p-8">
+						<p class="mb-1 text-xs font-medium text-base-content/70 sm:text-sm">
 							Personalize your conversations for
 						</p>
 						<div class="mb-2 flex items-center justify-center gap-2 sm:justify-end">
-							<p class="text-2xl font-medium text-base-content/40 line-through">
+							<p class="text-xl font-medium text-base-content/40 line-through sm:text-2xl">
 								${personalizedPathOffer.regularPrice}
 							</p>
-							<p class="text-5xl font-bold text-accent">
+							<p class="text-4xl font-bold text-accent sm:text-5xl">
 								${personalizedPathOffer.foundingMemberPrice}
 							</p>
 						</div>
-						<p class="mb-4 text-sm text-base-content/70">Founding member price</p>
-						<p class="mb-6 text-xs text-base-content/50">
+						<p class="mb-4 text-sm text-base-content/70 sm:text-base">Founding member price</p>
+						<p class="mb-6 text-xs text-base-content/50 sm:text-sm">
 							Only {personalizedPathOffer.spotsAvailable} spots for {personalizedPathOffer.availabilityPeriod}
 						</p>
 						<a
 							href={CALENDAR_LINK}
 							target="_blank"
 							rel="noopener noreferrer"
-							class="btn w-full gap-2 btn-lg btn-accent"
+							class="btn w-full gap-2 btn-accent btn-md sm:btn-lg"
 						>
 							<span class="icon-[mdi--calendar-check] h-5 w-5"></span>
 							{personalizedPathOffer.ctaText}
 						</a>
-						<p class="mt-3 text-xs text-base-content/50">
+						<p class="mt-3 text-xs text-base-content/50 sm:text-sm">
 							{personalizedPathOffer.ctaSubtext}
 						</p>
 					</div>
