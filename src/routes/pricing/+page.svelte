@@ -431,7 +431,7 @@
 					<h2 class="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
 						{personalizedPathOffer.headline}
 					</h2>
-					<p class="mb-6 text-lg text-base-content/80">
+					<p class="mb-6 hidden text-lg text-base-content/80 sm:flex">
 						{personalizedPathOffer.description}
 					</p>
 					<ul class="mb-6 space-y-3">
@@ -466,8 +466,10 @@
 				</div>
 				<div class="text-center lg:text-right">
 					<div class="inline-block rounded-2xl bg-base-100 p-8 shadow-lg">
-						<p class="mb-1 text-sm font-medium text-base-content/70">Then unlock your path for</p>
-						<div class="mb-2 flex items-center justify-center gap-2">
+						<p class="mb-1 text-sm font-medium text-base-content/70">
+							Personalize your conversations for
+						</p>
+						<div class="mb-2 flex items-center justify-center gap-2 sm:justify-end">
 							<p class="text-2xl font-medium text-base-content/40 line-through">
 								${personalizedPathOffer.regularPrice}
 							</p>

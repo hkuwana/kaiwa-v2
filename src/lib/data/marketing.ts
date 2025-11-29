@@ -52,8 +52,8 @@ export const personalizedPathOffer = {
 	],
 
 	// CTA
-	ctaText: 'Book Your Consultation',
-	ctaSubtext: '15 min with me personally • Then $49 to unlock your path',
+	ctaText: 'Book Consultation',
+	ctaSubtext: '15 min with me (the creator) personally • Then $49 to unlock your path',
 	calendarLink: CALENDAR_LINK,
 
 	// Copy
