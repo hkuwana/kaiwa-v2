@@ -439,7 +439,7 @@
 	{@const plusDiscount = computeAnnualDiscount(plusTier)}
 	{@const featureRows = buildFeatureRows(tiers)}
 
-	<div class="container mx-auto max-w-7xl px-4 py-16 sm:py-20">
+	<div class="container mx-auto max-w-7xl px-4 py-2 sm:py-20">
 		{#if result.error}
 			<div class="mb-8 alert alert-warning shadow-lg">
 				<span>{result.error}</span>
