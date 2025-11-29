@@ -378,12 +378,12 @@
 					class:opacity-50={selectedAudioMode === 'vad'}
 					class:scale-105={selectedAudioMode === 'ptt'}
 				>
-					<span class="icon-[mdi--walkie-talkie] h-4.5 w-4.5"></span>
+					<span class="h-4.5 w-4.5 icon-[mdi--walkie-talkie]"></span>
 					<span class:hidden={selectedAudioMode === 'vad'} class="sm:inline">Walkie Talkie</span>
 				</span>
 				<input
 					type="checkbox"
-					class="toggle toggle-sm toggle-primary"
+					class="toggle toggle-primary toggle-sm"
 					checked={selectedAudioMode === 'vad'}
 					onchange={() => handleAudioModeChange(selectedAudioMode === 'vad' ? 'ptt' : 'vad')}
 					aria-label="Switch between Walkie Talkie and Casual Chat modes"
@@ -406,15 +406,6 @@
 
 	<!-- Swipeable Card Stack Section -->
 	<div class="space-y-2 sm:space-y-3">
-		<!-- Swipe hint - Above cards -->
-		<div
-			class="text-center text-xs font-normal text-base-content/40"
-			in:fly={{ y: -5, duration: 400, delay: 200, easing: quintOut }}
-		>
-			<span class="sm:hidden">Swipe to explore scenarios</span>
-			<span class="hidden sm:inline">Use ← → arrow keys or swipe to explore</span>
-		</div>
-
 		<!-- Card Stack Container -->
 		<div class="relative mx-auto w-full max-w-2xl px-4">
 			<!-- Animated Swipe Hints - Show initially then fade out -->
