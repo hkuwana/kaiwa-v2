@@ -165,7 +165,7 @@
 								/>
 							{:else}
 								<div
-									class="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 to-primary/30 text-5xl"
+									class="flex h-full w-full items-center justify-center bg-linear-to-br from-primary/10 to-primary/30 text-5xl"
 								>
 									{#if currentSpeaker.gender === 'male'}
 										👨

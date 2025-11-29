@@ -22,7 +22,7 @@
 	let selectedPlan = $state('annual');
 
 	// Feature status tracking
-	const COMING_SOON = 'COMING SOON';
+	const data = $props();
 
 	// Assumes tiers are 'free', 'plus', 'premium'
 	const currentTier = $derived(userManager.effectiveTier);
@@ -281,15 +281,15 @@
 				})
 			});
 
-			const data = await response.json();
+			const checkoutData = await response.json();
 
-			if (response.ok && data.url) {
+			if (response.ok && checkoutData.url) {
 				// Redirect to Stripe checkout
-				window.location.href = data.url;
+				window.location.href = checkoutData.url;
 			} else {
-				console.error('Checkout error:', data);
+				console.error('Checkout error:', checkoutData);
 				// eslint-disable-next-line no-alert
-				alert(data.error || 'Failed to create checkout session. Please try again.');
+				alert(checkoutData.error || 'Failed to create checkout session. Please try again.');
 			}
 		} catch (error) {
 			console.error('Checkout error:', error);
@@ -417,10 +417,14 @@
 		{/if}
 
 		<!-- Personalized Path Featured Offer -->
-		<div class="mb-16 rounded-3xl border-2 border-accent bg-gradient-to-br from-accent/10 via-base-100 to-primary/10 p-8 shadow-xl md:p-12">
+		<div
+			class="mb-16 rounded-3xl border-2 border-accent bg-linear-to-br from-accent/10 via-base-100 to-primary/10 p-8 shadow-xl md:p-12"
+		>
 			<div class="grid gap-8 lg:grid-cols-2 lg:items-center">
 				<div>
-					<div class="mb-4 inline-flex items-center gap-2 rounded-full bg-accent/20 px-4 py-1 text-sm font-medium text-accent">
+					<div
+						class="mb-4 inline-flex items-center gap-2 rounded-full bg-accent/20 px-4 py-1 text-sm font-medium text-accent"
+					>
 						<span class="icon-[mdi--star-four-points] h-4 w-4"></span>
 						{personalizedPathOffer.tagline}
 					</div>
@@ -432,20 +436,31 @@
 					</p>
 					<ul class="mb-6 space-y-3">
 						<li class="flex items-start gap-3">
-							<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
-							<span><strong>15 minutes with me, personally</strong>: We'll talk through your exact situation and goals</span>
+							<span class="mt-0.5 icon-[mdi--check-circle] h-5 w-5 shrink-0 text-success"></span>
+							<span
+								><strong>15 minutes with me, personally</strong>: We'll talk through your exact
+								situation and goals</span
+							>
 						</li>
 						<li class="flex items-start gap-3">
-							<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
-							<span><strong>Custom path built for you</strong>: 14 or 28 days of scenarios designed for YOUR life</span>
+							<span class="mt-0.5 icon-[mdi--check-circle] h-5 w-5 shrink-0 text-success"></span>
+							<span
+								><strong>Custom path built for you</strong>: 14 or 28 days of scenarios designed for
+								YOUR life</span
+							>
 						</li>
 						<li class="flex items-start gap-3">
-							<span class="icon-[mdi--crown] mt-0.5 h-5 w-5 shrink-0 text-accent"></span>
-							<span><strong>Premium access included</strong>: Unlimited practice time during your entire path</span>
+							<span class="mt-0.5 icon-[mdi--crown] h-5 w-5 shrink-0 text-accent"></span>
+							<span
+								><strong>Premium access included</strong>: Unlimited practice time during your
+								entire path</span
+							>
 						</li>
 						<li class="flex items-start gap-3">
-							<span class="icon-[mdi--check-circle] mt-0.5 h-5 w-5 shrink-0 text-success"></span>
-							<span><strong>Mid-path check-in</strong>: We'll review progress and adjust if needed</span>
+							<span class="mt-0.5 icon-[mdi--check-circle] h-5 w-5 shrink-0 text-success"></span>
+							<span
+								><strong>Mid-path check-in</strong>: We'll review progress and adjust if needed</span
+							>
 						</li>
 					</ul>
 				</div>
@@ -453,16 +468,22 @@
 					<div class="inline-block rounded-2xl bg-base-100 p-8 shadow-lg">
 						<p class="mb-1 text-sm font-medium text-base-content/70">Then unlock your path for</p>
 						<div class="mb-2 flex items-center justify-center gap-2">
-							<p class="text-2xl font-medium text-base-content/40 line-through">${personalizedPathOffer.regularPrice}</p>
-							<p class="text-5xl font-bold text-accent">${personalizedPathOffer.foundingMemberPrice}</p>
+							<p class="text-2xl font-medium text-base-content/40 line-through">
+								${personalizedPathOffer.regularPrice}
+							</p>
+							<p class="text-5xl font-bold text-accent">
+								${personalizedPathOffer.foundingMemberPrice}
+							</p>
 						</div>
 						<p class="mb-4 text-sm text-base-content/70">Founding member price</p>
-						<p class="mb-6 text-xs text-base-content/50">Only {personalizedPathOffer.spotsAvailable} spots for {personalizedPathOffer.availabilityPeriod}</p>
+						<p class="mb-6 text-xs text-base-content/50">
+							Only {personalizedPathOffer.spotsAvailable} spots for {personalizedPathOffer.availabilityPeriod}
+						</p>
 						<a
 							href={CALENDAR_LINK}
 							target="_blank"
 							rel="noopener noreferrer"
-							class="btn btn-accent btn-lg w-full gap-2"
+							class="btn w-full gap-2 btn-lg btn-accent"
 						>
 							<span class="icon-[mdi--calendar-check] h-5 w-5"></span>
 							{personalizedPathOffer.ctaText}
@@ -476,7 +497,9 @@
 		</div>
 
 		<div class="mb-16 text-center">
-			<p class="mb-2 text-sm font-medium uppercase tracking-wider text-base-content/50">Or practice on your own</p>
+			<p class="mb-2 text-sm font-medium tracking-wider text-base-content/50 uppercase">
+				Or practice on your own
+			</p>
 			<h1 class="mb-4 text-4xl font-bold tracking-tight lg:text-5xl">
 				Practice Real Conversations With Loved Ones
 			</h1>
@@ -485,9 +508,18 @@
 				light up with pride when you speak.
 			</p>
 			<div class="mt-6 flex justify-center space-x-6 text-sm opacity-70">
-				<span>✓ Free trial included</span>
-				<span>✓ Cancel anytime</span>
-				<span>✓ 20+ languages included</span>
+				<span class="inline-flex items-center gap-1">
+					<span class="icon-[mdi--check] text-success"></span>
+					Free trial included
+				</span>
+				<span class="inline-flex items-center gap-1">
+					<span class="icon-[mdi--check] text-success"></span>
+					Cancel anytime
+				</span>
+				<span class="inline-flex items-center gap-1">
+					<span class="icon-[mdi--check] text-success"></span>
+					20+ languages included
+				</span>
 			</div>
 		</div>
 
@@ -518,10 +550,10 @@
 					$0
 					<span class="text-xl font-normal text-base-content/60">/month</span>
 				</p>
-				<p class="mt-4 min-h-[4rem] text-base-content/70">
+				<p class="mt-4 min-h-16 text-base-content/70">
 					Try Kaiwa with 15 minutes of AI conversation practice
 				</p>
-				<div class="flex-grow"></div>
+				<div class="grow"></div>
 				{#if isCurrentTier(SubscriptionTier.GUEST) || isCurrentTier(SubscriptionTier.BASIC)}
 					<button class="btn mt-8 w-full btn-outline" disabled>Your Current Plan</button>
 				{:else if isOnPaidTier()}
@@ -549,9 +581,11 @@
 			</div>
 
 			<!-- Premium Tier (Center - Recommended) -->
-			<div class="relative flex flex-col items-center rounded-2xl border-2 border-primary bg-base-100 p-8 text-center shadow-2xl shadow-primary/20 lg:-mt-4 lg:pb-12">
+			<div
+				class="relative flex flex-col items-center rounded-2xl border-2 border-primary bg-base-100 p-8 text-center shadow-2xl shadow-primary/20 lg:-mt-4 lg:pb-12"
+			>
 				<div class="absolute -top-4 left-1/2 -translate-x-1/2">
-					<span class="badge badge-primary px-4 py-3 text-sm font-semibold">Recommended</span>
+					<span class="badge px-4 py-3 text-sm font-semibold badge-primary">Recommended</span>
 				</div>
 				<div class="mt-2 flex items-center gap-2">
 					<span class="icon-[mdi--crown] h-6 w-6 text-primary"></span>
@@ -570,9 +604,7 @@
 					</p>
 					<p class="text-sm text-base-content/50">billed annually</p>
 				{/if}
-				<p class="mt-4 text-base-content/70">
-					10 hours of practice with personal guidance
-				</p>
+				<p class="mt-4 text-base-content/70">10 hours of practice with personal guidance</p>
 				<ul class="mt-4 space-y-2 text-left text-sm">
 					<li class="flex items-center gap-2">
 						<span class="icon-[mdi--check-circle] h-5 w-5 text-primary"></span>
@@ -591,7 +623,7 @@
 						Unlimited custom scenarios
 					</li>
 				</ul>
-				<div class="flex-grow"></div>
+				<div class="grow"></div>
 				{#if isCurrentTier(SubscriptionTier.PREMIUM)}
 					<button class="btn mt-8 w-full btn-outline" disabled>Your Current Plan</button>
 				{:else}
@@ -613,7 +645,7 @@
 			<!-- Plus Tier -->
 			<div class="flex flex-col items-center rounded-2xl border bg-base-100 p-8 text-center">
 				<div class="flex items-center gap-2">
-					<span class="icon-[mdi--star] h-6 w-6 text-yellow-400"></span>
+					<span class="icon-[mdi--star] h-6 w-6 text-secondary"></span>
 					<h2 class="text-2xl font-semibold">{plusTier.name}</h2>
 				</div>
 
@@ -629,10 +661,10 @@
 					</p>
 					<p class="text-sm text-base-content/50">billed annually</p>
 				{/if}
-				<p class="mt-4 min-h-[4rem] text-base-content/70">
+				<p class="mt-4 min-h-16 text-base-content/70">
 					10 hours of AI practice with automated learning paths
 				</p>
-				<div class="flex-grow"></div>
+				<div class="grow"></div>
 				{#if isCurrentTier(SubscriptionTier.PLUS)}
 					<button class="btn mt-8 w-full btn-outline" disabled>Your Current Plan</button>
 				{:else}
@@ -660,7 +692,7 @@
 						<tr class="bg-base-200">
 							<th class="w-2/5 text-left"></th>
 							<th class="text-lg">{freeTier.name}</th>
-							<th class="text-lg text-primary font-bold">{premiumTier.name}</th>
+							<th class="text-lg font-bold text-primary">{premiumTier.name}</th>
 							<th class="text-lg">{plusTier.name}</th>
 						</tr>
 					</thead>
@@ -679,7 +711,10 @@
 				</table>
 			</div>
 			<p class="mt-4 text-center text-xs text-base-content/50">
-				* 1-on-1 calls available while we're small. See <a href="/terms" class="underline hover:text-base-content/70">terms</a> for details.
+				* 1-on-1 calls available while we're small. See <a
+					href="/terms"
+					class="underline hover:text-base-content/70">terms</a
+				> for details.
 			</p>
 		</div>
 

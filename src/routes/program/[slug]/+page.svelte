@@ -98,7 +98,7 @@
 			<div class="not-prose my-8 grid gap-6 md:grid-cols-3">
 				<div class="card bg-base-200">
 					<div class="card-body items-center text-center">
-						<div class="mb-2 text-4xl">🎯</div>
+						<span class="mb-2 icon-[mdi--target] h-10 w-10 text-primary"></span>
 						<h3 class="card-title text-lg">Practical Focus</h3>
 						<p class="text-sm">Real conversations you'll actually use</p>
 					</div>
@@ -106,7 +106,7 @@
 
 				<div class="card bg-base-200">
 					<div class="card-body items-center text-center">
-						<div class="mb-2 text-4xl">⚡</div>
+						<span class="mb-2 icon-[mdi--flash] h-10 w-10 text-secondary"></span>
 						<h3 class="card-title text-lg">Quick Sessions</h3>
 						<p class="text-sm">Just 5-20 minutes per day</p>
 					</div>
@@ -114,7 +114,7 @@
 
 				<div class="card bg-base-200">
 					<div class="card-body items-center text-center">
-						<div class="mb-2 text-4xl">🤖</div>
+						<span class="mb-2 icon-[mdi--robot-outline] h-10 w-10 text-accent"></span>
 						<h3 class="card-title text-lg">AI-Powered</h3>
 						<p class="text-sm">Practice anytime, get instant feedback</p>
 					</div>
@@ -123,19 +123,7 @@
 
 			{#if template.metadata}
 				<div class="alert alert-info">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						class="h-6 w-6 shrink-0 stroke-current"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-						></path>
-					</svg>
+					<span class="icon-[mdi--information-outline] h-6 w-6 shrink-0"></span>
 					<div class="text-sm">
 						<strong>Level:</strong>
 						{template.metadata.cefrLevel || 'Beginner to Intermediate'}
@@ -195,19 +183,19 @@
 		</div>
 
 		<!-- Social Proof / Benefits -->
-		<div class="card mb-8 bg-gradient-to-br from-base-200 to-base-300">
+		<div class="card mb-8 bg-linear-to-br from-base-200 to-base-300">
 			<div class="card-body">
 				<h3 class="mb-4 card-title text-2xl">Why Learners Love Kaiwa</h3>
 				<div class="grid gap-4 md:grid-cols-2">
 					<div class="flex gap-3">
-						<div class="text-2xl">✓</div>
+						<span class="mt-1 icon-[mdi--check-circle] h-5 w-5 text-success"></span>
 						<div>
 							<h4 class="font-semibold">Safe Practice Environment</h4>
 							<p class="text-sm text-base-content/70">Build confidence without fear of judgment</p>
 						</div>
 					</div>
 					<div class="flex gap-3">
-						<div class="text-2xl">✓</div>
+						<span class="mt-1 icon-[mdi--check-circle] h-5 w-5 text-success"></span>
 						<div>
 							<h4 class="font-semibold">Instant Feedback</h4>
 							<p class="text-sm text-base-content/70">
@@ -216,14 +204,14 @@
 						</div>
 					</div>
 					<div class="flex gap-3">
-						<div class="text-2xl">✓</div>
+						<span class="mt-1 icon-[mdi--check-circle] h-5 w-5 text-success"></span>
 						<div>
 							<h4 class="font-semibold">Flexible Schedule</h4>
 							<p class="text-sm text-base-content/70">Practice whenever works for you</p>
 						</div>
 					</div>
 					<div class="flex gap-3">
-						<div class="text-2xl">✓</div>
+						<span class="mt-1 icon-[mdi--check-circle] h-5 w-5 text-success"></span>
 						<div>
 							<h4 class="font-semibold">Real Scenarios</h4>
 							<p class="text-sm text-base-content/70">

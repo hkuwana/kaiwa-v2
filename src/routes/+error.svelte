@@ -37,7 +37,7 @@
 <div class="flex min-h-screen items-center justify-center bg-base-200 p-4">
 	<div class="card w-full max-w-md bg-base-100 shadow-xl">
 		<div class="card-body items-center text-center">
-			<div class="mb-4 text-6xl">⚠️</div>
+			<span class="mb-4 icon-[mdi--alert] h-16 w-16 text-warning"></span>
 			<h2 class="mb-2 card-title text-2xl">Oops! Something went wrong</h2>
 
 			{#if isSchemaCookieError}
@@ -46,19 +46,7 @@
 				</p>
 
 				<div class="mb-4 alert alert-info">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						class="h-6 w-6 shrink-0 stroke-current"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-						></path>
-					</svg>
+					<span class="icon-[mdi--information-outline] h-6 w-6 shrink-0"></span>
 					<span>Click below to clear cached data and reload</span>
 				</div>
 

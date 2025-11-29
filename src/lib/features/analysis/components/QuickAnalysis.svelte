@@ -207,7 +207,7 @@
 
 {#if isVisible}
 	<div
-		class="min-h-screen bg-gradient-to-br from-base-100 to-base-200"
+		class="min-h-screen bg-linear-to-br from-base-100 to-base-200"
 		transition:fade={{ duration: 300 }}
 	>
 		<div class="container mx-auto max-w-4xl px-4 py-6">
@@ -270,7 +270,7 @@
 
 			<!-- Quick Insights -->
 			<div
-				class="mb-6 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5 p-6 shadow-lg {isGuestUser
+				class="mb-6 rounded-xl border border-primary/20 bg-linear-to-br from-primary/5 to-secondary/5 p-6 shadow-lg {isGuestUser
 					? 'relative'
 					: ''}"
 				transition:slide={{ duration: 400, delay: 300 }}
@@ -283,7 +283,7 @@
 							transition:slide={{ duration: 300, delay: 400 + i * 100 }}
 						>
 							<div
-								class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-primary/20"
+								class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20"
 							>
 								<span class="text-xs font-bold text-primary">{i + 1}</span>
 							</div>
@@ -298,7 +298,7 @@
 								transition:slide={{ duration: 300, delay: 400 + (i + 2) * 100 }}
 							>
 								<div
-									class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-primary/20"
+									class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20"
 								>
 									<span class="text-xs font-bold text-primary">{i + 3}</span>
 								</div>

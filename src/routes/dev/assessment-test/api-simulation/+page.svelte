@@ -204,7 +204,7 @@
 	<meta name="description" content="Test the assessment API flow and simulation" />
 </svelte:head>
 
-<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 p-6">
+<div class="min-h-screen bg-linear-to-br from-base-100 to-base-200 p-6">
 	<div class="container mx-auto max-w-4xl">
 		<div class="mb-8">
 			<h1 class="mb-2 text-3xl font-bold text-primary">API Simulation Testing</h1>

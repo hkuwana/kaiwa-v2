@@ -214,7 +214,10 @@
 
 		// Read audioMode from URL search params, fall back to user preference, then default to PTT
 		const urlAudioMode = page.url.searchParams.get('audioMode') as 'vad' | 'ptt' | null;
-		const preferredAudioMode = userPreferencesStore.getPreference('audioInputMode') as 'vad' | 'ptt' | undefined;
+		const preferredAudioMode = userPreferencesStore.getPreference('audioInputMode') as
+			| 'vad'
+			| 'ptt'
+			| undefined;
 		const audioMode = urlAudioMode || preferredAudioMode || 'ptt';
 		console.log('🎙️ Audio mode resolved:', {
 			fromUrl: urlAudioMode,
@@ -313,10 +316,10 @@
 
 {#if status === 'static'}
 	<!-- Static view of existing conversation -->
-	<div class="min-h-[100dvh] bg-gradient-to-br from-base-100 to-base-200">
+	<div class="min-h-[100dvh] bg-linear-to-br from-base-100 to-base-200">
 		<div class="container mx-auto box-border flex h-[100dvh] max-w-4xl flex-col px-4 py-4">
 			<!-- Header for static view -->
-			<div class="mb-4 flex-shrink-0">
+			<div class="mb-4 shrink-0">
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body p-4">
 						<div class="flex items-center justify-between">
@@ -348,7 +351,7 @@
 			<div class="mb-4 min-h-0 flex-1">
 				<div class="card h-full bg-base-100 shadow-lg">
 					<div class="card-body flex h-full flex-col">
-						<div class="mb-4 card-title flex-shrink-0 text-xl">
+						<div class="mb-4 card-title shrink-0 text-xl">
 							Conversation History
 							<span class="text-sm font-normal opacity-70">({messages.length} messages)</span>
 						</div>
@@ -375,7 +378,7 @@
 	</div>
 {:else if status === 'connecting'}
 	<!-- Use new ConnectingState component -->
-	<div class="bg-gradient-to-br from-base-100 to-base-200 px-4 pt-0">
+	<div class="bg-linear-to-br from-base-100 to-base-200 px-4 pt-0">
 		<!-- Stage Indicator -->
 		<div class="mb-3 sm:mb-8">
 			<StageIndicator currentStage="chat" />
@@ -390,7 +393,7 @@
 	</div>
 {:else if status === 'error'}
 	<!-- Use new ErrorState component -->
-	<div class="box-border min-h-[100dvh] bg-gradient-to-br from-base-100 to-base-200 px-4 py-8">
+	<div class="box-border min-h-[100dvh] bg-linear-to-br from-base-100 to-base-200 px-4 py-8">
 		<!-- Stage Indicator -->
 		<div class="mb-3 sm:mb-8">
 			<StageIndicator currentStage="chat" />
@@ -404,7 +407,7 @@
 	</div>
 {:else if status === 'analyzing'}
 	<!-- Show loading state while redirecting to analysis -->
-	<div class="box-border min-h-[100dvh] bg-gradient-to-br from-base-100 to-base-200 px-4 py-8">
+	<div class="box-border min-h-[100dvh] bg-linear-to-br from-base-100 to-base-200 px-4 py-8">
 		<!-- Stage Indicator -->
 		<div class="mb-3 sm:mb-8">
 			<StageIndicator currentStage="chat" />

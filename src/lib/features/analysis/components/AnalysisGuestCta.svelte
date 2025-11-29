@@ -44,7 +44,7 @@
 >
 	<!-- CTA Card -->
 	<div
-		class="relative w-full max-w-lg overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-base-100 to-secondary/5 shadow-2xl"
+		class="relative w-full max-w-lg overflow-hidden rounded-2xl bg-linear-to-br from-primary/5 via-base-100 to-secondary/5 shadow-2xl"
 		transition:scale={{ duration: 300, easing: cubicOut, start: 0.9 }}
 		onclick={(e) => e.stopPropagation()}
 		role="dialog"
@@ -65,7 +65,7 @@
 			<!-- Icon -->
 			<div class="mb-4 flex justify-center">
 				<div
-					class="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary"
+					class="flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br from-primary to-secondary"
 				>
 					<span class="icon-[mdi--lock] h-8 w-8 text-white"></span>
 				</div>
@@ -101,14 +101,14 @@
 			<!-- Benefits -->
 			<div class="mb-6 space-y-3 text-left">
 				<div class="flex items-start gap-3">
-					<span class="mt-0.5 icon-[mdi--check-circle] h-5 w-5 flex-shrink-0 text-success"></span>
+					<span class="mt-0.5 icon-[mdi--check-circle] h-5 w-5 shrink-0 text-success"></span>
 					<div class="text-sm text-base-content/60">
 						Access your conversation history from any device
 					</div>
 				</div>
 
 				<div class="flex items-start gap-3">
-					<span class="mt-0.5 icon-[mdi--check-circle] h-5 w-5 flex-shrink-0 text-success"></span>
+					<span class="mt-0.5 icon-[mdi--check-circle] h-5 w-5 shrink-0 text-success"></span>
 					<div>
 						<div class="font-medium">Detailed Grammar & Phrase Analysis</div>
 						<div class="text-sm text-base-content/60">
@@ -138,6 +138,6 @@
 		</div>
 
 		<!-- Bottom accent -->
-		<div class="h-2 bg-gradient-to-r from-primary via-secondary to-accent"></div>
+		<div class="h-2 bg-linear-to-br from-primary via-secondary to-accent"></div>
 	</div>
 </div>

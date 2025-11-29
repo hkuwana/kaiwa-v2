@@ -78,7 +78,7 @@
 				<div class="flex items-center justify-between border-b border-base-200 p-4 sm:p-6">
 					<div class="flex items-center gap-2 sm:gap-3">
 						<div
-							class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary sm:h-12 sm:w-12"
+							class="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-primary to-secondary sm:h-12 sm:w-12"
 						>
 							<span class="icon-[mdi--check-circle] h-5 w-5 text-base-100 sm:h-6 sm:w-6"></span>
 						</div>
@@ -262,7 +262,7 @@
 				<div class="mb-3 flex items-center justify-between">
 					<div class="flex items-center gap-2">
 						<div
-							class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary"
+							class="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-primary to-secondary"
 						>
 							<span class="icon-[mdi--check-circle] h-4 w-4 text-base-100"></span>
 						</div>

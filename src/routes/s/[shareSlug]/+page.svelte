@@ -59,7 +59,7 @@
 
 <div class="min-h-screen bg-base-100">
 	<!-- Hero Section -->
-	<section class="border-b border-base-content/10 bg-gradient-to-b from-base-200/40 to-base-100">
+	<section class="border-b border-base-content/10 bg-linear-to-b from-base-200/40 to-base-100">
 		<div class="container mx-auto max-w-4xl px-6 py-16">
 			<!-- Back to scenarios link -->
 			<div class="mb-8">

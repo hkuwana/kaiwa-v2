@@ -1,7 +1,8 @@
 # syntax = docker/dockerfile:1
 
 # Adjust NODE_VERSION as desired
-ARG NODE_VERSION=20.19.0
+# Must be >= 20.19.5 to satisfy transitive dependency "isomorphic-dompurify"
+ARG NODE_VERSION=20.19.5
 FROM node:${NODE_VERSION}-slim AS base
 
 LABEL fly_launch_runtime="SvelteKit"

@@ -440,27 +440,15 @@
 					>
 						<a
 							href="/scenarios"
-							class="block overflow-hidden rounded-3xl border-2 border-dashed border-primary/30 bg-gradient-to-br from-base-100 to-base-200/50 p-8 shadow-xl backdrop-blur-sm transition-all duration-200 hover:scale-[1.02] hover:border-primary/60 hover:shadow-2xl sm:p-12"
+							class="block overflow-hidden rounded-3xl border-2 border-dashed border-primary/30 bg-linear-to-br from-base-100 to-base-200/50 p-8 shadow-xl backdrop-blur-sm transition-all duration-200 hover:scale-[1.02] hover:border-primary/60 hover:shadow-2xl sm:p-12"
 						>
 							<div class="flex flex-col items-center justify-center text-center">
 								<!-- Icon -->
 								<div
 									class="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 sm:h-24 sm:w-24"
 								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										class="h-10 w-10 text-primary sm:h-12 sm:w-12"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke="currentColor"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-										/>
-									</svg>
+									<span class="icon-[mdi--view-grid-outline] h-10 w-10 text-primary sm:h-12 sm:w-12"
+									></span>
 								</div>
 
 								<!-- Text -->
@@ -476,20 +464,7 @@
 								<!-- CTA -->
 								<div class="btn shadow-lg btn-lg btn-primary">
 									View All
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										class="h-5 w-5"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke="currentColor"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M13 7l5 5m0 0l-5 5m5-5H6"
-										/>
-									</svg>
+									<span class="icon-[mdi--arrow-right] h-5 w-5"></span>
 								</div>
 							</div>
 						</a>
@@ -639,25 +614,6 @@
 <style>
 	@reference "tailwindcss";
 
-	/* Hide scrollbar but keep functionality */
-	.scrollbar-hide {
-		-ms-overflow-style: none;
-		scrollbar-width: none;
-	}
-
-	.scrollbar-hide::-webkit-scrollbar {
-		display: none;
-	}
-
-	/* Smooth tab transitions */
-	.tab {
-		@apply transition-all duration-200;
-	}
-
-	.tab-active {
-		@apply scale-105 shadow-md;
-	}
-
 	/* Card stack item - smooth transitions with spring-like easing */
 	.card-stack-item {
 		transition:
@@ -669,11 +625,6 @@
 	/* When dragging, remove transition for immediate feedback */
 	.card-stack-item.cursor-grabbing {
 		transition: opacity 0.3s ease-out;
-	}
-
-	/* Progress indicator animation */
-	button[aria-label^='Go to'] {
-		@apply cursor-pointer transition-all duration-300 hover:scale-125;
 	}
 
 	/* Swipe hint animations */

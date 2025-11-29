@@ -88,7 +88,7 @@
 	<title>Cultural DNA Dev Testing - Kaiwa</title>
 </svelte:head>
 
-<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 p-4">
+<div class="min-h-screen bg-linear-to-br from-base-100 to-base-200 p-4">
 	<div class="container mx-auto max-w-4xl">
 		<!-- Header -->
 		<div class="mb-6 text-center">
@@ -333,7 +333,7 @@
 			<div class="space-y-6">
 				{#if dnaResults}
 					<!-- DNA Results Display -->
-					<div class="card bg-gradient-to-r from-primary/5 to-secondary/5 shadow-lg">
+					<div class="card bg-linear-to-br from-primary/5 to-secondary/5 shadow-lg">
 						<div class="card-body">
 							<div class="mb-6 text-center">
 								<h1 class="mb-2 text-2xl font-bold">🧬 Your Cultural DNA</h1>

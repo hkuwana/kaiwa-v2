@@ -39,7 +39,7 @@
 
 {#if isHero}
 	<!-- Hero CTA - Large, prominent -->
-	<div class="hero rounded-2xl bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
+	<div class="hero rounded-2xl bg-linear-to-br from-primary/10 via-secondary/10 to-accent/10">
 		<div class="hero-content px-6 py-12 text-center">
 			<div class="max-w-2xl">
 				<h1 class="mb-4 text-4xl font-bold md:text-5xl">
@@ -55,27 +55,27 @@
 
 				<div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
 					<a href={signupUrl} class="btn gap-2 btn-lg btn-primary">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="h-6 w-6"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M13 10V3L4 14h7v7l9-11h-7z"
-							/>
-						</svg>
+						<span class="icon-[mdi--rocket-launch-outline] h-6 w-6"></span>
 						Start Learning Free
 					</a>
 					<a href="#syllabus" class="btn btn-outline btn-lg"> View Full Syllabus </a>
 				</div>
 
 				<p class="mt-6 text-sm text-base-content/50">
-					✓ No credit card required • ✓ 5 minutes a day • ✓ AI-powered conversations
+					<span class="inline-flex items-center gap-1">
+						<span class="icon-[mdi--check] text-success"></span>
+						No credit card required
+					</span>
+					<span class="mx-1">•</span>
+					<span class="inline-flex items-center gap-1">
+						<span class="icon-[mdi--check] text-success"></span>
+						5 minutes a day
+					</span>
+					<span class="mx-1">•</span>
+					<span class="inline-flex items-center gap-1">
+						<span class="icon-[mdi--check] text-success"></span>
+						AI-powered conversations
+					</span>
 				</p>
 			</div>
 		</div>
@@ -88,20 +88,7 @@
 			<p class="mb-4">Join thousands of learners building confidence with real conversations</p>
 			<div class="card-actions">
 				<a href={signupUrl} class="btn btn-wide gap-2 btn-secondary">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="h-5 w-5"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M13 10V3L4 14h7v7l9-11h-7z"
-						/>
-					</svg>
+					<span class="icon-[mdi--rocket-launch-outline] h-5 w-5"></span>
 					Enroll Free Today
 				</a>
 			</div>

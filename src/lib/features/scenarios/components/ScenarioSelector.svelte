@@ -348,7 +348,7 @@
 						>
 							<span
 								class="{roleIcons[scenario.role] ||
-									'icon-[mdi--lightbulb-on-outline]'} mr-3 h-5 w-5 flex-shrink-0 text-{roleColors[
+									'icon-[mdi--lightbulb-on-outline]'} mr-3 h-5 w-5 shrink-0 text-{roleColors[
 									scenario.role
 								] || 'primary'}"
 								class:text-success={meta.color === 'success'}

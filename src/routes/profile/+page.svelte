@@ -466,27 +466,13 @@
 									/>
 								{:else}
 									<div class="alert alert-warning">
-										<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-											/>
-										</svg>
+										<span class="icon-[mdi--alert-outline] h-6 w-6"></span>
 										<span>Unable to load preferences. Please try refreshing the page.</span>
 									</div>
 								{/if}
 							{:catch error}
 								<div class="alert alert-error">
-									<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M6 18L18 6M6 6l12 12"
-										/>
-									</svg>
+									<span class="icon-[mdi--close] h-6 w-6"></span>
 									<span>Error loading preferences: {error.message}</span>
 								</div>
 							{/await}
@@ -539,14 +525,7 @@
 							</p>
 
 							<button type="button" class="btn btn-outline btn-error" onclick={handleDeleteClick}>
-								<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-									/>
-								</svg>
+								<span class="icon-[mdi--trash-can-outline] h-5 w-5"></span>
 								Permanently Delete Account
 							</button>
 						</div>
@@ -570,27 +549,13 @@
 				</p>
 
 				<div class="mb-4 alert alert-warning">
-					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-						/>
-					</svg>
+					<span class="icon-[mdi--alert-outline] h-6 w-6"></span>
 					<span>All your conversations, progress, and settings will be lost forever.</span>
 				</div>
 
 				{#if deleteError}
 					<div class="mb-4 alert alert-error">
-						<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M6 18L18 6M6 6l12 12"
-							/>
-						</svg>
+						<span class="icon-[mdi--close] h-6 w-6"></span>
 						<span>{deleteError}</span>
 					</div>
 				{/if}

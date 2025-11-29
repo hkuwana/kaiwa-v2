@@ -184,7 +184,7 @@
 </script>
 
 <div
-	class="min-h-[100dvh] bg-gradient-to-br from-base-100 to-base-200"
+	class="min-h-[100dvh] bg-linear-to-br from-base-100 to-base-200"
 	in:fly={{ y: 20, duration: 400 }}
 >
 	<div class="container mx-auto box-border flex h-[100dvh] max-w-4xl flex-col px-4 py-4">
@@ -209,7 +209,7 @@
 
 		<!-- Live Transcription -->
 		{#if !conversationMode && currentTranscript}
-			<div class="mb-4 flex-shrink-0" in:fly={{ y: -10, duration: 200 }}>
+			<div class="mb-4 shrink-0" in:fly={{ y: -10, duration: 200 }}>
 				<div class="card border-l-4 border-l-info bg-info/5">
 					<div class="card-body p-4">
 						<div class="card-title text-lg text-info">You're saying:</div>
@@ -250,7 +250,7 @@
 			{:else}
 				<div class="card h-full bg-base-100 shadow-lg">
 					<div class="card-body flex h-full flex-col pb-8">
-						<div class="mb-4 card-title flex-shrink-0 text-xl">
+						<div class="mb-4 card-title shrink-0 text-xl">
 							{isGuestUser && messages.length < 4 ? 'Getting to Know You' : 'Conversation'}
 							<span class="text-sm font-normal opacity-70">({messages.length} messages)</span>
 						</div>
@@ -300,7 +300,7 @@
 
 		<!-- Text Input - hidden by default to promote audio; flip enableTyping to true to show -->
 		{#if enableTyping && !conversationMode}
-			<div class="mb-4 flex-shrink-0" in:fade={{ duration: 120 }}>
+			<div class="mb-4 shrink-0" in:fade={{ duration: 120 }}>
 				<div class="card bg-base-100 shadow-lg">
 					<div class="card-body p-4">
 						<div class="flex gap-2">

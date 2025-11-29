@@ -75,17 +75,6 @@
 		expert: 'Expert Advice'
 	};
 
-	// Placeholder image function - generates a nice gradient based on scenario role
-	function getPlaceholderImage(scenario: Scenario): string {
-		const gradients: Record<string, string> = {
-			tutor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-			character: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-			friendly_chat: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-			expert: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
-		};
-		return gradients[scenario.role] || gradients.tutor;
-	}
-
 	function getScenarioMeta(scenario: Scenario) {
 		const rating = scenario.difficultyRating ?? 1;
 		return getDifficultyLevel(rating);
@@ -212,7 +201,7 @@
 
 <div class="min-h-screen bg-base-100">
 	<!-- Header -->
-	<section class="border-b border-base-content/10 bg-gradient-to-b from-base-200/30 to-base-100">
+	<section class="border-b border-base-content/10 bg-linear-to-b from-base-200/30 to-base-100">
 		<div class="container mx-auto max-w-6xl px-6 py-16">
 			<div class="text-center">
 				<h1 class="mb-3 text-4xl font-light tracking-tight md:text-5xl">Practice Scenarios</h1>
@@ -361,7 +350,7 @@
 								<div class="flex gap-2">
 									<button
 										class="btn flex-1 gap-1 shadow-sm btn-sm btn-primary"
-										onclick={(e) => handleTryScenario(scenario)}
+										onclick={() => handleTryScenario(scenario)}
 									>
 										<span class="icon-[mdi--play] h-4 w-4"></span>
 										<span>Start</span>
@@ -550,7 +539,7 @@
 								<div class="flex gap-2">
 									<button
 										class="btn flex-1 gap-1 shadow-sm btn-sm btn-primary"
-										onclick={(e) => handleTryScenario(scenario)}
+										onclick={() => handleTryScenario(scenario)}
 									>
 										<span class="icon-[mdi--play] h-4 w-4"></span>
 										<span>Start</span>
@@ -598,7 +587,7 @@
 
 	<!-- CTA Footer -->
 	<section
-		class="border-t border-base-content/10 bg-gradient-to-b from-base-100 to-base-200/30 py-16"
+		class="border-t border-base-content/10 bg-linear-to-b from-base-100 to-base-200/30 py-16"
 	>
 		<div class="container mx-auto max-w-4xl px-6 text-center">
 			<h2 class="mb-4 text-2xl font-light">Create your own scenario</h2>
@@ -643,11 +632,7 @@
 
 			<!-- Thumbnail image -->
 			<figure class="h-64 overflow-hidden bg-base-200">
-				<img
-					src={scenario.thumbnailUrl}
-					alt={scenario.title}
-					class="h-full w-full object-cover"
-				/>
+				<img src={scenario.thumbnailUrl} alt={scenario.title} class="h-full w-full object-cover" />
 			</figure>
 
 			<div class="p-8">
@@ -738,7 +723,7 @@
 				<div class="flex gap-3">
 					<button
 						class="btn flex-1 gap-2 shadow-md btn-primary"
-						onclick={(e) => handleTryScenario(scenario)}
+						onclick={() => handleTryScenario(scenario)}
 					>
 						<span class="icon-[mdi--play] h-5 w-5"></span>
 						<span>Start Scenario</span>

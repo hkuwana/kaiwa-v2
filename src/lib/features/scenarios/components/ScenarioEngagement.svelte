@@ -130,22 +130,11 @@
 		title={isSaved ? 'Unsave this scenario' : 'Save this scenario'}
 		aria-label={isSaved ? 'Unsave scenario' : 'Save scenario'}
 	>
-		<svg
-			class="{iconSizeClasses[size]} {isSaved ? 'fill-current text-error' : ''}"
-			xmlns="http://www.w3.org/2000/svg"
-			viewBox="0 0 24 24"
-		>
-			{#if isSaved}
-				<path d="M5 21h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z" />
-			{:else}
-				<path
-					d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2zm-2-18H7v10l5-3 5 3V3z"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-				/>
-			{/if}
-		</svg>
+		<span
+			class="{iconSizeClasses[size]} {isSaved
+				? 'icon-[mdi--bookmark] text-error'
+				: 'icon-[mdi--bookmark-outline]'}"
+		></span>
 		<span class="hidden sm:inline">{isSaved ? 'Saved' : 'Save'}</span>
 	</button>
 
@@ -165,16 +154,9 @@
 				title="Rate {starRating} star{starRating !== 1 ? 's' : ''}"
 				aria-label="Rate {starRating} star{starRating !== 1 ? 's' : ''}"
 			>
-				<svg
-					class="{iconSizeClasses[size]} {getStarColor(starRating)} transition-colors"
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 24 24"
-				>
-					<path
-						d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-						fill="currentColor"
-					/>
-				</svg>
+				<span
+					class="{iconSizeClasses[size]} icon-[mdi--star] {getStarColor(starRating)} transition-colors"
+				></span>
 			</button>
 		{/each}
 	</div>

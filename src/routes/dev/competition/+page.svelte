@@ -151,7 +151,7 @@
 	<meta name="robots" content="noindex" />
 </svelte:head>
 
-<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">
+<div class="min-h-screen bg-linear-to-br from-base-100 to-base-200">
 	<div class="container mx-auto px-4 py-10">
 		<div class="mb-8 text-center">
 			<h1 class="text-3xl font-bold">Dev: Competitive Positioning</h1>

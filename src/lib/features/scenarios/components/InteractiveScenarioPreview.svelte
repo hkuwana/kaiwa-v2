@@ -357,7 +357,7 @@
 				</div>
 
 				<!-- Scenario Header -->
-				<div class="relative z-10 mb-4 flex-shrink-0">
+				<div class="relative z-10 mb-4 shrink-0">
 					<div class="mb-3 flex items-center gap-4">
 						<div class="rounded-full bg-white/20 p-2 text-3xl backdrop-blur-sm">
 							{currentScenario.icon}
@@ -415,7 +415,7 @@
 					</div>
 
 					<!-- Preview hint -->
-					<div class="mt-2 flex-shrink-0 text-center">
+					<div class="mt-2 shrink-0 text-center">
 						<div class="badge badge-ghost badge-lg backdrop-blur-sm">
 							💬 Click messages to toggle translations and romanization
 						</div>

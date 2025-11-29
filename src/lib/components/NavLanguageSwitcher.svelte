@@ -266,12 +266,12 @@
 							<img
 								alt={speaker.characterImageAlt || speaker.voiceName}
 								src={speaker.characterImageUrl}
-								class="h-10 w-10 flex-shrink-0 rounded-full object-cover sm:h-14 sm:w-14"
+								class="h-10 w-10 shrink-0 rounded-full object-cover sm:h-14 sm:w-14"
 								loading="lazy"
 							/>
 						{:else}
 							<div
-								class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-base-200 text-xl sm:h-14 sm:w-14 sm:text-3xl"
+								class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-base-200 text-xl sm:h-14 sm:w-14 sm:text-3xl"
 							>
 								{getGenderIcon(speaker.gender)}
 							</div>
@@ -283,7 +283,7 @@
 							>
 						</div>
 						{#if settingsStore.selectedSpeaker === speaker.id}
-							<span class="icon-[mdi--check] h-6 w-6 flex-shrink-0"></span>
+							<span class="icon-[mdi--check] h-6 w-6 shrink-0"></span>
 						{/if}
 					</button>
 				{/each}
@@ -306,13 +306,13 @@
 							class:bg-primary={settingsStore.selectedLanguage?.code === language.code}
 							class:text-primary-content={settingsStore.selectedLanguage?.code === language.code}
 						>
-							<span class="flex-shrink-0 text-xl sm:text-3xl">{language.flag || '🌍'}</span>
+							<span class="shrink-0 text-xl sm:text-3xl">{language.flag || '🌍'}</span>
 							<div class="flex min-w-0 flex-1 flex-col">
 								<span class="text-sm font-semibold sm:text-base">{language.name}</span>
 								<span class="text-xs opacity-70 sm:text-sm">{language.nativeName}</span>
 							</div>
 							{#if settingsStore.selectedLanguage?.code === language.code}
-								<span class="icon-[mdi--check] h-6 w-6 flex-shrink-0"></span>
+								<span class="icon-[mdi--check] h-6 w-6 shrink-0"></span>
 							{/if}
 						</button>
 					{/each}
@@ -330,35 +330,5 @@
 <style>
 	:global(body.language-modal-open) {
 		overflow: hidden;
-	}
-
-	.slide-in {
-		animation: slideIn 0.3s ease-out;
-	}
-
-	@keyframes slideIn {
-		from {
-			transform: translateX(100%);
-			opacity: 0;
-		}
-		to {
-			transform: translateX(0);
-			opacity: 1;
-		}
-	}
-
-	.slide-out {
-		animation: slideOut 0.3s ease-in;
-	}
-
-	@keyframes slideOut {
-		from {
-			transform: translateX(0);
-			opacity: 1;
-		}
-		to {
-			transform: translateX(100%);
-			opacity: 0;
-		}
 	}
 </style>

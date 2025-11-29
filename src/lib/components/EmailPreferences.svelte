@@ -150,7 +150,7 @@
 				<div
 					class="flex items-start space-x-3 rounded-lg border border-base-200 bg-base-100 p-4 transition-colors hover:bg-base-200"
 				>
-					<div class="flex-shrink-0 text-2xl">
+					<div class="shrink-0 text-2xl">
 						<span class="{emailType.icon} h-6 w-6"></span>
 					</div>
 					<div class="min-w-0 flex-1">

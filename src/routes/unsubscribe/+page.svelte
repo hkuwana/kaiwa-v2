@@ -87,19 +87,7 @@
 						<div
 							class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100"
 						>
-							<svg
-								class="h-6 w-6 text-green-600"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M5 13l4 4L19 7"
-								/>
-							</svg>
+							<span class="icon-[mdi--check] h-6 w-6 text-green-600"></span>
 						</div>
 						<h2 class="mt-6 text-2xl font-bold text-gray-900">Successfully Unsubscribed</h2>
 						<p class="mt-2 text-gray-600">
@@ -115,19 +103,7 @@
 				{:else}
 					<div class="text-center">
 						<div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-							<svg
-								class="h-6 w-6 text-red-600"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M6 18L18 6M6 6l12 12"
-								/>
-							</svg>
+							<span class="icon-[mdi--close] h-6 w-6 text-red-600"></span>
 						</div>
 						<h2 class="mt-6 text-2xl font-bold text-gray-900">Unsubscribe Failed</h2>
 						<p class="mt-2 text-gray-600">{unsubscribeResult.message}</p>

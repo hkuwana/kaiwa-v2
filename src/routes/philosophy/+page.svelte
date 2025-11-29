@@ -7,7 +7,7 @@
 	});
 </script>
 
-<div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+<div class="min-h-screen bg-linear-to-br from-slate-900 via-purple-900 to-slate-900">
 	<div class="container mx-auto px-4 py-16">
 		<!-- Hero Section -->
 		<div class="mb-16 text-center">
@@ -198,20 +198,20 @@
 					<p>So we built four phases:</p>
 					<ul class="mt-4 space-y-2 text-gray-300">
 						<li>
-							<strong>Phase 1: User Acquisition</strong>: We market the solution to emotional problems,
-							not features
+							<strong>Phase 1: User Acquisition</strong>: We market the solution to emotional
+							problems, not features
 						</li>
 						<li>
-							<strong>Phase 2: User Onboarding</strong>: We prove value instantly by helping with their
-							specific conversation fear
+							<strong>Phase 2: User Onboarding</strong>: We prove value instantly by helping with
+							their specific conversation fear
 						</li>
 						<li>
-							<strong>Phase 3: User Retention</strong>: We use engagement only to encourage deeper practice
-							of what matters
+							<strong>Phase 3: User Retention</strong>: We use engagement only to encourage deeper
+							practice of what matters
 						</li>
 						<li>
-							<strong>Phase 4: Real-World Bridge</strong>: We celebrate the real conversation outcomes
-							that prove this works
+							<strong>Phase 4: Real-World Bridge</strong>: We celebrate the real conversation
+							outcomes that prove this works
 						</li>
 					</ul>
 					<p class="mt-6 text-lg font-bold text-white">

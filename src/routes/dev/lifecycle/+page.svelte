@@ -298,7 +298,7 @@
 		<section>
 			<h2 class="mb-4 text-2xl font-bold">🎣 Retention Strategy Features</h2>
 			<div class="grid gap-4 lg:grid-cols-3">
-				<div class="card border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5">
+				<div class="card border border-primary/20 bg-linear-to-br from-primary/10 to-primary/5">
 					<div class="card-body">
 						<h4 class="card-title text-primary">💡 Expectation Setting</h4>
 						<ul class="space-y-1 text-sm">
@@ -311,7 +311,7 @@
 				</div>
 
 				<div
-					class="card border border-secondary/20 bg-gradient-to-br from-secondary/10 to-secondary/5"
+					class="card border border-secondary/20 bg-linear-to-br from-secondary/10 to-secondary/5"
 				>
 					<div class="card-body">
 						<h4 class="card-title text-secondary">🎯 Engagement Hooks</h4>
@@ -324,7 +324,7 @@
 					</div>
 				</div>
 
-				<div class="card border border-accent/20 bg-gradient-to-br from-accent/10 to-accent/5">
+				<div class="card border border-accent/20 bg-linear-to-br from-accent/10 to-accent/5">
 					<div class="card-body">
 						<h4 class="card-title text-accent">🚀 Motivation Boosters</h4>
 						<ul class="space-y-1 text-sm">

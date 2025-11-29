@@ -69,7 +69,7 @@
 {#if !selectedLanguage}
 	<div class="w-full max-w-md" in:fade={{ duration: 300, easing: cubicOut }}>
 		<div
-			class="card relative overflow-hidden rounded-3xl border border-base-300 bg-gradient-to-br from-base-100 to-base-200 shadow-xl"
+			class="card relative overflow-hidden rounded-3xl border border-base-300 bg-linear-to-br from-base-100 to-base-200 shadow-xl"
 		>
 			<div class="card-body flex items-center justify-center gap-6 p-8 text-center sm:p-12">
 				<div
@@ -151,7 +151,7 @@
 									/>
 								{:else}
 									<div
-										class="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 to-primary/30 text-3xl sm:text-5xl"
+										class="flex h-full w-full items-center justify-center bg-linear-to-br from-primary/10 to-primary/30 text-3xl sm:text-5xl"
 									>
 										{getGenderIcon(selectedSpeaker.gender)}
 									</div>
@@ -247,64 +247,4 @@
 	</div>
 {/if}
 
-<style>
-	/* Smooth transitions for all interactive elements */
-	.badge {
-		@apply transition-all duration-200;
-	}
-
-	/* Subtle hover effect on card */
-	.briefing-card:hover {
-		@apply shadow-2xl;
-	}
-
-	/* Rotating text animation for language display */
-	.text-rotate {
-		overflow: hidden;
-		height: 1.5rem; /* Mobile height */
-		position: relative;
-	}
-
-	@media (min-width: 640px) {
-		.text-rotate {
-			height: 1.75rem; /* Desktop height */
-		}
-	}
-
-	.rotate-text {
-		display: flex;
-		flex-direction: column;
-		animation: rotate-words 9s infinite;
-	}
-
-	.rotate-text span {
-		display: block;
-		height: 1.5rem;
-		line-height: 1.5rem;
-	}
-
-	@media (min-width: 640px) {
-		.rotate-text span {
-			height: 1.75rem;
-			line-height: 1.75rem;
-		}
-	}
-
-	@keyframes rotate-words {
-		0%,
-		30% {
-			transform: translateY(0%);
-		}
-		33%,
-		63% {
-			transform: translateY(-33.33%);
-		}
-		66%,
-		96% {
-			transform: translateY(-66.66%);
-		}
-		100% {
-			transform: translateY(0%);
-		}
-	}
-</style>
+<style></style>

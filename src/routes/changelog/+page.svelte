@@ -40,7 +40,10 @@
 
 <svelte:head>
 	<title>Changelog | Kaiwa</title>
-	<meta name="description" content="See what's new in Kaiwa. Latest updates, features, and improvements." />
+	<meta
+		name="description"
+		content="See what's new in Kaiwa. Latest updates, features, and improvements."
+	/>
 </svelte:head>
 
 <div class="container mx-auto max-w-4xl px-4 py-16 sm:py-20">
@@ -81,8 +84,10 @@
 				<div class="space-y-4">
 					{#each data.recentCommits as commit (commit.hash)}
 						{@const commitType = parseCommitType(commit.message)}
-						<div class="flex items-start gap-4 border-b border-base-200 pb-4 last:border-0 last:pb-0">
-							<span class="badge badge-sm badge-ghost {typeColors[commitType]} mt-1">
+						<div
+							class="flex items-start gap-4 border-b border-base-200 pb-4 last:border-0 last:pb-0"
+						>
+							<span class="badge badge-ghost badge-sm {typeColors[commitType]} mt-1">
 								<span class="{typeIcons[commitType]} h-3 w-3"></span>
 							</span>
 							<div class="flex-1">
@@ -101,14 +106,14 @@
 	<!-- Empty State -->
 	{#if data.changelog.length === 0 && data.recentCommits.length === 0}
 		<div class="rounded-xl bg-base-200 p-12 text-center">
-			<span class="icon-[mdi--history] mx-auto mb-4 h-16 w-16 text-base-content/30"></span>
+			<span class="mx-auto mb-4 icon-[mdi--history] h-16 w-16 text-base-content/30"></span>
 			<h3 class="mb-2 text-xl font-semibold">No Updates Yet</h3>
 			<p class="text-base-content/70">Check back soon for the latest improvements!</p>
 		</div>
 	{/if}
 
 	<!-- Subscribe CTA -->
-	<div class="mt-16 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 p-8 text-center">
+	<div class="mt-16 rounded-2xl bg-linear-to-br from-primary/10 to-accent/10 p-8 text-center">
 		<h3 class="mb-4 text-xl font-semibold">Stay in the Loop</h3>
 		<p class="mb-6 text-base-content/70">
 			Get notified about new features and improvements directly to your inbox.

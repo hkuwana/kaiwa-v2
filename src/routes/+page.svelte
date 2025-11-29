@@ -228,7 +228,7 @@
 </svelte:head>
 
 <div
-	class="min-h-[100dvh] bg-gradient-to-br from-base-100 to-base-200 px-2 pb-12 text-base-content sm:px-4"
+	class="min-h-[100dvh] bg-linear-to-br from-base-100 to-base-200 px-2 pb-12 text-base-content sm:px-4"
 >
 	<div class="mx-auto max-w-7xl">
 		<!-- Stage Indicator -->

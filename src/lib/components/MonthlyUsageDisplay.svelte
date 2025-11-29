@@ -94,7 +94,13 @@
 
 	// Determine color based on state
 	const ringColor = $derived(
-		isOutOfTime ? '#ef4444' : isCriticalTime ? '#f97316' : isLowTime ? '#f59e0b' : '#3b82f6'
+		isOutOfTime
+			? 'hsl(var(--er))'
+			: isCriticalTime
+				? 'hsl(var(--wa))'
+				: isLowTime
+					? 'hsl(var(--wa))'
+					: 'hsl(var(--p))'
 	);
 
 	function handleUpgrade() {

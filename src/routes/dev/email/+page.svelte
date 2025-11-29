@@ -317,7 +317,7 @@
 
 		<!-- WEEKLY EMAIL QUICK PREVIEW -->
 		<div
-			class="card mb-8 border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5 shadow-xl"
+			class="card mb-8 border-2 border-primary/20 bg-linear-to-br from-primary/5 to-secondary/5 shadow-xl"
 		>
 			<div class="card-body">
 				<div class="mb-4 flex items-center justify-between">

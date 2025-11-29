@@ -374,7 +374,7 @@
 	<title>Conversation History - Kaiwa</title>
 </svelte:head>
 
-<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">
+<div class="min-h-screen bg-linear-to-b from-base-100 to-base-200">
 	<div class="container mx-auto max-w-6xl px-4 py-6">
 		<!-- Header -->
 		<div class="mb-6" transition:fade={{ duration: 300 }}>
@@ -390,14 +390,7 @@
 						</button>
 					{/if}
 					<button class="btn btn-primary" onclick={startNewConversation}>
-						<svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-							/>
-						</svg>
+						<span class="mr-2 icon-[mdi--plus] h-5 w-5"></span>
 						New Conversation
 					</button>
 				</div>
@@ -424,14 +417,7 @@
 									onclick={handleSearch}
 									aria-label="Search conversations"
 								>
-									<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-										/>
-									</svg>
+									<span class="icon-[mdi--magnify] h-5 w-5"></span>
 								</button>
 							</div>
 						</div>
@@ -559,32 +545,14 @@
 			</div>
 		{:else if error}
 			<div class="alert alert-error" transition:slide={{ duration: 300 }}>
-				<svg class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-					/>
-				</svg>
+				<span class="icon-[mdi--alert-circle-outline] h-6 w-6 shrink-0"></span>
 				<span>{error}</span>
 			</div>
 		{:else if conversations.length === 0}
 			<div class="py-12 text-center" transition:fade={{ duration: 400 }}>
 				<div class="mx-auto max-w-md rounded-xl bg-base-100 p-8 shadow-lg">
-					<svg
-						class="mx-auto mb-4 h-16 w-16 text-base-content/30"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-						/>
-					</svg>
+					<span class="mx-auto mb-4 icon-[mdi--message-text-outline] h-16 w-16 text-base-content/30"
+					></span>
 					<h3 class="mb-2 text-xl font-semibold">No conversations yet</h3>
 					<p class="mb-4 text-base-content/70">
 						Start your first conversation to see your history here
@@ -630,14 +598,7 @@
 						{#if deleting}
 							<span class="loading loading-xs loading-spinner"></span>
 						{:else}
-							<svg class="h-4 w-4 sm:mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M9 3h6l.75 3H20a1 1 0 010 2h-1.1l-1.2 11A2 2 0 0115.71 20H8.29a2 2 0 01-1.99-1.8L5.1 8H4a1 1 0 010-2h4.25L9 3zm2 6a1 1 0 10-2 0v7a1 1 0 102 0V9zm4 0a1 1 0 10-2 0v7a1 1 0 102 0V9z"
-								/>
-							</svg>
+							<span class="icon-[mdi--trash-can-outline] h-4 w-4 sm:mr-1"></span>
 						{/if}
 						<span class="hidden sm:inline">Delete</span>
 					</button>
@@ -720,14 +681,7 @@
 							title="Analyze conversation"
 							aria-label="Analyze conversation"
 						>
-							<svg class="size-[1.2em]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-								/>
-							</svg>
+							<span class="icon-[mdi--chart-bar] size-[1.2em]"></span>
 						</button>
 
 						<button
@@ -741,23 +695,9 @@
 							{#if loadingDetails.has(conversation.id)}
 								<span class="loading loading-xs loading-spinner"></span>
 							{:else if expandedConversations.has(conversation.id)}
-								<svg class="size-[1.2em]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M5 15l7-7 7 7"
-									/>
-								</svg>
+								<span class="icon-[mdi--chevron-up] size-[1.2em]"></span>
 							{:else}
-								<svg class="size-[1.2em]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M19 9l-7 7-7-7"
-									/>
-								</svg>
+								<span class="icon-[mdi--chevron-down] size-[1.2em]"></span>
 							{/if}
 						</button>
 					</li>
@@ -802,19 +742,7 @@
 									<!-- Messages -->
 									<div class="mb-4">
 										<h4 class="mb-2 flex items-center text-sm font-medium">
-											<svg
-												class="mr-2 h-4 w-4"
-												fill="none"
-												viewBox="0 0 24 24"
-												stroke="currentColor"
-											>
-												<path
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													stroke-width="2"
-													d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-												/>
-											</svg>
+											<span class="mr-2 icon-[mdi--message-text-outline] h-4 w-4"></span>
 											Conversation Messages
 										</h4>
 										<VirtualizedMessageList
@@ -827,19 +755,7 @@
 									<!-- Summary Placeholder -->
 									<div class="rounded-lg bg-base-200 p-3">
 										<h5 class="mb-1 flex items-center text-sm font-medium">
-											<svg
-												class="mr-2 h-4 w-4"
-												fill="none"
-												viewBox="0 0 24 24"
-												stroke="currentColor"
-											>
-												<path
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													stroke-width="2"
-													d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-												/>
-											</svg>
+											<span class="mr-2 icon-[mdi--file-document-outline] h-4 w-4"></span>
 											AI Summary
 										</h5>
 										<p class="text-xs text-base-content/70">

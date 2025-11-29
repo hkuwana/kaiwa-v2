@@ -95,7 +95,7 @@
 
 <svelte:window bind:scrollY />
 
-<div class="min-h-screen bg-gradient-to-br from-base-100 to-accent">
+<div class="min-h-screen bg-linear-to-br from-base-100 to-accent">
 	<div class="container mx-auto px-4 py-16">
 		<!-- Hero Section -->
 		<div
@@ -119,7 +119,7 @@
 
 			<div class="relative z-10">
 				<h1
-					class="mb-4 animate-pulse bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-5xl font-bold text-transparent md:text-7xl"
+					class="mb-4 animate-pulse bg-linear-to-br from-primary via-secondary to-accent bg-clip-text text-5xl font-bold text-transparent md:text-7xl"
 				>
 					Built on Science, Designed for Humans
 				</h1>
@@ -155,7 +155,7 @@
 					<div class="card-body">
 						<div class="mb-4 flex items-center">
 							<div
-								class="mr-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-primary to-secondary transition-transform duration-300 group-hover:rotate-12"
+								class="mr-4 flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-br from-primary to-secondary transition-transform duration-300 group-hover:rotate-12"
 							>
 								<span class="icon-[mdi--microscope] text-2xl text-white"></span>
 							</div>
@@ -193,7 +193,7 @@
 				</div>
 
 				<div
-					class="group card relative cursor-pointer overflow-hidden bg-gradient-to-br from-primary to-secondary text-primary-content shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+					class="group card relative cursor-pointer overflow-hidden bg-linear-to-br from-primary to-secondary text-primary-content shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
 					role="button"
 					tabindex="0"
 					in:fly={{ x: 20, duration: 500, delay: 600 }}
@@ -228,19 +228,9 @@
 							rules, but research shows that's not how humans learn languages naturally.
 						</p>
 						<div class="alert alert-info transition-colors duration-300 group-hover:bg-white/20">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								class="h-6 w-6 shrink-0 stroke-current group-hover:animate-pulse"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-								></path>
-							</svg>
+							<span
+								class="icon-[mdi--information-outline] h-6 w-6 shrink-0 group-hover:animate-pulse"
+							></span>
 							<span class="transition-all duration-300 group-hover:font-semibold">
 								Kaiwa follows the research: conversation-first, anxiety-reducing, human-centered
 								learning.
@@ -254,7 +244,7 @@
 		<!-- Core Research Areas -->
 		<div class="mb-16">
 			<h2
-				class="mb-12 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-center text-4xl font-bold text-transparent"
+				class="mb-12 bg-linear-to-br from-primary via-secondary to-accent bg-clip-text text-center text-4xl font-bold text-transparent"
 			>
 				The Research That Powers Kaiwa
 			</h2>
@@ -269,13 +259,13 @@
 				>
 					<!-- Animated background -->
 					<div
-						class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+						class="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 					></div>
 
 					<div class="relative z-10 card-body">
 						<div class="mb-4 flex items-center">
 							<div
-								class="mr-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-primary to-secondary transition-transform duration-300 group-hover:rotate-12"
+								class="mr-4 flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-br from-primary to-secondary transition-transform duration-300 group-hover:rotate-12"
 							>
 								<span class="icon-[mdi--forum-outline] text-2xl text-white"></span>
 							</div>
@@ -331,13 +321,13 @@
 				>
 					<!-- Animated background -->
 					<div
-						class="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+						class="absolute inset-0 bg-linear-to-br from-secondary/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 					></div>
 
 					<div class="relative z-10 card-body">
 						<div class="mb-4 flex items-center">
 							<div
-								class="mr-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-secondary to-accent transition-transform duration-300 group-hover:rotate-12"
+								class="mr-4 flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-br from-secondary to-accent transition-transform duration-300 group-hover:rotate-12"
 							>
 								<span class="icon-[mdi--heart-outline] text-2xl text-white"></span>
 							</div>
@@ -395,7 +385,7 @@
 				>
 					<!-- Animated background -->
 					<div
-						class="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+						class="absolute inset-0 bg-linear-to-br from-accent/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 					></div>
 
 					<!-- Floating AI particles -->
@@ -418,7 +408,7 @@
 					<div class="relative z-10 card-body">
 						<div class="mb-4 flex items-center">
 							<div
-								class="mr-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-accent to-primary transition-transform duration-300 group-hover:rotate-12"
+								class="mr-4 flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-br from-accent to-primary transition-transform duration-300 group-hover:rotate-12"
 							>
 								<span
 									class="icon-[mdi--robot-outline] text-2xl text-white group-hover:animate-pulse"
@@ -739,11 +729,11 @@
 		<div class="relative text-center" in:fly={{ y: 20, duration: 500, delay: 3200 }}>
 			<!-- Animated background -->
 			<div
-				class="absolute inset-0 rounded-3xl bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 blur-3xl"
+				class="absolute inset-0 rounded-3xl bg-linear-to-br from-primary/10 via-secondary/10 to-accent/10 blur-3xl"
 			></div>
 
 			<div
-				class="relative z-10 mx-auto max-w-2xl rounded-2xl border border-primary/20 bg-gradient-to-br from-secondary/30 to-accent/30 p-8 text-secondary-content transition-all duration-500 hover:scale-105 hover:shadow-2xl"
+				class="relative z-10 mx-auto max-w-2xl rounded-2xl border border-primary/20 bg-linear-to-br from-secondary/30 to-accent/30 p-8 text-secondary-content transition-all duration-500 hover:scale-105 hover:shadow-2xl"
 			>
 				<!-- Floating elements -->
 				<div class="absolute top-4 right-4 h-8 w-8 animate-pulse rounded-full bg-primary/20"></div>
@@ -753,7 +743,7 @@
 				></div>
 
 				<h2
-					class="mb-4 bg-gradient-to-r from-white to-secondary-content bg-clip-text text-2xl font-bold text-transparent"
+					class="mb-4 bg-linear-to-br from-white to-secondary-content bg-clip-text text-2xl font-bold text-transparent"
 				>
 					Experience Research-Backed Learning
 				</h2>
@@ -768,7 +758,7 @@
 						<span class="text-sm font-semibold">Research-Backed</span>
 						<div class="h-2 w-32 rounded-full bg-base-300">
 							<div
-								class="h-2 animate-pulse rounded-full bg-gradient-to-r from-primary to-secondary"
+								class="h-2 animate-pulse rounded-full bg-linear-to-br from-primary to-secondary"
 								style="width: 100%;"
 							></div>
 						</div>
@@ -801,7 +791,7 @@
 
 			<div class="relative z-10 mx-auto max-w-4xl">
 				<h3
-					class="mb-6 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-2xl font-bold text-transparent"
+					class="mb-6 bg-linear-to-br from-primary via-secondary to-accent bg-clip-text text-2xl font-bold text-transparent"
 				>
 					Research Sources & Citations
 				</h3>

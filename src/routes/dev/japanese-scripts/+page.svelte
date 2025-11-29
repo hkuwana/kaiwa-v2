@@ -249,7 +249,7 @@
 	}
 </script>
 
-<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 p-8">
+<div class="min-h-screen bg-linear-to-br from-base-100 to-base-200 p-8">
 	<div class="mx-auto max-w-4xl">
 		<!-- Header -->
 		<div class="mb-8 text-center">

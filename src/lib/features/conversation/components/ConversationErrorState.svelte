@@ -11,7 +11,7 @@
 </script>
 
 <div
-	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-base-100 to-base-200"
+	class="flex min-h-screen items-center justify-center bg-linear-to-br from-base-100 to-base-200"
 >
 	<div class="container mx-auto max-w-2xl px-4 py-12" in:fade={{ duration: 300 }}>
 		<div class="card bg-base-100 shadow-xl">

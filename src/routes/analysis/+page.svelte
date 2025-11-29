@@ -327,7 +327,7 @@
 </svelte:head>
 
 {#if sessionNotFound}
-	<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 py-10">
+	<div class="min-h-screen bg-linear-to-br from-base-100 to-base-200 py-10">
 		<div class="mx-auto max-w-5xl px-4">
 			<!-- Stage Indicator -->
 			<div class="mb-8 flex justify-center">

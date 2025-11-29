@@ -115,7 +115,7 @@
 				trigger: messages[messages.length - 1]?.id,
 				delayMs: 100
 			}}
-			class="from-base-50 relative overflow-y-auto scroll-smooth rounded-lg border border-base-300 bg-gradient-to-b to-base-100"
+			class="from-base-50 relative overflow-y-auto scroll-smooth rounded-lg border border-base-300 bg-linear-to-b to-base-100"
 			style="max-height: {maxHeight};"
 		>
 			{#if messages.length > 50}

@@ -39,7 +39,7 @@
 	<title>Dev: AudioVisualizer Experiments - Kaiwa</title>
 </svelte:head>
 
-<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 p-6">
+<div class="min-h-screen bg-linear-to-br from-base-100 to-base-200 p-6">
 	<div class="container mx-auto max-w-6xl">
 		<!-- Header -->
 		<div class="mb-8">

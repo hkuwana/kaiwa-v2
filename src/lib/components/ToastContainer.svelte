@@ -37,7 +37,7 @@
 					<div class="flex w-full items-center justify-between gap-3">
 						<div class="flex items-center gap-2">
 							<!-- Icon -->
-							<span class="flex-shrink-0 text-lg font-bold">
+							<span class="shrink-0 text-lg font-bold">
 								{typeConfig[toast.type].icon}
 							</span>
 
@@ -48,7 +48,7 @@
 						</div>
 
 						<!-- Action buttons (toolbar) -->
-						<div class="flex flex-shrink-0 gap-2">
+						<div class="flex shrink-0 gap-2">
 							{#each toast.actions as action (action.label)}
 								<button
 									class="btn btn-outline btn-sm"
@@ -75,7 +75,7 @@
 					<!-- Standard style: single action or message -->
 					<div class="flex items-start gap-3">
 						<!-- Icon -->
-						<span class="mt-0.5 flex-shrink-0 text-lg font-bold">
+						<span class="mt-0.5 shrink-0 text-lg font-bold">
 							{typeConfig[toast.type].icon}
 						</span>
 
@@ -87,7 +87,7 @@
 						<!-- Action button (if provided) -->
 						{#if toast.action}
 							<button
-								class="btn flex-shrink-0 btn-ghost btn-sm"
+								class="btn shrink-0 btn-ghost btn-sm"
 								onclick={() => {
 									toast.action?.callback();
 									notificationStore.removeToast(toast.id);
@@ -99,7 +99,7 @@
 
 						<!-- Close button -->
 						<button
-							class="btn btn-circle flex-shrink-0 btn-ghost btn-xs"
+							class="btn btn-circle shrink-0 btn-ghost btn-xs"
 							onclick={() => notificationStore.removeToast(toast.id)}
 							aria-label="Close notification"
 						>

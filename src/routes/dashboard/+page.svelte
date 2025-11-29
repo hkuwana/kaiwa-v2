@@ -27,8 +27,8 @@
 	}): UserLearningPath {
 		const schedule = item.path.schedule || [];
 		const currentDayIndex = Math.min(item.daysCompleted + 1, item.totalDays);
-		const currentDaySchedule = schedule.find(s => s.dayIndex === currentDayIndex);
-		const nextDaySchedule = schedule.find(s => s.dayIndex === currentDayIndex + 1);
+		const currentDaySchedule = schedule.find((s) => s.dayIndex === currentDayIndex);
+		const nextDaySchedule = schedule.find((s) => s.dayIndex === currentDayIndex + 1);
 
 		return {
 			path: item.path,
@@ -36,18 +36,22 @@
 			progressPercent: item.progressPercent,
 			daysCompleted: item.daysCompleted,
 			totalDays: item.totalDays,
-			currentDay: currentDaySchedule ? {
-				dayIndex: currentDaySchedule.dayIndex,
-				theme: currentDaySchedule.theme,
-				difficulty: currentDaySchedule.difficulty,
-				scenarioId: currentDaySchedule.scenarioId,
-				isReady: !!currentDaySchedule.scenarioId
-			} : null,
-			nextDay: nextDaySchedule ? {
-				dayIndex: nextDaySchedule.dayIndex,
-				theme: nextDaySchedule.theme,
-				difficulty: nextDaySchedule.difficulty
-			} : null
+			currentDay: currentDaySchedule
+				? {
+						dayIndex: currentDaySchedule.dayIndex,
+						theme: currentDaySchedule.theme,
+						difficulty: currentDaySchedule.difficulty,
+						scenarioId: currentDaySchedule.scenarioId,
+						isReady: !!currentDaySchedule.scenarioId
+					}
+				: null,
+			nextDay: nextDaySchedule
+				? {
+						dayIndex: nextDaySchedule.dayIndex,
+						theme: nextDaySchedule.theme,
+						difficulty: nextDaySchedule.difficulty
+					}
+				: null
 		};
 	}
 
@@ -60,13 +64,18 @@
 	}
 
 	function handleEnroll(templateId: string) {
-		goto(`/program/${data.templates.find((t: LearningPath) => t.id === templateId)?.shareSlug || templateId}`);
+		goto(
+			`/program/${data.templates.find((t: LearningPath) => t.id === templateId)?.shareSlug || templateId}`
+		);
 	}
 </script>
 
 <svelte:head>
 	<title>Dashboard | Kaiwa</title>
-	<meta name="description" content="Your learning dashboard - track progress and continue your language learning journey" />
+	<meta
+		name="description"
+		content="Your learning dashboard - track progress and continue your language learning journey"
+	/>
 </svelte:head>
 
 <div class="container mx-auto max-w-7xl px-4 py-6">
@@ -77,17 +86,15 @@
 	</div>
 
 	{#if data.error}
-		<div class="alert alert-error mb-6">
-			<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-			</svg>
+		<div class="mb-6 alert alert-error">
+			<span class="icon-[mdi--alert-circle-outline] h-6 w-6 shrink-0"></span>
 			<span>{data.error}</span>
 		</div>
 	{/if}
 
 	<div class="grid gap-6 lg:grid-cols-3">
 		<!-- Main content area -->
-		<div class="lg:col-span-2 space-y-6">
+		<div class="space-y-6 lg:col-span-2">
 			<!-- Current Learning Path -->
 			{#if currentPath}
 				<div>
@@ -104,13 +111,13 @@
 				</div>
 			{:else}
 				<!-- No active paths - show CTA -->
-				<div class="card bg-gradient-to-r from-primary/10 to-secondary/10">
+				<div class="card bg-linear-to-br from-primary/10 to-secondary/10">
 					<div class="card-body text-center">
 						<h2 class="card-title justify-center">Start Your Learning Journey</h2>
 						<p class="text-base-content/70">
 							Choose a learning path below to begin your structured language learning experience.
 						</p>
-						<div class="card-actions justify-center mt-4">
+						<div class="mt-4 card-actions justify-center">
 							<a href="/scenarios" class="btn btn-primary">Browse Scenarios</a>
 						</div>
 					</div>
@@ -123,7 +130,7 @@
 					<h2 class="mb-4 text-xl font-semibold">Other Active Paths</h2>
 					<div class="grid gap-4 sm:grid-cols-2">
 						{#each activePaths.slice(1) as path}
-							<LearningPathProgress path={path} compact onStartLesson={handleStartLesson} />
+							<LearningPathProgress {path} compact onStartLesson={handleStartLesson} />
 						{/each}
 					</div>
 				</div>
@@ -185,23 +192,16 @@
 				<div class="card-body">
 					<h3 class="card-title text-base">Quick Actions</h3>
 					<div class="flex flex-col gap-2">
-						<a href="/scenarios" class="btn btn-outline btn-sm justify-start gap-2">
-							<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
-							</svg>
+						<a href="/scenarios" class="btn justify-start gap-2 btn-outline btn-sm">
+							<span class="icon-[mdi--view-grid-outline] h-4 w-4"></span>
 							Browse Scenarios
 						</a>
-						<a href="/conversation" class="btn btn-outline btn-sm justify-start gap-2">
-							<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-							</svg>
+						<a href="/conversation" class="btn justify-start gap-2 btn-outline btn-sm">
+							<span class="icon-[mdi--message-text-outline] h-4 w-4"></span>
 							Start Conversation
 						</a>
-						<a href="/profile" class="btn btn-outline btn-sm justify-start gap-2">
-							<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-							</svg>
+						<a href="/profile" class="btn justify-start gap-2 btn-outline btn-sm">
+							<span class="icon-[mdi--cog-outline] h-4 w-4"></span>
 							Settings
 						</a>
 					</div>
@@ -216,17 +216,19 @@
 						<div class="flex flex-col gap-2">
 							{#each data.templates.slice(0, 3) as template}
 								<button
-									class="btn btn-ghost btn-sm justify-start text-left h-auto py-2"
+									class="btn h-auto justify-start py-2 text-left btn-ghost btn-sm"
 									onclick={() => handleEnroll(template.id)}
 								>
 									<div class="flex-1">
-										<p class="font-medium line-clamp-1">{template.title}</p>
-										<p class="text-xs text-base-content/60">{template.schedule?.length || 0} days</p>
+										<p class="line-clamp-1 font-medium">{template.title}</p>
+										<p class="text-xs text-base-content/60">
+											{template.schedule?.length || 0} days
+										</p>
 									</div>
 								</button>
 							{/each}
 						</div>
-						<a href="/scenarios" class="btn btn-primary btn-sm mt-2">View All</a>
+						<a href="/scenarios" class="btn mt-2 btn-sm btn-primary">View All</a>
 					</div>
 				</div>
 			{/if}

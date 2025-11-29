@@ -85,7 +85,7 @@
 		<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 			<!-- Overall Score -->
 			<div
-				class="overall-score rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-6"
+				class="overall-score rounded-xl border border-blue-200 bg-linear-to-br from-blue-50 to-blue-100 p-6"
 			>
 				<div class="text-center">
 					<div class="mb-2 text-4xl font-bold text-blue-600">

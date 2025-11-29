@@ -246,7 +246,7 @@
 	</div>
 
 	<!-- Auto-Adaptation Toggle -->
-	<div class="mb-6 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 p-4 shadow">
+	<div class="mb-6 rounded-lg bg-linear-to-br from-blue-50 to-purple-50 p-4 shadow">
 		<div class="flex items-center justify-between">
 			<div>
 				<h3 class="text-lg font-semibold">🤖 Auto-Adaptation</h3>

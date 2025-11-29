@@ -162,7 +162,7 @@
 </script>
 
 <div
-	class="relative mx-auto h-72 w-full max-w-5xl overflow-hidden rounded-xl bg-gradient-to-b from-base-200/50 to-base-300/30 backdrop-blur-sm sm:h-80 md:h-96"
+	class="relative mx-auto h-72 w-full max-w-5xl overflow-hidden rounded-xl bg-linear-to-b from-base-200/50 to-base-300/30 backdrop-blur-sm sm:h-80 md:h-96"
 >
 	<!-- Animated chat bubbles -->
 	{#each visibleBubbles as bubble (bubble.id)}

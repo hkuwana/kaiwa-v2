@@ -200,7 +200,7 @@
 	});
 </script>
 
-<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">
+<div class="min-h-screen bg-linear-to-br from-base-100 to-base-200">
 	<!-- Mobile-friendly sticky navigation -->
 	<div
 		class="sticky top-0 z-10 border-b border-base-300/20 bg-base-100/80 backdrop-blur-sm md:hidden"
@@ -209,7 +209,7 @@
 			<button
 				class="btn btn-sm {currentSection === 'summary'
 					? 'btn-primary'
-					: 'btn-ghost'} mr-2 flex-shrink-0"
+					: 'btn-ghost'} mr-2 shrink-0"
 				onclick={() => scrollToSection('summary')}
 			>
 				Summary
@@ -217,7 +217,7 @@
 			<button
 				class="btn btn-sm {currentSection === 'analytics'
 					? 'btn-primary'
-					: 'btn-ghost'} mr-2 flex-shrink-0"
+					: 'btn-ghost'} mr-2 shrink-0"
 				onclick={() => scrollToSection('analytics')}
 			>
 				Analytics
@@ -225,15 +225,13 @@
 			<button
 				class="btn btn-sm {currentSection === 'conversation'
 					? 'btn-primary'
-					: 'btn-ghost'} mr-2 flex-shrink-0"
+					: 'btn-ghost'} mr-2 shrink-0"
 				onclick={() => scrollToSection('conversation')}
 			>
 				Messages
 			</button>
 			<button
-				class="btn btn-sm {currentSection === 'results'
-					? 'btn-primary'
-					: 'btn-ghost'} flex-shrink-0"
+				class="btn btn-sm {currentSection === 'results' ? 'btn-primary' : 'btn-ghost'} shrink-0"
 				onclick={() => scrollToSection('results')}
 			>
 				Results
@@ -344,7 +342,7 @@
 		<!-- Deeper Analytics Section -->
 		<div id="section-analytics" class="mb-6 md:mb-8">
 			<div
-				class="rounded-xl border border-secondary/20 bg-gradient-to-r from-secondary/5 to-primary/5 p-4 shadow-lg md:p-6"
+				class="rounded-xl border border-secondary/20 bg-linear-to-br from-secondary/5 to-primary/5 p-4 shadow-lg md:p-6"
 			>
 				<div class="mb-4 flex flex-col items-start justify-between sm:flex-row sm:items-center">
 					<h2 class="mb-2 text-lg font-semibold sm:mb-0 md:text-xl">Conversation Insights</h2>
@@ -471,7 +469,7 @@
 		<!-- Upsell Section -->
 		{#if isFree}
 			<div
-				class="mb-6 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5 p-4 shadow-lg md:mb-8 md:p-6"
+				class="mb-6 rounded-xl border border-primary/20 bg-linear-to-br from-primary/5 to-secondary/5 p-4 shadow-lg md:mb-8 md:p-6"
 			>
 				<div class="text-center">
 					<div class="mb-2 text-lg font-semibold md:text-xl">Unlock Your Full Potential</div>
