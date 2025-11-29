@@ -283,6 +283,7 @@
 	}
 
 	// Keyboard navigation for desktop users
+	// Arrow direction matches the visual card movement direction
 	function handleKeyDown(event: KeyboardEvent) {
 		// Only handle arrow keys
 		if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
@@ -291,9 +292,11 @@
 		showSwipeHint = false;
 
 		if (event.key === 'ArrowLeft') {
-			previousCard(true);
-		} else if (event.key === 'ArrowRight') {
+			// Left arrow = cards move left = next card
 			nextCard(true);
+		} else if (event.key === 'ArrowRight') {
+			// Right arrow = cards move right = previous card
+			previousCard(true);
 		}
 	}
 
