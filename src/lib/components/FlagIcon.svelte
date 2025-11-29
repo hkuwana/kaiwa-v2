@@ -2,6 +2,8 @@
 	// FlagIcon - Renders country flags using Iconify circle-flags
 	// Uses SVG-based flags for consistent rendering across all platforms
 
+	import Icon from '@iconify/svelte';
+
 	interface Props {
 		/** ISO 3166-1 alpha-2 country code (e.g., 'jp', 'us', 'gb') */
 		countryCode: string;
@@ -16,10 +18,11 @@
 	// Normalize country code to lowercase for Iconify
 	const normalizedCode = $derived(countryCode?.toLowerCase() || 'xx');
 
-	// Build the full class string with the icon
-	const iconClass = $derived(
-		`icon-[circle-flags--${normalizedCode}] ${size} shrink-0 rounded-full ${className}`.trim()
-	);
+	// Build the icon name for circle-flags
+	const iconName = $derived(`circle-flags:${normalizedCode}`);
+
+	// Combine size and additional classes
+	const combinedClass = $derived(`${size} shrink-0 rounded-full ${className}`.trim());
 </script>
 
-<span class={iconClass} role="img" aria-label={`${countryCode} flag`}></span>
+<Icon icon={iconName} class={combinedClass} aria-label={`${countryCode} flag`} />
