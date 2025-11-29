@@ -235,9 +235,9 @@
 			<StageIndicator />
 		</div>
 
-		<!-- Minimal Header with Usage Badge -->
-		<div class="mb-4 flex items-center justify-between sm:mb-6">
-			<div class="text-base font-medium opacity-70 sm:text-lg">
+		<!-- Compact Header - Stacked vertically -->
+		<div class="mb-6 text-center">
+			<div class="text-lg font-semibold sm:text-xl">
 				{#if user.id !== 'guest'}
 					{user ? user.displayName : 'Dev'}
 				{:else if useDynamicLanguage}
@@ -253,15 +253,17 @@
 				{/if}
 			</div>
 
-			<!-- Minimal Usage Badge (logged in users only) -->
+			<!-- Usage info directly underneath name -->
 			{#if user.id !== 'guest' && usageStore.tier && usageStore.usage}
 				<a
 					href="/profile"
-					class="badge badge-ghost badge-sm gap-1 hover:badge-primary transition-colors"
+					class="mt-1 inline-flex items-center gap-1.5 text-sm text-base-content/60 hover:text-primary transition-colors"
 					title="View usage details"
 				>
-					<span class="icon-[mdi--clock-outline] h-3 w-3"></span>
-					{Math.floor(usageStore.secondsRemaining() / 60)}min
+					<span class="icon-[mdi--clock-outline] h-4 w-4"></span>
+					<span>{Math.floor(usageStore.secondsRemaining() / 60)} minutes remaining</span>
+					<span class="opacity-50">·</span>
+					<span class="capitalize">{usageStore.tier.name} Plan</span>
 				</a>
 			{/if}
 		</div>

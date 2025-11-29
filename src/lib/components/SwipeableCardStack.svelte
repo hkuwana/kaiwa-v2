@@ -344,8 +344,56 @@
 </script>
 
 <div class="w-full">
-	<!-- Swipeable Card Stack Section - HERO ELEMENT -->
+	<!-- Voice Mode Toggle - Top position -->
+	<div
+		class="mb-5 flex justify-center"
+		in:fly={{ y: -10, duration: 400, delay: 100, easing: quintOut }}
+	>
+		<div
+			class="flex flex-col items-center gap-2 rounded-2xl border border-base-content/10 bg-base-100/80 px-5 py-3 shadow-lg backdrop-blur-xl"
+		>
+			<label class="flex cursor-pointer items-center gap-3">
+				<span
+					class="flex items-center gap-1.5 text-sm font-medium transition-all"
+					class:text-base-content={selectedAudioMode === 'ptt'}
+					class:opacity-50={selectedAudioMode === 'vad'}
+					class:scale-105={selectedAudioMode === 'ptt'}
+				>
+					<span class="icon-[mdi--walkie-talkie] h-4.5 w-4.5"></span>
+					<span class="hidden sm:inline">Walkie Talkie</span>
+				</span>
+				<input
+					type="checkbox"
+					class="toggle toggle-sm toggle-primary"
+					checked={selectedAudioMode === 'vad'}
+					onchange={() => handleAudioModeChange(selectedAudioMode === 'vad' ? 'ptt' : 'vad')}
+					aria-label="Switch between Walkie Talkie and Casual Chat modes"
+				/>
+				<span
+					class="flex items-center gap-1.5 text-sm font-medium transition-all"
+					class:text-base-content={selectedAudioMode === 'vad'}
+					class:opacity-50={selectedAudioMode === 'ptt'}
+					class:scale-105={selectedAudioMode === 'vad'}
+				>
+					<span class="hidden sm:inline">Casual Chat</span>
+					<span class="icon-[mdi--message-text-outline] h-4.5 w-4.5"></span>
+				</span>
+			</label>
+			<div class="text-center text-xs text-base-content/60" in:fade={{ duration: 200 }}>
+				{selectedAudioMode === 'vad' ? 'Best with earphones' : 'Best without earphones'}
+			</div>
+		</div>
+	</div>
+
+	<!-- Swipeable Card Stack Section -->
 	<div class="space-y-3">
+		<!-- Swipe hint - Above cards -->
+		<div
+			class="text-center text-xs font-normal text-base-content/40"
+			in:fly={{ y: -5, duration: 400, delay: 200, easing: quintOut }}
+		>
+			Swipe to explore scenarios
+		</div>
 
 		<!-- Card Stack Container -->
 		<div class="relative mx-auto w-full max-w-2xl px-4">
@@ -374,7 +422,7 @@
 			{/if}
 			<!-- Stack of Cards with Depth -->
 			<div
-				class="relative mx-auto h-[560px] w-full max-w-md sm:h-[640px]"
+				class="relative mx-auto h-[520px] w-full max-w-md sm:h-[600px]"
 				onmousemove={handleDragMove}
 				onmouseup={handleDragEnd}
 				onmouseleave={handleDragEnd}
@@ -459,55 +507,6 @@
 						</a>
 					</div>
 				</div>
-			</div>
-
-			<!-- Integrated Voice Mode Toggle - Jony Ive style floating control -->
-			<div
-				class="mt-6 flex justify-center"
-				in:fly={{ y: 20, duration: 400, delay: 300, easing: quintOut }}
-			>
-				<div
-					class="flex flex-col items-center gap-2 rounded-2xl border border-base-content/10 bg-base-100/80 px-5 py-3 shadow-lg backdrop-blur-xl"
-				>
-					<label class="flex cursor-pointer items-center gap-3">
-						<span
-							class="flex items-center gap-1.5 text-sm font-medium transition-all"
-							class:text-base-content={selectedAudioMode === 'ptt'}
-							class:opacity-50={selectedAudioMode === 'vad'}
-							class:scale-105={selectedAudioMode === 'ptt'}
-						>
-							<span class="icon-[mdi--walkie-talkie] h-4.5 w-4.5"></span>
-							<span class="hidden sm:inline">Walkie Talkie</span>
-						</span>
-						<input
-							type="checkbox"
-							class="toggle toggle-sm toggle-primary"
-							checked={selectedAudioMode === 'vad'}
-							onchange={() => handleAudioModeChange(selectedAudioMode === 'vad' ? 'ptt' : 'vad')}
-							aria-label="Switch between Walkie Talkie and Casual Chat modes"
-						/>
-						<span
-							class="flex items-center gap-1.5 text-sm font-medium transition-all"
-							class:text-base-content={selectedAudioMode === 'vad'}
-							class:opacity-50={selectedAudioMode === 'ptt'}
-							class:scale-105={selectedAudioMode === 'vad'}
-						>
-							<span class="hidden sm:inline">Casual Chat</span>
-							<span class="icon-[mdi--message-text-outline] h-4.5 w-4.5"></span>
-						</span>
-					</label>
-					<div class="text-center text-xs text-base-content/60" in:fade={{ duration: 200 }}>
-						{selectedAudioMode === 'vad' ? 'Best with earphones' : 'Best without earphones'}
-					</div>
-				</div>
-			</div>
-
-			<!-- Minimal swipe hint -->
-			<div
-				class="mt-4 text-center text-xs font-normal text-base-content/40"
-				in:fly={{ y: 10, duration: 400, delay: 600, easing: quintOut }}
-			>
-				Swipe to explore more scenarios
 			</div>
 		</div>
 	</div>
