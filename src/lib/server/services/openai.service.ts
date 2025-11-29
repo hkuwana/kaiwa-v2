@@ -12,9 +12,23 @@ import {
 
 export type { AnalysisFocus, OnboardingAnalysisConfig } from './analysis-instruction.service';
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-	apiKey: env.OPENAI_API_KEY
+// Lazy initialization of OpenAI client
+let _openai: OpenAI | null = null;
+
+function getOpenAI(): OpenAI {
+	if (!_openai) {
+		_openai = new OpenAI({
+			apiKey: env.OPENAI_API_KEY || 'dummy-key-for-build'
+		});
+	}
+	return _openai;
+}
+
+const openai = new Proxy({} as OpenAI, {
+	get(_target, prop) {
+		const client = getOpenAI();
+		return client[prop as keyof OpenAI];
+	}
 });
 
 export interface OpenAICompletionOptions {
