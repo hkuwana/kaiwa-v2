@@ -67,6 +67,7 @@
 	"devDependencies": {
 		"@eslint/compat": "^1.4.1",
 		"@eslint/js": "^9.39.1",
+		"@iconify-json/circle-flags": "^1.2.10",
 		"@iconify-json/mdi": "^1.2.3",
 		"@iconify/tailwind4": "^1.1.1",
 		"@playwright/test": "^1.56.1",
