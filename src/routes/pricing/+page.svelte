@@ -255,6 +255,9 @@
 	// Downgrade modal state
 	let showDowngradeModal = $state(false);
 
+	// Feature comparison toggle (mobile)
+	let showFeatureComparison = $state(false);
+
 	// Check if user is on a paid tier
 	function isOnPaidTier(): boolean {
 		const tier = currentTier?.toLowerCase();
@@ -443,113 +446,53 @@
 			</div>
 		{/if}
 
-		<!-- Personalized Path Featured Offer -->
+		<!-- Founding Member Offer - Simplified -->
 		<div
-			class="mb-16 rounded-3xl border-2 border-accent bg-linear-to-br from-accent/10 via-base-100 to-primary/10 p-2 shadow-xl md:p-12"
+			class="group mb-20 overflow-hidden rounded-3xl border border-accent/30 bg-linear-to-br from-accent/5 via-base-100 to-primary/5"
 		>
-			<div class="grid gap-8 lg:grid-cols-2 lg:items-center">
-				<div>
-					<div
-						class="mb-4 inline-flex items-center gap-2 rounded-full bg-accent/20 px-4 py-1 text-sm font-medium text-accent"
-					>
-						<span class="icon-[mdi--star-four-points] h-4 w-4"></span>
-						{personalizedPathOffer.tagline} • Built with Hiro (founder)
-					</div>
-					<h2 class="mb-4 text-2xl font-bold tracking-tight md:text-4xl">
-						{personalizedPathOffer.headline}
-					</h2>
-					<p class="mb-6 hidden text-lg text-base-content/80 sm:flex">
-						{personalizedPathOffer.description}
+			<!-- Compact header - always visible -->
+			<div class="flex flex-col items-center justify-between gap-6 p-6 sm:flex-row sm:p-8">
+				<div class="text-center sm:text-left">
+					<p class="mb-1 text-xs font-medium tracking-widest text-accent/80 uppercase">
+						{personalizedPathOffer.spotsAvailable} spots for {personalizedPathOffer.availabilityPeriod}
 					</p>
-					<ul class="mb-6 space-y-2.5 sm:space-y-3">
-						<li class="flex items-start gap-3">
-							<span class="mt-0.5 icon-[mdi--check-circle] h-5 w-5 shrink-0 text-success"></span>
-							<span class="text-sm sm:text-base"
-								><strong>15 minutes with Hiro (founder)</strong>: Talk through your exact situation
-								and goals</span
-							>
-						</li>
-						<li class="flex items-start gap-3">
-							<span class="mt-0.5 icon-[mdi--check-circle] h-5 w-5 shrink-0 text-success"></span>
-							<span class="text-sm sm:text-base"
-								><strong>Custom path built for you</strong>: 14 or 28 days of scenarios designed
-								for YOUR life</span
-							>
-						</li>
-						<li class="flex items-start gap-3">
-							<span class="mt-0.5 icon-[mdi--crown] h-5 w-5 shrink-0 text-accent"></span>
-							<span class="text-sm sm:text-base"
-								><strong>Premium access included</strong>: Unlimited practice time during your
-								entire path</span
-							>
-						</li>
-						<li class="flex items-start gap-3">
-							<span class="mt-0.5 icon-[mdi--check-circle] h-5 w-5 shrink-0 text-success"></span>
-							<span class="text-sm sm:text-base"
-								><strong>Mid-path check-in</strong>: We'll review progress and adjust if needed</span
-							>
-						</li>
-					</ul>
+					<h2 class="text-xl font-semibold tracking-tight sm:text-2xl">
+						Get a learning path built just for you
+					</h2>
+					<p class="mt-1 text-sm text-base-content/60">
+						15 min call with me + custom scenarios + premium access
+					</p>
 				</div>
-				<div class="text-center lg:text-right">
-					<div class="w-full max-w-sm sm:max-w-md rounded-2xl bg-base-100 p-6 shadow-lg sm:p-8">
-						<p class="mb-1 text-xs font-medium text-base-content/70 sm:text-sm">
-							Personalize your conversations for
-						</p>
-						<div class="mb-2 flex items-center justify-center gap-2 sm:justify-end">
-							<p class="text-xl font-medium text-base-content/40 line-through sm:text-2xl">
-								${personalizedPathOffer.regularPrice}
-							</p>
-							<p class="text-4xl font-bold text-accent sm:text-5xl">
-								${personalizedPathOffer.foundingMemberPrice}
-							</p>
-						</div>
-						<p class="mb-4 text-sm text-base-content/70 sm:text-base">Founding member price</p>
-						<p class="mb-6 text-xs text-base-content/50 sm:text-sm">
-							Only {personalizedPathOffer.spotsAvailable} spots for {personalizedPathOffer.availabilityPeriod}
-						</p>
-						<a
-							href={CALENDAR_LINK}
-							target="_blank"
-							rel="noopener noreferrer"
-							class="btn w-full gap-2 btn-accent btn-md sm:btn-lg"
+				<div class="flex shrink-0 items-center gap-4">
+					<div class="text-right">
+						<span class="text-lg text-base-content/40 line-through"
+							>${personalizedPathOffer.regularPrice}</span
 						>
-							<span class="icon-[mdi--calendar-check] h-5 w-5"></span>
-							{personalizedPathOffer.ctaText}
-						</a>
-						<p class="mt-3 text-xs text-base-content/50 sm:text-sm">
-							{personalizedPathOffer.ctaSubtext}
-						</p>
+						<span class="ml-2 text-3xl font-bold text-accent"
+							>${personalizedPathOffer.foundingMemberPrice}</span
+						>
 					</div>
+					<a
+						href={CALENDAR_LINK}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="btn btn-accent"
+					>
+						Book Call
+					</a>
 				</div>
 			</div>
 		</div>
 
-		<div class="mb-16 text-center">
-			<p class="mb-2 text-sm font-medium tracking-wider text-base-content/50 uppercase">
+		<!-- Simplified headline -->
+		<div class="mb-12 text-center">
+			<p class="mb-3 text-xs font-medium tracking-widest text-base-content/50 uppercase">
 				Or practice on your own
 			</p>
-			<h1 class="mb-4 text-4xl font-bold tracking-tight lg:text-5xl">
-				Practice Real Conversations With Loved Ones
+			<h1 class="mb-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+				Practice conversations that matter
 			</h1>
-			<p class="mx-auto max-w-3xl text-lg text-base-content/70 lg:text-xl">
-				Go beyond Duolingo basics. Practice the conversations that matter, so you can see their face
-				light up with pride when you speak.
-			</p>
-			<div class="mt-6 flex justify-center space-x-6 text-sm opacity-70">
-				<span class="inline-flex items-center gap-1">
-					<span class="icon-[mdi--check] text-success"></span>
-					Free trial included
-				</span>
-				<span class="inline-flex items-center gap-1">
-					<span class="icon-[mdi--check] text-success"></span>
-					Cancel anytime
-				</span>
-				<span class="inline-flex items-center gap-1">
-					<span class="icon-[mdi--check] text-success"></span>
-					20+ languages included
-				</span>
-			</div>
+			<p class="text-base-content/60">Free trial included · Cancel anytime</p>
 		</div>
 
 		<div class="mb-12 flex justify-center">
@@ -571,230 +514,214 @@
 			</div>
 		</div>
 
-		<div class="mx-auto mb-20 grid max-w-5xl grid-cols-1 gap-6 lg:grid-cols-3 lg:items-start">
-			<!-- Free Tier -->
-			<div class="flex flex-col items-center rounded-2xl border bg-base-100 p-8 text-center">
-				<h2 class="mb-4 text-2xl font-semibold">{freeTier.name}</h2>
-				<p class="text-4xl font-bold">
-					$0
-					<span class="text-xl font-normal text-base-content/60">/month</span>
-				</p>
-				<p class="mt-4 min-h-16 text-base-content/70">
-					Try Kaiwa with 15 minutes of AI conversation practice
-				</p>
-				<div class="grow"></div>
-				{#if isCurrentTier(SubscriptionTier.GUEST) || isCurrentTier(SubscriptionTier.BASIC)}
-					<button class="btn mt-8 w-full btn-outline" disabled>Your Current Plan</button>
-				{:else if isOnPaidTier()}
-					<button
-						class="btn mt-8 w-full btn-outline btn-error"
-						onclick={() => handlePlanSelection('free')}
-						disabled={isLoading}
-					>
-						{#if isLoading}
-							<span class="loading loading-sm loading-spinner"></span>
-							Processing...
-						{:else}
-							Downgrade to Free
-						{/if}
-					</button>
-				{:else}
-					<button
-						onclick={() => handlePlanSelection('free')}
-						class="btn mt-8 w-full btn-outline"
-						disabled={isLoading}
-					>
-						Get Started
-					</button>
-				{/if}
-			</div>
-
-			<!-- Premium Tier (Center - Recommended) -->
+		<!-- Pricing Cards - Clean with Ghibli-inspired backgrounds -->
+		<div class="mx-auto mb-16 grid max-w-4xl grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:items-start">
+			<!-- Free Tier - Pine Dawn -->
 			<div
-				class="relative flex flex-col items-center rounded-2xl border-2 border-primary bg-base-100 p-8 text-center shadow-2xl shadow-primary/20 lg:-mt-4 lg:pb-12"
+				class="relative flex flex-col overflow-hidden rounded-2xl border border-base-200 bg-base-100 p-6 sm:p-8"
 			>
-				<div class="absolute -top-4 left-1/2 -translate-x-1/2">
-					<span class="badge px-4 py-3 text-sm font-semibold badge-primary">Recommended</span>
-				</div>
-				<div class="mt-2 flex items-center gap-2">
-					<span class="icon-[mdi--crown] h-6 w-6 text-primary"></span>
-					<h2 class="text-2xl font-semibold">{premiumTier.name}</h2>
-				</div>
-
-				{#if selectedPlan === 'monthly'}
-					<p class="mt-4 text-4xl font-bold">
-						{formatPriceDisplay(premiumTier.monthlyPriceUsd)}
-						<span class="text-xl font-normal text-base-content/60">/month</span>
+				<!-- Ghibli background - pine forest at dawn -->
+				<div
+					class="pointer-events-none absolute inset-0 bg-cover bg-center opacity-20 dark:opacity-10"
+					style="background-image: url('/pricing/pricing-pine-dawn.png')"
+				></div>
+				<div
+					class="pointer-events-none absolute inset-0 bg-linear-to-t from-base-100 via-base-100/80 to-transparent"
+				></div>
+				<div class="relative">
+					<h2 class="text-lg font-medium">{freeTier.name}</h2>
+					<p class="mt-3 text-3xl font-semibold">
+						$0<span class="text-base font-normal text-base-content/50">/mo</span>
 					</p>
-				{:else}
-					<p class="mt-4 text-4xl font-bold">
-						${getAnnualPricePerMonth(premiumTier)}
-						<span class="text-xl font-normal text-base-content/60">/month</span>
-					</p>
-					<p class="text-sm text-base-content/50">billed annually</p>
-				{/if}
-				<p class="mt-4 text-base-content/70">10 hours of practice with personal guidance</p>
-				<ul class="mt-4 space-y-2 text-left text-sm">
-					<li class="flex items-center gap-2">
-						<span class="icon-[mdi--check-circle] h-5 w-5 text-primary"></span>
-						1-on-1 with Founder (monthly)
-					</li>
-					<li class="flex items-center gap-2">
-						<span class="icon-[mdi--check-circle] h-5 w-5 text-primary"></span>
-						Custom learning path built for you
-					</li>
-					<li class="flex items-center gap-2">
-						<span class="icon-[mdi--check-circle] h-5 w-5 text-primary"></span>
-						Direct text/chat support anytime
-					</li>
-					<li class="flex items-center gap-2">
-						<span class="icon-[mdi--check-circle] h-5 w-5 text-primary"></span>
-						Unlimited custom scenarios
-					</li>
-				</ul>
-				<div class="grow"></div>
-				{#if isCurrentTier(SubscriptionTier.PREMIUM)}
-					<button class="btn mt-8 w-full btn-outline" disabled>Your Current Plan</button>
-				{:else}
-					<button
-						class="btn mt-8 w-full btn-primary"
-						onclick={() => handlePlanSelection('premium')}
-						disabled={isLoading}
-					>
-						{#if isLoading}
-							<span class="loading loading-sm loading-spinner"></span>
-							Processing...
+					<p class="mt-2 text-sm text-base-content/60">15 minutes to try</p>
+					<div class="mt-6">
+						{#if isCurrentTier(SubscriptionTier.GUEST) || isCurrentTier(SubscriptionTier.BASIC)}
+							<button class="btn w-full btn-soft" disabled>Current plan</button>
+						{:else if isOnPaidTier()}
+							<button
+								class="btn w-full btn-soft btn-error"
+								onclick={() => handlePlanSelection('free')}
+								disabled={isLoading}
+							>
+								{isLoading ? 'Processing...' : 'Downgrade'}
+							</button>
 						{:else}
-							Start Free Trial
+							<button
+								onclick={() => handlePlanSelection('free')}
+								class="btn w-full btn-soft"
+								disabled={isLoading}
+							>
+								Get started
+							</button>
 						{/if}
-					</button>
-				{/if}
+					</div>
+				</div>
 			</div>
 
-			<!-- Plus Tier -->
-			<div class="flex flex-col items-center rounded-2xl border bg-base-100 p-8 text-center">
-				<div class="flex items-center gap-2">
-					<span class="icon-[mdi--star] h-6 w-6 text-secondary"></span>
-					<h2 class="text-2xl font-semibold">{plusTier.name}</h2>
-				</div>
-
-				{#if selectedPlan === 'monthly'}
-					<p class="mt-4 text-4xl font-bold">
-						{formatPriceDisplay(plusTier.monthlyPriceUsd)}
-						<span class="text-xl font-normal text-base-content/60">/month</span>
-					</p>
-				{:else}
-					<p class="mt-4 text-4xl font-bold">
-						${getAnnualPricePerMonth(plusTier)}
-						<span class="text-xl font-normal text-base-content/60">/month</span>
-					</p>
-					<p class="text-sm text-base-content/50">billed annually</p>
-				{/if}
-				<p class="mt-4 min-h-16 text-base-content/70">
-					10 hours of AI practice with automated learning paths
-				</p>
-				<div class="grow"></div>
-				{#if isCurrentTier(SubscriptionTier.PLUS)}
-					<button class="btn mt-8 w-full btn-outline" disabled>Your Current Plan</button>
-				{:else}
-					<button
-						class="btn mt-8 w-full btn-outline"
-						onclick={() => handlePlanSelection('plus')}
-						disabled={isLoading}
-					>
-						{#if isLoading}
-							<span class="loading loading-sm loading-spinner"></span>
-							Processing...
+			<!-- Premium Tier - Plum Sunset (recommended) -->
+			<div
+				class="relative flex flex-col overflow-hidden rounded-2xl border-2 border-primary bg-base-100 p-6 shadow-xl shadow-primary/10 sm:p-8 lg:-mt-2 lg:mb-2"
+			>
+				<!-- Ghibli background - plum blossoms at sunset -->
+				<div
+					class="pointer-events-none absolute inset-0 bg-cover bg-center opacity-25 dark:opacity-15"
+					style="background-image: url('/pricing/pricing-plum-sunset.png')"
+				></div>
+				<div
+					class="pointer-events-none absolute inset-0 bg-linear-to-t from-base-100 via-base-100/70 to-transparent"
+				></div>
+				<div class="relative">
+					<div class="flex items-center justify-between">
+						<h2 class="text-lg font-medium">{premiumTier.name}</h2>
+						<span class="badge badge-sm badge-primary">Best value</span>
+					</div>
+					{#if selectedPlan === 'monthly'}
+						<p class="mt-3 text-3xl font-semibold">
+							{formatPriceDisplay(premiumTier.monthlyPriceUsd)}<span
+								class="text-base font-normal text-base-content/50">/mo</span
+							>
+						</p>
+					{:else}
+						<p class="mt-3 text-3xl font-semibold">
+							${getAnnualPricePerMonth(premiumTier)}<span
+								class="text-base font-normal text-base-content/50">/mo</span
+							>
+						</p>
+						<p class="text-xs text-base-content/50">billed annually</p>
+					{/if}
+					<p class="mt-2 text-sm text-base-content/60">10 hours + personal guidance</p>
+					<div class="mt-6">
+						{#if isCurrentTier(SubscriptionTier.PREMIUM)}
+							<button class="btn w-full btn-soft" disabled>Current plan</button>
 						{:else}
-							Start Free Trial
+							<button
+								class="btn w-full btn-primary"
+								onclick={() => handlePlanSelection('premium')}
+								disabled={isLoading}
+							>
+								{isLoading ? 'Processing...' : 'Start free trial'}
+							</button>
 						{/if}
-					</button>
-				{/if}
+					</div>
+				</div>
+			</div>
+
+			<!-- Plus Tier - Bamboo Day -->
+			<div
+				class="relative flex flex-col overflow-hidden rounded-2xl border border-base-200 bg-base-100 p-6 sm:p-8"
+			>
+				<!-- Ghibli background - bamboo forest in daylight -->
+				<div
+					class="pointer-events-none absolute inset-0 bg-cover bg-center opacity-20 dark:opacity-10"
+					style="background-image: url('/pricing/pricing-bamboo-day.png')"
+				></div>
+				<div
+					class="pointer-events-none absolute inset-0 bg-linear-to-t from-base-100 via-base-100/80 to-transparent"
+				></div>
+				<div class="relative">
+					<h2 class="text-lg font-medium">{plusTier.name}</h2>
+					{#if selectedPlan === 'monthly'}
+						<p class="mt-3 text-3xl font-semibold">
+							{formatPriceDisplay(plusTier.monthlyPriceUsd)}<span
+								class="text-base font-normal text-base-content/50">/mo</span
+							>
+						</p>
+					{:else}
+						<p class="mt-3 text-3xl font-semibold">
+							${getAnnualPricePerMonth(plusTier)}<span
+								class="text-base font-normal text-base-content/50">/mo</span
+							>
+						</p>
+						<p class="text-xs text-base-content/50">billed annually</p>
+					{/if}
+					<p class="mt-2 text-sm text-base-content/60">10 hours, self-guided</p>
+					<div class="mt-6">
+						{#if isCurrentTier(SubscriptionTier.PLUS)}
+							<button class="btn w-full btn-soft" disabled>Current plan</button>
+						{:else}
+							<button
+								class="btn w-full btn-soft"
+								onclick={() => handlePlanSelection('plus')}
+								disabled={isLoading}
+							>
+								{isLoading ? 'Processing...' : 'Start free trial'}
+							</button>
+						{/if}
+					</div>
+				</div>
 			</div>
 		</div>
 
-		<div class="mt-24">
-			<h2 class="mb-10 text-center text-3xl font-bold">Feature Comparison</h2>
+		<!-- Feature Comparison - Collapsible on mobile -->
+		<div class="mt-16">
+			<!-- Mobile: Collapsible -->
+			<div class="text-center lg:hidden">
+				<button
+					class="inline-flex items-center gap-2 text-sm text-base-content/60 transition hover:text-base-content"
+					onclick={() => (showFeatureComparison = !showFeatureComparison)}
+				>
+					<span>{showFeatureComparison ? 'Hide' : 'Compare'} all features</span>
+					<span
+						class="icon-[mdi--chevron-down] h-4 w-4 transition-transform {showFeatureComparison
+							? 'rotate-180'
+							: ''}"
+					></span>
+				</button>
 
-			<!-- Mobile-first cards -->
-			<div class="lg:hidden">
-				<div class="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4">
-					{#each [{ id: 'free' as PlanKey, label: freeTier.name, badge: 'Start here', tier: freeTier, gradient: 'from-base-200 via-base-100 to-base-200/70', accent: 'text-base-content' }, { id: 'plus' as PlanKey, label: plusTier.name, badge: 'Balanced', tier: plusTier, gradient: 'from-secondary/15 via-base-100 to-secondary/5', accent: 'text-secondary' }, { id: 'premium' as PlanKey, label: premiumTier.name, badge: 'Most personal', tier: premiumTier, gradient: 'from-primary/20 via-base-100 to-primary/5', accent: 'text-primary' }] as plan (plan.id)}
-						{@const pricing = getMobilePriceCopy(plan.tier)}
-						<div
-							class="relative min-w-[85%] snap-center rounded-3xl border border-base-200 bg-linear-to-br {plan.gradient} p-6 shadow-lg backdrop-blur"
-						>
-							<div class="mb-4 flex items-center justify-between">
-								<div>
-									<p class="text-[11px] tracking-[0.18em] text-base-content/60 uppercase">
-										{plan.badge}
-									</p>
-									<p class="text-lg font-semibold sm:text-xl">{plan.label}</p>
-								</div>
-								<span
-									class="badge bg-base-200/80 badge-sm text-[11px] font-semibold sm:badge-md {plan.accent}"
-								>
-									{selectedPlan === 'annual' ? 'Annual' : 'Monthly'}
-								</span>
-							</div>
-							<div class="mb-2 flex items-baseline gap-2">
-								<span class="text-3xl font-bold sm:text-4xl {plan.accent}">{pricing.price}</span>
-								<span class="text-xs text-base-content/60 sm:text-sm">/mo</span>
-							</div>
-							<p class="text-[11px] text-base-content/60 sm:text-xs">{pricing.subline}</p>
-							<div class="mt-4 space-y-2">
-								{#each featureRows.slice(0, 8) as feature (feature.feature)}
-									<div
-										class="flex items-start justify-between gap-3 rounded-2xl bg-base-100/70 px-3 py-2"
-									>
-										<div class="text-[13px] font-medium text-base-content/90 sm:text-sm">
-											{feature.feature}
-										</div>
-										<div class="text-[12px] text-base-content/70 sm:text-sm">
-											{getFeatureValueForPlan(plan.id, feature)}
-										</div>
+				{#if showFeatureComparison}
+					<div class="mt-6 space-y-3">
+						{#each featureRows.slice(0, 6) as feature (feature.feature)}
+							<div class="rounded-xl bg-base-200/50 p-4">
+								<p class="mb-2 text-sm font-medium">{feature.feature}</p>
+								<div class="grid grid-cols-3 gap-2 text-xs">
+									<div>
+										<p class="text-base-content/50">{freeTier.name}</p>
+										<p class="font-medium capitalize">{feature.basic}</p>
 									</div>
-								{/each}
+									<div>
+										<p class="text-primary/70">{premiumTier.name}</p>
+										<p class="font-semibold text-primary capitalize">{feature.premium}</p>
+									</div>
+									<div>
+										<p class="text-base-content/50">{plusTier.name}</p>
+										<p class="font-medium capitalize">{feature.plus}</p>
+									</div>
+								</div>
 							</div>
-							<p class="mt-4 text-[11px] text-base-content/50 sm:text-xs">
-								Swipe for other plans • Detailed table available on desktop
-							</p>
-						</div>
-					{/each}
-				</div>
+						{/each}
+					</div>
+				{/if}
 			</div>
 
-			<!-- Desktop table -->
-			<div class="hidden overflow-x-auto rounded-xl border bg-base-100 lg:block">
-				<table class="table table-lg text-center">
-					<thead>
-						<tr class="bg-base-200">
-							<th class="w-2/5 text-left"></th>
-							<th class="text-lg">{freeTier.name}</th>
-							<th class="text-lg font-bold text-primary">{premiumTier.name}</th>
-							<th class="text-lg">{plusTier.name}</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each featureRows as feature (feature.feature)}
-							<tr class="hover">
-								<td class="text-left font-medium text-base-content/90">
-									{feature.feature}
-								</td>
-								<td class="font-light capitalize">{feature.basic}</td>
-								<td class="font-semibold text-primary capitalize">{feature.premium}</td>
-								<td class="font-medium capitalize">{feature.plus}</td>
+			<!-- Desktop: Clean table -->
+			<div class="hidden lg:block">
+				<h2 class="mb-6 text-center text-xl font-medium text-base-content/70">Compare plans</h2>
+				<div class="overflow-hidden rounded-xl border border-base-200 bg-base-100">
+					<table class="table text-center">
+						<thead>
+							<tr class="bg-base-200/50">
+								<th class="w-2/5 text-left font-medium"></th>
+								<th class="font-medium">{freeTier.name}</th>
+								<th class="font-semibold text-primary">{premiumTier.name}</th>
+								<th class="font-medium">{plusTier.name}</th>
 							</tr>
-						{/each}
-					</tbody>
-				</table>
+						</thead>
+						<tbody>
+							{#each featureRows as feature (feature.feature)}
+								<tr class="border-base-200/50">
+									<td class="text-left text-sm text-base-content/80">{feature.feature}</td>
+									<td class="text-sm capitalize">{feature.basic}</td>
+									<td class="text-sm font-medium text-primary capitalize">{feature.premium}</td>
+									<td class="text-sm capitalize">{feature.plus}</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+				<p class="mt-3 text-center text-xs text-base-content/40">
+					* 1-on-1 calls available while we're small
+				</p>
 			</div>
-			<p class="mt-4 text-center text-xs text-base-content/50">
-				* 1-on-1 calls available while we're small. See <a
-					href="/terms"
-					class="underline hover:text-base-content/70">terms</a
-				> for details.
-			</p>
 		</div>
 
 		<Testimonials />
