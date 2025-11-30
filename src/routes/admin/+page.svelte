@@ -36,7 +36,9 @@
 				<p class="text-sm text-base-content/60">{section.description}</p>
 				<div class="mt-4 flex items-center text-sm text-{section.color}">
 					<span>Open</span>
-					<span class="icon-[mdi--arrow-right] ml-1 h-4 w-4 transition-transform group-hover:translate-x-1"></span>
+					<span
+						class="ml-1 icon-[mdi--arrow-right] h-4 w-4 transition-transform group-hover:translate-x-1"
+					></span>
 				</div>
 			</a>
 		{/each}

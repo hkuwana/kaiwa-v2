@@ -27,14 +27,14 @@
 	const weeks = Math.ceil(template.schedule.length / 7);
 
 	// Generate JSON-LD structured data
-		const jsonLd = createLearningPathJsonLd(
-			{
-				...template,
-				shareSlug: template.shareSlug ?? '',
-				metadata: template.metadata ?? undefined
-			},
-			baseUrl
-		);
+	const jsonLd = createLearningPathJsonLd(
+		{
+			...template,
+			shareSlug: template.shareSlug ?? '',
+			metadata: template.metadata ?? undefined
+		},
+		baseUrl
+	);
 
 	// Create breadcrumb navigation
 	const breadcrumbJsonLd = createBreadcrumbJsonLd(
@@ -94,7 +94,7 @@
 			<EnrollCTA
 				title={template.title}
 				totalDays={template.schedule.length}
-								shareSlug={template.shareSlug ?? undefined}
+				shareSlug={template.shareSlug ?? undefined}
 				variant="hero"
 			/>
 		</div>
@@ -157,7 +157,7 @@
 			<EnrollCTA
 				title={template.title}
 				totalDays={template.schedule.length}
-								shareSlug={template.shareSlug ?? undefined}
+				shareSlug={template.shareSlug ?? undefined}
 				variant="inline"
 			/>
 		</div>

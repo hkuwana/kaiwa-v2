@@ -12,7 +12,7 @@
 	 */
 
 	import { onMount } from 'svelte';
-	import { fillLearningPathBriefPrompt, SCAFFOLDING_LEVELS, WEEKLY_PROGRESSION, type ScaffoldingLevel } from '$lib/data/prompts';
+	import { fillLearningPathBriefPrompt, type ScaffoldingLevel } from '$lib/data/prompts';
 
 	// Props from +page.server.ts
 	let { data } = $props();
@@ -38,7 +38,11 @@
 	// Timeout helper
 	const REQUEST_TIMEOUT = 30000;
 	const AI_REQUEST_TIMEOUT = 120000; // 2 minutes for AI-heavy operations
-	async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = REQUEST_TIMEOUT): Promise<Response> {
+	async function fetchWithTimeout(
+		url: string,
+		options: RequestInit = {},
+		timeoutMs = REQUEST_TIMEOUT
+	): Promise<Response> {
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 		try {
@@ -60,10 +64,26 @@
 
 	// Available scaffolding levels for the dropdown - with friendly labels
 	const LEVELS = [
-		{ code: 'beginner' as ScaffoldingLevel, label: 'Just starting', description: 'Knows hello/goodbye, counting' },
-		{ code: 'elementary' as ScaffoldingLevel, label: 'Knows basics', description: 'Simple sentences, common phrases' },
-		{ code: 'intermediate' as ScaffoldingLevel, label: 'Can chat a bit', description: 'Holds basic conversations' },
-		{ code: 'advanced' as ScaffoldingLevel, label: 'Pretty fluent', description: 'Needs real-world polish' }
+		{
+			code: 'beginner' as ScaffoldingLevel,
+			label: 'Just starting',
+			description: 'Knows hello/goodbye, counting'
+		},
+		{
+			code: 'elementary' as ScaffoldingLevel,
+			label: 'Knows basics',
+			description: 'Simple sentences, common phrases'
+		},
+		{
+			code: 'intermediate' as ScaffoldingLevel,
+			label: 'Can chat a bit',
+			description: 'Holds basic conversations'
+		},
+		{
+			code: 'advanced' as ScaffoldingLevel,
+			label: 'Pretty fluent',
+			description: 'Needs real-world polish'
+		}
 	];
 
 	// Derived selected level info for the UI
@@ -71,7 +91,9 @@
 
 	// Languages loaded from database/data file via +page.server.ts
 	function getLanguageName(code: string): string {
-		return data.languages.find((l: { code: string; name: string }) => l.code === code)?.name || code;
+		return (
+			data.languages.find((l: { code: string; name: string }) => l.code === code)?.name || code
+		);
 	}
 
 	function getFilledPrompt(): string {
@@ -136,18 +158,22 @@
 
 		try {
 			// Use extended timeout for AI generation (2 minutes)
-			const response = await fetchWithTimeout('/api/learning-paths/from-brief', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					brief: generatedBrief,
-					targetLanguage: transcriptLanguage,
-					duration: transcriptDuration,
-					difficultyRange,
-					primarySkill: 'conversation',
-					learnerLevel // Pass the scaffolding level
-				})
-			}, AI_REQUEST_TIMEOUT);
+			const response = await fetchWithTimeout(
+				'/api/learning-paths/from-brief',
+				{
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						brief: generatedBrief,
+						targetLanguage: transcriptLanguage,
+						duration: transcriptDuration,
+						difficultyRange,
+						primarySkill: 'conversation',
+						learnerLevel // Pass the scaffolding level
+					})
+				},
+				AI_REQUEST_TIMEOUT
+			);
 
 			const result = await response.json();
 
@@ -157,7 +183,10 @@
 			if (result.success) {
 				createdPath = result.data.path;
 				selectedPath = result.data.path;
-				showMessage(`Created: ${createdPath.title} (${result.data.queuedJobs} scenarios queued)`, 'success');
+				showMessage(
+					`Created: ${createdPath.title} (${result.data.queuedJobs} scenarios queued)`,
+					'success'
+				);
 				await loadPaths();
 				await loadQueueStats();
 				// Skip to Review phase
@@ -169,9 +198,10 @@
 				// currentPhase = 2;
 			}
 		} catch (error: any) {
-			const errorMsg = error.name === 'AbortError'
-				? `Request timed out after ${generationSeconds} seconds. The path may still be generating on the server.`
-				: error.message;
+			const errorMsg =
+				error.name === 'AbortError'
+					? `Request timed out after ${generationSeconds} seconds. The path may still be generating on the server.`
+					: error.message;
 			lastApiError = errorMsg;
 			showMessage(errorMsg, 'error');
 			// Stay on Phase 1 to show debug info
@@ -218,7 +248,10 @@
 
 			if (result.success) {
 				createdPath = result.data.path;
-				showMessage(`Created: ${createdPath.title} (${result.data.queuedJobs} scenarios queued)`, 'success');
+				showMessage(
+					`Created: ${createdPath.title} (${result.data.queuedJobs} scenarios queued)`,
+					'success'
+				);
 				await loadPaths();
 				await loadQueueStats();
 				currentPhase = 3;
@@ -283,7 +316,10 @@
 			const result = await response.json();
 
 			if (result.success) {
-				showMessage(`Assigned to ${assignEmail}${sendEmailNotification ? ' - Email notification sent!' : ''}`, 'success');
+				showMessage(
+					`Assigned to ${assignEmail}${sendEmailNotification ? ' - Email notification sent!' : ''}`,
+					'success'
+				);
 				assignEmail = '';
 				assignNote = '';
 			} else {
@@ -348,7 +384,10 @@
 
 			if (result.success) {
 				const { processed, succeeded, failed } = result.data || {};
-				showMessage(`Processed ${processed || 0} jobs (${succeeded || 0} succeeded, ${failed || 0} failed)`, 'success');
+				showMessage(
+					`Processed ${processed || 0} jobs (${succeeded || 0} succeeded, ${failed || 0} failed)`,
+					'success'
+				);
 			} else {
 				showMessage(result.error || 'Processing failed', 'error');
 			}
@@ -467,7 +506,9 @@
 		<ul class="steps steps-horizontal w-full">
 			{#each phases as phase}
 				<li
-					class="step cursor-pointer transition-colors {currentPhase >= phase.num ? 'step-primary' : ''}"
+					class="step cursor-pointer transition-colors {currentPhase >= phase.num
+						? 'step-primary'
+						: ''}"
 					onclick={() => (currentPhase = phase.num as 1 | 2 | 3 | 4 | 5)}
 				>
 					<span class="text-xs">{phase.label}</span>
@@ -479,7 +520,13 @@
 	<!-- Message Toast -->
 	{#if message}
 		<div class="toast toast-end toast-top z-50">
-			<div class="alert {messageType === 'success' ? 'alert-success' : messageType === 'error' ? 'alert-error' : 'alert-info'}">
+			<div
+				class="alert {messageType === 'success'
+					? 'alert-success'
+					: messageType === 'error'
+						? 'alert-error'
+						: 'alert-info'}"
+			>
 				<span>{message}</span>
 			</div>
 		</div>
@@ -505,7 +552,14 @@
 				<div class="text-xs text-base-content/60">Failed</div>
 			</div>
 		</div>
-		<button class="btn btn-ghost btn-sm" onclick={() => { loadPaths(); loadQueueStats(); }} disabled={loading}>
+		<button
+			class="btn btn-ghost btn-sm"
+			onclick={() => {
+				loadPaths();
+				loadQueueStats();
+			}}
+			disabled={loading}
+		>
 			<span class="icon-[mdi--refresh] h-4 w-4"></span>
 			Refresh
 		</button>
@@ -517,7 +571,8 @@
 			<div class="rounded-2xl border border-base-200 bg-base-100 p-6">
 				<h2 class="mb-4 text-xl font-medium">Step 1: Capture User Requirements</h2>
 				<p class="mb-6 text-sm text-base-content/60">
-					Paste your discovery call transcript or notes. We'll help you structure it into an AI-ready brief.
+					Paste your discovery call transcript or notes. We'll help you structure it into an
+					AI-ready brief.
 				</p>
 
 				<div class="grid gap-6 lg:grid-cols-2">
@@ -526,7 +581,7 @@
 						<div class="grid grid-cols-3 gap-4">
 							<div class="form-control">
 								<label class="label"><span class="label-text">Target Language</span></label>
-								<select class="select select-bordered" bind:value={transcriptLanguage}>
+								<select class="select-bordered select" bind:value={transcriptLanguage}>
 									{#each data.languages as lang}
 										<option value={lang.code}>{lang.name}</option>
 									{/each}
@@ -534,7 +589,7 @@
 							</div>
 							<div class="form-control">
 								<label class="label"><span class="label-text">Where are they at?</span></label>
-								<select class="select select-bordered" bind:value={learnerLevel}>
+								<select class="select-bordered select" bind:value={learnerLevel}>
 									{#each LEVELS as level}
 										<option value={level.code}>{level.label}</option>
 									{/each}
@@ -542,7 +597,7 @@
 							</div>
 							<div class="form-control">
 								<label class="label"><span class="label-text">Duration</span></label>
-								<select class="select select-bordered" bind:value={transcriptDuration}>
+								<select class="select-bordered select" bind:value={transcriptDuration}>
 									<option value={14}>14 days (2 weeks)</option>
 									<option value={21}>21 days (3 weeks)</option>
 									<option value={28}>28 days (4 weeks)</option>
@@ -571,27 +626,37 @@
 
 						<!-- What They'll Practice Preview -->
 						<div class="rounded-lg bg-base-200/50 p-3">
-							<p class="mb-2 text-xs font-medium text-base-content/70">What they'll practice over {transcriptDuration} days:</p>
+							<p class="mb-2 text-xs font-medium text-base-content/70">
+								What they'll practice over {transcriptDuration} days:
+							</p>
 							<div class="grid grid-cols-4 gap-2 text-xs">
 								<div class="rounded bg-base-100 p-2">
 									<div class="font-medium text-primary">Week 1</div>
 									<div class="text-base-content/80">Learning key words & phrases</div>
-									<div class="mt-1 text-base-content/50 italic">"Hello", "Thank you", numbers...</div>
+									<div class="mt-1 text-base-content/50 italic">
+										"Hello", "Thank you", numbers...
+									</div>
 								</div>
 								<div class="rounded bg-base-100 p-2">
 									<div class="font-medium text-primary">Week 2</div>
 									<div class="text-base-content/80">Short back-and-forth</div>
-									<div class="mt-1 text-base-content/50 italic">Ordering coffee, asking prices...</div>
+									<div class="mt-1 text-base-content/50 italic">
+										Ordering coffee, asking prices...
+									</div>
 								</div>
 								<div class="rounded bg-base-100 p-2">
 									<div class="font-medium text-primary">Week 3</div>
 									<div class="text-base-content/80">Guided conversations</div>
-									<div class="mt-1 text-base-content/50 italic">Restaurant ordering with hints...</div>
+									<div class="mt-1 text-base-content/50 italic">
+										Restaurant ordering with hints...
+									</div>
 								</div>
 								<div class="rounded bg-base-100 p-2">
 									<div class="font-medium text-primary">Week 4</div>
 									<div class="text-base-content/80">Real conversations</div>
-									<div class="mt-1 text-base-content/50 italic">Full scenarios, handle surprises...</div>
+									<div class="mt-1 text-base-content/50 italic">
+										Full scenarios, handle surprises...
+									</div>
 								</div>
 							</div>
 						</div>
@@ -601,7 +666,7 @@
 								<span class="label-text">Transcript / Notes</span>
 							</label>
 							<textarea
-								class="textarea textarea-bordered h-48 font-mono text-sm"
+								class="textarea-bordered textarea h-48 font-mono text-sm"
 								bind:value={transcriptInput}
 								placeholder="Paste your discovery call transcript or notes here...
 
@@ -613,7 +678,7 @@ Example:
 							></textarea>
 						</div>
 
-						<button class="btn btn-primary w-full" onclick={copyPromptToClipboard}>
+						<button class="btn w-full btn-primary" onclick={copyPromptToClipboard}>
 							{briefCopied ? 'Copied!' : 'Copy AI Prompt'}
 						</button>
 					</div>
@@ -634,19 +699,19 @@ Example:
 								<span class="label-text">AI-Generated Brief</span>
 							</label>
 							<textarea
-								class="textarea textarea-bordered h-48"
+								class="textarea-bordered textarea h-48"
 								bind:value={generatedBrief}
 								placeholder="Paste the AI-generated brief here..."
 							></textarea>
 						</div>
 
 						<button
-							class="btn btn-success w-full"
+							class="btn w-full btn-success"
 							onclick={proceedToBuild}
 							disabled={!generatedBrief || loading}
 						>
 							{#if generatingPath}
-								<span class="loading loading-spinner loading-sm"></span>
+								<span class="loading loading-sm loading-spinner"></span>
 								Generating... {generationSeconds}s
 							{:else}
 								Create Path
@@ -657,8 +722,14 @@ Example:
 						{#if generatingPath}
 							<div class="mt-4 rounded-lg border border-info/20 bg-info/5 p-3">
 								<p class="text-sm font-medium text-info">Generating your learning path...</p>
-								<p class="text-xs text-base-content/60">This typically takes 30-60 seconds. Please wait.</p>
-								<progress class="progress progress-info mt-2 w-full" max="60" value={Math.min(generationSeconds, 60)}></progress>
+								<p class="text-xs text-base-content/60">
+									This typically takes 30-60 seconds. Please wait.
+								</p>
+								<progress
+									class="progress mt-2 w-full progress-info"
+									max="60"
+									value={Math.min(generationSeconds, 60)}
+								></progress>
 							</div>
 						{/if}
 					</div>
@@ -673,7 +744,10 @@ Example:
 						{#each allPaths.slice(0, 5) as path}
 							<button
 								class="flex items-center justify-between rounded-lg bg-base-200 p-3 text-left transition hover:bg-base-300"
-								onclick={() => { selectedPath = path; currentPhase = 3; }}
+								onclick={() => {
+									selectedPath = path;
+									currentPhase = 3;
+								}}
 							>
 								<div>
 									<div class="font-medium">{path.title}</div>
@@ -690,29 +764,36 @@ Example:
 
 			<!-- Debug: API Response -->
 			{#if lastApiError || lastApiResponse}
-				<div class="rounded-2xl border {lastApiError ? 'border-error/30' : 'border-success/30'} bg-base-100 p-6">
-					<div class="flex items-center justify-between mb-4">
+				<div
+					class="rounded-2xl border {lastApiError
+						? 'border-error/30'
+						: 'border-success/30'} bg-base-100 p-6"
+				>
+					<div class="mb-4 flex items-center justify-between">
 						<h3 class="font-medium {lastApiError ? 'text-error' : 'text-success'}">
 							{lastApiError ? 'API Error' : 'API Response'}
 						</h3>
 						<button
 							class="btn btn-ghost btn-xs"
-							onclick={() => { lastApiResponse = null; lastApiError = null; }}
+							onclick={() => {
+								lastApiResponse = null;
+								lastApiError = null;
+							}}
 						>
 							Clear
 						</button>
 					</div>
 
 					{#if lastApiError}
-						<div class="rounded-lg bg-error/10 p-3 mb-4">
-							<p class="text-sm text-error font-medium">{lastApiError}</p>
+						<div class="mb-4 rounded-lg bg-error/10 p-3">
+							<p class="text-sm font-medium text-error">{lastApiError}</p>
 						</div>
 					{/if}
 
 					{#if lastApiResponse}
 						<div class="space-y-3">
 							<div>
-								<p class="text-xs text-base-content/60 mb-1">Success:</p>
+								<p class="mb-1 text-xs text-base-content/60">Success:</p>
 								<span class="badge {lastApiResponse.success ? 'badge-success' : 'badge-error'}">
 									{lastApiResponse.success ? 'Yes' : 'No'}
 								</span>
@@ -720,30 +801,44 @@ Example:
 
 							{#if lastApiResponse.data?.path}
 								<div>
-									<p class="text-xs text-base-content/60 mb-1">Created Path:</p>
+									<p class="mb-1 text-xs text-base-content/60">Created Path:</p>
 									<div class="rounded-lg bg-base-200 p-3">
 										<p class="font-medium">{lastApiResponse.data.path.title}</p>
-										<p class="text-sm text-base-content/70 mt-1">{lastApiResponse.data.path.description}</p>
-										<div class="flex gap-2 mt-2">
+										<p class="mt-1 text-sm text-base-content/70">
+											{lastApiResponse.data.path.description}
+										</p>
+										<div class="mt-2 flex gap-2">
 											<span class="badge badge-sm">ID: {lastApiResponse.data.pathId}</span>
-											<span class="badge badge-sm">{lastApiResponse.data.path.schedule?.length || 0} days</span>
-											<span class="badge badge-sm badge-info">{lastApiResponse.data.queuedJobs} jobs queued</span>
+											<span class="badge badge-sm"
+												>{lastApiResponse.data.path.schedule?.length || 0} days</span
+											>
+											<span class="badge badge-sm badge-info"
+												>{lastApiResponse.data.queuedJobs} jobs queued</span
+											>
 										</div>
 									</div>
 								</div>
 
 								<button
-									class="btn btn-primary btn-sm"
-									onclick={() => { selectedPath = lastApiResponse.data.path; currentPhase = 3; }}
+									class="btn btn-sm btn-primary"
+									onclick={() => {
+										selectedPath = lastApiResponse.data.path;
+										currentPhase = 3;
+									}}
 								>
 									View This Path
 								</button>
 							{/if}
 
-							<details class="collapse collapse-arrow bg-base-200 rounded-lg">
+							<details class="collapse-arrow collapse rounded-lg bg-base-200">
 								<summary class="collapse-title text-xs font-medium">Raw Response</summary>
 								<div class="collapse-content">
-									<pre class="text-xs overflow-x-auto whitespace-pre-wrap break-words">{JSON.stringify(lastApiResponse, null, 2)}</pre>
+									<pre
+										class="overflow-x-auto text-xs break-words whitespace-pre-wrap">{JSON.stringify(
+											lastApiResponse,
+											null,
+											2
+										)}</pre>
 								</div>
 							</details>
 						</div>
@@ -764,7 +859,7 @@ Example:
 			<div class="grid gap-6 lg:grid-cols-3">
 				<div class="form-control">
 					<label class="label"><span class="label-text">Target Language</span></label>
-					<select class="select select-bordered" bind:value={targetLanguage}>
+					<select class="select-bordered select" bind:value={targetLanguage}>
 						{#each data.languages as lang}
 							<option value={lang.code}>{lang.name}</option>
 						{/each}
@@ -772,18 +867,24 @@ Example:
 				</div>
 				<div class="form-control">
 					<label class="label"><span class="label-text">Duration (days)</span></label>
-					<input type="number" class="input input-bordered" bind:value={duration} min="3" max="30" />
+					<input
+						type="number"
+						class="input-bordered input"
+						bind:value={duration}
+						min="3"
+						max="30"
+					/>
 				</div>
 				<div class="form-control">
 					<label class="label"><span class="label-text">Difficulty Range</span></label>
-					<input type="text" class="input input-bordered" value="A2 → B1" disabled />
+					<input type="text" class="input-bordered input" value="A2 → B1" disabled />
 				</div>
 			</div>
 
 			<div class="form-control mt-4">
 				<label class="label"><span class="label-text">Brief</span></label>
 				<textarea
-					class="textarea textarea-bordered h-40"
+					class="textarea-bordered textarea h-40"
 					bind:value={brief}
 					placeholder="Enter the learning path brief..."
 				></textarea>
@@ -811,14 +912,20 @@ Example:
 							<div class="mt-2 flex gap-2">
 								<span class="badge">{path.targetLanguage}</span>
 								<span class="badge">{path.schedule?.length || 0} days</span>
-								<span class="badge badge-{path.status === 'active' ? 'success' : 'neutral'}">{path.status}</span>
+								<span class="badge badge-{path.status === 'active' ? 'success' : 'neutral'}"
+									>{path.status}</span
+								>
 							</div>
 						</div>
 						<div class="flex gap-2">
 							{#if !path.isTemplate}
-								<button class="btn btn-sm btn-ghost" onclick={() => publishAsTemplate(path.id)}>Publish</button>
+								<button class="btn btn-ghost btn-sm" onclick={() => publishAsTemplate(path.id)}
+									>Publish</button
+								>
 							{/if}
-							<button class="btn btn-sm btn-error btn-ghost" onclick={() => deletePath(path.id)}>Delete</button>
+							<button class="btn btn-ghost btn-sm btn-error" onclick={() => deletePath(path.id)}
+								>Delete</button
+							>
 						</div>
 					</div>
 
@@ -826,7 +933,14 @@ Example:
 					<h3 class="mb-4 font-medium">What they'll practice each day</h3>
 					<div class="grid gap-4 lg:grid-cols-4">
 						{#each [1, 2, 3, 4] as week}
-							{@const weekLabel = week === 1 ? 'Building blocks' : week === 2 ? 'Short exchanges' : week === 3 ? 'With guidance' : 'Full conversations'}
+							{@const weekLabel =
+								week === 1
+									? 'Building blocks'
+									: week === 2
+										? 'Short exchanges'
+										: week === 3
+											? 'With guidance'
+											: 'Full conversations'}
 							<div class="rounded-lg bg-base-200 p-4">
 								<h4 class="mb-1 text-sm font-semibold">Week {week}</h4>
 								<p class="mb-3 text-xs text-base-content/60">{weekLabel}</p>
@@ -837,9 +951,11 @@ Example:
 												<span class="font-medium text-primary">Day {day.dayIndex}</span>
 												<span class="text-base-content/40">{getDayOfWeek(day.dayIndex)}</span>
 											</div>
-											<p class="mt-1 text-base-content/80 line-clamp-2">{day.theme || 'Scenario TBD'}</p>
+											<p class="mt-1 line-clamp-2 text-base-content/80">
+												{day.theme || 'Scenario TBD'}
+											</p>
 											{#if day.learningObjectives?.length}
-												<p class="mt-1 text-base-content/50 line-clamp-1">
+												<p class="mt-1 line-clamp-1 text-base-content/50">
 													Goal: {day.learningObjectives[0]}
 												</p>
 											{/if}
@@ -852,12 +968,21 @@ Example:
 				</div>
 
 				<div class="flex justify-end gap-2">
-					<button class="btn btn-ghost" onclick={() => { selectedPath = null; createdPath = null; currentPhase = 1; }}>Back</button>
+					<button
+						class="btn btn-ghost"
+						onclick={() => {
+							selectedPath = null;
+							createdPath = null;
+							currentPhase = 1;
+						}}>Back</button
+					>
 					<button class="btn btn-primary" onclick={() => (currentPhase = 4)}>Assign to User</button>
 				</div>
 			{:else}
 				<div class="rounded-2xl border border-base-200 bg-base-100 p-6">
-					<p class="text-center text-base-content/60">No path selected. Go back to select or create a path.</p>
+					<p class="text-center text-base-content/60">
+						No path selected. Go back to select or create a path.
+					</p>
 					<div class="mt-4 text-center">
 						<button class="btn btn-ghost" onclick={() => (currentPhase = 1)}>Back to Intake</button>
 					</div>
@@ -890,7 +1015,9 @@ Example:
 
 						<!-- Quick preview of scenarios -->
 						<div class="rounded-lg border border-base-200 p-4">
-							<p class="mb-2 text-xs font-medium text-base-content/60">Sample scenarios they'll practice:</p>
+							<p class="mb-2 text-xs font-medium text-base-content/60">
+								Sample scenarios they'll practice:
+							</p>
 							<ul class="space-y-1 text-sm">
 								{#each (path.schedule || []).slice(0, 3) as day}
 									<li class="flex items-start gap-2">
@@ -911,23 +1038,29 @@ Example:
 							<label class="label"><span class="label-text">Their email address</span></label>
 							<input
 								type="email"
-								class="input input-bordered"
+								class="input-bordered input"
 								bind:value={assignEmail}
 								placeholder="learner@example.com"
 							/>
 						</div>
 
 						<div class="form-control">
-							<label class="label"><span class="label-text">Personal message (optional)</span></label>
+							<label class="label"
+								><span class="label-text">Personal message (optional)</span></label
+							>
 							<textarea
-								class="textarea textarea-bordered"
+								class="textarea-bordered textarea"
 								bind:value={assignNote}
 								placeholder="Hey! I've created this learning path just for you based on our conversation..."
 							></textarea>
 						</div>
 
 						<label class="flex cursor-pointer items-center gap-3">
-							<input type="checkbox" class="checkbox checkbox-primary" bind:checked={sendEmailNotification} />
+							<input
+								type="checkbox"
+								class="checkbox checkbox-primary"
+								bind:checked={sendEmailNotification}
+							/>
 							<span class="label-text">Send email notification</span>
 						</label>
 
@@ -942,7 +1075,11 @@ Example:
 
 						<div class="flex justify-end gap-2 pt-4">
 							<button class="btn btn-ghost" onclick={() => (currentPhase = 3)}>Back</button>
-							<button class="btn btn-primary" onclick={assignPath} disabled={loading || !assignEmail}>
+							<button
+								class="btn btn-primary"
+								onclick={assignPath}
+								disabled={loading || !assignEmail}
+							>
 								{loading ? 'Sending...' : sendEmailNotification ? 'Send Path' : 'Assign'}
 							</button>
 						</div>
@@ -967,8 +1104,14 @@ Example:
 						<p class="text-sm text-base-content/60">Track scenario generation progress</p>
 					</div>
 					<div class="flex gap-2">
-						<button class="btn btn-ghost btn-sm" onclick={() => { loadQueueStats(); loadQueueJobs(); }}>Refresh</button>
-						<button class="btn btn-primary btn-sm" onclick={processQueue} disabled={loading}>
+						<button
+							class="btn btn-ghost btn-sm"
+							onclick={() => {
+								loadQueueStats();
+								loadQueueJobs();
+							}}>Refresh</button
+						>
+						<button class="btn btn-sm btn-primary" onclick={processQueue} disabled={loading}>
 							{loading ? 'Processing...' : 'Process 5 Jobs'}
 						</button>
 					</div>
@@ -1003,7 +1146,9 @@ Example:
 							<div class="flex items-center justify-between rounded-lg bg-base-200 p-3">
 								<div>
 									<div class="font-medium">{getPathTitle(job.pathId)}</div>
-									<div class="text-xs text-base-content/60">Day {job.dayIndex} - Retries: {job.retryCount || 0}</div>
+									<div class="text-xs text-base-content/60">
+										Day {job.dayIndex} - Retries: {job.retryCount || 0}
+									</div>
 								</div>
 								<span class="badge badge-warning">pending</span>
 							</div>
@@ -1046,8 +1191,13 @@ Example:
 								</div>
 							</div>
 							<div class="flex items-center gap-2">
-								<span class="badge badge-{path.status === 'active' ? 'success' : 'neutral'} badge-sm">{path.status}</span>
-								<button class="btn btn-ghost btn-xs" onclick={() => selectPathForReview(path)}>View</button>
+								<span
+									class="badge badge-{path.status === 'active' ? 'success' : 'neutral'} badge-sm"
+									>{path.status}</span
+								>
+								<button class="btn btn-ghost btn-xs" onclick={() => selectPathForReview(path)}
+									>View</button
+								>
 							</div>
 						</div>
 					{/each}

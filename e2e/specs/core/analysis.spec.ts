@@ -17,7 +17,8 @@ test.describe('Analysis & Insights', () => {
 		const url = page.url();
 		if (url.includes('/analysis')) {
 			// Check for analysis components
-			const hasAnalysisUI = await page.locator('[data-testid="analysis"], .analysis, .insights')
+			const hasAnalysisUI = await page
+				.locator('[data-testid="analysis"], .analysis, .insights')
 				.first()
 				.isVisible({ timeout: 5000 })
 				.catch(() => false);
@@ -30,12 +31,14 @@ test.describe('Analysis & Insights', () => {
 		await analysis.goto();
 
 		// Should show empty state or prompt to select conversation
-		const hasEmptyState = await page.getByText(/no conversation|select a conversation|start chatting/i)
+		const hasEmptyState = await page
+			.getByText(/no conversation|select a conversation|start chatting/i)
 			.isVisible({ timeout: 3000 })
 			.catch(() => false);
 
 		// Or should show analysis if user has conversations
-		const hasAnalysis = await page.locator('[data-testid="analysis"]')
+		const hasAnalysis = await page
+			.locator('[data-testid="analysis"]')
 			.isVisible({ timeout: 3000 })
 			.catch(() => false);
 
@@ -48,7 +51,8 @@ test.describe('Analysis & Insights', () => {
 		await analysis.goto();
 
 		// Look for upgrade prompts (common for free tier)
-		const hasUpgradeCta = await page.getByText(/upgrade|premium|full analysis/i)
+		const hasUpgradeCta = await page
+			.getByText(/upgrade|premium|full analysis/i)
 			.isVisible({ timeout: 5000 })
 			.catch(() => false);
 

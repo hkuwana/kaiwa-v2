@@ -30,7 +30,8 @@ test.describe('User Profile', () => {
 		const url = page.url();
 		if (url.includes('/profile')) {
 			// Should have profile UI elements
-			const hasProfileUI = await page.getByRole('heading', { name: /profile|account|settings/i })
+			const hasProfileUI = await page
+				.getByRole('heading', { name: /profile|account|settings/i })
 				.isVisible({ timeout: 5000 })
 				.catch(() => false);
 			expect(hasProfileUI !== undefined).toBeTruthy();

@@ -31,7 +31,9 @@ test.describe('Conversation Flow', () => {
 		const url = page.url();
 		if (url.includes('/conversation')) {
 			// Look for conversation elements
-			const hasConversationUI = await page.locator('[data-testid="conversation-list"], .conversation').isVisible()
+			const hasConversationUI = await page
+				.locator('[data-testid="conversation-list"], .conversation')
+				.isVisible()
 				.catch(() => false);
 			expect(hasConversationUI !== undefined).toBeTruthy();
 		}
@@ -52,7 +54,8 @@ test.describe('Realtime Conversation', () => {
 		const url = page.url();
 		if (url.includes('/realtime')) {
 			// Should have conversation start UI
-			const hasStartUI = await page.getByRole('button', { name: /(start|begin|practice)/i })
+			const hasStartUI = await page
+				.getByRole('button', { name: /(start|begin|practice)/i })
 				.isVisible({ timeout: 5000 })
 				.catch(() => false);
 			expect(hasStartUI !== undefined).toBeTruthy();

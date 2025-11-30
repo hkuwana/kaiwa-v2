@@ -75,6 +75,11 @@
 	let generatedBrief = $state('');
 	let briefCopied = $state(false);
 
+	// Weekly Analysis
+	let weeklyAnalysisLoading = $state(false);
+	let weeklyAnalysisResults = $state<any>(null);
+	let weeklyAnalysisPending = $state(0);
+
 	function getFilledPrompt() {
 		return fillLearningPathBriefPrompt({
 			transcript: transcriptInput,
@@ -579,6 +584,63 @@
 			console.log('[Admin] Queue processing complete');
 		}
 	}
+
+	// Weekly Analysis functions
+	async function loadWeeklyAnalysisStatus() {
+		try {
+			const response = await fetchWithTimeout('/api/cron/weekly-analysis');
+			if (response.ok) {
+				const result = await response.json();
+				weeklyAnalysisPending = result.pendingAnalysis || 0;
+			}
+		} catch (error) {
+			console.error('[Admin] Failed to load weekly analysis status:', error);
+		}
+	}
+
+	async function runWeeklyAnalysis(dryRun = false) {
+		weeklyAnalysisLoading = true;
+		weeklyAnalysisResults = null;
+		console.log('[Admin] Running weekly analysis...', { dryRun });
+
+		try {
+			const controller = new AbortController();
+			const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 min timeout
+
+			const response = await fetch('/api/cron/weekly-analysis', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ limit: 10, dryRun }),
+				signal: controller.signal
+			});
+
+			clearTimeout(timeoutId);
+
+			const result = await response.json();
+			console.log('[Admin] Weekly analysis result:', result);
+
+			if (result.success) {
+				weeklyAnalysisResults = result.data;
+				message = `✅ Analyzed ${result.data.processed} assignments (${result.data.succeeded} succeeded, ${result.data.failed} failed)`;
+				messageType = 'success';
+			} else {
+				message = `❌ ${result.error}`;
+				messageType = 'error';
+			}
+
+			await loadWeeklyAnalysisStatus();
+		} catch (error: any) {
+			console.error('[Admin] Weekly analysis error:', error);
+			if (error.name === 'AbortError') {
+				message = '❌ Analysis timed out after 2 minutes.';
+			} else {
+				message = `❌ ${error instanceof Error ? error.message : 'Unknown error'}`;
+			}
+			messageType = 'error';
+		} finally {
+			weeklyAnalysisLoading = false;
+		}
+	}
 </script>
 
 <div class="container mx-auto max-w-7xl px-4 py-6">
@@ -657,6 +719,15 @@
 			}}
 		>
 			Queue
+		</button>
+		<button
+			class="tab {activeTab === 'weekly-analysis' ? 'tab-active' : ''}"
+			onclick={() => {
+				activeTab = 'weekly-analysis';
+				loadWeeklyAnalysisStatus();
+			}}
+		>
+			Weekly Analysis
 		</button>
 	</div>
 
@@ -1215,6 +1286,183 @@ Example:
 							</button>
 						{/if}
 					</div>
+				</div>
+			</div>
+		</div>
+	{/if}
+
+	<!-- Weekly Analysis Tab -->
+	{#if activeTab === 'weekly-analysis'}
+		<div class="space-y-4">
+			<!-- Status Card -->
+			<div class="stats w-full shadow">
+				<div class="stat">
+					<div class="stat-title">Pending Analysis</div>
+					<div class="stat-value text-primary">{weeklyAnalysisPending}</div>
+					<div class="stat-desc">Assignments ready for weekly review</div>
+				</div>
+			</div>
+
+			<!-- Run Analysis Card -->
+			<div class="card bg-base-200">
+				<div class="card-body">
+					<h3 class="card-title">Run Weekly Analysis</h3>
+					<p class="text-sm text-base-content/70">
+						Analyze learning path progress for users who have completed a week. This calculates:
+					</p>
+					<ul class="mt-2 list-disc pl-5 text-sm text-base-content/70">
+						<li>Session completion rates</li>
+						<li>Engagement metrics (comfort ratings, engagement levels)</li>
+						<li>Linguistic findings (corrections accepted vs ignored)</li>
+						<li>AI-generated insights and recommendations</li>
+					</ul>
+					<div class="mt-4 card-actions flex-wrap">
+						<button
+							class="btn btn-outline"
+							onclick={() => runWeeklyAnalysis(true)}
+							disabled={weeklyAnalysisLoading}
+						>
+							{weeklyAnalysisLoading ? 'Running...' : 'Dry Run (Preview)'}
+						</button>
+						<button
+							class="btn btn-primary"
+							onclick={() => runWeeklyAnalysis(false)}
+							disabled={weeklyAnalysisLoading}
+						>
+							{weeklyAnalysisLoading ? 'Running...' : 'Run Analysis'}
+						</button>
+						<button
+							class="btn btn-ghost btn-sm"
+							onclick={loadWeeklyAnalysisStatus}
+							disabled={weeklyAnalysisLoading}
+						>
+							Refresh Status
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Results Card -->
+			{#if weeklyAnalysisResults}
+				<div class="card bg-base-200">
+					<div class="card-body">
+						<h3 class="card-title">Analysis Results</h3>
+						<div class="mb-4 stats stats-vertical w-full lg:stats-horizontal">
+							<div class="stat">
+								<div class="stat-title">Processed</div>
+								<div class="stat-value text-info">{weeklyAnalysisResults.processed}</div>
+							</div>
+							<div class="stat">
+								<div class="stat-title">Succeeded</div>
+								<div class="stat-value text-success">{weeklyAnalysisResults.succeeded}</div>
+							</div>
+							<div class="stat">
+								<div class="stat-title">Failed</div>
+								<div class="stat-value text-error">{weeklyAnalysisResults.failed}</div>
+							</div>
+							<div class="stat">
+								<div class="stat-title">Duration</div>
+								<div class="stat-value text-neutral">{weeklyAnalysisResults.durationMs}ms</div>
+							</div>
+						</div>
+
+						{#if weeklyAnalysisResults.errors?.length > 0}
+							<div class="alert mb-4 alert-error">
+								<div>
+									<h4 class="font-bold">Errors</h4>
+									<ul class="text-sm">
+										{#each weeklyAnalysisResults.errors as error}
+											<li>{error.assignmentId}: {error.error}</li>
+										{/each}
+									</ul>
+								</div>
+							</div>
+						{/if}
+
+						{#if weeklyAnalysisResults.summary?.length > 0}
+							<h4 class="mb-2 font-semibold">Analysis Summary</h4>
+							<div class="overflow-x-auto">
+								<table class="table-zebra table-compact table w-full">
+									<thead>
+										<tr>
+											<th>Assignment</th>
+											<th>Week</th>
+											<th>Completion</th>
+											<th>Comfort</th>
+											<th>Findings</th>
+											<th>Insights</th>
+										</tr>
+									</thead>
+									<tbody>
+										{#each weeklyAnalysisResults.summary as item}
+											<tr>
+												<td class="max-w-xs truncate font-mono text-xs">{item.assignmentId}</td>
+												<td>{item.weekNumber}</td>
+												<td>
+													<span
+														class="badge badge-sm {item.completionRate >= 80
+															? 'badge-success'
+															: item.completionRate >= 50
+																? 'badge-warning'
+																: 'badge-error'}"
+													>
+														{item.completionRate}%
+													</span>
+												</td>
+												<td>
+													{#if item.averageComfortRating}
+														<span
+															class="badge badge-sm {item.averageComfortRating >= 4
+																? 'badge-success'
+																: item.averageComfortRating >= 3
+																	? 'badge-warning'
+																	: 'badge-error'}"
+														>
+															{item.averageComfortRating}/5
+														</span>
+													{:else}
+														<span class="text-base-content/50">—</span>
+													{/if}
+												</td>
+												<td>{item.totalFindings}</td>
+												<td>
+													<span class="badge badge-sm badge-info">{item.strengths} strengths</span>
+													<span class="badge badge-sm badge-warning"
+														>{item.areasForImprovement} areas</span
+													>
+												</td>
+											</tr>
+										{/each}
+									</tbody>
+								</table>
+							</div>
+
+							<!-- Raw JSON for debugging -->
+							<div class="mt-4 collapse-arrow collapse bg-base-300">
+								<input type="checkbox" />
+								<div class="collapse-title text-sm font-medium">Raw JSON Response</div>
+								<div class="collapse-content">
+									<pre class="overflow-x-auto text-xs">{JSON.stringify(weeklyAnalysisResults, null, 2)}</pre>
+								</div>
+							</div>
+						{:else}
+							<p class="text-base-content/70">No assignments were analyzed. Users need to complete at least one full week to appear here.</p>
+						{/if}
+					</div>
+				</div>
+			{/if}
+
+			<!-- Info Card -->
+			<div class="alert alert-info">
+				<div>
+					<h4 class="font-bold">How Weekly Analysis Works</h4>
+					<p class="text-sm">
+						1. Finds active learning path assignments where users have completed 1+ full weeks<br />
+						2. Gathers conversations from that week (linked via scenario IDs in the path schedule)<br />
+						3. Calculates metrics: completion rate, duration, comfort, engagement, linguistic findings<br />
+						4. Generates insights: strengths, areas for improvement, recommended focus<br />
+						5. In production, this would run weekly (Sunday evenings) via cron
+					</p>
 				</div>
 			</div>
 		</div>

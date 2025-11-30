@@ -512,15 +512,13 @@
 			</div>
 		</div>
 
-	 
 		<div
 			class="mx-auto mb-16 grid max-w-4xl grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:items-start"
 		>
-			 
 			<div
 				class="relative flex flex-col overflow-hidden rounded-2xl border border-base-200 bg-base-100 p-6 sm:p-8"
 			>
-				<div class="absolute inset-0 pointer-events-none">
+				<div class="pointer-events-none absolute inset-0">
 					<enhanced:img
 						src={pineDawnImage}
 						alt="Sunrise over a pine forest"
@@ -567,7 +565,7 @@
 				class="relative flex flex-col overflow-hidden rounded-2xl border-2 border-primary bg-base-100 p-6 shadow-xl shadow-primary/10 sm:p-8 lg:-mt-2 lg:mb-2"
 			>
 				<!-- Ghibli background - plum blossoms at sunset -->
-				<div class="absolute inset-0 pointer-events-none">
+				<div class="pointer-events-none absolute inset-0">
 					<enhanced:img
 						src={plumSunsetImage}
 						alt="Plum blossoms at sunset"
@@ -621,7 +619,7 @@
 				class="relative flex flex-col overflow-hidden rounded-2xl border border-base-200 bg-base-100 p-6 sm:p-8"
 			>
 				<!-- Ghibli background - bamboo forest in daylight -->
-				<div class="absolute inset-0 pointer-events-none">
+				<div class="pointer-events-none absolute inset-0">
 					<enhanced:img
 						src={bambooDayImage}
 						alt="Bamboo forest in daylight"
