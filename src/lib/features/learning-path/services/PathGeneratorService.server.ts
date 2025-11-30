@@ -224,7 +224,7 @@ export class PathGeneratorService {
 			const response = await createCompletion(messages, {
 				model: getModelForTask('pathwaySyllabus'), // Uses GPT-5 Nano for fast, cost-efficient generation
 				temperature: 0.7, // Balanced creativity and consistency
-				maxTokens: 3000, // Allow for detailed syllabus
+				maxTokens: 16000, // Reasoning models need extra tokens for internal reasoning + output
 				responseFormat: 'json'
 			});
 

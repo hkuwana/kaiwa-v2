@@ -83,15 +83,45 @@ export async function createCompletion(
 		const completion = await openai.chat.completions.create(requestPayload);
 
 		const content = completion.choices[0]?.message?.content || '';
+		const finishReason = completion.choices[0]?.finish_reason;
 
 		logger.info('🤖 [OpenAI Service] Raw Response from OpenAI:', {
 			timestamp: new Date().toISOString(),
 			fullResponse: JSON.stringify(completion, null, 2),
 			extractedContent: content,
 			usage: completion.usage,
-			finishReason: completion.choices[0]?.finish_reason,
+			finishReason,
 			responseContentLength: content.length
 		});
+
+		// Check for truncated response due to token limit
+		// This is especially important for reasoning models (GPT-5 Nano/Mini)
+		// which use internal reasoning tokens before producing output
+		if (finishReason === 'length' && content.length === 0) {
+			const usageDetails = completion.usage as {
+				completion_tokens_details?: { reasoning_tokens?: number };
+			};
+			const reasoningTokens = usageDetails?.completion_tokens_details?.reasoning_tokens || 0;
+
+			logger.error('🚨 [OpenAI Service] Response truncated - all tokens used for reasoning', {
+				maxTokens,
+				completionTokens: completion.usage?.completion_tokens,
+				reasoningTokens,
+				suggestion: 'Increase maxTokens to allow room for output after reasoning'
+			});
+
+			throw new Error(
+				`OpenAI response truncated: model used ${reasoningTokens} reasoning tokens, leaving no room for output. Increase maxTokens (currently ${maxTokens}).`
+			);
+		}
+
+		// Warn if response was truncated but still has some content
+		if (finishReason === 'length' && content.length > 0) {
+			logger.warn('⚠️ [OpenAI Service] Response may be truncated (finish_reason: length)', {
+				contentLength: content.length,
+				maxTokens
+			});
+		}
 
 		return {
 			content,
