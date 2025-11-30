@@ -20,16 +20,24 @@
 	// Loading states
 	let loading = $state(false);
 	let initialLoadComplete = $state(false);
+	let generatingPath = $state(false);
+	let generationSeconds = $state(0);
+	let generationTimer: ReturnType<typeof setInterval> | null = null;
 
 	// Messages
 	let message = $state('');
 	let messageType = $state<'success' | 'error' | 'info'>('info');
 
+	// Debug: Last API response
+	let lastApiResponse = $state<any>(null);
+	let lastApiError = $state<string | null>(null);
+
 	// Timeout helper
 	const REQUEST_TIMEOUT = 30000;
-	async function fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
+	const AI_REQUEST_TIMEOUT = 120000; // 2 minutes for AI-heavy operations
+	async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = REQUEST_TIMEOUT): Promise<Response> {
 		const controller = new AbortController();
-		const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+		const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 		try {
 			return await fetch(url, { ...options, signal: controller.signal });
 		} finally {
@@ -118,13 +126,23 @@
 		targetLanguage = transcriptLanguage;
 		duration = transcriptDuration;
 
-		// Auto-create the path
+		// Reset debug state
+		lastApiResponse = null;
+		lastApiError = null;
+
+		// Auto-create the path with progress tracking
 		loading = true;
+		generatingPath = true;
+		generationSeconds = 0;
+		generationTimer = setInterval(() => {
+			generationSeconds += 1;
+		}, 1000);
 		showMessage('Creating your learning path...', 'info');
 
 		const difficultyRange = getDifficultyRange(learnerLevel);
 
 		try {
+			// Use extended timeout for AI generation (2 minutes)
 			const response = await fetchWithTimeout('/api/learning-paths/from-brief', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -136,9 +154,12 @@
 					primarySkill: 'conversation',
 					learnerLevel // Pass the scaffolding level
 				})
-			});
+			}, AI_REQUEST_TIMEOUT);
 
 			const result = await response.json();
+
+			// Store for debugging
+			lastApiResponse = result;
 
 			if (result.success) {
 				createdPath = result.data.path;
@@ -149,16 +170,26 @@
 				// Skip to Review phase
 				currentPhase = 3;
 			} else {
+				lastApiError = result.error || 'Unknown error';
 				showMessage(result.error || 'Failed to create path', 'error');
-				// Fall back to manual Build phase if auto-create fails
-				currentPhase = 2;
+				// Stay on Phase 1 to show debug info, not Phase 2
+				// currentPhase = 2;
 			}
 		} catch (error: any) {
-			showMessage(error.name === 'AbortError' ? 'Request timed out' : error.message, 'error');
-			// Fall back to manual Build phase
-			currentPhase = 2;
+			const errorMsg = error.name === 'AbortError'
+				? `Request timed out after ${generationSeconds} seconds. The path may still be generating on the server.`
+				: error.message;
+			lastApiError = errorMsg;
+			showMessage(errorMsg, 'error');
+			// Stay on Phase 1 to show debug info
+			// currentPhase = 2;
 		} finally {
 			loading = false;
+			generatingPath = false;
+			if (generationTimer) {
+				clearInterval(generationTimer);
+				generationTimer = null;
+			}
 		}
 	}
 
@@ -621,8 +652,22 @@ Example:
 							onclick={proceedToBuild}
 							disabled={!generatedBrief || loading}
 						>
-							{loading ? 'Creating Path...' : 'Create Path'}
+							{#if generatingPath}
+								<span class="loading loading-spinner loading-sm"></span>
+								Generating... {generationSeconds}s
+							{:else}
+								Create Path
+							{/if}
 						</button>
+
+						<!-- Generation Progress -->
+						{#if generatingPath}
+							<div class="mt-4 rounded-lg border border-info/20 bg-info/5 p-3">
+								<p class="text-sm font-medium text-info">Generating your learning path...</p>
+								<p class="text-xs text-base-content/60">This typically takes 30-60 seconds. Please wait.</p>
+								<progress class="progress progress-info mt-2 w-full" max="60" value={Math.min(generationSeconds, 60)}></progress>
+							</div>
+						{/if}
 					</div>
 				</div>
 			</div>
@@ -647,6 +692,69 @@ Example:
 							</button>
 						{/each}
 					</div>
+				</div>
+			{/if}
+
+			<!-- Debug: API Response -->
+			{#if lastApiError || lastApiResponse}
+				<div class="rounded-2xl border {lastApiError ? 'border-error/30' : 'border-success/30'} bg-base-100 p-6">
+					<div class="flex items-center justify-between mb-4">
+						<h3 class="font-medium {lastApiError ? 'text-error' : 'text-success'}">
+							{lastApiError ? 'API Error' : 'API Response'}
+						</h3>
+						<button
+							class="btn btn-ghost btn-xs"
+							onclick={() => { lastApiResponse = null; lastApiError = null; }}
+						>
+							Clear
+						</button>
+					</div>
+
+					{#if lastApiError}
+						<div class="rounded-lg bg-error/10 p-3 mb-4">
+							<p class="text-sm text-error font-medium">{lastApiError}</p>
+						</div>
+					{/if}
+
+					{#if lastApiResponse}
+						<div class="space-y-3">
+							<div>
+								<p class="text-xs text-base-content/60 mb-1">Success:</p>
+								<span class="badge {lastApiResponse.success ? 'badge-success' : 'badge-error'}">
+									{lastApiResponse.success ? 'Yes' : 'No'}
+								</span>
+							</div>
+
+							{#if lastApiResponse.data?.path}
+								<div>
+									<p class="text-xs text-base-content/60 mb-1">Created Path:</p>
+									<div class="rounded-lg bg-base-200 p-3">
+										<p class="font-medium">{lastApiResponse.data.path.title}</p>
+										<p class="text-sm text-base-content/70 mt-1">{lastApiResponse.data.path.description}</p>
+										<div class="flex gap-2 mt-2">
+											<span class="badge badge-sm">ID: {lastApiResponse.data.pathId}</span>
+											<span class="badge badge-sm">{lastApiResponse.data.path.schedule?.length || 0} days</span>
+											<span class="badge badge-sm badge-info">{lastApiResponse.data.queuedJobs} jobs queued</span>
+										</div>
+									</div>
+								</div>
+
+								<button
+									class="btn btn-primary btn-sm"
+									onclick={() => { selectedPath = lastApiResponse.data.path; currentPhase = 3; }}
+								>
+									View This Path
+								</button>
+							{/if}
+
+							<details class="collapse collapse-arrow bg-base-200 rounded-lg">
+								<summary class="collapse-title text-xs font-medium">Raw Response</summary>
+								<div class="collapse-content">
+									<pre class="text-xs overflow-x-auto whitespace-pre-wrap break-words">{JSON.stringify(lastApiResponse, null, 2)}</pre>
+								</div>
+							</details>
+						</div>
+					{/if}
 				</div>
 			{/if}
 		</div>
