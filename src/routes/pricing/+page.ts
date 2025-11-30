@@ -1,8 +1,9 @@
-export const load = async ({ parent }) => {
-	const { seo, ...data } = await parent();
+export const load = async ({ parent, data: serverData }) => {
+	const { seo, ...layoutData } = await parent();
 
 	return {
-		...data,
+		...layoutData,
+		...serverData,
 		seo: {
 			...seo,
 			title: 'Kaiwa Pricing - Plans for Your AI Language Partner & Coach',
