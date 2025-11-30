@@ -9,6 +9,7 @@ import {
 	buildOnboardingInstructions,
 	type OnboardingAnalysisConfig
 } from './analysis-instruction.service';
+import { DEFAULT_MODEL, getModelForTask } from '../config/ai-models.config';
 
 export type { AnalysisFocus, OnboardingAnalysisConfig } from './analysis-instruction.service';
 
@@ -135,7 +136,7 @@ export async function analyzeOnboardingConversation(
 	];
 
 	const response = await createCompletion(messages, {
-		model: 'gpt-4o-mini',
+		model: getModelForTask('structuredExtraction'), // Analysis requires structured extraction
 		temperature: 0.3,
 		maxTokens: 650,
 		responseFormat: 'json'
@@ -184,7 +185,7 @@ Keep it personal, specific, and motivating. Write in an encouraging, professiona
 	];
 
 	return createCompletion(messages, {
-		model: 'gpt-4o-mini',
+		model: DEFAULT_MODEL, // Use fast model for plan generation
 		temperature: 0.8, // Higher temperature for more creative/engaging plans
 		maxTokens: 600
 	});
@@ -310,7 +311,7 @@ Guidelines: ${mode === 'tutor' ? 'Focus on teaching and gentle correction' : 'Fo
 			{ role: 'user', content: userPrompt }
 		],
 		{
-			model: 'gpt-4o-mini',
+			model: getModelForTask('scenarioGeneration'), // Scenario generation uses NANO
 			temperature: hasMemories ? 0.8 : 0.7,
 			maxTokens: 1000,
 			responseFormat: 'json'
