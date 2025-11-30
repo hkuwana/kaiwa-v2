@@ -14,6 +14,9 @@
 	import { onMount } from 'svelte';
 	import { fillLearningPathBriefPrompt, SCAFFOLDING_LEVELS, WEEKLY_PROGRESSION, type ScaffoldingLevel } from '$lib/data/prompts';
 
+	// Props from +page.server.ts
+	let { data } = $props();
+
 	// Current phase
 	let currentPhase = $state<1 | 2 | 3 | 4 | 5>(1);
 
@@ -66,19 +69,9 @@
 	// Derived selected level info for the UI
 	let selectedLevel = $derived(LEVELS.find((l) => l.code === learnerLevel));
 
-	const LANGUAGES = [
-		{ code: 'ja', name: 'Japanese' },
-		{ code: 'es', name: 'Spanish' },
-		{ code: 'fr', name: 'French' },
-		{ code: 'de', name: 'German' },
-		{ code: 'ko', name: 'Korean' },
-		{ code: 'zh', name: 'Mandarin Chinese' },
-		{ code: 'pt', name: 'Portuguese' },
-		{ code: 'it', name: 'Italian' }
-	];
-
+	// Languages loaded from database/data file via +page.server.ts
 	function getLanguageName(code: string): string {
-		return LANGUAGES.find((l) => l.code === code)?.name || code;
+		return data.languages.find((l: { code: string; name: string }) => l.code === code)?.name || code;
 	}
 
 	function getFilledPrompt(): string {
@@ -534,7 +527,7 @@
 							<div class="form-control">
 								<label class="label"><span class="label-text">Target Language</span></label>
 								<select class="select select-bordered" bind:value={transcriptLanguage}>
-									{#each LANGUAGES as lang}
+									{#each data.languages as lang}
 										<option value={lang.code}>{lang.name}</option>
 									{/each}
 								</select>
@@ -772,7 +765,7 @@ Example:
 				<div class="form-control">
 					<label class="label"><span class="label-text">Target Language</span></label>
 					<select class="select select-bordered" bind:value={targetLanguage}>
-						{#each LANGUAGES as lang}
+						{#each data.languages as lang}
 							<option value={lang.code}>{lang.name}</option>
 						{/each}
 					</select>
