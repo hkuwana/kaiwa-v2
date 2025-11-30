@@ -19,6 +19,7 @@
 	);
 
 	const daysRemaining = $derived(data.progress.totalDays - data.progress.daysCompleted);
+	const weeks = $derived(Math.ceil(data.progress.totalDays / 7));
 
 	// Navigation handlers
 	function handleStartLesson() {
@@ -212,7 +213,6 @@
 	<div class="rounded-2xl bg-base-200 p-6">
 		<h2 class="mb-6 text-xl font-semibold">Your Learning Journey</h2>
 
-		{@const weeks = Math.ceil(data.progress.totalDays / 7)}
 		<div class="grid gap-6 lg:grid-cols-4">
 			{#each Array.from({ length: weeks }, (_, i) => i + 1) as week}
 				{@const weekLabel =
