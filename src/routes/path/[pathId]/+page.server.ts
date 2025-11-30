@@ -28,10 +28,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const path = await learningPathRepository.findPathById(pathId);
 
 	if (!path) {
-		throw error(404, {
-			message: 'Learning path not found',
-			details: `The learning path you're looking for doesn't exist.`
-		});
+		throw error(404, 'Learning path not found');
 	}
 
 	// Check if user is assigned to this path
@@ -39,10 +36,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
 	// If not assigned and path is not public, deny access
 	if (!assignment && !path.isPublic && path.userId !== userId) {
-		throw error(403, {
-			message: 'Access denied',
-			details: `You don't have access to this learning path.`
-		});
+		throw error(403, 'You do not have access to this learning path');
 	}
 
 	// Calculate progress data
@@ -68,9 +62,9 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			isTemplate: path.isTemplate,
 			isPublic: path.isPublic,
 			shareSlug: path.shareSlug,
-			estimatedMinutesPerDay: path.estimatedMinutesPerDay,
-			category: path.category,
-			tags: path.tags,
+			estimatedMinutesPerDay: path.metadata?.estimatedMinutesPerDay,
+			category: path.metadata?.category,
+			tags: path.metadata?.tags,
 			createdAt: path.createdAt
 		},
 		assignment: assignment
@@ -92,8 +86,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 						dayIndex: currentDaySchedule.dayIndex,
 						theme: currentDaySchedule.theme,
 						difficulty: currentDaySchedule.difficulty,
-						learningObjectives: currentDaySchedule.learningObjectives,
-						scenarioDescription: currentDaySchedule.scenarioDescription,
+						description: currentDaySchedule.description,
 						scenarioId: currentDaySchedule.scenarioId,
 						isReady: !!currentDaySchedule.scenarioId
 					}
