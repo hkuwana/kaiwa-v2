@@ -2,6 +2,7 @@ import { logger } from '$lib/logger';
 import { randomUUID } from 'crypto';
 import * as openaiService from './openai.service';
 import type { Message, Language } from '$lib/server/db/types';
+import { getModelForTask } from '../config/ai-models.config';
 
 /**
  * Memory extracted from a conversation
@@ -125,7 +126,7 @@ Focus on:
 				{ role: 'user', content: userPrompt }
 			],
 			{
-				model: 'gpt-4o-mini',
+				model: getModelForTask('structuredExtraction'), // Memory extraction is structured data
 				temperature: 0.7,
 				maxTokens: 500,
 				responseFormat: 'text'

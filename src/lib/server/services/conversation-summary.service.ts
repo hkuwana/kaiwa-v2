@@ -6,6 +6,7 @@ import { conversationRepository } from '$lib/server/repositories/conversation.re
 import * as userPreferencesService from './user-preferences.service';
 import { getMaxMemories } from '$lib/server/tiers';
 import type { UserTier } from '$lib/server/db/types';
+import { getModelForTask } from '../config/ai-models.config';
 
 export interface ConversationMemoriesOptions {
 	userId: string;
@@ -191,7 +192,7 @@ Return a JSON array of memory strings.`;
 				{ role: 'user', content: userPrompt }
 			],
 			{
-				model: 'gpt-4o-mini',
+				model: getModelForTask('conversationSummary'), // Summaries use MINI for nuanced understanding
 				temperature: 0.3, // Lower temperature for more consistent extraction
 				maxTokens: userTier === 'premium' ? 800 : userTier === 'plus' ? 500 : 300,
 				responseFormat: 'json'
