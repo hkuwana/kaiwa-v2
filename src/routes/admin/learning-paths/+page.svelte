@@ -55,6 +55,9 @@
 		{ code: 'advanced' as ScaffoldingLevel, label: 'Pretty fluent', description: 'Needs real-world polish' }
 	];
 
+	// Derived selected level info for the UI
+	let selectedLevel = $derived(LEVELS.find((l) => l.code === learnerLevel));
+
 	const LANGUAGES = [
 		{ code: 'ja', name: 'Japanese' },
 		{ code: 'es', name: 'Spanish' },
@@ -524,7 +527,6 @@
 						</div>
 
 						<!-- Level-specific experience preview -->
-						{@const selectedLevel = LEVELS.find(l => l.code === learnerLevel)}
 						<div class="rounded-lg border border-primary/20 bg-primary/5 p-3">
 							<p class="text-sm">
 								<span class="font-medium text-primary">{selectedLevel?.label}:</span>
