@@ -29,7 +29,7 @@
 
 	function handleDayClick(day: { scenarioId?: string | null; dayIndex: number }) {
 		// Only allow clicking on completed days or current day with scenario ready
-		if (day.scenarioId && day.dayIndex <= (data.progress.daysCompleted + 1)) {
+		if (day.scenarioId && day.dayIndex <= data.progress.daysCompleted + 1) {
 			goto(`/conversation?scenario=${day.scenarioId}`);
 		}
 	}
@@ -53,7 +53,10 @@
 		return days[(dayIndex - 1) % 7];
 	}
 
-	function getDayStatus(day: { dayIndex: number; scenarioId?: string | null }): 'completed' | 'current' | 'upcoming' | 'locked' {
+	function getDayStatus(day: {
+		dayIndex: number;
+		scenarioId?: string | null;
+	}): 'completed' | 'current' | 'upcoming' | 'locked' {
 		if (day.dayIndex < data.progress.daysCompleted + 1) return 'completed';
 		if (day.dayIndex === data.progress.daysCompleted + 1) return 'current';
 		if (day.scenarioId) return 'upcoming';
@@ -69,7 +72,7 @@
 <div class="container mx-auto max-w-6xl px-4 py-6">
 	<!-- Back navigation -->
 	<div class="mb-4">
-		<a href="/dashboard" class="btn btn-ghost btn-sm gap-2">
+		<a href="/dashboard" class="btn gap-2 btn-ghost btn-sm">
 			<span class="icon-[mdi--arrow-left] h-4 w-4"></span>
 			Back to Dashboard
 		</a>
@@ -138,10 +141,14 @@
 
 		<!-- Today's Lesson CTA -->
 		{#if data.progress.currentDay}
-			<div class="mb-8 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5 p-6">
+			<div
+				class="mb-8 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5 p-6"
+			>
 				<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 					<div>
-						<p class="text-sm font-medium text-primary">Today's Lesson - Day {data.progress.currentDay.dayIndex}</p>
+						<p class="text-sm font-medium text-primary">
+							Today's Lesson - Day {data.progress.currentDay.dayIndex}
+						</p>
 						<h2 class="mt-1 text-xl font-semibold">{data.progress.currentDay.theme}</h2>
 						<div class="mt-2 flex items-center gap-2">
 							<span class="badge {getDifficultyBadgeClass(data.progress.currentDay.difficulty)}">
@@ -152,7 +159,7 @@
 							<ul class="mt-3 space-y-1 text-sm text-base-content/70">
 								{#each data.progress.currentDay.learningObjectives.slice(0, 3) as objective}
 									<li class="flex items-start gap-2">
-										<span class="icon-[mdi--check-circle] mt-0.5 h-4 w-4 text-success"></span>
+										<span class="mt-0.5 icon-[mdi--check-circle] h-4 w-4 text-success"></span>
 										{objective}
 									</li>
 								{/each}
@@ -190,17 +197,13 @@
 		<!-- Not assigned - show enrollment CTA -->
 		<div class="mb-8 rounded-2xl bg-base-200 p-6 text-center">
 			<h2 class="text-xl font-semibold">You're not enrolled in this path</h2>
-			<p class="mt-2 text-base-content/70">
-				This learning path hasn't been assigned to you yet.
-			</p>
+			<p class="mt-2 text-base-content/70">This learning path hasn't been assigned to you yet.</p>
 			{#if data.path.isPublic && data.path.shareSlug}
 				<a href="/program/{data.path.shareSlug}" class="btn mt-4 btn-primary">
 					View Public Program
 				</a>
 			{:else}
-				<a href="/dashboard" class="btn mt-4 btn-ghost">
-					Return to Dashboard
-				</a>
+				<a href="/dashboard" class="btn mt-4 btn-ghost"> Return to Dashboard </a>
 			{/if}
 		</div>
 	{/if}
@@ -212,7 +215,14 @@
 		{@const weeks = Math.ceil(data.progress.totalDays / 7)}
 		<div class="grid gap-6 lg:grid-cols-4">
 			{#each Array.from({ length: weeks }, (_, i) => i + 1) as week}
-				{@const weekLabel = week === 1 ? 'Foundation' : week === 2 ? 'Building' : week === 3 ? 'Practicing' : 'Mastering'}
+				{@const weekLabel =
+					week === 1
+						? 'Foundation'
+						: week === 2
+							? 'Building'
+							: week === 3
+								? 'Practicing'
+								: 'Mastering'}
 				<div class="rounded-xl bg-base-100 p-4">
 					<h3 class="mb-1 font-semibold">Week {week}</h3>
 					<p class="mb-3 text-xs text-base-content/60">{weekLabel}</p>
@@ -224,7 +234,7 @@
 									{status === 'completed' ? 'bg-success/10 hover:bg-success/20' : ''}
 									{status === 'current' ? 'bg-primary/10 ring-2 ring-primary/50 hover:bg-primary/20' : ''}
 									{status === 'upcoming' ? 'bg-base-200 hover:bg-base-300' : ''}
-									{status === 'locked' ? 'bg-base-200 opacity-50 cursor-not-allowed' : ''}"
+									{status === 'locked' ? 'cursor-not-allowed bg-base-200 opacity-50' : ''}"
 								onclick={() => handleDayClick(day)}
 								disabled={status === 'locked'}
 							>
@@ -242,7 +252,7 @@
 								</div>
 								<p class="mt-1 line-clamp-2 text-sm">{day.theme || 'Scenario TBD'}</p>
 								{#if day.difficulty}
-									<span class="badge badge-xs mt-1 {getDifficultyBadgeClass(day.difficulty)}">
+									<span class="mt-1 badge badge-xs {getDifficultyBadgeClass(day.difficulty)}">
 										{day.difficulty}
 									</span>
 								{/if}
