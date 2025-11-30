@@ -446,9 +446,9 @@ For learning paths, add a dedicated helper:
 
      ```svelte
      {#if data.jsonLd}
-      <script type="application/ld+json">
+     	<script type="application/ld+json">
        {@html JSON.stringify(data.jsonLd)}
-      </script>
+     	</script>
      {/if}
      ```
 
@@ -460,29 +460,29 @@ Use `Course` or `HowTo` depending on tone; **Course** usually fits better:
 
 ```html
 <script type="application/ld+json">
- {
-  "@context": "https://schema.org",
-  "@type": "Course",
-  "name": "4-Week Japanese 'Meet the Parents' Path",
-  "description": "A 4-week curriculum to prepare for meeting your partner's Japanese parents, focusing on dinner conversation, small talk, and polite compliments.",
-  "provider": {
-   "@type": "Organization",
-   "name": "Kaiwa",
-   "url": "https://trykaiwa.com"
-  },
-  "hasCourseInstance": {
-   "@type": "CourseInstance",
-   "courseMode": "online",
-   "courseWorkload": "PT20M",
-   "url": "https://trykaiwa.com/program/jp-meet-parents-four-week-path"
-  },
-  "inLanguage": "ja",
-  "about": [
-   "meeting partner's parents",
-   "family dinner in Japanese",
-   "Japanese relationship conversations"
-  ]
- }
+	{
+		"@context": "https://schema.org",
+		"@type": "Course",
+		"name": "4-Week Japanese 'Meet the Parents' Path",
+		"description": "A 4-week curriculum to prepare for meeting your partner's Japanese parents, focusing on dinner conversation, small talk, and polite compliments.",
+		"provider": {
+			"@type": "Organization",
+			"name": "Kaiwa",
+			"url": "https://trykaiwa.com"
+		},
+		"hasCourseInstance": {
+			"@type": "CourseInstance",
+			"courseMode": "online",
+			"courseWorkload": "PT20M",
+			"url": "https://trykaiwa.com/program/jp-meet-parents-four-week-path"
+		},
+		"inLanguage": "ja",
+		"about": [
+			"meeting partner's parents",
+			"family dinner in Japanese",
+			"Japanese relationship conversations"
+		]
+	}
 </script>
 ```
 

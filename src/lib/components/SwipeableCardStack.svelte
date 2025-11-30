@@ -379,7 +379,7 @@
 					class:opacity-50={selectedAudioMode === 'vad'}
 					class:scale-105={selectedAudioMode === 'ptt'}
 				>
-					<span class="h-4.5 w-4.5 icon-[mdi--gesture-tap-button]"></span>
+					<span class="icon-[mdi--gesture-tap-button] h-4.5 w-4.5"></span>
 					<span class:hidden={selectedAudioMode === 'vad'} class="sm:inline">Push to Talk</span>
 				</span>
 				<input

@@ -72,7 +72,9 @@ export const POST: RequestHandler = async ({ params, request, locals, url }) => 
 			const user = await userRepository.findUserByEmail(email.toLowerCase().trim());
 			if (!user) {
 				return json(
-					createErrorResponse(`No user found with email: ${email}. The user must have an account first.`),
+					createErrorResponse(
+						`No user found with email: ${email}. The user must have an account first.`
+					),
 					{ status: 404 }
 				);
 			}
@@ -89,10 +91,9 @@ export const POST: RequestHandler = async ({ params, request, locals, url }) => 
 			pathId
 		);
 		if (existingAssignment) {
-			return json(
-				createErrorResponse('User is already assigned to this learning path'),
-				{ status: 409 }
-			);
+			return json(createErrorResponse('User is already assigned to this learning path'), {
+				status: 409
+			});
 		}
 
 		// Create assignment
@@ -290,12 +291,16 @@ function buildAssignmentEmailHtml(params: {
 			<p class="path-meta">${duration} days of structured practice</p>
 		</div>
 
-		${note ? `
+		${
+			note
+				? `
 		<div class="personal-note">
 			<div class="personal-note-label">A note from me:</div>
 			<p style="margin: 0; color: #78350f;">${note}</p>
 		</div>
-		` : ''}
+		`
+				: ''
+		}
 
 		<div class="cta-container">
 			<a href="${pathUrl}" class="cta-button">View Your Learning Path</a>

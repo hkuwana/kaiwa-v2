@@ -440,7 +440,8 @@
 					<div class="stat">
 						<div class="stat-title">Seconds Remaining</div>
 						<div class="stat-value">
-							{Math.floor(usageStore.secondsRemaining() / 60)}m {usageStore.secondsRemaining() % 60}s
+							{Math.floor(usageStore.secondsRemaining() / 60)}m {usageStore.secondsRemaining() %
+								60}s
 						</div>
 						<div class="stat-desc">
 							{#if usageStore.willIncurOverage()}
