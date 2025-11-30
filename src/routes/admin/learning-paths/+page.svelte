@@ -5,13 +5,14 @@
 	 * A Jony Ive-inspired admin interface organized into clear phases:
 	 *
 	 * Phase 1: INTAKE - Capture user requirements (transcript/notes → AI brief)
-	 * Phase 2: BUILD - Create the 28-day learning path
+	 * Phase 2: BUILD - Create the 28-day learning path (auto-triggered)
 	 * Phase 3: REVIEW - Calendar view of the path, day-by-day breakdown
 	 * Phase 4: ASSIGN - Assign path to user and send notification email
 	 * Phase 5: MONITOR - Queue status, scenario generation progress
 	 */
 
 	import { onMount } from 'svelte';
+	import { fillLearningPathBriefPrompt } from '$lib/data/prompts';
 
 	// Current phase
 	let currentPhase = $state<1 | 2 | 3 | 4 | 5>(1);
@@ -56,64 +57,16 @@
 		{ code: 'it', name: 'Italian' }
 	];
 
-	const AI_PROMPT_TEMPLATE = `You are helping create a personalized language learning path for Kaiwa, an AI-powered conversation practice app.
-
-Analyze the following discovery call transcript/notes and extract the key information to create a structured learning path brief.
-
-## TRANSCRIPT/NOTES:
-{TRANSCRIPT}
-
-## EXTRACT THE FOLLOWING:
-
-1. **Learner Profile**
-   - Name (first name only for personalization)
-   - Current language level (estimate: complete beginner, beginner, intermediate beginner, intermediate, advanced)
-   - Native language
-   - Target language: {LANGUAGE}
-
-2. **Primary Goal** (pick the most important one)
-   - Connection (family, partner, friends)
-   - Career (work, business, interviews)
-   - Travel (tourism, living abroad)
-   - Culture (media, heritage, personal interest)
-
-3. **Specific Situation**
-   - What's the specific real-life situation they want to prepare for?
-   - Is there a deadline or upcoming event?
-   - Who will they be speaking with?
-
-4. **Key Scenarios** (list 3-5 specific situations they mentioned wanting to practice)
-
-5. **Challenges/Fears**
-   - What are they most nervous about?
-   - What has frustrated them with other learning methods?
-
-6. **Preferences**
-   - How much time can they dedicate daily? (5-10 min, 10-20 min, 20+ min)
-   - Do they prefer gentle corrections or direct feedback?
-
-## OUTPUT FORMAT:
-
-Generate a 2-3 paragraph brief in this style:
-
-"A {DURATION}-day personalized path for [name/persona] who wants to [primary goal]. They are currently at [level] and need to prepare for [specific situation].
-
-The path should focus on: [key scenarios as comma-separated list]. Special attention to [their main fear/challenge].
-
-Difficulty should progress from [starting difficulty] to [ending difficulty]. Each day should be [time estimate] of focused practice. Tone should be [encouraging/challenging based on their preference]."
-
----
-
-Be concise but include all the specific details that make this path PERSONAL to them.`;
-
 	function getLanguageName(code: string): string {
 		return LANGUAGES.find((l) => l.code === code)?.name || code;
 	}
 
 	function getFilledPrompt(): string {
-		return AI_PROMPT_TEMPLATE.replace('{TRANSCRIPT}', transcriptInput || '[Paste transcript here]')
-			.replace('{LANGUAGE}', getLanguageName(transcriptLanguage))
-			.replace('{DURATION}', transcriptDuration.toString());
+		return fillLearningPathBriefPrompt({
+			transcript: transcriptInput,
+			language: getLanguageName(transcriptLanguage),
+			duration: transcriptDuration
+		});
 	}
 
 	async function copyPromptToClipboard() {
@@ -127,15 +80,60 @@ Be concise but include all the specific details that make this path PERSONAL to 
 		}
 	}
 
-	function proceedToBuild() {
+	/**
+	 * Auto-create the learning path when brief is ready
+	 * Skips the manual "Build" phase and goes straight to Review
+	 */
+	async function proceedToBuild() {
 		if (!generatedBrief) {
 			showMessage('Please paste the AI-generated brief first.', 'error');
 			return;
 		}
+
+		// Set the values
 		brief = generatedBrief;
 		targetLanguage = transcriptLanguage;
 		duration = transcriptDuration;
-		currentPhase = 2;
+
+		// Auto-create the path
+		loading = true;
+		showMessage('Creating your learning path...', 'info');
+
+		try {
+			const response = await fetchWithTimeout('/api/learning-paths/from-brief', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					brief: generatedBrief,
+					targetLanguage: transcriptLanguage,
+					duration: transcriptDuration,
+					difficultyRange: { min: 'A2', max: 'B1' },
+					primarySkill: 'conversation'
+				})
+			});
+
+			const result = await response.json();
+
+			if (result.success) {
+				createdPath = result.data.path;
+				selectedPath = result.data.path;
+				showMessage(`Created: ${createdPath.title} (${result.data.queuedJobs} scenarios queued)`, 'success');
+				await loadPaths();
+				await loadQueueStats();
+				// Skip to Review phase
+				currentPhase = 3;
+			} else {
+				showMessage(result.error || 'Failed to create path', 'error');
+				// Fall back to manual Build phase if auto-create fails
+				currentPhase = 2;
+			}
+		} catch (error: any) {
+			showMessage(error.name === 'AbortError' ? 'Request timed out' : error.message, 'error');
+			// Fall back to manual Build phase
+			currentPhase = 2;
+		} finally {
+			loading = false;
+		}
 	}
 
 	// ========================================
@@ -542,9 +540,9 @@ Example:
 						<button
 							class="btn btn-success w-full"
 							onclick={proceedToBuild}
-							disabled={!generatedBrief}
+							disabled={!generatedBrief || loading}
 						>
-							Proceed to Build
+							{loading ? 'Creating Path...' : 'Create Path'}
 						</button>
 					</div>
 				</div>
