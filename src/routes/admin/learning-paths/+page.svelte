@@ -12,7 +12,7 @@
 	 */
 
 	import { onMount } from 'svelte';
-	import { fillLearningPathBriefPrompt } from '$lib/data/prompts';
+	import { fillLearningPathBriefPrompt, SCAFFOLDING_LEVELS, WEEKLY_PROGRESSION, type ScaffoldingLevel } from '$lib/data/prompts';
 
 	// Current phase
 	let currentPhase = $state<1 | 2 | 3 | 4 | 5>(1);
@@ -42,9 +42,17 @@
 	// ========================================
 	let transcriptInput = $state('');
 	let transcriptLanguage = $state('ja');
-	let transcriptDuration = $state(14);
+	let transcriptDuration = $state(28);
+	let learnerLevel = $state<ScaffoldingLevel>('elementary');
 	let generatedBrief = $state('');
 	let briefCopied = $state(false);
+
+	// Available scaffolding levels for the dropdown
+	const LEVELS = Object.entries(SCAFFOLDING_LEVELS).map(([key, value]) => ({
+		code: key as ScaffoldingLevel,
+		label: value.label,
+		description: value.description
+	}));
 
 	const LANGUAGES = [
 		{ code: 'ja', name: 'Japanese' },
@@ -84,6 +92,17 @@
 	 * Auto-create the learning path when brief is ready
 	 * Skips the manual "Build" phase and goes straight to Review
 	 */
+	// Map scaffolding level to difficulty range
+	function getDifficultyRange(level: ScaffoldingLevel): { min: string; max: string } {
+		const ranges: Record<ScaffoldingLevel, { min: string; max: string }> = {
+			beginner: { min: 'A1', max: 'A2' },
+			elementary: { min: 'A2', max: 'B1' },
+			intermediate: { min: 'B1', max: 'B2' },
+			advanced: { min: 'B2', max: 'C1' }
+		};
+		return ranges[level];
+	}
+
 	async function proceedToBuild() {
 		if (!generatedBrief) {
 			showMessage('Please paste the AI-generated brief first.', 'error');
@@ -99,6 +118,8 @@
 		loading = true;
 		showMessage('Creating your learning path...', 'info');
 
+		const difficultyRange = getDifficultyRange(learnerLevel);
+
 		try {
 			const response = await fetchWithTimeout('/api/learning-paths/from-brief', {
 				method: 'POST',
@@ -107,8 +128,9 @@
 					brief: generatedBrief,
 					targetLanguage: transcriptLanguage,
 					duration: transcriptDuration,
-					difficultyRange: { min: 'A2', max: 'B1' },
-					primarySkill: 'conversation'
+					difficultyRange,
+					primarySkill: 'conversation',
+					learnerLevel // Pass the scaffolding level
 				})
 			});
 
@@ -473,7 +495,7 @@
 				<div class="grid gap-6 lg:grid-cols-2">
 					<!-- Left: Input -->
 					<div class="space-y-4">
-						<div class="grid grid-cols-2 gap-4">
+						<div class="grid grid-cols-3 gap-4">
 							<div class="form-control">
 								<label class="label"><span class="label-text">Target Language</span></label>
 								<select class="select select-bordered" bind:value={transcriptLanguage}>
@@ -483,13 +505,33 @@
 								</select>
 							</div>
 							<div class="form-control">
+								<label class="label"><span class="label-text">Learner Level</span></label>
+								<select class="select select-bordered" bind:value={learnerLevel}>
+									{#each LEVELS as level}
+										<option value={level.code}>{level.label}</option>
+									{/each}
+								</select>
+							</div>
+							<div class="form-control">
 								<label class="label"><span class="label-text">Duration</span></label>
 								<select class="select select-bordered" bind:value={transcriptDuration}>
-									<option value={7}>7 days</option>
-									<option value={14}>14 days</option>
-									<option value={21}>21 days</option>
-									<option value={28}>28 days</option>
+									<option value={14}>14 days (2 weeks)</option>
+									<option value={21}>21 days (3 weeks)</option>
+									<option value={28}>28 days (4 weeks)</option>
 								</select>
+							</div>
+						</div>
+
+						<!-- Weekly Progression Preview -->
+						<div class="rounded-lg bg-base-200/50 p-3">
+							<p class="mb-2 text-xs font-medium text-base-content/70">Weekly Progression:</p>
+							<div class="grid grid-cols-4 gap-2 text-xs">
+								{#each Object.values(WEEKLY_PROGRESSION) as week, i}
+									<div class="rounded bg-base-100 p-2">
+										<div class="font-medium">Week {i + 1}</div>
+										<div class="text-base-content/60">{week.focus}</div>
+									</div>
+								{/each}
 							</div>
 						</div>
 
