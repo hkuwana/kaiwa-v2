@@ -68,7 +68,7 @@ async startConversation(language?: string, speaker?: Speaker) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         sessionId: crypto.randomUUID(),
-        model: 'gpt-4o-mini-realtime-preview-2024-12-17',
+        model: 'gpt-5-nano-realtime-preview-2024-12-17',
         voice: this.voice
       })
     });
@@ -126,7 +126,7 @@ Creates a new realtime session with OpenAI.
 ```json
 {
 	"sessionId": "unique-session-identifier",
-	"model": "gpt-4o-mini-realtime-preview-2024-12-17",
+	"model": "gpt-5-nano-realtime-preview-2024-12-17",
 	"voice": "alloy",
 	"language": "en"
 }

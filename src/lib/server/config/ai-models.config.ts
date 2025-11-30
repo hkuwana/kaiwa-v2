@@ -18,7 +18,7 @@
  * - 400K context window, 128K max output
  * - Use for: Complex reasoning, detailed analysis, nuanced content generation
  *
- * GPT-4O-MINI-REALTIME (gpt-4o-mini-realtime-preview-2024-12-17)
+ * GPT-4O-MINI-REALTIME (gpt-5-nano-realtime-preview-2024-12-17)
  * - Optimized for realtime audio/text ($0.60/1M input, $2.40/1M output)
  * - 16K context window, 4K max output
  * - Use for: Voice conversations, real-time interactions
@@ -33,7 +33,7 @@ export const AI_MODELS = {
 	MINI: 'gpt-5-mini-2025-08-07',
 
 	/** Realtime - for voice conversations */
-	REALTIME: 'gpt-4o-mini-realtime-preview-2024-12-17'
+	REALTIME: 'gpt-5-nano-realtime-preview-2024-12-17'
 } as const;
 
 export type AIModel = (typeof AI_MODELS)[keyof typeof AI_MODELS];

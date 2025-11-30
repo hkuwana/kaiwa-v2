@@ -56,7 +56,7 @@ export async function createCompletion(
 	options: OpenAICompletionOptions = {}
 ): Promise<OpenAIResponse> {
 	const {
-		model = 'gpt-4o-mini',
+		model = 'gpt-5-nano',
 		temperature = 0.7,
 		maxTokens = 1000,
 		responseFormat = 'text'

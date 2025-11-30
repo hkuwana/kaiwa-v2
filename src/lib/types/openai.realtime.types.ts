@@ -73,7 +73,7 @@ export type RealtimeInputAudioNoiseReductionConfig = {
 
 export type RealtimeInputAudioTranscriptionConfig = {
 	language?: string;
-	model?: 'gpt-4o-transcribe' | 'gpt-4o-mini-transcribe' | 'whisper-1' | (string & {});
+	model?: 'gpt-4o-transcribe' | 'gpt-5-nano-transcribe' | 'whisper-1' | (string & {});
 	prompt?: string;
 };
 
@@ -155,7 +155,7 @@ export function isValidVoice(voice?: string): voice is Voice {
 export type Modality = 'text' | 'audio';
 export type ToolChoice = 'auto' | 'none' | 'required';
 export type VADType = 'server_vad' | 'semantic_vad';
-export type TranscriptionModel = 'whisper-1' | 'gpt-4o-transcribe' | 'gpt-4o-mini-transcribe';
+export type TranscriptionModel = 'whisper-1' | 'gpt-4o-transcribe' | 'gpt-5-nano-transcribe';
 export type MessageRole = 'user' | 'assistant' | 'system';
 export type ContentType = 'input_text' | 'input_audio' | 'text' | 'audio';
 export type ItemType = 'message' | 'function_call' | 'function_call_output';
