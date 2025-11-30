@@ -13,9 +13,27 @@
 		generateRomanizationClient,
 		generateRomanizationServer
 	} from '$lib/services/romanization.service';
+	import type { ScriptResult } from '$lib/services/scripts.service';
+	import type { RomanizationResult } from '$lib/services/romanization.service';
+	import type { FuriganaResult } from '$lib/services/furigana.service';
 	import type { Message } from '$lib/server/db/types';
 	import type { Speaker } from '$lib/types';
 	import { SvelteDate } from 'svelte/reactivity';
+
+	type RomanizationTestResult = {
+		language: string;
+		client?: RomanizationResult;
+		server?: RomanizationResult;
+		native?: RomanizationResult;
+		otherScripts?: Record<string, string>;
+		pinyin?: string;
+		hangul?: string;
+	};
+
+	type FuriganaTestResult = {
+		client: FuriganaResult & { otherScripts?: Record<string, string> };
+		server: FuriganaResult & { otherScripts?: Record<string, string> };
+	};
 
 	// Test data
 	let testText = $state('こんにちは、元気ですか？');
@@ -23,15 +41,15 @@
 	let targetLanguage = $state('en');
 
 	let translationResult = $state<Partial<Message> | null>(null);
-	let scriptResult = $state<Record<string, unknown> | null>(null);
-	let furiganaResult = $state<Record<string, unknown> | null>(null);
-	let romanizationResult = $state<Record<string, unknown> | null>(null);
+	let scriptResult = $state<ScriptResult | null>(null);
+	let furiganaResult = $state<FuriganaTestResult | null>(null);
+	let romanizationResult = $state<RomanizationTestResult | null>(null);
 	let isLoading = $state(false);
 	let error = $state<string | null>(null);
 	let lastUpdateTime = $state<SvelteDate | null>(null);
 
 	// Test message with full schema - reactive to all test results
-	const testMessage = $derived({
+	const testMessage = $derived<Message>({
 		id: 'test-message-1',
 		content: testText,
 		role: 'user' as const,
@@ -57,8 +75,8 @@
 			...(scriptResult?.otherScripts || {}),
 			...(furiganaResult?.server?.otherScripts || {}),
 			...(romanizationResult?.server?.otherScripts || {}),
-			...(romanizationResult?.pinyin && { pinyin: romanizationResult.pinyin }),
-			...(romanizationResult?.hangul && { hangul: romanizationResult.hangul })
+			...(romanizationResult?.pinyin ? { pinyin: romanizationResult.pinyin } : {}),
+			...(romanizationResult?.hangul ? { hangul: romanizationResult.hangul } : {})
 		},
 		translationConfidence: translationResult?.translationConfidence || null,
 		translationProvider: translationResult?.translationProvider || null,
@@ -66,14 +84,25 @@
 		isTranslated: !!translationResult?.translatedContent,
 		grammarAnalysis: null,
 		vocabularyAnalysis: null,
-		pronunciationScore: null,
 		audioUrl: null,
-		audioDuration: null,
-		speechTimings: null,
+		audioUrlExpiresAt: null,
+		audioStorageKey: null,
+		audioDurationMs: null,
+		audioSizeBytes: null,
+		audioFormat: null,
+		audioSampleRate: 24000,
+		audioChannels: 1,
+		audioProcessingState: 'pending',
+		audioProcessingError: null,
+		audioRetentionExpiresAt: null,
+		audioDeletedAt: null,
 		difficultyLevel: null,
 		learningTags: null,
 		conversationContext: null,
-		messageIntent: null
+		messageIntent: null,
+		pronunciationScore: null,
+		fluencyScore: null,
+		speechRateWpm: null
 	});
 
 	// Test speaker
@@ -89,7 +118,9 @@
 		bcp47Code: 'ja-JP',
 		speakerEmoji: '🎌',
 		gender: 'female',
-		voiceProviderId: 'openai'
+		voiceProviderId: 'openai',
+		characterImageUrl: null,
+		characterImageAlt: null
 	};
 
 	// Sample messages for testing
@@ -169,19 +200,20 @@
 
 		try {
 			const messageId = `test-message-${Date.now()}`;
-			const testMessage = {
+			const testMessageForScripts: Message = {
 				id: messageId,
 				content: testText,
 				role: 'user' as const,
 				timestamp: new SvelteDate(),
 				conversationId: 'test-conversation',
+				sequenceId: null,
 				translatedContent: null,
-				sourceLanguage: sourceLanguage,
-				targetLanguage: targetLanguage,
+				sourceLanguage,
+				targetLanguage,
 				userNativeLanguage: null,
 				romanization: null,
 				hiragana: null,
-				otherScripts: null,
+				otherScripts: {},
 				translationConfidence: null,
 				translationProvider: null,
 				translationNotes: null,
@@ -190,17 +222,27 @@
 				vocabularyAnalysis: null,
 				pronunciationScore: null,
 				audioUrl: null,
-				audioDuration: null,
-				speechTimings: null,
+				audioUrlExpiresAt: null,
+				audioStorageKey: null,
+				audioDurationMs: null,
+				audioSizeBytes: null,
+				audioFormat: null,
+				audioSampleRate: 24000,
+				audioChannels: 1,
+				audioProcessingState: 'pending',
+				audioProcessingError: null,
+				audioRetentionExpiresAt: null,
+				audioDeletedAt: null,
 				difficultyLevel: null,
 				learningTags: null,
 				conversationContext: null,
 				messageIntent: null,
-				sequenceId: null
+				fluencyScore: null,
+				speechRateWpm: null
 			};
 
 			// Test server-side script generation
-			scriptResult = await generateScriptsForMessage(testMessage, true);
+			scriptResult = await generateScriptsForMessage(testMessageForScripts, true);
 			console.log('Scripts result:', scriptResult);
 			lastUpdateTime = new SvelteDate();
 		} catch (err) {
@@ -245,12 +287,16 @@
 		try {
 			const messageId = `test-message-${Date.now()}`;
 			const language = detectLanguage(testText);
+			const clientResult = await generateRomanizationClient(testText, language);
+			const serverResult = await generateRomanizationServer(testText, language, messageId);
 
 			// Test client-side romanization
 			romanizationResult = {
 				language,
-				client: await generateRomanizationClient(testText, language),
-				server: await generateRomanizationServer(testText, language, messageId)
+				client: clientResult,
+				server: serverResult,
+				pinyin: serverResult.pinyin,
+				hangul: serverResult.hangul
 			};
 
 			console.log('Romanization result:', romanizationResult);

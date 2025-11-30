@@ -8,6 +8,7 @@
 	import type { Subscription, User, UserPreferences } from '$lib/server/db/types';
 	import type { MemorySummary } from '$lib/services/user-memory.service';
 	import type { UsageStatus } from '$lib/server/tier.service';
+	import type { UsageLimits } from '$lib/stores/conversation-timer.store.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { onMount } from 'svelte';
 	import PaymentManagement from '$lib/components/PaymentManagement.svelte';
@@ -21,7 +22,7 @@
 	// Client-side data loading
 	let userPreferences = $state<UserPreferences | null>(null);
 	let subscription = $state<Subscription | null>(null);
-	let usageLimits = $state<Record<string, unknown> | null>(null);
+	let usageLimits = $state<UsageLimits | null>(null);
 	let memorySummary = $state<MemorySummary | null>(null);
 
 	let showDeleteModal = $state(false);
@@ -66,8 +67,8 @@
 
 	// Data loading promises
 	let userPreferencesPromise = $state<Promise<UserPreferences | null>>();
-	let subscriptionPromise = $state<Promise<Record<string, unknown> | null>>();
-	let usageLimitsPromise = $state<Promise<Record<string, unknown> | null>>();
+	let subscriptionPromise = $state<Promise<Subscription | null>>();
+	let usageLimitsPromise = $state<Promise<UsageLimits | null>>();
 
 	// Tier pricing for display
 	const tierPricing: Record<string, string> = {
@@ -255,14 +256,14 @@
 	};
 
 	// Load subscription data
-	const loadSubscription = async () => {
+	const loadSubscription = async (): Promise<Subscription | null> => {
 		try {
 			const response = await fetch(`/api/users/${data.user.id}/subscription?simple=true`);
 			if (!response.ok) {
 				console.error('Failed to load subscription:', response.statusText);
 				return null;
 			}
-			return await response.json();
+			return (await response.json()) as Subscription;
 		} catch (error) {
 			console.error('Error loading subscription:', error);
 			return null;
@@ -270,11 +271,11 @@
 	};
 
 	// Load usage limits
-	const loadUsageLimits = async () => {
+	const loadUsageLimits = async (): Promise<UsageLimits | null> => {
 		try {
 			const response = await fetch(`/api/users/${data.user.id}/subscription`);
 			if (response.ok) {
-				return await response.json();
+				return (await response.json()) as UsageLimits;
 			}
 			return null;
 		} catch (error) {
@@ -392,18 +393,27 @@
 
 				<!-- Billing Tab -->
 				{#if activeTab === 'billing'}
-					<PaymentManagement
-						{data}
-						{usageStatus}
-						{isLoadingUsage}
-						{loadUsageStatus}
-						{tierPricing}
-						{billingError}
-						{isManagingBilling}
-						{openBillingPortal}
-						{subscription}
-						{usageLimits}
-					/>
+					{#if usageLimits}
+						<PaymentManagement
+							{data}
+							{usageStatus}
+							{isLoadingUsage}
+							{loadUsageStatus}
+							{tierPricing}
+							{billingError}
+							{isManagingBilling}
+							{openBillingPortal}
+							{subscription}
+							{usageLimits}
+						/>
+					{:else}
+						<div class="card bg-base-100 shadow-xl">
+							<div class="card-body">
+								<h2 class="card-title">Loading billing data...</h2>
+								<div class="loading loading-spinner" aria-label="Loading usage limits"></div>
+							</div>
+						</div>
+					{/if}
 				{/if}
 
 				<!-- Learning Preferences Tab -->

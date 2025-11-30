@@ -170,10 +170,14 @@
 				<div class="grid gap-4 md:grid-cols-2">
 					<!-- Scenario Selector -->
 					<div class="form-control">
-						<label class="label">
+						<label class="label" for="scenario-selector">
 							<span class="label-text font-semibold">Select Scenario</span>
 						</label>
-						<select class="select-bordered select" bind:value={selectedTestScenario}>
+						<select
+							id="scenario-selector"
+							class="select-bordered select"
+							bind:value={selectedTestScenario}
+						>
 							<option value="">Choose a scenario...</option>
 							{#each scenarios as scenario (scenario.id)}
 								<option value={scenario.id}>
@@ -185,10 +189,11 @@
 
 					<!-- Generate Button -->
 					<div class="form-control">
-						<label class="label">
+						<label class="label" for="generate-scenario-image">
 							<span class="label-text font-semibold">Action</span>
 						</label>
 						<button
+							id="generate-scenario-image"
 							class="btn btn-success"
 							disabled={isGenerating || !selectedTestScenario}
 							onclick={() => {
@@ -218,12 +223,13 @@
 			</button>
 
 			{#if generationResult}
+				{@const result = generationResult}
 				<div class="mt-6">
 					<h3 class="mb-4 text-2xl font-bold">Generation Result</h3>
 					<div class="card border border-success/20 bg-base-200 shadow-xl">
 						<div class="card-body">
 							<h3 class="card-title text-lg">
-								{scenarios.find((s) => s.id === generationResult.scenarioId)?.title}
+								{scenarios.find((s) => s.id === result.scenarioId)?.title}
 							</h3>
 
 							{#if isGenerating}
@@ -232,20 +238,20 @@
 								</div>
 							{:else if generationResult.error}
 								<div class="alert alert-error">
-									<p class="text-sm">❌ {generationResult.error}</p>
+									<p class="text-sm">❌ {result.error}</p>
 								</div>
-							{:else if generationResult.imageUrl}
+							{:else if result.imageUrl}
 								<div class="mt-4">
 									<img
-										src={generationResult.imageUrl}
-										alt={`Generated image for ${scenarios.find((s) => s.id === generationResult.scenarioId)?.title}`}
+										src={result.imageUrl}
+										alt={`Generated image for ${scenarios.find((s) => s.id === result.scenarioId)?.title}`}
 										class="w-full rounded-lg"
 										loading="lazy"
 									/>
 									<div class="mt-2 flex flex-wrap gap-2">
 										<button
 											class="btn btn-xs btn-primary"
-											onclick={() => window.open(generationResult.imageUrl, '_blank')}
+											onclick={() => window.open(result.imageUrl, '_blank')}
 										>
 											📂 Open Full Size
 										</button>

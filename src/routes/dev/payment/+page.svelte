@@ -4,8 +4,30 @@
 	import { userManager } from '$lib/stores/user.store.svelte';
 	import { posthogManager } from '$lib/client/posthog';
 
+	type AvailableTier = {
+		tier: string;
+		name: string;
+		monthlyPrice?: string | null;
+		annualPrice?: string | null;
+		stripePriceIdMonthly?: string | null;
+		stripePriceIdAnnual?: string | null;
+	};
+
+	type PaymentDebugData = {
+		user?: { email?: string; hasStripeCustomerId?: boolean };
+		currentTier?: string;
+		stripeData?: { hasActiveSubscription?: boolean };
+		comparison?: {
+			stripeTier?: string | null;
+			dbTier?: string | null;
+			tierMatch?: boolean;
+			recommendation?: string | null;
+		};
+		availableTiers?: AvailableTier[];
+	};
+
 	// Simple state
-	let debugData = $state<Record<string, unknown> | null>(null);
+	let debugData = $state<PaymentDebugData | null>(null);
 	let isLoading = $state(false);
 	let testResult = $state<string>('');
 

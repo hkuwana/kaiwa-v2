@@ -283,9 +283,12 @@
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 						<div>
 							<div class="form-control mb-3">
-								<label class="label"><span class="label-text">User ID</span></label>
+								<label class="label" for="test-user-id">
+									<span class="label-text">User ID</span>
+								</label>
 								<input
 									type="text"
+									id="test-user-id"
 									class="input-bordered input"
 									bind:value={userId}
 									placeholder="Enter user UUID"
@@ -315,9 +318,12 @@
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 						<div>
 							<div class="form-control mb-3">
-								<label class="label"><span class="label-text">Path ID</span></label>
+								<label class="label" for="fetch-path-id">
+									<span class="label-text">Path ID</span>
+								</label>
 								<input
 									type="text"
+									id="fetch-path-id"
 									class="input-bordered input"
 									bind:value={pathId}
 									placeholder="Enter path ID"
@@ -382,9 +388,12 @@
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 						<div>
 							<div class="form-control mb-3">
-								<label class="label"><span class="label-text">Path ID</span></label>
+								<label class="label" for="queue-path-id">
+									<span class="label-text">Path ID</span>
+								</label>
 								<input
 									type="text"
+									id="queue-path-id"
 									class="input-bordered input"
 									bind:value={pathId}
 									placeholder="Enter path ID"

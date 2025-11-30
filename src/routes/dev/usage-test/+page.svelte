@@ -64,11 +64,16 @@
 			analysesUsed: 0,
 			// Simplified analysis usage fields for MVP
 			basicAnalysesUsed: 0,
+			quickStatsUsed: 0,
+			grammarSuggestionsUsed: 0,
 			advancedGrammarUsed: 0,
 			fluencyAnalysisUsed: 0,
 			onboardingProfileUsed: 0,
 			pronunciationAnalysisUsed: 0,
 			speechRhythmUsed: 0,
+			phraseSuggestionsUsed: 0,
+			audioSuggestionUsed: 0,
+			dailyUsage: {},
 			completedSessions: 0,
 			longestSessionSeconds: 0,
 			averageSessionSeconds: 0,
@@ -76,6 +81,7 @@
 			tierWhenUsed: selectedTier,
 			lastConversationAt: null,
 			lastRealtimeAt: null,
+			lastAnalysisAt: null,
 			firstActivityAt: null,
 			createdAt: now,
 			updatedAt: now,
@@ -434,7 +440,7 @@
 					<div class="stat">
 						<div class="stat-title">Seconds Remaining</div>
 						<div class="stat-value">
-							{Math.floor(usageStore.secondsRemaining() / 60)}m {usageStore.secondsRemaining % 60}s
+							{Math.floor(usageStore.secondsRemaining() / 60)}m {usageStore.secondsRemaining() % 60}s
 						</div>
 						<div class="stat-desc">
 							{#if usageStore.willIncurOverage()}

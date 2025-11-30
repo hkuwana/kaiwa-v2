@@ -225,6 +225,7 @@
 							<button
 								class="btn absolute top-1/2 right-2 btn-circle -translate-y-1/2 btn-ghost btn-sm"
 								onclick={() => (searchQuery = '')}
+								aria-label="Clear search"
 							>
 								<span class="icon-[mdi--close] h-4 w-4"></span>
 							</button>
@@ -577,7 +578,11 @@
 					{searchQuery ? `No scenarios found matching "${searchQuery}"` : 'No scenarios available'}
 				</p>
 				{#if searchQuery}
-					<button class="btn mt-4 btn-sm btn-primary" onclick={() => (searchQuery = '')}>
+					<button
+						class="btn mt-4 btn-sm btn-primary"
+						onclick={() => (searchQuery = '')}
+						aria-label="Clear search"
+					>
 						Clear search
 					</button>
 				{/if}
@@ -612,11 +617,19 @@
 {#if selectedScenario}
 	{@const scenario = selectedScenario}
 	{@const meta = getScenarioMeta(scenario)}
-	{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
-	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
-		onclick={closeScenarioDetails}
-	>
+		{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
+		<div
+				class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+				on:click={closeScenarioDetails}
+				on:keydown={(event) => {
+						if (event.key === 'Escape' || event.key === 'Enter' || event.key === ' ') {
+								event.preventDefault();
+								closeScenarioDetails();
+						}
+				}}
+				role="button"
+				tabindex="0"
+		>
 		<div
 			class="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-base-100 shadow-2xl"
 			onclick={(e) => e.stopPropagation()}

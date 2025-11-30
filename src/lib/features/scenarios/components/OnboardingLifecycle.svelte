@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state';
 
+	// Variant is provided by parent demos; kept for future styling hooks
+	let { variant = 'desktop' }: { variant?: 'desktop' | 'mobile' | 'compact' } = $props();
+
 	// Get current path from page store
 	const currentPath = $derived(page.url.pathname);
 

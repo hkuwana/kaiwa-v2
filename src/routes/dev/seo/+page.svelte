@@ -2,6 +2,17 @@
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 
+	type PageSEOStats = {
+		title: string;
+		titleLength: number;
+		metaDescription: string;
+		metaDescLength: number;
+		h1Count: number;
+		imageCount: number;
+		imagesWithAlt: number;
+		hasCanonical: boolean;
+	};
+
 	// SEO Target Keywords Strategy
 	const targetKeywords = {
 		primary: [
@@ -132,7 +143,16 @@
 	let seoScore = $state(0);
 	let seoIssues = $state<string[]>([]);
 	let loadTime = $state(0);
-	let currentPageSEO = $state<Record<string, unknown>>({});
+	let currentPageSEO = $state<PageSEOStats>({
+		title: '',
+		titleLength: 0,
+		metaDescription: '',
+		metaDescLength: 0,
+		h1Count: 0,
+		imageCount: 0,
+		imagesWithAlt: 0,
+		hasCanonical: false
+	});
 
 	// Competitor Analysis
 	const competitorAnalysis = [
