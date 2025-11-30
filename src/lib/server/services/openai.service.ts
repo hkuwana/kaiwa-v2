@@ -55,18 +55,12 @@ export async function createCompletion(
 	messages: ChatCompletionMessageParam[],
 	options: OpenAICompletionOptions = {}
 ): Promise<OpenAIResponse> {
-	const {
-		model = 'gpt-4o-mini',
-		temperature = 0.7,
-		maxTokens = 1000,
-		responseFormat = 'text'
-	} = options;
+	const { model = 'gpt-5-nano', maxTokens = 1000, responseFormat = 'text' } = options;
 
 	const requestPayload = {
 		model,
 		messages,
-		temperature,
-		max_tokens: maxTokens,
+		max_completion_tokens: maxTokens,
 		...(responseFormat === 'json' && {
 			response_format: { type: 'json_object' as const }
 		})

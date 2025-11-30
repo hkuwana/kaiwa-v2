@@ -29,7 +29,7 @@
 	}
 
 	function estimateRealtimeCost(inputTokens: number): number {
-		// Pricing sourced from gpt-4o-mini-realtime-preview (Dec 2024): $0.0006 / 1K input tokens.
+		// Pricing sourced from gpt-5-nano-realtime-preview (Dec 2024): $0.0006 / 1K input tokens.
 		const costPerToken = 0.0006 / 1000;
 		return inputTokens * costPerToken;
 	}
