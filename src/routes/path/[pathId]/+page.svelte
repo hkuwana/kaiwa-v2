@@ -21,6 +21,8 @@
 	const daysRemaining = $derived(data.progress.totalDays - data.progress.daysCompleted);
 	const weeks = $derived(Math.ceil(data.progress.totalDays / 7));
 
+	const weeks = $derived(Math.ceil(data.progress.totalDays / 7));
+
 	// Navigation handlers
 	function handleStartLesson() {
 		if (data.progress.currentDay?.scenarioId) {
@@ -156,15 +158,10 @@
 								{data.progress.currentDay.difficulty}
 							</span>
 						</div>
-						{#if data.progress.currentDay.learningObjectives?.length}
-							<ul class="mt-3 space-y-1 text-sm text-base-content/70">
-								{#each data.progress.currentDay.learningObjectives.slice(0, 3) as objective}
-									<li class="flex items-start gap-2">
-										<span class="mt-0.5 icon-[mdi--check-circle] h-4 w-4 text-success"></span>
-										{objective}
-									</li>
-								{/each}
-							</ul>
+						{#if data.progress.currentDay.description}
+							<p class="mt-3 text-sm text-base-content/70">
+								{data.progress.currentDay.description}
+							</p>
 						{/if}
 					</div>
 					<div class="flex-shrink-0">
