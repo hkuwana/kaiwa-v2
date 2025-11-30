@@ -2,8 +2,9 @@ name: Send Founder Email Sequence
 
 on:
   schedule:
-    # Founder emails at 2:00 PM UTC
-    - cron: '0 14 * * *'
+    # Founder emails run 4 times daily to make welcome emails feel personally sent
+    # 8:00 AM UTC, 12:00 PM UTC, 4:00 PM UTC, 8:00 PM UTC
+    - cron: '0 8,12,16,20 * * *'
   # Allow manual triggering for testing
   workflow_dispatch:
 

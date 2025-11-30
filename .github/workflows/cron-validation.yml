@@ -1,0 +1,288 @@
+name: Cron Workflow Validation
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - '.github/workflows/cron-*.yml'
+      - 'src/routes/api/cron/**'
+      - 'scripts/send-*.ts'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - '.github/workflows/cron-*.yml'
+      - 'src/routes/api/cron/**'
+      - 'scripts/send-*.ts'
+  workflow_dispatch:
+
+jobs:
+  validate-cron-workflows:
+    name: Validate Cron Workflows
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate YAML syntax
+        run: |
+          echo "🔍 Validating cron workflow YAML files..."
+
+          errors=0
+          for file in .github/workflows/cron-*.yml; do
+            if [ -f "$file" ]; then
+              echo "Checking: $file"
+              if ! python3 -c "import yaml; yaml.safe_load(open('$file'))" 2>/dev/null; then
+                echo "❌ Invalid YAML: $file"
+                errors=$((errors + 1))
+              else
+                echo "✓ Valid YAML"
+              fi
+            fi
+          done
+
+          if [ $errors -gt 0 ]; then
+            echo "❌ Found $errors YAML syntax errors"
+            exit 1
+          fi
+          echo "✅ All YAML files are valid"
+
+      - name: Validate cron expressions
+        run: |
+          echo "🕐 Validating cron expressions..."
+
+          # Extract and validate cron expressions from workflow files
+          python3 << 'EOF'
+          import yaml
+          import re
+          import sys
+          from pathlib import Path
+
+          def validate_cron(cron_expr):
+              """Validate a cron expression (5-part format for GitHub Actions)."""
+              parts = cron_expr.strip().split()
+              if len(parts) != 5:
+                  return False, f"Expected 5 parts, got {len(parts)}"
+
+              ranges = [
+                  (0, 59, "minute"),      # minute
+                  (0, 23, "hour"),        # hour
+                  (1, 31, "day of month"),  # day of month
+                  (1, 12, "month"),       # month
+                  (0, 6, "day of week"),  # day of week (0=Sunday)
+              ]
+
+              for i, (part, (min_val, max_val, name)) in enumerate(zip(parts, ranges)):
+                  if part == "*":
+                      continue
+                  # Handle comma-separated values like "1,4"
+                  if "," in part:
+                      values = part.split(",")
+                      for v in values:
+                          try:
+                              val = int(v)
+                              if not (min_val <= val <= max_val):
+                                  return False, f"{name}: {val} out of range [{min_val}-{max_val}]"
+                          except ValueError:
+                              return False, f"{name}: invalid value '{v}'"
+                      continue
+                  # Handle ranges like "1-5"
+                  if "-" in part:
+                      try:
+                          start, end = part.split("-")
+                          if not (min_val <= int(start) <= max_val and min_val <= int(end) <= max_val):
+                              return False, f"{name}: range out of bounds"
+                      except:
+                          return False, f"{name}: invalid range '{part}'"
+                      continue
+                  # Handle step values like "*/5"
+                  if "/" in part:
+                      base, step = part.split("/")
+                      if base != "*":
+                          try:
+                              int(base)
+                          except:
+                              return False, f"{name}: invalid step base '{base}'"
+                      continue
+                  # Regular number
+                  try:
+                      val = int(part)
+                      if not (min_val <= val <= max_val):
+                          return False, f"{name}: {val} out of range [{min_val}-{max_val}]"
+                  except ValueError:
+                      return False, f"{name}: invalid value '{part}'"
+
+              return True, "OK"
+
+          errors = 0
+          workflows = list(Path(".github/workflows").glob("cron-*.yml"))
+
+          if not workflows:
+              print("⚠️  No cron workflow files found")
+              sys.exit(0)
+
+          for workflow_path in workflows:
+              if workflow_path.name == "cron-validation.yml":
+                  continue  # Skip this validation workflow itself
+
+              print(f"\n📋 {workflow_path.name}")
+
+              with open(workflow_path) as f:
+                  try:
+                      workflow = yaml.safe_load(f)
+                  except yaml.YAMLError as e:
+                      print(f"  ❌ YAML parse error: {e}")
+                      errors += 1
+                      continue
+
+              if not workflow:
+                  print("  ⚠️  Empty workflow file")
+                  continue
+
+              on_config = workflow.get("on", {})
+              if isinstance(on_config, dict) and "schedule" in on_config:
+                  schedules = on_config["schedule"]
+                  if isinstance(schedules, list):
+                      for sched in schedules:
+                          cron = sched.get("cron", "")
+                          if cron:
+                              valid, msg = validate_cron(cron)
+                              if valid:
+                                  print(f"  ✓ cron: '{cron}' - {msg}")
+                              else:
+                                  print(f"  ❌ cron: '{cron}' - {msg}")
+                                  errors += 1
+                  else:
+                      print("  ⚠️  No schedule entries found")
+              else:
+                  print("  ⚠️  No schedule trigger found")
+
+          print(f"\n{'='*50}")
+          if errors > 0:
+              print(f"❌ Found {errors} cron expression errors")
+              sys.exit(1)
+          else:
+              print("✅ All cron expressions are valid")
+          EOF
+
+      - name: Validate API endpoints exist
+        run: |
+          echo "🔗 Validating API endpoint mappings..."
+
+          python3 << 'EOF'
+          import yaml
+          import re
+          from pathlib import Path
+
+          # Map of cron workflows to their expected API endpoints
+          workflows = list(Path(".github/workflows").glob("cron-*.yml"))
+
+          errors = 0
+          warnings = 0
+
+          for workflow_path in workflows:
+              if workflow_path.name == "cron-validation.yml":
+                  continue
+
+              print(f"\n📋 {workflow_path.name}")
+
+              with open(workflow_path) as f:
+                  content = f.read()
+
+              # Extract API endpoint URLs from curl commands
+              # Pattern: /api/cron/something
+              endpoints = re.findall(r'/api/cron/([a-z-]+)', content)
+
+              if not endpoints:
+                  print("  ⚠️  No API endpoint found in workflow")
+                  warnings += 1
+                  continue
+
+              for endpoint in set(endpoints):
+                  route_path = Path(f"src/routes/api/cron/{endpoint}/+server.ts")
+                  if route_path.exists():
+                      print(f"  ✓ /api/cron/{endpoint} → {route_path}")
+                  else:
+                      print(f"  ❌ /api/cron/{endpoint} → Route file not found!")
+                      errors += 1
+
+          print(f"\n{'='*50}")
+          if errors > 0:
+              print(f"❌ Found {errors} missing API endpoints")
+              exit(1)
+          elif warnings > 0:
+              print(f"⚠️  {warnings} warnings, but no errors")
+          else:
+              print("✅ All API endpoints exist")
+          EOF
+
+      - name: Generate cron schedule summary
+        run: |
+          echo ""
+          echo "📅 Cron Schedule Summary"
+          echo "========================"
+          echo ""
+
+          python3 << 'EOF'
+          import yaml
+          from pathlib import Path
+
+          # Day names for readability
+          days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+
+          def parse_schedule(cron_expr):
+              """Convert cron to human-readable format."""
+              parts = cron_expr.strip().split()
+              minute, hour, dom, month, dow = parts
+
+              time_str = f"{hour.zfill(2)}:{minute.zfill(2)} UTC"
+
+              if dow != "*":
+                  if "," in dow:
+                      day_nums = [int(d) for d in dow.split(",")]
+                      day_names = [days[d] for d in day_nums]
+                      return f"{', '.join(day_names)} at {time_str}"
+                  else:
+                      return f"{days[int(dow)]} at {time_str}"
+              elif dom != "*":
+                  return f"Day {dom} of month at {time_str}"
+              else:
+                  return f"Daily at {time_str}"
+
+          schedules = []
+          for workflow_path in sorted(Path(".github/workflows").glob("cron-*.yml")):
+              if workflow_path.name == "cron-validation.yml":
+                  continue
+
+              with open(workflow_path) as f:
+                  workflow = yaml.safe_load(f)
+
+              name = workflow.get("name", workflow_path.stem)
+              on_config = workflow.get("on", {})
+
+              if isinstance(on_config, dict) and "schedule" in on_config:
+                  for sched in on_config.get("schedule", []):
+                      cron = sched.get("cron", "")
+                      if cron:
+                          readable = parse_schedule(cron)
+                          schedules.append((readable, name, cron))
+
+          # Sort by day of week for readability
+          day_order = {"Sunday": 0, "Monday": 1, "Tuesday": 2, "Wednesday": 3, "Thursday": 4, "Friday": 5, "Saturday": 6, "Daily": 7}
+
+          def sort_key(item):
+              readable = item[0]
+              for day, order in day_order.items():
+                  if readable.startswith(day):
+                      return (order, readable)
+              return (99, readable)
+
+          schedules.sort(key=sort_key)
+
+          for readable, name, cron in schedules:
+              print(f"  • {readable}")
+              print(f"    └─ {name}")
+              print(f"       ({cron})")
+              print()
+          EOF
