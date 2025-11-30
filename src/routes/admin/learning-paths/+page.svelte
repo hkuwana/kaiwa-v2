@@ -12,10 +12,7 @@
 	 */
 
 	import { onMount } from 'svelte';
-	import {
-		fillLearningPathBriefPrompt,
-		type ScaffoldingLevel
-	} from '$lib/data/prompts';
+	import { fillLearningPathBriefPrompt, type ScaffoldingLevel } from '$lib/data/prompts';
 
 	// Props from +page.server.ts
 	let { data } = $props();
@@ -94,7 +91,9 @@
 
 	// Languages loaded from database/data file via +page.server.ts
 	function getLanguageName(code: string): string {
-		return data.languages.find((l: { code: string; name: string }) => l.code === code)?.name || code;
+		return (
+			data.languages.find((l: { code: string; name: string }) => l.code === code)?.name || code
+		);
 	}
 
 	function getFilledPrompt(): string {
@@ -582,7 +581,7 @@
 						<div class="grid grid-cols-3 gap-4">
 							<div class="form-control">
 								<label class="label"><span class="label-text">Target Language</span></label>
-								<select class="select select-bordered" bind:value={transcriptLanguage}>
+								<select class="select-bordered select" bind:value={transcriptLanguage}>
 									{#each data.languages as lang}
 										<option value={lang.code}>{lang.name}</option>
 									{/each}
@@ -860,7 +859,7 @@ Example:
 			<div class="grid gap-6 lg:grid-cols-3">
 				<div class="form-control">
 					<label class="label"><span class="label-text">Target Language</span></label>
-					<select class="select select-bordered" bind:value={targetLanguage}>
+					<select class="select-bordered select" bind:value={targetLanguage}>
 						{#each data.languages as lang}
 							<option value={lang.code}>{lang.name}</option>
 						{/each}
