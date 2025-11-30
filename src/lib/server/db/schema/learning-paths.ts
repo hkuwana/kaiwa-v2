@@ -1,4 +1,14 @@
-import { pgTable, text, timestamp, jsonb, index, boolean, uuid, pgEnum } from 'drizzle-orm/pg-core';
+import {
+	pgTable,
+	text,
+	timestamp,
+	jsonb,
+	index,
+	boolean,
+	uuid,
+	pgEnum,
+	integer
+} from 'drizzle-orm/pg-core';
 import { users } from './users';
 
 /**
@@ -9,6 +19,14 @@ export const learningPathStatusEnum = pgEnum('learning_path_status', [
 	'active',
 	'archived'
 ]);
+
+/**
+ * Learning path mode enumeration
+ *
+ * - 'classic': Fixed 28-day schedule with rigid daily structure
+ * - 'adaptive': Flexible weekly themes that adapt based on progress
+ */
+export const learningPathModeEnum = pgEnum('learning_path_mode', ['classic', 'adaptive']);
 
 /**
  * Day schedule entry type for learning path schedule
@@ -22,18 +40,27 @@ export type DayScheduleEntry = {
 };
 
 /**
- * 📚 Learning Paths table - Defines 4-week structured learning curricula
+ * 📚 Learning Paths table - Defines multi-week structured learning curricula
  *
  * This table stores learning path definitions that guide users through multi-week
- * learning programs. Each path contains a schedule of daily lessons with themes,
- * difficulty progression, and linked scenarios. Paths can be:
- * - User-specific (created from preferences)
- * - Creator-authored (custom courses)
- * - Anonymous templates (public, SEO-friendly versions)
+ * learning programs. Supports two modes:
+ *
+ * **Classic Mode (mode='classic'):**
+ * - Fixed 28-day schedule with rigid daily structure
+ * - Each day has a specific theme and scenario
+ * - Progress measured by "Day X of 28"
+ *
+ * **Adaptive Mode (mode='adaptive'):**
+ * - Flexible weekly themes that breathe
+ * - Users pick session types based on time/mood
+ * - Weekly analysis shapes next week's content
+ * - Progress measured by "conversations this week"
+ * - No "Day 5 of 28" guilt
  *
  * **Key Features:**
- * - 📅 4-week (or custom length) structured schedules
- * - 🎯 Daily themes and difficulty progression
+ * - 📅 Multi-week structured curricula (4 weeks default)
+ * - 🔄 Classic (rigid) or Adaptive (flexible) modes
+ * - 🎯 Daily themes (classic) or weekly themes (adaptive)
  * - 🔗 Links to generated scenarios
  * - 👤 User-specific or anonymous templates
  * - 🌐 Public templates for SEO/discovery
@@ -89,7 +116,14 @@ export const learningPaths = pgTable(
 		// Target language for this path (e.g., 'ja', 'es', 'fr')
 		targetLanguage: text('target_language').notNull(),
 
+		// Path mode: classic (rigid 28-day) or adaptive (flexible weekly)
+		mode: learningPathModeEnum('mode').default('classic').notNull(),
+
+		// Number of weeks (typically 4, but configurable)
+		durationWeeks: integer('duration_weeks').default(4).notNull(),
+
 		// Ordered array of day entries with themes, difficulty, and scenario IDs
+		// Only used in 'classic' mode. In 'adaptive' mode, use adaptive_weeks table.
 		schedule: jsonb('schedule').$type<DayScheduleEntry[]>().notNull().default([]),
 
 		// Template vs user-specific path
@@ -116,6 +150,11 @@ export const learningPaths = pgTable(
 			estimatedMinutesPerDay?: number; // e.g., 20
 			category?: string; // e.g., 'relationships', 'professional'
 			tags?: string[]; // e.g., ['family', 'formal', 'dinner']
+			// Adaptive mode specific
+			suggestedSessionsPerWeek?: number; // e.g., 5
+			minimumSessionsPerWeek?: number; // e.g., 3
+			targetMinutesPerSession?: number; // e.g., 7
+			weekThemeTemplate?: string; // e.g., 'meet-family', 'daily-life'
 		}>(),
 
 		createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -133,11 +172,14 @@ export const learningPaths = pgTable(
 		index('learning_paths_status_idx').on(table.status),
 		index('learning_paths_share_slug_idx').on(table.shareSlug),
 		index('learning_paths_target_language_idx').on(table.targetLanguage),
+		index('learning_paths_mode_idx').on(table.mode),
 		// Composite index for public template discovery
 		index('learning_paths_public_templates_idx').on(table.isTemplate, table.isPublic),
 		// Composite index for user's active paths
 		index('learning_paths_user_active_idx').on(table.userId, table.status),
 		// Index for creator-authored paths
-		index('learning_paths_creator_idx').on(table.createdByUserId)
+		index('learning_paths_creator_idx').on(table.createdByUserId),
+		// Composite index for adaptive paths by mode and status
+		index('learning_paths_mode_status_idx').on(table.mode, table.status)
 	]
 );

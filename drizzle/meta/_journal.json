@@ -253,6 +253,13 @@
       "when": 1764056339313,
       "tag": "0035_silky_paper_doll",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1764516544883,
+      "tag": "0036_spooky_prism",
+      "breakpoints": true
     }
   ]
 }

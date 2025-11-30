@@ -98,7 +98,12 @@ export const learningPathAssignments = pgTable(
 		startsAt: timestamp('starts_at').notNull(),
 
 		// Current progress (0 = not started, 1-28 = current day)
+		// Used in classic mode
 		currentDayIndex: integer('current_day_index').default(0).notNull(),
+
+		// Current week number (1-4 typically)
+		// Used in adaptive mode
+		currentWeekNumber: integer('current_week_number').default(1).notNull(),
 
 		// When user completed the path (null if in progress)
 		completedAt: timestamp('completed_at'),
