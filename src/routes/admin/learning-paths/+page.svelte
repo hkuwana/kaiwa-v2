@@ -12,7 +12,7 @@
 	 */
 
 	import { onMount } from 'svelte';
-	import { fillLearningPathBriefPrompt } from '$lib/data/prompts';
+	import { fillLearningPathBriefPrompt, SCAFFOLDING_LEVELS, WEEKLY_PROGRESSION, type ScaffoldingLevel } from '$lib/data/prompts';
 
 	// Current phase
 	let currentPhase = $state<1 | 2 | 3 | 4 | 5>(1);
@@ -42,9 +42,18 @@
 	// ========================================
 	let transcriptInput = $state('');
 	let transcriptLanguage = $state('ja');
-	let transcriptDuration = $state(14);
+	let transcriptDuration = $state(28);
+	let learnerLevel = $state<ScaffoldingLevel>('elementary');
 	let generatedBrief = $state('');
 	let briefCopied = $state(false);
+
+	// Available scaffolding levels for the dropdown - with friendly labels
+	const LEVELS = [
+		{ code: 'beginner' as ScaffoldingLevel, label: 'Just starting', description: 'Knows hello/goodbye, counting' },
+		{ code: 'elementary' as ScaffoldingLevel, label: 'Knows basics', description: 'Simple sentences, common phrases' },
+		{ code: 'intermediate' as ScaffoldingLevel, label: 'Can chat a bit', description: 'Holds basic conversations' },
+		{ code: 'advanced' as ScaffoldingLevel, label: 'Pretty fluent', description: 'Needs real-world polish' }
+	];
 
 	const LANGUAGES = [
 		{ code: 'ja', name: 'Japanese' },
@@ -84,6 +93,17 @@
 	 * Auto-create the learning path when brief is ready
 	 * Skips the manual "Build" phase and goes straight to Review
 	 */
+	// Map scaffolding level to difficulty range
+	function getDifficultyRange(level: ScaffoldingLevel): { min: string; max: string } {
+		const ranges: Record<ScaffoldingLevel, { min: string; max: string }> = {
+			beginner: { min: 'A1', max: 'A2' },
+			elementary: { min: 'A2', max: 'B1' },
+			intermediate: { min: 'B1', max: 'B2' },
+			advanced: { min: 'B2', max: 'C1' }
+		};
+		return ranges[level];
+	}
+
 	async function proceedToBuild() {
 		if (!generatedBrief) {
 			showMessage('Please paste the AI-generated brief first.', 'error');
@@ -99,6 +119,8 @@
 		loading = true;
 		showMessage('Creating your learning path...', 'info');
 
+		const difficultyRange = getDifficultyRange(learnerLevel);
+
 		try {
 			const response = await fetchWithTimeout('/api/learning-paths/from-brief', {
 				method: 'POST',
@@ -107,8 +129,9 @@
 					brief: generatedBrief,
 					targetLanguage: transcriptLanguage,
 					duration: transcriptDuration,
-					difficultyRange: { min: 'A2', max: 'B1' },
-					primarySkill: 'conversation'
+					difficultyRange,
+					primarySkill: 'conversation',
+					learnerLevel // Pass the scaffolding level
 				})
 			});
 
@@ -473,7 +496,7 @@
 				<div class="grid gap-6 lg:grid-cols-2">
 					<!-- Left: Input -->
 					<div class="space-y-4">
-						<div class="grid grid-cols-2 gap-4">
+						<div class="grid grid-cols-3 gap-4">
 							<div class="form-control">
 								<label class="label"><span class="label-text">Target Language</span></label>
 								<select class="select select-bordered" bind:value={transcriptLanguage}>
@@ -483,13 +506,67 @@
 								</select>
 							</div>
 							<div class="form-control">
+								<label class="label"><span class="label-text">Where are they at?</span></label>
+								<select class="select select-bordered" bind:value={learnerLevel}>
+									{#each LEVELS as level}
+										<option value={level.code}>{level.label}</option>
+									{/each}
+								</select>
+							</div>
+							<div class="form-control">
 								<label class="label"><span class="label-text">Duration</span></label>
 								<select class="select select-bordered" bind:value={transcriptDuration}>
-									<option value={7}>7 days</option>
-									<option value={14}>14 days</option>
-									<option value={21}>21 days</option>
-									<option value={28}>28 days</option>
+									<option value={14}>14 days (2 weeks)</option>
+									<option value={21}>21 days (3 weeks)</option>
+									<option value={28}>28 days (4 weeks)</option>
 								</select>
+							</div>
+						</div>
+
+						<!-- Level-specific experience preview -->
+						{@const selectedLevel = LEVELS.find(l => l.code === learnerLevel)}
+						<div class="rounded-lg border border-primary/20 bg-primary/5 p-3">
+							<p class="text-sm">
+								<span class="font-medium text-primary">{selectedLevel?.label}:</span>
+								<span class="text-base-content/70">{selectedLevel?.description}</span>
+							</p>
+							<p class="mt-1 text-xs text-base-content/60">
+								{#if learnerLevel === 'beginner'}
+									→ They'll get full translations, simple phrases, and lots of encouragement
+								{:else if learnerLevel === 'elementary'}
+									→ They'll get translations for new words, 2-3 turn exchanges, gentle corrections
+								{:else if learnerLevel === 'intermediate'}
+									→ They'll practice natural conversations with hints when stuck
+								{:else}
+									→ Native-like conversations with slang, idioms, and cultural nuances
+								{/if}
+							</p>
+						</div>
+
+						<!-- What They'll Practice Preview -->
+						<div class="rounded-lg bg-base-200/50 p-3">
+							<p class="mb-2 text-xs font-medium text-base-content/70">What they'll practice over {transcriptDuration} days:</p>
+							<div class="grid grid-cols-4 gap-2 text-xs">
+								<div class="rounded bg-base-100 p-2">
+									<div class="font-medium text-primary">Week 1</div>
+									<div class="text-base-content/80">Learning key words & phrases</div>
+									<div class="mt-1 text-base-content/50 italic">"Hello", "Thank you", numbers...</div>
+								</div>
+								<div class="rounded bg-base-100 p-2">
+									<div class="font-medium text-primary">Week 2</div>
+									<div class="text-base-content/80">Short back-and-forth</div>
+									<div class="mt-1 text-base-content/50 italic">Ordering coffee, asking prices...</div>
+								</div>
+								<div class="rounded bg-base-100 p-2">
+									<div class="font-medium text-primary">Week 3</div>
+									<div class="text-base-content/80">Guided conversations</div>
+									<div class="mt-1 text-base-content/50 italic">Restaurant ordering with hints...</div>
+								</div>
+								<div class="rounded bg-base-100 p-2">
+									<div class="font-medium text-primary">Week 4</div>
+									<div class="text-base-content/80">Real conversations</div>
+									<div class="mt-1 text-base-content/50 italic">Full scenarios, handle surprises...</div>
+								</div>
 							</div>
 						</div>
 
@@ -643,19 +720,26 @@ Example:
 					</div>
 
 					<!-- Calendar View -->
-					<h3 class="mb-4 font-medium">28-Day Calendar</h3>
+					<h3 class="mb-4 font-medium">What they'll practice each day</h3>
 					<div class="grid gap-4 lg:grid-cols-4">
 						{#each [1, 2, 3, 4] as week}
+							{@const weekLabel = week === 1 ? 'Building blocks' : week === 2 ? 'Short exchanges' : week === 3 ? 'With guidance' : 'Full conversations'}
 							<div class="rounded-lg bg-base-200 p-4">
-								<h4 class="mb-3 text-sm font-semibold text-base-content/70">Week {week}</h4>
+								<h4 class="mb-1 text-sm font-semibold">Week {week}</h4>
+								<p class="mb-3 text-xs text-base-content/60">{weekLabel}</p>
 								<div class="space-y-2">
 									{#each (path.schedule || []).filter((d: any) => getWeekNumber(d.dayIndex) === week) as day}
-										<div class="rounded bg-base-100 p-2 text-xs">
+										<div class="rounded bg-base-100 p-2 text-xs transition hover:shadow-sm">
 											<div class="flex items-center justify-between">
-												<span class="font-medium">Day {day.dayIndex}</span>
-												<span class="badge badge-xs">{day.difficulty || 'A2'}</span>
+												<span class="font-medium text-primary">Day {day.dayIndex}</span>
+												<span class="text-base-content/40">{getDayOfWeek(day.dayIndex)}</span>
 											</div>
-											<p class="mt-1 text-base-content/70 line-clamp-2">{day.theme || 'TBD'}</p>
+											<p class="mt-1 text-base-content/80 line-clamp-2">{day.theme || 'Scenario TBD'}</p>
+											{#if day.learningObjectives?.length}
+												<p class="mt-1 text-base-content/50 line-clamp-1">
+													Goal: {day.learningObjectives[0]}
+												</p>
+											{/if}
 										</div>
 									{/each}
 								</div>
@@ -684,48 +768,81 @@ Example:
 		<div class="rounded-2xl border border-base-200 bg-base-100 p-6">
 			{#if selectedPath || createdPath}
 				{@const path = selectedPath || createdPath}
-				<h2 class="mb-2 text-xl font-medium">Step 4: Assign to User</h2>
+				<h2 class="mb-2 text-xl font-medium">Send to your learner</h2>
 				<p class="mb-6 text-sm text-base-content/60">
-					Assign "{path.title}" to a user and send them a notification email.
+					Assign this personalized path and optionally send a notification email.
 				</p>
 
-				<div class="mx-auto max-w-md space-y-4">
-					<div class="form-control">
-						<label class="label"><span class="label-text">User Email</span></label>
-						<input
-							type="email"
-							class="input input-bordered"
-							bind:value={assignEmail}
-							placeholder="user@example.com"
-						/>
+				<div class="grid gap-6 lg:grid-cols-2">
+					<!-- Left: Path Summary -->
+					<div class="space-y-4">
+						<div class="rounded-lg bg-base-200 p-4">
+							<h3 class="font-medium">{path.title}</h3>
+							<p class="mt-1 text-sm text-base-content/70">{path.description}</p>
+							<div class="mt-3 flex flex-wrap gap-2">
+								<span class="badge">{path.targetLanguage}</span>
+								<span class="badge">{path.schedule?.length || 0} days</span>
+							</div>
+						</div>
+
+						<!-- Quick preview of scenarios -->
+						<div class="rounded-lg border border-base-200 p-4">
+							<p class="mb-2 text-xs font-medium text-base-content/60">Sample scenarios they'll practice:</p>
+							<ul class="space-y-1 text-sm">
+								{#each (path.schedule || []).slice(0, 3) as day}
+									<li class="flex items-start gap-2">
+										<span class="text-primary">Day {day.dayIndex}:</span>
+										<span class="text-base-content/70">{day.theme || 'TBD'}</span>
+									</li>
+								{/each}
+								{#if (path.schedule?.length || 0) > 3}
+									<li class="text-base-content/50">...and {path.schedule.length - 3} more days</li>
+								{/if}
+							</ul>
+						</div>
 					</div>
 
-					<div class="form-control">
-						<label class="label"><span class="label-text">Personal Note (optional)</span></label>
-						<textarea
-							class="textarea textarea-bordered"
-							bind:value={assignNote}
-							placeholder="Hey! I've created a custom learning path for you based on our call..."
-						></textarea>
-					</div>
+					<!-- Right: Assignment Form -->
+					<div class="space-y-4">
+						<div class="form-control">
+							<label class="label"><span class="label-text">Their email address</span></label>
+							<input
+								type="email"
+								class="input input-bordered"
+								bind:value={assignEmail}
+								placeholder="learner@example.com"
+							/>
+						</div>
 
-					<label class="flex cursor-pointer items-center gap-3">
-						<input type="checkbox" class="checkbox checkbox-primary" bind:checked={sendEmailNotification} />
-						<span class="label-text">Send email notification to user</span>
-					</label>
+						<div class="form-control">
+							<label class="label"><span class="label-text">Personal message (optional)</span></label>
+							<textarea
+								class="textarea textarea-bordered"
+								bind:value={assignNote}
+								placeholder="Hey! I've created this learning path just for you based on our conversation..."
+							></textarea>
+						</div>
 
-					<div class="rounded-lg bg-info/10 p-4 text-sm">
-						<p class="font-medium text-info">Email Preview:</p>
-						<p class="mt-1 text-base-content/70">
-							"Hi! Your personalized learning path is ready. View it at kaiwa.app/my-path/..."
-						</p>
-					</div>
+						<label class="flex cursor-pointer items-center gap-3">
+							<input type="checkbox" class="checkbox checkbox-primary" bind:checked={sendEmailNotification} />
+							<span class="label-text">Send email notification</span>
+						</label>
 
-					<div class="flex justify-end gap-2 pt-4">
-						<button class="btn btn-ghost" onclick={() => (currentPhase = 3)}>Back</button>
-						<button class="btn btn-primary" onclick={assignPath} disabled={loading || !assignEmail}>
-							{loading ? 'Assigning...' : sendEmailNotification ? 'Assign & Send Email' : 'Assign'}
-						</button>
+						{#if sendEmailNotification}
+							<div class="rounded-lg bg-success/10 p-3 text-sm">
+								<p class="font-medium text-success">They'll receive:</p>
+								<p class="mt-1 text-base-content/70">
+									An email with a link to start their personalized learning journey.
+								</p>
+							</div>
+						{/if}
+
+						<div class="flex justify-end gap-2 pt-4">
+							<button class="btn btn-ghost" onclick={() => (currentPhase = 3)}>Back</button>
+							<button class="btn btn-primary" onclick={assignPath} disabled={loading || !assignEmail}>
+								{loading ? 'Sending...' : sendEmailNotification ? 'Send Path' : 'Assign'}
+							</button>
+						</div>
 					</div>
 				</div>
 			{:else}
