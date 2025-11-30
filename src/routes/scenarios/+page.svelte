@@ -620,8 +620,8 @@
 	{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
 	<div
 		class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
-		on:click={closeScenarioDetails}
-		on:keydown={(event) => {
+		onclick={closeScenarioDetails}
+		onkeydown={(event) => {
 			if (event.key === 'Escape' || event.key === 'Enter' || event.key === ' ') {
 				event.preventDefault();
 				closeScenarioDetails();
