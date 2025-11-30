@@ -3,7 +3,11 @@
 import { logger } from '$lib/logger';
 import { scenarioGenerationQueueRepository } from '$lib/server/repositories/scenario-generation-queue.repository';
 import { learningPathRepository } from '$lib/server/repositories/learning-path.repository';
+import { scenarioRepository } from '$lib/server/repositories';
 import type { ScenarioGenerationQueue } from '$lib/server/db/schema/scenario-generation-queue';
+import { generateScenarioWithGPT } from '$lib/server/services/openai.service';
+import { randomUUID } from 'crypto';
+import type { NewScenario } from '$lib/server/db/types';
 
 /**
  * QueueProcessorService - Processes scenario generation queue
@@ -149,7 +153,7 @@ export class QueueProcessorService {
 	}
 
 	/**
-	 * Process a single queue job
+	 * Process a single queue job - generates a scenario for a learning path day
 	 *
 	 * @param job - Queue job to process
 	 */
@@ -171,12 +175,8 @@ export class QueueProcessorService {
 			throw new Error(`Day ${job.dayIndex} not found in path ${job.pathId} schedule`);
 		}
 
-		// TODO: Generate actual scenario using existing scenario generation service
-		// For now, we'll mark it as ready with placeholder
-		// In a future PR, this will call the actual scenario generation service
-
 		logger.info(
-			`🎬 [QueueProcessor] Scenario generation for path ${job.pathId} day ${job.dayIndex}`,
+			`🎬 [QueueProcessor] Generating scenario for path ${job.pathId} day ${job.dayIndex}`,
 			{
 				theme: daySchedule.theme,
 				difficulty: daySchedule.difficulty,
@@ -184,20 +184,132 @@ export class QueueProcessorService {
 			}
 		);
 
-		// For now, just mark as ready
-		// Future enhancement: Create actual scenario record and link it
-		await scenarioGenerationQueueRepository.markJobReady(job.id);
+		// Build a description for scenario generation from the day's content
+		const scenarioDescription = this.buildScenarioDescription(daySchedule, path.targetLanguage);
 
-		// Update path schedule to mark day as ready (scenario ready even if null for now)
+		// Generate the scenario using GPT
+		const { content: generatedContent } = await generateScenarioWithGPT({
+			description: scenarioDescription,
+			mode: 'tutor',
+			languageId: path.targetLanguage
+		});
+
+		// Create the scenario in the database
+		const scenarioId = `lp-sc-${randomUUID()}`;
+		const now = new Date();
+
+		const newScenario: NewScenario = {
+			id: scenarioId,
+			title: generatedContent.title || daySchedule.theme,
+			description: generatedContent.description || daySchedule.scenarioDescription || '',
+			role: 'tutor',
+			difficulty: this.mapCefrToDifficulty(daySchedule.difficulty),
+			difficultyRating: this.getDifficultyRating(daySchedule.difficulty),
+			cefrLevel: daySchedule.difficulty?.toUpperCase() || 'A2',
+			cefrRecommendation: daySchedule.difficulty?.toUpperCase() || 'A2',
+			learningGoal: generatedContent.learningGoal || daySchedule.learningObjectives?.[0] || null,
+			instructions: generatedContent.instructions,
+			context: generatedContent.context,
+			expectedOutcome: generatedContent.expectedOutcome,
+			learningObjectives:
+				daySchedule.learningObjectives || generatedContent.learningObjectives || [],
+			persona: generatedContent.persona,
+			visibility: 'private', // Learning path scenarios are private by default
+			createdByUserId: path.userId,
+			usageCount: 0,
+			isActive: true,
+			// Link to learning path
+			categories: [path.category || 'learning-path'],
+			tags: [`learning-path:${job.pathId}`, `day:${job.dayIndex}`],
+			primarySkill: 'conversation',
+			comfortIndicators: null,
+			searchKeywords: null,
+			thumbnailUrl: null,
+			estimatedDurationSeconds: (path.estimatedMinutesPerDay || 15) * 60,
+			authorDisplayName: null,
+			shareSlug: null,
+			shareUrl: null
+		};
+
+		const createdScenario = await scenarioRepository.createScenario(newScenario);
+
+		logger.info(
+			`✅ [QueueProcessor] Created scenario ${createdScenario.id} for day ${job.dayIndex}`
+		);
+
+		// Update path schedule to link the scenario
 		const updatedSchedule = path.schedule.map((day) =>
-			day.dayIndex === job.dayIndex ? { ...day, scenarioId: null, isUnlocked: true } : day
+			day.dayIndex === job.dayIndex
+				? { ...day, scenarioId: createdScenario.id, isUnlocked: day.dayIndex === 1 }
+				: day
 		);
 
 		await learningPathRepository.updatePathSchedule(job.pathId, updatedSchedule);
 
-		logger.info(`✅ [QueueProcessor] Job ${job.id} marked as ready`);
-		// Note: If anything fails, the job stays in processing state
-		// and will be picked up by retry logic in the main loop
+		// Mark job as ready
+		await scenarioGenerationQueueRepository.markJobReady(job.id);
+
+		// Check if this is the first scenario - if so, activate the path
+		if (job.dayIndex === 1 && path.status === 'draft') {
+			await learningPathRepository.updatePathStatus(job.pathId, 'active');
+			logger.info(`🚀 [QueueProcessor] Path ${job.pathId} activated - first scenario ready`);
+		}
+
+		logger.info(`✅ [QueueProcessor] Job ${job.id} completed successfully`);
+	}
+
+	/**
+	 * Build a detailed description for scenario generation from day schedule
+	 */
+	private static buildScenarioDescription(
+		daySchedule: {
+			theme: string;
+			difficulty: string;
+			learningObjectives?: string[];
+			scenarioDescription?: string;
+		},
+		targetLanguage: string
+	): string {
+		const parts = [
+			`Create a ${targetLanguage.toUpperCase()} language learning scenario.`,
+			`Theme: ${daySchedule.theme}`,
+			`Difficulty: ${daySchedule.difficulty}`
+		];
+
+		if (daySchedule.learningObjectives?.length) {
+			parts.push(`Learning objectives: ${daySchedule.learningObjectives.join(', ')}`);
+		}
+
+		if (daySchedule.scenarioDescription) {
+			parts.push(`Scenario context: ${daySchedule.scenarioDescription}`);
+		}
+
+		return parts.join('\n');
+	}
+
+	/**
+	 * Map CEFR level to difficulty enum
+	 */
+	private static mapCefrToDifficulty(cefr?: string): 'beginner' | 'intermediate' | 'advanced' {
+		if (!cefr) return 'intermediate';
+		const upper = cefr.toUpperCase();
+		if (upper.startsWith('A')) return 'beginner';
+		if (upper.startsWith('C')) return 'advanced';
+		return 'intermediate';
+	}
+
+	/**
+	 * Get numeric difficulty rating from CEFR
+	 */
+	private static getDifficultyRating(cefr?: string): number {
+		if (!cefr) return 3;
+		const upper = cefr.toUpperCase();
+		if (upper === 'A1') return 1;
+		if (upper === 'A2') return 2;
+		if (upper === 'B1') return 3;
+		if (upper === 'B2') return 4;
+		if (upper.startsWith('C')) return 5;
+		return 3;
 	}
 
 	/**

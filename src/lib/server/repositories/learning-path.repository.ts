@@ -3,7 +3,7 @@
 import { db } from '$lib/server/db/index';
 import { learningPaths } from '$lib/server/db/schema';
 import type { NewLearningPath, LearningPath } from '$lib/server/db/types';
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { eq, and, desc, sql, ne } from 'drizzle-orm';
 
 export const learningPathRepository = {
 	// CREATE
@@ -71,8 +71,10 @@ export const learningPathRepository = {
 	): Promise<LearningPath[]> {
 		const conditions = [eq(learningPaths.userId, userId)];
 
+		// By default, show draft and active paths (exclude only archived)
+		// If includeArchived is true, show everything
 		if (!options?.includeArchived) {
-			conditions.push(eq(learningPaths.status, 'active'));
+			conditions.push(ne(learningPaths.status, 'archived'));
 		}
 
 		return db.query.learningPaths.findMany({

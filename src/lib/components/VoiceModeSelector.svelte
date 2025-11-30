@@ -32,7 +32,7 @@
 
 	<label class="label cursor-pointer">
 		<span class="label-text flex items-center gap-2">
-			<span class="h-5 w-5 text-base-content/70 icon-[mdi--gesture-tap-button]"></span>
+			<span class="icon-[mdi--gesture-tap-button] h-5 w-5 text-base-content/70"></span>
 			<span class="font-medium">Push to Talk</span>
 		</span>
 		<input

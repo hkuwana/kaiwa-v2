@@ -481,7 +481,7 @@ export async function generateScenarioDraft(
 				{ ...content, title: content.title || desc.slice(0, 60) },
 				now
 			),
-			sourceModel: 'gpt-4o-mini',
+			sourceModel: 'gpt-5-nano',
 			tokensUsed
 		};
 	} catch (error) {
@@ -506,7 +506,7 @@ export async function generateScenarioFromMemories(
 	try {
 		logger.info('🎭 [Scenario] Calling GPT for memories', { count: memories.length, mode });
 		const { content, tokensUsed } = await generateScenarioWithGPT({ memories, mode, languageId });
-		return { draft: buildScenario(id, mode, content, now), sourceModel: 'gpt-4o-mini', tokensUsed };
+		return { draft: buildScenario(id, mode, content, now), sourceModel: 'gpt-5-nano', tokensUsed };
 	} catch (error) {
 		logger.warn('🎭 [Scenario] GPT failed for memories', { error: (error as Error).message });
 		const memText = memories.slice(0, 5).join(' ');

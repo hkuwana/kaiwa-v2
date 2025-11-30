@@ -340,4 +340,4 @@ PR #4 is working correctly if:
 - Production paths will typically be 28-30 days
 - Queue jobs won't be processed until PR #5 (queue processor) is implemented
 - OpenAI API calls may take 5-10 seconds per path generation
-- Costs: ~$0.01-0.02 per test run (using gpt-4o-mini)
+- Costs: ~$0.01-0.02 per test run (using gpt-5-nano)

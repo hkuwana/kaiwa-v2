@@ -4,7 +4,11 @@
 	const { children, data } = $props();
 
 	const navItems = [
-		{ href: '/admin/learning-paths', label: 'Learning Paths', icon: 'icon-[mdi--book-education-outline]' }
+		{
+			href: '/admin/learning-paths',
+			label: 'Learning Paths',
+			icon: 'icon-[mdi--book-education-outline]'
+		}
 	];
 
 	function isActive(href: string): boolean {

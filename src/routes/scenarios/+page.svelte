@@ -617,19 +617,19 @@
 {#if selectedScenario}
 	{@const scenario = selectedScenario}
 	{@const meta = getScenarioMeta(scenario)}
-		{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
-		<div
-				class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
-				on:click={closeScenarioDetails}
-				on:keydown={(event) => {
-						if (event.key === 'Escape' || event.key === 'Enter' || event.key === ' ') {
-								event.preventDefault();
-								closeScenarioDetails();
-						}
-				}}
-				role="button"
-				tabindex="0"
-		>
+	{@const difficultyTier = getDifficultyTier(scenario.difficultyRating)}
+	<div
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+		onclick={closeScenarioDetails}
+		onkeydown={(event) => {
+			if (event.key === 'Escape' || event.key === 'Enter' || event.key === ' ') {
+				event.preventDefault();
+				closeScenarioDetails();
+			}
+		}}
+		role="button"
+		tabindex="0"
+	>
 		<div
 			class="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-base-100 shadow-2xl"
 			onclick={(e) => e.stopPropagation()}
