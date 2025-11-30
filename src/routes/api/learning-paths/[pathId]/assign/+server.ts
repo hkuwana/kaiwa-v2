@@ -114,7 +114,7 @@ export const POST: RequestHandler = async ({ params, request, locals, url }) => 
 		if (sendEmail && env.RESEND_API_KEY && env.RESEND_API_KEY !== 're_dummy_resend_key') {
 			try {
 				const baseUrl = url.origin;
-				const pathUrl = `${baseUrl}/my-path/${pathId}`;
+				const pathUrl = `${baseUrl}/path/${pathId}`;
 
 				const result = await resend.emails.send({
 					from: 'Kaiwa <hiro@trykaiwa.com>',
