@@ -8,6 +8,7 @@ import { PromptEngineeringService } from './PromptEngineeringService';
 import { learningPathRepository } from '$lib/server/repositories/learning-path.repository';
 import { learningPathAssignmentRepository } from '$lib/server/repositories/learning-path-assignment.repository';
 import { scenarioGenerationQueueRepository } from '$lib/server/repositories/scenario-generation-queue.repository';
+import { getModelForTask } from '$lib/server/config/ai-models.config';
 import type {
 	PathFromPreferencesInput,
 	PathFromCreatorBriefInput,
@@ -221,7 +222,7 @@ export class PathGeneratorService {
 			});
 
 			const response = await createCompletion(messages, {
-				model: 'gpt-4o-mini',
+				model: getModelForTask('pathwaySyllabus'), // Uses GPT-5 Nano for fast, cost-efficient generation
 				temperature: 0.7, // Balanced creativity and consistency
 				maxTokens: 3000, // Allow for detailed syllabus
 				responseFormat: 'json'

@@ -4,6 +4,7 @@ import type {
 	AnalysisModuleId
 } from '../types/analysis-module.types';
 import { createCompletion } from '$lib/server/services/openai.service';
+import { getModelForTask } from '$lib/server/config/ai-models.config';
 
 const registry: Record<AnalysisModuleId, AnalysisModuleDefinition> = {
 	'quick-stats': {
@@ -119,7 +120,7 @@ Respond ONLY with valid JSON.`;
 						{ role: 'user', content: userPrompt }
 					],
 					{
-						model: 'gpt-4o-mini',
+						model: getModelForTask('grammarCorrection'), // Grammar uses NANO for fast suggestions
 						temperature: 0.1,
 						maxTokens: 1200,
 						responseFormat: 'json'
@@ -243,7 +244,7 @@ Provide analysis in JSON format:
 						{ role: 'user', content: userPrompt }
 					],
 					{
-						model: 'gpt-4o-mini',
+						model: getModelForTask('detailedAnalysis'), // Assessment uses MINI for nuanced analysis
 						temperature: 0.3,
 						maxTokens: 1000,
 						responseFormat: 'json'
