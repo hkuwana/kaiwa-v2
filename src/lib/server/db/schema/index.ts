@@ -88,13 +88,41 @@ export { scenarioMetadata } from './scenario-metadata';
 export { userScenarioProgress } from './user-scenario-progress';
 
 // 📚 Learning Paths (structured multi-week learning programs)
-export { learningPaths, learningPathStatusEnum } from './learning-paths';
+export { learningPaths, learningPathStatusEnum, learningPathModeEnum } from './learning-paths';
 export { scenarioGenerationQueue, queueStatusEnum } from './scenario-generation-queue';
 export {
 	learningPathAssignments,
 	assignmentRoleEnum,
 	assignmentStatusEnum
 } from './learning-path-assignments';
+
+// 🔄 Adaptive Learning System (flexible weekly themes)
+export { sessionTypes, sessionTypeCategoryEnum, DEFAULT_SESSION_TYPES } from './session-types';
+export {
+	adaptiveWeeks,
+	weekStatusEnum,
+	DEFAULT_WEEK_THEMES,
+	type ConversationSeed,
+	type FocusArea,
+	type LeverageArea
+} from './adaptive-weeks';
+export {
+	weekProgress,
+	weekSessions,
+	type SessionRecord,
+	type VocabularyEncounter,
+	type GrammarEncounter
+} from './week-progress';
+export {
+	weeklyAnalysis,
+	analysisStatusEnum,
+	WEEKLY_ANALYSIS_PROMPT_TEMPLATE,
+	type IdentifiedStrength,
+	type IdentifiedChallenge,
+	type TopicAffinity,
+	type NextWeekRecommendation,
+	type GeneratedSeed
+} from './weekly-analysis';
 
 // 📝 Note: Newsletter removed; preferences live on userPreferences
 
