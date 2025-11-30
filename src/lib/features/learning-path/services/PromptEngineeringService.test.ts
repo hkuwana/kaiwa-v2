@@ -23,7 +23,7 @@ describe('PromptEngineeringService', () => {
 			} as any,
 			preset: {
 				name: 'Meet the Parents',
-				description: "Preparation for meeting a partner's parents",
+				description: 'Preparation for meeting a partner\'s parents',
 				duration: 7
 			}
 		};
@@ -35,7 +35,7 @@ describe('PromptEngineeringService', () => {
 
 		expect(prompt.userPrompt).toContain('Create a 7-day JA learning path');
 		expect(prompt.userPrompt).toContain('Course Focus: Meet the Parents');
-		expect(prompt.userPrompt).toContain("Preparation for meeting a partner's parents");
+		expect(prompt.userPrompt).toContain('Preparation for meeting a partner\'s parents');
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const schema = prompt.targetSchema as any;
