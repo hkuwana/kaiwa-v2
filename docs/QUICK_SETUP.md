@@ -60,7 +60,13 @@ Changes applied successfully!
 Populate the session_types table:
 
 ```bash
-npx tsx src/lib/server/db/seed/seed-session-types.ts
+pnpm db:seed:session-types
+```
+
+Or directly with dotenv:
+
+```bash
+dotenv -e .env -- tsx src/lib/server/db/seed/seed-session-types.ts
 ```
 
 **Expected output:**
@@ -185,6 +191,7 @@ After creating a path, you'll see the **Week Dashboard**:
 ## 🐛 **Troubleshooting**
 
 ### **Error: "DATABASE_URL is not set"**
+- Use `pnpm db:seed:session-types` instead of running tsx directly
 - The `.env` file has been created with a default configuration
 - Check that `DATABASE_URL` is uncommented in `.env`
 - Verify your database is running (see `docs/DATABASE_SETUP.md`)
