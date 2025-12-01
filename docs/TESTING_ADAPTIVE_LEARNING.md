@@ -6,34 +6,40 @@ This guide shows you exactly where to find and test the new adaptive learning sy
 
 ## 🎯 Where to Access It
 
-### **Option 1: Dashboard (Main Entry Point) ✨**
+### **Admin Page (Testing Entry Point) ✨**
 
-**URL**: `/dashboard`
+**URL**: `/admin/adaptive-paths`
 
 **What you'll see**:
-1. **Sidebar** (right side):
-   - Featured card: "New: Flexible Learning"
-   - Big blue button: **"Start 4-Week Path"**
-   - Description of the adaptive system
+- Left card: "Create New Adaptive Path" with big blue button
+- How it works documentation
+- Session types overview
+- Right card: Documentation and testing checklist
+- Database setup warnings
 
-2. **Main area** (if you have no active paths):
-   - Center CTA with the same "Start 4-Week Path" button
-
-**Screenshot location**:
+**Screenshot**:
 ```
-┌─────────────────────────────────────────────────────┐
-│  Dashboard                                          │
-│  ┌─────────┬─────────────────────────────────────┐ │
-│  │ Main    │ Sidebar                             │ │
-│  │ Content │ ┌────────────────────────────────┐  │ │
-│  │         │ │ 🚀 New: Flexible Learning     │  │ │
-│  │         │ │ 4-week adaptive paths that    │  │ │
-│  │         │ │ adjust to your progress...    │  │ │
-│  │         │ │                               │  │ │
-│  │         │ │ [Start 4-Week Path]  ←───────┼──┼─ Click here!
-│  │         │ └────────────────────────────────┘  │ │
-│  │         │                                     │ │
-└──┴─────────┴─────────────────────────────────────┴─┘
+┌─────────────────────────────────────────────────────────────┐
+│  Adaptive Learning Paths                  [Back to Admin]   │
+│  ─────────────────────────────────────────────────────────  │
+│  ℹ️ Testing Mode                                            │
+│  This is the admin interface for creating adaptive paths... │
+│  ─────────────────────────────────────────────────────────  │
+│  ┌──────────────────────┬──────────────────────────────┐   │
+│  │ Create New Path      │ Documentation                │   │
+│  │ ──────────────────── │ ──────────────────────────── │   │
+│  │ How It Works:        │ Theme Templates:             │   │
+│  │ • Week 1 starts...   │ 🏠 Daily Life                │   │
+│  │ • Users choose...    │ 👨‍👩‍👧 Meeting Family           │   │
+│  │                      │ 💼 Professional              │   │
+│  │ Session Types:       │                              │   │
+│  │ ☕📖❓🎭🔄🌊         │ Testing Checklist:           │   │
+│  │                      │ ✅ Database migrated         │   │
+│  │ [Start 4-Week Path]  │ ○ Create path                │   │
+│  │         ↑            │ ○ Test session types         │   │
+│  │    Click here!       │                              │   │
+│  └──────────────────────┴──────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -64,15 +70,17 @@ You should see:
    🌊 Deep Dive
 ```
 
-### **Step 2: Navigate to Dashboard**
+### **Step 2: Navigate to Admin Page**
 
 ```bash
 # Start your dev server
 pnpm dev
 
 # Open browser to:
-http://localhost:5173/dashboard
+http://localhost:5173/admin/adaptive-paths
 ```
+
+> **Note**: The page is in the admin section for controlled testing. Once validated, it can be moved to user-facing areas.
 
 ### **Step 3: Click "Start 4-Week Path"**
 
@@ -222,19 +230,22 @@ Try each of the 6 session types:
 
 ## 📍 All the Places You Can Access It
 
-### **1. Dashboard** ⭐ (Main entry point)
-- **URL**: `/dashboard`
-- **Location**: Sidebar "Flexible Learning" card
-- **When**: Always visible
+### **1. Admin Page** ⭐ (Testing entry point)
+- **URL**: `/admin/adaptive-paths`
+- **Location**: Admin section
+- **When**: For controlled testing and creation
+- **Who**: Admins only
 
-### **2. Direct Link to Existing Path**
+### **2. Week Dashboard** (After creating a path)
 - **URL**: `/path/[pathId]`
-- **Location**: Navigate directly if you know the ID
-- **When**: After creating a path
+- **Location**: Navigate directly or redirected after creation
+- **When**: After creating an adaptive path
+- **Who**: Anyone with access to the path
 
-### **3. User's Active Paths List**
-- Adaptive paths show up in your dashboard's "Active Paths" list
-- Click them to see the Week Dashboard instead of the classic calendar
+### **3. Active Paths List** (Future)
+- Adaptive paths will show up in user dashboards
+- Can be accessed from the user's active paths list
+- Shows Week Dashboard instead of classic calendar
 
 ---
 
@@ -349,12 +360,13 @@ ORDER BY ws.completed_at DESC;
 
 | What | Where | URL |
 |------|-------|-----|
-| Create path | Dashboard sidebar | `/dashboard` |
-| View path | Path page | `/path/[pathId]` |
-| Week dashboard | Same as path page | `/path/[pathId]` |
-| Start session | Click session type | Auto-redirects to `/app/conversations/[id]` |
-| Session types | Database seed | `session_types` table |
-| Week themes | Code templates | `DEFAULT_WEEK_THEMES` in schema |
+| **Create path** | Admin page | `/admin/adaptive-paths` |
+| **View path** | Path page | `/path/[pathId]` |
+| **Week dashboard** | Same as path page | `/path/[pathId]` |
+| **Start session** | Click session type | Auto-redirects to `/app/conversations/[id]` |
+| **Session types** | Database seed | `session_types` table (6 types) |
+| **Week themes** | Code templates | `DEFAULT_WEEK_THEMES` in schema |
+| **Admin access** | Admin section | `/admin/adaptive-paths` |
 
 ---
 
