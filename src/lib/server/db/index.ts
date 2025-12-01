@@ -1,7 +1,6 @@
 // Database connection and configuration
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { env } from '$env/dynamic/private';
 import * as schema from './schema/index';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 
@@ -12,12 +11,25 @@ export * from './schema/index';
 let _db: PostgresJsDatabase<typeof schema> | null = null;
 let _client: ReturnType<typeof postgres> | null = null;
 
+// Helper to get environment variables (works in both SvelteKit and standalone scripts)
+function getEnv(key: string): string | undefined {
+	// Try to import SvelteKit env (only works in SvelteKit runtime)
+	try {
+		// Dynamic import that may fail in standalone scripts
+		const { env } = require('$env/dynamic/private');
+		return env[key];
+	} catch {
+		// Fall back to process.env for standalone scripts
+		return process.env[key];
+	}
+}
+
 function initializeDb() {
 	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 	if (_db) return { db: _db, client: _client! };
 
 	// Database connection
-	const connectionString = env.DATABASE_URL;
+	const connectionString = getEnv('DATABASE_URL');
 	if (!connectionString) {
 		throw new Error('DATABASE_URL environment variable is required');
 	}
@@ -26,7 +38,7 @@ function initializeDb() {
 	// Note: Connection pool size - increase for better concurrency
 	// Development: 5 connections should be enough
 	// Production: Consider 10-20 depending on your database plan limits
-	const isProduction = env.NODE_ENV === 'production';
+	const isProduction = getEnv('NODE_ENV') === 'production';
 	_client = postgres(connectionString, {
 		max: isProduction ? 10 : 5,
 		idle_timeout: 20, // Close idle connections after 20 seconds
