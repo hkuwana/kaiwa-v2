@@ -41,7 +41,7 @@
 		{
 			id: 'meet-family' as const,
 			name: 'Meeting Family',
-			description: 'Prepare to meet your partner\'s parents or family',
+			description: "Prepare to meet your partner's parents or family",
 			example: 'Practice introductions, telling your story, and family conversation'
 		},
 		{
@@ -110,25 +110,28 @@
 </script>
 
 <!-- Trigger Button -->
-<button class="btn btn-primary btn-lg" onclick={openModal}>
+<button class="btn btn-lg btn-primary" onclick={openModal}>
 	<span class="icon-[mdi--rocket-launch]"></span>
 	Start 4-Week Path
 </button>
 
 <!-- Modal -->
 {#if isModalOpen}
-	<div class="modal modal-open">
+	<div class="modal-open modal">
 		<div class="modal-box max-w-2xl">
-			<h3 class="text-2xl font-bold mb-2">Start Your 4-Week Learning Path</h3>
-			<p class="text-base-content/70 mb-6">
+			<h3 class="mb-2 text-2xl font-bold">Start Your 4-Week Learning Path</h3>
+			<p class="mb-6 text-base-content/70">
 				Flexible weekly themes that adapt to your progress. No rigid schedules—just 5-10 minute
 				conversations.
 			</p>
 
-			<form class="space-y-6" onsubmit={(e) => {
-				e.preventDefault();
-				createPath();
-			}}>
+			<form
+				class="space-y-6"
+				onsubmit={(e) => {
+					e.preventDefault();
+					createPath();
+				}}
+			>
 				<!-- Path Title -->
 				<div class="form-control">
 					<label class="label">
@@ -137,7 +140,7 @@
 					<input
 						type="text"
 						placeholder="e.g., Dutch for Meeting Lisa's Parents"
-						class="input input-bordered"
+						class="input-bordered input"
 						bind:value={formData.title}
 						required
 					/>
@@ -150,7 +153,7 @@
 					</label>
 					<textarea
 						placeholder="What's your goal for this learning path?"
-						class="textarea textarea-bordered h-24"
+						class="textarea-bordered textarea h-24"
 						bind:value={formData.description}
 						required
 					></textarea>
@@ -174,21 +177,21 @@
 								<div
 									class="rounded-lg border-2 p-4 transition"
 									class:border-primary={formData.weekThemeTemplate === template.id}
-									class:bg-primary/5={formData.weekThemeTemplate === template.id}
+									class:bg-primary={formData.weekThemeTemplate === template.id}
 									class:border-base-300={formData.weekThemeTemplate !== template.id}
 								>
 									<div class="flex items-start gap-3">
 										<input
 											type="radio"
 											name="theme"
-											class="radio radio-primary mt-1"
+											class="radio mt-1 radio-primary"
 											value={template.id}
 											bind:group={formData.weekThemeTemplate}
 										/>
 										<div class="flex-1">
 											<div class="font-semibold">{template.name}</div>
-											<div class="text-sm text-base-content/70 mt-1">{template.description}</div>
-											<div class="text-xs text-base-content/50 mt-2 italic">
+											<div class="mt-1 text-sm text-base-content/70">{template.description}</div>
+											<div class="mt-2 text-xs text-base-content/50 italic">
 												{template.example}
 											</div>
 										</div>
@@ -217,11 +220,11 @@
 								<div
 									class="rounded-lg border-2 p-3 text-center transition"
 									class:border-primary={formData.cefrLevel === level.value}
-									class:bg-primary/5={formData.cefrLevel === level.value}
+									class:bg-primary={formData.cefrLevel === level.value}
 									class:border-base-300={formData.cefrLevel !== level.value}
 								>
 									<div class="font-semibold">{level.label}</div>
-									<div class="text-xs text-base-content/60 mt-1">{level.description}</div>
+									<div class="mt-1 text-xs text-base-content/60">{level.description}</div>
 								</div>
 							</label>
 						{/each}
@@ -236,7 +239,7 @@
 					<input
 						type="text"
 						placeholder="e.g., Be ready for the family dinner on Christmas"
-						class="input input-bordered"
+						class="input-bordered input"
 						bind:value={formData.userGoal}
 					/>
 					<label class="label">
