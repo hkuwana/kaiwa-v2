@@ -6,6 +6,28 @@
 	 */
 
 	import StartAdaptivePath from '$lib/features/learning-path/components/StartAdaptivePath.svelte';
+	import { formatDistanceToNow } from 'date-fns';
+
+	const { data } = $props();
+
+	// Format date for display
+	function formatDate(date: Date): string {
+		return formatDistanceToNow(new Date(date), { addSuffix: true });
+	}
+
+	// Get status badge class
+	function getStatusClass(status: string): string {
+		switch (status) {
+			case 'active':
+				return 'badge-success';
+			case 'completed':
+				return 'badge-info';
+			case 'paused':
+				return 'badge-warning';
+			default:
+				return 'badge-ghost';
+		}
+	}
 </script>
 
 <svelte:head>
@@ -164,26 +186,110 @@
 		</div>
 	</div>
 
-	<!-- Recent/Active Adaptive Paths Table -->
+	<!-- Adaptive Paths List -->
 	<div class="card bg-base-200 mt-6">
 		<div class="card-body">
-			<h2 class="card-title">
-				<span class="icon-[mdi--format-list-bulleted] h-6 w-6"></span>
-				Your Adaptive Paths
-			</h2>
-			<p class="text-sm text-base-content/70 mb-4">
-				View paths you've created. Navigate to <code class="badge badge-sm">/path/[pathId]</code> to
-				see the Week Dashboard.
-			</p>
-
-			<div class="text-sm text-base-content/60">
-				<p>Tip: After creating a path, you'll be redirected to the Week Dashboard automatically.</p>
-				<p class="mt-2">
-					You can also access any path directly at <code class="badge badge-sm"
-						>/path/[pathId]</code
-					>
-				</p>
+			<div class="flex items-center justify-between mb-4">
+				<h2 class="card-title">
+					<span class="icon-[mdi--format-list-bulleted] h-6 w-6"></span>
+					Your Adaptive Paths
+					{#if data.adaptivePaths.length > 0}
+						<span class="badge badge-primary">{data.adaptivePaths.length}</span>
+					{/if}
+				</h2>
 			</div>
+
+			{#if data.adaptivePaths.length === 0}
+				<!-- Empty State -->
+				<div class="text-center py-12">
+					<span class="icon-[mdi--rocket-launch-outline] h-16 w-16 text-base-content/30 mx-auto"
+					></span>
+					<p class="text-base-content/70 mt-4">No adaptive paths created yet.</p>
+					<p class="text-sm text-base-content/50 mt-2">
+						Click "Start 4-Week Path" above to create your first adaptive learning path.
+					</p>
+				</div>
+			{:else}
+				<!-- Paths Table -->
+				<div class="overflow-x-auto">
+					<table class="table table-zebra">
+						<thead>
+							<tr>
+								<th>Path</th>
+								<th>Language</th>
+								<th>Current Week</th>
+								<th>Status</th>
+								<th>Created</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							{#each data.adaptivePaths as path}
+								<tr>
+									<!-- Path Info -->
+									<td>
+										<div class="flex flex-col">
+											<span class="font-semibold">{path.title}</span>
+											<span class="text-sm text-base-content/60 line-clamp-2 max-w-md">
+												{path.description}
+											</span>
+										</div>
+									</td>
+
+									<!-- Language -->
+									<td>
+										<span class="badge badge-outline">{path.targetLanguage.toUpperCase()}</span>
+									</td>
+
+									<!-- Current Week -->
+									<td>
+										<div class="flex flex-col">
+											<span class="font-medium">Week {path.currentWeekNumber}/{path.durationWeeks}</span>
+											<span class="text-xs text-base-content/60">{path.weekTheme}</span>
+										</div>
+									</td>
+
+									<!-- Status -->
+									<td>
+										<span class="badge {getStatusClass(path.assignmentStatus)}">
+											{path.assignmentStatus}
+										</span>
+									</td>
+
+									<!-- Created -->
+									<td>
+										<span class="text-sm text-base-content/70" title={path.createdAt.toLocaleString()}>
+											{formatDate(path.createdAt)}
+										</span>
+									</td>
+
+									<!-- Actions -->
+									<td>
+										<div class="flex gap-2">
+											<a href="/path/{path.id}" class="btn btn-sm btn-primary gap-1">
+												<span class="icon-[mdi--eye] h-4 w-4"></span>
+												View
+											</a>
+										</div>
+									</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+
+				<!-- Tips -->
+				<div class="mt-4 text-sm text-base-content/60 bg-base-100 p-4 rounded-lg">
+					<p class="font-medium mb-2">💡 Tips:</p>
+					<ul class="list-disc list-inside space-y-1 ml-2">
+						<li>Click "View" to see the Week Dashboard for any path</li>
+						<li>After creating a path, you'll be redirected automatically</li>
+						<li>
+							Direct URL format: <code class="badge badge-sm">/path/[pathId]</code>
+						</li>
+					</ul>
+				</div>
+			{/if}
 		</div>
 	</div>
 
