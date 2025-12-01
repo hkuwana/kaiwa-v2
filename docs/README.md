@@ -6,6 +6,7 @@
 
 - **New to Kaiwa?** → Start with [Dev Setup Guide](2-guides/dev-setup.md)
 - **Understanding the system?** → Read [Architecture](1-core/architecture.md)
+- **🔥 Understanding how learning paths work?** → **CRITICAL:** Read [Adaptive Learning System](3-features/adaptive-learning-system.md)
 - **Working on a feature?** → Check [Features](3-features/README.md)
 - **Need a process?** → See [Processes](5-processes/README.md)
 - **How are docs organized?** → Read [HOW_DOCS_ARE_ORGANIZED.md](HOW_DOCS_ARE_ORGANIZED.md)

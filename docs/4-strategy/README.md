@@ -30,6 +30,19 @@
 
 ---
 
+### [visual-art-style-guide.md](visual-art-style-guide.md)
+
+**Visual art style and consistency**
+
+- 🎨 Visual style direction and guidelines
+- 🖼️ Asset library and management
+- 📊 Implementation options and budget
+- ✅ Usage guidelines and best practices
+
+⚠️ **Status**: Needs definition - Action required to establish consistent visual style
+
+---
+
 ### [founder-emails.md](founder-emails.md)
 
 **Founder email outreach strategy**

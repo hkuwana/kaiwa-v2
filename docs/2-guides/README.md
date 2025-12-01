@@ -69,7 +69,9 @@
 
 ---
 
-### [email-system-summary.md](email-system-summary.md)
+### Email System Documentation
+
+#### [email-system-summary.md](email-system-summary.md)
 
 **Email system architecture and overview**
 
@@ -79,6 +81,65 @@
 - 🐛 Troubleshooting
 
 👉 **Start here** for email system understanding
+
+#### [email-system-architecture.md](email-system-architecture.md)
+
+**Detailed email system architecture**
+
+- 🏗️ System design and components
+- 🔄 Email flow and processing
+- 📊 Integration patterns
+- 🚀 Scalability considerations
+
+👉 **Reference** for deep architecture understanding
+
+#### [email-quick-start.md](email-quick-start.md)
+
+**Quick start guide for email features**
+
+- ⚡ Fast setup and configuration
+- 📝 Common email operations
+- 🔧 Quick troubleshooting
+- 📋 Code examples
+
+👉 **Start here** for quick email setup
+
+#### [email-testing-guide.md](email-testing-guide.md)
+
+**Email testing guide and best practices**
+
+- 🧪 Testing strategies
+- 🔍 Email preview and debugging
+- 📊 Test coverage
+- ⚠️ Common testing pitfalls
+
+👉 **Start here** before testing email features
+
+---
+
+### [console-log-quick-reference.md](console-log-quick-reference.md)
+
+**Console logging quick reference**
+
+- 📝 Logging best practices
+- 🔍 Common logging patterns
+- 🐛 Debug techniques
+- 📊 Log formatting tips
+
+👉 **Quick reference** for console logging
+
+---
+
+### [ui-copy-style-guide.md](ui-copy-style-guide.md)
+
+**UI copy and content style guide**
+
+- ✍️ Writing style and tone
+- 📝 Copy conventions
+- 🎯 User-facing language
+- ✅ Best practices
+
+👉 **Reference** for consistent UI copy
 
 ---
 
