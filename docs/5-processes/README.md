@@ -69,6 +69,80 @@
 
 ---
 
+### Product Advisory Board (PAB) Processes
+
+#### [pab-quick-start-guide.md](pab-quick-start-guide.md)
+
+**PAB program quick start**
+
+- 🚀 Getting started with PAB
+- 👥 Member onboarding
+- 📋 Program overview
+- 🎯 Engagement guidelines
+
+👉 **Start here** for PAB program
+
+#### [pab-screening-framework.md](pab-screening-framework.md)
+
+**PAB member screening process**
+
+- 🔍 Screening criteria
+- 📋 Evaluation framework
+- ✅ Selection process
+- 🎯 Quality standards
+
+👉 **Reference** for screening PAB candidates
+
+#### [pab-messaging-templates.md](pab-messaging-templates.md)
+
+**PAB communication templates**
+
+- 📧 Email templates
+- 💬 Message scripts
+- 🎯 Communication guidelines
+- 📝 Best practices
+
+👉 **Reference** for PAB communications
+
+#### [pab-launch-week-plan.md](pab-launch-week-plan.md)
+
+**PAB launch week execution plan**
+
+- 📅 Week-by-week plan
+- 🎯 Launch activities
+- 📊 Success metrics
+- ✅ Checklist
+
+👉 **Reference** for PAB launch planning
+
+---
+
+### Additional Processes
+
+#### [log-analysis-checklist.md](log-analysis-checklist.md)
+
+**Log analysis process and checklist**
+
+- 📊 Log review process
+- 🔍 Analysis techniques
+- 🐛 Issue identification
+- 📋 Checklist
+
+👉 **Start here** for log analysis
+
+#### [weekly-updates-system.md](weekly-updates-system.md)
+
+**Weekly updates documentation system**
+
+- 📅 Update schedule and format
+- 📝 Content guidelines
+- 🎯 Tracking progress
+- 📊 Reporting structure
+
+👉 **Start here** for weekly updates process
+
+---
+
 ## 🎯 When to Use This Section
 
 **Use process docs when:**

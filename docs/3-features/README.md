@@ -2,7 +2,36 @@
 
 > **Purpose**: Documentation for specific product features and their implementations.
 
-## 📚 Documents in This Section
+## 🔥 Core Features (Critical Reading)
+
+### [adaptive-learning-system.md](adaptive-learning-system.md)
+
+**Adaptive learning path system - Core architecture**
+
+- 🎯 Replaces rigid 28-day schedules with flexible weekly themes
+- 🧠 AI-driven personalization and weekly analysis
+- 📊 Service architecture (AdaptivePathService, SessionService, WeeklyAnalysisService)
+- 🎨 Anti-gamification engagement design philosophy
+- 📋 Complete implementation guide with tests and API specs
+
+👉 **CRITICAL: This is the core learning system architecture** - Read this to understand how the app fundamentally works
+
+---
+
+### [learning-path-auto-enrollment.md](learning-path-auto-enrollment.md)
+
+**Auto-enrollment implementation for personalized paths**
+
+- ✅ Automatic user enrollment when paths are created
+- 📊 Assignment creation and dashboard visibility
+- 🔧 Implementation details and verification steps
+- 🐛 Edge cases and testing guide
+
+👉 **Start here** for learning path enrollment feature
+
+---
+
+## 📚 All Feature Documents
 
 ### [realtime.md](realtime.md)
 
@@ -157,6 +186,19 @@
 - 🎯 Future optimizations
 
 👉 **Start here** for SEO implementation status
+
+---
+
+### [email-preferences-and-cron-mapping.md](email-preferences-and-cron-mapping.md)
+
+**Email preferences and cron job mapping**
+
+- 📧 User email preference system
+- ⏰ Cron job scheduling and mapping
+- 🔧 Configuration and setup
+- 🎯 Preference-based email delivery
+
+👉 **Start here** for email preferences and scheduling
 
 ---
 
