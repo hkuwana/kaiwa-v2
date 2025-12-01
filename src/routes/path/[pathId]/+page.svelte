@@ -15,26 +15,35 @@
 	// Check if this is an adaptive path
 	const isAdaptive = $derived(data.mode === 'adaptive');
 
-	// Derived state
+	// Derived state (Classic mode only)
 	const canStartToday = $derived(
-		data.isAssigned && data.progress.currentDay?.isReady && data.progress.currentDay?.scenarioId
+		!isAdaptive &&
+			data.isAssigned &&
+			data.mode === 'classic' &&
+			data.progress.currentDay?.isReady &&
+			data.progress.currentDay?.scenarioId
 	);
 
-	const daysRemaining = $derived(data.progress.totalDays - data.progress.daysCompleted);
-	const weeks = $derived(Math.ceil(data.progress.totalDays / 7));
+	const daysRemaining = $derived(
+		data.mode === 'classic' ? data.progress.totalDays - data.progress.daysCompleted : 0
+	);
 
-	const weeks = $derived(Math.ceil(data.progress.totalDays / 7));
+	const weeks = $derived(data.mode === 'classic' ? Math.ceil(data.progress.totalDays / 7) : 0);
 
-	// Navigation handlers
+	// Navigation handlers (Classic mode only)
 	function handleStartLesson() {
-		if (data.progress.currentDay?.scenarioId) {
+		if (data.mode === 'classic' && data.progress.currentDay?.scenarioId) {
 			goto(`/conversation?scenario=${data.progress.currentDay.scenarioId}`);
 		}
 	}
 
 	function handleDayClick(day: { scenarioId?: string | null; dayIndex: number }) {
 		// Only allow clicking on completed days or current day with scenario ready
-		if (day.scenarioId && day.dayIndex <= data.progress.daysCompleted + 1) {
+		if (
+			data.mode === 'classic' &&
+			day.scenarioId &&
+			day.dayIndex <= data.progress.daysCompleted + 1
+		) {
 			goto(`/conversation?scenario=${day.scenarioId}`);
 		}
 	}
@@ -62,9 +71,11 @@
 		dayIndex: number;
 		scenarioId?: string | null;
 	}): 'completed' | 'current' | 'upcoming' | 'locked' {
-		if (day.dayIndex < data.progress.daysCompleted + 1) return 'completed';
-		if (day.dayIndex === data.progress.daysCompleted + 1) return 'current';
-		if (day.scenarioId) return 'upcoming';
+		if (data.mode === 'classic') {
+			if (day.dayIndex < data.progress.daysCompleted + 1) return 'completed';
+			if (day.dayIndex === data.progress.daysCompleted + 1) return 'current';
+			if (day.scenarioId) return 'upcoming';
+		}
 		return 'locked';
 	}
 </script>
