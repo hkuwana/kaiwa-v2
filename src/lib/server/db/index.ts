@@ -4,6 +4,17 @@ import postgres from 'postgres';
 import * as schema from './schema/index';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 
+// Conditional import of SvelteKit env using top-level await
+// This will work in SvelteKit runtime, but fail in standalone scripts
+let svelteKitEnv: Record<string, string> | undefined;
+try {
+	const module = await import('$env/dynamic/private');
+	svelteKitEnv = module.env;
+} catch {
+	// Not in SvelteKit context - standalone script mode
+	// Will use process.env instead (loaded by dotenv in package.json scripts)
+}
+
 // Import all schemas
 export * from './schema/index';
 
@@ -13,15 +24,9 @@ let _client: ReturnType<typeof postgres> | null = null;
 
 // Helper to get environment variables (works in both SvelteKit and standalone scripts)
 function getEnv(key: string): string | undefined {
-	// Try to import SvelteKit env (only works in SvelteKit runtime)
-	try {
-		// Dynamic import that may fail in standalone scripts
-		const { env } = require('$env/dynamic/private');
-		return env[key];
-	} catch {
-		// Fall back to process.env for standalone scripts
-		return process.env[key];
-	}
+	// In SvelteKit: use $env/dynamic/private (loaded above)
+	// In standalone tsx scripts: use process.env (loaded by dotenv CLI)
+	return svelteKitEnv?.[key] || process.env[key];
 }
 
 function initializeDb() {
