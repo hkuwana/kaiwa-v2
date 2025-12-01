@@ -4,13 +4,13 @@ import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { learningPathRepository } from '$lib/server/repositories/learning-path.repository';
 import { learningPathAssignmentRepository } from '$lib/server/repositories/learning-path-assignment.repository';
+import { adaptivePathService } from '$lib/features/learning-path/services/AdaptivePathService.server';
 
 /**
  * Server-side load function for individual learning path page
  *
  * This page shows a specific learning path and the user's progress on it.
- * If the user is assigned to the path, they see their progress and can start lessons.
- * If not assigned, they see path details and can enroll (if public) or get redirected.
+ * Supports both classic (rigid 28-day) and adaptive (flexible weekly) modes.
  *
  * Route: /path/[pathId]
  */
@@ -39,12 +39,50 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		throw error(403, 'You do not have access to this learning path');
 	}
 
-	// Calculate progress data
+	// =========================================================================
+	// ADAPTIVE MODE
+	// =========================================================================
+	if (path.mode === 'adaptive' && assignment) {
+		const currentWeek = await adaptivePathService.getCurrentWeek(assignment.id);
+
+		if (!currentWeek) {
+			throw error(500, 'Failed to load current week data');
+		}
+
+		return {
+			user: locals.user,
+			mode: 'adaptive' as const,
+			path: {
+				id: path.id,
+				title: path.title,
+				description: path.description,
+				targetLanguage: path.targetLanguage,
+				durationWeeks: path.durationWeeks,
+				status: path.status,
+				isTemplate: path.isTemplate,
+				isPublic: path.isPublic
+			},
+			assignment: {
+				id: assignment.id,
+				status: assignment.status,
+				currentWeekNumber: assignment.currentWeekNumber,
+				startsAt: assignment.startsAt
+			},
+			week: currentWeek.week,
+			progress: currentWeek.progress,
+			sessionTypes: currentWeek.sessionTypes,
+			isAssigned: true,
+			isOwner: path.userId === userId
+		};
+	}
+
+	// =========================================================================
+	// CLASSIC MODE (existing logic)
+	// =========================================================================
 	const totalDays = path.schedule?.length || 0;
 	const daysCompleted = assignment?.currentDayIndex || 0;
 	const progressPercent = totalDays > 0 ? Math.round((daysCompleted / totalDays) * 100) : 0;
 
-	// Get current and next day info
 	const schedule = path.schedule || [];
 	const currentDayIndex = Math.min(daysCompleted + 1, totalDays);
 	const currentDaySchedule = schedule.find((s) => s.dayIndex === currentDayIndex);
@@ -52,6 +90,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
 	return {
 		user: locals.user,
+		mode: 'classic' as const,
 		path: {
 			id: path.id,
 			title: path.title,

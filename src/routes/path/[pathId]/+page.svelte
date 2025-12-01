@@ -3,15 +3,17 @@
 	 * Learning Path Page
 	 *
 	 * Shows a specific learning path with:
-	 * - Path details and description
-	 * - Progress tracking (if assigned)
-	 * - Calendar view of all days
-	 * - Quick access to start today's lesson
+	 * - Classic mode: Calendar view of all days with rigid schedule
+	 * - Adaptive mode: Flexible weekly dashboard with session types
 	 */
 
 	import { goto } from '$app/navigation';
+	import WeekDashboard from '$lib/features/learning-path/components/WeekDashboard.svelte';
 
 	const { data } = $props();
+
+	// Check if this is an adaptive path
+	const isAdaptive = $derived(data.mode === 'adaptive');
 
 	// Derived state
 	const canStartToday = $derived(
@@ -81,45 +83,60 @@
 		</a>
 	</div>
 
-	<!-- Header -->
-	<div class="mb-8">
-		<div class="flex items-start justify-between gap-4">
-			<div class="flex-1">
-				<div class="flex items-center gap-3">
-					<h1 class="text-3xl font-bold">{data.path.title}</h1>
-					{#if data.path.status === 'draft'}
-						<span class="badge badge-warning">Draft</span>
-					{:else if data.path.status === 'active'}
-						<span class="badge badge-success">Active</span>
-					{/if}
-				</div>
-				<p class="mt-2 text-base-content/70">{data.path.description}</p>
-				<div class="mt-3 flex flex-wrap gap-2">
-					<span class="badge badge-outline">{data.path.targetLanguage?.toUpperCase()}</span>
-					<span class="badge badge-outline">{data.progress.totalDays} days</span>
-					{#if data.path.estimatedMinutesPerDay}
-						<span class="badge badge-outline">{data.path.estimatedMinutesPerDay} min/day</span>
-					{/if}
-					{#if data.path.category}
-						<span class="badge badge-outline">{data.path.category}</span>
-					{/if}
-				</div>
-			</div>
+	{#if isAdaptive}
+		<!-- ========================================================================== -->
+		<!-- ADAPTIVE MODE: Week Dashboard -->
+		<!-- ========================================================================== -->
+		<WeekDashboard
+			pathId={data.path.id}
+			week={data.week}
+			progress={data.progress}
+			sessionTypes={data.sessionTypes}
+		/>
+	{:else}
+		<!-- ========================================================================== -->
+		<!-- CLASSIC MODE: Traditional Calendar View -->
+		<!-- ========================================================================== -->
 
-			<!-- Progress circle (if assigned) -->
-			{#if data.isAssigned}
-				<div class="text-center">
-					<div
-						class="radial-progress text-primary"
-						style="--value:{data.progress.progressPercent}; --size:5rem; --thickness:5px;"
-					>
-						<span class="text-lg font-bold">{data.progress.progressPercent}%</span>
+		<!-- Header -->
+		<div class="mb-8">
+			<div class="flex items-start justify-between gap-4">
+				<div class="flex-1">
+					<div class="flex items-center gap-3">
+						<h1 class="text-3xl font-bold">{data.path.title}</h1>
+						{#if data.path.status === 'draft'}
+							<span class="badge badge-warning">Draft</span>
+						{:else if data.path.status === 'active'}
+							<span class="badge badge-success">Active</span>
+						{/if}
 					</div>
-					<p class="mt-1 text-sm text-base-content/60">{daysRemaining} days left</p>
+					<p class="mt-2 text-base-content/70">{data.path.description}</p>
+					<div class="mt-3 flex flex-wrap gap-2">
+						<span class="badge badge-outline">{data.path.targetLanguage?.toUpperCase()}</span>
+						<span class="badge badge-outline">{data.progress.totalDays} days</span>
+						{#if data.path.estimatedMinutesPerDay}
+							<span class="badge badge-outline">{data.path.estimatedMinutesPerDay} min/day</span>
+						{/if}
+						{#if data.path.category}
+							<span class="badge badge-outline">{data.path.category}</span>
+						{/if}
+					</div>
 				</div>
-			{/if}
+
+				<!-- Progress circle (if assigned) -->
+				{#if data.isAssigned}
+					<div class="text-center">
+						<div
+							class="radial-progress text-primary"
+							style="--value:{data.progress.progressPercent}; --size:5rem; --thickness:5px;"
+						>
+							<span class="text-lg font-bold">{data.progress.progressPercent}%</span>
+						</div>
+						<p class="mt-1 text-sm text-base-content/60">{daysRemaining} days left</p>
+					</div>
+				{/if}
+			</div>
 		</div>
-	</div>
 
 	{#if data.isAssigned}
 		<!-- Progress stats -->
@@ -260,4 +277,6 @@
 			{/each}
 		</div>
 	</div>
+	{/if}
+	<!-- End Classic Mode -->
 </div>

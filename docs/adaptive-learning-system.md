@@ -1,8 +1,10 @@
 # Adaptive Learning System - Implementation Guide
 
-> **Status**: Schema complete, services pending
-> **Last Updated**: 2025-11-30
-> **Branch**: `claude/simplify-learning-path-01Y83GQiFTHLqN4cQCmkeNy6`
+> **Status**: MVP Implementation Complete ✅
+> **Last Updated**: 2025-12-01
+> **Branch**: `claude/continue-adaptive-learning-docs-01ENBT5gj1iHx1ei3pRpqJPD`
+>
+> **Ready for Testing**: All core features implemented, pending database setup
 
 ## Overview
 
@@ -775,34 +777,99 @@ Output as JSON matching the WeeklyAnalysis schema.
 
 ---
 
-## Checklist for Implementation
+## 🎯 Implementation Status (as of 2025-12-01)
 
-### Phase 1: Core Services
-- [ ] `AdaptivePathService.server.ts`
-- [ ] `SessionService.server.ts`
-- [ ] `WeeklyAnalysisService.server.ts`
-- [ ] Unit tests for all services
+### ✅ Phase 1: Core Services (COMPLETE)
+- [x] `AdaptivePathService.server.ts` - Fully implemented
+- [x] `SessionService.server.ts` - Fully implemented
+- [x] `WeeklyAnalysisService.server.ts` - Fully implemented
+- [ ] Unit tests for all services (TBD)
 
-### Phase 2: API Endpoints
-- [ ] GET `/api/learning-paths/[pathId]/current-week`
-- [ ] POST `/api/learning-paths/[pathId]/sessions`
-- [ ] PATCH `/api/learning-paths/sessions/[sessionId]/complete`
-- [ ] POST `/api/learning-paths/[pathId]/advance-week`
+### ✅ Phase 2: API Endpoints (COMPLETE)
+- [x] POST `/api/learning-paths/adaptive` - Create new adaptive path
+- [x] GET `/api/learning-paths/[pathId]/current-week` - Get current week data
+- [x] POST `/api/learning-paths/[pathId]/sessions` - Start a new session
+- [x] PATCH `/api/conversations/[id]/complete-adaptive` - Complete session
+- [ ] POST `/api/learning-paths/[pathId]/advance-week` (Deferred to V2)
 
-### Phase 3: Database Seeding
-- [ ] Seed session types
-- [ ] Create week theme templates for common use cases
+### ✅ Phase 3: Database & Seeding (READY)
+- [x] Session types seed file created (`seed-session-types.ts`)
+- [x] Week theme templates defined (`DEFAULT_WEEK_THEMES`)
+- [ ] Run `pnpm db:push` (requires DATABASE_URL setup)
+- [ ] Run `npx tsx src/lib/server/db/seed/seed-session-types.ts`
 
-### Phase 4: UI Components
-- [ ] Week dashboard component
-- [ ] Session type picker
-- [ ] Week summary/transition view
-- [ ] Progress indicators
+### ✅ Phase 4: UI Components (COMPLETE)
+- [x] `WeekDashboard.svelte` - Main dashboard for adaptive weeks
+- [x] `PostSessionCard.svelte` - Post-session feedback & encouragement
+- [x] `StartAdaptivePath.svelte` - Entry point to create new paths
+- [x] Updated `/path/[pathId]` page to support both classic and adaptive modes
+- [ ] Week summary/transition view (Deferred to V2 - using manual advance for now)
 
-### Phase 5: Integration
-- [ ] Connect conversation flow to session tracking
-- [ ] Wire up analysis job queue
-- [ ] Add email notifications for week transitions
+### ⏸️ Phase 5: Integration (DEFERRED TO V2)
+- [ ] Weekly analysis automation (manual trigger for V1)
+- [ ] AI-generated next week (using templates for V1)
+- [ ] Email notifications for week transitions
+
+---
+
+## 🚀 MVP Shipping Checklist
+
+Before you can test the MVP, complete these steps:
+
+1. **Database Setup**
+   ```bash
+   # Set up DATABASE_URL in .env
+   # Then run:
+   pnpm db:push
+   npx tsx src/lib/server/db/seed/seed-session-types.ts
+   ```
+
+2. **Test Flow**
+   - Navigate to dashboard or profile
+   - Add `<StartAdaptivePath targetLanguage="nl" />` to any page
+   - Click "Start 4-Week Path"
+   - Fill in the form and create a path
+   - You should be redirected to `/path/[pathId]` showing the Week Dashboard
+   - Click a session type to start a conversation
+   - After conversation, complete the session
+
+3. **Expected Behavior**
+   - Week 1 should load with conversation seeds
+   - Session types should display (☕ Quick Check-in, 📖 Story Moment, etc.)
+   - Starting a session creates a conversation and redirects to `/app/conversations/[id]`
+   - Completing a conversation shows the Post-Session Card
+   - Progress updates: "3 conversations this week"
+
+---
+
+## Files Created/Modified
+
+### New Service Files
+- `src/lib/features/learning-path/services/AdaptivePathService.server.ts`
+- `src/lib/features/learning-path/services/SessionService.server.ts`
+- `src/lib/features/learning-path/services/WeeklyAnalysisService.server.ts`
+
+### New API Endpoints
+- `src/routes/api/learning-paths/adaptive/+server.ts`
+- `src/routes/api/learning-paths/[pathId]/current-week/+server.ts`
+- `src/routes/api/learning-paths/[pathId]/sessions/+server.ts`
+- `src/routes/api/conversations/[id]/complete-adaptive/+server.ts`
+
+### New UI Components
+- `src/lib/features/learning-path/components/WeekDashboard.svelte`
+- `src/lib/features/learning-path/components/PostSessionCard.svelte`
+- `src/lib/features/learning-path/components/StartAdaptivePath.svelte`
+
+### Modified Files
+- `src/routes/path/[pathId]/+page.server.ts` - Added adaptive mode support
+- `src/routes/path/[pathId]/+page.svelte` - Conditional rendering for adaptive vs classic
+
+### Database/Schema (Already Existed)
+- `src/lib/server/db/schema/session-types.ts`
+- `src/lib/server/db/schema/adaptive-weeks.ts`
+- `src/lib/server/db/schema/week-progress.ts`
+- `src/lib/server/db/schema/weekly-analysis.ts`
+- `src/lib/server/db/seed/seed-session-types.ts`
 
 ---
 
