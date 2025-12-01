@@ -12,6 +12,7 @@
 	import { goto } from '$app/navigation';
 	import LearningPathProgress from '$lib/features/learning-path/components/LearningPathProgress.svelte';
 	import SharePathButton from '$lib/features/learning-path/components/SharePathButton.svelte';
+	import StartAdaptivePath from '$lib/features/learning-path/components/StartAdaptivePath.svelte';
 	import type { UserLearningPath } from '$lib/features/learning-path/stores/learning-path.store.svelte';
 	import type { LearningPath, LearningPathAssignment } from '$lib/server/db/types';
 
@@ -117,10 +118,14 @@
 					<div class="card-body text-center">
 						<h2 class="card-title justify-center">Start Your Learning Journey</h2>
 						<p class="text-base-content/70">
-							Choose a learning path below to begin your structured language learning experience.
+							Choose a learning path to begin your structured language learning experience.
 						</p>
-						<div class="mt-4 card-actions justify-center">
-							<a href="/scenarios" class="btn btn-primary">Browse Scenarios</a>
+						<div class="mt-6 card-actions justify-center gap-4">
+							<!-- NEW: Adaptive Learning Path Button -->
+							<StartAdaptivePath targetLanguage="nl" userGoal="" />
+
+							<!-- Existing options -->
+							<a href="/scenarios" class="btn btn-ghost">Browse Scenarios</a>
 						</div>
 					</div>
 				</div>
@@ -172,6 +177,22 @@
 
 		<!-- Sidebar -->
 		<div class="space-y-6">
+			<!-- NEW: Start Adaptive Path Card -->
+			<div class="card bg-gradient-to-br from-primary/20 to-secondary/20 border-2 border-primary/30">
+				<div class="card-body">
+					<h3 class="card-title text-base">
+						<span class="icon-[mdi--rocket-launch] h-5 w-5"></span>
+						New: Flexible Learning
+					</h3>
+					<p class="text-sm text-base-content/80">
+						4-week adaptive paths that adjust to your progress. No rigid schedules—just 5-10 minute conversations.
+					</p>
+					<div class="mt-4">
+						<StartAdaptivePath targetLanguage="nl" userGoal="" />
+					</div>
+				</div>
+			</div>
+
 			<!-- Quick Stats -->
 			<div class="card bg-base-200">
 				<div class="card-body">
