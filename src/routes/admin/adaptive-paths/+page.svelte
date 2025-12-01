@@ -162,7 +162,7 @@
 						<h3 class="mb-2 font-semibold">Quick Links</h3>
 						<div class="flex flex-col gap-2">
 							<a
-								href="/docs/adaptive-learning-system.md"
+								href="#docs-adaptive-learning-system.md"
 								class="btn justify-start gap-2 btn-outline btn-sm"
 								target="_blank"
 							>
@@ -170,7 +170,7 @@
 								Full Implementation Guide
 							</a>
 							<a
-								href="/docs/TESTING_ADAPTIVE_LEARNING.md"
+								href="#docs-TESTING_ADAPTIVE_LEARNING.md"
 								class="btn justify-start gap-2 btn-outline btn-sm"
 								target="_blank"
 							>
