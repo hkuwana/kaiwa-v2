@@ -16,7 +16,9 @@
 	import { track } from '$lib/analytics/posthog';
 
 	interface Props {
-		/** Show only featured scenarios (default: first 3) */
+		/** Custom scenarios to display (e.g., from learning path) */
+		scenarios?: Scenario[];
+		/** Show only featured scenarios (default: first 3) - only used if scenarios not provided */
 		featuredScenariosCount?: number;
 		/** Callback when user starts a conversation */
 		onStartConversation?: (scenario: Scenario) => void;
@@ -24,17 +26,26 @@
 		selectedSpeaker?: string | null;
 		/** Callback to open language/speaker selector */
 		onChooseLanguage?: () => void;
+		/** Learning path info (if showing path scenarios) */
+		pathInfo?: { title: string; weekNumber: number; theme: string };
 	}
 
 	const {
+		scenarios: customScenarios,
 		featuredScenariosCount = 3,
 		onStartConversation,
 		selectedSpeaker,
-		onChooseLanguage
+		onChooseLanguage,
+		pathInfo
 	}: Props = $props();
 
-	// Get featured scenarios + add a "Browse All" placeholder at the end
-	const featuredScenarios = scenariosData.slice(0, featuredScenariosCount);
+	// Use custom scenarios if provided, otherwise use featured scenarios from data
+	const featuredScenarios = customScenarios && customScenarios.length > 0
+		? customScenarios
+		: scenariosData.slice(0, featuredScenariosCount);
+
+	// Flag to check if showing learning path content
+	const isLearningPath = customScenarios && customScenarios.length > 0;
 	// Card stack state
 	let currentCardIndex = $state(0);
 	let _showAdvancedOptions = $state(false);
@@ -404,6 +415,24 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- Learning Path Header (if showing path scenarios) -->
+	{#if isLearningPath && pathInfo}
+		<div
+			class="mb-3 px-4"
+			in:fly={{ y: -10, duration: 400, delay: 50, easing: quintOut }}
+		>
+			<div class="mx-auto max-w-md rounded-xl border border-primary/20 bg-primary/5 p-3 text-center">
+				<div class="flex items-center justify-center gap-2 text-sm font-medium text-primary">
+					<span class="icon-[mdi--book-education-outline] h-4 w-4"></span>
+					Week {pathInfo.weekNumber}: {pathInfo.theme}
+				</div>
+				<div class="mt-1 text-xs text-base-content/60">
+					{pathInfo.title}
+				</div>
+			</div>
+		</div>
+	{/if}
 
 	<!-- Swipeable Card Stack Section -->
 	<div class="space-y-2 sm:space-y-3">

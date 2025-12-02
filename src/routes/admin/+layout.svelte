@@ -8,6 +8,11 @@
 			href: '/admin/learning-paths',
 			label: 'Learning Paths',
 			icon: 'icon-[mdi--book-education-outline]'
+		},
+		{
+			href: '/admin/learners',
+			label: 'Learners',
+			icon: 'icon-[mdi--account-group-outline]'
 		}
 	];
 

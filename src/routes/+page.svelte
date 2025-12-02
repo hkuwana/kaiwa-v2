@@ -282,6 +282,8 @@
 			<SwipeableCardStack
 				onStartConversation={handleStartConversation}
 				onChooseLanguage={handleOpenLanguageSwitcher}
+				scenarios={data.learningPath?.scenarios}
+				pathInfo={data.learningPath?.pathInfo}
 			/>
 		</div>
 
