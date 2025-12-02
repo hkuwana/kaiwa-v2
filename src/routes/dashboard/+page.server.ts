@@ -4,9 +4,7 @@ import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { learningPathRepository } from '$lib/server/repositories/learning-path.repository';
 import { learningPathAssignmentRepository } from '$lib/server/repositories/learning-path-assignment.repository';
-import { db } from '$lib/server/db';
-import { adaptiveWeeks } from '$lib/server/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { learningPathProgressRepository } from '$lib/server/repositories/learning-path-progress.repository';
 import type { ConversationSeed } from '$lib/server/db/schema/adaptive-weeks';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -21,25 +19,25 @@ export const load: PageServerLoad = async ({ locals }) => {
 		// Get user's assignments
 		const assignments = await learningPathAssignmentRepository.listAssignmentsForUser(userId);
 
-		// Get paths for each assignment
+		// Get paths for each assignment with active week info
+		const pathsWithWeeks = await learningPathProgressRepository.getAssignmentsWithPathAndWeek(
+			userId
+		);
+
 		const activePaths = [];
 		const completedPaths = [];
 
 		for (const assignment of assignments) {
-			const path = await learningPathRepository.findPathById(assignment.pathId);
+			const pathWithWeek = pathsWithWeeks.find(
+				(item) => item.assignment.id === assignment.id
+			);
+			const path = pathWithWeek?.path ?? (await learningPathRepository.findPathById(assignment.pathId));
 			if (!path) continue;
 
 			// Handle adaptive vs classic paths differently
 			if (path.mode === 'adaptive') {
-				// Fetch the active week for adaptive paths
-				const activeWeek = await db.query.adaptiveWeeks.findFirst({
-					where: and(
-						eq(adaptiveWeeks.pathId, path.id),
-						eq(adaptiveWeeks.status, 'active')
-					)
-				});
-
-				const seeds = (activeWeek?.conversationSeeds || []) as ConversationSeed[];
+				const activeWeek = pathWithWeek?.activeWeek ?? null;
+				const seeds = (pathWithWeek?.seeds || []) as ConversationSeed[];
 				const readyScenarios = seeds.filter(s => s.scenarioId).length;
 				const totalSeeds = seeds.length;
 

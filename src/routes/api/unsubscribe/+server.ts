@@ -1,7 +1,26 @@
 import { json } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
-import { userSettings } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { userSettingsRepository } from '$lib/server/repositories/user-settings.repository';
+import type { NewUserSettings } from '$lib/server/db/types';
+
+function getUnsubscribeUpdates(
+	type: string
+): Partial<NewUserSettings> | null {
+	if (type === 'marketing') return { receiveMarketingEmails: false };
+	if (type === 'daily_reminder') return { receiveDailyReminderEmails: false };
+	if (type === 'product_updates') return { receiveProductUpdates: false };
+	if (type === 'weekly_digest') return { receiveWeeklyDigest: false };
+	if (type === 'security_alerts') return { receiveSecurityAlerts: false };
+	if (type === 'all') {
+		return {
+			receiveMarketingEmails: false,
+			receiveDailyReminderEmails: false,
+			receiveProductUpdates: false,
+			receiveWeeklyDigest: false,
+			receiveSecurityAlerts: false
+		};
+	}
+	return null;
+}
 
 export const GET = async ({ url }) => {
 	try {
@@ -12,27 +31,9 @@ export const GET = async ({ url }) => {
 			return json({ error: 'Missing userId parameter' }, { status: 400 });
 		}
 
-		let updateField: Partial<typeof userSettings.$inferInsert>;
+		const updateField = getUnsubscribeUpdates(type);
 
-		if (type === 'marketing') {
-			updateField = { receiveMarketingEmails: false };
-		} else if (type === 'daily_reminder') {
-			updateField = { receiveDailyReminderEmails: false };
-		} else if (type === 'product_updates') {
-			updateField = { receiveProductUpdates: false };
-		} else if (type === 'weekly_digest') {
-			updateField = { receiveWeeklyDigest: false };
-		} else if (type === 'security_alerts') {
-			updateField = { receiveSecurityAlerts: false };
-		} else if (type === 'all') {
-			updateField = {
-				receiveMarketingEmails: false,
-				receiveDailyReminderEmails: false,
-				receiveProductUpdates: false,
-				receiveWeeklyDigest: false,
-				receiveSecurityAlerts: false
-			};
-		} else {
+		if (!updateField) {
 			return json(
 				{
 					error:
@@ -42,7 +43,10 @@ export const GET = async ({ url }) => {
 			);
 		}
 
-		await db.update(userSettings).set(updateField).where(eq(userSettings.userId, userId));
+		await userSettingsRepository.upsertSettings({
+			userId,
+			...updateField
+		});
 
 		return json({ success: true, message: 'You have been successfully unsubscribed.' });
 	} catch (error) {
@@ -59,27 +63,9 @@ export const POST = async ({ request }) => {
 			return json({ error: 'Missing userId or type' }, { status: 400 });
 		}
 
-		let updateField: Partial<typeof userSettings.$inferInsert>;
+		const updateField = getUnsubscribeUpdates(type);
 
-		if (type === 'marketing') {
-			updateField = { receiveMarketingEmails: false };
-		} else if (type === 'daily_reminder') {
-			updateField = { receiveDailyReminderEmails: false };
-		} else if (type === 'product_updates') {
-			updateField = { receiveProductUpdates: false };
-		} else if (type === 'weekly_digest') {
-			updateField = { receiveWeeklyDigest: false };
-		} else if (type === 'security_alerts') {
-			updateField = { receiveSecurityAlerts: false };
-		} else if (type === 'all') {
-			updateField = {
-				receiveMarketingEmails: false,
-				receiveDailyReminderEmails: false,
-				receiveProductUpdates: false,
-				receiveWeeklyDigest: false,
-				receiveSecurityAlerts: false
-			};
-		} else {
+		if (!updateField) {
 			return json(
 				{
 					error:
@@ -89,7 +75,10 @@ export const POST = async ({ request }) => {
 			);
 		}
 
-		await db.update(userSettings).set(updateField).where(eq(userSettings.userId, userId));
+		await userSettingsRepository.upsertSettings({
+			userId,
+			...updateField
+		});
 
 		return json({ success: true, message: 'Successfully unsubscribed.' });
 	} catch (error) {
