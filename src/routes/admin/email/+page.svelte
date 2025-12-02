@@ -109,7 +109,7 @@
 				userId: userManager.user?.id || ''
 			});
 
-			const response = await fetch(`/dev/email?${params.toString()}`);
+			const response = await fetch(`/admin/email?${params.toString()}`);
 
 			if (response.ok) {
 				previewHtml = await response.text();
@@ -139,7 +139,7 @@
 		testResult = '⏳ Sending test email...';
 
 		try {
-			const response = await fetch('/dev/email', {
+			const response = await fetch('/admin/email', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -175,7 +175,7 @@
 		cronResult = '⏳ Running reminder check-in dry run...';
 
 		try {
-			const response = await fetch('/dev/email/cron', {
+			const response = await fetch('/admin/email/cron', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({})
