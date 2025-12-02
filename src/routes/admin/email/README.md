@@ -4,7 +4,7 @@ Development tool for testing all email templates.
 
 ## Access
 
-Visit: `http://localhost:5173/dev/email` (when running dev server)
+Visit: `http://localhost:5173/admin/email` (when running dev server)
 
 ## Features
 
@@ -32,14 +32,14 @@ Visit: `http://localhost:5173/dev/email` (when running dev server)
 ## Usage
 
 1. Log in to the app
-2. Navigate to `/dev/email`
+2. Navigate to `/admin/email`
 3. Select an email type
 4. Click "📨 Send Test Email"
 5. Check **weijo34@gmail.com** inbox
 
 ## Technical Details
 
-- **Endpoint**: `POST /dev/email`
+- **Endpoint**: `POST /admin/email`
 - **Authentication**: Required (uses current logged-in user)
 - **Test Email**: `weijo34@gmail.com` (hardcoded)
 - **Services Used**:
