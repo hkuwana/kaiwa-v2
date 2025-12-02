@@ -53,8 +53,8 @@ export const SCAFFOLDING_LEVELS = {
 - Challenge with unexpected turns in conversation`
 	},
 	advanced: {
-		label: 'Advanced (B2+)',
-		description: 'Near-fluent, needs real-world practice',
+		label: 'Advanced (C1)',
+		description: 'Fluent, refining nuance and complexity',
 		instructions: `
 - No translations unless specifically requested
 - Native-like speech patterns, including fillers and contractions
@@ -64,6 +64,19 @@ export const SCAFFOLDING_LEVELS = {
 - Full conversation simulations (10+ turns)
 - Include idioms, slang, and colloquialisms
 - Introduce challenging scenarios (disagreements, negotiations)`
+	},
+	proficient: {
+		label: 'Proficient (C2)',
+		description: 'Near-native, mastering subtleties',
+		instructions: `
+- No translations or hints - treat as native speaker
+- Native speech at natural pace with dialect variations
+- Focus on subtle meaning, implication, and inference
+- Feedback only on highly nuanced expression choices
+- Regional expressions, humor, and cultural depth
+- Complex extended discussions with abstract topics
+- Handle ambiguity, irony, and double meanings
+- Master register switching mid-conversation`
 	}
 } as const;
 

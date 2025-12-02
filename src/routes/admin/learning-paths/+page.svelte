@@ -4,7 +4,7 @@
 	 *
 	 * A Jony Ive-inspired admin interface organized into clear phases:
 	 *
-	 * Phase 1: INTAKE - Capture user requirements (transcript/notes → AI brief)
+	 * Phase 1: INTAKE - Capture user requirements (single learner brief)
 	 * Phase 2: BUILD - Create the 28-day learning path (auto-triggered)
 	 * Phase 3: REVIEW - Calendar view of the path, day-by-day breakdown
 	 * Phase 4: ASSIGN - Assign path to user and send notification email
@@ -12,7 +12,8 @@
 	 */
 
 	import { onMount } from 'svelte';
-	import { fillLearningPathBriefPrompt, type ScaffoldingLevel } from '$lib/data/prompts';
+	import { type ScaffoldingLevel } from '$lib/data/prompts';
+	import { settingsStore } from '$lib/stores/settings.store.svelte';
 
 	// Props from +page.server.ts
 	let { data } = $props();
@@ -55,34 +56,46 @@
 	// ========================================
 	// PHASE 1: INTAKE - Capture Requirements
 	// ========================================
-	let transcriptInput = $state('');
-	let transcriptLanguage = $state('ja');
-	let transcriptDuration = $state(28);
+	let learnerBrief = $state('');
+	// Initialize from user's selected language, can be overridden
+	let selectedTargetLanguage = $state(settingsStore.selectedLanguage?.code || 'ja');
+	const FIXED_DURATION = 28; // Fixed 28-day paths
 	let learnerLevel = $state<ScaffoldingLevel>('elementary');
-	let generatedBrief = $state('');
 	let briefCopied = $state(false);
+
+	// Sync language when settings change
+	$effect(() => {
+		if (settingsStore.selectedLanguage?.code) {
+			selectedTargetLanguage = settingsStore.selectedLanguage.code;
+		}
+	});
 
 	// Available scaffolding levels for the dropdown - with friendly labels
 	const LEVELS = [
 		{
 			code: 'beginner' as ScaffoldingLevel,
-			label: 'Just starting',
+			label: 'Beginner (A1)',
 			description: 'Knows hello/goodbye, counting'
 		},
 		{
 			code: 'elementary' as ScaffoldingLevel,
-			label: 'Knows basics',
+			label: 'Elementary (A2)',
 			description: 'Simple sentences, common phrases'
 		},
 		{
 			code: 'intermediate' as ScaffoldingLevel,
-			label: 'Can chat a bit',
-			description: 'Holds basic conversations'
+			label: 'Intermediate (B1-B2)',
+			description: 'Holds conversations, needs polish'
 		},
 		{
 			code: 'advanced' as ScaffoldingLevel,
-			label: 'Pretty fluent',
-			description: 'Needs real-world polish'
+			label: 'Advanced (C1)',
+			description: 'Fluent, refining nuance'
+		},
+		{
+			code: 'proficient' as ScaffoldingLevel,
+			label: 'Proficient (C2)',
+			description: 'Near-native, mastering subtleties'
 		}
 	];
 
@@ -96,19 +109,11 @@
 		);
 	}
 
-	function getFilledPrompt(): string {
-		return fillLearningPathBriefPrompt({
-			transcript: transcriptInput,
-			language: getLanguageName(transcriptLanguage),
-			duration: transcriptDuration
-		});
-	}
-
-	async function copyPromptToClipboard() {
+	async function copyBriefToClipboard() {
 		try {
-			await navigator.clipboard.writeText(getFilledPrompt());
+			await navigator.clipboard.writeText(learnerBrief);
 			briefCopied = true;
-			showMessage('Prompt copied! Paste into ChatGPT or Claude.', 'success');
+			showMessage('Brief copied to clipboard!', 'success');
 			setTimeout(() => (briefCopied = false), 3000);
 		} catch {
 			showMessage('Failed to copy. Please select and copy manually.', 'error');
@@ -125,21 +130,22 @@
 			beginner: { min: 'A1', max: 'A2' },
 			elementary: { min: 'A2', max: 'B1' },
 			intermediate: { min: 'B1', max: 'B2' },
-			advanced: { min: 'B2', max: 'C1' }
+			advanced: { min: 'B2', max: 'C1' },
+			proficient: { min: 'C1', max: 'C2' }
 		};
 		return ranges[level];
 	}
 
 	async function proceedToBuild() {
-		if (!generatedBrief) {
-			showMessage('Please paste the AI-generated brief first.', 'error');
+		if (!learnerBrief) {
+			showMessage('Please enter a learner brief first.', 'error');
 			return;
 		}
 
 		// Set the values
-		brief = generatedBrief;
-		targetLanguage = transcriptLanguage;
-		duration = transcriptDuration;
+		brief = learnerBrief;
+		targetLanguage = selectedTargetLanguage;
+		duration = FIXED_DURATION;
 
 		// Reset debug state
 		lastApiResponse = null;
@@ -164,9 +170,9 @@
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({
-						brief: generatedBrief,
-						targetLanguage: transcriptLanguage,
-						duration: transcriptDuration,
+						brief: learnerBrief,
+						targetLanguage: selectedTargetLanguage,
+						duration: FIXED_DURATION,
 						difficultyRange,
 						primarySkill: 'conversation',
 						learnerLevel // Pass the scaffolding level
@@ -569,146 +575,79 @@
 	{#if currentPhase === 1}
 		<div class="space-y-6">
 			<div class="rounded-2xl border border-base-200 bg-base-100 p-6">
-				<h2 class="mb-4 text-xl font-medium">Step 1: Capture User Requirements</h2>
+				<h2 class="mb-4 text-xl font-medium">Create 28-Day Learning Path</h2>
 				<p class="mb-6 text-sm text-base-content/60">
-					Paste your discovery call transcript or notes. We'll help you structure it into an
-					AI-ready brief.
+					Describe the learner's situation, goals, and how you want their path to work.
 				</p>
 
-				<div class="grid gap-6 lg:grid-cols-2">
-					<!-- Left: Input -->
-					<div class="space-y-4">
-						<div class="grid grid-cols-3 gap-4">
-							<div class="form-control">
-								<label class="label"><span class="label-text">Target Language</span></label>
-								<select class="select-bordered select" bind:value={transcriptLanguage}>
-									{#each data.languages as lang}
-										<option value={lang.code}>{lang.name}</option>
-									{/each}
-								</select>
-							</div>
-							<div class="form-control">
-								<label class="label"><span class="label-text">Where are they at?</span></label>
-								<select class="select-bordered select" bind:value={learnerLevel}>
-									{#each LEVELS as level}
-										<option value={level.code}>{level.label}</option>
-									{/each}
-								</select>
-							</div>
-							<div class="form-control">
-								<label class="label"><span class="label-text">Duration</span></label>
-								<select class="select-bordered select" bind:value={transcriptDuration}>
-									<option value={14}>14 days (2 weeks)</option>
-									<option value={21}>21 days (3 weeks)</option>
-									<option value={28}>28 days (4 weeks)</option>
-								</select>
-							</div>
-						</div>
-
-						<!-- Level-specific experience preview -->
-						<div class="rounded-lg border border-primary/20 bg-primary/5 p-3">
-							<p class="text-sm">
-								<span class="font-medium text-primary">{selectedLevel?.label}:</span>
-								<span class="text-base-content/70">{selectedLevel?.description}</span>
-							</p>
-							<p class="mt-1 text-xs text-base-content/60">
-								{#if learnerLevel === 'beginner'}
-									→ They'll get full translations, simple phrases, and lots of encouragement
-								{:else if learnerLevel === 'elementary'}
-									→ They'll get translations for new words, 2-3 turn exchanges, gentle corrections
-								{:else if learnerLevel === 'intermediate'}
-									→ They'll practice natural conversations with hints when stuck
-								{:else}
-									→ Native-like conversations with slang, idioms, and cultural nuances
-								{/if}
-							</p>
-						</div>
-
-						<!-- What They'll Practice Preview -->
-						<div class="rounded-lg bg-base-200/50 p-3">
-							<p class="mb-2 text-xs font-medium text-base-content/70">
-								What they'll practice over {transcriptDuration} days:
-							</p>
-							<div class="grid grid-cols-4 gap-2 text-xs">
-								<div class="rounded bg-base-100 p-2">
-									<div class="font-medium text-primary">Week 1</div>
-									<div class="text-base-content/80">Learning key words & phrases</div>
-									<div class="mt-1 text-base-content/50 italic">
-										"Hello", "Thank you", numbers...
-									</div>
-								</div>
-								<div class="rounded bg-base-100 p-2">
-									<div class="font-medium text-primary">Week 2</div>
-									<div class="text-base-content/80">Short back-and-forth</div>
-									<div class="mt-1 text-base-content/50 italic">
-										Ordering coffee, asking prices...
-									</div>
-								</div>
-								<div class="rounded bg-base-100 p-2">
-									<div class="font-medium text-primary">Week 3</div>
-									<div class="text-base-content/80">Guided conversations</div>
-									<div class="mt-1 text-base-content/50 italic">
-										Restaurant ordering with hints...
-									</div>
-								</div>
-								<div class="rounded bg-base-100 p-2">
-									<div class="font-medium text-primary">Week 4</div>
-									<div class="text-base-content/80">Real conversations</div>
-									<div class="mt-1 text-base-content/50 italic">
-										Full scenarios, handle surprises...
-									</div>
-								</div>
-							</div>
-						</div>
-
+				<div class="space-y-6">
+					<!-- Top row: Language and Level -->
+					<div class="grid grid-cols-2 gap-4">
 						<div class="form-control">
-							<label class="label">
-								<span class="label-text">Transcript / Notes</span>
-							</label>
-							<textarea
-								class="textarea-bordered textarea h-48 font-mono text-sm"
-								bind:value={transcriptInput}
-								placeholder="Paste your discovery call transcript or notes here...
-
-Example:
-- Robert wants to speak more confidently with strangers in Japan
-- Currently intermediate beginner, studied 2 years casually
-- Has a trip to Tokyo in 6 weeks
-- Nervous about ordering at restaurants, asking for directions"
-							></textarea>
+							<label class="label"><span class="label-text">Target Language</span></label>
+							<select class="select-bordered select" bind:value={selectedTargetLanguage}>
+								{#each data.languages as lang}
+									<option value={lang.code}>{lang.name}</option>
+								{/each}
+							</select>
 						</div>
-
-						<button class="btn w-full btn-primary" onclick={copyPromptToClipboard}>
-							{briefCopied ? 'Copied!' : 'Copy AI Prompt'}
-						</button>
+						<div class="form-control">
+							<label class="label"><span class="label-text">Current Level</span></label>
+							<select class="select-bordered select" bind:value={learnerLevel}>
+								{#each LEVELS as level}
+									<option value={level.code}>{level.label}</option>
+								{/each}
+							</select>
+						</div>
 					</div>
 
-					<!-- Right: Generated Brief -->
-					<div class="space-y-4">
-						<div class="rounded-lg bg-base-200 p-4">
-							<p class="mb-2 text-sm font-medium">After copying the prompt:</p>
-							<ol class="list-inside list-decimal space-y-1 text-sm text-base-content/70">
-								<li>Paste into ChatGPT or Claude</li>
-								<li>Get the generated brief</li>
-								<li>Paste it below</li>
-							</ol>
-						</div>
+					<!-- Level description -->
+					<div class="rounded-lg border border-primary/20 bg-primary/5 p-3">
+						<p class="text-sm">
+							<span class="font-medium text-primary">{selectedLevel?.label}:</span>
+							<span class="text-base-content/70">{selectedLevel?.description}</span>
+						</p>
+						<p class="mt-1 text-xs text-base-content/60">
+							{#if learnerLevel === 'beginner'}
+								→ Full translations, simple phrases, lots of encouragement
+							{:else if learnerLevel === 'elementary'}
+								→ Translations for new words, 2-3 turn exchanges, gentle corrections
+							{:else if learnerLevel === 'intermediate'}
+								→ Natural conversations with hints when stuck
+							{:else if learnerLevel === 'advanced'}
+								→ Native-like conversations with idioms and cultural nuances
+							{:else}
+								→ Near-native pace, regional dialects, subtle meaning and inference
+							{/if}
+						</p>
+					</div>
 
-						<div class="form-control">
-							<label class="label">
-								<span class="label-text">AI-Generated Brief</span>
-							</label>
-							<textarea
-								class="textarea-bordered textarea h-48"
-								bind:value={generatedBrief}
-								placeholder="Paste the AI-generated brief here..."
-							></textarea>
-						</div>
+					<!-- Learner Brief textarea -->
+					<div class="form-control">
+						<label class="label">
+							<span class="label-text">Learner Brief</span>
+							<span class="label-text-alt text-base-content/50">Describe their situation, goals, and learning style</span>
+						</label>
+						<textarea
+							class="textarea-bordered textarea h-64 text-sm"
+							bind:value={learnerBrief}
+							placeholder="A 28-day personalized path for someone who wants to strengthen a personal connection. They need to prepare for engaging in basic, reciprocal conversation with their girlfriend, her family, and her friends so that they don't have to switch to English.
 
+The path should focus on: describing one's daily activities (simple past/present), asking and understanding questions about others' days, and mastering high-frequency question words. Special attention to explicit and direct correction of grammar structure and placement.
+
+Difficulty should progress from structured Q&A focused on simple verb placement to narrating a sequence of simple past events and practicing question formation. Each day should be 10-20 min of focused practice. Tone should be encouraging, yet structured, prioritizing direct feedback on grammar to immediately correct structural errors and build correct automatic habits."
+						></textarea>
+					</div>
+
+					<!-- Action buttons -->
+					<div class="flex justify-end gap-3">
+						<button class="btn btn-ghost" onclick={copyBriefToClipboard} disabled={!learnerBrief}>
+							{briefCopied ? 'Copied!' : 'Copy Brief'}
+						</button>
 						<button
-							class="btn w-full btn-success"
+							class="btn btn-primary"
 							onclick={proceedToBuild}
-							disabled={!generatedBrief || loading}
+							disabled={!learnerBrief || loading}
 						>
 							{#if generatingPath}
 								<span class="loading loading-sm loading-spinner"></span>
@@ -717,22 +656,22 @@ Example:
 								Create Path
 							{/if}
 						</button>
-
-						<!-- Generation Progress -->
-						{#if generatingPath}
-							<div class="mt-4 rounded-lg border border-info/20 bg-info/5 p-3">
-								<p class="text-sm font-medium text-info">Generating your learning path...</p>
-								<p class="text-xs text-base-content/60">
-									This typically takes 30-60 seconds. Please wait.
-								</p>
-								<progress
-									class="progress mt-2 w-full progress-info"
-									max="60"
-									value={Math.min(generationSeconds, 60)}
-								></progress>
-							</div>
-						{/if}
 					</div>
+
+					<!-- Generation Progress -->
+					{#if generatingPath}
+						<div class="rounded-lg border border-info/20 bg-info/5 p-3">
+							<p class="text-sm font-medium text-info">Generating your learning path...</p>
+							<p class="text-xs text-base-content/60">
+								This typically takes 30-60 seconds. Please wait.
+							</p>
+							<progress
+								class="progress mt-2 w-full progress-info"
+								max="60"
+								value={Math.min(generationSeconds, 60)}
+							></progress>
+						</div>
+					{/if}
 				</div>
 			</div>
 
