@@ -7,6 +7,7 @@ import { createSuccessResponse, createErrorResponse } from '$lib/types/api';
 import { learningPathRepository } from '$lib/server/repositories/learning-path.repository';
 import { learningPathAssignmentRepository } from '$lib/server/repositories/learning-path-assignment.repository';
 import { userRepository } from '$lib/server/repositories/user.repository';
+import { CustomScenarioGenerationService } from '$lib/features/learning-path/services/CustomScenarioGenerationService.server';
 import type { RequestHandler } from './$types';
 
 // Initialize Resend
@@ -19,10 +20,11 @@ const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
  *
  * Request body:
  * {
- *   email?: string;        // User email (will look up userId)
- *   userId?: string;       // Direct user ID
- *   note?: string;         // Optional admin note
- *   sendEmail?: boolean;   // Send email notification (default: false)
+ *   email?: string;              // User email (will look up userId)
+ *   userId?: string;             // Direct user ID
+ *   note?: string;               // Optional admin note
+ *   sendEmail?: boolean;         // Send email notification (default: false)
+ *   generateScenarios?: boolean; // Generate custom scenarios for adaptive paths (default: true)
  * }
  *
  * Response:
@@ -30,7 +32,9 @@ const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
  *   success: true,
  *   data: {
  *     assignment: {...},
- *     emailSent?: boolean
+ *     emailSent?: boolean,
+ *     scenariosGenerated?: number,
+ *     scenarioIds?: string[]
  *   }
  * }
  */
@@ -38,7 +42,7 @@ export const POST: RequestHandler = async ({ params, request, locals, url }) => 
 	try {
 		const { pathId } = params;
 		const body = await request.json();
-		const { email, userId, note, sendEmail = false } = body;
+		const { email, userId, note, sendEmail = false, generateScenarios = true } = body;
 
 		// Verify admin/creator access (for now, just check if user is logged in)
 		if (!locals.user?.id) {
@@ -109,6 +113,33 @@ export const POST: RequestHandler = async ({ params, request, locals, url }) => 
 			}
 		});
 
+		// Generate custom scenarios for adaptive paths
+		let scenariosGenerated = 0;
+		let scenarioIds: string[] = [];
+
+		if (generateScenarios && path.mode === 'adaptive') {
+			try {
+				console.log('[Assign] Generating custom scenarios for adaptive path...');
+				const scenarioResult = await CustomScenarioGenerationService.generateScenariosForAssignment(
+					pathId,
+					targetUserId,
+					path.targetLanguage
+				);
+
+				scenariosGenerated = scenarioResult.scenariosGenerated;
+				scenarioIds = scenarioResult.scenarioIds;
+
+				if (scenarioResult.errors.length > 0) {
+					console.warn('[Assign] Some scenarios failed to generate:', scenarioResult.errors);
+				}
+
+				console.log(`[Assign] Generated ${scenariosGenerated} custom scenarios`);
+			} catch (scenarioError) {
+				console.error('[Assign] Error generating scenarios:', scenarioError);
+				// Don't fail the assignment if scenario generation fails
+			}
+		}
+
 		// Send email notification if requested
 		let emailSent = false;
 		if (sendEmail && env.RESEND_API_KEY && env.RESEND_API_KEY !== 're_dummy_resend_key') {
@@ -145,7 +176,9 @@ export const POST: RequestHandler = async ({ params, request, locals, url }) => 
 		return json(
 			createSuccessResponse({
 				assignment,
-				emailSent
+				emailSent,
+				scenariosGenerated,
+				scenarioIds
 			}),
 			{ status: 201 }
 		);
