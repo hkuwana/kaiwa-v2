@@ -3,7 +3,7 @@
 import { db } from '$lib/server/db/index';
 import { users } from '$lib/server/db/schema';
 import type { NewUser, User } from '$lib/server/db/types';
-import { eq } from 'drizzle-orm';
+import { eq, ilike, or, inArray, gt, sql, isNotNull, and } from 'drizzle-orm';
 
 export const userRepository = {
 	// CREATE
@@ -35,6 +35,46 @@ export const userRepository = {
 
 	async getAllUsers(): Promise<User[]> {
 		return db.query.users.findMany();
+	},
+
+	async searchUsers(
+		query: string,
+		limit = 10
+	): Promise<Pick<User, 'id' | 'email' | 'displayName' | 'avatarUrl'>[]> {
+		const searchPattern = `%${query}%`;
+
+		return db
+			.select({
+				id: users.id,
+				email: users.email,
+				displayName: users.displayName,
+				avatarUrl: users.avatarUrl
+			})
+			.from(users)
+			.where(or(ilike(users.email, searchPattern), ilike(users.displayName, searchPattern)))
+			.limit(limit);
+	},
+
+	async findUsersByEmails(emails: string[]): Promise<User[]> {
+		if (emails.length === 0) return [];
+
+		return db.query.users.findMany({
+			where: inArray(users.email, emails)
+		});
+	},
+
+	async findRecentVerifiedUsers(limit: number, daysBack = 60): Promise<User[]> {
+		return db
+			.select()
+			.from(users)
+			.where(
+				and(
+					isNotNull(users.emailVerified),
+					gt(users.createdAt, sql`NOW() - INTERVAL '${daysBack} days'`)
+				)
+			)
+			.orderBy(sql`${users.lastUsage} DESC NULLS LAST`)
+			.limit(limit);
 	},
 
 	// UPDATE

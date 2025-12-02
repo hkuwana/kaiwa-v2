@@ -5,6 +5,7 @@ import { json } from '@sveltejs/kit';
 import { stripeService } from '$lib/server/services/stripe.service';
 import { analytics } from '$lib/server/analytics-service';
 import { dev } from '$app/environment';
+import { userRepository } from '$lib/server/repositories/user.repository';
 
 export const POST = async ({ locals }) => {
 	// Only allow in development
@@ -19,18 +20,17 @@ export const POST = async ({ locals }) => {
 			return json({ error: 'Authentication required' }, { status: 401 });
 		}
 
-		// Get user data
-		const { db } = await import('$lib/server/db');
-		const { users } = await import('$lib/server/db/schema');
-		const { eq } = await import('drizzle-orm');
-
-		const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
-		if (!user[0]) {
+		const user = await userRepository.findUserById(userId);
+		if (!user) {
 			return json({ error: 'User not found' }, { status: 404 });
 		}
 
+		if (!user.email) {
+			return json({ error: 'User email required to create Stripe customer' }, { status: 400 });
+		}
+
 		// Create Stripe customer
-		const customerId = await stripeService.createCustomer(user[0].id, user[0].email);
+		const customerId = await stripeService.createCustomer(user.id, user.email);
 
 		// Track test customer creation
 		await analytics.track('test_customer_created', userId, {

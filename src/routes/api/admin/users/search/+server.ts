@@ -3,9 +3,7 @@
 
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { db } from '$lib/server/db';
-import { users } from '$lib/server/db/schema';
-import { ilike, or } from 'drizzle-orm';
+import { userRepository } from '$lib/server/repositories/user.repository';
 
 // Admin domains that get automatic access
 const ADMIN_DOMAINS = ['trykaiwa.com', 'kaiwa.app'];
@@ -34,27 +32,10 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	}
 
 	try {
-		// Search by email or display name (case insensitive)
-		const searchPattern = `%${query}%`;
-
-		const results = await db
-			.select({
-				id: users.id,
-				email: users.email,
-				displayName: users.displayName,
-				avatarUrl: users.avatarUrl
-			})
-			.from(users)
-			.where(
-				or(
-					ilike(users.email, searchPattern),
-					ilike(users.displayName, searchPattern)
-				)
-			)
-			.limit(10);
+		const results = await userRepository.searchUsers(query, 10);
 
 		return json({
-			users: results.map(u => ({
+			users: results.map((u) => ({
 				id: u.id,
 				email: u.email,
 				displayName: u.displayName,

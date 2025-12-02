@@ -7,6 +7,7 @@ import { createSuccessResponse, createErrorResponse } from '$lib/types/api';
 import { learningPathRepository } from '$lib/server/repositories/learning-path.repository';
 import { learningPathAssignmentRepository } from '$lib/server/repositories/learning-path-assignment.repository';
 import { userRepository } from '$lib/server/repositories/user.repository';
+import { CustomScenarioGenerationService } from '$lib/features/learning-path/services/CustomScenarioGenerationService.server';
 import type { RequestHandler } from './$types';
 
 // Initialize Resend
@@ -19,10 +20,11 @@ const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
  *
  * Request body:
  * {
- *   email?: string;        // User email (will look up userId)
- *   userId?: string;       // Direct user ID
- *   note?: string;         // Optional admin note
- *   sendEmail?: boolean;   // Send email notification (default: false)
+ *   email?: string;              // User email (will look up userId)
+ *   userId?: string;             // Direct user ID
+ *   note?: string;               // Optional admin note
+ *   sendEmail?: boolean;         // Send email notification (default: false)
+ *   generateScenarios?: boolean; // Generate custom scenarios for adaptive paths (default: true)
  * }
  *
  * Response:
@@ -30,7 +32,9 @@ const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
  *   success: true,
  *   data: {
  *     assignment: {...},
- *     emailSent?: boolean
+ *     emailSent?: boolean,
+ *     scenariosGenerated?: number,
+ *     scenarioIds?: string[]
  *   }
  * }
  */
@@ -38,7 +42,7 @@ export const POST: RequestHandler = async ({ params, request, locals, url }) => 
 	try {
 		const { pathId } = params;
 		const body = await request.json();
-		const { email, userId, note, sendEmail = false } = body;
+		const { email, userId, note, sendEmail = false, generateScenarios = true } = body;
 
 		// Verify admin/creator access (for now, just check if user is logged in)
 		if (!locals.user?.id) {
@@ -97,17 +101,79 @@ export const POST: RequestHandler = async ({ params, request, locals, url }) => 
 		}
 
 		// Create assignment
+		// Note: currentDayIndex represents "days completed" (0 = not started, on day 1)
+		// The dashboard will add 1 to get the current day number
 		const assignment = await learningPathAssignmentRepository.createAssignment({
 			pathId,
 			userId: targetUserId,
 			status: 'active',
-			currentDayIndex: 1,
+			currentDayIndex: 0, // 0 days completed = currently on day 1
+			currentWeekNumber: 1, // For adaptive paths
 			startsAt: new Date(),
 			metadata: {
 				invitedBy: locals.user.id,
 				inviteNote: note
 			}
 		});
+
+		// Generate custom scenarios for adaptive paths
+		let scenariosGenerated = 0;
+		let scenarioIds: string[] = [];
+
+		if (generateScenarios && path.mode === 'adaptive') {
+			const scenarioGenStartTime = Date.now();
+			try {
+				console.log('[Assign] 🎬 Starting custom scenario generation for adaptive path...', {
+					pathId,
+					targetUserId,
+					targetLanguage: path.targetLanguage,
+					timestamp: new Date().toISOString()
+				});
+
+				const scenarioResult = await CustomScenarioGenerationService.generateScenariosForAssignment(
+					pathId,
+					targetUserId,
+					path.targetLanguage
+				);
+
+				scenariosGenerated = scenarioResult.scenariosGenerated;
+				scenarioIds = scenarioResult.scenarioIds;
+
+				const scenarioGenDuration = Date.now() - scenarioGenStartTime;
+
+				if (scenarioResult.errors.length > 0) {
+					console.warn('[Assign] ⚠️ Some scenarios failed to generate:', {
+						errors: scenarioResult.errors,
+						durationMs: scenarioGenDuration
+					});
+				}
+
+				console.log(`[Assign] ✅ Generated ${scenariosGenerated} custom scenarios in ${scenarioGenDuration}ms`, {
+					scenarioIds,
+					averagePerScenarioMs: scenariosGenerated > 0
+						? Math.round(scenarioGenDuration / scenariosGenerated)
+						: 0
+				});
+			} catch (scenarioError) {
+				const scenarioGenDuration = Date.now() - scenarioGenStartTime;
+				console.error('[Assign] ❌ Error generating scenarios:', {
+					error: scenarioError instanceof Error ? scenarioError.message : 'Unknown error',
+					stack: scenarioError instanceof Error ? scenarioError.stack : undefined,
+					durationMs: scenarioGenDuration
+				});
+				// Don't fail the assignment if scenario generation fails
+			}
+		} else {
+			console.log('[Assign] ⏭️ Skipping scenario generation', {
+				generateScenarios,
+				pathMode: path.mode,
+				reason: !generateScenarios
+					? 'generateScenarios=false'
+					: path.mode !== 'adaptive'
+						? 'not adaptive path'
+						: 'unknown'
+			});
+		}
 
 		// Send email notification if requested
 		let emailSent = false;
@@ -145,7 +211,9 @@ export const POST: RequestHandler = async ({ params, request, locals, url }) => 
 		return json(
 			createSuccessResponse({
 				assignment,
-				emailSent
+				emailSent,
+				scenariosGenerated,
+				scenarioIds
 			}),
 			{ status: 201 }
 		);

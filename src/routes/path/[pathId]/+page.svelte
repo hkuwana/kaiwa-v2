@@ -21,8 +21,6 @@
 	const daysRemaining = $derived(data.progress.totalDays - data.progress.daysCompleted);
 	const weeks = $derived(Math.ceil(data.progress.totalDays / 7));
 
-	const weeks = $derived(Math.ceil(data.progress.totalDays / 7));
-
 	// Navigation handlers
 	function handleStartLesson() {
 		if (data.progress.currentDay?.scenarioId) {

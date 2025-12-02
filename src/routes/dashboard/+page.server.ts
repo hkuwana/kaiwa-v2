@@ -4,6 +4,8 @@ import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { learningPathRepository } from '$lib/server/repositories/learning-path.repository';
 import { learningPathAssignmentRepository } from '$lib/server/repositories/learning-path-assignment.repository';
+import { learningPathProgressRepository } from '$lib/server/repositories/learning-path-progress.repository';
+import type { ConversationSeed } from '$lib/server/db/schema/adaptive-weeks';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	// Redirect to auth if not logged in
@@ -17,28 +19,78 @@ export const load: PageServerLoad = async ({ locals }) => {
 		// Get user's assignments
 		const assignments = await learningPathAssignmentRepository.listAssignmentsForUser(userId);
 
-		// Get paths for each assignment
+		// Get paths for each assignment with active week info
+		const pathsWithWeeks = await learningPathProgressRepository.getAssignmentsWithPathAndWeek(
+			userId
+		);
+
 		const activePaths = [];
 		const completedPaths = [];
 
 		for (const assignment of assignments) {
-			const path = await learningPathRepository.findPathById(assignment.pathId);
+			const pathWithWeek = pathsWithWeeks.find(
+				(item) => item.assignment.id === assignment.id
+			);
+			const path = pathWithWeek?.path ?? (await learningPathRepository.findPathById(assignment.pathId));
 			if (!path) continue;
 
-			const pathData = {
-				path,
-				assignment,
-				totalDays: path.schedule?.length || 0,
-				daysCompleted: assignment.currentDayIndex,
-				progressPercent: path.schedule?.length
-					? Math.round((assignment.currentDayIndex / path.schedule.length) * 100)
-					: 0
-			};
+			// Handle adaptive vs classic paths differently
+			if (path.mode === 'adaptive') {
+				const activeWeek = pathWithWeek?.activeWeek ?? null;
+				const seeds = (pathWithWeek?.seeds || []) as ConversationSeed[];
+				const readyScenarios = seeds.filter(s => s.scenarioId).length;
+				const totalSeeds = seeds.length;
 
-			if (assignment.status === 'completed' || assignment.completedAt) {
-				completedPaths.push(pathData);
+				const pathData = {
+					path,
+					assignment,
+					isAdaptive: true,
+					activeWeek: activeWeek ? {
+						id: activeWeek.id,
+						weekNumber: activeWeek.weekNumber,
+						theme: activeWeek.theme,
+						themeDescription: activeWeek.themeDescription,
+						seeds: seeds.map((seed, index) => ({
+							id: seed.id,
+							title: seed.title,
+							description: seed.description,
+							scenarioId: seed.scenarioId,
+							isReady: !!seed.scenarioId,
+							optionNumber: index + 1
+						}))
+					} : null,
+					totalOptions: totalSeeds,
+					readyOptions: readyScenarios,
+					progressPercent: totalSeeds > 0 ? Math.round((readyScenarios / totalSeeds) * 100) : 0,
+					// For compatibility with existing code
+					totalDays: totalSeeds,
+					daysCompleted: 0
+				};
+
+				if (assignment.status === 'completed' || assignment.completedAt) {
+					completedPaths.push(pathData);
+				} else {
+					activePaths.push(pathData);
+				}
 			} else {
-				activePaths.push(pathData);
+				// Classic path handling (unchanged)
+				const pathData = {
+					path,
+					assignment,
+					isAdaptive: false,
+					activeWeek: null,
+					totalDays: path.schedule?.length || 0,
+					daysCompleted: assignment.currentDayIndex,
+					progressPercent: path.schedule?.length
+						? Math.round((assignment.currentDayIndex / path.schedule.length) * 100)
+						: 0
+				};
+
+				if (assignment.status === 'completed' || assignment.completedAt) {
+					completedPaths.push(pathData);
+				} else {
+					activePaths.push(pathData);
+				}
 			}
 		}
 

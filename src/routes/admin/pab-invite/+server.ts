@@ -1,34 +1,15 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { db } from '$lib/server/db';
-import { users } from '$lib/server/db/schema';
-import { sql, gt, and, isNotNull } from 'drizzle-orm';
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
+import { userRepository } from '$lib/server/repositories/user.repository';
 
 const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
 
 export const GET: RequestHandler = async ({ url }) => {
 	try {
 		// Get recent, active users who could be PAB candidates
-		const candidates = await db
-			.select({
-				email: users.email,
-				displayName: users.displayName,
-				createdAt: users.createdAt,
-				lastUsage: users.lastUsage,
-				nativeLanguageId: users.nativeLanguageId,
-				preferredUILanguageId: users.preferredUILanguageId
-			})
-			.from(users)
-			.where(
-				and(
-					isNotNull(users.emailVerified), // Only verified emails
-					gt(users.createdAt, sql`NOW() - INTERVAL '60 days'`) // Last 60 days
-				)
-			)
-			.orderBy(sql`${users.lastUsage} DESC NULLS LAST`)
-			.limit(20);
+		const candidates = await userRepository.findRecentVerifiedUsers(20, 60);
 
 		return json({
 			candidates: candidates.map((c) => ({
@@ -61,14 +42,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		}
 
 		// Get user details for personalization
-		const userDetails = await db
-			.select({
-				email: users.email,
-				displayName: users.displayName,
-				preferredUILanguageId: users.preferredUILanguageId
-			})
-			.from(users)
-			.where(sql`${users.email} = ANY(${emails})`);
+		const userDetails = await userRepository.findUsersByEmails(emails);
 
 		let sentCount = 0;
 		const errors: string[] = [];

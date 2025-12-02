@@ -296,6 +296,11 @@
 	let assignEmail = $state('');
 	let assignNote = $state('');
 	let sendEmailNotification = $state(true);
+	let generateCustomScenarios = $state(true);
+	let lastAssignmentResult = $state<{
+		scenariosGenerated?: number;
+		scenarioIds?: string[];
+	} | null>(null);
 
 	// User search autocomplete
 	type UserSearchResult = {
@@ -390,24 +395,40 @@
 		}
 
 		loading = true;
+		lastAssignmentResult = null;
 		try {
-			const response = await fetchWithTimeout(`/api/learning-paths/${selectedPath.id}/assign`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					email: assignEmail,
-					note: assignNote || undefined,
-					sendEmail: sendEmailNotification
-				})
-			});
+			const response = await fetchWithTimeout(
+				`/api/learning-paths/${selectedPath.id}/assign`,
+				{
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						email: assignEmail,
+						note: assignNote || undefined,
+						sendEmail: sendEmailNotification,
+						generateScenarios: generateCustomScenarios
+					})
+				},
+				generateCustomScenarios ? AI_REQUEST_TIMEOUT : REQUEST_TIMEOUT // Use longer timeout for scenario generation
+			);
 
 			const result = await response.json();
 
 			if (result.success) {
+				const scenarioInfo = result.data?.scenariosGenerated
+					? ` (${result.data.scenariosGenerated} custom scenarios created)`
+					: '';
 				showMessage(
-					`Assigned to ${assignEmail}${sendEmailNotification ? ' - Email notification sent!' : ''}`,
+					`Assigned to ${assignEmail}${sendEmailNotification ? ' - Email notification sent!' : ''}${scenarioInfo}`,
 					'success'
 				);
+
+				// Store result for display
+				lastAssignmentResult = {
+					scenariosGenerated: result.data?.scenariosGenerated,
+					scenarioIds: result.data?.scenarioIds
+				};
+
 				assignEmail = '';
 				assignNote = '';
 			} else {
@@ -1138,6 +1159,35 @@ Difficulty should progress from structured Q&A focused on simple verb placement 
 							</div>
 						{/if}
 
+						<label class="flex cursor-pointer items-center gap-3">
+							<input
+								type="checkbox"
+								class="checkbox checkbox-secondary"
+								bind:checked={generateCustomScenarios}
+							/>
+							<span class="label-text">Generate custom scenarios</span>
+						</label>
+
+						{#if generateCustomScenarios}
+							<div class="rounded-lg bg-secondary/10 p-3 text-sm">
+								<p class="font-medium text-secondary">AI-generated scenarios:</p>
+								<p class="mt-1 text-base-content/70">
+									Custom scenarios will be created based on the learning path's conversation seeds. This may take 30-60 seconds.
+								</p>
+							</div>
+						{/if}
+
+						{#if lastAssignmentResult?.scenariosGenerated}
+							<div class="rounded-lg bg-info/10 p-3 text-sm">
+								<p class="font-medium text-info">
+									✓ {lastAssignmentResult.scenariosGenerated} custom scenarios created!
+								</p>
+								<p class="mt-1 text-base-content/70">
+									The learner can now practice with personalized scenarios on their home page.
+								</p>
+							</div>
+						{/if}
+
 						<div class="flex justify-end gap-2 pt-4">
 							<button class="btn btn-ghost" onclick={() => (currentPhase = 3)}>Back</button>
 							<button
@@ -1145,7 +1195,13 @@ Difficulty should progress from structured Q&A focused on simple verb placement 
 								onclick={assignPath}
 								disabled={loading || !assignEmail}
 							>
-								{loading ? 'Sending...' : sendEmailNotification ? 'Send Path' : 'Assign'}
+								{#if loading}
+									<span class="loading loading-spinner loading-sm"></span>
+									{generateCustomScenarios ? 'Generating scenarios...' : 'Assigning...'}
+								{:else}
+									{sendEmailNotification ? 'Send Path' : 'Assign'}
+									{generateCustomScenarios ? ' & Generate Scenarios' : ''}
+								{/if}
 							</button>
 						</div>
 					</div>

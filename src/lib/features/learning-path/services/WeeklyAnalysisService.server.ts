@@ -19,6 +19,7 @@ import {
 	type LeverageArea
 } from '$lib/server/db/schema';
 import OpenAI from 'openai';
+import { env } from '$env/dynamic/private';
 
 // ============================================================================
 // TYPES
@@ -59,13 +60,19 @@ export interface ConversationData {
 // ============================================================================
 
 export class WeeklyAnalysisService {
-	private openai: OpenAI;
+	private openai: OpenAI | null;
 
 	constructor(
 		private database = db,
 		openaiClient?: OpenAI
 	) {
-		this.openai = openaiClient ?? new OpenAI();
+		if (openaiClient) {
+			this.openai = openaiClient;
+		} else if (env.OPENAI_API_KEY) {
+			this.openai = new OpenAI({ apiKey: env.OPENAI_API_KEY });
+		} else {
+			this.openai = null;
+		}
 	}
 
 	/**
