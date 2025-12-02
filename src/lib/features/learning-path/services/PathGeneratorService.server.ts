@@ -306,6 +306,7 @@ export class PathGeneratorService {
 			title: syllabus.title,
 			description: syllabus.description,
 			targetLanguage,
+			mode: 'adaptive', // Use adaptive mode by default for new paths
 			schedule,
 			status: 'draft', // Starts as draft, becomes 'active' when first scenario ready
 			isTemplate: false, // Can be marked as template later for publishing

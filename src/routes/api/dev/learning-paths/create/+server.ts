@@ -28,6 +28,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			title: title || 'Test Learning Path',
 			description: 'A test learning path for development',
 			targetLanguage: targetLanguage || 'ja',
+			mode: 'adaptive', // Use adaptive mode by default
 			schedule,
 			isTemplate: false,
 			isPublic: false,

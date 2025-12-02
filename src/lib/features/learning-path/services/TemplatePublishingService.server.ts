@@ -114,6 +114,7 @@ export class TemplatePublishingService {
 				title: scrubbedTitle,
 				description: scrubbedDescription,
 				targetLanguage: originalPath.targetLanguage,
+				mode: originalPath.mode, // Preserve the path mode (adaptive or classic)
 				schedule: originalPath.schedule,
 				isTemplate: true,
 				isPublic: true,
