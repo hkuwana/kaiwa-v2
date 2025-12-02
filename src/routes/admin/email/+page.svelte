@@ -86,6 +86,16 @@
 					description: 'Calendar link to book a call'
 				}
 			]
+		},
+		{
+			category: '📚 Learning Path Emails',
+			emails: [
+				{
+					value: 'learning_path_reminder',
+					label: 'Daily Learning Path Reminder',
+					description: 'Day-specific reminder with progress, theme, and motivation'
+				}
+			]
 		}
 	];
 
@@ -109,7 +119,7 @@
 				userId: userManager.user?.id || ''
 			});
 
-			const response = await fetch(`/dev/email?${params.toString()}`);
+			const response = await fetch(`/admin/email?${params.toString()}`);
 
 			if (response.ok) {
 				previewHtml = await response.text();
@@ -139,7 +149,7 @@
 		testResult = '⏳ Sending test email...';
 
 		try {
-			const response = await fetch('/dev/email', {
+			const response = await fetch('/admin/email', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -175,7 +185,7 @@
 		cronResult = '⏳ Running reminder check-in dry run...';
 
 		try {
-			const response = await fetch('/dev/email/cron', {
+			const response = await fetch('/admin/email/cron', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({})
@@ -635,6 +645,10 @@
 								<li>
 									<code class="rounded bg-base-200 px-2 py-1">/api/cron/founder-emails</code> - Day 1-3
 									founder sequence (daily)
+								</li>
+								<li>
+									<code class="rounded bg-base-200 px-2 py-1">/api/cron/send-learning-path-emails</code> - Learning
+									path daily reminders (8 AM UTC)
 								</li>
 							</ul>
 						</div>

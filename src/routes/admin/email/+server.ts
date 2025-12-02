@@ -6,6 +6,8 @@ import { ScenarioInspirationEmailService } from '$lib/emails/campaigns/scenario-
 import { CommunityStoryEmailService } from '$lib/emails/campaigns/community-stories/story.service';
 import { ProductUpdatesEmailService } from '$lib/emails/campaigns/product-updates/update.service';
 import { ProgressReportsEmailService } from '$lib/emails/campaigns/progress-reports/progress.service';
+import { LearningPathEmailService } from '$lib/emails/campaigns/learning-path/learning-path.service';
+import { learningPathAssignmentRepository } from '$lib/server/repositories/learning-path-assignment.repository';
 import { userRepository } from '$lib/server/repositories';
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
@@ -188,6 +190,24 @@ export const GET = async ({ url, locals }) => {
 				});
 				break;
 			}
+			case 'learning_path_reminder': {
+				// Get user's active learning path assignment
+				const assignments = await learningPathAssignmentRepository.listAssignmentsForUser(targetUserId);
+				const activeAssignment = assignments.find(a => a.status === 'active');
+
+				if (!activeAssignment) {
+					return new Response('User has no active learning path. Enroll in a learning path first at /get-your-guide', { status: 400 });
+				}
+
+				const emailData = await LearningPathEmailService.getLearningPathEmailData(activeAssignment.id);
+				if (!emailData) {
+					return new Response('Could not get learning path email data', { status: 500 });
+				}
+
+				emailSubject = `Day ${emailData.currentDay}: ${emailData.todayTheme}`;
+				emailHtml = await LearningPathEmailService.previewEmail(activeAssignment.id) || '';
+				break;
+			}
 
 			default:
 				return new Response(`Unknown email type: ${emailType}`, { status: 400 });
@@ -364,6 +384,24 @@ export const POST = async ({ request, locals }) => {
 					totalMinutes: 18,
 					languages: ['Spanish', 'French']
 				});
+				break;
+			}
+			case 'learning_path_reminder': {
+				// Get user's active learning path assignment
+				const assignments = await learningPathAssignmentRepository.listAssignmentsForUser(targetUserId);
+				const activeAssignment = assignments.find(a => a.status === 'active');
+
+				if (!activeAssignment) {
+					return json({ error: 'User has no active learning path. Enroll in a learning path first at /get-your-guide' }, { status: 400 });
+				}
+
+				const emailData = await LearningPathEmailService.getLearningPathEmailData(activeAssignment.id);
+				if (!emailData) {
+					return json({ error: 'Could not get learning path email data' }, { status: 500 });
+				}
+
+				emailSubject = `Day ${emailData.currentDay}: ${emailData.todayTheme}`;
+				emailHtml = await LearningPathEmailService.previewEmail(activeAssignment.id) || '';
 				break;
 			}
 
