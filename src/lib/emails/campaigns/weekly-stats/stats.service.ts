@@ -5,6 +5,10 @@ import { conversationSessionsRepository } from '$lib/server/repositories/convers
 import { EmailPermissionService } from '$lib/emails/shared/email-permission';
 import type { User } from '$lib/server/db/types';
 import { analyticsEventsRepository } from '$lib/server/repositories/analytics-events.repository';
+import { learningPathAssignmentRepository } from '$lib/server/repositories/learning-path-assignment.repository';
+import { db } from '$lib/server/db';
+import { learningPaths } from '$lib/server/db/schema';
+import { eq } from 'drizzle-orm';
 
 // Use process.env for compatibility with both SvelteKit and standalone scripts
 const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_dummy_resend_key';
@@ -21,6 +25,15 @@ interface WeeklyStatsData {
 	improvementVsPreviousWeek: number | null;
 	totalWordsSpoken: number;
 	totalCharactersSpoken: number;
+}
+
+interface LearningPathInfo {
+	hasActivePath: boolean;
+	pathTitle?: string;
+	pathId?: string;
+	currentDay?: number;
+	totalDays?: number;
+	weekNumber?: number;
 }
 
 export class WeeklyStatsEmailService {
@@ -71,8 +84,11 @@ export class WeeklyStatsEmailService {
 					continue;
 				}
 
+				// Check if user has an active learning path
+				const learningPathInfo = await this.getUserLearningPathInfo(user.id);
+
 				// Build and send email
-				const html = this.buildWeeklyStatsEmail(user, weeklyStats);
+				const html = this.buildWeeklyStatsEmail(user, weeklyStats, learningPathInfo);
 				const subject = this.buildSubject(weeklyStats);
 
 				const result = await resend.emails.send({
@@ -196,6 +212,50 @@ export class WeeklyStatsEmailService {
 	}
 
 	/**
+	 * Get learning path info for a user
+	 */
+	private static async getUserLearningPathInfo(userId: string): Promise<LearningPathInfo> {
+		try {
+			const assignments = await learningPathAssignmentRepository.listAssignmentsForUser(userId, {
+				status: 'active'
+			});
+
+			if (assignments.length === 0) {
+				return { hasActivePath: false };
+			}
+
+			// Get the most recent active assignment
+			const assignment = assignments[0];
+
+			// Get path details
+			const path = await db.query.learningPaths.findFirst({
+				where: eq(learningPaths.id, assignment.pathId)
+			});
+
+			if (!path) {
+				return { hasActivePath: false };
+			}
+
+			const schedule = (path.schedule as Array<{ dayIndex: number }>) || [];
+			const currentDay = (assignment.currentDayIndex || 0) + 1;
+			const totalDays = schedule.length || 28;
+			const weekNumber = Math.ceil(currentDay / 7);
+
+			return {
+				hasActivePath: true,
+				pathTitle: path.title,
+				pathId: path.id,
+				currentDay,
+				totalDays,
+				weekNumber
+			};
+		} catch (error) {
+			logger.error('Error getting learning path info:', error);
+			return { hasActivePath: false };
+		}
+	}
+
+	/**
 	 * Build email subject line based on user's stats
 	 */
 	private static buildSubject(stats: WeeklyStatsData): string {
@@ -213,7 +273,11 @@ export class WeeklyStatsEmailService {
 	/**
 	 * Build the HTML email with weekly stats
 	 */
-	private static buildWeeklyStatsEmail(user: User, stats: WeeklyStatsData): string {
+	private static buildWeeklyStatsEmail(
+		user: User,
+		stats: WeeklyStatsData,
+		learningPath: LearningPathInfo = { hasActivePath: false }
+	): string {
 		const firstName = user.displayName?.split(' ')[0] || 'there';
 		const languageName = this.formatLanguageName(stats.mostPracticedLanguage);
 
@@ -375,9 +439,7 @@ export class WeeklyStatsEmailService {
 						${encouragement}
 					</div>
 
-					<div class="cta">
-						<a href="${PUBLIC_APP_URL}/practice">Continue practicing</a>
-					</div>
+					${this.buildCtaSection(learningPath)}
 
 					<p style="margin-top: 32px; color: #374151; text-align: center;">
 						Keep it up, ${firstName}!<br>
@@ -392,6 +454,64 @@ export class WeeklyStatsEmailService {
 			</body>
 			</html>
 		`;
+	}
+
+	/**
+	 * Build CTA section based on learning path status
+	 */
+	private static buildCtaSection(learningPath: LearningPathInfo): string {
+		if (learningPath.hasActivePath) {
+			// User has an active learning path - encourage them to continue
+			const progressPercent = Math.round(
+				((learningPath.currentDay || 1) / (learningPath.totalDays || 28)) * 100
+			);
+
+			return `
+				<div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 16px; padding: 24px; margin: 24px 0; color: white;">
+					<div style="text-align: center;">
+						<p style="margin: 0 0 8px 0; font-size: 14px; opacity: 0.9;">Your Learning Path</p>
+						<h3 style="margin: 0 0 16px 0; font-size: 20px;">${learningPath.pathTitle}</h3>
+
+						<!-- Progress bar -->
+						<div style="background: rgba(255,255,255,0.2); border-radius: 10px; height: 8px; margin-bottom: 12px;">
+							<div style="background: white; height: 100%; width: ${progressPercent}%; border-radius: 10px;"></div>
+						</div>
+
+						<p style="margin: 0 0 20px 0; font-size: 14px;">
+							Day ${learningPath.currentDay} of ${learningPath.totalDays} (Week ${learningPath.weekNumber})
+						</p>
+
+						<a href="${PUBLIC_APP_URL}/path/${learningPath.pathId}" style="display: inline-block; background: white; color: #6366f1; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+							Continue Your Journey
+						</a>
+					</div>
+				</div>
+			`;
+		} else {
+			// User doesn't have a learning path - promote the 28-day guide
+			return `
+				<div style="background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 16px; padding: 24px; margin: 24px 0; text-align: center;">
+					<p style="margin: 0 0 8px 0; color: #64748b; font-size: 14px;">Ready to level up?</p>
+					<h3 style="margin: 0 0 12px 0; color: #1e293b; font-size: 20px;">Get Your Personalized 28-Day Guide</h3>
+					<p style="margin: 0 0 20px 0; color: #64748b; font-size: 14px; line-height: 1.5;">
+						A custom learning path built around your goals, schedule, and current level.
+						Daily scenarios. Weekly themes. Real progress.
+					</p>
+					<a href="${PUBLIC_APP_URL}/get-your-guide?utm_source=weekly_stats&utm_medium=email" style="display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+						Create My 28-Day Plan
+					</a>
+					<p style="margin: 16px 0 0 0; color: #94a3b8; font-size: 12px;">
+						Takes 2 minutes. Completely free.
+					</p>
+				</div>
+
+				<div class="cta" style="margin-top: 16px;">
+					<a href="${PUBLIC_APP_URL}/practice" style="display: inline-block; padding: 12px 24px; background: #e2e8f0; color: #475569; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
+						Or just practice now
+					</a>
+				</div>
+			`;
+		}
 	}
 
 	/**
