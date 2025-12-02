@@ -101,11 +101,14 @@ export const POST: RequestHandler = async ({ params, request, locals, url }) => 
 		}
 
 		// Create assignment
+		// Note: currentDayIndex represents "days completed" (0 = not started, on day 1)
+		// The dashboard will add 1 to get the current day number
 		const assignment = await learningPathAssignmentRepository.createAssignment({
 			pathId,
 			userId: targetUserId,
 			status: 'active',
-			currentDayIndex: 1,
+			currentDayIndex: 0, // 0 days completed = currently on day 1
+			currentWeekNumber: 1, // For adaptive paths
 			startsAt: new Date(),
 			metadata: {
 				invitedBy: locals.user.id,

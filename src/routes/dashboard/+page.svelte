@@ -4,26 +4,28 @@
 	 *
 	 * Shows:
 	 * - Active learning paths with progress
-	 * - Quick access to today's lesson
+	 * - Quick access to today's lesson (classic) or conversation options (adaptive)
 	 * - Completed paths
 	 * - Discover new templates
 	 */
 
 	import { goto } from '$app/navigation';
 	import LearningPathProgress from '$lib/features/learning-path/components/LearningPathProgress.svelte';
+	import AdaptivePathOptions from '$lib/features/learning-path/components/AdaptivePathOptions.svelte';
 	import SharePathButton from '$lib/features/learning-path/components/SharePathButton.svelte';
 	import type { UserLearningPath } from '$lib/features/learning-path/stores/learning-path.store.svelte';
 	import type { LearningPath, LearningPathAssignment } from '$lib/server/db/types';
 
 	const { data } = $props();
 
-	// Transform server data to UserLearningPath format
+	// Transform server data to UserLearningPath format (for classic paths)
 	function toUserLearningPath(item: {
 		path: LearningPath;
 		assignment: LearningPathAssignment;
 		totalDays: number;
 		daysCompleted: number;
 		progressPercent: number;
+		isAdaptive?: boolean;
 	}): UserLearningPath {
 		const schedule = item.path.schedule || [];
 		const currentDayIndex = Math.min(item.daysCompleted + 1, item.totalDays);
@@ -55,11 +57,53 @@
 		};
 	}
 
-	const activePaths = $derived(data.activePaths.map(toUserLearningPath));
-	const completedPaths = $derived(data.completedPaths.map(toUserLearningPath));
-	const currentPath = $derived(activePaths[0] || null);
+	// Type for adaptive path data from server
+	interface AdaptivePathData {
+		path: LearningPath;
+		assignment: LearningPathAssignment;
+		isAdaptive: true;
+		activeWeek: {
+			id: string;
+			weekNumber: number;
+			theme: string;
+			themeDescription: string;
+			seeds: Array<{
+				id: string;
+				title: string;
+				description: string;
+				scenarioId?: string;
+				isReady: boolean;
+				optionNumber: number;
+			}>;
+		} | null;
+		totalOptions: number;
+		readyOptions: number;
+		progressPercent: number;
+		totalDays: number;
+		daysCompleted: number;
+	}
 
-	function handleStartLesson(scenarioId: string) {
+	// Filter paths by type
+	const adaptiveActivePaths = $derived(
+		data.activePaths.filter((p: any) => p.isAdaptive) as AdaptivePathData[]
+	);
+	const classicActivePaths = $derived(
+		data.activePaths.filter((p: any) => !p.isAdaptive).map(toUserLearningPath)
+	);
+
+	// Primary path is the first active path (adaptive preferred)
+	const primaryAdaptivePath = $derived(adaptiveActivePaths[0] || null);
+	const primaryClassicPath = $derived(classicActivePaths[0] || null);
+
+	// Completed paths (transform classic ones)
+	const completedPaths = $derived(
+		data.completedPaths.filter((p: any) => !p.isAdaptive).map(toUserLearningPath)
+	);
+	const completedAdaptivePaths = $derived(
+		data.completedPaths.filter((p: any) => p.isAdaptive) as AdaptivePathData[]
+	);
+
+	function handleStartConversation(scenarioId: string) {
 		goto(`/conversation?scenario=${scenarioId}`);
 	}
 
@@ -97,19 +141,40 @@
 	<div class="grid gap-6 lg:grid-cols-3">
 		<!-- Main content area -->
 		<div class="space-y-6 lg:col-span-2">
-			<!-- Current Learning Path -->
-			{#if currentPath}
+			<!-- Current Learning Path - Adaptive -->
+			{#if primaryAdaptivePath}
+				<div>
+					<div class="mb-4 flex items-center justify-between">
+						<h2 class="text-xl font-semibold">Your Learning Path</h2>
+						<SharePathButton
+							pathId={primaryAdaptivePath.path.id}
+							pathTitle={primaryAdaptivePath.path.title}
+							isTemplate={primaryAdaptivePath.path.isTemplate}
+							shareSlug={primaryAdaptivePath.path.shareSlug}
+						/>
+					</div>
+					<AdaptivePathOptions
+						path={primaryAdaptivePath.path}
+						assignment={primaryAdaptivePath.assignment}
+						activeWeek={primaryAdaptivePath.activeWeek}
+						totalOptions={primaryAdaptivePath.totalOptions}
+						readyOptions={primaryAdaptivePath.readyOptions}
+						onStartConversation={handleStartConversation}
+					/>
+				</div>
+			<!-- Current Learning Path - Classic -->
+			{:else if primaryClassicPath}
 				<div>
 					<div class="mb-4 flex items-center justify-between">
 						<h2 class="text-xl font-semibold">Current Learning Path</h2>
 						<SharePathButton
-							pathId={currentPath.path.id}
-							pathTitle={currentPath.path.title}
-							isTemplate={currentPath.path.isTemplate}
-							shareSlug={currentPath.path.shareSlug}
+							pathId={primaryClassicPath.path.id}
+							pathTitle={primaryClassicPath.path.title}
+							isTemplate={primaryClassicPath.path.isTemplate}
+							shareSlug={primaryClassicPath.path.shareSlug}
 						/>
 					</div>
-					<LearningPathProgress path={currentPath} onStartLesson={handleStartLesson} />
+					<LearningPathProgress path={primaryClassicPath} onStartLesson={handleStartConversation} />
 				</div>
 			{:else}
 				<!-- No active paths - show CTA -->
@@ -126,23 +191,58 @@
 				</div>
 			{/if}
 
-			<!-- Other Active Paths -->
-			{#if activePaths.length > 1}
+			<!-- Other Active Adaptive Paths -->
+			{#if adaptiveActivePaths.length > 1}
+				<div>
+					<h2 class="mb-4 text-xl font-semibold">Other Learning Paths</h2>
+					<div class="grid gap-4 sm:grid-cols-2">
+						{#each adaptiveActivePaths.slice(1) as adaptivePath}
+							<AdaptivePathOptions
+								path={adaptivePath.path}
+								assignment={adaptivePath.assignment}
+								activeWeek={adaptivePath.activeWeek}
+								totalOptions={adaptivePath.totalOptions}
+								readyOptions={adaptivePath.readyOptions}
+								compact
+								onStartConversation={handleStartConversation}
+							/>
+						{/each}
+					</div>
+				</div>
+			{/if}
+
+			<!-- Other Active Classic Paths -->
+			{#if classicActivePaths.length > (primaryAdaptivePath ? 0 : 1)}
 				<div>
 					<h2 class="mb-4 text-xl font-semibold">Other Active Paths</h2>
 					<div class="grid gap-4 sm:grid-cols-2">
-						{#each activePaths.slice(1) as path}
-							<LearningPathProgress {path} compact onStartLesson={handleStartLesson} />
+						{#each classicActivePaths.slice(primaryAdaptivePath ? 0 : 1) as path}
+							<LearningPathProgress {path} compact onStartLesson={handleStartConversation} />
 						{/each}
 					</div>
 				</div>
 			{/if}
 
 			<!-- Completed Paths -->
-			{#if completedPaths.length > 0}
+			{#if completedPaths.length > 0 || completedAdaptivePaths.length > 0}
 				<div>
 					<h2 class="mb-4 text-xl font-semibold">Completed Paths</h2>
 					<div class="grid gap-4 sm:grid-cols-2">
+						{#each completedAdaptivePaths as adaptivePath}
+							<div class="card bg-base-200 shadow-sm">
+								<div class="card-body p-4">
+									<div class="flex items-start justify-between">
+										<div>
+											<h3 class="font-semibold">{adaptivePath.path.title}</h3>
+											<p class="text-sm text-base-content/70">
+												{adaptivePath.totalOptions} conversations completed
+											</p>
+										</div>
+										<span class="badge badge-success">Completed</span>
+									</div>
+								</div>
+							</div>
+						{/each}
 						{#each completedPaths as path}
 							<div class="card bg-base-200 shadow-sm">
 								<div class="card-body p-4">
