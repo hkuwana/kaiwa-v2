@@ -15,7 +15,7 @@ const ADMIN_DOMAINS = ['trykaiwa.com', 'kaiwa.app'];
 
 // Specific email addresses with admin access (external collaborators, etc.)
 const ADMIN_EMAILS = [
-	'hiro.kuwana@gmail.com'
+	'hkuwana97@gmail.com'
 	// Add more specific emails here as needed
 ];
 
