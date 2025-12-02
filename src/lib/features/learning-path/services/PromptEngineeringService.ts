@@ -47,6 +47,8 @@ Your task is to create a ${duration}-day learning path that:
 - Balances comfort and challenge (${userPreferences.challengePreference} challenge preference)
 - Incorporates cultural context and authentic communication patterns
 
+**IMPORTANT: All output text (titles, descriptions, themes, objectives) MUST be written in ENGLISH, regardless of the target language being learned. The learner needs to understand what they're learning.**
+
 **Key Principles:**
 - Each day should have a clear theme and learning objectives
 - Progression should feel natural and achievable
@@ -134,6 +136,8 @@ Return a JSON object with the following structure:
 
 Your task is to transform a course brief into a structured ${duration}-day learning path.
 
+**IMPORTANT: All output text (titles, descriptions, themes, objectives) MUST be written in ENGLISH, regardless of the target language being learned. The learner needs to understand what they're learning.**
+
 **Key Principles:**
 - Follow the creator's vision and intent closely
 - Create a natural difficulty progression
@@ -167,15 +171,15 @@ ${brief}
 		userPrompt += `\n\n**Output Format:**
 Return a JSON object with the following structure:
 {
-  "title": "Course title (clear and SEO-friendly)",
-  "description": "2-3 sentence course description highlighting key outcomes",
+  "title": "Course title in ENGLISH (clear and SEO-friendly)",
+  "description": "2-3 sentence course description in ENGLISH highlighting key outcomes",
   "days": [
     {
       "dayIndex": 1,
-      "theme": "Daily theme (specific and actionable)",
+      "theme": "Daily theme in ENGLISH (specific and actionable)",
       "difficulty": "CEFR level (e.g., 'A2', 'B1') or 'beginner/intermediate/advanced'",
-      "learningObjectives": ["Objective 1", "Objective 2", "Objective 3"],
-      "scenarioDescription": "Detailed scenario description for generation"
+      "learningObjectives": ["Objective 1 in ENGLISH", "Objective 2 in ENGLISH", "Objective 3 in ENGLISH"],
+      "scenarioDescription": "Detailed scenario description in ENGLISH for generation"
     }
     // ... ${duration} days total
   ],
@@ -185,6 +189,8 @@ Return a JSON object with the following structure:
     "tags": ${JSON.stringify(metadata?.tags || [])}
   }
 }
+
+**CRITICAL: All text in the output MUST be in ENGLISH. The learner is learning ${targetLanguage.toUpperCase()}, but they need to read and understand the syllabus in English.**
 
 **Important:**
 - Honor the creator's brief - this is their vision
