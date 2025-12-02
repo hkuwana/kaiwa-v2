@@ -121,8 +121,15 @@ export const POST: RequestHandler = async ({ params, request, locals, url }) => 
 		let scenarioIds: string[] = [];
 
 		if (generateScenarios && path.mode === 'adaptive') {
+			const scenarioGenStartTime = Date.now();
 			try {
-				console.log('[Assign] Generating custom scenarios for adaptive path...');
+				console.log('[Assign] 🎬 Starting custom scenario generation for adaptive path...', {
+					pathId,
+					targetUserId,
+					targetLanguage: path.targetLanguage,
+					timestamp: new Date().toISOString()
+				});
+
 				const scenarioResult = await CustomScenarioGenerationService.generateScenariosForAssignment(
 					pathId,
 					targetUserId,
@@ -132,15 +139,40 @@ export const POST: RequestHandler = async ({ params, request, locals, url }) => 
 				scenariosGenerated = scenarioResult.scenariosGenerated;
 				scenarioIds = scenarioResult.scenarioIds;
 
+				const scenarioGenDuration = Date.now() - scenarioGenStartTime;
+
 				if (scenarioResult.errors.length > 0) {
-					console.warn('[Assign] Some scenarios failed to generate:', scenarioResult.errors);
+					console.warn('[Assign] ⚠️ Some scenarios failed to generate:', {
+						errors: scenarioResult.errors,
+						durationMs: scenarioGenDuration
+					});
 				}
 
-				console.log(`[Assign] Generated ${scenariosGenerated} custom scenarios`);
+				console.log(`[Assign] ✅ Generated ${scenariosGenerated} custom scenarios in ${scenarioGenDuration}ms`, {
+					scenarioIds,
+					averagePerScenarioMs: scenariosGenerated > 0
+						? Math.round(scenarioGenDuration / scenariosGenerated)
+						: 0
+				});
 			} catch (scenarioError) {
-				console.error('[Assign] Error generating scenarios:', scenarioError);
+				const scenarioGenDuration = Date.now() - scenarioGenStartTime;
+				console.error('[Assign] ❌ Error generating scenarios:', {
+					error: scenarioError instanceof Error ? scenarioError.message : 'Unknown error',
+					stack: scenarioError instanceof Error ? scenarioError.stack : undefined,
+					durationMs: scenarioGenDuration
+				});
 				// Don't fail the assignment if scenario generation fails
 			}
+		} else {
+			console.log('[Assign] ⏭️ Skipping scenario generation', {
+				generateScenarios,
+				pathMode: path.mode,
+				reason: !generateScenarios
+					? 'generateScenarios=false'
+					: path.mode !== 'adaptive'
+						? 'not adaptive path'
+						: 'unknown'
+			});
 		}
 
 		// Send email notification if requested
