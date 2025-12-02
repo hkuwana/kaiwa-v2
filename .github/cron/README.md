@@ -69,7 +69,26 @@ Authorization: Bearer {CRON_SECRET}
   - Comparison to previous week
 - **Implementation:** [src/routes/api/cron/weekly-stats/+server.ts](../../src/routes/api/cron/weekly-stats/+server.ts)
 
-### 5. Scenario Inspiration Pairing
+### 5. Learning Path Daily Reminders
+
+- **Schedule:** Every day at 8:00 AM UTC
+- **Endpoint:** `GET /api/cron/send-learning-path-emails`
+- **Purpose:** Send daily reminders to users enrolled in learning paths
+- **Features:**
+  - Day-specific content with progress tracking
+  - Milestone messages (Day 1, 7, 14, final day)
+  - Motivational messages based on progress
+  - Skips users who received email in last 20 hours
+  - Only sends to users with email reminders enabled
+- **Query Parameters:**
+  - `dryRun=true` - Preview what would be sent without sending
+  - `testEmails=email1,email2` - Only send to specific emails (for testing)
+- **PostHog Events:**
+  - `learning_path_email_sent` - Per email sent
+  - `learning_path_cron_completed` - Cron job summary
+- **Implementation:** [src/routes/api/cron/send-learning-path-emails/+server.ts](../../src/routes/api/cron/send-learning-path-emails/+server.ts)
+
+### 6. Scenario Inspiration Pairing
 
 - **Schedule:** Every Tuesday at 10:00 AM UTC
 - **Endpoint:** `GET /api/cron/scenario-inspiration`
@@ -80,7 +99,7 @@ Authorization: Bearer {CRON_SECRET}
   - Logs analytics event `scenario_inspiration_sent`
 - **Implementation:** [src/routes/api/cron/scenario-inspiration/+server.ts](../../src/routes/api/cron/scenario-inspiration/+server.ts)
 
-### 6. Community Story Spotlight
+### 7. Community Story Spotlight
 
 - **Schedule:** Every Friday at 10:00 AM UTC
 - **Endpoint:** `GET /api/cron/community-stories`
@@ -121,6 +140,11 @@ curl -H "Authorization: Bearer YOUR_CRON_SECRET" \
 - `dryRun=true` - Preview what would be sent without sending
 - `testEmails=email1,email2` - Only send to specific emails (for testing)
 
+**send-learning-path-emails endpoint:**
+
+- `dryRun=true` - Preview what would be sent without sending
+- `testEmails=email1,email2` - Only send to specific emails (for testing)
+
 **Other endpoints:**
 
 - Currently no special query parameters (configuration is in the endpoint file)
@@ -133,6 +157,7 @@ Each cron job has its own workflow file under `.github/workflows/`:
 - `cron-founder-emails.yml`
 - `cron-weekly-product-updates.yml`
 - `cron-weekly-stats.yml`
+- `cron-learning-path-emails.yml`
 - `cron-scenario-inspiration.yml`
 - `cron-community-stories.yml`
 

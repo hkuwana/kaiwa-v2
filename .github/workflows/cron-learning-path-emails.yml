@@ -1,0 +1,26 @@
+name: Send Learning Path Daily Reminders
+
+on:
+  schedule:
+    # Daily at 8:00 AM UTC (good time for most timezones)
+    - cron: '0 8 * * *'
+  # Allow manual triggering for testing
+  workflow_dispatch:
+
+jobs:
+  send-learning-path-reminders:
+    name: Send Learning Path Daily Reminders
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger learning path emails endpoint
+        run: |
+          response=$(curl -s -w "\n%{http_code}" -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" "https://trykaiwa.com/api/cron/send-learning-path-emails")
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+
+          echo "Response: $body"
+
+          if [ "$http_code" -ne 200 ]; then
+            echo "Error: HTTP $http_code"
+            exit 1
+          fi

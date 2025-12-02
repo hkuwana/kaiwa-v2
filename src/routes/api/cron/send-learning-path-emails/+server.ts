@@ -4,6 +4,7 @@ import { env } from '$env/dynamic/private';
 import { learningPathAssignmentRepository } from '$lib/server/repositories/learning-path-assignment.repository';
 import { LearningPathEmailService } from '$lib/emails/campaigns/learning-path/learning-path.service';
 import { userRepository } from '$lib/server/repositories';
+import { trackServerEvent } from '$lib/server/posthog';
 
 interface CronStats {
 	total: number;
@@ -146,6 +147,17 @@ export const GET = async ({ request, url }) => {
 		logger.info(
 			`Learning path cron complete: ${stats.sent} sent, ${stats.skipped} skipped, ${stats.failed} failed`
 		);
+
+		// Track cron completion in PostHog
+		if (!dryRun) {
+			trackServerEvent('learning_path_cron_completed', 'system', {
+				total_assignments: stats.total,
+				emails_sent: stats.sent,
+				emails_skipped: stats.skipped,
+				emails_failed: stats.failed,
+				success_rate: stats.total > 0 ? Math.round((stats.sent / stats.total) * 100) : 0
+			});
+		}
 
 		return json({
 			success: true,

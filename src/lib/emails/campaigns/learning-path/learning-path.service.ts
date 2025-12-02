@@ -7,6 +7,7 @@ import type { User, LearningPathAssignment } from '$lib/server/db/types';
 import { db } from '$lib/server/db';
 import { learningPaths } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
+import { trackServerEvent } from '$lib/server/posthog';
 
 const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
 
@@ -56,6 +57,19 @@ export class LearningPathEmailService {
 
 			// Mark email as sent
 			await learningPathAssignmentRepository.markEmailSent(assignmentId);
+
+			// Track in PostHog for retention funnel
+			trackServerEvent('learning_path_email_sent', emailData.user.id, {
+				assignment_id: assignmentId,
+				path_id: emailData.assignment.pathId,
+				path_title: emailData.pathTitle,
+				current_day: emailData.currentDay,
+				total_days: emailData.totalDays,
+				week_number: emailData.weekNumber,
+				progress_percent: Math.round((emailData.currentDay / emailData.totalDays) * 100),
+				is_milestone: [1, 7, 14, emailData.totalDays].includes(emailData.currentDay),
+				email_type: 'daily_reminder'
+			});
 
 			logger.info(
 				`Learning path reminder sent to ${emailData.user.email} (Day ${emailData.currentDay})`
