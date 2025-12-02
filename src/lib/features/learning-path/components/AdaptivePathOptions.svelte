@@ -2,13 +2,14 @@
 	/**
 	 * AdaptivePathOptions - Shows conversation options for adaptive learning paths
 	 *
-	 * Instead of "Day 1, Day 2...", this shows flexible conversation options
-	 * that users can choose in any order they want.
-	 *
-	 * Users can click "Generate Scenarios" to create personalized scenarios
-	 * for their current week.
+	 * Features:
+	 * - Auto-generates scenarios when user lands on dashboard with pending seeds
+	 * - Shows real-time generation progress
+	 * - Handles failures with retry capability
+	 * - Never gets stuck in "Generating..." state
 	 */
 
+	import { onMount, onDestroy } from 'svelte';
 	import type { LearningPath, LearningPathAssignment } from '$lib/server/db/types';
 
 	interface ConversationOption {
@@ -26,6 +27,15 @@
 		theme: string;
 		themeDescription: string;
 		seeds: ConversationOption[];
+	}
+
+	interface GenerationStatus {
+		totalReady: number;
+		totalPending: number;
+		totalFailed: number;
+		totalGenerating: number;
+		isComplete: boolean;
+		needsGeneration: boolean;
 	}
 
 	interface Props {
@@ -50,52 +60,156 @@
 		onScenariosGenerated
 	}: Props = $props();
 
-	// State for scenario generation
+	// Generation state
 	let isGenerating = $state(false);
-	let generationProgress = $state<{ current: number; total: number } | null>(null);
+	let generationStatus = $state<GenerationStatus | null>(null);
+	let currentlyGenerating = $state<string | null>(null); // seedId being generated
 	let generationError = $state<string | null>(null);
+	let hasTriedAutoGenerate = $state(false);
+	let pollInterval: ReturnType<typeof setInterval> | null = null;
 
-	// Check if any scenarios are ready
+	// Derived state
 	const hasReadyScenarios = $derived(readyOptions > 0);
 	const allReady = $derived(readyOptions === totalOptions && totalOptions > 0);
 	const needsGeneration = $derived(totalOptions > 0 && readyOptions < totalOptions);
+	const hasFailed = $derived(generationStatus?.totalFailed ?? 0 > 0);
 
-	async function generateScenarios() {
-		if (isGenerating) return;
+	// Progress calculation
+	const progressPercent = $derived(
+		totalOptions > 0 ? Math.round((readyOptions / totalOptions) * 100) : 0
+	);
 
-		isGenerating = true;
-		generationError = null;
-		generationProgress = { current: 0, total: totalOptions - readyOptions };
-
+	// Fetch current generation status
+	async function fetchStatus(): Promise<GenerationStatus | null> {
 		try {
-			const response = await fetch(`/api/learning-paths/${path.id}/generate-scenarios`, {
+			const response = await fetch(`/api/learning-paths/${path.id}/generation-status`);
+			const result = await response.json();
+
+			if (result.success && result.data) {
+				return {
+					totalReady: result.data.totalReady,
+					totalPending: result.data.totalPending,
+					totalFailed: result.data.totalFailed,
+					totalGenerating: result.data.totalGenerating,
+					isComplete: result.data.isComplete,
+					needsGeneration: result.data.needsGeneration
+				};
+			}
+			return null;
+		} catch (error) {
+			console.error('Error fetching status:', error);
+			return null;
+		}
+	}
+
+	// Generate next pending scenario
+	async function generateNext(resetFailed = false): Promise<boolean> {
+		try {
+			const response = await fetch(`/api/learning-paths/${path.id}/generation-status`, {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' }
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					weekId: activeWeek?.id,
+					resetFailed
+				})
 			});
 
 			const result = await response.json();
 
 			if (!response.ok || !result.success) {
-				throw new Error(result.error || 'Failed to generate scenarios');
+				throw new Error(result.error || 'Generation failed');
 			}
 
-			generationProgress = {
-				current: result.data?.scenariosGenerated || 0,
-				total: totalOptions - readyOptions
-			};
+			// Update status from response
+			if (result.data?.currentStatus) {
+				generationStatus = {
+					totalReady: result.data.currentStatus.readyCount,
+					totalPending: result.data.currentStatus.pendingCount,
+					totalFailed: result.data.currentStatus.failedCount,
+					totalGenerating: result.data.currentStatus.generatingCount,
+					isComplete: result.data.currentStatus.isComplete,
+					needsGeneration: result.data.currentStatus.pendingCount > 0
+				};
+			}
 
-			// Notify parent to refresh data
+			return result.data?.shouldContinue ?? false;
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			generationError = errorMessage;
+			console.error('Generation error:', error);
+			return false;
+		}
+	}
+
+	// Main generation loop
+	async function startGeneration(resetFailed = false) {
+		if (isGenerating) return;
+
+		isGenerating = true;
+		generationError = null;
+
+		try {
+			let shouldContinue = true;
+			let attempts = 0;
+			const maxAttempts = 20; // Safety limit
+
+			while (shouldContinue && attempts < maxAttempts) {
+				attempts++;
+				shouldContinue = await generateNext(resetFailed && attempts === 1);
+
+				// Small delay between requests
+				if (shouldContinue) {
+					await new Promise(resolve => setTimeout(resolve, 500));
+				}
+			}
+
+			// Notify parent and refresh if we generated anything
 			onScenariosGenerated?.();
 
-			// Reload the page to get fresh data
-			window.location.reload();
+			// Final status check
+			const finalStatus = await fetchStatus();
+			if (finalStatus) {
+				generationStatus = finalStatus;
+			}
+
+			// Reload to get fresh data if we're done
+			if (!shouldContinue || attempts >= maxAttempts) {
+				window.location.reload();
+			}
 		} catch (error) {
 			generationError = error instanceof Error ? error.message : 'Generation failed';
-			console.error('Scenario generation error:', error);
+			console.error('Generation loop error:', error);
 		} finally {
 			isGenerating = false;
 		}
 	}
+
+	// Retry failed scenarios
+	async function retryFailed() {
+		await startGeneration(true);
+	}
+
+	// Auto-generate on mount if needed
+	onMount(async () => {
+		// Check status first
+		const status = await fetchStatus();
+		generationStatus = status;
+
+		// Auto-start generation if:
+		// 1. We have pending scenarios
+		// 2. We haven't tried yet this session
+		// 3. Not already generating
+		if (status?.needsGeneration && !hasTriedAutoGenerate && !isGenerating) {
+			hasTriedAutoGenerate = true;
+			await startGeneration();
+		}
+	});
+
+	onDestroy(() => {
+		if (pollInterval) {
+			clearInterval(pollInterval);
+		}
+	});
 </script>
 
 {#if compact}
@@ -119,7 +233,25 @@
 			</div>
 
 			{#if activeWeek && activeWeek.seeds.length > 0}
-				{#if hasReadyScenarios}
+				{#if isGenerating}
+					<!-- Generation in progress -->
+					<div class="mt-3">
+						<div class="flex items-center gap-2 text-sm text-secondary">
+							<span class="loading loading-spinner loading-sm"></span>
+							<span>
+								Generating scenarios...
+								{#if generationStatus}
+									({generationStatus.totalReady}/{totalOptions})
+								{/if}
+							</span>
+						</div>
+						<progress
+							class="progress progress-secondary mt-2 w-full"
+							value={generationStatus?.totalReady ?? readyOptions}
+							max={totalOptions}
+						></progress>
+					</div>
+				{:else if hasReadyScenarios}
 					<!-- Show ready scenarios -->
 					<div class="mt-3 space-y-2">
 						{#each activeWeek.seeds.filter((s) => s.isReady).slice(0, 3) as option}
@@ -139,42 +271,53 @@
 							</p>
 						{/if}
 					</div>
-				{/if}
 
-				{#if needsGeneration && !isGenerating}
-					<!-- Generate button for remaining scenarios -->
-					<button class="btn btn-secondary btn-sm mt-3 w-full gap-2" onclick={generateScenarios}>
-						<span class="icon-[mdi--sparkles] h-4 w-4"></span>
-						Generate {totalOptions - readyOptions} Scenario{totalOptions - readyOptions > 1
-							? 's'
-							: ''}
-					</button>
-				{/if}
-
-				{#if isGenerating}
-					<div class="mt-3 flex items-center gap-2 text-sm text-secondary">
-						<span class="loading loading-spinner loading-sm"></span>
-						<span>Generating scenarios...</span>
+					{#if needsGeneration}
+						<!-- Generate remaining -->
+						<button
+							class="btn btn-secondary btn-sm mt-3 w-full gap-2"
+							onclick={() => startGeneration()}
+							disabled={isGenerating}
+						>
+							<span class="icon-[mdi--sparkles] h-4 w-4"></span>
+							Generate {totalOptions - readyOptions} More
+						</button>
+					{/if}
+				{:else if hasFailed}
+					<!-- All failed - show retry -->
+					<div class="mt-3">
+						<div class="alert alert-warning py-2 text-sm">
+							<span class="icon-[mdi--alert] h-4 w-4"></span>
+							<span>Some scenarios failed to generate</span>
+						</div>
+						<button
+							class="btn btn-warning btn-sm mt-2 w-full gap-2"
+							onclick={retryFailed}
+							disabled={isGenerating}
+						>
+							<span class="icon-[mdi--refresh] h-4 w-4"></span>
+							Retry Generation
+						</button>
 					</div>
-				{/if}
-			{:else}
-				<!-- No seeds yet - show generate button -->
-				<button
-					class="btn btn-secondary btn-sm mt-3 w-full gap-2"
-					onclick={generateScenarios}
-					disabled={isGenerating}
-				>
-					{#if isGenerating}
-						<span class="loading loading-spinner loading-sm"></span>
-						Generating...
-					{:else}
+				{:else}
+					<!-- Nothing ready yet - show generate button -->
+					<button
+						class="btn btn-secondary btn-sm mt-3 w-full gap-2"
+						onclick={() => startGeneration()}
+						disabled={isGenerating}
+					>
 						<span class="icon-[mdi--sparkles] h-4 w-4"></span>
 						Generate Scenarios
-					{/if}
-				</button>
+					</button>
+				{/if}
+			{:else}
+				<!-- No seeds yet -->
+				<p class="mt-3 text-center text-sm text-base-content/60">
+					No conversation options available
+				</p>
 			{/if}
 
-			{#if generationError}
+			{#if generationError && !isGenerating}
 				<p class="mt-2 text-xs text-error">{generationError}</p>
 			{/if}
 		</div>
@@ -204,96 +347,101 @@
 				<div class="mt-4 flex items-center gap-3">
 					<progress
 						class="progress w-full progress-secondary"
-						value={readyOptions}
+						value={generationStatus?.totalReady ?? readyOptions}
 						max={totalOptions}
 					></progress>
 					<span class="whitespace-nowrap text-sm text-base-content/60">
-						{readyOptions}/{totalOptions} ready
+						{generationStatus?.totalReady ?? readyOptions}/{totalOptions} ready
 					</span>
 				</div>
+
+				<!-- Generation status banner -->
+				{#if isGenerating}
+					<div class="alert alert-info mt-4">
+						<span class="loading loading-spinner loading-sm"></span>
+						<div>
+							<h4 class="font-medium">Generating your scenarios...</h4>
+							<p class="text-sm opacity-80">
+								This usually takes about 30 seconds per scenario. You can leave this page and come back.
+							</p>
+						</div>
+					</div>
+				{:else if hasFailed && !allReady}
+					<div class="alert alert-warning mt-4">
+						<span class="icon-[mdi--alert-circle] h-5 w-5"></span>
+						<div>
+							<h4 class="font-medium">Some scenarios couldn't be generated</h4>
+							<p class="text-sm opacity-80">
+								{generationStatus?.totalFailed} scenario(s) failed. You can retry or continue with the available ones.
+							</p>
+						</div>
+						<button class="btn btn-sm btn-warning" onclick={retryFailed}>
+							<span class="icon-[mdi--refresh] h-4 w-4"></span>
+							Retry
+						</button>
+					</div>
+				{/if}
 
 				<!-- Conversation options -->
 				<div class="divider">Choose a Conversation</div>
 
 				{#if activeWeek.seeds.length > 0}
-					{#if hasReadyScenarios}
-						<!-- Show ready scenarios as clickable -->
-						<div class="grid gap-3 sm:grid-cols-2">
-							{#each activeWeek.seeds as option}
-								{#if option.isReady}
-									<button
-										class="btn btn-outline btn-primary h-auto min-h-[4rem] flex-col items-start gap-1 p-4 text-left"
-										onclick={() => option.scenarioId && onStartConversation?.(option.scenarioId)}
-									>
-										<div class="flex w-full items-center gap-2">
-											<span class="badge badge-primary">Option {option.optionNumber}</span>
-										</div>
-										<span class="text-base font-medium">{option.title}</span>
-										<span class="line-clamp-2 text-xs opacity-70">{option.description}</span>
-									</button>
-								{:else}
-									<!-- Show pending scenarios as disabled cards -->
-									<div
-										class="flex h-auto min-h-[4rem] flex-col items-start gap-1 rounded-lg bg-base-300 p-4 opacity-60"
-									>
-										<div class="flex w-full items-center gap-2">
-											<span class="badge badge-ghost">Option {option.optionNumber}</span>
-											<span class="text-xs text-base-content/50">Not generated</span>
-										</div>
-										<span class="text-base font-medium">{option.title}</span>
-										<span class="line-clamp-2 text-xs opacity-70">{option.description}</span>
+					<div class="grid gap-3 sm:grid-cols-2">
+						{#each activeWeek.seeds as option}
+							{#if option.isReady}
+								<button
+									class="btn btn-outline btn-primary h-auto min-h-[4rem] flex-col items-start gap-1 p-4 text-left"
+									onclick={() => option.scenarioId && onStartConversation?.(option.scenarioId)}
+								>
+									<div class="flex w-full items-center gap-2">
+										<span class="badge badge-primary">Option {option.optionNumber}</span>
+										<span class="icon-[mdi--check-circle] h-4 w-4 text-success"></span>
 									</div>
-								{/if}
-							{/each}
-						</div>
-					{:else}
-						<!-- No scenarios ready yet - show preview cards -->
-						<div class="grid gap-3 sm:grid-cols-2">
-							{#each activeWeek.seeds as option}
+									<span class="text-base font-medium">{option.title}</span>
+									<span class="line-clamp-2 text-xs opacity-70">{option.description}</span>
+								</button>
+							{:else}
+								<!-- Pending/generating scenario card -->
 								<div
 									class="flex h-auto min-h-[4rem] flex-col items-start gap-1 rounded-lg bg-base-300 p-4 opacity-60"
 								>
 									<div class="flex w-full items-center gap-2">
 										<span class="badge badge-ghost">Option {option.optionNumber}</span>
+										{#if isGenerating}
+											<span class="loading loading-spinner loading-xs"></span>
+										{:else}
+											<span class="text-xs text-base-content/50">Pending</span>
+										{/if}
 									</div>
 									<span class="text-base font-medium">{option.title}</span>
 									<span class="line-clamp-2 text-xs opacity-70">{option.description}</span>
 								</div>
-							{/each}
+							{/if}
+						{/each}
+					</div>
+
+					<!-- Generate button -->
+					{#if needsGeneration && !isGenerating}
+						<div class="mt-6 flex flex-col items-center gap-3">
+							<button class="btn btn-secondary btn-lg gap-2" onclick={() => startGeneration()}>
+								<span class="icon-[mdi--sparkles] h-5 w-5"></span>
+								Generate {totalOptions - readyOptions} Scenario{totalOptions - readyOptions > 1
+									? 's'
+									: ''}
+							</button>
+							<p class="text-sm text-base-content/50">
+								Click to create personalized practice scenarios
+							</p>
 						</div>
 					{/if}
 
-					<!-- Generate button -->
-					{#if needsGeneration}
-						<div class="mt-6 flex flex-col items-center gap-3">
-							{#if isGenerating}
-								<div class="flex flex-col items-center gap-2">
-									<span class="loading loading-spinner loading-lg text-secondary"></span>
-									<p class="text-base-content/70">
-										Generating your personalized scenarios...
-									</p>
-									<p class="text-sm text-base-content/50">
-										This usually takes 30-60 seconds
-									</p>
-								</div>
-							{:else}
-								<button class="btn btn-secondary btn-lg gap-2" onclick={generateScenarios}>
-									<span class="icon-[mdi--sparkles] h-5 w-5"></span>
-									Generate {totalOptions - readyOptions} Scenario{totalOptions - readyOptions > 1
-										? 's'
-										: ''}
-								</button>
-								<p class="text-sm text-base-content/50">
-									Click to create personalized practice scenarios for this week
-								</p>
-							{/if}
-
-							{#if generationError}
-								<div class="alert alert-error mt-2">
-									<span class="icon-[mdi--alert-circle] h-5 w-5"></span>
-									<span>{generationError}</span>
-								</div>
-							{/if}
+					{#if generationError && !isGenerating}
+						<div class="alert alert-error mt-4">
+							<span class="icon-[mdi--alert-circle] h-5 w-5"></span>
+							<span>{generationError}</span>
+							<button class="btn btn-sm btn-ghost" onclick={() => startGeneration()}>
+								Try Again
+							</button>
 						</div>
 					{/if}
 				{:else}
