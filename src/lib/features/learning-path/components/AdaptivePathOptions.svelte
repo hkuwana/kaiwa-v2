@@ -4,6 +4,9 @@
 	 *
 	 * Instead of "Day 1, Day 2...", this shows flexible conversation options
 	 * that users can choose in any order they want.
+	 *
+	 * Users can click "Generate Scenarios" to create personalized scenarios
+	 * for their current week.
 	 */
 
 	import type { LearningPath, LearningPathAssignment } from '$lib/server/db/types';
@@ -33,6 +36,7 @@
 		readyOptions: number;
 		compact?: boolean;
 		onStartConversation?: (scenarioId: string) => void;
+		onScenariosGenerated?: () => void;
 	}
 
 	const {
@@ -42,12 +46,56 @@
 		totalOptions,
 		readyOptions,
 		compact = false,
-		onStartConversation
+		onStartConversation,
+		onScenariosGenerated
 	}: Props = $props();
+
+	// State for scenario generation
+	let isGenerating = $state(false);
+	let generationProgress = $state<{ current: number; total: number } | null>(null);
+	let generationError = $state<string | null>(null);
 
 	// Check if any scenarios are ready
 	const hasReadyScenarios = $derived(readyOptions > 0);
 	const allReady = $derived(readyOptions === totalOptions && totalOptions > 0);
+	const needsGeneration = $derived(totalOptions > 0 && readyOptions < totalOptions);
+
+	async function generateScenarios() {
+		if (isGenerating) return;
+
+		isGenerating = true;
+		generationError = null;
+		generationProgress = { current: 0, total: totalOptions - readyOptions };
+
+		try {
+			const response = await fetch(`/api/learning-paths/${path.id}/generate-scenarios`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' }
+			});
+
+			const result = await response.json();
+
+			if (!response.ok || !result.success) {
+				throw new Error(result.error || 'Failed to generate scenarios');
+			}
+
+			generationProgress = {
+				current: result.data?.scenariosGenerated || 0,
+				total: totalOptions - readyOptions
+			};
+
+			// Notify parent to refresh data
+			onScenariosGenerated?.();
+
+			// Reload the page to get fresh data
+			window.location.reload();
+		} catch (error) {
+			generationError = error instanceof Error ? error.message : 'Generation failed';
+			console.error('Scenario generation error:', error);
+		} finally {
+			isGenerating = false;
+		}
+	}
 </script>
 
 {#if compact}
@@ -71,33 +119,63 @@
 			</div>
 
 			{#if activeWeek && activeWeek.seeds.length > 0}
-				<div class="mt-3 space-y-2">
-					{#each activeWeek.seeds.slice(0, 3) as option}
-						<button
-							class="btn btn-sm w-full justify-start gap-2 {option.isReady ? 'btn-outline btn-primary' : 'btn-disabled'}"
-							disabled={!option.isReady}
-							onclick={() => option.scenarioId && onStartConversation?.(option.scenarioId)}
-						>
-							<span class="badge badge-xs {option.isReady ? 'badge-primary' : 'badge-ghost'}">
-								{option.optionNumber}
-							</span>
-							<span class="line-clamp-1 flex-1 text-left">{option.title}</span>
-							{#if !option.isReady}
-								<span class="loading loading-spinner loading-xs"></span>
-							{/if}
-						</button>
-					{/each}
-					{#if activeWeek.seeds.length > 3}
-						<p class="text-center text-xs text-base-content/60">
-							+{activeWeek.seeds.length - 3} more options
-						</p>
-					{/if}
-				</div>
+				{#if hasReadyScenarios}
+					<!-- Show ready scenarios -->
+					<div class="mt-3 space-y-2">
+						{#each activeWeek.seeds.filter((s) => s.isReady).slice(0, 3) as option}
+							<button
+								class="btn btn-sm btn-outline btn-primary w-full justify-start gap-2"
+								onclick={() => option.scenarioId && onStartConversation?.(option.scenarioId)}
+							>
+								<span class="badge badge-xs badge-primary">
+									{option.optionNumber}
+								</span>
+								<span class="line-clamp-1 flex-1 text-left">{option.title}</span>
+							</button>
+						{/each}
+						{#if activeWeek.seeds.filter((s) => s.isReady).length > 3}
+							<p class="text-center text-xs text-base-content/60">
+								+{activeWeek.seeds.filter((s) => s.isReady).length - 3} more ready
+							</p>
+						{/if}
+					</div>
+				{/if}
+
+				{#if needsGeneration && !isGenerating}
+					<!-- Generate button for remaining scenarios -->
+					<button class="btn btn-secondary btn-sm mt-3 w-full gap-2" onclick={generateScenarios}>
+						<span class="icon-[mdi--sparkles] h-4 w-4"></span>
+						Generate {totalOptions - readyOptions} Scenario{totalOptions - readyOptions > 1
+							? 's'
+							: ''}
+					</button>
+				{/if}
+
+				{#if isGenerating}
+					<div class="mt-3 flex items-center gap-2 text-sm text-secondary">
+						<span class="loading loading-spinner loading-sm"></span>
+						<span>Generating scenarios...</span>
+					</div>
+				{/if}
 			{:else}
-				<div class="mt-2 flex items-center gap-2 text-sm text-base-content/60">
-					<span class="loading loading-xs loading-spinner"></span>
-					Setting up your conversation options...
-				</div>
+				<!-- No seeds yet - show generate button -->
+				<button
+					class="btn btn-secondary btn-sm mt-3 w-full gap-2"
+					onclick={generateScenarios}
+					disabled={isGenerating}
+				>
+					{#if isGenerating}
+						<span class="loading loading-spinner loading-sm"></span>
+						Generating...
+					{:else}
+						<span class="icon-[mdi--sparkles] h-4 w-4"></span>
+						Generate Scenarios
+					{/if}
+				</button>
+			{/if}
+
+			{#if generationError}
+				<p class="mt-2 text-xs text-error">{generationError}</p>
 			{/if}
 		</div>
 	</div>
@@ -111,9 +189,7 @@
 					<p class="mt-1 text-base-content/70">{path.description}</p>
 				</div>
 				{#if activeWeek}
-					<div class="badge badge-lg badge-secondary">
-						Week {activeWeek.weekNumber}
-					</div>
+					<div class="badge badge-lg badge-secondary">Week {activeWeek.weekNumber}</div>
 				{/if}
 			</div>
 
@@ -140,38 +216,92 @@
 				<div class="divider">Choose a Conversation</div>
 
 				{#if activeWeek.seeds.length > 0}
-					<div class="grid gap-3 sm:grid-cols-2">
-						{#each activeWeek.seeds as option}
-							<button
-								class="btn h-auto min-h-[4rem] flex-col items-start gap-1 p-4 text-left {option.isReady ? 'btn-outline btn-primary' : 'btn-disabled bg-base-300'}"
-								disabled={!option.isReady}
-								onclick={() => option.scenarioId && onStartConversation?.(option.scenarioId)}
-							>
-								<div class="flex w-full items-center gap-2">
-									<span class="badge {option.isReady ? 'badge-primary' : 'badge-ghost'}">
-										Option {option.optionNumber}
-									</span>
-									{#if !option.isReady}
-										<span class="loading loading-spinner loading-xs ml-auto"></span>
-									{/if}
+					{#if hasReadyScenarios}
+						<!-- Show ready scenarios as clickable -->
+						<div class="grid gap-3 sm:grid-cols-2">
+							{#each activeWeek.seeds as option}
+								{#if option.isReady}
+									<button
+										class="btn btn-outline btn-primary h-auto min-h-[4rem] flex-col items-start gap-1 p-4 text-left"
+										onclick={() => option.scenarioId && onStartConversation?.(option.scenarioId)}
+									>
+										<div class="flex w-full items-center gap-2">
+											<span class="badge badge-primary">Option {option.optionNumber}</span>
+										</div>
+										<span class="text-base font-medium">{option.title}</span>
+										<span class="line-clamp-2 text-xs opacity-70">{option.description}</span>
+									</button>
+								{:else}
+									<!-- Show pending scenarios as disabled cards -->
+									<div
+										class="flex h-auto min-h-[4rem] flex-col items-start gap-1 rounded-lg bg-base-300 p-4 opacity-60"
+									>
+										<div class="flex w-full items-center gap-2">
+											<span class="badge badge-ghost">Option {option.optionNumber}</span>
+											<span class="text-xs text-base-content/50">Not generated</span>
+										</div>
+										<span class="text-base font-medium">{option.title}</span>
+										<span class="line-clamp-2 text-xs opacity-70">{option.description}</span>
+									</div>
+								{/if}
+							{/each}
+						</div>
+					{:else}
+						<!-- No scenarios ready yet - show preview cards -->
+						<div class="grid gap-3 sm:grid-cols-2">
+							{#each activeWeek.seeds as option}
+								<div
+									class="flex h-auto min-h-[4rem] flex-col items-start gap-1 rounded-lg bg-base-300 p-4 opacity-60"
+								>
+									<div class="flex w-full items-center gap-2">
+										<span class="badge badge-ghost">Option {option.optionNumber}</span>
+									</div>
+									<span class="text-base font-medium">{option.title}</span>
+									<span class="line-clamp-2 text-xs opacity-70">{option.description}</span>
 								</div>
-								<span class="text-base font-medium">{option.title}</span>
-								<span class="line-clamp-2 text-xs opacity-70">{option.description}</span>
-							</button>
-						{/each}
-					</div>
+							{/each}
+						</div>
+					{/if}
 
-					{#if !allReady}
-						<div class="mt-4 flex items-center justify-center gap-2 text-sm text-base-content/60">
-							<span class="loading loading-spinner loading-sm"></span>
-							<span>Some scenarios are still being generated...</span>
+					<!-- Generate button -->
+					{#if needsGeneration}
+						<div class="mt-6 flex flex-col items-center gap-3">
+							{#if isGenerating}
+								<div class="flex flex-col items-center gap-2">
+									<span class="loading loading-spinner loading-lg text-secondary"></span>
+									<p class="text-base-content/70">
+										Generating your personalized scenarios...
+									</p>
+									<p class="text-sm text-base-content/50">
+										This usually takes 30-60 seconds
+									</p>
+								</div>
+							{:else}
+								<button class="btn btn-secondary btn-lg gap-2" onclick={generateScenarios}>
+									<span class="icon-[mdi--sparkles] h-5 w-5"></span>
+									Generate {totalOptions - readyOptions} Scenario{totalOptions - readyOptions > 1
+										? 's'
+										: ''}
+								</button>
+								<p class="text-sm text-base-content/50">
+									Click to create personalized practice scenarios for this week
+								</p>
+							{/if}
+
+							{#if generationError}
+								<div class="alert alert-error mt-2">
+									<span class="icon-[mdi--alert-circle] h-5 w-5"></span>
+									<span>{generationError}</span>
+								</div>
+							{/if}
 						</div>
 					{/if}
 				{:else}
+					<!-- No seeds at all -->
 					<div class="flex flex-col items-center justify-center py-8 text-center">
-						<span class="loading loading-lg loading-spinner text-secondary"></span>
-						<p class="mt-4 text-base-content/60">Setting up your conversation options...</p>
-						<p class="text-sm text-base-content/40">This usually takes about 30-60 seconds</p>
+						<span class="icon-[mdi--chat-question] h-12 w-12 text-base-content/30"></span>
+						<p class="mt-4 text-base-content/60">No conversation options set up yet</p>
+						<p class="text-sm text-base-content/40">Please contact support if this persists</p>
 					</div>
 				{/if}
 			{:else}
