@@ -297,6 +297,88 @@
 	let assignNote = $state('');
 	let sendEmailNotification = $state(true);
 
+	// User search autocomplete
+	type UserSearchResult = {
+		id: string;
+		email: string;
+		displayName: string | null;
+		avatarUrl: string | null;
+	};
+	let userSearchResults = $state<UserSearchResult[]>([]);
+	let showUserDropdown = $state(false);
+	let isSearching = $state(false);
+	let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+	let selectedUserIndex = $state(-1);
+
+	async function searchUsers(query: string) {
+		if (query.length < 2) {
+			userSearchResults = [];
+			showUserDropdown = false;
+			return;
+		}
+
+		isSearching = true;
+		try {
+			const response = await fetch(`/api/admin/users/search?q=${encodeURIComponent(query)}`);
+			if (response.ok) {
+				const result = await response.json();
+				userSearchResults = result.users || [];
+				showUserDropdown = userSearchResults.length > 0;
+				selectedUserIndex = -1;
+			}
+		} catch (error) {
+			console.error('Error searching users:', error);
+		} finally {
+			isSearching = false;
+		}
+	}
+
+	function handleEmailInput(e: Event) {
+		const target = e.target as HTMLInputElement;
+		assignEmail = target.value;
+
+		// Debounce search
+		if (searchDebounceTimer) {
+			clearTimeout(searchDebounceTimer);
+		}
+		searchDebounceTimer = setTimeout(() => {
+			searchUsers(assignEmail);
+		}, 300);
+	}
+
+	function selectUser(user: UserSearchResult) {
+		assignEmail = user.email;
+		userSearchResults = [];
+		showUserDropdown = false;
+		selectedUserIndex = -1;
+	}
+
+	function handleEmailKeydown(e: KeyboardEvent) {
+		if (!showUserDropdown || userSearchResults.length === 0) return;
+
+		if (e.key === 'ArrowDown') {
+			e.preventDefault();
+			selectedUserIndex = Math.min(selectedUserIndex + 1, userSearchResults.length - 1);
+		} else if (e.key === 'ArrowUp') {
+			e.preventDefault();
+			selectedUserIndex = Math.max(selectedUserIndex - 1, -1);
+		} else if (e.key === 'Enter' && selectedUserIndex >= 0) {
+			e.preventDefault();
+			selectUser(userSearchResults[selectedUserIndex]);
+		} else if (e.key === 'Escape') {
+			showUserDropdown = false;
+			selectedUserIndex = -1;
+		}
+	}
+
+	function handleEmailBlur() {
+		// Delay hiding to allow click on dropdown item
+		setTimeout(() => {
+			showUserDropdown = false;
+			selectedUserIndex = -1;
+		}, 200);
+	}
+
 	async function assignPath() {
 		if (!selectedPath) {
 			showMessage('Please select a path first.', 'error');
@@ -975,12 +1057,56 @@ Difficulty should progress from structured Q&A focused on simple verb placement 
 					<div class="space-y-4">
 						<div class="form-control">
 							<label class="label"><span class="label-text">Their email address</span></label>
-							<input
-								type="email"
-								class="input-bordered input"
-								bind:value={assignEmail}
-								placeholder="learner@example.com"
-							/>
+							<div class="relative">
+								<input
+									type="email"
+									class="input-bordered input w-full"
+									value={assignEmail}
+									oninput={handleEmailInput}
+									onkeydown={handleEmailKeydown}
+									onblur={handleEmailBlur}
+									onfocus={() => assignEmail.length >= 2 && searchUsers(assignEmail)}
+									placeholder="Start typing to search users..."
+									autocomplete="off"
+								/>
+								{#if isSearching}
+									<span class="absolute right-3 top-1/2 -translate-y-1/2">
+										<span class="loading loading-spinner loading-sm"></span>
+									</span>
+								{/if}
+								{#if showUserDropdown && userSearchResults.length > 0}
+									<ul class="menu absolute z-50 mt-1 w-full rounded-lg border border-base-300 bg-base-100 p-2 shadow-lg">
+										{#each userSearchResults as user, index}
+											<li>
+												<button
+													type="button"
+													class="flex items-center gap-3 {selectedUserIndex === index ? 'active' : ''}"
+													onmousedown={() => selectUser(user)}
+												>
+													<div class="avatar">
+														<div class="h-8 w-8 rounded-full">
+															{#if user.avatarUrl}
+																<img src={user.avatarUrl} alt="" />
+															{:else}
+																<div class="flex h-full w-full items-center justify-center bg-base-300 text-sm">
+																	{(user.displayName || user.email)[0].toUpperCase()}
+																</div>
+															{/if}
+														</div>
+													</div>
+													<div class="flex-1 text-left">
+														<div class="font-medium">{user.displayName || user.email.split('@')[0]}</div>
+														<div class="text-xs text-base-content/60">{user.email}</div>
+													</div>
+												</button>
+											</li>
+										{/each}
+									</ul>
+								{/if}
+							</div>
+							<label class="label">
+								<span class="label-text-alt text-base-content/50">Search by email or name</span>
+							</label>
 						</div>
 
 						<div class="form-control">
