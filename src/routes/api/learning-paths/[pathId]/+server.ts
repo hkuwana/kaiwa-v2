@@ -127,10 +127,23 @@ export const PATCH: RequestHandler = async ({ params, request, locals }) => {
 	}
 };
 
+// Admin domains and emails for authorization
+const ADMIN_DOMAINS = ['trykaiwa.com', 'kaiwa.app'];
+const ADMIN_EMAILS = ['hkuwana97@gmail.com'];
+
+function isUserAdmin(email: string | null | undefined): boolean {
+	if (!email) return false;
+	const normalizedEmail = email.toLowerCase().trim();
+	const emailDomain = normalizedEmail.split('@')[1];
+	if (emailDomain && ADMIN_DOMAINS.includes(emailDomain)) return true;
+	if (ADMIN_EMAILS.some((adminEmail) => adminEmail.toLowerCase() === normalizedEmail)) return true;
+	return false;
+}
+
 /**
  * DELETE /api/learning-paths/[pathId]
  *
- * Delete a learning path
+ * Delete a learning path (owner or admin)
  */
 export const DELETE: RequestHandler = async ({ params, locals }) => {
 	try {
@@ -146,14 +159,19 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
 			return json(createErrorResponse('Learning path not found'), { status: 404 });
 		}
 
-		// Only the owner can delete their path
-		if (locals.user?.id !== path.userId) {
+		// Check if user is owner or admin
+		const isOwner = locals.user?.id === path.userId;
+		const isAdmin = isUserAdmin(locals.user?.email);
+
+		if (!isOwner && !isAdmin) {
 			return json(createErrorResponse('You are not authorized to delete this learning path'), {
 				status: 403
 			});
 		}
 
 		await learningPathRepository.deletePath(pathId);
+
+		console.log(`[API] Learning path ${pathId} deleted by ${locals.user?.email} (admin: ${isAdmin})`);
 
 		return json(createSuccessResponse({ deleted: true }, 'Learning path deleted successfully'));
 	} catch (error) {
