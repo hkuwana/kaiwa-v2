@@ -28,6 +28,7 @@ export { paymentRepository } from './payment.repository';
 export { userUsageRepository } from './user-usage.repository';
 export { conversationSessionsRepository } from './conversation-sessions.repository';
 export { analyticsEventsRepository } from './analytics-events.repository';
+export { adminLearnersRepository } from './admin-learners.repository';
 
 // Learning path repositories
 // TODO: Uncomment these once database tables are confirmed to exist
