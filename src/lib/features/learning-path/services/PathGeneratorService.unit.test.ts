@@ -6,10 +6,18 @@ import type { GeneratedSyllabus } from '../types';
 
 // Use vi.hoisted() to ensure mock variables are available when vi.mock() factories run
 // (vi.mock calls are hoisted to the top of the file)
-const { mockCreateCompletion, mockCreatePathForUser, mockEnqueuePathRange } = vi.hoisted(() => ({
+const {
+	mockCreateCompletion,
+	mockCreatePathForUser,
+	mockDbInsert,
+	mockFindAssignment,
+	mockCreateAssignment
+} = vi.hoisted(() => ({
 	mockCreateCompletion: vi.fn(),
 	mockCreatePathForUser: vi.fn(),
-	mockEnqueuePathRange: vi.fn()
+	mockDbInsert: vi.fn(),
+	mockFindAssignment: vi.fn(),
+	mockCreateAssignment: vi.fn()
 }));
 
 // Mock environment variables before any module that uses them is loaded
@@ -52,10 +60,24 @@ vi.mock('$lib/server/repositories/learning-path.repository', () => ({
 	}
 }));
 
-vi.mock('$lib/server/repositories/scenario-generation-queue.repository', () => ({
-	scenarioGenerationQueueRepository: {
-		enqueuePathRange: mockEnqueuePathRange
+vi.mock('$lib/server/repositories/learning-path-assignment.repository', () => ({
+	learningPathAssignmentRepository: {
+		findAssignment: mockFindAssignment,
+		createAssignment: mockCreateAssignment
 	}
+}));
+
+// Mock db for adaptive weeks insertion
+vi.mock('$lib/server/db', () => ({
+	db: {
+		insert: mockDbInsert
+	}
+}));
+
+// Mock the schema export (needed for db.insert(adaptiveWeeks))
+vi.mock('$lib/server/db/schema', () => ({
+	adaptiveWeeks: 'adaptiveWeeks',
+	weekProgress: 'weekProgress'
 }));
 
 import { PathGeneratorService } from './PathGeneratorService.server';
@@ -64,7 +86,9 @@ describe('PathGeneratorService (unit)', () => {
 	beforeEach(() => {
 		mockCreateCompletion.mockReset();
 		mockCreatePathForUser.mockReset();
-		mockEnqueuePathRange.mockReset();
+		mockDbInsert.mockReset();
+		mockFindAssignment.mockReset();
+		mockCreateAssignment.mockReset();
 	});
 
 	it('creates a learning path and enqueues jobs when OpenAI returns a valid syllabus', async () => {
@@ -101,10 +125,16 @@ describe('PathGeneratorService (unit)', () => {
 		mockCreatePathForUser.mockImplementation(async (input: any) => ({
 			...input,
 			id: input.id,
-			status: input.status ?? 'draft'
+			status: input.status ?? 'active'
 		}));
 
-		mockEnqueuePathRange.mockResolvedValueOnce([]);
+		// Mock db.insert().values() chain for adaptive weeks
+		const mockValues = vi.fn().mockResolvedValue(undefined);
+		mockDbInsert.mockReturnValue({ values: mockValues });
+
+		// Mock assignment repository - no existing assignment
+		mockFindAssignment.mockResolvedValue(null);
+		mockCreateAssignment.mockResolvedValue({ id: 'assignment-123' });
 
 		const result = await PathGeneratorService.createPathFromPreferences('user-123', {
 			userPreferences: {
@@ -127,17 +157,15 @@ describe('PathGeneratorService (unit)', () => {
 		expect(result.path?.title).toBe('Test Path');
 		expect(result.path?.targetLanguage).toBe('ja');
 		expect(result.path?.totalDays).toBe(2);
-		expect(result.queuedJobs).toBe(2);
+		expect(result.queuedJobs).toBe(0); // Adaptive paths don't use queue
 
 		expect(mockCreateCompletion).toHaveBeenCalledTimes(1);
 		expect(mockCreatePathForUser).toHaveBeenCalledTimes(1);
-		expect(mockEnqueuePathRange).toHaveBeenCalledTimes(1);
-
-		const [pathId, days] = mockEnqueuePathRange.mock.calls[0];
-		expect(typeof pathId).toBe('string');
-		expect(days).toHaveLength(2);
-		expect(days[0].dayIndex).toBe(1);
-		expect(days[1].dayIndex).toBe(2);
+		// Adaptive weeks are created via db.insert
+		expect(mockDbInsert).toHaveBeenCalled();
+		// User should be auto-enrolled
+		expect(mockFindAssignment).toHaveBeenCalledWith('user-123', result.pathId);
+		expect(mockCreateAssignment).toHaveBeenCalled();
 	});
 
 	it('returns a failure result when the syllabus cannot be parsed from OpenAI response', async () => {
@@ -158,6 +186,6 @@ describe('PathGeneratorService (unit)', () => {
 		expect(result.success).toBe(false);
 		expect(result.error).toBeDefined();
 		expect(mockCreatePathForUser).not.toHaveBeenCalled();
-		expect(mockEnqueuePathRange).not.toHaveBeenCalled();
+		expect(mockDbInsert).not.toHaveBeenCalled();
 	});
 });
