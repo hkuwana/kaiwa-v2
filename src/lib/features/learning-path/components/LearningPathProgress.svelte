@@ -4,6 +4,7 @@
 	 * Displays current day, progress bar, and next lesson info
 	 */
 
+	import { invalidateAll } from '$app/navigation';
 	import type { UserLearningPath } from '../stores/learning-path.store.svelte';
 
 	interface Props {
@@ -13,6 +14,10 @@
 	}
 
 	const { path, compact = false, onStartLesson }: Props = $props();
+
+	// Generation state
+	let isGenerating = $state(false);
+	let generationError = $state<string | null>(null);
 
 	// Calculate days remaining
 	const daysRemaining = $derived(path.totalDays - path.daysCompleted);
@@ -28,6 +33,39 @@
 		if (level.startsWith('B1')) return 'badge-warning';
 		if (level.startsWith('B2')) return 'badge-error';
 		return 'badge-neutral';
+	}
+
+	/**
+	 * Generate scenario for the current day
+	 */
+	async function handleGenerateScenario() {
+		if (isGenerating || !path.currentDay) return;
+
+		isGenerating = true;
+		generationError = null;
+
+		try {
+			const response = await fetch(`/api/learning-paths/${path.path.id}/generate-day`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					dayIndex: path.currentDay.dayIndex
+				})
+			});
+
+			const result = await response.json();
+
+			if (result.success && result.data?.generated) {
+				// Refresh the page data to show the new scenario
+				await invalidateAll();
+			} else {
+				generationError = result.data?.error || result.error || 'Failed to generate';
+			}
+		} catch (error) {
+			generationError = error instanceof Error ? error.message : 'Generation failed';
+		} finally {
+			isGenerating = false;
+		}
 	}
 </script>
 
@@ -69,11 +107,23 @@
 							Start Today's Lesson
 						</button>
 					{:else if !path.currentDay.isReady}
-						<div class="mt-2 rounded-lg bg-base-300 p-2 text-center">
-							<span class="icon-[mdi--information-outline] h-4 w-4 text-base-content/50"></span>
-							<p class="text-xs text-base-content/60">
-								Lesson not yet ready - check back soon
-							</p>
+						<div class="mt-2 flex flex-col gap-1">
+							<button
+								class="btn btn-sm btn-secondary w-full gap-1"
+								onclick={handleGenerateScenario}
+								disabled={isGenerating}
+							>
+								{#if isGenerating}
+									<span class="loading loading-spinner loading-xs"></span>
+									Generating...
+								{:else}
+									<span class="icon-[mdi--sparkles] h-4 w-4"></span>
+									Generate Scenario
+								{/if}
+							</button>
+							{#if generationError}
+								<p class="text-xs text-error text-center">{generationError}</p>
+							{/if}
 						</div>
 					{/if}
 				</div>
@@ -138,9 +188,23 @@
 								Start Lesson
 							</button>
 						{:else if !path.currentDay.isReady}
-							<div class="flex items-center gap-2 rounded-lg bg-base-300 px-3 py-2">
-								<span class="icon-[mdi--information-outline] h-5 w-5 text-base-content/50"></span>
-								<span class="text-sm text-base-content/60">Not yet ready</span>
+							<div class="flex flex-col items-end gap-1">
+								<button
+									class="btn btn-secondary gap-2"
+									onclick={handleGenerateScenario}
+									disabled={isGenerating}
+								>
+									{#if isGenerating}
+										<span class="loading loading-spinner loading-sm"></span>
+										Generating...
+									{:else}
+										<span class="icon-[mdi--sparkles] h-5 w-5"></span>
+										Generate Scenario
+									{/if}
+								</button>
+								{#if generationError}
+									<p class="text-xs text-error">{generationError}</p>
+								{/if}
 							</div>
 						{/if}
 					</div>

@@ -116,6 +116,13 @@ export const POST: RequestHandler = async ({ params, request, locals, url }) => 
 			}
 		});
 
+		// Activate the path if it's still in draft status
+		// Once a path is assigned to a user, it should be active
+		if (path.status === 'draft') {
+			await learningPathRepository.updatePathStatus(pathId, 'active');
+			console.log('[Assign] 🚀 Path activated on assignment', { pathId });
+		}
+
 		// For adaptive paths, we no longer generate scenarios during assignment
 		// Instead, the dashboard will auto-trigger generation when the user visits
 		// This makes the assignment fast and reliable
