@@ -75,6 +75,33 @@
 		expert: 'Expert Advice'
 	};
 
+	// Static scenario images available for fallback
+	const FALLBACK_SCENARIO_IMAGES = [
+		'/scenarios/tutor-scenario.png',
+		'/scenarios/Free-Practice-Mode.png',
+		'/scenarios/family-celebration-toast.png',
+		'/scenarios/Dinner-drinks-date.png',
+		'/scenarios/Emergency-room-visit.png',
+		'/scenarios/Sharing-big-life-news.png',
+		'/scenarios/repairing-the-relationship.png'
+	];
+
+	// Default fallback image for scenarios (first static image)
+	const DEFAULT_SCENARIO_IMAGE = FALLBACK_SCENARIO_IMAGES[0];
+
+	// Get scenario image URL with fallback for null/undefined thumbnailUrl
+	function getScenarioImageUrl(thumbnailUrl: string | null | undefined): string {
+		return thumbnailUrl || DEFAULT_SCENARIO_IMAGE;
+	}
+
+	// Handle image load errors by using fallback image
+	function handleImageError(event: Event) {
+		const img = event.target as HTMLImageElement;
+		if (img.src !== DEFAULT_SCENARIO_IMAGE) {
+			img.src = DEFAULT_SCENARIO_IMAGE;
+		}
+	}
+
 	function getScenarioMeta(scenario: Scenario) {
 		const rating = scenario.difficultyRating ?? 1;
 		return getDifficultyLevel(rating);
@@ -279,9 +306,10 @@
 							<!-- Thumbnail image -->
 							<figure class="relative h-40 overflow-hidden bg-base-200">
 								<img
-									src={scenario.thumbnailUrl}
+									src={getScenarioImageUrl(scenario.thumbnailUrl)}
 									alt={scenario.title}
 									class="h-full w-full object-cover transition-transform group-hover:scale-105"
+									onerror={handleImageError}
 								/>
 								<!-- Favorite badge overlay -->
 								<div class="absolute top-3 right-3">
@@ -462,9 +490,10 @@
 							<!-- Thumbnail image -->
 							<figure class="relative h-40 overflow-hidden bg-base-200">
 								<img
-									src={scenario.thumbnailUrl}
+									src={getScenarioImageUrl(scenario.thumbnailUrl)}
 									alt={scenario.title}
 									class="h-full w-full object-cover transition-transform group-hover:scale-105"
+									onerror={handleImageError}
 								/>
 								<!-- Favorite button overlay -->
 								{#if !isGuest}
@@ -645,7 +674,12 @@
 
 			<!-- Thumbnail image -->
 			<figure class="h-64 overflow-hidden bg-base-200">
-				<img src={scenario.thumbnailUrl} alt={scenario.title} class="h-full w-full object-cover" />
+				<img
+					src={getScenarioImageUrl(scenario.thumbnailUrl)}
+					alt={scenario.title}
+					class="h-full w-full object-cover"
+					onerror={handleImageError}
+				/>
 			</figure>
 
 			<div class="p-8">
