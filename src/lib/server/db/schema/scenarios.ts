@@ -158,6 +158,24 @@ export const scenarios = pgTable(
 		// Generic scenarios (like "Heart-to-Heart Talk") should leave it null
 		targetLanguages: json('target_languages').$type<string[]>(),
 
+		// ===== PHASE 2: Learning Path Integration =====
+
+		// Default speaker when user hasn't chosen one (references speakers.id)
+		// e.g., 'nl-netherlands-amsterdam-female' for Dutch family scenarios
+		// When set, this speaker is automatically selected if user starts scenario without picking one
+		defaultSpeakerId: text('default_speaker_id'),
+
+		// Learning path grouping slug (simple tag approach)
+		// e.g., 'dutch-family-track', 'japanese-business-track'
+		// Scenarios with the same slug belong to the same learning path
+		learningPathSlug: text('learning_path_slug'),
+
+		// Order within a learning path (1, 2, 3...)
+		// Determines sequence when displaying path scenarios
+		learningPathOrder: integer('learning_path_order'),
+
+		// ===== End Phase 2 Fields =====
+
 		// Visual thumbnail URL (watercolor/artistic style preferred)
 		thumbnailUrl: text('thumbnail_url'),
 
@@ -211,6 +229,10 @@ export const scenarios = pgTable(
 		// Phase 1: Discovery & browsing indexes
 		index('scenarios_primary_skill_idx').on(table.primarySkill),
 		index('scenarios_duration_idx').on(table.estimatedDurationSeconds),
-		index('scenarios_share_slug_idx').on(table.shareSlug)
+		index('scenarios_share_slug_idx').on(table.shareSlug),
+		// Phase 2: Learning path indexes
+		index('scenarios_learning_path_slug_idx').on(table.learningPathSlug),
+		index('scenarios_learning_path_order_idx').on(table.learningPathSlug, table.learningPathOrder),
+		index('scenarios_default_speaker_idx').on(table.defaultSpeakerId)
 	]
 );

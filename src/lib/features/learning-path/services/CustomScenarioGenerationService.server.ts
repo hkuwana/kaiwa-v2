@@ -399,7 +399,12 @@ export class CustomScenarioGenerationService {
 			estimatedDurationSeconds: 600, // 10 minutes default
 			authorDisplayName: null,
 			shareSlug: null,
-			shareUrl: null
+			shareUrl: null,
+			// Learning path integration fields
+			targetLanguages: [targetLanguage], // Language-specific to the learning path
+			defaultSpeakerId: null, // Will be set based on user's language/speaker preference
+			learningPathSlug: week.pathId, // Group by learning path ID
+			learningPathOrder: null // Seeds are a pool, not ordered days
 		};
 
 		// Insert scenario into database

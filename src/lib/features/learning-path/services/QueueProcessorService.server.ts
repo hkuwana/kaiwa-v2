@@ -215,7 +215,7 @@ export class QueueProcessorService {
 		const newScenario: NewScenario = {
 			id: scenarioId,
 			title: generatedContent.title || daySchedule.theme,
-			description: generatedContent.description || daySchedule.scenarioDescription || '',
+			description: generatedContent.description || (daySchedule as { scenarioDescription?: string }).scenarioDescription || '',
 			role: 'tutor',
 			difficulty: this.mapCefrToDifficulty(daySchedule.difficulty),
 			difficultyRating: this.getDifficultyRating(daySchedule.difficulty),
@@ -242,7 +242,12 @@ export class QueueProcessorService {
 			estimatedDurationSeconds: (path.estimatedMinutesPerDay || 15) * 60,
 			authorDisplayName: null,
 			shareSlug: null,
-			shareUrl: null
+			shareUrl: null,
+			// Learning path integration fields
+			targetLanguages: path.targetLanguage ? [path.targetLanguage] : null,
+			defaultSpeakerId: null, // User's speaker preference will be used
+			learningPathSlug: job.pathId, // Group by learning path ID
+			learningPathOrder: job.dayIndex // Order by day in the path
 		};
 
 		const createdScenario = await scenarioRepository.createScenario(newScenario);
