@@ -9,9 +9,13 @@
 	 * - Quick access to start today's lesson
 	 */
 
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 
 	const { data } = $props();
+
+	// Generation state
+	let isGenerating = $state(false);
+	let generationError = $state<string | null>(null);
 
 	// Derived state
 	const canStartToday = $derived(
@@ -32,6 +36,39 @@
 		// Only allow clicking on completed days or current day with scenario ready
 		if (day.scenarioId && day.dayIndex <= data.progress.daysCompleted + 1) {
 			goto(`/conversation?scenario=${day.scenarioId}`);
+		}
+	}
+
+	/**
+	 * Generate scenario for the current day
+	 */
+	async function handleGenerateScenario() {
+		if (isGenerating || !data.progress.currentDay) return;
+
+		isGenerating = true;
+		generationError = null;
+
+		try {
+			const response = await fetch(`/api/learning-paths/${data.path.id}/generate-day`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					dayIndex: data.progress.currentDay.dayIndex
+				})
+			});
+
+			const result = await response.json();
+
+			if (result.success && result.data?.generated) {
+				// Refresh the page data to show the new scenario
+				await invalidateAll();
+			} else {
+				generationError = result.data?.error || result.error || 'Failed to generate scenario';
+			}
+		} catch (error) {
+			generationError = error instanceof Error ? error.message : 'Generation failed';
+		} finally {
+			isGenerating = false;
 		}
 	}
 
@@ -176,9 +213,25 @@
 								Start Lesson
 							</button>
 						{:else if !data.progress.currentDay.isReady}
-							<div class="flex items-center gap-2 rounded-lg bg-base-200 px-4 py-3">
-								<span class="icon-[mdi--information-outline] h-5 w-5 text-base-content/50"></span>
-								<span class="text-sm text-base-content/70">Lesson not yet ready - check back soon</span>
+							<div class="flex flex-col items-end gap-2">
+								<button
+									class="btn btn-secondary gap-2"
+									onclick={handleGenerateScenario}
+									disabled={isGenerating}
+								>
+									{#if isGenerating}
+										<span class="loading loading-spinner loading-sm"></span>
+										Generating...
+									{:else}
+										<span class="icon-[mdi--sparkles] h-5 w-5"></span>
+										Generate Scenario
+									{/if}
+								</button>
+								{#if generationError}
+									<p class="text-xs text-error">{generationError}</p>
+								{:else}
+									<p class="text-xs text-base-content/50">Lesson not ready yet</p>
+								{/if}
 							</div>
 						{/if}
 					</div>
