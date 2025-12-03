@@ -152,6 +152,12 @@ export const scenarios = pgTable(
 		// Search keywords for discovery (e.g., ['meet parents', 'earn trust'])
 		searchKeywords: json('search_keywords').$type<string[]>(),
 
+		// Target languages this scenario is designed for (null = all languages)
+		// e.g., ['nl'] for Dutch-only, ['nl', 'de'] for Dutch + German
+		// Language-specific scenarios (like grammar drills) should set this field
+		// Generic scenarios (like "Heart-to-Heart Talk") should leave it null
+		targetLanguages: json('target_languages').$type<string[]>(),
+
 		// Visual thumbnail URL (watercolor/artistic style preferred)
 		thumbnailUrl: text('thumbnail_url'),
 

@@ -1,6 +1,6 @@
 # Kaiwa User Feedback Triage
 
-**Last Updated**: November 10, 2025
+**Last Updated**: December 3, 2025
 **Total Sessions**: 10+ (Scott, Mark, akuwana3, Timothy, Kazu, Brie, Martin, Thomas Clarke, Austrian User, Dad)
 
 **North Star**: Give users the specific, practiced skills to have a single, successful, high-stakes conversation with a loved one.
@@ -98,9 +98,16 @@ Every issue below is evaluated through this lens:
 - **User Quotes**:
   - "Switched out of scenario when it was role-play; lost scenario when language switched" (Martin)
   - "Spanish came up after pressing Russian" (Martin)
-- [ ] **Status**: Open
+- [x] **Status**: ✅ Fixed (December 3, 2025)
 
-**Fix**: Scenario + Language should be locked together once selected. Don't reset on language change.
+**Root Cause Found**: Bug in `scenario.store.svelte.ts` - the `initializeFromStorage` method read the scenario ID from localStorage but **never actually looked it up**. It always defaulted to `scenariosData[0]` regardless of what was stored.
+
+**Fix Applied**:
+1. Fixed scenario lookup in `initializeFromStorage` to actually find the scenario by ID
+2. Load history BEFORE looking up scenarios (so user-created scenarios can be found)
+3. Fall back chain: static data → history → default
+
+**Files Modified**: `src/lib/stores/scenario.store.svelte.ts`
 
 ---
 
@@ -1196,6 +1203,43 @@ Transcript display is controlled via UI settings and can be shown/hidden based o
 
 ---
 
-**Last Review**: November 29, 2025
-**Next Review**: November 30, 2025
+**Last Review**: December 3, 2025
+**Next Review**: December 4, 2025
 **Owner**: Hiro Kuwana
+
+---
+
+## 🛠️ December 3, 2025 - Technical Fixes
+
+### Scenario Loading Bug Fixed ✅
+
+**Issue #5** (Lost Scenario When Switching Language) was caused by a bug in `scenario.store.svelte.ts`. The store read scenario IDs from localStorage but never actually looked them up - it always defaulted to the first scenario.
+
+**Fix Applied**:
+- Scenario IDs are now properly looked up in static data
+- History is loaded BEFORE scenario lookup (supports user-created scenarios)
+- Proper fallback chain: static data → history → default
+
+### Image Fallback Added ✅
+
+**BriefingCard.svelte** now handles image load errors gracefully:
+- If a scenario's thumbnail fails to load, falls back to `tutor-scenario.png`
+- If that also fails, shows SVG placeholder
+- Available fallback images: tutor-scenario.png, Free-Practice-Mode.png, family-celebration-toast.png, etc.
+
+### Language-Specific Scenarios Schema Added ✅
+
+Added `targetLanguages` field to scenario schema:
+- `null` = scenario available for all languages (default)
+- `['nl']` = Dutch-only scenario
+- `['nl', 'de']` = Dutch + German
+
+**Use cases**:
+- Language-specific grammar drills (e.g., "Morning Dutch: Present & Past Tense Review")
+- Cultural scenarios specific to certain regions
+- Generic scenarios remain language-agnostic (e.g., "Heart-to-Heart Talk")
+
+**Files Modified**:
+- `src/lib/server/db/schema/scenarios.ts`
+
+**Migration Required**: Run `pnpm db:push` or create migration for `target_languages` column

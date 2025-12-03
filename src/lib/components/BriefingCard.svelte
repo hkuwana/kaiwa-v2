@@ -60,9 +60,32 @@
 
 	// Language display variants for rotation animation
 
-	// Default fallback image for scenarios
+	// Static scenario images available for fallback
+	const FALLBACK_SCENARIO_IMAGES = [
+		'/scenarios/tutor-scenario.png',
+		'/scenarios/Free-Practice-Mode.png',
+		'/scenarios/family-celebration-toast.png',
+		'/scenarios/Dinner-drinks-date.png',
+		'/scenarios/Emergency-room-visit.png',
+		'/scenarios/Sharing-big-life-news.png',
+		'/scenarios/repairing-the-relationship.png'
+	];
+
+	// Default fallback image for scenarios (SVG placeholder as last resort)
 	const defaultScenarioImage =
 		'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"%3E%3Crect fill="%2394a3b8" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%23fff"%3EScenario%3C/text%3E%3C/svg%3E';
+
+	// Handle image load errors by using first available static scenario image
+	function handleImageError(event: Event) {
+		const img = event.target as HTMLImageElement;
+		// Use the first static scenario image as fallback (tutor-scenario.png)
+		if (img.src !== FALLBACK_SCENARIO_IMAGES[0]) {
+			img.src = FALLBACK_SCENARIO_IMAGES[0];
+		} else {
+			// If even the fallback fails, use SVG placeholder
+			img.src = defaultScenarioImage;
+		}
+	}
 </script>
 
 <!-- Empty State - Show when no language selected -->
@@ -117,14 +140,16 @@
 						src={selectedScenario.thumbnailUrl}
 						alt={selectedScenario.title}
 						class="h-full w-full object-cover"
+						onerror={handleImageError}
 					/>
 				</figure>
 			{:else}
 				<figure>
 					<img
-						src={defaultScenarioImage}
-						alt={selectedScenario.title}
+						src={FALLBACK_SCENARIO_IMAGES[0]}
+						alt={selectedScenario?.title ?? 'Scenario'}
 						class="h-full w-full object-cover"
+						onerror={handleImageError}
 					/>
 				</figure>
 			{/if}
