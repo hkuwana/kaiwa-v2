@@ -65,12 +65,7 @@ export async function createCompletion(
 	messages: ChatCompletionMessageParam[],
 	options: OpenAICompletionOptions = {}
 ): Promise<OpenAIResponse> {
-	const {
-		model = 'gpt-5-nano',
-		maxTokens = 1000,
-		responseFormat = 'text',
-		reasoningEffort = 'none' // Default to 'none' for structured tasks to prevent token exhaustion
-	} = options;
+	const { model = 'gpt-5-nano', maxTokens = 5000, responseFormat = 'text' } = options;
 
 	// Build the request payload
 	// For GPT-5 models (nano, mini), we control reasoning to prevent all tokens being used for thinking
@@ -80,7 +75,7 @@ export async function createCompletion(
 		max_completion_tokens: maxTokens,
 		// Disable reasoning by default to ensure output tokens are available
 		// GPT-5 reasoning models can use all tokens for internal reasoning if not controlled
-		reasoning: { effort: reasoningEffort },
+
 		...(responseFormat === 'json' && {
 			response_format: { type: 'json_object' as const }
 		})
@@ -357,7 +352,7 @@ Guidelines: ${mode === 'tutor' ? 'Focus on teaching and gentle correction' : 'Fo
 		{
 			model: getModelForTask('scenarioGeneration'), // Scenario generation uses NANO
 			temperature: hasMemories ? 0.8 : 0.7,
-			maxTokens: 1000,
+			maxTokens: 5000,
 			responseFormat: 'json'
 		}
 	);

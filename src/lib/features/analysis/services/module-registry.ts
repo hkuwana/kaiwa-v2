@@ -122,7 +122,7 @@ Respond ONLY with valid JSON.`;
 					{
 						model: getModelForTask('grammarCorrection'), // Grammar uses NANO for fast suggestions
 						temperature: 0.1,
-						maxTokens: 1200,
+						maxTokens: 5000,
 						responseFormat: 'json'
 					}
 				);

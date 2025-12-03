@@ -14,7 +14,8 @@ import type {
 	PathFromCreatorBriefInput,
 	GeneratedSyllabus
 } from '../types';
-import type { NewLearningPath } from '$lib/server/db/schema/learning-paths';
+import type { learningPaths } from '$lib/server/db/schema/learning-paths';
+import type { LearningPath } from '$lib/server/db/types';
 
 /**
  * Result of path generation
@@ -300,7 +301,7 @@ export class PathGeneratorService {
 			completedAt: null
 		}));
 
-		const pathData: NewLearningPath = {
+		const pathData: Partial<LearningPath> = {
 			id: `lp-${nanoid()}`,
 			userId,
 			title: syllabus.title,
