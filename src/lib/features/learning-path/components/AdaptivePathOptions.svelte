@@ -189,20 +189,20 @@
 		await startGeneration(true);
 	}
 
-	// Auto-generate on mount if needed
+	// Check status on mount (but DON'T auto-generate - let user trigger it manually)
 	onMount(async () => {
 		// Check status first
 		const status = await fetchStatus();
 		generationStatus = status;
 
-		// Auto-start generation if:
-		// 1. We have pending scenarios
-		// 2. We haven't tried yet this session
-		// 3. Not already generating
-		if (status?.needsGeneration && !hasTriedAutoGenerate && !isGenerating) {
-			hasTriedAutoGenerate = true;
-			await startGeneration();
-		}
+		// Note: We no longer auto-generate scenarios on dashboard mount.
+		// This was causing issues with:
+		// - Multiple page loads triggering multiple generation attempts
+		// - Silent failures leaving dashboard in "Generating..." state
+		// - No user control over when generation happens
+		//
+		// Instead, the user must click "Generate Scenarios" button manually,
+		// or the admin can generate scenarios after assignment.
 	});
 
 	onDestroy(() => {
@@ -300,15 +300,21 @@
 						</button>
 					</div>
 				{:else}
-					<!-- Nothing ready yet - show generate button -->
-					<button
-						class="btn btn-secondary btn-sm mt-3 w-full gap-2"
-						onclick={() => startGeneration()}
-						disabled={isGenerating}
-					>
-						<span class="icon-[mdi--sparkles] h-4 w-4"></span>
-						Generate Scenarios
-					</button>
+					<!-- Nothing ready yet - show clear message and generate button -->
+					<div class="mt-3 rounded-lg bg-base-300 p-3 text-center">
+						<span class="icon-[mdi--information-outline] h-5 w-5 text-base-content/60"></span>
+						<p class="mt-1 text-sm text-base-content/70">
+							Scenarios haven't been generated yet
+						</p>
+						<button
+							class="btn btn-secondary btn-sm mt-2 w-full gap-2"
+							onclick={() => startGeneration()}
+							disabled={isGenerating}
+						>
+							<span class="icon-[mdi--sparkles] h-4 w-4"></span>
+							Generate Scenarios
+						</button>
+					</div>
 				{/if}
 			{:else}
 				<!-- No seeds yet -->

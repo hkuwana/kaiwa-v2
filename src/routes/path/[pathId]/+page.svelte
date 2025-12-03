@@ -170,8 +170,8 @@
 							</button>
 						{:else if !data.progress.currentDay.isReady}
 							<div class="flex items-center gap-2 rounded-lg bg-base-200 px-4 py-3">
-								<span class="loading loading-sm loading-spinner text-primary"></span>
-								<span class="text-sm text-base-content/70">Preparing lesson...</span>
+								<span class="icon-[mdi--information-outline] h-5 w-5 text-base-content/50"></span>
+								<span class="text-sm text-base-content/70">Lesson not yet ready - check back soon</span>
 							</div>
 						{/if}
 					</div>
@@ -192,15 +192,23 @@
 	{:else}
 		<!-- Not assigned - show enrollment CTA -->
 		<div class="mb-8 rounded-2xl bg-base-200 p-6 text-center">
-			<h2 class="text-xl font-semibold">You're not enrolled in this path</h2>
-			<p class="mt-2 text-base-content/70">This learning path hasn't been assigned to you yet.</p>
-			{#if data.path.isPublic && data.path.shareSlug}
-				<a href="/program/{data.path.shareSlug}" class="btn mt-4 btn-primary">
-					View Public Program
+			<span class="icon-[mdi--bookmark-plus-outline] h-12 w-12 text-base-content/30"></span>
+			<h2 class="mt-4 text-xl font-semibold">This path isn't on your dashboard yet</h2>
+			<p class="mt-2 text-base-content/70">
+				Want to learn with this program? Add it to your dashboard to get started.
+			</p>
+			<div class="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+				{#if data.path.isPublic && data.path.shareSlug}
+					<a href="/program/{data.path.shareSlug}" class="btn btn-primary gap-2">
+						<span class="icon-[mdi--plus] h-5 w-5"></span>
+						Add to Dashboard
+					</a>
+				{/if}
+				<a href="/dashboard" class="btn btn-ghost gap-2">
+					<span class="icon-[mdi--view-dashboard-outline] h-5 w-5"></span>
+					Check Dashboard
 				</a>
-			{:else}
-				<a href="/dashboard" class="btn mt-4 btn-ghost"> Return to Dashboard </a>
-			{/if}
+			</div>
 		</div>
 	{/if}
 

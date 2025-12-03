@@ -34,10 +34,9 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	// Check if user is assigned to this path
 	const assignment = await learningPathAssignmentRepository.findAssignment(userId, pathId);
 
-	// If not assigned and path is not public, deny access
-	if (!assignment && !path.isPublic && path.userId !== userId) {
-		throw error(403, 'You do not have access to this learning path');
-	}
+	// Note: We now allow access to all logged-in users
+	// If not assigned, the UI will show "Add to dashboard" or "Check on dashboard"
+	// instead of throwing a 403 error
 
 	// Calculate progress data
 	const totalDays = path.schedule?.length || 0;

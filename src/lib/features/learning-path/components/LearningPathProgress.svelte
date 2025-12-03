@@ -69,9 +69,11 @@
 							Start Today's Lesson
 						</button>
 					{:else if !path.currentDay.isReady}
-						<div class="mt-2 flex items-center gap-2 text-sm text-base-content/60">
-							<span class="loading loading-xs loading-spinner"></span>
-							Preparing lesson...
+						<div class="mt-2 rounded-lg bg-base-300 p-2 text-center">
+							<span class="icon-[mdi--information-outline] h-4 w-4 text-base-content/50"></span>
+							<p class="text-xs text-base-content/60">
+								Lesson not yet ready - check back soon
+							</p>
 						</div>
 					{/if}
 				</div>
@@ -136,9 +138,9 @@
 								Start Lesson
 							</button>
 						{:else if !path.currentDay.isReady}
-							<div class="flex items-center gap-2 text-base-content/60">
-								<span class="loading loading-sm loading-spinner"></span>
-								<span>Generating...</span>
+							<div class="flex items-center gap-2 rounded-lg bg-base-300 px-3 py-2">
+								<span class="icon-[mdi--information-outline] h-5 w-5 text-base-content/50"></span>
+								<span class="text-sm text-base-content/60">Not yet ready</span>
 							</div>
 						{/if}
 					</div>
