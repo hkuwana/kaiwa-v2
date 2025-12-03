@@ -7,6 +7,7 @@ import type { ConversationSeed } from '$lib/server/db/schema/adaptive-weeks';
 import type { NewScenario } from '$lib/server/db/types';
 import { generateScenarioWithGPT } from '$lib/server/services/openai.service';
 import { scenarioMetadataRepository } from '$lib/server/repositories/scenario-metadata.repository';
+import { speakersRepository } from '$lib/server/repositories/speakers.repository';
 import { eq, and } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 
@@ -63,6 +64,27 @@ export class CustomScenarioGenerationService {
 				targetLanguage,
 				timestamp: new Date().toISOString()
 			});
+
+			// Look up a default speaker for this language
+			let defaultSpeakerId: string | null = null;
+			try {
+				const speakers = await speakersRepository.getActiveSpeakersByLanguage(targetLanguage);
+				if (speakers.length > 0) {
+					// Pick the first active speaker as default
+					defaultSpeakerId = speakers[0].id;
+					logger.info(`🔊 [CustomScenarioGen] Using default speaker for ${targetLanguage}`, {
+						speakerId: defaultSpeakerId,
+						speakerName: speakers[0].voiceName,
+						totalAvailable: speakers.length
+					});
+				} else {
+					logger.warn(`⚠️ [CustomScenarioGen] No active speakers found for ${targetLanguage}`);
+				}
+			} catch (speakerError) {
+				logger.warn(`⚠️ [CustomScenarioGen] Failed to look up speakers for ${targetLanguage}`, {
+					error: speakerError instanceof Error ? speakerError.message : 'Unknown error'
+				});
+			}
 
 			// Get the adaptive week
 			const dbStartTime = Date.now();
@@ -126,7 +148,8 @@ export class CustomScenarioGenerationService {
 						seed,
 						week,
 						userId,
-						targetLanguage
+						targetLanguage,
+						defaultSpeakerId
 					);
 
 					const seedDuration = Date.now() - seedStartTime;
@@ -327,7 +350,8 @@ export class CustomScenarioGenerationService {
 		seed: ConversationSeed,
 		week: typeof adaptiveWeeks.$inferSelect,
 		userId: string,
-		targetLanguage: string
+		targetLanguage: string,
+		defaultSpeakerId?: string | null
 	): Promise<typeof scenarios.$inferSelect> {
 		logger.info(`🏗️ [CustomScenarioGen] Building scenario from seed`, {
 			seedId: seed.id,
@@ -402,7 +426,7 @@ export class CustomScenarioGenerationService {
 			shareUrl: null,
 			// Learning path integration fields
 			targetLanguages: [targetLanguage], // Language-specific to the learning path
-			defaultSpeakerId: null, // Will be set based on user's language/speaker preference
+			defaultSpeakerId: defaultSpeakerId ?? null, // Use provided speaker or null
 			learningPathSlug: week.pathId, // Group by learning path ID
 			learningPathOrder: null // Seeds are a pool, not ordered days
 		};
