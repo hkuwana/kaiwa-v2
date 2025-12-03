@@ -1,12 +1,11 @@
 import { logger } from '$lib/logger';
 // src/lib/server/services/conversationSummary.service.ts
 
-import * as openaiService from './openai.service';
+import { createCompletion, parseAndValidateJSON, type AIMessage } from '$lib/server/ai';
 import { conversationRepository } from '$lib/server/repositories/conversation.repository';
 import * as userPreferencesService from './user-preferences.service';
 import { getMaxMemories } from '$lib/server/tiers';
 import type { UserTier } from '$lib/server/db/types';
-import { getModelForTask } from '../config/ai-models.config';
 
 export interface ConversationMemoriesOptions {
 	userId: string;
@@ -134,7 +133,8 @@ export async function generateConversationMemories(
 }
 
 /**
- * Generate memories using OpenAI with context from existing memories
+ * Generate memories using AI with context from existing memories
+ * Uses task-based routing: conversationSummary → GPT-5 Mini
  */
 async function generateMemoriesWithAI(
 	conversationText: string,
@@ -186,24 +186,23 @@ ${conversationText}
 Return a JSON array of memory strings.`;
 
 	try {
-		const response = await openaiService.createCompletion(
-			[
-				{ role: 'system', content: systemPrompt },
-				{ role: 'user', content: userPrompt }
-			],
-			{
-				model: getModelForTask('conversationSummary'), // Summaries use MINI for nuanced understanding
-				temperature: 0.3, // Lower temperature for more consistent extraction
-				maxTokens: userTier === 'premium' ? 800 : userTier === 'plus' ? 500 : 300,
-				responseFormat: 'json'
-			}
-		);
+		const messages: AIMessage[] = [
+			{ role: 'system', content: systemPrompt },
+			{ role: 'user', content: userPrompt }
+		];
+
+		const response = await createCompletion(messages, {
+			task: 'conversationSummary', // Routes to GPT-5 Mini for nuanced understanding
+			temperature: 0.3, // Lower temperature for more consistent extraction
+			maxTokens: userTier === 'premium' ? 800 : userTier === 'plus' ? 500 : 300,
+			responseFormat: 'json'
+		});
 
 		// Parse the JSON response
-		const parsed = openaiService.parseAndValidateJSON<unknown>(response.content);
+		const parsed = parseAndValidateJSON<unknown>(response.content);
 		return normalizeMemoriesResponse(parsed);
 	} catch (error) {
-		logger.error('OpenAI memory generation failed:', error);
+		logger.error('[Summary Service] Memory generation failed:', error);
 		return null;
 	}
 }

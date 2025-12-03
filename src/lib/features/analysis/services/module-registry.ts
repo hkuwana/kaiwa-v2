@@ -3,8 +3,7 @@ import type {
 	AnalysisModuleDefinition,
 	AnalysisModuleId
 } from '../types/analysis-module.types';
-import { createCompletion } from '$lib/server/services/openai.service';
-import { getModelForTask } from '$lib/server/config/ai-models.config';
+import { createCompletion, type AIMessage } from '$lib/server/ai';
 
 const registry: Record<AnalysisModuleId, AnalysisModuleDefinition> = {
 	'quick-stats': {
@@ -114,18 +113,17 @@ Respond ONLY with valid JSON.`;
 - Focus on helping learner sound more natural and culturally appropriate`;
 
 			try {
-				const response = await createCompletion(
-					[
-						{ role: 'system', content: systemPrompt },
-						{ role: 'user', content: userPrompt }
-					],
-					{
-						model: getModelForTask('grammarCorrection'), // Grammar uses NANO for fast suggestions
-						temperature: 0.1,
-						maxTokens: 1200,
-						responseFormat: 'json'
-					}
-				);
+				const messages: AIMessage[] = [
+					{ role: 'system', content: systemPrompt },
+					{ role: 'user', content: userPrompt }
+				];
+
+				const response = await createCompletion(messages, {
+					task: 'grammarCorrection', // Routes to Claude Haiku
+					temperature: 0.1,
+					maxTokens: 1200,
+					responseFormat: 'json'
+				});
 
 				const parsed = JSON.parse(response.content ?? '{}');
 				const suggestions = Array.isArray(parsed?.suggestions) ? parsed.suggestions : [];
@@ -238,18 +236,17 @@ Provide analysis in JSON format:
 }`;
 
 			try {
-				const response = await createCompletion(
-					[
-						{ role: 'system', content: systemPrompt },
-						{ role: 'user', content: userPrompt }
-					],
-					{
-						model: getModelForTask('detailedAnalysis'), // Assessment uses MINI for nuanced analysis
-						temperature: 0.3,
-						maxTokens: 1000,
-						responseFormat: 'json'
-					}
-				);
+				const messages: AIMessage[] = [
+					{ role: 'system', content: systemPrompt },
+					{ role: 'user', content: userPrompt }
+				];
+
+				const response = await createCompletion(messages, {
+					task: 'detailedAnalysis', // Routes to GPT-5 Mini for nuanced analysis
+					temperature: 0.3,
+					maxTokens: 1000,
+					responseFormat: 'json'
+				});
 
 				const parsed = JSON.parse(response.content);
 				return {

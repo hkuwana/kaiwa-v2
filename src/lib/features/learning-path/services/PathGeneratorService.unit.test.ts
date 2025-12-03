@@ -1,5 +1,5 @@
 // src/lib/features/learning-path/services/PathGeneratorService.unit.test.ts
-// Fast, dependency-injected unit tests that avoid real DB and OpenAI calls.
+// Fast, dependency-injected unit tests that avoid real DB and AI provider calls.
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { GeneratedSyllabus } from '../types';
@@ -16,6 +16,8 @@ const { mockCreateCompletion, mockCreatePathForUser, mockEnqueuePathRange } = vi
 vi.mock('$env/dynamic/private', () => ({
 	env: {
 		OPENAI_API_KEY: 'test-api-key',
+		ANTHROPIC_API_KEY: 'test-anthropic-key',
+		GOOGLE_AI_API_KEY: 'test-google-key',
 		DATABASE_URL: 'postgresql://test',
 		NODE_ENV: 'test'
 	}
@@ -30,8 +32,8 @@ vi.mock('$lib/logger', () => ({
 	}
 }));
 
-// Fully mock the openai.service module to avoid initializing the real OpenAI client
-vi.mock('$lib/server/services/openai.service', () => ({
+// Fully mock the AI module to avoid initializing real AI clients
+vi.mock('$lib/server/ai', () => ({
 	createCompletion: mockCreateCompletion,
 	parseAndValidateJSON: <T>(jsonString: string): T | null => {
 		try {

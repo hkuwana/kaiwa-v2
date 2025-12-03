@@ -2,13 +2,11 @@
 
 import { logger } from '$lib/logger';
 import { nanoid } from 'nanoid';
-import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
-import { createCompletion, parseAndValidateJSON } from '$lib/server/services/openai.service';
+import { createCompletion, parseAndValidateJSON, type AIMessage } from '$lib/server/ai';
 import { PromptEngineeringService } from './PromptEngineeringService';
 import { learningPathRepository } from '$lib/server/repositories/learning-path.repository';
 import { learningPathAssignmentRepository } from '$lib/server/repositories/learning-path-assignment.repository';
 import { scenarioGenerationQueueRepository } from '$lib/server/repositories/scenario-generation-queue.repository';
-import { getModelForTask } from '$lib/server/config/ai-models.config';
 import type {
 	PathFromPreferencesInput,
 	PathFromCreatorBriefInput,
@@ -201,7 +199,8 @@ export class PathGeneratorService {
 	}
 
 	/**
-	 * Generate syllabus using OpenAI
+	 * Generate syllabus using AI
+	 * Uses task-based routing: pathwaySyllabus → Claude Haiku
 	 *
 	 * @param promptPayload - System and user prompts
 	 * @returns Generated syllabus or null if failed
@@ -211,20 +210,20 @@ export class PathGeneratorService {
 		userPrompt: string;
 	}): Promise<GeneratedSyllabus | null> {
 		try {
-			const messages: ChatCompletionMessageParam[] = [
+			const messages: AIMessage[] = [
 				{ role: 'system', content: promptPayload.systemPrompt },
 				{ role: 'user', content: promptPayload.userPrompt }
 			];
 
-			logger.info('🤖 [PathGenerator] Calling OpenAI to generate syllabus', {
+			logger.info('[PathGenerator] Calling AI to generate syllabus', {
 				systemPromptLength: promptPayload.systemPrompt.length,
 				userPromptLength: promptPayload.userPrompt.length
 			});
 
 			const response = await createCompletion(messages, {
-				model: getModelForTask('pathwaySyllabus'), // Uses GPT-5 Nano for fast, cost-efficient generation
+				task: 'pathwaySyllabus', // Routes to Claude Haiku for fast, cost-efficient generation
 				temperature: 0.7, // Balanced creativity and consistency
-				maxTokens: 16000, // Reasoning models need extra tokens for internal reasoning + output
+				maxTokens: 16000,
 				responseFormat: 'json'
 			});
 

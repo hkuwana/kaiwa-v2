@@ -1,8 +1,7 @@
 import { logger } from '$lib/logger';
 import { randomUUID } from 'crypto';
-import * as openaiService from './openai.service';
+import { createCompletion, type AIMessage } from '$lib/server/ai';
 import type { Message, Language } from '$lib/server/db/types';
-import { getModelForTask } from '../config/ai-models.config';
 
 /**
  * Memory extracted from a conversation
@@ -96,7 +95,8 @@ function parseMemoryResponse(response: string): Partial<ConversationMemory> {
 }
 
 /**
- * Call GPT to extract memory insights from conversation
+ * Call AI to extract memory insights from conversation
+ * Uses task-based routing: structuredExtraction → Claude Haiku
  */
 async function extractMemoryViaGPT(
 	conversationText: string,
@@ -120,30 +120,31 @@ Focus on:
 	const userPrompt = `Analyze this ${languageId} language conversation:\n\n${conversationText}`;
 
 	try {
-		const response = await openaiService.createCompletion(
-			[
-				{ role: 'system', content: systemPrompt },
-				{ role: 'user', content: userPrompt }
-			],
-			{
-				model: getModelForTask('structuredExtraction'), // Memory extraction is structured data
-				temperature: 0.7,
-				maxTokens: 500,
-				responseFormat: 'text'
-			}
-		);
+		const messages: AIMessage[] = [
+			{ role: 'system', content: systemPrompt },
+			{ role: 'user', content: userPrompt }
+		];
+
+		const response = await createCompletion(messages, {
+			task: 'structuredExtraction', // Routes to Claude Haiku
+			temperature: 0.7,
+			maxTokens: 500,
+			responseFormat: 'text'
+		});
 
 		const parsed = parseMemoryResponse(response.content);
 
-		logger.info('✅ Memory extracted via GPT:', {
+		logger.info('[Memory Service] Memory extracted:', {
 			topic: parsed.topic,
 			phraseCount: parsed.keyPhrases?.length || 0,
-			difficultyCount: parsed.difficulties?.length || 0
+			difficultyCount: parsed.difficulties?.length || 0,
+			provider: response.provider,
+			model: response.model
 		});
 
 		return parsed;
 	} catch (error) {
-		logger.error('❌ GPT extraction failed:', error);
+		logger.error('[Memory Service] Extraction failed:', error);
 		throw error;
 	}
 }

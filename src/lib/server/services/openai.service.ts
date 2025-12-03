@@ -1,37 +1,34 @@
-import { logger } from '$lib/logger';
-// src/lib/server/services/openai.service.ts
+/**
+ * OpenAI Service (Migrated to Multi-Provider AI Module)
+ *
+ * This service now uses the unified AI module which supports
+ * multiple providers (OpenAI, Anthropic/Claude, Google/Gemini).
+ *
+ * The external API remains unchanged for backward compatibility.
+ * Internally, calls are routed to the optimal provider based on task type.
+ *
+ * @see src/lib/server/ai/ for the underlying implementation
+ */
 
-import OpenAI from 'openai';
-import { env } from '$env/dynamic/private';
-import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
+import { logger } from '$lib/logger';
 import type { UserPreferences } from '$lib/server/db/types';
 import {
 	buildOnboardingInstructions,
 	type OnboardingAnalysisConfig
 } from './analysis-instruction.service';
-import { DEFAULT_MODEL, getModelForTask } from '../config/ai-models.config';
+import {
+	createCompletion as aiCreateCompletion,
+	parseAndValidateJSON as aiParseAndValidateJSON,
+	type AIMessage,
+	type AIResponse
+} from '$lib/server/ai';
 
+// Re-export types for backward compatibility
 export type { AnalysisFocus, OnboardingAnalysisConfig } from './analysis-instruction.service';
 
-// Lazy initialization of OpenAI client
-let _openai: OpenAI | null = null;
-
-function getOpenAI(): OpenAI {
-	if (!_openai) {
-		_openai = new OpenAI({
-			apiKey: env.OPENAI_API_KEY || 'dummy-key-for-build'
-		});
-	}
-	return _openai;
-}
-
-const openai = new Proxy({} as OpenAI, {
-	get(_target, prop) {
-		const client = getOpenAI();
-		return client[prop as keyof OpenAI];
-	}
-});
-
+/**
+ * Legacy completion options (backward compatible)
+ */
 export interface OpenAICompletionOptions {
 	model?: string;
 	temperature?: number;
@@ -39,6 +36,9 @@ export interface OpenAICompletionOptions {
 	responseFormat?: 'text' | 'json';
 }
 
+/**
+ * Legacy response type (backward compatible)
+ */
 export interface OpenAIResponse {
 	content: string;
 	usage?: {
@@ -49,99 +49,46 @@ export interface OpenAIResponse {
 }
 
 /**
- * Send a completion request to OpenAI
+ * Convert AIResponse to legacy OpenAIResponse format
+ */
+function toOpenAIResponse(response: AIResponse): OpenAIResponse {
+	return {
+		content: response.content,
+		usage: response.usage
+	};
+}
+
+/**
+ * Send a completion request
+ *
+ * Now routes to the appropriate provider based on configuration.
+ * Default behavior uses task-based routing from the AI module.
+ *
+ * @deprecated Consider using `createCompletion` from '$lib/server/ai' directly
+ * with task-based routing for better provider selection.
  */
 export async function createCompletion(
-	messages: ChatCompletionMessageParam[],
+	messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
 	options: OpenAICompletionOptions = {}
 ): Promise<OpenAIResponse> {
-	const { model = 'gpt-5-nano', maxTokens = 1000, responseFormat = 'text' } = options;
+	const { model, maxTokens = 1000, responseFormat = 'text', temperature } = options;
 
-	const requestPayload = {
+	// Use the new AI module with explicit model if provided
+	// Otherwise, let task routing decide (caller should use task-based API)
+	const response = await aiCreateCompletion(messages as AIMessage[], {
 		model,
-		messages,
-		max_completion_tokens: maxTokens,
-		...(responseFormat === 'json' && {
-			response_format: { type: 'json_object' as const }
-		})
-	};
-
-	logger.info('🤖 [OpenAI Service] Raw Request to OpenAI:', {
-		timestamp: new Date().toISOString(),
-		requestPayload: JSON.stringify(requestPayload, null, 2),
-		messagesCount: messages.length,
-		totalPromptChars: messages.reduce((sum, msg) => sum + (msg.content?.length || 0), 0)
+		maxTokens,
+		responseFormat,
+		temperature
 	});
 
-	try {
-		const completion = await openai.chat.completions.create(requestPayload);
-
-		const content = completion.choices[0]?.message?.content || '';
-		const finishReason = completion.choices[0]?.finish_reason;
-
-		logger.info('🤖 [OpenAI Service] Raw Response from OpenAI:', {
-			timestamp: new Date().toISOString(),
-			fullResponse: JSON.stringify(completion, null, 2),
-			extractedContent: content,
-			usage: completion.usage,
-			finishReason,
-			responseContentLength: content.length
-		});
-
-		// Check for truncated response due to token limit
-		// This is especially important for reasoning models (GPT-5 Nano/Mini)
-		// which use internal reasoning tokens before producing output
-		if (finishReason === 'length' && content.length === 0) {
-			const usageDetails = completion.usage as {
-				completion_tokens_details?: { reasoning_tokens?: number };
-			};
-			const reasoningTokens = usageDetails?.completion_tokens_details?.reasoning_tokens || 0;
-
-			logger.error('🚨 [OpenAI Service] Response truncated - all tokens used for reasoning', {
-				maxTokens,
-				completionTokens: completion.usage?.completion_tokens,
-				reasoningTokens,
-				suggestion: 'Increase maxTokens to allow room for output after reasoning'
-			});
-
-			throw new Error(
-				`OpenAI response truncated: model used ${reasoningTokens} reasoning tokens, leaving no room for output. Increase maxTokens (currently ${maxTokens}).`
-			);
-		}
-
-		// Warn if response was truncated but still has some content
-		if (finishReason === 'length' && content.length > 0) {
-			logger.warn('⚠️ [OpenAI Service] Response may be truncated (finish_reason: length)', {
-				contentLength: content.length,
-				maxTokens
-			});
-		}
-
-		return {
-			content,
-			usage: completion.usage
-				? {
-						promptTokens: completion.usage.prompt_tokens,
-						completionTokens: completion.usage.completion_tokens,
-						totalTokens: completion.usage.total_tokens
-					}
-				: undefined
-		};
-	} catch (error) {
-		logger.error('🚨 [OpenAI Service] API Error:', {
-			timestamp: new Date().toISOString(),
-			error: error,
-			requestPayload: requestPayload,
-			errorMessage: error instanceof Error ? error.message : 'Unknown error'
-		});
-		throw new Error(
-			`OpenAI completion failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-		);
-	}
+	return toOpenAIResponse(response);
 }
 
 /**
  * Analyze onboarding conversation and extract user preferences
+ *
+ * Uses task-based routing: structuredExtraction → Claude Haiku
  */
 export async function analyzeOnboardingConversation(
 	conversationMessages: string[],
@@ -154,29 +101,32 @@ export async function analyzeOnboardingConversation(
 
 	const instructions = buildOnboardingInstructions(conversation, config);
 
-	const messages: ChatCompletionMessageParam[] = [
+	const messages: AIMessage[] = [
 		{ role: 'system', content: instructions.systemPrompt },
 		{ role: 'user', content: instructions.userPrompt }
 	];
 
-	const response = await createCompletion(messages, {
-		model: getModelForTask('structuredExtraction'), // Analysis requires structured extraction
+	const response = await aiCreateCompletion(messages, {
+		task: 'structuredExtraction', // Routes to Claude Haiku
 		temperature: 0.3,
 		maxTokens: 650,
 		responseFormat: 'json'
 	});
 
-	logger.info('🧠 [OpenAI Service] Onboarding analysis response received', {
+	logger.info('[OpenAI Service] Onboarding analysis response received', {
 		scenarioCategory: instructions.scenarioCategory,
 		focusAreas: instructions.focusAreas,
-		content: response.content
+		provider: response.provider,
+		model: response.model
 	});
 
-	return response;
+	return toOpenAIResponse(response);
 }
 
 /**
  * Generate a personalized learning plan based on extracted data
+ *
+ * Uses task-based routing: pathwaySyllabus → Claude Haiku
  */
 export async function generateLearningPlan(
 	extractedData: UserPreferences,
@@ -203,20 +153,24 @@ Create a motivating summary that includes:
 
 Keep it personal, specific, and motivating. Write in an encouraging, professional tone.`;
 
-	const messages: ChatCompletionMessageParam[] = [
+	const messages: AIMessage[] = [
 		{ role: 'system', content: systemPrompt },
 		{ role: 'user', content: userPrompt }
 	];
 
-	return createCompletion(messages, {
-		model: DEFAULT_MODEL, // Use fast model for plan generation
-		temperature: 0.8, // Higher temperature for more creative/engaging plans
+	const response = await aiCreateCompletion(messages, {
+		task: 'pathwaySyllabus', // Routes to Claude Haiku
+		temperature: 0.8,
 		maxTokens: 600
 	});
+
+	return toOpenAIResponse(response);
 }
 
 /**
  * Generate lesson content based on user preferences
+ *
+ * Uses task-based routing: scenarioGeneration → Claude Haiku
  */
 export async function generateLessonContent(
 	topic: string,
@@ -241,33 +195,28 @@ Include:
 
 Adapt complexity to their level and preferences.`;
 
-	const messages: ChatCompletionMessageParam[] = [
+	const messages: AIMessage[] = [
 		{ role: 'system', content: systemPrompt },
 		{ role: 'user', content: userPrompt }
 	];
 
-	return createCompletion(messages, {
+	const response = await aiCreateCompletion(messages, {
+		task: 'scenarioGeneration', // Routes to Claude Haiku
 		temperature: 0.7,
 		maxTokens: 800
 	});
+
+	return toOpenAIResponse(response);
 }
 
 /**
- * Validate and clean JSON response from OpenAI
+ * Validate and clean JSON response
+ *
+ * @deprecated Use `createStructuredCompletion` from '$lib/server/ai' with
+ * a Zod schema for better type safety and validation.
  */
 export function parseAndValidateJSON<T>(jsonString: string): T | null {
-	try {
-		// Clean potential markdown formatting
-		const cleanJson = jsonString
-			.replace(/```json\n?/g, '')
-			.replace(/```\n?/g, '')
-			.trim();
-
-		return JSON.parse(cleanJson);
-	} catch (error) {
-		logger.error('Failed to parse JSON from OpenAI response:', error);
-		return null;
-	}
+	return aiParseAndValidateJSON<T>(jsonString);
 }
 
 export interface GenerateScenarioOptions {
@@ -304,7 +253,9 @@ const SCENARIO_JSON_SCHEMA = `{
 }`;
 
 /**
- * Generate a scenario using GPT from description or memories
+ * Generate a scenario from description or memories
+ *
+ * Uses task-based routing: scenarioGeneration → Claude Haiku
  */
 export async function generateScenarioWithGPT(
 	options: GenerateScenarioOptions
@@ -329,13 +280,13 @@ Guidelines: ${mode === 'tutor' ? 'Focus on teaching and gentle correction' : 'Fo
 
 	const userPrompt = `Create a ${modeText} scenario.\n${context}\nMode: ${modeDesc}`;
 
-	const response = await createCompletion(
+	const response = await aiCreateCompletion(
 		[
 			{ role: 'system', content: systemPrompt },
 			{ role: 'user', content: userPrompt }
 		],
 		{
-			model: getModelForTask('scenarioGeneration'), // Scenario generation uses NANO
+			task: 'scenarioGeneration', // Routes to Claude Haiku
 			temperature: hasMemories ? 0.8 : 0.7,
 			maxTokens: 1000,
 			responseFormat: 'json'
@@ -343,7 +294,13 @@ Guidelines: ${mode === 'tutor' ? 'Focus on teaching and gentle correction' : 'Fo
 	);
 
 	const parsed = parseAndValidateJSON<GeneratedScenarioContent>(response.content);
-	if (!parsed) throw new Error('Failed to parse GPT scenario response');
+	if (!parsed) throw new Error('Failed to parse scenario response');
+
+	logger.info('[OpenAI Service] Scenario generated', {
+		provider: response.provider,
+		model: response.model,
+		tokensUsed: response.usage?.totalTokens
+	});
 
 	return { content: parsed, tokensUsed: response.usage?.totalTokens ?? 0 };
 }

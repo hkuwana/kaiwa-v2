@@ -109,6 +109,9 @@
 		"vitest-browser-svelte": "^0.1.0"
 	},
 	"dependencies": {
+		"@ai-sdk/anthropic": "^2.0.53",
+		"@ai-sdk/google": "^2.0.44",
+		"@ai-sdk/openai": "^2.0.76",
 		"@aws-sdk/client-s3": "^3.939.0",
 		"@aws-sdk/s3-request-presigner": "^3.939.0",
 		"@google-cloud/translate": "^9.3.0",
@@ -122,6 +125,7 @@
 		"@paralleldrive/cuid2": "^2.3.1",
 		"@sveltejs/adapter-node": "^5.4.0",
 		"@tanstack/svelte-query": "^5.90.2",
+		"ai": "^5.0.106",
 		"arctic": "^3.7.0",
 		"date-fns": "^4.1.0",
 		"drizzle-orm": "^0.40.1",
