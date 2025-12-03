@@ -35,18 +35,18 @@ const openai = new Proxy({} as OpenAI, {
 export interface OpenAICompletionOptions {
 	model?: string;
 	temperature?: number;
+	/**
+	 * Maximum completion tokens for GPT-5 reasoning models.
+	 * This includes BOTH reasoning tokens and output tokens.
+	 *
+	 * For reasoning models (nano, mini), set this to 3-4x your expected output
+	 * to leave room for internal reasoning. E.g., if you expect 500 output tokens,
+	 * set maxTokens to 2000-2500.
+	 *
+	 * Default: 4000 (allows ~1000-2000 reasoning + ~1000-2000 output)
+	 */
 	maxTokens?: number;
 	responseFormat?: 'text' | 'json';
-	/**
-	 * Control reasoning effort for GPT-5 models (nano, mini).
-	 * - 'none': Disable reasoning (fastest, best for structured output like JSON)
-	 * - 'low': Light reasoning
-	 * - 'medium': Balanced reasoning
-	 * - 'high': Deep reasoning (most thorough but slowest)
-	 *
-	 * Default: 'none' for structured/fast tasks to prevent token exhaustion
-	 */
-	reasoningEffort?: 'none' | 'low' | 'medium' | 'high';
 }
 
 export interface OpenAIResponse {
@@ -67,20 +67,17 @@ export async function createCompletion(
 ): Promise<OpenAIResponse> {
 	const {
 		model = 'gpt-5-nano',
-		maxTokens = 1000,
-		responseFormat = 'text',
-		reasoningEffort = 'none' // Default to 'none' for structured tasks to prevent token exhaustion
+		maxTokens = 4000, // Higher default for reasoning models (includes reasoning + output tokens)
+		responseFormat = 'text'
 	} = options;
 
 	// Build the request payload
-	// For GPT-5 models (nano, mini), we control reasoning to prevent all tokens being used for thinking
+	// For GPT-5 reasoning models, max_completion_tokens includes both reasoning and output
+	// Set high enough to allow room for internal reasoning before producing output
 	const requestPayload = {
 		model,
 		messages,
 		max_completion_tokens: maxTokens,
-		// Disable reasoning by default to ensure output tokens are available
-		// GPT-5 reasoning models can use all tokens for internal reasoning if not controlled
-		reasoning: { effort: reasoningEffort },
 		...(responseFormat === 'json' && {
 			response_format: { type: 'json_object' as const }
 		})
@@ -182,7 +179,7 @@ export async function analyzeOnboardingConversation(
 	const response = await createCompletion(messages, {
 		model: getModelForTask('structuredExtraction'), // Analysis requires structured extraction
 		temperature: 0.3,
-		maxTokens: 650,
+		maxTokens: 2500, // Higher for reasoning models (includes reasoning + ~500 output tokens)
 		responseFormat: 'json'
 	});
 
@@ -231,7 +228,7 @@ Keep it personal, specific, and motivating. Write in an encouraging, professiona
 	return createCompletion(messages, {
 		model: DEFAULT_MODEL, // Use fast model for plan generation
 		temperature: 0.8, // Higher temperature for more creative/engaging plans
-		maxTokens: 600
+		maxTokens: 2500 // Higher for reasoning models (includes reasoning + ~500 output tokens)
 	});
 }
 
@@ -268,7 +265,7 @@ Adapt complexity to their level and preferences.`;
 
 	return createCompletion(messages, {
 		temperature: 0.7,
-		maxTokens: 800
+		maxTokens: 3000 // Higher for reasoning models (includes reasoning + ~800 output tokens)
 	});
 }
 
@@ -357,7 +354,7 @@ Guidelines: ${mode === 'tutor' ? 'Focus on teaching and gentle correction' : 'Fo
 		{
 			model: getModelForTask('scenarioGeneration'), // Scenario generation uses NANO
 			temperature: hasMemories ? 0.8 : 0.7,
-			maxTokens: 1000,
+			maxTokens: 4000, // Higher for reasoning models (includes reasoning + ~1000 JSON output tokens)
 			responseFormat: 'json'
 		}
 	);
