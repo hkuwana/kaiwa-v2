@@ -565,7 +565,7 @@
 
 	async function loadQueueStats() {
 		try {
-			const response = await fetchWithTimeout('/api/dev/learning-paths/queue/stats');
+			const response = await fetchWithTimeout('/api/admin/learning-paths/queue/stats');
 			if (response.ok) {
 				const result = await response.json();
 				queueStats = result.data || result.stats || queueStats;
@@ -578,8 +578,8 @@
 	async function loadQueueJobs() {
 		try {
 			const [pendingRes, failedRes] = await Promise.all([
-				fetchWithTimeout('/api/dev/learning-paths/queue/jobs?status=pending&limit=20'),
-				fetchWithTimeout('/api/dev/learning-paths/queue/jobs?status=failed&limit=20')
+				fetchWithTimeout('/api/admin/learning-paths/queue/jobs?status=pending&limit=20'),
+				fetchWithTimeout('/api/admin/learning-paths/queue/jobs?status=failed&limit=20')
 			]);
 
 			if (pendingRes.ok) {
@@ -598,7 +598,7 @@
 	async function processQueue() {
 		loading = true;
 		try {
-			const response = await fetch('/api/dev/learning-paths/queue/process', {
+			const response = await fetch('/api/admin/learning-paths/queue/process', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ limit: 5, dryRun: false })
