@@ -9,7 +9,7 @@ import { learningPathRepository } from '$lib/server/repositories/learning-path.r
 import { learningPathAssignmentRepository } from '$lib/server/repositories/learning-path-assignment.repository';
 import { getModelForTask } from '$lib/server/config/ai-models.config';
 import { db } from '$lib/server/db';
-import { adaptiveWeeks, weekProgress } from '$lib/server/db/schema';
+import { adaptiveWeeks } from '$lib/server/db/schema';
 import type { ConversationSeed } from '$lib/server/db/schema/adaptive-weeks';
 import type {
 	PathFromPreferencesInput,
@@ -344,7 +344,10 @@ export class PathGeneratorService {
 				pathId: path.id,
 				weekNumber,
 				theme: weekTheme,
-				themeDescription: `Week ${weekNumber}: ${weekDays.map((d) => d.theme).slice(0, 3).join(', ')}`,
+				themeDescription: `Week ${weekNumber}: ${weekDays
+					.map((d) => d.theme)
+					.slice(0, 3)
+					.join(', ')}`,
 				difficultyMin,
 				difficultyMax,
 				status: isFirstWeek ? 'active' : 'locked',
@@ -370,9 +373,7 @@ export class PathGeneratorService {
 	/**
 	 * Group syllabus days into weeks (7 days per week)
 	 */
-	private static groupDaysIntoWeeks(
-		days: GeneratedSyllabus['days']
-	): GeneratedSyllabus['days'][] {
+	private static groupDaysIntoWeeks(days: GeneratedSyllabus['days']): GeneratedSyllabus['days'][] {
 		const weeks: GeneratedSyllabus['days'][] = [];
 		const DAYS_PER_WEEK = 7;
 

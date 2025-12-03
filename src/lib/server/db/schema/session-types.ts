@@ -1,4 +1,13 @@
-import { pgTable, text, integer, timestamp, jsonb, index, boolean, pgEnum } from 'drizzle-orm/pg-core';
+import {
+	pgTable,
+	text,
+	integer,
+	timestamp,
+	jsonb,
+	index,
+	boolean,
+	pgEnum
+} from 'drizzle-orm/pg-core';
 
 /**
  * Session type category enumeration
@@ -118,7 +127,8 @@ export const DEFAULT_SESSION_TYPES = [
 		id: 'story-moment',
 		name: 'Story Moment',
 		icon: '📖',
-		description: 'Share a story about something that happened. Great for building narrative skills.',
+		description:
+			'Share a story about something that happened. Great for building narrative skills.',
 		category: 'practice' as const,
 		durationMinutesMin: 5,
 		durationMinutesMax: 8,

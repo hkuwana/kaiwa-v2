@@ -78,12 +78,12 @@
 
 	<!-- JSON-LD Structured Data - Course -->
 	<script type="application/ld+json">
-		{@html JSON.stringify(jsonLd)}
+		{JSON.stringify(jsonLd)}
 	</script>
 
 	<!-- JSON-LD Structured Data - Breadcrumbs -->
 	<script type="application/ld+json">
-		{@html JSON.stringify(breadcrumbJsonLd)}
+		{JSON.stringify(breadcrumbJsonLd)}
 	</script>
 </svelte:head>
 

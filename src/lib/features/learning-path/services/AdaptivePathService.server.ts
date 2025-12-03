@@ -7,8 +7,7 @@ import {
 	weekProgress,
 	sessionTypes,
 	DEFAULT_WEEK_THEMES,
-	type ConversationSeed,
-	type FocusArea
+	type ConversationSeed
 } from '$lib/server/db/schema';
 import { nanoid } from 'nanoid';
 
@@ -60,15 +59,8 @@ export class AdaptivePathService {
 	 * 4. An empty week_progress record
 	 */
 	async createPath(params: CreateAdaptivePathParams): Promise<AdaptivePathResult> {
-		const {
-			userId,
-			targetLanguage,
-			title,
-			description,
-			weekThemeTemplate,
-			cefrLevel,
-			userGoal
-		} = params;
+		const { userId, targetLanguage, title, description, weekThemeTemplate, cefrLevel, userGoal } =
+			params;
 
 		const pathId = `${targetLanguage}-adaptive-${nanoid(10)}`;
 
@@ -181,20 +173,14 @@ export class AdaptivePathService {
 
 		// Get active week for this path
 		const week = await this.database.query.adaptiveWeeks.findFirst({
-			where: and(
-				eq(adaptiveWeeks.pathId, assignment.pathId),
-				eq(adaptiveWeeks.status, 'active')
-			)
+			where: and(eq(adaptiveWeeks.pathId, assignment.pathId), eq(adaptiveWeeks.status, 'active'))
 		});
 
 		if (!week) return null;
 
 		// Get progress for this week
 		const progress = await this.database.query.weekProgress.findFirst({
-			where: and(
-				eq(weekProgress.weekId, week.id),
-				eq(weekProgress.userId, assignment.userId)
-			)
+			where: and(eq(weekProgress.weekId, week.id), eq(weekProgress.userId, assignment.userId))
 		});
 
 		if (!progress) return null;
@@ -217,7 +203,9 @@ export class AdaptivePathService {
 	 * Advance to the next week
 	 * This should be called after weekly analysis is complete
 	 */
-	async advanceToNextWeek(assignmentId: string): Promise<typeof adaptiveWeeks.$inferSelect | null> {
+	async advanceToNextWeek(
+		_assignmentId: string
+	): Promise<typeof adaptiveWeeks.$inferSelect | null> {
 		// TODO: Implement
 		// 1. Check if analysis is complete for current week
 		// 2. If not, trigger analysis first
@@ -259,7 +247,7 @@ export class AdaptivePathService {
 				{
 					id: 'seed-introduce-yourself',
 					title: 'Introduce yourself',
-					description: 'Practice introducing yourself: name, where you\'re from, what you do',
+					description: "Practice introducing yourself: name, where you're from, what you do",
 					suggestedSessionTypes: ['quick-checkin', 'mini-roleplay'],
 					vocabularyHints: ['name', 'work', 'live', 'from'],
 					grammarHints: ['present tense', 'simple sentences']

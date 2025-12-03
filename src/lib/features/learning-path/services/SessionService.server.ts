@@ -169,9 +169,7 @@ export class SessionService {
 
 		// Calculate duration
 		const now = new Date();
-		const durationSeconds = Math.floor(
-			(now.getTime() - session.startedAt.getTime()) / 1000
-		);
+		const durationSeconds = Math.floor((now.getTime() - session.startedAt.getTime()) / 1000);
 		const durationMinutes = durationSeconds / 60;
 
 		// Get conversation to count exchanges
@@ -318,7 +316,7 @@ export class SessionService {
 		}
 
 		if (sessionsCompleted >= 7) {
-			return 'You\'re really committing to this. It shows.';
+			return "You're really committing to this. It shows.";
 		}
 
 		return `${sessionsCompleted} conversations this week.`;

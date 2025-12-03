@@ -2,9 +2,7 @@ import { json } from '@sveltejs/kit';
 import { userSettingsRepository } from '$lib/server/repositories/user-settings.repository';
 import type { NewUserSettings } from '$lib/server/db/types';
 
-function getUnsubscribeUpdates(
-	type: string
-): Partial<NewUserSettings> | null {
+function getUnsubscribeUpdates(type: string): Partial<NewUserSettings> | null {
 	if (type === 'marketing') return { receiveMarketingEmails: false };
 	if (type === 'daily_reminder') return { receiveDailyReminderEmails: false };
 	if (type === 'product_updates') return { receiveProductUpdates: false };

@@ -192,20 +192,26 @@ export const GET = async ({ url, locals }) => {
 			}
 			case 'learning_path_reminder': {
 				// Get user's active learning path assignment
-				const assignments = await learningPathAssignmentRepository.listAssignmentsForUser(targetUserId);
-				const activeAssignment = assignments.find(a => a.status === 'active');
+				const assignments =
+					await learningPathAssignmentRepository.listAssignmentsForUser(targetUserId);
+				const activeAssignment = assignments.find((a) => a.status === 'active');
 
 				if (!activeAssignment) {
-					return new Response('User has no active learning path. Enroll in a learning path first at /get-your-guide', { status: 400 });
+					return new Response(
+						'User has no active learning path. Enroll in a learning path first at /get-your-guide',
+						{ status: 400 }
+					);
 				}
 
-				const emailData = await LearningPathEmailService.getLearningPathEmailData(activeAssignment.id);
+				const emailData = await LearningPathEmailService.getLearningPathEmailData(
+					activeAssignment.id
+				);
 				if (!emailData) {
 					return new Response('Could not get learning path email data', { status: 500 });
 				}
 
 				emailSubject = `Day ${emailData.currentDay}: ${emailData.todayTheme}`;
-				emailHtml = await LearningPathEmailService.previewEmail(activeAssignment.id) || '';
+				emailHtml = (await LearningPathEmailService.previewEmail(activeAssignment.id)) || '';
 				break;
 			}
 
@@ -388,20 +394,29 @@ export const POST = async ({ request, locals }) => {
 			}
 			case 'learning_path_reminder': {
 				// Get user's active learning path assignment
-				const assignments = await learningPathAssignmentRepository.listAssignmentsForUser(targetUserId);
-				const activeAssignment = assignments.find(a => a.status === 'active');
+				const assignments =
+					await learningPathAssignmentRepository.listAssignmentsForUser(targetUserId);
+				const activeAssignment = assignments.find((a) => a.status === 'active');
 
 				if (!activeAssignment) {
-					return json({ error: 'User has no active learning path. Enroll in a learning path first at /get-your-guide' }, { status: 400 });
+					return json(
+						{
+							error:
+								'User has no active learning path. Enroll in a learning path first at /get-your-guide'
+						},
+						{ status: 400 }
+					);
 				}
 
-				const emailData = await LearningPathEmailService.getLearningPathEmailData(activeAssignment.id);
+				const emailData = await LearningPathEmailService.getLearningPathEmailData(
+					activeAssignment.id
+				);
 				if (!emailData) {
 					return json({ error: 'Could not get learning path email data' }, { status: 500 });
 				}
 
 				emailSubject = `Day ${emailData.currentDay}: ${emailData.todayTheme}`;
-				emailHtml = await LearningPathEmailService.previewEmail(activeAssignment.id) || '';
+				emailHtml = (await LearningPathEmailService.previewEmail(activeAssignment.id)) || '';
 				break;
 			}
 

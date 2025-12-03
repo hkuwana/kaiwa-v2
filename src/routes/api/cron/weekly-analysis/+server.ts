@@ -46,7 +46,9 @@ function validateCronSecret(request: Request, url: URL): boolean {
 
 	// In development without CRON_SECRET, allow access
 	if (!env.CRON_SECRET || env.CRON_SECRET === '') {
-		logger.warn('⚠️ [WeeklyCron] CRON_SECRET not set - allowing unauthenticated access in dev mode');
+		logger.warn(
+			'⚠️ [WeeklyCron] CRON_SECRET not set - allowing unauthenticated access in dev mode'
+		);
 		return true;
 	}
 

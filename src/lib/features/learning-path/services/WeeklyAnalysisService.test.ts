@@ -149,9 +149,7 @@ describe('WeeklyAnalysisService', () => {
 			mockDb.query.weekProgress.findFirst.mockResolvedValue(null);
 
 			// Act & Assert
-			await expect(service.queueAnalysis('nonexistent')).rejects.toThrow(
-				'Week progress not found'
-			);
+			await expect(service.queueAnalysis('nonexistent')).rejects.toThrow('Week progress not found');
 		});
 	});
 
@@ -172,9 +170,7 @@ describe('WeeklyAnalysisService', () => {
 					updateCalls.push(values.status);
 					return {
 						where: vi.fn().mockReturnValue({
-							returning: vi.fn().mockResolvedValue([
-								{ id: 'analysis-123', status: values.status }
-							])
+							returning: vi.fn().mockResolvedValue([{ id: 'analysis-123', status: values.status }])
 						})
 					};
 				})

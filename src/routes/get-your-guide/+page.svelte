@@ -155,7 +155,23 @@
 									: 'btn-outline'}"
 								onclick={() => (selectedLanguage = lang.code)}
 							>
-								<span class="text-2xl">{lang.flag === 'JP' ? '🇯🇵' : lang.flag === 'ES' ? '🇪🇸' : lang.flag === 'FR' ? '🇫🇷' : lang.flag === 'DE' ? '🇩🇪' : lang.flag === 'KR' ? '🇰🇷' : lang.flag === 'CN' ? '🇨🇳' : lang.flag === 'IT' ? '🇮🇹' : '🇧🇷'}</span>
+								<span class="text-2xl"
+									>{lang.flag === 'JP'
+										? '🇯🇵'
+										: lang.flag === 'ES'
+											? '🇪🇸'
+											: lang.flag === 'FR'
+												? '🇫🇷'
+												: lang.flag === 'DE'
+													? '🇩🇪'
+													: lang.flag === 'KR'
+														? '🇰🇷'
+														: lang.flag === 'CN'
+															? '🇨🇳'
+															: lang.flag === 'IT'
+																? '🇮🇹'
+																: '🇧🇷'}</span
+								>
 								<span class="text-sm">{lang.name}</span>
 							</button>
 						{/each}
@@ -169,7 +185,7 @@
 						{#each goals as goal}
 							<button
 								type="button"
-								class="btn btn-outline h-auto flex-col items-start gap-1 p-4 text-left {selectedGoal ===
+								class="btn h-auto flex-col items-start gap-1 p-4 text-left btn-outline {selectedGoal ===
 								goal.id
 									? 'btn-primary'
 									: ''}"
@@ -189,7 +205,7 @@
 						{#each levels as level}
 							<button
 								type="button"
-								class="btn btn-outline h-auto flex-col items-start gap-1 p-4 text-left {selectedLevel ===
+								class="btn h-auto flex-col items-start gap-1 p-4 text-left btn-outline {selectedLevel ===
 								level.id
 									? 'btn-primary'
 									: ''}"
@@ -204,14 +220,14 @@
 
 				<!-- Error Message -->
 				{#if error}
-					<div class="alert alert-error mb-4">
+					<div class="mb-4 alert alert-error">
 						<span>{error}</span>
 					</div>
 				{/if}
 
 				<!-- Submit Button -->
 				<button
-					class="btn btn-primary btn-lg w-full"
+					class="btn w-full btn-lg btn-primary"
 					onclick={generatePath}
 					disabled={!isFormComplete() || isGenerating}
 				>

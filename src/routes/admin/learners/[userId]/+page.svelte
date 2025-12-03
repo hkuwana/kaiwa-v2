@@ -58,9 +58,7 @@
 
 	function getDaysSince(date: Date | string | null): string {
 		if (!date) return 'Never';
-		const days = Math.floor(
-			(Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24)
-		);
+		const days = Math.floor((Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24));
 		if (days === 0) return 'Today';
 		if (days === 1) return 'Yesterday';
 		return `${days} days ago`;
@@ -103,7 +101,7 @@
 
 <div class="container mx-auto px-4 py-8">
 	<!-- Breadcrumb -->
-	<div class="mb-6 text-sm breadcrumbs">
+	<div class="breadcrumbs mb-6 text-sm">
 		<ul>
 			<li><a href="/admin">Admin</a></li>
 			<li><a href="/admin/learners">Learners</a></li>
@@ -159,7 +157,7 @@
 		<div class="mb-4 flex items-center justify-between">
 			<h2 class="text-lg font-semibold">Current Learning Path</h2>
 			{#if data.allAssignments.length > 1}
-				<select class="select select-bordered select-sm">
+				<select class="select-bordered select select-sm">
 					{#each data.allAssignments as assignment}
 						<option value={assignment.id} selected={assignment.id === data.assignment.id}>
 							{assignment.pathTitle}
@@ -227,15 +225,18 @@
 
 		{#if data.weekProgress.length === 0}
 			<div class="rounded-lg border border-dashed border-base-300 p-8 text-center">
-				<span class="icon-[mdi--calendar-blank-outline] mx-auto mb-2 h-8 w-8 text-base-content/30"
+				<span class="mx-auto mb-2 icon-[mdi--calendar-blank-outline] h-8 w-8 text-base-content/30"
 				></span>
 				<p class="text-base-content/60">No weekly progress recorded yet</p>
 			</div>
 		{:else}
 			<div class="space-y-4">
 				{#each data.weekProgress as week}
-					<div class="collapse collapse-arrow rounded-lg border border-base-200 bg-base-100">
-						<input type="checkbox" checked={week.weekNumber === data.assignment.currentWeekNumber} />
+					<div class="collapse-arrow collapse rounded-lg border border-base-200 bg-base-100">
+						<input
+							type="checkbox"
+							checked={week.weekNumber === data.assignment.currentWeekNumber}
+						/>
 						<div class="collapse-title">
 							<div class="flex items-center justify-between">
 								<span class="font-medium">Week {week.weekNumber}</span>
@@ -260,7 +261,9 @@
 													{formatDate(session.startedAt)} at {formatTime(session.startedAt)}
 												</div>
 												<div class="text-base-content/60">
-													{session.exchangeCount} exchanges · {formatDuration(session.durationSeconds)}
+													{session.exchangeCount} exchanges · {formatDuration(
+														session.durationSeconds
+													)}
 												</div>
 											</div>
 											{#if session.mood}
@@ -293,7 +296,7 @@
 
 		{#if data.recentConversations.length === 0}
 			<div class="rounded-lg border border-dashed border-base-300 p-8 text-center">
-				<span class="icon-[mdi--chat-outline] mx-auto mb-2 h-8 w-8 text-base-content/30"></span>
+				<span class="mx-auto mb-2 icon-[mdi--chat-outline] h-8 w-8 text-base-content/30"></span>
 				<p class="text-base-content/60">No conversations yet</p>
 			</div>
 		{:else}
@@ -313,7 +316,9 @@
 							<tr>
 								<td>
 									<div>{formatDate(conversation.startedAt)}</div>
-									<div class="text-xs text-base-content/50">{formatTime(conversation.startedAt)}</div>
+									<div class="text-xs text-base-content/50">
+										{formatTime(conversation.startedAt)}
+									</div>
 								</td>
 								<td class="max-w-xs truncate">{conversation.scenarioId || '—'}</td>
 								<td>
@@ -321,11 +326,11 @@
 								</td>
 								<td>
 									{#if conversation.endedAt}
-										<span class="badge badge-success badge-sm">
+										<span class="badge badge-sm badge-success">
 											{formatDuration(conversation.durationSeconds)}
 										</span>
 									{:else}
-										<span class="badge badge-warning badge-sm">In progress</span>
+										<span class="badge badge-sm badge-warning">In progress</span>
 									{/if}
 								</td>
 								<td>

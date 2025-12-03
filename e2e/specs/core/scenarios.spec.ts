@@ -36,7 +36,6 @@ test.describe('Scenarios Browse & Selection', () => {
 
 		// Click first scenario
 		const firstScenario = scenarios.scenarioCards.first();
-		const scenarioText = await firstScenario.textContent();
 		await firstScenario.click();
 
 		// Should show start button or redirect to conversation

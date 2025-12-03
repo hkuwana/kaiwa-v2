@@ -61,9 +61,9 @@ describe('AdaptivePathService', () => {
 				const mockTx = {
 					insert: vi.fn().mockReturnValue({
 						values: vi.fn().mockReturnValue({
-							returning: vi.fn().mockResolvedValue([
-								{ id: 'path-123', mode: 'adaptive', durationWeeks: 4 }
-							])
+							returning: vi
+								.fn()
+								.mockResolvedValue([{ id: 'path-123', mode: 'adaptive', durationWeeks: 4 }])
 						})
 					})
 				};

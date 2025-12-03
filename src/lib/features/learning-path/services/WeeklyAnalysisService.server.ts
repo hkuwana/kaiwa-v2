@@ -1,14 +1,12 @@
 import { db } from '$lib/server/db';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import {
 	weeklyAnalysis,
 	weekProgress,
 	adaptiveWeeks,
 	learningPathAssignments,
-	conversations,
 	messages,
 	WEEKLY_ANALYSIS_PROMPT_TEMPLATE,
-	DEFAULT_WEEK_THEMES,
 	type IdentifiedStrength,
 	type IdentifiedChallenge,
 	type TopicAffinity,
@@ -170,11 +168,7 @@ export class WeeklyAnalysisService {
 			}
 
 			// Run AI analysis
-			const analysisResult = await this.runAIAnalysis(
-				conversationData,
-				progress,
-				currentWeek
-			);
+			const analysisResult = await this.runAIAnalysis(conversationData, progress, currentWeek);
 
 			// Update analysis with results
 			const [updatedAnalysis] = await this.database
@@ -202,7 +196,7 @@ export class WeeklyAnalysisService {
 			// Update status to failed
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
-			const [failedAnalysis] = await this.database
+			await this.database
 				.update(weeklyAnalysis)
 				.set({
 					status: 'failed',
@@ -429,8 +423,10 @@ export class WeeklyAnalysisService {
 	): Promise<ProcessedAnalysis> {
 		// Build the prompt
 		const systemPrompt = WEEKLY_ANALYSIS_PROMPT_TEMPLATE;
-
 		const userPrompt = this.buildAnalysisPrompt(conversationData, progress, currentWeek);
+		// Mark as used to satisfy lint rules while the OpenAI integration is stubbed.
+		void systemPrompt;
+		void userPrompt;
 
 		// TODO: Call OpenAI API
 		// For now, return placeholder data
@@ -513,9 +509,9 @@ export class WeeklyAnalysisService {
 			suggestedDifficultyAdjustment: 'maintain',
 			weekSummary: `You completed ${progress.sessionsCompleted} conversations this week, practicing for ${Math.round(parseFloat(progress.totalMinutes?.toString() ?? '0'))} minutes total.`,
 			encouragementMessage:
-				'You\'re building a real foundation. The consistency matters more than perfection.',
+				"You're building a real foundation. The consistency matters more than perfection.",
 			nextWeekPreview:
-				'Next week, we\'ll build on your daily routine vocabulary while gently adding more past tense through storytelling.'
+				"Next week, we'll build on your daily routine vocabulary while gently adding more past tense through storytelling."
 		};
 	}
 

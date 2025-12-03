@@ -37,7 +37,9 @@ async function seedSessionTypes() {
 
 		for (const sessionType of DEFAULT_SESSION_TYPES) {
 			console.log(`   ${sessionType.icon} ${sessionType.name}`);
-			console.log(`      Duration: ${sessionType.durationMinutesMin}-${sessionType.durationMinutesMax} min`);
+			console.log(
+				`      Duration: ${sessionType.durationMinutesMin}-${sessionType.durationMinutesMax} min`
+			);
 			console.log(`      Category: ${sessionType.category}`);
 			console.log(`      Exchanges: ${sessionType.targetExchanges}`);
 			console.log('');

@@ -58,10 +58,9 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 		// Verify user has an assignment to this path
 		const assignment = await learningPathAssignmentRepository.findAssignment(userId, pathId);
 		if (!assignment) {
-			return json(
-				createErrorResponse('User is not assigned to this learning path'),
-				{ status: 403 }
-			);
+			return json(createErrorResponse('User is not assigned to this learning path'), {
+				status: 403
+			});
 		}
 
 		// Check if this is an adaptive mode path
@@ -81,7 +80,9 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 
 		if (!result.success && result.scenariosGenerated === 0) {
 			return json(
-				createErrorResponse(`Failed to generate scenarios: ${result.errors.map(e => e.error).join(', ')}`),
+				createErrorResponse(
+					`Failed to generate scenarios: ${result.errors.map((e) => e.error).join(', ')}`
+				),
 				{ status: 500 }
 			);
 		}
@@ -102,9 +103,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 	} catch (error) {
 		console.error('Error generating scenarios:', error);
 		return json(
-			createErrorResponse(
-				error instanceof Error ? error.message : 'Failed to generate scenarios'
-			),
+			createErrorResponse(error instanceof Error ? error.message : 'Failed to generate scenarios'),
 			{ status: 500 }
 		);
 	}

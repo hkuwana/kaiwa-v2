@@ -121,7 +121,10 @@ export const adaptiveWeeks = pgTable(
 
 		// Pool of conversation ideas for this week
 		// Users can do any of these, multiple times if they want
-		conversationSeeds: jsonb('conversation_seeds').$type<ConversationSeed[]>().notNull().default([]),
+		conversationSeeds: jsonb('conversation_seeds')
+			.$type<ConversationSeed[]>()
+			.notNull()
+			.default([]),
 
 		// Focus areas - things to work on (populated from analysis or baseline)
 		focusAreas: jsonb('focus_areas').$type<FocusArea[]>().notNull().default([]),

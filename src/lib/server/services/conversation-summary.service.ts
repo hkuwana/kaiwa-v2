@@ -194,7 +194,7 @@ Return a JSON array of memory strings.`;
 			{
 				model: getModelForTask('conversationSummary'), // Summaries use MINI for nuanced understanding
 				temperature: 0.3, // Lower temperature for more consistent extraction
-				maxTokens: userTier === 'premium' ? 800 : userTier === 'plus' ? 500 : 300,
+				maxTokens: 2000,
 				responseFormat: 'json'
 			}
 		);

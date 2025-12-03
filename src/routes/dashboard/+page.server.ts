@@ -20,44 +20,44 @@ export const load: PageServerLoad = async ({ locals }) => {
 		const assignments = await learningPathAssignmentRepository.listAssignmentsForUser(userId);
 
 		// Get paths for each assignment with active week info
-		const pathsWithWeeks = await learningPathProgressRepository.getAssignmentsWithPathAndWeek(
-			userId
-		);
+		const pathsWithWeeks =
+			await learningPathProgressRepository.getAssignmentsWithPathAndWeek(userId);
 
 		const activePaths = [];
 		const completedPaths = [];
 
 		for (const assignment of assignments) {
-			const pathWithWeek = pathsWithWeeks.find(
-				(item) => item.assignment.id === assignment.id
-			);
-			const path = pathWithWeek?.path ?? (await learningPathRepository.findPathById(assignment.pathId));
+			const pathWithWeek = pathsWithWeeks.find((item) => item.assignment.id === assignment.id);
+			const path =
+				pathWithWeek?.path ?? (await learningPathRepository.findPathById(assignment.pathId));
 			if (!path) continue;
 
 			// All paths are now adaptive - unified handling
 			const activeWeek = pathWithWeek?.activeWeek ?? null;
 			const seeds = (pathWithWeek?.seeds || []) as ConversationSeed[];
-			const readyScenarios = seeds.filter(s => s.scenarioId).length;
+			const readyScenarios = seeds.filter((s) => s.scenarioId).length;
 			const totalSeeds = seeds.length;
 
 			const pathData = {
 				path,
 				assignment,
 				isAdaptive: true, // All paths are adaptive now
-				activeWeek: activeWeek ? {
-					id: activeWeek.id,
-					weekNumber: activeWeek.weekNumber,
-					theme: activeWeek.theme,
-					themeDescription: activeWeek.themeDescription,
-					seeds: seeds.map((seed, index) => ({
-						id: seed.id,
-						title: seed.title,
-						description: seed.description,
-						scenarioId: seed.scenarioId,
-						isReady: !!seed.scenarioId,
-						optionNumber: index + 1
-					}))
-				} : null,
+				activeWeek: activeWeek
+					? {
+							id: activeWeek.id,
+							weekNumber: activeWeek.weekNumber,
+							theme: activeWeek.theme,
+							themeDescription: activeWeek.themeDescription,
+							seeds: seeds.map((seed, index) => ({
+								id: seed.id,
+								title: seed.title,
+								description: seed.description,
+								scenarioId: seed.scenarioId,
+								isReady: !!seed.scenarioId,
+								optionNumber: index + 1
+							}))
+						}
+					: null,
 				totalOptions: totalSeeds,
 				readyOptions: readyScenarios,
 				progressPercent: totalSeeds > 0 ? Math.round((readyScenarios / totalSeeds) * 100) : 0,
