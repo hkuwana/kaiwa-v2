@@ -196,7 +196,7 @@ export class WeeklyAnalysisService {
 			// Update status to failed
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
-			const [failedAnalysis] = await this.database
+			await this.database
 				.update(weeklyAnalysis)
 				.set({
 					status: 'failed',
@@ -423,8 +423,10 @@ export class WeeklyAnalysisService {
 	): Promise<ProcessedAnalysis> {
 		// Build the prompt
 		const systemPrompt = WEEKLY_ANALYSIS_PROMPT_TEMPLATE;
-
 		const userPrompt = this.buildAnalysisPrompt(conversationData, progress, currentWeek);
+		// Mark as used to satisfy lint rules while the OpenAI integration is stubbed.
+		void systemPrompt;
+		void userPrompt;
 
 		// TODO: Call OpenAI API
 		// For now, return placeholder data

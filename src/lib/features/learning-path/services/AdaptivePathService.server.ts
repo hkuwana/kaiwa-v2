@@ -203,7 +203,9 @@ export class AdaptivePathService {
 	 * Advance to the next week
 	 * This should be called after weekly analysis is complete
 	 */
-	async advanceToNextWeek(assignmentId: string): Promise<typeof adaptiveWeeks.$inferSelect | null> {
+	async advanceToNextWeek(
+		_assignmentId: string
+	): Promise<typeof adaptiveWeeks.$inferSelect | null> {
 		// TODO: Implement
 		// 1. Check if analysis is complete for current week
 		// 2. If not, trigger analysis first

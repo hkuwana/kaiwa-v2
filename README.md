@@ -1,4 +1,4 @@
-# 🎯 Kaiwa - AI Conversation Practice Platform
+# Kaiwa - AI Conversation Practice Platform
 
 > Practice real-world conversations in a new language with an AI partner. Build confidence before you speak with real people.
 

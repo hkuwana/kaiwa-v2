@@ -115,19 +115,7 @@
 		);
 	}
 
-	function frequencyLabel(value: string | null | undefined): string {
-		if (value === 'daily') return 'Daily';
-		return 'Weekly';
-	}
-
-	function getFeatureValueForPlan(
-		plan: PlanKey,
-		featureRow: ReturnType<typeof buildFeatureRows>[number]
-	): string {
-		if (plan === 'premium') return featureRow.premium;
-		if (plan === 'plus') return featureRow.plus;
-		return featureRow.basic;
-	}
+	// (frequencyLabel and getFeatureValueForPlan were previously defined here but removed as unused)
 
 	function buildFeatureRows(tiers: Record<UserTier, PricingTier>) {
 		const { free, plus, premium } = tiers;
@@ -383,9 +371,9 @@
 
 	<!-- Pricing JSON-LD structured data -->
 	{#if data.pricingJsonLd}
-		{#each data.pricingJsonLd as productSchema}
+		{#each data.pricingJsonLd as productSchema, i (i)}
 			<script type="application/ld+json">
-				{@html JSON.stringify(productSchema)}
+				{JSON.stringify(productSchema)}
 			</script>
 		{/each}
 	{/if}
@@ -439,7 +427,6 @@
 	{@const freeTier = tiers.free}
 	{@const plusTier = tiers.plus}
 	{@const premiumTier = tiers.premium}
-	{@const plusDiscount = computeAnnualDiscount(plusTier)}
 	{@const featureRows = buildFeatureRows(tiers)}
 
 	<div class="container mx-auto max-w-7xl px-4 py-2 sm:py-20">

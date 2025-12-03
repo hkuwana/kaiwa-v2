@@ -63,9 +63,7 @@
 	// Generation state
 	let isGenerating = $state(false);
 	let generationStatus = $state<GenerationStatus | null>(null);
-	let currentlyGenerating = $state<string | null>(null); // seedId being generated
 	let generationError = $state<string | null>(null);
-	let hasTriedAutoGenerate = $state(false);
 	let pollInterval: ReturnType<typeof setInterval> | null = null;
 
 	// Derived state
@@ -73,11 +71,6 @@
 	const allReady = $derived(readyOptions === totalOptions && totalOptions > 0);
 	const needsGeneration = $derived(totalOptions > 0 && readyOptions < totalOptions);
 	const hasFailed = $derived(generationStatus?.totalFailed ?? 0 > 0);
-
-	// Progress calculation
-	const progressPercent = $derived(
-		totalOptions > 0 ? Math.round((readyOptions / totalOptions) * 100) : 0
-	);
 
 	// Fetch current generation status
 	async function fetchStatus(): Promise<GenerationStatus | null> {
@@ -254,7 +247,7 @@
 				{:else if hasReadyScenarios}
 					<!-- Show ready scenarios -->
 					<div class="mt-3 space-y-2">
-						{#each activeWeek.seeds.filter((s) => s.isReady).slice(0, 3) as option}
+						{#each activeWeek.seeds.filter((s) => s.isReady).slice(0, 3) as option (option.id)}
 							<button
 								class="btn w-full justify-start gap-2 btn-outline btn-sm btn-primary"
 								onclick={() => option.scenarioId && onStartConversation?.(option.scenarioId)}
@@ -393,7 +386,7 @@
 
 				{#if activeWeek.seeds.length > 0}
 					<div class="grid gap-3 sm:grid-cols-2">
-						{#each activeWeek.seeds as option}
+						{#each activeWeek.seeds as option (option.id)}
 							{#if option.isReady}
 								<button
 									class="btn h-auto min-h-[4rem] flex-col items-start gap-1 p-4 text-left btn-outline btn-primary"
