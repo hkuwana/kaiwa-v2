@@ -31,9 +31,10 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	}
 
 	// Check if user is assigned to this path (only if logged in)
-	const assignment = isLoggedIn && userId
-		? await learningPathAssignmentRepository.findAssignment(userId, pathId)
-		: null;
+	const assignment =
+		isLoggedIn && userId
+			? await learningPathAssignmentRepository.findAssignment(userId, pathId)
+			: null;
 
 	// Calculate progress data
 	const totalDays = path.schedule?.length || 0;

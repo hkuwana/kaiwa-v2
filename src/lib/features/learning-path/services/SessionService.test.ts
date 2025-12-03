@@ -480,9 +480,11 @@ describe('SessionService', () => {
 					update: vi.fn().mockReturnValue({
 						set: vi.fn().mockReturnValue({
 							where: vi.fn().mockReturnValue({
-								returning: vi.fn().mockResolvedValue([
-									{ id: 'progress-123', sessionsCompleted: 3, totalMinutes: '15' }
-								])
+								returning: vi
+									.fn()
+									.mockResolvedValue([
+										{ id: 'progress-123', sessionsCompleted: 3, totalMinutes: '15' }
+									])
 							})
 						})
 					}),

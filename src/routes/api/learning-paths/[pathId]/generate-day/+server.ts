@@ -71,18 +71,18 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 			seedId // Pass seedId if provided
 		);
 
-		return json(createSuccessResponse({
-			generated: result.success && !!result.scenarioId,
-			scenarioId: result.scenarioId,
-			seedId: result.seedId,
-			error: result.error
-		}));
+		return json(
+			createSuccessResponse({
+				generated: result.success && !!result.scenarioId,
+				scenarioId: result.scenarioId,
+				seedId: result.seedId,
+				error: result.error
+			})
+		);
 	} catch (error) {
 		console.error('[GenerateDay] Error:', error);
 		return json(
-			createErrorResponse(
-				error instanceof Error ? error.message : 'Failed to generate scenario'
-			),
+			createErrorResponse(error instanceof Error ? error.message : 'Failed to generate scenario'),
 			{ status: 500 }
 		);
 	}

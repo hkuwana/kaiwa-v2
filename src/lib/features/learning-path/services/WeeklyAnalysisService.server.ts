@@ -170,11 +170,7 @@ export class WeeklyAnalysisService {
 			}
 
 			// Run AI analysis
-			const analysisResult = await this.runAIAnalysis(
-				conversationData,
-				progress,
-				currentWeek
-			);
+			const analysisResult = await this.runAIAnalysis(conversationData, progress, currentWeek);
 
 			// Update analysis with results
 			const [updatedAnalysis] = await this.database
@@ -513,9 +509,9 @@ export class WeeklyAnalysisService {
 			suggestedDifficultyAdjustment: 'maintain',
 			weekSummary: `You completed ${progress.sessionsCompleted} conversations this week, practicing for ${Math.round(parseFloat(progress.totalMinutes?.toString() ?? '0'))} minutes total.`,
 			encouragementMessage:
-				'You\'re building a real foundation. The consistency matters more than perfection.',
+				"You're building a real foundation. The consistency matters more than perfection.",
 			nextWeekPreview:
-				'Next week, we\'ll build on your daily routine vocabulary while gently adding more past tense through storytelling.'
+				"Next week, we'll build on your daily routine vocabulary while gently adding more past tense through storytelling."
 		};
 	}
 

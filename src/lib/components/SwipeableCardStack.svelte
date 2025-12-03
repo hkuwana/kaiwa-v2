@@ -40,9 +40,10 @@
 	}: Props = $props();
 
 	// Use custom scenarios if provided, otherwise use featured scenarios from data
-	const featuredScenarios = customScenarios && customScenarios.length > 0
-		? customScenarios
-		: scenariosData.slice(0, featuredScenariosCount);
+	const featuredScenarios =
+		customScenarios && customScenarios.length > 0
+			? customScenarios
+			: scenariosData.slice(0, featuredScenariosCount);
 
 	// Flag to check if showing learning path content
 	const isLearningPath = customScenarios && customScenarios.length > 0;
@@ -418,11 +419,10 @@
 
 	<!-- Learning Path Header (if showing path scenarios) -->
 	{#if isLearningPath && pathInfo}
-		<div
-			class="mb-3 px-4"
-			in:fly={{ y: -10, duration: 400, delay: 50, easing: quintOut }}
-		>
-			<div class="mx-auto max-w-md rounded-xl border border-primary/20 bg-primary/5 p-3 text-center">
+		<div class="mb-3 px-4" in:fly={{ y: -10, duration: 400, delay: 50, easing: quintOut }}>
+			<div
+				class="mx-auto max-w-md rounded-xl border border-primary/20 bg-primary/5 p-3 text-center"
+			>
 				<div class="flex items-center justify-center gap-2 text-sm font-medium text-primary">
 					<span class="icon-[mdi--book-education-outline] h-4 w-4"></span>
 					Week {pathInfo.weekNumber}: {pathInfo.theme}

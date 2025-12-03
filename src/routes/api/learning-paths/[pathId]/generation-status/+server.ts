@@ -66,15 +66,17 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
 		// Only for adaptive paths
 		if (path.mode !== 'adaptive') {
-			return json(createSuccessResponse({
-				pathId,
-				weeks: [],
-				totalReady: 0,
-				totalPending: 0,
-				totalFailed: 0,
-				isComplete: true,
-				needsGeneration: false
-			}));
+			return json(
+				createSuccessResponse({
+					pathId,
+					weeks: [],
+					totalReady: 0,
+					totalPending: 0,
+					totalFailed: 0,
+					isComplete: true,
+					needsGeneration: false
+				})
+			);
 		}
 
 		// Get status for all active weeks
@@ -96,17 +98,18 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 		const isComplete = totalPending === 0 && totalGenerating === 0 && totalFailed === 0;
 		const needsGeneration = totalPending > 0 || totalFailed > 0;
 
-		return json(createSuccessResponse({
-			pathId,
-			weeks: weekStatuses,
-			totalReady,
-			totalPending,
-			totalFailed,
-			totalGenerating,
-			isComplete,
-			needsGeneration
-		}));
-
+		return json(
+			createSuccessResponse({
+				pathId,
+				weeks: weekStatuses,
+				totalReady,
+				totalPending,
+				totalFailed,
+				totalGenerating,
+				isComplete,
+				needsGeneration
+			})
+		);
 	} catch (error) {
 		console.error('[GenerationStatus] GET error:', error);
 		return json(
@@ -176,24 +179,27 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 		const weekStatuses = await ScenarioGenerationJobService.getPathStatus(pathId);
 
 		if (weekStatuses.length === 0) {
-			return json(createSuccessResponse({
-				generated: false,
-				shouldContinue: false,
-				error: 'No active weeks found'
-			}));
+			return json(
+				createSuccessResponse({
+					generated: false,
+					shouldContinue: false,
+					error: 'No active weeks found'
+				})
+			);
 		}
 
 		// Find the week to process
 		let targetWeek: WeekGenerationStatus;
 		if (weekId) {
-			const found = weekStatuses.find(w => w.weekId === weekId);
+			const found = weekStatuses.find((w) => w.weekId === weekId);
 			if (!found) {
 				return json(createErrorResponse('Week not found'), { status: 404 });
 			}
 			targetWeek = found;
 		} else {
 			// Find first week with pending scenarios
-			targetWeek = weekStatuses.find(w => w.pendingCount > 0 || w.failedCount > 0) || weekStatuses[0];
+			targetWeek =
+				weekStatuses.find((w) => w.pendingCount > 0 || w.failedCount > 0) || weekStatuses[0];
 		}
 
 		// Reset failed if requested
@@ -204,11 +210,13 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 		// Check if there's anything to generate
 		const status = await ScenarioGenerationJobService.getWeekStatus(targetWeek.weekId);
 		if (!status || (status.pendingCount === 0 && status.generatingCount === 0)) {
-			return json(createSuccessResponse({
-				generated: false,
-				shouldContinue: false,
-				currentStatus: status
-			}));
+			return json(
+				createSuccessResponse({
+					generated: false,
+					shouldContinue: false,
+					currentStatus: status
+				})
+			);
 		}
 
 		// Generate next pending scenario
@@ -223,24 +231,23 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 
 		// Determine if we should continue polling
 		const shouldContinue = updatedStatus
-			? (updatedStatus.pendingCount > 0 || updatedStatus.generatingCount > 0)
+			? updatedStatus.pendingCount > 0 || updatedStatus.generatingCount > 0
 			: false;
 
-		return json(createSuccessResponse({
-			generated: result.success && !!result.scenarioId,
-			seedId: result.seedId,
-			scenarioId: result.scenarioId,
-			error: result.error,
-			shouldContinue,
-			currentStatus: updatedStatus
-		}));
-
+		return json(
+			createSuccessResponse({
+				generated: result.success && !!result.scenarioId,
+				seedId: result.seedId,
+				scenarioId: result.scenarioId,
+				error: result.error,
+				shouldContinue,
+				currentStatus: updatedStatus
+			})
+		);
 	} catch (error) {
 		console.error('[GenerationStatus] POST error:', error);
 		return json(
-			createErrorResponse(
-				error instanceof Error ? error.message : 'Failed to generate scenario'
-			),
+			createErrorResponse(error instanceof Error ? error.message : 'Failed to generate scenario'),
 			{ status: 500 }
 		);
 	}

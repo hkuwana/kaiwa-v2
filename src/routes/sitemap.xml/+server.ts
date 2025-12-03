@@ -124,20 +124,27 @@ async function getDocsEntries(): Promise<SitemapEntry[]> {
 	const entries: SitemapEntry[] = [];
 
 	// List of public-facing docs (exclude internal, archive, and strategy docs)
-	const publicDocPrefixes = [
-		'guide-',
-		'feature-',
-		'core-',
-		'process-'
+	const publicDocPrefixes = ['guide-', 'feature-', 'core-', 'process-'];
+	const excludePatterns = [
+		'archive-',
+		'strategy-',
+		'icp-',
+		'blog-template',
+		'daily-content',
+		'whatsapp',
+		'friend-outreach',
+		'solo-founder',
+		'feedback-growth',
+		'content-calendar',
+		'content-quick'
 	];
-	const excludePatterns = ['archive-', 'strategy-', 'icp-', 'blog-template', 'daily-content', 'whatsapp', 'friend-outreach', 'solo-founder', 'feedback-growth', 'content-calendar', 'content-quick'];
 
 	for (const [path, module] of Object.entries(modules)) {
 		const slug = path.split('/').pop()?.replace('.md', '') || '';
 
 		// Check if doc should be included
-		const isPublic = publicDocPrefixes.some(prefix => slug.startsWith(prefix));
-		const isExcluded = excludePatterns.some(pattern => slug.includes(pattern));
+		const isPublic = publicDocPrefixes.some((prefix) => slug.startsWith(prefix));
+		const isExcluded = excludePatterns.some((pattern) => slug.includes(pattern));
 
 		if (isPublic && !isExcluded) {
 			const meta = module as unknown as { metadata?: DocMetadata };

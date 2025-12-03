@@ -162,7 +162,7 @@
 						onStartConversation={handleStartConversation}
 					/>
 				</div>
-			<!-- Current Learning Path - Classic -->
+				<!-- Current Learning Path - Classic -->
 			{:else if primaryClassicPath}
 				<div>
 					<div class="mb-4 flex items-center justify-between">

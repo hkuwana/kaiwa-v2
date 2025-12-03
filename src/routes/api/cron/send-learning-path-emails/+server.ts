@@ -98,8 +98,7 @@ export const GET = async ({ request, url }) => {
 				if (assignment.lastEmailSentAt) {
 					const lastSent = new Date(assignment.lastEmailSentAt);
 					const now = new Date();
-					const hoursSinceLastEmail =
-						(now.getTime() - lastSent.getTime()) / (1000 * 60 * 60);
+					const hoursSinceLastEmail = (now.getTime() - lastSent.getTime()) / (1000 * 60 * 60);
 
 					if (hoursSinceLastEmail < 20) {
 						// Don't send more than once per 20 hours

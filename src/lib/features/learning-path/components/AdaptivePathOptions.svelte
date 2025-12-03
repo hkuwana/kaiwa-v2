@@ -159,7 +159,7 @@
 
 				// Small delay between requests
 				if (shouldContinue) {
-					await new Promise(resolve => setTimeout(resolve, 500));
+					await new Promise((resolve) => setTimeout(resolve, 500));
 				}
 			}
 
@@ -227,7 +227,7 @@
 						<p class="text-sm text-base-content/70">No active week</p>
 					{/if}
 				</div>
-				<div class="badge badge-secondary badge-outline">
+				<div class="badge badge-outline badge-secondary">
 					{readyOptions}/{totalOptions} ready
 				</div>
 			</div>
@@ -237,7 +237,7 @@
 					<!-- Generation in progress -->
 					<div class="mt-3">
 						<div class="flex items-center gap-2 text-sm text-secondary">
-							<span class="loading loading-spinner loading-sm"></span>
+							<span class="loading loading-sm loading-spinner"></span>
 							<span>
 								Generating scenarios...
 								{#if generationStatus}
@@ -246,7 +246,7 @@
 							</span>
 						</div>
 						<progress
-							class="progress progress-secondary mt-2 w-full"
+							class="progress mt-2 w-full progress-secondary"
 							value={generationStatus?.totalReady ?? readyOptions}
 							max={totalOptions}
 						></progress>
@@ -256,7 +256,7 @@
 					<div class="mt-3 space-y-2">
 						{#each activeWeek.seeds.filter((s) => s.isReady).slice(0, 3) as option}
 							<button
-								class="btn btn-sm btn-outline btn-primary w-full justify-start gap-2"
+								class="btn w-full justify-start gap-2 btn-outline btn-sm btn-primary"
 								onclick={() => option.scenarioId && onStartConversation?.(option.scenarioId)}
 							>
 								<span class="badge badge-xs badge-primary">
@@ -275,7 +275,7 @@
 					{#if needsGeneration}
 						<!-- Generate remaining -->
 						<button
-							class="btn btn-secondary btn-sm mt-3 w-full gap-2"
+							class="btn mt-3 w-full gap-2 btn-sm btn-secondary"
 							onclick={() => startGeneration()}
 							disabled={isGenerating}
 						>
@@ -286,12 +286,12 @@
 				{:else if hasFailed}
 					<!-- All failed - show retry -->
 					<div class="mt-3">
-						<div class="alert alert-warning py-2 text-sm">
+						<div class="alert py-2 text-sm alert-warning">
 							<span class="icon-[mdi--alert] h-4 w-4"></span>
 							<span>Some scenarios failed to generate</span>
 						</div>
 						<button
-							class="btn btn-warning btn-sm mt-2 w-full gap-2"
+							class="btn mt-2 w-full gap-2 btn-sm btn-warning"
 							onclick={retryFailed}
 							disabled={isGenerating}
 						>
@@ -303,11 +303,9 @@
 					<!-- Nothing ready yet - show clear message and generate button -->
 					<div class="mt-3 rounded-lg bg-base-300 p-3 text-center">
 						<span class="icon-[mdi--information-outline] h-5 w-5 text-base-content/60"></span>
-						<p class="mt-1 text-sm text-base-content/70">
-							Scenarios haven't been generated yet
-						</p>
+						<p class="mt-1 text-sm text-base-content/70">Scenarios haven't been generated yet</p>
 						<button
-							class="btn btn-secondary btn-sm mt-2 w-full gap-2"
+							class="btn mt-2 w-full gap-2 btn-sm btn-secondary"
 							onclick={() => startGeneration()}
 							disabled={isGenerating}
 						>
@@ -356,29 +354,31 @@
 						value={generationStatus?.totalReady ?? readyOptions}
 						max={totalOptions}
 					></progress>
-					<span class="whitespace-nowrap text-sm text-base-content/60">
+					<span class="text-sm whitespace-nowrap text-base-content/60">
 						{generationStatus?.totalReady ?? readyOptions}/{totalOptions} ready
 					</span>
 				</div>
 
 				<!-- Generation status banner -->
 				{#if isGenerating}
-					<div class="alert alert-info mt-4">
-						<span class="loading loading-spinner loading-sm"></span>
+					<div class="mt-4 alert alert-info">
+						<span class="loading loading-sm loading-spinner"></span>
 						<div>
 							<h4 class="font-medium">Generating your scenarios...</h4>
 							<p class="text-sm opacity-80">
-								This usually takes about 30 seconds per scenario. You can leave this page and come back.
+								This usually takes about 30 seconds per scenario. You can leave this page and come
+								back.
 							</p>
 						</div>
 					</div>
 				{:else if hasFailed && !allReady}
-					<div class="alert alert-warning mt-4">
+					<div class="mt-4 alert alert-warning">
 						<span class="icon-[mdi--alert-circle] h-5 w-5"></span>
 						<div>
 							<h4 class="font-medium">Some scenarios couldn't be generated</h4>
 							<p class="text-sm opacity-80">
-								{generationStatus?.totalFailed} scenario(s) failed. You can retry or continue with the available ones.
+								{generationStatus?.totalFailed} scenario(s) failed. You can retry or continue with the
+								available ones.
 							</p>
 						</div>
 						<button class="btn btn-sm btn-warning" onclick={retryFailed}>
@@ -396,7 +396,7 @@
 						{#each activeWeek.seeds as option}
 							{#if option.isReady}
 								<button
-									class="btn btn-outline btn-primary h-auto min-h-[4rem] flex-col items-start gap-1 p-4 text-left"
+									class="btn h-auto min-h-[4rem] flex-col items-start gap-1 p-4 text-left btn-outline btn-primary"
 									onclick={() => option.scenarioId && onStartConversation?.(option.scenarioId)}
 								>
 									<div class="flex w-full items-center gap-2">
@@ -414,7 +414,7 @@
 									<div class="flex w-full items-center gap-2">
 										<span class="badge badge-ghost">Option {option.optionNumber}</span>
 										{#if isGenerating}
-											<span class="loading loading-spinner loading-xs"></span>
+											<span class="loading loading-xs loading-spinner"></span>
 										{:else}
 											<span class="text-xs text-base-content/50">Pending</span>
 										{/if}
@@ -429,7 +429,7 @@
 					<!-- Generate button -->
 					{#if needsGeneration && !isGenerating}
 						<div class="mt-6 flex flex-col items-center gap-3">
-							<button class="btn btn-secondary btn-lg gap-2" onclick={() => startGeneration()}>
+							<button class="btn gap-2 btn-lg btn-secondary" onclick={() => startGeneration()}>
 								<span class="icon-[mdi--sparkles] h-5 w-5"></span>
 								Generate {totalOptions - readyOptions} Scenario{totalOptions - readyOptions > 1
 									? 's'
@@ -442,10 +442,10 @@
 					{/if}
 
 					{#if generationError && !isGenerating}
-						<div class="alert alert-error mt-4">
+						<div class="mt-4 alert alert-error">
 							<span class="icon-[mdi--alert-circle] h-5 w-5"></span>
 							<span>{generationError}</span>
-							<button class="btn btn-sm btn-ghost" onclick={() => startGeneration()}>
+							<button class="btn btn-ghost btn-sm" onclick={() => startGeneration()}>
 								Try Again
 							</button>
 						</div>
@@ -468,15 +468,15 @@
 
 			<!-- Quick info -->
 			<div class="mt-4 flex flex-wrap gap-2">
-				<span class="badge badge-outline gap-1">
+				<span class="badge gap-1 badge-outline">
 					<span class="icon-[mdi--translate] h-4 w-4"></span>
 					{path.targetLanguage.toUpperCase()}
 				</span>
-				<span class="badge badge-outline gap-1">
+				<span class="badge gap-1 badge-outline">
 					<span class="icon-[mdi--clock-outline] h-4 w-4"></span>
 					{path.durationWeeks || 4} weeks
 				</span>
-				<span class="badge badge-outline gap-1">
+				<span class="badge gap-1 badge-outline">
 					<span class="icon-[mdi--shuffle-variant] h-4 w-4"></span>
 					Flexible order
 				</span>

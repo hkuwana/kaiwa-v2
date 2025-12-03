@@ -87,21 +87,19 @@ export class ScenarioGenerationJobService {
 
 			const seeds = (week.conversationSeeds || []) as ExtendedConversationSeed[];
 
-			const seedStatuses: SeedGenerationStatus[] = seeds.map(seed => ({
+			const seedStatuses: SeedGenerationStatus[] = seeds.map((seed) => ({
 				seedId: seed.id,
-				status: seed.scenarioId
-					? 'ready'
-					: (seed._generationStatus || 'pending'),
+				status: seed.scenarioId ? 'ready' : seed._generationStatus || 'pending',
 				scenarioId: seed.scenarioId,
 				error: seed._lastError,
 				retryCount: seed._retryCount || 0,
 				lastAttemptAt: seed._lastAttemptAt
 			}));
 
-			const readyCount = seedStatuses.filter(s => s.status === 'ready').length;
-			const pendingCount = seedStatuses.filter(s => s.status === 'pending').length;
-			const failedCount = seedStatuses.filter(s => s.status === 'failed').length;
-			const generatingCount = seedStatuses.filter(s => s.status === 'generating').length;
+			const readyCount = seedStatuses.filter((s) => s.status === 'ready').length;
+			const pendingCount = seedStatuses.filter((s) => s.status === 'pending').length;
+			const failedCount = seedStatuses.filter((s) => s.status === 'failed').length;
+			const generatingCount = seedStatuses.filter((s) => s.status === 'generating').length;
 
 			return {
 				weekId,
@@ -127,10 +125,7 @@ export class ScenarioGenerationJobService {
 	static async getPathStatus(pathId: string): Promise<WeekGenerationStatus[]> {
 		try {
 			const activeWeeks = await db.query.adaptiveWeeks.findMany({
-				where: and(
-					eq(adaptiveWeeks.pathId, pathId),
-					eq(adaptiveWeeks.status, 'active')
-				)
+				where: and(eq(adaptiveWeeks.pathId, pathId), eq(adaptiveWeeks.status, 'active'))
 			});
 
 			const statuses: WeekGenerationStatus[] = [];
@@ -177,7 +172,7 @@ export class ScenarioGenerationJobService {
 
 			// Find first pending seed that isn't currently being generated
 			// and hasn't exceeded retry limit
-			const pendingSeed = seeds.find(seed => {
+			const pendingSeed = seeds.find((seed) => {
 				if (seed.scenarioId) return false; // Already done
 				if (seed._generationStatus === 'generating') {
 					// Check if it's stale (been generating for > 2 minutes)
@@ -202,18 +197,19 @@ export class ScenarioGenerationJobService {
 			}
 
 			// Mark as generating
-			const updatedSeeds = seeds.map(s =>
+			const updatedSeeds = seeds.map((s) =>
 				s.id === pendingSeed.id
 					? {
-						...s,
-						_generationStatus: 'generating' as const,
-						_lastAttemptAt: new Date().toISOString(),
-						_retryCount: (s._retryCount || 0) + (s._generationStatus === 'failed' ? 1 : 0)
-					}
+							...s,
+							_generationStatus: 'generating' as const,
+							_lastAttemptAt: new Date().toISOString(),
+							_retryCount: (s._retryCount || 0) + (s._generationStatus === 'failed' ? 1 : 0)
+						}
 					: s
 			);
 
-			await db.update(adaptiveWeeks)
+			await db
+				.update(adaptiveWeeks)
 				.set({ conversationSeeds: updatedSeeds, updatedAt: new Date() })
 				.where(eq(adaptiveWeeks.id, weekId));
 
@@ -239,18 +235,19 @@ export class ScenarioGenerationJobService {
 			const scenario = await Promise.race([generationPromise, timeoutPromise]);
 
 			// Update seed with scenario ID
-			const finalSeeds = seeds.map(s =>
+			const finalSeeds = seeds.map((s) =>
 				s.id === pendingSeed.id
 					? {
-						...s,
-						scenarioId: scenario.id,
-						_generationStatus: 'ready' as const,
-						_lastError: undefined
-					}
+							...s,
+							scenarioId: scenario.id,
+							_generationStatus: 'ready' as const,
+							_lastError: undefined
+						}
 					: s
 			);
 
-			await db.update(adaptiveWeeks)
+			await db
+				.update(adaptiveWeeks)
 				.set({ conversationSeeds: finalSeeds, updatedAt: new Date() })
 				.where(eq(adaptiveWeeks.id, weekId));
 
@@ -268,7 +265,6 @@ export class ScenarioGenerationJobService {
 				scenarioId: scenario.id,
 				shouldRetry: false
 			};
-
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			const duration = Date.now() - startTime;
@@ -287,24 +283,25 @@ export class ScenarioGenerationJobService {
 
 				if (week) {
 					const seeds = (week.conversationSeeds || []) as ExtendedConversationSeed[];
-					const failedSeed = seeds.find(s => s._generationStatus === 'generating');
+					const failedSeed = seeds.find((s) => s._generationStatus === 'generating');
 
 					if (failedSeed) {
 						const retryCount = (failedSeed._retryCount || 0) + 1;
 						const shouldRetry = retryCount < MAX_RETRIES;
 
-						const updatedSeeds = seeds.map(s =>
+						const updatedSeeds = seeds.map((s) =>
 							s.id === failedSeed.id
 								? {
-									...s,
-									_generationStatus: 'failed' as const,
-									_lastError: errorMessage,
-									_retryCount: retryCount
-								}
+										...s,
+										_generationStatus: 'failed' as const,
+										_lastError: errorMessage,
+										_retryCount: retryCount
+									}
 								: s
 						);
 
-						await db.update(adaptiveWeeks)
+						await db
+							.update(adaptiveWeeks)
 							.set({ conversationSeeds: updatedSeeds, updatedAt: new Date() })
 							.where(eq(adaptiveWeeks.id, weekId));
 
@@ -377,7 +374,7 @@ export class ScenarioGenerationJobService {
 			}
 
 			// Small delay between generations to avoid rate limits
-			await new Promise(resolve => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 		}
 
 		// Safety limit reached
@@ -400,7 +397,7 @@ export class ScenarioGenerationJobService {
 			const seeds = (week.conversationSeeds || []) as ExtendedConversationSeed[];
 			let resetCount = 0;
 
-			const updatedSeeds = seeds.map(s => {
+			const updatedSeeds = seeds.map((s) => {
 				if (s._generationStatus === 'failed') {
 					resetCount++;
 					return {
@@ -414,7 +411,8 @@ export class ScenarioGenerationJobService {
 			});
 
 			if (resetCount > 0) {
-				await db.update(adaptiveWeeks)
+				await db
+					.update(adaptiveWeeks)
 					.set({ conversationSeeds: updatedSeeds, updatedAt: new Date() })
 					.where(eq(adaptiveWeeks.id, weekId));
 			}
@@ -471,11 +469,7 @@ export class ScenarioGenerationJobService {
 			usageCount: 0,
 			isActive: true,
 			categories: ['learning-path', 'custom'],
-			tags: [
-				`week:${week.weekNumber}`,
-				`seed:${seed.id}`,
-				`path:${week.pathId}`
-			],
+			tags: [`week:${week.weekNumber}`, `seed:${seed.id}`, `path:${week.pathId}`],
 			primarySkill: 'conversation',
 			comfortIndicators: {
 				confidence: 3,
@@ -547,7 +541,10 @@ export class ScenarioGenerationJobService {
 			parts.push(`SESSION STYLE: ${seed.suggestedSessionTypes.join(' or ')}`);
 		}
 
-		parts.push(``, `Create a warm, encouraging scenario that helps the learner practice this topic naturally.`);
+		parts.push(
+			``,
+			`Create a warm, encouraging scenario that helps the learner practice this topic naturally.`
+		);
 
 		return parts.join('\n');
 	}
@@ -573,8 +570,18 @@ export class ScenarioGenerationJobService {
 }
 
 // Export convenience functions
-export const getWeekStatus = ScenarioGenerationJobService.getWeekStatus.bind(ScenarioGenerationJobService);
-export const getPathStatus = ScenarioGenerationJobService.getPathStatus.bind(ScenarioGenerationJobService);
-export const generateNextPending = ScenarioGenerationJobService.generateNextPending.bind(ScenarioGenerationJobService);
-export const generateAllForWeek = ScenarioGenerationJobService.generateAllForWeek.bind(ScenarioGenerationJobService);
-export const resetFailedSeeds = ScenarioGenerationJobService.resetFailedSeeds.bind(ScenarioGenerationJobService);
+export const getWeekStatus = ScenarioGenerationJobService.getWeekStatus.bind(
+	ScenarioGenerationJobService
+);
+export const getPathStatus = ScenarioGenerationJobService.getPathStatus.bind(
+	ScenarioGenerationJobService
+);
+export const generateNextPending = ScenarioGenerationJobService.generateNextPending.bind(
+	ScenarioGenerationJobService
+);
+export const generateAllForWeek = ScenarioGenerationJobService.generateAllForWeek.bind(
+	ScenarioGenerationJobService
+);
+export const resetFailedSeeds = ScenarioGenerationJobService.resetFailedSeeds.bind(
+	ScenarioGenerationJobService
+);

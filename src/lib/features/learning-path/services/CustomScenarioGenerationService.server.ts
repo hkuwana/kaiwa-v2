@@ -88,14 +88,14 @@ export class CustomScenarioGenerationService {
 				return result;
 			}
 
-			const seedsToProcess = seeds.filter(s => !s.scenarioId);
-			const seedsAlreadyDone = seeds.filter(s => s.scenarioId);
+			const seedsToProcess = seeds.filter((s) => !s.scenarioId);
+			const seedsAlreadyDone = seeds.filter((s) => s.scenarioId);
 
 			logger.info(`📋 [CustomScenarioGen] Seed analysis:`, {
 				totalSeeds: seeds.length,
 				alreadyGenerated: seedsAlreadyDone.length,
 				needsGeneration: seedsToProcess.length,
-				seedTitles: seedsToProcess.map(s => s.title)
+				seedTitles: seedsToProcess.map((s) => s.title)
 			});
 
 			// Generate scenarios for each seed
@@ -115,19 +115,17 @@ export class CustomScenarioGenerationService {
 				processedCount++;
 				const seedStartTime = Date.now();
 
-				logger.info(`🔄 [CustomScenarioGen] Generating scenario ${processedCount}/${seedsToProcess.length}`, {
-					seedId: seed.id,
-					seedTitle: seed.title,
-					targetLanguage
-				});
+				logger.info(
+					`🔄 [CustomScenarioGen] Generating scenario ${processedCount}/${seedsToProcess.length}`,
+					{
+						seedId: seed.id,
+						seedTitle: seed.title,
+						targetLanguage
+					}
+				);
 
 				try {
-					const scenario = await this.generateScenarioFromSeed(
-						seed,
-						week,
-						userId,
-						targetLanguage
-					);
+					const scenario = await this.generateScenarioFromSeed(seed, week, userId, targetLanguage);
 
 					const seedDuration = Date.now() - seedStartTime;
 
@@ -140,13 +138,16 @@ export class CustomScenarioGenerationService {
 					result.scenariosGenerated++;
 					result.scenarioIds.push(scenario.id);
 
-					logger.info(`✅ [CustomScenarioGen] Generated scenario ${processedCount}/${seedsToProcess.length} in ${seedDuration}ms`, {
-						seedId: seed.id,
-						seedTitle: seed.title,
-						scenarioId: scenario.id,
-						scenarioTitle: scenario.title,
-						durationMs: seedDuration
-					});
+					logger.info(
+						`✅ [CustomScenarioGen] Generated scenario ${processedCount}/${seedsToProcess.length} in ${seedDuration}ms`,
+						{
+							seedId: seed.id,
+							seedTitle: seed.title,
+							scenarioId: scenario.id,
+							scenarioTitle: scenario.title,
+							durationMs: seedDuration
+						}
+					);
 				} catch (error) {
 					const seedDuration = Date.now() - seedStartTime;
 					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -155,13 +156,16 @@ export class CustomScenarioGenerationService {
 					result.errors.push({ seedId: seed.id, error: errorMessage });
 					updatedSeeds.push(seed); // Keep original seed without scenario
 
-					logger.error(`❌ [CustomScenarioGen] Failed to generate scenario ${processedCount}/${seedsToProcess.length} after ${seedDuration}ms`, {
-						seedId: seed.id,
-						seedTitle: seed.title,
-						error: errorMessage,
-						stack: errorStack,
-						durationMs: seedDuration
-					});
+					logger.error(
+						`❌ [CustomScenarioGen] Failed to generate scenario ${processedCount}/${seedsToProcess.length} after ${seedDuration}ms`,
+						{
+							seedId: seed.id,
+							seedTitle: seed.title,
+							error: errorMessage,
+							stack: errorStack,
+							durationMs: seedDuration
+						}
+					);
 				}
 			}
 
@@ -182,7 +186,8 @@ export class CustomScenarioGenerationService {
 				scenariosGenerated: result.scenariosGenerated,
 				errors: result.errors.length,
 				totalDurationMs: totalDuration,
-				averagePerScenarioMs: result.scenariosGenerated > 0 ? Math.round(totalDuration / result.scenariosGenerated) : 0
+				averagePerScenarioMs:
+					result.scenariosGenerated > 0 ? Math.round(totalDuration / result.scenariosGenerated) : 0
 			});
 
 			result.success = result.errors.length === 0;
@@ -235,14 +240,11 @@ export class CustomScenarioGenerationService {
 			// Find active week(s) for this path
 			const dbStartTime = Date.now();
 			const activeWeeks = await db.query.adaptiveWeeks.findMany({
-				where: and(
-					eq(adaptiveWeeks.pathId, pathId),
-					eq(adaptiveWeeks.status, 'active')
-				)
+				where: and(eq(adaptiveWeeks.pathId, pathId), eq(adaptiveWeeks.status, 'active'))
 			});
 			logger.info(`📊 [CustomScenarioGen] Active weeks query took ${Date.now() - dbStartTime}ms`, {
 				activeWeeksFound: activeWeeks.length,
-				weekIds: activeWeeks.map(w => w.id)
+				weekIds: activeWeeks.map((w) => w.id)
 			});
 
 			if (activeWeeks.length === 0) {
@@ -259,10 +261,12 @@ export class CustomScenarioGenerationService {
 			let totalSeedsToGenerate = 0;
 			for (const week of activeWeeks) {
 				const seeds = (week.conversationSeeds || []) as ConversationSeed[];
-				const pending = seeds.filter(s => !s.scenarioId).length;
+				const pending = seeds.filter((s) => !s.scenarioId).length;
 				totalSeedsToGenerate += pending;
 			}
-			logger.info(`📋 [CustomScenarioGen] Total scenarios to generate: ${totalSeedsToGenerate} across ${activeWeeks.length} week(s)`);
+			logger.info(
+				`📋 [CustomScenarioGen] Total scenarios to generate: ${totalSeedsToGenerate} across ${activeWeeks.length} week(s)`
+			);
 
 			// Generate scenarios for each active week
 			const allResults: CustomScenarioGenerationResult = {
@@ -298,9 +302,10 @@ export class CustomScenarioGenerationService {
 				totalGenerated: allResults.scenariosGenerated,
 				totalErrors: allResults.errors.length,
 				totalDurationMs: totalDuration,
-				averagePerScenarioMs: allResults.scenariosGenerated > 0
-					? Math.round(totalDuration / allResults.scenariosGenerated)
-					: 0
+				averagePerScenarioMs:
+					allResults.scenariosGenerated > 0
+						? Math.round(totalDuration / allResults.scenariosGenerated)
+						: 0
 			});
 
 			return allResults;
@@ -315,7 +320,9 @@ export class CustomScenarioGenerationService {
 				success: false,
 				scenariosGenerated: 0,
 				scenarioIds: [],
-				errors: [{ seedId: 'global', error: error instanceof Error ? error.message : 'Unknown error' }]
+				errors: [
+					{ seedId: 'global', error: error instanceof Error ? error.message : 'Unknown error' }
+				]
 			};
 		}
 	}
@@ -383,11 +390,7 @@ export class CustomScenarioGenerationService {
 			usageCount: 0,
 			isActive: true,
 			categories: ['learning-path', 'custom'],
-			tags: [
-				`week:${week.weekNumber}`,
-				`seed:${seed.id}`,
-				`path:${week.pathId}`
-			],
+			tags: [`week:${week.weekNumber}`, `seed:${seed.id}`, `path:${week.pathId}`],
 			primarySkill: 'conversation',
 			comfortIndicators: {
 				confidence: 3,
@@ -428,10 +431,13 @@ export class CustomScenarioGenerationService {
 			await scenarioMetadataRepository.initializeMetadata(createdScenario.id);
 			logger.info(`📊 [CustomScenarioGen] Metadata initialized in ${Date.now() - metadataStart}ms`);
 		} catch (error) {
-			logger.warn(`⚠️ [CustomScenarioGen] Failed to initialize metadata for ${createdScenario.id}`, {
-				error: error instanceof Error ? error.message : 'Unknown error',
-				durationMs: Date.now() - metadataStart
-			});
+			logger.warn(
+				`⚠️ [CustomScenarioGen] Failed to initialize metadata for ${createdScenario.id}`,
+				{
+					error: error instanceof Error ? error.message : 'Unknown error',
+					durationMs: Date.now() - metadataStart
+				}
+			);
 		}
 
 		return createdScenario;
@@ -474,7 +480,10 @@ export class CustomScenarioGenerationService {
 			parts.push(`SESSION STYLE: ${seed.suggestedSessionTypes.join(' or ')}`);
 		}
 
-		parts.push(``, `Create a warm, encouraging scenario that helps the learner practice this topic naturally.`);
+		parts.push(
+			``,
+			`Create a warm, encouraging scenario that helps the learner practice this topic naturally.`
+		);
 
 		return parts.join('\n');
 	}
@@ -506,10 +515,10 @@ export class CustomScenarioGenerationService {
 }
 
 // Export singleton-style functions for convenience
-export const generateScenariosForWeek = CustomScenarioGenerationService.generateScenariosForWeek.bind(
-	CustomScenarioGenerationService
-);
+export const generateScenariosForWeek =
+	CustomScenarioGenerationService.generateScenariosForWeek.bind(CustomScenarioGenerationService);
 
-export const generateScenariosForAssignment = CustomScenarioGenerationService.generateScenariosForAssignment.bind(
-	CustomScenarioGenerationService
-);
+export const generateScenariosForAssignment =
+	CustomScenarioGenerationService.generateScenariosForAssignment.bind(
+		CustomScenarioGenerationService
+	);

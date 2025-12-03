@@ -215,12 +215,12 @@
 						{:else if !data.progress.currentDay.isReady}
 							<div class="flex flex-col items-end gap-2">
 								<button
-									class="btn btn-secondary gap-2"
+									class="btn gap-2 btn-secondary"
 									onclick={handleGenerateScenario}
 									disabled={isGenerating}
 								>
 									{#if isGenerating}
-										<span class="loading loading-spinner loading-sm"></span>
+										<span class="loading loading-sm loading-spinner"></span>
 										Generating...
 									{:else}
 										<span class="icon-[mdi--sparkles] h-5 w-5"></span>
@@ -259,12 +259,12 @@
 			</p>
 			<div class="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
 				{#if data.path.isPublic && data.path.shareSlug}
-					<a href="/program/{data.path.shareSlug}" class="btn btn-primary gap-2">
+					<a href="/program/{data.path.shareSlug}" class="btn gap-2 btn-primary">
 						<span class="icon-[mdi--plus] h-5 w-5"></span>
 						Add to Dashboard
 					</a>
 				{/if}
-				<a href="/dashboard" class="btn btn-ghost gap-2">
+				<a href="/dashboard" class="btn gap-2 btn-ghost">
 					<span class="icon-[mdi--view-dashboard-outline] h-5 w-5"></span>
 					Check Dashboard
 				</a>
@@ -276,15 +276,16 @@
 			<span class="icon-[mdi--account-circle-outline] h-12 w-12 text-primary/50"></span>
 			<h2 class="mt-4 text-xl font-semibold">Sign in to start learning</h2>
 			<p class="mt-2 text-base-content/70">
-				Create an account or sign in to add this learning path to your dashboard and track your progress.
+				Create an account or sign in to add this learning path to your dashboard and track your
+				progress.
 			</p>
 			<div class="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-				<a href="/auth?redirect=/path/{data.path.id}" class="btn btn-primary gap-2">
+				<a href="/auth?redirect=/path/{data.path.id}" class="btn gap-2 btn-primary">
 					<span class="icon-[mdi--login] h-5 w-5"></span>
 					Sign In to Start
 				</a>
 				{#if data.path.isPublic && data.path.shareSlug}
-					<a href="/program/{data.path.shareSlug}" class="btn btn-ghost gap-2">
+					<a href="/program/{data.path.shareSlug}" class="btn gap-2 btn-ghost">
 						<span class="icon-[mdi--information-outline] h-5 w-5"></span>
 						Learn More
 					</a>

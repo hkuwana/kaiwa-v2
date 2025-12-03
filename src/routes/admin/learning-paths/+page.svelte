@@ -367,7 +367,8 @@
 				if (genResult.data?.currentStatus) {
 					scenarioGenerationProgress = {
 						ready: genResult.data.currentStatus.readyCount,
-						total: genResult.data.currentStatus.readyCount + genResult.data.currentStatus.pendingCount,
+						total:
+							genResult.data.currentStatus.readyCount + genResult.data.currentStatus.pendingCount,
 						failed: genResult.data.currentStatus.failedCount
 					};
 				}
@@ -376,7 +377,7 @@
 
 				// Small delay between requests
 				if (shouldContinue) {
-					await new Promise(resolve => setTimeout(resolve, 500));
+					await new Promise((resolve) => setTimeout(resolve, 500));
 				}
 			}
 
@@ -392,9 +393,15 @@
 				};
 
 				if (finalResult.data.isComplete) {
-					showMessage(`Successfully generated ${finalResult.data.totalReady} scenarios!`, 'success');
+					showMessage(
+						`Successfully generated ${finalResult.data.totalReady} scenarios!`,
+						'success'
+					);
 				} else if (finalResult.data.totalFailed > 0) {
-					showMessage(`Generated ${finalResult.data.totalReady} scenarios, ${finalResult.data.totalFailed} failed`, 'info');
+					showMessage(
+						`Generated ${finalResult.data.totalReady} scenarios, ${finalResult.data.totalFailed} failed`,
+						'info'
+					);
 				}
 			}
 		} catch (error) {
@@ -837,7 +844,9 @@
 					<div class="form-control">
 						<label class="label">
 							<span class="label-text">Learner Brief</span>
-							<span class="label-text-alt text-base-content/50">Describe their situation, goals, and learning style</span>
+							<span class="label-text-alt text-base-content/50"
+								>Describe their situation, goals, and learning style</span
+							>
 						</label>
 						<textarea
 							class="textarea-bordered textarea h-64 text-sm"
@@ -1199,17 +1208,21 @@ Difficulty should progress from structured Q&A focused on simple verb placement 
 									autocomplete="off"
 								/>
 								{#if isSearching}
-									<span class="absolute right-3 top-1/2 -translate-y-1/2">
-										<span class="loading loading-spinner loading-sm"></span>
+									<span class="absolute top-1/2 right-3 -translate-y-1/2">
+										<span class="loading loading-sm loading-spinner"></span>
 									</span>
 								{/if}
 								{#if showUserDropdown && userSearchResults.length > 0}
-									<ul class="menu absolute z-50 mt-1 w-full rounded-lg border border-base-300 bg-base-100 p-2 shadow-lg">
+									<ul
+										class="menu absolute z-50 mt-1 w-full rounded-lg border border-base-300 bg-base-100 p-2 shadow-lg"
+									>
 										{#each userSearchResults as user, index}
 											<li>
 												<button
 													type="button"
-													class="flex items-center gap-3 {selectedUserIndex === index ? 'active' : ''}"
+													class="flex items-center gap-3 {selectedUserIndex === index
+														? 'active'
+														: ''}"
 													onmousedown={() => selectUser(user)}
 												>
 													<div class="avatar">
@@ -1217,14 +1230,18 @@ Difficulty should progress from structured Q&A focused on simple verb placement 
 															{#if user.avatarUrl}
 																<img src={user.avatarUrl} alt="" />
 															{:else}
-																<div class="flex h-full w-full items-center justify-center bg-base-300 text-sm">
+																<div
+																	class="flex h-full w-full items-center justify-center bg-base-300 text-sm"
+																>
 																	{(user.displayName || user.email)[0].toUpperCase()}
 																</div>
 															{/if}
 														</div>
 													</div>
 													<div class="flex-1 text-left">
-														<div class="font-medium">{user.displayName || user.email.split('@')[0]}</div>
+														<div class="font-medium">
+															{user.displayName || user.email.split('@')[0]}
+														</div>
 														<div class="text-xs text-base-content/60">{user.email}</div>
 													</div>
 												</button>
@@ -1280,7 +1297,8 @@ Difficulty should progress from structured Q&A focused on simple verb placement 
 							<div class="rounded-lg bg-secondary/10 p-3 text-sm">
 								<p class="font-medium text-secondary">AI-generated scenarios:</p>
 								<p class="mt-1 text-base-content/70">
-									Custom scenarios will be created based on the learning path's conversation seeds. This may take 30-60 seconds.
+									Custom scenarios will be created based on the learning path's conversation seeds.
+									This may take 30-60 seconds.
 								</p>
 							</div>
 						{/if}
@@ -1302,23 +1320,27 @@ Difficulty should progress from structured Q&A focused on simple verb placement 
 							<div class="rounded-lg border border-secondary bg-secondary/5 p-4">
 								<h4 class="mb-2 font-medium text-secondary">Generate Scenarios</h4>
 								<p class="mb-3 text-sm text-base-content/70">
-									Path assigned to <span class="font-medium">{assignedUserEmail}</span>.
-									Click the button below to generate personalized scenarios now.
+									Path assigned to <span class="font-medium">{assignedUserEmail}</span>. Click the
+									button below to generate personalized scenarios now.
 								</p>
 
 								{#if scenarioGenerationProgress}
 									<div class="mb-3">
 										<div class="flex items-center justify-between text-sm">
 											<span>Progress</span>
-											<span>{scenarioGenerationProgress.ready}/{scenarioGenerationProgress.total} ready</span>
+											<span
+												>{scenarioGenerationProgress.ready}/{scenarioGenerationProgress.total} ready</span
+											>
 										</div>
 										<progress
-											class="progress progress-secondary mt-1 w-full"
+											class="progress mt-1 w-full progress-secondary"
 											value={scenarioGenerationProgress.ready}
 											max={scenarioGenerationProgress.total}
 										></progress>
 										{#if scenarioGenerationProgress.failed > 0}
-											<p class="mt-1 text-xs text-warning">{scenarioGenerationProgress.failed} failed</p>
+											<p class="mt-1 text-xs text-warning">
+												{scenarioGenerationProgress.failed} failed
+											</p>
 										{/if}
 									</div>
 								{/if}
@@ -1330,12 +1352,12 @@ Difficulty should progress from structured Q&A focused on simple verb placement 
 								{/if}
 
 								<button
-									class="btn btn-secondary w-full gap-2"
+									class="btn w-full gap-2 btn-secondary"
 									onclick={generateScenariosForPath}
 									disabled={isGeneratingScenarios}
 								>
 									{#if isGeneratingScenarios}
-										<span class="loading loading-spinner loading-sm"></span>
+										<span class="loading loading-sm loading-spinner"></span>
 										Generating scenarios...
 									{:else}
 										<span class="icon-[mdi--sparkles] h-5 w-5"></span>
@@ -1353,7 +1375,7 @@ Difficulty should progress from structured Q&A focused on simple verb placement 
 								disabled={loading || !assignEmail}
 							>
 								{#if loading}
-									<span class="loading loading-spinner loading-sm"></span>
+									<span class="loading loading-sm loading-spinner"></span>
 									{generateCustomScenarios ? 'Generating scenarios...' : 'Assigning...'}
 								{:else}
 									{sendEmailNotification ? 'Send Path' : 'Assign'}

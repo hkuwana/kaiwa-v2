@@ -647,8 +647,9 @@
 									founder sequence (daily)
 								</li>
 								<li>
-									<code class="rounded bg-base-200 px-2 py-1">/api/cron/send-learning-path-emails</code> - Learning
-									path daily reminders (8 AM UTC)
+									<code class="rounded bg-base-200 px-2 py-1"
+										>/api/cron/send-learning-path-emails</code
+									> - Learning path daily reminders (8 AM UTC)
 								</li>
 							</ul>
 						</div>

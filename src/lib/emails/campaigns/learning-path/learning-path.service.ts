@@ -102,7 +102,8 @@ export class LearningPathEmailService {
 
 			// Calculate current day (1-indexed for display)
 			const currentDay = (assignment.currentDayIndex || 0) + 1;
-			const schedule = (path.schedule as Array<{ dayIndex: number; theme: string; description?: string }>) || [];
+			const schedule =
+				(path.schedule as Array<{ dayIndex: number; theme: string; description?: string }>) || [];
 			const totalDays = schedule.length || 28;
 
 			// Get today's theme from schedule
@@ -251,8 +252,8 @@ export class LearningPathEmailService {
 		// Random encouragement for other days
 		const messages = [
 			"Consistency beats intensity. You're building a real habit here.",
-			"Every conversation makes you more confident. Keep going!",
-			"Small daily progress adds up to big results.",
+			'Every conversation makes you more confident. Keep going!',
+			'Small daily progress adds up to big results.',
 			"You're doing something most people only talk about. Be proud!"
 		];
 		const randomMessage = messages[currentDay % messages.length];

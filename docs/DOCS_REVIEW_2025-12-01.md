@@ -7,6 +7,7 @@
 **Total Documentation Files**: 120+ markdown files
 
 **Key Findings**:
+
 - ✅ **2 critical root-level docs** not referenced anywhere (`adaptive-learning-system.md`, `learning-path-auto-enrollment.md`)
 - ⚠️ **40+ files not referenced** in section README indexes
 - 🔥 **Important files** requiring immediate attention identified
@@ -17,9 +18,11 @@
 ## 🔥 CRITICAL: Root-Level Documentation (Not in Folders)
 
 ### ⭐ **adaptive-learning-system.md** - EXTREMELY IMPORTANT
+
 **Status**: ✅ Active, Critical
 **Last Updated**: 2025-11-30
 **Why Important**:
+
 - Describes the core adaptive learning path system that replaces rigid 28-day schedules
 - Contains complete implementation guide for services, APIs, and UI components
 - Includes engagement design philosophy (anti-gamification approach)
@@ -27,6 +30,7 @@
 - **This may fundamentally change how the app works** (as user noted)
 
 **Recommendation**:
+
 - ✅ Move to `docs/3-features/adaptive-learning-system.md`
 - ✅ Add to `docs/3-features/README.md` as a top priority feature
 - ✅ Link from main `docs/README.md` as critical reading
@@ -35,15 +39,18 @@
 ---
 
 ### ⭐ **learning-path-auto-enrollment.md** - IMPORTANT
+
 **Status**: ✅ Active
 **Last Updated**: 2025-11-26
 **Why Important**:
+
 - Describes auto-enrollment implementation for personalized learning paths
 - Contains implementation details and verification steps
 - Related to adaptive learning system
 - Includes git commit info and testing instructions
 
 **Recommendation**:
+
 - ✅ Move to `docs/3-features/learning-path-auto-enrollment.md`
 - ✅ Add to `docs/3-features/README.md`
 - ✅ Link from `adaptive-learning-system.md` as related implementation
@@ -58,16 +65,16 @@
 **Files Referenced in README**: 9
 **Status**: ✅ Complete
 
-| File | Status | Notes |
-|------|--------|-------|
-| architecture.md | ✅ Active | Core system architecture |
-| database-schema.md | ✅ Active | Database design |
-| repositories.md | ✅ Active | Data access patterns |
-| cron-jobs.md | ✅ Active | Scheduled task architecture |
-| cron-architecture-unified.md | ✅ Active | Unified cron architecture |
-| scenario-metadata.md | ✅ Active | Scenario data model |
-| scenario-schema-improvements.md | ⚠️ Review | Check if implemented |
-| server-architecture.md | ✅ Active | Server-side architecture |
+| File                            | Status    | Notes                       |
+| ------------------------------- | --------- | --------------------------- |
+| architecture.md                 | ✅ Active | Core system architecture    |
+| database-schema.md              | ✅ Active | Database design             |
+| repositories.md                 | ✅ Active | Data access patterns        |
+| cron-jobs.md                    | ✅ Active | Scheduled task architecture |
+| cron-architecture-unified.md    | ✅ Active | Unified cron architecture   |
+| scenario-metadata.md            | ✅ Active | Scenario data model         |
+| scenario-schema-improvements.md | ⚠️ Review | Check if implemented        |
+| server-architecture.md          | ✅ Active | Server-side architecture    |
 
 **Recommendation**: Check if `scenario-schema-improvements.md` proposals have been implemented - might need archiving.
 
@@ -80,6 +87,7 @@
 **Status**: ⚠️ 7 files missing from README
 
 #### ✅ Referenced Files
+
 - dev-setup.md
 - testing-instructions.md (referenced as testing-strategy.md but file is testing-instructions.md)
 - stripe-setup.md
@@ -90,17 +98,19 @@
 - daily-content-creation-guide.md
 
 #### ⚠️ NOT Referenced in README
-| File | Status | Recommendation |
-|------|--------|----------------|
-| console-log-quick-reference.md | ✅ Active | Add to README - useful quick reference |
-| email-kit-migration.md | ⚠️ Review | Archive if migration complete |
-| email-quick-start.md | ✅ Active | Add to README - quick start guides valuable |
-| email-system-architecture.md | ✅ Active | Add to README - important architecture doc |
-| email-system-migration.md | ⚠️ Review | Archive if migration complete |
-| email-testing-guide.md | ✅ Active | Add to README - testing is important |
-| ui-copy-style-guide.md | ✅ Active | Add to README - style consistency important |
+
+| File                           | Status    | Recommendation                              |
+| ------------------------------ | --------- | ------------------------------------------- |
+| console-log-quick-reference.md | ✅ Active | Add to README - useful quick reference      |
+| email-kit-migration.md         | ⚠️ Review | Archive if migration complete               |
+| email-quick-start.md           | ✅ Active | Add to README - quick start guides valuable |
+| email-system-architecture.md   | ✅ Active | Add to README - important architecture doc  |
+| email-system-migration.md      | ⚠️ Review | Archive if migration complete               |
+| email-testing-guide.md         | ✅ Active | Add to README - testing is important        |
+| ui-copy-style-guide.md         | ✅ Active | Add to README - style consistency important |
 
 **Recommendation**:
+
 - Add all active email docs to README under "Email System" subsection
 - Review migration docs - archive if complete
 - Add ui-copy-style-guide to README
@@ -114,6 +124,7 @@
 **Status**: ⚠️ 5+ files missing from README
 
 #### ✅ Referenced Files
+
 - realtime.md
 - analysis.md
 - seo.md
@@ -128,17 +139,19 @@
 - seo-implementation-summary-2025.md
 
 #### ⚠️ NOT Referenced in README
-| File | Status | Importance | Recommendation |
-|------|--------|------------|----------------|
-| **adaptive-learning-system.md** (ROOT) | 🔥 Critical | ⭐⭐⭐⭐⭐ | **MOVE HERE + ADD TO README AS TOP PRIORITY** |
-| **learning-path-auto-enrollment.md** (ROOT) | ✅ Active | ⭐⭐⭐⭐ | **MOVE HERE + ADD TO README** |
-| bing-ai-search-indexing.md | ⚠️ Review | ⭐⭐ | Check if implemented, add or archive |
-| email-preferences-and-cron-mapping.md | ✅ Active | ⭐⭐⭐ | Add to README |
-| ghibli-character-implementation.md | ⚠️ Review | ⭐ | Feature-specific, check if active |
-| learning-path-implementation-plan.md | ⚠️ Review | ⭐⭐⭐⭐ | May be superseded by adaptive-learning-system.md |
-| pr4-testing-guide.md | ⚠️ Archive | ⭐ | Specific PR guide - likely outdated |
+
+| File                                        | Status      | Importance | Recommendation                                   |
+| ------------------------------------------- | ----------- | ---------- | ------------------------------------------------ |
+| **adaptive-learning-system.md** (ROOT)      | 🔥 Critical | ⭐⭐⭐⭐⭐ | **MOVE HERE + ADD TO README AS TOP PRIORITY**    |
+| **learning-path-auto-enrollment.md** (ROOT) | ✅ Active   | ⭐⭐⭐⭐   | **MOVE HERE + ADD TO README**                    |
+| bing-ai-search-indexing.md                  | ⚠️ Review   | ⭐⭐       | Check if implemented, add or archive             |
+| email-preferences-and-cron-mapping.md       | ✅ Active   | ⭐⭐⭐     | Add to README                                    |
+| ghibli-character-implementation.md          | ⚠️ Review   | ⭐         | Feature-specific, check if active                |
+| learning-path-implementation-plan.md        | ⚠️ Review   | ⭐⭐⭐⭐   | May be superseded by adaptive-learning-system.md |
+| pr4-testing-guide.md                        | ⚠️ Archive  | ⭐         | Specific PR guide - likely outdated              |
 
 **Recommendation**:
+
 - **IMMEDIATE**: Move root-level learning path docs here and reference in README
 - Review `learning-path-implementation-plan.md` vs `adaptive-learning-system.md` - one may supersede the other
 - Add email preferences doc to README
@@ -154,13 +167,15 @@
 **Status**: ⚠️ Few files missing
 
 #### ⚠️ NOT Referenced in README
-| File | Status | Recommendation |
-|------|--------|----------------|
-| personalized-paths-launch-drafts.md | ⚠️ Review | Check if launch happened, archive if complete |
-| personalized-paths.md | ✅ Active | Add to README - important feature strategy |
-| week-1-marketing-plan.md | ⚠️ Duplicate? | Check vs marketing-week-1-pab-focus.md |
+
+| File                                | Status        | Recommendation                                |
+| ----------------------------------- | ------------- | --------------------------------------------- |
+| personalized-paths-launch-drafts.md | ⚠️ Review     | Check if launch happened, archive if complete |
+| personalized-paths.md               | ✅ Active     | Add to README - important feature strategy    |
+| week-1-marketing-plan.md            | ⚠️ Duplicate? | Check vs marketing-week-1-pab-focus.md        |
 
 **Recommendation**:
+
 - Add `personalized-paths.md` to README (strategy for important feature)
 - Review launch drafts - archive if launched
 - Check for duplicate marketing week docs
@@ -174,6 +189,7 @@
 **Status**: ⚠️ 9 files missing from README!
 
 #### ✅ Referenced Files
+
 - demo-checklist.md
 - user-interview-template.md
 - smoke-testing.md
@@ -181,19 +197,21 @@
 - posthog-kpi-tracking.md
 
 #### ⚠️ NOT Referenced in README
-| File | Status | Importance | Recommendation |
-|------|--------|------------|----------------|
-| founding-members-launch-plan.md | ⚠️ Review | ⭐⭐⭐ | Check if launched, archive or add |
-| log-analysis-checklist.md | ✅ Active | ⭐⭐⭐ | Add to README - useful process |
-| pab-final-2-slots-outreach.md | ⚠️ Temporal | ⭐⭐ | Specific to PAB program |
-| pab-launch-week-plan.md | ⚠️ Temporal | ⭐⭐ | Specific to PAB program |
-| pab-messaging-templates.md | ✅ Active | ⭐⭐⭐ | Add to README - reusable templates |
-| pab-quick-start-guide.md | ✅ Active | ⭐⭐⭐ | Add to README |
-| pab-screening-framework.md | ✅ Active | ⭐⭐⭐ | Add to README |
-| usjc-pilot-program.md | ⚠️ Review | ⭐⭐ | Check if pilot is active |
-| weekly-updates-system.md | ✅ Active | ⭐⭐⭐ | Add to README - important process |
+
+| File                            | Status      | Importance | Recommendation                     |
+| ------------------------------- | ----------- | ---------- | ---------------------------------- |
+| founding-members-launch-plan.md | ⚠️ Review   | ⭐⭐⭐     | Check if launched, archive or add  |
+| log-analysis-checklist.md       | ✅ Active   | ⭐⭐⭐     | Add to README - useful process     |
+| pab-final-2-slots-outreach.md   | ⚠️ Temporal | ⭐⭐       | Specific to PAB program            |
+| pab-launch-week-plan.md         | ⚠️ Temporal | ⭐⭐       | Specific to PAB program            |
+| pab-messaging-templates.md      | ✅ Active   | ⭐⭐⭐     | Add to README - reusable templates |
+| pab-quick-start-guide.md        | ✅ Active   | ⭐⭐⭐     | Add to README                      |
+| pab-screening-framework.md      | ✅ Active   | ⭐⭐⭐     | Add to README                      |
+| usjc-pilot-program.md           | ⚠️ Review   | ⭐⭐       | Check if pilot is active           |
+| weekly-updates-system.md        | ✅ Active   | ⭐⭐⭐     | Add to README - important process  |
 
 **Recommendation**:
+
 - Add all PAB (Product Advisory Board) docs under "PAB Program" subsection in README
 - Add log-analysis-checklist and weekly-updates-system to README
 - Review temporal/launch docs for archival
@@ -206,14 +224,17 @@
 **Status**: ✅ Well-organized
 
 **Files in subdirectories**:
+
 - weekly-updates/: 5 update files + 1 template + 1 duplicate (User-Feedback-Triage.md also in feedback/)
 - migrations/: 5 files (API_REFERENCE, MIGRATION_COMPLETE, MIGRATION_GUIDE, QUICK_START, README)
 - feedback/: User-Feedback-Triage.md
 
 **Issues**:
+
 - ⚠️ `User-Feedback-Triage.md` exists in both `feedback/` and `weekly-updates/` - duplicate!
 
 **Recommendation**:
+
 - Remove duplicate User-Feedback-Triage.md from weekly-updates
 - Keep only in feedback/ folder
 
@@ -227,8 +248,9 @@
 All files follow naming convention `YYYY-MM-DD-description.md` or `archive-description.md`
 
 **Files**:
-- 2025-11-16-* (7 debugging/implementation summaries)
-- archive-* (4 archived docs: analysis, roadmap, documentation cleanup/status, ux redesign, type refactoring)
+
+- 2025-11-16-\* (7 debugging/implementation summaries)
+- archive-\* (4 archived docs: analysis, roadmap, documentation cleanup/status, ux redesign, type refactoring)
 
 **Recommendation**: ✅ No action needed - these are properly archived historical records
 
@@ -236,16 +258,16 @@ All files follow naming convention `YYYY-MM-DD-description.md` or `archive-descr
 
 ## 📊 Summary Statistics
 
-| Section | Total Files | Referenced | Missing | % Complete |
-|---------|-------------|------------|---------|------------|
-| **ROOT** | **2** | **0** | **2** | **0%** 🔴 |
-| 1-core | 9 | 9 | 0 | 100% ✅ |
-| 2-guides | 15 | 8 | 7 | 53% ⚠️ |
-| 3-features | 17+2 | 12 | 7 | 63% ⚠️ |
-| 4-strategy | 37 | ~34 | ~3 | 92% ✅ |
-| 5-processes | 14 | 5 | 9 | 36% 🔴 |
-| 6-logs | ~12 | N/A | 1 dup | ⚠️ |
-| 7-archive | 11 | N/A | 0 | ✅ |
+| Section     | Total Files | Referenced | Missing | % Complete |
+| ----------- | ----------- | ---------- | ------- | ---------- |
+| **ROOT**    | **2**       | **0**      | **2**   | **0%** 🔴  |
+| 1-core      | 9           | 9          | 0       | 100% ✅    |
+| 2-guides    | 15          | 8          | 7       | 53% ⚠️     |
+| 3-features  | 17+2        | 12         | 7       | 63% ⚠️     |
+| 4-strategy  | 37          | ~34        | ~3      | 92% ✅     |
+| 5-processes | 14          | 5          | 9       | 36% 🔴     |
+| 6-logs      | ~12         | N/A        | 1 dup   | ⚠️         |
+| 7-archive   | 11          | N/A        | 0       | ✅         |
 
 ---
 
@@ -254,9 +276,11 @@ All files follow naming convention `YYYY-MM-DD-description.md` or `archive-descr
 ### Priority 1: Critical Documentation (Do Today)
 
 1. **Move adaptive-learning-system.md**
+
    ```bash
    mv docs/adaptive-learning-system.md docs/3-features/adaptive-learning-system.md
    ```
+
    - Update `docs/3-features/README.md` - add as FIRST feature
    - Update `docs/README.md` - add to quick start section
    - Update `docs/1-core/architecture.md` - reference as core system
@@ -265,13 +289,14 @@ All files follow naming convention `YYYY-MM-DD-description.md` or `archive-descr
    ```bash
    mv docs/learning-path-auto-enrollment.md docs/3-features/learning-path-auto-enrollment.md
    ```
+
    - Update `docs/3-features/README.md`
    - Link from adaptive-learning-system.md
 
 ### Priority 2: Fix Missing References (This Week)
 
 3. **Update 2-guides/README.md**
-   - Add email system subsection with all email-*.md files
+   - Add email system subsection with all email-\*.md files
    - Add console-log-quick-reference.md
    - Add ui-copy-style-guide.md
 
@@ -281,7 +306,7 @@ All files follow naming convention `YYYY-MM-DD-description.md` or `archive-descr
    - Add email-preferences-and-cron-mapping.md
 
 5. **Update 5-processes/README.md**
-   - Add PAB subsection with all pab-*.md files
+   - Add PAB subsection with all pab-\*.md files
    - Add log-analysis-checklist.md
    - Add weekly-updates-system.md
 
@@ -307,24 +332,25 @@ All files follow naming convention `YYYY-MM-DD-description.md` or `archive-descr
 
 ### Potentially Outdated (Check Implementation Status)
 
-| File | Question to Answer |
-|------|-------------------|
-| 1-core/scenario-schema-improvements.md | Have these improvements been implemented? |
-| 2-guides/email-kit-migration.md | Is the migration complete? |
-| 2-guides/email-system-migration.md | Is the migration complete? |
-| 3-features/bing-ai-search-indexing.md | Is this feature implemented/active? |
-| 3-features/ghibli-character-implementation.md | Is this feature active? |
+| File                                            | Question to Answer                                 |
+| ----------------------------------------------- | -------------------------------------------------- |
+| 1-core/scenario-schema-improvements.md          | Have these improvements been implemented?          |
+| 2-guides/email-kit-migration.md                 | Is the migration complete?                         |
+| 2-guides/email-system-migration.md              | Is the migration complete?                         |
+| 3-features/bing-ai-search-indexing.md           | Is this feature implemented/active?                |
+| 3-features/ghibli-character-implementation.md   | Is this feature active?                            |
 | 3-features/learning-path-implementation-plan.md | Is this superseded by adaptive-learning-system.md? |
-| 4-strategy/personalized-paths-launch-drafts.md | Has this launched? |
-| 5-processes/founding-members-launch-plan.md | Has this launched? |
-| 5-processes/pab-final-2-slots-outreach.md | Is PAB still accepting members? |
-| 5-processes/usjc-pilot-program.md | Is this pilot still active? |
+| 4-strategy/personalized-paths-launch-drafts.md  | Has this launched?                                 |
+| 5-processes/founding-members-launch-plan.md     | Has this launched?                                 |
+| 5-processes/pab-final-2-slots-outreach.md       | Is PAB still accepting members?                    |
+| 5-processes/usjc-pilot-program.md               | Is this pilot still active?                        |
 
 ---
 
 ## ✅ Recommended Documentation Structure (After Cleanup)
 
 ### Root Level (docs/)
+
 - README.md ✅
 - HOW_DOCS_ARE_ORGANIZED.md ✅
 - _(No loose feature docs - all in organized folders)_
@@ -332,18 +358,20 @@ All files follow naming convention `YYYY-MM-DD-description.md` or `archive-descr
 ### Critical Features to Highlight
 
 **In docs/README.md Quick Start**, add:
+
 ```markdown
 - **Building adaptive learning paths?** → Read [Adaptive Learning System](3-features/adaptive-learning-system.md)
 ```
 
 **In docs/3-features/README.md**, add at top:
+
 ```markdown
 ### 🔥 Core Features (Critical Reading)
 
-| Doc | Description |
-|-----|-------------|
-| [adaptive-learning-system.md](adaptive-learning-system.md) | **Adaptive learning path system** - Core system that replaces rigid schedules with flexible weekly themes. **Critical for understanding how the app works.** |
-| [learning-path-auto-enrollment.md](learning-path-auto-enrollment.md) | Auto-enrollment implementation for personalized paths |
+| Doc                                                                  | Description                                                                                                                                                  |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [adaptive-learning-system.md](adaptive-learning-system.md)           | **Adaptive learning path system** - Core system that replaces rigid schedules with flexible weekly themes. **Critical for understanding how the app works.** |
+| [learning-path-auto-enrollment.md](learning-path-auto-enrollment.md) | Auto-enrollment implementation for personalized paths                                                                                                        |
 ```
 
 ---
@@ -376,16 +404,17 @@ All files follow naming convention `YYYY-MM-DD-description.md` or `archive-descr
 
 **Current Score**: 68/100 ⚠️
 
-| Category | Score | Weight | Notes |
-|----------|-------|--------|-------|
-| Organization | 85/100 | 30% | Good structure, but root-level orphans |
-| Completeness | 60/100 | 30% | 40+ docs not in indexes |
-| Freshness | 70/100 | 20% | Some docs may be outdated |
-| Linkage | 65/100 | 20% | Could have better cross-linking |
+| Category     | Score  | Weight | Notes                                  |
+| ------------ | ------ | ------ | -------------------------------------- |
+| Organization | 85/100 | 30%    | Good structure, but root-level orphans |
+| Completeness | 60/100 | 30%    | 40+ docs not in indexes                |
+| Freshness    | 70/100 | 20%    | Some docs may be outdated              |
+| Linkage      | 65/100 | 20%    | Could have better cross-linking        |
 
 **Target Score**: 90/100
 
 **To Reach Target**:
+
 - Fix all missing references (+15 points)
 - Move root-level docs (+10 points)
 - Archive outdated docs (+5 points)
@@ -396,18 +425,21 @@ All files follow naming convention `YYYY-MM-DD-description.md` or `archive-descr
 ## 🎓 Key Takeaways
 
 ### What's Working Well ✅
+
 - Clear organizational structure (numbered folders)
 - Good README files in each section
 - Archive folder for historical docs
 - Recent docs are well-maintained
 
 ### What Needs Attention ⚠️
+
 - **2 critical docs at root level** (adaptive learning!)
 - **40+ docs not referenced** in section READMEs
 - Some docs may be outdated
 - Missing cross-links between related docs
 
 ### Critical Insight 💡
+
 **The adaptive-learning-system.md file is extremely important** and contains a complete implementation guide for a core system redesign. This should be the #1 priority to properly reference and integrate into the documentation structure.
 
 ---

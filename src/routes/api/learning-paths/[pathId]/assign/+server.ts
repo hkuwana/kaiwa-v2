@@ -130,11 +130,14 @@ export const POST: RequestHandler = async ({ params, request, locals, url }) => 
 		let scenarioIds: string[] = [];
 
 		if (path.mode === 'adaptive') {
-			console.log('[Assign] 📋 Adaptive path assigned - scenarios will be generated on dashboard visit', {
-				pathId,
-				targetUserId,
-				note: 'Generation is now user-triggered for better reliability'
-			});
+			console.log(
+				'[Assign] 📋 Adaptive path assigned - scenarios will be generated on dashboard visit',
+				{
+					pathId,
+					targetUserId,
+					note: 'Generation is now user-triggered for better reliability'
+				}
+			);
 		} else {
 			console.log('[Assign] ⏭️ Classic path assigned', {
 				pathMode: path.mode

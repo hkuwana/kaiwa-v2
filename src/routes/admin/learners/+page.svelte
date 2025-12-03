@@ -191,10 +191,10 @@
 
 	{#if data.learners.length === 0}
 		<div class="rounded-lg border border-dashed border-base-300 p-12 text-center">
-			<span class="icon-[mdi--account-group-outline] mx-auto mb-4 h-12 w-12 text-base-content/30"
+			<span class="mx-auto mb-4 icon-[mdi--account-group-outline] h-12 w-12 text-base-content/30"
 			></span>
 			<p class="text-base-content/60">No learners with assigned paths yet</p>
-			<a href="/admin/learning-paths" class="btn btn-primary btn-sm mt-4">Create a Learning Path</a>
+			<a href="/admin/learning-paths" class="btn mt-4 btn-sm btn-primary">Create a Learning Path</a>
 		</div>
 	{/if}
 </div>

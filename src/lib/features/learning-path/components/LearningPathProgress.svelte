@@ -109,12 +109,12 @@
 					{:else if !path.currentDay.isReady}
 						<div class="mt-2 flex flex-col gap-1">
 							<button
-								class="btn btn-sm btn-secondary w-full gap-1"
+								class="btn w-full gap-1 btn-sm btn-secondary"
 								onclick={handleGenerateScenario}
 								disabled={isGenerating}
 							>
 								{#if isGenerating}
-									<span class="loading loading-spinner loading-xs"></span>
+									<span class="loading loading-xs loading-spinner"></span>
 									Generating...
 								{:else}
 									<span class="icon-[mdi--sparkles] h-4 w-4"></span>
@@ -122,7 +122,7 @@
 								{/if}
 							</button>
 							{#if generationError}
-								<p class="text-xs text-error text-center">{generationError}</p>
+								<p class="text-center text-xs text-error">{generationError}</p>
 							{/if}
 						</div>
 					{/if}
@@ -190,12 +190,12 @@
 						{:else if !path.currentDay.isReady}
 							<div class="flex flex-col items-end gap-1">
 								<button
-									class="btn btn-secondary gap-2"
+									class="btn gap-2 btn-secondary"
 									onclick={handleGenerateScenario}
 									disabled={isGenerating}
 								>
 									{#if isGenerating}
-										<span class="loading loading-spinner loading-sm"></span>
+										<span class="loading loading-sm loading-spinner"></span>
 										Generating...
 									{:else}
 										<span class="icon-[mdi--sparkles] h-5 w-5"></span>

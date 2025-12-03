@@ -60,15 +60,8 @@ export class AdaptivePathService {
 	 * 4. An empty week_progress record
 	 */
 	async createPath(params: CreateAdaptivePathParams): Promise<AdaptivePathResult> {
-		const {
-			userId,
-			targetLanguage,
-			title,
-			description,
-			weekThemeTemplate,
-			cefrLevel,
-			userGoal
-		} = params;
+		const { userId, targetLanguage, title, description, weekThemeTemplate, cefrLevel, userGoal } =
+			params;
 
 		const pathId = `${targetLanguage}-adaptive-${nanoid(10)}`;
 
@@ -181,20 +174,14 @@ export class AdaptivePathService {
 
 		// Get active week for this path
 		const week = await this.database.query.adaptiveWeeks.findFirst({
-			where: and(
-				eq(adaptiveWeeks.pathId, assignment.pathId),
-				eq(adaptiveWeeks.status, 'active')
-			)
+			where: and(eq(adaptiveWeeks.pathId, assignment.pathId), eq(adaptiveWeeks.status, 'active'))
 		});
 
 		if (!week) return null;
 
 		// Get progress for this week
 		const progress = await this.database.query.weekProgress.findFirst({
-			where: and(
-				eq(weekProgress.weekId, week.id),
-				eq(weekProgress.userId, assignment.userId)
-			)
+			where: and(eq(weekProgress.weekId, week.id), eq(weekProgress.userId, assignment.userId))
 		});
 
 		if (!progress) return null;
@@ -259,7 +246,7 @@ export class AdaptivePathService {
 				{
 					id: 'seed-introduce-yourself',
 					title: 'Introduce yourself',
-					description: 'Practice introducing yourself: name, where you\'re from, what you do',
+					description: "Practice introducing yourself: name, where you're from, what you do",
 					suggestedSessionTypes: ['quick-checkin', 'mini-roleplay'],
 					vocabularyHints: ['name', 'work', 'live', 'from'],
 					grammarHints: ['present tense', 'simple sentences']

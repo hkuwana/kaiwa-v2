@@ -7,6 +7,7 @@
 ## Purpose
 
 Define a consistent visual art style for Kaiwa that:
+
 - Works across all features (scenarios, characters, UI elements)
 - Feels welcoming and approachable for language learners
 - Is scalable and cost-effective to produce
@@ -17,11 +18,14 @@ Define a consistent visual art style for Kaiwa that:
 ## Current State
 
 ### ✅ Completed Implementations
+
 - Ghibli-style characters (implemented, now archived)
 - Basic scenario thumbnails system
 
 ### ⚠️ Needs Consistency
+
 Currently, visual elements lack a unified style across:
+
 - Scenario thumbnails
 - Character representations
 - UI illustrations
@@ -35,6 +39,7 @@ Currently, visual elements lack a unified style across:
 ### 1. Define Core Visual Style
 
 **Questions to Answer**:
+
 - What emotional tone should the visuals convey? (e.g., warm, playful, professional, minimalist)
 - Who is the target aesthetic audience? (e.g., young professionals, students, families)
 - What are 3-5 reference brands/apps with similar visual style?
@@ -47,6 +52,7 @@ Currently, visual elements lack a unified style across:
 ### 2. Establish Style Elements
 
 **To Define**:
+
 - **Color Palette**: Primary, secondary, accent colors (beyond brand colors)
 - **Illustration Style**:
   - Line weight and style (bold, thin, sketchy, clean)
@@ -68,17 +74,20 @@ Currently, visual elements lack a unified style across:
 ### 3. Consider Implementation Options
 
 **In-House Options**:
+
 - Midjourney/DALL-E with consistent prompts and style parameters
 - Figma templates with reusable components
 - SVG icon libraries with custom modifications
 
 **External Options**:
+
 - Hire a freelance illustrator to create a base library
 - Commission a style guide from a design agency
 - Use stock illustration services (e.g., undraw.co, humaaans.com)
 - Purchase illustration packs that match our style
 
 **Budget Considerations**:
+
 - Initial investment: $X,XXX for base style guide + library
 - Ongoing: $XXX/month for new assets
 
@@ -87,12 +96,14 @@ Currently, visual elements lack a unified style across:
 ### 4. Create Asset Library
 
 **Initial Assets Needed**:
+
 - 10-20 character variations (diverse ages, ethnicities, professions)
 - 20-30 scenario backgrounds/settings
 - 50+ icon set for common UI elements
 - 10+ illustrations for empty states, onboarding, etc.
 
 **Organization**:
+
 - Centralized asset repository (e.g., Figma library, cloud storage)
 - Naming convention for easy discovery
 - Versioning and update process
@@ -103,6 +114,7 @@ Currently, visual elements lack a unified style across:
 ### 5. Document Usage Guidelines
 
 **To Include**:
+
 - When to use which style elements
 - How to request new assets
 - Dos and don'ts (examples of good/bad usage)
@@ -114,7 +126,9 @@ Currently, visual elements lack a unified style across:
 ## Style Direction Ideas (To Evaluate)
 
 ### Option A: Warm Minimalist
+
 **Inspiration**: Duolingo, Headspace
+
 - Friendly, approachable illustrations
 - Limited color palette with pops of accent colors
 - Simple shapes, clean lines
@@ -126,7 +140,9 @@ Currently, visual elements lack a unified style across:
 ---
 
 ### Option B: Hand-Drawn & Personal
+
 **Inspiration**: Notion, FigJam
+
 - Slightly imperfect, sketchy line work
 - Feels handcrafted and warm
 - Playful and creative
@@ -138,7 +154,9 @@ Currently, visual elements lack a unified style across:
 ---
 
 ### Option C: Geometric & Modern
+
 **Inspiration**: Stripe, Webflow
+
 - Bold shapes and patterns
 - High contrast, vibrant colors
 - Clean and professional
@@ -150,7 +168,9 @@ Currently, visual elements lack a unified style across:
 ---
 
 ### Option D: Cultural Fusion
+
 **Inspiration**: Mix of international art styles
+
 - Incorporates visual elements from different cultures
 - Celebrates diversity and global connection
 - Unique and ownable
@@ -164,17 +184,20 @@ Currently, visual elements lack a unified style across:
 ## Next Steps
 
 ### Immediate (This Week)
+
 - [ ] Gather team input on preferred style direction
 - [ ] Create mood board with 3-5 top reference examples
 - [ ] Define budget range for art/design
 
 ### Short-term (This Month)
+
 - [ ] Select final style direction
 - [ ] Commission or create initial style guide
 - [ ] Create first 10 assets as proof of concept
 - [ ] Test with users for feedback
 
 ### Long-term (This Quarter)
+
 - [ ] Build complete asset library
 - [ ] Update all existing visuals to match new style
 - [ ] Document comprehensive usage guidelines
@@ -203,6 +226,7 @@ Currently, visual elements lack a unified style across:
 ## Success Metrics
 
 **We'll know this is working when**:
+
 - New team members can identify "Kaiwa-style" visuals without labels
 - Users associate our visual style with our brand (recognition)
 - We can produce new assets quickly without quality loss

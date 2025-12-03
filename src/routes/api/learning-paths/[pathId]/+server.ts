@@ -171,7 +171,9 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
 
 		await learningPathRepository.deletePath(pathId);
 
-		console.log(`[API] Learning path ${pathId} deleted by ${locals.user?.email} (admin: ${isAdmin})`);
+		console.log(
+			`[API] Learning path ${pathId} deleted by ${locals.user?.email} (admin: ${isAdmin})`
+		);
 
 		return json(createSuccessResponse({ deleted: true }, 'Learning path deleted successfully'));
 	} catch (error) {
