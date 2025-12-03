@@ -73,17 +73,35 @@ export const load: PageServerLoad = async ({ locals }) => {
 					activePaths.push(pathData);
 				}
 			} else {
-				// Classic path handling (unchanged)
+				// Classic path handling - include currentDay info
+				const schedule = path.schedule || [];
+				const currentDayIndex = assignment.currentDayIndex + 1; // Next day to complete
+				const currentDaySchedule = schedule.find(d => d.dayIndex === currentDayIndex);
+				const nextDaySchedule = schedule.find(d => d.dayIndex === currentDayIndex + 1);
+
 				const pathData = {
 					path,
 					assignment,
 					isAdaptive: false,
 					activeWeek: null,
-					totalDays: path.schedule?.length || 0,
+					totalDays: schedule.length || 0,
 					daysCompleted: assignment.currentDayIndex,
-					progressPercent: path.schedule?.length
-						? Math.round((assignment.currentDayIndex / path.schedule.length) * 100)
-						: 0
+					progressPercent: schedule.length
+						? Math.round((assignment.currentDayIndex / schedule.length) * 100)
+						: 0,
+					// Add currentDay info for classic paths
+					currentDay: currentDaySchedule ? {
+						dayIndex: currentDaySchedule.dayIndex,
+						theme: currentDaySchedule.theme,
+						difficulty: currentDaySchedule.difficulty || 'A2',
+						scenarioId: currentDaySchedule.scenarioId,
+						isReady: !!currentDaySchedule.scenarioId
+					} : null,
+					nextDay: nextDaySchedule ? {
+						dayIndex: nextDaySchedule.dayIndex,
+						theme: nextDaySchedule.theme,
+						difficulty: nextDaySchedule.difficulty || 'A2'
+					} : null
 				};
 
 				if (assignment.status === 'completed' || assignment.completedAt) {
