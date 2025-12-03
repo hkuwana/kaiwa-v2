@@ -73,10 +73,17 @@
 <div class="container mx-auto max-w-6xl px-4 py-6">
 	<!-- Back navigation -->
 	<div class="mb-4">
-		<a href="/dashboard" class="btn gap-2 btn-ghost btn-sm">
-			<span class="icon-[mdi--arrow-left] h-4 w-4"></span>
-			Back to Dashboard
-		</a>
+		{#if data.isLoggedIn}
+			<a href="/dashboard" class="btn gap-2 btn-ghost btn-sm">
+				<span class="icon-[mdi--arrow-left] h-4 w-4"></span>
+				Back to Dashboard
+			</a>
+		{:else}
+			<a href="/" class="btn gap-2 btn-ghost btn-sm">
+				<span class="icon-[mdi--arrow-left] h-4 w-4"></span>
+				Back to Home
+			</a>
+		{/if}
 	</div>
 
 	<!-- Header -->
@@ -189,8 +196,8 @@
 				</div>
 			</div>
 		{/if}
-	{:else}
-		<!-- Not assigned - show enrollment CTA -->
+	{:else if data.isLoggedIn}
+		<!-- Logged in but not assigned - show enrollment CTA -->
 		<div class="mb-8 rounded-2xl bg-base-200 p-6 text-center">
 			<span class="icon-[mdi--bookmark-plus-outline] h-12 w-12 text-base-content/30"></span>
 			<h2 class="mt-4 text-xl font-semibold">This path isn't on your dashboard yet</h2>
@@ -208,6 +215,27 @@
 					<span class="icon-[mdi--view-dashboard-outline] h-5 w-5"></span>
 					Check Dashboard
 				</a>
+			</div>
+		</div>
+	{:else}
+		<!-- Not logged in - show sign in CTA -->
+		<div class="mb-8 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 p-6 text-center">
+			<span class="icon-[mdi--account-circle-outline] h-12 w-12 text-primary/50"></span>
+			<h2 class="mt-4 text-xl font-semibold">Sign in to start learning</h2>
+			<p class="mt-2 text-base-content/70">
+				Create an account or sign in to add this learning path to your dashboard and track your progress.
+			</p>
+			<div class="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+				<a href="/auth?redirect=/path/{data.path.id}" class="btn btn-primary gap-2">
+					<span class="icon-[mdi--login] h-5 w-5"></span>
+					Sign In to Start
+				</a>
+				{#if data.path.isPublic && data.path.shareSlug}
+					<a href="/program/{data.path.shareSlug}" class="btn btn-ghost gap-2">
+						<span class="icon-[mdi--information-outline] h-5 w-5"></span>
+						Learn More
+					</a>
+				{/if}
 			</div>
 		</div>
 	{/if}
