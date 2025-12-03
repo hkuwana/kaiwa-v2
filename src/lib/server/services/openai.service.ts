@@ -37,6 +37,16 @@ export interface OpenAICompletionOptions {
 	temperature?: number;
 	maxTokens?: number;
 	responseFormat?: 'text' | 'json';
+	/**
+	 * Control reasoning effort for GPT-5 models (nano, mini).
+	 * - 'none': Disable reasoning (fastest, best for structured output like JSON)
+	 * - 'low': Light reasoning
+	 * - 'medium': Balanced reasoning
+	 * - 'high': Deep reasoning (most thorough but slowest)
+	 *
+	 * Default: 'none' for structured/fast tasks to prevent token exhaustion
+	 */
+	reasoningEffort?: 'none' | 'low' | 'medium' | 'high';
 }
 
 export interface OpenAIResponse {
@@ -55,12 +65,22 @@ export async function createCompletion(
 	messages: ChatCompletionMessageParam[],
 	options: OpenAICompletionOptions = {}
 ): Promise<OpenAIResponse> {
-	const { model = 'gpt-5-nano', maxTokens = 1000, responseFormat = 'text' } = options;
+	const {
+		model = 'gpt-5-nano',
+		maxTokens = 1000,
+		responseFormat = 'text',
+		reasoningEffort = 'none' // Default to 'none' for structured tasks to prevent token exhaustion
+	} = options;
 
+	// Build the request payload
+	// For GPT-5 models (nano, mini), we control reasoning to prevent all tokens being used for thinking
 	const requestPayload = {
 		model,
 		messages,
 		max_completion_tokens: maxTokens,
+		// Disable reasoning by default to ensure output tokens are available
+		// GPT-5 reasoning models can use all tokens for internal reasoning if not controlled
+		reasoning: { effort: reasoningEffort },
 		...(responseFormat === 'json' && {
 			response_format: { type: 'json_object' as const }
 		})
