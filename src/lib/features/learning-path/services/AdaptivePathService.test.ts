@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { getTableName } from 'drizzle-orm';
 import { AdaptivePathService } from './AdaptivePathService.server';
 
 // ============================================================================
@@ -96,17 +97,17 @@ describe('AdaptivePathService', () => {
 							values: vi.fn().mockImplementation((values) => {
 								insertCalls.push({ table, values });
 								// Return different values based on which table
-								if (table._.name === 'learning_paths') {
+								if (getTableName(table) === 'learning_paths') {
 									return {
 										returning: vi.fn().mockResolvedValue([{ id: 'path-123', mode: 'adaptive' }])
 									};
 								}
-								if (table._.name === 'learning_path_assignments') {
+								if (getTableName(table) === 'learning_path_assignments') {
 									return {
 										returning: vi.fn().mockResolvedValue([{ id: 'assign-123' }])
 									};
 								}
-								if (table._.name === 'adaptive_weeks') {
+								if (getTableName(table) === 'adaptive_weeks') {
 									return {
 										returning: vi.fn().mockResolvedValue([
 											{
@@ -119,7 +120,7 @@ describe('AdaptivePathService', () => {
 										])
 									};
 								}
-								if (table._.name === 'week_progress') {
+								if (getTableName(table) === 'week_progress') {
 									return {
 										returning: vi.fn().mockResolvedValue([{ id: 'progress-123' }])
 									};
@@ -159,7 +160,7 @@ describe('AdaptivePathService', () => {
 					insert: vi.fn().mockImplementation((table) => {
 						return {
 							values: vi.fn().mockImplementation((values) => {
-								if (table._.name === 'adaptive_weeks') {
+								if (getTableName(table) === 'adaptive_weeks') {
 									capturedWeekValues = values;
 								}
 								return {
@@ -204,7 +205,7 @@ describe('AdaptivePathService', () => {
 					insert: vi.fn().mockImplementation((table) => {
 						return {
 							values: vi.fn().mockImplementation((values) => {
-								if (table._.name === 'week_progress') {
+								if (getTableName(table) === 'week_progress') {
 									capturedProgressValues = values;
 								}
 								return {

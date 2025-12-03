@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { getTableName } from 'drizzle-orm';
 import { WeeklyAnalysisService } from './WeeklyAnalysisService.server';
 
 // ============================================================================
@@ -56,6 +57,7 @@ function createMockProgress(overrides: Partial<any> = {}) {
 				durationSeconds: 480
 			}
 		],
+		sessionTypeIdsUsed: ['quick-checkin', 'story-moment'],
 		topicsThatSparkedJoy: ['food', 'daily routines'],
 		topicsThatWereChallenging: ['past tense'],
 		...overrides
@@ -403,7 +405,7 @@ describe('WeeklyAnalysisService', () => {
 					}),
 					insert: vi.fn().mockImplementation((table) => ({
 						values: vi.fn().mockImplementation((values) => {
-							if (table._.name === 'adaptive_weeks') {
+							if (getTableName(table) === 'adaptive_weeks') {
 								capturedNextWeek = values;
 							}
 							return {
@@ -474,7 +476,7 @@ describe('WeeklyAnalysisService', () => {
 					}),
 					insert: vi.fn().mockImplementation((table) => ({
 						values: vi.fn().mockImplementation((values) => {
-							if (table._.name === 'adaptive_weeks') {
+							if (getTableName(table) === 'adaptive_weeks') {
 								capturedFocusAreas = values.focusAreas;
 							}
 							return {
@@ -537,7 +539,7 @@ describe('WeeklyAnalysisService', () => {
 					}),
 					insert: vi.fn().mockImplementation((table) => ({
 						values: vi.fn().mockImplementation((values) => {
-							if (table._.name === 'adaptive_weeks') {
+							if (getTableName(table) === 'adaptive_weeks') {
 								capturedDifficulty = {
 									min: values.difficultyMin,
 									max: values.difficultyMax
@@ -595,7 +597,7 @@ describe('WeeklyAnalysisService', () => {
 				const mockTx = {
 					update: vi.fn().mockImplementation((table) => ({
 						set: vi.fn().mockImplementation((values) => {
-							if (table._.name === 'adaptive_weeks' && values.status === 'completed') {
+							if (getTableName(table) === 'adaptive_weeks' && values.status === 'completed') {
 								weekStatusUpdated = true;
 							}
 							return {
