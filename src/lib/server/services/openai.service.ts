@@ -39,11 +39,11 @@ export interface OpenAICompletionOptions {
 	 * Maximum completion tokens for GPT-5 reasoning models.
 	 * This includes BOTH reasoning tokens and output tokens.
 	 *
-	 * For reasoning models (nano, mini), set this to 3-4x your expected output
-	 * to leave room for internal reasoning. E.g., if you expect 500 output tokens,
-	 * set maxTokens to 2000-2500.
+	 * GPT-5 reasoning models can use 4000+ tokens just for internal reasoning
+	 * before producing any output. Set this very high to ensure there's room
+	 * for both reasoning and output.
 	 *
-	 * Default: 4000 (allows ~1000-2000 reasoning + ~1000-2000 output)
+	 * Default: 16000 (allows plenty of reasoning headroom + output)
 	 */
 	maxTokens?: number;
 	responseFormat?: 'text' | 'json';
@@ -67,7 +67,7 @@ export async function createCompletion(
 ): Promise<OpenAIResponse> {
 	const {
 		model = 'gpt-5-nano',
-		maxTokens = 4000, // Higher default for reasoning models (includes reasoning + output tokens)
+		maxTokens = 16000, // Very high default for reasoning models - they can use 4000+ tokens just for thinking
 		responseFormat = 'text'
 	} = options;
 
@@ -354,7 +354,7 @@ Guidelines: ${mode === 'tutor' ? 'Focus on teaching and gentle correction' : 'Fo
 		{
 			model: getModelForTask('scenarioGeneration'), // Scenario generation uses NANO
 			temperature: hasMemories ? 0.8 : 0.7,
-			maxTokens: 4000, // Higher for reasoning models (includes reasoning + ~1000 JSON output tokens)
+			maxTokens: 16000, // Very high for reasoning models - they can use 4000+ tokens for thinking alone
 			responseFormat: 'json'
 		}
 	);

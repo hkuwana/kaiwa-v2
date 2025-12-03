@@ -34,81 +34,41 @@ export const load: PageServerLoad = async ({ locals }) => {
 			const path = pathWithWeek?.path ?? (await learningPathRepository.findPathById(assignment.pathId));
 			if (!path) continue;
 
-			// Handle adaptive vs classic paths differently
-			if (path.mode === 'adaptive') {
-				const activeWeek = pathWithWeek?.activeWeek ?? null;
-				const seeds = (pathWithWeek?.seeds || []) as ConversationSeed[];
-				const readyScenarios = seeds.filter(s => s.scenarioId).length;
-				const totalSeeds = seeds.length;
+			// All paths are now adaptive - unified handling
+			const activeWeek = pathWithWeek?.activeWeek ?? null;
+			const seeds = (pathWithWeek?.seeds || []) as ConversationSeed[];
+			const readyScenarios = seeds.filter(s => s.scenarioId).length;
+			const totalSeeds = seeds.length;
 
-				const pathData = {
-					path,
-					assignment,
-					isAdaptive: true,
-					activeWeek: activeWeek ? {
-						id: activeWeek.id,
-						weekNumber: activeWeek.weekNumber,
-						theme: activeWeek.theme,
-						themeDescription: activeWeek.themeDescription,
-						seeds: seeds.map((seed, index) => ({
-							id: seed.id,
-							title: seed.title,
-							description: seed.description,
-							scenarioId: seed.scenarioId,
-							isReady: !!seed.scenarioId,
-							optionNumber: index + 1
-						}))
-					} : null,
-					totalOptions: totalSeeds,
-					readyOptions: readyScenarios,
-					progressPercent: totalSeeds > 0 ? Math.round((readyScenarios / totalSeeds) * 100) : 0,
-					// For compatibility with existing code
-					totalDays: totalSeeds,
-					daysCompleted: 0
-				};
+			const pathData = {
+				path,
+				assignment,
+				isAdaptive: true, // All paths are adaptive now
+				activeWeek: activeWeek ? {
+					id: activeWeek.id,
+					weekNumber: activeWeek.weekNumber,
+					theme: activeWeek.theme,
+					themeDescription: activeWeek.themeDescription,
+					seeds: seeds.map((seed, index) => ({
+						id: seed.id,
+						title: seed.title,
+						description: seed.description,
+						scenarioId: seed.scenarioId,
+						isReady: !!seed.scenarioId,
+						optionNumber: index + 1
+					}))
+				} : null,
+				totalOptions: totalSeeds,
+				readyOptions: readyScenarios,
+				progressPercent: totalSeeds > 0 ? Math.round((readyScenarios / totalSeeds) * 100) : 0,
+				totalDays: totalSeeds,
+				daysCompleted: readyScenarios
+			};
 
-				if (assignment.status === 'completed' || assignment.completedAt) {
-					completedPaths.push(pathData);
-				} else {
-					activePaths.push(pathData);
-				}
+			if (assignment.status === 'completed' || assignment.completedAt) {
+				completedPaths.push(pathData);
 			} else {
-				// Classic path handling - include currentDay info
-				const schedule = path.schedule || [];
-				const currentDayIndex = assignment.currentDayIndex + 1; // Next day to complete
-				const currentDaySchedule = schedule.find(d => d.dayIndex === currentDayIndex);
-				const nextDaySchedule = schedule.find(d => d.dayIndex === currentDayIndex + 1);
-
-				const pathData = {
-					path,
-					assignment,
-					isAdaptive: false,
-					activeWeek: null,
-					totalDays: schedule.length || 0,
-					daysCompleted: assignment.currentDayIndex,
-					progressPercent: schedule.length
-						? Math.round((assignment.currentDayIndex / schedule.length) * 100)
-						: 0,
-					// Add currentDay info for classic paths
-					currentDay: currentDaySchedule ? {
-						dayIndex: currentDaySchedule.dayIndex,
-						theme: currentDaySchedule.theme,
-						difficulty: currentDaySchedule.difficulty || 'A2',
-						scenarioId: currentDaySchedule.scenarioId,
-						isReady: !!currentDaySchedule.scenarioId
-					} : null,
-					nextDay: nextDaySchedule ? {
-						dayIndex: nextDaySchedule.dayIndex,
-						theme: nextDaySchedule.theme,
-						difficulty: nextDaySchedule.difficulty || 'A2'
-					} : null
-				};
-
-				if (assignment.status === 'completed' || assignment.completedAt) {
-					completedPaths.push(pathData);
-				} else {
-					activePaths.push(pathData);
-				}
+				activePaths.push(pathData);
 			}
 		}
 

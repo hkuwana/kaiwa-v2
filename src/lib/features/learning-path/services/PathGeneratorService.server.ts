@@ -7,14 +7,15 @@ import { createCompletion, parseAndValidateJSON } from '$lib/server/services/ope
 import { PromptEngineeringService } from './PromptEngineeringService';
 import { learningPathRepository } from '$lib/server/repositories/learning-path.repository';
 import { learningPathAssignmentRepository } from '$lib/server/repositories/learning-path-assignment.repository';
-import { scenarioGenerationQueueRepository } from '$lib/server/repositories/scenario-generation-queue.repository';
 import { getModelForTask } from '$lib/server/config/ai-models.config';
+import { db } from '$lib/server/db';
+import { adaptiveWeeks, weekProgress } from '$lib/server/db/schema';
+import type { ConversationSeed } from '$lib/server/db/schema/adaptive-weeks';
 import type {
 	PathFromPreferencesInput,
 	PathFromCreatorBriefInput,
 	GeneratedSyllabus
 } from '../types';
-import type { learningPaths } from '$lib/server/db/schema/learning-paths';
 import type { LearningPath } from '$lib/server/db/types';
 
 /**
@@ -83,23 +84,22 @@ export class PathGeneratorService {
 				};
 			}
 
-			// Step 3: Persist learning path
+			// Step 3: Persist learning path as adaptive path with weeks
 			const targetLanguage = input.userPreferences.targetLanguageId || 'ja';
-			const path = await this.persistPath(userId, targetLanguage, syllabus);
+			const { path, weeksCreated } = await this.persistPath(userId, targetLanguage, syllabus);
 
 			// Step 4: Auto-enroll user if userId provided
 			if (userId) {
 				await this.createAssignmentForUser(userId, path.id);
 			}
 
-			// Step 5: Enqueue scenario generation for all days
-			const queuedJobs = await this.enqueueScenarioGeneration(path.id, syllabus.days.length);
+			// Note: No scenario queue for adaptive paths - scenarios are generated on-demand
 
-			logger.info('✅ [PathGenerator] Path created successfully', {
+			logger.info('✅ [PathGenerator] Adaptive path created successfully', {
 				pathId: path.id,
 				title: syllabus.title,
-				days: syllabus.days.length,
-				queuedJobs,
+				weeks: weeksCreated,
+				totalSeeds: syllabus.days.length,
 				autoEnrolled: !!userId
 			});
 
@@ -114,7 +114,7 @@ export class PathGeneratorService {
 					totalDays: syllabus.days.length,
 					status: path.status
 				},
-				queuedJobs
+				queuedJobs: 0 // No queue for adaptive paths
 			};
 		} catch (error) {
 			logger.error('🚨 [PathGenerator] Failed to create path from preferences', error);
@@ -160,22 +160,21 @@ export class PathGeneratorService {
 				};
 			}
 
-			// Step 3: Persist learning path
-			const path = await this.persistPath(userId, input.targetLanguage, syllabus);
+			// Step 3: Persist learning path as adaptive path with weeks
+			const { path, weeksCreated } = await this.persistPath(userId, input.targetLanguage, syllabus);
 
 			// Step 4: Auto-enroll user if userId provided
 			if (userId) {
 				await this.createAssignmentForUser(userId, path.id);
 			}
 
-			// Step 5: Enqueue scenario generation for all days
-			const queuedJobs = await this.enqueueScenarioGeneration(path.id, syllabus.days.length);
+			// Note: No scenario queue for adaptive paths - scenarios are generated on-demand
 
-			logger.info('✅ [PathGenerator] Path created successfully from brief', {
+			logger.info('✅ [PathGenerator] Adaptive path created successfully from brief', {
 				pathId: path.id,
 				title: syllabus.title,
-				days: syllabus.days.length,
-				queuedJobs,
+				weeks: weeksCreated,
+				totalSeeds: syllabus.days.length,
 				autoEnrolled: !!userId
 			});
 
@@ -190,7 +189,7 @@ export class PathGeneratorService {
 					totalDays: syllabus.days.length,
 					status: path.status
 				},
-				queuedJobs
+				queuedJobs: 0 // No queue for adaptive paths
 			};
 		} catch (error) {
 			logger.error('🚨 [PathGenerator] Failed to create path from creator brief', error);
@@ -272,34 +271,31 @@ export class PathGeneratorService {
 	}
 
 	/**
-	 * Persist learning path to database
+	 * Persist learning path to database as adaptive path
+	 *
+	 * Creates the path with mode='adaptive' and generates weekly themes
+	 * with conversation seeds from the syllabus days.
 	 *
 	 * @param userId - User ID or null for anonymous paths
 	 * @param targetLanguage - Target language code
 	 * @param syllabus - Generated syllabus
-	 * @returns Created learning path
+	 * @returns Created learning path and number of weeks created
 	 */
 	private static async persistPath(
 		userId: string | null,
 		targetLanguage: string,
 		syllabus: GeneratedSyllabus
-	) {
+	): Promise<{ path: LearningPath; weeksCreated: number }> {
 		// Extra safety check
 		if (!Array.isArray(syllabus.days)) {
 			throw new Error('Invalid syllabus: days must be an array');
 		}
 
-		// Transform syllabus days into schedule format
-		const schedule = syllabus.days.map((day) => ({
-			dayIndex: day.dayIndex,
-			theme: day.theme,
-			difficulty: day.difficulty,
-			learningObjectives: day.learningObjectives,
-			scenarioDescription: day.scenarioDescription,
-			scenarioId: null, // Will be filled when scenario is generated
-			isUnlocked: day.dayIndex === 1, // Only first day unlocked initially
-			completedAt: null
-		}));
+		// Group days into weeks (7 days per week)
+		const weeks = this.groupDaysIntoWeeks(syllabus.days);
+
+		// Calculate duration in weeks
+		const durationWeeks = weeks.length;
 
 		const pathData: Partial<LearningPath> = {
 			id: `lp-${nanoid()}`,
@@ -307,64 +303,109 @@ export class PathGeneratorService {
 			title: syllabus.title,
 			description: syllabus.description,
 			targetLanguage,
-			schedule,
-			status: 'draft', // Starts as draft, becomes 'active' when first scenario ready
-			isTemplate: false, // Can be marked as template later for publishing
+			mode: 'adaptive', // Always create adaptive paths now
+			durationWeeks,
+			schedule: [], // Not used for adaptive paths
+			status: 'active', // Adaptive paths are active immediately
+			isTemplate: false,
 			isPublic: false,
 			shareSlug: null,
 			estimatedMinutesPerDay: syllabus.metadata?.estimatedMinutesPerDay || 20,
 			category: syllabus.metadata?.category || 'general',
-			tags: syllabus.metadata?.tags || []
+			tags: syllabus.metadata?.tags || [],
+			metadata: {
+				cefrLevel: syllabus.days[0]?.difficulty || 'A2',
+				suggestedSessionsPerWeek: 5,
+				minimumSessionsPerWeek: 3,
+				targetMinutesPerSession: 10
+			}
 		};
 
 		const path = await learningPathRepository.createPathForUser(pathData);
 
-		logger.info('💾 [PathGenerator] Path persisted to database', {
+		// Create adaptive weeks from grouped days
+		for (let i = 0; i < weeks.length; i++) {
+			const weekDays = weeks[i];
+			const weekNumber = i + 1;
+			const isFirstWeek = weekNumber === 1;
+
+			// Determine week theme from the days
+			const weekTheme = this.determineWeekTheme(weekDays);
+
+			// Transform days into conversation seeds
+			const conversationSeeds = this.daysToConversationSeeds(weekDays);
+
+			// Get difficulty range from the week's days
+			const difficulties = weekDays.map((d) => d.difficulty);
+			const difficultyMin = difficulties[0] || 'A2';
+			const difficultyMax = difficulties[difficulties.length - 1] || difficultyMin;
+
+			await db.insert(adaptiveWeeks).values({
+				pathId: path.id,
+				weekNumber,
+				theme: weekTheme,
+				themeDescription: `Week ${weekNumber}: ${weekDays.map((d) => d.theme).slice(0, 3).join(', ')}`,
+				difficultyMin,
+				difficultyMax,
+				status: isFirstWeek ? 'active' : 'locked',
+				isAnchorWeek: isFirstWeek,
+				conversationSeeds,
+				focusAreas: [],
+				leverageAreas: [],
+				suggestedSessionCount: Math.min(weekDays.length, 5),
+				minimumSessionCount: Math.min(weekDays.length, 3),
+				startedAt: isFirstWeek ? new Date() : null
+			});
+		}
+
+		logger.info('💾 [PathGenerator] Adaptive path persisted to database', {
 			pathId: path.id,
-			daysCount: schedule.length
+			weeksCreated: weeks.length,
+			totalSeeds: syllabus.days.length
 		});
 
-		return path;
+		return { path, weeksCreated: weeks.length };
 	}
 
 	/**
-	 * Enqueue scenario generation for all days
-	 *
-	 * Creates background jobs to generate scenarios asynchronously.
-	 * Scenarios are generated just-in-time based on targetGenerationDate.
-	 *
-	 * @param pathId - Learning path ID
-	 * @param totalDays - Total number of days to enqueue
-	 * @returns Number of jobs enqueued
+	 * Group syllabus days into weeks (7 days per week)
 	 */
-	private static async enqueueScenarioGeneration(
-		pathId: string,
-		totalDays: number
-	): Promise<number> {
-		try {
-			// Enqueue all days at once
-			// The queue processor will handle them based on targetGenerationDate
-			const now = new Date();
+	private static groupDaysIntoWeeks(
+		days: GeneratedSyllabus['days']
+	): GeneratedSyllabus['days'][] {
+		const weeks: GeneratedSyllabus['days'][] = [];
+		const DAYS_PER_WEEK = 7;
 
-			// Create array of days to enqueue
-			const daysToEnqueue = Array.from({ length: totalDays }, (_, i) => ({
-				dayIndex: i + 1,
-				targetDate: new Date(now.getTime() + i * 24 * 60 * 60 * 1000) // Stagger by one day each
-			}));
-
-			await scenarioGenerationQueueRepository.enqueuePathRange(pathId, daysToEnqueue);
-
-			logger.info('📋 [PathGenerator] Enqueued scenario generation jobs', {
-				pathId,
-				totalDays,
-				startDate: now.toISOString()
-			});
-
-			return totalDays;
-		} catch (error) {
-			logger.error('🚨 [PathGenerator] Failed to enqueue scenario generation', error);
-			throw error;
+		for (let i = 0; i < days.length; i += DAYS_PER_WEEK) {
+			weeks.push(days.slice(i, i + DAYS_PER_WEEK));
 		}
+
+		return weeks;
+	}
+
+	/**
+	 * Determine a theme for a week based on its days
+	 */
+	private static determineWeekTheme(days: GeneratedSyllabus['days']): string {
+		// Use the most common theme or the first day's theme
+		const themes = days.map((d) => d.theme);
+		// Simple approach: use the first day's theme as the week theme
+		return themes[0] || 'Practice Week';
+	}
+
+	/**
+	 * Transform syllabus days into conversation seeds
+	 */
+	private static daysToConversationSeeds(days: GeneratedSyllabus['days']): ConversationSeed[] {
+		return days.map((day) => ({
+			id: `seed-day-${day.dayIndex}`,
+			title: day.theme,
+			description: day.scenarioDescription || day.learningObjectives?.join('. ') || day.theme,
+			suggestedSessionTypes: ['quick-checkin', 'mini-roleplay'],
+			vocabularyHints: day.learningObjectives?.slice(0, 3) || [],
+			grammarHints: [],
+			scenarioId: undefined // Will be populated when scenario is generated
+		}));
 	}
 
 	/**
