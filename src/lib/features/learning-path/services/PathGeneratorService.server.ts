@@ -9,7 +9,7 @@ import { learningPathRepository } from '$lib/server/repositories/learning-path.r
 import { learningPathAssignmentRepository } from '$lib/server/repositories/learning-path-assignment.repository';
 import { getModelForTask } from '$lib/server/config/ai-models.config';
 import { db } from '$lib/server/db';
-import { adaptiveWeeks, weekProgress } from '$lib/server/db/schema';
+import { adaptiveWeeks } from '$lib/server/db/schema';
 import type { ConversationSeed } from '$lib/server/db/schema/adaptive-weeks';
 import type {
 	PathFromPreferencesInput,

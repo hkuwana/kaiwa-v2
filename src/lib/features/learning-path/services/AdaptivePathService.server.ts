@@ -7,8 +7,7 @@ import {
 	weekProgress,
 	sessionTypes,
 	DEFAULT_WEEK_THEMES,
-	type ConversationSeed,
-	type FocusArea
+	type ConversationSeed
 } from '$lib/server/db/schema';
 import { nanoid } from 'nanoid';
 

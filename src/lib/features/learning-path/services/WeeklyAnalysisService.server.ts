@@ -1,14 +1,12 @@
 import { db } from '$lib/server/db';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import {
 	weeklyAnalysis,
 	weekProgress,
 	adaptiveWeeks,
 	learningPathAssignments,
-	conversations,
 	messages,
 	WEEKLY_ANALYSIS_PROMPT_TEMPLATE,
-	DEFAULT_WEEK_THEMES,
 	type IdentifiedStrength,
 	type IdentifiedChallenge,
 	type TopicAffinity,
