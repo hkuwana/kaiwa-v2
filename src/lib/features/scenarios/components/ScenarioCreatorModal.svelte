@@ -37,18 +37,17 @@
 		userManager.hasAccessToTier ? userManager.hasAccessToTier('plus') : userTier !== 'free'
 	);
 
-	const _totalSlots = $derived(() => (limits.total > 0 ? limits.total : 3));
-
 	const limitReached = $derived(limits.total > 0 && limits.totalUsed >= limits.total);
 
-	const privateLimit = $derived(() => {
+	const privateLimit = $derived(
 		// Plus and Premium should always be able to choose private scenarios,
 		// even if limits haven't finished loading – fall back to "unlimited".
-		if (hasPrivateScenarioAccess) {
-			return limits.private && limits.private !== 0 ? limits.private : -1;
-		}
-		return limits.private ?? 0;
-	});
+		hasPrivateScenarioAccess
+			? limits.private && limits.private !== 0
+				? limits.private
+				: -1
+			: (limits.private ?? 0)
+	);
 
 	const privateLocked = $derived(!hasPrivateScenarioAccess && privateLimit === 0);
 	const privateAtCapacity = $derived(privateLimit > 0 && limits.privateUsed >= privateLimit);
