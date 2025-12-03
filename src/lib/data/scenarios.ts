@@ -96,7 +96,11 @@ Coach warmly. Avoid vocab lists or grammar explanations. Your job is to create o
 		estimatedDurationSeconds: 300, // 5 minutes - quick intro
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'your-first-conversation-a1b2',
-		shareUrl: null
+		shareUrl: null,
+		targetLanguages: null, // Available for all languages
+		defaultSpeakerId: null, // User must choose speaker
+		learningPathSlug: null, // Standalone scenario
+		learningPathOrder: null
 	},
 	{
 		id: 'onboarding-welcome',
@@ -173,7 +177,11 @@ This is a judgment-free zone. No pressure, just practice.`,
 		estimatedDurationSeconds: null, // Open-ended practice
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'free-practice-mode-x9z3',
-		shareUrl: null
+		shareUrl: null,
+		targetLanguages: null, // Available for all languages
+		defaultSpeakerId: null,
+		learningPathSlug: null,
+		learningPathOrder: null
 	},
 	{
 		id: 'family-dinner-introduction',
@@ -254,7 +262,11 @@ Stay curious but kind. You are evaluating them, but you also want them to feel t
 		estimatedDurationSeconds: 1080, // 18 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'meeting-parents-jb2k',
-		shareUrl: null
+		shareUrl: null,
+		targetLanguages: null, // Available for all languages
+		defaultSpeakerId: null,
+		learningPathSlug: null,
+		learningPathOrder: null
 	},
 	{
 		id: 'inlaws-family-friends-intro',
@@ -339,7 +351,11 @@ Keep each turn short. Use clear relationship words and natural honorifics. Your 
 		estimatedDurationSeconds: 900, // 15 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'meeting-family-friends-k5m7',
-		shareUrl: null
+		shareUrl: null,
+		targetLanguages: null, // Available for all languages
+		defaultSpeakerId: null,
+		learningPathSlug: null,
+		learningPathOrder: null
 	},
 	{
 		id: 'clinic-night-triage',
@@ -450,7 +466,11 @@ Stay warm but efficient. The learner should finish feeling: "I can describe sudd
 		estimatedDurationSeconds: 900, // 15 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'emergency-room-visit-x7p9',
-		shareUrl: null
+		shareUrl: null,
+		targetLanguages: null, // Available for all languages
+		defaultSpeakerId: null,
+		learningPathSlug: null,
+		learningPathOrder: null
 	},
 	{
 		id: 'first-date-drinks',
@@ -514,7 +534,11 @@ Use simple sentences and give the learner space to talk. Your job is to make it 
 		estimatedDurationSeconds: 720, // 12 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'first-date-drinks-m4k1',
-		shareUrl: null
+		shareUrl: null,
+		targetLanguages: null, // Available for all languages
+		defaultSpeakerId: null,
+		learningPathSlug: null,
+		learningPathOrder: null
 	},
 	{
 		id: 'relationship-apology',
@@ -599,7 +623,11 @@ Stay emotionally honest but not cruel. You are helping them practice **real, spe
 		estimatedDurationSeconds: 600, // 10 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'relationship-apology-p4q8',
-		shareUrl: null
+		shareUrl: null,
+		targetLanguages: null, // Available for all languages
+		defaultSpeakerId: null,
+		learningPathSlug: null,
+		learningPathOrder: null
 	},
 	{
 		id: 'vulnerable-heart-to-heart',
@@ -679,7 +707,11 @@ Keep your sentences short and your tone warm. Your job is to make it easier for 
 		estimatedDurationSeconds: 720, // 12 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'heart-to-heart-talk-v2n6',
-		shareUrl: null
+		shareUrl: null,
+		targetLanguages: null, // Available for all languages
+		defaultSpeakerId: null,
+		learningPathSlug: null,
+		learningPathOrder: null
 	},
 	{
 		id: 'family-milestone-toast',
@@ -755,7 +787,11 @@ As the audience, react with warmth (laughter at light humor, soft responses at e
 		estimatedDurationSeconds: 480, // 8 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'family-toast-celebration-t8w4',
-		shareUrl: null
+		shareUrl: null,
+		targetLanguages: null, // Available for all languages
+		defaultSpeakerId: null,
+		learningPathSlug: null,
+		learningPathOrder: null
 	},
 	{
 		id: 'breaking-important-news',
@@ -840,7 +876,11 @@ Stay emotionally real but not hostile. Your role is to help them practice **sayi
 		estimatedDurationSeconds: 900, // 15 minutes
 		authorDisplayName: 'Kaiwa Team',
 		shareSlug: 'sharing-big-news-b3d9',
-		shareUrl: null
+		shareUrl: null,
+		targetLanguages: null, // Available for all languages
+		defaultSpeakerId: null,
+		learningPathSlug: null,
+		learningPathOrder: null
 	}
 ];
 

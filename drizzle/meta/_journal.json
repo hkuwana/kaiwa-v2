@@ -260,6 +260,13 @@
       "when": 1764516544883,
       "tag": "0036_spooky_prism",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1764770220234,
+      "tag": "0037_goofy_nitro",
+      "breakpoints": true
     }
   ]
 }

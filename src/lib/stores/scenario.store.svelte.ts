@@ -83,19 +83,7 @@ export class ScenarioStore {
 				history: storedHistory ? 'exists' : 'none'
 			});
 
-			// Set scenario from storage or default to onboarding
-			if (storedScenarioId) {
-				// For now, we'll use the default onboarding scenario
-				// In a real app, you'd fetch the actual scenario from the database
-				this.selectedScenario = scenariosData[0];
-				logger.debug('🎯 Scenario loaded from storage:', storedScenarioId);
-			} else {
-				// Default to onboarding scenario for non-logged-in users
-				this.selectedScenario = scenariosData[0];
-				logger.debug('🎯 No stored scenario found, using default onboarding');
-			}
-
-			// Set history from storage
+			// Load history FIRST so we can look up user-created scenarios
 			if (storedHistory) {
 				try {
 					this.scenarioHistory = JSON.parse(storedHistory);
@@ -106,6 +94,31 @@ export class ScenarioStore {
 				}
 			} else {
 				logger.info('📚 No stored scenario history found');
+			}
+
+			// Set scenario from storage or default to onboarding
+			if (storedScenarioId) {
+				// First try to find scenario in static data
+				const foundScenario = scenariosData.find((s) => s.id === storedScenarioId);
+				if (foundScenario) {
+					this.selectedScenario = foundScenario;
+					logger.debug('🎯 Scenario loaded from static data:', storedScenarioId);
+				} else {
+					// Try to load from history (for user-created scenarios)
+					const historyScenario = this.scenarioHistory.find((s) => s.id === storedScenarioId);
+					if (historyScenario) {
+						this.selectedScenario = historyScenario;
+						logger.debug('🎯 Scenario loaded from history:', storedScenarioId);
+					} else {
+						// Fallback to default onboarding scenario
+						this.selectedScenario = scenariosData[0];
+						logger.warn('⚠️ Stored scenario not found, using default:', storedScenarioId);
+					}
+				}
+			} else {
+				// Default to onboarding scenario for non-logged-in users
+				this.selectedScenario = scenariosData[0];
+				logger.debug('🎯 No stored scenario found, using default onboarding');
 			}
 
 			// Set up watchers to persist changes (deferred to avoid $effect issues)

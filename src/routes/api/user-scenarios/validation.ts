@@ -41,7 +41,12 @@ export const scenarioSchema = z
 		comfortIndicators: comfortIndicatorsSchema,
 		createdAt: z.union([z.string(), z.date()]).optional(),
 		updatedAt: z.union([z.string(), z.date()]).optional(),
-		isActive: z.boolean().optional()
+		isActive: z.boolean().optional(),
+		// Learning path integration fields
+		targetLanguages: z.array(z.string()).nullable().optional(), // e.g., ['nl'] for Dutch-only
+		defaultSpeakerId: z.string().nullable().optional(), // references speakers.id
+		learningPathSlug: z.string().nullable().optional(), // e.g., 'dutch-family-track'
+		learningPathOrder: z.number().nullable().optional() // Order within path (1, 2, 3...)
 	})
 	.passthrough();
 
