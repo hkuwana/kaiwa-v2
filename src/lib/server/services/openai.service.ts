@@ -35,6 +35,16 @@ const openai = new Proxy({} as OpenAI, {
 export interface OpenAICompletionOptions {
 	model?: string;
 	temperature?: number;
+	/**
+	 * Maximum completion tokens for GPT-5 reasoning models.
+	 * This includes BOTH reasoning tokens and output tokens.
+	 *
+	 * GPT-5 reasoning models can use 4000+ tokens just for internal reasoning
+	 * before producing any output. Set this very high to ensure there's room
+	 * for both reasoning and output.
+	 *
+	 * Default: 16000 (allows plenty of reasoning headroom + output)
+	 */
 	maxTokens?: number;
 	responseFormat?: 'text' | 'json';
 }
@@ -55,8 +65,15 @@ export async function createCompletion(
 	messages: ChatCompletionMessageParam[],
 	options: OpenAICompletionOptions = {}
 ): Promise<OpenAIResponse> {
-	const { model = 'gpt-5-nano', maxTokens = 1000, responseFormat = 'text' } = options;
+	const {
+		model = 'gpt-5-nano',
+		maxTokens = 16000, // Very high default for reasoning models - they can use 4000+ tokens just for thinking
+		responseFormat = 'text'
+	} = options;
 
+	// Build the request payload
+	// For GPT-5 reasoning models, max_completion_tokens includes both reasoning and output
+	// Set high enough to allow room for internal reasoning before producing output
 	const requestPayload = {
 		model,
 		messages,
@@ -162,7 +179,7 @@ export async function analyzeOnboardingConversation(
 	const response = await createCompletion(messages, {
 		model: getModelForTask('structuredExtraction'), // Analysis requires structured extraction
 		temperature: 0.3,
-		maxTokens: 650,
+		maxTokens: 2500, // Higher for reasoning models (includes reasoning + ~500 output tokens)
 		responseFormat: 'json'
 	});
 
@@ -211,7 +228,7 @@ Keep it personal, specific, and motivating. Write in an encouraging, professiona
 	return createCompletion(messages, {
 		model: DEFAULT_MODEL, // Use fast model for plan generation
 		temperature: 0.8, // Higher temperature for more creative/engaging plans
-		maxTokens: 600
+		maxTokens: 2500 // Higher for reasoning models (includes reasoning + ~500 output tokens)
 	});
 }
 
@@ -248,7 +265,7 @@ Adapt complexity to their level and preferences.`;
 
 	return createCompletion(messages, {
 		temperature: 0.7,
-		maxTokens: 800
+		maxTokens: 3000 // Higher for reasoning models (includes reasoning + ~800 output tokens)
 	});
 }
 
@@ -337,7 +354,7 @@ Guidelines: ${mode === 'tutor' ? 'Focus on teaching and gentle correction' : 'Fo
 		{
 			model: getModelForTask('scenarioGeneration'), // Scenario generation uses NANO
 			temperature: hasMemories ? 0.8 : 0.7,
-			maxTokens: 1000,
+			maxTokens: 16000, // Very high for reasoning models - they can use 4000+ tokens for thinking alone
 			responseFormat: 'json'
 		}
 	);

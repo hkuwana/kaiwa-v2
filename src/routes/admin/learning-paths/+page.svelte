@@ -302,6 +302,109 @@
 		scenarioIds?: string[];
 	} | null>(null);
 
+	// Post-assignment scenario generation state
+	let assignedUserEmail = $state<string | null>(null);
+	let isGeneratingScenarios = $state(false);
+	let scenarioGenerationProgress = $state<{
+		ready: number;
+		total: number;
+		failed: number;
+	} | null>(null);
+	let scenarioGenerationError = $state<string | null>(null);
+
+	/**
+	 * Generate scenarios for the assigned path
+	 * This triggers the generation-status POST endpoint in a loop
+	 */
+	async function generateScenariosForPath() {
+		if (!selectedPath || isGeneratingScenarios) return;
+
+		isGeneratingScenarios = true;
+		scenarioGenerationError = null;
+
+		try {
+			// First, get current status
+			const statusRes = await fetch(`/api/learning-paths/${selectedPath.id}/generation-status`);
+			const statusResult = await statusRes.json();
+
+			if (!statusResult.success) {
+				throw new Error(statusResult.error || 'Failed to get generation status');
+			}
+
+			scenarioGenerationProgress = {
+				ready: statusResult.data.totalReady,
+				total: statusResult.data.totalReady + statusResult.data.totalPending,
+				failed: statusResult.data.totalFailed
+			};
+
+			// If nothing to generate, we're done
+			if (!statusResult.data.needsGeneration) {
+				showMessage('All scenarios are already generated!', 'success');
+				return;
+			}
+
+			// Generate scenarios in a loop
+			let shouldContinue = true;
+			let attempts = 0;
+			const maxAttempts = 30; // Safety limit
+
+			while (shouldContinue && attempts < maxAttempts) {
+				attempts++;
+
+				const genRes = await fetch(`/api/learning-paths/${selectedPath.id}/generation-status`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({})
+				});
+
+				const genResult = await genRes.json();
+
+				if (!genResult.success) {
+					throw new Error(genResult.error || 'Generation failed');
+				}
+
+				// Update progress
+				if (genResult.data?.currentStatus) {
+					scenarioGenerationProgress = {
+						ready: genResult.data.currentStatus.readyCount,
+						total: genResult.data.currentStatus.readyCount + genResult.data.currentStatus.pendingCount,
+						failed: genResult.data.currentStatus.failedCount
+					};
+				}
+
+				shouldContinue = genResult.data?.shouldContinue ?? false;
+
+				// Small delay between requests
+				if (shouldContinue) {
+					await new Promise(resolve => setTimeout(resolve, 500));
+				}
+			}
+
+			// Final status check
+			const finalRes = await fetch(`/api/learning-paths/${selectedPath.id}/generation-status`);
+			const finalResult = await finalRes.json();
+
+			if (finalResult.success) {
+				scenarioGenerationProgress = {
+					ready: finalResult.data.totalReady,
+					total: finalResult.data.totalReady + finalResult.data.totalPending,
+					failed: finalResult.data.totalFailed
+				};
+
+				if (finalResult.data.isComplete) {
+					showMessage(`Successfully generated ${finalResult.data.totalReady} scenarios!`, 'success');
+				} else if (finalResult.data.totalFailed > 0) {
+					showMessage(`Generated ${finalResult.data.totalReady} scenarios, ${finalResult.data.totalFailed} failed`, 'info');
+				}
+			}
+		} catch (error) {
+			scenarioGenerationError = error instanceof Error ? error.message : 'Generation failed';
+			showMessage(scenarioGenerationError, 'error');
+		} finally {
+			isGeneratingScenarios = false;
+		}
+	}
+
 	// User search autocomplete
 	type UserSearchResult = {
 		id: string;
@@ -428,6 +531,11 @@
 					scenariosGenerated: result.data?.scenariosGenerated,
 					scenarioIds: result.data?.scenarioIds
 				};
+
+				// Store assigned email before clearing, reset scenario generation state
+				assignedUserEmail = assignEmail;
+				scenarioGenerationProgress = null;
+				scenarioGenerationError = null;
 
 				assignEmail = '';
 				assignNote = '';
@@ -1185,6 +1293,55 @@ Difficulty should progress from structured Q&A focused on simple verb placement 
 								<p class="mt-1 text-base-content/70">
 									The learner can now practice with personalized scenarios on their home page.
 								</p>
+							</div>
+						{/if}
+
+						<!-- Post-assignment: Generate Scenarios section -->
+						{#if assignedUserEmail && selectedPath?.mode === 'adaptive'}
+							<div class="divider"></div>
+							<div class="rounded-lg border border-secondary bg-secondary/5 p-4">
+								<h4 class="mb-2 font-medium text-secondary">Generate Scenarios</h4>
+								<p class="mb-3 text-sm text-base-content/70">
+									Path assigned to <span class="font-medium">{assignedUserEmail}</span>.
+									Click the button below to generate personalized scenarios now.
+								</p>
+
+								{#if scenarioGenerationProgress}
+									<div class="mb-3">
+										<div class="flex items-center justify-between text-sm">
+											<span>Progress</span>
+											<span>{scenarioGenerationProgress.ready}/{scenarioGenerationProgress.total} ready</span>
+										</div>
+										<progress
+											class="progress progress-secondary mt-1 w-full"
+											value={scenarioGenerationProgress.ready}
+											max={scenarioGenerationProgress.total}
+										></progress>
+										{#if scenarioGenerationProgress.failed > 0}
+											<p class="mt-1 text-xs text-warning">{scenarioGenerationProgress.failed} failed</p>
+										{/if}
+									</div>
+								{/if}
+
+								{#if scenarioGenerationError}
+									<div class="mb-3 rounded bg-error/10 p-2 text-sm text-error">
+										{scenarioGenerationError}
+									</div>
+								{/if}
+
+								<button
+									class="btn btn-secondary w-full gap-2"
+									onclick={generateScenariosForPath}
+									disabled={isGeneratingScenarios}
+								>
+									{#if isGeneratingScenarios}
+										<span class="loading loading-spinner loading-sm"></span>
+										Generating scenarios...
+									{:else}
+										<span class="icon-[mdi--sparkles] h-5 w-5"></span>
+										Generate Scenarios Now
+									{/if}
+								</button>
 							</div>
 						{/if}
 

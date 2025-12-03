@@ -466,7 +466,7 @@ export class ScenarioGenerationJobService {
 			expectedOutcome: generatedContent.expectedOutcome,
 			learningObjectives: generatedContent.learningObjectives || [],
 			persona: generatedContent.persona,
-			visibility: 'private',
+			visibility: 'public', // Make generated scenarios public so they can be shared
 			createdByUserId: userId,
 			usageCount: 0,
 			isActive: true,

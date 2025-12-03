@@ -175,6 +175,20 @@ export class QueueProcessorService {
 			throw new Error(`Day ${job.dayIndex} not found in path ${job.pathId} schedule`);
 		}
 
+		// Check if scenario already exists for this day
+		if (daySchedule.scenarioId) {
+			logger.info(
+				`⏭️ [QueueProcessor] Scenario already exists for path ${job.pathId} day ${job.dayIndex}`,
+				{
+					scenarioId: daySchedule.scenarioId,
+					theme: daySchedule.theme
+				}
+			);
+			// Mark job as ready since scenario already exists
+			await scenarioGenerationQueueRepository.markJobReady(job.id);
+			return;
+		}
+
 		logger.info(
 			`🎬 [QueueProcessor] Generating scenario for path ${job.pathId} day ${job.dayIndex}`,
 			{

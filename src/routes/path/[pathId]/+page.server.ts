@@ -1,6 +1,6 @@
 // src/routes/path/[pathId]/+page.server.ts
 
-import { error, redirect } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { learningPathRepository } from '$lib/server/repositories/learning-path.repository';
 import { learningPathAssignmentRepository } from '$lib/server/repositories/learning-path-assignment.repository';
@@ -9,20 +9,19 @@ import { learningPathAssignmentRepository } from '$lib/server/repositories/learn
  * Server-side load function for individual learning path page
  *
  * This page shows a specific learning path and the user's progress on it.
- * If the user is assigned to the path, they see their progress and can start lessons.
- * If not assigned, they see path details and can enroll (if public) or get redirected.
+ * - Anyone can view the path (logged in or not)
+ * - If logged in and assigned, they see their progress and can start lessons
+ * - If logged in but not assigned, they see "Add to dashboard" CTA
+ * - If not logged in, they see path details and "Sign in to start" CTA
  *
  * Route: /path/[pathId]
  */
 export const load: PageServerLoad = async ({ params, locals }) => {
 	const { pathId } = params;
 
-	// Require login to view paths
-	if (!locals.session || !locals.user) {
-		throw redirect(302, `/auth?redirect=/path/${pathId}`);
-	}
-
-	const userId = locals.user.id;
+	// Allow anonymous access - check if user is logged in
+	const isLoggedIn = !!(locals.session && locals.user);
+	const userId = locals.user?.id;
 
 	// Fetch the learning path
 	const path = await learningPathRepository.findPathById(pathId);
@@ -31,13 +30,10 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		throw error(404, 'Learning path not found');
 	}
 
-	// Check if user is assigned to this path
-	const assignment = await learningPathAssignmentRepository.findAssignment(userId, pathId);
-
-	// If not assigned and path is not public, deny access
-	if (!assignment && !path.isPublic && path.userId !== userId) {
-		throw error(403, 'You do not have access to this learning path');
-	}
+	// Check if user is assigned to this path (only if logged in)
+	const assignment = isLoggedIn && userId
+		? await learningPathAssignmentRepository.findAssignment(userId, pathId)
+		: null;
 
 	// Calculate progress data
 	const totalDays = path.schedule?.length || 0;
@@ -51,7 +47,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const nextDaySchedule = schedule.find((s) => s.dayIndex === currentDayIndex + 1);
 
 	return {
-		user: locals.user,
+		user: locals.user || null,
+		isLoggedIn,
 		path: {
 			id: path.id,
 			title: path.title,
@@ -100,6 +97,6 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 				: null
 		},
 		isAssigned: !!assignment,
-		isOwner: path.userId === userId
+		isOwner: userId ? path.userId === userId : false
 	};
 };

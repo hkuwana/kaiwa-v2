@@ -9,6 +9,8 @@
 		ScenarioVisibility
 	} from '$lib/services/scenarios/user-scenarios.service';
 	import { SvelteSet } from 'svelte/reactivity';
+	import { onMount } from 'svelte';
+	import { userManager } from '$lib/stores/user.store.svelte';
 
 	interface Props {
 		open: boolean;
@@ -30,16 +32,35 @@
 	const draft = $derived(customScenarioStore.draft);
 	const limits = $derived(customScenarioStore.limits);
 
-	const _totalSlots = $derived(() => (limits.total > 0 ? limits.total : 3));
+	const userTier = $derived(userManager.effectiveTier);
+	const hasPrivateScenarioAccess = $derived(
+		userManager.hasAccessToTier ? userManager.hasAccessToTier('plus') : userTier !== 'free'
+	);
 
 	const limitReached = $derived(limits.total > 0 && limits.totalUsed >= limits.total);
 
-	const privateLimit = $derived(limits.private ?? 0);
-	const privateLocked = $derived(privateLimit === 0);
+	const privateLimit = $derived(
+		// Plus and Premium should always be able to choose private scenarios,
+		// even if limits haven't finished loading – fall back to "unlimited".
+		hasPrivateScenarioAccess
+			? limits.private && limits.private !== 0
+				? limits.private
+				: -1
+			: (limits.private ?? 0)
+	);
+
+	const privateLocked = $derived(!hasPrivateScenarioAccess && privateLimit === 0);
 	const privateAtCapacity = $derived(privateLimit > 0 && limits.privateUsed >= privateLimit);
 	const privateDisabled = $derived(privateLocked || privateAtCapacity);
 
 	const showCharWarning = $derived(description.length >= 600);
+
+	onMount(() => {
+		// Ensure limits are loaded even if the creator is used outside the main selector
+		customScenarioStore.loadScenarios().catch((error) => {
+			console.warn('Unable to load custom scenario limits', error);
+		});
+	});
 
 	$effect(() => {
 		if (!open) {

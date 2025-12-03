@@ -9,9 +9,13 @@
 	 * - Quick access to start today's lesson
 	 */
 
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 
 	const { data } = $props();
+
+	// Generation state
+	let isGenerating = $state(false);
+	let generationError = $state<string | null>(null);
 
 	// Derived state
 	const canStartToday = $derived(
@@ -32,6 +36,39 @@
 		// Only allow clicking on completed days or current day with scenario ready
 		if (day.scenarioId && day.dayIndex <= data.progress.daysCompleted + 1) {
 			goto(`/conversation?scenario=${day.scenarioId}`);
+		}
+	}
+
+	/**
+	 * Generate scenario for the current day
+	 */
+	async function handleGenerateScenario() {
+		if (isGenerating || !data.progress.currentDay) return;
+
+		isGenerating = true;
+		generationError = null;
+
+		try {
+			const response = await fetch(`/api/learning-paths/${data.path.id}/generate-day`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					dayIndex: data.progress.currentDay.dayIndex
+				})
+			});
+
+			const result = await response.json();
+
+			if (result.success && result.data?.generated) {
+				// Refresh the page data to show the new scenario
+				await invalidateAll();
+			} else {
+				generationError = result.data?.error || result.error || 'Failed to generate scenario';
+			}
+		} catch (error) {
+			generationError = error instanceof Error ? error.message : 'Generation failed';
+		} finally {
+			isGenerating = false;
 		}
 	}
 
@@ -73,10 +110,17 @@
 <div class="container mx-auto max-w-6xl px-4 py-6">
 	<!-- Back navigation -->
 	<div class="mb-4">
-		<a href="/dashboard" class="btn gap-2 btn-ghost btn-sm">
-			<span class="icon-[mdi--arrow-left] h-4 w-4"></span>
-			Back to Dashboard
-		</a>
+		{#if data.isLoggedIn}
+			<a href="/dashboard" class="btn gap-2 btn-ghost btn-sm">
+				<span class="icon-[mdi--arrow-left] h-4 w-4"></span>
+				Back to Dashboard
+			</a>
+		{:else}
+			<a href="/" class="btn gap-2 btn-ghost btn-sm">
+				<span class="icon-[mdi--arrow-left] h-4 w-4"></span>
+				Back to Home
+			</a>
+		{/if}
 	</div>
 
 	<!-- Header -->
@@ -169,9 +213,25 @@
 								Start Lesson
 							</button>
 						{:else if !data.progress.currentDay.isReady}
-							<div class="flex items-center gap-2 rounded-lg bg-base-200 px-4 py-3">
-								<span class="loading loading-sm loading-spinner text-primary"></span>
-								<span class="text-sm text-base-content/70">Preparing lesson...</span>
+							<div class="flex flex-col items-end gap-2">
+								<button
+									class="btn btn-secondary gap-2"
+									onclick={handleGenerateScenario}
+									disabled={isGenerating}
+								>
+									{#if isGenerating}
+										<span class="loading loading-spinner loading-sm"></span>
+										Generating...
+									{:else}
+										<span class="icon-[mdi--sparkles] h-5 w-5"></span>
+										Generate Scenario
+									{/if}
+								</button>
+								{#if generationError}
+									<p class="text-xs text-error">{generationError}</p>
+								{:else}
+									<p class="text-xs text-base-content/50">Lesson not ready yet</p>
+								{/if}
 							</div>
 						{/if}
 					</div>
@@ -189,18 +249,47 @@
 				</div>
 			</div>
 		{/if}
-	{:else}
-		<!-- Not assigned - show enrollment CTA -->
+	{:else if data.isLoggedIn}
+		<!-- Logged in but not assigned - show enrollment CTA -->
 		<div class="mb-8 rounded-2xl bg-base-200 p-6 text-center">
-			<h2 class="text-xl font-semibold">You're not enrolled in this path</h2>
-			<p class="mt-2 text-base-content/70">This learning path hasn't been assigned to you yet.</p>
-			{#if data.path.isPublic && data.path.shareSlug}
-				<a href="/program/{data.path.shareSlug}" class="btn mt-4 btn-primary">
-					View Public Program
+			<span class="icon-[mdi--bookmark-plus-outline] h-12 w-12 text-base-content/30"></span>
+			<h2 class="mt-4 text-xl font-semibold">This path isn't on your dashboard yet</h2>
+			<p class="mt-2 text-base-content/70">
+				Want to learn with this program? Add it to your dashboard to get started.
+			</p>
+			<div class="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+				{#if data.path.isPublic && data.path.shareSlug}
+					<a href="/program/{data.path.shareSlug}" class="btn btn-primary gap-2">
+						<span class="icon-[mdi--plus] h-5 w-5"></span>
+						Add to Dashboard
+					</a>
+				{/if}
+				<a href="/dashboard" class="btn btn-ghost gap-2">
+					<span class="icon-[mdi--view-dashboard-outline] h-5 w-5"></span>
+					Check Dashboard
 				</a>
-			{:else}
-				<a href="/dashboard" class="btn mt-4 btn-ghost"> Return to Dashboard </a>
-			{/if}
+			</div>
+		</div>
+	{:else}
+		<!-- Not logged in - show sign in CTA -->
+		<div class="mb-8 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 p-6 text-center">
+			<span class="icon-[mdi--account-circle-outline] h-12 w-12 text-primary/50"></span>
+			<h2 class="mt-4 text-xl font-semibold">Sign in to start learning</h2>
+			<p class="mt-2 text-base-content/70">
+				Create an account or sign in to add this learning path to your dashboard and track your progress.
+			</p>
+			<div class="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+				<a href="/auth?redirect=/path/{data.path.id}" class="btn btn-primary gap-2">
+					<span class="icon-[mdi--login] h-5 w-5"></span>
+					Sign In to Start
+				</a>
+				{#if data.path.isPublic && data.path.shareSlug}
+					<a href="/program/{data.path.shareSlug}" class="btn btn-ghost gap-2">
+						<span class="icon-[mdi--information-outline] h-5 w-5"></span>
+						Learn More
+					</a>
+				{/if}
+			</div>
 		</div>
 	{/if}
 
