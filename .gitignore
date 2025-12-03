@@ -33,6 +33,5 @@ src/lib/paraglide
 # Certificates for HTTPS with local
 certs
 
-# Optimized avatar images (generated at build time)
-/static/speakers/*.webp
+# JPEG fallbacks for speaker images (not needed, webp is committed)
 /static/speakers/*.jpg
