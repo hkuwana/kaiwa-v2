@@ -219,15 +219,32 @@ describe('SessionService', () => {
 			});
 
 			mockDb.transaction.mockImplementation(async (callback: any) => {
+				let updateCallCount = 0;
 				const mockTx = {
-					update: vi.fn().mockReturnValue({
-						set: vi.fn().mockReturnValue({
-							where: vi.fn().mockReturnValue({
-								returning: vi.fn().mockResolvedValue([
-									{ id: 'session-123', completedAt: new Date() }
-								])
+					update: vi.fn().mockImplementation(() => {
+						updateCallCount++;
+						const isSessionUpdate = updateCallCount === 1;
+						return {
+							set: vi.fn().mockReturnValue({
+								where: vi.fn().mockReturnValue({
+									returning: vi.fn().mockResolvedValue([
+										isSessionUpdate
+											? { id: 'session-123', completedAt: new Date() }
+											: {
+													id: 'progress-123',
+													sessionsCompleted: 1,
+													totalMinutes: '5',
+													sessionTypesUsed: 1,
+													sessionTypeIdsUsed: ['quick-checkin'],
+													seedsExplored: 0,
+													seedIdsExplored: [],
+													averageComfortRating: '4.00',
+													sessions: []
+												}
+									])
+								})
 							})
-						})
+						};
 					}),
 					query: {
 						weekProgress: {
