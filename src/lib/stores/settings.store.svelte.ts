@@ -4,7 +4,7 @@ import { logger } from '$lib/logger';
 
 import { languages as allLanguages, type LanguageWithCountry } from '$lib/data/languages';
 import { browser } from '$app/environment';
-import { DEFAULT_VOICE } from '$lib/types/openai.realtime.types';
+import { getDefaultSpeakerForLanguage } from '$lib/data/speakers';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -73,8 +73,8 @@ export class SettingsStore {
 	// User's selected language for conversation practice (full language object)
 	selectedLanguage = $state<LanguageWithCountry | null>(null);
 
-	// User's selected AI speaker/voice
-	selectedSpeaker = $state('ballad');
+	// User's selected AI speaker/voice (speaker ID like 'ja-jp-female', not OpenAI voice ID)
+	selectedSpeaker = $state<string | null>(null);
 
 	// User's selected learning scenario
 	selectedScenario = $state<string | null>(null);
@@ -99,12 +99,6 @@ export class SettingsStore {
 				language: storedLanguageCode,
 				speaker: storedSpeaker
 			});
-
-			// Set speaker from storage if it exists
-			if (storedSpeaker) {
-				this.selectedSpeaker = storedSpeaker;
-				logger.info('🎭 Speaker loaded from storage:', storedSpeaker);
-			}
 
 			// Set scenario from storage
 			const storedScenario = localStorage.getItem(STORAGE_KEYS.SCENARIO);
@@ -141,6 +135,34 @@ export class SettingsStore {
 				}
 			}
 
+			// Set speaker from storage, validating it matches the language
+			if (storedSpeaker && this.selectedLanguage) {
+				const defaultSpeakerForLang = getDefaultSpeakerForLanguage(this.selectedLanguage.id);
+
+				// Validate speaker matches language (speaker IDs start with language code, e.g., 'ja-jp-female')
+				const speakerMatchesLanguage = storedSpeaker.startsWith(this.selectedLanguage.code + '-');
+
+				if (speakerMatchesLanguage) {
+					this.selectedSpeaker = storedSpeaker;
+					logger.info('🎭 Speaker loaded from storage:', storedSpeaker);
+				} else {
+					// Speaker doesn't match language, reset to default
+					if (defaultSpeakerForLang) {
+						this.selectedSpeaker = defaultSpeakerForLang.id;
+						this.persistSpeaker(defaultSpeakerForLang.id);
+						logger.info('🎭 Speaker reset to default for language:', defaultSpeakerForLang.id);
+					}
+				}
+			} else if (this.selectedLanguage && !storedSpeaker) {
+				// No stored speaker, set default for the language
+				const defaultSpeaker = getDefaultSpeakerForLanguage(this.selectedLanguage.id);
+				if (defaultSpeaker) {
+					this.selectedSpeaker = defaultSpeaker.id;
+					this.persistSpeaker(defaultSpeaker.id);
+					logger.info('🎭 Setting default speaker:', defaultSpeaker.id);
+				}
+			}
+
 			// Set up watchers to persist changes (deferred to avoid $effect issues)
 			setTimeout(() => {
 				this.setupPersistence();
@@ -148,12 +170,16 @@ export class SettingsStore {
 
 			logger.info('✅ Settings initialization complete');
 		} else {
-			// Server-side: set default language
+			// Server-side: set default language and speaker
 			const defaultLanguage = allLanguages.find((lang) => lang.code === 'ja');
 			if (defaultLanguage) {
 				this.selectedLanguage = defaultLanguage;
+				const defaultSpeaker = getDefaultSpeakerForLanguage(defaultLanguage.id);
+				if (defaultSpeaker) {
+					this.selectedSpeaker = defaultSpeaker.id;
+				}
 			}
-			logger.info('🖥️ Server-side settings initialized with default language');
+			logger.info('🖥️ Server-side settings initialized with default language and speaker');
 		}
 	};
 
@@ -267,9 +293,10 @@ export class SettingsStore {
 
 	// Reset to defaults and clear storage
 	reset = () => {
-		const defaultLanguage = allLanguages.find((lang) => lang.code === 'en');
+		const defaultLanguage = allLanguages.find((lang) => lang.code === 'ja');
 		this.selectedLanguage = defaultLanguage || null;
-		this.selectedSpeaker = DEFAULT_VOICE;
+		const defaultSpeaker = defaultLanguage ? getDefaultSpeakerForLanguage(defaultLanguage.id) : null;
+		this.selectedSpeaker = defaultSpeaker?.id || null;
 		this.selectedScenario = null;
 
 		// Clear persistent storage
