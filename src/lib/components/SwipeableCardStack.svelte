@@ -3,7 +3,8 @@
 <script lang="ts">
 	import { scenariosData } from '$lib/data/scenarios';
 	import { settingsStore } from '$lib/stores/settings.store.svelte';
-	import { getSpeakersByLanguage } from '$lib/data/speakers';
+	import { getSpeakersByLanguage, getDefaultSpeakerForLanguage } from '$lib/data/speakers';
+	import { languages as allLanguages } from '$lib/data/languages';
 	import BriefingCard from './BriefingCard.svelte';
 	import { fade, fly } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
@@ -27,7 +28,7 @@
 		/** Callback to open language/speaker selector */
 		onChooseLanguage?: () => void;
 		/** Learning path info (if showing path scenarios) */
-		pathInfo?: { title: string; weekNumber: number; theme: string };
+		pathInfo?: { title: string; weekNumber: number; theme: string; targetLanguage?: string };
 	}
 
 	const {
@@ -88,46 +89,44 @@
 	let dragCurrentX = $state(0);
 	let dragCurrentY = $state(0);
 
-	// Derive the speaker object from prop or store, with auto-fallback to default speaker
-	const currentSpeaker = $derived.by(() => {
-		const speakerId = selectedSpeaker || settingsStore.selectedSpeaker;
-		console.log('[SwipeableCardStack] Current speaker:', {
-			selectedSpeaker,
-			storeSelectedSpeaker: settingsStore.selectedSpeaker,
-			speakerId
-		});
+	// Determine effective language: learning path's target language takes priority
+	const effectiveLanguage = $derived.by(() => {
+		// If in a learning path with a target language, use that
+		if (pathInfo?.targetLanguage) {
+			const pathLang = allLanguages.find((l) => l.code === pathInfo.targetLanguage);
+			if (pathLang) return pathLang;
+		}
+		// Otherwise use the user's selected language
+		return settingsStore.selectedLanguage;
+	});
 
-		if (!settingsStore.selectedLanguage) {
-			console.log('[SwipeableCardStack] No language selected, returning null');
+	// Derive the speaker object with priority: learning path language > user language
+	const currentSpeaker = $derived.by(() => {
+		if (!effectiveLanguage) {
 			return null;
 		}
 
-		const languageId = settingsStore.selectedLanguage.id;
-		console.log('[SwipeableCardStack] Looking up speakers for language:', {
-			code: settingsStore.selectedLanguage.code,
-			id: languageId,
-			speakerId
-		});
+		const languageId = effectiveLanguage.id;
 		const speakers = getSpeakersByLanguage(languageId);
-		console.log(
-			'[SwipeableCardStack] Available speakers:',
-			speakers.map((s) => ({ id: s.id, voiceName: s.voiceName, languageId: s.languageId }))
-		);
 
-		// Try to find the speaker for this language
+		// If we have a learning path with a target language, always use the default speaker for that language
+		if (pathInfo?.targetLanguage) {
+			const defaultSpeaker = getDefaultSpeakerForLanguage(languageId);
+			return defaultSpeaker || (speakers.length > 0 ? speakers[0] : null);
+		}
+
+		// Otherwise, try to use the user's selected speaker
+		const speakerId = selectedSpeaker || settingsStore.selectedSpeaker;
 		if (speakerId) {
 			const speaker = speakers.find((s) => s.id === speakerId);
 			if (speaker) {
-				console.log('[SwipeableCardStack] Found speaker:', speaker);
 				return speaker;
 			}
-			console.log('[SwipeableCardStack] Speaker not available for language, using default');
 		}
 
-		// If speaker not found or no speaker selected, use first available speaker for this language
-		const defaultSpeaker = speakers.length > 0 ? speakers[0] : null;
-		console.log('[SwipeableCardStack] Using default speaker:', defaultSpeaker);
-		return defaultSpeaker;
+		// Fallback to default speaker for the language
+		const defaultSpeaker = getDefaultSpeakerForLanguage(languageId);
+		return defaultSpeaker || (speakers.length > 0 ? speakers[0] : null);
 	});
 
 	// Check if we're on the "Browse All" card (last position)
@@ -487,7 +486,7 @@
 						ontouchstart={index === currentCardIndex ? handleDragStart : undefined}
 					>
 						<BriefingCard
-							selectedLanguage={settingsStore.selectedLanguage}
+							selectedLanguage={effectiveLanguage}
 							selectedSpeaker={currentSpeaker}
 							selectedScenario={scenario}
 							showStartButton={true}

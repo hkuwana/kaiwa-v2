@@ -55,7 +55,7 @@ class LearningPathProgressRepository {
 
 	async getActiveLearningPathScenarios(userId: string): Promise<{
 		hasLearningPath: boolean;
-		pathInfo?: { title: string; weekNumber: number; theme: string };
+		pathInfo?: { title: string; weekNumber: number; theme: string; targetLanguage: string };
 		scenarios: Scenario[];
 	}> {
 		const assignment = await this.database.query.learningPathAssignments.findFirst({
@@ -88,7 +88,8 @@ class LearningPathProgressRepository {
 					pathInfo: {
 						title: path.title,
 						weekNumber: assignment.currentWeekNumber,
-						theme: 'Getting started'
+						theme: 'Getting started',
+						targetLanguage: path.targetLanguage
 					},
 					scenarios: []
 				};
@@ -105,7 +106,8 @@ class LearningPathProgressRepository {
 					pathInfo: {
 						title: path.title,
 						weekNumber: activeWeek.weekNumber,
-						theme: activeWeek.theme
+						theme: activeWeek.theme,
+						targetLanguage: path.targetLanguage
 					},
 					scenarios: []
 				};
@@ -120,7 +122,8 @@ class LearningPathProgressRepository {
 				pathInfo: {
 					title: path.title,
 					weekNumber: activeWeek.weekNumber,
-					theme: activeWeek.theme
+					theme: activeWeek.theme,
+					targetLanguage: path.targetLanguage
 				},
 				scenarios: pathScenarios
 			};
@@ -137,7 +140,8 @@ class LearningPathProgressRepository {
 				pathInfo: {
 					title: path.title,
 					weekNumber: assignment.currentWeekNumber,
-					theme: 'Current Week'
+					theme: 'Current Week',
+					targetLanguage: path.targetLanguage
 				},
 				scenarios: []
 			};
@@ -152,7 +156,8 @@ class LearningPathProgressRepository {
 			pathInfo: {
 				title: path.title,
 				weekNumber: assignment.currentWeekNumber,
-				theme: 'Current Week'
+				theme: 'Current Week',
+				targetLanguage: path.targetLanguage
 			},
 			scenarios: pathScenarios
 		};
