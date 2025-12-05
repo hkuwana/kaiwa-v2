@@ -298,8 +298,7 @@
 	let sendEmailNotification = $state(true);
 	let generateCustomScenarios = $state(true);
 	let lastAssignmentResult = $state<{
-		scenariosGenerated?: number;
-		scenarioIds?: string[];
+		scenarioGenerationQueued?: boolean;
 	} | null>(null);
 
 	// Post-assignment scenario generation state
@@ -507,6 +506,7 @@
 		loading = true;
 		lastAssignmentResult = null;
 		try {
+			// Assignment is now fast - scenario generation runs in background
 			const response = await fetchWithTimeout(
 				`/api/learning-paths/${selectedPath.id}/assign`,
 				{
@@ -519,24 +519,22 @@
 						generateScenarios: generateCustomScenarios
 					})
 				},
-				generateCustomScenarios ? AI_REQUEST_TIMEOUT : REQUEST_TIMEOUT // Use longer timeout for scenario generation
+				REQUEST_TIMEOUT
 			);
 
 			const result = await response.json();
 
 			if (result.success) {
-				const scenarioInfo = result.data?.scenariosGenerated
-					? ` (${result.data.scenariosGenerated} custom scenarios created)`
+				// Build success message
+				const emailInfo = sendEmailNotification ? ' - Email notification sent!' : '';
+				const scenarioInfo = result.data?.scenarioGenerationQueued
+					? ' (scenarios generating in background)'
 					: '';
-				showMessage(
-					`Assigned to ${assignEmail}${sendEmailNotification ? ' - Email notification sent!' : ''}${scenarioInfo}`,
-					'success'
-				);
+				showMessage(`Assigned to ${assignEmail}${emailInfo}${scenarioInfo}`, 'success');
 
 				// Store result for display
 				lastAssignmentResult = {
-					scenariosGenerated: result.data?.scenariosGenerated,
-					scenarioIds: result.data?.scenarioIds
+					scenarioGenerationQueued: result.data?.scenarioGenerationQueued
 				};
 
 				// Store assigned email before clearing, reset scenario generation state
@@ -1303,25 +1301,25 @@ Difficulty should progress from structured Q&A focused on simple verb placement 
 							</div>
 						{/if}
 
-						{#if lastAssignmentResult?.scenariosGenerated}
+						{#if lastAssignmentResult?.scenarioGenerationQueued}
 							<div class="rounded-lg bg-info/10 p-3 text-sm">
-								<p class="font-medium text-info">
-									✓ {lastAssignmentResult.scenariosGenerated} custom scenarios created!
-								</p>
+								<p class="font-medium text-info">Scenarios are being generated in the background</p>
 								<p class="mt-1 text-base-content/70">
-									The learner can now practice with personalized scenarios on their home page.
+									The learner will be able to practice with personalized scenarios once generation
+									completes. You'll receive an email if there are any errors.
 								</p>
 							</div>
 						{/if}
 
-						<!-- Post-assignment: Generate Scenarios section -->
-						{#if assignedUserEmail && selectedPath?.mode === 'adaptive'}
+						<!-- Post-assignment: Manual scenario generation (for retry/re-generation) -->
+						{#if assignedUserEmail && selectedPath?.mode === 'adaptive' && !lastAssignmentResult?.scenarioGenerationQueued}
 							<div class="divider"></div>
 							<div class="rounded-lg border border-secondary bg-secondary/5 p-4">
-								<h4 class="mb-2 font-medium text-secondary">Generate Scenarios</h4>
+								<h4 class="mb-2 font-medium text-secondary">Retry Scenario Generation</h4>
 								<p class="mb-3 text-sm text-base-content/70">
-									Path assigned to <span class="font-medium">{assignedUserEmail}</span>. Click the
-									button below to generate personalized scenarios now.
+									If background generation failed for <span class="font-medium"
+										>{assignedUserEmail}</span
+									>, you can manually trigger scenario generation here.
 								</p>
 
 								{#if scenarioGenerationProgress}

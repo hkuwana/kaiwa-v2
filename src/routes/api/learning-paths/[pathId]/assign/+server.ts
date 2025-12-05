@@ -7,7 +7,7 @@ import { createSuccessResponse, createErrorResponse } from '$lib/types/api';
 import { learningPathRepository } from '$lib/server/repositories/learning-path.repository';
 import { learningPathAssignmentRepository } from '$lib/server/repositories/learning-path-assignment.repository';
 import { userRepository } from '$lib/server/repositories/user.repository';
-import { CustomScenarioGenerationService } from '$lib/features/learning-path/services/CustomScenarioGenerationService.server';
+import { logger } from '$lib/logger';
 import type { RequestHandler } from './$types';
 
 // Initialize Resend
@@ -18,9 +18,10 @@ const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
  *
  * Assign a learning path to a user (admin/creator functionality)
  *
- * For adaptive paths, scenarios are NOT generated during assignment.
- * Instead, the dashboard auto-triggers generation when the user visits.
- * This makes assignment fast and reliable.
+ * For adaptive paths, scenarios are generated in the background via
+ * /api/internal/generate-scenarios. This ensures assignment is fast
+ * and the user gets immediate feedback. Error notifications are sent
+ * to admin if generation fails.
  *
  * Request body:
  * {
@@ -35,7 +36,8 @@ const resend = new Resend(env.RESEND_API_KEY || 're_dummy_resend_key');
  *   success: true,
  *   data: {
  *     assignment: {...},
- *     emailSent?: boolean
+ *     emailSent?: boolean,
+ *     scenarioGenerationQueued?: boolean
  *   }
  * }
  */
@@ -124,49 +126,67 @@ export const POST: RequestHandler = async ({ params, request, locals, url }) => 
 			console.log('[Assign] 🚀 Path activated on assignment', { pathId });
 		}
 
-		// Generate scenarios for adaptive paths during assignment
-		// This ensures scenarios are ready when the user starts
-		let scenariosGenerated = 0;
-		let scenarioIds: string[] = [];
-		let generationErrors: Array<{ seedId: string; error: string }> = [];
+		// For adaptive paths, queue scenario generation in the background
+		// This makes assignment fast - scenarios will be ready when user visits the dashboard
+		let scenarioGenerationQueued = false;
 
 		if (path.mode === 'adaptive') {
-			console.log('[Assign] 🎬 Generating scenarios for adaptive path...', {
+			logger.info('[Assign] 🚀 Queueing background scenario generation for adaptive path', {
 				pathId,
 				targetUserId,
 				targetLanguage: path.targetLanguage
 			});
 
+			// Fire-and-forget: call internal endpoint without awaiting
+			// The internal endpoint handles errors and sends notifications
 			try {
-				const generationResult = await CustomScenarioGenerationService.generateScenariosForAssignment(
-					pathId,
-					targetUserId,
-					path.targetLanguage
-				);
+				const internalUrl = `${url.origin}/api/internal/generate-scenarios`;
 
-				scenariosGenerated = generationResult.scenariosGenerated;
-				scenarioIds = generationResult.scenarioIds;
-				generationErrors = generationResult.errors;
+				// Use fetch without await to make it non-blocking
+				// The request will complete in the background after we return
+				fetch(internalUrl, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${env.CRON_SECRET || 'development_secret'}`
+					},
+					body: JSON.stringify({
+						pathId,
+						userId: targetUserId,
+						targetLanguage: path.targetLanguage,
+						assignmentId: assignment.id,
+						userEmail: targetUserEmail,
+						pathTitle: path.title
+					})
+				})
+					.then((response) => {
+						if (!response.ok) {
+							logger.error('[Assign] Background generation request failed', {
+								status: response.status,
+								pathId
+							});
+						} else {
+							logger.info('[Assign] Background generation request accepted', { pathId });
+						}
+					})
+					.catch((error) => {
+						logger.error('[Assign] Failed to send background generation request', {
+							error: error instanceof Error ? error.message : 'Unknown',
+							pathId
+						});
+					});
 
-				console.log('[Assign] ✅ Scenario generation complete', {
-					pathId,
-					scenariosGenerated,
-					errors: generationErrors.length
-				});
+				scenarioGenerationQueued = true;
+				logger.info('[Assign] ✅ Scenario generation queued in background', { pathId });
 			} catch (error) {
-				console.error('[Assign] ❌ Failed to generate scenarios', {
+				// Non-blocking error - we still complete the assignment
+				logger.error('[Assign] ⚠️ Failed to queue scenario generation', {
 					pathId,
 					error: error instanceof Error ? error.message : 'Unknown error'
 				});
-				// Don't fail the assignment if scenario generation fails
-				// The user can retry later from the dashboard
-				generationErrors.push({
-					seedId: 'global',
-					error: error instanceof Error ? error.message : 'Failed to generate scenarios'
-				});
 			}
 		} else {
-			console.log('[Assign] ⏭️ Classic path assigned', {
+			logger.info('[Assign] ⏭️ Classic path assigned (no scenario generation needed)', {
 				pathMode: path.mode
 			});
 		}
@@ -208,9 +228,7 @@ export const POST: RequestHandler = async ({ params, request, locals, url }) => 
 			createSuccessResponse({
 				assignment,
 				emailSent,
-				scenariosGenerated,
-				scenarioIds,
-				generationErrors: generationErrors.length > 0 ? generationErrors : undefined
+				scenarioGenerationQueued
 			}),
 			{ status: 201 }
 		);
