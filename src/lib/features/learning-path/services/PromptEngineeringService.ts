@@ -53,7 +53,21 @@ Your task is to create a ${duration}-day learning path that:
 - Each day should have a clear theme and learning objectives
 - Progression should feel natural and achievable
 - Content should be emotionally engaging and personally relevant
-- Scenarios should prepare learners for real conversations they care about`;
+- Scenarios should prepare learners for real conversations they care about
+
+**CRITICAL: Productive Discomfort Principle**
+Real conversations with family members, in-laws, and new friends are NOT always warm and encouraging.
+They include unexpected questions, awkward silences, skeptical reactions, and cultural tests.
+AI practice that is always supportive creates "yes-bots" that leave learners unprepared for real humans.
+
+Your curriculum MUST include progressive friction:
+- Days 1-7: SUPPORTIVE - Build confidence with warm, encouraging interactions
+- Days 8-14: REALISTIC - Introduce mild friction (unexpected questions, brief silences, topic changes)
+- Days 15-21: CHALLENGING - Include skeptical reactions, cultural tests, recovery from small mistakes
+- Days 22-${duration}: MASTERY - Combine all elements with unpredictable human behavior
+
+For each day, specify a "frictionLevel" (supportive/realistic/challenging) and optional "frictionTypes" to include.
+Friction types: unexpected_question, awkward_silence, cultural_test, indirect_criticism, topic_change, misunderstanding, emotional_moment, testing_commitment`;
 
 		// Build personalized user prompt
 		let userPrompt = `Create a ${duration}-day ${userPreferences.targetLanguageId?.toUpperCase()} learning path for the following learner:
@@ -143,7 +157,21 @@ Your task is to transform a course brief into a structured ${duration}-day learn
 - Create a natural difficulty progression
 - Ensure each day has clear, actionable learning objectives
 - Design scenarios that are emotionally engaging and culturally authentic
-- Balance challenge with achievability`;
+- Balance challenge with achievability
+
+**CRITICAL: Productive Discomfort Principle**
+Real conversations with family, in-laws, and loved ones are NOT always warm and encouraging.
+They include unexpected questions, awkward silences, skeptical reactions, and cultural tests.
+AI practice that is always supportive creates "yes-bots" - learners unprepared for real humans.
+
+Your curriculum MUST progress from supportive to challenging:
+- Week 1 (Days 1-7): SUPPORTIVE - Build confidence with warm, patient interactions
+- Week 2 (Days 8-14): REALISTIC - Add mild friction (unexpected questions, pauses, topic shifts)
+- Week 3 (Days 15-21): CHALLENGING - Include skepticism, cultural tests, recovery from mistakes
+- Week 4 (Days 22-${duration}): MASTERY - Full unpredictability, multiple conversation partners
+
+Include a "personalityVariant" for the AI partner each day (warm, reserved, skeptical, traditional, curious, testing).
+This prevents learners from only practicing with one personality type.`;
 
 		// Build user prompt from brief
 		let userPrompt = `Create a ${duration}-day ${targetLanguage.toUpperCase()} learning path based on the following brief:

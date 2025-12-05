@@ -21,9 +21,9 @@ export const SCAFFOLDING_LEVELS = {
 - Use simple, short sentences (3-5 words)
 - Include phonetic guides (romaji for Japanese, pinyin for Chinese, etc.)
 - Offer 2-3 response options to choose from
-- Celebrate small wins and be very encouraging
+- Be supportive and patient, but realistic
 - Focus on single exchanges (greeting → response)
-- Allow mistakes without harsh correction
+- Correct mistakes gently with explanation
 - Repeat key vocabulary multiple times`
 	},
 	elementary: {
@@ -34,10 +34,11 @@ export const SCAFFOLDING_LEVELS = {
 - Use moderate sentence length (5-8 words)
 - Include key phrases at the start of each scenario
 - Offer 1-2 hints when stuck
-- Balance encouragement with gentle corrections
+- Balance support with gentle challenges
 - Practice 2-3 turn exchanges
 - Introduce common expressions and set phrases
-- Build on vocabulary from previous days`
+- Build on vocabulary from previous days
+- Occasionally pause, expecting the learner to continue`
 	},
 	intermediate: {
 		label: 'Intermediate (B1)',
@@ -50,7 +51,9 @@ export const SCAFFOLDING_LEVELS = {
 - Include cultural notes and nuances
 - Practice 4-6 turn conversations
 - Introduce casual vs formal register differences
-- Challenge with unexpected turns in conversation`
+- Challenge with unexpected turns in conversation
+- Sometimes express mild skepticism or ask probing questions
+- Create moments where learner must recover from small misunderstandings`
 	},
 	advanced: {
 		label: 'Advanced (C1)',
@@ -63,7 +66,9 @@ export const SCAFFOLDING_LEVELS = {
 - Deep cultural context and regional variations
 - Full conversation simulations (10+ turns)
 - Include idioms, slang, and colloquialisms
-- Introduce challenging scenarios (disagreements, negotiations)`
+- Introduce challenging scenarios (disagreements, negotiations)
+- Be realistically skeptical or indirect when culturally appropriate
+- Test cultural knowledge and appropriate register`
 	},
 	proficient: {
 		label: 'Proficient (C2)',
@@ -76,7 +81,9 @@ export const SCAFFOLDING_LEVELS = {
 - Regional expressions, humor, and cultural depth
 - Complex extended discussions with abstract topics
 - Handle ambiguity, irony, and double meanings
-- Master register switching mid-conversation`
+- Master register switching mid-conversation
+- Full realistic human behavior - not accommodating
+- Include all natural friction: interruptions, topic changes, emotional moments`
 	}
 } as const;
 
@@ -121,28 +128,34 @@ WEEK 2 FOCUS: Short Exchanges
 		label: 'Week 3: Guided Conversations',
 		focus: 'Supported Conversations (4-6 turns)',
 		activityTypes: ['guided-conversation', 'scenario-with-hints', 'branching-dialogue'],
-		description: 'Longer conversations with support and hints available',
+		description: 'Longer conversations with realistic friction and hints available',
 		instructions: `
-WEEK 3 FOCUS: Guided Conversations
+WEEK 3 FOCUS: Guided Conversations with Realistic Friction
 - Practice 4-6 turn conversations
-- Hints and phrase suggestions available when needed
-- Introduction of unexpected elements (partner asks a question you didn't expect)
+- Hints available when truly stuck, but encourage working through difficulty
+- Introduce unexpected elements (partner asks a question you didn't expect)
 - Practice recovering from misunderstandings
-- Goal: Handle real conversation flow with some support`
+- AI partner may express mild skepticism or change topics
+- Include moments where learner must navigate awkward silences
+- Vary AI personality (sometimes warm, sometimes reserved)
+- Goal: Handle real conversation flow including friction`
 	},
 	week4: {
 		label: 'Week 4: Full Simulations',
 		focus: 'Real-World Scenarios',
 		activityTypes: ['full-simulation', 'role-play', 'free-conversation'],
-		description: 'Complete conversation simulations with minimal support',
+		description: 'Complete conversation simulations with realistic human behavior',
 		instructions: `
-WEEK 4 FOCUS: Full Simulations
+WEEK 4 FOCUS: Full Simulations with Real Human Behavior
 - Full conversation simulations (8+ turns)
 - Minimal hints - encouraged to figure it out
 - Realistic scenarios matching your actual goal
-- Practice handling the unexpected
-- Cultural nuances and real-world variations
-- Goal: Ready for your real-life situation`
+- AI partner behaves like a real human (not always accommodating)
+- Include: unexpected questions, topic changes, skepticism, cultural tests
+- Practice recovering from small mistakes gracefully
+- Multiple personality variants (skeptical parent, curious friend, testing elder)
+- Sometimes the AI doesn't fill silences - learner must continue
+- Goal: Ready for real humans, not just comfortable AI practice`
 	}
 } as const;
 
@@ -348,12 +361,25 @@ export const SCENARIO_GENERATION_PROMPT = `You are creating a conversation pract
 ## KEY PHRASES TO INCORPORATE:
 {KEY_PHRASES}
 
+## CRITICAL: PRODUCTIVE DISCOMFORT PRINCIPLE
+Real conversations are NOT always warm and encouraging. AI practice that is always supportive
+creates "yes-bots" that leave learners unprepared for real humans.
+
+Based on the week number, include appropriate friction:
+- Week 1-2: Mostly supportive, but occasional pauses where learner must continue
+- Week 3: Include unexpected questions, mild skepticism, topic changes
+- Week 4: Full realistic human behavior - cultural tests, indirect communication, recovery from mistakes
+
+Vary the AI personality across scenarios (warm, reserved, skeptical, traditional, curious, testing).
+
 ## CREATE A SCENARIO THAT:
 1. Matches the activity type for this week
 2. Uses appropriate scaffolding for the learner's level
 3. Incorporates the key phrases naturally
 4. Builds on what they learned in previous days
 5. Feels real and relevant to their goal
+6. Includes appropriate friction for the week (see above)
+7. Prepares learner for real human unpredictability, not just comfortable AI practice
 
 ## OUTPUT FORMAT (JSON):
 {
@@ -365,11 +391,12 @@ export const SCENARIO_GENERATION_PROMPT = `You are creating a conversation pract
   "aiPersona": {
     "name": "Character name if applicable",
     "relationship": "Who they are to the learner",
-    "personality": "Brief personality description"
+    "personality": "Brief personality description (include variant: warm/reserved/skeptical/etc.)"
   },
   "openingLine": "How the AI starts the conversation",
-  "suggestedResponses": ["option 1", "option 2"] // For beginners
+  "suggestedResponses": ["option 1", "option 2"], // For beginners
   "hints": ["hint 1", "hint 2"], // Available if stuck
+  "frictionMoments": ["moment 1", "moment 2"], // Week 3-4: unexpected elements to include
   "successCriteria": "What success looks like for this scenario"
 }`;
 

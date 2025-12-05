@@ -506,6 +506,7 @@ export class ScenarioGenerationJobService {
 
 	/**
 	 * Build a detailed description for scenario generation
+	 * Includes friction configuration based on week number for realistic practice
 	 */
 	private static buildScenarioDescription(
 		seed: ConversationSeed,
@@ -539,14 +540,51 @@ export class ScenarioGenerationJobService {
 
 		if (seed.suggestedSessionTypes && seed.suggestedSessionTypes.length > 0) {
 			parts.push(`SESSION STYLE: ${seed.suggestedSessionTypes.join(' or ')}`);
+			parts.push(``);
+		}
+
+		// Add friction configuration based on week number
+		const frictionLevel = this.inferFrictionLevel(week.weekNumber);
+		parts.push(`REALISM LEVEL: ${frictionLevel.toUpperCase()}`);
+		parts.push(``);
+
+		if (frictionLevel === 'supportive') {
+			parts.push(`CONVERSATION PARTNER BEHAVIOR:`);
+			parts.push(`- Warm, patient, and encouraging`);
+			parts.push(`- Speaks clearly and at a comfortable pace`);
+			parts.push(`- Gives the learner time to respond`);
+			parts.push(``);
+		} else if (frictionLevel === 'realistic') {
+			parts.push(`CONVERSATION PARTNER BEHAVIOR:`);
+			parts.push(`- Generally friendly but not overly accommodating`);
+			parts.push(`- May ask follow-up questions the learner didn't prepare for`);
+			parts.push(`- Occasionally pauses, expecting the learner to continue`);
+			parts.push(`- Uses natural speech patterns`);
+			parts.push(``);
+		} else {
+			parts.push(`CONVERSATION PARTNER BEHAVIOR:`);
+			parts.push(`- Realistic human behavior - not artificially supportive`);
+			parts.push(`- May express mild skepticism or ask probing questions`);
+			parts.push(`- Uses indirect communication that requires interpretation`);
+			parts.push(`- Creates moments where the learner must recover from small mistakes`);
+			parts.push(``);
 		}
 
 		parts.push(
-			``,
-			`Create a warm, encouraging scenario that helps the learner practice this topic naturally.`
+			`Create a scenario that balances learning support with realistic human interaction.`,
+			`The goal is to prepare the learner for real conversations, not just comfortable practice.`
 		);
 
 		return parts.join('\n');
+	}
+
+	/**
+	 * Infer friction level based on week number
+	 */
+	private static inferFrictionLevel(weekNumber: number): 'supportive' | 'realistic' | 'challenging' {
+		if (weekNumber <= 1) return 'supportive';
+		if (weekNumber <= 2) return 'realistic';
+		return 'challenging';
 	}
 
 	private static mapCefrToDifficulty(cefr?: string): 'beginner' | 'intermediate' | 'advanced' {

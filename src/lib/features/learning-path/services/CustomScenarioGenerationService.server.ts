@@ -479,6 +479,9 @@ export class CustomScenarioGenerationService {
 
 	/**
 	 * Build a detailed description for scenario generation from conversation seed
+	 *
+	 * Now includes friction configuration to create realistic practice scenarios
+	 * that prepare learners for real human unpredictability.
 	 */
 	private static buildScenarioDescription(
 		seed: ConversationSeed,
@@ -512,14 +515,98 @@ export class CustomScenarioGenerationService {
 
 		if (seed.suggestedSessionTypes && seed.suggestedSessionTypes.length > 0) {
 			parts.push(`SESSION STYLE: ${seed.suggestedSessionTypes.join(' or ')}`);
+			parts.push(``);
+		}
+
+		// Add friction configuration for realistic practice
+		const frictionLevel = seed.frictionLevel || this.inferFrictionLevel(week.weekNumber);
+		parts.push(`REALISM LEVEL: ${frictionLevel.toUpperCase()}`);
+		parts.push(``);
+
+		if (frictionLevel === 'supportive') {
+			parts.push(`CONVERSATION PARTNER BEHAVIOR:`);
+			parts.push(`- Warm, patient, and encouraging`);
+			parts.push(`- Speaks clearly and at a comfortable pace`);
+			parts.push(`- Gives the learner time to respond`);
+			parts.push(`- Offers gentle hints when the learner struggles`);
+			parts.push(``);
+		} else if (frictionLevel === 'realistic') {
+			parts.push(`CONVERSATION PARTNER BEHAVIOR:`);
+			parts.push(`- Generally friendly but not overly accommodating`);
+			parts.push(`- May ask follow-up questions the learner didn't prepare for`);
+			parts.push(`- Occasionally pauses, expecting the learner to continue`);
+			parts.push(`- Uses natural speech patterns (not artificially slow)`);
+			parts.push(`- May briefly change topics mid-conversation`);
+			parts.push(``);
+		} else if (frictionLevel === 'challenging') {
+			parts.push(`CONVERSATION PARTNER BEHAVIOR:`);
+			parts.push(`- Realistic human behavior - not artificially supportive`);
+			parts.push(`- May express mild skepticism or ask probing questions`);
+			parts.push(`- Uses indirect communication that requires interpretation`);
+			parts.push(`- May test the learner's cultural knowledge`);
+			parts.push(`- Creates moments where the learner must recover from small mistakes`);
+			parts.push(`- Doesn't always fill silences - waits for the learner to continue`);
+			parts.push(``);
+		}
+
+		// Add specific friction types if configured
+		if (seed.frictionTypes && seed.frictionTypes.length > 0) {
+			parts.push(`INCLUDE THESE REALISTIC MOMENTS:`);
+			for (const friction of seed.frictionTypes) {
+				parts.push(`- ${this.describeFrictionType(friction)}`);
+			}
+			parts.push(``);
+		}
+
+		// Add personality variant if configured
+		if (seed.personalityVariant) {
+			parts.push(`AI PARTNER PERSONALITY: ${seed.personalityVariant}`);
+			parts.push(
+				`The conversation partner should embody this personality throughout the scenario.`
+			);
+			parts.push(``);
 		}
 
 		parts.push(
-			``,
-			`Create a warm, encouraging scenario that helps the learner practice this topic naturally.`
+			`Create a scenario that balances learning support with realistic human interaction.`,
+			`The goal is to prepare the learner for real conversations, not just comfortable practice.`
 		);
 
 		return parts.join('\n');
+	}
+
+	/**
+	 * Infer friction level based on week number if not explicitly set
+	 */
+	private static inferFrictionLevel(weekNumber: number): 'supportive' | 'realistic' | 'challenging' {
+		if (weekNumber <= 1) return 'supportive';
+		if (weekNumber <= 2) return 'realistic';
+		return 'challenging';
+	}
+
+	/**
+	 * Describe a friction type in natural language for the prompt
+	 */
+	private static describeFrictionType(friction: string): string {
+		const descriptions: Record<string, string> = {
+			unexpected_question:
+				'Ask an unexpected personal question the learner may not have prepared for',
+			awkward_silence:
+				'Create a natural pause where the learner must decide how to continue',
+			cultural_test:
+				'Reference a cultural concept to see if the learner understands it',
+			indirect_criticism:
+				'Express mild skepticism or concern in a polite, indirect way',
+			topic_change: 'Shift to a related but unexpected topic mid-conversation',
+			misunderstanding:
+				'Misinterpret something the learner says, requiring clarification',
+			emotional_moment:
+				'Express genuine emotion (joy, concern, nostalgia) that the learner must respond to',
+			multiple_speakers: 'Have another person briefly join the conversation',
+			interruption: 'Interrupt the learner naturally, as humans sometimes do',
+			testing_commitment: "Probe the learner's intentions or seriousness about something"
+		};
+		return descriptions[friction] || friction;
 	}
 
 	/**
