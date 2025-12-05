@@ -22,7 +22,38 @@ export const weekStatusEnum = pgEnum('adaptive_week_status', [
 ]);
 
 /**
+ * Friction types - realistic challenges that prepare learners for real humans
+ *
+ * Real conversations with in-laws, grandparents, and new friends include friction:
+ * - Unexpected questions you didn't prepare for
+ * - Moments of silence you must navigate
+ * - Indirect communication you must interpret
+ *
+ * AI that's always warm and encouraging creates "yes-bots" that don't prepare
+ * learners for the unpredictability of real human interaction.
+ */
+export type FrictionType =
+	| 'unexpected_question' // "So when are you having children?"
+	| 'awkward_silence' // They pause and wait for you to continue
+	| 'cultural_test' // They reference something to see if you know it
+	| 'indirect_criticism' // Polite but skeptical response
+	| 'topic_change' // They suddenly shift topics
+	| 'misunderstanding' // They misinterpret what you said
+	| 'emotional_moment' // They express strong emotion you must respond to
+	| 'multiple_speakers' // Another person joins the conversation
+	| 'interruption' // They interrupt or talk over you
+	| 'testing_commitment'; // They probe your intentions/seriousness
+
+/**
+ * Friction level determines how challenging the AI partner behaves
+ */
+export type FrictionLevel = 'supportive' | 'realistic' | 'challenging';
+
+/**
  * Conversation seed - a prompt/idea for generating a specific conversation
+ *
+ * Seeds now include friction configuration to create realistic practice
+ * that prepares learners for real human unpredictability.
  */
 export type ConversationSeed = {
 	id: string; // Unique seed ID within the week
@@ -32,6 +63,11 @@ export type ConversationSeed = {
 	vocabularyHints: string[]; // Key words/phrases to practice
 	grammarHints: string[]; // Grammar patterns to reinforce
 	scenarioId?: string; // Generated scenario ID (once created)
+
+	// Friction configuration - makes practice realistic, not comfortable
+	frictionLevel?: FrictionLevel; // How challenging should this be?
+	frictionTypes?: FrictionType[]; // Specific friction to include
+	personalityVariant?: string; // e.g., "reserved", "warm", "skeptical", "traditional"
 };
 
 /**
